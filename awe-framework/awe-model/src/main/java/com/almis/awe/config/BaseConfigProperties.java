@@ -1,5 +1,7 @@
 package com.almis.awe.config;
 
+import com.almis.awe.model.type.MenuDescriptionType;
+import com.almis.awe.model.type.MenuFlyoutPlacementType;
 import com.almis.awe.model.type.MenuType;
 import com.almis.awe.model.type.XStreamDriverType;
 import jakarta.validation.Valid;
@@ -115,6 +117,20 @@ public class BaseConfigProperties {
    * Default value true
    */
   private boolean menuSearchEnabled = true;
+
+  /**
+   * How the description of a menu option is shown: tooltip (title attribute) or panel (description area at the
+   * bottom of the collapsed menu flyout).
+   * Default value tooltip
+   */
+  private MenuDescriptionType menuDescription = MenuDescriptionType.TOOLTIP;
+
+  /**
+   * Placement of the collapsed menu flyout: option (next to the option that opens it) or full-height (from the top
+   * of the menu to the bottom of the window).
+   * Default value option
+   */
+  private MenuFlyoutPlacementType menuFlyoutPlacement = MenuFlyoutPlacementType.OPTION;
 
   /**
    * Application address parameter name.

@@ -419,6 +419,18 @@
       "defaultValue": "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
     },
     {
+      "name": "awe.application.menu-description",
+      "type": "com.almis.awe.model.type.MenuDescriptionType",
+      "description": "How the description of a menu option is shown: tooltip (title attribute) or panel (description area at the bottom of the collapsed menu flyout). Default value tooltip",
+      "defaultValue": "tooltip"
+    },
+    {
+      "name": "awe.application.menu-flyout-placement",
+      "type": "com.almis.awe.model.type.MenuFlyoutPlacementType",
+      "description": "Placement of the collapsed menu flyout: option (next to the option that opens it) or full-height (from the top of the menu to the bottom of the window). Default value option",
+      "defaultValue": "option"
+    },
+    {
       "name": "awe.application.menu-search-enabled",
       "type": "java.lang.Boolean",
       "description": "Enable the menu option search box. Default value true",

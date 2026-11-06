@@ -154,6 +154,26 @@ La descripción se usa en tres sitios:
 Una opción sin `description` se muestra exactamente igual que antes: un botón sin línea secundaria y una opción de
 menú sin ayuda emergente.
 
+#### Descripción en el panel del menú {#menu-screen-description-panel}
+
+Por defecto la descripción de una opción de menú es una ayuda emergente (tooltip), que necesita el ratón y una pequeña
+espera. Con `awe.application.menu-description=panel`, el menú flotante del menú lateral contraído (el tipo de menú
+`vertical`, reducido a sus iconos en escritorio) muestra en su parte inferior un área con la descripción de la opción
+bajo el puntero o con el foco del teclado. Cuando esa opción no tiene descripción, el área muestra la de la opción de
+primer nivel del menú flotante; si ninguna la tiene, el área no se muestra. El enlace de la opción descrita apunta al
+área con `aria-describedby`, de modo que la descripción no se anuncia dos veces. El menú lateral expandido y el menú
+horizontal mantienen la ayuda emergente.
+
+| Propiedad | Valores | Por defecto | Descripción |
+|-----------|---------|-------------|-------------|
+| [`awe.application.menu-description`](../properties.md#awe.application.menu-description) | `tooltip`, `panel` | `tooltip` | `tooltip` muestra la descripción como ayuda emergente; `panel` la muestra en el área del menú flotante del menú contraído |
+| [`awe.application.menu-flyout-placement`](../properties.md#awe.application.menu-flyout-placement) | `option`, `full-height` | `option` | `option` coloca el menú flotante junto a su opción; `full-height` lo coloca desde la parte superior del menú hasta el final de la ventana, sus opciones se desplazan y el área de descripción queda en su parte inferior |
+
+```properties
+awe.application.menu-description=panel
+awe.application.menu-flyout-placement=full-height
+```
+
 ### Ventanas de opciones anidadas {#menu-screen-nested}
 
 Una opción `menu-screen` situada dentro de otra opción `menu-screen` es una tarjeta que abre su propia ventana de

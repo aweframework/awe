@@ -155,6 +155,25 @@ The description is used in three places:
 An option without `description` is rendered exactly as before: a button without a secondary line and a menu option
 without a hint.
 
+#### Description in the menu panel {#menu-screen-description-panel}
+
+By default the description of a menu option is a hint (tooltip), which needs the mouse and a short wait. With
+`awe.application.menu-description=panel`, the flyout of the collapsed side menu (the menu type `vertical`, shrunk to its
+icons on a desktop) shows an area at its bottom with the description of the option under the pointer or with the keyboard
+focus. When that option has no description, the area shows the description of the first level option of the flyout; when
+neither has one, the area is not shown. The link of the described option points to the area with `aria-describedby`, so
+the description is not announced twice. The expanded side menu and the horizontal menu keep the hint.
+
+| Property | Values | Default | Description |
+|----------|--------|---------|-------------|
+| [`awe.application.menu-description`](../properties.md#awe.application.menu-description) | `tooltip`, `panel` | `tooltip` | `tooltip` shows the description as a hint; `panel` shows it in the area of the flyout of the collapsed menu |
+| [`awe.application.menu-flyout-placement`](../properties.md#awe.application.menu-flyout-placement) | `option`, `full-height` | `option` | `option` places the flyout next to its option; `full-height` places it from the top of the menu to the bottom of the window, its options scroll and the description area stays at its bottom |
+
+```properties
+awe.application.menu-description=panel
+awe.application.menu-flyout-placement=full-height
+```
+
 ### Nested launchers {#menu-screen-nested}
 
 A `menu-screen` option placed inside another `menu-screen` option is a card which opens its own launcher page. The

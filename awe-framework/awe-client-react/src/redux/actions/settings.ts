@@ -160,6 +160,10 @@ export const DEFAULT_SETTINGS = {
   activeDependencies: true,
   // Menu option search (command palette) is enabled unless explicitly disabled
   menuSearchEnabled: true,
+  // Description of a menu option: a tooltip, or a panel at the bottom of the flyout of the collapsed menu (panel)
+  menuDescription: "tooltip",
+  // Flyout of the collapsed menu next to its option (option), or from the top of the menu to the window bottom (full-height)
+  menuFlyoutPlacement: "option",
   // Sign-in page branding
   login: DEFAULT_LOGIN_SETTINGS as LoginSettings | undefined
 };

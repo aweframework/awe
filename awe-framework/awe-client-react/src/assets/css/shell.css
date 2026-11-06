@@ -621,6 +621,34 @@
     box-shadow: var(--awe-shadow-overlay);
   }
 
+  /* Full-height placement (menu-flyout-placement): from the top of the menu to the bottom of the window */
+  .layout-static-inactive .awe-menu-container-vertical .awe-menu-flyout-full-height > .p-toggleable-content {
+    height: calc(100vh - var(--_flyout-top) - var(--awe-space-2));
+  }
+
+  /* With a full height or a description area, the options scroll above the area, which stays at the bottom */
+  .layout-static-inactive .awe-menu-container-vertical .awe-menu-flyout-full-height > .p-toggleable-content,
+  .layout-static-inactive .awe-menu-container-vertical .awe-menu-flyout-described > .p-toggleable-content {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .awe-menu-flyout-full-height > .p-toggleable-content > .p-panelmenu-content,
+  .layout-static-inactive .awe-menu-container-vertical .awe-menu-flyout-described > .p-toggleable-content > .p-panelmenu-content {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .layout-static-inactive .awe-menu-container-vertical .awe-menu-flyout > .p-toggleable-content > .awe-menu-description {
+    flex: none;
+    padding: var(--awe-menu-description-padding);
+    font-size: var(--awe-menu-description-font-size);
+    color: var(--awe-menu-description-color);
+    border-top: var(--awe-menu-description-border);
+  }
+
   /* Only the option of the flyout (AweMenu marks it) shows its options, not the groups expanded on the path */
   .layout-static-inactive .awe-menu-container-vertical .p-panelmenu-panel:not(.awe-menu-flyout) > .p-toggleable-content {
     display: none;

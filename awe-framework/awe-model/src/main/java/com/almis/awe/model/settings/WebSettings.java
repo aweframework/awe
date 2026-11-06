@@ -42,6 +42,8 @@ public class WebSettings {
   private String defaultComponentSize;
   private Boolean reloadCurrentScreen;
   private Boolean menuSearchEnabled;
+  private String menuDescription;
+  private String menuFlyoutPlacement;
   private long suggestTimeout;
   // Connection
   private Integer connectionTimeout;

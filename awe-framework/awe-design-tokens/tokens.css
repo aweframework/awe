@@ -1158,6 +1158,10 @@
   --awe-menu-guide: var(--awe-color-border);
   --awe-menu-guide-active: var(--awe-color-primary-text);
   --awe-menu-flyout-width: 264px;
+  --awe-menu-description-font-size: var(--awe-font-size-xs);
+  --awe-menu-description-color: var(--awe-color-text-muted);
+  --awe-menu-description-padding: var(--awe-space-2) var(--awe-space-3);
+  --awe-menu-description-border: var(--awe-border-width) solid var(--awe-color-border);
 
   /* Header and brand slot */
   --awe-header-height: var(--awe-size-header-height);

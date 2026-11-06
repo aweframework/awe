@@ -504,6 +504,10 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-menu-guide` | `var(--awe-color-border)` | = claro |
 | `--awe-menu-guide-active` | `var(--awe-color-primary-text)` | = claro |
 | `--awe-menu-flyout-width` | `264px` | = claro |
+| `--awe-menu-description-font-size` | `var(--awe-font-size-xs)` | = claro |
+| `--awe-menu-description-color` | `var(--awe-color-text-muted)` | = claro |
+| `--awe-menu-description-padding` | `var(--awe-space-2) var(--awe-space-3)` | = claro |
+| `--awe-menu-description-border` | `var(--awe-border-width) solid var(--awe-color-border)` | = claro |
 | `--awe-header-height` | `var(--awe-size-header-height)` | = claro |
 | `--awe-header-background` | `color-mix(in srgb, var(--awe-color-navbar), transparent 15%)` | = claro |
 | `--awe-header-border` | `var(--awe-color-border)` | = claro |

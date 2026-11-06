@@ -180,6 +180,7 @@ export interface TabValue {
 export interface MenuItem {
   name?: string;
   title?: string;
+  describedBy?: string;
   label?: string;
   active?: boolean;
   divider?: boolean;
@@ -538,7 +539,8 @@ const optionName = (item: MenuItem | undefined): Record<string, string> => (item
  */
 const optionLink = (item: MenuItem | undefined): Record<string, string> => ({
   ...(item?.name ? { name: item.name } : {}),
-  ...(item?.title ? { title: item.title } : {})
+  ...(item?.title ? { title: item.title } : {}),
+  ...(item?.describedBy ? { "aria-describedby": item.describedBy } : {})
 });
 
 /**

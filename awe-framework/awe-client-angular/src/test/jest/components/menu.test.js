@@ -133,6 +133,97 @@ describe("components/menu.js", () => {
     });
   });
 
+  describe("option description in the flyout of the collapsed menu (#924)", () => {
+    const describedOptions = [
+      {id: "tools", name: "tools", label: "Tools", description: "TOOLS_DESCRIPTION", visible: true, options: [
+        {id: "sites", name: "sites", label: "Sites", description: "SITES_DESCRIPTION", visible: true, actions: []},
+        {id: "users", name: "users", label: "Users", description: "USERS_DESCRIPTION", visible: true, actions: []},
+        {id: "plain", name: "plain", label: "Plain", visible: true, actions: []}
+      ]},
+      {id: "settings", name: "settings", label: "Settings", visible: true, options: [
+        {id: "first", name: "first", label: "First", visible: true, actions: []}
+      ]}
+    ];
+    const option = (element, name) => element.find(`a[name='${name}']`).parent();
+    const area = element => element.find(".awe-menu-description");
+    const useSettings = (settings) => jest.spyOn(getService("AweSettings"), "get").mockImplementation(key => settings[key]);
+    const compileRail = (settings = {}) => {
+      useSettings(settings);
+      angular.element(document.body).addClass("mmc");
+      return compileMenu({style: "vertical", options: describedOptions});
+    };
+    const hover = (element, name) => {
+      option(element, name).triggerHandler("mouseenter");
+      refs.$rootScope.$digest();
+    };
+
+    it("keeps the description as the hint of the option and shows no area by default (tooltip)", () => {
+      const {element} = compileRail();
+      hover(element, "tools");
+
+      expect(element.find("a[name='sites']").attr("title")).toBe("SITES_DESCRIPTION");
+      expect(area(element)).toHaveLength(0);
+    });
+
+    it("keeps the hint of the options in the expanded menu in panel mode", () => {
+      useSettings({menuDescription: "panel"});
+      const {element} = compileMenu({style: "vertical", options: describedOptions});
+      hover(element, "tools");
+
+      expect(element.find("a[name='sites']").attr("title")).toBe("SITES_DESCRIPTION");
+      expect(area(element)).toHaveLength(0);
+    });
+
+    it("describes the option under the pointer or with the focus, in an area linked to its link (panel)", () => {
+      const {element} = compileRail({menuDescription: "panel"});
+      hover(element, "tools");
+      // The option of the flyout describes itself until the pointer goes to one of its options
+      expect(area(element).text()).toBe("TOOLS_DESCRIPTION");
+      expect(element.find("a[name='tools']").attr("title")).toBe("TOOLS_DESCRIPTION");
+
+      hover(element, "sites");
+      expect(area(element).text()).toBe("SITES_DESCRIPTION");
+      expect(element.find("a[name='sites']").attr("aria-describedby")).toBe(area(element).attr("id"));
+      // The area replaces the hint: it is not announced twice
+      expect(element.find("a[name='sites']").attr("title")).toBeUndefined();
+
+      element.find("a[name='users']").triggerHandler("focus");
+      refs.$rootScope.$digest();
+      expect(area(element).text()).toBe("USERS_DESCRIPTION");
+      expect(element.find("a[name='sites']").attr("aria-describedby")).toBeUndefined();
+      expect(element.find("a[name='users']").attr("aria-describedby")).toBe(area(element).attr("id"));
+
+      // An option without description falls back to the description of the option of the flyout
+      hover(element, "plain");
+      expect(area(element).text()).toBe("TOOLS_DESCRIPTION");
+
+      // The area goes with the flyout
+      option(element, "tools").triggerHandler("mouseleave");
+      refs.$rootScope.$digest();
+      expect(area(element)).toHaveLength(0);
+    });
+
+    it("renders no area when neither the option nor its flyout have a description (panel)", () => {
+      const {element} = compileRail({menuDescription: "panel"});
+      hover(element, "settings");
+      hover(element, "first");
+
+      expect(area(element)).toHaveLength(0);
+    });
+
+    it("starts the flyout at the top of the menu in full-height placement", () => {
+      const {element} = compileRail({menuFlyoutPlacement: "full-height"});
+      const menu = element.find("ul.awe-menu")[0];
+      jest.spyOn(menu, "getBoundingClientRect").mockReturnValue({top: 56, bottom: 700, left: 0, right: 68, height: 644});
+
+      hover(element, "settings");
+
+      const flyout = option(element, "settings").find("ul")[0];
+      expect(flyout.style.getPropertyValue("--_flyout-top")).toBe("56px");
+      expect(flyout.classList.contains("mmc-dropdown-full-height")).toBe(true);
+    });
+  });
+
   it("renders only visible allowed menu options", () => {
     const {element} = compileMenu({options: [
       {id: "option1", name: "option1", label: "Option 1", visible: true},

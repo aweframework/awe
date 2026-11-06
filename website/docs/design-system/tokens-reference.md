@@ -503,6 +503,10 @@ Surface: `data-awe-surface` on `<html>` (`slate`, `gray`, `zinc`, `neutral`, `st
 | `--awe-menu-guide` | `var(--awe-color-border)` | = light |
 | `--awe-menu-guide-active` | `var(--awe-color-primary-text)` | = light |
 | `--awe-menu-flyout-width` | `264px` | = light |
+| `--awe-menu-description-font-size` | `var(--awe-font-size-xs)` | = light |
+| `--awe-menu-description-color` | `var(--awe-color-text-muted)` | = light |
+| `--awe-menu-description-padding` | `var(--awe-space-2) var(--awe-space-3)` | = light |
+| `--awe-menu-description-border` | `var(--awe-border-width) solid var(--awe-color-border)` | = light |
 | `--awe-header-height` | `var(--awe-size-header-height)` | = light |
 | `--awe-header-background` | `color-mix(in srgb, var(--awe-color-navbar), transparent 15%)` | = light |
 | `--awe-header-border` | `var(--awe-color-border)` | = light |
