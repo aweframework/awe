@@ -460,10 +460,15 @@ Surface: `data-awe-surface` on `<html>` (`slate`, `gray`, `zinc`, `neutral`, `st
 | `--awe-button-font-size-sm` | `var(--awe-font-size-sm)` | = light |
 | `--awe-button-font-size-lg` | `var(--awe-font-size-md)` | = light |
 | `--awe-button-gap` | `var(--awe-gap-inline)` | = light |
+| `--awe-label-font-weight` | `var(--awe-font-weight-medium)` | = light |
+| `--awe-label-text-transform` | `none` | = light |
+| `--awe-label-letter-spacing` | `normal` | = light |
 | `--awe-grid-header-background` | `var(--awe-color-grid-header)` | = light |
 | `--awe-grid-header-text` | `var(--awe-color-text-muted)` | = light |
 | `--awe-grid-header-font-size` | `var(--awe-font-size-sm)` | = light |
 | `--awe-grid-header-font-weight` | `var(--awe-font-weight-semibold)` | = light |
+| `--awe-grid-header-text-transform` | `none` | = light |
+| `--awe-grid-header-letter-spacing` | `normal` | = light |
 | `--awe-grid-border` | `var(--awe-color-grid-border)` | = light |
 | `--awe-grid-row-background` | `var(--awe-color-surface)` | = light |
 | `--awe-grid-row-hover-background` | `var(--awe-color-surface-subtle)` | = light |

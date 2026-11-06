@@ -1104,11 +1104,18 @@
   --awe-button-font-size-lg: var(--awe-font-size-md);
   --awe-button-gap: var(--awe-gap-inline);
 
+  /* Field label */
+  --awe-label-font-weight: var(--awe-font-weight-medium);
+  --awe-label-text-transform: none;
+  --awe-label-letter-spacing: normal;
+
   /* Grid */
   --awe-grid-header-background: var(--awe-color-grid-header);
   --awe-grid-header-text: var(--awe-color-text-muted);
   --awe-grid-header-font-size: var(--awe-font-size-sm);
   --awe-grid-header-font-weight: var(--awe-font-weight-semibold);
+  --awe-grid-header-text-transform: none;
+  --awe-grid-header-letter-spacing: normal;
   --awe-grid-border: var(--awe-color-grid-border);
   --awe-grid-row-background: var(--awe-color-surface);
   --awe-grid-row-hover-background: var(--awe-color-surface-subtle);
