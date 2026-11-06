@@ -461,10 +461,15 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-button-font-size-sm` | `var(--awe-font-size-sm)` | = claro |
 | `--awe-button-font-size-lg` | `var(--awe-font-size-md)` | = claro |
 | `--awe-button-gap` | `var(--awe-gap-inline)` | = claro |
+| `--awe-label-font-weight` | `var(--awe-font-weight-medium)` | = claro |
+| `--awe-label-text-transform` | `none` | = claro |
+| `--awe-label-letter-spacing` | `normal` | = claro |
 | `--awe-grid-header-background` | `var(--awe-color-grid-header)` | = claro |
 | `--awe-grid-header-text` | `var(--awe-color-text-muted)` | = claro |
 | `--awe-grid-header-font-size` | `var(--awe-font-size-sm)` | = claro |
 | `--awe-grid-header-font-weight` | `var(--awe-font-weight-semibold)` | = claro |
+| `--awe-grid-header-text-transform` | `none` | = claro |
+| `--awe-grid-header-letter-spacing` | `normal` | = claro |
 | `--awe-grid-border` | `var(--awe-color-grid-border)` | = claro |
 | `--awe-grid-row-background` | `var(--awe-color-surface)` | = claro |
 | `--awe-grid-row-hover-background` | `var(--awe-color-surface-subtle)` | = claro |
