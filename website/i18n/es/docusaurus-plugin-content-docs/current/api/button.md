@@ -60,6 +60,7 @@ React), con el sistema de diseño de AWE 5:
 |---------------|----------------------------------------------------------------------------------------------------|
 | (ninguno)     | Botón con borde (un botón `submit` es el principal relleno, un botón `reset` el secundario)        |
 | `btn-primary` | Botón principal relleno: la acción principal de la pantalla, la tarjeta o el diálogo. Uno por zona |
+| `btn-default` | Botón secundario relleno (el botón por defecto de Bootstrap). No es lo mismo que un botón sin estilo, que tiene borde y se redefine con los tokens `--awe-button-default-*` |
 | `btn-danger`  | Botón de peligro relleno (acciones destructivas)                                                   |
 | `btn-success` | Botón de éxito relleno                                                                             |
 | `btn-warning` | Botón de aviso relleno                                                                             |

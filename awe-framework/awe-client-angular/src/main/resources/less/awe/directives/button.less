@@ -63,6 +63,40 @@
   box-shadow: none;
 }
 
+// Default button (#927): an AWE button without any of the styles below (React: awe-button-default). Only this button is
+// drawn with the --awe-button-default-* tokens, so an application restyles the default buttons alone; every other style
+// keeps its own rules. :where() keeps the specificity of .btn.btn-awe, so these rules win over the outlined ones above
+// by order (same !important backgrounds) and any more specific rule of a component (menu-screen-button, grid toolbar)
+// still wins over them; the styled buttons never match them
+@awe-default-button: ~".btn.btn-awe:where(:not(.btn-primary, .btn-default, .btn-danger, .btn-success, .btn-warning, .btn-dark, .btn-ghost, .btn-tonal))";
+
+@{awe-default-button} {
+  color: var(--awe-button-default-color);
+  background: var(--awe-button-default-background);
+  border-color: var(--awe-button-default-border-color);
+  font-weight: var(--awe-button-default-font-weight);
+}
+
+@{awe-default-button}:focus,
+@{awe-default-button}.focused {
+  color: var(--awe-button-default-color);
+  background: var(--awe-button-default-background) !important;
+  border-color: var(--awe-button-default-border-color);
+}
+
+@{awe-default-button}:hover {
+  color: var(--awe-button-default-color-hover);
+  background: var(--awe-button-default-background-hover) !important;
+  border-color: var(--awe-button-default-border-color-hover);
+}
+
+@{awe-default-button}:active,
+@{awe-default-button}.active {
+  color: var(--awe-button-default-color-active);
+  background: var(--awe-button-default-background-active) !important;
+  border-color: var(--awe-button-default-border-color-active);
+}
+
 // Secondary (the Bootstrap default button)
 .btn.btn-default {
   color: var(--awe-color-on-secondary);

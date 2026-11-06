@@ -453,6 +453,21 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 
 ### Nivel 3: componentes {#tier-3-component}
 
+**Botón por defecto** (un botón normal sin estilo `btn-*`; una aplicación lo redefine sin tocar el resto de botones con borde)
+
+| Token | Claro | Oscuro |
+|---|---|---|
+| `--awe-button-default-background` | `var(--awe-color-surface)` | = claro |
+| `--awe-button-default-border-color` | `var(--awe-color-field-border)` | = claro |
+| `--awe-button-default-color` | `var(--awe-color-text)` | = claro |
+| `--awe-button-default-font-weight` | `var(--awe-font-weight-medium)` | = claro |
+| `--awe-button-default-background-hover` | `var(--awe-color-surface-subtle)` | = claro |
+| `--awe-button-default-border-color-hover` | `var(--awe-color-field-border-hover)` | = claro |
+| `--awe-button-default-color-hover` | `var(--awe-color-text)` | = claro |
+| `--awe-button-default-background-active` | `var(--awe-color-surface-hover)` | = claro |
+| `--awe-button-default-border-color-active` | `var(--awe-color-field-border-hover)` | = claro |
+| `--awe-button-default-color-active` | `var(--awe-color-text)` | = claro |
+
 **Grid, menú lateral, cabecera, capas superpuestas, control segmentado**
 
 | Token | Claro | Oscuro |
