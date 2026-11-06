@@ -91,7 +91,8 @@ aweApplication.factory('Button',
 
           // Generate button class
           if (component.controller) {
-            component.scope.buttonClass = component.controller.buttonType === "submit" ? "primary" : null;
+            // Submit draws as primary and reset as default (Bootstrap secondary), as in React
+            component.scope.buttonClass = {submit: "primary", reset: "default"}[component.controller.buttonType] || null;
             // Add reset action if type is reset
             if (component.controller.actions && component.controller.actions.length === 0 && component.controller.buttonType === "reset") {
               let  resetAction = {type: "restore"};
