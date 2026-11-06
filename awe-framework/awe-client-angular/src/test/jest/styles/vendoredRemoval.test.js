@@ -52,7 +52,9 @@ const lfBytes = text => Buffer.byteLength(text.replace(/\r\n/g, "\n"));
 // The access administration (#791: the tonal button and the criterion radio group in less/awe/directives/button.less, card.less, criterion.less and grid.less)
 // added 4313 bytes more (937339 before, 941652 after), 123536 + 4313
 // The one-line summary of the select-multiple (#922: less/awe/directives/criterion.less) added 4052 bytes more, 127849 + 4052
-const DEVELOP_LESS_BYTES = 131901;
+// The label and grid header tokens (#926: criterion.less, grid.less), the default button tokens (#927: button.less) and the menu option
+// description (#924: menu.less) added 3974 bytes more (945940 before, 949914 after), 131901 + 3974
+const DEVELOP_LESS_BYTES = 135875;
 const ownBytes = text => lfBytes(text) - DEVELOP_LESS_BYTES;
 
 const normalizeSelector = selector => selector.replace(/::(before|after)$/, ":$1");
@@ -592,7 +594,7 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
       const restored = restoreRemoved(lacking, [...second(), ...later], [2, ...appliedAfter(2)]);
       expect(restored).toHaveLength(lacking.length + second().length + later.length);
       // The header holds the digest of the ordered rules of the vendored build before the removal
-      // The digests of steps 2 to 6 were refrozen after the develop sync of 2026-10-30: develop's AWE tokens and rules change the whole-build hash, no vendored rule changed; refrozen once more when pixel-admin moved to less/legacy: the unused `.ie-background-none` mixin prints its image path, 4 lines of the build; refrozen after the #882 sync (2026-10-30): the whole-build hash now includes leaflet.css and the map LESS, no vendored rule changed; refrozen after the #790 merge (2026-10-31): the whole-build hash now includes the window advanced search LESS, and once more for its saved searches LESS, no vendored rule changed; refrozen with the #793 screens (2026-10-31): the whole-build hash now includes the grid cell swatch, no vendored rule changed; refrozen for the #912 column autofilter LESS (its list height), no vendored rule changed; refrozen for the #791 access administration LESS (the tonal button, the criterion radio group, the card and criterion rules), no vendored rule changed; refrozen for the #922 select-multiple summary LESS, no vendored rule changed
+      // The digests of steps 2 to 6 were refrozen after the develop sync of 2026-10-30: develop's AWE tokens and rules change the whole-build hash, no vendored rule changed; refrozen once more when pixel-admin moved to less/legacy: the unused `.ie-background-none` mixin prints its image path, 4 lines of the build; refrozen after the #882 sync (2026-10-30): the whole-build hash now includes leaflet.css and the map LESS, no vendored rule changed; refrozen after the #790 merge (2026-10-31): the whole-build hash now includes the window advanced search LESS, and once more for its saved searches LESS, no vendored rule changed; refrozen with the #793 screens (2026-10-31): the whole-build hash now includes the grid cell swatch, no vendored rule changed; refrozen for the #912 column autofilter LESS (its list height), no vendored rule changed; refrozen for the #791 access administration LESS (the tonal button, the criterion radio group, the card and criterion rules), no vendored rule changed; refrozen for the #922 select-multiple summary LESS, no vendored rule changed; refrozen once more when #922 and the #928 button tokens met on develop (each MR had refrozen alone), no vendored rule changed
       const {digest} = baseline.steps.find(entry => entry.step === 2);
       expect(digest).toMatch(/^[0-9a-f]{40}$/);
       expect(digestOf(restored)).toBe(digest);
