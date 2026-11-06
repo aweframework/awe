@@ -161,6 +161,7 @@ module.exports = {
     '**/components/AweChartTest.{js,jsx}',
     '**/components/AweMenuTest.{js,jsx}',
     '**/components/AweMenuSearchTest.{js,jsx}',
+    '**/components/AweMenuDescriptionPanelTest.{js,jsx}',
     '**/components/AwePivotTableTest.{js,jsx}',
     '**/components/pivot/*Test.{js,jsx}',
     '**/components/AweTreeGridTest.{js,jsx}',

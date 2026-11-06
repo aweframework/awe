@@ -195,6 +195,39 @@
   text-transform: uppercase;
 }
 
+// Full-height placement (menu-flyout-placement): the flyout goes from the top of the menu (--_flyout-top, set by the
+// option when it opens; the top of the window until then) to the bottom of the window, and its options scroll
+.mmc #main-menu.vertical ul.navigation .mm-dropdown-first.mmc-dropdown-full-height {
+  position: fixed !important;
+  top: var(--_flyout-top, 0);
+  left: var(--awe-menu-width-collapsed);
+  height: calc(100vh - var(--_flyout-top, 0px) - var(--awe-space-2));
+  overflow-y: auto;
+  // A column, so the description area goes to the bottom of a short option list too (the open flyout of the rail is
+  // display: block !important in menu-vertical.less)
+  display: flex !important;
+  flex-direction: column;
+
+  > * {
+    flex: none;
+  }
+
+  > .awe-menu-description {
+    margin-top: auto;
+  }
+}
+
+// Description area of the flyout (menu-description=panel): it stays at the bottom while the options scroll above it
+#main-menu .mmc-dropdown-open-ul > .awe-menu-description {
+  position: sticky;
+  bottom: 0;
+  padding: var(--awe-menu-description-padding);
+  font-size: var(--awe-menu-description-font-size);
+  color: var(--awe-menu-description-color);
+  background: var(--awe-color-overlay);
+  border-top: var(--awe-menu-description-border);
+}
+
 .size-sm {
   #main-menu {
     ul.navigation a {

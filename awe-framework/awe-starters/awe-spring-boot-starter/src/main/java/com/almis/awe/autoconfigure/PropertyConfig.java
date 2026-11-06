@@ -122,6 +122,8 @@ public class PropertyConfig {
             .defaultComponentSize(baseConfigProperties.getComponent().getSize().toString().toLowerCase())
             .reloadCurrentScreen(baseConfigProperties.isReloadCurrentScreen())
             .menuSearchEnabled(baseConfigProperties.isMenuSearchEnabled())
+            .menuDescription(baseConfigProperties.getMenuDescription().name().toLowerCase())
+            .menuFlyoutPlacement(baseConfigProperties.getMenuFlyoutPlacement().name().toLowerCase().replace('_', '-'))
             .loadingTimeout(baseConfigProperties.getLoadingTimeout().toMillis())
             .uploadIdentifier(baseConfigProperties.getComponent().getUploadFileId())
             .uploadMaxSize(baseConfigProperties.getComponent().getUploadMaxFileSize().toMegabytes())

@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Menubar } from "primereact/menubar";
 import { PanelMenu } from "primereact/panelmenu";
@@ -37,16 +38,21 @@ function isRail(element) {
 }
 
 /**
- * Top of the flyout of a first level option: aligned with the option and inside the window, as the prototype
+ * Top of the flyout of a first level option: aligned with the option and inside the window, as the prototype, or
+ * the top of the menu when the flyout takes the full height
  * @param {Element} container Menu container
  * @param {number} index Index of the option in the first level
+ * @param {boolean} fullHeight The flyout goes from the top of the menu to the bottom of the window
  * @returns {number|null} Top in pixels, null when the option is not rendered
  */
-function flyoutTop(container, index) {
+function flyoutTop(container, index, fullHeight) {
   const panel = container?.querySelectorAll(":scope .p-panelmenu > .p-panelmenu-panel")[index];
   const header = panel?.querySelector(":scope > .p-panelmenu-header");
   if (!header) {
     return null;
+  }
+  if (fullHeight) {
+    return container.getBoundingClientRect().top;
   }
   const height = panel.querySelector(":scope > .p-toggleable-content")?.offsetHeight || 0;
   const top = Math.min(header.getBoundingClientRect().top - FLYOUT_OFFSET, window.innerHeight - height - FLYOUT_MARGIN);
@@ -179,7 +185,7 @@ function optionToItem(option, props) {
     key: name,
     active: name === activePath[activePath.length - 1],
     label: translateLabel(label, t),
-    ...(description ? { title: translateLabel(description, t) } : {}),
+    ...(description ? { title: translateLabel(description, t), description: translateLabel(description, t) } : {}),
     display: true,
     className: getItemClassName(name, activePath),
     icon: getIconCode(icon, "p-menuitem-icon"),
@@ -234,6 +240,64 @@ function generateBreadcrumbs(optionList, breadcrumbs, props) {
     .reduce((old, current) => current != null ? current : old, null);
 }
 
+/**
+ * Find an item by its name among the items of a level and below
+ * @param {object[]|undefined} items Items
+ * @param {string|null} name Name of the option
+ * @returns {object|undefined} Item
+ */
+function findItem(items, name) {
+  for (const item of items || []) {
+    const found = item.name === name ? item : findItem(item.items, name);
+    if (found) {
+      return found;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Items of the flyout without the hint of their link, which the description area replaces: the option under the
+ * pointer or with the focus is described by the area
+ * @param {object[]|undefined} items Items
+ * @param {string|null} describedName Option described by the area
+ * @param {string} areaId Id of the description area
+ * @returns {object[]|undefined} Items
+ */
+function describedByArea(items, describedName, areaId) {
+  return items?.map(({ title, ...item }) => ({
+    ...item,
+    ...(item.name === describedName ? { describedBy: areaId } : {}),
+    ...(item.items ? { items: describedByArea(item.items, describedName, areaId) } : {})
+  }));
+}
+
+/**
+ * Model of the rail with its open flyout: only the option of the flyout shows its options (shell.css), not the groups
+ * expanded on the path. In panel mode the description area shows the option under the pointer or the focus, or else
+ * the option of the flyout, and only a rendered area describes an option (no link points to a missing element)
+ * @param {object[]} model First level items
+ * @param {string|null} flyoutKey Key of the option whose flyout is open
+ * @param {object} options descriptionPanel, fullHeight, describedName, areaId and areaHost (element of the area)
+ * @returns {{description: string, shownModel: object[]}} Text of the description area and model to render
+ */
+function flyoutModel(model, flyoutKey, { descriptionPanel, fullHeight, describedName, areaId, areaHost }) {
+  const flyoutItem = model.find(item => item.key === flyoutKey);
+  if (!flyoutItem) {
+    return { description: "", shownModel: model };
+  }
+  const description = descriptionPanel ?
+    (findItem(flyoutItem.items, describedName)?.description || flyoutItem.description || "") : "";
+  const flyoutClasses = ["awe-menu-flyout", ...(fullHeight ? ["awe-menu-flyout-full-height"] : []),
+    ...(description ? ["awe-menu-flyout-described"] : [])].join(" ");
+  const describedLink = description && areaHost ? describedName : null;
+  const shownModel = model.map(item => item === flyoutItem ? {
+    ...item, className: `${item.className} ${flyoutClasses}`,
+    ...(descriptionPanel ? { items: describedByArea(item.items, describedLink, areaId) } : {})
+  } : item);
+  return { description, shownModel };
+}
+
 function AweMenu(props) {
   const { id, style = "horizontal" } = props;
   const { t } = useTranslation();
@@ -243,6 +307,9 @@ function AweMenu(props) {
   const options = useMenuOptions();
   // Menu option search is enabled unless the 'menuSearchEnabled' setting is explicitly false
   const searchEnabled = useSelector(state => state.settings.menuSearchEnabled) !== false;
+  // Description of the options in a panel of the flyout, and flyout from the top of the menu to the window bottom
+  const descriptionPanel = useSelector(state => state.settings.menuDescription) === "panel";
+  const fullHeight = useSelector(state => state.settings.menuFlyoutPlacement) === "full-height";
   const module = componentModule?.model ? componentModule : { model: { values: [] } };
 
   const [expandedKeys, setExpandedKeys] = useState({});
@@ -254,6 +321,9 @@ function AweMenu(props) {
   // Option whose flyout launched an option: it does not open again until the pointer goes to another option
   const launchedKey = useRef(null);
   const containerRef = useRef(null);
+  // Option under the pointer or with the focus in the flyout, and the flyout element that holds the description area
+  const [hovered, setHovered] = useState({ key: null, name: null });
+  const [areaHost, setAreaHost] = useState(null);
 
   // Launching an option of the flyout closes it, as the prototype
   const onLaunch = useCallback(() => {
@@ -323,11 +393,16 @@ function AweMenu(props) {
     .filter(o => o.display && (menuType === "vertical" || !o.divider));
 
   // Place the flyout of the rail next to its option once it is rendered, when its height is known
+  // Runs on every render on purpose: the height of the flyout, and its element, are known once it is rendered
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useLayoutEffect(() => {
-    const top = flyoutKey ? flyoutTop(containerRef.current, model.findIndex(item => item.key === flyoutKey)) : null;
+    const top = flyoutKey ?
+      flyoutTop(containerRef.current, model.findIndex(item => item.key === flyoutKey), fullHeight) : null;
     if (top !== null) {
       containerRef.current.style.setProperty("--_flyout-top", `${top}px`);
     }
+    const host = flyoutKey ? containerRef.current?.querySelector(".awe-menu-flyout > .p-toggleable-content") : null;
+    setAreaHost(current => current === (host || null) ? current : host || null);
   });
   // Reuse the exact predicate the menu applies while rendering options, so the
   // search only surfaces options navigable in the current module.
@@ -349,9 +424,13 @@ function AweMenu(props) {
 
   if (menuType === "vertical") {
     // Collapsed rail, as the prototype: the options of a first level option open as a flyout while the pointer or the
-    // focus is on it, without changing the options the user expanded
+    // focus is on it, without changing the options the user expanded (PrimeReact stops the focus of its options, so the
+    // pointer and the focus are both listened to on the capture phase)
     const openFlyout = (event) => {
       const key = isRail(event.currentTarget) ? flyoutPanelKey(event.target, model) : undefined;
+      if (descriptionPanel && key) {
+        setHovered({ key, name: event.target.closest?.("a[name]")?.getAttribute("name") || null });
+      }
       if (key !== undefined && key !== launchedKey.current) {
         launchedKey.current = null;
         clearTimeout(flyoutTimer.current);
@@ -369,16 +448,20 @@ function AweMenu(props) {
       }
     };
     const shownKeys = flyoutKey ? {...expandedKeys, [flyoutKey]: true} : expandedKeys;
-    // Only the option of the flyout shows its options on the rail (shell.css), not the groups expanded on the path
-    const shownModel = flyoutKey ? model.map(item => item.key === flyoutKey ?
-      {...item, className: `${item.className} awe-menu-flyout`} : item) : model;
+    const areaId = `${id}-description`;
+    const { description, shownModel } = flyoutModel(model, flyoutKey, {
+      descriptionPanel, fullHeight, areaId, areaHost,
+      describedName: hovered.key === flyoutKey ? hovered.name : null
+    });
     return (
       <div ref={containerRef} className="awe-menu-container awe-menu-container-vertical"
-        onMouseOver={openFlyout} onFocus={openFlyout} onMouseLeave={closeFlyout} onBlur={onBlur}>
+        onMouseOverCapture={openFlyout} onFocusCapture={openFlyout} onMouseLeave={closeFlyout} onBlur={onBlur}>
         {search}
         <PanelMenu className="w-full"
           expandedKeys={shownKeys} onExpandedKeysChange={onExpand}
           model={shownModel} pt={panelMenuPassThrough(shownModel)} />
+        {description && areaHost ? createPortal(
+          <div id={areaId} className="awe-menu-description">{description}</div>, areaHost) : null}
       </div>
     );
   } else {
