@@ -240,7 +240,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       expect(style(".criterion .control-label")).toMatchObject({
         "margin": "0 0 var(--awe-gap-label)",
         "font-size": "var(--awe-font-size-label)",
-        "font-weight": "var(--awe-font-weight-medium)",
+        "font-weight": "var(--awe-label-font-weight)",
         "line-height": "var(--awe-line-height-snug)",
         "color": "var(--awe-color-field-label)"
       });
