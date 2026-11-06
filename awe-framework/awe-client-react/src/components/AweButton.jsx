@@ -13,7 +13,7 @@ import { ButtonSkeleton } from "./AweSkeleton";
 import { TestIds, testHook } from "../utilities/testIds";
 import { useContextMenu, useContextMenuAnchor } from "../hooks/useContextMenu";
 import { useSigninButton } from "./SigninPage";
-import { getButtonVariant, isIconOnly } from "../utilities/buttons";
+import { getButtonVariant, hasButtonStyle, isIconOnly } from "../utilities/buttons";
 import "./AweButton.less";
 
 const { BUTTON_RESET, BUTTON_SUBMIT, BUTTON_NORMAL } = ButtonTypes;
@@ -63,7 +63,10 @@ function AweButton(props) {
   const { style, icon, disabled, label, size, visible, help, helpImage, buttonType, showLoading, title } = attributes;
   // The btn-* styles of the screen give the look of the button, as in the AngularJS engine; without them, its type does
   const buttonVariant = signin?.variant ?? variant ?? getButtonVariant(style, getButtonType(buttonType));
-  const classes = classNames(`help-button-${id}`, className ?? "awe-button-spaced", buttonVariant, { "hidden": !visible, [`p-button-${size}`]: size }, style, signin?.className);
+  // A normal button without a btn-* style is the default button of the application: its look comes from --awe-button-default-*
+  const defaultLook = !signin && !variant && buttonType !== BUTTON_SUBMIT && buttonType !== BUTTON_RESET && !hasButtonStyle(style);
+  const classes = classNames(`help-button-${id}`, className ?? "awe-button-spaced", buttonVariant,
+    { "hidden": !visible, "awe-button-default": defaultLook, [`p-button-${size}`]: size }, style, signin?.className);
   // An icon-only button (style no-label) shows its label as its tooltip (unless it has a help) and accessible name
   const iconOnly = !signin && isIconOnly(style);
   const text = translateLabel(label, t);

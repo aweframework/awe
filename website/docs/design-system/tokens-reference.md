@@ -452,6 +452,21 @@ Surface: `data-awe-surface` on `<html>` (`slate`, `gray`, `zinc`, `neutral`, `st
 
 ### Tier 3: component {#tier-3-component}
 
+**Default button** (a normal button without a `btn-*` style; an application restyles it without touching the other outlined buttons)
+
+| Token | Light | Dark |
+|---|---|---|
+| `--awe-button-default-background` | `var(--awe-color-surface)` | = light |
+| `--awe-button-default-border-color` | `var(--awe-color-field-border)` | = light |
+| `--awe-button-default-color` | `var(--awe-color-text)` | = light |
+| `--awe-button-default-font-weight` | `var(--awe-font-weight-medium)` | = light |
+| `--awe-button-default-background-hover` | `var(--awe-color-surface-subtle)` | = light |
+| `--awe-button-default-border-color-hover` | `var(--awe-color-field-border-hover)` | = light |
+| `--awe-button-default-color-hover` | `var(--awe-color-text)` | = light |
+| `--awe-button-default-background-active` | `var(--awe-color-surface-hover)` | = light |
+| `--awe-button-default-border-color-active` | `var(--awe-color-field-border-hover)` | = light |
+| `--awe-button-default-color-active` | `var(--awe-color-text)` | = light |
+
 **Grid, side menu, header, overlays, segmented control**
 
 | Token | Light | Dark |

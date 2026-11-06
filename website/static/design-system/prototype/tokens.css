@@ -1125,6 +1125,17 @@
   --awe-button-font-size-lg: var(--awe-font-size-md);
   --awe-button-gap: var(--awe-gap-inline);
 
+  /* Default button (a normal button without a btn-* style): outlined; an application restyles it with these */
+  --awe-button-default-background: var(--awe-color-surface);
+  --awe-button-default-border-color: var(--awe-color-field-border);
+  --awe-button-default-color: var(--awe-color-text);
+  --awe-button-default-font-weight: var(--awe-font-weight-medium);
+  --awe-button-default-background-hover: var(--awe-color-surface-subtle);
+  --awe-button-default-border-color-hover: var(--awe-color-field-border-hover);
+  --awe-button-default-color-hover: var(--awe-color-text);
+  --awe-button-default-background-active: var(--awe-color-surface-hover);
+  --awe-button-default-border-color-active: var(--awe-color-field-border-hover);
+  --awe-button-default-color-active: var(--awe-color-text);
   /* Field label */
   --awe-label-font-weight: var(--awe-font-weight-medium);
   --awe-label-text-transform: none;

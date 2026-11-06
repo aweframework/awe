@@ -392,6 +392,26 @@ describe('awe-react-client/test/js/components/AweButtonTest.jsx styles', () => {
       expect(button.className).not.toContain('p-button-outlined');
     });
 
+    it('draws style="btn-default" as the secondary button, as the AngularJS engine', () => {
+      const button = renderStyled({ style: 'btn-default' });
+
+      expect(button.className).toContain('p-button-secondary');
+      expect(button.className).not.toContain('p-button-outlined');
+    });
+
+    // The default buttons of the application are the normal buttons without a btn-* style (#927): only they take the
+    // --awe-button-default-* tokens
+    it.each([
+      ['a normal button without a btn-* style', {}, true],
+      ['a normal button with another style', { style: 'my-style' }, true],
+      ['a submit button', { buttonType: ButtonTypes.BUTTON_SUBMIT }, false],
+      ['a reset button', { buttonType: ButtonTypes.BUTTON_RESET }, false],
+      ['a btn-default button', { style: 'btn-default' }, false],
+      ['a btn-primary button', { style: 'btn-primary' }, false]
+    ])('marks %s as a default button: %s', (_, attributes, expected) => {
+      expect(renderStyled(attributes).classList.contains('awe-button-default')).toBe(expected);
+    });
+
     it('keeps the outlined look of a button without a btn-* style', () => {
       expect(renderStyled({ style: 'my-style' }).className).toContain('p-button-outlined');
     });

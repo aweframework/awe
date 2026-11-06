@@ -4,9 +4,10 @@
  */
 
 // PrimeReact variant of every btn-* style the AngularJS engine draws (directives/button.less): btn-primary is the filled
-// primary button (no variant), the others a filled button of their colour, btn-ghost the button without background
+// primary button (no variant), btn-default the secondary one, the others a filled button of their colour, btn-ghost the button without background
 const BUTTON_VARIANTS: Record<string, string> = {
   "btn-primary": "",
+  "btn-default": "p-button-secondary",
   "btn-danger": "p-button-danger",
   "btn-success": "p-button-success",
   "btn-warning": "p-button-warning",
@@ -31,6 +32,15 @@ const classesOf = (style: unknown): string[] => typeof style === "string" ? styl
 export function getButtonVariant(style: unknown, fallback: string): string {
   const name = classesOf(style).find(item => item in BUTTON_VARIANTS);
   return name === undefined ? fallback : BUTTON_VARIANTS[name];
+}
+
+/**
+ * Check if a button has a btn-* style, which gives its own look
+ * @param style Style of the button
+ * @returns The button has a btn-* style
+ */
+export function hasButtonStyle(style: unknown): boolean {
+  return classesOf(style).some(item => item in BUTTON_VARIANTS);
 }
 
 /**

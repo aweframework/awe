@@ -60,6 +60,7 @@ and React), with the AWE 5 design system:
 |---------------|----------------------------------------------------------------------------------------------------|
 | (none)        | Outlined button (a `submit` button is the filled primary one, a `reset` button the secondary one)  |
 | `btn-primary` | Filled primary button: the main action of the screen, the card or the dialog. One per area         |
+| `btn-default` | Filled secondary button (the Bootstrap default button). Not the same as a button without a style, which is outlined and restyled with the `--awe-button-default-*` tokens |
 | `btn-danger`  | Filled danger button (destructive actions)                                                         |
 | `btn-success` | Filled success button                                                                              |
 | `btn-warning` | Filled warning button                                                                              |

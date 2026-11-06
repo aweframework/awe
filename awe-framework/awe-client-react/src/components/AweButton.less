@@ -4,6 +4,31 @@
   margin-top: var(--awe-button-gap);
 }
 
+// Default buttons (a normal button without a btn-* style, #927): the look of the application default button, which an
+// application restyles with --awe-button-default-* without touching the other outlined buttons
+.p-button.awe-button-default,
+.p-button.awe-button-default:enabled:focus {
+  color: var(--awe-button-default-color);
+  background: var(--awe-button-default-background);
+  border-color: var(--awe-button-default-border-color);
+}
+
+.p-button.awe-button-default .p-button-label {
+  font-weight: var(--awe-button-default-font-weight);
+}
+
+.p-button.awe-button-default:enabled:hover {
+  color: var(--awe-button-default-color-hover);
+  background: var(--awe-button-default-background-hover);
+  border-color: var(--awe-button-default-border-color-hover);
+}
+
+.p-button.awe-button-default:enabled:active {
+  color: var(--awe-button-default-color-active);
+  background: var(--awe-button-default-background-active);
+  border-color: var(--awe-button-default-border-color-active);
+}
+
 // Ghost buttons (style btn-ghost, #793): no background nor border until the pointer is over them, the muted text, as the
 // toolbar and row actions of the design system and the AngularJS engine
 .p-button.btn-ghost {
