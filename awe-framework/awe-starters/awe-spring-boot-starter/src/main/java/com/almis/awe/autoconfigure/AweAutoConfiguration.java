@@ -411,6 +411,7 @@ public class AweAutoConfiguration {
    * Authorizer of the targets launched by a client according to the screens that use them
    *
    * @param securityConfigProperties Security configuration properties
+   * @param baseConfigProperties     Base configuration properties
    * @param screenTargetIndex        Index of the targets used by each option
    * @param menuOptionLookup         Menu option lookup
    * @return Screen target authorizer bean
@@ -418,9 +419,10 @@ public class AweAutoConfiguration {
   @Bean
   @ConditionalOnMissingBean
   public ScreenTargetAuthorizer screenTargetAuthorizer(SecurityConfigProperties securityConfigProperties,
+                                                       BaseConfigProperties baseConfigProperties,
                                                        ScreenTargetIndex screenTargetIndex,
                                                        MenuOptionLookup menuOptionLookup) {
-    return new ScreenTargetAuthorizer(securityConfigProperties, screenTargetIndex, menuOptionLookup);
+    return new ScreenTargetAuthorizer(securityConfigProperties, baseConfigProperties, screenTargetIndex, menuOptionLookup);
   }
 
   /**

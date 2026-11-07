@@ -147,9 +147,9 @@ public class MenuOptionLookup extends ServiceConfig {
     String optionId = address.startsWith(AweConstants.JSON_SCREEN)
       ? address.substring(address.lastIndexOf('/') + 1) : null;
     if (address.startsWith(AweConstants.JSON_SCREEN + "/" + PRIVATE_MENU)) {
-      return getSession().isAuthenticated() && isAvailableOption(optionId, PRIVATE_MENU);
+      return getSession().isAuthenticated() && isAvailableOption(optionId, getPrivateMenuId());
     } else if (address.startsWith(AweConstants.JSON_SCREEN + "/")) {
-      return isAvailableOption(optionId, AweConstants.PUBLIC_MENU);
+      return isAvailableOption(optionId, getPublicMenuId());
     } else {
       return false;
     }
@@ -188,7 +188,7 @@ public class MenuOptionLookup extends ServiceConfig {
 
     // Add public menu options if authenticated
     if (getSession().isAuthenticated()) {
-      menu = menuProvider.getMenu(AweConstants.PUBLIC_MENU);
+      menu = menuProvider.getMenu(getPublicMenuId());
       optionList.addAll(menu.getElementsByType(Option.class));
     }
 
@@ -218,10 +218,38 @@ public class MenuOptionLookup extends ServiceConfig {
     List<Option> optionList = menu.getElementsByType(Option.class);
 
     // Add public menu options
-    menu = menuProvider.getMenuWithRestrictions(AweConstants.PUBLIC_MENU);
+    menu = menuProvider.getMenuWithRestrictions(getPublicMenuId());
     optionList.addAll(menu.getElementsByType(Option.class));
 
     return filterRestrictedOptions(optionList);
+  }
+
+  /**
+   * Configured private menu, falling back to the default id when the configuration is not available (tests)
+   *
+   * @return Private menu identifier
+   */
+  private String getPrivateMenuId() {
+    try {
+      String menuPrivate = baseConfigProperties.getFiles().getMenuPrivate();
+      return menuPrivate != null ? menuPrivate : AweConstants.PRIVATE_MENU;
+    } catch (RuntimeException exc) {
+      return AweConstants.PRIVATE_MENU;
+    }
+  }
+
+  /**
+   * Configured public menu, falling back to the default id when the configuration is not available (tests)
+   *
+   * @return Public menu identifier
+   */
+  private String getPublicMenuId() {
+    try {
+      String menuPublic = baseConfigProperties.getFiles().getMenuPublic();
+      return menuPublic != null ? menuPublic : AweConstants.PUBLIC_MENU;
+    } catch (RuntimeException exc) {
+      return AweConstants.PUBLIC_MENU;
+    }
   }
 
   /**

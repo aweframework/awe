@@ -191,7 +191,7 @@ class PermissionTargetAuthorizerTest {
   void theChainChecksTheAccessByScreenFirst() {
     Map<String, Object> beans = new LinkedHashMap<>();
     beans.put("permissions", authorizer);
-    beans.put("screens", new ScreenTargetAuthorizer(properties, null, null));
+    beans.put("screens", new ScreenTargetAuthorizer(properties, new com.almis.awe.config.BaseConfigProperties(), null, null));
     beans.put("custom", (TargetLaunchAuthorizer) (targetId, kind) -> true);
 
     assertThat(new StaticListableBeanFactory(beans).getBeanProvider(TargetLaunchAuthorizer.class).orderedStream())

@@ -192,8 +192,8 @@ class ScreenTargetIndexTest {
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(aweSession.isAuthenticated()).thenReturn(true);
     when(menuOptionLookup.isAvailableOption("dynamicOption", AweConstants.PRIVATE_MENU)).thenReturn(true);
-    ScreenTargetAuthorizer authorizer = new ScreenTargetAuthorizer(new SecurityConfigProperties(), index,
-      menuOptionLookup);
+    ScreenTargetAuthorizer authorizer = new ScreenTargetAuthorizer(new SecurityConfigProperties(),
+      new com.almis.awe.config.BaseConfigProperties(), index, menuOptionLookup);
     authorizer.setApplicationContext(applicationContext);
 
     assertThat(index.getOptionsUsing("Shared")).containsExactly("staticOption");

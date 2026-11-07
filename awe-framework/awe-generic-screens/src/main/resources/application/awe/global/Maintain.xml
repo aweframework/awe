@@ -2097,10 +2097,12 @@
       <where>
         <and>
           <filter left-field="l1_nom" condition="eq" right-variable="user" ignorecase="true"/>
+          <filter left-variable="enable" condition="ne" right-variable="enableGuard"/>
         </and>
       </where>
       <variable id="user" type="STRING" session="user"/>
       <variable id="enable" type="INTEGER" name="enable2fa"/>
+      <variable id="enableGuard" type="INTEGER" value="1"/>
     </update>
     <serve service="update-2fa-status">
       <variable id="enable" type="INTEGER" name="enable2fa"/>
