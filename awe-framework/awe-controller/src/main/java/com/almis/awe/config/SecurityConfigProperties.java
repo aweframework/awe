@@ -117,6 +117,9 @@ public class SecurityConfigProperties {
   @NestedConfigurationProperty
   private Authorization authorization = new Authorization();
 
+  @NestedConfigurationProperty
+  private Permissions permissions = new Permissions();
+
   /**
    * Authorization of the maintain targets and queries launched by a client
    */
@@ -130,6 +133,25 @@ public class SecurityConfigProperties {
      * Default value enforce
      */
     private AuthorizationMode mode = AuthorizationMode.ENFORCE;
+  }
+
+  /**
+   * Permissions of the profiles
+   */
+  @Data
+  public static class Permissions {
+    /**
+     * Create at startup the predefined profiles Reader (RDR) and Contributor (CTB) when no profile with their acronym
+     * exists. Default value true
+     */
+    private boolean predefinedProfiles = true;
+    /**
+     * Require a permission for the private queries, maintain targets and services that declare none, when a client
+     * launches them: default.read for a query and default.write for a maintain target or a service. Public and
+     * server-only targets and the services authorized by their target are not affected. With true, the existing
+     * profiles need * (or default.*). Default value false
+     */
+    private boolean requireUndeclared = false;
   }
 
   /**
@@ -171,8 +193,9 @@ public class SecurityConfigProperties {
      * Claims of the ID token that carry the user's roles, read in order and joined. A dotted name walks nested
      * objects unless the token has a claim with that exact name. Examples: {@code realm_access.roles} (Keycloak realm
      * roles, the default), {@code resource_access.my-client.roles} (Keycloak client roles), {@code roles} (Microsoft
-     * Entra ID app roles). When several roles carry the prefix, the first name in alphabetical order that exists as
-     * an AWE profile is used. Ignored when the application declares its own {@code realmRolesAuthoritiesConverter} bean.
+     * Entra ID app roles). When several roles carry the prefix, the main profile follows
+     * {@code awe.security.sso.profile-priority}, else the first name in alphabetical order that exists as an AWE
+     * profile. Ignored when the application declares its own {@code realmRolesAuthoritiesConverter} bean.
      */
     private List<String> rolesClaims = new ArrayList<>(List.of("realm_access.roles"));
     /**
@@ -192,6 +215,14 @@ public class SecurityConfigProperties {
      * previous behaviour, where the default role always overwrites the stored profile in that case.
      */
     private boolean overwriteProfileWithDefaultRole = false;
+    /**
+     * Profiles in order of priority to choose the main profile of a user when the identity provider sends several roles
+     * that map to existing AWE profiles: the main profile is the first profile of this list that the provider sends and
+     * that exists (compared without case). When none of them is in the list, or the list is empty (default), the main
+     * profile is the first one in alphabetical order that exists. The other roles that map to existing profiles are
+     * additional profiles of the user. It also applies to the profile claim of the REST API tokens.
+     */
+    private List<String> profilePriority = new ArrayList<>();
 		/**
 		 * The name of the attribute used to extract the username during the SSO authentication process.
 		 * This attribute is typically sourced from the claims provided by the OAuth2 or OIDC identity provider.

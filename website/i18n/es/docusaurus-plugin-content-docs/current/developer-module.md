@@ -28,6 +28,8 @@ Para usar este módulo, sigue estos pasos:
 awe.application.module-list = APP, ..., awe-developer, ..., awe
 ```
 
+- Dé a los perfiles que usan el gestor de literales los permisos `developer.read` y `developer.update` (solo los tiene el perfil de administrador). Consulte [Permisos](security/permissions.md#catalog-resources).
+
 ## Gestor de literales {#literals-manager}
 El *Gestor de literales* es una herramienta que ayuda a gestionar los literales existentes en una aplicación. Todas las acciones y modificaciones disponibles se almacenan tanto en memoria como en los múltiples XML. De esta forma, no es necesario reiniciar el servidor *Tomcat* cada vez que se realiza un cambio. El desarrollador solo tendrá que refrescar la página para ver todos los cambios.
 

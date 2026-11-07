@@ -103,6 +103,13 @@ describe('awe-react-client/test/js/redux/reducers/components/gridModelTest.js', 
     it('builds the values from the selection when none matches', () => {
       expect(getFilteredValues([{value: 1}], [9])).toEqual([{value: 9, selected: true}]);
     });
+
+    it('keeps only the options of a component with options', () => {
+      expect(getFilteredValues([{value: 7}, {value: 9}], [9, 12], true)).toEqual([
+        {value: 7, selected: false},
+        {value: 9, selected: true}
+      ]);
+    });
   });
 
   describe('getModelUpdate', () => {

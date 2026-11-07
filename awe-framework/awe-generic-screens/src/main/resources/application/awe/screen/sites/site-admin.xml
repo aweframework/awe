@@ -32,7 +32,7 @@
     <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
       <button-action type="dialog" target="PrnOpt" />
     </button>
-    <button label="BUTTON_NEW_SITE" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON">
+    <button label="BUTTON_NEW_SITE" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON" permission="system.update">
       <!-- No selected row: no IdeSit is sent (SitNew takes it from its sequence) and the panel starts empty -->
       <button-action type="unselect-all-rows" target="GrdSitAdm" />
       <button-action type="value" target="PnlMod" value="new" />
@@ -85,7 +85,7 @@
         </context-button>
         <!-- Duplicate: the panel opens as a new site with the values of the selected one; its module rows start empty (the
              name is taken, so the create action refuses it until it changes) -->
-        <context-button label="BUTTON_DUPLICATE_SITE" icon="copy" id="CtxButDup">
+        <context-button label="BUTTON_DUPLICATE_SITE" icon="copy" id="CtxButDup" permission="system.update">
           <button-action type="check-one-selected" target="GrdSitAdm" />
           <button-action type="value" target="PnlMod" value="new" />
           <button-action type="reset" target="SitModDbsLst" />

@@ -355,7 +355,7 @@ class UserCredentialDefinitionsTest extends AbstractSpringAppIntegrationTest {
       .andExpect(status().isOk())
       .andReturn().getResponse().getContentAsString();
 
-    assertThat(result).contains("without authorization");
+    assertThat(result).contains("You do not have permission to perform this action. Contact your administrator if you need it.").doesNotContain(queryName);
     assertThat(result.contains("\"rows\"")).isFalse();
     assertThat(result.contains(String.valueOf(signedInUserCredentials.password()))).isFalse();
     if (signedInUserCredentials.newPassword() != null) {

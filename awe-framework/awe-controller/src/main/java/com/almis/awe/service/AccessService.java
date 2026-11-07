@@ -6,6 +6,7 @@ import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
@@ -34,6 +35,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -41,6 +44,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -69,6 +73,10 @@ public class AccessService extends ServiceConfig {
 
   public static final String PROVISIONING_NEW_USER = "ProvisionNewUser";
   public static final String UPDATE_OAUTH_ROLE = "UpdateOauthUserProfile";
+  public static final String UPDATE_OAUTH_ADDITIONAL_PROFILES = "UpdateOauthUserAdditionalProfiles";
+  /** Session parameter with the SSO user whose additional profiles are replaced (only set while the target runs) */
+  public static final String SSO_PROFILES_USER_SESSION_PARAMETER = "ssoProfilesUser";
+  private static final String ADDITIONAL_PROFILES = "profiles";
   // Column of the encrypted and hashed values returned to the Encrypt util screen
   private static final String ENCODED_COLUMN = "encoded";
   /** Request attribute holding the user name of an SSO login refused by AWE, for the security audit */
@@ -214,6 +222,9 @@ public class AccessService extends ServiceConfig {
     }
     auditSso(SecurityAuditEventType.LOGIN, SecurityAuditOutcome.SUCCESS, null, userDetails.getUsername(), null);
 
+    // The session authentication gets the roles and permissions of the AWE user
+    addUserAuthorities(oAuth2Token, userDetails);
+
     // Store session details
     sessionDetails.onLoginSuccess(userDetails);
 
@@ -247,6 +258,32 @@ public class AccessService extends ServiceConfig {
 		checkRequiredRole(userName, roleFromOAuth.orElse(null));
 
 		return loadUserDetailsWithRoleSync(userName, roleFromOAuth, oauth2Token);
+	}
+
+	/**
+	 * Replaces the authentication of the security context with one that keeps the principal, the client registration
+	 * and the provider authorities, and adds the authorities of the AWE user (one role per profile and one
+	 * {@code PERM_} authority per effective permission). A {@code PERM_} authority sent by the provider is dropped: the
+	 * permissions come only from AWE. The success handler stores the context in the session
+	 *
+	 * @param oauth2Token OAuth2 token of the provider
+	 * @param userDetails AWE user details
+	 */
+	private void addUserAuthorities(OAuth2AuthenticationToken oauth2Token, AweUserDetails userDetails) {
+		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+		oauth2Token.getAuthorities().stream()
+			.filter(authority -> authority.getAuthority() == null
+				|| !authority.getAuthority().startsWith(AweUserDetailService.PERMISSION_AUTHORITY_PREFIX))
+			.forEach(authorities::add);
+		if (userDetails.getAuthorities() != null) {
+			authorities.addAll(userDetails.getAuthorities());
+		}
+		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(oauth2Token.getPrincipal(), authorities,
+			oauth2Token.getAuthorizedClientRegistrationId());
+		authentication.setDetails(oauth2Token.getDetails());
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(authentication);
+		SecurityContextHolder.setContext(context);
 	}
 
 	/**
@@ -304,10 +341,11 @@ public class AccessService extends ServiceConfig {
 			AweUserDetails userDetails = userDetailsService.loadUserByUsername(userName);
 			checkAccountStatus(userDetails);
 			checkUpdateRoleInOAuth(userDetails, roleFromOAuth);
+			updateAdditionalProfiles(userDetails, roleFromOAuth, oauth2Token);
 			return userDetails;
 		} catch (UsernameNotFoundException ex) {
 			// User not found in the database, provision a new one
-			return loadAndProvisionNewUser(oauth2Token);
+			return loadAndProvisionNewUser(oauth2Token, roleFromOAuth);
 		}
 	}
 
@@ -330,10 +368,50 @@ public class AccessService extends ServiceConfig {
 		}
 	}
 
-	private AweUserDetails loadAndProvisionNewUser(OAuth2AuthenticationToken oauth2Token) throws AWException {
+	private AweUserDetails loadAndProvisionNewUser(OAuth2AuthenticationToken oauth2Token, Optional<String> roleFromOAuth)
+		throws AWException {
 		AweUserDetails userDetails = userDetailsService.loadUserByRole(oauth2Token);
-		autoProvisionUser(userDetails);
+		if (autoProvisionUser(userDetails)) {
+			updateAdditionalProfiles(userDetails, roleFromOAuth, oauth2Token);
+		}
 		return userDetails;
+	}
+
+	/**
+	 * Replaces the additional profiles of an SSO user (AweOpeRol) with the other provider roles that map to an AWE
+	 * profile: the provider is the source of truth. Only when the main profile comes from a provider role with a profile;
+	 * otherwise (no role, or roles without a profile) the login follows the current flow and the rows are kept. A user DAO
+	 * that does not support additional profiles never has its rows written nor deleted. The user is a session parameter
+	 * set only while the target runs, never a request parameter.
+	 *
+	 * @param userDetails   user details, refreshed with the stored additional profiles
+	 * @param roleFromOAuth main profile mapped from the provider roles, empty if none
+	 * @param oauth2Token   OAuth2 token with the provider roles
+	 * @throws AWException AWE exception
+	 */
+	private void updateAdditionalProfiles(AweUserDetails userDetails, Optional<String> roleFromOAuth,
+		OAuth2AuthenticationToken oauth2Token) throws AWException {
+		if (roleFromOAuth.isEmpty() || !userDetailsService.existRole(roleFromOAuth.get())) {
+			return;
+		}
+		if (!userDetailsService.supportsAdditionalProfiles()) {
+			log.debug("The user DAO does not support additional profiles: the additional profiles of user {} are not changed",
+				userDetails.getUsername());
+			return;
+		}
+		List<Integer> profiles = userDetailsService.mapAdditionalProfileIds(oauth2Token.getAuthorities(),
+			roleFromOAuth.get());
+		ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+		ArrayNode profileIds = parameters.putArray(ADDITIONAL_PROFILES);
+		profiles.forEach(profileId -> profileIds.add(profileId.intValue()));
+		AweSession session = getSession();
+		session.setParameter(SSO_PROFILES_USER_SESSION_PARAMETER, userDetails.getUsername());
+		try {
+			maintainService.launchPrivateMaintain(UPDATE_OAUTH_ADDITIONAL_PROFILES, parameters);
+		} finally {
+			session.removeParameter(SSO_PROFILES_USER_SESSION_PARAMETER);
+		}
+		userDetailsService.refreshAdditionalProfiles(userDetails);
 	}
 
 	/**
@@ -386,8 +464,9 @@ public class AccessService extends ServiceConfig {
     }
   }
 
-  private void autoProvisionUser(AweUserDetails userDetails) throws AWException {
-    if (securityConfigProperties.getSso().isAutoProvisionUser()) {
+  private boolean autoProvisionUser(AweUserDetails userDetails) throws AWException {
+    boolean provision = securityConfigProperties.getSso().isAutoProvisionUser();
+    if (provision) {
       // Provision new user
       ObjectNode parameters = JsonNodeFactory.instance.objectNode();
       parameters.put(EMAIL, userDetails.getEmail());
@@ -399,6 +478,7 @@ public class AccessService extends ServiceConfig {
       auditSso(SecurityAuditEventType.SSO_PROVISIONING, SecurityAuditOutcome.SUCCESS, null, userDetails.getUsername(),
         userDetails.getProfile());
     }
+    return provision;
   }
 
   private void auditSso(SecurityAuditEventType type, SecurityAuditOutcome outcome, SecurityAuditCause cause, String username, String detail) {

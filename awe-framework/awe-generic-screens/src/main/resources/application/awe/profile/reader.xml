@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : reader.xml
+    Description:
+        Predefined profile Reader (RDR): reads every resource and changes nothing.
+-->
+<profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/profile.xsd">
+  <permission id="*.read" />
+</profile>

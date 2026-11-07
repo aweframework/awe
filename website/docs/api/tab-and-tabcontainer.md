@@ -46,6 +46,7 @@ The tab list is filled with the `value` and `label` fields of the query/enum lau
 | style         |   Optional   | String  | Tab CSS classes                                                               | **Note:** Here you can use `expand` class to set the tab as expandible                                |
 | maximize      |   Optional   | Boolean | Whether to show the maximize icon or not                                      | **Note:** Works in both engines like a window: the tab list and its content fill the content area (menu and top bar stay visible) and the Restore button brings them back; there is no Escape key shortcut |
 | orientation   |   Optional   | String  | Wizard steps orientation                                                      | Default value is `vertical`                                                                           |
+| variable      |   Optional   | String  | Name of a parameter sent from another screen (a criterion of that screen) whose value selects the tab page when the screen opens | The value of one of the options of the tab. Without that parameter, the tab keeps its default page |
 
 
 ## Tabcontainer structure

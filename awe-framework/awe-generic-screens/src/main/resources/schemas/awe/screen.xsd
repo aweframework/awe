@@ -261,7 +261,7 @@
   <xs:element name="context-separator" type="contextSeparatorType" />
 
   <!-- Button Action Element -->
-  <xs:element name="button-action" type="actionType" />
+  <xs:element name="button-action" type="buttonActionType" />
 
   <!-- Message Element -->
   <xs:element name="message" type="messageType" />
@@ -966,6 +966,11 @@
     </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
+    <xs:attribute name="permission" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Permissions of the catalog (Permissions.xml) required to show the button, separated by spaces: all of them are required. Without it, when the authorization mode is enforce, the server removes the button if one of its button actions launches a query, a maintain target or a service whose permission the user lacks. When present, it replaces that decision: the button is shown only to the users with all these permissions, which also protects a button that launches no target. An unknown permission is a load error.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Avatar Attributes -->
@@ -1038,6 +1043,11 @@
     <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="maximize" type="booleanEnum" />
     <xs:attribute name="orientation" type="orientationEnum" />
+    <xs:attribute name="variable" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the screen variable (a parameter sent from another screen) that gives the selected tab page: the value of one of its options. Used by the server only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Wizard Attributes -->
@@ -1297,6 +1307,11 @@
     <xs:attribute name="name" use="required" type="nameEnum">
       <xs:annotation>
         <xs:documentation xml:lang="en">Name of the field of the data list shown in the column. It is also the column identifier. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="permission" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Columns of component button only. Permissions of the catalog (Permissions.xml) required to show the column, separated by spaces: all of them are required. Without it, when the authorization mode is enforce, the server removes the column if one of its button actions launches a query, a maintain target or a service whose permission the user lacks. When present, it replaces that decision. An unknown permission is a load error.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="style" type="xs:string">
@@ -2265,6 +2280,16 @@
   <!-- Action Type -->
   <xs:complexType name="actionType">
     <xs:attributeGroup ref="actionAttr" />
+  </xs:complexType>
+
+  <!-- Button Action Type -->
+  <xs:complexType name="buttonActionType">
+    <xs:attributeGroup ref="actionAttr" />
+    <xs:attribute name="edit-permission" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Actions of type dialog only. Permissions of the catalog (Permissions.xml) required to edit in the dialog or side panel the action opens, separated by spaces: all of them are required. When the authorization mode is enforce and the user lacks one of them, the action opens the dialog in view mode, with its criteria read-only. Declare it on the action and not on the dialog, so a dialog shared by a new and an edit button only opens read-only from the edit one. An unknown permission is a load error.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Dependency Type -->

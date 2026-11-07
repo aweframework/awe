@@ -88,9 +88,16 @@ petición salvo que se indique un valor.
 | `SSO_PROVISIONING` | Se crea un usuario a partir de los datos del proveedor de identidad (`awe.security.sso.auto-provision-user`) | `SUCCESS` (detalle: perfil) | `SSO` |
 | `SSO_PROFILE_SYNC` | El perfil de un usuario se actualiza a partir de los roles del proveedor | `SUCCESS` (detalle: `<anterior> -> <nuevo>`) | `SSO` |
 | `ACCESS_DENIED` | Una opción que existe en el menú está restringida para el perfil del usuario | `FAILURE`, `RESTRICTED` (detalle: `option: <nombre>`) | `WEB` |
+| `ACCESS_DENIED` | Un cliente lanza una consulta o un target de maintain que no usa ninguna pantalla que el usuario pueda abrir ([acceso por pantalla](screen-access.md)) | `FAILURE`, `RESTRICTED` (detalle: `query: <id>` o `maintain: <id>`) | `WEB`, o `SYSTEM` para un lanzamiento sin petición |
+| `ACCESS_DENIED` | Un cliente lanza una consulta, un target de maintain o un servicio sin un [permiso](permissions.md) que requiere | `FAILURE`, `PERMISSION` (detalle: `query: <id>`, `maintain: <id>` o `service: <id>`) | Canal de la petición |
 | `ACCESS_DENIED` | Spring Security deniega una URL a un usuario autenticado | `FAILURE`, `FORBIDDEN` (detalle: `url: <ruta>`) | Canal de la petición |
 | `TOKEN_ISSUED` | `POST /api/authenticate` emite un JWT | `SUCCESS` | `REST` |
 | `TOKEN_REJECTED` | Una petición REST lleva un JWT mal formado, mal firmado o caducado | `FAILURE`, `INVALID_TOKEN` o `TOKEN_EXPIRED` | `REST` |
+
+Con `awe.security.authorization.mode=warn` los lanzamientos sin acceso por pantalla o sin permiso se ejecutan, y su
+evento `ACCESS_DENIED` se sigue registrando: su detalle termina en `(allowed: warn)`, por ejemplo
+`query: InvLst (allowed: warn)`. Con `enforce` el detalle no lleva sufijo, así que la auditoría distingue un lanzamiento
+que `warn` dejó pasar de uno rechazado.
 
 ## Destinos {#sinks}
 

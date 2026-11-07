@@ -13,7 +13,7 @@ public interface TargetLaunchAuthorizer {
   /**
    * Check if a client can launch a target
    *
-   * @param targetId Maintain or query identifier
+   * @param targetId Maintain, query or service identifier
    * @param kind     Kind of target
    * @return The launch must go on (false when it must be refused)
    */

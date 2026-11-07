@@ -13,6 +13,7 @@ import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.service.menu.MenuOptionLookup;
 import com.almis.awe.service.menu.MenuProvider;
 import com.almis.awe.service.screen.ScreenRestrictionGenerator;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,9 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.List;
 import java.util.Set;
@@ -64,6 +68,11 @@ class ScreenTargetAuthorizerTest {
     when(auditProvider.getIfAvailable()).thenReturn(securityAuditService);
     when(securityAuditService.isEnabled()).thenReturn(true);
     when(aweSession.isAuthenticated()).thenReturn(true);
+  }
+
+  @AfterEach
+  void tearDown() {
+    RequestContextHolder.resetRequestAttributes();
   }
 
   private void givenIndexed(String... options) {
@@ -124,14 +133,14 @@ class ScreenTargetAuthorizerTest {
   }
 
   @Test
-  @DisplayName("Warn mode audits the launch without access but allows it")
-  void warnAuditsAndAllows() {
+  @DisplayName("Warn mode audits the launch without access as allowed and allows it")
+  void warnAuditsThatTheLaunchWasAllowed() {
     properties.getAuthorization().setMode(AuthorizationMode.WARN);
     givenIndexed("users");
 
     assertThat(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).isTrue();
     verify(securityAuditService).failure(eq(SecurityAuditEventType.ACCESS_DENIED), any(),
-      eq(SecurityAuditCause.RESTRICTED), eq("maintain: " + TARGET));
+      eq(SecurityAuditCause.RESTRICTED), eq("maintain: " + TARGET + " (allowed: warn)"));
   }
 
   @Test
@@ -199,5 +208,39 @@ class ScreenTargetAuthorizerTest {
 
     assertThat(realLookup.isAvailableOption("users", "private")).isFalse();
     assertThat(realLookup.isAvailableOption("tools", "private")).isFalse();
+  }
+
+  @Test
+  @DisplayName("A launch through the REST API is not restricted by the screens")
+  void restApiLaunchIsNotRestrictedByScreens() {
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", "/app/api/maintain/" + TARGET);
+    request.setContextPath("/app");
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    givenIndexed("users");
+
+    assertThat(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).isTrue();
+    verify(index, never()).getOptionsUsing(anyString());
+    verify(securityAuditService, never()).failure(any(), any(), any(), any());
+  }
+
+  @Test
+  @DisplayName("A launch through the web channel is restricted by the screens")
+  void webLaunchIsRestrictedByScreens() {
+    MockHttpServletRequest request = new MockHttpServletRequest("POST", "/app/action/maintain/" + TARGET);
+    request.setContextPath("/app");
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    givenIndexed("users");
+
+    assertThat(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).isFalse();
+  }
+
+  @Test
+  @DisplayName("A service is not restricted by the screens: they launch it through an action, which is not indexed")
+  void serviceIsNotRestrictedByScreens() {
+    givenIndexed("users");
+
+    assertThat(authorizer.authorize(TARGET, TargetKind.SERVICE)).isTrue();
+    verify(index, never()).getOptionsUsing(anyString());
+    verify(securityAuditService, never()).failure(any(), any(), any(), any());
   }
 }

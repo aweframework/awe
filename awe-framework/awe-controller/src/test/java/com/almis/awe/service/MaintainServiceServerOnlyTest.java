@@ -1,6 +1,7 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.DatabaseConfigProperties;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
@@ -32,6 +33,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -43,6 +46,7 @@ import static org.mockito.Mockito.when;
 class MaintainServiceServerOnlyTest {
 
   private static final String UNAUTHORIZED = "unauthorized";
+  private static final String ACCESS_DENIED = "access denied";
   private static final String SERVER_ONLY_TARGET = "serverOnlyTarget";
 
   @Mock private MaintainLauncher maintainLauncher;
@@ -66,8 +70,8 @@ class MaintainServiceServerOnlyTest {
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("msg");
     when(aweElements.getLocaleWithLanguage(anyString(), any(), any())).thenReturn("msg");
-    when(aweElements.getLocaleWithLanguage(eq("ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN"), any(), any()))
-      .thenReturn(UNAUTHORIZED);
+    when(aweElements.getLocaleWithLanguage(eq("ERROR_MESSAGE_ACTION_NOT_PERMITTED"), any())).thenReturn(UNAUTHORIZED);
+    when(aweElements.getLocaleWithLanguage(eq("ERROR_TITLE_ACCESS_DENIED"), any())).thenReturn(ACCESS_DENIED);
 
     when(databaseConnection.getDataSource()).thenReturn(dataSource);
     when(databaseConnection.getConnection()).thenReturn(connection);
@@ -94,8 +98,10 @@ class MaintainServiceServerOnlyTest {
     ObjectNode parameters = params();
 
     assertThatThrownBy(() -> maintainService.launchMaintain(SERVER_ONLY_TARGET, parameters, databaseConnection, false))
-      .isInstanceOf(AWException.class)
-      .satisfies(exc -> assertThat(((AWException) exc).getMessage()).isEqualTo(UNAUTHORIZED));
+      .isInstanceOf(AWEUnauthorizedException.class)
+      .hasMessage(UNAUTHORIZED)
+      .satisfies(exc -> assertThat(((AWException) exc).getTitle()).isEqualTo(ACCESS_DENIED));
+    verify(aweElements, never()).getLocaleWithLanguage(anyString(), any(), eq(SERVER_ONLY_TARGET));
   }
 
   @Test
@@ -121,8 +127,9 @@ class MaintainServiceServerOnlyTest {
     ObjectNode parameters = params();
 
     assertThatThrownBy(() -> maintainService.launchMaintain("bothTarget", parameters, databaseConnection, false))
-      .isInstanceOf(AWException.class)
-      .satisfies(exc -> assertThat(((AWException) exc).getMessage()).isEqualTo(UNAUTHORIZED));
+      .isInstanceOf(AWEUnauthorizedException.class)
+      .hasMessage(UNAUTHORIZED)
+      .satisfies(exc -> assertThat(((AWException) exc).getTitle()).isEqualTo(ACCESS_DENIED));
   }
 
   @Test

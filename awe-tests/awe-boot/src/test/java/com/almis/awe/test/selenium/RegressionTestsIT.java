@@ -370,7 +370,8 @@ class RegressionTestsIT extends AbstractSessionTests {
     writeText("TimReq", "12:23:41");
 
     // Assert text
-    checkSelectNumberOfResults("SelReq", 4);
+    // The four profiles of the test data and the predefined Reader and Contributor
+    checkSelectNumberOfResults("SelReq", 6);
 
     // Select result
     selectResult("General");

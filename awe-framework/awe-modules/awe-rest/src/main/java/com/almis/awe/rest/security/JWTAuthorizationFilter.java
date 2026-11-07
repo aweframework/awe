@@ -76,7 +76,9 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         DecodedJWT decodedJWT = jwtTokenService.verifyToken(token);
         if (decodedJWT != null) {
           AweUserDetails userDetails = (AweUserDetails) userDetailsService.loadUserByUsername(decodedJWT.getSubject());
-          authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, new ArrayList<>());
+          // One role per profile of the user (main and additional), as in a web session
+          authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+            userDetails.getAuthorities() == null ? new ArrayList<>() : userDetails.getAuthorities());
         }
       }
 

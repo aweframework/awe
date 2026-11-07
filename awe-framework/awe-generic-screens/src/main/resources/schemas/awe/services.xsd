@@ -73,6 +73,16 @@
     </xs:choice>
     <xs:attribute name="id" use="required" type="xs:string"/>
     <xs:attribute name="launch-phase" type="launchPhaseEnum"/>
+    <xs:attribute name="permission" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Permissions of the catalog (Permissions.xml) required to launch the service from a client action, separated by spaces: all of them are required. An unknown permission, or a permission on a service authorized by its target, is a load error. Server-side calls, the services of queries and maintains of type service and the services of a launch phase are never checked.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="authorization" type="serviceAuthorizationEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How a launch of the service from a client action is authorized. target: the service launches the query or the maintain target the client asks for, and that target is checked instead of the service.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Java Type -->
@@ -128,6 +138,13 @@
     <xs:attribute name="list" type="booleanEnum"/>
     <xs:attribute name="bean-class" type="xs:string"/>
   </xs:complexType>
+
+  <!-- Service Authorization Restriction -->
+  <xs:simpleType name="serviceAuthorizationEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="target"/>
+    </xs:restriction>
+  </xs:simpleType>
 
   <!-- Service Variable Restriction -->
   <xs:simpleType name="launchPhaseEnum">

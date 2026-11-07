@@ -3,6 +3,7 @@ import React from "react";
 import {renderWithProviders} from "../test-utils";
 import AweSuggestMultiple from "../../../src/criteria/AweSuggestMultiple";
 import {updateModel} from "../../../src/redux/actions/components";
+import {selectAction} from "../../../src/redux/thunks/form";
 import {act, fireEvent} from "@testing-library/react";
 
 describe('awe-react-client/test/js/criteria/AweSuggestMultipleTest.jsx', () => {
@@ -81,6 +82,107 @@ describe('awe-react-client/test/js/criteria/AweSuggestMultipleTest.jsx', () => {
     expect(errors).toEqual([]);
     const tokens = Array.from(document.querySelectorAll("#suggest-multiple .p-autocomplete-token"));
     expect(tokens.map(token => token.textContent)).toEqual(['1', '2']);
+  });
+
+  describe('chips', () => {
+    const hook = (testId) => `[data-testid='${testId}']`;
+    const threeValues = {
+      ...preloadedState,
+      components: {
+        "suggest-multiple": {
+          ...preloadedState.components["suggest-multiple"],
+          model: {values: [{label: 'test', value: 'test', selected: true}, {label: 'tutu', value: 'tutu', selected: true},
+            {label: 'tete', value: 'tete', selected: true}]}
+        }
+      }
+    };
+    const selected = (store) => store.getState().components["suggest-multiple"].model.values
+      .filter(item => item.selected).map(item => item.value);
+
+    it('removes the value of the chip whose remove icon is clicked, drawn with the Lucide x of the design system', () => {
+      const {container, store} = renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>,
+        {preloadedState: threeValues});
+      const chips = () => Array.from(container.querySelectorAll(hook("select-choice")));
+      expect(chips().map(chip => chip.textContent)).toEqual(['test', 'tutu', 'tete']);
+
+      const close = chips()[1].querySelector(hook("select-choice-close"));
+      expect(close.querySelector("svg use")).not.toBeNull();
+      fireEvent.click(close);
+
+      expect(chips().map(chip => chip.textContent)).toEqual(['test', 'tete']);
+      expect(selected(store)).toEqual(['test', 'tete']);
+    });
+
+    it('removes the value of a chip from the keyboard', () => {
+      const {container, store} = renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>,
+        {preloadedState: threeValues});
+
+      fireEvent.keyDown(container.querySelectorAll(hook("select-choice-close"))[1], {key: "Enter", code: "Enter"});
+
+      expect(selected(store)).toEqual(['test', 'tete']);
+    });
+  });
+
+  describe('values selected by a value dependency', () => {
+    let originalFetch;
+    const profiles = [{value: 7, label: 'LEC - Lector'}, {value: 9, label: 'ADM - Administrator'},
+      {value: 12, label: 'CTB - Contributor'}];
+
+    beforeAll(() => {
+      originalFetch = window.fetch;
+      // The check target answers the rows of the values it receives (a list of them for a multiple suggest)
+      window.fetch = (url, {body}) => {
+        const suggested = [JSON.parse(body).suggest].flat().map(String);
+        const rows = profiles.filter(profile => suggested.includes(String(profile.value)));
+        return Promise.resolve({ok: true, json: () => Promise.resolve([{type: "fill", parameters: {datalist: {rows}}}])});
+      };
+    });
+
+    afterAll(() => {
+      window.fetch = originalFetch;
+    });
+
+    const checkTargetState = (values) => ({
+      settings: DEFAULT_SETTINGS,
+      components: {
+        "suggest-multiple": {
+          address: {component: 'suggest-multiple', view: 'report'},
+          model: {values},
+          attributes: {placeholder: "", readonly: false, targetAction: "ProSug", checkTarget: "UsrAddProIni"},
+          validationRules: {required: false},
+          specificAttributes: {sort: []}
+        }
+      }
+    });
+
+    // The "value" server action of a dependency answers a select action with the rows of its query
+    const select = (store, values) => act(async () => {
+      store.dispatch(selectAction({type: "select", address: {component: 'suggest-multiple', view: 'report'},
+        parameters: {values}}));
+    });
+    const chips = () => Array.from(document.querySelectorAll("#suggest-multiple .p-autocomplete-token"))
+      .map(token => token.textContent);
+
+    it('shows the labels of the values it selects by their id', async () => {
+      const {store} = renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>,
+        {preloadedState: checkTargetState([])});
+
+      await select(store, [{value: 7, label: 'LEC - Lector'}]);
+
+      expect(chips()).toEqual(['LEC - Lector']);
+    });
+
+    it('keeps every value it selects when only some of them were already selected (another user is edited)', async () => {
+      const {store} = renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {
+        preloadedState: checkTargetState([{...profiles[0], selected: true}, {...profiles[1], selected: true}])
+      });
+
+      await select(store, [{value: 9}, {value: 12}]);
+
+      expect(chips()).toEqual(['ADM - Administrator', 'CTB - Contributor']);
+      expect(store.getState().components["suggest-multiple"].model.values.filter(item => item.selected)
+        .map(item => item.value)).toEqual([9, 12]);
+    });
   });
 
   describe('typing and picking a result', () => {

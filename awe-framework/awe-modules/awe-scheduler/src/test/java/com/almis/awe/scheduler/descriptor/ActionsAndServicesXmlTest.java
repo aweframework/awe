@@ -49,7 +49,7 @@ class ActionsAndServicesXmlTest {
   private String getExecutionLogService() throws IOException {
     String xml = readResource("application/awe-scheduler/global/Services.xml");
 
-    int start = xml.indexOf("<service id=\"getExecutionLog\">");
+    int start = xml.indexOf("<service id=\"getExecutionLog\"");
     assertTrue(start >= 0, "getExecutionLog service must exist");
     return xml.substring(start, xml.indexOf("</service>", start));
   }

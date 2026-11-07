@@ -1,13 +1,17 @@
 package com.almis.awe.model.component;
 
+import com.almis.awe.model.dto.UserProfile;
 import lombok.Data;
 import lombok.ToString;
 import lombok.experimental.Accessors;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Stream;
 
 @Data
 @Accessors(chain = true)
@@ -46,10 +50,15 @@ public class AweUserDetails implements UserDetails {
   private String profile;
   private String profileName;
   private String restrictions;
+  /**
+   * Restriction file of the user itself (empty when the user takes the restriction file of its main profile)
+   */
+  private String userRestriction;
   private String theme;
   private String language;
   private String initialScreen;
   private boolean fullyAuthenticated;
+  private List<UserProfile> additionalProfiles = new ArrayList<>();
 
   public AweUserDetails() {
     this.authorities = new ArrayList<>();
@@ -59,6 +68,31 @@ public class AweUserDetails implements UserDetails {
     this.enabled = true;
     this.timeBeforeExpiration = 2147483647;
     this.graceLoginsRemaining = 2147483647;
+  }
+
+  /**
+   * Retrieve the acronyms of every profile of the user: the main profile first, then the additional profiles
+   *
+   * @return Profile acronyms, without repetitions
+   */
+  public List<String> getProfiles() {
+    return Stream.concat(Stream.of(profile), additionalProfiles.stream().map(UserProfile::acronym))
+      .filter(StringUtils::isNotBlank)
+      .distinct()
+      .toList();
+  }
+
+  /**
+   * Retrieve the restriction files of every profile of the user: the restriction of the main profile (or of the user)
+   * first, then the restriction files of the additional profiles that have one
+   *
+   * @return Restriction files, without repetitions
+   */
+  public List<String> getProfileRestrictions() {
+    return Stream.concat(Stream.of(restrictions), additionalProfiles.stream().map(UserProfile::restriction))
+      .filter(StringUtils::isNotBlank)
+      .distinct()
+      .toList();
   }
 
   public void addAuthority(GrantedAuthority a) {

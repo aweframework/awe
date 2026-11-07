@@ -5,7 +5,7 @@
   <!-- Developer queries -->
 
   <!-- Service to show all alerts -->
-  <query id="LitTra" service="LitTra" public="true">
+  <query id="LitTra" permission="developer.read" service="LitTra">
     <field id="value" />
     <variable id="text" type="STRING" name="CrtLitTrn" />
     <variable id="fromLanguage" type="STRING" name="CrtLitLanFro" />
@@ -13,7 +13,7 @@
   </query>
 
   <!-- Search literal -->
-  <query id="LitLst" service="LitLst" distinct="false" public="true"
+  <query id="LitLst" permission="developer.read" service="LitLst" distinct="false"
     cacheable="false">
     <field id="key" alias="id" />
     <field id="key" alias="cod" />
@@ -23,8 +23,7 @@
   </query>
 
   <!-- Get translation -->
-  <query id="GetTraSer" service="GetTraSer" distinct="false"
-    public="true" cacheable="false">
+  <query id="GetTraSer" permission="developer.read" service="GetTraSer" distinct="false" cacheable="false">
     <field id="key" alias="id" />
     <field id="key" alias="idio" />
     <field id="value" alias="lite" />
@@ -38,7 +37,7 @@
   </query>
 
   <!-- Get selected local service -->
-  <query id="GetSelectedLocale" service="GetSelectedLocale" public="true">
+  <query id="GetSelectedLocale" permission="developer.read" service="GetSelectedLocale">
     <variable id="code" type="STRING" name="code.selected" />
     <variable id="language" type="STRING" name="idio.selected" />
   </query>
@@ -50,7 +49,7 @@
   </query>
 
   <!-- Switch text language -->
-  <query id="SwitchLanguagesTxt" service="SwitchLanguages" public="true">
+  <query id="SwitchLanguagesTxt" permission="developer.read" service="SwitchLanguages">
     <variable id="fromLanguage" type="STRING" name="CrtLitLanFroTxt" />
     <variable id="toLanguage" type="STRING" name="CrtLitLanToTxt" />
     <variable id="fromTarget" type="STRING" value="CrtLitLanFroTxt" />
@@ -58,7 +57,7 @@
   </query>
 
   <!-- Switch markdown language -->
-  <query id="SwitchLanguagesMrk" service="SwitchLanguages" public="true">
+  <query id="SwitchLanguagesMrk" permission="developer.read" service="SwitchLanguages">
     <variable id="fromLanguage" type="STRING" name="CrtLitLanFroMrk" />
     <variable id="toLanguage" type="STRING" name="CrtLitLanToMrk" />
     <variable id="fromTarget" type="STRING" value="CrtLitLanFroMrk" />
@@ -66,7 +65,7 @@
   </query>
 
   <!-- Check Path -->
-  <query id="checkPath" service="checkPath" public="true">
+  <query id="checkPath" permission="developer.read" service="checkPath">
     <field id="paths" alias="CrtPth" />
   </query>
 </queries>

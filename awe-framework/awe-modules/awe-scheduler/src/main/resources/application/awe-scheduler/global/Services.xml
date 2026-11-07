@@ -195,7 +195,7 @@
   </service>
 
   <!-- Database-mode execution log read path (get-execution-log action) -->
-  <service id="getExecutionLog">
+  <service id="getExecutionLog" permission="scheduler.read">
     <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getExecutionLog"/>
   </service>
 

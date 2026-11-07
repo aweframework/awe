@@ -29,7 +29,7 @@
     <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
       <button-action type="dialog" target="PrnOpt" />
     </button>
-    <button label="BUTTON_NEW_DATABASE" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON">
+    <button label="BUTTON_NEW_DATABASE" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON" permission="system.update">
       <!-- No selected row: no IdeDbs is sent (DbsNew takes it from its sequence) and the panel starts empty, as the
            DbsNew screen -->
       <button-action type="unselect-all-rows" target="GrdDbsAdm" />

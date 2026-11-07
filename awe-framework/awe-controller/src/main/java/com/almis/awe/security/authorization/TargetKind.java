@@ -11,7 +11,11 @@ public enum TargetKind {
   /**
    * Query
    */
-  QUERY;
+  QUERY,
+  /**
+   * Service called by an action
+   */
+  SERVICE;
 
   /**
    * Retrieve the name of the kind for logs and audit details

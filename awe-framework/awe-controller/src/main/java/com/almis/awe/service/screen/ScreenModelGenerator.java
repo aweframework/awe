@@ -3,6 +3,7 @@ package com.almis.awe.service.screen;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.InitialLoadDao;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
@@ -21,6 +22,7 @@ import com.almis.awe.model.entities.screen.data.AweThreadInitialization;
 import com.almis.awe.model.entities.screen.data.ComponentModel;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.type.InputType;
 import com.almis.awe.model.type.LoadType;
 import com.almis.awe.model.util.data.DataListUtil;
@@ -31,6 +33,7 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -41,6 +44,9 @@ import static com.almis.awe.model.type.InputType.*;
  */
 @Slf4j
 public class ScreenModelGenerator extends ServiceConfig {
+
+  private static final String WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA = "WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA";
+  private static final String WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA = "WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA";
 
   // Autowired services
   private final InitialLoadDao initialLoadDao;
@@ -173,7 +179,7 @@ public class ScreenModelGenerator extends ServiceConfig {
     // Generate a thread for each initialization
     for (AweThreadInitialization initializationData : initializationList) {
       // Launch
-      Future<ServiceData> taskResult = initialLoadDao.launchInitialLoad(initializationData);
+      Future<ServiceData> taskResult = launchInitialLoad(initializationData);
 
       // If load type is screen, store screen results in list, otherwise store in a component map
       if (LoadType.MENU.equals(initializationData.getInitialLoadType())) {
@@ -223,7 +229,8 @@ public class ScreenModelGenerator extends ServiceConfig {
 
       Map<String, Future<ServiceData>> componentTasks = new LinkedHashMap<>();
       for (String selectedValue : missingSelectedValues) {
-        componentTasks.put(selectedValue, initialLoadDao.launchInitialLoad(buildSuggestHydrationInitialization(componentMap, component, hydrationTarget, selectedValue)));
+        componentTasks.put(selectedValue, launchInitialLoad(
+          buildSuggestHydrationInitialization(componentMap, component, hydrationTarget, selectedValue)));
       }
       hydrationTaskMap.put(component, componentTasks);
     }
@@ -255,6 +262,10 @@ public class ScreenModelGenerator extends ServiceConfig {
         // For each column, store value in components
         addScreenTargetDataToComponent(screenTargetData, componentMap);
       } catch (Exception exc) {
+        if (isRefused(exc)) {
+          addRefusalWarning(data);
+          continue;
+        }
         String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA", entry.getKey());
         data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
         log.error(errorMessage, exc);
@@ -282,6 +293,51 @@ public class ScreenModelGenerator extends ServiceConfig {
       data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
       log.error("{}{}", errorMessage, screen, exc);
       restoreInterruptFlag(exc);
+    }
+  }
+
+  /**
+   * Launch an initial load. A refusal raised by a synchronous launch is kept in the result, as the asynchronous launch
+   * does, so the refused component stays empty instead of failing the whole screen
+   *
+   * @param initializationData Initialization data
+   * @return Initial load result
+   * @throws AWException Error launching the initial load
+   */
+  private Future<ServiceData> launchInitialLoad(AweThreadInitialization initializationData) throws AWException {
+    try {
+      return initialLoadDao.launchInitialLoad(initializationData);
+    } catch (AWEUnauthorizedException exc) {
+      return CompletableFuture.failedFuture(exc);
+    }
+  }
+
+  /**
+   * Check if an initial load failed because the authorization refused its query, either inside the asynchronous
+   * launch or directly
+   *
+   * @param exc Caught exception
+   * @return The initial load was refused
+   */
+  private boolean isRefused(Exception exc) {
+    return exc instanceof AWEUnauthorizedException
+      || exc instanceof ExecutionException && exc.getCause() instanceof AWEUnauthorizedException;
+  }
+
+  /**
+   * Warn once per screen that some of its data is not shown: the components refused keep no data, and the queries
+   * refused are not given away
+   *
+   * @param data Screen data
+   */
+  private void addRefusalWarning(ScreenData data) {
+    String message = getLocale(WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA);
+    boolean warned = data.getActions().stream()
+      .filter(action -> "message".equals(action.getType()))
+      .map(action -> action.getParameters().get(AweConstants.ACTION_MESSAGE_DESCRIPTION_ATTRIBUTE))
+      .anyMatch(description -> description instanceof CellData cell && message.equals(cell.getStringValue()));
+    if (!warned) {
+      data.addError(new AWException(getLocale(WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA), message, AnswerType.WARNING));
     }
   }
 
@@ -370,6 +426,10 @@ public class ScreenModelGenerator extends ServiceConfig {
       model.setRecords(componentData.getRecords());
 
     } catch (InterruptedException | ExecutionException exc) {
+      if (isRefused(exc)) {
+        addRefusalWarning(data);
+        return;
+      }
       String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
       data.addError(new AWException(getLocale("ERROR_MESSAGE_RETRIEVING_DATA"), errorMessage, exc));
       log.error(errorMessage, exc);
@@ -469,6 +529,10 @@ public class ScreenModelGenerator extends ServiceConfig {
           .ifPresent(row -> component.getModel().getValues().add(new LinkedHashMap<>(row)));
       }
     } catch (InterruptedException | ExecutionException exc) {
+      if (isRefused(exc)) {
+        addRefusalWarning(data);
+        return;
+      }
       String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
       data.addError(new AWException(getLocale("ERROR_MESSAGE_RETRIEVING_DATA"), errorMessage, exc));
       log.error(errorMessage, exc);

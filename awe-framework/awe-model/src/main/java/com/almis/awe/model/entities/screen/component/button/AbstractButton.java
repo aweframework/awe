@@ -59,6 +59,13 @@ public abstract class AbstractButton extends AbstractCriteria {
   @XStreamAsAttribute
   private String cancel;
 
+  // Permissions required to show the button, separated by spaces (all of them are required). It replaces the decision
+  // derived from the targets its actions launch. Read by the server only
+  @JsonIgnore
+  @XStreamAlias("permission")
+  @XStreamAsAttribute
+  private String permission;
+
   @Override
   @JsonIgnore
   public String getComponentTag() {

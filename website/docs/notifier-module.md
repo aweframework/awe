@@ -58,6 +58,8 @@ To use this module, the following steps are necessary:
 awe.application.module-list = APP, ..., awe-notifier, ..., awe
 ```
 
+- Give the profiles that manage the subscriptions the `subscriptions.*` permissions (only the administrator profile has them); the notifications of a user need no permission. See [Permissions](security/permissions.md#catalog-resources).
+
 - If you are using `flyway`, add the notifier tables into the migration module:
 
 ```properties

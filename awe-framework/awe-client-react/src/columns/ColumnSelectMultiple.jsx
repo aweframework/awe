@@ -4,8 +4,9 @@ import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
 import {multiSelectPassThrough} from "../utilities/testPassThrough";
-import {useSelect} from "../hooks/useSelect";
+import {useSelect, selectItemTemplate} from "../hooks/useSelect";
 import {compareEqualValues, getFirstDefinedValue} from "../utilities/general";
+import {selectChipTemplate} from "../criteria/AweSelectChip";
 
 function ColumnSelectMultiple(props) {
   const {placeholder, label, required, readonly, optional, model, data, attrs, style, address} = props;
@@ -32,20 +33,27 @@ function ColumnSelectMultiple(props) {
     values: (model?.values ?? [])
       .map(v => ({...v, selected: selectedValues.some(value => compareEqualValues(value, v.value))}))
   }), [model?.values, selectedValues]);
-  const {t, options, selected, onChange} =
+  const {t, options, groupProps, grouped, selected, onChange, removeValue} =
     useSelect({ model: cellModel, address, multiple: true});
+  const disabled = getFirstDefinedValue(cellReadonly, readonly, false);
   const classes = classNames(style, cellStyle, "column-editor", {"p-invalid": error}, {"hidden": !visible});
+  const editorPlaceholder = translateLabel(placeholder || label, t) + (required ? " *" : "");
   return (
     <MultiSelect
       value={selected}
-      placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
+      placeholder={editorPlaceholder}
       required={getFirstDefinedValue(cellRequired, required, false)}
-      disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
+      disabled={disabled}
       options={options}
+      {...groupProps}
+      itemTemplate={selectItemTemplate}
+      dataKey="code"
+      showSelectAll={!grouped}
       onChange={onChange}
       showClear={optional}
       className={classes}
       display="chip"
+      selectedItemTemplate={selectChipTemplate(disabled, removeValue, editorPlaceholder)}
       resetFilterOnHide={true}
       filter
       invalid={error}

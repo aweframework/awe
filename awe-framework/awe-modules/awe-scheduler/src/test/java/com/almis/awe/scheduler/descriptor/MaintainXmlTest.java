@@ -47,7 +47,7 @@ class MaintainXmlTest {
   void loadExecutionScreenLocatorVariableIsRenamedToTheStoreNeutralName() throws IOException {
     String xml = readDescriptor();
 
-    int start = xml.indexOf("<target name=\"loadExecutionScreen\">");
+    int start = xml.indexOf("<target name=\"loadExecutionScreen\"");
     int end = xml.indexOf("</target>", start);
     assertTrue(start >= 0, "loadExecutionScreen target must exist");
     String target = xml.substring(start, end);

@@ -216,14 +216,30 @@ public class SecurityAuditService {
     }
   }
 
+  /**
+   * Check if the current request is a call to the REST API: a path under {@code /api/}
+   *
+   * @return The current request is a call to the REST API (false outside a request)
+   */
+  public static boolean isRestApiRequest() {
+    return isRestApi(currentRequest());
+  }
+
   private static SecurityAuditChannel channel(HttpServletRequest request) {
     if (request == null) {
       return SecurityAuditChannel.SYSTEM;
     }
+    return isRestApi(request) ? SecurityAuditChannel.REST : SecurityAuditChannel.WEB;
+  }
+
+  private static boolean isRestApi(HttpServletRequest request) {
+    if (request == null) {
+      return false;
+    }
     String uri = request.getRequestURI() == null ? "" : request.getRequestURI();
     String contextPath = request.getContextPath() == null ? "" : request.getContextPath();
     String path = uri.startsWith(contextPath) ? uri.substring(contextPath.length()) : uri;
-    return path.startsWith(API_PATH) ? SecurityAuditChannel.REST : SecurityAuditChannel.WEB;
+    return path.startsWith(API_PATH);
   }
 
   private static String correlationId(HttpServletRequest request) {

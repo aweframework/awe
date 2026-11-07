@@ -59,7 +59,8 @@ class QueryDescriptorGuardTest {
     "get-interested-users",
     // Password change date, login attempts, information and mail server password of any user by name: unused by the
     // framework, an application can still launch them from Java
-    "GetChgPwdUsr", "AutUsr", "UsrInf", "GetEmlSrvByOpe");
+    "GetChgPwdUsr", "AutUsr", "UsrInf", "GetEmlSrvByOpe",
+    "userAdditionalProfiles", "UsrIdeOpe", "SsoUsrIdeOpe");
 
   /** Fields that hold a password hash or a 2FA secret */
   private static final Set<String> CREDENTIAL_FIELDS = Set.of("l1_pas", "secret2fa");

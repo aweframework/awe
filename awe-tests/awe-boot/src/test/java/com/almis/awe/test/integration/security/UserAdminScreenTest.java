@@ -205,6 +205,9 @@ class UserAdminScreenTest extends AbstractSpringAppIntegrationTest {
     assertThat(JsonPath.<List<String>>read(response, "$.components[?(@.id == 'ButDel')].controller.style"))
       .containsExactly("btn-danger");
     assertThat(JsonPath.<String>read(response, "$.template")).contains("PnlUsr");
+    // The additional profiles that the side panel loads by their id get their labels from a check target
+    assertThat(JsonPath.<List<String>>read(response, "$.components[?(@.id == 'AddPro')].controller.checkTarget"))
+      .containsExactly("UsrAddProIni");
     // Row actions: the pencil (edit in the side panel) and the ellipsis (row menu), icon-only buttons of the last columns,
     // not sortable nor printed
     List<String> columns = JsonPath.read(response, "$.components[?(@.id == 'GrdUsrAdm')].controller.columnModel[*].name");

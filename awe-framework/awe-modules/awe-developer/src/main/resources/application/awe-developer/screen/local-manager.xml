@@ -95,7 +95,7 @@ Author : Andoni GOMEZ Description: Manage literals screen -->
         <grid id="GrdStrLit" server-action="data" style="expand" target-action="LitLst">
           <column label="COLUMN_CODE" name="cod" sort-field="cod" align="left" charlength="25"/>
           <column label="COLUMN_LOCAL" name="lit" sort-field="lit" align="left" charlength="40"/>
-          <button id="ButNew" icon="plus-circle" label="BUTTON_NEW" help="HELP_NEW_BUTTON">
+          <button id="ButNew" icon="plus-circle" label="BUTTON_NEW" help="HELP_NEW_BUTTON" permission="developer.update">
             <button-action type="dialog" target="new-local" />
           </button>
           <button label="BUTTON_DELETE" icon="trash" id="ButGrdEdiDel">

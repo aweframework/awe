@@ -1,5 +1,6 @@
 package com.almis.awe.rest.controller;
 
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dto.ServiceData;
@@ -243,6 +244,24 @@ public class AweRestController {
     AweRestResponse aweRestResponse = new AweRestResponse();
     aweRestResponse.setType(AnswerType.ERROR);
     aweRestResponse.setTitle(AWE_REST);
+    aweRestResponse.setMessage(exc.getMessage());
+    return aweRestResponse;
+  }
+
+  /**
+   * Handle a launch refused by the authorization: the generic refusal title and message, which never name the target
+   *
+   * @param exc Exception to handle
+   * @return Response error
+   */
+  @ExceptionHandler(AWEUnauthorizedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public AweRestResponse handleUnauthorizedException(AWEUnauthorizedException exc) {
+    log.warn(AWE_REST + exc);
+    // Retrieve exception
+    AweRestResponse aweRestResponse = new AweRestResponse();
+    aweRestResponse.setType(AnswerType.ERROR);
+    aweRestResponse.setTitle(exc.getTitle());
     aweRestResponse.setMessage(exc.getMessage());
     return aweRestResponse;
   }

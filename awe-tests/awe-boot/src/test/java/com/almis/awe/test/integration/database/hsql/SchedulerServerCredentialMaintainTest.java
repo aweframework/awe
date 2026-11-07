@@ -100,7 +100,7 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
 
     // serverData is server-only: a client request is refused and gets no secret
     assertThat(performRequest("data", "serverData", "\"serverId\":" + serverId))
-        .contains("without authorization")
+        .contains("You do not have permission to perform this action. Contact your administrator if you need it.")
         .doesNotContain("initialSecret")
         .doesNotContain("initialKey")
         .doesNotContain("initialPass");

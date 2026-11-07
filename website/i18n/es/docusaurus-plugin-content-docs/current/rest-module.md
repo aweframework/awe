@@ -137,7 +137,58 @@ El comportamiento de la autenticación depende del modo configurado:
 - **oauth2-resource-server**: obtén un token de acceso de tu proveedor de identidad y llama directamente a AWE con `Authorization: Bearer <access_token>`.
 
 > `/api/authenticate` es exclusivo de local-jwt y no es un endpoint de tokens OAuth2.
-> El modo OAuth2 Resource Server no aprovisiona ni sincroniza usuarios `ope` locales, y no añade autorización granular de query/maintain ni un modelo de permisos REST de lectura/escritura.
+
+Las consultas y los targets de maintain que se lanzan por la API REST se autorizan solo por los
+[permisos](security/permissions.md#rest-api), no por el [acceso por pantalla](security/screen-access.md#rest-api). Una
+petición rechazada por la autorización responde HTTP `403` con un `AweRestResponse` de tipo `ERROR` y un mensaje
+genérico. Un target privado sin `permission` está abierto a cualquier usuario autenticado de la API REST: cuando la API
+esté expuesta, active `awe.security.permissions.require-undeclared=true`.
+
+Los permisos de quien llama dependen del modo de autenticación:
+
+- **local-jwt**: los permisos de los perfiles del usuario, el principal y los adicionales.
+- **oauth2-resource-server**: los permisos de los perfiles de AWE del token. Los roles del claim de perfil
+  (`awe.rest.api.oauth2-resource-server.principal.profile-claim`) se asignan a perfiles de AWE como lo hace el
+  [inicio de sesión único](security/authentication-sso.md), así que el mismo rol del proveedor de identidad sirve para
+  la web y para la API REST:
+  - El claim es un nombre de claim o una ruta con puntos a un claim anidado (`realm_access.roles`,
+    `resource_access.<client>.roles`), con una lista de roles o uno solo.
+  - `awe.security.sso.filter-authority-prefix` mantiene solo los roles con ese prefijo y lo quita.
+  - Cada rol se compara con los nombres de perfil (`AwePro.Nam`) sin distinguir mayúsculas y minúsculas; un rol que no
+    es un nombre de perfil, por ejemplo un acrónimo, se ignora.
+  - El perfil principal es el primero de `awe.security.sso.profile-priority`, o si no el primer nombre en orden
+    alfabético; el resto son perfiles adicionales. Cada perfil da un `ROLE_<nombre del perfil>`.
+  - Sin el claim, o cuando ningún rol corresponde a un perfil, se aplica el perfil por defecto
+    (`awe.rest.api.oauth2-resource-server.principal.default-profile`, o si no `awe.application.default-role`). Cuando
+    el claim está configurado y aplica `awe.security.sso.require-role` (por defecto, cuando
+    `awe.security.sso.local-login` es `false`), un token sin un rol asignado se rechaza con `401`.
+
+  Cada perfil recibe los mismos permisos que con el inicio de sesión local: sus asignaciones (`AweProPer`) más su
+  fichero de perfil menos sus exclusiones. Los permisos se leen en cada petición, así que un cambio de las asignaciones
+  se aplica sin un token nuevo.
+
+:::warning
+
+Todo token válido del emisor que no corresponde a ningún rol recibe el perfil por defecto: cualquier usuario del
+realm, o un cliente con client credentials y sin rol. Cuando la API REST está expuesta, usa como perfil por defecto
+uno sin permisos, o configura `awe.security.sso.require-role=true` para rechazar esos tokens.
+
+:::
+
+> El modo OAuth2 Resource Server no aprovisiona ni sincroniza usuarios `ope` locales: el token no necesita un usuario
+> en AWE, solo sus roles.
+
+Por ejemplo, con Keycloak nombra los roles del realm como los perfiles de AWE (`Operator`, `General`) y añade un mapper
+*Audience* para el cliente de la API:
+
+```properties
+awe.rest.api.auth.mode=oauth2-resource-server
+awe.rest.api.oauth2-resource-server.jwt.issuer-uri=https://<keycloak-host>/realms/<realm>
+awe.rest.api.oauth2-resource-server.jwt.audiences[0]=<api-client-id>
+awe.rest.api.oauth2-resource-server.principal.profile-claim=realm_access.roles
+# Opcional: perfil de los tokens sin un rol asignado
+awe.rest.api.oauth2-resource-server.principal.default-profile=<profile-name>
+```
 
 :::info La documentación *swagger* completa de los servicios rest de awe está
 disponible [aquí](http://demo.aweframework.com/swagger-ui.html).

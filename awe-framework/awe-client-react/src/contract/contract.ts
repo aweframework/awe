@@ -144,6 +144,7 @@ export interface Button extends AbstractButton {
 }
 
 export interface ButtonAction extends AbstractAction {
+    viewMode?: boolean;
 }
 
 export interface Card extends Component {

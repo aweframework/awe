@@ -27,9 +27,11 @@ import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.entities.screen.component.grid.Grid;
 import com.almis.awe.model.entities.screen.component.grid.RowDetail;
 import com.almis.awe.model.entities.screen.data.*;
+import com.almis.awe.security.authorization.ScreenElementAuthorizer;
 import com.almis.awe.service.GridLayoutService;
 import com.almis.awe.service.WindowStateService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -60,6 +62,9 @@ public class ScreenComponentGenerator extends ServiceConfig {
   private final GridLayoutService gridLayoutService;
   private final WindowStateService windowStateService;
 
+  // Removes the elements the user cannot use. Optional: without it the screen is generated as it is defined
+  private ScreenElementAuthorizer screenElementAuthorizer;
+
   /**
    * Autowired constructor
    *
@@ -84,6 +89,16 @@ public class ScreenComponentGenerator extends ServiceConfig {
     this.screenConfigurationGenerator = screenConfigurationGenerator;
     this.gridLayoutService = gridLayoutService;
     this.windowStateService = windowStateService;
+  }
+
+  /**
+   * Set the authorizer of the screen elements
+   *
+   * @param screenElementAuthorizer Screen element authorizer
+   */
+  @Autowired(required = false)
+  public void setScreenElementAuthorizer(ScreenElementAuthorizer screenElementAuthorizer) {
+    this.screenElementAuthorizer = screenElementAuthorizer;
   }
 
   /**
@@ -117,6 +132,11 @@ public class ScreenComponentGenerator extends ServiceConfig {
 
       // Apply screen configuration
       screenConfigurationGenerator.applyScreenConfiguration(configurationResult, screen);
+
+      // Remove the elements the user cannot use (the screen is the copy generated for this request)
+      if (screenElementAuthorizer != null) {
+        screenElementAuthorizer.apply(screen);
+      }
 
       // Components inside deferred dialogs and tab pages do not load their data until they are opened
       Set<Component> deferredComponents = DeferredComponents.getDeferredComponents(screen);

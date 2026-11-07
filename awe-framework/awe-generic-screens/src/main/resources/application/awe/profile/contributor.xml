@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : contributor.xml
+    Description:
+        Predefined profile Contributor (CTB): every permission except the administration of users, profiles and
+        permissions. The users and profiles screens are restricted, since the profile cannot read them.
+-->
+<profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/profile.xsd">
+  <restriction option="users" />
+  <restriction option="profiles" />
+  <permission id="*" />
+  <exclude id="users.*" />
+  <exclude id="profiles.*" />
+  <exclude id="permissions.*" />
+</profile>

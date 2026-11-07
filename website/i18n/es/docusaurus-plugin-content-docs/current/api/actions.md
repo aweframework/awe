@@ -27,6 +27,7 @@ o
 | `silent`        |    Opcional     | Boolean | Iniciar la acción sin mostrar la barra de carga                                  |                                                                               |
 | `async`         |    Opcional     | Boolean | Ejecuta la acción en la pila [asíncrona](#async-stack)                           |                                                                               |
 | `value`         |    Opcional     | String  | Valor a establecer para el criterio en caso de que la acción sea de tipo "value" |                                                                               |
+| `edit-permission` |  Opcional     | String  | Solo para el tipo `dialog`: permisos que necesita el usuario para editar en el diálogo o el panel lateral que abre. Sin ellos el panel se abre en modo consulta (criterios de solo lectura). Consulta [elementos de pantalla](../security/permissions.md#view-mode-of-a-panel-edit-permission) | Identificadores de permiso separados por espacios, todos requeridos. **Ej.** `users.update` |
 
 ## Acciones del cliente {#client-actions}
 

@@ -58,6 +58,8 @@ Para utilizar este módulo, se necesitan los siguientes pasos:
 awe.application.module-list = APP, ..., awe-notifier, ..., awe
 ```
 
+- Dé a los perfiles que gestionan las suscripciones los permisos `subscriptions.*` (solo los tiene el perfil de administrador); las notificaciones de un usuario no necesitan ningún permiso. Consulte [Permisos](security/permissions.md#catalog-resources).
+
 - Si utiliza `flyway`, añada las tablas del notificador al módulo de migración:
 
 ```properties

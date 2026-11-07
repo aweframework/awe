@@ -83,6 +83,11 @@ public class Query implements XMLNode, Copyable {
   @XStreamAsAttribute
   private Boolean isPublic;
 
+  // Permissions required to launch the query from a client, separated by spaces (all of them are required)
+  @XStreamAlias("permission")
+  @XStreamAsAttribute
+  private String permission;
+
   // Query can only be launched from the server (never from a client request)
   @XStreamAlias("server-only")
   @XStreamAsAttribute

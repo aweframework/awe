@@ -60,7 +60,7 @@
   -->
 
   <!-- Get Log List -->
-  <query id="getLogList" service="getLogList">
+  <query id="getLogList" permission="system.read" service="getLogList">
     <field id="action" alias="SrvAct" />
     <field id="path" alias="Fil" />
     <field id="name" alias="Nam" />
@@ -168,7 +168,7 @@
   </query>
 
   <!-- ACTIVE USER SELECT -->
-  <query id="UsrActSel" cacheable="true">
+  <query id="UsrActSel" permission="system.read" cacheable="true">
     <table id="ope" />
     <field id="IdeOpe" alias="value" />
     <field id="l1_nom" alias="label" />
@@ -181,7 +181,7 @@
   </query>
 
   <!-- ACTIVE USER SUGGEST -->
-  <query id="UsrActSug" cacheable="true">
+  <query id="UsrActSug" permission="system.read" cacheable="true">
     <table id="ope" />
     <field id="IdeOpe" alias="value" />
     <field id="l1_nom" alias="label" />
@@ -299,7 +299,7 @@
 
 
   <!-- USER CHECK UNIQUE -->
-  <query id="UsrChkUni" cacheable="true">
+  <query id="UsrChkUni" permission="users.read" cacheable="true">
     <table id="ope" />
     <field id="l1_nom" alias="Usr" />
     <field id="l1_lan" alias="Lan" />
@@ -312,12 +312,14 @@
   </query>
 
   <!-- USER LIST -->
-  <query id="UsrLst" cacheable="true">
+  <query id="UsrLst" permission="users.read" cacheable="true">
     <table id="ope" alias="ope" />
     <field id="IdeOpe" table="ope" alias="id" />
     <field id="IdeOpe" table="ope" alias="IdeOpe" />
     <field id="l1_nom" table="ope" alias="Nom" />
     <field id="Nam" table="Pro" alias="ProTxt" />
+    <!-- Users screen (user-admin): names of the additional profiles, the chips of their column -->
+    <field query="UsrAddProTxt" alias="AddProTxt" />
     <field id="IdePro" table="Pro" alias="Pro" />
     <field id="Nam" table="thm" alias="ThmTxt" />
     <field id="IdeThm" table="thm" alias="Thm" />
@@ -549,10 +551,29 @@
     <variable id="Zero" type="INTEGER" value="0" />
   </query>
 
+  <!-- USER LIST (user-admin): names of the additional profiles (AweOpeRol) of the user of the row, ordered by name and
+       separated by "|", the chip separator of their column, so a name with a comma stays one chip (null without any).
+       A subquery of UsrLst only: it reads the user of the outer query -->
+  <query id="UsrAddProTxt" server-only="true">
+    <table id="AweOpeRol" alias="rol" />
+    <field id="Nam" table="addPro" function="STRING_AGG" separator="|" alias="AddProTxt" />
+    <join>
+      <table id="AwePro" alias="addPro" />
+      <and>
+        <filter left-field="IdePro" left-table="rol" condition="eq" right-field="IdePro" right-table="addPro" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeOpe" left-table="rol" condition="eq" right-field="IdeOpe" right-table="ope" />
+      </and>
+    </where>
+  </query>
+
   <!-- Users screen (user-admin): quick filter options (All, Locked, Without 2FA, Inactive) with their counts. Each count
        is the number of rows UsrLst returns for that option: the same join, search filters (CrtUsr, CrtPro, CrtUsrTxt...) and state
        and two-factor expressions as UsrLst (a union cannot use subqueries). Keep them in step with UsrLst -->
-  <query id="UsrStaCnt">
+  <query id="UsrStaCnt" permission="users.read">
     <table id="ope" alias="ope" />
     <constant value="1" type="INTEGER" alias="pos" />
     <constant value="" alias="value" />
@@ -842,6 +863,178 @@
     <variable id="Usr" type="STRING" name="user" />
   </query>
 
+  <!-- Active additional profiles of a user (AweOpeRol), without the main profile -->
+  <query id="userAdditionalProfiles" server-only="true">
+    <table id="AweOpeRol" alias="Rol" />
+    <field id="Acr" table="Pro" alias="profile" />
+    <field id="Nam" table="Pro" alias="profileName" />
+    <field id="Res" table="Pro" alias="profileRestriction" />
+    <join>
+      <table id="ope" alias="Usr" />
+      <and>
+        <filter left-field="IdeOpe" left-table="Rol" condition="eq" right-field="IdeOpe" right-table="Usr" />
+      </and>
+    </join>
+    <join>
+      <table id="AwePro" alias="Pro" />
+      <and>
+        <filter left-field="IdePro" left-table="Rol" condition="eq" right-field="IdePro" right-table="Pro" />
+        <filter left-field="Act" left-table="Pro" condition="eq" right-variable="active" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="l1_nom" left-table="Usr" condition="eq" right-variable="Usr" trim="true" ignorecase="true"/>
+        <filter left-field="IdePro" left-table="Rol" condition="ne" right-field="IdePro" right-table="Usr" />
+      </and>
+    </where>
+    <order-by field="Acr" table="Pro" />
+    <variable id="Usr" type="STRING" name="user" />
+    <variable id="active" type="INTEGER" value="1" />
+  </query>
+
+  <!-- Permissions assigned to some profiles (AweProPer), not expanded: read by the server when a user signs in -->
+  <query id="profilePermissions" permission="permissions.read">
+    <table id="AweProPer" alias="Per" />
+    <field id="Per" table="Per" alias="permission" />
+    <join>
+      <table id="AwePro" alias="Pro" />
+      <and>
+        <filter left-field="IdePro" left-table="Per" condition="eq" right-field="IdePro" right-table="Pro" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Acr" left-table="Pro" condition="in" right-variable="profiles" />
+      </and>
+    </where>
+    <order-by field="Per" table="Per" />
+    <variable id="profiles" type="STRING" name="profiles" />
+  </query>
+
+  <!-- Permissions assigned to every profile (AweProPer), not expanded: read by the server at startup to log the
+       assignments missing from the permission catalog -->
+  <query id="allProfilePermissions" permission="permissions.read">
+    <table id="AweProPer" alias="Per" />
+    <field id="Acr" table="Pro" alias="profile" />
+    <field id="Per" table="Per" alias="permission" />
+    <join>
+      <table id="AwePro" alias="Pro" />
+      <and>
+        <filter left-field="IdePro" left-table="Per" condition="eq" right-field="IdePro" right-table="Pro" />
+      </and>
+    </join>
+    <order-by field="Acr" table="Pro" />
+    <order-by field="Per" table="Per" />
+  </query>
+
+  <!-- Restriction file (AwePro.Res) of some profiles: their profile file, read at login for the permissions it
+       declares -->
+  <query id="profileRestrictions" server-only="true">
+    <table id="AwePro" />
+    <field id="Acr" alias="profile" />
+    <field id="Res" alias="restriction" />
+    <where>
+      <and>
+        <filter left-field="Acr" condition="in" right-variable="profiles" />
+      </and>
+    </where>
+    <variable id="profiles" type="STRING" name="profiles" />
+  </query>
+
+  <!-- Profile with an acronym: read at startup before creating a predefined profile -->
+  <query id="profileByAcronym" server-only="true">
+    <table id="AwePro" />
+    <field id="IdePro" />
+    <where>
+      <and>
+        <filter left-field="Acr" condition="eq" right-variable="Acr" />
+      </and>
+    </where>
+    <variable id="Acr" type="STRING" name="Acr" />
+  </query>
+
+  <!-- Highest profile identifier, and the profile sequence (ProKey): a predefined profile created at startup takes the
+       next identifier of both, so the profiles inserted with their own identifier never collide with it -->
+  <query id="profileMaxKey" server-only="true">
+    <table id="AwePro" />
+    <field id="IdePro" function="MAX" alias="IdePro" />
+  </query>
+
+  <query id="profileSequenceKey" server-only="true">
+    <table id="AweKey" />
+    <field id="KeyVal" />
+    <where>
+      <and>
+        <filter left-field="KeyNam" condition="eq" right-variable="KeyNam" />
+      </and>
+    </where>
+    <variable id="KeyNam" type="STRING" value="ProKey" />
+  </query>
+
+  <!-- Additional profiles of the user selected in the users screen (user-admin), to fill its side panel (AddPro) -->
+  <query id="UsrAddProSel" permission="users.read">
+    <table id="AweOpeRol" alias="Rol" />
+    <field id="IdePro" table="Pro" alias="value" />
+    <field id="Acr" table="Pro" alias="Acr" />
+    <field id="Nam" table="Pro" alias="Nam" />
+    <computed format="[Acr] - [Nam]" alias="label" />
+    <join>
+      <table id="AwePro" alias="Pro" />
+      <and>
+        <filter left-field="IdePro" left-table="Rol" condition="eq" right-field="IdePro" right-table="Pro" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeOpe" left-table="Rol" condition="eq" right-variable="IdeOpe" />
+      </and>
+    </where>
+    <order-by field="Acr" table="Pro" />
+    <variable id="IdeOpe" type="INTEGER" name="IdeOpeSel" />
+  </query>
+
+  <!-- Labels of the additional profiles selected by their id in the users screen (check target of AddPro) -->
+  <query id="UsrAddProIni" permission="users.read">
+    <table id="AwePro" />
+    <field id="IdePro" alias="value" />
+    <field id="Acr" alias="Acr" />
+    <field id="Nam" alias="Nam" />
+    <computed format="[Acr] - [Nam]" alias="label" />
+    <where>
+      <and>
+        <filter left-field="IdePro" condition="in" right-variable="IdePro" />
+      </and>
+    </where>
+    <order-by field="Acr" />
+    <variable id="IdePro" type="INTEGER" name="suggest" />
+  </query>
+
+  <!-- Identifier of the user whose additional profiles UsrNew and UsrUpd store (UsrAddProUpd maintain) -->
+  <query id="UsrIdeOpe" server-only="true">
+    <table id="ope" />
+    <field id="IdeOpe" />
+    <where>
+      <and>
+        <filter left-field="IdeOpe" condition="eq" right-variable="IdeOpe" />
+      </and>
+    </where>
+    <variable id="IdeOpe" type="INTEGER" name="IdeOpe" />
+  </query>
+
+  <!-- Id of the single sign-on user of UpdateOauthUserAdditionalProfiles: only the server sets the session parameter,
+       while it launches the target -->
+  <query id="SsoUsrIdeOpe" server-only="true">
+    <table id="ope" />
+    <field id="IdeOpe" />
+    <where>
+      <and>
+        <filter left-field="l1_nom" condition="eq" right-variable="user" trim="true" />
+      </and>
+    </where>
+    <variable id="user" type="STRING" session="ssoProfilesUser" />
+  </query>
+
   <query id="userDetailsByProfile" cacheable="true" server-only="true">
     <table id="AwePro" alias="Pro" />
     <field id="IdeThm" table="Pro" alias="IdeThm" />
@@ -940,7 +1133,7 @@
     <variable id="Usr" type="STRING" session="user" />
   </query>
 
-  <query id="getUserData" cacheable="true">
+  <query id="getUserData" permission="self.read" cacheable="true">
     <table id="ope" />
     <field id="OpeNam" alias="name" />
     <field id="EmlAdr" alias="email" />
@@ -954,7 +1147,7 @@
   </query>
 
   <!-- ACCESS SCREENS -->
-  <query id="ScrAccLst">
+  <query id="ScrAccLst" permission="access.read">
     <table id="AweScrRes" alias="scrRes" />
     <field id="IdeAweScrRes" table="scrRes" alias="id" />
     <field id="IdeAweScrRes" table="scrRes" alias="IdeAweScrRes" />
@@ -1026,7 +1219,7 @@
     <variable id="option" type="STRING" name="option-name.selected"/>
   </query>
 
-  <query id="menu-option-tree" service="getMenuOptionTree"/>
+  <query id="menu-option-tree" permission="access.read" service="getMenuOptionTree"/>
 
   <query id="menu-restrictions" cacheable="true">
     <table id="AweScrRes" alias="scrRes" />
@@ -1105,7 +1298,7 @@
     <variable id="active" type="INTEGER" value="1"/>
   </query>
 
-  <query id="menu-option-tree-by-module" service="getMenuOptionTreeByModule">
+  <query id="menu-option-tree-by-module" permission="access.read" service="getMenuOptionTreeByModule">
     <variable id="user" type="INTEGER" name="selected-user"/>
     <variable id="profile" type="INTEGER" name="selected-profile"/>
     <variable id="module" type="STRING" name="selected-module"/>
@@ -1113,7 +1306,7 @@
 
   <!-- ACCESS WINDOW (access-admin): the private menu as a tree with the effective access of the subject (a profile or
        a user). The module criterion is not called "module": that request parameter changes the module of the session menu -->
-  <query id="access-tree" service="access-tree">
+  <query id="access-tree" permission="access.read" service="access-tree">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
@@ -1124,7 +1317,7 @@
   </query>
 
   <!-- ACCESS WINDOW: options of the quick filter of the tree with their counts (with the search) -->
-  <query id="access-tree-counts" service="access-tree-counts">
+  <query id="access-tree-counts" permission="access.read" service="access-tree-counts">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
@@ -1135,13 +1328,57 @@
 
   <!-- ACCESS WINDOW: the profiles and the users to compare with (one suggest): profile:IdePro or user:IdeOpe, its code
        and name as label and its type as group (PARAMETER_PROFILE, PARAMETER_USER), or the selected value -->
-  <query id="AccessCompareSug" service="access-compare-suggest">
+  <query id="AccessCompareSug" permission="access.read" service="access-compare-suggest">
     <variable id="suggest" type="STRING" name="suggest"/>
+  </query>
+
+  <!-- ACCESS WINDOW, permissions view: one row per permission of the catalog with the state of the user (main profile
+       plus additional profiles) or of the profile, its origins and its warning, as its login loads them. It shows users
+       and the permissions of their profiles: it requires users.read and permissions.read -->
+  <query id="access-permissions" permission="users.read permissions.read" service="access-permissions">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="filter" type="STRING" name="access-permission-filter"/>
+    <variable id="search" type="STRING" name="access-permission-search"/>
+    <variable id="compareWith" type="STRING" name="compare-with"/>
+  </query>
+
+  <!-- ACCESS WINDOW, permissions view: options of the quick filter with their counts (of the subject, with the search) -->
+  <query id="access-permission-counts" permission="users.read permissions.read" service="access-permission-counts">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="search" type="STRING" name="access-permission-search"/>
+    <variable id="compareWith" type="STRING" name="compare-with"/>
+  </query>
+
+  <!-- ACCESS WINDOW, permissions view: summary of the subject (or of the comparison) as a card -->
+  <query id="access-permission-summary" permission="users.read permissions.read" service="access-permission-summary">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="compareWith" type="STRING" name="compare-with"/>
+  </query>
+
+  <!-- ACCESS WINDOW, permissions view: what each profile of the subject gives to a permission, and the result as a card -->
+  <query id="access-permission-why" permission="users.read permissions.read" service="access-permission-why">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="permission" type="STRING" name="access-permission"/>
+  </query>
+
+  <query id="access-permission-why-result" permission="users.read permissions.read" service="access-permission-why-result">
+    <variable id="subjectType" type="STRING" name="subject-type"/>
+    <variable id="user" type="INTEGER" name="IdeOpe"/>
+    <variable id="profile" type="INTEGER" name="IdePro"/>
+    <variable id="permission" type="STRING" name="access-permission"/>
   </query>
 
   <!-- ACCESS WINDOW: preview of a bulk change of the selected options (access-options): access-change is allow, deny or
        remove. The summary as a card, the options that change and the users of the subject that lose, gain or keep them -->
-  <query id="access-impact" service="access-impact">
+  <query id="access-impact" permission="access.read" service="access-impact">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
@@ -1149,7 +1386,7 @@
     <variable id="change" type="STRING" name="access-change"/>
   </query>
 
-  <query id="access-impact-options" service="access-impact-options">
+  <query id="access-impact-options" permission="access.read" service="access-impact-options">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
@@ -1157,7 +1394,7 @@
     <variable id="change" type="STRING" name="access-change"/>
   </query>
 
-  <query id="access-impact-users" service="access-impact-users">
+  <query id="access-impact-users" permission="access.read" service="access-impact-users">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
@@ -1166,7 +1403,7 @@
   </query>
 
   <!-- ACCESS WINDOW: cascade of the layers of an option for the subject -->
-  <query id="access-why" service="access-why">
+  <query id="access-why" permission="access.read" service="access-why">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
@@ -1175,7 +1412,7 @@
   </query>
 
   <!-- ACCESS WINDOW: result of an option for the subject, as the card of the side panel (title, description, icon) -->
-  <query id="access-why-result" service="access-why-result">
+  <query id="access-why-result" permission="access.read" service="access-why-result">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
@@ -1184,18 +1421,18 @@
   </query>
 
   <!-- ACCESS WINDOW: active rules of an option (global, profile and user) -->
-  <query id="access-option-rules" service="access-option-rules">
+  <query id="access-option-rules" permission="access.read" service="access-option-rules">
     <variable id="option" type="STRING" name="access-option"/>
   </query>
 
   <!-- ACCESS WINDOW: review of every rule of every profile and user, its summary (a card) and the labels of its buttons
        with their counts (the button of the header and the one that removes the rules without effect) -->
-  <query id="access-review" service="access-review" />
-  <query id="access-review-counts" service="access-review-counts" />
-  <query id="access-review-label" service="access-review-label">
+  <query id="access-review" permission="access.read" service="access-review" />
+  <query id="access-review-counts" permission="access.read" service="access-review-counts" />
+  <query id="access-review-label" permission="access.read" service="access-review-label">
     <variable id="kind" type="STRING" value="review"/>
   </query>
-  <query id="access-review-clean-label" service="access-review-label">
+  <query id="access-review-clean-label" permission="access.read" service="access-review-label">
     <variable id="kind" type="STRING" value="clean"/>
   </query>
 
@@ -1220,25 +1457,25 @@
   <!-- ACCESS WINDOW: view as. The menu that the subject would see in the module (a tree of the options it can reach), the
        number of visible options (a card), the hidden ones with their reason, the banner (a card) and the label of the
        button that opens it -->
-  <query id="access-menu-preview" service="access-menu-preview">
+  <query id="access-menu-preview" permission="access.read" service="access-menu-preview">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
     <variable id="module" type="STRING" name="access-module"/>
   </query>
-  <query id="access-menu-preview-counts" service="access-menu-preview-counts">
+  <query id="access-menu-preview-counts" permission="access.read" service="access-menu-preview-counts">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
     <variable id="module" type="STRING" name="access-module"/>
   </query>
-  <query id="access-menu-preview-hidden" service="access-menu-preview-hidden">
+  <query id="access-menu-preview-hidden" permission="access.read" service="access-menu-preview-hidden">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
     <variable id="module" type="STRING" name="access-module"/>
   </query>
-  <query id="access-menu-preview-banner" service="access-menu-preview-banner">
+  <query id="access-menu-preview-banner" permission="access.read" service="access-menu-preview-banner">
     <variable id="subjectType" type="STRING" name="subject-type"/>
     <variable id="user" type="INTEGER" name="IdeOpe"/>
     <variable id="profile" type="INTEGER" name="IdePro"/>
@@ -1404,7 +1641,7 @@
     <variable id="search" type="STRINGB" name="search" />
   </query>
 
-  <query id="restriction-list">
+  <query id="restriction-list" permission="access.read">
     <table id="AweScrRes" alias="scrRes" />
     <field id="IdeAweScrRes" table="scrRes" alias="id" />
     <field id="IdeAweScrRes" table="scrRes" alias="IdeAweScrRes" />
@@ -1467,9 +1704,11 @@
     <field id="user"/>
     <field id="profile"/>
     <variable id="restriction" type="STRING" session="restriction"/>
-    <!-- Not used by the service: the user and profile filter the database restrictions it reads, so they must key the cache -->
+    <!-- Not used by the service: the user and profiles filter the database restrictions it reads, so they must key the cache -->
     <variable id="user" type="STRING" session="user"/>
     <variable id="profile" type="STRING" session="profile"/>
+    <variable id="profiles" type="STRING" session="profiles"/>
+    <variable id="userRestriction" type="STRING" session="userRestriction"/>
   </query>
 
   <!-- OPTION ACCESS RESTRICTIONS -->
@@ -1520,6 +1759,67 @@
     <order-by field="IdeAweScrRes"/>
   </query>
 
+  <!-- OPTION ACCESS RESTRICTIONS OF EVERY PROFILE OF THE SESSION (users with additional profiles) -->
+  <query id="getOptionRestrictionFromDatabaseByProfiles">
+    <table id="AweScrRes" alias="scrRes" />
+    <field id="IdeOpe" table="ope" alias="IdeOpe" noprint="true"/>
+    <field id="IdePro" table="pro" alias="IdePro" noprint="true"/>
+    <field id="Acr" table="pro" alias="profile" />
+    <field id="l1_nom" table="ope" alias="user" />
+    <field id="Nam" table="mod" alias="module" />
+    <field id="Opt" table="scrRes" alias="option" />
+    <field id="AccMod" table="scrRes" alias="access" />
+    <field id="AccMod" table="scrRes" alias="restricted" translate="IsRestricted"/>
+    <join type="LEFT">
+      <table id="AwePro" alias="pro" />
+      <and>
+        <filter left-field="IdePro" left-table="scrRes" condition="eq" right-field="IdePro" right-table="pro" />
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="ope" alias="ope" />
+      <and>
+        <filter left-field="IdeOpe" left-table="scrRes" condition="eq" right-field="IdeOpe" right-table="ope"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweMod" alias="mod" />
+      <and>
+        <filter left-field="IdeMod" left-table="scrRes" condition="eq" right-field="IdeMod" right-table="mod" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Act" left-table="scrRes" condition="eq" right-variable="active" />
+        <or>
+          <filter left-field="l1_nom" left-table="ope" condition="eq" right-variable="user" ignorecase="true" optional="true"/>
+          <filter left-field="IdeOpe" left-table="scrRes" condition="is null"/>
+        </or>
+        <or>
+          <filter left-field="Acr" left-table="pro" condition="in" right-variable="profiles" />
+          <filter left-field="IdePro" left-table="scrRes" condition="is null"/>
+        </or>
+      </and>
+    </where>
+    <variable id="active" type="INTEGER" value="1" />
+    <variable id="profiles" type="STRING_TO_LIST" session="profiles" />
+    <variable id="user" type="STRING" session="user" />
+    <order-by field="IdeAweScrRes"/>
+  </query>
+
+  <!-- RESTRICTION FILE OF EVERY PROFILE OF THE SESSION -->
+  <query id="getProfilesRestriction">
+    <table id="AwePro" alias="pro" />
+    <field id="Acr" table="pro" alias="profile" />
+    <field id="Res" table="pro" alias="restriction" />
+    <where>
+      <and>
+        <filter left-field="Acr" left-table="pro" condition="in" right-variable="profiles" />
+      </and>
+    </where>
+    <variable id="profiles" type="STRING_TO_LIST" session="profiles" />
+  </query>
+
   <!-- SCREEN SUGGEST (Service getAvailableScreenList) -->
   <query id="getScreenList" service="getScreenList" cacheable="true">
     <field id="value"/>
@@ -1540,14 +1840,14 @@
   </query>
 
   <!-- OPTION MENU SUGGEST (Service getNameOptionList) -->
-  <query id="getOptionList" service="getOptionList" cacheable="true">
+  <query id="getOptionList" permission="access.read" service="getOptionList" cacheable="true">
     <field id="value"/>
     <field id="label"/>
     <variable id="option" type="STRING" name="suggest" />
   </query>
 
   <!-- MODULES SUGGEST -->
-  <query id="ModSug" cacheable="true">
+  <query id="ModSug" permission="system.read" cacheable="true">
     <table id="AweMod" />
     <field id="IdeMod" alias="value" />
     <field id="Nam" alias="label" />
@@ -1566,7 +1866,7 @@
   </query>
 
   <!-- MODULES SUGGEST INITIAL VALUE -->
-  <query id="ModIni" cacheable="true">
+  <query id="ModIni" permission="system.read" cacheable="true">
     <table id="AweMod" />
     <field id="IdeMod" alias="value" />
     <field id="Nam" alias="label" />
@@ -1587,7 +1887,7 @@
   </query>
 
   <!-- MODULES SELECT FROM BD -->
-  <query id="ModSelBD" cacheable="true">
+  <query id="ModSelBD" permission="system.read" cacheable="true">
     <table id="AweMod" />
     <field id="IdeMod" alias="value" />
     <field id="Nam" alias="Nam" />
@@ -1673,6 +1973,7 @@
       </and>
     </join>
     <union query="SitNamByOpePro" />
+    <union query="SitNamByOpeRol" />
     <variable id="Usr" type="STRING" session="user" />
     <variable id="Mod" type="STRING" session="module" />
     <variable id="active" type="INTEGER" value="1" />
@@ -1717,6 +2018,59 @@
     <variable id="active" type="INTEGER" value="1" />
   </query>
 
+  <!-- Sites of the session module for the additional profiles of the session user (AweOpeRol) -->
+  <query id="SitNamByOpeRol" distinct="true" cacheable="true">
+    <table id="AweSit" alias="sitRol" />
+    <field id="Nam" table="sitRol" alias="value" />
+    <field id="Nam" table="sitRol" alias="label" />
+    <field id="Ord" table="sitRol" />
+    <join>
+      <table id="AweSitModDbs" alias="sitModDbs" />
+      <and>
+        <filter left-field="IdeSit" left-table="sitRol" condition="eq" right-field="IdeSit" right-table="sitModDbs" />
+        <filter left-field="Act" left-table="sitRol" condition="eq" right-variable="active"/>
+      </and>
+    </join>
+    <join>
+      <table id="AweModPro" alias="modPro" />
+      <and>
+        <filter left-field="IdeMod" left-table="modPro" condition="eq" right-field="IdeMod" right-table="sitModDbs" />
+      </and>
+    </join>
+    <join>
+      <table id="AweMod" alias="mod" />
+      <and>
+        <filter left-field="IdeMod" left-table="mod" condition="eq" right-field="IdeMod" right-table="modPro" />
+        <filter left-field="Nam" left-table="mod" condition="eq" right-variable="Mod" trim="true" />
+        <filter left-field="Act" left-table="mod" condition="eq" right-variable="active"/>
+      </and>
+    </join>
+    <join>
+      <table id="AwePro" alias="pro" />
+      <and>
+        <filter left-field="IdePro" left-table="pro" condition="eq" right-field="IdePro" right-table="modPro" />
+        <filter left-field="Act" left-table="pro" condition="eq" right-variable="active" />
+      </and>
+    </join>
+    <join>
+      <table id="AweOpeRol" alias="rol" />
+      <and>
+        <filter left-field="IdePro" left-table="rol" condition="eq" right-field="IdePro" right-table="pro" />
+      </and>
+    </join>
+    <join>
+      <table id="ope" alias="ope" />
+      <and>
+        <filter left-field="IdeOpe" left-table="ope" condition="eq" right-field="IdeOpe" right-table="rol" />
+        <filter left-field="l1_nom" left-table="ope" condition="eq" right-variable="Usr" ignorecase="true" />
+        <filter left-field="l1_act" left-table="ope" condition="eq" right-variable="active" />
+      </and>
+    </join>
+    <variable id="Usr" type="STRING" session="user" />
+    <variable id="Mod" type="STRING" session="module" />
+    <variable id="active" type="INTEGER" value="1" />
+  </query>
+
   <!-- NAMES MODULES BY USER SELECT-->
   <query id="ModNamByOpeSel" distinct="true" cacheable="true">
     <table id="AweModOpe" alias="modOpe" />
@@ -1740,6 +2094,7 @@
       </and>
     </join>
     <union query="ModNamByOpePro" />
+    <union query="ModNamByOpeRol" />
     <order-by field="Ord"/>
     <variable id="Usr" type="STRING" session="user" />
     <variable id="active" type="INTEGER" value="1" />
@@ -1769,8 +2124,47 @@
     <variable id="active" type="INTEGER" value="1" />
   </query>
 
+  <!-- Modules of the additional profiles of the session user (AweOpeRol) -->
+  <query id="ModNamByOpeRol" distinct="true" cacheable="true">
+    <table id="AweModPro" alias="modPro" />
+    <field id="Nam" table="mod" alias="value" />
+    <field id="Nam" table="mod" alias="Nam" />
+    <field id="Ord" table="mod" alias="Ord" />
+    <computed format="[Nam]" alias="label" />
+    <join>
+      <table id="AwePro" alias="pro" />
+      <and>
+        <filter left-field="IdePro" left-table="pro" condition="eq" right-field="IdePro" right-table="modPro" />
+        <filter left-field="Act" left-table="pro" condition="eq" right-variable="active" />
+      </and>
+    </join>
+    <join>
+      <table id="AweOpeRol" alias="rol" />
+      <and>
+        <filter left-field="IdePro" left-table="rol" condition="eq" right-field="IdePro" right-table="pro" />
+      </and>
+    </join>
+    <join>
+      <table id="ope" alias="ope" />
+      <and>
+        <filter left-field="IdeOpe" left-table="ope" condition="eq" right-field="IdeOpe" right-table="rol" />
+        <filter left-field="l1_nom" left-table="ope" condition="eq" right-variable="Usr" ignorecase="true" />
+        <filter left-field="l1_act" left-table="ope" condition="eq" right-variable="active" />
+      </and>
+    </join>
+    <join>
+      <table id="AweMod" alias="mod" />
+      <and>
+        <filter left-field="IdeMod" left-table="mod" condition="eq" right-field="IdeMod" right-table="modPro" />
+        <filter left-field="Act" left-table="mod" condition="eq" right-variable="active" />
+      </and>
+    </join>
+    <variable id="Usr" type="STRING" session="user" />
+    <variable id="active" type="INTEGER" value="1" />
+  </query>
+
   <!-- MODULE LIST -->
-  <query id="ModLst" cacheable="true">
+  <query id="ModLst" permission="system.read" cacheable="true">
     <table id="AweMod" alias="mod" />
     <field id="IdeMod" table="mod" alias="id" />
     <field id="IdeMod" table="mod" alias="IdeMod" />
@@ -1807,7 +2201,7 @@
   </query>
 
   <!-- USERS BY MODULE LIST-->
-  <query id="QryLstUsrByMod" cacheable="true">
+  <query id="QryLstUsrByMod" permission="system.read" cacheable="true">
     <table id="AweModOpe" alias="modOpe" />
     <field id="IdeModOpe" table="modOpe" alias="IdeModOpe" />
     <field id="IdeOpe" table="ope" alias="IdeOpe" />
@@ -1838,7 +2232,7 @@
   </query>
 
   <!-- PROFILES BY MODULE LIST-->
-  <query id="QryLstProByMod" cacheable="true">
+  <query id="QryLstProByMod" permission="system.read" cacheable="true">
     <table id="AweModPro" alias="modPro" />
     <field id="IdeModPro" table="modPro" alias="IdeModPro" />
     <field id="IdePro" table="pro" alias="IdeProVal" />
@@ -1867,7 +2261,7 @@
        and in how many sites it has a database (scalar subqueries on the row) and its state with its label and tone. The
        module is in IdeModSel too: the grid sends the selected modules to ModDel with it, because IdeMod is the hidden
        criterion of the side panel. ModLst stays as it is for the deprecated Mod screen -->
-  <query id="ModLstAdm">
+  <query id="ModLstAdm" permission="system.read">
     <table id="AweMod" alias="mod" />
     <field id="IdeMod" table="mod" alias="id" />
     <field id="IdeMod" table="mod" alias="IdeMod" />
@@ -1962,7 +2356,7 @@
   </query>
 
   <!-- MODULE STATE COUNTERS: the quick filters of the modules screen (module-admin), counted with its search -->
-  <query id="ModStaCnt">
+  <query id="ModStaCnt" permission="system.read">
     <table id="AweMod" alias="mod" />
     <constant value="1" type="INTEGER" alias="pos" />
     <constant value="" alias="value" />
@@ -2045,7 +2439,7 @@
   </query>
 
   <!-- Module check Name Unique (module-admin) -->
-  <query id="ModNamUni">
+  <query id="ModNamUni" permission="system.read">
     <table id="AweMod" />
     <field id="Nam" alias="Nam" />
     <where>
@@ -2116,7 +2510,7 @@
   </query>
 
   <!-- PROFILES LIST -->
-  <query id="ProLst" cacheable="true">
+  <query id="ProLst" permission="profiles.read" cacheable="true">
     <table id="AwePro" alias="Pro" />
     <field id="IdePro" table="Pro" alias="id" />
     <field id="IdePro" table="Pro" alias="IdePro" />
@@ -2221,7 +2615,7 @@
   <!-- Profiles screen (profile-admin): quick filter options (All, Active, Inactive) with their counts. Each count is the
        number of rows ProLst returns for that option: the same join, search filters (CrtPro, CrtThm, CrtProTxt...) and
        state expression as ProLst (a union cannot use subqueries). Keep them in step with ProLst -->
-  <query id="ProStaCnt">
+  <query id="ProStaCnt" permission="profiles.read">
     <table id="AwePro" alias="Pro" />
     <constant value="1" type="INTEGER" alias="pos" />
     <constant value="" alias="value" />
@@ -2359,7 +2753,7 @@
     <variable id="One" type="INTEGER" value="1" />
   </query>
 
-  <query id="check-profile-acronym">
+  <query id="check-profile-acronym" permission="profiles.read">
     <table id="AwePro" alias="profiles"/>
     <field id="IdePro" table="profiles" alias="value"/>
     <where>
@@ -2368,6 +2762,84 @@
       </and>
     </where>
     <variable id="acronym" type="STRING" name="Acr"/>
+  </query>
+
+  <!-- Profiles screen (profile-admin): options of the permissions of a profile, the permission catalog grouped by
+       resource. The service returns every option, not a page -->
+  <query id="ProPerCat" service="ProPerCat" permission="permissions.read" managed-pagination="true">
+    <field id="value" />
+    <field id="label" />
+    <field id="group" />
+  </query>
+
+  <!-- Permissions assigned to the profile selected in the profiles screen (AweProPer), to fill its permissions (Per):
+       all of them, never a page, since saving the profile replaces them with the ones shown -->
+  <query id="ProPerSel" service="ProPerSel" permission="permissions.read" managed-pagination="true">
+    <field id="value" />
+    <variable id="IdePro" type="INTEGER" name="IdeProSel" />
+  </query>
+
+  <!-- Permissions assigned to a profile (AweProPer): read by the server, without pages, for ProPerSel, the storage of
+       the permissions of a profile and the duplication of a profile -->
+  <query id="ProPerLst" server-only="true">
+    <table id="AweProPer" />
+    <field id="Per" alias="value" />
+    <where>
+      <and>
+        <filter left-field="IdePro" condition="eq" right-variable="IdePro" />
+      </and>
+    </where>
+    <order-by field="Per" />
+    <variable id="IdePro" type="INTEGER" name="IdePro" />
+  </query>
+
+  <!-- Permissions assigned to any profile (AweProPer), once each: read by the server, without pages, to show in the
+       profiles screen the ones the permission catalog does not offer -->
+  <query id="ProPerDst" distinct="true" server-only="true">
+    <table id="AweProPer" />
+    <field id="Per" alias="value" />
+    <order-by field="Per" />
+  </query>
+
+  <!-- Access of the user to the permissions of the profiles in the profiles screen: none (the permissions are not
+       shown), read (read-only) or update -->
+  <query id="ProPerAcc" service="ProPerAcc" permission="profiles.read">
+    <field id="value" />
+  </query>
+
+  <!-- Whether the profile selected in the profiles screen is predefined (1) or not (0): a predefined profile is shown
+       read-only, to be duplicated -->
+  <query id="ProPdfSel" service="ProPdfSel" permission="profiles.read">
+    <field id="value" />
+    <variable id="IdePro" type="INTEGER" name="IdePro" />
+  </query>
+
+  <!-- Acronym and profile file of some profiles: read by the server, without pages, for the guard of the predefined
+       profiles and the duplication -->
+  <query id="ProAcrRes" server-only="true">
+    <table id="AwePro" />
+    <field id="IdePro" />
+    <field id="Acr" />
+    <field id="Res" />
+    <where>
+      <and>
+        <filter left-field="IdePro" condition="in" right-variable="IdePro" />
+      </and>
+    </where>
+    <order-by field="IdePro" />
+    <variable id="IdePro" type="INTEGER" name="IdePro" />
+  </query>
+
+  <!-- Identifier of the profile whose permissions ProPerUpd stores -->
+  <query id="ProIdePro" server-only="true">
+    <table id="AwePro" />
+    <field id="IdePro" />
+    <where>
+      <and>
+        <filter left-field="IdePro" condition="eq" right-variable="IdePro" />
+      </and>
+    </where>
+    <variable id="IdePro" type="INTEGER" name="IdePro" />
   </query>
 
   <!-- THEMES SUGGEST -->
@@ -2391,21 +2863,21 @@
   </query>
 
   <!-- THEME SELECTION -->
-  <query id="ThmSel" cacheable="true">
+  <query id="ThmSel" permission="system.read" cacheable="true">
     <table id="AweThm" />
     <field id="IdeThm" alias="value" />
     <field id="Nam" alias="label" />
   </query>
 
   <!-- THEME SELECTION (Getting the theme name as value) -->
-  <query id="ThmSelVal" cacheable="true">
+  <query id="ThmSelVal" permission="self.read" cacheable="true">
     <table id="AweThm" />
     <field id="Nam" alias="value" />
     <field id="Nam" alias="label" />
   </query>
 
   <!-- THEMES LIST -->
-  <query id="ThmLst" cacheable="true">
+  <query id="ThmLst" permission="themes.read" cacheable="true">
     <table id="AweThm" />
     <field id="IdeThm" alias="id" />
     <field id="IdeThm" alias="IdeThm" />
@@ -2532,7 +3004,7 @@
   <!-- Themes screen (theme-admin): quick filter options (All, Active, Inactive) with their counts. Each count is the
        number of rows ThmLst returns for that option: the same search filters (CrtNam, CrtAct, CrtThmTxt) and state
        expression as ThmLst (a union cannot use subqueries). Keep them in step with ThmLst -->
-  <query id="ThmStaCnt">
+  <query id="ThmStaCnt" permission="themes.read">
     <table id="AweThm" />
     <constant value="1" type="INTEGER" alias="pos" />
     <constant value="" alias="value" />
@@ -2683,7 +3155,7 @@
   </query>
 
   <!-- GET SCREEN CONFIGURATION LIST -->
-  <query id="ScrCnfLst" cacheable="true">
+  <query id="ScrCnfLst" permission="access.read" cacheable="true">
     <table id="AweScrCnf" alias="scrCnf" />
     <field id="IdeAweScrCnf" table="scrCnf" alias="id" />
     <field id="IdeAweScrCnf" table="scrCnf" alias="IdeAweScrCnf" />
@@ -2739,14 +3211,14 @@
   </query>
 
   <!-- Screen attribute select -->
-  <query id="getAttributeNameList" service="getAttributeNameList" cacheable="true">
+  <query id="getAttributeNameList" permission="access.read" service="getAttributeNameList" cacheable="true">
     <field id="value"/>
     <field id="label"/>
     <variable id="attributeKey" type="STRING" name="suggest" />
   </query>
 
   <!-- Elements of screen suggest (Service java getScreenElementList) -->
-  <query id="getScreenElementList" service="getScreenElementList" cacheable="true">
+  <query id="getScreenElementList" permission="access.read" service="getScreenElementList" cacheable="true">
     <field id="value"/>
     <field id="label"/>
     <variable id="screenName" type="STRING" name="Scr.selected" />
@@ -2754,7 +3226,7 @@
   </query>
 
   <!-- DATA BASE SUGGEST -->
-  <query id="DbsSug" cacheable="true">
+  <query id="DbsSug" permission="system.read" cacheable="true">
     <table id="AweDbs" />
     <field id="IdeDbs" alias="value" />
     <field id="Als" alias="Als" />
@@ -2776,7 +3248,7 @@
   </query>
 
   <!-- DATA BASE SELECT -->
-  <query id="DbsSel" cacheable="true">
+  <query id="DbsSel" permission="system.read" cacheable="true">
     <table id="AweDbs" />
     <field id="IdeDbs" alias="value" />
     <field id="Als" alias="Als" />
@@ -2812,7 +3284,7 @@
   </query>
 
   <!-- DATA BASE LIST -->
-  <query id="DbsLst" cacheable="true">
+  <query id="DbsLst" permission="system.read" cacheable="true">
     <table id="AweDbs" />
     <field id="IdeDbs" alias="id" />
     <field id="IdeDbs" alias="IdeDbs" />
@@ -2898,7 +3370,7 @@
   <!-- Databases screen (database-admin): quick filter options (All, Active, Inactive) with their counts. Each count is
        the number of rows DbsLst returns for that option: the same search filters (CrtAls, CrtDct, CrtTyp, CrtAct,
        CrtDbsTxt) and state expression as DbsLst (a union cannot use subqueries). Keep them in step with DbsLst -->
-  <query id="DbsStaCnt">
+  <query id="DbsStaCnt" permission="system.read">
     <table id="AweDbs" />
     <constant value="1" type="INTEGER" alias="pos" />
     <constant value="" alias="value" />
@@ -3019,7 +3491,7 @@
   </query>
 
   <!-- LIST SITES AND MODULES BY DATA BASE -->
-  <query id="QryLstSitModByDbs">
+  <query id="QryLstSitModByDbs" permission="system.read">
     <table id="AweSitModDbs" alias="sitModDbs" />
     <field id="IdeSitModDbs" table="sitModDbs" alias="IdeSitModDbs" />
     <field id="IdeSit" table="sitModDbs" alias="IdeSit" />
@@ -3048,7 +3520,7 @@
   </query>
 
   <!-- SITE LIST -->
-  <query id="SitLst" cacheable="true">
+  <query id="SitLst" permission="system.read" cacheable="true">
     <table id="AweSit" alias="sit" />
     <field id="IdeSit" table="sit" alias="id" />
     <field id="IdeSit" table="sit" alias="IdeSit" />
@@ -3115,7 +3587,7 @@
   </query>
 
   <!-- SITE STATE COUNTERS: the quick filters of the sites screen (site-admin), counted with its search -->
-  <query id="SitStaCnt">
+  <query id="SitStaCnt" permission="system.read">
     <table id="AweSit" alias="sit" />
     <constant value="1" type="INTEGER" alias="pos" />
     <constant value="" alias="value" />
@@ -3211,7 +3683,7 @@
   </query>
 
   <!-- Site check Name Unique -->
-  <query id="SitNamUni">
+  <query id="SitNamUni" permission="system.read">
     <table id="AweSit" />
     <field id="Nam" alias="Nam" />
     <where>
@@ -3223,7 +3695,7 @@
   </query>
 
   <!-- SITES SUGGEST -->
-  <query id="SitSug" cacheable="true">
+  <query id="SitSug" permission="system.read" cacheable="true">
     <table id="AweSit" />
     <field id="IdeSit" alias="value" />
     <field id="Nam" alias="name" noprint="true"/>
@@ -3243,7 +3715,7 @@
   </query>
 
   <!-- SITE SELECT -->
-  <query id="SitSel" cacheable="true">
+  <query id="SitSel" permission="system.read" cacheable="true">
     <table id="AweSit" />
     <field id="IdeSit" alias="value" />
     <field id="Nam" alias="Nam" />
@@ -3259,7 +3731,7 @@
   </query>
 
   <!-- LIST MODULES AND DATABASES BY SITE -->
-  <query id="QryLstModDbsBySit">
+  <query id="QryLstModDbsBySit" permission="system.read">
     <table id="AweSitModDbs" alias="sitModDbs" />
     <field id="IdeSitModDbs" table="sitModDbs" alias="IdeSitModDbs" />
     <!-- The site of the row (site-admin): SitUpd takes it from each row, so saving a site without changing its rows works -->
@@ -3291,7 +3763,7 @@
 
   <!-- LIST MODULES AND DATABASES BY SITE (sites screen, site-admin): the order of the row is SitModOrd and the site of the
        row is IdeSitRow, so neither clashes with the Ord and the IdeSit of the site in the grid of the screen -->
-  <query id="QryLstModDbsBySitAdm">
+  <query id="QryLstModDbsBySitAdm" permission="system.read">
     <table id="AweSitModDbs" alias="sitModDbs" />
     <field id="IdeSitModDbs" table="sitModDbs" alias="IdeSitModDbs" />
     <field id="IdeSit" table="sitModDbs" alias="IdeSitRow" />
@@ -3321,7 +3793,7 @@
   </query>
 
   <!-- LIST SITES AND DATABASES BY MODULE -->
-  <query id="QryLstSitDbsByMod">
+  <query id="QryLstSitDbsByMod" permission="system.read">
     <table id="AweSitModDbs" alias="sitModDbs" />
     <field id="IdeSitModDbs" table="sitModDbs" alias="IdeSitModDbs" />
     <field id="IdeSit" table="sitModDbs" alias="IdeSit" />
@@ -3351,7 +3823,7 @@
   </query>
 
   <!-- DataBase Alias check unique -->
-  <query id="DbsAlsUni">
+  <query id="DbsAlsUni" permission="system.read">
     <table id="AweDbs" />
     <field id="Als" alias="Als" />
     <where>
@@ -3392,7 +3864,7 @@
   </query>
 
   <!-- AWE UNIQUE KEYS -->
-  <query id="AweKeySug" distinct="true" cacheable="true">
+  <query id="AweKeySug" permission="system.read" distinct="true" cacheable="true">
     <table id="AweKey" />
     <field id="KeyNam" alias="value" />
     <field id="KeyNam" alias="label" />
@@ -3407,7 +3879,7 @@
 
   <!-- Sequences list: the deprecated AweKey screen (criteria CrtKeyNam and CrtSta) and the sequences screen
        (sequence-admin: search CrtKeyTxt and quick filters CrtKeySta) -->
-  <query id="AweKeyLst" distinct="true">
+  <query id="AweKeyLst" permission="system.read" distinct="true">
     <table id="AweKey" alias="AweKey" />
     <field id="KeyNam" alias="id" />
     <field id="KeyNam" alias="KeyNam" />
@@ -3457,7 +3929,7 @@
   </query>
 
   <!-- SEQUENCE STATE COUNTERS: the quick filters of the sequences screen (sequence-admin), counted with its search -->
-  <query id="KeyStaCnt">
+  <query id="KeyStaCnt" permission="system.read">
     <table id="AweKey" alias="AweKey" />
     <constant value="1" type="INTEGER" alias="pos" />
     <constant value="" alias="value" />
@@ -3553,7 +4025,7 @@
   </query>
 
   <!-- Sequences screen (sequence-admin): name of a new sequence check unique (the panel names it SeqNam) -->
-  <query id="KeyNamUni">
+  <query id="KeyNamUni" permission="system.read">
     <table id="AweKey" />
     <field id="KeyNam" alias="KeyNam" />
     <where>
@@ -3565,7 +4037,7 @@
   </query>
 
   <!-- AweKey KeyNam check unique -->
-  <query id="AweKeyUni">
+  <query id="AweKeyUni" permission="system.read">
     <table id="AweKey" />
     <field id="KeyNam" alias="KeyNam" />
     <where>
@@ -3578,7 +4050,7 @@
 
   <!-- Application parameter list: the deprecated AweAppPar screen (criteria CrtParNam, CrtCat and CrtSta) and the
        application parameters screen (application-parameter-admin: search CrtAppParTxt and quick filters CrtAppParSta) -->
-  <query id="AweAppParLst" distinct="true">
+  <query id="AweAppParLst" permission="system.read" distinct="true">
     <table id="AweAppPar" alias="AweAppPar" />
     <field id="IdeAweAppPar" alias="id" />
     <field id="IdeAweAppPar" alias="IdeAweAppPar" />
@@ -3641,7 +4113,7 @@
 
   <!-- APPLICATION PARAMETER STATE COUNTERS: the quick filters of the application parameters screen
        (application-parameter-admin), counted with its search -->
-  <query id="AppParStaCnt">
+  <query id="AppParStaCnt" permission="system.read">
     <table id="AweAppPar" alias="AweAppPar" />
     <constant value="1" type="INTEGER" alias="pos" />
     <constant value="" alias="value" />
@@ -3752,7 +4224,7 @@
   </query>
 
   <!-- Application parameters screen (application-parameter-admin): name of a new parameter check unique -->
-  <query id="AppParNamUni">
+  <query id="AppParNamUni" permission="system.read">
     <table id="AweAppPar" />
     <field id="ParNam" alias="ParNam" />
     <where>
@@ -3764,7 +4236,7 @@
   </query>
 
   <!-- Application parameter check unique -->
-  <query id="AweAppParUni">
+  <query id="AweAppParUni" permission="system.read">
     <table id="AweAppPar" />
     <field id="ParNam" alias="ParNam" />
     <where>
@@ -3776,7 +4248,7 @@
   </query>
 
   <!-- GET Application parameter SUGGEST -->
-  <query id="AweAppParSug" distinct="true" cacheable="true">
+  <query id="AweAppParSug" permission="system.read" distinct="true" cacheable="true">
     <table id="AweAppPar" />
     <field id="ParNam" alias="value" />
     <field id="ParNam" alias="label" />
@@ -3803,7 +4275,7 @@
   </query>
 
   <!-- GET CONNECTED USER -->
-  <query id="connectedUser" cacheable="true">
+  <query id="connectedUser" permission="self.read" cacheable="true">
     <table id="ope" />
     <field id="l1_nom" alias="value" />
     <field id="OpeNam" alias="name" />
@@ -3901,7 +4373,7 @@
   </query>
 
   <!-- Enumerated Application parameter category -->
-  <query id="CatParTyp" enumerated="CatParTyp">
+  <query id="CatParTyp" permission="system.read" enumerated="CatParTyp">
     <field id="value" />
     <field id="label" />
   </query>
@@ -3918,7 +4390,7 @@
     <field id="label" />
   </query>
 
-  <query id="ResAccModSel" enumerated="ResAccModSel">
+  <query id="ResAccModSel" permission="access.read" enumerated="ResAccModSel">
     <field id="value" />
     <field id="label" />
   </query>
@@ -3938,7 +4410,7 @@
     <field id="label" />
   </query>
 
-  <query id="GetPrnLst" service="GetPrnLst">
+  <query id="GetPrnLst" permission="users.read" service="GetPrnLst">
     <field id="printer" alias="value"/>
     <field id="printer" alias="label"/>
   </query>
@@ -4008,7 +4480,7 @@
   </query>
 
   <!-- Encrypt text (Service encryptText) -->
-  <query id="GetEncTxt" service="SerEncTxt" cacheable="true">
+  <query id="GetEncTxt" permission="system.read" service="SerEncTxt" cacheable="true">
     <field id="encoded" alias="value"/>
     <field id="encoded" alias="label" />
     <variable id="text" type="STRING" name="CrtTxt" />
@@ -4017,7 +4489,7 @@
 
   <!-- Password hash with the configured algorithm, to insert users with scripts (Service hashPassword). Not cacheable:
        each hash has its own salt and passwords must not stay in the cache -->
-  <query id="GetPwdHas" service="SerHasPwd" cacheable="false">
+  <query id="GetPwdHas" permission="system.read" service="SerHasPwd" cacheable="false">
     <field id="encoded" alias="value"/>
     <field id="encoded" alias="label" />
     <variable id="text" type="STRING" name="CrtTxt" />
@@ -4025,25 +4497,25 @@
   </query>
 
   <!-- Password algorithms of the Encrypt util screen, the configured one first (Service getPasswordAlgorithms) -->
-  <query id="GetPwdAlg" service="SerPwdAlg">
+  <query id="GetPwdAlg" permission="system.read" service="SerPwdAlg">
     <field id="value" />
     <field id="label" />
   </query>
 
   <!-- Encrypt property text (Service encryptText) -->
-  <query id="GetEncPpt" service="SerEncPpt" cacheable="true">
+  <query id="GetEncPpt" permission="system.read" service="SerEncPpt" cacheable="true">
     <field id="encoded" alias="value"/>
     <field id="encoded" alias="label" />
     <variable id="text" type="STRING" name="CrtTxt" />
     <variable id="phraseKey" type="STRING" name="CrtPhr" />
   </query>
 
-  <query id="StlLst" enumerated="StlTyp" distinct="false" public="false" cacheable="true">
+  <query id="StlLst" permission="system.read" enumerated="StlTyp" distinct="false" public="false" cacheable="true">
     <field id="value" />
     <field id="label" />
     <variable id="style" type="STRING" name="suggest" />
   </query>
-  <query id="FntLst" enumerated="FntLst" distinct="false" public="false" cacheable="false">
+  <query id="FntLst" permission="system.read" enumerated="FntLst" distinct="false" public="false" cacheable="false">
     <field id="label" />
     <field id="value" />
   </query>
@@ -4090,7 +4562,7 @@
   </query>
 
   <!-- Get Style config Screen -->
-  <query id="UsrStlLstScr" distinct="false" public="false" cacheable="false">
+  <query id="UsrStlLstScr" permission="system.read" distinct="false" public="false" cacheable="false">
     <table id="AweStlCnf" alias="stlCnf" />
     <field id="IdeAweStlCnf" table="stlCnf" alias="IdeAweStlCnf" />
     <field id="IdeOpe" table="stlCnf" alias="IdeOpe" />
@@ -4159,7 +4631,7 @@
   </query>
 
   <!-- EMAIL SERVER -->
-  <query id="EmlSrvLst" cacheable="false">
+  <query id="EmlSrvLst" permission="system.read" cacheable="false">
     <table id="AweEmlSrv" alias="EmlSrv" />
     <field id="IdeAweEmlSrv" alias="id" />
     <field id="IdeAweEmlSrv" alias="IdeAweEmlSrv" />
@@ -4242,7 +4714,7 @@
   <!-- EMAIL SERVER STATE COUNTERS: the quick filters of the mail servers screen (email-server-admin), counted with its
        search. Each count is the number of rows EmlSrvLst returns for that option: the same search filter (CrtNam) and state
        expression as EmlSrvLst (a union cannot use subqueries). Keep them in step with EmlSrvLst -->
-  <query id="EmlSrvStaCnt">
+  <query id="EmlSrvStaCnt" permission="system.read">
     <table id="AweEmlSrv" />
     <constant value="1" type="INTEGER" alias="pos" />
     <constant value="" alias="value" />
@@ -4343,7 +4815,7 @@
   </query>
 
   <!-- EMAIL SERVER (SUGGEST SERVER ALIAS)-->
-  <query id="EmlSrvNamSug">
+  <query id="EmlSrvNamSug" permission="system.read">
     <table id="AweEmlSrv" />
     <field id="SrvNam" alias="value" />
     <field id="Hst" alias="hst" />
@@ -4357,7 +4829,7 @@
   </query>
 
   <!-- EMAIL SERVER (SUGGEST SERVER HOST)-->
-  <query id="EmlSrvSug">
+  <query id="EmlSrvSug" permission="system.read">
     <table id="AweEmlSrv" />
     <field id="Hst" alias="value" />
     <field id="SrvNam" alias="Nam" />
@@ -4371,7 +4843,7 @@
   </query>
 
   <!-- Email Server Alias check Unique -->
-  <query id="EmlSrvNamUni">
+  <query id="EmlSrvNamUni" permission="system.read">
     <table id="AweEmlSrv" />
     <field id="SrvNam" alias="SrvNam" />
     <where>
@@ -4383,7 +4855,7 @@
   </query>
 
   <!-- Email server (select list alias) -->
-  <query id="SelEmlSrvNom">
+  <query id="SelEmlSrvNom" permission="users.read">
     <table id="AweEmlSrv" />
     <field id="SrvNam" alias="value" />
     <field id="SrvNam" alias="label" />
@@ -4440,7 +4912,7 @@
 
   <!-- JMS QUEUES: the message queues screen (queue-admin) and the deprecated Que screen. The state (active or inactive)
        with its label and tone, as SitLst and EmlSrvLst, and the state filter of the quick filters (QueStaCnt) -->
-  <query id="QueLst">
+  <query id="QueLst" permission="system.read">
     <table id="AweQue" />
     <field id="IdeAweQue" alias="id" />
     <field id="IdeAweQue" alias="IdeAweQue" />
@@ -4511,7 +4983,7 @@
   <!-- QUEUE STATE COUNTERS: the quick filters of the message queues screen (queue-admin), counted with its alias search
        (CrtAls). Each count is the number of rows QueLst returns for that option: the same filters and state expression as
        QueLst (a union cannot use subqueries). Keep them in step with QueLst -->
-  <query id="QueStaCnt">
+  <query id="QueStaCnt" permission="system.read">
     <table id="AweQue" />
     <constant value="1" type="INTEGER" alias="pos" />
     <constant value="" alias="value" />
@@ -4617,7 +5089,7 @@
     <variable id="One" type="INTEGER" value="1" />
   </query>
 
-  <query id="AlsJmsSug">
+  <query id="AlsJmsSug" permission="system.read">
     <table id="AweQue" />
     <field id="Als" alias="value" />
     <field id="Als" alias="label" />
@@ -4629,7 +5101,7 @@
     <variable id="CrtAls" type="STRINGB" name="suggest" />
   </query>
 
-  <query id="QueNamSug">
+  <query id="QueNamSug" permission="system.read">
     <table id="AweQue" />
     <field id="DstNam" alias="value" />
     <field id="DstNam" alias="label" />
@@ -4641,7 +5113,7 @@
     <variable id="CrtQue" type="STRINGB" name="suggest" />
   </query>
 
-  <query id="JmsBrkSug" distinct="true">
+  <query id="JmsBrkSug" permission="system.read" distinct="true">
     <table id="AweQue" />
     <field id="JmsBrk" alias="value" />
     <field id="JmsBrk" alias="label" />
@@ -4654,7 +5126,7 @@
   </query>
 
   <!-- Queue Alias check Unique -->
-  <query id="QueAlsUni">
+  <query id="QueAlsUni" permission="system.read">
     <table id="AweQue" />
     <field id="Als" alias="Als" />
     <where>
@@ -4740,7 +5212,7 @@
   <!--
   2fa
   -->
-  <query id="qr-code" service="qr-code">
+  <query id="qr-code" permission="self.read" service="qr-code">
     <variable id="generate" type="BOOLEAN" value="false"/>
   </query>
 
@@ -4902,7 +5374,7 @@
   -->
 
   <!-- The request parameter names are specific on purpose: the clients add the values of the screen criteria -->
-  <query id="getWindowSavedSearches" service="getWindowSavedSearches">
+  <query id="getWindowSavedSearches" permission="self.read" service="getWindowSavedSearches">
     <field id="id" alias="id"/>
     <field id="name" alias="name"/>
     <field id="values" alias="values"/>
@@ -4912,7 +5384,7 @@
     <variable id="windowId" type="STRING" name="savedSearchWindow"/>
   </query>
 
-  <query id="getSavedSearchProfiles" service="getSavedSearchProfiles">
+  <query id="getSavedSearchProfiles" permission="self.read" service="getSavedSearchProfiles">
     <field id="value" alias="value"/>
     <field id="label" alias="label"/>
   </query>
@@ -5077,12 +5549,12 @@
 
   <!-- ==================== SECURITY AUDIT ==================== -->
   <!-- Default start date of the security audit screen -->
-  <query id="SecAudDefFro" service="SecAudDefFro">
+  <query id="SecAudDefFro" permission="audit.read" service="SecAudDefFro">
     <field transform="DATE" id="value" alias="value"/>
   </query>
 
   <!-- Security audit events (newest first, paginated in the database) -->
-  <query id="SecAudEvtLst" managed-pagination="true">
+  <query id="SecAudEvtLst" permission="audit.read" managed-pagination="true">
     <table id="AweSecAudEvt"/>
     <field id="IdeSecAud" alias="id"/>
     <field id="IdeSecAud" alias="IdeSecAud"/>
@@ -5180,7 +5652,7 @@
   </query>
 
   <!-- Security audit activity per day (chart) -->
-  <query id="SecAudActChr">
+  <query id="SecAudActChr" permission="audit.read">
     <table query="SecAudActSrc" alias="t"/>
     <field id="Dat" table="t" alias="dates" transform="DATE_MS"/>
     <field id="Ok" table="t" alias="success" function="SUM"/>
@@ -5190,7 +5662,7 @@
   </query>
 
   <!-- Security audit failures by cause (chart) -->
-  <query id="SecAudCauChr">
+  <query id="SecAudCauChr" permission="audit.read">
     <table id="AweSecAudEvt"/>
     <field id="EvtCau" alias="names" translate="SecAudCau"/>
     <field id="IdeSecAud" alias="serie1" function="CNT"/>

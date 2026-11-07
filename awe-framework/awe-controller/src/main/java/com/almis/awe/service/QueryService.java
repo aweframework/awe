@@ -2,6 +2,7 @@ package com.almis.awe.service;
 
 import com.almis.awe.component.AweRoutingDataSource;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
@@ -48,6 +49,10 @@ public class QueryService extends ServiceConfig {
   // Constants
   private static final String ERROR_TITLE_RETRIEVING_DATA = "ERROR_TITLE_RETRIEVING_DATA";
   private static final String ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND = "ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND";
+  /**
+   * @deprecated A refusal answers {@link AWEUnauthorizedException#MESSAGE_KEY}, which does not show the query name
+   */
+  @Deprecated(since = "5.0.0")
   public static final String ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY = "ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY";
   public static final String ERROR_MESSAGE_QUERY_NOT_FOUND = "ERROR_MESSAGE_QUERY_NOT_FOUND";
 
@@ -501,6 +506,20 @@ public class QueryService extends ServiceConfig {
   }
 
   /**
+   * Check that a client can launch a query that a screen launches through the server, as its initial loads
+   *
+   * @param queryId Query identifier
+   * @throws AWException The client cannot launch the query
+   */
+  public void authorizeClientLaunch(String queryId) throws AWException {
+    Query query = getElements().getQuery(queryId);
+    if (query != null) {
+      refuseServerOnly(queryId, query);
+      authorize(queryId, query);
+    }
+  }
+
+  /**
    * Prepare a query object
    *
    * @param queryName      query name
@@ -515,25 +534,59 @@ public class QueryService extends ServiceConfig {
     if (query != null) {
       // Get the query
       query = query.copy();
-      // A server-only query can never be launched from a client request, whatever the session or public flag
-      if (checkAvailable && query.isServerOnly()) {
-        log.warn("Client launch of server-only query [{}] refused{}", queryName,
-          query.isPublic() ? " (public flag ignored)" : "");
-        throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA),
-          getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
+      if (checkAvailable) {
+        refuseServerOnly(queryName, query);
       }
       // If query is private, check security
       if (checkAvailable && !query.isPublic() && !getSession().isAuthenticated()) {
-        throw new SessionAuthenticationException(getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
+        log.warn("Client launch of private query [{}] refused without an authenticated session", queryName);
+        throw new SessionAuthenticationException(getLocale(AWEUnauthorizedException.MESSAGE_KEY));
       }
-      // A private query launched by a client goes on only when the authorizers allow it
-      if (checkAvailable && !query.isPublic() && !targetLaunchAuthorizer.authorize(queryName, TargetKind.QUERY)) {
-        throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
+      if (checkAvailable) {
+        authorize(queryName, query);
       }
     } else {
       throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_QUERY_NOT_FOUND, queryName));
     }
     return query;
+  }
+
+  /**
+   * A server-only query can never be launched from a client request, whatever the session or public flag
+   *
+   * @param queryName Query name
+   * @param query     Query
+   * @throws AWException The query is server-only
+   */
+  private void refuseServerOnly(String queryName, Query query) throws AWException {
+    if (query.isServerOnly()) {
+      log.warn("Client launch of server-only query [{}] refused{}", queryName,
+        query.isPublic() ? " (public flag ignored)" : "");
+      throw unauthorized();
+    }
+  }
+
+  /**
+   * A private query launched by a client goes on only when the authorizers allow it
+   *
+   * @param queryName Query name
+   * @param query     Query
+   * @throws AWException The client cannot launch the query
+   */
+  private void authorize(String queryName, Query query) throws AWException {
+    if (!query.isPublic() && !targetLaunchAuthorizer.authorize(queryName, TargetKind.QUERY)) {
+      throw unauthorized();
+    }
+  }
+
+  /**
+   * Refusal of a client launch: a generic message that never shows the query name
+   *
+   * @return Refusal
+   */
+  private AWEUnauthorizedException unauthorized() {
+    return new AWEUnauthorizedException(getLocale(AWEUnauthorizedException.TITLE_KEY),
+      getLocale(AWEUnauthorizedException.MESSAGE_KEY));
   }
 
   /**

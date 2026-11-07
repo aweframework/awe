@@ -5,6 +5,7 @@ import com.almis.awe.component.MaintainTransactionManagerProvider;
 import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.config.MaintainConfigProperties;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.details.MaintainResultDetails;
@@ -93,6 +94,10 @@ public class MaintainService extends ServiceConfig {
   private static final String ERROR_TITLE_LAUNCHING_MAINTAIN = "ERROR_TITLE_LAUNCHING_MAINTAIN";
   private static final String ERROR_MESSAGE_MAINTAIN_NOT_FOUND = "ERROR_MESSAGE_MAINTAIN_NOT_FOUND";
   private static final String ERROR_MESSAGE_DURING_MAINTAIN = "ERROR_MESSAGE_DURING_MAINTAIN";
+  /**
+   * @deprecated A refusal answers {@link AWEUnauthorizedException#MESSAGE_KEY}, which does not show the target name
+   */
+  @Deprecated(since = "5.0.0")
   public static final String ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN = "ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN";
 
   // Autowired services
@@ -606,18 +611,29 @@ public class MaintainService extends ServiceConfig {
     // A server-only target can never be launched from a client request, whatever the session or public flag
     if (maintain.isServerOnly()) {
       log.warn("Client launch of server-only maintain [{}] refused{}", maintainId, maintain.isPublic() ? " (public flag ignored)" : "");
-      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
+      throw unauthorized();
     }
 
     // If query is private, check security
     if (!maintain.isPublic() && !getSession().isAuthenticated()) {
-      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
+      log.warn("Client launch of private maintain [{}] refused without an authenticated session", maintainId);
+      throw unauthorized();
     }
 
     // A private target launched by a client goes on only when the authorizers allow it
     if (!maintain.isPublic() && !targetLaunchAuthorizer.authorize(maintainId, TargetKind.MAINTAIN)) {
-      throw new AWException(getLocale(ERROR_TITLE_LAUNCHING_MAINTAIN), getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN, maintainId));
+      throw unauthorized();
     }
+  }
+
+  /**
+   * Refusal of a client launch: a generic message that never shows the target name
+   *
+   * @return Refusal
+   */
+  private AWEUnauthorizedException unauthorized() {
+    return new AWEUnauthorizedException(getLocale(AWEUnauthorizedException.TITLE_KEY),
+      getLocale(AWEUnauthorizedException.MESSAGE_KEY));
   }
 
   /**

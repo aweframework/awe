@@ -315,6 +315,45 @@ SELECT 'SavSchKey', 0
 FROM DUAL
 WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'SavSchKey');
 
+-- ------------------------------------------------------
+--  DDL for Table AweOpeRol (additional profiles of a user)
+-- ------------------------------------------------------
+CREATE TABLE AweOpeRol (
+    IdeAweOpeRol number(10) CONSTRAINT pk_AweOpeRol PRIMARY KEY NOT NULL,   --  Table identifier
+    IdeOpe number(5) NOT NULL,                                             --  User key
+    IdePro number(5) NOT NULL,                                             --  Additional profile key
+    CONSTRAINT uk_AweOpeRol UNIQUE (IdeOpe, IdePro),
+    CONSTRAINT fk_AweOpeRol1 FOREIGN KEY (IdeOpe) REFERENCES ope (IdeOpe),
+    CONSTRAINT fk_AweOpeRol2 FOREIGN KEY (IdePro) REFERENCES AwePro (IdePro)
+    );
+
+CREATE TABLE HISAweOpeRol (HISope char(100) NOT NULL, HISdat date NOT NULL, HISact varchar2(1) NOT NULL, IdeAweOpeRol number(10) NULL, IdeOpe number(5) NULL, IdePro number(5) NULL);
+CREATE INDEX HISAweOpeRolI1 ON HISAweOpeRol (HISope, HISdat, HISact);
+
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'OpeRolKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'OpeRolKey');
+
+-- ------------------------------------------------------
+--  DDL for Table AweProPer (permissions of a profile)
+-- ------------------------------------------------------
+CREATE TABLE AweProPer (
+    IdeAweProPer number(10) CONSTRAINT pk_AweProPer PRIMARY KEY NOT NULL,   --  Table identifier
+    IdePro number(5) NOT NULL,                                             --  Profile key
+    Per varchar2(100) NOT NULL,                                            --  Permission identifier or wildcard
+    CONSTRAINT uk_AweProPer UNIQUE (IdePro, Per),
+    CONSTRAINT fk_AweProPer1 FOREIGN KEY (IdePro) REFERENCES AwePro (IdePro)
+    );
+
+CREATE TABLE HISAweProPer (HISope char(100) NOT NULL, HISdat date NOT NULL, HISact varchar2(1) NOT NULL, IdeAweProPer number(10) NULL, IdePro number(5) NULL, Per varchar2(100) NULL);
+CREATE INDEX HISAweProPerI1 ON HISAweProPer (HISope, HISdat, HISact);
+
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'ProPerKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'ProPerKey');
+
 CREATE TABLE AweUsrFav
 (
     IdeFav number(5) CONSTRAINT pk_AweUsrFav PRIMARY KEY NOT NULL,     --  Table identifier

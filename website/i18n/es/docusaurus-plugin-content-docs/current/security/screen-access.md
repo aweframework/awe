@@ -6,13 +6,14 @@ sidebar_label: Acceso por pantalla
 
 # Control de acceso de targets de maintain y consultas por acceso a pantalla {#access-control-of-maintain-targets-and-queries-by-screen-access}
 
-Un cliente (la aplicación web o un cliente REST) lanza targets de maintain y consultas por su nombre. AWE puede
-comprobar, antes de ejecutarlos, que el usuario con sesión puede abrir al menos una pantalla que use el target o la
-consulta.
+La aplicación web lanza targets de maintain y consultas por su nombre. AWE puede comprobar, antes de ejecutarlos, que
+el usuario con sesión puede abrir al menos una pantalla que use el target o la consulta. La [API REST](#rest-api) no se
+comprueba por acceso a pantalla: se autoriza solo por los [permisos](permissions.md).
 
 | Quiere | Lea |
 | --- | --- |
 | Saber qué se comprueba | [Cómo funciona](#how-it-works) |
+| Saber cómo se autoriza la API REST | [API REST](#rest-api) |
 | Configurar el modo o desplegarlo en una aplicación existente | [Configuración](#configuration), [Despliegue gradual](#rollout) |
 | Saber qué no cubre | [Límites](#limits) |
 | Encontrar los rechazos | [Auditoría](#audit) |
@@ -29,16 +30,15 @@ cada opción de menú:
 
 Cuando un cliente lanza un target o una consulta que está en el índice, solo se ejecuta si el usuario de la sesión puede
 abrir **al menos una** de las opciones de menú cuya pantalla lo usa. La regla es la misma que para abrir la pantalla:
-se aplican las restricciones del perfil y de la pantalla. Las opciones del menú público están abiertas a todos.
+se aplican las restricciones de los perfiles del usuario y de la pantalla (para un usuario con
+[perfiles adicionales](additional-profiles.md#window-access), la unión de todos sus perfiles). Las opciones del menú
+público están abiertas a todos.
 
-La comprobación se aplica a todos los puntos de entrada de los clientes:
+La comprobación se aplica a los puntos de entrada de la aplicación web:
 
 - Las peticiones `/action/...` que lanzan un maintain o una consulta: `maintain` (también las variantes silenciosa y
   asíncrona), `data`, `subscribe`, `value`, `validate`...
 - Los endpoints de ficheros `/file/stream/maintain` y `/file/download/maintain`.
-- Los endpoints REST `/api/maintain`, `/api/data` y `/api/public/...`.
-
-`/api/data` y `/api/public/data` pasan por las mismas comprobaciones que `/action/data`.
 
 Los targets y las consultas marcados como `public` nunca se comprueban por acceso a pantalla: ya se pueden lanzar sin
 sesión.
@@ -55,10 +55,31 @@ Los lanzamientos que hace el servidor no se ven afectados: los servicios Java qu
 un cliente. El acceso por pantalla solo deja pasar a los usuarios que pueden abrir una pantalla que usa el target.
 :::
 
+Los [permisos](permissions.md) son una segunda comprobación después del acceso por pantalla: un target o una consulta
+que declara un `permission` exige además que el usuario lo tenga.
+
+## API REST {#rest-api}
+
+La API REST lanza consultas y targets de maintain sin pantallas, así que las peticiones bajo `/api/` (`/api/maintain`,
+`/api/data` y `/api/public/...`) no se comprueban por acceso a pantalla. El resto de comprobaciones se mantiene:
+
+- Los [permisos](permissions.md): un target o una consulta que declara un `permission` solo se ejecuta cuando el usuario
+  del token lo tiene.
+- Los targets `public` y [`server-only`](../api/maintain-definition.md#server-only-targets) conservan sus reglas.
+- Una petición rechazada responde HTTP `403` con el mensaje genérico de rechazo, que nunca nombra el target, y registra
+  un evento `ACCESS_DENIED` de la [auditoría de seguridad](security-audit.md) en el canal `REST`.
+
+:::caution
+Cualquier usuario autenticado puede lanzar por la API REST un target o una consulta privados sin `permission`. Cuando
+la API REST esté expuesta, active
+[`awe.security.permissions.require-undeclared=true`](permissions.md#require-undeclared) para que esos targets requieran
+`default.read` o `default.write`.
+:::
+
 ## Configuración {#configuration}
 
-El modo es común a todas las autorizaciones de los lanzamientos que pide un cliente: ahora el acceso por
-pantalla y cualquier capa de autorización que se añada más adelante.
+El modo es común a todas las autorizaciones de los lanzamientos que pide un cliente: el acceso por
+pantalla y los [permisos](permissions.md#mode).
 
 | Propiedad | Por defecto | Descripción |
 | --- | --- | --- |
@@ -93,11 +114,13 @@ Una aplicación existente, como un producto que migra desde AWE 4, puede adoptar
   en tiempo de ejecución. Los targets y consultas que solo usan esas pantallas no se comprueban.
 - Un target o una consulta que usa tanto una de esas pantallas como una pantalla estática restringida se rechaza a los
   usuarios que no pueden abrir la estática. Ejecute primero con `warn` para encontrar estos casos.
+- La API REST no se comprueba por acceso a pantalla (consulte [API REST](#rest-api)).
 - La comprobación sigue las reglas de acceso a pantallas. No sustituye las restricciones de sus datos, que deben seguir
   aplicándose en las definiciones de targets y consultas (por ejemplo, con variables `session`).
 
 ## Auditoría {#audit}
 
 Un rechazo registra un evento `ACCESS_DENIED` de la [auditoría de seguridad](security-audit.md) con la causa
-`RESTRICTED` y el tipo y el nombre del target o de la consulta como detalle, y un aviso en el log. En modo `warn` se
-escribe el mismo registro y la petición continúa.
+`RESTRICTED` y el tipo y el nombre del target o de la consulta como detalle (`query: <id>` o `maintain: <id>`), y un
+aviso en el log. En modo `warn` se escribe el mismo registro con el detalle terminado en `(allowed: warn)`, y la
+petición continúa.

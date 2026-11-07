@@ -272,6 +272,23 @@ public class AccessSubjects extends ServiceConfig {
     return candidates;
   }
 
+  /**
+   * Name of a profile
+   *
+   * @param profile Profile identifier
+   * @return Profile name, empty for a null or unknown profile
+   * @throws AWException Error retrieving data
+   */
+  Optional<String> getProfileName(Integer profile) throws AWException {
+    if (profile == null) {
+      return Optional.empty();
+    }
+    ObjectNode parameters = allRows().put(PROFILE, profile);
+    return queryService.launchPrivateQuery(SUBJECT_PROFILE_QUERY, parameters).getDataList().getRows().stream()
+      .findFirst()
+      .map(row -> stringOf(row.get(NAME)));
+  }
+
   private Optional<CompareCandidate> getCompareCandidate(CompareWith selected) throws AWException {
     String query = selected.isUser() ? SUBJECT_USER_QUERY : SUBJECT_PROFILE_QUERY;
     ObjectNode parameters = allRows().put(selected.isUser() ? USER : PROFILE, selected.id());

@@ -29,6 +29,8 @@ Para usar este módulo, sigue estos pasos:
 awe.application.module-list = APP, ..., awe-tools, ..., awe
 ```
 
+- Dé a los perfiles que usan el extractor SQL los permisos `sql-extractor.read` y `sql-extractor.update` (solo los tiene el perfil de administrador). Consulte [Permisos](security/permissions.md#catalog-resources).
+
 ## Extractor SQL {#sql-extractor}
 El Extractor SQL es una herramienta para ejecutar consultas SQL directamente sobre la base de datos de la aplicación
 

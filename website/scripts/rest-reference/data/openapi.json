@@ -229,6 +229,16 @@
             },
             "description" : "Unauthorized. User not found, invalid credentials or expired password (code PASSWORD_EXPIRED: the password has to be changed in the web application)"
           },
+          "403" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
           "500" : {
             "content" : {
               "*/*" : {
@@ -300,6 +310,16 @@
               }
             },
             "description" : "Unauthorized. User not found or invalid credentials"
+          },
+          "403" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
           },
           "500" : {
             "content" : {
@@ -377,6 +397,16 @@
             },
             "description" : "Unauthorized. User not found or invalid credentials"
           },
+          "403" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
           "500" : {
             "content" : {
               "*/*" : {
@@ -452,6 +482,16 @@
               }
             },
             "description" : "Unauthorized. User not found or invalid credentials"
+          },
+          "403" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
           },
           "500" : {
             "content" : {
@@ -530,6 +570,16 @@
             },
             "description" : "Unauthorized. User not found or invalid credentials"
           },
+          "403" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
+          },
           "500" : {
             "content" : {
               "*/*" : {
@@ -600,6 +650,16 @@
               }
             },
             "description" : "Unauthorized. User not found or invalid credentials"
+          },
+          "403" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AweRestResponse"
+                }
+              }
+            },
+            "description" : "Forbidden"
           },
           "500" : {
             "content" : {

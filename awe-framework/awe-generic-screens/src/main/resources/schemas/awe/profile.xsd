@@ -34,6 +34,12 @@
   <!-- Restriction Element -->
   <xs:element name="restriction" type="restrictionType"/>
 
+  <!-- Permission Element: a permission of the catalog or a wildcard (*, users.*, *.read) -->
+  <xs:element name="permission" type="profilePermissionType"/>
+
+  <!-- Exclude Element: a permission or a wildcard subtracted from the permissions of the profile -->
+  <xs:element name="exclude" type="profilePermissionType"/>
+
   <!-- Criterion Element -->
   <xs:element name="criterion" type="criterionType"/>
 
@@ -52,9 +58,20 @@
 
   <!-- Profile Type -->
   <xs:complexType name="profileType">
-    <xs:sequence>
-      <xs:element minOccurs="0" maxOccurs="unbounded" ref="restriction"/>
-    </xs:sequence>
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element ref="restriction"/>
+      <xs:element ref="permission"/>
+      <xs:element ref="exclude"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <!-- Profile Permission Type -->
+  <xs:complexType name="profilePermissionType">
+    <xs:attribute name="id" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Permission identifier (users.read), all the permissions of a resource (users.*), one verb or action on every resource (*.read) or every permission (*)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Restriction Type -->

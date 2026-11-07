@@ -65,6 +65,14 @@ Service element has the following attributes:
 |------------------------------|--------------|--------|-----------------------------------------------|-----------------------------------------------------------------------|
 | id                           | **Required** | String | Name of service                               | **Note:** The id must be unique                                       |
 | launch-phase                 | Optional     | String | Launch the service in some application points | `APPLICATION_START`, `APPLICATION_END`,  `CLIENT_START`, `CLIENT_END` |
+| permission                   | Optional     | String | Permissions of the catalog that a client action needs to call the service, separated by spaces (all of them are required) | **Note:** An unknown permission is a load error. See [permissions](#service-permissions) |
+| authorization                | Optional     | String | How a call from a client action is authorized | `target`: the service launches the query or the maintain target the client asks for, and that target is checked instead of the service. It cannot be combined with `permission` |
+
+#### Permissions {#service-permissions}
+
+A service with `permission="system.update"` is called by a client action only when the session user has the
+`system.update` permission. The server calls, the services of a query or a maintain of type `service` and the services
+of a `launch-phase` are never checked. See [Permissions](../security/permissions.md#services).
 
 ### Java element
 

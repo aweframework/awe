@@ -1,5 +1,10 @@
 package com.almis.awe.service;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
@@ -21,6 +26,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
@@ -44,6 +50,7 @@ class QueryServiceServerOnlyTest {
 
   private static final String QUERY = "serverOnlyQuery";
   private static final String UNAUTHORIZED = "unauthorized";
+  private static final String ACCESS_DENIED = "access denied";
 
   @Mock private QueryLauncher queryLauncher;
   @Mock private QueryUtil queryUtil;
@@ -65,8 +72,8 @@ class QueryServiceServerOnlyTest {
     when(authorizer.authorize(anyString(), any())).thenReturn(true);
     when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("msg");
     when(aweElements.getLocaleWithLanguage(anyString(), any(), any())).thenReturn("msg");
-    when(aweElements.getLocaleWithLanguage(eq(QueryService.ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY), any(), any()))
-      .thenReturn(UNAUTHORIZED);
+    when(aweElements.getLocaleWithLanguage(eq("ERROR_MESSAGE_ACTION_NOT_PERMITTED"), any())).thenReturn(UNAUTHORIZED);
+    when(aweElements.getLocaleWithLanguage(eq("ERROR_TITLE_ACCESS_DENIED"), any())).thenReturn(ACCESS_DENIED);
     when(aweSession.isAuthenticated()).thenReturn(true);
     when(aweRequest.getTargetAction()).thenReturn(QUERY);
     when(aweRequest.getToken()).thenReturn("token");
@@ -89,12 +96,15 @@ class QueryServiceServerOnlyTest {
   void clientLaunchIsRefused(boolean isPublic) throws Exception {
     givenQuery(isPublic, true);
 
-    assertThatThrownBy(() -> queryService.launchQuery(QUERY)).isInstanceOf(AWException.class).hasMessage(UNAUTHORIZED);
+    assertThatThrownBy(() -> queryService.launchQuery(QUERY)).isInstanceOf(AWEUnauthorizedException.class)
+      .hasMessage(UNAUTHORIZED)
+      .satisfies(exc -> assertThat(((AWException) exc).getTitle()).isEqualTo(ACCESS_DENIED));
     assertThatThrownBy(() -> queryService.launchQuery(QUERY, "alias")).isInstanceOf(AWException.class);
     assertThatThrownBy(() -> queryService.launchQuery(QUERY, "1", "0")).isInstanceOf(AWException.class);
     assertThatThrownBy(() -> queryService.launchQuery(QUERY, JsonNodeFactory.instance.objectNode()))
       .isInstanceOf(AWException.class);
     verify(queryLauncher, never()).launchQuery(any(Query.class), any(ObjectNode.class));
+    verify(aweElements, never()).getLocaleWithLanguage(anyString(), any(), eq(QUERY));
   }
 
   @Test
@@ -109,6 +119,31 @@ class QueryServiceServerOnlyTest {
     assertThatThrownBy(() -> queryService.launchColumnValuesAction()).isInstanceOf(AWException.class);
     assertThatThrownBy(() -> queryService.subscribe(QUERY, new ComponentAddress())).isInstanceOf(AWException.class);
     verify(queryLauncher, never()).launchQuery(any(Query.class), any(ObjectNode.class));
+  }
+
+  @ParameterizedTest(name = "public={0}")
+  @ValueSource(booleans = {false, true})
+  @DisplayName("A server-only query of a screen initial load is refused for the client, and the log names the query")
+  void initialLoadIsRefused(boolean isPublic) throws Exception {
+    givenQuery(isPublic, true);
+    Logger logger = (Logger) LoggerFactory.getLogger(QueryService.class);
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    logger.addAppender(appender);
+
+    try {
+      assertThatThrownBy(() -> queryService.authorizeClientLaunch(QUERY)).isInstanceOf(AWEUnauthorizedException.class)
+        .hasMessage(UNAUTHORIZED)
+        .satisfies(exc -> assertThat(((AWException) exc).getTitle()).isEqualTo(ACCESS_DENIED));
+    } finally {
+      logger.detachAppender(appender);
+    }
+    verify(queryLauncher, never()).launchQuery(any(Query.class), any(ObjectNode.class));
+    assertThat(appender.list)
+      .anySatisfy(event -> {
+        assertThat(event.getLevel()).isEqualTo(Level.WARN);
+        assertThat(event.getFormattedMessage()).contains("[" + QUERY + "]");
+      });
   }
 
   @Test

@@ -1219,8 +1219,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     testDatabaseRequest(
       "CrtTstDat",
       "",
-      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123}]}}},{\"type\":\"end-load\"}]",
-      4);
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":6,\"rows\":[{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123}]}}},{\"type\":\"end-load\"}]",
+      6);
   }
 
   /**

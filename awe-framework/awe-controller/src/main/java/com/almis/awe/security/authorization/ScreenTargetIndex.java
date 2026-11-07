@@ -36,6 +36,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * dependencies, and from the {@code check-target} of criteria. Some actions (such as {@code server-action="screen"})
  * hold an option name in {@code target-action}: it is collected too, and it only matters if a maintain or a query is
  * launched with that same identifier.</p>
+ *
+ * <p>The {@code server-action} of the same elements is indexed apart, with the options whose screen uses it, so the
+ * services that the screens call can be listed. It is never used to decide a launch.</p>
  */
 @Slf4j
 public class ScreenTargetIndex extends ServiceConfig {
@@ -66,6 +69,24 @@ public class ScreenTargetIndex extends ServiceConfig {
   }
 
   /**
+   * Retrieve every indexed target with the names of the options whose screen uses it
+   *
+   * @return Option names by maintain or query identifier
+   */
+  public Map<String, Set<String>> getTargets() {
+    return Collections.unmodifiableMap(getSnapshot().targets());
+  }
+
+  /**
+   * Retrieve the server actions of the screens with the names of the options whose screen uses them
+   *
+   * @return Option names by server action identifier
+   */
+  public Map<String, Set<String>> getServerActions() {
+    return Collections.unmodifiableMap(getSnapshot().serverActions());
+  }
+
+  /**
    * Retrieve the index, building it again if the definitions have been loaded again since it was built
    */
   private Snapshot getSnapshot() {
@@ -76,7 +97,7 @@ public class ScreenTargetIndex extends ServiceConfig {
       synchronized (this) {
         current = snapshot.get();
         if (current == null || current.version() != version) {
-          current = new Snapshot(version, build(elements));
+          current = build(version, elements);
           snapshot.set(current);
         }
       }
@@ -87,22 +108,23 @@ public class ScreenTargetIndex extends ServiceConfig {
   /**
    * Build the index from the options of the private and public menus
    */
-  private Map<String, Set<String>> build(AweElements elements) {
-    Map<String, Set<String>> targets = new HashMap<>();
-    Set<String> shellTargets = new HashSet<>();
+  private Snapshot build(long version, AweElements elements) {
+    ScreenUses uses = new ScreenUses(new HashMap<>(), new HashMap<>());
+    ScreenUses shell = new ScreenUses(new HashMap<>(), new HashMap<>());
     for (String menuId : new String[]{baseConfigProperties.getFiles().getMenuPrivate(),
       baseConfigProperties.getFiles().getMenuPublic()}) {
       Menu menu = readMenu(elements, menuId);
       if (menu != null) {
         for (Option option : menu.getElementsByType(Option.class)) {
-          indexOption(elements, option, targets);
+          indexOption(elements, option, uses);
         }
-        collectScreenTargets(elements, menu.getScreen(), new HashSet<>(), shellTargets);
+        collectScreenTargets(elements, menu.getScreen(), new HashSet<>(), shell);
       }
     }
     // The screen of the menu (the application shell) is shown whatever the option: its targets are never restricted
-    shellTargets.forEach(targets::remove);
-    return targets;
+    shell.targets().keySet().forEach(uses.targets()::remove);
+    shell.serverActions().keySet().forEach(uses.serverActions()::remove);
+    return new Snapshot(version, uses.targets(), uses.serverActions());
   }
 
   private Menu readMenu(AweElements elements, String menuId) {
@@ -114,17 +136,18 @@ public class ScreenTargetIndex extends ServiceConfig {
     }
   }
 
-  private void indexOption(AweElements elements, Option option, Map<String, Set<String>> targets) {
+  private void indexOption(AweElements elements, Option option, ScreenUses uses) {
     if (option.getScreen() == null || option.getScreen().isBlank() || option.getName() == null
       || option.isDynamic() || option.getDynamicScreenService() != null) {
       return;
     }
-    Set<String> optionTargets = new HashSet<>();
-    collectScreenTargets(elements, option.getScreen(), new HashSet<>(), optionTargets);
-    optionTargets.forEach(target -> targets.computeIfAbsent(target, key -> new TreeSet<>()).add(option.getName()));
+    ScreenUses optionUses = new ScreenUses(new HashMap<>(), new HashMap<>());
+    collectScreenTargets(elements, option.getScreen(), new HashSet<>(), optionUses);
+    optionUses.targets().keySet().forEach(target -> add(uses.targets(), target, option.getName()));
+    optionUses.serverActions().keySet().forEach(action -> add(uses.serverActions(), action, option.getName()));
   }
 
-  private void collectScreenTargets(AweElements elements, String screenId, Set<String> visited, Set<String> targets) {
+  private void collectScreenTargets(AweElements elements, String screenId, Set<String> visited, ScreenUses uses) {
     if (screenId == null || screenId.isBlank() || !visited.add(screenId)) {
       return;
     }
@@ -140,30 +163,39 @@ public class ScreenTargetIndex extends ServiceConfig {
     }
     for (Element element : screen.getElementsByType(Element.class)) {
       if (element instanceof Component component) {
-        add(targets, component.getTargetAction());
+        add(uses.targets(), component.getTargetAction(), screenId);
+        add(uses.serverActions(), component.getServerAction(), screenId);
         if (element instanceof Frame frame) {
-          collectScreenTargets(elements, frame.getScreen(), visited, targets);
+          collectScreenTargets(elements, frame.getScreen(), visited, uses);
         }
         if (element instanceof AbstractCriteria criteria) {
-          add(targets, criteria.getCheckTarget());
+          add(uses.targets(), criteria.getCheckTarget(), screenId);
         }
       } else if (element instanceof AbstractAction action) {
-        add(targets, action.getTargetAction());
+        add(uses.targets(), action.getTargetAction(), screenId);
+        add(uses.serverActions(), action.getServerAction(), screenId);
       } else if (element instanceof Dependency dependency) {
-        add(targets, dependency.getTargetAction());
+        add(uses.targets(), dependency.getTargetAction(), screenId);
+        add(uses.serverActions(), dependency.getServerAction(), screenId);
       }
     }
   }
 
-  private void add(Set<String> targets, String target) {
-    if (target != null && !target.isBlank()) {
-      targets.add(target);
+  private void add(Map<String, Set<String>> uses, String id, String user) {
+    if (id != null && !id.isBlank()) {
+      uses.computeIfAbsent(id, key -> new TreeSet<>()).add(user);
     }
+  }
+
+  /**
+   * Targets and server actions found, each one with the options or screens that use it
+   */
+  private record ScreenUses(Map<String, Set<String>> targets, Map<String, Set<String>> serverActions) {
   }
 
   /**
    * Index built for a version of the loaded definitions
    */
-  private record Snapshot(long version, Map<String, Set<String>> targets) {
+  private record Snapshot(long version, Map<String, Set<String>> targets, Map<String, Set<String>> serverActions) {
   }
 }

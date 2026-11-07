@@ -2,6 +2,7 @@ package com.almis.awe.service.screen;
 
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.dao.InitialLoadDao;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.ServiceData;
@@ -88,6 +89,54 @@ class ScreenModelGeneratorInitialLoadFailureTest {
   }
 
   @Test
+  void shouldLeaveRefusedComponentsEmptyWithOneWarningForTheScreen() throws Exception {
+    InitialLoadDao initialLoadDao = mock(InitialLoadDao.class);
+    when(initialLoadDao.launchInitialLoad(any())).thenAnswer(invocation ->
+      CompletableFuture.failedFuture(new AWEUnauthorizedException("Title", "Refused")));
+    ScreenComponent criterion = buildCriterion();
+    ScreenComponent other = buildCriterion("Other");
+    ScreenComponent suggest = buildSuggest();
+    List<AweThreadInitialization> initializations = List.of(
+      new AweThreadInitialization().setTarget(COMPONENT_TARGET).setComponentId(CRITERION),
+      new AweThreadInitialization().setTarget(COMPONENT_TARGET).setComponentId("Other"),
+      new AweThreadInitialization().setInitialLoadType(LoadType.SCREEN).setTarget("ScreenTarget"));
+
+    ScreenData data = launch(initialLoadDao, initializations,
+      Map.of(CRITERION, criterion, "Other", other, suggest.getId(), suggest));
+
+    assertThat(data.getActions()).singleElement().satisfies(action -> {
+      assertThat(action.getType()).isEqualTo("message");
+      assertThat(action.getParameters()).extractingByKeys("type", "title", "message")
+        .map(value -> ((CellData) value).getStringValue())
+        .containsExactly("warning", "WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA",
+          "WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA");
+    });
+    assertThat(List.of(criterion, other, suggest)).allSatisfy(component ->
+      assertThat(component.getModel().getValues()).isEmpty());
+  }
+
+  @Test
+  void shouldWarnOnceWhenASynchronousLoadRefusesTheQueries() throws Exception {
+    InitialLoadDao initialLoadDao = mock(InitialLoadDao.class);
+    when(initialLoadDao.launchInitialLoad(any())).thenThrow(new AWEUnauthorizedException("Title", "Refused"));
+    ScreenComponent criterion = buildCriterion();
+    ScreenComponent suggest = buildSuggest();
+    List<AweThreadInitialization> initializations = List.of(
+      new AweThreadInitialization().setTarget(COMPONENT_TARGET).setComponentId(CRITERION),
+      new AweThreadInitialization().setInitialLoadType(LoadType.SCREEN).setTarget("ScreenTarget"));
+
+    ScreenData data = launch(initialLoadDao, initializations, Map.of(CRITERION, criterion, suggest.getId(), suggest));
+
+    assertThat(data.getActions()).singleElement().satisfies(action ->
+      assertThat(action.getParameters()).extractingByKeys("type", "title", "message")
+        .map(value -> ((CellData) value).getStringValue())
+        .containsExactly("warning", "WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA",
+          "WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA"));
+    assertThat(List.of(criterion, suggest)).allSatisfy(component ->
+      assertThat(component.getModel().getValues()).isEmpty());
+  }
+
+  @Test
   void shouldRestoreInterruptFlagWhenInitialLoadIsInterrupted() throws Exception {
     @SuppressWarnings("unchecked")
     Future<ServiceData> interrupted = mock(Future.class);
@@ -124,9 +173,13 @@ class ScreenModelGeneratorInitialLoadFailureTest {
   }
 
   private ScreenComponent buildCriterion() {
-    Criteria controller = Criteria.builder().id(CRITERION).componentType("select").initialLoad("query")
+    return buildCriterion(CRITERION);
+  }
+
+  private ScreenComponent buildCriterion(String id) {
+    Criteria controller = Criteria.builder().id(id).componentType("select").initialLoad("query")
       .targetAction(COMPONENT_TARGET).build();
-    return new ScreenComponent().setId(CRITERION).setController(controller).setModel(new ComponentModel());
+    return new ScreenComponent().setId(id).setController(controller).setModel(new ComponentModel());
   }
 
   private ScreenComponent buildSuggest() {

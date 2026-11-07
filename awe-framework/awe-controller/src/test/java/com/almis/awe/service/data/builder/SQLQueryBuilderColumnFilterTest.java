@@ -22,6 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -173,11 +175,12 @@ class SQLQueryBuilderColumnFilterTest {
     assertThat(build("[{'id':'status','type':'values','values':[]}]").getSQL()).isEqualTo(SELECT + "where 1 = 0");
   }
 
-  @Test
+  @ParameterizedTest(name = "{0} of {1}")
+  @CsvSource({"ADD,SUM", "CONCAT,STRING_AGG"})
   @DisplayName("A field whose operation holds an aggregate cannot be filtered")
-  void aggregateInsideOperationIsRejected() {
-    query.getSqlFieldList().add(Operation.builder().operator("ADD").alias("tot").operandList(new ArrayList<>(List.of(
-      Field.builder().id("Amt").table("u").function("SUM").build(), Field.builder().id("Amt").table("u").build()))).build());
+  void aggregateInsideOperationIsRejected(String operator, String function) {
+    query.getSqlFieldList().add(Operation.builder().operator(operator).alias("tot").operandList(new ArrayList<>(List.of(
+      Field.builder().id("Amt").table("u").function(function).build(), Field.builder().id("Amt").table("u").build()))).build());
     StubBuilder builder = builder("[{'id':'tot','type':'number','conditions':[{'operator':'gt','value':'1'}]}]");
 
     assertThatThrownBy(builder::build).isInstanceOf(AWEQueryException.class)

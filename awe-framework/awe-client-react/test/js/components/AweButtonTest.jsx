@@ -6,7 +6,7 @@ import { ADD_ACTIONS_TOP } from '../../../src/redux/actions/actions';
 import { ButtonTypes } from '../../../src/redux/actions/components';
 import {act, render} from "@testing-library/react";
 import { ButtonSkeleton } from '../../../src/components/AweSkeleton';
-import { toggleActionsRunning } from '../../../src/redux/actions/actions';
+import { acceptAction, addActionsTop, addStack, toggleActionsRunning } from '../../../src/redux/actions/actions';
 import { BUSY_THRESHOLD } from '../../../src/hooks/useBusy';
 import { getButtonVariant } from '../../../src/utilities/buttons';
 
@@ -102,6 +102,37 @@ describe('awe-react-client/test/js/components/AweButtonTest.jsx', () => {
     rendered = renderWithProviders(<AweButton id="btn1" />, { preloadedState: preloaded2 });
     btn = rendered.container.querySelector('#btn1');
     expect(btn.hasAttribute('disabled')).toBe(true);
+  });
+
+  describe('actions of a stack below a dialog', () => {
+    // A row button selects its row, whose value dependency loads a criterion of the panel (server action in the stack)
+    // and opens the panel, which runs its own stack: the buttons of the panel wait for the values of the criterion
+    const valueDependency = { type: 'server', parameters: { serverAction: 'value', targetAction: 'ProPerSel' },
+      address: { view: 'v', component: 'Per' } };
+    const openPanelOver = (action) => {
+      const rendered = renderWithProviders(<AweButton id="btn1" />,
+        { preloadedState: baseState({ actions: { running: false, sync: [[]], async: [] } }) });
+      act(() => rendered.store.dispatch(addActionsTop([action])));
+      act(() => rendered.store.dispatch(addStack()));
+      return rendered;
+    };
+    const isDisabled = ({ container }) => container.querySelector('#btn1').hasAttribute('disabled');
+
+    it('disables the button until a server action of the stack below ends', () => {
+      const rendered = openPanelOver(valueDependency);
+      expect(isDisabled(rendered)).toBe(true);
+
+      act(() => rendered.store.dispatch(acceptAction(rendered.store.getState().actions.sync[0][0])));
+      expect(isDisabled(rendered)).toBe(false);
+    });
+
+    it('keeps the button enabled while the action that opened the dialog stays below', () => {
+      expect(isDisabled(openPanelOver({ type: 'dialog', address: { view: 'v', component: 'PnlPro' } }))).toBe(false);
+    });
+
+    it('keeps the button enabled while a silent server action of the stack below runs', () => {
+      expect(isDisabled(openPanelOver({ ...valueDependency, silent: true }))).toBe(false);
+    });
   });
 
   it('click dispatches update thunk and then mapped actions when actions are provided', () => {

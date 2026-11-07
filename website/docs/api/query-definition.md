@@ -116,6 +116,7 @@ The *query* element has the following attributes:
 | post-process       |    Optional    |  Boolean  | Launch or not the processing of the datalist that AWE performs, in order to to allow developers to do their own post processing                                                       | By default is `true`. **Note:** Only apply in service queries. For more info. see [service query](#service-query)                                                 |
 | public             |    Optional    |  Boolean  | Allows the query to run without the need to be logged                                                                                                                                 | By default is `false`                                                                                                                                             |
 | server-only        |    Optional    |  Boolean  | Refuses the query to any client request; only the server can launch it | By default is `false`. See [server-only queries](#server-only-queries) |
+| permission         |    Optional    |  String   | Permissions of the catalog that a client needs to launch the query, separated by spaces (all of them are required) | **Note:** An unknown permission, or a permission on a `public` query, is a load error. See [permissions](#query-permissions) |
 | enumerated         |    Optional    |  String   | The name of enumerate to fill the query                                                                                                                                               | **Note:** Only applies in enumerated queries. For more info. see [enumerated query](#enumerated-query)                                                            |
 | service            |    Optional    |  String   | The name of service to fill the query                                                                                                                                                 | **Note:** Only applies in service queries. For more info. see [service query](#service-query)                                                                     |
 | queue              |    Optional    |  String   | The name of queue to fill the query                                                                                                                                                   | **Note:** Only applies in queue queries. For more info. see [queue query](#queue-query)                                                                           |
@@ -124,9 +125,15 @@ The *query* element has the following attributes:
 When a query is used by a screen of the menu, a client request launches it only if the session user can open at least one of the screens that use it (`awe.security.authorization.mode`, `enforce` by default). Queries that no screen uses keep the rules of `public` and of the signed-in session. See [Screen access](../security/screen-access.md).
 :::
 
+#### Permissions {#query-permissions}
+
+A query with `permission="users.read"` is launched by a client only when the session user has the `users.read`
+permission, besides the access by screen. Server launches (`launchPrivateQuery`, subqueries) are never checked. See
+[Permissions](../security/permissions.md).
+
 #### Server-only queries {#server-only-queries}
 
-A query marked with `server-only="true"` can only be launched by the server (a Java service, the scheduler...) through `QueryService.launchPrivateQuery`. Any request from a client is refused with the *launching query without authorization* error, **even when the user is signed in**: `/action/data` and the other query actions (`update-model`, `unique`, `control`, `subscribe`...), `/api/data` and `/api/public/data`.
+A query marked with `server-only="true"` can only be launched by the server (a Java service, the scheduler...) through `QueryService.launchPrivateQuery`. Any request from a client is refused with the *access denied* error, **even when the user is signed in**: `/action/data` and the other query actions (`update-model`, `unique`, `control`, `subscribe`...), `/api/data` and `/api/public/data`.
 
 ```xml
 <query id="userDetails" cacheable="true" server-only="true">
@@ -260,6 +267,7 @@ The *field* element has the following attributes:
 | pattern   |  Optional  |  String   | Used in a number type field, defines the pattern to format the number               | Check out [this page](http://docs.oracle.com/javase/tutorial/i18n/format/decimalFormat.html) for more info |
 | translate |  Optional  |  String   | Translates the output with an enumerated group identifier                           | **Note:** If the field value is equal to an enumerated value, outputs the enumerated label                 |
 | function  |  Optional  |  String   | To apply an sql function to field                                                   | The possible values are defined in [field functions](#field-functions)                                     |
+| separator |  Optional  |  String   | Separator of the functions that join values (`STRING_AGG`)                          | Default `", "`. Only with a function that joins values, see [STRING_AGG](#string-agg)                        |
 | cast      |  Optional  |  String   | Changes the field format                                                            | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                                  |
 | query     |  Optional  |  String   | Query identifier to do a subquery                                                   | **Note:** The query id must exist, and `table` and `id` attributes will be ignored                         |
 | variable  |  Optional  |  String   | A variable identifier to be used as field value                                     | **Note:** If `variable` attribute is defined, `table` and `id` attributes will be ignored                  |
@@ -294,8 +302,63 @@ The *field* element has the following attributes:
 - `FIRST_VALUE`: First value of a window
 - `LAST_VALUE`: Last value of a window
 - `LAG`: Value of the previous row
+- `STRING_AGG`: Joins the text values of the group, ordered by value and separated by `", "` or by the
+  `separator` of the field (see [below](#string-agg))
 
 A `function` or a `cast` that is not listed is not supported: the query fails with an error that names the query, the field and the value. AWE never replaces it by another function or type.
+
+#### STRING_AGG {#string-agg}
+
+`STRING_AGG` is an aggregate: it joins the values of a text field of the group into one string, ordered by value and
+separated by a comma and a space (`", "`). Without values it is `null`. The `separator` attribute of the field
+changes the separator. As a field subquery it lists the related rows of each row, for example the additional profiles
+of each user, which a `chips` column shows as tags. The query separates them by `|`, and the column splits them by the
+same `chip-separator`, so a profile name with a comma stays one tag:
+
+```xml
+<field query="UsrAddProTxt" alias="AddProTxt" />
+
+<query id="UsrAddProTxt" server-only="true">
+  <table id="AweOpeRol" alias="rol" />
+  <field id="Nam" table="addPro" function="STRING_AGG" separator="|" alias="AddProTxt" />
+  <join>
+    <table id="AwePro" alias="addPro" />
+    <and>
+      <filter left-field="IdePro" left-table="rol" condition="eq" right-field="IdePro" right-table="addPro" />
+    </and>
+  </join>
+  <where>
+    <and>
+      <filter left-field="IdeOpe" left-table="rol" condition="eq" right-field="IdeOpe" right-table="ope" />
+    </and>
+  </where>
+</query>
+
+<!-- In the screen -->
+<column label="PARAMETER_ADDITIONAL_PROFILES" name="AddProTxt" chips="true" chip-separator="|" max-chips="2" />
+```
+
+The SQL of each database, with the default separator:
+
+| Database                | SQL                                                 |
+|-------------------------|-----------------------------------------------------|
+| HSQLDB, MySQL, MariaDB  | `group_concat(field order by field separator ', ')` |
+| H2, Oracle              | `listagg(field, ', ') within group (order by field)` |
+| SQL Server (2017 or later) | `string_agg(field, ', ') within group (order by field)` |
+| PostgreSQL              | `string_agg(field, ', ' order by field)`            |
+
+- Other databases, such as Sybase, use the `group_concat` form, which they may not support.
+- `separator` is the separator of the functions that join values; today only `STRING_AGG` uses it. It is only allowed
+  with one of them: in a field with another function, or without function, the query fails with an error that names
+  the query and the field.
+- The separator is any text written as a SQL string literal, escaped for each database, so it may contain quotes. It
+  may be empty (`separator=""`), which joins the values without separator. It cannot contain an opening
+  brace (`{`): the query fails.
+- A value that contains the separator cannot be told apart from two values once joined: choose a separator that the
+  values do not contain.
+- The result is limited by the database: 4000 bytes in Oracle and `group_concat_max_len` (1024 by default) in MySQL and
+  MariaDB.
+- It is not accepted by `totalize` or `over`, and a field with `STRING_AGG` cannot have a column filter.
 
 #### Transform attribute
 
@@ -1104,7 +1167,7 @@ These are the possible variable types:
 * **OBJECT**: To define a variable as a java object
 * **CLOB**: To define a variable as a big text file
 * **LIST_TO_STRING**: Retrieve a list of values and manage them as a comma separated values in a string
-* **STRING_TO_LIST**: Retrieve comma separated string and transforms it into a list of values
+* **STRING_TO_LIST**: Retrieve comma separated string and transforms it into a list of values. It is always a list, also when the value comes from the session (`session="..."`) or holds a single value, so it can be used with `condition="in"`. An empty value is an empty list
 	
 ### Special variables
 

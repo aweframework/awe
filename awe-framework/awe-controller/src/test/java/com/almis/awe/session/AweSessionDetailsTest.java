@@ -9,6 +9,7 @@ import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.dto.UserProfile;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.tracker.AweConnectionTracker;
@@ -29,11 +30,17 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.almis.awe.model.constant.AweConstants.SESSION_FAILURE;
+import static com.almis.awe.model.constant.AweConstants.SESSION_PROFILE;
+import static com.almis.awe.model.constant.AweConstants.SESSION_PROFILES;
+import static com.almis.awe.model.constant.AweConstants.SESSION_RESTRICTION;
+import static com.almis.awe.model.constant.AweConstants.SESSION_RESTRICTIONS;
+import static com.almis.awe.model.constant.AweConstants.SESSION_USER_RESTRICTION;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -95,8 +102,35 @@ class AweSessionDetailsTest {
     SecurityContextHolder.setContext(securityContext);
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
     aweSessionDetails.onLoginSuccess(new AweUserDetails());
-    verify(aweSession, times(8)).setParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
+    verify(aweSession, times(10)).setParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
     verify(sessionService, times(1)).setSessionParameter(ArgumentMatchers.anyString(), ArgumentMatchers.any());
+  }
+
+  @Test
+  void onLoginSuccessStoresEveryProfileOfTheUser() {
+    SecurityContextHolder.setContext(securityContext);
+    when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    aweSessionDetails.onLoginSuccess(new AweUserDetails()
+      .setProfile("ADM")
+      .setRestrictions("general")
+      .setAdditionalProfiles(List.of(new UserProfile("OPE", "operator", "operator"))));
+    verify(aweSession).setParameter(SESSION_PROFILE, "ADM");
+    verify(aweSession).setParameter(SESSION_PROFILES, "ADM,OPE");
+    verify(aweSession).setParameter(SESSION_RESTRICTION, "general");
+    verify(aweSession).setParameter(SESSION_RESTRICTIONS, "general,operator");
+    verify(aweSession, never()).setParameter(eq(SESSION_USER_RESTRICTION), any());
+  }
+
+  @Test
+  void onLoginSuccessStoresTheRestrictionOfTheUser() {
+    SecurityContextHolder.setContext(securityContext);
+    when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    aweSessionDetails.onLoginSuccess(new AweUserDetails()
+      .setProfile("ADM")
+      .setRestrictions("own")
+      .setUserRestriction("own"));
+    verify(aweSession).setParameter(SESSION_RESTRICTION, "own");
+    verify(aweSession).setParameter(SESSION_USER_RESTRICTION, "own");
   }
 
 
@@ -135,7 +169,8 @@ class AweSessionDetailsTest {
     when(aweSession.getSessionId()).thenReturn("session-id");
     when(connectionTracker.getUserConnectionsFromSession(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(Collections.emptySet());
     aweSessionDetails.onLogoutSuccess();
-    verify(aweSession, times(9)).removeParameter(ArgumentMatchers.anyString());
+    verify(aweSession, times(12)).removeParameter(ArgumentMatchers.anyString());
+    verify(aweSession).removeParameter(SESSION_USER_RESTRICTION);
   }
 
   @Test
@@ -152,7 +187,7 @@ class AweSessionDetailsTest {
     when(connectionTracker.getUserConnectionsFromSession(ArgumentMatchers.anyString(), ArgumentMatchers.anyString())).thenReturn(Stream.of("1", "2", "3", null, "", "5").collect(Collectors.toSet()));
     aweSessionDetails.onLogoutSuccess();
     verify(clientTracker, times(1)).removeObservers();
-    verify(aweSession, times(9)).removeParameter(ArgumentMatchers.anyString());
+    verify(aweSession, times(12)).removeParameter(ArgumentMatchers.anyString());
     verify(broadcastService, times(3)).broadcastMessageToUID(anyString(), any(ClientAction.class));
     verify(clientTracker, times(1)).removeObservers();
   }

@@ -31,6 +31,7 @@
   <locale name="BUTTON_CREATE_DATABASE" value="Créer la connexion"/>
   <locale name="BUTTON_CREATE_EMAIL_SERVER" value="Créer le serveur de messagerie"/>
   <locale name="BUTTON_CREATE_MODULE" value="Créer le module"/>
+  <locale name="BUTTON_CREATE_COPY" value="Créer la copie"/>
   <locale name="BUTTON_CREATE_PROFILE" value="Créer le profil"/>
   <locale name="BUTTON_CREATE_QUEUE" value="Créer une file"/>
   <locale name="BUTTON_CREATE_SEQUENCE" value="Créer la séquence"/>
@@ -44,6 +45,7 @@
   <locale name="BUTTON_DONE" value="Terminé"/>
   <locale name="BUTTON_DUPLICATE_EMAIL_SERVER" value="Dupliquer le serveur de messagerie"/>
   <locale name="BUTTON_DUPLICATE_MODULE" value="Dupliquer le module"/>
+  <locale name="BUTTON_DUPLICATE_PROFILE" value="Dupliquer le profil"/>
   <locale name="BUTTON_DUPLICATE_QUEUE" value="Dupliquer la file"/>
   <locale name="BUTTON_DUPLICATE_SITE" value="Dupliquer le site"/>
   <locale name="BUTTON_EDIT" value="Modifier"/>
@@ -100,6 +102,7 @@
   <locale name="BUTTON_UPDATE" value="Modifier"/>
   <locale name="BUTTON_VIEW" value="Consulter"/>
   <locale name="BUTTON_VIEW_ERROR_MESSAGES" value="Voir menssages d&apos;erreur"/>
+  <locale name="BUTTON_VIEW_PERMISSIONS" value="Voir les permissions"/>
   <locale name="COLUMN_ACR" value="Acrónyme"/>
   <locale name="COLUMN_ACT" value="Active"/>
   <locale name="COLUMN_ALS" value="Alias"/>
@@ -393,6 +396,7 @@
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCAL_LOGIN_DISABLED" value="Connexion locale désactivée"/>
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCKED" value="Compte verrouillé"/>
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_MAX_ATTEMPTS" value="Trop de tentatives échouées"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PERMISSION" value="Permission manquante"/>
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER" value="À la demande du fournisseur d&apos;identité"/>
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER_ERROR" value="Erreur du fournisseur d&apos;identité"/>
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_RESTRICTED" value="Option restreinte"/>
@@ -482,6 +486,7 @@
   <locale name="ERROR_MESSAGE_ACCESS_DENIED" value="Acces a l&apos;ecran n&apos;est pas possible - {0}"/>
   <locale name="ERROR_MESSAGE_ACCESS_NO_SUBJECT" value="Sélectionnez un profil ou un utilisateur pour modifier son accès"/>
   <locale name="ERROR_MESSAGE_ACTION_NOT_DEFINED" value="L&apos;action n&apos;a pas ete definie"/>
+  <locale name="ERROR_MESSAGE_ACTION_NOT_PERMITTED" value="Vous n&apos;avez pas l&apos;autorisation d&apos;effectuer cette action. Contactez votre administrateur si vous en avez besoin."/>
   <locale name="ERROR_MESSAGE_ADDING_COMPOUND_FIELDS" value="Il y avait une erreur composés en ajoutant des champs calculés dans une requête"/>
   <locale name="ERROR_MESSAGE_ADDING_COMPUTED_FIELDS" value="Il y avait une erreur composés en champs calculés dans une requête"/>
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="Il y avait une erreur ajoutant totalisateurs pour la requête {1} en ligne {0}"/>
@@ -492,6 +497,10 @@
   <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Disposition de grille invalide"/>
   <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="La disposition de la grille n&apos;est pas valide ou vous n&apos;êtes pas connecté, elle n&apos;a donc pas été enregistrée"/>
   <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="La disposition de la grille comporte trop de colonnes pour être enregistrée"/>
+  <locale name="ERROR_TITLE_PREDEFINED_PROFILE" value="Profil prédéfini"/>
+  <locale name="ERROR_MESSAGE_PREDEFINED_PROFILE" value="Le profil prédéfini {0} ne peut être ni modifié ni supprimé. Dupliquez-le et modifiez la copie."/>
+  <locale name="ERROR_TITLE_DUPLICATE_PROFILE" value="Dupliquer le profil"/>
+  <locale name="ERROR_MESSAGE_DUPLICATE_PROFILE" value="Sélectionnez le profil à dupliquer"/>
   <locale name="ERROR_TITLE_INVALID_SAVED_SEARCH" value="Recherche enregistrée invalide"/>
   <locale name="ERROR_MESSAGE_INVALID_SAVED_SEARCH" value="La recherche enregistrée n&apos;est pas valide ou vous n&apos;êtes pas connecté, elle n&apos;a donc pas été enregistrée"/>
   <locale name="ERROR_MESSAGE_SAVED_SEARCH_TOO_LARGE" value="La recherche comporte trop de valeurs pour être enregistrée"/>
@@ -615,6 +624,8 @@
   <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE" value="L'opérande {0} de SUBSTRING doit être une constante ou variable compatible avec un entier, mais reçu: {1}"/>
   <locale name="ERROR_MESSAGE_UNSUPPORTED_CAST" value="Le cast {2} du champ {1} de la requête {0} n'est pas supporté"/>
   <locale name="ERROR_MESSAGE_UNSUPPORTED_FUNCTION" value="La fonction {2} du champ {1} de la requête {0} n'est pas supportée"/>
+  <locale name="ERROR_MESSAGE_SEPARATOR_WITHOUT_SEPARATED_FUNCTION" value="Le champ {1} de la requête {0} a un attribut separator, que seules les fonctions qui joignent des valeurs (STRING_AGG) acceptent"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_SEPARATOR" value="Le séparateur {2} du champ {1} de la requête {0} ne peut pas contenir une accolade ouvrante"/>
   <locale name="ERROR_MESSAGE_MENU_NOT_CLONEABLE" value="Le menu actuel n&apos;est pas cloneable"/>
   <locale name="ERROR_MESSAGE_METHOD_NOT_DEFINED" value="La methode a invoquer n&apos;est pas definie"/>
   <locale name="ERROR_MESSAGE_MULTIPLE_AUDIT_MAINTAIN" value="L&apos;operation de maintenance de l&apos;instruction simple avec controle multiple n&apos;a pas fini correctement. [{0}]"/>
@@ -769,6 +780,27 @@
   <locale name="PARAMETER_SECURITY_AUDIT_SESSION" value="Session (SHA-256)"/>
   <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Locataire"/>
   <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="Agent utilisateur"/>
+  <locale name="PERMISSION_GROUP_UNAVAILABLE" value="Permissions non disponibles"/>
+  <locale name="PERMISSION_RESOURCE_ACCESS" value="Accès aux écrans"/>
+  <locale name="PERMISSION_RESOURCE_ALL" value="Toutes les ressources"/>
+  <locale name="PERMISSION_RESOURCE_AUDIT" value="Audit de sécurité"/>
+  <locale name="PERMISSION_RESOURCE_DEFAULT" value="Par défaut"/>
+  <locale name="PERMISSION_RESOURCE_PERMISSIONS" value="Permissions"/>
+  <locale name="PERMISSION_RESOURCE_PROFILES" value="Profils"/>
+  <locale name="PERMISSION_RESOURCE_SELF" value="Paramètres personnels"/>
+  <locale name="PERMISSION_RESOURCE_SYSTEM" value="Système"/>
+  <locale name="PERMISSION_RESOURCE_THEMES" value="Thèmes"/>
+  <locale name="PERMISSION_RESOURCE_USERS" value="Utilisateurs"/>
+  <locale name="PERMISSION_UNAVAILABLE" value="{0} (non disponible dans cette version)"/>
+  <locale name="PERMISSION_USERS_RESET_2FA" value="Réinitialiser l&apos;authentification à deux facteurs"/>
+  <locale name="PERMISSION_USERS_UNLOCK" value="Débloquer"/>
+  <locale name="PERMISSION_VERB_ALL" value="Tout"/>
+  <locale name="PERMISSION_VERB_CREATE" value="Créer"/>
+  <locale name="PERMISSION_VERB_DELETE" value="Supprimer"/>
+  <locale name="PERMISSION_VERB_EXPORT" value="Exporter"/>
+  <locale name="PERMISSION_VERB_READ" value="Consulter"/>
+  <locale name="PERMISSION_VERB_UPDATE" value="Modifier"/>
+  <locale name="PERMISSION_VERB_WRITE" value="Écrire"/>
   <locale name="SCREEN_TEXT_ADVANCED_FILTERS" value="Filtres avancés"/>
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE" value="Impossible d'enregistrer si les filtres avancés sont ouverts"/>
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE" value="État des filtres avancés non enregistré"/>
@@ -804,11 +836,13 @@
   <locale name="SCREEN_TEXT_NO_SAVED_SEARCHES" value="Aucune recherche enregistrée"/>
   <locale name="SCREEN_TEXT_ONLY_ME" value="Moi uniquement"/>
   <locale name="SCREEN_TEXT_PROFILE_DEFAULTS" value="Valeurs par défaut et accès"/>
+  <locale name="SCREEN_TEXT_PROFILE_DUPLICATE_NOTICE" value="Copie du profil sélectionné : saisissez son acronyme et son nom. La copie reçoit les permissions du profil, qui peuvent être modifiées ; le fichier de profil d’un profil prédéfini n’est pas copié."/>
   <locale name="SCREEN_TEXT_PROFILE_FILTERS" value="État du profil"/>
   <locale name="SCREEN_TEXT_PROFILE_FILTER_ACTIVE" value="Actifs"/>
   <locale name="SCREEN_TEXT_PROFILE_FILTER_ALL" value="Tous"/>
   <locale name="SCREEN_TEXT_PROFILE_FILTER_INACTIVE" value="Inactifs"/>
   <locale name="SCREEN_TEXT_PROFILE_IDENTITY" value="Identité"/>
+  <locale name="SCREEN_TEXT_PROFILE_PREDEFINED_NOTICE" value="Profil prédéfini : il ne peut pas être modifié. Dupliquez-le et modifiez la copie."/>
   <locale name="SCREEN_TEXT_PROFILE_SEARCH" value="Nom, acronyme, thème ou écran…"/>
   <locale name="SCREEN_TEXT_PROFILE_SEARCH_LABEL" value="Rechercher des profils"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publier pour un profil"/>
@@ -1030,6 +1064,7 @@
   <locale name="HELP_NEW_BUTTON" value="Aller au nouveau écran pour ajouter un nouvel élément"/>
   <locale name="HELP_PRINT_ACTION_CRITERION" value="Sélectionnez une action à faire: Générer des fichiers, envoyer des fichiers par e-mail ou imprimer des fichiers"/>
   <locale name="HELP_PRINT_BUTTON" value="Ouvrir une dialogue avec les options d&apos;impresion de l&apos;écran"/>
+  <locale name="HELP_PROFILE_PERMISSIONS" value="Permissions du profil, regroupées par ressource. « Tout » donne toutes les permissions d’une ressource et « Toutes les ressources » une action sur toutes les ressources. Les utilisateurs reçoivent les changements à leur prochaine connexion."/>
   <locale name="HELP_ACCESS_COMPARE_BUTTON" value="Comparer l’accès avec un autre profil ou un autre utilisateur, ou simuler l’utilisateur avec un autre profil. Rien n’est enregistré"/>
   <locale name="HELP_ACCESS_COMPARE_STOP_BUTTON" value="Arrêter la comparaison et afficher seulement l’accès du profil ou de l’utilisateur choisi"/>
   <locale name="HELP_ACCESS_REVIEW_BUTTON" value="Revoir les règles de tous les profils et utilisateurs qui n’ont pas d’effet ou n’ont pas de sens, et les corriger"/>
@@ -1127,6 +1162,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="HELP_TYPE" value="Type"/>
   <locale name="HELP_UPDATE_BUTTON" value="Aller au nouveau écran avec les données sélectionnées pour les módifier"/>
   <locale name="HELP_VIEW_BUTTON" value="Aller au nouveau écran avec les données sélectionnées pour les régarder"/>
+  <locale name="HELP_VIEW_PERMISSIONS_BUTTON" value="Ouvre Contrôle d&apos;accès › Permissions avec cet utilisateur : les permissions de ses profils enregistrés"/>
   <locale name="HOURS" value="{0}h"/>
   <locale name="INFO_MESSAGE_PARSING_NUMBER_NULL" value="Le paramètre {0} ne peut pas être analysée comme nombre: &apos;&apos;{1}&apos;&apos; - Défini comme null"/>
   <locale name="INFO_TITLE_WEB_SERVICE_CALL" value="Informatión"/>
@@ -1183,9 +1219,9 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="MENU_TOOLS_PURGUES" value="Purges du systeme"/>
   <locale name="MENU_TOOLS_SCR_CNF" value="Screen configuration"/>
   <locale name="MENU_TOOLS_SCREEN_ENCRYPT" value="Encrypt Util"/>
-  <locale name="MENU_TOOLS_SCREENS_ACCESS" value="Accès à l&apos;écran"/>
+  <locale name="MENU_TOOLS_SCREENS_ACCESS" value="Contrôle d&apos;accès"/>
   <locale name="MENU_TOOLS_SCREENS_ACCESS_BY_MENU" value="Accès aux écrans par menu"/>
-  <locale name="MENU_TOOLS_SECURITY" value="Security access"/>
+  <locale name="MENU_TOOLS_SECURITY" value="Sécurité"/>
   <locale name="MENU_TOOLS_SITES" value="Sites"/>
   <locale name="MENU_TOOLS_STL_CNF" value="Report style configuration"/>
   <locale name="MENU_TOOLS_THEMES" value="Thèmes"/>
@@ -1227,6 +1263,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_ACCESS_MODE" value="Access mode"/>
   <locale name="PARAMETER_ACRONYM" value="Acrónyme"/>
   <locale name="PARAMETER_ACTIVE" value="Active"/>
+  <locale name="PARAMETER_ADDITIONAL_PROFILES" value="Profils supplémentaires"/>
   <locale name="PARAMETER_ALIAS" value="Alias"/>
   <locale name="PARAMETER_APPLICATION" value="Projet"/>
   <locale name="PARAMETER_APPLICATION_ACRONIME" value="Acrónyme"/>
@@ -1344,6 +1381,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_PASSWD_EXPIRE" value="Expiration mot de passe en jours"/>
   <locale name="PARAMETER_PASSWD_MIN" value="Longueur du mot de passe"/>
   <locale name="PARAMETER_PASSWD_NEW" value="Nouveau mot de passe"/>
+  <locale name="PARAMETER_PERMISSIONS" value="Permissions"/>
   <locale name="PARAMETER_PHRASEKEY" value="Phrase key"/>
   <locale name="PARAMETER_PRINT" value="Imprimante"/>
   <locale name="PARAMETER_PRINTER" value="Imprimante"/>
@@ -1498,6 +1536,59 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_ACCESS_NO_RULES" value="Aucune règle sur l&apos;option"/>
   <locale name="SCREEN_TEXT_ACCESS_NO_RULES_TEXT" value="Son accès vient du module, du profil de base ou de ses options parentes"/>
   <locale name="SCREEN_TEXT_ACCESS_OPTION_RULES" value="Toutes les règles sur l&apos;option"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSIONS" value="Permissions effectives"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ADDITIONAL_PROFILE" value="Profil supplémentaire"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_FILE" value="Fichier du profil et attributions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_KEY" value="Identifiant"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_ORIGIN" value="Origine"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_PERMISSION" value="Permission"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_RESOURCE" value="Ressource"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_STATE" value="État"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_WARNING" value="Avertissement"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_DOES_NOT_GRANT" value="Ne l'accorde pas"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EMPTY_TEXT" value="Choisissez un utilisateur ou un profil pour voir ce qu'il peut faire"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EMPTY_TITLE" value="Aucune permission à afficher"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EXCLUDED" value="Exclu par {0} dans son fichier {1} ({2})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTERS" value="Filtres des permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_ALL" value="Toutes"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_DIFFERENCES" value="Seulement les différences"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_GRANTED" value="Accordées"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_NOT_GRANTED" value="Non accordées"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_WARNINGS" value="Avertissements"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GRANTED" value="Accordée"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GRANTS" value="L'accorde"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GROUP" value="{0} · {1} · {2} sur {3} accordées"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_HINT" value="Pour chaque profil : (fichier − exclusions) + attributions. Les permissions de tous les profils s'additionnent, plus celles toujours accordées. Une exclusion n'est pas un refus. Les modifications s'appliquent à la prochaine connexion."/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_MAIN" value="(principal)"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_MAIN_PROFILE" value="Profil principal"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NEXT_LOGIN" value="Les modifications s'appliquent à la prochaine connexion : c'est l'état configuré, pas celui des sessions ouvertes"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NONE" value="Aucun profil ne l'accorde"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NOT_GRANTED" value="Non accordée"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_ALWAYS" value="Toujours accordée"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_ASSIGNMENT" value="{0} · attribution {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_FILE" value="{0} · fichier {1} ({2})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_PREDEFINED" value="prédéfini : on le duplique pour le modifier"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_GRANTED" value="{0} a {1} · {2}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_HINT" value="Un profil qui l'accorde suffit : une exclusion ne retire que dans son propre fichier de profil"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_NOT_GRANTED" value="{0} n''a pas {1} · {2}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SEARCH" value="Rechercher une permission ou une ressource…"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SEARCH_LABEL" value="Rechercher des permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_COMPARE" value="Seulement {0} : {1} · Seulement {2} : {3} · Identiques : {4}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_DIFFERENCES" value="{0} différences sur {1} permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_GRANTED" value="{0} permissions accordées sur {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_PROFILES" value="Profils :"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_WARNINGS" value="{0} exclues dans un fichier de profil et accordées par une autre voie"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WARNING_EXCLUDED" value="{0} l''exclut dans son fichier {1} ({2}) ; une autre origine l''accorde"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ALWAYS" value="Le catalogue l'accorde à tout utilisateur authentifié"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ASSIGNMENT_GRANTS" value="L''attribution {0} l''accorde"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ASSIGNMENT_NOT_INCLUDED" value="Aucune attribution ne l'inclut"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_CATALOG" value="Catalogue des permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_EXCLUDES" value="Le fichier {0} l''exclut ({1}) : le fichier ne le donne pas"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_GRANTS" value="Le fichier {0} l''accorde ({1})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_NOT_INCLUDED" value="Le fichier {0} ne l''inclut pas"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_NO_ASSIGNMENTS" value="Sans attributions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_NO_FILE" value="Sans fichier de profil"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_PROFILES" value="Ce qu'apporte chaque profil"/>
   <locale name="SCREEN_TEXT_ACCESS_PREVIEW" value="Aperçu du menu"/>
   <locale name="SCREEN_TEXT_ACCESS_PREVIEW_ALL_MODULES" value="tous les modules"/>
   <locale name="SCREEN_TEXT_ACCESS_PREVIEW_COUNT" value="{0} options visibles sur {1}"/>
@@ -1553,10 +1644,13 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_ACCESS_STEP_PROFILE" value="Règle du profil"/>
   <locale name="SCREEN_TEXT_ACCESS_STEP_USER" value="Règle de l’utilisateur"/>
   <locale name="SCREEN_TEXT_ACCESS_SUBJECT_PROFILE" value="le profil {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT" value="Profil ou utilisateur"/>
   <locale name="SCREEN_TEXT_ACCESS_SUBJECT_TYPE" value="Voir l&apos;accès de"/>
   <locale name="SCREEN_TEXT_ACCESS_SUBJECT_USER" value="l&apos;&apos;utilisateur {0}"/>
   <locale name="SCREEN_TEXT_ACCESS_SWITCH_RULE" value="Inverser la règle : Autoriser ↔ Refuser"/>
   <locale name="SCREEN_TEXT_ACCESS_PREVIEW_BUTTON" value="Prévisualiser"/>
+  <locale name="SCREEN_TEXT_ACCESS_TAB_MENU" value="Options de menu"/>
+  <locale name="SCREEN_TEXT_ACCESS_TAB_PERMISSIONS" value="Permissions"/>
   <locale name="SCREEN_TEXT_ACCESS_WARNING_PARENT_DENIED" value="Autorisée, mais son parent est refusé : elle n’est pas accessible depuis le menu"/>
   <locale name="SCREEN_TEXT_ACCESS_WARNING_REDUNDANT" value="Règle redondante : la supprimer ne change pas l’accès"/>
   <locale name="SCREEN_TEXT_ACCESS_WHO_GLOBAL" value="Tous les utilisateurs"/>
@@ -1766,8 +1860,9 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_USER_FILTERS" value="État de l&apos;utilisateur"/>
   <locale name="SCREEN_TEXT_USER_SEARCH" value="Utilisateur, nom, e-mail ou profil…"/>
   <locale name="SCREEN_TEXT_USER_SEARCH_LABEL" value="Rechercher des utilisateurs"/>
+  <locale name="SCREEN_TEXT_USER_VIEW_PERMISSIONS_HELP" value="Affiche les profils enregistrés : enregistrez d'abord les modifications"/>
   <locale name="SCREEN_TEXT_VERSION" value="Contexte"/>
-  <locale name="SCREEN_TITLE_ACCESS_ADMIN" value="Accès"/>
+  <locale name="SCREEN_TITLE_ACCESS_ADMIN" value="Contrôle d&apos;accès"/>
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activer l&apos;authentification à deux facteurs"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Information de l&apos;application"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Paramètres d&apos;application"/>
@@ -1905,6 +2000,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="WARNING_MESSAGE_DUPLICATED_SITE" value="Il existe déjà un site avec ce nom. Veuillez le modifier."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="Le nom d&apos;utilisateur que vous tentez d&apos;entrer existe déjà"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="Avertissement! La localee -{0}- existe déjà et il ne sera PAS remplacé"/>
+  <locale name="WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA" value="Certaines données de cet écran ne sont pas affichées car vous n&apos;êtes pas autorisé à les voir"/>
   <locale name="WARNING_TITLE_DUPLICATED_APP_PAR" value="Paramètre en double"/>
   <locale name="WARNING_TITLE_DUPLICATED_MODULE" value="Module en double"/>
   <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Profil dupliqué"/>
@@ -1913,6 +2009,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="WARNING_TITLE_DUPLICATED_SERVER" value="Serveur existant"/>
   <locale name="WARNING_TITLE_DUPLICATED_SITE" value="Site en double"/>
   <locale name="WARNING_TITLE_DUPLICATED_USER" value="Utilisateur existant"/>
+  <locale name="WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA" value="Données restreintes"/>
   <locale name="WARNING_TITLE_WEB_SERVICE_CALL" value="Attentión"/>
   <locale name="WEEK" value="{0} semaine"/>
   <locale name="WEEKS" value="{0} semaines"/>

@@ -10,6 +10,7 @@ import com.almis.awe.model.security.audit.SecurityAuditEventType;
 import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.service.menu.MenuOptionLookup;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.Ordered;
 
 import java.util.Set;
 
@@ -18,11 +19,23 @@ import java.util.Set;
  * the screens of some menu options can only be launched when the user can open at least one of those options. A target
  * that no screen uses is not checked.
  *
+ * <p>The launches through the REST API are not checked: the REST API launches queries and maintains without screens,
+ * so it is only authorized by the permissions of the targets.</p>
+ *
  * <p>The behaviour depends on {@code awe.security.authorization.mode}: {@code off} does not check, {@code warn} logs and
  * audits the launches without access but allows them, and {@code enforce} refuses them.</p>
+ *
+ * <p>The services are not checked: a screen calls a service through an action, and the access is only decided on
+ * the targets of the screens, so the access by screen of a service keeps behaving as it did before services were
+ * authorized.</p>
  */
 @Slf4j
-public class ScreenTargetAuthorizer extends ServiceConfig implements TargetLaunchAuthorizer {
+public class ScreenTargetAuthorizer extends ServiceConfig implements TargetLaunchAuthorizer, Ordered {
+
+  /**
+   * Order of the authorizer in the chain: the access by screen is checked first
+   */
+  public static final int ORDER = 0;
 
   private final SecurityConfigProperties securityConfigProperties;
   private final ScreenTargetIndex screenTargetIndex;
@@ -53,7 +66,8 @@ public class ScreenTargetAuthorizer extends ServiceConfig implements TargetLaunc
   @Override
   public boolean authorize(String targetId, TargetKind kind) {
     AuthorizationMode mode = securityConfigProperties.getAuthorization().getMode();
-    if (mode == null || mode == AuthorizationMode.OFF) {
+    if (kind == TargetKind.SERVICE || mode == null || mode == AuthorizationMode.OFF
+      || SecurityAuditService.isRestApiRequest()) {
       return true;
     }
 
@@ -65,8 +79,13 @@ public class ScreenTargetAuthorizer extends ServiceConfig implements TargetLaunc
     // The user cannot open any option whose screen uses the target. The screens are not given away in the logs
     log.warn("Client launch of {} [{}] without access to any screen that uses it{}", kind.label(), targetId,
       mode == AuthorizationMode.WARN ? " (allowed: authorization mode is warn)" : " refused");
-    audit(targetId, kind);
+    audit(targetId, kind, mode);
     return mode == AuthorizationMode.WARN;
+  }
+
+  @Override
+  public int getOrder() {
+    return ORDER;
   }
 
   private boolean canOpenAny(Set<String> options) {
@@ -89,13 +108,17 @@ public class ScreenTargetAuthorizer extends ServiceConfig implements TargetLaunc
     return session != null && session.isAuthenticated();
   }
 
-  private void audit(String targetId, TargetKind kind) {
+  /**
+   * Audit the launch without access: the detail of a launch allowed by the warn mode says it, so the audit tells it
+   * from a refusal
+   */
+  private void audit(String targetId, TargetKind kind, AuthorizationMode mode) {
     try {
       SecurityAuditService securityAuditService = getApplicationContext() == null ? null
         : getApplicationContext().getBeanProvider(SecurityAuditService.class).getIfAvailable();
       if (securityAuditService != null && securityAuditService.isEnabled()) {
         securityAuditService.failure(SecurityAuditEventType.ACCESS_DENIED, null, SecurityAuditCause.RESTRICTED,
-          kind.label() + ": " + targetId);
+          kind.label() + ": " + targetId + (mode == AuthorizationMode.WARN ? " (allowed: warn)" : ""));
       }
     } catch (RuntimeException exc) {
       log.debug("Denied access to {} {} could not be audited", kind.label(), targetId, exc);

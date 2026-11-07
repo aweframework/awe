@@ -68,6 +68,9 @@ Se cierra:
 - con el botón de cierre de su cabecera, con Esc o con un clic fuera de él. Estos siguen el atributo `on-close`:
   `accept` (por defecto) se comporta como `close` y `reject` como `close-cancel`.
 
+Una acción `dialog` con un `edit-permission` que el usuario no tiene abre el panel lateral en modo consulta: sus criterios
+son de solo lectura. Consulta [elementos de pantalla](../security/permissions.md#view-mode-of-a-panel-edit-permission).
+
 ## Cabecera de identidad {#identity-header}
 
 Con `header-grid` la cabecera del panel lateral muestra la fila seleccionada de ese grid cuando hay **exactamente una**

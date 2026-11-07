@@ -116,6 +116,7 @@ El elemento *query* tiene los siguientes atributos:
 | post-process       |    Opcional    |  Boolean  | Lanza o no el procesamiento de la lista de datos que realiza AWE, para permitir a los desarrolladores hacer su propio posprocesamiento                                                | Por defecto es `true`. **Nota:** Solo se aplica en consultas de servicio. Para más información, consulta la [consulta de servicio](#service-query)                |
 | public             |    Opcional    |  Boolean  | Permite que la consulta se ejecute sin necesidad de haber iniciado sesión                                                                                                             | Por defecto es `false`                                                                                                                                            |
 | server-only        |    Opcional    |  Boolean  | Rechaza la consulta ante cualquier petición de un cliente; solo la puede lanzar el servidor | Por defecto es `false`. Ver [consultas server-only](#server-only-queries) |
+| permission         |    Opcional    |  String   | Permisos del catálogo que necesita un cliente para lanzar la consulta, separados por espacios (se requieren todos) | **Nota:** Un permiso desconocido, o un permiso en una consulta `public`, es un error de carga. Ver [permisos](#query-permissions) |
 | enumerated         |    Opcional    |  String   | El nombre del enumerado con el que rellenar la consulta                                                                                                                               | **Nota:** Solo se aplica en consultas de enumerado. Para más información, consulta la [consulta de enumerado](#enumerated-query)                                  |
 | service            |    Opcional    |  String   | El nombre del servicio con el que rellenar la consulta                                                                                                                                | **Nota:** Solo se aplica en consultas de servicio. Para más información, consulta la [consulta de servicio](#service-query)                                       |
 | queue              |    Opcional    |  String   | El nombre de la cola con la que rellenar la consulta                                                                                                                                  | **Nota:** Solo se aplica en consultas de cola. Para más información, consulta la [consulta de cola](#queue-query)                                                 |
@@ -124,9 +125,15 @@ El elemento *query* tiene los siguientes atributos:
 Cuando una consulta la usa una pantalla del menú, una petición de cliente solo la lanza si el usuario de la sesión puede abrir al menos una de las pantallas que la usan (`awe.security.authorization.mode`, `enforce` por defecto). Las consultas que no usa ninguna pantalla conservan las reglas de `public` y de la sesión iniciada. Consulte [Acceso por pantalla](../security/screen-access.md).
 :::
 
+#### Permisos {#query-permissions}
+
+Un cliente solo lanza una consulta con `permission="users.read"` cuando el usuario de la sesión tiene el permiso
+`users.read`, además del acceso por pantalla. Los lanzamientos del servidor (`launchPrivateQuery`, subconsultas)
+nunca se comprueban. Consulte [Permisos](../security/permissions.md).
+
 #### Consultas server-only {#server-only-queries}
 
-Una consulta marcada con `server-only="true"` solo la puede lanzar el servidor (un servicio Java, el planificador...) mediante `QueryService.launchPrivateQuery`. Cualquier petición de un cliente se rechaza con el error *launching query without authorization*, **incluso con el usuario autenticado**: `/action/data` y el resto de acciones de consulta (`update-model`, `unique`, `control`, `subscribe`...), `/api/data` y `/api/public/data`.
+Una consulta marcada con `server-only="true"` solo la puede lanzar el servidor (un servicio Java, el planificador...) mediante `QueryService.launchPrivateQuery`. Cualquier petición de un cliente se rechaza con el error de *acceso denegado*, **incluso con el usuario autenticado**: `/action/data` y el resto de acciones de consulta (`update-model`, `unique`, `control`, `subscribe`...), `/api/data` y `/api/public/data`.
 
 ```xml
 <query id="userDetails" cacheable="true" server-only="true">
@@ -260,6 +267,7 @@ El elemento *field* tiene los siguientes atributos:
 | pattern   |  Opcional  |  String   | Se usa en un campo de tipo número, define el patrón con el que dar formato al número | Consulta [esta página](http://docs.oracle.com/javase/tutorial/i18n/format/decimalFormat.html) para más información |
 | translate |  Opcional  |  String   | Traduce la salida con un identificador de grupo enumerado                           | **Nota:** Si el valor del campo es igual a un valor enumerado, devuelve la etiqueta del enumerado          |
 | function  |  Opcional  |  String   | Para aplicar una función sql al campo                                               | Los valores posibles se definen en [funciones de campo](#field-functions)                                  |
+| separator |  Opcional  |  String   | Separador de las funciones que unen valores (`STRING_AGG`)                          | Por defecto `", "`. Solo con una función que une valores, ver [STRING_AGG](#string-agg)                      |
 | cast      |  Opcional  |  String   | Cambia el formato del campo                                                         | Los valores posibles son `STRING`, `INTEGER`, `LONG`, `FLOAT` y `DOUBLE`                                   |
 | query     |  Opcional  |  String   | Identificador de consulta para hacer una subconsulta                                | **Nota:** El id de la consulta debe existir, y los atributos `table` e `id` se ignorarán                   |
 | variable  |  Opcional  |  String   | Un identificador de variable que se usará como valor del campo                      | **Nota:** Si se define el atributo `variable`, los atributos `table` e `id` se ignorarán                   |
@@ -291,6 +299,61 @@ El elemento *field* tiene los siguientes atributos:
 - `SECOND`: Obtener los segundos de una fecha
 - `TRIM`: Eliminar todos los espacios de ambos lados de la cadena
 - `LENGTH`: Obtener la longitud del campo
+- `STRING_AGG`: Une los valores de texto del grupo, ordenados por valor y separados por `", "` o por el
+  `separator` del campo (ver [abajo](#string-agg))
+
+#### STRING_AGG {#string-agg}
+
+`STRING_AGG` es un agregado: une los valores de un campo de texto del grupo en una sola cadena, ordenados por valor y
+separados por una coma y un espacio (`", "`). Sin valores es `null`. El atributo `separator` del campo cambia
+el separador. Como subconsulta de un campo lista las filas relacionadas de cada fila, por ejemplo los perfiles
+adicionales de cada usuario, que una columna `chips` muestra como etiquetas. La consulta los separa por `|` y la columna
+los divide por el mismo `chip-separator`, así que el nombre de un perfil con una coma sigue siendo una sola etiqueta:
+
+```xml
+<field query="UsrAddProTxt" alias="AddProTxt" />
+
+<query id="UsrAddProTxt" server-only="true">
+  <table id="AweOpeRol" alias="rol" />
+  <field id="Nam" table="addPro" function="STRING_AGG" separator="|" alias="AddProTxt" />
+  <join>
+    <table id="AwePro" alias="addPro" />
+    <and>
+      <filter left-field="IdePro" left-table="rol" condition="eq" right-field="IdePro" right-table="addPro" />
+    </and>
+  </join>
+  <where>
+    <and>
+      <filter left-field="IdeOpe" left-table="rol" condition="eq" right-field="IdeOpe" right-table="ope" />
+    </and>
+  </where>
+</query>
+
+<!-- En la pantalla -->
+<column label="PARAMETER_ADDITIONAL_PROFILES" name="AddProTxt" chips="true" chip-separator="|" max-chips="2" />
+```
+
+El SQL de cada base de datos, con el separador por defecto:
+
+| Base de datos           | SQL                                                 |
+|-------------------------|-----------------------------------------------------|
+| HSQLDB, MySQL, MariaDB  | `group_concat(campo order by campo separator ', ')` |
+| H2, Oracle              | `listagg(campo, ', ') within group (order by campo)` |
+| SQL Server (2017 o posterior) | `string_agg(campo, ', ') within group (order by campo)` |
+| PostgreSQL              | `string_agg(campo, ', ' order by campo)`            |
+
+- Otras bases de datos, como Sybase, usan la forma `group_concat`, que pueden no admitir.
+- `separator` es el separador de las funciones que unen valores; hoy solo lo usa `STRING_AGG`. Solo se admite con una
+  de ellas: en un campo con otra función, o sin función, la consulta falla con un error que nombra la consulta y el
+  campo.
+- El separador es cualquier texto, que se escribe como un literal de cadena SQL escapado para cada base de datos, así
+  que puede contener comillas. Puede estar vacío (`separator=""`), que une los valores sin separador. No
+  puede contener una llave de apertura (`{`): la consulta falla.
+- Un valor que contiene el separador no se distingue de dos valores una vez unidos: elige un separador que los valores
+  no contengan.
+- La base de datos limita el resultado: 4000 bytes en Oracle y `group_concat_max_len` (1024 por defecto) en MySQL y
+  MariaDB.
+- No lo aceptan `totalize` ni `over`, y un campo con `STRING_AGG` no admite filtro de columna.
 
 #### Atributo transform {#transform-attribute}
 
@@ -1099,7 +1162,7 @@ Estos son los tipos de variable posibles:
 * **OBJECT**: Para definir una variable como un objeto java
 * **CLOB**: Para definir una variable como un archivo de texto grande
 * **LIST_TO_STRING**: Recupera una lista de valores y los gestiona como valores separados por comas en una cadena
-* **STRING_TO_LIST**: Recupera una cadena separada por comas y la transforma en una lista de valores
+* **STRING_TO_LIST**: Recupera una cadena separada por comas y la transforma en una lista de valores. Es siempre una lista, también cuando el valor viene de la sesión (`session="..."`) o tiene un solo valor, así que se puede usar con `condition="in"`. Un valor vacío es una lista vacía
 		
 ### Variables especiales {#special-variables}
 

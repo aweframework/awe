@@ -1,17 +1,22 @@
 import { useMemo } from 'react';
 import { shallowEqual, useSelector } from 'react-redux';
 import { makeGetComponent, getAllComponents, makeGetMultipleComponents, getContextMenuAttributes } from '../redux/selectors/componentSelectors';
+import { applyViewMode, useViewMode } from './useViewMode';
 
 /**
  * Hook para acceder al estado de UN componente específico
  * Reemplaza: useSelector(state => state.components[id])
  * 
  * @param {string} componentId - ID del componente
+ * A criterion of a dialog or side panel shown in view mode is read-only
+ *
  * @returns {Object} Estado mergeado del componente
  */
 export function useComponentState(componentId) {
     const getComponent = useMemo(() => makeGetComponent(), []);
-    return useSelector(state => getComponent(state, componentId));
+    const component = useSelector(state => getComponent(state, componentId));
+    const viewMode = useViewMode();
+    return useMemo(() => applyViewMode(component, viewMode), [component, viewMode]);
 }
 
 /**

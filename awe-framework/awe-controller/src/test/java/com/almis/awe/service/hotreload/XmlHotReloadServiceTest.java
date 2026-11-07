@@ -224,6 +224,23 @@ class XmlHotReloadServiceTest {
   }
 
   /**
+   * Test that a permission catalog change reloads the catalog without cache eviction
+   */
+  @Test
+  void permissionsChangeReloadsThePermissionCatalog() {
+    Path moduleRoot = Path.of("/app/target/classes/application/module-one");
+    String permissionsFile = "/app/target/classes/application/module-one/global/Permissions.xml";
+    assertEquals(PERMISSIONS, hotReloadService.classify(permissionsFile));
+    assertEquals(PERMISSIONS, hotReloadService.classify(moduleRoot, moduleRoot.resolve("global/Permissions.xml")));
+
+    hotReloadService.reloadFor(Path.of(permissionsFile));
+
+    verify(aweElements).reloadPermissions();
+    verifyNoMoreInteractions(aweElements);
+    verifyNoInteractions(queryDataCache);
+  }
+
+  /**
    * Test that unknown files are ignored
    */
   @Test

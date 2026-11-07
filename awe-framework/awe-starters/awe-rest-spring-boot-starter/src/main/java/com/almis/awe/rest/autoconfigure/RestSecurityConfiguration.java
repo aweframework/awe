@@ -16,7 +16,9 @@ import com.almis.awe.rest.security.JWTAuthorizationFilter;
 import com.almis.awe.rest.service.JWTTokenService;
 import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
+import com.almis.awe.service.user.AweUserDetailService;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -144,10 +146,15 @@ public class RestSecurityConfiguration extends ServiceConfig {
 
   private void configureOauth2Mode(HttpSecurity httpSecurity) throws Exception {
     JwtDecoder jwtDecoder = buildJwtDecoder(restConfigProperties.getOauth2ResourceServer().getJwt());
+    // The roles of the token are mapped as the single sign-on maps them, and the profiles get the permissions of the
+    // local login, read on every request
+    ObjectProvider<AweUserDetailService> userDetailService = getApplicationContext()
+      .getBeanProvider(AweUserDetailService.class);
     AweRestJwtAuthenticationConverter authenticationConverter = new AweRestJwtAuthenticationConverter(
       baseConfigProperties,
       securityConfigProperties,
-      restConfigProperties
+      restConfigProperties,
+      userDetailService::getObject
     );
 
     httpSecurity.oauth2ResourceServer(oauth2ResourceServer ->

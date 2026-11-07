@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <!--
+  ==============================================================================
+  Definition
+  ==============================================================================
+  -->
+
+  <xs:annotation>
+    <xs:appinfo>awe Permissions Schema</xs:appinfo>
+    <xs:documentation xml:lang="en">
+    This Schema defines the way an awe Permissions file (permission catalog of a module) must be structured.
+    A permission identifier is &lt;resource&gt;.&lt;verb&gt; or &lt;resource&gt;.&lt;action&gt;
+    </xs:documentation>
+  </xs:annotation>
+
+  <!--
+  ==============================================================================
+  Elements
+  ==============================================================================
+  -->
+
+  <!-- Permissions Element -->
+  <xs:element name="permissions" type="permissionsType"/>
+
+  <!-- Verb Element -->
+  <xs:element name="verb" type="permissionVerbType"/>
+
+  <!-- Resource Element -->
+  <xs:element name="resource" type="permissionResourceType"/>
+
+  <!-- Action Element -->
+  <xs:element name="action" type="permissionActionType"/>
+
+  <!--
+  ==============================================================================
+  Type definitions
+  ==============================================================================
+  -->
+
+  <!-- Permissions Type -->
+  <xs:complexType name="permissionsType">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" ref="verb"/>
+      <xs:element minOccurs="0" maxOccurs="unbounded" ref="resource"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- Verb Type -->
+  <xs:complexType name="permissionVerbType">
+    <xs:attribute name="id" use="required" type="permissionIdentifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Verb identifier: the last part of the permissions of the resources that list it (read in users.read)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Locale key of the name of the verb, shown in the permissions of a profile</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- Resource Type -->
+  <xs:complexType name="permissionResourceType">
+    <xs:sequence>
+      <xs:element minOccurs="0" maxOccurs="unbounded" ref="action"/>
+    </xs:sequence>
+    <xs:attribute name="id" use="required" type="permissionIdentifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Resource identifier: the first part of its permissions (users in users.read)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Locale key of the name of the resource, the group of its permissions in the permissions of a profile</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="verbs" use="optional" type="permissionVerbListType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+        Comma separated verb list. 'crud' means read, create, update and delete. The 'write' verb exists only for
+        the 'default' resource
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="granted" use="optional" type="permissionGrantedEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+        'always' grants the permissions of the resource to every authenticated user
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- Action Type -->
+  <xs:complexType name="permissionActionType">
+    <xs:attribute name="id" use="required" type="permissionIdentifierType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Action identifier: the last part of an own permission of the resource (unlock in users.unlock)</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" use="required" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Locale key of the name of the action, shown in the permissions of a profile</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- Identifier of a verb, resource or action: no dots, spaces or wildcards -->
+  <xs:simpleType name="permissionIdentifierType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z0-9_\-]+"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Comma separated verb list -->
+  <xs:simpleType name="permissionVerbListType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[A-Za-z0-9_\-]+( *, *[A-Za-z0-9_\-]+)*"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!--
+  ==============================================================================
+  Enumerated definitions
+  ==============================================================================
+  -->
+
+  <!-- Granted Enumeration -->
+  <xs:simpleType name="permissionGrantedEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="always"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

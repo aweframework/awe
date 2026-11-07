@@ -27,6 +27,7 @@
   <locale name="NO_NOTIFICATIONS" value="No hay notificaciones"/>
   <locale name="PARAMETER_SUBSCRIPTION" value="Suscripción"/>
   <locale name="PARAMETER_UNREAD" value="No leídas"/>
+  <locale name="PERMISSION_RESOURCE_SUBSCRIPTIONS" value="Suscripciones de notificaciones"/>
   <locale name="SCREEN_HELP_NEW_SUBSCRIPTION" value="Aquí se puede agregar una nuevo tema de suscripción"/>
   <locale name="SCREEN_HELP_NOTIFICATIONS" value="Pantalla de lista de notificaciones. Permite ver todas las notificaciones y marcarlas como leídas/no leídas."/>
   <locale name="SCREEN_HELP_SUBSCRIPTIONS" value="Esta ventana administra la definición de suscripciones para las notificaciones"/>

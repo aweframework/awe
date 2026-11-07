@@ -151,19 +151,29 @@ class AccessAdminScreenTest {
   }
 
   @Test
-  @DisplayName("One card: the subject criteria share one row at the top of the window of the tree, above its grid")
+  @DisplayName("The subject criteria share one row above the views, without a window header, and the tree is in the window of the menu options")
   void subjectCriteriaAndTreeInOneCard() throws Exception {
     Document screen = load(AWE + SCREEN);
     List<String> criteria = List.of("subject-type", "IdeOpe", "IdePro", "access-module", "compare-with");
+    List<Element> windows = elements(screen.getDocumentElement(), "window");
+    Element subject = byId(screen, "AccSbj");
 
-    assertThat(elements(screen.getDocumentElement(), "window")).singleElement().satisfies(window -> {
-      assertThat(window.getAttribute("label")).isEqualTo("SCREEN_TEXT_ACCESS_MENU");
-      assertThat(elements(window, "*").stream()
-        .filter(element -> !"dependency-element".equals(element.getTagName()))
-        .map(element -> element.getAttribute("id"))
-        .filter(id -> criteria.contains(id) || GRID.equals(id)))
-        .containsExactly("subject-type", "IdeOpe", "IdePro", "access-module", "compare-with", GRID);
-    });
+    Element card = (Element) subject.getParentNode();
+
+    assertThat(subject.getTagName()).isEqualTo("tag");
+    assertThat(card.getTagName()).isEqualTo("window");
+    assertThat(card.getAttribute("label")).isEqualTo("SCREEN_TEXT_ACCESS_SUBJECT");
+    assertThat(((Element) card.getParentNode()).getAttribute("source")).isEqualTo("center");
+    assertThat(elements(subject, "*").stream()
+      .filter(element -> !"dependency-element".equals(element.getTagName()))
+      .map(element -> element.getAttribute("id"))
+      .filter(criteria::contains))
+      .containsExactly("subject-type", "IdeOpe", "IdePro", "access-module", "compare-with");
+    assertThat(nextElement(card).getTagName()).isEqualTo("tab");
+    assertThat(windows).filteredOn(window -> "SCREEN_TEXT_ACCESS_MENU".equals(window.getAttribute("label")))
+      .singleElement()
+      .satisfies(window -> assertThat(elements(window, "grid")).extracting(grid -> grid.getAttribute("id"))
+        .containsExactly(GRID));
     // One row: the criteria (and the help of the comparison) are siblings in the same container
     assertThat(criteria.stream().map(id -> byId(screen, id).getParentNode()).distinct()).hasSize(1);
     assertThat(byId(screen, "AccCmpHlp").getParentNode()).isSameAs(byId(screen, "subject-type").getParentNode());
@@ -414,8 +424,9 @@ class AccessAdminScreenTest {
 
     assertThat(keys).hasSizeGreaterThan(20);
     assertThat(defined).as(locale).containsAll(keys);
-    // The texts of the subject window, of the compare banner, of the subtitle and of the View as label, all gone
-    assertThat(defined).as(locale).doesNotContain("SCREEN_TEXT_ACCESS_SUBJECT", "SCREEN_TEXT_ACCESS_COMPARE_USER_TITLE",
+    // The texts of the compare banner, of the subtitle and of the View as label, all gone (the subject window has a
+    // title again, SCREEN_TEXT_ACCESS_SUBJECT, so its header is not empty)
+    assertThat(defined).as(locale).doesNotContain("SCREEN_TEXT_ACCESS_COMPARE_USER_TITLE",
       "SCREEN_TEXT_ACCESS_COMPARE_USER_TEXT", "SCREEN_TEXT_ACCESS_COMPARE_PROFILE_TITLE", "SCREEN_TEXT_ACCESS_COMPARE_PROFILE_TEXT",
       "SCREEN_TEXT_ACCESS_ADMIN_SUBTITLE", "SCREEN_TEXT_ACCESS_VIEW_AS", "SCREEN_TEXT_ACCESS_VIEW_AS_NONE");
   }

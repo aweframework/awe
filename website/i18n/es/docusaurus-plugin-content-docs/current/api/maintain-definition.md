@@ -86,12 +86,19 @@ El elemento target tiene los siguientes atributos:
 | name      | **Obligatorio** | String  | Identificador del maintain                                      | **Nota:**  El nombre debe ser único                                                                                 |
 | public    | Opcional     | Boolean | Para establecer que una query se pueda lanzar fuera de sesión (sin haber iniciado sesión) | Por defecto es `false`                                                        |                 
 | server-only | Opcional   | Boolean | Para rechazar el target ante cualquier petición de un cliente; solo lo puede lanzar el servidor | Por defecto es `false`. Ver [targets server-only](#server-only-targets) |
+| permission | Opcional    | String  | Permisos del catálogo que necesita un cliente para lanzar el target, separados por espacios (se requieren todos) | **Nota:** Un permiso desconocido, o un permiso en un target `public`, es un error de carga. Ver [permisos](#target-permissions) |
 | label     | Opcional     | String  | Se usa para establecer el mensaje de salida tras ejecutar el mantenimiento | **Nota:** Puedes usar archivos [i18n](i18n-internationalization.md) (locales)                               | 
 | exclusive | Opcional     | Boolean | Para restringir la ejecución concurrente del target                | Establece este atributo a `true` si no quieres que el target se ejecute de forma concurrente (varios usuarios a la vez) |
 
+#### Permisos {#target-permissions}
+
+Un cliente solo lanza un target con `permission="users.delete"` cuando el usuario de la sesión tiene el permiso
+`users.delete`, además del acceso por pantalla. Los lanzamientos del servidor (`launchPrivateMaintain`) y los targets
+incluidos con `<include target="..."/>` nunca se comprueban. Consulte [Permisos](../security/permissions.md).
+
 #### Targets server-only {#server-only-targets}
 
-Un target marcado con `server-only="true"` solo lo puede lanzar el servidor (un servicio Java, el planificador...) mediante `MaintainService.launchPrivateMaintain`. Cualquier petición de un cliente se rechaza con el error *launching maintain without authorization*, **incluso con el usuario autenticado**: `/action/maintain` (también las variantes silenciosa y asíncrona), los endpoints de maintain de ficheros, `/api/maintain`, `/api/maintain/async` y `/api/public/maintain`.
+Un target marcado con `server-only="true"` solo lo puede lanzar el servidor (un servicio Java, el planificador...) mediante `MaintainService.launchPrivateMaintain`. Cualquier petición de un cliente se rechaza con el error de *acceso denegado*, **incluso con el usuario autenticado**: `/action/maintain` (también las variantes silenciosa y asíncrona), los endpoints de maintain de ficheros, `/api/maintain`, `/api/maintain/async` y `/api/public/maintain`.
 
 ```xml
 <target name="store2faSecret" server-only="true">

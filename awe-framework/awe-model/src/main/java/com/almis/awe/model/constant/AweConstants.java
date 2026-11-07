@@ -169,6 +169,11 @@ public class AweConstants {
   public static final String SESSION_MODULE = "module";
   public static final String SESSION_PROFILE = "profile";
   public static final String SESSION_RESTRICTION = "restriction";
+  // Every profile of the user (main first) and every restriction file of those profiles, separated by commas
+  public static final String SESSION_PROFILES = "profiles";
+  public static final String SESSION_RESTRICTIONS = "restrictions";
+  // Restriction file of the user (only when the user has one): the last word over every profile
+  public static final String SESSION_USER_RESTRICTION = "userRestriction";
   public static final String SESSION_FAILURE = "sessionFailure";
   public static final String SESSION_CONNECTION_TOKEN = "token";
   public static final String SESSION_TOKEN = "sessionToken";
@@ -206,10 +211,16 @@ public class AweConstants {
   public static final String USER_DETAIL_QUERY = "userDetails";
   public static final String USER_DETAIL_EMAIL_QUERY = "userDetailsByEmail";
   public static final String USER_DETAIL_PROFILE_QUERY = "userDetailsByProfile";
+  public static final String USER_ADDITIONAL_PROFILES_QUERY = "userAdditionalProfiles";
+  public static final String PROFILE_PERMISSIONS_QUERY = "profilePermissions";
+  public static final String ALL_PROFILE_PERMISSIONS_QUERY = "allProfilePermissions";
+  public static final String PROFILE_RESTRICTIONS_QUERY = "profileRestrictions";
   public static final String CHECK_EXIST_PROFILE = "checkProfileExists";
   public static final String SCREEN_CONFIGURATION_QUERY = "getScreenConfiguration";
   public static final String SCREEN_RESTRICTION_QUERY = "getScreenRestrictions";
   public static final String SCREEN_DATABASE_RESTRICTION_QUERY = "getOptionRestrictionFromDatabase";
+  public static final String SCREEN_DATABASE_RESTRICTION_BY_PROFILES_QUERY = "getOptionRestrictionFromDatabaseByProfiles";
+  public static final String PROFILES_RESTRICTION_QUERY = "getProfilesRestriction";
   public static final String APPLICATION_PARAMETERS_QUERY = "getApplicationParameters";
   public static final String RESTRICTIONS_PER_OPTION_QUERY = "restrictions-per-option";
   public static final String MENU_RESTRICTIONS = "menu-restrictions";

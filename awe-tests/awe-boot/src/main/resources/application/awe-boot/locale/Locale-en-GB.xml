@@ -394,4 +394,8 @@
   <locale name="BUTTON_TEST_MAP_ROUTE" value="Draw route"/>
   <locale name="PARAMETER_TEST_MAP_SELECTED" value="Selected place"/>
   <locale name="MENU_TEST_MAP" value="Map"/>
+  <locale name="PERMISSION_VERB_APPROVE" value="Approve"/>
+  <locale name="PERMISSION_RESOURCE_INVOICES" value="Invoices"/>
+  <locale name="PERMISSION_RESOURCE_APP_THEMES" value="Themes and brand"/>
+  <locale name="PERMISSION_USERS_UNLOCK_ACCOUNT" value="Unlock account"/>
 </locales>

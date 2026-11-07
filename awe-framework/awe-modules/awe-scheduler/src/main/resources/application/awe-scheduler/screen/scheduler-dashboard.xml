@@ -82,7 +82,7 @@
         <dependency-element id="GrdTskLst" column="Act" attribute="selectedRowValue" condition="eq" value="1" />
       </dependency>
     </button>
-    <button label="BUTTON_NEW" icon="plus-circle" id="ButNew" help="HELP_NEW_BUTTON">
+    <button label="BUTTON_NEW" icon="plus-circle" id="ButNew" help="HELP_NEW_BUTTON" permission="scheduler.update">
       <button-action type="screen" target="new-scheduler-task" />
     </button>
   </tag>

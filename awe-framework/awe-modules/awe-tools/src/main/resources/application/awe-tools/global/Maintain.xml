@@ -4,14 +4,14 @@
 
 <maintain xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/maintain.xsd">
 
-  <target name="selectExtract" public="true">
+  <target name="selectExtract" permission="sql-extractor.read">
     <serve service="selectExtract">
       <variable id="select" type="STRING" name="selectCriteria" />
     </serve>
   </target>
 
   <!-- Generate, Print from (SQL Extractor Engine)dinamic columns -->
-  <target name="ExpFilSql">
+  <target name="ExpFilSql" permission="sql-extractor.read">
     <serve service="ExpFilSql">
       <variable id="select" type="STRING" name="selectCriteria" />
       <variable id="formats" type="STRING" name="FmtPrn" />
@@ -19,7 +19,7 @@
   </target>
 
   <!-- Save Select Files -->
-  <target name="SaveSelectFile" public="true">
+  <target name="SaveSelectFile" permission="sql-extractor.update">
     <serve service="SaveSelectFile">
       <variable id="saveFileName" type="STRING" name="CrtSavFil" />
       <variable id="selectsText" type="STRING" name="selectCriteria" />
@@ -27,7 +27,7 @@
   </target>
 
   <!-- Delete column -->
-  <target name="DelSqlCol" public="true">
+  <target name="DelSqlCol" permission="sql-extractor.read">
     <serve service="DelSqlCol" />
   </target>
 

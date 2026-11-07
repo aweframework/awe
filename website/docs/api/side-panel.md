@@ -68,6 +68,9 @@ It closes:
 - with the close button of its header, with Esc or with a click outside it. These follow the `on-close` attribute:
   `accept` (default) behaves as `close`, `reject` as `close-cancel`.
 
+A `dialog` action with an `edit-permission` the user does not have opens the side panel in view mode: its criteria are
+read-only. See [screen elements](../security/permissions.md#view-mode-of-a-panel-edit-permission).
+
 ## Identity header
 
 With `header-grid` the header of the side panel shows the selected row of that grid when **exactly one** row is selected

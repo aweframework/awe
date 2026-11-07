@@ -27,6 +27,7 @@
   <locale name="PARAMETER_FILE" value="Archivo"/>
   <locale name="PARAMETER_SAVE_FILE" value="Nombre de archivo"/>
   <locale name="PARAMETER_SELECT" value="Consulta"/>
+  <locale name="PERMISSION_RESOURCE_SQL_EXTRACTOR" value="Extractor SQL"/>
   <locale name="SCREEN_TITLE_LOAD_SELECT" value="Cargar consulta"/>
   <locale name="SCREEN_TITLE_SAVE_SELECT" value="Guardar consulta"/>
   <locale name="SCREEN_TITLE_SQL_EXTRACTOR" value="SQL Extractor"/>
