@@ -24,10 +24,16 @@ function AweSelectMultiple(props) {
     [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error,
     "awe-select-multiple": oneLine, "awe-select-multiple-clearable": oneLine && optional && selected?.length
   });
-  // A readonly field lists its values without offering to remove them
-  const chipsTemplate = value => value && value.code === selected[0].code
-    ? <AweSelectMultipleChips values={selected} onRemove={readonly ? undefined : removeValue}/>
-    : null;
+  // A readonly field lists its values without offering to remove them. With no value, the placeholder or an empty label
+  // (PrimeReact writes "empty" in the field when the template renders nothing)
+  const chipsTemplate = value => {
+    if (!value) {
+      return placeholder || <></>;
+    }
+    return value.code === selected[0].code
+      ? <AweSelectMultipleChips values={selected} onRemove={readonly ? undefined : removeValue}/>
+      : null;
+  };
   return <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <MultiSelect
         ref={ref}
