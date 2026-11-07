@@ -11,6 +11,7 @@ import {getSuggestionLabel, withTextLabels} from "../utilities/suggest";
 import useComponent from "../hooks/useComponent";
 import PropTypes from "prop-types";
 import {autoCompletePassThrough} from "../utilities/testPassThrough";
+import {suggestChipProps} from "./AweSelectChip";
 
 function AweSuggestMultiple(props) {
   const { id } = props;
@@ -45,13 +46,15 @@ function AweSuggestMultiple(props) {
 
   const {required, readonly, timeout, size, error } = attributes;
   const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+  const chosen = value.map(item => ({ ...item, label: getSuggestionLabel(item) }));
 
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <AutoComplete multiple={true}
         ref={autocompleteRef}
         id={id}
-        value={value.map(item => ({ ...item, label: getSuggestionLabel(item) }))}
+        value={chosen}
+        {...suggestChipProps(chosen, readonly, onChange)}
         placeholder={criterionPlaceholder(attributes, validationRules, t)}
         required={required}
         {...requiredAria(attributes, validationRules)}

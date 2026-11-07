@@ -31,6 +31,7 @@
   <locale name="BUTTON_CREATE_DATABASE" value="Create connection"/>
   <locale name="BUTTON_CREATE_EMAIL_SERVER" value="Create mail server"/>
   <locale name="BUTTON_CREATE_MODULE" value="Create module"/>
+  <locale name="BUTTON_CREATE_COPY" value="Create copy"/>
   <locale name="BUTTON_CREATE_PROFILE" value="Create profile"/>
   <locale name="BUTTON_CREATE_QUEUE" value="Create queue"/>
   <locale name="BUTTON_CREATE_SEQUENCE" value="Create sequence"/>
@@ -44,6 +45,7 @@
   <locale name="BUTTON_DONE" value="Done"/>
   <locale name="BUTTON_DUPLICATE_EMAIL_SERVER" value="Duplicate mail server"/>
   <locale name="BUTTON_DUPLICATE_MODULE" value="Duplicate module"/>
+  <locale name="BUTTON_DUPLICATE_PROFILE" value="Duplicate profile"/>
   <locale name="BUTTON_DUPLICATE_QUEUE" value="Duplicate queue"/>
   <locale name="BUTTON_DUPLICATE_SITE" value="Duplicate site"/>
   <locale name="BUTTON_EDIT" value="Edit"/>
@@ -100,6 +102,7 @@
   <locale name="BUTTON_UPDATE" value="Update"/>
   <locale name="BUTTON_VIEW" value="View"/>
   <locale name="BUTTON_VIEW_ERROR_MESSAGES" value="View error messages"/>
+  <locale name="BUTTON_VIEW_PERMISSIONS" value="View permissions"/>
   <locale name="COLUMN_ACR" value="Acronym"/>
   <locale name="COLUMN_ACT" value="Active"/>
   <locale name="COLUMN_ALS" value="Alias"/>
@@ -393,6 +396,7 @@
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCAL_LOGIN_DISABLED" value="Local login disabled"/>
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCKED" value="Account locked"/>
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_MAX_ATTEMPTS" value="Too many failed attempts"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PERMISSION" value="Missing permission"/>
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER" value="Requested by the identity provider"/>
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER_ERROR" value="Identity provider error"/>
   <locale name="ENUM_SECURITY_AUDIT_CAUSE_RESTRICTED" value="Restricted option"/>
@@ -482,6 +486,7 @@
   <locale name="ERROR_MESSAGE_ACCESS_DENIED" value="Access to selected screen has been denied - {0}"/>
   <locale name="ERROR_MESSAGE_ACCESS_NO_SUBJECT" value="Select a profile or a user to change its access"/>
   <locale name="ERROR_MESSAGE_ACTION_NOT_DEFINED" value="This action has not been defined"/>
+  <locale name="ERROR_MESSAGE_ACTION_NOT_PERMITTED" value="You do not have permission to perform this action. Contact your administrator if you need it."/>
   <locale name="ERROR_MESSAGE_ADDING_COMPOUND_FIELDS" value="There has been a problem adding compound fields for one query"/>
   <locale name="ERROR_MESSAGE_ADDING_COMPUTED_FIELDS" value="There has been a problem adding computed fields for one query"/>
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="There was an error adding totalizers for the query {1} in line {0}"/>
@@ -492,6 +497,10 @@
   <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Invalid grid layout"/>
   <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="The grid layout is not valid or you are not signed in, so it was not saved"/>
   <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="The grid layout has too many columns to be saved"/>
+  <locale name="ERROR_TITLE_PREDEFINED_PROFILE" value="Predefined profile"/>
+  <locale name="ERROR_MESSAGE_PREDEFINED_PROFILE" value="The predefined profile {0} cannot be changed or deleted. Duplicate it and change the copy."/>
+  <locale name="ERROR_TITLE_DUPLICATE_PROFILE" value="Duplicate profile"/>
+  <locale name="ERROR_MESSAGE_DUPLICATE_PROFILE" value="Select the profile to duplicate"/>
   <locale name="ERROR_TITLE_INVALID_SAVED_SEARCH" value="Invalid saved search"/>
   <locale name="ERROR_MESSAGE_INVALID_SAVED_SEARCH" value="The saved search is not valid or you are not signed in, so it was not saved"/>
   <locale name="ERROR_MESSAGE_SAVED_SEARCH_TOO_LARGE" value="The search has too many values to be saved"/>
@@ -615,6 +624,8 @@
   <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE" value="SUBSTRING operand {0} must be an integer-compatible constant or variable, but got: {1}"/>
   <locale name="ERROR_MESSAGE_UNSUPPORTED_CAST" value="Cast {2} of field {1} in query {0} is not supported"/>
   <locale name="ERROR_MESSAGE_UNSUPPORTED_FUNCTION" value="Function {2} of field {1} in query {0} is not supported"/>
+  <locale name="ERROR_MESSAGE_SEPARATOR_WITHOUT_SEPARATED_FUNCTION" value="Field {1} in query {0} has a separator attribute, which only the functions that join values (STRING_AGG) accept"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_SEPARATOR" value="The separator {2} of field {1} in query {0} cannot contain an opening brace"/>
   <locale name="ERROR_MESSAGE_MENU_NOT_CLONEABLE" value="Current menu is not cloneable"/>
   <locale name="ERROR_MESSAGE_METHOD_NOT_DEFINED" value="The selected class has not been defined"/>
   <locale name="ERROR_MESSAGE_MULTIPLE_AUDIT_MAINTAIN" value="The maintain operation of single statement and multiple audit has failed. [{0}]"/>
@@ -769,6 +780,27 @@
   <locale name="PARAMETER_SECURITY_AUDIT_SESSION" value="Session (SHA-256)"/>
   <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Tenant"/>
   <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="User agent"/>
+  <locale name="PERMISSION_GROUP_UNAVAILABLE" value="Unavailable permissions"/>
+  <locale name="PERMISSION_RESOURCE_ACCESS" value="Screen access"/>
+  <locale name="PERMISSION_RESOURCE_ALL" value="All resources"/>
+  <locale name="PERMISSION_RESOURCE_AUDIT" value="Security audit"/>
+  <locale name="PERMISSION_RESOURCE_DEFAULT" value="Default"/>
+  <locale name="PERMISSION_RESOURCE_PERMISSIONS" value="Permissions"/>
+  <locale name="PERMISSION_RESOURCE_PROFILES" value="Profiles"/>
+  <locale name="PERMISSION_RESOURCE_SELF" value="Own settings"/>
+  <locale name="PERMISSION_RESOURCE_SYSTEM" value="System"/>
+  <locale name="PERMISSION_RESOURCE_THEMES" value="Themes"/>
+  <locale name="PERMISSION_RESOURCE_USERS" value="Users"/>
+  <locale name="PERMISSION_UNAVAILABLE" value="{0} (not available in this version)"/>
+  <locale name="PERMISSION_USERS_RESET_2FA" value="Reset two-factor authentication"/>
+  <locale name="PERMISSION_USERS_UNLOCK" value="Unlock"/>
+  <locale name="PERMISSION_VERB_ALL" value="All"/>
+  <locale name="PERMISSION_VERB_CREATE" value="Create"/>
+  <locale name="PERMISSION_VERB_DELETE" value="Delete"/>
+  <locale name="PERMISSION_VERB_EXPORT" value="Export"/>
+  <locale name="PERMISSION_VERB_READ" value="Read"/>
+  <locale name="PERMISSION_VERB_UPDATE" value="Update"/>
+  <locale name="PERMISSION_VERB_WRITE" value="Write"/>
   <locale name="SCREEN_TEXT_ADVANCED_FILTERS" value="Advanced filters"/>
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE" value="Whether the advanced filters are open could not be saved"/>
   <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE" value="Advanced filters state not saved"/>
@@ -804,11 +836,13 @@
   <locale name="SCREEN_TEXT_NO_SAVED_SEARCHES" value="No saved searches yet"/>
   <locale name="SCREEN_TEXT_ONLY_ME" value="Only me"/>
   <locale name="SCREEN_TEXT_PROFILE_DEFAULTS" value="Defaults and access"/>
+  <locale name="SCREEN_TEXT_PROFILE_DUPLICATE_NOTICE" value="Copy of the selected profile: enter its acronym and name. The copy gets the permissions of the profile and they can be changed; the profile file of a predefined profile is not copied."/>
   <locale name="SCREEN_TEXT_PROFILE_FILTERS" value="Profile state"/>
   <locale name="SCREEN_TEXT_PROFILE_FILTER_ACTIVE" value="Active"/>
   <locale name="SCREEN_TEXT_PROFILE_FILTER_ALL" value="All"/>
   <locale name="SCREEN_TEXT_PROFILE_FILTER_INACTIVE" value="Inactive"/>
   <locale name="SCREEN_TEXT_PROFILE_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_PROFILE_PREDEFINED_NOTICE" value="Predefined profile: it cannot be changed. Duplicate it and change the copy."/>
   <locale name="SCREEN_TEXT_PROFILE_SEARCH" value="Name, acronym, theme or screen…"/>
   <locale name="SCREEN_TEXT_PROFILE_SEARCH_LABEL" value="Search profiles"/>
   <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publish for a profile"/>
@@ -1030,6 +1064,7 @@
   <locale name="HELP_NEW_BUTTON" value="Go to a new screen to add a new item"/>
   <locale name="HELP_PRINT_ACTION_CRITERION" value="Select an action to do: Generate files, send files by e-mail or print files"/>
   <locale name="HELP_PRINT_BUTTON" value="Open a dialog with screen print options"/>
+  <locale name="HELP_PROFILE_PERMISSIONS" value="Permissions of the profile, grouped by resource. “All” gives every permission of a resource and “All resources” one action on every resource. Users get the changes the next time they sign in."/>
   <locale name="HELP_ACCESS_COMPARE_BUTTON" value="Compare the access with another profile or another user, or simulate the user with another profile. Nothing is stored"/>
   <locale name="HELP_ACCESS_COMPARE_STOP_BUTTON" value="Stop comparing and show only the access of the chosen profile or user"/>
   <locale name="HELP_ACCESS_REVIEW_BUTTON" value="Review the rules of every profile and user that have no effect or do not make sense, and fix them"/>
@@ -1127,6 +1162,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="HELP_TYPE" value="Type"/>
   <locale name="HELP_UPDATE_BUTTON" value="Go to a new screen with the selected item data in which you can update the item information"/>
   <locale name="HELP_VIEW_BUTTON" value="Go to a new screen with the selected item data, just to check it"/>
+  <locale name="HELP_VIEW_PERMISSIONS_BUTTON" value="Open Access control › Permissions with this user: the permissions of its saved profiles"/>
   <locale name="HOURS" value="{0}h"/>
   <locale name="INFO_MESSAGE_PARSING_NUMBER_NULL" value="Parameter {0} can&apos;&apos;t be parsed as number: &apos;&apos;{1}&apos;&apos; - Set as null"/>
   <locale name="INFO_TITLE_WEB_SERVICE_CALL" value="Information"/>
@@ -1183,9 +1219,9 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_TOOLS_PURGUES" value="Purgues"/>
   <locale name="MENU_TOOLS_SCR_CNF" value="Screen configuration"/>
   <locale name="MENU_TOOLS_SCREEN_ENCRYPT" value="Encrypt Util"/>
-  <locale name="MENU_TOOLS_SCREENS_ACCESS" value="Screen access"/>
+  <locale name="MENU_TOOLS_SCREENS_ACCESS" value="Access control"/>
   <locale name="MENU_TOOLS_SCREENS_ACCESS_BY_MENU" value="Screen access by menu"/>
-  <locale name="MENU_TOOLS_SECURITY" value="Security access"/>
+  <locale name="MENU_TOOLS_SECURITY" value="Security"/>
   <locale name="MENU_TOOLS_SITES" value="Sites"/>
   <locale name="MENU_TOOLS_STL_CNF" value="Report style configuration"/>
   <locale name="MENU_TOOLS_THEMES" value="Themes"/>
@@ -1227,6 +1263,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_ACCESS_MODE" value="Access mode"/>
   <locale name="PARAMETER_ACRONYM" value="Acronym"/>
   <locale name="PARAMETER_ACTIVE" value="Active"/>
+  <locale name="PARAMETER_ADDITIONAL_PROFILES" value="Additional profiles"/>
   <locale name="PARAMETER_ALIAS" value="Alias"/>
   <locale name="PARAMETER_APPLICATION" value="Project"/>
   <locale name="PARAMETER_APPLICATION_ACRONIME" value="Acronym"/>
@@ -1344,6 +1381,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_PASSWD_EXPIRE" value="Password expiration in days"/>
   <locale name="PARAMETER_PASSWD_MIN" value="Password lenght"/>
   <locale name="PARAMETER_PASSWD_NEW" value="New password"/>
+  <locale name="PARAMETER_PERMISSIONS" value="Permissions"/>
   <locale name="PARAMETER_PHRASEKEY" value="Phrase key"/>
   <locale name="PARAMETER_PRINT" value="Print"/>
   <locale name="PARAMETER_PRINTER" value="Printer"/>
@@ -1498,6 +1536,59 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_ACCESS_NO_RULES" value="No rules on the option"/>
   <locale name="SCREEN_TEXT_ACCESS_NO_RULES_TEXT" value="Its access comes from the module, the base profile or its parent options"/>
   <locale name="SCREEN_TEXT_ACCESS_OPTION_RULES" value="Every rule on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSIONS" value="Effective permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ADDITIONAL_PROFILE" value="Additional profile"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_FILE" value="Profile file and assignments"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_KEY" value="Identifier"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_ORIGIN" value="Origin"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_PERMISSION" value="Permission"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_RESOURCE" value="Resource"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_STATE" value="State"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_WARNING" value="Warning"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_DOES_NOT_GRANT" value="Does not grant it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EMPTY_TEXT" value="Choose a user or a profile to see what it can do"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EMPTY_TITLE" value="No permissions to show"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EXCLUDED" value="Excluded by {0} in its file {1} ({2})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTERS" value="Permission filters"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_DIFFERENCES" value="Only differences"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_GRANTED" value="Granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_NOT_GRANTED" value="Not granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_WARNINGS" value="Warnings"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GRANTED" value="Granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GRANTS" value="Grants it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GROUP" value="{0} · {1} · {2} of {3} granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_HINT" value="For each profile: (profile file − exclusions) + assignments. The permissions of every profile are added up, plus the ones granted always. An exclusion is not a denial. Changes apply at the next sign-in."/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_MAIN" value="(main)"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_MAIN_PROFILE" value="Main profile"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NEXT_LOGIN" value="Changes apply at the next sign-in: this is the configured state, not the one of the open sessions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NONE" value="No profile grants it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NOT_GRANTED" value="Not granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_ALWAYS" value="Granted always"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_ASSIGNMENT" value="{0} · assignment {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_FILE" value="{0} · file {1} ({2})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_PREDEFINED" value="predefined: it is duplicated to change it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_GRANTED" value="{0} has {1} · {2}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_HINT" value="One profile that grants it is enough: an exclusion only subtracts inside its own profile file"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_NOT_GRANTED" value="{0} does not have {1} · {2}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SEARCH" value="Search permission or resource…"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SEARCH_LABEL" value="Search permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_COMPARE" value="Only {0}: {1} · Only {2}: {3} · Same in both: {4}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_DIFFERENCES" value="{0} differences of {1} permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_GRANTED" value="{0} of {1} permissions granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_PROFILES" value="Profiles:"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_WARNINGS" value="{0} excluded in a profile file and granted another way"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WARNING_EXCLUDED" value="{0} excludes it in its file {1} ({2}); another origin grants it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ALWAYS" value="The catalog grants it to every authenticated user"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ASSIGNMENT_GRANTS" value="Assignment {0} grants it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ASSIGNMENT_NOT_INCLUDED" value="No assignment includes it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_CATALOG" value="Permission catalog"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_EXCLUDES" value="File {0} excludes it ({1}): the file does not give it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_GRANTS" value="File {0} grants it ({1})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_NOT_INCLUDED" value="File {0} does not include it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_NO_ASSIGNMENTS" value="Without assignments"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_NO_FILE" value="Without profile file"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_PROFILES" value="What each profile gives"/>
   <locale name="SCREEN_TEXT_ACCESS_PREVIEW" value="Menu preview"/>
   <locale name="SCREEN_TEXT_ACCESS_PREVIEW_ALL_MODULES" value="every module"/>
   <locale name="SCREEN_TEXT_ACCESS_PREVIEW_COUNT" value="{0} visible options of {1}"/>
@@ -1553,10 +1644,13 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_ACCESS_STEP_PROFILE" value="Profile rule"/>
   <locale name="SCREEN_TEXT_ACCESS_STEP_USER" value="User rule"/>
   <locale name="SCREEN_TEXT_ACCESS_SUBJECT_PROFILE" value="profile {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT" value="Profile or user"/>
   <locale name="SCREEN_TEXT_ACCESS_SUBJECT_TYPE" value="See the access of"/>
   <locale name="SCREEN_TEXT_ACCESS_SUBJECT_USER" value="user {0}"/>
   <locale name="SCREEN_TEXT_ACCESS_SWITCH_RULE" value="Switch the rule: Allow ↔ Deny"/>
   <locale name="SCREEN_TEXT_ACCESS_PREVIEW_BUTTON" value="Preview"/>
+  <locale name="SCREEN_TEXT_ACCESS_TAB_MENU" value="Menu options"/>
+  <locale name="SCREEN_TEXT_ACCESS_TAB_PERMISSIONS" value="Permissions"/>
   <locale name="SCREEN_TEXT_ACCESS_WARNING_PARENT_DENIED" value="Allowed, but its parent is denied: it cannot be reached from the menu"/>
   <locale name="SCREEN_TEXT_ACCESS_WARNING_REDUNDANT" value="Redundant rule: removing it does not change the access"/>
   <locale name="SCREEN_TEXT_ACCESS_WHO_GLOBAL" value="Every user"/>
@@ -1766,8 +1860,9 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_USER_FILTERS" value="User state"/>
   <locale name="SCREEN_TEXT_USER_SEARCH" value="User, name, email or profile…"/>
   <locale name="SCREEN_TEXT_USER_SEARCH_LABEL" value="Search users"/>
+  <locale name="SCREEN_TEXT_USER_VIEW_PERMISSIONS_HELP" value="Shows the saved profiles: save the changes first"/>
   <locale name="SCREEN_TEXT_VERSION" value="Environment"/>
-  <locale name="SCREEN_TITLE_ACCESS_ADMIN" value="Access"/>
+  <locale name="SCREEN_TITLE_ACCESS_ADMIN" value="Access control"/>
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activate second factor authentication"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Application info"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Application parameters"/>
@@ -1905,6 +2000,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="WARNING_MESSAGE_DUPLICATED_SITE" value="There is already a site with this name. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="The new user name is already registered"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="Warning! The localee -{0}- already exists and it will NOT be overwritten"/>
+  <locale name="WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA" value="Some data of this screen is not shown because you are not authorized to see it"/>
   <locale name="WARNING_TITLE_DUPLICATED_APP_PAR" value="Duplicated parameter"/>
   <locale name="WARNING_TITLE_DUPLICATED_MODULE" value="Duplicated module"/>
   <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Duplicated profile"/>
@@ -1913,6 +2009,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="WARNING_TITLE_DUPLICATED_SERVER" value="Duplicated server name"/>
   <locale name="WARNING_TITLE_DUPLICATED_SITE" value="Duplicated site"/>
   <locale name="WARNING_TITLE_DUPLICATED_USER" value="Duplicated user name"/>
+  <locale name="WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA" value="Restricted data"/>
   <locale name="WARNING_TITLE_WEB_SERVICE_CALL" value="Warning!"/>
   <locale name="WEEK" value="{0} week"/>
   <locale name="WEEKS" value="{0} weeks"/>

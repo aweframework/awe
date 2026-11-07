@@ -5,6 +5,7 @@ import com.almis.awe.model.entities.actions.Action;
 import com.almis.awe.model.entities.email.Email;
 import com.almis.awe.model.entities.enumerated.EnumeratedGroup;
 import com.almis.awe.model.entities.maintain.Target;
+import com.almis.awe.model.entities.permissions.Permissions;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.entities.queues.Queue;
 import com.almis.awe.model.entities.screen.Screen;
@@ -31,6 +32,8 @@ public class XMLInitData {
   List<Future<Map<String, Profile>>> profileResults = new ArrayList<>();
   List<Future<Map<String, Screen>>> screenResults = new ArrayList<>();
   List<Map<String, Future<Map<String, String>>>> localeResults = new ArrayList<>();
+  // Permissions.xml of each module, in module order (combined into the permission catalog)
+  Future<List<Permissions>> permissionResults;
 
   // New element maps filled by the general futures
   Map<String, EnumeratedGroup> enumerated = new ConcurrentHashMap<>();

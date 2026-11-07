@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Permissions.xml
+    Description: Permission catalog of AWE. A permission identifier is <resource>.<verb> or <resource>.<action>
+-->
+
+<permissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd">
+  <verb id="read" label="PERMISSION_VERB_READ" />
+  <verb id="create" label="PERMISSION_VERB_CREATE" />
+  <verb id="update" label="PERMISSION_VERB_UPDATE" />
+  <verb id="delete" label="PERMISSION_VERB_DELETE" />
+  <verb id="export" label="PERMISSION_VERB_EXPORT" />
+
+  <!-- verbs="crud" means read, create, update and delete -->
+  <resource id="users" label="PERMISSION_RESOURCE_USERS" verbs="crud">
+    <action id="unlock" label="PERMISSION_USERS_UNLOCK" />
+    <action id="reset-2fa" label="PERMISSION_USERS_RESET_2FA" />
+  </resource>
+  <resource id="profiles" label="PERMISSION_RESOURCE_PROFILES" verbs="crud" />
+  <resource id="permissions" label="PERMISSION_RESOURCE_PERMISSIONS" verbs="read,update" />
+
+  <!-- Sites, modules, databases, email servers, queues, sequences, application parameters, report configuration, logs,
+       encryption tools and messages to users -->
+  <resource id="system" label="PERMISSION_RESOURCE_SYSTEM" verbs="read,update" />
+  <!-- Access by screen and screen configuration of profiles and users -->
+  <resource id="access" label="PERMISSION_RESOURCE_ACCESS" verbs="read,update" />
+  <!-- Security audit events -->
+  <resource id="audit" label="PERMISSION_RESOURCE_AUDIT" verbs="read" />
+  <resource id="themes" label="PERMISSION_RESOURCE_THEMES" verbs="crud" />
+
+  <!-- Granted to every authenticated user: own settings, grid layouts, saved searches, favourites, password, 2FA -->
+  <resource id="self" label="PERMISSION_RESOURCE_SELF" verbs="read,update" granted="always" />
+
+  <!-- Required by what declares no permission, when require-undeclared is enabled -->
+  <resource id="default" label="PERMISSION_RESOURCE_DEFAULT" verbs="read,write" />
+</permissions>

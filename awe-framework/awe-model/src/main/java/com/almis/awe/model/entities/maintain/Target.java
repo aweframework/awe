@@ -59,6 +59,11 @@ public class Target implements XMLNode, Copyable {
   @XStreamAsAttribute
   private Boolean serverOnly;
 
+  // Permissions required to launch the target from a client, separated by spaces (all of them are required)
+  @XStreamAlias("permission")
+  @XStreamAsAttribute
+  private String permission;
+
   // Target Query List
   @XStreamImplicit
   private List<MaintainQuery> queryList;

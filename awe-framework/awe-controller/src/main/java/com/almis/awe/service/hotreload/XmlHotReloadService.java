@@ -49,7 +49,7 @@ public class XmlHotReloadService {
    * XML artifact types handled by the hot reload
    */
   public enum XmlArtifactType {
-    SCREEN, MENU, LOCALE, PROFILE, QUERIES, MAINTAIN, SERVICES, ENUMERATED, QUEUES, EMAIL, ACTIONS, NONE
+    SCREEN, MENU, LOCALE, PROFILE, QUERIES, MAINTAIN, SERVICES, ENUMERATED, QUEUES, EMAIL, ACTIONS, PERMISSIONS, NONE
   }
 
   /**
@@ -178,6 +178,8 @@ public class XmlHotReloadService {
       return XmlArtifactType.EMAIL;
     } else if (fileName.equals(files.getActions())) {
       return XmlArtifactType.ACTIONS;
+    } else if (fileName.equals(files.getPermissions())) {
+      return XmlArtifactType.PERMISSIONS;
     }
     return XmlArtifactType.NONE;
   }
@@ -244,6 +246,7 @@ public class XmlHotReloadService {
       case QUEUES -> aweElements.reloadQueues();
       case EMAIL -> aweElements.reloadEmails();
       case ACTIONS -> aweElements.reloadActions();
+      case PERMISSIONS -> aweElements.reloadPermissions();
       default -> {
         log.debug("XML hot reload: ignored change in '{}'", changedFile);
         return;

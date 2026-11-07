@@ -129,6 +129,9 @@ public class AweSessionDetails extends ServiceConfig {
     session.removeParameter(SESSION_THEME);
     session.removeParameter(SESSION_PROFILE);
     session.removeParameter(SESSION_RESTRICTION);
+    session.removeParameter(SESSION_PROFILES);
+    session.removeParameter(SESSION_RESTRICTIONS);
+    session.removeParameter(SESSION_USER_RESTRICTION);
     session.removeParameter(SESSION_INITIAL_SCREEN);
     session.removeParameter(SESSION_INITIAL_URL);
     session.removeParameter(SESSION_TOKEN);
@@ -168,6 +171,11 @@ public class AweSessionDetails extends ServiceConfig {
     session.setParameter(SESSION_THEME, userDetails.getTheme());
     session.setParameter(SESSION_PROFILE, userDetails.getProfile());
     session.setParameter(SESSION_RESTRICTION, userDetails.getRestrictions());
+    session.setParameter(SESSION_PROFILES, String.join(",", userDetails.getProfiles()));
+    session.setParameter(SESSION_RESTRICTIONS, String.join(",", userDetails.getProfileRestrictions()));
+    if (StringUtils.isNotBlank(userDetails.getUserRestriction())) {
+      session.setParameter(SESSION_USER_RESTRICTION, userDetails.getUserRestriction());
+    }
     session.setParameter(SESSION_INITIAL_SCREEN, userDetails.getInitialScreen());
     session.setParameter(SESSION_TOKEN, getRequest().getToken());
   }

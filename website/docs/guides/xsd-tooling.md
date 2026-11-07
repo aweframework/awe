@@ -27,6 +27,7 @@ to its file:
 | `https://aweframework.gitlab.io/awe/docs/schemas/queues.xsd` | `global/Queues.xml` |
 | `https://aweframework.gitlab.io/awe/docs/schemas/email.xsd` | `global/Email.xml` |
 | `https://aweframework.gitlab.io/awe/docs/schemas/actions.xsd` | `global/Actions.xml` |
+| `https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd` | `global/Permissions.xml` ([permissions](../security/permissions.md)) |
 | `https://aweframework.gitlab.io/awe/docs/schemas/access.xsd` | Access definitions (users and groups) |
 | `https://aweframework.gitlab.io/awe/docs/schemas/catalog.xml` | OASIS catalog for all of the above |
 

@@ -246,8 +246,9 @@ public class MenuScreenResolver extends ServiceConfig {
     // Generate a thread for each initialization
     for (Panelable panelable : panelableList) {
       if (panelable.getInitialLoad() != null) {
-        // Launch
-        Future<ServiceData> taskResult = initialLoadDao.launchInitialLoad(new AweThreadInitialization()
+        // The values are stored once in the screen definition shared by every user, so the server loads them for
+        // itself: checking them for the client who opens the screen first would empty them for everyone
+        Future<ServiceData> taskResult = initialLoadDao.launchServerInitialLoad(new AweThreadInitialization()
           .setInitialLoadType(LoadType.valueOf(panelable.getInitialLoad().toUpperCase()))
           .setTarget(panelable.getTargetAction()));
         resultMap.put(panelable, taskResult);

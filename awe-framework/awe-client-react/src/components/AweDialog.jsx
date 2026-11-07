@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import { useDeferredLoad } from "../hooks/useDeferredLoad";
+import { ViewModeContext, isViewMode } from "../hooks/useViewMode";
+import { CriteriaList } from "../criteria/AweCriteria";
 import { addActionsTop } from "../redux/actions/actions";
 import PropTypes from "prop-types";
 import { dialogPassThrough } from "../utilities/testPassThrough";
@@ -59,7 +61,10 @@ function AweDialog(props) {
       focusOnShow={false}
       pt={dialogPassThrough(id, !!attributes?.isShowing, address.view)}
     >
-      {elementList.map((node, index) => Components(node, index))}
+      {/* Opened by an action in view mode, its criteria are read-only */}
+      <ViewModeContext.Provider value={isViewMode(attributes) ? CriteriaList : null}>
+        {elementList.map((node, index) => Components(node, index))}
+      </ViewModeContext.Provider>
     </Dialog>
   );
 }

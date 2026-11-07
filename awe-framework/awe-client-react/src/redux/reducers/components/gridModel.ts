@@ -288,7 +288,8 @@ function isSelectedOption(selected: unknown[], value: unknown): boolean {
 /**
  * Build a values array with selection flags applied. When no value matches, the values are the selected ones (the
  * value of a text), unless they are the options of a select: then the options are kept unselected, as the next value
- * may be one of them (a launcher that empties the select when no row is selected and fills it with the next row)
+ * may be one of them (a launcher that empties the select when no row is selected and fills it with the next row).
+ * Without options (a suggest), the selected values that are not among the values are added to them
  * @param {Array} values Current values
  * @param {Array} selected Selected values
  * @param {boolean} options The values are the options of the component
@@ -296,8 +297,12 @@ function isSelectedOption(selected: unknown[], value: unknown): boolean {
  */
 export function getFilteredValues(values: CellOption[], selected: unknown[], options = false): CellOption[] {
   const filtered = values.map((value) => ({ ...value, selected: isSelectedOption(selected, value.value) }));
-  if (filtered.some(value => value.selected) || (options && filtered.length > 0)) {
+  if (options && filtered.length > 0) {
     return filtered;
+  }
+  if (filtered.some(value => value.selected)) {
+    const missing = selected.filter(selectedValue => !values.some(value => compareEqualValues(selectedValue, value.value)));
+    return [...filtered, ...missing.map(value => ({ ...extractCellModel(value), selected: true }))];
   }
   return selected.map(value => ({ ...extractCellModel(value), selected: true }));
 }

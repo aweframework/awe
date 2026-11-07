@@ -35,6 +35,9 @@ public class Service implements XMLNode, Copyable {
   @Serial
   private static final long serialVersionUID = 2296142713995556697L;
 
+  // Authorization of a service that launches a query or a maintain target
+  private static final String AUTHORIZATION_TARGET = "target";
+
   // Service identifier
   @XStreamAlias("id")
   @XStreamAsAttribute
@@ -44,6 +47,16 @@ public class Service implements XMLNode, Copyable {
   @XStreamAlias("launch-phase")
   @XStreamAsAttribute
   private String launchPhase;
+
+  // Permissions required to launch the service from a client, separated by spaces (all of them are required)
+  @XStreamAlias("permission")
+  @XStreamAsAttribute
+  private String permission;
+
+  // Authorization of the launches from a client: "target" checks the query or maintain target the service launches
+  @XStreamAlias("authorization")
+  @XStreamAsAttribute
+  private String authorization;
 
   // Service type (web, java, etc)
   @XStreamImplicit
@@ -77,6 +90,17 @@ public class Service implements XMLNode, Copyable {
         this.type.add(type);
       }
     }
+  }
+
+  /**
+   * Check if the launches of the service from a client are authorized by the query or the maintain target it launches,
+   * instead of by the service itself
+   *
+   * @return The service is authorized by its target
+   */
+  @JsonIgnore
+  public boolean isAuthorizedByTarget() {
+    return AUTHORIZATION_TARGET.equalsIgnoreCase(authorization);
   }
 
   @JsonIgnore

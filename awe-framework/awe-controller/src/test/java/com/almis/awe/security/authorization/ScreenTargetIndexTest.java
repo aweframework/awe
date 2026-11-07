@@ -240,4 +240,26 @@ class ScreenTargetIndexTest {
     assertThat(index.getOptionsUsing("ShellTarget")).isEmpty();
     assertThat(index.getOptionsUsing("UsrUpd")).containsExactly("users");
   }
+
+  @Test
+  @DisplayName("Lists every target and the server actions of components, button actions and dependencies by option")
+  void listsTargetsAndServerActions() throws Exception {
+    Grid grid = grid("QueryOfGrid");
+    grid.setServerAction("ActionOfGrid");
+    Dependency dependency = new Dependency();
+    dependency.setServerAction("ActionOfDependency");
+    grid.addElement(dependency);
+    ButtonAction button = button(null);
+    button.setServerAction("ActionOfButton");
+    ButtonAction shellButton = button(null);
+    shellButton.setServerAction("ActionOfShell");
+    privateMenu.setScreen("shell");
+    screen("shell", shellButton);
+    screen("users", grid, button, button("UsrUpd"));
+    privateMenu.addElement(option("users", "users"));
+
+    assertThat(index.getTargets()).containsOnlyKeys("QueryOfGrid", "UsrUpd");
+    assertThat(index.getServerActions()).containsOnlyKeys("ActionOfGrid", "ActionOfDependency", "ActionOfButton");
+    assertThat(index.getServerActions().get("ActionOfButton")).containsExactly("users");
+  }
 }

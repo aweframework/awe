@@ -28,7 +28,7 @@
         <dependency-element id="subscription-list" condition="lt" value="1" />
       </dependency>
     </button>
-    <button label="BUTTON_NEW" icon="plus-circle" id="ButNew" help="HELP_NEW_BUTTON">
+    <button label="BUTTON_NEW" icon="plus-circle" id="ButNew" help="HELP_NEW_BUTTON" permission="subscriptions.create">
       <button-action type="screen" target="new-subscription" />
       <dependency source-type="value" target-type="label" value="BUTTON_NEW" initial="true">
         <dependency-element id="subscription-list" condition="eq" value="0"/>

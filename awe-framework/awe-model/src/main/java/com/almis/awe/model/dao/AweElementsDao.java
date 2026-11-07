@@ -161,6 +161,28 @@ public class AweElementsDao {
   }
 
   /**
+   * Read a global file from each module that provides it, without merging them
+   *
+   * @param clazz    File class
+   * @param filePath File path inside each module
+   * @param <T>      Class type
+   * @return Xml file objects, in module order
+   */
+  @Async("contextLessTaskExecutor")
+  public <T> Future<List<T>> readXmlFileListAsync(Class<T> clazz, String filePath) {
+    List<String> messageList = new ArrayList<>();
+    String applicationPath = baseConfigProperties.getPaths().getApplication();
+    List<T> files = Arrays.stream(baseConfigProperties.getModuleList())
+      .map(module -> readModuleXmlFile(clazz, applicationPath + module + filePath, messageList))
+      .filter(Objects::nonNull)
+      .toList();
+
+    // Log results
+    messageList.forEach(log::info);
+    return CompletableFuture.completedFuture(files);
+  }
+
+  /**
    * Read all XML files and store them in the component
    *
    * @param clazz    File class

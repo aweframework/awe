@@ -659,6 +659,54 @@ SELECT 'SavSchKey', 0
 FROM DUAL
 WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'SavSchKey');
 
+-- ------------------------------------------------------
+--  DDL for Table AweOpeRol
+--  Additional profiles of a user: the profiles a user has besides the main one (ope.IdePro). The effective access of
+--  a user is the union of the main profile and these profiles. The main profile is never repeated here.
+--  The script can be applied again: every object is created only when it does not exist.
+-- ------------------------------------------------------
+CREATE TABLE IF NOT EXISTS AweOpeRol (
+    IdeAweOpeRol int NOT NULL PRIMARY KEY,   --  Table identifier
+    IdeOpe int NOT NULL,                     --  User key
+    IdePro int NOT NULL,                     --  Additional profile key
+    CONSTRAINT uk_AweOpeRol UNIQUE (IdeOpe, IdePro),
+    CONSTRAINT fk_AweOpeRol1 FOREIGN KEY (IdeOpe) REFERENCES ope (IdeOpe),
+    CONSTRAINT fk_AweOpeRol2 FOREIGN KEY (IdePro) REFERENCES AwePro (IdePro)
+    );
+
+--  Audit of the table
+CREATE TABLE IF NOT EXISTS HISAweOpeRol (HISope char(100) NOT NULL, HISdat date NOT NULL, HISact varchar(1) NOT NULL, IdeAweOpeRol int NULL, IdeOpe int NULL, IdePro int NULL,
+    INDEX HISAweOpeRolI1 (HISope, HISdat, HISact));
+
+--  Sequence of the table identifier
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'OpeRolKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'OpeRolKey');
+
+-- ------------------------------------------------------
+--  DDL for Table AweProPer
+--  Permissions of a profile. Per is a permission identifier of the catalog (Permissions.xml) or a wildcard.
+--  The script can be applied again: every object is created only when it does not exist.
+-- ------------------------------------------------------
+CREATE TABLE IF NOT EXISTS AweProPer (
+    IdeAweProPer int NOT NULL PRIMARY KEY,   --  Table identifier
+    IdePro int NOT NULL,                     --  Profile key
+    Per varchar(100) NOT NULL,               --  Permission identifier or wildcard
+    CONSTRAINT uk_AweProPer UNIQUE (IdePro, Per),
+    CONSTRAINT fk_AweProPer1 FOREIGN KEY (IdePro) REFERENCES AwePro (IdePro)
+    );
+
+--  Audit of the table
+CREATE TABLE IF NOT EXISTS HISAweProPer (HISope char(100) NOT NULL, HISdat date NOT NULL, HISact varchar(1) NOT NULL, IdeAweProPer int NULL, IdePro int NULL, Per varchar(100) NULL,
+    INDEX HISAweProPerI1 (HISope, HISdat, HISact));
+
+--  Sequence of the table identifier
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'ProPerKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'ProPerKey');
+
 --------------------------------------------------------
 --  TESTING TABLES
 --------------------------------------------------------

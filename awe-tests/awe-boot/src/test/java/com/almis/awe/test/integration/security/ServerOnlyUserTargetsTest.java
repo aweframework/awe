@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * The maintain targets that only the server launches (issue #886) cannot be driven by a signed-in client: a user that
@@ -38,7 +39,7 @@ class ServerOnlyUserTargetsTest extends AbstractSpringAppIntegrationTest {
 
   private static final String SIGNED_IN_USER = "test";
   private static final String VICTIM = "server-only-886";
-  private static final String REFUSED_MESSAGE = "without authorization";
+  private static final String REFUSED_MESSAGE = "You do not have permission to perform this action. Contact your administrator if you need it.";
 
   @Autowired
   private DataSource dataSource;
@@ -97,6 +98,7 @@ class ServerOnlyUserTargetsTest extends AbstractSpringAppIntegrationTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content("{\"parameters\":" + body + "}")
         .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isForbidden())
       .andReturn();
 
     assertThat(result.getResponse().getContentAsString()).contains(REFUSED_MESSAGE);

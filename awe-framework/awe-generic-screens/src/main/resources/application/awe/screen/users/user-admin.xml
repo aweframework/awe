@@ -18,6 +18,18 @@
     <!-- Mode of the side panel: new or edit -->
     <criteria id="PnlMod" component="hidden" value="new" />
     <criteria id="MinPwd" component="hidden" property="MinPwd" />
+    <!-- UsrNew and UsrUpd replace the additional profiles of the user with AddPro only when this flag comes (the legacy
+         UsrNew and UsrUpd screens do not send it) -->
+    <criteria id="AddProUpd" component="hidden" value="1" />
+    <!-- View permissions opens the access window (its screen-access option) with these variables: its Permissions view, set
+         by the button just before it opens the window (empty otherwise), and the user of the selected row -->
+    <criteria id="access-view" component="hidden" />
+    <criteria id="access-user" component="hidden">
+      <dependency source-type="launcher" target-type="input" target-action="value">
+        <dependency-element id="GrdUsrAdm" column="IdeOpe" attribute="selectedRowValue" alias="value" optional="true" />
+        <dependency-element id="GrdUsrAdm" event="select-row" optional="true" />
+      </dependency>
+    </criteria>
   </tag>
   <tag source="buttons">
     <!-- Icon only: its label is its tooltip and its accessible name -->
@@ -27,7 +39,8 @@
     <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
       <button-action type="dialog" target="PrnOpt" />
     </button>
-    <button label="BUTTON_NEW_USER" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON">
+    <!-- It only opens the panel, so no target is derived from it: it declares the permission of the user creation -->
+    <button label="BUTTON_NEW_USER" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON" permission="users.create">
       <!-- No selected row: no IdeOpe is sent and the panel starts empty -->
       <button-action type="unselect-all-rows" target="GrdUsrAdm" />
       <button-action type="value" target="PnlMod" value="new" />
@@ -36,6 +49,7 @@
       <button-action type="reset" target="Usr" />
       <button-action type="value" target="Lan" value="es-ES" />
       <button-action type="reset" target="Pro" />
+      <button-action type="reset" target="AddPro" />
       <button-action type="reset" target="ScrIni" />
       <button-action type="reset" target="Res" />
       <button-action type="value" target="Sta" value="1" />
@@ -58,11 +72,13 @@
         <quick-filter id="CrtUsrSta" initial-load="query" target-action="UsrStaCnt" label="SCREEN_TEXT_USER_FILTERS" value="" />
         <column label="PARAMETER_USER" name="FulNam" sort-field="FulNam" align="left" charlength="30" width="*" secondary-field="UsrSec" export-secondary="true" secondary-label="PARAMETER_USER" avatar-field="Ini" avatar-tone-field="IniTon" sendable="false" />
         <!-- The user takes the rest of the width; the other columns are wide enough to read as columns, as in the design -->
-        <column label="PARAMETER_PROFILE" name="ProTxt" sort-field="ProTxt" align="left" charlength="16" sendable="false" />
-        <column label="PARAMETER_STATUS" name="StaTxt" sort-field="StaCod" align="left" charlength="14" status-field="StaTon" sendable="false" />
+        <column label="PARAMETER_PROFILE" name="ProTxt" sort-field="ProTxt" align="left" charlength="13" sendable="false" />
+        <!-- Additional profiles as chips, the first two and a "+n" chip whose tooltip lists the others (UsrAddProTxt, separated by "|") -->
+        <column label="PARAMETER_ADDITIONAL_PROFILES" name="AddProTxt" align="left" charlength="13" chips="true" chip-separator="|" max-chips="2" sortable="false" sendable="false" />
+        <column label="PARAMETER_STATUS" name="StaTxt" sort-field="StaCod" align="left" charlength="9" status-field="StaTon" sendable="false" />
         <!-- Two-factor as a plain tag, as in the design: a shield and "On", or "Off" without icon; sorted by the 2fa value -->
-        <column label="PARAMETER_2FA" name="2faTxt" sort-field="2fa" align="left" charlength="10" status-field="2faTon" icon-field="2faIcn" sendable="false" />
-        <column label="PARAMETER_LANGUAGE" name="LanTxt" sort-field="Lan" align="left" charlength="12" sendable="false" />
+        <column label="PARAMETER_2FA" name="2faTxt" sort-field="2fa" align="left" charlength="6" status-field="2faTon" icon-field="2faIcn" sendable="false" />
+        <column label="PARAMETER_LANGUAGE" name="LanTxt" sort-field="Lan" align="left" charlength="8" sendable="false" />
         <!-- Sent to the maintains: identifier of the selected users -->
         <column name="IdeOpe" hidden="true" />
         <!-- Read by the cells and by the side panel; not sent (their names are criteria of the panel) -->
@@ -90,12 +106,13 @@
         <column name="Prn" hidden="true" sendable="false" />
         <column name="WebPrn" hidden="true" sendable="false" />
         <!-- Row actions: the pencil edits the user of its row in the side panel and the ellipsis opens the row menu. A row
-             button selects its row (only it) before its actions, so the panel is filled with that user -->
+             button selects its row (only it) before its actions, so the panel is filled with that user. Without
+             users.update the edit openings show the panel in view mode -->
         <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
           <button-action type="value" target="PnlMod" value="edit" />
           <button-action type="reset" target="Pas" />
           <button-action type="reset" target="RetPas" />
-          <button-action type="dialog" target="PnlUsr" />
+          <button-action type="dialog" target="PnlUsr" edit-permission="users.update" />
         </column>
         <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label" align="left" charlength="4" sortable="false" sendable="false">
           <button-action type="show-context-menu" />
@@ -106,7 +123,17 @@
           <button-action type="value" target="PnlMod" value="edit" />
           <button-action type="reset" target="Pas" />
           <button-action type="reset" target="RetPas" />
-          <button-action type="dialog" target="PnlUsr" />
+          <button-action type="dialog" target="PnlUsr" edit-permission="users.update" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdUsrAdm" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <!-- The effective permissions of the user in Access control › Permissions. It only opens another screen, so it declares the
+             permissions of that view -->
+        <context-button label="BUTTON_VIEW_PERMISSIONS" icon="lucide:key-round" id="CtxButPer" permission="users.read permissions.read">
+          <button-action type="check-one-selected" target="GrdUsrAdm" />
+          <button-action type="value" target="access-view" value="permissions" />
+          <button-action type="screen" target="screen-access" />
           <dependency target-type="enable" initial="true">
             <dependency-element id="GrdUsrAdm" attribute="selectedRows" condition="eq" value="1" />
           </dependency>
@@ -241,6 +268,41 @@
             <dependency-element id="GrdUsrAdm" event="select-row" optional="true" />
           </dependency>
         </criteria>
+        <!-- Additional profiles (AweOpeRol): the user gets the access of the main profile and of these. The current
+             ones of the selected user are loaded with UsrAddProSel by their id, and UsrAddProIni gives their labels;
+             UsrNew and UsrUpd never store the main profile. Full width on its own row, so its chips wrap onto several
+             lines without leaving a tall box beside a one-line field -->
+        <criteria label="PARAMETER_ADDITIONAL_PROFILES" id="AddPro" component="suggest-multiple" server-action="data" target-action="ProSug" check-target="UsrAddProIni" style="col-xs-12">
+          <dependency source-type="query" target-type="input" server-action="value" target-action="UsrAddProSel">
+            <dependency-element id="GrdUsrAdm" column="IdeOpe" attribute="selectedRowValue" alias="IdeOpeSel" optional="true" />
+            <dependency-element id="GrdUsrAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <!-- The effective permissions of the user being edited in Access control › Permissions: they are the ones of its saved
+             profiles, so the button is disabled while the main profile differs from the saved one -->
+        <tag type="div" style="col-xs-12">
+          <button label="BUTTON_VIEW_PERMISSIONS" icon="lucide:key-round" id="ButPnlPer" help="HELP_VIEW_PERMISSIONS_BUTTON" permission="users.read permissions.read">
+            <button-action type="value" target="access-view" value="permissions" />
+            <button-action type="screen" target="screen-access" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="PnlMod" condition="eq" value="edit" />
+            </dependency>
+            <dependency target-type="disable" initial="true">
+              <dependency-element id="Pro" condition="ne" id2="GrdUsrAdm" column2="Pro" attribute2="selectedRowValue" />
+            </dependency>
+            <!-- The button also shows and hides its help (a tag has no dependencies) -->
+            <dependency initial="true">
+              <dependency-element id="PnlMod" condition="eq" value="edit" />
+              <dependency-action type="remove-class" target="#UsrPerHlp" target-action="hidden" />
+            </dependency>
+            <dependency initial="true">
+              <dependency-element id="PnlMod" condition="ne" value="edit" />
+              <dependency-action type="add-class" target="#UsrPerHlp" target-action="hidden" />
+            </dependency>
+          </button>
+          <!-- Permissions shows what is stored: the changes of the panel are not there until they are saved -->
+          <tag type="p" id="UsrPerHlp" style="text-default text-sm hidden" label="SCREEN_TEXT_USER_VIEW_PERMISSIONS_HELP" />
+        </tag>
         <criteria label="PARAMETER_FILE_RESTRICTION" id="Res" component="select" initial-load="query" target-action="ProNamLst" optional="true" style="col-xs-12 col-sm-6">
           <dependency source-type="launcher" target-type="input" target-action="value">
             <dependency-element id="GrdUsrAdm" column="Res" attribute="selectedRowValue" alias="value" optional="true" />

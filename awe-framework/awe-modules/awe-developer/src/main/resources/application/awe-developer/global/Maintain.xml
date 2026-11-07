@@ -7,13 +7,13 @@
   -->
 
   <!-- Transalate literal -->
-  <target name="LitTra" public="true">
+  <target name="LitTra" permission="developer.read">
     <serve service="LitTra">
     </serve>
   </target>
 
   <!-- Save literal modification -->
-  <target name="LitSav" public="true">
+  <target name="LitSav" permission="developer.update">
     <serve service="LitSavSer">
       <variable id="formatSelector" type="STRING" name="FormatSelector"/>
       <variable id="language" type="STRING" name="idio.selected"/>
@@ -25,7 +25,7 @@
   </target>
 
   <!-- Save new literal -->
-  <target name="LitNew" public="true">
+  <target name="LitNew" permission="developer.update">
     <serve service="LitNewSer">
       <variable id="language" type="STRING" name="CrtSchLan"/>
       <variable id="code" type="STRING" name="CrtLitIde"/>
@@ -34,14 +34,14 @@
   </target>
 
   <!-- Delete literal -->
-  <target name="LitDel" public="true">
+  <target name="LitDel" permission="developer.update">
     <serve service="LitDelSer">
       <variable id="code" type="STRING" name="cod.selected"/>
     </serve>
   </target>
 
   <!-- Set Paths -->
-  <target name="SetPath" public="true">
+  <target name="SetPath" permission="developer.update">
     <serve service="SetPath">
       <variable id="pathval" type="STRING" name="CrtPthVal" />
     </serve>

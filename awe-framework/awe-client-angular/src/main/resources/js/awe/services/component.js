@@ -509,6 +509,19 @@ aweApplication.factory('Component',
           }
         },
         /**
+         * Set the criteria inside a container (a dialog or a side panel) in view mode, or back to their own readonly
+         * @param {Boolean} viewMode View mode
+         */
+        setViewMode: function (viewMode) {
+          const view = this.address.view;
+          const $container = $(document.getElementById(this.address.component));
+          // Kept on the panel, so the criteria rendered once it is opened are read-only too (see Criterion init)
+          $container.attr("data-view-mode", viewMode ? "true" : null);
+          $container.find(".criterion[criterion-id]").each(function () {
+            Control.setViewMode({view: view, component: this.getAttribute("criterion-id")}, viewMode);
+          });
+        },
+        /**
          * Load the data of a deferred container (a dialog or a tab page with the deferred attribute) the first time it
          * is opened. It sends one silent async server action which asks for the initial load of the components inside
          * the container. The components which already have data or a selected value are reported, so the server leaves

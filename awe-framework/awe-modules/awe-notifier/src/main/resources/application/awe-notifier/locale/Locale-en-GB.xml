@@ -27,6 +27,7 @@
   <locale name="NO_NOTIFICATIONS" value="No notifications"/>
   <locale name="PARAMETER_SUBSCRIPTION" value="Subscription"/>
   <locale name="PARAMETER_UNREAD" value="Unread"/>
+  <locale name="PERMISSION_RESOURCE_SUBSCRIPTIONS" value="Notification subscriptions"/>
   <locale name="SCREEN_HELP_NEW_SUBSCRIPTION" value="Here you can add a new subscription topic"/>
   <locale name="SCREEN_HELP_NOTIFICATIONS" value="Notification list screen. Allows you to view all notifications and mark them as read/unread."/>
   <locale name="SCREEN_HELP_SUBSCRIPTIONS" value="This window manages the definition of subscription topics for notifications"/>

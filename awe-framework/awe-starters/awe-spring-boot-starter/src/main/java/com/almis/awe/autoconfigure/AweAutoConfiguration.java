@@ -10,16 +10,20 @@ import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.security.authorization.PermissionTargetAuthorizer;
+import com.almis.awe.security.authorization.ScreenElementAuthorizer;
 import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
 import com.almis.awe.security.authorization.ScreenTargetIndex;
 import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
 import com.almis.awe.security.authorization.TargetLaunchAuthorizerChain;
+import com.almis.awe.security.authorization.UndeclaredTargetInventory;
 import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.*;
 import com.almis.awe.service.access.AccessChangeService;
 import com.almis.awe.service.access.AccessCompareService;
 import com.almis.awe.service.access.AccessImpactService;
 import com.almis.awe.service.access.AccessMenuPreviewService;
+import com.almis.awe.service.access.AccessPermissionService;
 import com.almis.awe.service.access.AccessReviewService;
 import com.almis.awe.service.access.AccessSubjects;
 import com.almis.awe.service.access.AccessTexts;
@@ -46,6 +50,9 @@ import com.almis.awe.service.report.ReportGenerator;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenConfigurationGenerator;
 import com.almis.awe.service.screen.ScreenModelGenerator;
+import com.almis.awe.service.user.AweUserDetailService;
+import com.almis.awe.service.user.PredefinedProfileSeed;
+import com.almis.awe.service.user.ProfilePermissionService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.ObjectProvider;
@@ -301,14 +308,16 @@ public class AweAutoConfiguration {
   /**
    * Action service
    *
-   * @param launcherService      Launcher service
-   * @param baseConfigProperties Base configuration properties
+   * @param launcherService             Launcher service
+   * @param baseConfigProperties        Base configuration properties
+   * @param targetLaunchAuthorizerChain Authorizers of the client launches
    * @return Action service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public ActionService actionService(LauncherService launcherService, BaseConfigProperties baseConfigProperties) {
-    return new ActionService(launcherService, baseConfigProperties);
+  public ActionService actionService(LauncherService launcherService, BaseConfigProperties baseConfigProperties,
+                                     TargetLaunchAuthorizerChain targetLaunchAuthorizerChain) {
+    return new ActionService(launcherService, baseConfigProperties, targetLaunchAuthorizerChain);
   }
 
   /**
@@ -415,6 +424,88 @@ public class AweAutoConfiguration {
   }
 
   /**
+   * Authorizer of the targets launched by a client according to the permissions they declare. It runs after the
+   * access by screen ({@link PermissionTargetAuthorizer#ORDER})
+   *
+   * @param securityConfigProperties Security configuration properties
+   * @return Permission target authorizer bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public PermissionTargetAuthorizer permissionTargetAuthorizer(SecurityConfigProperties securityConfigProperties) {
+    return new PermissionTargetAuthorizer(securityConfigProperties);
+  }
+
+  /**
+   * Authorizer of the screen elements: removes the buttons that launch targets the user cannot launch
+   *
+   * @param securityConfigProperties   Security configuration properties
+   * @param permissionTargetAuthorizer Permission target authorizer
+   * @return Screen element authorizer bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ScreenElementAuthorizer screenElementAuthorizer(SecurityConfigProperties securityConfigProperties,
+                                                         PermissionTargetAuthorizer permissionTargetAuthorizer) {
+    return new ScreenElementAuthorizer(securityConfigProperties, permissionTargetAuthorizer);
+  }
+
+  /**
+   * Inventory of the targets used by private screens that declare no permission, logged at startup in warn mode
+   *
+   * @param securityConfigProperties Security configuration properties
+   * @param baseConfigProperties     Base configuration properties
+   * @param screenTargetIndex        Index of the targets used by each option
+   * @return Undeclared target inventory bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public UndeclaredTargetInventory undeclaredTargetInventory(SecurityConfigProperties securityConfigProperties,
+                                                             BaseConfigProperties baseConfigProperties,
+                                                             ScreenTargetIndex screenTargetIndex) {
+    return new UndeclaredTargetInventory(securityConfigProperties, baseConfigProperties, screenTargetIndex);
+  }
+
+  /**
+   * Creation at startup of the predefined profiles Reader and Contributor
+   *
+   * @param securityConfigProperties Security configuration properties
+   * @param queryService             Query service
+   * @param maintainService          Maintain service
+   * @param queryUtil                Query utilities
+   * @return Predefined profile seed bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public PredefinedProfileSeed predefinedProfileSeed(SecurityConfigProperties securityConfigProperties,
+                                                     QueryService queryService, MaintainService maintainService,
+                                                     QueryUtil queryUtil) {
+    return new PredefinedProfileSeed(securityConfigProperties, queryService, maintainService, queryUtil);
+  }
+
+  /**
+   * Administration of the permissions of the profiles: catalog options, predefined profiles guard and duplication
+   *
+   * @param queryService               Query service
+   * @param maintainService            Maintain service
+   * @param queryUtil                  Query utilities
+   * @param userDetailService          User detail service, read when a profile is duplicated
+   * @param securityConfigProperties   Security configuration properties
+   * @param permissionTargetAuthorizer Permission target authorizer
+   * @return Profile permission service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ProfilePermissionService profilePermissionService(QueryService queryService, MaintainService maintainService,
+                                                           QueryUtil queryUtil,
+                                                           ObjectProvider<AweUserDetailService> userDetailService,
+                                                           SecurityConfigProperties securityConfigProperties,
+                                                           PermissionTargetAuthorizer permissionTargetAuthorizer) {
+    return new ProfilePermissionService(queryService, maintainService, queryUtil, userDetailService,
+      securityConfigProperties, permissionTargetAuthorizer);
+  }
+
+  /**
    * Menu screen resolver
    *
    * @param menuProvider         Menu provider
@@ -517,6 +608,21 @@ public class AweAutoConfiguration {
   public AccessTreeService accessTreeService(AccessSubjects accessSubjects, AccessTexts accessTexts,
                                              AccessCompareService accessCompareService) {
     return new AccessTreeService(accessSubjects, accessTexts, accessCompareService);
+  }
+
+  /**
+   * Permissions view of the access window (access-admin)
+   *
+   * @param accessSubjects    Access subjects
+   * @param accessTexts       Access texts
+   * @param userDetailService User detail service, computes the effective permissions as the login does
+   * @return Access permission service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessPermissionService accessPermissionService(AccessSubjects accessSubjects, AccessTexts accessTexts,
+                                                         ObjectProvider<AweUserDetailService> userDetailService) {
+    return new AccessPermissionService(accessSubjects, accessTexts, userDetailService);
   }
 
   /**

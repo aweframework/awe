@@ -8,7 +8,7 @@ sidebar_label: Default screens
 
 AWE has some pre-designed common screens which are very useful for a first version of an application. 
 This way you have already implemented [user](#users) and [profile](#profiles) management, some useful [themes](#themes) 
-to customize the application, security management like [screen access](#screen-access) and [screen configuration](#screen-configuration),
+to customize the application, security management like [access control](#screen-access) and [screen configuration](#screen-configuration),
 and some higher level management like [database](#databases), [module](#modules) and [site](#sites) configuration, and
 the [sequences](#sequences) and [application parameters](#application-parameters) of the application.
 
@@ -25,6 +25,19 @@ profile and quick filters with their counts (*All*, *Locked*, *Without 2FA*, *In
 and a menu (edit, unlock, reset the two-factor, delete), and the selected rows show a bar with their actions (reset the
 two-factor, delete). A side panel creates and edits a user, grouped in sections (identity, access, sign-in security,
 appearance and output), and shows the avatar, name and state of the user being edited.
+
+The *Additional profiles* column of the grid shows the additional profiles of each user as tags: the first two, and a
+*+N* tag whose tooltip lists the others.
+
+The side panel has an *Additional profiles* criterion, a multiple selection of the profiles the user has besides the
+main one. Saving the user replaces its additional profiles, the main profile is never stored as an additional one, and
+deleting a user or a profile deletes its additional profile rows. See
+[Additional profiles](../security/additional-profiles.md).
+
+*View permissions*, in the menu of a row and in the panel of a user being edited, opens the *Permissions* tab of the
+[access control window](#screen-access) with that user: the permissions of its main and additional profiles. It shows the saved
+profiles, so the button of the panel is disabled while the main profile is changed; save the changes first. It needs
+`users.read` and `permissions.read`, and it opens the `screen-access` option of the menu.
 
 The screen reuses the queries and maintains of the users (`UsrLst`, `UsrNew`, `UsrUpd`, `UsrDel`, `reset2fa`), so an
 application that overrides them keeps its logic. Unlocking uses the `UsrUnl` maintain, which also audits the change.
@@ -49,6 +62,12 @@ in sections (identity, defaults and access), and shows the avatar, name and stat
 
 The screen reuses the queries and maintains of the profiles (`ProLst`, `ProNew`, `ProUpd`, `ProDel` and the
 `check-profile-acronym` check of a new acronym), so an application that overrides them keeps its logic.
+
+The *Permissions* field of the side panel gives permissions to the profile, grouped by resource; the changes apply at
+the next sign-in of its users. The predefined profiles Reader and Contributor open read-only, and *Duplicate profile*
+creates an editable copy of any profile with its permissions. See
+[The Profiles screen](../security/permissions.md#profiles-screen) and
+[Predefined profiles](../security/permissions.md#predefined-profiles).
 
 :::warning Deprecated
 The previous profile screens (`Prf`, `PrfNew`, `PrfUpd` and `PrfViw`) are deprecated since AWE 5.0.0 and will be
@@ -304,9 +323,9 @@ It will appear as a message in the top side of the screen.
 The log screen contains access to all the application logs. This will be deprecated soon in order to give way to new 
 observability stack in a distributed architecture.
 
-## Screen access
+## Access control {#screen-access}
 
-The *Screen access* option of the menu opens the access window (`access-admin`): one screen that answers, for a
+The *Access control* option of the *Security* menu opens the access control window (`access-admin`): one screen that answers, for a
 profile or a user, **what they can open in the private menu and why**, and lets a functional administrator change it.
 An auditor reads the same screen without changing anything.
 
@@ -315,7 +334,8 @@ An auditor reads the same screen without changing anything.
 ### Quick path
 
 1. In *See the access of*, choose *Profile* or *User*, then the profile or the user in the suggest beside it.
-   Optionally choose a module. These fields share one row at the top of the card of the tree.
+   Optionally choose a module. These fields share one row at the top of the screen, above its two tabs: *Menu
+   options* (the tree) and *Permissions*.
 2. Read the tree: each option of the private menu with its access and the reason.
 3. Press *Why?* on an option to see the layer that decides it, and *Allow* or *Deny* to change it.
 
@@ -404,6 +424,40 @@ only the chosen one. Each finding has its fix:
 *Preview* opens a preview of the menu that the chosen profile or user sees in the chosen module: the options they can
 reach, how many are hidden and the reason of each hidden one. It is only a preview: it does not sign in as the user nor
 open their screens.
+
+### Permissions
+
+The *Permissions* tab shows, for the same profile or user, **what it can do**: every permission of the catalog (the
+`Permissions.xml` of AWE, its modules and the application), grouped by resource, with its state and where it comes from.
+For a user, the permissions are those of its main profile plus those of its additional profiles.
+
+| Column | What it says |
+|--------|--------------|
+| Permission | The verb or the action and, under it, its identifier (`users.update`). The group of each resource tells how many of its permissions are granted. |
+| State | *Granted* or *Not granted*. |
+| Origin | One chip per origin: the profile and the entry of its profile file (`MGR · file manager (*)`), the profile and its assignment (`MGR · assignment users.*`), or *Granted always* for a resource declared `granted="always"` in the catalog (also the ones of the application). |
+| Warning | A profile file excludes the permission but another origin grants it, or the exclusion that leaves it out. |
+
+The search finds permissions by identifier or label, also of their resource, and the quick filters count *All*,
+*Granted*, *Not granted* and *Warnings*. The card above the grid sums it up: how many permissions are granted, the
+profiles of the user and the warnings.
+
+The permissions of a profile are its profile file minus its exclusions, plus its assignments (*Profiles* screen); see
+[Effective permissions](../security/permissions.md#effective-permissions). An exclusion only subtracts inside its own
+profile file: it is no denial, so an assignment or another profile can still grant the permission. *Why?* opens a
+side panel with what each profile gives to the permission: its profile file, its assignments and its verdict, and the
+catalog for a permission granted always.
+
+*Compare* works in this tab too: the grid shows the state of the other user or profile and why it changes, with the
+*Only differences* quick filter. The other counts are still the ones of the chosen subject. A profile is compared with
+its own permissions, and a user with the permissions of all its profiles.
+
+*View permissions* in the [Users](#users) screen opens this tab with the user already chosen. Until a user or a profile
+is chosen, the summary card is hidden.
+
+The tab shows the **configured** state: the permissions are loaded at sign-in, so a change applies at the next sign-in
+of each user (the help of the grid says so). It does not change anything, and it requires `users.read` and `permissions.read`. The module, *Review* and
+*Preview* belong to the menu options and are hidden in this tab.
 
 ### Access that travels with the application
 

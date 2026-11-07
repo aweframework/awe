@@ -70,6 +70,7 @@ La estructura xml de los menús contextuales es la siguiente:
 | ------- | ------ | --------------- | ------------------------------------- | -------------------------------------------------------------------- |
 | `id`    | String | **Obligatorio** | Identificador del botón de contexto   |                                                                      |
 | `label` | String | **Obligatorio** | Etiqueta del botón contextual.        | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md) |
+| `permission` | String | Opcional | Permisos que necesita el usuario para ver el botón contextual. Sustituye a lo que se deduce de los targets de sus acciones. Consulta [elementos de pantalla](../security/permissions.md#screen-elements) | Identificadores de permiso separados por espacios, todos requeridos |
 | `icon`  | String | Opcional        | Nombre del icono del botón contextual | **Nota:** Puedes consultar todos los conjuntos de iconos en la pantalla [icons](icons.md)     |
 
 > **Nota:** El botón contextual tiene los mismos atributos que el elemento de botón. Puedes ver más información [aquí](button.md#button-attributes)

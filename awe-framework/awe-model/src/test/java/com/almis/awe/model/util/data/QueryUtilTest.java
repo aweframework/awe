@@ -43,6 +43,20 @@ class QueryUtilTest {
    * Test maintain serve list contracts preserve single submitted values as one-item lists
    */
   @Test
+  void testStringToListVariableOfTheSessionIsAList() {
+    Variable variable = Variable.builder().id("profiles").type("STRING_TO_LIST").session("profiles").build();
+
+    assertTrue(queryUtil.variableIsList(variable, JsonNodeFactory.instance.objectNode()));
+  }
+
+  @Test
+  void testStringToListSplitsTheValueAndAnEmptyValueIsAnEmptyList() throws Exception {
+    assertEquals("[\"ADM\",\"OPE\"]",
+      queryUtil.getParameter("ADM, OPE", null, ParameterType.STRING_TO_LIST, "profiles").toString());
+    assertEquals("[]", queryUtil.getParameter(null, null, ParameterType.STRING_TO_LIST, "profiles").toString());
+  }
+
+  @Test
   void testGetMaintainServiceVariableMapNormalizesSingleScalarAsOneItemList() throws Exception {
     Serve query = Serve.builder()
         .service("testComplexRestPostParametersSingleList")

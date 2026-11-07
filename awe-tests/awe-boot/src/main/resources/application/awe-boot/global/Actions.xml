@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/actions.xsd">
+
+  <!-- Action whose service requires a permission -->
+  <action id="test-users-read" format="JSON">
+    <call service="TstUsrRea" />
+    <answer type="ok">
+      <response>
+        <type>end-load</type>
+      </response>
+    </answer>
+  </action>
+</actions>

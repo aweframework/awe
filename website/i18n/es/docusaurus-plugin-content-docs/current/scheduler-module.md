@@ -47,6 +47,8 @@ Para activar este módulo, sigue estos pasos:
 awe.application.module-list = APP, ..., awe-scheduler, ..., awe
 ```
 
+- Da a los perfiles que usan las pantallas del planificador los permisos `scheduler.read`, `scheduler.update` y `scheduler.execute` (solo los tiene el perfil de administrador). Consulta [Permisos](security/permissions.md#catalog-resources).
+
 - Por último, si estás usando `flyway`, añade las tablas del planificador al módulo de migración:
 
 ```properties

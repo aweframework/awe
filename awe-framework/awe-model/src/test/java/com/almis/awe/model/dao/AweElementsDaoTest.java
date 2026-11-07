@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -71,6 +72,20 @@ class AweElementsDaoTest {
     assertEquals("serviceModuleOne", storage.get("sharedQuery").getService());
     assertTrue(storage.containsKey("moduleOneQuery"));
     assertTrue(storage.containsKey("moduleTwoQuery"));
+  }
+
+  /**
+   * Test that a global file is read from each module that provides it, in module order, without merging them
+   */
+  @Test
+  void readXmlFileListKeepsOneFilePerModuleInModuleOrder() throws Exception {
+    baseConfigProperties.setModuleList(new String[]{"module-two", "module-without-files", "module-one"});
+
+    List<Queries> files = elementsDao.readXmlFileListAsync(Queries.class, "/global/Queries.xml").get();
+
+    assertEquals(2, files.size());
+    assertEquals("serviceModuleTwo", files.get(0).getQuery("sharedQuery").getService());
+    assertEquals("serviceModuleOne", files.get(1).getQuery("sharedQuery").getService());
   }
 
   /**

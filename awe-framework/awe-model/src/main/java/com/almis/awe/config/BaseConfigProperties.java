@@ -311,6 +311,11 @@ public class BaseConfigProperties {
      */
     private String maintain = "Maintain";
     /**
+     * Xml file name of the permission catalog.
+     * Default value Permissions.
+     */
+    private String permissions = "Permissions";
+    /**
      * Xml file name of components definition.
      * Default value Components.
      */

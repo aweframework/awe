@@ -34,6 +34,7 @@
   <locale name="PARAMETER_NEW_PATH" value="New path"/>
   <locale name="PARAMETER_PATH" value="Current path"/>
   <locale name="PARAMETER_SEARCH" value="Search"/>
+  <locale name="PERMISSION_RESOURCE_DEVELOPER" value="Developer tools"/>
   <locale name="SCREEN_TITLE_MNG_LIT" value="Locale manager"/>
   <locale name="SCREEN_TITLE_MNG_PTH" value="Development path manager"/>
   <locale name="SCREEN_TITLE_NEW_LOCAL" value="New locale"/>

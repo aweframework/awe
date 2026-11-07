@@ -213,6 +213,11 @@
         <xs:documentation xml:lang="en">Restricts the target to server-side launches (Java services and schedulers). Any client request for it is refused, even from an authenticated session. Overrides public. Default false.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="permission" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Permissions of the catalog (Permissions.xml) required to launch the target from a client, separated by spaces: all of them are required. An unknown permission, or a permission on a public target, is a load error. Server-side launches and maintain includes are never checked.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Email Type -->

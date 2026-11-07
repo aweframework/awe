@@ -1,6 +1,11 @@
 package com.almis.awe.service;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.almis.awe.config.DatabaseConfigProperties;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
@@ -19,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import tools.jackson.databind.node.JsonNodeFactory;
@@ -47,6 +53,7 @@ import static org.mockito.Mockito.when;
 class MaintainServiceScreenAccessTest {
 
   private static final String UNAUTHORIZED = "unauthorized";
+  private static final String ACCESS_DENIED = "access denied";
   private static final String TARGET = "UsrUpd";
 
   @Mock private MaintainLauncher maintainLauncher;
@@ -71,8 +78,8 @@ class MaintainServiceScreenAccessTest {
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(aweElements.getLocaleWithLanguage(anyString(), any())).thenReturn("msg");
     when(aweElements.getLocaleWithLanguage(anyString(), any(), any())).thenReturn("msg");
-    when(aweElements.getLocaleWithLanguage(eq("ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_MAINTAIN"), any(), any()))
-      .thenReturn(UNAUTHORIZED);
+    when(aweElements.getLocaleWithLanguage(eq("ERROR_MESSAGE_ACTION_NOT_PERMITTED"), any())).thenReturn(UNAUTHORIZED);
+    when(aweElements.getLocaleWithLanguage(eq("ERROR_TITLE_ACCESS_DENIED"), any())).thenReturn(ACCESS_DENIED);
     when(aweSession.isAuthenticated()).thenReturn(true);
     when(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).thenReturn(true);
 
@@ -100,9 +107,11 @@ class MaintainServiceScreenAccessTest {
     ObjectNode parameters = params();
 
     assertThatThrownBy(() -> maintainService.launchMaintain(TARGET, parameters, databaseConnection, false))
-      .isInstanceOf(AWException.class)
-      .satisfies(exc -> assertThat(((AWException) exc).getMessage()).isEqualTo(UNAUTHORIZED));
+      .isInstanceOf(AWEUnauthorizedException.class)
+      .hasMessage(UNAUTHORIZED)
+      .satisfies(exc -> assertThat(((AWException) exc).getTitle()).isEqualTo(ACCESS_DENIED));
     verifyNoInteractions(maintainLauncher);
+    verify(aweElements, never()).getLocaleWithLanguage(anyString(), any(), eq(TARGET));
   }
 
   @Test
@@ -158,16 +167,31 @@ class MaintainServiceScreenAccessTest {
   }
 
   @Test
-  @DisplayName("An unauthenticated client is refused before the screens are checked")
+  @DisplayName("An unauthenticated client is refused before the screens are checked, and the log names the target")
   void unauthenticatedIsRefusedFirst() throws Exception {
     givenTarget(null);
     when(aweSession.isAuthenticated()).thenReturn(false);
+    Logger logger = (Logger) LoggerFactory.getLogger(MaintainService.class);
+    ListAppender<ILoggingEvent> appender = new ListAppender<>();
+    appender.start();
+    logger.addAppender(appender);
 
     ObjectNode parameters = params();
 
-    assertThatThrownBy(() -> maintainService.launchMaintain(TARGET, parameters, databaseConnection, false))
-      .isInstanceOf(AWException.class);
+    try {
+      assertThatThrownBy(() -> maintainService.launchMaintain(TARGET, parameters, databaseConnection, false))
+        .isInstanceOf(AWEUnauthorizedException.class)
+        .hasMessage(UNAUTHORIZED)
+        .satisfies(exc -> assertThat(((AWException) exc).getTitle()).isEqualTo(ACCESS_DENIED));
+    } finally {
+      logger.detachAppender(appender);
+    }
     verify(authorizer, never()).authorize(any(), any());
+    assertThat(appender.list)
+      .anySatisfy(event -> {
+        assertThat(event.getLevel()).isEqualTo(Level.WARN);
+        assertThat(event.getFormattedMessage()).contains("[" + TARGET + "]");
+      });
   }
 
   @Test

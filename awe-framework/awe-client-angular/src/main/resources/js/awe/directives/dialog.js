@@ -53,6 +53,10 @@ export function initDialogComponent(scope, id, {Component, $actionController, Ut
       // Load the data of a deferred dialog the first time it is opened
       component.loadDeferred();
 
+      // Opened by an action in view mode, its criteria are read-only for this opening
+      const openAction = component.controller.openAction;
+      component.setViewMode(typeof openAction?.attr === "function" && openAction.attr("viewMode") === true);
+
       // Load dialog model (if not loaded yet)
       let actions = [];
       // Launch a resize
@@ -72,6 +76,9 @@ export function initDialogComponent(scope, id, {Component, $actionController, Ut
     if (component.isOpened) {
       // Store event
       component.storeEvent('close');
+
+      // The view mode belongs to the opening
+      component.setViewMode(false);
 
       // Broadcast model change
       Utilities.publishDelayedFromScope("modalChange", false, scope);

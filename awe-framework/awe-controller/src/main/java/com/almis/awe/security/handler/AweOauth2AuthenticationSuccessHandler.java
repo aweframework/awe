@@ -13,6 +13,8 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 import java.io.IOException;
 
@@ -28,16 +30,31 @@ public class AweOauth2AuthenticationSuccessHandler implements AuthenticationSucc
 
   private final AccessService accessService;
   private final AuthenticationFailureHandler failureHandler;
+  private final SecurityContextRepository securityContextRepository;
 
   /**
-   * Constructor with the handler that reports a rejected login
+   * Constructor with the handler that reports a rejected login and the repository that stores the authentication
+   *
+   * @param accessService             Access service
+   * @param failureHandler            Failure handler used when the user is rejected by AWE
+   * @param securityContextRepository Repository of the security context, which stores the authentication with the
+   *                                  roles and permissions of the AWE user for the next requests
+   */
+  public AweOauth2AuthenticationSuccessHandler(AccessService accessService, AuthenticationFailureHandler failureHandler,
+                                               SecurityContextRepository securityContextRepository) {
+    this.accessService = accessService;
+    this.failureHandler = failureHandler;
+    this.securityContextRepository = securityContextRepository;
+  }
+
+  /**
+   * Constructor with the handler that reports a rejected login. The authentication is stored in the HTTP session
    *
    * @param accessService  Access service
    * @param failureHandler Failure handler used when the user is rejected by AWE
    */
   public AweOauth2AuthenticationSuccessHandler(AccessService accessService, AuthenticationFailureHandler failureHandler) {
-    this.accessService = accessService;
-    this.failureHandler = failureHandler;
+    this(accessService, failureHandler, new HttpSessionSecurityContextRepository());
   }
 
   /**
@@ -69,6 +86,9 @@ public class AweOauth2AuthenticationSuccessHandler implements AuthenticationSucc
     } catch (AWException ex) {
       throw new AWERuntimeException(ex);
     }
+
+    // Store the authentication with the roles and permissions of the AWE user for the next requests
+    securityContextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
 
     //set our response to OK status
     response.setStatus(HttpServletResponse.SC_OK);

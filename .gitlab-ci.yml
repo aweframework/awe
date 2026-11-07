@@ -991,7 +991,7 @@ Integration · Keycloak:
 Unit · AngularJS:
   stage: test
   tags: [ medium ]
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:2.0.0@sha256:21522ec93e418699b4359fc6a6c7f20be3c0b7ffcb2fe3f13eb3e50ce0437e1e
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:2.1.0@sha256:cef4060b202e8f2491015b9fb9c570820ec391d79af025decbb0dd06a4dc20c4
   needs: [ ]
   cache: { }
   # The unit suite alone (the compat guards of styles/ run in "Unit · AngularJS · Compat" below): about 20 s of Jest
@@ -1021,7 +1021,7 @@ Unit · AngularJS:
 Unit · AngularJS · Compat:
   stage: test
   tags: [ medium ]
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:2.0.0@sha256:21522ec93e418699b4359fc6a6c7f20be3c0b7ffcb2fe3f13eb3e50ce0437e1e
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:2.1.0@sha256:cef4060b202e8f2491015b9fb9c570820ec391d79af025decbb0dd06a4dc20c4
   needs: [ ]
   cache: { }
   timeout: 30m
@@ -1045,7 +1045,7 @@ Unit · AngularJS · Compat:
 Unit · React:
   stage: test
   tags: [ medium ]
-  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:2.0.0@sha256:21522ec93e418699b4359fc6a6c7f20be3c0b7ffcb2fe3f13eb3e50ce0437e1e
+  image: registry.gitlab.com/aweframework/docker-tools/browsers-jdk21-node-maven:2.1.0@sha256:cef4060b202e8f2491015b9fb9c570820ec391d79af025decbb0dd06a4dc20c4
   needs: [ ]
   # Jest's transform cache (jest.config.cjs puts it in .jest-cache in CI): without it every run transforms the big
   # dependencies again (quill for the editor), which can take longer than a test's timeout on a busy runner

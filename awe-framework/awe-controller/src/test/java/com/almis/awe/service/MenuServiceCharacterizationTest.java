@@ -203,7 +203,7 @@ class MenuServiceCharacterizationTest {
     stored.addElement(loaded).addElement(plain);
     mockElements();
     when(aweElements.getScreen("screen")).thenReturn(stored);
-    when(initialLoadDao.launchInitialLoad(any(AweThreadInitialization.class)))
+    when(initialLoadDao.launchServerInitialLoad(any(AweThreadInitialization.class)))
       .thenReturn(CompletableFuture.completedFuture(initialLoadResult("1", "One", "2", "Two")));
 
     Screen result = menuService.getScreen("screen");
@@ -217,7 +217,7 @@ class MenuServiceCharacterizationTest {
     assertThat(tabs.get(0).getTabValues()).containsExactlyInAnyOrderEntriesOf(Map.of("1", "One", "2", "Two"));
     assertThat(tabs.get(1).getTabValues()).isNull();
     ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
-    verify(initialLoadDao).launchInitialLoad(captor.capture());
+    verify(initialLoadDao).launchServerInitialLoad(captor.capture());
     assertThat(captor.getValue().getInitialLoadType()).isEqualTo(LoadType.QUERY);
     assertThat(captor.getValue().getTarget()).isEqualTo("tabQuery");
   }
@@ -229,14 +229,14 @@ class MenuServiceCharacterizationTest {
     stored.addElement(loaded);
     mockElements();
     when(aweElements.getScreen("screen")).thenReturn(stored);
-    when(initialLoadDao.launchInitialLoad(any(AweThreadInitialization.class)))
+    when(initialLoadDao.launchServerInitialLoad(any(AweThreadInitialization.class)))
       .thenReturn(CompletableFuture.completedFuture(initialLoadResult()));
 
     Screen result = menuService.getScreen("screen", "option");
 
     assertThat(result.getElementsByType(Tab.class).get(0).getTabValues()).isEmpty();
     ArgumentCaptor<AweThreadInitialization> captor = ArgumentCaptor.forClass(AweThreadInitialization.class);
-    verify(initialLoadDao).launchInitialLoad(captor.capture());
+    verify(initialLoadDao).launchServerInitialLoad(captor.capture());
     assertThat(captor.getValue().getInitialLoadType()).isEqualTo(LoadType.ENUM);
   }
 
@@ -247,7 +247,7 @@ class MenuServiceCharacterizationTest {
     stored.addElement(loaded);
     mockElements();
     when(aweElements.getScreen("screen")).thenReturn(stored);
-    when(initialLoadDao.launchInitialLoad(any(AweThreadInitialization.class)))
+    when(initialLoadDao.launchServerInitialLoad(any(AweThreadInitialization.class)))
       .thenReturn(CompletableFuture.failedFuture(new IllegalStateException("boom")));
 
     Screen result = menuService.getScreen("screen");
@@ -270,7 +270,7 @@ class MenuServiceCharacterizationTest {
     assertThat(result).isNotSameAs(stored);
     assertThat(result.getId()).isEqualTo("screen");
     verify(aweElements, never()).setScreen(any(Screen.class));
-    verify(initialLoadDao, never()).launchInitialLoad(any(AweThreadInitialization.class));
+    verify(initialLoadDao, never()).launchServerInitialLoad(any(AweThreadInitialization.class));
   }
 
   @Test

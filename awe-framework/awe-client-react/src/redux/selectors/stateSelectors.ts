@@ -1,4 +1,4 @@
-import {ActionStatus} from "../actions/actions";
+import {ActionStatus, type ActionItem} from "../actions/actions";
 import type {ActionsState, MessagesState, RootState, SettingsState} from "../types";
 
 /**
@@ -20,18 +20,26 @@ export const selectSettings = (state: RootState): SettingsState => state.setting
  */
 export const selectMessages = (state: RootState): MessagesState => state.messages;
 
+// A server action running or started (waiting for the answer of the server)
+const isServerActionRunning = (action: ActionItem): boolean => action.type === "server"
+  && (action.status === ActionStatus.STATUS_RUNNING || action.status === ActionStatus.STATUS_STARTED);
+
 /**
- * Actions running flag: true while a sync action that is not silent runs
+ * Actions running flag: true while a sync action that is not silent runs. A dialog runs its actions in a stack of its
+ * own, so the flag of its empty stack is false while a sync server action of a stack below still waits for the server
+ * (the value dependency of a criterion of the dialog, launched by the row selection of the button that opened it): it
+ * also counts, as the AngularJS client queues the actions of that button behind it
  * @param state Redux state
  * @returns Actions are running
  */
-export const selectActionsRunning = (state: RootState): ActionsState["running"] => state.actions.running;
+export const selectActionsRunning = (state: RootState): ActionsState["running"] => state.actions.running
+  || (state.actions.sync ?? []).slice(0, -1).some(stack => stack.some(action =>
+    !action.silent && !action.async && isServerActionRunning(action)));
 
 // Server actions of the current stack of sync actions, running or started (waiting for the answer of the server)
 const runningServerActions = (state: RootState) => {
   const {sync} = state.actions;
-  return (sync[sync.length - 1] ?? []).filter(action => action.type === "server"
-    && (action.status === ActionStatus.STATUS_RUNNING || action.status === ActionStatus.STATUS_STARTED));
+  return (sync[sync.length - 1] ?? []).filter(isServerActionRunning);
 };
 
 /**

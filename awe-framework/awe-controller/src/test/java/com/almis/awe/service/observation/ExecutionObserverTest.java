@@ -176,8 +176,9 @@ class ExecutionObserverTest {
   }
 
   private ActionService actionService(LauncherService launcherService) {
-    ActionService service = new ActionService(launcherService, new BaseConfigProperties());
+    ActionService service = new ActionService(launcherService, new BaseConfigProperties(), (targetId, kind) -> true);
     service.setApplicationContext(context);
+    when(context.getBean(AweElements.class)).thenReturn(mock(AweElements.class));
     return service;
   }
 
@@ -217,7 +218,7 @@ class ExecutionObserverTest {
     Action action = Action.builder().id("A1").call(new Call().setService("S"))
       .answers(List.of(Answer.builder().type("error").responseList(List.of()).build())).build();
     AweRequest request = new AweRequest(mock(HttpServletRequest.class), mock(HttpServletResponse.class), new ObjectMapper());
-    ActionService service = new ActionService(launcherService, new BaseConfigProperties()) {
+    ActionService service = new ActionService(launcherService, new BaseConfigProperties(), (targetId, kind) -> true) {
       @Override
       public Action getAction(String actionId) {
         return action;
@@ -229,6 +230,7 @@ class ExecutionObserverTest {
       }
     };
     service.setApplicationContext(context);
+    when(context.getBean(AweElements.class)).thenReturn(mock(AweElements.class));
     service.setExecutionObserver(failingObserver);
 
     service.launchAction("A1");

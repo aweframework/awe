@@ -593,7 +593,7 @@ public class SQLQueryBuilder extends SQLBuilder {
    * @return The expression holds an aggregate or a window function
    */
   private static boolean hasAggregate(Expression<?> expression) {
-    if (expression instanceof WindowFunction<?>) {
+    if (expression instanceof WindowFunction<?> || expression instanceof SqlFieldFunctions.StringAggregation) {
       return true;
     }
     if (expression instanceof com.querydsl.core.types.Operation<?> operation) {

@@ -295,6 +295,11 @@
         <xs:documentation xml:lang="en">Unique identifier of the query. Screens, services and other queries refer to the query by this id.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="permission" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Permissions of the catalog (Permissions.xml) required to launch the query from a client, separated by spaces: all of them are required. An unknown permission, or a permission on a public query, is a load error. Server-side launches are never checked.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Table Type -->
@@ -678,6 +683,11 @@
         <xs:documentation xml:lang="en">SQL function applied to the field. A value the engine does not support makes the query fail.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="separator" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Separator of the functions that join values; today only STRING_AGG uses it. Default ", " (a comma and a space). It may be empty (the values are joined without separator) and cannot contain an opening brace ({). Only allowed with a function that joins values (STRING_AGG): in a field with another function or without function the query fails.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="cast" type="castType">
       <xs:annotation>
         <xs:documentation xml:lang="en">Casts the value to the given type. A value the engine does not support makes the query fail.</xs:documentation>
@@ -1012,9 +1022,19 @@
   <!-- Function list -->
   <xs:simpleType name="functionTypeEnum">
     <xs:annotation>
-      <xs:documentation xml:lang="en">SQL function applied to a field. It accepts the aggregation functions and the field functions.</xs:documentation>
+      <xs:documentation xml:lang="en">SQL function applied to a field. It accepts the aggregation functions, the text aggregation functions and the field functions.</xs:documentation>
     </xs:annotation>
-    <xs:union memberTypes="aggregationFunctions fieldFunctions"/>
+    <xs:union memberTypes="aggregationFunctions textAggregationFunctions fieldFunctions"/>
+  </xs:simpleType>
+
+  <!-- Text aggregation functions -->
+  <xs:simpleType name="textAggregationFunctions">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Text aggregation functions. STRING_AGG joins the values of a text field of the group, ordered by value and separated by a comma and a space (", ") or by the separator attribute of the field, with the SQL of each database; it is null when the group has no values. The totalize element does not accept it.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="STRING_AGG" />
+    </xs:restriction>
   </xs:simpleType>
 
   <!-- Cast list -->

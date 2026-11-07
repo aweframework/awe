@@ -25,8 +25,10 @@ module.exports = {
 						"security/authentication-sso",
 						"security/idp-first",
 						"security/idp-first-keycloak-entra",
-						"security/security-audit",
 						"security/screen-access",
+						"security/additional-profiles",
+						"security/permissions",
+						"security/security-audit",
 					],
 				},
 				{

@@ -12,7 +12,7 @@
   <!--
   SCHEDULER QUERIES
   -->
-  <query id="SchTskSug" cacheable="true">
+  <query id="SchTskSug" permission="scheduler.read" cacheable="true">
     <!-- Scheduler task suggest -->
     <table id="AweSchTsk"/>
     <field id="Ide" alias="value"/>
@@ -26,7 +26,7 @@
   </query>
 
   <!-- GET THE EMAIL LIST OF ACTIVE USERS -->
-  <query id="SchActUsrEmlSug">
+  <query id="SchActUsrEmlSug" permission="scheduler.read">
     <table id="ope" />
     <field id="EmlAdr" alias="value" />
     <field id="l1_nom" alias="Usr" noprint="true"/>
@@ -46,7 +46,7 @@
   </query>
 
   <!-- GET THE EMAIL LIST OF ACTIVE USERS -->
-  <query id="SchActUsrSug">
+  <query id="SchActUsrSug" permission="scheduler.read">
     <table id="ope" />
     <field id="l1_nom" alias="value" />
     <field id="EmlAdr" alias="Eml" noprint="true"/>
@@ -66,14 +66,14 @@
   </query>
 
   <!-- Mantain suggest -->
-  <query id="getPublicMaintainList" service="getMaintainList" cacheable="true">
+  <query id="getPublicMaintainList" permission="scheduler.read" service="getMaintainList" cacheable="true">
     <field id="Ide" alias="value"/>
     <computed alias="label" format="[value]"/>
     <variable id="maintainKey" type="STRINGB" name="suggest"/>
   </query>
 
   <!-- Scheduler task list -->
-  <query id="getSchedulerTaskList" service="getSchedulerTaskList">
+  <query id="getSchedulerTaskList" permission="scheduler.read" service="getSchedulerTaskList">
     <field id="Ide" alias="id"/>
     <field id="Ide" alias="IdeTsk"/>
     <field id="Nam" alias="Nam"/>
@@ -132,7 +132,7 @@
   </query>
 
   <!-- Scheduler task list -->
-  <query id="getTaskExecutionListFixed" service="getTaskExecutionList">
+  <query id="getTaskExecutionListFixed" permission="scheduler.read" service="getTaskExecutionList">
     <field id="id"/>
     <field id="ExeTsk"/>
     <field id="IdeTsk"/>
@@ -359,7 +359,7 @@
     <variable id="taskGroup" type="STRING" name="taskGroup"/>
   </query>
 
-  <query id="yearSelectService" service="yearSelectService">
+  <query id="yearSelectService" permission="scheduler.read" service="yearSelectService">
     <field id="yearStr" alias="label"/>
     <field id="yearVal" alias="value"/>
   </query>
@@ -390,7 +390,7 @@
   </query>
 
   <!--Scheduler Task by Id-->
-  <query id="taskData">
+  <query id="taskData" permission="scheduler.read">
     <table id="AweSchTsk" alias="Tsk"/>
     <!--Configuration tab elements-->
     <field id="Ide" alias="taskId" table="Tsk"/>
@@ -519,7 +519,7 @@
   </query>
 
   <!-- Scheduler dependency list -->
-  <query id="taskDependencies" public="true">
+  <query id="taskDependencies" permission="scheduler.read">
     <table id="AweSchTskDpn" alias="Dpn"/>
     <field id="IdeTsk" alias="taskId" table="Dpn"/>
     <field id="IdeTsk" alias="DepTskIde" table="Dpn"/>
@@ -546,7 +546,7 @@
   </query>
 
   <!-- Scheduler task parameter list -->
-  <query id="taskParameters" public="true">
+  <query id="taskParameters" permission="scheduler.read">
     <table id="AweSchTskPar"/>
     <field id="Ide" alias="id"/>
     <field id="Ide" alias="IdePar"/>
@@ -572,7 +572,7 @@
        supplied value is the property key, resolved at execution time. sourceLabel carries the
        translated source for a read-only column. Canonical name/value aliases match the TaskVariable
        bean fields so the send-all grid binds to List<TaskVariable>. -->
-  <query id="taskVariableParameters" public="true">
+  <query id="taskVariableParameters" permission="scheduler.read">
     <table id="AweSchTskPar"/>
     <field id="Ide" alias="id"/>
     <field id="Nam" alias="name"/>
@@ -593,7 +593,7 @@
        distinct yields exactly one row when it has at least one, and no row otherwise; value and
        label are computed constants so several parameters cannot return several rows. Fills the
        hidden hasVarParams criterion via server-action="value" to drive the conditional RUN button. -->
-  <query id="taskHasVariableParameters" public="true" distinct="true">
+  <query id="taskHasVariableParameters" permission="scheduler.read" distinct="true">
     <table id="AweSchTskPar"/>
     <field id="IdeTsk" alias="IdeTsk"/>
     <computed format="1" alias="value"/>
@@ -607,7 +607,7 @@
   </query>
 
   <!-- Scheduler server list -->
-  <query id="SchSrvLst">
+  <query id="SchSrvLst" permission="scheduler.read">
     <table id="AweSchSrv" alias="Srv"/>
     <field id="Ide" alias="id" table="Srv"/>
     <field id="Ide" alias="Ide" table="Srv"/>
@@ -637,7 +637,7 @@
   </query>
 
   <!--Scheduler server by id-->
-  <query id="SchSrv">
+  <query id="SchSrv" permission="scheduler.read">
     <table id="AweSchSrv" alias="Srv"/>
     <field id="Ide" alias="Ide" table="Srv"/>
     <field id="Nom" alias="Nom" table="Srv"/>
@@ -676,7 +676,7 @@
   </query>
 
   <!-- Scheduler Server Suggest -->
-  <query id="SchSrvSug" cacheable="true">
+  <query id="SchSrvSug" permission="scheduler.read" cacheable="true">
     <table id="AweSchSrv"/>
     <field id="Ide" alias="value"/>
     <field id="Nom" alias="label"/>
@@ -698,7 +698,7 @@
        Always includes the currently bound IdeSrvExe, even if it has since
        been deactivated or switched away from ssh, so editing a task never
        drops the stored reference. -->
-  <query id="SchSrvSshLst">
+  <query id="SchSrvSshLst" permission="scheduler.read">
     <table id="AweSchSrv"/>
     <field id="Ide" alias="value"/>
     <field id="Nom" alias="label"/>
@@ -719,7 +719,7 @@
   </query>
 
   <!-- Active scheduler task suggest without parents (only with manual launch) -->
-  <query id="SchTskSugAct">
+  <query id="SchTskSugAct" permission="scheduler.read">
     <!-- Scheduler task suggest -->
     <table id="AweSchTsk"/>
     <field id="Ide" alias="value"/>
@@ -738,7 +738,7 @@
   </query>
 
   <!-- Scheduler Calendar Suggest -->
-  <query id="SchCalSug" cacheable="true">
+  <query id="SchCalSug" permission="scheduler.read" cacheable="true">
     <table id="AweSchCal"/>
     <field id="Ide" alias="value"/>
     <field id="Nom" alias="label"/>
@@ -757,7 +757,7 @@
   </query>
 
   <!-- Scheduler Calendar List -->
-  <query id="SchCalLst">
+  <query id="SchCalLst" permission="scheduler.read">
     <table id="AweSchCal" alias="Cal"/>
     <field id="Ide" alias="id" table="Cal"/>
     <field id="Ide" alias="Ide" table="Cal"/>
@@ -825,7 +825,7 @@
   </query>
 
   <!-- Scheduler Calendar by Id -->
-  <query id="SchCal" public="true">
+  <query id="SchCal" permission="scheduler.read">
     <table id="AweSchCal" alias="Cal"/>
     <field alias="Nom" id="Nom" table="Cal"/>
     <field alias="Des" id="Des" table="Cal"/>
@@ -839,7 +839,7 @@
   </query>
 
   <!-- Scheduler Calendar Date List -->
-  <query id="SchCalDatLst" public="true">
+  <query id="SchCalDatLst" permission="scheduler.read">
     <table id="AweSchCalDat" alias="Cal"/>
     <field id="Ide" alias="id" table="Cal"/>
     <field id="Ide" alias="IdeDat" table="Cal"/>
@@ -855,7 +855,7 @@
   </query>
 
   <!-- check if there is some trigger with the selected calendar -->
-  <query id="chkTrgCntCal" service="checkTriggerContainsCalendar">
+  <query id="chkTrgCntCal" permission="scheduler.read" service="checkTriggerContainsCalendar">
     <variable id="calendarIde" type="INTEGER" name="Ide"/>
   </query>
 
@@ -876,7 +876,7 @@
 
   <!-- Utils -->
   <!-- Load maintain variable list -->
-  <query id="loadMaintainVariables" service="loadMaintainVariables">
+  <query id="loadMaintainVariables" permission="scheduler.read" service="loadMaintainVariables">
     <variable id="maintainStr" type="STRING" name="CmdExe"/>
     <compound alias="RowIco">
       <computed alias="icon" format="fa-plus"/>
@@ -886,13 +886,13 @@
     <computed alias="RowTyp" format="INSERT"/>
   </query>
 
-  <query id="nextExecutions" service="nextExecutions">
+  <query id="nextExecutions" permission="scheduler.read" service="nextExecutions">
     <field id="nextDate" alias="nextDate"/>
     <field id="nextTime" alias="nextTime"/>
     <variable id="fireTimes" type="INTEGER" value="10"/>
   </query>
 
-  <query id="currentlyExecutingJobs" service="currentlyExecutingJobs">
+  <query id="currentlyExecutingJobs" permission="scheduler.read" service="currentlyExecutingJobs">
     <field id="taskKey" alias="currentJobTaskKey"/>
     <field id="triggerKey" alias="currentJobTriggerKey"/>
     <field id="jobStatus" alias="jobStatus"/>
@@ -905,7 +905,7 @@
     <field id="fireInstanceId" alias="fireInstanceId"/>
   </query>
 
-  <query id="getConfiguredJobs" service="getConfiguredJobs">
+  <query id="getConfiguredJobs" permission="scheduler.read" service="getConfiguredJobs">
     <field id="taskKey" alias="configuredJobTaskKey"/>
     <field id="triggerKey" alias="configuredJobTriggerKey"/>
     <field id="taskCalendar" alias="taskCalendar"/>
@@ -916,7 +916,7 @@
     <field id="taskPreviousExecutionTime" alias="taskPreviousExecutionTime"/>
   </query>
 
-  <query id="getSchedulerMetadata" service="getSchedulerMetadata">
+  <query id="getSchedulerMetadata" permission="scheduler.read" service="getSchedulerMetadata">
     <field id="schedulerInstanceId" alias="schedulerInstanceId"/>
     <field id="schedulerName" alias="schedulerName"/>
     <field id="schedulerVersion" alias="schedulerVersion"/>
@@ -1015,7 +1015,7 @@
   </query>
 
   <!-- EMAIL SERVER (SUGGEST SERVER HOST)-->
-  <query id="emailServerSuggest">
+  <query id="emailServerSuggest" permission="scheduler.read">
     <table id="AweEmlSrv" />
     <field id="IdeAweEmlSrv" alias="value"/>
     <operation operator="CONCAT" alias="label">

@@ -46,6 +46,8 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
   private static final String ERROR_TITLE_LAUNCHING_SQL_QUERY = "ERROR_TITLE_LAUNCHING_SQL_QUERY";
   private static final String ERROR_MESSAGE_UNSUPPORTED_FUNCTION = "ERROR_MESSAGE_UNSUPPORTED_FUNCTION";
   private static final String ERROR_MESSAGE_UNSUPPORTED_CAST = "ERROR_MESSAGE_UNSUPPORTED_CAST";
+  private static final String ERROR_MESSAGE_SEPARATOR_WITHOUT_SEPARATED_FUNCTION = "ERROR_MESSAGE_SEPARATOR_WITHOUT_SEPARATED_FUNCTION";
+  private static final String ERROR_MESSAGE_UNSUPPORTED_SEPARATOR = "ERROR_MESSAGE_UNSUPPORTED_SEPARATOR";
 
   /**
    * Collects the non-empty string constants of an expression. Subqueries keep their own values.
@@ -256,6 +258,27 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
   }
 
   /**
+   * Apply the function of a field, with its separator, which only the functions that join values accept
+   *
+   * @param field           Field
+   * @param fieldExpression Field expression
+   * @return Field expression with function applied
+   * @throws AWEQueryException The function or the separator is not supported
+   */
+  private Expression applyFunctionToField(SqlField field, Expression fieldExpression) throws AWEQueryException {
+    String separator = field.getSeparator();
+    String fieldName = getFieldName(field);
+    if (separator == null) {
+      return applyFunctionToField(field.getFunction(), fieldExpression, fieldName);
+    } else if (!SqlFieldFunctions.usesSeparator(field.getFunction())) {
+      throw getUnsupportedValueException(ERROR_MESSAGE_SEPARATOR_WITHOUT_SEPARATED_FUNCTION, fieldName, separator);
+    } else if (!SqlFieldFunctions.isValidSeparator(separator)) {
+      throw getUnsupportedValueException(ERROR_MESSAGE_UNSUPPORTED_SEPARATOR, fieldName, separator);
+    }
+    return getExpressionFunction(fieldExpression, field.getFunction(), separator, fieldName);
+  }
+
+  /**
    * Apply cast to field
    *
    * @param field           Field to apply cast
@@ -406,7 +429,7 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
     Expression castedField = applyCastToField(operand, expression);
 
     // Apply function
-    return applyFunctionToField(operand.getFunction(), castedField, getFieldName(operand));
+    return applyFunctionToField(operand, castedField);
   }
 
   /**
@@ -772,12 +795,29 @@ public abstract class SQLBuilder extends AbstractQueryBuilder {
    * @throws AWEQueryException The function is not supported
    */
   protected Expression getExpressionFunction(Expression fieldExpression, String function, String fieldName) throws AWEQueryException {
-    return SqlFieldFunctions.function(fieldExpression, function)
+    return getExpressionFunction(fieldExpression, function, null, fieldName);
+  }
+
+  /**
+   * Add function to expression, with the separator of the functions that join values
+   *
+   * @param fieldExpression Current field expression
+   * @param function        Function
+   * @param separator       Separator of the functions that join values, null for the default one; ignored by the other
+   *                        functions
+   * @param fieldName       Field name, used to report an unsupported function
+   * @return Expression
+   * @throws AWEQueryException The function is not supported
+   */
+  protected Expression getExpressionFunction(Expression fieldExpression, String function, String separator,
+                                             String fieldName) throws AWEQueryException {
+    SQLTemplates templates = getFactory() == null ? null : getFactory().getConfiguration().getTemplates();
+    return SqlFieldFunctions.function(fieldExpression, function, templates, separator)
       .orElseThrow(() -> getUnsupportedValueException(ERROR_MESSAGE_UNSUPPORTED_FUNCTION, fieldName, function));
   }
 
   /**
-   * Retrieve the exception of a function or cast that the engine does not support
+   * Retrieve the exception of a function, cast or separator that the engine does not support
    *
    * @param message   Locale key of the message
    * @param fieldName Field that uses the value

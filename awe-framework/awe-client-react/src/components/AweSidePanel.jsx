@@ -8,6 +8,8 @@ import { useDispatch } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import { useDeferredLoad } from "../hooks/useDeferredLoad";
 import { useFocusTrap } from "../hooks/useFocusTrap";
+import { ViewModeContext, isViewMode } from "../hooks/useViewMode";
+import { CriteriaList } from "../criteria/AweCriteria";
 import { addActionsTop } from "../redux/actions/actions";
 import PropTypes from "prop-types";
 import { sidePanelPassThrough } from "../utilities/testPassThrough";
@@ -129,7 +131,10 @@ function AweSidePanel(props) {
       onHide={hide}
       pt={pt}
     >
-      {elementList.map((node, index) => Components(node, index))}
+      {/* Opened by an action in view mode, its criteria are read-only */}
+      <ViewModeContext.Provider value={isViewMode(attributes) ? CriteriaList : null}>
+        {elementList.map((node, index) => Components(node, index))}
+      </ViewModeContext.Provider>
     </Sidebar>
   );
 }

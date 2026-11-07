@@ -559,6 +559,11 @@ aweApplication.factory('Criterion',
             return validation;
           };
 
+          // Rendered inside a dialog or side panel opened in view mode: read-only for that opening
+          if ($(component.element).closest("[data-view-mode]").length > 0) {
+            Control.setViewMode(component.address, true);
+          }
+
           // Initialization well done
           return true;
         }

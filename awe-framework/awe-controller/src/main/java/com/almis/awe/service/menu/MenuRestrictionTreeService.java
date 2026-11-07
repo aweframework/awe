@@ -3,9 +3,11 @@ package com.almis.awe.service.menu;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
+import com.almis.awe.model.dto.ScreenRestriction;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.access.Profile;
@@ -15,6 +17,7 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.type.RestrictionType;
+import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.data.builder.DataListBuilder;
@@ -22,7 +25,11 @@ import com.almis.awe.service.screen.ScreenRestrictionGenerator;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,6 +89,12 @@ public class MenuRestrictionTreeService extends ServiceConfig {
    * @throws AWException Screen restriction retrieval failure
    */
   public ServiceData getScreenRestrictions(String restriction) throws AWException {
+    // A user with additional profiles gets the union of the access of every profile
+    List<String> profiles = getSessionProfiles();
+    if (profiles.size() > 1) {
+      return getUnionScreenRestrictions(profiles);
+    }
+
     // Step 1: Get profile restrictions
     String restrictionToSearch = restriction == null || restriction.isEmpty()
       ? securityConfigProperties.getDefaultRestriction() : restriction;
@@ -119,6 +132,144 @@ public class MenuRestrictionTreeService extends ServiceConfig {
     // Set datalist to service
     serviceData.setDataList(result);
     return serviceData;
+  }
+
+  /**
+   * Retrieve the profiles of the session user: the main profile first, then the additional profiles
+   */
+  private List<String> getSessionProfiles() {
+    // Without a session (a call outside a request) the user has no additional profiles
+    AweSession session = getSession();
+    String profiles = session == null ? null : session.getParameter(String.class, AweConstants.SESSION_PROFILES);
+    if (profiles == null) {
+      return Collections.emptyList();
+    }
+    return Arrays.stream(profiles.split(","))
+      .map(String::trim)
+      .filter(profile -> !profile.isEmpty())
+      .distinct()
+      .toList();
+  }
+
+  /**
+   * Retrieve the restrictions of a user with several profiles. The access of each profile is computed as for a user
+   * with only that profile (its restriction file, the global restrictions and its own database restrictions), and an
+   * option is restricted only when every profile restricts it: between profiles, allow wins. The result has the
+   * resolved state of every option (as global restrictions, in menu order), then the restriction file of the user when
+   * the user has one, and then the user restrictions, which keep the last word.
+   *
+   * @param profiles Profiles of the user, main profile first
+   * @return Screen restriction list
+   * @throws AWException Screen restriction retrieval failure
+   */
+  private ServiceData getUnionScreenRestrictions(List<String> profiles) throws AWException {
+    ObjectNode parameters = getQueryUtil().getParameters(null, "1", "0");
+    parameters.putArray(AweConstants.COMPONENT_SORT);
+    List<ScreenRestriction> databaseRestrictions = DataListUtil.asBeanList(queryService
+      .launchPrivateQuery(AweConstants.SCREEN_DATABASE_RESTRICTION_BY_PROFILES_QUERY, parameters).getDataList(),
+      ScreenRestriction.class);
+    Map<String, String> restrictionFiles = getRestrictionFiles(profiles);
+
+    // Option name: allowed by at least one profile, per menu. Restrictions are applied by option name to every menu,
+    // so an option of the private menu takes its state from the private menu only, and the public menu only decides
+    // the options it does not share with the private one
+    Map<String, Boolean> allowedPrivate = new LinkedHashMap<>();
+    Map<String, Boolean> allowedPublic = new LinkedHashMap<>();
+    for (String profile : profiles) {
+      List<ScreenRestriction> profileRestrictions =
+        new ArrayList<>(getFileRestrictions(restrictionFiles.get(profile)));
+      databaseRestrictions.stream()
+        .filter(row -> row.getUser() == null && row.getProfile() == null)
+        .forEach(profileRestrictions::add);
+      databaseRestrictions.stream()
+        .filter(row -> row.getUser() == null && profile.equalsIgnoreCase(trim(row.getProfile())))
+        .forEach(profileRestrictions::add);
+
+      collectAllowed(menuProvider.getMenu(PRIVATE_MENU), profileRestrictions, allowedPrivate);
+      collectAllowed(menuProvider.getMenu(AweConstants.PUBLIC_MENU), profileRestrictions, allowedPublic);
+    }
+    Map<String, Boolean> allowed = new LinkedHashMap<>(allowedPrivate);
+    allowedPublic.forEach(allowed::putIfAbsent);
+
+    DataList result = new DataList();
+    allowed.forEach((option, isAllowed) -> {
+      Map<String, CellData> row = new HashMap<>();
+      row.put(AweConstants.JSON_OPTION, new CellData(option));
+      row.put(AweConstants.JSON_RESTRICTED, new CellData(!isAllowed));
+      result.addRow(row);
+    });
+    // The restriction file of the user has the last word over every profile
+    String userRestriction = getSession().getParameter(String.class, AweConstants.SESSION_USER_RESTRICTION);
+    if (userRestriction != null && !userRestriction.isBlank()) {
+      getFileRestrictions(userRestriction).forEach(fileRow -> {
+        Map<String, CellData> row = new HashMap<>();
+        row.put(AweConstants.JSON_OPTION, new CellData(fileRow.getOption()));
+        row.put(AweConstants.JSON_RESTRICTED, new CellData(fileRow.isRestricted()));
+        result.addRow(row);
+      });
+    }
+    databaseRestrictions.stream()
+      .filter(row -> row.getUser() != null && row.getProfile() == null)
+      .forEach(row -> {
+        Map<String, CellData> userRow = new HashMap<>();
+        userRow.put(AweConstants.JSON_OPTION, new CellData(row.getOption()));
+        userRow.put(AweConstants.JSON_RESTRICTED, new CellData(row.isRestricted()));
+        userRow.put("user", new CellData(row.getUser()));
+        result.addRow(userRow);
+      });
+    result.setRecords(result.getRows().size());
+    return new ServiceData().setDataList(result);
+  }
+
+  /**
+   * Apply the restrictions of a profile to a menu and merge the state of each option: allowed when any profile allows it
+   */
+  private static void collectAllowed(Menu menu, List<ScreenRestriction> restrictions, Map<String, Boolean> allowed) {
+    new ScreenRestrictionGenerator().applyScreenRestriction(restrictions, menu);
+    menu.getElementsByType(Option.class).stream()
+      .filter(option -> option.getName() != null)
+      .forEach(option -> allowed.merge(option.getName(), !option.isRestricted(), Boolean::logicalOr));
+  }
+
+  /**
+   * Retrieve the restriction file of each profile: every profile, the main one included, uses its own file, or the
+   * default restriction when it has none
+   */
+  private Map<String, String> getRestrictionFiles(List<String> profiles) throws AWException {
+    Map<String, String> files = new HashMap<>();
+    DataList profileFiles = queryService.launchPrivateQuery(AweConstants.PROFILES_RESTRICTION_QUERY,
+      getQueryUtil().getParameters(null, "1", "0")).getDataList();
+    profileFiles.getRows().forEach(row -> files.put(trim(row.get(PROFILE).getStringValue()),
+      trim(row.get(RESTRICTION).getStringValue())));
+    profiles.forEach(profile ->
+      files.computeIfPresent(profile, (key, file) -> file == null || file.isEmpty() ? null : file));
+    return files;
+  }
+
+  /**
+   * Retrieve the restrictions of a restriction file as global restrictions
+   */
+  private List<ScreenRestriction> getFileRestrictions(String restriction) throws AWException {
+    String file = restriction == null || restriction.isEmpty()
+      ? securityConfigProperties.getDefaultRestriction() : restriction;
+    Profile profile = getElements().getProfile(file);
+    if (profile == null) {
+      // A profile without its restriction file opens nothing, as for a user with one profile
+      throw new AWException("Restriction file not found", "The restriction file '" + file + "' does not exist");
+    }
+    List<ScreenRestriction> restrictions = new ArrayList<>();
+    if (profile.getRestrictions() != null) {
+      for (Restriction fileRestriction : profile.getRestrictions()) {
+        restrictions.add(new ScreenRestriction()
+          .setOption(fileRestriction.getOption())
+          .setRestricted(RestrictionType.R.equals(fileRestriction.getRestrictionType())));
+      }
+    }
+    return restrictions;
+  }
+
+  private static String trim(String value) {
+    return value == null ? null : value.trim();
   }
 
   /**

@@ -1208,7 +1208,7 @@
     {
       "name": "awe.rest.api.oauth2-resource-server.principal.default-profile",
       "type": "java.lang.String",
-      "description": "AWE profile assigned when the token does not provide one. When it is not set, the application default role (awe.application.default-role) is used."
+      "description": "Name of the AWE profile assigned when the token does not provide one. When it is not set, the application default role (awe.application.default-role) is used."
     },
     {
       "name": "awe.rest.api.oauth2-resource-server.principal.delegated-display-name-claims",
@@ -1244,7 +1244,7 @@
     {
       "name": "awe.rest.api.oauth2-resource-server.principal.profile-claim",
       "type": "java.lang.String",
-      "description": "Token claim holding the AWE profile to assign to the principal. When it is not set or the token does not carry it, the default profile is used."
+      "description": "Token claim with the roles mapped to AWE profiles as the single sign-on login maps them: a claim name, or a dotted path to a nested claim (realm_access.roles), holding a list of roles or a single one. The prefix awe.security.sso.filter-authority-prefix is stripped, each role is compared with the profile names without case, the main profile follows awe.security.sso.profile-priority (else the first name in alphabetical order) and the roles without an AWE profile are ignored. When it is not set, or no role maps to a profile, the default profile is used, unless awe.security.sso.require-role applies: then the token is refused."
     },
     {
       "name": "awe.rest.api.openapi.oauth2.authorization-url",
@@ -1633,6 +1633,18 @@
       "defaultValue": ".*"
     },
     {
+      "name": "awe.security.permissions.predefined-profiles",
+      "type": "java.lang.Boolean",
+      "description": "Create at startup the predefined profiles Reader (RDR) and Contributor (CTB) when no profile with their acronym exists. Default value true",
+      "defaultValue": true
+    },
+    {
+      "name": "awe.security.permissions.require-undeclared",
+      "type": "java.lang.Boolean",
+      "description": "Require a permission for the private queries, maintain targets and services that declare none, when a client launches them: default.read for a query and default.write for a maintain target or a service. Public and server-only targets and the services authorized by their target are not affected. With true, the existing profiles need * (or default.*). Default value false",
+      "defaultValue": false
+    },
+    {
       "name": "awe.security.role-prefix",
       "type": "java.lang.String",
       "description": "Role prefix to build user grants in spring security Default value ROLE_",
@@ -1743,6 +1755,11 @@
       "defaultValue": false
     },
     {
+      "name": "awe.security.sso.profile-priority",
+      "type": "java.util.List<java.lang.String>",
+      "description": "Profiles in order of priority to choose the main profile of a user when the identity provider sends several roles that map to existing AWE profiles: the main profile is the first profile of this list that the provider sends and that exists (compared without case). When none of them is in the list, or the list is empty (default), the main profile is the first one in alphabetical order that exists. The other roles that map to existing profiles are additional profiles of the user. It also applies to the profile claim of the REST API tokens."
+    },
+    {
       "name": "awe.security.sso.require-role",
       "type": "java.lang.Boolean",
       "description": "Require a role from the identity provider that maps to an existing AWE profile (fail closed). When required and no role maps, the SSO login is refused with an error page, for new and existing users alike, and the stored profile and {@code awe.application.default-role} are not used. Not set by default, which means required when {@code awe.security.sso.local-login} is {@code false} (IdP-first) and not required otherwise. Set it to {@code false} to opt in to the default role fallback in IdP-first, or to {@code true} to require a role in any SSO setup."
@@ -1750,7 +1767,7 @@
     {
       "name": "awe.security.sso.roles-claims",
       "type": "java.util.List<java.lang.String>",
-      "description": "Claims of the ID token that carry the user's roles, read in order and joined. A dotted name walks nested objects unless the token has a claim with that exact name. Examples: {@code realm_access.roles} (Keycloak realm roles, the default), {@code resource_access.my-client.roles} (Keycloak client roles), {@code roles} (Microsoft Entra ID app roles). When several roles carry the prefix, the first name in alphabetical order that exists as an AWE profile is used. Ignored when the application declares its own {@code realmRolesAuthoritiesConverter} bean."
+      "description": "Claims of the ID token that carry the user's roles, read in order and joined. A dotted name walks nested objects unless the token has a claim with that exact name. Examples: {@code realm_access.roles} (Keycloak realm roles, the default), {@code resource_access.my-client.roles} (Keycloak client roles), {@code roles} (Microsoft Entra ID app roles). When several roles carry the prefix, the main profile follows {@code awe.security.sso.profile-priority}, else the first name in alphabetical order that exists as an AWE profile. Ignored when the application declares its own {@code realmRolesAuthoritiesConverter} bean."
     },
     {
       "name": "awe.security.sso.user-name-attribute",

@@ -86,12 +86,19 @@ Target element has the following attributes:
 | name      | **Required** | String  | Maintain identifier                                                | **Note:**  The name name must be unique                                                                             |
 | public    | Optional     | Boolean | To set a query as launchable out of session (without being logged) | By default is `false`                                                                                               |                 
 | server-only | Optional   | Boolean | To refuse the target to any client request; only the server can launch it | By default is `false`. See [server-only targets](#server-only-targets) |
+| permission | Optional    | String  | Permissions of the catalog that a client needs to launch the target, separated by spaces (all of them are required) | **Note:** An unknown permission, or a permission on a `public` target, is a load error. See [permissions](#target-permissions) |
 | label     | Optional     | String  | Is used to set the output message after executing maintenance      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                          | 
 | exclusive | Optional     | Boolean | To restrict the concurrently execution  of target                  | set this attribute to `true` if you don't want the target to be executed concurrently (some users at the same time) |
 
+#### Permissions {#target-permissions}
+
+A target with `permission="users.delete"` is launched by a client only when the session user has the `users.delete`
+permission, besides the access by screen. Server launches (`launchPrivateMaintain`) and the targets included with
+`<include target="..."/>` are never checked. See [Permissions](../security/permissions.md).
+
 #### Server-only targets {#server-only-targets}
 
-A target marked with `server-only="true"` can only be launched by the server (a Java service, the scheduler...) through `MaintainService.launchPrivateMaintain`. Any request from a client is refused with the *launching maintain without authorization* error, **even when the user is signed in**: `/action/maintain` (also the silent and asynchronous variants), the file maintain endpoints, `/api/maintain`, `/api/maintain/async` and `/api/public/maintain`.
+A target marked with `server-only="true"` can only be launched by the server (a Java service, the scheduler...) through `MaintainService.launchPrivateMaintain`. Any request from a client is refused with the *access denied* error, **even when the user is signed in**: `/action/maintain` (also the silent and asynchronous variants), the file maintain endpoints, `/api/maintain`, `/api/maintain/async` and `/api/public/maintain`.
 
 ```xml
 <target name="store2faSecret" server-only="true">

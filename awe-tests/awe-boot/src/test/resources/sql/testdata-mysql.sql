@@ -112,11 +112,16 @@ Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('38','Par
 Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('39','Param19',null,'2','Dummy parameter','1');
 
 -- Insert default profiles
+truncate AweProPer;
 truncate AwePro;
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('1','ADM','administrator','1',null,'administrator','1');
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('2','GNR','general','1',null,'general','1');
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('3','OPE','operator','1',null,'operator','1');
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('4','TST','test','1',null,'test','1');
+
+-- The administrator profile has every permission
+Insert into AweProPer (IdeAweProPer, IdePro, Per) values (1, 1, '*');
+Insert into AweKey (KeyNam, KeyVal) values ('ProPerKey', 1);
 
 -- Insert default user
 truncate ope;

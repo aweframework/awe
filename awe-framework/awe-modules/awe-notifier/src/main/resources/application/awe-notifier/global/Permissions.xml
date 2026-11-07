@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Permissions.xml
+    Description: Permission catalog of the awe-notifier module
+-->
+
+<permissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd">
+  <!-- Subscriptions that notifications are sent to. The notifications of a user are own settings (self) -->
+  <resource id="subscriptions" label="PERMISSION_RESOURCE_SUBSCRIPTIONS" verbs="crud" />
+</permissions>

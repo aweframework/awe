@@ -36,7 +36,7 @@ class ServerOnlyLoginQueriesTest extends AbstractSpringAppIntegrationTest {
   private static final String SIGNED_IN_USER = "test";
   private static final String VICTIM = "server-only-query";
   private static final String VICTIM_SECRET = "SECRET";
-  private static final String REFUSED_MESSAGE = "without authorization";
+  private static final String REFUSED_MESSAGE = "You do not have permission to perform this action. Contact your administrator if you need it.";
 
   @Autowired
   private DataSource dataSource;

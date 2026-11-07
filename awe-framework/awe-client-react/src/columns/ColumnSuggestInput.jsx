@@ -5,6 +5,7 @@ import {getFirstDefinedValue} from "../utilities/general";
 import PropTypes from "prop-types";
 import {autoCompletePassThrough} from "../utilities/testPassThrough";
 import {withTextLabel, withTextLabels} from "../utilities/suggest";
+import {suggestChipProps} from "../criteria/AweSelectChip";
 
 function ColumnSuggestInput(props) {
   const {
@@ -32,6 +33,9 @@ function ColumnSuggestInput(props) {
   // PrimeReact needs the labels as text, but the server answers numbers for a suggest over a numeric column
   const textValue = useMemo(() => withTextLabel(value), [value]);
   const textSuggestions = useMemo(() => withTextLabels(suggestions), [suggestions]);
+  const disabled = getFirstDefinedValue(cellReadonly, readonly, false);
+  // The chosen values of a multiple suggest are the chips of a multiple select
+  const chips = multiple ? suggestChipProps(textValue, disabled, onChange) : {};
 
   return (
     <AutoComplete
@@ -40,8 +44,9 @@ function ColumnSuggestInput(props) {
       value={textValue}
       placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
       required={getFirstDefinedValue(cellRequired, required, false)}
-      disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
+      disabled={disabled}
       onChange={onChange}
+      {...chips}
       onClear={onClear}
       dropdown
       onKeyDown={onKeyPress}

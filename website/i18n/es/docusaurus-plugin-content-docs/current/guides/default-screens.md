@@ -6,7 +6,7 @@ sidebar_label: Ventanas por defecto
 
 ## Introducción {#introduction}
 
-AWE tiene algunas pantallas comunes prediseñadas que son muy útiles para una primera versión de una aplicación. De esta manera, ya está implementada la gestión de [usuarios](#users) y [perfiles](#profiles), algunos [temas](#themes) útiles para personalizar la aplicación, gestión de seguridad como el [acceso a pantallas](#screen-access) y la [configuración de pantallas](#screen-configuration), y algunas herramientas de gestión a alto nivel como la [base de datos](#databases), la [configuración de módulos](#modules) y los [sitios](#sites), además de las [secuencias](#sequences) y los [parámetros de la aplicación](#application-parameters).
+AWE tiene algunas pantallas comunes prediseñadas que son muy útiles para una primera versión de una aplicación. De esta manera, ya está implementada la gestión de [usuarios](#users) y [perfiles](#profiles), algunos [temas](#themes) útiles para personalizar la aplicación, gestión de seguridad como el [control de acceso](#screen-access) y la [configuración de pantallas](#screen-configuration), y algunas herramientas de gestión a alto nivel como la [base de datos](#databases), la [configuración de módulos](#modules) y los [sitios](#sites), además de las [secuencias](#sequences) y los [parámetros de la aplicación](#application-parameters).
 
 AWE también permite visualizar una pantalla de ayuda autogenerada basada en la definición de pantalla y algunos atributos adicionales como `help` y `help-image`. Esta pantalla de ayuda puede ser generada por pantalla o también hay una [pantalla de ayuda de la aplicación](#application-help) que contiene la documentación sobre la aplicación completa (basada en el menú).
 
@@ -20,6 +20,19 @@ búsqueda por nombre, login, email o perfil y filtros rápidos con sus contadore
 las filas seleccionadas muestran una barra con sus acciones (restablecer el doble factor, borrar). Un panel lateral crea
 y edita un usuario, agrupado en secciones (identidad, acceso, seguridad del inicio de sesión, apariencia y salida), y
 muestra el avatar, el nombre y el estado del usuario que se edita.
+
+La columna *Perfiles adicionales* de la tabla muestra los perfiles adicionales de cada usuario como etiquetas: las dos
+primeras, y una etiqueta *+N* cuyo tooltip lista las demás.
+
+El panel lateral tiene un criterio *Perfiles adicionales*, una selección múltiple de los perfiles que el usuario tiene
+además del principal. Al guardar el usuario se sustituyen sus perfiles adicionales, el perfil principal nunca se guarda
+como adicional, y borrar un usuario o un perfil borra sus filas de perfiles adicionales. Consulte
+[Perfiles adicionales](../security/additional-profiles.md).
+
+*Ver permisos*, en el menú de una fila y en el panel de un usuario que se edita, abre la pestaña *Permisos* de la
+[ventana de control de acceso](#screen-access) con ese usuario: los permisos de su perfil principal y de sus perfiles adicionales.
+Muestra los perfiles guardados, así que el botón del panel se desactiva mientras se cambia el perfil principal; guarde
+antes los cambios. Requiere `users.read` y `permissions.read`, y abre la opción `screen-access` del menú.
 
 La pantalla reutiliza las queries y los maintains de los usuarios (`UsrLst`, `UsrNew`, `UsrUpd`, `UsrDel`, `reset2fa`),
 así que una aplicación que los sobrescribe conserva su lógica. El desbloqueo usa el maintain `UsrUnl`, que además audita
@@ -47,6 +60,12 @@ por defecto y acceso), y muestra el avatar, el nombre y el estado del perfil que
 La pantalla reutiliza las queries y los maintains de los perfiles (`ProLst`, `ProNew`, `ProUpd`, `ProDel` y la
 comprobación `check-profile-acronym` de un acrónimo nuevo), así que una aplicación que los sobrescribe conserva su
 lógica.
+
+El campo *Permisos* del panel lateral da permisos al perfil, agrupados por recurso; los cambios se aplican en el
+siguiente inicio de sesión de sus usuarios. Los perfiles predefinidos Lector y Colaborador se abren en solo lectura, y
+*Duplicar perfil* crea una copia editable de cualquier perfil con sus permisos. Consulte
+[La pantalla de perfiles](../security/permissions.md#profiles-screen) y
+[Perfiles predefinidos](../security/permissions.md#predefined-profiles).
 
 :::warning Deprecadas
 Las pantallas de perfiles anteriores (`Prf`, `PrfNew`, `PrfUpd` y `PrfViw`) están deprecadas desde AWE 5.0.0 y se
@@ -305,9 +324,9 @@ Aparecerá como un mensaje en la parte superior de la pantalla.
 
 La pantalla de registro da acceso a todos los registros de la aplicación. Se dejará de utilizar próximamente para dar paso a una nueva pila de observabilidad en una arquitectura distribuida.
 
-## Acceso a las pantallas {#screen-access}
+## Control de acceso {#screen-access}
 
-La opción *Acceso a pantallas* del menú abre la ventana de acceso (`access-admin`): una sola pantalla que responde,
+La opción *Control de acceso* del menú *Seguridad* abre la ventana de control de acceso (`access-admin`): una sola pantalla que responde,
 para un perfil o un usuario, **qué puede abrir del menú privado y por qué**, y permite a un administrador funcional
 cambiarlo. Un auditor consulta la misma pantalla sin cambiar nada.
 
@@ -316,7 +335,8 @@ cambiarlo. Un auditor consulta la misma pantalla sin cambiar nada.
 ### Camino rápido {#quick-path}
 
 1. En *Ver el acceso de*, elija *Perfil* o *Usuario* y después el perfil o el usuario en el buscador de al lado. Si
-   quiere, elija un módulo. Estos campos comparten una fila en la parte superior de la tarjeta del árbol.
+   quiere, elija un módulo. Estos campos comparten una fila en la parte superior de la pantalla, encima de sus dos
+   pestañas: *Opciones de menú* (el árbol) y *Permisos*.
 2. Lea el árbol: cada opción del menú privado con su acceso y el motivo.
 3. Pulse *¿Por qué?* en una opción para ver la capa que lo decide, y *Permitir* o *Denegar* para cambiarlo.
 
@@ -407,6 +427,40 @@ usuarios, no solo del elegido. Cada hallazgo tiene su corrección:
 *Previsualizar* abre una vista previa del menú que ve el perfil o el usuario elegido en el módulo elegido: las opciones a
 las que llega, cuántas quedan ocultas y el motivo de cada una. Es solo una vista previa: no inicia sesión como el
 usuario ni abre sus pantallas.
+
+### Permisos {#permissions}
+
+La pestaña *Permisos* muestra, para el mismo perfil o usuario, **qué puede hacer**: cada permiso del catálogo (el
+`Permissions.xml` de AWE, de sus módulos y de la aplicación), agrupado por recurso, con su estado y de dónde viene. Para
+un usuario, los permisos son los de su perfil principal más los de sus perfiles adicionales.
+
+| Columna | Qué indica |
+|---------|------------|
+| Permiso | El verbo o la acción y, debajo, su identificador (`users.update`). El grupo de cada recurso indica cuántos de sus permisos están concedidos. |
+| Estado | *Concedido* o *No concedido*. |
+| Origen | Una etiqueta por origen: el perfil y la entrada de su fichero de perfil (`MGR · fichero manager (*)`), el perfil y su asignación (`MGR · asignación users.*`), o *Siempre concedido* para un recurso declarado `granted="always"` en el catálogo (también los de la aplicación). |
+| Aviso | Un fichero de perfil excluye el permiso pero otro origen lo concede, o la exclusión que lo deja fuera. |
+
+El buscador encuentra permisos por identificador o etiqueta, también de su recurso, y los filtros rápidos cuentan
+*Todos*, *Concedidos*, *No concedidos* y *Avisos*. La tarjeta sobre la tabla lo resume: cuántos permisos están
+concedidos, los perfiles del usuario y los avisos.
+
+Los permisos de un perfil son su fichero de perfil menos sus exclusiones, más sus asignaciones (pantalla *Perfiles*);
+consulte [Permisos efectivos](../security/permissions.md#effective-permissions). Una exclusión solo resta dentro de
+su propio fichero de perfil: no es una denegación, así que una asignación u otro perfil pueden conceder el permiso.
+*¿Por qué?* abre un panel lateral con lo que aporta cada perfil al permiso: su fichero de perfil, sus asignaciones y su
+veredicto, y el catálogo para un permiso concedido siempre.
+
+*Comparar* también funciona en esta pestaña: la tabla muestra el estado del otro usuario o perfil y por qué cambia, con
+el filtro rápido *Solo diferencias*. Los demás recuentos siguen siendo los del sujeto elegido. Un perfil se compara con
+sus propios permisos, y un usuario con los permisos de todos sus perfiles.
+
+*Ver permisos* en la pantalla de [usuarios](#users) abre esta pestaña con el usuario ya elegido. Hasta que se elige un
+usuario o un perfil, la tarjeta de resumen está oculta.
+
+La pestaña muestra el estado **configurado**: los permisos se cargan al iniciar sesión, así que un cambio se aplica en
+el siguiente inicio de sesión de cada usuario (lo recuerda la ayuda de la tabla). No cambia nada y requiere `users.read` y `permissions.read`. El módulo,
+*Revisar* y *Previsualizar* son de las opciones de menú y se ocultan en esta pestaña.
 
 ### El acceso que viaja con la aplicación {#access-that-travels-with-the-application}
 

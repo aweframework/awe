@@ -85,9 +85,16 @@ channel of the request unless a value is given.
 | `SSO_PROVISIONING` | A user is created from the identity provider data (`awe.security.sso.auto-provision-user`) | `SUCCESS` (detail: profile) | `SSO` |
 | `SSO_PROFILE_SYNC` | The profile of a user is updated from the provider roles | `SUCCESS` (detail: `<old> -> <new>`) | `SSO` |
 | `ACCESS_DENIED` | An option that exists in the menu is restricted for the user profile | `FAILURE`, `RESTRICTED` (detail: `option: <name>`) | `WEB` |
+| `ACCESS_DENIED` | A client launches a query or a maintain target that no screen the user can open uses ([screen access](screen-access.md)) | `FAILURE`, `RESTRICTED` (detail: `query: <id>` or `maintain: <id>`) | `WEB`, or `SYSTEM` for a launch without request |
+| `ACCESS_DENIED` | A client launches a query, a maintain target or a service without a [permission](permissions.md) it requires | `FAILURE`, `PERMISSION` (detail: `query: <id>`, `maintain: <id>` or `service: <id>`) | Request channel |
 | `ACCESS_DENIED` | Spring Security refuses a URL to an authenticated user | `FAILURE`, `FORBIDDEN` (detail: `url: <path>`) | Request channel |
 | `TOKEN_ISSUED` | `POST /api/authenticate` issues a JWT | `SUCCESS` | `REST` |
 | `TOKEN_REJECTED` | A REST request carries a malformed, wrongly signed or expired JWT | `FAILURE`, `INVALID_TOKEN` or `TOKEN_EXPIRED` | `REST` |
+
+With `awe.security.authorization.mode=warn` the launches without screen access or without permission run, and their
+`ACCESS_DENIED` event is still recorded: its detail ends with `(allowed: warn)`, for example
+`query: InvLst (allowed: warn)`. With `enforce` the detail has no suffix, so the audit tells a launch that `warn` let
+through from a refused one.
 
 ## Sinks
 
@@ -212,7 +219,7 @@ result of the login.
 
 ## Security audit screen
 
-**Settings > Security access > Security audit** (option `security-audit`, screen `SecAud`) browses the events stored by the
+**Settings > Security > Security audit** (option `security-audit`, screen `SecAud`) browses the events stored by the
 database sink. It is a generic XML screen, rendered by both the Angular and the React clients.
 
 | Part | Content |

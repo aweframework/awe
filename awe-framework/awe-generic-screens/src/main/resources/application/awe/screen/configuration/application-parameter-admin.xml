@@ -32,7 +32,7 @@
     <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
       <button-action type="dialog" target="PrnOpt" />
     </button>
-    <button label="BUTTON_NEW_APP_PAR" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON">
+    <button label="BUTTON_NEW_APP_PAR" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON" permission="system.update">
       <!-- No selected row: no IdeAweAppPar is sent (the identifier comes from its sequence) and the panel starts empty -->
       <button-action type="unselect-all-rows" target="GrdAppParAdm" />
       <button-action type="value" target="PnlMod" value="new" />

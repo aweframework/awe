@@ -1,7 +1,7 @@
 ## Encoding property value
 
 There's a way to store encoded properties (such as passwords) in a properties file. You need to deploy
-the application, and enter into `Settings -> Security access -> Encrypt util`, fill the text criterion with the password
+the application, and enter into `Settings -> Security -> Encrypt util`, fill the text criterion with the password
 and push the `Encrypt` button. The `Encrypted property` field is the value of the encoded password.
 
 <img alt="Almis" src={require('@docusaurus/useBaseUrl').default('img/EncryptTool.png')} />

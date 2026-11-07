@@ -25,7 +25,7 @@
   -->
 
   <!-- Users -->
-  <target name="UsrNew">
+  <target name="UsrNew" permission="users.create">
     <insert>
       <table id="ope"/>
       <field id="IdeOpe" sequence="OpeKey" variable="IdeOpe"/>
@@ -61,6 +61,7 @@
       <variable id="Res" type="STRING" name="Res"/>
       <variable id="PwdLck" type="INTEGER" name="PwdLck"/>
     </insert>
+    <include-target name="UsrAddProUpd"/>
   </target>
 
   <target name="ProvisionNewUser" server-only="true">
@@ -97,7 +98,31 @@
     </update>
   </target>
 
-  <target name="UsrUpd">
+  <!-- Additional profiles of a single sign-on user (AweOpeRol): the identity provider is the source of truth, so at
+       login AccessService replaces the rows of the user with the provider roles that map to a profile besides the main
+       one (profiles, a list of profile ids, empty to remove them all). Not public, and the user is never a request
+       parameter (any signed in user can launch a target): AccessService sets the session parameter ssoProfilesUser only
+       while it launches this target -->
+  <target name="UpdateOauthUserAdditionalProfiles" server-only="true">
+    <delete audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeOpe" query="SsoUsrIdeOpe" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="in" query="SsoUsrIdeOpe"/>
+        </and>
+      </where>
+    </delete>
+    <insert multiple="true" audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeAweOpeRol" sequence="OpeRolKey"/>
+      <field id="IdeOpe" query="SsoUsrIdeOpe"/>
+      <field id="IdePro" variable="profiles"/>
+      <variable id="profiles" type="INTEGER" name="profiles"/>
+    </insert>
+  </target>
+
+  <target name="UsrUpd" permission="users.update">
     <!-- Security audit: compares the stored lock flag with the new one before the update -->
     <serve service="audit-user-update">
       <variable id="userId" type="INTEGER" name="IdeOpe"/>
@@ -162,11 +187,61 @@
       <variable id="NumLog" type="INTEGER" value="0"/>
       <variable id="FlgPwdUpd" type="INTEGER" name="FlgPwdUpd"/>
     </update>
+    <include-target name="UsrAddProUpd"/>
+  </target>
+
+  <!-- Additional profiles of the user of UsrNew and UsrUpd (AweOpeRol): the new user (its id replaces IdeOpe in the
+       request) or the one selected in the grid (IdeOpe, a one element list in the users screen, a value in the legacy
+       UsrUpd one). The users screen (user-admin) sends the selected profiles (AddPro) and AddProUpd: only then the rows
+       of the user are replaced. The legacy UsrNew and UsrUpd screens send neither, so they keep its additional profiles -->
+  <target name="UsrAddProUpd" server-only="true">
+    <delete audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeOpe" variable="IdeOpe" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="eq" right-variable="IdeOpe"/>
+          <filter condition="eq" right-variable="AddProUpd">
+            <left-operand>
+              <constant value="1" type="INTEGER" cast="INTEGER"/>
+            </left-operand>
+          </filter>
+        </and>
+      </where>
+      <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
+      <variable id="AddProUpd" type="INTEGER" name="AddProUpd"/>
+    </delete>
+    <!-- One row per selected profile. The user comes from a query, as IdeOpe may be a one element list, which would
+         drive the rows of the multiple insert -->
+    <insert multiple="true" audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeAweOpeRol" sequence="OpeRolKey"/>
+      <field id="IdeOpe" query="UsrIdeOpe"/>
+      <field id="IdePro" variable="AddPro"/>
+      <variable id="AddPro" type="INTEGER" name="AddPro"/>
+      <!-- Always an empty list: a multiple maintain needs a list, so without AddPro (legacy screens) no row is inserted
+           instead of failing -->
+      <variable id="NoPro" type="STRING_TO_LIST" value=""/>
+    </insert>
+    <!-- The main profile is never an additional profile (also when a legacy screen makes it the main one) -->
+    <delete audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeOpe" variable="IdeOpe" audit="true"/>
+      <field id="IdePro" variable="Pro" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="eq" right-variable="IdeOpe"/>
+          <filter left-field="IdePro" condition="eq" right-variable="Pro"/>
+        </and>
+      </where>
+      <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
+      <variable id="Pro" type="INTEGER" name="Pro"/>
+    </delete>
   </target>
 
   <!-- Change the password of the user in session (settings screen): only when the current password matches. The stored hash
        is salted, so CurrentPasswordChangeService checks it in Java and then launches UsrUpdPwdUpdate -->
-  <target name="UsrUpdPwd">
+  <target name="UsrUpdPwd" permission="self.update">
     <serve service="changeOwnPassword">
       <variable id="currentPassword" type="STRING" name="OldPas"/>
       <variable id="password" type="STRING" name="Pas"/>
@@ -189,7 +264,7 @@
     </update>
   </target>
 
-  <target name="updateUserData">
+  <target name="updateUserData" permission="self.update">
     <update>
       <table id="ope"/>
       <field id="OpeNam" variable="name"/>
@@ -206,7 +281,7 @@
   </target>
 
   <!-- Change the password of the user in session (not public: only an authenticated user can launch it) -->
-  <target name="ChdPwd">
+  <target name="ChdPwd" permission="self.update">
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="l1_pas"/>
@@ -269,7 +344,17 @@
     </update>
   </target>
 
-  <target name="UsrDel">
+  <target name="UsrDel" permission="users.delete">
+    <delete multiple="true" audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeOpe" variable="IdeOpe" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="eq" right-variable="IdeOpe"/>
+        </and>
+      </where>
+      <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
+    </delete>
     <delete multiple="true">
       <table id="ope"/>
       <where>
@@ -322,7 +407,7 @@
   <!-- The modules screen (module-admin) has no theme (it was never applied): it sends no Thm and no IdeThm column, so the
        IdeThm fields of ModNew and ModUpd are optional and left out of the statement without a value (a new module and its
        new user rows get none, an update keeps the stored one). The deprecated ModNew and ModUpd screens still send them -->
-  <target name="ModNew">
+  <target name="ModNew" permission="system.update">
     <insert audit="HISAweMod">
       <table id="AweMod"/>
       <field id="IdeMod" sequence="ModKey" variable="IdeMod"/>
@@ -373,7 +458,7 @@
     </multiple>
   </target>
 
-  <target name="ModUpd">
+  <target name="ModUpd" permission="system.update">
     <update audit="HISAweMod">
       <table id="AweMod"/>
       <field id="IdeMod" variable="IdeMod"/>
@@ -432,7 +517,7 @@
   <!-- The modules screen (module-admin) sends the selected modules as IdeModSel (IdeMod is the hidden criterion of its side
        panel, a single module): this optional second definition replaces the first one when it comes. The deprecated Mod
        screen sends IdeMod from its grid and no IdeModSel -->
-  <target name="ModDel">
+  <target name="ModDel" permission="system.update">
     <delete multiple="true" audit="HISAweModOpe">
       <table id="AweModOpe"/>
       <field id="IdeMod" variable="IdeMod" audit="true"/>
@@ -488,7 +573,7 @@
   </target>
 
   <!-- Sites -->
-  <target name="SitNew">
+  <target name="SitNew" permission="system.update">
     <insert audit="HISAweSit">
       <table id="AweSit"/>
       <field id="IdeSit" sequence="SitKey" variable="IdeSit"/>
@@ -519,7 +604,7 @@
     </multiple>
   </target>
 
-  <target name="SitUpd">
+  <target name="SitUpd" permission="system.update">
     <update audit="HISAweSit">
       <table id="AweSit"/>
       <field id="IdeSit" variable="IdeSit"/>
@@ -561,7 +646,7 @@
     </multiple>
   </target>
 
-  <target name="SitDel">
+  <target name="SitDel" permission="system.update">
     <delete multiple="true" audit="HISAweSitModDbs">
       <table id="AweSitModDbs"/>
       <field id="IdeSit" variable="IdeSit" audit="true"/>
@@ -591,7 +676,7 @@
   </target>
 
   <!-- Profiles -->
-  <target name="ProNew">
+  <target name="ProNew" permission="profiles.create">
     <insert audit="HISAwePro">
       <table id="AwePro"/>
       <field id="IdePro" sequence="ProKey" variable="IdePro"/>
@@ -609,9 +694,50 @@
       <variable id="Res" type="STRING" name="Res"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </insert>
+    <!-- Permissions of the profile (Per) sent by the profiles screen (PerUpd): stored only when they changed, which
+         requires the permission of ProPerUpd -->
+    <serve service="store-profile-permissions">
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="Per" type="STRING" name="Per"/>
+      <variable id="PerUpd" type="INTEGER" name="PerUpd"/>
+    </serve>
   </target>
 
-  <target name="ProUpd">
+  <!-- Predefined profile created at startup: the server gives its identifier, the next of the highest profile
+       identifier and of ProKey, and moves ProKey to it so a later ProNew never collides. Theme and initial screen are
+       left empty, as ProNew does when the profiles screen does not fill them -->
+  <target name="PredefinedProNew" server-only="true">
+    <insert audit="HISAwePro">
+      <table id="AwePro"/>
+      <field id="IdePro" variable="IdePro"/>
+      <field id="Acr" variable="Acr"/>
+      <field id="Nam" variable="Nam"/>
+      <field id="Res" variable="Res"/>
+      <field id="Act" variable="Act"/>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="Acr" type="STRING" name="Acr"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="Res" type="STRING" name="Res"/>
+      <variable id="Act" type="INTEGER" value="1"/>
+    </insert>
+    <update>
+      <table id="AweKey"/>
+      <field id="KeyVal" variable="IdePro"/>
+      <where>
+        <and>
+          <filter left-field="KeyNam" condition="eq" right-variable="KeyNam"/>
+        </and>
+      </where>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="KeyNam" type="STRING" value="ProKey"/>
+    </update>
+  </target>
+
+  <!-- The predefined profiles (Reader, Contributor) are never changed: they are duplicated and the copy is changed -->
+  <target name="ProUpd" permission="profiles.update">
+    <serve service="check-editable-profile">
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+    </serve>
     <update audit="HISAwePro">
       <table id="AwePro"/>
       <!-- Only audited: the key is not updated, so the profiles screen can send it as a one element list -->
@@ -635,11 +761,41 @@
       <variable id="Res" type="STRING" name="Res"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </update>
+    <!-- Permissions of the profile (Per) sent by the profiles screen (PerUpd): stored only when they changed, which
+         requires the permission of ProPerUpd -->
+    <serve service="store-profile-permissions">
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="Per" type="STRING" name="Per"/>
+      <variable id="PerUpd" type="INTEGER" name="PerUpd"/>
+    </serve>
   </target>
 
-  <target name="ProDel">
+  <target name="ProDel" permission="profiles.delete">
+    <serve service="check-editable-profile">
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+    </serve>
+    <delete multiple="true" audit="HISAweProPer">
+      <table id="AweProPer"/>
+      <field id="IdePro" variable="IdePro" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdePro" condition="eq" right-variable="IdePro"/>
+        </and>
+      </where>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+    </delete>
     <delete multiple="true" audit="HISAweModPro">
       <table id="AweModPro"/>
+      <field id="IdePro" variable="IdePro" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdePro" condition="eq" right-variable="IdePro"/>
+        </and>
+      </where>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+    </delete>
+    <delete multiple="true" audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
       <field id="IdePro" variable="IdePro" audit="true"/>
       <where>
         <and>
@@ -682,8 +838,50 @@
     </delete>
   </target>
 
+  <!-- Copy of a profile (profiles screen): a new profile with the data entered whose permissions are the effective
+       permissions of the selected profile (IdePro), stored as its assignments -->
+  <target name="ProDup" permission="profiles.create">
+    <serve service="duplicate-profile">
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="Acr" type="STRING" name="Acr"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="IdeThm" type="INTEGER" name="IdeThm"/>
+      <variable id="ScrIni" type="STRING" name="ScrIni"/>
+      <variable id="Res" type="STRING" name="Res"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </serve>
+  </target>
+
+  <!-- Replace the permissions of a profile (AweProPer) with the permissions of Per: launched by the server when the
+       profiles screen changes them (with the permission of this target) and when a profile is duplicated. IdePro is a
+       value or a one element list -->
+  <target name="ProPerUpd" server-only="true" permission="permissions.update">
+    <delete audit="HISAweProPer">
+      <table id="AweProPer"/>
+      <field id="IdePro" variable="IdePro" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdePro" condition="eq" right-variable="IdePro"/>
+        </and>
+      </where>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+    </delete>
+    <!-- One row per selected permission. The profile comes from a query, as IdePro may be a one element list, which
+         would drive the rows of the multiple insert -->
+    <insert multiple="true" audit="HISAweProPer">
+      <table id="AweProPer"/>
+      <field id="IdeAweProPer" sequence="ProPerKey"/>
+      <field id="IdePro" query="ProIdePro"/>
+      <field id="Per" variable="Per"/>
+      <variable id="Per" type="STRING" name="Per"/>
+      <!-- Always an empty list: a multiple maintain needs a list, so without Per no row is inserted instead of
+           failing -->
+      <variable id="NoPer" type="STRING_TO_LIST" value=""/>
+    </insert>
+  </target>
+
   <!-- Screen Access Multiple -->
-  <target name="updateScreenRestriction">
+  <target name="updateScreenRestriction" permission="access.update">
     <multiple audit="HISAweScrRes" grid="GrdScrAccLst">
       <table id="AweScrRes"/>
       <field id="IdeAweScrRes" variable="IdeAweScrRes" sequence="ScrResKey" key="true"/>
@@ -703,7 +901,7 @@
     </multiple>
   </target>
 
-  <target name="updateScreenRestrictionNew">
+  <target name="updateScreenRestrictionNew" permission="access.update">
     <multiple audit="HISAweScrRes" grid="restriction-list">
       <table id="AweScrRes"/>
       <field id="IdeAweScrRes" variable="IdeAweScrRes" sequence="ScrResKey" key="true"/>
@@ -721,13 +919,13 @@
     </multiple>
   </target>
 
-  <target name="updateMenuRestrictionTree">
+  <target name="updateMenuRestrictionTree" permission="access.update">
     <serve service="updateMenuRestrictionTree">
       <variable id="option" type="STRING" name="option-name.selected"/>
     </serve>
   </target>
 
-  <target name="allowMenuOption">
+  <target name="allowMenuOption" permission="access.update">
     <serve service="allowMenuOption">
       <variable id="user" type="INTEGER" name="selected-user"/>
       <variable id="profile" type="INTEGER" name="selected-profile"/>
@@ -735,7 +933,7 @@
     </serve>
   </target>
 
-  <target name="restrictMenuOption">
+  <target name="restrictMenuOption" permission="access.update">
     <serve service="restrictMenuOption">
       <variable id="user" type="INTEGER" name="selected-user"/>
       <variable id="profile" type="INTEGER" name="selected-profile"/>
@@ -743,7 +941,7 @@
     </serve>
   </target>
 
-  <target name="removeRestriction">
+  <target name="removeRestriction" permission="access.update">
     <serve service="removeRestriction">
       <variable id="user" type="INTEGER" name="selected-user"/>
       <variable id="profile" type="INTEGER" name="selected-profile"/>
@@ -753,7 +951,7 @@
 
   <!-- Access window (access-admin): allow, deny or remove the own rule of the subject on one or more options. The service
        stores them with new-restriction, update-restriction and delete-restriction (audit HISAweScrRes) -->
-  <target name="access-allow">
+  <target name="access-allow" permission="access.update">
     <serve service="access-allow">
       <variable id="subjectType" type="STRING" name="subject-type"/>
       <variable id="user" type="INTEGER" name="IdeOpe"/>
@@ -762,7 +960,7 @@
     </serve>
   </target>
 
-  <target name="access-deny">
+  <target name="access-deny" permission="access.update">
     <serve service="access-deny">
       <variable id="subjectType" type="STRING" name="subject-type"/>
       <variable id="user" type="INTEGER" name="IdeOpe"/>
@@ -771,7 +969,7 @@
     </serve>
   </target>
 
-  <target name="access-remove">
+  <target name="access-remove" permission="access.update">
     <serve service="access-remove">
       <variable id="subjectType" type="STRING" name="subject-type"/>
       <variable id="user" type="INTEGER" name="IdeOpe"/>
@@ -782,7 +980,7 @@
 
   <!-- Access window: remove one rule of an option, of any subject (the side panel of an option lists them all). The service
        removes only its row with delete-restriction-by-id (audit HISAweScrRes) -->
-  <target name="access-remove-rule">
+  <target name="access-remove-rule" permission="access.update">
     <serve service="access-remove-rule">
       <variable id="rule" type="INTEGER" name="access-rule"/>
     </serve>
@@ -790,7 +988,7 @@
 
   <!-- Access window: switch one rule of an option, of any subject, from allow to deny or from deny to allow. The service
        stores only its row with update-restriction-by-id (audit HISAweScrRes) -->
-  <target name="access-switch-rule">
+  <target name="access-switch-rule" permission="access.update">
     <serve service="access-switch-rule">
       <variable id="rule" type="INTEGER" name="access-rule"/>
     </serve>
@@ -800,19 +998,19 @@
        the side panel of an option), allow the denied parent of a finding to the subject of its rule, and remove every
        rule without effect. The services store them with new-restriction, update-restriction and delete-restriction (audit
        HISAweScrRes); no user variable is read from the request -->
-  <target name="access-review-remove">
+  <target name="access-review-remove" permission="access.update">
     <serve service="access-remove-rule">
       <variable id="rule" type="INTEGER" name="review-rule"/>
     </serve>
   </target>
 
-  <target name="access-review-allow-parent">
+  <target name="access-review-allow-parent" permission="access.update">
     <serve service="access-review-allow-parent">
       <variable id="rule" type="INTEGER" name="review-rule"/>
     </serve>
   </target>
 
-  <target name="access-review-clean">
+  <target name="access-review-clean" permission="access.update">
     <serve service="access-review-clean"/>
   </target>
 
@@ -943,7 +1141,7 @@
   </target>
 
   <!-- Screen configuration Multiple -->
-  <target name="updateScreenConfiguration">
+  <target name="updateScreenConfiguration" permission="access.update">
     <multiple grid="GrdScrCnf">
       <table id="AweScrCnf"/>
       <field id="IdeAweScrCnf" variable="IdeAweScrCnf" sequence="ScrCnfKey" key="true"/>
@@ -967,7 +1165,7 @@
 
   <!-- AweKey Update Multiple: the editable grid of the deprecated AweKey screen. It is named AweKeyMul (as
        AweAppParMul) since the sequences screen (sequence-admin) took AweKeyUpd for the update of one sequence -->
-  <target name="AweKeyMul">
+  <target name="AweKeyMul" permission="system.update">
     <multiple grid="GrdKeyLst">
       <table id="AweKey"/>
       <field id="KeyNam" variable="KeyNam" key="true"/>
@@ -981,7 +1179,7 @@
 
   <!-- Sequences screen (sequence-admin): one sequence per action. The name of a sequence is its primary key and the screen
        keeps it read-only when editing, so only the update of the value and the state needs the name of the selected row -->
-  <target name="AweKeyNew">
+  <target name="AweKeyNew" permission="system.update">
     <insert>
       <table id="AweKey"/>
       <field id="KeyNam" variable="KeyNam"/>
@@ -995,7 +1193,7 @@
     </insert>
   </target>
 
-  <target name="AweKeyUpd">
+  <target name="AweKeyUpd" permission="system.update">
     <update>
       <table id="AweKey"/>
       <field id="KeyVal" variable="KeyVal"/>
@@ -1012,7 +1210,7 @@
     </update>
   </target>
 
-  <target name="AweKeyDel">
+  <target name="AweKeyDel" permission="system.update">
     <!-- The grid sends the name of every selected sequence (a list) -->
     <delete multiple="true">
       <table id="AweKey"/>
@@ -1026,7 +1224,7 @@
   </target>
 
   <!-- AweAppPar Application parameters -->
-  <target name="AweAppParMul">
+  <target name="AweAppParMul" permission="system.update">
     <multiple grid="GrdAppParLst" audit="HISAweAppPar">
       <table id="AweAppPar"/>
       <field id="IdeAweAppPar" variable="IdeAweAppPar" sequence="AppParKey" key="true"/>
@@ -1047,7 +1245,7 @@
   <!-- Application parameters screen (application-parameter-admin): one parameter per action. The name of a parameter is the
        key the application reads and the screen keeps it read-only when editing, so the update of the selected row writes it
        again together with its value, its category, its description and its state -->
-  <target name="AweAppParNew">
+  <target name="AweAppParNew" permission="system.update">
     <insert audit="HISAweAppPar">
       <table id="AweAppPar"/>
       <field id="IdeAweAppPar" variable="IdeAweAppPar" sequence="AppParKey"/>
@@ -1068,7 +1266,7 @@
     </insert>
   </target>
 
-  <target name="AweAppParUpd">
+  <target name="AweAppParUpd" permission="system.update">
     <update audit="HISAweAppPar">
       <table id="AweAppPar"/>
       <field id="ParNam" variable="ParNam"/>
@@ -1091,7 +1289,7 @@
     </update>
   </target>
 
-  <target name="AweAppParDel">
+  <target name="AweAppParDel" permission="system.update">
     <!-- The grid sends the identifier of every selected parameter (a list) -->
     <delete multiple="true" audit="HISAweAppPar">
       <table id="AweAppPar"/>
@@ -1164,7 +1362,7 @@
   </target>
 
   <!-- Themes -->
-  <target name="ThmNew">
+  <target name="ThmNew" permission="themes.create">
     <!-- Pri and Srf: the palette of each select or the hex of its picker when it is custom (an invalid one is rejected).
          The service returns one row, read with LIST_TO_STRING -->
     <retrieve-data service="composeThemeColors">
@@ -1190,7 +1388,7 @@
     </insert>
   </target>
 
-  <target name="ThmUpd">
+  <target name="ThmUpd" permission="themes.update">
     <!-- Pri and Srf: the palette of each select or the hex of its picker when it is custom (an invalid one is rejected).
          The service returns one row, read with LIST_TO_STRING -->
     <retrieve-data service="composeThemeColors">
@@ -1223,7 +1421,7 @@
     </update>
   </target>
 
-  <target name="ThmDel">
+  <target name="ThmDel" permission="themes.delete">
     <delete multiple="true" audit="HISAweThm">
       <table id="AweThm"/>
       <field id="IdeThm" variable="IdeThm" audit="true"/>
@@ -1247,7 +1445,7 @@
   </target>
 
   <!-- Data base connections -->
-  <target name="DbsNew">
+  <target name="DbsNew" permission="system.update">
     <insert audit="HISAweDbs">
       <table id="AweDbs"/>
       <field id="IdeDbs" sequence="DbsKey" variable="IdeDbs"/>
@@ -1290,7 +1488,7 @@
     <serve service="ReloadDatabaseConnections"/>
   </target>
 
-  <target name="DbsUpd">
+  <target name="DbsUpd" permission="system.update">
     <update audit="HISAweDbs">
       <table id="AweDbs"/>
       <field id="IdeDbs" variable="IdeDbs" audit="true"/>
@@ -1359,7 +1557,7 @@
     <serve service="ReloadDatabaseConnections"/>
   </target>
 
-  <target name="DbsDel">
+  <target name="DbsDel" permission="system.update">
     <delete multiple="true" audit="HISAweSitModDbs">
       <table id="AweSitModDbs"/>
       <field id="IdeDbs" variable="IdeDbs" audit="true"/>
@@ -1483,11 +1681,11 @@
     <send-email id="SndRep"/>
   </target>
 
-  <target name="EmlActUsr">
+  <target name="EmlActUsr" permission="system.update">
     <send-email id="EmlActUsr"/>
   </target>
 
-  <target name="MsgUsr">
+  <target name="MsgUsr" permission="system.update">
     <serve service="sendMessageToUser">
       <variable id="target" type="STRINGN" name="MsgTar"/>
       <variable id="message" type="STRING" name="MsgDes"/>
@@ -1504,7 +1702,7 @@
   -->
 
   <!-- STORE SESSION VARIABLE 'module' -->
-  <target name="SesVarMod">
+  <target name="SesVarMod" permission="self.update">
     <serve service="storeSessionString">
       <variable id="name" type="STRING" value="module"/>
       <variable id="value" type="STRING" name="module"/>
@@ -1512,7 +1710,7 @@
   </target>
 
   <!-- STORE SESSION VARIABLE 'site' -->
-  <target name="SesVarSit">
+  <target name="SesVarSit" permission="self.update">
     <serve service="storeSessionString">
       <variable id="name" type="STRING" value="site"/>
       <variable id="value" type="STRING" name="site"/>
@@ -1520,7 +1718,7 @@
   </target>
 
   <!-- STORE SESSION VARIABLE 'database' -->
-  <target name="SesVarDbs">
+  <target name="SesVarDbs" permission="self.update">
     <serve service="storeSessionString">
       <variable id="name" type="STRING" value="database"/>
       <variable id="value" type="STRING" name="_database_"/>
@@ -1531,14 +1729,14 @@
   </target>
 
   <!-- STORE SESSION VARIABLE 'language' -->
-  <target name="SesVarLan">
+  <target name="SesVarLan" permission="self.update">
     <serve service="changeLanguage">
       <variable id="language" type="STRING" name="language"/>
     </serve>
   </target>
 
   <!-- STORE SESSION VARIABLE 'theme' -->
-  <target name="SesVarThm">
+  <target name="SesVarThm" permission="self.update">
     <serve service="storeSessionString">
       <variable id="name" type="STRING" value="theme"/>
       <variable id="value" type="STRING" name="theme"/>
@@ -1546,7 +1744,7 @@
   </target>
 
   <!-- Style configuration Multiple -->
-  <target name="StlCnfMul">
+  <target name="StlCnfMul" permission="system.update">
     <multiple grid="GrdStlCnf">
       <table id="AweStlCnf"/>
       <field id="IdeAweStlCnf" variable="IdeAweStlCnf" sequence="StlCnfKey" key="true"/>
@@ -1602,7 +1800,7 @@
   </target>
 
   <!-- Unlock the selected users (users screen): clears the lock flag and the failed logins -->
-  <target name="UsrUnl">
+  <target name="UsrUnl" permission="users.unlock">
     <!-- Security audit: launched before the update, it publishes ACCOUNT_UNLOCKED for every locked user -->
     <serve service="audit-user-update">
       <variable id="userId" type="INTEGER" name="IdeOpe"/>
@@ -1625,7 +1823,7 @@
   </target>
 
   <!-- EMAIL SERVER -->
-  <target name="EmlSrvNew">
+  <target name="EmlSrvNew" permission="system.update">
     <insert audit="HISAweEmlSrv">
       <table id="AweEmlSrv"/>
       <field id="IdeAweEmlSrv" sequence="EmlSrvKey" variable="IdeAweEmlSrv"/>
@@ -1648,7 +1846,7 @@
     <serve service="reloadMailServers"/>
   </target>
 
-  <target name="EmlSrvDel">
+  <target name="EmlSrvDel" permission="system.update">
     <delete audit="HISAweEmlSrv" multiple="true">
       <table id="AweEmlSrv"/>
       <field id="IdeAweEmlSrv" variable="IdeAweEmlSrv" audit="true"/>
@@ -1675,7 +1873,7 @@
     <serve service="reloadMailServers"/>
   </target>
 
-  <target name="EmlSrvUpd">
+  <target name="EmlSrvUpd" permission="system.update">
     <update audit="HISAweEmlSrv">
       <table id="AweEmlSrv"/>
       <field id="SrvNam" variable="SrvNam"/>
@@ -1718,7 +1916,7 @@
   </target>
 
   <!-- QUEUE MESSAGES MAINTAINS -->
-  <target name="QueNew">
+  <target name="QueNew" permission="system.update">
     <insert audit="HISAweQue">
       <table id="AweQue"/>
       <field id="IdeAweQue" sequence="JmsKey" variable="IdeAweQue"/>
@@ -1745,7 +1943,7 @@
     </insert>
   </target>
 
-  <target name="QueUpd">
+  <target name="QueUpd" permission="system.update">
     <update audit="HISAweQue">
       <table id="AweQue"/>
       <field id="Als" variable="Als"/>
@@ -1793,7 +1991,7 @@
     </update>
   </target>
 
-  <target name="QueDel">
+  <target name="QueDel" permission="system.update">
     <delete audit="HISAweQue" multiple="true">
       <table id="AweQue"/>
       <field id="IdeAweQue" variable="IdeAweQue" audit="true"/>
@@ -1858,7 +2056,7 @@
   </target>
 
   <!-- Reload properties of application -->
-  <target name="refreshDatabaseProperties">
+  <target name="refreshDatabaseProperties" permission="system.update">
     <serve service="refreshDatabaseProperties"/>
   </target>
 
@@ -1872,7 +2070,7 @@
     </serve>
   </target>
 
-  <target name="generate2faSecret">
+  <target name="generate2faSecret" permission="self.update">
     <serve service="generate-2fa-secret"/>
   </target>
 
@@ -1892,7 +2090,7 @@
     </update>
   </target>
 
-  <target name="update2faStatus">
+  <target name="update2faStatus" permission="self.update">
     <update>
       <table id="ope"/>
       <field id="enable2fa" variable="enable"/>
@@ -1909,7 +2107,7 @@
     </serve>
   </target>
 
-  <target name="reset2fa">
+  <target name="reset2fa" permission="users.reset-2fa">
     <update multiple="true">
       <table id="ope"/>
       <field id="enable2fa" variable="disable"/>
@@ -1933,14 +2131,14 @@
   Favourites
   -->
 
-  <target name="clickFavourite">
+  <target name="clickFavourite" permission="self.update">
     <serve service="clickFavourite">
       <variable id="user" type="STRING" session="user"/>
       <variable id="option" type="STRING" name="currentOption"/>
     </serve>
   </target>
 
-  <target name="checkFavourites">
+  <target name="checkFavourites" permission="self.read">
     <serve service="checkFavourites">
       <variable id="user" type="STRING" session="user"/>
       <variable id="option" type="STRING" name="currentOption"/>
@@ -2056,7 +2254,7 @@
 
   <!-- The request parameter names are specific on purpose: the clients add the values of the screen criteria,
        and a criterion called "screen" or "layout" would replace them -->
-  <target name="saveGridLayout">
+  <target name="saveGridLayout" permission="self.update">
     <serve service="saveGridLayout">
       <variable id="screen" type="STRING" name="gridLayoutScreen"/>
       <variable id="gridId" type="STRING" name="gridLayoutGrid"/>
@@ -2064,7 +2262,7 @@
     </serve>
   </target>
 
-  <target name="resetGridLayout">
+  <target name="resetGridLayout" permission="self.update">
     <serve service="resetGridLayout">
       <variable id="screen" type="STRING" name="gridLayoutScreen"/>
       <variable id="gridId" type="STRING" name="gridLayoutGrid"/>
@@ -2108,7 +2306,7 @@
 
   <!-- The request parameter names are specific on purpose: the clients add the values of the screen criteria,
        and a criterion called "screen" or "windowId" would replace them -->
-  <target name="saveWindowAdvancedState">
+  <target name="saveWindowAdvancedState" permission="self.update">
     <serve service="saveWindowAdvancedState">
       <variable id="screen" type="STRING" name="advancedStateScreen"/>
       <variable id="windowId" type="STRING" name="advancedStateWindow"/>
@@ -2124,7 +2322,7 @@
   -->
 
   <!-- The request parameter names are specific on purpose: the clients add the values of the screen criteria -->
-  <target name="saveWindowSearch">
+  <target name="saveWindowSearch" permission="self.update">
     <serve service="saveWindowSearch">
       <variable id="screen" type="STRING" name="savedSearchScreen"/>
       <variable id="windowId" type="STRING" name="savedSearchWindow"/>
@@ -2134,14 +2332,14 @@
     </serve>
   </target>
 
-  <target name="renameWindowSearch">
+  <target name="renameWindowSearch" permission="self.update">
     <serve service="renameWindowSearch">
       <variable id="id" type="STRING" name="savedSearchId"/>
       <variable id="name" type="STRING" name="savedSearchName"/>
     </serve>
   </target>
 
-  <target name="deleteWindowSearch">
+  <target name="deleteWindowSearch" permission="self.update">
     <serve service="deleteWindowSearch">
       <variable id="id" type="STRING" name="savedSearchId"/>
     </serve>
@@ -2264,7 +2462,7 @@
     </delete>
   </target>
 
-  <target name="saveUserAvatar">
+  <target name="saveUserAvatar" permission="self.update">
     <serve service="saveUserAvatar">
       <variable id="avatarToken" type="STRING" name="CrtAvatar"/>
     </serve>
@@ -2274,28 +2472,28 @@
   Theme management
   -->
 
-  <target name="selectDarkMode">
+  <target name="selectDarkMode" permission="self.update">
     <serve service="changeUserMode">
       <variable id="user" type="STRING" session="user"/>
       <variable id="mode" type="STRING" value="dark"/>
     </serve>
   </target>
 
-  <target name="selectLightMode">
+  <target name="selectLightMode" permission="self.update">
     <serve service="changeUserMode">
       <variable id="user" type="STRING" session="user"/>
       <variable id="mode" type="STRING" value="light"/>
     </serve>
   </target>
 
-  <target name="selectComfortableDensity">
+  <target name="selectComfortableDensity" permission="self.update">
     <serve service="changeUserDensity">
       <variable id="user" type="STRING" session="user"/>
       <variable id="density" type="STRING" value="comfortable"/>
     </serve>
   </target>
 
-  <target name="selectCompactDensity">
+  <target name="selectCompactDensity" permission="self.update">
     <serve service="changeUserDensity">
       <variable id="user" type="STRING" session="user"/>
       <variable id="density" type="STRING" value="compact"/>

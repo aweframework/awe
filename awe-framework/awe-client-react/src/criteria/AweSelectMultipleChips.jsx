@@ -10,7 +10,7 @@ import "./AweSelectMultiple.less";
 /**
  * Value of a select-multiple as the chips that fit in its field, and a "+K" counter that opens the list of all of them (#922)
  * @param {object[]} values Chosen values, in option order ({code, name})
- * @param {function} onRemove Called with the code of the value to remove
+ * @param {function} onRemove Called with the code of the value to remove; without it the values cannot be removed
  */
 function AweSelectMultipleChips({values, onRemove}) {
   const {t} = useTranslation();
@@ -77,10 +77,11 @@ function AweSelectMultipleChips({values, onRemove}) {
           {values.map(value =>
             <li key={value.code}>
               <span title={value.name}>{value.name}</span>
-              <button type="button" aria-label={t("SCREEN_TEXT_REMOVE_VALUE", {label: value.name})}
-                      onClick={() => onRemove(value.code)} {...testHook(TestIds.selectChoiceClose)}>
-                {getIconNode("pi-times", {tag: "span", "aria-hidden": "true"})}
-              </button>
+              {onRemove &&
+                <button type="button" aria-label={t("SCREEN_TEXT_REMOVE_VALUE", {label: value.name})}
+                        onClick={() => onRemove(value.code)} {...testHook(TestIds.selectChoiceClose)}>
+                  {getIconNode("pi-times", {tag: "span", "aria-hidden": "true"})}
+                </button>}
             </li>)}
         </ul>
       </div>

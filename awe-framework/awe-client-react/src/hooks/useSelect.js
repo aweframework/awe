@@ -5,6 +5,28 @@ import { useComponentState } from "./useComponentState";
 import { updateModelWithDependencies } from "../redux/thunks/components";
 import { translateLabel } from "../utilities";
 import useComponent from "./useComponent";
+import { groupSuggestions } from "../utilities/suggest";
+
+// Separator between the group and the rest of a label ("Users · Read")
+const GROUP_SEPARATOR = " · ";
+
+/**
+ * Text of an option in its list: a label that starts with the label of its group and the separator is listed without
+ * them, as the header of the group names it (the chosen value keeps the whole label)
+ * @param {string} name Translated label of the option
+ * @param {string} groupLabel Translated label of its group
+ * @returns {string} Text of the option in the list
+ */
+const getItemText = (name, groupLabel) => groupLabel && name.startsWith(groupLabel + GROUP_SEPARATOR)
+  ? name.substring(groupLabel.length + GROUP_SEPARATOR.length)
+  : name;
+
+/**
+ * Template of an option in the list of a select
+ * @param {object} option Option
+ * @returns {string} Text of the option
+ */
+export const selectItemTemplate = (option) => option.itemText ?? option.name;
 
 /**
  * Hook común para selects (simple y múltiple)
@@ -37,14 +59,28 @@ export function useSelect({ id, model: propModel, address: propAddress, attribut
   const validationRules = reduxData.validationRules || {};
 
   // --- Traducir opciones ---
-  const options = useMemo(
-    () => (model?.values || []).map(v => ({
-      ...(!multiple ? { ...v, label: translateLabel(v.label, t) } : {}),
-      name: translateLabel(v.label, t),
-      code: v.value
-    })),
-    [model?.values, t]
-  );
+  // The values with a group (a locale key) are listed under its header, as in the AngularJS select: PrimeReact
+  // reads the groups from "label" and "items". The option keeps no "group", which PrimeReact would take for a header
+  const { options, grouped } = useMemo(() => {
+    const toOption = ({ group, ...v }, groupLabel) => {
+      const name = translateLabel(v.label, t);
+      return {
+        ...(!multiple ? { ...v, label: name } : {}),
+        name,
+        itemText: getItemText(name, groupLabel),
+        code: v.value
+      };
+    };
+    const values = model?.values || [];
+    const groups = groupSuggestions(values, key => translateLabel(key, t));
+    return groups
+      ? {
+        options: groups.map(({ label, items }) => ({ label, items: items.map(item => toOption(item, label)) })),
+        grouped: true
+      }
+      : { options: values.map(item => toOption(item)), grouped: false };
+  }, [model?.values, multiple, t]);
+  const groupProps = grouped ? { optionGroupLabel: "label", optionGroupChildren: "items" } : {};
 
   // --- Valor seleccionado ---
   const getSelectedValue = (values, multiple, t) => {
@@ -79,6 +115,10 @@ export function useSelect({ id, model: propModel, address: propAddress, attribut
     }
   }, [address, model, multiple]);
 
+  // --- Quitar un valor (chip de un select múltiple) ---
+  const removeValue = useCallback((code) => onChange({ value: selected.filter(v => v.code !== code) }),
+    [selected, onChange]);
+
   return {
     t,
     ref: dropdownRef,
@@ -87,7 +127,10 @@ export function useSelect({ id, model: propModel, address: propAddress, attribut
     attributes,
     validationRules,
     options,
+    groupProps,
+    grouped,
     selected,
-    onChange
+    onChange,
+    removeValue
   };
 }

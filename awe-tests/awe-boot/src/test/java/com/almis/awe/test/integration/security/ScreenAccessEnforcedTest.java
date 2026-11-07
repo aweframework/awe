@@ -5,21 +5,20 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.TestPropertySource;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 /**
  * A client can only launch a maintain target or a query when the session user can open a menu option whose screen
  * uses it (issue #914). The operator restriction hides the tools options, so the targets of the administration
- * screens are refused, while the administrator restriction allows them.
+ * screens are refused, while the administrator restriction allows them. The REST API is not checked by the screens
+ * ({@link RestApiAuthorizationTest}).
  */
 @Tag("integration")
 @DisplayName("Screen access enforced tests")
-@WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+@WithUserDetails(value = "test", userDetailsServiceBeanName = "aweUserDetailsService")
 @TestPropertySource(properties = {"awe.security.authorization.mode=enforce", "awe.security.default-restriction=operator"})
 class ScreenAccessEnforcedTest extends ScreenAccessSupport {
 
@@ -27,7 +26,7 @@ class ScreenAccessEnforcedTest extends ScreenAccessSupport {
   @ValueSource(strings = {"UsrUnl", "reset2fa", "ProUpd", "DbsUpd", "AweKeyUpd"})
   @DisplayName("An operator cannot launch the maintain of an administration screen through /action/maintain")
   void operatorActionMaintainIsRefused(String target) throws Exception {
-    assertThat(actionMaintain(target, "operator")).contains(REFUSED);
+    assertRefused(actionMaintain(target, "operator"), target);
   }
 
   @ParameterizedTest(name = "{0} through /action/maintain")
@@ -37,43 +36,16 @@ class ScreenAccessEnforcedTest extends ScreenAccessSupport {
     assertThat(actionMaintain(target, "administrator")).doesNotContain(REFUSED);
   }
 
-  @ParameterizedTest(name = "{0} through /api/maintain")
-  @ValueSource(strings = {"UsrUnl", "reset2fa", "ProUpd", "DbsUpd", "AweKeyUpd"})
-  @DisplayName("A user restricted by default cannot launch the maintain of an administration screen through /api")
-  void apiMaintainIsRefused(String target) throws Exception {
-    String response = mockMvc.perform(post("/api/maintain/" + target)
-        .header("Authorization", "Bearer " + token())
-        .contentType(MediaType.APPLICATION_JSON)
-        .content("{\"parameters\":{}}")
-        .accept(MediaType.APPLICATION_JSON))
-      .andReturn().getResponse().getContentAsString();
-
-    assertThat(response).contains(REFUSED);
-  }
-
   @Test
   @DisplayName("An operator cannot launch the quick-filter query of an administration screen through /action/data")
   void operatorActionQueryIsRefused() throws Exception {
-    assertThat(actionData("UsrStaCnt", "operator")).contains(REFUSED);
+    assertRefused(actionData("UsrStaCnt", "operator"), "UsrStaCnt");
   }
 
   @Test
   @DisplayName("An administrator can launch the quick-filter query of an administration screen")
   void administratorActionQueryIsAllowed() throws Exception {
     assertThat(actionData("UsrStaCnt", "administrator")).doesNotContain(REFUSED);
-  }
-
-  @Test
-  @DisplayName("A user restricted by default cannot launch the quick-filter query of an administration screen through /api")
-  void apiQueryIsRefused() throws Exception {
-    String response = mockMvc.perform(post("/api/data/UsrStaCnt")
-        .header("Authorization", "Bearer " + token())
-        .contentType(MediaType.APPLICATION_JSON)
-        .content("{\"parameters\":{}}")
-        .accept(MediaType.APPLICATION_JSON))
-      .andReturn().getResponse().getContentAsString();
-
-    assertThat(response).contains(REFUSED);
   }
 
   @Test

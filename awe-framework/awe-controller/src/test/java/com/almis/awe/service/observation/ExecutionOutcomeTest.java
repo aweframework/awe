@@ -136,13 +136,19 @@ class ExecutionOutcomeTest {
     assertThat(observer.answerTypes).containsExactly(AnswerType.ERROR);
   }
 
+  private static ApplicationContext contextWithElements() {
+    ApplicationContext context = mock(ApplicationContext.class);
+    when(context.getBean(AweElements.class)).thenReturn(mock(AweElements.class));
+    return context;
+  }
+
   @Test
   @DisplayName("An action tells the answer type its service ended with, though it returns client actions")
   void actionAnswerType() throws AWException {
     LauncherService launcherService = mock(LauncherService.class);
     when(launcherService.callService(any(), any())).thenReturn(new ServiceData().setType(AnswerType.ERROR));
-    ActionService service = new ActionService(launcherService, new BaseConfigProperties());
-    service.setApplicationContext(mock(ApplicationContext.class));
+    ActionService service = new ActionService(launcherService, new BaseConfigProperties(), (targetId, kind) -> true);
+    service.setApplicationContext(contextWithElements());
     AnswerTypeObserver observer = new AnswerTypeObserver();
     service.setExecutionObserver(observer);
 
@@ -156,8 +162,8 @@ class ExecutionOutcomeTest {
   void actionWithoutServiceData() throws AWException {
     LauncherService launcherService = mock(LauncherService.class);
     when(launcherService.callService(any(), any())).thenReturn(null);
-    ActionService service = new ActionService(launcherService, new BaseConfigProperties());
-    service.setApplicationContext(mock(ApplicationContext.class));
+    ActionService service = new ActionService(launcherService, new BaseConfigProperties(), (targetId, kind) -> true);
+    service.setApplicationContext(contextWithElements());
     AnswerTypeObserver observer = new AnswerTypeObserver();
     service.setExecutionObserver(observer);
 

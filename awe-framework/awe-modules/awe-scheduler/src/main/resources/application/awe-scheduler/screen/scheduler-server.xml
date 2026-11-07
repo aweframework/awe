@@ -78,7 +78,7 @@
         <dependency-element id="GrdSrvLst" column="Act" attribute="selectedRowValue" condition="eq" value="1" />
       </dependency>
     </button>
-    <button label="BUTTON_NEW" icon="plus-circle" id="ButNew" help="HELP_NEW_BUTTON">
+    <button label="BUTTON_NEW" icon="plus-circle" id="ButNew" help="HELP_NEW_BUTTON" permission="scheduler.update">
       <button-action type="screen" target="new-scheduler-server" />
       <dependency source-type="label" target-type="label" label="BUTTON_NEW" initial="true">
         <dependency-element id="GrdSrvLst" condition="eq" value="0" />

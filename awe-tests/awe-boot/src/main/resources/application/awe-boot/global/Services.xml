@@ -584,4 +584,9 @@
     <java classname="com.almis.awe.service.DummyService" method="mapRoute"/>
   </service>
 
+  <!-- Service that requires a permission when an action launches it -->
+  <service id="TstUsrRea" permission="users.read">
+    <java classname="com.almis.awe.service.DummyService" method="returnMaintainOkNoParams"/>
+  </service>
+
 </services>

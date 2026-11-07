@@ -27,6 +27,7 @@
   <locale name="NO_NOTIFICATIONS" value="Pas de notifications"/>
   <locale name="PARAMETER_SUBSCRIPTION" value="Abonnement"/>
   <locale name="PARAMETER_UNREAD" value="Non lus"/>
+  <locale name="PERMISSION_RESOURCE_SUBSCRIPTIONS" value="Abonnements aux notifications"/>
   <locale name="SCREEN_HELP_NEW_SUBSCRIPTION" value="Ici, vous pouvez ajouter un nouvel abonnement"/>
   <locale name="SCREEN_HELP_NOTIFICATIONS" value="L&apos;écran du liste des notifications. Vous permet de consulter toutes les notifications et les marquer comme lu/non lu."/>
   <locale name="SCREEN_HELP_SUBSCRIPTIONS" value="Cette fenêtre gère la définition de souscription des sujets pour les notifications"/>

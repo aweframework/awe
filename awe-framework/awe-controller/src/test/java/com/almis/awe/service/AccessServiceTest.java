@@ -30,6 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -49,6 +50,7 @@ import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
@@ -60,6 +62,7 @@ import java.util.UUID;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 import static com.almis.awe.service.AccessService.PROVISIONING_NEW_USER;
+import static com.almis.awe.service.AccessService.UPDATE_OAUTH_ADDITIONAL_PROFILES;
 import static com.almis.awe.service.AccessService.UPDATE_OAUTH_ROLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -972,5 +975,152 @@ class AccessServiceTest {
     } finally {
       RequestContextHolder.resetRequestAttributes();
     }
+  }
+
+  /**
+   * Single sign-on with several provider roles: the stubs of an existing user whose roles map to the main profile
+   * "auditor" and to two more profiles (ids 2 and 3)
+   */
+  private OAuth2AuthenticationToken stubExistingUserWithSeveralRoles(AweUserDetails dbUserDetails) throws AWException {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
+    OAuth2AuthenticationToken token = getTokenWithRole("auditor");
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername("foo@acme.com")).thenReturn(dbUserDetails);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("auditor"));
+    when(aweUserDetailService.existRole("auditor")).thenReturn(true);
+    lenient().when(aweUserDetailService.supportsAdditionalProfiles()).thenReturn(true);
+    lenient().when(aweUserDetailService.mapAdditionalProfileIds(token.getAuthorities(), "auditor"))
+      .thenReturn(List.of(2, 3));
+    when(menuService.getMenu()).thenReturn(menu);
+    return token;
+  }
+
+  @Test
+  void ssoLogin_storesTheOtherMappedProfilesAsAdditionalProfilesOfTheUser() throws AWException {
+    AweUserDetails dbUserDetails = new AweUserDetails().setUsername("foo@acme.com").setProfileName("auditor");
+    OAuth2AuthenticationToken token = stubExistingUserWithSeveralRoles(dbUserDetails);
+
+    accessService.onAuthenticationSuccess(token);
+
+    // The user is a session parameter, set only while the target runs; the profiles are the ids besides the main one
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    InOrder order = inOrder(aweSession, maintainService, aweUserDetailService, aweSessionDetails);
+    order.verify(aweSession).setParameter(AccessService.SSO_PROFILES_USER_SESSION_PARAMETER, "foo@acme.com");
+    order.verify(maintainService).launchPrivateMaintain(eq(UPDATE_OAUTH_ADDITIONAL_PROFILES), parameters.capture());
+    order.verify(aweSession).removeParameter(AccessService.SSO_PROFILES_USER_SESSION_PARAMETER);
+    order.verify(aweUserDetailService).refreshAdditionalProfiles(dbUserDetails);
+    order.verify(aweSessionDetails).onLoginSuccess(dbUserDetails);
+    assertThat(parameters.getValue().get("profiles").valueStream().map(JsonNode::asInt).toList()).containsExactly(2, 3);
+    assertThat(parameters.getValue().has(USERNAME)).isFalse();
+    verify(maintainService, never()).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), any(ObjectNode.class));
+  }
+
+  @Test
+  void ssoLogin_withoutOtherMappedProfiles_removesTheAdditionalProfilesOfTheUser() throws AWException {
+    AweUserDetails dbUserDetails = new AweUserDetails().setUsername("foo@acme.com").setProfileName("operator");
+    OAuth2AuthenticationToken token = stubExistingUserWithSeveralRoles(dbUserDetails);
+    when(aweUserDetailService.mapAdditionalProfileIds(token.getAuthorities(), "auditor")).thenReturn(List.of());
+
+    accessService.onAuthenticationSuccess(token);
+
+    // The provider is the source of truth: the main profile changes as today and the stored rows are replaced by none
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), any(ObjectNode.class));
+    verify(maintainService).launchPrivateMaintain(eq(UPDATE_OAUTH_ADDITIONAL_PROFILES), parameters.capture());
+    assertThat(parameters.getValue().get("profiles").isArray()).isTrue();
+    assertThat(parameters.getValue().get("profiles").isEmpty()).isTrue();
+  }
+
+  @Test
+  void ssoLogin_withAUserDAOWithoutAdditionalProfiles_leavesTheAdditionalProfilesUntouched() throws AWException {
+    AweUserDetails dbUserDetails = new AweUserDetails().setUsername("foo@acme.com").setProfileName("auditor");
+    OAuth2AuthenticationToken token = stubExistingUserWithSeveralRoles(dbUserDetails);
+    when(aweUserDetailService.supportsAdditionalProfiles()).thenReturn(false);
+
+    accessService.onAuthenticationSuccess(token);
+
+    verify(maintainService, never()).launchPrivateMaintain(eq(UPDATE_OAUTH_ADDITIONAL_PROFILES), any(ObjectNode.class));
+    verify(aweUserDetailService, never()).mapAdditionalProfileIds(any(), anyString());
+    verify(aweUserDetailService, never()).refreshAdditionalProfiles(any());
+    verify(aweSession, never()).setParameter(eq(AccessService.SSO_PROFILES_USER_SESSION_PARAMETER), any());
+    verify(aweSessionDetails).onLoginSuccess(dbUserDetails);
+  }
+
+  @Test
+  void ssoLogin_withARoleWithoutProfile_keepsTheAdditionalProfilesOfTheUser() throws AWException {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername(anyString()))
+      .thenReturn(new AweUserDetails().setProfileName("operator"));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("ghost"));
+    when(aweUserDetailService.existRole("ghost")).thenReturn(false);
+    when(menuService.getMenu()).thenReturn(menu);
+
+    accessService.onAuthenticationSuccess(getTokenWithRole("ghost"));
+
+    verify(maintainService, never()).launchPrivateMaintain(anyString(), any(ObjectNode.class));
+    verify(aweUserDetailService, never()).mapAdditionalProfileIds(any(), anyString());
+    verify(aweUserDetailService, never()).refreshAdditionalProfiles(any());
+  }
+
+  @Test
+  void ssoLogin_withoutRoleFromProvider_keepsTheAdditionalProfilesOfTheUser() throws AWException {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    ssoConfig.setOverwriteProfileWithDefaultRole(true);
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername(anyString()))
+      .thenReturn(new AweUserDetails().setProfileName("manual"));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.empty());
+    when(baseConfigProperties.getDefaultRole()).thenReturn("operator");
+    when(aweUserDetailService.existRole("operator")).thenReturn(true);
+    when(menuService.getMenu()).thenReturn(menu);
+
+    accessService.onAuthenticationSuccess(getTokenWithRole("offline_access"));
+
+    // The default role still overwrites the main profile, as today, but the additional profiles are not touched
+    verify(maintainService).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), any(ObjectNode.class));
+    verify(maintainService, never()).launchPrivateMaintain(eq(UPDATE_OAUTH_ADDITIONAL_PROFILES), any(ObjectNode.class));
+    verify(aweUserDetailService, never()).refreshAdditionalProfiles(any());
+  }
+
+  @Test
+  void ssoLogin_provisionedUser_getsTheOtherMappedProfilesAsAdditionalProfiles() throws AWException {
+    OAuth2AuthenticationToken token = getTokenWithRole("auditor");
+    aweUserDetails.setUsername("foo@acme.com").setEmail("foo@acme.com").setProfile("AUD").setProfileName("auditor");
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(new SecurityConfigProperties.Sso());
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenThrow(UsernameNotFoundException.class);
+    when(aweUserDetailService.loadUserByRole(token)).thenReturn(aweUserDetails);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("auditor"));
+    when(aweUserDetailService.existRole("auditor")).thenReturn(true);
+    when(aweUserDetailService.supportsAdditionalProfiles()).thenReturn(true);
+    when(aweUserDetailService.mapAdditionalProfileIds(token.getAuthorities(), "auditor")).thenReturn(List.of(5));
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("es-ES");
+    when(menuService.getMenu()).thenReturn(menu);
+
+    accessService.onAuthenticationSuccess(token);
+
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    InOrder order = inOrder(maintainService, aweUserDetailService, aweSessionDetails);
+    order.verify(maintainService).launchPrivateMaintain(eq(PROVISIONING_NEW_USER), any(ObjectNode.class));
+    order.verify(maintainService).launchPrivateMaintain(eq(UPDATE_OAUTH_ADDITIONAL_PROFILES), parameters.capture());
+    order.verify(aweUserDetailService).refreshAdditionalProfiles(aweUserDetails);
+    order.verify(aweSessionDetails).onLoginSuccess(aweUserDetails);
+    assertThat(parameters.getValue().get("profiles").valueStream().map(JsonNode::asInt).toList()).containsExactly(5);
+    verify(aweSession).setParameter(AccessService.SSO_PROFILES_USER_SESSION_PARAMETER, "foo@acme.com");
   }
 }

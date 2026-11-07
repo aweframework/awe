@@ -71,6 +71,7 @@ The xml structure of context menus is the following:
 | `id`    | String | **Required** | Context button identifier       |                                                                            |
 | `label` | String | **Required** | Label of the context button.    | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | `icon`  | String | Optional     | Icon name of the context button | **Note:** You can check all iconsets at [icons](icons.md) screen           |
+| `permission` | String | Optional | Permissions the user needs to see the context button. It replaces what is derived from the targets of its actions. See [screen elements](../security/permissions.md#screen-elements) | Permission identifiers separated by spaces, all required |
 
 > **Note:** The context button has the same attributes as button element. You can see more info [here](button.md#button-attributes)
 

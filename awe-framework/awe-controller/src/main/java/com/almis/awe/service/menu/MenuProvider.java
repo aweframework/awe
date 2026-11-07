@@ -127,7 +127,8 @@ public class MenuProvider extends ServiceConfig {
     if (getSession().isAuthenticated()) {
       // Get restrictions (read once per request for the same session values they depend on)
       String restrictionKey = Stream.of(AweConstants.SESSION_USER, AweConstants.SESSION_PROFILE,
-          AweConstants.SESSION_RESTRICTION, AweConstants.SESSION_DATABASE, AweConstants.SESSION_LANGUAGE)
+          AweConstants.SESSION_PROFILES, AweConstants.SESSION_RESTRICTION, AweConstants.SESSION_USER_RESTRICTION,
+          AweConstants.SESSION_DATABASE, AweConstants.SESSION_LANGUAGE)
         .map(name -> String.valueOf(getSession().getParameter(String.class, name)))
         .collect(Collectors.joining("|"));
       List<ScreenRestriction> screenRestrictions = ScreenRestrictionRequestCache.get(restrictionKey, () -> {

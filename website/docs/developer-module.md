@@ -28,6 +28,8 @@ To use this module, follow these steps:
 awe.application.module-list = APP, ..., awe-developer, ..., awe
 ```
 
+- Give the profiles that use the literals manager the `developer.read` and `developer.update` permissions (only the administrator profile has them). See [Permissions](security/permissions.md#catalog-resources).
+
 ## `Literals manager`
 The *Literal Manager* is a tool that helps managing existing literals in an application. All the available actions and modifications are stored both in memory and in the multiple XML-s. This way, it is not necessary to restart the *Tomcat* server whenever a change is made. Developer will just have to refresh the page in order to display all the changes.
 

@@ -38,6 +38,8 @@ public enum SecurityAuditCause {
   TOKEN_EXPIRED,
   /** The resource is restricted for the user profile */
   RESTRICTED,
+  /** The user lacks a permission that the resource requires */
+  PERMISSION,
   /** The resource is forbidden for the authenticated user */
   FORBIDDEN,
   /** Any other error */

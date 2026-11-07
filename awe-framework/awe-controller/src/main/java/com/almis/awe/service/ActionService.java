@@ -2,6 +2,7 @@ package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
@@ -10,7 +11,10 @@ import com.almis.awe.model.entities.actions.Action;
 import com.almis.awe.model.entities.actions.Answer;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.actions.Parameter;
+import com.almis.awe.model.entities.services.Service;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.security.authorization.TargetKind;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
 import com.almis.awe.service.observation.ExecutionObserver;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +46,7 @@ public class ActionService extends ServiceConfig {
   // Autowired services
   private final LauncherService launcherService;
   private final BaseConfigProperties baseConfigProperties;
+  private final TargetLaunchAuthorizer targetLaunchAuthorizer;
 
   private static final String SECURITY_MASK = "*****";
   private static final String DEFAULT_ERROR = "DEFAULT_ERROR";
@@ -49,12 +54,16 @@ public class ActionService extends ServiceConfig {
   /**
    * Autowired constructor
    *
-   * @param launcherService Launcher service
-   * @param baseConfigProperties Base configuration properties
+   * @param launcherService        Launcher service
+   * @param baseConfigProperties   Base configuration properties
+   * @param targetLaunchAuthorizer Authorizer of the services launched by a client
    */
-  public ActionService(LauncherService launcherService, BaseConfigProperties baseConfigProperties) {
+  public ActionService(LauncherService launcherService, BaseConfigProperties baseConfigProperties,
+                       TargetLaunchAuthorizer targetLaunchAuthorizer) {
     this.launcherService = launcherService;
     this.baseConfigProperties = baseConfigProperties;
+    this.targetLaunchAuthorizer = Objects.requireNonNull(targetLaunchAuthorizer,
+      "targetLaunchAuthorizer is required: pass the TargetLaunchAuthorizerChain bean");
   }
 
   /**
@@ -126,6 +135,9 @@ public class ActionService extends ServiceConfig {
     // Get service
     String serviceId = action.getCall().getService();
 
+    // Check the service, unless it is authorized by the query or maintain target it launches
+    authorizeService(serviceId);
+
     // Launch service
     serviceData = launcherService.callService(serviceId, null);
     answerType.set(serviceData == null ? null : serviceData.getType());
@@ -153,6 +165,25 @@ public class ActionService extends ServiceConfig {
   }
 
   /**
+   * Check that a client can launch the service of an action. A service authorized by its target is not checked: the
+   * query or maintain target it launches is
+   *
+   * @param serviceId Service identifier
+   * @throws AWException The authorizers refuse the service
+   */
+  private void authorizeService(String serviceId) throws AWException {
+    if (serviceId == null) {
+      return;
+    }
+    Service service = getElements().getService(serviceId);
+    if ((service == null || !service.isAuthorizedByTarget())
+      && !targetLaunchAuthorizer.authorize(serviceId, TargetKind.SERVICE)) {
+      throw new AWEUnauthorizedException(getLocale(AWEUnauthorizedException.TITLE_KEY),
+        getLocale(AWEUnauthorizedException.MESSAGE_KEY));
+    }
+  }
+
+  /**
    * Launch an error (action failed)
    *
    * @param actionId    Action launched
@@ -177,9 +208,12 @@ public class ActionService extends ServiceConfig {
    */
   public List<ClientAction> launchError(Action action, AWException exception) {
     try {
-      // Get answer and set it into output actions
-      Answer answer = action.getAnswer(exception.getType());
-      if (answer == null && !DEFAULT_ERROR.equals(action.getId())) {
+      // Get answer and set it into output actions. An authorization refusal is answered as the default error does, so
+      // the client reads the refusal and not the error message of the action
+      boolean defaultError = DEFAULT_ERROR.equals(action.getId());
+      Answer answer = exception instanceof AWEUnauthorizedException && !defaultError ? null
+        : action.getAnswer(exception.getType());
+      if (answer == null && !defaultError) {
         // The action does not answer this error: answer it as the default error does, so the client gets the message
         answer = getDefaultErrorAnswer(exception);
       }

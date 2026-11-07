@@ -52,7 +52,7 @@ public class QueryUtil extends ServiceConfig {
   private static final String ERROR_TITLE_GENERATING_FILTER = "ERROR_TITLE_GENERATING_FILTER";
   // Aggregate and window functions: their fields cannot be compared in a WHERE
   private static final Set<String> NOT_FILTERABLE_FUNCTIONS = Set.of("AVG", "CNT", "CNT_DISTINCT", "MAX", "MIN", "SUM",
-    "LAG", "FIRST_VALUE", "LAST_VALUE", "ROW_NUMBER", "RANK");
+    "STRING_AGG", "LAG", "FIRST_VALUE", "LAST_VALUE", "ROW_NUMBER", "RANK");
   private static final String ERROR_MESSAGE_GENERATING_FILTER = "ERROR_MESSAGE_GENERATING_FILTER";
 
   // Autowired services
@@ -642,7 +642,7 @@ public class QueryUtil extends ServiceConfig {
       case STRING_TO_LIST:
         // Retrieve string value as list
         ArrayNode valueList = nodeFactory.arrayNode();
-        Arrays.stream(StringUtils.split(stringValue, ","))
+        Arrays.stream(Optional.ofNullable(StringUtils.split(stringValue, ",")).orElse(new String[0]))
             .map(String::trim)
             .forEach(valueList::add);
 
@@ -745,7 +745,9 @@ public class QueryUtil extends ServiceConfig {
     } else if (variable.getValue() != null) {
       list = variable.getValue().contains(",");
     }
-    list = ParameterType.MULTIPLE_SEQUENCE.equals(ParameterType.valueOf(variable.getType())) || list;
+    // A STRING_TO_LIST variable is always a list, also when its value comes from the session or is a single value
+    ParameterType type = ParameterType.valueOf(variable.getType());
+    list = ParameterType.MULTIPLE_SEQUENCE.equals(type) || ParameterType.STRING_TO_LIST.equals(type) || list;
 
     return list;
   }

@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -71,6 +72,30 @@ class AweOauth2AuthenticationSuccessHandlerTest {
     assertFalse(session.isInvalid());
     assertSame(token, SecurityContextHolder.getContext().getAuthentication());
     verifyNoInteractions(failureHandler);
+  }
+
+  @Test
+  void givenAllowedUser_onAuthenticationSuccess_savesTheAuthenticationWithTheAweAuthoritiesInTheSession()
+    throws Exception {
+    List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"),
+      new SimpleGrantedAuthority("PERM_users.read"));
+    OAuth2AuthenticationToken aweToken =
+      new OAuth2AuthenticationToken(token.getPrincipal(), authorities, "clientRegId");
+    when(accessService.onAuthenticationSuccess(token)).thenAnswer(invocation -> {
+      SecurityContext context = SecurityContextHolder.createEmptyContext();
+      context.setAuthentication(aweToken);
+      SecurityContextHolder.setContext(context);
+      return "/app/home";
+    });
+    String sessionId = session.getId();
+
+    handler.onAuthenticationSuccess(request, response, token);
+
+    SecurityContext stored = (SecurityContext) session.getAttribute(
+      HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+    assertNotNull(stored);
+    assertSame(aweToken, stored.getAuthentication());
+    assertEquals(sessionId, request.getSession().getId());
   }
 
   @Test

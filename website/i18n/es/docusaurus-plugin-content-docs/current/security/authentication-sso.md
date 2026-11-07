@@ -200,13 +200,49 @@ exactamente ese nombre (así funcionan los nombres de claim en forma de URI). Un
 ### Varios roles: qué perfil gana {#several-roles-which-profile-wins}
 
 Todos los roles que llevan el prefijo se convierten en nombres de perfil (se elimina el prefijo; los roles iguales al prefijo se
-ignoran). Cuando queda más de uno, AWE usa el **primer nombre, por orden alfabético, que exista como perfil de
-AWE**, de modo que el resultado nunca depende del orden en que el proveedor envía los roles, y un rol sin
-perfil nunca oculta a uno válido. Cuando ninguno existe como perfil, se toma el primer nombre por orden alfabético
-(y se trata entonces como un rol sin perfil, ver más abajo). Por ejemplo, con el prefijo `role_` y los roles
-`role_operator`, `role_manager` y `role_auditor`, donde `auditor` no es un perfil de AWE, el perfil es `manager`.
-Para controlar el resultado, envía un único rol con prefijo por usuario, o nombra los perfiles de modo que el preferido quede
-primero en el orden alfabético.
+ignoran). Cuando queda más de uno, AWE usa:
+
+1. El **primer perfil de `awe.security.sso.profile-priority`** que envía el proveedor y que existe como perfil de
+   AWE. Los nombres se comparan sin distinguir mayúsculas y minúsculas.
+2. Cuando ninguno de la lista se envía y existe, o la lista está vacía (por defecto), el **primer nombre, por orden
+   alfabético, que exista como perfil de AWE**.
+
+Así el resultado nunca depende del orden en que el proveedor envía los roles, y un rol sin perfil nunca oculta a uno
+válido. Cuando ninguno existe como perfil, se toma el primer nombre por orden alfabético (y se trata entonces como un
+rol sin perfil, ver más abajo). Por ejemplo, con el prefijo `role_` y los roles `role_operator`, `role_manager` y
+`role_auditor`, donde `auditor` no es un perfil de AWE, el perfil es `manager`. Con la configuración siguiente, el
+perfil es `operator`.
+
+```yaml title="Elegir el perfil principal de los usuarios con varios roles"
+awe:
+  security:
+    sso:
+      profile-priority: administrator,operator,manager
+```
+
+| Propiedad | Por defecto | Significado |
+| --- | --- | --- |
+| `awe.security.sso.profile-priority` | vacía | Perfiles por orden de prioridad para elegir el perfil principal cuando el proveedor envía varios roles que corresponden a perfiles existentes. |
+
+### Varios roles: perfiles adicionales {#several-roles-additional-profiles}
+
+El perfil principal se elige exactamente como se describe arriba. Cuando viene de un rol del proveedor que existe como
+perfil, los demás roles del proveedor que existen como perfiles pasan a ser
+[perfiles adicionales](additional-profiles.md) del usuario. En el ejemplo anterior, el perfil principal es `manager` y
+`operator` es un perfil adicional; `auditor` se ignora.
+
+- Los perfiles adicionales sustituyen a los guardados para ese usuario (auditados en `HISAweOpeRol`), tanto para
+  usuarios existentes como para usuarios aprovisionados en ese inicio de sesión: el proveedor es la fuente de verdad de
+  los perfiles adicionales de un usuario SSO.
+- Los roles sin un perfil existente se ignoran.
+- Con un `UserDAO` propio cuyo `supportsAdditionalProfiles()` devuelve `false` (el valor por defecto), los perfiles
+  adicionales guardados para el usuario no se modifican.
+- Cuando ningún rol se mapea a un perfil existente (ningún rol, un rol desconocido, o el rol por defecto aplicado con
+  `overwrite-profile-with-default-role`), los perfiles adicionales no se modifican y el inicio de sesión sigue las
+  reglas siguientes.
+- En el primer inicio de sesión después de que el proveedor cambie el rol principal de un usuario, la sesión conserva
+  el perfil principal anterior, como hasta ahora: el perfil principal guardado se actualiza y se aplica desde el
+  siguiente inicio de sesión.
 
 ### Sincronización con el perfil almacenado {#synchronization-with-the-stored-profile}
 
@@ -254,7 +290,7 @@ El rechazo se registra a nivel `WARN` con el nombre de usuario.
 | cualquiera | `true` | Rechazado. |
 | cualquiera | `false` | Comportamiento anterior (aceptación explícita del respaldo del rol por defecto). |
 
-Un rol se "mapea" cuando, tras el prefijo y la regla alfabética anterior, el nombre resultante existe como perfil de AWE.
+Un rol se "mapea" cuando, tras el prefijo y la regla anterior, el nombre resultante existe como perfil de AWE.
 
 ## Keycloak {#keycloak}
 

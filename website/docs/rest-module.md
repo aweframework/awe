@@ -137,7 +137,58 @@ Authentication behavior depends on the configured mode:
 - **oauth2-resource-server**: obtain access token from your identity provider and call AWE directly with `Authorization: Bearer <access_token>`.
 
 > `/api/authenticate` is local-jwt-only and is not an OAuth2 token endpoint.
-> OAuth2 Resource Server mode does not provision or synchronize local `ope` users, and it does not add fine-grained query/maintain authorization or a read/write REST permission model.
+
+The queries and maintain targets launched through the REST API are authorized by the
+[permissions](security/permissions.md#rest-api) only, not by the [screen access](security/screen-access.md#rest-api).
+A request refused by the authorization answers HTTP `403` with an `AweRestResponse` of type `ERROR` and a generic
+message. A private target without `permission` is open to any authenticated user of the REST API: when the API is
+exposed, set `awe.security.permissions.require-undeclared=true`.
+
+The permissions of the caller depend on the authentication mode:
+
+- **local-jwt**: the permissions of the user's profiles, the main one and the additional ones.
+- **oauth2-resource-server**: the permissions of the AWE profiles of the token. The roles of the profile claim
+  (`awe.rest.api.oauth2-resource-server.principal.profile-claim`) are mapped to AWE profiles as the
+  [single sign-on](security/authentication-sso.md) login maps them, so the same identity provider role works for the
+  web and for the REST API:
+  - The claim is a claim name or a dotted path to a nested claim (`realm_access.roles`,
+    `resource_access.<client>.roles`), with a list of roles or a single one.
+  - `awe.security.sso.filter-authority-prefix` keeps only the roles with that prefix and strips it.
+  - Each role is compared with the profile names (`AwePro.Nam`) without case; a role that is not a profile name, an
+    acronym for example, is ignored.
+  - The main profile is the first one of `awe.security.sso.profile-priority`, else the first name in alphabetical
+    order; the rest are additional profiles. Each profile gives one `ROLE_<profile name>`.
+  - Without the claim, or when no role maps to a profile, the default profile applies
+    (`awe.rest.api.oauth2-resource-server.principal.default-profile`, else `awe.application.default-role`). When the
+    claim is configured and `awe.security.sso.require-role` applies (by default, when `awe.security.sso.local-login`
+    is `false`), a token without a mapped role is refused with `401`.
+
+  Each profile gets the same permissions as with the local login: its assignments (`AweProPer`) plus its profile file
+  minus its exclusions. The permissions are read on every request, so a change of the assignments applies without a
+  new token.
+
+:::warning
+
+Every valid token of the issuer that maps no role gets the default profile: any user of the realm, or a client with
+client credentials and no role. When the REST API is exposed, make the default profile one without permissions, or
+set `awe.security.sso.require-role=true` so those tokens are refused.
+
+:::
+
+> OAuth2 Resource Server mode does not provision or synchronize local `ope` users: the token needs no user in AWE, only
+> its roles.
+
+For example, with Keycloak name the realm roles as the AWE profiles (`Operator`, `General`) and add an *Audience*
+mapper for the API client:
+
+```properties
+awe.rest.api.auth.mode=oauth2-resource-server
+awe.rest.api.oauth2-resource-server.jwt.issuer-uri=https://<keycloak-host>/realms/<realm>
+awe.rest.api.oauth2-resource-server.jwt.audiences[0]=<api-client-id>
+awe.rest.api.oauth2-resource-server.principal.profile-claim=realm_access.roles
+# Optional: profile of the tokens without a mapped role
+awe.rest.api.oauth2-resource-server.principal.default-profile=<profile-name>
+```
 
 :::info Complete *swagger* documentation of awe rest services is
 available [here](http://demo.aweframework.com/swagger-ui.html).

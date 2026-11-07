@@ -55,6 +55,8 @@ class MaintainDescriptorGuardTest {
     // User security and profile: login lockout, 2FA, OAuth provisioning, password rehash and verified password updates
     "store2faSecret", "UpdPwdLck", "UpdCntLog", "ProvisionNewUser", "UpdateOauthUserProfile", "UsrRehashPwd",
     "ChdPwdExpiredUpdate", "UsrUpdPwdUpdate", "ChdPwdPubUpdate",
+    // Permissions of a profile, stored by the profile permission service when they change or a profile is duplicated
+    "ProPerUpd",
     // User settings, favourites, avatar and grid layouts: reached from the client through a service target
     "addUserSettings", "updateUserMode", "updateUserDensity", "addToFavourites", "removeFromFavourites",
     "insertUserAvatar", "updateUserAvatar", "insertGridLayout", "updateGridLayout", "deleteGridLayout",

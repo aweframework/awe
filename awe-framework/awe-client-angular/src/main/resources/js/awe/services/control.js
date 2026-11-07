@@ -356,6 +356,11 @@ aweApplication.factory('Control',
         changeControllerAttribute: function (address, attributes) {
           let  controller = Control.getAddressController(address);
           if (controller) {
+            // A criterion of a panel in view mode stays read-only: the readonly asked for applies once the panel closes
+            if (controller.viewMode && "readonly" in attributes) {
+              controller.viewModeReadonly = attributes.readonly;
+              attributes = _.omit(attributes, "readonly");
+            }
             _.each(attributes, function (attribute, attributeId) {
               let  initialAttribute = INITIAL + attributeId;
               if (!(initialAttribute in controller)) {
@@ -367,6 +372,29 @@ aweApplication.factory('Control',
             // Publish controller change
             Control.publishControllerChanged(address, attributes);
           }
+        },
+        /**
+         * Set a criterion of a dialog or side panel in view mode (read-only, whatever a dependency asks for) or back to
+         * the readonly it had, or a dependency asked for, while it was in view mode
+         * @param {Object} address Criterion address
+         * @param {Boolean} viewMode View mode
+         */
+        setViewMode: function (address, viewMode) {
+          let  controller = Control.getAddressController(address);
+          if (!controller || !!controller.viewMode === viewMode) {
+            return;
+          }
+          if (viewMode) {
+            controller.viewModeReadonly = controller.readonly;
+            controller.readonly = true;
+          } else {
+            controller.readonly = controller.viewModeReadonly;
+            delete controller.viewModeReadonly;
+          }
+          controller.viewMode = viewMode;
+
+          // Publish controller change
+          Control.publishControllerChanged(address, {readonly: controller.readonly});
         },
         /**
          * Restore a controller attribute

@@ -27,6 +27,7 @@ or
 | `silent`        |   Optional   |  Boolean  | Launch the action without showing the loading bar            |                                                                       |
 | `async`         |   Optional   |  Boolean  | Launch the action in the [async stack](#async-stack)         |                                                                       |
 | `value`         |   Optional   |  String   | Value to set to the criterion in case action is "value" type |                                                                       |
+| `edit-permission` | Optional   |  String   | Only for the `dialog` type: permissions the user needs to edit in the dialog or side panel it opens. Without them the panel opens in view mode (read-only criteria). See [screen elements](../security/permissions.md#view-mode-of-a-panel-edit-permission) | Permission identifiers separated by spaces, all required. **Ex.** `users.update` |
 
 ## Client actions
 

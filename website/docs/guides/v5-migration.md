@@ -78,9 +78,11 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Login redirects (#783) | An unauthenticated browser request is redirected to `Location: /` instead of an absolute URL. | Nothing, unless something parses the absolute URL: accept a relative one. Custom `AuthorizationManager` implementations must take `Supplier<? extends Authentication>`. | [Spring Security 7](#spring-security-7) |
 | Build plugins (#783) | Your `pom.xml` declares `lombok-maven-plugin` through the AWE plugin management and the build cannot resolve its version; `selenium-server` has no managed version. | Declare `maven-antrun-plugin` for delombok (AWE's `delombok` execution) or drop it; declare the `selenium-server` version yourself. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
 | Maintain transactions (#781) | A maintain that fails now leaves nothing behind: maintains launched from Java services and `retrieve-data` join the outer maintain, a step that returns `ERROR` rolls back, and a maintain launched inside an application `@Transactional` joins that transaction. A test that reads with its own JDBC connection inside a `@Transactional` test does not see the rows (or waits on a lock). | Nothing for correct maintains. If the application relies on partial commits, set `awe.maintain.transaction.enabled=false` or move that work to its own maintain. In tests, read through the transaction (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Maintain transactions](#maintain-transactions), [Transactions](../api/maintain-definition.md#transactions) |
-| Server-only maintain targets (#886, new) | A client request (`/action/maintain`, the file maintain endpoints, `/api/maintain`) that launches one of the framework targets that only Java launches (for example `addToFavourites`, `updateUserMode`, `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `insert-user-subscription`) now fails with the *launching maintain without authorization* error, even with a session. | Launch the client target that wraps it (`clickFavourite`, `selectDarkMode`, `toggle-web-subscription`...) or call the Java service. Mark your own Java-only targets with `server-only="true"`. | [Server-only maintain targets](#server-only-maintain-targets), [Server-only targets](../api/maintain-definition.md#server-only-targets) |
-| Server-only queries (new) | A client request (`/action/data`, `/api/data`, `/api/public/data`) that launches one of the framework login queries (`userDetails`, `userDetailsByEmail`, `userDetailsByProfile`, `checkProfileExists`...) now fails with the *launching query without authorization* error, even with a session. | Define your own query with the fields the client needs, reading the user from the session. Mark your own Java-only queries with `server-only="true"`. | [Server-only queries](#server-only-queries), [Server-only queries](../api/query-definition.md#server-only-queries) |
-| Access by screen (#914, new) | A client request that launches a maintain target or a query used by a menu screen (`/action/...`, the file maintain endpoints, `/api/maintain`, `/api/data`, `/api/public/...`) is refused unless the session user can open at least one of the options whose screen uses it. `/api/data` now goes through the same checks as `/action/data`. | Run with `awe.security.authorization.mode=warn`, read the log and the `ACCESS_DENIED` events, fix screens and restrictions, then leave the default `enforce`. `off` keeps the AWE 4 behaviour. | [Access by screen](#access-by-screen), [Screen access](../security/screen-access.md) |
+| Server-only maintain targets (#886, new) | A client request (`/action/maintain`, the file maintain endpoints, `/api/maintain`) that launches one of the framework targets that only Java launches (for example `addToFavourites`, `updateUserMode`, `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `insert-user-subscription`) now fails with the *access denied* error, even with a session. | Launch the client target that wraps it (`clickFavourite`, `selectDarkMode`, `toggle-web-subscription`...) or call the Java service. Mark your own Java-only targets with `server-only="true"`. | [Server-only maintain targets](#server-only-maintain-targets), [Server-only targets](../api/maintain-definition.md#server-only-targets) |
+| Server-only queries (new) | A client request (`/action/data`, `/api/data`, `/api/public/data`) that launches one of the framework login queries (`userDetails`, `userDetailsByEmail`, `userDetailsByProfile`, `checkProfileExists`...) now fails with the *access denied* error, even with a session. | Define your own query with the fields the client needs, reading the user from the session. Mark your own Java-only queries with `server-only="true"`. | [Server-only queries](#server-only-queries), [Server-only queries](../api/query-definition.md#server-only-queries) |
+| Access by screen (#914, new) | A client request that launches a maintain target or a query used by a menu screen (`/action/...`, the file maintain endpoints) is refused unless the session user can open at least one of the options whose screen uses it. The REST API (`/api/...`) is not checked by screen access, only by the permissions, and answers `403` to a refused request. | Run with `awe.security.authorization.mode=warn`, read the log and the `ACCESS_DENIED` events, fix screens and restrictions, then leave the default `enforce`. `off` keeps the AWE 4 behaviour. | [Access by screen](#access-by-screen), [Screen access](../security/screen-access.md) |
+| Additional profiles (new) | Flyway applies `AWE_V1.6.0__authorization.sql` and creates the `AweOpeRol` table (additional profiles of a user, unique by user and profile), its audit table `HISAweOpeRol` and the `OpeRolKey` key. The script can be applied again. Users without additional profiles behave as before. A user with additional profiles opens the windows that any of its active profiles opens (the restriction file of the user, when it has one, has the last word over every profile, and then the `AweScrRes` user rows), gets one `ROLE_<profile name>` authority per profile in the web session and with a `local-jwt` token of the REST API, and the session has the new values `profiles`, `restrictions` and `userRestriction`. Inactive additional profiles do not count. With single sign-on, the other provider roles that exist as profiles become additional profiles. In the `oauth2-resource-server` mode of the REST API, a profile claim that holds a list gives one `ROLE_<value>` per value. | Nothing. Applications that do not use the Flyway migrations of AWE create `AweOpeRol` and `HISAweOpeRol` themselves (see the script of their database in `db/migration`). A custom `UserDAO` implementation overrides the new default methods `supportsAdditionalProfiles`, `findAdditionalProfiles` and `findProfileId` to support additional profiles; while `supportsAdditionalProfiles()` returns `false`, the SSO login leaves `AweOpeRol` untouched. | [Additional profiles](#additional-profiles), [Additional profiles](../security/additional-profiles.md) |
+| Permissions (new) | A query or a maintain target can declare a `permission` attribute: a client launches it only when the session user has every permission it lists, after the access by screen. The catalog is the new descriptor `global/Permissions.xml`, the assignments to profiles are the rows of the new table `AweProPer` (`AWE_V1.6.0__authorization.sql`, which gives `*` to the administrator profile `ADM`) and the effective permissions are loaded at login as `PERM_<id>` authorities. A `<service>` can declare `permission` too, and the services that launch the query or target of the client are marked `authorization="target"`. The administration screens of AWE and of the scheduler, developer, tools and notifier modules declare `users`, `profiles`, `system`, `access`, `audit`, `themes`, `scheduler`, `developer`, `sql-extractor` and `subscriptions` permissions. **Upgrade impact: with `enforce` (the default), a profile other than the administrator that uses those administration areas today loses them until it gets rows in `AweProPer`; 23 administration targets of the developer, scheduler and tools modules are no longer public; selectors of an administration area require its permission; `ActionService` requires a `TargetLaunchAuthorizer`.** | **Before the upgrade reaches the users, give the profiles that use an administration area its permissions in `AweProPer` (for example `users.*`, `profiles.*`, `system.read` or `scheduler.*`)**; run with `awe.security.authorization.mode=warn` first and read the `ACCESS_DENIED` events with the `PERMISSION` cause to find the refusals. A custom `UserDAO` overrides the new default methods `findPermissions` and `findAllPermissions`: without them no profile has permissions, not even the administrator. | [Permissions](#permissions), [Permissions](../security/permissions.md) |
 | Date utilities (#782) | The compiler warns that `DateUtil` methods that take or return `java.util.Date` or `Calendar` are deprecated. | Nothing is required: they keep their behavior and are not removed before 6.0. Move to the `java.time` methods of `com.almis.awe.model.util.data.date`. | [Date utilities](#date-utilities) |
 | MenuService (#782) | Only for projects that extend `MenuService`: a method you override is no longer called by the other `MenuService` methods (for example, overriding `getOptionByName` no longer changes `getOptionScreen`). The compiler warns that the seven-argument `MenuService` constructor is deprecated. | Nothing if you only call `MenuService`. If you extend it, move the customization to your own bean of the collaborator that owns the method. | [MenuService](#menuservice) |
 | Spring Session with Redis (#861) | With several instances, users are logged out at random and screens fail after login (for example `Index 0 out of bounds for length 0`): the session cookie is `JSESSIONID` instead of `SESSION`, because the sessions stay in each server. | Replace `spring-session-data-redis` with `spring-boot-starter-session-data-redis`, rename `spring.session.redis.*` to `spring.session.data.redis.*` and update the Redis classes in `spring.autoconfigure.exclude`. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
@@ -126,7 +128,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Queue screens (both clients) | The *Message queues* option of the default menu (and of the archetypes) opens the new `queue-admin` screen, built like `email-server-admin`: a grid with search, quick filters and row actions and a side panel to create and edit JMS queues. The previous screens `Que`, `QueNew` and `QueUpd` are deprecated and will be removed in 5.1.0. `QueLst` returns new fields for the grid and `QueStaCnt` counts its quick filters. | Point your own menu options from `Que` to `queue-admin` before 5.1.0. If you override the queue queries or maintains (`QueLst`, `QueNew`, `QueUpd`, `QueDel`), the new screen uses them; check that the overrides keep the fields it reads and accept the identifier as a list. | [Message queues](default-screens.md#message-queues) |
 | Sequence and application parameter screens (both clients) | The *Sequences* and *Application parameters* options of the default menu (and of the archetypes) open the new `sequence-admin` and `application-parameter-admin` screens, built like `user-admin`: a grid with search, quick filters and row actions and a side panel to create and edit the record, whose name is read-only when editing. The previous screens `AweKey` and `AweAppPar` are deprecated and will be removed in 5.1.0. `AweKeyLst` and `AweAppParLst` return the state of each row (the parameters also return their category) and filter by the search text and by the state; `KeyStaCnt` and `AppParStaCnt` count the quick filters, and the maintains `AweKeyNew`, `AweKeyUpd`, `AweKeyDel`, `AweAppParNew`, `AweAppParUpd` and `AweAppParDel` work on one record each. `AweKeyUpd` names now the update of one sequence: the multiple maintain of its editable grid is `AweKeyMul`. | Point your own menu options from `AweKey` and `AweAppPar` to `sequence-admin` and `application-parameter-admin` before 5.1.0, and rename your override of the `AweKeyUpd` multiple maintain to `AweKeyMul`. If you override the queries or maintains of both screens, the new screens use them; check that the overrides keep the fields they read. Browser tests that open the *Sequences* or the *Application parameters* option expect the new screens. | [Sequences](default-screens.md#sequences), [Application parameters](default-screens.md#application-parameters) |
 | Module screens (both clients) | The *Modules* option of the default menu (and of the archetypes) opens the new `module-admin` screen, built like `site-admin`: a grid with search, quick filters and row actions and a side panel with three tabs (general, access with the profiles and users, sites and databases) that saves the module and its three grids with one action. The previous screens `Mod`, `ModNew`, `ModUpd` and `ModViw` are deprecated and will be removed in 5.1.0. The new screen has no theme (it was never applied): the `IdeThm` fields of `ModNew` and `ModUpd` are optional, so a save without a theme keeps the stored one, and `QryLstUsrByMod` lists the users that have no theme. The list uses the new `ModLstAdm`, `ModStaCnt` counts its quick filters, `ModNamUni` refuses a duplicated name and `ModDel` also reads the selected modules from `IdeModSel`. | Point your own menu options from `Mod` to `module-admin` before 5.1.0. In the deprecated screens an empty theme no longer clears the stored one. If you override `ModNew`, `ModUpd`, `ModDel` or `QryLstUsrByMod`, check that the overrides keep these changes. Browser tests that open the *Modules* option expect the new screen. | [Modules](default-screens.md#modules) |
-| Access screens (both clients) | The `screen-access` option (*Screen access*) of the default menu (and of the archetypes) opens the new `access-admin` screen: the effective access of a profile or a user to every option of the private menu with the layer that decides it, allow and deny per option or in bulk with a preview, the *Why?* panel, compare, review and view as. The previous screens `ScrAccRes`, `menu-access` and `screen-access` are deprecated and will be removed in 5.1.0. The rules are the same `AweScrRes` rows and `profile/*.xml` files, changed through the same audited restriction maintains, so no data is migrated. The new screen has no import or export of rules: they point at the options of each `private.xml`. | Point your own menu options from `ScrAccRes`, `menu-access` or `screen-access` to `access-admin` before 5.1.0. If you override `ScrAccRes` (or the other two screens), move the customization to your own copy of `access-admin` or drop it. Access that must ship with the application goes in the base restriction files `profile/*.xml`. Browser tests that open the *Screen access* option expect the new screen. | [Screen access](default-screens.md#screen-access) (issue #791) |
+| Access screens (both clients) | The `screen-access` option (*Access control*, under *Security*) of the default menu (and of the archetypes) opens the new `access-admin` screen: the effective access of a profile or a user to every option of the private menu with the layer that decides it, allow and deny per option or in bulk with a preview, the *Why?* panel, compare, review and view as. The previous screens `ScrAccRes`, `menu-access` and `screen-access` are deprecated and will be removed in 5.1.0. The rules are the same `AweScrRes` rows and `profile/*.xml` files, changed through the same audited restriction maintains, so no data is migrated. The new screen has no import or export of rules: they point at the options of each `private.xml`. | Point your own menu options from `ScrAccRes`, `menu-access` or `screen-access` to `access-admin` before 5.1.0. If you override `ScrAccRes` (or the other two screens), move the customization to your own copy of `access-admin` or drop it. Access that must ship with the application goes in the base restriction files `profile/*.xml`. Browser tests that open the *Access control* option expect the new screen. | [Access control](default-screens.md#screen-access) (issue #791) |
 | AWE 5 shell (both clients) | The vertical home screens show a footer under the side menu ("Powered by AWE 5" and a button that collapses the menu) and the menu button of the header has the `panel-left` icon. The collapsed menu hides the option search and opens the options of a first level option as a flyout when the pointer is on it. In React, a separator option without label is drawn as a line in the vertical menu (it was hidden), the user menu shows the `name` of the `connectedUser` value instead of its label ("Manager" instead of "Manager (test)") with the profile below it, outlined buttons are neutral (they used the primary colour) and select criteria are as high as text criteria. The `connectedUser` query returns a new `description` field with the profile name. | Nothing for the descriptors. Browser tests of React applications that check the logged user with `checkLogin`/`ensureLoggedIn` must expect the name without the user code. Applications with their own copy of `home-sidebar.xml` or `home_vertical.xml` can add the footer as described in the layout guide. | [Side menu](../design-system/layout-and-shell.md#side-menu), [Avatar](../api/info.md#avatar-attributes) (issue #900) |
 
 ### jsoup in the input parameter sanitizer
@@ -466,12 +468,189 @@ The mode is set with `awe.security.authorization.mode`:
   restrictions that do not match the intended access, then use `enforce`.
 - Screens generated at runtime (`dynamic-screen-service` and `menu-screen` options) are not indexed. A target used both
   by one of them and by a restricted static screen is refused to the users who cannot open the static one.
-- `/api/data` and `/api/public/data` go through the same checks as `/action/data`.
+- The REST API (`/api/...`) is not checked by screen access: it is authorized by the
+  [permissions](../security/permissions.md#rest-api) only, and a refused request answers HTTP `403`.
 - An application that builds `QueryService` or `MaintainService` itself (overriding the AWE beans) passes the new
   `TargetLaunchAuthorizer` argument, normally the `TargetLaunchAuthorizerChain` bean. An application adds its own
   authorization layer by declaring a `TargetLaunchAuthorizer` bean.
 
 See [Screen access](../security/screen-access.md).
+
+### Additional profiles
+
+A user can have additional profiles besides the main one (`ope.IdePro`), stored in the new `AweOpeRol` table. The main
+profile alone decides the initial screen, the theme and the `profile` value of the session; the access to the windows,
+the modules and the sites is the union of every active profile; the restriction file of the user, when it has one, has
+the last word over every profile, and then the user restrictions of `AweScrRes`. Inactive additional profiles do not
+count. A user without additional profiles behaves exactly as before.
+
+- **New migration.** `AWE_V1.6.0__authorization.sql` creates the authorization tables `AweOpeRol` and `AweProPer`, their
+  audit tables and their keys in H2, HSQLDB, MySQL, Oracle, PostgreSQL and SQL Server. The script can be applied again.
+  Applications that build their schema with their own scripts must add the tables.
+- **Custom `UserDAO`.** `UserDAO` has three new default methods: `supportsAdditionalProfiles()`, which returns
+  `false`, `findAdditionalProfiles(userName)`, which returns no profiles, and `findProfileId(profileName)`, which
+  returns an empty `Optional`. A custom implementation compiles and keeps the main profile only. Override the three to
+  support additional profiles: while `supportsAdditionalProfiles()` returns `false`, the SSO login leaves the
+  `AweOpeRol` rows of the user untouched.
+- **One `ROLE_` per profile.** In the web session the user gets one `ROLE_<profile name>` authority for each profile,
+  main and additional, so `hasRole` works with any profile of the user.
+- **REST API.** In the `oauth2-resource-server` mode the profiles come from the profile claim of the token
+  (`awe.rest.api.oauth2-resource-server.principal.profile-claim`), not from `AweOpeRol`, mapped as the single sign-on
+  login maps its roles: the claim may be a dotted path (`realm_access.roles`),
+  `awe.security.sso.filter-authority-prefix` is stripped, each role is compared with the profile names without case and
+  the roles without a profile are ignored. The main profile follows `awe.security.sso.profile-priority`, else the first
+  name in alphabetical order, and the rest are additional profiles; each one gives one `ROLE_<profile name>`. When no
+  role maps, the default profile applies, or the token is refused when `awe.security.sso.require-role` applies. The
+  `local-jwt` mode gives one `ROLE_<profile name>` per profile of the user of the token, main and additional, as the
+  web session.
+- **Session values.** The session has three new values: `profiles` (acronyms of every profile, main first, separated
+  by commas), `restrictions` (restriction files of those profiles) and `userRestriction` (restriction file of the user,
+  only when it has one). Read them with a `STRING_TO_LIST` variable, which
+  is now a list also when its value comes from the session.
+- **Single sign-on.** The main profile is chosen as before. When it comes from a provider role that exists as a
+  profile, the other provider roles that exist as profiles replace the additional profiles of the user. When no role
+  maps to an existing profile, the additional profiles are not touched.
+
+See [Additional profiles](../security/additional-profiles.md).
+
+### Permissions {#permissions}
+
+A query, a maintain target or a service can require **permissions**, declared by the code and assigned to profiles. A
+client launches a query or a target with `permission="users.delete"` only when the access by screen allows it **and**
+the session user has the `users.delete` permission; through the REST API only the permission is checked. Queries,
+targets and services without `permission` behave as before, and the launches made by the server (Java services,
+maintain includes) are never checked.
+
+- **New descriptor.** Each module may provide a permission catalog in `global/Permissions.xml` (schema
+  `permissions.xsd`). AWE combines the catalogs of every module. A `permission` attribute that names a permission
+  missing from the catalog, or a `permission` on a `public` query or target, is a load error.
+- **New table.** `AweProPer` assigns permissions to profiles (`IdePro`, `Per`), with wildcards: `*`, `users.*`,
+  `*.read`. It is created by the unified migration `AWE_V1.6.0__authorization.sql` described in
+  [Additional profiles](#additional-profiles), which also gives `*` to the administrator profile (`ADM`). Applications
+  that build their schema with their own scripts add `AweProPer`, `HISAweProPer` and the `ProPerKey` key, and give
+  their administrator profile its row.
+- **`PERM_` authorities.** At login the effective permissions (main and active additional profiles) become Spring
+  Security authorities `PERM_<id>`, so services can use `@PreAuthorize("hasAuthority('PERM_users.delete')")`. A change
+  applies at the next login. The `oauth2-resource-server` mode of the REST API gives the `PERM_` authorities of the
+  profiles of the token, read on every request.
+- **Custom `UserDAO`.** `UserDAO` has two new default methods: `findPermissions(profileAcronyms)` and
+  `findAllPermissions()`, which return no permissions. A custom implementation compiles, but its users get no
+  permission (only those granted always), not even the administrator: override both to read `AweProPer`.
+- **Services.** A `<service>` accepts `permission`, checked when a client action calls it. The services that only
+  launch the query or the target the client asks for (`launchQuery`, `launchMaintain`, `checkUnique`...) are marked
+  `authorization="target"`: the launched query or target is checked instead. The services of a query or a maintain of
+  type `service` and the server calls are not checked. See [Services](../security/permissions.md#services).
+- **Granted always.** The permissions granted always (`self`) need no authority, so the own settings of the user also
+  work for an authentication that the AWE login did not build.
+- **`ActionService` constructor.** `ActionService` takes a third argument, the `TargetLaunchAuthorizer` that checks the
+  services. AWE builds it as a bean; an application that builds `ActionService` by hand passes the
+  `TargetLaunchAuthorizerChain` bean, and a `null` fails at construction.
+- **Audit.** A refusal is audited as `ACCESS_DENIED` with the new cause `PERMISSION` (`SecurityAuditCause.PERMISSION`)
+  and the detail `query: <id>`, `maintain: <id>` or `service: <id>`.
+- **Inventory.** In `warn` mode AWE logs at startup the queries, targets and services that the private screens launch
+  and that declare no permission. See [Mode](../security/permissions.md#mode).
+- **Change password screen.** The confirm button of the public `change-password` screen no longer launches the `UsrLst`
+  query, which now requires `users.read`. An application with its own copy of that screen removes that action too.
+- **Screen elements.** With `enforce`, the screens no longer show the buttons, context buttons and button columns that
+  launch a target the user cannot launch. A `button`, `context-button` or button `column` accepts `permission` to
+  replace that decision, and a `dialog` button action accepts `edit-permission` to open its panel in view mode
+  (read-only criteria) for the users without it. See [Screen elements](../security/permissions.md#screen-elements).
+- **Create buttons.** The *New* and *Duplicate* buttons of the administration screens of AWE and its modules declare
+  the permission of the maintain target that creates the record (`users.create`, `profiles.create`, `themes.create`,
+  `system.update`, `scheduler.update`, `subscriptions.create`, `developer.update`), so a user who cannot create no
+  longer sees them.
+- **Profile files.** A profile file (`profile/*.xml`, the *restriction* of the profile) accepts `<permission>` and
+  `<exclude>`: the permissions of a profile are those of its file minus its exclusions, plus its `AweProPer` rows. An
+  identifier that matches no permission of the catalog fails the startup. `administrator.xml` grants nothing; `ADM`
+  keeps its `*` row. See [Profile files](../security/permissions.md#profile-files).
+- **Custom `UserDAO` and profile files.** `UserDAO` has a new default method `findProfileRestrictions(profileAcronyms)`,
+  which returns no files. A custom implementation compiles, but its profiles get no permission from their files (not
+  even Reader and Contributor): override it to read `AwePro.Res`.
+- **Predefined profiles.** At startup AWE creates the profiles Reader (`RDR`, `*.read`) and Contributor (`CTB`, every
+  permission except `users.*`, `profiles.*` and `permissions.*`) when no profile with their acronym exists; an existing
+  one is kept and a warning is logged. They are read-only in the *Profiles* screen and are duplicated to be changed.
+  Screens or tests that count the profiles see two more rows. `awe.security.permissions.predefined-profiles=false`
+  switches the creation off. See [Predefined profiles](../security/permissions.md#predefined-profiles).
+- **Profiles screen.** The side panel of `profile-admin` has a *Permissions* field that edits the `AweProPer` rows of
+  the profile (with `permissions.update` when they change), and *Duplicate profile* (`ProDup`). See
+  [The Profiles screen](../security/permissions.md#profiles-screen).
+- **Users screen.** `UsrLst` returns the additional profiles of each user (`AddProTxt`), shown in a new *Additional
+  profiles* column. An application that overrides `UsrLst` adds that field, or the column stays empty.
+- **Targets without permission.** `awe.security.permissions.require-undeclared` (`false` by default) makes a private
+  query without `permission` require `default.read`, and a private maintain target or service `default.write`. Before
+  you switch it on, give every existing profile `*` or `default.*`, and keep the `default` resource of AWE in the
+  catalog. See [Targets without permission](../security/permissions.md#require-undeclared).
+- **Audit in `warn` mode.** The detail of an `ACCESS_DENIED` event of a launch that `warn` lets through ends with
+  `(allowed: warn)`. Code that reads the detail accepts the suffix.
+
+:::caution Upgrade impact
+The user and profile administration screens of AWE now declare permissions (`users.read`, `users.create`,
+`users.update`, `users.delete`, `users.unlock`, `users.reset-2fa`, `profiles.read`, `profiles.create`,
+`profiles.update`, `profiles.delete`). Only the administrator profile (`ADM`) gets them from the migration. With
+`enforce`, the default mode, **any other profile that manages users or profiles today loses those actions** until it
+gets rows in `AweProPer`. With `enforce` the screens also hide the buttons of the actions a user cannot launch, so **the
+users other than the administrator see fewer buttons** than before the upgrade (the `user-admin` screen opens a user
+read-only without `users.update`).
+
+1. Run with `awe.security.authorization.mode=warn` and read the `ACCESS_DENIED` events with the `PERMISSION` cause.
+2. Give the permissions to the profiles that need them, for example to the profile with the acronym `MGR`:
+
+   ```sql
+   INSERT INTO AweProPer (IdeAweProPer, IdePro, Per)
+   SELECT k.KeyVal + 1, p.IdePro, 'users.*' FROM AwePro p, AweKey k WHERE p.Acr = 'MGR' AND k.KeyNam = 'ProPerKey';
+   INSERT INTO AweProPer (IdeAweProPer, IdePro, Per)
+   SELECT k.KeyVal + 2, p.IdePro, 'profiles.*' FROM AwePro p, AweKey k WHERE p.Acr = 'MGR' AND k.KeyNam = 'ProPerKey';
+   UPDATE AweKey SET KeyVal = KeyVal + 2 WHERE KeyNam = 'ProPerKey';
+   ```
+
+3. Return to `enforce` (remove the property).
+:::
+
+:::caution Upgrade impact: administration areas
+The other administration areas declare permissions too (see
+[Catalog resources](../security/permissions.md#catalog-resources)):
+
+| Area | Permissions |
+| --- | --- |
+| Sites, modules, databases, email servers, queues, sequences, application parameters, report configuration, log, encryption tools, messages to users | `system.read`, `system.update` |
+| Access by screen, screen configuration | `access.read`, `access.update` |
+| Security audit | `audit.read` |
+| Themes | `themes.*` |
+| Scheduler (`awe-scheduler`) | `scheduler.read`, `scheduler.update`, `scheduler.execute` |
+| Literals manager and path (`awe-developer`) | `developer.read`, `developer.update` |
+| SQL extractor (`awe-tools`) | `sql-extractor.read`, `sql-extractor.update` |
+| Subscriptions (`awe-notifier`) | `subscriptions.*` |
+
+With `enforce`, **any profile other than the administrator that uses one of these areas today loses it** until it gets
+rows in `AweProPer`. For example, to let the profile with the acronym `OPE` read the system configuration and run the
+scheduler:
+
+```sql
+INSERT INTO AweProPer (IdeAweProPer, IdePro, Per)
+SELECT k.KeyVal + 1, p.IdePro, 'system.read' FROM AwePro p, AweKey k WHERE p.Acr = 'OPE' AND k.KeyNam = 'ProPerKey';
+INSERT INTO AweProPer (IdeAweProPer, IdePro, Per)
+SELECT k.KeyVal + 2, p.IdePro, 'scheduler.*' FROM AwePro p, AweKey k WHERE p.Acr = 'OPE' AND k.KeyNam = 'ProPerKey';
+UPDATE AweKey SET KeyVal = KeyVal + 2 WHERE KeyNam = 'ProPerKey';
+```
+
+These administration targets are no longer `public`, so a request without a session gets `401`:
+
+| Module | Queries | Maintain targets |
+| --- | --- | --- |
+| `awe-developer` | `LitTra`, `LitLst`, `GetTraSer`, `GetSelectedLocale`, `SwitchLanguagesTxt`, `SwitchLanguagesMrk`, `checkPath` | `LitTra`, `LitSav`, `LitNew`, `LitDel`, `SetPath` |
+| `awe-scheduler` | `taskDependencies`, `taskParameters`, `taskVariableParameters`, `taskHasVariableParameters`, `SchCal`, `SchCalDatLst` | `ActSchTsk`, `DeaSchTsk` |
+| `awe-tools` | | `selectExtract`, `SaveSelectFile`, `DelSqlCol` |
+
+The selectors and suggests of an administration area require its permission: `DbsSel`, `DbsSug`, `SitSel`, `SitSug`,
+`ModSelBD`, `ModSug`, `ThmSel`, `UsrActSel`, `UsrActSug`, `CatParTyp` and `FntLst` require `system.read`, and
+`GetPrnLst` and `SelEmlSrvNom` require `users.read`. An application screen that reuses them needs that permission, or a
+query of its own.
+
+Run with `awe.security.authorization.mode=warn` first: read the `ACCESS_DENIED` events with the `PERMISSION` cause and
+the startup inventory of the targets left without permission, then return to `enforce`.
+:::
+
+See [Permissions](../security/permissions.md).
 
 ### Date utilities
 
@@ -613,7 +792,7 @@ changes, SSO provisioning, denied accesses and REST tokens. See [Security audit]
   value, `ope.NumLog` is used as the counter of consecutive failed logins (wrong password): a successful login resets
   it, and the account is locked (`ope.PwdLck`) when it reaches the limit. Code of your own that writes `NumLog` for
   other purposes would interfere with the lockout.
-- **New menu option.** `security-audit` (screen `SecAud`) is added under Settings > Security access in the `private` menu.
+- **New menu option.** `security-audit` (screen `SecAud`) is added under Settings > Security in the `private` menu.
   Applications that replace the whole menu do not get it unless they add it.
 
 ### Password hashing and master key
@@ -1114,6 +1293,11 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
 - [ ] No client code, screen or REST client of the application launches a framework target that is now `server-only`; own Java-only targets are marked `server-only="true"`
 - [ ] `awe.security.authorization.mode=warn` was run, the `ACCESS_DENIED` events were reviewed and the application uses `enforce` (or `off` on purpose)
+- [ ] `AweOpeRol` and `HISAweOpeRol` exist (Flyway `AWE_V1.6.0` or own scripts), and a custom `UserDAO` overrides `supportsAdditionalProfiles`, `findAdditionalProfiles` and `findProfileId` if the application uses additional profiles
+- [ ] `AweProPer` exists, the profiles other than the administrator that manage users or profiles have their permissions in it (`users.*`, `profiles.*`...), the `PERMISSION` refusals of a run with `warn` were reviewed, and a custom `UserDAO` overrides `findPermissions` and `findAllPermissions`
+- [ ] The profiles other than the administrator that use the system, access, audit, themes, scheduler, developer, SQL extractor or subscriptions areas have their permissions in `AweProPer`
+- [ ] No client calls without a session the developer, scheduler and tools targets that are no longer public, and application screens that reuse an administration selector (`DbsSel`, `SitSel`, `ThmSel`, `GetPrnLst`...) were reviewed
+- [ ] Code that builds `ActionService` by hand passes the `TargetLaunchAuthorizerChain` bean
 - [ ] The security audit was reviewed: `AweSecAudEvt` exists, the `security-audit` option is restricted, `awe.security.lockout.max-attempts` decided
 - [ ] Screens and builders use no deprecated contract value (`forward`, `get-locals`, `<frame>`, `<javascript>`...)
 - [ ] `ope` was backed up, `l1_pas` is `varchar(255)` and `awe.security.password-encoder` was decided (own XML and external readers of `l1_pas` reviewed)

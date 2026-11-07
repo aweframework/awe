@@ -119,6 +119,13 @@
     <order-by field="IdeOpe"/>
   </query>
 
+  <query id="TestPublicScreenPrivateQuery">
+    <table id="ope" alias="awe"/>
+    <field id="IdeOpe" alias="value"/>
+    <field id="l1_nom" alias="label"/>
+    <order-by field="IdeOpe"/>
+  </query>
+
   <query id="TestComponentInitialLoadValue" public="true">
     <table id="ope" alias="awe"/>
     <field variable="one" alias="kk" transform="NUMBER"/>

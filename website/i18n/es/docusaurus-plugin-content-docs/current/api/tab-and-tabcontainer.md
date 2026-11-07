@@ -46,6 +46,7 @@ La lista de pestañas se rellena con los campos `value` y `label` de la consulta
 | style         |    Opcional     | String  | Clases CSS de la pestaña                                                                        | **Nota:** Aquí puedes usar la clase `expand` para permitir que la ventana se expanda                |
 | maximize      |    Opcional     | Boolean | Mostrar el icono maximizar o no                                                                 | **Nota:** Funciona en ambos motores como una ventana: la lista de pestañas y su contenido ocupan el área de contenido (el menú y la barra superior siguen visibles) y el botón Restaurar los devuelve a su tamaño; no hay atajo con la tecla Escape |
 | orientation   |    Opcional     | String  | Orientación de los pasos del asistente                                                          | El valor por defecto es `vertical`                                                                  |
+| variable      |    Opcional     | String  | Nombre de un parámetro enviado desde otra pantalla (un criterio de esa pantalla) cuyo valor selecciona la página de la pestaña al abrir la pantalla | El valor de una de las opciones de la pestaña. Sin ese parámetro, la pestaña conserva su página por defecto |
 
 
 ## Estructura del contenedor de pestaña {#tabcontainer-structure}

@@ -3,15 +3,16 @@ import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {Dropdown} from "primereact/dropdown";
 import {classNames} from "../utilities/components";
 import AweCriterion from "./AweCriterion";
-import {useSelect} from "../hooks/useSelect";
+import {useSelect, selectItemTemplate} from "../hooks/useSelect";
 import {CriterionSkeleton} from "../components/AweSkeleton";
 import PropTypes from "prop-types";
 import {dropdownPassThrough, selectValueTemplate} from "../utilities/testPassThrough";
+import "./AweSelect.less";
 
 function AweSelect(props) {
 
   const { id } = props;
-  const {t, ref, address, model, attributes, validationRules, options, selected, onChange} =
+  const {t, ref, address, model, attributes, validationRules, options, groupProps, selected, onChange} =
     useSelect({id, multiple: false});
 
   const {required, readonly, optional, size, error} = attributes;
@@ -39,8 +40,10 @@ function AweSelect(props) {
       className={classes}
       invalid={error}
       options={options}
+      {...groupProps}
+      itemTemplate={selectItemTemplate}
       showClear={optional}
-      filter={options.length > 5}
+      filter={(model?.values?.length ?? 0) > 5}
       filterBy="label"
       valueTemplate={selectValueTemplate}
       pt={{...dropdownPassThrough(id), input: requiredAria(attributes, validationRules)}}

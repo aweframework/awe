@@ -200,13 +200,47 @@ that exact name (so URI claim names work). A claim can hold a list of roles or a
 ### Several roles: which profile wins
 
 All roles that carry the prefix are turned into profile names (the prefix is stripped, roles equal to the prefix are
-ignored). When more than one remains, AWE uses the **first name in alphabetical order that exists as an AWE
-profile**, so the result never depends on the order in which the provider sends the roles, and a role without a
-profile never hides a valid one. When none of them exists as a profile, the first name in alphabetical order is
-taken (and then handled as a role without profile, see below). For example, with the prefix `role_` and the roles
-`role_operator`, `role_manager` and `role_auditor`, where `auditor` is not an AWE profile, the profile is `manager`.
-To control the result, send a single prefixed role per user, or name the profiles so that the preferred one sorts
-first.
+ignored). When more than one remains, AWE uses:
+
+1. The **first profile of `awe.security.sso.profile-priority`** that the provider sends and that exists as an AWE
+   profile. The names are compared without case.
+2. When none of the list is sent and exists, or the list is empty (the default), the **first name in alphabetical
+   order that exists as an AWE profile**.
+
+So the result never depends on the order in which the provider sends the roles, and a role without a profile never
+hides a valid one. When none of them exists as a profile, the first name in alphabetical order is taken (and then
+handled as a role without profile, see below). For example, with the prefix `role_` and the roles `role_operator`,
+`role_manager` and `role_auditor`, where `auditor` is not an AWE profile, the profile is `manager`. With the
+configuration below, the profile is `operator`.
+
+```yaml title="Choose the main profile of users with several roles"
+awe:
+  security:
+    sso:
+      profile-priority: administrator,operator,manager
+```
+
+| Property | Default | Meaning |
+| --- | --- | --- |
+| `awe.security.sso.profile-priority` | empty | Profiles in order of priority to choose the main profile when the provider sends several roles that map to existing profiles. |
+
+### Several roles: additional profiles
+
+The main profile is chosen exactly as above. When it comes from a provider role that exists as a profile, the other
+provider roles that exist as profiles become the [additional profiles](additional-profiles.md) of the user. In the
+example above, the main profile is `manager` and `operator` is an additional profile; `auditor` is ignored.
+
+- The additional profiles replace the ones stored for that user (audited in `HISAweOpeRol`), for existing users and
+  for users provisioned at that login: the provider is the source of truth for the additional profiles of an SSO
+  user.
+- Roles without an existing profile are ignored.
+- With a custom `UserDAO` whose `supportsAdditionalProfiles()` returns `false` (the default), the additional profiles
+  stored for the user are left untouched.
+- When no role maps to an existing profile (no role, an unknown role, or the default role applied with
+  `overwrite-profile-with-default-role`), the additional profiles are not touched and the login follows the rules
+  below.
+- On the first login after the provider changes the main role of a user, the session keeps the previous main profile,
+  as before: the stored main profile is updated and applies from the next login.
 
 ### Synchronization with the stored profile
 
@@ -254,7 +288,7 @@ not used. The refusal is logged at `WARN` with the user name.
 | any | `true` | Refused. |
 | any | `false` | Previous behaviour (explicit opt-in to the default role fallback). |
 
-A role "maps" when, after the prefix and the alphabetical rule above, the resulting name exists as an AWE profile.
+A role "maps" when, after the prefix and the rule above, the resulting name exists as an AWE profile.
 
 ## Keycloak
 

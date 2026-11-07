@@ -116,14 +116,17 @@ class QueryUtilColumnFilterTest {
     "[{'id':'name','fields':['u.Pwd'],'type':'text','conditions':[{'operator':'eq','value':'x'}]}]|unknown field u.Pwd",
     "[{'id':'secret','type':'text','conditions':[{'operator':'startsWith','value':'a'}]}]|field secret of column filter secret is not printed",
     "[{'id':'total','type':'number','conditions':[{'operator':'gt','value':'1'}]}]"
-      + "|field total of column filter total is an aggregate or window function"
+      + "|field total of column filter total is an aggregate or window function",
+    "[{'id':'names','type':'text','conditions':[{'operator':'contains','value':'a'}]}]"
+      + "|field names of column filter names is an aggregate or window function"
   })
   @DisplayName("An unknown field, a noprint field (a filter cannot probe values the query never sends) or an aggregate field is rejected")
   void fieldOutsideTheAllowListIsRejected(String columnFilters, String reason) throws Exception {
     Query query = new Query().setId("UsrLst").setSqlFieldList(new ArrayList<>(List.<SqlField>of(
       Field.builder().id("Nam").table("u").alias("name").build(),
       Field.builder().id("Pwd").table("u").alias("secret").noprint(true).build(),
-      Field.builder().id("Ide").table("u").alias("total").function("CNT").build())));
+      Field.builder().id("Ide").table("u").alias("total").function("CNT").build(),
+      Field.builder().id("Nam").table("u").alias("names").function("STRING_AGG").build())));
     ColumnFilter columnFilter = queryUtil.getColumnFilterList(json(columnFilters)).getFirst();
 
     assertThatThrownBy(() -> queryUtil.getColumnFilterFields(query, columnFilter))

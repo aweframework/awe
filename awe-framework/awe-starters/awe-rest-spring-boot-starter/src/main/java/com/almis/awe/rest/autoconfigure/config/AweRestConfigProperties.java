@@ -197,12 +197,16 @@ public class AweRestConfigProperties {
      */
     private String clientPrincipalPrefix = "client:";
     /**
-     * Token claim holding the AWE profile to assign to the principal.
-     * When it is not set or the token does not carry it, the default profile is used.
+     * Token claim with the roles mapped to AWE profiles as the single sign-on login maps them: a claim name, or a
+     * dotted path to a nested claim (realm_access.roles), holding a list of roles or a single one. The prefix
+     * awe.security.sso.filter-authority-prefix is stripped, each role is compared with the profile names without case,
+     * the main profile follows awe.security.sso.profile-priority (else the first name in alphabetical order) and the
+     * roles without an AWE profile are ignored. When it is not set, or no role maps to a profile, the default profile
+     * is used, unless awe.security.sso.require-role applies: then the token is refused.
      */
     private String profileClaim;
     /**
-     * AWE profile assigned when the token does not provide one.
+     * Name of the AWE profile assigned when the token does not provide one.
      * When it is not set, the application default role (awe.application.default-role) is used.
      */
     private String defaultProfile;

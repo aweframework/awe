@@ -458,7 +458,7 @@ public class AweWebSecurityConfig {
 	@ConditionalOnProperty(prefix = "awe.security.sso", name = "enabled", havingValue = "true")
 	@ConditionalOnMissingBean
 	public AweOauth2AuthenticationSuccessHandler authSuccessHandler(AweOauth2AuthenticationFailureHandler failureHandler) {
-		return new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler);
+		return new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler, securityContextRepository());
 	}
 
 	@Bean

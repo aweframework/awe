@@ -5,6 +5,7 @@
 delete from AweKey;
 delete from AweThm;
 delete from AweAppPar;
+delete from AweProPer;
 delete from AwePro;
 delete from ope;
 delete from AweSit;
@@ -127,6 +128,10 @@ Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('1','ADM
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('2','GNR','general','1',null,'general','1');
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('3','OPE','operator','1',null,'operator','1');
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('4','TST','test','1',null,'test','1');
+
+-- The administrator profile has every permission
+Insert into AweProPer (IdeAweProPer, IdePro, Per) values (1, 1, '*');
+Insert into AweKey (KeyNam, KeyVal) values ('ProPerKey', 1);
 
 -- Insert default user
 Insert into ope (IdeOpe, l1_nom, l1_pas, l1_con, l1_dev, l1_act, l1_trt, l1_uti, l1_opr, l1_dat, imp_nom, dat_mod, l1_psd, l1_lan, l1_sgn, PcPrn, EmlSrv, EmlAdr, OpeNam, IdePro, IdeThm) values (1,'test','5e52fee47e6b070565f74372468cdc699de89107',0,null,1,null,0,null,null,'none','1978-10-23 15:06:21','2013-11-04 08:57:02','ENG',1,null,null,'test@test.com','Manager',(select IdePro from AwePro where Nam = 'administrator'),(select IdeThm from AweThm where Nam = 'sunset'));

@@ -16,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
@@ -196,6 +197,40 @@ class SQLBuilderFunctionCastTest {
     field.setFunction("").setCast("");
 
     assertThatCode(() -> builder.getOperandExpression(field)).doesNotThrowAnyException();
+  }
+
+  @Test
+  @DisplayName("A STRING_AGG field joins its values with its separator")
+  void stringAggregationFieldUsesItsSeparator() throws Exception {
+    Field field = Field.builder().id("col").table("tab").function("string_agg").separator("|").build();
+
+    assertThat(builder.getOperandExpression(field)).hasToString("group_concat(tab.col order by tab.col separator '|')");
+  }
+
+  @ParameterizedTest(name = "function [{0}] with a separator fails")
+  @CsvSource(nullValues = "NULL", value = {"SUM", "NULL"})
+  @DisplayName("A separator on a field whose function does not join values fails naming the query and the field")
+  void separatorWithoutStringAggregationFails(String function) {
+    Field field = Field.builder().id("col").table("tab").alias("alias").function(function).separator("|").build();
+
+    assertThatThrownBy(() -> builder.getOperandExpression(field))
+      .isInstanceOf(AWEQueryException.class)
+      .hasMessageContaining("ERROR_MESSAGE_SEPARATOR_WITHOUT_SEPARATED_FUNCTION")
+      .hasMessageContaining(QUERY_ID)
+      .hasMessageContaining("alias");
+  }
+
+  @Test
+  @DisplayName("A separator with an opening brace fails naming the query, the field and the separator")
+  void separatorWithBraceFails() {
+    Field field = Field.builder().id("col").table("tab").function("STRING_AGG").separator("{0}").build();
+
+    assertThatThrownBy(() -> builder.getOperandExpression(field))
+      .isInstanceOf(AWEQueryException.class)
+      .hasMessageContaining("ERROR_MESSAGE_UNSUPPORTED_SEPARATOR")
+      .hasMessageContaining(QUERY_ID)
+      .hasMessageContaining("col")
+      .hasMessageContaining("{0}");
   }
 
   @Test

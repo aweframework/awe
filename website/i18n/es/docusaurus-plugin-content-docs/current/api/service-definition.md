@@ -65,6 +65,14 @@ El elemento service tiene los siguientes atributos:
 |------------------------------|-----------------|--------|------------------------------------------------------|-----------------------------------------------------------------------|
 | id                           | **Obligatorio** | String | Nombre del servicio                                  | **Nota:** El id debe ser único                                        |
 | launch-phase                 | Opcional        | String | Lanza el servicio en determinados puntos de la aplicación | `APPLICATION_START`, `APPLICATION_END`,  `CLIENT_START`, `CLIENT_END` |
+| permission                   | Opcional        | String | Permisos del catálogo que necesita una acción de cliente para llamar al servicio, separados por espacios (se requieren todos) | **Nota:** Un permiso desconocido es un error de carga. Consulte [permisos](#service-permissions) |
+| authorization                | Opcional        | String | Cómo se autoriza una llamada desde una acción de cliente | `target`: el servicio lanza la consulta o el target de maintain que pide el cliente, y se comprueba ese target en lugar del servicio. No se puede combinar con `permission` |
+
+#### Permisos {#service-permissions}
+
+Una acción de cliente solo llama a un servicio con `permission="system.update"` cuando el usuario de la sesión tiene el
+permiso `system.update`. Las llamadas del servidor, los servicios de una consulta o un maintain de tipo `service` y los
+servicios de una `launch-phase` nunca se comprueban. Consulte [Permisos](../security/permissions.md#services).
 
 ### Elemento java {#java-element}
 

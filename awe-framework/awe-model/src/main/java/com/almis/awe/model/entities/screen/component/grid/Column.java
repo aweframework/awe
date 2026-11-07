@@ -101,6 +101,13 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean sendable;
 
+  // Permissions required to show a button column, separated by spaces (all of them are required). It replaces the
+  // decision derived from the targets its actions launch. Read by the server only
+  @JsonIgnore
+  @XStreamAlias("permission")
+  @XStreamAsAttribute
+  private String permission;
+
   // Totalise TYPE
   @XStreamAlias("summary-type")
   @XStreamAsAttribute

@@ -14,6 +14,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -27,6 +28,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
@@ -136,23 +138,7 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
   @Test
   @DisplayName("The security audit migration can be applied again over the existing objects")
   void testSecurityAuditMigrationCanBeAppliedAgain() throws Exception {
-    // Forget that 1.3.0 was applied: Flyway runs the script again over the table and indexes it already created
-    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-      String quote = connection.getMetaData().getIdentifierQuoteString();
-      statement.executeUpdate("DELETE FROM " + quote + "flyway_schema_AWE" + quote + " WHERE " + quote + "version" + quote + " = '1.3.0'");
-      if (!connection.getAutoCommit()) {
-        connection.commit();
-      }
-    }
-
-    Flyway.configure()
-      .dataSource(dataSource)
-      .locations("classpath:db/migration/" + dialect())
-      .sqlMigrationPrefix("AWE_V")
-      .table("flyway_schema_AWE")
-      .outOfOrder(true)
-      .load()
-      .migrate();
+    applyAgain("1.3.0");
 
     assertTrue(appliedVersions("AWE").contains("1.3.0"), "AWE_V1.3.0 applied again successfully on " + dialect());
     try (Connection connection = dataSource.getConnection();
@@ -186,23 +172,7 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
   @Test
   @DisplayName("The password hash migration can be applied again over the widened columns")
   void testPasswordHashMigrationCanBeAppliedAgain() throws Exception {
-    // Forget that 1.4.0 was applied: Flyway runs the script again over the columns it already widened
-    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-      String quote = connection.getMetaData().getIdentifierQuoteString();
-      statement.executeUpdate("DELETE FROM " + quote + "flyway_schema_AWE" + quote + " WHERE " + quote + "version" + quote + " = '1.4.0'");
-      if (!connection.getAutoCommit()) {
-        connection.commit();
-      }
-    }
-
-    Flyway.configure()
-      .dataSource(dataSource)
-      .locations("classpath:db/migration/" + dialect())
-      .sqlMigrationPrefix("AWE_V")
-      .table("flyway_schema_AWE")
-      .outOfOrder(true)
-      .load()
-      .migrate();
+    applyAgain("1.4.0");
 
     assertTrue(appliedVersions("AWE").contains("1.4.0"), "AWE_V1.4.0 applied again successfully on " + dialect());
     assertPasswordHashColumnIsWidened("ope");
@@ -212,23 +182,7 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
   @Test
   @DisplayName("The grid layout migration can be applied again over the existing objects")
   void testGridLayoutMigrationCanBeAppliedAgain() throws Exception {
-    // Forget that 1.3.1 was applied: Flyway runs the script again over the table and the key it already created
-    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-      String quote = connection.getMetaData().getIdentifierQuoteString();
-      statement.executeUpdate("DELETE FROM " + quote + "flyway_schema_AWE" + quote + " WHERE " + quote + "version" + quote + " = '1.3.1'");
-      if (!connection.getAutoCommit()) {
-        connection.commit();
-      }
-    }
-
-    Flyway.configure()
-      .dataSource(dataSource)
-      .locations("classpath:db/migration/" + dialect())
-      .sqlMigrationPrefix("AWE_V")
-      .table("flyway_schema_AWE")
-      .outOfOrder(true)
-      .load()
-      .migrate();
+    applyAgain("1.3.1");
 
     assertTrue(appliedVersions("AWE").contains("1.3.1"), "AWE_V1.3.1 applied again successfully on " + dialect());
     try (Connection connection = dataSource.getConnection();
@@ -256,23 +210,7 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
   @Test
   @DisplayName("The window state migration can be applied again over the existing objects")
   void testWindowStateMigrationCanBeAppliedAgain() throws Exception {
-    // Forget that 1.5.1 was applied: Flyway runs the script again over the table and the key it already created
-    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-      String quote = connection.getMetaData().getIdentifierQuoteString();
-      statement.executeUpdate("DELETE FROM " + quote + "flyway_schema_AWE" + quote + " WHERE " + quote + "version" + quote + " = '1.5.1'");
-      if (!connection.getAutoCommit()) {
-        connection.commit();
-      }
-    }
-
-    Flyway.configure()
-      .dataSource(dataSource)
-      .locations("classpath:db/migration/" + dialect())
-      .sqlMigrationPrefix("AWE_V")
-      .table("flyway_schema_AWE")
-      .outOfOrder(true)
-      .load()
-      .migrate();
+    applyAgain("1.5.1");
 
     assertTrue(appliedVersions("AWE").contains("1.5.1"), "AWE_V1.5.1 applied again successfully on " + dialect());
     assertEquals(0, count("SELECT COUNT(*) FROM AweUsrWinCnf WHERE Ope = 'nobody'"), "AweUsrWinCnf still answers a query");
@@ -292,27 +230,111 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
   @Test
   @DisplayName("The saved search migration can be applied again over the existing objects")
   void testSavedSearchMigrationCanBeAppliedAgain() throws Exception {
-    // Forget that 1.5.2 was applied: Flyway runs the script again over the table and the key it already created
-    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
-      String quote = connection.getMetaData().getIdentifierQuoteString();
-      statement.executeUpdate("DELETE FROM " + quote + "flyway_schema_AWE" + quote + " WHERE " + quote + "version" + quote + " = '1.5.2'");
-      if (!connection.getAutoCommit()) {
-        connection.commit();
-      }
-    }
-
-    Flyway.configure()
-      .dataSource(dataSource)
-      .locations("classpath:db/migration/" + dialect())
-      .sqlMigrationPrefix("AWE_V")
-      .table("flyway_schema_AWE")
-      .outOfOrder(true)
-      .load()
-      .migrate();
+    applyAgain("1.5.2");
 
     assertTrue(appliedVersions("AWE").contains("1.5.2"), "AWE_V1.5.2 applied again successfully on " + dialect());
     assertEquals(0, count("SELECT COUNT(*) FROM AweSavSch WHERE Ope = 'nobody'"), "AweSavSch still answers a query");
     assertEquals(1, count("SELECT COUNT(*) FROM AweKey WHERE KeyNam = 'SavSchKey'"), "The SavSchKey sequence exists exactly once");
+  }
+
+  @Test
+  @DisplayName("The additional profiles table is migrated with its unique key and its foreign keys")
+  void testAdditionalProfilesTableIsMigrated() throws Exception {
+    assertTrue(shippedVersions("AWE").contains("1.6.0"), "The AWE additional profiles migration is shipped for " + dialect());
+    assertEquals(1, count("SELECT COUNT(*) FROM AweKey WHERE KeyNam = 'OpeRolKey'"), "The OpeRolKey sequence exists on " + dialect());
+
+    int user = count("SELECT MIN(IdeOpe) FROM ope");
+    int profile = count("SELECT MIN(IdePro) FROM AwePro");
+    try {
+      execute("INSERT INTO AweOpeRol (IdeAweOpeRol, IdeOpe, IdePro) VALUES (7710001, " + user + ", " + profile + ")");
+      assertEquals(1, count("SELECT COUNT(*) FROM AweOpeRol WHERE IdeAweOpeRol = 7710001"), "AweOpeRol stores a row on " + dialect());
+      assertThrows(SQLException.class,
+        () -> execute("INSERT INTO AweOpeRol (IdeAweOpeRol, IdeOpe, IdePro) VALUES (7710002, " + user + ", " + profile + ")"),
+        "A user cannot have the same additional profile twice on " + dialect());
+      assertThrows(SQLException.class,
+        () -> execute("INSERT INTO AweOpeRol (IdeAweOpeRol, IdeOpe, IdePro) VALUES (7710003, -771, " + profile + ")"),
+        "An additional profile needs an existing user on " + dialect());
+      assertThrows(SQLException.class,
+        () -> execute("INSERT INTO AweOpeRol (IdeAweOpeRol, IdeOpe, IdePro) VALUES (7710004, " + user + ", -771)"),
+        "An additional profile needs an existing profile on " + dialect());
+      // The audit stores the user of the change, an SSO login (often an email) as long as the other audit tables allow
+      String longUser = "a.very.long.single.sign.on.user.name@example-company.com";
+      try (Connection connection = dataSource.getConnection();
+           PreparedStatement statement = connection.prepareStatement("INSERT INTO HISAweOpeRol "
+             + "(HISope, HISdat, HISact, IdeAweOpeRol, IdeOpe, IdePro) VALUES (?, ?, 'I', 7710001, ?, ?)")) {
+        statement.setString(1, longUser);
+        statement.setDate(2, new java.sql.Date(System.currentTimeMillis()));
+        statement.setInt(3, user);
+        statement.setInt(4, profile);
+        statement.executeUpdate();
+        if (!connection.getAutoCommit()) {
+          connection.commit();
+        }
+      }
+      assertEquals(1, count("SELECT COUNT(*) FROM HISAweOpeRol WHERE IdeAweOpeRol = 7710001"),
+        "HISAweOpeRol stores a long user on " + dialect());
+    } finally {
+      execute("DELETE FROM AweOpeRol WHERE IdeAweOpeRol >= 7710001");
+      execute("DELETE FROM HISAweOpeRol WHERE IdeAweOpeRol >= 7710001");
+    }
+  }
+
+  @Test
+  @DisplayName("The authorization migration can be applied again without repeating its objects or the ADM permission")
+  void testAuthorizationMigrationCanBeAppliedAgain() throws Exception {
+    applyAgain("1.6.0");
+
+    assertTrue(appliedVersions("AWE").contains("1.6.0"), "AWE_V1.6.0 applied again successfully on " + dialect());
+    assertEquals(0, count("SELECT COUNT(*) FROM HISAweOpeRol WHERE HISope = 'nobody'"), "HISAweOpeRol still answers a query");
+    assertEquals(1, count("SELECT COUNT(*) FROM AweKey WHERE KeyNam = 'OpeRolKey'"), "The OpeRolKey sequence exists exactly once");
+    assertEquals(0, count("SELECT COUNT(*) FROM HISAweProPer WHERE HISope = 'nobody'"), "HISAweProPer still answers a query");
+    assertEquals(1, count("SELECT COUNT(*) FROM AweKey WHERE KeyNam = 'ProPerKey'"), "The ProPerKey sequence exists exactly once");
+    assertAdministratorHasEveryPermissionOnce();
+  }
+
+  @Test
+  @DisplayName("The profile permissions table is migrated with its unique key, its foreign key and the ADM permission")
+  void testProfilePermissionsTableIsMigrated() throws Exception {
+    assertEquals(1, count("SELECT COUNT(*) FROM AweKey WHERE KeyNam = 'ProPerKey'"), "The ProPerKey sequence exists on " + dialect());
+    assertAdministratorHasEveryPermissionOnce();
+
+    int profile = count("SELECT MIN(IdePro) FROM AwePro");
+    try {
+      execute("INSERT INTO AweProPer (IdeAweProPer, IdePro, Per) VALUES (7720001, " + profile + ", 'users.read')");
+      assertEquals(1, count("SELECT COUNT(*) FROM AweProPer WHERE IdeAweProPer = 7720001"), "AweProPer stores a row on " + dialect());
+      assertThrows(SQLException.class,
+        () -> execute("INSERT INTO AweProPer (IdeAweProPer, IdePro, Per) VALUES (7720002, " + profile + ", 'users.read')"),
+        "A profile cannot have the same permission twice on " + dialect());
+      assertThrows(SQLException.class,
+        () -> execute("INSERT INTO AweProPer (IdeAweProPer, IdePro, Per) VALUES (7720003, -772, 'users.read')"),
+        "A permission needs an existing profile on " + dialect());
+      try (Connection connection = dataSource.getConnection();
+           PreparedStatement statement = connection.prepareStatement("INSERT INTO HISAweProPer "
+             + "(HISope, HISdat, HISact, IdeAweProPer, IdePro, Per) VALUES (?, ?, 'I', 7720001, ?, 'users.read')")) {
+        statement.setString(1, "a.very.long.single.sign.on.user.name@example-company.com");
+        statement.setDate(2, new java.sql.Date(System.currentTimeMillis()));
+        statement.setInt(3, profile);
+        statement.executeUpdate();
+        if (!connection.getAutoCommit()) {
+          connection.commit();
+        }
+      }
+      assertEquals(1, count("SELECT COUNT(*) FROM HISAweProPer WHERE IdeAweProPer = 7720001"),
+        "HISAweProPer stores a long user on " + dialect());
+    } finally {
+      execute("DELETE FROM AweProPer WHERE IdeAweProPer >= 7720001");
+      execute("DELETE FROM HISAweProPer WHERE IdeAweProPer >= 7720001");
+    }
+  }
+
+  /**
+   * The ADM profile gets every permission ('*') exactly once, and the sequence is past the identifier it used
+   */
+  private void assertAdministratorHasEveryPermissionOnce() throws SQLException {
+    assertEquals(1, count("SELECT COUNT(*) FROM AweProPer p JOIN AwePro r ON r.IdePro = p.IdePro "
+      + "WHERE r.Acr = 'ADM' AND p.Per = '*'"), "ADM has the '*' permission exactly once on " + dialect());
+    assertTrue(keyValue("ProPerKey") >= count("SELECT MAX(IdeAweProPer) FROM AweProPer WHERE IdeAweProPer < 7720001"),
+      "ProPerKey is past the migrated permissions on " + dialect());
   }
 
   @Test
@@ -334,10 +356,44 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
       "SitModDbsKey is past the seeded relations on " + dialect());
   }
 
+  /**
+   * Forget that an AWE migration was applied and let Flyway run its script again over the objects it already created
+   *
+   * @param version Migration version
+   */
+  private void applyAgain(String version) throws SQLException {
+    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+      String quote = connection.getMetaData().getIdentifierQuoteString();
+      statement.executeUpdate("DELETE FROM " + quote + "flyway_schema_AWE" + quote + " WHERE " + quote + "version"
+        + quote + " = '" + version + "'");
+      if (!connection.getAutoCommit()) {
+        connection.commit();
+      }
+    }
+
+    Flyway.configure()
+      .dataSource(dataSource)
+      .locations("classpath:db/migration/" + dialect())
+      .sqlMigrationPrefix("AWE_V")
+      .table("flyway_schema_AWE")
+      .outOfOrder(true)
+      .load()
+      .migrate();
+  }
+
   private int keyValue(String key) throws SQLException {
     // A missing key would make every comparison with it false: it must exist
     assertEquals(1, count("SELECT COUNT(*) FROM AweKey WHERE KeyNam = '" + key + "'"), "Key " + key + " exists on " + dialect());
     return count("SELECT KeyVal FROM AweKey WHERE KeyNam = '" + key + "'");
+  }
+
+  private void execute(String sql) throws SQLException {
+    try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+      statement.executeUpdate(sql);
+      if (!connection.getAutoCommit()) {
+        connection.commit();
+      }
+    }
   }
 
   private int count(String sql) throws SQLException {
