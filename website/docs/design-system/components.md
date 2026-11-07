@@ -64,6 +64,8 @@ popup in the AWE list style.
 | ARIA | `role="combobox"` with `aria-expanded`, `aria-controls`, `aria-activedescendant`; `role="listbox"` and `role="option"` with `aria-selected`. |
 | Multiselect | Selected values as removable chips in the field; the popup lists every option with a checkbox and "n of m" in the field. |
 | Autocomplete | Same list style; the matched text is highlighted; options can have a second line (meta). |
+| Multiple autocomplete | The chosen values are the same removable chips as a multiselect, wrapped inside the field; a dropdown trigger at its right end opens the list without typing, and, when the field can be left empty, a clear button empties every chosen value at once. |
+| Clear | A field that can be left empty shows a muted clear icon at its right end while it has a value (`--awe-size-icon-sm`, the color of the field icon). |
 
 ### Dates and times
 

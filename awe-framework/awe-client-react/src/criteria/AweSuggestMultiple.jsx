@@ -1,7 +1,9 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {criterionPlaceholder, requiredAria} from "../utilities/labels";
+import {criterionPlaceholder, isCriterionRequired, requiredAria} from "../utilities/labels";
 import {AutoComplete} from "primereact/autocomplete";
 import {classNames} from "../utilities/components";
+import {getIconNode} from "../utilities";
+import {TestIds, testHook} from "../utilities/testIds";
 import "./AweSuggest.less";
 import {useTranslation} from "react-i18next";
 import {useComponentState} from "../hooks/useComponentState";
@@ -25,7 +27,7 @@ function AweSuggestMultiple(props) {
   const textSuggestions = useMemo(() => withTextLabels(suggestions), [suggestions]);
   const [value, setValue] = useState(model.values.filter(item => item.selected) || []);
 
-  const { onChange, onKeyPress, onSuggest, initialSuggest } = useSuggest(autocompleteRef, setSuggestions, value, setValue, { ...attributes, address });
+  const { onChange, onClear, onKeyPress, onSuggest, initialSuggest } = useSuggest(autocompleteRef, setSuggestions, value, setValue, { ...attributes, address });
 
   // Show the selected values again when the model changes (a dependency or an action selects other values)
   const isFirstRender = useRef(true);
@@ -47,6 +49,31 @@ function AweSuggestMultiple(props) {
   const {required, readonly, timeout, size, error } = attributes;
   const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
   const chosen = value.map(item => ({ ...item, label: getSuggestionLabel(item) }));
+  // A field that can be left empty (it is not required) offers one button that empties every chosen value
+  const clearable = !readonly && !isCriterionRequired(attributes, validationRules) && chosen.length > 0;
+
+  // A value can be chosen only once: the server answers a new object for the same option every time, so PrimeReact
+  // compares two different elements and the same value would be stored twice (and sent twice to the server)
+  const onChosen = (event) => {
+    // The text being typed is not a list of values: it goes to the component as it comes
+    if (!Array.isArray(event.value)) {
+      onChange(event);
+      return;
+    }
+    const seen = new Set();
+    const unique = event.value.filter(item => {
+      if (item === null || item === undefined) {
+        return false;
+      }
+      const key = String(item?.value ?? item);
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+    onChange({...event, value: unique});
+  };
 
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
@@ -54,12 +81,12 @@ function AweSuggestMultiple(props) {
         ref={autocompleteRef}
         id={id}
         value={chosen}
-        {...suggestChipProps(chosen, readonly, onChange)}
+        {...suggestChipProps(chosen, readonly, onChosen)}
         placeholder={criterionPlaceholder(attributes, validationRules, t)}
         required={required}
         {...requiredAria(attributes, validationRules)}
         disabled={readonly}
-        onChange={onChange}
+        onChange={onChosen}
         onKeyDown={onKeyPress}
         delay={timeout || 300}
         field="label"
@@ -68,10 +95,15 @@ function AweSuggestMultiple(props) {
         completeMethod={onSuggest}
         className={classes}
         appendTo={document.body}
+        dropdown
         forceSelection
         autoHighlight
         pt={autoCompletePassThrough(id, true)}
       />
+      {clearable && <button type="button" className="awe-suggest-clear" aria-label={t("BUTTON_CLEAR")}
+        onClick={onClear} {...testHook(TestIds.selectClear)}>
+        {getIconNode("lucide:x", {"aria-hidden": "true"})}
+      </button>}
     </AweCriterion>
   );
 }

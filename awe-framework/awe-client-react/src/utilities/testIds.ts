@@ -22,6 +22,7 @@ export const TestIds = Object.freeze({
   selectSearch: "select-search",
   selectChoice: "select-choice",
   selectChoiceClose: "select-choice-close",
+  selectClear: "select-clear",
   selectDropdown: "select-dropdown",
   // React only: arrow that opens the overlay panel (the middle of a short select can be its clear icon)
   selectTrigger: "select-trigger",
