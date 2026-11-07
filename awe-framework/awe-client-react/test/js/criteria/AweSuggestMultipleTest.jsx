@@ -266,5 +266,67 @@ describe('awe-react-client/test/js/criteria/AweSuggestMultipleTest.jsx', () => {
       // fireEvent returns false when the default action of the event (the focus change) was prevented
       expect(fireEvent.mouseDown(option)).toBe(false);
     });
+
+    it('keeps one chip when the same value is chosen twice', async () => {
+      answers.test = {rows: [{label: 'test (test@test.com)', value: 'test'}], delay: 0};
+      const {store} = renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {preloadedState: strictFalseState});
+      const input = () => document.querySelector("#suggest-multiple input[aria-autocomplete]");
+      const wait = (ms) => act(async () => { await new Promise(resolve => setTimeout(resolve, ms)); });
+
+      // The server answers the same option again as a new object, so picking the same value a second time describes
+      // two elements of the list unless the client compares the value
+      const pick = async () => {
+        fireEvent.change(input(), {target: {value: "test"}});
+        await wait(300);
+        const option = document.querySelector(".p-autocomplete-item");
+        await act(async () => { fireEvent.click(option); });
+        await wait(200);
+      };
+      await pick();
+      await pick();
+
+      expect(document.querySelectorAll("#suggest-multiple .p-autocomplete-token")).toHaveLength(1);
+      expect(store.getState().components["suggest-multiple"].model.values.filter(item => item.selected)).toHaveLength(1);
+    });
+
+    it('shows the dropdown trigger of a suggest', () => {
+      renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {preloadedState: strictFalseState});
+
+      // The same chevron of a suggest, which opens the list without typing anything
+      const trigger = document.querySelector("[data-testid='select-trigger']");
+      expect(trigger).not.toBeNull();
+      expect(trigger.nodeName).toBe("BUTTON");
+    });
+  });
+
+  describe('clearing the field', () => {
+    it('empties every chosen value from the clear button of the field', async () => {
+      const {store} = renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {preloadedState});
+      expect(document.querySelectorAll("#suggest-multiple .p-autocomplete-token")).toHaveLength(2);
+
+      const clear = document.querySelector("[data-testid='select-clear']");
+      expect(clear).not.toBeNull();
+
+      await act(async () => { fireEvent.click(clear); });
+
+      expect(document.querySelectorAll("#suggest-multiple .p-autocomplete-token")).toHaveLength(0);
+      expect(store.getState().components["suggest-multiple"].model.values.filter(item => item.selected)).toEqual([]);
+    });
+
+    it('does not offer the clear button of a required suggest', () => {
+      const requiredState = {
+        ...preloadedState,
+        components: {
+          "suggest-multiple": {
+            ...preloadedState.components["suggest-multiple"],
+            validationRules: {required: true},
+            attributes: {placeholder: "placeholder", readonly: false}
+          }
+        }
+      };
+      renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {preloadedState: requiredState});
+
+      expect(document.querySelector("[data-testid='select-clear']")).toBeNull();
+    });
   });
 });

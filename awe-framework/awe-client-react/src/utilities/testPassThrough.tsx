@@ -95,6 +95,7 @@ export interface AutoCompletePassThrough {
   root: TestHook;
   input: TestHook | { root: TestHook };
   loadingIcon: TestHook;
+  dropdownButton: { root: TestHook };
   panel: TestHook & { onMouseDown: (event: { preventDefault: () => void }) => void };
   item: (options: OptionOptions) => TestHook;
 }
@@ -377,6 +378,7 @@ export function autoCompletePassThrough(owner: string, multiple = false): AutoCo
     input: multiple ? testHook(TestIds.selectSearch) : { root: testHook(TestIds.selectSearch) },
     // The chosen values of a multiple suggest are chips of a multiple select (AweSelectChip), with their own test ids
     loadingIcon: testHook(TestIds.loader),
+    dropdownButton: { root: testHook(TestIds.selectTrigger) },
     // Pressing the mouse on the list must not take the focus away from the input: the list is aligned again when the
     // input loses the focus (it can then flip from above to below it) and the click would land outside the result
     panel: { ...testHook(TestIds.selectDropdown, { owner }), onMouseDown: keepInputFocus },

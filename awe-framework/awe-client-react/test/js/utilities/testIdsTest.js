@@ -12,7 +12,7 @@ const ANGULAR_VOCABULARY = path.resolve(
  * Anything else must be identical to the AngularJS vocabulary.
  */
 const REACT_ONLY_TEST_IDS = [
-  'avatar', 'avatarName', 'criterionError', 'criterionUnit', 'gridRowEdit', 'selectTrigger', 'tagList', 'wizardStepNumber',
+  'avatar', 'avatarName', 'criterionError', 'criterionUnit', 'gridRowEdit', 'selectTrigger', 'selectClear', 'tagList', 'wizardStepNumber',
   'gridColumnsStatus', 'errorBoundary', 'errorBoundaryTitle', 'errorBoundaryMessage', 'errorBoundaryDetails', 'errorBoundaryRetry', 'errorBoundaryReload'
 ];
 const REACT_ONLY_ATTRIBUTES = ['editing', 'deleted', 'stepNumber', 'value'];
