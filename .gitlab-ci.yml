@@ -93,7 +93,9 @@ variables:
   GIT_DEPTH: "0"  # Tells git to fetch all the branches of the project, required by the sonar task.
   # Security config
   DAST_WEBSITE: "https://staging.aweframework.com"
-  DAST_TARGET_AVAILABILITY_TIMEOUT: 180
+  # The staging deployment of the small runner takes a few minutes to answer: the scan waits for it instead of
+  # ending with a warning
+  DAST_TARGET_AVAILABILITY_TIMEOUT: 420
   DAST_BROWSER_SCAN: "true"
   DS_EXCLUDED_ANALYZERS: "gemnasium, gemnasium-python"
 
@@ -2158,7 +2160,7 @@ Deploy · Production:
 
 dast:
   interruptible: false
-  timeout: 15m
+  timeout: 20m
   script:
     - export DAST_WEBSITE=${DAST_WEBSITE:-$(cat environment_url.txt)}
     - if [ -z "$DAST_WEBSITE$DAST_API_SPECIFICATION" ]; then echo "Either DAST_WEBSITE or DAST_API_SPECIFICATION must be set. See https://docs.gitlab.com/ee/user/application_security/dast/#configuration for more details." && exit 1; fi
