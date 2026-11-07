@@ -198,6 +198,15 @@ describe('awe-react-client/test/js/criteria/AweSelectMultipleTest.jsx (one line)
     cleanup();
   });
 
+  it.each([
+    ["its placeholder", "placeholder", "placeholder"],
+    ["nothing without placeholder", "", ""]
+  ])("shows %s while no value is chosen", (_, placeholder, label) => {
+    const {container} = render([], {placeholder});
+
+    expect(container.querySelector(".p-multiselect-label").textContent).toBe(label);
+  });
+
   it("shows every chosen value as a chip, in option order, with no counter when they fit", () => {
     const {container} = render(["toto", "test"]);
 
