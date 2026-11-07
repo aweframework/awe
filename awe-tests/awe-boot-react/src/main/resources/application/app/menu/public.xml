@@ -11,6 +11,8 @@
   <option name="signin-local" screen="signin-local" invisible="true" />
   <option name="logout-sso" screen="logout-sso" invisible="true" />
   <option name="change-password" screen="change-password" invisible="true" />
+  <option name="check-2fa" screen="check-2fa" invisible="true" />
+  <option name="activate-2fa" screen="activate-2fa" invisible="true" />
   <option name="information" screen="info" invisible="true" />
   <option name="test-initial-load" screen="TestInitialLoad" />
   <option name="test-initial-values" screen="TestInitialValues" />

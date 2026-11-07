@@ -43,6 +43,11 @@
                 <tag type="div" style="p-divider-content"/>
             </tag>
             <criteria label="ENABLE_2FA" component="checkbox" id="enable2fa" style="col-sm-12">
+                <dependency target-type="set-readonly" initial="true" type="or">
+                    <dependency-element id="totp-enabled" condition="eq" value="disabled"/>
+                    <dependency-element id="totp-enabled" condition="eq" value="DISABLED"/>
+                    <dependency-element id="totp-enabled" condition="is empty"/>
+                </dependency>
                 <dependency>
                     <dependency-element id="enable2fa" condition="ne" value="1"/>
                     <dependency-action type="server" server-action="maintain-silent" target-action="update2faStatus"/>
@@ -50,7 +55,6 @@
                 </dependency>
                 <dependency>
                     <dependency-element id="enable2fa" condition="eq" value="1"/>
-                    <dependency-action type="server" server-action="maintain-silent" target-action="update2faStatus"/>
                     <dependency-action type="server" server-action="maintain-silent" target-action="generate2faSecret"/>
                     <dependency-action type="filter" target="2fa-code-list"/>
                 </dependency>
@@ -70,5 +74,8 @@
                 </tag>
             </tag-list>
         </tag>
+    </tag>
+    <tag source="hidden">
+        <criteria id="totp-enabled" component="text" property="awe.security.totp.enabled"/>
     </tag>
 </screen>

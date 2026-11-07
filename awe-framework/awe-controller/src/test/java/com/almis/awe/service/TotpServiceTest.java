@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweUserDetails;
@@ -8,6 +9,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.security.audit.SecurityAuditCause;
 import com.almis.awe.model.security.audit.SecurityAuditEventType;
 import com.almis.awe.model.security.audit.SecurityAuditOutcome;
+import com.almis.awe.model.type.SecondFactorStatusType;
 import com.almis.awe.security.audit.RecordingSecurityAudit;
 import com.almis.awe.service.totp.AweTotpOperations;
 import com.almis.awe.service.totp.OtpJavaTotpOperations;
@@ -283,10 +285,37 @@ class TotpServiceTest {
   }
 
   @ParameterizedTest
-  @ValueSource(ints = {0, 1})
-  void update2faStatus(Integer status) {
+  @ValueSource(ints = {0})
+  void update2faStatusDisables(Integer status) throws AWException {
+    aweUserDetails.setEnabled2fa(true);
     totpService.update2faStatus(status);
     assertEquals(status, aweUserDetails.isEnabled2fa() ? 1 : 0);
+  }
+
+  @Test
+  void update2faStatusRefusesEnableWithoutChangingStateNorAuditingReset() {
+    RecordingSecurityAudit audit = new RecordingSecurityAudit();
+    totpService.setSecurityAuditService(audit.service());
+    aweUserDetails.setEnabled2fa(false);
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("locale");
+    assertThrows(AWException.class, () -> totpService.update2faStatus(1));
+    assertFalse(aweUserDetails.isEnabled2fa());
+    assertThat(audit.events()).isEmpty();
+  }
+
+  @Test
+  void generate2faSecretIsRefusedAndReturnsNoQrWhenTheSecondFactorIsDisabled() throws Exception {
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("locale");
+    TotpConfigProperties properties = new TotpConfigProperties();
+    properties.setEnabled(SecondFactorStatusType.DISABLED);
+    totpService.setTotpConfigProperties(properties);
+    aweUserDetails.setFullyAuthenticated(true);
+
+    assertThrows(AWException.class, () -> totpService.generate2faSecret());
+    verify(maintainService, never()).launchPrivateMaintain(eq("store2faSecret"), any(ObjectNode.class));
+    assertThat(totpService.getQRCodeList(false).getDataList().getRows()).isEmpty();
   }
 
   @Test

@@ -1,10 +1,10 @@
 package com.almis.awe.security.authorization;
 
 import com.almis.awe.config.AuthorizationMode;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.model.component.AweSession;
-import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.security.audit.SecurityAuditCause;
 import com.almis.awe.model.security.audit.SecurityAuditEventType;
 import com.almis.awe.security.audit.SecurityAuditService;
@@ -38,6 +38,7 @@ public class ScreenTargetAuthorizer extends ServiceConfig implements TargetLaunc
   public static final int ORDER = 0;
 
   private final SecurityConfigProperties securityConfigProperties;
+  private final BaseConfigProperties baseConfigProperties;
   private final ScreenTargetIndex screenTargetIndex;
   private final MenuOptionLookup menuOptionLookup;
 
@@ -45,12 +46,16 @@ public class ScreenTargetAuthorizer extends ServiceConfig implements TargetLaunc
    * Autowired constructor
    *
    * @param securityConfigProperties Security configuration properties
+   * @param baseConfigProperties     Base configuration properties
    * @param screenTargetIndex        Index of the targets used by each option
    * @param menuOptionLookup         Menu option lookup
    */
-  public ScreenTargetAuthorizer(SecurityConfigProperties securityConfigProperties, ScreenTargetIndex screenTargetIndex,
+  public ScreenTargetAuthorizer(SecurityConfigProperties securityConfigProperties,
+                                BaseConfigProperties baseConfigProperties,
+                                ScreenTargetIndex screenTargetIndex,
                                 MenuOptionLookup menuOptionLookup) {
     this.securityConfigProperties = securityConfigProperties;
+    this.baseConfigProperties = baseConfigProperties;
     this.screenTargetIndex = screenTargetIndex;
     this.menuOptionLookup = menuOptionLookup;
   }
@@ -90,10 +95,12 @@ public class ScreenTargetAuthorizer extends ServiceConfig implements TargetLaunc
 
   private boolean canOpenAny(Set<String> options) {
     boolean authenticated = isAuthenticated();
+    String privateMenu = baseConfigProperties.getFiles().getMenuPrivate();
+    String publicMenu = baseConfigProperties.getFiles().getMenuPublic();
     for (String option : options) {
       try {
-        if (authenticated && menuOptionLookup.isAvailableOption(option, AweConstants.PRIVATE_MENU)
-          || menuOptionLookup.isAvailableOption(option, AweConstants.PUBLIC_MENU)) {
+        if (authenticated && menuOptionLookup.isAvailableOption(option, privateMenu)
+          || menuOptionLookup.isAvailableOption(option, publicMenu)) {
           return true;
         }
       } catch (Exception exc) {

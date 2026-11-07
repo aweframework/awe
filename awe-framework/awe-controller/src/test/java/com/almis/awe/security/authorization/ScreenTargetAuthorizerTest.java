@@ -56,12 +56,14 @@ class ScreenTargetAuthorizerTest {
   @Mock private ObjectProvider<SecurityAuditService> auditProvider;
 
   private SecurityConfigProperties properties;
+  private BaseConfigProperties baseConfigProperties;
   private ScreenTargetAuthorizer authorizer;
 
   @BeforeEach
   void setUp() {
     properties = new SecurityConfigProperties();
-    authorizer = new ScreenTargetAuthorizer(properties, index, menuOptionLookup);
+    baseConfigProperties = new BaseConfigProperties();
+    authorizer = new ScreenTargetAuthorizer(properties, baseConfigProperties, index, menuOptionLookup);
     authorizer.setApplicationContext(applicationContext);
     when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     when(applicationContext.getBeanProvider(SecurityAuditService.class)).thenReturn(auditProvider);
@@ -184,6 +186,18 @@ class ScreenTargetAuthorizerTest {
     givenAvailable("help", "public");
 
     assertThat(authorizer.authorize(TARGET, TargetKind.QUERY)).isTrue();
+  }
+
+  @Test
+  @DisplayName("Uses the configured private and public menu names (issue #933)")
+  void usesConfiguredMenuNames() throws Exception {
+    baseConfigProperties.getFiles().setMenuPrivate("private-app");
+    baseConfigProperties.getFiles().setMenuPublic("public-app");
+    givenIndexed("users");
+    givenAvailable("users", "private-app");
+
+    assertThat(authorizer.authorize(TARGET, TargetKind.MAINTAIN)).isTrue();
+    verify(menuOptionLookup).isAvailableOption("users", "private-app");
   }
 
   @Test

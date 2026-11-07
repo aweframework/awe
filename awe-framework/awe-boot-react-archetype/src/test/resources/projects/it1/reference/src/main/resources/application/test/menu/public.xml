@@ -10,4 +10,6 @@
       context="screen" default-action="screen">
   <option name="signin" screen="signin" invisible="true" />
   <option name="change_password" screen="change_password" invisible="true" />
+  <option name="check-2fa" screen="check-2fa" invisible="true" />
+  <option name="activate-2fa" screen="activate-2fa" invisible="true" />
 </menu>
