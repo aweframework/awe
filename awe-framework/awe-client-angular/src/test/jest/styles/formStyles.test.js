@@ -60,7 +60,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       expect(style(".form-control")).toMatchObject({
         "color": "var(--awe-color-field-text)",
         "background-color": "var(--awe-color-field)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-field)",
         "box-shadow": "var(--awe-shadow-field)"
       });
@@ -327,7 +327,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
         "line-height": "var(--awe-line-height-snug)",
         "color": "var(--awe-color-danger-text)",
         "background": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-danger-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-danger-border)",
         "border-radius": "var(--awe-radius-md)",
         "box-shadow": "var(--awe-shadow-overlay)"
       });
@@ -357,7 +357,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
         "height": "var(--awe-size-checkbox)",
         "margin": "0 !important",
         "background": "var(--awe-color-field)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "box-shadow": "var(--awe-shadow-field)"
       });
       expect(style(".gt-ie8 .form-group input[type=\"checkbox\"].px + .lbl:before")).toMatchObject({
@@ -418,7 +418,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
         "gap": "var(--awe-space-0-5)",
         "padding": "var(--awe-space-0-5)",
         "background": "var(--awe-segmented-track)",
-        "border": "1px solid var(--awe-segmented-border)",
+        "border": "var(--awe-border-width) solid var(--awe-segmented-border)",
         "border-radius": "var(--awe-radius-md)"
       });
       expect(style(".btn-group > label.criterion.btn.btn-awe.validator")).toMatchObject({
@@ -468,7 +468,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
         "line-height": "calc(var(--awe-size-control) - 2px)",
         "color": "var(--awe-color-field-text)",
         "background": "var(--awe-color-field)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-field)",
         "box-shadow": "var(--awe-shadow-field)"
       });
@@ -488,7 +488,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       expect(style(".select2-drop")).toMatchObject({
         "color": "var(--awe-color-overlay-text)",
         "background": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-overlay-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "var(--awe-radius-overlay)",
         "box-shadow": "var(--awe-shadow-overlay)"
       });
@@ -521,7 +521,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       expect(style(".slider .slider-selection")).toMatchObject({"background": "var(--awe-color-primary)"});
       expect(style(".slider .slider-handle")).toMatchObject({
         "background": "var(--awe-color-surface-raised)",
-        "border": "2px solid var(--awe-color-primary)",
+        "border": "var(--awe-border-width-strong) solid var(--awe-color-primary)",
         "box-shadow": "var(--awe-shadow-sm)"
       });
     });
@@ -530,7 +530,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       expect(style(".criterion .colorpicker-element .input-group-addon i")).toMatchObject({
         "width": "var(--awe-size-icon)",
         "height": "var(--awe-size-icon)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-sm)"
       });
     });
@@ -543,12 +543,12 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
         "padding": "0 var(--awe-field-padding-x)",
         "color": "var(--awe-color-field-text)",
         "background": "var(--awe-color-field)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-field)",
         "box-shadow": "var(--awe-shadow-field)"
       });
       expect(style(".criterion .upload-drop-zone")).toMatchObject({
-        "border": "2px dashed var(--awe-color-field-border)",
+        "border": "var(--awe-border-width-strong) dashed var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-field)"
       });
       expect(style(".criterion .upload-drop-zone.upload-drop-zone-active")).toMatchObject({
@@ -571,7 +571,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
         "font-weight": "var(--awe-font-weight-medium)",
         "color": "var(--awe-color-text)",
         "background": "var(--awe-color-surface)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-field)",
         "box-shadow": "var(--awe-shadow-xs)"
       });
@@ -599,7 +599,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       expect(style(".btn.btn-default")).toMatchObject({
         "color": "var(--awe-color-on-secondary)",
         "background": "var(--awe-color-secondary)",
-        "border": "1px solid var(--awe-color-secondary)"
+        "border": "var(--awe-border-width) solid var(--awe-color-secondary)"
       });
     });
 
@@ -699,7 +699,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       expect(style(".panel.panel-awe")).toMatchObject({
         "color": "var(--awe-color-panel-text)",
         "background": "var(--awe-color-panel)",
-        "border": "1px solid var(--awe-color-panel-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-panel-border)",
         "border-radius": "var(--awe-radius-card)",
         "box-shadow": "var(--awe-shadow-card)"
       });
@@ -716,7 +716,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
         "font-weight": "var(--awe-font-weight-semibold)",
         "color": "var(--awe-color-text-emphasis)",
         "background": "transparent",
-        "border-bottom": "1px solid var(--awe-color-border)"
+        "border-bottom": "var(--awe-border-width) solid var(--awe-color-border)"
       });
     });
 
@@ -750,7 +750,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       expect(style(".tab-container .nav-tabs")).toMatchObject({
         "display": "flex",
         "gap": "var(--awe-space-3)",
-        "border-bottom": "1px solid var(--awe-color-border)"
+        "border-bottom": "var(--awe-border-width) solid var(--awe-color-border)"
       });
       expect(style(".tab-container .nav-tabs > li > a")).toMatchObject({
         "padding": "var(--awe-space-3) var(--awe-space-2)",
@@ -759,7 +759,7 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
         "color": "var(--awe-color-text-muted)",
         "background": "transparent",
         "border": "0",
-        "border-bottom": "2px solid transparent",
+        "border-bottom": "var(--awe-border-width-strong) solid transparent",
         "border-radius": "0"
       });
       expect(style(".tab-container .nav-tabs > li > a:hover")).toMatchObject({

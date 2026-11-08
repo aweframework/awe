@@ -57,7 +57,7 @@
       // The theme pulls the connector of every step up with a negative margin: the line has to sit on the center of
       // the number, so it is reset here
       margin: 0;
-      border-top: 1px solid var(--awe-color-border);
+      border-top: var(--awe-border-width) solid var(--awe-color-border);
       z-index: 0;
     }
 
@@ -93,7 +93,7 @@
       width: var(--awe-size-control-lg);
       height: var(--awe-size-control-lg);
       background: var(--awe-color-surface);
-      border: 1px solid var(--awe-color-border);
+      border: var(--awe-border-width) solid var(--awe-color-border);
       border-radius: var(--awe-radius-full);
       color: var(--awe-color-text-muted);
       font-size: var(--awe-font-size-base);
@@ -204,7 +204,7 @@
         bottom: calc((var(--awe-steps-gap) + var(--awe-steps-number-offset)) * -1);
         left: calc(var(--awe-size-control-lg) / 2);
         margin: 0;
-        border-left: 1px solid var(--awe-color-border);
+        border-left: var(--awe-border-width) solid var(--awe-color-border);
         z-index: 0;
       }
 

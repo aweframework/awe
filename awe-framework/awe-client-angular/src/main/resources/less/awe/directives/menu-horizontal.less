@@ -42,7 +42,7 @@
 // opens as an overlay under it
 #main-menu.horizontal {
   background: var(--awe-menu-background);
-  border-bottom: 1px solid var(--awe-menu-border);
+  border-bottom: var(--awe-border-width) solid var(--awe-menu-border);
 }
 
 #main-menu.horizontal ul.navigation {
@@ -65,7 +65,7 @@
   padding: var(--awe-list-padding);
   color: var(--awe-color-overlay-text);
   background: var(--awe-color-overlay);
-  border: 1px solid var(--awe-color-overlay-border);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
   border-radius: var(--awe-radius-lg);
   box-shadow: var(--awe-shadow-overlay);
   z-index: var(--awe-z-dropdown);
@@ -79,7 +79,7 @@
 #main-menu.horizontal ul.navigation > li.divider {
   height: var(--awe-size-icon);
   margin: 0 var(--awe-space-1);
-  border-left: 1px solid var(--awe-color-border);
+  border-left: var(--awe-border-width) solid var(--awe-color-border);
   opacity: 1;
 }
 

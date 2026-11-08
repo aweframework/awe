@@ -29,6 +29,12 @@ const RADIUS = /^border(-(top|bottom)-(left|right))?-radius$/;
 // Properties whose whole value is looked up in the table (shadows and focus rings)
 const WHOLE_VALUE = /^(box-shadow|outline|outline-offset)$/;
 const TRANSITION = /^transition(-duration)?$/;
+// The width of a border reads the token of the design system (#930), so the theme of the application thickens or thins
+// the borders of every PrimeReact component. Only the widths the tokens declare by default are replaced: any other one
+// is a geometry of the component and stays literal.
+const BORDER_WIDTH_PROPERTY = /^border(-(top|right|bottom|left|width|block|block-start|block-end|inline|inline-start|inline-end))?$/;
+const BORDER_WIDTH = {"1px": "--awe-border-width", "2px": "--awe-border-width-strong"};
+const BORDER_LENGTH = /(?<![\w.-])\d*\.?\d+px(?![\w-])/g;
 
 const readJson = file => JSON.parse(fs.readFileSync(file, "utf8"));
 // A :focus pseudo-class, not :focus-visible nor :focus-within
@@ -101,6 +107,12 @@ class Translator {
     }
     let result = value.replace(VARIABLE, (match, name) => name in this.table.variables ?
       asCss(this.table.variables[name]) : this.fail(selector, property, value, match));
+    // Before the structural escape: 1px is structural for any other property, but the width of a border belongs to the
+    // theme of the application
+    if (BORDER_WIDTH_PROPERTY.test(property)) {
+      result = result.replace(BORDER_LENGTH, literal => BORDER_WIDTH[literal]
+        ? `var(${BORDER_WIDTH[literal]})` : literal);
+    }
     if (this.structural.has(result)) {
       return result;
     }
@@ -286,7 +298,7 @@ class PrimeReactThemePlugin {
 
 module.exports = {
   LARA_THEME, TABLE_FILE, TOKENS_FILE, AURA_LICENSE_FILE,
-  buildTheme, buildThemeFrom, readPrimeReact, declaredTokens, PrimeReactThemePlugin
+  buildTheme, buildThemeFrom, readPrimeReact, declaredTokens, PrimeReactThemePlugin, Translator
 };
 
 if (require.main === module) {

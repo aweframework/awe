@@ -16,7 +16,7 @@
     width: var(--awe-size-checkbox);
     height: var(--awe-size-checkbox);
     background: var(--awe-color-field);
-    border: 1px solid var(--awe-color-field-border);
+    border: var(--awe-border-width) solid var(--awe-color-field-border);
     border-radius: var(--awe-radius-sm);
     box-shadow: var(--awe-shadow-field);
   }
@@ -51,7 +51,7 @@
   overflow: hidden !important;
   margin-bottom: 0;
   &.grid-bordered {
-    border: 1px solid var(--awe-grid-border);
+    border: var(--awe-border-width) solid var(--awe-grid-border);
     border-radius: 0 0 var(--awe-radius-content) var(--awe-radius-content);
   }
 
@@ -148,7 +148,7 @@
   // so the widths of ui-grid do not change)
   .ui-grid-cell {
     cursor: pointer;
-    border-right: 1px solid transparent;
+    border-right: var(--awe-border-width) solid transparent;
     border-right-color: transparent;
     // The line fills the row but its bottom border, so the text is centred in any row height
     line-height: calc(var(--grid-row-height, 27px) - 1px);
@@ -283,7 +283,7 @@
   .ui-grid-row {
     color: var(--awe-color-text);
     background-color: var(--awe-grid-row-background);
-    border-bottom: 1px solid var(--awe-grid-border);
+    border-bottom: var(--awe-border-width) solid var(--awe-grid-border);
     overflow: hidden;
     transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
   }
@@ -314,8 +314,8 @@
       z-index: 1;
       content: "";
       pointer-events: none;
-      border-top: 1px solid var(--awe-color-primary);
-      border-bottom: 1px solid var(--awe-color-primary);
+      border-top: var(--awe-border-width) solid var(--awe-color-primary);
+      border-bottom: var(--awe-border-width) solid var(--awe-color-primary);
       box-shadow: inset var(--awe-grid-row-marker-width) 0 0 var(--awe-color-primary);
     }
   }
@@ -343,7 +343,7 @@
   }
 
   .ui-grid-header {
-    border-bottom: 1px solid var(--awe-grid-border);
+    border-bottom: var(--awe-border-width) solid var(--awe-grid-border);
     border-color: var(--awe-grid-border);
   }
 
@@ -364,7 +364,7 @@
     font-variant-numeric: var(--awe-font-variant-numeric);
     color: var(--awe-color-text-emphasis);
     background: var(--awe-grid-header-background);
-    border-top: 1px solid var(--awe-grid-border);
+    border-top: var(--awe-border-width) solid var(--awe-grid-border);
     border-bottom-color: var(--awe-grid-border);
   }
 
@@ -511,7 +511,7 @@
     vertical-align: middle;
     color: var(--awe-color-field-text);
     background: var(--awe-color-field);
-    border: 1px solid var(--awe-color-field-border);
+    border: var(--awe-border-width) solid var(--awe-color-field-border);
     border-radius: var(--awe-radius-field);
     box-shadow: var(--awe-shadow-field);
     &:hover {
@@ -709,7 +709,7 @@
       border-radius: @border-radius-base;
       content: "";
       opacity: 1;
-      border: 1px solid #bbb;
+      border: var(--awe-border-width) solid #bbb;
       background: #fff;
       display: block;
       position: relative;
@@ -747,7 +747,7 @@
     left: -10000px;
     padding: var(--awe-space-1);
     background: var(--awe-color-surface);
-    border: 1px solid var(--awe-color-primary);
+    border: var(--awe-border-width) solid var(--awe-color-primary);
     border-top: 0;
     border-radius: 0 0 var(--awe-radius-md) var(--awe-radius-md);
     box-shadow: var(--awe-shadow-sm);
@@ -765,7 +765,7 @@
     font-weight: var(--awe-font-weight-semibold);
     color: var(--awe-color-text-emphasis);
     background-color: var(--awe-grid-header-background) !important;
-    border-top: 2px solid var(--awe-grid-border);
+    border-top: var(--awe-border-width-strong) solid var(--awe-grid-border);
   }
 
   .DELETE {
@@ -962,7 +962,7 @@
     font-weight: var(--awe-font-weight-normal);
     color: var(--awe-color-field-text);
     background: var(--awe-color-field);
-    border: 1px solid var(--awe-color-field-border);
+    border: var(--awe-border-width) solid var(--awe-color-field-border);
     border-radius: var(--awe-radius-field);
     &:focus {
       outline: 0;
@@ -1211,7 +1211,7 @@
     padding: var(--awe-space-3) var(--awe-space-4);
     color: var(--awe-color-text);
     background: var(--awe-color-surface-subtle);
-    border-top: 1px solid var(--awe-grid-border);
+    border-top: var(--awe-border-width) solid var(--awe-grid-border);
     border-left: var(--awe-grid-row-marker-width) solid var(--awe-color-primary);
     cursor: auto;
     user-select: text;
@@ -1256,7 +1256,7 @@
   white-space: nowrap;
   color: var(--awe-color-text);
   background: var(--awe-color-surface);
-  border: 1px solid var(--awe-color-field-border);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
   border-radius: var(--awe-radius-field);
   box-shadow: var(--awe-shadow-xs);
   cursor: pointer;
@@ -1343,7 +1343,7 @@
   font-size: var(--awe-font-size-sm);
   color: var(--awe-color-field-text);
   background: var(--awe-color-field);
-  border: 1px solid var(--awe-color-field-border);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
   border-radius: var(--awe-radius-field);
   box-shadow: var(--awe-shadow-field);
   transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
@@ -1443,7 +1443,7 @@
   margin-inline-end: auto;
   padding: var(--awe-space-0-5);
   background: var(--awe-segmented-track);
-  border: 1px solid var(--awe-segmented-border);
+  border: var(--awe-border-width) solid var(--awe-segmented-border);
   border-radius: var(--awe-radius-md);
 
   .grid-quick-filter-option {
@@ -1477,7 +1477,7 @@
     font-weight: var(--awe-font-weight-medium);
     color: var(--awe-segmented-text);
     white-space: nowrap;
-    border: 1px solid transparent;
+    border: var(--awe-border-width) solid transparent;
     border-radius: var(--awe-radius-sm);
     transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
       color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
@@ -1561,7 +1561,7 @@
   font-weight: var(--awe-font-weight-medium);
   color: var(--awe-color-on-highlight);
   background: var(--awe-color-highlight);
-  border-bottom: 1px solid var(--awe-grid-border);
+  border-bottom: var(--awe-border-width) solid var(--awe-grid-border);
 
   &.is-visible {
     display: flex;
@@ -1649,7 +1649,7 @@
 .grid {
   &.maximized {
     background: var(--awe-color-surface);
-    border: 1px solid var(--awe-color-border);
+    border: var(--awe-border-width) solid var(--awe-color-border);
     border-radius: var(--awe-radius-content);
     box-shadow: var(--awe-shadow-card);
     display: flex;
@@ -1957,7 +1957,7 @@
   max-height: calc(100vh - var(--awe-space-4));
   color: var(--awe-color-text);
   background: var(--awe-color-overlay);
-  border: 1px solid var(--awe-color-overlay-border);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
   border-radius: var(--awe-radius-overlay);
   box-shadow: var(--awe-shadow-overlay);
   .grid-columns-content();
@@ -1986,7 +1986,7 @@
     flex: none;
     padding: var(--awe-space-3) var(--awe-overlay-padding);
     background: var(--awe-color-surface-subtle);
-    border-top: 1px solid var(--awe-color-overlay-border);
+    border-top: var(--awe-border-width) solid var(--awe-color-overlay-border);
     border-radius: 0 0 var(--awe-radius-overlay) var(--awe-radius-overlay);
   }
 }
@@ -1994,7 +1994,7 @@
 .grid-columns-dialog {
   color: var(--awe-color-overlay-text);
   background: var(--awe-color-overlay);
-  border: 1px solid var(--awe-color-overlay-border);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
   border-radius: var(--awe-radius-modal);
   box-shadow: var(--awe-shadow-modal);
   left: 50%;
@@ -2207,7 +2207,7 @@
   flex: none;
   width: var(--awe-size-control-sm);
   height: var(--awe-size-control-sm);
-  border: 1px solid var(--awe-color-border);
+  border: var(--awe-border-width) solid var(--awe-color-border);
   border-radius: var(--awe-radius-full);
   background-color: var(--awe-swatch-color);
 }

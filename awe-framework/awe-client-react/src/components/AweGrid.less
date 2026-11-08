@@ -6,7 +6,7 @@
   gap: var(--awe-space-1);
   padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
   font-size: var(--awe-font-size-sm);
-  border-top: 1px solid var(--awe-grid-border);
+  border-top: var(--awe-border-width) solid var(--awe-grid-border);
   border-radius: 0;
 }
 
@@ -222,7 +222,7 @@
   font-size: var(--awe-font-size-sm);
   color: var(--awe-color-text);
   background: var(--awe-color-field);
-  border: 1px solid var(--awe-color-field-border);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
   border-left: 0;
   box-shadow: none;
 
@@ -459,7 +459,7 @@
   flex: none;
   width: var(--awe-size-control-sm);
   height: var(--awe-size-control-sm);
-  border: 1px solid var(--awe-color-border);
+  border: var(--awe-border-width) solid var(--awe-color-border);
   border-radius: var(--awe-radius-full);
   background-color: var(--awe-swatch-color);
 }
@@ -505,7 +505,7 @@
   gap: var(--awe-space-2);
   // The inset of the footer: the last button (Maximize) stays off the edge of the grid
   padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
-  border-bottom: 1px solid var(--awe-grid-border);
+  border-bottom: var(--awe-border-width) solid var(--awe-grid-border);
 }
 
 // Spacer of the toolbar: the search, the quick filters and the row grouping controls stay at the start, the Columns and
@@ -538,7 +538,7 @@
   font-weight: var(--awe-font-weight-medium);
   color: var(--awe-color-on-highlight);
   background: var(--awe-color-highlight);
-  border-bottom: 1px solid var(--awe-grid-border);
+  border-bottom: var(--awe-border-width) solid var(--awe-grid-border);
 }
 
 .grid-selection-bar.is-visible {
@@ -635,7 +635,7 @@
   font-size: var(--awe-font-size-sm);
   color: var(--awe-color-field-text);
   background: var(--awe-color-field);
-  border: 1px solid var(--awe-color-field-border);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
   border-radius: var(--awe-radius-field);
   box-shadow: var(--awe-shadow-field);
   transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
@@ -735,7 +735,7 @@
   margin-inline-end: auto;
   padding: var(--awe-space-0-5);
   background: var(--awe-segmented-track);
-  border: 1px solid var(--awe-segmented-border);
+  border: var(--awe-border-width) solid var(--awe-segmented-border);
   border-radius: var(--awe-radius-md);
 }
 
@@ -763,7 +763,7 @@
   font-weight: var(--awe-font-weight-medium);
   color: var(--awe-segmented-text);
   white-space: nowrap;
-  border: 1px solid transparent;
+  border: var(--awe-border-width) solid transparent;
   border-radius: var(--awe-radius-sm);
   transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
     color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
@@ -830,7 +830,7 @@
   font-weight: var(--awe-font-weight-medium);
   color: var(--awe-color-text);
   background: var(--awe-color-surface);
-  border: 1px solid var(--awe-color-field-border);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
   border-radius: var(--awe-radius-field);
   box-shadow: var(--awe-shadow-xs);
 
@@ -866,7 +866,7 @@
   flex-direction: column;
   padding: var(--awe-space-2) var(--awe-space-3);
   background: var(--awe-color-surface);
-  border: 1px solid var(--awe-color-border);
+  border: var(--awe-border-width) solid var(--awe-color-border);
   border-radius: var(--awe-radius-content);
   box-shadow: var(--awe-shadow-card);
 
@@ -995,7 +995,7 @@
   > .grid-container {
     height: calc(var(--awe-size-control) * 7);
     background: var(--awe-color-surface);
-    border: 1px solid var(--awe-color-border);
+    border: var(--awe-border-width) solid var(--awe-color-border);
     border-radius: var(--awe-radius-md);
     overflow: hidden;
   }

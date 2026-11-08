@@ -320,7 +320,7 @@ describe("AngularJS login pages (#885)", () => {
           "line-height": "1",
           "color": "var(--awe-login-microsoft-text)",
           "background": "var(--awe-login-microsoft-background)",
-          "border": "1px solid var(--awe-login-microsoft-border)",
+          "border": "var(--awe-border-width) solid var(--awe-login-microsoft-border)",
           "border-radius": "var(--awe-login-microsoft-radius)",
           "box-shadow": "none"
         });
@@ -420,7 +420,7 @@ describe("AngularJS login pages (#885)", () => {
         "line-height": "var(--awe-line-height-base)",
         "color": "var(--awe-color-text)",
         "background": "color-mix(in srgb, var(--awe-color-danger-subtle), var(--awe-color-surface) 45%)",
-        "border": "1px solid var(--awe-color-danger-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-danger-border)",
         "border-radius": "var(--awe-radius-content)"
       });
       expect(style(".signin-form > .signin-alert[hidden]")).toMatchObject({"display": "none"});
@@ -441,7 +441,7 @@ describe("AngularJS login pages (#885)", () => {
       expect(style(SSO)).toMatchObject({
         "color": "var(--awe-login-microsoft-text)",
         "background": "var(--awe-login-microsoft-background)",
-        "border": "1px solid var(--awe-login-microsoft-border)",
+        "border": "var(--awe-border-width) solid var(--awe-login-microsoft-border)",
         "box-shadow": "none"
       });
       [`${SSO}:hover`, `${SSO}:focus`].forEach(selector => expect(style(selector)).toMatchObject({
@@ -483,7 +483,7 @@ describe("AngularJS login pages (#885)", () => {
         "height": "auto",
         "padding": "var(--awe-space-2)",
         "background": "var(--awe-color-surface)",
-        "border": "1px solid var(--awe-color-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-border)",
         "border-radius": "var(--awe-radius-md)"
       });
       expect(style(".totp-form .panel")).toMatchObject({
@@ -497,7 +497,7 @@ describe("AngularJS login pages (#885)", () => {
         "color": "var(--awe-color-text-emphasis)",
         "overflow-wrap": "anywhere",
         "background": "var(--awe-color-surface-subtle)",
-        "border": "1px solid var(--awe-color-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-border)",
         "border-radius": "var(--awe-radius-md)"
       });
     });
@@ -527,7 +527,7 @@ describe("AngularJS login pages (#885)", () => {
         "padding": "var(--awe-space-4) 0 0",
         "font-size": "var(--awe-font-size-xs)",
         "color": "var(--awe-color-text-muted)",
-        "border-top": "1px solid var(--awe-color-border)"
+        "border-top": "var(--awe-border-width) solid var(--awe-color-border)"
       });
       expect(style(`${SIGNIN_PAGE} > .signin-footer`, NARROW))
         .toMatchObject({"margin": "0 var(--awe-space-6) var(--awe-space-6)"});
@@ -572,7 +572,7 @@ describe("AngularJS login pages (#885)", () => {
         "color": "var(--awe-color-field-text)",
         "cursor": "pointer",
         "background": "var(--awe-color-field)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-field)"
       });
       expect(style(".signin-language > .signin-language-trigger:hover"))
@@ -592,7 +592,7 @@ describe("AngularJS login pages (#885)", () => {
         "padding": "var(--awe-list-padding)",
         "color": "var(--awe-color-overlay-text)",
         "background": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-overlay-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "var(--awe-radius-overlay)",
         "box-shadow": "var(--awe-shadow-overlay)"
       });
@@ -618,7 +618,7 @@ describe("AngularJS login pages (#885)", () => {
         "gap": "var(--awe-space-0-5)",
         "padding": "var(--awe-space-0-5)",
         "background": "var(--awe-segmented-track)",
-        "border": "1px solid var(--awe-segmented-border)",
+        "border": "var(--awe-border-width) solid var(--awe-segmented-border)",
         "border-radius": "var(--awe-radius-md)"
       });
       expect(style(".signin-mode input")).toMatchObject({"position": "absolute", "inset": "0", "opacity": "0"});
@@ -626,7 +626,7 @@ describe("AngularJS login pages (#885)", () => {
         "height": "calc(var(--awe-size-control-sm) - 2 * (var(--awe-space-0-5) + 1px))",
         "padding": "0 var(--awe-space-2)",
         "color": "var(--awe-segmented-text)",
-        "border": "1px solid transparent",
+        "border": "var(--awe-border-width) solid transparent",
         "border-radius": "var(--awe-radius-sm)"
       });
       expect(style(".signin-mode label:hover > .signin-mode-segment"))
@@ -759,7 +759,7 @@ describe("AngularJS login pages (#885)", () => {
       expect(style(`${SIGNIN_PAGE} > .signin-footer`)).toMatchObject({
         "grid-column": "1",
         "margin": "0 var(--awe-login-padding-x) var(--awe-space-6)",
-        "border-top": "1px solid var(--awe-color-border)"
+        "border-top": "var(--awe-border-width) solid var(--awe-color-border)"
       });
       expect(style(`${SIGNIN_PAGE} > .signin-footer`)).not.toHaveProperty("width");
       expect(style(`${SIGNIN_PAGE} > .signin-footer`, NARROW))

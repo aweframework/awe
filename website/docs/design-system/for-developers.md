@@ -13,6 +13,7 @@ How to write CSS and components for AWE 5 in either engine, and how a product wi
 | Tokens only | `color: #334155` | `color: var(--awe-color-text)` |
 | No colour literals outside the token file | `rgba(0, 0, 0, 0.1)` | `var(--awe-color-shadow)` or a shadow token |
 | No sizes outside the scales | `padding: 10px 15px` | `padding: var(--awe-space-2) var(--awe-space-3)` |
+| No literal border widths | `border: 1px solid var(--awe-color-border)` | `border: var(--awe-border-width) solid var(--awe-color-border)` |
 | Read tier 2 or 3, never tier 1 | `var(--awe-palette-emerald-600)` | `var(--awe-color-primary)` |
 | No mode-specific rules | `.dark .my-card { … }` | A token with `light-dark()` |
 | No density-specific rules | `[data-awe-density] .my-field { … }` | Size and padding tokens |
@@ -26,7 +27,7 @@ A card in product CSS:
   padding: var(--awe-content-padding);
   color: var(--awe-color-text);
   background: var(--awe-color-surface);
-  border: 1px solid var(--awe-color-border);
+  border: var(--awe-border-width) solid var(--awe-color-border);
   border-radius: var(--awe-radius-card);
   box-shadow: var(--awe-shadow-card);
 }
@@ -133,6 +134,9 @@ product that needs another brand colour sets its hex; it does not override seman
 | Tests | Jest and browser tests of the engine you changed, including the token tests. |
 
 The [token file of the engines](tokens-reference.md#token-file-of-the-engines) is checked by `sharedTokens.test.js`
-(AngularJS) and `designTokensTest.js` (React), the AWE theme of PrimeReact by `primeReactThemeTest.js` (React); today's
-tokens of the AngularJS engine are still checked by
-`designTokens.test.js` against the [current guide](../guides/design-tokens-guide.md).
+(AngularJS) and `designTokensTest.js` (React), and the border widths of both engines by `borderWidths.test.js`
+(AngularJS) and `borderWidthsTest.js` (React), which reject a literal `1px` or `2px` in a border declaration. The AWE
+theme of PrimeReact is validated on every build by `primereact-theme.cjs` (a value of Lara that the equivalence table
+does not map, or a token the token file does not declare, fails the build) and checked by `primeReactThemeTest.js`
+(React): no colour literal, no literal border width, only tokens the token file declares. Today's tokens of the AngularJS engine are
+still checked by `designTokens.test.js` against the [current guide](../guides/design-tokens-guide.md).

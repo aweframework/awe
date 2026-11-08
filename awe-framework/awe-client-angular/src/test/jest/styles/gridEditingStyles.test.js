@@ -92,7 +92,7 @@ describe("AngularJS grid edition, toolbar and selection (#885)", () => {
         "width": "var(--awe-size-checkbox)",
         "height": "var(--awe-size-checkbox)",
         "background": "var(--awe-color-field)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-sm)"
       });
       expect(style(`${checkbox} input.px:checked + .lbl:before`)).toMatchObject({

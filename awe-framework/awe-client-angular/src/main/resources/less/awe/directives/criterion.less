@@ -9,7 +9,7 @@
 .form-control {
   color: var(--awe-color-field-text);
   background-color: var(--awe-color-field);
-  border: 1px solid var(--awe-color-field-border);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
   border-radius: var(--awe-radius-field);
   box-shadow: var(--awe-shadow-field);
   transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
@@ -254,7 +254,7 @@ fieldset[disabled] .form-control {
   line-height: calc(var(--awe-size-control) - 2px);
   color: var(--awe-color-field-text);
   background: var(--awe-color-field);
-  border: 1px solid var(--awe-color-field-border);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
   border-radius: var(--awe-radius-field);
   box-shadow: var(--awe-shadow-field);
   transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
@@ -318,7 +318,7 @@ fieldset[disabled] .form-control {
   min-height: var(--awe-size-control);
   padding: var(--awe-space-0-5) var(--awe-space-1) 0;
   background: var(--awe-color-field);
-  border: 1px solid var(--awe-color-field-border);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
   border-radius: var(--awe-radius-field);
   box-shadow: var(--awe-shadow-field);
 
@@ -576,19 +576,19 @@ fieldset[disabled] .form-control {
   padding: var(--awe-list-padding);
   color: var(--awe-color-overlay-text);
   background: var(--awe-color-overlay);
-  border: 1px solid var(--awe-color-overlay-border);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
   border-radius: var(--awe-radius-overlay);
   box-shadow: var(--awe-shadow-overlay);
 
   // select2 places the list above the field with its top coordinate
   &.select2-drop-above {
     margin-top: calc(-1 * var(--awe-space-1));
-    border-top: 1px solid var(--awe-color-overlay-border);
+    border-top: var(--awe-border-width) solid var(--awe-color-overlay-border);
     border-radius: var(--awe-radius-overlay);
   }
 
   &.select2-drop-active {
-    border: 1px solid var(--awe-color-overlay-border);
+    border: var(--awe-border-width) solid var(--awe-color-overlay-border);
   }
 }
 
@@ -602,7 +602,7 @@ fieldset[disabled] .form-control {
     font-size: var(--awe-font-size-sm);
     color: var(--awe-color-field-text);
     background-color: var(--awe-color-field);
-    border: 1px solid var(--awe-color-field-border);
+    border: var(--awe-border-width) solid var(--awe-color-field-border);
     border-radius: var(--awe-radius-field);
 
     &:focus {
@@ -712,7 +712,7 @@ fieldset[disabled] .form-control {
   width: var(--awe-size-icon);
   height: var(--awe-size-icon);
   vertical-align: middle;
-  border: 1px solid var(--awe-color-field-border);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
   border-radius: var(--awe-radius-sm);
 }
 
@@ -733,7 +733,7 @@ fieldset[disabled] .form-control {
   .slider-handle {
     background: var(--awe-color-surface-raised);
     background-image: none;
-    border: 2px solid var(--awe-color-primary);
+    border: var(--awe-border-width-strong) solid var(--awe-color-primary);
     box-shadow: var(--awe-shadow-sm);
     opacity: 1;
 

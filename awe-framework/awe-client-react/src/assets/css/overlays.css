@@ -35,5 +35,5 @@
   margin-top: var(--awe-space-4);
   padding: var(--awe-space-4) 0;
   background-color: var(--awe-color-overlay);
-  border-top: 1px solid var(--awe-color-border);
+  border-top: var(--awe-border-width) solid var(--awe-color-border);
 }

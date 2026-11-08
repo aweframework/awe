@@ -450,6 +450,14 @@ Surface: `data-awe-surface` on `<html>` (`slate`, `gray`, `zinc`, `neutral`, `st
 | `--awe-overlay-padding` | `12px` | `10px` |
 | `--awe-modal-padding` | `20px` | `16px` |
 
+**Widths that are not borders** stay literal and are not one of these tokens: the `7px` handle of a resizable panel,
+the `3px` marker of the vertical tabs, the `3px` and `4px` bars of `layout.css`, a `border-width: 0` reset and the
+structural values listed in `structural` in the PrimeReact mapping. Every other border of either engine reads
+`--awe-border-width`, and the emphasised ones (the focus and selection bars, the active indicator of a tab) read
+`--awe-border-width-strong`; `borderWidths.test.js` (AngularJS) and `borderWidthsTest.js` (React) reject a new literal
+`1px` or `2px` in a border declaration. The vendored sources (`less/libs`, `less/legacy`, the file manager) keep their
+own literals.
+
 ### Tier 3: component {#tier-3-component}
 
 **Default button** (a normal button without a `btn-*` style; an application restyles it without touching the other outlined buttons)
@@ -625,8 +633,10 @@ and the 18 compiled themes, and the theme name only selects the preset of the `<
 focus ring and transition with an `--awe-*` token, through the equivalence table `primereact-theme.json` next to it.
 The values follow the Aura preset of `@primeuix/themes` 2.0.3 (MIT, reference values only), as the prototype does. A
 value of Lara that the table does not map, or a token the token file does not declare, fails the build, so a
-PrimeReact upgrade cannot bring its own look. `primeReactThemeTest.js` checks the result: no literal colour or
-geometry, only tokens of the token file, and the rules of every PrimeReact component the engine uses.
+PrimeReact upgrade cannot bring its own look. The build itself validates the mapping (`primereact-theme.cjs`: an unmapped
+value of Lara, or a token the token file does not declare, fails), and `primeReactThemeTest.js` checks the result: it
+generates the theme from the Lara theme and asserts that no declaration writes a colour literal or a literal `1px` or
+`2px` border width, and that every `var(--awe-*)` it reads is declared in the token file.
 
 ## Mapping from the current tokens {#mapping-from-the-current-tokens}
 

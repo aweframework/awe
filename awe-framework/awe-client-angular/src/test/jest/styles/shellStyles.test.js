@@ -54,7 +54,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
         "min-height": "var(--awe-header-height)",
         "color": "var(--awe-color-text)",
         "background": "var(--awe-header-background)",
-        "border-bottom": "1px solid var(--awe-header-border)",
+        "border-bottom": "var(--awe-border-width) solid var(--awe-header-border)",
         "backdrop-filter": "var(--awe-header-backdrop-filter)"
       });
     });
@@ -128,7 +128,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
         "padding": "var(--awe-list-padding)",
         "color": "var(--awe-color-overlay-text)",
         "background": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-overlay-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "var(--awe-radius-lg)",
         "box-shadow": "var(--awe-shadow-overlay)"
       });
@@ -146,7 +146,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
     it("lists the collapsed header items on the surface on phones", () => {
       expect(style("#main-navbar .main-navbar-collapse", PHONE)).toMatchObject({
         "background": "var(--awe-color-surface)",
-        "border-bottom": "1px solid var(--awe-header-border)"
+        "border-bottom": "var(--awe-border-width) solid var(--awe-header-border)"
       });
     });
   });
@@ -248,7 +248,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
       it("is a bar under the header with the menu surface", () => {
         expect(style("#main-menu.horizontal")).toMatchObject({
           "background": "var(--awe-menu-background)",
-          "border-bottom": "1px solid var(--awe-menu-border)"
+          "border-bottom": "var(--awe-border-width) solid var(--awe-menu-border)"
         });
         expect(style("#main-menu.horizontal ul.navigation")).toMatchObject({
           "display": "flex",
@@ -270,7 +270,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
           "padding": "var(--awe-list-padding)",
           "color": "var(--awe-color-overlay-text)",
           "background": "var(--awe-color-overlay)",
-          "border": "1px solid var(--awe-color-overlay-border)",
+          "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
           "border-radius": "var(--awe-radius-lg)",
           "box-shadow": "var(--awe-shadow-overlay)",
           "z-index": "var(--awe-z-dropdown)"
@@ -282,7 +282,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
         expect(style("#main-menu.horizontal ul.navigation > li.divider")).toMatchObject({
           "height": "var(--awe-size-icon)",
           "margin": "0 var(--awe-space-1)",
-          "border-left": "1px solid var(--awe-color-border)",
+          "border-left": "var(--awe-border-width) solid var(--awe-color-border)",
           "opacity": "1"
         });
       });
@@ -292,7 +292,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
       it("is a column with the menu surface and the width of the tokens", () => {
         expect(style("#main-menu.vertical #main-menu-bg")).toMatchObject({
           "background": "var(--awe-menu-background)",
-          "border-right": "1px solid var(--awe-menu-border)"
+          "border-right": "var(--awe-border-width) solid var(--awe-menu-border)"
         });
         expect(style("#main-menu.vertical ul.navigation")).toMatchObject({
           "padding": "calc(var(--awe-header-height) + var(--awe-space-2)) var(--awe-space-3) var(--awe-space-4)"
@@ -320,7 +320,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
           "padding": "var(--awe-list-padding)",
           "color": "var(--awe-color-overlay-text)",
           "background": "var(--awe-color-overlay)",
-          "border": "1px solid var(--awe-color-overlay-border)",
+          "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
           "border-radius": "var(--awe-radius-lg)",
           "box-shadow": "var(--awe-shadow-overlay)"
         });
@@ -343,7 +343,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
         expect(style(".sidebar-footer")).toMatchObject({
           "display": "flex",
           "flex": "none",
-          "border-top": "1px solid var(--awe-menu-border)"
+          "border-top": "var(--awe-border-width) solid var(--awe-menu-border)"
         });
         expect(style(".sidebar-powered")).toMatchObject({
           "font-size": "var(--awe-font-size-xs)",
@@ -400,7 +400,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
         expect(style("#main-menu.vertical ul.navigation li.divider")).toMatchObject({
           "height": "0",
           "margin": "var(--awe-space-2) var(--awe-space-3)",
-          "border-top": "1px solid var(--awe-color-border-subtle)",
+          "border-top": "var(--awe-border-width) solid var(--awe-color-border-subtle)",
           "opacity": "1"
         });
       });
@@ -423,7 +423,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
         "width": "var(--awe-header-search-width)",
         "padding": "var(--awe-list-padding)",
         "background": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-overlay-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "var(--awe-radius-lg)",
         "box-shadow": "var(--awe-shadow-overlay)",
         "z-index": "var(--awe-z-dropdown)"
@@ -435,7 +435,7 @@ describe("AngularJS shell over the pixel-admin markup (#885)", () => {
         "height": "var(--awe-size-control)",
         "color": "var(--awe-color-field-text)",
         "background": "var(--awe-color-field)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-field)"
       });
       expect(style(".awe-menu-search .awe-menu-search-input:focus")).toMatchObject({
