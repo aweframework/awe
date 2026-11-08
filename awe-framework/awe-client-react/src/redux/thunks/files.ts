@@ -3,6 +3,7 @@ import {fetchAction, fetchHtml, getContextPath, getCookie, getRestUrl} from "../
 import {getFormValues} from "../selectors/form";
 import type {AppThunk} from "../types";
 import type {ClientAction} from "./types";
+import {runRefusal} from "./refusal";
 
 /** Setter of a state that holds a text: it receives a function from the previous text to the next one */
 type SetText = (update: (previous: string) => string) => void;
@@ -41,7 +42,14 @@ export function fetchLogAction (
   return (dispatch, getState) => {
     const {settings} = getState();
     fetchAction(serverAction, targetAction, {...getFormValues(getState()), offset}, settings.token)
-      .then((a) => updateLog(a as ClientAction[], setLogText, setOffset)) // An error answer has no actions: it fails and is logged below
+      .then((a) => {
+        // The refusal of the server (an expired session, denied access) answers with its own actions (the panel on
+        // a 401) instead of the log (#935, S6); any other answer that failed keeps failing here, as it always did
+        if (runRefusal(a, dispatch)) {
+          return;
+        }
+        updateLog(a as ClientAction[], setLogText, setOffset);
+      })
       .catch((reason) => console.error("Error reading log file:", reason));
   };
 }

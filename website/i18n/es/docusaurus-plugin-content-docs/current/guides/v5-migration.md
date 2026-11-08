@@ -465,6 +465,36 @@ Las consultas de `awe.session.parameter` las lanza el servidor al iniciar sesió
 - Marque con `server-only="true"` las consultas de la aplicación que solo lanza Java, sobre todo las que devuelven
   credenciales o datos de otros usuarios.
 
+### Los rechazos de autorización y las sesiones caducadas responden con su estado HTTP {#action-http-status}
+
+Incidencia #935. `/action/*` respondía **HTTP 200** en todos los errores, incluidos un rechazo de autorización y una
+sesión caducada: el cliente recibía una lista de acciones de cliente (`end-load` y el mensaje) y el 200 decía a los
+proxies, a la monitorización y a la pestaña de red del navegador que la llamada había ido bien.
+
+- Un lanzamiento de cliente rechazado (un target `server-only`, un target rechazado por el acceso por pantalla con
+  `awe.security.authorization.mode=enforce`, un servicio de un perfil sin el permiso) responde **403 Forbidden** con
+  **el mismo cuerpo que antes**: `end-load`, el mensaje de acceso denegado y `cancel`. Lo que ve el usuario final no
+  cambia.
+- Una petición a `/action/**` sin sesión responde **401** con ese mismo cuerpo, mensaje de sesión caducada incluido,
+  en lugar de `text/plain` con la clave de idioma.
+- `/screen-data/**` responde **401** cuando se pide una opción privada sin sesión. Antes respondía 200 con la
+  página de "pantalla no encontrada", así que un enlace directo a una pantalla privada con la sesión caducada
+  mostraba un 404 en lugar de pedir que se inicie sesión de nuevo. Una opción pública sigue respondiendo 200.
+- Los dos clientes leen el cuerpo de un 403 o de un 401 como acciones de cliente, así que un rechazo se muestra y el
+  estado de carga termina, y una sesión caducada abre un panel con un único botón (`BUTTON_RESTART_APPLICATION`, «Recargar e ir al
+  inicio») que recarga la aplicación en la pantalla de inicio. Un `404` conserva su propio mensaje de recurso no
+  encontrado en lugar del de conexión perdida.
+
+Qué debe revisar una aplicación:
+
+- Un proxy, un balanceador, un WAF o una regla de monitorización que contaba los rechazos como llamadas correctas
+  (`200`) empieza a ver `403` y `401`. Es lo que se busca; una regla que redirige en 401 no debe interceptar la
+  respuesta JSON de `/action/**`.
+- El código de cliente propio que lanza `/action` y trata cualquier respuesta no 2xx como un error de transporte tiene
+  que leer el cuerpo como acciones de cliente, igual que los clientes del framework.
+- El código fuera del navegador que leía el cuerpo `text/plain` del 401 de `/action/**` recibe ahora una lista JSON de
+  acciones.
+
 ### Acceso por pantalla {#access-by-screen}
 
 La incidencia #914 comprueba el acceso a las pantallas antes de que un cliente lance un target de maintain o una

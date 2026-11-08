@@ -56,6 +56,16 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
     return mvcResult.getResponse().getContentAsString();
   }
 
+  private String performRefusedRequest(String type, String name, String variables) throws Exception {
+    return mockMvc.perform(post("/action/" + type + "/" + name)
+            .with(csrf())
+            .content("{" + variables + "}")
+            .contentType(MediaType.APPLICATION_JSON)
+            .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isForbidden())
+        .andReturn().getResponse().getContentAsString();
+  }
+
   private ArrayNode dataRows(String result) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
@@ -98,8 +108,8 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
     assertEquals("initialKey", serverData.getKey());
     assertEquals("initialPass", serverData.getKeyPassphrase());
 
-    // serverData is server-only: a client request is refused and gets no secret
-    assertThat(performRequest("data", "serverData", "\"serverId\":" + serverId))
+    // serverData is server-only: a client request is refused with the status of a refusal and gets no secret
+    assertThat(performRefusedRequest("data", "serverData", "\"serverId\":" + serverId))
         .contains("You do not have permission to perform this action. Contact your administrator if you need it.")
         .doesNotContain("initialSecret")
         .doesNotContain("initialKey")

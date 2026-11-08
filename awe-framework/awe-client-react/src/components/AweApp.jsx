@@ -3,6 +3,7 @@ import View from "./View";
 import ActionsContainer from "../containers/ActionsContainer";
 import FormContainer from "../containers/FormContainer";
 import MessageContainer from "../containers/MessageContainer";
+import SessionExpiredContainer from "../containers/SessionExpiredContainer";
 
 import {getComponentValue} from "../utilities";
 import {useDispatch, useSelector} from "react-redux";
@@ -50,6 +51,7 @@ function AweApp() {
   return (
     <>
       <MessageContainer/>
+      <SessionExpiredContainer/>
       <FormContainer>
         <View
           name={"base"}

@@ -1,5 +1,9 @@
 import {serverAction, serverDownloadAction} from '../../../../src/redux/thunks/server';
-import {ACCEPT_ACTION} from '../../../../src/redux/actions/actions';
+import {runRefusal} from '../../../../src/redux/thunks/refusal';
+import {saveGridLayout} from '../../../../src/redux/thunks/gridLayout';
+import {launchWindowService} from '../../../../src/redux/thunks/windowAdvancedState';
+import {fetchLogAction} from '../../../../src/redux/thunks/files';
+import {ACCEPT_ACTION, ADD_ACTIONS_TOP} from '../../../../src/redux/actions/actions';
 import {configureStore} from '@reduxjs/toolkit';
 import createRootReducer from '../../../../src/redux/reducers';
 import {DEFAULT_SETTINGS} from '../../../../src/redux/actions/settings';
@@ -219,6 +223,218 @@ describe('awe-react-client/test/js/redux/thunks/serverThunkTest.js', () => {
 
       expect(body.serverAction).toBe('maintain-silent');
       expect(body.targetAction).toBe('LchTskVar');
+    });
+  });
+
+  describe('refusal answers (#935)', () => {
+    const address = {view: 'report', component: 'ButRefused'};
+    const target = {view: 'report', component: 'Dia'};
+    const launcher = () => serverAction({
+      type: 'server', address, target: 'Dia',
+      parameters: {serverAction: 'data', targetAction: 'Dia'}
+    })(dispatch, () => ({settings: {token: 'token'}, components: {}}));
+    const answer = (status, text) => global.fetch.mockResolvedValue({ok: false, status, text: () => Promise.resolve(text)});
+    const added = () => dispatch.mock.calls.map(([call]) => call).filter(call => call.type === ADD_ACTIONS_TOP).flatMap(call => call.payload);
+    const updates = () => dispatch.mock.calls.map(([call]) => call).filter(call => call.type === 'UPDATE_ATTRIBUTES');
+
+    it('processes a 403 whose body is a list of client actions exactly like a 200 answer (#935, S3)', async () => {
+      answer(403, JSON.stringify([
+        {type: 'end-load'},
+        {type: 'message', parameters: {type: 'error', title: 'ERROR_TITLE_ACCESS_DENIED', message: 'ERROR_MESSAGE_ACTION_NOT_PERMITTED'}},
+        {type: 'cancel'}
+      ]));
+
+      const result = await serverAction({
+        type: 'server', address, target: 'Dia', origin: 'menu',
+        parameters: {serverAction: 'data', targetAction: 'Dia'}
+      })(dispatch, () => ({settings: {token: 'token'}, components: {}}));
+
+      expect(result).toBe(true);
+      expect(added().map(a => a.type)).toEqual(['end-load', 'message', 'cancel']);
+      expect(added().find(a => a.type === 'message').parameters.title).toBe('ERROR_TITLE_ACCESS_DENIED');
+      // Every action of the body runs in the context the other actions of the answer would run: target and origin
+      expect(added()[0].address.component).toBe('Dia');
+      expect(added()[1].origin).toBe('menu');
+      expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({type: ACCEPT_ACTION}));
+    });
+
+    it('shows an access-denied message when the 403 body is not a list of actions, instead of staying silent (#935, S3)', async () => {
+      answer(403, 'Access to the maintain has been denied');
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await launcher();
+
+      expect(result).toBe(false);
+      expect(added().map(a => a.type)).toEqual(['end-load', 'message']);
+      expect(added()[1].parameters).toEqual({
+        type: 'error', title: 'ERROR_TITLE_ACCESS_DENIED', message: 'Access to the maintain has been denied'
+      });
+      // The loading state ended anyway
+      expect(updates().at(-1).data).toEqual({loading: false});
+    });
+
+    it('falls back to the locale key when the 403 body text is markup, so no markup is shown (#935, S3)', async () => {
+      answer(403, '<html><body>Access denied</body></html>');
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      await launcher();
+
+      expect(added()[1].parameters).toEqual({
+        type: 'error', title: 'ERROR_TITLE_ACCESS_DENIED', message: 'ERROR_MESSAGE_ACTION_NOT_PERMITTED'
+      });
+    });
+
+    it('answers a 401 with the session-expired client action and ends the load (#935, S5, S6)', async () => {
+      answer(401, JSON.stringify({message: 'ERROR_MESSAGE_SESSION_EXPIRED'}));
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await launcher();
+
+      expect(result).toBe(false);
+      expect(added().map(a => a.type)).toEqual(['end-load', 'session-expired']);
+      expect(updates().at(-1).data).toEqual({loading: false});
+      expect(dispatch).not.toHaveBeenCalledWith(expect.objectContaining({type: ACCEPT_ACTION}));
+    });
+
+    it('answers a 404 with the not-found message, never with the raw body or a session message (#935, S6, S7)', async () => {
+      answer(404, '<html><body>Page Not Found</body></html>');
+      jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      await launcher();
+
+      expect(added().map(a => a.type)).toEqual(['end-load', 'message']);
+      expect(added()[1].parameters).toEqual({
+        type: 'error', title: 'ERROR_TITLE_NOT_FOUND', message: 'ERROR_MESSAGE_NOT_FOUND'
+      });
+      expect(added().find(a => a.type === 'session-expired')).toBeUndefined();
+    });
+
+    it('keeps today\'s behaviour on any other non-ok answer (#935, S3)', async () => {
+      answer(500, 'Internal server error');
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      const result = await launcher();
+
+      expect(result).toBe(false);
+      expect(added()).toHaveLength(0);
+      expect(updates().at(-1).data).toEqual({loading: false});
+      expect(consoleError).toHaveBeenCalled();
+    });
+  });
+
+  describe('refusals of every client request (#935, S6)', () => {
+    const address = {view: 'report', component: 'GrdLay'};
+    const addedOf = () => dispatch.mock.calls.map(([call]) => call).filter(call => call.type === ADD_ACTIONS_TOP).flatMap(call => call.payload);
+    const sessionExpiredAdded = () => addedOf().find(a => a.type === 'session-expired');
+    const notOk = (status, text = JSON.stringify({message: 'no session'})) =>
+      global.fetch.mockResolvedValue({ok: false, status, text: () => Promise.resolve(text)});
+    const locals = () => dispatch.mock.calls.map(([call]) => call).filter(call => call.type === ADD_ACTIONS_TOP)
+      .flatMap(call => call.payload)
+      .filter((a) => a.type === 'message' && a.address?.component === 'GrdLay');
+
+    it('answers a 401 through the same refusal rule the shared helper runs for every caller', () => {
+      const outcome = runRefusal({message: 'no session', status: 401, body: {message: 'ignored'}}, dispatch);
+
+      expect(outcome).toBe('refusal');
+      expect(addedOf().map(a => a.type)).toEqual(['session-expired']);
+    });
+
+    it('runs a 403 body of client actions exactly like a 200 answer through the shared helper', () => {
+      const body = [{type: 'end-load'}, {type: 'cancel'}];
+
+      const outcome = runRefusal({message: 'empty', status: 403, body}, dispatch);
+
+      expect(outcome).toBe('actions');
+      expect(addedOf()).toEqual(body);
+    });
+
+    it('leaves any other answer of the shared helper to the caller', () => {
+      expect(runRefusal({message: 'boom', status: 500}, dispatch)).toBeNull();
+      expect(runRefusal(new Error('network down'), dispatch)).toBeNull();
+      expect(runRefusal(undefined, dispatch)).toBeNull();
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('answers a 401 of a grid layout service with the session-expired panel, not with its own failure (#935, S6)', async () => {
+      notOk(401);
+
+      const result = await saveGridLayout(address, 'scr', {order: [], hidden: []}, {
+        title: 'ERROR_TITLE_GRID_LAYOUT', message: 'ERROR_MESSAGE_GRID_LAYOUT'
+      })(dispatch, () => ({settings: {token: 'token'}, components: {}}));
+
+      expect(result).toBe(false);
+      expect(sessionExpiredAdded()).toBeDefined();
+      // The service failed, but the panel is the only answer the user sees
+      expect(locals()).toHaveLength(0);
+    });
+
+    it('answers a 401 of a window service with the session-expired panel, not with its own failure (#935, S6)', async () => {
+      notOk(401);
+
+      const result = await launchWindowService('saveWindowAdvancedState', {view: 'base', component: 'WinAdv'}, {}, {
+        title: 'ERROR_TITLE_WINDOW_STATE', message: 'ERROR_MESSAGE_WINDOW_STATE'
+      })(dispatch, () => ({settings: {token: 'token'}, components: {}}));
+
+      expect(result).toBeNull();
+      expect(sessionExpiredAdded()).toBeDefined();
+      expect(addedOf().some(a => a.type === 'message' && a.parameters?.title === 'ERROR_TITLE_WINDOW_STATE')).toBe(false);
+    });
+
+    it('runs the client actions of the 403 body of a window service exactly like a 200 answer (#935, S6)', async () => {
+      notOk(403, JSON.stringify([
+        {type: 'end-load'},
+        {type: 'message', parameters: {type: 'error', title: 'ERROR_TITLE_ACCESS_DENIED', message: 'ERROR_MESSAGE_ACTION_NOT_PERMITTED'}},
+        {type: 'cancel'}
+      ]));
+
+      const result = await launchWindowService('saveWindowAdvancedState', {view: 'base', component: 'WinAdv'}, {}, {
+        title: 'ERROR_TITLE_WINDOW_STATE', message: 'ERROR_MESSAGE_WINDOW_STATE'
+      })(dispatch, () => ({settings: {token: 'token'}, components: {}}));
+
+      expect(result).toBeNull();
+      expect(addedOf().map(a => a.type)).toEqual(['end-load', 'message', 'cancel']);
+      expect(addedOf().some(a => a.type === 'message' && a.parameters?.title === 'ERROR_TITLE_WINDOW_STATE')).toBe(false);
+    });
+
+    it('answers a 401 of the log file request with the session-expired panel instead of silently failing (#935, S6)', async () => {
+      notOk(401);
+      const setLogText = jest.fn();
+      const setOffset = jest.fn();
+
+      fetchLogAction('slice-log', 'TgtLog', 0, setLogText, setOffset)(dispatch, getState);
+      await flushPromises();
+
+      expect(sessionExpiredAdded()).toBeDefined();
+      expect(setLogText).not.toHaveBeenCalled();
+      expect(setOffset).not.toHaveBeenCalled();
+    });
+
+    it('keeps the failure path of every caller on any other failed answer (#935, S6)', async () => {
+      const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+      // Grid layout: its own error message
+      notOk(500);
+      const gridResult = await saveGridLayout(address, 'scr', {order: [], hidden: []}, {
+        title: 'ERROR_TITLE_GRID_LAYOUT', message: 'ERROR_MESSAGE_GRID_LAYOUT'
+      })(dispatch, () => ({settings: {token: 'token'}, components: {}}));
+      expect(gridResult).toBe(false);
+      expect(addedOf().find(a => a.type === 'message' && a.parameters?.title === 'ERROR_TITLE_GRID_LAYOUT')).toBeDefined();
+
+      // Window service: its own error message and a null answer
+      const windowResult = await launchWindowService('saveWindowAdvancedState', {view: 'base', component: 'WinAdv'}, {}, {
+        title: 'ERROR_TITLE_WINDOW_STATE', message: 'ERROR_MESSAGE_WINDOW_STATE'
+      })(dispatch, () => ({settings: {token: 'token'}, components: {}}));
+      expect(windowResult).toBeNull();
+      expect(addedOf().find(a => a.type === 'message' && a.parameters?.title === 'ERROR_TITLE_WINDOW_STATE')).toBeDefined();
+
+      // Log file: logged error, no log update
+      notOk(500);
+      const setLogText = jest.fn();
+      const setOffset = jest.fn();
+      fetchLogAction('slice-log', 'TgtLog', 0, setLogText, setOffset)(dispatch, getState);
+      await flushPromises();
+      expect(consoleError).toHaveBeenCalledWith('Error reading log file:', expect.anything());
+      expect(setLogText).not.toHaveBeenCalled();
     });
   });
 

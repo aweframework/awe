@@ -5,6 +5,7 @@ import com.almis.awe.component.AweHttpServletRequestWrapper;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.MultiTenantOAuth2Config;
 import com.almis.awe.config.SecurityConfigProperties;
+import com.almis.awe.exception.AWEClientLaunchRefusedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
@@ -371,7 +372,7 @@ public class AweWebSecurityConfig {
 
 	@Bean
 	public AuthenticationEntryPoint actionAuthenticationEntryPoint(AweSessionDetails sessionDetails) {
-		return new ActionAuthenticationEntryPoint(sessionDetails);
+		return new ActionAuthenticationEntryPoint(sessionDetails, elements, objectMapper);
 	}
 
 	@Bean
@@ -483,7 +484,15 @@ public class AweWebSecurityConfig {
 			// A pending expired password change never survives into a login
 			clearPasswordChange(request);
 			initRequest(request, objectMapper);
-			response.getWriter().write(objectMapper.writeValueAsString(actionService.launchAction("afterLogin")));
+			try {
+				response.getWriter().write(objectMapper.writeValueAsString(actionService.launchAction("afterLogin")));
+			} catch (AWEClientLaunchRefusedException refused) {
+				// A refused after-login action is a refused client launch like any other: 403 with its client actions, so
+				// the client shows the refusal instead of a server error
+				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				response.setHeader("Content-Type", "application/json; charset=UTF-8");
+				response.getWriter().write(objectMapper.writeValueAsString(refused.getClientActions()));
+			}
 		});
 		authenticationFilter.setAuthenticationFailureHandler((request, response, authenticationException) -> {
 			initRequest(request, objectMapper);

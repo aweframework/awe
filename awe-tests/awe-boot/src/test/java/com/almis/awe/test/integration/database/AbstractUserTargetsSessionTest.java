@@ -77,10 +77,10 @@ public abstract class AbstractUserTargetsSessionTest extends AbstractSpringAppIn
 
     // Even for the user of the session: these targets are only launched by the server
     for (String user : new String[]{OTHER_USER, USER}) {
-      maintain("addToFavourites", USER_FIELD + user + "\",\"option\":\"users\"");
-      maintain("removeFromFavourites", USER_FIELD + user + "\",\"option\":\"themes\"");
-      maintain("updateUserAvatar", USER_FIELD + user + "\",\"avatarToken\":\"forged-token\"");
-      maintain("insertUserAvatar", USER_FIELD + user + "2\",\"avatarToken\":\"forged-token\"");
+      refusedMaintain("addToFavourites", USER_FIELD + user + "\",\"option\":\"users\"");
+      refusedMaintain("removeFromFavourites", USER_FIELD + user + "\",\"option\":\"themes\"");
+      refusedMaintain("updateUserAvatar", USER_FIELD + user + "\",\"avatarToken\":\"forged-token\"");
+      refusedMaintain("insertUserAvatar", USER_FIELD + user + "2\",\"avatarToken\":\"forged-token\"");
     }
 
     assertThat(jdbc.queryForList("SELECT Opt FROM AweUsrFav WHERE Ope = ?", String.class, OTHER_USER)).containsExactly(THEMES_OPTION);
@@ -104,5 +104,18 @@ public abstract class AbstractUserTargetsSessionTest extends AbstractSpringAppIn
         .content("{" + variables + ",\"max\":30}")
         .accept(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk());
+  }
+
+  /**
+   * A target only the server launches is refused to a client with the status of a refusal and not as a successful call
+   */
+  private void refusedMaintain(String target, String variables) throws Exception {
+    mockMvc.perform(post("/action/maintain/" + target)
+        .with(csrf())
+        .session(session)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{" + variables + ",\"max\":30}")
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isForbidden());
   }
 }

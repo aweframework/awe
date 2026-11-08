@@ -86,6 +86,7 @@
   <locale name="BUTTON_REMOVE_FAVOURITE" value="Supprimer l&apos;écran des favoris"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Réinitialiser 2FA"/>
+  <locale name="BUTTON_RESTART_APPLICATION" value="Recharger et revenir au début"/>
   <locale name="BUTTON_RESTRICT" value="Restreindre l&apos;accès"/>
   <locale name="BUTTON_RUN" value="Commencer"/>
   <locale name="BUTTON_SAVE_CHANGES" value="Enregistrer les modifications"/>
@@ -614,6 +615,7 @@
   <locale name="ERROR_MESSAGE_LDAP_USER" value="L&apos;utilisateur {0} n&apos;existe pas ou est désactivé dans le LDAP"/>
   <locale name="ERROR_MESSAGE_MAINTAIN_NOT_FOUND" value="L&apos;operation de maintenance -{0}- n&apos;a pas ete definie"/>
   <locale name="ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD" value="Requête mal formée, utilisant une liste de variables dans un champ: {0}"/>
+  <locale name="ERROR_MESSAGE_NOT_FOUND" value="La ressource demandée n&apos;existe pas ou n&apos;est plus disponible"/>
   <locale name="ERROR_MESSAGE_PASSWORD_CHANGE_NOT_ALLOWED" value="Le changement de mot de passe n&apos;est pas disponible ou a expiré. Connectez-vous à nouveau pour changer le mot de passe."/>
   <locale name="ERROR_MESSAGE_PASSWORD_POLICY" value="Le nouveau mot de passe ne respecte pas la politique des mots de passe. Connectez-vous à nouveau pour définir un nouveau mot de passe."/>
   <locale name="ERROR_MESSAGE_PASSWORD_REPEATED" value="Le nouveau mot de passe doit être différent de celui qui a expiré. Connectez-vous à nouveau pour définir un nouveau mot de passe."/>
@@ -964,6 +966,7 @@
   <locale name="ERROR_TITLE_NO_AUDIT_FIELDS" value="Aucun champ d&apos;audit définies"/>
   <locale name="ERROR_TITLE_NONEXISTENT_FILE" value="Fichier inexistant"/>
   <locale name="ERROR_TITLE_NOT_DEFINED" value="Erreur: &apos;&apos;{0}&apos;&apos; n&apos;est pas défini"/>
+  <locale name="ERROR_TITLE_NOT_FOUND" value="Ressource introuvable"/>
   <locale name="ERROR_TITLE_OAUTH_NO_USERNAME_ATTR" value="Erreur dans le Oauth2"/>
   <locale name="ERROR_TITLE_OPTION_NOT_DEFINED" value="Option non défini"/>
   <locale name="ERROR_TITLE_PARSE_EXCEPTION" value="ParseException Generated"/>

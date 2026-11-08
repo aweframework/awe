@@ -116,6 +116,8 @@ export const DEFAULT_SETTINGS = {
   encodeTransmission: false,
   encodeKey: "p",
   tokenKey: "t",
+  // Whether the session expired: the app shell renders a blocking panel over it (#935)
+  sessionExpired: false,
   // Debug
   actionsStack: 0,
   debug: "INFO",

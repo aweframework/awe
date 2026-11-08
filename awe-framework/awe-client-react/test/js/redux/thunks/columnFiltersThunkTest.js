@@ -73,11 +73,25 @@ describe('awe-react-client/test/js/redux/thunks/columnFiltersThunkTest.js', () =
     expect(launched.map(action => action.payload)).toEqual([[message]]);
   });
 
-  it('answers no values when the request fails', async () => {
+  it('answers no values without a panel when the request fails on any other status', async () => {
     jest.spyOn(window, 'fetch').mockReturnValue(Promise.resolve({ ok: false, status: 500, text: () => Promise.resolve('Error') }));
 
     const result = await columnValuesAction(address, { name: 'ProTxt', filter: 'values' })(dispatch, getState);
 
     expect(result).toEqual({ values: [], more: false });
+    // No refusal ran: it is not the answer of an expired session or a denied access (#935)
+    expect(dispatch).not.toHaveBeenCalled();
   });
+  describe('refused answer (#935)', () => {
+    it('answers a 401 of the column values with the session-expired panel, and the filter menu keeps no values (#935, S6)', async () => {
+      jest.spyOn(window, 'fetch').mockReturnValue(Promise.resolve({ok: false, status: 401, text: () => Promise.resolve(JSON.stringify({message: 'no session'}))}));
+
+      const result = await columnValuesAction(address, { name: 'ProTxt', filter: 'values' })(dispatch, getState);
+
+      expect(result).toEqual({ values: [], more: false });
+      const launched = dispatch.mock.calls.map(([action]) => action).filter(action => action.type === ADD_ACTIONS_TOP);
+      expect(launched.map(action => action.payload.map(a => a.type))).toEqual([['session-expired']]);
+    });
+  });
+
 });

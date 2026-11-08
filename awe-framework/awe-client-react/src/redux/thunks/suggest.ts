@@ -2,6 +2,7 @@ import type {ComponentAddress} from "../../contract";
 import {isEmpty} from "../../utilities/general";
 import {fetchAction} from "../../utilities";
 import type {Suggestion} from "../../utilities/suggest";
+import {runRefusal} from "./refusal";
 import {updateModelWithDependencies} from "./components";
 import {keepModel} from "../actions/components";
 import {getFormValues} from "../selectors/form";
@@ -43,9 +44,15 @@ export const suggestAction = (event: unknown, text: string, props: SuggestProps)
       { ...getFormValues(getState()), suggest: text, max: 0 },
       settings.token,
       signal
-    ) as ClientAction[]; // An error answer has no list of actions: reading it as one fails, as it always did
-
-    const datalist = manageFillAction(response, dispatch);
+    );
+    // The refusal of the server runs what its status demands (#935, S6), from the rule every client request
+    // shares: the panel on a 401, the client actions of a 403 body, the access-denied message on any other 403
+    // and the not-found message on a 404. The open suggest keeps its neutral answer: the default value it builds
+    if (runRefusal(response, dispatch) !== null) {
+      return defaultValue;
+    }
+    // A guarded answer is a list of actions from here: the guard of runRefusal read every answer that is not one
+    const datalist = manageFillAction(response as ClientAction[], dispatch);
     // One option per label in each group (the options of a suggest without groups are one group)
     return _.uniqBy([...(datalist.rows || []), ...defaultValue], item => item.group ? `${item.group}:${item.label}` : item.label);
   };
@@ -69,9 +76,14 @@ export const initialSuggestAction = (
       checkTarget || targetAction,
       { suggest, max: 0 },
       settings.token
-    ) as ClientAction[]; // An error answer has no list of actions: reading it as one fails, as it always did
-
-    const datalist = manageFillAction(response, dispatch);
+    );
+    // The refusal of the server runs what its status demands (#935, S6): its actions and its message, and the
+    // initial suggest keeps the component empty instead of reading a datalist that is not one
+    if (runRefusal(response, dispatch) !== null) {
+      return [];
+    }
+    // A guarded answer is a list of actions from here: the guard of runRefusal read every answer that is not one
+    const datalist = manageFillAction(response as ClientAction[], dispatch);
     // A multiple suggest checks all its values at once
     const suggested = [suggest].flat().map(String);
     const selectedItems = (datalist.rows || [])

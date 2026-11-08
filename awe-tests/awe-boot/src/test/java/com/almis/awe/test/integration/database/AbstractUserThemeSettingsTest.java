@@ -107,9 +107,9 @@ public abstract class AbstractUserThemeSettingsTest extends AbstractSpringAppInt
 
     // Even for the user of the session: these targets are only launched by the server
     for (String user : new String[]{OTHER_USER, USER}) {
-      maintain("updateUserDensity", USER_BODY_PREFIX + user + "\",\"density\":\"compact\",\"max\":30}");
-      maintain("updateUserMode", USER_BODY_PREFIX + user + "\",\"mode\":\"dark\",\"max\":30}");
-      maintain("addUserSettings", USER_BODY_PREFIX + user + "\",\"density\":\"compact\",\"max\":30}");
+      refusedMaintain("updateUserDensity", USER_BODY_PREFIX + user + "\",\"density\":\"compact\",\"max\":30}");
+      refusedMaintain("updateUserMode", USER_BODY_PREFIX + user + "\",\"mode\":\"dark\",\"max\":30}");
+      refusedMaintain("addUserSettings", USER_BODY_PREFIX + user + "\",\"density\":\"compact\",\"max\":30}");
     }
 
     assertThat(jdbc.queryForMap(SELECT_SETTINGS_SQL, OTHER_USER))
@@ -133,6 +133,19 @@ public abstract class AbstractUserThemeSettingsTest extends AbstractSpringAppInt
         .content(body)
         .accept(MediaType.APPLICATION_JSON))
       .andExpect(status().isOk());
+  }
+
+  /**
+   * A target only the server launches is refused to a client with the status of a refusal and not as a successful call
+   */
+  private void refusedMaintain(String target, String body) throws Exception {
+    mockMvc.perform(post("/action/maintain/" + target)
+        .with(csrf())
+        .session(session)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(body)
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isForbidden());
   }
 
   private JsonNode settings() throws Exception {

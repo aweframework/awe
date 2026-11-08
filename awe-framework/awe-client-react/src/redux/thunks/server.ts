@@ -1,7 +1,10 @@
 import type { ComponentAddress } from "../../contract";
-import { fetchAction, fetchFile, getActionAddress, getComponent, getRestUrl } from "../../utilities";
+import type { FetchError } from "../../utilities";
+import { fetchAction, fetchFile, getActionAddress, getComponent, getRestUrl, isFetchError } from "../../utilities";
 import type { ComponentState } from "../../utilities/mergeUtils";
 import { acceptAction, addActionsTop } from "../actions/actions";
+import type { ActionItem } from "../actions/actions";
+import { runRefusal } from "./refusal";
 import { updateAttributes } from "../actions/components";
 import { getFormValues } from "../selectors/form";
 import { getAllComponents } from "../selectors/componentSelectors";
@@ -40,8 +43,17 @@ export const serverAction = (
       dispatch(selectButtonRow(address as ComponentAddress & { row?: unknown }));
     }
 
+    // Every action of the answer runs in the context the caller gave this one: its component (the target when
+    // the action loads one), its view and its origin
+    const withCallerContext = (clientAction: ActionItem): ActionItem => ({
+      ...clientAction,
+      address: { ...address, component: target || component, ...(clientAction.address || {}) },
+      ...(origin ? { origin } : {})
+    } as ClientAction);
+
     try {
-      // An error answer has no list of actions: reading it as one fails and ends in the catch, as it always did
+      // An answer that failed has no list of actions: a non-ok answer is a refusal or a failure (#935) and the
+      // catch below runs what its status demands
       const response = await fetchAction<ClientAction[]>(
         serverAction,
         targetAction,
@@ -52,14 +64,13 @@ export const serverAction = (
         settings.token,
         null
       ) as ClientAction[];
+      if (isFetchError(response)) {
+        throw response as FetchError;
+      }
 
       // Añadir nuevas acciones a la pila
       dispatch(addActionsTop(
-        response.map(a => ({
-          ...a,
-          address: { ...address, component: target || component, ...(a.address || {}) },
-          ...(origin ? { origin } : {})
-        }))
+        response.map(withCallerContext)
       ));
 
       // Aceptar la acción original
@@ -67,6 +78,14 @@ export const serverAction = (
       return true;
     } catch (error) {
       console.error("Error in server action call:", error);
+
+      // The refusal of the server runs what its status demands (#935, S3, S5, S6, S7), from the rule every client
+      // request shares: a 403 whose body is a list of client actions ran exactly like a 200 answer, so the action
+      // succeeded; the other refused statuses end below, with the loading state of the target closed
+      if (runRefusal(error, dispatch, targetAddress, withCallerContext) === "actions") {
+        dispatch(acceptAction(action));
+        return true;
+      }
 
       // No response will end the load of the target
       if (targetAddress) {

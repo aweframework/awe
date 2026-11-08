@@ -476,8 +476,10 @@ class MenuServiceCharacterizationTest {
     when(aweElements.getMenu("public")).thenReturn(menu(labelled(option("shared"), "PUBLIC")));
 
     assertThat(menuService.getAvailableOptionByName("SHARED", privateMenu).getLabel()).isEqualTo("PUBLIC");
+    // Without a session, an option of the private menu that cannot be resolved is an expired session and not a missing
+    // screen: the client asks the user to sign in again instead of showing the 404 page (#935)
     assertThatThrownBy(() -> menuService.getAvailableOptionByName("restricted", privateMenu))
-      .isExactlyInstanceOf(AWENotFoundException.class);
+      .isExactlyInstanceOf(AWESessionException.class);
   }
 
   @Test

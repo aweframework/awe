@@ -1,6 +1,7 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.exception.AWEClientLaunchRefusedException;
 import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
@@ -169,6 +170,21 @@ class ActionServiceTest {
     assertThat(actionList).extracting(ClientAction::getType).containsExactly("validate");
   }
 
+  @Test
+  void refusesTheClientLaunchWhenTheServiceIsRefusedByTheAuthorizers() throws Exception {
+    AweElements elements = givenService(Service.builder().id("UsrExp").permission("users.read").build());
+    when(elements.getLocaleWithLanguage(anyString(), any())).thenAnswer(call -> call.getArgument(0));
+    when(authorizer.authorize("UsrExp", TargetKind.SERVICE)).thenReturn(false);
+    actionService.setLaunchedAction(action("UsrExp"));
+    actionService.setDefaultError(defaultErrorWithMessage());
+
+    assertThatThrownBy(() -> actionService.launchAction("A1"))
+      .isInstanceOf(AWEClientLaunchRefusedException.class)
+      .satisfies(exc -> assertThat(((AWEClientLaunchRefusedException) exc).getClientActions())
+        .extracting(ClientAction::getType)
+        .containsExactly("end-load", "message"));
+  }
+
   private static Action actionWithOwnErrorAnswer() {
     return Action.builder().id("control-unique-cancel")
       .answers(List.of(Answer.builder().type("error")
@@ -190,6 +206,7 @@ class ActionServiceTest {
   static class TestableActionService extends ActionService {
     private AweRequest testRequest;
     private Action defaultError;
+    private Action launchedAction;
 
     TestableActionService(LauncherService launcherService, BaseConfigProperties baseConfigProperties,
                           TargetLaunchAuthorizer authorizer) {
@@ -204,9 +221,13 @@ class ActionServiceTest {
       this.defaultError = defaultError;
     }
 
+    void setLaunchedAction(Action launchedAction) {
+      this.launchedAction = launchedAction;
+    }
+
     @Override
     public Action getAction(String actionId) {
-      return defaultError;
+      return "DEFAULT_ERROR".equals(actionId) ? defaultError : launchedAction;
     }
 
     @Override

@@ -154,6 +154,8 @@ describe("test id vocabulary", () => {
       sidePanelTitle: "side-panel-title",
       sidePanelSubtitle: "side-panel-subtitle",
       sidePanelTag: "side-panel-tag",
+      sessionExpiredPanel: "session-expired-panel",
+      sessionExpiredRestart: "session-expired-restart",
       popoverClose: "popover-close",
       confirmDialog: "confirm-dialog",
       confirmAccept: "confirm-accept",

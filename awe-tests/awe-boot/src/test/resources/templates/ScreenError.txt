@@ -4,8 +4,8 @@
   </div>
   <div class="error-code"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#triangle-alert"></use></svg></i></div>
   <div class="error-text">
-    <span class="oops">Option not defined</span><br>
+    <span class="oops">Session expired</span><br>
     <span class="hr"></span><br/>
-    <span class="solve">Option pantalla-inexistente has not been defined. Please check menu files.</span>
+    <span class="solve">Your connection has expired. You must login again.</span>
   </div>
 </div>

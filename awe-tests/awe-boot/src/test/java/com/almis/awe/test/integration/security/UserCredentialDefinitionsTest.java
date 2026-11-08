@@ -350,9 +350,9 @@ class UserCredentialDefinitionsTest extends AbstractSpringAppIntegrationTest {
   @ValueSource(strings = {"UsrInf", "AutUsr"})
   @WithMockUser(username = SIGNED_IN_USER, password = SIGNED_IN_USER, roles = {"ADMIN", "USER"})
   void userInformationQueriesAreRefusedAndDoNotReturnPasswords(String queryName) throws Exception {
-    // Server-only: a signed-in client is refused
+    // Server-only: a signed-in client is refused with the status of a refusal
     String result = launchQuery(queryName, signedInSession())
-      .andExpect(status().isOk())
+      .andExpect(status().isForbidden())
       .andReturn().getResponse().getContentAsString();
 
     assertThat(result).contains("You do not have permission to perform this action. Contact your administrator if you need it.").doesNotContain(queryName);
