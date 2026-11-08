@@ -97,7 +97,7 @@ describe("grid loading skeleton", () => {
 
     const cells = element.find(".grid-skeleton-row").eq(0).find(".grid-skeleton-cell");
     expect(cells[0].style.width).toBe("120px");
-    expect(cells[1].style.width).toBe(`${10 * scope.charSize}px`);
+    expect(cells[1].style.width).toBe(`${(10 + 4) * scope.charSize}px`);
   });
 
   describe("pre-columns", () => {

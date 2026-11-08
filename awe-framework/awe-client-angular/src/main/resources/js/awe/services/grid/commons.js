@@ -145,6 +145,38 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
       return getIconTemplate("awe-cell-icon", "span", icon, "aria-hidden=\"true\"").replace(/>\s+</g, "><");
     };
 
+    // Characters added to the width of a column for its padding and decoration, the same margin of the React engine
+    const COLUMN_EXTRA_CHARS = 4;
+
+    /**
+     * Translate a label made of one or more keys separated by spaces
+     *
+     * @param {string} label Label
+     * @returns {string} Translated label
+     */
+    const translateLabel = (label) => label.split(" ").map(key => $translate.instant(key)).join(" ");
+
+    /**
+     * Width of a column: its declared width or, from its charlength, the margin of the cell padding as in the React
+     * engine and never narrower than its translated header label (the React table grows a column to fit its header).
+     * Without charlength, 20 characters
+     *
+     * @param {object} column Column model
+     * @param {number} charSize Pixels per character
+     * @returns {number|string} Column width
+     */
+    const getColumnWidth = (column, charSize) => {
+      const charLength = Number(column.charlength);
+      if (column.width) {
+        return column.width;
+      }
+      if (charLength > 0) {
+        const labelLength = column.label ? translateLabel(column.label).length : 0;
+        return (Math.max(charLength, labelLength) + COLUMN_EXTRA_CHARS) * charSize;
+      }
+      return 20 * charSize;
+    };
+
     /**
      * Check whether the cells of a column need more than one line (secondary line, chips, avatar or swatch), so the rows
      * grow to fit them
@@ -1784,15 +1816,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @param {object} column Column model
          */
         component.fixColumn = function (column) {
-          // Calculate width based on charlength
-          if (column.charlength !== "0" && !column.width) {
-            column.width = column.charlength * component.scope.charSize;
-          }
-
-          // Set default column width
-          if (!column.width) {
-            column.width = 20 * component.scope.charSize;
-          }
+          column.width = getColumnWidth(column, component.scope.charSize);
 
           // Store initial width
           column.initialWidth = column.width;
