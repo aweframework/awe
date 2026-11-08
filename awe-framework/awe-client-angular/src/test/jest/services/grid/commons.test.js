@@ -167,6 +167,62 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
 
   });
 
+  // A column takes 4 more characters than its charlength for the cell padding, as in the React engine
+  it('should give a column 4 more characters of width than its charlength', function () {
+    let component = getDefaultComponent();
+    new GridCommons(component).init();
+    let plain = {id: "lan", charlength: 8};
+    let status = {id: "sta", charlength: "9", statusField: "StaTon"};
+    let fixed = {id: "fix", charlength: 9, width: 50};
+
+    [plain, status, fixed].forEach(component.fixColumn);
+
+    expect(plain.width).toBe((8 + 4) * 7);
+    expect(status.width).toBe((9 + 4) * 7);
+    expect(fixed.width).toBe(50);
+  });
+
+  // The header label fits: a column whose label is longer than its charlength takes the length of the label
+  it('should widen a column to fit its header label', function () {
+    let component = getDefaultComponent();
+    new GridCommons(component).init();
+    let longLabel = {id: "addPro", charlength: 13, label: "Additional profiles"};
+    let shortLabel = {id: "sta", charlength: 9, label: "Status"};
+    let fixed = {id: "fix", charlength: 9, label: "Additional profiles", width: 50};
+
+    [longLabel, shortLabel, fixed].forEach(component.fixColumn);
+
+    expect(longLabel.width).toBe((19 + 4) * 7);
+    expect(shortLabel.width).toBe((9 + 4) * 7);
+    expect(fixed.width).toBe(50);
+  });
+
+  // The width follows the translated label, not its key
+  it('should measure the translated header label', function () {
+    let component = getDefaultComponent();
+    new GridCommons(component).init();
+    const $translate = $injector.get("$translate");
+    jest.spyOn($translate, "instant").mockImplementation(key => key === "PARAMETER_LONG" ? "Additional profiles" : key);
+    let column = {id: "addPro", charlength: 5, label: "PARAMETER_LONG"};
+
+    component.fixColumn(column);
+
+    expect(column.width).toBe((19 + 4) * 7);
+    $translate.instant.mockRestore();
+  });
+
+  // A column without a charlength (missing, empty or zero) takes the default width of 20 characters
+  it('should use the default width for a column without charlength', function () {
+    let component = getDefaultComponent();
+    new GridCommons(component).init();
+    let columns = [{id: "missing"}, {id: "empty", charlength: ""}, {id: "zero", charlength: 0}, {id: "zeroText", charlength: "0"},
+      {id: "negative", charlength: -5}, {id: "notANumber", charlength: "abc"}];
+
+    columns.forEach(component.fixColumn);
+
+    columns.forEach(column => expect(column.width).toBe(20 * 7));
+  });
+
   // The tag that the grid emits for a sparkline column is the one of the directive
   it('should emit the tag of the sparkline directive for a sparkline column', function () {
     let component = getDefaultComponent();
@@ -869,14 +925,14 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
           component: "text",
           type: undefined,
           charlength: 20,
-          width: 140,
+          width: 168,
           align: undefined
         }, {
           name: "Header text",
           label: "Header text",
           columnList: [
-            { name: 'other', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: 'Other thing' },
-            { name: 'other2', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: '' }],
+            { name: 'other', type: undefined, component: undefined, width: 168, charlength: 20, align: undefined, label: 'Other thing' },
+            { name: 'other2', type: undefined, component: undefined, width: 168, charlength: 20, align: undefined, label: '' }],
           columnCounter: 0,
           header: true
         }, {
@@ -885,7 +941,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
             component: undefined,
             type: undefined,
             charlength: 20,
-            width: 140,
+            width: 168,
             align: undefined
         }],
         footer: {
@@ -933,14 +989,14 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
           type: undefined,
           component: "text",
           charlength: 20,
-          width: 140,
+          width: 168,
           align: undefined
         }, {
           name: "Header text",
           label: "Header text",
           columnList: [
-            { name: 'other', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: 'Other thing' },
-            { name: 'other2', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: '' }],
+            { name: 'other', type: undefined, component: undefined, width: 168, charlength: 20, align: undefined, label: 'Other thing' },
+            { name: 'other2', type: undefined, component: undefined, width: 168, charlength: 20, align: undefined, label: '' }],
           columnCounter: 0,
           header: true
         }, {
@@ -949,7 +1005,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
           component: undefined,
           type: undefined,
           charlength: 20,
-          width: 140,
+          width: 168,
           align: undefined
         }],
         footer: {
@@ -1025,7 +1081,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     expect(visibleColumns.map(column => column.name)).toEqual(["AmountRaw", "AmountExcel", "VisibleDefault"]);
     expect(visibleColumns.map(column => column.printable)).toEqual(["true", "excel", undefined]);
     // Hidden columns are sent with their initial width instead of the collapsed one
-    expect(visibleColumns[0].width).toBe(140);
+    expect(visibleColumns[0].width).toBe(168);
   });
 
   // Get printable columns inside a group header (issue #753)
@@ -1071,7 +1127,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     expect(visibleColumns[0].header).toBe(true);
     expect(visibleColumns[0].name).toBe("Group");
     expect(visibleColumns[0].columnList.map(column => column.name)).toEqual(["AmountRaw", "Currency"]);
-    expect(visibleColumns[0].columnList[0].width).toBe(140);
+    expect(visibleColumns[0].columnList[0].width).toBe(168);
     expect(visibleColumns[1].name).toBe("Notes");
   });
 
