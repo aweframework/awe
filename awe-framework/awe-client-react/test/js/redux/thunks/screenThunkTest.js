@@ -310,6 +310,31 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       expect(addTop).toBeDefined();
     });
 
+    describe('refused screen data (#935)', () => {
+      const answer = (status, text) => window.fetch.mockResolvedValue({ok: false, status, text: () => Promise.resolve(text)});
+
+      it('answers a 401 on /screen-data with the session-expired client action, not with a message (#935, S6)', async () => {
+        answer(401, JSON.stringify({message: 'ERROR_MESSAGE_SESSION_EXPIRED'}));
+
+        await screenThunks.loadScreen('view-a', 'option-a', (key) => key)(dispatch, () => ({ settings: { token: 'TOK' }, components: {} }));
+
+        const addTop = dispatch.mock.calls.map(a => a[0]).find(a => a.type === ADD_ACTIONS_TOP);
+        expect(addTop.payload.map(a => a.type)).toEqual(['session-expired']);
+      });
+
+      it('answers a 404 on /screen-data with the not-found message, never with the raw body or a connection message (#935, S7)', async () => {
+        answer(404, '<html><body>Page Not Found</body></html>');
+
+        await screenThunks.loadScreen('view-a', 'option-a', (key) => key)(dispatch, () => ({ settings: { token: 'TOK' }, components: {} }));
+
+        const addTop = dispatch.mock.calls.map(a => a[0]).find(a => a.type === ADD_ACTIONS_TOP);
+        expect(addTop.payload.map(a => a.type)).toEqual(['message']);
+        expect(addTop.payload[0].parameters).toEqual({
+          type: 'error', title: 'ERROR_TITLE_NOT_FOUND', message: 'ERROR_MESSAGE_NOT_FOUND'
+        });
+      });
+    });
+
     describe('values sent with the screen request (#934)', () => {
       const text = (view, id, value) => ({
         address: { view, component: id },

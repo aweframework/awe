@@ -2,6 +2,7 @@ package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWEClientLaunchRefusedException;
 import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
@@ -100,6 +101,11 @@ public class ActionService extends ServiceConfig {
         actionList = launchAction(action);
       } catch (AWException exc) {
         actionList = launchError(action, exc);
+        // A refused client launch is not an action error: whoever answers the request sends the actions with the status
+        // that HTTP defines for a refusal, so a proxy, a monitor and the browser network tab can see it
+        if (exc instanceof AWEUnauthorizedException unauthorized) {
+          throw new AWEClientLaunchRefusedException(unauthorized, actionList);
+        }
       }
     }
 

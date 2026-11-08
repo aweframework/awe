@@ -184,6 +184,10 @@ export const TestIds = Object.freeze({
   sidePanelTitle: "side-panel-title",
   sidePanelSubtitle: "side-panel-subtitle",
   sidePanelTag: "side-panel-tag",
+  // Session expired panel (#935): one blocking panel with one button which reloads the application and goes to the
+  // start screen when the session is gone
+  sessionExpiredPanel: "session-expired-panel",
+  sessionExpiredRestart: "session-expired-restart",
   // Popover containers (dialogs anchored to a control; they share the "popover" hook, owner: popover id) close button
   popoverClose: "popover-close",
   confirmDialog: "confirm-dialog",

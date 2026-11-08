@@ -86,6 +86,7 @@
   <locale name="BUTTON_REMOVE_FAVOURITE" value="Remove screen from favourites"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Reset 2FA"/>
+  <locale name="BUTTON_RESTART_APPLICATION" value="Reload and go to start"/>
   <locale name="BUTTON_RESTRICT" value="Restrict access"/>
   <locale name="BUTTON_RUN" value="Start"/>
   <locale name="BUTTON_SAVE_CHANGES" value="Save changes"/>
@@ -614,6 +615,7 @@
   <locale name="ERROR_MESSAGE_LDAP_USER" value="The user -{0} not exist or is disabled in LDAP"/>
   <locale name="ERROR_MESSAGE_MAINTAIN_NOT_FOUND" value="Maintain operation -{0}- has not been defined"/>
   <locale name="ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD" value="Malformed query, using a variable list in a field: {0}"/>
+  <locale name="ERROR_MESSAGE_NOT_FOUND" value="The requested resource does not exist or is no longer available"/>
   <locale name="ERROR_MESSAGE_PASSWORD_CHANGE_NOT_ALLOWED" value="The password change is not available or has expired. Sign in again to change the password."/>
   <locale name="ERROR_MESSAGE_PASSWORD_POLICY" value="The new password does not meet the password policy. Sign in again to set a new password."/>
   <locale name="ERROR_MESSAGE_PASSWORD_REPEATED" value="The new password must be different from the expired one. Sign in again to set a new password."/>
@@ -964,6 +966,7 @@
   <locale name="ERROR_TITLE_NO_AUDIT_FIELDS" value="No audit fields defined"/>
   <locale name="ERROR_TITLE_NONEXISTENT_FILE" value="Nonexistent file"/>
   <locale name="ERROR_TITLE_NOT_DEFINED" value="Error: &apos;&apos;{0}&apos;&apos; has not been defined"/>
+  <locale name="ERROR_TITLE_NOT_FOUND" value="Resource not found"/>
   <locale name="ERROR_TITLE_OAUTH_NO_USERNAME_ATTR" value="Oauth2 error"/>
   <locale name="ERROR_TITLE_OPTION_NOT_DEFINED" value="Option not defined"/>
   <locale name="ERROR_TITLE_PARSE_EXCEPTION" value="ParseException Generated"/>

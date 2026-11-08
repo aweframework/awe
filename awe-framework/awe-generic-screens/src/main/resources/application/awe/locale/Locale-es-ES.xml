@@ -86,6 +86,7 @@
   <locale name="BUTTON_REMOVE_FAVOURITE" value="Eliminar pantalla de favoritos"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Restablecer 2FA"/>
+  <locale name="BUTTON_RESTART_APPLICATION" value="Recargar e ir al inicio"/>
   <locale name="BUTTON_RESTRICT" value="Restringir acceso"/>
   <locale name="BUTTON_RUN" value="Comenzar"/>
   <locale name="BUTTON_SAVE_CHANGES" value="Guardar cambios"/>
@@ -617,6 +618,7 @@
   <locale name="ERROR_MESSAGE_LDAP_USER" value="El usuario {0} no existe o está desactivado en el LDAP"/>
   <locale name="ERROR_MESSAGE_MAINTAIN_NOT_FOUND" value="La operación de mantenimiento -{0}- no ha sido definida"/>
   <locale name="ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD" value="Query mal formada, se está utilizando una variable de lista como campo: {0}"/>
+  <locale name="ERROR_MESSAGE_NOT_FOUND" value="El recurso solicitado no existe o ya no está disponible"/>
   <locale name="ERROR_MESSAGE_PASSWORD_CHANGE_NOT_ALLOWED" value="El cambio de contraseña no está disponible o ha caducado. Inicie sesión de nuevo para cambiar la contraseña."/>
   <locale name="ERROR_MESSAGE_PASSWORD_POLICY" value="La nueva contraseña no cumple la política de contraseñas. Inicie sesión de nuevo para establecer una nueva contraseña."/>
   <locale name="ERROR_MESSAGE_PASSWORD_REPEATED" value="La nueva contraseña debe ser distinta de la caducada. Inicie sesión de nuevo para establecer una nueva contraseña."/>
@@ -967,6 +969,7 @@
   <locale name="ERROR_TITLE_NO_AUDIT_FIELDS" value="No hay campos de auditoría definidos"/>
   <locale name="ERROR_TITLE_NONEXISTENT_FILE" value="Fichero inexistente"/>
   <locale name="ERROR_TITLE_NOT_DEFINED" value="Error: &apos;&apos;{0}&apos;&apos; no ha sido definido"/>
+  <locale name="ERROR_TITLE_NOT_FOUND" value="Recurso no encontrado"/>
   <locale name="ERROR_TITLE_OAUTH_NO_USERNAME_ATTR" value="Error de Oauth2 autenticación"/>
   <locale name="ERROR_TITLE_OPTION_NOT_DEFINED" value="La opción no está definida"/>
   <locale name="ERROR_TITLE_PARSE_EXCEPTION" value="Generada ParseException"/>

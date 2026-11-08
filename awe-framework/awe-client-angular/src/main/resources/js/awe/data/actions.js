@@ -8,6 +8,7 @@ export const ClientActions = {
     "back": {method: "back"},
     "wait": {method: "wait"},
     "screen-data": {method: "screenData"},
+    "session-expired": {method: "sessionExpired"},
     "dialog": {method: "openDialog"},
     "close": {method: "closeDialog"},
     "close-cancel": {method: "closeDialogAndCancel"},

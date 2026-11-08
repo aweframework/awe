@@ -1067,7 +1067,8 @@ aweApplication.factory('AweUtilities',
 
         /**
          * Manage REST error
-         * @param error
+         * @param error Error answered: status, title and message read from the body (for a 403, also the plain
+         *   text of the body, when it is plain text) and target, the address of the end-load, when there is one
          * @param target
          * @returns {[...[{type: string, address}]|*[],{type: string, parameters: {type: string, title: string, message: string}}]|[...[{type: string, address}]|*[],{type: string, parameters: {type: string, title, message}}]|[...[{type: string, address}]|*[],{type: string, parameters: {type: string, title, message}},{type: string, parameters: {screen: string}}]}
          */
@@ -1077,31 +1078,44 @@ aweApplication.factory('AweUtilities',
             address: target
           }] : [];
           switch (error.status) {
-            case 401: // Unauthorized
+            case 401: // Unauthorized: expired or missing session
               // Log error output
               $log.error("Session expired", error);
+
+              // The session is gone: no message is built from the body of the answer, which cannot be read as an
+              // error (the session expired entry point answers the message keys, not error data). The client action
+              // session-expired shows the session expired panel, which reloads the application and goes to the
+              // start screen
               return [...endLoad, {
-                type: 'message',
-                parameters: {
-                  type: "error",
-                  title: error.title,
-                  message: error.message
-                }
-              }, {
-                type: "screen",
-                parameters: {
-                  screen: "/",
-                }
+                type: 'session-expired'
               }];
-            case 403: // Forbidden
+            case 403: { // Forbidden: an authorization refusal whose body is not a list of client actions
               // Log error output
               $log.error("Forbidden access", error);
+
+              // A plain text answer (a proxy, a gateway) is shown as it came, under the title the answer carries, or
+              // under the access denied title without one; a structured answer keeps its title and its message, and
+              // a body which looks like markup (a proxy page) is dropped: it is never printed in the message. An
+              // answer with no readable text at all runs the refusal message the server sends
+              const body = typeof error.body === "string" && !error.body.trimStart().startsWith("<") ? error.body : "";
               return [...endLoad, {
                 type: 'message',
                 parameters: {
                   type: "error",
-                  title: error.title,
-                  message: error.message
+                  title: error.title || "ERROR_TITLE_ACCESS_DENIED",
+                  message: body || error.message || "ERROR_MESSAGE_ACTION_NOT_PERMITTED"
+                }
+              }];
+            }
+            case 404: // Not found: the resource does not exist anymore
+              // Log error output
+              $log.error("Resource not found", error);
+              return [...endLoad, {
+                type: 'message',
+                parameters: {
+                  type: "error",
+                  title: "ERROR_TITLE_NOT_FOUND",
+                  message: "ERROR_MESSAGE_NOT_FOUND"
                 }
               }];
             case 504: // Gateway timeout

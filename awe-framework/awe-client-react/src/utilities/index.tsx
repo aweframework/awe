@@ -64,6 +64,78 @@ interface ActionsProps {
 export interface FetchError {
   message: string;
   status: number;
+  /** Body of the answer parsed as JSON, when it carries a JSON body (#935) */
+  body?: unknown;
+}
+
+/**
+ * Whether an answer is the error answer of a request that failed: `fetchJson` resolves it instead of rejecting, so
+ * the callers read it from the response (#935)
+ * @param answer Answer of a request
+ * @return The answer is a `FetchError`
+ * @memberOf Utilities
+ */
+export function isFetchError(answer: unknown): answer is FetchError {
+  return !!answer && typeof answer === "object" && "message" in answer && "status" in answer;
+}
+
+/**
+ * Parse the JSON body of a non-ok answer, when its text is a JSON object or array (#935)
+ * @param text Body text of the answer
+ * @returns The parsed body, or undefined when the text is not a JSON object or array
+ */
+function parseJsonBody(text: string): unknown {
+  const trimmed = text.trim();
+  if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) {
+    return undefined;
+  }
+  try {
+    const parsed = JSON.parse(trimmed);
+    return (typeof parsed === "object" && parsed !== null) ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Titles and texts of the messages a refused answer gets (#935). The message of a bare refusal uses the
+ * non-parametrised key of a refused action, not the screen-denied one: the rendered text never carries a `{0}` */
+const ACCESS_DENIED_TITLE = "ERROR_TITLE_ACCESS_DENIED";
+const ACCESS_DENIED_MESSAGE = "ERROR_MESSAGE_ACTION_NOT_PERMITTED";
+const NOT_FOUND_TITLE = "ERROR_TITLE_NOT_FOUND";
+const NOT_FOUND_MESSAGE = "ERROR_MESSAGE_NOT_FOUND";
+
+/** Whether a body text is markup: a page of the server is never shown inside a message (#935, S7) */
+const isMarkup = (text: string): boolean => /<[a-z!][^>]*>/i.test(text);
+
+/**
+ * Build the client actions a non-ok answer of the server runs, according to its status (#935)
+ * @param error Failed answer of a request
+ * @param target Component loading while the request ran (the end-load ends its loading state), if any
+ * @returns The actions of the refusal, or null when the answer is not one: the caller keeps the failed path it had
+ * @memberOf Utilities
+ */
+export function refusalActions(error: Partial<FetchError>, target?: ComponentAddress | null): ActionItem[] | null {
+  const endLoad: ActionItem[] = target ? [{type: "end-load", address: target}] : [];
+  switch (error.status) {
+    case 401:
+      // An expired session is answered with the client action that opens its own panel
+      return [...endLoad, {type: "session-expired"}];
+    case 403: {
+      // A refusal body carrying client actions is returned as it is: it is processed exactly like a 200 answer
+      if (Array.isArray(error.body)) {
+        return error.body as ActionItem[];
+      }
+      return [...endLoad, generateMessageAction(
+        "error", ACCESS_DENIED_TITLE,
+        (typeof error.message === "string" && error.message.trim() !== "" && !isMarkup(error.message))
+          ? error.message : ACCESS_DENIED_MESSAGE)];
+    }
+    case 404:
+      // A genuine 404 keeps a distinct not-found message: never the raw body, never the session panel
+      return [...endLoad, generateMessageAction("error", NOT_FOUND_TITLE, NOT_FOUND_MESSAGE)];
+    default:
+      return null;
+  }
 }
 
 /** An action that the server runs, or an action of the client that sends the parameters to it */
@@ -392,7 +464,12 @@ export function fetchJson<T = unknown>(
   })
     .then(response => response.ok ?
       response.json() as Promise<T> :
-      response.text().then(message => ({ message, status: response.status })));
+      response.text().then(message => {
+        // The body of an answer that failed is kept parsed when it carries JSON (#935): a refusal body is a list of
+        // client actions, and the caller needs it
+        const body = parseJsonBody(message);
+        return (body === undefined ? { message, status: response.status } : { message, status: response.status, body });
+      }));
 }
 
 /**

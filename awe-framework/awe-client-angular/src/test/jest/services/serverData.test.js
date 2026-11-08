@@ -59,7 +59,21 @@ describe("ServerData", function () {
 
     await $serverData.getScreenData("customer-list", "center");
 
-    expect($utilities.manageRestError).toHaveBeenCalledWith({status: 503, title: "Service unavailable", message: "Screen unavailable"});
+    expect($utilities.manageRestError).toHaveBeenCalledWith({status: 503, title: "Service unavailable", message: "Screen unavailable", body: undefined});
+    expect($actionController.addActionList).toHaveBeenCalledWith(errorActions, false, {address: {view: "base"}});
+  });
+
+  it("routes an unauthorized screen-data answer to the actions, with the body the expired session carries", async function () {
+    const errorActions = [{type: "session-expired"}];
+    jest.spyOn($serverData, "getFormValues").mockReturnValue({CrtStatus: "ACTIVE"});
+    jest.spyOn($connection, "getRawUrl").mockReturnValue("/awe");
+    jest.spyOn($connection, "post").mockReturnValue(Promise.reject({status: 401, data: "ERROR_MESSAGE_SESSION_EXPIRED"}));
+    jest.spyOn($utilities, "manageRestError").mockReturnValue(errorActions);
+    jest.spyOn($actionController, "addActionList");
+
+    await $serverData.getScreenData("customer-list", "center");
+
+    expect($utilities.manageRestError).toHaveBeenCalledWith({status: 401, title: undefined, message: undefined, body: "ERROR_MESSAGE_SESSION_EXPIRED"});
     expect($actionController.addActionList).toHaveBeenCalledWith(errorActions, false, {address: {view: "base"}});
   });
 

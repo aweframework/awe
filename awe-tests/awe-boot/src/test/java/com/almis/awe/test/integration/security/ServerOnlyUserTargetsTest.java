@@ -81,6 +81,7 @@ class ServerOnlyUserTargetsTest extends AbstractSpringAppIntegrationTest {
         .contentType(MediaType.APPLICATION_JSON)
         .content(body)
         .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isForbidden())
       .andReturn();
 
     assertThat(result.getResponse().getContentAsString()).contains(REFUSED_MESSAGE);

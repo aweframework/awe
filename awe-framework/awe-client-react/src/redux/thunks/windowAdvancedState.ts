@@ -1,8 +1,9 @@
 import type { ComponentAddress } from "../../contract";
-import { fetchAction } from "../../utilities";
+import { fetchAction, isFetchError } from "../../utilities";
 import { addActionsTop } from "../actions/actions";
 import type { AppThunk } from "../types";
 import type { ClientAction } from "./types";
+import { runRefusal } from "./refusal";
 
 // Messages of the server which tell that the save did not work
 const FAILURE_MESSAGE_TYPES: unknown[] = ["error", "danger", "warning"];
@@ -46,8 +47,11 @@ export const launchWindowService = (
 ): AppThunk<Promise<ClientAction[] | null>> => async (dispatch, getState) => {
   const { settings } = getState();
   try {
-    // An error answer has no list of actions: reading it as one fails and ends in the catch
+    // An answer that failed is a refusal or a failure (#935): the catch runs what its status demands
     const response = await fetchAction(serverAction, target, parameters, settings.token, null) as ClientAction[];
+    if (isFetchError(response)) {
+      throw response;
+    }
     dispatch(addActionsTop(response
       .filter(action => action.type !== "fill")
       .map(action => ({ ...action, address: { ...address, ...(action.address || {}) } }))));
@@ -55,6 +59,12 @@ export const launchWindowService = (
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(`Error in the service ${target} of the window ${address.component}:`, error);
+    // The refusal of the server (an expired session, denied access) answers with its own actions: the panel on a
+    // 401, the client actions of the 403 body, the access-denied message on any other 403 and the not-found
+    // message on a 404 (#935, S6)
+    if (runRefusal(error, dispatch)) {
+      return null;
+    }
     dispatch(addActionsTop([{
       type: "message",
       address,

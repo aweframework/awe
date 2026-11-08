@@ -45,7 +45,12 @@ aweApplication.factory('ServerData',
                 return screenData.data.template;
               })
               .catch(function (response) {
-                const actions = $utilities.manageRestError({status: response?.status, title: response?.data?.title, message: response?.data?.message});
+                const actions = $utilities.manageRestError({
+                  status: response?.status,
+                  title: response?.data?.title,
+                  message: response?.data?.message,
+                  body: typeof response?.data === "string" ? response.data : undefined
+                });
                 ActionController.addActionList(actions, false, {address: {view: "base"}});
               });
         },

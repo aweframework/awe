@@ -3,6 +3,7 @@ import {fetchAction, getComponent} from "../../utilities";
 import {getColumnFilterType, getFilterFields} from "../../utilities/columnFilters";
 import type {ColumnValue, FilterableColumn} from "../../utilities/columnFilters";
 import {addActionsTop} from "../actions/actions";
+import {runRefusal} from "./refusal";
 import {getAllComponents} from "../selectors/componentSelectors";
 import {getFormValues} from "../selectors/form";
 import type {AppThunk} from "../types";
@@ -60,7 +61,13 @@ export const columnValuesAction = (address: ComponentAddress, column: Filterable
       columnValues
     }, settings.token, signal);
 
-    // A failed request has no list of actions: no values
+    // The refusal of the server runs what its status demands (#935, S6): the panel on a 401, the client actions of
+    // a 403 body, the access-denied message on any other 403 and the not-found message on a 404, and the filter
+    // menu keeps no values
+    if (runRefusal(response, dispatch) !== null) {
+      return {values: [], more: false};
+    }
+    // A failed request of any other kind has no list of actions: no values, as it always did
     if (!Array.isArray(response)) {
       return {values: [], more: false};
     }

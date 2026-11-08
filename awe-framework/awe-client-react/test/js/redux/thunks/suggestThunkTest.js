@@ -162,6 +162,68 @@ describe('awe-react-client/test/js/redux/thunks/suggestThunkTest.js', () => {
     });
   });
 
+  describe('refused answers (#935)', () => {
+    const notOk = (status, text) => jest.spyOn(window, 'fetch').mockReturnValue(Promise.resolve({
+      ok: false, status, text: () => Promise.resolve(text)
+    }));
+    const ACCESS_DENIED_BODY = JSON.stringify([
+      { type: 'end-load' },
+      { type: 'message', parameters: { type: 'error', title: 'ERROR_TITLE_ACCESS_DENIED', message: 'ERROR_MESSAGE_ACTION_NOT_PERMITTED' } }
+    ]);
+    const addedOf = () => dispatch.mock.calls.map(([call]) => call).filter(call => call && call.type === ADD_ACTIONS_TOP)
+      .flatMap(call => call.payload);
+
+    it('answers a 401 of a suggest with the session-expired panel and keeps its default value (#935, S6)', async () => {
+      notOk(401, JSON.stringify({message: 'no session'}));
+
+      const result = await suggestThunks.suggestAction('input', 'Madrid', {
+        serverAction: 'data', targetAction: 'suggest-cities', strict: false
+      })(dispatch, getState);
+
+      // The open suggest keeps its neutral answer: the default value it builds from the typed text
+      expect(result).toEqual([{value: 'Madrid', label: 'Madrid'}]);
+      const addTop = dispatch.mock.calls.map(a => a[0]).find(a => a && a.type === ADD_ACTIONS_TOP);
+      expect(addTop.payload.map(a => a.type)).toEqual(['session-expired']);
+    });
+
+    it('runs the client actions of the 403 body of a suggest exactly like a 200 answer (#935, S6)', async () => {
+      notOk(403, ACCESS_DENIED_BODY);
+
+      const result = await suggestThunks.suggestAction('input', 'Madrid', {
+        serverAction: 'data', targetAction: 'suggest-cities', strict: true
+      })(dispatch, getState);
+
+      expect(result).toEqual([]);
+      expect(addedOf().map(a => a.type)).toEqual(['end-load', 'message']);
+    });
+
+    it('runs the client actions of the 403 body of the initial suggest with an empty list, without updating the model (#935, S6)', async () => {
+      notOk(403, ACCESS_DENIED_BODY);
+
+      const result = await suggestThunks.initialSuggestAction('ABC', {
+        address: {view: 'v', component: 'comp1'},
+        serverAction: 'data',
+        targetAction: 'targetA'
+      })(dispatch, getState);
+
+      expect(result).toEqual([]);
+      expect(addedOf().map(a => a.type)).toEqual(['end-load', 'message']);
+      // The model of the component was not touched: no model update and no keep with the body actions
+      const calls = dispatch.mock.calls.map(a => a[0]);
+      expect(calls.find(a => a && a.type === KEEP_MODEL)).toBeUndefined();
+      expect(calls.filter(a => typeof a === 'function')).toHaveLength(0);
+    });
+
+    it('keeps the failed answer of a suggest out of the panel on any other status (#935, S6)', async () => {
+      notOk(500, 'Internal server error');
+
+      await expect(suggestThunks.suggestAction('input', 'Madrid', {
+        serverAction: 'data', targetAction: 'suggest-cities', strict: true
+      })(dispatch, getState)).rejects.toThrow();
+
+      expect(addedOf()).toHaveLength(0);
+    });
+  });
   afterEach(() => {
     jest.restoreAllMocks();
     delete global.fetch;

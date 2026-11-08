@@ -448,6 +448,35 @@ The queries of `awe.session.parameter` are launched by the server at login, so t
 - Mark with `server-only="true"` the queries of the application that only Java launches, especially those that return
   credentials or the data of other users.
 
+### Authorization refusals and expired sessions answer their HTTP status {#action-http-status}
+
+Issue #935. `/action/*` answered **HTTP 200** for every error, an authorization refusal and an expired session
+included: the client got a list of client actions (`end-load` and the message) and the 200 told proxies, monitors and
+the browser network tab that the call had succeeded.
+
+- A refused client launch (a `server-only` target, a target refused by the access by screen with
+  `awe.security.authorization.mode=enforce`, a service of a profile without the permission) answers **403 Forbidden**
+  with **the same body as before**: `end-load`, the access denied message and `cancel`. Nothing changes in what the
+  final user sees.
+- A request to `/action/**` without a session answers **401** with that same body, session expired message included,
+  instead of `text/plain` with the locale key.
+- `/screen-data/**` answers **401** for a private option requested without a session. It used to answer 200 with
+  the "screen not found" page, so a deep link to a private screen after the session expired showed a 404 instead
+  of asking the user to sign in again. A public option keeps answering 200.
+- Both clients read the body of a 403 or a 401 as client actions, so a refusal is shown and the loading state ends,
+  and an expired session opens a session panel with a single button (`BUTTON_RESTART_APPLICATION`, "Reload and go to start") that
+  reloads the application on the start screen. A `404` keeps its own not-found message instead of the connection lost
+  one.
+
+What an application must review:
+
+- A proxy, load balancer, WAF or monitoring rule that counted the refusals as successful calls (`200`) starts seeing
+  `403` and `401`. That is the intent; a rule that redirects on 401 must not swallow the JSON answer of `/action/**`.
+- Custom client code that launches `/action` and treats any non-2xx answer as a transport error has to read the body
+  as client actions, as the shipped clients do.
+- Code outside the browser that parsed the `text/plain` body of the 401 of `/action/**` reads a JSON list of actions
+  now.
+
 ### Access by screen {#access-by-screen}
 
 Issue #914 checks the access to the screens before a client launches a maintain target or a query. At startup AWE

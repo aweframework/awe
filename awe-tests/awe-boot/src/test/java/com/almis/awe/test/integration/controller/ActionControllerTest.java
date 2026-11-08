@@ -30,7 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -172,15 +171,14 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testLaunchScreenDataActionError() throws Exception {
-      String expected = "{\"components\":[],\"messages\":{},\"template\":\"<div class=\\\"page-404 fullScreen\\\"><div class=\\\"header\\\"><a class=\\\"logo\\\"></a></div><div class=\\\"error-code\\\"></div><div class=\\\"error-text\\\"><span class=\\\"oops\\\"><span translate>404</span></span><span class=\\\"hr\\\"></span><span class=\\\"solve\\\"><span translate>404-DESCRIPTION</span></span></div></div>\\n<div></div>\\n<div class=\\\"hidden\\\"></div>\",\"actions\":[],\"screen\":{}}";
+      // Without a session an option that cannot be resolved is an expired session, not a missing screen (#935)
       MvcResult mvcResult = mockMvc.perform(post("/screen-data/pantalla-inexistente")
           .with(csrf())
           .contentType(MediaType.APPLICATION_JSON)
           .content("{\"view\":\"base\"}")
           .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andDo(print())
-        .andExpect(content().json(expected))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.title").value("Session expired"))
         .andReturn();
       String result = mvcResult.getResponse().getContentAsString();
       logger.debug(result);

@@ -228,8 +228,13 @@ aweApplication.factory('Uploader',
                 },
                 // On error
                 function(e) {
-                  // Send error message
-                  const actions = $utilities.manageRestError({status: e.status, title: e.statusText, message: ""});
+                  // Send error message (for a 403, the plain text of the body travels in "body", to show it as it came)
+                  const actions = $utilities.manageRestError({
+                    status: e.status,
+                    title: e.statusText,
+                    message: "",
+                    body: typeof e.data === "string" ? e.data : undefined
+                  });
                   $actionController.addActionList(actions, false, {address: {view: "base"}});
                   component.onReset();
                 },

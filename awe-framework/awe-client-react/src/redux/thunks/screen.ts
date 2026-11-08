@@ -3,6 +3,8 @@ import MenuRegistry from "../registry/MenuRegistry";
 import {updateMessages} from "../actions/messages";
 import ViewRegistry from "../registry/ViewRegistry";
 import {acceptAction, addActionsTop, deleteStack} from "../actions/actions";
+import type {ActionItem} from "../actions/actions";
+import {runRefusal} from "./refusal";
 import {clearComponents} from "../actions/components";
 import type {FetchError} from "../../utilities";
 import {
@@ -35,7 +37,6 @@ import {ComponentType, getFirstDefinedAndNotNullValue} from "../../utilities/gen
 import {clearClassChanges} from "../../utilities/classChanges";
 import {pickThemeAppearance} from "../../utilities/themeAppearance";
 import {navigationActions} from "../actions/navigation";
-import type {ActionItem} from "../actions/actions";
 import type {AppThunk, MenuOption} from "../types";
 import type {ClientAction, Translate} from "./types";
 
@@ -134,21 +135,14 @@ export const loadScreen = (view: string, option: string, t: Translate, fresh = f
     const { settings } = state;
     const token = settings.token;
 
+    // A refused or expired answer of the screen data runs the actions its status demands (#935, S5, S6, S7), from
+    // the rule every client request shares; any other failure keeps the message it always had
     const manageScreenError = (option: string, error: Partial<FetchError> = {}): void => {
       console.error(`Error retrieving screen structure: ${option}`, error);
-      const { status } = error;
-      switch (status) {
-        case 401:
-        case 403:
-          dispatch(addActionsTop([
-            { type: "screen", target: "" },
-            { ...generateMessageAction("warning", translateLabel('ERROR_TITLE_SESSION_EXPIRED', t), translateLabel('ERROR_MESSAGE_SESSION_EXPIRED', t)), async: true }
-          ]));
-          break;
-        default:
-          dispatch(addActionsTop([generateMessageAction("error", translateLabel('ERROR_TITLE_SCREEN_GENERATION_ERROR', t), translateLabel(error.message, t))]));
-          break;
+      if (runRefusal(error, dispatch)) {
+        return;
       }
+      dispatch(addActionsTop([generateMessageAction("error", translateLabel('ERROR_TITLE_SCREEN_GENERATION_ERROR', t), translateLabel(error.message, t))]));
     };
 
     // Set screen as loading

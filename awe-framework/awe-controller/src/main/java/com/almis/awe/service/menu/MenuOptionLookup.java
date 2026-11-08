@@ -5,6 +5,7 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWENotFoundException;
 import com.almis.awe.exception.AWESessionException;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
@@ -110,6 +111,14 @@ public class MenuOptionLookup extends ServiceConfig {
 
     // Check if option is defined
     if (option == null) {
+      // An option that cannot be resolved without a session is an expired session and not a missing screen: the client
+      // has to ask the user to sign in again instead of showing the screen as not found (#935). A context with no
+      // session at all keeps the not found answer
+      AweSession session = getSession();
+      if (session != null && !session.isAuthenticated()) {
+        throw new AWESessionException(getLocale("ERROR_TITLE_SESSION_EXPIRED"),
+          getLocale("ERROR_MESSAGE_SESSION_EXPIRED"));
+      }
       auditRestrictedOption(optionId, menu);
       throw new AWENotFoundException(getLocale(ERROR_TITLE_OPTION_NOT_DEFINED),
         getLocale(ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED, optionId));
@@ -259,11 +268,14 @@ public class MenuOptionLookup extends ServiceConfig {
    * @throws AWException Menu has not been found
    */
   private boolean sessionExpired(String optionId) throws AWException {
-    if (getSession().isAuthenticated()) {
+    // A launch without an option (the screen data action carries it in its parameters) has nothing to look for, and a
+    // context with no session at all is not a client answering with an expired session
+    AweSession session = getSession();
+    if (optionId == null || session == null || session.isAuthenticated()) {
       return false;
     }
     Menu menu = menuProvider.getMenu(baseConfigProperties.getFiles().getMenuPrivate());
-    return !getSession().isAuthenticated() && menu.getOptionByName(optionId) != null;
+    return menu != null && menu.getOptionByName(optionId) != null;
   }
 
   /**

@@ -1,8 +1,9 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 
 // Screen service
 aweApplication.factory("Screen",
-  ['$location', 'AweSettings', 'AweUtilities', 'ActionController', 'DependencyController', 'Control', 'ServerData', 'Storage', '$state', '$window',
+  ['$location', 'AweSettings', 'AweUtilities', 'ActionController', 'DependencyController', 'Control', 'ServerData', 'Storage', '$state', '$window', '$rootScope', '$compile',
     /**
      * Control screen data
      *
@@ -16,8 +17,10 @@ aweApplication.factory("Screen",
      * @param {object} $storage Storage service
      * @param {object} $state $state service
      * @param {object} $window Window service
+     * @param {object} $rootScope Root scope service
+     * @param {object} $compile Compile service
      */
-    function ($location, $settings, $utilities, $actionController, $dependencyController, $control, $serverData, $storage, $state, $window) {
+    function ($location, $settings, $utilities, $actionController, $dependencyController, $control, $serverData, $storage, $state, $window, $rootScope, $compile) {
       const $screen = {
         /**
          * Retrieve parameters and send them to the server
@@ -374,6 +377,51 @@ aweApplication.factory("Screen",
             // Close action
             $actionController.acceptAction(action);
           }
+        },
+        /**
+         * Session expired panel (#935): the session is gone, so the application is blocked until the user reloads
+         * it and lands on the start screen. One panel, one button, no close and no cancel: the session is over
+         * @param {object} action Action received
+         */
+        sessionExpired: function (action) {
+          // Close the action: the panel stays open until the application reloads
+          $actionController.acceptAction(action);
+
+          // Build the panel once: the machinery of the client modals (static backdrop, no dismissal with Escape,
+          // focus captured) opens it
+          if (!$screen.sessionExpiredPanel) {
+            const panelScope = $rootScope.$new();
+            // The restart goes to the application root inside its context path: a WAR served at /awe reloads the
+            // application at /awe/, never at the container root
+            panelScope.restart = () => $window.location.assign($utilities.getContextPath() + "/");
+            $screen.sessionExpiredPanel = $compile(
+              `<div class="modal modal-alert modal-warning fade" data-testid="${TestIds.sessionExpiredPanel}" data-backdrop="static" ui-modal ng-cloak>` +
+                `<div class="modal-dialog" role="document">` +
+                  `<div class="modal-content">` +
+                    `<div class="modal-header">` +
+                      `<i><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('warning' | aweIcon).href}}"></use></svg></i>` +
+                    `</div>` +
+                    `<div class="modal-title" translate-multiple="ERROR_TITLE_SESSION_EXPIRED"></div>` +
+                    `<div class="modal-body" translate-multiple="ERROR_MESSAGE_SESSION_EXPIRED"></div>` +
+                    `<div class="modal-footer">` +
+                      `<button type="button" data-testid="${TestIds.sessionExpiredRestart}" class="btn btn-awe btn-primary" title="{{'BUTTON_RESTART_APPLICATION' | translateMultiple}}" ng-click="restart()">` +
+                        `<i><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('refresh' | aweIcon).href}}"></use></svg></i>` +
+                        `<span translate-multiple="BUTTON_RESTART_APPLICATION"></span>` +
+                      `</button>` +
+                    `</div>` +
+                  `</div>` +
+                `</div>` +
+              `</div>`)(panelScope);
+            $(document.body).append($screen.sessionExpiredPanel);
+          }
+
+          // A panel detached since it was built (a navigation that did not reload the whole page) comes back
+          if (!document.body.contains($screen.sessionExpiredPanel[0])) {
+            $(document.body).append($screen.sessionExpiredPanel);
+          }
+
+          // Show the panel
+          $screen.sessionExpiredPanel.isolateScope().$broadcast("modalChange", true);
         },
         /**
          * Close the current window

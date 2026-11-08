@@ -1,7 +1,7 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
-import com.almis.awe.exception.AWENotFoundException;
+import com.almis.awe.exception.AWESessionException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
@@ -557,8 +557,10 @@ class MenuServiceTest {
     mockAvailableOptions(menu);
 
     assertEquals("level1-screen", menuService.getAvailableOptionScreen("level1", menu).getId());
-    assertThrows(AWENotFoundException.class, () -> menuService.getAvailableOptionScreen("level2", menu));
-    assertThrows(AWENotFoundException.class, () -> menuService.getAvailableOptionScreen("level3", menu));
+    // Without a session a nested launcher that cannot be resolved is an expired session: the client asks the user to
+    // sign in again instead of showing the screen as not found (#935)
+    assertThrows(AWESessionException.class, () -> menuService.getAvailableOptionScreen("level2", menu));
+    assertThrows(AWESessionException.class, () -> menuService.getAvailableOptionScreen("level3", menu));
   }
 
   @Test

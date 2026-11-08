@@ -5,6 +5,7 @@ import useComponentService from "./ComponentService";
 import useGridService from "./components/GridService";
 import useWebsocketService from "./WebsocketService";
 import useScreenService from "./ScreenService";
+import useSessionService from "./SessionService";
 import {buildActionRegistry} from "../utilities/actionRegistry";
 import type {ClientActionHandler} from "../utilities/actionRegistry";
 
@@ -21,6 +22,7 @@ export default function useClientActions(): Record<string, ClientActionHandler> 
   const componentService = useComponentService();
   const gridService = useGridService();
   const websocketService = useWebsocketService();
+  const sessionService = useSessionService();
 
   return useMemo(
     () => buildActionRegistry({
@@ -29,8 +31,9 @@ export default function useClientActions(): Record<string, ClientActionHandler> 
       message: messageService,
       component: componentService,
       grid: gridService,
-      websocket: websocketService
+      websocket: websocketService,
+      session: sessionService
     }),
-    [formService, screenService, messageService, componentService, gridService, websocketService]
+    [formService, screenService, messageService, componentService, gridService, websocketService, sessionService]
   );
 }
