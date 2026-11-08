@@ -61,7 +61,7 @@ html body .sso-logout-screen {
     position: relative;
     z-index: 999;
     overflow: hidden;
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: var(--awe-border-width) solid rgba(0, 0, 0, 0.1);
     margin: 60px auto 20px;
 }
 
@@ -204,7 +204,7 @@ html body .sso-logout-screen {
 @media (prefers-color-scheme: dark) {
     .sso-logout-screen .sso-logout-container {
         background: rgba(30, 30, 30, 0.95);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: var(--awe-border-width) solid rgba(255, 255, 255, 0.1);
     }
 
     .sso-logout-screen .sso-logout-form {

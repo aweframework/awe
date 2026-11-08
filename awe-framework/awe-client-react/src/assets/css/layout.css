@@ -92,7 +92,7 @@
 }
 
 .separator {
-  border: 1px solid #e5e5e5;
+  border: var(--awe-border-width) solid #e5e5e5;
 }
 
 .fadeInDown {
@@ -172,22 +172,22 @@
 }
 .dashboard .overview-box.overview-box-1 {
   background-color: #007bff;
-  border: solid 1px #007bff;
+  border: solid var(--awe-border-width) #007bff;
   color: #ffffff;
 }
 .dashboard .overview-box.overview-box-2 {
   background-color: #28a745;
-  border: solid 1px #28a745;
+  border: solid var(--awe-border-width) #28a745;
   color: #ffffff;
 }
 .dashboard .overview-box.overview-box-3 {
   background-color: #fd7e14;
-  border: solid 1px #fd7e14;
+  border: solid var(--awe-border-width) #fd7e14;
   color: #ffffff;
 }
 .dashboard .overview-box.overview-box-4 {
   background-color: #6f42c1;
-  border: solid 1px #6f42c1;
+  border: solid var(--awe-border-width) #6f42c1;
   color: #ffffff;
 }
 .dashboard .global-sales .p-panel-titlebar i {
@@ -293,7 +293,7 @@
 }
 .dashboard .graphs .graph {
   background-color: #ffffff;
-  border: solid 1px #dddddd;
+  border: solid var(--awe-border-width) #dddddd;
   padding: 15px;
   width: 100%;
   -moz-border-radius: 4px;
@@ -339,7 +339,7 @@
 }
 .dashboard .task-list ul li {
   padding: 10px 15px;
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: var(--awe-border-width) solid #e5e5e5;
 }
 .dashboard .task-list ul li:last-child {
   border-bottom: 0 none;
@@ -381,7 +381,7 @@
   margin: 0;
 }
 .dashboard .contacts ul li {
-  border-bottom: 1px solid #e5e5e5;
+  border-bottom: var(--awe-border-width) solid #e5e5e5;
   padding: 10px 15px;
   width: 100%;
   box-sizing: border-box;
@@ -445,7 +445,7 @@
 .dashboard .timeline > .grid .col-3 {
   font-size: 14px;
   position: relative;
-  border-right: 1px solid #e5e5e5;
+  border-right: var(--awe-border-width) solid #e5e5e5;
 }
 .dashboard .timeline > .grid .col-3 i {
   background-color: #ffffff;
@@ -501,7 +501,7 @@
 }
 .dashboard .chat ul li.message-from span {
   background-color: #dff0d8;
-  border: solid 1px #d6e9c6;
+  border: solid var(--awe-border-width) #d6e9c6;
 }
 .dashboard .chat ul li.message-own img, .dashboard .chat ul li.message-own span {
   float: right;
@@ -511,16 +511,16 @@
 }
 .dashboard .chat ul li.message-own span {
   background-color: #d9edf7;
-  border: solid 1px #bce8f1;
+  border: solid var(--awe-border-width) #bce8f1;
 }
 .dashboard .chat .new-message {
   height: 40px;
-  border-top: 1px solid #e5e5e5;
+  border-top: var(--awe-border-width) solid #e5e5e5;
   color: #afafc0;
 }
 .dashboard .chat .new-message .message-attachment {
   display: inline-block;
-  border-right: 1px solid #e5e5e5;
+  border-right: var(--awe-border-width) solid #e5e5e5;
   width: 40px;
   line-height: 40px;
   height: 100%;
@@ -597,7 +597,7 @@
 .dashboard-banking .currency-panel .dashboard-currency {
   min-height: 85px;
   padding: 23px 10px;
-  border: 1px solid rgba(67, 69, 96, 0.1);
+  border: var(--awe-border-width) solid rgba(67, 69, 96, 0.1);
   border-radius: 4px;
   background-color: #ffffff;
 }
@@ -661,19 +661,19 @@
 }
 .dashboard-banking .financial-overview .p-panel {
   height: 100%;
-  border: 1px solid #DCE1E7;
+  border: var(--awe-border-width) solid #DCE1E7;
 }
 .dashboard-banking .financial-overview .p-panel .p-panel-content {
   border: none;
 }
 .dashboard-banking .financial-overview .p-panel .p-widget-header {
   border: none;
-  border-bottom: 1px solid #dddddd !important;
+  border-bottom: var(--awe-border-width) solid #dddddd !important;
 }
 .dashboard-banking .financial-overview .financial-overview-total {
   line-height: 36px;
   padding: 17px 14px 15px 14px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: var(--awe-border-width) solid #ddd;
   background-color: #fbfbfb;
 }
 .dashboard-banking .financial-overview .financial-overview-total-label {
@@ -880,7 +880,7 @@
   height: 240px;
 }
 .dashboard-banking .transaction {
-  border-bottom: 1px solid yellow;
+  border-bottom: var(--awe-border-width) solid yellow;
 }
 .dashboard-banking .transaction:last-child {
   border-bottom: none;
@@ -1115,12 +1115,12 @@
   width: 125px;
 }
 .help-wrapper .help-content .card.accordion-card .card-header .feedback-buttons button.not-helpful {
-  border: solid 1px #de7470;
+  border: solid var(--awe-border-width) #de7470;
   background-color: #f2dede;
   color: #a94442;
 }
 .help-wrapper .help-content .card.accordion-card .card-header .feedback-buttons button.helpful {
-  border: solid 1px #8cd6ad;
+  border: solid var(--awe-border-width) #8cd6ad;
   background-color: #e6f6ed;
   color: #217848;
 }
@@ -1205,7 +1205,7 @@
   width: 100%;
   height: 150px;
   border-radius: 4px;
-  border: solid 1px #f5f5f5;
+  border: solid var(--awe-border-width) #f5f5f5;
   margin-bottom: 30px;
   display: flex;
   align-items: center;
@@ -1341,7 +1341,7 @@
 }
 .invoice-wrapper hr {
   border: none;
-  border-top: 1px dashed rgba(0, 0, 0, 0.22);
+  border-top: var(--awe-border-width) dashed rgba(0, 0, 0, 0.22);
   color: #fff;
   background-color: #fff;
   height: 50px;
@@ -1529,7 +1529,7 @@
   height: 260px;
   width: 100%;
   border-radius: 4px;
-  border: solid 1px #5a6062;
+  border: solid var(--awe-border-width) #5a6062;
   background-color: #ffffff;
   margin-bottom: 30px;
   cursor: pointer;
@@ -1569,7 +1569,7 @@
   background-color: rgba(216, 216, 216, 0.4);
 }
 .wizard-body .wizard-wrapper .wizard-container .wizard-content.tier .tier-card.active-tier-card {
-  border: solid 1px #5a9fe0;
+  border: solid var(--awe-border-width) #5a9fe0;
 }
 .wizard-body .wizard-wrapper .wizard-container .wizard-content.tier .tier-card.active-tier-card .tier-card-header {
   background-color: #8dc8ff;
@@ -1855,14 +1855,14 @@
 }
 .landing-body .landing-menu li a {
   color: #ffffff;
-  border-bottom: 1px solid transparent;
+  border-bottom: var(--awe-border-width) solid transparent;
   -moz-transition: border 0.3s;
   -o-transition: border 0.3s;
   -webkit-transition: border 0.3s;
   transition: border 0.3s;
 }
 .landing-body .landing-menu li a:hover {
-  border-bottom: 1px solid #ffffff;
+  border-bottom: var(--awe-border-width) solid #ffffff;
 }
 .landing-body .landing-wrapper #header {
   background-position: center center;
@@ -1888,7 +1888,7 @@
 .landing-body .landing-wrapper #header .header-top .sign-up-buttonpane button {
   min-width: 100px;
   padding: 5px 10px;
-  border: 1px solid #ffffff;
+  border: var(--awe-border-width) solid #ffffff;
   background: transparent;
   cursor: pointer;
   color: #ffffff;
@@ -2056,7 +2056,7 @@
   margin: 15px 0 45px 0;
 }
 .landing-body .landing-wrapper #pricing > div .col-12 .price-type {
-  border: 1px solid #dddddd;
+  border: var(--awe-border-width) solid #dddddd;
   height: 100%;
   color: #6a6a7d;
   box-sizing: border-box;
@@ -2071,7 +2071,7 @@
 .landing-body .landing-wrapper #pricing > div .col-12 .price-type .price-header {
   background-color: #f5f5f5;
   padding: 30px;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: var(--awe-border-width) solid #dddddd;
 }
 .landing-body .landing-wrapper #pricing > div .col-12 .price-type .price-for {
   color: #bdc3c9;
@@ -2092,7 +2092,7 @@
   color: #6ba6d9;
   list-style-type: none;
   padding: 10px 30px 10px 10px;
-  border-bottom: 1px solid #dddddd;
+  border-bottom: var(--awe-border-width) solid #dddddd;
 }
 .landing-body .landing-wrapper #pricing > div .col-12 .price-type ul li .fa {
   margin-left: 20px;
@@ -2120,7 +2120,7 @@
 .landing-body .landing-wrapper #footer {
   padding: 30px 0;
   background-color: #292b2c;
-  border: solid 1px #dee4e9;
+  border: solid var(--awe-border-width) #dee4e9;
 }
 .landing-body .landing-wrapper #footer .social-icons {
   font-size: 36px;
@@ -2169,7 +2169,7 @@
 }
 .landing-body .landing-wrapper #footer > div .landing-menu li a {
   color: #cccccc;
-  border-bottom: 1px solid transparent;
+  border-bottom: var(--awe-border-width) solid transparent;
   -moz-transition: border 0.3s;
   -o-transition: border 0.3s;
   -webkit-transition: border 0.3s;

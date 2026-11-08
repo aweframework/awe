@@ -13,6 +13,7 @@ Cómo escribir CSS y componentes para AWE 5 en cualquiera de los dos motores, y 
 | Solo tokens | `color: #334155` | `color: var(--awe-color-text)` |
 | Sin colores literales fuera del fichero de tokens | `rgba(0, 0, 0, 0.1)` | `var(--awe-color-shadow)` o un token de sombra |
 | Sin tamaños fuera de las escalas | `padding: 10px 15px` | `padding: var(--awe-space-2) var(--awe-space-3)` |
+| Sin anchos de borde literales | `border: 1px solid var(--awe-color-border)` | `border: var(--awe-border-width) solid var(--awe-color-border)` |
 | Leer el nivel 2 o 3, nunca el 1 | `var(--awe-palette-emerald-600)` | `var(--awe-color-primary)` |
 | Sin reglas por modo | `.dark .my-card { … }` | Un token con `light-dark()` |
 | Sin reglas por densidad | `[data-awe-density] .my-field { … }` | Tokens de tamaño y relleno |
@@ -26,7 +27,7 @@ Una tarjeta en el CSS de un producto:
   padding: var(--awe-content-padding);
   color: var(--awe-color-text);
   background: var(--awe-color-surface);
-  border: 1px solid var(--awe-color-border);
+  border: var(--awe-border-width) solid var(--awe-color-border);
   border-radius: var(--awe-radius-card);
   box-shadow: var(--awe-shadow-card);
 }
@@ -136,6 +137,11 @@ color de marca indica su hex; no sobrescribe tokens semánticos localmente.
 | Pruebas | Pruebas Jest y de navegador del motor modificado, incluidas las pruebas de tokens. |
 
 El [fichero de tokens de los motores](tokens-reference.md#token-file-of-the-engines) lo comprueban
-`sharedTokens.test.js` (AngularJS) y `designTokensTest.js` (React), y el tema AWE de PrimeReact `primeReactThemeTest.js`
-(React); los tokens actuales del motor AngularJS los sigue
-comprobando `designTokens.test.js` contra la [guía actual](../guides/design-tokens-guide.md).
+`sharedTokens.test.js` (AngularJS) y `designTokensTest.js` (React), y los anchos de borde de los dos motores
+`borderWidths.test.js` (AngularJS) y `borderWidthsTest.js` (React), que rechazan un `1px` o un `2px` literal en una
+declaración de borde. El tema AWE de PrimeReact lo valida la compilación mediante `primereact-theme.cjs` (un valor de
+Lara que la tabla de equivalencias no traduce, o un token que el fichero de tokens no declara, hace fallar el build) y
+lo comprueba `primeReactThemeTest.js` (React): ningún color ni ancho de borde literal, solo tokens que el fichero de
+tokens declara.
+Los tokens actuales del motor AngularJS los sigue comprobando `designTokens.test.js` contra la
+[guía actual](../guides/design-tokens-guide.md).

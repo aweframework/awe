@@ -451,6 +451,14 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-overlay-padding` | `12px` | `10px` |
 | `--awe-modal-padding` | `20px` | `16px` |
 
+**Los anchos que no son bordes** se quedan literales y no son ninguno de estos tokens: el tirador de `7px` de un panel
+redimensionable, el marcador de `3px` de las pestañas verticales, las barras de `3px` y `4px` de `layout.css`, un
+reset `border-width: 0` y los valores estructurales de la lista `structural` de la tabla de PrimeReact. Cualquier otro
+borde de los dos motores lee `--awe-border-width`, y los enfatizados (las barras de foco y de selección, el indicador
+activo de una pestaña) leen `--awe-border-width-strong`; `borderWidths.test.js` (AngularJS) y `borderWidthsTest.js`
+(React) rechazan un `1px` o un `2px` literal nuevo en una declaración de borde. Las fuentes vendorizadas (`less/libs`,
+`less/legacy`, el gestor de ficheros) conservan sus literales.
+
 ### Nivel 3: componentes {#tier-3-component}
 
 **Botón por defecto** (un botón normal sin estilo `btn-*`; una aplicación lo redefine sin tocar el resto de botones con borde)
@@ -627,9 +635,10 @@ El motor React carga un único tema para PrimeReact 10, generado a partir de los
 anillo de foco y transición por un token `--awe-*`, mediante la tabla de equivalencias `primereact-theme.json` que está
 a su lado. Los valores siguen el preset Aura de `@primeuix/themes` 2.0.3 (MIT, solo como valores de referencia), como
 hace el prototipo. Un valor de Lara que la tabla no traduce, o un token que el fichero de tokens no declara, hace fallar
-la compilación, de modo que una actualización de PrimeReact no puede traer su propio aspecto. `primeReactThemeTest.js`
-comprueba el resultado: ningún color ni medida literal, solo tokens del fichero de tokens y las reglas de cada
-componente de PrimeReact que usa el motor.
+la compilación, de modo que una actualización de PrimeReact no puede traer su propio aspecto. La propia compilación
+valida la tabla (`primereact-theme.cjs`: un valor de Lara sin traducir, o un token que el fichero de tokens no declara,
+la hacen fallar), y `primeReactThemeTest.js` comprueba el resultado: ninguna declaración escribe un color ni un ancho de
+borde `1px` o `2px` literal, y todo `var(--awe-*)` que lee está declarado en el fichero de tokens.
 
 ## Correspondencia con los tokens actuales {#mapping-from-the-current-tokens}
 

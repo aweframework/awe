@@ -60,7 +60,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "color": "var(--awe-grid-header-text)",
         "background": "var(--awe-grid-header-background)"
       });
-      expect(style(".grid .ui-grid-header")).toMatchObject({"border-bottom": "1px solid var(--awe-grid-border)"});
+      expect(style(".grid .ui-grid-header")).toMatchObject({"border-bottom": "var(--awe-border-width) solid var(--awe-grid-border)"});
       expect(style(".grid .ui-grid-header-cell .ui-grid-cell-contents")).toMatchObject({
         "padding": "var(--awe-space-2) var(--awe-grid-cell-padding-x)"
       });
@@ -85,7 +85,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
       expect(style(".grid .ui-grid-row")).toMatchObject({
         "color": "var(--awe-color-text)",
         "background-color": "var(--awe-grid-row-background)",
-        "border-bottom": "1px solid var(--awe-grid-border)"
+        "border-bottom": "var(--awe-border-width) solid var(--awe-grid-border)"
       });
       expect(style(".grid .ui-grid-cell")).toMatchObject({"border-right-color": "transparent"});
       expect(style(".grid .ui-grid-header-cell")).toMatchObject({"border-right-color": "transparent"});
@@ -169,8 +169,8 @@ describe("AngularJS grid over ui-grid (#885)", () => {
       });
       expect(style(`${EDITING_ROW}::after`)).toMatchObject({
         "pointer-events": "none",
-        "border-top": "1px solid var(--awe-color-primary)",
-        "border-bottom": "1px solid var(--awe-color-primary)",
+        "border-top": "var(--awe-border-width) solid var(--awe-color-primary)",
+        "border-bottom": "var(--awe-border-width) solid var(--awe-color-primary)",
         "box-shadow": "inset var(--awe-grid-row-marker-width) 0 0 var(--awe-color-primary)"
       });
     });
@@ -181,7 +181,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "font-weight": "var(--awe-font-weight-semibold)",
         "color": "var(--awe-color-text-emphasis)",
         "background-color": "var(--awe-grid-header-background) !important",
-        "border-top": "2px solid var(--awe-grid-border)"
+        "border-top": "var(--awe-border-width-strong) solid var(--awe-grid-border)"
       });
       expect(style(".ui-grid-row.faded")).toMatchObject({
         "color": "var(--awe-color-text-muted)",
@@ -196,7 +196,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "font-weight": "var(--awe-font-weight-semibold)",
         "color": "var(--awe-color-text-emphasis)",
         "background": "var(--awe-grid-header-background)",
-        "border-top": "1px solid var(--awe-grid-border)"
+        "border-top": "var(--awe-border-width) solid var(--awe-grid-border)"
       });
       expect(style(".grid .table-footer")).toMatchObject({
         "font-size": "var(--awe-font-size-sm)",
@@ -234,7 +234,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "height": "var(--awe-size-control-sm)",
         "color": "var(--awe-color-field-text)",
         "background": "var(--awe-color-field)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-field)"
       }));
     });
@@ -360,7 +360,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "padding": "var(--awe-space-3) var(--awe-space-4)",
         "color": "var(--awe-color-text)",
         "background": "var(--awe-color-surface-subtle)",
-        "border-top": "1px solid var(--awe-grid-border)",
+        "border-top": "var(--awe-border-width) solid var(--awe-grid-border)",
         "border-left": "var(--awe-grid-row-marker-width) solid var(--awe-color-primary)"
       });
       expect(style(".grid.grid-with-row-detail .grid-row-detail-toggle:focus-visible")).toMatchObject({
@@ -373,7 +373,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "width": "var(--awe-size-checkbox)",
         "height": "var(--awe-size-checkbox)",
         "background": "var(--awe-color-field)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-sm)"
       });
       expect(style(".grid .ui-grid-checkbox input.px:checked + .lbl:before")).toMatchObject({
@@ -404,7 +404,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "font-size": "var(--awe-font-size-sm)",
         "color": "var(--awe-color-field-text)",
         "background": "var(--awe-color-field)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-field)",
         "box-shadow": "var(--awe-shadow-field)"
       });
@@ -489,7 +489,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "flex": "none",
         "width": "var(--awe-size-control-sm)",
         "height": "var(--awe-size-control-sm)",
-        "border": "1px solid var(--awe-color-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-border)",
         "border-radius": "var(--awe-radius-full)",
         "background-color": "var(--awe-swatch-color)"
       });
@@ -506,7 +506,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "font-weight": "var(--awe-font-weight-medium)",
         "color": "var(--awe-color-on-highlight)",
         "background": "var(--awe-color-highlight)",
-        "border-bottom": "1px solid var(--awe-grid-border)"
+        "border-bottom": "var(--awe-border-width) solid var(--awe-grid-border)"
       });
       expect(style(".grid-selection-bar.is-visible")).toMatchObject({
         "display": "flex",
@@ -544,7 +544,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
       expect(style(".grid-quick-filter")).toMatchObject({
         "margin-inline-end": "auto",
         "background": "var(--awe-segmented-track)",
-        "border": "1px solid var(--awe-segmented-border)",
+        "border": "var(--awe-border-width) solid var(--awe-segmented-border)",
         "border-radius": "var(--awe-radius-md)"
       });
       expect(style(".grid-quick-filter .grid-quick-filter-segment")).toMatchObject({
@@ -591,7 +591,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "font-size": "var(--awe-font-size-sm)",
         "color": "var(--awe-color-text)",
         "background": "var(--awe-color-surface)",
-        "border": "1px solid var(--awe-color-field-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-field-border)",
         "border-radius": "var(--awe-radius-field)"
       });
       expect(style(".grid-toolbar .grid-toolbar-button:focus-visible")).toMatchObject({
@@ -626,7 +626,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "padding": "var(--awe-modal-padding)",
         "color": "var(--awe-color-overlay-text)",
         "background": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-overlay-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "var(--awe-radius-modal)",
         "box-shadow": "var(--awe-shadow-modal)"
       });
@@ -643,7 +643,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
         "max-width": "95vw",
         "color": "var(--awe-color-text)",
         "background": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-overlay-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "var(--awe-radius-overlay)",
         "box-shadow": "var(--awe-shadow-overlay)"
       });
@@ -712,7 +712,7 @@ describe("AngularJS grid over ui-grid (#885)", () => {
     it("draws a maximized grid as a card", () => {
       expect(style(".grid.maximized")).toMatchObject({
         "background": "var(--awe-color-surface)",
-        "border": "1px solid var(--awe-color-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-border)",
         "border-radius": "var(--awe-radius-content)",
         "box-shadow": "var(--awe-shadow-card)"
       });

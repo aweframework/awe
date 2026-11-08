@@ -44,7 +44,7 @@
   align-items: stretch;
   gap: var(--awe-space-3);
   margin: 0;
-  border-bottom: 1px solid var(--awe-color-border);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
 
   &:before,
   &:after {
@@ -75,7 +75,7 @@
     cursor: pointer;
     background: transparent;
     border: 0;
-    border-bottom: 2px solid transparent;
+    border-bottom: var(--awe-border-width-strong) solid transparent;
     border-radius: 0;
     transition: color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
       border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
@@ -99,7 +99,7 @@
     color: var(--awe-color-primary-text);
     background: transparent;
     border: 0;
-    border-bottom: 2px solid var(--awe-color-primary-text);
+    border-bottom: var(--awe-border-width-strong) solid var(--awe-color-primary-text);
     border-bottom-color: var(--awe-color-primary-text);
   }
 

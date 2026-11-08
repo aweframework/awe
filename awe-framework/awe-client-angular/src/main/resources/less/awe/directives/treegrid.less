@@ -5,7 +5,7 @@
   overflow: hidden !important;
   margin-bottom: 0;
   &.grid-bordered {
-    border: 1px solid var(--awe-grid-border);
+    border: var(--awe-border-width) solid var(--awe-grid-border);
   }
 
   .table.table-bordered {
@@ -254,7 +254,7 @@
     left: -10000px;
     padding: 4px;
     background: var(--awe-color-surface);
-    border: 1px solid var(--awe-grid-border);
+    border: var(--awe-border-width) solid var(--awe-grid-border);
     border-top: 0;
     white-space: nowrap;
     z-index: 1;
@@ -268,7 +268,7 @@
   // Total grid style
   tr.TOTAL {
     background-color: var(--awe-grid-header-background) !important;
-    border-top: 2px solid var(--awe-grid-border);
+    border-top: var(--awe-border-width-strong) solid var(--awe-grid-border);
     td {
       font-weight: var(--awe-font-weight-semibold) !important;
       color: var(--awe-color-text-emphasis);

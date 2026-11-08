@@ -73,7 +73,7 @@ describe("AngularJS overlays and feedback over Bootstrap 3 (#885)", () => {
       expect(style(".modal-content")).toMatchObject({
         "color": "var(--awe-color-overlay-text)",
         "background": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-overlay-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "var(--awe-radius-modal)",
         "box-shadow": "var(--awe-shadow-modal)"
       });
@@ -118,7 +118,7 @@ describe("AngularJS overlays and feedback over Bootstrap 3 (#885)", () => {
         "margin": "0",
         "padding": "var(--awe-space-3) var(--awe-modal-padding)",
         "background": "var(--awe-color-surface-subtle)",
-        "border-top": "1px solid var(--awe-color-border)",
+        "border-top": "var(--awe-border-width) solid var(--awe-color-border)",
         "border-radius": "0 0 var(--awe-radius-modal) var(--awe-radius-modal)"
       });
     });
@@ -182,13 +182,13 @@ describe("AngularJS overlays and feedback over Bootstrap 3 (#885)", () => {
       });
       expect(style(".awe-popover")).toMatchObject({
         "background-color": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-overlay-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "var(--awe-radius-overlay)",
         "box-shadow": "var(--awe-shadow-overlay)"
       });
       expect(style(".awe-popover .modal-footer")).toMatchObject({
         "background-color": "var(--awe-color-overlay)",
-        "border-top": "1px solid var(--awe-color-overlay-border)",
+        "border-top": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "0 0 var(--awe-radius-overlay) var(--awe-radius-overlay)"
       });
     });
@@ -248,7 +248,7 @@ describe("AngularJS overlays and feedback over Bootstrap 3 (#885)", () => {
         "margin": "0",
         "padding": "var(--awe-space-3) var(--awe-modal-padding)",
         "background": "var(--awe-color-surface-subtle)",
-        "border-top": "1px solid var(--awe-color-border)"
+        "border-top": "var(--awe-border-width) solid var(--awe-color-border)"
       });
       expect(style(`${CONFIRM} .modal-footer .btn + .btn`)).toMatchObject({"margin-left": "0"});
     });
@@ -275,7 +275,7 @@ describe("AngularJS overlays and feedback over Bootstrap 3 (#885)", () => {
         "padding": "var(--awe-space-3) var(--awe-space-3) var(--awe-space-3) var(--awe-space-4)",
         "color": "var(--awe-color-text)",
         "text-shadow": "none",
-        "border": "1px solid var(--awe-color-info-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-info-border)",
         "border-radius": "var(--awe-radius-lg)",
         "box-shadow": "var(--awe-shadow-overlay)",
         "backdrop-filter": "var(--awe-toast-backdrop-filter)",
@@ -328,7 +328,7 @@ describe("AngularJS overlays and feedback over Bootstrap 3 (#885)", () => {
         "max-width": "calc(var(--awe-space-16) * 5)",
         "color": "var(--awe-color-overlay-text)",
         "background": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-overlay-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "var(--awe-radius-overlay)",
         "box-shadow": "var(--awe-shadow-overlay)"
       });
@@ -351,12 +351,12 @@ describe("AngularJS overlays and feedback over Bootstrap 3 (#885)", () => {
       });
       expect(style(".popover > .arrow:after")).toMatchObject({"display": "none"});
       expect(style(".popover.bottom > .arrow")).toMatchObject({
-        "border-top": "1px solid var(--awe-color-overlay-border)",
-        "border-left": "1px solid var(--awe-color-overlay-border)"
+        "border-top": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
+        "border-left": "var(--awe-border-width) solid var(--awe-color-overlay-border)"
       });
       expect(style(".popover.top > .arrow")).toMatchObject({
-        "border-right": "1px solid var(--awe-color-overlay-border)",
-        "border-bottom": "1px solid var(--awe-color-overlay-border)"
+        "border-right": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
+        "border-bottom": "var(--awe-border-width) solid var(--awe-color-overlay-border)"
       });
     });
 
@@ -395,7 +395,7 @@ describe("AngularJS overlays and feedback over Bootstrap 3 (#885)", () => {
         "font-size": "var(--awe-font-size-base)",
         "color": "var(--awe-color-overlay-text)",
         "background": "var(--awe-color-overlay)",
-        "border": "1px solid var(--awe-color-overlay-border)",
+        "border": "var(--awe-border-width) solid var(--awe-color-overlay-border)",
         "border-radius": "var(--awe-radius-lg)",
         "box-shadow": "var(--awe-shadow-overlay)"
       });

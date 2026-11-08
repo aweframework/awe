@@ -36,7 +36,7 @@
 
         &.p-highlight {
           .p-tab-icon {
-            border: 1px solid var(--awe-color-primary);
+            border: var(--awe-border-width) solid var(--awe-color-primary);
             color: var(--awe-color-primary-text);
             background: var(--awe-color-surface);
           }
@@ -89,7 +89,7 @@
   gap: var(--awe-space-4);
   background: none;
   border-width: 0;
-  border-bottom: 1px solid var(--awe-color-border);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
 }
 
 .p-tabmenu-container.orientation-horizontal > .p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link {
@@ -103,7 +103,7 @@
   white-space: nowrap;
   background: none;
   border: 0;
-  border-bottom: 2px solid transparent;
+  border-bottom: var(--awe-border-width-strong) solid transparent;
   border-radius: 0;
   transition: color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
     border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);

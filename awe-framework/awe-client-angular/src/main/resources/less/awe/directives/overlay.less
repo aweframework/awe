@@ -11,7 +11,7 @@
   font-size: var(--awe-font-size-base);
   color: var(--awe-color-overlay-text);
   background: var(--awe-color-overlay);
-  border: 1px solid var(--awe-color-overlay-border);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
   border-radius: var(--awe-radius-overlay);
   box-shadow: var(--awe-shadow-overlay);
 
@@ -52,29 +52,29 @@
 .popover.bottom > .arrow {
   top: calc(var(--awe-space-1) * -1 - 1px);
   margin-left: calc(var(--awe-space-1) * -1);
-  border-top: 1px solid var(--awe-color-overlay-border);
-  border-left: 1px solid var(--awe-color-overlay-border);
+  border-top: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-left: var(--awe-border-width) solid var(--awe-color-overlay-border);
 }
 
 .popover.top > .arrow {
   bottom: calc(var(--awe-space-1) * -1 - 1px);
   margin-left: calc(var(--awe-space-1) * -1);
-  border-right: 1px solid var(--awe-color-overlay-border);
-  border-bottom: 1px solid var(--awe-color-overlay-border);
+  border-right: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-overlay-border);
 }
 
 .popover.right > .arrow {
   left: calc(var(--awe-space-1) * -1 - 1px);
   margin-top: calc(var(--awe-space-1) * -1);
-  border-bottom: 1px solid var(--awe-color-overlay-border);
-  border-left: 1px solid var(--awe-color-overlay-border);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-left: var(--awe-border-width) solid var(--awe-color-overlay-border);
 }
 
 .popover.left > .arrow {
   right: calc(var(--awe-space-1) * -1 - 1px);
   margin-top: calc(var(--awe-space-1) * -1);
-  border-top: 1px solid var(--awe-color-overlay-border);
-  border-right: 1px solid var(--awe-color-overlay-border);
+  border-top: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-right: var(--awe-border-width) solid var(--awe-color-overlay-border);
 }
 
 // Target message: the popover follows its mask (.target-message.popover-<type>); its edge and its title carry the
@@ -143,7 +143,7 @@ ul.dropdown-menu {
   font-size: var(--awe-font-size-base);
   color: var(--awe-color-overlay-text);
   background: var(--awe-color-overlay);
-  border: 1px solid var(--awe-color-overlay-border);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
   border-radius: var(--awe-radius-lg);
   box-shadow: var(--awe-shadow-overlay);
 

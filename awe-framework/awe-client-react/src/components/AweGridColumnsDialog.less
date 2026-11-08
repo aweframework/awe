@@ -211,7 +211,7 @@
   max-height: 80vh;
   background-color: var(--awe-color-overlay);
   color: var(--awe-color-text);
-  border: 1px solid var(--awe-color-overlay-border);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
   border-radius: var(--awe-radius-overlay);
   box-shadow: var(--awe-shadow-overlay);
 
@@ -252,7 +252,7 @@
   > .grid-columns-actions {
     flex: none;
     padding: var(--awe-space-3) var(--awe-modal-padding);
-    border-top: 1px solid var(--awe-color-overlay-border);
+    border-top: var(--awe-border-width) solid var(--awe-color-overlay-border);
   }
 }
 
@@ -260,7 +260,7 @@
 // stay at its bottom
 .grid-columns-side-panel {
   .p-sidebar-header {
-    border-bottom: 1px solid var(--awe-color-border);
+    border-bottom: var(--awe-border-width) solid var(--awe-color-border);
   }
 
   .p-sidebar-content {
@@ -278,6 +278,6 @@
     margin-top: auto;
     padding: var(--awe-space-3) 0;
     background-color: var(--awe-color-overlay);
-    border-top: 1px solid var(--awe-color-border);
+    border-top: var(--awe-border-width) solid var(--awe-color-border);
   }
 }

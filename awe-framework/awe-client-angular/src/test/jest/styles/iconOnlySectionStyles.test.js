@@ -58,7 +58,7 @@ describe("ghost and icon-only buttons and section titles (#793)", () => {
     expect(style(".awe-form-section-title ~ .awe-form-section-title")).toMatchObject({
       "margin-top": "var(--awe-space-5)",
       "padding-top": "var(--awe-space-5)",
-      "border-top": "1px solid var(--awe-color-border-subtle)"
+      "border-top": "var(--awe-border-width) solid var(--awe-color-border-subtle)"
     });
     expect(style(".awe-form-section-title")).not.toHaveProperty("border-top");
   });

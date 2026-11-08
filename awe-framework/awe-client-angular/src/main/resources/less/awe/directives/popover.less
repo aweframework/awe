@@ -16,7 +16,7 @@
   // An overlay (#885), as the React popover. The text keeps the text colour (the overlay text colour is the same)
   color: var(--awe-color-text);
   background-color: var(--awe-color-overlay);
-  border: 1px solid var(--awe-color-overlay-border);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
   border-radius: var(--awe-radius-overlay);
   box-shadow: var(--awe-shadow-overlay);
 
@@ -31,7 +31,7 @@
   .awe-popover-header {
     flex: 0 0 auto;
     padding: var(--awe-space-sm) var(--awe-space-md);
-    border-bottom: 1px solid var(--awe-color-overlay-border);
+    border-bottom: var(--awe-border-width) solid var(--awe-color-overlay-border);
 
     .close {
       margin-left: var(--awe-space-sm);
@@ -59,7 +59,7 @@
     margin-top: auto;
     padding: var(--awe-space-sm) var(--awe-space-md);
     background-color: var(--awe-color-overlay);
-    border-top: 1px solid var(--awe-color-overlay-border);
+    border-top: var(--awe-border-width) solid var(--awe-color-overlay-border);
     border-radius: 0 0 var(--awe-radius-overlay) var(--awe-radius-overlay);
   }
 }
