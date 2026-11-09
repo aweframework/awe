@@ -77,7 +77,7 @@ class ReportGeneratorTest {
   @Test
   void generateScreenReportContextSharesOneDesignWhenNoColumnIsSpreadsheetOnly() throws Exception {
     parameters.set(AweConstants.PRINT_FORMATS, JsonNodeFactory.instance.arrayNode().add("PDF").add("XLSX").add("CSV"));
-    when(designer.hasSpreadsheetOnlyColumns(reportStructure, parameters)).thenReturn(false);
+    when(designer.needsSpreadsheetDesign(reportStructure, parameters)).thenReturn(false);
 
     ReportGenerator.GeneratedScreenReportContext context = reportGenerator.generateScreenReportContext(screen);
 
@@ -89,7 +89,7 @@ class ReportGeneratorTest {
   @Test
   void generateScreenReportContextDesignsSpreadsheetOutputsApartWhenSomeColumnIsSpreadsheetOnly() throws Exception {
     parameters.set(AweConstants.PRINT_FORMATS, JsonNodeFactory.instance.arrayNode().add("PDF").add("XLSX").add("CSV").add("DOCX"));
-    when(designer.hasSpreadsheetOnlyColumns(reportStructure, parameters)).thenReturn(true);
+    when(designer.needsSpreadsheetDesign(reportStructure, parameters)).thenReturn(true);
 
     ReportGenerator.GeneratedScreenReportContext context = reportGenerator.generateScreenReportContext(screen);
 
@@ -101,7 +101,7 @@ class ReportGeneratorTest {
   @Test
   void generateScreenReportContextWithOnlyDocumentOutputsNeverDesignsForSpreadsheets() throws Exception {
     parameters.set(AweConstants.PRINT_FORMATS, JsonNodeFactory.instance.arrayNode().add("PDF"));
-    when(designer.hasSpreadsheetOnlyColumns(reportStructure, parameters)).thenReturn(true);
+    when(designer.needsSpreadsheetDesign(reportStructure, parameters)).thenReturn(true);
 
     reportGenerator.generateScreenReportContext(screen);
 

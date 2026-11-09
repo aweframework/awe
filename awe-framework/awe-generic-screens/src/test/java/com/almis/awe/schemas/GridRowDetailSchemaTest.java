@@ -58,6 +58,14 @@ class GridRowDetailSchemaTest {
   }
 
   @Test
+  void acceptsTheBooleanPrintAttributeOfTheRowDetailOnly() {
+    assertThatCode(() -> validate("<grid id=\"Grd\"><row-detail print=\"true\">{name}</row-detail></grid>"))
+      .doesNotThrowAnyException();
+    assertThatThrownBy(() -> validate("<grid id=\"Grd\"><row-detail print=\"maybe\">{name}</row-detail></grid>"))
+      .isInstanceOf(SAXException.class);
+  }
+
+  @Test
   void rejectsUnknownAttributesOfTheRowDetail() {
     assertThatThrownBy(() -> validate("<grid id=\"Grd\"><row-detail source=\"query\">{name}</row-detail></grid>"))
       .isInstanceOf(SAXException.class);

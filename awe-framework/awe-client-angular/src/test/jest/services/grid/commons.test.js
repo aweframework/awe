@@ -1020,6 +1020,54 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
   });
 
   // Get printable columns (issue #753)
+  it('should send the group levels the user has chosen with the print data, even when there are none (#929)', function () {
+    // Mock
+    let component = getDefaultComponent();
+    let commons = new GridCommons(component);
+    commons.init();
+    component.getSpecificFields = () => ({});
+    component.addColumns(getDefaultColumnModel());
+    let levels = ["value", "other"];
+    component.getGroupLevels = () => levels;
+
+    // Launch
+    let notConfigured = component.getPrintData()["componentId.data"].groupBy;
+    component.groupingConfigured = true;
+    let grouped = component.getPrintData()["componentId.data"].groupBy;
+    levels = [];
+    let ungrouped = component.getPrintData()["componentId.data"].groupBy;
+
+    // Assert: a grid that cannot group keeps its print data as it was
+    expect(notConfigured).toBeUndefined();
+    expect(grouped).toEqual(["value", "other"]);
+    expect(ungrouped).toEqual([]);
+  });
+
+  it('should send the data of the secondary and the status fields of the printed columns (#929)', function () {
+    // Mock
+    let component = getDefaultComponent();
+    let commons = new GridCommons(component);
+    commons.init();
+    component.getSpecificFields = () => ({});
+    component.addColumns([
+      {id: "id", hidden: true, sendable: true, printable: true},
+      {id: "name", label: "Name", hidden: false, sendable: true, printable: true, secondaryField: "email", statusField: "tone"},
+      {id: "tone", hidden: true, sendable: false, printable: false, printMode: "false"}
+    ]);
+    component.model.values = [{id: 1, name: "Ann", email: "ann@x.com", tone: "success"}, {id: 2, name: "Bob", tone: "danger"}];
+
+    // Launch
+    let data = component.getPrintData();
+
+    // Assert
+    expect(data["email"]).toEqual(["ann@x.com", null]);
+    expect(data["email.data"].map(cell => [cell.value, cell.label])).toEqual([["ann@x.com", "ann@x.com"], [null, ""]]);
+    expect(data["tone"]).toEqual(["success", "danger"]);
+    expect(data["tone.data"].map(cell => cell.label)).toEqual(["success", "danger"]);
+    // A column already sent as data is not sent twice
+    expect(Object.keys(data).filter(key => key === "name.data").length).toBe(1);
+  });
+
   it('should decide print columns from the declared printable value, not from screen visibility', function () {
     // Mock
     let component = getDefaultComponent();

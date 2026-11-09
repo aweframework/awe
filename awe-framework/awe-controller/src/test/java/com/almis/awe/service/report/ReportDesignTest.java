@@ -504,6 +504,13 @@ class ReportDesignTest {
    * Build a grid design with the given visible columns, every field holding one row (issue #832)
    */
   private ReportGrid designGrid(List<PrintColumnData> columnDataList, String... fields) throws Exception {
+    return designGrid(false, columnDataList, fields);
+  }
+
+  /**
+   * Same as designGrid, for a spreadsheet output when asked: secondary lines go to their own column there (#929)
+   */
+  private ReportGrid designGrid(boolean spreadsheet, List<PrintColumnData> columnDataList, String... fields) throws Exception {
     when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
@@ -515,13 +522,13 @@ class ReportDesignTest {
       gridBuilder.addColumn(new TextColumnBuilder().setName(field));
     }
 
-    PrintBean printBean = reportDesigner.getPrintDesign(Collections.singletonList(gridBuilder.build()), parameters);
+    PrintBean printBean = reportDesigner.getPrintDesign(Collections.singletonList(gridBuilder.build()), parameters, spreadsheet);
     return (ReportGrid) ((Layout) ((Layout) printBean.getDetail()).getElements().get(0)).getElements().get(0);
   }
 
   @Test
   void getPrintDesignExportsTheSecondaryFieldInItsOwnColumnAfterTheMainOne() throws Exception {
-    ReportGrid reportGrid = designGrid(Arrays.asList(
+    ReportGrid reportGrid = designGrid(true, Arrays.asList(
       new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email").setExportSecondary(true).setSecondaryLabel("E-mail"),
       new PrintColumnData().setName("city").setLabel("City")), "name", "city");
 
@@ -537,7 +544,7 @@ class ReportDesignTest {
 
   @Test
   void getPrintDesignTitlesTheSecondaryColumnWithTheMainLabelWithoutSecondaryLabel() throws Exception {
-    ReportGrid reportGrid = designGrid(Collections.singletonList(
+    ReportGrid reportGrid = designGrid(true, Collections.singletonList(
       new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email").setExportSecondary(true)), "name");
 
     assertEquals(Arrays.asList("name", "email"), reportGrid.getFields());
@@ -547,7 +554,7 @@ class ReportDesignTest {
 
   @Test
   void getPrintDesignExportsTheSecondaryFieldOfAColumnInsideAHeader() throws Exception {
-    ReportGrid reportGrid = designGrid(Collections.singletonList(
+    ReportGrid reportGrid = designGrid(true, Collections.singletonList(
       new PrintColumnData().setName("Header").setLabel("Header").setHeader(true).setColumnList(Collections.singletonList(
         new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email").setExportSecondary(true).setSecondaryLabel("E-mail")))),
       "name");
@@ -560,7 +567,7 @@ class ReportDesignTest {
 
   @Test
   void getPrintDesignDoesNotExportTheSecondaryFieldUnlessAsked() throws Exception {
-    ReportGrid reportGrid = designGrid(Arrays.asList(
+    ReportGrid reportGrid = designGrid(true, Arrays.asList(
       new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email"),
       new PrintColumnData().setName("city").setLabel("City").setSecondaryField("zip").setExportSecondary(false),
       new PrintColumnData().setName("phone").setLabel("Phone").setExportSecondary(true)), "name", "city", "phone");

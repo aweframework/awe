@@ -9,6 +9,7 @@ import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamConverter;
 import com.thoughtworks.xstream.annotations.XStreamOmitField;
 import lombok.EqualsAndHashCode;
@@ -69,6 +70,11 @@ public class RowDetail extends Element {
   @XStreamOmitField
   private String content;
 
+  // Print the detail under each row of the printed grid (off by default)
+  @XStreamAlias("print")
+  @XStreamAsAttribute
+  private Boolean print;
+
   // Component generated for the clients from the grid of the detail (components mode only)
   @JsonIgnore
   @XStreamOmitField
@@ -110,6 +116,16 @@ public class RowDetail extends Element {
   @JsonIgnore
   public List<Element> getDetailElements() {
     return super.getElementsByType(true, Element.class);
+  }
+
+  /**
+   * Check if the detail is printed under each row of the printed grid
+   *
+   * @return The row detail is printed
+   */
+  @JsonIgnore
+  public boolean isPrint() {
+    return print != null && print;
   }
 
   /**

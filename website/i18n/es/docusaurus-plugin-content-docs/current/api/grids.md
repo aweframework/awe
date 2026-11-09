@@ -512,11 +512,12 @@ El texto del elemento es la plantilla:
   plantillas de varias líneas y no sangre sus líneas.
 - Declare un único `<row-detail>` por grid. Si hay más, solo se usa el primero.
 
-El elemento `<row-detail>` admite un atributo:
+El elemento `<row-detail>` admite estos atributos:
 
 | Atributo | Uso | Tipo | Descripción | Valores |
 |----------|-----|------|-------------|---------|
 | style | Opcional | String | Clases CSS que se añaden al área de detalle de cada fila, junto a su propia clase `grid-row-detail` | Nombres de clase separados por espacios. **Ej.** `row-detail-card` |
+| print | Opcional | Booleano | Imprime el detalle bajo cada fila cuando se imprime o exporta el grid (PDF, XLSX...). Véase [imprimir el detalle](#printing-the-detail) | El valor por defecto es `false` |
 
 Las clases dan estilo a **toda el área** (fondo, borde, márgenes, tipografía); la plantilla sigue siendo texto plano, por
 lo que no se puede dar estilo a sus partes por separado. Defina las clases en los estilos de su aplicación, por ejemplo:
@@ -621,6 +622,26 @@ Comportamiento:
   las filas de su página** en lugar de virtualizarlas (el tamaño de página del grid, ver `max`, acota el coste).
 :::
 
+#### Imprimir el detalle {#printing-the-detail}
+
+El detalle **no** se imprime salvo que el `<row-detail>` lo pida con `print="true"` (el valor por defecto es `false`, así que
+imprimir un grid con detalle no cambia al actualizar). Con él, la impresión del grid (PDF, XLSX y los demás formatos)
+escribe el detalle bajo cada fila impresa:
+
+- **Plantilla:** el servidor la renderiza para cada fila con las mismas reglas de `{name}` que la pantalla, como texto
+  plano en un bloque a lo ancho del grid. Un campo está disponible cuando el grid lo envía con los datos de impresión (una
+  columna `sendable`, oculta o no).
+- **Grid anidado:** el servidor ejecuta la consulta (`target-action`) del grid anidado **una vez por fila impresa**, con
+  los valores de la fila como `<id del grid padre>.row.<columna>`, como hace la pantalla, e imprime sus filas como tabla.
+  Imprime como columnas simples las columnas que el grid anidado imprimiría (`printable`, columnas ocultas y de botón como
+  en cualquier grid), hasta su `max` filas por detalle (100 cuando no declara ninguno). Piense en el coste: un grid de 500
+  filas ejecuta 500 consultas.
+- Un detalle hecho con un `include` no se imprime (el servidor no lo resuelve) y el grid se imprime sin él.
+- Solo un nivel: un grid anidado no puede tener un detalle propio.
+- Un grid que imprime su detalle no agrupa sus filas (la agrupación se ignora en los grids con `row-detail`).
+
+Véase [qué imprime un grid](../guides/print-guide.md#what-a-printed-grid-shows) para el comportamiento en XLSX.
+
 Las aplicaciones de prueba incluyen las pantallas *Row detail* y *Row detail with a grid* (países con los clientes de cada
 país, directamente y mediante un include) en el menú de pruebas de la matriz.
 
@@ -661,7 +682,7 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | wrap       | Opcional        | Booleano | El texto de las celdas se divide en varias líneas y la fila crece para ajustarse. Ver [texto en varias líneas](#wrapping-text) | El valor por defecto es `false`                                                  |
 | max-lines  | Opcional        | Entero  | Número máximo de líneas de una celda con texto en varias líneas; implica `wrap`. Ver [texto en varias líneas](#wrapping-text)   | Un número mayor que `0`                                                          |
 | secondary-field  | Opcional | String   | Campo de la fila que se muestra bajo el valor principal, más pequeño y atenuado. Ver [segunda línea, estado y etiquetas](#secondary-line-status-and-chips) | Nombre de otro campo de la fila |
-| export-secondary | Opcional | Booleano | La exportación y la impresión del grid añaden una columna con el campo secundario justo después de esta                        | El valor por defecto es `false`                                                  |
+| export-secondary | Opcional | Booleano | Las exportaciones a hoja de cálculo (XLSX, CSV) añaden una columna con el campo secundario justo después de esta. Los documentos lo imprimen bajo el valor, véase [qué imprime un grid](../guides/print-guide.md#what-a-printed-grid-shows) | El valor por defecto es `false`                                                  |
 | secondary-label  | Opcional | String   | Título de la columna secundaria exportada                                                                                       | Por defecto: la etiqueta de la columna. **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales) |
 | status-field     | Opcional | String   | Campo de la fila con el tono de un estado: el valor se muestra como un punto del tono más el texto                              | `success`, `warning`, `danger`, `info`, `neutral`                                |
 | chips            | Opcional | Booleano | El valor es una lista que se muestra como etiquetas (chips)                                                                     | El valor por defecto es `false`                                                  |
@@ -738,7 +759,7 @@ muestra exactamente igual que antes.
 | Atributo           | JSON              | Por defecto               | Descripción                                                                                        |
 |--------------------|-------------------|---------------------------|----------------------------------------------------------------------------------------------------|
 | `secondary-field`  | `secondaryField`  |                           | Nombre de otro campo de la fila, que se muestra bajo el valor principal, más pequeño y atenuado. Vacío: solo la línea principal |
-| `export-secondary` | `exportSecondary` | `false`                   | La exportación y la impresión del grid añaden una columna con el campo secundario justo después de la principal |
+| `export-secondary` | `exportSecondary` | `false`                   | Las exportaciones a hoja de cálculo (XLSX, CSV) añaden una columna con el campo secundario justo después de la principal. El PDF y los demás documentos imprimen la segunda línea bajo el valor, en la misma celda, diga lo que diga este atributo |
 | `secondary-label`  | `secondaryLabel`  | la etiqueta de la columna | Título (clave i18n) de la columna secundaria exportada                                             |
 | `status-field`     | `statusField`     |                           | Nombre de un campo de la fila con el tono: `success`, `warning`, `danger`, `info` o `neutral`. El tono se recorta y se pasa a minúsculas; un tono desconocido o vacío es `neutral` |
 | `chips`            | `chips`           | `false`                   | El valor se divide por `chip-separator`, cada elemento se recorta, los vacíos se descartan y cada uno se muestra como una etiqueta |
@@ -751,15 +772,15 @@ muestra exactamente igual que antes.
 - El tono de un estado nunca se transmite solo con el color: el punto siempre va con el texto.
 - Un estado más largo que su columna termina en puntos suspensivos y su tooltip (`title`) muestra el texto completo.
 - Los valores se muestran siempre como **texto, nunca como HTML**: un valor como `<b>bold</b>` se muestra literalmente.
-- La ordenación, el filtrado y la exportación usan el valor principal. La exportación escribe el valor principal y, con
+- La ordenación y el filtrado usan el valor principal. Las exportaciones a hoja de cálculo escriben el valor principal y, con
   `export-secondary="true"`, el valor secundario en su propia columna, titulada con `secondary-label` y con el ancho y la
   alineación de la columna principal.
 
-:::note Exportación de la columna secundaria
-Los grids cargados por consulta leen el valor secundario de la fila en el servidor. Los grids cuyos datos de exportación
-envía el cliente (grids `load-all`, editables o multioperación) solo envían sus columnas, así que la columna secundaria se
-exporta vacía salvo que el campo secundario sea también una columna del grid (puede ser `hidden="true"`, como `login` en
-el ejemplo).
+:::note Datos de los campos secundario y de estado
+Los grids cargados por consulta leen los valores secundario y de estado de la fila en el servidor. Los grids cuyos datos de
+impresión envía el cliente (grids `load-all`, editables o multioperación) envían, además de sus columnas, el campo
+secundario y el campo de estado de las columnas impresas, así que no tienen que ser columnas del grid (también pueden
+ser `hidden="true"`, como `login` en el ejemplo).
 :::
 
 #### Ejemplo: usuarios con su cuenta y su estado {#example-users-with-their-account-and-state}
@@ -925,6 +946,9 @@ su valor de `printable`.
 
 Los dos motores aplican estas reglas y el servidor las vuelve a aplicar, así que una columna con `printable="false"` nunca
 está en el informe, envíe lo que envíe el cliente.
+
+Lo que imprime cada columna (segundas líneas, estados, chips, barras de progreso, sparklines, texto con formato) se explica
+en [qué imprime un grid](../guides/print-guide.md#what-a-printed-grid-shows).
 
 «En pantalla» significa que la columna no es `hidden="true"` y que no se ha ocultado en tiempo de ejecución mediante una acción de dependencia `hide-column`. Declarar `printable="true"`, `printable="excel"` o `printable="false"` tiene prioridad sobre el estado de la pantalla.
 
@@ -1437,7 +1461,8 @@ Mantenga los grids agrupados en el tamaño que un grid `load-all` maneja bien.
 - `show-totals="true"` mantiene el pie como el **total general** de todas las filas.
 - Las filas de grupo y de subtotal son filas de presentación: no tienen casilla, número de fila, edición ni acciones del
   menú contextual. El modelo del grid conserva las filas de datos, así que la selección, los valores enviados al
-  servidor, la impresión y la exportación son los de las filas de datos, sin grupos ni subtotales.
+  servidor son los de las filas de datos, sin grupos ni subtotales. La impresión y la exportación construyen sus propias
+  filas de grupo y de subtotal a partir de ellas, véase [imprimir un grid agrupado](#printing-a-grouped-grid).
 - Los filtros de columna (`enable-filters`) no se ofrecen mientras las filas están agrupadas, y vuelven con *Sin agrupar*.
 - La agrupación se ignora en los grids de árbol y en los grids editables, `send-operations`, `move-rows` y `row-detail`.
 
@@ -1449,6 +1474,15 @@ Mantenga los grids agrupados en el tamaño que un grid `load-all` maneja bien.
 - AngularJS: el pie siempre suma, sea cual sea el `summary-type` (las filas de grupo y de subtotal sí lo usan); mientras
   las filas están agrupadas, la casilla de seleccionar todo de un grid multiselección selecciona las filas mostradas (no
   las de los grupos contraídos).
+
+#### Imprimir un grid agrupado {#printing-a-grouped-grid}
+
+Un grid agrupado se imprime con la agrupación que el usuario había elegido **en ese momento**: los dos motores envían las
+columnas que agrupan las filas (también ninguna, cuando el usuario eligió *Sin agrupar*), y el servidor recurre a `group-by`
+solo cuando el cliente no envía nada. La impresión muestra, para cada grupo, una fila con su valor, su número de filas y los
+agregados de las columnas con `summary-type`, después sus filas y, cuando `group-subtotals` no es `false`, una fila de
+subtotal; el total general va al final cuando `show-totals` está activo. Todos los grupos se imprimen expandidos. Véase
+[qué imprime un grid](../guides/print-guide.md#what-a-printed-grid-shows) para los detalles y los límites.
 
 Las aplicaciones de prueba incluyen la pantalla *Row grouping* en el menú de pruebas de la matriz (tres niveles, panel
 Agrupar por y total general).

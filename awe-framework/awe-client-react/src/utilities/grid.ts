@@ -6,6 +6,7 @@ import type {NumberFormat} from "./numbers";
 import {ComponentType, isEmpty} from "./general";
 import {matchesShortcut} from "./keyboard";
 import {isActionColumn} from "./gridLayout";
+import {getGroupingState} from "./gridGrouping";
 
 const {
   COMPONENT_NUMERIC,
@@ -795,7 +796,9 @@ export function getGridPrintData(
   // The columns sent to the report, as in the AngularJS engine: never the action columns (component="button"), and
   // the declared printable value of each column (see isPrintableColumn)
   const visibleColumns = columnModel.filter(isPrintableColumn);
+  const sentNames = columnModel.filter(column => column.sendable).map(column => column.name);
   return {
+    ...getReferencedPrintData(visibleColumns, sentNames, values, t),
     ...columnModel
       .filter(column => column.sendable)
       .map(column => column.name)
@@ -822,9 +825,47 @@ export function getGridPrintData(
       }), {}),
     [`${id}.data`]: {
       visibleColumns: visibleColumns.map(column => getVisibleColumnData(column, t)),
+      // The columns that group the rows now (the user may have changed the grouping of the screen definition)
+      ...getGroupByPrintData(attributes as Record<string, unknown>),
       ...(showTotals ? {footer: getFooterData(visibleColumns, values)} : {})
     }
   };
+}
+
+/**
+ * Retrieve the columns that group the rows now, for the grids that can group (they have a group-by or the group selector):
+ * the levels the user chose, also none. The other grids send nothing
+ * @param {object} attributes Grid attributes
+ * @returns {object} The group levels, or nothing
+ */
+function getGroupByPrintData(attributes: Record<string, unknown>): {groupBy?: string[]} {
+  const {groupBy, groupSelector} = attributes;
+  const {groupable, levels} = getGroupingState(attributes);
+  return groupable && (!!groupBy || groupSelector === true) ? {groupBy: levels} : {};
+}
+
+/**
+ * Retrieve the data of the fields that the printed columns read from their rows (the secondary line and the status tone
+ * of a cell) when they are not already sent as column data, so the report prints what the screen shows. Same shape as the
+ * data of a column: its values and its value and label cells
+ * @param {object[]} printedColumns Columns sent to the report
+ * @param {string[]} sentNames Names of the columns whose data is already sent
+ * @param {object[]} values Grid rows
+ * @param {function} t Translator
+ * @returns {object} Data of the referenced fields
+ */
+function getReferencedPrintData(printedColumns: GridColumn[], sentNames: string[], values: GridRow[], t: Translate | undefined) {
+  const fields = new Set<string>();
+  printedColumns.forEach(column => [column.secondaryField, column.statusField]
+    .forEach(field => field && !sentNames.includes(field) && fields.add(field)));
+  return [...fields].reduce<Record<string, unknown>>((data, name) => {
+    const attr = {name} as GridColumn;
+    return {
+      ...data,
+      [name]: values.map(value => getCellModel(value[name], attr).value),
+      [`${name}.data`]: values.map(value => getCellModelForPrinting(getCellModel(value[name], attr), attr, t))
+    };
+  }, {});
 }
 
 /**

@@ -82,6 +82,15 @@ class GridRowDetailTest {
   }
 
   @Test
+  @DisplayName("The row detail prints only when the print attribute is true (#929)")
+  void rowDetailPrintsOnlyWhenAsked() {
+    assertTrue(parse("<grid id=\"Grd\"><row-detail print=\"true\">{name}</row-detail></grid>").getRowDetail().isPrint());
+    assertFalse(parse("<grid id=\"Grd\"><row-detail print=\"false\">{name}</row-detail></grid>").getRowDetail().isPrint());
+    assertFalse(parse("<grid id=\"Grd\"><row-detail>{name}</row-detail></grid>").getRowDetail().isPrint());
+    assertTrue(parse("<grid id=\"Grd\"><row-detail print=\"true\">{name}</row-detail></grid>").copy().getRowDetail().isPrint());
+  }
+
+  @Test
   @DisplayName("A grid without row-detail sends no rowDetail attribute")
   void gridWithoutRowDetail() {
     JsonNode json = new ObjectMapper().valueToTree(parse("<grid id=\"Grd\"><column name=\"name\"/></grid>"));
