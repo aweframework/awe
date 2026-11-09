@@ -550,6 +550,34 @@ describe('awe-react-client/test/js/redux/reducers/validationTest.jsx', function(
     testValidation("{minlength: {value: 11}}", "26/11/2014", { message: 'VALIDATOR_MESSAGE_MINLENGTH' });
   });
 
+  // Length rules skip an empty optional value, as AngularJS does (#942)
+  it.each([
+    ["{number: true, minlength: 6, maxlength: 6}", ""],
+    ["{minlength: 6}", null],
+    ["{minlength: 6}", "   "],
+    ["{equallength: 6}", ""]
+  ])('should skip %s on the empty value %p', function(validation, value) {
+    const validationRules = parseValidationRules(validation, state.components.component.address);
+    const component = {...state.components.component, validationRules, model: {values: [{value, selected: true}]}};
+    const result = validateComponent({...state.components, component}, component, state.settings);
+    expect(result.component.attributes.error).toBeNull();
+  });
+
+  // Length rules measure the text of the value: numbers by their digits, arrays joined by commas
+  it.each([
+    ["{minlength: 6}", 12345, "VALIDATOR_MESSAGE_MINLENGTH"],
+    ["{maxlength: 4}", 12345, "VALIDATOR_MESSAGE_MAXLENGTH"],
+    ["{equallength: 5}", 12345, undefined],
+    ["{maxlength: 4}", ["ab", "cd"], "VALIDATOR_MESSAGE_MAXLENGTH"],
+    ["{equallength: 5}", ["ab", "cd"], undefined],
+    ["{minlength: 5}", true, "VALIDATOR_MESSAGE_MINLENGTH"]
+  ])('should measure %s on the value %p', function(validation, value, message) {
+    const validationRules = parseValidationRules(validation, state.components.component.address);
+    const component = {...state.components.component, validationRules, model: {values: [{value, selected: true}]}};
+    const result = validateComponent({...state.components, component}, component, state.settings);
+    expect(result.component.attributes.error?.message).toEqual(message);
+  });
+
   // Pattern validation
   it('should launch a pattern validation OK', function() {
     testValidation("{pattern: {value: \"^[a-z]+$\"}}", "aadrsasa", null);

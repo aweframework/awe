@@ -56,6 +56,17 @@ type Components = Record<string, StateComponent>;
 /** The relational rules compare whatever the values are, as JavaScript does: they are read as numbers to say so */
 const asComparable = (value: unknown) => value as number;
 
+/** Text of a value as the length rules measure it: scalars as written, arrays joined by commas, anything else empty */
+const asText = (value: unknown): string => {
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+  return Array.isArray(value) ? value.map(asText).join(",") : "";
+};
+
+/** Length of the text of a value, as the length rules measure it */
+const textLength = (value: unknown): number => asText(value).length;
+
 const patterns = {
   TEXT: /^[A-Za-z]+$/,
   TEXT_WHITESPACES: /^\w+\s+\w+$/,
@@ -268,7 +279,7 @@ function resolveSpecificMethodParameters(
     case "equallength":
     case "maxlength":
     case "minlength":
-      parameters.values.value1 = String(parameters.values.value1).length;
+      // The value keeps its text, so an empty optional value skips the rule, as AngularJS does
       parameters.values.value2 = !isEmpty(parameters.values.value2) ? parseInt(String(parameters.values.value2), 10) : null;
       return true;
     default:
@@ -400,18 +411,18 @@ const ValidationRules = {
   },
   equallength: function (parameters: ValidationParameters) {
     const error = { values: parameters.values, message: parameters.message || "VALIDATOR_MESSAGE_EQUAL_LENGTH" };
-    const passed = parameters.values.value1 === parameters.values.value2;
-    return isEmpty(parameters.values.value1) || passed ? null : error;
+    const passed = textLength(parameters.values.value1) === parameters.values.value2;
+    return isEmpty(parameters.values.value1) || isEmpty(parameters.values.value2) || passed ? null : error;
   },
   maxlength: function (parameters: ValidationParameters) {
     const error = { values: parameters.values, message: parameters.message || "VALIDATOR_MESSAGE_MAXLENGTH" };
-    const passed = asComparable(parameters.values.value1) <= asComparable(parameters.values.value2);
-    return isEmpty(parameters.values.value1) || passed ? null : error;
+    const passed = textLength(parameters.values.value1) <= asComparable(parameters.values.value2);
+    return isEmpty(parameters.values.value1) || isEmpty(parameters.values.value2) || passed ? null : error;
   },
   minlength: function (parameters: ValidationParameters) {
     const error = { values: parameters.values, message: parameters.message || "VALIDATOR_MESSAGE_MINLENGTH" };
-    const passed = asComparable(parameters.values.value1) >= asComparable(parameters.values.value2);
-    return isEmpty(parameters.values.value1) || passed ? null : error;
+    const passed = textLength(parameters.values.value1) >= asComparable(parameters.values.value2);
+    return isEmpty(parameters.values.value1) || isEmpty(parameters.values.value2) || passed ? null : error;
   },
   pattern: function (parameters: ValidationParameters, settings?: ReducerSettings) {
     const pattern = parameters.values.value2 || settings!.passwordPattern;
