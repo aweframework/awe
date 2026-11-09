@@ -103,6 +103,14 @@ aweApplication.factory('GridBase',
             return grid.api.core.getVisibleRows().indexOf(row) + getFirstRecord();
           };
           /**
+           * Check whether the grid has no row limit (max="0", as in AWE 3, #944): every row in a single page, without
+           * page links, as with pagination disabled
+           * @returns {boolean} The grid shows every row
+           */
+          component.showsAllRows = function () {
+            return component.getMax() === 0;
+          };
+          /**
            * Select all rows
            * @param {type} event
            */
@@ -579,7 +587,7 @@ aweApplication.factory('GridBase',
             paginationText += " " + records;
             paginationTextSmall = page + "/" + total;
             // Generate pagination sizes
-            if (component.controller.disablePagination) {
+            if (component.controller.disablePagination || component.showsAllRows()) {
               if (component.controller.buttonModel.length > 0) {
                 component.footerButtonStyle = "col-xs-12";
               } else {

@@ -9,6 +9,7 @@ import {
   getGridData,
   getGridPrintData,
   getMoveRowKeyPosition,
+  getFrozenOffsets,
   getPaginatorSettings,
   getWidthStyle,
   moveRowInValues,
@@ -458,6 +459,12 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
     });
   });
 
+  describe('getFrozenOffsets', () => {
+    it('starts each frozen column where the previous ones end', () => {
+      expect(getFrozenOffsets([40, 32.5, 120])).toEqual([0, 40, 72.5]);
+    });
+  });
+
   describe('getPaginatorSettings', () => {
     it('paginates with the rows per page when the pagination is enabled', () => {
       expect(getPaginatorSettings({buttonModel: []}, 10, 25)).toEqual({paginator: true, pageRows: 10});
@@ -470,6 +477,10 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
     it('keeps the paginator bar for the buttons and shows every row when the pagination is disabled', () => {
       expect(getPaginatorSettings({disablePagination: true, buttonModel: [{id: "ButAdd"}]}, 10, 25))
         .toEqual({paginator: true, pageRows: 25});
+    });
+
+    it('shows every row without pages when the grid has no row limit (max="0", #944)', () => {
+      expect(getPaginatorSettings({buttonModel: []}, 0, 53)).toEqual({paginator: false, pageRows: 53});
     });
   });
 });

@@ -3,7 +3,7 @@ import {DataTable} from "primereact/datatable";
 import {Column} from "primereact/column";
 import {ColumnGroup} from "primereact/columngroup";
 import {Row} from "primereact/row";
-import {arrangeFrozenColumns, getColumnWrap, getGridIdentifier, getPaginatorSettings, getWidthStyle, MoveRowActionType, OperationType} from "../utilities/grid";
+import {arrangeFrozenColumns, getColumnWrap, getGridIdentifier, getPaginatorSettings, getWidthStyle, isPaged, MoveRowActionType, OperationType} from "../utilities/grid";
 import AweGridContainer from "./AweGridContainer";
 import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
 import "./AweGrid.less";
@@ -23,6 +23,7 @@ import AweGridRowDetail from "./AweGridRowDetail";
 import {getRowDetailInstanceId} from "../utilities/gridRowDetail";
 import {syncRowDetailInstances} from "../redux/thunks/rowDetail";
 import {useGridGrouping} from "../hooks/useGridGrouping";
+import {useFrozenOffsets} from "../hooks/useFrozenOffsets";
 import {getDisplayRowClassName, isDisplayRow} from "../utilities/gridGrouping";
 
 /**
@@ -101,6 +102,7 @@ function AweGrid(props) {
     buttonsTemplate,
     preColumnTemplates,
     postColumnTemplates,
+    frozenProps,
     visibleColumns: layoutColumns,
     getHeader
   } = useGrid(id);
@@ -204,6 +206,11 @@ function AweGrid(props) {
   }, [editingRowId]);
 
   const { selectable, multiselectColumn, selectionMode } = getSelectionSettings(attributes);
+  // The leading columns (move rows, row detail, multiselect, row number) are frozen before the frozen columns
+  const tableRef = useRef(null);
+  const leadingFrozen = [moveRows, attributes.rowDetail, multiselectColumn, attributes.rowNumbers].filter(Boolean).length;
+  const frozenKey = hasFrozen ? [leadingFrozen, ...visibleColumns.filter(col => col.frozen).map(col => col.name)].join(",") : "";
+  useFrozenOffsets(tableRef, frozenKey);
 
   const headerTemplate = useCallback(() => {
     const { headerModel = [] } = attributes;
@@ -264,7 +271,7 @@ function AweGrid(props) {
     return [data.id, data.$row?.editing ? "editing" : null, data["_style_"]].filter(v => v).join(" ");
   }, []);
 
-  const { style, headerModel = [], multiselect, disablePagination, max = settings.recordsPerPage, loadAll, visible, loading = false, iconLoading, rowDetail } = attributes;
+  const { style, headerModel = [], multiselect, max = settings.recordsPerPage, loadAll, visible, loading = false, iconLoading, rowDetail } = attributes;
   const { records = 0, values = [] } = model;
   const { filters, first = 0, rows = max, sort = [] } = specificAttributes;
   const { paginator, pageRows } = getPaginatorSettings(attributes, rows, values.length);
@@ -277,7 +284,7 @@ function AweGrid(props) {
   const showSkeleton = loading && !reloading && isSkeletonIcon(loadingIcon);
   let emptyMessage = loading || !isLoaded(attributes, modelLoaded) ? "" : <AweGridEmptyState attributes={attributes} />;
   if (showSkeleton) {
-    emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows} multiselect={multiselectColumn} rowNumbers={!!attributes.rowNumbers}
+    emptyMessage = <AweGridSkeleton columns={visibleColumns} rows={rows || settings.recordsPerPage} multiselect={multiselectColumn} rowNumbers={!!attributes.rowNumbers}
                                     rowDetail={!!rowDetail} first={first} />;
   }
   // Only a grid with row detail shows the details under its rows
@@ -289,6 +296,7 @@ function AweGrid(props) {
   return <AweGridContainer id={id} onKeyCancelRow={cancelRow} onKeySaveRow={saveRow} onKeyMoveRow={attributes.editable || moveRows ? onKeyMoveRow : undefined}
                     onContextMenu={onContextMenu} loading={loading} reloading={reloading} rowHeight={attributes.rowHeight}>
     <DataTable
+      ref={tableRef}
       selection={selectedValues}
       selectionMode={selectionMode}
       onSelectionChange={onSelect} onRowDoubleClick={onRowDoubleClick}
@@ -304,7 +312,7 @@ function AweGrid(props) {
       emptyMessage={emptyMessage}
       paginator={paginator} lazy={!loadAll || showSkeleton}
       loading={loading && !showSkeleton}
-      paginatorTemplate={disablePagination ? "" : PAGINATOR_TEMPLATE}
+      paginatorTemplate={isPaged(attributes, rows) ? PAGINATOR_TEMPLATE : ""}
       currentPageReportTemplate={`${t("SCREEN_TEXT_GRID_VIEW")} {first} - {last} ${t("SCREEN_TEXT_GRID_OF")} {totalRecords}`}
       first={first} rows={pageRows} paginatorLeft={buttonsTemplate()} onPage={onPage}
       paginatorRight={<span>&nbsp;</span>} totalRecords={showSkeleton ? Math.max(records, values.length) : records} rowsPerPageOptions={rowsPerPageOptions}
@@ -332,18 +340,18 @@ function AweGrid(props) {
         onRowDragStart: onGripDragStart, onRowDragEnd: onGripDragEnd, frozen: hasFrozen, rowNumberOf: grouping.rowNumberOf })}
       {
         visibleColumns
-          .map(col => {
+          .map((col, index) => {
             const { name, sortField, align, charlength = null, width = null } = col;
             return <Column
               key={name}
               columnKey={name}
               field={sortField || name}
               sortField={sortField || name}
-              frozen={hasFrozen && !!col.frozen}
               body={rowData => isDisplayRow(rowData) ? grouping.renderCell(rowData, name) : cellTemplate(rowData, name, hasFrozen)}
-              bodyClassName={`p-cell-editing ${name}${!hasFrozen && getColumnWrap(col).wrap ? " p-cell-wrapping" : ""}`}
               style={{ ...getWidthStyle(charlength, width) }}
-              bodyStyle={{ textAlign: align, justifyContent: align }}
+              {...frozenProps(hasFrozen && !!col.frozen, leadingFrozen + index,
+                `p-cell-editing ${name}${!hasFrozen && getColumnWrap(col).wrap ? " p-cell-wrapping" : ""}`,
+                { textAlign: align, justifyContent: align })}
               pt={bodyCellPassThrough(name)}
             />;
           })

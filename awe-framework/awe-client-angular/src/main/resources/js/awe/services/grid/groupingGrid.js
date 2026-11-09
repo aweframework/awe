@@ -206,7 +206,7 @@ aweApplication.factory('GridGrouping',
             const options = component.scope.gridOptions;
             Object.assign(options, component.grouped ? GROUPED_OPTIONS : {
               useExternalSorting: !controller.loadAll,
-              enablePagination: true,
+              enablePagination: !component.showsAllRows(),
               enableFiltering: !!controller.enableFilters
             });
             component.grid.api?.core.notifyDataChange(uiGridConstants.dataChange.OPTIONS);

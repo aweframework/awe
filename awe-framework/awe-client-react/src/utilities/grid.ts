@@ -623,10 +623,22 @@ export function getPaginatorSettings(
   rows: number,
   count: number
 ): {paginator: boolean; pageRows: number} {
-  if (!attributes.disablePagination) {
+  if (isPaged(attributes, rows)) {
     return {paginator: true, pageRows: rows};
   }
   return {paginator: (attributes.buttonModel || []).length > 0, pageRows: Math.max(rows || 0, count)};
+}
+
+/**
+ * Whether a grid shows its rows in pages. A grid without pagination, or without a row limit (max="0", as in AWE 3),
+ * shows every row the server sends
+ * @param {{disablePagination: (boolean|undefined)}} attributes Grid attributes
+ * @param {number} rows Rows per page
+ * @return {boolean} Whether the grid is paged
+ * @memberOf Grid
+ */
+export function isPaged(attributes: {disablePagination?: boolean} = {}, rows?: number | null): boolean {
+  return !attributes.disablePagination && !(isNumber(rows) && rows <= 0);
 }
 
 /**
@@ -663,6 +675,31 @@ export function arrangeFrozenColumns<C extends {frozen?: boolean}>(
     return {columns, hasFrozen: false};
   }
   return {columns: [...columns.filter(column => column.frozen), ...columns.filter(column => !column.frozen)], hasFrozen};
+}
+
+/**
+ * CSS custom property with the left offset of a frozen column of a grid
+ * @param {number} index Position of the column among the frozen columns on the left
+ * @return {string} Custom property name
+ * @memberOf Grid
+ */
+export function frozenLeftProperty(index: number): string {
+  return `--awe-frozen-left-${index}`;
+}
+
+/**
+ * Calculate the left offsets of the frozen columns of a grid: each one starts where the previous ones end
+ * @param {number[]} widths Widths of the frozen columns, from left to right
+ * @return {number[]} Left offset of each column
+ * @memberOf Grid
+ */
+export function getFrozenOffsets(widths: number[] = []): number[] {
+  let left = 0;
+  return widths.map(width => {
+    const offset = left;
+    left += width;
+    return offset;
+  });
 }
 
 /**

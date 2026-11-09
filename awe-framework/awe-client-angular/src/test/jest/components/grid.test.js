@@ -1,5 +1,6 @@
 // Source-traceable focused Jest parity for components/grid.js.
 import {cleanupHeavyComponentTest, initHeavyComponentTest} from "./heavyComponentTestUtils";
+import {mountGrid} from "./gridTestUtils";
 
 describe("components/grid.js", () => {
   let refs;
@@ -67,6 +68,17 @@ describe("components/grid.js", () => {
     expect(event.stopPropagation).toHaveBeenCalled();
     expect(event.preventDefault).toHaveBeenCalled();
     expect(event.currentTarget.value).toBe("");
+  });
+
+  it("shows every row without pages in a grid with max 0, as in AWE 3 (#944)", () => {
+    const rows = [{id: 1, name: "One"}, {id: 2, name: "Two"}, {id: 3, name: "Three"}];
+    const {element, component} = mountGrid(refs, {loadAll: true, max: 0}, rows);
+    component.api.updateModelValues({values: rows, records: rows.length});
+    refs.$rootScope.$digest();
+
+    expect(component.grid.api.core.getVisibleRows().map(row => row.entity.name)).toEqual(["One", "Two", "Three"]);
+    expect(element.find("[data-testid='grid-pagination']").length).toBe(0);
+    element.remove();
   });
 
   describe("empty state", () => {

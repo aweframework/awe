@@ -70,6 +70,25 @@ describe("awe-react-client/test/js/components/AweGridFrozenTest.jsx", () => {
       expect(order.slice(0, 3)).toEqual(["B1", "A1", "C1"]);
     });
 
+    it("positions the frozen cells of the rows without measuring each one (#943)", () => {
+      const measured = [];
+      const measure = jest.spyOn(Element.prototype, "getBoundingClientRect").mockImplementation(function () {
+        measured.push(this.tagName);
+        return { width: 80, height: 20, top: 0, left: 0, right: 80, bottom: 20, x: 0, y: 0 };
+      });
+      const rows = Array.from({ length: 20 }, (_, index) => ({ id: `r${index}`, a: `A${index}`, b: `B${index}`, c: `C${index}` }));
+      try {
+        const { container } = renderWithProviders(<AweGrid id="Grd" />, {
+          preloadedState: gridState(columns, rows, { rowNumbers: true })
+        });
+
+        expect(frozenCells(container)).toHaveLength(40);
+        expect(measured.filter(tag => tag === "TD")).toHaveLength(0);
+      } finally {
+        measure.mockRestore();
+      }
+    });
+
     it("pins nothing when no column is frozen", () => {
       const { container } = renderWithProviders(<AweGrid id="Grd" />, {
         preloadedState: gridState(columns.map(c => ({ ...c, frozen: false })), values)
