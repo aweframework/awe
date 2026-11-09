@@ -358,7 +358,7 @@
     </xs:attribute>
     <xs:attribute name="max" type="xs:integer">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Number of rows requested per page. Default: for a grid, the grid.rows.per.page property (30); for a criterion, the awe.application.component.criteria-rows-per-page property (100).</xs:documentation>
+        <xs:documentation xml:lang="en">Number of rows requested per page; 0 shows every row in a single page, without paginator. Default: for a grid, the grid.rows.per.page property (30); for a criterion, the awe.application.component.criteria-rows-per-page property (100).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="autorefresh" type="xs:integer">

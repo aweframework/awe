@@ -38,7 +38,7 @@ export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller
     <div class="pagination-content grid-buttons fixed-height {{component.footerButtonStyle}}">
       <div ng-transclude></div>
     </div>
-    <div ng-if="::!controller.disablePagination" class="pagination-content {{component.footerPaginationStyle}}" data-testid="${TestIds.gridPagination}" ng-hide="component.grouped">
+    <div ng-if="::!(controller.disablePagination || component.showsAllRows())" class="pagination-content {{component.footerPaginationStyle}}" data-testid="${TestIds.gridPagination}" ng-hide="component.grouped">
       <div ng-if="model.records > 0 && component.bigGrid">
         <div class="hidden-xs col-sm-8 text-center pagination-content">
           <ul uib-pagination ng-change="component.changePage()" total-items="model.records" items-per-page="component.getMax()" ng-model="component.currentPage" num-pages="model.total" max-size="5" class="pagination pagination-{{::size}}"
@@ -149,7 +149,7 @@ aweApplication.directive('aweGrid',
                   enableRowSelection: true,
                   enableFullRowSelection: true,
                   enableRowHeaderSelection: false,
-                  enablePagination: true,
+                  enablePagination: !component.showsAllRows(),
                   enablePaginationControls: false,
                   paginationPageSize: component.getMax(),
                   multiSelect: component.controller.multiselect,

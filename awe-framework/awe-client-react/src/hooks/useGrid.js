@@ -4,7 +4,7 @@ import { Columns } from "../utilities/structure";
 import ColumnRowEditor from "../columns/ColumnRowEditor";
 import { getHelpTooltipNode, getIconNode, translateLabel } from "../utilities";
 import { useContextMenu } from "./useContextMenu";
-import { getGridIdentifier, isSelectionButton, getRowNumberWidthStyle, getWidthStyle, OperationIcon, OperationIconName, SELECTION_COLUMN_WIDTH, EDITOR_COLUMN_WIDTH } from "../utilities/grid";
+import { frozenLeftProperty, getGridIdentifier, isSelectionButton, getRowNumberWidthStyle, getWidthStyle, OperationIcon, OperationIconName, SELECTION_COLUMN_WIDTH, EDITOR_COLUMN_WIDTH } from "../utilities/grid";
 import { isEmpty } from "../utilities/general";
 import { useDispatch, useSelector } from "react-redux";
 import { addActionsTop as addActionsTopAction } from "../redux/actions/actions";
@@ -97,14 +97,29 @@ export function useGrid(id) {
     address, contextMenu: attributes.contextMenu, openWithoutVisibleOptions: true
   });
 
+  // Frozen props of a column. The frozen cells of the rows are not frozen by PrimeReact, which measures each one (a
+  // forced layout per row, #943): they are pinned at the offset the grid measures once from its header (useFrozenOffsets)
+  const frozenProps = (frozen, frozenIndex, bodyClassName = undefined, bodyStyle = undefined) => {
+    if (!frozen) {
+      return { bodyClassName, bodyStyle };
+    }
+    if (frozenIndex === undefined) {
+      return { frozen: true, bodyClassName, bodyStyle };
+    }
+    return {
+      bodyClassName: [bodyClassName, "p-frozen-column"].filter(Boolean).join(" "),
+      bodyStyle: { ...bodyStyle, left: `var(${frozenLeftProperty(frozenIndex)}, 0px)` }
+    };
+  };
+
   // A grouped grid (#833) gives the number of each row (rowNumberOf): its group and subtotal rows have none
-  const rowNumberColumnTemplate = (place, rowSpan, first, rows, rowNumbers, frozen = false, rowNumberOf = undefined) => {
+  const rowNumberColumnTemplate = (place, rowSpan, first, rows, rowNumbers, frozen = false, rowNumberOf = undefined, frozenIndex = undefined) => {
     let rowNumberStyle = { fontWeight: "bold", textAlign: "center", ...getRowNumberWidthStyle(first, rows) };
     if (rowNumbers) {
-      return <Column key={`row-number-${place}`} field={`row-number-${place}`} header={"#"} rowSpan={rowSpan} frozen={frozen}
+      return <Column key={`row-number-${place}`} field={`row-number-${place}`} header={"#"} rowSpan={rowSpan}
         body={(data, options) => rowNumberOf ? rowNumberOf(data) : options.rowIndex + 1}
         headerClassName={"p-row-number-header"} headerStyle={rowNumberStyle}
-        bodyClassName={"p-row-number-cell"} bodyStyle={rowNumberStyle}
+        {...frozenProps(frozen, frozenIndex, "p-row-number-cell", rowNumberStyle)}
         footer={null}
         footerClassName={"p-row-number-footer"}
         footerStyle={rowNumberStyle}
@@ -113,13 +128,13 @@ export function useGrid(id) {
     return null;
   };
 
-  const multiselectColumnTemplate = (place, rowSpan, multiselect, frozen = false) => (
+  const multiselectColumnTemplate = (place, rowSpan, multiselect, frozen = false, frozenIndex = undefined) => (
     multiselect ? <Column
       key={`multiselect-${place}`}
       field={`multiselect-${place}`}
       selectionMode="multiple"
       rowSpan={rowSpan}
-      frozen={frozen}
+      {...frozenProps(frozen, frozenIndex)}
       pt={selectionColumnPassThrough()}
       footer={null}
       style={{ textAlign: "center", ...getWidthStyle(null, null, SELECTION_COLUMN_WIDTH) }}
@@ -127,12 +142,12 @@ export function useGrid(id) {
   );
 
   // Leading column with the grip that drags each row (grids with move-rows only). Only the grip starts the drag
-  const moveRowsColumnTemplate = (place, rowSpan, moveRows, onRowDragStart, onRowDragEnd, frozen = false) => (
+  const moveRowsColumnTemplate = (place, rowSpan, moveRows, onRowDragStart, onRowDragEnd, frozen = false, frozenIndex = undefined) => (
     moveRows ? <Column
       key={`move-rows-${place}`}
       field={`move-rows-${place}`}
       rowSpan={rowSpan}
-      frozen={frozen}
+      {...frozenProps(frozen, frozenIndex)}
       body={rowData => <span className="grid-row-grip" role="img" draggable="true"
         title={t("GRID_ROW_DRAG")} aria-label={t("GRID_ROW_DRAG")}
         onDragStart={event => onRowDragStart?.(event, rowData.id)} onDragEnd={onRowDragEnd}>
@@ -144,12 +159,12 @@ export function useGrid(id) {
   );
 
   // Leading column with the button that shows or hides the detail of each row (grids with row detail only)
-  const rowDetailColumnTemplate = (place, rowSpan, rowDetail, expandedRows, onToggleRowDetail, frozen = false) => (
+  const rowDetailColumnTemplate = (place, rowSpan, rowDetail, expandedRows, onToggleRowDetail, frozen = false, frozenIndex = undefined) => (
     rowDetail ? <Column
       key={`row-detail-${place}`}
       field={`row-detail-${place}`}
       rowSpan={rowSpan}
-      frozen={frozen}
+      {...frozenProps(frozen, frozenIndex)}
       body={rowData => <AweGridRowDetailToggle gridId={address?.component} rowId={rowData.id}
         expanded={expandedRows?.[rowData.id] !== undefined} onToggle={onToggleRowDetail} />}
       footer={null}
@@ -291,11 +306,15 @@ export function useGrid(id) {
 
   const preColumnTemplates = (place, rowSpan, specific) => {
     // specific includes first, rows, rowNumbers, multiselect flags, the grips to move rows and the row detail with its open rows
+    const frozen = specific?.frozen;
+    // The cells of the rows take the position of each column among the frozen ones (see frozenProps)
+    const present = [specific?.moveRows, specific?.rowDetail, specific?.multiselect, specific?.rowNumbers].map(Boolean);
+    const index = position => place === "cell" ? present.slice(0, position).filter(Boolean).length : undefined;
     return [
-      moveRowsColumnTemplate(place, rowSpan, specific?.moveRows, specific?.onRowDragStart, specific?.onRowDragEnd, specific?.frozen),
-      rowDetailColumnTemplate(place, rowSpan, specific?.rowDetail, specific?.expandedRows, specific?.onToggleRowDetail, specific?.frozen),
-      multiselectColumnTemplate(place, rowSpan, specific?.multiselect, specific?.frozen),
-      rowNumberColumnTemplate(place, rowSpan, specific?.first, specific?.rows, specific?.rowNumbers, specific?.frozen, specific?.rowNumberOf)
+      moveRowsColumnTemplate(place, rowSpan, specific?.moveRows, specific?.onRowDragStart, specific?.onRowDragEnd, frozen, index(0)),
+      rowDetailColumnTemplate(place, rowSpan, specific?.rowDetail, specific?.expandedRows, specific?.onToggleRowDetail, frozen, index(1)),
+      multiselectColumnTemplate(place, rowSpan, specific?.multiselect, frozen, index(2)),
+      rowNumberColumnTemplate(place, rowSpan, specific?.first, specific?.rows, specific?.rowNumbers, frozen, specific?.rowNumberOf, index(3))
     ].filter(e => !isEmpty(e));
   };
 
@@ -340,7 +359,8 @@ export function useGrid(id) {
     cellTemplate,
     buttonsTemplate,
     preColumnTemplates,
-    postColumnTemplates
+    postColumnTemplates,
+    frozenProps
   }), [t,
     address,
     attributes,
@@ -372,5 +392,6 @@ export function useGrid(id) {
     buttonsTemplate,
     preColumnTemplates,
     postColumnTemplates,
+    frozenProps,
     ]);
 }

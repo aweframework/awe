@@ -4,7 +4,7 @@ import {Column} from "primereact/column";
 import {Checkbox} from "primereact/checkbox";
 import {ariaLabel} from "primereact/api";
 import {generateServerAction, getIconCode} from "../utilities";
-import {getColumnWrap, getPaginatorSettings, getWidthStyle, OperationType, SELECTION_COLUMN_WIDTH} from "../utilities/grid";
+import {getColumnWrap, getPaginatorSettings, getWidthStyle, isPaged, OperationType, SELECTION_COLUMN_WIDTH} from "../utilities/grid";
 import {classNames} from "../utilities/components";
 import AweGridContainer from "./AweGridContainer";
 import AweGridEmptyState, {isLoaded} from "./AweGridEmptyState";
@@ -301,7 +301,7 @@ function AweTreeGrid(props) {
       footerColumnGroup={footerTemplate()}
       paginator={paginator} lazy={!loadAll || showSkeleton}
       loading={loading && !showSkeleton}
-      paginatorTemplate={disablePagination || loadAll ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
+      paginatorTemplate={!isPaged({ disablePagination: disablePagination || loadAll }, rows) ? "" : "FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"}
       first={first} rows={pageRows} paginatorLeft={buttonsTemplate()} onPage={() => null}
       paginatorRight={<span>&nbsp;</span>} totalRecords={nodes.length} rowsPerPageOptions={rowsPerPageOptions}
       emptyMessage={emptyMessage}
