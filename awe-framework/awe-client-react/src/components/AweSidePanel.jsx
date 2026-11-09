@@ -28,8 +28,8 @@ const DEFAULT_MAX_WIDTH = "40rem";
  * @returns {Object|null} Identity
  */
 export function getPanelIdentity(attributes, grid) {
-  const { headerGrid, headerTitleField, headerSubtitleField, headerAvatarField, headerAvatarToneField, headerSwatchField,
-    headerTags = [] } = attributes || {};
+  const { headerGrid, headerTitleField, headerSubtitleField, headerAvatarField, headerAvatarToneField, headerAvatarIconField,
+    headerSwatchField, headerTags = [] } = attributes || {};
   const selected = headerGrid ? (grid?.model?.values || []).filter(row => row.selected) : [];
   if (selected.length !== 1) {
     return null;
@@ -43,6 +43,8 @@ export function getPanelIdentity(attributes, grid) {
     initials: getInitials(text(headerAvatarField)),
     tone: headerAvatarToneField ? rowTone(row, headerAvatarToneField, AVATAR_TONES) : "neutral",
     swatch: rowSwatch(row, headerSwatchField),
+    // An icon of the row takes the place of the initials (header-avatar-icon-field); absent without the attribute
+    ...(headerAvatarIconField ? { avatarIconField: headerAvatarIconField } : {}),
     tags: headerTags
       .map(tag => ({ ...tag, text: text(tag.field), tone: tag.toneField ? rowTone(row, tag.toneField, STATUS_TONES) : "neutral" }))
       .filter(tag => tag.text.trim() !== "")
@@ -57,11 +59,13 @@ export function getPanelIdentity(attributes, grid) {
  * @returns {React.ReactElement} Header
  */
 function identityHeader(identity, titleId) {
-  const { row, title, subtitle, initials, tone, swatch, tags } = identity;
+  const { row, title, subtitle, initials, tone, swatch, tags, avatarIconField } = identity;
+  const icon = !swatch && avatarIconField ? cellIcon(row, avatarIconField) : null;
   return (
     <div className="panel-identity">
       {swatch && <span className="panel-identity-avatar awe-cell-swatch" aria-hidden="true" style={{ "--awe-swatch-color": swatch }}/>}
-      {!swatch && initials && <span className={`panel-identity-avatar awe-cell-avatar awe-cell-avatar-${tone}`} data-tone={tone} aria-hidden="true">{initials}</span>}
+      {icon && <span className={`panel-identity-avatar awe-cell-avatar awe-cell-avatar-icon awe-cell-avatar-${tone}`} data-tone={tone} aria-hidden="true">{icon}</span>}
+      {!swatch && !icon && initials && <span className={`panel-identity-avatar awe-cell-avatar awe-cell-avatar-${tone}`} data-tone={tone} aria-hidden="true">{initials}</span>}
       <div className="panel-identity-text">
         <h2 className="panel-identity-title" id={titleId} {...testHook(TestIds.sidePanelTitle)}>{title}</h2>
         {subtitle && <p className="panel-identity-subtitle" {...testHook(TestIds.sidePanelSubtitle)}>{subtitle}</p>}

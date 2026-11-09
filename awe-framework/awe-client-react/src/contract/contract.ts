@@ -139,6 +139,8 @@ export interface Avatar extends AbstractButton {
 }
 
 export interface Button extends AbstractButton {
+    busyThreshold?: number;
+    loadingLabel?: string;
     selection?: boolean;
     showLoading?: boolean;
 }
@@ -246,6 +248,7 @@ export interface Column extends AbstractCriteria {
     actions?: ButtonAction[];
     align?: string;
     avatarField?: string;
+    avatarIconField?: string;
     avatarToneField?: string;
     barLeafOnly?: boolean;
     barMax?: number;
@@ -605,6 +608,7 @@ export interface SeriesTypeResolver {
 
 export interface SidePanel extends Dialog {
     headerAvatarField?: string;
+    headerAvatarIconField?: string;
     headerAvatarToneField?: string;
     headerGrid?: string;
     headerSubtitleField?: string;

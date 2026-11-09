@@ -105,11 +105,14 @@ function AweGridSearch({ id, grid }) {
   }
 
   const clearLabel = t("BUTTON_CLEAR");
-  return <div className="grid-search" role="search" criterion-id={address.component}
+  const placeholder = attributes.placeholder ? translateLabel(attributes.placeholder, t) : undefined;
+  // The search grows to show its whole placeholder (AweGrid.less)
+  const fit = placeholder ? {"--awe-grid-search-fit": `${placeholder.length}ch`} : undefined;
+  return <div className="grid-search" role="search" criterion-id={address.component} style={fit}
     {...testHook(TestIds.gridSearch, { owner: grid })}>
     <span className="grid-search-icon">{getIconNode("search", { "aria-hidden": "true" })}</span>
     <input ref={input} type="search" id={address.component} name={address.component} value={text} autoComplete="off"
-      placeholder={attributes.placeholder ? translateLabel(attributes.placeholder, t) : undefined}
+      placeholder={placeholder}
       aria-label={translateLabel(attributes.label || "BUTTON_SEARCH", t)} disabled={!!attributes.readonly}
       onChange={onChange} onKeyDown={onKeyDown} {...testHook(TestIds.criterionInput)} />
     {text !== "" && !attributes.readonly && <button type="button" className="grid-search-clear" aria-label={clearLabel}

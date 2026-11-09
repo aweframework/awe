@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "chosen": "02-pestanas-y-panel-lateral.html",
+  "handoffs": {
+    "02-pestanas-y-panel-lateral.html": {
+      "status": "in_progress",
+      "queued": false,
+      "sentAt": "2026-11-08T23:01:39.386Z",
+      "startedAt": "2026-11-08T23:06:31.881Z",
+      "implementedAt": null,
+      "note": "Mapeando el tablero al vocabulario XML: tabs de página, tarjetas KPI, rejilla con search + quick-filter + embudo por columna y detalle en side-panel."
+    }
+  }
+}

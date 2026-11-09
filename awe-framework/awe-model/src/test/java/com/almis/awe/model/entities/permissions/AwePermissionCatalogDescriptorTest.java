@@ -126,8 +126,13 @@ class AwePermissionCatalogDescriptorTest {
 
     assertThat(queries).containsEntry("UsrLst", "users.read").containsEntry("UsrChkUni", "users.read")
       .containsEntry("ProLst", "profiles.read").containsEntry("SitLst", "system.read")
-      .containsEntry("access-tree", "access.read").containsEntry("SecAudEvtLst", "audit.read")
-      .containsEntry("ThmLst", "themes.read").containsEntry("connectedUser", "self.read");
+      .containsEntry("access-tree", "access.read")
+      .containsAllEntriesOf(Map.of("SecAudEvtLst", "audit.read", "SecAudResCnt", "audit.read",
+        "SecAudResCntRes", "audit.read", "SecAudTotEvt", "audit.read", "SecAudTotKo", "audit.read",
+        "SecAudTotUsr", "audit.read", "SecAudTotLck", "audit.read"))
+      .containsEntry("ThmLst", "themes.read").containsEntry("connectedUser", "self.read")
+      // The helper sources of the audit charts and of the quick filter counts are only read by AWE targets
+      .doesNotContainKeys("SecAudActSrc", "SecAudUsrSrc");
     assertThat(targets).containsAllEntriesOf(Map.of(
       "UsrNew", "users.create", "UsrUpd", "users.update", "UsrDel", "users.delete", "UsrUnl", "users.unlock",
       "reset2fa", "users.reset-2fa", "ProNew", "profiles.create", "ProUpd", "profiles.update",

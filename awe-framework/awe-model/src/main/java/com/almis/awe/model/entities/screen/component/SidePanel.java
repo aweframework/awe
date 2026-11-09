@@ -71,6 +71,11 @@ public class SidePanel extends Dialog {
   @XStreamAsAttribute
   private String headerAvatarToneField;
 
+  // Field of the selected row with an icon drawn in the avatar of the header instead of the initials
+  @XStreamAlias("header-avatar-icon-field")
+  @XStreamAsAttribute
+  private String headerAvatarIconField;
+
   // Field of the selected row with a colour (an AWE 5 palette name or a hex) drawn as a circle in place of the avatar
   @XStreamAlias("header-swatch-field")
   @XStreamAsAttribute

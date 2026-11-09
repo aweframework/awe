@@ -785,3 +785,30 @@ La migración de Flyway `AWE_V1.5.0` (en las 6 bases de datos) añade las column
 No se borra nada: `AweThmCol` se conserva tal cual, sin uso, y se elimina en una versión posterior. La densidad del usuario queda vacía (la densidad de la aplicación) hasta que el usuario elige una.
 
 El cliente React ya no carga las hojas `theme.css` compiladas de PrimeReact (`saga-blue` y los 18 temas clásicos): incluye **un** [tema AWE de PrimeReact](#primereact-theme) que lee los tokens.
+
+## Cards {#cards}
+
+Tokens de componente de las cards, los valores de solo lectura y los avatares de los grids y los paneles laterales:
+
+| Token | Por defecto | Uso |
+|---|---|---|
+| `--awe-card-title-font-size` | `--awe-font-size-base` | Tamaño del título de una card |
+| `--awe-card-title-text-transform` | `uppercase` | Mayúsculas del título de una card |
+| `--awe-card-title-letter-spacing` | `--awe-letter-spacing-caps` | Espaciado entre letras del título de una card |
+| `--awe-grid-avatar-icon-size` | `--awe-size-icon-sm` | Tamaño del icono dibujado en el avatar de una celda del grid (`avatar-icon-field`) |
+| `--awe-readout-label-color` | `--awe-color-text-muted` | Etiqueta de un valor de solo lectura (`awe-readout`) |
+| `--awe-readout-label-font-size` | `--awe-font-size-xs` | Tamaño de la etiqueta de un valor de solo lectura |
+| `--awe-readout-label-font-weight` | `--awe-font-weight-normal` | Grosor de la etiqueta de un valor de solo lectura |
+| `--awe-readout-value-color` | `--awe-color-text` | Valor de solo lectura |
+| `--awe-readout-value-font-size` | `--awe-font-size-base` | Tamaño de un valor de solo lectura |
+| `--awe-readout-block-background` | `--awe-color-surface-subtle` | Caja de un valor largo de solo lectura (`awe-readout-block`) |
+| `--awe-readout-block-border` | `--awe-color-border` | Borde de esa caja |
+| `--awe-readout-block-radius` | `--awe-radius-lg` | Radio de esa caja |
+| `--awe-readout-block-padding` | `--awe-space-3` | Relleno de esa caja |
+| `--awe-card-padding` | `--awe-content-padding` | Relleno interior de una card |
+| `--awe-card-gap` | `--awe-space-3` | Espacio entre las partes de una card |
+| `--awe-card-icon-size` | `--awe-size-control` | Tamaño de la baldosa del icono de una card |
+| `--awe-card-grid-gap-after` | `--awe-layout-gap − --awe-card-grid-inset` | Espacio entre una rejilla de cards y el bloque de debajo |
+| `--awe-grid-search-width` | `32ch` | Ancho mínimo del buscador de la barra de un grid; crece hasta mostrar su placeholder completo |
+| `--awe-panel-avatar-icon-size` | `--awe-size-icon` | Tamaño del icono dibujado en el avatar de la cabecera de un panel lateral (`header-avatar-icon-field`) |
+| `--awe-card-grid-inset` | `calc(--awe-border-width + --awe-space-1-5)` | Margen interior de una rejilla de cards (`awe-card-grid`), para alinearla con las ventanas de la misma pantalla |

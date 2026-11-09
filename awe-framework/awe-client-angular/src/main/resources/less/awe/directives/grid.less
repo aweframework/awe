@@ -1333,7 +1333,9 @@
 .grid-search {
   position: relative;
   display: flex;
-  flex: 0 1 32ch;
+  // At least the token width, or the width of its placeholder (--awe-grid-search-fit, set by the component) plus
+  // the icon, the gap and the padding, so the placeholder is never cut; it still shrinks with the toolbar
+  flex: 0 1 ~"max(var(--awe-grid-search-width), calc(var(--awe-grid-search-fit, 0ch) + var(--awe-size-icon-sm) + var(--awe-space-1-5) + 2 * var(--awe-field-padding-x) + 2px))";
   align-items: center;
   gap: var(--awe-space-1-5);
   min-width: 12ch;
@@ -2223,3 +2225,67 @@
 .awe-cell-avatar-tone(success);
 .awe-cell-avatar-tone(warning);
 .awe-cell-avatar-tone(danger);
+
+// A grid cell in the monospaced face: identifiers, addresses and hashes line up in the column
+.awe-grid-mono {
+  font-family: var(--awe-font-family-monospace);
+  font-variant-numeric: tabular-nums;
+}
+
+// An icon in the avatar of a cell (avatar-icon-field): centred on the tone of the avatar, in place of the initials
+.awe-cell-avatar-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  .awe-cell-icon,
+  svg {
+    width: var(--awe-grid-avatar-icon-size);
+    height: var(--awe-grid-avatar-icon-size);
+    margin: 0;
+  }
+}
+
+// The icon in the larger avatar of a side panel header
+.panel-identity-avatar.awe-cell-avatar-icon {
+  .awe-cell-icon,
+  svg {
+    width: var(--awe-panel-avatar-icon-size);
+    height: var(--awe-panel-avatar-icon-size);
+  }
+}
+
+// Read-only value of a criterion (style awe-readout): a muted small label over the value, aligned with it. The value
+// is the element that follows the label in both engines. awe-readout-block boxes the value, for long texts
+.awe-readout {
+  > label,
+  label {
+    margin-bottom: var(--awe-space-1);
+    font-size: var(--awe-readout-label-font-size);
+    font-weight: var(--awe-readout-label-font-weight);
+    color: var(--awe-readout-label-color);
+  }
+
+  // The value grows with its text: the input box of a criterion (input-sm) has the fixed height of a field
+  label + * {
+    height: auto;
+    padding-inline: 0;
+    font-size: var(--awe-readout-value-font-size);
+    color: var(--awe-readout-value-color);
+    overflow-wrap: anywhere;
+  }
+
+  .text-view {
+    padding-inline: 0;
+    font-size: var(--awe-readout-value-font-size);
+    color: var(--awe-readout-value-color);
+    text-align: start;
+  }
+}
+
+.awe-readout-block label + * {
+  padding: var(--awe-readout-block-padding);
+  background-color: var(--awe-readout-block-background);
+  border: var(--awe-border-width) solid var(--awe-readout-block-border);
+  border-radius: var(--awe-readout-block-radius);
+}

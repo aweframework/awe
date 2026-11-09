@@ -287,3 +287,7 @@ For an error rate, going down is good news. With `good-trend="down"` the negativ
 <card id="CrdTstErrors" title="CARD_TST_ERRORS" value="0.42" unit="%" delta="-0.18" delta-unit="pt"
       good-trend="down" footer="CARD_TST_STATIC"/>
 ```
+
+### Compact grid
+
+Add `awe-card-compact` to the style of the grid (`style="awe-card-grid awe-card-compact"`) for a row of summary figures above a grid: tighter padding, gaps and icon tile, and the caption right under the value. The values are the tokens `--awe-card-padding`, `--awe-card-gap` and `--awe-card-icon-size`, overridden for `.awe-card-compact` in the token file.

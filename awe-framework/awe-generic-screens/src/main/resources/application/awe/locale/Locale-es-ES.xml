@@ -95,6 +95,7 @@
   <locale name="BUTTON_SAVE_TEXT" value="Guardar texto"/>
   <locale name="BUTTON_SCREEN_HELP" value="Ayuda"/>
   <locale name="BUTTON_SEARCH" value="Buscar"/>
+  <locale name="BUTTON_RELOADING" value="Recargando…"/>
   <locale name="BUTTON_SEND" value="Envío"/>
   <locale name="BUTTON_UNBLOCK_BATCH_KO" value="Desbloquear batch como NO válido"/>
   <locale name="BUTTON_UNBLOCK_BATCH_OK" value="Desbloquear batch como válido"/>
@@ -879,6 +880,27 @@
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Estadísticas"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Eventos"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Fallos por causa"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHANNELS" value="Eventos por canal"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_HOURS" value="Franjas con más actividad"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_15M" value="Últimos 15 minutos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_1H" value="Última hora"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_6H" value="Últimas 6 horas"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_24H" value="Últimas 24 horas"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_7D" value="Últimos 7 días"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_30D" value="Últimos 30 días"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CUSTOM_RANGE" value="Rango personalizado"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_SEARCH" value="Buscar usuario, dirección IP o detalle"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_DATE_RANGE" value="Rango de fechas"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_OUTCOME_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_EVENTS" value="Eventos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_FAILURES" value="Fallidos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_USERS" value="Usuarios distintos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_LOCKS" value="Bloqueos de cuenta"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_RANGE" value="En el rango seleccionado"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_RATE" value="Del total"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TITLE" value="Ningún evento con estos criterios"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TEXT" value="El rango de fechas, la búsqueda y los filtros de columna se aplican a la vez. Prueba a quitar alguno."/>
+  <locale name="BUTTON_CLEAR_FILTERS" value="Limpiar filtros"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Petición"/>
   <locale name="SCREEN_TEXT_SITE_FILTERS" value="Estado del site"/>
   <locale name="SCREEN_TEXT_SITE_FILTER_ACTIVE" value="Activos"/>

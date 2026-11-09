@@ -502,4 +502,27 @@
     <option label="ENUM_SECURITY_AUDIT_CAUSE_FORBIDDEN" value="FORBIDDEN"/>
     <option label="ENUM_SECURITY_AUDIT_CAUSE_ERROR" value="ERROR"/>
   </group>
+
+  <!-- Tabs of the security audit screen: the events and the statistics -->
+  <!-- Time range picker of the security audit screen: the presets and the custom range -->
+  <group id="SecAudRng">
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_15M" value="15m"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_1H" value="1h"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_6H" value="6h"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_24H" value="24h"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_7D" value="7d"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_30D" value="30d"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_CUSTOM_RANGE" value="cst"/>
+  </group>
+
+  <!-- Tone of an outcome of the security audit: the status tag of the result and the avatar of the event -->
+  <group id="SecAudResTon">
+    <option label="success" value="SUCCESS"/>
+    <option label="danger" value="FAILURE"/>
+  </group>
+
+  <group id="SecAudTabs">
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="TabSecAudEvt"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="TabSecAudSta"/>
+  </group>
 </enumerated>

@@ -51,6 +51,8 @@ When the screen size is too small (mobile devices) the buttons defined on the `b
 | help-image  | Optional | String | Url image to show in button as help        | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | permission  | Optional | String | Permissions the user needs to see the button. It replaces what is derived from the targets of its actions. See [screen elements](../security/permissions.md#screen-elements) | Permission identifiers separated by spaces, all required. **Ex.** `users.create` |
 | show-loading | Optional | Boolean | Busy state of the button. When the action it launched is still running after a short time (about 400 ms), the button shows a spinner instead of its icon (before its label when it has none) and stays disabled until the action ends. Quick actions show nothing | `true` (default) or `false` |
+| loading-label | Optional | String | Localisation key of the label shown instead of the label while the busy state is on, in both engines | Absent keeps the label |
+| busy-threshold | Optional | Integer | Milliseconds the actions must still be running before the busy state shows, so a quick action shows nothing | Absent keeps the engine threshold (400); `0` shows it on every click |
 
 ## Button styles
 

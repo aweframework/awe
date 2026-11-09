@@ -290,3 +290,7 @@ En una tasa de errores, bajar es una buena noticia. Con `good-trend="down"` la v
 <card id="CrdTstErrors" title="CARD_TST_ERRORS" value="0.42" unit="%" delta="-0.18" delta-unit="pt"
       good-trend="down" footer="CARD_TST_STATIC"/>
 ```
+
+### Rejilla compacta {#compact-grid}
+
+Añada `awe-card-compact` al estilo de la rejilla (`style="awe-card-grid awe-card-compact"`) para una fila de cifras de resumen encima de un grid: relleno, espacios y baldosa del icono más ajustados, y el texto inferior justo debajo del valor. Los valores son los tokens `--awe-card-padding`, `--awe-card-gap` y `--awe-card-icon-size`, redefinidos para `.awe-card-compact` en el fichero de tokens.

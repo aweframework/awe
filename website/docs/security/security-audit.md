@@ -222,13 +222,21 @@ result of the login.
 **Settings > Security > Security audit** (option `security-audit`, screen `SecAud`) browses the events stored by the
 database sink. It is a generic XML screen, rendered by both the Angular and the React clients.
 
+The screen has **two tabs** (Events and Statistics) and holds the filters **in the grid itself**, so the old criteria
+window of events, outcome, channel, user and IP is gone.
+
 | Part | Content |
 | --- | --- |
-| Criteria | Date range (the last 7 days by default), event types, outcome, channel, user and IP (partial match) |
-| Activity per day | Stacked column chart of successful and failed events |
-| Failures by cause | Pie chart of the failures |
-| Events | Paginated grid, newest first: date, event, outcome, user, cause, channel, IP and detail |
-| View | Detail of the selected event (screen `SecAudViw`, option `view-security-audit-event`), with tenant, identifier, correlation identifier, session hash and user agent |
+| Date range | The only criterion outside the grid, in one row above the events (from: the last 7 days by default; to: empty, so the range stays open above) |
+| Tabs | **Events**: the summary cards, the grid and its filters. **Statistics**: the two charts |
+| Summary cards | Events, failures (with *of the total* as caption), distinct users and account locks of the filtered range |
+| Grid filters | A text search over user, IP address and detail, an outcome quick filter that shows the count of every option, and the autofilter of every column; all of them run on the server. An empty result offers its own *Clear filters* button |
+| Events | Paginated grid, newest first: date, event, outcome, user, cause, channel and IP |
+| Side panel | Detail of the selected event: date, user, outcome, cause, channel, tenant, identifier, detail, IP, correlation identifier, session hash and user agent |
+| SecAudViw | The detail screen behind the hidden option `view-security-audit-event` is kept: menu entries that point to it keep working |
+
+The Activity per day chart is a stacked column chart of successful and failed events; the Failures by cause chart
+orders the causes by number of failures and no longer applies the outcome filter on top of its own failures condition.
 
 Applications that define their own `menu/private.xml` (the archetypes do) must add the option to their security
 group to show the screen:

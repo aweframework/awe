@@ -115,7 +115,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
      * @param {object} column Column model
      * @returns {boolean} Column shows an avatar
      */
-    const hasAvatar = (column) => !("component" in column) && !!column.avatarField;
+    const hasAvatar = (column) => !("component" in column) && (!!column.avatarField || !!column.avatarIconField);
 
     /**
      * Check whether a column without component shows a colour swatch before its value (in the place of the avatar)
@@ -254,10 +254,15 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
       const avatarTone = "{{" + CELL_COMPONENT + ".getAvatarTone(row.entity[col.colDef.avatarToneField])}}";
       const swatchTemplate = hasSwatch(column) ? "<span class=\"awe-cell-swatch\" aria-hidden=\"true\" ng-if=\"" + swatch + "\"" +
         " ng-attr-style=\"--awe-swatch-color: {{" + swatch + "}}\"></span>" : "";
-      const avatarTemplate = hasAvatar(column) ? "<span class=\"awe-cell-avatar awe-cell-avatar-" + avatarTone + "\" data-tone=\"" + avatarTone + "\"" +
-        " aria-hidden=\"true\" ng-if=\"!" + swatch + " && " + initials + "\" ng-bind=\"" + initials + "\"></span>" : "";
+      // An icon of the row takes the place of the initials (avatar-icon-field)
+      const avatarIcon = column.avatarIconField ? CELL_COMPONENT + ".getCellAvatarIcon(row.entity, col.colDef)" : "''";
+      const avatarIconTemplate = column.avatarIconField ? "<span class=\"awe-cell-avatar awe-cell-avatar-icon awe-cell-avatar-" + avatarTone + "\"" +
+        " data-tone=\"" + avatarTone + "\" aria-hidden=\"true\" ng-if=\"!" + swatch + " && " + avatarIcon + "\">" +
+        getIconTemplate("awe-cell-icon", "span", avatarIcon, "aria-hidden=\"true\"").replace(/>\s+</g, "><") + "</span>" : "";
+      const avatarTemplate = hasAvatar(column) ? avatarIconTemplate + "<span class=\"awe-cell-avatar awe-cell-avatar-" + avatarTone + "\" data-tone=\"" + avatarTone + "\"" +
+        " aria-hidden=\"true\" ng-if=\"!" + swatch + " && !" + avatarIcon + " && " + initials + "\" ng-bind=\"" + initials + "\"></span>" : "";
       return "<div class=\"awe-cell-entity\">" + swatchTemplate + avatarTemplate +
-        "<span class=\"awe-cell-avatar-spacer\" aria-hidden=\"true\" ng-if=\"!" + swatch + " && !" + initials + "\"></span>" +
+        "<span class=\"awe-cell-avatar-spacer\" aria-hidden=\"true\" ng-if=\"!" + swatch + " && !" + avatarIcon + " && !" + initials + "\"></span>" +
         "<div class=\"awe-cell-entity-text\">" + mainText + "</div></div>";
     };
 
@@ -2047,6 +2052,18 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         component.getCellIcon = function (row, column) {
           const icon = component.getCellData(row[column.iconField], component.constants.CELL_VALUE);
           return Utilities.extractIcon(Utilities.isNull(icon) ? "" : String(icon));
+        };
+
+        /**
+         * Retrieve the icon of the avatar of a cell, from the avatar icon field of the row (empty when it has none)
+         *
+         * @param {object} row Row data
+         * @param {object} column Column model
+         * @returns {String} Icon
+         */
+        component.getCellAvatarIcon = function (row, column) {
+          const icon = component.getCellData(row[column.avatarIconField], component.constants.CELL_VALUE);
+          return Utilities.isNull(icon) || icon === "" ? "" : Utilities.extractIcon(String(icon));
         };
 
         /**

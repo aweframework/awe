@@ -15,6 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Regression tests of the test screens. Every test starts logged in with the Test module selected and opens its own screen,
  * so a failing test does not leave the next ones without a session or a screen. The wrong login test logs out and in again:
  * when it fails in between, the next test logs in again through the session setup.
+ * <p>
+ * The former t003_suggestStrict was removed: the security audit screen is redesigned without the non-strict user suggest
+ * criterion it drove, and no other screen of the test application reachable through the menu declares a suggest criterion
+ * with strict="false" (the remaining ones, Usr, EmlSrv and Que, are deprecated and not in the menu).
  */
 @Tag("RegressionWebsocketPrintIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -83,33 +87,6 @@ class RegressionTestsIT extends AbstractSessionTests {
 
     // Check row contents
     checkRowContents("Prueba - adminflare");
-  }
-
-  /**
-   * Test to check suggest criteria with 'strict' attribute set to false
-   */
-  @Test
-  void t003_suggestStrict() {
-    // Title
-    setTestTitle("Suggest Strict: Test to check suggest criteria with 'strict' attribute set to false");
-
-    // Go to screen (its user suggest is not strict, and the login of the class is one of its events)
-    gotoScreen(SETTINGS, SECURITY, SECURITY_AUDIT);
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest on column selector
-    suggestLast("CrtUsr", "te");
-
-    // Search and wait
-    searchAndWait();
-
-    // Check grid values
-    checkRowContents("test");
-
-    // Check criterion value
-    checkSuggestContents("CrtUsr", "te");
   }
 
   /**
@@ -196,23 +173,27 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Keep criteria test");
 
-    // Go to screen (it keeps its criteria, and the login of the class is one of its events)
-    gotoScreen(SETTINGS, SECURITY, SECURITY_AUDIT);
+    // Go to screen (the log screen keeps its criteria and navigates to the view screen of a log file)
+    gotoScreen("tools", "log");
 
     // Wait for button
-    clickButton("ButRst");
+    waitForButton("ButRst");
 
-    // Suggest on column selector
-    suggest("CrtUsr", "test", "test");
+    // Write on criterion
+    writeText("CrtFil", "SCHEDULER.log");
 
     // Search and wait
     searchAndWait();
 
     // Check grid values
-    clickRowContents("test");
+    clickRowContents("SCHEDULER.log");
 
     // Click button
     clickButton("ButViw", true);
+
+    // Wait until the view screen has loaded its content, so the Back click is not lost while it is still loading
+    waitForLoadingBar();
+    waitForButton("ButBck");
 
     // Click button
     clickButton("ButBck", true);
@@ -220,8 +201,8 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Wait for button
     waitForButton("ButRst");
 
-    // Wait for button
-    checkSuggestContents("CrtUsr", "test");
+    // Check criterion value
+    checkCriterionContents("CrtFil", "SCHEDULER.log");
   }
 
   /**
@@ -293,26 +274,14 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Title
     setTestTitle("Sort a grid using a component column");
 
-    // Go to screen (its events grid has icon columns)
+    // Go to screen (the address column of its events grid is a text view component)
     gotoScreen(SETTINGS, SECURITY, SECURITY_AUDIT);
 
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest on column selector
-    suggest("CrtUsr", "test", "test");
-
-    // Search and wait
-    searchAndWait();
+    // Wait for button (the reset button lives in the closed range picker)
+    waitForButton("ButRel");
 
     // Sort by a component field
-    sortGrid(SECURITY_AUDIT_GRID, "TypIco");
-
-    // Expect not to have an error message
-    checkMessageMissing("danger");
-
-    // Sort by a component field
-    sortGrid(SECURITY_AUDIT_GRID, "ResIco");
+    sortGrid(SECURITY_AUDIT_GRID, "IpAdrTxt");
 
     // Expect not to have an error message
     checkMessageMissing("danger");
