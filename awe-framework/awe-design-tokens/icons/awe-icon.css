@@ -27,11 +27,11 @@
 }
 
 /* The fa-spin of the icon value: the rotation of the Font Awesome icons (both clients still load Font Awesome 4 for
-   the names without Lucide equivalence, and with it the fa-spin keyframes), stopped when the user prefers reduced
-   motion */
+   the names without Lucide equivalence, and with it the fa-spin keyframes), one turn every 0.8 s, stopped when the user prefers
+   reduced motion */
 .awe-icon-spin {
-  -webkit-animation: fa-spin 2s infinite linear;
-  animation: fa-spin 2s infinite linear;
+  -webkit-animation: fa-spin 0.8s infinite linear;
+  animation: fa-spin 0.8s infinite linear;
 }
 
 @media (prefers-reduced-motion: reduce) {

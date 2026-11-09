@@ -19,9 +19,11 @@ export const busySpinnerTemplate = busy => `<i ng-if="${busy}" class="button-ico
  * @param {string} args.property Property of the scope with the busy state
  * @param {function} args.isRunning Whether the actions are running ("actions-running" of the Storage)
  * @param {function} args.timeout $timeout
+ * @param {number} [args.threshold] Milliseconds the actions must still run before the busy state shows
+ * (busy-threshold of the button); absent keeps BUSY_THRESHOLD
  * @returns {{start: function}} start() on the click of the button
  */
-export function createBusyState({scope, property, isRunning, timeout}) {
+export function createBusyState({scope, property, isRunning, timeout, threshold}) {
   let timer = null;
   const stop = () => {
     timeout.cancel(timer);
@@ -33,7 +35,7 @@ export function createBusyState({scope, property, isRunning, timeout}) {
     timer = timeout(() => {
       timer = null;
       scope[property] = Boolean(isRunning());
-    }, BUSY_THRESHOLD);
+    }, threshold || BUSY_THRESHOLD);
   };
 
   scope[property] = false;

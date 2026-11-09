@@ -3,96 +3,306 @@
 <!--
     Document   : SecAud.xml
     Description: Security audit - Browse the recorded security events (logins, logouts, locks, password and
-                 second factor changes, denied accesses and REST tokens)
+                 second factor changes, denied accesses and REST tokens).
+
+                 The filters live in the grid: a text search, an outcome quick filter and the autofilter of every
+                 column (#912). The date range is the only criterion left outside the grid. The events tab holds the
+                 summary cards and the grid; the statistics tab holds the two charts. The detail of an event opens in
+                 a side panel, filled from the selected row.
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_SECURITY_AUDIT" help="HELP_SCREEN_TITLE_SECURITY_AUDIT" keep-criteria="true">
   <tag source="buttons">
-    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON">
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON" style="btn-ghost no-label">
       <button-action type="dialog" target="HlpOpt" />
     </button>
-    <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
+    <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON" style="btn-ghost no-label">
       <button-action type="validate" />
       <button-action type="dialog" target="PrnOpt" />
     </button>
-    <button label="BUTTON_RELOAD" icon="refresh" id="ButRel">
+    <!-- Time range picker: the presets compute the range on the server, the last entry opens a custom range -->
+    <button label="SCREEN_TEXT_SECURITY_AUDIT_DATE_RANGE" icon="calendar" id="ButRng" help="HELP_SEARCH_BUTTON">
+      <dependency source-type="formule" target-type="label" formule="'[CrtRngTxt]'">
+        <dependency-element id="CrtRngTxt" />
+      </dependency>
+      <button-action type="show-context-menu" />
+      <context-button id="CtxRng15m" label="SCREEN_TEXT_SECURITY_AUDIT_LAST_15M" icon="clock">
+        <button-action type="value" target="CrtRng" value="15m" />
+        <button-action type="server" server-action="update-model" target-action="SecAudRng" />
+      </context-button>
+      <context-button id="CtxRng1h" label="SCREEN_TEXT_SECURITY_AUDIT_LAST_1H" icon="clock">
+        <button-action type="value" target="CrtRng" value="1h" />
+        <button-action type="server" server-action="update-model" target-action="SecAudRng" />
+      </context-button>
+      <context-button id="CtxRng6h" label="SCREEN_TEXT_SECURITY_AUDIT_LAST_6H" icon="clock">
+        <button-action type="value" target="CrtRng" value="6h" />
+        <button-action type="server" server-action="update-model" target-action="SecAudRng" />
+      </context-button>
+      <context-button id="CtxRng24h" label="SCREEN_TEXT_SECURITY_AUDIT_LAST_24H" icon="clock">
+        <button-action type="value" target="CrtRng" value="24h" />
+        <button-action type="server" server-action="update-model" target-action="SecAudRng" />
+      </context-button>
+      <context-button id="CtxRng7d" label="SCREEN_TEXT_SECURITY_AUDIT_LAST_7D" icon="clock">
+        <button-action type="value" target="CrtRng" value="7d" />
+        <button-action type="server" server-action="update-model" target-action="SecAudRng" />
+      </context-button>
+      <context-button id="CtxRng30d" label="SCREEN_TEXT_SECURITY_AUDIT_LAST_30D" icon="clock">
+        <button-action type="value" target="CrtRng" value="30d" />
+        <button-action type="server" server-action="update-model" target-action="SecAudRng" />
+      </context-button>
+      <context-button id="CtxRngCst" label="SCREEN_TEXT_SECURITY_AUDIT_CUSTOM_RANGE" icon="lucide:calendar-range">
+        <button-action type="dialog" target="PopRng" />
+      </context-button>
+    </button>
+    <!-- Submit: pressing Enter in the screen filters with the range in force -->
+    <button label="BUTTON_RELOAD" icon="refresh" id="ButRel" button-type="submit" help="HELP_SEARCH_BUTTON" style="btn-primary"
+            busy-threshold="0" loading-label="BUTTON_RELOADING">
       <button-action type="validate" />
       <button-action type="filter" target="GrdSecAud" />
-      <button-action type="server" server-action="data" target-action="SecAudActChr" target="ChrSecAudAct" async="true" silent="true" />
-      <button-action type="server" server-action="data" target-action="SecAudCauChr" target="ChrSecAudCau" async="true" silent="true" />
-    </button>
-    <button label="BUTTON_VIEW" icon="eye" id="ButViw" help="HELP_VIEW_BUTTON">
-      <button-action type="check-one-selected" target="GrdSecAud" />
-      <button-action type="screen" target="view-security-audit-event" />
-      <dependency target-type="disable" initial="true">
-        <dependency-element id="GrdSecAud" condition="ne" value="1" />
-      </dependency>
+      <button-action type="filter" target="CrdSecAudEvt" async="true" silent="true" />
+      <button-action type="filter" target="CrdSecAudKo" async="true" silent="true" />
+      <button-action type="filter" target="CrdSecAudUsr" async="true" silent="true" />
+      <button-action type="filter" target="CrdSecAudLck" async="true" silent="true" />
+      <button-action type="filter" target="ChrSecAudAct" async="true" silent="true" />
+      <button-action type="filter" target="ChrSecAudCau" async="true" silent="true" />
+      <button-action type="filter" target="ChrSecAudChn" async="true" silent="true" />
+      <button-action type="filter" target="ChrSecAudHou" async="true" silent="true" />
     </button>
   </tag>
+
   <tag source="center">
-    <window label="SCREEN_TEXT_CRITERIA" icon="filter">
+    <!-- Carriers of the time range: the preset code and its label, filled by the picker -->
+    <tag type="div" style="hidden">
+      <criteria id="CrtRng" component="select" initial-load="enum" target-action="SecAudRng" />
+      <criteria id="CrtRngTxt" component="text">
+        <!-- A new range (a preset or the custom range) reloads the cards and the charts with it -->
+        <dependency>
+          <dependency-element id="CrtRngTxt" condition="ne" value="" />
+          <dependency-action type="filter" target="GrdSecAud" async="true" silent="true" />
+          <dependency-action type="filter" target="CrdSecAudEvt" async="true" silent="true" />
+          <dependency-action type="filter" target="CrdSecAudKo" async="true" silent="true" />
+          <dependency-action type="filter" target="CrdSecAudUsr" async="true" silent="true" />
+          <dependency-action type="filter" target="CrdSecAudLck" async="true" silent="true" />
+          <dependency-action type="filter" target="ChrSecAudAct" async="true" silent="true" />
+          <dependency-action type="filter" target="ChrSecAudCau" async="true" silent="true" />
+          <dependency-action type="filter" target="ChrSecAudChn" async="true" silent="true" />
+          <dependency-action type="filter" target="ChrSecAudHou" async="true" silent="true" />
+        </dependency>
+      </criteria>
+      <criteria id="CrtFroTs" component="text" />
+      <criteria id="CrtToTs" component="text" />
+    </tag>
+
+    <tab id="TabSecAud" initial-load="enum" target-action="SecAudTabs">
+      <tabcontainer id="TabSecAudEvt">
+        <!-- Summary of the filtered range: events, failures, distinct users and account locks -->
+        <tag type="div" style="awe-card-grid awe-card-compact">
+          <card id="CrdSecAudEvt" title="SCREEN_TEXT_SECURITY_AUDIT_KPI_EVENTS" icon="shield" icon-tone="neutral"
+                caption="SCREEN_TEXT_SECURITY_AUDIT_KPI_RANGE" initial-load="query" target-action="SecAudTotEvt" />
+          <card id="CrdSecAudKo" title="SCREEN_TEXT_SECURITY_AUDIT_KPI_FAILURES" icon="exclamation-triangle" icon-tone="danger"
+                initial-load="query" target-action="SecAudTotKo"
+                progress-style="bar" />
+          <card id="CrdSecAudUsr" title="SCREEN_TEXT_SECURITY_AUDIT_KPI_USERS" icon="lucide:users" icon-tone="info"
+                caption="SCREEN_TEXT_SECURITY_AUDIT_KPI_RANGE" initial-load="query" target-action="SecAudTotUsr" />
+          <card id="CrdSecAudLck" title="SCREEN_TEXT_SECURITY_AUDIT_KPI_LOCKS" icon="lock" icon-tone="warning"
+                caption="SCREEN_TEXT_SECURITY_AUDIT_KPI_RANGE" initial-load="query" target-action="SecAudTotLck" />
+        </tag>
+
+        <window label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" icon="list" maximize="true" style="expand">
+          <grid id="GrdSecAud" style="expand" server-action="data" target-action="SecAudEvtLst" initial-load="query" max="50" row-numbers="false" saved-searches="true" pager-values="25, 50, 100, 200"
+                empty-icon="search" empty-title="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TITLE"
+                empty-text="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TEXT">
+            <!-- Free text search: user, IP address or detail -->
+            <search id="CrtUsrTxt" placeholder="SCREEN_TEXT_SECURITY_AUDIT_SEARCH" label="SCREEN_TEXT_SECURITY_AUDIT_SEARCH" />
+            <!-- Quick filter of the outcome, counted with the search and the date range -->
+            <quick-filter id="CrtRes" initial-load="query" target-action="SecAudResCnt" label="PARAMETER_SECURITY_AUDIT_OUTCOME" value="" />
+            <!-- Every funnel of the header filters on the server, in the query of the grid (#912) -->
+            <column label="PARAMETER_DATE" name="EvtDat" sort-field="EvtDat" align="center" charlength="19" filter="date" filter-fields="EvtDay" />
+            <column label="PARAMETER_SECURITY_AUDIT_EVENT" name="TypTxt" sort-field="EvtTyp" align="left" charlength="20" avatar-icon-field="TypIcn" avatar-tone-field="ResTon" filter="values" filter-fields="EvtTyp" />
+            <column label="PARAMETER_SECURITY_AUDIT_OUTCOME" name="ResTxt" sort-field="EvtRes" align="left" charlength="11" status-field="ResTon" filter="values" filter-fields="EvtRes" />
+            <column label="PARAMETER_USER" name="UsrNam" sort-field="UsrNam" align="left" charlength="12" filter="values" />
+            <column label="PARAMETER_SECURITY_AUDIT_CAUSE" name="CauTxt" sort-field="EvtCau" align="left" charlength="18" filter="values" filter-fields="EvtCau" />
+            <column label="PARAMETER_SECURITY_AUDIT_CHANNEL" name="ChnTxt" sort-field="Chn" align="center" charlength="11" filter="values" filter-fields="Chn" />
+            <column label="PARAMETER_SECURITY_AUDIT_IP" component="text-view" name="IpAdrTxt" sort-field="IpAdr" align="left" charlength="13" filter="values" filter-fields="IpAdr" />
+            <column name="ViwBtn" component="button" icon="lucide:eye" title="BUTTON_VIEW" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
+              <button-action type="dialog" target="PnlSecAud" />
+            </column>
+            <column name="IdeSecAud" hidden="true" />
+            <column name="TypIcn" hidden="true" />
+            <column name="UsrVal" hidden="true" />
+            <column name="CauVal" hidden="true" />
+            <column name="TenVal" hidden="true" />
+            <column name="DetVal" hidden="true" />
+            <column name="IpVal" hidden="true" />
+            <column name="CorVal" hidden="true" />
+            <column name="SesVal" hidden="true" />
+            <column name="AgtVal" hidden="true" />
+            <column name="ResTon" hidden="true" />
+            <column name="EvtTyp" hidden="true" />
+            <column name="EvtRes" hidden="true" />
+            <column name="EvtCau" hidden="true" />
+            <column name="Chn" hidden="true" />
+            <column name="Ten" hidden="true" />
+            <column name="Det" hidden="true" />
+            <column name="UsrAgt" hidden="true" />
+            <column name="SesHsh" hidden="true" />
+            <column name="CorIde" hidden="true" />
+                      <!-- Row menu (right click on a row): the detail of the event, as the view button of the row -->
+            <context-button label="BUTTON_VIEW" icon="eye" id="CtxSecAudViw">
+              <button-action type="check-one-selected" target="GrdSecAud" />
+              <button-action type="dialog" target="PnlSecAud" />
+            </context-button>
+          </grid>
+        </window>
+      </tabcontainer>
+
+      <tabcontainer id="TabSecAudSta">
+        <!-- Four views of the filtered range: activity per day, failures by cause, events by channel and busiest hours -->
+        <tag type="div" style="expand" expandible="vertical">
+          <tag type="div" style="expand" expandible="horizontal">
+            <window label="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" icon="bar-chart" maximize="true" style="expand-2x">
+              <chart id="ChrSecAudAct" style="expand" type="column" stacking="normal" initial-load="query" target-action="SecAudActChr" max="400" zoom-type="xAxis">
+                <chart-legend align="right" verticalAlign="top" />
+                <x-axis type="datetime" />
+                <y-axis label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" />
+                <chart-tooltip shared="true" date-format="%Y-%m-%d" />
+                <chart-serie id="SecAudOk" x-value="dates" y-value="success" type="column" label="ENUM_SECURITY_AUDIT_SUCCESS" color="#4caf50" />
+                <chart-serie id="SecAudKo" x-value="dates" y-value="failure" type="column" label="ENUM_SECURITY_AUDIT_FAILURE" color="#e53935" />
+              </chart>
+            </window>
+            <window label="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" icon="exclamation-triangle" maximize="true" style="expand">
+              <chart id="ChrSecAudCau" style="expand" type="column" inverted="true" initial-load="query" target-action="SecAudCauChr" max="10" enable-data-labels="true"
+                     format-data-labels="{point.y}">
+                <chart-legend enabled="false" />
+                <x-axis type="category" />
+                <y-axis label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" />
+                <chart-serie id="SecAudCau" x-value="names" y-value="serie1" type="column" label="ENUM_SECURITY_AUDIT_FAILURE" color="#e53935" />
+              </chart>
+            </window>
+          </tag>
+          <tag type="div" style="expand" expandible="horizontal">
+            <window label="SCREEN_TEXT_SECURITY_AUDIT_CHANNELS" icon="globe" maximize="true" style="expand-2x">
+              <chart id="ChrSecAudChn" style="expand" type="column" inverted="true" initial-load="query" target-action="SecAudChnChr" max="10" enable-data-labels="true"
+                     format-data-labels="{point.y}">
+                <chart-legend enabled="false" />
+                <x-axis type="category" />
+                <y-axis label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" />
+                <chart-serie id="SecAudChn" x-value="names" y-value="serie1" type="column" label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" color="#2f855a" />
+              </chart>
+            </window>
+            <window label="SCREEN_TEXT_SECURITY_AUDIT_HOURS" icon="clock-o" maximize="true" style="expand">
+              <chart id="ChrSecAudHou" style="expand" type="column" stacking="normal" inverted="true" initial-load="query" target-action="SecAudHouChr" max="5">
+                <chart-legend align="right" verticalAlign="top" />
+                <x-axis type="category" />
+                <y-axis label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" />
+                <chart-tooltip shared="true" />
+                <chart-serie id="SecAudHouOk" x-value="names" y-value="success" type="column" label="ENUM_SECURITY_AUDIT_SUCCESS" color="#4caf50" />
+                <chart-serie id="SecAudHouKo" x-value="names" y-value="failure" type="column" label="ENUM_SECURITY_AUDIT_FAILURE" color="#e53935" />
+              </chart>
+            </window>
+          </tag>
+        </tag>
+      </tabcontainer>
+    </tab>
+
+    <!-- Detail of the selected event: the header shows the event, its icon on the tone of the outcome and the outcome tag;
+         the body groups the data of the event and of the request, two read-only values per row. Every value also listens
+         to the select-row event of the grid: AngularJS only publishes the grid on a selection, not the cells of the row -->
+    <side-panel id="PnlSecAud" label="SCREEN_TITLE_SECURITY_AUDIT_VIEW" icon="shield" max-width="48rem"
+                header-grid="GrdSecAud" header-title-field="TypTxt" header-subtitle-field="EvtDat"
+                header-avatar-icon-field="TypIcn" header-avatar-tone-field="ResTon">
+      <header-tag field="ResTxt" tone-field="ResTon" />
       <tag type="div" style="panel-body">
-        <criteria label="PARAMETER_FROM" component="date" id="CrtFro" initial-load="value" target-action="SecAudDefFro" style="col-xs-6 col-sm-3 col-lg-2" />
-        <criteria label="PARAMETER_TO" component="date" id="CrtTo" validation="{ge:{criterion:'CrtFro',type:'date'}}" style="col-xs-6 col-sm-3 col-lg-2" />
-        <criteria label="PARAMETER_SECURITY_AUDIT_EVENT" component="select-multiple" id="CrtTyp" initial-load="enum" target-action="SecAudEvtTyp" style="col-xs-12 col-sm-6 col-lg-2" />
-        <criteria label="PARAMETER_SECURITY_AUDIT_OUTCOME" component="select" id="CrtRes" optional="true" initial-load="enum" target-action="SecAudRes" style="col-xs-6 col-sm-3 col-lg-1" />
-        <criteria label="PARAMETER_SECURITY_AUDIT_CHANNEL" component="select" id="CrtChn" optional="true" initial-load="enum" target-action="SecAudChn" style="col-xs-6 col-sm-3 col-lg-1" />
-        <criteria label="PARAMETER_USER" component="suggest" id="CrtUsr" server-action="data" target-action="UsrNamSug" strict="false" style="col-xs-6 col-sm-3 col-lg-2" />
-        <criteria label="PARAMETER_SECURITY_AUDIT_IP" component="text" id="CrtIp" style="col-xs-6 col-sm-3 col-lg-2" />
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="PARAMETER_SECURITY_AUDIT_EVENT" icon="shield" />
+        <criteria label="PARAMETER_DATE" component="text-view" id="ViwDat" style="col-xs-12 col-sm-6 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="EvtDat" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_USER" component="text-view" id="ViwUsr" style="col-xs-12 col-sm-6 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="UsrVal" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_SECURITY_AUDIT_CAUSE" component="text-view" id="ViwCau" style="col-xs-12 col-sm-6 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="CauVal" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_SECURITY_AUDIT_CHANNEL" component="text-view" id="ViwChn" style="col-xs-12 col-sm-6 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="ChnTxt" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_SECURITY_AUDIT_TENANT" component="text-view" id="ViwTen" style="col-xs-12 col-sm-6 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="TenVal" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_SECURITY_AUDIT_ID" component="text-view" id="ViwIde" style="col-xs-12 col-sm-6 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="IdeSecAud" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_SECURITY_AUDIT_DETAIL" component="text-view" id="ViwDet" style="col-xs-12 col-sm-12 awe-readout awe-readout-block">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="DetVal" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" icon="globe" />
+        <criteria label="PARAMETER_SECURITY_AUDIT_IP" component="text-view" id="ViwIp" style="col-xs-12 col-sm-6 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="IpVal" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_SECURITY_AUDIT_CORRELATION" component="text-view" id="ViwCor" style="col-xs-12 col-sm-6 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="CorVal" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_SECURITY_AUDIT_SESSION" component="text-view" id="ViwSes" style="col-xs-12 col-sm-12 awe-readout awe-readout-block">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="SesVal" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_SECURITY_AUDIT_USER_AGENT" component="text-view" id="ViwAgt" style="col-xs-12 col-sm-12 awe-readout awe-readout-block">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSecAud" column="AgtVal" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdSecAud" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+      </tag>
+    </side-panel>
+    <!-- Custom range of the time range picker: the two criteria the audit queries read -->
+    <popover id="PopRng" label="SCREEN_TEXT_SECURITY_AUDIT_CUSTOM_RANGE" anchor="ButRng" position="bottom" max-width="19rem">
+      <tag type="div" style="panel-body">
+        <criteria label="PARAMETER_FROM" component="date" id="CrtFro" initial-load="value" target-action="SecAudDefFro" style="col-xs-12" />
+        <criteria label="PARAMETER_TO" component="date" id="CrtTo" validation="{ge:{criterion:'CrtFro',type:'date'}}" style="col-xs-12" />
       </tag>
       <tag type="div" style="panel-footer">
         <tag type="div" style="pull-right">
           <button button-type="reset" label="BUTTON_RESET" icon="eraser" id="ButRst" help="HELP_RESET_BUTTON" />
           <button button-type="submit" label="BUTTON_SEARCH" icon="search" id="ButSch" help="HELP_SEARCH_BUTTON">
-            <button-action type="validate" />
+            <button-action type="reset" target="CrtFroTs" />
+            <button-action type="reset" target="CrtToTs" />
+            <button-action type="server" server-action="update-model" target-action="SecAudRngTxt" />
+            <button-action type="close" target="PopRng" />
             <button-action type="filter" target="GrdSecAud" />
-            <button-action type="server" server-action="data" target-action="SecAudActChr" target="ChrSecAudAct" async="true" silent="true" />
-            <button-action type="server" server-action="data" target-action="SecAudCauChr" target="ChrSecAudCau" async="true" silent="true" />
           </button>
         </tag>
       </tag>
-    </window>
-    <tag type="div" style="expand" expandible="horizontal">
-      <window label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" icon="list" maximize="true" style="expand-2x">
-        <grid id="GrdSecAud" style="expand" server-action="data" target-action="SecAudEvtLst" initial-load="query" max="50" pager-values="25, 50, 100, 200">
-          <column label="PARAMETER_DATE" name="EvtDat" sort-field="EvtDat" align="center" charlength="17" />
-          <column label="" component="icon" name="TypIco" sort-field="EvtTyp" align="center" charlength="3" />
-          <column label="PARAMETER_SECURITY_AUDIT_EVENT" name="TypTxt" sort-field="EvtTyp" align="left" charlength="22" />
-          <column label="PARAMETER_SECURITY_AUDIT_OUTCOME" component="icon" name="ResIco" sort-field="EvtRes" align="center" charlength="8" />
-          <column label="PARAMETER_USER" name="UsrNam" sort-field="UsrNam" align="left" charlength="16" />
-          <column label="PARAMETER_SECURITY_AUDIT_CAUSE" name="CauTxt" sort-field="EvtCau" align="left" charlength="22" />
-          <column label="PARAMETER_SECURITY_AUDIT_CHANNEL" name="ChnTxt" sort-field="Chn" align="center" charlength="9" />
-          <column label="PARAMETER_SECURITY_AUDIT_IP" name="IpAdr" sort-field="IpAdr" align="left" charlength="15" />
-          <column label="PARAMETER_SECURITY_AUDIT_DETAIL" name="Det" sort-field="Det" align="left" charlength="30" />
-          <column name="IdeSecAud" hidden="true" />
-          <column name="EvtTyp" hidden="true" />
-          <column name="EvtRes" hidden="true" />
-          <column name="EvtCau" hidden="true" />
-          <column name="Chn" hidden="true" />
-          <column name="Ten" hidden="true" />
-          <column name="UsrAgt" hidden="true" />
-          <column name="SesHsh" hidden="true" />
-          <column name="CorIde" hidden="true" />
-        </grid>
-      </window>
-      <window label="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" icon="bar-chart" maximize="true" style="expand">
-        <tag type="div" style="expand" expandible="vertical">
-          <chart id="ChrSecAudAct" label="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" style="expand" type="column" stacking="normal" initial-load="query" target-action="SecAudActChr" max="400" zoom-type="xAxis">
-            <chart-legend align="center" verticalAlign="bottom" />
-            <x-axis type="datetime" />
-            <y-axis label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" />
-            <chart-tooltip shared="true" date-format="%Y-%m-%d" />
-            <chart-serie id="SecAudOk" x-value="dates" y-value="success" type="column" label="ENUM_SECURITY_AUDIT_SUCCESS" color="#4caf50" />
-            <chart-serie id="SecAudKo" x-value="dates" y-value="failure" type="column" label="ENUM_SECURITY_AUDIT_FAILURE" color="#e53935" />
-          </chart>
-          <chart id="ChrSecAudCau" label="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" style="expand" type="pie" initial-load="query" target-action="SecAudCauChr" max="30" enable-data-labels="true"
-                 format-data-labels="{point.name}: {point.y}">
-            <chart-legend enabled="false" />
-            <chart-serie id="SecAudCau" x-value="names" y-value="serie1" label="ENUM_SECURITY_AUDIT_FAILURE" />
-          </chart>
-        </tag>
-      </window>
-    </tag>
+    </popover>
   </tag>
+
   <tag source="modal">
     <include target-screen="PrnOpt" target-source="center" />
     <include target-screen="screen-help" target-source="center"/>

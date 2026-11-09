@@ -1480,6 +1480,11 @@
         <xs:documentation xml:lang="en">Name of a field of the row with the tone of the avatar: primary, info, success, warning, danger or neutral. An unknown or empty tone is neutral. Only with avatar-field.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="avatar-icon-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with an icon (lucide:name, fa-name...) drawn in the avatar instead of the initials, on the tone of avatar-tone-field. It works with or without avatar-field: a row without icon falls back to the initials, or to the empty space that keeps the column aligned. The avatar is decorative: the main value is the accessible text. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="swatch-field" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Name of a field of the row with a colour, drawn as a small decorative circle before the main value, in the place of the avatar: an AWE 5 palette name (red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose, slate, gray, zinc, neutral or stone, shown with its 500 shade) or a #RGB / #RRGGBB hex. Only these values reach the style of the circle. Any other value (or none) shows no circle, only an empty space that keeps the values aligned. With avatar-field too, the swatch is shown while the row has a valid colour, and the avatar otherwise. Sorting, filtering, print and export use the main value. Ignored in columns with a component.</xs:documentation>
@@ -1805,6 +1810,11 @@
         <xs:documentation xml:lang="en">Field of the selected row of header-grid with the tone of the avatar: primary, info, success, warning, danger or neutral (any other value, or none, is neutral).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="header-avatar-icon-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identity header: field of the selected row with an icon (lucide:name, fa-name...) drawn in the avatar instead of the initials, on the tone of header-avatar-tone-field. A row without icon falls back to the initials of header-avatar-field. Only with header-grid. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="header-swatch-field" type="xs:string">
       <xs:annotation>
         <xs:documentation xml:lang="en">Field of the selected row of header-grid with a colour drawn as a large decorative circle in the place of the avatar, as the swatch-field of a grid column: an AWE 5 palette name or a #RGB / #RRGGBB hex. Any other value (or none) shows no circle. With header-avatar-field too, the swatch is shown while the row has a valid colour, and the avatar otherwise.</xs:documentation>
@@ -2052,7 +2062,17 @@
         <xs:documentation xml:lang="en">Busy state (true by default): when the action launched by the button is still running after a short time, the button shows a spinner instead of its icon until it ends. false turns it off.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-    <xs:attribute name="selection" type="booleanEnum">
+    <xs:attribute name="loading-label" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Localisation key of the label shown instead of the label while the busy state is on, in both client engines. Absent keeps the label.</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="busy-threshold" type="xs:integer">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Milliseconds the actions launched by the button must still be running before it shows the busy state, so a quick action shows nothing. Absent keeps the threshold of the client engines (400); 0 shows the busy state on every click.</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="selection" type="booleanEnum">
       <xs:annotation>
         <xs:documentation xml:lang="en">Only for the buttons of a grid (false by default). true makes it an action on the selected rows: it is not shown in the footer of the grid but in its selection bar, which appears between the toolbar and the header of the grid while one or more rows are selected, with the number of selected rows and these buttons in the order of the screen, small and at the right. The button keeps all its behaviour (actions, dependencies, confirmations). With style="btn-danger" it is the destructive action (Delete) and is drawn in the danger colour. In a grid without multiselect the bar shows the one selected row. Supported by both client engines.</xs:documentation>
       </xs:annotation>

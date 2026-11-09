@@ -3895,6 +3895,11 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Wait for loading bar
     waitForLoadingBar();
+
+    // Close the settings panel with its own button (both engines toggle it), so it is not left over the toolbar of the
+    // next screen while it fades out
+    clickInfoButton("ButSetTog");
+    waitUntil(toBeInvisible(frontEndInstructions.getCriterion("module")));
   }
 
   /**

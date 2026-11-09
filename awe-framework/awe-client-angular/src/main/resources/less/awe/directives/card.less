@@ -3,6 +3,8 @@
 // its body. Same classes as the React card (AweCard). A container with the style awe-card-grid lays its cards out.
 // --------------------------------------------------
 .awe-card-grid {
+  // No inset (--awe-card-grid-inset): the windows of this engine have no side margin (panel.less), so a grid of cards
+  // lines up with them as it is
   display: grid;
   // No min(): some LESS versions evaluate it themselves and leave a single column
   grid-template-columns: repeat(auto-fit, minmax(calc(var(--awe-space-16) * 4), 1fr));
@@ -13,10 +15,10 @@
 .awe-card {
   display: flex;
   flex-direction: column;
-  gap: var(--awe-space-3);
+  gap: var(--awe-card-gap);
   min-width: 0;
   height: 100%;
-  padding: var(--awe-content-padding);
+  padding: var(--awe-card-padding);
   color: var(--awe-color-text);
   background-color: var(--awe-color-panel);
   border: var(--awe-border-width) solid var(--awe-color-panel-border);
@@ -41,7 +43,9 @@
 
 .awe-card-title {
   margin: 0;
-  font-size: var(--awe-font-size-sm);
+  font-size: var(--awe-card-title-font-size);
+  text-transform: var(--awe-card-title-text-transform);
+  letter-spacing: var(--awe-card-title-letter-spacing);
   font-weight: var(--awe-font-weight-medium);
   line-height: var(--awe-line-height-snug);
   color: var(--awe-color-text-muted);
@@ -109,8 +113,8 @@
   display: grid;
   flex: 0 0 auto;
   place-items: center;
-  width: var(--awe-size-control);
-  height: var(--awe-size-control);
+  width: var(--awe-card-icon-size);
+  height: var(--awe-card-icon-size);
   margin-left: auto;
   color: var(--_card-icon-color);
   background-color: var(--_card-icon-background);
@@ -336,6 +340,12 @@
   line-height: var(--awe-line-height-base);
 }
 
+// The text of a bar sits close under it, as in the React card: the bar and its text read as one part of the card
+.awe-card-progress:not(.awe-card-gauge) + .awe-card-progress-text {
+  margin-top: calc(var(--awe-space-1-5) * -1);
+}
+
+// The caption sits under the value: the free space of a card stretched to the height of its row goes below it
 .awe-card-footer {
   display: flex;
   flex-wrap: wrap;
@@ -392,6 +402,23 @@ each(@card-progress-tones, {
 
 // A wide card takes two columns of the grid (a card with a chart or a grid in its body). On narrow screens the grid has
 // a single column, so it takes the whole row
+// The block under a row of cards keeps the rhythm of the screen: the space goes on the grid itself. The windows of this
+// engine bring no top margin (--awe-card-grid-gap-after leaves room for the margin of the React windows), so the space
+// is the whole layout gap, the one between two windows
+.awe-card-grid:not(:last-child) {
+  margin-block-end: var(--awe-layout-gap);
+}
+
+// Compact grid of cards: the caption sits right under the value, at the start, instead of at the bottom of the tile
+.awe-card-compact .awe-card-footer {
+  justify-content: flex-start;
+  margin-top: 0;
+}
+
+.awe-card-compact .awe-card-footer-end {
+  margin-left: 0;
+}
+
 .awe-card-grid > .awe-card-wide {
   @media (min-width: @screen-sm-min) {
     grid-column: span 2;

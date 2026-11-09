@@ -1,0 +1,27 @@
+{
+  "title": "Security audit window (AWE 5)",
+  "brief": "Rediseño de la ventana de auditoría de seguridad de AWE 5 (SecAud y SecAudViw). La ventana de hoy junta siete criterios, una rejilla de nueve columnas con dos columnas de iconos (una sin cabecera), dos gráficos con colores fijados en el XML y un detalle que es otra pantalla; no tiene estados propios ni cifras del rango. Tres alternativas sobre dónde viven el detalle y las estadísticas. Sistema de diseño: design/system.md; lenguaje visual de design/modules. Los tokens de botón, etiqueta y cabecera de rejilla se copian de tokens.css porque system.md es anterior a ellos.",
+  "artboards": [
+    {
+      "file": "01-resumen-rejilla-y-detalle.html",
+      "title": "01 · Una sola página: criterios, cifras, eventos y estadísticas — descartada",
+      "tradeoff": "Es la propuesta con menos piezas nuevas: ni pestañas ni panel, y el detalle sigue siendo la pantalla SecAudViw. Se descarta porque los gráficos quedan detrás de 50 filas y mirar un evento sigue sacando al usuario del listado.",
+      "width": 1440,
+      "height": 3173
+    },
+    {
+      "file": "02-pestanas-y-panel-lateral.html",
+      "title": "02 · Pestañas Eventos / Estadísticas, filtros dentro de la rejilla y detalle en panel lateral — elegida",
+      "tradeoff": "Los siete criterios salen de su tarjeta: búsqueda libre, dos filtros rápidos (resultado y rango), un embudo por columna y una línea de chips con lo aplicado. La rejilla usa todo el ancho, gana unos 250 px de alto y el detalle no mueve la lista. Depende del autofiltro de columna de #912 (diseñado, no implementado), del panel lateral de 640 px y de una consulta de totales para los indicadores.",
+      "width": 1440,
+      "height": 5732
+    },
+    {
+      "file": "03-linea-de-tiempo.html",
+      "title": "03 · La auditoría como línea de tiempo por días — descartada por ahora",
+      "tradeoff": "El día como cabecera enseña el patrón de una noche sin abrir un gráfico y el detalle queda al lado; pero agrupar filas por día no existe hoy en la rejilla genérica. Su segunda letra (las causas como filtro) sí es barata y se puede llevar a la 02.",
+      "width": 1440,
+      "height": 3012
+    }
+  ]
+}

@@ -1120,6 +1120,38 @@
   --awe-label-text-transform: none;
   --awe-label-letter-spacing: normal;
 
+  --awe-card-title-font-size: var(--awe-font-size-base);
+  --awe-card-title-text-transform: uppercase;
+  --awe-card-title-letter-spacing: var(--awe-letter-spacing-caps);
+  /* Grid: least width of the search of the toolbar; it grows to show its whole placeholder */
+  --awe-grid-search-width: 32ch;
+  /* Grid: size of an icon drawn in the avatar of a cell (avatar-icon-field) */
+  --awe-grid-avatar-icon-size: var(--awe-size-icon-sm);
+  /* Side panel: size of an icon drawn in the avatar of the identity header (header-avatar-icon-field) */
+  --awe-panel-avatar-icon-size: var(--awe-size-icon);
+
+  /* Read-only value (style awe-readout on a criterion): a muted small label over the value; awe-readout-block also
+     boxes the value, for long texts such as a detail, a hash or a user agent */
+  --awe-readout-label-color: var(--awe-color-text-muted);
+  --awe-readout-label-font-size: var(--awe-font-size-xs);
+  --awe-readout-label-font-weight: var(--awe-font-weight-normal);
+  --awe-readout-value-color: var(--awe-color-text);
+  --awe-readout-value-font-size: var(--awe-font-size-base);
+  --awe-readout-block-background: var(--awe-color-surface-subtle);
+  --awe-readout-block-border: var(--awe-color-border);
+  --awe-readout-block-radius: var(--awe-radius-lg);
+  --awe-readout-block-padding: var(--awe-space-3);
+
+  /* Cards: inner padding, space between the parts and size of the icon tile (awe-card-compact lowers them) */
+  --awe-card-padding: var(--awe-content-padding);
+  --awe-card-gap: var(--awe-space-3);
+  --awe-card-icon-size: var(--awe-size-control);
+
+  /* Cards: the inset that aligns a grid of cards with the windows of the same screen */
+  --awe-card-grid-inset: calc(var(--awe-border-width) + var(--awe-space-1-5));
+  /* Space between a grid of cards and the block under it: the window brings the inset as its own margin */
+  --awe-card-grid-gap-after: calc(var(--awe-layout-gap) - var(--awe-card-grid-inset));
+
   /* Grid */
   --awe-grid-header-background: var(--awe-color-grid-header);
   --awe-grid-header-text: var(--awe-color-text-muted);
@@ -1286,4 +1318,12 @@
   --awe-login-brand-logo-width: 280px;
   --awe-login-card-width: 420px;
   --awe-login-card-padding: var(--awe-space-8);
+}
+
+/* Compact grid of cards (style awe-card-compact on the container): tighter padding, gaps and icon tile, for a row of
+   summary figures above a grid */
+.awe-card-compact {
+  --awe-card-padding: var(--awe-space-4);
+  --awe-card-gap: var(--awe-space-2);
+  --awe-card-icon-size: var(--awe-size-control-sm);
 }

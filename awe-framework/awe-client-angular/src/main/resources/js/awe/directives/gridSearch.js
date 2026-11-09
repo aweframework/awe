@@ -6,7 +6,7 @@ import {iconMarkup} from "../services/icon";
 export const GRID_SEARCH_DELAY = 300;
 
 // Search of a grid: a text field with the search icon (and a clear button when it has text) at the start of the toolbar
-export const GRID_SEARCH_TEMPLATE = `<div ng-show="controller.visible" class="grid-search" role="search" ng-attr-criterion-id="{{::controller.id}}" data-testid="${TestIds.gridSearch}" ng-attr-data-testid-owner="{{::gridId}}" ng-cloak>
+export const GRID_SEARCH_TEMPLATE = `<div ng-show="controller.visible" class="grid-search" ng-attr-style="{{controller.placeholder ? '--awe-grid-search-fit: ' + (controller.placeholder | translateMultiple).length + 'ch' : undefined}}" role="search" ng-attr-criterion-id="{{::controller.id}}" data-testid="${TestIds.gridSearch}" ng-attr-data-testid-owner="{{::gridId}}" ng-cloak>
   <span class="grid-search-icon">${iconMarkup("search")}</span>
   <input type="search" ng-model="model.selected" ng-change="change()" ng-keydown="keyDown($event)" ng-disabled="controller.readonly" autocomplete="off" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder | translateMultiple}}" aria-label="{{(controller.label || 'BUTTON_SEARCH') | translateMultiple}}" data-testid="${TestIds.criterionInput}"/>
   <button type="button" class="grid-search-clear" ng-if="hasText() && !controller.readonly" ng-click="clear()" aria-label="{{'BUTTON_CLEAR' | translateMultiple}}" title="{{'BUTTON_CLEAR' | translateMultiple}}" data-testid="${TestIds.gridSearchClear}">${iconMarkup("times")}</button>

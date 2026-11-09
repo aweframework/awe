@@ -5548,68 +5548,21 @@
 
 
   <!-- ==================== SECURITY AUDIT ==================== -->
+
   <!-- Default start date of the security audit screen -->
   <query id="SecAudDefFro" permission="audit.read" service="SecAudDefFro">
     <field transform="DATE" id="value" alias="value"/>
   </query>
 
-  <!-- Security audit events (newest first, paginated in the database) -->
-  <query id="SecAudEvtLst" permission="audit.read" managed-pagination="true">
-    <table id="AweSecAudEvt"/>
-    <field id="IdeSecAud" alias="id"/>
-    <field id="IdeSecAud" alias="IdeSecAud"/>
-    <field id="EvtDat" alias="EvtDat" transform="TIMESTAMP"/>
-    <field id="EvtTyp" alias="EvtTyp"/>
-    <field id="EvtTyp" alias="TypTxt" translate="SecAudEvtTyp"/>
-    <field id="EvtRes" alias="EvtRes"/>
-    <field id="EvtCau" alias="EvtCau"/>
-    <field id="EvtCau" alias="CauTxt" translate="SecAudCau"/>
-    <field id="UsrNam" alias="UsrNam"/>
-    <field id="Ten" alias="Ten"/>
-    <field id="Chn" alias="Chn"/>
-    <field id="Chn" alias="ChnTxt" translate="SecAudChn"/>
-    <field id="IpAdr" alias="IpAdr"/>
-    <field id="UsrAgt" alias="UsrAgt"/>
-    <field id="SesHsh" alias="SesHsh"/>
-    <field id="CorIde" alias="CorIde"/>
-    <field id="Det" alias="Det"/>
-    <compound alias="TypIco">
-      <computed format="[EvtTyp]" alias="value"/>
-      <computed format="[TypTxt]" alias="label"/>
-      <computed format="[EvtTyp]" alias="icon" translate="SecAudEvtIco"/>
-      <computed format="[EvtTyp]" alias="style" translate="SecAudEvtSty"/>
-    </compound>
-    <compound alias="ResIco">
-      <computed format="[EvtRes]" alias="value"/>
-      <computed format="[EvtRes]" alias="label" translate="SecAudRes"/>
-      <computed format="[EvtRes]" alias="icon" translate="SecAudResIco"/>
-      <computed format="[EvtRes]" alias="style" translate="SecAudResSty"/>
-    </compound>
-    <where>
-      <and>
-        <filter left-field="EvtDay" condition="ge" right-variable="From" optional="true"/>
-        <filter left-field="EvtDay" condition="le" right-variable="To" optional="true"/>
-        <filter left-field="EvtTyp" condition="in" right-variable="Typ" optional="true"/>
-        <filter left-field="EvtRes" condition="eq" right-variable="Res" optional="true"/>
-        <filter left-field="Chn" condition="eq" right-variable="Chn" optional="true"/>
-        <filter left-field="UsrNam" condition="like" right-variable="Usr" ignorecase="true" trim="true" optional="true"/>
-        <filter left-field="IpAdr" condition="like" right-variable="Ip" optional="true"/>
-      </and>
-    </where>
-    <variable id="From" type="DATE" name="CrtFro"/>
-    <variable id="To" type="DATE" name="CrtTo"/>
-    <variable id="Typ" type="STRING" name="CrtTyp"/>
-    <variable id="Res" type="STRING" name="CrtRes"/>
-    <variable id="Chn" type="STRING" name="CrtChn"/>
-    <variable id="Usr" type="STRINGB" name="CrtUsr"/>
-    <variable id="Ip" type="STRINGB" name="CrtIp"/>
-    <order-by field="EvtDat" type="DESC"/>
-  </query>
-
-  <!-- Security audit activity per day: one row per event with its day, flagged as success or failure -->
+  <!-- Filtered events of the security audit: the date range, the outcome quick filter and the text search of the grid.
+       The activity chart, the causes chart and the summary cards aggregate this same list, so they follow the filters -->
   <query id="SecAudActSrc">
     <table id="AweSecAudEvt"/>
+    <field id="IdeSecAud" alias="IdeSecAud"/>
     <field id="EvtDay" alias="Dat"/>
+    <field id="UsrNam" alias="UsrNam"/>
+    <field id="Chn" alias="Chn"/>
+    <field id="EvtDat" alias="Hou" function="HOUR"/>
     <case alias="Ok">
       <when left-field="EvtRes" condition="eq" right-variable="Success">
         <then>
@@ -5630,25 +5583,249 @@
         <constant value="1" type="INTEGER"/>
       </else>
     </case>
+    <case alias="Lck">
+      <when left-field="EvtTyp" condition="eq" right-variable="Locked">
+        <then>
+          <constant value="1" type="INTEGER"/>
+        </then>
+      </when>
+      <else>
+        <constant value="0" type="INTEGER"/>
+      </else>
+    </case>
     <where>
       <and>
         <filter left-field="EvtDay" condition="ge" right-variable="From" optional="true"/>
         <filter left-field="EvtDay" condition="le" right-variable="To" optional="true"/>
-        <filter left-field="EvtTyp" condition="in" right-variable="Typ" optional="true"/>
+        <filter left-field="EvtDat" condition="ge" right-variable="FromTs" optional="true"/>
+        <filter left-field="EvtDat" condition="le" right-variable="ToTs" optional="true"/>
         <filter left-field="EvtRes" condition="eq" right-variable="Res" optional="true"/>
-        <filter left-field="Chn" condition="eq" right-variable="Chn" optional="true"/>
-        <filter left-field="UsrNam" condition="like" right-variable="Usr" ignorecase="true" trim="true" optional="true"/>
-        <filter left-field="IpAdr" condition="like" right-variable="Ip" optional="true"/>
+        <!-- Search of the grid: the user, the IP address or the detail contain the text, ignoring case -->
+        <or>
+          <filter left-field="UsrNam" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+          <filter left-field="IpAdr" condition="like" right-variable="Sch" optional="true"/>
+          <filter left-field="Det" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+        </or>
       </and>
     </where>
     <variable id="From" type="DATE" name="CrtFro"/>
     <variable id="To" type="DATE" name="CrtTo"/>
-    <variable id="Typ" type="STRING" name="CrtTyp"/>
+    <variable id="FromTs" type="TIMESTAMP" name="CrtFroTs"/>
+    <variable id="ToTs" type="TIMESTAMP" name="CrtToTs"/>
     <variable id="Res" type="STRING" name="CrtRes"/>
-    <variable id="Chn" type="STRING" name="CrtChn"/>
-    <variable id="Usr" type="STRINGB" name="CrtUsr"/>
-    <variable id="Ip" type="STRINGB" name="CrtIp"/>
+    <variable id="Sch" type="STRINGB" name="CrtUsrTxt"/>
     <variable id="Success" type="STRING" value="SUCCESS"/>
+    <variable id="Locked" type="STRING" value="ACCOUNT_LOCKED"/>
+  </query>
+
+  <!-- Users of the filtered range (feeds the users summary card, counted by distinct user) -->
+  <query id="SecAudUsrSrc">
+    <table id="AweSecAudEvt"/>
+    <field id="UsrNam" alias="UsrNam"/>
+    <where>
+      <and>
+        <filter left-field="EvtDay" condition="ge" right-variable="From" optional="true"/>
+        <filter left-field="EvtDay" condition="le" right-variable="To" optional="true"/>
+        <filter left-field="EvtDat" condition="ge" right-variable="FromTs" optional="true"/>
+        <filter left-field="EvtDat" condition="le" right-variable="ToTs" optional="true"/>
+        <filter left-field="EvtRes" condition="eq" right-variable="Res" optional="true"/>
+        <or>
+          <filter left-field="UsrNam" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+          <filter left-field="IpAdr" condition="like" right-variable="Sch" optional="true"/>
+          <filter left-field="Det" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <variable id="From" type="DATE" name="CrtFro"/>
+    <variable id="To" type="DATE" name="CrtTo"/>
+    <variable id="FromTs" type="TIMESTAMP" name="CrtFroTs"/>
+    <variable id="ToTs" type="TIMESTAMP" name="CrtToTs"/>
+    <variable id="Res" type="STRING" name="CrtRes"/>
+    <variable id="Sch" type="STRINGB" name="CrtUsrTxt"/>
+    <group-by field="UsrNam"/>
+  </query>
+
+  <!-- Date range of the security audit time range picker: one row with the two criteria it fills (update-model) -->
+  <query id="SecAudRng" permission="audit.read" service="SecAudRng">
+    <field id="CrtFro" alias="CrtFro" transform="DATE"/>
+    <field id="CrtTo" alias="CrtTo" transform="DATE"/>
+    <field id="CrtFroTs" alias="CrtFroTs"/>
+    <field id="CrtToTs" alias="CrtToTs"/>
+    <!-- Last: its change reloads the cards and the charts, when the bounds above are already in the criteria -->
+    <field id="CrtRngTxt" alias="CrtRngTxt"/>
+    <variable id="CrtRng" type="STRING" name="CrtRng"/>
+  </query>
+
+  <!-- Label of the time range picker: one row with the two dates in force, formatted with their time -->
+  <query id="SecAudRngTxt" permission="audit.read" service="SecAudRngTxt">
+    <field id="CrtRngTxt" alias="CrtRngTxt"/>
+    <variable id="CrtFro" type="DATE" name="CrtFro"/>
+    <variable id="CrtTo" type="DATE" name="CrtTo"/>
+  </query>
+
+  <!-- Security audit events (newest first, paginated in the database) -->
+  <query id="SecAudEvtLst" permission="audit.read" managed-pagination="true">
+    <table id="AweSecAudEvt"/>
+    <field id="IdeSecAud" alias="id"/>
+    <field id="IdeSecAud" alias="IdeSecAud"/>
+    <field id="EvtDat" alias="EvtDat" transform="TIMESTAMP"/>
+    <field id="EvtDay" alias="EvtDay"/>
+    <field id="EvtTyp" alias="EvtTyp"/>
+    <field id="EvtTyp" alias="TypTxt" translate="SecAudEvtTyp"/>
+    <field id="EvtRes" alias="EvtRes"/>
+    <field id="EvtCau" alias="EvtCau"/>
+    <field id="EvtCau" alias="CauTxt" translate="SecAudCau"/>
+    <field id="UsrNam" alias="UsrNam"/>
+    <field id="Ten" alias="Ten"/>
+    <field id="Chn" alias="Chn"/>
+    <field id="Chn" alias="ChnTxt" translate="SecAudChn"/>
+    <field id="IpAdr" alias="IpAdr"/>
+    <field id="UsrAgt" alias="UsrAgt"/>
+    <field id="SesHsh" alias="SesHsh"/>
+    <field id="CorIde" alias="CorIde"/>
+    <field id="Det" alias="Det"/>
+    <compound alias="TypIco">
+      <computed format="[EvtTyp]" alias="value"/>
+      <computed format="[TypTxt]" alias="label"/>
+      <computed format="[EvtTyp]" alias="icon" translate="SecAudEvtIco"/>
+      <computed format="[EvtTyp]" alias="style" translate="SecAudEvtSty"/>
+    </compound>
+    <!-- Values of the detail panel: never null, so the panel never keeps the value of the row opened before -->
+    <computed format="[UsrNam]" alias="UsrVal" nullValue="—"/>
+    <computed format="[CauTxt]" alias="CauVal" nullValue="—"/>
+    <computed format="[Ten]" alias="TenVal" nullValue="—"/>
+    <computed format="[Det]" alias="DetVal" nullValue="—"/>
+    <computed format="[IpAdr]" alias="IpVal" nullValue="—"/>
+    <computed format="[CorIde]" alias="CorVal" nullValue="—"/>
+    <computed format="[SesHsh]" alias="SesVal" nullValue="—"/>
+    <computed format="[UsrAgt]" alias="AgtVal" nullValue="—"/>
+    <computed format="[EvtTyp]" alias="TypIcn" translate="SecAudEvtIco"/>
+    <field id="EvtRes" alias="ResTxt" translate="SecAudRes"/>
+    <computed format="[EvtRes]" alias="ResTon" translate="SecAudResTon"/>
+    <compound alias="IpAdrTxt">
+      <computed format="[IpAdr]" alias="value"/>
+      <computed format="awe-grid-mono" alias="style"/>
+    </compound>
+    <compound alias="ResIco">
+      <computed format="[EvtRes]" alias="value"/>
+      <computed format="[EvtRes]" alias="label" translate="SecAudRes"/>
+      <computed format="[EvtRes]" alias="icon" translate="SecAudResIco"/>
+      <computed format="[EvtRes]" alias="style" translate="SecAudResSty"/>
+    </compound>
+    <where>
+      <and>
+        <filter left-field="EvtDay" condition="ge" right-variable="From" optional="true"/>
+        <filter left-field="EvtDay" condition="le" right-variable="To" optional="true"/>
+        <filter left-field="EvtDat" condition="ge" right-variable="FromTs" optional="true"/>
+        <filter left-field="EvtDat" condition="le" right-variable="ToTs" optional="true"/>
+        <filter left-field="EvtRes" condition="eq" right-variable="Res" optional="true"/>
+        <!-- Search of the grid: the user, the IP address or the detail contain the text, ignoring case -->
+        <or>
+          <filter left-field="UsrNam" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+          <filter left-field="IpAdr" condition="like" right-variable="Sch" optional="true"/>
+          <filter left-field="Det" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <variable id="From" type="DATE" name="CrtFro"/>
+    <variable id="To" type="DATE" name="CrtTo"/>
+    <variable id="FromTs" type="TIMESTAMP" name="CrtFroTs"/>
+    <variable id="ToTs" type="TIMESTAMP" name="CrtToTs"/>
+    <variable id="Res" type="STRING" name="CrtRes"/>
+    <variable id="Sch" type="STRINGB" name="CrtUsrTxt"/>
+    <order-by field="EvtDat" type="DESC"/>
+  </query>
+
+  <!-- Outcome quick filter of the audit grid: the counts of every option (all, success, failure) -->
+  <query id="SecAudResCnt" permission="audit.read">
+    <table id="AweSecAudEvt"/>
+    <constant value="1" type="INTEGER" alias="pos"/>
+    <constant value="" alias="value"/>
+    <constant value="SCREEN_TEXT_SECURITY_AUDIT_OUTCOME_ALL" alias="label"/>
+    <field id="IdeSecAud" function="CNT" alias="count"/>
+    <constant value="" alias="tone"/>
+    <union type="ALL" query="SecAudResCntRes"/>
+    <where>
+      <and>
+        <filter left-field="EvtDay" condition="ge" right-variable="From" optional="true"/>
+        <filter left-field="EvtDay" condition="le" right-variable="To" optional="true"/>
+        <filter left-field="EvtDat" condition="ge" right-variable="FromTs" optional="true"/>
+        <filter left-field="EvtDat" condition="le" right-variable="ToTs" optional="true"/>
+        <or>
+          <filter left-field="UsrNam" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+          <filter left-field="IpAdr" condition="like" right-variable="Sch" optional="true"/>
+          <filter left-field="Det" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="pos" type="ASC"/>
+    <variable id="From" type="DATE" name="CrtFro"/>
+    <variable id="To" type="DATE" name="CrtTo"/>
+    <variable id="FromTs" type="TIMESTAMP" name="CrtFroTs"/>
+    <variable id="ToTs" type="TIMESTAMP" name="CrtToTs"/>
+    <variable id="Sch" type="STRINGB" name="CrtUsrTxt"/>
+  </query>
+
+  <!-- Counts of the success and failure options of the outcome quick filter -->
+  <query id="SecAudResCntRes" permission="audit.read">
+    <table id="AweSecAudEvt"/>
+    <constant value="2" type="INTEGER" alias="pos"/>
+    <field id="EvtRes" alias="value"/>
+    <case alias="label">
+      <when left-field="EvtRes" condition="eq" right-variable="Success">
+        <then>
+          <constant value="ENUM_SECURITY_AUDIT_SUCCESS"/>
+        </then>
+      </when>
+      <else>
+        <constant value="ENUM_SECURITY_AUDIT_FAILURE"/>
+      </else>
+    </case>
+    <field id="IdeSecAud" function="CNT" alias="count"/>
+    <constant value="" alias="tone"/>
+    <where>
+      <and>
+        <filter left-field="EvtDay" condition="ge" right-variable="From" optional="true"/>
+        <filter left-field="EvtDay" condition="le" right-variable="To" optional="true"/>
+        <filter left-field="EvtDat" condition="ge" right-variable="FromTs" optional="true"/>
+        <filter left-field="EvtDat" condition="le" right-variable="ToTs" optional="true"/>
+        <or>
+          <filter left-field="UsrNam" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+          <filter left-field="IpAdr" condition="like" right-variable="Sch" optional="true"/>
+          <filter left-field="Det" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <group-by field="EvtRes"/>
+    <variable id="From" type="DATE" name="CrtFro"/>
+    <variable id="To" type="DATE" name="CrtTo"/>
+    <variable id="FromTs" type="TIMESTAMP" name="CrtFroTs"/>
+    <variable id="ToTs" type="TIMESTAMP" name="CrtToTs"/>
+    <variable id="Sch" type="STRINGB" name="CrtUsrTxt"/>
+    <variable id="Success" type="STRING" value="SUCCESS"/>
+  </query>
+
+  <!-- Summary cards of the audit: events, failures, distinct users and account locks of the filtered range -->
+  <query id="SecAudTotEvt" permission="audit.read">
+    <table query="SecAudActSrc" alias="t"/>
+    <field id="IdeSecAud" table="t" alias="value" function="CNT"/>
+  </query>
+
+  <query id="SecAudTotKo" permission="audit.read">
+    <table query="SecAudActSrc" alias="t"/>
+    <field id="Ko" table="t" alias="value" function="SUM"/>
+    <!-- The total of the range: the failure card draws its share as a bar -->
+    <field id="IdeSecAud" table="t" alias="target" function="CNT"/>
+  </query>
+
+  <query id="SecAudTotUsr" permission="audit.read">
+    <table query="SecAudUsrSrc" alias="t"/>
+    <field id="UsrNam" table="t" alias="value" function="CNT"/>
+  </query>
+
+  <query id="SecAudTotLck" permission="audit.read">
+    <table query="SecAudActSrc" alias="t"/>
+    <field id="Lck" table="t" alias="value" function="SUM"/>
   </query>
 
   <!-- Security audit activity per day (chart) -->
@@ -5661,7 +5838,29 @@
     <order-by field="Dat" table="t" type="ASC"/>
   </query>
 
-  <!-- Security audit failures by cause (chart) -->
+  <!-- Security audit events by channel (chart): the filtered range, from the busiest channel to the least -->
+  <query id="SecAudChnChr" permission="audit.read">
+    <table query="SecAudActSrc" alias="t"/>
+    <field id="Chn" table="t" alias="names" translate="SecAudChn"/>
+    <field id="Dat" table="t" alias="serie1" function="CNT"/>
+    <group-by field="Chn" table="t"/>
+    <order-by field="Dat" table="t" function="CNT" type="DESC"/>
+  </query>
+
+  <!-- Security audit busiest hours (chart): the events of every hour of the day in the filtered range, split in
+       successes and failures, from the busiest hour to the least -->
+  <query id="SecAudHouChr" permission="audit.read">
+    <table query="SecAudActSrc" alias="t"/>
+    <field id="Hou" table="t" alias="Hou"/>
+    <computed format="('0' + [Hou]).slice(-2) + ':00 - ' + ('0' + (([Hou] + 1) % 24)).slice(-2) + ':00'" eval="true" alias="names"/>
+    <field id="Ok" table="t" alias="success" function="SUM"/>
+    <field id="Ko" table="t" alias="failure" function="SUM"/>
+    <group-by field="Hou" table="t"/>
+    <order-by field="Dat" table="t" function="CNT" type="DESC"/>
+  </query>
+
+  <!-- Security audit failures by cause (chart): always the failures, from the most repeated cause to the least.
+       It does not apply the outcome quick filter: a chart of failures filtered by success has no rows -->
   <query id="SecAudCauChr" permission="audit.read">
     <table id="AweSecAudEvt"/>
     <field id="EvtCau" alias="names" translate="SecAudCau"/>
@@ -5670,22 +5869,23 @@
       <and>
         <filter left-field="EvtDay" condition="ge" right-variable="From" optional="true"/>
         <filter left-field="EvtDay" condition="le" right-variable="To" optional="true"/>
-        <filter left-field="EvtTyp" condition="in" right-variable="Typ" optional="true"/>
-        <filter left-field="EvtRes" condition="eq" right-variable="Res" optional="true"/>
-        <filter left-field="Chn" condition="eq" right-variable="Chn" optional="true"/>
-        <filter left-field="UsrNam" condition="like" right-variable="Usr" ignorecase="true" trim="true" optional="true"/>
-        <filter left-field="IpAdr" condition="like" right-variable="Ip" optional="true"/>
+        <filter left-field="EvtDat" condition="ge" right-variable="FromTs" optional="true"/>
+        <filter left-field="EvtDat" condition="le" right-variable="ToTs" optional="true"/>
+        <or>
+          <filter left-field="UsrNam" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+          <filter left-field="IpAdr" condition="like" right-variable="Sch" optional="true"/>
+          <filter left-field="Det" condition="like" right-variable="Sch" ignorecase="true" trim="true" optional="true"/>
+        </or>
         <filter left-field="EvtRes" condition="eq" right-variable="Failure"/>
       </and>
     </where>
     <variable id="From" type="DATE" name="CrtFro"/>
     <variable id="To" type="DATE" name="CrtTo"/>
-    <variable id="Typ" type="STRING" name="CrtTyp"/>
-    <variable id="Res" type="STRING" name="CrtRes"/>
-    <variable id="Chn" type="STRING" name="CrtChn"/>
-    <variable id="Usr" type="STRINGB" name="CrtUsr"/>
-    <variable id="Ip" type="STRINGB" name="CrtIp"/>
+    <variable id="FromTs" type="TIMESTAMP" name="CrtFroTs"/>
+    <variable id="ToTs" type="TIMESTAMP" name="CrtToTs"/>
+    <variable id="Sch" type="STRINGB" name="CrtUsrTxt"/>
     <variable id="Failure" type="STRING" value="FAILURE"/>
     <group-by field="EvtCau"/>
+    <order-by field="IdeSecAud" function="CNT" type="DESC"/>
   </query>
 </queries>

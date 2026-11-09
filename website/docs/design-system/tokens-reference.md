@@ -783,3 +783,30 @@ The `AWE_V1.5.0` Flyway migration (all 6 databases) adds the columns `Pri` (prim
 Nothing is deleted: `AweThmCol` is kept as it is, unused, and is dropped in a later version. The user density is empty (the application density) until the user chooses one.
 
 The React client no longer loads the compiled PrimeReact `theme.css` files (`saga-blue` and the 18 classic themes): it bundles **one** [AWE theme of PrimeReact](#primereact-theme) that reads the tokens.
+
+## Cards
+
+Component tokens of the cards, the read-only values and the avatars of grids and side panels:
+
+| Token | Default | Use |
+|---|---|---|
+| `--awe-card-title-font-size` | `--awe-font-size-base` | Size of the title of a card |
+| `--awe-card-title-text-transform` | `uppercase` | Case of the title of a card |
+| `--awe-card-title-letter-spacing` | `--awe-letter-spacing-caps` | Letter spacing of the title of a card |
+| `--awe-grid-avatar-icon-size` | `--awe-size-icon-sm` | Size of an icon drawn in the avatar of a grid cell (`avatar-icon-field`) |
+| `--awe-readout-label-color` | `--awe-color-text-muted` | Label of a read-only value (`awe-readout`) |
+| `--awe-readout-label-font-size` | `--awe-font-size-xs` | Size of the label of a read-only value |
+| `--awe-readout-label-font-weight` | `--awe-font-weight-normal` | Weight of the label of a read-only value |
+| `--awe-readout-value-color` | `--awe-color-text` | Read-only value |
+| `--awe-readout-value-font-size` | `--awe-font-size-base` | Size of a read-only value |
+| `--awe-readout-block-background` | `--awe-color-surface-subtle` | Box of a long read-only value (`awe-readout-block`) |
+| `--awe-readout-block-border` | `--awe-color-border` | Border of that box |
+| `--awe-readout-block-radius` | `--awe-radius-lg` | Radius of that box |
+| `--awe-readout-block-padding` | `--awe-space-3` | Padding of that box |
+| `--awe-card-padding` | `--awe-content-padding` | Inner padding of a card |
+| `--awe-card-gap` | `--awe-space-3` | Space between the parts of a card |
+| `--awe-card-icon-size` | `--awe-size-control` | Size of the icon tile of a card |
+| `--awe-card-grid-gap-after` | `--awe-layout-gap − --awe-card-grid-inset` | Space between a grid of cards and the block under it |
+| `--awe-grid-search-width` | `32ch` | Least width of the search of a grid toolbar; it grows to show its whole placeholder |
+| `--awe-panel-avatar-icon-size` | `--awe-size-icon` | Size of an icon drawn in the avatar of a side panel header (`header-avatar-icon-field`) |
+| `--awe-card-grid-inset` | `calc(--awe-border-width + --awe-space-1-5)` | Inset of a grid of cards (`awe-card-grid`), so it lines up with the windows of the same screen |

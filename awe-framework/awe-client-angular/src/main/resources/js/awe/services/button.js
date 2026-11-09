@@ -10,7 +10,7 @@ export const templateButton = `<div ng-show="controller.visible" class="{{::grou
           ng-disabled="isDisabled()" ng-click="onClick()" ng-mousedown="onMouseDown()" ng-transclude>
     ${busySpinnerTemplate("busy")}
     ${getIconTemplate("button-icon", "i")}
-    <span ng-if="controller.label && !iconOnly" class="button-text" translate-multiple="{{controller.label}}"></span>
+    <span ng-if="controller.label && !iconOnly" class="button-text" translate-multiple="{{busy && controller.loadingLabel ? controller.loadingLabel : controller.label}}"></span>
   </button>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <awe-loader class="loader button-loader" skeleton="button" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
@@ -108,7 +108,8 @@ aweApplication.factory('Button',
             scope: component.scope,
             property: "busy",
             isRunning: () => Storage.get("actions-running"),
-            timeout: $timeout
+            timeout: $timeout,
+            threshold: component.controller.busyThreshold
           });
 
           //*****************************************************************************

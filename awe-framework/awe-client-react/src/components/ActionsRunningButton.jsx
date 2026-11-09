@@ -14,9 +14,9 @@ import { classNames } from "../utilities/components";
  * @category Components
  */
 const ActionsRunningButton = React.forwardRef(function ActionsRunningButton(
-  { disabled, showLoading, onClick, className, icon, ...props }, ref) {
+  { disabled, showLoading, busyThreshold, busyLabel, onClick, className, icon, label, ...props }, ref) {
   const running = useSelector(selectActionsRunning);
-  const [launched, launch] = useLaunchBusy(running);
+  const [launched, launch] = useLaunchBusy(running, busyThreshold);
   const busy = showLoading && launched;
   const click = useCallback(event => {
     if (showLoading) {
@@ -26,7 +26,7 @@ const ActionsRunningButton = React.forwardRef(function ActionsRunningButton(
   }, [showLoading, launch, onClick]);
   return <Button {...props} ref={ref} onClick={click} disabled={running || disabled}
     className={classNames(className, { "is-loading": busy })} icon={busy ? getBusyIcon() : icon}
-    aria-busy={busy ? "true" : undefined} />;
+    label={busy && busyLabel ? busyLabel : label} aria-busy={busy ? "true" : undefined} />;
 });
 
 ActionsRunningButton.propTypes = {
@@ -34,7 +34,9 @@ ActionsRunningButton.propTypes = {
   showLoading: PropTypes.bool,
   onClick: PropTypes.func,
   className: PropTypes.string,
-  icon: PropTypes.node
+  icon: PropTypes.node,
+  busyThreshold: PropTypes.number,
+  busyLabel: PropTypes.string
 };
 
 export default ActionsRunningButton;

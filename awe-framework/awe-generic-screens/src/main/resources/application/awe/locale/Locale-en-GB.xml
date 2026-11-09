@@ -95,6 +95,7 @@
   <locale name="BUTTON_SAVE_TEXT" value="Save text"/>
   <locale name="BUTTON_SCREEN_HELP" value="Help"/>
   <locale name="BUTTON_SEARCH" value="Search"/>
+  <locale name="BUTTON_RELOADING" value="Reloading…"/>
   <locale name="BUTTON_SEND" value="Send"/>
   <locale name="BUTTON_UNBLOCK_BATCH_KO" value="Unblock batch as NOT valid"/>
   <locale name="BUTTON_UNBLOCK_BATCH_OK" value="Unblock batch as valid"/>
@@ -876,6 +877,27 @@
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Statistics"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Events"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Failures by cause"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHANNELS" value="Events by channel"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_HOURS" value="Busiest hours"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_15M" value="Last 15 minutes"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_1H" value="Last hour"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_6H" value="Last 6 hours"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_24H" value="Last 24 hours"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_7D" value="Last 7 days"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_30D" value="Last 30 days"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CUSTOM_RANGE" value="Custom range"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_SEARCH" value="Search user, IP address or detail"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_DATE_RANGE" value="Date range"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_OUTCOME_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_EVENTS" value="Events"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_FAILURES" value="Failures"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_USERS" value="Distinct users"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_LOCKS" value="Account locks"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_RANGE" value="In the selected range"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_RATE" value="Of the total"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TITLE" value="No events with these filters"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TEXT" value="The date range, the search and the column filters apply at the same time. Try removing one of them."/>
+  <locale name="BUTTON_CLEAR_FILTERS" value="Clear filters"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Request"/>
   <locale name="SCREEN_TEXT_SITE_FILTERS" value="Site state"/>
   <locale name="SCREEN_TEXT_SITE_FILTER_ACTIVE" value="Active"/>

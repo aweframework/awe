@@ -120,7 +120,7 @@ public abstract class SecurityAuditTest extends AbstractSpringAppIntegrationTest
     String from = LocalDate.now(ZoneId.systemDefault()).minusDays(3).format(SCREEN_DATE);
     String to = LocalDate.now(ZoneId.systemDefault()).format(SCREEN_DATE);
     assertThat(storedEvents(auditUser, yesterday.minus(1, ChronoUnit.HOURS))).as("events stored").hasSize(4);
-    String criteria = "\"CrtUsr\":\"" + auditUser + "\",\"CrtFro\":\"" + from + "\",\"CrtTo\":\"" + to + "\"";
+    String criteria = "\"CrtUsrTxt\":\"" + auditUser + "\",\"CrtFro\":\"" + from + "\",\"CrtTo\":\"" + to + "\"";
 
     List<JsonNode> events = rows(data("SecAudEvtLst", criteria));
     assertThat(events).hasSize(4);
@@ -128,8 +128,10 @@ public abstract class SecurityAuditTest extends AbstractSpringAppIntegrationTest
     assertThat(events).extracting(row -> row.path("TypTxt").asString()).contains("Login", "Access denied");
     assertThat(events).extracting(row -> row.path("ResIco").path("icon").asString()).contains("fa-check-circle", "fa-times-circle");
 
-    List<JsonNode> onlyDenied = rows(data("SecAudEvtLst", criteria + ",\"CrtTyp\":[\"ACCESS_DENIED\"]"));
-    assertThat(onlyDenied).singleElement().satisfies(row -> assertThat(row.path("CauTxt").asString()).isEqualTo("Restricted option"));
+    List<JsonNode> onlyFailures = rows(data("SecAudEvtLst", criteria + ",\"CrtRes\":\"FAILURE\""));
+    assertThat(onlyFailures).hasSize(3)
+      .extracting(row -> row.path("CauTxt").asString())
+      .containsExactlyInAnyOrder("Wrong user or password", "Wrong user or password", "Restricted option");
 
     List<JsonNode> activity = rows(data("SecAudActChr", criteria));
     assertThat(activity).hasSize(2);

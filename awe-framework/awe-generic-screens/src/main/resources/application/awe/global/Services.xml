@@ -541,6 +541,19 @@
   <service id="SecAudDefFro">
     <java classname="com.almis.awe.security.audit.SecurityAuditScreenService" method="getDefaultDateFrom" />
   </service>
+  <!-- Security audit time range: the two dates of the preset chosen in the range picker (15m, 1h, 6h, 24h, 7d, 30d) -->
+  <service id="SecAudRng">
+    <java classname="com.almis.awe.security.audit.SecurityAuditScreenService" method="getRange">
+      <service-parameter type="STRING" name="CrtRng" />
+    </java>
+  </service>
+  <!-- Label of the security audit time range picker: the two dates in force, with their time -->
+  <service id="SecAudRngTxt">
+    <java classname="com.almis.awe.security.audit.SecurityAuditScreenService" method="formatRange">
+      <service-parameter type="DATE" name="CrtFro" />
+      <service-parameter type="DATE" name="CrtTo" />
+    </java>
+  </service>
   <!-- Security audit of user account changes (userId: one identifier or the list sent by a grid) -->
   <service id="audit-user-update">
     <java classname="com.almis.awe.security.audit.UserAccountAuditService" method="auditUserUpdate">

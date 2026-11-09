@@ -4,9 +4,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--awe-space-3);
+  gap: var(--awe-card-gap);
   min-width: 0;
-  padding: var(--awe-content-padding);
+  padding: var(--awe-card-padding);
   overflow: hidden;
   color: var(--awe-color-text);
   background-color: var(--awe-color-surface);
@@ -31,7 +31,9 @@
 
   .awe-card-title {
     margin: 0;
-    font-size: var(--awe-font-size-sm);
+    font-size: var(--awe-card-title-font-size);
+    text-transform: var(--awe-card-title-text-transform);
+    letter-spacing: var(--awe-card-title-letter-spacing);
     font-weight: var(--awe-font-weight-medium);
     line-height: var(--awe-line-height-snug);
     color: var(--awe-color-text-muted);
@@ -96,8 +98,8 @@
     display: inline-grid;
     flex: none;
     place-items: center;
-    width: var(--awe-size-control);
-    height: var(--awe-size-control);
+    width: var(--awe-card-icon-size);
+    height: var(--awe-card-icon-size);
     font-size: var(--awe-size-icon);
     color: var(--awe-color-on-primary-subtle);
     background-color: var(--awe-color-primary-subtle);
@@ -315,8 +317,10 @@
     color: var(--awe-color-text-muted);
   }
 
-  // The footer stays at the bottom of a card stretched to the height of its row
+  // The caption sits under the value: the free space of a card stretched to the height of its row goes below it
+
   .awe-card-footer {
+    margin-block-start: auto;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -351,6 +355,8 @@
 // of their row
 .awe-card-grid {
   display: grid;
+  // Aligned with the windows of the screen: the window insets its content, the grid of cards does not by itself
+  padding-inline: var(--awe-card-grid-inset);
   // No min(): some LESS versions evaluate it themselves and leave a single column
   grid-template-columns: repeat(auto-fit, minmax(calc(var(--awe-space-16) * 4), 1fr));
   gap: var(--awe-layout-gap);
@@ -387,6 +393,25 @@ each(@card-progress-tones, {
 
 // A wide card takes two columns of the grid (a card with a chart or a grid in its body). On narrow screens the grid has
 // a single column, so it takes the whole row
+// The block under a row of cards keeps the rhythm of the screen: the space goes on the grid itself, because the window
+// under it brings its own margin (an utility class that a rule on the window cannot override)
+.awe-card-grid:not(:last-child) {
+  margin-block-end: var(--awe-card-grid-gap-after);
+}
+
+// Compact grid of cards: the caption sits right under the value, at the start, instead of at the bottom of the tile
+.awe-card-compact .awe-card {
+  .awe-card-footer {
+    justify-content: flex-start;
+    margin-top: 0;
+    margin-block-start: 0;
+  }
+
+  .awe-card-footer-end {
+    margin-left: 0;
+  }
+}
+
 .awe-card-grid > .awe-card-wide {
   @media (min-width: 768px) {
     grid-column: span 2;

@@ -10,6 +10,7 @@ const DEFAULT_MAX_WIDTH = "40rem";
 
 // Icon of a tag of the identity header: decorative, the text of the tag is its value (as the icon of a status cell)
 const tagIconTemplate = getIconTemplate("awe-cell-icon", "span", "tag.icon", "aria-hidden=\"true\"").replace(/>\s+</g, "><");
+const avatarIconTemplate = getIconTemplate("awe-cell-icon", "span", "identity.icon", "aria-hidden=\"true\"").replace(/>\s+</g, "><");
 
 const template = `<div ng-attr-id="{{::controller.id}}" ng-cloak>
   <div class="modal fade side-panel side-panel-{{::position}}" ui-modal trap-tab on-close="component.closeDialog()" data-testid="${TestIds.sidePanel}" ng-attr-data-testid-owner="{{::controller.id}}" role="dialog" aria-modal="true" ng-attr-aria-labelledby="{{::titleId}}" ng-cloak>
@@ -23,7 +24,8 @@ const template = `<div ng-attr-id="{{::controller.id}}" ng-cloak>
           </h4>
           <div class="panel-identity" ng-if="identity">
             <span class="panel-identity-avatar awe-cell-swatch" aria-hidden="true" ng-if="identity.swatch" ng-attr-style="--awe-swatch-color: {{identity.swatch}}"></span>
-            <span class="panel-identity-avatar awe-cell-avatar awe-cell-avatar-{{identity.tone}}" data-tone="{{identity.tone}}" aria-hidden="true" ng-if="!identity.swatch && identity.initials" ng-bind="identity.initials"></span>
+            <span class="panel-identity-avatar awe-cell-avatar awe-cell-avatar-icon awe-cell-avatar-{{identity.tone}}" data-tone="{{identity.tone}}" aria-hidden="true" ng-if="!identity.swatch && identity.icon">${avatarIconTemplate}</span>
+            <span class="panel-identity-avatar awe-cell-avatar awe-cell-avatar-{{identity.tone}}" data-tone="{{identity.tone}}" aria-hidden="true" ng-if="!identity.swatch && !identity.icon && identity.initials" ng-bind="identity.initials"></span>
             <div class="panel-identity-text">
               <h4 class="panel-identity-title" ng-attr-id="{{::titleId}}" data-testid="${TestIds.sidePanelTitle}" ng-bind="identity.title"></h4>
               <p class="panel-identity-subtitle" ng-if="identity.subtitle" data-testid="${TestIds.sidePanelSubtitle}" ng-bind="identity.subtitle"></p>
@@ -90,6 +92,8 @@ export function getPanelIdentity(controller, grid, gridController) {
     initials: getInitials(text(controller.headerAvatarField)),
     tone: toTone(cellValue(row[controller.headerAvatarToneField]), AVATAR_TONES),
     swatch: controller.headerSwatchField ? getSwatchColor(cellValue(row[controller.headerSwatchField])) : "",
+    // An icon of the row takes the place of the initials (header-avatar-icon-field); absent without the attribute
+    ...(controller.headerAvatarIconField ? {icon: text(controller.headerAvatarIconField)} : {}),
     tags
   };
 }
@@ -125,6 +129,8 @@ aweApplication.directive('aweSidePanel',
             identity => {
               scope.identity = identity && {
                 ...identity,
+                // The icon template reads the family and name of the icon, as the avatar icon of a grid cell
+                ...(identity.icon ? {icon: Utilities.extractIcon(identity.icon)} : {}),
                 tags: identity.tags.map(tag => ({...tag, icon: Utilities.extractIcon(tag.icon)}))
               };
             }, true);

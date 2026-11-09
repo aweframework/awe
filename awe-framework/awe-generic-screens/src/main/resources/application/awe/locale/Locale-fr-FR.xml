@@ -95,6 +95,7 @@
   <locale name="BUTTON_SAVE_TEXT" value="Enregistrer le texte"/>
   <locale name="BUTTON_SCREEN_HELP" value="Aide"/>
   <locale name="BUTTON_SEARCH" value="Chercher"/>
+  <locale name="BUTTON_RELOADING" value="Rechargement…"/>
   <locale name="BUTTON_SEND" value="Envoyer e-mail"/>
   <locale name="BUTTON_UNBLOCK_BATCH_KO" value="Debloquer batch comme non valide"/>
   <locale name="BUTTON_UNBLOCK_BATCH_OK" value="Debloquer batch comme valide"/>
@@ -876,6 +877,27 @@
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Statistiques"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Événements"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Échecs par cause"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHANNELS" value="Événements par canal"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_HOURS" value="Heures les plus actives"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_15M" value="15 dernières minutes"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_1H" value="Dernière heure"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_6H" value="6 dernières heures"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_24H" value="24 dernières heures"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_7D" value="7 derniers jours"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_30D" value="30 derniers jours"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CUSTOM_RANGE" value="Période personnalisée"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_SEARCH" value="Rechercher un utilisateur, une adresse IP ou un détail"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_DATE_RANGE" value="Plage de dates"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_OUTCOME_ALL" value="Tous"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_EVENTS" value="Événements"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_FAILURES" value="Échecs"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_USERS" value="Utilisateurs distincts"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_LOCKS" value="Verrouillages de compte"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_RANGE" value="Dans la période sélectionnée"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_RATE" value="Du total"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TITLE" value="Aucun événement avec ces filtres"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TEXT" value="La période, la recherche et les filtres de colonne s'appliquent en même temps. Essayez d'en retirer un."/>
+  <locale name="BUTTON_CLEAR_FILTERS" value="Effacer les filtres"/>
   <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Requête"/>
   <locale name="SCREEN_TEXT_SITE_FILTERS" value="État du site"/>
   <locale name="SCREEN_TEXT_SITE_FILTER_ACTIVE" value="Actifs"/>

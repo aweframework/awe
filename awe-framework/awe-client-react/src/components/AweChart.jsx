@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
 import {useTranslation} from "react-i18next";
 import {useDispatch} from "react-redux";
 import {localeOptions} from "primereact/api";
@@ -103,14 +103,15 @@ function AweChart(props) {
   const [rendered, setRendered] = useState(false);
   const [size, setSize] = useState({width: 0, height: 0});
   const [drill, setDrill] = useState(null);
-  const [colors, setColors] = useState(null);
+  // undefined until the tokens are read (before the first paint); null when the page gives no colours
+  const [colors, setColors] = useState(undefined);
   // True while the chart is zoomed by the chart options: its own zoom event must not be sent as a user zoom
   const zooming = useRef(false);
 
   // The latest inputs, for the callbacks of the chart and the print image
   const latest = useRef({});
   const locale = useMemo(() => localeOptions(i18n.language) || {}, [i18n.language]);
-  latest.current = {echartsModel, values, t, locale, language: i18n.language, address, attributes};
+  latest.current = {echartsModel, values, t, locale, language: i18n.language, address, attributes, drilled: drill !== null, colors};
 
   // Write the attributes of the chart (x, y, xMin...) and raise the event, which launches the dependencies
   const emit = useCallback((data) => dispatch(updateAttributesWithDependencies(latest.current.address, data)), [dispatch]);
@@ -126,20 +127,29 @@ function AweChart(props) {
   }, [echartsModel, values, t, locale, size, drill, colors]);
   optionRef.current = option;
 
+  // Definition drawn last: while it is the same, a reload only replaces the series (no full redraw, no flicker)
+  const drawnModel = useRef(null);
   const applyOption = useCallback(() => {
+    // Never draw with the default colours of ECharts: the lines would show light first and turn to the tokens after
+    if (latest.current.colors === undefined) {
+      return;
+    }
     try {
-      chartRef.current?.setOption(optionRef.current, {notMerge: true});
+      const model = latest.current.echartsModel;
+      const sameModel = drawnModel.current !== null && drawnModel.current === model && !latest.current.drilled;
+      chartRef.current?.setOption(optionRef.current, sameModel ? {replaceMerge: ["series"]} : {notMerge: true});
+      drawnModel.current = model;
     } catch (error) {
       console.error(`[ERROR] The chart '${id}' could not be drawn`, error);
     }
   }, [id]);
 
-  // The colors of the chrome follow the design tokens: they are resolved again when the mode changes, and the option
-  // is drawn again with them (the chart is not created again)
-  useEffect(() => {
+  // The colors of the chrome follow the design tokens: they are resolved before the first paint (a layout effect), so
+  // the chart is never drawn with the default colours, and again when the mode changes (the chart is not created again)
+  useLayoutEffect(() => {
     const resolve = () => {
       const resolved = resolveChartColors(containerRef.current);
-      setColors(current => sameColors(current, resolved) ? current : resolved);
+      setColors(current => current !== undefined && sameColors(current, resolved) ? current : resolved);
     };
     resolve();
     return observeColorMode(resolve);
@@ -185,6 +195,7 @@ function AweChart(props) {
       }
     };
     registerChart(id, handle);
+    drawnModel.current = null;
     applyOption();
 
     return () => {

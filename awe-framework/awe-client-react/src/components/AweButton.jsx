@@ -60,7 +60,7 @@ function AweButton(props) {
     return <ButtonSkeleton attributes={attributes} className={propsStyle} />;
   }
 
-  const { style, icon, disabled, label, size, visible, help, helpImage, buttonType, showLoading, title } = attributes;
+  const { style, icon, disabled, label, size, visible, help, helpImage, buttonType, showLoading, loadingLabel, busyThreshold, title } = attributes;
   // The btn-* styles of the screen give the look of the button, as in the AngularJS engine; without them, its type does
   const buttonVariant = signin?.variant ?? variant ?? getButtonVariant(style, getButtonType(buttonType));
   // A normal button without a btn-* style is the default button of the application: its look comes from --awe-button-default-*
@@ -82,6 +82,8 @@ function AweButton(props) {
       disabled={disabled || signin?.disabled}
       // Busy state unless show-loading="false"; the sign-in page draws its own
       showLoading={!signin && showLoading !== false}
+      busyThreshold={showLoading === false ? undefined : busyThreshold}
+      busyLabel={loadingLabel ? translateLabel(loadingLabel, t) : null}
       label={signin?.label ?? (iconOnly ? null : text)}
       {...(iconOnly && text ? { "aria-label": text } : {})}
       {...(tooltip ? { title: tooltip } : {})}

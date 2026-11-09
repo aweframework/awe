@@ -213,6 +213,11 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private String avatarToneField;
 
+  // Field with an icon drawn in the avatar instead of the initials
+  @XStreamAlias("avatar-icon-field")
+  @XStreamAsAttribute
+  private String avatarIconField;
+
   // Field with a colour (an AWE 5 palette name or a hex) drawn as a circle before the main value, in place of the avatar
   @XStreamAlias("swatch-field")
   @XStreamAsAttribute

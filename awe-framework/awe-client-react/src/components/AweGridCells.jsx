@@ -58,7 +58,7 @@ export function rowSwatch(row, field) {
  * Avatar of a cell (#793): the initials of the avatar field of the row on its tone, or a circle of the colour of its
  * swatch field, which takes the place of the avatar while the row has a valid colour. It is decorative (the main value is
  * the accessible text); without both an empty space of the same size keeps the names of the column aligned
- * @param {Object} column Column definition (avatarField, avatarToneField, swatchField)
+ * @param {Object} column Column definition (avatarField, avatarToneField, avatarIconField, swatchField)
  * @param {Object} [row] Row data
  * @return {React.ReactElement} Avatar
  */
@@ -67,11 +67,17 @@ function avatarCell(column, row) {
   if (swatch !== "") {
     return <span className="awe-cell-swatch" aria-hidden="true" style={{"--awe-swatch-color": swatch}}/>;
   }
+  const tone = column.avatarToneField ? rowTone(row, column.avatarToneField, AVATAR_TONES) : "neutral";
+  // An icon of the row takes the place of the initials (avatar-icon-field)
+  const icon = column.avatarIconField ? cellIcon(row, column.avatarIconField) : null;
+  if (icon) {
+    return <span className={`awe-cell-avatar awe-cell-avatar-icon awe-cell-avatar-${tone}`} data-tone={tone}
+      aria-hidden="true">{icon}</span>;
+  }
   const initials = column.avatarField ? getInitials(rowText(row, column.avatarField)) : "";
   if (initials === "") {
     return <span className="awe-cell-avatar-spacer" aria-hidden="true"/>;
   }
-  const tone = column.avatarToneField ? rowTone(row, column.avatarToneField, AVATAR_TONES) : "neutral";
   return <span className={`awe-cell-avatar awe-cell-avatar-${tone}`} data-tone={tone} aria-hidden="true">{initials}</span>;
 }
 
@@ -128,7 +134,7 @@ function chipsCell(value, column) {
  */
 export function hasRichCell(column = {}) {
   return !column.component && (!!column.secondaryField || !!column.statusField || column.chips === true || !!column.avatarField
-    || !!column.swatchField || !!column.iconField);
+    || !!column.avatarIconField || !!column.swatchField || !!column.iconField);
 }
 
 /**
@@ -140,7 +146,7 @@ export function hasRichCell(column = {}) {
  * @return {React.ReactElement} Cell
  */
 export function richCell(value, column, row, renderText) {
-  if (!column.avatarField && !column.swatchField) {
+  if (!column.avatarField && !column.avatarIconField && !column.swatchField) {
     return textContents(value, column, row, renderText);
   }
   return <div className="awe-cell-entity">

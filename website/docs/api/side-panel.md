@@ -49,6 +49,7 @@ and React) support it.
 | header-subtitle-field | Optional | String | Field of the selected row with the subtitle (muted, under the title). Not shown when empty | A field of the grid |
 | header-avatar-field | Optional | String | Field of the selected row the initials of the avatar are taken from (as the `avatar-field` of a [grid column](grids.md)). No avatar when empty | A field of the grid |
 | header-avatar-tone-field | Optional | String | Field of the selected row with the tone of the avatar | `primary`, `info`, `success`, `warning`, `danger`, `neutral` (default, any other value) |
+| header-avatar-icon-field | Optional | String | Identity header: field of the selected row with an icon drawn in the avatar instead of the initials, on the tone of `header-avatar-tone-field`. A row without icon falls back to the initials | Field id |
 | header-swatch-field | Optional | String | Field of the selected row with a colour drawn as a large circle in the place of the avatar (as the `swatch-field` of a [grid column](grids.md#swatch)). No circle for any other value | An AWE 5 palette name or a `#RGB` / `#RRGGBB` hex |
 
 ## Opening and closing

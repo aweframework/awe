@@ -37,7 +37,7 @@ export function useDelayedBusy(active) {
  * @returns {[boolean, function]} The button is busy, and the function to call on its click
  * @memberOf Hooks
  */
-export function useLaunchBusy(running) {
+export function useLaunchBusy(running, threshold = BUSY_THRESHOLD) {
   const [busy, setBusy] = useState(false);
   const timer = useRef(null);
   const runningRef = useRef(running);
@@ -60,8 +60,8 @@ export function useLaunchBusy(running) {
     timer.current = setTimeout(() => {
       timer.current = null;
       setBusy(runningRef.current);
-    }, BUSY_THRESHOLD);
-  }, [stop]);
+    }, threshold);
+  }, [stop, threshold]);
   return [busy, launch];
 }
 

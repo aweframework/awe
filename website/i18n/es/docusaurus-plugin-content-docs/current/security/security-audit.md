@@ -227,13 +227,21 @@ nunca cambia el resultado del inicio de sesión.
 eventos que guarda el destino de base de datos. Es una pantalla XML genérica que muestran tanto el cliente Angular
 como el cliente React.
 
+La pantalla tiene **dos pestañas** (Eventos y Estadísticas) y lleva los filtros **en la propia tabla**, así que la
+antigua ventana de criterios de tipo, resultado, canal, usuario e IP desaparece.
+
 | Parte | Contenido |
 | --- | --- |
-| Criterios | Rango de fechas (por defecto, los últimos 7 días), tipos de evento, resultado, canal, usuario e IP (coincidencia parcial) |
-| Actividad por día | Gráfico de columnas apiladas con los eventos correctos y fallidos |
-| Fallos por causa | Gráfico circular de los fallos |
-| Eventos | Tabla paginada, de más reciente a más antiguo: fecha, evento, resultado, usuario, causa, canal, IP y detalle |
-| Ver | Detalle del evento seleccionado (pantalla `SecAudViw`, opción `view-security-audit-event`), con tenant, identificador, identificador de correlación, hash de sesión y agente de usuario |
+| Rango de fechas | El único criterio fuera de la tabla, en una fila sobre los eventos (desde: por defecto, los últimos 7 días; hasta: vacío, así que el rango queda abierto por arriba) |
+| Pestañas | **Eventos**: las tarjetas de resumen, la tabla y sus filtros. **Estadísticas**: los dos gráficos |
+| Tarjetas de resumen | Eventos, fallidos (con *del total* como leyenda), usuarios distintos y bloqueos de cuenta del rango filtrado |
+| Filtros de la tabla | Una búsqueda de texto sobre usuario, dirección IP y detalle, un filtro rápido de resultado que muestra el recuento de cada opción, y el autofiltro de cada columna; todos se aplican en el servidor. Un resultado vacío ofrece su propio botón *Limpiar filtros* |
+| Eventos | Tabla paginada, de más reciente a más antiguo: fecha, evento, resultado, usuario, causa, canal e IP |
+| Panel lateral | Detalle del evento seleccionado: fecha, usuario, resultado, causa, canal, tenant, identificador, detalle, IP, identificador de correlación, hash de sesión y agente de usuario |
+| SecAudViw | La pantalla de detalle detrás de la opción oculta `view-security-audit-event` se conserva: las entradas de menú que apuntan a ella siguen funcionando |
+
+El gráfico de actividad por día es un gráfico de columnas apiladas con los eventos correctos y fallidos; el gráfico de
+fallos por causa ordena las causas por número de fallos y ya no aplica el filtro de resultado sobre su propia condición de fallo.
 
 Las aplicaciones que definen su propio `menu/private.xml` (los arquetipos lo hacen) deben añadir la opción a su grupo
 de seguridad para mostrar la pantalla:

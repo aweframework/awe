@@ -43,6 +43,7 @@ export interface ColumnElement {
   maxChips?: number;
   avatarField?: string;
   avatarToneField?: string;
+  avatarIconField?: string;
   swatchField?: string;
   barMin?: number | string;
   barMax?: number | string;

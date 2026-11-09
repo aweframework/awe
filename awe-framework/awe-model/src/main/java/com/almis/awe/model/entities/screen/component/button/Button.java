@@ -42,6 +42,17 @@ public class Button extends AbstractButton {
   @XStreamAsAttribute
   private Boolean showLoading;
 
+  // Label shown instead of the label while the busy state is on, in both client engines. Absent keeps the label
+  @XStreamAlias("loading-label")
+  @XStreamAsAttribute
+  private String loadingLabel;
+
+  // Time in milliseconds the actions launched by the button must still be running before it shows the busy state;
+  // absent keeps the threshold of the client engines (400). 0 shows the busy state on every click
+  @XStreamAlias("busy-threshold")
+  @XStreamAsAttribute
+  private Integer busyThreshold;
+
   // Selection button of a grid (#793): shown in the selection bar of the grid while it has selected rows, not in its footer
   @XStreamAlias("selection")
   @XStreamAsAttribute

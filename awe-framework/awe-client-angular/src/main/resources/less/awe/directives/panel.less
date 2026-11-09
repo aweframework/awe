@@ -51,6 +51,11 @@
   border: var(--awe-border-width) solid var(--awe-color-border);
 }
 
+// Windows side by side (a row with expandible="horizontal"): one layout gap apart, as the windows of a column
+.expandible-horizontal > .panel + .panel:not(.maximized) {
+  margin-inline-start: var(--awe-layout-gap);
+}
+
 // A window of the AWE 5 design system (#885): a card with a divided header holding the section title and the maximize
 // button, the content padded with the content padding of the density. The windows have no side margin: the content of
 // the screen takes the page padding, and the windows are one layout gap apart

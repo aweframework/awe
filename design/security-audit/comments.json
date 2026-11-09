@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "comments": [
+    {
+      "id": "vbmzcjvp",
+      "file": "02-pestanas-y-panel-lateral.html",
+      "selector": "body > main > div:nth-of-type(2) > div:nth-of-type(2) > div > div > div > section:nth-of-type(1) > div:nth-of-type(2)",
+      "excerpt": "De A Evento Todos los tipos Resultado Todos Canal Todos Usuario Dirección IP",
+      "comment": "No me gusta el tener tantos criterios. Podemos optar por poner el grid con los auto filters. Asi ahorramos espacios. Y tener el grid con el tipico criterio de búsqueda más algunos quick filters",
+      "createdAt": "2026-11-08T22:55:42.744Z",
+      "status": "resolved",
+      "sentAt": "2026-11-08T22:55:42.795Z",
+      "resolvedAt": "2026-11-08T23:00:01.785Z"
+    }
+  ]
+}
