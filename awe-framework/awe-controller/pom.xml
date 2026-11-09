@@ -242,6 +242,19 @@
   </dependencies>
 
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <!-- The real screen templates of the AngularJS client, to render them in the tests (WindowTemplateRenderTest) -->
+      <testResource>
+        <directory>../awe-client-angular/src/main/resources/templates/awe</directory>
+        <includes>
+          <include>templates.stg</include>
+        </includes>
+        <targetPath>angular-templates</targetPath>
+      </testResource>
+    </testResources>
     <plugins>
       <!-- Lombok plugin -->
       <plugin>

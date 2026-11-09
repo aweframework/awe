@@ -166,6 +166,8 @@ export const DEFAULT_SETTINGS = {
   menuDescription: "tooltip",
   // Flyout of the collapsed menu next to its option (option), or from the top of the menu to the window bottom (full-height)
   menuFlyoutPlacement: "option",
+  // Header of the window template: the menu breadcrumb (breadcrumb), or the screen title with its help and buttons (title)
+  windowHeader: "breadcrumb",
   // Sign-in page branding
   login: DEFAULT_LOGIN_SETTINGS as LoginSettings | undefined
 };

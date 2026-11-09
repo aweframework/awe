@@ -13,8 +13,16 @@ document(breadcrumbs, title, buttons, center, modal, hidden) ::= <<
 <div>$modal$</div>
 <div class="hidden">$hidden$</div>
 >>
-window(breadcrumbs, title, buttons, center, modal, hidden) ::= <<
+windowNoHeader ::= ["none": "true", default: false]
+window(breadcrumbs, title, buttons, center, modal, hidden, header) ::= <<
 <div class="expand expandible-vertical report-container">
+$if(windowNoHeader.(header))$
+  <div class="window-header window-header-none">
+    <div class="window-buttons">$buttons$</div>
+  </div>
+  <div class="window-center expand expandible-vertical scrollable maximize-target">$center$</div>
+  </div>
+$else$
   <div class="window-header">
     <ul class="breadcrumb breadcrumb-page" data-testid="breadcrumb">
       <div class="breadcrumb-label"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#house"></use></svg></i></div>
@@ -25,6 +33,7 @@ window(breadcrumbs, title, buttons, center, modal, hidden) ::= <<
   <div class="window-center expand expandible-vertical scrollable maximize-target">$center$</div>
   <div class="window-buttons">$buttons$</div>
   </div>
+$endif$
 <div>$modal$</div>
 <div class="hidden">$hidden$</div>
 >>

@@ -54,6 +54,25 @@ Cada origen puede aparecer **una vez** por pantalla (el esquema lo comprueba), y
 
 > **Nota:** Las pantallas genéricas propias de AWE usan otros valores (`base`, `home`, `login`, `message`) que no están definidos por las plantillas estándar de los clientes. No los uses en pantallas de aplicación: el cliente React muestra el mensaje `The template <name> has not been created yet.` para una plantilla que no conoce.
 
+## Cabecera de la ventana {#window-header}
+
+La plantilla `window` tiene dos modos de cabecera:
+
+| Modo         | Qué muestra la cabecera |
+| ------------ | ----------------------- |
+| `breadcrumb` | Las migas de pan del menú, que terminan con el título de la pantalla, y el origen `buttons` a su derecha. Es el valor por defecto |
+| `none`       | Sin migas de pan ni título: solo el origen `buttons`, en una fila propia a la derecha. La fila se ajusta en pantallas estrechas |
+
+Elige el modo para toda la aplicación con la propiedad `awe.application.window-header` (consulta las [propiedades](../properties.md)) y para una pantalla con el atributo `window-header` de [`screen`](screen.md). El atributo prevalece sobre la propiedad en ambos sentidos: una pantalla puede ocultar las migas de pan en una aplicación que las muestra, y al revés.
+
+```xml
+<screen template="window" label="SCREEN_TITLE_USERS" window-header="none" ...>
+```
+
+Las plantillas `full` y `document` no se ven afectadas. En los identificadores de prueba, el identificador `breadcrumb` solo está presente en el modo `breadcrumb`.
+
+> **Nota:** En el motor AngularJS el servidor pasa el parámetro `header` solo a las plantillas que lo declaran, así que tus plantillas propias siguen funcionando sin cambios. Añádelo a una copia de `window` para admitir el modo.
+
 ## Plantillas propias {#own-templates}
 
 Si necesitas un marco distinto (por ejemplo una pantalla con un panel lateral), puedes añadir tu propia plantilla. Cómo hacerlo depende del motor:

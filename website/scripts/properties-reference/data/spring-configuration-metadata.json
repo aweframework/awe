@@ -253,6 +253,12 @@
       "defaultValue": "public"
     },
     {
+      "name": "awe.application.files.permissions",
+      "type": "java.lang.String",
+      "description": "Xml file name of the permission catalog. Default value Permissions.",
+      "defaultValue": "Permissions"
+    },
+    {
       "name": "awe.application.files.query",
       "type": "java.lang.String",
       "description": "Xml file name of queries definition. Default value Queries.",
@@ -347,7 +353,7 @@
     {
       "name": "awe.application.login.background-effect",
       "type": "java.lang.String",
-      "description": "Name of a canvas effect the application registers for the image panel of the sign-in page (the split panel and the card backdrop; the form-only layout has no background). AWE ships no effect: the application registers the effects it writes in its own bundle and selects one here (see \"Custom background effect\" in the design system for the contract and examples). Empty means no effect, so the background image stays. Default value empty"
+      "description": "Name of a canvas effect the application registers for the image panel of the sign-in page (the split panel and the card backdrop; the form-only layout has no background). AWE ships no effect: the application registers the effects it writes in its own bundle and selects one here. Empty means no effect, so the background image stays. Default value empty"
     },
     {
       "name": "awe.application.login.footer-text",
@@ -707,6 +713,12 @@
       "name": "awe.application.theme-surface",
       "type": "java.lang.String",
       "description": "Application theme surface: one of the AWE 5 neutral palettes (slate, gray, zinc, neutral, stone), auto or a hex colour (#RGB or #RRGGBB). It overrides the surface of the theme. Default value empty (the surface of the theme, else auto)"
+    },
+    {
+      "name": "awe.application.window-header",
+      "type": "com.almis.awe.model.type.WindowHeaderType",
+      "description": "What the header of the screens with the window template shows: breadcrumb (the menu breadcrumb) or none (no breadcrumb, only the buttons row). A screen overrides it with its window-header attribute. Default value breadcrumb",
+      "defaultValue": "breadcrumb"
     },
     {
       "name": "awe.application.xml-hot-reload",

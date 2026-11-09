@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.dao.TemplateDao;
 import com.almis.awe.exception.AWENotFoundException;
 import com.almis.awe.model.component.AweElements;
@@ -8,6 +9,7 @@ import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.TagList;
+import com.almis.awe.model.type.WindowHeaderType;
 import com.almis.awe.model.util.data.DataListUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -19,6 +21,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.context.ApplicationContext;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
+import org.stringtemplate.v4.STGroupString;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -187,5 +190,61 @@ class TemplateServiceTest {
 
     // Assert
     assertThat(Thread.currentThread().isInterrupted()).isTrue();
+  }
+
+  private String renderScreen(String templates, WindowHeaderType property, String screenHeader) throws Exception {
+    BaseConfigProperties properties = new BaseConfigProperties();
+    properties.setWindowHeader(property);
+    ApplicationContext context = mock(ApplicationContext.class);
+    when(context.getBean(BaseConfigProperties.class)).thenReturn(properties);
+    STGroup screensGroup = new STGroupString("screens", templates, '$', '$');
+    screensGroup.load();
+    TemplateService service = new TemplateService(menuService, elementsTemplateGroup, helpTemplateGroup,
+      screensGroup, queryService, templateDao);
+    service.setApplicationContext(context);
+    Screen screen = new Screen();
+    screen.setTemplate("/window");
+    screen.setLabel("SCREEN_TITLE");
+    screen.setWindowHeader(screenHeader);
+    screen.setElementList(new ArrayList<>());
+    return service.generateScreenTemplate(screen, new Menu(), "base", "option");
+  }
+
+  private static final String HEADER_TEMPLATE = "window(title, header) ::= \"$header$|$title$\"";
+
+  /**
+   * The window header defaults to the breadcrumb and carries the title
+   */
+  @Test
+  void windowHeaderDefaultsToTheBreadcrumb() throws Exception {
+    assertThat(renderScreen(HEADER_TEMPLATE, WindowHeaderType.BREADCRUMB, null))
+      .isEqualTo("breadcrumb|SCREEN_TITLE");
+  }
+
+  /**
+   * The application property applies to screens without the attribute
+   */
+  @Test
+  void windowHeaderComesFromTheApplicationProperty() throws Exception {
+    assertThat(renderScreen(HEADER_TEMPLATE, WindowHeaderType.NONE, null))
+      .startsWith("none|");
+  }
+
+  /**
+   * The screen attribute overrides the application property in both directions
+   */
+  @Test
+  void windowHeaderScreenAttributeOverridesTheProperty() throws Exception {
+    assertThat(renderScreen(HEADER_TEMPLATE, WindowHeaderType.NONE, "breadcrumb")).startsWith("breadcrumb|");
+    assertThat(renderScreen(HEADER_TEMPLATE, WindowHeaderType.BREADCRUMB, "none")).startsWith("none|");
+  }
+
+  /**
+   * A custom template that does not declare the header arguments keeps rendering
+   */
+  @Test
+  void customTemplateWithoutHeaderArgumentsStillRenders() throws Exception {
+    assertThat(renderScreen("window(title) ::= \"[$title$]\"", WindowHeaderType.NONE, "none"))
+      .isEqualTo("[SCREEN_TITLE]");
   }
 }

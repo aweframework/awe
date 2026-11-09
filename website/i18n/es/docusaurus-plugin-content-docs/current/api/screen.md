@@ -10,7 +10,7 @@ La etiqueta `screen` es la etiqueta del contenedor para todos los componentes de
 La estructura básica de una pantalla XML es la siguiente:
 
 ```xml
-<screen template="[template]" label="[screen-title-literal]" keep-criteria="[keep-criteria]" 
+<screen template="[template]" label="[screen-title-literal]" keep-criteria="[keep-criteria]" window-header="[breadcrumb|none]" 
  target="[query-targets]" onload="[manintain-onload]" onunload="[maintain-onunload]"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:noNamespaceSchemaLocation="[schema-location]">
@@ -37,6 +37,7 @@ El elemento de pantalla tiene los siguientes atributos:
 | template        | **Obligatorio** | String  | Plantilla que va a procesar el archivo XML                                                                                                                                           | `full`, `window`                                                                                                                    |
 | label           | Opcional        | String  | Título de la pantalla                                                                                                                                                                | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                |
 | keep-criteria   | Opcional        | Boolean | Guarda los datos de la pantalla para mostrarlos cuando el usuario regresa a la pantalla (sólo los datos de entradas, no las matrices o los datos de gráficos)                        | Por defecto es `false`                                                                                                              |
+| window-header   | Opcional        | String  | Qué muestra la cabecera de una pantalla `window`. Prevalece sobre la propiedad de aplicación `awe.application.window-header` | `breadcrumb` (las migas de pan del menú) o `none` (sin migas de pan, solo la fila de botones). Consulta las [plantillas](template.md#window-header) |
 | target          | Opcional        | String  | Consultas iniciales que inicializan todos los valores de los criterios en la pantalla. Las columnas de consultas deben coincidir con los [identificadores de criterios](criteria.md) | [Identificadores de consulta](query-definition.md) separados por comas `,`                                                          |
 | onload          | Opcional        | String  | Mantenimiento que se lanza al cargar la pantalla                                                                                                                                     | Identificador del mantenimiento                                                                                                     |
 | onunload        | Opcional        | String  | Mantenimiento que se lanza al salir de la pantalla                                                                                                                                   | Identificador del mantenimiento                                                                                                     |

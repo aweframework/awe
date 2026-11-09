@@ -44,6 +44,7 @@ public class WebSettings {
   private Boolean menuSearchEnabled;
   private String menuDescription;
   private String menuFlyoutPlacement;
+  private String windowHeader;
   private long suggestTimeout;
   // Connection
   private Integer connectionTimeout;

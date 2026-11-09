@@ -543,6 +543,7 @@ export interface Screen extends Element {
     onUnload?: string;
     screenTemplate?: string;
     target?: string;
+    windowHeader?: string;
 }
 
 export interface ScreenColumn extends ScreenComponent {

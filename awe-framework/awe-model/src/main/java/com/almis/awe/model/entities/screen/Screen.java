@@ -67,6 +67,11 @@ public class Screen extends Element {
   @XStreamAsAttribute
   private Boolean keepCriteria;
 
+  // Header of the window template: breadcrumb or title (overrides the application header)
+  @XStreamAlias("window-header")
+  @XStreamAsAttribute
+  private String windowHeader;
+
   @XStreamAlias("xsi:noNamespaceSchemaLocation")
   @XStreamAsAttribute
   private String noNamespaceSchemaLocation;

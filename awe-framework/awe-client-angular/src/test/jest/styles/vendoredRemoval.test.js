@@ -54,7 +54,9 @@ const lfBytes = text => Buffer.byteLength(text.replace(/\r\n/g, "\n"));
 // The one-line summary of the select-multiple (#922: less/awe/directives/criterion.less) added 4052 bytes more, 127849 + 4052
 // The label and grid header tokens (#926: criterion.less, grid.less), the default button tokens (#927: button.less) and the menu option
 // description (#924: menu.less) added 3974 bytes more (945940 before, 949914 after), 131901 + 3974
-const DEVELOP_LESS_BYTES = 135875;
+// The none mode of the window header (#925: less/awe/window-header.less) added 273 bytes more
+// (952303 before, 952576 after), 135875 + 273
+const DEVELOP_LESS_BYTES = 136148;
 const ownBytes = text => lfBytes(text) - DEVELOP_LESS_BYTES;
 
 const normalizeSelector = selector => selector.replace(/::(before|after)$/, ":$1");

@@ -3,6 +3,7 @@ package com.almis.awe.config;
 import com.almis.awe.model.type.MenuDescriptionType;
 import com.almis.awe.model.type.MenuFlyoutPlacementType;
 import com.almis.awe.model.type.MenuType;
+import com.almis.awe.model.type.WindowHeaderType;
 import com.almis.awe.model.type.XStreamDriverType;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -131,6 +132,13 @@ public class BaseConfigProperties {
    * Default value option
    */
   private MenuFlyoutPlacementType menuFlyoutPlacement = MenuFlyoutPlacementType.OPTION;
+
+  /**
+   * What the header of the screens with the window template shows: breadcrumb (the menu breadcrumb) or none (no
+   * breadcrumb, only the buttons row). A screen overrides it with its window-header attribute.
+   * Default value breadcrumb
+   */
+  private WindowHeaderType windowHeader = WindowHeaderType.BREADCRUMB;
 
   /**
    * Application address parameter name.
