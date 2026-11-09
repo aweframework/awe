@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.TemplateDao;
 import com.almis.awe.exception.AWENotFoundException;
@@ -14,6 +15,7 @@ import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.Tag;
 import com.almis.awe.model.entities.screen.component.TagList;
+import com.almis.awe.model.type.WindowHeaderType;
 import com.almis.awe.model.util.data.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -126,6 +128,12 @@ public class TemplateService extends ServiceConfig {
     // Add screen title
     screenTemplate.add(AweConstants.TEMPLATE_TITLE, screen.getLabel());
 
+    // Add the window header, only to the templates that declare it (custom templates keep working)
+    if (declaresArgument(screenTemplate, AweConstants.TEMPLATE_HEADER)) {
+      WindowHeaderType applicationHeader = getBean(BaseConfigProperties.class).getWindowHeader();
+      screenTemplate.add(AweConstants.TEMPLATE_HEADER, WindowHeaderType.parse(screen.getWindowHeader(), applicationHeader).getValue());
+    }
+
     // Add breadcrumbs
     if (AweConstants.REPORT_VIEW.equalsIgnoreCase(view)) {
       screenTemplate.add(AweConstants.TEMPLATE_BREADCRUMBS, generateBreadcrumbTemplate(optionId, menu));
@@ -133,6 +141,17 @@ public class TemplateService extends ServiceConfig {
 
     // Retrieve code
     return screenTemplate.render();
+  }
+
+  /**
+   * Check if a template declares an argument
+   *
+   * @param template Template
+   * @param argument Argument name
+   * @return The template declares the argument
+   */
+  private boolean declaresArgument(ST template, String argument) {
+    return template.impl != null && template.impl.formalArguments != null && template.impl.formalArguments.containsKey(argument);
   }
 
   /**

@@ -9,6 +9,7 @@ import com.almis.awe.model.settings.WebSettings;
 import com.almis.awe.model.settings.WebTooltip;
 import com.almis.awe.model.type.MenuDescriptionType;
 import com.almis.awe.model.type.MenuFlyoutPlacementType;
+import com.almis.awe.model.type.WindowHeaderType;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,5 +56,18 @@ class PropertyConfigWebSettingsTest {
 
     assertThat(settings.getMenuDescription()).isEqualTo("panel");
     assertThat(settings.getMenuFlyoutPlacement()).isEqualTo("full-height");
+  }
+
+  @Test
+  void windowHeaderDefaultsToTheBreadcrumb() {
+    assertThat(settings(new BaseConfigProperties()).getWindowHeader()).isEqualTo("breadcrumb");
+  }
+
+  @Test
+  void windowHeaderComesFromTheProperty() {
+    BaseConfigProperties properties = new BaseConfigProperties();
+    properties.setWindowHeader(WindowHeaderType.NONE);
+
+    assertThat(settings(properties).getWindowHeader()).isEqualTo("none");
   }
 }

@@ -10,7 +10,7 @@ The `screen` is the container tag for all screen components. In this tag you hav
 The basic structure of a screen XML is the next one:
 
 ```xml
-<screen template="[template]" label="[screen-title-literal]" keep-criteria="[keep-criteria]" 
+<screen template="[template]" label="[screen-title-literal]" keep-criteria="[keep-criteria]" window-header="[breadcrumb|none]"
  target="[query-targets]" onload="[manintain-onload]" onunload="[maintain-onunload]"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:noNamespaceSchemaLocation="[schema-location]">
@@ -37,6 +37,7 @@ Screen element has the following attributes:
 | template      | **Required** | String  | Template which the xml is going to render | `full`, `window`           |
 | label         | Optional     | String  | Title of the screen        | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)   |
 | keep-criteria | Optional     | Boolean | Stores the screen data to show it whenever user returns to the screen (only inputs data, not grids or charts data) | Default value is `false` |
+| window-header | Optional     | String  | What the header of a `window` screen shows. Overrides the application property `awe.application.window-header` | `breadcrumb` (the menu breadcrumb) or `none` (no breadcrumb, only the buttons row). See [templates](template.md#window-header) |
 | target        | Optional     | String  | Initial queries which initialize all criteria values in the screen. Queries columns must match [criteria](criteria.md) identifiers | [Query](query-definition.md) identifiers, separated by commas `,` |
 | onload        | Optional     | String  | Maintain target to launch on screen load | Maintain target identifier       |
 | onunload      | Optional     | String  | Maintain target to launch on screen unload | Maintain target identifier     |

@@ -64,6 +64,30 @@ in the AngularJS engine a source name that the template does not declare makes t
 > standard templates of the clients. Do not use them in application screens: the React client shows the message
 > `The template <name> has not been created yet.` for a template it does not know.
 
+## Window header
+
+The `window` template has two header modes:
+
+| Mode         | What the header shows |
+| ------------ | --------------------- |
+| `breadcrumb` | The menu breadcrumb, ending with the title of the screen, and the `buttons` source at its right. This is the default |
+| `none`       | No breadcrumb and no title: only the `buttons` source, on a row of its own at the right. The row wraps on narrow viewports |
+
+Choose the mode for the whole application with the property `awe.application.window-header` (see
+[properties](../properties.md)), and for one screen with the `window-header` attribute of the [`screen`](screen.md).
+The attribute overrides the property in both directions: a screen can hide the breadcrumb in an application that shows
+it, and the other way round.
+
+```xml
+<screen template="window" label="SCREEN_TITLE_USERS" window-header="none" ...>
+```
+
+The `full` and `document` templates are not affected. In the test hooks, the `breadcrumb` test id is only present in
+`breadcrumb` mode.
+
+> **Note:** In the AngularJS engine the server passes the `header` parameter only to the templates that
+> declare it, so your own templates keep working unchanged. Add it to a copy of `window` to support the mode.
+
 ## Own templates
 
 If you need a different frame (for example a screen with a side panel), you can add your own template. How you do it

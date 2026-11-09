@@ -1,0 +1,22 @@
+//
+// Window header
+// --------------------------------------------------
+// The header of the window template (#925). The breadcrumb mode is styled in breadcrumbs.less
+
+// None mode (#925): no breadcrumb and no title, only the screen buttons on their own row above the content, on the
+// right as in the breadcrumb mode and wrapping on narrow viewports. The buttons are in the flow here, not over the
+// content as in the breadcrumb bar
+.window-header.window-header-none {
+  display: flex;
+  justify-content: flex-end;
+
+  .window-buttons {
+    position: static;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    margin: 0;
+    padding: 0;
+  }
+}

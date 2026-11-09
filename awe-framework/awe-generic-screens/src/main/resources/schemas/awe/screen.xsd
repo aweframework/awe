@@ -381,6 +381,17 @@
     <xs:attribute name="onload" type="xs:string" />
     <xs:attribute name="onunload" type="xs:string" />
     <xs:attribute name="keep-criteria" type="booleanEnum" />
+    <xs:attribute name="window-header">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">What the header of a screen with the window template shows: breadcrumb (the menu breadcrumb) or none (no breadcrumb, only the buttons row). Overrides the application property awe.application.window-header. Default: the application value.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="breadcrumb" />
+          <xs:enumeration value="none" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
   </xs:attributeGroup>

@@ -135,4 +135,46 @@ describe('awe-react-client/test/js/templates/WindowTemplateTest.jsx', () => {
       expect(container.querySelector('.expandible-horizontal')).toBeNull();
     });
   });
+
+  describe('window header mode (#925)', () => {
+    const elementList = [
+      { source: 'center', elementList: [] },
+      { source: 'modal', elementList: [] },
+      { source: 'hidden', elementList: [] },
+      { source: 'buttons', elementList: [{elementType: 'Tag', type: 'span', id: 'save', label: 'Save', elementList: []}] }
+    ];
+    const render = (props, windowHeader) => renderWithProviders(
+      <WindowTemplate elementList={elementList} {...props} />,
+      { preloadedState: {screen: {breadcrumbs: {items: []}}, settings: windowHeader ? {windowHeader} : {}} }
+    );
+    const breadcrumb = (container) => container.querySelector('[data-testid="breadcrumb"]');
+
+    it('shows the breadcrumb and the buttons by default', () => {
+      const { container } = render({});
+
+      expect(breadcrumb(container)).not.toBeNull();
+      expect(container.querySelector('.window-buttons span#save')).not.toBeNull();
+    });
+
+    it('shows no breadcrumb and no title, only the buttons, in none mode', () => {
+      const { container } = render({}, 'none');
+
+      expect(breadcrumb(container)).toBeNull();
+      expect(container.querySelector('h1')).toBeNull();
+      expect(container.querySelector('.window-header-none .window-buttons span#save')).not.toBeNull();
+    });
+
+    it('lets the screen attribute override the application setting in both directions', () => {
+      expect(breadcrumb(render({windowHeader: 'breadcrumb'}, 'none').container)).not.toBeNull();
+      expect(breadcrumb(render({windowHeader: 'none'}, 'breadcrumb').container)).toBeNull();
+    });
+
+    it('resolves the screen value as the server does: trimmed, case insensitive, unknown falls back to the application', () => {
+      expect(breadcrumb(render({windowHeader: ' None '}, 'breadcrumb').container)).toBeNull();
+      expect(breadcrumb(render({windowHeader: 'sideways'}, 'none').container)).toBeNull();
+      expect(breadcrumb(render({windowHeader: ' '}, 'none').container)).toBeNull();
+      expect(breadcrumb(render({windowHeader: 'none'}, 'unknown').container)).toBeNull();
+      expect(breadcrumb(render({}, 'unknown').container)).not.toBeNull();
+    });
+  });
 });

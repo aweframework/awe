@@ -75,6 +75,7 @@ public class AweConstants {
   public static final String TEMPLATE_EMPTY = "empty";
   public static final String TEMPLATE_CHILDREN = "children";
   public static final String TEMPLATE_TITLE = "title";
+  public static final String TEMPLATE_HEADER = "header";
   public static final String TEMPLATE_E = "e";
   public static final String TEMPLATE_BREADCRUMBS = "breadcrumbs";
   public static final String TEMPLATE_LEVEL = "level";
