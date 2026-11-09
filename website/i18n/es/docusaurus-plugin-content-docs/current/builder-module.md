@@ -765,6 +765,17 @@ Y un constructor para cada tipo de columna:
 - `ImageColumnBuilder`: Construye una columna con el componente `image`.
 - `ProgressColumnBuilder`: Construye una columna con el componente `progress`.
 
+Todos los constructores de columna pueden declarar el [autofiltro de columna](api/grids.md#column-autofilter) con
+`setFilter` (el atributo `filter`, un `ColumnFilterType`: `VALUES`, `TEXT`, `NUMBER` o `DATE`) y `setFilterFields`
+(el atributo `filter-fields`, identificadores de campo separados por comas):
+
+```java
+new TextColumnBuilder()
+  .setName("Pro")
+  .setFilter(ColumnFilterType.TEXT)
+  .setFilterFields("IdePro,Nam");
+```
+
 ### **Constructores de gráficos** {#chart-builders}
 
 También hay una lista de constructores para los componentes de gráfico:

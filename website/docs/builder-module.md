@@ -765,6 +765,17 @@ And a builder for each column type:
 - `ImageColumnBuilder`: Builds a column with `image` component.
 - `ProgressColumnBuilder`: Builds a column with `progress` component.
 
+Every column builder can declare the [column autofilter](api/grids.md#column-autofilter) with `setFilter` (the
+`filter` attribute, a `ColumnFilterType`: `VALUES`, `TEXT`, `NUMBER` or `DATE`) and `setFilterFields` (the
+`filter-fields` attribute, comma-separated field ids):
+
+```java
+new TextColumnBuilder()
+  .setName("Pro")
+  .setFilter(ColumnFilterType.TEXT)
+  .setFilterFields("IdePro,Nam");
+```
+
 ### **Chart builders**
 
 There are also a list of builders for chart components:
