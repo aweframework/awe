@@ -5,6 +5,7 @@ import com.almis.awe.builder.enumerates.DataType;
 import com.almis.awe.builder.screen.base.AbstractAttributes;
 import com.almis.awe.builder.screen.base.AbstractColumnBuilder;
 import com.almis.awe.model.entities.screen.component.grid.Column;
+import com.almis.awe.model.type.ColumnFilterType;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -18,6 +19,8 @@ public class ColumnAttributes<B extends AbstractColumnBuilder> extends AbstractA
   private String formatOptions;
   private String formatter;
   private String sortField;
+  private ColumnFilterType filter;
+  private String filterFields;
   private String summaryType;
   private boolean frozen;
   private boolean hidden;
@@ -57,6 +60,7 @@ public class ColumnAttributes<B extends AbstractColumnBuilder> extends AbstractA
       .setFormatOptions(getFormatOptions())
       .setFormatter(getFormatter())
       .setField(getSortField())
+      .setFilterFields(getFilterFields())
       .setSummaryType(getSummaryType())
       .setFrozen(isFrozen())
       .setHidden(isHidden())
@@ -82,6 +86,10 @@ public class ColumnAttributes<B extends AbstractColumnBuilder> extends AbstractA
 
     if (getAlign() != null) {
       column.setAlign(getAlign().toString());
+    }
+
+    if (getFilter() != null) {
+      column.setFilter(getFilter().getCode());
     }
 
     if (getDataType() != null) {

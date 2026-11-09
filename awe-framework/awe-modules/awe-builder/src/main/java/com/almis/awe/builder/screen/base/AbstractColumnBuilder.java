@@ -4,6 +4,7 @@ import com.almis.awe.builder.enumerates.Align;
 import com.almis.awe.builder.enumerates.DataType;
 import com.almis.awe.builder.screen.component.ColumnAttributes;
 import com.almis.awe.model.entities.screen.component.grid.Column;
+import com.almis.awe.model.type.ColumnFilterType;
 import lombok.AccessLevel;
 import lombok.Getter;
 
@@ -78,6 +79,28 @@ public abstract class AbstractColumnBuilder<T extends AbstractColumnBuilder, I e
    */
   public T setSortField(String sortField) {
     getColumnAttributes().setSortField(sortField);
+    return (T) this;
+  }
+
+  /**
+   * Set the type of the column autofilter (attribute filter of the XML column)
+   *
+   * @param filter filter type
+   * @return This
+   */
+  public T setFilter(ColumnFilterType filter) {
+    getColumnAttributes().setFilter(filter);
+    return (T) this;
+  }
+
+  /**
+   * Set the comma-separated query fields the column autofilter applies to (attribute filter-fields of the XML column)
+   *
+   * @param filterFields comma-separated field ids
+   * @return This
+   */
+  public T setFilterFields(String filterFields) {
+    getColumnAttributes().setFilterFields(filterFields);
     return (T) this;
   }
 
