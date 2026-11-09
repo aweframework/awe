@@ -2232,6 +2232,11 @@
         <xs:documentation xml:lang="en">CSS classes added to the area of the detail, to give it a background, a border or a font. A template itself stays plain text.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="print" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Prints the detail under each row when the grid is printed or exported to PDF or XLSX: the template as a text block, or the nested grid as a table (it runs its query once per printed row). Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Column Type -->

@@ -495,11 +495,12 @@ The text of the element is the template:
   and do not indent their lines.
 - Declare one `<row-detail>` per grid. If there are more, only the first one is used.
 
-The `<row-detail>` element accepts one attribute:
+The `<row-detail>` element accepts these attributes:
 
 | Attribute | Use | Type | Description | Values |
 |-----------|-----|------|-------------|--------|
 | style | Optional | String | CSS classes added to the detail area of every row, next to its own `grid-row-detail` class | Space-separated class names. **Ex.** `row-detail-card` |
+| print | Optional | Boolean | Prints the detail under each row when the grid is printed or exported (PDF, XLSX...). See [printing the detail](#printing-the-detail) | Default value is `false` |
 
 The classes style the **whole area** (background, border, spacing, font); the template stays plain text, so its parts
 cannot be styled separately. Define the classes in the styles of your application, for example:
@@ -603,6 +604,25 @@ Behaviour:
   its page** instead of virtualizing them (the page size of the grid, see `max`, bounds the cost).
 :::
 
+#### Printing the detail
+
+The detail is **not** printed unless the `<row-detail>` says so with `print="true"` (the default is `false`, so printing
+a grid with a detail does not change when you upgrade). With it, the print of the grid (PDF, XLSX and the other formats)
+writes the detail under each printed row:
+
+- **Template:** the server renders it for every row with the same `{name}` rules as the screen, as plain text in a block
+  across the width of the grid. A field is available when the grid sends it with the print data (a `sendable` column,
+  hidden or not).
+- **Nested grid:** the server runs the query (`target-action`) of the nested grid **once per printed row**, with the
+  values of the row as `<parent grid id>.row.<column>`, as the screen does, and prints its rows as a table. It prints the
+  columns the nested grid would print (`printable`, hidden and button columns as in any grid) as plain columns, up to its
+  `max` rows per detail (100 when it declares none). Think of the cost: a grid of 500 rows runs 500 queries.
+- A detail made with an `include` is not printed (the server does not resolve it) and the grid prints without it.
+- One level only: a nested grid cannot have a detail of its own.
+- A grid that prints its detail does not group its rows (grouping is ignored on grids with `row-detail`).
+
+See [what a printed grid shows](../guides/print-guide.md#what-a-printed-grid-shows) for the XLSX behaviour.
+
 The test applications include the screens *Row detail* and *Row detail with a grid* (countries with the customers of
 each country, inline and through an include) in the matrix test menu.
 
@@ -643,7 +663,7 @@ each country, inline and through an include) in the matrix test menu.
 | wrap       | Optional     | Boolean | The text of the cells wraps over several lines and the row grows to fit it. See [wrapping text](#wrapping-text)                | Default value is `false`                                                         |
 | max-lines  | Optional     | Integer | Maximum number of lines of a wrapping cell, it implies `wrap`. See [wrapping text](#wrapping-text)                              | A number greater than `0`                                                        |
 | secondary-field  | Optional | String  | Row field shown under the main value, smaller and muted. See [secondary line, status and chips](#secondary-line-status-and-chips) | Name of another field of the row                                       |
-| export-secondary | Optional | Boolean | The export and print of the grid add a column with the secondary field right after this one                                    | Default value is `false`                                                         |
+| export-secondary | Optional | Boolean | The spreadsheet exports (XLSX, CSV) add a column with the secondary field right after this one. Documents print it under the value, see [what a grid prints](../guides/print-guide.md#what-a-printed-grid-shows) | Default value is `false`                                                         |
 | secondary-label  | Optional | String  | Title of the exported secondary column                                                                                          | Default: the label of the column. **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | status-field     | Optional | String  | Row field with the tone of a status: the value shows as a dot of the tone plus the text                                         | `success`, `warning`, `danger`, `info`, `neutral`                                |
 | chips            | Optional | Boolean | The value is a list shown as chips                                                                                              | Default value is `false`                                                         |
@@ -717,7 +737,7 @@ A standard cell can show more than its value without HTML in the data: a seconda
 | Attribute          | JSON              | Default         | Description                                                                                                  |
 |--------------------|-------------------|-----------------|--------------------------------------------------------------------------------------------------------------|
 | `secondary-field`  | `secondaryField`  |                 | Name of another field of the row, shown under the main value, smaller and muted. Empty: only the main line    |
-| `export-secondary` | `exportSecondary` | `false`         | The export and the print of the grid add a column with the secondary field right after the main one           |
+| `export-secondary` | `exportSecondary` | `false`         | The spreadsheet exports (XLSX, CSV) add a column with the secondary field right after the main one. PDF and the other documents print the secondary line under the value, in the same cell, whatever this attribute says |
 | `secondary-label`  | `secondaryLabel`  | the column label | Title (i18n key) of the exported secondary column                                                            |
 | `status-field`     | `statusField`     |                 | Name of a field of the row with the tone: `success`, `warning`, `danger`, `info` or `neutral`. The tone is trimmed and lower-cased; an unknown or empty tone is `neutral` |
 | `chips`            | `chips`           | `false`         | The value is split by `chip-separator`, each item is trimmed, the empty ones are dropped and each one shows as a chip |
@@ -730,13 +750,16 @@ A standard cell can show more than its value without HTML in the data: a seconda
 - The tone of a status is never shown by colour alone: the dot always goes with the text.
 - A status longer than its column ends in an ellipsis, and its tooltip (`title`) shows the whole text.
 - Values are always rendered as **text, never as HTML**: a value like `<b>bold</b>` shows literally.
-- Sorting, filtering and export use the main value. The export writes the main value, and with `export-secondary="true"`
+- Sorting and filtering use the main value. The spreadsheet exports write the main value and, with `export-secondary="true"`,
   the secondary value in its own column, titled with `secondary-label` and with the width and alignment of the main column.
+  The print to PDF and the other documents show the secondary line under the main value, see
+  [what a printed grid shows](../guides/print-guide.md#what-a-printed-grid-shows).
 
-:::note Export of the secondary column
-Grids loaded by query read the secondary value from the row on the server. Grids whose export data is sent by the client
-(`load-all`, editable or multioperation grids) only send their columns, so the secondary column is exported empty unless
-the secondary field is also a column of the grid (it can be `hidden="true"`, as `login` in the example).
+:::note Data of the secondary and status fields
+Grids loaded by query read the secondary and status values from the row on the server. Grids whose print data is sent
+by the client (`load-all`, editable or multioperation grids) send, besides their columns, the secondary field and the
+status field of the printed columns, so they do not have to be columns of the grid (they can also be `hidden="true"`, as
+`login` in the example).
 :::
 
 #### Example: users with their account and state
@@ -900,6 +923,9 @@ the report using the `printable` attribute of the column:
 
 Both engines apply these rules and the server applies them again, so a column with `printable="false"` is never in the
 report whatever the client sends.
+
+What each column prints (secondary lines, statuses, chips, progress bars, sparklines, formatted text) is explained in
+[what a printed grid shows](../guides/print-guide.md#what-a-printed-grid-shows).
 
 "On screen" means the column is not `hidden="true"` and it has not been hidden at runtime by a `hide-column`
 dependency action. Declaring `printable="true"`, `printable="excel"` or `printable="false"` takes precedence
@@ -1411,6 +1437,7 @@ handles well.
 - Group and subtotal rows are display rows: they have no checkbox, row number, edit or context menu actions. The model
   of the grid keeps the data rows, so the selection, the values sent to the server, the print and the export are those
   of the data rows, without groups or subtotals.
+  The print and the export build their own group and subtotal rows from them, see [printing a grouped grid](#printing-a-grouped-grid).
 - Column filters (`enable-filters`) are not offered while the rows are grouped, and come back with *No grouping*.
 - Grouping is ignored on tree grids and on editable, `send-operations`, `move-rows` and `row-detail` grids.
 
@@ -1421,6 +1448,15 @@ handles well.
 - React: `max` over only negative values gives `0` (as its footer); AngularJS gives the true maximum.
 - AngularJS: the footer always sums, whatever the `summary-type` (the group and subtotal rows do use it); while grouped,
   the select-all checkbox of a multiselect grid selects the rows shown (not the ones inside collapsed groups).
+
+#### Printing a grouped grid {#printing-a-grouped-grid}
+
+A grouped grid prints with the grouping the user has chosen **at that moment**: both engines send the columns that group
+the rows (also none, when the user chose *No grouping*), and the server falls back to `group-by` only when the client sends
+nothing. The printout shows, for every group, a row with its value, its number of rows and the aggregates of the columns with
+`summary-type`, then its rows, and a subtotal row when `group-subtotals` is not `false`; the grand total goes last when
+`show-totals` is on. Every group is printed expanded. See
+[what a printed grid shows](../guides/print-guide.md#what-a-printed-grid-shows) for the details and the limits.
 
 The test applications include the screen *Row grouping* in the matrix test menu (three levels, Group by panel and grand
 total).

@@ -129,7 +129,7 @@ public class ReportGenerator extends ServiceConfig {
     putRequestParameter(parameters, "ScrTitFil", fileName);
 
     // Spreadsheet outputs get their own design only when some column is printable on spreadsheets only
-    boolean spreadsheetDesignRequired = designer.hasSpreadsheetOnlyColumns(reportStructure, parameters);
+    boolean spreadsheetDesignRequired = designer.needsSpreadsheetDesign(reportStructure, parameters);
 
     // Generate the requested formats, sharing the report design between formats with the same profile
     String basePath = StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReports(), baseConfigProperties.getPaths().getBase());

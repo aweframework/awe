@@ -1079,6 +1079,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
             }
           });
 
+          // Data of the fields the printed cells read from their row (secondary line, status tone)
+          _.merge(data, component.getReferencedPrintData(data));
+
           // Identifier data
           _.merge(data, component.getIdentifierColumnData());
 
@@ -1089,6 +1092,11 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
 
           // Add visible columns information
           data[component.address.component + $settings.get("dataSuffix")].visibleColumns = component.getVisibleColumns();
+
+          // Add the columns that group the rows now (the user may have changed the grouping of the screen definition)
+          if (component.groupingConfigured && typeof component.getGroupLevels === "function") {
+            data[component.address.component + $settings.get("dataSuffix")].groupBy = component.getGroupLevels();
+          }
 
           // Add footer information
           let footerData = {};
@@ -1105,6 +1113,31 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           });
           data[component.address.component + $settings.get("dataSuffix")].footer = footerData;
 
+          return data;
+        };
+
+        /**
+         * Retrieve the data of the fields that printed columns read from their rows (the secondary line and the status
+         * tone of a cell) when they are not already sent as column data, so the report prints what the screen shows.
+         * Same shape as the data of a column: the values and their value and label cells.
+         *
+         * @param {Object} sentData Data already sent
+         * @returns {Object} Data of the referenced fields
+         */
+        component.getReferencedPrintData = function (sentData) {
+          const dataSuffix = $settings.get("dataSuffix");
+          const data = {};
+          const fields = _.filter(component.controller.columnModel, isPrintableColumn)
+            .flatMap(column => [column.secondaryField, column.statusField]);
+          for (const field of fields) {
+            if (!field || field in sentData || field in data) {
+              continue;
+            }
+            const cells = _.map(component.model.values, row =>
+              ({...component.getCell(row[field]), label: component.getCellData(row[field], component.constants.CELL_LABEL)}));
+            data[field] = cells.map(cell => cell.value);
+            data[field + dataSuffix] = cells;
+          }
           return data;
         };
 

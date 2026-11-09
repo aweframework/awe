@@ -91,3 +91,62 @@ Esta es la forma recomendada de imprimir un valor sin formato cuando la columna 
 ```
 
 Consulta [columnas de impresión](../api/grids.md#printing-columns) para ver las reglas completas.
+
+## Qué imprime un grid {#what-a-printed-grid-shows}
+
+Un grid impreso reproduce lo que el grid muestra en pantalla. Los atributos de columna que lo deciden se leen en el
+servidor de la definición de la pantalla, de modo que el informe sigue el XML de la pantalla en los dos motores de
+cliente. El PDF (y los demás formatos de documento: DOCX, RTF, HTML, TEXT) los dibuja; XLSX, XLS, ODS y CSV los escriben
+como texto.
+
+| Característica (atributo) | PDF y documentos | XLSX y CSV |
+|---------------------------|------------------|------------|
+| Segunda línea (`secondary-field`) | Bajo el valor, más pequeña y atenuada, en la misma celda, cuando la columna es texto (sin `type` o con `type="string"`). En una columna numérica, de fecha o de chips va a su propia columna, tras la principal | Una columna tras la principal solo con `export-secondary="true"` (titulada con `secondary-label`) |
+| Estado (`status-field`) | Un chip con el texto de la celda, coloreado con el tono de la fila (`success`, `warning`, `danger`, `info`; cualquier otro tono es `neutral`) | El texto de la celda |
+| Chips (`chips="true"`, `chip-separator`) | Un chip por elemento (todos: `max-chips` solo limita la pantalla), `neutral`, o con el tono de `status-field` cuando la columna también lo tiene | Los elementos unidos con una coma y un espacio |
+| Progreso (`component="progress"`, `bar-min`, `bar-max`) | Una barra rellena con el valor dentro de su escala (de 0 a 100 por defecto) y el texto de la celda. El segundo valor y los segmentos apilados de las opciones de barra no se dibujan | El texto de la celda |
+| Sparkline (`component="sparkline"`) | La serie como línea, barras o área (`sparkline-type`), con `sparkline-color` y `sparkline-negative-color`. El último punto y las marcas de mínimo y máximo no se dibujan | Los números de la serie |
+| Texto con formato (`component="formatted-text"`) | Texto plano: sin etiquetas, con las entidades decodificadas y los saltos de línea como espacios. Nunca marcado | Texto plano |
+| Agrupación | Filas de grupo, subtotales y total, véase abajo | Las mismas filas, con estilo, **sin niveles de esquema** |
+| Detalle de fila (`<row-detail print="true">`) | Bajo cada fila, véase abajo | Una celda a lo ancho del grid bajo cada fila |
+
+Notas:
+
+- Los colores de un sparkline son hexadecimales `#RRGGBB` (o `#RGB`) o el nombre de una paleta del sistema de diseño
+  (`green`, `red`, `sky`...), que imprime su tono `500`. Cualquier otro valor (por ejemplo una variable CSS) se ignora y
+  ADE usa su color por defecto; un color incorrecto nunca hace fallar la impresión. Los colores de estado y de grupo son
+  valores de impresión fijos tomados de los tokens de diseño de AWE 5, porque un informe no tiene variables CSS.
+- El campo secundario y el campo de estado viajan con los datos de impresión: los dos motores los envían aunque no sean
+  columnas del grid, siempre que una columna impresa los use.
+- Un grid sin estos atributos se imprime exactamente igual que antes.
+
+### Grids agrupados {#grouped-grids}
+
+El grid se imprime con la agrupación que el usuario había elegido al imprimir: los dos motores envían las columnas que
+agrupan las filas, también ninguna cuando el usuario eligió *Sin agrupar*, y el servidor usa el `group-by` del grid solo
+cuando el cliente no envía nada. Los grids que no pueden agrupar en pantalla (de árbol, editables, `send-operations`,
+`move-rows` o `row-detail`) tampoco agrupan en el informe.
+
+- Cada grupo tiene una **fila de grupo**, `GROUP1`, `GROUP2`... según el nivel (en negrita, sobre los colores de superficie
+  del sistema de diseño, más claros en cada nivel), con el valor del grupo y su número de filas, y los agregados (`sum`,
+  `avg`, `max`, `min`) de las columnas con `summary-type`. La etiqueta va en la primera columna impresa que es texto
+  plano (ninguna si no hay columnas de texto, para que nunca caiga en una celda de número o fecha); un valor vacío se
+  etiqueta *(vacío)*.
+- A continuación van sus filas; cuando `group-subtotals` no es `false`, una **fila de subtotal** cierra cada grupo de todos
+  los niveles.
+- El total general va al final cuando `show-totals` está activo: el pie que envía la pantalla.
+- Todos los grupos se imprimen expandidos. Los grupos van por su valor, ascendente: primero los números, luego los
+  textos y el vacío al final. Las filas conservan el orden que envía el cliente. La ordenación que el usuario eligió en
+  pantalla no se aplica al orden de los grupos.
+- Una columna que agrupa no tiene que imprimirse. Una columna con `summary-type` que es la columna de la etiqueta muestra
+  la etiqueta.
+- Las filas de grupo, los subtotales y el total llevan el estilo de su tipo de fila, sin ninguna columna adicional.
+
+### Detalle de fila {#row-detail}
+
+Un grid cuyo `<row-detail>` declara `print="true"` imprime su detalle bajo cada fila; sin él, nada cambia. Una plantilla de
+texto la renderiza el servidor para cada fila con las reglas de la pantalla; un grid anidado ejecuta su consulta una vez
+por fila impresa (limitada por su `max`, 100 si no declara ninguno) e imprime sus columnas como tabla. Véase
+[imprimir el detalle](../api/grids.md#printing-the-detail) para lo que necesita y los límites. Un detalle hecho con un
+`include` no se imprime. En XLSX el detalle es una celda combinada a lo ancho del grid, y una tabla anidada no se alinea
+con las columnas del grid: la hoja tiene columnas extra y la cabecera anidada se repite bajo cada fila.

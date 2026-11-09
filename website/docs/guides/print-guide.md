@@ -91,3 +91,57 @@ This is the recommended way to print a raw value when the column shown on screen
 ```
 
 See [printing columns](../api/grids.md#printing-columns) for the full rules.
+
+## What a printed grid shows {#what-a-printed-grid-shows}
+
+A printed grid reproduces what the grid shows on screen. The column attributes that decide it are read from the screen
+definition on the server, so the report follows the XML of the screen in both client engines. PDF (and the other document
+formats: DOCX, RTF, HTML, TEXT) draw them; XLSX, XLS, ODS and CSV write them as text.
+
+| Feature (attribute) | PDF and documents | XLSX and CSV |
+|---------------------|-------------------|--------------|
+| Secondary line (`secondary-field`) | Under the value, smaller and muted, in the same cell, when the column is text (no `type` or `type="string"`). On a numeric, date or chip column it goes to its own column after the main one | A column after the main one only with `export-secondary="true"` (titled with `secondary-label`) |
+| Status (`status-field`) | A chip with the text of the cell, coloured with the tone of the row (`success`, `warning`, `danger`, `info`; any other tone is `neutral`) | The text of the cell |
+| Chips (`chips="true"`, `chip-separator`) | One chip per item (all of them: `max-chips` only limits the screen), `neutral`, or with the tone of `status-field` when the column also has one | The items joined with a comma and a space |
+| Progress (`component="progress"`, `bar-min`, `bar-max`) | A bar filled with the value inside its scale (0 to 100 by default) and the text of the cell. The second value and the stacked segments of the bar options are not drawn | The text of the cell |
+| Sparkline (`component="sparkline"`) | The series as a line, bars or an area (`sparkline-type`), with `sparkline-color` and `sparkline-negative-color`. Last point and min/max marks are not drawn | The numbers of the series |
+| Formatted text (`component="formatted-text"`) | Plain text: tags removed, entities decoded, line breaks as spaces. Never markup | Plain text |
+| Grouping | Group rows, subtotals and total, see below | The same rows, styled, **without outline levels** |
+| Row detail (`<row-detail print="true">`) | Under each row, see below | One cell across the width of the grid under each row |
+
+Notes:
+
+- The colours of a sparkline are `#RRGGBB` (or `#RGB`) hexes or the name of a palette of the design system (`green`, `red`,
+  `sky`...), which prints its `500` shade. Any other value (for example a CSS variable) is ignored and ADE uses its
+  default colour; a bad colour never fails the print. The status and group colours are fixed print values taken from the
+  AWE 5 design tokens, as a report has no CSS variables.
+- The secondary field and the status field travel with the print data: both engines send them even when they are not
+  columns of the grid, as long as a printed column uses them.
+- A grid without these attributes prints exactly as before.
+
+### Grouped grids
+
+The grid prints with the grouping the user has chosen when printing: both engines send the columns that group the rows,
+also none when the user chose *No grouping*, and the server uses the `group-by` of the grid only when the client sends
+nothing. Grids that cannot group on screen (tree, editable, `send-operations`, `move-rows` or `row-detail` grids) do not
+group in the report either.
+
+- Each group has a **group row**, `GROUP1`, `GROUP2`... by level (bold, on the surface colours of the design system, lighter
+  for each level), with the value of the group and its number of rows, and the aggregates (`sum`, `avg`, `max`, `min`) of the
+  columns with `summary-type`. The label goes in the first printed column that is plain text (none when no printed
+  column is text, so a number or date cell never gets it); an empty value is labelled *(empty)*.
+- Its rows come next; when `group-subtotals` is not `false` a **subtotal row** closes each group of every level.
+- The grand total comes last when `show-totals` is on: the footer that the screen sends.
+- Every group is printed expanded. Groups go by their value, ascending: numbers first, then texts, the empty one last.
+  The rows keep the order the client sends. The sort the user chose on screen is not applied to the order of the groups.
+- A column that groups does not have to be printed. A column with `summary-type` that is the label column shows the label.
+- Group rows, subtotals and the total are styled by their row kind, without an extra column.
+
+### Row detail
+
+A grid whose `<row-detail>` declares `print="true"` prints its detail under each row; without it, nothing changes. A
+text template is rendered by the server for every row with the rules of the screen; a nested grid runs its query once per
+printed row (limited by its `max`, 100 when it declares none) and prints its columns as a table. See
+[printing the detail](../api/grids.md#printing-the-detail) for what it needs and the limits. A detail built with an
+`include` is not printed. In XLSX the detail is a cell merged across the grid, and a nested table does not align with the
+columns of the grid: the sheet gets extra columns and the nested header repeats under each row.

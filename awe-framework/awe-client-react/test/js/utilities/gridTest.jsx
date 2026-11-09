@@ -416,6 +416,48 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
     });
   });
 
+  describe('getGridPrintData group levels (#929)', () => {
+    const columnModel = [{name: 'region'}, {name: 'city'}];
+    const printData = (attributes) => getGridPrintData({attributes: {id: 'Grd', columnModel, ...attributes}}, {values: []}, {t: (key) => key})['Grd.data'];
+
+    it('should send the columns that group the rows now: the ones the user chose, the ones of the grid or none', () => {
+      expect(printData({groupBy: 'region', groupLevels: ['city', 'region']}).groupBy).toEqual(['city', 'region']);
+      expect(printData({groupBy: 'region, unknown'}).groupBy).toEqual(['region']);
+      // The user ungrouped the grid: an empty list, not the group-by of its definition
+      expect(printData({groupBy: 'region', groupLevels: []}).groupBy).toEqual([]);
+      expect(printData({groupSelector: true, groupLevels: ['city']}).groupBy).toEqual(['city']);
+      // A grid that cannot group keeps its print data as it was
+      expect(printData({}).groupBy).toBeUndefined();
+      expect(printData({treegrid: true, groupBy: 'region'}).groupBy).toBeUndefined();
+    });
+  });
+
+  describe('getGridPrintData referenced fields (#929)', () => {
+    const grid = {attributes: {id: 'Grd', columnModel: [
+      {name: 'name', label: 'NAME', sendable: true, secondaryField: 'email', statusField: 'tone'},
+      {name: 'tone', sendable: false, printMode: 'false'}
+    ]}};
+    const values = [{name: 'Ann', email: 'ann@x.com', tone: 'success'}, {name: 'Bob', tone: {value: 'danger', label: 'Danger'}}];
+
+    it('should send the data of the secondary and the status fields of the printed columns when they are not sent as columns', () => {
+      const data = getGridPrintData(grid, {values}, {t: (key) => key});
+
+      expect(data.email).toEqual(['ann@x.com', null]);
+      expect(data['email.data'].map(cell => [cell.value, cell.label])).toEqual([['ann@x.com', 'ann@x.com'], [null, null]]);
+      expect(data.tone).toEqual(['success', 'danger']);
+      expect(data['tone.data'].map(cell => cell.label)).toEqual(['success', 'danger']);
+    });
+
+    it('should not send again a field that is already sent as a column', () => {
+      const sent = {attributes: {...grid.attributes, columnModel: [...grid.attributes.columnModel.slice(0, 1), {name: 'email', sendable: true, printMode: 'false'}]}};
+
+      const data = getGridPrintData(sent, {values}, {t: (key) => key});
+
+      expect(data['email.data'].map(cell => cell.value)).toEqual(['ann@x.com', null]);
+      expect(Object.keys(data).filter(key => key === 'email.data')).toHaveLength(1);
+    });
+  });
+
   describe('getPaginatorSettings', () => {
     it('paginates with the rows per page when the pagination is enabled', () => {
       expect(getPaginatorSettings({buttonModel: []}, 10, 25)).toEqual({paginator: true, pageRows: 10});

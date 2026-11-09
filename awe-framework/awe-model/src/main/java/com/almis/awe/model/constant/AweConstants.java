@@ -127,6 +127,8 @@ public class AweConstants {
   public static final String JSON_RESTRICTED = "restricted";
   public static final String JSON_ALL = "all";
   public static final String JSON_VISIBLE_COLUMNS = "visibleColumns";
+  // Columns that group the rows of a printed grid now (the grouping chosen at runtime, which may be none)
+  public static final String JSON_GROUP_BY = "groupBy";
 
   // Properties
   public static final String PROPERTY_SECURITY_MASTER_KEY = "awe.security.master.key";
