@@ -1,11 +1,7 @@
-document(breadcrumbs, title, buttons, center, modal, hidden) ::= <<
+document(breadcrumbs, levels, option, title, buttons, center, modal, hidden) ::= <<
 <div class="expand expandible-vertical report-container document">
   <div class="window-header">
-    <ul class="breadcrumb breadcrumb-page" data-testid="breadcrumb">
-      <div class="breadcrumb-label text-light-gray"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#house"></use></svg></i></div>
-        $breadcrumbs$
-        <li class="active" translate-multiple="$title$"></li>
-      </ul>
+    <awe-breadcrumb levels="$levels$" page-option="$option$" page-title="$title$"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#house"></use></svg></i></awe-breadcrumb>
     </div>
   <div class="window-center expand expandible-vertical scrollable maximize-target">$center$</div>
   <div class="window-buttons">$buttons$</div>
@@ -14,7 +10,7 @@ document(breadcrumbs, title, buttons, center, modal, hidden) ::= <<
 <div class="hidden">$hidden$</div>
 >>
 windowNoHeader ::= ["none": "true", default: false]
-window(breadcrumbs, title, buttons, center, modal, hidden, header) ::= <<
+window(breadcrumbs, levels, option, title, buttons, center, modal, hidden, header) ::= <<
 <div class="expand expandible-vertical report-container">
 $if(windowNoHeader.(header))$
   <div class="window-header window-header-none">
@@ -24,11 +20,7 @@ $if(windowNoHeader.(header))$
   </div>
 $else$
   <div class="window-header">
-    <ul class="breadcrumb breadcrumb-page" data-testid="breadcrumb">
-      <div class="breadcrumb-label"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#house"></use></svg></i></div>
-        $breadcrumbs$
-        <li class="active" translate-multiple="$title$"></li>
-      </ul>
+    <awe-breadcrumb levels="$levels$" page-option="$option$" page-title="$title$"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#house"></use></svg></i></awe-breadcrumb>
     </div>
   <div class="window-center expand expandible-vertical scrollable maximize-target">$center$</div>
   <div class="window-buttons">$buttons$</div>

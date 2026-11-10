@@ -9,6 +9,7 @@ import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.TagList;
+import com.almis.awe.model.entities.screen.component.action.AbstractAction;
 import com.almis.awe.model.type.WindowHeaderType;
 import com.almis.awe.model.util.data.DataListUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import org.springframework.context.ApplicationContext;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import org.stringtemplate.v4.STGroupString;
+import org.stringtemplate.v4.compiler.CompiledST;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -246,5 +249,113 @@ class TemplateServiceTest {
   void customTemplateWithoutHeaderArgumentsStillRenders() throws Exception {
     assertThat(renderScreen("window(title) ::= \"[$title$]\"", WindowHeaderType.NONE, "none"))
       .isEqualTo("[SCREEN_TITLE]");
+  }
+
+  private static final String LEVELS_TEMPLATE = "window(breadcrumbs, title, levels) ::= \"$levels$\"";
+
+  private Option option(String name, String label, Option parent, boolean withActions) {
+    Option option = new Option();
+    option.setName(name);
+    option.setLabel(label);
+    option.setParent(parent);
+    option.setElementList(new ArrayList<>());
+    if (withActions) {
+      option.setActionList(List.of(mock(AbstractAction.class)));
+    }
+    return option;
+  }
+
+  private String renderLevels(String templates, Option option) throws Exception {
+    BaseConfigProperties properties = new BaseConfigProperties();
+    ApplicationContext context = mock(ApplicationContext.class);
+    when(context.getBean(BaseConfigProperties.class)).thenReturn(properties);
+    STGroup screensGroup = new STGroupString("screens", templates, '$', '$');
+    screensGroup.load();
+    // The elements of the application are looked up by their name, the group of the test keeps them under a root path
+    STGroup elementsGroup = new STGroupString("elements", "breadcrumb(text) ::= \"<li>$text$</li>\"", '$', '$') {
+      @Override
+      public CompiledST rawGetTemplate(String name) {
+        return super.rawGetTemplate("/" + name);
+      }
+    };
+    elementsGroup.load();
+    when(menuService.getOptionByName(eq("option"), any())).thenReturn(option);
+    TemplateService service = new TemplateService(menuService, elementsGroup, helpTemplateGroup,
+      screensGroup, queryService, templateDao);
+    service.setApplicationContext(context);
+    Screen screen = new Screen();
+    screen.setTemplate("/window");
+    screen.setLabel("SCREEN_TITLE");
+    screen.setElementList(new ArrayList<>());
+    return service.generateScreenTemplate(screen, new Menu(), "report", "option");
+  }
+
+  /**
+   * The levels above the option carry its name and whether the level is a group (it has no actions), HTML escaped for
+   * an attribute so the client can render them
+   */
+  @Test
+  void windowLevelsDescribeTheMenuLevelsAboveTheOption() throws Exception {
+    Option root = option("root", "ROOT \"GROUP\"", null, false);
+    Option inner = option("inner", "INNER", root, true);
+    Option leaf = option("leaf", "LEAF", inner, true);
+
+    assertThat(renderLevels(LEVELS_TEMPLATE, leaf)).isEqualTo(
+      "[{&quot;name&quot;:&quot;root&quot;,&quot;label&quot;:&quot;ROOT \\&quot;GROUP\\&quot;&quot;,&quot;group&quot;:true},"
+        + "{&quot;name&quot;:&quot;inner&quot;,&quot;label&quot;:&quot;INNER&quot;,&quot;group&quot;:false}]");
+  }
+
+  /**
+   * A menu screen option is a leaf of the menu that opens its screen, so its level launches it even when the menu read
+   * by the server has not given it its actions yet
+   */
+  @Test
+  void windowLevelsMakeAMenuScreenOptionALevelThatLaunchesIt() throws Exception {
+    Option root = option("root", "ROOT", null, false);
+    Option launcher = option("launcher", "LAUNCHER", root, false);
+    launcher.setMenuScreen(true);
+    Option leaf = option("leaf", "LEAF", launcher, true);
+
+    assertThat(renderLevels(LEVELS_TEMPLATE, leaf)).isEqualTo(
+      "[{&quot;name&quot;:&quot;root&quot;,&quot;label&quot;:&quot;ROOT&quot;,&quot;group&quot;:true},"
+        + "{&quot;name&quot;:&quot;launcher&quot;,&quot;label&quot;:&quot;LAUNCHER&quot;,&quot;group&quot;:false}]");
+  }
+
+  /**
+   * A screen out of the menu has no levels above it
+   */
+  @Test
+  void windowLevelsAreEmptyWithoutAnOption() throws Exception {
+    assertThat(renderLevels(LEVELS_TEMPLATE, null)).isEqualTo("[]");
+  }
+
+  /**
+   * The option of the screen is HTML escaped for an attribute, so the client knows which screen is open
+   */
+  @Test
+  void windowOptionIsTheNameOfTheOpenScreen() throws Exception {
+    Option leaf = option("le\"af", "LEAF", null, true);
+
+    assertThat(renderLevels("window(breadcrumbs, title, option) ::= \"[$option$]\"", leaf)).isEqualTo("[le&quot;af]");
+  }
+
+  /**
+   * A screen out of the menu has no option
+   */
+  @Test
+  void windowOptionIsEmptyWithoutAnOption() throws Exception {
+    assertThat(renderLevels("window(breadcrumbs, title, option) ::= \"[$option$]\"", null)).isEqualTo("[]");
+  }
+
+  /**
+   * A custom template that does not declare the levels keeps rendering with its breadcrumbs
+   */
+  @Test
+  void customTemplateWithoutLevelsStillRendersItsBreadcrumbs() throws Exception {
+    Option root = option("root", "ROOT", null, false);
+    Option leaf = option("leaf", "LEAF", root, true);
+
+    assertThat(renderLevels("window(breadcrumbs, title) ::= \"$breadcrumbs$|$title$\"", leaf))
+      .isEqualTo("<li>ROOT</li>|SCREEN_TITLE");
   }
 }

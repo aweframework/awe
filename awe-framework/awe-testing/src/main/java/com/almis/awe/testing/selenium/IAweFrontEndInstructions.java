@@ -882,6 +882,25 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get a level of the breadcrumb by the name of its menu option
+   *
+   * @param option Option name of the level
+   * @return Breadcrumb level selector
+   */
+  default By getBreadcrumbLevel(String option) {
+    return By.cssSelector(TestIds.css(TestIds.BREADCRUMB_LEVEL) + "[name='" + option + "']");
+  }
+
+  /**
+   * Get the current page of the breadcrumb (its last level)
+   *
+   * @return Current page selector
+   */
+  default By getBreadcrumbCurrentPage() {
+    return By.cssSelector(TestIds.css(TestIds.BREADCRUMB_LEVEL) + "[" + TestAttributes.ACTIVE + "='true']");
+  }
+
+  /**
    * Get the label of a criterion
    *
    * @param criterionName Criterion name

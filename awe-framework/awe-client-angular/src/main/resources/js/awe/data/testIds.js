@@ -151,6 +151,11 @@ export const TestIds = Object.freeze({
   menu: "menu",
   menuOption: "menu-option",
   breadcrumb: "breadcrumb",
+  // Levels of the breadcrumb (the element that carries "name" for a menu level, "path" for a screen the user came from),
+  // its home level and the ellipsis button that expands the collapsed levels
+  breadcrumbLevel: "breadcrumb-level",
+  breadcrumbHome: "breadcrumb-home",
+  breadcrumbEllipsis: "breadcrumb-ellipsis",
   menuLink: "menu-link",
   menuDropdown: "menu-dropdown",
   menuSubmenu: "menu-submenu",

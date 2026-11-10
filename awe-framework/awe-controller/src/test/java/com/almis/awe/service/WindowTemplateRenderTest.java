@@ -20,6 +20,8 @@ class WindowTemplateRenderTest {
     STGroup group = new STGroupFile(url, "UTF-8", '$', '$');
     ST window = group.getInstanceOf("window");
     window.add("breadcrumbs", "<li>BREADCRUMB_ITEM</li>");
+    window.add("levels", "[LEVELS_JSON]");
+    window.add("option", "OPTION_NAME");
     window.add("title", "SCREEN_TITLE");
     window.add("buttons", "<button>BUTTON</button>");
     window.add("center", "<p>CENTER</p>");
@@ -37,8 +39,8 @@ class WindowTemplateRenderTest {
   void breadcrumbModeShowsTheBreadcrumbTitleAndButtons() {
     String html = render("breadcrumb");
 
-    assertThat(html).contains("data-testid=\"breadcrumb\"").contains("BREADCRUMB_ITEM").contains("<button>BUTTON</button>")
-      .doesNotContain("window-header-none").contains("SCREEN_TITLE");
+    assertThat(html).contains("<awe-breadcrumb levels=\"[LEVELS_JSON]\" page-option=\"OPTION_NAME\" page-title=\"SCREEN_TITLE\">").contains("lucide-sprite.svg#house")
+      .contains("<button>BUTTON</button>").doesNotContain("window-header-none");
     assertBalanced(html);
   }
 
@@ -47,7 +49,7 @@ class WindowTemplateRenderTest {
     String html = render("none");
 
     assertThat(html).contains("<button>BUTTON</button>").contains("<p>CENTER</p>")
-      .doesNotContain("data-testid=\"breadcrumb\"").doesNotContain("BREADCRUMB_ITEM").doesNotContain("SCREEN_TITLE")
+      .doesNotContain("awe-breadcrumb").doesNotContain("LEVELS_JSON").doesNotContain("SCREEN_TITLE")
       .doesNotContain("<h1");
     assertThat(html.indexOf("<button>BUTTON</button>")).isLessThan(html.indexOf("<p>CENTER</p>"));
     assertBalanced(html);

@@ -1707,6 +1707,8 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_APP_PAR_SEARCH" value="Nombre o descripción…"/>
   <locale name="SCREEN_TEXT_APP_PAR_SEARCH_LABEL" value="Buscar parámetros"/>
   <locale name="SCREEN_TEXT_APP_PAR_VALUE" value="Valor"/>
+  <locale name="SCREEN_TEXT_BREADCRUMB" value="Ruta de navegación"/>
+  <locale name="SCREEN_TEXT_BREADCRUMB_EXPAND" value="Mostrar niveles ocultos"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendario"/>
   <locale name="SCREEN_TEXT_CALENDAR_DATES" value="Fechas añadidas"/>
   <locale name="SCREEN_TEXT_CHANGE_EXPIRED_PWD" value="Su contraseña ha caducado. Establezca una nueva para iniciar sesión."/>

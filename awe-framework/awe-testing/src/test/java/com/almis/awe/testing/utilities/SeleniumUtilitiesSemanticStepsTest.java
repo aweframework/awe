@@ -359,6 +359,18 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldCheckTheCurrentPageOfTheBreadcrumbAndClickALevel() {
+    show(instructions.getBreadcrumbCurrentPage(), "Monthly");
+    show(instructions.getBreadcrumbLevel("launcher-reports"), "Reports");
+
+    assertThatCode(() -> utilities.checkBreadcrumbCurrentPage("Monthly")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkBreadcrumbCurrentPage("Missing"));
+    assertThatCode(() -> utilities.clickBreadcrumbLevel("launcher-reports")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.clickBreadcrumbLevel("missing"));
+    verify((Interactive) driver, atLeast(1)).perform(any());
+  }
+
+  @Test
   void shouldZoomAChartWithTheWheelAndCheckThatItIsZoomed() {
     use(new ReactAweInstructions());
     WebElement chart = show(instructions.getChart("ChrLinTst"), "");

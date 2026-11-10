@@ -204,6 +204,10 @@ public final class TestIds {
   public static final String MENU_OPTION = "menu-option";
   // Breadcrumb of the page (the path of menu options that leads to the screen)
   public static final String BREADCRUMB = "breadcrumb";
+  // Level of the breadcrumb (it carries "name" for a menu level), its home level and the toggle of the collapsed levels
+  public static final String BREADCRUMB_LEVEL = "breadcrumb-level";
+  public static final String BREADCRUMB_HOME = "breadcrumb-home";
+  public static final String BREADCRUMB_ELLIPSIS = "breadcrumb-ellipsis";
   public static final String MENU_LINK = "menu-link";
   public static final String MENU_DROPDOWN = "menu-dropdown";
   public static final String MENU_SUBMENU = "menu-submenu";

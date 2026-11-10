@@ -399,6 +399,8 @@ Los pasos CSS en bruto que reciben un `String` (`click(String cssSelector)`, `ch
 | `checkLauncherCardDescription(String option, String text)` | Comprueba que una tarjeta de una página lanzadora muestra una descripción (su línea secundaria) |
 | `checkLauncherCardWithoutDescription(String option)` | Comprueba que una tarjeta de una página lanzadora no tiene descripción |
 | `checkBreadcrumbContains(String text)` | Comprueba que la ruta de navegación de la página es visible y contiene un texto |
+| `checkBreadcrumbCurrentPage(String text)` | Comprueba que la página actual de las migas de pan (su último nivel) muestra un texto |
+| `clickBreadcrumbLevel(String option)` | Pulsa un nivel de las migas de pan por el nombre de su opción de menú y espera a la barra de carga |
 | `selectModule(String moduleName)` | Abre el menú de ajustes (`ButSetTog`) y selecciona un módulo en el selector `module` |
 | `ensureModule(String moduleName, String menuOption)` | No hace nada cuando la opción de menú que solo muestra ese módulo ya es visible; selecciona el módulo (`selectModule`) cuando no lo es |
 | `broadcastMessageToUser(String user, String text)` | Va a la pantalla `tools > broadcast-messages` de las aplicaciones de test de AWE, envía un texto a un usuario y cierra los mensajes `success` e `info` |
@@ -958,6 +960,7 @@ AngularJS renderiza cada opción como un criterio propio. Usa `clickCheckboxOpti
 |---|---|---|
 | `button` | El `<button>` de un botón, con el `id` del botón (también dentro de celdas de grid) | Cualquier lugar |
 | `context-menu`, `context-menu-option`, `context-menu-link`, `context-submenu` | Un menú contextual, una opción (con `option-id`), su enlace (`data-disabled`) y un menú anidado | Dentro del componente que posee el menú |
+| `breadcrumb`, `breadcrumb-home`, `breadcrumb-level`, `breadcrumb-ellipsis` | Las migas de pan, su nivel de inicio, un nivel (un nivel de menú lleva `name`; la página actual `data-active`) y el botón de puntos suspensivos de los niveles colapsados | Dentro de la cabecera de la ventana |
 | `menu`, `menu-option`, `menu-link`, `menu-dropdown`, `menu-submenu` | El menú de la aplicación, una opción (`data-active`, `data-open`), su enlace (con `name`), el desplegable de primer nivel y los submenús anidados (`data-open`) | Dentro del menú |
 | `info-dropdown`, `info-dropdown-toggle`, `info-dropdown-menu` | Un desplegable de info (con `info-dropdown-id`), el enlace que lo abre y su menú | Cualquier lugar |
 | `info-button`, `info-button-link` | Un botón de info y su enlace (`info-button-link`: solo AngularJS) | Cualquier lugar |

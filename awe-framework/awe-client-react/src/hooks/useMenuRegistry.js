@@ -16,3 +16,35 @@ export function useMenuBreadcrumbs() {
     () => MenuRegistry.getBreadcrumbs(),
   );
 }
+
+export function useMenuOrigin() {
+  return useSyncExternalStore(
+    (listener) => MenuRegistry.subscribe(listener),
+    () => MenuRegistry.getOrigin(),
+    () => MenuRegistry.getOrigin(),
+  );
+}
+
+export function useMenuExpandRequest() {
+  return useSyncExternalStore(
+    (listener) => MenuRegistry.subscribe(listener),
+    () => MenuRegistry.getExpandRequest(),
+    () => MenuRegistry.getExpandRequest(),
+  );
+}
+
+export function useMenuHasExpander() {
+  return useSyncExternalStore(
+    (listener) => MenuRegistry.subscribe(listener),
+    () => MenuRegistry.hasExpander(),
+    () => MenuRegistry.hasExpander(),
+  );
+}
+
+export function useMenuLocation() {
+  return useSyncExternalStore(
+    (listener) => MenuRegistry.subscribe(listener),
+    () => MenuRegistry.getLocation(),
+    () => MenuRegistry.getLocation(),
+  );
+}

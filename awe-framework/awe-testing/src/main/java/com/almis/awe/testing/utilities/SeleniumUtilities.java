@@ -4073,6 +4073,33 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Check that the current page of the breadcrumb (its last level, marked as the current page) shows a text
+   *
+   * @param text Text of the current page
+   */
+  protected void checkBreadcrumbCurrentPage(String text) {
+    By selector = frontEndInstructions.getBreadcrumbCurrentPage();
+    waitForSelector(selector);
+    waitForText(locator(selector), text);
+  }
+
+  /**
+   * Click on a level of the breadcrumb that is a menu option, a group or a screen the user came from, and wait for the
+   * client to finish
+   *
+   * @param option Option name of the level
+   */
+  protected void clickBreadcrumbLevel(String option) {
+    // The page may still have server tasks pending (a suggest that loads late): the client drops an option launched
+    // while they run, as it does with the menu
+    waitForLoadingBar();
+    By selector = frontEndInstructions.getBreadcrumbLevel(option);
+    waitForSelector(selector);
+    clickSelector(selector);
+    waitForLoadingBar();
+  }
+
+  /**
    * Check that a criterion is not in the page at all, neither shown nor hidden (for instance one in a tab page that is
    * not shown)
    *

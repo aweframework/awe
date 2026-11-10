@@ -25,6 +25,7 @@ import "./column/button";
 import "./avatar";
 
 import "./menu";
+import "./breadcrumb";
 import "./option";
 import "./contextMenu";
 import "./contextOption";

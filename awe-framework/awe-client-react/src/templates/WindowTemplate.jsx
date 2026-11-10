@@ -1,13 +1,10 @@
 import React from "react";
 import {useSelector} from "react-redux";
 import {getSource, getSourceChildren, getSourceStyle} from "../utilities/structure";
-import {BreadCrumb} from "primereact/breadcrumb";
+import WindowBreadcrumb from "../components/WindowBreadcrumb";
 
 import "./WindowTemplate.css";
-import {useMenuBreadcrumbs} from "../hooks/useMenuRegistry";
 import PropTypes from "prop-types";
-import {TestIds, testHook} from "../utilities/testIds";
-import {getIconCode} from "../utilities";
 
 const WINDOW_HEADERS = ["breadcrumb", "none"];
 const normalizeHeader = value => String(value ?? "").trim().toLowerCase();
@@ -26,10 +23,8 @@ function resolveWindowHeader(screenHeader, applicationHeader) {
 function WindowTemplate(props) {
 
   const { elementList = [], windowHeader } = props;
-  const breadcrumbs = useMenuBreadcrumbs();
   const applicationHeader = useSelector(state => state.settings?.windowHeader);
   const noneHeader = resolveWindowHeader(windowHeader, applicationHeader) === "none";
-  const home = {icon: getIconCode("pi-home", "p-menuitem-icon")};
   const sourceCenter = getSource("center", elementList);
   const sourceModal = getSource("modal", elementList);
   const sourceHidden = getSource("hidden", elementList);
@@ -43,7 +38,7 @@ function WindowTemplate(props) {
       </div>;
     }
     return <div className="breadcrumb-buttons p-breadcrumb-container">
-      <BreadCrumb model={breadcrumbs.items} home={home} pt={{root: testHook(TestIds.breadcrumb)}}/>
+      <WindowBreadcrumb/>
       {buttons}
     </div>;
   };

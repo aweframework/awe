@@ -544,6 +544,30 @@ class IntegrationTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Navigable breadcrumb: the page the menu path leads to is the current page and the level of its launcher goes back to
+   * it, opening the launcher like the menu does
+   */
+  @Test
+  void t086_navigableBreadcrumb() {
+    // Title
+    setTestTitle("Navigable breadcrumb of a nested menu option");
+
+    // The launcher is a menu screen (a leaf of the side menu): its nested options open from its cards
+    gotoScreen("test", "launcher-menu");
+    clickButton("launcher-sales", true);
+    clickButton("launcher-reports", true);
+    clickButton("launcher-monthly", true);
+
+    // The last level is the current page of the breadcrumb
+    checkBreadcrumbCurrentPage("Monthly report");
+
+    // The level of the launcher opens it again, with the card of the page the user came from
+    clickBreadcrumbLevel("launcher-reports");
+    checkLauncherCardDescription("launcher-monthly", "Sales grouped by month");
+    checkBreadcrumbCurrentPage("Reports");
+  }
+
+  /**
    * Remove the screen configuration of the databases screen for the test user that t010 stores
    */
   private void removeScreenConfiguration() {

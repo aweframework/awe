@@ -88,6 +88,26 @@ The `full` and `document` templates are not affected. In the test hooks, the `br
 > **Note:** In the AngularJS engine the server passes the `header` parameter only to the templates that
 > declare it, so your own templates keep working unchanged. Add it to a copy of `window` to support the mode.
 
+### Navigable breadcrumb
+
+In `breadcrumb` mode the levels are links, in both engines:
+
+* The home icon opens the start screen.
+* A menu option level opens its screen, as the menu does.
+* A menu group level opens the side menu expanded at that group (an open drawer on narrow viewports). With the
+  horizontal menu, or when the menu does not know the group, a group is plain text.
+* The last level is the current page: plain text marked `aria-current="page"`. The breadcrumb is a `nav` labelled with
+  the locale key `SCREEN_TEXT_BREADCRUMB`.
+* With more than 4 levels the breadcrumb shows the first level, an ellipsis button and the last two levels. The button
+  (named by `SCREEN_TEXT_BREADCRUMB_EXPAND`, with `aria-expanded`) shows the hidden levels in place.
+* A screen opened from another screen (not from the menu) shows the trail of the screens it came from, and the origin
+  screen is a level that goes back to it. The trail resets when a screen is launched from the menu, the home icon or a
+  menu level.
+
+Test hooks: `breadcrumb`, `breadcrumb-home`, `breadcrumb-level` (a menu level carries `name`, an origin screen `path`;
+the current page carries `data-active="true"`) and `breadcrumb-ellipsis`. In the AngularJS engine the current page
+shows its title only when the server knows it, so the trail may end one level earlier than in React.
+
 ## Own templates
 
 If you need a different frame (for example a screen with a side panel), you can add your own template. How you do it
