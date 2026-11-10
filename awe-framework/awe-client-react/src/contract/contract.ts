@@ -353,6 +353,13 @@ export interface DataList extends Copyable {
     total?: number;
 }
 
+export interface DefaultSearch {
+    id?: number;
+    layout?: string[];
+    name?: string;
+    values?: unknown;
+}
+
 export interface Dependency extends Element {
     action?: string;
     actions?: DependencyAction[];
@@ -668,6 +675,7 @@ export interface Window extends Component {
     advancedCriteria?: string[];
     advancedMode?: string;
     advancedOpen?: boolean;
+    defaultSearch?: DefaultSearch;
     maximize?: boolean;
     savedSearches?: boolean;
     searchCriteria?: string[];

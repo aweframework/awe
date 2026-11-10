@@ -157,6 +157,42 @@ their menu, with the restrictions of their profile and user, gives access to the
 decide who publishes, with no new tables. The searches are stored in the `AweSavSch` table (Flyway migration
 `AWE_V1.5.2`). A window without the attribute does not change.
 
+**Layout of a search.** The Save search dialog has two more options. *Keep the advanced criteria in use in the main
+filters* (unchecked by default) saves the layout of the search: applying it shows those
+criteria in the main row, after the essential ones, while the rest go back to the advanced block. Only the direct
+children of `<advanced>` move, and they keep working as before (dependencies, validation, values kept in the session);
+they are not counted in the badge of **Advanced filters** and their chips are not marked as hidden. *Save the values of
+the criteria* (checked) can be cleared to save only the layout: applying that search shows those criteria empty. A
+search saved without a layout shows the criteria as the screen declares them.
+
+<img alt="Save search dialog with the layout, values and default search options" src={require('@docusaurus/useBaseUrl').default('img/advanced-search-save-dialog.png')} />
+
+**Default search.** A search can open the window:
+
+* *Open the screen with this search*, in the Save search dialog, or **Set as my default** in **Manage searches…** makes
+  it the default search of the user for that window. The menu marks it as **Default**. It may be an own search or one
+  published for the profile of the user.
+
+  <img alt="Saved searches menu with the default search marked" src={require('@docusaurus/useBaseUrl').default('img/advanced-search-saved-menu.png')} />
+
+* A user who may publish marks a published search as the default of its profile with **Set as the profile default**
+  (marked **Profile default**). The default of the user wins over the default of the profile.
+* The server applies the default search before the initial load, so the grid loads once, already filtered, without
+  pressing the search button. It applies it only when the criteria kept in the session for the screen bring nothing for
+  the window, and a context variable still wins over its value. A chip next to **Saved searches** names the default
+  search applied, until another search is applied or **Clear all** is used.
+
+  <img alt="Window opened with its default search: the chip names it and its advanced criteria are in the main row" src={require('@docusaurus/useBaseUrl').default('img/advanced-search-default-applied.png')} />
+
+* While a default search is applied, the reset buttons of the window and **Reset to defaults** return the criteria to the
+  values and the layout of the default search; **Clear all** returns them to the values of the XML and leaves the layout
+  as it is.
+* A search that names a criterion the window no longer has is applied without it, with no error.
+
+All of it is part of `saved-searches="true"`: there is no new attribute, and a window without it does not change. The
+default of the user is stored in `AweUsrWinCnf.DefSavSch` and the default of a profile in `AweSavSch.Def` (Flyway
+migration `AWE_V1.6.1`).
+
 ```xml
 <window id="WinUsrCrt" label="SCREEN_TEXT_CRITERIA" icon="filter" saved-searches="true">
   ...

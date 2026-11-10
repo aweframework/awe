@@ -13,6 +13,10 @@ export interface SavedSearch {
   profile?: string;
   // 1 for an own search of the user, 0 for one published for its profile
   own: number | string | boolean;
+  // 1 for the default search of the user (#915)
+  default?: number | string | boolean;
+  // 1 for the default search of the profile it is published for (#915)
+  profileDefault?: number | string | boolean;
 }
 
 /** A profile the user may publish a search for */
@@ -125,3 +129,48 @@ export const deleteWindowSearch = (
   errorMessage?: AdvancedStateErrorMessage
 ): AppThunk<Promise<boolean>> => async (dispatch) => isWindowServiceDone(
   await dispatch(launchWindowService("deleteWindowSearch", address, { savedSearchId: id }, errorMessage)));
+
+/**
+ * Make a saved search the default search of the user for a window (#915): the screen opens with it. An empty id clears
+ * it. The thunk resolves to true when it was changed.
+ *
+ * @param {object} address Address of the window
+ * @param {string} screenId Screen that holds the window
+ * @param {string|number} id Search id, empty to clear the default search
+ * @param {{title: string, message: string}} [errorMessage] Message shown when the call fails
+ */
+export const setWindowDefaultSearch = (
+  address: ComponentAddress,
+  screenId: string,
+  id: SavedSearch["id"] | "",
+  errorMessage?: AdvancedStateErrorMessage
+): AppThunk<Promise<boolean>> => async (dispatch) => isWindowServiceDone(
+  await dispatch(launchWindowService("setWindowDefaultSearch", address, {
+    savedSearchScreen: screenId,
+    savedSearchWindow: address.component,
+    savedSearchId: id
+  }, errorMessage)));
+
+/**
+ * Mark or unmark a search published for a profile as the default search of that profile for a window (#915; only for
+ * users who may publish). The thunk resolves to true when it was changed.
+ *
+ * @param {object} address Address of the window
+ * @param {string} screenId Screen that holds the window
+ * @param {string|number} id Search id
+ * @param {boolean} isDefault Mark it (true) or unmark it (false)
+ * @param {{title: string, message: string}} [errorMessage] Message shown when the call fails
+ */
+export const setProfileDefaultSearch = (
+  address: ComponentAddress,
+  screenId: string,
+  id: SavedSearch["id"],
+  isDefault: boolean,
+  errorMessage?: AdvancedStateErrorMessage
+): AppThunk<Promise<boolean>> => async (dispatch) => isWindowServiceDone(
+  await dispatch(launchWindowService("setProfileDefaultSearch", address, {
+    savedSearchScreen: screenId,
+    savedSearchWindow: address.component,
+    savedSearchId: id,
+    savedSearchDefault: isDefault ? "1" : "0"
+  }, errorMessage)));

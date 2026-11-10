@@ -29,6 +29,7 @@ import com.almis.awe.model.util.data.DataListUtil;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
@@ -501,7 +502,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    * @param criteria Criteria controller
    * @return True when the criteria accepts multiple values
    */
-  private boolean isMultipleValueCriteria(AbstractCriteria criteria) {
+  static boolean isMultipleValueCriteria(AbstractCriteria criteria) {
     return isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE, CHECKBOX, BUTTON_CHECKBOX, DATE_RANGE), criteria.getComponentType());
   }
 
@@ -722,6 +723,19 @@ public class ScreenModelGenerator extends ServiceConfig {
   }
 
   /**
+   * Default values of a criterion as its definition sets them, without the stored criteria: the values Clear all goes
+   * back to (#915)
+   *
+   * @param criterion Criterion object
+   * @return Default values
+   */
+  List<CellData> getDefinitionDefaultValues(AbstractCriteria criterion) {
+    ScreenComponent definition = new ScreenComponent().setModel(new ComponentModel());
+    generateScreenCriterionModel(criterion, definition, JsonNodeFactory.instance.objectNode());
+    return definition.getModel().getDefaultValues();
+  }
+
+  /**
    * Generate static values from component and add them to screen component model
    *
    * @param criterion       Criterion object
@@ -764,7 +778,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    * @param parameterId Parameter identifier
    * @return Check if VALUE is
    */
-  private boolean checkParameter(String parameterId, ObjectNode parameterList) {
+  static boolean checkParameter(String parameterId, ObjectNode parameterList) {
     boolean valueIsGood = false;
     if (parameterId != null && parameterList.has(parameterId)) {
       valueIsGood = checkParameterValue(parameterList.get(parameterId));
@@ -778,7 +792,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    * @param parameter Parameter
    * @return Check if VALUE is
    */
-  private boolean checkParameterValue(JsonNode parameter) {
+  private static boolean checkParameterValue(JsonNode parameter) {
     boolean valueIsGood = false;
     if (parameter != null) {
       String variableAsText = parameter.toString();
@@ -857,7 +871,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    * @param componentType Component type to check
    * @return Component type belongs to type list
    */
-  private boolean isSpecificComponent(List<InputType> typeList, String componentType) {
+  private static boolean isSpecificComponent(List<InputType> typeList, String componentType) {
     return typeList.contains(Optional.ofNullable(componentType)
       .map(c -> c.replace('-', '_').toUpperCase())
       .map(InputType::valueOf).orElse(InputType.OTHER));

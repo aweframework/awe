@@ -1,35 +1,22 @@
 // Saved searches of a window (#790, delivery 3): the Saved searches menu of the row of the advanced block, with the
 // searches of the user and the ones published for their profile, and its Save and Manage dialogs
-import {cleanupHeavyComponentTest, initHeavyComponentTest, stubPanelComponent} from "./heavyComponentTestUtils";
+import {cleanupHeavyComponentTest} from "./heavyComponentTestUtils";
+import {compileSavedSearchWindow, hook, initSavedSearchTest, savedSearchControllers, savedSearchModels, serviceCall as launched,
+  text} from "./windowSearchTestUtils";
 import {TestIds} from "../../../main/resources/js/awe/data/testIds";
 import {disposeModal} from "../../../main/resources/js/awe/services/modal";
-
-const hook = id => `[data-testid='${id}']`;
 
 describe("awe-framework/awe-client-angular/src/test/jest/components/windowSavedSearches.test.js", () => {
   let refs, controllers, models, restored, actionController, connection, $q, searches, profiles, answers;
 
   beforeEach(() => {
     restored = [];
-    angular.mock.module(["$compileProvider", $compileProvider => {
-      $compileProvider.directive("testCriterion", () => ({
-        restrict: "A",
-        scope: {},
-        link: (scope, elem) => {
-          const id = elem.attr("criterion-id");
-          scope.$on("restore-scope", (event, view) => {
-            restored.push({id, view});
-            models[id].selected = models[id].defaultValues;
-          });
-        }
-      }));
-    }]);
-    refs = initHeavyComponentTest();
-    inject(["ActionController", "Connection", "$q", (_ActionController_, _Connection_, _$q_) => {
-      actionController = _ActionController_;
-      connection = _Connection_;
-      $q = _$q_;
-    }]);
+    // A criterion of the test restores its default value as the criteria do
+    refs = initSavedSearchTest((id, view) => {
+      restored.push({id, view});
+      models[id].selected = models[id].defaultValues;
+    });
+    ({actionController, connection, $q} = refs);
     searches = [
       {id: 1, name: "Admins", values: JSON.stringify({profile: [{value: "ad", label: "Admin"}], state: [{value: "0", label: "Inactive"}]}), profile: "", own: 1},
       {id: 2, name: "Big customers", values: JSON.stringify({customer: [{value: "77", label: "Acme"}], tags: [{value: "a", label: "Alpha"}, {value: "z", label: "Zeta"}]}), profile: "", own: 1},
@@ -47,60 +34,10 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/windowSavedS
     document.body.innerHTML = "";
   });
 
-  const BODY = `<div class='panel-body'>
-      <div test-criterion criterion-id='user' class='criterion'><input id='user'></div>
-      <div test-criterion criterion-id='profile' class='criterion'><input id='profile'></div>
-      <div test-criterion criterion-id='customer' class='criterion'><input id='customer'></div>
-      <awe-advanced advanced-id='adv1'>
-        <div test-criterion criterion-id='state' class='criterion'><input id='state'></div>
-        <div test-criterion criterion-id='tags' class='criterion'><input id='tags'></div>
-        <div test-criterion criterion-id='locked' class='criterion'><input id='locked' type='checkbox'></div>
-      </awe-advanced>
-    </div><div class='panel-footer'></div>`;
-
   const compileWindow = (extra = {savedSearches: true}) => {
-    controllers = {
-      w1: {
-        id: "w1", component: "window", label: "Users", advancedMode: "inline",
-        advancedCriteria: ["state", "tags", "locked"],
-        searchCriteria: ["user", "profile", "customer", "state", "tags", "locked"],
-        ...extra
-      },
-      user: {id: "user", component: "text", label: "Name"},
-      profile: {id: "profile", component: "select", label: "Profile"},
-      customer: {id: "customer", component: "suggest", label: "Customer"},
-      state: {id: "state", component: "select", label: "State"},
-      tags: {id: "tags", component: "select-multiple", label: "Tags"},
-      locked: {id: "locked", component: "checkbox", label: "Locked"}
-    };
-    models = {
-      w1: {selected: null, values: []},
-      user: {selected: "jo", defaultValues: null, values: []},
-      profile: {selected: "op", defaultValues: null, values: [{value: "op", label: "Operator"}, {value: "ad", label: "Admin"}]},
-      customer: {selected: null, defaultValues: null, values: []},
-      state: {selected: "1", defaultValues: "1", values: [{value: "1", label: "Active"}, {value: "0", label: "Inactive"}]},
-      tags: {selected: [], defaultValues: [], values: [{value: "a", label: "Alpha"}]},
-      locked: {selected: 0, defaultValues: 0, values: []}
-    };
-    stubPanelComponent(refs, {}, controllers.w1);
-    refs.$storage.get.mockReturnValue({base: {name: "UsrLst"}});
-    jest.spyOn(actionController, "addActionList").mockImplementation(() => undefined);
-    jest.spyOn(connection, "post").mockImplementation(url => {
-      const target = url.split("/").pop();
-      if (answers[target]) {
-        return answers[target]();
-      }
-      return $q.resolve({
-        data: [{type: "fill", parameters: {datalist: {rows: target === "getSavedSearchProfiles" ? profiles : searches}}}, {type: "end-load"}]
-      });
-    });
-    refs.$control.getAddressController.mockImplementation(address => controllers[address.component]);
-    refs.$control.getAddressModel.mockImplementation(address => models[address.component]);
-    const form = $("<form></form>").appendTo(document.body);
-    const element = refs.$compile(`<awe-window window-id='w1'>${BODY}</awe-window>`)(refs.$rootScope.$new());
-    form.append(element);
-    refs.$rootScope.$digest();
-    return element;
+    controllers = savedSearchControllers(extra);
+    models = savedSearchModels();
+    return compileSavedSearchWindow(refs, {controllers, models, server: {searches, profiles, answers}});
   };
 
   const digest = () => refs.$rootScope.$digest();
@@ -112,7 +49,6 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/windowSavedS
   const manageDialog = () => $(hook(TestIds.windowSavedSearchManageDialog));
   const rows = () => manageDialog().find(hook(TestIds.windowSavedSearchRow));
   const row = id => manageDialog().find(`${hook(TestIds.windowSavedSearchRow)}[data-saved-search-id='${id}']`);
-  const text = node => $(node).text().replace(/\s+/g, " ").trim();
   const posts = () => connection.post.mock.calls.map(([url, data]) => ({target: url.split("/").pop(), data}));
   const actionLists = () => actionController.addActionList.mock.calls.map(([actions]) => actions);
   const keydown = (node, key) => {
@@ -137,7 +73,7 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/windowSavedS
     return onClick;
   };
   // The service of an action list launched by launchSilentService: its server action and the action that tells it worked
-  const serviceCall = target => actionLists().find(actions => actions[0].attr && actions[0].attr("parameters")?.targetAction === target);
+  const serviceCall = target => launched(actionController, target);
   const succeed = actions => {
     actions[1].launchAction();
     digest();

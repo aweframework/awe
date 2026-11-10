@@ -31,7 +31,7 @@ function WindowController($element, $attrs, Control) {
   /**
    * Advanced search of the window: null without an advanced block
    * @param {string} view View of the window
-   * @returns {{windowId: string, label: string, mode: string, open: boolean, savedSearches: boolean, advancedIds: string[], searchIds: string[]}|null} Search
+   * @returns {{windowId: string, label: string, mode: string, open: boolean, savedSearches: boolean, defaultSearch: Object|null, advancedIds: string[], searchIds: string[]}|null} Search
    */
   this.getAdvancedSearch = view => {
     const controller = Control.getAddressController({view, component: $attrs.windowId}) || {};
@@ -46,6 +46,8 @@ function WindowController($element, $attrs, Control) {
       open: controller.advancedOpen === true,
       // The window opts in to the saved searches (#790)
       savedSearches: controller.savedSearches === true,
+      // The default saved search the server applied before the initial load (#915): id, name, values and layout
+      defaultSearch: controller.defaultSearch || null,
       advancedIds: controller.advancedCriteria,
       searchIds: controller.searchCriteria || []
     };

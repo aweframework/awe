@@ -244,6 +244,16 @@ class WindowStateServiceTest {
   }
 
   @Test
+  @DisplayName("A row stored only for the default search of the window holds no advanced state")
+  void rowWithOnlyADefaultSearchHasNoState() throws Exception {
+    mockSessionUser("john");
+    mockParameters();
+    when(queryService.launchPrivateQuery(eq("getUserWindowStates"), any(ObjectNode.class))).thenReturn(rows("Open", 1, "OnlyDefault", null));
+
+    assertEquals(Map.of("Open", true), windowStateService.getScreenAdvancedStates("Scr"));
+  }
+
+  @Test
   @DisplayName("A failure reading the states never breaks the screen")
   void stateReadFailureIsTolerated() throws Exception {
     mockSessionUser("john");

@@ -864,8 +864,21 @@
   <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Renommer"/>
   <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Rétablir les valeurs par défaut"/>
   <locale name="SCREEN_TEXT_SAVED_SEARCHES" value="Recherches enregistrées"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_APPLIED_DEFAULT" value="Recherche par défaut appliquée"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_DEFAULT" value="Par défaut"/>
   <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_MESSAGE" value="Les recherches enregistrées n'ont pas pu être mises à jour. Réessayez plus tard."/>
   <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_TITLE" value="Recherches enregistrées"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT" value="Garder les critères avancés utilisés dans les filtres principaux"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT_HELP" value="En appliquant cette recherche, ils s'affichent avec les critères essentiels."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES" value="Enregistrer les valeurs des critères"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES_HELP" value="Décochée, la recherche laisse les critères vides : elle ne retient que les champs à afficher."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH" value="Ouvrir l'écran avec cette recherche"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH_HELP" value="Elle devient votre recherche par défaut : à chaque ouverture, l'écran se charge avec ces valeurs et ces filtres."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_PROFILE_DEFAULT" value="Par défaut du profil"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_SET_DEFAULT" value="Définir comme ma recherche par défaut"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_SET_PROFILE_DEFAULT" value="Définir comme recherche par défaut du profil"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_UNSET_DEFAULT" value="Ne plus utiliser comme ma recherche par défaut"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_UNSET_PROFILE_DEFAULT" value="Ne plus utiliser comme recherche par défaut du profil"/>
   <locale name="SCREEN_TEXT_SAVE_CURRENT_SEARCH" value="Enregistrer la recherche actuelle…"/>
   <locale name="SCREEN_TEXT_SAVE_SEARCH" value="Enregistrer la recherche"/>
   <locale name="SCREEN_TEXT_SAVE_SEARCH_SUBTITLE" value="Conserve les critères en vigueur de cette fenêtre, y compris les critères avancés."/>

@@ -126,6 +126,18 @@ public final class TestIds {
   public static final String WINDOW_SAVED_SEARCH_RENAME_ACCEPT = "window-saved-search-rename-accept";
   public static final String WINDOW_SAVED_SEARCH_DELETE = "window-saved-search-delete";
   public static final String WINDOW_SAVED_SEARCH_MANAGE_CLOSE = "window-saved-search-manage-close";
+  // Default search and layout of the saved searches of a window (#915; owner: window id): the Keep layout, Keep values and
+  // Open with this search checkboxes of the Save search dialog ("data-selected"), the Default and Profile default tags of a
+  // search of the menu, the toggles of a row of the Manage searches dialog ("data-selected" when the search is the default)
+  // and the chip of the default search applied on load
+  public static final String WINDOW_SAVED_SEARCH_KEEP_LAYOUT = "window-saved-search-keep-layout";
+  public static final String WINDOW_SAVED_SEARCH_KEEP_VALUES = "window-saved-search-keep-values";
+  public static final String WINDOW_SAVED_SEARCH_OPEN_WITH = "window-saved-search-open-with";
+  public static final String WINDOW_SAVED_SEARCH_DEFAULT_TAG = "window-saved-search-default-tag";
+  public static final String WINDOW_SAVED_SEARCH_PROFILE_DEFAULT_TAG = "window-saved-search-profile-default-tag";
+  public static final String WINDOW_SAVED_SEARCH_SET_DEFAULT = "window-saved-search-set-default";
+  public static final String WINDOW_SAVED_SEARCH_SET_PROFILE_DEFAULT = "window-saved-search-set-profile-default";
+  public static final String WINDOW_SAVED_SEARCH_APPLIED_DEFAULT = "window-saved-search-applied-default";
   // Accept button of a confirmation (the confirm dialog of the screen, or one that its owner component draws)
   public static final String CONFIRM_ACCEPT = "confirm-accept";
   // Tabs: the whole tab component (list and content, identified by its owner) and its Maximize button

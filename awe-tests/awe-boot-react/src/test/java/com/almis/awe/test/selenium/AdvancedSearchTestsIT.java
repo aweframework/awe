@@ -15,11 +15,13 @@ import org.junit.jupiter.api.TestMethodOrder;
  * <p>The inline window keeps saved searches (saved-searches="true"): the test user saves, applies, renames and deletes its
  * own searches and, as it may publish (it reaches the profiles option), publishes one for the Test profile. A user of that
  * profile, which the class creates (Test reaches the test menu but not the tools, so it may not publish), applies it but
- * cannot change it. Every test removes what it saves, and what an earlier run left, so the class can run again.</p>
+ * cannot change it. A saved search can open the screen (#915): the last test makes one the default search of the user, so
+ * the earlier tests start from the values of the screen. Every test removes what it saves, and what an earlier run left, so
+ * the class can run again.</p>
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("RegressionWebsocketPrintIT")
-class AdvancedSearchTestsIT extends AbstractCrudTests {
+class AdvancedSearchTestsIT extends AbstractSavedSearchTests {
 
   private static final String INLINE_WINDOW = "WinAdvInl";
   private static final String PANEL_WINDOW = "WinAdvPnl";
@@ -53,6 +55,10 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
   private static final String OWN_SEARCH = "Active retail";
   private static final String RENAMED_SEARCH = "Active retail customers";
   private static final String SHARED_SEARCH = "Priority customers";
+  private static final String DEFAULT_SEARCH = "French customers";
+  // First page of the customers of France in the inline grid
+  private static final String[] FRENCH_CUSTOMERS = {"Fjord Energy", "Lumen Foods", "Fjord Textiles", "Lumen Labs", "Atlas Labs",
+    "Granite Pharma", "Atlas Retail", "Granite Media", "Boreal Energy", "Harbor Foods"};
   // Profile that the shared search is published for (the name of its option) and its user, which the class creates
   private static final String PROFILE_ACRONYM = "TST";
   private static final String PROFILE_NAME = "Test";
@@ -630,6 +636,46 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
     checkGridColumnFiltered(INLINE_GRID, INLINE_STATUS_COLUMN, false);
     checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, SPANISH_CUSTOMERS);
     checkGridPaginationInfo("View 1 - 10 of 20");
+  }
+
+  /**
+   * Default search (#915): a search saved with its layout and Open with this search opens the screen. The grid loads once,
+   * already filtered by its values, the advanced criterion of its layout is in the main row with the block closed, and a
+   * chip names the search. Clear all brings the values of the screen back and hides the chip. Deleting the search leaves the
+   * screen as it was for the other tests
+   */
+  @Test
+  void t160_defaultSearchOpensTheScreenWithItsValuesAndLayout() {
+    setTestTitle("Saved searches: the default search opens the screen with its values and its layout");
+    openAdvancedSearchScreen();
+    deleteLeftSavedSearches(DEFAULT_SEARCH);
+
+    // Customers of France, saved with the layout as the search that opens the screen
+    toggleAdvancedFilters(INLINE_WINDOW);
+    selectContain(COUNTRY, FRANCE);
+    closeAdvancedFilters(INLINE_WINDOW);
+    saveCurrentSearchAsDefault(INLINE_WINDOW, DEFAULT_SEARCH);
+    closeSavedSearches(INLINE_WINDOW);
+
+    // Opened again: filtered on load, without a search, and the country with the essential criteria
+    showAdvancedSearchScreen();
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, FRENCH_CUSTOMERS);
+    checkAdvancedFiltersClosed(INLINE_WINDOW);
+    checkSelectContents(COUNTRY, FRANCE);
+    checkCriterionAboveAdvancedFilters(INLINE_WINDOW, COUNTRY);
+    checkFilterChip(INLINE_WINDOW, COUNTRY, false);
+    checkAdvancedFiltersCount(INLINE_WINDOW, 0);
+    checkDefaultSearchApplied(INLINE_WINDOW, DEFAULT_SEARCH);
+
+    // Clear all: the values of the screen, without the chip
+    clearAllFilters(INLINE_WINDOW);
+    checkSelectContents(COUNTRY, SPAIN);
+    checkNoFilterChips(INLINE_WINDOW);
+    checkNoDefaultSearchApplied(INLINE_WINDOW);
+
+    deleteSavedSearch(INLINE_WINDOW, DEFAULT_SEARCH);
+    checkSavedSearchNotListed(INLINE_WINDOW, DEFAULT_SEARCH);
+    closeSavedSearches(INLINE_WINDOW);
   }
 
   /**

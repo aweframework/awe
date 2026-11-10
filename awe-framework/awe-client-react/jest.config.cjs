@@ -141,6 +141,7 @@ module.exports = {
     '**/components/AweVideoTest.{js,jsx}',
     '**/components/AweMapTest.{js,jsx}',
     '**/components/AweWindowTest.{js,jsx}',
+    '**/components/AweWindowDefaultSearchTest.{js,jsx}',
     '**/components/AweInfoButtonTest.{js,jsx}',
     '**/components/AweInfoDropdownTest.{js,jsx}',
     '**/components/AweStepsTest.{js,jsx}',

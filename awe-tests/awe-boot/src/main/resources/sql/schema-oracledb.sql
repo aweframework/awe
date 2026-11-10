@@ -289,7 +289,8 @@ CREATE TABLE AweUsrWinCnf (
     Ope varchar2(20) NOT NULL,                                                 --  User id
     Scr varchar2(100) NOT NULL,                                                --  Screen id
     WinId varchar2(100) NOT NULL,                                              --  Window id
-    AdvOpn number(1) NOT NULL,                                                 --  Advanced block left open (1) or closed (0)
+    AdvOpn number(1) NULL,                                                     --  Advanced block left open (1), closed (0) or unknown (null)
+    DefSavSch number(10) NULL,                                                 --  Default saved search of the user (AweSavSch id)
     CONSTRAINT uk_AweUsrWinCnf UNIQUE (Ope, Scr, WinId)
     );
 
@@ -306,8 +307,10 @@ CREATE TABLE AweSavSch (
     WinId varchar2(100) NOT NULL,                                       --  Window id
     Nam varchar2(100) NOT NULL,                                         --  Search name
     Val varchar2(4000) NOT NULL,                                        --  Values (JSON with the selected values of each search criterion)
+    Def number(1) DEFAULT 0 NOT NULL,                                   --  Default search of its profile (1) or not (0)
     CONSTRAINT uk_AweSavSch UNIQUE (Ope, Pro, Scr, WinId, Nam),
-    CONSTRAINT ck_AweSavSch_Own CHECK ((Ope IS NULL AND Pro IS NOT NULL AND Pro <> '') OR (Ope IS NOT NULL AND Ope <> '' AND Pro IS NULL))
+    CONSTRAINT ck_AweSavSch_Own CHECK ((Ope IS NULL AND Pro IS NOT NULL AND Pro <> '') OR (Ope IS NOT NULL AND Ope <> '' AND Pro IS NULL)),
+    CONSTRAINT ck_AweSavSch_Def CHECK (Def = 0 OR (Def = 1 AND Pro IS NOT NULL))
     );
 
 INSERT INTO AweKey (KeyNam, KeyVal)

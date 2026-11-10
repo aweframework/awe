@@ -238,6 +238,36 @@ public abstract class AbstractFlywayMigrationTest extends AbstractSpringAppInteg
   }
 
   @Test
+  @DisplayName("The default saved search columns are migrated: a row only for the default search, a profile default only when published")
+  void testDefaultSavedSearchColumnsAreMigrated() throws Exception {
+    assertTrue(shippedVersions("AWE").contains("1.6.1"), "The AWE default saved search migration is shipped for " + dialect());
+
+    try {
+      execute("INSERT INTO AweUsrWinCnf (IdeUsrWinCnf, Ope, Scr, WinId, DefSavSch) VALUES (7720001, 'nobody', 'none', 'none', 1)");
+      assertEquals(1, count("SELECT COUNT(*) FROM AweUsrWinCnf WHERE IdeUsrWinCnf = 7720001 AND AdvOpn IS NULL"),
+        "AweUsrWinCnf stores a default search without an advanced state on " + dialect());
+      execute("INSERT INTO AweSavSch (IdeSavSch, Pro, Scr, WinId, Nam, Val, Def) VALUES (7720001, 'GNR', 'none', 'none', 'none', '{}', 1)");
+      execute("INSERT INTO AweSavSch (IdeSavSch, Ope, Scr, WinId, Nam, Val) VALUES (7720002, 'nobody', 'none', 'none', 'none', '{}')");
+      assertEquals(1, count("SELECT COUNT(*) FROM AweSavSch WHERE IdeSavSch = 7720002 AND Def = 0"), "Def is 0 by default on " + dialect());
+      assertThrows(SQLException.class, () -> execute("UPDATE AweSavSch SET Def = 1 WHERE IdeSavSch = 7720002"),
+        "An own search is never the default of a profile on " + dialect());
+    } finally {
+      execute("DELETE FROM AweUsrWinCnf WHERE IdeUsrWinCnf = 7720001");
+      execute("DELETE FROM AweSavSch WHERE IdeSavSch >= 7720001");
+    }
+  }
+
+  @Test
+  @DisplayName("The default saved search migration can be applied again over the existing columns")
+  void testDefaultSavedSearchMigrationCanBeAppliedAgain() throws Exception {
+    applyAgain("1.6.1");
+
+    assertTrue(appliedVersions("AWE").contains("1.6.1"), "AWE_V1.6.1 applied again successfully on " + dialect());
+    assertEquals(0, count("SELECT COUNT(*) FROM AweUsrWinCnf WHERE DefSavSch = -1 AND AdvOpn IS NULL"), "AweUsrWinCnf still answers a query");
+    assertEquals(0, count("SELECT COUNT(*) FROM AweSavSch WHERE Def = 1 AND Ope = 'nobody'"), "AweSavSch still answers a query");
+  }
+
+  @Test
   @DisplayName("The additional profiles table is migrated with its unique key and its foreign keys")
   void testAdditionalProfilesTableIsMigrated() throws Exception {
     assertTrue(shippedVersions("AWE").contains("1.6.0"), "The AWE additional profiles migration is shipped for " + dialect());

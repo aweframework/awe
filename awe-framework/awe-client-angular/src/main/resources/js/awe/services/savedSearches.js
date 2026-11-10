@@ -10,6 +10,9 @@ import "../directives/plugins/uiSelect";
 // Applying one restores every search criterion of the window to its default, sets the saved values and launches the
 // submit of the window. The user is never sent: the server takes it (and its profile) from the session. A grid with
 // saved-searches="true" (#912) has the same menu in its toolbar, with a source that reads and restores the grid state.
+// A search of a window may also keep its layout (#915), the advanced criteria it shows in the main row, under the
+// reserved key $layout, and be the default search of the user or of a profile: the server applies it before the initial
+// load, the window names it in a chip and its restores return to it. Grids have neither a layout nor a default (D5).
 
 // Lists whose selected values are an array
 const MULTIPLE = ["select-multiple", "suggest-multiple"];
@@ -24,12 +27,21 @@ const LOAD_ERROR = Object.freeze({type: "message", parameters: Object.freeze({ty
 
 const owner = `ng-attr-data-testid-owner="{{::saved.windowId}}"`;
 const savedSearchId = `ng-attr-${TestAttributes.savedSearchId}="{{search.id}}"`;
+// Reserved key of the values of a window search with the advanced criteria it shows in the main row (#915)
+const LAYOUT = "$layout";
+
+// Default search of the user and default of its profile (#915), as a text tag
+const defaultTagsTemplate = `<span class="window-saved-searches-tag window-saved-searches-tag-default" ng-if="saved.isDefault(search)"
+            data-testid="${TestIds.windowSavedSearchDefaultTag}" ${owner}>{{'SCREEN_TEXT_SAVED_SEARCH_DEFAULT' | translateMultiple}}</span>
+      <span class="window-saved-searches-tag" ng-if="saved.isProfileDefault(search)"
+            data-testid="${TestIds.windowSavedSearchProfileDefaultTag}" ${owner}>{{'SCREEN_TEXT_SAVED_SEARCH_PROFILE_DEFAULT' | translateMultiple}}</span>`;
 
 const optionTemplate = (type, icon) => `<button type="button" role="menuitem" tabindex="-1" class="window-saved-searches-option"
           ng-repeat="search in saved.${type} track by search.id" data-testid="${TestIds.windowSavedSearchItem}" ${owner} ${savedSearchId}
           data-type="${type}" ng-attr-aria-current="{{saved.isCurrent(search) ? 'true' : undefined}}" ng-click="saved.apply(search)">
       ${iconMarkup(icon)}
       <span class="window-saved-searches-text">{{search.name}}</span>
+      ${defaultTagsTemplate}
       ${type === "shared" ? `<span class="window-saved-searches-tag">{{saved.profileLabel(search.profile)}}</span>` : ""}
     </button>`;
 
@@ -70,10 +82,33 @@ export const getSavedSearchesTemplate = (buttonClasses = "") => `<div class="win
 // The Saved searches of the advanced block of a window: a text button
 export const savedSearchesTemplate = getSavedSearchesTemplate();
 
+// The chip next to the Saved searches button that names the default search applied when the window opened (#915)
+export const appliedDefaultTemplate = `<span class="window-saved-search-applied" ng-if="saved.applied"
+      data-testid="${TestIds.windowSavedSearchAppliedDefault}" ${owner} title="{{'SCREEN_TEXT_SAVED_SEARCH_APPLIED_DEFAULT' | translateMultiple}}: {{saved.applied.name}}">
+    ${iconMarkup("lucide:bookmark")}<span class="sr-only">{{'SCREEN_TEXT_SAVED_SEARCH_APPLIED_DEFAULT' | translateMultiple}}: </span><span class="window-saved-search-applied-name">{{saved.applied.name}}</span>
+  </span>`;
+
+/**
+ * An option of the Save search dialog of a window (#915): a checkbox with its help
+ * @param {string} field Field of the form
+ * @param {string} testId Test id of the checkbox
+ * @param {string} label Text of the option (its help is the text with _HELP)
+ * @param {string} [before] Markup before the help
+ * @returns {string} Template
+ */
+const optionCheckTemplate = (field, testId, label, before = "") => `<div class="window-saved-search-check">
+          <label>
+            <input type="checkbox" ng-model="saved.form.${field}" data-testid="${testId}" ${owner}
+                   awe-saved-search-selected="saved.form.${field}" aria-describedby="{{::saved.dialogId}}-${field}-help">
+            <span>{{'${label}' | translateMultiple}}</span>
+          </label>
+          <p class="window-saved-search-help" id="{{::saved.dialogId}}-${field}-help">${before}{{'${label}_HELP' | translateMultiple}}</p>
+        </div>`;
+
 // The Save search dialog: the name (required) and, only for a user who may publish, the profile to publish it for
 const saveDialogTemplate = `<div class="modal fade window-saved-search-modal" ui-modal trap-tab role="dialog" aria-modal="true"
      aria-labelledby="{{::saved.dialogId}}-save-title" data-testid="${TestIds.windowSavedSearchDialog}" ${owner}>
-  <div class="modal-dialog modal-sm">
+  <div class="modal-dialog window-saved-search-save-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="{{'BUTTON_CLOSE' | translateMultiple}}">&times;</button>
@@ -93,6 +128,12 @@ const saveDialogTemplate = `<div class="modal fade window-saved-search-modal" ui
           <label for="{{::saved.dialogId}}-profile">{{'SCREEN_TEXT_PUBLISH_FOR_PROFILE' | translateMultiple}}</label>
           <awe-saved-search-profile></awe-saved-search-profile>
           <p class="window-saved-search-help" id="{{::saved.dialogId}}-profile-help">{{'SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP' | translateMultiple}}</p>
+        </div>
+        <div class="window-saved-search-field window-saved-search-options" ng-if="::saved.windowSearch">
+          ${optionCheckTemplate("keepLayout", TestIds.windowSavedSearchKeepLayout, "SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT",
+    `<span ng-repeat="label in saved.form.layoutLabels">{{label | translateMultiple}}{{$last ? '. ' : ', '}}</span>`)}
+          ${optionCheckTemplate("keepValues", TestIds.windowSavedSearchKeepValues, "SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES")}
+          ${optionCheckTemplate("openWith", TestIds.windowSavedSearchOpenWith, "SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH")}
         </div>
       </div>
       <div class="modal-footer">
@@ -141,6 +182,19 @@ const manageDialogTemplate = `<div class="modal fade window-saved-search-modal" 
                 <span class="window-saved-searches-tag" ng-if="!saved.isOwn(search)">{{saved.profileLabel(search.profile)}}</span>
               </td>
               <td class="window-saved-search-actions">
+                <span ng-if="::saved.windowSearch" ng-show="saved.editing.id !== search.id">
+                  <button type="button" class="window-saved-search-action" data-testid="${TestIds.windowSavedSearchSetDefault}" ${owner}
+                          awe-saved-search-selected="saved.isDefault(search)"
+                          aria-label="{{(saved.isDefault(search) ? 'SCREEN_TEXT_SAVED_SEARCH_UNSET_DEFAULT' : 'SCREEN_TEXT_SAVED_SEARCH_SET_DEFAULT') | translateMultiple}} {{search.name}}"
+                          title="{{(saved.isDefault(search) ? 'SCREEN_TEXT_SAVED_SEARCH_UNSET_DEFAULT' : 'SCREEN_TEXT_SAVED_SEARCH_SET_DEFAULT') | translateMultiple}}"
+                          ng-click="saved.toggleDefault(search)">${iconMarkup("lucide:star", 'ng-if="!saved.isDefault(search)"')}${iconMarkup("lucide:star-off", 'ng-if="saved.isDefault(search)"')}</button>
+                  <button type="button" class="window-saved-search-action" data-testid="${TestIds.windowSavedSearchSetProfileDefault}" ${owner}
+                          ng-if="saved.profiles.length > 0 && !saved.isOwn(search)"
+                          awe-saved-search-selected="saved.isProfileDefault(search)"
+                          aria-label="{{(saved.isProfileDefault(search) ? 'SCREEN_TEXT_SAVED_SEARCH_UNSET_PROFILE_DEFAULT' : 'SCREEN_TEXT_SAVED_SEARCH_SET_PROFILE_DEFAULT') | translateMultiple}} {{search.name}}"
+                          title="{{(saved.isProfileDefault(search) ? 'SCREEN_TEXT_SAVED_SEARCH_UNSET_PROFILE_DEFAULT' : 'SCREEN_TEXT_SAVED_SEARCH_SET_PROFILE_DEFAULT') | translateMultiple}}"
+                          ng-click="saved.toggleProfileDefault(search)">${iconMarkup("lucide:user-check", 'ng-if="!saved.isProfileDefault(search)"')}${iconMarkup("lucide:user-x", 'ng-if="saved.isProfileDefault(search)"')}</button>
+                </span>
                 <span ng-if="saved.canManage(search) && saved.editing.id !== search.id">
                   <button type="button" class="window-saved-search-action" data-testid="${TestIds.windowSavedSearchRename}" ${owner}
                           aria-label="{{'SCREEN_TEXT_RENAME_SEARCH' | translateMultiple}} {{search.name}}" title="{{'SCREEN_TEXT_RENAME_SEARCH' | translateMultiple}}"
@@ -179,13 +233,16 @@ const parseValues = values => {
 
 /**
  * Source of the values of the saved searches of a window: its search criteria. Applying a search restores every search
- * criterion to its default (as Clear all), sets the saved values and launches the submit of the window
- * @param {Object} block What the advanced block offers (searchIds, controllerOf, modelOf, modelAddressOf, valuesOf, restore)
+ * criterion to its default (as Clear all), sets the saved values, shows its layout (#915) and launches the submit of
+ * the window
+ * @param {Object} block What the advanced block offers (searchIds, controllerOf, modelOf, modelAddressOf, valuesOf,
+ * restore, layout)
  * @param {Object} elem Block element
  * @param {Object} services Control and Utilities services
- * @returns {Object} Source: snapshot(), currentValues(), parseValues(json) and apply(values, onApplied)
+ * @returns {Object} Source: snapshot(), currentValues(), parseValues(json), apply(values, onApplied) and
+ * setValues(values, ids)
  */
-function getCriteriaSource({searchIds, controllerOf, modelOf, modelAddressOf, valuesOf, restore}, elem, {Control, Utilities}) {
+function getCriteriaSource({searchIds, controllerOf, modelOf, modelAddressOf, valuesOf, restore, layout}, elem, {Control, Utilities}) {
   /**
    * Set the saved values of a criterion. The options of a list that it does not have are added with their labels, so
    * a suggest or a multiple select shows them
@@ -208,6 +265,15 @@ function getCriteriaSource({searchIds, controllerOf, modelOf, modelAddressOf, va
     Control.changeModelAttribute(modelAddressOf(id), attributes, true);
   };
 
+  /**
+   * Set the saved values of some search criteria: the ids the window no longer has are ignored
+   * @param {Object} values Saved values by criterion id
+   * @param {string[]} ids Criteria to set
+   */
+  const setCriteriaValues = (values, ids) => Object.keys(values)
+    .filter(id => searchIds.includes(id) && ids.includes(id))
+    .forEach(id => setValues(id, values[id]));
+
   return {
     // Values of the search criteria as the criteria show them
     snapshot: () => searchIds.map(id => valuesOf(modelOf(id).selected)),
@@ -221,9 +287,12 @@ function getCriteriaSource({searchIds, controllerOf, modelOf, modelAddressOf, va
       return all;
     }, {}),
     parseValues,
+    setValues: setCriteriaValues,
     apply(values, onApplied) {
       restore(null);
-      Object.keys(values).filter(id => searchIds.includes(id)).forEach(id => setValues(id, values[id]));
+      setCriteriaValues(values, searchIds);
+      // A search without layout shows the layout of the XML
+      layout.set(values[LAYOUT] || []);
       // Once the criteria have taken the values
       Utilities.timeout(() => {
         onApplied();
@@ -238,8 +307,9 @@ function getCriteriaSource({searchIds, controllerOf, modelOf, modelAddressOf, va
  * @param {Object} scope Block scope
  * @param {Object} elem Block element
  * @param {Object} block What the block offers: windowId (the component id), title, view, screenName() and either the
- * search criteria of a window (searchIds, controllerOf(id), modelOf(id), modelAddressOf(id), valuesOf(value) and
- * restore(ids)) or a source of values (source: snapshot(), currentValues(), parseValues(json) and apply(values, onApplied))
+ * search criteria of a window (searchIds, controllerOf(id), modelOf(id), modelAddressOf(id), valuesOf(value), restore(ids),
+ * layout: get(), set(ids), inUse(), labelOf(id) and listenRestores(onRestore), and the defaultSearch applied on load) or a
+ * source of values (source: snapshot(), currentValues(), parseValues(json) and apply(values, onApplied))
  * @param {Object} services $compile, Control, Utilities, $actionController, $settings and Connection services
  * @returns {Object} Saved searches of the block
  */
@@ -293,6 +363,9 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
   };
 
   const source = block.source || getCriteriaSource(block, elem, {Control, Utilities});
+  // A window search has a layout and a default search (#915), a grid search has neither
+  const windowSearch = !block.source;
+  const defaultSearch = windowSearch ? block.defaultSearch || null : null;
   // Values as the component shows them, to know whether they changed
   const snapshot = () => source.snapshot();
 
@@ -399,8 +472,30 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
     }
   };
 
+  /**
+   * Mark the default search of the user in the window, or clear it, and load the searches again
+   * @param {*} id Search id, empty to clear it
+   * @param {function} [onDone] Called once the searches are loaded again
+   */
+  const setDefault = (id, onDone) => launch("setWindowDefaultSearch", {
+    savedSearchScreen: block.screenName(),
+    savedSearchWindow: windowId,
+    savedSearchId: id
+  }, () => undefined, () => load(onDone));
+
+  /**
+   * The criteria back to the default search that opened the window: its values and its layout, and its chip
+   * @param {string[]} ids Criteria to give their values
+   */
+  const toDefault = ids => {
+    source.setValues(defaultSearch.values || {}, ids);
+    block.layout.set(defaultSearch.layout || []);
+    saved.applied = {id: defaultSearch.id, name: defaultSearch.name};
+  };
+
   const saved = {
     windowId,
+    windowSearch,
     title: block.title,
     menuId: `${windowId}-saved-searches-menu`,
     dialogId: `${windowId}-saved-search`,
@@ -411,10 +506,18 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
     shared: [],
     profiles: [],
     current: null,
+    // The default search applied when the window opened, while it is in effect
+    applied: defaultSearch ? {id: defaultSearch.id, name: defaultSearch.name} : null,
     form: {name: "", profile: "", invalid: false, saving: false},
     editing: null,
     isOwn(search) {
       return Number(search.own) === 1;
+    },
+    isDefault(search) {
+      return Number(search.default) === 1;
+    },
+    isProfileDefault(search) {
+      return Number(search.profileDefault) === 1;
     },
     isCurrent(search) {
       return saved.current !== null && saved.current.id === search.id;
@@ -468,6 +571,7 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
     // and reloads); the button names it once the component has taken them
     apply(search) {
       closeMenu(true);
+      saved.applied = null;
       saved.current = {id: search.id, name: search.name, values: null};
       const applied = saved.current;
       source.apply(source.parseValues(search.values), () => {
@@ -476,7 +580,11 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
     },
     openSave() {
       closeMenu(true);
-      saved.form = {name: saved.current ? saved.current.name : "", profile: "", invalid: false, saving: false};
+      // The layout to keep: the criteria of the main row and the advanced criteria in use that can move there (#915)
+      const layout = windowSearch ? _.uniq([...block.layout.get(), ...block.layout.inUse()]) : [];
+      // Keep the layout is opt-in: a plain save keeps the values only, as before #915
+      saved.form = {name: saved.current ? saved.current.name : "", profile: "", invalid: false, saving: false,
+        layout, layoutLabels: layout.map(id => block.layout.labelOf(id)), keepLayout: false, keepValues: true, openWith: false};
       showDialog(TestIds.windowSavedSearchDialog, true);
     },
     nameKeydown(event) {
@@ -496,11 +604,15 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
       const form = saved.form;
       form.invalid = false;
       form.saving = true;
+      const searchValues = form.keepValues === false ? {} : source.currentValues();
+      if (windowSearch && form.keepLayout && form.layout.length > 0) {
+        searchValues[LAYOUT] = form.layout;
+      }
       const parameters = {
         savedSearchScreen: block.screenName(),
         savedSearchWindow: windowId,
         savedSearchName: name,
-        savedSearchValues: JSON.stringify(source.currentValues()),
+        savedSearchValues: JSON.stringify(searchValues),
         // Empty: a search of the user only
         savedSearchProfile: form.profile && form.profile !== ONLY_ME ? form.profile : ""
       };
@@ -512,12 +624,47 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
         showDialog(TestIds.windowSavedSearchDialog, false);
         saved.current = {id: null, name, values};
         load(() => {
-          const stored = saved.own.find(search => search.name === name);
+          const stored = form.profile ? saved.shared.find(search => search.name === name && search.profile === form.profile)
+            : saved.own.find(search => search.name === name);
           if (saved.current && saved.current.name === name && stored && !form.profile) {
             saved.current.id = stored.id;
           }
+          // Open the screen with this search: the default search of the user
+          if (form.openWith && stored) {
+            setDefault(stored.id);
+          }
         });
       });
+    },
+    // Mark a search as the default of the user, or stop using it
+    toggleDefault(search) {
+      setDefault(saved.isDefault(search) ? "" : search.id, () => afterDigest(() => focusRow(search.id, TestIds.windowSavedSearchSetDefault)));
+    },
+    // Mark a published search as the default of its profile, or stop using it (a user who may publish)
+    toggleProfileDefault(search) {
+      launch("setProfileDefaultSearch", {
+        savedSearchScreen: block.screenName(),
+        savedSearchWindow: windowId,
+        savedSearchId: search.id,
+        savedSearchDefault: saved.isProfileDefault(search) ? "0" : "1"
+      }, () => undefined, () => reloadAndFocus(() => focusRow(search.id, TestIds.windowSavedSearchSetProfileDefault)));
+    },
+    // Clear all: the default search is no longer in effect
+    cleared() {
+      saved.applied = null;
+    },
+    /**
+     * Return criteria to the default search that opened the window (D7)
+     * @param {string[]} ids Criteria
+     * @returns {boolean} The window opened with a default search
+     */
+    restoreDefault(ids) {
+      if (!defaultSearch) {
+        return false;
+      }
+      block.restore(ids);
+      toDefault(ids);
+      return true;
     },
     openManage() {
       closeMenu(true);
@@ -625,8 +772,34 @@ export function initSavedSearches(scope, elem, block, {$compile, Control, Utilit
     dialogs.remove();
   });
 
+  if (defaultSearch) {
+    // The server gave its values to the criteria before the initial load: only its layout is shown, once they are drawn
+    afterDigest(() => block.layout.set(defaultSearch.layout || []));
+    // The restore buttons of the window return the criteria they restore to it (D7)
+    let restored = [];
+    block.layout.listenRestores(id => {
+      restored.push(id);
+      if (restored.length === 1) {
+        Utilities.timeout(() => {
+          const ids = restored;
+          restored = [];
+          applyScope(() => toDefault(ids));
+        });
+      }
+    });
+  }
+
   return saved;
 }
+
+/**
+ * State of an option of the saved searches for the tests (#915): "data-selected" true or false as the expression. An
+ * interpolated data-selected would be taken for the boolean selected of a checkbox or a button
+ */
+aweApplication.directive("aweSavedSearchSelected", [() => ({
+  restrict: "A",
+  link: (scope, elem, attrs) => scope.$watch(attrs.aweSavedSearchSelected, selected => elem.attr(TestAttributes.selected, selected ? "true" : "false"))
+})]);
 
 /**
  * Profile to publish a search for, in the Save search dialog: the select of the engine (select2, as the select

@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * Manage the state that each user leaves in the windows of a screen: whether the advanced block of a window was left
- * open or closed (#790)
+ * open or closed (#790). The default saved search of a window (#915) is stored in the same row by SavedSearchService
  *
  * <p>The user always comes from the session, never from the parameters of the request.</p>
  */
@@ -108,7 +108,11 @@ public class WindowStateService extends ServiceConfig {
       DataList dataList = queryService.launchPrivateQuery("getUserWindowStates", parameters).getDataList();
       if (dataList != null && dataList.getRows() != null) {
         for (Map<String, CellData> row : dataList.getRows()) {
-          states.put(row.get(WINDOW_ID).getStringValue(), OPEN.equals(row.get(ADVANCED_OPEN).getStringValue()));
+          // A row stored only for the default saved search of the window (#915) holds no state of the advanced block
+          String open = row.get(ADVANCED_OPEN).getStringValue();
+          if (!open.isEmpty()) {
+            states.put(row.get(WINDOW_ID).getStringValue(), OPEN.equals(open));
+          }
         }
       }
     } catch (Exception exc) {

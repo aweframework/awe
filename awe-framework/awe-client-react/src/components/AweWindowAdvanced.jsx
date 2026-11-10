@@ -4,7 +4,7 @@ import {useDispatch, useStore} from "react-redux";
 import {Sidebar} from "primereact/sidebar";
 import PropTypes from "prop-types";
 import {getIconNode, translateLabel} from "../utilities";
-import {getFilterChip, isFilterInEffect} from "../utilities/advancedSearch";
+import {getFilterChip, getLayoutCriteria, isFilterInEffect, parseSearchValues} from "../utilities/advancedSearch";
 import {TestAttributes, TestIds, testHook} from "../utilities/testIds";
 import {useMultipleComponents} from "../hooks/useComponentState";
 import {useFocusTrap} from "../hooks/useFocusTrap";
@@ -14,6 +14,13 @@ import {
 } from "../redux/thunks/components";
 import {addActionsTop} from "../redux/actions/actions";
 import {saveWindowAdvancedState} from "../redux/thunks/windowAdvancedState";
+import {
+  applyWindowSearchValues,
+  getWindowDefaultSearch,
+  getWindowSearchLayout,
+  isDefaultSearchApplied,
+  setWindowSearchLayout
+} from "../redux/thunks/windowDefaultSearch";
 import {getAllComponents} from "../redux/selectors/componentSelectors";
 import ViewRegistry from "../redux/registry/ViewRegistry";
 import "./AweWindowAdvanced.less";
@@ -34,8 +41,9 @@ export const AdvancedSearchContext = createContext(null);
 
 /**
  * Advanced search of the enclosing window
- * @return {object|null} Window id and label, mode, advanced and search criteria, open state and its setter; null outside
- * a window with an advanced block
+ * @return {object|null} Window id and label, mode, advanced and search criteria, open state and its setter, and in a
+ * window that keeps saved searches the layout in effect (the advanced criteria in the main row and the ones in the block)
+ * and its default search (#915); null outside a window with an advanced block
  */
 export function useAdvancedWindow() {
   return useContext(AdvancedSearchContext);
@@ -54,19 +62,41 @@ const noFilters = [];
  * @param {boolean} options.advancedOpen Open state the user left (only sent when it is stored): an inline block starts
  * open with it, a side panel always starts closed
  * @param {boolean} options.savedSearches The window keeps saved searches (saved-searches="true")
+ * @param {object[]} [options.elementList] Structure of the window
+ * @param {object} [options.windowAttributes] Attributes of the window in the store: its default search and the layout
+ * of the search in effect (#915)
  * @return {object|null} Context of the advanced search, null when the window has no advanced block
  */
-export function useAdvancedSearch({id, label, advancedMode, advancedCriteria, searchCriteria, advancedOpen, savedSearches}) {
+export function useAdvancedSearch({id, label, advancedMode, advancedCriteria, searchCriteria, advancedOpen, savedSearches,
+                                   elementList, windowAttributes}) {
   const enabled = Boolean(advancedMode) || Array.isArray(advancedCriteria);
   const mode = advancedMode === ADVANCED_MODE_SIDE_PANEL ? ADVANCED_MODE_SIDE_PANEL : ADVANCED_MODE_INLINE;
   const [open, setOpen] = useState(() => enabled && mode === ADVANCED_MODE_INLINE && advancedOpen === true);
   const saved = savedSearches === true;
+  const advanced = advancedCriteria || noFilters;
+  // The advanced criteria a saved search can show with the essential ones (#915): the direct children of the block
+  const layoutCriteria = useMemo(() => saved ? getLayoutCriteria(elementList, advanced) : noFilters,
+    [saved, elementList, advanced]);
+  const layout = getWindowSearchLayout(windowAttributes);
+  const layoutKey = layout.join(",");
+  // Criteria of the layout in effect, in the order of the block; any other id is ignored (#915, S5)
+  const mainCriteria = useMemo(() => {
+    const ids = layoutKey.split(",");
+    const main = layoutCriteria.filter(criterion => ids.includes(criterion));
+    return main.length ? main : noFilters;
+  }, [layoutCriteria, layoutKey]);
+  const blockCriteria = useMemo(() => mainCriteria.length ?
+    advanced.filter(criterion => !mainCriteria.includes(criterion)) : advanced, [advanced, mainCriteria]);
+  const defaultSearch = saved ? getWindowDefaultSearch(windowAttributes) : null;
+  const defaultApplied = saved && isDefaultSearchApplied(windowAttributes);
   return useMemo(() => enabled ? {
     id, label, mode, open, setOpen,
-    advancedCriteria: advancedCriteria || noFilters,
+    advancedCriteria: advanced,
     searchCriteria: searchCriteria || noFilters,
-    savedSearches: saved
-  } : null, [enabled, id, label, mode, open, advancedCriteria, searchCriteria, saved]);
+    savedSearches: saved,
+    layoutCriteria, mainCriteria, blockCriteria, defaultSearch, defaultApplied
+  } : null, [enabled, id, label, mode, open, advanced, searchCriteria, saved, layoutCriteria, mainCriteria,
+    blockCriteria, defaultSearch, defaultApplied]);
 }
 
 /**
@@ -93,6 +123,62 @@ export function useRestoreDefaults() {
       dispatch(restoreMultipleModelWithDependencies(list.map(({address}) => ({address})), false));
     }
   }, [dispatch, store]);
+}
+
+/**
+ * Set the layout of the search in effect of a window (#915) and whether it is its default search
+ * @param {string} windowId Window id
+ * @return {function(string[]|null, boolean)} Set the layout (null keeps the current one) and the default search mark
+ */
+export function useSetSearchLayout(windowId) {
+  const dispatch = useDispatch();
+  const store = useStore();
+  return useCallback((layout, defaultApplied) => {
+    const window = getAllComponents(store.getState())[windowId];
+    if (window?.address) {
+      dispatch(setWindowSearchLayout(window.address, layout ?? getWindowSearchLayout(window.attributes), defaultApplied));
+    }
+  }, [dispatch, store, windowId]);
+}
+
+/**
+ * Restore criteria of a window (#915, D7): to the values and the layout of its default search, whose chip is shown
+ * again, and to their defaults when the window has none
+ * @param {string} windowId Window id
+ * @return {function(string[])} Restore the criteria with these ids
+ */
+export function useRestoreSearch(windowId) {
+  const dispatch = useDispatch();
+  const store = useStore();
+  const restore = useRestoreDefaults();
+  const setLayout = useSetSearchLayout(windowId);
+  return useCallback((ids) => {
+    const defaultSearch = getWindowDefaultSearch(getAllComponents(store.getState())[windowId]?.attributes);
+    if (!defaultSearch) {
+      restore(ids);
+      return;
+    }
+    dispatch(applyWindowSearchValues(ids, parseSearchValues(defaultSearch.values)));
+    setLayout(defaultSearch.layout || [], true);
+  }, [dispatch, store, restore, setLayout, windowId]);
+}
+
+/**
+ * Clear all the filters of a window: its criteria go back to the values of their definition, and the default search is
+ * no longer the one applied (its layout stays as it is, #915)
+ * @param {string} windowId Window id
+ * @return {function(string[])} Clear the criteria with these ids
+ */
+export function useClearAll(windowId) {
+  const store = useStore();
+  const restore = useRestoreDefaults();
+  const setLayout = useSetSearchLayout(windowId);
+  return useCallback((ids) => {
+    restore(ids);
+    if (isDefaultSearchApplied(getAllComponents(store.getState())[windowId]?.attributes)) {
+      setLayout(null, false);
+    }
+  }, [store, restore, setLayout, windowId]);
 }
 
 /**
@@ -205,12 +291,14 @@ AdvancedToggle.propTypes = {
 /**
  * Filters in effect of a window, in the disclosure row after the toggle and a divider: a removable chip per criterion
  * whose value differs from its default (a hidden advanced one is marked), and Clear all. It is not shown while no filter
- * is in effect.
+ * is in effect. The advanced criteria are the ones in the advanced block: a saved search may show some with the
+ * essential ones (#915).
  */
 export function FilterChips({id, searchCriteria, advancedCriteria, advancedHidden}) {
   const {t} = useTranslation();
   const filters = useFiltersInEffect(searchCriteria);
   const restore = useRestoreDefaults();
+  const clearAll = useClearAll(id);
   if (filters.length === 0) {
     return null;
   }
@@ -236,7 +324,7 @@ export function FilterChips({id, searchCriteria, advancedCriteria, advancedHidde
       </span>;
     })}
     <button type="button" className="window-filter-clear-all p-button p-component p-button-text p-button-sm"
-            onClick={() => restore(searchCriteria)} {...testHook(TestIds.windowFilterClearAll, {owner: id})}>
+            onClick={() => clearAll(searchCriteria)} {...testHook(TestIds.windowFilterClearAll, {owner: id})}>
       {t("SCREEN_TEXT_CLEAR_ALL_FILTERS")}
     </button>
   </div>;
@@ -309,14 +397,15 @@ PanelCriteria.propTypes = {
 };
 
 /**
- * Side panel of a window with its advanced block: Reset to defaults, Cancel (back to the values they had when it
- * opened; Esc and the close button cancel too) and Show results (it closes and submits the window as Enter does)
+ * Side panel of a window with its advanced block: Reset to defaults (to the default search of the window when it has
+ * one, #915), Cancel (back to the values they had when it opened; Esc and the close button cancel too) and Show results
+ * (it closes and submits the window as Enter does)
  */
 export function AdvancedPanel({id, label, open, advancedCriteria, searchCriteria, container, holderRef, onClose}) {
   const {t} = useTranslation();
   const dispatch = useDispatch();
   const store = useStore();
-  const restore = useRestoreDefaults();
+  const restore = useRestoreSearch(id);
   const sidebar = useRef(null);
   const snapshot = useRef([]);
 

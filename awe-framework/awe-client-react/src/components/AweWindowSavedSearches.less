@@ -146,6 +146,47 @@
   border-radius: var(--awe-radius-full);
 }
 
+// Default search of the user or of its profile (#915), tagged in the menu with text, not only with colour
+.window-saved-search-default {
+  flex: none;
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-primary-text);
+}
+
+// Chip of the default search the window opened with (#915), after the Saved searches button
+.window-default-search {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--awe-space-1);
+  max-width: 100%;
+  min-height: calc(var(--awe-size-control-sm) - var(--awe-space-1));
+  padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-on-primary-subtle);
+  background: var(--awe-color-primary-subtle);
+  border-radius: var(--awe-radius-full);
+}
+
+.window-default-search-icon {
+  display: inline-grid;
+  place-items: center;
+}
+
+.window-default-search-icon .awe-icon {
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+}
+
+.window-default-search-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 // Save and manage dialogs: a header with the title, the subtitle and the close button, as the Columns dialog
 .window-saved-search-dialog {
   .window-saved-search-dialog-header {
@@ -202,6 +243,25 @@
     .p-inputtext,
     .p-dropdown {
       width: 100%;
+    }
+  }
+
+  // An option of the save dialog (#915): the checkbox, its label and its help below the label
+  .window-saved-search-check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: var(--awe-space-1) var(--awe-space-3);
+
+    label {
+      font-size: var(--awe-font-size-label);
+      font-weight: var(--awe-font-weight-medium);
+      color: var(--awe-color-text);
+      cursor: pointer;
+    }
+
+    .window-saved-search-help {
+      grid-column: 2;
     }
   }
 

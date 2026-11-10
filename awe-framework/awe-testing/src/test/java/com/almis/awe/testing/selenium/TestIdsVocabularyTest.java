@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 /**
  * Keeps the Java vocabulary ({@link TestIds}, {@link TestAttributes}) in sync with the ones the AngularJS client
  * ({@code awe-client-angular/src/main/resources/js/awe/data/testIds.js}) and the React client
- * ({@code awe-client-react/src/utilities/testIds.js}) render, so they cannot drift silently. A Java constant must exist in
+ * ({@code awe-client-react/src/utilities/testIds.ts}) render, so they cannot drift silently. A Java constant must exist in
  * at least one client and, wherever it exists, with the same value.
  *
  * <p>The JavaScript files are read from the repository. When the module is built standalone and a file is not
@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 class TestIdsVocabularyTest {
 
   static final String ANGULAR_VOCABULARY_FILE = "awe-client-angular/src/main/resources/js/awe/data/testIds.js";
-  static final String REACT_VOCABULARY_FILE = "awe-client-react/src/utilities/testIds.js";
+  static final String REACT_VOCABULARY_FILE = "awe-client-react/src/utilities/testIds.ts";
   private static final Pattern ENTRY = Pattern.compile("(\\w+)\\s*:\\s*\"([^\"]*)\"");
 
   @Test

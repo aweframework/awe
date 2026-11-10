@@ -1,14 +1,15 @@
 import {TestAttributes, TestIds} from "../data/testIds";
 import {submitForm} from "./criterion";
 import {iconMarkup} from "./icon";
-import {initSavedSearches, savedSearchesTemplate} from "./savedSearches";
+import {appliedDefaultTemplate, initSavedSearches, savedSearchesTemplate} from "./savedSearches";
 import {launchSilentService} from "./silentService";
 import "../directives/plugins/uiModal";
 
 // Advanced search of a window (#790): the advanced block of the window is headed by its row (the Advanced filters or
 // Advanced filters button (inline or side panel) with the number of advanced criteria in use, and the filters in effect as removable chips) and
 // holds the advanced criteria, always mounted (collapsed with CSS below the row, or moved into a side panel), so
-// dependencies, validation, defaults, print and export do not change.
+// dependencies, validation, defaults, print and export do not change. The layout of a saved search (#915) moves some
+// of its direct children to the main row, after the essential criteria, where they count as essential.
 
 // Class of the region of the advanced criteria while it is collapsed (inline)
 export const ADVANCED_COLLAPSED_CLASS = "window-advanced-collapsed";
@@ -56,6 +57,7 @@ export const advancedTemplate = `<div class="window-advanced">
   <div class="window-advanced-row" ng-if="::advanced">
     ${toggleTemplate}
     ${savedSearchesTemplate}
+    ${appliedDefaultTemplate}
     ${chipsTemplate}
   </div>
   <div class="window-advanced-region" ng-attr-id="{{::advanced.regionId}}" ng-transclude
@@ -105,6 +107,12 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
   }
   const {windowId, advancedIds, searchIds} = search;
   const inline = search.mode !== "side-panel";
+  // Advanced criteria shown in the main row by the layout of a saved search (#915), in order, and the place each one
+  // left in the block
+  let mainIds = [];
+  const moved = {};
+  // The advanced criteria in the block: the ones in the main row count as essential
+  const blockIds = () => advancedIds.filter(id => !mainIds.includes(id));
 
   const addressOf = id => ({view, component: id});
   const controllerOf = id => Control.getAddressController(addressOf(id)) || {};
@@ -136,7 +144,7 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
   const chipOf = id => {
     const criterionController = controllerOf(id);
     const model = modelOf(id);
-    const chip = {id, label: criterionController.label || id, value: null, more: "", advanced: advancedIds.includes(id)};
+    const chip = {id, label: criterionController.label || id, value: null, more: "", advanced: blockIds().includes(id)};
     if (!FLAGS.includes(criterionController.component) && !RADIOS.includes(criterionController.component)) {
       const values = Utilities.asArray(model.selected).filter(item => !Utilities.isEmpty(item));
       if (values.length > 0) {
@@ -179,15 +187,68 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
   const region = elem.children(".window-advanced-region");
   let panel = null;
 
+  // Criteria of the window (also the ones of the panel)
+  const criterionNodes = ids => windowController.element.find("[criterion-id]").add(region.find("[criterion-id]"))
+    .filter((index, node) => !ids || ids.includes(node.getAttribute("criterion-id")));
+
   // Restore criteria of the window to their default values, as the restore action does (with their dependencies)
-  const restore = ids => windowController.element.find("[criterion-id]").add(region.find("[criterion-id]"))
-    .filter((index, node) => !ids || ids.includes(node.getAttribute("criterion-id")))
-    .each((index, node) => {
-      const criterionScope = angular.element(node).isolateScope();
-      if (criterionScope) {
-        criterionScope.$broadcast("restore-scope", view);
+  let restoring = false;
+  const restore = ids => {
+    restoring = true;
+    try {
+      criterionNodes(ids).each((index, node) => {
+        const criterionScope = angular.element(node).isolateScope();
+        if (criterionScope) {
+          criterionScope.$broadcast("restore-scope", view);
+        }
+      });
+    } finally {
+      restoring = false;
+    }
+  };
+
+  /**
+   * Tell the restores of the search criteria that do not come from the block (the restore buttons of the window), once
+   * the criteria are drawn
+   * @param {function(string)} onRestore Called with the id of each restored criterion
+   */
+  const listenRestores = onRestore => scope.$$postDigest(() => criterionNodes(searchIds).each((index, node) => {
+    const id = node.getAttribute("criterion-id");
+    angular.element(node).isolateScope()?.$on("restore-scope", (event, restoredView) => {
+      if (restoredView === view && !restoring) {
+        onRestore(id);
       }
     });
+  }));
+
+  // Id of a criterion, also while its template is not drawn yet
+  const criterionIdOf = node => node.getAttribute("criterion-id") || angular.element(node).isolateScope()?.criterionId;
+
+  /**
+   * Show advanced criteria in the main row, after the essential criteria and in order, and the other ones in their place
+   * in the block (#915). Only direct children of the block move (D4): other ids are ignored
+   * @param {string[]} ids Advanced criteria of the main row
+   */
+  const setLayout = ids => {
+    const wanted = Utilities.asArray(ids).filter((id, index, all) => advancedIds.includes(id) && all.indexOf(id) === index);
+    // Back to their place in the block
+    mainIds.filter(id => !wanted.includes(id)).forEach(id => {
+      const {node, slot} = moved[id];
+      slot.parentNode.replaceChild(node, slot);
+      delete moved[id];
+    });
+    wanted.filter(id => !moved[id]).forEach(id => {
+      const node = region.children().toArray().find(child => criterionIdOf(child) === id);
+      if (node) {
+        // A comment keeps its place in the block
+        const slot = document.createComment(` ${id} `);
+        node.parentNode.replaceChild(slot, node);
+        moved[id] = {node, slot};
+      }
+    });
+    mainIds = wanted.filter(id => moved[id]);
+    mainIds.forEach(id => elem[0].parentNode.insertBefore(moved[id].node, elem[0]));
+  };
 
   const advanced = {
     windowId,
@@ -225,11 +286,18 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
     remove(chip) {
       restore([chip.id]);
     },
+    // The values of the XML; the layout stays as it is
     clearAll() {
       restore(null);
+      if (savedSearches) {
+        savedSearches.cleared();
+      }
     },
+    // The advanced criteria of the block, or the default search that opened the window (#915)
     reset() {
-      restore(advancedIds);
+      if (!savedSearches || !savedSearches.restoreDefault(advancedIds)) {
+        restore(blockIds());
+      }
     },
     apply() {
       advanced.applying = true;
@@ -253,11 +321,17 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
     }
   };
   scope.advanced = advanced;
-  // The Saved searches menu of a window that opts in
-  if (search.savedSearches) {
-    initSavedSearches(scope, elem, {windowId, title: search.label, searchIds, view, screenName, controllerOf, modelOf, modelAddressOf, valuesOf, restore},
-      {$compile, Control, Utilities, $actionController, $settings, Connection});
-  }
+  // The Saved searches menu of a window that opts in, with the layout of its searches and its default search (#915)
+  const savedSearches = search.savedSearches ? initSavedSearches(scope, elem, {windowId, title: search.label, searchIds, view, screenName,
+    controllerOf, modelOf, modelAddressOf, valuesOf, restore, defaultSearch: search.defaultSearch,
+    layout: {
+      get: () => mainIds.slice(),
+      set: setLayout,
+      // Advanced criteria in use that a layout can move: direct children of the block
+      inUse: () => blockIds().filter(id => !isDefault(id) && region.children().toArray().some(child => criterionIdOf(child) === id)),
+      labelOf: id => controllerOf(id).label || id,
+      listenRestores
+    }}, {$compile, Control, Utilities, $actionController, $settings, Connection}) : null;
   // Enter in a criterion of the window (or of its panel) launches the submit button of the window
   windowController.advancedBlock = advanced;
 
@@ -279,7 +353,7 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
     }
     advanced.opened = true;
     advanced.snapshot = {};
-    advancedIds.forEach(id => {
+    blockIds().forEach(id => {
       advanced.snapshot[id] = _.cloneDeep(modelOf(id).selected);
     });
     showPanel(true);
@@ -307,14 +381,15 @@ export function initAdvancedBlock(scope, elem, windowController, {$compile, Cont
   scope.$watch(() => searchIds.map(id => {
     const model = modelOf(id);
     return [model.selected, model.defaultValues, (model.values || []).length];
-  }), () => {
-    advanced.count = advancedIds.filter(id => !isDefault(id)).length;
+  }).concat([mainIds]), () => {
+    advanced.count = blockIds().filter(id => !isDefault(id)).length;
     advanced.chips = chipsInUse();
   }, true);
 
   // An invalid criterion of the block is shown, so its error is visible
-  scope.$on("criterion-validity", (event, {invalid}) => {
-    if (invalid) {
+  scope.$on("criterion-validity", (event, {id, invalid}) => {
+    // The criteria of the main row are shown
+    if (invalid && !mainIds.includes(id)) {
       if (inline) {
         advanced.expanded = true;
       } else {
