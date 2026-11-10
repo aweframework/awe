@@ -504,8 +504,8 @@ class ApplicationTestsIT extends SeleniumUtilities {
     // Insert text
     writeText("Hst", "localhost");
 
-    // Check box
-    clickCheckbox("Ath");
+    // Select authentication type
+    selectContain("Ath", "User and password");
 
     // Insert text
     writeText("EmlUsr", "test");

@@ -222,6 +222,12 @@
   <locale name="ENUM_EML_NO" value="Don´t send"/>
   <locale name="ENUM_EML_REP_ALL" value="Send audit always"/>
   <locale name="ENUM_EML_REP_ERR" value="Send audit if error"/>
+  <locale name="ENUM_EML_SRV_ATH_BASIC" value="User and password"/>
+  <locale name="ENUM_EML_SRV_ATH_NONE" value="None"/>
+  <locale name="ENUM_EML_SRV_ATH_OAUTH2" value="OAuth2"/>
+  <locale name="ENUM_EML_SRV_SEC_NONE" value="None"/>
+  <locale name="ENUM_EML_SRV_SEC_SSL" value="SSL/TLS"/>
+  <locale name="ENUM_EML_SRV_SEC_STARTTLS" value="STARTTLS"/>
   <locale name="ENUM_EML_TYP_GRP" value="Mail group"/>
   <locale name="ENUM_EML_TYP_USR" value="User"/>
   <locale name="ENUM_ENV_DES" value="Development"/>
@@ -750,6 +756,9 @@
   <locale name="HELP_DESCRIPTION" value="Description"/>
   <locale name="HELP_EDIT_BUTTON" value="Edit selected item"/>
   <locale name="HELP_EDITABLE" value="Editable"/>
+  <locale name="HELP_EML_SRV_OAUTH_REGISTRATION" value="Spring Security client registration that provides the access token: spring.security.oauth2.client.registration.REGISTRATION_ID with authorization-grant-type=client_credentials (for Microsoft 365, scope https://outlook.office365.com/.default)"/>
+  <locale name="HELP_EML_SRV_PORT" value="Leave empty to use the default port of the security mode: 25 (none), 587 (STARTTLS) or 465 (SSL/TLS)"/>
+  <locale name="HELP_EML_SRV_SECURITY" value="STARTTLS upgrades the connection to TLS (usually port 587). SSL/TLS connects with TLS from the start (usually port 465)"/>
   <locale name="HELP_GRID" value="Grid"/>
   <locale name="HELP_GRID_IDENTIFIER" value="Grid identifier"/>
   <locale name="HELP_HELP_BUTTON" value="Open a dialog with screen help"/>
@@ -999,6 +1008,9 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_EMAIL_DEST" value="Email target"/>
   <locale name="PARAMETER_EMAIL_DESTINATION" value="E-mail destination"/>
   <locale name="PARAMETER_EMAIL_SERVER" value="E-mail server"/>
+  <locale name="PARAMETER_EML_SRV_OAUTH_REGISTRATION" value="OAuth2 client registration"/>
+  <locale name="PARAMETER_EML_SRV_SECURITY" value="Security"/>
+  <locale name="PARAMETER_EML_SRV_SENDER" value="Sender mailbox"/>
   <locale name="PARAMETER_EML_SUBJECT" value="Subject"/>
   <locale name="PARAMETER_EML_TEXT" value="Content"/>
   <locale name="PARAMETER_ENCRYPT" value="Encrypted"/>
@@ -1164,6 +1176,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_DATA" value="Data"/>
   <locale name="SCREEN_TEXT_DATE" value="System date"/>
   <locale name="SCREEN_TEXT_DBS" value="Database"/>
+  <locale name="SCREEN_TEXT_EML_SRV_KEEP_SECRET" value="Leave empty to keep the current value"/>
   <locale name="SCREEN_TEXT_ERROR_UNKNOWN" value="Unknown error"/>
   <locale name="SCREEN_TEXT_ERROR_TITLE" value="Oops something went wrong"/>
   <locale name="SCREEN_TEXT_ERROR_PREFIX" value="The process could not be completed:"/>

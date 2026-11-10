@@ -2141,6 +2141,8 @@
     <field id="IdeAweEmlSrv" alias="IdeAweEmlSrv" />
     <field id="SrvNam" alias="SrvNam" />
     <field id="Hst" alias="Hst" />
+    <field id="Prt" alias="Prt" />
+    <field id="SecMod" alias="SecMod" />
     <field id="Ath" alias="Ath" />
     <compound alias="AthIco">
       <computed format="[Ath]" alias="value"/>
@@ -2150,6 +2152,7 @@
     </compound>
     <field id="EmlUsr" alias="EmlUsr" />
     <field id="EmlPwd" alias="EmlPwd" />
+    <field id="OauReg" alias="OauReg" />
     <field id="Act" alias="Act" />
     <compound alias="ActIco">
       <computed format="[Act]" alias="value"/>
@@ -2161,9 +2164,13 @@
     <!-- Fields for EmailServer bean -->
     <field id="SrvNam" alias="name" />
     <field id="Hst" alias="host" />
+    <field id="Prt" alias="port" />
+    <field id="SecMod" alias="securityMode" />
     <field id="Ath" alias="authenticated" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="Ath" alias="authentication" />
     <field id="EmlUsr" alias="user" />
     <field id="EmlPwd" alias="pass" />
+    <field id="OauReg" alias="oauthRegistration" />
     <where>
       <and>
         <filter left-field="SrvNam" condition="like" right-variable="serverName" optional="true" />
@@ -2219,6 +2226,12 @@
     <variable id="SrvNam" type="STRING" name="SrvNam" />
   </query>
 
+  <!-- Email server (select list of OAuth2 client registrations) -->
+  <query id="EmlSrvOauRegLst" service="getEmailOAuth2Registrations">
+    <field id="value" alias="value" />
+    <field id="label" alias="label" />
+  </query>
+
   <!-- Email server (select list alias) -->
   <query id="SelEmlSrvNom">
     <table id="AweEmlSrv" />
@@ -2237,6 +2250,8 @@
   <query id="GetEmlSrvByOpe">
     <table id="AweEmlSrv" alias="EmlSrv" />
     <field id="Hst" alias="Hst" />
+    <field id="Prt" alias="Prt" />
+    <field id="SecMod" alias="SecMod" />
     <field id="Ath" alias="Ath" />
     <field id="EmlUsr" alias="EmlUsr" />
     <field id="EmlPwd" alias="EmlPwd" />

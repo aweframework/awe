@@ -235,6 +235,27 @@ class OAuth2UrlServiceTest {
   }
 
   @Test
+  void testGetOAuth2AuthorizationUrl_NeverOffersClientCredentialsRegistrations() {
+    // Given
+    ClientRegistration emailRegistration = ClientRegistration.withRegistrationId("email")
+        .clientId("client-id")
+        .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+        .tokenUri("https://provider.com/oauth/token")
+        .build();
+    InMemoryClientRegistrationRepository inMemoryRepo = new InMemoryClientRegistrationRepository(List.of(emailRegistration, createClientRegistration("sso")));
+    OAuth2UrlService serviceWithInMemoryRepo = new OAuth2UrlService(null, inMemoryRepo);
+
+    when(request.getAttribute("oauth2.registration.id")).thenReturn("email");
+    when(request.getContextPath()).thenReturn("");
+
+    // When
+    String url = serviceWithInMemoryRepo.getOAuth2AuthorizationUrl(request);
+
+    // Then
+    assertEquals("/oauth2/authorization/sso", url);
+  }
+
+  @Test
   void testGetOAuth2AuthorizationUrl_WithNoRegistrations_ThrowsException() {
     // Given
     OAuth2UrlService serviceWithoutRegistrations = new OAuth2UrlService(null, clientRegistrationRepository);
