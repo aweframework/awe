@@ -3,6 +3,12 @@ id: tab-and-tabcontainer
 title: Tab and tabcontainer
 ---
 
+:::tip See it live
+
+Try the tabs with live controls in the [component catalog](../components/tabs-accordion.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 A **tab** is a very useful screen component to separate the screen components in *tabs*:
 
 <img alt="Tab" src={require('@docusaurus/useBaseUrl').default('img/Tab.png')} />

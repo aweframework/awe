@@ -3,6 +3,12 @@ id: criteria
 title: Criterios
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba los criterios con controles en vivo en el [catálogo de componentes](../components/criteria.mdx): las entradas reales de AWE y el XML que las produce. Cada familia tiene su propia área de pruebas: [entradas de texto](../components/criteria-text.mdx), [números y fechas](../components/criteria-numbers.mdx), [opciones](../components/criteria-choices.mdx) y [subida de archivos](../components/criteria-upload.mdx).
+
+:::
+
 Los elementos de criterio son componentes de ventana que pueden obtener la entrada del usuario y enviarla al servidor de aplicaciones (lógica de negocio).
 
 <img alt="Criteria" src={require('@docusaurus/useBaseUrl').default('img/Criteria.png')} />

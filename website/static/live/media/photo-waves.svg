@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Waves">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0369a1"/><stop offset="1" stop-color="#4338ca"/></linearGradient></defs>
+  <rect width="640" height="360" fill="url(#g)"/>
+  <path d="M0 230c80-40 160 40 240 0s160-40 240 0 120 30 160 10v120H0z" fill="#fff" fill-opacity=".35"/><path d="M0 280c80-40 160 40 240 0s160-40 240 0 120 30 160 10v70H0z" fill="#fff" fill-opacity=".55"/><circle cx="470" cy="90" r="34" fill="#fde68a"/>
+</svg>

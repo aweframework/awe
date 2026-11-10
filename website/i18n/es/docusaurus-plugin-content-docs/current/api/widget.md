@@ -3,6 +3,12 @@ id: widget
 title: Widgets
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba los visores de archivos y de PDF con controles en vivo en el [catálogo de componentes](../components/file-viewer.mdx): los widgets reales de AWE, un archivo de ejemplo y el XML que los produce. El [carrusel y el visor de ayuda](../components/widgets.mdx) también están ahí.
+
+:::
+
 Un **widget** incrusta un componente JavaScript personalizado en una pantalla de AWE. Es el punto de extensión para enriquecer la interfaz que AWE ofrece de serie con tus propios componentes de framework (y sus estilos), sin tener que habilitarlos uno a uno en el framework.
 
 Los widgets se declaran con el elemento `<widget>` dentro de cualquier contenedor de pantalla (un `tag`, `window`, etc.):

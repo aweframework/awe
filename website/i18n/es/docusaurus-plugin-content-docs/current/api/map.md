@@ -3,6 +3,12 @@ id: map
 title: Mapa
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba el mapa con controles en vivo en el [catálogo de componentes](../components/map.mdx): el componente real de AWE, datos de ejemplo y el XML que lo produce.
+
+:::
+
 Un mapa muestra las filas de una consulta como marcadores sobre un mapa geográfico. Se describe en el XML de la pantalla con un elemento `map`. El mapa carga sus datos de una consulta, como cualquier otro componente de AWE, y al hacer clic en un marcador se selecciona su fila, de modo que las [dependencias](dependencies.md) del mapa (y los componentes que dependen de él) reaccionan a la selección.
 
 > **Nota:** El mapa está disponible en los dos motores, AngularJS y React, con el mismo comportamiento.

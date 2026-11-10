@@ -3,6 +3,12 @@ id: button
 title: Button
 ---
 
+:::tip See it live
+
+Try the button with live controls in the [component catalog](../components/button.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 A button is a graphical control element that provides the user a simple way to trigger an event, like searching for a query, or to interact with dialog boxes, like confirming an action.
 
 Clicking on an AWE button launches the list of attached [actions](actions.md) ([button actions](#button-actions)) which are called sequentially.

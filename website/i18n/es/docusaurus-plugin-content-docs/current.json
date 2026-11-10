@@ -50,5 +50,9 @@
   "sidebar.training.category.Basic tutorials": {
     "message": "Tutoriales básicos",
     "description": "The label for category Basic tutorials in sidebar training"
+  },
+  "sidebar.docs.category.Component catalog": {
+    "message": "Catálogo de componentes",
+    "description": "The label for category Component catalog in sidebar docs"
   }
 }

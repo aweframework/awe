@@ -3,6 +3,12 @@ id: tags
 title: Tag
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba la etiqueta, la lista de etiquetas y el texto con controles en vivo en el [catálogo de componentes](../components/tags-lists.mdx): el componente real de AWE y el XML que lo produce.
+
+:::
+
 Un `tag` es el bloque básico de construcción de una pantalla. Hace dos trabajos:
 
 * **Estructura.** Con un `type` genera un elemento HTML (`div`, `span`, `h3`...) que agrupa otros elementos, aplica

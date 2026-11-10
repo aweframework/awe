@@ -3,6 +3,12 @@ id: window
 title: Ventana
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba la ventana con controles en vivo en el [catálogo de componentes](../components/window-layout.mdx): el componente real de AWE y el XML que lo produce.
+
+:::
+
 Una ventana es un contenedor con una barra de título. También puede maximizarse o restaurarse, y es muy útil para ordenar grupos de componentes en la pantalla.
 
 <img alt="Ventana" src={require('@docusaurus/useBaseUrl').default('img/Window.png')} />

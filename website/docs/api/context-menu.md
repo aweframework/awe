@@ -3,6 +3,12 @@ id: context-menu
 title: Context menu
 ---
 
+:::tip See it live
+
+Try the context menu with live controls in the [component catalog](../components/context-menu.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 Awe engine allows define context menu inside a grid, tree grid, chart, button, criterion, tab or wizard. With these menus, you can add functionality to your window.
 
 ## Opening the menu

@@ -3,6 +3,12 @@ id: info
 title: Barra de navegación
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba los componentes de información con controles en vivo en el [catálogo de componentes](../components/messages-info.mdx#info): el componente real de AWE y el XML que lo produce.
+
+:::
+
 La barra de navegación se utiliza para añadir elementos visuales con funciones lógicas en la zona superior de la aplicación. Esta parte se muestra en todas las pantallas de la aplicación.
 
 Puedes añadir elementos `info` para mostrar más información y elementos `info-button` como botones con acciones. Además, puedes poner elementos `info-criteria` dentro de los elementos info como criterios para mostrar más información.

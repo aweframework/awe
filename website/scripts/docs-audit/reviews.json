@@ -1,6 +1,12 @@
 {
 	"rules": [
 		{
+			"paths": ["components/"],
+			"reviewed": "2026-11-09",
+			"ref": "#786",
+			"notes": "Component catalog: the real AWE React components rendered in the docs."
+		},
+		{
 			"paths": ["decisions/adr-001-react-modern-client.md"],
 			"reviewed": "2026-10-27",
 			"ref": "#777",

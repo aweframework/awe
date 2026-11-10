@@ -1,0 +1,75 @@
+---
+id: map
+title: Mapa
+sidebar_label: Mapa
+description: El mapa de AWE, en vivo. Coloca las filas de una consulta como marcadores, elige la vista inicial y la etiqueta, y copia el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {map, mapExample} from '@site/src/components/AwePlayground/specs/map';
+
+Un mapa muestra las filas de una consulta como marcadores sobre un mapa dibujado con Leaflet: cada fila necesita una latitud y una longitud,
+y una etiqueta opcional que se abre al pulsar su marcador. Pulsar un marcador selecciona su fila. Debajo está el mapa real del cliente React
+de AWE. Pulsa los marcadores, arrastra y haz zoom en el mapa, y cambia los atributos: el XML de debajo se actualiza.
+
+<AwePlayground spec={map} />
+
+:::info Los datos son de ejemplo y las teselas necesitan red
+En una pantalla, las filas vienen de una consulta (`initial-load="query"`). Aquí son 12 tiendas de una cadena inventada, colocadas en las
+coordenadas reales de sus ciudades. El mapa dibuja las teselas que usa el cliente por defecto, que son las de OpenStreetMap, así que
+necesita conexión a internet: sin ella, el fondo queda gris pero los marcadores siguen funcionando. Una aplicación puede usar sus propias
+teselas con el ajuste `mapTileUrl`.
+:::
+
+## Recetas {#recipes}
+
+### Tiendas con su nombre {#recipe-labels}
+
+`marker-label` es el campo de la fila que se abre en una burbuja al pulsar su marcador. `latitude` y `longitude` nombran los campos que
+guardan las coordenadas (`latitude` y `longitude` por defecto). Sin centro, el mapa se ajusta a todos los marcadores.
+
+<AweLive height="24rem" {...mapExample({markerLabel: 'name'})} />
+
+```xml
+<map id="stores" latitude="latitude" longitude="longitude" marker-label="name"
+     initial-load="query" target-action="Stores" />
+```
+
+### Empezar en una ciudad {#recipe-center}
+
+`center-latitude`, `center-longitude` y `zoom` fijan la vista inicial en lugar de ajustarla a los marcadores. Un `zoom` mayor es más cercano:
+`4` es un país y `11` una ciudad.
+
+<AweLive height="24rem" {...mapExample({markerLabel: 'city', centerLatitude: 40.4168, centerLongitude: -3.7038, zoom: 11})} />
+
+```xml
+<map id="stores" latitude="latitude" longitude="longitude" marker-label="city"
+     center-latitude="40.4168" center-longitude="-3.7038" zoom="11"
+     initial-load="query" target-action="Stores" />
+```
+
+### Un marcador seleccionado {#recipe-selected}
+
+La fila seleccionada en el modelo se dibuja de otro color, igual que el marcador que pulsa el lector. El mapa es un selector: con una
+[dependencia](../api/dependencies.md) sobre `select-row`, otro componente (un grid, una tarjeta) puede mostrar los datos de la tienda elegida.
+
+<AweLive height="24rem" {...mapExample({markerLabel: 'name'}, 10)} />
+
+```xml
+<map id="stores" latitude="latitude" longitude="longitude" marker-label="name"
+     initial-load="query" target-action="Stores" />
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Pulsar un marcador selecciona su fila y lanza `select-row`, así que se ejecutan las dependencias y los botones que escuchan al mapa. Estos
+ejemplos seleccionan de verdad; las acciones de abajo necesitan una pantalla y aquí no se ejecutan.
+
+* `filter`: recarga los marcadores desde la consulta del mapa.
+* `polyline`: dibuja una ruta sobre el mapa en lugar de los marcadores.
+
+## Más {#more}
+
+* [Documentación completa de los mapas](../api/map.md): cada atributo, los campos de la consulta y la parte de servidor.
+* [Referencia XSD del elemento `map`](/reference/screen#element-map).

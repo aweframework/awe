@@ -3,6 +3,12 @@ id: button
 title: Botón
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba el botón con controles en vivo en el [catálogo de componentes](../components/button.mdx): el componente real de AWE y el XML que lo produce.
+
+:::
+
 Un botón es un elemento de control gráfico que proporciona al usuario una forma simple de lanzar un evento, como realizar una consulta, o interactuar con cuadros de diálogo, como confirmar una acción.
 
 Al hacer clic en un botón de AWE se lanza la lista de [acciones](actions.md) definidas ([acciones de botón](#button-actions)) que son llamadas secuencialmente.

@@ -3,6 +3,12 @@ id: popover
 title: Popover
 ---
 
+:::tip See it live
+
+Try the popover with live controls in the [component catalog](../components/side-panel-popover.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 A popover is a [dialog](dialog.md) anchored to a control of the screen: it opens next to that control (below it by
 default, or above it, at its left or at its right), with a header, a body and an optional footer. Use it for short
 content linked to a control (a quick edit, a few options, notes) without covering the screen. It is opened and closed

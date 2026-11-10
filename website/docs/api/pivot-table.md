@@ -3,6 +3,12 @@ id: pivot-table
 title: Pivot Table
 ---
 
+:::tip See it live
+
+Try the pivot table with live controls in the [component catalog](../components/pivot-table.mdx): the real AWE component, sample data and the XML that produces it.
+
+:::
+
 The pivot table is an analytic component. It loads the rows of a query and lets the user build a report from them: the
 user drags the fields to the rows and to the columns, picks an aggregation (count, sum, average...) and a renderer
 (table, heat map...), and the table is calculated in the browser.

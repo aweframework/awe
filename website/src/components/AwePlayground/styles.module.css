@@ -1,0 +1,515 @@
+.wrap {
+  position: relative;
+  isolation: isolate;
+  /* The layout follows the width of the playground, not the window: the doc page has a sidebar and a table of contents */
+  container-type: inline-size;
+  margin: 24px 0 32px;
+}
+
+.glow {
+  position: absolute;
+  inset: -8% -4%;
+  z-index: -1;
+  background:
+    radial-gradient(38% 45% at 18% 30%, var(--awe-purple) 0%, transparent 70%),
+    radial-gradient(42% 50% at 55% 65%, var(--awe-blue) 0%, transparent 70%),
+    radial-gradient(36% 44% at 88% 25%, var(--awe-green) 0%, transparent 70%);
+  filter: blur(70px);
+  opacity: calc(var(--awe-glow-opacity) * 0.55);
+  pointer-events: none;
+}
+
+.playground {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  grid-template-areas:
+    'stage controls'
+    'xml xml';
+  border: 1px solid var(--awe-line);
+  border-radius: 16px;
+  /* clip, not hidden: a scroll container would stop the stage from sticking to the window */
+  overflow: clip;
+  background-color: var(--awe-panel);
+  box-shadow: var(--awe-shadow);
+}
+
+@container (max-width: 700px) {
+  .playground {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'stage'
+      'controls'
+      'xml';
+  }
+}
+
+/* Data components (grid, chart, map) need the width of the playground: the preview on top, the controls under it */
+.stacked {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas:
+    'stage'
+    'controls'
+    'xml';
+}
+
+.stacked .stage {
+  position: static;
+}
+
+.stacked .controls {
+  border-left: 0;
+  border-top: 1px solid var(--awe-line);
+}
+
+/* ---------------- Stage: the real component on a dotted backdrop ---------------- */
+.stage {
+  grid-area: stage;
+  display: flex;
+  flex-direction: column;
+  /* The controls can be many: the preview stays in view while the reader changes them */
+  align-self: start;
+  position: sticky;
+  top: calc(var(--ifm-navbar-height) + 12px);
+  min-width: 0;
+  margin: 12px;
+  border: 1px solid var(--awe-color-border);
+  border-radius: 12px;
+  overflow: clip;
+  /* color-scheme comes from the component (inline): the AWE tokens read it through light-dark() */
+  background-color: var(--awe-color-surface);
+  background-image: radial-gradient(var(--awe-color-border) 1px, transparent 1px);
+  background-size: var(--awe-space-4) var(--awe-space-4);
+  color: var(--awe-color-text);
+  font-family: var(--awe-font-family-base);
+}
+
+@container (max-width: 700px) {
+  .stage {
+    position: static;
+  }
+}
+
+.stageBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-3);
+  padding: var(--awe-space-3) var(--awe-space-4);
+}
+
+.stageTitle {
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--awe-color-text-muted);
+}
+
+.stageBody {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--awe-space-3);
+  min-height: 11rem;
+  padding: var(--awe-space-6) var(--awe-space-4) var(--awe-space-8);
+}
+
+/* Wide components (a form field, a card, tabs, a wizard) take the width of the stage, not their own */
+.stageBodyWide {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+}
+
+/* A data component is drawn on its own surface: the dotted backdrop would show through its cells */
+.stageBodyData {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: stretch;
+  padding: var(--awe-space-3) var(--awe-space-4) var(--awe-space-4);
+}
+
+.stageBodyData > :global(.awe-live) {
+  overflow: hidden;
+  border: 1px solid var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+  background-color: var(--awe-color-surface);
+}
+
+.modeToggle {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--awe-color-border);
+  border-radius: 999px;
+  background-color: var(--awe-color-surface);
+}
+
+.modeOption {
+  position: relative;
+  cursor: pointer;
+}
+
+.modeOption span {
+  display: block;
+  padding: var(--awe-space-1) var(--awe-space-3);
+  border-radius: 999px;
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-muted);
+}
+
+.modeOption input:checked + span {
+  background-color: var(--awe-color-primary-subtle);
+  color: var(--awe-color-primary-text);
+}
+
+.modeOption input:focus-visible + span {
+  outline: 2px solid var(--awe-color-primary);
+  outline-offset: 2px;
+}
+
+/* ---------------- XML ---------------- */
+.xml {
+  grid-area: xml;
+  position: relative;
+  min-width: 0;
+  border-top: 1px solid var(--awe-line);
+  background-color: var(--awe-code-bg);
+}
+
+.xmlTitle {
+  padding: 10px 16px 0;
+  font-family: var(--awe-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--awe-code-ink-dim);
+}
+
+.xml :global(.theme-code-block) {
+  margin: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* ---------------- Controls ---------------- */
+.controls {
+  grid-area: controls;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  align-content: start;
+  gap: 16px;
+  min-width: 0;
+  padding: 16px 18px 20px;
+  border-left: 1px solid var(--awe-line);
+  background-color: var(--awe-panel);
+}
+
+@container (max-width: 700px) {
+  .controls {
+    border-left: 0;
+    border-top: 1px solid var(--awe-line);
+  }
+}
+
+.controlsHead {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.controlsTitle {
+  margin: 0;
+  font-size: 15px;
+  color: var(--awe-ink);
+}
+
+.reset {
+  padding: 4px 12px;
+  border: 1px solid var(--awe-line);
+  border-radius: 8px;
+  background-color: var(--awe-panel);
+  color: var(--awe-ink);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.reset:hover {
+  border-color: var(--awe-blue);
+}
+
+.control {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.controlSwitch {
+  flex-direction: row;
+}
+
+.controlLabel {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--awe-ink-2);
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.segmented {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--awe-line);
+  border-radius: 10px;
+  background-color: var(--awe-ground);
+}
+
+.segment {
+  position: relative;
+  flex: 1 1 auto;
+  cursor: pointer;
+}
+
+.segment span {
+  display: block;
+  padding: 5px 10px;
+  border-radius: 7px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--awe-ink-2);
+  transition: background-color 0.15s ease;
+}
+
+.segment:hover span {
+  color: var(--awe-ink);
+}
+
+.segment input:checked + span {
+  background-color: var(--awe-blue-soft);
+  box-shadow: inset 0 0 0 1px var(--awe-blue);
+  color: var(--awe-ink);
+}
+
+.segment input:focus-visible + span,
+.iconOption input:focus-visible + span {
+  outline: 2px solid var(--awe-blue);
+  outline-offset: 2px;
+}
+
+.text {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--awe-line);
+  border-radius: 8px;
+  background-color: var(--awe-panel);
+  color: var(--awe-ink);
+  font: inherit;
+  font-size: 14px;
+}
+
+.text:focus-visible,
+.choiceButton:focus-visible,
+.reset:focus-visible {
+  outline: 2px solid var(--awe-blue);
+  outline-offset: 1px;
+}
+
+.switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.track {
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 20px;
+  padding: 2px;
+  border: 1px solid var(--awe-line);
+  border-radius: 999px;
+  background-color: var(--awe-ground-2);
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: var(--awe-ink-2);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.switch input:checked + .track {
+  border-color: var(--awe-blue);
+  background-color: var(--awe-blue-soft);
+}
+
+.switch input:checked + .track .thumb {
+  transform: translateX(16px);
+  background-color: var(--awe-blue);
+}
+
+.switch input:focus-visible + .track {
+  outline: 2px solid var(--awe-blue);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .thumb,
+  .segment span {
+    transition: none;
+  }
+}
+
+.switchText {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--awe-ink);
+}
+
+.icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.iconOption {
+  position: relative;
+  cursor: pointer;
+}
+
+.iconFace {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--awe-line);
+  border-radius: 9px;
+  color: var(--awe-ink-2);
+}
+
+.iconFace svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.iconOption:hover .iconFace {
+  border-color: var(--awe-blue);
+}
+
+.iconOption input:checked + .iconFace {
+  border-color: var(--awe-blue);
+  background-color: var(--awe-blue-soft);
+  color: var(--awe-ink);
+}
+
+/* ---------------- Choice: a select-only combobox with a listbox popup ---------------- */
+.choice {
+  position: relative;
+}
+
+.choiceButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--awe-line);
+  border-radius: 8px;
+  background-color: var(--awe-panel);
+  color: var(--awe-ink);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.choiceButton:hover,
+.choiceButton[aria-expanded='true'] {
+  border-color: var(--awe-blue);
+}
+
+.choiceChevron {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  color: var(--awe-ink-2);
+}
+
+.choiceList {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 15rem;
+  margin: 0;
+  padding: 4px;
+  overflow-y: auto;
+  list-style: none;
+  border: 1px solid var(--awe-line);
+  border-radius: 10px;
+  background-color: var(--awe-panel);
+  box-shadow: var(--awe-shadow);
+}
+
+.choiceOption {
+  padding: 6px 10px;
+  border-radius: 7px;
+  font-size: 14px;
+  color: var(--awe-ink);
+  cursor: pointer;
+}
+
+.choiceActive {
+  background-color: var(--awe-ground-2);
+}
+
+.choiceSelected {
+  font-weight: 700;
+  box-shadow: inset 0 0 0 1px var(--awe-blue);
+}
+
+/* ---------------- Tabs under the playground ---------------- */
+.tabs {
+  margin-top: 20px;
+}
+
+.value {
+  margin-right: 6px;
+}

@@ -3,6 +3,12 @@ id: card
 title: Card
 ---
 
+:::tip See it live
+
+Try the card with live controls in the [component catalog](../components/card.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 A card is a metric tile: a title, a big value with its unit, an icon, and a change (delta) with its trend arrow and a
 caption, like **Active customers** · 1,284 · ↗ 4.2% vs. last month. It can also show a progress towards a target, a
 description, a footer and, in its body, any other component (a chart, a grid, buttons...). Its attributes are static

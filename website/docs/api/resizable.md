@@ -3,6 +3,12 @@ id: resizable
 title: Resizable
 ---
 
+:::tip See it live
+
+Try the resizable with live controls in the [component catalog](../components/window-layout.mdx#resizable): the real AWE component and the XML that produces it.
+
+:::
+
 A resizable is a container whose size the user can change by dragging one of its sides. Use it to let the user decide how
 much room a part of the screen takes, for example a list of items on the left of the detail that it controls.
 

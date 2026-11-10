@@ -3,6 +3,12 @@ id: tags
 title: Tag
 ---
 
+:::tip See it live
+
+Try the tag, the tag list and the text with live controls in the [component catalog](../components/tags-lists.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 A `tag` is the basic building block of a screen. It does two jobs:
 
 * **Structure.** With a `type` it generates an HTML element (`div`, `span`, `h3`...) that groups other elements, applies

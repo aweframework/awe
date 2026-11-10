@@ -3,6 +3,12 @@ id: side-panel
 title: Panel lateral
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba el panel lateral con controles en vivo en el [catálogo de componentes](../components/side-panel-popover.mdx): el componente real de AWE y el XML que lo produce.
+
+:::
+
 Un panel lateral es un [diálogo](dialog.md) anclado al borde izquierdo o derecho de la pantalla, con una cabecera, un
 cuerpo con desplazamiento y un pie opcional. Úselo para contenido que el usuario consulta o edita junto a la pantalla
 (filtros, detalles, ajustes) sin salir de ella. Se abre y se cierra exactamente como un diálogo: con una acción de botón

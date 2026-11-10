@@ -1,0 +1,77 @@
+---
+id: button
+title: Botón
+sidebar_label: Botón
+description: El botón de AWE, en vivo. Cambia sus atributos y mira el componente real y el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {button} from '@site/src/components/AwePlayground/specs/button';
+
+Un botón lanza las [acciones](../api/actions.md) que tiene asociadas: buscar, guardar, confirmar o abrir un diálogo. Debajo está el
+botón real del cliente React de AWE. Cambia sus atributos y el XML de debajo se actualiza; cópialo en tu pantalla.
+
+<AwePlayground spec={button} />
+
+## Recetas {#recipes}
+
+Botones habituales, dibujados por el mismo componente. Las acciones de servidor se simulan en estos ejemplos, así que al pulsar no se llama a ningún servidor.
+
+### Acción principal de un formulario {#recipe-submit}
+
+Un botón `submit` con estilo primario: es el que se ejecuta cuando el usuario pulsa Intro dentro de un criterio.
+
+<AweLive components={{search: {attributes: {label: 'Buscar', buttonType: 'submit', icon: 'search', style: 'btn-primary'}}}}>
+  {({AweButton}) => <AweButton id="search" />}
+</AweLive>
+
+```xml
+<button id="search" label="Buscar" button-type="submit" icon="search" style="btn-primary">
+  <button-action type="filter" target="GrdUsrLst" />
+</button>
+```
+
+### Confirmar antes de borrar {#recipe-confirm}
+
+La acción `confirm` detiene la cadena hasta que el usuario acepta; la acción `server` siguiente solo se ejecuta entonces.
+
+<AweLive components={{del: {attributes: {label: 'Borrar', icon: 'trash', style: 'btn-danger'}}}}>
+  {({AweButton}) => <AweButton id="del" />}
+</AweLive>
+
+```xml
+<button id="del" label="Borrar" icon="trash" style="btn-danger">
+  <button-action type="confirm" target="DelMsg" />
+  <button-action type="server" server-action="maintain" target-action="UsrDel" />
+  <button-action type="filter" target="GrdUsrLst" />
+</button>
+```
+
+### Botón solo con icono {#recipe-icon-only}
+
+`no-label` dibuja solo el icono. La etiqueta se mantiene: es el tooltip y el nombre accesible que anuncian los lectores de pantalla.
+
+<AweLive components={{help: {attributes: {label: 'Ayuda', icon: 'question-circle', style: 'btn-ghost no-label'}}}}>
+  {({AweButton}) => <AweButton id="help" />}
+</AweLive>
+
+```xml
+<button id="help" label="Ayuda" icon="question-circle" style="btn-ghost no-label">
+  <button-action type="dialog" target="HlpOpt" />
+</button>
+```
+
+## Eventos y acciones {#events-and-actions}
+
+El botón tiene un evento, `click`. Al pulsarlo lanza sus elementos `button-action` en orden. Consulta [acciones](../api/actions.md) para
+ver todos los tipos de acción y [dependencias](../api/dependencies.md) para habilitar, deshabilitar u ocultar un botón según el estado de la pantalla.
+
+| Evento  | Descripción                             |
+|---------|-----------------------------------------|
+| `click` | Se lanza cuando un usuario pulsa el botón |
+
+## Más información {#more}
+
+* [Documentación completa del botón](../api/button.md): atributos, tipos, estilos y ejemplos.
+* [Referencia XSD del elemento `button`](/reference/screen#element-button).

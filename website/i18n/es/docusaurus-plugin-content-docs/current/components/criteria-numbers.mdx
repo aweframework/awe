@@ -1,0 +1,85 @@
+---
+id: criteria-numbers
+title: Números y fechas
+sidebar_label: Números y fechas
+description: Los criterios numéricos y de fecha de AWE, en vivo. Numérico, fecha, rango de fechas, hora y calendario filtrado, con el XML que los produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteriaNumbers} from '@site/src/components/AwePlayground/specs/criteria-numbers';
+
+Los criterios numéricos y de fecha recogen una cantidad (`numeric`), un día (`date`), un periodo (`date-range`), una hora del día (`time`)
+o un día de la lista que permite el servidor (`filtered-calendar`). Debajo están los criterios reales del cliente React de AWE: elige un
+tipo, cambia sus atributos y el XML de debajo se actualiza. Pruébalos también: son campos reales.
+
+<AwePlayground spec={criteriaNumbers} />
+
+Los atributos que comparten todos los criterios (etiqueta, texto de ayuda, icono, tamaño, validación) están en la [vista general de criterios](./criteria.mdx).
+Un `date-range` envía dos parámetros, `id.from` e `id.to`, y sus `presets` añaden un botón por código que rellena el rango desde hoy.
+Los días que permite un `filtered-calendar` vienen de una consulta del servidor (aquí una lista fija de lunes y jueves) y los demás quedan desactivados.
+
+## Recetas {#recipes}
+
+Campos habituales, dibujados por los mismos componentes.
+
+### Número con deslizador {#recipe-slider}
+
+`show-slider` añade un deslizador bajo la entrada y `number-format` fija su rango y su paso.
+
+<AweLive
+  components={{discount: {attributes: {label: 'Descuento', showSlider: true, numberFormat: {min: 0, max: 100, step: 5, aSign: ' %', pSign: 's'}}, model: {values: [{value: '20', label: '20', selected: true}]}}}}
+  nodes={[{elementType: 'Criteria', component: 'numeric', id: 'discount'}]}
+/>
+
+```xml
+<criteria id="discount" component="numeric" label="Descuento" show-slider="true"
+          number-format="{min: 0, max: 100, step: 5, aSign: ' %', pSign: 's'}" value="20" />
+```
+
+### Periodo con atajos {#recipe-range}
+
+Cada código de `presets` es un botón: `1M` es un mes atrás desde hoy, `YTD` es lo que va de año y `ALL` borra las dos fechas.
+
+<AweLive
+  components={{period: {attributes: {label: 'Periodo', presets: '1M,3M,YTD,ALL'}}}}
+  nodes={[{elementType: 'Criteria', component: 'date-range', id: 'period'}]}
+/>
+
+```xml
+<criteria id="period" component="date-range" label="Periodo" presets="1M,3M,YTD,ALL" />
+```
+
+### Hora con reloj de 12 horas {#recipe-time}
+
+`time-format` elige cómo se muestra la hora. El valor que se envía al servidor es siempre una hora de 24 horas.
+
+<AweLive
+  components={{start: {attributes: {label: 'Hora de inicio', timeFormat: 'hh:mm a'}}}}
+  nodes={[{elementType: 'Criteria', component: 'time', id: 'start'}]}
+/>
+
+```xml
+<criteria id="start" component="time" label="Hora de inicio" time-format="hh:mm a" />
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Un criterio no tiene un evento propio al que escuchar: cada cambio de su valor comprueba las [dependencias](../api/dependencies.md) cuyo
+`dependency-element` lo nombra, y pulsar Intro en un campo de texto ejecuta el botón `submit` de su ventana. Las [acciones](../api/actions.md)
+que actúan sobre criterios:
+
+| Acción                           | Descripción                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Vacía el valor del criterio                                          |
+| `restore`                        | Devuelve el criterio a su valor inicial                              |
+| `validate`                       | Ejecuta la validación del criterio y muestra su error                |
+| `set-invalid`                    | Marca el criterio como inválido con el mensaje de la acción          |
+| `set-valid`                      | Borra el error de validación del criterio                            |
+| `copy-criterion-value-clipboard` | Copia el valor del criterio al portapapeles                          |
+
+## Más {#more}
+
+* [Vista general de criterios](./criteria.mdx): los atributos que comparten todos los criterios y las demás familias de entradas.
+* [Documentación completa de los criterios](../api/criteria.md): todos los tipos, atributos, validaciones y ejemplos.
+* [Referencia XSD del elemento `criteria`](/reference/screen#element-criteria).

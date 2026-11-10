@@ -1,0 +1,152 @@
+---
+id: window-layout
+title: Ventana y diseño
+sidebar_label: Ventana y diseño
+description: La ventana, el redimensionable y el diseño de pantalla de AWE, en vivo. Cambia sus atributos, arrastra los tiradores y mira los componentes reales y el XML que los produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {window as windowSpec} from '@site/src/components/AwePlayground/specs/window';
+import {resizable} from '@site/src/components/AwePlayground/specs/resizable';
+
+Una pantalla se construye con contenedores. Una **ventana** es el contenedor con título que agrupa contenido relacionado; un **redimensionable** deja que el usuario decida
+cuánto espacio ocupa una parte; y el **diseño** (`expandible` y los estilos `expand`) indica cómo se reparte el espacio libre de un contenedor
+entre sus hijos. La **plantilla** de la pantalla lo coloca todo: la fila de botones, las migas de pan y la zona donde van las ventanas.
+
+## Ventana {#window}
+
+Una `window` tiene una barra de título con un icono y una ayuda opcionales, y un cuerpo (`panel-body`) y un pie (`panel-footer`) como etiquetas hijas. Con
+`maximize="true"` obtiene un botón que la hace crecer sobre la zona central de la plantilla y la restaura; la vista previa no lo ofrece,
+porque una ventana maximizada sigue a la pantalla y esta página se desplaza.
+
+<AwePlayground spec={windowSpec} />
+
+La búsqueda avanzada (`advanced-mode`) y las búsquedas guardadas (`saved-searches`) necesitan un bloque `advanced` de criterios y el servidor de la
+pantalla: consulta [la búsqueda avanzada](../api/window.md#advanced-search).
+
+## Redimensionable {#resizable}
+
+Un `resizable` muestra un tirador en cada lado indicado en `directions`; el usuario lo arrastra para cambiar el tamaño del propio contenedor. En una disposición
+flex, el hermano junto al tirador da o toma el espacio, así que el resto de la pantalla no se mueve. Un redimensionable necesita un tamaño inicial:
+una pantalla real lo da con una clase de rejilla en `style`, la vista previa con una clase propia. Los tiradores se desactivan en anchos pequeños con los estilos `no-resizable-*`.
+
+<AwePlayground spec={resizable} />
+
+## Recetas {#recipes}
+
+### Expandir para llenar la altura {#recipe-expand}
+
+Un contenedor con `expandible="vertical"` dispone sus hijos en columna. Los que tienen el estilo `expand` se reparten el espacio libre (`expand-2x`
+toma el doble); los demás mantienen su altura. Aquí la ventana de criterios mantiene su tamaño y la de resultados ocupa el resto.
+
+<AweLive
+  components={{
+    Search: {attributes: {label: 'Buscar', placeholder: 'Nombre o correo'}},
+  }}
+  nodes={[
+    {elementType: 'Tag', type: 'div', expand: 'vertical', style: 'live-height', elementList: [
+      {elementType: 'Window', id: 'CriteriaWindow', label: 'Criterios', icon: 'lucide:filter', elementList: [
+        {elementType: 'Tag', type: 'div', style: 'panel-body', elementList: [{elementType: 'Criteria', component: 'text', id: 'Search'}]},
+      ]},
+      {elementType: 'Window', id: 'ResultsWindow', label: 'Resultados', icon: 'lucide:list', style: 'expand', elementList: [
+        {elementType: 'Tag', type: 'div', style: 'panel-body expand', label: 'Esta ventana ocupa toda la altura que queda.'},
+      ]},
+    ]},
+  ]}
+/>
+
+```xml
+<tag type="div" expandible="vertical">
+  <window id="CriteriaWindow" label="Criterios" icon="lucide:filter">
+    <tag type="div" style="panel-body">
+      <criteria id="Search" component="text" label="Buscar" placeholder="Nombre o correo" />
+    </tag>
+  </window>
+  <window id="ResultsWindow" label="Resultados" icon="lucide:list" style="expand">
+    <tag type="div" style="panel-body expand" label="Esta ventana ocupa toda la altura que queda." />
+  </window>
+</tag>
+```
+
+La altura del contenedor la da la plantilla de una pantalla; la vista previa le da 18rem. El [diseño](../api/layout.md) explica la disposición horizontal y
+los demás estilos de expansión.
+
+### Plantilla de pantalla con migas de pan {#recipe-template}
+
+La plantilla `window` de una pantalla dibuja una cabecera con las migas de pan de la ruta del menú y, a su derecha, los botones de la fuente `buttons`;
+la fuente `center` contiene las ventanas. Desde #925, `window-header` en la `screen` elige `breadcrumb` (el valor por defecto) o `none`, que deja solo la fila de botones.
+
+<AweLive
+  breadcrumbs={['Clientes', 'Lista de clientes']}
+  components={{
+    NewCustomer: {attributes: {label: 'Nuevo cliente', icon: 'lucide:plus', style: 'btn-primary'}},
+    ListWindow: {attributes: {}},
+  }}
+>
+  {({WindowTemplate}) => (
+    <WindowTemplate
+      windowHeader="breadcrumb"
+      elementList={[
+        {source: 'buttons', elementList: [{elementType: 'Button', id: 'NewCustomer'}]},
+        {source: 'center', elementList: [
+          {elementType: 'Window', id: 'ListWindow', label: 'Clientes', icon: 'lucide:users', elementList: [
+            {elementType: 'Tag', type: 'div', style: 'panel-body', label: 'Aquí va la tabla de clientes.'},
+          ]},
+        ]},
+      ]}
+    />
+  )}
+</AweLive>
+
+```xml
+<screen label="Lista de clientes" template="window" window-header="breadcrumb">
+  <tag source="buttons">
+    <button id="NewCustomer" label="Nuevo cliente" icon="lucide:plus" style="btn-primary" />
+  </tag>
+  <tag source="center">
+    <window id="ListWindow" label="Clientes" icon="lucide:users">
+      <tag type="div" style="panel-body" label="Aquí va la tabla de clientes." />
+    </window>
+  </tag>
+</screen>
+```
+
+Con `window-header="none"` la cabecera conserva la fila de botones y quita las migas de pan; la propiedad de aplicación `awe.application.window-header` fija el valor por defecto de todas las pantallas.
+
+<AweLive
+  components={{
+    NewCustomerNone: {attributes: {label: 'Nuevo cliente', icon: 'lucide:plus', style: 'btn-primary'}},
+    ListWindowNone: {attributes: {}},
+  }}
+>
+  {({WindowTemplate}) => (
+    <WindowTemplate
+      windowHeader="none"
+      elementList={[
+        {source: 'buttons', elementList: [{elementType: 'Button', id: 'NewCustomerNone'}]},
+        {source: 'center', elementList: [
+          {elementType: 'Window', id: 'ListWindowNone', label: 'Clientes', icon: 'lucide:users', elementList: [
+            {elementType: 'Tag', type: 'div', style: 'panel-body', label: 'Aquí va la tabla de clientes.'},
+          ]},
+        ]},
+      ]}
+    />
+  )}
+</AweLive>
+
+```xml
+<screen label="Lista de clientes" template="window" window-header="none">
+  ...
+</screen>
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Ni la ventana ni el redimensionable tienen un evento o una acción propios: la ventana es un contenedor, y el usuario la maximiza o arrastra un tirador.
+Una [dependencia](../api/dependencies.md) puede mostrar u ocultar una ventana, y el estado de maximizado solo se recuerda mientras la pantalla está abierta.
+
+## Más {#more}
+
+* Documentación completa de [la ventana](../api/window.md), del [redimensionable](../api/resizable.md) y del [diseño](../api/layout.md).
+* Referencia XSD del [elemento `window`](/reference/screen#element-window) y del [elemento `resizable`](/reference/screen#element-resizable).

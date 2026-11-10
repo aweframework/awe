@@ -3,6 +3,12 @@ id: dialog
 title: Dialog
 ---
 
+:::tip See it live
+
+Try the dialog with live controls in the [component catalog](../components/dialog.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 A dialog is a graphical item that provides the functionality of showing a modal window with a selected message and title (and an icon, if you want). A dialog should be associated to a button-action with type "dialog" (See [button actions](button.md#button-actions)).
 
 Two containers open and close as a dialog and accept its attributes: the [side panel](side-panel.md), anchored to the left or right edge of the screen, and the [popover](popover.md), anchored to a control.

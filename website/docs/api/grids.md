@@ -3,6 +3,12 @@ id: grids
 title: Grids
 ---
 
+:::tip See it live
+
+Try the grid and the tree grid with live controls in the [component catalog](../components/grid.mdx): the real AWE components, sample data and the XML that produces them.
+
+:::
+
 Grids are the main component in AWE to show data lists. It is defined by *grid* and *columns*:
 
 * The **grid** is the container of the data list. It has the query to load and a set of attributes to define the behaviour of the grid.

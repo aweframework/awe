@@ -3,6 +3,12 @@ id: chart
 title: Charts
 ---
 
+:::tip See it live
+
+Try the chart with live controls in the [component catalog](../components/chart.mdx): the real AWE component, sample data and the XML that produces it.
+
+:::
+
 A chart shows the result of a query as a graphic: lines, columns, areas, pies, scatter plots... You describe it in the
 screen XML with a `chart` element, its axes, its series and, optionally, a legend, a tooltip and extra parameters. The
 chart loads its data from a query, like any other AWE component.

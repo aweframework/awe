@@ -3,6 +3,12 @@ id: grids
 title: Grids
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba el grid y el grid en árbol con controles en vivo en el [catálogo de componentes](../components/grid.mdx): los componentes reales de AWE, datos de ejemplo y el XML que los produce.
+
+:::
+
 Los *grids* son el componente principal de AWE para mostrar las listas de datos. Se definen con *grid* y *columns*:
 
 * El **grid** es el contenedor de la lista de datos. Tiene la consulta a cargar y un conjunto de atributos para definir el comportamiento del grid.

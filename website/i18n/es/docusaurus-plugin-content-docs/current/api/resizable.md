@@ -3,6 +3,12 @@ id: resizable
 title: Redimensionable
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba el redimensionable con controles en vivo en el [catálogo de componentes](../components/window-layout.mdx#resizable): el componente real de AWE y el XML que lo produce.
+
+:::
+
 Un redimensionable es un contenedor cuyo tamaño puede cambiar el usuario arrastrando uno de sus lados. Úsalo para dejar que el usuario decida cuánto espacio ocupa una parte de la pantalla, por ejemplo una lista de elementos a la izquierda del detalle que controla.
 
 ## Esqueleto XML {#xml-skeleton}
