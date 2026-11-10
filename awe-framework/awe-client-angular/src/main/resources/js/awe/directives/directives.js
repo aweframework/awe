@@ -98,6 +98,7 @@ import "./video";
 import "./link";
 import "./image";
 import "./card";
+import "./themePreview";
 
 import "./grid";
 import "./treegrid";

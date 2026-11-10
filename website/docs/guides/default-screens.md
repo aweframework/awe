@@ -85,12 +85,19 @@ or, with the custom option, a hex from a colour picker) and a mode. It shows the
 name, primary · surface (the palette or the hex), mode and state, with a search by name, primary or surface and quick
 filters with their counts (*All*, *Active*, *Inactive*). Each row has an edit button and a menu (edit, delete), and the
 selected rows show a bar to delete them. A side panel creates and edits a theme, grouped in sections (identity, colours
-and mode), and shows the avatar, name, colours and state of the theme being edited. A new theme starts with the emerald
-primary, the automatic surface and the system mode, and is active; the *Active* switch is shown when editing a theme.
-See [Theme configuration](../design-system/for-developers.md).
+and mode, preview), and shows the avatar, name, colours and state of the theme being edited. A new theme starts with the
+emerald primary, the automatic surface and the system mode, and is active; the *Active* switch is shown when editing a
+theme. See [Theme configuration](../design-system/for-developers.md).
+
+The *Preview* section shows a sample of the theme (a page, a card, text with a link, a tag, a field and the buttons) with
+the colours and the mode of the panel, updated as they change and before the theme is saved, also for custom hex
+colours. In the system mode a switch shows the sample in the light or the dark mode. An empty or invalid hex keeps the
+last valid preview. The preview never changes the theme of the application, so cancelling the panel leaves no trace
+(see [Theme preview](../api/theme-preview.md)).
 
 The screen reuses the queries and maintains of the themes (`ThmLst`, `ThmNew`, `ThmUpd` and `ThmDel`, which compose the
-colours with the `composeThemeColors` service), so an application that overrides them keeps its logic.
+colours with the `composeThemeColors` service), so an application that overrides them keeps its logic. The preview reads
+the palette of a custom hex from the `ThmPrvPal` query (service `themePreviewPalette`).
 
 :::warning Deprecated
 The previous theme screens (`Thm`, `ThmNew`, `ThmUpd` and `ThmViw`) are deprecated since AWE 5.0.0 and will be removed

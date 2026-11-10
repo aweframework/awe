@@ -1,6 +1,6 @@
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import React from "react";
-import {fireEvent} from "@testing-library/react";
+import {fireEvent, waitFor} from "@testing-library/react";
 import {renderWithProviders} from "../test-utils";
 import AweInputColor from "../../../src/criteria/AweInputColor";
 
@@ -78,6 +78,29 @@ describe('awe-react-client/test/js/criteria/AweInputColorTest.jsx', () => {
 
     expect(fireEvent.keyDown(document.querySelector("input#color"), {key: "a"})).toBe(true);
     expect(onParentKeyDown).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps the picker inside the viewport when the swatch is at its right edge', async () => {
+    // As in the browser, the picker has no width yet when the panel starts to open, and its final width afterwards
+    const PICKER_WIDTH = 220;
+    let pickerReads = 0;
+    const offsetWidth = jest.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function () {
+      if (this.classList.contains("p-overlaypanel")) {
+        return pickerReads++ === 0 ? 0 : PICKER_WIDTH;
+      }
+      return this.classList.contains("colorpicker") ? 24 : 0;
+    });
+    renderWithProviders(<AweInputColor id="color"/>, {preloadedState});
+    const swatch = document.querySelector("button.colorpicker");
+    swatch.getBoundingClientRect = () => ({left: window.innerWidth - 24, top: 10, right: window.innerWidth, bottom: 34, width: 24, height: 24});
+
+    fireEvent.click(swatch);
+
+    await waitFor(() => {
+      const panel = document.querySelector(".p-overlaypanel");
+      expect(parseFloat(panel.style.left) + PICKER_WIDTH).toBeLessThanOrEqual(window.innerWidth);
+    });
+    offsetWidth.mockRestore();
   });
 
 });

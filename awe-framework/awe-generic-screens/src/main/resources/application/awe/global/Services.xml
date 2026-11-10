@@ -692,6 +692,13 @@
       <service-parameter type="STRING" name="surfaceHex" />
     </java>
   </service>
+  <!-- Palette of the custom colours of the theme being edited, for its preview (#949) -->
+  <service id="themePreviewPalette">
+    <java classname="com.almis.awe.service.ThemeService" method="previewPalette">
+      <service-parameter type="STRING" name="primaryHex" />
+      <service-parameter type="STRING" name="surfaceHex" />
+    </java>
+  </service>
   <!-- Email service -->
   <service id="reloadMailServers">
     <java classname="com.almis.awe.service.EmailService" method="reloadMailServers"/>

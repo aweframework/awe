@@ -371,6 +371,32 @@ class ThemeServiceTest {
     }
   }
 
+  @Test
+  void previewsThePaletteOfAPrimaryHex() {
+    assertThat(palette(themeService.previewPalette(" #1a73e8 ", null))).isEqualTo(PaletteGenerator.primary("#1a73e8"));
+  }
+
+  @Test
+  void previewsThePaletteOfASurfaceHex() {
+    assertThat(palette(themeService.previewPalette("", "#78716c"))).isEqualTo(PaletteGenerator.surface("#78716c"));
+  }
+
+  @Test
+  void previewsNoPaletteOfAnInvalidOrEmptyHex() {
+    for (String hex : new String[]{null, "", "#12345", "emerald", "#GGGGGG"}) {
+      assertThat(themeService.previewPalette(hex, hex).getDataList().getRows()).as(hex).isEmpty();
+    }
+    assertThat(palette(themeService.previewPalette("#abc", "auto"))).isEqualTo(PaletteGenerator.primary("#abc"));
+  }
+
+  private static Map<String, String> palette(ServiceData serviceData) {
+    DataList dataList = serviceData.getDataList();
+    assertThat(dataList.getRows()).hasSize(1);
+    Map<String, String> palette = new LinkedHashMap<>();
+    dataList.getRows().get(0).forEach((column, cell) -> palette.put(column, cell.getStringValue()));
+    return palette;
+  }
+
   private void givenLocales() {
     AweElements elements = mock(AweElements.class);
     when(applicationContext.getBean(AweElements.class)).thenReturn(elements);

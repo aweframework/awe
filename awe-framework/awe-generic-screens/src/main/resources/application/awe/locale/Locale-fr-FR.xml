@@ -929,6 +929,14 @@
   <locale name="SCREEN_TEXT_THEME_FILTER_ALL" value="Tous"/>
   <locale name="SCREEN_TEXT_THEME_FILTER_INACTIVE" value="Inactifs"/>
   <locale name="SCREEN_TEXT_THEME_IDENTITY" value="Identité"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW" value="Aperçu"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_FIELD" value="Client"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_LINK" value="Voir les détails"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_MODE" value="Mode de l'aperçu"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_PLACEHOLDER" value="Saisissez un nom…"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_SAMPLE" value="Échantillon du thème"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_TEXT" value="Voici l'aspect des pages, des champs et des actions avec ce thème. Rien ne change tant que vous ne l'enregistrez pas."/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_TITLE" value="Rapport mensuel"/>
   <locale name="SCREEN_TEXT_THEME_SEARCH" value="Nom, primaire ou surface…"/>
   <locale name="SCREEN_TEXT_THEME_SEARCH_LABEL" value="Rechercher des thèmes"/>
   <locale name="SCREEN_TITLE_DATABASE_ADMIN" value="Bases de données"/>

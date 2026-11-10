@@ -929,6 +929,14 @@
   <locale name="SCREEN_TEXT_THEME_FILTER_ALL" value="All"/>
   <locale name="SCREEN_TEXT_THEME_FILTER_INACTIVE" value="Inactive"/>
   <locale name="SCREEN_TEXT_THEME_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW" value="Preview"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_FIELD" value="Customer"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_LINK" value="View details"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_MODE" value="Mode of the preview"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_PLACEHOLDER" value="Type a name…"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_SAMPLE" value="Sample of the theme"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_TEXT" value="This is how pages, fields and actions look with this theme. Nothing changes until you save it."/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_TITLE" value="Monthly report"/>
   <locale name="SCREEN_TEXT_THEME_SEARCH" value="Name, primary or surface…"/>
   <locale name="SCREEN_TEXT_THEME_SEARCH_LABEL" value="Search themes"/>
   <locale name="SCREEN_TITLE_DATABASE_ADMIN" value="Databases"/>

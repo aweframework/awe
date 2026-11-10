@@ -659,6 +659,14 @@ export interface TabContainer extends Container {
 export interface TagList extends Component {
 }
 
+export interface ThemePreview extends Component {
+    mode?: string;
+    primary?: string;
+    primaryHex?: string;
+    surface?: string;
+    surfaceHex?: string;
+}
+
 export interface Translation {
 }
 

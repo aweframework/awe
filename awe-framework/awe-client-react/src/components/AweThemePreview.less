@@ -1,0 +1,131 @@
+// Theme preview (#949). The frame and the mode switch belong to the application; the page and the sample are drawn in
+// the document of the frame, whose root carries the appearance of the theme being edited. Tokens only: the frame shows
+// the light or the dark values of the theme through its own root
+.awe-theme-preview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  min-width: 0;
+
+  .awe-theme-preview-mode {
+    align-self: flex-start;
+    margin: 0;
+  }
+
+  .awe-theme-preview-frame {
+    display: block;
+    width: 100%;
+    min-height: calc(var(--awe-size-control) * 6);
+    border: var(--awe-border-width) solid var(--awe-color-border);
+    border-radius: var(--awe-radius-card);
+  }
+}
+
+// Document of the frame
+.awe-theme-preview-page {
+  margin: 0;
+  padding: var(--awe-space-4);
+  font-family: var(--awe-font-family-base);
+  font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-base);
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-background);
+}
+
+.awe-theme-preview-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  padding: var(--awe-card-padding);
+  background-color: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  border-radius: var(--awe-radius-card);
+  box-shadow: var(--awe-shadow-card);
+}
+
+.awe-theme-preview-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-3);
+}
+
+.awe-theme-preview-title {
+  font-size: var(--awe-font-size-section-title);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text-emphasis);
+}
+
+.awe-theme-preview-tag {
+  padding: var(--awe-space-0-5) var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-on-primary-subtle);
+  background-color: var(--awe-color-primary-subtle);
+  border-radius: var(--awe-radius-full);
+}
+
+.awe-theme-preview-text {
+  margin: 0;
+  color: var(--awe-color-text-muted);
+}
+
+.awe-theme-preview-link {
+  color: var(--awe-color-primary-text);
+  text-decoration: underline;
+}
+
+.awe-theme-preview-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-1);
+}
+
+.awe-theme-preview-label {
+  font-size: var(--awe-font-size-label);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-field-label);
+}
+
+// The field is drawn focused: the border and the halo of the focus
+.awe-theme-preview-input {
+  display: flex;
+  align-items: center;
+  height: var(--awe-size-control);
+  padding: 0 var(--awe-field-padding-x);
+  color: var(--awe-color-field-placeholder);
+  background-color: var(--awe-color-field);
+  border: var(--awe-border-width) solid var(--awe-color-field-border-focus);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-field-focus);
+}
+
+.awe-theme-preview-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--awe-space-2);
+}
+
+.awe-theme-preview-button {
+  display: inline-flex;
+  align-items: center;
+  height: var(--awe-size-control);
+  padding: 0 var(--awe-button-padding-x);
+  font-size: var(--awe-button-font-size);
+  font-weight: var(--awe-font-weight-medium);
+  border: var(--awe-border-width) solid transparent;
+  border-radius: var(--awe-radius-md);
+}
+
+.awe-theme-preview-button-secondary {
+  font-weight: var(--awe-button-default-font-weight);
+  color: var(--awe-button-default-color);
+  background-color: var(--awe-button-default-background);
+  border-color: var(--awe-button-default-border-color);
+}
+
+.awe-theme-preview-button-primary {
+  color: var(--awe-color-on-primary);
+  background-color: var(--awe-color-primary);
+}

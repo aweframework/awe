@@ -28,6 +28,7 @@ import AweVideo from "./AweVideo";
 import AweMap from "./AweMap";
 import AweCard from "./AweCard";
 import AweAdvanced from "./AweAdvanced";
+import AweThemePreview from "./AweThemePreview";
 
 export const ComponentList = {
   "Button": AweButton,
@@ -61,7 +62,8 @@ export const ComponentList = {
   "Video": AweVideo,
   "GeoMap": AweMap,
   "Card": AweCard,
-  "Advanced": AweAdvanced
+  "Advanced": AweAdvanced,
+  "ThemePreview": AweThemePreview
 };
 
 export const IGNORE_COMPONENT_LIST = ["ButtonAction", "Dependency"];

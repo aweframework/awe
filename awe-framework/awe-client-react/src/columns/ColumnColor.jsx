@@ -51,6 +51,10 @@ function ColumnColor(props) {
     }
   }, [readonly]);
 
+  // Placed again once shown: when it starts to open the inline picker has no width yet, so it would not be shifted to
+  // the left of the swatch when it does not fit on the right
+  const onShowOverlay = useCallback(() => overlayRef.current?.align(), []);
+
   const onShowColorDebounced = useMemo(() => debounce((e) => onShowColor(e), 100), [onShowColor]);
 
   useEffect(() => () => { onShowColorDebounced.cancel && onShowColorDebounced.cancel(); }, [onShowColorDebounced]);
@@ -84,7 +88,7 @@ function ColumnColor(props) {
     <span className="p-inputgroup-addon">
         <button className={"colorpicker " + (value ? "" : "no-color")}
                 style={{backgroundColor: toColor(value)}} onClick={onShowColor} onKeyDown={onShowColorKey}/>
-        <OverlayPanel ref={overlayRef} dismissable appendTo={document.body} onHide={onBlur}>
+        <OverlayPanel ref={overlayRef} dismissable appendTo={document.body} onShow={onShowOverlay} onHide={onBlur}>
           <ColorPicker
             inline
             value={fromColor(value)}

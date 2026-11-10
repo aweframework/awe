@@ -3109,6 +3109,13 @@
     <variable id="One" type="INTEGER" value="1" />
   </query>
 
+  <!-- Themes screen (theme-admin): palette of the custom colours of the theme being edited, read by its preview (#949).
+       One row whose columns are the generated primary and surface custom properties (no row without a hex) -->
+  <query id="ThmPrvPal" permission="themes.read" service="themePreviewPalette">
+    <variable id="primaryHex" type="STRINGN" name="primaryHex" />
+    <variable id="surfaceHex" type="STRINGN" name="surfaceHex" />
+  </query>
+
   <!-- GET SCREEN CONFIGURATION TO SINGLETON-->
   <query id="getScreenConfiguration" cacheable="true" public="true">
     <table id="AweScrCnf" alias="ScrCnf" />
