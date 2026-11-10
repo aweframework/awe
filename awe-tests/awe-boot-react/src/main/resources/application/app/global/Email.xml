@@ -29,6 +29,8 @@
     <body label="EMAIL_MESSAGE_HTML_GENERAL" type="html" />
     <body label="EMAIL_MESSAGE_HTML_BOTTOM" type="html" />
     <body label="EMAIL_MESSAGE_TEXT_GENERAL" type="text" />
+    <variable id="EmlSub" type="STRING" name="EmlSub"/>
+    <variable id="EmlTxt" type="STRING" name="EmlTxt"/>
   </email>
 
   <email id="TestEmail"/>

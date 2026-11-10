@@ -353,22 +353,40 @@
     <option label="danger" value="4"/>
     <option label="neutral" value="5"/>
   </group>
+  <!-- Authentication of a mail server (AweEmlSrv.Ath): 0 none, 1 user and password, 2 OAuth2 -->
   <group id="authenticated-icon">
     <option label="fa-unlock" value="0"/>
     <option label="fa-lock" value="1"/>
+    <option label="fa-key" value="2"/>
   </group>
   <group id="authenticated-style">
     <option label="text-light-gray" value="0"/>
     <option label="text-info" value="1"/>
+    <option label="text-info" value="2"/>
   </group>
   <group id="authenticated-label">
-    <option label="ENUM_NO" value="0"/>
-    <option label="ENUM_YES" value="1"/>
+    <option label="ENUM_EML_SRV_ATH_NONE" value="0"/>
+    <option label="ENUM_EML_SRV_ATH_BASIC" value="1"/>
+    <option label="ENUM_EML_SRV_ATH_OAUTH2" value="2"/>
   </group>
   <!-- Authentication of a mail server (EmlSrvLst AthTon): tone of its tag in the mail servers screen (email-server-admin) -->
   <group id="authenticated-tone">
     <option label="neutral" value="0"/>
     <option label="info" value="1"/>
+    <option label="info" value="2"/>
+  </group>
+  <!-- Authentication type of a mail server (AweEmlSrv.Ath): select of the mail server screens -->
+  <group id="EnuEmlSrvAth">
+    <option label="ENUM_EML_SRV_ATH_NONE" value="0"/>
+    <option label="ENUM_EML_SRV_ATH_BASIC" value="1"/>
+    <option label="ENUM_EML_SRV_ATH_OAUTH2" value="2"/>
+  </group>
+  <!-- Security mode of a mail server (AweEmlSrv.SecMod): select of the mail server screens and its text in the grid
+       (EmlSrvLst SecTxt, a server without security mode is NONE) -->
+  <group id="EnuEmlSrvSecMod">
+    <option label="ENUM_EML_SRV_SEC_NONE" value="NONE"/>
+    <option label="ENUM_EML_SRV_SEC_STARTTLS" value="STARTTLS"/>
+    <option label="ENUM_EML_SRV_SEC_SSL" value="SSL"/>
   </group>
   <group id="user-settings">
     <option label="PROFILE" value="profile"/>

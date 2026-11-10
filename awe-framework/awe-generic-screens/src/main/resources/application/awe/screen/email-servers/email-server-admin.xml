@@ -12,6 +12,8 @@
                  the values of the panel with that identifier and never a column of another row.
                  The grid never shows nor sends the password of a server: the panel writes only the typed one (FlgPwdUpd, as
                  the EmlSrvUpd screen does), so the stored password is never replaced by an empty one nor shown.
+                 The panel edits the port, the security mode (NONE, STARTTLS, SSL) and the authentication type (none, user
+                 and password, OAuth2 with a Spring Security client registration of EmlSrvOauRegLst) of the server.
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
         template="window" label="SCREEN_TITLE_EML_SRV_ADMIN" help="HELP_SCREEN_TITLE_EML_SRV_ADMIN" keep-criteria="true">
@@ -38,9 +40,12 @@
       <button-action type="value" target="PnlMod" value="new" />
       <button-action type="reset" target="SrvNam" />
       <button-action type="reset" target="Hst" />
+      <button-action type="reset" target="Prt" />
+      <button-action type="reset" target="SecMod" />
       <button-action type="reset" target="EmlUsr" />
       <button-action type="reset" target="EmlPwd" />
       <button-action type="reset" target="Ath" />
+      <button-action type="reset" target="OauReg" />
       <button-action type="value" target="Act" value="1" />
       <button-action type="dialog" target="PnlEmlSrv" />
     </button>
@@ -53,17 +58,22 @@
         <!-- Quick filters: All, Active and Inactive, counted with the search (EmlSrvStaCnt) -->
         <quick-filter id="CrtEmlSrvSta" initial-load="query" target-action="EmlSrvStaCnt" label="SCREEN_TEXT_EMAIL_SERVER_FILTERS" value="" />
         <!-- The alias takes the rest of the width, with its host below it; a mail server has no initials, so no avatar.
-             The user, the authentication (with the icon of its tag) and the state as status -->
+             The port and the security mode (narrow, so the alias keeps its width), the user (the sender mailbox of an
+             OAuth2 server), the authentication (with the icon of its tag) and the state as status -->
         <column label="PARAMETER_ALIAS" name="SrvNam" sort-field="SrvNam" align="left" charlength="30" width="*"
                 secondary-field="Hst" export-secondary="true" secondary-label="PARAMETER_SERVER" sendable="false" />
-        <column label="PARAMETER_USER" name="EmlUsr" sort-field="EmlUsr" align="left" charlength="30" sendable="false" />
+        <column label="PARAMETER_SERVER_PORT" name="Prt" sort-field="Prt" align="right" charlength="6" sendable="false" />
+        <column label="PARAMETER_EML_SRV_SECURITY" name="SecTxt" sort-field="SecMod" align="left" charlength="10" sendable="false" />
+        <column label="PARAMETER_USER" name="EmlUsr" sort-field="EmlUsr" align="left" charlength="24" sendable="false" />
         <column label="PARAMETER_AUTH" name="AthTxt" sort-field="Ath" align="left" charlength="20" status-field="AthTon" icon-field="AthIcn" sendable="false" />
         <column label="PARAMETER_STATUS" name="StaTxt" sort-field="StaCod" align="left" charlength="14" status-field="StaTon" sendable="false" />
         <!-- Sent to EmlSrvDel: identifier of the selected mail servers -->
         <column name="IdeAweEmlSrv" hidden="true" />
         <!-- Read by the cells, by the side panel and by its header; not sent (their names are criteria of the panel) -->
         <column name="Hst" hidden="true" sendable="false" />
+        <column name="SecMod" hidden="true" sendable="false" />
         <column name="Ath" hidden="true" sendable="false" />
+        <column name="OauReg" hidden="true" sendable="false" />
         <column name="Act" hidden="true" sendable="false" />
         <column name="AthTon" hidden="true" sendable="false" />
         <column name="AthIcn" hidden="true" sendable="false" />
@@ -130,9 +140,9 @@
                 header-grid="GrdEmlSrvAdm" header-title-field="SrvNam">
       <header-tag field="StaTxt" tone-field="StaTon" />
       <tag type="div" style="panel-body" id="PnlEmlSrvBdy">
-        <!-- Identity: alias, host and state (a new server starts active) -->
+        <!-- Identity: alias and state (a new server starts active) -->
         <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_EMAIL_SERVER_IDENTITY" icon="envelope" />
-        <criteria label="PARAMETER_ALIAS" id="SrvNam" component="text" validation="{required: true, maxlength: 30}" style="col-xs-12 col-sm-8">
+        <criteria label="PARAMETER_ALIAS" id="SrvNam" component="text" validation="{required: true, maxlength: 100}" style="col-xs-12 col-sm-8">
           <dependency source-type="launcher" target-type="input" target-action="value">
             <dependency-element id="GrdEmlSrvAdm" column="SrvNam" attribute="selectedRowValue" alias="value" optional="true" />
             <dependency-element id="GrdEmlSrvAdm" event="select-row" optional="true" />
@@ -146,42 +156,95 @@
             <dependency-element id="GrdEmlSrvAdm" event="select-row" optional="true" />
           </dependency>
         </criteria>
-        <criteria label="PARAMETER_SERVER" id="Hst" component="text" validation="{required: true, maxlength: 60}" style="col-xs-12">
+
+        <!-- Connection: host, port (empty is the default port of the security mode) and security mode. A server stored
+             before the security mode existed has none: the select, which is not optional, shows its first option (NONE) -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_EMAIL_SERVER_CONNECTION" icon="lucide:plug" />
+        <criteria label="PARAMETER_SERVER" id="Hst" component="text" validation="{required: true, maxlength: 60}" style="col-xs-12 col-sm-8">
           <dependency source-type="launcher" target-type="input" target-action="value">
             <dependency-element id="GrdEmlSrvAdm" column="Hst" attribute="selectedRowValue" alias="value" optional="true" />
             <dependency-element id="GrdEmlSrvAdm" event="select-row" optional="true" />
           </dependency>
         </criteria>
+        <criteria label="PARAMETER_SERVER_PORT" id="Prt" component="numeric" number-format="{vMin: '1', vMax: '65535', mDec: 0, aSep: ''}"
+                  validation="integer" help="HELP_EML_SRV_PORT" style="col-xs-12 col-sm-4">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdEmlSrvAdm" column="Prt" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdEmlSrvAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_EML_SRV_SECURITY" id="SecMod" component="select" initial-load="enum" target-action="EnuEmlSrvSecMod" value="NONE"
+                  validation="required" help="HELP_EML_SRV_SECURITY" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdEmlSrvAdm" column="SecMod" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdEmlSrvAdm" event="select-row" optional="true" />
+          </dependency>
+          <!-- OAuth2 sends a token as the SMTP credential: it needs STARTTLS or SSL, so None turns into STARTTLS. It stops
+               once the security mode is not None -->
+          <dependency source-type="value" target-type="input" value="STARTTLS" initial="true">
+            <dependency-element id="Ath" condition="eq" value="2" />
+            <dependency-element id="SecMod" condition="eq" value="NONE" />
+          </dependency>
+        </criteria>
 
-        <!-- Authentication: the user and the password are edited only when the server is authenticated, and cleared when it
-             is not (as the EmlSrvUpd screen). The stored password is never loaded: EmlSrvUpd writes the password only if
-             one is typed (FlgPwdUpd is 1, as in the EmlSrvUpd screen). A checkbox criterion is 1 when it is on (the default
-             value of its only value), so the dependency of the user and the password reads Ath = 1 -->
+        <!-- Authentication: none (0), user and password (1) or OAuth2 (2). The user is the sender mailbox for OAuth2 (its
+             label follows the type), the password applies only to user and password and the client registration only to
+             OAuth2; each one is cleared when the type does not use it. The stored password is never loaded: EmlSrvUpd
+             writes the password only if one is typed (FlgPwdUpd is 1, as in the EmlSrvUpd screen) -->
         <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_EMAIL_SERVER_AUTHENTICATION" icon="key" />
-        <criteria label="PARAMETER_AUTH" id="Ath" component="checkbox" style="col-xs-12 switch">
+        <criteria label="PARAMETER_AUTH" id="Ath" component="select" initial-load="enum" target-action="EnuEmlSrvAth" value="0"
+                  validation="required" style="col-xs-12 col-sm-6">
           <dependency source-type="launcher" target-type="input" target-action="value">
             <dependency-element id="GrdEmlSrvAdm" column="Ath" attribute="selectedRowValue" alias="value" optional="true" />
             <dependency-element id="GrdEmlSrvAdm" event="select-row" optional="true" />
           </dependency>
         </criteria>
-        <criteria label="PARAMETER_USER" id="EmlUsr" component="text" style="col-xs-12 col-sm-6">
+        <criteria label="PARAMETER_USER" id="EmlUsr" component="text" validation="{maxlength: 255}" style="col-xs-12 col-sm-6">
           <dependency source-type="launcher" target-type="input" target-action="value">
             <dependency-element id="GrdEmlSrvAdm" column="EmlUsr" attribute="selectedRowValue" alias="value" optional="true" />
             <dependency-element id="GrdEmlSrvAdm" event="select-row" optional="true" />
           </dependency>
-          <dependency target-type="set-editable" initial="true">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="Ath" condition="ne" value="0" />
+          </dependency>
+          <dependency target-type="set-required" initial="true">
+            <dependency-element id="Ath" condition="ne" value="0" />
+          </dependency>
+          <dependency source-type="reset" target-type="input">
+            <dependency-element id="Ath" condition="eq" value="0" />
+          </dependency>
+          <!-- OAuth2 (XOAUTH2) sends the sender mailbox as the SMTP user -->
+          <dependency source-type="value" target-type="label" value="PARAMETER_EML_SRV_SENDER" initial="true">
+            <dependency-element id="Ath" condition="eq" value="2" />
+          </dependency>
+          <dependency source-type="value" target-type="label" value="PARAMETER_USER" initial="true">
+            <dependency-element id="Ath" condition="ne" value="2" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_PASSWD" id="EmlPwd" component="password" validation="{maxlength: 250}" style="col-xs-12 col-sm-6" value="">
+          <dependency target-type="show" initial="true">
             <dependency-element id="Ath" condition="eq" value="1" />
           </dependency>
           <dependency source-type="reset" target-type="input">
             <dependency-element id="Ath" condition="ne" value="1" />
           </dependency>
         </criteria>
-        <criteria label="PARAMETER_PASSWD" id="EmlPwd" component="password" style="col-xs-12 col-sm-6" value="">
-          <dependency target-type="set-editable" initial="true">
-            <dependency-element id="Ath" condition="eq" value="1" />
+        <!-- Optional for the select: it does not pick the first registration by itself for a server without OAuth2; it is
+             required while the authentication is OAuth2 -->
+        <criteria label="PARAMETER_EML_SRV_OAUTH_REGISTRATION" id="OauReg" component="select" initial-load="query" server-action="data"
+                  target-action="EmlSrvOauRegLst" optional="true" help="HELP_EML_SRV_OAUTH_REGISTRATION" style="col-xs-12 col-sm-6">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdEmlSrvAdm" column="OauReg" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdEmlSrvAdm" event="select-row" optional="true" />
+          </dependency>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="Ath" condition="eq" value="2" />
+          </dependency>
+          <dependency target-type="set-required" initial="true">
+            <dependency-element id="Ath" condition="eq" value="2" />
           </dependency>
           <dependency source-type="reset" target-type="input">
-            <dependency-element id="Ath" condition="ne" value="1" />
+            <dependency-element id="Ath" condition="ne" value="2" />
           </dependency>
         </criteria>
         <criteria id="FlgPwdUpd" component="hidden" value="0">

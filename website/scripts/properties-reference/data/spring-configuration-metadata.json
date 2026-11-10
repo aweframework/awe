@@ -901,6 +901,11 @@
       "defaultValue": "localhost"
     },
     {
+      "name": "awe.mail.oauth2-registration",
+      "type": "java.lang.String",
+      "description": "Spring Security client registration (authorization-grant-type=client_credentials) of the default email server. When set, the default sender authenticates with OAuth2 (SASL XOAUTH2): user is the sender mailbox, pass is not used, and tls or ssl is required."
+    },
+    {
       "name": "awe.mail.pass",
       "type": "java.lang.String",
       "description": "Email server auth password"

@@ -3,6 +3,7 @@ package com.almis.awe.test.integration.service;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.dao.UserDAOImpl;
 import com.almis.awe.factory.MailSenderFactory;
+import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EmailService;
@@ -57,6 +58,9 @@ class EmailServiceTest extends AbstractSpringAppIntegrationTest {
 
   @Autowired
   private UserDAOImpl userDAO;
+
+  @Autowired
+  private AweSession aweSession;
 
   @Mock
   private JavaMailSender mailSender;
@@ -114,6 +118,29 @@ class EmailServiceTest extends AbstractSpringAppIntegrationTest {
     // Build message
     emailService.sendEmail("notify-users", parameters);
 
+    verify(mailSender, times(1)).send(mimeMessage);
+  }
+
+  /**
+   * The email of the 'send email to active users' screen carries the subject and text written on it
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void sendActiveUsersMailWithTheSubjectAndTextOfTheScreen() throws Exception {
+    doReturn(mimeMessage).when(mailSender).createMimeMessage();
+    when(mailSenderFactory.getMailSender(any())).thenReturn(mailSender);
+
+    // Sender: the connected user (SesUsr)
+    aweSession.setParameter("user", "test");
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.put("EmlSub", "Maintenance window");
+    parameters.put("EmlTxt", "The application stops at 20:00");
+
+    emailService.sendEmail("EmlActUsr", parameters);
+
+    verify(mimeMessage).setSubject("Maintenance window");
+    verify(mimeMessage).setText(contains("The application stops at 20:00"), any());
     verify(mailSender, times(1)).send(mimeMessage);
   }
 }

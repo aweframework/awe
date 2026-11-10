@@ -54,7 +54,7 @@
     <window style="static criteria" label="SCREEN_TEXT_CRITERIA" icon="filter">
       <tag type="div" style="panel-body static">
         <criteria label="PARAMETER_ALIAS" component="suggest" id="CrtNam" server-action="data" target-action="EmlSrvNamSug" style="col-xs-12 col-sm-6 col-lg-3" strict="false" />
-        <criteria label="PARAMETER_AUTH" component="select" id="CrtAth" initial-load="enum" target-action="Es1Es0" style="col-xs-12 col-sm-6 col-lg-3" optional="true" />
+        <criteria label="PARAMETER_AUTH" component="select" id="CrtAth" initial-load="enum" target-action="EnuEmlSrvAth" style="col-xs-12 col-sm-6 col-lg-3" optional="true" />
         <criteria label="PARAMETER_SERVER" component="suggest" id="CrtSrv" server-action="data" target-action="EmlSrvSug" style="col-xs-12 col-sm-6 col-lg-3" />
         <criteria label="PARAMETER_ACTIVE" component="select" id="CrtAct" initial-load="enum" target-action="Es1Es0" style="col-xs-12 col-sm-6 col-lg-3" optional="true" />
       </tag>
@@ -71,10 +71,14 @@
       <grid id="GrdEmlSrvLst" style="expand" server-action="data" target-action="EmlSrvLst" initial-load="query" multiselect="true" max="10">
         <column name="IdeAweEmlSrv" sort-field="IdeAweEmlSrv" hidden="true" align="center" />
         <column label="PARAMETER_ALIAS" name="SrvNam" sort-field="SrvNam" align="center" charlength="30" />
-        <column label="PARAMETER_SERVER" name="Hst" sort-field="Hst" align="left" charlength="60" />
+        <column label="PARAMETER_SERVER" name="Hst" sort-field="Hst" align="left" charlength="50" />
+        <column label="PARAMETER_SERVER_PORT" name="Prt" sort-field="Prt" align="right" charlength="8" />
+        <column label="PARAMETER_EML_SRV_SECURITY" name="SecMod" sort-field="SecMod" align="center" charlength="12" />
         <column label="PARAMETER_AUTH" component="icon" name="AthIco" sort-field="Ath" align="center" charlength="20" />
         <column name="Ath" sort-field="Ath" hidden="true" align="center" />
         <column label="PARAMETER_USER" name="EmlUsr" sort-field="EmlUsr" align="center" charlength="30" />
+        <!-- OAuth2 client registration sent to the update screen -->
+        <column name="OauReg" hidden="true" />
         <column label="PARAMETER_ACTIVE" component="icon" name="ActIco" sort-field="Act" align="center" charlength="10" />
         <column name="Act" sort-field="Act" hidden="true" align="center" />
       </grid>

@@ -220,24 +220,262 @@ vea la [guía de migración a v5](v5-migration.md).
 La opción *Servidores de correo* del menú abre la pantalla de administración de servidores de correo
 (`email-server-admin`), construida como la de [bases de datos](#databases): contiene los servidores de correo externos
 que se usan para enviar correo en algunas partes de la aplicación, como la impresión de pantallas y los informes del
-planificador. Muestra los servidores en una rejilla con su alias (y el host debajo), el usuario, la autenticación y el
-estado, con una búsqueda por alias y filtros rápidos con sus recuentos (*Todos*, *Activos*, *Inactivos*). Cada
-fila tiene un botón de edición y un menú (editar, duplicar, borrar), y las filas seleccionadas muestran una barra para
-borrarlas.
+planificador. Muestra los servidores en una rejilla con su alias (y el host debajo), el puerto, la seguridad, el usuario,
+la autenticación y el estado, con una búsqueda por alias y filtros rápidos con sus recuentos (*Todos*, *Activos*,
+*Inactivos*). Cada fila tiene un botón de edición y un menú (editar, duplicar, borrar), y las filas seleccionadas
+muestran una barra para borrarlas.
 
-Un panel lateral crea y edita un servidor, agrupado en secciones (identidad: alias, host y el selector *Activo*;
-autenticación: su interruptor, el usuario y la contraseña) y muestra el alias y el estado del servidor que se está
-editando. La contraseña guardada nunca se muestra: al editar, solo cambia si se escribe una nueva. *Duplicar* abre el
-panel como un servidor nuevo con los valores del seleccionado, sin su contraseña, y el alias de un servidor es único.
+Un panel lateral crea y edita un servidor, agrupado en secciones (identidad: alias y el selector *Activo*; conexión:
+host, puerto y seguridad; autenticación: su tipo, el usuario o buzón remitente, la contraseña y el registro de cliente
+OAuth2) y muestra el alias y el estado del servidor que se está editando. La contraseña guardada nunca se muestra: al
+editar, solo cambia si se escribe una nueva. *Duplicar* abre el panel como un servidor nuevo con los valores del
+seleccionado, sin su contraseña, y el alias de un servidor es único.
 
 La pantalla lee las consultas y los mantenimientos de servidores de correo del framework (`EmlSrvLst`, `EmlSrvNew`,
-`EmlSrvUpd`, `EmlSrvDel` y `EmlSrvNamUni`) y añade `EmlSrvStaCnt`, `EmlSrvStaCntAct` y `EmlSrvStaCntIna` para los
-recuentos de los filtros rápidos, de modo que una aplicación que los sobrescriba conserva su lógica.
+`EmlSrvUpd`, `EmlSrvDel`, `EmlSrvNamUni` y `EmlSrvOauRegLst`) y añade `EmlSrvStaCnt`, `EmlSrvStaCntAct` y
+`EmlSrvStaCntIna` para los recuentos de los filtros rápidos, de modo que una aplicación que los sobrescriba conserva su
+lógica. Los remitentes de correo leen los servidores, con su contraseña cifrada, de la consulta solo de servidor
+`EmlSrvSndLst`: `EmlSrvLst` nunca devuelve la contraseña.
+
+Cada servidor de correo define:
+
+| Campo | Descripción |
+|-------|-------------|
+| Alias | Nombre del servidor (hasta 100 caracteres). Los usuarios y los [correos](../api/email-definition.md#special-variables) se refieren al servidor por este nombre. |
+| Servidor | Host SMTP. |
+| Puerto | Puerto SMTP. Déjelo vacío para usar el puerto por defecto del modo de seguridad. |
+| Seguridad | Seguridad de la conexión: `Ninguna`, `STARTTLS` o `SSL/TLS`. |
+| Autenticación | `Ninguna`, `Usuario y contraseña` u `OAuth2`. |
+| Usuario / Buzón remitente | Usuario para la autenticación con usuario y contraseña, o buzón remitente para OAuth2: la etiqueta del campo sigue al tipo de autenticación. |
+| Contraseña | Solo para la autenticación con usuario y contraseña. Se guarda cifrada. Al editar, déjela vacía para mantener el valor actual. |
+| Registro de cliente OAuth2 | Solo para la autenticación OAuth2, y obligatorio: el registro de cliente de Spring Security que proporciona el token de acceso. |
+
+Los cambios hechos en esta pantalla se aplican a los remitentes de correo al momento; no hace falta reiniciar la
+aplicación.
 
 :::warning Obsoleto
 Las pantallas anteriores de servidores de correo (`EmlSrv`, `EmlSrvNew` y `EmlSrvUpd`) están obsoletas desde AWE 5.0.0 y
 se eliminarán en la siguiente versión menor (5.1.0). Apunte sus propias opciones de menú a la pantalla
 `email-server-admin`; consulte la [guía de migración a la v5](v5-migration.md).
+:::
+
+### Remitente por defecto y servidores de correo {#default-sender-and-mail-servers}
+
+- `awe.mail.enabled=true` activa todas las funciones de correo. Sin esta propiedad la aplicación no envía ningún
+  correo, ni siquiera a través de los servidores de esta pantalla.
+- El **remitente por defecto** se configura con las [propiedades `awe.mail.*`](../properties.md#awe-email-properties)
+  (no con `spring.mail.*`).
+- Para enviar un mensaje, AWE toma el servidor de correo del **usuario que envía** (el usuario del parámetro
+  `SESSION_USER` cuando el envío lo lleva y, si no, el usuario de la sesión): el servidor de correo asignado a ese
+  usuario en la pantalla de [usuarios](#users). Si el usuario no tiene servidor, o el servidor no está definido aquí, el
+  mensaje se envía a través del remitente por defecto.
+- Un servidor de correo que no se puede leer (por ejemplo, con un valor guardado que no es válido) se descarta, con un
+  error en el log que nombra el servidor: los demás servidores siguen funcionando y los usuarios de ese servidor envían
+  a través del remitente por defecto.
+- Un servidor de correo con OAuth2 que se lee pero está mal configurado (sin TLS, sin buzón remitente, con un registro
+  desconocido) nunca recurre al remitente por defecto: sus mensajes fallan.
+
+Tanto los servidores de correo de esta pantalla como el remitente por defecto pueden autenticarse con OAuth2: consulte
+[Autenticación OAuth2](#oauth2-authentication).
+
+### Modo de seguridad y puerto {#security-mode-and-port}
+
+| Seguridad | Propiedades de JavaMail | Puerto por defecto |
+|-----------|-------------------------|--------------------|
+| `Ninguna` | Conexión sin cifrar | `25` |
+| `STARTTLS` | `mail.smtp.starttls.enable=true` y `mail.smtp.starttls.required=true`: la conexión se eleva a TLS y falla si el servidor no lo admite | `587` |
+| `SSL/TLS` | `mail.smtp.ssl.enable=true`: TLS desde el inicio (TLS implícito) | `465` |
+
+Un puerto escrito en la pantalla siempre tiene prioridad sobre el puerto por defecto.
+
+### Tipos de autenticación {#authentication-types}
+
+- **Ninguna**: el servidor acepta mensajes sin autenticación (por ejemplo, un relay interno).
+- **Usuario y contraseña**: SMTP AUTH con el usuario y la contraseña del servidor. La contraseña se descifra justo
+  antes de enviarla al servidor SMTP.
+- **OAuth2**: SASL `XOAUTH2` con el buzón remitente y un token de acceso OAuth2 en lugar de una contraseña. Consulte
+  [Autenticación OAuth2](#oauth2-authentication).
+
+#### Ejemplo con Amazon SES {#amazon-ses-example}
+
+Amazon SES usa la autenticación con usuario y contraseña con las credenciales SMTP creadas en la consola de SES (no son
+las claves de acceso de IAM):
+
+| Campo | Valor |
+|-------|-------|
+| Servidor | `email-smtp.[REGION].amazonaws.com` |
+| Puerto | `587` (o vacío) |
+| Seguridad | `STARTTLS` |
+| Autenticación | `Usuario y contraseña` |
+| Usuario / Buzón remitente | Nombre de usuario SMTP de SES |
+| Contraseña | Contraseña SMTP de SES |
+
+### Autenticación OAuth2 {#oauth2-authentication}
+
+Un servidor de correo de esta pantalla, o el remitente por defecto, puede autenticarse con OAuth2 en lugar de con un
+usuario y una contraseña. Microsoft está desactivando SMTP AUTH con usuario y contraseña (autenticación básica) en
+Exchange Online, y OAuth2 es su sustituto. Para configurarlo:
+
+1. Prepare el proveedor: una aplicación que obtenga tokens con el grant `client_credentials` y pueda enviar desde el
+   buzón remitente (consulte el [ejemplo con Microsoft 365](#microsoft-365-example)).
+2. Declare esa aplicación como un [registro de cliente](#oauth2-client-registration) de Spring Security.
+3. Use el registro en un [servidor de correo de esta pantalla](#mail-server-with-oauth2) o en el
+   [remitente por defecto](#default-sender-with-oauth2).
+4. Envíe un mensaje y lea el log si falla (consulte [Resolución de problemas](#oauth2-troubleshooting)).
+
+#### Cómo funciona {#how-it-works}
+
+1. Antes de cada conexión SMTP, AWE pide a Spring Security (`OAuth2AuthorizedClientManager` con el proveedor
+   `client_credentials`) un token de acceso del registro de cliente. No hay interacción con el usuario: la aplicación
+   se autentica a sí misma con su client id y su client secret.
+2. AWE se conecta al servidor SMTP con TLS (`STARTTLS` o `SSL/TLS`) y se autentica con SASL `XOAUTH2`: el usuario es el
+   buzón remitente y la contraseña es el token de acceso, enviado como token `Bearer`.
+3. El mensaje se envía desde el buzón remitente.
+
+| Tema | Comportamiento |
+|------|----------------|
+| Caché del token | AWE guarda en memoria un token por servidor de correo (el remitente por defecto cuenta como un servidor más, `awe.mail`). Spring Security lo reutiliza y pide uno nuevo cuando está a punto de caducar (le quedan menos de 60 segundos). |
+| Token rechazado | Cuando el servidor SMTP rechaza la autenticación, se descarta el token en caché: ese mensaje falla y el siguiente envío pide un token nuevo. |
+| Endpoint de tokens | Las peticiones al endpoint de tokens tienen un timeout de conexión de 10 segundos y un timeout de lectura de 30 segundos. |
+| TLS | Obligatorio: el token de acceso es una credencial y nunca se envía por una conexión sin cifrar. Sin `STARTTLS` ni `SSL/TLS` no se envía nada y no se pide ningún token. |
+| Sin alternativa | Un servidor de correo o un remitente por defecto con OAuth2 que no puede autenticarse nunca recurre a otro servidor, ni a usuario y contraseña: sus mensajes fallan. |
+| Login | Los registros `client_credentials` nunca se ofrecen como opciones de login: el [inicio de sesión único](../security/authentication-sso.md) solo usa registros `authorization_code`, así que un registro de correo puede convivir con los de SSO. |
+| Sin OAuth2 | Una aplicación sin ningún registro de cliente OAuth2 sigue enviando correo con los servidores `Ninguna` y `Usuario y contraseña`; la lista de registros del panel lateral está vacía. |
+| Secretos | La base de datos solo guarda el id del registro: la URL de tokens, el client id y el client secret se quedan en la configuración de la aplicación. Los logs y los errores nombran el servidor y el registro, nunca el secreto ni el token. |
+| Proveedores | Cualquier proveedor cuyo endpoint de tokens admita el grant `client_credentials` y cuyo servidor SMTP acepte esos tokens con `XOAUTH2`. No se admiten el grant `refresh_token`, las cuentas de servicio de Google Workspace (JWT bearer) ni `OAUTHBEARER`. |
+
+#### Ejemplo con Microsoft 365 {#microsoft-365-example}
+
+En el lado de Microsoft:
+
+1. Registre una aplicación en Microsoft Entra ID y cree un client secret. Anote el id de directorio (tenant), el id de
+   aplicación (client) y el valor del secreto.
+2. Añada el permiso de aplicación `SMTP.SendAsApp` (*Office 365 Exchange Online*) y conceda el consentimiento de
+   administrador.
+3. Registre la entidad de servicio (service principal) de la aplicación en Exchange Online (Exchange Online PowerShell),
+   con el object id de la aplicación empresarial:
+   `New-ServicePrincipal -AppId [APPLICATION_ID] -ObjectId [ENTERPRISE_APPLICATION_OBJECT_ID]`.
+4. Permita que la aplicación envíe desde el buzón remitente:
+   `Add-MailboxPermission -Identity "noreply@contoso.com" -User [SERVICE_PRINCIPAL_ID] -AccessRights FullAccess`.
+5. Compruebe que SMTP AUTH está activado en el buzón remitente:
+   `Set-CASMailbox -Identity "noreply@contoso.com" -SmtpClientAuthenticationDisabled $false`.
+
+:::info
+Consulte [Authenticate an IMAP, POP or SMTP connection using OAuth](https://learn.microsoft.com/en-us/exchange/client-developer/legacy-protocols/how-to-authenticate-an-imap-pop-smtp-application-by-using-oauth)
+para los detalles de la configuración de Microsoft.
+:::
+
+El lado de AWE de este ejemplo es el registro `office365-mail` de la sección siguiente, usado por un
+[servidor de correo](#mail-server-with-oauth2) o por el [remitente por defecto](#default-sender-with-oauth2).
+
+#### Registro de cliente {#oauth2-client-registration}
+
+Defina en las propiedades de la aplicación un registro de cliente de Spring Security con
+`authorization-grant-type=client_credentials` y su proveedor (`token-uri`, o `issuer-uri` para descubrirlo). El id del
+registro es el nombre al que se refiere el servidor de correo o el remitente por defecto:
+
+```properties title="OAuth2 client registration for mail"
+spring.security.oauth2.client.registration.[REGISTRATION_ID].authorization-grant-type=client_credentials
+spring.security.oauth2.client.registration.[REGISTRATION_ID].client-id=[CLIENT_ID]
+spring.security.oauth2.client.registration.[REGISTRATION_ID].client-secret=[CLIENT_SECRET]
+spring.security.oauth2.client.registration.[REGISTRATION_ID].scope=[SCOPE]
+# Provider: the token endpoint, or the issuer to discover it
+spring.security.oauth2.client.provider.[REGISTRATION_ID].token-uri=[TOKEN_URI]
+#spring.security.oauth2.client.provider.[REGISTRATION_ID].issuer-uri=[ISSUER_URI]
+```
+
+Con los valores del [ejemplo con Microsoft 365](#microsoft-365-example):
+
+```properties title="Microsoft 365 registration"
+spring.security.oauth2.client.registration.office365-mail.authorization-grant-type=client_credentials
+spring.security.oauth2.client.registration.office365-mail.client-id=[APPLICATION_ID]
+spring.security.oauth2.client.registration.office365-mail.client-secret=[CLIENT_SECRET]
+spring.security.oauth2.client.registration.office365-mail.scope=https://outlook.office365.com/.default
+spring.security.oauth2.client.provider.office365-mail.token-uri=https://login.microsoftonline.com/[TENANT_ID]/oauth2/v2.0/token
+```
+
+Los registros se leen al arrancar: reinicie la aplicación después de añadir o cambiar uno.
+
+#### Servidor de correo con OAuth2 {#mail-server-with-oauth2}
+
+Cree (o edite) el servidor de correo en el panel lateral y seleccione `OAuth2` como autenticación: el campo *Usuario*
+pasa a ser *Buzón remitente* y aparece el selector *Registro de cliente OAuth2*, que solo lista los registros
+`client_credentials`. Cuando la seguridad es `Ninguna`, el panel la cambia a `STARTTLS`. Con el registro de
+Microsoft 365:
+
+| Campo | Valor |
+|-------|-------|
+| Servidor | `smtp.office365.com` |
+| Puerto | `587` (o vacío) |
+| Seguridad | `STARTTLS` |
+| Autenticación | `OAuth2` |
+| Buzón remitente | El buzón que envía los mensajes, por ejemplo `noreply@contoso.com` |
+| Registro de cliente OAuth2 | `office365-mail` |
+
+Después seleccione el servidor en el campo *Servidor correo* de los usuarios que deben enviar a través de él, en la
+pantalla de [usuarios](#users). Los demás usuarios siguen enviando a través del remitente por defecto (consulte
+[Remitente por defecto y servidores de correo](#default-sender-and-mail-servers)).
+
+#### Remitente por defecto con OAuth2 {#default-sender-with-oauth2}
+
+El remitente por defecto se autentica con OAuth2 cuando
+[`awe.mail.oauth2-registration`](../properties.md#awe.mail.oauth2-registration) nombra un registro de cliente
+`client_credentials`. `awe.mail.user` es el buzón remitente, `awe.mail.pass` y `awe.mail.auth` no se usan, y es
+obligatorio `awe.mail.tls=true` (STARTTLS requerido) o `awe.mail.ssl=true`. Con el registro de Microsoft 365:
+
+```properties title="Microsoft 365 default sender"
+awe.mail.enabled=true
+awe.mail.host=smtp.office365.com
+awe.mail.port=587
+awe.mail.tls=true
+awe.mail.user=noreply@contoso.com
+awe.mail.oauth2-registration=office365-mail
+```
+
+Si faltan TLS/SSL o el usuario, o el registro no existe o no es `client_credentials`, al arrancar se escribe en el log un
+error que nombra la propiedad y el registro, la aplicación arranca y todos los mensajes del remitente por defecto fallan
+con un error de autenticación: no se pide ningún token y ningún mensaje sale sin OAuth2. Sin
+`awe.mail.oauth2-registration` el remitente por defecto funciona como antes.
+
+#### Resolución de problemas {#oauth2-troubleshooting}
+
+AWE escribe estos errores en el log de la aplicación, y el envío que los encuentra falla con un error de autenticación.
+Los servidores de correo de esta pantalla se comprueban cuando se cargan (en el primer envío y después de un cambio en
+esta pantalla) y en cada envío; el remitente por defecto se comprueba al arrancar y en cada envío. `<server>` es el alias
+del servidor de correo, o `awe.mail` para el remitente por defecto, y `<id>` es el id del registro.
+
+| Mensaje | Significado y solución |
+|---------|------------------------|
+| `Email server '<server>' uses OAuth2 authentication without STARTTLS or SSL` | La seguridad es `Ninguna`. Seleccione `STARTTLS` o `SSL/TLS`; para el remitente por defecto, configure `awe.mail.tls=true` o `awe.mail.ssl=true`. |
+| `awe.mail.oauth2-registration '<id>' needs awe.mail.tls=true or awe.mail.ssl=true: every email of the default sender fails` | Error de arranque del remitente por defecto: la misma solución. |
+| `Email server '<server>' uses OAuth2 authentication without a sender mailbox` | El servidor de correo no tiene buzón remitente: escríbalo en el panel lateral. |
+| `awe.mail.oauth2-registration '<id>' needs awe.mail.user (sender mailbox): every email of the default sender fails` | Error de arranque del remitente por defecto: configure `awe.mail.user`. |
+| `Email server '<server>' uses an unknown OAuth2 client registration '<id>'` | No hay ningún `spring.security.oauth2.client.registration.<id>.*` con ese id: revise cómo está escrito y que las propiedades llegan a la aplicación. |
+| `Email server '<server>' uses OAuth2 client registration '<id>', which is not client_credentials` | El registro tiene otro grant (por ejemplo el `authorization_code` del login): defina un registro aparte con `authorization-grant-type=client_credentials`. |
+| `awe.mail.oauth2-registration '<id>' cannot be used: <message>` | Error de arranque del remitente por defecto; `<message>` es uno de los dos errores anteriores. |
+| `Email server '<server>' could not obtain an OAuth2 access token from registration '<id>' (<code>)` | El endpoint de tokens no devolvió un token. `<code>` es el error OAuth2 del proveedor (vea más abajo). No se envía nada al servidor SMTP. |
+| Respuesta SMTP `535` (Microsoft 365: `535 5.7.3 Authentication unsuccessful`) | AWE obtuvo un token pero el servidor SMTP lo rechazó para el buzón remitente. Revise el permiso `SMTP.SendAsApp` y su consentimiento de administrador, la entidad de servicio, el permiso sobre ese buzón exacto y que SMTP AUTH está activado en él. El token se descarta, así que el siguiente envío pide uno nuevo. |
+
+| `<code>` | Causa habitual |
+|----------|----------------|
+| `invalid_client`, `unauthorized_client` | Client id o client secret incorrectos (un client secret de Entra ID caduca), o la aplicación no pertenece al tenant del `token-uri`. |
+| `invalid_scope` | El proveedor no acepta el scope. Para Microsoft 365 es `https://outlook.office365.com/.default`. |
+| `invalid_token_response` | No hay una respuesta de token válida: no se puede acceder al endpoint de tokens, no respondió dentro de los timeouts, el `token-uri` es incorrecto o la respuesta no es una respuesta de token OAuth2. |
+| `no access token` | El endpoint de tokens respondió sin token de acceso. |
+
+### Actualización {#upgrading}
+
+La migración de Flyway `AWE_V1.2.3__Email_server_settings` (en todas las bases de datos soportadas) amplía las columnas
+del nombre del servidor (100), del usuario (255) y de la contraseña (512) de `AweEmlSrv` y `HISAweEmlSrv`, y añade las
+columnas `SecMod` (modo de seguridad) y `OauReg` (registro de cliente OAuth2). Los servidores existentes siguen
+funcionando como antes: sin modo de seguridad equivale a `Ninguna`, sin puerto equivale a `25`, y los valores de
+autenticación `0` (ninguna) y `1` (usuario y contraseña) no cambian; `2` es OAuth2.
+
+:::note
+En versiones anteriores la contraseña guardada a través de esta pantalla llegaba cifrada al servidor SMTP, así que los
+servidores con autenticación de usuario y contraseña no podían autenticarse. Ahora la contraseña se descifra antes de
+enviarla, y esos servidores se autentican correctamente. Una contraseña que no se puede descifrar (por ejemplo, una
+insertada en texto plano directamente en la base de datos) se usa tal y como está guardada.
 :::
 
 ## Colas de mensajes {#message-queues}

@@ -226,24 +226,256 @@ removed in the next minor release (5.1.0). Point your own menu options to the `d
 
 The *Mail servers* option of the menu opens the mail server administration screen (`email-server-admin`), built like the
 [databases](#databases) one: it holds the external mail servers used to send e-mail in some parts of the application,
-like print screens and scheduler reports. It shows the servers in a grid with their alias (and the host under it), user,
-authentication and state, with a search by alias and quick filters with their counts (*All*, *Active*,
+like print screens and scheduler reports. It shows the servers in a grid with their alias (and the host under it), port,
+security, user, authentication and state, with a search by alias and quick filters with their counts (*All*, *Active*,
 *Inactive*). Each row has an edit button and a menu (edit, duplicate, delete), and the selected rows show a bar to delete
 them.
 
-A side panel creates and edits a server, grouped in sections (identity: alias, host and the *Active* select;
-authentication: its switch, the user and the password) and shows the alias and the state of the server being edited. The
-stored password is never shown: when editing, it only changes if a new one is typed. *Duplicate* opens the panel as a new
-server with the values of the selected one, without its password, and the alias of a server is unique.
+A side panel creates and edits a server, grouped in sections (identity: alias and the *Active* select; connection: host,
+port and security; authentication: its type, the user or sender mailbox, the password and the OAuth2 client
+registration) and shows the alias and the state of the server being edited. The stored password is never shown: when
+editing, it only changes if a new one is typed. *Duplicate* opens the panel as a new server with the values of the
+selected one, without its password, and the alias of a server is unique.
 
 The screen reads the mail server queries and maintains of the framework (`EmlSrvLst`, `EmlSrvNew`, `EmlSrvUpd`,
-`EmlSrvDel` and `EmlSrvNamUni`) and adds `EmlSrvStaCnt`, `EmlSrvStaCntAct` and `EmlSrvStaCntIna` for the counts of the
-quick filters, so an application that overrides them keeps its logic.
+`EmlSrvDel`, `EmlSrvNamUni` and `EmlSrvOauRegLst`) and adds `EmlSrvStaCnt`, `EmlSrvStaCntAct` and `EmlSrvStaCntIna` for
+the counts of the quick filters, so an application that overrides them keeps its logic. The mail senders read the
+servers, with their encrypted password, from the server-only query `EmlSrvSndLst`: `EmlSrvLst` never returns the
+password.
+
+Each mail server defines:
+
+| Field | Description |
+|-------|-------------|
+| Alias | Server name (up to 100 characters). Users and [emails](../api/email-definition.md#special-variables) refer to the server by this name. |
+| Server | SMTP host. |
+| Port | SMTP port. Leave it empty to use the default port of the security mode. |
+| Security | Connection security: `None`, `STARTTLS` or `SSL/TLS`. |
+| Authentication | `None`, `User and password` or `OAuth2`. |
+| User / Sender mailbox | User for user and password authentication, or sender mailbox for OAuth2: the label of the field follows the authentication type. |
+| Password | Only for user and password authentication. It is stored encrypted. When editing, leave it empty to keep the current value. |
+| OAuth2 client registration | Only for OAuth2 authentication, and required: the Spring Security client registration that provides the access token. |
+
+Changes made on this screen are applied to the mail senders right away; there is no need to restart the application.
 
 :::warning Deprecated
 The previous mail server screens (`EmlSrv`, `EmlSrvNew` and `EmlSrvUpd`) are deprecated since AWE 5.0.0 and will be
 removed in the next minor release (5.1.0). Point your own menu options to the `email-server-admin` screen; see the
 [v5 migration guide](v5-migration.md).
+:::
+
+### Default sender and mail servers
+
+- `awe.mail.enabled=true` turns on every mail feature. Without it the application sends no mail at all, not even
+  through the servers of this screen.
+- The **default sender** is configured with the [`awe.mail.*` properties](../properties.md#awe-email-properties) (not
+  `spring.mail.*`).
+- To send a message, AWE takes the mail server of the **sending user** (the user of the `SESSION_USER` parameter when
+  the send carries it, otherwise the user of the session): the mail server assigned to that user in the [users](#users) screen. If the user has no
+  server, or the server is not defined here, the message is sent through the default sender.
+- A mail server that cannot be read (for instance a stored value that is not valid) is left out, with an error naming
+  the server in the log: the other servers keep working and the users of that server send through the default sender.
+- A mail server with OAuth2 that is read but misconfigured (no TLS, no sender mailbox, unknown registration) never
+  falls back to the default sender: its messages fail.
+
+Both the mail servers of this screen and the default sender can authenticate with OAuth2: see
+[OAuth2 authentication](#oauth2-authentication).
+
+### Security mode and port
+
+| Security | JavaMail properties | Default port |
+|----------|---------------------|--------------|
+| `None` | Plain connection | `25` |
+| `STARTTLS` | `mail.smtp.starttls.enable=true` and `mail.smtp.starttls.required=true`: the connection is upgraded to TLS and fails if the server does not support it | `587` |
+| `SSL/TLS` | `mail.smtp.ssl.enable=true`: TLS from the start (implicit TLS) | `465` |
+
+A port typed on the screen always takes precedence over the default port.
+
+### Authentication types
+
+- **None**: the server accepts messages without authentication (for example, an internal relay).
+- **User and password**: SMTP AUTH with the user and the password of the server. The password is decrypted right
+  before it is sent to the SMTP server.
+- **OAuth2**: SASL `XOAUTH2` with the sender mailbox and an OAuth2 access token instead of a password. See
+  [OAuth2 authentication](#oauth2-authentication).
+
+#### Amazon SES example
+
+Amazon SES uses user and password authentication with the SMTP credentials created in the SES console (they are not
+the IAM access keys):
+
+| Field | Value |
+|-------|-------|
+| Server | `email-smtp.[REGION].amazonaws.com` |
+| Port | `587` (or empty) |
+| Security | `STARTTLS` |
+| Authentication | `User and password` |
+| User / Sender mailbox | SES SMTP user name |
+| Password | SES SMTP password |
+
+### OAuth2 authentication
+
+A mail server of this screen, or the default sender, can authenticate with OAuth2 instead of a user and a password.
+Microsoft is disabling SMTP AUTH with user and password (basic authentication) in Exchange Online, and OAuth2 is the
+replacement. To set it up:
+
+1. Prepare the provider: an application that obtains tokens with the `client_credentials` grant and may send from the
+   sender mailbox (see the [Microsoft 365 example](#microsoft-365-example)).
+2. Declare that application as a Spring Security [client registration](#oauth2-client-registration).
+3. Use the registration in a [mail server of this screen](#mail-server-with-oauth2) or in the
+   [default sender](#default-sender-with-oauth2).
+4. Send a message and read the log if it fails (see [Troubleshooting](#oauth2-troubleshooting)).
+
+#### How it works
+
+1. Before each SMTP connection, AWE asks Spring Security (`OAuth2AuthorizedClientManager` with the
+   `client_credentials` provider) for an access token of the client registration. There is no user interaction: the
+   application authenticates itself with its client id and client secret.
+2. AWE connects to the SMTP server with TLS (`STARTTLS` or `SSL/TLS`) and authenticates with SASL `XOAUTH2`: the user
+   is the sender mailbox and the password is the access token, sent as a `Bearer` token.
+3. The message is sent from the sender mailbox.
+
+| Topic | Behaviour |
+|-------|-----------|
+| Token cache | AWE keeps one token per mail server in memory (the default sender counts as one more server, `awe.mail`). Spring Security reuses it and requests a new one when it is about to expire (less than 60 seconds left). |
+| Rejected token | When the SMTP server rejects the authentication, the cached token is discarded: that message fails and the next send requests a new token. |
+| Token endpoint | Requests to the token endpoint have a 10 second connect timeout and a 30 second read timeout. |
+| TLS | Required: the access token is a credential and is never sent over a plain connection. Without `STARTTLS` or `SSL/TLS` nothing is sent and no token is requested. |
+| No fallback | A mail server or default sender with OAuth2 that cannot authenticate never falls back to another server, nor to user and password: its messages fail. |
+| Login | `client_credentials` registrations are never offered as login options: [single sign-on](../security/authentication-sso.md) only uses `authorization_code` registrations, so a mail registration can live next to the SSO ones. |
+| Without OAuth2 | An application without any OAuth2 client registration keeps sending mail with the `None` and `User and password` servers; the registration list of the side panel is empty. |
+| Secrets | The database stores only the registration id: the token URL, the client id and the client secret stay in the application configuration. Logs and errors name the server and the registration, never the secret or the token. |
+| Providers | Any provider whose token endpoint supports the `client_credentials` grant and whose SMTP server accepts those tokens with `XOAUTH2`. The `refresh_token` grant, Google Workspace service accounts (JWT bearer) and `OAUTHBEARER` are not supported. |
+
+#### Microsoft 365 example
+
+On the Microsoft side:
+
+1. Register an application in Microsoft Entra ID and create a client secret. Write down the directory (tenant) id, the
+   application (client) id and the secret value.
+2. Add the `SMTP.SendAsApp` application permission (*Office 365 Exchange Online*) and grant admin consent.
+3. Register the service principal of the application in Exchange Online (Exchange Online PowerShell), with the object
+   id of the enterprise application:
+   `New-ServicePrincipal -AppId [APPLICATION_ID] -ObjectId [ENTERPRISE_APPLICATION_OBJECT_ID]`.
+4. Allow the application to send from the sender mailbox:
+   `Add-MailboxPermission -Identity "noreply@contoso.com" -User [SERVICE_PRINCIPAL_ID] -AccessRights FullAccess`.
+5. Make sure SMTP AUTH is enabled on the sender mailbox:
+   `Set-CASMailbox -Identity "noreply@contoso.com" -SmtpClientAuthenticationDisabled $false`.
+
+:::info
+See [Authenticate an IMAP, POP or SMTP connection using OAuth](https://learn.microsoft.com/en-us/exchange/client-developer/legacy-protocols/how-to-authenticate-an-imap-pop-smtp-application-by-using-oauth)
+for the details of the Microsoft configuration.
+:::
+
+The AWE side of this example is the `office365-mail` registration of the next section, used by a
+[mail server](#mail-server-with-oauth2) or by the [default sender](#default-sender-with-oauth2).
+
+#### Client registration {#oauth2-client-registration}
+
+Define a Spring Security client registration with `authorization-grant-type=client_credentials` and its provider
+(`token-uri`, or `issuer-uri` to discover it) in the application properties. The registration id is the name the mail
+server or the default sender refers to:
+
+```properties title="OAuth2 client registration for mail"
+spring.security.oauth2.client.registration.[REGISTRATION_ID].authorization-grant-type=client_credentials
+spring.security.oauth2.client.registration.[REGISTRATION_ID].client-id=[CLIENT_ID]
+spring.security.oauth2.client.registration.[REGISTRATION_ID].client-secret=[CLIENT_SECRET]
+spring.security.oauth2.client.registration.[REGISTRATION_ID].scope=[SCOPE]
+# Provider: the token endpoint, or the issuer to discover it
+spring.security.oauth2.client.provider.[REGISTRATION_ID].token-uri=[TOKEN_URI]
+#spring.security.oauth2.client.provider.[REGISTRATION_ID].issuer-uri=[ISSUER_URI]
+```
+
+With the values of the [Microsoft 365 example](#microsoft-365-example):
+
+```properties title="Microsoft 365 registration"
+spring.security.oauth2.client.registration.office365-mail.authorization-grant-type=client_credentials
+spring.security.oauth2.client.registration.office365-mail.client-id=[APPLICATION_ID]
+spring.security.oauth2.client.registration.office365-mail.client-secret=[CLIENT_SECRET]
+spring.security.oauth2.client.registration.office365-mail.scope=https://outlook.office365.com/.default
+spring.security.oauth2.client.provider.office365-mail.token-uri=https://login.microsoftonline.com/[TENANT_ID]/oauth2/v2.0/token
+```
+
+Registrations are read at startup: restart the application after adding or changing one.
+
+#### Mail server with OAuth2
+
+Create (or edit) the mail server in the side panel and select `OAuth2` as the authentication: the *User* field becomes
+*Sender mailbox* and the *OAuth2 client registration* select appears, listing only the `client_credentials`
+registrations. When the security is `None`, the panel switches it to `STARTTLS`. With the Microsoft 365 registration:
+
+| Field | Value |
+|-------|-------|
+| Server | `smtp.office365.com` |
+| Port | `587` (or empty) |
+| Security | `STARTTLS` |
+| Authentication | `OAuth2` |
+| Sender mailbox | The mailbox that sends the messages, for example `noreply@contoso.com` |
+| OAuth2 client registration | `office365-mail` |
+
+Then select the server in the *E-mail server* field of the users that must send through it, in the [users](#users)
+screen. The other users keep sending through the default sender (see
+[Default sender and mail servers](#default-sender-and-mail-servers)).
+
+#### Default sender with OAuth2
+
+The default sender authenticates with OAuth2 when
+[`awe.mail.oauth2-registration`](../properties.md#awe.mail.oauth2-registration) names a `client_credentials` client
+registration. `awe.mail.user` is the sender mailbox, `awe.mail.pass` and `awe.mail.auth` are not used, and
+`awe.mail.tls=true` (STARTTLS, required) or `awe.mail.ssl=true` is mandatory. With the Microsoft 365 registration:
+
+```properties title="Microsoft 365 default sender"
+awe.mail.enabled=true
+awe.mail.host=smtp.office365.com
+awe.mail.port=587
+awe.mail.tls=true
+awe.mail.user=noreply@contoso.com
+awe.mail.oauth2-registration=office365-mail
+```
+
+If TLS/SSL or the user are missing, or the registration does not exist or is not `client_credentials`, an error naming
+the property and the registration is logged at startup, the application starts, and every message of the default
+sender fails with an authentication error: no token is requested and no message leaves without OAuth2. Without
+`awe.mail.oauth2-registration` the default sender works as before.
+
+#### Troubleshooting {#oauth2-troubleshooting}
+
+AWE writes these errors to the application log, and the send that hits them fails with an authentication error. The
+mail servers of this screen are checked when they are loaded (on the first send and after a change on this screen) and
+on each send; the default sender is checked at startup and on each send. `<server>` is the alias of the mail server, or
+`awe.mail` for the default sender, and `<id>` is the registration id.
+
+| Message | Meaning and fix |
+|---------|-----------------|
+| `Email server '<server>' uses OAuth2 authentication without STARTTLS or SSL` | The security is `None`. Select `STARTTLS` or `SSL/TLS`; for the default sender, set `awe.mail.tls=true` or `awe.mail.ssl=true`. |
+| `awe.mail.oauth2-registration '<id>' needs awe.mail.tls=true or awe.mail.ssl=true: every email of the default sender fails` | Startup error of the default sender: same fix. |
+| `Email server '<server>' uses OAuth2 authentication without a sender mailbox` | The mail server has no sender mailbox: type it in the side panel. |
+| `awe.mail.oauth2-registration '<id>' needs awe.mail.user (sender mailbox): every email of the default sender fails` | Startup error of the default sender: set `awe.mail.user`. |
+| `Email server '<server>' uses an unknown OAuth2 client registration '<id>'` | There is no `spring.security.oauth2.client.registration.<id>.*` with that id: check the spelling and that the properties reach the application. |
+| `Email server '<server>' uses OAuth2 client registration '<id>', which is not client_credentials` | The registration has another grant (for example the `authorization_code` of the login): define a separate registration with `authorization-grant-type=client_credentials`. |
+| `awe.mail.oauth2-registration '<id>' cannot be used: <message>` | Startup error of the default sender; `<message>` is one of the two previous errors. |
+| `Email server '<server>' could not obtain an OAuth2 access token from registration '<id>' (<code>)` | The token endpoint did not return a token. `<code>` is the OAuth2 error of the provider (see below). Nothing is sent to the SMTP server. |
+| SMTP `535` answer (Microsoft 365: `535 5.7.3 Authentication unsuccessful`) | AWE obtained a token but the SMTP server refused it for the sender mailbox. Check the `SMTP.SendAsApp` permission and its admin consent, the service principal, the mailbox permission of that exact mailbox, and that SMTP AUTH is enabled on it. The token is discarded, so the next send requests a new one. |
+
+| `<code>` | Usual cause |
+|----------|-------------|
+| `invalid_client`, `unauthorized_client` | Wrong client id or client secret (an Entra ID client secret expires), or the application does not belong to the tenant of the `token-uri`. |
+| `invalid_scope` | The provider does not accept the scope. For Microsoft 365 it is `https://outlook.office365.com/.default`. |
+| `invalid_token_response` | No valid token answer: the token endpoint cannot be reached, it did not answer within the timeouts, the `token-uri` is wrong, or the answer is not an OAuth2 token response. |
+| `no access token` | The token endpoint answered without an access token. |
+
+### Upgrading
+
+The Flyway migration `AWE_V1.2.3__Email_server_settings` (every supported database) widens the server name (100), the
+user (255) and the password (512) columns of `AweEmlSrv` and `HISAweEmlSrv`, and adds the `SecMod` (security mode) and
+`OauReg` (OAuth2 client registration) columns. Existing servers keep working as before: no security mode means `None`,
+no port means `25`, and the authentication values `0` (none) and `1` (user and password) do not change; `2` is OAuth2.
+
+:::note
+In previous versions the password saved through this screen reached the SMTP server encrypted, so servers with user and
+password authentication could not authenticate. The password is now decrypted before it is sent, and those servers
+authenticate correctly. A password that cannot be decrypted (for example, one inserted in plain text directly in the
+database) is used as stored.
 :::
 
 ## Message queues

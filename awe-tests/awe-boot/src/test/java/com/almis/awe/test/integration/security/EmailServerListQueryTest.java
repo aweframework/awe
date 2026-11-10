@@ -25,7 +25,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * The mail server list (EmlSrvLst) returns, for the mail servers screen (email-server-admin), the alias, the host and the
+ * The mail server list (EmlSrvLst) returns, for the mail servers screen (email-server-admin), the alias, the host, the
+ * security mode text (None when the server has none), the authentication (none, user and password or OAuth2) and the
  * state (active or inactive) of each server with its label and its tone. The search of the grid (CrtNam) finds servers by
  * alias ignoring case, the quick filter (CrtEmlSrvSta) by state, and the options query (EmlSrvStaCnt, with
  * EmlSrvStaCntAct and EmlSrvStaCntIna) counts the servers of each option with the same search.
@@ -46,8 +47,8 @@ class EmailServerListQueryTest extends AbstractSpringAppIntegrationTest {
   void createServers() throws Exception {
     deleteServers();
     int id = nextServerId();
-    insertServer(id, ACTIVE, 1);
-    insertServer(id + 1, INACTIVE, 0);
+    insertServer(id, ACTIVE, 1, 0, null);
+    insertServer(id + 1, INACTIVE, 0, 2, "STARTTLS");
   }
 
   @AfterEach
@@ -62,16 +63,22 @@ class EmailServerListQueryTest extends AbstractSpringAppIntegrationTest {
 
   @Test
   @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
-  void serverListReturnsHostAndState() throws Exception {
+  void serverListReturnsHostSecurityAuthenticationAndState() throws Exception {
     List<Map<String, Object>> rows = rows("EmlSrvLst", "{" + SEARCH + ",\"lang\":\"en-GB\"}");
 
     assertThat(names(rows)).containsExactlyInAnyOrder(ACTIVE, INACTIVE);
     assertThat(row(rows, ACTIVE))
       .containsEntry("Hst", "smtp.emlsrvlst.test")
+      .containsEntry("SecTxt", "None")
+      .containsEntry("AthTxt", "None")
       .containsEntry("StaCod", "active")
       .containsEntry("StaTxt", "Active")
       .containsEntry("StaTon", "success");
     assertThat(row(rows, INACTIVE))
+      .containsEntry("SecTxt", "STARTTLS")
+      .containsEntry("AthTxt", "OAuth2")
+      .containsEntry("AthTon", "info")
+      .containsEntry("AthIcn", "fa-key")
       .containsEntry("StaCod", "inactive")
       .containsEntry("StaTxt", "Inactive")
       .containsEntry("StaTon", "neutral");
@@ -152,14 +159,16 @@ class EmailServerListQueryTest extends AbstractSpringAppIntegrationTest {
     }
   }
 
-  private void insertServer(int id, String name, int active) throws Exception {
+  private void insertServer(int id, String name, int active, int authentication, String securityMode) throws Exception {
     try (Connection connection = dataSource.getConnection();
          PreparedStatement statement = connection.prepareStatement(
-           "INSERT INTO AweEmlSrv (IdeAweEmlSrv, SrvNam, Hst, Ath, Act) VALUES (?, ?, ?, 0, ?)")) {
+           "INSERT INTO AweEmlSrv (IdeAweEmlSrv, SrvNam, Hst, Ath, Act, SecMod) VALUES (?, ?, ?, ?, ?, ?)")) {
       statement.setInt(1, id);
       statement.setString(2, name);
       statement.setString(3, "smtp.emlsrvlst.test");
-      statement.setInt(4, active);
+      statement.setInt(4, authentication);
+      statement.setInt(5, active);
+      statement.setString(6, securityMode);
       assertThat(statement.executeUpdate()).isEqualTo(1);
       commit(connection);
     }

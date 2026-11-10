@@ -1829,17 +1829,25 @@
       <field id="IdeAweEmlSrv" sequence="EmlSrvKey" variable="IdeAweEmlSrv"/>
       <field id="SrvNam" variable="SrvNam"/>
       <field id="Hst" variable="Hst"/>
+      <!-- Port (empty: the default port of the security mode) and security mode (NONE, STARTTLS, SSL) -->
+      <field id="Prt" variable="Prt"/>
+      <field id="SecMod" variable="SecMod"/>
+      <!-- Authentication: 0 none, 1 user and password, 2 OAuth2 (OauReg is its Spring Security client registration) -->
       <field id="Ath" variable="Ath"/>
       <field id="EmlUsr" variable="EmlUsr"/>
       <field id="EmlPwd" variable="EmlPwd"/>
+      <field id="OauReg" variable="OauReg"/>
       <!-- The state comes from the screen (0 or 1): a missing one is left out, so the column default (1) applies -->
       <field id="Act" variable="Act" optional="true"/>
       <variable id="IdeAweEmlSrv" type="INTEGER" name="IdeAweEmlSrv"/>
       <variable id="SrvNam" type="STRING" name="SrvNam"/>
       <variable id="Hst" type="STRING" name="Hst"/>
+      <variable id="Prt" type="INTEGER" name="Prt"/>
+      <variable id="SecMod" type="STRINGN" name="SecMod"/>
       <variable id="Ath" type="INTEGER" name="Ath"/>
       <variable id="EmlUsr" type="STRING" name="EmlUsr"/>
       <variable id="EmlPwd" type="STRING_ENCRYPT" name="EmlPwd"/>
+      <variable id="OauReg" type="STRINGN" name="OauReg"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </insert>
     <commit/>
@@ -1852,9 +1860,12 @@
       <field id="IdeAweEmlSrv" variable="IdeAweEmlSrv" audit="true"/>
       <field id="SrvNam" variable="SrvNam" audit="true"/>
       <field id="Hst" variable="Hst" audit="true"/>
+      <field id="Prt" variable="Prt" audit="true"/>
+      <field id="SecMod" variable="SecMod" audit="true"/>
       <field id="Ath" variable="Ath" audit="true"/>
       <field id="EmlUsr" variable="EmlUsr" audit="true"/>
       <field id="EmlPwd" variable="EmlPwd" audit="true"/>
+      <field id="OauReg" variable="OauReg" audit="true"/>
       <field id="Act" variable="Act" audit="true"/>
       <where>
         <and>
@@ -1864,9 +1875,12 @@
       <variable id="IdeAweEmlSrv" type="INTEGER" name="IdeAweEmlSrv"/>
       <variable id="SrvNam" type="STRING" name="SrvNam"/>
       <variable id="Hst" type="STRING" name="Hst"/>
+      <variable id="Prt" type="INTEGER" name="Prt"/>
+      <variable id="SecMod" type="STRINGN" name="SecMod"/>
       <variable id="Ath" type="INTEGER" name="Ath"/>
       <variable id="EmlUsr" type="STRING" name="EmlUsr"/>
       <variable id="EmlPwd" type="STRING" name="EmlPwd"/>
+      <variable id="OauReg" type="STRINGN" name="OauReg"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </delete>
     <commit/>
@@ -1878,8 +1892,11 @@
       <table id="AweEmlSrv"/>
       <field id="SrvNam" variable="SrvNam"/>
       <field id="Hst" variable="Hst"/>
+      <field id="Prt" variable="Prt"/>
+      <field id="SecMod" variable="SecMod"/>
       <field id="Ath" variable="Ath"/>
       <field id="EmlUsr" variable="EmlUsr"/>
+      <field id="OauReg" variable="OauReg"/>
       <field id="Act" variable="Act"/>
       <where>
         <and>
@@ -1889,9 +1906,12 @@
       <variable id="IdeAweEmlSrv" type="INTEGER" name="IdeAweEmlSrv"/>
       <variable id="SrvNam" type="STRING" name="SrvNam"/>
       <variable id="Hst" type="STRING" name="Hst"/>
+      <variable id="Prt" type="INTEGER" name="Prt"/>
+      <variable id="SecMod" type="STRINGN" name="SecMod"/>
       <variable id="Ath" type="INTEGER" name="Ath"/>
       <variable id="EmlUsr" type="STRINGN" name="EmlUsr"/>
       <variable id="EmlPwd" type="STRING_ENCRYPT" name="EmlPwd"/>
+      <variable id="OauReg" type="STRINGN" name="OauReg"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </update>
     <update>

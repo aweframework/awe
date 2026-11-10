@@ -4644,6 +4644,8 @@
     <field id="IdeAweEmlSrv" alias="IdeAweEmlSrv" />
     <field id="SrvNam" alias="SrvNam" />
     <field id="Hst" alias="Hst" />
+    <field id="Prt" alias="Prt" />
+    <field id="SecMod" alias="SecMod" />
     <field id="Ath" alias="Ath" />
     <compound alias="AthIco">
       <computed format="[Ath]" alias="value"/>
@@ -4652,7 +4654,8 @@
       <computed format="[Ath]" alias="label" translate="authenticated-label"/>
     </compound>
     <field id="EmlUsr" alias="EmlUsr" />
-    <field id="EmlPwd" alias="EmlPwd" />
+    <!-- No password: it never reaches the client. The mail senders read it from the server-only EmlSrvSndLst -->
+    <field id="OauReg" alias="OauReg" />
     <field id="Act" alias="Act" />
     <compound alias="ActIco">
       <computed format="[Act]" alias="value"/>
@@ -4677,13 +4680,8 @@
     <computed format="[Ath]" alias="AthTxt" translate="authenticated-label" />
     <computed format="[Ath]" alias="AthTon" translate="authenticated-tone" />
     <computed format="[Ath]" alias="AthIcn" translate="authenticated-icon" />
-
-    <!-- Fields for EmailServer bean -->
-    <field id="SrvNam" alias="name" />
-    <field id="Hst" alias="host" />
-    <field id="Ath" alias="authenticated" translate="TrueFalse" transform="BOOLEAN"/>
-    <field id="EmlUsr" alias="user" />
-    <field id="EmlPwd" alias="pass" />
+    <!-- Security mode text of the grid: a server stored before the security mode existed has none, which is NONE -->
+    <computed format="[SecMod]" alias="SecTxt" nullValue="NONE" translate="EnuEmlSrvSecMod" />
     <where>
       <and>
         <!-- Search of the grid (email-server-admin): the alias contains the text, ignoring case. The EmlSrv screen filters
@@ -4716,6 +4714,21 @@
     <variable id="EmlSrvSta" type="STRING" name="CrtEmlSrvSta" optional="true" />
     <variable id="One" type="INTEGER" value="1" />
     <order-by field="Act" type="ASC" />
+  </query>
+
+  <!-- EMAIL SERVER SENDERS: every mail server as an EmailServer bean, with its encrypted password and its OAuth2 client
+       registration (MailSenderFactory). Only Java launches it -->
+  <query id="EmlSrvSndLst" server-only="true" cacheable="false">
+    <table id="AweEmlSrv" />
+    <field id="SrvNam" alias="name" />
+    <field id="Hst" alias="host" />
+    <field id="Prt" alias="port" />
+    <field id="SecMod" alias="securityMode" />
+    <field id="Ath" alias="authenticated" translate="TrueFalse" transform="BOOLEAN"/>
+    <field id="Ath" alias="authentication" />
+    <field id="EmlUsr" alias="user" />
+    <field id="EmlPwd" alias="pass" />
+    <field id="OauReg" alias="oauthRegistration" />
   </query>
 
   <!-- EMAIL SERVER STATE COUNTERS: the quick filters of the mail servers screen (email-server-admin), counted with its
@@ -4861,6 +4874,12 @@
     <variable id="SrvNam" type="STRING" name="SrvNam" />
   </query>
 
+  <!-- Email server (select list of OAuth2 client registrations) -->
+  <query id="EmlSrvOauRegLst" permission="system.read" service="getEmailOAuth2Registrations">
+    <field id="value" alias="value" />
+    <field id="label" alias="label" />
+  </query>
+
   <!-- Email server (select list alias) -->
   <query id="SelEmlSrvNom" permission="users.read">
     <table id="AweEmlSrv" />
@@ -4879,6 +4898,8 @@
   <query id="GetEmlSrvByOpe" server-only="true">
     <table id="AweEmlSrv" alias="EmlSrv" />
     <field id="Hst" alias="Hst" />
+    <field id="Prt" alias="Prt" />
+    <field id="SecMod" alias="SecMod" />
     <field id="Ath" alias="Ath" />
     <field id="EmlUsr" alias="EmlUsr" />
     <field id="EmlPwd" alias="EmlPwd" />

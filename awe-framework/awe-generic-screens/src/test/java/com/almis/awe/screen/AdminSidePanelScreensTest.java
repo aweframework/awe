@@ -17,7 +17,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  * The buttons that open the side panel of the databases, sites and modules screens as a new record start it from scratch:
  * active, and without the site, module, profile or user rows of the record edited before (those rows live in a grid of the
  * panel, which keeps them until it is reset). The broker user and password of the queues panel apply only to a remote
- * connection.
+ * connection. The mail servers panel edits the port, the security mode and the authentication of the selected server, and
+ * its user, password and OAuth2 registration follow the authentication type.
  */
 @DisplayName("Admin side panel screens")
 class AdminSidePanelScreensTest {
@@ -27,6 +28,7 @@ class AdminSidePanelScreensTest {
   private static final String SITES = "screen/sites/site-admin.xml";
   private static final String MODULES = "screen/modules/module-admin.xml";
   private static final String QUEUES = "screen/queues/queue-admin.xml";
+  private static final String EMAIL_SERVERS = "screen/email-servers/email-server-admin.xml";
 
   private Document load(String path) throws Exception {
     try (InputStream stream = getClass().getClassLoader().getResourceAsStream(AWE + path)) {
@@ -59,7 +61,7 @@ class AdminSidePanelScreensTest {
   }
 
   /**
-   * Dependencies of a criterion on another criterion, as target-type[/source-type]:element condition value
+   * Dependencies of a criterion on another criterion, as target-type[/source-type][=value]:element condition value
    */
   private List<String> dependenciesOn(Document screen, String criterion, String element) {
     NodeList criteria = screen.getElementsByTagName("criteria");
@@ -71,11 +73,13 @@ class AdminSidePanelScreensTest {
         for (int j = 0; j < children.getLength(); j++) {
           Element dependency = (Element) children.item(j);
           String source = dependency.getAttribute("source-type");
+          String value = dependency.getAttribute("value");
           NodeList elements = dependency.getElementsByTagName("dependency-element");
           for (int k = 0; k < elements.getLength(); k++) {
             Element dependencyElement = (Element) elements.item(k);
             if (element.equals(dependencyElement.getAttribute("id"))) {
-              dependencies.add(dependency.getAttribute("target-type") + (source.isEmpty() ? "" : "/" + source) + ":" + element
+              dependencies.add(dependency.getAttribute("target-type") + (source.isEmpty() ? "" : "/" + source)
+                + (value.isEmpty() ? "" : "=" + value) + ":" + element
                 + " " + dependencyElement.getAttribute("condition") + " " + dependencyElement.getAttribute("value"));
             }
           }
@@ -140,5 +144,75 @@ class AdminSidePanelScreensTest {
       assertThat(dependenciesOn(queues, criterion, "ConTyp")).as(criterion)
         .containsExactly("set-editable:ConTyp eq R", "input/reset:ConTyp ne R");
     }
+  }
+
+  @Test
+  @DisplayName("A new mail server starts without the port, security mode, authentication and registration edited before")
+  void newMailServerStartsWithoutConnectionAndAuthentication() throws Exception {
+    assertThat(actions(load(EMAIL_SERVERS), "button", "ButNew")).containsSubsequence(
+      "unselect-all-rows:GrdEmlSrvAdm", "value:PnlMod=new", "reset:Prt", "reset:SecMod", "reset:EmlUsr", "reset:EmlPwd",
+      "reset:Ath", "reset:OauReg", "value:Act=1", "dialog:PnlEmlSrv");
+  }
+
+  @Test
+  @DisplayName("The mail server panel takes the port, security mode, authentication and registration of the selected row")
+  void mailServerPanelReadsTheConnectionAndAuthenticationOfTheRow() throws Exception {
+    Document screen = load(EMAIL_SERVERS);
+    List<String> columns = new ArrayList<>();
+    NodeList columnList = screen.getElementsByTagName("column");
+    for (int i = 0; i < columnList.getLength(); i++) {
+      columns.add(((Element) columnList.item(i)).getAttribute("name"));
+    }
+
+    for (String criterion : List.of("Prt", "SecMod", "Ath", "EmlUsr", "OauReg")) {
+      assertThat(columns).as("column %s", criterion).contains(criterion);
+      assertThat(launcherColumns(screen, criterion, "GrdEmlSrvAdm")).as(criterion).containsExactly(criterion);
+    }
+  }
+
+  @Test
+  @DisplayName("The mail server user is the sender mailbox for OAuth2, the password is for user and password only and "
+    + "the registration is required for OAuth2 only")
+  void mailServerCredentialsFollowTheAuthenticationType() throws Exception {
+    Document screen = load(EMAIL_SERVERS);
+
+    assertThat(dependenciesOn(screen, "EmlUsr", "Ath")).containsExactly("show:Ath ne 0", "set-required:Ath ne 0",
+      "input/reset:Ath eq 0", "label/value=PARAMETER_EML_SRV_SENDER:Ath eq 2", "label/value=PARAMETER_USER:Ath ne 2");
+    assertThat(dependenciesOn(screen, "EmlPwd", "Ath")).containsExactly("show:Ath eq 1", "input/reset:Ath ne 1");
+    assertThat(dependenciesOn(screen, "OauReg", "Ath")).containsExactly("show:Ath eq 2", "set-required:Ath eq 2",
+      "input/reset:Ath ne 2");
+  }
+
+  @Test
+  @DisplayName("A mail server with OAuth2 and no security switches to STARTTLS")
+  void oauth2MailServerSwitchesFromNoSecurityToStartTls() throws Exception {
+    Document screen = load(EMAIL_SERVERS);
+
+    assertThat(dependenciesOn(screen, "SecMod", "Ath")).containsExactly("input/value=STARTTLS:Ath eq 2");
+    assertThat(dependenciesOn(screen, "SecMod", "SecMod")).containsExactly("input/value=STARTTLS:SecMod eq NONE");
+  }
+
+  /**
+   * Grid columns that fill a criterion of the side panel from the selected row (launcher dependencies on the grid)
+   */
+  private List<String> launcherColumns(Document screen, String criterion, String grid) {
+    NodeList criteria = screen.getElementsByTagName("criteria");
+    for (int i = 0; i < criteria.getLength(); i++) {
+      Element current = (Element) criteria.item(i);
+      if (criterion.equals(current.getAttribute("id"))) {
+        List<String> columns = new ArrayList<>();
+        NodeList elements = current.getElementsByTagName("dependency-element");
+        for (int j = 0; j < elements.getLength(); j++) {
+          Element element = (Element) elements.item(j);
+          Element dependency = (Element) element.getParentNode();
+          if ("launcher".equals(dependency.getAttribute("source-type")) && grid.equals(element.getAttribute("id"))
+            && "selectedRowValue".equals(element.getAttribute("attribute"))) {
+            columns.add(element.getAttribute("column"));
+          }
+        }
+        return columns;
+      }
+    }
+    throw new AssertionError("No criteria " + criterion);
   }
 }

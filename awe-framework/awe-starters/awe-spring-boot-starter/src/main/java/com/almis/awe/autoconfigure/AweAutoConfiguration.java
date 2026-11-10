@@ -40,6 +40,7 @@ import com.almis.awe.service.data.connector.maintain.ServiceMaintainConnector;
 import com.almis.awe.service.data.connector.query.EnumQueryConnector;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.ServiceQueryConnector;
+import com.almis.awe.service.email.EmailOAuth2RegistrationService;
 import com.almis.awe.service.menu.MenuOptionLookup;
 import com.almis.awe.service.menu.MenuProvider;
 import com.almis.awe.service.menu.MenuRestrictionTreeService;
@@ -293,6 +294,18 @@ public class AweAutoConfiguration {
 	public MultiTenantFilter multiTenantFilter(MultiTenantOAuth2Config multiTenantOAuth2Config) {
 		return new MultiTenantFilter(multiTenantOAuth2Config);
 	}
+  /**
+   * OAuth2 client registrations available for email servers
+   *
+   * @param clientRegistrationRepository Client registration repository (only when OAuth2 registrations exist)
+   * @return Email OAuth2 registration service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public EmailOAuth2RegistrationService emailOAuth2RegistrationService(ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository) {
+    return new EmailOAuth2RegistrationService(clientRegistrationRepository.getIfAvailable());
+  }
+
   /**
    * Init service
    *

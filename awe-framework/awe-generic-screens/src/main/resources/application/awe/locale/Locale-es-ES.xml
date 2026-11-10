@@ -270,6 +270,12 @@
   <locale name="ENUM_EML_NO" value="No enviar"/>
   <locale name="ENUM_EML_REP_ALL" value="Enviar auditoría siempre"/>
   <locale name="ENUM_EML_REP_ERR" value="Enviar auditoría si hay un error"/>
+  <locale name="ENUM_EML_SRV_ATH_BASIC" value="Usuario y contraseña"/>
+  <locale name="ENUM_EML_SRV_ATH_NONE" value="Ninguna"/>
+  <locale name="ENUM_EML_SRV_ATH_OAUTH2" value="OAuth2"/>
+  <locale name="ENUM_EML_SRV_SEC_NONE" value="Ninguna"/>
+  <locale name="ENUM_EML_SRV_SEC_SSL" value="SSL/TLS"/>
+  <locale name="ENUM_EML_SRV_SEC_STARTTLS" value="STARTTLS"/>
   <locale name="ENUM_EML_TYP_GRP" value="Grupo de correo"/>
   <locale name="ENUM_EML_TYP_USR" value="Usuario"/>
   <locale name="ENUM_ENV_DES" value="Desarrollo"/>
@@ -768,7 +774,7 @@
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="Error en la subida del fichero"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Error comprobando la subida del fichero"/>
   <locale name="HELP_SCREEN_TITLE_DATABASE_ADMIN" value="Conexiones a bases de datos de la aplicación: conexión, entorno, credenciales y los sitios y módulos que usan cada una."/>
-  <locale name="HELP_SCREEN_TITLE_EML_SRV_ADMIN" value="Servidores de correo de la aplicación: alias, host, usuario, autenticación y estado."/>
+  <locale name="HELP_SCREEN_TITLE_EML_SRV_ADMIN" value="Servidores de correo de la aplicación: alias, host, puerto, seguridad, usuario, autenticación y estado."/>
   <locale name="HELP_SCREEN_TITLE_PROFILE_ADMIN" value="Grupos de usuarios con su tema por defecto, pantalla inicial y restricción de ficheros."/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Consulta los eventos de seguridad registrados por la aplicación: accesos, cierres de sesión, bloqueos de cuenta, cambios de contraseña y de segundo factor, accesos denegados y tokens REST. Filtra por fecha, evento, resultado, canal, usuario o dirección; selecciona un evento y pulsa Ver para consultar todos sus datos"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Todos los datos registrados de un evento de seguridad"/>
@@ -826,6 +832,7 @@
   <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Borrar búsqueda"/>
   <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="Se borrará la búsqueda guardada. ¿Desea continuar?"/>
   <locale name="SCREEN_TEXT_EMAIL_SERVER_AUTHENTICATION" value="Autenticación"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_CONNECTION" value="Conexión"/>
   <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTERS" value="Estado del servidor"/>
   <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ACTIVE" value="Activos"/>
   <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ALL" value="Todos"/>
@@ -1102,6 +1109,9 @@
   <locale name="HELP_DESCRIPTION" value="Descripción"/>
   <locale name="HELP_EDIT_BUTTON" value="Editar elemento seleccionado"/>
   <locale name="HELP_EDITABLE" value="Editable"/>
+  <locale name="HELP_EML_SRV_OAUTH_REGISTRATION" value="Registro de cliente de Spring Security que proporciona el token de acceso: spring.security.oauth2.client.registration.REGISTRATION_ID con authorization-grant-type=client_credentials (para Microsoft 365, scope https://outlook.office365.com/.default)"/>
+  <locale name="HELP_EML_SRV_PORT" value="Déjalo vacío para usar el puerto por defecto del modo de seguridad: 25 (ninguna), 587 (STARTTLS) o 465 (SSL/TLS)"/>
+  <locale name="HELP_EML_SRV_SECURITY" value="STARTTLS eleva la conexión a TLS (normalmente puerto 587). SSL/TLS conecta con TLS desde el inicio (normalmente puerto 465)"/>
   <locale name="HELP_GRID" value="Matriz"/>
   <locale name="HELP_GRID_IDENTIFIER" value="Id. matriz"/>
   <locale name="HELP_HELP_BUTTON" value="Abre un diálogo con la ayuda de la ventana"/>
@@ -1361,6 +1371,9 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_EMAIL_DEST" value="Email destino"/>
   <locale name="PARAMETER_EMAIL_DESTINATION" value="Destinatario e-mail"/>
   <locale name="PARAMETER_EMAIL_SERVER" value="Servidor correo"/>
+  <locale name="PARAMETER_EML_SRV_OAUTH_REGISTRATION" value="Registro de cliente OAuth2"/>
+  <locale name="PARAMETER_EML_SRV_SECURITY" value="Seguridad"/>
+  <locale name="PARAMETER_EML_SRV_SENDER" value="Buzón remitente"/>
   <locale name="PARAMETER_EML_SUBJECT" value="Asunto"/>
   <locale name="PARAMETER_EML_TEXT" value="Contenido"/>
   <locale name="PARAMETER_ENCRYPT" value="Encriptado"/>
@@ -1730,6 +1743,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_ERROR_PREFIX" value="No se pudo completar el proceso:"/>
   <locale name="SCREEN_TEXT_DATE" value="Fecha del sistema"/>
   <locale name="SCREEN_TEXT_DBS" value="Data base"/>
+  <locale name="SCREEN_TEXT_EML_SRV_KEEP_SECRET" value="Déjalo vacío para mantener el valor actual"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Filtros"/>
   <locale name="SCREEN_TEXT_GRID_EMPTY_TEXT" value="No hay registros que mostrar. Prueba a cambiar los criterios de búsqueda."/>
   <locale name="SCREEN_TEXT_GRID_EMPTY_TITLE" value="No se han encontrado registros"/>
