@@ -1244,16 +1244,22 @@
       <field id="IdeAweEmlSrv" sequence="EmlSrvKey" variable="IdeAweEmlSrv"/>
       <field id="SrvNam" variable="SrvNam"/>
       <field id="Hst" variable="Hst"/>
+      <field id="Prt" variable="Prt"/>
+      <field id="SecMod" variable="SecMod"/>
       <field id="Ath" variable="Ath"/>
       <field id="EmlUsr" variable="EmlUsr"/>
       <field id="EmlPwd" variable="EmlPwd"/>
+      <field id="OauReg" variable="OauReg"/>
       <field id="Act" variable="Act"/>
       <variable id="IdeAweEmlSrv" type="INTEGER" name="IdeAweEmlSrv"/>
       <variable id="SrvNam" type="STRING" name="SrvNam"/>
       <variable id="Hst" type="STRING" name="Hst"/>
+      <variable id="Prt" type="INTEGER" name="Prt"/>
+      <variable id="SecMod" type="STRINGN" name="SecMod"/>
       <variable id="Ath" type="INTEGER" name="Ath"/>
       <variable id="EmlUsr" type="STRING" name="EmlUsr"/>
       <variable id="EmlPwd" type="STRING_ENCRYPT" name="EmlPwd"/>
+      <variable id="OauReg" type="STRINGN" name="OauReg"/>
       <variable id="Act" type="INTEGER" name="Act" value="1"/>
     </insert>
     <commit/>
@@ -1266,9 +1272,12 @@
       <field id="IdeAweEmlSrv" variable="IdeAweEmlSrv" audit="true"/>
       <field id="SrvNam" variable="SrvNam" audit="true"/>
       <field id="Hst" variable="Hst" audit="true"/>
+      <field id="Prt" variable="Prt" audit="true"/>
+      <field id="SecMod" variable="SecMod" audit="true"/>
       <field id="Ath" variable="Ath" audit="true"/>
       <field id="EmlUsr" variable="EmlUsr" audit="true"/>
       <field id="EmlPwd" variable="EmlPwd" audit="true"/>
+      <field id="OauReg" variable="OauReg" audit="true"/>
       <field id="Act" variable="Act" audit="true"/>
       <where>
         <and>
@@ -1278,22 +1287,29 @@
       <variable id="IdeAweEmlSrv" type="INTEGER" name="IdeAweEmlSrv"/>
       <variable id="SrvNam" type="STRING" name="SrvNam"/>
       <variable id="Hst" type="STRING" name="Hst"/>
+      <variable id="Prt" type="INTEGER" name="Prt"/>
+      <variable id="SecMod" type="STRINGN" name="SecMod"/>
       <variable id="Ath" type="INTEGER" name="Ath"/>
       <variable id="EmlUsr" type="STRING" name="EmlUsr"/>
       <variable id="EmlPwd" type="STRING" name="EmlPwd"/>
+      <variable id="OauReg" type="STRINGN" name="OauReg"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </delete>
     <commit/>
     <serve service="reloadMailServers"/>
   </target>
 
+  <!-- The password is never sent to the update screen, so it is only overwritten when the user types a new value (FlgPwdUpd) -->
   <target name="EmlSrvUpd">
     <update audit="HISAweEmlSrv">
       <table id="AweEmlSrv"/>
       <field id="SrvNam" variable="SrvNam"/>
       <field id="Hst" variable="Hst"/>
+      <field id="Prt" variable="Prt"/>
+      <field id="SecMod" variable="SecMod"/>
       <field id="Ath" variable="Ath"/>
       <field id="EmlUsr" variable="EmlUsr"/>
+      <field id="OauReg" variable="OauReg"/>
       <field id="Act" variable="Act"/>
       <where>
         <and>
@@ -1303,9 +1319,12 @@
       <variable id="IdeAweEmlSrv" type="INTEGER" name="IdeAweEmlSrv"/>
       <variable id="SrvNam" type="STRING" name="SrvNam"/>
       <variable id="Hst" type="STRING" name="Hst"/>
+      <variable id="Prt" type="INTEGER" name="Prt"/>
+      <variable id="SecMod" type="STRINGN" name="SecMod"/>
       <variable id="Ath" type="INTEGER" name="Ath"/>
       <variable id="EmlUsr" type="STRINGN" name="EmlUsr"/>
       <variable id="EmlPwd" type="STRING_ENCRYPT" name="EmlPwd"/>
+      <variable id="OauReg" type="STRINGN" name="OauReg"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </update>
     <update>

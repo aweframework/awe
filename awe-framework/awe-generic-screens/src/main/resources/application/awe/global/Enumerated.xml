@@ -278,14 +278,29 @@
   <group id="authenticated-icon">
     <option label="fa-unlock" value="0"/>
     <option label="fa-lock" value="1"/>
+    <option label="fa-key" value="2"/>
   </group>
   <group id="authenticated-style">
     <option label="text-light-gray" value="0"/>
     <option label="text-info" value="1"/>
+    <option label="text-info" value="2"/>
   </group>
   <group id="authenticated-label">
-    <option label="ENUM_NO" value="0"/>
-    <option label="ENUM_YES" value="1"/>
+    <option label="ENUM_EML_SRV_ATH_NONE" value="0"/>
+    <option label="ENUM_EML_SRV_ATH_BASIC" value="1"/>
+    <option label="ENUM_EML_SRV_ATH_OAUTH2" value="2"/>
+  </group>
+  <!-- Email server authentication type (AweEmlSrv.Ath) -->
+  <group id="EnuEmlSrvAth">
+    <option label="ENUM_EML_SRV_ATH_NONE" value="0"/>
+    <option label="ENUM_EML_SRV_ATH_BASIC" value="1"/>
+    <option label="ENUM_EML_SRV_ATH_OAUTH2" value="2"/>
+  </group>
+  <!-- Email server security mode (AweEmlSrv.SecMod) -->
+  <group id="EnuEmlSrvSecMod">
+    <option label="ENUM_EML_SRV_SEC_NONE" value="NONE"/>
+    <option label="ENUM_EML_SRV_SEC_STARTTLS" value="STARTTLS"/>
+    <option label="ENUM_EML_SRV_SEC_SSL" value="SSL"/>
   </group>
   <group id="user-settings">
     <option label="PROFILE" value="profile"/>

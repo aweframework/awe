@@ -222,6 +222,12 @@
   <locale name="ENUM_EML_NO" value="Non envoyer"/>
   <locale name="ENUM_EML_REP_ALL" value="Envoyer audit toujours"/>
   <locale name="ENUM_EML_REP_ERR" value="Envoyer audit s&apos;il ya erreur"/>
+  <locale name="ENUM_EML_SRV_ATH_BASIC" value="Utilisateur et mot de passe"/>
+  <locale name="ENUM_EML_SRV_ATH_NONE" value="Aucune"/>
+  <locale name="ENUM_EML_SRV_ATH_OAUTH2" value="OAuth2"/>
+  <locale name="ENUM_EML_SRV_SEC_NONE" value="Aucune"/>
+  <locale name="ENUM_EML_SRV_SEC_SSL" value="SSL/TLS"/>
+  <locale name="ENUM_EML_SRV_SEC_STARTTLS" value="STARTTLS"/>
   <locale name="ENUM_EML_TYP_GRP" value="Groupe de courier"/>
   <locale name="ENUM_EML_TYP_USR" value="Utilisateur"/>
   <locale name="ENUM_ENV_DES" value="Développement"/>
@@ -750,6 +756,9 @@
   <locale name="HELP_DESCRIPTION" value="Description"/>
   <locale name="HELP_EDIT_BUTTON" value="Modifier l&apos;élément sélectionné"/>
   <locale name="HELP_EDITABLE" value="Modifiable"/>
+  <locale name="HELP_EML_SRV_OAUTH_REGISTRATION" value="Enregistrement client Spring Security qui fournit le jeton d'accès : spring.security.oauth2.client.registration.REGISTRATION_ID avec authorization-grant-type=client_credentials (pour Microsoft 365, scope https://outlook.office365.com/.default)"/>
+  <locale name="HELP_EML_SRV_PORT" value="Laissez vide pour utiliser le port par défaut du mode de sécurité : 25 (aucune), 587 (STARTTLS) ou 465 (SSL/TLS)"/>
+  <locale name="HELP_EML_SRV_SECURITY" value="STARTTLS passe la connexion en TLS (généralement port 587). SSL/TLS se connecte en TLS dès le départ (généralement port 465)"/>
   <locale name="HELP_GRID" value="Matrice"/>
   <locale name="HELP_GRID_IDENTIFIER" value="Identificateur de matrice"/>
   <locale name="HELP_HELP_BUTTON" value="Ouvrir une dialogue avec l&apos;aide d&apos;écran"/>
@@ -999,6 +1008,9 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_EMAIL_DEST" value="Email destination"/>
   <locale name="PARAMETER_EMAIL_DESTINATION" value="Destinataire e-mail"/>
   <locale name="PARAMETER_EMAIL_SERVER" value="Serveur courrier"/>
+  <locale name="PARAMETER_EML_SRV_OAUTH_REGISTRATION" value="Enregistrement client OAuth2"/>
+  <locale name="PARAMETER_EML_SRV_SECURITY" value="Sécurité"/>
+  <locale name="PARAMETER_EML_SRV_SENDER" value="Boîte d&apos;envoi"/>
   <locale name="PARAMETER_EML_SUBJECT" value="Affaire"/>
   <locale name="PARAMETER_EML_TEXT" value="Contenu"/>
   <locale name="PARAMETER_ENCRYPT" value="Encrypted"/>
@@ -1164,6 +1176,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_DATA" value="Donnees"/>
   <locale name="SCREEN_TEXT_DATE" value="Date du systeme"/>
   <locale name="SCREEN_TEXT_DBS" value="Data base"/>
+  <locale name="SCREEN_TEXT_EML_SRV_KEEP_SECRET" value="Laissez vide pour conserver la valeur actuelle"/>
   <locale name="SCREEN_TEXT_ERROR_TITLE" value="Oops, quelque chose s&apos;est mal passé"/>
   <locale name="SCREEN_TEXT_ERROR_UNKNOWN" value="Erreur inconnue"/>
   <locale name="SCREEN_TEXT_ERROR_PREFIX" value="Le processus n&apos;a pas pu être terminé :"/>

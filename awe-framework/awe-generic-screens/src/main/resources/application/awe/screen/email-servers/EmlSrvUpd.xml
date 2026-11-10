@@ -28,29 +28,59 @@
     <window style="expand" label="SCREEN_TEXT_DATA" icon="edit">
       <tag type="div" style="panel-body static">
         <criteria id="IdeAweEmlSrv" variable="IdeAweEmlSrv" component="hidden" />
-        <criteria label="PARAMETER_ALIAS" id="SrvNam" variable="SrvNam" component="text" validation="required" style="col-xs-12 col-sm-4 col-lg-3" />
-        <criteria label="PARAMETER_SERVER" id="Hst" variable="Hst" component="text" validation="required" style="col-xs-12 col-sm-4 col-lg-3" />
-        <criteria label="PARAMETER_ACTIVE" id="Act" variable="Act" component="checkbox" style="no-label-xs col-xs-12 col-sm-4 col-lg-6" />
-        <criteria label="PARAMETER_USER" id="EmlUsr" variable="EmlUsr" component="text" readonly="true" style="col-xs-12 col-sm-4 col-lg-3">
-          <dependency target-type="set-editable" initial="true">
-            <dependency-element id="Ath" condition="eq" value="1" />
+        <criteria label="PARAMETER_ALIAS" id="SrvNam" variable="SrvNam" component="text" validation="{required: true, maxlength: 100}" style="col-xs-12 col-sm-4 col-lg-3" />
+        <criteria label="PARAMETER_SERVER" id="Hst" variable="Hst" component="text" validation="{required: true, maxlength: 60}" style="col-xs-12 col-sm-8 col-lg-6" />
+        <criteria label="PARAMETER_SERVER_PORT" id="Prt" variable="Prt" component="numeric" number-format="{vMin: '0', vMax: '65535', mDec: 0, aSep: ''}" validation="integer" help="HELP_EML_SRV_PORT" style="col-xs-12 col-sm-4 col-lg-3" />
+        <criteria label="PARAMETER_EML_SRV_SECURITY" id="SecMod" variable="SecMod" component="select" initial-load="enum" target-action="EnuEmlSrvSecMod" validation="required" help="HELP_EML_SRV_SECURITY" style="col-xs-12 col-sm-4 col-lg-3">
+          <!-- Servers stored before the security mode existed have no value: NONE, as before -->
+          <dependency source-type="value" target-type="input" value="NONE" initial="true">
+            <dependency-element id="SecMod" condition="is empty" />
+          </dependency>
+          <!-- OAuth2 sends a token as SMTP credential: it needs STARTTLS or SSL -->
+          <dependency source-type="value" target-type="input" value="STARTTLS" initial="true">
+            <dependency-element id="Ath" condition="eq" value="2" />
+            <dependency-element id="SecMod" condition="eq" value="NONE" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_AUTH" id="Ath" variable="Ath" component="select" initial-load="enum" target-action="EnuEmlSrvAth" validation="required" style="col-xs-12 col-sm-4 col-lg-3" />
+        <criteria label="PARAMETER_ACTIVE" id="Act" variable="Act" component="checkbox" style="no-label-xs col-xs-12 col-sm-4 col-lg-3" />
+        <criteria label="PARAMETER_USER" id="EmlUsr" variable="EmlUsr" component="text" validation="{maxlength: 255}" style="col-xs-12 col-sm-4 col-lg-3">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="Ath" condition="ne" value="0" />
           </dependency>
           <dependency target-type="set-required" initial="true">
+            <dependency-element id="Ath" condition="ne" value="0" />
+          </dependency>
+          <dependency source-type="reset" target-type="input" initial="true">
+            <dependency-element id="Ath" condition="eq" value="0" />
+          </dependency>
+          <!-- OAuth2 (XOAUTH2) sends the sender mailbox as the SMTP user -->
+          <dependency source-type="value" target-type="label" value="PARAMETER_EML_SRV_SENDER" initial="true">
+            <dependency-element id="Ath" condition="eq" value="2" />
+          </dependency>
+          <dependency source-type="value" target-type="label" value="PARAMETER_USER" initial="true">
+            <dependency-element id="Ath" condition="ne" value="2" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_PASSWD" id="EmlPwd" component="password" validation="{maxlength: 250}" placeholder="SCREEN_TEXT_EML_SRV_KEEP_SECRET" style="col-xs-12 col-sm-4 col-lg-3">
+          <dependency target-type="show" initial="true">
             <dependency-element id="Ath" condition="eq" value="1" />
           </dependency>
           <dependency source-type="reset" target-type="input" initial="true">
             <dependency-element id="Ath" condition="ne" value="1" />
           </dependency>
         </criteria>
-        <criteria label="PARAMETER_PASSWD" id="EmlPwd" component="password" readonly="true" style="col-xs-12 col-sm-4 col-lg-3">
-          <dependency target-type="set-editable" initial="true">
-            <dependency-element id="Ath" condition="eq" value="1" />
+        <criteria label="PARAMETER_EML_SRV_OAUTH_REGISTRATION" id="OauReg" variable="OauReg" component="select" initial-load="query" server-action="data" target-action="EmlSrvOauRegLst" help="HELP_EML_SRV_OAUTH_REGISTRATION" style="col-xs-12 col-sm-4 col-lg-3">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="Ath" condition="eq" value="2" />
+          </dependency>
+          <dependency target-type="set-required" initial="true">
+            <dependency-element id="Ath" condition="eq" value="2" />
           </dependency>
           <dependency source-type="reset" target-type="input" initial="true">
-            <dependency-element id="Ath" condition="ne" value="1" />
+            <dependency-element id="Ath" condition="ne" value="2" />
           </dependency>
         </criteria>
-        <criteria label="PARAMETER_AUTH" id="Ath" variable="Ath" component="checkbox" style="no-label-xs col-xs-12 col-sm-4 col-lg-6" />
         <criteria id="FlgPwdUpd" component="hidden" value="0">
           <dependency source-type="formule" target-type="input" initial="true" formule="'[EmlPwd]' != '' ? '1' : '0'" type="or">
             <dependency-element id="EmlPwd" condition="ne" value="" />

@@ -235,6 +235,7 @@ These are the Email engine configuration properties for AWE projects. They have 
 | <a name="awe.mail.auth"></a> [awe.mail.auth](#awe.mail.auth)                | Email authentication. Flag to specify if authentication is needed. | `false`       |
 | <a name="awe.mail.user"></a> [awe.mail.user](#awe.mail.user)                | Email server auth username.                                        |               |
 | <a name="awe.mail.pass"></a> [awe.mail.pass](#awe.mail.pass)                | Email server auth password.                                        |               |
+| <a name="awe.mail.oauth2-registration"></a> [awe.mail.oauth2-registration](#awe.mail.oauth2-registration) | Spring Security `client_credentials` client registration of the default sender. When set, the default sender authenticates with OAuth2 (`XOAUTH2`): `awe.mail.user` is the sender mailbox, `awe.mail.pass` is not used and `awe.mail.tls` or `awe.mail.ssl` is required. See [Mail servers](guides/default-screens.md#default-sender-with-oauth2). | |
 | <a name="awe.mail.debug"></a> [awe.mail.debug](#awe.mail.debug)             | Execute email in debug mode. The Default value is false.           | `false`       |
 | <a name="awe.mail.ssl"></a> [awe.mail.ssl](#awe.mail.ssl)                   | Flag to specify the usage of SSL protocol.                         | `false`       |
 | <a name="awe.mail.tls"></a> [awe.mail.tls](#awe.mail.tls)                   | Flag to specify the usage of TLS protocol.                         | `false`       |

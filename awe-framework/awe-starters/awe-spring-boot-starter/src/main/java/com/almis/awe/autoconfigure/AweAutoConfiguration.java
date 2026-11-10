@@ -23,6 +23,7 @@ import com.almis.awe.service.data.connector.maintain.ServiceMaintainConnector;
 import com.almis.awe.service.data.connector.query.EnumQueryConnector;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.ServiceQueryConnector;
+import com.almis.awe.service.email.EmailOAuth2RegistrationService;
 import com.almis.awe.service.report.ReportDesigner;
 import com.almis.awe.service.report.ReportGenerator;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
@@ -31,6 +32,7 @@ import com.almis.awe.service.screen.ScreenModelGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -267,6 +269,18 @@ public class AweAutoConfiguration {
 	public MultiTenantFilter multiTenantFilter(MultiTenantOAuth2Config multiTenantOAuth2Config) {
 		return new MultiTenantFilter(multiTenantOAuth2Config);
 	}
+  /**
+   * OAuth2 client registrations available for email servers
+   *
+   * @param clientRegistrationRepository Client registration repository (only when OAuth2 registrations exist)
+   * @return Email OAuth2 registration service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public EmailOAuth2RegistrationService emailOAuth2RegistrationService(ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository) {
+    return new EmailOAuth2RegistrationService(clientRegistrationRepository.getIfAvailable());
+  }
+
   /**
    * Init service
    *

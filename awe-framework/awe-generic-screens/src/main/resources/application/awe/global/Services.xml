@@ -292,4 +292,8 @@
   <service id="reloadMailServers">
     <java classname="com.almis.awe.service.EmailService" method="reloadMailServers"/>
   </service>
+  <!-- Spring Security client registrations (client_credentials) available for email servers -->
+  <service id="getEmailOAuth2Registrations">
+    <java classname="com.almis.awe.service.email.EmailOAuth2RegistrationService" method="getClientCredentialsRegistrations"/>
+  </service>
 </services>

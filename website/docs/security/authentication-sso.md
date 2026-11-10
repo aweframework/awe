@@ -130,6 +130,12 @@ spring.security.oauth2.client.registration.keycloak.scope=openid
 spring.security.oauth2.client.registration.keycloak.redirect-uri={baseUrl}/login/oauth2/code/keycloak
 ```
 
+:::note
+Only `authorization_code` registrations are login options. Registrations with
+`authorization-grant-type=client_credentials`, like the ones used by the mail servers and the default mail sender with
+[OAuth2 authentication](../guides/default-screens.md#oauth2-authentication), are never offered or chosen for login.
+:::
+
 ## Multi-Tenant SSO
 
 <img style={{ width: "70%", margin: "30px 15% 0% 15%" }}
