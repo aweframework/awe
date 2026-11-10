@@ -24,6 +24,7 @@ import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.model.tracker.AweClientTracker;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.service.observation.ExecutionObserver;
+import com.almis.awe.service.screen.DefaultSearches;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -189,7 +190,7 @@ class ScreenServiceTest {
   @Test
   void getDeferredDataReturnsTheInitialModelOfTheComponents() throws Exception {
     prepareDeferredRequest("Dia", Map.of());
-    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(DefaultSearches.Resolution.class), any()))
       .thenReturn(Map.of("Options", loadedComponent("Options", 2, List.of(new CellData("1")))));
 
     ServiceData serviceData = screenService.getDeferredDataAction();
@@ -214,7 +215,7 @@ class ScreenServiceTest {
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     prepareDeferredRequest("Dia", Map.of("deferredValued", parameters.arrayNode().add("Options"),
       "deferredLoaded", parameters.arrayNode().add("Plain")));
-    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(DefaultSearches.Resolution.class), any()))
       .thenReturn(Map.of("Options", loadedComponent("Options", 2, List.of(new CellData("1")))));
 
     ServiceData serviceData = screenService.getDeferredDataAction();
@@ -224,7 +225,7 @@ class ScreenServiceTest {
     assertFalse(action.getParameters().containsKey("selected"));
     assertFalse(action.getParameters().containsKey("defaultValues"));
     ArgumentCaptor<Set<String>> loaded = ArgumentCaptor.forClass(Set.class);
-    verify(screenComponentGenerator).generateDeferredComponentMap(any(), any(), any(), any(), any(), loaded.capture());
+    verify(screenComponentGenerator).generateDeferredComponentMap(any(), any(), any(), any(), any(DefaultSearches.Resolution.class), loaded.capture());
     assertEquals(Set.of("Plain"), loaded.getValue());
   }
 
@@ -234,7 +235,7 @@ class ScreenServiceTest {
   @Test
   void getDeferredDataReturnsTheErrorsOfTheInitialLoads() throws Exception {
     prepareDeferredRequest("Dia", Map.of());
-    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(DefaultSearches.Resolution.class), any()))
       .thenAnswer(invocation -> {
         ScreenData data = invocation.getArgument(2);
         data.addError(new AWException(QUERY_FAILED_TITLE, QUERY_FAILED_MESSAGE));
@@ -255,7 +256,7 @@ class ScreenServiceTest {
   @Test
   void getDeferredDataSignalsTheFailureOfTheContainer() throws Exception {
     prepareDeferredRequest("Dia", Map.of());
-    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(DefaultSearches.Resolution.class), any()))
       .thenAnswer(invocation -> {
         ScreenData data = invocation.getArgument(2);
         data.addError(new AWException(QUERY_FAILED_TITLE, QUERY_FAILED_MESSAGE));
@@ -276,7 +277,7 @@ class ScreenServiceTest {
   @Test
   void getDeferredDataDoesNotSignalAFailureForAWarning() throws Exception {
     prepareDeferredRequest("Dia", Map.of());
-    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(DefaultSearches.Resolution.class), any()))
       .thenAnswer(invocation -> {
         ScreenData data = invocation.getArgument(2);
         data.addError(new AWException(QUERY_FAILED_TITLE, QUERY_FAILED_MESSAGE, AnswerType.WARNING));
@@ -295,7 +296,7 @@ class ScreenServiceTest {
   @Test
   void getDeferredDataSignalsAFailureForAMessageWithoutType() throws Exception {
     prepareDeferredRequest("Dia", Map.of());
-    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(DefaultSearches.Resolution.class), any()))
       .thenAnswer(invocation -> {
         ScreenData data = invocation.getArgument(2);
         data.addAction(new ClientAction(MESSAGE_ACTION).addParameter(MESSAGE_ACTION, QUERY_FAILED_MESSAGE));
@@ -313,7 +314,7 @@ class ScreenServiceTest {
   @Test
   void getDeferredDataReadsAMessageTypeStoredAsText() throws Exception {
     prepareDeferredRequest("Dia", Map.of());
-    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(), any()))
+    when(screenComponentGenerator.generateDeferredComponentMap(any(), any(), any(), any(), any(DefaultSearches.Resolution.class), any()))
       .thenAnswer(invocation -> {
         ScreenData data = invocation.getArgument(2);
         ClientAction warning = new ClientAction(MESSAGE_ACTION);

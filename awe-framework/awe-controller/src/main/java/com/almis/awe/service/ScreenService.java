@@ -27,6 +27,7 @@ import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.observation.ExecutionObserver;
+import com.almis.awe.service.screen.DefaultSearches;
 import com.almis.awe.service.screen.DeferredComponents;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import lombok.NonNull;
@@ -69,6 +70,9 @@ public class ScreenService extends ServiceConfig {
   // Observer of the screens built (metrics, traces...). Optional: without one the screen is just built
   private ExecutionObserver executionObserver = ExecutionObserver.NONE;
 
+  // Default saved searches of the windows (#915). Optional: without it the windows start without their default search
+  private SavedSearchService savedSearchService;
+
   /**
    * Autowired constructor
    *
@@ -94,6 +98,16 @@ public class ScreenService extends ServiceConfig {
   @Autowired(required = false)
   public void setExecutionObserver(ExecutionObserver executionObserver) {
     this.executionObserver = executionObserver == null ? ExecutionObserver.NONE : executionObserver;
+  }
+
+  /**
+   * Set the service of the saved searches, which reads the default search of each window
+   *
+   * @param savedSearchService Saved search service
+   */
+  @Autowired(required = false)
+  public void setSavedSearchService(SavedSearchService savedSearchService) {
+    this.savedSearchService = savedSearchService;
   }
 
   /**
@@ -146,7 +160,9 @@ public class ScreenService extends ServiceConfig {
 
     // Run the initial load of the container components
     ScreenData data = new ScreenData();
-    Map<String, ScreenComponent> componentMap = screenComponentGenerator.generateDeferredComponentMap(screen, container, data, menu, getScreenParameters(optionId), loaded);
+    // The criteria read the default searches of the windows as they did when the screen was generated
+    DefaultSearches.Resolution defaultSearches = DefaultSearches.resolve(screen, getScreenParameters(optionId), getRequest().getParameterList(), savedSearchService);
+    Map<String, ScreenComponent> componentMap = screenComponentGenerator.generateDeferredComponentMap(screen, container, data, menu, defaultSearches, loaded);
 
     // Generate the actions which apply the loaded models
     ServiceData serviceData = new ServiceData();
@@ -360,7 +376,9 @@ public class ScreenService extends ServiceConfig {
     ScreenData data = new ScreenData();
 
     // If criteria are cached, add them to parameter map
-    ObjectNode storedParameters = getScreenParameters(optionId);
+    // The default search of each window with saved searches fills its criteria when keep-criteria brought none (#915)
+    DefaultSearches.Resolution defaultSearches = DefaultSearches.resolve(screen, getScreenParameters(optionId), getRequest().getParameterList(), savedSearchService);
+    ObjectNode storedParameters = defaultSearches.parameters();
 
     // Important! Move first the parameter list over the stored parameters to avoid losing view, option and screen parameters
     updateParameterList(storedParameters, screen);
@@ -372,7 +390,7 @@ public class ScreenService extends ServiceConfig {
     addMessagesToScreenData(screen, data);
 
     // Generate component map with initial load data
-    Map<String, ScreenComponent> componentMap = screenComponentGenerator.generateComponentMap(screen, data, menu, storedParameters);
+    Map<String, ScreenComponent> componentMap = screenComponentGenerator.generateComponentMap(screen, data, menu, defaultSearches);
 
     // Add components to screen data
     addComponentsToScreenData(data, componentMap);

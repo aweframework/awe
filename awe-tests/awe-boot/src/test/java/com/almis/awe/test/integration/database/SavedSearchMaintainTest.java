@@ -33,7 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * Saved searches of the advanced block of a window (#790): an administrator (access to the profiles option) saves own
  * searches and publishes them for a profile; a general user (the tools menu restricted) saves own searches, sees the
  * ones published for the profile, and cannot change them nor publish. A grid with saved searches (#912) keeps its
- * searches the same way, with the grid id as window id.
+ * searches the same way, with the grid id as window id. A user marks one search of a window as its default search, and
+ * an administrator marks one published search as the default search of its profile (#915).
  */
 @Tag("integration")
 @DisplayName("Saved search tests")
@@ -250,6 +251,92 @@ class SavedSearchMaintainTest extends AbstractSpringAppIntegrationTest {
     assertTrue(direct.isEmpty(), "Published search of ADM read by its identifier by a GNR user: " + direct);
   }
 
+  @Test
+  @DisplayName("A user marks as its default an own search or one published for its profile, never another one, and it keeps the advanced state")
+  void userDefaultSearch() throws Exception {
+    assertEquals("ok", save(admin, ADMIN, "AdminOnly", VALUES, "ADM"));
+    assertEquals("ok", save(admin, ADMIN, "Shared", VALUES, "GNR"));
+    assertEquals("ok", save(general, GENERAL, "Mine", VALUES, null));
+    int adminOnly = count("SELECT IdeSavSch FROM AweSavSch WHERE Nam = 'AdminOnly'");
+    int shared = count("SELECT IdeSavSch FROM AweSavSch WHERE Nam = 'Shared'");
+    int mine = count("SELECT IdeSavSch FROM AweSavSch WHERE Nam = 'Mine'");
+
+    assertEquals("error", setDefault(general, GENERAL, adminOnly));
+    assertEquals(0, count("SELECT COUNT(*) FROM AweUsrWinCnf WHERE Ope = 'donald'"), "Nothing is stored for a search of another profile");
+
+    assertEquals("ok", setDefault(general, GENERAL, shared));
+    assertEquals(1, count("SELECT COUNT(*) FROM AweUsrWinCnf WHERE Ope = 'donald' AND DefSavSch = " + shared + " AND AdvOpn IS NULL"),
+      "A row stored only for the default search leaves the advanced state empty");
+    assertEquals("ok", maintain(general, GENERAL, "saveWindowAdvancedState", "{\"advancedStateScreen\":\"" + SCREEN
+      + "\",\"advancedStateWindow\":\"" + WINDOW + "\",\"advancedStateOpen\":\"1\"}"));
+    assertEquals("ok", setDefault(general, GENERAL, mine));
+    assertEquals(1, count("SELECT COUNT(*) FROM AweUsrWinCnf WHERE Ope = 'donald' AND DefSavSch = " + mine + " AND AdvOpn = 1"),
+      "The default search and the advanced state share the row of the window");
+    assertEquals(List.of(1, 0), searches(general, GENERAL).stream().map(row -> ((Number) row.get("default")).intValue()).toList());
+
+    assertEquals("ok", maintain(general, GENERAL, "deleteWindowSearch", "{\"savedSearchId\":" + mine + "}"));
+    assertEquals(1, count("SELECT COUNT(*) FROM AweUsrWinCnf WHERE Ope = 'donald' AND DefSavSch IS NULL AND AdvOpn = 1"),
+      "A deleted search stops being the default search");
+  }
+
+  @Test
+  @DisplayName("An administrator marks one default search per profile and window, which its users read, and deleting it clears their default")
+  void profileDefaultSearch() throws Exception {
+    assertEquals("ok", save(admin, ADMIN, "First", VALUES, "GNR"));
+    assertEquals("ok", save(admin, ADMIN, "Second", VALUES, "GNR"));
+    int first = count("SELECT IdeSavSch FROM AweSavSch WHERE Nam = 'First'");
+    int second = count("SELECT IdeSavSch FROM AweSavSch WHERE Nam = 'Second'");
+
+    assertEquals("error", setProfileDefault(general, GENERAL, first, "1"));
+    assertEquals("ok", setProfileDefault(admin, ADMIN, first, "1"));
+    assertEquals("ok", setProfileDefault(admin, ADMIN, second, "1"));
+    assertEquals(1, count("SELECT COUNT(*) FROM AweSavSch WHERE Def = 1"), "One default search per profile and window");
+    assertEquals(List.of(0, 1), searches(general, GENERAL).stream().map(row -> ((Number) row.get("profileDefault")).intValue()).toList());
+    assertEquals(1, count("SELECT COUNT(*) FROM AweSavSch WHERE Def = 1 AND Nam = 'Second'"), "The last one marked is the default");
+
+    assertEquals("ok", setDefault(general, GENERAL, second));
+    assertEquals("ok", maintain(admin, ADMIN, "deleteWindowSearch", "{\"savedSearchId\":" + second + "}"));
+    assertEquals(0, count("SELECT COUNT(*) FROM AweUsrWinCnf WHERE DefSavSch = " + second), "The deleted search is no one's default");
+  }
+
+  @Test
+  @DisplayName("The default search of the user fills the criteria and the initial load of the grid, and the window tells its layout")
+  void defaultSearchAppliesBeforeTheInitialLoad() throws Exception {
+    assertEquals("ok", save(admin, ADMIN, "Atlas in France", "{\"AdvInlNam\":[{\"value\":\"Atlas\",\"label\":\"Atlas\"}],"
+      + "\"AdvInlCtr\":[{\"value\":\"FR\",\"label\":\"France\"}],\"$layout\":[\"AdvInlCtr\"]}", null));
+    assertEquals("ok", setDefault(admin, ADMIN, count("SELECT IdeSavSch FROM AweSavSch WHERE Nam = 'Atlas in France'")));
+
+    String response = mockMvc.perform(post("/screen-data/matrix-test-advanced-search")
+        .with(csrf())
+        .with(as(ADMIN))
+        .session(admin)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"view\":\"base\"}")
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andReturn().getResponse().getContentAsString();
+
+    // Ten customers are Atlas, only some of them in France: the grid loaded once, already filtered
+    List<String> names = JsonPath.read(response, "$.components[?(@.id == 'GrdAdvInl')].model.values[*].InlNam");
+    assertTrue(!names.isEmpty() && names.size() < 10, "Customers loaded: " + names);
+    assertTrue(names.stream().allMatch(name -> name.startsWith("Atlas")), "Customers loaded: " + names);
+    assertEquals(List.of(List.of("FR")), JsonPath.read(response, "$.components[?(@.id == 'AdvInlCtr')].model.selected"));
+    assertEquals(List.of(List.of("ES")), JsonPath.read(response, "$.components[?(@.id == 'AdvInlCtr')].model.defaultValues"),
+      "Clear all goes back to the value of the definition");
+    assertEquals(List.of("Atlas in France"), JsonPath.read(response, "$.components[?(@.id == 'WinAdvInl')].controller.defaultSearch.name"));
+    assertEquals(List.of(List.of("AdvInlCtr")), JsonPath.read(response, "$.components[?(@.id == 'WinAdvInl')].controller.defaultSearch.layout"));
+  }
+
+  private String setDefault(MockHttpSession session, String userName, int id) throws Exception {
+    return maintain(session, userName, "setWindowDefaultSearch", "{\"savedSearchScreen\":\"" + SCREEN + "\",\"savedSearchWindow\":\""
+      + WINDOW + "\",\"savedSearchId\":\"" + id + "\"}");
+  }
+
+  private String setProfileDefault(MockHttpSession session, String userName, int id, String isDefault) throws Exception {
+    return maintain(session, userName, "setProfileDefaultSearch", "{\"savedSearchScreen\":\"" + SCREEN + "\",\"savedSearchWindow\":\""
+      + WINDOW + "\",\"savedSearchId\":\"" + id + "\",\"savedSearchDefault\":\"" + isDefault + "\"}");
+  }
+
   private Window window() throws Exception {
     return aweElements.getScreen(SCREEN).getElementsById(WINDOW).stream()
       .filter(Window.class::isInstance).map(Window.class::cast).findFirst().orElseThrow();
@@ -356,8 +443,10 @@ class SavedSearchMaintainTest extends AbstractSpringAppIntegrationTest {
 
   private void deleteSearches() throws Exception {
     try (Connection connection = dataSource.getConnection();
-         PreparedStatement statement = connection.prepareStatement("DELETE FROM AweSavSch")) {
-      statement.executeUpdate();
+         PreparedStatement searches = connection.prepareStatement("DELETE FROM AweSavSch");
+         PreparedStatement states = connection.prepareStatement("DELETE FROM AweUsrWinCnf WHERE Scr = '" + SCREEN + "'")) {
+      searches.executeUpdate();
+      states.executeUpdate();
     }
   }
 }

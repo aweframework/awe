@@ -864,8 +864,21 @@
   <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Rename"/>
   <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Reset to defaults"/>
   <locale name="SCREEN_TEXT_SAVED_SEARCHES" value="Saved searches"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_APPLIED_DEFAULT" value="Default search applied"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_DEFAULT" value="Default"/>
   <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_MESSAGE" value="The saved searches could not be updated. Try again later."/>
   <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_TITLE" value="Saved searches"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT" value="Keep the advanced criteria in use in the main filters"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT_HELP" value="Applying this search shows them with the essential criteria."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES" value="Save the values of the criteria"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES_HELP" value="Unchecked, the search leaves the criteria empty: it only remembers which fields to show."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH" value="Open the screen with this search"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH_HELP" value="It becomes your default search: every time you open the screen, it loads with these values and filters."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_PROFILE_DEFAULT" value="Profile default"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_SET_DEFAULT" value="Set as my default"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_SET_PROFILE_DEFAULT" value="Set as the profile default"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_UNSET_DEFAULT" value="Stop using as my default"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_UNSET_PROFILE_DEFAULT" value="Stop using as the profile default"/>
   <locale name="SCREEN_TEXT_SAVE_CURRENT_SEARCH" value="Save current search…"/>
   <locale name="SCREEN_TEXT_SAVE_SEARCH" value="Save search"/>
   <locale name="SCREEN_TEXT_SAVE_SEARCH_SUBTITLE" value="Keeps the criteria of this window in effect, also the advanced ones."/>

@@ -105,21 +105,69 @@ export function getSearchValues(components: Record<string, StateComponent | unde
 }
 
 /**
- * Read the values of a saved search (the JSON the server keeps). Values that cannot be read are no values.
+ * Reserved key of the values of a saved search of a window that keeps its layout (#915): the advanced criteria it
+ * shows with the essential ones
+ */
+export const SEARCH_LAYOUT_KEY = "$layout";
+
+/** The JSON of a saved search read as an object, null when it cannot be read */
+const readSearchJson = (json: unknown): Record<string, unknown> | null => {
+  try {
+    const values = typeof json === "string" ? JSON.parse(json) : json;
+    return values && typeof values === "object" && !Array.isArray(values) ? values as Record<string, unknown> : null;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Read the values of a saved search (the JSON the server keeps). Values that cannot be read are no values, and the
+ * layout of the search is not a value.
  * @param {string} json Values of the search
  * @return {object} Values by criterion id
  */
 export function parseSearchValues(json: unknown): SavedValues {
-  try {
-    const values = typeof json === "string" ? JSON.parse(json) : json;
-    if (!values || typeof values !== "object" || Array.isArray(values)) {
-      return {};
+  return Object.fromEntries(Object.entries(readSearchJson(json) || {})
+    .filter(([id, options]) => id !== SEARCH_LAYOUT_KEY && Array.isArray(options)) as [string, SavedOption[]][]);
+}
+
+/**
+ * Read the layout of a saved search (#915): the advanced criteria it shows with the essential ones
+ * @param {string} json Values of the search
+ * @return {string[]|null} Criteria ids, null when the search keeps no layout (the layout of the screen)
+ */
+export function parseSearchLayout(json: unknown): string[] | null {
+  const layout = readSearchJson(json)?.[SEARCH_LAYOUT_KEY];
+  return Array.isArray(layout) ? layout.filter((id): id is string => typeof id === "string") : null;
+}
+
+/** A node of the structure of a screen, as the server sends it */
+interface StructureNode {
+  elementType?: string;
+  id?: string;
+  elementList?: StructureNode[];
+}
+
+/**
+ * Advanced criteria a layout can show with the essential ones (#915): the criteria that are direct children of the
+ * advanced block of a window, in their order
+ * @param {object[]} elementList Structure of the window
+ * @param {string[]} advancedCriteria Advanced criteria of the window
+ * @return {string[]} Criteria ids
+ */
+export function getLayoutCriteria(elementList: StructureNode[] | undefined, advancedCriteria: string[]): string[] {
+  const block = (nodes: StructureNode[] = []): StructureNode | undefined => {
+    for (const node of nodes) {
+      const found = node?.elementType === "Advanced" ? node : block(node?.elementList);
+      if (found) {
+        return found;
+      }
     }
-    return Object.fromEntries(Object.entries(values as Record<string, unknown>)
-      .filter(([, options]) => Array.isArray(options)) as [string, SavedOption[]][]);
-  } catch {
-    return {};
-  }
+    return undefined;
+  };
+  return (block(elementList)?.elementList || [])
+    .map(node => node?.id)
+    .filter((id): id is string => Boolean(id) && advancedCriteria.includes(id as string));
 }
 
 /**

@@ -24,6 +24,7 @@ import {
 import { getComponentIdentifierKey, isGridComponent } from "../../utilities/components";
 import type { AppThunk } from "../types";
 import type { ClientAction, ContextComponents } from "./types";
+import { restoreWindowDefaultSearches } from "./windowDefaultSearch";
 const { BUTTON_SUBMIT } = ButtonTypes;
 
 /** A row of a model, or an option of it */
@@ -114,7 +115,7 @@ export function resetAction(action: ClientAction): AppThunk {
  * @return {function} Thunk
  */
 function restoreModels(action: ClientAction, initial: boolean): AppThunk {
-  return (dispatch, getState) => {
+  return (dispatch, getState, extra) => {
     const components = getAllComponents(getState()) as ContextComponents;
     // Check restore target
     const address = getActionAddress(action);
@@ -122,6 +123,10 @@ function restoreModels(action: ClientAction, initial: boolean): AppThunk {
       .filter(component => isInsideContext(component.context, address.view, getActionSource(action, components)));
     // Every component has its address
     dispatch(restoreMultipleModelWithDependencies(inContext as ComponentUpdate[], initial));
+    // The criteria of a window with a default search go back to it (#915): run in place, it only dispatches when the
+    // restore reached one
+    restoreWindowDefaultSearches(address.view, inContext.map(component => component.address?.component as string),
+      initial)(dispatch, getState, extra);
 
     // Finish action
     dispatch(acceptAction(action));

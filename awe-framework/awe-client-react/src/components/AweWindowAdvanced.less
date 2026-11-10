@@ -20,6 +20,14 @@
   padding-inline: calc(var(--awe-gap-form-column) / 2);
 }
 
+// Window that keeps saved searches (#915): each child of the block lives in its own host, in the block or in the main
+// row (right before the block, after the essential criteria) when the layout of the search in effect shows it there.
+// Neither the main row nor the hosts draw a box: the criteria flow as the other columns of the window body
+.window-advanced-main,
+.window-advanced-item {
+  display: contents;
+}
+
 // Region of the advanced criteria of an inline window: their columns flow as in the window body. Collapsed, it is only
 // hidden, so the criteria stay mounted
 .window-advanced-region {

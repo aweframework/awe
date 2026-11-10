@@ -178,6 +178,42 @@
   border-radius: var(--awe-radius-full);
 }
 
+// Default search of the user (#915): the tag reads in the primary text, as the design
+.window-saved-searches-tag-default {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-primary-text);
+  background: transparent;
+  border-color: transparent;
+}
+
+// Chip next to the Saved searches button that names the default search applied when the window opened (#915)
+.window-saved-search-applied {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--awe-space-1);
+  max-width: calc(var(--awe-space-16) * 4);
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-on-primary-subtle);
+  white-space: nowrap;
+  background: var(--awe-color-primary-subtle);
+  border-radius: var(--awe-radius-full);
+
+  .awe-icon {
+    flex: none;
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+}
+
+.window-saved-search-applied-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 // Dialogs
 .window-saved-search-modal {
   .window-saved-search-subtitle {
@@ -218,6 +254,54 @@
     font-size: var(--awe-font-size-label);
     font-weight: var(--awe-font-weight-medium);
     color: var(--awe-color-field-label);
+  }
+}
+
+// Save search dialog: as wide as in the React engine (30em), so its options and their help read in few lines
+.modal-dialog.window-saved-search-save-dialog {
+  width: 30em;
+  max-width: 95vw;
+}
+
+// Options of the Save search dialog of a window (#915): a checkbox with its text, and its help below the text
+.window-saved-search-options {
+  gap: var(--awe-space-3);
+}
+
+.window-saved-search-check {
+  label {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--awe-space-3);
+    align-items: start;
+    // The labels of the dialog do not wrap by default: a long option text must stay inside the dialog
+    white-space: normal;
+    font-weight: var(--awe-font-weight-normal);
+    color: var(--awe-color-text);
+    cursor: pointer;
+  }
+
+  input[type="checkbox"] {
+    width: var(--awe-size-checkbox);
+    height: var(--awe-size-checkbox);
+    margin: var(--awe-space-0-5) 0 0;
+    accent-color: var(--awe-color-primary);
+    cursor: pointer;
+
+    &:focus {
+      outline: 0;
+    }
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: var(--awe-focus-ring-offset);
+    }
+  }
+
+  // Below the text, after the checkbox column
+  .window-saved-search-help {
+    margin-top: var(--awe-space-1);
+    padding-left: calc(var(--awe-size-checkbox) + var(--awe-space-3));
   }
 }
 

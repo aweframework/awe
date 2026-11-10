@@ -15,6 +15,7 @@ import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.entities.screen.component.grid.GroupHeader;
 import com.almis.awe.model.type.ColumnFilterType;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.service.savedsearch.DefaultSavedSearch;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
@@ -31,6 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -38,9 +40,11 @@ import java.util.Set;
  * Manage the saved searches of the advanced block of the windows (#790) and of the grids (#912): each user saves, renames
  * and deletes their own searches, and a user with access to the publish option (property
  * {@code awe.saved-search.publish-option}) publishes searches for a profile, which the users of that profile see and
- * apply but do not change. The searches of a grid are stored as the ones of a window, with the grid id as window id
- * (component ids are unique in a screen), and keep the state of the grid: its column filters (with the labels of their
- * values), its sort, the value of its quick filter and the text of its search.
+ * apply but do not change. Each user marks one search of a window as its default search, and a user who may publish
+ * marks one published search as the default search of its profile (#915). The searches of a grid are stored as the ones
+ * of a window, with the grid id as window id (component ids are unique in a screen), and keep the state of the grid:
+ * its column filters (with the labels of their values), its sort, the value of its quick filter and the text of its
+ * search.
  *
  * <p>The user and the profile always come from the session, never from the parameters of the request. The maintain
  * targets that write the searches published for a profile read the profile from a session parameter that only this
@@ -75,6 +79,16 @@ public class SavedSearchService extends ServiceConfig {
   private static final String WINDOW_ID = "windowId";
   private static final String VALUE = "value";
   private static final String LABEL = "label";
+  private static final String DEFAULT = "default";
+  private static final String PROFILE_DEFAULT = "profileDefault";
+  private static final String DEFAULT_SEARCH = "defaultSearch";
+  private static final String MARKED = "1";
+  private static final String UNMARKED = "0";
+
+  /**
+   * Reserved key of the values of a window search (#915): the advanced criteria the search shows in the main filters
+   */
+  public static final String LAYOUT = "$layout";
 
   // Keys of the state of a grid
   private static final String COLUMN_FILTERS = "columnFilters";
@@ -120,7 +134,9 @@ public class SavedSearchService extends ServiceConfig {
    *
    * @param screen   Screen identifier
    * @param windowId Window identifier
-   * @return Searches with the columns id, name, values (JSON), profile (empty for the own ones) and own (1 or 0)
+   * @return Searches with the columns id, name, values (JSON), profile (empty for the own ones), own (1 or 0), default (1
+   * for the default search of the user in the window, else 0) and profileDefault (1 for the default search of its
+   * profile, else 0)
    * @throws AWException Invalid identifiers or storage error
    */
   public ServiceData getWindowSavedSearches(String screen, String windowId) throws AWException {
@@ -132,12 +148,14 @@ public class SavedSearchService extends ServiceConfig {
     validateIdentifier(windowId);
 
     ObjectNode parameters = getParameters(screen, windowId);
-    addSearches(dataList, rowsOf(queryService.launchPrivateQuery("getUserSavedSearches", parameters)), true);
+    Integer userDefault = getUserDefaultSearchId(parameters).orElse(null);
+    addSearches(dataList, rowsOf(queryService.launchPrivateQuery("getUserSavedSearches", parameters)), true, userDefault);
     // A user who may publish sees the searches published for every profile, so it can rename and delete them
     if (canPublish()) {
-      addSearches(dataList, asPublisherReader(() -> rowsOf(queryService.launchPrivateQuery("getPublishedSavedSearches", parameters))), false);
+      addSearches(dataList, asPublisherReader(() -> rowsOf(queryService.launchPrivateQuery("getPublishedSavedSearches", parameters))), false,
+        userDefault);
     } else {
-      addSearches(dataList, rowsOf(queryService.launchPrivateQuery("getProfileSavedSearches", parameters)), false);
+      addSearches(dataList, rowsOf(queryService.launchPrivateQuery("getProfileSavedSearches", parameters)), false, userDefault);
     }
     return new ServiceData().setDataList(dataList);
   }
@@ -168,7 +186,8 @@ public class SavedSearchService extends ServiceConfig {
    * @param screen   Screen identifier
    * @param windowId Window or grid identifier
    * @param name     Search name
-   * @param values   Values as JSON text: of a window {@code {"<criterion>": [{"value": ..., "label": ...}]}}, of a grid
+   * @param values   Values as JSON text: of a window {@code {"<criterion>": [{"value": ..., "label": ...}], "$layout":
+   *                 ["<advanced criterion>", ...]}} (the layout is optional), of a grid
    *                 {@code {"columnFilters": [...], "columnFilterLabels": {...}, "sort": [...], "quickFilter": ...,
    *                 "search": ...}}
    * @param profile  Profile acronym to publish the search for, empty for an own search
@@ -219,7 +238,8 @@ public class SavedSearchService extends ServiceConfig {
   }
 
   /**
-   * Delete a search: an own search of the session user, or a published one when the user may publish
+   * Delete a search: an own search of the session user, or a published one when the user may publish. A search that was
+   * the default search of a user stops being it
    *
    * @param id Search identifier
    * @return Service data
@@ -232,9 +252,116 @@ public class SavedSearchService extends ServiceConfig {
     ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
     parameters.put(ID, search.id());
     if (search.isOwn()) {
-      return maintainService.launchPrivateMaintain("deleteUserSavedSearch", parameters);
+      ServiceData deleted = maintainService.launchPrivateMaintain("deleteUserSavedSearch", parameters);
+      asOwner(() -> maintainService.launchPrivateMaintain("clearOwnSearchAsUserDefault", parameters));
+      return deleted;
     }
-    return asPublisher(search.profile(), () -> maintainService.launchPrivateMaintain("deleteProfileSavedSearch", parameters));
+    return asPublisher(search.profile(), () -> {
+      ServiceData deleted = maintainService.launchPrivateMaintain("deleteProfileSavedSearch", parameters);
+      maintainService.launchPrivateMaintain("clearProfileSearchAsUserDefault", parameters);
+      return deleted;
+    });
+  }
+
+  /**
+   * Mark a search as the default search of a window for the session user (#915), or clear it: the search must be one the
+   * user can apply in that window, an own search or one published for the profile of the user. It is stored in the row
+   * of the window state of the user, which keeps its advanced block state
+   *
+   * @param screen   Screen identifier
+   * @param windowId Window identifier
+   * @param id       Search identifier, empty to clear the default search
+   * @return Service data
+   * @throws AWException Invalid window, unknown search or one the user cannot apply, no user in the session or storage
+   *                     error
+   */
+  public ServiceData setWindowDefaultSearch(String screen, String windowId, String id) throws AWException {
+    requireSessionUser();
+    validateIdentifier(screen);
+    validateIdentifier(windowId);
+    validateSavedSearchWindow(screen, windowId);
+
+    ObjectNode parameters = getParameters(screen, windowId);
+    if (id == null || id.isBlank()) {
+      return asOwner(() -> maintainService.launchPrivateMaintain("clearWindowDefaultSearch", parameters));
+    }
+
+    int searchId = parseId(id);
+    ObjectNode search = getParameters(screen, windowId);
+    search.put(ID, searchId);
+    if (rowsOf(queryService.launchPrivateQuery("getApplicableSavedSearch", search)).isEmpty()) {
+      throw notFound();
+    }
+    parameters.put(DEFAULT_SEARCH, searchId);
+    return asOwner(() -> saveDefaultSearch(parameters));
+  }
+
+  /**
+   * Mark a search published for a profile as the default search of that profile in its window (#915), or unmark it. Only
+   * a user who may publish does it, and a profile has one default search per window: marking one unmarks the other
+   *
+   * @param screen    Screen identifier
+   * @param windowId  Window identifier
+   * @param id        Search identifier
+   * @param isDefault "1" to mark the search as the default of its profile, "0" to unmark it
+   * @return Service data
+   * @throws AWException Invalid parameters, unknown search, own search, not allowed, no user in the session or storage
+   *                     error
+   */
+  public ServiceData setProfileDefaultSearch(String screen, String windowId, String id, String isDefault) throws AWException {
+    requireSessionUser();
+    requirePublishAllowed();
+    validateIdentifier(screen);
+    validateIdentifier(windowId);
+    if (!MARKED.equals(isDefault) && !UNMARKED.equals(isDefault)) {
+      throw invalid(null);
+    }
+    validateSavedSearchWindow(screen, windowId);
+    StoredSearch search = getManageableSearch(id);
+    if (search.isOwn() || !search.screen().equals(screen) || !search.windowId().equals(windowId)) {
+      throw notFound();
+    }
+
+    ObjectNode parameters = getParameters(screen, windowId);
+    parameters.put(ID, search.id());
+    parameters.put(DEFAULT, Integer.parseInt(isDefault));
+    return asPublisher(search.profile(), () -> {
+      if (MARKED.equals(isDefault)) {
+        maintainService.launchPrivateMaintain("clearProfileDefaultSearches", parameters);
+      }
+      return maintainService.launchPrivateMaintain("updateProfileDefaultSearch", parameters);
+    });
+  }
+
+  /**
+   * Retrieve the default search of a window for the session user (#915): its own default while the user can still apply
+   * it, else the default of its profile. A failure never breaks the screen: the window then starts without a default
+   *
+   * @param screen   Screen identifier
+   * @param windowId Window identifier
+   * @return Default search, empty when there is none
+   */
+  public Optional<DefaultSavedSearch> getDefaultWindowSearch(String screen, String windowId) {
+    if (!hasSessionUser()) {
+      return Optional.empty();
+    }
+
+    try {
+      ObjectNode parameters = getParameters(screen, windowId);
+      Optional<Integer> userDefault = getUserDefaultSearchId(parameters);
+      if (userDefault.isPresent()) {
+        ObjectNode search = getParameters(screen, windowId);
+        search.put(ID, userDefault.get());
+        Optional<DefaultSavedSearch> applicable = firstSearch(queryService.launchPrivateQuery("getApplicableSavedSearch", search));
+        if (applicable.isPresent()) {
+          return applicable;
+        }
+      }
+      return firstSearch(queryService.launchPrivateQuery("getProfileDefaultSavedSearch", parameters));
+    } catch (Exception exc) {
+      log.warn("The default saved search of window '{}' in screen '{}' could not be read; the window starts without it", windowId, screen, exc);
+      return Optional.empty();
+    }
   }
 
   /**
@@ -287,6 +414,48 @@ public class SavedSearchService extends ServiceConfig {
     return maintainService.launchPrivateMaintain(renameTarget, parameters);
   }
 
+  /**
+   * Store the default search of the session user in the row of the window state: the row is updated when it exists, and
+   * inserted without an advanced block state otherwise
+   */
+  private ServiceData saveDefaultSearch(ObjectNode parameters) throws AWException {
+    if (isWindowStateStored(parameters)) {
+      return maintainService.launchPrivateMaintain("updateWindowDefaultSearch", parameters);
+    }
+
+    try {
+      return maintainService.launchPrivateMaintain("insertWindowDefaultSearch", parameters);
+    } catch (AWException exc) {
+      // Only a lost race is converted into an update: a concurrent save of the same window stored the row first
+      if (!isWindowStateStored(parameters)) {
+        throw exc;
+      }
+      log.warn("Insert of the default saved search of window '{}' lost a race with another save; updating it", parameters.get(WINDOW_ID).asString(), exc);
+      return maintainService.launchPrivateMaintain("updateWindowDefaultSearch", parameters);
+    }
+  }
+
+  private boolean isWindowStateStored(ObjectNode parameters) throws AWException {
+    return !rowsOf(queryService.launchPrivateQuery("getUserWindowState", parameters)).isEmpty();
+  }
+
+  /**
+   * Identifier of the default search the session user stored for the window, if any
+   */
+  private Optional<Integer> getUserDefaultSearchId(ObjectNode parameters) throws AWException {
+    return rowsOf(queryService.launchPrivateQuery("getUserWindowState", parameters)).stream()
+      .map(row -> row.get(DEFAULT_SEARCH))
+      .filter(cell -> cell != null && !cell.isEmpty())
+      .map(CellData::getIntegerValue)
+      .findFirst();
+  }
+
+  private static Optional<DefaultSavedSearch> firstSearch(ServiceData serviceData) {
+    return rowsOf(serviceData).stream()
+      .findFirst()
+      .map(row -> new DefaultSavedSearch(row.get(ID).getIntegerValue(), text(row, NAME), text(row, VALUES)));
+  }
+
   private ServiceData update(ObjectNode parameters, int id, String updateTarget) throws AWException {
     parameters.put(ID, id);
     return maintainService.launchPrivateMaintain(updateTarget, parameters);
@@ -302,12 +471,7 @@ public class SavedSearchService extends ServiceConfig {
    * Retrieve a search the session user may change: an own search, or a published one when the user may publish
    */
   private StoredSearch getManageableSearch(String id) throws AWException {
-    int searchId;
-    try {
-      searchId = Integer.parseInt(id == null ? "" : id.trim());
-    } catch (NumberFormatException exc) {
-      throw invalid(exc);
-    }
+    int searchId = parseId(id);
 
     ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
     parameters.put(ID, searchId);
@@ -331,7 +495,15 @@ public class SavedSearchService extends ServiceConfig {
     return search;
   }
 
-  private void addSearches(DataList dataList, List<Map<String, CellData>> rows, boolean own) {
+  private int parseId(String id) throws AWException {
+    try {
+      return Integer.parseInt(id == null ? "" : id.trim());
+    } catch (NumberFormatException exc) {
+      throw invalid(exc);
+    }
+  }
+
+  private void addSearches(DataList dataList, List<Map<String, CellData>> rows, boolean own, Integer userDefault) {
     rows.stream()
       .sorted(Comparator.comparing((Map<String, CellData> row) -> text(row, NAME), String.CASE_INSENSITIVE_ORDER))
       .forEach(row -> {
@@ -341,6 +513,8 @@ public class SavedSearchService extends ServiceConfig {
         search.put(VALUES, new CellData(text(row, VALUES)));
         search.put(PROFILE, new CellData(own ? "" : text(row, PROFILE)));
         search.put(OWN, new CellData(own ? 1 : 0));
+        search.put(DEFAULT, new CellData(row.get(ID).getIntegerValue().equals(userDefault) ? 1 : 0));
+        search.put(PROFILE_DEFAULT, new CellData(!own && MARKED.equals(text(row, PROFILE_DEFAULT)) ? 1 : 0));
         dataList.addRow(search);
       });
   }
@@ -402,6 +576,15 @@ public class SavedSearchService extends ServiceConfig {
   }
 
   /**
+   * Check that the default search is managed for a window of the screen with saved searches: a grid has none (#915)
+   */
+  private void validateSavedSearchWindow(String screenId, String windowId) throws AWException {
+    if (!(getSavedSearchComponent(screenId, windowId) instanceof Window)) {
+      throw invalid(null);
+    }
+  }
+
+  /**
    * Retrieve the component of the screen whose saved searches are managed: a window that holds an advanced block, or a
    * grid, that opts in
    */
@@ -428,8 +611,11 @@ public class SavedSearchService extends ServiceConfig {
       if (node == null || !node.isObject()) {
         throw invalid(null);
       }
-      ObjectNode normalized = component instanceof AbstractGrid grid ? normalizeGridState(node, grid)
-        : normalizeCriteria(node, ((Window) component).getSearchCriteria());
+      ObjectNode normalized = switch (component) {
+        case AbstractGrid grid -> normalizeGridState(node, grid);
+        case Window window -> normalizeCriteria(node, window);
+        case null, default -> throw invalid(null);
+      };
       String text = mapper.writeValueAsString(normalized);
       if (text.length() > MAX_VALUES_LENGTH) {
         throw new AWException(getLocale(ERROR_TITLE_INVALID_SAVED_SEARCH), getLocale(ERROR_MESSAGE_SAVED_SEARCH_TOO_LARGE));
@@ -440,12 +626,34 @@ public class SavedSearchService extends ServiceConfig {
     }
   }
 
-  private ObjectNode normalizeCriteria(JsonNode node, List<String> searchCriteria) throws AWException {
+  private ObjectNode normalizeCriteria(JsonNode node, Window window) throws AWException {
     ObjectNode normalized = JsonNodeFactory.instance.objectNode();
-    for (String criterion : searchCriteria) {
+    // A window without an advanced block has no search criteria (null): nothing is kept
+    for (String criterion : Objects.requireNonNullElse(window.getSearchCriteria(), List.<String>of())) {
       if (node.has(criterion)) {
         normalized.set(criterion, normalizeSelection(node.get(criterion)));
       }
+    }
+    if (node.has(LAYOUT)) {
+      normalized.set(LAYOUT, normalizeLayout(node.get(LAYOUT), Objects.requireNonNullElse(window.getAdvancedCriteria(), List.of())));
+    }
+    return normalized;
+  }
+
+  /**
+   * Check the layout of a window search (#915): a list of advanced criteria of the window, each one once
+   */
+  private ArrayNode normalizeLayout(JsonNode layout, List<String> advancedCriteria) throws AWException {
+    if (!layout.isArray()) {
+      throw invalid(null);
+    }
+    Set<String> criteria = new HashSet<>();
+    ArrayNode normalized = JsonNodeFactory.instance.arrayNode();
+    for (JsonNode criterion : layout) {
+      if (!criterion.isString() || !advancedCriteria.contains(criterion.stringValue()) || !criteria.add(criterion.stringValue())) {
+        throw invalid(null);
+      }
+      normalized.add(criterion.stringValue());
     }
     return normalized;
   }

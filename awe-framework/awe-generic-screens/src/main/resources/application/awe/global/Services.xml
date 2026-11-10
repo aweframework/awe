@@ -655,6 +655,21 @@
       <service-parameter type="STRING" name="id" />
     </java>
   </service>
+  <service id="setWindowDefaultSearch">
+    <java classname="com.almis.awe.service.SavedSearchService" method="setWindowDefaultSearch">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="windowId" />
+      <service-parameter type="STRING" name="id" />
+    </java>
+  </service>
+  <service id="setProfileDefaultSearch">
+    <java classname="com.almis.awe.service.SavedSearchService" method="setProfileDefaultSearch">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="windowId" />
+      <service-parameter type="STRING" name="id" />
+      <service-parameter type="STRING" name="isDefault" />
+    </java>
+  </service>
   <!-- Themes -->
   <service id="changeUserMode">
     <java classname="com.almis.awe.service.UserService" method="changeUserMode">

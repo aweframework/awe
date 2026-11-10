@@ -159,6 +159,42 @@ su menú, con las restricciones de su perfil y de su usuario, le da acceso a la 
 restricciones de siempre deciden quién publica, sin tablas nuevas. Las búsquedas se guardan en la tabla `AweSavSch`
 (migración Flyway `AWE_V1.5.2`). Una ventana sin el atributo no cambia.
 
+**Disposición de una búsqueda.** El diálogo de guardar tiene dos opciones más. *Llevar a los filtros principales los
+criterios avanzados que estoy usando* (desmarcada por defecto) guarda la disposición de la
+búsqueda: al aplicarla, esos criterios se muestran en la fila principal, tras los esenciales, y el resto vuelve al bloque
+avanzado. Solo se mueven los hijos directos de `<advanced>`, que siguen funcionando igual (dependencias, validación,
+valores guardados en la sesión); no cuentan en el contador de **Filtros avanzados** y sus chips no se marcan como ocultos.
+*Guardar los valores de los criterios* (marcada) se puede desmarcar para guardar solo la disposición: al aplicar esa
+búsqueda esos criterios aparecen vacíos. Una búsqueda guardada sin disposición muestra los criterios como los declara la
+pantalla.
+
+<img alt="Diálogo de guardar búsqueda con las opciones de disposición, valores y búsqueda predeterminada" src={require('@docusaurus/useBaseUrl').default('img/advanced-search-save-dialog.png')} />
+
+**Búsqueda predeterminada.** Una búsqueda puede abrir la ventana:
+
+* *Abrir la pantalla con esta búsqueda*, en el diálogo de guardar, o **Usar como mi predeterminada** en **Gestionar
+  búsquedas…** la convierte en la búsqueda predeterminada del usuario en esa ventana. El menú la marca como
+  **Predeterminada**. Puede ser una búsqueda propia o una publicada para el perfil del usuario.
+
+  <img alt="Menú de búsquedas guardadas con la búsqueda predeterminada marcada" src={require('@docusaurus/useBaseUrl').default('img/advanced-search-saved-menu.png')} />
+
+* Un usuario que puede publicar marca una búsqueda publicada como predeterminada de su perfil con **Usar como
+  predeterminada del perfil** (marcada **Predeterminada del perfil**). La del usuario gana a la del perfil.
+* El servidor aplica la búsqueda predeterminada antes de la carga inicial, así que el grid se carga una sola vez, ya
+  filtrado, sin pulsar el botón de buscar. Solo la aplica cuando los criterios que la sesión conserva de la pantalla no
+  traen nada para la ventana, y una variable de contexto sigue ganando a su valor. Un chip junto a **Búsquedas
+  guardadas** nombra la búsqueda predeterminada aplicada, hasta que se aplica otra búsqueda o se usa **Quitar todos**.
+
+  <img alt="Ventana abierta con su búsqueda predeterminada: el chip la nombra y sus criterios avanzados están en la fila principal" src={require('@docusaurus/useBaseUrl').default('img/advanced-search-default-applied.png')} />
+
+* Mientras hay una búsqueda predeterminada aplicada, los botones de restablecer de la ventana y **Restablecer valores
+  por defecto** devuelven los criterios a los valores y la disposición de la búsqueda predeterminada; **Quitar todos**
+  los devuelve a los valores del XML y deja la disposición como está.
+* Una búsqueda que nombra un criterio que la ventana ya no tiene se aplica sin él, sin dar error.
+
+Todo forma parte de `saved-searches="true"`: no hay un atributo nuevo, y una ventana sin él no cambia. La predeterminada
+del usuario se guarda en `AweUsrWinCnf.DefSavSch` y la de un perfil en `AweSavSch.Def` (migración Flyway `AWE_V1.6.1`).
+
 ```xml
 <window id="WinUsrCrt" label="SCREEN_TEXT_CRITERIA" icon="filter" saved-searches="true">
   ...

@@ -4,28 +4,34 @@ import {useDispatch, useStore} from "react-redux";
 import {OverlayPanel} from "primereact/overlaypanel";
 import {Dialog} from "primereact/dialog";
 import {Dropdown} from "primereact/dropdown";
+import {Checkbox} from "primereact/checkbox";
 import {InputText} from "primereact/inputtext";
 import PropTypes from "prop-types";
 import {getIconNode, translateLabel} from "../utilities";
 import {
-  getSavedModelValues,
+  getFilterLabel,
   getSearchValues,
+  isFilterInEffect,
   isSavedSearchInEffect,
-  parseSearchValues
+  parseSearchLayout,
+  parseSearchValues,
+  SEARCH_LAYOUT_KEY
 } from "../utilities/advancedSearch";
 import {TestAttributes, TestIds, testHook} from "../utilities/testIds";
 import {dropdownPassThrough, selectValueTemplate} from "../utilities/testPassThrough";
 import {useMultipleComponents} from "../hooks/useComponentState";
-import {updateMultipleModelsWithDependencies} from "../redux/thunks/components";
 import {
   deleteWindowSearch,
   loadSavedSearchProfiles,
   loadWindowSavedSearches,
   renameWindowSearch,
-  saveWindowSearch
+  saveWindowSearch,
+  setProfileDefaultSearch,
+  setWindowDefaultSearch
 } from "../redux/thunks/windowSavedSearches";
+import {applyWindowSearchValues} from "../redux/thunks/windowDefaultSearch";
 import {getAllComponents} from "../redux/selectors/componentSelectors";
-import {useRestoreDefaults, useShowResults, useWindowScreen} from "./AweWindowAdvanced";
+import {useAdvancedWindow, useSetSearchLayout, useShowResults, useWindowScreen} from "./AweWindowAdvanced";
 import "./AweWindowSavedSearches.less";
 
 // Widths of the dialogs, relative to the text size (as the side panel of the advanced search)
@@ -37,11 +43,24 @@ const SAVE = "save";
 const MANAGE = "manage";
 
 /**
+ * Check whether a flag of a saved search is set (the query sends 1 or 0)
+ * @param {*} flag Flag
+ * @return {boolean} Set
+ */
+const isSet = (flag) => flag === true || String(flag) === "1";
+
+/**
  * Check whether a saved search is an own search of the user (not one published for its profile)
  * @param {object} search Saved search
  * @return {boolean} Own search
  */
-const isOwn = (search) => search.own === true || String(search.own) === "1";
+const isOwn = (search) => isSet(search.own);
+
+/** The search is the default search of the user (#915) */
+const isUserDefault = (search) => isSet(search.default);
+
+/** The search is the default search of the profile it is published for (#915) */
+const isProfileDefault = (search) => isSet(search.profileDefault);
 
 /**
  * Label of the profile a search is published for: the name of the profile when the user may publish for it, its
@@ -54,8 +73,8 @@ const getProfileLabel = (search, profiles) =>
  * Menu of the saved searches of a window: its own searches and the ones shared with its profile, then Save current
  * search and Manage searches. The arrows move between its options and Escape gives the focus back to the button.
  */
-function SavedSearchesMenu({id, menuRef, listRef, open, loading, searches, profiles, current, onApply, onSave, onManage,
-                             onClose}) {
+function SavedSearchesMenu({id, menuRef, listRef, open, loading, searches, profiles, current, defaults, onApply, onSave,
+                             onManage, onClose}) {
   const {t} = useTranslation();
   const own = (searches || []).filter(isOwn);
   const shared = (searches || []).filter(search => !isOwn(search));
@@ -110,6 +129,14 @@ function SavedSearchesMenu({id, menuRef, listRef, open, loading, searches, profi
       {getIconNode(isOwn(search) ? "lucide:bookmark" : "lucide:users",
         {className: "window-saved-searches-option-icon", "aria-hidden": "true"})}
       <span className="window-saved-searches-option-text">{search.name}</span>
+      {defaults && isUserDefault(search) && <span className="window-saved-search-default"
+                                                  {...testHook(TestIds.windowSavedSearchDefaultTag, {owner: id})}>
+        {t("SCREEN_TEXT_SAVED_SEARCH_DEFAULT")}
+      </span>}
+      {defaults && isProfileDefault(search) && <span className="window-saved-search-default"
+                                                     {...testHook(TestIds.windowSavedSearchProfileDefaultTag, {owner: id})}>
+        {t("SCREEN_TEXT_SAVED_SEARCH_PROFILE_DEFAULT")}
+      </span>}
       {!isOwn(search) && <span className="window-saved-search-profile">{getProfileLabel(search, profiles)}</span>}
     </button>;
   };
@@ -156,6 +183,7 @@ SavedSearchesMenu.propTypes = {
   searches: PropTypes.array,
   profiles: PropTypes.array,
   current: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  defaults: PropTypes.bool,
   onApply: PropTypes.func,
   onSave: PropTypes.func,
   onManage: PropTypes.func,
@@ -187,12 +215,40 @@ DialogHeader.propTypes = {
 };
 
 /**
- * Save dialog: the name of the search (required) and, for a user who may publish, the profile to publish it for
+ * Option of the save dialog: a checkbox with its label and its help
  */
-function SaveSearchDialog({id, visible, name: initialName, profiles, onSave, onHide}) {
+function SaveOption({id, inputId, testId, checked, label, help, onChange}) {
+  return <div className="window-saved-search-check">
+    <Checkbox inputId={inputId} checked={checked} onChange={event => onChange(event.checked)}
+              aria-describedby={`${inputId}-help`} pt={{root: testHook(testId, {owner: id, selected: checked})}}/>
+    <label htmlFor={inputId}>{label}</label>
+    <small id={`${inputId}-help`} className="window-saved-search-help">{help}</small>
+  </div>;
+}
+
+SaveOption.propTypes = {
+  id: PropTypes.string,
+  inputId: PropTypes.string,
+  testId: PropTypes.string,
+  checked: PropTypes.bool,
+  label: PropTypes.string,
+  help: PropTypes.string,
+  onChange: PropTypes.func
+};
+
+/**
+ * Save dialog: the name of the search (required) and, for a user who may publish, the profile to publish it for. In a
+ * window (#915) it also chooses whether the search keeps the layout (the advanced criteria in use shown with the
+ * essential ones) and the values of the criteria, and whether the screen opens with it.
+ */
+function SaveSearchDialog({id, visible, name: initialName, profiles, layout, defaults, onSave, onHide}) {
   const {t} = useTranslation();
   const [name, setName] = useState(initialName || "");
   const [profile, setProfile] = useState(ONLY_ME);
+  // Opt-in: a plain save keeps the values only, as before #915
+  const [keepLayout, setKeepLayout] = useState(false);
+  const [keepValues, setKeepValues] = useState(true);
+  const [openWith, setOpenWith] = useState(false);
   const [invalid, setInvalid] = useState(false);
   const [saving, setSaving] = useState(false);
   const titleId = `${id}-saved-search-dialog-title`;
@@ -210,7 +266,7 @@ function SaveSearchDialog({id, visible, name: initialName, profiles, onSave, onH
     }
     setSaving(true);
     try {
-      await onSave({name: trimmed, profile: profile === ONLY_ME ? undefined : profile});
+      await onSave({name: trimmed, profile: profile === ONLY_ME ? undefined : profile, keepLayout, keepValues, openWith});
     } finally {
       setSaving(false);
     }
@@ -264,6 +320,18 @@ function SaveSearchDialog({id, visible, name: initialName, profiles, onSave, onH
           {t("SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP")}
         </small>
       </div>}
+      {layout && <>
+        <SaveOption id={id} inputId={`${id}-saved-search-keep-layout`} testId={TestIds.windowSavedSearchKeepLayout}
+                    checked={keepLayout} onChange={setKeepLayout} label={t("SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT")}
+                    help={[layout.map(criterion => criterion.label).join(", "), t("SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT_HELP")]
+                      .filter(Boolean).join(". ")}/>
+        <SaveOption id={id} inputId={`${id}-saved-search-keep-values`} testId={TestIds.windowSavedSearchKeepValues}
+                    checked={keepValues} onChange={setKeepValues} label={t("SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES")}
+                    help={t("SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES_HELP")}/>
+      </>}
+      {defaults && <SaveOption id={id} inputId={`${id}-saved-search-open-with`} testId={TestIds.windowSavedSearchOpenWith}
+                               checked={openWith} onChange={setOpenWith} label={t("SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH")}
+                               help={t("SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH_HELP")}/>}
     </div>
   </Dialog>;
 }
@@ -273,6 +341,8 @@ SaveSearchDialog.propTypes = {
   visible: PropTypes.bool,
   name: PropTypes.string,
   profiles: PropTypes.array,
+  layout: PropTypes.array,
+  defaults: PropTypes.bool,
   onSave: PropTypes.func,
   onHide: PropTypes.func
 };
@@ -311,9 +381,11 @@ DeleteConfirm.propTypes = {
 
 /**
  * Manage dialog: a row per search with whom it is for; the own searches (and the shared ones for a user who may
- * publish) can be renamed and deleted (after a confirmation)
+ * publish) can be renamed and deleted (after a confirmation). In a window (#915) any search can be made the default
+ * search of the user, and a user who may publish makes a shared search the default search of its profile.
  */
-function ManageSearchesDialog({id, label, visible, searches, profiles, onRename, onDelete, onHide}) {
+function ManageSearchesDialog({id, label, visible, searches, profiles, defaults, onRename, onDelete, onSetDefault,
+                                onSetProfileDefault, onHide}) {
   const {t} = useTranslation();
   const [renaming, setRenaming] = useState(null);
   const [deleting, setDeleting] = useState(null);
@@ -366,13 +438,19 @@ function ManageSearchesDialog({id, label, visible, searches, profiles, onRename,
     </span>;
   };
 
-  const renderActions = (search) => {
-    if (!isOwn(search) && !canPublish) {
-      return null;
-    }
+  const renderToggle = (search, isDefault, setText, unsetText, testId, icons, onToggle) => {
+    const text = t(isDefault ? unsetText : setText);
+    return <button type="button" className="p-button p-component p-button-text p-button-icon-only p-button-sm"
+                   title={text} aria-label={`${text} ${search.name}`} onClick={() => onToggle(search, !isDefault)}
+                   {...testHook(testId, {owner: id, selected: isDefault})}>
+      {getIconNode(isDefault ? icons[1] : icons[0], {tag: "span", "aria-hidden": "true"})}
+    </button>;
+  };
+
+  const renderEditActions = (search) => {
     const renameLabel = `${t("SCREEN_TEXT_RENAME_SEARCH")} ${search.name}`;
     const deleteLabel = `${t("SCREEN_TEXT_DELETE_SEARCH")} ${search.name}`;
-    return <span className="window-saved-search-actions">
+    return <>
       <button type="button" className="p-button p-component p-button-text p-button-icon-only p-button-sm"
               title={t("SCREEN_TEXT_RENAME_SEARCH")} aria-label={renameLabel}
               onClick={() => setRenaming({search, name: search.name})}
@@ -384,6 +462,22 @@ function ManageSearchesDialog({id, label, visible, searches, profiles, onRename,
               {...testHook(TestIds.windowSavedSearchDelete, {owner: id})}>
         {getIconNode("lucide:trash-2", {tag: "span", "aria-hidden": "true"})}
       </button>
+    </>;
+  };
+
+  const renderActions = (search) => {
+    const editable = isOwn(search) || canPublish;
+    if (!editable && !defaults) {
+      return null;
+    }
+    return <span className="window-saved-search-actions">
+      {defaults && renderToggle(search, isUserDefault(search), "SCREEN_TEXT_SAVED_SEARCH_SET_DEFAULT",
+        "SCREEN_TEXT_SAVED_SEARCH_UNSET_DEFAULT", TestIds.windowSavedSearchSetDefault, ["lucide:star", "lucide:star-off"],
+        onSetDefault)}
+      {defaults && canPublish && !isOwn(search) && renderToggle(search, isProfileDefault(search),
+        "SCREEN_TEXT_SAVED_SEARCH_SET_PROFILE_DEFAULT", "SCREEN_TEXT_SAVED_SEARCH_UNSET_PROFILE_DEFAULT",
+        TestIds.windowSavedSearchSetProfileDefault, ["lucide:badge-check", "lucide:badge-x"], onSetProfileDefault)}
+      {editable && renderEditActions(search)}
     </span>;
   };
 
@@ -431,8 +525,11 @@ ManageSearchesDialog.propTypes = {
   visible: PropTypes.bool,
   searches: PropTypes.array,
   profiles: PropTypes.array,
+  defaults: PropTypes.bool,
   onRename: PropTypes.func,
   onDelete: PropTypes.func,
+  onSetDefault: PropTypes.func,
+  onSetProfileDefault: PropTypes.func,
   onHide: PropTypes.func
 };
 
@@ -441,8 +538,10 @@ ManageSearchesDialog.propTypes = {
  * shows the name of the search last applied while the component keeps its values. The searches are loaded each time the
  * menu opens; the profiles the user may publish for, once. The component tells where it is, reads its values, applies
  * the values of a search and checks whether they are still in effect; a text button by default, or the look it chooses.
+ * A window (#915) also reads the layout a search would keep (getLayout: the save dialog offers to keep it and the
+ * values) and turns on its default searches (defaults: tags, Open the screen with this search and the default toggles).
  */
-export function SavedSearchesControl({id, label, getScreen, getValues, applyValues, isInEffect,
+export function SavedSearchesControl({id, label, getScreen, getValues, applyValues, isInEffect, getLayout, defaults = false,
                                       parseValues = parseSearchValues, buttonClassName = "p-button-text"}) {
   const {t} = useTranslation();
   const dispatch = useDispatch();
@@ -456,8 +555,9 @@ export function SavedSearchesControl({id, label, getScreen, getValues, applyValu
   const [profiles, setProfiles] = useState([]);
   const [applied, setApplied] = useState(null);
   const [dialog, setDialog] = useState(null);
-  // A new save dialog each time it opens, so it starts with the name of the search in effect
+  // A new save dialog each time it opens, so it starts with the name of the search in effect (and the layout in use)
   const [saveKey, setSaveKey] = useState(0);
+  const [layout, setLayout] = useState(null);
   const errorMessage = useMemo(() => ({
     title: t("SCREEN_TEXT_SAVED_SEARCH_ERROR_TITLE"),
     message: t("SCREEN_TEXT_SAVED_SEARCH_ERROR_MESSAGE")
@@ -515,13 +615,14 @@ export function SavedSearchesControl({id, label, getScreen, getValues, applyValu
   const apply = (search) => {
     closeMenu(true);
     const values = parseValues(search.values);
-    applyValues(values);
+    applyValues(values, search);
     setApplied({id: search.id, name: search.name, values});
   };
 
   const openDialog = (type) => {
     closeMenu(false);
     if (type === SAVE) {
+      setLayout(getLayout ? getLayout() : null);
       setSaveKey(key => key + 1);
     }
     setDialog(type);
@@ -532,14 +633,17 @@ export function SavedSearchesControl({id, label, getScreen, getValues, applyValu
     buttonRef.current?.focus();
   };
 
-  const save = async ({name, profile}) => {
+  const save = async ({name, profile, keepLayout, keepValues = true, openWith}) => {
     const screen = getScreen();
     if (!screen) {
       return false;
     }
-    const values = getValues();
-    const worked = await dispatch(saveWindowSearch({view: screen.view, component: id}, screen.screenId,
-      {name, profile, values: JSON.stringify(values)}, errorMessage));
+    const values = keepValues ? getValues() : {};
+    const kept = keepLayout && layout ? layout.map(criterion => criterion.id) : [];
+    const address = {view: screen.view, component: id};
+    const worked = await dispatch(saveWindowSearch(address, screen.screenId,
+      {name, profile, values: JSON.stringify(kept.length ? {...values, [SEARCH_LAYOUT_KEY]: kept} : values)},
+      errorMessage));
     if (worked) {
       closeDialog();
       const rows = await reload();
@@ -548,8 +652,32 @@ export function SavedSearchesControl({id, label, getScreen, getValues, applyValu
       if (saved) {
         setApplied({id: saved.id, name: saved.name, values});
       }
+      // Open the screen with it: it becomes the default search of the user
+      if (saved && openWith && await dispatch(setWindowDefaultSearch(address, screen.screenId, saved.id, errorMessage))) {
+        await reload();
+      }
     }
     return worked;
+  };
+
+  const setDefault = async (search, isDefault) => {
+    const screen = getScreen();
+    const worked = screen && await dispatch(setWindowDefaultSearch({view: screen.view, component: id}, screen.screenId,
+      isDefault ? search.id : "", errorMessage));
+    if (worked) {
+      await reload();
+    }
+    return Boolean(worked);
+  };
+
+  const setProfileDefault = async (search, isDefault) => {
+    const screen = getScreen();
+    const worked = screen && await dispatch(setProfileDefaultSearch({view: screen.view, component: id},
+      screen.screenId, search.id, isDefault, errorMessage));
+    if (worked) {
+      await reload();
+    }
+    return Boolean(worked);
   };
 
   const rename = async (search, name) => {
@@ -585,12 +713,15 @@ export function SavedSearchesControl({id, label, getScreen, getValues, applyValu
       {getIconNode("lucide:chevron-down", {className: "window-saved-searches-chevron", "aria-hidden": "true"})}
     </button>
     <SavedSearchesMenu id={id} menuRef={menuRef} listRef={listRef} open={menuOpen} loading={loading}
-                       searches={searches} profiles={profiles} current={inEffect?.id} onApply={apply}
-                       onSave={() => openDialog(SAVE)} onManage={() => openDialog(MANAGE)} onClose={closeMenu}/>
+                       searches={searches} profiles={profiles} current={inEffect?.id} defaults={defaults}
+                       onApply={apply} onSave={() => openDialog(SAVE)} onManage={() => openDialog(MANAGE)}
+                       onClose={closeMenu}/>
     {saveKey > 0 && <SaveSearchDialog key={saveKey} id={id} visible={dialog === SAVE} name={inEffect?.name}
-                                      profiles={profiles} onSave={save} onHide={closeDialog}/>}
+                                      profiles={profiles} layout={layout} defaults={defaults} onSave={save}
+                                      onHide={closeDialog}/>}
     <ManageSearchesDialog id={id} label={label} visible={dialog === MANAGE} searches={searches} profiles={profiles}
-                          onRename={rename} onDelete={remove} onHide={closeDialog}/>
+                          defaults={defaults} onRename={rename} onDelete={remove} onSetDefault={setDefault}
+                          onSetProfileDefault={setProfileDefault} onHide={closeDialog}/>
   </>;
 }
 
@@ -601,46 +732,72 @@ SavedSearchesControl.propTypes = {
   getValues: PropTypes.func,
   applyValues: PropTypes.func,
   isInEffect: PropTypes.func,
+  getLayout: PropTypes.func,
+  defaults: PropTypes.bool,
   parseValues: PropTypes.func,
   buttonClassName: PropTypes.string
 };
 
 /**
+ * Chip of the default search applied to a window on load (#915), next to its saved searches
+ */
+function DefaultSearchChip({id, name}) {
+  const {t} = useTranslation();
+  return <span className="window-default-search" {...testHook(TestIds.windowSavedSearchAppliedDefault, {owner: id})}>
+    {getIconNode("lucide:bookmark", {className: "window-default-search-icon", "aria-hidden": "true"})}
+    <span className="p-hidden-accessible">{t("SCREEN_TEXT_SAVED_SEARCH_APPLIED_DEFAULT")}: </span>
+    <span className="window-default-search-text">{name}</span>
+  </span>;
+}
+
+DefaultSearchChip.propTypes = {
+  id: PropTypes.string,
+  name: PropTypes.string
+};
+
+/**
  * Saved searches of a window (#790, saved-searches="true"), in the row of its advanced block right after the Advanced
- * filters toggle. Applying a search brings every search criterion to its default, sets the values of the search and
- * shows the results; the search stays in effect while the criteria keep its values.
+ * filters toggle. Applying a search brings every search criterion to its default, sets the values of the search, shows
+ * the advanced criteria of its layout with the essential ones (the layout of the screen when it keeps none, #915) and
+ * shows the results; the search stays in effect while the criteria keep its values. The chip of the default search the
+ * screen opened with follows the button.
  */
 export function SavedSearches({id, label, advancedCriteria, searchCriteria}) {
+  const {t} = useTranslation();
   const dispatch = useDispatch();
   const store = useStore();
+  const {layoutCriteria = [], mainCriteria = [], defaultSearch = null, defaultApplied = false} = useAdvancedWindow() || {};
   const getScreen = useWindowScreen(searchCriteria.length ? searchCriteria : advancedCriteria);
-  const restore = useRestoreDefaults();
+  const setSearchLayout = useSetSearchLayout(id);
   const showResults = useShowResults(id, advancedCriteria, searchCriteria);
   const components = useMultipleComponents(searchCriteria);
 
   const getValues = useCallback(() => getSearchValues(getAllComponents(store.getState()), searchCriteria),
     [store, searchCriteria]);
 
-  const applyValues = useCallback((values) => {
-    restore(searchCriteria);
-    const restored = getAllComponents(store.getState());
-    const updates = searchCriteria
-      .filter(criterion => criterion in values && restored[criterion]?.address)
-      .map(criterion => ({
-        address: restored[criterion].address,
-        data: {values: getSavedModelValues(restored[criterion], values[criterion])}
-      }));
-    if (updates.length) {
-      dispatch(updateMultipleModelsWithDependencies(updates));
-    }
+  // The advanced criteria a search keeps in its layout: the ones in use and the ones already with the essential ones
+  const getLayout = useCallback(() => {
+    const all = getAllComponents(store.getState());
+    return layoutCriteria
+      .filter(criterion => mainCriteria.includes(criterion) || isFilterInEffect(all[criterion]))
+      .map(criterion => ({id: criterion, label: all[criterion] ? getFilterLabel(all[criterion], t) : criterion}));
+  }, [store, layoutCriteria, mainCriteria, t]);
+
+  const applyValues = useCallback((values, search) => {
+    dispatch(applyWindowSearchValues(searchCriteria, values));
+    setSearchLayout(parseSearchLayout(search?.values) || [],
+      Boolean(defaultSearch) && String(search?.id) === String(defaultSearch.id));
     showResults();
-  }, [dispatch, store, restore, showResults, searchCriteria]);
+  }, [dispatch, setSearchLayout, showResults, searchCriteria, defaultSearch]);
 
   const isInEffect = useCallback((values) => isSavedSearchInEffect(components, searchCriteria, values),
     [components, searchCriteria]);
 
-  return <SavedSearchesControl id={id} label={label} getScreen={getScreen} getValues={getValues}
-                               applyValues={applyValues} isInEffect={isInEffect}/>;
+  return <>
+    <SavedSearchesControl id={id} label={label} getScreen={getScreen} getValues={getValues} applyValues={applyValues}
+                          isInEffect={isInEffect} getLayout={getLayout} defaults/>
+    {defaultApplied && defaultSearch && <DefaultSearchChip id={id} name={defaultSearch.name}/>}
+  </>;
 }
 
 SavedSearches.propTypes = {

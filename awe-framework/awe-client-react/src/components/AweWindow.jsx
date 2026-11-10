@@ -20,10 +20,12 @@ function AweWindow(props) {
   // Advanced search (#790): a window that holds an advanced block shares its state with it, and the block draws the
   // disclosure row, the filters in effect and the advanced criteria where it is
   // The state the user left is stored in the controller of the window (the component in the store), which the screen
-  // structure the window is rendered from does not carry, as whether it keeps saved searches
-  const {attributes: {advancedOpen: storedOpen, savedSearches} = {}} = useComponentState(id) || {};
+  // structure the window is rendered from does not carry, as whether it keeps saved searches, the default search the
+  // server applied and the layout of the search in effect (#915)
+  const {attributes: windowAttributes} = useComponentState(id) || {};
+  const {advancedOpen: storedOpen, savedSearches} = windowAttributes || {};
   const advanced = useAdvancedSearch({id, label, advancedMode, advancedCriteria, searchCriteria,
-    advancedOpen: storedOpen ?? advancedOpen, savedSearches});
+    advancedOpen: storedOpen ?? advancedOpen, savedSearches, elementList, windowAttributes});
 
   const getIcon = () => {
     if (icon) {

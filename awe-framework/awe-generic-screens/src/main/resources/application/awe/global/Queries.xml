@@ -5357,6 +5357,7 @@
   <query id="getUserWindowState">
     <table id="AweUsrWinCnf"/>
     <field id="AdvOpn" alias="advancedOpen"/>
+    <field id="DefSavSch" alias="defaultSearch"/>
     <where>
       <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
       <filter left-field="Scr" condition="eq" right-variable="screen"/>
@@ -5380,6 +5381,8 @@
     <field id="values" alias="values"/>
     <field id="profile" alias="profile"/>
     <field id="own" alias="own"/>
+    <field id="default" alias="default"/>
+    <field id="profileDefault" alias="profileDefault"/>
     <variable id="screen" type="STRING" name="savedSearchScreen"/>
     <variable id="windowId" type="STRING" name="savedSearchWindow"/>
   </query>
@@ -5410,6 +5413,7 @@
     <field id="Nam" alias="name"/>
     <field id="Val" alias="values"/>
     <field id="Pro" alias="profile"/>
+    <field id="Def" alias="profileDefault"/>
     <where>
       <filter left-field="Ope" condition="is null"/>
       <filter left-field="Pro" condition="eq" right-variable="profile"/>
@@ -5430,6 +5434,7 @@
     <field id="Nam" alias="name"/>
     <field id="Val" alias="values"/>
     <field id="Pro" alias="profile"/>
+    <field id="Def" alias="profileDefault"/>
     <where>
       <filter left-variable="publisher" condition="eq" right-variable="publisherMark"/>
       <filter left-field="Ope" condition="is null"/>
@@ -5499,6 +5504,54 @@
     <variable id="publisherMark" type="STRING" value="1"/>
     <variable id="id" type="INTEGER" name="id"/>
     <variable id="user" type="STRING" session="user"/>
+  </query>
+
+  <!-- A search of a window the session user can apply: an own search, or one published for the profile of the user.
+       Its default search must be one of them (#915) -->
+  <query id="getApplicableSavedSearch" server-only="true">
+    <table id="AweSavSch"/>
+    <field id="IdeSavSch" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Val" alias="values"/>
+    <where>
+      <and>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+        <or>
+          <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+          <and>
+            <filter left-field="Ope" condition="is null"/>
+            <filter left-field="Pro" condition="eq" right-variable="profile"/>
+          </and>
+        </or>
+      </and>
+    </where>
+    <variable id="id" type="INTEGER" name="id"/>
+    <variable id="screen" type="STRING" name="screen"/>
+    <variable id="windowId" type="STRING" name="windowId"/>
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="profile" type="STRING" session="profile"/>
+  </query>
+
+  <!-- The default search of a window for the profile of the session user (#915) -->
+  <query id="getProfileDefaultSavedSearch" server-only="true">
+    <table id="AweSavSch"/>
+    <field id="IdeSavSch" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Val" alias="values"/>
+    <where>
+      <filter left-field="Ope" condition="is null"/>
+      <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      <filter left-field="Scr" condition="eq" right-variable="screen"/>
+      <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      <filter left-field="Def" condition="eq" right-variable="marked"/>
+    </where>
+    <order-by field="IdeSavSch" type="ASC"/>
+    <variable id="profile" type="STRING" session="profile"/>
+    <variable id="screen" type="STRING" name="screen"/>
+    <variable id="windowId" type="STRING" name="windowId"/>
+    <variable id="marked" type="INTEGER" value="1"/>
   </query>
 
   <query id="getSavedSearchProfileList">

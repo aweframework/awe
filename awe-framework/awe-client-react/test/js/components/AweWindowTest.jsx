@@ -5,8 +5,9 @@ import {renderWithProviders} from "../test-utils";
 import AweWindow from "../../../src/components/AweWindow";
 import AweAdvanced from "../../../src/components/AweAdvanced";
 import {ComponentList} from "../../../src/components/AweComponents";
-import {updateAttributes, updateModel} from "../../../src/redux/actions/components";
+import {updateAttributes} from "../../../src/redux/actions/components";
 import ViewRegistry from "../../../src/redux/registry/ViewRegistry";
+import * as fixtures from "./fixtures/windowAdvancedSearch";
 
 describe('awe-react-client/test/js/criteria/AweWindowTest.jsx', () => {
 
@@ -209,72 +210,8 @@ describe('awe-react-client/test/js/criteria/AweWindowTest.jsx', () => {
 // (Advanced filters, the count badge and the filters in effect) and below it the advanced criteria, shown
 // on demand (inline) or in a side panel
 describe("awe-react-client/test/js/components/AweWindowTest.jsx: advanced search", () => {
-  const VIEW = "report";
-  const THEMES = [{value: "1", label: "Light"}, {value: "2", label: "Dark"}];
-  const select = (selected) => THEMES.map(option => ({...option, selected: option.value === selected}));
-
-  const criterion = (id, component, label, values, defaults, source = ["SearchWindow", "SearchBody", id]) => ({
-    address: {component: id, view: VIEW},
-    model: {values},
-    storedModel: {values},
-    defaultModel: {values: defaults},
-    attributes: {id, component, label, visible: true},
-    validationRules: {},
-    specificAttributes: {},
-    context: {view: VIEW, source},
-    actions: [],
-    dependencies: []
-  });
-
-  const advancedSource = (id) => ["SearchWindow", "SearchBody", "AdvCrt", id];
-
-  // User (essential) is in use, Theme (advanced) differs from its default Light and Blocked (advanced) is checked
-  const preloadedState = () => ({
-    settings: DEFAULT_SETTINGS,
-    components: {
-      CrtUsr: criterion("CrtUsr", "text", "User", [{value: "ana", label: "ana", selected: true}], []),
-      CrtThm: criterion("CrtThm", "select", "Theme", select("2"), select("1"), advancedSource("CrtThm")),
-      CrtBlk: criterion("CrtBlk", "checkbox", "Blocked", [{value: 1, selected: true}], [{value: 1, selected: false}],
-        advancedSource("CrtBlk"))
-    }
-  });
-
-  // As the server sends it: the essential criteria, then the advanced block with the advanced ones, in the body tag
-  const advancedBlock = {elementType: "Advanced", id: "AdvCrt", elementList: [
-    {elementType: "Criteria", component: "select", id: "CrtThm"},
-    {elementType: "Criteria", component: "checkbox", id: "CrtBlk"}
-  ]};
-  const elementList = [
-    {elementType: "Tag", type: "div", id: "SearchBody", style: "panel-body", elementList: [
-      {elementType: "Criteria", component: "text", id: "CrtUsr"},
-      advancedBlock
-    ]}
-  ];
-
-  const renderWindow = (props = {}, options = {}) => renderWithProviders(
-    <AweWindow id="SearchWindow" label="Search" advancedMode="inline" advancedCriteria={["CrtThm", "CrtBlk"]}
-               searchCriteria={["CrtUsr", "CrtThm", "CrtBlk"]} elementList={elementList} {...props}/>,
-    {preloadedState: preloadedState(), ...options});
-
-  const byTestId = (id, container = document) => container.querySelector(`[data-testid='${id}']`);
-  const allByTestId = (id, container = document) => [...container.querySelectorAll(`[data-testid='${id}']`)];
-  const field = (id) => document.querySelector(`[criterion-id='${id}']`);
-  const toggle = () => byTestId("window-advanced-toggle");
-  const badge = () => byTestId("window-advanced-count");
-  const chips = () => allByTestId("window-filter-chip");
-  const chip = (text) => chips().find(element => element.textContent.includes(text));
-  const block = () => document.querySelector(".window-advanced");
-  const row = () => document.querySelector(".window-advanced-row");
-  const region = () => document.querySelector(".window-advanced-region");
-  const selected = (store, id) => store.getState().components[id].model.values
-    .filter(value => value.selected).map(value => value.value);
-  const update = (store, id, values) => act(() => {
-    store.dispatch(updateModel({component: id, view: VIEW}, {values}));
-  });
-  const submits = (dispatchSpy) => dispatchSpy.mock.calls.map(([action]) => action)
-    .filter(action => action?.type === "ADD_ACTIONS_TOP")
-    .flatMap(action => action.payload)
-    .filter(action => action.type === "submit");
+  const {VIEW, select, criterion, advancedSource, preloadedState, advancedBlock, elementList, renderWindow, byTestId,
+    allByTestId, field, toggle, badge, chips, chip, block, row, region, selected, update, submits} = fixtures;
 
   it("registers the advanced block in the components of the structure", () => {
     expect(ComponentList.Advanced).toBe(AweAdvanced);
@@ -782,81 +719,12 @@ describe("awe-react-client/test/js/components/AweWindowTest.jsx: advanced search
   // published for its profile, in a menu right after the Advanced filters toggle
   describe("saved searches", () => {
     const originalFetch = global.fetch;
-    const SEARCHES = [
-      {id: 1, name: "Dark themes", own: 1, profile: "", values: JSON.stringify({
-        CrtUsr: [{value: "bob", label: "Bob"}], CrtThm: [{value: "2", label: "Dark"}], CrtBlk: []})},
-      {id: 2, name: "Blocked users", own: 0, profile: "ADM", values: JSON.stringify({CrtBlk: [{value: 1}]})}
-    ];
-    const PROFILES = [{value: "ADM", label: "Administrator"}, {value: "OPE", label: "Operator"}];
+    const {PROFILES, calls, queued, flush, renderSaved, button, menu, items, item, menuItems, openMenu, saveDialog,
+      manageDialog, nameInput, openSaveDialog, openManageDialog, rows, manageRow, labels} = fixtures;
     let server;
-    const fill = (rows) => [{type: "fill", parameters: {datalist: {rows, total: 1, page: 1, records: rows.length}}}];
-    const answer = (body) => Promise.resolve({ok: true, status: 200, json: () => Promise.resolve(body),
-      text: () => Promise.resolve(JSON.stringify(body))});
-    // Parameters of every call to a target of the server
-    const calls = (target) => global.fetch.mock.calls.filter(([url]) => url.endsWith(`/${target}`))
-      .map(([, options]) => JSON.parse(options.body));
-    // Actions queued to be launched (a thunk dispatches them inside the store, so a dispatch spy does not see them)
-    const queued = (store, type) => [...store.getState().actions.sync.flat(), ...store.getState().actions.async.flat()]
-      .filter(action => action?.type === type);
-    const flush = async () => {
-      for (let index = 0; index < 6; index++) {
-        await act(async () => {
-          await Promise.resolve();
-        });
-      }
-    };
-
-    const savedState = (attributes) => {
-      const state = preloadedState();
-      state.components.SearchWindow = {address: {component: "SearchWindow", view: VIEW}, attributes,
-        validationRules: {}, specificAttributes: {}};
-      return state;
-    };
-    const renderSaved = (props = {}, attributes = {savedSearches: true}) =>
-      renderWindow(props, {preloadedState: savedState(attributes)});
-    const button = () => byTestId("window-saved-searches");
-    const menu = () => byTestId("window-saved-searches-menu");
-    const items = () => allByTestId("window-saved-search-item");
-    const item = (id) => items().find(element => element.getAttribute("data-saved-search-id") === String(id));
-    const menuItems = () => [...menu().querySelectorAll("[role='menuitem']")];
-    const openMenu = async () => {
-      fireEvent.click(button());
-      await flush();
-    };
-    const saveDialog = () => byTestId("window-saved-search-dialog");
-    const manageDialog = () => byTestId("window-saved-search-manage-dialog");
-    const nameInput = () => byTestId("window-saved-search-name");
-    const openSaveDialog = async () => {
-      await openMenu();
-      fireEvent.click(byTestId("window-saved-search-save"));
-      await flush();
-    };
-    const openManageDialog = async () => {
-      await openMenu();
-      fireEvent.click(byTestId("window-saved-search-manage"));
-      await flush();
-    };
-    const rows = () => allByTestId("window-saved-search-row");
-    const manageRow = (id) => rows().find(element => element.getAttribute("data-saved-search-id") === String(id));
-    const labels = (store, id) => store.getState().components[id].model.values
-      .filter(value => value.selected).map(value => value.label);
 
     beforeEach(() => {
-      server = {searches: SEARCHES, profiles: [], answers: {}, fail: []};
-      global.fetch = jest.fn((url) => {
-        const target = url.split("/").pop();
-        if (server.fail.includes(target)) {
-          return Promise.reject(new Error("down"));
-        }
-        if (target === "getWindowSavedSearches") {
-          return answer(fill(server.searches));
-        }
-        if (target === "getSavedSearchProfiles") {
-          return answer(fill(server.profiles));
-        }
-        return answer(server.answers[target] ?? []);
-      });
-      ViewRegistry.setView(VIEW, {name: "UsrLst", loading: false});
+      server = fixtures.installSavedSearchServer();
     });
 
     afterEach(() => {

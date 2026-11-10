@@ -2347,6 +2347,25 @@
     </serve>
   </target>
 
+  <!-- Default search of a window for the session user (#915): an empty savedSearchId clears it -->
+  <target name="setWindowDefaultSearch" permission="self.update">
+    <serve service="setWindowDefaultSearch">
+      <variable id="screen" type="STRING" name="savedSearchScreen"/>
+      <variable id="windowId" type="STRING" name="savedSearchWindow"/>
+      <variable id="id" type="STRING" name="savedSearchId"/>
+    </serve>
+  </target>
+
+  <!-- Default search of a window for a profile (#915): savedSearchDefault is 1 to mark the search, 0 to unmark it -->
+  <target name="setProfileDefaultSearch" permission="self.update">
+    <serve service="setProfileDefaultSearch">
+      <variable id="screen" type="STRING" name="savedSearchScreen"/>
+      <variable id="windowId" type="STRING" name="savedSearchWindow"/>
+      <variable id="id" type="STRING" name="savedSearchId"/>
+      <variable id="isDefault" type="STRING" name="savedSearchDefault"/>
+    </serve>
+  </target>
+
   <target name="insertUserSavedSearch">
     <insert>
       <table id="AweSavSch"/>
@@ -2462,6 +2481,122 @@
       <variable id="id" type="INTEGER" name="id"/>
       <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
     </delete>
+  </target>
+
+  <!--
+  Default saved searches of the windows (#915). The default search of a user lives in its window state row (AweUsrWinCnf):
+  a row inserted only for it leaves the advanced block state empty. The default search of a profile is the mark Def of a
+  search published for it. They are server-only: only SavedSearchService launches them, after its checks. As the other
+  saved search targets, they also read the user from savedSearchOwner and the profile from savedSearchPublishProfile
+  -->
+
+  <target name="insertWindowDefaultSearch" server-only="true">
+    <insert>
+      <table id="AweUsrWinCnf"/>
+      <field id="IdeUsrWinCnf" sequence="WinCnfKey"/>
+      <field id="Ope" variable="user"/>
+      <field id="Scr" variable="screen"/>
+      <field id="WinId" variable="windowId"/>
+      <field id="DefSavSch" variable="defaultSearch"/>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="defaultSearch" type="INTEGER" name="defaultSearch"/>
+    </insert>
+  </target>
+
+  <target name="updateWindowDefaultSearch" server-only="true">
+    <update>
+      <table id="AweUsrWinCnf"/>
+      <field id="DefSavSch" variable="defaultSearch"/>
+      <where>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      </where>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="defaultSearch" type="INTEGER" name="defaultSearch"/>
+    </update>
+  </target>
+
+  <target name="clearWindowDefaultSearch" server-only="true">
+    <update>
+      <table id="AweUsrWinCnf"/>
+      <field id="DefSavSch" variable="nullify"/>
+      <where>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      </where>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="nullify" type="NULL"/>
+    </update>
+  </target>
+
+  <!-- A deleted own search stops being the default search of its owner -->
+  <target name="clearOwnSearchAsUserDefault" server-only="true">
+    <update>
+      <table id="AweUsrWinCnf"/>
+      <field id="DefSavSch" variable="nullify"/>
+      <where>
+        <filter left-field="DefSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="nullify" type="NULL"/>
+    </update>
+  </target>
+
+  <!-- A deleted published search stops being the default search of every user: only SavedSearchService launches it,
+       after deleting the search for a user who may publish -->
+  <target name="clearProfileSearchAsUserDefault" server-only="true">
+    <update>
+      <table id="AweUsrWinCnf"/>
+      <field id="DefSavSch" variable="nullify"/>
+      <where>
+        <filter left-field="DefSavSch" condition="eq" right-variable="id"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="nullify" type="NULL"/>
+    </update>
+  </target>
+
+  <!-- Unmark the default search of the profile in a window, before another one is marked -->
+  <target name="clearProfileDefaultSearches" server-only="true">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Def" variable="unmarked"/>
+      <where>
+        <filter left-field="Ope" condition="is null"/>
+        <filter left-field="Pro" condition="eq" right-variable="profile"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      </where>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="unmarked" type="INTEGER" value="0"/>
+    </update>
+  </target>
+
+  <target name="updateProfileDefaultSearch" server-only="true">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Def" variable="default"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="is null"/>
+        <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+      <variable id="default" type="INTEGER" name="default"/>
+    </update>
   </target>
 
   <target name="saveUserAvatar" permission="self.update">

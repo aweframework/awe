@@ -65,6 +65,13 @@ public class Window extends Component {
   @XStreamOmitField
   private transient Boolean advancedOpen;
 
+  // Default saved search applied to the window before the initial load (#915): set at screen generation only when one
+  // was applied, so windows without one send nothing
+  @JsonProperty("defaultSearch")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @XStreamOmitField
+  private transient DefaultSearch defaultSearch;
+
   @Override
   public Window copy() {
     return this.toBuilder()

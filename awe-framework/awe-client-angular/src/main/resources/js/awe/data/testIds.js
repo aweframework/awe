@@ -231,6 +231,18 @@ export const TestIds = Object.freeze({
   windowSavedSearchRenameCancel: "window-saved-search-rename-cancel",
   windowSavedSearchDelete: "window-saved-search-delete",
   windowSavedSearchManageClose: "window-saved-search-manage-close",
+  // Default search and layout of the saved searches of a window (#915; owner: window id): the Save search dialog
+  // options (keep the layout, keep the values, open the screen with the search), the tags of the menu options (default
+  // of the user, default of the profile), the buttons of a row of the Manage searches dialog that set or unset them, and
+  // the chip that names the default search applied when the screen opened
+  windowSavedSearchKeepLayout: "window-saved-search-keep-layout",
+  windowSavedSearchKeepValues: "window-saved-search-keep-values",
+  windowSavedSearchOpenWith: "window-saved-search-open-with",
+  windowSavedSearchDefaultTag: "window-saved-search-default-tag",
+  windowSavedSearchProfileDefaultTag: "window-saved-search-profile-default-tag",
+  windowSavedSearchSetDefault: "window-saved-search-set-default",
+  windowSavedSearchSetProfileDefault: "window-saved-search-set-profile-default",
+  windowSavedSearchAppliedDefault: "window-saved-search-applied-default",
   // Loaders: component loaders ("loader"; grids use "grid-loader") and the global loading bar with its spinner
   loader: "loader",
   loadingBar: "loading-bar",

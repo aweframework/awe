@@ -258,6 +258,18 @@ export const TestIds = Object.freeze({
   windowSavedSearchRenameCancel: "window-saved-search-rename-cancel",
   windowSavedSearchDelete: "window-saved-search-delete",
   windowSavedSearchManageClose: "window-saved-search-manage-close",
+  // Default search and layout of the saved searches of a window (#915; the owner is the window id): the Keep layout, Keep
+  // values and Open with this search checkboxes of the save dialog ("data-selected"), the Default and Profile default
+  // tags of a search of the menu, the toggles of a row of the manage dialog ("data-selected" when the search is the
+  // default) and the chip of the default search applied on load
+  windowSavedSearchKeepLayout: "window-saved-search-keep-layout",
+  windowSavedSearchKeepValues: "window-saved-search-keep-values",
+  windowSavedSearchOpenWith: "window-saved-search-open-with",
+  windowSavedSearchDefaultTag: "window-saved-search-default-tag",
+  windowSavedSearchProfileDefaultTag: "window-saved-search-profile-default-tag",
+  windowSavedSearchSetDefault: "window-saved-search-set-default",
+  windowSavedSearchSetProfileDefault: "window-saved-search-set-profile-default",
+  windowSavedSearchAppliedDefault: "window-saved-search-applied-default",
   // Cards (the instance is identified by the owner) with their value, their trend delta and their target progress
   card: "card",
   cardValue: "card-value",
