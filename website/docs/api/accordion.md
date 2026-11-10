@@ -3,6 +3,12 @@ id: accordion
 title: Accordion
 ---
 
+:::tip See it live
+
+Try the accordion with live controls in the [component catalog](../components/tabs-accordion.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 An accordion is a layout component that allows to organize the content in different sections that can be collapsed or expanded.  Inside its panels, it allows to have the same content as a window or a tag element, even nested accordions.
 
 <img alt="Accordion" src={require('@docusaurus/useBaseUrl').default('img/accordion4.png')} />

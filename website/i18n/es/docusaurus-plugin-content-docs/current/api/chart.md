@@ -3,6 +3,12 @@ id: chart
 title: Gráficas
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba el gráfico con controles en vivo en el [catálogo de componentes](../components/chart.mdx): el componente real de AWE, datos de ejemplo y el XML que lo produce.
+
+:::
+
 Un gráfico muestra el resultado de una consulta de forma gráfica: líneas, columnas, áreas, sectores, diagramas de dispersión... Se describe en el XML de la pantalla con un elemento `chart`, sus ejes, sus series y, opcionalmente, una leyenda, un tooltip y parámetros adicionales. El gráfico carga sus datos de una consulta, como cualquier otro componente de AWE.
 
 Dos motores dibujan los gráficos y **el XML del gráfico es el mismo en ambos**. Los dos los dibujan con la misma biblioteca y el mismo código:

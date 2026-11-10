@@ -42,6 +42,8 @@ module.exports = {
 	},
 	themes: ['@docusaurus/theme-mermaid'],
 	plugins: [
+		// Real AWE React components inside the docs (see plugins/awe-live)
+		'./plugins/awe-live',
 		// Reference generated from the sources at build time (see scripts/xsd-reference). It is a docs
 		// instance of its own so that it is English only (it has no translations) and is kept out of the
 		// "docs:version" snapshots of the default instance.

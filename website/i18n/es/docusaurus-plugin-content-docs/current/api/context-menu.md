@@ -3,6 +3,12 @@ id: context-menu
 title: Menú contextual
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba el menú contextual con controles en vivo en el [catálogo de componentes](../components/context-menu.mdx): el componente real de AWE y el XML que lo produce.
+
+:::
+
 El motor de Awe permite definir un menú contextual dentro de un *grid*, *tree grid*, gráfica, botón, criterio, pestaña o *wizard*. Con estos menús, se puede añadir funcionalidad a la ventana.
 
 ## Apertura del menú {#opening-the-menu}

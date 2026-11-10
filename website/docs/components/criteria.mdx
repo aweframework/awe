@@ -1,0 +1,64 @@
+---
+id: criteria
+title: Criteria
+sidebar_label: Criteria
+description: The AWE criteria, live. The attributes every input shares, and a guide to the families of inputs with their own playground.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteria} from '@site/src/components/AwePlayground/specs/criteria';
+
+A criterion is an input of a screen: it gets a value from the user and sends it to the server. Its `component` attribute selects the
+kind of input, and the rest of the attributes (label, placeholder, size, validation...) apply to all of them. Below is the real
+criterion of the AWE React client with the attributes they share: change them and the XML below follows. Type in it, too: it is a real field.
+
+<AwePlayground spec={criteria} />
+
+## Types of criteria {#types}
+
+Each family has its own page, with a playground that switches between its types:
+
+* [Text inputs](./criteria-text.mdx): `text`, `password`, `textarea`, `markdown-editor`, `text-view` and `color`.
+* [Numbers and dates](./criteria-numbers.mdx): `numeric`, `date`, `date-range`, `time` and `filtered-calendar`.
+* [Choices](./criteria-choices.mdx): `select`, `select-multiple`, `suggest`, `suggest-multiple`, `picklist`, `radio`, `button-radio`, `checkbox` and `button-checkbox`.
+* [File upload](./criteria-upload.mdx): `uploader`.
+
+`hidden` is not visible, so it has no playground: it carries a value to the server without showing it. The [criteria reference](../api/criteria.md) describes every type.
+
+## Recipes {#recipes}
+
+A common field, rendered by the same component. The other recipes are on the page of each family.
+
+### Required field with icon {#recipe-required}
+
+`validation="required"` makes the field mandatory and the label shows it. The `placeholder` tells what to type and the `icon` goes in front of the input.
+
+<AweLive
+  components={{email: {attributes: {label: 'Email', placeholder: 'name@company.com', icon: 'lucide:mail', required: true}, validationRules: {required: true}}}}
+  nodes={[{elementType: 'Criteria', component: 'text', id: 'email'}]}
+/>
+
+```xml
+<criteria id="email" component="text" label="Email" placeholder="name@company.com" icon="lucide:mail" validation="required" />
+```
+
+## Events and actions {#events-and-actions}
+
+A criterion has no event of its own to listen to: every change of its value checks the [dependencies](../api/dependencies.md) whose
+`dependency-element` names it, and pressing Enter in a text field runs the `submit` button of its window. The [actions](../api/actions.md)
+that work on criteria:
+
+| Action                           | Description                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Empties the value of the criterion                                   |
+| `restore`                        | Puts back the initial value of the criterion                         |
+| `validate`                       | Runs the validation of the criterion and shows its error             |
+| `set-invalid`                    | Marks the criterion as invalid with the message of the action        |
+| `set-valid`                      | Clears the validation error of the criterion                         |
+| `copy-criterion-value-clipboard` | Copies the value of the criterion to the clipboard                   |
+
+## More {#more}
+
+* [Full documentation of the criteria](../api/criteria.md): every type, attribute, validation and example.
+* [XSD reference of the `criteria` element](/reference/screen#element-criteria).

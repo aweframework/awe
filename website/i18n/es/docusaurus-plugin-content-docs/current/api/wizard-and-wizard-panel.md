@@ -3,6 +3,12 @@ id: wizard-and-wizard-panel
 title: Asistente y panel de asistente
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba el asistente con controles en vivo en el [catálogo de componentes](../components/wizard.mdx): el componente real de AWE y el XML que lo produce.
+
+:::
+
 ## Introducción {#introduction}
 
 Un **wizard** o **asistente** es un componente de pantalla muy útil para guiar al usuario a través de un grupo ordenado de pantallas llamadas *pasos*:

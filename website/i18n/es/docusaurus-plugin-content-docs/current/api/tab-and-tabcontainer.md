@@ -3,6 +3,12 @@ id: tab-and-tabcontainer
 title: Pestañas y contenedor de pestaña
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba las pestañas con controles en vivo en el [catálogo de componentes](../components/tabs-accordion.mdx): el componente real de AWE y el XML que lo produce.
+
+:::
+
 Una **pestaña** es un componente muy útil para dividir los componentes de la pantalla en *pestañas*:
 
 <img alt="Pestaña" src={require('@docusaurus/useBaseUrl').default('img/Tab.png')} />

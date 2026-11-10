@@ -1,0 +1,95 @@
+---
+id: chart
+title: Gráfico
+sidebar_label: Gráfico
+description: El gráfico de AWE, en vivo. Cambia entre líneas, columnas, áreas y sectores, apila las series y copia el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {chart, chartExample} from '@site/src/components/AwePlayground/specs/chart';
+
+Un gráfico dibuja las filas de una consulta: líneas, columnas, áreas, sectores... Lo describes en el XML de la pantalla con un `chart`,
+sus ejes y un `chart-serie` por cada serie, y AWE lo dibuja con Apache ECharts con los colores de su tema. Debajo está el gráfico real
+del cliente React de AWE. Elige otro tipo, apila las series, pasa el ratón por un punto y cambia los atributos: el XML de debajo se
+actualiza.
+
+<AwePlayground spec={chart} />
+
+:::info Los datos son de ejemplo
+En una pantalla, las filas vienen de una consulta (`initial-load="query"`) y el servidor convierte los elementos `chart` en el modelo
+que dibuja el cliente. Aquí las filas son los ingresos de ejemplo de una empresa inventada, en miles de euros, y el modelo es el que
+producirían esos elementos. No se envía nada a ningún servidor.
+:::
+
+## Recetas {#recipes}
+
+### Comparar líneas en el tiempo {#recipe-lines}
+
+Las líneas con una `legend` y un tooltip compartido muestran todas las series del mes bajo el ratón. Pulsa un nombre de la leyenda
+para ocultar su serie.
+
+<AweLive height="26rem" {...chartExample({type: 'spline', legend: true, sharedTooltip: true, title: 'Ingresos mensuales', subtitle: 'Miles de euros', xLabel: 'Mes', yLabel: 'Ingresos (kEUR)'})} />
+
+```xml
+<chart id="monthly" type="spline" label="Ingresos mensuales" subtitle="Miles de euros"
+       initial-load="query" target-action="Revenue">
+  <x-axis label="Mes" type="category" />
+  <y-axis label="Ingresos (kEUR)" />
+  <chart-serie id="software" label="Software" x-value="month" y-value="software" />
+  <chart-serie id="services" label="Services" x-value="month" y-value="services" />
+  <chart-serie id="support" label="Support" x-value="month" y-value="support" />
+  <chart-legend enabled="true" />
+  <chart-tooltip shared="true" suffix=" kEUR" />
+</chart>
+```
+
+Cada `chart-serie` lee dos campos de las filas: `x-value` da nombre al punto e `y-value` es su altura.
+
+### Reparto del año {#recipe-share}
+
+Un `donut` (o `pie`, o `semicircle`) dibuja una sola serie: un sector por cada fila. La leyenda se muestra por defecto en estos tipos.
+
+<AweLive height="24rem" {...chartExample({type: 'donut', dataLabels: true, title: 'Ingresos del año', subtitle: 'Por línea de producto'})} />
+
+```xml
+<chart id="share" type="donut" label="Ingresos del año" subtitle="Por línea de producto"
+       enable-data-labels="true" initial-load="query" target-action="YearByLine">
+  <chart-serie id="share" label="Revenue" x-value="line" y-value="revenue" />
+</chart>
+```
+
+### Porcentaje del total {#recipe-percent}
+
+`stacking="percent"` apila las series y escala cada punto a 100 %, de modo que las barras muestran la mezcla y no la cantidad. `bar` las
+dibuja en horizontal.
+
+<AweLive height="26rem" {...chartExample({type: 'bar', stacking: 'percent', legend: true, title: 'Mezcla de ingresos', xLabel: 'Mes', yLabel: 'Ingresos (kEUR)'})} />
+
+```xml
+<chart id="mix" type="bar" stacking="percent" label="Mezcla de ingresos" initial-load="query" target-action="Revenue">
+  <x-axis label="Mes" type="category" />
+  <y-axis label="Ingresos (kEUR)" />
+  <chart-serie id="software" label="Software" x-value="month" y-value="software" />
+  <chart-serie id="services" label="Services" x-value="month" y-value="services" />
+  <chart-serie id="support" label="Support" x-value="month" y-value="support" />
+  <chart-legend enabled="true" />
+</chart>
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Pulsar, pulsar dos veces o pulsar con el botón derecho un punto escribe sus coordenadas y su serie en los atributos del gráfico y lanza
+el evento (`click`, `double-click`, `context-menu`), de modo que una [dependencia](../api/dependencies.md) puede filtrar otro componente
+con él. Hacer zoom (`zoom-type`) lanza `zoom`. Estos ejemplos dibujan y reaccionan al ratón de verdad; las dependencias y las acciones de
+abajo necesitan una pantalla, así que aquí no se ejecutan.
+
+* `filter`: recarga el gráfico desde su consulta.
+* `add-points`: añade puntos a una serie sin recargarla, para datos en vivo.
+* `add-chart-series`, `remove-chart-series`, `replace-chart-series`: cambian las series del gráfico.
+
+## Más {#more}
+
+* [Documentación completa de los gráficos](../api/chart.md): cada elemento, los tipos de serie, los formatos y la parte de servidor.
+* [Parámetros de gráfico](../api/chart-parameters.md): las opciones de Highcharts que AWE traduce.
+* [Referencia XSD del elemento `chart`](/reference/screen#element-chart).

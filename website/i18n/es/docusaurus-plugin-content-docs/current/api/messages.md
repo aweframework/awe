@@ -3,6 +3,12 @@ id: messages
 title: Mensajes
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba los mensajes con controles en vivo en el [catálogo de componentes](../components/messages-info.mdx): el componente real de AWE y el XML que lo produce.
+
+:::
+
 Los elementos de mensaje definen los mensajes que se muestran tras ejecutar una acción. Normalmente se declaran en la sección oculta de la ventana.
 
 Este elemento suele referenciarse desde el atributo `target` de una acción de botón.

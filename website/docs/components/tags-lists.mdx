@@ -1,0 +1,101 @@
+---
+id: tags-lists
+title: Tags and lists
+sidebar_label: Tags and lists
+description: The AWE tag, tag list and text, live. Change the attributes of a tag and see the real element and the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {tag} from '@site/src/components/AwePlayground/specs/tag';
+
+A `tag` is the basic building block of a screen. With a `type` it generates an HTML element (`div`, `p`, `h3`...) that groups other
+elements, applies CSS classes and shows a text or an icon. A `tag-list` repeats a tag for each row of a query, and `<text>` writes plain
+text inside a tag. The `header-tag` elements are the tags of the identity header of a [side panel](./side-panel-popover.mdx#side-panel).
+
+## Tag {#tag}
+
+The text of a tag is its `label`, translated with the locales of the application. The two section title styles of the design system need a
+heading type (`h2` to `h6`) so screen readers announce the section. The `icon` is decorative and is only drawn for a tag with a `label`.
+
+<AwePlayground spec={tag} />
+
+## Recipes {#recipes}
+
+### Sections of a form {#recipe-sections}
+
+`awe-form-section-title` titles a section of a form with its icon and a separator above every title but the first. Keep the titles and the
+criteria of the form as siblings in the same container.
+
+<AweLive
+  components={{
+    FullName: {attributes: {label: 'Full name'}},
+    Password: {attributes: {label: 'Password'}},
+  }}
+  nodes={[
+    {elementType: 'Tag', type: 'div', style: 'panel-body', elementList: [
+      {elementType: 'Tag', type: 'h3', style: 'awe-form-section-title', label: 'Identity', icon: 'user'},
+      {elementType: 'Criteria', component: 'text', id: 'FullName'},
+      {elementType: 'Tag', type: 'h3', style: 'awe-form-section-title', label: 'Sign-in and security', icon: 'lucide:key-round'},
+      {elementType: 'Criteria', component: 'password', id: 'Password'},
+    ]},
+  ]}
+/>
+
+```xml
+<tag type="div" style="panel-body">
+  <tag type="h3" style="awe-form-section-title" label="Identity" icon="user" />
+  <criteria id="FullName" component="text" label="Full name" />
+  <tag type="h3" style="awe-form-section-title" label="Sign-in and security" icon="lucide:key-round" />
+  <criteria id="Password" component="password" label="Password" />
+</tag>
+```
+
+### Text written as it is {#recipe-text}
+
+A tag with a `label` writes translated text. The `<text>` form writes the text as it is, without looking it up in the locales; it is
+used instead of the label, never with it.
+
+<AweLive
+  nodes={[
+    {elementType: 'Tag', type: 'p', value: 'Invoices are sent on the first day of each month.'},
+  ]}
+/>
+
+```xml
+<tag type="p"><text>Invoices are sent on the first day of each month.</text></tag>
+```
+
+### A tag for each row {#recipe-tag-list}
+
+A `tag-list` takes the rows of its query and generates its child tags once per row, replacing `[column]` with the value of the row. Its `type`
+is the element that holds them: a `ul` of `li` here. The rows come from the server; the preview fills them with a static model.
+
+<AweLive
+  components={{
+    CustomerList: {
+      model: {values: [{name: 'Ada Lovelace', plan: 'Pro'}, {name: 'Grace Hopper', plan: 'Team'}, {name: 'Alan Turing', plan: 'Free'}]},
+    },
+  }}
+  nodes={[
+    {elementType: 'TagList', id: 'CustomerList', type: 'ul', elementList: [
+      {elementType: 'Tag', type: 'li', label: '[name] ([plan] plan)'},
+    ]},
+  ]}
+/>
+
+```xml
+<tag-list id="CustomerList" type="ul" initial-load="query" target-action="CustomerQuery">
+  <tag type="li" label="[name] ([plan] plan)" />
+</tag-list>
+```
+
+## Events and actions {#events-and-actions}
+
+A tag has no event or action of its own. A `tag-list` reloads when its `autorefresh` period passes or when an action loads its target, and a
+[dependency](../api/dependencies.md) can show or hide any tag.
+
+## More {#more}
+
+* [Full documentation of the tag](../api/tags.md): sources, the layout and the section titles.
+* [XSD reference of the `tag` element](/reference/screen#element-tag), of the [`tag-list` element](/reference/screen#element-tag-list) and of the [`header-tag` element](/reference/screen#element-header-tag).

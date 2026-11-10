@@ -3,6 +3,12 @@ id: layout
 title: Layout
 ---
 
+:::tip See it live
+
+Try the layout and the screen template with live controls in the [component catalog](../components/window-layout.mdx#recipe-expand): the real AWE component and the XML that produces it.
+
+:::
+
 The AWE layout helps the developer to position the parts of a screen and take advantage of all the screen size. It is
 built on the flexible box layout of CSS: a **container** says in which direction it lays out its children, and the
 children say whether they take the free space or keep their size.
@@ -23,7 +29,7 @@ The usual containers of a layout are these (the schema also declares `expandible
 | Element                          | Notes                                                                                                         |
 | -------------------------------- | ------------------------------------------------------------------------------------------------------------- |
 | [`tag`](tags.md)                 | The usual container. Give it a `type` (`div`) so that it is a real element in both engines                    |
-| [`window`](window.md)            | AngularJS engine: the content of the window is vertical by default. React engine: ignored, always vertical    |
+| [`window`](window.md)            | Both engines: the content of the window is vertical by default and `expandible="horizontal"` changes it      |
 | [`resizable`](resizable.md)      | Declared in the schema, but neither client uses it. Put a `tag` with `expandible` inside the resizable        |
 
 In the `window` and `document` [templates](template.md) the `center` source is already a vertical container, so a
@@ -134,7 +140,7 @@ The `expandible` attribute and the `expand` styles work in both engines, with th
 | `expand`, `expand-2x` to `expand-12x`    | Applied                                               | Applied                                            |
 | `expandible` of a `tag` with `type`      | Applied                                               | Applied                                            |
 | `expandible` of a `tag` without `type`   | Lost: a tag without `type` generates no element       | Applied to the `div` that the React tag generates  |
-| `expandible` of a `window`               | Applied (vertical by default)                         | Ignored: the window is always vertical             |
+| `expandible` of a `window`               | Applied (vertical by default)                         | Applied (vertical by default)                      |
 | `expandible` of a tag with `source`      | Applied (if the tag has a `type`)                     | Ignored: the template only uses the `style`       |
 | `expand-maximize`                        | Applied                                               | Applied                                            |
 

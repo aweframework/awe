@@ -3,6 +3,12 @@ id: window
 title: Window
 ---
 
+:::tip See it live
+
+Try the window with live controls in the [component catalog](../components/window-layout.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 A window is a container with a title bar. It also can be maximized or restored, and it's very useful to sort groups of components in the screen.
 
 <img alt="Window" src={require('@docusaurus/useBaseUrl').default('img/Window.png')} />

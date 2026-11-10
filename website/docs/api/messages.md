@@ -3,6 +3,12 @@ id: messages
 title: Messages
 ---
 
+:::tip See it live
+
+Try the messages with live controls in the [component catalog](../components/messages-info.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 Message elements define the messages that are shown after executing an action. They are usually declared in the hidden section of the window.
 
 This element is usually referenced from the `target` attribute of a button action.

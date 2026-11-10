@@ -1,0 +1,345 @@
+/* ---------------- Hero ---------------- */
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-bottom: 32px;
+  padding: 40px 32px;
+  border: 1px solid var(--awe-line);
+  border-radius: 20px;
+  background-color: var(--awe-panel);
+}
+
+.heroGlow {
+  position: absolute;
+  inset: -30% -10%;
+  z-index: -1;
+  background:
+    radial-gradient(34% 45% at 12% 20%, var(--awe-purple) 0%, transparent 70%),
+    radial-gradient(38% 50% at 55% 90%, var(--awe-blue) 0%, transparent 70%),
+    radial-gradient(32% 44% at 92% 15%, var(--awe-green) 0%, transparent 70%);
+  filter: blur(70px);
+  opacity: calc(var(--awe-glow-opacity) * 0.7);
+  pointer-events: none;
+}
+
+.eyebrow {
+  margin: 0 0 14px;
+  font-family: var(--awe-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--awe-ink-2);
+}
+
+.headline {
+  margin: 0 0 16px;
+  font-size: clamp(30px, 4.2vw, 46px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  font-weight: 800;
+  text-wrap: balance;
+  color: var(--awe-ink);
+}
+
+.gradientWord {
+  background: linear-gradient(100deg, var(--awe-purple) 0%, var(--awe-blue) 48%, var(--awe-green) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.sub {
+  max-width: 52ch;
+  margin: 0 0 26px;
+  font-size: 17px;
+  color: var(--awe-ink-2);
+}
+
+.ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:hover {
+  text-decoration: none;
+}
+
+.btn:focus-visible,
+.chip:focus-visible,
+.card:focus-visible {
+  outline: 2px solid var(--awe-blue);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.btnPrimary {
+  color: var(--awe-on-brand);
+  background-color: var(--ifm-color-primary-darkest);
+  box-shadow: var(--awe-cta-shadow);
+}
+
+.btnPrimary:hover {
+  color: var(--awe-on-brand);
+}
+
+.btnGhost {
+  color: var(--awe-ink);
+  border: 1.5px solid var(--awe-line);
+  background-color: var(--awe-panel);
+}
+
+.btnGhost:hover {
+  color: var(--awe-ink);
+  border-color: var(--awe-blue);
+}
+
+/* ---------------- Filters ---------------- */
+.catalog {
+  margin-bottom: 32px;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.chip {
+  padding: 6px 14px;
+  border: 1px solid var(--awe-line);
+  border-radius: 999px;
+  background-color: var(--awe-panel);
+  color: var(--awe-ink-2);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--awe-blue);
+  color: var(--awe-ink);
+}
+
+.chipOn {
+  border-color: var(--awe-blue);
+  background-color: var(--awe-blue-soft);
+  color: var(--awe-ink);
+}
+
+/* ---------------- Grid of cards ---------------- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.item {
+  min-width: 0;
+  margin: 0;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-width: 0;
+  padding: 20px;
+  border: 1px solid var(--awe-line);
+  border-radius: 16px;
+  background-color: var(--awe-panel);
+  color: var(--awe-ink);
+  text-decoration: none;
+  transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cardReady:hover {
+  border-color: var(--awe-blue);
+  box-shadow: var(--awe-shadow);
+  color: var(--awe-ink);
+  text-decoration: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cardReady:hover {
+    transform: translateY(-3px);
+  }
+}
+
+.cardSoon {
+  background-color: var(--awe-ground);
+}
+
+.iconBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+}
+
+.iconBadge svg {
+  width: 21px;
+  height: 21px;
+}
+
+.toneBlue {
+  background-color: var(--awe-blue-soft);
+  color: var(--awe-blue);
+}
+
+.toneGreen {
+  background-color: var(--awe-green-soft);
+  color: var(--awe-green);
+}
+
+.tonePurple {
+  background-color: var(--awe-purple-soft);
+  color: var(--awe-purple);
+}
+
+.toneMix {
+  background: linear-gradient(135deg, var(--awe-purple-soft), var(--awe-blue-soft));
+  color: var(--awe-blue);
+}
+
+.toneMixAlt {
+  background: linear-gradient(135deg, var(--awe-blue-soft), var(--awe-green-soft));
+  color: var(--awe-green);
+}
+
+.status {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.live,
+.soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--awe-ink-2);
+}
+
+.live::before,
+.soon::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--awe-green);
+}
+
+.soon::before {
+  background-color: var(--awe-line);
+}
+
+.cardTitle {
+  margin: 14px 0 6px;
+  font-size: 17px;
+  color: var(--awe-ink);
+}
+
+.cardBody {
+  margin: 0 0 16px;
+  font-size: 14px;
+  color: var(--awe-ink-2);
+}
+
+.cardFoot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.family {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--awe-ink-2);
+}
+
+.element {
+  padding: 2px 9px;
+  border: 1px solid var(--awe-line);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--awe-mono);
+  font-size: 11.5px;
+  color: var(--awe-ink-2);
+}
+
+.count {
+  margin: 16px 0 0;
+  font-size: 13px;
+  color: var(--awe-ink-2);
+}
+
+/* ---------------- How it works: three points under the hero ---------------- */
+.how {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 12px;
+  margin: 0 0 32px;
+  padding: 0;
+  list-style: none;
+}
+
+.howItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+  margin: 0;
+  padding: 16px 18px;
+  border: 1px solid var(--awe-line);
+  border-radius: 14px;
+  background-color: var(--awe-panel);
+}
+
+.howItem .iconBadge {
+  flex: none;
+}
+
+.howTitle {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 15px;
+  color: var(--awe-ink);
+}
+
+.howText {
+  display: block;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--awe-ink-2);
+}

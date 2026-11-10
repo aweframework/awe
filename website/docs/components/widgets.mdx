@@ -1,0 +1,93 @@
+---
+id: widgets
+title: Widgets
+sidebar_label: Widgets
+description: The AWE carousel and help viewer widgets, live. Change the widget type and see the real components and the XML that produces them.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {widget} from '@site/src/components/AwePlayground/specs/widget';
+
+A `widget` embeds a component that the XSD does not describe by itself: its `type` chooses it from the registry of the client. This page has the
+two that show content: a **carousel** that goes through images, videos and PDF documents, and the **help viewer** that shows the help page of the
+application. The file and PDF viewers are in [their own page](./file-viewer.mdx).
+
+<AwePlayground spec={widget} />
+
+## Recipes {#recipes}
+
+### Carousel with captions and a video {#recipe-carousel}
+
+A carousel takes its slides from a query (`initial-load="query"` and `target-action`), one per row. Each row has a `type` (`image`, `video` or `pdf`), the `url` of
+the file and, optionally, a `title` and a `description` shown above it. An image opens full size when it is clicked.
+
+<AweLive
+  components={{
+    Gallery: {
+      model: {values: [
+        {type: 'image', url: '/live/media/photo-waves.svg', title: 'Waves', description: 'Calm sea'},
+        {type: 'video', url: '/live/media/clip.webm', title: 'Clip', description: 'Generated for the docs'},
+        {type: 'image', url: '/live/media/photo-forest.svg', title: 'Forest', description: 'Pine trees'},
+      ]},
+    },
+  }}
+  nodes={[{elementType: 'Widget', id: 'Gallery', type: 'carousel'}]}
+/>
+
+```xml
+<widget id="Gallery" type="carousel" initial-load="query" target-action="GalleryQuery" />
+```
+
+| Column        | Description                                         |
+|---------------|-----------------------------------------------------|
+| `type`        | `image` (the default), `video` or `pdf`             |
+| `url`         | Address of the file                                 |
+| `title`       | Title shown above the slide (optional)              |
+| `description` | Text shown under the title (optional)               |
+
+### Help in a side panel {#recipe-help}
+
+The help viewer asks the server for the HTML of the help of the application (or of the option of the menu the screen is in) when it is shown.
+Inside a [side panel](./side-panel-popover.mdx#side-panel) it loads the first time the panel opens. The docs have no server, so the example answers that request with a static page.
+
+<AweLive
+  files={{help: '/live/help-en.html'}}
+  components={{
+    OpenHelp: {attributes: {label: 'Help', icon: 'lucide:circle-help'}, actions: [{type: 'dialog', target: 'HelpPanel'}]},
+    HelpPanel: {attributes: {label: 'Help', maxWidth: '30rem'}},
+    HelpContent: {attributes: {}},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'OpenHelp'},
+    {elementType: 'SidePanel', id: 'HelpPanel', elementList: [
+      {elementType: 'Widget', id: 'HelpContent', type: 'help-viewer'},
+    ]},
+  ]}
+/>
+
+```xml
+<button id="OpenHelp" label="Help" icon="lucide:circle-help">
+  <button-action type="dialog" target="HelpPanel" />
+</button>
+
+<side-panel id="HelpPanel" label="Help" max-width="30rem">
+  <widget id="HelpContent" type="help-viewer" />
+</side-panel>
+```
+
+## Event calendar {#event-calendar}
+
+The `event-calendar` that appears in the documentation of the widgets is not a widget of the React client: it is the example of the
+[custom widgets guide](../guides/custom-widgets-react.md), which an application registers with `registerWidget(type, component)`. The built-in widgets of
+the React client are `carousel`, `help-viewer`, `file-viewer`, `pdf-viewer`, `file-manager` and `log-viewer`.
+
+## Events and actions {#events-and-actions}
+
+These widgets have no event or action of their own. A [dependency](../api/dependencies.md) can show or hide any of them, and a widget with a query
+reloads when an action loads its target.
+
+## More {#more}
+
+* [Full documentation of the widget](../api/widget.md): the registry, parameters and the custom widgets.
+* [XSD reference of the `widget` element](/reference/screen#element-widget) and of the [`widget-parameter` element](/reference/screen#element-widget-parameter).

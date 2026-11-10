@@ -1,0 +1,174 @@
+---
+id: messages-info
+title: Mensajes e información
+sidebar_label: Mensajes e información
+description: Los mensajes y los componentes de información de AWE, en vivo. Diálogos de confirmación, avisos y mensajes sobre un campo, y el info, el botón info y el criterio info de la cabecera.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {info} from '@site/src/components/AwePlayground/specs/info';
+import {message} from '@site/src/components/AwePlayground/specs/message';
+
+Dos grupos de componentes pequeños que hablan con el usuario. Los **mensajes** son lo que una pantalla dice tras una acción: un diálogo de confirmación antes de una
+acción arriesgada, y los avisos y los mensajes sobre un campo que el servidor envía en sus respuestas. Los componentes de **información** (`info`, `info-button`
+e `info-criteria`) son los controles compactos de la cabecera: un valor con un desplegable, un botón y un criterio que se colocan junto al título.
+
+:::note
+Los diálogos, los avisos y los desplegables se dibujan sobre toda la página, fuera de la vista previa, así que siguen el modo de color del sitio y no el
+del interruptor **Claro / Oscuro** de la vista previa.
+:::
+
+## Mensaje {#message}
+
+Un elemento `message` define un texto una sola vez, normalmente en la parte oculta de la pantalla, para que cualquier botón pueda usarlo. Una acción `confirm` lo muestra
+en un diálogo modal: **Aceptar** continúa con las acciones que siguen al confirm (un guardado, un borrado) y **Cancelar** las detiene. La vista previa tiene el botón que lo lanza,
+como muestra el XML. Púlsalo y cambia los textos.
+
+<AwePlayground spec={message} />
+
+## Info {#info}
+
+Un `info` es un botón redondeado de la cabecera. Su etiqueta puede venir de una consulta o de la sesión, y un `unit` añade una insignia. Cuando tiene
+contenido, un clic lo abre en un desplegable; si tiene una acción, el clic ejecuta la acción.
+
+<AwePlayground spec={info} />
+
+## Recetas {#recipes}
+
+### Controles de cabecera {#recipe-header}
+
+Los tres componentes de información juntos: un `info` con desplegable, un `info-button` que ejecuta acciones (aquí abre un diálogo) y un `info-criteria`,
+un criterio con el estilo de la cabecera.
+
+<AweLive
+  components={{
+    Alerts: {attributes: {label: 'Notificaciones', icon: 'lucide:bell', unit: '3'}},
+    HelpBtn: {attributes: {label: 'Ayuda', icon: 'lucide:circle-help'}, actions: [{type: 'dialog', target: 'HelpDlg'}]},
+    Find: {attributes: {label: 'Buscar', placeholder: 'Cliente o factura'}},
+    HelpDlg: {attributes: {label: 'Ayuda', style: 'modal-sm'}},
+    CloseHelp: {attributes: {label: 'Cerrar', style: 'btn-primary'}, actions: [{type: 'close', target: 'HelpDlg'}]},
+  }}
+  nodes={[
+    {elementType: 'Info', id: 'Alerts', elementList: [{elementType: 'Tag', type: 'p', label: 'Hay 3 facturas vencidas.'}]},
+    {elementType: 'InfoButton', id: 'HelpBtn'},
+    {elementType: 'InfoCriteria', component: 'text', id: 'Find'},
+    {elementType: 'Dialog', id: 'HelpDlg', elementList: [
+      {elementType: 'Tag', type: 'div', style: 'modal-body', label: 'Busca por nombre de cliente o por número de factura.'},
+      {elementType: 'Tag', type: 'div', style: 'modal-footer', elementList: [{elementType: 'Button', id: 'CloseHelp'}]},
+    ]},
+  ]}
+/>
+
+```xml
+<info id="Alerts" label="Notificaciones" icon="lucide:bell" unit="3">
+  <tag type="p" label="Hay 3 facturas vencidas." />
+</info>
+<info-button id="HelpBtn" label="Ayuda" icon="lucide:circle-help">
+  <button-action type="dialog" target="HelpDlg" />
+</info-button>
+<info-criteria id="Find" component="text" label="Buscar" placeholder="Cliente o factura" />
+
+<dialog id="HelpDlg" label="Ayuda" style="modal-sm">
+  <tag type="div" style="modal-body" label="Busca por nombre de cliente o por número de factura." />
+  <tag type="div" style="modal-footer">
+    <button id="CloseHelp" label="Cerrar" style="btn-primary">
+      <button-action type="close" target="HelpDlg" />
+    </button>
+  </tag>
+</dialog>
+```
+
+### Avisos del servidor {#recipe-toasts}
+
+La mayoría de los mensajes no se escriben en la pantalla: el servidor responde a una acción con una acción `message` y el cliente la muestra como un aviso. Su tipo
+(`ok`, `info`, `warning` o `error`) define el aspecto y cuánto tiempo permanece: los tres primeros se desvanecen, un error permanece hasta que se cierra. Cada botón de aquí envía una acción de
+servidor; la documentación no tiene servidor, así que el ejemplo responde a cada una con las acciones de la tabla, como lo haría el servidor.
+
+<AweLive
+  answers={{
+    SaveCustomer: [{type: 'message', parameters: {type: 'ok', title: 'Cliente guardado', message: 'Los cambios se guardaron.'}}],
+    SyncCustomers: [{type: 'message', parameters: {type: 'info', title: 'Sincronizando', message: 'Se están actualizando 12 clientes.'}}],
+    CheckLimit: [{type: 'message', parameters: {type: 'warning', title: 'Límite de crédito', message: 'El cliente está cerca del límite.'}}],
+    ChargeCustomer: [{type: 'message', parameters: {type: 'error', title: 'Pago rechazado', message: 'El banco rechazó el pago.'}}],
+  }}
+  components={{
+    Save: {attributes: {label: 'Guardar', style: 'btn-primary'}, actions: [{type: 'server', parameters: {serverAction: 'maintain', targetAction: 'SaveCustomer'}}]},
+    Sync: {attributes: {label: 'Sincronizar'}, actions: [{type: 'server', parameters: {serverAction: 'maintain', targetAction: 'SyncCustomers'}}]},
+    Check: {attributes: {label: 'Comprobar el límite'}, actions: [{type: 'server', parameters: {serverAction: 'query', targetAction: 'CheckLimit'}}]},
+    Charge: {attributes: {label: 'Cobrar', style: 'btn-danger'}, actions: [{type: 'server', parameters: {serverAction: 'maintain', targetAction: 'ChargeCustomer'}}]},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'Save'},
+    {elementType: 'Button', id: 'Sync'},
+    {elementType: 'Button', id: 'Check'},
+    {elementType: 'Button', id: 'Charge'},
+  ]}
+/>
+
+```xml
+<button id="Save" label="Guardar" style="btn-primary">
+  <button-action type="server" server-action="maintain" target-action="SaveCustomer" />
+</button>
+<button id="Sync" label="Sincronizar">
+  <button-action type="server" server-action="maintain" target-action="SyncCustomers" />
+</button>
+<button id="Check" label="Comprobar el límite">
+  <button-action type="server" server-action="query" target-action="CheckLimit" />
+</button>
+<button id="Charge" label="Cobrar" style="btn-danger">
+  <button-action type="server" server-action="maintain" target-action="ChargeCustomer" />
+</button>
+```
+
+| Acción de destino | Mensaje que envía el servidor                              | Tipo      |
+|-------------------|------------------------------------------------------------|-----------|
+| `SaveCustomer`    | **Cliente guardado**: Los cambios se guardaron.            | `ok`      |
+| `SyncCustomers`   | **Sincronizando**: Se están actualizando 12 clientes.      | `info`    |
+| `CheckLimit`      | **Límite de crédito**: El cliente está cerca del límite.   | `warning` |
+| `ChargeCustomer`  | **Pago rechazado**: El banco rechazó el pago.              | `error`   |
+
+### Un mensaje sobre un campo {#recipe-target-message}
+
+Un `target-message` muestra el mensaje en un popover sobre el componente al que se refiere, para que el usuario vea qué campo corregir. La respuesta indica ese
+componente en su dirección. Si no está en la pantalla, el mensaje se muestra como un aviso.
+
+<AweLive
+  answers={{
+    CheckEmail: [{type: 'target-message', address: {component: 'CustomerEmail'}, parameters: {type: 'error', title: 'Correo no válido', message: 'Debe contener una arroba.'}}],
+  }}
+  components={{
+    CustomerEmail: {attributes: {label: 'Correo', placeholder: 'nombre@empresa.com', icon: 'lucide:mail'}, model: {values: [{value: 'ada.empresa.com', label: 'ada.empresa.com', selected: true}]}},
+    Verify: {attributes: {label: 'Verificar', style: 'btn-primary'}, actions: [{type: 'server', parameters: {serverAction: 'validate', targetAction: 'CheckEmail'}}]},
+  }}
+  nodes={[
+    {elementType: 'Criteria', component: 'text', id: 'CustomerEmail'},
+    {elementType: 'Button', id: 'Verify'},
+  ]}
+/>
+
+```xml
+<criteria id="CustomerEmail" component="text" label="Correo" placeholder="nombre@empresa.com" icon="lucide:mail" />
+<button id="Verify" label="Verificar" style="btn-primary">
+  <button-action type="server" server-action="validate" target-action="CheckEmail" />
+</button>
+```
+
+El servidor responde a `CheckEmail` con un `target-message` de tipo `error` dirigido al criterio `CustomerEmail`.
+
+## Eventos y acciones {#events-and-actions}
+
+Un `info` y un `info-button` guardan su evento `click` cuando el usuario hace clic en ellos, así que una [dependencia](../api/dependencies.md) puede reaccionar a él. Los
+mensajes no tienen evento: las acciones de abajo son las que los muestran. Un mensaje que es un aviso termina su acción cuando se desvanece o se cierra,
+así que las acciones que le siguen esperan; un confirm la termina con **Aceptar** y cancela la pila con **Cancelar**.
+
+| Acción           | Descripción                                                                                            |
+|------------------|--------------------------------------------------------------------------------------------------------|
+| `confirm`        | Muestra el `message` indicado en `target` en un diálogo de confirmación                                |
+| `message`        | Muestra un aviso (lo envía el servidor): `type`, `title` y `message` están en sus parámetros           |
+| `target-message` | Muestra un mensaje sobre un componente (lo envía el servidor); un aviso si el componente no está en la pantalla |
+
+## Más {#more}
+
+* Documentación completa de [los mensajes](../api/messages.md) y de [los componentes de información](../api/info.md).
+* Referencia XSD del [elemento `message`](/reference/screen#element-message), del [elemento `info`](/reference/screen#element-info), del [elemento `info-button`](/reference/screen#element-info-button) y del [elemento `info-criteria`](/reference/screen#element-info-criteria).

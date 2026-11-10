@@ -3,6 +3,12 @@ id: pivot-table
 title: Tabla dinámica
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba la tabla dinámica con controles en vivo en el [catálogo de componentes](../components/pivot-table.mdx): el componente real de AWE, datos de ejemplo y el XML que lo produce.
+
+:::
+
 La tabla dinámica es un componente analítico. Carga las filas de una consulta y permite al usuario construir un informe a partir de ellas: el
 usuario arrastra los campos a las filas y a las columnas, elige una agregación (recuento, suma, media...) y un renderizador
 (tabla, mapa de calor...), y la tabla se calcula en el navegador.

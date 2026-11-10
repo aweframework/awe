@@ -3,6 +3,12 @@ id: card
 title: Card
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba la tarjeta con controles en vivo en el [catálogo de componentes](../components/card.mdx): el componente real de AWE y el XML que lo produce.
+
+:::
+
 Una card es una tarjeta de métrica: un título, un valor grande con su unidad, un icono y una variación (delta) con la
 flecha de su tendencia y un texto, como **Clientes activos** · 1.284 · ↗ 4,2% frente al mes pasado. También puede
 mostrar el progreso hacia un objetivo, una descripción, un pie y, en su cuerpo, cualquier otro componente (un gráfico,

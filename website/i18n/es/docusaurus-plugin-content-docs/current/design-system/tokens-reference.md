@@ -206,7 +206,7 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 
 | Token | Claro | Oscuro |
 |---|---|---|
-| `--awe-color-field` | `var(--awe-surface-0)` | `var(--awe-surface-950)` |
+| `--awe-color-field` | `var(--awe-surface-0)` | `color-mix(in srgb, var(--awe-surface-900), var(--awe-surface-800))` |
 | `--awe-color-field-filled` | `var(--awe-surface-50)` | `var(--awe-surface-800)` |
 | `--awe-color-field-border` | `var(--awe-surface-300)` | `var(--awe-surface-600)` |
 | `--awe-color-field-border-hover` | `var(--awe-surface-400)` | `var(--awe-surface-500)` |

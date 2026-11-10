@@ -3,6 +3,12 @@ id: criteria
 title: Criteria
 ---
 
+:::tip See it live
+
+Try the criteria with live controls in the [component catalog](../components/criteria.mdx): the real AWE inputs and the XML that produces them. Each family has its own playground: [text inputs](../components/criteria-text.mdx), [numbers and dates](../components/criteria-numbers.mdx), [choices](../components/criteria-choices.mdx) and [file upload](../components/criteria-upload.mdx).
+
+:::
+
 Criteria elements are window components which can get input from the user and send it to the application server (business logic).
 
 <img alt="Criteria" src={require('@docusaurus/useBaseUrl').default('img/Criteria.png')} />

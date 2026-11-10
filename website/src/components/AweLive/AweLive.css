@@ -1,0 +1,249 @@
+/* The preview frame of a live AWE component: only Docusaurus variables and --awe-* tokens */
+.awe-live {
+  padding: var(--ifm-spacing-horizontal);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-background-surface-color);
+  color: var(--ifm-font-color-base);
+  font-family: var(--awe-font-family-base);
+  margin-bottom: var(--ifm-leading);
+}
+
+/* A playground stage draws its own frame, background and colours */
+.awe-live--bare {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  margin-bottom: 0;
+}
+
+/* A component that fills its container (a grid, a chart, a map) needs a container with a height: it is the example itself */
+.awe-live--sized {
+  display: flex;
+  flex-direction: column;
+}
+
+.awe-live--sized > * {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* A tree grid does not take the room of its container by itself (its table is a flex item that keeps its content size) */
+.awe-live--sized .p-treetable {
+  flex: 1 1 0;
+  min-height: 0;
+}
+
+/* Placeholder while the client loads: the height of a one-line example, so nothing jumps */
+.awe-live-loading {
+  min-height: 4.5rem;
+  margin-bottom: var(--ifm-leading);
+  border-radius: var(--ifm-global-radius);
+  background: var(--ifm-color-emphasis-200);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .awe-live-loading {
+    background: linear-gradient(90deg, var(--ifm-color-emphasis-200), var(--ifm-color-emphasis-100), var(--ifm-color-emphasis-200));
+    background-size: 200% 100%;
+    animation: awe-live-shimmer 1.4s ease-in-out infinite;
+  }
+}
+
+@keyframes awe-live-shimmer {
+  from {
+    background-position: 100% 0;
+  }
+
+  to {
+    background-position: -100% 0;
+  }
+}
+
+/* Buttons that act on the example next to them (the back and next of a wizard) */
+.awe-live-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--awe-space-2);
+  margin-top: var(--awe-space-3);
+}
+
+/* react-pivottable draws its table and menus with a light palette of its own: here they take the AWE tokens, so a pivot
+   table follows the colour mode of the example like the rest of the client */
+.awe-live .pvtUi {
+  color: var(--awe-color-text);
+  font-family: var(--awe-font-family-base);
+}
+
+.awe-live table.pvtTable {
+  font-family: var(--awe-font-family-base);
+}
+
+.awe-live table.pvtTable thead tr th,
+.awe-live table.pvtTable tbody tr th {
+  border-color: var(--awe-color-border);
+  background-color: var(--awe-color-surface-subtle);
+  color: var(--awe-color-text);
+}
+
+.awe-live table.pvtTable tbody tr td {
+  border-color: var(--awe-color-border);
+  background-color: var(--awe-color-surface);
+  color: var(--awe-color-text);
+}
+
+.awe-live .pvtAxisContainer,
+.awe-live .pvtVals {
+  border-color: var(--awe-color-border);
+  background: var(--awe-color-surface-subtle);
+}
+
+.awe-live .pvtAxisContainer li span.pvtAttr {
+  border-color: var(--awe-color-border);
+  background: var(--awe-color-surface-raised);
+  color: var(--awe-color-text);
+}
+
+.awe-live .pvtAxisContainer li.pvtPlaceholder {
+  border-color: var(--awe-color-border);
+}
+
+.awe-live .pvtDropdownIcon {
+  color: var(--awe-color-text-muted);
+}
+
+.awe-live .pvtDropdownCurrent,
+.awe-live .pvtDropdownMenu {
+  border-color: var(--awe-color-border);
+  background: var(--awe-color-surface-raised);
+  color: var(--awe-color-text);
+}
+
+.awe-live .pvtDropdownActiveValue,
+.awe-live .pvtCheckContainer p.selected {
+  background: var(--awe-color-primary-subtle);
+  color: var(--awe-color-primary-text);
+}
+
+.awe-live .pvtFilterBox {
+  border-color: var(--awe-color-border);
+  background-color: var(--awe-color-surface-raised);
+  color: var(--awe-color-text);
+}
+
+.awe-live .pvtFilterBox input,
+.awe-live .pvtFilterBox button,
+.awe-live .pvtButton {
+  border-color: var(--awe-color-border);
+  background: var(--awe-color-surface);
+  color: var(--awe-color-text);
+}
+
+.awe-live .pvtCheckContainer {
+  border-top-color: var(--awe-color-border);
+}
+
+.awe-live .pvtFilterBox input:focus-visible,
+.awe-live .pvtUi select:focus-visible {
+  outline: var(--awe-border-width) solid var(--awe-color-primary);
+  outline-offset: var(--awe-space-1);
+}
+
+/* The text of a file viewer: the monospace of the design system, on the surface of the example */
+.awe-live pre[data-testid="file-viewer"] {
+  margin: 0;
+  padding: var(--awe-space-3) var(--awe-space-4);
+  font-family: var(--awe-font-family-mono);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text);
+}
+
+/* Quill (the markdown editor) draws its toolbar with a light palette of its own: here it takes the AWE tokens, so the
+   editor follows the colour mode of the example like the rest of the client */
+.awe-live .ql-snow.ql-toolbar,
+.awe-live .ql-snow .ql-toolbar,
+.awe-live .ql-snow.ql-container {
+  border-color: var(--awe-color-field-border);
+  color: var(--awe-color-field-text);
+}
+
+.awe-live .ql-snow .ql-stroke {
+  stroke: var(--awe-color-text-muted);
+}
+
+.awe-live .ql-snow .ql-fill,
+.awe-live .ql-snow .ql-stroke.ql-fill {
+  fill: var(--awe-color-text-muted);
+}
+
+.awe-live .ql-snow .ql-picker,
+.awe-live .ql-snow .ql-picker-label,
+.awe-live .ql-snow.ql-toolbar button {
+  color: var(--awe-color-text-muted);
+}
+
+.awe-live .ql-snow.ql-toolbar button:hover .ql-stroke,
+.awe-live .ql-snow.ql-toolbar button:focus-visible .ql-stroke,
+.awe-live .ql-snow.ql-toolbar button.ql-active .ql-stroke {
+  stroke: var(--awe-color-primary);
+}
+
+.awe-live .ql-snow.ql-toolbar button:hover .ql-fill,
+.awe-live .ql-snow.ql-toolbar button:focus-visible .ql-fill,
+.awe-live .ql-snow.ql-toolbar button.ql-active .ql-fill {
+  fill: var(--awe-color-primary);
+}
+
+.awe-live .ql-snow .ql-editor.ql-blank::before {
+  color: var(--awe-color-field-placeholder);
+}
+
+.awe-live .ql-snow.ql-toolbar button:focus-visible,
+.awe-live .ql-snow .ql-picker-label:focus-visible {
+  outline: var(--awe-border-width) solid var(--awe-color-primary);
+  outline-offset: var(--awe-space-1);
+}
+
+/* The `hidden` utility of the client (PrimeFlex, which the docs do not load): the uploader hides the controls of the
+   states it is not in, and a criterion that is not visible hides itself with it */
+.awe-live .hidden {
+  display: none !important;
+}
+
+/* The preview of a resizable: a screen gives the container its first size with a grid class in `style`; the docs do not
+   load the grid, so the example does it with this class */
+.awe-live .live-resizable {
+  width: min(100%, 20rem);
+  height: 9rem;
+  padding: var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+  background: var(--awe-color-surface-subtle);
+  color: var(--awe-color-text);
+}
+
+/* The height of the container of an example that lays out its children (the template of a screen gives it in the app) */
+.awe-live .live-height {
+  height: 18rem;
+}
+
+/* A video with a poster draws its poster in a box that has no height of its own (the client sets the height of the player to
+   auto), so it collapses to a strip: the example gives the box the proportions of the clip */
+.awe-live .react-player__preview {
+  aspect-ratio: 16 / 9;
+}
+
+/* Every slide of a carousel is at least 500px tall (the client sets it in the slide): the example is shorter, so the slides
+   fit in a preview */
+.awe-live .carousel .p-carousel-item > div {
+  min-height: 16rem !important;
+}
+
+/* A carousel sizes itself from its slides, which are wider than a narrow container: it stays inside it */
+.awe-live .carousel {
+  max-width: 100%;
+  overflow: hidden;
+}

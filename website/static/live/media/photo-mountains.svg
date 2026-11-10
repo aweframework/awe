@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-label="Mountains at dusk">
+  <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0f766e"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs>
+  <rect width="640" height="360" fill="url(#g)"/>
+  <path d="M0 360 190 150 290 250 420 100 640 360z" fill="#fff" fill-opacity=".85"/><path d="M420 100 470 170 420 150 380 175z" fill="#fff"/><circle cx="520" cy="70" r="30" fill="#fde68a"/>
+</svg>

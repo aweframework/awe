@@ -1,0 +1,75 @@
+---
+id: card
+title: Card
+sidebar_label: Card
+description: The AWE card, live. Change its attributes and see the real metric tile and the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {card} from '@site/src/components/AwePlayground/specs/card';
+
+A card is a metric tile: a title, a big value with its unit, an icon, and a change with its trend. It can also show a progress
+towards a target, a sparkline, a description, a footer and, in its body, any other component. Below is the real card of the AWE React
+client. Change its attributes and the XML below follows; copy it into your screen.
+
+<AwePlayground spec={card} />
+
+## Recipes {#recipes}
+
+The attributes of these cards are static values. On a real screen, `initial-load="query"` fills the card with the first row of a
+query, and the fields of the query (`title`, `value`, `delta`...) take the place of the attributes.
+
+### Key figure with its trend {#recipe-kpi}
+
+With an `icon` the change goes to the footer, next to the `caption`. The arrow and the colour follow the sign of `delta`.
+
+<AweLive
+  components={{revenue: {attributes: {title: 'Monthly revenue', value: '84200', unit: '€', icon: 'lucide:euro', iconTone: 'success', delta: '12.4', caption: 'vs. last month'}}}}
+  nodes={[{elementType: 'Card', id: 'revenue'}]}
+/>
+
+```xml
+<card id="revenue" title="Monthly revenue" value="84200" unit="€" icon="lucide:euro" icon-tone="success"
+      delta="12.4" caption="vs. last month" />
+```
+
+### Progress towards a target {#recipe-target}
+
+`target` draws the progress of the `value` against it, as a bar or, with `progress-style="gauge"`, as a half ring.
+A `chip` tells the status at a glance.
+
+<AweLive
+  components={{goal: {attributes: {title: 'Yearly sales goal', value: '412000', target: '500000', unit: '€', chip: 'On track', chipTone: 'success', progressStyle: 'gauge'}}}}
+  nodes={[{elementType: 'Card', id: 'goal'}]}
+/>
+
+```xml
+<card id="goal" title="Yearly sales goal" value="412000" target="500000" unit="€"
+      chip="On track" chip-tone="success" progress-style="gauge" />
+```
+
+### Sparkline and a good trend that goes down {#recipe-sparkline}
+
+`good-trend="down"` paints a falling change as good news (fewer incidents is better). `sparkline` is a JSON array of numbers drawn under the value.
+
+<AweLive
+  components={{incidents: {attributes: {title: 'Open incidents', value: '37', delta: '-8', deltaUnit: '%', goodTrend: 'down', sparkline: '[52,49,47,44,45,41,37]', sparklineType: 'line', caption: 'last 7 days'}}}}
+  nodes={[{elementType: 'Card', id: 'incidents'}]}
+/>
+
+```xml
+<card id="incidents" title="Open incidents" value="37" delta="-8" delta-unit="%" good-trend="down"
+      sparkline="[52,49,47,44,45,41,37]" sparkline-type="line" caption="last 7 days" />
+```
+
+## Events and actions {#events-and-actions}
+
+A card has no event of its own. It refreshes like any component with `initial-load`: the `filter` and `reload`
+[actions](../api/actions.md) load its query again, `autorefresh` reloads it every few seconds and
+[dependencies](../api/dependencies.md) can show, hide or change its attributes. Buttons placed in its body launch their own actions.
+
+## More {#more}
+
+* [Full documentation of the card](../api/card.md): every attribute, the anatomy of the tile and the query fields.
+* [XSD reference of the `card` element](/reference/screen#element-card).

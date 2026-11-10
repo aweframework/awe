@@ -3,6 +3,12 @@ id: wizard-and-wizard-panel
 title: Wizard and Wizard panel
 ---
 
+:::tip See it live
+
+Try the wizard with live controls in the [component catalog](../components/wizard.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 ## Introduction
 
 A **wizard** or **assistant** is a very useful screen component to guide the user through an ordered group of screens called *steps*:

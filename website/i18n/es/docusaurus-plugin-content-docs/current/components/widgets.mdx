@@ -1,0 +1,93 @@
+---
+id: widgets
+title: Widgets
+sidebar_label: Widgets
+description: Los widgets carrusel y visor de ayuda de AWE, en vivo. Cambia el tipo de widget y mira los componentes reales y el XML que los produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {widget} from '@site/src/components/AwePlayground/specs/widget';
+
+Un `widget` incrusta un componente que el XSD no describe por sí mismo: su `type` lo elige del registro del cliente. Esta página tiene los
+dos que muestran contenido: un **carrusel** que recorre imágenes, vídeos y documentos PDF, y el **visor de ayuda** que muestra la página de ayuda de la
+aplicación. Los visores de archivos y de PDF están en [su propia página](./file-viewer.mdx).
+
+<AwePlayground spec={widget} />
+
+## Recetas {#recipes}
+
+### Carrusel con títulos y un vídeo {#recipe-carousel}
+
+Un carrusel toma sus diapositivas de una consulta (`initial-load="query"` y `target-action`), una por fila. Cada fila tiene un `type` (`image`, `video` o `pdf`), la `url` del
+archivo y, opcionalmente, un `title` y una `description` que se muestran encima. Una imagen se abre a tamaño completo al hacer clic en ella.
+
+<AweLive
+  components={{
+    Gallery: {
+      model: {values: [
+        {type: 'image', url: '/live/media/photo-waves.svg', title: 'Olas', description: 'Mar en calma'},
+        {type: 'video', url: '/live/media/clip.webm', title: 'Clip', description: 'Generado para la documentación'},
+        {type: 'image', url: '/live/media/photo-forest.svg', title: 'Bosque', description: 'Pinos'},
+      ]},
+    },
+  }}
+  nodes={[{elementType: 'Widget', id: 'Gallery', type: 'carousel'}]}
+/>
+
+```xml
+<widget id="Gallery" type="carousel" initial-load="query" target-action="GalleryQuery" />
+```
+
+| Columna       | Descripción                                          |
+|---------------|------------------------------------------------------|
+| `type`        | `image` (por defecto), `video` o `pdf`               |
+| `url`         | Dirección del archivo                                |
+| `title`       | Título que se muestra encima de la diapositiva (opcional) |
+| `description` | Texto que se muestra bajo el título (opcional)       |
+
+### Ayuda en un panel lateral {#recipe-help}
+
+El visor de ayuda pide al servidor el HTML de la ayuda de la aplicación (o de la opción del menú en la que está la pantalla) cuando se muestra.
+Dentro de un [panel lateral](./side-panel-popover.mdx#side-panel) se carga la primera vez que se abre el panel. La documentación no tiene servidor, así que el ejemplo responde a esa petición con una página fija.
+
+<AweLive
+  files={{help: '/live/help-es.html'}}
+  components={{
+    OpenHelp: {attributes: {label: 'Ayuda', icon: 'lucide:circle-help'}, actions: [{type: 'dialog', target: 'HelpPanel'}]},
+    HelpPanel: {attributes: {label: 'Ayuda', maxWidth: '30rem'}},
+    HelpContent: {attributes: {}},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'OpenHelp'},
+    {elementType: 'SidePanel', id: 'HelpPanel', elementList: [
+      {elementType: 'Widget', id: 'HelpContent', type: 'help-viewer'},
+    ]},
+  ]}
+/>
+
+```xml
+<button id="OpenHelp" label="Ayuda" icon="lucide:circle-help">
+  <button-action type="dialog" target="HelpPanel" />
+</button>
+
+<side-panel id="HelpPanel" label="Ayuda" max-width="30rem">
+  <widget id="HelpContent" type="help-viewer" />
+</side-panel>
+```
+
+## Calendario de eventos {#event-calendar}
+
+El `event-calendar` que aparece en la documentación de los widgets no es un widget del cliente React: es el ejemplo de la
+[guía de widgets personalizados](../guides/custom-widgets-react.md), que una aplicación registra con `registerWidget(type, component)`. Los widgets incluidos en
+el cliente React son `carousel`, `help-viewer`, `file-viewer`, `pdf-viewer`, `file-manager` y `log-viewer`.
+
+## Eventos y acciones {#events-and-actions}
+
+Estos widgets no tienen evento ni acción propios. Una [dependencia](../api/dependencies.md) puede mostrar u ocultar cualquiera de ellos, y un widget con una consulta
+se recarga cuando una acción carga su destino.
+
+## Más {#more}
+
+* [Documentación completa del widget](../api/widget.md): el registro, los parámetros y los widgets personalizados.
+* [Referencia XSD del elemento `widget`](/reference/screen#element-widget) y del [elemento `widget-parameter`](/reference/screen#element-widget-parameter).

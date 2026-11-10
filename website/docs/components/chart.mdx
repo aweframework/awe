@@ -1,0 +1,94 @@
+---
+id: chart
+title: Chart
+sidebar_label: Chart
+description: The AWE chart, live. Switch between lines, columns, areas and pies, stack the series and copy the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {chart, chartExample} from '@site/src/components/AwePlayground/specs/chart';
+
+A chart draws the rows of a query: lines, columns, areas, pies... You describe it in the XML of the screen with a `chart`, its
+axes and one `chart-serie` for each series, and AWE draws it with Apache ECharts in the colours of its theme. Below is the real chart
+of the AWE React client. Pick another type, stack the series, hover a point and change the attributes: the XML below follows.
+
+<AwePlayground spec={chart} />
+
+:::info The data is a fixture
+In a screen the rows come from a query (`initial-load="query"`) and the server turns the `chart` elements into the model the client
+draws. Here the rows are the sample revenue of an invented company, in thousands of euros, and the model is the one those elements
+produce. Nothing is sent to a server.
+:::
+
+## Recipes {#recipes}
+
+### Compare lines over time {#recipe-lines}
+
+Lines with a `legend` and a shared tooltip show every series for the month under the mouse. Click a name in the legend to hide
+its series.
+
+<AweLive height="26rem" {...chartExample({type: 'spline', legend: true, sharedTooltip: true, title: 'Monthly revenue', subtitle: 'Thousands of euros', xLabel: 'Month', yLabel: 'Revenue (kEUR)'})} />
+
+```xml
+<chart id="monthly" type="spline" label="Monthly revenue" subtitle="Thousands of euros"
+       initial-load="query" target-action="Revenue">
+  <x-axis label="Month" type="category" />
+  <y-axis label="Revenue (kEUR)" />
+  <chart-serie id="software" label="Software" x-value="month" y-value="software" />
+  <chart-serie id="services" label="Services" x-value="month" y-value="services" />
+  <chart-serie id="support" label="Support" x-value="month" y-value="support" />
+  <chart-legend enabled="true" />
+  <chart-tooltip shared="true" suffix=" kEUR" />
+</chart>
+```
+
+Each `chart-serie` reads two fields of the rows: `x-value` names the point and `y-value` is its height.
+
+### Share of the year {#recipe-share}
+
+A `donut` (or `pie`, or `semicircle`) draws one series: one slice for each row. The legend is shown by default on these types.
+
+<AweLive height="24rem" {...chartExample({type: 'donut', dataLabels: true, title: 'Revenue of the year', subtitle: 'By product line'})} />
+
+```xml
+<chart id="share" type="donut" label="Revenue of the year" subtitle="By product line"
+       enable-data-labels="true" initial-load="query" target-action="YearByLine">
+  <chart-serie id="share" label="Revenue" x-value="line" y-value="revenue" />
+</chart>
+```
+
+### Percent of the total {#recipe-percent}
+
+`stacking="percent"` stacks the series and scales each point to 100%, so the bars show the mix, not the amount. `bar` draws them
+horizontally.
+
+<AweLive height="26rem" {...chartExample({type: 'bar', stacking: 'percent', legend: true, title: 'Revenue mix', xLabel: 'Month', yLabel: 'Revenue (kEUR)'})} />
+
+```xml
+<chart id="mix" type="bar" stacking="percent" label="Revenue mix" initial-load="query" target-action="Revenue">
+  <x-axis label="Month" type="category" />
+  <y-axis label="Revenue (kEUR)" />
+  <chart-serie id="software" label="Software" x-value="month" y-value="software" />
+  <chart-serie id="services" label="Services" x-value="month" y-value="services" />
+  <chart-serie id="support" label="Support" x-value="month" y-value="support" />
+  <chart-legend enabled="true" />
+</chart>
+```
+
+## Events and actions {#events-and-actions}
+
+Clicking, double clicking or right clicking a point writes its coordinates and series to the attributes of the chart and raises
+the event (`click`, `double-click`, `context-menu`), so a [dependency](../api/dependencies.md) can filter another component with it.
+Zooming (`zoom-type`) raises `zoom`. These examples draw and react to the mouse for real; the dependencies and the actions below
+need a screen, so they are not run here.
+
+* `filter`: reloads the chart from its query.
+* `add-points`: adds points to a series without reloading it, for live data.
+* `add-chart-series`, `remove-chart-series`, `replace-chart-series`: change the series of the chart.
+
+## More {#more}
+
+* [Full documentation of charts](../api/chart.md): every element, the series types, the formats and the server side.
+* [Chart parameters](../api/chart-parameters.md): the Highcharts options AWE translates.
+* [XSD reference of the `chart` element](/reference/screen#element-chart).

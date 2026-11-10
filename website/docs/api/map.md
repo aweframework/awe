@@ -3,6 +3,12 @@ id: map
 title: Map
 ---
 
+:::tip See it live
+
+Try the map with live controls in the [component catalog](../components/map.mdx): the real AWE component, sample data and the XML that produces it.
+
+:::
+
 A map shows the rows of a query as markers over a geographic map. You describe it in the screen XML with a `map`
 element. The map loads its data from a query, like any other AWE component, and clicking a marker selects its row, so
 the [dependencies](dependencies.md) of the map (and the components that depend on it) react to the selection.

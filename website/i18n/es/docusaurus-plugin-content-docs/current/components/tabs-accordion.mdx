@@ -1,0 +1,106 @@
+---
+id: tabs-accordion
+title: Pestañas y acordeón
+sidebar_label: Pestañas y acordeón
+description: Las pestañas y el acordeón de AWE, en vivo. Cambia sus atributos y mira los componentes reales y el XML que los produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {tabs} from '@site/src/components/AwePlayground/specs/tabs';
+import {accordion} from '@site/src/components/AwePlayground/specs/accordion';
+
+Ambos organizan una pantalla densa en partes. Las **pestañas** muestran una parte cada vez y mantienen siempre a la vista la lista de partes; un **acordeón**
+apila las partes como secciones plegables, con una o varias abiertas. Debajo están los componentes reales del cliente React de AWE: haz clic en ellos.
+
+## Pestañas {#tabs}
+
+Una `tab` contiene un `tabcontainer` por página. La lista de pestañas viene de una lista enumerada o de una consulta del servidor (`initial-load` y
+`target-action`) y el valor de cada opción es el `id` de su tabcontainer. Aquí la vista previa rellena esa lista con una fija.
+
+<AwePlayground spec={tabs} />
+
+## Acordeón {#accordion}
+
+Un `accordion` contiene elementos `accordion-item`, cada uno con un `label` para su cabecera. Por defecto (`autocollapse="true"`), abrir un elemento
+cierra los demás.
+
+<AwePlayground spec={accordion} />
+
+## Recetas {#recipes}
+
+### Formulario dividido en pestañas {#recipe-tabs-form}
+
+Cada tabcontainer contiene cualquier componente. Una pestaña con un campo inválido se marca en la lista, para que el usuario sepa dónde mirar.
+
+<AweLive
+  components={{
+    form: {model: {values: [{value: 'person', label: 'Persona', selected: true}, {value: 'company', label: 'Empresa'}]}},
+    Name: {attributes: {label: 'Nombre', placeholder: 'Nombre completo'}},
+    Email: {attributes: {label: 'Correo', icon: 'lucide:mail'}},
+    Company: {attributes: {label: 'Nombre de la empresa'}},
+    Size: {attributes: {label: 'Empleados'}},
+  }}
+  nodes={[{elementType: 'Tab', id: 'form', elementList: [
+    {elementType: 'TabContainer', id: 'person', elementList: [
+      {elementType: 'Criteria', component: 'text', id: 'Name'},
+      {elementType: 'Criteria', component: 'text', id: 'Email'},
+    ]},
+    {elementType: 'TabContainer', id: 'company', elementList: [
+      {elementType: 'Criteria', component: 'text', id: 'Company'},
+      {elementType: 'Criteria', component: 'numeric', id: 'Size'},
+    ]},
+  ]}]}
+/>
+
+```xml
+<tab id="form" initial-load="enum" target-action="FormTabs">
+  <tabcontainer id="person">
+    <criteria id="Name" component="text" label="Nombre" placeholder="Nombre completo" />
+    <criteria id="Email" component="text" label="Correo" icon="lucide:mail" />
+  </tabcontainer>
+  <tabcontainer id="company">
+    <criteria id="Company" component="text" label="Nombre de la empresa" />
+    <criteria id="Size" component="numeric" label="Empleados" />
+  </tabcontainer>
+</tab>
+```
+
+### Acordeón con varias secciones abiertas {#recipe-accordion-multiple}
+
+`autocollapse="false"` deja que el usuario mantenga varias secciones abiertas a la vez, para compararlas.
+
+<AweLive
+  components={{faq: {attributes: {autocollapse: false}}}}
+  nodes={[{elementType: 'Accordion', id: 'faq', elementList: [
+    {elementType: 'AccordionItem', id: 'what', label: '¿Qué es un criterio?', elementList: [
+      {elementType: 'Tag', type: 'p', label: 'Una entrada de una pantalla: obtiene un valor del usuario y lo envía al servidor.'},
+    ]},
+    {elementType: 'AccordionItem', id: 'where', label: '¿De dónde salen las opciones?', elementList: [
+      {elementType: 'Tag', type: 'p', label: 'De una lista enumerada o de una consulta del servidor.'},
+    ]},
+  ]}]}
+/>
+
+```xml
+<accordion id="faq" autocollapse="false">
+  <accordion-item id="what" label="¿Qué es un criterio?">
+    <tag type="p" label="Una entrada de una pantalla: obtiene un valor del usuario y lo envía al servidor." />
+  </accordion-item>
+  <accordion-item id="where" label="¿De dónde salen las opciones?">
+    <tag type="p" label="De una lista enumerada o de una consulta del servidor." />
+  </accordion-item>
+</accordion>
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Ninguno tiene un evento propio. El usuario elige la pestaña o la sección; para hacerlo desde la pantalla, una [dependencia](../api/dependencies.md)
+cambia el atributo `selected` de un acordeón con el id del elemento que se abre (véase
+[el acordeón](../api/accordion.md#dependencies)), y una `variable` hace que una pantalla se abra en una pestaña dada. Un tabcontainer con
+`deferred="true"` carga sus datos la primera vez que se muestra su pestaña.
+
+## Más {#more}
+
+* [Documentación completa de la pestaña](../api/tab-and-tabcontainer.md) y [del acordeón](../api/accordion.md).
+* [Referencia XSD del elemento `tab`](/reference/screen#element-tab) y del [elemento `accordion`](/reference/screen#element-accordion).

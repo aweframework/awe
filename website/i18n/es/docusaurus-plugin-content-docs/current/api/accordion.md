@@ -3,6 +3,12 @@ id: accordion
 title: Acordeón
 ---
 
+:::tip Pruébalo en vivo
+
+Prueba el acordeón con controles en vivo en el [catálogo de componentes](../components/tabs-accordion.mdx): el componente real de AWE y el XML que lo produce.
+
+:::
+
 Un acordeón es un componente de diseño que permite organizar el contenido en diferentes secciones que pueden ser colapsadas o ampliadas.  Dentro de sus paneles, permite tener el mismo contenido que una ventana o un elemento de etiqueta, incluso otros acordeones anidados.
 
 <img alt="Acordeón" src={require('@docusaurus/useBaseUrl').default('img/accordion4.png')} />

@@ -3,6 +3,12 @@ id: info
 title: Navigation Bar
 ---
 
+:::tip See it live
+
+Try the info components with live controls in the [component catalog](../components/messages-info.mdx#info): the real AWE component and the XML that produces it.
+
+:::
+
 The navigation bar is used to add visual elements with logic functions in the top zone of application. This part is displayed in all application screens.
 
 You can add `info` elements to show more info and `info-button` elements as buttons with actions. Also, you can put `info-criteria` elements inside info elements as criteria for show more info. 

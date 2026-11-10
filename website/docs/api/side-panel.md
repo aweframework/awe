@@ -3,6 +3,12 @@ id: side-panel
 title: Side panel
 ---
 
+:::tip See it live
+
+Try the side panel with live controls in the [component catalog](../components/side-panel-popover.mdx): the real AWE component and the XML that produces it.
+
+:::
+
 A side panel is a [dialog](dialog.md) anchored to the left or to the right edge of the screen, with a header, a body that
 scrolls and an optional footer. Use it for content that the user consults or edits next to the screen (filters, details,
 settings) without leaving it. It is opened and closed exactly like a dialog: with a button-action of type `dialog` (see

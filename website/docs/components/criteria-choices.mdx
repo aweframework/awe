@@ -1,0 +1,94 @@
+---
+id: criteria-choices
+title: Choices
+sidebar_label: Choices
+description: The AWE choice criteria, live. Select, suggest, picklist, radio, checkbox and their multiple versions, with the XML that produces them.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteriaChoices} from '@site/src/components/AwePlayground/specs/criteria-choices';
+
+export const countries = [
+  {value: 'es', label: 'Spain'}, {value: 'fr', label: 'France'}, {value: 'de', label: 'Germany'},
+  {value: 'it', label: 'Italy'}, {value: 'pt', label: 'Portugal'}, {value: 'cl', label: 'Chile'},
+];
+
+The choice criteria let the user pick among options: one (`select`, `suggest`, `radio`, `button-radio`), several (`select-multiple`,
+`suggest-multiple`, `button-checkbox`, `picklist`) or a yes/no (`checkbox`). Below are the real criteria of the AWE React client: pick a
+type, change its attributes and the XML below follows.
+
+<AwePlayground spec={criteriaChoices} />
+
+The attributes shared by every criterion (label, placeholder, icon, size, validation) are in the [criteria overview](./criteria.mdx).
+The options come from an enumerated list or a query of the server (`initial-load` says which kind and `target-action` which one).
+In these examples the server is simulated: a `select` or a `picklist` shows a static list, and a `suggest` or `suggest-multiple`
+searches that list while you type, through the same request the client sends to the server. Type "an" in the suggest to see it filter.
+Radios that share a `group` are one choice: choosing one clears the others.
+
+## Recipes {#recipes}
+
+Common fields, rendered by the same components.
+
+### Select from an enum {#recipe-select}
+
+The options of a select come from an enumerated list or a query of the server: `initial-load` says which kind and `target-action` which one.
+
+<AweLive
+  components={{country: {attributes: {label: 'Country', placeholder: 'Choose a country'}, model: {values: countries}}}}
+  nodes={[{elementType: 'Criteria', component: 'select', id: 'country'}]}
+/>
+
+```xml
+<criteria id="country" component="select" label="Country" placeholder="Choose a country"
+          initial-load="enum" target-action="CountryList" />
+```
+
+### Search while typing {#recipe-suggest}
+
+A `suggest-multiple` asks the server for the options that match what the user types and keeps every one chosen. Type "a" or "ch" to filter the list.
+
+<AweLive
+  components={{visited: {attributes: {label: 'Visited countries', placeholder: 'Type to search', targetAction: 'CountryList'}, model: {values: []}}}}
+  nodes={[{elementType: 'Criteria', component: 'suggest-multiple', id: 'visited'}]}
+  options={{CountryList: countries}}
+/>
+
+```xml
+<criteria id="visited" component="suggest-multiple" label="Visited countries" placeholder="Type to search"
+          initial-load="query" target-action="CountryList" />
+```
+
+### Switch {#recipe-switch}
+
+A `checkbox` with the `switch` style is drawn as a switch. Its `label` is the text beside it.
+
+<AweLive
+  components={{notify: {attributes: {label: 'Email me when it ships', style: 'switch'}, model: {values: [{value: '1', label: 'Yes', selected: true}]}}}}
+  nodes={[{elementType: 'Criteria', component: 'checkbox', id: 'notify'}]}
+/>
+
+```xml
+<criteria id="notify" component="checkbox" label="Email me when it ships" style="switch" />
+```
+
+## Events and actions {#events-and-actions}
+
+A criterion has no event of its own to listen to: every change of its value checks the [dependencies](../api/dependencies.md) whose
+`dependency-element` names it, and pressing Enter in a text field runs the `submit` button of its window. The [actions](../api/actions.md)
+that work on criteria:
+
+| Action                           | Description                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Empties the value of the criterion                                   |
+| `restore`                        | Puts back the initial value of the criterion                         |
+| `validate`                       | Runs the validation of the criterion and shows its error             |
+| `set-invalid`                    | Marks the criterion as invalid with the message of the action        |
+| `set-valid`                      | Clears the validation error of the criterion                         |
+| `copy-criterion-value-clipboard` | Copies the value of the criterion to the clipboard                   |
+
+## More {#more}
+
+* [Criteria overview](./criteria.mdx): the attributes every criterion shares and the other families of inputs.
+* [Full documentation of the criteria](../api/criteria.md): every type, attribute, validation and example.
+* [XSD reference of the `criteria` element](/reference/screen#element-criteria).
