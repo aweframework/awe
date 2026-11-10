@@ -53,6 +53,8 @@ class QueryDescriptorGuardTest {
     "access-subject-user", "access-compare-users", "access-profile-users", "access-profile-user-rules",
     // Database and JMS connections with the decrypted password (AweDatabaseContextHolder, AweJmsDestination)
     "DatabaseConnections", "JmsConnections",
+    // Mail servers with the encrypted password and the OAuth2 registration (MailSenderFactory)
+    "EmlSrvSndLst",
     // Scheduler server with the decrypted SSH password, key and passphrase (ServerDAO)
     "serverData",
     // Users subscribed to a notification (NotifierService)
@@ -62,8 +64,8 @@ class QueryDescriptorGuardTest {
     "GetChgPwdUsr", "AutUsr", "UsrInf", "GetEmlSrvByOpe",
     "userAdditionalProfiles", "UsrIdeOpe", "SsoUsrIdeOpe");
 
-  /** Fields that hold a password hash or a 2FA secret */
-  private static final Set<String> CREDENTIAL_FIELDS = Set.of("l1_pas", "secret2fa");
+  /** Fields that hold a password hash, a 2FA secret or the encrypted password of a mail server */
+  private static final Set<String> CREDENTIAL_FIELDS = Set.of("l1_pas", "secret2fa", "EmlPwd");
 
   /**
    * Queries that return a credential or a decrypted value to a client and are not server-only, with the reason.

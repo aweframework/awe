@@ -35,6 +35,12 @@ public class EmailConfigProperties {
    */
   private String pass;
   /**
+   * Spring Security client registration (authorization-grant-type=client_credentials) of the default email server.
+   * When set, the default sender authenticates with OAuth2 (SASL XOAUTH2): user is the sender mailbox, pass is not
+   * used, and tls or ssl is required.
+   */
+  private String oauth2Registration;
+  /**
    * Execute email in debug mode. The Default value is false.
    */
   private boolean debug = false;

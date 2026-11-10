@@ -197,13 +197,15 @@ CREATE TABLE IF NOT EXISTS AweEmlSrv
 (
     IdeAweEmlSrv int
         CONSTRAINT pk_AweEmlSrv PRIMARY KEY NOT NULL, --- Email server key
-    SrvNam       varchar(40)                NOT NULL, --- Server name
+    SrvNam       varchar(100)               NOT NULL, --- Server name
     Hst          varchar(60)                NOT NULL, --- Server host
     Prt          int                        NULL,     --- Server port
     Ath          int DEFAULT 0              NOT NULL, --- Needs authentication (1) or not (0)
-    EmlUsr       varchar(40)                NULL,     --- Server username
-    EmlPwd       varchar(40)                NULL,     --- Server password (encrypted)
-    Act          int DEFAULT 1              NOT NULL  --- Active (1) or not (0)
+    EmlUsr       varchar(255)               NULL,     --- Server username
+    EmlPwd       varchar(512)               NULL,     --- Server password (encrypted)
+    Act          int DEFAULT 1              NOT NULL, --- Active (1) or not (0)
+    SecMod       varchar(10) NULL, -- Security mode: NONE, STARTTLS or SSL (NULL is NONE)
+    OauReg    varchar(100) NULL -- OAuth2 client registration id (spring.security.oauth2.client.registration.<id>)
 );
 CREATE UNIQUE INDEX IF NOT EXISTS AweEmlSrvI1 ON AweEmlSrv (SrvNam);
 
@@ -435,13 +437,15 @@ CREATE TABLE IF NOT EXISTS HISAweEmlSrv
     HISdat       date          not NULL,
     HISact       varchar(1)    not NULL,
     IdeAweEmlSrv int           NULL,
-    SrvNam       varchar(40)   NULL,
+    SrvNam       varchar(100)  NULL,
     Hst          varchar(60)   NULL,
     Prt          int           NULL,
     Ath          int DEFAULT 0 NULL,
-    EmlUsr       varchar(40)   NULL,
-    EmlPwd       varchar(240)  NULL,
-    Act          int           NULL
+    EmlUsr       varchar(255)  NULL,
+    EmlPwd       varchar(512)  NULL,
+    Act          int           NULL,
+    SecMod       varchar(10) NULL, -- Security mode: NONE, STARTTLS or SSL (NULL is NONE)
+    OauReg    varchar(100) NULL -- OAuth2 client registration id (spring.security.oauth2.client.registration.<id>)
 );
 CREATE INDEX IF NOT EXISTS HISAweEmlSrvI1 ON HISAweEmlSrv (HISope, HISdat, HISact);
 CREATE TABLE IF NOT EXISTS HISAweScrCnf
