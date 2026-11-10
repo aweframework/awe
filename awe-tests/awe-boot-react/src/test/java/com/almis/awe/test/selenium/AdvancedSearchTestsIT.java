@@ -60,15 +60,9 @@ class AdvancedSearchTestsIT extends AbstractSavedSearchTests {
   private static final String[] FRENCH_CUSTOMERS = {"Fjord Energy", "Lumen Foods", "Fjord Textiles", "Lumen Labs", "Atlas Labs",
     "Granite Pharma", "Atlas Retail", "Granite Media", "Boreal Energy", "Harbor Foods"};
   private static final String GRID_DEFAULT_SEARCH = "Inactive customers by segment";
-  // First page of every customer in the inline grid, as it loads without a search
-  private static final String[] ALL_CUSTOMERS = {"Atlas Logistics", "Boreal Foods", "Cobalt Labs", "Delta Retail",
-    "Ember Motors", "Fjord Energy", "Granite Textiles", "Harbor Systems", "Iris Pharma", "Juniper Media"};
   // Inactive customers of the default country in the inline grid, by segment (Online, then Retail)
   private static final String[] SPANISH_INACTIVE_CUSTOMERS_BY_SEGMENT = {"Harbor Media", "Delta Media", "Harbor Logistics",
     "Delta Logistics"};
-  // First page of every inactive customer in the inline grid, by segment (six Online, then Public sector)
-  private static final String[] INACTIVE_CUSTOMERS_BY_SEGMENT = {"Delta Energy", "Harbor Media", "Lumen Retail", "Delta Media",
-    "Harbor Retail", "Lumen Systems", "Delta Motors", "Harbor Pharma", "Lumen Labs", "Delta Pharma"};
   // Profile that the shared search is published for (the name of its option) and its user, which the class creates
   private static final String PROFILE_ACRONYM = "TST";
   private static final String PROFILE_NAME = "Test";
@@ -704,10 +698,11 @@ class AdvancedSearchTestsIT extends AbstractSavedSearchTests {
       showAdvancedSearchScreen();
     }
     closeSavedSearches(INLINE_GRID);
-    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, ALL_CUSTOMERS);
-    checkGridPaginationInfo("View 1 - 10 of 120");
+    // The initial load of the grid gets the default country of the criteria, as its reloads (#947)
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, SPANISH_CUSTOMERS);
+    checkGridPaginationInfo("View 1 - 10 of 20");
 
-    // The inactive customers by segment, saved as the search that opens the grid (the reloads of the grid send the country)
+    // The inactive customers by segment, saved as the search that opens the grid
     openGridColumnFilter(INLINE_GRID, INLINE_STATUS_COLUMN);
     checkGridColumnFilterValue(INLINE_GRID, "1", false);
     acceptGridColumnFilter(INLINE_GRID, INLINE_STATUS_COLUMN);
@@ -717,11 +712,11 @@ class AdvancedSearchTestsIT extends AbstractSavedSearchTests {
     saveCurrentGridSearchAsDefault(INLINE_GRID, GRID_DEFAULT_SEARCH);
     closeSavedSearches(INLINE_GRID);
 
-    // Opened again: filtered and sorted on load (without the criteria, as the first load), with the chips of the column
-    // filter and of the search
+    // Opened again: filtered and sorted on load, with the default country, and with the chips of the column filter and
+    // of the search
     showAdvancedSearchScreen();
-    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, INACTIVE_CUSTOMERS_BY_SEGMENT);
-    checkGridPaginationInfo("View 1 - 10 of 30");
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, SPANISH_INACTIVE_CUSTOMERS_BY_SEGMENT);
+    checkGridPaginationInfo("View 1 - 4 of 4");
     checkGridColumnFiltered(INLINE_GRID, INLINE_STATUS_COLUMN, true);
     checkGridColumnFilterChip(INLINE_GRID, INLINE_STATUS_COLUMN, "Status: Inactive");
     checkDefaultSearchApplied(INLINE_GRID, GRID_DEFAULT_SEARCH);
