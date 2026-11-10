@@ -349,8 +349,10 @@
 // Button checkbox and button radio: a segmented control whose segments wrap instead of clipping, as in React. A button
 // radio criterion with options is the same control, one segment per option
 .btn-group:has(> .criterion.btn),
-// As wide as its options, as the segmented control of the React engine (#791), on its own line under the label
-.criterion .btn-group.button-radio-group {
+// As wide as its options, as the segmented control of the React engine (#791), on its own line under the label. The mode
+// switch of the theme preview (#949) is the same control
+.criterion .btn-group.button-radio-group,
+.awe-theme-preview-mode .btn-group.button-radio-group {
   display: flex;
   flex-wrap: wrap;
   width: fit-content;
@@ -363,7 +365,8 @@
 }
 
 .btn-group > label.criterion.btn.btn-awe.validator,
-.criterion .btn-group.button-radio-group > label.btn.btn-awe {
+.criterion .btn-group.button-radio-group > label.btn.btn-awe,
+.awe-theme-preview-mode .btn-group.button-radio-group > label.btn.btn-awe {
   flex: 1 0 auto;
   float: none;
   width: auto;
@@ -382,14 +385,17 @@
 .btn-group > label.criterion.btn.btn-awe.validator:hover,
 .btn-group > label.criterion.btn.btn-awe.validator:focus,
 .criterion .btn-group.button-radio-group > label.btn.btn-awe:hover,
-.criterion .btn-group.button-radio-group > label.btn.btn-awe:focus {
+.criterion .btn-group.button-radio-group > label.btn.btn-awe:focus,
+.awe-theme-preview-mode .btn-group.button-radio-group > label.btn.btn-awe:hover,
+.awe-theme-preview-mode .btn-group.button-radio-group > label.btn.btn-awe:focus {
   color: var(--awe-segmented-hover-text);
   background: transparent !important;
   border-color: transparent;
 }
 
 .btn-group > label.criterion.btn.btn-awe.validator.active,
-.criterion .btn-group.button-radio-group > label.btn.btn-awe.active {
+.criterion .btn-group.button-radio-group > label.btn.btn-awe.active,
+.awe-theme-preview-mode .btn-group.button-radio-group > label.btn.btn-awe.active {
   font-weight: var(--awe-font-weight-semibold);
   color: var(--awe-segmented-selected-text);
   background: var(--awe-segmented-selected) !important;
@@ -398,7 +404,8 @@
 }
 
 .btn-group > label.criterion.btn.btn-awe.validator:has(input:focus-visible),
-.criterion .btn-group.button-radio-group > label.btn.btn-awe:has(input:focus-visible) {
+.criterion .btn-group.button-radio-group > label.btn.btn-awe:has(input:focus-visible),
+.awe-theme-preview-mode .btn-group.button-radio-group > label.btn.btn-awe:has(input:focus-visible) {
   outline: var(--awe-focus-ring);
   outline-offset: calc(-1 * var(--awe-focus-ring-width));
 }

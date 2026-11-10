@@ -200,6 +200,7 @@ module.exports = {
 				"api/dialog",
 				"api/side-panel",
 				"api/popover",
+				"api/theme-preview",
 				"api/chart",
 				"api/chart-format",
 				"api/chart-parameters",

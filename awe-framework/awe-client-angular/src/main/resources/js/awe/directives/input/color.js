@@ -1,6 +1,7 @@
 import {aweApplication} from "../../awe";
 import "angular-bootstrap-colorpicker";
 import {templateInputColor} from "../../services/criterion";
+import {keepColorPickerInViewport} from "../../services/colorPicker";
 
 // Add requirements
 aweApplication.requires.push("colorpicker.module");
@@ -19,6 +20,7 @@ aweApplication.directive('aweInputColor',
         link: function (scope, elem) {
           // Initialize criterion
           scope.initialized = new Criterion(scope, scope.criterionId, elem).asCriterion();
+          keepColorPickerInViewport(scope);
         }
       };
     }

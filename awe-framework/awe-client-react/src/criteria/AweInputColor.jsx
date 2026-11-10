@@ -35,6 +35,10 @@ function AweInputColor(props) {
     }
   }, [readonly]);
 
+  // The panel is placed when it starts to open, before the inline picker has its width: placed again once shown, so it
+  // is shifted to the left of the swatch when it does not fit on the right instead of widening the page
+  const onShowOverlay = useCallback(() => overlayRef.current?.align(), []);
+
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
       <InputText
@@ -56,7 +60,7 @@ function AweInputColor(props) {
           onClick={onToggleOverlay}
           onKeyDown={onToggleOverlay}
         />
-        <OverlayPanel ref={overlayRef} dismissable appendTo={document.body} onHide={onBlur}>
+        <OverlayPanel ref={overlayRef} dismissable appendTo={document.body} onShow={onShowOverlay} onHide={onBlur}>
           <ColorPicker
             inline
             value={fromColor(value)}

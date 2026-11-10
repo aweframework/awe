@@ -176,6 +176,12 @@
             <dependency-element id="GrdThmAdm" event="select-row" optional="true" />
           </dependency>
         </criteria>
+
+        <!-- Preview (#949): a sample of the theme drawn with the colours and the mode above while they change, before it
+             is saved. It never changes the theme of the application -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_THEME_PREVIEW" icon="lucide:eye" />
+        <theme-preview id="ThmPrv" label="SCREEN_TEXT_THEME_PREVIEW_SAMPLE" style="col-xs-12" primary="PriPal"
+                       primary-hex="PriHex" surface="SrfPal" surface-hex="SrfHex" mode="Mde" />
       </tag>
       <tag type="div" style="modal-footer">
         <button label="BUTTON_CANCEL" icon="times" id="ButPnlCnl">

@@ -241,6 +241,13 @@
     </xs:annotation>
   </xs:element>
 
+  <!-- Theme preview Element -->
+  <xs:element name="theme-preview" type="themePreviewType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Preview of an AWE 5 theme that is being edited: a sample of the application (surfaces, buttons, a field, a tag, a link and text) drawn with the primary colour, surface and mode chosen in the criteria it names, updated while they change and before the theme is saved. Each colour is the palette of its select or, when the select is custom, the hex of its colour picker; an invalid or empty hex keeps the last valid preview. In the system mode it follows the device and offers a switch to check the light and the dark mode. The sample is isolated: it never changes the theme of the application. Only the React engine draws it; the AngularJS engine ignores it.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
   <!-- Resizable Element -->
   <xs:element name="resizable" type="resizableType" />
 
@@ -430,6 +437,50 @@
     <xs:attribute name="poster" type="xs:string" />
     <xs:attribute name="src" type="xs:string" />
     <xs:attribute name="controls" type="booleanEnum" />
+  </xs:attributeGroup>
+
+  <!-- Theme preview Attributes -->
+  <xs:attributeGroup name="themePreviewAttr">
+    <xs:attribute name="id" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the preview. Optional: the server generates one when it is missing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Accessible name of the sample (a localization key).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes of the preview.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="primary" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the criterion with the primary palette (a palette name or custom).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="primary-hex" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the criterion with the primary hex, read when the primary palette is custom.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="surface" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the criterion with the surface palette (a palette name, auto or custom).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="surface-hex" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the criterion with the surface hex, read when the surface palette is custom.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="mode" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the criterion with the mode (light, dark or system).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Card Attributes -->
@@ -1869,6 +1920,7 @@
       <xs:element ref="window" />
       <xs:element ref="advanced" />
       <xs:element ref="card" />
+      <xs:element ref="theme-preview" />
       <xs:element ref="resizable" />
       <xs:element ref="tag" />
       <xs:element ref="tab" />
@@ -2128,6 +2180,11 @@
         <xs:documentation xml:lang="en">CSS classes of the advanced block.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+  </xs:complexType>
+
+  <!-- Theme preview Type -->
+  <xs:complexType name="themePreviewType">
+    <xs:attributeGroup ref="themePreviewAttr" />
   </xs:complexType>
 
   <!-- Card Type -->

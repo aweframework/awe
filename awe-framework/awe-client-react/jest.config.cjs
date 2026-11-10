@@ -151,6 +151,7 @@ module.exports = {
     '**/components/AweSidePanelTest.{js,jsx}',
     '**/components/AwePopoverTest.{js,jsx}',
     '**/components/AweCardTest.{js,jsx}',
+    '**/components/AweThemePreviewTest.{js,jsx}',
     '**/components/AweIconComponentsTest.{js,jsx}',
     '**/components/AweResizableTest.{js,jsx}',
     '**/columns/*Test.{js,jsx}',

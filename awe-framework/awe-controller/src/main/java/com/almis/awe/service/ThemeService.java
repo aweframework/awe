@@ -137,6 +137,28 @@ public class ThemeService extends ServiceConfig {
     return new ServiceData().setDataList(dataList);
   }
 
+  /**
+   * Generate the palette of the custom colours of a theme being edited, for its preview (#949): the
+   * --awe-primary-* properties of the primary hex and the --awe-surface-* properties of the surface hex. A colour that
+   * is not a #RGB or #RRGGBB hex adds no property.
+   *
+   * @param primaryHex Primary hex
+   * @param surfaceHex Surface hex
+   * @return One row whose columns are the generated properties, no row when no colour is a hex
+   */
+  public ServiceData previewPalette(String primaryHex, String surfaceHex) {
+    Map<String, String> palette = new LinkedHashMap<>();
+    if (PaletteGenerator.isHex(primaryHex)) {
+      palette.putAll(PaletteGenerator.primary(primaryHex.trim()));
+    }
+    if (PaletteGenerator.isHex(surfaceHex)) {
+      palette.putAll(PaletteGenerator.surface(surfaceHex.trim()));
+    }
+    DataList dataList = new DataList();
+    palette.forEach((property, value) -> DataListUtil.addColumnWithOneRow(dataList, property, value));
+    return new ServiceData().setDataList(dataList);
+  }
+
   private String composeColor(List<String> palettes, String palette, String hex, String invalidMessage)
     throws AWException {
     String value = ThemeOptions.normalize(palette);
