@@ -48,6 +48,8 @@ public class ScreenModelGenerator extends ServiceConfig {
 
   private static final String WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA = "WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA";
   private static final String WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA = "WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA";
+  private static final String DATE_RANGE_FROM_SUFFIX = ".from";
+  private static final String DATE_RANGE_TO_SUFFIX = ".to";
 
   // Autowired services
   private final InitialLoadDao initialLoadDao;
@@ -184,6 +186,8 @@ public class ScreenModelGenerator extends ServiceConfig {
 
     // Generate a thread for each initialization
     for (AweThreadInitialization initializationData : initializationList) {
+      addCriteriaDefaults(initializationData, componentMap);
+
       // Launch
       Future<ServiceData> taskResult = launchInitialLoad(initializationData);
 
@@ -214,6 +218,61 @@ public class ScreenModelGenerator extends ServiceConfig {
 
     // Hydrate pending suggest labels once selected/default values are known
     hydratePendingSuggestLabels(componentMap, data);
+  }
+
+  /**
+   * Add the values of the screen criteria to the parameters of a component or column initial load, as the client sends
+   * them on a reload (keyed by the criterion id), so the initial load gets the criteria defaults (XML value, session,
+   * property) too (#947). A value already in the parameters (request, keep-criteria, default search) is kept.
+   *
+   * @param initializationData Initialization data
+   * @param componentMap       Component map
+   */
+  private void addCriteriaDefaults(AweThreadInitialization initializationData, Map<String, ScreenComponent> componentMap) {
+    if (initializationData.getComponentId() == null || initializationData.getParameters() == null
+      || LoadType.MENU.equals(initializationData.getInitialLoadType())
+      || LoadType.SCREEN.equals(initializationData.getInitialLoadType())) {
+      return;
+    }
+
+    ObjectNode parameters = initializationData.getParameters();
+    for (ScreenComponent screenComponent : componentMap.values()) {
+      List<CellData> selectedValues = screenComponent.getModel().getSelected();
+      if (screenComponent.getController() instanceof AbstractCriteria criteria && !selectedValues.isEmpty()) {
+        addCriterionValue(parameters, criteria, selectedValues);
+      }
+    }
+  }
+
+  /**
+   * Add the selected values of a criterion to the parameters when they do not have them
+   *
+   * @param parameters     Parameters
+   * @param criteria       Criterion
+   * @param selectedValues Selected values
+   */
+  private static void addCriterionValue(ObjectNode parameters, AbstractCriteria criteria, List<CellData> selectedValues) {
+    String key = criteria.getElementKey();
+    if (isSpecificComponent(List.of(DATE_RANGE), criteria.getComponentType())) {
+      // The start and the end of the range go as two parameters, as the clients send them
+      String fromKey = key + DATE_RANGE_FROM_SUFFIX;
+      String toKey = key + DATE_RANGE_TO_SUFFIX;
+      if (!parameters.has(fromKey) && !parameters.has(toKey)) {
+        parameters.put(fromKey, selectedValues.get(0).getStringValue());
+        if (selectedValues.size() > 1) {
+          parameters.put(toKey, selectedValues.get(1).getStringValue());
+        } else {
+          parameters.putNull(toKey);
+        }
+      }
+    } else if (!parameters.has(key)) {
+      if (selectedValues.size() == 1 && !isSpecificComponent(List.of(SELECT_MULTIPLE, SUGGEST_MULTIPLE, PICKLIST), criteria.getComponentType())) {
+        parameters.put(key, selectedValues.get(0).getStringValue());
+      } else {
+        ArrayNode selectedArray = parameters.putArray(key);
+        selectedValues.forEach(selectedValue -> selectedArray.add(selectedValue.getStringValue()));
+      }
+    }
   }
 
   /**
