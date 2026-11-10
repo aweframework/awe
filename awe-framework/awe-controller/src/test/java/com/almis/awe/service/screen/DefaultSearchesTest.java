@@ -75,7 +75,7 @@ class DefaultSearchesTest {
   }
 
   private DefaultSearches.Resolution resolve(ObjectNode stored, ObjectNode request) throws Exception {
-    return DefaultSearches.resolve(screen(), stored, request, savedSearchService);
+    return DefaultSearches.resolve(screen(), stored, request, savedSearchService, ".data");
   }
 
   @Test
@@ -158,7 +158,7 @@ class DefaultSearchesTest {
     assertThat(resolution.parameters()).isSameAs(stored);
     assertThat(resolution.searches()).isEmpty();
     verify(savedSearchService, never()).getDefaultWindowSearch("Scr", "WinOff");
-    assertThat(DefaultSearches.resolve(screen(), stored, empty(), null).searches()).isEmpty();
+    assertThat(DefaultSearches.resolve(screen(), stored, empty(), null, ".data").searches()).isEmpty();
   }
 
   @Test

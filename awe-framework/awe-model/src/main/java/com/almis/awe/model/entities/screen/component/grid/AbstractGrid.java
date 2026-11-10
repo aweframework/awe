@@ -4,6 +4,7 @@ import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.GridColumnLayout;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.Element;
+import com.almis.awe.model.entities.screen.component.GridDefaultSearch;
 import com.almis.awe.model.entities.screen.component.button.Button;
 import com.almis.awe.model.entities.screen.component.criteria.AbstractCriteria;
 import com.almis.awe.model.entities.screen.component.pivottable.PivotTable;
@@ -174,6 +175,13 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAlias("saved-searches")
   @XStreamAsAttribute
   private Boolean savedSearches;
+
+  // Default saved search applied to the grid before its initial load (#945): set at screen generation only when one was
+  // applied, so grids without one send nothing
+  @JsonProperty("defaultSearch")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @XStreamOmitField
+  private transient GridDefaultSearch defaultSearch;
 
   // Identifier of the screen the grid was generated for: the key, with the grid id, of the layout of the user
   @JsonProperty("screenId")

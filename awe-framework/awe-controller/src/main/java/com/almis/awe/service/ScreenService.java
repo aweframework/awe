@@ -160,8 +160,9 @@ public class ScreenService extends ServiceConfig {
 
     // Run the initial load of the container components
     ScreenData data = new ScreenData();
-    // The criteria read the default searches of the windows as they did when the screen was generated
-    DefaultSearches.Resolution defaultSearches = DefaultSearches.resolve(screen, getScreenParameters(optionId), getRequest().getParameterList(), savedSearchService);
+    // The criteria and the grids read the default searches as they did when the screen was generated
+    DefaultSearches.Resolution defaultSearches = DefaultSearches.resolve(screen, getScreenParameters(optionId), getRequest().getParameterList(), savedSearchService,
+      screenComponentGenerator.getDataSuffix());
     Map<String, ScreenComponent> componentMap = screenComponentGenerator.generateDeferredComponentMap(screen, container, data, menu, defaultSearches, loaded);
 
     // Generate the actions which apply the loaded models
@@ -376,8 +377,10 @@ public class ScreenService extends ServiceConfig {
     ScreenData data = new ScreenData();
 
     // If criteria are cached, add them to parameter map
-    // The default search of each window with saved searches fills its criteria when keep-criteria brought none (#915)
-    DefaultSearches.Resolution defaultSearches = DefaultSearches.resolve(screen, getScreenParameters(optionId), getRequest().getParameterList(), savedSearchService);
+    // The default search of each window with saved searches fills its criteria when keep-criteria brought none (#915),
+    // and the default search of each grid with saved searches its initial load when keep-criteria kept nothing of it (#945)
+    DefaultSearches.Resolution defaultSearches = DefaultSearches.resolve(screen, getScreenParameters(optionId), getRequest().getParameterList(), savedSearchService,
+      screenComponentGenerator.getDataSuffix());
     ObjectNode storedParameters = defaultSearches.parameters();
 
     // Important! Move first the parameter list over the stored parameters to avoid losing view, option and screen parameters

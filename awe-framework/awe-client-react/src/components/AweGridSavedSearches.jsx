@@ -12,7 +12,8 @@ import {
   isGridSearchInEffect,
   parseGridSearchValues
 } from "../utilities/gridSavedSearches";
-import {SavedSearchesControl} from "./AweWindowSavedSearches";
+import {getGridDefaultSearch, isGridDefaultSearchApplied} from "../utilities/gridDefaultSearch";
+import {DefaultSearchChip, SavedSearchesControl} from "./AweWindowSavedSearches";
 
 /**
  * Value of the option a quick filter has chosen: the first option when none is chosen
@@ -59,7 +60,9 @@ const readGridState = (components, grid) => {
  * Saved searches of a grid (#912, saved-searches="true"), in its toolbar: the same menu and dialogs as the saved searches
  * of a window. A search keeps the column filters of the grid (with the labels of their values), its sort, the value of
  * its quick filter and the text of its search; applying it restores them on the columns the grid has now and reloads
- * the grid from its first page.
+ * the grid from its first page. Its default searches (#945) are tagged and set as the ones of a window, and the chip of
+ * the default search the grid opened with follows the button while it is applied. The save dialog offers to open the
+ * screen with the search, but no layout or values to keep: a grid search is the state of the grid.
  * @category Components
  * @subcategory Grid
  */
@@ -85,7 +88,9 @@ function AweGridSavedSearches({id}) {
     return readGridState(components, components[id]);
   }, [store, id]);
 
-  const applyValues = useCallback((values) => {
+  const defaultSearch = getGridDefaultSearch(attributes);
+
+  const applyValues = useCallback((values, search) => {
     const components = getAllComponents(store.getState());
     const restored = getGridSearchRestore(values, attributes.columnModel || [],
       {hasQuickFilter: Boolean(components[attributes.quickFilter]), hasSearch: Boolean(components[attributes.search])});
@@ -101,17 +106,22 @@ function AweGridSavedSearches({id}) {
     if ("search" in restored && searchComponent?.address) {
       dispatch(updateModelWithDependencies(searchComponent.address, {values: [{value: restored.search, selected: true}]}));
     }
-    restoreColumnFilters(restored.columnFilters, restored.columnFilterLabels, restored.sort);
-  }, [dispatch, store, attributes.columnModel, attributes.quickFilter, attributes.search, restoreColumnFilters]);
+    // The chip of the default search shows while it is the search applied
+    restoreColumnFilters(restored.columnFilters, restored.columnFilterLabels, restored.sort,
+      defaultSearch ? String(search?.id) === String(defaultSearch.id) : undefined);
+  }, [dispatch, store, attributes.columnModel, attributes.quickFilter, attributes.search, restoreColumnFilters, defaultSearch]);
 
   const isInEffect = useCallback((values) => isGridSearchInEffect(current, values), [current]);
 
   if (!address) {
     return null;
   }
-  return <SavedSearchesControl id={id} label={attributes.label} getScreen={getScreen} getValues={getValues}
-                               applyValues={applyValues} isInEffect={isInEffect} parseValues={parseGridSearchValues}
-                               buttonClassName="p-button-outlined grid-toolbar-button"/>;
+  return <>
+    <SavedSearchesControl id={id} label={attributes.label} getScreen={getScreen} getValues={getValues}
+                          applyValues={applyValues} isInEffect={isInEffect} parseValues={parseGridSearchValues}
+                          buttonClassName="p-button-outlined grid-toolbar-button" defaults/>
+    {isGridDefaultSearchApplied(attributes) && <DefaultSearchChip id={id} name={defaultSearch.name}/>}
+  </>;
 }
 
 AweGridSavedSearches.propTypes = {

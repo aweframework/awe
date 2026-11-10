@@ -26,6 +26,8 @@ import {
   parseValidationRules,
   rebuildStructureNodes
 } from "../../utilities/components";
+import {getGridDefaultSearchSeed} from "../../utilities/gridDefaultSearch";
+import type {SavedSearchesGridAttributes} from "../../utilities/gridDefaultSearch";
 import type {ComponentModelData, ControllerData, StructureNode} from "../../utilities/components";
 import type {ComponentState} from "../../utilities/mergeUtils";
 import {produce} from "immer";
@@ -107,7 +109,10 @@ export function buildComponent(
   const ownOptions = type === ComponentType.COMPONENT_CHECKBOX || type === ComponentType.COMPONENT_RADIO;
   const defaultModel = fixDefaultModel(model, component.model.defaultValues, isGrid, ownOptions);
   const controller = fixController(component.controller, isGrid, settings);
-  const specificAttributes = getSpecificAttributes(component.controller, isGrid, settings);
+  // A grid opens with the column filters and the sort of the default search the server applied to its initial load (#945)
+  const seed = isGrid ? getGridDefaultSearchSeed(controller as SavedSearchesGridAttributes) : null;
+  const attributes = {...controller, ...seed?.attributes};
+  const specificAttributes = {...getSpecificAttributes(component.controller, isGrid, settings), ...seed?.specificAttributes};
   const validationRules = parseValidationRules(controller.validation as string | undefined, address);
   return {
     uid: component.id,
@@ -115,7 +120,7 @@ export function buildComponent(
     model: { ...model },
     storedModel: { ...model },
     defaultModel: { ...defaultModel },
-    attributes: { ...controller },
+    attributes: { ...attributes },
     specificAttributes: { ...specificAttributes },
     storedAttributes: { ...controller },
     validationRules: { ...validationRules },

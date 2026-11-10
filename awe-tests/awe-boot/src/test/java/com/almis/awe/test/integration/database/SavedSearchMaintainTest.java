@@ -19,6 +19,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -306,15 +307,7 @@ class SavedSearchMaintainTest extends AbstractSpringAppIntegrationTest {
       + "\"AdvInlCtr\":[{\"value\":\"FR\",\"label\":\"France\"}],\"$layout\":[\"AdvInlCtr\"]}", null));
     assertEquals("ok", setDefault(admin, ADMIN, count("SELECT IdeSavSch FROM AweSavSch WHERE Nam = 'Atlas in France'")));
 
-    String response = mockMvc.perform(post("/screen-data/matrix-test-advanced-search")
-        .with(csrf())
-        .with(as(ADMIN))
-        .session(admin)
-        .contentType(MediaType.APPLICATION_JSON)
-        .content("{\"view\":\"base\"}")
-        .accept(MediaType.APPLICATION_JSON))
-      .andExpect(status().isOk())
-      .andReturn().getResponse().getContentAsString();
+    String response = screenData(admin, ADMIN);
 
     // Ten customers are Atlas, only some of them in France: the grid loaded once, already filtered
     List<String> names = JsonPath.read(response, "$.components[?(@.id == 'GrdAdvInl')].model.values[*].InlNam");
@@ -325,6 +318,38 @@ class SavedSearchMaintainTest extends AbstractSpringAppIntegrationTest {
       "Clear all goes back to the value of the definition");
     assertEquals(List.of("Atlas in France"), JsonPath.read(response, "$.components[?(@.id == 'WinAdvInl')].controller.defaultSearch.name"));
     assertEquals(List.of(List.of("AdvInlCtr")), JsonPath.read(response, "$.components[?(@.id == 'WinAdvInl')].controller.defaultSearch.layout"));
+  }
+
+  @Test
+  @DisplayName("The default search of a grid filters and sorts its initial load, and the grid tells it (#945)")
+  void gridDefaultSearchAppliesBeforeTheInitialLoad() throws Exception {
+    assertEquals("ok", save(admin, ADMIN, GRID, "Atlas by amount", "{\"columnFilters\":[{\"id\":\"InlNam\",\"fields\":[\"InlNam\"],"
+      + "\"type\":\"text\",\"conditions\":[{\"operator\":\"contains\",\"value\":\"Atlas\"}]}],"
+      + "\"sort\":[{\"id\":\"InlAmt\",\"direction\":\"desc\"}]}", null));
+    assertEquals("ok", maintain(admin, ADMIN, "setWindowDefaultSearch", "{\"savedSearchScreen\":\"" + SCREEN + "\",\"savedSearchWindow\":\""
+      + GRID + "\",\"savedSearchId\":\"" + count("SELECT IdeSavSch FROM AweSavSch WHERE Nam = 'Atlas by amount'") + "\"}"));
+
+    String response = screenData(admin, ADMIN);
+
+    // The grid loaded once, already filtered by its column filter and sorted by the amount
+    List<String> names = JsonPath.read(response, "$.components[?(@.id == 'GrdAdvInl')].model.values[*].InlNam");
+    assertTrue(!names.isEmpty() && names.stream().allMatch(name -> name.contains("Atlas")), "Customers loaded: " + names);
+    List<Double> amounts = JsonPath.<List<Object>>read(response, "$.components[?(@.id == 'GrdAdvInl')].model.values[*].InlAmt").stream()
+      .map(amount -> Double.parseDouble(String.valueOf(amount))).toList();
+    assertEquals(amounts.stream().sorted(Comparator.reverseOrder()).toList(), amounts, "Amounts loaded: " + amounts);
+    assertEquals(List.of("Atlas by amount"), JsonPath.read(response, "$.components[?(@.id == 'GrdAdvInl')].controller.defaultSearch.name"));
+  }
+
+  private String screenData(MockHttpSession session, String userName) throws Exception {
+    return mockMvc.perform(post("/screen-data/matrix-test-advanced-search")
+        .with(csrf())
+        .with(as(userName))
+        .session(session)
+        .contentType(MediaType.APPLICATION_JSON)
+        .content("{\"view\":\"base\"}")
+        .accept(MediaType.APPLICATION_JSON))
+      .andExpect(status().isOk())
+      .andReturn().getResponse().getContentAsString();
   }
 
   private String setDefault(MockHttpSession session, String userName, int id) throws Exception {

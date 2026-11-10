@@ -41,10 +41,10 @@ import java.util.Set;
  * and deletes their own searches, and a user with access to the publish option (property
  * {@code awe.saved-search.publish-option}) publishes searches for a profile, which the users of that profile see and
  * apply but do not change. Each user marks one search of a window as its default search, and a user who may publish
- * marks one published search as the default search of its profile (#915). The searches of a grid are stored as the ones
- * of a window, with the grid id as window id (component ids are unique in a screen), and keep the state of the grid:
- * its column filters (with the labels of their values), its sort, the value of its quick filter and the text of its
- * search.
+ * marks one published search as the default search of its profile (#915), also in a grid (#945). The searches of a grid
+ * are stored as the ones of a window, with the grid id as window id (component ids are unique in a screen), and keep the
+ * state of the grid: its column filters (with the labels of their values), its sort, the value of its quick filter and
+ * the text of its search.
  *
  * <p>The user and the profile always come from the session, never from the parameters of the request. The maintain
  * targets that write the searches published for a profile read the profile from a session parameter that only this
@@ -264,12 +264,12 @@ public class SavedSearchService extends ServiceConfig {
   }
 
   /**
-   * Mark a search as the default search of a window for the session user (#915), or clear it: the search must be one the
-   * user can apply in that window, an own search or one published for the profile of the user. It is stored in the row
-   * of the window state of the user, which keeps its advanced block state
+   * Mark a search as the default search of a window (#915) or a grid (#945) for the session user, or clear it: the search
+   * must be one the user can apply in that window or grid, an own search or one published for the profile of the user. It
+   * is stored in the row of the window state of the user, which keeps its advanced block state
    *
    * @param screen   Screen identifier
-   * @param windowId Window identifier
+   * @param windowId Window or grid identifier
    * @param id       Search identifier, empty to clear the default search
    * @return Service data
    * @throws AWException Invalid window, unknown search or one the user cannot apply, no user in the session or storage
@@ -297,11 +297,12 @@ public class SavedSearchService extends ServiceConfig {
   }
 
   /**
-   * Mark a search published for a profile as the default search of that profile in its window (#915), or unmark it. Only
-   * a user who may publish does it, and a profile has one default search per window: marking one unmarks the other
+   * Mark a search published for a profile as the default search of that profile in its window (#915) or grid (#945), or
+   * unmark it. Only a user who may publish does it, and a profile has one default search per window or grid: marking one
+   * unmarks the other
    *
    * @param screen    Screen identifier
-   * @param windowId  Window identifier
+   * @param windowId  Window or grid identifier
    * @param id        Search identifier
    * @param isDefault "1" to mark the search as the default of its profile, "0" to unmark it
    * @return Service data
@@ -362,6 +363,27 @@ public class SavedSearchService extends ServiceConfig {
       log.warn("The default saved search of window '{}' in screen '{}' could not be read; the window starts without it", windowId, screen, exc);
       return Optional.empty();
     }
+  }
+
+  /**
+   * Retrieve the default search of a grid for the session user (#945), as the default search of a window, with its state
+   * checked against the current grid: the column filters and sorts of the columns the grid no longer has are dropped. A
+   * state that is no longer valid for the grid is skipped, so the grid starts without a default
+   *
+   * @param screen Screen identifier
+   * @param grid   Grid
+   * @return Default search with its state in its compact form, empty when there is none or it is not valid
+   */
+  public Optional<DefaultSavedSearch> getDefaultGridSearch(String screen, AbstractGrid grid) {
+    return getDefaultWindowSearch(screen, grid.getElementKey()).flatMap(search -> {
+      try {
+        return Optional.of(new DefaultSavedSearch(search.id(), search.name(), normalize(search.values(), grid)));
+      } catch (AWException exc) {
+        log.warn("The default saved search '{}' of grid '{}' in screen '{}' is not valid; the grid starts without it", search.id(),
+          grid.getElementKey(), screen, exc);
+        return Optional.empty();
+      }
+    });
   }
 
   /**
@@ -576,12 +598,11 @@ public class SavedSearchService extends ServiceConfig {
   }
 
   /**
-   * Check that the default search is managed for a window of the screen with saved searches: a grid has none (#915)
+   * Check that the default search is managed for a component of the screen with saved searches: a window (#915) or a
+   * grid (#945)
    */
   private void validateSavedSearchWindow(String screenId, String windowId) throws AWException {
-    if (!(getSavedSearchComponent(screenId, windowId) instanceof Window)) {
-      throw invalid(null);
-    }
+    getSavedSearchComponent(screenId, windowId);
   }
 
   /**

@@ -447,6 +447,30 @@ searches of the grid, and sees the ones published for their profile. Grids witho
   the screen with `saved-searches="true"`.
 - The toolbar shows the menu also when the grid sets `show-toolbar="false"`.
 
+**Default search.** A search can open the grid, as the
+[default search of a window](window.md#saved-searches):
+
+- *Open the screen with this search*, in the Save search dialog, or **Set as my default** in **Manage searches…** makes
+  it the default search of the user for that grid. The menu marks it as **Default**. It may be an own search or one
+  published for the profile of the user.
+- A user who may publish marks a published search as the default of its profile with **Set as the profile default**
+  (marked **Profile default**). The default of the user wins over the default of the profile.
+- The server applies the default search before the initial load: its column filters, sort, quick filter and search
+  reach the query, so the grid loads once, already filtered and sorted, with no second load. It applies it only when
+  the session keeps nothing for that grid. A chip next to **Saved searches** names the default search applied, until
+  another search is applied or **Clear all** is used.
+- **Clear all**, in the column filter chips, returns the grid to the filters and the sort of the XML and hides the chip;
+  the quick filter and the search keep their values. Applying the default search from the menu shows it again.
+- A search that names a column the grid no longer has is applied without it, with no error.
+- When the window of the grid also has a default search, both apply on the same initial load: the window fills its
+  criteria and the grid its column filters, sort, quick filter and search.
+- The default search does not carry the column layout: the visible columns and their order stay the preference of the
+  user of the [toolbar](#toolbar).
+
+All of it is part of `saved-searches="true"`: there is no new attribute, and a grid without it does not change. It uses
+the storage of the window defaults, with the grid id in place of the window id (`AweUsrWinCnf.DefSavSch` and
+`AweSavSch.Def`, Flyway migration `AWE_V1.6.1`), so it needs no migration of its own.
+
 ### Empty state
 
 A grid without rows shows an empty state instead of an empty table, in both the AngularJS and the React engines. It is

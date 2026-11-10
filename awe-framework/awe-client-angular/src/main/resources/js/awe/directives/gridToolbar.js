@@ -2,7 +2,7 @@ import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
 import {createFocusTrap} from "../services/focusTrap";
 import {iconMarkup, iconTemplate} from "../services/icon";
-import {getSavedSearchesTemplate} from "../services/savedSearches";
+import {appliedDefaultTemplate, getSavedSearchesTemplate} from "../services/savedSearches";
 import {initGridSavedSearches} from "../services/gridSavedSearches";
 import "./gridQuickFilter";
 import "./gridSearch";
@@ -23,7 +23,8 @@ const columnsRootTemplate = (panel, attributes = "") => `<div ng-if="columnsOpen
 
 // The Columns (popover, dialog or side panel) are aria-busy while Save or Restore default wait for the server
 // The search, the quick filters and the row grouping controls (#833) of the grid go first, then a spacer, the Saved
-// searches menu (#912, saved-searches="true") and the Columns and Maximize buttons at the end. The grouping controls,
+// searches menu (#912, saved-searches="true") with the chip of its default search (#945) and the Columns and Maximize
+// buttons at the end. The grouping controls,
 // the Columns and Maximize buttons are hidden when the grid opts out of them (show-toolbar="false"), which shows the
 // toolbar only for its search, quick filters and saved searches
 export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${TestIds.gridToolbar}" ng-attr-data-testid-owner="{{component.address.component}}" ng-attr-data-maximized="{{iconMaximized === true}}">
@@ -32,6 +33,7 @@ export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${T
   <awe-grid-group-by ng-if="::component.groupingConfigured && component.controller.showToolbar !== false" class="grid-group-by"></awe-grid-group-by>
   <span ng-if="component.controller.showToolbar !== false || component.controller.savedSearches" class="grid-toolbar-spacer" aria-hidden="true"></span>
   ${getSavedSearchesTemplate("btn-awe btn-default grid-toolbar-button")}
+  ${appliedDefaultTemplate}
   <button ng-if="component.controller.showToolbar !== false" type="button" class="btn-awe btn-default grid-toolbar-button grid-columns-button" data-testid="${TestIds.gridColumnsButton}" title="{{'GRID_COLUMNS_TITLE' | translateMultiple}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{columnsOpen === true}}" ng-click="openColumns()">
     ${iconTemplate("columns")}
     <span class="button-text" translate-multiple="GRID_COLUMNS_BUTTON"></span>

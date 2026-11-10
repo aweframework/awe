@@ -223,9 +223,38 @@ aweApplication.factory('GridColumnFilters',
           component.removeColumnFilter = name => component.applyColumnFilter(name, null);
 
           /**
-           * Remove every column filter and reload the grid
+           * Remove every column filter and reload the grid. While the default search of the grid is in effect (#945) the
+           * grid leaves it instead: it returns to the state of the XML
            */
-          component.clearColumnFilters = () => reload([], {});
+          component.clearColumnFilters = () => {
+            if (!component.leaveDefaultSearch?.()) {
+              reload([], {});
+            }
+          };
+
+          /**
+           * Set the sort of the columns without the sort event, which would reload the grid: on the columns of ui-grid, or
+           * on the column definitions while ui-grid has not built them (it takes their sort when it creates them)
+           * @param {{id: string, direction: string}[]} sort Sort, by column name or sort field
+           */
+          const setSort = sort => {
+            const grid = component.grid && component.grid.api && component.grid.api.grid;
+            const built = grid && grid.columns.length > 0;
+            const columns = built ? grid.columns.map(column => ({target: column, definition: column.colDef || {}})) :
+              getColumnModel().map(column => ({target: column, definition: column}));
+            const sorting = [];
+            columns.forEach(({target}) => {
+              target.sort = {};
+            });
+            sort.forEach(item => {
+              const column = columns.find(({definition}) => definition.sortField === item.id || definition.name === item.id);
+              if (column) {
+                column.target.sort = {direction: item.direction === "desc" ? uiGridConstants.DESC : uiGridConstants.ASC, priority: sorting.length};
+                sorting.push({id: column.definition.sortField, direction: column.target.sort.direction});
+              }
+            });
+            component.grid.sorting = sorting;
+          };
 
           /**
            * Restore the column filters, their labels and the sort of a saved search (#912) and reload the grid once: the
@@ -235,23 +264,23 @@ aweApplication.factory('GridColumnFilters',
            * @param {{id: string, direction: string}[]} sort Sort, by column name or sort field
            */
           component.restoreColumnFilters = (filters, labels, sort) => {
-            const grid = component.grid && component.grid.api && component.grid.api.grid;
-            if (grid) {
-              const sorting = [];
-              grid.columns.forEach(column => {
-                column.sort = {};
-              });
-              sort.forEach(item => {
-                const column = grid.columns.find(candidate => candidate.colDef &&
-                  (candidate.colDef.sortField === item.id || candidate.colDef.name === item.id));
-                if (column) {
-                  column.sort = {direction: item.direction === "desc" ? uiGridConstants.DESC : uiGridConstants.ASC, priority: sorting.length};
-                  sorting.push({id: column.colDef.sortField, direction: column.sort.direction});
-                }
-              });
-              component.grid.sorting = sorting;
+            if (component.grid?.api?.grid) {
+              setSort(sort);
             }
             reload(filters, labels);
+          };
+
+          /**
+           * Take the column filters, their labels and the sort of the default search the server applied before the initial
+           * load (#945), without a reload: the rows already came filtered and sorted
+           * @param {object[]} filters Column filters
+           * @param {object} labels Labels of their values by column
+           * @param {{id: string, direction: string}[]} sort Sort, by column name or sort field
+           */
+          component.seedColumnFilters = (filters, labels, sort) => {
+            component.columnFilters = filters;
+            component.columnFilterLabels = labels;
+            setSort(sort);
           };
 
           /**

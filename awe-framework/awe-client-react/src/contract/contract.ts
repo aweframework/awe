@@ -66,6 +66,7 @@ export interface AbstractGrid extends AbstractCriteria {
     columnLayout?: GridColumnLayout;
     columnModel?: ScreenColumn[];
     columnsPanel?: string;
+    defaultSearch?: GridDefaultSearch;
     disablePagination?: boolean;
     editable?: boolean;
     emptyAction?: string;
@@ -446,6 +447,16 @@ export interface Grid extends AbstractGrid {
 export interface GridColumnLayout {
     hidden?: string[];
     order?: string[];
+}
+
+export interface GridDefaultSearch {
+    columnFilterLabels?: unknown;
+    columnFilters?: unknown;
+    id?: number;
+    name?: string;
+    quickFilter?: unknown;
+    search?: unknown;
+    sort?: unknown;
 }
 
 export interface GridSearch extends AbstractCriteria {

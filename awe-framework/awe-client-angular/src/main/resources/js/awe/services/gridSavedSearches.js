@@ -8,7 +8,10 @@ import {initSavedSearches} from "./savedSearches";
 // Saved searches of a grid (#912, saved-searches="true"): the Saved searches menu of the window (#790) in the toolbar of
 // the grid. A search keeps the column filters of the grid (with the labels of their values), its sort, the value of its
 // quick filter and the text of its search, read and restored with the rules of the React client
-// (awe-client-react/utilities/gridSavedSearches), so a search saved in one client applies in the other.
+// (awe-client-react/utilities/gridSavedSearches), so a search saved in one client applies in the other. The default
+// search of the grid (#945) is applied by the server before its initial load: the grid takes its column filters and its
+// sort without a reload (its quick filter and its search already have their values), and Clear all of the column filters
+// leaves it: no column filters nor sort, as the XML. The quick filter and the search keep their own controls.
 
 /**
  * Text of a value: an empty value (null, undefined or an empty list) is the empty text
@@ -85,11 +88,34 @@ export function initGridSavedSearches(scope, elem, component, {$compile, Control
     }
   };
 
-  return initSavedSearches(scope, elem, {
+  const defaultSearch = controller().defaultSearch || null;
+  const saved = initSavedSearches(scope, elem, {
     windowId: gridId,
     title: controller().label,
     view,
     screenName: () => ((Storage.get("screen") || {})[view] || {}).name,
-    source
+    source,
+    defaultSearch
   }, {$compile, Control, Utilities, $actionController, $settings, Connection});
+
+  if (defaultSearch) {
+    // Only the columns the grid has now: the quick filter and the search are left as the server set them
+    const seeded = getGridSearchRestore(defaultSearch, controller().columnModel || []);
+    component.seedColumnFilters(seeded.columnFilters, seeded.columnFilterLabels, seeded.sort);
+  }
+
+  /**
+   * Leave the default search in effect (#945): no column filters nor sort, as the XML, in one reload
+   * @returns {boolean} A default search was in effect
+   */
+  component.leaveDefaultSearch = () => {
+    if (!saved.applied) {
+      return false;
+    }
+    saved.cleared();
+    component.restoreColumnFilters([], {}, []);
+    return true;
+  };
+
+  return saved;
 }
