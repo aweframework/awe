@@ -4,16 +4,21 @@ import com.almis.awe.config.SavedSearchConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
+import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.Element;
+import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.component.Window;
+import com.almis.awe.model.entities.screen.component.grid.AbstractGrid;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.entities.screen.component.grid.Grid;
 import com.almis.awe.model.entities.screen.component.grid.GridSearch;
 import com.almis.awe.model.entities.screen.component.grid.QuickFilter;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.service.savedsearch.DefaultSavedSearch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -30,10 +35,14 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -227,5 +236,72 @@ class SavedSearchServiceGridTest {
     assertThrows(AWException.class, () -> save("GrdNoSav", "{}"));
     assertThrows(AWException.class, () -> save("GrdMissing", "{}"));
     verifyNoMaintain();
+  }
+
+  private static Map<String, CellData> row(Object... nameAndValue) {
+    Map<String, CellData> row = new HashMap<>();
+    for (int index = 0; index < nameAndValue.length; index += 2) {
+      row.put((String) nameAndValue[index], new CellData(nameAndValue[index + 1]));
+    }
+    return row;
+  }
+
+  private void mockQuery(String query, Map<String, CellData> row) throws AWException {
+    DataList dataList = new DataList();
+    dataList.addRow(row);
+    when(queryService.launchPrivateQuery(eq(query), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(dataList));
+  }
+
+  @Test
+  @DisplayName("A user marks a search of a grid with saved searches as its default for that grid, and clears it (#945, S1, S6)")
+  void gridDefaultIsSetAndCleared() throws Exception {
+    mockQuery("getApplicableSavedSearch", row("id", 7, "name", "Mine", "values", "{}"));
+
+    savedSearchService.setWindowDefaultSearch("Scr", "GrdUsr", "7");
+    savedSearchService.setWindowDefaultSearch("Scr", "GrdUsr", "");
+
+    ArgumentCaptor<ObjectNode> stored = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService).launchPrivateMaintain(eq("insertWindowDefaultSearch"), stored.capture());
+    assertEquals("GrdUsr", stored.getValue().get("windowId").asString());
+    assertEquals(7, stored.getValue().get("defaultSearch").asInt());
+    verify(maintainService).launchPrivateMaintain(eq("clearWindowDefaultSearch"), any(ObjectNode.class));
+    assertThrows(AWException.class, () -> savedSearchService.setWindowDefaultSearch("Scr", "GrdNoSav", "7"));
+  }
+
+  @Test
+  @DisplayName("A publisher marks a search published for a profile as the default of that profile in the grid (#945, S1)")
+  void profileDefaultOfAGrid() throws Exception {
+    Option profiles = new Option();
+    profiles.setName("profiles");
+    Menu menu = new Menu();
+    menu.setElementList(new ArrayList<>(List.of(profiles)));
+    when(menuService.getMenuWithRestrictions()).thenReturn(menu);
+    mockQuery("getSavedSearch", row("id", 4, "user", "", "profile", "GNR", "screen", "Scr", "windowId", "GrdUsr"));
+
+    savedSearchService.setProfileDefaultSearch("Scr", "GrdUsr", "4", "1");
+
+    ArgumentCaptor<ObjectNode> marked = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService).launchPrivateMaintain(eq("updateProfileDefaultSearch"), marked.capture());
+    assertEquals("GrdUsr", marked.getValue().get("windowId").asString());
+    assertEquals(4, marked.getValue().get("id").asInt());
+  }
+
+  @Test
+  @DisplayName("The default search of a grid comes checked against the grid: filters and sorts of columns it no longer has are dropped (#945, S5)")
+  void defaultGridSearchDropsUnknownColumns() throws Exception {
+    AbstractGrid grid = (AbstractGrid) aweElements.getScreen("Scr").getElementsById("GrdUsr").get(0);
+    mockQuery("getUserWindowState", row("defaultSearch", 7));
+    mockQuery("getApplicableSavedSearch", row("id", 7, "name", "Mine", "values",
+      "{\"columnFilters\":[{\"id\":\"Gone\",\"type\":\"values\",\"values\":[1]},"
+        + "{\"id\":\"Pro\",\"fields\":[\"IdePro\"],\"type\":\"values\",\"values\":[\"ADM\"]}],"
+        + "\"columnFilterLabels\":{\"Gone\":{\"1\":\"One\"}},\"sort\":[{\"id\":\"Gone\",\"direction\":\"asc\"}],\"quickFilter\":\"active\"}"));
+
+    assertEquals(Optional.of(new DefaultSavedSearch(7, "Mine", "{\"columnFilters\":[{\"id\":\"Pro\",\"fields\":[\"IdePro\"],"
+        + "\"type\":\"values\",\"values\":[\"ADM\"]}],\"columnFilterLabels\":{},\"sort\":[],\"quickFilter\":\"active\"}")),
+      savedSearchService.getDefaultGridSearch("Scr", grid));
+
+    // A state that is no longer valid for the grid is skipped: the grid starts without a default
+    mockQuery("getApplicableSavedSearch", row("id", 7, "name", "Mine", "values", "{\"sort\":{}}"));
+    assertTrue(savedSearchService.getDefaultGridSearch("Scr", grid).isEmpty());
   }
 }

@@ -998,19 +998,24 @@ export const changeFilterGridAction = (action: ClientAction): AppThunk => {
 
 /**
  * Change the column filters of a grid (#912): they go with the next requests of the grid, from its first page, and the
- * labels of their values (shown by the chips) stay in the attributes, as they are not sent to the server
- * @param {object} action Action with the column filters and the labels of their values by column
+ * labels of their values (shown by the chips) stay in the attributes, as they are not sent to the server. A change that
+ * applies a saved search or clears every filter also tells whether the default search of the grid is the one applied
+ * (#945, its chip)
+ * @param {object} action Action with the column filters, the labels of their values by column and, optionally, whether
+ * the default search is applied
  */
 export const changeColumnFiltersGridAction = (action: ClientAction): AppThunk => {
   return (dispatch) => {
     const address = getActionAddress(action);
-    const { columnFilters = [], labels = {} } = action.parameters as { columnFilters?: unknown[]; labels?: Record<string, unknown> };
+    const { columnFilters = [], labels = {}, defaultSearchApplied } = action.parameters as {
+      columnFilters?: unknown[]; labels?: Record<string, unknown>; defaultSearchApplied?: boolean };
 
     // Accept action
     dispatch(acceptAction(action));
 
     // Update the column filters and go back to the first page
-    dispatch(updateAttributes(address, { columnFilterLabels: labels }));
+    dispatch(updateAttributes(address, { columnFilterLabels: labels,
+      ...(typeof defaultSearchApplied === "boolean" ? { defaultSearchApplied } : {}) }));
     dispatch(updateSpecificAttributes(address, { columnFilters, page: 1, first: 0 }));
   };
 };

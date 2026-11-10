@@ -256,11 +256,10 @@ class SavedSearchServiceDefaultTest {
   }
 
   @Test
-  @DisplayName("Only a window with saved searches has a default search: a grid or another window is rejected")
+  @DisplayName("Only a component with saved searches has a default search: another window is rejected")
   void onlyWindowsWithSavedSearches() throws Exception {
     mockQuery("getApplicableSavedSearch", rows(row("id", 7, "name", "Mine", "values", VALUES)));
 
-    assertThrows(AWException.class, () -> savedSearchService.setWindowDefaultSearch("Scr", "Grd", "7"));
     assertThrows(AWException.class, () -> savedSearchService.setWindowDefaultSearch("Scr", "NoSav", "7"));
     when(aweSession.getUser()).thenReturn(null);
     assertThrows(AWException.class, () -> savedSearchService.setWindowDefaultSearch("Scr", "Win", "7"));

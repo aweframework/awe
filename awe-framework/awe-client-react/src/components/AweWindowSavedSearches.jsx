@@ -739,9 +739,9 @@ SavedSearchesControl.propTypes = {
 };
 
 /**
- * Chip of the default search applied to a window on load (#915), next to its saved searches
+ * Chip of the default search applied to a window (#915) or a grid (#945) on load, next to its saved searches
  */
-function DefaultSearchChip({id, name}) {
+export function DefaultSearchChip({id, name}) {
   const {t} = useTranslation();
   return <span className="window-default-search" {...testHook(TestIds.windowSavedSearchAppliedDefault, {owner: id})}>
     {getIconNode("lucide:bookmark", {className: "window-default-search-icon", "aria-hidden": "true"})}

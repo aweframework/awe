@@ -187,6 +187,7 @@ module.exports = {
     '**/utilities/columnFiltersTest.{ts,tsx}',
     '**/utilities/gridSavedSearchesTest.{ts,tsx}',
     '**/components/AweGridSavedSearchesTest.{js,jsx}',
+    '**/components/AweGridDefaultSearchTest.{js,jsx}',
     '**/redux/thunks/columnFiltersThunkTest.{js,jsx}',
     '**/components/AweGridColumnFilterTest.{js,jsx}',
     '**/components/AweGridColumnFilterChipsTest.{js,jsx}',

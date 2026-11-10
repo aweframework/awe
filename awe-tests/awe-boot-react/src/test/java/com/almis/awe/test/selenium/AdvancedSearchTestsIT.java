@@ -15,9 +15,9 @@ import org.junit.jupiter.api.TestMethodOrder;
  * <p>The inline window keeps saved searches (saved-searches="true"): the test user saves, applies, renames and deletes its
  * own searches and, as it may publish (it reaches the profiles option), publishes one for the Test profile. A user of that
  * profile, which the class creates (Test reaches the test menu but not the tools, so it may not publish), applies it but
- * cannot change it. A saved search can open the screen (#915): the last test makes one the default search of the user, so
- * the earlier tests start from the values of the screen. Every test removes what it saves, and what an earlier run left, so
- * the class can run again.</p>
+ * cannot change it. A saved search can open the screen (#915), and a search of the inline grid can open it filtered and
+ * sorted (#945): the last tests make one the default search of the user, so the earlier tests start from the values of the
+ * screen. Every test removes what it saves, and what an earlier run left, so the class can run again.</p>
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("RegressionWebsocketPrintIT")
@@ -59,6 +59,16 @@ class AdvancedSearchTestsIT extends AbstractSavedSearchTests {
   // First page of the customers of France in the inline grid
   private static final String[] FRENCH_CUSTOMERS = {"Fjord Energy", "Lumen Foods", "Fjord Textiles", "Lumen Labs", "Atlas Labs",
     "Granite Pharma", "Atlas Retail", "Granite Media", "Boreal Energy", "Harbor Foods"};
+  private static final String GRID_DEFAULT_SEARCH = "Inactive customers by segment";
+  // First page of every customer in the inline grid, as it loads without a search
+  private static final String[] ALL_CUSTOMERS = {"Atlas Logistics", "Boreal Foods", "Cobalt Labs", "Delta Retail",
+    "Ember Motors", "Fjord Energy", "Granite Textiles", "Harbor Systems", "Iris Pharma", "Juniper Media"};
+  // Inactive customers of the default country in the inline grid, by segment (Online, then Retail)
+  private static final String[] SPANISH_INACTIVE_CUSTOMERS_BY_SEGMENT = {"Harbor Media", "Delta Media", "Harbor Logistics",
+    "Delta Logistics"};
+  // First page of every inactive customer in the inline grid, by segment (six Online, then Public sector)
+  private static final String[] INACTIVE_CUSTOMERS_BY_SEGMENT = {"Delta Energy", "Harbor Media", "Lumen Retail", "Delta Media",
+    "Harbor Retail", "Lumen Systems", "Delta Motors", "Harbor Pharma", "Lumen Labs", "Delta Pharma"};
   // Profile that the shared search is published for (the name of its option) and its user, which the class creates
   private static final String PROFILE_ACRONYM = "TST";
   private static final String PROFILE_NAME = "Test";
@@ -676,6 +686,56 @@ class AdvancedSearchTestsIT extends AbstractSavedSearchTests {
     deleteSavedSearch(INLINE_WINDOW, DEFAULT_SEARCH);
     checkSavedSearchNotListed(INLINE_WINDOW, DEFAULT_SEARCH);
     closeSavedSearches(INLINE_WINDOW);
+  }
+
+  /**
+   * Default search of a grid (#945): a search of the inline grid, with a column filter and a sort, saved with Open with this
+   * search opens the screen with the grid already filtered and sorted, its column filter chip and a chip that names the
+   * search. Clear all of the column filters brings the grid of the screen back and hides the chip. Deleting the search
+   * leaves the screen as it was for the other tests
+   */
+  @Test
+  void t170_gridDefaultSearchOpensTheGridFilteredAndSorted() {
+    setTestTitle("Saved searches: the default search of a grid opens it filtered and sorted");
+    openAdvancedSearchScreen();
+    if (hasSavedSearch(INLINE_GRID, GRID_DEFAULT_SEARCH)) {
+      closeSavedSearches(INLINE_GRID);
+      deleteSavedSearch(INLINE_GRID, GRID_DEFAULT_SEARCH);
+      showAdvancedSearchScreen();
+    }
+    closeSavedSearches(INLINE_GRID);
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, ALL_CUSTOMERS);
+    checkGridPaginationInfo("View 1 - 10 of 120");
+
+    // The inactive customers by segment, saved as the search that opens the grid (the reloads of the grid send the country)
+    openGridColumnFilter(INLINE_GRID, INLINE_STATUS_COLUMN);
+    checkGridColumnFilterValue(INLINE_GRID, "1", false);
+    acceptGridColumnFilter(INLINE_GRID, INLINE_STATUS_COLUMN);
+    checkGridPaginationInfo("View 1 - 4 of 4");
+    sortGrid(INLINE_GRID, INLINE_SEGMENT_COLUMN);
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, SPANISH_INACTIVE_CUSTOMERS_BY_SEGMENT);
+    saveCurrentGridSearchAsDefault(INLINE_GRID, GRID_DEFAULT_SEARCH);
+    closeSavedSearches(INLINE_GRID);
+
+    // Opened again: filtered and sorted on load (without the criteria, as the first load), with the chips of the column
+    // filter and of the search
+    showAdvancedSearchScreen();
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, INACTIVE_CUSTOMERS_BY_SEGMENT);
+    checkGridPaginationInfo("View 1 - 10 of 30");
+    checkGridColumnFiltered(INLINE_GRID, INLINE_STATUS_COLUMN, true);
+    checkGridColumnFilterChip(INLINE_GRID, INLINE_STATUS_COLUMN, "Status: Inactive");
+    checkDefaultSearchApplied(INLINE_GRID, GRID_DEFAULT_SEARCH);
+
+    // Clear all: the grid of the screen, without its column filter and sort, and without the chip
+    clearAllGridColumnFilters(INLINE_GRID);
+    checkNoGridColumnFilterChips(INLINE_GRID);
+    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, SPANISH_CUSTOMERS);
+    checkGridPaginationInfo("View 1 - 10 of 20");
+    checkNoDefaultSearchApplied(INLINE_GRID);
+
+    deleteSavedSearch(INLINE_GRID, GRID_DEFAULT_SEARCH);
+    checkSavedSearchNotListed(INLINE_GRID, GRID_DEFAULT_SEARCH);
+    closeSavedSearches(INLINE_GRID);
   }
 
   /**

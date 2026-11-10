@@ -130,6 +130,11 @@ public class ScreenModelGenerator extends ServiceConfig {
       if (specialAttributesNode.has(AweConstants.COMPONENT_SORT)) {
         parameters.set(AweConstants.COMPONENT_SORT, specialAttributesNode.get(AweConstants.COMPONENT_SORT));
       }
+
+      // Column filters of the default search of a grid (#945): only for the initial load of that grid
+      if (specialAttributesNode.has(AweConstants.COMPONENT_COLUMN_FILTERS)) {
+        parameters.set(AweConstants.COMPONENT_COLUMN_FILTERS, specialAttributesNode.get(AweConstants.COMPONENT_COLUMN_FILTERS));
+      }
     }
 
     // Load all

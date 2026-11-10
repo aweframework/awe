@@ -461,6 +461,31 @@ búsquedas del grid, y ve las publicadas para su perfil. Los grids sin el atribu
   sesión, y el grid debe existir en la pantalla con `saved-searches="true"`.
 - La barra de herramientas muestra el menú también cuando el grid usa `show-toolbar="false"`.
 
+**Búsqueda predeterminada.** Una búsqueda puede abrir el grid, como la
+[búsqueda predeterminada de una ventana](window.md#saved-searches):
+
+- *Abrir la pantalla con esta búsqueda*, en el diálogo de guardar, o **Usar como mi predeterminada** en **Gestionar
+  búsquedas…** la convierte en la búsqueda predeterminada del usuario en ese grid. El menú la marca como
+  **Predeterminada**. Puede ser una búsqueda propia o una publicada para el perfil del usuario.
+- Un usuario que puede publicar marca una búsqueda publicada como predeterminada de su perfil con **Usar como
+  predeterminada del perfil** (marcada **Predeterminada del perfil**). La del usuario gana a la del perfil.
+- El servidor aplica la búsqueda predeterminada antes de la carga inicial: sus filtros de columna, su ordenación, su
+  filtro rápido y su búsqueda llegan a la consulta, así que el grid se carga una sola vez, ya filtrado y ordenado, sin
+  una segunda carga. Solo la aplica cuando la sesión no conserva nada de ese grid. Un chip junto a **Búsquedas
+  guardadas** nombra la búsqueda predeterminada aplicada, hasta que se aplica otra búsqueda o se usa **Quitar todos**.
+- **Quitar todos**, en los chips de los filtros de columna, devuelve el grid a los filtros y la ordenación del XML y
+  oculta el chip; el filtro rápido y la búsqueda conservan sus valores. Aplicar la búsqueda predeterminada desde el menú
+  lo vuelve a mostrar.
+- Una búsqueda que nombra una columna que el grid ya no tiene se aplica sin ella, sin dar error.
+- Cuando la ventana del grid también tiene una búsqueda predeterminada, las dos se aplican en la misma carga inicial: la
+  ventana rellena sus criterios y el grid sus filtros de columna, su ordenación, su filtro rápido y su búsqueda.
+- La búsqueda predeterminada no lleva la disposición de las columnas: las columnas visibles y su orden siguen siendo la
+  preferencia del usuario de la [barra de herramientas](#toolbar).
+
+Todo forma parte de `saved-searches="true"`: no hay un atributo nuevo, y un grid sin él no cambia. Usa el almacenamiento
+de las predeterminadas de las ventanas, con el id del grid en lugar del id de la ventana (`AweUsrWinCnf.DefSavSch` y
+`AweSavSch.Def`, migración Flyway `AWE_V1.6.1`), así que no necesita una migración propia.
+
 ### Estado vacío {#empty-state}
 
 Un grid sin filas muestra un estado vacío en lugar de una tabla vacía, tanto en el motor AngularJS como en el de React. Se

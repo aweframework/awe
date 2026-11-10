@@ -127,6 +127,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
     ObjectNode storedCriteria = defaultSearches.parameters();
     Map<String, ScreenComponent> componentMap = new LinkedHashMap<>();
     List<AweThreadInitialization> initializationList = new ArrayList<>();
+    applyGridData(defaultSearches);
 
     // Generate screen configuration
     AweThreadInitialization screenConfigurationThread = screenModelGenerator.getScreenConfigurationThread();
@@ -216,6 +217,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
     ObjectNode storedCriteria = defaultSearches.parameters();
     Map<String, ScreenComponent> componentMap = new LinkedHashMap<>();
     List<AweThreadInitialization> initializationList = new ArrayList<>();
+    applyGridData(defaultSearches);
 
     try {
       for (Component component : DeferredComponents.getComponentsToLoad(container)) {
@@ -337,8 +339,8 @@ public class ScreenComponentGenerator extends ServiceConfig {
   }
 
   /**
-   * Tell each window the default search applied to it (#915). The criteria it filled select its values, but their
-   * default values (the ones Clear all goes back to) stay the ones of their definition
+   * Tell each window (#915) and grid (#945) the default search applied to it. The criteria it filled select its values,
+   * but their default values (the ones Clear all goes back to) stay the ones of their definition
    *
    * @param componentMap    Component map
    * @param defaultSearches Default searches applied
@@ -350,12 +352,46 @@ public class ScreenComponentGenerator extends ServiceConfig {
         window.setDefaultSearch(search);
       }
     });
+    defaultSearches.grids().forEach((gridId, search) -> {
+      ScreenComponent screenComponent = componentMap.get(gridId);
+      if (screenComponent != null && screenComponent.getController() instanceof AbstractGrid grid) {
+        grid.setDefaultSearch(search);
+      }
+    });
     for (String criterionId : defaultSearches.criteria()) {
       ScreenComponent screenComponent = componentMap.get(criterionId);
       if (screenComponent != null && screenComponent.getController() instanceof AbstractCriteria criterion) {
         screenComponent.getModel().setDefaultValues(screenModelGenerator.getDefinitionDefaultValues(criterion));
       }
     }
+  }
+
+  /**
+   * Write the sort and column filters of the default search of each grid (#945) in the data the request sends for it, so
+   * the initial load of the grid reads them. When the screen is generated the data is the one the default search wrote
+   * in the stored parameters; when a deferred container is opened it goes over the data the client sends for the grid
+   *
+   * @param defaultSearches Default searches applied
+   */
+  private void applyGridData(DefaultSearches.Resolution defaultSearches) {
+    for (String gridId : defaultSearches.grids().keySet()) {
+      String dataKey = gridId + getDataSuffix();
+      if (defaultSearches.parameters().get(dataKey) instanceof ObjectNode defaultData) {
+        ObjectNode data = aweRequest.getParameterList().get(dataKey) instanceof ObjectNode requestData ?
+          requestData.deepCopy() : JsonNodeFactory.instance.objectNode();
+        data.setAll(defaultData);
+        aweRequest.getParameterList().set(dataKey, data);
+      }
+    }
+  }
+
+  /**
+   * Retrieve the suffix of the data parameter of a component
+   *
+   * @return Data suffix ({@code .data})
+   */
+  public String getDataSuffix() {
+    return baseConfigProperties.getComponent().getDataSuffix();
   }
 
   /**
