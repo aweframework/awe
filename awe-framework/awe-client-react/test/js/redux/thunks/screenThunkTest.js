@@ -3,6 +3,7 @@ import * as screenThunks from '../../../../src/redux/thunks/screen';
 import { ADD_ACTIONS_TOP } from '../../../../src/redux/actions/actions';
 import { navigationActions } from '../../../../src/redux/actions/navigation';
 import ViewRegistry from '../../../../src/redux/registry/ViewRegistry';
+import MenuRegistry from '../../../../src/redux/registry/MenuRegistry';
 import { clearClassChanges, rememberClassChange } from '../../../../src/utilities/classChanges';
 
 // downloadjs removes its anchor from the body in a timer (66 ms) that outlives the test: when the next test
@@ -243,6 +244,59 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       screenThunks.screenAction(action, '/otro')(dispatch, () => ({ settings: {} }));
       const [nav] = dispatch.mock.calls.map(a => a[0]);
       expect(nav.payload.options.state).toBeUndefined();
+    });
+
+    describe('origin of the screen opened (#938)', () => {
+      const open = (action, pathname = '/users') =>
+        screenThunks.screenAction({parameters: {screen: '/detail'}, target: '/detail', ...action}, pathname)(dispatch, () => ({settings: {}}));
+
+      beforeEach(() => {
+        ViewRegistry.setView('report', {option: 'users', title: 'Users'});
+        MenuRegistry.setBreadcrumbs('users', [{label: 'Settings', name: 'settings', group: true}, {label: 'Users', name: 'users'}]);
+      });
+
+      afterEach(() => {
+        MenuRegistry.clear();
+        ViewRegistry.setView('report', {loading: true});
+      });
+
+      it('keeps the levels of the screen it leaves, which goes back to it, when the screen is not opened from the menu', () => {
+        open({});
+
+        expect(MenuRegistry.getOrigin()).toEqual([{label: 'Settings', name: 'settings', group: true}, {label: 'Users', path: '/users', option: 'users'}]);
+      });
+
+      it('keeps the option of the screen it leaves, to know whether the next screen is on its menu path', () => {
+        open({});
+
+        expect(MenuRegistry.getOrigin().pop()).toMatchObject({path: '/users', option: 'users'});
+      });
+
+      it('adds the screen it leaves to the origin of the screens before it', () => {
+        MenuRegistry.setOrigin([{label: 'Home page', path: '/home'}]);
+        ViewRegistry.setView('report', {option: 'detail', title: 'Detail'});
+        MenuRegistry.setBreadcrumbs('users', []);
+
+        open({parameters: {screen: '/next'}, target: '/next'}, '/detail');
+
+        expect(MenuRegistry.getOrigin()).toEqual([{label: 'Home page', path: '/home'}, {label: 'Detail', path: '/detail', option: 'detail'}]);
+      });
+
+      it('forgets the origin when the screen is launched from the menu', () => {
+        MenuRegistry.setOrigin([{label: 'Home page', path: '/home'}]);
+
+        open({origin: 'menu'});
+
+        expect(MenuRegistry.getOrigin()).toEqual([]);
+      });
+
+      it('keeps the origin when the screen is reloaded and does not leave', () => {
+        MenuRegistry.setOrigin([{label: 'Home page', path: '/home'}]);
+
+        open({reload: true, parameters: {screen: '/users'}, target: '/users'});
+
+        expect(MenuRegistry.getOrigin()).toEqual([{label: 'Home page', path: '/home'}]);
+      });
     });
 
     it('navega a ruta relativa usando context', () => {

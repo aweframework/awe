@@ -1704,6 +1704,8 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_APP_PAR_SEARCH" value="Nom ou description…"/>
   <locale name="SCREEN_TEXT_APP_PAR_SEARCH_LABEL" value="Rechercher des paramètres"/>
   <locale name="SCREEN_TEXT_APP_PAR_VALUE" value="Valeur"/>
+  <locale name="SCREEN_TEXT_BREADCRUMB" value="Fil d'Ariane"/>
+  <locale name="SCREEN_TEXT_BREADCRUMB_EXPAND" value="Afficher les niveaux masqués"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendrier"/>
   <locale name="SCREEN_TEXT_CALENDAR_DATES" value="Les Dates d&apos;ajout"/>
   <locale name="SCREEN_TEXT_CHANGE_EXPIRED_PWD" value="Votre mot de passe a expiré. Définissez-en un nouveau pour vous connecter."/>

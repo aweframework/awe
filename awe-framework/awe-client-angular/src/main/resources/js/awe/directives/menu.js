@@ -17,8 +17,8 @@ function getResolutionType(width) {
 
 // Menu directive
 aweApplication.directive('aweMenu',
-  ['ServerData', 'Component', '$document', '$window', '$filter', '$location', 'AweUtilities', 'ActionController', '$translate', 'AweSettings',
-    function (serverData, Component, $document, $window, $filter, $location, Utilities, $actionController, $translate, $settings) {
+  ['ServerData', 'Component', '$document', '$window', '$filter', '$location', 'AweUtilities', 'ActionController', '$translate', 'AweSettings', 'Breadcrumb',
+    function (serverData, Component, $document, $window, $filter, $location, Utilities, $actionController, $translate, $settings, $breadcrumb) {
       return {
         restrict: 'E',
         replace: false,
@@ -246,14 +246,37 @@ aweApplication.directive('aweMenu',
            * @param {object} entry Search result entry
            */
           scope.selectResult = function (entry) {
-            let option = entry && entry.option;
+            launchOption(entry && entry.option);
+            scope.closeSearch();
+          };
+
+          /**
+           * Launch an option of the menu (a search result, a level of the breadcrumb)
+           * @param {object} option Option
+           */
+          function launchOption(option) {
             if (option && option.actions) {
               $actionController.closeAllActions();
               $actionController.addActionList(option.actions.map(a => ({...a, origin: "menu"})), true, {});
               scope.$emit("optionClicked");
             }
-            scope.closeSearch();
-          };
+          }
+
+          /**
+           * Open the menu at a group, with the groups above it: the collapsed rail opens, and so does the drawer of a
+           * narrow viewport, so the group shows
+           * @param {string[]} path Names of the groups, from the first level to the group
+           */
+          function expandTo(path) {
+            if (scope.status.minimized) {
+              component.toggleMenu();
+            }
+            scope.closeFirstLevel();
+            Object.keys(scope.selectedOption.opened).forEach(name => delete scope.selectedOption.opened[name]);
+            path.forEach((name, index) => {
+              scope.selectedOption.opened[name] = index === 0;
+            });
+          }
 
           /******************************************************************************
            * COMPONENT METHODS
@@ -451,8 +474,16 @@ aweApplication.directive('aweMenu',
 
           $document.on("keydown", onSearchShortcut);
 
+          // The breadcrumb launches the options of this menu and, the vertical one, opens it at a group
+          const detachBreadcrumb = $breadcrumb.attachMenu({
+            options: () => scope.options,
+            launch: launchOption,
+            ...(scope.menuType === "vertical" ? {expand: expandTo} : {})
+          });
+
           // Remove all listeners on unload
           listeners['resize'] = scope.$on("$destroy", function () {
+            detachBreadcrumb();
             // Remove body classes
             $body.removeClass("mme");
             $document.off("keydown", onSearchShortcut);

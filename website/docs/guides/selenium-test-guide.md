@@ -400,6 +400,8 @@ Raw CSS steps that take a `String` (`click(String cssSelector)`, `checkText(Stri
 | `checkLauncherCardDescription(String option, String text)` | Checks that a card of a launcher page shows a description (its secondary line) |
 | `checkLauncherCardWithoutDescription(String option)` | Checks that a card of a launcher page has no description |
 | `checkBreadcrumbContains(String text)` | Checks that the breadcrumb of the page is visible and contains a text |
+| `checkBreadcrumbCurrentPage(String text)` | Checks that the current page of the breadcrumb (its last level) shows a text |
+| `clickBreadcrumbLevel(String option)` | Clicks a level of the breadcrumb by the name of its menu option and waits for the loading bar |
 | `selectModule(String moduleName)` | Opens the settings menu (`ButSetTog`) and selects a module in the `module` selector |
 | `ensureModule(String moduleName, String menuOption)` | Does nothing when the menu option that only that module shows is already visible; selects the module (`selectModule`) when it is not |
 | `broadcastMessageToUser(String user, String text)` | Goes to the `tools > broadcast-messages` screen of the AWE test applications, sends a text to a user and closes the `success` and `info` messages |
@@ -960,6 +962,7 @@ AngularJS renders every option as a criterion of its own. Use `clickCheckboxOpti
 |---|---|---|
 | `button` | The `<button>` of a button, with the button `id` (also inside grid cells) | Anywhere |
 | `context-menu`, `context-menu-option`, `context-menu-link`, `context-submenu` | A context menu, an option (with `option-id`), its link (`data-disabled`) and a nested menu | Inside the component that owns the menu |
+| `breadcrumb`, `breadcrumb-home`, `breadcrumb-level`, `breadcrumb-ellipsis` | The breadcrumb, its home level, a level (a menu level carries `name`; the current page `data-active`) and the ellipsis button of the collapsed levels | Inside the window header |
 | `menu`, `menu-option`, `menu-link`, `menu-dropdown`, `menu-submenu` | The application menu, an option (`data-active`, `data-open`), its link (with `name`), the first level dropdown and the nested submenus (`data-open`) | Inside the menu |
 | `info-dropdown`, `info-dropdown-toggle`, `info-dropdown-menu` | An info dropdown (with `info-dropdown-id`), the link that opens it and its menu | Anywhere |
 | `info-button`, `info-button-link` | An info button and its link (`info-button-link`: AngularJS only) | Anywhere |

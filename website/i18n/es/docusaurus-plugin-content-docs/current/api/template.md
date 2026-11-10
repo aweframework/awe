@@ -73,6 +73,19 @@ Las plantillas `full` y `document` no se ven afectadas. En los identificadores d
 
 > **Nota:** En el motor AngularJS el servidor pasa el parámetro `header` solo a las plantillas que lo declaran, así que tus plantillas propias siguen funcionando sin cambios. Añádelo a una copia de `window` para admitir el modo.
 
+### Migas de pan navegables {#navigable-breadcrumb}
+
+En el modo `breadcrumb` los niveles son enlaces, en ambos motores:
+
+* El icono de inicio abre la pantalla de inicio.
+* Un nivel de opción de menú abre su pantalla, igual que el menú.
+* Un nivel de grupo de menú abre el menú lateral desplegado en ese grupo (un cajón abierto en pantallas estrechas). Con el menú horizontal, o cuando el menú no conoce el grupo, el grupo es texto plano.
+* El último nivel es la página actual: texto plano marcado con `aria-current="page"`. Las migas de pan son un `nav` etiquetado con la clave de locale `SCREEN_TEXT_BREADCRUMB`.
+* Con más de 4 niveles se muestran el primer nivel, un botón de puntos suspensivos y los dos últimos niveles. El botón (con el nombre de `SCREEN_TEXT_BREADCRUMB_EXPAND` y `aria-expanded`) muestra en el mismo sitio los niveles ocultos.
+* Una pantalla abierta desde otra pantalla (no desde el menú) muestra el rastro de las pantallas de las que viene, y la pantalla de origen es un nivel que vuelve a ella. El rastro se reinicia al lanzar una pantalla desde el menú, el icono de inicio o un nivel de menú.
+
+Identificadores de prueba: `breadcrumb`, `breadcrumb-home`, `breadcrumb-level` (un nivel de menú lleva `name`, una pantalla de origen `path`; la página actual lleva `data-active="true"`) y `breadcrumb-ellipsis`. En el motor AngularJS la página actual muestra su título solo cuando el servidor lo conoce, así que el rastro puede terminar un nivel antes que en React.
+
 ## Plantillas propias {#own-templates}
 
 Si necesitas un marco distinto (por ejemplo una pantalla con un panel lateral), puedes añadir tu propia plantilla. Cómo hacerlo depende del motor:

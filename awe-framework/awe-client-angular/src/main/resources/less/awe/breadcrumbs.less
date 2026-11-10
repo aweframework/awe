@@ -3,7 +3,8 @@
 // --------------------------------------------------
 // The breadcrumb bar of a screen in the AWE 5 shell (#885): on the page background with the page padding, the home
 // icon, then each menu level muted with a separator, down to the screen title (emphasised, not a link). The screen
-// buttons sit on its right (.window-buttons in base.less)
+// buttons sit on its right (.window-buttons in base.less). The levels that go somewhere (the home icon, the menu
+// groups and options, the screens the user came from, #938) are buttons that look like the text of the level
 
 .window-header {
   padding: var(--awe-space-4) var(--awe-page-padding) var(--awe-space-3);
@@ -57,6 +58,32 @@
     padding-left: 0;
     font-weight: var(--awe-font-weight-medium);
     color: var(--awe-color-text-emphasis);
+  }
+
+  .window-crumb {
+    display: inline-flex;
+    align-items: center;
+    padding: 0;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    background: none;
+    border: 0;
+    border-radius: var(--awe-radius-sm);
+
+    &:hover {
+      color: var(--awe-color-text-hover);
+    }
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: var(--awe-focus-ring-offset);
+    }
+  }
+
+  // The ellipsis that expands the collapsed levels
+  .window-crumb-ellipsis {
+    padding: 0 var(--awe-space-1);
   }
 
   .breadcrumb-label {

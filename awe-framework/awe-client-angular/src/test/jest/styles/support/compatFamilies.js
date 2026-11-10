@@ -404,6 +404,8 @@ const breadcrumbs = {
   group: ["breadcrumb", "breadcrumb-page", "breadcrumb-label"],
   context: ["active"],
   sample: ".breadcrumb > li + li:before",
+  // The test hooks of the levels of the window breadcrumb (#938): values of data-testid, not classes
+  markers: ["breadcrumb-level", "breadcrumb-home", "breadcrumb-ellipsis"],
   after: ["navbar.css"],
   before: ["labels.css"],
   owned: [{selectors: [
@@ -413,6 +415,8 @@ const breadcrumbs = {
     ".breadcrumb.breadcrumb-page .breadcrumb-label"],
     reason: "The breadcrumb bar of the AWE 5 shell (#885, less/awe/breadcrumbs.less) restyles the levels, the separator and the label in the AWE LESS (unlayered, so it wins over the compat rule): it stays there, written once"}],
   leftOut: [
+    {names: ["window-crumb", "window-crumb-ellipsis"], examples: [".breadcrumb.breadcrumb-page .window-crumb", ".breadcrumb.breadcrumb-page .window-crumb:hover", ".breadcrumb.breadcrumb-page .window-crumb:focus-visible", ".breadcrumb.breadcrumb-page .window-crumb-ellipsis"],
+      reason: "the levels of the window breadcrumb that go somewhere (#938), and the ellipsis that expands its collapsed levels, are buttons that look like the text of the level: the AWE 5 shell styles them in the AWE LESS, with the bar"},
     {names: ["breadcrumb-dark", "breadcrumb-no-padding"], examples: [".breadcrumb.breadcrumb-dark > li + li:before", ".breadcrumb.breadcrumb-dark li", ".breadcrumb.breadcrumb-no-padding"],
       reason: "the dark and the unpadded breadcrumb of pixel-admin: no AWE screen, template or directive writes them"},
     THEME,

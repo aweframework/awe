@@ -23,5 +23,6 @@ import "./validationRules";
 import "./maximize";
 import "./panel";
 import "./testIds";
+import "./breadcrumb";
 import "./modal";
 import "./dropdown";

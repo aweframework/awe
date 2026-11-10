@@ -9,8 +9,8 @@ import type {MenuOption, SizeState, ViewData} from "../../../../../src/redux/typ
 // The menu registry keeps the options (with their allowed flag) and the breadcrumbs of the current option
 MenuRegistry.setOptions([{name: "home", visible: true, options: [{name: "child"}]}]);
 const options: MenuOption[] = MenuRegistry.getOptions();
-const breadcrumbs: {items: unknown[]; option: string | null} = MenuRegistry.getBreadcrumbs();
-MenuRegistry.setBreadcrumbs("home", [{name: "home"}]);
+const breadcrumbs: {items: {label: string}[]; option: string | null} = MenuRegistry.getBreadcrumbs();
+MenuRegistry.setBreadcrumbs("home", [{label: "Home", name: "home"}]);
 // @ts-expect-error the options are a list
 MenuRegistry.setOptions("home");
 // @ts-expect-error the option key is text

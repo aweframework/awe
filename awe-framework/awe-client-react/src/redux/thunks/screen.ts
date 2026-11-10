@@ -1,5 +1,6 @@
 import {updateViewComponentsWithDependencies} from "./components";
 import MenuRegistry from "../registry/MenuRegistry";
+import {getBreadcrumbLevels, originOf} from "../../utilities/breadcrumbs";
 import {updateMessages} from "../actions/messages";
 import ViewRegistry from "../registry/ViewRegistry";
 import {acceptAction, addActionsTop, deleteStack} from "../actions/actions";
@@ -231,6 +232,15 @@ export function screenAction(action: ScreenClientAction, pathname: string, curre
     const isRelativeRoute = !screen.startsWith("/");
     const target = resolveScreenTarget(screen, pathname, context);
     const isCurrentScreenReload = reload && target === pathname;
+
+    // The breadcrumb of the screen opened keeps the screens the user came from, unless the menu launches it
+    if (action.origin === "menu") {
+      MenuRegistry.setOrigin([]);
+    } else if (target !== pathname) {
+      const report = ViewRegistry.get("report");
+      const levels = getBreadcrumbLevels(MenuRegistry.getOrigin(), MenuRegistry.getBreadcrumbs(), report, currentLocation);
+      MenuRegistry.setOrigin(originOf(levels, currentLocation, report?.option as string | undefined));
+    }
 
     if (target !== pathname || reload) {
       const navigationTarget = isCurrentScreenReload ? currentLocation : target;

@@ -13,6 +13,7 @@ import AweScreenSkeleton, {endInitialLoad} from "../components/AweScreenSkeleton
 import {translateLabel} from "../utilities";
 import { useView } from "../hooks/useViewRegistry";
 import ViewRegistry from "../redux/registry/ViewRegistry";
+import MenuRegistry from "../redux/registry/MenuRegistry";
 import ErrorBoundary from "../components/ErrorBoundary";
 
 const VIEW = "base";
@@ -65,6 +66,11 @@ function ViewContainer() {
       window.removeEventListener('resize', updateWindowDimensions);
     };
   }, []);
+
+  // The breadcrumb needs to know where the router is: a trail does not follow browser back or forward by itself
+  useEffect(() => {
+    MenuRegistry.setLocation(`${location.pathname}${location.search}${location.hash}`);
+  }, [location.pathname, location.search, location.hash]);
 
   useEffect(() => {
     dispatch(addActionsTop([{ type: "disconnectWebsocket" },{ type: "connectWebsocket", parameters: { token: settings.token } }]));

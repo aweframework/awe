@@ -1704,6 +1704,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_APP_PAR_SEARCH" value="Name or description…"/>
   <locale name="SCREEN_TEXT_APP_PAR_SEARCH_LABEL" value="Search parameters"/>
   <locale name="SCREEN_TEXT_APP_PAR_VALUE" value="Value"/>
+  <locale name="SCREEN_TEXT_BREADCRUMB" value="Breadcrumb"/>
+  <locale name="SCREEN_TEXT_BREADCRUMB_EXPAND" value="Show hidden levels"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendar"/>
   <locale name="SCREEN_TEXT_CALENDAR_DATES" value="Added dates"/>
   <locale name="SCREEN_TEXT_CHANGE_EXPIRED_PWD" value="Your password has expired. Set a new one to sign in."/>

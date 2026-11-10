@@ -12,8 +12,12 @@ import "./AweMenu.css";
 import { getIconCode, translateLabel } from "../utilities";
 import { useView } from "../hooks/useViewRegistry";
 import MenuRegistry from "../redux/registry/MenuRegistry";
-import { useMenuOptions } from "../hooks/useMenuRegistry";
+import { useMenuExpandRequest, useMenuOptions } from "../hooks/useMenuRegistry";
 import AweMenuSearch from "./AweMenuSearch";
+import { findOptionPath, stampMenuOrigin } from "../utilities/menuLaunch";
+
+export { findOptionPath };
+import { changeClasses } from "../utilities/classChanges";
 import { menubarPassThrough, panelMenuPassThrough } from "../utilities/testPassThrough";
 
 // The side menu collapses to the rail on desktops only (shell.css): below, the menu is a drawer
@@ -24,8 +28,9 @@ const FLYOUT_CLOSE_DELAY = 220;
 const FLYOUT_OFFSET = 4;
 const FLYOUT_MARGIN = 8;
 
-// The actions of a menu option do not send the values of the screen the menu leaves
-const stampMenuOrigin = (actions) => actions.map(action => ({ ...action, origin: "menu" }));
+// Selector and class of the container that collapses the menu to the rail, as the toggle button of the menu declares it
+const LAYOUT_SELECTOR = ".layout-container";
+const RAIL_CLASS = "layout-static-inactive";
 
 /**
  * Whether the vertical menu of an element is collapsed to the rail
@@ -138,25 +143,6 @@ function getExpandedKeys(optionList) {
 }
 
 /**
- * Retrieve the names of the options from the first level down to the given option
- * @param {object[]} optionList Option list
- * @param {string} name Option name
- * @returns {string[]|null} Option names of the path, or null when the option is not in the list
- */
-export function findOptionPath(optionList, name) {
-  for (const option of optionList || []) {
-    if (option.name === name) {
-      return [option.name];
-    }
-    const path = findOptionPath(option.options, name);
-    if (path) {
-      return [option.name, ...path];
-    }
-  }
-  return null;
-}
-
-/**
  * Item classes: the option of the open screen is active, and its parent groups are on the active path
  * @param {string} name Option name
  * @param {string[]} activePath Option names from the first level down to the open screen option
@@ -225,9 +211,12 @@ function generateBreadcrumbs(optionList, breadcrumbs, props) {
   const { t, currentOption } = props;
   return optionList
     .map((option) => {
-      const { name, label, options } = option;
+      const { name, label, options, actions, menuScreen } = option;
       let translated = translateLabel(label || currentOption.title, t);
-      let newBreadcrumbs = [...breadcrumbs, { label: translated, name: name }];
+      // A level goes back to the menu as its option does: a group opens the menu at it, an option launches. A menu
+      // screen is a leaf of the menu even with options (they open from its cards), so it launches
+      const group = !menuScreen && options.length > 0;
+      let newBreadcrumbs = [...breadcrumbs, { label: translated, name: name, group, actions }];
       if (name === currentOption.option) {
         return newBreadcrumbs;
       } else if (options.length === 0) {
@@ -362,6 +351,30 @@ function AweMenu(props) {
       MenuRegistry.setBreadcrumbs(currentOption.option, generateBreadcrumbs(options, [], helperProps) || []);
     }
   }, [currentOption?.option, options, helperProps]);
+
+  // A level of the breadcrumb asks for the menu to open at a group: expand it with the groups above it and, on the
+  // collapsed rail, open the rail so the group shows. Requests made before the menu was mounted are not replayed
+  const expandRequest = useMenuExpandRequest();
+  const handledRequest = useRef(expandRequest?.token ?? 0);
+  const verticalMenu = style.includes("vertical");
+  useEffect(() => verticalMenu ? MenuRegistry.attachExpander() : undefined, [verticalMenu]);
+  useEffect(() => {
+    if (!expandRequest || expandRequest.token === handledRequest.current) {
+      return;
+    }
+    handledRequest.current = expandRequest.token;
+    const path = findOptionPath(options, expandRequest.name);
+    if (path) {
+      setExpandedKeys(expanded => path.reduce((keys, name) => ({ ...keys, [name]: true }), expanded));
+      // The class of the layout collapses the menu to the rail on a desktop and opens the drawer on a narrow viewport:
+      // change it only when the menu is hidden
+      const layout = containerRef.current?.closest(LAYOUT_SELECTOR);
+      const desktop = typeof window.matchMedia === "function" ? window.matchMedia(RAIL_QUERY).matches : true;
+      if (layout && desktop === layout.classList.contains(RAIL_CLASS)) {
+        changeClasses(layout, LAYOUT_SELECTOR, [RAIL_CLASS], desktop ? "remove" : "add");
+      }
+    }
+  }, [expandRequest, options]);
 
   // Keep the groups on the path to the open screen expanded, as the AngularJS menu does
   useEffect(() => {
