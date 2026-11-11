@@ -26,21 +26,30 @@ const columnsRootTemplate = (panel, attributes = "") => `<div ng-if="columnsOpen
 // searches menu (#912, saved-searches="true") with the chip of its default search (#945) and the Columns and Maximize
 // buttons at the end. The grouping controls,
 // the Columns and Maximize buttons are hidden when the grid opts out of them (show-toolbar="false"), which shows the
-// toolbar only for its search, quick filters and saved searches
+// toolbar only for its search, quick filters and saved searches. A grid may also hide only the Columns
+// (show-columns-button="false") or the Maximize (show-maximize-button="false") button. The end buttons (Group by, Saved
+// searches, Columns and Maximize) are square icon buttons with their text as tooltip and accessible name, unless the grid
+// lists them in its toolbar-labels or, when the grid does not set it, the application (gridToolbarLabels setting) shows
+// the text of all of them
+const SHOW_COLUMNS = "component.controller.showToolbar !== false && component.controller.showColumnsButton !== false";
+const SHOW_MAXIMIZE = "component.controller.showToolbar !== false && component.controller.showMaximizeButton !== false";
+// Names of the end buttons in the toolbar-labels of the grid
+const LABELLED_BUTTONS = ["group-by", "saved-searches", "columns", "maximize"];
+const MAXIMIZE_TEXT = "(iconMaximized ? 'SCREEN_TEXT_RESTORE' : 'SCREEN_TEXT_MAXIMIZE')";
 export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${TestIds.gridToolbar}" ng-attr-data-testid-owner="{{component.address.component}}" ng-attr-data-maximized="{{iconMaximized === true}}">
   <awe-grid-search ng-if="component.controller.search" search-id="{{::component.controller.search}}" grid-id="{{::component.address.component}}"></awe-grid-search>
   <awe-grid-quick-filter ng-if="component.controller.quickFilter" quick-filter-id="{{::component.controller.quickFilter}}" grid-id="{{::component.address.component}}"></awe-grid-quick-filter>
   <awe-grid-group-by ng-if="::component.groupingConfigured && component.controller.showToolbar !== false" class="grid-group-by"></awe-grid-group-by>
-  <span ng-if="component.controller.showToolbar !== false || component.controller.savedSearches" class="grid-toolbar-spacer" aria-hidden="true"></span>
-  ${getSavedSearchesTemplate("btn-awe btn-default grid-toolbar-button")}
+  <span ng-if="component.controller.savedSearches || (${SHOW_COLUMNS}) || (${SHOW_MAXIMIZE})" class="grid-toolbar-spacer" aria-hidden="true"></span>
+  ${getSavedSearchesTemplate("btn-awe btn-default grid-toolbar-button", "toolbarLabels['saved-searches']")}
   ${appliedDefaultTemplate}
-  <button ng-if="component.controller.showToolbar !== false" type="button" class="btn-awe btn-default grid-toolbar-button grid-columns-button" data-testid="${TestIds.gridColumnsButton}" title="{{'GRID_COLUMNS_TITLE' | translateMultiple}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{columnsOpen === true}}" ng-click="openColumns()">
+  <button ng-if="${SHOW_COLUMNS}" type="button" class="btn-awe btn-default grid-toolbar-button grid-columns-button" ng-class="{'grid-toolbar-button-icon': !toolbarLabels.columns}" data-testid="${TestIds.gridColumnsButton}" title="{{(toolbarLabels.columns ? 'GRID_COLUMNS_TITLE' : 'GRID_COLUMNS_BUTTON') | translateMultiple}}" ng-attr-aria-label="{{toolbarLabels.columns ? undefined : ('GRID_COLUMNS_BUTTON' | translateMultiple)}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{columnsOpen === true}}" ng-click="openColumns()">
     ${iconTemplate("columns")}
-    <span class="button-text" translate-multiple="GRID_COLUMNS_BUTTON"></span>
+    <span ng-if="toolbarLabels.columns" class="button-text" translate-multiple="GRID_COLUMNS_BUTTON"></span>
   </button>
-  <button ng-if="component.controller.showToolbar !== false" type="button" class="btn-awe btn-default grid-toolbar-button grid-maximize-button" data-testid="${TestIds.gridMaximizeButton}" ng-attr-aria-pressed="{{maximized === true}}" title="{{(iconMaximized ? 'SCREEN_TEXT_RESTORE' : 'SCREEN_TEXT_MAXIMIZE') | translateMultiple}}" ng-click="toggleMaximize()">
+  <button ng-if="${SHOW_MAXIMIZE}" type="button" class="btn-awe btn-default grid-toolbar-button grid-maximize-button" ng-class="{'grid-toolbar-button-icon': !toolbarLabels.maximize}" data-testid="${TestIds.gridMaximizeButton}" ng-attr-aria-pressed="{{maximized === true}}" title="{{${MAXIMIZE_TEXT} | translateMultiple}}" ng-attr-aria-label="{{toolbarLabels.maximize ? undefined : (${MAXIMIZE_TEXT} | translateMultiple)}}" ng-click="toggleMaximize()">
     <i>${iconMarkup("compress", 'ng-if="iconMaximized"')}${iconMarkup("expand", 'ng-if="!iconMaximized"')}</i>
-    <span class="button-text" translate-multiple="{{iconMaximized ? 'SCREEN_TEXT_RESTORE' : 'SCREEN_TEXT_MAXIMIZE'}}"></span>
+    <span ng-if="toolbarLabels.maximize" class="button-text" translate-multiple="{{iconMaximized ? 'SCREEN_TEXT_RESTORE' : 'SCREEN_TEXT_MAXIMIZE'}}"></span>
   </button>
   <div ng-if="columnsOpen && columnsPanel === 'dialog'" class="grid-columns-backdrop" ng-click="closeColumns()"></div>
   ${columnsRootTemplate("popover")}
@@ -98,6 +107,15 @@ const COLUMN_ITEM_TEMPLATE = `${iconTemplate("bars", {tag: "span", classes: "gri
 <button type="button" class="btn-link grid-column-move" data-testid="${TestIds.gridColumnDown}" title="{{'GRID_COLUMNS_MOVE_DOWN' | translateMultiple}}" aria-label="{{'GRID_COLUMNS_MOVE_DOWN' | translateMultiple}}" ng-disabled="column.last" ng-click="component.moveColumn(column.name, 1)">${iconTemplate("arrow-down")}</button>`;
 
 /**
+ * Whether each end button of the toolbar shows its text
+ * @param {string[]|null|undefined} gridLabels Buttons of the grid which show their text (toolbarLabels of the controller)
+ * @param {boolean} settingLabels Application default when the grid does not set them (gridToolbarLabels setting)
+ * @returns {Object<string, boolean>} Whether each button (group-by, saved-searches, columns, maximize) shows its text
+ */
+export const getToolbarLabels = (gridLabels, settingLabels) => Object.fromEntries(LABELLED_BUTTONS.map(name =>
+  [name, gridLabels == null ? settingLabels === true : Array.isArray(gridLabels) && gridLabels.includes(name)]));
+
+/**
  * Offset of the box fixed elements are placed in: the window, or an ancestor which creates a containing block for them
  * (a transformed Bootstrap modal dialog)
  * @param {HTMLElement} node Fixed element
@@ -140,6 +158,10 @@ aweApplication.directive('aweGridToolbar',
           scope.columnsOpen = false;
           scope.columnsPanel = null;
           scope.sidePanel = false;
+          // Whether each end button shows its text (by name: group-by, saved-searches, columns, maximize): the grid sends
+          // in toolbarLabels the buttons that do; when it does not set it, the application default (gridToolbarLabels
+          // setting) applies to all of them. The Group by of the grouping controls reads it too
+          scope.toolbarLabels = getToolbarLabels((component.controller || {}).toolbarLabels, $settings.get("gridToolbarLabels"));
 
           // The Saved searches menu of a grid that opts in
           if ((component.controller || {}).savedSearches) {

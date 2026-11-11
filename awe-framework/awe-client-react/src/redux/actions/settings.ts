@@ -92,6 +92,7 @@ export const DEFAULT_SETTINGS = {
   recordsPerPage: 30,
   gridIconLoading: "skeleton",
   gridColumnsPanel: "popover",
+  gridToolbarLabels: false,
   pixelsPerCharacter: 7,
   defaultComponentSize: "md",
   shareSessionInTabs: false,

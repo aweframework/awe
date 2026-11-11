@@ -537,12 +537,14 @@ ManageSearchesDialog.propTypes = {
  * Saved searches of a component (a window, #790, or a grid, #912): a text button that opens the menu of the searches and
  * shows the name of the search last applied while the component keeps its values. The searches are loaded each time the
  * menu opens; the profiles the user may publish for, once. The component tells where it is, reads its values, applies
- * the values of a search and checks whether they are still in effect; a text button by default, or the look it chooses.
+ * the values of a search and checks whether they are still in effect; a text button by default, or the look it chooses
+ * (iconOnly: only the bookmark, with its text as tooltip and accessible name, as the end buttons of a grid toolbar).
  * A window (#915) also reads the layout a search would keep (getLayout: the save dialog offers to keep it and the
  * values) and turns on its default searches (defaults: tags, Open the screen with this search and the default toggles).
  */
 export function SavedSearchesControl({id, label, getScreen, getValues, applyValues, isInEffect, getLayout, defaults = false,
-                                      parseValues = parseSearchValues, buttonClassName = "p-button-text"}) {
+                                      parseValues = parseSearchValues, buttonClassName = "p-button-text",
+                                      iconOnly = false}) {
   const {t} = useTranslation();
   const dispatch = useDispatch();
   const buttonRef = useRef(null);
@@ -701,16 +703,17 @@ export function SavedSearchesControl({id, label, getScreen, getValues, applyValu
   };
 
   const text = inEffect ? inEffect.name : t("SCREEN_TEXT_SAVED_SEARCHES");
+  const title = inEffect ? `${t("SCREEN_TEXT_SAVED_SEARCHES")}: ${inEffect.name}` : undefined;
   return <>
     <button ref={buttonRef} type="button" onClick={toggleMenu}
-            className={`window-saved-searches p-button p-component p-button-sm ${buttonClassName}`}
+            className={`window-saved-searches p-button p-component p-button-sm ${buttonClassName}${iconOnly ? " p-button-icon-only" : ""}`}
             aria-haspopup="menu" aria-expanded={menuOpen}
             aria-controls={menuOpen ? `${id}-saved-searches-menu` : undefined}
-            title={inEffect ? `${t("SCREEN_TEXT_SAVED_SEARCHES")}: ${inEffect.name}` : undefined}
+            title={iconOnly ? title ?? text : title} aria-label={iconOnly ? title ?? text : undefined}
             {...testHook(TestIds.windowSavedSearches, {owner: id})}>
       {getIconNode("lucide:bookmark", {className: "window-saved-searches-icon", "aria-hidden": "true"})}
-      <span className="window-saved-searches-text">{text}</span>
-      {getIconNode("lucide:chevron-down", {className: "window-saved-searches-chevron", "aria-hidden": "true"})}
+      {!iconOnly && <span className="window-saved-searches-text">{text}</span>}
+      {!iconOnly && getIconNode("lucide:chevron-down", {className: "window-saved-searches-chevron", "aria-hidden": "true"})}
     </button>
     <SavedSearchesMenu id={id} menuRef={menuRef} listRef={listRef} open={menuOpen} loading={loading}
                        searches={searches} profiles={profiles} current={inEffect?.id} defaults={defaults}
@@ -735,7 +738,8 @@ SavedSearchesControl.propTypes = {
   getLayout: PropTypes.func,
   defaults: PropTypes.bool,
   parseValues: PropTypes.func,
-  buttonClassName: PropTypes.string
+  buttonClassName: PropTypes.string,
+  iconOnly: PropTypes.bool
 };
 
 /**

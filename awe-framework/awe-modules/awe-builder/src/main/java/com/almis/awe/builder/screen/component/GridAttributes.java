@@ -22,6 +22,9 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
   private boolean sendOperations;
   private boolean showTotals;
   private boolean showToolbar = true;
+  private boolean showColumnsButton = true;
+  private boolean showMaximizeButton = true;
+  private String toolbarLabels;
   private ColumnsPanel columnsPanel;
   private String groupBy;
   private Boolean groupSelector;
@@ -60,6 +63,9 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
       .setMultioperation(isSendOperations())
       .setShowTotals(isShowTotals())
       .setShowToolbar(isShowToolbar())
+      .setShowColumnsButton(isShowColumnsButton())
+      .setShowMaximizeButton(isShowMaximizeButton())
+      .setToolbarLabels(getToolbarLabels())
       .setTreegrid(isTreeGrid())
       .setValidateOnSave(isValidateOnSave())
       .setInitialLevel(getInitialLevel())

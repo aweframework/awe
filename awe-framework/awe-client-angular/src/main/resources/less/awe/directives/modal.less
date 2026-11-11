@@ -176,3 +176,9 @@
     }
   }
 }
+
+// Session expired panel: an opaque footer. The subtle surface of the alert footers is translucent in dark mode, and the
+// screen behind the mask showed through it; the subtle tint is kept over the opaque surface
+.modal.modal-alert.session-expired-panel .modal-footer {
+  background: linear-gradient(var(--awe-color-surface-subtle), var(--awe-color-surface-subtle)), var(--awe-color-surface);
+}

@@ -186,6 +186,7 @@ module.exports = {
     '**/components/AweGridCellsTest.{js,jsx}',
     '**/components/AweGridFrozenTest.{js,jsx}',
     '**/components/AweGridToolbarTest.{js,jsx}',
+    '**/components/AweGridSelectionBarTest.{js,jsx}',
     '**/components/AweGridGroupsTest.{js,jsx}',
     '**/components/AweGridGroupByTest.{js,jsx}',
     '**/components/AweGridRadioColumnTest.{js,jsx}',

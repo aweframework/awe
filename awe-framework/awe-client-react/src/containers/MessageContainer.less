@@ -51,6 +51,12 @@
   border-radius: var(--awe-radius-full);
 }
 
+// Session expired dialog: an opaque footer. The subtle surface of the dialog footers is translucent in dark mode, and the
+// screen behind the mask showed through it; the subtle tint is kept over the opaque surface
+.p-dialog.awe-session-expired-dialog .p-dialog-footer {
+  background: linear-gradient(var(--awe-color-surface-subtle), var(--awe-color-surface-subtle)), var(--awe-color-surface);
+}
+
 .awe-confirm-dialog .confirm-footer {
   display: flex;
   flex-wrap: wrap;

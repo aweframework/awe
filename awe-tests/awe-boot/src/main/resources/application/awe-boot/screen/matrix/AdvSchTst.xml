@@ -50,7 +50,7 @@
 
         <window id="WinAdvInlGrd" label="SCREEN_TEXT_ADVANCED_INLINE_RESULTS" icon="list" style="expand" expandible="vertical">
           <grid id="GrdAdvInl" style="expand" initial-load="query" server-action="data" target-action="AdvSchInlCst" max="10"
-                saved-searches="true">
+                saved-searches="true" toolbar-labels="saved-searches">
             <!-- Column autofilter (#912): a funnel on the columns that declare a filter. The status is a translated code
                  (its values list shows the labels and filters by the codes), the name a text, the amount a number and the
                  creation a date (its field is the dd/MM/yyyy date, not the sort field). Its column filters and sort
@@ -123,7 +123,7 @@
              translated, text of the user and the IP; this table has no number column) -->
         <window id="WinAdvSqlGrd" label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" icon="list" style="expand" expandible="vertical">
           <grid id="GrdAdvSql" style="expand" server-action="data" target-action="SecAudEvtLst" initial-load="query" max="10"
-                saved-searches="true">
+                saved-searches="true" toolbar-labels="saved-searches">
             <column label="PARAMETER_DATE" name="EvtDat" sort-field="EvtDat" align="center" charlength="17" filter="date"/>
             <column label="PARAMETER_SECURITY_AUDIT_EVENT" name="TypTxt" sort-field="EvtTyp" align="left" charlength="22"
                     filter="values" filter-fields="EvtTyp"/>

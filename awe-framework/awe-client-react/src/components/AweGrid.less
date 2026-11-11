@@ -894,6 +894,25 @@
   .p-button-label {
     font-weight: inherit;
   }
+
+  // The icon wrapper (<i> or <span>) and the label are flex boxes: as inline boxes the icon sits on the text baseline
+  // and ends lower than the centre of the button, with or without a label
+  > * {
+    display: flex;
+    align-items: center;
+  }
+
+  // Icon only (Expand all, Collapse all and, unless the grid asks for labels, Group by, Saved searches, Columns and
+  // Maximize): a square at the toolbar button height, its text as tooltip and accessible name
+  &.p-button-icon-only {
+    justify-content: center;
+    width: var(--awe-size-control-sm);
+    padding: 0;
+
+    > * {
+      margin: 0;
+    }
+  }
 }
 
 // A maximized grid fills the maximize target like a window (position and size set by useMaximize)

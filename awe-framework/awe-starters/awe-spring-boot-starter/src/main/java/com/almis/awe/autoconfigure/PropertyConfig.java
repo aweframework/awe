@@ -118,6 +118,7 @@ public class PropertyConfig {
             .pixelsPerCharacter(baseConfigProperties.getComponent().getGridPixelsPerCharacter())
             .gridIconLoading(baseConfigProperties.getComponent().getGridIconLoading())
             .gridColumnsPanel(baseConfigProperties.getComponent().getGridColumnsPanel())
+            .gridToolbarLabels(baseConfigProperties.getComponent().isGridToolbarLabels())
             .suggestTimeout(baseConfigProperties.getComponent().getSuggestTimeout().toMillis())
             .defaultComponentSize(baseConfigProperties.getComponent().getSize().toString().toLowerCase())
             .reloadCurrentScreen(baseConfigProperties.isReloadCurrentScreen())

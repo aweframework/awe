@@ -11,15 +11,16 @@ const MARGIN = 8;
 // Grouping controls of the grid toolbar (#833): the Group by button with its panel (group-selector) and Expand all /
 // Collapse all while the rows are grouped. The panel is a popover anchored to its button, as the one of the Columns:
 // "No grouping" and a checkbox per column, with the level of the checked ones. Every change applies at once, on the
-// client (no server call)
-export const GRID_GROUP_BY_TEMPLATE = `<button ng-if="component.groupSelector" type="button" class="btn-awe btn-default grid-toolbar-button grid-group-by-button" data-testid="${TestIds.gridGroupBy}" title="{{'GRID_GROUP_BY' | translateMultiple}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{groupByOpen === true}}" ng-click="toggleGroupBy()">
+// client (no server call). The Group by button shows its text only when the toolbar says so (toolbarLabels['group-by'] of
+// the toolbar scope); otherwise it is a square icon button, as Expand all and Collapse all always are
+export const GRID_GROUP_BY_TEMPLATE = `<button ng-if="component.groupSelector" type="button" class="btn-awe btn-default grid-toolbar-button grid-group-by-button" ng-class="{'grid-toolbar-button-icon': !toolbarLabels['group-by']}" data-testid="${TestIds.gridGroupBy}" title="{{'GRID_GROUP_BY' | translateMultiple}}" ng-attr-aria-label="{{toolbarLabels['group-by'] ? undefined : ('GRID_GROUP_BY' | translateMultiple)}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{groupByOpen === true}}" ng-click="toggleGroupBy()">
     ${iconTemplate("object-group")}
-    <span class="button-text" translate-multiple="GRID_GROUP_BY"></span>
+    <span ng-if="toolbarLabels['group-by']" class="button-text" translate-multiple="GRID_GROUP_BY"></span>
   </button>
-  <button ng-if="component.grouped" type="button" class="btn-awe btn-default grid-toolbar-button grid-group-expand-all" data-testid="${TestIds.gridGroupExpandAll}" title="{{'GRID_GROUP_EXPAND_ALL' | translateMultiple}}" aria-label="{{'GRID_GROUP_EXPAND_ALL' | translateMultiple}}" ng-click="component.setAllGroupsExpanded(true)">
+  <button ng-if="component.grouped" type="button" class="btn-awe btn-default grid-toolbar-button grid-toolbar-button-icon grid-group-expand-all" data-testid="${TestIds.gridGroupExpandAll}" title="{{'GRID_GROUP_EXPAND_ALL' | translateMultiple}}" aria-label="{{'GRID_GROUP_EXPAND_ALL' | translateMultiple}}" ng-click="component.setAllGroupsExpanded(true)">
     ${iconTemplate("plus-square")}
   </button>
-  <button ng-if="component.grouped" type="button" class="btn-awe btn-default grid-toolbar-button grid-group-collapse-all" data-testid="${TestIds.gridGroupCollapseAll}" title="{{'GRID_GROUP_COLLAPSE_ALL' | translateMultiple}}" aria-label="{{'GRID_GROUP_COLLAPSE_ALL' | translateMultiple}}" ng-click="component.setAllGroupsExpanded(false)">
+  <button ng-if="component.grouped" type="button" class="btn-awe btn-default grid-toolbar-button grid-toolbar-button-icon grid-group-collapse-all" data-testid="${TestIds.gridGroupCollapseAll}" title="{{'GRID_GROUP_COLLAPSE_ALL' | translateMultiple}}" aria-label="{{'GRID_GROUP_COLLAPSE_ALL' | translateMultiple}}" ng-click="component.setAllGroupsExpanded(false)">
     ${iconTemplate("minus-square")}
   </button>
   <div ng-if="groupByOpen" class="grid-group-by-popover" role="dialog" aria-label="{{'GRID_GROUP_BY' | translateMultiple}}" data-testid="${TestIds.gridGroupByPanel}" ng-attr-data-testid-owner="{{component.address.component}}">

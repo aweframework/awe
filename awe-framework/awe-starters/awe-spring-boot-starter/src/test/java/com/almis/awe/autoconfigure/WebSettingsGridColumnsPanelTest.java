@@ -42,4 +42,13 @@ class WebSettingsGridColumnsPanelTest {
 
     assertThat(webSettings(properties).getGridColumnsPanel()).isEqualTo("side-panel");
   }
+
+  @Test
+  void gridToolbarButtonsShowOnlyTheirIconByDefault() {
+    assertThat(webSettings(new BaseConfigProperties()).getGridToolbarLabels()).isFalse();
+
+    BaseConfigProperties properties = new BaseConfigProperties();
+    properties.getComponent().setGridToolbarLabels(true);
+    assertThat(webSettings(properties).getGridToolbarLabels()).isTrue();
+  }
 }

@@ -49,15 +49,22 @@ const optionTemplate = (type, icon) => `<button type="button" role="menuitem" ta
 /**
  * The Saved searches button (with the name of the search applied while its values do not change) and its menu
  * @param {string} [buttonClasses] Classes of the button: a text button, or the look of the toolbar it is in
+ * @param {string} [labels] Expression that says whether the button shows its text (the grid toolbar): when it is false,
+ * an icon button with the text as its tooltip and accessible name (the name of the search applied after the text). The
+ * button always shows its text when no expression is given (the window)
  * @returns {string} Template
  */
-export const getSavedSearchesTemplate = (buttonClasses = "") => `<div class="window-saved-searches" ng-if="::saved">
-  <button type="button" class="window-saved-searches-toggle${buttonClasses ? ` ${buttonClasses}` : ""}" data-testid="${TestIds.windowSavedSearches}" ${owner}
+export const getSavedSearchesTemplate = (buttonClasses = "", labels = null) => {
+  const text = "('SCREEN_TEXT_SAVED_SEARCHES' | translateMultiple) + (saved.current ? ': ' + saved.current.name : '')";
+  const iconOnly = labels ? ` ng-class="{'grid-toolbar-button-icon': !(${labels})}" ng-attr-title="{{!(${labels}) ? ${text} : undefined}}" ng-attr-aria-label="{{!(${labels}) ? ${text} : undefined}}"` : "";
+  const shown = labels ? `(${labels}) && ` : "";
+  return `<div class="window-saved-searches" ng-if="::saved">
+  <button type="button" class="window-saved-searches-toggle${buttonClasses ? ` ${buttonClasses}` : ""}" data-testid="${TestIds.windowSavedSearches}" ${owner}${iconOnly}
           aria-haspopup="menu" ng-attr-aria-expanded="{{saved.open}}" aria-controls="{{::saved.menuId}}" ng-click="saved.toggleMenu()">
     ${iconMarkup("lucide:bookmark")}
-    <span class="window-saved-searches-label" ng-if="!saved.current">{{'SCREEN_TEXT_SAVED_SEARCHES' | translateMultiple}}</span>
-    <span class="window-saved-searches-label" ng-if="saved.current">{{saved.current.name}}</span>
-    ${iconMarkup("lucide:chevron-down window-saved-searches-chevron")}
+    <span class="window-saved-searches-label" ng-if="${shown}!saved.current">{{'SCREEN_TEXT_SAVED_SEARCHES' | translateMultiple}}</span>
+    <span class="window-saved-searches-label" ng-if="${shown}saved.current">{{saved.current.name}}</span>
+    ${iconMarkup("lucide:chevron-down window-saved-searches-chevron", labels ? `ng-if="${labels}"` : "")}
   </button>
   <div class="window-saved-searches-menu" role="menu" id="{{::saved.menuId}}" aria-label="{{'SCREEN_TEXT_SAVED_SEARCHES' | translateMultiple}}"
        data-testid="${TestIds.windowSavedSearchesMenu}" ${owner} ng-attr-hidden="{{saved.open ? undefined : 'hidden'}}"
@@ -79,6 +86,7 @@ export const getSavedSearchesTemplate = (buttonClasses = "") => `<div class="win
             ng-click="saved.openManage()">${iconMarkup("lucide:settings")}<span class="window-saved-searches-text">{{'SCREEN_TEXT_MANAGE_SEARCHES' | translateMultiple}}</span></button>
   </div>
 </div>`;
+};
 
 // The Saved searches of the advanced block of a window: a text button
 export const savedSearchesTemplate = getSavedSearchesTemplate();

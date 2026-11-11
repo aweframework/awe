@@ -768,7 +768,8 @@ export function inspectComponentStructure(element: StructureNode, context: strin
  * Keys of a controller that only the state of the component needs: the components do not read them from the props of
  * their structure node (a window reads the state of its advanced block, a grid its columns from its attributes...)
  */
-const CONTROLLER_ONLY_KEYS = ["columnModel", "columnLayout", "screenId", "showToolbar", "options", "advancedOpen", "rowDetail"];
+const CONTROLLER_ONLY_KEYS = ["columnModel", "columnLayout", "screenId", "showToolbar", "showColumnsButton", "showMaximizeButton",
+  "toolbarLabels", "options", "advancedOpen", "rowDetail"];
 
 /**
  * Rebuild the nodes of a skeleton structure: the screen sends each component node with its id, its type and its

@@ -77,6 +77,19 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/gridSavedSea
     expect(button().closest(".window-saved-searches").next().is(hook(TestIds.gridColumnsButton))).toBe(true);
   });
 
+  it("is an icon button by default, with its text as tooltip and accessible name, and shows its text with labels", () => {
+    mount();
+
+    expect(button().find(".window-saved-searches-label").length).toBe(0);
+    expect([button().attr("title"), button().attr("aria-label")]).toEqual(["SCREEN_TEXT_SAVED_SEARCHES", "SCREEN_TEXT_SAVED_SEARCHES"]);
+    grid.element.remove();
+
+    mount({savedSearches: true, toolbarLabels: ["saved-searches"]});
+
+    expect(button().find(".window-saved-searches-label").text()).toBe("SCREEN_TEXT_SAVED_SEARCHES");
+    expect(button().attr("aria-label")).toBeUndefined();
+  });
+
   it("saves the column filters with their labels, the sort, the quick filter and the search of the grid", () => {
     mount();
     grid.component.columnFilters = [{id: "InlSta", fields: ["InlSta"], type: "values", values: ["1"]}];
@@ -124,6 +137,7 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/gridSavedSea
     expect(grid.component.grid.api.grid.getColumn("InlDat").sort.direction).toBe("desc");
     expect(models.QckSta.selected).toBe("");
     expect(models.SchUsr.selected).toBe("ana");
-    expect(button().text()).toContain("Ana");
+    // An icon button by default: the name of the search applied is in its tooltip and accessible name
+    expect(button().attr("aria-label")).toContain("Ana");
   });
 });

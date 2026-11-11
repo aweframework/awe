@@ -190,6 +190,53 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
   }
 
   /**
+   * Show the Columns button of the grid toolbar. It is shown by default. When hidden, the stored column layout of the
+   * user is ignored
+   *
+   * @param showColumnsButton Show the Columns button
+   * @return Grid builder
+   */
+  public GridBuilder setShowColumnsButton(boolean showColumnsButton) {
+    getGridAttributes().setShowColumnsButton(showColumnsButton);
+    return this;
+  }
+
+  /**
+   * Show the Maximize button of the grid toolbar. It is shown by default
+   *
+   * @param showMaximizeButton Show the Maximize button
+   * @return Grid builder
+   */
+  public GridBuilder setShowMaximizeButton(boolean showMaximizeButton) {
+    getGridAttributes().setShowMaximizeButton(showMaximizeButton);
+    return this;
+  }
+
+  /**
+   * Show the label of the end buttons of the grid toolbar (true) or only their icon, with the label as tooltip (false).
+   * Null follows the application default (awe.application.component.grid-toolbar-labels)
+   *
+   * @param toolbarLabels Show the labels
+   * @return Grid builder
+   */
+  public GridBuilder setToolbarLabels(Boolean toolbarLabels) {
+    return setToolbarLabels(toolbarLabels == null ? null : toolbarLabels.toString());
+  }
+
+  /**
+   * Choose which end buttons of the grid toolbar show their label, as the XML attribute toolbar-labels: true (all),
+   * false (none, only the icon with the label as tooltip) or a comma-separated list of group-by, saved-searches,
+   * columns and maximize. Null follows the application default (awe.application.component.grid-toolbar-labels)
+   *
+   * @param toolbarLabels Buttons that show their label
+   * @return Grid builder
+   */
+  public GridBuilder setToolbarLabels(String toolbarLabels) {
+    getGridAttributes().setToolbarLabels(toolbarLabels);
+    return this;
+  }
+
+  /**
    * Offer the saved searches of the grid in its toolbar (#912). Not offered by default
    *
    * @param savedSearches Offer the saved searches

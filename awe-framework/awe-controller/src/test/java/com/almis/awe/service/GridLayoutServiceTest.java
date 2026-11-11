@@ -296,4 +296,38 @@ class GridLayoutServiceTest {
     grid.setShowToolbar(false);
     assertTrue(gridLayoutService.resolveLayout(grid, layouts) == null, "A grid without toolbar ignores the stored layout");
   }
+
+  @Test
+  @DisplayName("A grid that hides its Columns button ignores the stored layout")
+  void resolveLayoutIgnoresTheLayoutWithoutColumnsButton() {
+    com.almis.awe.model.entities.screen.component.grid.Column first = new com.almis.awe.model.entities.screen.component.grid.Column();
+    first.setName("a");
+    com.almis.awe.model.entities.screen.component.grid.Grid grid = new com.almis.awe.model.entities.screen.component.grid.Grid();
+    grid.setId("Grd");
+    grid.setElementList(java.util.List.of(first));
+    grid.setShowColumnsButton(false);
+    Map<String, GridColumnLayout> layouts = Map.of("Grd", new GridColumnLayout(java.util.List.of("a"), java.util.List.of("a")));
+
+    assertTrue(gridLayoutService.resolveLayout(grid, layouts) == null);
+  }
+
+  @Test
+  @DisplayName("A grid without toolbar or Columns button does not accept a layout and nothing is stored")
+  void saveIsRefusedWithoutColumnsButton() throws Exception {
+    mockSessionUser("john");
+    mockLocale();
+    com.almis.awe.model.entities.screen.component.grid.Grid noColumns = new com.almis.awe.model.entities.screen.component.grid.Grid();
+    noColumns.setId("GrdNoCol");
+    noColumns.setShowColumnsButton(false);
+    com.almis.awe.model.entities.screen.component.grid.Grid noToolbar = new com.almis.awe.model.entities.screen.component.grid.Grid();
+    noToolbar.setId("GrdNoTlb");
+    noToolbar.setShowToolbar(false);
+    com.almis.awe.model.entities.screen.Screen screen = new com.almis.awe.model.entities.screen.Screen();
+    screen.setElementList(java.util.List.of(noColumns, noToolbar));
+    when(aweElements.getScreen("Scr")).thenReturn(screen);
+
+    assertThrows(AWException.class, () -> gridLayoutService.saveGridLayout("Scr", "GrdNoCol", "{\"order\":[],\"hidden\":[]}"));
+    assertThrows(AWException.class, () -> gridLayoutService.saveGridLayout("Scr", "GrdNoTlb", "{\"order\":[],\"hidden\":[]}"));
+    verifyNoMaintain();
+  }
 }
