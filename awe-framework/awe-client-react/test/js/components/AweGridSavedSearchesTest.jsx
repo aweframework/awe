@@ -1,5 +1,5 @@
 import React from "react";
-import {act, fireEvent} from "@testing-library/react";
+import {act, fireEvent, screen} from "@testing-library/react";
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import AweGridToolbar from "../../../src/components/AweGridToolbar";
@@ -100,6 +100,16 @@ describe("awe-react-client/test/js/components/AweGridSavedSearchesTest.jsx", () 
 
     expect(button().getAttribute("data-testid-owner")).toBe("grid");
     expect(button().nextElementSibling).toBe(byTestId("grid-columns-button"));
+  });
+
+  it.each([
+    ["icon only by default", {}, ""],
+    ["with its label when the grid toolbar-labels says so", {toolbarLabels: ["saved-searches"]}, "SCREEN_TEXT_SAVED_SEARCHES"]
+  ])("is %s, with its text as accessible name", (_name, attributes, text) => {
+    renderWithProviders(<AweGridToolbar id="grid"/>, {preloadedState: gridState({savedSearches: true, ...attributes})});
+
+    expect(button().textContent.trim()).toBe(text);
+    expect(screen.getByRole("button", {name: "SCREEN_TEXT_SAVED_SEARCHES"})).toBe(button());
   });
 
   it("saves the column filters with their labels, the sort, the quick filter and the search of the grid", async () => {

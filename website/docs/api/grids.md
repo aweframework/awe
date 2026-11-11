@@ -76,6 +76,9 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | empty-text          | Optional     | String  | Text of the [empty state](#empty-state) of the grid                                                                       | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default: a translated explanation text                 |
 | empty-action        | Optional     | String  | Identifier of a button of the grid that is offered in the [empty state](#empty-state)                                     | The empty state shows a button with the label and the icon of that button, which runs its actions                                  |
 | show-toolbar        | Optional     | Boolean | Shows the [toolbar](#toolbar) of the grid, with the Columns dialog and the Maximize button                                | Default value is `true`. Set `false` to opt out (the [quick filters](#quick-filters) of the grid are still shown) |
+| show-columns-button | Optional     | Boolean | Shows the Columns button of the [toolbar](#toolbar). When it is hidden, the column layout stored by the user is ignored (neither applied nor saved) | Default value is `true`. `show-toolbar="false"` hides it too |
+| show-maximize-button | Optional    | Boolean | Shows the Maximize button of the [toolbar](#toolbar)                                                                      | Default value is `true`. `show-toolbar="false"` hides it too |
+| toolbar-labels      | Optional     | String  | Which end buttons of the [toolbar](#toolbar) show their label: `true` (all), `false` (none, only the icon with the label as tooltip) or a comma-separated list of `group-by`, `saved-searches`, `columns` and `maximize`. See [labels of the toolbar buttons](#toolbar-labels) | Default: [`grid-toolbar-labels`](../properties.md#awe.application.component.grid-toolbar-labels) (`false`, icon only) |
 | columns-panel       | Optional     | String  | How the [toolbar](#toolbar) shows the Columns: a popover anchored to the Columns button, a modal dialog or a [side panel](side-panel.md) anchored to the right edge | `popover`, `dialog` or `side-panel`. Default: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`popover`) |
 | move-rows           | Optional     | Boolean | Adds a leading column with a grip to [move the rows by dragging them](#drag-and-drop). Not available in tree grids         | Default value is `false` |
 | saved-searches      | Optional     | Boolean | Shows the [Saved searches](#saved-searches) menu in the toolbar: each user saves and applies the column filters, sort, quick filter and search of the grid | Default value is `false` |
@@ -137,6 +140,41 @@ Set `show-toolbar="false"` to opt a grid out of the toolbar; the grid then alway
 
 ```xml
 <grid id="UserGrid" show-toolbar="false" server-action="data" target-action="UserList">
+  <column label="USER" name="user" />
+</grid>
+```
+
+To keep the toolbar but hide one of its buttons, set `show-columns-button="false"` or `show-maximize-button="false"`.
+`show-toolbar="false"` stays the master switch and hides both. A grid without the Columns button always uses the XML
+definition too: the layout the user stored for it is neither applied nor saved.
+
+```xml
+<grid id="UserGrid" show-columns-button="false" show-maximize-button="false" server-action="data" target-action="UserList">
+  <column label="USER" name="user" />
+</grid>
+```
+
+#### Labels of the toolbar buttons {#toolbar-labels}
+
+The end buttons of the toolbar (*Group by*, *Saved searches*, *Columns* and *Maximize*) show only their icon by default,
+in both engines. Their label stays as the tooltip (`title`) and the accessible name (`aria-label`) of the button. The
+application property
+[`awe.application.component.grid-toolbar-labels`](../properties.md#awe.application.component.grid-toolbar-labels)
+(`false` by default) sets it for every grid; set it to `true` to show the labels again. The grid attribute
+`toolbar-labels` overrides the property for one grid, and it can choose the buttons one by one:
+
+| Value                      | End buttons                                                         |
+|----------------------------|---------------------------------------------------------------------|
+| `true`                     | All of them show their label                                        |
+| `false`                    | All of them show only their icon                                    |
+| A comma-separated list     | The listed ones show their label, the others only their icon        |
+
+The names of the list are `group-by` (*Group by*), `saved-searches` (*Saved searches*), `columns` (*Columns*) and
+`maximize` (*Maximize*), in any order and with optional spaces after the commas. The schema rejects any other name and
+the server ignores it with a warning in the log. The property stays `true` or `false`: it has no list.
+
+```xml
+<grid id="UserGrid" toolbar-labels="saved-searches" saved-searches="true" server-action="data" target-action="UserList">
   <column label="USER" name="user" />
 </grid>
 ```

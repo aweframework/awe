@@ -1318,6 +1318,22 @@
 
   .grid-toolbar-button {
     .grid-button();
+
+    // The icon wrapper (<i>) is a flex box: as an inline box the icon sits on the text baseline and ends lower than the
+    // centre of the button, with or without a label (the label keeps its own box, so the Saved searches name still
+    // ends with an ellipsis)
+    > i {
+      display: flex;
+      align-items: center;
+      margin: 0;
+    }
+  }
+
+  // Icon button (the end buttons without their text, Expand all and Collapse all): a square of the height of the
+  // control with the icon centred; its text is the tooltip and the accessible name
+  .grid-toolbar-button-icon {
+    width: var(--awe-size-control-sm);
+    padding: 0;
   }
 
   // Spacer: the search, the quick filters and the row grouping controls stay at the start, the Columns and Maximize

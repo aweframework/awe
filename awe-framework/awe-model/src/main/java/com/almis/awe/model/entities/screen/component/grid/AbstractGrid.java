@@ -23,13 +23,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serial;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +53,7 @@ import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @Accessors(chain = true)
+@Slf4j
 @XStreamInclude({Grid.class, PivotTable.class, QuickFilter.class, GridSearch.class})
 public abstract class AbstractGrid extends AbstractCriteria {
 
@@ -163,6 +167,23 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAlias("show-toolbar")
   @XStreamAsAttribute
   private Boolean showToolbar;
+
+  // Show the Columns button of the toolbar. When hidden, the stored column layout of the user is ignored
+  @XStreamAlias("show-columns-button")
+  @XStreamAsAttribute
+  private Boolean showColumnsButton;
+
+  // Show the Maximize button of the toolbar
+  @XStreamAlias("show-maximize-button")
+  @XStreamAsAttribute
+  private Boolean showMaximizeButton;
+
+  // Which end buttons of the toolbar show their label: true (all), false (none) or a comma-separated list of
+  // GridToolbarButton names. Sent normalized by getToolbarLabelsConverter, only when the grid sets it
+  @XStreamAlias("toolbar-labels")
+  @XStreamAsAttribute
+  @JsonIgnore
+  private String toolbarLabels;
 
   // How the toolbar shows the Columns: a popover, a modal dialog or a side panel (sent only when the grid sets it,
   // so the clients fall back to the application default)
@@ -347,6 +368,62 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @JsonGetter("showToolbar")
   public boolean isShowToolbar() {
     return showToolbar == null || showToolbar;
+  }
+
+  /**
+   * Check if the grid toolbar shows the Columns button
+   *
+   * @return Grid shows the Columns button
+   */
+  @JsonGetter("showColumnsButton")
+  public boolean isShowColumnsButton() {
+    return showColumnsButton == null || showColumnsButton;
+  }
+
+  /**
+   * Check if the grid toolbar shows the Maximize button
+   *
+   * @return Grid shows the Maximize button
+   */
+  @JsonGetter("showMaximizeButton")
+  public boolean isShowMaximizeButton() {
+    return showMaximizeButton == null || showMaximizeButton;
+  }
+
+  /**
+   * Returns the end buttons of the toolbar that show their label, for JSON serialization, in toolbar order:
+   * every button for true, none for false, the known names of the list otherwise (unknown names are ignored)
+   *
+   * @return Button names, null (not sent) when the grid does not set toolbar-labels
+   */
+  @JsonGetter("toolbarLabels")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public List<String> getToolbarLabelsConverter() {
+    if (toolbarLabels == null) {
+      return null;
+    }
+    String value = toolbarLabels.trim();
+    if ("true".equalsIgnoreCase(value)) {
+      return Arrays.stream(GridToolbarButton.values()).map(GridToolbarButton::getButtonName).toList();
+    }
+    EnumSet<GridToolbarButton> buttons = EnumSet.noneOf(GridToolbarButton.class);
+    if (!"false".equalsIgnoreCase(value)) {
+      for (String name : value.split(",")) {
+        GridToolbarButton.fromName(name).ifPresentOrElse(buttons::add,
+          () -> log.warn("Unknown toolbar-labels button '{}' in grid '{}': ignored", name.trim(), getId()));
+      }
+    }
+    return buttons.stream().map(GridToolbarButton::getButtonName).toList();
+  }
+
+  /**
+   * Check if the grid applies and saves the column layout of the user: only when its toolbar shows the Columns button
+   *
+   * @return Column layout is enabled
+   */
+  @JsonIgnore
+  public boolean isColumnLayoutEnabled() {
+    return isShowToolbar() && isShowColumnsButton();
   }
 
   /**

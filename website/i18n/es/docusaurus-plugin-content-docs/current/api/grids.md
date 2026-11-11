@@ -76,6 +76,9 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
 | empty-text             | Opcional        | String  | Texto del [estado vacío](#empty-state) del grid                                                                                                        | **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales). Por defecto: un texto explicativo traducido                             |
 | empty-action           | Opcional        | String  | Identificador de un botón del grid que se ofrece en el [estado vacío](#empty-state)                                                                    | El estado vacío muestra un botón con la etiqueta y el icono de ese botón, que ejecuta sus acciones                                                    |
 | show-toolbar            | Opcional        | Boolean | Muestra la [barra de herramientas](#toolbar) del grid, con el diálogo de columnas y el botón de maximizar                                              | Por defecto `true`. Use `false` para desactivarla (los [filtros rápidos](#quick-filters) del grid se siguen mostrando)                                                                                                      |
+| show-columns-button     | Opcional        | Boolean | Muestra el botón de columnas de la [barra de herramientas](#toolbar). Si se oculta, se ignora la disposición de columnas que guardó el usuario (no se aplica ni se guarda) | Por defecto `true`. `show-toolbar="false"` también lo oculta |
+| show-maximize-button    | Opcional        | Boolean | Muestra el botón de maximizar de la [barra de herramientas](#toolbar) | Por defecto `true`. `show-toolbar="false"` también lo oculta |
+| toolbar-labels          | Opcional        | String  | Qué botones del final de la [barra de herramientas](#toolbar) muestran su etiqueta: `true` (todos), `false` (ninguno, solo el icono con la etiqueta como tooltip) o una lista separada por comas de `group-by`, `saved-searches`, `columns` y `maximize`. Vea [etiquetas de los botones](#toolbar-labels) | Por defecto: [`grid-toolbar-labels`](../properties.md#awe.application.component.grid-toolbar-labels) (`false`, solo icono) |
 | columns-panel           | Opcional        | String  | Cómo muestra la [barra de herramientas](#toolbar) las columnas: un popover anclado al botón de columnas, un diálogo modal o un [panel lateral](side-panel.md) anclado al borde derecho | `popover`, `dialog` o `side-panel`. Por defecto: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`popover`) |
 | move-rows               | Opcional        | Boolean | Añade una columna inicial con un asa para [mover las filas arrastrándolas](#drag-and-drop). No disponible en grids en árbol | El valor predeterminado es `false` |
 | saved-searches          | Opcional        | Boolean | Muestra el menú [Búsquedas guardadas](#saved-searches) en la barra de herramientas: cada usuario guarda y aplica los filtros de columna, la ordenación, el filtro rápido y la búsqueda del grid | El valor predeterminado es `false` |
@@ -139,6 +142,43 @@ Use `show-toolbar="false"` para que un grid no tenga barra de herramientas; ento
 
 ```xml
 <grid id="UserGrid" show-toolbar="false" server-action="data" target-action="UserList">
+  <column label="USER" name="user" />
+</grid>
+```
+
+Para mantener la barra de herramientas pero ocultar uno de sus botones, use `show-columns-button="false"` o
+`show-maximize-button="false"`. `show-toolbar="false"` sigue siendo el interruptor general y oculta ambos. Un grid sin
+el botón de columnas también usa siempre la definición del XML: la disposición que guardó el usuario no se aplica ni se
+guarda.
+
+```xml
+<grid id="UserGrid" show-columns-button="false" show-maximize-button="false" server-action="data" target-action="UserList">
+  <column label="USER" name="user" />
+</grid>
+```
+
+#### Etiquetas de los botones de la barra de herramientas {#toolbar-labels}
+
+Los botones del final de la barra de herramientas (*Agrupar por*, *Búsquedas guardadas*, *Columnas* y *Maximizar*)
+muestran por defecto solo su icono, en ambos motores. Su etiqueta se mantiene como tooltip (`title`) y como nombre
+accesible (`aria-label`) del botón. La propiedad de aplicación
+[`awe.application.component.grid-toolbar-labels`](../properties.md#awe.application.component.grid-toolbar-labels)
+(`false` por defecto) lo fija para todos los grids; asígnele `true` para volver a mostrar las etiquetas. El atributo
+`toolbar-labels` del grid sobrescribe la propiedad en ese grid y permite elegir los botones uno a uno:
+
+| Valor                         | Botones del final                                                   |
+|-------------------------------|---------------------------------------------------------------------|
+| `true`                        | Todos muestran su etiqueta                                          |
+| `false`                       | Todos muestran solo su icono                                        |
+| Una lista separada por comas  | Los de la lista muestran su etiqueta, los demás solo su icono       |
+
+Los nombres de la lista son `group-by` (*Agrupar por*), `saved-searches` (*Búsquedas guardadas*), `columns`
+(*Columnas*) y `maximize` (*Maximizar*), en cualquier orden y con espacios opcionales tras las comas. El esquema rechaza
+cualquier otro nombre y el servidor lo ignora con un aviso en el log. La propiedad sigue siendo `true` o `false`: no
+admite lista.
+
+```xml
+<grid id="UserGrid" toolbar-labels="saved-searches" saved-searches="true" server-action="data" target-action="UserList">
   <column label="USER" name="user" />
 </grid>
 ```

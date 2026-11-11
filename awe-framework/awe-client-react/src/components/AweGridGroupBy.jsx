@@ -15,7 +15,8 @@ import { getPopoverPlacement } from "./AweGridColumnsDialog";
 import "./AweGridGroups.less";
 
 const PANEL_STYLE = { width: "var(--awe-grid-columns-panel-width)", maxWidth: "95vw" };
-const ICON_BUTTON = "p-button p-component p-button-outlined p-button-sm p-button-icon-only grid-toolbar-button grid-group-icon-button";
+const TEXT_BUTTON = "p-button p-component p-button-outlined p-button-sm grid-toolbar-button";
+const ICON_BUTTON = `${TEXT_BUTTON} p-button-icon-only`;
 
 /**
  * Popover of the Group by button, as the popover of the Columns (#813): anchored to its button, without mask, closed
@@ -124,11 +125,12 @@ GroupByPopover.propTypes = {
 /**
  * Grouping controls of the grid toolbar (#833): Expand all and Collapse all while the rows are grouped, and the Group
  * by button of a grid with group-selector, whose popover changes the grouping levels at runtime (No grouping, or the
- * checked columns in the order they were checked). Everything applies at once, without a server call.
+ * checked columns in the order they were checked). Everything applies at once, without a server call. The Group by
+ * button is icon only, with its text as tooltip and accessible name, unless the toolbar asks for the labels.
  * @category Components
  * @subcategory Grid
  */
-function AweGridGroupBy({ address, attributes }) {
+function AweGridGroupBy({ address, attributes, labels = false }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const button = useRef(null);
@@ -160,9 +162,10 @@ function AweGridGroupBy({ address, attributes }) {
   return <>
     {active && iconButton(TestIds.gridGroupExpandAll, t("GRID_GROUP_EXPAND_ALL"), "lucide:chevrons-up-down", expandAll)}
     {active && iconButton(TestIds.gridGroupCollapseAll, t("GRID_GROUP_COLLAPSE_ALL"), "lucide:chevrons-down-up", collapseAll)}
-    {selector && <button ref={button} type="button" className="p-button p-component p-button-outlined p-button-sm grid-toolbar-button"
-      title={title} aria-haspopup="dialog" aria-expanded={open} onClick={openPanel} {...testHook(TestIds.gridGroupBy)}>
-      {getIconNode("lucide:layers", { tag: "span", "aria-hidden": "true" })} <span className="p-button-label">{title}</span>
+    {selector && <button ref={button} type="button" className={labels ? TEXT_BUTTON : ICON_BUTTON}
+      title={title} aria-label={title} aria-haspopup="dialog" aria-expanded={open} onClick={openPanel} {...testHook(TestIds.gridGroupBy)}>
+      {getIconNode("lucide:layers", { tag: "span", className: labels ? undefined : "p-button-icon", "aria-hidden": "true" })}
+      {labels && <> <span className="p-button-label">{title}</span></>}
     </button>}
     {selector && open && <GroupByPopover anchor={button} label={title} onHide={close}
       root={testHook(TestIds.gridGroupByPanel, { owner: address.component })}>
@@ -191,7 +194,8 @@ function AweGridGroupBy({ address, attributes }) {
 
 AweGridGroupBy.propTypes = {
   address: PropTypes.object.isRequired,
-  attributes: PropTypes.object.isRequired
+  attributes: PropTypes.object.isRequired,
+  labels: PropTypes.bool
 };
 
 export default AweGridGroupBy;

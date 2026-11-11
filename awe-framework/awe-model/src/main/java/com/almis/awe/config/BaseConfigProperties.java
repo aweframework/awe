@@ -698,6 +698,12 @@ public class BaseConfigProperties {
      */
     private String gridColumnsPanel = "popover";
     /**
+     * Whether the end buttons of the grid toolbar (Group by, Saved searches, Columns and Maximize) show their label in the
+     * grids that do not define toolbar-labels. When false they show only their icon, with the label as tooltip
+     * Default value false
+     */
+    private boolean gridToolbarLabels = false;
+    /**
      * Rows per page in criteria component (Set to 0 to avoid pagination)
      * Default value 100
      */

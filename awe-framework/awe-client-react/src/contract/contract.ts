@@ -96,9 +96,12 @@ export interface AbstractGrid extends AbstractCriteria {
     search?: string;
     selectable?: boolean;
     sendAll?: boolean;
+    showColumnsButton?: boolean;
+    showMaximizeButton?: boolean;
     showToolbar?: boolean;
     showTotals?: boolean;
     sortList?: SortColumn[];
+    toolbarLabels?: string[];
     totalize?: string;
     treegrid?: boolean;
     treeId?: string;
@@ -712,5 +715,7 @@ export interface XMLNode {
 export type DefinitionError = "TEMPLATE_AND_COMPONENTS" | "NOT_A_GRID" | "EDITABLE_GRID" | "DEPENDENCY";
 
 export type EChartsSeriesType = "LINE" | "SPLINE" | "COLUMN" | "BAR" | "AREA" | "AREASPLINE" | "AREARANGE" | "AREASPLINERANGE" | "PIE" | "SCATTER" | "BUBBLE";
+
+export type GridToolbarButton = "GROUP_BY" | "SAVED_SEARCHES" | "COLUMNS" | "MAXIMIZE";
 
 export type ParameterScope = "CHART" | "SERIES" | "AXIS" | "TOOLTIP" | "LEGEND";

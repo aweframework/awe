@@ -62,11 +62,12 @@ const readGridState = (components, grid) => {
  * its quick filter and the text of its search; applying it restores them on the columns the grid has now and reloads
  * the grid from its first page. Its default searches (#945) are tagged and set as the ones of a window, and the chip of
  * the default search the grid opened with follows the button while it is applied. The save dialog offers to open the
- * screen with the search, but no layout or values to keep: a grid search is the state of the grid.
+ * screen with the search, but no layout or values to keep: a grid search is the state of the grid. The button is icon
+ * only, with its text as tooltip and accessible name, unless the toolbar asks for the labels.
  * @category Components
  * @subcategory Grid
  */
-function AweGridSavedSearches({id}) {
+function AweGridSavedSearches({id, labels = false}) {
   const dispatch = useDispatch();
   const store = useStore();
   const grid = useComponentState(id);
@@ -119,13 +120,14 @@ function AweGridSavedSearches({id}) {
   return <>
     <SavedSearchesControl id={id} label={attributes.label} getScreen={getScreen} getValues={getValues}
                           applyValues={applyValues} isInEffect={isInEffect} parseValues={parseGridSearchValues}
-                          buttonClassName="p-button-outlined grid-toolbar-button" defaults/>
+                          buttonClassName="p-button-outlined grid-toolbar-button" iconOnly={!labels} defaults/>
     {isGridDefaultSearchApplied(attributes) && <DefaultSearchChip id={id} name={defaultSearch.name}/>}
   </>;
 }
 
 AweGridSavedSearches.propTypes = {
-  id: PropTypes.string
+  id: PropTypes.string,
+  labels: PropTypes.bool
 };
 
 export default AweGridSavedSearches;

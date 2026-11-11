@@ -969,6 +969,9 @@ class ScreenBuilderTest {
           .setLoadAll(true)
           .setShowTotals(true)
           .setShowToolbar(false)
+          .setShowColumnsButton(false)
+          .setShowMaximizeButton(false)
+          .setToolbarLabels(true)
           .setColumnsPanel(ColumnsPanel.SIDE_PANEL)
           .setTreeLeaf("treeLeaf")
           .addGroupHeader(new GroupHeaderBuilder()
@@ -1029,6 +1032,9 @@ class ScreenBuilderTest {
     assertSame(true, grid.isLoadAll());
     assertSame(true, grid.isShowTotals());
     assertSame(false, grid.isShowToolbar());
+    assertSame(false, grid.isShowColumnsButton());
+    assertSame(false, grid.isShowMaximizeButton());
+    assertEquals("true", grid.getToolbarLabels());
     assertEquals("side-panel", grid.getColumnsPanel());
     assertEquals("treeLeaf", grid.getTreeLeaf());
 
@@ -1053,6 +1059,18 @@ class ScreenBuilderTest {
     assertEquals(Printable.TRUE.toString(), column2.getPrintable());
     assertSame(true, column2.isShowFutureDates());
     assertSame(true, column2.isShowWeekends());
+  }
+
+  /**
+   * A grid builder sets the toolbar-labels list of the XML
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addGridWithToolbarLabelsList() throws Exception {
+    Grid grid = new GridBuilder().setToolbarLabels("saved-searches,columns").setId("grid1").build();
+
+    assertEquals("saved-searches,columns", grid.getToolbarLabels());
   }
 
   /**

@@ -120,12 +120,23 @@ describe("awe-react-client/test/js/components/AweGridGroupByTest.jsx", () => {
       expect(hook("grid-group-by")).toBeNull();
     });
 
+    it.each([
+      ["icon only by default", {}, ""],
+      ["with its label when the grid toolbar-labels says so", { toolbarLabels: ["group-by"] }, "GRID_GROUP_BY"]
+    ])("is %s, with its text as tooltip and accessible name", (_name, attributes, text) => {
+      render({ groupSelector: true, ...attributes });
+
+      const button = hook("grid-group-by");
+      expect(button.textContent.trim()).toBe(text);
+      expect([button.getAttribute("title"), button.getAttribute("aria-label")]).toEqual(["GRID_GROUP_BY", "GRID_GROUP_BY"]);
+    });
+
     it("lists No grouping and the visible columns with a label and without summary type, the checked ones with their level", () => {
       render({ groupSelector: true, groupBy: "city,country" });
 
       const button = hook("grid-group-by");
       expect(button.getAttribute("aria-haspopup")).toBe("dialog");
-      expect(button.textContent).toContain("GRID_GROUP_BY");
+      expect(button.getAttribute("aria-label")).toBe("GRID_GROUP_BY");
       const panel = openSelector();
       expect(panel.getAttribute("data-testid-owner")).toBe("grid");
       expect(button.getAttribute("aria-expanded")).toBe("true");

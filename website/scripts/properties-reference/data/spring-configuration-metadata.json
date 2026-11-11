@@ -73,6 +73,12 @@
       "defaultValue": 30
     },
     {
+      "name": "awe.application.component.grid-toolbar-labels",
+      "type": "java.lang.Boolean",
+      "description": "Whether the end buttons of the grid toolbar (Group by, Saved searches, Columns and Maximize) show their label in the grids that do not define toolbar-labels. When false they show only their icon, with the label as tooltip Default value false",
+      "defaultValue": false
+    },
+    {
       "name": "awe.application.component.help-timeout",
       "type": "java.time.Duration",
       "description": "Component help timeout in milliseconds. Default value 1000ms",

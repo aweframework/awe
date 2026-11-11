@@ -395,7 +395,7 @@ aweApplication.factory("Screen",
             // application at /awe/, never at the container root
             panelScope.restart = () => $window.location.assign($utilities.getContextPath() + "/");
             $screen.sessionExpiredPanel = $compile(
-              `<div class="modal modal-alert modal-warning fade" data-testid="${TestIds.sessionExpiredPanel}" data-backdrop="static" ui-modal ng-cloak>` +
+              `<div class="modal modal-alert modal-warning session-expired-panel fade" data-testid="${TestIds.sessionExpiredPanel}" data-backdrop="static" ui-modal ng-cloak>` +
                 `<div class="modal-dialog" role="document">` +
                   `<div class="modal-content">` +
                     `<div class="modal-header">` +

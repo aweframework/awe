@@ -1302,7 +1302,22 @@
     </xs:attribute>
     <xs:attribute name="show-toolbar" type="booleanEnum">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Shows the grid toolbar, with the Columns dialog (show, hide and reorder columns, saved per user) and the Maximize button. Set it to false to opt out. Default: true.</xs:documentation>
+        <xs:documentation xml:lang="en">Shows the grid toolbar, with the Columns dialog (show, hide and reorder columns, saved per user) and the Maximize button. Set it to false to opt out: it hides the group-by controls, the Columns and the Maximize buttons, and the stored column layout of the user is ignored. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-columns-button" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the Columns button of the grid toolbar. Both engines. When it is hidden (false), the column layout stored by the user is ignored: it is neither applied nor saved. show-toolbar="false" hides it too. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-maximize-button" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the Maximize button of the grid toolbar. Both engines. show-toolbar="false" hides it too. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="toolbar-labels" type="gridToolbarLabelsType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Which end buttons of the grid toolbar show their label: true (all of them), false (none: only their icon, keeping the label as tooltip and accessible name) or a comma-separated list of the buttons that show it, from group-by (Group by), saved-searches (Saved searches), columns (Columns) and maximize (Maximize); the buttons not listed show only their icon. Example: toolbar-labels="saved-searches,columns". Both engines. Default: the property awe.application.component.grid-toolbar-labels (false, icon only, unless the application changes it).</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="columns-panel" type="gridColumnsPanelEnum">
@@ -3203,6 +3218,12 @@
   </xs:simpleType>
 
   <!-- Grid Columns panel enum -->
+  <xs:simpleType name="gridToolbarLabelsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="true|false|(group-by|saved-searches|columns|maximize)( *, *(group-by|saved-searches|columns|maximize))*" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="gridColumnsPanelEnum">
     <xs:restriction base="xs:string">
       <xs:enumeration value="popover" />

@@ -80,10 +80,12 @@ aweApplication.factory('GridLayout',
           const getHeaders = () => component.controller.headerModel || [];
 
           /**
-           * Check if the grid has the toolbar
-           * @return {boolean} Toolbar enabled
+           * Check if the grid has the Columns button (toolbar shown and Columns button not hidden): without it the stored
+           * layout of the user is not applied
+           * @return {boolean} Column layout enabled
            */
-          component.hasColumnLayout = () => component.controller.showToolbar !== false && getBaseColumns().length > 0;
+          component.hasColumnLayout = () => component.controller.showToolbar !== false &&
+            component.controller.showColumnsButton !== false && getBaseColumns().length > 0;
 
           /**
            * Store the columns of the screen, before the grid adds its own ones

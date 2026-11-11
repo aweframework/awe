@@ -276,7 +276,8 @@ describe("grid toolbar", () => {
     expect(toolbar.attr("data-maximized")).toBe("true");
     expect(target.find(".sibling").hasClass("minimized")).toBe(true);
     expect(toolbar.find(hook("grid-maximize-button")).find("i use").attr("href")).toBe("icons/lucide-sprite.svg#shrink");
-    expect(toolbar.find(hook("grid-maximize-button")).text()).toContain("SCREEN_TEXT_RESTORE");
+    // An icon button by default: Restore is its tooltip and accessible name
+    expect(toolbar.find(hook("grid-maximize-button")).attr("aria-label")).toBe("SCREEN_TEXT_RESTORE");
 
     toolbarScope.toggleMaximize();
     refs.$rootScope.$digest();
@@ -1023,12 +1024,5 @@ describe("grid toolbar", () => {
 
       expect(dialog.attr("data-type")).toBe("popover");
     });
-  });
-
-  it("uses the screen texts of the window maximize in the toolbar button", () => {
-    const {element} = compileGrid();
-    const button = element.find(hook("grid-maximize-button"));
-    expect(button.attr("title")).toBe("SCREEN_TEXT_MAXIMIZE");
-    expect(button.find(".button-text").text()).toBe("SCREEN_TEXT_MAXIMIZE");
   });
 });

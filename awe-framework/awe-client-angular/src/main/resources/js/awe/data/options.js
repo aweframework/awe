@@ -36,6 +36,9 @@ export const DefaultSettings = {
   gridIconLoading: "skeleton",
   // How the toolbar shows the Columns of the grids that do not set columns-panel: popover, dialog or side-panel
   gridColumnsPanel: "popover",
+  // Whether the end buttons of the grid toolbar (Group by, Saved searches, Columns, Maximize) of the grids that do not set
+  // toolbar-labels show their text: by default they are icon buttons with the text as tooltip
+  gridToolbarLabels: false,
   reloadCurrentScreen: false,
   suggestTimeout: 200,
   // Connection

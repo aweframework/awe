@@ -140,11 +140,11 @@ public class GridLayoutService extends ServiceConfig {
    *
    * @param grid    Grid
    * @param layouts Layouts of the screen by grid identifier
-   * @return Layout to send to the client, or null when the user has none for the grid
+   * @return Layout to send to the client, or null when the user has none for the grid or the grid hides its Columns
    */
   public GridColumnLayout resolveLayout(AbstractGrid grid, Map<String, GridColumnLayout> layouts) {
     GridColumnLayout stored = layouts.get(grid.getElementKey());
-    if (stored == null || !grid.isShowToolbar()) {
+    if (stored == null || !grid.isColumnLayoutEnabled()) {
       return null;
     }
     return GridColumnLayout.merge(stored, grid.getLayoutColumns());
@@ -178,12 +178,16 @@ public class GridLayoutService extends ServiceConfig {
   }
 
   /**
-   * Check that the grid belongs to the screen, so a user cannot store layouts for grids that do not exist
+   * Check that the grid belongs to the screen and offers the Columns button, so a user cannot store layouts for grids
+   * that do not exist or that ignore them
    */
   private void validateGridExists(String screenId, String gridId) throws AWException {
     boolean exists;
     try {
-      exists = getElements().getScreen(screenId).getElementsById(gridId).stream().anyMatch(AbstractGrid.class::isInstance);
+      exists = getElements().getScreen(screenId).getElementsById(gridId).stream()
+        .filter(AbstractGrid.class::isInstance)
+        .map(AbstractGrid.class::cast)
+        .anyMatch(AbstractGrid::isColumnLayoutEnabled);
     } catch (AWException exc) {
       throw new AWException(getLocale(ERROR_TITLE_INVALID_GRID_LAYOUT), getLocale(ERROR_MESSAGE_INVALID_GRID_LAYOUT), exc);
     }

@@ -1237,7 +1237,7 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
       Crt: {id: "Crt", elementType: "Criteria", label: "Criterion", component: "text", style: "small"},
       Grd: {
         id: "Grd", elementType: "Grid", label: "Grid", treegrid: true, columnModel: [{name: "a"}], columnLayout: {}, showToolbar: true,
-        options: [1], rowDetail: {}, screenId: "scr", dependencies: [{id: 1}]
+        showColumnsButton: true, showMaximizeButton: true, toolbarLabels: ["columns"], options: [1], rowDetail: {}, screenId: "scr", dependencies: [{id: 1}]
       },
       Row: {id: "Row", label: "must not be used"}
     };
@@ -1262,7 +1262,8 @@ describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
       const result = rebuildStructureNodes({id: "Grd", elementType: "Grid", elementList: []}, controllers);
       const window = rebuildStructureNodes({id: "Win", elementType: "Window", elementList: []}, controllers);
 
-      ["columnModel", "columnLayout", "screenId", "showToolbar", "options", "rowDetail"].forEach(key => expect(result).not.toHaveProperty(key));
+      ["columnModel", "columnLayout", "screenId", "showToolbar", "showColumnsButton", "showMaximizeButton", "toolbarLabels", "options",
+        "rowDetail"].forEach(key => expect(result).not.toHaveProperty(key));
       expect(window).not.toHaveProperty("advancedOpen");
       expect(window).not.toHaveProperty("screenId");
       expect(window.elementList).toEqual([]);
