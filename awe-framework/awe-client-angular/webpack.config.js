@@ -1,5 +1,7 @@
 const path = require("path");
 const webpack = require("webpack");
+const zlib = require("zlib");
+const CompressionPlugin = require("compression-webpack-plugin");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const LessPluginAutoPrefix = require('less-plugin-autoprefix');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
@@ -106,7 +108,20 @@ module.exports = (env = {}, argv = {}) => {
       new LucideSpritePlugin({
         lucideDir: path.resolve(__dirname, "node_modules", "lucide-static"),
         filename: "icons/lucide-sprite.svg"
-      })
+      }),
+      // Production builds add brotli and gzip copies of the scripts, styles and SVG files: the AWE server sends them
+      // to the browsers that accept them, so they are downloaded compressed without compressing them on each request
+      // (#965)
+      ...(isProduction ? [
+        new CompressionPlugin({
+          test: /\.(js|css|svg)(\?.*)?$/, threshold: 1024, algorithm: "brotliCompress", filename: "[path][base].br",
+          compressionOptions: {params: {[zlib.constants.BROTLI_PARAM_QUALITY]: 11}}
+        }),
+        new CompressionPlugin({
+          test: /\.(js|css|svg)(\?.*)?$/, threshold: 1024, algorithm: "gzip", filename: "[path][base].gz",
+          compressionOptions: {level: 9}
+        })
+      ] : [])
     ]
   };
 };
