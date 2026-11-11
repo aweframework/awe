@@ -5,7 +5,7 @@ title: Criterios
 
 :::tip Pruébalo en vivo
 
-Prueba los criterios con controles en vivo en el [catálogo de componentes](../components/criteria.mdx): las entradas reales de AWE y el XML que las produce. Cada familia tiene su propia área de pruebas: [entradas de texto](../components/criteria-text.mdx), [números y fechas](../components/criteria-numbers.mdx), [opciones](../components/criteria-choices.mdx) y [subida de archivos](../components/criteria-upload.mdx).
+Prueba los criterios con controles en vivo en el [catálogo de componentes](../components/criteria.mdx): las entradas reales de AWE y el XML que las produce. Cada familia tiene su propia área de pruebas: [entradas de texto](../components/criteria-text.mdx), [números y fechas](../components/criteria-numbers.mdx), [selectores y sugerencias](../components/criteria-selects.mdx), [casilla y radio](../components/criteria-checkbox-radio.mdx) y [subida de archivos](../components/criteria-upload.mdx).
 
 :::
 

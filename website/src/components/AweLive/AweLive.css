@@ -31,12 +31,6 @@
   min-height: 0;
 }
 
-/* A tree grid does not take the room of its container by itself (its table is a flex item that keeps its content size) */
-.awe-live--sized .p-treetable {
-  flex: 1 1 0;
-  min-height: 0;
-}
-
 /* Placeholder while the client loads: the height of a one-line example, so nothing jumps */
 .awe-live-loading {
   min-height: 4.5rem;
@@ -161,52 +155,6 @@
   color: var(--awe-color-text);
 }
 
-/* Quill (the markdown editor) draws its toolbar with a light palette of its own: here it takes the AWE tokens, so the
-   editor follows the colour mode of the example like the rest of the client */
-.awe-live .ql-snow.ql-toolbar,
-.awe-live .ql-snow .ql-toolbar,
-.awe-live .ql-snow.ql-container {
-  border-color: var(--awe-color-field-border);
-  color: var(--awe-color-field-text);
-}
-
-.awe-live .ql-snow .ql-stroke {
-  stroke: var(--awe-color-text-muted);
-}
-
-.awe-live .ql-snow .ql-fill,
-.awe-live .ql-snow .ql-stroke.ql-fill {
-  fill: var(--awe-color-text-muted);
-}
-
-.awe-live .ql-snow .ql-picker,
-.awe-live .ql-snow .ql-picker-label,
-.awe-live .ql-snow.ql-toolbar button {
-  color: var(--awe-color-text-muted);
-}
-
-.awe-live .ql-snow.ql-toolbar button:hover .ql-stroke,
-.awe-live .ql-snow.ql-toolbar button:focus-visible .ql-stroke,
-.awe-live .ql-snow.ql-toolbar button.ql-active .ql-stroke {
-  stroke: var(--awe-color-primary);
-}
-
-.awe-live .ql-snow.ql-toolbar button:hover .ql-fill,
-.awe-live .ql-snow.ql-toolbar button:focus-visible .ql-fill,
-.awe-live .ql-snow.ql-toolbar button.ql-active .ql-fill {
-  fill: var(--awe-color-primary);
-}
-
-.awe-live .ql-snow .ql-editor.ql-blank::before {
-  color: var(--awe-color-field-placeholder);
-}
-
-.awe-live .ql-snow.ql-toolbar button:focus-visible,
-.awe-live .ql-snow .ql-picker-label:focus-visible {
-  outline: var(--awe-border-width) solid var(--awe-color-primary);
-  outline-offset: var(--awe-space-1);
-}
-
 /* The `hidden` utility of the client (PrimeFlex, which the docs do not load): the uploader hides the controls of the
    states it is not in, and a criterion that is not visible hides itself with it */
 .awe-live .hidden {
@@ -236,14 +184,54 @@
   aspect-ratio: 16 / 9;
 }
 
-/* Every slide of a carousel is at least 500px tall (the client sets it in the slide): the example is shorter, so the slides
-   fit in a preview */
-.awe-live .carousel .p-carousel-item > div {
-  min-height: 16rem !important;
+/* Infima styles bare elements for the prose of the docs: lists indented 2rem with a bottom margin, links in the link colour
+   with an underline on hover, and every table as a block with scroll, a stripe on every other row and on the head
+   (translucent in the dark mode, so a sticky header lets the rows show through), borders and padding on every cell.
+   The components of the example are not prose, and the PrimeReact overlays (select options, context menus, popovers) are
+   drawn in a portal at the end of the body, outside .awe-live: the resets go on anything that is a PrimeReact component as
+   well as on the example. Lists, links and tables without a class are prose (a help page) and keep the styles of Infima.
+   The theme of the client lives in the "primereact" cascade layer, and a rule outside any layer (Infima, this file) beats
+   any layered rule whatever its specificity: a fixed value here (0, transparent) would hide the theme as Infima does. So
+   every property Infima sets is given back with revert-layer, which takes the value of the layers below: the theme of the
+   client where it sets one, the default of the browser where it does not. */
+:where(.awe-live, .p-component) ul:where([class]),
+:where(.awe-live, .p-component) ol:where([class]) {
+  margin: revert-layer;
+  padding: revert-layer;
+  list-style: revert-layer;
 }
 
-/* A carousel sizes itself from its slides, which are wider than a narrow container: it stays inside it */
-.awe-live .carousel {
-  max-width: 100%;
-  overflow: hidden;
+/* .markdown li + li (Infima) spaces the items of the prose; the items of a component space themselves */
+.awe-live :where(ul, ol):where([class]) > li + li {
+  margin-top: revert-layer;
+}
+
+:where(.awe-live, .p-component) a:where([class]),
+:where(.awe-live, .p-component) a:where([class]):hover {
+  color: revert-layer;
+  text-decoration: revert-layer;
+}
+
+:where(.awe-live, .p-component) table:where([class]) {
+  border-collapse: revert-layer;
+  display: revert-layer;
+  margin-bottom: revert-layer;
+  overflow: revert-layer;
+}
+
+:where(.awe-live, .p-component) table:where([class]) thead,
+:where(.awe-live, .p-component) table:where([class]) tr,
+:where(.awe-live, .p-component) table:where([class]) tr:nth-child(2n) {
+  border-top: revert-layer;
+  border-bottom: revert-layer;
+  background-color: revert-layer;
+}
+
+:where(.awe-live, .p-component) table:where([class]) th,
+:where(.awe-live, .p-component) table:where([class]) td {
+  padding: revert-layer;
+  border: revert-layer;
+  background-color: revert-layer;
+  color: revert-layer;
+  font-weight: revert-layer;
 }

@@ -40,4 +40,22 @@ describe('awe-react-client/test/js/criteria/AweInfoDropdownTest.jsx', () => {
     expect(document.querySelector("button#infodropdown").hasAttribute("disabled")).toBe(false);
   });
 
+  it('shows the unit as a PrimeReact info badge over the button', () => {
+    const state = {
+      ...preloadedState,
+      components: {
+        infodropdown: {
+          ...preloadedState.components.infodropdown,
+          attributes: {...preloadedState.components.infodropdown.attributes, unit: "3"}
+        }
+      }
+    };
+
+    renderWithProviders(<AweInfoDropdown id="infodropdown"/>, {preloadedState: state});
+
+    const badge = document.querySelector('[data-pc-name="badge"]');
+    expect(badge).not.toBeNull();
+    expect(badge.textContent).toBe("3");
+    expect(badge.className).toContain("p-badge-info");
+  });
 });

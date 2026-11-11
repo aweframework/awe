@@ -120,4 +120,30 @@ describe('awe-react-client/test/js/criteria/AweInputNumericTest.jsx', () => {
     expect(onParentKeyDown).toHaveBeenCalledTimes(1);
   });
 
+  it('renders the icon and the unit addons with the slider, above the slider', () => {
+    const state = {
+      ...preloadedState,
+      components: {
+        numeric: {
+          ...preloadedState.components.numeric,
+          attributes: {...preloadedState.components.numeric.attributes, showSlider: true, icon: "fa-euro", unit: "EUR"}
+        }
+      }
+    };
+
+    renderWithProviders(<AweInputNumeric id="numeric"/>, {preloadedState: state});
+
+    const group = document.querySelector(".p-inputgroup");
+    expect(group.querySelectorAll(".p-inputgroup-addon")).toHaveLength(2);
+    expect(group.querySelector(".p-inputnumber")).not.toBeNull();
+    expect(group.querySelector(".p-slider")).toBeNull();
+    expect(document.querySelector(".p-slider")).not.toBeNull();
+  });
+
+  it('sets with-icon and with-unit only when the addon is rendered', () => {
+    renderWithProviders(<AweInputNumeric id="numeric"/>, {preloadedState});
+
+    expect(document.querySelector(".with-icon")).toBeNull();
+    expect(document.querySelector(".with-unit")).toBeNull();
+  });
 });

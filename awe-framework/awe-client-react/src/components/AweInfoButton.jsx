@@ -2,6 +2,7 @@ import React from "react";
 import ActionsRunningButton from "./ActionsRunningButton";
 import { classNames } from "../utilities/components";
 import { getHelpTooltipNode, getIconCode, translateLabel } from "../utilities";
+import { Badge } from "primereact/badge";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
@@ -16,7 +17,7 @@ function AweInfoButton(props) {
   const { address = {}, attributes = {}, actions } = useComponentState(id);
   const settings = useSelector(state => state.settings);
   const { t } = useTranslation();
-  const { style, icon, disabled, label, size, visible, help, helpImage } = attributes;
+  const { style, icon, disabled, label, size, visible, help, helpImage, unit } = attributes;
   const dispatch = useDispatch();
 
   const onClick = () => {
@@ -44,6 +45,7 @@ function AweInfoButton(props) {
       data-pr-showdelay={settings.helpTimeout}
       {...testHook(TestIds.infoButton)}
     />
+    {unit && <Badge value={unit} severity="info" />}
   </span>);
 }
 

@@ -1,8 +1,9 @@
 /**
  * Playground of the AWE window. Every attribute is one the XSD declares for `window` and the React client reads. The
  * client draws the window from the properties of its node in the screen structure (not from the state of a component), so
- * the scene gives them in the node. `maximize` is not offered: a maximized window is placed over the viewport (or over the
- * center area of the template), and the page of the docs scrolls, which leaves the window behind. The advanced search and
+ * the scene gives them in the node. A maximized window covers its `.maximize-target` (the center area of the template in an
+ * application): the stage of AweLive is that target, so it covers the preview and not the page, and the stage has a height
+ * for the target not to collapse. The advanced search and
  * the saved searches need a block of criteria and the server of the screen; they are described in the documentation of the window.
  * A playground spec is described in playgroundModel.js.
  */
@@ -25,6 +26,7 @@ const windowSpec = {
   reference: {element: 'window', page: 'screen'},
   api: '/docs/api/window',
   stage: 'wide',
+  height: '22rem',
   controls: [
     {id: 'label', type: 'text', label: 'Title', xml: 'label', client: '', default: '', initial: 'Customer data'},
     {
@@ -32,6 +34,7 @@ const windowSpec = {
       options: ['', 'lucide:user', 'lucide:filter', 'lucide:list', 'lucide:settings'],
     },
     {id: 'help', type: 'text', label: 'Help text', xml: 'help', client: '', default: ''},
+    {id: 'maximize', type: 'switch', label: 'Maximize button', xml: 'maximize', client: '', default: false},
     {id: 'footer', type: 'switch', label: 'Footer with a button', writes: 'tag', client: '', default: true},
   ],
   children: [
@@ -53,6 +56,7 @@ const windowSpec = {
   scene: values => ({
     node: {
       label: values.label,
+      ...(values.maximize && {maximize: true}),
       ...(values.icon && {icon: values.icon}),
       ...(values.help && {help: values.help}),
       elementList: [

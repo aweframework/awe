@@ -4,6 +4,14 @@
   margin-top: var(--awe-button-gap);
 }
 
+// The icon of a button is a box of exactly the icon size: as a block with line-height normal it wrapped the inline svg
+// and added about a pixel of line box above the 18px label, so a button with an icon was taller than one without
+.p-button .p-button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 // Default buttons (a normal button without a btn-* style, #927): the look of the application default button, which an
 // application restyles with --awe-button-default-* without touching the other outlined buttons
 .p-button.awe-button-default,
@@ -82,6 +90,7 @@
 .p-button.no-label {
   justify-content: center;
   width: var(--awe-size-control);
+  height: var(--awe-size-control);
   padding: 0;
 }
 
@@ -92,4 +101,5 @@
 
 .p-button.no-label.p-button-lg {
   width: var(--awe-size-control-lg);
+  height: var(--awe-size-control-lg);
 }

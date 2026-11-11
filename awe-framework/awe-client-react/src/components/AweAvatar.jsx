@@ -70,7 +70,7 @@ function AweAvatar(props) {
   );
 
   return (<>
-    <div className={`avatar-component p-overlay-badge ${style}`} onClick={onClick} role="button" onKeyDown={onClick}>
+    <div className={classNames("avatar-component", "p-overlay-badge", style)} onClick={onClick} role="button" onKeyDown={onClick}>
       <Avatar
         id={id}
         type="button"

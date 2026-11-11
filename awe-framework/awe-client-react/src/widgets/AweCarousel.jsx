@@ -43,7 +43,7 @@ function AweCarousel({ id, style = "" }) {
         template = imageTemplate(item);
         break;
     }
-    return <div className={"flex flex-column justify-content-center align-items-center"} style={{ height: "100%", minHeight: "500px" }}>
+    return <div className={"flex flex-column justify-content-center align-items-center"} style={{ height: "100%" }}>
       {item.title && <h2 className={"p-carousel-item-title"}>{translateLabel(item.title, t)}</h2>}
       {item.description && <div className={"p-carousel-item-description"}>{translateLabel(item.description, t)}</div>}
       {template}

@@ -94,7 +94,8 @@ export function useGridGrouping({ address, attributes, sort, values, firstColumn
   }, [onContextMenu]);
 
   const isDataRow = useCallback(({ data }) => !isDisplayRow(data), []);
-  const showSelectionElement = useCallback(data => !isDisplayRow(data), []);
+  // null, not false: PrimeReact writes a boolean cell content as text, so a false would show "false" in the cell
+  const showSelectionElement = useCallback(data => isDisplayRow(data) ? null : true, []);
 
   const tableProps = useMemo(() => active ? {
     lazy: true,

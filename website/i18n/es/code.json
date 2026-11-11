@@ -2085,125 +2085,181 @@
     "message": "Copia el valor del criterio al portapapeles.",
     "description": "Component catalog and playground: playground.criteriaNumbers.action.copy-criterion-value-clipboard"
   },
-  "playground.criteriaChoices.control.component": {
+  "playground.criteriaSelects.control.component": {
     "message": "Componente",
-    "description": "Component catalog and playground: playground.criteriaChoices.control.component"
+    "description": "Component catalog and playground: playground.criteriaSelects.control.component"
   },
-  "playground.criteriaChoices.option.component.select": {
+  "playground.criteriaSelects.option.component.select": {
     "message": "Selector",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.component.select"
+    "description": "Component catalog and playground: playground.criteriaSelects.option.component.select"
   },
-  "playground.criteriaChoices.option.component.select-multiple": {
+  "playground.criteriaSelects.option.component.select-multiple": {
     "message": "Selector múltiple",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.component.select-multiple"
+    "description": "Component catalog and playground: playground.criteriaSelects.option.component.select-multiple"
   },
-  "playground.criteriaChoices.option.component.suggest": {
+  "playground.criteriaSelects.option.component.suggest": {
     "message": "Sugerencia",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.component.suggest"
+    "description": "Component catalog and playground: playground.criteriaSelects.option.component.suggest"
   },
-  "playground.criteriaChoices.option.component.suggest-multiple": {
+  "playground.criteriaSelects.option.component.suggest-multiple": {
     "message": "Sugerencia múltiple",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.component.suggest-multiple"
+    "description": "Component catalog and playground: playground.criteriaSelects.option.component.suggest-multiple"
   },
-  "playground.criteriaChoices.option.component.picklist": {
+  "playground.criteriaSelects.option.component.picklist": {
     "message": "Lista doble",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.component.picklist"
+    "description": "Component catalog and playground: playground.criteriaSelects.option.component.picklist"
   },
-  "playground.criteriaChoices.option.component.radio": {
-    "message": "Radio",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.component.radio"
-  },
-  "playground.criteriaChoices.option.component.button-radio": {
-    "message": "Botones radio",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.component.button-radio"
-  },
-  "playground.criteriaChoices.option.component.checkbox": {
-    "message": "Casilla",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.component.checkbox"
-  },
-  "playground.criteriaChoices.option.component.button-checkbox": {
-    "message": "Botones casilla",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.component.button-checkbox"
-  },
-  "playground.criteriaChoices.control.label": {
+  "playground.criteriaSelects.control.label": {
     "message": "Etiqueta",
-    "description": "Component catalog and playground: playground.criteriaChoices.control.label"
+    "description": "Component catalog and playground: playground.criteriaSelects.control.label"
   },
-  "playground.criteriaChoices.control.placeholder": {
+  "playground.criteriaSelects.control.placeholder": {
     "message": "Texto de ayuda",
-    "description": "Component catalog and playground: playground.criteriaChoices.control.placeholder"
+    "description": "Component catalog and playground: playground.criteriaSelects.control.placeholder"
   },
-  "playground.criteriaChoices.control.icon": {
+  "playground.criteriaSelects.control.icon": {
     "message": "Icono",
-    "description": "Component catalog and playground: playground.criteriaChoices.control.icon"
+    "description": "Component catalog and playground: playground.criteriaSelects.control.icon"
   },
-  "playground.criteriaChoices.control.size": {
+  "playground.criteriaSelects.control.size": {
     "message": "Tamaño",
-    "description": "Component catalog and playground: playground.criteriaChoices.control.size"
+    "description": "Component catalog and playground: playground.criteriaSelects.control.size"
   },
-  "playground.criteriaChoices.option.size.none": {
+  "playground.criteriaSelects.option.size.none": {
     "message": "Por defecto",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.size.none"
+    "description": "Component catalog and playground: playground.criteriaSelects.option.size.none"
   },
-  "playground.criteriaChoices.option.size.sm": {
+  "playground.criteriaSelects.option.size.sm": {
     "message": "Pequeño",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.size.sm"
+    "description": "Component catalog and playground: playground.criteriaSelects.option.size.sm"
   },
-  "playground.criteriaChoices.option.size.lg": {
+  "playground.criteriaSelects.option.size.lg": {
     "message": "Grande",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.size.lg"
+    "description": "Component catalog and playground: playground.criteriaSelects.option.size.lg"
   },
-  "playground.criteriaChoices.control.optional": {
+  "playground.criteriaSelects.control.optional": {
     "message": "Botón de borrar",
-    "description": "Component catalog and playground: playground.criteriaChoices.control.optional"
+    "description": "Component catalog and playground: playground.criteriaSelects.control.optional"
   },
-  "playground.criteriaChoices.control.display": {
+  "playground.criteriaSelects.control.display": {
     "message": "Valores elegidos",
-    "description": "Component catalog and playground: playground.criteriaChoices.control.display"
+    "description": "Component catalog and playground: playground.criteriaSelects.control.display"
   },
-  "playground.criteriaChoices.option.display.none": {
+  "playground.criteriaSelects.option.display.none": {
     "message": "Una línea",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.display.none"
+    "description": "Component catalog and playground: playground.criteriaSelects.option.display.none"
   },
-  "playground.criteriaChoices.option.display.chip": {
+  "playground.criteriaSelects.option.display.chip": {
     "message": "Etiquetas",
-    "description": "Component catalog and playground: playground.criteriaChoices.option.display.chip"
+    "description": "Component catalog and playground: playground.criteriaSelects.option.display.chip"
   },
-  "playground.criteriaChoices.control.asSwitch": {
-    "message": "Mostrar como interruptor",
-    "description": "Component catalog and playground: playground.criteriaChoices.control.asSwitch"
-  },
-  "playground.criteriaChoices.control.required": {
+  "playground.criteriaSelects.control.required": {
     "message": "Obligatorio",
-    "description": "Component catalog and playground: playground.criteriaChoices.control.required"
+    "description": "Component catalog and playground: playground.criteriaSelects.control.required"
   },
-  "playground.criteriaChoices.control.readonly": {
+  "playground.criteriaSelects.control.readonly": {
     "message": "Solo lectura",
-    "description": "Component catalog and playground: playground.criteriaChoices.control.readonly"
+    "description": "Component catalog and playground: playground.criteriaSelects.control.readonly"
   },
-  "playground.criteriaChoices.action.reset": {
+  "playground.criteriaSelects.action.reset": {
     "message": "Vacía el valor del criterio.",
-    "description": "Component catalog and playground: playground.criteriaChoices.action.reset"
+    "description": "Component catalog and playground: playground.criteriaSelects.action.reset"
   },
-  "playground.criteriaChoices.action.restore": {
+  "playground.criteriaSelects.action.restore": {
     "message": "Devuelve el criterio a su valor inicial.",
-    "description": "Component catalog and playground: playground.criteriaChoices.action.restore"
+    "description": "Component catalog and playground: playground.criteriaSelects.action.restore"
   },
-  "playground.criteriaChoices.action.validate": {
+  "playground.criteriaSelects.action.validate": {
     "message": "Ejecuta la validación del criterio (obligatorio, formatos) y muestra su error.",
-    "description": "Component catalog and playground: playground.criteriaChoices.action.validate"
+    "description": "Component catalog and playground: playground.criteriaSelects.action.validate"
   },
-  "playground.criteriaChoices.action.set-invalid": {
+  "playground.criteriaSelects.action.set-invalid": {
     "message": "Marca el criterio como inválido con el mensaje de la acción.",
-    "description": "Component catalog and playground: playground.criteriaChoices.action.set-invalid"
+    "description": "Component catalog and playground: playground.criteriaSelects.action.set-invalid"
   },
-  "playground.criteriaChoices.action.set-valid": {
+  "playground.criteriaSelects.action.set-valid": {
     "message": "Borra el error de validación del criterio.",
-    "description": "Component catalog and playground: playground.criteriaChoices.action.set-valid"
+    "description": "Component catalog and playground: playground.criteriaSelects.action.set-valid"
   },
-  "playground.criteriaChoices.action.copy-criterion-value-clipboard": {
+  "playground.criteriaSelects.action.copy-criterion-value-clipboard": {
     "message": "Copia el valor del criterio al portapapeles.",
-    "description": "Component catalog and playground: playground.criteriaChoices.action.copy-criterion-value-clipboard"
+    "description": "Component catalog and playground: playground.criteriaSelects.action.copy-criterion-value-clipboard"
+  },
+  "playground.criteriaCheckboxRadio.control.component": {
+    "message": "Componente",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.component"
+  },
+  "playground.criteriaCheckboxRadio.option.component.radio": {
+    "message": "Radio",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.component.radio"
+  },
+  "playground.criteriaCheckboxRadio.option.component.button-radio": {
+    "message": "Botones radio",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.component.button-radio"
+  },
+  "playground.criteriaCheckboxRadio.option.component.checkbox": {
+    "message": "Casilla",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.component.checkbox"
+  },
+  "playground.criteriaCheckboxRadio.option.component.button-checkbox": {
+    "message": "Botones casilla",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.component.button-checkbox"
+  },
+  "playground.criteriaCheckboxRadio.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.label"
+  },
+  "playground.criteriaCheckboxRadio.control.size": {
+    "message": "Tamaño",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.size"
+  },
+  "playground.criteriaCheckboxRadio.option.size.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.size.none"
+  },
+  "playground.criteriaCheckboxRadio.option.size.sm": {
+    "message": "Pequeño",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.size.sm"
+  },
+  "playground.criteriaCheckboxRadio.option.size.lg": {
+    "message": "Grande",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.size.lg"
+  },
+  "playground.criteriaCheckboxRadio.control.asSwitch": {
+    "message": "Mostrar como interruptor",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.asSwitch"
+  },
+  "playground.criteriaCheckboxRadio.control.required": {
+    "message": "Obligatorio",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.required"
+  },
+  "playground.criteriaCheckboxRadio.control.readonly": {
+    "message": "Solo lectura",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.readonly"
+  },
+  "playground.criteriaCheckboxRadio.action.reset": {
+    "message": "Vacía el valor del criterio.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.reset"
+  },
+  "playground.criteriaCheckboxRadio.action.restore": {
+    "message": "Devuelve el criterio a su valor inicial.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.restore"
+  },
+  "playground.criteriaCheckboxRadio.action.validate": {
+    "message": "Ejecuta la validación del criterio (obligatorio, formatos) y muestra su error.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.validate"
+  },
+  "playground.criteriaCheckboxRadio.action.set-invalid": {
+    "message": "Marca el criterio como inválido con el mensaje de la acción.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.set-invalid"
+  },
+  "playground.criteriaCheckboxRadio.action.set-valid": {
+    "message": "Borra el error de validación del criterio.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.set-valid"
+  },
+  "playground.criteriaCheckboxRadio.action.copy-criterion-value-clipboard": {
+    "message": "Copia el valor del criterio al portapapeles.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.copy-criterion-value-clipboard"
   },
   "playground.criteriaUpload.control.label": {
     "message": "Etiqueta",
@@ -2557,6 +2613,10 @@
     "message": "Texto de ayuda",
     "description": "Component catalog and playground: playground.window.control.help"
   },
+  "playground.window.control.maximize": {
+    "message": "Botón de maximizar",
+    "description": "Component catalog and playground: playground.window.control.maximize"
+  },
   "playground.window.control.footer": {
     "message": "Pie con un botón",
     "description": "Component catalog and playground: playground.window.control.footer"
@@ -2752,5 +2812,9 @@
   "catalog.description.widgets": {
     "message": "Un carrusel de imágenes y vídeos, y el visor de ayuda de la aplicación.",
     "description": "Component catalog and playground: catalog.description.widgets"
+  },
+  "sidebar.docs.category.Criteria": {
+    "message": "Criterios",
+    "description": "The label for category Criteria in sidebar docs"
   }
 }

@@ -81,15 +81,17 @@ const getElementsToMinimize = (element) => {
  * and both are undone on restore. The element is fixed over the target while it is maximized and follows its size.
  * Reusable by any panel (window, tab...): put `ref` on the element, and `style` and `className` (maximized, maximize-resizing) in its props.
  *
- * @param {object} options Options: onResize, called when the size of the element changes (end of the animations)
+ * @param {object} options Options: onResize, called when the size of the element changes (end of the animations);
+ * contained, to cover the target as its positioned child (absolute, it moves and scrolls with it) instead of fixed bounds
  * @returns {{ref, maximized, iconMaximized, resizing, style, className, toggle}}
  */
-export default function useMaximize({onResize} = {}) {
+export default function useMaximize({onResize, contained = false} = {}) {
   const ref = useRef(null);
   const [maximized, setMaximized] = useState(false);
   const [iconMaximized, setIconMaximized] = useState(false);
   const [resizing, setResizing] = useState(false);
   const [bounds, setBounds] = useState(null);
+  const [covering, setCovering] = useState(false);
   const minimize = useRef({targets: [], parents: []});
   const timers = useRef([]);
   const clone = useRef(null);
@@ -127,9 +129,10 @@ export default function useMaximize({onResize} = {}) {
       node.style.removeProperty("opacity");
     });
     setBounds(targetRect);
+    setCovering(contained && Boolean(ref.current?.closest(MAXIMIZE_TARGET)));
     setMaximized(true);
     setIconMaximized(true);
-  }, []);
+  }, [contained]);
 
   const maximize = useCallback((element) => {
     clone.current = createClone(getRect(element));
@@ -208,7 +211,7 @@ export default function useMaximize({onResize} = {}) {
     });
   }, [removeClone]);
 
-  const style = maximized && bounds ? {position: "fixed", ...bounds} : undefined;
+  const style = !maximized || !bounds ? undefined : covering ? {position: "absolute", top: 0, right: 0, bottom: 0, left: 0} : {position: "fixed", ...bounds};
   const className = [maximized && "maximized", resizing && "maximize-resizing"].filter(Boolean).join(" ");
   return {ref, maximized, iconMaximized, resizing, style, className, toggle};
 }

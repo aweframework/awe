@@ -10,6 +10,10 @@ const FILES = {
   'pdf-viewer': {target: 'Manual', url: '/live/awe-sample.pdf'},
 };
 
+// A file viewer scrolls inside its space, as the screens of the application write it: without scrollable a long file
+// grows out of the expanded space. The PDF plugin scrolls the document by itself
+const STYLES = {'file-viewer': 'expand scrollable', 'pdf-viewer': 'expand'};
+
 const fileViewer = {
   name: 'file-viewer',
   element: 'Widget',
@@ -36,7 +40,7 @@ const fileViewer = {
   xmlAttributes: values => [
     ...(values.type === 'file-viewer' ? [['server-action', 'file'], ['autoload', 'true']] : []),
     ['target-action', FILES[values.type].target],
-    ['style', 'expand'],
+    ['style', STYLES[values.type]],
   ],
   children: [{
     when: {id: 'type', in: ['file-viewer']},
@@ -46,7 +50,7 @@ const fileViewer = {
   scene: values => ({
     node: {type: values.type},
     attributes: {
-      style: 'expand',
+      style: STYLES[values.type],
       targetAction: FILES[values.type].target,
       ...(values.type === 'file-viewer' && {autoload: true, serverAction: 'file', parameters: {stickBottom: values.stickBottom}}),
     },
@@ -65,7 +69,7 @@ const fileViewerExample = (type, attributes = {}) => ({
   components: {
     viewer: {
       attributes: {
-        style: 'expand',
+        style: STYLES[type],
         targetAction: FILES[type].target,
         ...(type === 'file-viewer' && {autoload: true, serverAction: 'file'}),
         ...attributes,

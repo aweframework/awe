@@ -43,11 +43,18 @@
   scroll-padding-top: calc(2 * var(--awe-grid-cell-padding-y) + var(--awe-grid-header-font-size) * var(--awe-line-height-snug) + 1px);
 }
 
-// In an editable grid, what scrolls into view (a field of the edited row on a click or on Tab) stops before the row edit
-// column, frozen at the right, not behind it: the width of that column in an edited row (save and cancel buttons, their
-// gap and its padding)
+// The width of the row edit column (save and cancel buttons, their gap and its padding). The column always has it, so
+// opening the editor of a row does not widen it and the columns of the data do not move
 .p-datatable-scrollable > .p-datatable-wrapper:has(.grid-row-editor-column) {
-  scroll-padding-inline-end: calc(2 * var(--awe-size-control-sm) + var(--awe-space-1) + 2 * var(--awe-space-2));
+  --awe-grid-row-editor-width: calc(2 * var(--awe-size-control-sm) + var(--awe-space-1) + 2 * var(--awe-space-2));
+  // In an editable grid, what scrolls into view (a field of the edited row on a click or on Tab) stops before the row
+  // edit column, frozen at the right, not behind it
+  scroll-padding-inline-end: var(--awe-grid-row-editor-width);
+}
+
+.p-datatable .grid-row-editor-column {
+  box-sizing: border-box;
+  min-width: var(--awe-grid-row-editor-width);
 }
 
 // Header: the header type of the grid. A column with an alignment aligns its header like its cells; without one the
@@ -171,6 +178,12 @@
   padding-inline: var(--awe-space-0-5);
 }
 
+// An icon-only button is a square of the control height elsewhere: in a cell it keeps the height of the text of the row,
+// so the row actions do not make the rows taller
+.p-datatable .p-datatable-tbody > tr > td > .p-button.no-label {
+  height: calc(var(--awe-font-size-base) * var(--awe-line-height-base));
+}
+
 // The row edit column stays narrow: small padding, and a small gap between the save and cancel buttons of the edited
 // row (it only grows at the right end of the grid, so the columns of the data do not move)
 .p-datatable .p-datatable-tbody > tr > td.grid-row-editor-column {
@@ -204,6 +217,27 @@
 
 .p-datatable .p-datatable-tbody > tr.editing .p-inputtext:not(textarea) {
   padding-block: 0;
+}
+
+// The editors fit the width of their column: a field has an intrinsic width (an input, the label of a dropdown), which
+// in a table of automatic layout makes the column grow to it when the row is edited and moves the data. Their width is
+// the one of the cell (a percentage does not take part in the width of the column) and they may shrink under it
+.p-datatable .p-datatable-tbody > tr.editing .p-inputtext:not(.p-dropdown-label, .p-multiselect-label),
+.p-datatable .p-datatable-tbody > tr.editing .p-dropdown,
+.p-datatable .p-datatable-tbody > tr.editing .p-multiselect,
+.p-datatable .p-datatable-tbody > tr.editing .p-inputnumber,
+.p-datatable .p-datatable-tbody > tr.editing .p-calendar,
+.p-datatable .p-datatable-tbody > tr.editing .p-inputgroup {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.p-datatable .p-datatable-tbody > tr.editing .p-inputnumber-input,
+.p-datatable .p-datatable-tbody > tr.editing .p-dropdown-label,
+.p-datatable .p-datatable-tbody > tr.editing .p-multiselect-label {
+  width: 1%;
+  min-width: 0;
 }
 
 // The addon of a field (the swatch of the colour editor...): at the small control height of the edited row

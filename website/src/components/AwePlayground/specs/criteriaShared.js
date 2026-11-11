@@ -1,6 +1,7 @@
 /**
  * Pieces the criteria playgrounds share (criteria.js and the families: criteria-text.js, criteria-numbers.js,
- * criteria-choices.js, criteria-upload.js). Not a spec: specs/index.js does not list it.
+ * criteria-selects.js, criteria-checkbox-radio.js,
+ * criteria-upload.js). Not a spec: specs/index.js does not list it.
  * Every attribute is one the XSD declares for `criteria` and the React client reads.
  */
 

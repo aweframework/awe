@@ -54,3 +54,31 @@ test('a ready component has its page in the English docs and in the Spanish ones
     assert.ok(fs.existsSync(path.join(site, 'i18n', 'es', 'docusaurus-plugin-content-docs', 'current', page)), `es ${page}`);
   }
 });
+
+test('the choices page is split in Selects and suggests and Checkbox and radio, and the old page is gone from the catalog', () => {
+  const ids = COMPONENTS.map(component => component.id);
+
+  assert.ok(ids.includes('criteria-selects') && ids.includes('criteria-checkbox-radio'));
+  assert.equal(ids.includes('criteria-choices'), false);
+});
+
+test('the Criteria sidebar category links the overview and holds the five family pages', () => {
+  const sidebars = require('../../../../sidebars');
+  const catalog = sidebars.docs.find(item => item.label === 'Component catalog');
+  const criteria = catalog.items.find(item => item.type === 'category' && item.label === 'Criteria');
+
+  assert.deepEqual(criteria.link, { type: 'doc', id: 'components/criteria' });
+  assert.deepEqual(criteria.items, [
+    'components/criteria-text', 'components/criteria-numbers', 'components/criteria-selects',
+    'components/criteria-checkbox-radio', 'components/criteria-upload',
+  ]);
+  assert.equal(JSON.stringify(sidebars).includes('criteria-choices'), false);
+});
+
+test('the old Choices URL redirects to Selects and suggests, in the site configuration', () => {
+  const config = require('../../../../docusaurus.config');
+  const plugin = config.plugins.find(entry => Array.isArray(entry) && entry[0] === '@docusaurus/plugin-client-redirects');
+  const redirect = plugin[1].redirects.find(entry => entry.from === '/docs/components/criteria-choices');
+
+  assert.equal(redirect.to, '/docs/components/criteria-selects');
+});

@@ -1,30 +1,29 @@
 ---
-id: criteria-choices
-title: Opciones
-sidebar_label: Opciones
-description: Los criterios de elección de AWE, en vivo. Selector, sugerencia, lista doble, radio, casilla y sus versiones múltiples, con el XML que los produce.
+id: criteria-selects
+title: Selectores y sugerencias
+sidebar_label: Selectores y sugerencias
+description: Los criterios de selección de AWE, en vivo. Selector, selector múltiple, sugerencia, sugerencia múltiple y lista doble, con el XML que los produce.
 ---
 
 import AweLive from '@site/src/components/AweLive';
 import AwePlayground from '@site/src/components/AwePlayground';
-import {criteriaChoices} from '@site/src/components/AwePlayground/specs/criteria-choices';
+import {criteriaSelects} from '@site/src/components/AwePlayground/specs/criteria-selects';
 
 export const countries = [
   {value: 'es', label: 'España'}, {value: 'fr', label: 'Francia'}, {value: 'de', label: 'Alemania'},
   {value: 'it', label: 'Italia'}, {value: 'pt', label: 'Portugal'}, {value: 'cl', label: 'Chile'},
 ];
 
-Los criterios de elección dejan al usuario escoger entre opciones: una (`select`, `suggest`, `radio`, `button-radio`), varias
-(`select-multiple`, `suggest-multiple`, `button-checkbox`, `picklist`) o un sí/no (`checkbox`). Debajo están los criterios reales del
-cliente React de AWE: elige un tipo, cambia sus atributos y el XML de debajo se actualiza.
+Los criterios de selección dejan al usuario escoger entre una lista de opciones: una (`select`, `suggest`) o varias (`select-multiple`,
+`suggest-multiple`, `picklist`). Debajo están los criterios reales del cliente React de AWE: elige un tipo, cambia sus atributos y el XML
+de debajo se actualiza. Los criterios de [casilla y radio](./criteria-checkbox-radio.mdx) tienen su propia página.
 
-<AwePlayground spec={criteriaChoices} />
+<AwePlayground spec={criteriaSelects} />
 
 Los atributos que comparten todos los criterios (etiqueta, texto de ayuda, icono, tamaño, validación) están en la [vista general de criterios](./criteria.mdx).
 Las opciones vienen de una lista enumerada o de una consulta del servidor (`initial-load` indica cuál de las dos y `target-action` cuál).
 En estos ejemplos el servidor está simulado: un `select` o un `picklist` muestra una lista fija, y un `suggest` o `suggest-multiple`
 busca en esa lista mientras escribes, con la misma petición que el cliente envía al servidor. Escribe "an" en la sugerencia para ver cómo filtra.
-Los radios que comparten un `group` son una sola elección: elegir uno borra los demás.
 
 ## Recetas {#recipes}
 
@@ -59,19 +58,6 @@ Un `suggest-multiple` pide al servidor las opciones que coinciden con lo que esc
           initial-load="query" target-action="CountryList" />
 ```
 
-### Interruptor {#recipe-switch}
-
-Una `checkbox` con el estilo `switch` se dibuja como un interruptor. Su `label` es el texto que lo acompaña.
-
-<AweLive
-  components={{notify: {attributes: {label: 'Avisarme por correo cuando se envíe', style: 'switch'}, model: {values: [{value: '1', label: 'Sí', selected: true}]}}}}
-  nodes={[{elementType: 'Criteria', component: 'checkbox', id: 'notify'}]}
-/>
-
-```xml
-<criteria id="notify" component="checkbox" label="Avisarme por correo cuando se envíe" style="switch" />
-```
-
 ## Eventos y acciones {#events-and-actions}
 
 Un criterio no tiene un evento propio al que escuchar: cada cambio de su valor comprueba las [dependencias](../api/dependencies.md) cuyo
@@ -89,6 +75,7 @@ que actúan sobre criterios:
 
 ## Más {#more}
 
+* [Casilla y radio](./criteria-checkbox-radio.mdx): los criterios de sí/no y de elección única, y el interruptor.
 * [Vista general de criterios](./criteria.mdx): los atributos que comparten todos los criterios y las demás familias de entradas.
 * [Documentación completa de los criterios](../api/criteria.md): todos los tipos, atributos, validaciones y ejemplos.
 * [Referencia XSD del elemento `criteria`](/reference/screen#element-criteria).

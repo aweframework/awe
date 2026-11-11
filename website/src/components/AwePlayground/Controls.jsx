@@ -2,6 +2,7 @@ import React, {useEffect, useId, useRef, useState} from 'react';
 import clsx from 'clsx';
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import styles from './styles.module.css';
+import {spriteId} from './iconNames';
 
 const optionOf = option => (typeof option === 'object' ? option : {value: option, label: option});
 
@@ -141,7 +142,7 @@ function IconPicker({control, value, onChange, label, noneLabel}) {
           <input type="radio" name={name} className={styles.visuallyHidden} checked={value === option} onChange={() => onChange(option)} />
           <span className={styles.iconFace}>
             {option ? (
-              <svg viewBox="0 0 24 24" aria-hidden="true"><use href={`${sprite}#${option.replace(/^lucide:/, '')}`} /></svg>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><use href={`${sprite}#${spriteId(option)}`} /></svg>
             ) : (
               <span aria-hidden="true">&#8709;</span>
             )}

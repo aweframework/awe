@@ -15,7 +15,7 @@ const SIZE_CHAR_INCREMENT = {md: 1, lg: 3};
 
 const AweCriterion = ({children, note, address, attributes, validationRules,
                         generateLabel = true, generateIcon = true,
-                        generateUnit = true, groupClass = "p-inputgroup", skeletonKind = "field", labelRow = false}) => {
+                        generateUnit = true, groupClass = "p-inputgroup", belowField = null, skeletonKind = "field", labelRow = false}) => {
   const {label, style, help, helpImage, icon, unit, size, error, visible, readonly, leftLabel} = attributes || {};
   const {t} = useTranslation();
   const settings = useSelector(selectSettings);
@@ -62,7 +62,11 @@ const AweCriterion = ({children, note, address, attributes, validationRules,
   };
 
   const getIcon = () => {
-    return icon ? <span className="p-inputgroup-addon">{getIconCode(icon)}</span> : null;
+    return icon ? (
+      <span className={classNames("p-inputgroup-addon", {[`text-${size}`]: size, [`p-inputtext-${size}`]: size})}>
+        {getIconCode(icon)}
+      </span>
+    ) : null;
   };
 
   const getUnit = () => {
@@ -119,6 +123,7 @@ const AweCriterion = ({children, note, address, attributes, validationRules,
         {children}
         {generateUnit && getUnit()}
       </div>
+      {belowField}
       {getValidation()}
       {note}
       {contextMenuTemplate()}
@@ -137,6 +142,8 @@ AweCriterion.propTypes = {
   generateIcon: PropTypes.bool,
   generateUnit: PropTypes.bool,
   groupClass: PropTypes.string,
+  // Shown under the input group, at its full width (the slider of a numeric criterion)
+  belowField: PropTypes.node,
   skeletonKind: PropTypes.string,
   labelRow: PropTypes.bool
 };

@@ -12,6 +12,8 @@ const video = {
   reference: {element: 'video', page: 'screen'},
   api: '/docs/api/media',
   stage: 'wide',
+  // The player is as high as its width asks (16:9) and the control bar goes under it: the stage must hold both
+  height: '24rem',
   controls: [
     {
       id: 'poster', type: 'segmented', label: 'Poster', xml: 'poster', default: '',

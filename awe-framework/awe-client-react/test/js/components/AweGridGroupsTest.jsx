@@ -247,6 +247,9 @@ describe("awe-react-client/test/js/components/AweGridGroupsTest.jsx", () => {
     expect(groupRow(container, "ES").querySelector('[data-testid="grid-row-checkbox"]')).toBeNull();
     expect(subtotalRow(container, "ES").querySelector('[data-testid="grid-row-checkbox"]')).toBeNull();
     expect(container.querySelector('tr[row-id="1"] [data-testid="grid-row-checkbox"]')).not.toBeNull();
+    // The selection cell stays empty (PrimeReact writes a hidden selection element of false as the text "false")
+    expect(groupRow(container, "ES").querySelector(".p-selection-column").textContent).toBe("");
+    expect(subtotalRow(container, "ES").querySelector(".p-selection-column").textContent).toBe("");
     expect(groupRow(container, "ES").querySelector(".p-row-number-cell").textContent).toBe("");
     // The data rows are numbered in the order they are shown
     const numbers = [...container.querySelectorAll("tr[row-id] .p-row-number-cell")].map(cell => cell.textContent);

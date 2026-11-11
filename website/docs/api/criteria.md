@@ -5,7 +5,7 @@ title: Criteria
 
 :::tip See it live
 
-Try the criteria with live controls in the [component catalog](../components/criteria.mdx): the real AWE inputs and the XML that produces them. Each family has its own playground: [text inputs](../components/criteria-text.mdx), [numbers and dates](../components/criteria-numbers.mdx), [choices](../components/criteria-choices.mdx) and [file upload](../components/criteria-upload.mdx).
+Try the criteria with live controls in the [component catalog](../components/criteria.mdx): the real AWE inputs and the XML that produces them. Each family has its own playground: [text inputs](../components/criteria-text.mdx), [numbers and dates](../components/criteria-numbers.mdx), [selects and suggests](../components/criteria-selects.mdx), [checkbox and radio](../components/criteria-checkbox-radio.mdx) and [file upload](../components/criteria-upload.mdx).
 
 :::
 

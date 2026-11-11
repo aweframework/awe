@@ -20,6 +20,14 @@ describe('resolveIcon (#885)', () => {
     expect(resolveIcon('fa:fa-print')).toEqual(lucide('printer'));
   });
 
+  it('maps the Font Awesome 4 aliases of an icon already in the table', () => {
+    expect(resolveIcon('send')).toEqual(lucide('send'));
+    expect(resolveIcon('remove')).toEqual(lucide('x'));
+    expect(resolveIcon('gear')).toEqual(lucide('settings'));
+    expect(resolveIcon('trash-o')).toEqual(lucide('trash'));
+    expect(resolveIcon('navicon')).toEqual(lucide('menu'));
+  });
+
   it('follows the table of the foundations page', () => {
     expect(resolveIcon('search')).toEqual(lucide('search'));
     expect(resolveIcon('plus')).toEqual(lucide('plus'));

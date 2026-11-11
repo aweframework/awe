@@ -37,6 +37,14 @@ describe('awe-react-client/test/js/criteria/AweCriterionStatesTest.jsx', () => {
     expect(icon.querySelector("use").getAttribute("href")).toMatch(/#circle-alert$/);
   });
 
+  it('gives the icon addon the size of the field, as the unit addon has', () => {
+    renderWithProviders(<AweInputText id="text"/>, {preloadedState: stateWith({icon: "search", size: "lg"})});
+
+    const addon = document.querySelector(".p-inputgroup-addon");
+    expect(addon.querySelector("svg.awe-icon")).not.toBeNull();
+    expect(addon).toHaveClass("p-inputtext-lg");
+  });
+
   it('shows no message while the criterion is valid', () => {
     renderWithProviders(<AweInputText id="text"/>, {preloadedState: stateWith({})});
 
