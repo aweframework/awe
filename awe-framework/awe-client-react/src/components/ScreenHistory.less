@@ -1,0 +1,84 @@
+// History mode of the screen personalization editor (#792)
+.scr-per-history {
+  max-width: 48rem;
+}
+
+.scr-per-history-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scr-per-history-row {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  padding: var(--awe-space-2) var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-history-when,
+.scr-per-history-operator,
+.scr-per-history-later {
+  flex: none;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-history-what {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.scr-per-history-name {
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text);
+}
+
+.scr-per-history-change {
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+// Import preview (a block like the rules that no longer work)
+.scr-per-import {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  margin: var(--awe-space-3);
+  padding: var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-import-title {
+  margin: 0;
+  font-size: var(--awe-font-size-md);
+  color: var(--awe-color-text-emphasis);
+}
+
+.scr-per-import-skipped {
+  margin: 0;
+  padding-left: var(--awe-space-4);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-warning-text);
+}
+
+.scr-per-import-actions {
+  display: flex;
+  gap: var(--awe-space-2);
+}
+
+// Export and Import: small link buttons next to the mode selector
+.scr-per-link.p-button {
+  padding: 0;
+  font-size: var(--awe-font-size-sm);
+}

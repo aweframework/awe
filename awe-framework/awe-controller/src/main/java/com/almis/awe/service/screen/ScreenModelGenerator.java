@@ -86,6 +86,15 @@ public class ScreenModelGenerator extends ServiceConfig {
   }
 
   /**
+   * Screen configuration thread of the rules of every subject (filtered afterwards for the chosen subject)
+   *
+   * @return Screen configuration thread
+   */
+  AweThreadInitialization getScreenSubjectConfigurationThread() {
+    return new AweThreadInitialization().setParameters(getRequest().getParametersSafe().put(AweConstants.COMPONENT_MAX, "0")).setTarget(AweConstants.SCREEN_SUBJECT_CONFIGURATION_QUERY);
+  }
+
+  /**
    * Add component target to initialization list
    *
    * @param initializationList Initialization list

@@ -14,6 +14,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 import static com.almis.awe.test.integration.util.TestUtil.assertResultJson;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -469,21 +471,31 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     private void addRestriction(String operation, String screen, String component, String attribute, String value) throws Exception {
       String maintainName = "updateScreenConfiguration";
-      String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"" + operation + "\",\"rowsAffected\":1}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
-      MvcResult mvcResult = mockMvc.perform(post("/action/maintain/" + maintainName)
+      String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"" + operation + "\",\"rowsAffected\":1},{\"operationType\":\"AUDIT\",\"rowsAffected\":1}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+      MvcResult mvcResult = saveRestriction(operation, screen, component, attribute, value)
+        .andExpect(content().json(expected))
+        .andReturn();
+      String result = mvcResult.getResponse().getContentAsString();
+      logger.debug(result);
+      assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
+        new MaintainResultDetails(MaintainType.valueOf(operation), 1L),
+        new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      });
+    }
+
+    /**
+     * Send a screen configuration row to the maintain of the editor
+     *
+     * @throws Exception Test error
+     */
+    private ResultActions saveRestriction(String operation, String screen, String component, String attribute, String value) throws Exception {
+      return mockMvc.perform(post("/action/maintain/updateScreenConfiguration")
                       .session(session)
                       .with(csrf())
                       .contentType(MediaType.APPLICATION_JSON)
                       .content("{\"module\":\"Test\",\"language\":\"en-GB\",\"RefreshTime\":null,\"site\":\"Madrid\",\"database\":\"awemadora01\",\"theme\":\"sunset\",\"SetAutoload\":\"0\",\"GrdScrCnf\":1,\"GrdScrCnf.data\":{\"max\":30,\"page\":1,\"sort\":[]},\"IdeAweScrCnf\":[\"\"],\"IdeAweScrCnf.selected\":null,\"Scr\":[\"" + screen + "\"],\"Scr.selected\":null,\"IdeOpe\":[\"\"],\"IdeOpe.selected\":null,\"IdePro\":[\"\"],\"IdePro.selected\":null,\"Nam\":[\"" + component + "\"],\"Nam.selected\":null,\"Atr\":[\"" + attribute + "\"],\"Atr.selected\":null,\"Val\":[\"" + value + "\"],\"Val.selected\":null,\"Act\":[\"1\"],\"Act.selected\":null,\"GrdScrCnf-id\":[\"new-row-1\"],\"GrdScrCnf-RowTyp\":[\"" + operation + "\"],\"PrnScr\":\"ScrCnf\",\"CrtScr\":null,\"UsrPrn\":null,\"ActPrn\":\"2\",\"FmtPrn\":\"PDF\",\"CrtAct\":null,\"CrtUsr\":null,\"DblFmtPrn\":\"0\",\"TypPrn\":\"1\",\"CrtPro\":null,\"max\":30}")
                       .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().json(expected))
-        .andReturn();
-      String result = mvcResult.getResponse().getContentAsString();
-      logger.debug(result);
-      assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-        new MaintainResultDetails(MaintainType.valueOf(operation), 1L)
-      });
+        .andExpect(status().isOk());
     }
 
 
@@ -653,8 +665,9 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testAttributeNotForComponent() throws Exception {
-      // Add restriction
-      addRestriction("INSERT", "CrtTstLeft", "Txt", "editable", "true");
+      // The editor refuses an attribute the component does not have
+      saveRestriction("INSERT", "CrtTstLeft", "Txt", "editable", "true")
+        .andExpect(jsonPath("$[?(@.type == 'message')].parameters.type", hasItem("error")));
 
       // Check screen
       checkAttributeComponentDoesntExist("Txt", "editable");

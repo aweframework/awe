@@ -130,7 +130,9 @@ public class ScreenComponentGenerator extends ServiceConfig {
     applyGridData(defaultSearches);
 
     // Generate screen configuration
-    AweThreadInitialization screenConfigurationThread = screenModelGenerator.getScreenConfigurationThread();
+    Optional<ScreenSubject> subject = screenConfigurationGenerator.getSubject();
+    AweThreadInitialization screenConfigurationThread = subject.isPresent() ?
+      screenModelGenerator.getScreenSubjectConfigurationThread() : screenModelGenerator.getScreenConfigurationThread();
 
     // Generate screen target (if it exists)
     if (screen.getTarget() != null) {
@@ -146,7 +148,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
       Future<ServiceData> configurationResult = initialLoadDao.launchInitialLoad(screenConfigurationThread);
 
       // Apply screen configuration
-      screenConfigurationGenerator.applyScreenConfiguration(configurationResult, screen);
+      screenConfigurationGenerator.applyScreenConfiguration(configurationResult, screen, subject);
 
       // Remove the elements the user cannot use (the screen is the copy generated for this request)
       if (screenElementAuthorizer != null) {

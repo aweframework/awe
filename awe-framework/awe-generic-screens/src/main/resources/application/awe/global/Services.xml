@@ -448,6 +448,48 @@
       <service-parameter type="STRING" name="element" />
     </java>
   </service>
+  <service id="getScreenStructure">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenStructure">
+      <service-parameter type="STRING" name="screenId" />
+    </java>
+  </service>
+  <service id="getScreenConfigurationOverview">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenConfigurationOverview">
+      <service-parameter type="STRING" name="screenId" />
+    </java>
+  </service>
+  <service id="getScreenConfigurationHistory">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenConfigurationHistory">
+      <service-parameter type="STRING" name="screenId" />
+    </java>
+  </service>
+  <service id="getScreenConfigurationExport">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenConfigurationExport">
+      <service-parameter type="STRING" name="screenId" />
+    </java>
+  </service>
+  <service id="getScreenOption">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenOption">
+      <service-parameter type="STRING" name="screenId" />
+    </java>
+  </service>
+  <service id="getScreenElementAttributes">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenElementAttributes">
+      <service-parameter type="STRING" name="screenId" />
+      <service-parameter type="STRING" name="componentId" />
+    </java>
+  </service>
+  <!-- Validates the rules sent by the screen configuration grid (rowTypes: the operation of each row) -->
+  <service id="validateScreenConfiguration">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="validateRules">
+      <service-parameter type="STRING" name="rowTypes" list="true" />
+      <service-parameter type="STRING" name="screens" list="true" />
+      <service-parameter type="STRING" name="components" list="true" />
+      <service-parameter type="STRING" name="attributes" list="true" />
+      <service-parameter type="STRING" name="values" list="true" />
+    </java>
+  </service>
+
   <service id="getAttributeNameList">
     <java classname="com.almis.awe.service.ScreenService" method="getAttributeNameList">
       <service-parameter name="attributeKey" type="STRING" />

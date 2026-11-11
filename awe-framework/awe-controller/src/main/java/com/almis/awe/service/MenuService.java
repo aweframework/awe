@@ -360,6 +360,17 @@ public class MenuService extends ServiceConfig {
   }
 
   /**
+   * Check if the user can open a screen: some option of the menu the user sees opens it
+   *
+   * @param screenId Screen identifier
+   * @return The screen is available
+   * @throws AWException Menu has not been found
+   */
+  public boolean isAvailableScreen(String screenId) throws AWException {
+    return menuOptionLookup.getAllAvailableOptions().stream().anyMatch(option -> screenId.equals(option.getScreen()));
+  }
+
+  /**
    * Retrieve a list of available modules
    *
    * @return Module list retrieved

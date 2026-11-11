@@ -1,0 +1,566 @@
+//
+// Visual screen personalization editor (#792): the toolbar, the inspect canvas with the real screen and the non-modal side panel
+// --------------------------------------------------
+.scr-per {
+  // The side panel sits inside the editor, so the application header and menu never cover it
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+}
+
+.scr-per-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-3);
+  padding: var(--awe-space-3);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-applies,
+.scr-per-hint,
+.scr-per-status {
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  margin-left: auto;
+}
+
+.scr-per-canvas {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: var(--awe-space-3);
+}
+
+.scr-per-empty {
+  padding: var(--awe-space-3);
+  color: var(--awe-color-text-muted);
+}
+
+// A wide screen makes room for the panel, so the selected element and Save stay visible (the menu, the panel and a
+// 48rem screen fit); on a narrower one the panel floats over the screen
+@scr-per-room-for-panel: 1440px;
+
+@media screen and (min-width: @scr-per-room-for-panel) {
+  .scr-per-with-panel {
+    padding-right: 26rem;
+  }
+}
+
+// Pickers (screen, profile, enumerated value): a dropdown with a scrollable list of options
+.scr-per-menu {
+  min-width: 16rem;
+  padding: var(--awe-space-2);
+
+  .scr-per-filter {
+    margin-bottom: var(--awe-space-2);
+  }
+}
+
+.scr-per-options {
+  max-height: 20rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+
+  a {
+    display: block;
+    padding: var(--awe-space-1) var(--awe-space-2);
+    color: var(--awe-color-text);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--awe-color-surface-hover);
+    }
+  }
+
+  .active > a {
+    background: var(--awe-color-primary-subtle);
+  }
+}
+
+.scr-per-user {
+  position: relative;
+
+  .scr-per-suggestions {
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+    left: 0;
+    right: 0;
+    // The same look as the dropdown menus of the pickers
+    margin-top: var(--awe-space-1);
+    padding: var(--awe-space-1);
+    border: var(--awe-border-width) solid var(--awe-color-overlay-border);
+    border-radius: var(--awe-radius-md);
+    background: var(--awe-color-overlay);
+    box-shadow: var(--awe-shadow-overlay);
+
+    a {
+      border-radius: var(--awe-radius-sm);
+    }
+  }
+}
+
+// Side panel: fixed to the right edge, it does not take the focus or cover the canvas with a backdrop
+.scr-per-side {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  width: 100%;
+  max-width: 26rem;
+  padding: var(--awe-space-4);
+  background: var(--awe-color-overlay);
+  box-shadow: var(--awe-shadow-modal);
+}
+
+.scr-per-side-title {
+  margin: 0;
+  font-size: var(--awe-font-size-dialog-title);
+}
+
+.scr-per-side-subtitle {
+  margin: 0;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  min-height: 0;
+  overflow: auto;
+}
+
+.scr-per-row {
+  // A row never shrinks: with many attributes the body scrolls instead of the rows overlapping
+  flex: none;
+  // As in the prototype: a switch sits right of its label; every other part of the row takes the full width
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--awe-space-1) var(--awe-space-2);
+
+  > * {
+    grid-column: ~"1 / -1";
+  }
+
+  > .scr-per-label:has(+ .scr-per-switch) {
+    grid-column: 1;
+  }
+
+  > .scr-per-switch {
+    grid-column: 2;
+  }
+}
+
+.scr-per-label {
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-emphasis);
+}
+
+.scr-per-origin {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+.btn.scr-per-reset,
+.btn.scr-per-reset:hover,
+.btn.scr-per-reset:focus {
+  padding: 0;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-primary-text);
+  background: transparent;
+  border-color: transparent;
+}
+
+.scr-per-error {
+  color: var(--awe-color-danger-text);
+}
+
+.scr-per-key {
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-advanced > summary {
+  margin-bottom: var(--awe-space-2);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+  cursor: pointer;
+}
+
+.scr-per-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--awe-space-2);
+  padding-top: var(--awe-space-3);
+  border-top: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+// Inspect mode of the canvas: the rendered components are marked by the editor (services/screenInspect)
+.scr-per-canvas {
+  .awe-inspect-node,
+  .awe-inspect-column {
+    cursor: pointer;
+  }
+
+  // Rounded outlines, as the React canvas (its outline follows the radius of the component)
+  .awe-inspect-node {
+    border-radius: var(--awe-radius-md);
+  }
+
+  // As in the prototype: dashed on hover, solid when selected. Only the innermost element under the pointer (not the
+  // window around a grid, nor the grid around a column)
+  .awe-inspect-node:not(.awe-inspect-selected):hover:not(:has(.awe-inspect-node:hover, .awe-inspect-column:hover)),
+  .awe-inspect-column:not(.awe-inspect-selected):hover {
+    outline: 1px dashed var(--awe-color-primary);
+    outline-offset: var(--awe-space-0-5);
+  }
+
+  .awe-inspect-selected {
+    outline: var(--awe-space-0-5) solid var(--awe-color-primary);
+    outline-offset: var(--awe-space-0-5);
+  }
+
+  // A small dot marks an element that has a rule
+  .awe-inspect-personalized {
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: var(--awe-space-0-5);
+      right: var(--awe-space-0-5);
+      width: var(--awe-space-2);
+      height: var(--awe-space-2);
+      border-radius: var(--awe-radius-full);
+      background: var(--awe-color-primary);
+      pointer-events: none;
+    }
+  }
+
+  // A hidden element is drawn anyway: no outline of its own, a surface veil over its background, its content dimmed and a badge
+  .awe-inspect-hidden {
+    position: relative;
+    box-shadow: inset 0 0 0 100vmax color-mix(in srgb, var(--awe-color-surface) 70%, transparent);
+
+    > * {
+      opacity: 0.3;
+    }
+
+    &::before {
+      content: var(--awe-inspect-hidden-text);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      z-index: 1;
+      transform: translate(-50%, -50%);
+      padding: 0 var(--awe-space-1);
+      border-radius: var(--awe-radius-sm);
+      font-size: var(--awe-font-size-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      white-space: nowrap;
+      color: var(--awe-color-surface);
+      background: var(--awe-color-text);
+      pointer-events: none;
+    }
+
+    // The selected one keeps its outline so it can be told apart
+    &.awe-inspect-selected {
+      outline: var(--awe-space-0-5) solid var(--awe-color-primary);
+    }
+  }
+
+  // The cells of a hidden column: a column is a stack of cells, so the badge is only on the header
+  .awe-inspect-column.awe-inspect-hidden::before {
+    content: none;
+  }
+}
+
+// Boolean attribute: the design system switch of form.less; the native checkbox is kept for the keyboard, off-screen
+.scr-per-switch {
+  display: inline-flex;
+  margin: 0;
+  padding: 0;
+  cursor: pointer;
+
+  > input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    opacity: 0;
+  }
+}
+
+// The controls of the editor mode sit in the toolbar as if they had no wrapper
+.scr-per-edit-controls {
+  display: contents;
+}
+
+// Overview mode: what each subject sees per element and option, and the rules that no longer work
+.scr-per-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  // 48rem of the React engine: the root font of the AngularJS engine is 10px
+  max-width: 76.8rem;
+}
+
+.scr-per-overview-title {
+  margin: 0;
+  font-size: var(--awe-font-size-lg);
+  color: var(--awe-color-text-emphasis);
+}
+
+.scr-per-overview-block,
+.scr-per-overview-problems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-overview-problems {
+  border-color: var(--awe-color-warning);
+  background: var(--awe-color-warning-subtle);
+}
+
+.scr-per-overview-warning {
+  margin: 0;
+  font-size: var(--awe-font-size-md);
+  color: var(--awe-color-warning-text);
+}
+
+// Links, as in React: the AWE 5 button look gives them a filled background
+.scr-per-overview-name.btn,
+.scr-per-overview-subject.btn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.scr-per-overview-name.btn {
+  align-self: flex-start;
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-primary);
+}
+
+.scr-per-overview-subject.btn {
+  color: var(--awe-color-text);
+}
+
+.scr-per-overview-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scr-per-overview-problem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-2);
+  color: var(--awe-color-text);
+}
+
+.scr-per-overview-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+// History mode: who changed what and when, newest first
+.scr-per-history {
+  // 48rem of the React engine: the root font of the AngularJS engine is 10px
+  max-width: 76.8rem;
+}
+
+.scr-per-history-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scr-per-history-row {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  padding: var(--awe-space-2) var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-history-when,
+.scr-per-history-operator,
+.scr-per-history-later {
+  flex: none;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-history-what {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.scr-per-history-name {
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text);
+}
+
+.scr-per-history-change {
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+// The file chooser of Import is opened by its link: Bootstrap shows input[type="file"] even when hidden
+.scr-per-import-file[hidden] {
+  display: none;
+}
+
+// Import preview (a block like the rules that no longer work)
+.scr-per-import {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  margin: var(--awe-space-3);
+  padding: var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-import-title {
+  margin: 0;
+  font-size: var(--awe-font-size-md);
+  color: var(--awe-color-text-emphasis);
+}
+
+.scr-per-import-skipped {
+  margin: 0;
+  padding-left: var(--awe-space-4);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-warning-text);
+}
+
+.scr-per-import-actions {
+  display: flex;
+  gap: var(--awe-space-2);
+}
+
+// Export and Import: small link buttons next to the mode selector (AngularJS .btn has a filled background in AWE 5)
+// They sit at the right end of the line of the mode selector; the break keeps the rest of the toolbar below it
+.scr-per-links {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  margin-left: auto;
+}
+
+.scr-per-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+// Popover of Import: the dropdown of the house, as the overlay menus
+.scr-per-import-dropdown {
+  position: relative;
+}
+
+.scr-per-import-menu {
+  // 20rem of the React engine, whose root font is 16px (here it is 10px)
+  width: 32rem;
+  max-width: calc(100vw - 2 * var(--awe-space-3));
+  right: 0;
+  left: auto;
+  padding: var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-md);
+  background: var(--awe-color-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+
+  &.open,
+  .open > & {
+    display: flex;
+    flex-direction: column;
+    gap: var(--awe-space-3);
+  }
+}
+
+.scr-per-import-popover-title {
+  margin: 0;
+  font-size: var(--awe-font-size-md);
+  color: var(--awe-color-text-emphasis);
+}
+
+.scr-per-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-4);
+  border: var(--awe-border-width) dashed var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+  text-align: center;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-dropzone-over {
+  border-color: var(--awe-color-primary);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-dropzone-icon {
+  font-size: var(--awe-font-size-lg);
+}
+
+.scr-per-import-hint {
+  margin: 0;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-link.btn {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font-size: var(--awe-font-size-sm);
+}

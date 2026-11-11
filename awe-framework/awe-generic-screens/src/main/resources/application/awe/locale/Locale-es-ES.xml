@@ -381,6 +381,7 @@
   <locale name="ENUM_SCR_ATR_SUMMARYTYPE" value="Summary type"/>
   <locale name="ENUM_SCR_ATR_TARGETACTION" value="Target action"/>
   <locale name="ENUM_SCR_ATR_THOUSAND_SEPARATOR" value="Thousand separator"/>
+  <locale name="ENUM_SCR_ATR_DECIMAL_SEPARATOR" value="Decimal Separator"/>
   <locale name="ENUM_SCR_ATR_TIMEOUT" value="Time out"/>
   <locale name="ENUM_SCR_ATR_TOTALIZE" value="Totalize"/>
   <locale name="ENUM_SCR_ATR_TREEGRID" value="Tree grid"/>
@@ -390,6 +391,39 @@
   <locale name="ENUM_SCR_ATR_VARIABLE" value="Variable"/>
   <locale name="ENUM_SCR_ATR_VISIBLE" value="Visible"/>
   <locale name="ENUM_SCR_ATR_WIDTH" value="Width"/>
+  <locale name="ENUM_SCR_ATR_AGGREGATION_FIELD" value="Aggregation Field"/>
+  <locale name="ENUM_SCR_ATR_AGGREGATOR" value="Aggregator"/>
+  <locale name="ENUM_SCR_ATR_AREA_ROWS" value="Area Rows"/>
+  <locale name="ENUM_SCR_ATR_BROWSER_ACTION" value="Browser Action"/>
+  <locale name="ENUM_SCR_ATR_BUTTON_TYPE" value="Button Type"/>
+  <locale name="ENUM_SCR_ATR_CANCEL" value="Cancel"/>
+  <locale name="ENUM_SCR_ATR_COLS" value="Cols"/>
+  <locale name="ENUM_SCR_ATR_DATE_FORMAT" value="Date Format"/>
+  <locale name="ENUM_SCR_ATR_DATE_VIEW_MODE" value="Date View Mode"/>
+  <locale name="ENUM_SCR_ATR_DEFAULT_VALUE" value="Default Value"/>
+  <locale name="ENUM_SCR_ATR_DESTINATION" value="Destination"/>
+  <locale name="ENUM_SCR_ATR_EXPAND" value="Expand"/>
+  <locale name="ENUM_SCR_ATR_GROUP" value="Group"/>
+  <locale name="ENUM_SCR_ATR_HELP" value="Help"/>
+  <locale name="ENUM_SCR_ATR_HELP_IMAGE" value="Help Image"/>
+  <locale name="ENUM_SCR_ATR_LOAD_ALL" value="Load All"/>
+  <locale name="ENUM_SCR_ATR_PLACEHOLDER" value="Placeholder"/>
+  <locale name="ENUM_SCR_ATR_PROPERTY" value="Property"/>
+  <locale name="ENUM_SCR_ATR_RENDERER" value="Renderer"/>
+  <locale name="ENUM_SCR_ATR_ROWS" value="Rows"/>
+  <locale name="ENUM_SCR_ATR_SEND_ALL" value="Send All"/>
+  <locale name="ENUM_SCR_ATR_SHOW_FUTURE_DATES" value="Show Future Dates"/>
+  <locale name="ENUM_SCR_ATR_SHOW_SLIDER" value="Show Slider"/>
+  <locale name="ENUM_SCR_ATR_SHOW_TODAY_BUTTON" value="Show Today Button"/>
+  <locale name="ENUM_SCR_ATR_SHOW_WEEKENDS" value="Show Weekends"/>
+  <locale name="ENUM_SCR_ATR_SORT_METHOD" value="Sort Method"/>
+  <locale name="ENUM_SCR_ATR_TITLE" value="Title"/>
+  <locale name="ENUM_SCR_ATR_TOTAL_COLUMN_PLACEMENT" value="Total Column Placement"/>
+  <locale name="ENUM_SCR_ATR_TOTAL_ROW_PLACEMENT" value="Total Row Placement"/>
+  <locale name="ENUM_SCR_ATR_TREE_ID" value="Tree Id"/>
+  <locale name="ENUM_SCR_ATR_TREE_LEAF" value="Tree Leaf"/>
+  <locale name="ENUM_SCR_ATR_TREE_PARENT" value="Tree Parent"/>
+  <locale name="ENUM_SCR_ATR_TYPE" value="Type"/>
   <locale name="ENUM_SECURITY_AUDIT_ACCESS_DENIED" value="Acceso denegado"/>
   <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_LOCKED" value="Cuenta bloqueada"/>
   <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_UNLOCKED" value="Cuenta desbloqueada"/>
@@ -1058,6 +1092,15 @@
   <locale name="ERROR_TITLE_SAVING_ITEM" value="Error guardando archivo"/>
   <locale name="ERROR_TITLE_SESSION_CLOSED" value="Sesión cerrada"/>
   <locale name="ERROR_TITLE_SCREEN_GENERATION_ERROR" value="Error al generar la pantalla"/>
+  <locale name="ERROR_TITLE_SCREEN_CONFIGURATION_INVALID" value="Configuración de pantalla no válida"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_UNKNOWN_COMPONENT" value="El componente &apos;&apos;{0}&apos;&apos; no existe en la pantalla &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_UNKNOWN_ATTRIBUTE" value="El atributo &apos;&apos;{0}&apos;&apos; no se puede configurar"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_ATTRIBUTE_NOT_APPLICABLE" value="El atributo &apos;&apos;{0}&apos;&apos; no se aplica al componente &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_BOOLEAN" value="El atributo &apos;&apos;{0}&apos;&apos; solo admite true o false, no &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_INTEGER" value="El atributo &apos;&apos;{0}&apos;&apos; solo admite números enteros, no &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_ENUM" value="El atributo &apos;&apos;{0}&apos;&apos; no admite &apos;&apos;{1}&apos;&apos;. Valores permitidos: {2}"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_VALUE_TOO_LONG" value="El valor del atributo &apos;&apos;{0}&apos;&apos; no puede superar los {1} caracteres"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_NO_ACCESS" value="No puede personalizar la pantalla &apos;&apos;{0}&apos;&apos;: no tiene acceso a ella"/>
   <locale name="ERROR_TITLE_SCREEN_NOT_DEFINED" value="Pantalla no definida"/>
   <locale name="ERROR_TITLE_SCREEN_OPTION_NOT_DEFINED" value="Opción de pantalla no definida"/>
   <locale name="ERROR_TITLE_SENDING_QUEUE_MESSAGE" value="Error en el envío de un mensaje"/>
@@ -2080,4 +2123,72 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="WEEKS" value="{0} semanas"/>
   <locale name="YEAR" value="{0} año"/>
   <locale name="YEARS" value="{0} años"/>
+  <locale name="HELP_SCREEN_TITLE_SCR_PER" value="Personaliza una pantalla de forma visual: pulsa un elemento de la pantalla y cambia sus atributos para todos, un perfil o un usuario"/>
+  <locale name="MENU_TOOLS_SCR_PER" value="Personalizar pantalla"/>
+  <locale name="SCREEN_TITLE_SCR_PER" value="Personalizar pantalla"/>
+  <locale name="SCR_PER_ADVANCED" value="Avanzado"/>
+  <locale name="SCR_PER_APPLIES_TO" value="Se aplica a"/>
+  <locale name="SCR_PER_CHANGES" value="{0} cambio(s)"/>
+  <locale name="SCR_PER_DISCARD" value="Descartar"/>
+  <locale name="SCR_PER_FOR" value="para"/>
+  <locale name="SCR_PER_HIDDEN" value="oculto"/>
+  <locale name="SCR_PER_INVALID" value="{0} valor(es) no válido(s)"/>
+  <locale name="SCR_PER_ORIGIN_DEFAULT" value="Heredado de la pantalla"/>
+  <locale name="SCR_PER_ORIGIN_EVERYONE" value="Heredado de todos"/>
+  <locale name="SCR_PER_ORIGIN_PERSONALIZED" value="Personalizado para este ámbito"/>
+  <locale name="SCR_PER_ORIGIN_PROFILE" value="Heredado del perfil"/>
+  <locale name="SCR_PER_ORIGIN_USER" value="Personalizado para el usuario"/>
+  <locale name="SCR_PER_PICK_SCREEN" value="Elige una pantalla para personalizar"/>
+  <locale name="SCR_PER_PRECEDENCE" value="El usuario gana al perfil, el perfil gana a todos"/>
+  <locale name="SCR_PER_RESET_ATTRIBUTE" value="Restablecer"/>
+  <locale name="SCR_PER_RESET_ELEMENT" value="Restablecer elemento"/>
+  <locale name="SCR_PER_SCOPE_EVERYONE" value="Todos"/>
+  <locale name="SCR_PER_SCOPE_PROFILE" value="Perfil"/>
+  <locale name="SCR_PER_SCOPE_USER" value="Usuario"/>
+  <locale name="SCR_PER_VIEW_AS" value="Ver como"/>
+  <locale name="SCR_PER_VIEW_AS_EDITED" value="Ámbito editado"/>
+  <locale name="SCR_PER_NO_OPTION" value="Esta pantalla no se abre desde ninguna opción de menú, por lo que no se puede mostrar aquí"/>
+  <locale name="SCR_PER_MODE" value="Modo"/>
+  <locale name="SCR_PER_MODE_EDIT" value="Editar"/>
+  <locale name="SCR_PER_MODE_OVERVIEW" value="Resumen"/>
+  <locale name="SCR_PER_OVERVIEW_TITLE" value="{0} · {1} elemento(s) cambiado(s)"/>
+  <locale name="SCR_PER_OVERVIEW_EMPTY" value="No hay nada personalizado en esta pantalla"/>
+  <locale name="SCR_PER_VALUE_VISIBLE" value="Visible"/>
+  <locale name="SCR_PER_VALUE_HIDDEN" value="Oculto"/>
+  <locale name="SCR_PER_VALUE_YES" value="Sí"/>
+  <locale name="SCR_PER_VALUE_NO" value="No"/>
+  <locale name="SCR_PER_PROBLEMS" value="{0} cambio(s) ya no funcionan"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_ELEMENT" value="{0} ya no está en esta pantalla ({1})"/>
+  <locale name="SCR_PER_PROBLEM_INVALID_ATTRIBUTE" value="{1} no se puede configurar en {0}"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_PROFILE" value="El perfil de la regla de {1} de {0} ya no existe"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_USER" value="El usuario de la regla de {1} de {0} ya no existe"/>
+  <locale name="SCR_PER_PROBLEM_DUPLICATE" value="{0} · {1} tiene {3} reglas para {2}"/>
+  <locale name="SCR_PER_DELETE" value="Eliminar"/>
+  <locale name="SCR_PER_KEEP_ONE" value="Conservar una:"/>
+  <locale name="SCR_PER_KEEP_VALUE" value="Conservar {0}"/>
+  <locale name="SCR_PER_MODE_HISTORY" value="Historial"/>
+  <locale name="SCR_PER_HISTORY_EMPTY" value="No se ha registrado ningún cambio en esta pantalla"/>
+  <locale name="SCR_PER_HISTORY_CREATED" value="Creado: {0}"/>
+  <locale name="SCR_PER_HISTORY_DELETED" value="Eliminado (era {0})"/>
+  <locale name="SCR_PER_UNDO" value="Deshacer"/>
+  <locale name="SCR_PER_CHANGED_LATER" value="Cambiado después"/>
+  <locale name="SCR_PER_HISTORY_UNRECORDED" value="Valor anterior no registrado"/>
+  <locale name="SCR_PER_HISTORY_CHANGED_TO" value="Cambiado a: {0}"/>
+  <locale name="SCR_PER_EXPORT" value="Exportar"/>
+  <locale name="SCR_PER_IMPORT" value="Importar"/>
+  <locale name="SCR_PER_IMPORT_FILE" value="Archivo a importar"/>
+  <locale name="SCR_PER_IMPORT_TITLE" value="Importar reglas"/>
+  <locale name="SCR_PER_IMPORT_DROP" value="Suelta un archivo .json o"/>
+  <locale name="SCR_PER_IMPORT_CHOOSE" value="elige uno"/>
+  <locale name="SCR_PER_IMPORT_HINT" value="Un archivo exportado desde esta pantalla. Verás qué cambia antes de guardar nada."/>
+  <locale name="SCR_PER_IMPORT_PREVIEW" value="Importación: {0} por añadir, {1} por cambiar"/>
+  <locale name="SCR_PER_IMPORT_SKIPPED" value="{0} regla(s) omitida(s)"/>
+  <locale name="SCR_PER_IMPORT_SKIPPED_ITEM" value="{0} · {1}: {2} {3}"/>
+  <locale name="SCR_PER_IMPORT_REASON_PROFILE" value="perfil no encontrado:"/>
+  <locale name="SCR_PER_IMPORT_REASON_USER" value="usuario no encontrado:"/>
+  <locale name="SCR_PER_IMPORT_REASON_ELEMENT" value="elemento que no está en esta pantalla:"/>
+  <locale name="SCR_PER_IMPORT_APPLY" value="Aplicar importación"/>
+  <locale name="SCR_PER_IMPORT_CANCEL" value="Cancelar"/>
+  <locale name="SCR_PER_IMPORT_INVALID_FILE" value="El archivo no es una exportación de la personalización de una pantalla"/>
+  <locale name="SCR_PER_IMPORT_OTHER_SCREEN" value="El archivo es de la pantalla {0}, no de esta"/>
 </locales>

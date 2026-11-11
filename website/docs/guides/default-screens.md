@@ -755,6 +755,9 @@ And we want to be not required, put the new configuration like in the picture be
 
 <img alt="Screen configuration" src={require('@docusaurus/useBaseUrl').default('img/screen_conf.png')} />
 
+For a visual editor with validation, an overview, history and export/import, see
+[Screen personalization](screen-personalization.md).
+
 ### How to use it:
 
 If you want to access and use this screen, put the next option in your `private.xml` or `public.xml`.

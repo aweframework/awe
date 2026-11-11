@@ -3161,6 +3161,56 @@
     <variable id="profile" type="STRING" session="profile"/>
   </query>
 
+  <!-- GET SCREEN CONFIGURATION OF EVERY SUBJECT: the personalization editor renders a screen as a chosen subject -->
+  <query id="getScreenSubjectConfiguration">
+    <table id="AweScrCnf" alias="ScrCnf" />
+    <field id="IdeAweScrCnf" table="ScrCnf" alias="id" />
+    <field id="IdeOpe" table="ScrCnf" alias="userId" />
+    <field id="IdePro" table="ScrCnf" alias="profileId" />
+    <field id="l1_nom" table="ope" alias="user" />
+    <field id="Acr" table="pro" alias="profile" />
+    <field id="Nam" table="pro" alias="profileName" />
+    <field id="Nam" table="ScrCnf" alias="component" />
+    <field id="Scr" table="ScrCnf" alias="screen" />
+    <field id="Atr" table="ScrCnf" alias="attribute" />
+    <field id="Val" table="ScrCnf" alias="value" />
+    <join type="LEFT">
+      <table id="AwePro" alias="pro" />
+      <and>
+        <filter left-field="IdePro" left-table="ScrCnf" condition="eq" right-field="IdePro" right-table="pro" />
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="ope" alias="ope" />
+      <and>
+        <filter left-field="IdeOpe" left-table="ScrCnf" condition="eq" right-field="IdeOpe" right-table="ope" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Act" left-table="ScrCnf" condition="eq" right-variable="active" />
+        <or>
+          <filter left-field="Scr" left-table="ScrCnf" condition="eq" right-variable="screen"/>
+          <filter left-field="Scr" left-table="ScrCnf" condition="is null"/>
+        </or>
+      </and>
+    </where>
+    <variable id="active" type="INTEGER" value="1" />
+    <variable id="screen" type="STRING" name="screen"/>
+  </query>
+
+  <!-- GET THE PROFILE OF THE SUBJECT USER -->
+  <query id="getScreenSubjectProfile">
+    <table id="ope" />
+    <field id="IdePro" alias="value" />
+    <where>
+      <and>
+        <filter left-field="IdeOpe" condition="eq" right-variable="subjectId" />
+      </and>
+    </where>
+    <variable id="subjectId" type="INTEGER" name="subjectId" />
+  </query>
+
   <!-- GET SCREEN CONFIGURATION LIST -->
   <query id="ScrCnfLst" permission="access.read" cacheable="true">
     <table id="AweScrCnf" alias="scrCnf" />
@@ -3231,6 +3281,143 @@
     <variable id="screenName" type="STRING" name="Scr.selected" />
     <variable id="element" type="STRING" name="suggest" />
   </query>
+
+  <!-- Element tree of a screen, to configure it (Service java getScreenStructure): one row per element, built with path and parent -->
+  <query id="getScreenStructure" permission="access.read" service="getScreenStructure" cacheable="true">
+    <field id="path"/>
+    <field id="parent"/>
+    <field id="position"/>
+    <field id="elementType"/>
+    <field id="id"/>
+    <field id="label"/>
+    <field id="configurable"/>
+    <variable id="screenId" type="STRING" name="screen" />
+    <!-- Not used by the service: the user must key the cache, or the check of the screen access would be skipped -->
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="profile" type="STRING" session="profile"/>
+    <variable id="restriction" type="STRING" session="restriction"/>
+  </query>
+
+  <!-- Active rules of a screen with who they are for and whether they still work (Service java getScreenConfigurationOverview) -->
+  <query id="getScreenConfigurationOverview" permission="access.read" service="getScreenConfigurationOverview">
+    <field id="ruleId"/>
+    <field id="component"/>
+    <field id="attribute"/>
+    <field id="scopeType"/>
+    <field id="profileId"/>
+    <field id="profileName"/>
+    <field id="userId"/>
+    <field id="userName"/>
+    <field id="value"/>
+    <field id="problem"/>
+    <field id="duplicateGroup"/>
+    <variable id="screenId" type="STRING" name="screen" />
+  </query>
+
+  <!-- Changes made to the rules of a screen, oldest first (the history is read through getScreenConfigurationHistory) -->
+  <query id="getScreenConfigurationHistoryRows" permission="access.read">
+    <table id="HISAweScrCnf" alias="his" />
+    <field id="HISdat" table="his" alias="date" transform="TIMESTAMP" />
+    <field id="HISope" table="his" alias="operator" />
+    <field id="HISact" table="his" alias="action" />
+    <field id="IdeAweScrCnf" table="his" alias="id" />
+    <field id="IdeOpe" table="his" alias="userId" />
+    <field id="IdePro" table="his" alias="profileId" />
+    <field id="l1_nom" table="ope" alias="user" />
+    <field id="Nam" table="pro" alias="profileName" />
+    <field id="Nam" table="his" alias="component" />
+    <field id="Scr" table="his" alias="screen" />
+    <field id="Atr" table="his" alias="attribute" />
+    <field id="Val" table="his" alias="value" />
+    <join type="LEFT">
+      <table id="AwePro" alias="pro" />
+      <and>
+        <filter left-field="IdePro" left-table="his" condition="eq" right-field="IdePro" right-table="pro" />
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="ope" alias="ope" />
+      <and>
+        <filter left-field="IdeOpe" left-table="his" condition="eq" right-field="IdeOpe" right-table="ope" />
+      </and>
+    </join>
+    <where>
+      <and>
+        <or>
+          <filter left-field="Scr" left-table="his" condition="eq" right-variable="screen"/>
+          <filter left-field="Scr" left-table="his" condition="is null"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="HISdat" table="his" type="ASC" />
+    <variable id="screen" type="STRING" name="screen"/>
+  </query>
+
+  <!-- Changes of the rules of a screen with the value before and after (Service java getScreenConfigurationHistory) -->
+  <query id="getScreenConfigurationHistory" permission="access.read" service="getScreenConfigurationHistory">
+    <field id="date"/>
+    <field id="operator"/>
+    <field id="action"/>
+    <field id="ruleId"/>
+    <field id="component"/>
+    <field id="attribute"/>
+    <field id="screen"/>
+    <field id="scopeType"/>
+    <field id="profileId"/>
+    <field id="profileName"/>
+    <field id="userId"/>
+    <field id="userName"/>
+    <field id="value"/>
+    <field id="valueBefore"/>
+    <field id="valueAfter"/>
+    <field id="undoable"/>
+    <variable id="screenId" type="STRING" name="screen" />
+  </query>
+
+  <!-- Rules of a screen to export, with the acronym of the profile and the login of the user (Service java getScreenConfigurationExport) -->
+  <query id="getScreenConfigurationExport" permission="access.read" service="getScreenConfigurationExport">
+    <field id="component"/>
+    <field id="attribute"/>
+    <field id="value"/>
+    <field id="scopeType"/>
+    <field id="profile"/>
+    <field id="user"/>
+    <variable id="screenId" type="STRING" name="screen" />
+  </query>
+
+  <!-- Users by login: the import of the rules of a screen finds the users of the file here -->
+  <query id="getScreenImportUsers" permission="access.read">
+    <table id="ope" />
+    <field id="IdeOpe" alias="value" />
+    <field id="l1_nom" alias="login" />
+    <where>
+      <and>
+        <filter left-field="l1_nom" condition="in" right-variable="logins" />
+      </and>
+    </where>
+    <variable id="logins" type="STRING" name="logins" />
+  </query>
+
+  <!-- Menu option that opens a screen (Service java getScreenOption): a screen is loaded through its option -->
+  <query id="getScreenOption" permission="access.read" service="getScreenOption">
+    <field id="option"/>
+    <variable id="screenId" type="STRING" name="screen" />
+  </query>
+
+  <!-- Attributes of a screen component that can be configured, with value type and XML value (Service java getScreenElementAttributes) -->
+  <query id="getScreenElementAttributes" permission="access.read" service="getScreenElementAttributes" cacheable="true">
+    <field id="attribute"/>
+    <field id="valueType"/>
+    <field id="allowedValues"/>
+    <field id="value"/>
+    <variable id="screenId" type="STRING" name="screen" />
+    <variable id="componentId" type="STRING" name="component" />
+    <!-- Not used by the service: the user must key the cache, or the check of the screen access would be skipped -->
+    <variable id="user" type="STRING" session="user"/>
+    <variable id="profile" type="STRING" session="profile"/>
+    <variable id="restriction" type="STRING" session="restriction"/>
+  </query>
+
 
   <!-- DATA BASE SUGGEST -->
   <query id="DbsSug" permission="system.read" cacheable="true">

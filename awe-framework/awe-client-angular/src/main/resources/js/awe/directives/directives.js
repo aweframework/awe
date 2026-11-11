@@ -114,3 +114,4 @@ import "./viewers/fileViewer";
 import "./viewers/helpViewer";
 import "./viewers/pdfViewer";
 import "./viewers/logViewer";
+import "./screenPersonalizer";

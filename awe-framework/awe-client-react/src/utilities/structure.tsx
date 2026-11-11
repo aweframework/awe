@@ -126,6 +126,21 @@ function isSparklineSeries(component: string | undefined, data: unknown): boolea
  * @constructor
  */
 export const Components = (node: StructureElement, index: number): React.ReactElement | null | undefined => {
+  const element = buildComponent(node, index);
+  return inspectWrapper && element ? inspectWrapper(node, element) : element;
+};
+
+/**
+ * Inspect hook of the screen personalization editor (#792): wraps every component built while it is installed.
+ * Null (the default) leaves the output of the builder as it is.
+ */
+type InspectWrapper = (node: StructureElement, element: React.ReactElement) => React.ReactElement;
+let inspectWrapper: InspectWrapper | null = null;
+export const setInspectWrapper = (wrapper: InspectWrapper | null): void => {
+  inspectWrapper = wrapper;
+};
+
+const buildComponent = (node: StructureElement, index: number): React.ReactElement | null | undefined => {
   if (IGNORE_COMPONENT_LIST.includes(node.elementType as string)) return null;
   if (node.elementType === "Criteria") {
     return Criteria(node, index);
