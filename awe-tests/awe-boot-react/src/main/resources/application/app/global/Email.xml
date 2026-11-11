@@ -11,14 +11,23 @@
   <email id="SndRep">
     <from query="SesUsr" label="SesNam" value="SesEma" />
     <to query="GetEmaLst" label="UsrNam" value="UsrEml" />
-    <subject label="EMAIL_SUBJECT_REPORT" value="asd"/>
-    <body label="EMAIL_MESSAGE_HTML_HEADER" type="html" value=""/>
-    <body label="EMAIL_MESSAGE_HTML_REPORT" type="html" value=""/>
-    <body label="EMAIL_MESSAGE_HTML_BOTTOM" type="html" value=""/>
-    <body label="EMAIL_MESSAGE_TEXT_REPORT" type="text" value=""/>
+    <subject label="EMAIL_SUBJECT_REPORT" />
+    <body label="EMAIL_MESSAGE_HTML_HEADER" type="html" />
+    <body label="EMAIL_MESSAGE_HTML_REPORT" type="html" />
+    <body label="EMAIL_MESSAGE_HTML_BOTTOM" type="html" />
+    <body label="EMAIL_MESSAGE_TEXT_REPORT" type="text" />
     <attachment value="PdfNam" label="EMAIL_FILE_PDF" />
     <attachment value="DocNam" label="EMAIL_FILE_DOC" />
     <attachment value="XlsNam" label="EMAIL_FILE_XLS" />
+    <attachment value="CsvNam" label="EMAIL_FILE_CSV" />
+    <attachment value="TxtNam" label="EMAIL_FILE_TXT" />
+    <variable id="ScrTit" type="STRING" name="ScrTit"/>
+    <variable id="ScrTitFil" type="STRING" name="ScrTitFil"/>
+    <variable id="PdfNam" type="STRING" name="PdfNam" optional="true"/>
+    <variable id="DocNam" type="STRING" name="DocNam" optional="true"/>
+    <variable id="XlsNam" type="STRING" name="XlsNam" optional="true"/>
+    <variable id="CsvNam" type="STRING" name="CsvNam" optional="true"/>
+    <variable id="TxtNam" type="STRING" name="TxtNam" optional="true"/>
   </email>
 
   <email id="EmlActUsr">
