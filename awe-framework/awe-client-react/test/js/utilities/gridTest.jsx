@@ -11,6 +11,7 @@ import {
   getMoveRowKeyPosition,
   getFrozenOffsets,
   getPaginatorSettings,
+  getRelativeCellValue,
   getWidthStyle,
   moveRowInValues,
   moveRowNextToRow,
@@ -481,6 +482,27 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
 
     it('shows every row without pages when the grid has no row limit (max="0", #944)', () => {
       expect(getPaginatorSettings({buttonModel: []}, 0, 53)).toEqual({paginator: false, pageRows: 53});
+    });
+  });
+  describe('getRelativeCellValue (#946)', () => {
+    const values = [{id: 1, Run: 5}, {id: 2, Run: 8}, {id: 3, Run: 13}];
+
+    it('returns the cell of the row at the offset of the base row', () => {
+      expect(getRelativeCellValue(values, 1, -1, 'Run')).toBe(5);
+      expect(getRelativeCellValue(values, 1, 0, 'Run')).toBe(8);
+      expect(getRelativeCellValue(values, 1, 1, 'Run')).toBe(13);
+    });
+
+    it('returns null for the previous row of the first row and the next row of the last row', () => {
+      expect(getRelativeCellValue(values, 0, -1, 'Run')).toBeNull();
+      expect(getRelativeCellValue(values, 2, 1, 'Run')).toBeNull();
+    });
+
+    it('returns null when there is no base row, even on an empty grid', () => {
+      expect(getRelativeCellValue(values, -1, -1, 'Run')).toBeNull();
+      expect(getRelativeCellValue(values, -1, 1, 'Run')).toBeNull();
+      expect(getRelativeCellValue([], -1, -1, 'Run')).toBeNull();
+      expect(getRelativeCellValue([], -1, 0, 'Run')).toBeNull();
     });
   });
 });
