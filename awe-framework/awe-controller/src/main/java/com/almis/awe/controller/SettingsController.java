@@ -115,6 +115,7 @@ public class SettingsController extends ServiceConfig {
       settings.setInitialURL(baseConfigProperties.getPaths().getServer());
     }
     settings.setCometUID(getRequest().getToken());
+    settings.setAuthenticated(getSession().isAuthenticated());
   }
 
   /**

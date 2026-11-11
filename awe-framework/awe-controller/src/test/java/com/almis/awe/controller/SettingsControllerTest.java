@@ -13,6 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
@@ -99,5 +101,18 @@ class SettingsControllerTest {
     assertThat(json.get("density").asText()).isEqualTo("comfortable");
     assertThat(json.get("themePalette").isObject()).isTrue();
     assertThat(json.get("themePalette").size()).isZero();
+  }
+
+  // The clients apply the colour mode chosen on the sign-in page only to a page without user session
+  @ParameterizedTest
+  @ValueSource(booleans = {true, false})
+  void carriesWhetherTheSessionIsAuthenticated(boolean authenticated) throws Exception {
+    when(themeService.getAppearance()).thenReturn(new ThemeAppearance("blue", "auto", "system", "comfortable", Map.of()));
+    when(aweSession.isAuthenticated()).thenReturn(authenticated);
+
+    JsonNode json = new ObjectMapper().valueToTree(settingsController.getSettings(httpServletRequest));
+
+    assertThat(json.get("authenticated").asBoolean()).isEqualTo(authenticated);
+    assertThat(json.get("authenticated").isBoolean()).isTrue();
   }
 }

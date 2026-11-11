@@ -115,14 +115,53 @@ describe('awe-react-client/test/js/utilities/themeAppearanceTest.jsx', () => {
       expect(Array.from(root.classList)).toEqual(['pxajs', ...classes]);
     });
 
+    it.each([
+      ['light', 'light'],
+      ['dark', 'dark'],
+      ['system', 'system'],
+      ['other', 'system']
+    ])('remembers the %s mode applied on the page as %p for the splash of the next visit', (themeMode, stored) => {
+      localStorage.removeItem('awe-theme-mode');
+
+      applyThemeAppearance({ themeMode });
+
+      expect(localStorage.getItem('awe-theme-mode')).toBe(stored);
+      localStorage.removeItem('awe-theme-mode');
+    });
+
+    it('does not remember the mode of a theme preview rendered on another root', () => {
+      localStorage.setItem('awe-theme-mode', 'light');
+      const previewRoot = document.implementation.createHTMLDocument('preview').documentElement;
+
+      applyThemeAppearance({ themeMode: 'dark' }, previewRoot);
+
+      expect(previewRoot.classList.contains('dark')).toBe(true);
+      expect(localStorage.getItem('awe-theme-mode')).toBe('light');
+      localStorage.removeItem('awe-theme-mode');
+    });
+
     it('removes the attributes the settings do not carry', () => {
       applyThemeAppearance({ themePrimary: 'sky', themeSurface: 'slate', themeMode: 'dark', density: 'compact' });
-      applyThemeAppearance({});
+      applyThemeAppearance({ themeMode: 'system' });
 
       expect(root.hasAttribute('data-awe-primary')).toBe(false);
       expect(root.hasAttribute('data-awe-surface')).toBe(false);
       expect(root.hasAttribute('data-awe-density')).toBe(false);
       expect(root.classList.contains('dark')).toBe(false);
+    });
+
+    // Settings not loaded yet: the mode the page template set before the splash painted stays
+    it.each([undefined, null])('keeps the mode classes and the stored mode while the settings carry the mode %p', (themeMode) => {
+      root.classList.add('light');
+      localStorage.setItem('awe-theme-mode', 'light');
+
+      applyThemeAppearance({ themePrimary: 'sky', themeMode, density: 'compact' });
+
+      expect(Array.from(root.classList)).toEqual(['light']);
+      expect(localStorage.getItem('awe-theme-mode')).toBe('light');
+      expect(root.getAttribute('data-awe-primary')).toBe('sky');
+      expect(root.getAttribute('data-awe-density')).toBe('compact');
+      localStorage.removeItem('awe-theme-mode');
     });
   });
 
@@ -168,6 +207,51 @@ describe('awe-react-client/test/js/utilities/themeAppearanceTest.jsx', () => {
     afterEach(() => {
       document.head.querySelectorAll('link').forEach(link => link.remove());
       document.body.className = '';
+    });
+
+    it('keeps the mode the page template set before the splash while the settings are not loaded', () => {
+      root.classList.add('light');
+      localStorage.setItem('awe-theme-mode', 'light');
+
+      renderWithProviders(<AweApp/>, { preloadedState: { settings: DEFAULT_SETTINGS } });
+
+      expect(root.classList.contains('light')).toBe(true);
+      expect(localStorage.getItem('awe-theme-mode')).toBe('light');
+      localStorage.removeItem('awe-theme-mode');
+    });
+
+    // The settings load (updateSettings of the /settings response) draws at once the mode chosen on the sign-in page
+    describe('without user session', () => {
+      afterEach(() => ['awe-login-mode', 'awe-theme-mode'].forEach(key => localStorage.removeItem(key)));
+
+      const load = (settings) => {
+        localStorage.setItem('awe-login-mode', 'light');
+        const { store } = renderWithProviders(<AweApp/>, { preloadedState: { settings: DEFAULT_SETTINGS } });
+        act(() => store.dispatch(updateSettings({ ...appearance, ...settings })));
+        return store;
+      };
+
+      it('draws the mode chosen on the sign-in page instead of the mode of the application', () => {
+        const store = load({ authenticated: false });
+
+        expect(root.classList.contains('light')).toBe(true);
+        expect(localStorage.getItem('awe-theme-mode')).toBe('light');
+        expect(store.getState().settings.themeMode).toBe('light');
+      });
+
+      it('draws the mode of the settings for a user session', () => {
+        load({ authenticated: true });
+
+        expect(root.classList.contains('light')).toBe(false);
+        expect(localStorage.getItem('awe-theme-mode')).toBe('system');
+      });
+
+      it('draws the mode of the settings when the sign-in page has no mode selector', () => {
+        load({ authenticated: false, login: { ...DEFAULT_SETTINGS.login, modeSelector: false } });
+
+        expect(root.classList.contains('light')).toBe(false);
+        expect(localStorage.getItem('awe-theme-mode')).toBe('system');
+      });
     });
 
     it('renders the appearance of the loaded settings on <html> and updates it when the settings change', () => {

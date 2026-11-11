@@ -25,8 +25,10 @@
   }
 }
 
-/* Colour mode of the tokens (light-dark()): the system one unless the user chose light or dark (class on <html>) */
-:root {
+/* Colour mode of the tokens (light-dark()): the system one unless the user chose light or dark (class on <html>).
+   The PrimeReact theme, loaded after this file, declares :root { color-scheme: light }: the system mode needs more
+   specificity, or it would always be light */
+:root:not(.light):not(.dark) {
   color-scheme: light dark;
 }
 

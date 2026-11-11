@@ -164,4 +164,46 @@ describe("AweSettings", () => {
 
     expect($storage.putRoot).toHaveBeenCalledWith("settings", expect.objectContaining({language: "en", theme: "dark"}));
   });
+
+  it("remembers the theme mode applied on <html> for the splash of the next visit", () => {
+    localStorage.removeItem("awe-theme-mode");
+
+    $settings.update({themeMode: "light"});
+
+    expect(document.documentElement.classList.contains("light")).toBe(true);
+    expect(localStorage.getItem("awe-theme-mode")).toBe("light");
+    document.documentElement.classList.remove("light");
+    localStorage.removeItem("awe-theme-mode");
+  });
+
+  // The settings load draws at once the mode chosen on the sign-in page, before the sign-in screen is shown
+  describe("without user session", () => {
+    const load = (settings) => {
+      localStorage.setItem("awe-login-mode", "light");
+      $httpBackend.when("POST", "settings").respond({...DefaultSettings, themeMode: "system", ...settings});
+      $settings.settingsLoaded = jest.fn();
+      $settings.init();
+      $httpBackend.flush();
+    };
+
+    afterEach(() => {
+      ["awe-login-mode", "awe-theme-mode"].forEach(key => localStorage.removeItem(key));
+      document.documentElement.classList.remove("light", "dark");
+    });
+
+    it("draws the mode chosen on the sign-in page instead of the mode of the application", () => {
+      load({authenticated: false});
+
+      expect(document.documentElement.classList.contains("light")).toBe(true);
+      expect(localStorage.getItem("awe-theme-mode")).toBe("light");
+      expect($settings.get("themeMode")).toBe("light");
+    });
+
+    it("draws the mode of the settings for a user session", () => {
+      load({authenticated: true});
+
+      expect(document.documentElement.classList.contains("light")).toBe(false);
+      expect(localStorage.getItem("awe-theme-mode")).toBe("system");
+    });
+  });
 });

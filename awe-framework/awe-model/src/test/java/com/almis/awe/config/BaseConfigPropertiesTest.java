@@ -88,6 +88,20 @@ class BaseConfigPropertiesTest {
   void defaultNavbarLogoIsTheAwe5Mark() {
     assertThat(bind(Map.of()).getPaths().getImageNavbarLogo()).isEqualTo("../images/logo/awe-logo-mark.svg");
   }
+
+  @Test
+  @DisplayName("Without properties the splash has no logo of the application: it shows the built-in AWE mark")
+  void defaultSplashLogoIsTheBuiltInMark() {
+    assertThat(bind(Map.of()).getPaths().getImageSplashLogo()).isNull();
+  }
+
+  @Test
+  @DisplayName("image-splash-logo sets the logo the splash fills")
+  void splashLogo() {
+    BaseConfigProperties properties = bind(Map.of("awe.application.paths.image-splash-logo", "images/logo/my-mark.svg"));
+
+    assertThat(properties.getPaths().getImageSplashLogo()).isEqualTo("images/logo/my-mark.svg");
+  }
   @Test
   @DisplayName("Without properties the sign-in page is the split layout with the AWE logo, panel, texts and selectors")
   void defaultLogin() {

@@ -122,7 +122,8 @@ aweApplication.controller('AppController',
        * Remove the splash animation shown while the first screen of the page loads
        */
       let removeSplash = function () {
-        $("#splash").fadeOut(250, function () {
+        // The logo fills up (css/splash.css) while the splash fades out
+        $("#splash").addClass("splash-done").fadeOut(300, function () {
           $(this).remove();
         });
       };

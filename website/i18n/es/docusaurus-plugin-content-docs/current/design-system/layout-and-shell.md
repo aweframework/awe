@@ -84,6 +84,20 @@ escritorio.
   pantalla de inicio) y el menú de usuario (perfil, preferencias, atajos, cambiar de empresa, cerrar sesión).
 - Sin botón de ayuda: AWE muestra la ayuda de una pantalla con el atributo `help` de sus componentes.
 
+## Splash {#splash}
+
+- Mientras carga la página, los dos clientes muestran el logotipo llenándose de un líquido de abajo arriba, sobre el
+  fondo de la página. Sube rápido hasta cerca del 90 % y después solo se mueve la ola; cuando la primera pantalla está
+  lista, el logotipo se llena y el splash se desvanece.
+- El fondo es claro u oscuro según el modo de la aplicación (`awe.application.theme-mode`) y, tras la primera visita,
+  según el último modo aplicado en ese navegador; si no, sigue la preferencia del sistema.
+- Con `prefers-reduced-motion: reduce` el logotipo se muestra lleno y quieto.
+- El logotipo por defecto es el símbolo de AWE, que se llena con el degradado de AWE. Una aplicación pone el suyo con
+  `awe.application.paths.image-splash-logo`, una URL relativa a la raíz de la aplicación (`images/logo/mi-logo.svg`).
+  Se llena con sus propios colores sobre una silueta gris de su forma, así que tiene que ser un SVG o una imagen con
+  transparencia (una imagen opaca se llena como un rectángulo). Se encaja en una caja de 200 x 128 px, así que se
+  lee mejor un símbolo que un logotipo con texto ancho.
+
 ## Página {#page}
 
 | Elemento | Regla |

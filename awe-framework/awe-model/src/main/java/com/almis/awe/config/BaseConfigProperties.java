@@ -501,6 +501,13 @@ public class BaseConfigProperties {
     private String imageNavbarLogo = "../" + images + "logo/awe-logo-mark.svg";
 
     /**
+     * Logo of the splash shown while the page loads: it fills up from bottom to top with its own colours, and its shape
+     * is used as a mask (an SVG or an image with transparency; it is fit in a 200 x 128 box). URL relative to the
+     * application root, such as images/logo/my-mark.svg. Not set: the built-in AWE mark.
+     */
+    private String imageSplashLogo;
+
+    /**
      * Sign-in screen background image. Uses application.paths.images as parent path. Deprecated for the sign-in page:
      * use awe.application.login.background instead (this value is its fallback); in AngularJS it still styles the
      * change password and two-factor screens.
