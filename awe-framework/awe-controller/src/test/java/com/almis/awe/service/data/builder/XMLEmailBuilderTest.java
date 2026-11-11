@@ -1,5 +1,6 @@
 package com.almis.awe.service.data.builder;
 
+import com.almis.awe.exception.AWERuntimeException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.entities.email.Email;
 import com.almis.awe.model.entities.email.EmailItem;
@@ -17,6 +18,7 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -88,5 +90,24 @@ class XMLEmailBuilderTest {
 
     // Assert builder is not null
     assertNotNull(builder);
+  }
+
+  /**
+   * A label wildcard without a declared variable is reported by name
+   */
+  @Test
+  void reportsTheMissingVariableOfAWildcardByName() {
+    given(aweElements.getLocale("EMAIL_SUBJECT_REPORT")).willReturn("Screen report: [#ScrTit#]");
+    XMLEmailBuilder emailBuilder = new XMLEmailBuilder(queryService, queryUtil, aweElements);
+
+    Email email = new Email();
+    email.setId("SndRep");
+    email.setFrom(new EmailItem());
+    email.setSubjectList(Collections.singletonList(new EmailMessage().setLabel("EMAIL_SUBJECT_REPORT")));
+    emailBuilder.setEmail(email);
+
+    assertThatThrownBy(emailBuilder::parseEmail)
+      .isInstanceOf(AWERuntimeException.class)
+      .hasMessage("Email SndRep has no variable ScrTit for the wildcard [#ScrTit#]");
   }
 }

@@ -1,5 +1,6 @@
 package com.almis.awe.service.data.builder;
 
+import com.almis.awe.exception.AWERuntimeException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.CellData;
@@ -375,7 +376,12 @@ public class XMLEmailBuilder extends EmailBuilder {
       for (int matIdx = 1, matTot = mat.groupCount(); matIdx <= matTot; matIdx++) {
         // Retrieve wildcard value
         String wldStr = mat.group(matIdx);
-        String val = getVariables().get(wldStr).getValue();
+        Variable variable = getVariables().get(wldStr);
+        if (variable == null) {
+          throw new AWERuntimeException(String.format("Email %s has no variable %s for the wildcard [#%s#]",
+            email.getId(), wldStr, wldStr));
+        }
+        String val = variable.getValue();
         if (val == null || val.trim().isEmpty()) {
           val = "";
         }
