@@ -166,6 +166,8 @@ La clave de caché contiene todo lo que cambia el resultado:
 - la base de datos en la que se ejecuta la consulta (`_database_` de la petición o, si no, la base de datos de la sesión)
 
 Por eso un resultado cacheado nunca se comparte entre usuarios, idiomas o bases de datos a través de estas entradas.
+Cuando una de las variables `session="..."` no tiene valor (una llamada sin usuario de sesión, como una llamada REST
+autenticada sin login web), el resultado no se cachea: no pertenece a ningún usuario.
 
 :::caution Consultas de servicio
 
