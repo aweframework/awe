@@ -8,7 +8,8 @@ import {getIconNode} from "../utilities";
 import "./AweSelectMultiple.less";
 
 /**
- * Value of a select-multiple as the chips that fit in its field, and a "+K" counter that opens the list of all of them (#922)
+ * Value of a select-multiple (#922) or a suggest-multiple with display="summary" (#845) as the chips that fit in its
+ * field, and a "+K" counter that opens the list of all of them
  * @param {object[]} values Chosen values, in option order ({code, name})
  * @param {function} onRemove Called with the code of the value to remove; without it the values cannot be removed
  */
@@ -66,7 +67,7 @@ function AweSelectMultipleChips({values, onRemove}) {
               onClick={event => {
                 event.stopPropagation();
                 setExpanded(!expanded);
-                panelRef.current.toggle(event, event.currentTarget.closest(".p-multiselect"));
+                panelRef.current.toggle(event, event.currentTarget.closest(".p-multiselect, .p-autocomplete"));
               }}>
         +{hidden}
       </button>}

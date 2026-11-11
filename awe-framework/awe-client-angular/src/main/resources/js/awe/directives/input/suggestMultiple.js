@@ -14,7 +14,7 @@ aweApplication.directive('aweInputSuggestMultiple',
         },
         link: function (scope, elem) {
           // Initialize criterion
-          new Selector(scope, scope.criterionId, elem).asSuggestMultiple(true);
+          new Selector(scope, scope.criterionId, elem).asSuggestMultiple(true, true);
         }
       };
     }

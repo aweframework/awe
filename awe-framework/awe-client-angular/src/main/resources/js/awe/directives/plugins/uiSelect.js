@@ -109,10 +109,11 @@ aweApplication.directive('uiSelect2',
             const summarized = attachSelectSummary({
               container,
               translate: (key, params) => $translate.instant(key, params),
+              // Through the data of the chips: a suggest cannot set its values by id, it has no options to find them in (#845)
               remove: (index) => {
-                const values = elem.select2("val");
+                const values = elem.select2("data");
                 values.splice(index, 1);
-                elem.select2("val", values, true);
+                elem.select2("data", values, true);
               }
             });
             // select2 draws the chips again after every change of the values; the size of the field may change too

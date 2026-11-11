@@ -344,6 +344,18 @@ aweApplication.factory('Selector',
       }
 
       /**
+       * Whether a multiple criterion shows its values as one line: the chips that fit and a +N counter (#922, #845).
+       * display="summary" asks for it and display="chip" for every chip; without display, the default of the criterion
+       * @param {Object} selector Selector
+       * @param {Object} controller Component controller
+       * @returns {boolean} The values are summarized
+       */
+      function showsSummary(selector, controller) {
+        const display = controller && controller.display;
+        return selector.summary === true && (display === "summary" || (selector.summaryByDefault && display !== "chip"));
+      }
+
+      /**
        * Selector constructor
        * @param {Scope} scope Selector scope
        * @param {String} id Selector id
@@ -369,11 +381,15 @@ aweApplication.factory('Selector',
           selector.multiple = true;
           // A criteria select multiple shows its values as one line (#922), unless it asks for the chips (display="chip")
           selector.summary = summary === true;
+          selector.summaryByDefault = true;
           return selector.asSelect();
         };
-        this.component.asSuggestMultiple = function (initializable) {
+        this.component.asSuggestMultiple = function (initializable, summary) {
           selector.multiple = true;
           selector.initializable = initializable;
+          // A criteria suggest multiple shows its values as one line only when it asks for it (display="summary", #845)
+          selector.summary = summary === true;
+          selector.summaryByDefault = false;
           return selector.asSuggest();
         };
         return this.component;
@@ -401,7 +417,7 @@ aweApplication.factory('Selector',
            */
           let options = {
             allowClear: component.controller && component.controller.optional,
-            summary: selector.summary && component.controller.display !== "chip",
+            summary: showsSummary(selector, component.controller),
             minimumResultsForSearch: 5,
             multiple: selector.multiple,
             query: function (query) {
@@ -540,6 +556,7 @@ aweApplication.factory('Selector',
           let options = {
             allowClear: true,
             multiple: selector.multiple,
+            summary: showsSummary(selector, component.controller),
             minimumInputLength: 1,
             query: function (query) {
               // Remove timer

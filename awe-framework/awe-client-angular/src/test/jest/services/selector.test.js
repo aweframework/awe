@@ -67,7 +67,7 @@ describe("Selector", function () {
         component.asSuggest();
         break;
       case "suggestMultiple":
-        component.asSuggestMultiple();
+        component.asSuggestMultiple(options.initializable, options.summary);
         break;
       default:
         throw new Error(`Unknown selector mode: ${mode}`);
@@ -95,10 +95,23 @@ describe("Selector", function () {
   it.each([
     ["a criteria select multiple", true, undefined, true],
     ["a criteria select multiple with display chip", true, "chip", false],
+    ["a criteria select multiple with display summary", true, "summary", true],
     ["a select multiple outside the criteria", undefined, undefined, false]
   ])("asks for the one line summary only for %s", function (title, summary, display, expected) {
     installSelectorSpies();
     const multi = createSelector("selectMultiple", {summary, controller: {display}});
+
+    expect(!!multi.scope.aweSelectOptions.summary).toBe(expected);
+  });
+
+  it.each([
+    ["a criteria suggest multiple with display summary", true, "summary", true],
+    ["a criteria suggest multiple", true, undefined, false],
+    ["a criteria suggest multiple with display chip", true, "chip", false],
+    ["a suggest multiple outside the criteria with display summary", undefined, "summary", false]
+  ])("asks for the one line summary of %s only when display is summary (#845)", function (title, summary, display, expected) {
+    installSelectorSpies();
+    const multi = createSelector("suggestMultiple", {summary, controller: {display}});
 
     expect(!!multi.scope.aweSelectOptions.summary).toBe(expected);
   });

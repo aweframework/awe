@@ -480,13 +480,25 @@ Este criterio simplemente muestra un texto, que puede ser recuperado de una vari
 
 <img alt="Seleccionar múltiples preseleccionados" src={require('@docusaurus/useBaseUrl').default('img/SelectMultiplePreselected.png')} />
 
-En el cliente React el campo de un select múltiple siempre tiene la altura de un control. Muestra los chips de los
+Por defecto el campo de un select múltiple tiene la altura de un control, en ambos clientes. Muestra los chips de los
 valores elegidos que caben, en el orden de las opciones (una etiqueta que no cabe termina en puntos suspensivos y se ve
 completa en un tooltip), y un contador `+3` cuando algunos no caben. El contador es un botón: abre un popover con todos
 los valores elegidos y un botón para quitar cada uno, y Escape, un clic fuera, un scroll o un cambio de tamaño lo
-cierran. Los criterios opcionales tienen además un icono para limpiar; los chips no tienen icono de quitar propio. Añade
-`display="chip"` al criterio para conservar los chips de PrimeReact, con un icono de quitar cada uno, que crecen con los
-valores (AngularJS lo ignora).
+cierran. Los criterios opcionales tienen además un icono para limpiar; los chips no tienen icono de quitar propio.
+
+El atributo `display` elige cómo muestra sus valores un `select-multiple` o un `suggest-multiple`:
+
+| Valor | Muestra | Por defecto en |
+|-------|---------|----------------|
+| `summary` | Una línea: los chips que caben y el contador `+N` descrito arriba | `select-multiple` |
+| `chip` | Cada valor como un chip con su propio icono de quitar; el campo crece con los valores | `suggest-multiple` |
+
+```xml
+<!-- Todos los valores elegidos a la vista, aunque el campo crezca -->
+<criteria component="select-multiple" id="user" display="chip" .../>
+<!-- Un suggest que se mantiene en una línea, para una barra de filtros -->
+<criteria component="suggest-multiple" id="portfolio" display="summary" .../>
+```
 
 ### Ejemplo de criterio de color {#color-criterion-sample}
 
