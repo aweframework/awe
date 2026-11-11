@@ -28,6 +28,7 @@ import {
   getExistingIndex,
   getFooterValue,
   getGridIdentifier,
+  getRelativeCellValue,
   getRowIndex,
   getSelectedRowIndex,
   OperationType
@@ -390,10 +391,10 @@ function getAttribute(trigger: Trigger, state: RootState): Value {
       return Math.min(getRowIndex(component.model.values, rowId, gridId) + 1, component.model.values.length);
 
     case "prevRowValue":
-      return getCellValue(component.model.values, Math.max(getEditingRowIndex(component.model.values) - 1, 0), columnId);
+      return getRelativeCellValue(component.model.values, getEditingRowIndex(component.model.values), -1, columnId);
 
     case "nextRowValue":
-      return getCellValue(component.model.values, Math.min(getEditingRowIndex(component.model.values) + 1, component.model.values.length), columnId);
+      return getRelativeCellValue(component.model.values, getEditingRowIndex(component.model.values), 1, columnId);
 
     case "selectedRowValue":
       return getCellValue(component.model.values, getExistingIndex([getEditingRowIndex(component.model.values), getSelectedRowIndex(component.model.values)]), columnId);
@@ -424,10 +425,10 @@ function getAttribute(trigger: Trigger, state: RootState): Value {
       return getCellValue(component.model.values, getRowIndex(component.model.values, rowId, gridId), columnId);
 
     case "prevCurrentRowValue":
-      return getCellValue(component.model.values, Math.max(getRowIndex(component.model.values, rowId, gridId) - 1, 0), columnId);
+      return getRelativeCellValue(component.model.values, getRowIndex(component.model.values, rowId, gridId), -1, columnId);
 
     case "nextCurrentRowValue":
-      return getCellValue(component.model.values, Math.min(getRowIndex(component.model.values, rowId, gridId) + 1, component.model.values.length), columnId);
+      return getRelativeCellValue(component.model.values, getRowIndex(component.model.values, rowId, gridId), 1, columnId);
 
     case "modifiedRows":
       return component.model.values.filter(row => !isEmpty(row["ROW_TYPE"])).length;

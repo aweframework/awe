@@ -248,7 +248,7 @@ export function getCellAttribute(model: unknown, attribute: string): unknown {
  * @memberOf Utilities
  */
 export function getCell(values: readonly GridRow[], rowIndex: number, columnId: string): unknown {
-  return rowIndex !== -1 ? values[rowIndex][columnId] || null : null;
+  return rowIndex >= 0 && rowIndex < values.length ? values[rowIndex][columnId] || null : null;
 }
 
 /**
@@ -370,6 +370,19 @@ export function extractCellModel(cell: unknown): CellOption {
  */
 export function getCellValue(values: readonly GridRow[], rowIndex: number, columnId: string): unknown {
   return extractCellValue(getCell(values, rowIndex, columnId));
+}
+
+/**
+ * Get the cell value of the row at an offset of a base row
+ * @param values Grid rows
+ * @param baseIndex Index of the base row (-1 when there is none)
+ * @param offset Rows from the base row (-1 previous, 1 next)
+ * @param columnId Column
+ * @return Cell value, or null when the base row or the target row does not exist
+ * @memberOf Utilities
+ */
+export function getRelativeCellValue(values: readonly GridRow[], baseIndex: number, offset: number, columnId: string): unknown {
+  return baseIndex < 0 ? null : getCellValue(values, baseIndex + offset, columnId);
 }
 
 /**

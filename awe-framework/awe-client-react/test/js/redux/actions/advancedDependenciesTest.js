@@ -1804,6 +1804,19 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       });
     });
 
+    it.each(['prevCurrentRowValue', 'nextCurrentRowValue', 'prevRowValue', 'nextRowValue'])(
+      'no falla con %s en un grid vacío (#946)', (attribute) => {
+        mockState.components.gridComp.model.values = [];
+        mockComponent.dependencies = [{
+          type: 'and',
+          elements: [{id: 'gridComp', attribute1: attribute, column1: 'col1', condition: 'eq', value: 'x', checkChanges: true}],
+          target: 'show',
+          initial: true
+        }];
+
+        expect(() => dependencies.initializeDependencies('testView', freshState(), dispatch)).not.toThrow();
+      });
+
     it('debería obtener prevCurrentRowValue', () => {
       mockComponent.dependencies = [{
         type: 'and',
