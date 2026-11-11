@@ -53,10 +53,47 @@ describe("awe-react-client/test/js/containers/InitialLoadSplashTest.jsx", () => 
     expect(splash.id).toBe("splash");
     expect(splash.getAttribute("aria-busy")).toBe("true");
     expect(splash.querySelector("#splashBackground")).not.toBeNull();
-    expect(splash.querySelector(".spinner .dot1")).not.toBeNull();
-    expect(splash.querySelector(".spinner .dot2")).not.toBeNull();
+    // The AWE 5 splash: the logo fills with a liquid, and the logo is the one of the page (css/splash.css)
+    expect(splash.getAttribute("role")).toBe("status");
+    expect(splash.querySelector(".splash-logo .splash-fill .splash-level .splash-cover")).not.toBeNull();
+    expect(splash.querySelector(".splash-logo").getAttribute("aria-hidden")).toBe("true");
+    expect(splash.querySelector(".splash-label").textContent).toBe("Loading");
+    expect(splash.querySelector(".spinner")).toBeNull();
     expect(container.querySelector(".screen-skeleton")).toBeNull();
     expect(container.querySelector(".p-skeleton")).toBeNull();
+  });
+
+  it("fills the logo up and fades the splash out when the first screen is ready", async () => {
+    // The outro is queued as a microtask: only its fade timer is faked
+    jest.useFakeTimers({doNotFake: ["queueMicrotask"]});
+    try {
+      // The splash of the earlier tests may still be fading out
+      const earlier = new Set(document.body.querySelectorAll("#splash"));
+      let finishLoad;
+      mockLoadScreen.mockReturnValue(new Promise(resolve => {
+        finishLoad = resolve;
+      }));
+      const {container} = render(ViewContainer);
+
+      await act(async () => {
+        ViewRegistry.setView("base", {loading: false, structure: []});
+        finishLoad();
+      });
+
+      // The screen is shown under a copy of the splash that completes the fill and fades out
+      expect(container.querySelector("#splash")).toBeNull();
+      const outro = [...document.body.querySelectorAll("#splash.splash-done.splash-leaving")]
+        .find(splash => !earlier.has(splash));
+      expect(outro).toBeDefined();
+      expect(outro.getAttribute("aria-hidden")).toBe("true");
+      expect(outro.getAttribute("data-testid")).toBeNull();
+      expect(outro.getAttribute("aria-busy")).toBeNull();
+
+      act(() => jest.advanceTimersByTime(400));
+      expect(outro.isConnected).toBe(false);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it("shows the screen skeleton, and no splash, when a screen loads after the first one", async () => {

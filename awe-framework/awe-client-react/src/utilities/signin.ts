@@ -95,6 +95,19 @@ export function storeLoginMode(mode: LoginMode): void {
 }
 
 /**
+ * Settings loaded for a page without user session (authenticated false) take the colour mode chosen before on the
+ * sign-in page, so it is drawn as soon as they load and not only when the sign-in page is shown. Settings of a user
+ * session, or of a sign-in page without mode selector, are returned as they are
+ * @param settings Settings loaded from the server
+ * @return Settings to apply
+ */
+export function withLoginMode<T extends {authenticated?: boolean | null; themeMode?: string | null;
+  login?: {modeSelector?: boolean} | null}>(settings: T): T {
+  const mode = settings.authenticated === false && settings.login?.modeSelector !== false ? readLoginMode() : undefined;
+  return mode ? {...settings, themeMode: mode} : settings;
+}
+
+/**
  * Layout of the sign-in page: an unknown value is the split layout
  * @param layout Configured layout
  * @return Layout

@@ -11,7 +11,9 @@
  */
 export const THEME_APPEARANCE_FIELDS = ["themePrimary", "themeSurface", "themeMode", "density", "themePalette"];
 
-const MODES = ["light", "dark"];
+const MODES = new Set(["light", "dark"]);
+// The page templates read it before the splash paints, so a reload starts in the last mode applied on this browser
+export const THEME_MODE_STORAGE_KEY = "awe-theme-mode";
 const HEX = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i;
 const PALETTE_PROPERTY = /^--awe-(primary|surface)-[a-z0-9-]+$/;
 
@@ -22,6 +24,14 @@ function setAttribute(root, name, value) {
     root.setAttribute(name, value);
   } else {
     root.removeAttribute(name);
+  }
+}
+
+function rememberMode(themeMode) {
+  try {
+    localStorage.setItem(THEME_MODE_STORAGE_KEY, MODES.has(themeMode) ? themeMode : "system");
+  } catch {
+    // No storage (private mode): the splash follows the application mode or the system preference
   }
 }
 
@@ -39,13 +49,20 @@ function applyPalette(root, palette) {
 }
 
 /**
- * Render the theme appearance of the settings on <html>
+ * Render the theme appearance of the settings on <html>. Settings without a mode (not loaded yet) leave the mode classes
+ * and the remembered mode as they are: the page template set them before the splash painted
  * @param {object} settings Settings (themePrimary, themeSurface, themeMode, density, themePalette)
  * @param {HTMLElement} root Element to render on (<html>)
  */
 export function applyThemeAppearance(settings = {}, root = document.documentElement) {
   const {themePrimary, themeSurface, themeMode, density, themePalette} = settings;
-  MODES.forEach((mode) => root.classList.toggle(mode, mode === themeMode));
+  if (themeMode != null) {
+    MODES.forEach((mode) => root.classList.toggle(mode, mode === themeMode));
+    // Only the page itself is remembered, not a theme preview rendered on another root
+    if (root === document.documentElement) {
+      rememberMode(themeMode);
+    }
+  }
   setAttribute(root, "data-awe-primary", themePrimary && paletteAttribute(themePrimary));
   setAttribute(root, "data-awe-surface", themeSurface && themeSurface !== "auto" && paletteAttribute(themeSurface));
   setAttribute(root, "data-awe-density", density);

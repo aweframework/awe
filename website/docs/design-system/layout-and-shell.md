@@ -84,6 +84,20 @@ affordance.
   home screen) and the user menu (profile, preferences, shortcuts, switch company, sign out).
 - No help button: AWE shows the help of a screen through the `help` attribute of its components.
 
+## Splash
+
+- While the page loads, both clients show the logo filling up with a liquid from bottom to top, on the background
+  of the page. It rises fast to about 90% and then only the wave moves; when the first screen is ready the logo fills
+  up and the splash fades out.
+- The background is light or dark as the mode of the application (`awe.application.theme-mode`) and, after the first
+  visit, as the last mode applied on that browser; otherwise it follows the system preference.
+- With `prefers-reduced-motion: reduce` the logo is shown full and still.
+- The default logo is the AWE mark, which fills up with the AWE gradient. An application sets its own with
+  `awe.application.paths.image-splash-logo`, a URL relative to the application root (`images/logo/my-mark.svg`).
+  It fills up with its own colours over a grey silhouette of its shape, so it has to be an SVG or an image with
+  transparency (an opaque image fills up as a rectangle). It is fit in a 200 x 128 px box, so a mark reads better
+  than a wide wordmark.
+
 ## Page
 
 | Element | Rule |

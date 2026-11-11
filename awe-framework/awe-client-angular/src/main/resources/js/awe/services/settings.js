@@ -6,6 +6,7 @@ import {
   pickThemeAppearance,
   THEME_APPEARANCE_FIELDS
 } from "awe-client-react/utilities/themeAppearance";
+import {withLoginMode} from "awe-client-react/utilities/signin";
 
 // One observer of the mode classes of the body for the whole page
 let stopModeObserver = () => undefined;
@@ -32,7 +33,8 @@ aweApplication.factory('AweSettings', ['Storage', '$translate', '$log', 'AweUtil
           method: 'POST',
           url: url
         }).then(function (response) {
-          let newSettings = angular.fromJson(response.data);
+          // Without user session, the mode chosen on the sign-in page is drawn at once (not when the page is shown)
+          let newSettings = withLoginMode(angular.fromJson(response.data));
           $settings.update(newSettings);
           $settings.settingsLoaded(newSettings);
         }).catch(function (error) {

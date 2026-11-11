@@ -1,3 +1,5 @@
+import {withLoginMode} from "../../utilities/signin";
+
 /*
  * action types
  */
@@ -77,6 +79,8 @@ export const DEFAULT_SETTINGS = {
   // Paths
   pathServer: "./",
   initialURL: "./",
+  // Whether the page had a user session when the settings loaded (the server tells it): unknown until they load
+  authenticated: null as boolean | null,
   // Globals
   language: null as string | null,
   theme: "default",
@@ -180,5 +184,5 @@ export type Settings = typeof DEFAULT_SETTINGS;
  * action creators
  */
 export function updateSettings(payload: Partial<Settings>) {
-  return { type: UPDATE_SETTINGS, payload };
+  return { type: UPDATE_SETTINGS, payload: withLoginMode(payload) };
 }

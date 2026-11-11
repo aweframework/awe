@@ -1,8 +1,10 @@
 <!doctype html>
-<!--[if IE 9 ]><html xmlns:th="http://www.thymeleaf.org" class="ie gt-ie8 gt-ie9 pxajs" lang="{{settings.language}}" ng-app="aweApplication" ng-controller="AppController as $app"><![endif]-->
-<!--[if !IE]><!--><html xmlns:th="http://www.thymeleaf.org" class="{{::$app.isIE()}} gt-ie8 gt-ie9 pxajs" lang="{{settings.language}}" ng-app="aweApplication" ng-controller="AppController as $app"><!--<![endif]-->
+<!--[if IE 9 ]><html xmlns:th="http://www.thymeleaf.org" th:with="splashLogoPath=${splashLogo == null or #strings.contains(splashLogo, '://') or #strings.startsWith(splashLogo, '/') ? splashLogo : '/' + splashLogo}, splashLogoUrl=${splashLogoPath} ? @{${splashLogoPath}}" th:style="${splashLogoUrl} ? |--awe-splash-logo: url('${splashLogoUrl}'); --awe-splash-liquid: url('${splashLogoUrl}') center / contain no-repeat|" th:classappend="${themeMode}" class="ie gt-ie8 gt-ie9 pxajs" lang="{{settings.language}}" ng-app="aweApplication" ng-controller="AppController as $app"><![endif]-->
+<!--[if !IE]><!--><html xmlns:th="http://www.thymeleaf.org" th:with="splashLogoPath=${splashLogo == null or #strings.contains(splashLogo, '://') or #strings.startsWith(splashLogo, '/') ? splashLogo : '/' + splashLogo}, splashLogoUrl=${splashLogoPath} ? @{${splashLogoPath}}" th:style="${splashLogoUrl} ? |--awe-splash-logo: url('${splashLogoUrl}'); --awe-splash-liquid: url('${splashLogoUrl}') center / contain no-repeat|" th:classappend="${themeMode}" class="{{::$app.isIE()}} gt-ie8 gt-ie9 pxajs" lang="{{settings.language}}" ng-app="aweApplication" ng-controller="AppController as $app"><!--<![endif]-->
   <head>
     <base th:href="@{/}"/>
+    <!-- The last mode applied on this browser wins over the mode of the application before the splash paints -->
+    <script>try{var m=localStorage.getItem("awe-theme-mode"),c=document.documentElement.classList;"light"!==m&&"dark"!==m&&"system"!==m||(c.remove("light","dark"),"system"!==m&&c.add(m))}catch(e){}</script>
     <link rel="stylesheet" th:href="@{/css/splash.css}"/>
     <title ng-bind-template="{{screen.title| translate}} | {{'APP_NAME'| translate}}" translate="APP_NAME">Loading...</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
@@ -54,9 +56,10 @@
     <div class="download-zone" ng-controller="DownloadController as $download" ng-cloak>
       <downloader ng-repeat="download in $download.downloads" file="download" on-load="$download.finishDownload(download)" on-fail="$download.failDownload(download)" class="ng-cloak"></downloader>
     </div>
-    <div id="splash">
+    <div id="splash" role="status" aria-busy="true">
       <div id="splashBackground"></div>
-      <div class="spinner"><div class="dot1"></div><div class="dot2"></div></div>
+      <div class="splash-logo" aria-hidden="true"><div class="splash-fill"><div class="splash-level"><div class="splash-cover"></div></div></div></div>
+      <span class="splash-label">Loading</span>
     </div>
     <script type="application/javascript" th:src="@{/js/commons.js}"></script>
     <script type="application/javascript" th:src="@{/js/bundle.js}"></script>

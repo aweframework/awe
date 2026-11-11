@@ -29,6 +29,11 @@
       "defaultValue": "../images/logo/awe-logo-mark.svg"
     },
     {
+      "name": "awe.application.paths.image-splash-logo",
+      "type": "java.lang.String",
+      "description": "Logo of the splash shown while the page loads, which fills up with its own colours; an SVG or image with transparency (URL relative to the application root). Not set: the built-in AWE mark."
+    },
+    {
       "name": "awe.application.paths.image-startup-background",
       "defaultValue": "../images/background/signin-bg-1.jpg"
     },

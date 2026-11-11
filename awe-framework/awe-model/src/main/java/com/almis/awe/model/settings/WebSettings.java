@@ -22,6 +22,8 @@ public class WebSettings {
   // Settings
   private String pathServer;
   private String initialURL;
+  // Whether the request has a user session: the clients apply the colour mode chosen on the sign-in page without one
+  private Boolean authenticated;
   private String language;
   private String theme;
   // AWE 5 theme appearance
