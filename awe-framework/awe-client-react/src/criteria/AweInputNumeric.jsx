@@ -71,9 +71,22 @@ function AweInputNumeric(props) {
   // Enter is cancelled on the root, once PrimeReact has handled it, before it leaves the criterion
   const onKeyDown = useEnterKey();
 
+  // The slider goes under the input group, so the icon and the unit stay as addons of the field
+  const slider = showSlider ? (
+    <Slider
+      className="numeric-slider"
+      value={Number(currentValue || 0)}
+      disabled={readonly}
+      min={nf.min}
+      max={nf.max}
+      step={nf.step}
+      onChange={onSlide}
+      onSlideEnd={onValueChange}
+    />
+  ) : null;
+
   return (
-    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} groupClass={showSlider ? "" : "p-inputgroup"}
-      generateIcon={!showSlider} generateUnit={!showSlider}>
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} belowField={slider}>
       <InputNumber
         id={address?.component}
         value={currentValue}
@@ -93,17 +106,6 @@ function AweInputNumeric(props) {
         inputStyle={{ textAlign: align || "right" }}
         pt={{ root: { onKeyDown }, input: { root: {...testHook(TestIds.criterionInput), ...requiredAria(attributes, validationRules)} } }}
       />
-      {showSlider ? (
-        <Slider
-          value={Number(currentValue || 0)}
-          disabled={readonly}
-          min={nf.min}
-          max={nf.max}
-          step={nf.step}
-          onChange={onSlide}
-          onSlideEnd={onValueChange}
-        />
-      ) : null}
     </AweCriterion>
   );
 }

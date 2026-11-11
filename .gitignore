@@ -97,6 +97,8 @@ grafana-data/
 # Logs
 ######################
 *.log
+# Sample log the file viewer of the component catalog serves
+!website/static/live/*.log
 
 ######################
 # Others

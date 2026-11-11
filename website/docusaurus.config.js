@@ -1,3 +1,10 @@
+// Docusaurus' default CSS minimizer (cssnano + clean-css level 2, restructureRules) merges rules with identical
+// declarations and moves them before the rules they override: the tone modifiers of the catalog (.awe-card-chip-success,
+// icon tones...) ended up BEFORE their base rule in the production build and lost the cascade. The plain minimizer keeps
+// the order of the sources. minification.js reads this variable when the webpack config is built, after this file loads,
+// so setting it here covers every build command (with or without --locale); an explicit value from the environment wins.
+process.env.USE_SIMPLE_CSS_MINIFIER ??= 'true';
+
 const versions = require('./versions.json');
 const {ensureGenerated} = require('./scripts/xsd-reference/generate');
 const {ensureGenerated: ensurePropertiesGenerated} = require('./scripts/properties-reference/generate');
@@ -44,6 +51,15 @@ module.exports = {
 	plugins: [
 		// Real AWE React components inside the docs (see plugins/awe-live)
 		'./plugins/awe-live',
+		// The Choices page of the component catalog was split in two: its old address keeps working
+		[
+			'@docusaurus/plugin-client-redirects',
+			{
+				redirects: [
+					{ from: '/docs/components/criteria-choices', to: '/docs/components/criteria-selects' },
+				],
+			},
+		],
 		// Reference generated from the sources at build time (see scripts/xsd-reference). It is a docs
 		// instance of its own so that it is English only (it has no translations) and is kept out of the
 		// "docs:version" snapshots of the default instance.

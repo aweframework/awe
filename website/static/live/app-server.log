@@ -1,0 +1,36 @@
+2025-11-09 08:00:07.000 INFO  [http-nio-exec-1] com.almis.awe.AweApplication - Started AweApplication in 6.412 seconds
+2025-11-09 08:00:27.137 INFO  [http-nio-exec-2] com.almis.awe.service.MaintainService - Maintain CustomerSave: 1 row updated in 21 ms
+2025-11-09 08:00:37.274 INFO  [http-nio-exec-3] com.almis.awe.scheduler.JobService - Job "NightlyBackup" finished in 2.1 s
+2025-11-09 08:01:00.411 WARN  [http-nio-exec-4] com.almis.awe.service.MaintainService - Row 17 of CustomerEdit was modified by another session; reloading
+2025-11-09 08:01:13.548 INFO  [http-nio-exec-1] com.almis.awe.service.MailService - Mail "Monthly report" sent to 3 recipients
+2025-11-09 08:01:39.685 INFO  [http-nio-exec-2] com.almis.awe.service.QueryService - Query CustomerList: 24 rows in 12 ms
+2025-11-09 08:01:55.822 ERROR [http-nio-exec-3] com.almis.awe.service.MailService - Connection to the mail server timed out after 5000 ms (retry 1 of 3)
+2025-11-09 08:02:24.959 INFO  [http-nio-exec-4] com.almis.awe.service.MenuService - Menu loaded for profile "admin" (14 options)
+2025-11-09 08:02:43.096 INFO  [http-nio-exec-1] com.almis.awe.security.SessionService - Session opened for user "demo"
+2025-11-09 08:02:52.233 INFO  [http-nio-exec-2] com.almis.awe.AweApplication - Started AweApplication in 6.412 seconds
+2025-11-09 08:03:14.370 INFO  [http-nio-exec-3] com.almis.awe.service.MaintainService - Maintain CustomerSave: 1 row updated in 21 ms
+2025-11-09 08:03:26.507 INFO  [http-nio-exec-4] com.almis.awe.scheduler.JobService - Job "NightlyBackup" finished in 2.1 s
+2025-11-09 08:03:51.644 WARN  [http-nio-exec-1] com.almis.awe.service.MaintainService - Row 17 of CustomerEdit was modified by another session; reloading
+2025-11-09 08:04:06.781 INFO  [http-nio-exec-2] com.almis.awe.service.MailService - Mail "Monthly report" sent to 3 recipients
+2025-11-09 08:04:34.918 INFO  [http-nio-exec-3] com.almis.awe.service.QueryService - Query CustomerList: 24 rows in 12 ms
+2025-11-09 08:04:52.055 ERROR [http-nio-exec-4] com.almis.awe.service.MailService - Connection to the mail server timed out after 5000 ms (retry 1 of 3)
+2025-11-09 08:05:00.192 INFO  [http-nio-exec-1] com.almis.awe.service.MenuService - Menu loaded for profile "admin" (14 options)
+2025-11-09 08:05:21.329 INFO  [http-nio-exec-2] com.almis.awe.security.SessionService - Session opened for user "demo"
+2025-11-09 08:05:32.466 INFO  [http-nio-exec-3] com.almis.awe.AweApplication - Started AweApplication in 6.412 seconds
+2025-11-09 08:05:56.603 INFO  [http-nio-exec-4] com.almis.awe.service.MaintainService - Maintain CustomerSave: 1 row updated in 21 ms
+2025-11-09 08:06:10.740 INFO  [http-nio-exec-1] com.almis.awe.scheduler.JobService - Job "NightlyBackup" finished in 2.1 s
+2025-11-09 08:06:37.877 WARN  [http-nio-exec-2] com.almis.awe.service.MaintainService - Row 17 of CustomerEdit was modified by another session; reloading
+2025-11-09 08:06:54.014 INFO  [http-nio-exec-3] com.almis.awe.service.MailService - Mail "Monthly report" sent to 3 recipients
+2025-11-09 08:07:01.151 INFO  [http-nio-exec-4] com.almis.awe.service.QueryService - Query CustomerList: 24 rows in 12 ms
+2025-11-09 08:07:21.288 ERROR [http-nio-exec-1] com.almis.awe.service.MailService - Connection to the mail server timed out after 5000 ms (retry 1 of 3)
+2025-11-09 08:07:31.425 INFO  [http-nio-exec-2] com.almis.awe.service.MenuService - Menu loaded for profile "admin" (14 options)
+2025-11-09 08:07:54.562 INFO  [http-nio-exec-3] com.almis.awe.security.SessionService - Session opened for user "demo"
+2025-11-09 08:08:07.699 INFO  [http-nio-exec-4] com.almis.awe.AweApplication - Started AweApplication in 6.412 seconds
+2025-11-09 08:08:33.836 INFO  [http-nio-exec-1] com.almis.awe.service.MaintainService - Maintain CustomerSave: 1 row updated in 21 ms
+2025-11-09 08:08:49.973 INFO  [http-nio-exec-2] com.almis.awe.scheduler.JobService - Job "NightlyBackup" finished in 2.1 s
+2025-11-09 08:09:18.110 WARN  [http-nio-exec-3] com.almis.awe.service.MaintainService - Row 17 of CustomerEdit was modified by another session; reloading
+2025-11-09 08:09:37.247 INFO  [http-nio-exec-4] com.almis.awe.service.MailService - Mail "Monthly report" sent to 3 recipients
+2025-11-09 08:09:46.384 INFO  [http-nio-exec-1] com.almis.awe.service.QueryService - Query CustomerList: 24 rows in 12 ms
+2025-11-09 08:10:08.521 ERROR [http-nio-exec-2] com.almis.awe.service.MailService - Connection to the mail server timed out after 5000 ms (retry 1 of 3)
+2025-11-09 08:10:20.658 INFO  [http-nio-exec-3] com.almis.awe.service.MenuService - Menu loaded for profile "admin" (14 options)
+2025-11-09 08:10:45.795 INFO  [http-nio-exec-4] com.almis.awe.security.SessionService - Session opened for user "demo"

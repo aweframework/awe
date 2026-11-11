@@ -80,7 +80,7 @@
     {"selector": "\\.p-menubar-root-list( ul li){2} a$", "property": "padding-left", "value": "calc(var(--awe-menu-indent) * 2)"},
     {"selector": "\\.p-menubar-root-list ul li a$", "property": "padding-left", "value": "var(--awe-menu-indent)"},
 
-    {"selector": "^\\.p-(dialog|overlaypanel|confirm-popup|contextmenu)$", "property": "border", "value": "var(--awe-border-width) solid var(--awe-color-overlay-border)"},
+    {"selector": "^\\.p-(dialog|overlaypanel|confirm-popup|contextmenu)$|^\\.p-contextmenu \\.p-submenu-list$", "property": "border", "value": "var(--awe-border-width) solid var(--awe-color-overlay-border)"},
     {"selector": "^\\.p-(overlaypanel|confirm-popup)\\.p-(overlaypanel|confirm-popup)-flipped:before$", "property": "border-top-color", "value": "var(--awe-color-overlay-border)"},
     {"selector": "^\\.p-overlaypanel \\.p-overlaypanel-content$|^\\.p-confirm-popup \\.p-confirm-popup-content$|^\\.p-datepicker$", "property": "padding", "value": "var(--awe-overlay-padding)"},
     {"selector": "^\\.p-datepicker \\.p-datepicker-header$", "property": "padding", "value": "0"},

@@ -1,4 +1,13 @@
 .carousel {
+  // The carousel stays inside its container, whatever the width of its slides
+  max-width: 100%;
+  overflow: hidden;
+
+  // Slides take the height of the container; with no height of its own a slide keeps a minimum based on the tokens
+  .p-carousel-item > div {
+    min-height: calc(var(--awe-size-control) * 8);
+  }
+
   .pdfobject-container  {
     max-width: 100%;
     max-height: 100%;

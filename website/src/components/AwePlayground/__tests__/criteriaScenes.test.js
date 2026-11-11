@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const {resolveValues, toScene} = require('../playgroundModel');
-const {criteriaText, criteriaNumbers, criteriaChoices, criteriaUpload} = require('../specs');
+const {criteriaText, criteriaNumbers, criteriaSelects, criteriaCheckboxRadio, criteriaUpload} = require('../specs');
 
 const sceneOf = (spec, values) => toScene(spec, resolveValues(spec, values));
 
@@ -12,20 +12,22 @@ test('the number format of a numeric criterion reaches the client parsed: it rea
 });
 
 test('a suggest searches the options of its target action, the same list a select shows', () => {
-  const scene = sceneOf(criteriaChoices, {component: 'suggest'});
+  const scene = sceneOf(criteriaSelects, {component: 'suggest'});
 
   assert.equal(scene.components.demo.attributes.targetAction, 'CountryList');
   assert.ok(scene.options.CountryList.length > 1);
-  assert.equal('options' in sceneOf(criteriaChoices, {component: 'select'}), false);
+  assert.equal('options' in sceneOf(criteriaSelects, {component: 'select'}), false);
 });
 
 test('the radio playground is a group: three radios of the same group, one of them chosen', () => {
-  const scene = sceneOf(criteriaChoices, {component: 'radio'});
+  const scene = sceneOf(criteriaCheckboxRadio, {component: 'radio'});
   const radios = scene.nodes.map(node => scene.components[node.id]);
 
   assert.equal(radios.length, 3);
   assert.ok(radios.every(radio => radio.attributes.group === 'plan'));
   assert.deepEqual(radios.map(radio => Boolean(radio.model.values[0].selected)), [true, false, false]);
+  // The client treats radios as a group only when the attributes say `component: 'radio'` as well as the group
+  assert.ok(radios.every(radio => radio.attributes.component === 'radio'));
 });
 
 test('the uploader playground simulates its upload and starts without a file', () => {
@@ -62,4 +64,11 @@ test('the text playground shows its text-view content and the color its chosen v
   assert.equal(view.value, 'Shipped');
   assert.equal(color.selected, true);
   assert.equal(sceneOf(criteriaText, {component: 'text'}).components.demo.model, undefined);
+});
+
+test('the switch is a checkbox drawn with the switch style, and the playground offers it only for the checkbox', () => {
+  const scene = sceneOf(criteriaCheckboxRadio, {component: 'checkbox', asSwitch: true}).components.demo;
+
+  assert.equal(scene.attributes.style, 'switch');
+  assert.equal(sceneOf(criteriaCheckboxRadio, {component: 'checkbox'}).components.demo.attributes.style, undefined);
 });

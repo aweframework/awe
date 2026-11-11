@@ -7,6 +7,11 @@
   position: static !important;
 }
 
+// A contained element (window) covers the target as its positioned child: the target is its containing block
+.maximize-target {
+  position: relative;
+}
+
 // Layer that grows over the maximize target while an element is maximized or restored
 .maximize-clone {
   position: fixed;

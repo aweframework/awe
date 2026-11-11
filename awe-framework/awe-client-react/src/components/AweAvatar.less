@@ -2,15 +2,82 @@
   margin: 0.2rem 0.5rem;
 }
 
+// The user menu: the avatar and the name of the user as one rounded button, wherever it is placed
 .avatar-component {
+  position: relative;
   display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding-right: var(--awe-space-2);
   cursor: pointer;
-}
+  border-radius: var(--awe-radius-full);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
 
-/* The label, and the description below it when the value has one, centred on the avatar */
-.avatar-component .avatar-text {
-  display: inline-flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 2.4rem;
+  &:hover {
+    background: var(--awe-color-surface-hover);
+  }
+
+  // Initials of the user, as high as the hover of the icon buttons of the header
+  .p-avatar {
+    width: var(--awe-size-control);
+    height: var(--awe-size-control);
+    margin: 0;
+    font-size: var(--awe-font-size-xs);
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-on-primary-subtle);
+    background: var(--awe-color-primary-subtle);
+
+    // The size of the avatar (size attribute) takes the control heights of the density
+    &.p-button-sm {
+      width: var(--awe-size-control-sm);
+      height: var(--awe-size-control-sm);
+    }
+
+    &.p-button-lg {
+      width: var(--awe-size-control-lg);
+      height: var(--awe-size-control-lg);
+      font-size: var(--awe-font-size-sm);
+    }
+  }
+
+  // The name of the user, emphasised, over the profile, muted
+  .avatar-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+    line-height: var(--awe-line-height-tight);
+    text-align: left;
+  }
+
+  .avatar-name {
+    font-size: var(--awe-font-size-sm);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-tight);
+    color: var(--awe-color-text-emphasis);
+    white-space: nowrap;
+  }
+
+  .avatar-description {
+    font-size: var(--awe-font-size-xs);
+    line-height: var(--awe-line-height-tight);
+    color: var(--awe-color-text-muted);
+    white-space: nowrap;
+  }
+
+  // The chevron does not stretch with the icon: it is centred next to the name
+  .avatar-chevron {
+    display: flex;
+    flex: none;
+    align-self: center;
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+    color: var(--awe-color-text-muted);
+
+    // The icon fills the box of the chevron, so the line height of the page does not push it down
+    > .awe-icon {
+      width: 100%;
+      height: 100%;
+    }
+  }
 }

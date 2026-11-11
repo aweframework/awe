@@ -80,6 +80,16 @@ describe('awe-react-client/test/js/components/AwePivotTableTest.jsx', () => {
     expect(document.querySelectorAll(".pvtDropdownCurrent")[1].textContent).toMatch(/Sum$/);
   });
 
+  it('colours the heatmap cells with the scale tokens, not with the red default of react-pivottable', async () => {
+    const state = withAttributes({renderer: "Heatmap", rows: "Als", cols: "Qty", aggregator: "Sum", aggregationField: "Als"},
+      [{Als: 8, Qty: "a"}, {Als: 4, Qty: "b"}]);
+    renderWithProviders(<AwePivotTable id="pivotTable"/>, {preloadedState: state});
+
+    await waitFor(() => expect(document.querySelectorAll("td.pvtVal:not(.pvtTotal)").length).toBe(4));
+    const styles = [...document.querySelectorAll("td.pvtVal:not(.pvtTotal)")].map(cell => cell.getAttribute("style"));
+    expect(styles.every(style => style.includes("--awe-color-scale-") && style.includes("--awe-color-on-scale-"))).toBe(true);
+  });
+
   it('draws the bars of the Table Barchart renderer', async () => {
     const state = withAttributes({renderer: "Table Barchart", rows: "Als", cols: "Qty", aggregator: "Sum", aggregationField: "Als"});
     state.components.pivotTable.model = {values: [{Als: 8, Qty: "a"}, {Als: 4, Qty: "b"}]};

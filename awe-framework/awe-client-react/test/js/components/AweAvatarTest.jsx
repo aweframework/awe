@@ -233,4 +233,11 @@ describe("awe-react-client/test/js/criteria/AweAvatarTest.jsx", () => {
     expect(avatar.className).not.toContain("p-disabled");
   });
 
+  it("does not add an undefined class when the avatar has no style", () => {
+    jest.spyOn(React, "lazy").mockImplementation(importFunc => importFunc());
+
+    renderWithProviders(<AweAvatar id="avatar" elementList={[]} />, { preloadedState });
+
+    expect(document.querySelector(".avatar-component").className).not.toContain("undefined");
+  });
 });

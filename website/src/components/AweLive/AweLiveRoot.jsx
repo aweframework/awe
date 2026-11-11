@@ -10,8 +10,11 @@ import {DEFAULT_SETTINGS} from '@awe-client/redux/actions/settings';
 import {buildPreloadedState, completeMessages} from './buildPreloadedState';
 import {breadcrumbItems, releaseBreadcrumbs} from './breadcrumbs';
 import MenuRegistry from '@awe-client/redux/registry/MenuRegistry';
+import ComponentRegistry from '@awe-client/redux/registry/ComponentRegistry';
+import {liveRegistration} from './registerComponents';
 import {storeKey} from './storeKey';
-import {tokenColorScaleGenerator, withPivotColorScale} from './pivotColorScale';
+import {LIVE_FRAME_ELEMENT, liveFrameProps} from './liveFrame';
+import {liveView} from './liveView';
 import {simulateFiles, simulateOptions, withBaseUrls} from './simulateFiles';
 import {acceptsUpload, simulateUploads} from './simulateUploads';
 import {updateModelWithDependencies} from '@awe-client/redux/thunks/components';
@@ -44,14 +47,16 @@ const PRIME_REACT = {ripple: false};
 
 // The client stores hold functions in some attributes (onChange, renderers): the check would reject them
 // The client-only actions (open a dialog, next step) run for real: see clientActions.js
-const createLiveStore = (preloadedState, middleware) => configureStore({
+const createLiveStore = (preloadedState, ...middleware) => configureStore({
   reducer: createRootReducer(),
   preloadedState,
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({serializableCheck: false, immutableCheck: false}).prepend(middleware),
+    getDefaultMiddleware({serializableCheck: false, immutableCheck: false}).prepend(...middleware),
 });
 
-// Examples mounted so far: an example that simulates uploads gets a view of its own (see below)
+const LiveFrame = LIVE_FRAME_ELEMENT;
+
+// Examples mounted so far: each one gets a view of its own (see liveView.js)
 let instances = 0;
 
 /**
@@ -65,17 +70,20 @@ let instances = 0;
  * the example a fresh store with the new attributes.
  */
 export default function AweLiveRoot({components, nodes, view, settings, files, options, uploads, messages, answers, breadcrumbs, height, bare, colorScheme, children}) {
-  // The XHR of an upload is one for the whole page, and its form carries the address of the criterion: with the same
-  // view in two examples, both would take the file. An uploads example has its own view, which the address names
+  // Each example has a view of its own: the registry of the client is one for the page (radio groups, uploads)
   const [instance] = useState(() => ++instances);
-  const storeView = uploads ? `${view ?? 'live'}-${instance}` : view;
+  const storeView = liveView(view, instance);
   const key = storeKey({components, nodes, view: storeView, settings, files, messages, answers});
   const i18n = useMemo(createI18n, []);
+  const [registration] = useState(() => liveRegistration(ComponentRegistry));
+  // Examples of a page can share component ids (two playgrounds with a `demo`): the registry is one for the page, so
+  // every action of this example first makes its base the one the registry shows, and the reducers merge with it
+  const [raiseBeforeAction] = useState(() => () => next => action => {
+    registration.raise();
+    return next(action);
+  });
   const store = useMemo(() => {
-    const built = buildPreloadedState(components, {view: storeView, settings, messages});
-    // The pivot heatmaps use the colour scale tokens instead of the default red of react-pivottable. A function cannot
-    // be cloned, so it goes in after the state is built
-    const state = {...built, components: withPivotColorScale(built.components, nodes, tokenColorScaleGenerator)};
+    const state = buildPreloadedState(components, {view: storeView, settings, messages});
     // The messages slice goes on top of what the reducer of the client starts with
     const reducer = createRootReducer();
     if (state.messages) state.messages = completeMessages(state.messages, reducer(undefined, {type: '@@awe-live/init'}).messages);
@@ -84,10 +92,19 @@ export default function AweLiveRoot({components, nodes, view, settings, files, o
       ...state,
       settings: {...DEFAULT_SETTINGS, ...state.settings},
       actions: {sync: [[]], async: [], ...state.actions},
-    }, createClientActionsMiddleware({t: i18n.t, answers}));
+    }, raiseBeforeAction, createClientActionsMiddleware({t: i18n.t, answers}));
     // The key stands for components, nodes, view, settings, files, messages and answers
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key]);
+  // As a screen load does in the application, the components are the base of the registry: the state only keeps
+  // deltas (a group selection stores no address) and the merge takes the address from the base. The base of a new
+  // store is registered before the example renders it (see liveRegistration); the registry is one for the page, and
+  // this example gives back only what it registered when it unmounts
+  registration.use(key, store.getState().components);
+  // Registers again after a release (StrictMode runs the effects twice)
+  useLayoutEffect(() => registration.use(key, store.getState().components), [registration, key, store]);
+  useLayoutEffect(() => () => registration.release(), [registration]);
+
   // The files are urls of the static folder of the site: they go under its base url. The viewers read their file when
   // they mount (a passive effect), and a layout effect of the parent runs before it
   const {withBaseUrl} = useBaseUrlUtils();
@@ -130,16 +147,18 @@ export default function AweLiveRoot({components, nodes, view, settings, files, o
 
   return (
     <I18nextProvider i18n={i18n}>
-      <Provider store={store}>
+      {/* The store is rebuilt with the key: the tree remounts with it, because the components that set their model up on
+          mount (an accordion with its open items) would keep the state of the old store */}
+      <Provider key={key} store={store}>
         <PrimeReactProvider value={PRIME_REACT}>
-        <div className={['awe-live', bare && 'awe-live--bare', height && 'awe-live--sized'].filter(Boolean).join(' ')}
-          style={colorScheme || height ? {colorScheme, height} : undefined}>
+        {/* A form, as the screens of the application: the radio groups of the example are its own (see liveFrame.js) */}
+        <LiveFrame {...liveFrameProps({bare, height, colorScheme})}>
           {nodes ? nodes.map((node, index) => clientComponents.Components(node, index))
             : typeof children === 'function' ? children(clientComponents) : children}
           {/* The toasts, popovers and confirm dialog of the messages: drawn over the page, as the application does.
               Always there: a `confirm` or `message` action of any example needs it to show */}
           <MessageContainer />
-        </div>
+        </LiveFrame>
         </PrimeReactProvider>
       </Provider>
     </I18nextProvider>

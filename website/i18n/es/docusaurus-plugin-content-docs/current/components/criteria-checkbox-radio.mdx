@@ -1,0 +1,96 @@
+---
+id: criteria-checkbox-radio
+title: Casilla y radio
+sidebar_label: Casilla y radio
+description: Los criterios de casilla y radio de AWE, en vivo. Radio, radio de botones, casilla, interruptor y casilla de botones, con el XML que los produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteriaCheckboxRadio} from '@site/src/components/AwePlayground/specs/criteria-checkbox-radio';
+
+Los criterios de casilla y radio responden un sí/no o escogen entre pocas opciones visibles: `radio` y `button-radio` eligen una,
+`checkbox` es un sí/no (se dibuja como interruptor con el estilo `switch`) y `button-checkbox` elige varias. Debajo están los criterios
+reales del cliente React de AWE: elige un tipo, cambia sus atributos y el XML de debajo se actualiza. Los criterios de
+[selectores y sugerencias](./criteria-selects.mdx) tienen su propia página.
+
+<AwePlayground spec={criteriaCheckboxRadio} />
+
+Los atributos que comparten todos los criterios (etiqueta, tamaño, validación) están en la [vista general de criterios](./criteria.mdx).
+Los radios que comparten un `group` son una sola elección: elegir uno borra los demás. Las opciones de un `button-radio` y de un
+`button-checkbox` vienen de una lista enumerada (`initial-load` y `target-action` indican cuál); aquí el servidor está simulado con una lista fija.
+
+## Recetas {#recipes}
+
+Campos habituales, dibujados por los mismos componentes.
+
+### Grupo de radios {#recipe-radio}
+
+Los radios con el mismo `group` son una sola elección. Cada uno lleva su propio `value`, y `checked` marca el elegido al empezar.
+
+<AweLive
+  components={{
+    plan1: {attributes: {component: 'radio', label: 'Básico', group: 'plan', style: 'no-label'}, model: {values: [{value: 'basic', selected: true}]}},
+    plan2: {attributes: {component: 'radio', label: 'Empresa', group: 'plan', style: 'no-label'}, model: {values: [{value: 'business'}]}},
+    plan3: {attributes: {component: 'radio', label: 'Corporativo', group: 'plan', style: 'no-label'}, model: {values: [{value: 'enterprise'}]}},
+  }}
+  nodes={[
+    {elementType: 'Criteria', component: 'radio', id: 'plan1'},
+    {elementType: 'Criteria', component: 'radio', id: 'plan2'},
+    {elementType: 'Criteria', component: 'radio', id: 'plan3'},
+  ]}
+/>
+
+```xml
+<criteria id="plan1" component="radio" label="Básico" group="plan" value="basic" checked="true" style="no-label" />
+<criteria id="plan2" component="radio" label="Empresa" group="plan" value="business" style="no-label" />
+<criteria id="plan3" component="radio" label="Corporativo" group="plan" value="enterprise" style="no-label" />
+```
+
+### Casilla obligatoria {#recipe-required}
+
+Una `checkbox` con `validation="required"` debe estar marcada antes de enviar el formulario. Úsala para una aceptación, como los términos de un servicio.
+
+<AweLive
+  components={{terms: {attributes: {label: 'Acepto los términos', required: true}, model: {values: [{value: '1', label: 'Sí', selected: false}]}, validationRules: {required: true}}}}
+  nodes={[{elementType: 'Criteria', component: 'checkbox', id: 'terms'}]}
+/>
+
+```xml
+<criteria id="terms" component="checkbox" label="Acepto los términos" validation="required" />
+```
+
+### Interruptor {#recipe-switch}
+
+Una `checkbox` con el estilo `switch` se dibuja como un interruptor. Su `label` es el texto que lo acompaña.
+
+<AweLive
+  components={{notify: {attributes: {label: 'Avisarme por correo cuando se envíe', style: 'switch'}, model: {values: [{value: '1', label: 'Sí', selected: true}]}}}}
+  nodes={[{elementType: 'Criteria', component: 'checkbox', id: 'notify'}]}
+/>
+
+```xml
+<criteria id="notify" component="checkbox" label="Avisarme por correo cuando se envíe" style="switch" />
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Un criterio no tiene un evento propio al que escuchar: cada cambio de su valor comprueba las [dependencias](../api/dependencies.md) cuyo
+`dependency-element` lo nombra, y pulsar Intro en un campo de texto ejecuta el botón `submit` de su ventana. Las [acciones](../api/actions.md)
+que actúan sobre criterios:
+
+| Acción                           | Descripción                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Vacía el valor del criterio                                          |
+| `restore`                        | Devuelve el criterio a su valor inicial                              |
+| `validate`                       | Ejecuta la validación del criterio y muestra su error                |
+| `set-invalid`                    | Marca el criterio como inválido con el mensaje de la acción          |
+| `set-valid`                      | Borra el error de validación del criterio                            |
+| `copy-criterion-value-clipboard` | Copia el valor del criterio al portapapeles                          |
+
+## Más {#more}
+
+* [Selectores y sugerencias](./criteria-selects.mdx): los criterios que escogen entre una lista de opciones.
+* [Vista general de criterios](./criteria.mdx): los atributos que comparten todos los criterios y las demás familias de entradas.
+* [Documentación completa de los criterios](../api/criteria.md): todos los tipos, atributos, validaciones y ejemplos.
+* [Referencia XSD del elemento `criteria`](/reference/screen#element-criteria).

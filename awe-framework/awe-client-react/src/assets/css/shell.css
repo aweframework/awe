@@ -145,31 +145,6 @@
   margin-left: auto;
 }
 
-/* User menu: the avatar and the name of the user as one rounded button */
-.layout-topbar .avatar-component {
-  position: relative;
-  align-items: center;
-  gap: var(--awe-space-2);
-  padding-right: var(--awe-space-2);
-  border-radius: var(--awe-radius-full);
-  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
-}
-
-.layout-topbar .avatar-component:hover {
-  background: var(--awe-color-surface-hover);
-}
-
-/* Initials of the user, as the avatar of the prototype, as high as the hover of the icon buttons of the header */
-.layout-topbar .avatar-component .p-avatar {
-  width: var(--awe-size-control);
-  height: var(--awe-size-control);
-  margin: 0;
-  font-size: var(--awe-font-size-xs);
-  font-weight: var(--awe-font-weight-semibold);
-  color: var(--awe-color-on-primary-subtle);
-  background: var(--awe-color-primary-subtle);
-}
-
 /* Header dropdowns (the user menu and the info dropdowns): their buttons are the list options of the prototype, left
    aligned with their icon, instead of rounded centred buttons */
 .avatar-dropdown.info-dropdown {
@@ -239,37 +214,6 @@
   content: "";
   background: var(--awe-color-border);
   pointer-events: none;
-}
-
-/* The name of the user, emphasised, over the profile, muted */
-.layout-topbar .avatar-component .avatar-text {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  line-height: var(--awe-line-height-tight);
-  text-align: left;
-}
-
-.layout-topbar .avatar-component .avatar-name {
-  font-size: var(--awe-font-size-sm);
-  font-weight: var(--awe-font-weight-semibold);
-  line-height: var(--awe-line-height-tight);
-  color: var(--awe-color-text-emphasis);
-  white-space: nowrap;
-}
-
-.layout-topbar .avatar-component .avatar-chevron {
-  flex: none;
-  width: var(--awe-size-icon-sm);
-  height: var(--awe-size-icon-sm);
-  color: var(--awe-color-text-muted);
-}
-
-.layout-topbar .avatar-component .avatar-description {
-  font-size: var(--awe-font-size-xs);
-  line-height: var(--awe-line-height-tight);
-  color: var(--awe-color-text-muted);
-  white-space: nowrap;
 }
 
 /* Page --------------------------------------------------------------------- */

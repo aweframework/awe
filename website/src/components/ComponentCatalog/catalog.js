@@ -36,8 +36,13 @@ const COMPONENTS = [
     title: 'Numbers and dates', description: 'Numeric with a slider, date, date range, time and filtered calendar.',
   },
   {
-    id: 'criteria-choices', family: 'forms', element: 'criteria', status: 'ready', to: '/docs/components/criteria-choices',
-    title: 'Choices', description: 'Select, suggest, picklist, radio, checkbox and their multiple versions.',
+    id: 'criteria-selects', family: 'forms', element: 'criteria', status: 'ready', to: '/docs/components/criteria-selects',
+    title: 'Selects and suggests', description: 'Select, suggest, picklist and their multiple versions.',
+  },
+  {
+    id: 'criteria-checkbox-radio', family: 'forms', element: 'criteria', status: 'ready',
+    to: '/docs/components/criteria-checkbox-radio',
+    title: 'Checkbox and radio', description: 'Radio, button radio, checkbox, switch and button checkbox.',
   },
   {
     id: 'criteria-upload', family: 'forms', element: 'criteria', status: 'ready', to: '/docs/components/criteria-upload',

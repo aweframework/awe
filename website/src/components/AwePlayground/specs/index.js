@@ -3,7 +3,8 @@ const {button} = require('./button');
 const {criteria} = require('./criteria');
 const {criteriaText} = require('./criteria-text');
 const {criteriaNumbers} = require('./criteria-numbers');
-const {criteriaChoices} = require('./criteria-choices');
+const {criteriaSelects} = require('./criteria-selects');
+const {criteriaCheckboxRadio} = require('./criteria-checkbox-radio');
 const {criteriaUpload} = require('./criteria-upload');
 const {card} = require('./card');
 const {dialog} = require('./dialog');
@@ -28,4 +29,4 @@ const {pivotTable} = require('./pivot-table');
 const {map} = require('./map');
 const {fileViewer} = require('./file-viewer');
 
-module.exports = {button, criteria, criteriaText, criteriaNumbers, criteriaChoices, criteriaUpload, card, dialog, sidePanel, popover, contextMenu, info, message, window: windowSpec, resizable, tag, avatar, video, widget, tabs, accordion, wizard, grid, treeGrid, chart, pivotTable, map, fileViewer};
+module.exports = {button, criteria, criteriaText, criteriaNumbers, criteriaSelects, criteriaCheckboxRadio, criteriaUpload, card, dialog, sidePanel, popover, contextMenu, info, message, window: windowSpec, resizable, tag, avatar, video, widget, tabs, accordion, wizard, grid, treeGrid, chart, pivotTable, map, fileViewer};

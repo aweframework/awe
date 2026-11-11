@@ -8,6 +8,7 @@ import {useDispatch} from "react-redux";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 import {useTranslation} from "react-i18next";
 import PropTypes from "prop-types";
+import "./AweInputEditor.less";
 
 function AweInputEditor(props) {
 

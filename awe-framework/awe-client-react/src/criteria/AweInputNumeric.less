@@ -8,13 +8,10 @@
   font-variant-numeric: var(--awe-font-variant-numeric);
 }
 
-.p-inputnumber + .p-slider {
-  border-radius: 0;
-}
-
-.with-slider > .p-inputtext {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
+// The slider goes under the input group (icon, field and unit), at its full width
+.field > .p-slider.numeric-slider {
+  width: 100%;
+  margin-top: var(--awe-space-2);
 }
 
 .with-icon > .p-inputtext {

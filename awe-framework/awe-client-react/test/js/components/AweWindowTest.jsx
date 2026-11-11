@@ -103,42 +103,26 @@ describe('awe-react-client/test/js/criteria/AweWindowTest.jsx', () => {
       expect(button().querySelector("i > svg.awe-icon > use").getAttribute("href")).toBe("/icons/lucide-sprite.svg#maximize");
     });
 
-    it('maximizes over the maximize target of the template, not over a resizable that contains the window', () => {
+    it('covers its maximize target as a positioned child, not the viewport, and is placed again on restore', () => {
       renderWithProviders(
         <div className="maximize-target" id="target">
           <div className="resizable" id="box"><AweWindow id="w5" maximize={true} elementList={[]}/></div>
         </div>, {preloadedState});
-      jest.spyOn(document.getElementById("target"), "getBoundingClientRect")
-        .mockReturnValue({top: 40, left: 10, width: 800, height: 500});
-      jest.spyOn(document.getElementById("box"), "getBoundingClientRect")
-        .mockReturnValue({top: 100, left: 300, width: 200, height: 200});
 
       fireEvent.click(button());
       settle();
 
-      expect(panel().style.position).toBe("fixed");
-      expect([panel().style.top, panel().style.left, panel().style.width, panel().style.height])
-        .toEqual(["40px", "10px", "800px", "500px"]);
+      // Absolute against the target (the parents lose their positioning), so it scrolls and moves with it
+      expect(panel().style.position).toBe("absolute");
+      expect([panel().style.top, panel().style.right, panel().style.bottom, panel().style.left])
+        .toEqual(["0px", "0px", "0px", "0px"]);
+      expect(panel().style.width).toBe("");
+      expect(document.getElementById("target").contains(panel())).toBe(true);
 
       fireEvent.click(button());
       settle();
       expect(panel().style.position).toBe("");
-    });
-
-    it('follows the size of the maximize target while it is maximized', () => {
-      renderWithProviders(<div className="maximize-target" id="target"><AweWindow id="w6" maximize={true}/></div>,
-        {preloadedState});
-      const rect = jest.spyOn(document.getElementById("target"), "getBoundingClientRect")
-        .mockReturnValue({top: 0, left: 0, width: 800, height: 500});
-      fireEvent.click(button());
-      settle();
-
-      rect.mockReturnValue({top: 0, left: 0, width: 600, height: 400});
-      act(() => {
-        window.dispatchEvent(new Event("resize"));
-      });
-
-      expect(panel().style.width).toBe("600px");
+      expect(panel().style.top).toBe("");
     });
 
     it('fills the viewport when there is no maximize target', () => {

@@ -1,7 +1,7 @@
 /**
  * Playground of the attributes every AWE criterion shares (label, placeholder, icon, size, validation, read only), on
  * three of the simplest inputs. The other types have their own playgrounds, one by family: criteria-text.js,
- * criteria-numbers.js, criteria-choices.js and criteria-upload.js. The options of a select come from a query or an
+ * criteria-numbers.js, criteria-selects.js, criteria-checkbox-radio.js and criteria-upload.js. The options of a select come from a query or an
  * enum on the server; here the stage fills them with a static model, so the XML names the enum a real screen would use.
  * A playground spec is described in playgroundModel.js.
  */

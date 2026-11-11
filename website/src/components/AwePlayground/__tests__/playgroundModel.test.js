@@ -154,3 +154,13 @@ test('a child that names a hidden control is not written, whatever value that co
   assert.match(toXml(hidden, {mode: 'x', extra: true}), /<extra \/>/);
   assert.doesNotMatch(toXml(hidden, {mode: 'y', extra: true}), /extra/);
 });
+
+test('a switch on by default writes false to the client when it is turned off, over the default of the client', () => {
+  const avatar = {
+    id: 'demo',
+    controls: [{id: 'showLabel', type: 'switch', label: 'Show the label', xml: 'show-label', default: true}],
+  };
+
+  assert.deepEqual(toClientAttributes(avatar, resolveValues(avatar, {showLabel: false})), {showLabel: false});
+  assert.deepEqual(toClientAttributes(avatar, resolveValues(avatar, {})), {showLabel: true});
+});

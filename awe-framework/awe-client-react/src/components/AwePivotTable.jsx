@@ -3,6 +3,8 @@ import PivotTableUI from 'react-pivottable/PivotTableUI';
 import 'react-pivottable/pivottable.css';
 import TableRenderers from 'react-pivottable/TableRenderers';
 import TableBarchartRenderer from "./pivot/TableBarchartRenderer";
+import {tokenColorScaleGenerator} from "./pivot/colorScale";
+import "./AwePivotTable.less";
 import {extractCellValue} from "../utilities/grid";
 import {isEmpty} from "../utilities/general";
 import {useTranslation} from "react-i18next";
@@ -99,12 +101,13 @@ function AwePivotTable(props) {
     };
   }
   const classes = classNames(style, { "hidden": !visible });
-  return (<div className={classes} onContextMenu={onContextMenu}>
+  return (<div className={classNames("awe-pivot-table", classes)} onContextMenu={onContextMenu}>
     <PivotTableUI
       data={model.values.map(row => Object.entries(row).reduce((prev, [key, value]) =>
         ({ ...prev, [key]: extractCellValue(value) }), {}))}
       onChange={onChange}
       unusedOrientationCutoff={Infinity}
+      tableColorScaleGenerator={tokenColorScaleGenerator}
       renderers={RENDERERS}
       {...fixedAttributes}
     />

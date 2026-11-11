@@ -1,3 +1,10 @@
+// The tree grid fills the room of its container, as the flat grid does (AweGrid.less), instead of keeping the size of its
+// header when the container has a fixed height and is not a flex column; with no height it keeps the minimum rows area
+.grid-container .p-treetable {
+  flex: 1 1 0;
+  min-height: var(--awe-grid-min-body-height);
+}
+
 .p-treetable {
   .p-column-header-content {
     justify-content: center;

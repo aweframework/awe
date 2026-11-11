@@ -11,6 +11,7 @@ import { useComponentState } from "../hooks/useComponentState";
 import { useTranslation } from "react-i18next";
 import { addActionsTop } from "../redux/actions/actions";
 import { updateModelWithDependencies } from "../redux/thunks/components";
+import { Badge } from "primereact/badge";
 import PropTypes from "prop-types";
 import AweWindow from "./AweWindow";
 import { TestIds, testHook } from "../utilities/testIds";
@@ -27,7 +28,7 @@ function AweInfoDropdown(props) {
   const classes = classNames("p-button-rounded", "p-button-text", "p-button-secondary", { [`p-button-${size}`]: size }, style, { "hidden": !visible });
 
   const computedLabel = values.length ? values[0].label : label;
-  const computedUnit = unit && <span className="p-badge p-badge-info">{unit}</span>;
+  const computedUnit = unit && <Badge value={unit} severity="info" />;
 
   const onClick = useCallback((e) => {
     if ((actions || []).length > 0) {

@@ -113,7 +113,7 @@ const clientName = control => control.client ?? (control.xml ? camelCase(control
 
 /**
  * Attributes for the state of the React client component. Booleans stay booleans and empty values are skipped, so the
- * client applies its own defaults.
+ * client applies its own defaults; a switch on by default writes false when it is turned off.
  */
 function toClientAttributes(spec, values) {
   const attributes = {};
@@ -122,7 +122,9 @@ function toClientAttributes(spec, values) {
     if (!name || !applies(control, values)) continue;
     const value = values[control.id];
     if (control.type === 'switch' && !control.token) {
+      // A switch on by default stands for a client default of true: turned off, it has to say false
       if (value) attributes[name] = true;
+      else if (control.default === true) attributes[name] = false;
     } else if (control.type === 'switch') {
       if (value) attributes[name] = [attributes[name], control.token].filter(Boolean).join(' ');
     } else if (value !== '') {

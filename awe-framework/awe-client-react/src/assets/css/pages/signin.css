@@ -220,6 +220,8 @@
   position: absolute;
   inset-block: 0;
   inset-inline-start: 0;
+  /* The full height of the field (the addons of the criteria take the default control height) */
+  height: auto;
   min-width: 0;
   padding: 0 0 0 var(--awe-field-padding-x);
   color: var(--awe-color-field-icon);

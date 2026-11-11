@@ -103,11 +103,32 @@
 }
 
 /* Field: the control height of the density (the padding, border and radius come from the AWE theme of PrimeReact).
-   The label of a dropdown is a borderless input inside the field, so the dropdown takes the height */
-.field .p-inputtext:not(textarea):not(.p-dropdown-label),
-.field .p-dropdown,
-.field .p-multiselect {
+   The label of a dropdown is a borderless input inside the field, so the dropdown takes the height. :where() takes the
+   field out of the specificity of this default, so the sm and lg sizes below (one class more) always win over it */
+:where(.field) .p-inputtext:not(textarea):not(.p-dropdown-label),
+:where(.field) .p-dropdown,
+:where(.field) .p-multiselect {
   min-height: var(--awe-size-control);
+}
+
+/* Addon (icon, unit, separator) of an input group: it takes the control height of the field, whatever its content, so a
+   field with an icon is as tall as one without. The icon is centred in it and follows the sm and lg sizes */
+.field .p-inputgroup > .p-inputgroup-addon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: var(--awe-size-control);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.field .p-inputgroup > .p-inputgroup-addon.p-inputtext-sm {
+  height: var(--awe-size-control-sm);
+}
+
+.field .p-inputgroup > .p-inputgroup-addon.p-inputtext-lg {
+  height: var(--awe-size-control-lg);
 }
 
 /* The label of a select field keeps no vertical padding of its own (PrimeReact gives it the padding of a text field and
