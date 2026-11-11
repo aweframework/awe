@@ -378,6 +378,7 @@
   <locale name="ENUM_SCR_ATR_SUMMARYTYPE" value="Summary type"/>
   <locale name="ENUM_SCR_ATR_TARGETACTION" value="Target action"/>
   <locale name="ENUM_SCR_ATR_THOUSAND_SEPARATOR" value="Thousand separator"/>
+  <locale name="ENUM_SCR_ATR_DECIMAL_SEPARATOR" value="Decimal Separator"/>
   <locale name="ENUM_SCR_ATR_TIMEOUT" value="Time out"/>
   <locale name="ENUM_SCR_ATR_TOTALIZE" value="Totalize"/>
   <locale name="ENUM_SCR_ATR_TREEGRID" value="Tree grid"/>
@@ -387,6 +388,39 @@
   <locale name="ENUM_SCR_ATR_VARIABLE" value="Variable"/>
   <locale name="ENUM_SCR_ATR_VISIBLE" value="Visible"/>
   <locale name="ENUM_SCR_ATR_WIDTH" value="Width"/>
+  <locale name="ENUM_SCR_ATR_AGGREGATION_FIELD" value="Aggregation Field"/>
+  <locale name="ENUM_SCR_ATR_AGGREGATOR" value="Aggregator"/>
+  <locale name="ENUM_SCR_ATR_AREA_ROWS" value="Area Rows"/>
+  <locale name="ENUM_SCR_ATR_BROWSER_ACTION" value="Browser Action"/>
+  <locale name="ENUM_SCR_ATR_BUTTON_TYPE" value="Button Type"/>
+  <locale name="ENUM_SCR_ATR_CANCEL" value="Cancel"/>
+  <locale name="ENUM_SCR_ATR_COLS" value="Cols"/>
+  <locale name="ENUM_SCR_ATR_DATE_FORMAT" value="Date Format"/>
+  <locale name="ENUM_SCR_ATR_DATE_VIEW_MODE" value="Date View Mode"/>
+  <locale name="ENUM_SCR_ATR_DEFAULT_VALUE" value="Default Value"/>
+  <locale name="ENUM_SCR_ATR_DESTINATION" value="Destination"/>
+  <locale name="ENUM_SCR_ATR_EXPAND" value="Expand"/>
+  <locale name="ENUM_SCR_ATR_GROUP" value="Group"/>
+  <locale name="ENUM_SCR_ATR_HELP" value="Help"/>
+  <locale name="ENUM_SCR_ATR_HELP_IMAGE" value="Help Image"/>
+  <locale name="ENUM_SCR_ATR_LOAD_ALL" value="Load All"/>
+  <locale name="ENUM_SCR_ATR_PLACEHOLDER" value="Placeholder"/>
+  <locale name="ENUM_SCR_ATR_PROPERTY" value="Property"/>
+  <locale name="ENUM_SCR_ATR_RENDERER" value="Renderer"/>
+  <locale name="ENUM_SCR_ATR_ROWS" value="Rows"/>
+  <locale name="ENUM_SCR_ATR_SEND_ALL" value="Send All"/>
+  <locale name="ENUM_SCR_ATR_SHOW_FUTURE_DATES" value="Show Future Dates"/>
+  <locale name="ENUM_SCR_ATR_SHOW_SLIDER" value="Show Slider"/>
+  <locale name="ENUM_SCR_ATR_SHOW_TODAY_BUTTON" value="Show Today Button"/>
+  <locale name="ENUM_SCR_ATR_SHOW_WEEKENDS" value="Show Weekends"/>
+  <locale name="ENUM_SCR_ATR_SORT_METHOD" value="Sort Method"/>
+  <locale name="ENUM_SCR_ATR_TITLE" value="Title"/>
+  <locale name="ENUM_SCR_ATR_TOTAL_COLUMN_PLACEMENT" value="Total Column Placement"/>
+  <locale name="ENUM_SCR_ATR_TOTAL_ROW_PLACEMENT" value="Total Row Placement"/>
+  <locale name="ENUM_SCR_ATR_TREE_ID" value="Tree Id"/>
+  <locale name="ENUM_SCR_ATR_TREE_LEAF" value="Tree Leaf"/>
+  <locale name="ENUM_SCR_ATR_TREE_PARENT" value="Tree Parent"/>
+  <locale name="ENUM_SCR_ATR_TYPE" value="Type"/>
   <locale name="ENUM_SECURITY_AUDIT_ACCESS_DENIED" value="Accès refusé"/>
   <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_LOCKED" value="Compte verrouillé"/>
   <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_UNLOCKED" value="Compte déverrouillé"/>
@@ -694,7 +728,7 @@
   <locale name="ERROR_MESSAGE_RETRIEVING_VARIABLE" value="Il y avait une erreur de récupération de la valeur de la variable {0}"/>
   <locale name="ERROR_MESSAGE_SAVING_ITEM" value="There has been an error saving file"/>
   <locale name="ERROR_MESSAGE_SCREEN_COMPONENT_MAP" value="Erreur lors de la création de la liste des composants"/>
-  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_DATA" value="Erreur lors de la récupération des données de configuration de l&apos;écran: {0}"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_DATA" value="Erreur lors de la récupération des données de configuration de l&apos;&apos;écran: {0}"/>
   <locale name="ERROR_MESSAGE_SCREEN_NOT_CLONEABLE" value="L&apos;écran sélectionné ne peut pas être cloné - {0}"/>
   <locale name="ERROR_MESSAGE_SCREEN_NOT_DEFINED" value="L&apos;écran option a generer n&apos;est pas defini - {0}"/>
   <locale name="ERROR_MESSAGE_SCREEN_RESTRICTIONS" value="Erreur de récupération des écrans restreints: {0}"/>
@@ -1055,6 +1089,15 @@
   <locale name="ERROR_TITLE_SAVING_ITEM" value="Error saving file"/>
   <locale name="ERROR_TITLE_SESSION_CLOSED" value="Séance clôturée"/>
   <locale name="ERROR_TITLE_SCREEN_GENERATION_ERROR" value="Erreur generant l&apos;ecran"/>
+  <locale name="ERROR_TITLE_SCREEN_CONFIGURATION_INVALID" value="Configuration d&apos;écran non valide"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_UNKNOWN_COMPONENT" value="Le composant &apos;&apos;{0}&apos;&apos; n&apos;&apos;existe pas dans l&apos;&apos;écran &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_UNKNOWN_ATTRIBUTE" value="L&apos;&apos;attribut &apos;&apos;{0}&apos;&apos; ne peut pas être configuré"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_ATTRIBUTE_NOT_APPLICABLE" value="L&apos;&apos;attribut &apos;&apos;{0}&apos;&apos; ne s&apos;&apos;applique pas au composant &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_BOOLEAN" value="L&apos;&apos;attribut &apos;&apos;{0}&apos;&apos; n&apos;&apos;accepte que true ou false, pas &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_INTEGER" value="L&apos;&apos;attribut &apos;&apos;{0}&apos;&apos; n&apos;&apos;accepte que des nombres entiers, pas &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_ENUM" value="L&apos;&apos;attribut &apos;&apos;{0}&apos;&apos; n&apos;&apos;accepte pas &apos;&apos;{1}&apos;&apos;. Valeurs autorisées : {2}"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_VALUE_TOO_LONG" value="La valeur de l&apos;&apos;attribut &apos;&apos;{0}&apos;&apos; ne peut pas dépasser {1} caractères"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_NO_ACCESS" value="Vous ne pouvez pas personnaliser l&apos;&apos;écran &apos;&apos;{0}&apos;&apos; : vous n&apos;y avez pas accès"/>
   <locale name="ERROR_TITLE_SCREEN_NOT_DEFINED" value="Ecran non defini"/>
   <locale name="ERROR_TITLE_SCREEN_OPTION_NOT_DEFINED" value="Ecran option non defini"/>
   <locale name="ERROR_TITLE_SENDING_QUEUE_MESSAGE" value="Erreur d&apos;envoy du message"/>
@@ -2077,4 +2120,72 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="WEEKS" value="{0} semaines"/>
   <locale name="YEAR" value="{0} année"/>
   <locale name="YEARS" value="{0} ans"/>
+  <locale name="HELP_SCREEN_TITLE_SCR_PER" value="Personalize a screen visually: click an element of the screen and change its attributes for everyone, a profile or a user"/>
+  <locale name="MENU_TOOLS_SCR_PER" value="Personalize screen"/>
+  <locale name="SCREEN_TITLE_SCR_PER" value="Personalize screen"/>
+  <locale name="SCR_PER_ADVANCED" value="Advanced"/>
+  <locale name="SCR_PER_APPLIES_TO" value="Applies to"/>
+  <locale name="SCR_PER_CHANGES" value="{0} change(s)"/>
+  <locale name="SCR_PER_DISCARD" value="Discard"/>
+  <locale name="SCR_PER_FOR" value="for"/>
+  <locale name="SCR_PER_HIDDEN" value="hidden"/>
+  <locale name="SCR_PER_INVALID" value="{0} invalid value(s)"/>
+  <locale name="SCR_PER_ORIGIN_DEFAULT" value="Inherited from the screen default"/>
+  <locale name="SCR_PER_ORIGIN_EVERYONE" value="Inherited from everyone"/>
+  <locale name="SCR_PER_ORIGIN_PERSONALIZED" value="Personalized for this scope"/>
+  <locale name="SCR_PER_ORIGIN_PROFILE" value="Inherited from the profile"/>
+  <locale name="SCR_PER_ORIGIN_USER" value="Personalized for the user"/>
+  <locale name="SCR_PER_PICK_SCREEN" value="Choose a screen to personalize"/>
+  <locale name="SCR_PER_PRECEDENCE" value="User beats profile, profile beats everyone"/>
+  <locale name="SCR_PER_RESET_ATTRIBUTE" value="Reset"/>
+  <locale name="SCR_PER_RESET_ELEMENT" value="Reset element"/>
+  <locale name="SCR_PER_SCOPE_EVERYONE" value="Everyone"/>
+  <locale name="SCR_PER_SCOPE_PROFILE" value="Profile"/>
+  <locale name="SCR_PER_SCOPE_USER" value="User"/>
+  <locale name="SCR_PER_VIEW_AS" value="View as"/>
+  <locale name="SCR_PER_VIEW_AS_EDITED" value="Edited scope"/>
+  <locale name="SCR_PER_NO_OPTION" value="This screen is not reachable from any menu option, so it cannot be shown here"/>
+  <locale name="SCR_PER_MODE" value="Mode"/>
+  <locale name="SCR_PER_MODE_EDIT" value="Modifier"/>
+  <locale name="SCR_PER_MODE_OVERVIEW" value="Vue d'ensemble"/>
+  <locale name="SCR_PER_OVERVIEW_TITLE" value="{0} · {1} élément(s) modifié(s)"/>
+  <locale name="SCR_PER_OVERVIEW_EMPTY" value="Rien n'est personnalisé sur cet écran"/>
+  <locale name="SCR_PER_VALUE_VISIBLE" value="Visible"/>
+  <locale name="SCR_PER_VALUE_HIDDEN" value="Masqué"/>
+  <locale name="SCR_PER_VALUE_YES" value="Oui"/>
+  <locale name="SCR_PER_VALUE_NO" value="Non"/>
+  <locale name="SCR_PER_PROBLEMS" value="{0} modification(s) ne fonctionnent plus"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_ELEMENT" value="{0} n'est plus sur cet écran ({1})"/>
+  <locale name="SCR_PER_PROBLEM_INVALID_ATTRIBUTE" value="{1} ne peut pas être défini sur {0}"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_PROFILE" value="Le profil de la règle {1} de {0} n'existe plus"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_USER" value="L'utilisateur de la règle {1} de {0} n'existe plus"/>
+  <locale name="SCR_PER_PROBLEM_DUPLICATE" value="{0} · {1} a {3} règles pour {2}"/>
+  <locale name="SCR_PER_DELETE" value="Supprimer"/>
+  <locale name="SCR_PER_KEEP_ONE" value="En garder une :"/>
+  <locale name="SCR_PER_KEEP_VALUE" value="Garder {0}"/>
+  <locale name="SCR_PER_MODE_HISTORY" value="Historique"/>
+  <locale name="SCR_PER_HISTORY_EMPTY" value="Aucun changement n'a été enregistré sur cet écran"/>
+  <locale name="SCR_PER_HISTORY_CREATED" value="Créé : {0}"/>
+  <locale name="SCR_PER_HISTORY_DELETED" value="Supprimé (était {0})"/>
+  <locale name="SCR_PER_UNDO" value="Annuler"/>
+  <locale name="SCR_PER_CHANGED_LATER" value="Modifié depuis"/>
+  <locale name="SCR_PER_HISTORY_UNRECORDED" value="Valeur précédente non enregistrée"/>
+  <locale name="SCR_PER_HISTORY_CHANGED_TO" value="Modifié en : {0}"/>
+  <locale name="SCR_PER_EXPORT" value="Exporter"/>
+  <locale name="SCR_PER_IMPORT" value="Importer"/>
+  <locale name="SCR_PER_IMPORT_FILE" value="Fichier à importer"/>
+  <locale name="SCR_PER_IMPORT_TITLE" value="Importer les règles"/>
+  <locale name="SCR_PER_IMPORT_DROP" value="Déposez un fichier .json ou"/>
+  <locale name="SCR_PER_IMPORT_CHOOSE" value="choisissez-en un"/>
+  <locale name="SCR_PER_IMPORT_HINT" value="Un fichier exporté depuis cet écran. Vous verrez ce qui change avant que rien ne soit enregistré."/>
+  <locale name="SCR_PER_IMPORT_PREVIEW" value="Import : {0} à ajouter, {1} à modifier"/>
+  <locale name="SCR_PER_IMPORT_SKIPPED" value="{0} règle(s) ignorée(s)"/>
+  <locale name="SCR_PER_IMPORT_SKIPPED_ITEM" value="{0} · {1} : {2} {3}"/>
+  <locale name="SCR_PER_IMPORT_REASON_PROFILE" value="profil introuvable :"/>
+  <locale name="SCR_PER_IMPORT_REASON_USER" value="utilisateur introuvable :"/>
+  <locale name="SCR_PER_IMPORT_REASON_ELEMENT" value="élément absent de cet écran :"/>
+  <locale name="SCR_PER_IMPORT_APPLY" value="Appliquer l'import"/>
+  <locale name="SCR_PER_IMPORT_CANCEL" value="Annuler"/>
+  <locale name="SCR_PER_IMPORT_INVALID_FILE" value="Le fichier n'est pas un export de la personnalisation d'un écran"/>
+  <locale name="SCR_PER_IMPORT_OTHER_SCREEN" value="Le fichier est celui de l'écran {0}, pas de celui-ci"/>
 </locales>

@@ -8,6 +8,10 @@ import com.almis.awe.model.entities.screen.component.grid.AbstractGrid;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.entities.screen.component.pivottable.PivotTable;
 
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * AttributeRestrictionType Enumerated
  *
@@ -56,7 +60,7 @@ public enum AttributeRestrictionType {
   MESSAGE("message", AbstractCriteria.class),
   FORMULE("formule", AbstractCriteria.class),
   PLACEHOLDER("placeholder", AbstractCriteria.class),
-  AREA_ROWS("arearows", AbstractCriteria.class),
+  AREA_ROWS("areaRows", AbstractCriteria.class),
   OPTIONAL("optional", AbstractCriteria.class),
   PRINTABLE("printable", AbstractCriteria.class),
   UNIT("unit", AbstractCriteria.class),
@@ -70,15 +74,13 @@ public enum AttributeRestrictionType {
   SHOW_FUTURE_DATES("showFutureDates", AbstractCriteria.class),
   DATE_FORMAT("dateFormat", AbstractCriteria.class),
   SHOW_TODAY_BUTTON("showTodayButton", AbstractCriteria.class),
-  DATE_VIEW_MODE("dateViewMode", AbstractCriteria.class),
+  DATE_VIEW_MODE("dateViewMode", AbstractCriteria.class, "days", "months", "years"),
 
   // COLUMN ATTRIBUTES
-  INDEX("index", Column.class),
   FIELD("field", Column.class),
   WIDTH("width", Column.class),
   CHAR_LENGTH("charLength", Column.class),
-  ALIGN("align", Column.class),
-  INPUT_TYPE("inputType", Column.class),
+  ALIGN("align", Column.class, "left", "center", "right"),
   SORTABLE("sortable", Column.class),
   MOVABLE("movable", Column.class),
   HIDDEN("hidden", Column.class),
@@ -97,7 +99,6 @@ public enum AttributeRestrictionType {
   // GRID ATTRIBUTES
   TOTALIZE("totalize", AbstractGrid.class),
   SHOW_TOTALS("showTotals", AbstractGrid.class),
-  SEND_OPERATIONS("sendOperations", AbstractGrid.class),
   TREEGRID("treegrid", AbstractGrid.class),
   EDITABLE("editable", AbstractGrid.class),
   MULTISELECT("multiselect", AbstractGrid.class),
@@ -107,12 +108,12 @@ public enum AttributeRestrictionType {
   TREE_ID("treeId", AbstractGrid.class),
   TREE_PARENT("treeParent", AbstractGrid.class),
   TREE_LEAF("treeLeaf", AbstractGrid.class),
-  PAGINATION_DISABLED("paginationDisabled", AbstractGrid.class),
+  PAGINATION_DISABLED("disablePagination", AbstractGrid.class),
   PAGER_VALUES("pagerValues", AbstractGrid.class),
 
   // PIVOT ATTRIBUTES
-  TOTAL_COLUMN_PLACEMENT("totalColumnPlacement", PivotTable.class),
-  TOTAL_ROW_PLACEMENT("totalRowPlacement", PivotTable.class),
+  TOTAL_COLUMN_PLACEMENT("totalColumnPlacement", PivotTable.class, "left", "right"),
+  TOTAL_ROW_PLACEMENT("totalRowPlacement", PivotTable.class, "top", "bottom"),
   RENDERER("renderer", PivotTable.class),
   AGGREGATOR("aggregator", PivotTable.class),
   AGGREGATION_FIELD("aggregationField", PivotTable.class),
@@ -124,13 +125,75 @@ public enum AttributeRestrictionType {
   DECIMAL_SEPARATOR("decimalSeparator", PivotTable.class);
 
   // Parameter VALUE
-  private String value;
-  private Class<?> componentClass;
+  private final String value;
+  private final Class<?> componentClass;
+  private final List<String> allowedValues;
 
-  // Constructor
-  private AttributeRestrictionType(String value, Class<?> componentClass) {
+  // Constructor. Allowed values are set only for attributes with a closed set of values (see the XSD enumerations)
+  AttributeRestrictionType(String value, Class<?> componentClass, String... allowedValues) {
     this.value = value;
     this.componentClass = componentClass;
+    this.allowedValues = List.of(allowedValues);
+  }
+
+  /**
+   * Retrieve the attributes that apply to a component class
+   *
+   * @param componentClass Component class
+   * @return Applicable attributes
+   */
+  public static List<AttributeRestrictionType> applicableTo(Class<?> componentClass) {
+    return Arrays.stream(values()).filter(attribute -> attribute.appliesTo(componentClass)).toList();
+  }
+
+  /**
+   * Check if the attribute belongs to a component class
+   *
+   * @param componentClassToCheck Component class
+   * @return The attribute applies to the class
+   */
+  public boolean appliesTo(Class<?> componentClassToCheck) {
+    return componentClass.isAssignableFrom(componentClassToCheck);
+  }
+
+  /**
+   * Retrieve the type of the attribute value, taken from the type of the model field with the attribute name.
+   * Attributes with no field of that name (required) are texts, except the boolean ones set by hand
+   *
+   * @return Value type
+   */
+  public AttributeValueType getValueType() {
+    if (!allowedValues.isEmpty()) {
+      return AttributeValueType.ENUM;
+    }
+    Class<?> fieldType = this == REQUIRED ? Boolean.class : fieldType();
+    if (Boolean.class.equals(fieldType) || boolean.class.equals(fieldType)) {
+      return AttributeValueType.BOOLEAN;
+    }
+    if (Integer.class.equals(fieldType) || int.class.equals(fieldType)) {
+      return AttributeValueType.INTEGER;
+    }
+    return AttributeValueType.TEXT;
+  }
+
+  /**
+   * Retrieve the allowed values of the attribute
+   *
+   * @return Allowed values (empty if the attribute has no closed set of values)
+   */
+  public List<String> getAllowedValues() {
+    return allowedValues;
+  }
+
+  private Class<?> fieldType() {
+    for (Class<?> type = componentClass; type != null; type = type.getSuperclass()) {
+      for (Field field : type.getDeclaredFields()) {
+        if (field.getName().equals(value)) {
+          return field.getType();
+        }
+      }
+    }
+    return String.class;
   }
 
   /**

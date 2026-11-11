@@ -222,6 +222,9 @@ public class AweConstants {
   public static final String PROFILE_RESTRICTIONS_QUERY = "profileRestrictions";
   public static final String CHECK_EXIST_PROFILE = "checkProfileExists";
   public static final String SCREEN_CONFIGURATION_QUERY = "getScreenConfiguration";
+  public static final String SCREEN_SUBJECT_CONFIGURATION_QUERY = "getScreenSubjectConfiguration";
+  public static final String SCREEN_CONFIGURATION_HISTORY_QUERY = "getScreenConfigurationHistoryRows";
+  public static final String SCREEN_SUBJECT_PROFILE_QUERY = "getScreenSubjectProfile";
   public static final String SCREEN_RESTRICTION_QUERY = "getScreenRestrictions";
   public static final String SCREEN_DATABASE_RESTRICTION_QUERY = "getOptionRestrictionFromDatabase";
   public static final String SCREEN_DATABASE_RESTRICTION_BY_PROFILES_QUERY = "getOptionRestrictionFromDatabaseByProfiles";

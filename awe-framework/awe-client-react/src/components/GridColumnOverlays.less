@@ -1,0 +1,40 @@
+// Column overlays of the screen personalization editor (#792): the grid is the positioning context
+.scr-per-grid {
+  position: relative;
+}
+
+.awe-column-overlay {
+  position: absolute;
+  z-index: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+
+  &:hover {
+    outline: var(--awe-space-0-5) solid var(--awe-color-border);
+    outline-offset: calc(-1 * var(--awe-space-0-5));
+  }
+
+  &:focus-visible,
+  &.awe-column-overlay-selected {
+    outline: var(--awe-space-0-5) solid var(--awe-color-primary);
+    outline-offset: calc(-1 * var(--awe-space-0-5));
+  }
+
+  &.awe-column-overlay-hidden {
+    background: var(--awe-color-surface-subtle);
+    opacity: 0.7;
+  }
+
+  .awe-inspect-tag {
+    display: inline-block;
+    margin-top: var(--awe-space-1);
+    padding: var(--awe-space-0-5) var(--awe-space-2);
+    border: var(--awe-border-width) dashed var(--awe-color-border);
+    border-radius: var(--awe-radius-sm);
+    font-size: var(--awe-font-size-xs);
+    color: var(--awe-color-text-muted);
+  }
+}

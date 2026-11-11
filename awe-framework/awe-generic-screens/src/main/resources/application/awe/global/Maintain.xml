@@ -1142,7 +1142,15 @@
 
   <!-- Screen configuration Multiple -->
   <target name="updateScreenConfiguration" permission="access.update">
-    <multiple grid="GrdScrCnf">
+    <!-- Rejects the invalid rules before anything is saved -->
+    <serve service="validateScreenConfiguration">
+      <variable id="rowTypes" type="STRING" name="GrdScrCnf-RowTyp"/>
+      <variable id="screens" type="STRING" name="Scr"/>
+      <variable id="components" type="STRING" name="Nam"/>
+      <variable id="attributes" type="STRING" name="Atr"/>
+      <variable id="values" type="STRING" name="Val"/>
+    </serve>
+    <multiple grid="GrdScrCnf" audit="HISAweScrCnf">
       <table id="AweScrCnf"/>
       <field id="IdeAweScrCnf" variable="IdeAweScrCnf" sequence="ScrCnfKey" key="true"/>
       <field id="IdeOpe" variable="IdeOpe"/>

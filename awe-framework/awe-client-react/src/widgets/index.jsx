@@ -5,6 +5,7 @@ import AweFileViewer from "./AweFileViewer";
 import AweHelpViewer from "./AweHelpViewer";
 import AwePdfViewer from "./AwePdfViewer";
 import AweCarousel from "./AweCarousel";
+import AweScreenPersonalizer from "./AweScreenPersonalizer";
 
 const Widget = {};
 
@@ -34,6 +35,7 @@ registerWidget("file-viewer", AweFileViewer);
 registerWidget("help-viewer", AweHelpViewer);
 registerWidget("pdf-viewer", AwePdfViewer);
 registerWidget("carousel", AweCarousel);
+registerWidget("screen-personalizer", AweScreenPersonalizer);
 
 export default (node, index) => {
   if (node.type in Widget) {

@@ -127,6 +127,7 @@ module.exports = {
 				"guides/xsd-tooling",
 				"guides/devcontainer",
 				"guides/default-screens",
+				"guides/screen-personalization",
 				"guides/custom-widgets",
 				"guides/custom-widgets-react",
 				"guides/design-tokens",

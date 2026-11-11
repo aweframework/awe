@@ -72,6 +72,16 @@ class MenuServiceDelegationTest {
   }
 
   @Test
+  void aScreenIsAvailableWhenTheUserCanOpenAnOptionOfIt() throws AWException {
+    Option option = new Option();
+    option.setScreen("Scr");
+    when(menuOptionLookup.getAllAvailableOptions()).thenReturn(List.of(option));
+
+    assertThat(menuService.isAvailableScreen("Scr")).isTrue();
+    assertThat(menuService.isAvailableScreen("Other")).isFalse();
+  }
+
+  @Test
   void injectedCollaboratorsKeepTheirOwnApplicationContext() {
     menuService.setApplicationContext(mock(ApplicationContext.class));
 

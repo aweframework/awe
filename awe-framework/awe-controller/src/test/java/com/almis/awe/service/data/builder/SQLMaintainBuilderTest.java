@@ -7,6 +7,7 @@ import com.almis.awe.model.entities.maintain.Insert;
 import com.almis.awe.model.entities.maintain.Update;
 import com.almis.awe.model.entities.queries.Field;
 import com.almis.awe.model.entities.queries.Table;
+import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.type.MaintainBuildOperation;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
@@ -31,6 +32,7 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,30 @@ class SQLMaintainBuilderTest {
 
   @Mock
   private Connection connection;
+
+  @Test
+  void sequenceOfAGridRowIsStoredOnlyAtTheIndexOfThatRow() throws Exception {
+    // A grid multiple runs one query per row: the key generated for an inserted row must not replace the keys of the
+    // other rows, or the update of the next row targets the inserted one (#792)
+    lenient().when(queryUtil.isEmptyString(null)).thenReturn(true);
+    TrackingSQLMaintainBuilder builder = new TrackingSQLMaintainBuilder(queryUtil, databaseConfigProperties()) {
+      @Override
+      public String getSequence(String sequence) {
+        return "14";
+      }
+    };
+    var parameters = JsonNodeFactory.instance.objectNode();
+    parameters.putArray("IdeAweScrCnf").addNull().add(7);
+    builder.setMaintain(gridRowInsertWithSequence())
+      .setFactory(sqlQueryFactory())
+      .setVariables(new HashMap<>())
+      .setParameters(parameters)
+      .setVariableIndex(0)
+      .setOperation(MaintainBuildOperation.NO_BATCH)
+      .build();
+
+    assertEquals("[\"14\",7]", parameters.get("IdeAweScrCnf").toString());
+  }
 
   @Test
   void buildAuditedInsertQueryUsesProvidedMaterializedRowsForBaseAndAuditSingleRow() throws Exception {
@@ -258,6 +284,16 @@ class SQLMaintainBuilderTest {
     properties.setAuditDate("HISdat");
     properties.setAuditAction("HISact");
     return properties;
+  }
+
+  private Insert gridRowInsertWithSequence() {
+    Insert insert = new Insert();
+    insert.setId("GridRowInsertWithSequence");
+    insert.setTableList(List.of(Table.builder().id("AweScrCnf").build()));
+    insert.setSqlFieldList(List.of(Field.builder().id("IdeAweScrCnf").variable("IdeAweScrCnf").sequence("ScrCnfKey").key(true).build()));
+    insert.setVariableDefinitionList(new ArrayList<>(List.of(Variable.builder().id("IdeAweScrCnf").type("INTEGER").name("IdeAweScrCnf").build())));
+    insert.setVariableIndex(0);
+    return insert;
   }
 
   private Insert insertQueryMaintain() {

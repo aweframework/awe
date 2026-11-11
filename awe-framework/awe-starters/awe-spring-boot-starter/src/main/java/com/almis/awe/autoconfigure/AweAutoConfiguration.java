@@ -50,6 +50,7 @@ import com.almis.awe.service.report.ReportDesigner;
 import com.almis.awe.service.report.ReportGenerator;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenConfigurationGenerator;
+import com.almis.awe.service.screen.ScreenConfigurationService;
 import com.almis.awe.service.screen.ScreenModelGenerator;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.service.user.PredefinedProfileSeed;
@@ -986,6 +987,18 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public ScreenModelGenerator screenModelGenerator(InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties) {
     return new ScreenModelGenerator(initialLoadDao, baseConfigProperties);
+  }
+
+  /**
+   * Screen configuration service
+   *
+   * @param menuService Menu service
+   * @return Screen configuration service
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ScreenConfigurationService screenConfigurationService(MenuService menuService) {
+    return new ScreenConfigurationService(menuService);
   }
 
   /**

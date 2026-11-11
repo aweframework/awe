@@ -773,11 +773,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
     if (parameterType == MULTIPLE_SEQUENCE) {
       String value = getSequence(field.getSequence());
       fieldValue = getVariableAsExpression(value, ParameterType.LONG);
-
-      // Define variable if not defined
-      if (field.getVariable() == null) {
-        field.setVariable(sequenceIdentifier);
-      }
+      defineFieldVariable(field, sequenceIdentifier);
 
       // We add the value to the map of parsed variables if needed
       if (variables.get(sequenceIdentifier).getValue().size() == index) {
@@ -792,22 +788,36 @@ public class SQLMaintainBuilder extends SQLBuilder {
     } else if (queryUtil.isEmptyString(sequenceVariableValue)) {
       String value = getSequence(field.getSequence());
       fieldValue = getVariableAsExpression(value, ParameterType.LONG);
-
-      // Define variable if not defined
-      if (field.getVariable() == null) {
-        field.setVariable(sequenceIdentifier);
-      }
+      defineFieldVariable(field, sequenceIdentifier);
 
       // We add the value to the map of parsed variables if needed
       variables.put(sequenceIdentifier, new QueryParameter(JsonNodeFactory.instance.textNode(value), false, parameterType));
 
-      // Add the value to request parameters
-      getParameters().put(Optional.ofNullable(seqVariable.getName()).orElse(seqVariable.getId()), value);
+      setSequenceParameter(seqVariable, index, value);
     } else {
       fieldValue = getStringExpression(sequenceVariableValue);
     }
 
     return fieldValue;
+  }
+
+  /**
+   * Add the value to request parameters: a grid row (one query per row) only sets its own index, so the keys of
+   * the other rows survive for their own queries
+   */
+  private void setSequenceParameter(Variable seqVariable, Integer index, String value) {
+    String parameterName = Optional.ofNullable(seqVariable.getName()).orElse(seqVariable.getId());
+    if (index != null && getParameters().get(parameterName) instanceof ArrayNode rowValues && index < rowValues.size()) {
+      rowValues.set(index, value);
+    } else {
+      getParameters().put(parameterName, value);
+    }
+  }
+
+  private void defineFieldVariable(Field field, String variableIdentifier) {
+    if (field.getVariable() == null) {
+      field.setVariable(variableIdentifier);
+    }
   }
 
   /**

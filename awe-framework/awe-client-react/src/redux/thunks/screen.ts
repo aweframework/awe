@@ -134,8 +134,8 @@ export function buildComponent(
 }
 
 // A fresh screen (opened from a menu option) is flagged so the server keeps the criteria of the screen it leaves but
-// does not give its values to the new screen
-export const loadScreen = (view: string, option: string, t: Translate, fresh = false): AppThunk<Promise<void>> => async (dispatch, getState) => {
+// does not give its values to the new screen; extra parameters go with the request (the personalizer "view as")
+export const loadScreen = (view: string, option: string, t: Translate, fresh = false, parameters: Record<string, unknown> = {}): AppThunk<Promise<void>> => async (dispatch, getState) => {
   try {
     const state = getState();
     const { settings } = state;
@@ -158,7 +158,7 @@ export const loadScreen = (view: string, option: string, t: Translate, fresh = f
     // An error answer has no structure, but the message and the status of the error. The request has always sent an
     // empty object where the view goes
     const response = await fetchScreen<ScreenResponse>(
-      option, {} as unknown as string, token, { ...getFormValues(state), ...(fresh ? { freshScreen: true } : {}) }
+      option, {} as unknown as string, token, { ...getFormValues(state), ...(fresh ? { freshScreen: true } : {}), ...parameters }
     ) as ScreenResponse & Partial<FetchError>;
     if (!response.structure) {
       manageScreenError(option, response);

@@ -35,6 +35,7 @@
       </option>
     </option>
     <option name="screen-configuration" label="MENU_TOOLS_SCR_CNF" screen="ScrCnf" icon="laptop"/>
+    <option name="screen-personalization" label="MENU_TOOLS_SCR_PER" screen="ScrPer" icon="pencil"/>
   </option>
   <option name="scheduler-separator" separator="true"/>
   <option name="scheduler" label="MENU_SCHEDULER" icon="clock-o">

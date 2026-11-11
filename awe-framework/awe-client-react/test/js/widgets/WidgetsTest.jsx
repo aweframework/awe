@@ -35,7 +35,7 @@ describe('awe-react-client/test/js/widgets/WidgetsTest.js', () => {
   });
 
   it('registers built-in widgets through the registry', () => {
-    ["file-manager", "log-viewer", "help-viewer", "pdf-viewer", "carousel"]
+    ["file-manager", "log-viewer", "help-viewer", "pdf-viewer", "carousel", "screen-personalizer"]
       .forEach((type) => expect(getWidget(type)).toBeDefined());
   });
 });

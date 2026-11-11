@@ -27,6 +27,7 @@ const browserGlobals = {
   Event: 'readonly',
   CustomEvent: 'readonly',
   MouseEvent: 'readonly',
+  KeyboardEvent: 'readonly',
   self: 'readonly',
   structuredClone: 'readonly',
   MutationObserver: 'readonly',

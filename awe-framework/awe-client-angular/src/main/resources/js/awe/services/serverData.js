@@ -23,12 +23,14 @@ aweApplication.factory('ServerData',
          * @param {String} screen Screen name
          * @param {String} view Screen view
          * @param {Boolean} fresh Opened from the menu: the server does not give the values sent to the new screen
+         * @param {Object} [extra] Extra request parameters
          * @returns {String} Screen template
          */
-        getScreenData: function (screen, view, fresh = false) {
+        getScreenData: function (screen, view, fresh = false, extra = {}) {
           let parameters = {
             ...ServerData.getFormValues(),
             ...(fresh ? {freshScreen: true} : {}),
+            ...extra,
             view
           };
           let screenToRetrieve = "initial screen";

@@ -197,7 +197,6 @@
     <option label="ENUM_SCR_ATR_VARIABLE" value="variable" />
     <option label="ENUM_SCR_ATR_COMPONENT" value="componentType" />
     <option label="ENUM_SCR_ATR_INITLOAD" value="initialLoad" />
-    <option label="ENUM_SCR_ATR_FORMAT" value="format" />
     <option label="ENUM_SCR_ATR_NUMFORMAT" value="numberFormat" />
     <option label="ENUM_SCR_ATR_CAPITALIZE" value="capitalize" />
     <option label="ENUM_SCR_ATR_VISIBLE" value="visible" />
@@ -222,7 +221,6 @@
     <option label="ENUM_SCR_ATR_WIDTH" value="width" />
     <option label="ENUM_SCR_ATR_CHARLENGTH" value="charLength" />
     <option label="ENUM_SCR_ATR_ALIGN" value="align" />
-    <option label="ENUM_SCR_ATR_INPUTTYPE" value="inputType" />
     <option label="ENUM_SCR_ATR_SORTABLE" value="sortable" />
     <option label="ENUM_SCR_ATR_HIDDEN" value="hidden" />
     <option label="ENUM_SCR_ATR_SENDABLE" value="sendable" />
@@ -236,16 +234,48 @@
     <option label="ENUM_SCR_ATR_SHOWTOTALS" value="showTotals" />
     <option label="ENUM_SCR_ATR_AUTOREFRESH" value="autorefresh" />
     <option label="ENUM_SCR_ATR_RESTRICTED_VALUE" value="restrictedValueList" />
-    <option label="ENUM_SCR_ATR_SENDOPERATIONS" value="sendOperations" />
     <option label="ENUM_SCR_ATR_TREEGRID" value="treegrid" />
     <option label="ENUM_SCR_ATR_EDITABLE" value="editable" />
     <option label="ENUM_SCR_ATR_MULTISELECT" value="multiselect" />
-    <option label="ENUM_SCR_ATR_EXPANDCOLUMN" value="expandcolumn" />
+    <option label="ENUM_SCR_ATR_EXPANDCOLUMN" value="expandColumn" />
     <option label="ENUM_SCR_ATR_DISABLE_PAGINATION" value="disablePagination" />
     <option label="ENUM_SCR_ATR_PAGER_VALUES" value="pagerValues" />    
     <option label="ENUM_SCR_ATR_DECIMAL_NUMBERS" value="decimalNumbers" />
     <option label="ENUM_SCR_ATR_THOUSAND_SEPARATOR" value="thousandSeparator" />
     <option label="ENUM_SCR_ATR_DECIMAL_SEPARATOR" value="decimalSeparator" />     
+    <option label="ENUM_SCR_ATR_AGGREGATION_FIELD" value="aggregationField" />
+    <option label="ENUM_SCR_ATR_AGGREGATOR" value="aggregator" />
+    <option label="ENUM_SCR_ATR_AREA_ROWS" value="areaRows" />
+    <option label="ENUM_SCR_ATR_BROWSER_ACTION" value="browserAction" />
+    <option label="ENUM_SCR_ATR_BUTTON_TYPE" value="buttonType" />
+    <option label="ENUM_SCR_ATR_CANCEL" value="cancel" />
+    <option label="ENUM_SCR_ATR_COLS" value="cols" />
+    <option label="ENUM_SCR_ATR_DATE_FORMAT" value="dateFormat" />
+    <option label="ENUM_SCR_ATR_DATE_VIEW_MODE" value="dateViewMode" />
+    <option label="ENUM_SCR_ATR_DEFAULT_VALUE" value="defaultValue" />
+    <option label="ENUM_SCR_ATR_DESTINATION" value="destination" />
+    <option label="ENUM_SCR_ATR_EXPAND" value="expand" />
+    <option label="ENUM_SCR_ATR_GROUP" value="group" />
+    <option label="ENUM_SCR_ATR_HELP" value="help" />
+    <option label="ENUM_SCR_ATR_HELP_IMAGE" value="helpImage" />
+    <option label="ENUM_SCR_ATR_LOAD_ALL" value="loadAll" />
+    <option label="ENUM_SCR_ATR_PLACEHOLDER" value="placeholder" />
+    <option label="ENUM_SCR_ATR_PROPERTY" value="property" />
+    <option label="ENUM_SCR_ATR_RENDERER" value="renderer" />
+    <option label="ENUM_SCR_ATR_ROWS" value="rows" />
+    <option label="ENUM_SCR_ATR_SEND_ALL" value="sendAll" />
+    <option label="ENUM_SCR_ATR_SHOW_FUTURE_DATES" value="showFutureDates" />
+    <option label="ENUM_SCR_ATR_SHOW_SLIDER" value="showSlider" />
+    <option label="ENUM_SCR_ATR_SHOW_TODAY_BUTTON" value="showTodayButton" />
+    <option label="ENUM_SCR_ATR_SHOW_WEEKENDS" value="showWeekends" />
+    <option label="ENUM_SCR_ATR_SORT_METHOD" value="sortMethod" />
+    <option label="ENUM_SCR_ATR_TITLE" value="title" />
+    <option label="ENUM_SCR_ATR_TOTAL_COLUMN_PLACEMENT" value="totalColumnPlacement" />
+    <option label="ENUM_SCR_ATR_TOTAL_ROW_PLACEMENT" value="totalRowPlacement" />
+    <option label="ENUM_SCR_ATR_TREE_ID" value="treeId" />
+    <option label="ENUM_SCR_ATR_TREE_LEAF" value="treeLeaf" />
+    <option label="ENUM_SCR_ATR_TREE_PARENT" value="treeParent" />
+    <option label="ENUM_SCR_ATR_TYPE" value="type" />
   </group>
   <group id="StlTyp">
     <option value="TitStl" label="ENUM_TIT_STL" />

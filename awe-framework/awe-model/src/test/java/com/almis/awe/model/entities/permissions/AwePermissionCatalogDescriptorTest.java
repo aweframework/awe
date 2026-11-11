@@ -133,6 +133,11 @@ class AwePermissionCatalogDescriptorTest {
       .containsEntry("ThmLst", "themes.read").containsEntry("connectedUser", "self.read")
       // The helper sources of the audit charts and of the quick filter counts are only read by AWE targets
       .doesNotContainKeys("SecAudActSrc", "SecAudUsrSrc");
+    // The screen personalization editor (#792) is for who can read the access: the runtime query stays public
+    assertThat(List.of("getScreenStructure", "getScreenElementAttributes", "getScreenOption", "getScreenImportUsers",
+      "getScreenConfigurationOverview", "getScreenConfigurationHistory", "getScreenConfigurationHistoryRows",
+      "getScreenConfigurationExport")).allSatisfy(id -> assertThat(queries).containsEntry(id, "access.read"));
+    assertThat(queries).doesNotContainKey("getScreenConfiguration");
     assertThat(targets).containsAllEntriesOf(Map.of(
       "UsrNew", "users.create", "UsrUpd", "users.update", "UsrDel", "users.delete", "UsrUnl", "users.unlock",
       "reset2fa", "users.reset-2fa", "ProNew", "profiles.create", "ProUpd", "profiles.update",

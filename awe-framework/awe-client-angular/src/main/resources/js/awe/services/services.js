@@ -26,3 +26,4 @@ import "./testIds";
 import "./breadcrumb";
 import "./modal";
 import "./dropdown";
+import "./screenPersonalizer";

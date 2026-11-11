@@ -1285,7 +1285,7 @@ Selenium · AngularJS · Chrome · Scheduler:
 # that are not migrated yet. Add a class to the TEST_CLASSES of its group (in the four React jobs of the suite) when it is migrated, or add a job
 # (with its own port and name) when the group has none yet; the groups are:
 #   ApplicationIntegrationIT: ApplicationSettingsTestsIT, ApplicationSecurityTestsIT, ApplicationEmailTestsIT,
-#                             IntegrationTestsIT                                (port 6309 / 6313)
+#                             IntegrationTestsIT, ScreenPersonalizationTestsIT  (port 6309 / 6313)
 #   CRUDCriteriaMatrixIT: CRUDModuleTestsIT (the smoke flow of the tabs with nested grids of module-admin, React only),
 #                         UserAdminTestsIT (the reference flow of the side-panel admin pattern: the other admin
 #                         windows are proven by descriptor and Spring tests), CriteriaTestsIT, ButtonTestsIT, DependencyTestsIT, MapTestsIT, MatrixTestsIT,
@@ -1311,7 +1311,7 @@ Selenium · AngularJS · Chrome · Scheduler:
 Selenium · React · Firefox · Application:
   extends: .selenium-react-firefox
   variables:
-    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT,ScreenPersonalizationTestsIT
     TEST_PORT: "6309"
     TEST_NAME: react-firefox-application-integration
 
@@ -1346,7 +1346,7 @@ Selenium · React · Firefox · Scheduler:
 Selenium · React · Chrome · Application:
   extends: .selenium-react-chrome
   variables:
-    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT,ScreenPersonalizationTestsIT
     TEST_PORT: "6313"
     TEST_NAME: react-chrome-application-integration
 
@@ -1495,7 +1495,7 @@ E2E · AngularJS · Firefox · Scheduler:
 E2E · React · Chromium · Application:
   extends: .playwright-react-chromium
   variables:
-    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT,ScreenPersonalizationTestsIT
     TEST_PORT: "6325"
     TEST_NAME: playwright-react-chromium-application-integration
 
@@ -1531,7 +1531,7 @@ E2E · React · Chromium · Scheduler:
 E2E · React · Firefox · Application:
   extends: .playwright-react-firefox
   variables:
-    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT
+    TEST_CLASSES: ApplicationSettingsTestsIT,ApplicationSecurityTestsIT,ApplicationEmailTestsIT,IntegrationTestsIT,ScreenPersonalizationTestsIT
     TEST_PORT: "6329"
     TEST_NAME: playwright-react-firefox-application-integration
 

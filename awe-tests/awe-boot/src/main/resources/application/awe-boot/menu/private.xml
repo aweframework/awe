@@ -37,6 +37,7 @@
     </option>
     <option name="encrypt-tools" label="MENU_TOOLS_SCREEN_ENCRYPT" screen="ScrEncTxt" icon="lock"/>
     <option name="screen-configuration" label="MENU_TOOLS_SCR_CNF" screen="ScrCnf" icon="laptop"/>
+    <option name="screen-personalization" label="MENU_TOOLS_SCR_PER" screen="ScrPer" icon="pencil"/>
   </option>
   <option module="Test" name="test" label="MENU_TEST" icon="flask">
     <option name="criteria" label="MENU_TEST_CRITERIA" icon="object-group">
