@@ -67,6 +67,8 @@ const modals = {
     {names: ["panel-identity", "panel-identity-avatar", "panel-identity-text", "panel-identity-title", "panel-identity-subtitle", "panel-identity-tags"],
       examples: [".modal.side-panel .panel-identity", ".modal.side-panel .panel-identity-avatar", ".modal.side-panel .panel-identity-tags"],
       reason: "the identity header of the AWE side panel (avatar, title, subtitle and tags): component rules that restyle the modal"},
+    {names: ["window-saved-search-save-dialog"], examples: [".modal-dialog.window-saved-search-save-dialog"],
+      reason: "the Save search dialog of the saved searches of a window (#915): a component rule of the AWE LESS (window-saved-searches.less) that gives its modal dialog the width of the React engine"},
     {names: ["pagination", "dp-off", "dp-item", "dp-nav", "dp-today", "dp-selected", "datepicker-dropdown", "bootstrap-timepicker-widget", "dropdown-menu", "minicolors-panel"],
       examples: [".modal .pagination a.dp-item:hover", ".modal .datepicker-dropdown", ".bootstrap-timepicker-widget .modal-footer", ".modal .minicolors-panel"],
       reason: "the date, time and color pickers of the plugins that are shown inside a modal: they stay with the plugin styles"},

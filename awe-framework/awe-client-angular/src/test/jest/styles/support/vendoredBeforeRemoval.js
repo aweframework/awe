@@ -143,4 +143,45 @@ const overriddenSelectors = current => {
  */
 const digestOf = rules => require("crypto").createHash("sha1").update(rules.map(hashOf).join(",")).digest("hex");
 
-module.exports = {overriddenSelectors, BASELINE, diffRemoved, restoreRemoved, readBaseline, vendoredBeforeRemoval, hashOf, digestOf};
+// The import of the vendored LESS in awe.less: imported as a reference, its rule sets are not written (its variables and mixins still are usable)
+const VENDORED_IMPORT = '@import "./legacy/legacy.less";';
+
+/**
+ * Compile the awe.less of a LESS folder without the vendored rules: legacy.less imported as a reference. What it lacks against the
+ * whole build is the vendored part (the leftovers and what is not removed yet), whatever the AWE LESS adds or changes
+ * @param {string} [lessDir] The `less` folder (src/main/resources/less of this tree by default)
+ * @return {Promise<string>} Compiled CSS of the build without the vendored rules
+ */
+const compileWithoutVendored = (lessDir = LESS_DIR) => {
+  const entry = path.join(lessDir, "awe.less");
+  const source = fs.readFileSync(entry, "utf8");
+  if (!source.includes(VENDORED_IMPORT)) {
+    throw new Error(`${entry} does not import the vendored LESS with ${VENDORED_IMPORT}`);
+  }
+  return compileStyles(source.replace(VENDORED_IMPORT, `@import (reference) "./legacy/legacy.less";`), {filename: entry});
+};
+
+/**
+ * The vendored rules of a build: the rules that the build without the vendored rules lacks, in order. That build is the whole one minus the
+ * vendored rules (an ordered subsequence of it), so each of its rules is matched in turn and what is left over is vendored
+ * @param {Array} rules Flattened rules of a build (the current one, or the current one with frozen rules put back)
+ * @param {Array} withoutVendored Flattened rules of the same tree compiled by compileWithoutVendored
+ * @return {Array} The vendored rules, in source order
+ */
+const vendoredRules = (rules, withoutVendored) => {
+  const own = withoutVendored.map(hashOf);
+  let next = 0;
+  const vendored = rules.filter(rule => {
+    if (next < own.length && own[next] === hashOf(rule)) {
+      next++;
+      return false;
+    }
+    return true;
+  });
+  if (next < own.length) {
+    throw new Error(`The build without the vendored rules is not a part of the build: ${own.length - next} of its rules were not matched in order`);
+  }
+  return vendored;
+};
+
+module.exports = {overriddenSelectors, BASELINE, diffRemoved, restoreRemoved, readBaseline, vendoredBeforeRemoval, hashOf, digestOf, compileWithoutVendored, vendoredRules};

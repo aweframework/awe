@@ -36,8 +36,13 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/aweIcon", () => 
     expect(declarationsOf(css, ".awe-icon-lg")).toEqual({"width": "var(--awe-size-icon-lg)", "height": "var(--awe-size-icon-lg)"});
   });
 
-  it("spins like the Font Awesome icons, except when the user prefers reduced motion", () => {
-    expect(declarationsOf(css, ".awe-icon-spin")).toEqual(declarationsOf(css, ".fa-spin"));
+  // The speed is the one of the AWE 5 busy spinner (one turn every 0.8 s, awe-design-tokens/icons/awe-icon.css), faster than the
+  // Font Awesome one: what has to hold is that it turns with the fa-spin keyframes that the build loads, endlessly and evenly
+  it("spins with the Font Awesome keyframes, except when the user prefers reduced motion", () => {
+    const spin = declarationsOf(css, ".awe-icon-spin");
+    expect(spin.animation).toMatch(/^fa-spin \S+ infinite linear$/);
+    expect(spin["-webkit-animation"]).toBe(spin.animation);
+    expect(css).toMatch(/@keyframes fa-spin\s*\{/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.awe-icon-spin\s*\{\s*animation:\s*none;?\s*\}/);
   });
 

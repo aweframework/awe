@@ -20,8 +20,12 @@ const REVIEWED = [
     reason: "the radios of the quick filters and of the sign-in theme switch are invisible overlays with a pointer cursor: the quick filters set the default cursor on a disabled one in LESS (as the base styles did), and the theme switch radios are never disabled"},
   {removed: /^a\.label:(hover|focus)$/, kept: /^\.signin-language-list > \[(role="option"|aria-selected="true")]$/,
     reason: "the options of the sign-in language list are li elements (signin.js), never an a.label link, so the label hover and focus color never meets their option color"},
-  {removed: /^\.has-(success|warning|error) \.(control-label|radio|checkbox)$/, kept: /^\.window-saved-search-field label$/,
-    reason: "the fields of the save dialog of the saved searches (savedSearches.js) never sit in a .has-success, .has-warning or .has-error group: the name field shows its error with aria-invalid and its own message"}
+  {removed: /^\.has-(success|warning|error) \.(control-label|radio|checkbox)$/, kept: /^\.window-saved-search-(field|check) label$/,
+    reason: "the fields and the option checks of the save dialog of the saved searches (savedSearches.js) never sit in a .has-success, .has-warning or .has-error group: the name field shows its error with aria-invalid and its own message"},
+  {removed: /^\.has-(success|warning|error) \.(control-label|radio|checkbox)$/, kept: /^\.awe-readout (> )?label$/,
+    reason: "the only one of these groups that the client writes around the label of a criterion is .has-error on the criterion itself (criterion.js), and form.less colors its label, checkboxes and radios with .criterion.has-error rules that stay unlayered and are more specific than both, so a read-only value (awe-readout) renders the same; .has-warning only wraps the password input (text.js), never a label, and .has-success is never written"},
+  {removed: /^(a\.label:(hover|focus)|\.thumbnail \.caption|\.list-group-item:first-child|\.popover > \.arrow)$/, kept: /^\.awe-readout(-block)? label \+ \*$/,
+    reason: "the element after the label of a read-only value (awe-readout) is the .input box of its criterion (text.js and the other criterion templates), never a link label, a thumbnail caption, a list group item or a popover arrow (the first child of its popover, with no label before it)"}
 ];
 
 describe("awe-framework/awe-client-angular/src/test/jest/styles/cascadeGuard", () => {
