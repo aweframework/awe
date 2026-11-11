@@ -4,7 +4,7 @@ import path from "path";
 import {compileStyles, LESS_DIR} from "./support/compileStyles";
 import {compileTailwind, getRules} from "./support/compileTailwind";
 import {callsOf, extendsOf, ruleSetsOf, unkeptExtends} from "./support/lessCalls";
-import {digestOf, hashOf, readBaseline, restoreRemoved} from "./support/vendoredBeforeRemoval";
+import {compileWithoutVendored, digestOf, hashOf, readBaseline, restoreRemoved, vendoredRules} from "./support/vendoredBeforeRemoval";
 import {sourceFiles, usedXmlClasses, walk} from "./support/xmlScreens";
 
 // Compiling the LESS build and Tailwind takes several seconds on a loaded CI runner, over the 5 s default
@@ -42,25 +42,6 @@ const STEP7_FILES = ["normalize.less", "print.less", "scaffolding.less", "type.l
 // The byte counts of the baseline are the LF ones, as the CI builds them: a Windows checkout (core.autocrlf) has CRLF sources and the preserved comments carry them into the CSS
 const lfBytes = text => Buffer.byteLength(text.replace(/\r\n/g, "\n"));
 
-// The LESS that the merge of develop into the final #755 branch brought in (card, grid groups, quick filters, selection bar,
-// sign in, busy buttons...): compiled size of the awe.less build at the merge minus the one of the branch before it. The
-// baseline sizes are from before it, so the "smaller than before the removal" checks measure the build without that growth.
-// The sync of the map component (#882: leaflet.css and less/awe/directives/map.less) added 15365 bytes more (compiled awe.less on LF: 892109 before the sync, 907474 after), 83225 + 15365
-// The advanced search of windows (#790: less/awe/directives/window-advanced.less) added 5762 bytes more (907474 before, 913236 after), 98590 + 5762
-// The saved searches of windows (#790: less/awe/directives/window-saved-searches.less) added 7319 bytes more (913236 before, 920555 after), 104352 + 7319
-// The column autofilter of grids (#912: less/awe/directives/grid-column-filter.less) added 11865 bytes more (925474 before, 937339 after), 111671 + 11865
-// The access administration (#791: the tonal button and the criterion radio group in less/awe/directives/button.less, card.less, criterion.less and grid.less)
-// added 4313 bytes more (937339 before, 941652 after), 123536 + 4313
-// The one-line summary of the select-multiple (#922: less/awe/directives/criterion.less) added 4052 bytes more, 127849 + 4052
-// The label and grid header tokens (#926: criterion.less, grid.less), the default button tokens (#927: button.less) and the menu option
-// description (#924: menu.less) added 3974 bytes more (945940 before, 949914 after), 131901 + 3974
-// The none mode of the window header (#925: less/awe/window-header.less) added 273 bytes more
-// (952303 before, 952576 after), 135875 + 273
-// The levels and the ellipsis of the window breadcrumb (#938: less/awe/breadcrumbs.less) added 553 bytes more
-// (952576 before, 953129 after), 136148 + 553
-const DEVELOP_LESS_BYTES = 136701;
-const ownBytes = text => lfBytes(text) - DEVELOP_LESS_BYTES;
-
 const normalizeSelector = selector => selector.replace(/::(before|after)$/, ":$1");
 const classesOf = css => new Set([...css.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/\.(-?[_a-zA-Z][\w-]*)/g)].map(match => match[1]));
 
@@ -69,10 +50,15 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
   let current;
   let compat;
   let baseline;
+  // The build without the vendored rules (legacy.less imported as a reference): what the whole build has besides it is the vendored part
+  let withoutVendoredCss;
+  let withoutVendored;
 
   beforeAll(async () => {
     css = await compileStyles();
     current = getRules(css);
+    withoutVendoredCss = await compileWithoutVendored();
+    withoutVendored = getRules(withoutVendoredCss);
     compat = getRules(await compileTailwind());
     baseline = readBaseline();
   });
@@ -80,6 +66,8 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
   // The same rule as vendoredBeforeRemoval: a removal is applied to the LESS sources when every vendored file of its header is gone
   const appliedAfter = first => baseline.steps.filter(entry => entry.step > first && entry.files.every(file => !fs.existsSync(path.join(BOOTSTRAP, file)))).map(entry => entry.step);
   const frozenOf = steps => baseline.removed.filter(rule => steps.includes(rule.step));
+  // The digest of the vendored rules of a build, in order: the AWE LESS (rules added, changed or moved) does not change it, a vendored rule does
+  const vendoredDigestOf = rules => digestOf(vendoredRules(rules, withoutVendored));
 
   describe("the vendored Bootstrap grid, panels, utilities and responsive utilities", () => {
     it("are not in the LESS sources any more, nor imported by legacy.less", () => {
@@ -95,12 +83,6 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
       const first = baseline.removed.filter(rule => rule.step === 1);
       expect(first.length).toBeGreaterThan(300);
       expect(first.filter(rule => present.has(hashOf(rule))).map(rule => rule.selector)).toEqual([]);
-    });
-
-    it("compile to a smaller LESS build than before the removal", () => {
-      const bytes = ownBytes(css);
-      expect(bytes).toBeLessThan(baseline.lessBytesBefore);
-      expect(baseline.lessBytesBefore - bytes).toBeGreaterThan(10000);
     });
   });
 
@@ -161,13 +143,6 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
         fs.rmSync(copy, {recursive: true, force: true});
       }
     });
-
-    it("compile to a smaller LESS build than before the removal", () => {
-      const bytes = ownBytes(css);
-      const step = baseline.steps.find(entry => entry.step === 2);
-      expect(bytes).toBeLessThan(step.lessBytesBefore);
-      expect(step.lessBytesBefore - bytes).toBeGreaterThan(5000);
-    });
   });
 
   describe("the vendored Bootstrap component animations, dropdowns, navs, navbar, close button, modals, tooltip and popovers (step 3)", () => {
@@ -218,12 +193,6 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
       } finally {
         fs.rmSync(copy, {recursive: true, force: true});
       }
-    });
-
-    it("compile to a smaller LESS build than before the removal", () => {
-      const bytes = ownBytes(css);
-      expect(bytes).toBeLessThan(header().lessBytesBefore);
-      expect(header().lessBytesBefore - bytes).toBeGreaterThan(3000);
     });
   });
 
@@ -277,12 +246,6 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
       }
     });
 
-    it("compile to a smaller LESS build than before the removal", () => {
-      const bytes = ownBytes(css);
-      expect(bytes).toBeLessThan(header().lessBytesBefore);
-      expect(header().lessBytesBefore - bytes).toBeGreaterThan(3000);
-    });
-
     it("keeps the rule that pixel-admin repeats (.list-group-item > .badge + .badge) in the leftovers, so the build is the vendored one minus the frozen rules", () => {
       expect(fs.readFileSync(path.join(BOOTSTRAP, "badges-leftovers.less"), "utf8")).toContain(".list-group-item > .badge + .badge {");
       expect(current.filter(rule => rule.selector === ".list-group-item > .badge + .badge")).toHaveLength(2);
@@ -290,8 +253,6 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
   });
 
   describe("the vendored Bootstrap pager, media, jumbotron, carousel, glyphicons and code helpers, dropped with no compat CSS (step 5)", () => {
-    const header = () => baseline.steps.find(entry => entry.step === 5);
-
     it("are not in the LESS sources any more, nor imported by legacy.less", () => {
       const entry = fs.readFileSync(path.join(BOOTSTRAP, "legacy.less"), "utf8");
       STEP5_FILES.forEach(file => {
@@ -317,19 +278,6 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
       expect(fifth.filter(rule => present.has(hashOf(rule))).map(rule => rule.selector)).toEqual([]);
       ["pre"].forEach(selector => expect({selector, kept: current.some(rule => rule.selector === selector)}).toEqual({selector, kept: true}));
       expect(current.some(rule => rule.selector === ".pre-scrollable")).toBe(false);
-    });
-
-    it("compile to a smaller LESS build than before the removal", () => {
-      // The build before this removal is the one of the base styles removal too, when it is applied: its size is the one frozen for the last removal that is applied
-      const later = appliedAfter(5);
-      if (later.length === 0) {
-        const bytes = ownBytes(css);
-        expect(bytes).toBeLessThan(header().lessBytesBefore);
-        expect(header().lessBytesBefore - bytes).toBeGreaterThan(8000);
-      } else {
-        expect(header().lessBytesAfter).toBeLessThan(header().lessBytesBefore);
-        expect(header().lessBytesBefore - header().lessBytesAfter).toBeGreaterThan(8000);
-      }
     });
   });
 
@@ -378,17 +326,6 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
         expect(header().kept.filter(hash => without.has(hash))).toEqual([]);
       } finally {
         fs.rmSync(copy, {recursive: true, force: true});
-      }
-    });
-
-    it("compile to a smaller LESS build than before the removal", () => {
-      const later = appliedAfter(6);
-      if (later.length === 0) {
-        const bytes = ownBytes(css);
-        expect(bytes).toBeLessThan(header().lessBytesBefore);
-        expect(header().lessBytesBefore - bytes).toBeGreaterThan(100);
-      } else {
-        expect(header().lessBytesAfter).toBeLessThan(header().lessBytesBefore);
       }
     });
 
@@ -447,12 +384,6 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
       }
     });
 
-    it("compile to a smaller LESS build than before the removal", () => {
-      const bytes = ownBytes(css);
-      expect(bytes).toBeLessThan(header().lessBytesBefore);
-      expect(header().lessBytesBefore - bytes).toBeGreaterThan(5000);
-    });
-
     it("keeps the rule sets that the AWE icon styles call (.text-success, .text-info, .text-warning, .text-danger) and the one that the thumbnails extend (.img-responsive)", () => {
       const icons = fs.readFileSync(path.join(LESS_DIR, "awe", "icon.less"), "utf8");
       ["text-success", "text-info", "text-warning", "text-danger"].forEach(name => {
@@ -466,6 +397,15 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
   });
 
   describe("the remaining LESS", () => {
+    // The vendored part only (the build minus the one with legacy.less imported as a reference), so the styles that AWE adds do not count:
+    // the removals left it at the size frozen with the last one, and the vendored LESS must not grow back
+    it("keeps the vendored part of the build no bigger than the last removal left it", () => {
+      const vendoredBytes = lfBytes(css) - lfBytes(withoutVendoredCss);
+      expect(baseline.vendoredLessBytes).toBeGreaterThan(0);
+      expect(vendoredBytes).toBeGreaterThan(0);
+      expect(vendoredBytes).toBeLessThanOrEqual(baseline.vendoredLessBytes);
+    });
+
     // Found by the pixel diff: an empty column (a spacer) lost its 1px height to `body * { min-height: 0 }`, because an unlayered
     // rule beats a layered compat rule whatever its specificity, and the controls beside it moved
     it("keeps the base rule of the grid columns, which has to win over `body * { min-height: 0 }`", () => {
@@ -597,11 +537,11 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
       const later = frozenOf(appliedAfter(2));
       const restored = restoreRemoved(lacking, [...second(), ...later], [2, ...appliedAfter(2)]);
       expect(restored).toHaveLength(lacking.length + second().length + later.length);
-      // The header holds the digest of the ordered rules of the vendored build before the removal
-      // The digests of steps 2 to 6 were refrozen after the develop sync of 2026-10-30: develop's AWE tokens and rules change the whole-build hash, no vendored rule changed; refrozen once more when pixel-admin moved to less/legacy: the unused `.ie-background-none` mixin prints its image path, 4 lines of the build; refrozen after the #882 sync (2026-10-30): the whole-build hash now includes leaflet.css and the map LESS, no vendored rule changed; refrozen after the #790 merge (2026-10-31): the whole-build hash now includes the window advanced search LESS, and once more for its saved searches LESS, no vendored rule changed; refrozen with the #793 screens (2026-10-31): the whole-build hash now includes the grid cell swatch, no vendored rule changed; refrozen for the #912 column autofilter LESS (its list height), no vendored rule changed; refrozen for the #791 access administration LESS (the tonal button, the criterion radio group, the card and criterion rules), no vendored rule changed; refrozen for the #922 select-multiple summary LESS, no vendored rule changed; refrozen once more when #922 and the #928 button tokens met on develop (each MR had refrozen alone), no vendored rule changed; refrozen for the #938 window breadcrumb level and ellipsis buttons (less/awe/breadcrumbs.less), no vendored rule changed
+      // The header holds the digest of the ordered vendored rules of the build before the removal (the rules of legacy.less, see vendoredRules).
+      // Until #955 it was the digest of the whole build, so every change of the AWE LESS refroze it with no vendored rule changed
       const {digest} = baseline.steps.find(entry => entry.step === 2);
       expect(digest).toMatch(/^[0-9a-f]{40}$/);
-      expect(digestOf(restored)).toBe(digest);
+      expect(vendoredDigestOf(restored)).toBe(digest);
     });
 
     it("keeps in the build every rule that the baseline says the cascade guard kept (the leftovers)", () => {
@@ -646,12 +586,12 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
         .forEach(selector => expect({selector, frozen: selectors.has(selector)}).toEqual({selector, frozen: true}));
     });
 
-    it("is the vendored build before the removal: the digest of its ordered rules is the one frozen with the rules", () => {
+    it("is the vendored build before the removal: the digest of its ordered vendored rules is the one frozen with the rules", () => {
       // The build before this removal still had the rules that the fourth removal took out, when it is applied: they go back first
       const later = appliedAfter(3);
       const before = removed() ? restoreRemoved(current, [...third(), ...frozenOf(later)], [3, ...later]) : current;
       expect(header().digest).toMatch(/^[0-9a-f]{40}$/);
-      expect(digestOf(before)).toBe(header().digest);
+      expect(vendoredDigestOf(before)).toBe(header().digest);
       // The size of the LESS build is the one frozen for the last removal that is applied, and the fourth removal starts where this one ends
       expect(header().lessBytesAfter).toBe(baseline.steps.find(entry => entry.step === 4).lessBytesBefore);
       if (later.length === 0) {
@@ -689,12 +629,12 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
       expect(fourth().some(rule => rule.selector === ".table-responsive" && rule.media === "screen and (max-width: 767px)")).toBe(true);
     });
 
-    it("is the vendored build before the removal: the digest of its ordered rules is the one frozen with the rules", () => {
+    it("is the vendored build before the removal: the digest of its ordered vendored rules is the one frozen with the rules", () => {
       // The build before this removal still had the rules that the fifth removal took out, when it is applied: they go back first
       const later = appliedAfter(4);
       const before = removed() ? restoreRemoved(current, [...fourth(), ...frozenOf(later)], [4, ...later]) : current;
       expect(header().digest).toMatch(/^[0-9a-f]{40}$/);
-      expect(digestOf(before)).toBe(header().digest);
+      expect(vendoredDigestOf(before)).toBe(header().digest);
       // The size of the LESS build is the one frozen for the last removal that is applied, and the fifth removal starts where this one ends
       expect(header().lessBytesAfter).toBe(baseline.steps.find(entry => entry.step === 5).lessBytesBefore);
       if (later.length === 0) {
@@ -729,12 +669,12 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
         .forEach(selector => expect({selector, frozen: selectors.has(selector.replace(/:before$/, "::before")) || selectors.has(selector)}).toEqual({selector, frozen: true}));
     });
 
-    it("is the vendored build before the removal: the digest of its ordered rules is the one frozen with the rules", () => {
+    it("is the vendored build before the removal: the digest of its ordered vendored rules is the one frozen with the rules", () => {
       // The build before this removal still had the rules that the sixth removal took out, when it is applied: they go back first
       const later = appliedAfter(5);
       const before = removed() ? restoreRemoved(current, [...fifth(), ...frozenOf(later)], [5, ...later]) : current;
       expect(header().digest).toMatch(/^[0-9a-f]{40}$/);
-      expect(digestOf(before)).toBe(header().digest);
+      expect(vendoredDigestOf(before)).toBe(header().digest);
       expect(header().lessBytesAfter).toBe(baseline.steps.find(entry => entry.step === 6).lessBytesBefore);
       if (later.length === 0) {
         expect(lfBytes(css)).toBe(removed() ? header().lessBytesAfter : header().lessBytesBefore);
@@ -769,12 +709,12 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/vendoredRemoval"
         .forEach(selector => expect({selector, frozen: selectors.has(selector)}).toEqual({selector, frozen: true}));
     });
 
-    it("is the vendored build before the removal: the digest of its ordered rules is the one frozen with the rules", () => {
+    it("is the vendored build before the removal: the digest of its ordered vendored rules is the one frozen with the rules", () => {
       // The build before this removal still had the rules that the seventh removal took out, when it is applied: they go back first
       const later = appliedAfter(6);
       const before = removed() ? restoreRemoved(current, [...sixth(), ...frozenOf(later)], [6, ...later]) : current;
       expect(header().digest).toMatch(/^[0-9a-f]{40}$/);
-      expect(digestOf(before)).toBe(header().digest);
+      expect(vendoredDigestOf(before)).toBe(header().digest);
       expect(header().lessBytesAfter).toBe(baseline.steps.find(entry => entry.step === 7).lessBytesBefore);
       if (later.length === 0) {
         expect(lfBytes(css)).toBe(removed() ? header().lessBytesAfter : header().lessBytesBefore);

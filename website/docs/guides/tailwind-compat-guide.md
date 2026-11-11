@@ -156,7 +156,7 @@ The cascade guard (`cascadeGuard.test.js`) covers the third removal with the sam
 element rules, a shorthand against its longhand) plus the three cases above, and found no pair left. Its pixel diff of the AWE screens (settings and the Test module, Chromium and
 Firefox, 1440 and 375 pixels wide, light and dark theme, with the avatar and info dropdowns open, the tab overflow menu, the confirm dialog, the
 dialogs, the side panels, the accordion, the target message popover and the mobile navbar) is identical to the one before the removal.
-`vendoredRemoval.test.js` checks the files are gone, no frozen rule is in the build, every leftover still is, the build is smaller and no call or
+`vendoredRemoval.test.js` checks the files are gone, no frozen rule is in the build, every leftover still is, the vendored part of the build is no bigger than the last removal left it and no call or
 extend of a removed rule set is left without its mixin. Slice 6 removes the leftovers together with the pixel-admin rules they compete with.
 
 **Tables, labels, badges, wells, alerts, breadcrumbs, progress bars and pagination (slice 6).** `bootstrap.less` no longer imports `tables.less`,
@@ -181,7 +181,7 @@ specific to this removal:
 
 The values of the leftovers are frozen as compiled (see *LESS variables* above): a product that overrides `@table-border-color`, `@label-default-bg` or the like with
 `modifyVars` no longer changes the leftovers or the compat rules. `vendoredRemoval.test.js` checks the files are gone, no frozen rule is in the build, every
-leftover still is, the build is smaller and no call or extend of a removed rule set is left without its mixin. The mixins of `less/legacy/mixins` that
+leftover still is, the vendored part of the build is no bigger than the last removal left it and no call or extend of a removed rule set is left without its mixin. The mixins of `less/legacy/mixins` that
 the files called (`.label-variant()`, `.alert-variant()`, `.progress-bar-variant()`, `.table-row-variant()`, `.pagination-size()`) stay, and the pixel-admin
 `.tables-theme`, `.labels-theme`, `.badges-theme`, `.progress-bars-theme` and `.pagination-theme` mixins that `less/awe/base.less` calls inside a comment still compile.
 
@@ -315,7 +315,7 @@ run on develop, master and the nightly schedule (job `Unit · AngularJS · Compa
 | `compatForms.test.js` | Every form control, layout, checkbox, radio and validation-state selector equals the compiled vendored rule (selectors, media), themed values keep their `var()` fallback, no `!important` is served, the form classes of the templates, directives and screens are served or left out for a stated reason, rules that compete at the same specificity keep the vendored order, and both files are imported where the vendored build compiles them |
 | `compatButtons.test.js` | Every button and button group selector equals the compiled vendored rule (selectors, `!important`, media), themed values keep their `var()` fallback, the button classes of the templates, directives and screens are served or left out for a stated reason, rules that compete at the same specificity keep the vendored order, and the reviewed `!important` mixes are the only ones |
 | `cascadeGuard.test.js` | No rule that a compat rule serves used to beat a rule that stays in the LESS (unlayered) with another value on the same property, but the reviewed pairs |
-| `vendoredRemoval.test.js` | The four vendored files are gone and none of their compiled rules is in the vendored build, every removed selector is served by the compat layer (but `.affix`), every class of them that a template, directive or screen writes is served, no LESS extends or calls a rule set that was removed (Less drops those without a warning), and the LESS build is smaller |
+| `vendoredRemoval.test.js` | The four vendored files are gone and none of their compiled rules is in the vendored build, every removed selector is served by the compat layer (but `.affix`), every class of them that a template, directive or screen writes is served, no LESS extends or calls a rule set that was removed (Less drops those without a warning), and the vendored part of the LESS build is no bigger than the last removal left it |
 | `xmlClasses.test.js` | Every class written in the `style` of an XML screen is served by the compat layer or by the vendored CSS, or is a known marker with no CSS rule |
 
 ### The frozen vendored rules
@@ -324,7 +324,10 @@ The equivalence tests compare the compat layer with the compiled vendored Bootst
 the rule it compared with is gone, so the removed rules are **frozen** in
 `src/test/jest/styles/support/vendored-removed.baseline.json` (generated from the tree before the removal, with their position in
 the build) and the tests restore them next to the current build (`support/vendoredBeforeRemoval.js`). The file is not touched by a
-normal change. To generate it again, from the tree before the removal:
+normal change: what it measures is the vendored part of the build only, the rules that `awe.less` loses when it imports `legacy/legacy.less` as a
+`(reference)`. The digest of each step is the one of those rules, in order, in the build before the removal, and `vendoredLessBytes` is the size of
+that part after the last removal (85,134 bytes); the styles that AWE adds change neither, so a new screen or component does not refreeze the
+baseline, and a vendored rule that changes or grows back makes the tests fail. To generate it again, from the tree before the removal:
 
 ```bash
 git archive <commit before the removal> awe-framework/awe-client-angular/src/main/resources/less | tar -x -C /tmp/before

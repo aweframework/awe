@@ -12,7 +12,10 @@
  * `git archive <commit before> awe-framework/awe-client-angular/src/main/resources/less | tar -x -C /tmp/before`. The rules of the
  * removal are the ones the build before has and the build after lacks (the rules that stay, like the leftovers files, are not
  * frozen: they are still in the build). Each frozen rule records the Bootstrap file it came from (found by importing that file as a
- * reference, which keeps its rules out of the output) and where it goes back (the position in the build after).
+ * reference, which keeps its rules out of the output) and where it goes back (the position in the build after). The digest of a step is the
+ * one of the vendored rules of the build before, in order (the rules that awe.less loses when it imports legacy.less as a reference), so a
+ * change of the AWE LESS does not move it. `vendoredLessBytes` is the size of the vendored part of the build after the removal (the build
+ * minus the one without the vendored rules): vendoredRemoval.test.js checks the vendored LESS never grows back over it.
  *
  * It is run once per removal, from the tree before it, and never touched by a normal change.
  */
@@ -21,7 +24,7 @@ const {Buffer} = require("buffer");
 const path = require("path");
 const {compileStyles} = require("./compileStyles");
 const {getRules} = require("./compileTailwind");
-const {BASELINE, diffRemoved, digestOf, hashOf} = require("./vendoredBeforeRemoval");
+const {BASELINE, compileWithoutVendored, diffRemoved, digestOf, hashOf, vendoredRules} = require("./vendoredBeforeRemoval");
 
 // The byte counts of the baseline are the LF ones, as the CI builds them: a Windows checkout (core.autocrlf) has CRLF sources and the preserved comments carry them into the CSS
 const lfBytes = css => Buffer.byteLength(css.replace(/\r\n/g, "\n"));
@@ -70,6 +73,8 @@ const main = async () => {
   const beforeCss = await compileTree(before);
   const afterCss = await compileTree(after);
   const beforeRules = getRules(beforeCss);
+  const digest = digestOf(vendoredRules(beforeRules, getRules(await compileWithoutVendored(before))));
+  const vendoredLessBytes = lfBytes(afterCss) - lfBytes(await compileWithoutVendored(after));
   const sources = await sourcesOf(before, beforeRules, files);
   const removed = diffRemoved(beforeRules, getRules(afterCss)).map(rule => ({...rule, source: sources.get(hashOf(rule)) || null}));
   const unsourced = removed.filter(rule => !rule.source);
@@ -87,7 +92,11 @@ const main = async () => {
     document.lessBytesBefore = lfBytes(beforeCss);
     document.lessBytesAfter = lfBytes(afterCss);
   } else {
-    later.push({header: {step, files, ...(args.includes("--unserved") ? {unserved: true} : {}), lessBytesBefore: lfBytes(beforeCss), lessBytesAfter: lfBytes(afterCss), kept, digest: digestOf(beforeRules)}, removed});
+    later.push({header: {step, files, ...(args.includes("--unserved") ? {unserved: true} : {}), lessBytesBefore: lfBytes(beforeCss), lessBytesAfter: lfBytes(afterCss), kept, digest}, removed});
+  }
+  // The vendored part after the last removal: frozen with each removal, as it only shrinks (refreezing an earlier step keeps it)
+  if (later.every(entry => entry.header.step <= step)) {
+    document.vendoredLessBytes = vendoredLessBytes;
   }
   later.sort((a, b) => a.header.step - b.header.step);
   // The first removal is written one rule per line; each later one has a header line and one rule per line
@@ -95,7 +104,7 @@ const main = async () => {
   const head = JSON.stringify({...document, removed: undefined, later: undefined}, null, 2).replace(/\n}$/, "");
   const laterText = later.map(entry => `    {\n      "header": ${JSON.stringify(entry.header)},\n      "removed": [\n${entry.removed.map(rule => `        ${JSON.stringify(rule)}`).join(",\n")}\n      ]\n    }`).join(",\n");
   fs.writeFileSync(BASELINE, `${head},\n  "removed": [\n${lines}\n  ],\n  "later": [\n${laterText}\n  ]\n}\n`);
-  console.log(`${removed.length} rules frozen (step ${step}) into ${path.relative(process.cwd(), BASELINE)} (LESS build ${lfBytes(beforeCss)} -> ${lfBytes(afterCss)} bytes)`);
+  console.log(`${removed.length} rules frozen (step ${step}) into ${path.relative(process.cwd(), BASELINE)} (LESS build ${lfBytes(beforeCss)} -> ${lfBytes(afterCss)} bytes, vendored part ${vendoredLessBytes} bytes)`);
 };
 
 main().catch(error => {

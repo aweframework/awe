@@ -166,7 +166,7 @@ juntas, reglas de elemento, un atajo frente a su propiedad individual) más los 
 (ajustes y el módulo Test, Chromium y Firefox, 1440 y 375 píxeles de ancho, tema claro y oscuro, con los desplegables de avatar e info abiertos, el
 menú de desbordamiento de pestañas, el diálogo de confirmación, los diálogos, los paneles laterales, el acordeón, el popover de los mensajes y la
 barra móvil) es idéntico al anterior a la eliminación. `vendoredRemoval.test.js` comprueba que los ficheros no están, que ninguna regla congelada
-está en el build, que cada resto sigue estándolo, que el build es menor y que ninguna llamada ni extend de un conjunto de reglas eliminado se queda
+está en el build, que cada resto sigue estándolo, que la parte vendorizada del build no supera la que dejó la última eliminación y que ninguna llamada ni extend de un conjunto de reglas eliminado se queda
 sin su mixin. El slice 6 elimina los restos junto con las reglas de pixel-admin con las que compiten.
 
 **Tablas, etiquetas, insignias, wells, alertas, migas de pan, barras de progreso y paginación (slice 6).** `bootstrap.less` ya no importa `tables.less`,
@@ -191,7 +191,7 @@ regla de compatibilidad en capa perdería. Dos detalles son propios de esta elim
 
 Los valores de los restos están congelados tal como compilaron (véase *Variables LESS* arriba): un producto que sobrescribe `@table-border-color`, `@label-default-bg` o similares con
 `modifyVars` ya no cambia los restos ni las reglas de compatibilidad. `vendoredRemoval.test.js` comprueba que los ficheros no están, que ninguna regla congelada está en la compilación, que cada
-resto sigue estando, que la compilación es menor y que no queda ninguna llamada ni extend de un conjunto de reglas eliminado sin su mixin. Los mixins de `less/legacy/mixins` que
+resto sigue estando, que la parte vendorizada de la compilación no supera la que dejó la última eliminación y que no queda ninguna llamada ni extend de un conjunto de reglas eliminado sin su mixin. Los mixins de `less/legacy/mixins` que
 los ficheros llamaban (`.label-variant()`, `.alert-variant()`, `.progress-bar-variant()`, `.table-row-variant()`, `.pagination-size()`) se quedan, y los mixins `.tables-theme`, `.labels-theme`,
 `.badges-theme`, `.progress-bars-theme` y `.pagination-theme` de pixel-admin que `less/awe/base.less` llama dentro de un comentario siguen compilando.
 
@@ -324,7 +324,7 @@ ejecutan en develop, master y la programación nocturna (job `Unit · AngularJS 
 | `compatUtilities.test.js` | Cada clase de utilidad equivale a la regla vendorizada compilada por media query, las utilidades de las pantallas XML están servidas y ningún elemento del framework mezcla una utilidad con una clase cuyo `!important` sin capa perdería ahora |
 | `compatSpacing.test.js` | Cada clase de espaciado, borde, alineación, altura y tipografía equivale a la regla vendorizada compilada (selectores, `!important`, media), las clases XML de la familia están servidas, no falta ninguna de la familia y las mezclas de `!important` revisadas son las únicas |
 | `compatPanels.test.js` | Cada clase de panel y sus selectores descendientes equivalen a la regla vendorizada compilada, cada clase de panel de las plantillas, directivas y pantallas está servida o excluida con motivo, `panels.css` se importa antes que `spacing.css` y las mezclas de `!important` revisadas son las únicas |
-| `vendoredRemoval.test.js` | Los cuatro ficheros vendorizados no existen y ninguna de sus reglas compiladas está en la compilación vendorizada, cada selector eliminado lo sirve la capa de compatibilidad (salvo `.affix`), cada clase de ellos que escribe una plantilla, directiva o pantalla está servida, ningún LESS extiende ni llama a un conjunto de reglas eliminado (Less los descarta sin avisar) y la compilación LESS es más pequeña |
+| `vendoredRemoval.test.js` | Los cuatro ficheros vendorizados no existen y ninguna de sus reglas compiladas está en la compilación vendorizada, cada selector eliminado lo sirve la capa de compatibilidad (salvo `.affix`), cada clase de ellos que escribe una plantilla, directiva o pantalla está servida, ningún LESS extiende ni llama a un conjunto de reglas eliminado (Less los descarta sin avisar) y la parte vendorizada de la compilación LESS no supera la que dejó la última eliminación |
 | `compatInputGroups.test.js` | Cada selector de grupo de entrada (y los de formulario y grupo de botones que mencionan uno) equivale a la regla vendorizada compilada (selectores, media), los valores de tema conservan su `var()`, no se sirve ningún `!important`, cada selector que se deja fuera tiene su motivo con selectores de ejemplo, las reglas que compiten con la misma especificidad conservan el orden vendorizado y ambos ficheros se importan donde los compila el build vendorizado |
 | `compatForms.test.js` | Cada selector de control, maquetación, checkbox, radio y estado de validación de formulario equivale a la regla vendorizada compilada (selectores, media), los valores de tema conservan su `var()` con el fallback, no se sirve ningún `!important`, las clases de formulario de las plantillas, directivas y pantallas se sirven o se dejan fuera por un motivo declarado, las reglas que compiten con la misma especificidad conservan el orden vendorizado y ambos ficheros se importan donde los compila el build vendorizado |
 | `compatButtons.test.js` | Cada selector de botón y de grupo de botones equivale a la regla vendorizada compilada (selectores, `!important`, media), los valores de tema conservan su `var()` con valor alternativo, las clases de botón de plantillas, directivas y pantallas están servidas o excluidas con motivo, las reglas que compiten con la misma especificidad mantienen el orden vendorizado y las mezclas de `!important` revisadas son las únicas |
@@ -337,7 +337,10 @@ Los tests de equivalencia comparan la capa de compatibilidad con la regla vendor
 sale del LESS, la regla con la que se comparaba desaparece, así que las reglas eliminadas se **congelan** en
 `src/test/jest/styles/support/vendored-removed.baseline.json` (generado desde el árbol anterior a la eliminación, con su posición
 en la compilación) y los tests las restauran junto a la compilación actual (`support/vendoredBeforeRemoval.js`). Un cambio normal
-no toca ese fichero. Para generarlo de nuevo, desde el árbol anterior a la eliminación:
+no toca ese fichero: lo que mide es solo la parte vendorizada de la compilación, las reglas que `awe.less` pierde cuando importa `legacy/legacy.less`
+como `(reference)`. El digest de cada paso es el de esas reglas, en orden, en la compilación anterior a la eliminación, y `vendoredLessBytes` es el tamaño
+de esa parte tras la última eliminación (85.134 bytes); los estilos que añade AWE no cambian ninguno de los dos, así que una pantalla o un componente
+nuevo no obliga a recongelar la línea base, y una regla vendorizada que cambia o vuelve a crecer hace fallar los tests. Para generarlo de nuevo, desde el árbol anterior a la eliminación:
 
 ```bash
 git archive <commit anterior a la eliminación> awe-framework/awe-client-angular/src/main/resources/less | tar -x -C /tmp/before
