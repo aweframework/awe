@@ -175,3 +175,26 @@
 .p-dropdown-panel .p-dropdown-items .p-dropdown-item-group:has(> .p-dropdown-item-group-label:empty) {
   display: none;
 }
+
+/* A multiple suggest with display="summary" (#845) stays one line: its first token holds the chips that fit and the
+   counter of the rest, the other tokens are empty and the input keeps a little room to type */
+.p-autocomplete.awe-suggest-multiple-summary .p-autocomplete-multiple-container {
+  flex-wrap: nowrap;
+  overflow: hidden;
+
+  .p-autocomplete-token:first-child {
+    flex: 1 1 auto;
+  }
+
+  .p-autocomplete-token:not(:first-child) {
+    display: none;
+  }
+
+  .p-autocomplete-token-label {
+    flex: 1 1 auto;
+  }
+
+  .p-autocomplete-input-token {
+    flex: 0 0 var(--awe-space-8);
+  }
+}

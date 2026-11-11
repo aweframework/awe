@@ -480,12 +480,25 @@ This criterion simply shows a text, which can be retrieved from a variable, a pa
 
 <img alt="SelectMultiplePreselected" src={require('@docusaurus/useBaseUrl').default('img/SelectMultiplePreselected.png')} />
 
-In the React client the field of a multiple select is always one control high. It shows the chips of the chosen values
+By default the field of a multiple select is one control high, in both clients. It shows the chips of the chosen values
 that fit, in the order of the options (a label that does not fit ends with an ellipsis and shows in full as a tooltip),
 and a `+3` counter when some do not. The counter is a button: it opens a popover with every chosen value and a button to
 remove each one, and Escape, a click outside, a scroll or a resize close it. Optional criteria also have a clear icon;
-the chips have no remove icon of their own. Add `display="chip"` to the criterion to keep the chips of PrimeReact, one
-remove icon each, which grow with the values (AngularJS ignores it).
+the chips have no remove icon of their own.
+
+The `display` attribute chooses how a `select-multiple` or a `suggest-multiple` shows its values:
+
+| Value | Shows | Default of |
+|-------|-------|------------|
+| `summary` | One line: the chips that fit and the `+N` counter described above | `select-multiple` |
+| `chip` | Every value as a chip with its own remove icon; the field grows with the values | `suggest-multiple` |
+
+```xml
+<!-- Every chosen value in sight, even if the field grows -->
+<criteria component="select-multiple" id="user" display="chip" .../>
+<!-- A suggest that keeps one line, for a filter bar -->
+<criteria component="suggest-multiple" id="portfolio" display="summary" .../>
+```
 
 ### Color criterion sample
 

@@ -2,6 +2,12 @@ import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 import "../../../main/resources/js/awe/app";
 import "../../../main/resources/webpack/locals-en-GB.config";
 import "../../../main/resources/webpack/locals-es-ES.config";
+import {attachSelectSummary} from "../../../main/resources/js/awe/services/selectSummary";
+
+jest.mock("../../../main/resources/js/awe/services/selectSummary", () => {
+  const actual = jest.requireActual("../../../main/resources/js/awe/services/selectSummary");
+  return {...actual, attachSelectSummary: jest.fn(actual.attachSelectSummary)};
+});
 
 describe("uiSelect2", () => {
   let $rootScope;
@@ -56,6 +62,22 @@ describe("uiSelect2", () => {
     compileWithScope("<input ui-select2='aweSelectOptions' initialized='initialized'/>", {component: {onPluginInit: jest.fn()}, aweSelectOptions: {summary: true}, initialized: true});
 
     expect(select2Spy.mock.calls[0][0]).toEqual(expect.objectContaining({containerCssClass: "awe-select-summary"}));
+  });
+
+  it("removes a value of the summary through the data of the chips, which a suggest also keeps (#845)", () => {
+    const container = $("<div class='select2-container-multi'><ul class='select2-choices'><li class='select2-search-field'><input/></li></ul></div>");
+    const chosen = [{id: "1", label: "One"}, {id: "2", label: "Two"}, {id: "3", label: "Three"}];
+    select2Spy.mockImplementation(function select2(method) {
+      if (method === "container") {
+        return container;
+      }
+      return method === "data" && arguments.length === 1 ? [...chosen] : this;
+    });
+    compileWithScope("<input ui-select2='aweSelectOptions' initialized='initialized'/>", {component: {onPluginInit: jest.fn()}, aweSelectOptions: {summary: true}, initialized: true});
+
+    attachSelectSummary.mock.calls[0][0].remove(1);
+
+    expect(select2Spy).toHaveBeenCalledWith("data", [{id: "1", label: "One"}, {id: "3", label: "Three"}], true);
   });
 
   it("translates placeholders on initialization and exposes fill/select methods through the component API", () => {

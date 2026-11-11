@@ -13,7 +13,7 @@ import {getSuggestionLabel, withTextLabels} from "../utilities/suggest";
 import useComponent from "../hooks/useComponent";
 import PropTypes from "prop-types";
 import {autoCompletePassThrough} from "../utilities/testPassThrough";
-import {suggestChipProps} from "./AweSelectChip";
+import {suggestChipProps, suggestSummaryProps} from "./AweSelectChip";
 
 function AweSuggestMultiple(props) {
   const { id } = props;
@@ -46,8 +46,11 @@ function AweSuggestMultiple(props) {
     }
   }, [value]);
 
-  const {required, readonly, timeout, size, error } = attributes;
-  const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+  const {required, readonly, timeout, size, error, display} = attributes;
+  // display="summary" keeps the field one control high: the chips that fit, then a counter that lists them all (#845)
+  const summary = display === "summary";
+  const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error,
+    "awe-suggest-multiple-summary": summary });
   const chosen = value.map(item => ({ ...item, label: getSuggestionLabel(item) }));
   // A field that can be left empty (it is not required) offers one button that empties every chosen value
   const clearable = !readonly && !isCriterionRequired(attributes, validationRules) && chosen.length > 0;
@@ -81,7 +84,7 @@ function AweSuggestMultiple(props) {
         ref={autocompleteRef}
         id={id}
         value={chosen}
-        {...suggestChipProps(chosen, readonly, onChosen)}
+        {...(summary ? suggestSummaryProps : suggestChipProps)(chosen, readonly, onChosen)}
         placeholder={criterionPlaceholder(attributes, validationRules, t)}
         required={required}
         {...requiredAria(attributes, validationRules)}

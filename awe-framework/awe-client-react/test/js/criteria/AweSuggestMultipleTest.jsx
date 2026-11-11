@@ -4,7 +4,8 @@ import {renderWithProviders} from "../test-utils";
 import AweSuggestMultiple from "../../../src/criteria/AweSuggestMultiple";
 import {updateModel} from "../../../src/redux/actions/components";
 import {selectAction} from "../../../src/redux/thunks/form";
-import {act, fireEvent} from "@testing-library/react";
+import {act, cleanup, fireEvent, screen} from "@testing-library/react";
+import i18n from "../i18nForTests";
 
 describe('awe-react-client/test/js/criteria/AweSuggestMultipleTest.jsx', () => {
 
@@ -327,6 +328,86 @@ describe('awe-react-client/test/js/criteria/AweSuggestMultipleTest.jsx', () => {
       renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {preloadedState: requiredState});
 
       expect(document.querySelector("[data-testid='select-clear']")).toBeNull();
+    });
+  });
+
+  // display="summary": the chips that fit in one line and a +N counter that lists them all (#845)
+  describe('one line (display summary)', () => {
+    const WIDTH_PER_CHARACTER = 10;
+    const COUNTER_WIDTH = 20;
+    let availableWidth;
+
+    const render = (attributes = {}) => renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {
+      preloadedState: {
+        ...preloadedState,
+        components: {
+          "suggest-multiple": {
+            ...preloadedState.components["suggest-multiple"],
+            attributes: {...preloadedState.components["suggest-multiple"].attributes, ...attributes},
+            model: {values: ["test", "tutu", "toto"].map(value => ({label: value, value, selected: true}))}
+          }
+        }
+      }
+    });
+    const shownChips = container => Array.from(container.querySelectorAll("[data-testid='select-choice']"))
+      .filter(chip => !chip.hasAttribute("aria-hidden"));
+    const counter = container => container.querySelector("button[aria-haspopup='dialog']");
+
+    beforeAll(() => {
+      i18n.addResourceBundle("en", "translation", {
+        SCREEN_TEXT_SELECTED_VALUES_SHOW_ALL: "+{{count}} selected values, show all",
+        SCREEN_TEXT_REMOVE_VALUE: "Remove {{label}}"
+      }, true, true);
+    });
+
+    // JSDOM has no layout: a chip is as wide as its label, the counter is fixed and the field is 100 wide
+    beforeEach(() => {
+      availableWidth = 100;
+      global.ResizeObserver = class {
+        observe() {}
+        disconnect() {}
+      };
+      jest.spyOn(HTMLElement.prototype, "scrollWidth", "get").mockImplementation(function () {
+        return this.hasAttribute("data-chip") ? this.textContent.length * WIDTH_PER_CHARACTER : 0;
+      });
+      jest.spyOn(HTMLElement.prototype, "offsetWidth", "get").mockImplementation(function () {
+        return this.getAttribute("aria-haspopup") ? COUNTER_WIDTH : 0;
+      });
+      jest.spyOn(HTMLElement.prototype, "clientWidth", "get").mockImplementation(function () {
+        return this.classList.contains("awe-select-multiple-chips") ? availableWidth : 0;
+      });
+    });
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+      cleanup();
+    });
+
+    it('shows the chips that fit and a counter with the number of hidden values', () => {
+      const {container} = render({display: "summary"});
+
+      expect(shownChips(container).map(chip => chip.textContent)).toEqual(["test", "tutu"]);
+      expect(counter(container).textContent).toBe("+1");
+      expect(counter(container).getAttribute("aria-label")).toBe("+1 selected values, show all");
+    });
+
+    it('removes a value from the list of the counter and updates the field and the model', async () => {
+      const {container, store} = render({display: "summary"});
+      fireEvent.click(counter(container));
+
+      fireEvent.click(await screen.findByLabelText("Remove test"));
+
+      expect(store.getState().components["suggest-multiple"].model.values.filter(item => item.selected)
+        .map(item => item.value)).toEqual(["tutu", "toto"]);
+      expect(shownChips(container).map(chip => chip.textContent)).toEqual(["tutu", "toto"]);
+      expect(counter(container)).toBeNull();
+    });
+
+    it('keeps every chip, with no counter, without display summary', () => {
+      const {container} = render();
+
+      expect(shownChips(container).map(chip => chip.textContent)).toEqual(["test", "tutu", "toto"]);
+      expect(counter(container)).toBeNull();
     });
   });
 });

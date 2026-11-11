@@ -812,11 +812,12 @@
     </xs:attribute>
     <xs:attribute name="display">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Select-multiple criteria only. By default React shows the chips that fit in one line and a +K counter that lists all the values. chip keeps the chips of PrimeReact, one remove icon each, which grow with the values. AngularJS ignores it.</xs:documentation>
+        <xs:documentation xml:lang="en">Select-multiple and suggest-multiple criteria only, in both clients. summary shows the chips that fit in one line and a +N counter that lists all the values (default of select-multiple). chip shows every value as a chip with its own remove icon, and the field grows with the values (default of suggest-multiple).</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:string">
           <xs:enumeration value="chip"/>
+          <xs:enumeration value="summary"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>

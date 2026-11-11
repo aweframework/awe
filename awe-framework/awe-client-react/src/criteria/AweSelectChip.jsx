@@ -4,6 +4,7 @@ import {localeOption} from "primereact/api";
 import {getIconNode} from "../utilities";
 import {TestIds, testHook} from "../utilities/testIds";
 import {getSuggestionLabel} from "../utilities/suggest";
+import AweSelectMultipleChips from "./AweSelectMultipleChips";
 import "./AweSelect.less";
 
 /**
@@ -65,6 +66,25 @@ export const suggestChipProps = (value, disabled, onChange) => {
   return {
     selectedItemTemplate: (item) =>
       <AweSelectChip option={{code: item.value, name: getSuggestionLabel(item)}} disabled={disabled} onRemove={onRemove}/>,
+    removeTokenIcon: () => null
+  };
+};
+
+/**
+ * Chosen values of a multiple suggest as one line (display="summary", #845): the first token of PrimeReact draws the
+ * chips that fit and a "+N" counter that lists them all; the rest of the tokens draw nothing and are hidden
+ * @param {object[]} value Chosen values ({value, label})
+ * @param {boolean} disabled The suggest is disabled (its values cannot be removed)
+ * @param {function} onChange Change handler of the AutoComplete, called with the values left
+ * @returns {object} selectedItemTemplate and removeTokenIcon of an AutoComplete
+ */
+export const suggestSummaryProps = (value, disabled, onChange) => {
+  const onRemove = (code) => onChange({value: value.filter(item => String(item.value) !== String(code))});
+  const values = value.map(item => ({code: item.value, name: getSuggestionLabel(item)}));
+  return {
+    selectedItemTemplate: (item) => String(item.value) === String(value[0]?.value)
+      ? <AweSelectMultipleChips values={values} onRemove={disabled ? undefined : onRemove}/>
+      : null,
     removeTokenIcon: () => null
   };
 };
