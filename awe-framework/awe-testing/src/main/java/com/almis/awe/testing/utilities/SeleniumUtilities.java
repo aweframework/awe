@@ -58,6 +58,8 @@ public class SeleniumUtilities implements IAweInstructions {
   private static final Duration LOGGED_USER_NAME_INTERVAL = Duration.ofMillis(100);
   private static final Duration LOGGED_USER_NAME_TIMEOUT = Duration.ofSeconds(3);
   private static final Duration MENU_CLICK_EFFECT_TIMEOUT = Duration.ofSeconds(5);
+  // How long the settings panel may take to close by itself after a module is chosen, before its button closes it
+  private static final Duration SETTINGS_PANEL_CLOSE_TIMEOUT = Duration.ofSeconds(1);
   private static final int MENU_CLICK_RETRIES = 2;
   // Where a dragged row lands on the row it is dropped on, as a share of its height
   private static final double DROP_UPPER_HALF = 0.25;
@@ -3896,10 +3898,15 @@ public class SeleniumUtilities implements IAweInstructions {
     // Wait for loading bar
     waitForLoadingBar();
 
-    // Close the settings panel with its own button (both engines toggle it), so it is not left over the toolbar of the
-    // next screen while it fades out
-    clickInfoButton("ButSetTog");
-    waitUntil(toBeInvisible(frontEndInstructions.getCriterion("module")));
+    // Close the settings panel with its own button, so it is not left over the toolbar of the next screen while it fades
+    // out. The button toggles the panel, and the AngularJS panel (a dropdown) may already be closed by the click on the
+    // module option, as Firefox does: a click then would open it again. Click it only when the panel is still open.
+    By module = frontEndInstructions.getCriterion("module");
+    Duration closeTimeout = properties.getTimeout().compareTo(SETTINGS_PANEL_CLOSE_TIMEOUT) < 0 ? properties.getTimeout() : SETTINGS_PANEL_CLOSE_TIMEOUT;
+    if (!isMetWithin(toBeInvisible(module), closeTimeout)) {
+      clickInfoButton("ButSetTog");
+    }
+    waitUntil(toBeInvisible(module));
   }
 
   /**
