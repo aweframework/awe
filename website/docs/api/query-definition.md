@@ -165,7 +165,9 @@ The cache key holds everything that changes the result:
 - the language the results are translated to (request `lang`, otherwise the session language)
 - the database the query runs on (request `_database_`, otherwise the session database)
 
-A cached result is therefore never shared between users, languages or databases through these inputs.
+A cached result is therefore never shared between users, languages or databases through these inputs. When one of
+the `session="..."` variables has no value (a call with no session user, such as a REST call authenticated without a
+web login), the result is not cached: it does not belong to any user.
 
 :::caution Service queries
 

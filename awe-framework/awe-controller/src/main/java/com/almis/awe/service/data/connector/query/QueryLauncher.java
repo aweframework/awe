@@ -53,7 +53,7 @@ public class QueryLauncher extends ServiceConfig {
    * @return Query data
    * @throws AWException Query has failed
    */
-  @Cacheable(value = "queryData", condition = "#p0.isCacheable()", key = "#root.target.getCacheKey(#p0, #p1)")
+  @Cacheable(value = "queryData", condition = "#root.target.isCacheable(#p0)", key = "#root.target.getCacheKey(#p0, #p1)")
   public ServiceData launchQuery(@NonNull Query query, ObjectNode parameters) throws AWException {
     return executionObserver.observe(ExecutionObserver.ExecutionType.QUERY, query.getId(),
       Map.of("connector", getConnectorType(query)), () -> launchObservedQuery(query, parameters), data -> data == null ? null : data.getType());
@@ -67,6 +67,18 @@ public class QueryLauncher extends ServiceConfig {
   @Autowired(required = false)
   public void setDatabaseConfigProperties(DatabaseConfigProperties databaseConfigProperties) {
     this.databaseConfigProperties = databaseConfigProperties;
+  }
+
+  /**
+   * Check whether the result of a query can be cached: the query is cacheable and every session value it
+   * declares is present, so a result read with no session user is never shared with the users that have one.
+   *
+   * @param query Query
+   * @return The query result can be cached
+   */
+  public boolean isCacheable(@NonNull Query query) {
+    AweSession session = getSession();
+    return query.isCacheable() && query.hasSessionValues(name -> session == null ? null : session.getParameter(name));
   }
 
   /**

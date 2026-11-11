@@ -334,6 +334,20 @@ public class Query implements XMLNode, Copyable {
     return sessionKeys.isEmpty() ? key : key + "|" + sessionKeys;
   }
 
+  /**
+   * Check whether every session value the query declares is present. A query run without one of them
+   * (a call with no session user, for example) must not be cached: its result does not belong to any user.
+   *
+   * @param sessionValues Resolves a session parameter name to its current value
+   * @return All the session values of the query are present
+   */
+  public boolean hasSessionValues(Function<String, Object> sessionValues) {
+    return getVariableDefinitionList() == null || getVariableDefinitionList().stream()
+      .map(Variable::getSession)
+      .filter(Objects::nonNull)
+      .allMatch(sessionName -> sessionValues.apply(sessionName) != null);
+  }
+
   private String getRequestQueryKeys(ObjectNode parameters) {
     ObjectNode safeParameters = parameters == null ? JsonNodeFactory.instance.objectNode() : parameters;
     ObjectNode filteredParameters = JsonNodeFactory.instance.objectNode();
