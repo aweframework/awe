@@ -6,6 +6,7 @@ import com.almis.awe.model.type.NumericFormatType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
@@ -20,10 +21,6 @@ import java.util.regex.Pattern;
  */
 @Slf4j
 public class NumericService extends ServiceConfig {
-
-  // Static variables
-  private static final NumberFormat AMERICAN_NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
-  private static final NumberFormat EUROPEAN_NUMBER_FORMAT = NumberFormat.getInstance(Locale.GERMANY);
 
   // Autowired services
   private final NumericConfigProperties numericConfigProperties;
@@ -122,8 +119,7 @@ public class NumericService extends ServiceConfig {
    * @throws ParseException Error parsing number
    */
   public Number parseRawNumericString(String val) throws ParseException {
-    AMERICAN_NUMBER_FORMAT.setRoundingMode(numericConfigProperties.getRoundType().getRoundingMode());
-    return AMERICAN_NUMBER_FORMAT.parse(val);
+    return getNumberFormat(NumericFormatType.AME).parse(val);
   }
 
   /**
@@ -133,7 +129,7 @@ public class NumericService extends ServiceConfig {
    * @return decimals number
    */
   public int getDecimalsNumberInNumericString(String val) {
-    return getNumberOfDecimals(val, String.valueOf(((DecimalFormat) getNumberFormat(numericConfigProperties.getFormat())).getDecimalFormatSymbols().getDecimalSeparator()));
+    return getNumberOfDecimals(val, String.valueOf(getDecimalFormatSymbols(numericConfigProperties.getFormat()).getDecimalSeparator()));
   }
 
   /**
@@ -143,7 +139,7 @@ public class NumericService extends ServiceConfig {
    * @return decimals number
    */
   public int getDecimalsNumberInRawNumericString(String val) {
-    return getNumberOfDecimals(val, String.valueOf(((DecimalFormat) AMERICAN_NUMBER_FORMAT).getDecimalFormatSymbols().getDecimalSeparator()));
+    return getNumberOfDecimals(val, String.valueOf(DecimalFormatSymbols.getInstance(Locale.US).getDecimalSeparator()));
   }
 
   private int getNumberOfDecimals(String val, String separator) {
@@ -152,27 +148,42 @@ public class NumericService extends ServiceConfig {
   }
 
   /**
-   * Gets the numeric format defined in numeric.properties
+   * Gets a new number format for the numeric format type.
+   * NumberFormat is not thread safe, so every call builds its own instance instead of sharing one between requests.
    *
+   * @param type Numeric format type
    * @return numeric format
    */
   private NumberFormat getNumberFormat(NumericFormatType type) {
-    NumberFormat numberFormat;
+    NumberFormat numberFormat = NumberFormat.getInstance(getLocale(type));
+    // Apply rounding based
+    numberFormat.setRoundingMode(numericConfigProperties.getRoundType().getRoundingMode());
+    return numberFormat;
+  }
 
+  /**
+   * Gets the decimal format symbols of the numeric format type
+   *
+   * @param type Numeric format type
+   * @return decimal format symbols
+   */
+  private DecimalFormatSymbols getDecimalFormatSymbols(NumericFormatType type) {
+    return DecimalFormatSymbols.getInstance(getLocale(type));
+  }
+
+  /**
+   * Gets the locale of the numeric format type
+   *
+   * @param type Numeric format type
+   * @return American locale for AME formats, European locale otherwise
+   */
+  private Locale getLocale(NumericFormatType type) {
     switch (type) {
       case AME:
       case AME_NO:
-        // American formatting
-        numberFormat = AMERICAN_NUMBER_FORMAT;
-        break;
+        return Locale.US;
       default:
-        // European formatting
-        numberFormat = EUROPEAN_NUMBER_FORMAT;
-        break;
+        return Locale.GERMANY;
     }
-    // Apply rounding based
-    numberFormat.setRoundingMode(numericConfigProperties.getRoundType().getRoundingMode());
-
-    return numberFormat;
   }
 }
