@@ -380,14 +380,26 @@ una herramienta es una decisión manual.
 | `develop` | Todo: mayor, menor, parche, fijado, digest, archivo de bloqueo y seguridad | Versiones de parche de dependencias directas de Maven y npm, cuando tienen la antigüedad mínima (ver más abajo), solo cuando la pipeline de la merge request pasa (la regla de aprobación se levanta únicamente para esas merge requests). Los digests, fijados, imágenes de CI, el Dockerfile, los archivos compose y el mantenimiento de archivos de bloqueo esperan a una persona |
 | `support/4.x` | Parches, fijados, digests y correcciones de seguridad (OSV) | Ninguno: un mantenedor integra |
 
-Las actualizaciones relacionadas se agrupan en una merge request: Spring Boot, Spring Cloud, Selenium (con el gestor de
-WebDriver), plugins de Maven, Babel, Jest, Docusaurus, las imágenes de CI, las imágenes de docker-compose y la cadena de
-herramientas de Node. Hay como máximo 8 merge requests del bot abiertas a la vez (las correcciones de seguridad están
+Las actualizaciones relacionadas se agrupan en una merge request: la plataforma Spring (Spring Boot junto con su
+versión de Spring Cloud), Selenium (con el gestor de WebDriver), plugins de Maven, Babel, Jest, Docusaurus, las imágenes
+de CI, las imágenes de docker-compose y la cadena de herramientas de Node.
+
+La plataforma Spring es la base de todo el backend, así que su merge request se crea antes que las demás
+actualizaciones. Cada versión menor de Spring Boot necesita una versión nueva de Spring Cloud (por ejemplo, Boot 4.2
+necesita Cloud 2026.0), así que ambas llegan en la misma merge request y esperan los mismos 14 días, aunque Renovate
+cuente una versión nueva de Cloud como mayor. Los parches de ambas se integran solos como cualquier otro parche; una
+versión menor (una menor de Boot con su versión de Cloud) espera a una persona. Spring Boot nunca pasa a una versión
+mayor a través de Renovate: Boot 5 es una migración manual. Cuando se publique la versión de Cloud para Boot 5,
+Renovate puede proponerla sola; su pipeline falla (Spring Cloud comprueba la versión de Boot al arrancar) y la merge
+request se cierra a mano. Hay como máximo 8 merge requests del bot abiertas a la vez (las correcciones de seguridad están
 exentas de ese límite). Cada merge request lleva la etiqueta `update-dependencies` (más `security` para correcciones de
 vulnerabilidades) y un mensaje Conventional Commit, `fix(deps)` para dependencias de ejecución y `chore(deps)` en los
 demás casos. Una incidencia «Dependency Dashboard» lista las actualizaciones pendientes, abiertas y bloqueadas; las
 actualizaciones mayores del cliente AngularJS heredado (`awe-client-angular`, `awe-tools` y las aplicaciones de
 `awe-tests`) solo se abren después de que alguien las marque allí, ya que ese cliente se sustituye en AWE 5. Las
+actualizaciones mayores del cliente React (`awe-client-react`) también esperan esa aprobación: necesitan cambios de
+código y, con una ejecución por semana, ocuparían los huecos de los parches y las versiones menores. PrimeReact se
+queda en la versión 10, porque la 11 cambió de licencia (primeicons y primeflex no están afectados). Las
 alertas de seguridad proceden de la base de datos OSV y cubren solo las dependencias directas.
 
 Renovate no propone una versión en cuanto se publica: cada actualización espera a que su versión tenga 14 días, y

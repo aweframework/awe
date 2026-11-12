@@ -115,6 +115,13 @@
       "allowedVersions": "<8"
     },
     {
+      "description": "PrimeReact 11 changed its licence: the React client stays on PrimeReact 10. Only primereact is affected; primeicons and primeflex are not held back. Vulnerability alerts still bypass this rule: a security merge request that needs 11 is closed by hand.",
+      "matchPackageNames": [
+        "primereact"
+      ],
+      "allowedVersions": "<11"
+    },
+    {
       "description": "angular-ui-grid stays on 4.12.0: 4.12.1 and later change the package entry point, and the AngularJS client imports and Jest suites break (#769, closed !969). Lift this rule when the grids leave ui-grid (#776). Vulnerability alerts still bypass it.",
       "matchPackageNames": [
         "angular-ui-grid"
@@ -148,7 +155,7 @@
       "allowedVersions": "<=5.104.1"
     },
     {
-      "description": "Major updates of the legacy AngularJS client and its test applications wait for approval on the Dependency Dashboard; the client is being replaced in AWE 5. The React client and its test application (awe-tests/awe-boot-react) are not held back. Vulnerability alerts bypass this rule (Renovate forces the fixed version): a security fix that needs a new major of a legacy library (Bootstrap 4, jQuery 3, Highcharts 9, marked 4 on support/4.x) would break the client, so its merge request is closed by hand, which makes Renovate ignore that major. Accepted risk until AWE 5 replaces them (#755 Bootstrap, #772 jQuery-based components, #775 Highcharts).",
+      "description": "Major updates of the legacy AngularJS client and its test applications wait for approval on the Dependency Dashboard; the client is being replaced in AWE 5. The React client has its own rule below. Vulnerability alerts bypass this rule (Renovate forces the fixed version): a security fix that needs a new major of a legacy library (Bootstrap 4, jQuery 3, Highcharts 9, marked 4 on support/4.x) would break the client, so its merge request is closed by hand, which makes Renovate ignore that major. Accepted risk until AWE 5 replaces them (#755 Bootstrap, #772 jQuery-based components, #775 Highcharts).",
       "matchManagers": [
         "npm"
       ],
@@ -157,6 +164,19 @@
         "awe-framework/awe-modules/awe-tools/**",
         "awe-tests/awe-boot/package.json",
         "awe-tests/awe-scheduler-boot/package.json"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Major updates of the React client wait for approval on the Dependency Dashboard: they need code changes, and with one Renovate run a week and at most 8 open merge requests they would take the slots of the patch and minor updates (Spring included). Vulnerability alerts bypass this rule.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "awe-framework/awe-client-react/package.json"
       ],
       "matchUpdateTypes": [
         "major"
@@ -186,18 +206,22 @@
       ]
     },
     {
-      "groupName": "spring boot",
-      "description": "Spring Boot and its managed starters move together.",
+      "groupName": "spring platform",
+      "description": "Spring Boot and its Spring Cloud release train move together in one merge request, ahead of the other updates (prPriority): the whole AWE backend depends on them. Every Boot minor needs a new Cloud train (2025.1.x for Boot 4.0 and 4.1, 2026.0.x for 4.2), and Renovate sees a new train as a major because of its calendar versions, so the group keeps a single branch (separateMajorMinor) and the waiting time of a minor for both.",
       "matchPackageNames": [
-        "org.springframework.boot:**"
-      ]
+        "org.springframework.boot:**",
+        "org.springframework.cloud:**"
+      ],
+      "separateMajorMinor": false,
+      "minimumReleaseAge": "14 days",
+      "prPriority": 10
     },
     {
-      "groupName": "spring cloud",
-      "description": "Spring Cloud release train.",
+      "description": "Spring Boot never moves to a new major by itself: Boot 5 (and its Cloud train) is a manual migration with many impacts. Vulnerability alerts still bypass this rule.",
       "matchPackageNames": [
-        "org.springframework.cloud:**"
-      ]
+        "org.springframework.boot:**"
+      ],
+      "allowedVersions": "<5.0.0"
     },
     {
       "groupName": "selenium",
