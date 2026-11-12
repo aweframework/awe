@@ -169,6 +169,22 @@ A cached result is therefore never shared between users, languages or databases 
 the `session="..."` variables has no value (a call with no session user, such as a REST call authenticated without a
 web login), the result is not cached: it does not belong to any user.
 
+Every maintain clears the whole cache, whichever tables it writes, and clears it again once its data is committed.
+This narrows the time a stale result can be cached, but does not close it: a query that read the data before the
+commit and finishes after the second clear still stores the old rows, until the next maintain or the cache expiry. Set
+an expiry (below) when that matters. A maintain that runs on a connection kept
+alive by the caller (a treatment that commits by itself) is only cleared when it runs: launch a maintain afterwards, or
+rely on the cache lifetime.
+
+The cache provider decides the lifetime and the size. AWE sets `spring.cache.type=none` by default (no cache at all);
+the application enables a provider and defines the `queryData` cache:
+
+- Set an expiry on `queryData` (for example `<expiry><ttl unit="minutes">10</ttl></expiry>` in `ehcache.xml`, or
+  `spring.cache.redis.time-to-live`). Without it, data changed outside AWE (another application, a batch, a trigger
+  fired by another process) stays cached until the next maintain.
+- With more than one instance, use a shared provider (Redis). A local cache (Ehcache, `simple`) only clears the instance
+  that runs the maintain: the other instances keep their results until they expire.
+
 :::caution Service queries
 
 The cache only knows the variables the query declares. When a cacheable [service query](#service-query) returns data that
