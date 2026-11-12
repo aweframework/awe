@@ -1,5 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {useScreenSize} from "../hooks/useSizeRegistry";
+import React, {useCallback, useMemo} from "react";
 import useMaximize from "../hooks/useMaximize";
 import PropTypes from "prop-types";
 import AweGridCellTooltip from "./AweGridCellTooltip";
@@ -19,12 +18,8 @@ import "./AweSkeleton.less";
  */
 function AweGridContainer(props) {
   const { id, onKeyCancelRow, onKeySaveRow, onKeyMoveRow, onContextMenu: onContextMenuProp, loading = false, reloading = false, rowHeight, children } = props;
-  const [containerHeight, setContainerHeight] = useState(0);
-  const [resizeCount, setResizeCount] = useState(0);
-  const screenSize = useScreenSize();
-  // The grid grows over the maximize target like a window, and it is measured again when the animation ends
-  const onResize = useCallback(() => setResizeCount(count => count + 1), []);
-  const {ref: containerRef, iconMaximized, style, className, toggle: toggleMaximized} = useMaximize({onResize});
+  // The grid grows over the maximize target like a window
+  const {ref: containerRef, iconMaximized, style, className, toggle: toggleMaximized} = useMaximize();
 
   // Minimum row height of the grid in pixels (the rows read it in the stylesheet), as the AngularJS client does
   const rowHeightPx = parseInt(rowHeight, 10);
@@ -52,21 +47,6 @@ function AweGridContainer(props) {
   const contextMenu = useCallback((e) => {
     onContextMenuProp && onContextMenuProp({ originalEvent: e, data: null, index: -1 });
   }, [onContextMenuProp]);
-
-  useEffect(() => {
-    setContainerHeight(containerRef?.current?.clientHeight || 0);
-  }, [containerRef]);
-
-  // The grid is measured again when the window changes and when the grid is maximized or restored (end of the animation)
-  useEffect(() => {
-    setContainerHeight(undefined);
-  }, [screenSize?.height, screenSize?.current, resizeCount]);
-
-  useEffect(() => {
-    if (containerHeight === undefined) {
-      setContainerHeight(containerRef?.current?.clientHeight);
-    }
-  }, [containerHeight, containerRef]);
 
   return (
     <div className={classNames("grid-container", "expand", "expandible-vertical", {"grid-reloading": reloading, "grid-row-height": rowHeightPx > 0}, className)} ref={containerRef} style={containerStyle}

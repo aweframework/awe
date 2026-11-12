@@ -525,31 +525,6 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
       expect(button().getAttribute("aria-label")).toBe("SCREEN_TEXT_MAXIMIZE");
     });
 
-    it("measures the grid again when the animations end", () => {
-      const reads = jest.fn(() => 100);
-      const descriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, "clientHeight");
-      Object.defineProperty(HTMLElement.prototype, "clientHeight", { configurable: true, get: reads });
-      try {
-        renderInTarget();
-        const before = reads.mock.calls.length;
-
-        fireEvent.click(button());
-        finishAnimation();
-        const maximized = reads.mock.calls.length;
-        fireEvent.click(button());
-        act(() => { jest.advanceTimersByTime(150 + 300); });
-
-        expect(maximized).toBeGreaterThan(before);
-        expect(reads.mock.calls.length).toBeGreaterThan(maximized);
-      } finally {
-        if (descriptor) {
-          Object.defineProperty(HTMLElement.prototype, "clientHeight", descriptor);
-        } else {
-          delete HTMLElement.prototype.clientHeight;
-        }
-      }
-    });
-
     it("keeps the grid maximized on Escape, like an AngularJS window", () => {
       renderInTarget();
       fireEvent.click(button());

@@ -119,13 +119,16 @@ public class CellData implements Comparable<CellData>, Copyable {
   }
 
   /**
-   * Retrieve the string value
+   * Retrieve the string value. The text of an object value is computed when it is read
    *
    * @return CellData value as String
    */
   @JsonIgnore
   public String getStringValue() {
-    return Optional.ofNullable(stringValue).orElse("").trim();
+    if (stringValue != null) {
+      return stringValue.trim();
+    }
+    return objectValue == null ? "" : objectValue.toString().trim();
   }
 
   /**
@@ -370,14 +373,22 @@ public class CellData implements Comparable<CellData>, Copyable {
     } else if (value instanceof JsonNode) {
       setValue(value, JSON);
     } else if (value instanceof CellData cell) {
-      setValue(cell.getStringValue(), cell.getObjectValue(), cell.getType());
-      setSendStringValue(cell.isSendStringValue());
-      setPrintable(cell.isPrintable());
+      copyCell(cell);
     } else {
       log.debug("CellData of type '{}'", value.getClass().getSimpleName());
-      setValue(value.toString(), value, OBJECT);
+      setValue(null, value, OBJECT);
     }
     return this;
+  }
+
+  /**
+   * Copy the value of another cell, keeping its text still to compute when it was not read yet
+   * @param cell Cell to copy
+   */
+  private void copyCell(CellData cell) {
+    setValue(cell.stringValue == null ? null : cell.getStringValue(), cell.getObjectValue(), cell.getType());
+    setSendStringValue(cell.isSendStringValue());
+    setPrintable(cell.isPrintable());
   }
 
   /**

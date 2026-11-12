@@ -55,4 +55,30 @@ describe('awe-react-client/test/js/redux/storeTest.js', () => {
   it('creates its own navigator when none is given', () => {
     expect(() => createStore().dispatch(navigationActions.navigateTo("/x"))).not.toThrow();
   });
+
+  describe('Redux DevTools', () => {
+    const nodeEnv = process.env.NODE_ENV;
+
+    afterEach(() => {
+      process.env.NODE_ENV = nodeEnv;
+      delete window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
+    });
+
+    const createStoreWithExtension = (environment) => {
+      process.env.NODE_ENV = environment;
+      const {compose} = require("@reduxjs/toolkit");
+      const extension = jest.fn(() => compose);
+      window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ = extension;
+      jest.isolateModules(() => require("../../../src/redux/store").createStore());
+      return extension;
+    };
+
+    it('does not connect the store to the extension in production', () => {
+      expect(createStoreWithExtension("production")).not.toHaveBeenCalled();
+    });
+
+    it('connects the store to the extension out of production', () => {
+      expect(createStoreWithExtension("development")).toHaveBeenCalled();
+    });
+  });
 });
