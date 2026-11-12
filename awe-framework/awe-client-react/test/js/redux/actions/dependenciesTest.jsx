@@ -54,6 +54,81 @@ describe('awe-react-client/test/js/redux/actions/dependenciesTest.jsx', function
     expect(dispatch).not.toHaveBeenCalled();
   });
 
+  it('should launch again a dependency on a group when a member changes after unchanged checks', function () {
+    const member = (id, value) => ({
+      address: {component: id, view: 'base'},
+      attributes: {group: 'group'},
+      model: {values: [{selected: true, value}]}
+    });
+    // Only the member changes: the component that holds the dependency and the other member keep their objects
+    const components = {
+      watcher: {
+        address: {component: 'watcher', view: 'base'},
+        attributes: {},
+        dependencies: [{
+          type: "and", source: "value", value: "unit", target: "unit",
+          elements: [{id: 'group', attribute1: 'totalValues', checkChanges: true}],
+          actions: []
+        }]
+      },
+      member1: member('member1', 'one'),
+      member2: member('member2', 'two')
+    };
+    const initial = {...state, components};
+    initializeDependencies('base', initial, dispatch);
+    checkDependencies(initial, dispatch);
+    checkDependencies({...initial, components: {...components}}, dispatch);
+    expect(dispatch).not.toHaveBeenCalled();
+
+    const member2 = {...components.member2, model: {values: [{selected: true, value: 'two'}, {selected: false, value: 'three'}]}};
+    checkDependencies({...initial, components: {...components, member2}}, dispatch);
+    expect(dispatch).toHaveBeenCalled();
+  });
+
+  // Checks of a screen whose components keep their objects except the ones a test replaces, as the store does
+  const watching = (elements, extra = {}) => ({
+    address: {component: 'watcher', view: 'base'},
+    attributes: {},
+    dependencies: [{type: "and", source: "value", value: "unit", target: "unit", elements, actions: [], ...extra}]
+  });
+  const criterion = (id, value) => ({
+    address: {component: id, view: 'base'},
+    attributes: {},
+    model: {values: [{selected: true, value}]}
+  });
+  const unchangedChecks = (components) => {
+    const initial = {...state, components};
+    initializeDependencies('base', initial, dispatch);
+    checkDependencies(initial, dispatch);
+    checkDependencies({...initial, components: {...components}}, dispatch);
+    expect(dispatch).not.toHaveBeenCalled();
+    return initial;
+  };
+
+  it('should launch a dependency when the component of an element shows up after unchanged checks', function () {
+    const components = {watcher: watching([{id: 'late', checkChanges: true}])};
+    const initial = unchangedChecks(components);
+
+    checkDependencies({...initial, components: {...components, late: criterion('late', 'value')}}, dispatch);
+    expect(dispatch).toHaveBeenCalled();
+  });
+
+  it('should launch a dependency on an event every time the event is raised, with no component change', function () {
+    const components = {
+      watcher: watching([{id: 'button', event: 'click'}], {source: "none", actions: [{type: 'message'}]}),
+      button: criterion('button', null)
+    };
+    const click = {...state, components, runtime: {lastEvent: {event: 'click', address: {component: 'button', view: 'base'}}}};
+    const noEvent = {...state, components, runtime: {}};
+    const launches = () => dispatch.mock.calls.filter(([action]) => action.type === 'ADD_ACTIONS_TOP').length;
+    initializeDependencies('base', noEvent, dispatch);
+
+    checkDependencies(click, dispatch);
+    checkDependencies(noEvent, dispatch);
+    checkDependencies(click, dispatch);
+    expect(launches()).toBe(2);
+  });
+
   it('should initialize and check a unit dependency', function () {
     state = {...state,
       components: {
