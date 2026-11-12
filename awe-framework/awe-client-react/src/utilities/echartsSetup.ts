@@ -1,14 +1,16 @@
 import * as echarts from "echarts/core";
 import type {EChartsCoreOption} from "echarts/core";
-import {BarChart, LineChart, PieChart, ScatterChart} from "echarts/charts";
+import {BarChart, FunnelChart, GaugeChart, HeatmapChart, LineChart, PieChart, RadarChart, ScatterChart} from "echarts/charts";
 import {
   AriaComponent,
   DataZoomComponent,
   GraphicComponent,
   GridComponent,
   LegendComponent,
+  RadarComponent,
   TitleComponent,
-  TooltipComponent
+  TooltipComponent,
+  VisualMapComponent
 } from "echarts/components";
 import {SVGRenderer} from "echarts/renderers";
 import * as langEN from "echarts/i18n/langEN-obj";
@@ -20,8 +22,8 @@ import * as langFR from "echarts/i18n/langFR-obj";
  * Charts are drawn as SVG, so that the printed image and the browser tests can read them from the DOM.
  */
 echarts.use([
-  LineChart, BarChart, PieChart, ScatterChart,
-  GridComponent, TitleComponent, LegendComponent, TooltipComponent, DataZoomComponent, GraphicComponent,
+  LineChart, BarChart, PieChart, ScatterChart, RadarChart, HeatmapChart, GaugeChart, FunnelChart,
+  GridComponent, RadarComponent, VisualMapComponent, TitleComponent, LegendComponent, TooltipComponent, DataZoomComponent, GraphicComponent,
   AriaComponent,
   SVGRenderer
 ]);

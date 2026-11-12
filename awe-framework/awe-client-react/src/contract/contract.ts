@@ -716,7 +716,7 @@ export interface XMLNode {
 
 export type DefinitionError = "TEMPLATE_AND_COMPONENTS" | "NOT_A_GRID" | "EDITABLE_GRID" | "DEPENDENCY";
 
-export type EChartsSeriesType = "LINE" | "SPLINE" | "COLUMN" | "BAR" | "AREA" | "AREASPLINE" | "AREARANGE" | "AREASPLINERANGE" | "PIE" | "SCATTER" | "BUBBLE";
+export type EChartsSeriesType = "LINE" | "SPLINE" | "COLUMN" | "BAR" | "AREA" | "AREASPLINE" | "AREARANGE" | "AREASPLINERANGE" | "PIE" | "SCATTER" | "BUBBLE" | "RADAR" | "HEATMAP" | "GAUGE" | "FUNNEL";
 
 export type GridToolbarButton = "GROUP_BY" | "SAVED_SEARCHES" | "COLUMNS" | "MAXIMIZE";
 

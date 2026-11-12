@@ -78,7 +78,7 @@ final class EChartsSeriesBuilder {
       reporter.approximation("series-type:" + type.highchartsName(), "Highcharts series type '"
         + type.highchartsName() + "' is approximated by a filled line in the ECharts model");
     }
-    if (!type.isPie()) {
+    if (!type.isAxisFree()) {
       putAxisIndexes(options, serie);
     }
     putStack(options, type);
@@ -131,6 +131,9 @@ final class EChartsSeriesBuilder {
   private void putHints(Map<String, Object> options, ChartSerie serie, EChartsSeriesType type) {
     Map<String, Object> hints = hints(options);
     hints.put("type", type.highchartsName());
+    if (type.isRange()) {
+      hints.put("range", true);
+    }
     putIfNotBlank(hints, "xValue", serie.getXValue());
     putIfNotBlank(hints, "yValue", serie.getYValue());
     putIfNotBlank(hints, "zValue", serie.getZValue());

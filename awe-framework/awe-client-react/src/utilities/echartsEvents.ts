@@ -66,10 +66,20 @@ const EMPTY_ZOOM: ZoomRange = {xMin: null, xMax: null, yMin: null, yMax: null};
  * Read the AWE point (x, y) of an ECharts mouse event
  * @param {object} params ECharts event parameters
  * @param {boolean} [inverted] The chart is inverted: its points are drawn as [y, x]
- * @returns {{x: *, y: *}} Coordinates of the point, the name and the value when it has no coordinates (pie)
+ * @returns {{x: *, y: *}} Coordinates of the point, the name and the value when it has no coordinates (pie), the name of
+ * the series for a radar
  */
-export function pointOf(params?: {name?: unknown; value?: unknown} | null, inverted = false): {x: unknown; y: unknown} {
+export function pointOf(params?: {name?: unknown; value?: unknown; data?: unknown; componentSubType?: string} | null, inverted = false): {x: unknown; y: unknown} {
   const {value, name} = params ?? {};
+  if (params?.componentSubType === "radar") {
+    // A polygon of a radar is a whole series: its values are one for each indicator, not a point
+    return {x: name ?? null, y: null};
+  }
+  const range = (params?.data as {range?: unknown[]} | undefined)?.range;
+  if (Array.isArray(range) && Array.isArray(value)) {
+    // A band is drawn with its height: the point is its x and its low value
+    return {x: (inverted ? value[1] : value[0]) ?? null, y: range[0] ?? null};
+  }
   if (Array.isArray(value)) {
     const [x, y] = inverted ? [value[1], value[0]] : value;
     return {x: x ?? null, y: y ?? null};

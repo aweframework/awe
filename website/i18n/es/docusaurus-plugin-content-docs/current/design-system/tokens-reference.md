@@ -304,6 +304,14 @@ Superficie: `data-awe-surface` en `<html>` (`slate`, `gray`, `zinc`, `neutral`, 
 | `--awe-color-chart-area` | `color-mix(in srgb, var(--awe-color-primary-text) 18%, transparent)` | = claro |
 | `--awe-color-chart-negative` | `var(--awe-color-danger)` | = claro |
 | `--awe-color-chart-axis` | `var(--awe-color-border)` | = claro |
+| `--awe-color-chart-series-1` | `var(--awe-primary-600)` | `var(--awe-primary-400)` |
+| `--awe-color-chart-series-2` | `var(--awe-palette-orange-600)` | `var(--awe-palette-orange-400)` |
+| `--awe-color-chart-series-3` | `var(--awe-palette-sky-600)` | `var(--awe-palette-sky-400)` |
+| `--awe-color-chart-series-4` | `var(--awe-palette-fuchsia-600)` | `var(--awe-palette-fuchsia-400)` |
+| `--awe-color-chart-series-5` | `var(--awe-palette-lime-600)` | `var(--awe-palette-lime-400)` |
+| `--awe-color-chart-series-6` | `var(--awe-palette-indigo-600)` | `var(--awe-palette-indigo-400)` |
+| `--awe-color-chart-series-7` | `var(--awe-palette-rose-600)` | `var(--awe-palette-rose-400)` |
+| `--awe-color-chart-series-8` | `var(--awe-palette-teal-600)` | `var(--awe-palette-teal-400)` |
 | `--awe-color-map-water` | `var(--awe-palette-sky-100)` | `color-mix(in srgb, var(--awe-palette-sky-500) 16%, var(--awe-surface-950))` |
 | `--awe-color-map-land` | `var(--awe-surface-50)` | `var(--awe-surface-900)` |
 | `--awe-color-map-park` | `var(--awe-palette-green-100)` | `color-mix(in srgb, var(--awe-palette-green-500) 14%, var(--awe-surface-900))` |

@@ -220,8 +220,12 @@ describe('awe-react-client/test/js/utilities/echartsAdvancedOptionsTest.jsx', ()
     });
 
     it('should approximate a percentage radius in pixels from the width of the bars', () => {
-      const narrow = pointsOf(byId(build("AdvColumns", columnRows, {width: 300}), "company"))[0].radius[0];
-      const wide = pointsOf(byId(build("AdvColumns", columnRows, {width: 900}), "company"))[0].radius[0];
+      // The default maximum width of the bars would cap both
+      const uncapped = (model) => model.series.forEach(serie => {
+        serie.barMaxWidth = "100%";
+      });
+      const narrow = pointsOf(byId(build("AdvColumns", columnRows, {width: 300}, uncapped), "company"))[0].radius[0];
+      const wide = pointsOf(byId(build("AdvColumns", columnRows, {width: 900}, uncapped), "company"))[0].radius[0];
 
       expect(narrow).toBeGreaterThan(0);
       expect(wide).toBeGreaterThan(narrow);
@@ -258,11 +262,17 @@ describe('awe-react-client/test/js/utilities/echartsAdvancedOptionsTest.jsx', ()
         delete model.series[0].barCategoryGap;
         delete model.series[1].barCategoryGap;
         model.series[1].barCategoryGap = 20;
+        model.series.forEach(serie => {
+          serie.barMaxWidth = "100%";
+        });
       })).toBe(81);
       // The default gap is a percentage of the bar, and a larger one makes narrower bars
       expect(radius((model) => {
         model.series[0].barCategoryGap = "100%";
         model.series[1].barCategoryGap = "100%";
+        model.series.forEach(serie => {
+          serie.barMaxWidth = "100%";
+        });
       })).toBe(43);
     });
 
@@ -286,7 +296,10 @@ describe('awe-react-client/test/js/utilities/echartsAdvancedOptionsTest.jsx', ()
 
     it('should leave unrounded bars as they are', () => {
       const model = clone(models.AdvColumns);
-      model.series.forEach(serie => delete serie.awe.borderRadius);
+      model.series.forEach(serie => {
+        delete serie.awe.borderRadius;
+        serie.itemStyle = {...serie.itemStyle, borderRadius: 0};
+      });
       const option = buildEChartsOption(model, columnRows, context());
 
       expect(option.series[0].data).toEqual([["2020", 800], ["2021", 900], ["2022", 950]]);
@@ -482,7 +495,8 @@ describe('awe-react-client/test/js/utilities/echartsAdvancedOptionsTest.jsx', ()
       const [serie] = option.series;
 
       expect(serie.lineStyle.color).toBe(PALETTE[0]);
-      expect(serie.areaStyle.color).toBe(PALETTE[0]);
+      // The area is a gradient of the color of the series
+      expect(serie.areaStyle.color.colorStops[0].color).toMatch(/^rgba\(5, ?150, ?105/);
       expect(serie.itemStyle.color).toBe("#FFFFFF");
     });
 

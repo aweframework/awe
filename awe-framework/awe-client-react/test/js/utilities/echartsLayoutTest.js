@@ -112,9 +112,8 @@ describe('awe-react-client/test/js/utilities/echartsLayoutTest.js', () => {
       const small = build("ChrPieTst", names(3), SMALL).legend;
       const wide = build("ChrPieTst", names(3), WIDE).legend;
 
-      expect(small.itemWidth).toBeLessThan(25);
+      expect(small.itemWidth).toBeLessThan(wide.itemWidth);
       expect(small.textStyle.fontSize).toBe(11);
-      expect(wide.itemWidth).toBeUndefined();
       expect(wide.textStyle).toBeUndefined();
     });
 

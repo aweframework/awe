@@ -112,7 +112,9 @@ function lineOf({item, context}: TooltipPoint, hints: TooltipHints, environment:
     return `${marker}${render(hints.pointFormat, context)}`;
   }
   const valueText = createValueText(hints, environment.locale, environment.infoOf(item).valueSuffix).write;
-  const line = `${item.marker ?? ""}${escapeHtml(item.seriesName ?? item.name)}: ${valueText(context.y)}`;
+  const range = (item.data as {range?: unknown[]} | undefined)?.range;
+  const text = Array.isArray(range) ? `${valueText(range[0])} – ${valueText(range[1])}` : valueText(context.y);
+  const line = `${item.marker ?? ""}${escapeHtml(item.seriesName ?? item.name)}: ${text}`;
   return hints.useHTML ? line + LINE_BREAK : line;
 }
 

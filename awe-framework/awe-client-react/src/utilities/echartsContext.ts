@@ -30,6 +30,8 @@ export interface AweHints {
   markerFill?: string;
   minSize?: Size;
   maxSize?: Size;
+  /** The series is a band between its y value (low) and its z value (high) */
+  range?: boolean;
   linkedTo?: string;
   showInLegend?: boolean;
   legendIndex?: number;
@@ -147,6 +149,8 @@ export const hintsOf = (node?: ModelNode | null): AweHints => node?.[AWE] || {};
 export const withoutAwe = (node?: ModelNode | null): Record<string, unknown> =>
   Object.fromEntries(Object.entries(node || {}).filter(([key]) => key !== AWE));
 export const isPie = (serie: {type?: string}): boolean => serie.type === "pie";
+/** Series whose data items are the slices or the steps, each with a color of the palette (pie, funnel) */
+export const isByData = (serie: {type?: string}): boolean => serie.type === "pie" || serie.type === "funnel";
 export const asArray = <T = unknown>(value: unknown): T[] => Array.isArray(value) ? value : [];
 
 /**
@@ -164,6 +168,7 @@ export const SERIES_INFO = new WeakMap<object, SeriesInfo>();
  * @property {string} [color] Color of the series
  * @property {string} [valueSuffix] Suffix of the values of the series in the tooltip
  * @property {number|string} [borderRadius] Radius of the corners of its bars, in pixels or as a percentage
+ * @property {boolean} [range] The series is a band between two values
  */
 export interface SeriesInfo {
   userOptions?: object;
@@ -171,6 +176,7 @@ export interface SeriesInfo {
   color?: unknown;
   valueSuffix?: string;
   borderRadius?: Size;
+  range?: boolean;
 }
 
 /**
@@ -185,6 +191,8 @@ export interface PointParams {
   color?: unknown;
   marker?: string;
   axisValueLabel?: string;
+  /** Data item of the point: a band keeps its low and high values in `range` */
+  data?: unknown;
 }
 
 /**
@@ -212,9 +220,11 @@ export interface PointContext {
 export function pointContext(params: PointParams, inverted: boolean, info: SeriesInfo = {}): PointContext {
   const coordinates = Array.isArray(params.value) ? params.value : null;
   const [xIndex, yIndex] = inverted ? [1, 0] : [0, 1];
+  const range = (params.data as {range?: unknown[]} | undefined)?.range;
   const x = coordinates?.[xIndex];
-  const y = coordinates ? coordinates[yIndex] : params.value;
-  const z = coordinates ? coordinates[2] : undefined;
+  // The point of a band is drawn with its height: its y is the low value and its z the high one
+  const fromValue = coordinates ? [coordinates[yIndex], coordinates[2]] : [params.value, undefined];
+  const [y, z] = Array.isArray(range) ? range : fromValue;
   const key = params.name ?? x;
   return {
     series: {name: params.seriesName, color: info.color, userOptions: info.userOptions},

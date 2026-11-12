@@ -225,6 +225,7 @@ Medido para 17 primarios × 6 ajustes de superficie × 2 modos con los tokens de
 | Celdas con escala de color (mapa de calor), 5 pasos desde el primario | `--awe-color-scale-1..5`, texto `--awe-color-on-scale-1..5` |
 | Barras de datos en celdas | `--awe-color-data-bar`, `--awe-color-data-bar-negative` |
 | Sparklines y gráficos pequeños | `--awe-color-chart-line`, `--awe-color-chart-area`, `--awe-color-chart-negative`, `--awe-color-chart-axis` |
+| Series de un gráfico (paleta categórica, 8 tonos) | `--awe-color-chart-series-1..8`: el primario, naranja, celeste, fucsia, lima, índigo, rosa y verde azulado (la primera sigue al color primario; las demás no, de modo que ninguna se parece al esmeralda por defecto). Los gráficos de React las usan para las series sin color propio, y `--awe-color-scale-1..5` para los mapas de calor |
 | Ilustración y controles del mapa | `--awe-color-map-*` |
 
 Los valores negativos usan siempre el color de peligro **y** una segunda señal (signo, posición), nunca solo el color.

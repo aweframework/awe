@@ -124,7 +124,7 @@ Chart element has the following attributes:
 | id | **Required** | String | Chart identifier                        |                                                    |
 | label | Optional| String | Is the title of chart                     | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)          |
 | subtitle | Optional | String | Is the subtitle of chart               | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)          |
-| type | **Required** | String | Type of chart | `line`, `spline`, `column`, `column_3d`, `area`, `areaspline`, `arearange`, `areasplinerange`, `pie`, `pie_3d`, `donut`, `donut_3d`, `semicircle`, `mixed`, `bubble`, `scatter`. See [chart types](#chart-types) |
+| type | **Required** | String | Type of chart | `line`, `spline`, `column`, `column_3d`, `area`, `areaspline`, `arearange`, `areasplinerange`, `pie`, `pie_3d`, `donut`, `donut_3d`, `semicircle`, `mixed`, `bubble`, `scatter`, `radar`, `heatmap`, `gauge`, `funnel`. See [chart types](#chart-types) |
 | stock-chart | Optional | Boolean | Flag to indicate a stock type chart | `true` or `false` |
 | inverted | Optional | Boolean | Whether to invert the axes so that the x axis is vertical and y axis is horizontal. When true, the x axis is reversed by default. | `true` or `false` |
 | stacking | Optional | String | Whether to stack the values of each series on top of each other | `normal` or `percent` |
@@ -149,7 +149,7 @@ Chart element has the following attributes:
 | ------------------------------------------- | ------------------------------------------------------------------------------------ |
 | `line`, `spline`                            | Lines. `spline` smooths them                                                         |
 | `area`, `areaspline`                        | Filled lines. `areaspline` smooths them                                              |
-| `arearange`, `areasplinerange`              | Approximated by a filled line (the server logs a warning)                           |
+| `arearange`, `areasplinerange`              | A band between two values: the `y-value` is the low and the `z-value` the high. The AngularJS engine approximates it by a filled line (the server logs a warning) |
 | `column`                                    | Vertical bars                                                                        |
 | `column_3d`                                 | Vertical bars, **flat** (3D is not drawn)                                            |
 | `pie`                                       | Pie                                                                                  |
@@ -157,7 +157,33 @@ Chart element has the following attributes:
 | `donut`, `donut_3d`                         | Pie with an inner radius (50% by default), flat                                      |
 | `semicircle`                                | Donut that only draws its upper half                                                 |
 | `scatter`, `bubble`                         | Points. `bubble` uses the `z-value` of the series as the size                        |
+| `radar`                                     | One polygon for each series, with one spoke for each `x-value`. **React engine only** |
+| `heatmap`                                   | A grid of cells coloured by the `z-value`, with a colour scale. **React engine only** |
+| `gauge`                                     | A dial with the value of the series. **React engine only**                           |
+| `funnel`                                    | Stages that narrow with their value, from the largest. **React engine only**        |
 | `mixed`                                     | The type of each series decides (`type` of `chart-serie`). A series without type is a line |
+
+The types `arearange`, `radar`, `heatmap`, `gauge` and `funnel` read the same three attributes of the `chart-serie`
+(`x-value`, `y-value` and `z-value`), but give each one another meaning:
+
+| Type                           | `x-value`                          | `y-value`                          | `z-value`                                 |
+| ------------------------------ | ---------------------------------- | ---------------------------------- | ----------------------------------------- |
+| `arearange`, `areasplinerange` | Point on the x axis (month, date)  | Low end of the band                | High end of the band                      |
+| `radar`                        | Indicator (one spoke of the radar) | Value of the series on the spoke   | Not used                                  |
+| `heatmap`                      | Category of the x axis             | Category of the y axis             | Value of the cell, which sets its colour  |
+| `gauge`                        | Not used                           | Value shown by the dial            | Maximum of the dial (optional)            |
+| `funnel`                       | Name of the stage                  | Value of the stage                 | Not used                                  |
+
+A radar series is one polygon: add one `chart-serie` for each polygon, all with the same `x-value`, and the indicators are the
+distinct values of that field. A funnel and a gauge draw only the first series. A radar, a gauge and a funnel have no
+`x-axis` or `y-axis`, show the tooltip of the point and hide the legend unless a `chart-legend` enables it. A heatmap
+draws its two axes as category axes, with a colour scale under the plot. `stacking` does not apply to any of these types.
+
+:::note React engine only
+The AngularJS engine is not extended: it keeps drawing the types it already had. `radar`, `heatmap`, `gauge` and `funnel` are
+drawn by the React engine (AWE 5) only, and the range bands too; the AngularJS engine approximates `arearange` and
+`areasplinerange` by a filled line.
+:::
 
 #### Axis element
 Axis element has the following attributes:
@@ -216,7 +242,7 @@ Serie element has the following attributes:
 | ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
 | id | **Required** | String | Serie identifier |  |
 | label | Optional | String | Is the name of serie. This value is shown in legend | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)|
-| type | Optional | String | Type of serie | `line`, `spline`, `column`, `bar`, `pie`, `area`, `areaspline`, `arearange`, `areasplinerange` or `scatter`. **Note:** If there are several series of different type, you should set the type attribute of chart element to `mixed`. A `bar` series is a horizontal column: it inverts the whole chart |
+| type | Optional | String | Type of serie | `line`, `spline`, `column`, `bar`, `pie`, `area`, `areaspline`, `arearange`, `areasplinerange`, `scatter`, `bubble`, `radar`, `heatmap`, `gauge` or `funnel`. **Note:** If there are several series of different type, you should set the type attribute of chart element to `mixed`. A `bar` series is a horizontal column: it inverts the whole chart |
 | color | Optional | String | Is used to set a color for serie | **Note:** You can use name of colors or hexadecimal code. Ex.: `color = "red"` or `color = "#BF0B23"` |
 | x-value | **Required** | String | Defines the value of the point on the x axis. It corresponds to the `alias` attribute of the field in the query  |  |
 | y-value | **Required** | String | Defines the value of the point on the y axis. It corresponds to the `alias` attribute of the field in the query  |  |
@@ -856,8 +882,15 @@ A chart has no theme of its own: its look comes from the theme of the applicatio
   dark, with the dark colors of ECharts. If the user changes the theme while the screen is open, the chart picks the
   new theme when it is created again (for example when the screen is opened again or the language changes).
 * **Series colors.** The `color` attribute of a `chart-serie` sets the color of a series. The series without a color
-  take the colors of the `colors` parameter of the chart or, by default, the Highcharts 11 palette (`#2caffe`,
-  `#544fc5`, `#00e272`, `#fe6a35`, `#6b8abc`, `#d568fb`, `#2ee0ca`, `#fa4b42`, `#feb56a`, `#91e8e1`).
+  take the colors of the `colors` parameter of the chart or, by default, the series palette of the theme. In the React
+  engine that palette is the tokens `--awe-color-chart-series-1` to `--awe-color-chart-series-8` (the primary color of the
+  application, orange, sky, fuchsia, lime, indigo, rose and teal), which have a light and a dark value; the colors of
+  the XML always win over them. The AngularJS engine keeps the Highcharts 11 palette (`#2caffe`, `#544fc5`, `#00e272`,
+  `#fe6a35`, `#6b8abc`, `#d568fb`, `#2ee0ca`, `#fa4b42`, `#feb56a`, `#91e8e1`).
+* **Modern default style (React engine).** Without any parameter the charts are drawn with gradient areas, rounded
+  bars, 2 px lines whose points only show on hover, a dashed grid, a rounded tooltip with a shadow and an axis pointer,
+  gaps between the slices of a pie, the total in the hole of a donut and round legend icons. Every chart parameter and
+  color of the XML overrides these defaults.
 * **Anything else.** Fonts, title, axes, grid lines, data labels, markers, gradient fills... are set with
   [`chart-parameter`](chart-parameters.md) elements. Only the translated options are applied.
 
@@ -872,11 +905,11 @@ ECharts, from the same `echartsModel`:
 | Feature                                      | AWE 4 (Highcharts, AngularJS engine)              | AWE 5 (ECharts, both engines)                                                       |
 | -------------------------------------------- | ------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | 3D types (`column_3d`, `pie_3d`, `donut_3d`) | Drawn in 3D                                       | Drawn **flat**                                                                      |
-| Range types (`arearange`, `areasplinerange`) | Drawn as ranges                                   | Approximated by a filled line (the server logs a warning)                           |
+| Range types (`arearange`, `areasplinerange`) | Drawn as ranges                                   | A band in the React engine; a filled line in the AngularJS engine (the server logs a warning) |
 | `chart-parameter` options                    | Any option of the Highcharts API                  | Only the [translated options](chart-parameters.md); the rest are ignored and logged |
 | `chart-options` dependency                   | Any Highcharts option                             | Only the zoom is applied, the other options are ignored                             |
 | `theme` attribute                            | Highcharts themes                                 | Removed. See [Styling a chart](#styling-a-chart)                                    |
-| Default palette                              | The Highcharts palette, or the one of the theme   | The Highcharts 11 palette, for the series without color                             |
+| Default palette                              | The Highcharts palette, or the one of the theme   | The series tokens of the theme in the React engine; the Highcharts 11 palette in the AngularJS engine |
 | Dark mode                                    | Dark Highcharts themes (`theme` attribute)        | The charts follow the theme of the application                                      |
 | `.highcharts-*` CSS rules                    | Applied                                           | Match nothing: the SVG has no CSS classes                                           |
 | Stock charts                                 | Highstock: navigator, range selector, scrollbar   | Slider, zoom with the mouse wheel and dragging                                      |
@@ -893,7 +926,9 @@ ECharts, from the same `echartsModel`:
   says so.
 * **Highcharts options.** Options without an ECharts counterpart are ignored. Check the log of the server, which
   reports each one once (see [chart parameters](chart-parameters.md#everything-else)).
-* **Range types.** `arearange` and `areasplinerange` are approximated by a filled line.
+* **Range types.** `arearange` and `areasplinerange` are drawn as a band in the React engine and approximated by a filled
+  line in the AngularJS engine.
+* **New chart types.** `radar`, `heatmap`, `gauge` and `funnel` are only drawn by the React engine.
 
 ## Printing and server rendering
 
@@ -1064,10 +1099,11 @@ option it cannot translate. Check these points when you upgrade an application, 
   either engine, and the SVG of ECharts has no CSS classes. Colors, fonts and borders come from the XML
   (`chart-parameter`, the `color` of the series) and from the theme of the application. The dark mode of the
   application is applied to the charts automatically, when the chart is created.
-* **Palette.** The series without a color of their own keep the Highcharts 11 default palette. Set `color` in the
+* **Palette.** In the React engine the series without a color of their own take the series tokens of the theme
+  (`--awe-color-chart-series-1` to `-8`); the AngularJS engine keeps the Highcharts 11 palette. Set `color` in the
   series or the `colors` parameter in the chart to change it.
 * **3D charts** (`column_3d`, `pie_3d`, `donut_3d`) are drawn flat, and `arearange` and `areasplinerange` are
-  approximated by a filled line.
+  drawn as a band in the React engine and approximated by a filled line in the AngularJS one.
 * **`chart-options` dependency.** Its result is a Highcharts options object. Both engines apply only its `zoom` (to
   link the zoom of charts) and ignore the other options.
 * **Stock charts and zoom.** A stock chart has a slider under the plot and zooms with the mouse wheel and by dragging

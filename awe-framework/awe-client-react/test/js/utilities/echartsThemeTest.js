@@ -60,7 +60,8 @@ describe('awe-react-client/test/js/utilities/echartsThemeTest.js', () => {
       const colors = resolveChartColors(element);
 
       expect(colors).toEqual(COLORS);
-      expect(parents).toHaveLength(Object.keys(CHART_TOKENS).length);
+      // The colors of the chrome, the 8 series and the 5 steps of the scale
+      expect(parents).toHaveLength(Object.keys(CHART_TOKENS).length + 8 + 5);
       expect(parents.every(parent => parent === element)).toBe(true);
       // The probe does not stay in the page
       expect(element.childElementCount).toBe(0);
@@ -80,6 +81,25 @@ describe('awe-react-client/test/js/utilities/echartsThemeTest.js', () => {
       expect(colors).not.toHaveProperty("axis");
       expect(colors).not.toHaveProperty("tooltipBackground");
       expect(colors.tooltipText).toBe("rgb(1, 1, 1)");
+    });
+
+    it('should turn the srgb colors of a color-mix() token into rgb, which ECharts can read', () => {
+      // A token made with color-mix() computes to color(srgb r g b), which ECharts would draw black
+      computed.mockImplementation((element) => {
+        if (element.tagName !== "SPAN") {
+          return {color: "", getPropertyValue: () => "light-dark(a, b)"};
+        }
+        return {color: element.style.color.includes("overlay)")
+          ? "color(srgb 0 0.5 1 / 0.25)"
+          : "color(srgb 0.1 0.2 0.3)"};
+      });
+
+      const colors = resolveChartColors(document.body);
+
+      expect(colors.text).toBe("rgb(26, 51, 77)");
+      expect(colors.tooltipBackground).toBe("rgba(0, 128, 255, 0.25)");
+      expect(colors.scale).toEqual(Array(5).fill("rgb(26, 51, 77)"));
+      expect(colors.series[0]).toBe("rgb(26, 51, 77)");
     });
 
     it('should resolve nothing without a DOM element or without a text color', () => {

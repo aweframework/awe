@@ -168,7 +168,7 @@ gráfica para usar los atributos del XML.
 
 | Caso                                                                     | Resultado en ambos motores                                    |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| Series de tipo `arearange` y `areasplinerange`                           | Se dibujan como una línea rellena (aviso)                     |
+| Series de tipo `arearange` y `areasplinerange`                           | Una banda en el motor React; una línea rellena en el motor AngularJS (aviso) |
 | Un `type` de serie que no está en la tabla de tipos de gráfica            | Se dibuja como una línea (aviso)                              |
 | `crosshairs="yAxis"` en `chart-tooltip`                                  | Se dibuja como el par de líneas guía de ambos ejes (sin aviso) |
 

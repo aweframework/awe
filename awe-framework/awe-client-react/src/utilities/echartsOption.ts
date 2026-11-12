@@ -14,14 +14,28 @@ import {
   Size,
   asArray,
   hintsOf,
+  isByData,
   isPie,
   pointContext,
   withoutAwe
 } from "./echartsContext";
 import {roundBars} from "./echartsBars";
+import {
+  VISUAL_MAP_ROOM,
+  bindTypedData,
+  completeGauge,
+  completeRadar,
+  completeVisualMap,
+  hasHorizontalVisualMap,
+  heatmapCategories,
+  isGauge,
+  radarIndicators,
+  withRangeBases
+} from "./echartsChartTypes";
 import {BuiltLegend, buildLegends, seriesNames} from "./echartsLegend";
 import {fitPieLabels} from "./echartsPie";
 import {ChartColors, applyChartColors} from "./echartsTheme";
+import {BAR_RADIUS, applyModernStyle, donutTotal, styleBars, styleSeries} from "./echartsStyle";
 import {TooltipEnvironment, TooltipHints, buildTooltip, createValueText} from "./echartsTooltip";
 
 /**
@@ -92,6 +106,7 @@ export interface ModelAxis extends ModelNode {
   minInterval?: unknown;
   splitNumber?: unknown;
   scale?: boolean;
+  data?: unknown[];
   boundaryGap?: unknown;
   axisLabel?: ModelNode & {rotate?: number};
 }
@@ -126,6 +141,8 @@ export interface ChartModel extends ModelNode {
   legend?: ModelLegend;
   tooltip?: ModelNode;
   dataZoom?: ModelNode | ModelNode[];
+  radar?: ModelNode | ModelNode[];
+  visualMap?: ModelNode | ModelNode[];
   color?: string[];
 }
 
@@ -151,6 +168,8 @@ interface Environment extends ChartContext {
   hasTitle: boolean;
   tooltipHints: TooltipHints;
   palette: string[];
+  indicators: unknown[];
+  categoryAxes: {x: boolean; y: boolean};
   plotArea?: PlotArea | null;
 }
 
@@ -174,11 +193,12 @@ const CATEGORY_LABEL = {
 };
 
 /**
- * Default colors of the series (the Highcharts 11 palette), used when the XML does not give a color
+ * Default colors of the series when the XML does not give a color and the tokens cannot be resolved (the server side SVG
+ * of the PDFs, jsdom). It mirrors the light values of `--awe-color-chart-series-1..8` with the default primary (emerald),
+ * for the renders without CSS: designTokensTest keeps it equal to tokens.css
  * @type {string[]}
  */
-export const PALETTE: string[] = ["#2caffe", "#544fc5", "#00e272", "#fe6a35", "#6b8abc", "#d568fb", "#2ee0ca", "#fa4b42",
-  "#feb56a", "#91e8e1"];
+export const PALETTE: string[] = ["#059669", "#ea580c", "#0284c7", "#c026d3", "#65a30d", "#4f46e5", "#e11d48", "#0d9488"];
 
 const LAYOUT = {
   margin: 16,
@@ -207,7 +227,7 @@ const SMALL_LAYOUT = {
   titleFont: 13,
   subtitleFont: 11,
   legendFont: 11,
-  legendItem: {itemWidth: 14, itemHeight: 8, itemGap: 8}
+  legendItem: {itemWidth: 8, itemHeight: 8, itemGap: 8}
 };
 
 /**
@@ -290,7 +310,7 @@ function bindData(serie: ModelSeries, values: Array<Record<string, unknown>>, in
   const {xValue, yValue, zValue, values: ownValues} = hintsOf(serie);
   const hasZ = Boolean(zValue);
   const rows = asArray<Record<string, unknown>>(ownValues ?? values);
-  if (isPie(serie)) {
+  if (isByData(serie)) {
     return rows.map(row => ({name: row[xValue as string], value: row[yValue as string] ?? null}));
   }
   return rows.map(row => {
@@ -376,6 +396,16 @@ function applyMarkerFill(built: BuiltSeries, fill: string | undefined, color: un
 }
 
 /**
+ * Radius of the value end of the bars of a series that does not set it: the default one, unless the model rounds the
+ * bars with the ECharts option itself
+ * @param {object} serie Series of the model
+ * @returns {number|undefined} Radius in pixels, undefined when the series is not a bar or the model has a radius
+ */
+function defaultRadius(serie: ModelSeries): number | undefined {
+  return serie.type === "bar" && serie.itemStyle?.borderRadius === undefined ? BAR_RADIUS : undefined;
+}
+
+/**
  * Build a series of the option
  * @param {object} serie Series of the model
  * @param {object} environment Environment (values, inverted, t, locale, hasTitle)
@@ -385,15 +415,19 @@ function applyMarkerFill(built: BuiltSeries, fill: string | undefined, color: un
 function buildSeries(serie: ModelSeries, environment: Environment, index: number): BuiltSeries {
   const {values, inverted, t, locale, hasTitle, tooltipHints, palette} = environment;
   const hints = hintsOf(serie);
-  const data = bindData(serie, values, inverted);
+  const name = serie.name ? translateLabel(serie.name, t) : undefined;
+  const data = bindTypedData(serie, values, {name, indicators: environment.indicators, categoryAxes: environment.categoryAxes}) ?? bindData(serie, values, inverted);
   const built: BuiltSeries = {...withoutAwe(serie), data};
 
-  if (serie.name) {
-    built.name = translateLabel(serie.name, t);
+  if (name) {
+    built.name = name;
+  }
+  if (isGauge(serie)) {
+    completeGauge(built, serie, values);
   }
   const info: SeriesInfo = {
     userOptions: hints.userOptions, silent: Boolean(serie.silent), valueSuffix: hints.valueSuffix,
-    borderRadius: hints.borderRadius
+    borderRadius: hints.borderRadius ?? defaultRadius(serie), range: hints.range
   };
   if (hints.labelFormat && serie.label) {
     built.label = {
@@ -401,7 +435,7 @@ function buildSeries(serie: ModelSeries, environment: Environment, index: number
       formatter: (params: PointParams) => formatTemplate(hints.labelFormat as string, pointContext(params, inverted, info), {locale, stripHtml: true})
     };
   }
-  if (!isPie(serie) && serie.colorBy !== "data") {
+  if (!isByData(serie) && serie.colorBy !== "data") {
     // The colors are assigned here because the stacks are reversed later, which would swap them
     built.itemStyle = {color: palette[index % palette.length], ...serie.itemStyle};
   }
@@ -412,13 +446,14 @@ function buildSeries(serie: ModelSeries, environment: Environment, index: number
   if (serie.type === "bar" && serie.label?.show) {
     built.label = {fontWeight: "bold", fontSize: 11, ...built.label};
   }
-  if (serie.type === "line" && data.length > MAX_SYMBOL_POINTS && serie.showSymbol === undefined) {
-    built.showSymbol = false;
-  }
   if (hints.valueSuffix !== undefined) {
     built.tooltip = {...serie.tooltip, valueFormatter: createValueText(tooltipHints, locale as ChartLocale, hints.valueSuffix).write};
   }
   info.color = built.itemStyle?.color;
+  // The area takes its gradient from the color of the series before the marker fill gives it a flat one
+  styleSeries(built, serie, info.color, {
+    markers: hints.markerFill !== undefined || serie.symbol !== undefined, maxPoints: MAX_SYMBOL_POINTS
+  });
   // The palette color is resolved before the marker fill takes the color of the symbols
   applyMarkerFill(built, hints.markerFill, info.color ?? palette[index % palette.length]);
   SERIES_INFO.set(built, info);
@@ -740,6 +775,13 @@ function buildAxes(axes: ModelAxis[], key: AxisKey, series: BuiltSeries[], envir
     if (axis.type === "value") {
       Object.assign(built, valueAxisOptions(axis, key, users, environment));
     }
+    if (axis.type === "category" && axis.data === undefined) {
+      // The categories of a heatmap are the distinct values of its x and y
+      const categories = heatmapCategories(users, key === "xAxis" ? 0 : 1);
+      if (categories) {
+        built.data = categories;
+      }
+    }
     return built;
   });
 }
@@ -1006,7 +1048,7 @@ function buildAllSeries(modelSeries: ModelSeries[], environment: Environment): B
   let colored = 0;
   const built = modelSeries.map(serie => {
     const index = colored;
-    if (!isPie(serie) && serie.colorBy !== "data" && !serie.itemStyle?.color) {
+    if (!isByData(serie) && serie.colorBy !== "data" && !serie.itemStyle?.color) {
       colored += 1;
     }
     return buildSeries(serie, environment, index);
@@ -1082,12 +1124,28 @@ function hasTimeXAxis(model: ChartModel): boolean {
 }
 
 /**
- * Colors of the chart: the ones that the screen defines, or the default palette
+ * Check if an axis (the AWE x or y axis) is a category axis. An axis that the model does not declare counts as one
  * @param {object} model ECharts model
+ * @param {string} axis x or y
+ * @returns {boolean} The axis holds categories
+ */
+function isCategoryAxis(model: ChartModel, axis: string): boolean {
+  const declared = [...asArray<ModelAxis>(model.xAxis), ...asArray<ModelAxis>(model.yAxis)].find(own => hintsOf(own).axis === axis);
+  return declared?.type === undefined || declared.type === "category";
+}
+
+/**
+ * Colors of the chart: the ones that the screen defines, the series tokens of the design system, or (when the colors of
+ * the page cannot be resolved: a chart drawn without a DOM, for the print) the last-resort palette
+ * @param {object} model ECharts model
+ * @param {object|null} [colors] Resolved colors of the page
  * @returns {string[]} Colors
  */
-function paletteOf(model: ChartModel): string[] {
-  return Array.isArray(model.color) && model.color.length > 0 ? model.color : PALETTE;
+function paletteOf(model: ChartModel, colors?: ChartColors | null): string[] {
+  if (Array.isArray(model.color) && model.color.length > 0) {
+    return model.color;
+  }
+  return colors?.series ?? PALETTE;
 }
 
 /**
@@ -1115,7 +1173,40 @@ function tooltipEnvironment(model: ChartModel, environment: Environment, series:
  * @returns {object} ECharts option
  */
 export function buildEChartsOption(model: ChartModel | null | undefined, values: Array<Record<string, unknown>>, context: ChartContext): ChartOption {
-  return applyChartColors(buildOption(model, values, context), context.colors);
+  return applyChartColors(applyModernStyle(buildOption(model, values, context)), context.colors);
+}
+
+/**
+ * Legend options of a small chart: it scrolls its legend, which keeps one row (or column) instead of taking the plot; a
+ * static image cannot scroll, so it lists every entry
+ * @param {Environment} environment Environment
+ * @returns {object} Legend options, empty when the chart is not small
+ */
+function smallLegend(environment: Environment): ModelNode {
+  if (!isSmall(environment)) {
+    return {};
+  }
+  return {
+    type: environment.print ? "plain" : "scroll",
+    textStyle: {fontSize: SMALL_LAYOUT.legendFont}, ...SMALL_LAYOUT.legendItem
+  };
+}
+
+/**
+ * Graphic that depends on the data: the no data text when every series is empty, else the total of a donut. An empty
+ * donut shows the no data text, not a total of nothing on top of it
+ * @param {object[]} built Built series
+ * @param {object[]} series Series of the option
+ * @param {Environment} environment Environment
+ * @param {function} noData Builds the no data text
+ * @returns {object[]} Graphic elements
+ */
+function dataGraphic(built: BuiltSeries[], series: BuiltSeries[], environment: Environment, noData: () => ModelNode): ModelNode[] {
+  if (built.every(serie => serie.data.length === 0)) {
+    return [noData()];
+  }
+  const total = donutTotal(series, environment);
+  return total ? [total] : [];
 }
 
 /**
@@ -1126,7 +1217,9 @@ export function buildEChartsOption(model: ChartModel | null | undefined, values:
  * @returns {object} ECharts option
  */
 function buildOption(model: ChartModel | null | undefined, values: Array<Record<string, unknown>>, context: ChartContext): ChartOption {
-  const environment: Environment = {inverted: false, hasTitle: false, tooltipHints: {}, palette: PALETTE, ...context, values};
+  const environment: Environment = {
+    inverted: false, hasTitle: false, tooltipHints: {}, palette: PALETTE, indicators: [], categoryAxes: {x: true, y: true}, ...context, values
+  };
   const locale = environment.locale || {};
   const noData = () => graphicText(locale.noData, {left: "center", top: "middle"}, environment);
 
@@ -1138,7 +1231,9 @@ function buildOption(model: ChartModel | null | undefined, values: Array<Record<
   environment.inverted = Boolean(hintsOf(model).inverted);
   environment.hasTitle = Boolean(model.title?.text);
   environment.tooltipHints = hintsOf(model.tooltip);
-  environment.palette = paletteOf(model);
+  environment.palette = paletteOf(model, context.colors);
+  environment.categoryAxes = {x: isCategoryAxis(model, "x"), y: isCategoryAxis(model, "y")};
+  environment.indicators = radarIndicators(asArray<ModelSeries>(model.series), values);
   environment.plotArea = pieArea(model, environment);
   const {t} = environment;
 
@@ -1146,16 +1241,30 @@ function buildOption(model: ChartModel | null | undefined, values: Array<Record<
   const drill = resolveDrill(model, environment.drill);
   const modelSeries = asArray<ModelSeries>(model.series).map(serie => drill?.from === serie.id ? (drill as {serie: ModelSeries}).serie : serie);
   const built = buildAllSeries(modelSeries, environment);
-  const series = reverseStacks(built);
-  roundBars(series, environment);
-  hideOverlappingLabels(series);
+  styleBars(built);
+  const stacked = reverseStacks(built);
+  roundBars(stacked, environment);
+  hideOverlappingLabels(stacked);
+  // The bands go last: the series above are in the order of the model, which the legend and the stacks read
+  const series = withRangeBases(stacked, environment);
   const layout = {bottom: 0};
   const option: ChartOption = {
     backgroundColor: TRANSPARENT, color: environment.palette, aria: {enabled: true}, series,
     ...buildAxesOptions(model, series, environment, layout)
   };
+  // A horizontal visual map goes below the labels of the axes, so its room adds to theirs
+  if (model.visualMap && hasHorizontalVisualMap(model.visualMap)) {
+    layout.bottom += VISUAL_MAP_ROOM;
+  }
   const cartesian = Boolean(option.xAxis || option.yAxis);
   const graphic = [];
+
+  if (model.radar) {
+    option.radar = completeRadar(stripAwe(model.radar), environment.indicators);
+  }
+  if (model.visualMap) {
+    option.visualMap = completeVisualMap(stripAwe(model.visualMap), series);
+  }
 
   if (model.title) {
     option.title = buildTitle(model.title, environment);
@@ -1164,14 +1273,7 @@ function buildOption(model: ChartModel | null | undefined, values: Array<Record<
     option.tooltip = buildTooltip(model.tooltip, tooltipEnvironment(model, environment, series));
   }
   if (model.legend) {
-    option.legend = buildLegends(model.legend, modelSeries, cartesian, t, {
-      // A small chart scrolls its legend, which keeps one row (or column) instead of taking the plot; a static image
-      // cannot scroll, so it lists every entry
-      ...isSmall(environment) ? {
-        type: environment.print ? "plain" : "scroll",
-        textStyle: {fontSize: SMALL_LAYOUT.legendFont}, ...SMALL_LAYOUT.legendItem
-      } : {}
-    });
+    option.legend = buildLegends(model.legend, modelSeries, cartesian, t, smallLegend(environment));
   }
 
   const legendPlace = legendSide(model.legend);
@@ -1186,9 +1288,7 @@ function buildOption(model: ChartModel | null | undefined, values: Array<Record<
   if (drill) {
     graphic.push(drillBackControl(model, drill, environment));
   }
-  if (built.every(serie => serie.data.length === 0)) {
-    graphic.push(noData());
-  }
+  graphic.push(...dataGraphic(built, series, environment, noData));
   if (graphic.length > 0) {
     option.graphic = graphic;
   }
