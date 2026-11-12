@@ -2,6 +2,7 @@ import {
   findFirstInvalid,
   focusComponent,
   getInvalidPanelValues,
+  getInvalidValuesByPanel,
   getRevealSelections,
   getStructureOrder,
   hasUnsavedRows,
@@ -157,6 +158,31 @@ describe("awe-react-client/test/js/utilities/revealTest.js", () => {
         grid: component("grid", ["tabs", "two", "grid"], null, {values: [{id: "1", $row: {editing: false}}]})
       };
       expect(getInvalidPanelValues(components, "tabs")).toEqual([]);
+    });
+  });
+
+  describe("getInvalidValuesByPanel", () => {
+    const components = {
+      a: component("a", ["tabs", "two", "a"], ERROR),
+      b: component("b", ["tabs", "one", "acc", "first", "b"], ERROR),
+      grid: component("grid", ["steps", "start", "grid"], null, {values: [{id: "1", $row: {editing: true}}]}),
+      saved: component("saved", ["steps", "end", "saved"], null, {values: [{id: "1"}]}),
+      twice: component("twice", ["tabs", "three", "tabs", "four", "twice"], ERROR),
+      e: component("e", ["tabs"], ERROR)
+    };
+
+    it("gives every panel the same values as getInvalidPanelValues", () => {
+      const byPanel = getInvalidValuesByPanel(components);
+      const ids = new Set(["other", ...Object.values(components).flatMap(item => item.context.source)]);
+      ids.forEach(panelId => {
+        expect(byPanel[panelId] || []).toEqual(getInvalidPanelValues(components, panelId));
+      });
+      expect(byPanel.tabs).toEqual(["two", "one", "three"]);
+      expect(byPanel.steps).toEqual(["start"]);
+    });
+
+    it("returns no panels without components", () => {
+      expect(getInvalidValuesByPanel(null)).toEqual({});
     });
   });
 

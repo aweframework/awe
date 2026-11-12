@@ -43,6 +43,19 @@ const selectRunningActions = (state) => [
 ].sort((first, second) => actionOrder(first) - actionOrder(second));
 
 /**
+ * Lists of the actions stack. Only mounted while the stack is shown: the queue changes on every client action of a
+ * response, and a hidden list would render all its actions for each change (#962)
+ */
+function ActionsStack() {
+  const syncStack = useSelector((state) => state.actions.sync);
+  const asyncStack = useSelector((state) => state.actions.async);
+  return <>
+    <StackList type={"async"} elements={asyncStack}/>
+    <StackList type={"sync"} stacks={syncStack}/>
+  </>;
+}
+
+/**
  * Actions container
  * @category Containers
  */
@@ -51,8 +64,6 @@ function ActionsContainer() {
   const store = useStore();
   const prevRunningActionsRef = useRef([]);
   const isShowing = useSelector((state) => state.settings.actionsStack > 0);
-  const syncStack = useSelector((state) => state.actions.sync);
-  const asyncStack = useSelector((state) => state.actions.async);
   const settings = useSelector(selectSettings);
 
   // The list is rebuilt on every call, but its actions are the ones of the state: shallowEqual keeps the previous list
@@ -91,8 +102,7 @@ function ActionsContainer() {
 
   return <div
       className="actions-zone" style={{display: isShowing ? "block" : "none"}}>
-      <StackList type={"async"} elements={asyncStack}/>
-      <StackList type={"sync"} stacks={syncStack}/>
+      {isShowing && <ActionsStack/>}
     </div>;
 }
 

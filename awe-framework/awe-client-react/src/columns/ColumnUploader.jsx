@@ -27,7 +27,8 @@ function ColumnUploader(props) {
   const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
 
-  const settings = useSelector(state => state.settings);
+  // Only the setting the component reads: any other change of the settings does not render it again
+  const uploadMaxSize = useSelector(state => state.settings?.uploadMaxSize);
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -54,7 +55,6 @@ function ColumnUploader(props) {
     setStatus(INITIAL);
   }, []);
   const onUpload = useCallback(() => setStatus(UPLOADED), []);
-  const {uploadMaxSize} = settings || {};
   const classes = classNames("p-inputgroup", style, cellStyle, "column-editor", {"p-invalid": error}, {"hidden": !visible});
 
   return (

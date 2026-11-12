@@ -16,11 +16,12 @@ function ColumnDate(props) {
   const {style: cellStyle, value: cellValue} = data;
   const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
-  const settings = useSelector(state => state.settings);
+  // Only the setting the component reads: any other change of the settings does not render it again
+  const settingsLanguage = useSelector(state => state.settings?.language);
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const { format, language, calendarProps } = useDateOptions(props, cellValue, settings.language);
+  const { format, language, calendarProps } = useDateOptions(props, cellValue, settingsLanguage);
 
   const onChange = useCallback((e) => {
     if (cellValue !== e.value) {
@@ -42,7 +43,7 @@ function ColumnDate(props) {
       {...calendarProps}
       onChange={onChange}
       invalid={error}
-      locale={settings.language}
+      locale={settingsLanguage}
       pt={calendarPassThrough(address.component)}
       tooltip={formatMessage(error, t)}
       tooltipOptions={{ position: "bottom", className: "validation-tooltip" }}

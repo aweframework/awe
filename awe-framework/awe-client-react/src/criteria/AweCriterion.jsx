@@ -18,13 +18,15 @@ const AweCriterion = ({children, note, address, attributes, validationRules,
                         generateUnit = true, groupClass = "p-inputgroup", belowField = null, skeletonKind = "field", labelRow = false}) => {
   const {label, style, help, helpImage, icon, unit, size, error, visible, readonly, leftLabel} = attributes || {};
   const {t} = useTranslation();
-  const settings = useSelector(selectSettings);
+  // Only the settings the component reads: any other change of the settings does not render it again
+  const pixelsPerCharacter = useSelector(state => selectSettings(state)?.pixelsPerCharacter);
+  const helpTimeout = useSelector(state => selectSettings(state)?.helpTimeout);
   const {onContextMenu, contextMenuTemplate} = useContextMenu({address, contextMenu: attributes?.contextMenu});
 
   // Label on the left: its width is the number of characters of the contract by the pixels of a character of the size
   const leftChars = Number.parseInt(leftLabel, 10);
   const hasLeftLabel = leftChars > 0;
-  const charSize = (settings.pixelsPerCharacter ?? 7) + (SIZE_CHAR_INCREMENT[size] ?? 0);
+  const charSize = (pixelsPerCharacter ?? 7) + (SIZE_CHAR_INCREMENT[size] ?? 0);
   const labelWidth = hasLeftLabel ? {width: `${leftChars * charSize}px`} : {};
 
   const getHelpIcon = () => {
@@ -47,7 +49,7 @@ const AweCriterion = ({children, note, address, attributes, validationRules,
             data-pr-position="bottom"
             data-pr-at="left+6 bottom"
             style={{...(help || helpImage ? {cursor: "pointer"} : {}), ...labelWidth}}
-            data-pr-showdelay={settings.helpTimeout}
+            data-pr-showdelay={helpTimeout}
           >
             {getHelpIcon()}{translateLabel(label, t)}
           </label>
@@ -118,7 +120,7 @@ const AweCriterion = ({children, note, address, attributes, validationRules,
       {!generateLabel && getHelpTooltipNode(help, helpImage, t, `.help-target-${address.component}`)}
       <div className={classNames(groupClass, {[`help-target-${address.component}`]: !generateLabel && (help || helpImage)})}
            style={{position: "relative"}}
-           data-pr-position="bottom" data-pr-at="left+6 bottom" data-pr-showdelay={settings.helpTimeout}>
+           data-pr-position="bottom" data-pr-at="left+6 bottom" data-pr-showdelay={helpTimeout}>
         {generateIcon && getIcon()}
         {children}
         {generateUnit && getUnit()}

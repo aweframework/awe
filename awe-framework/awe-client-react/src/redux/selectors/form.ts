@@ -81,10 +81,8 @@ export const getFormValues = (
       const values = getComponentData(component, { components, settings, t }, forPrinting);
       // The components that reach this point have a valid address: the others were filtered out above
       checkDuplicates(getComponentId(component.address) as string, result, values);
-      return {
-        ...result,
-        ...values
-      };
+      // The values join the same object: joining a copy per component would be quadratic
+      return Object.assign(result, values);
     }, {
       ...(settings.token ? { [settings.tokenKey]: settings.token } : {})
     });

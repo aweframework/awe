@@ -16,7 +16,8 @@ function AweInputTime(props) {
   const { id } = props;
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const settings = useSelector(state => state.settings);
+  // Only the setting the component reads: any other change of the settings does not render it again
+  const language = useSelector(state => state.settings?.language);
   const { address, attributes, validationRules, value, onSubmit } = useText(id);
 
   const timeFormat = attributes.timeFormat;
@@ -43,7 +44,7 @@ function AweInputTime(props) {
         onChange={onChange}
         required={required}
         disabled={readonly}
-        locale={settings.language}
+        locale={language}
         pt={calendarPassThrough(address?.component, onKeyDown, undefined, requiredAria(attributes, validationRules))}
         timeOnly
         hourFormat={hourFormat}

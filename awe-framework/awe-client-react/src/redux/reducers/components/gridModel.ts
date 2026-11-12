@@ -346,7 +346,10 @@ export function updateSelectedGroup(
     })
     .filter(u => u !== null);
 
-  return groupUpdates.reduce<ComponentsState>((acc, u) => ({ ...acc, [u.id]: u.delta }), {});
+  return groupUpdates.reduce<ComponentsState>((acc, u) => {
+    acc[u.id] = u.delta;
+    return acc;
+  }, {});
 }
 
 /**

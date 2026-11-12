@@ -99,7 +99,8 @@ function AweButton(props) {
   const { id, style: propsStyle, className, variant, type, elementList } = props;
   const state = useComponentState(id);
   const { address = {}, attributes = {}, actions = [] } = state;
-  const settings = useSelector(state => state.settings);
+  // Only the settings the component reads: any other change of the settings does not render it again
+  const helpTimeout = useSelector(state => state.settings?.helpTimeout);
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { onContextMenu, contextMenuTemplate } = useContextMenu({ address, contextMenu: attributes.contextMenu });
@@ -155,7 +156,7 @@ function AweButton(props) {
       onClick={onClick}
       onContextMenu={onContextMenu}
       data-pr-position={"bottom"}
-      data-pr-showdelay={settings.helpTimeout}
+      data-pr-showdelay={helpTimeout}
       {...testHook(TestIds.button)}
     />
     {signin?.after}

@@ -1,7 +1,8 @@
 import {useEffect, useMemo} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import {shallowEqual, useDispatch, useSelector} from "react-redux";
+import {createSelector} from "@reduxjs/toolkit";
 import {getAllComponents} from "../redux/selectors/componentSelectors";
-import {getInvalidPanelValues} from "../utilities/reveal";
+import {getInvalidValuesByPanel} from "../utilities/reveal";
 import {updateModelWithDependencies as updateThunk} from "../redux/thunks/components";
 import useComponent from "./useComponent";
 
@@ -57,13 +58,17 @@ export function usePanelable(model = {values: []}, address, options = {}) {
     [values, activeIndex, selectIndex]);
 }
 
+const NO_INVALID_VALUES = [];
+
+// One scan of the components for all the panels, only when the components change (#962)
+const selectInvalidValuesByPanel = createSelector([getAllComponents], components => getInvalidValuesByPanel(components));
+
 /**
- * Values of the options of a panel (tab, step, accordion item) that hold invalid fields. It selects a string so the
- * panel only renders again when the set of marked options changes, not on every change of the components.
+ * Values of the options of a panel (tab, step, accordion item) that hold invalid fields. The values are compared one
+ * by one, so the panel only renders again when the set of marked options changes, not on every change of the components.
  * @param {string} panelId Panel id
  * @return {string[]} Values with invalid fields
  */
 export function useInvalidValues(panelId) {
-  const invalid = useSelector(state => JSON.stringify(getInvalidPanelValues(getAllComponents(state), panelId)));
-  return useMemo(() => JSON.parse(invalid), [invalid]);
+  return useSelector(state => selectInvalidValuesByPanel(state)[panelId] || NO_INVALID_VALUES, shallowEqual);
 }

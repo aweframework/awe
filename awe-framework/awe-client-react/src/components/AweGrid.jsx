@@ -77,7 +77,6 @@ function AweGrid(props) {
   const { id } = props;
   const dispatch = useDispatch();
   const {t} = useTranslation();
-  const [rowsPerPageOptions, setRowsPerPageOptions] = useState([]);
   // Rows whose detail is shown, by row id. They stay open while the rows are paged or sorted on the client
   const [expandedRows, setExpandedRows] = useState({});
 
@@ -186,13 +185,14 @@ function AweGrid(props) {
     dispatch(addActionsTop([...cancelRowAction, { type: "change-filter", address, parameters: { filters } }]));
   }, [dispatch, model.values, address]);
 
-  // Initialize rowsPerPageOptions when attributes change (mimic componentDidMount logic)
-  useEffect(() => {
-    const { pagerValues = [], max = 20 } = attributes;
-    const pager = pagerValues.length > 0 ? pagerValues : [10, 20, 30];
-    const set = new Set([...pager, max].filter(v => typeof v === 'number'));
-    setRowsPerPageOptions(Array.from(set).sort((a, b) => a - b));
-  }, [attributes.pagerValues, attributes.max]);
+  // Page sizes offered by the paginator. They are derived while rendering: setting them from an effect rendered the whole
+  // table twice to show the first rows
+  const { pagerValues, max: attributesMax } = attributes;
+  const rowsPerPageOptions = useMemo(() => {
+    const pager = pagerValues?.length > 0 ? pagerValues : [10, 20, 30];
+    const set = new Set([...pager, attributesMax === undefined ? 20 : attributesMax].filter(v => typeof v === 'number'));
+    return Array.from(set).sort((a, b) => a - b);
+  }, [pagerValues, attributesMax]);
 
   // Scroll to the save button when a row starts being edited. Doing it on every render moves a grid wider than its
   // container whenever anything changes (a click on another row, a typed value), and the cells run away from under
@@ -366,4 +366,5 @@ AweGrid.propTypes = {
   id: PropTypes.string,
 };
 
-export default AweGrid;
+// The grid only depends on its identifier: the component that holds it renders again without rendering its table
+export default React.memo(AweGrid);
