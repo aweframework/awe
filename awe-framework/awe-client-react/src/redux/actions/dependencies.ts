@@ -268,7 +268,35 @@ function getTextAttribute(component: DependencyComponent, trigger: Trigger) {
  * @param {object[]} components Components
  */
 function isGroup(group: string, components: Record<string, DependencyComponent>): boolean {
-  return Object.values(components).filter(component => component.attributes?.group === group).length > 0;
+  return getGroups(components).has(group);
+}
+
+// Components of every group, built once per components map: the map is the same object while no component changes,
+// and a check reads it for every element of every dependency
+const GROUPS = new WeakMap<object, Map<unknown, DependencyComponent[]>>();
+
+/**
+ * Components of every group of a components map, in the order of the map. Every component is listed under its group
+ * attribute, also the ones without a group (under undefined), as the comparison by group did
+ * @param {object} components Components
+ * @returns {Map} Components by group
+ */
+function getGroups(components: Record<string, DependencyComponent>): Map<unknown, DependencyComponent[]> {
+  let groups = GROUPS.get(components);
+  if (!groups) {
+    groups = new Map();
+    for (const component of Object.values(components)) {
+      const group = component.attributes?.group;
+      const members = groups.get(group);
+      if (members) {
+        members.push(component);
+      } else {
+        groups.set(group, [component]);
+      }
+    }
+    GROUPS.set(components, groups);
+  }
+  return groups;
 }
 
 /**
@@ -279,7 +307,7 @@ function isGroup(group: string, components: Record<string, DependencyComponent>)
  */
 function getComponent(componentId: string, components: Record<string, DependencyComponent>): DependencyComponent {
   if (isGroup(componentId, components)) {
-    const groupComponents = Object.values(components).filter(component => component.attributes?.group === componentId);
+    const groupComponents = getGroups(components).get(componentId) as DependencyComponent[];
     return {
       address: groupComponents.map(component => component.address).reduce((all, address) => ({
         ...all, ...address,
@@ -918,17 +946,73 @@ function checkAndStoreResult(dependency: PlacedDependency, component: Dependency
 
   // Store check values
   const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
+  const stored = {
+    ...DEPENDENCY_VALUES[component.address?.view][componentId],
+    ...result.values,
+    modelHash: modelHash
+  };
 
   DEPENDENCY_VALUES[component.address?.view] = {
     ...DEPENDENCY_VALUES[component.address?.view],
-    [componentId]: {
-      ...DEPENDENCY_VALUES[component.address?.view][componentId],
-      ...result.values,
-      modelHash: modelHash
-    }
+    [componentId]: stored
   };
+  rememberInputs(stored, dependency, component, state);
 
   return result;
+}
+
+// What each stored result was evaluated on, keyed by the stored values themselves: storing a new result or forgetting
+// it (forget*Dependencies, initializeDependencies) leaves no entry for the values the next check finds
+const EVALUATED_INPUTS = new WeakMap<object, unknown[]>();
+// Marks an element whose component is not in the screen
+const MISSING_COMPONENT = Symbol("missing component");
+
+/**
+ * Everything an evaluation of a dependency reads: the settings, the component that holds it (its dependencies, its
+ * rows) and the components its elements point to, group members included. Components keep their object while they do
+ * not change, so equal inputs give an equal evaluation. A dependency on an event has none: the event is not in them
+ * @param {object} dependency Dependency
+ * @param {object} component Component that holds it
+ * @param {object} state State
+ * @returns {Array|null} Inputs, null when the dependency has to be evaluated on every check
+ */
+function getEvaluationInputs(dependency: PlacedDependency, component: DependencyComponent, state: RootState): unknown[] | null {
+  const elements = dependency.elements || [];
+  if (elements.some(element => element.event)) {
+    return null;
+  }
+  const components = getComponents(state);
+  const groups = getGroups(components);
+  const inputs: unknown[] = [state.settings, component];
+  elements.forEach(element => {
+    const ids = "id2" in element ? [element.id, element.id2] : [element.id];
+    ids.forEach(id => {
+      const key = id as string;
+      const members = groups.get(key) || [];
+      inputs.push(key in components ? components[key] : MISSING_COMPONENT, members.length, ...members);
+    });
+  });
+  return inputs;
+}
+
+function rememberInputs(stored: object, dependency: PlacedDependency, component: DependencyComponent, state: RootState): void {
+  const inputs = getEvaluationInputs(dependency, component, state);
+  if (inputs) {
+    EVALUATED_INPUTS.set(stored, inputs);
+  }
+}
+
+/**
+ * Check if a stored result was evaluated on these same inputs: evaluating it again would give the same values, so the
+ * dependency has not changed
+ */
+function isEvaluatedOn(stored: object | undefined, dependency: PlacedDependency, component: DependencyComponent, state: RootState): boolean {
+  const previous = stored && EVALUATED_INPUTS.get(stored);
+  if (!previous) {
+    return false;
+  }
+  const inputs = getEvaluationInputs(dependency, component, state);
+  return Boolean(inputs) && inputs!.length === previous.length && inputs!.every((input, index) => input === previous[index]);
 }
 
 
@@ -964,11 +1048,16 @@ function isStoredRow(component: DependencyComponent, rowId: string | number | un
 }
 
 function hasChanged(dependency: PlacedDependency, component: DependencyComponent, state: RootState): boolean {
+  const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
+  // Nothing it reads has changed since its result was stored: it has not changed (issue #960)
+  if (isEvaluatedOn(DEPENDENCY_VALUES[component.address?.view]?.[componentId], dependency, component, state)) {
+    return false;
+  }
+
   // Elements with check-changes="false" are evaluated but their values do not launch the dependency
   const unchecked = (dependency.elements || [])
     .map((element) => (element.checkChanges === false && !element.event ? getTriggerId(element, dependency) : null));
   const newValues = _.omit(evaluateDependency(dependency, component, state).values, unchecked as string[]);
-  const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
 
   // A unique check validates what the user has just typed. When the row of a stored record shows up for the first
   // time (the user starts editing it) there is nothing typed yet: remember the values and wait for a change,
@@ -992,11 +1081,29 @@ function hasChanged(dependency: PlacedDependency, component: DependencyComponent
   const triggerValuesChanged = !_.isEqual(oldValues, newValues);
 
   const modelHashChanged = storedData.modelHash !== currentModelHash;
+  const changed = triggerValuesChanged || modelHashChanged;
 
-  return triggerValuesChanged || modelHashChanged;
+  // The stored result still holds: the next checks can skip it while its inputs stay the same
+  if (!changed && DEPENDENCY_VALUES[component.address?.view][componentId]) {
+    rememberInputs(storedData, dependency, component, state);
+  }
+  return changed;
 }
 
+// Placed dependencies of every component object: a component keeps its object while it does not change, and a check
+// places the dependencies of every component of the screen
+const PLACED_DEPENDENCIES = new WeakMap<object, PlacedDependency[]>();
+
 function getComponentDependencies(component: DependencyComponent): PlacedDependency[] {
+  let placed = PLACED_DEPENDENCIES.get(component);
+  if (!placed) {
+    placed = placeComponentDependencies(component);
+    PLACED_DEPENDENCIES.set(component, placed);
+  }
+  return placed;
+}
+
+function placeComponentDependencies(component: DependencyComponent): PlacedDependency[] {
   const gridDependencies = (component.attributes?.columnModel || [])
     .flat()
     .filter((column: GridColumn) => (column.dependencies || []).length > 0)

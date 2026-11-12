@@ -143,7 +143,8 @@ describe("awe-react-client/test/js/containers/ActionsBatchTest.jsx", () => {
 
     expect(launched).toBe(total);
     expect(launches.filter((renders) => renders === launches[0]).length).toBe(MAX_CHAINED_RUNS);
-    expect(console.warn).toHaveBeenCalledTimes(1);
+    // Only the warning of the chain: a loaded runner may add the slow-middleware warning of Redux Toolkit
+    expect(console.warn.mock.calls.filter(([message]) => String(message).startsWith("[ACTIONS]"))).toHaveLength(1);
     expect(pendingActions(store)).toEqual([]);
   });
 
@@ -166,6 +167,33 @@ describe("awe-react-client/test/js/containers/ActionsBatchTest.jsx", () => {
 
     expect(selectedValue(store, "target")).toEqual(["from-response"]);
     expect(pendingActions(store)).toEqual([]);
+  });
+
+  it("does not evaluate again, on every action of the response, a dependency whose components did not change", async () => {
+    const ids = Array.from({length: 20}, (_, index) => `criterion${index}`);
+    const {store} = renderEngine({
+      ...Object.fromEntries(ids.map((id) => [id, criterion(id)])),
+      // Its element is not in the screen: every evaluation of the dependency logs it
+      watcher: criterion("watcher", {
+        dependencies: [{type: "and", target: "hide", elements: [{id: "missing", checkChanges: true}]}]
+      })
+    });
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+    await act(async () => {
+      store.dispatch(addActionsTop(ids.map((id) => select(id, `${id}-new`))));
+    });
+
+    const missingWarnings = () => warn.mock.calls.filter(([message]) => String(message).includes("missing is not defined"));
+    ids.forEach((id) => expect(selectedValue(store, id)).toEqual([`${id}-new`]));
+    expect(missingWarnings()).toEqual([]);
+    expect(pendingActions(store)).toEqual([]);
+
+    // The component that holds it changes: the dependency is evaluated again (and logs its missing element)
+    await act(async () => {
+      store.dispatch(addActionsTop([select("watcher", "changed")]));
+    });
+    expect(missingWarnings().length).toBeGreaterThan(0);
   });
 
   it("fires a dependency on every intermediate value of the response, not only on the final one", async () => {
