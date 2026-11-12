@@ -19,7 +19,7 @@ export const createStore = ({navigator = createNavigator()}: {navigator?: Naviga
         immutableCheck: false,
         serializableCheck: false
       }),
-    devTools: true,
+    devTools: process.env.NODE_ENV !== "production",
     preloadedState: {
       settings: DEFAULT_SETTINGS,
     },

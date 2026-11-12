@@ -41,6 +41,14 @@ import javax.sql.DataSource;
 @ConditionalOnProperty(name = "awe.database.enabled", havingValue = "true", matchIfMissing = true)
 public class SQLConfig {
 
+  // SQL templates of each database type, built once: the configurations are prototypes and share them
+  private final SQLTemplates oracleTemplates = new FixedOracleTemplates();
+  private final SQLTemplates sqlserverTemplates = new FixedSQLServerTemplates();
+  private final SQLTemplates postgresqlTemplates = new FixedPostgreSQLTemplates();
+  private final SQLTemplates hsqldbTemplates = HSQLDBTemplates.builder().build();
+  private final SQLTemplates h2Templates = H2Templates.builder().build();
+  private final SQLTemplates mysqlTemplates = MySQLTemplates.builder().build();
+
   /**
    * Database context holder
    *
@@ -103,7 +111,7 @@ public class SQLConfig {
   @Bean
   @Scope("prototype")
   public Configuration oracleDatabaseConfiguration() {
-    return getConfiguration(new FixedOracleTemplates());
+    return getConfiguration(oracleTemplates);
   }
 
   /**
@@ -114,7 +122,7 @@ public class SQLConfig {
   @Bean
   @Scope("prototype")
   public Configuration sqlserverDatabaseConfiguration() {
-    return getConfiguration(new FixedSQLServerTemplates());
+    return getConfiguration(sqlserverTemplates);
   }
 
 	/**
@@ -125,7 +133,7 @@ public class SQLConfig {
 	@Bean
 	@Scope("prototype")
 	public Configuration postgresqlDatabaseConfiguration() {
-		return getConfiguration(new FixedPostgreSQLTemplates());
+		return getConfiguration(postgresqlTemplates);
 	}
 
   /**
@@ -147,7 +155,7 @@ public class SQLConfig {
   @Bean
   @Scope("prototype")
   public Configuration hsqldbDatabaseConfiguration() {
-    return getConfiguration(HSQLDBTemplates.builder().build());
+    return getConfiguration(hsqldbTemplates);
   }
 
   /**
@@ -158,7 +166,7 @@ public class SQLConfig {
   @Bean
   @Scope("prototype")
   public Configuration h2DatabaseConfiguration() {
-    return getConfiguration(H2Templates.builder().build());
+    return getConfiguration(h2Templates);
   }
 
   /**
@@ -169,7 +177,7 @@ public class SQLConfig {
   @Bean
   @Scope("prototype")
   public Configuration mysqlDatabaseConfiguration() {
-    return getConfiguration(MySQLTemplates.builder().build());
+    return getConfiguration(mysqlTemplates);
   }
 
   /**
