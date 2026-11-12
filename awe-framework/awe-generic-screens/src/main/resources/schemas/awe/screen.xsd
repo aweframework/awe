@@ -627,6 +627,16 @@
         <xs:documentation xml:lang="en">Name of the data column shown in the popup of a marker.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="marker-number" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the data column drawn as a number inside the marker (a numbered pin).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="route-markers" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Keep the markers visible while a route is shown and fit the view to the route and the markers. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="zoom" type="xs:integer">
       <xs:annotation>
         <xs:documentation xml:lang="en">Initial zoom level of the map.</xs:documentation>
@@ -662,6 +672,11 @@
     <xs:attributeGroup ref="elementAttr" />
     <xs:attribute name="url" type="xs:string" />
     <xs:attribute name="alternate-url" type="xs:string" />
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Locale key (or text) of the title of the image: its tooltip in both engines</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
   </xs:attributeGroup>

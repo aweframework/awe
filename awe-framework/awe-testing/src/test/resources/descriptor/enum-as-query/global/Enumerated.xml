@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<enumerated>
+  <group id="FixEnum"><option label="FIX_TITLE" value="1"/></group>
+</enumerated>

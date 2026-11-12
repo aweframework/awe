@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maintain xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/maintain.xsd">
+  <target name="FixSave" permission="fixtures.read">
+    <insert>
+      <table id="FixPet"/>
+      <field id="Nam" variable="Nam"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+    </insert>
+  </target>
+  <target name="FixPublicInsert" public="true">
+    <insert>
+      <table id="FixPet"/>
+      <field id="Nam" variable="Nam"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+    </insert>
+  </target>
+</maintain>

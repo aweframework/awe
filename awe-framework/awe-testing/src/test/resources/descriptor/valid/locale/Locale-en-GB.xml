@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
+  <locale name="FIX_TITLE" value="Fixture en-GB"/>
+  <locale name="FIX_PET" value="Pet"/>
+  <locale name="FIX_KIND" value="Kind"/>
+  <locale name="FIX_SAVE" value="Save"/>
+  <locale name="FIX_MENU_HOME" value="Home"/>
+  <locale name="FIX_MENU_REQUEST" value="Request"/>
+  <locale name="FIX_PERMISSION_RESOURCE" value="Fixtures"/>
+</locales>

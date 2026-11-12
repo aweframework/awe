@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : private.xml
+    Description: Options after the sign-in. The profiles dispatcher and customer restrict the options of the other one.
+                 The scheduler and notifier screens come from the AWE modules awe-scheduler and awe-notifier
+-->
+<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" screen="fleet-shell" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/menu.xsd" context="screen/private/home" default-action="screen">
+  <option name="information" screen="info" invisible="true"/>
+  <option name="user-settings" screen="user-settings" invisible="true"/>
+  <!-- Dispatchers -->
+  <option name="operations-section" label="FLT_MENU_OPERATIONS" separator="true"/>
+  <option name="fleet-dashboard" label="FLT_MENU_DASHBOARD" screen="fleet-dashboard" icon="lucide:layout-dashboard"/>
+  <option name="fleet-shipments" label="FLT_MENU_SHIPMENTS" screen="fleet-shipments" icon="lucide:package"/>
+  <option name="fleet-vehicles" label="FLT_MENU_VEHICLES" screen="fleet-vehicles" icon="lucide:truck"/>
+  <option name="fleet-drivers" label="FLT_MENU_DRIVERS" screen="fleet-drivers" icon="lucide:id-card"/>
+  <option name="fleet-routes" label="FLT_MENU_ROUTES" screen="fleet-routes" icon="lucide:route"/>
+  <option name="fleet-assignments" label="FLT_MENU_ASSIGNMENTS" screen="fleet-assignments" icon="lucide:calendar-check"/>
+  <option name="fleet-quotes" label="FLT_MENU_QUOTES" screen="fleet-quotes" icon="lucide:file-text"/>
+  <option name="fleet-pickups" label="FLT_MENU_PICKUPS" screen="fleet-pickups" icon="lucide:package-plus"/>
+  <option name="automation-section" label="FLT_MENU_AUTOMATION" separator="true"/>
+  <option name="scheduler" label="MENU_SCHEDULER" icon="lucide:clock">
+    <option name="scheduler-management" label="MENU_SCHEDULER_MANAGEMENT" screen="scheduler-management" icon="lucide:settings"/>
+    <option name="scheduler-tasks" label="MENU_SCHEDULER_TASKS" screen="scheduler-tasks" icon="lucide:list-checks">
+      <option name="new-scheduler-task" screen="new-scheduler-task" invisible="true"/>
+      <option name="update-scheduler-task" screen="update-scheduler-task" invisible="true"/>
+    </option>
+    <option name="scheduler-servers" label="MENU_SCHEDULER_SERVERS" screen="scheduler-server" icon="lucide:server">
+      <option name="new-scheduler-server" screen="new-scheduler-server" invisible="true"/>
+      <option name="update-scheduler-server" screen="update-scheduler-server" invisible="true"/>
+    </option>
+    <option name="scheduler-calendars" label="MENU_SCHEDULER_CALENDARS" screen="scheduler-calendars" icon="lucide:calendar">
+      <option name="new-scheduler-calendar" screen="new-scheduler-calendar" invisible="true"/>
+      <option name="update-scheduler-calendar" screen="update-scheduler-calendar" invisible="true"/>
+    </option>
+  </option>
+  <option name="notifier" label="MENU_NOTIFIER" icon="lucide:bell-ring">
+    <option name="subscriptions" screen="subscriptions" label="MENU_NOTIFIER_SUBSCRIPTIONS" icon="lucide:ticket">
+      <option name="new-subscription" screen="new-subscription" invisible="true"/>
+      <option name="update-subscription" screen="update-subscription" invisible="true"/>
+    </option>
+    <option name="notifications" screen="notifications" label="MENU_NOTIFIER_NOTIFICATIONS" icon="lucide:bell"/>
+  </option>
+  <!-- Customers: their own records only -->
+  <option name="customer-section" label="FLT_MENU_CUSTOMER" separator="true"/>
+  <option name="fleet-my-shipments" label="FLT_MENU_MY_SHIPMENTS" screen="fleet-my-shipments" icon="lucide:package"/>
+  <option name="fleet-my-pickups" label="FLT_MENU_MY_PICKUPS" screen="fleet-my-pickups" icon="lucide:package-plus"/>
+  <option name="fleet-my-invoices" label="FLT_MENU_MY_INVOICES" screen="fleet-my-invoices" icon="lucide:receipt"/>
+</menu>

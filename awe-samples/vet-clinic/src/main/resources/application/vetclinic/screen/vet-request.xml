@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-request.xml
+    Description: Public appointment request form (no sign-in): the maintain VetReqNew is public and can only insert a pending request
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="VET_REQ_TITLE">
+  <tag source="center">
+    <tag type="div" style="vet-landing">
+      <tag type="header" style="vet-topbar">
+        <tag type="div" style="vet-brand">
+          <tag type="span" style="vet-brand-name" label="VET_BRAND"/>
+        </tag>
+        <tag type="nav" style="vet-topbar-actions">
+          <button label="VET_BTN_BACK_HOME" icon="lucide:arrow-left" id="ButTopHome" style="btn-ghost">
+            <button-action type="screen" target="/"/>
+          </button>
+          <button label="VET_HOME_SIGN_IN" icon="lucide:log-in" id="ButTopLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+        </tag>
+      </tag>
+      <tag type="div" style="vet-form-wrap">
+        <tag type="figure" style="vet-form-photo">
+          <image id="ImgReqPuppy" url="/images/photos/puppy-1200.webp" alternate-url="" style="vet-photo" title="VET_PHOTO_PUPPY"/>
+          <tag type="figcaption" style="vet-visually-hidden" label="VET_PHOTO_PUPPY"/>
+        </tag>
+        <tag type="section" style="vet-form-card">
+          <tag type="h1" label="VET_REQ_TITLE"/>
+          <tag type="p" style="vet-lead" label="VET_REQ_LEAD"/>
+          <tag type="div" id="PnlReqBdy" style="panel-body">
+            <criteria label="VET_REQ_NAME" id="OwnNam" component="text" style="col-xs-12 col-sm-6" validation="{required:true, minlength:2, maxlength:80}" icon="lucide:user-round"/>
+            <criteria label="VET_FLD_EMAIL" id="Eml" component="text" style="col-xs-12 col-sm-6" validation="{required:true, email:true, maxlength:80}" icon="lucide:mail"/>
+            <criteria label="VET_FLD_PHONE" id="Tel" component="text" style="col-xs-12 col-sm-6" validation="{maxlength:20}" icon="lucide:phone"/>
+            <criteria label="VET_REQ_PET_NAME" id="PetNam" component="text" style="col-xs-12 col-sm-6" validation="{required:true, maxlength:40}" icon="lucide:paw-print"/>
+            <criteria label="VET_COL_SPECIES" id="Spc" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="query" target-action="VetSpcPub"/>
+            <criteria label="VET_COL_REASON" id="Rea" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="query" target-action="VetReaPub"/>
+            <criteria label="VET_COL_PREFERRED_DATE" id="PrfDat" component="date" style="col-xs-12" validation="required"/>
+            <criteria label="VET_FLD_NOTES" id="Nte" component="textarea" style="col-xs-12" validation="{maxlength:400}" area-rows="3"/>
+          </tag>
+          <tag type="div" style="vet-form-actions">
+            <button label="VET_REQ_SEND" icon="lucide:send" id="ButReqSend" style="btn-primary btn-lg">
+              <button-action type="validate" target="PnlReqBdy"/>
+              <button-action type="server" server-action="maintain" target-action="VetReqNew"/>
+              <button-action type="restore"/>
+            </button>
+          </tag>
+        </tag>
+      </tag>
+    </tag>
+  </tag>
+</screen>

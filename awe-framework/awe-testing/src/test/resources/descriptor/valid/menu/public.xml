@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menu screen="request" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/menu.xsd" context="screen" default-action="screen">
+  <option name="request" label="FIX_MENU_REQUEST" screen="request"/>
+</menu>

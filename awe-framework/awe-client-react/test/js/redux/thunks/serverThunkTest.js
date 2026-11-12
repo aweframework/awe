@@ -48,6 +48,42 @@ describe('awe-react-client/test/js/redux/thunks/serverThunkTest.js', () => {
       expect(update.data).toEqual({deferredLoaded: false});
     });
 
+    describe('action called from a button with a value (#768)', () => {
+      const address = {view: 'base', component: 'notification-1'};
+      const send = async (attributes) => {
+        global.fetch.mockResolvedValue({ok: true, json: () => Promise.resolve([])});
+        await serverAction({type: 'server', address, parameters: {serverAction: 'maintain-silent', targetAction: 'read-notification'}})(
+          dispatch, () => ({settings: {token: 'token'}, components: {'notification-1': {address, attributes}}}));
+        return JSON.parse(global.fetch.mock.calls[0][1].body);
+      };
+
+      it('sends the value of the button as buttonValue and its address as buttonAddress, as the AngularJS client', async () => {
+        const sent = await send({id: 'notification-1', value: '1', buttonType: 'button'});
+
+        expect(sent.buttonValue).toBe('1');
+        expect(sent.buttonAddress).toEqual(address);
+      });
+
+      it('sends the value of a button of a tag-list row, which carries its element type', async () => {
+        const sent = await send({id: 'notification-1', value: '1', elementType: 'Button'});
+
+        expect(sent.buttonValue).toBe('1');
+      });
+
+      it('sends no buttonValue from a component that is not a button, as a criterion with a value', async () => {
+        const sent = await send({id: 'notification-1', value: '1', component: 'text'});
+
+        expect(sent).not.toHaveProperty('buttonValue');
+        expect(sent).not.toHaveProperty('buttonAddress');
+      });
+
+      it('sends no buttonValue from a component without value', async () => {
+        const sent = await send({id: 'notification-1', buttonType: 'button'});
+
+        expect(sent).not.toHaveProperty('buttonValue');
+      });
+    });
+
     describe('action called from a cell of a grid (#341)', () => {
       const gridAddress = {view: 'report', component: 'GrdUsr'};
       const newStore = (selected, multiselect = false) => configureStore({

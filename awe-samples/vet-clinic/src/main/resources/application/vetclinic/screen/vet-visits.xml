@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-visits.xml
+    Description: Visits (medical history): date range, type and veterinarian filters, side panel with suggest, time and numeric euro fee, print of the list. A new visit also creates its invoice (maintain VetVisNew)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="VET_MENU_VISITS" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW"/>
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE"/>
+    <criteria id="PnlMod" component="hidden" value="new"/>
+  </tag>
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdVis"/>
+    </button>
+    <button label="BUTTON_PRINT" icon="lucide:printer" id="ButPrn">
+      <button-action type="dialog" target="PrnOpt"/>
+    </button>
+    <button label="VET_BTN_NEW_VISIT" icon="lucide:plus" id="ButNew" style="btn-primary" permission="visits.create">
+      <button-action type="unselect-all-rows" target="GrdVis"/>
+      <button-action type="value" target="PnlMod" value="new"/>
+      <button-action type="reset" target="IdePet"/>
+      <button-action type="reset" target="IdeVet"/>
+      <button-action type="reset" target="Typ"/>
+      <button-action type="reset" target="VisDat"/>
+      <button-action type="reset" target="VisTim"/>
+      <button-action type="reset" target="Dia"/>
+      <button-action type="reset" target="Trt"/>
+      <button-action type="reset" target="Fee"/>
+      <button-action type="dialog" target="PnlVis"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="VET_MENU_VISITS" icon="lucide:stethoscope">
+      <tag type="div" style="panel-body vet-chips">
+        <criteria label="VET_FLD_PERIOD" id="CrtVisDat" component="date-range" presets="1M,3M,12M,ALL" style="col-xs-12 col-lg-4"/>
+        <criteria label="VET_COL_TYPE" id="CrtVisTyp" component="select" initial-load="enum" target-action="VetVisitType" optional="true" style="col-xs-12 col-sm-6 col-lg-2"/>
+        <criteria label="VET_COL_VET" id="CrtVisVet" component="select" initial-load="query" target-action="VetVetSel" optional="true" style="col-xs-12 col-sm-6 col-lg-3"/>
+        <criteria label="VET_SEARCH_VISITS_LABEL" id="CrtVisSch" component="text" icon="lucide:search" style="col-xs-12 col-lg-3" placeholder="VET_SEARCH_VISITS_PH"/>
+      </tag>
+      <grid id="GrdVis" style="expand" initial-load="query" server-action="data" target-action="VetVisLst" max="15">
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit"/>
+          <button-action type="dialog" target="PnlVis" edit-permission="visits.update"/>
+        </column>
+        <column label="VET_COL_DATE" name="VisDat" sort-field="VisDat" align="center" charlength="12" sendable="false"/>
+        <column label="VET_COL_TIME" name="VisTim" sort-field="VisTim" align="center" charlength="8" sendable="false"/>
+        <column label="VET_COL_PET" name="PetNam" sort-field="PetNam" align="left" charlength="18" secondary-field="OwnNam" sendable="false"/>
+        <column label="VET_COL_TYPE" name="TypTxt" sort-field="Typ" align="left" charlength="14" sendable="false"/>
+        <column label="VET_COL_VET" name="VetNam" sort-field="VetNam" align="left" charlength="18" sendable="false"/>
+        <column label="VET_COL_DIAGNOSIS" name="Dia" sort-field="Dia" align="left" charlength="30" width="*" sendable="false"/>
+        <column label="VET_COL_FEE" name="Fee" sort-field="Fee" align="right" charlength="10" sendable="false"/>
+        <column name="IdeVis" hidden="true"/>
+        <column name="IdePet" hidden="true" sendable="false"/>
+        <column name="IdeVet" hidden="true" sendable="false"/>
+        <column name="Typ" hidden="true" sendable="false"/>
+        <column name="Trt" hidden="true" sendable="false"/>
+        <column name="OwnNam" hidden="true" sendable="false"/>
+      </grid>
+    </window>
+    <side-panel id="PnlVis" label="VET_VIS_PANEL" icon="lucide:stethoscope" max-width="40rem">
+      <tag type="div" style="panel-body" id="PnlVisBdy">
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="VET_SEC_VISIT"/>
+        <criteria label="VET_COL_PET" id="IdePet" component="suggest" style="col-xs-12" validation="required" server-action="data" target-action="VetPetSug" check-target="VetPetIni">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVis" column="IdePet" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVis" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_VET" id="IdeVet" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="query" target-action="VetVetSel">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVis" column="IdeVet" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVis" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_TYPE" id="Typ" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="VetVisitType">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVis" column="Typ" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVis" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_DATE" id="VisDat" component="date" style="col-xs-12 col-sm-6" validation="required" show-future-dates="false">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVis" column="VisDat" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVis" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_TIME" id="VisTim" component="time" style="col-xs-12 col-sm-6" validation="required">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVis" column="VisTim" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVis" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="VET_SEC_MEDICAL"/>
+        <criteria label="VET_COL_DIAGNOSIS" id="Dia" component="textarea" style="col-xs-12" validation="{maxlength:200}" area-rows="2">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVis" column="Dia" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVis" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_TREATMENT" id="Trt" component="textarea" style="col-xs-12" validation="{maxlength:400}" area-rows="3">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVis" column="Trt" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVis" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="VET_SEC_BILLING"/>
+        <criteria label="VET_FLD_FEE" id="Fee" component="numeric" style="col-xs-12 col-sm-6" validation="{required:true, ge:0}" number-format="{min: 0, max: 5000, precision: 2, aSign: ' EUR', pSign: 's', aPad: true}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVis" column="Fee" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVis" event="select-row" optional="true"/>
+          </dependency>
+          <dependency target-type="set-readonly" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit"/>
+          </dependency>
+        </criteria>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlVisCnl">
+          <button-action type="close-cancel" target="PnlVis"/>
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="lucide:save" id="ButPnlVisUpd" style="btn-primary">
+          <button-action type="validate" target="PnlVisBdy"/>
+          <button-action type="confirm" target="UpdMsg"/>
+          <button-action type="server" server-action="maintain" target-action="VetVisUpd"/>
+          <button-action type="close" target="PnlVis"/>
+          <button-action type="filter" target="GrdVis"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit"/>
+          </dependency>
+        </button>
+        <button label="VET_BTN_CREATE" icon="lucide:check" id="ButPnlVisNew" style="btn-primary">
+          <button-action type="validate" target="PnlVisBdy"/>
+          <button-action type="confirm" target="NewMsg"/>
+          <button-action type="server" server-action="maintain" target-action="VetVisNew"/>
+          <button-action type="close" target="PnlVis"/>
+          <button-action type="filter" target="GrdVis"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new"/>
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center"/>
+  </tag>
+</screen>

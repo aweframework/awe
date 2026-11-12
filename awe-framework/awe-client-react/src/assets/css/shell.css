@@ -672,3 +672,143 @@
     box-shadow: var(--awe-shadow-modal), 0 0 0 100vmax var(--awe-color-mask);
   }
 }
+
+/* Notification rows of the bell (#768): the icon of their type, then the title, the description and the time ago */
+.notification.awe-button-content {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas: "icon title" "icon description" "icon ago";
+  column-gap: var(--awe-space-3);
+  align-items: center;
+  padding: var(--awe-space-3) var(--awe-space-4);
+  text-align: left;
+  cursor: pointer;
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle);
+}
+
+.notification.awe-button-content:hover,
+.notification.awe-button-content:focus-visible {
+  background: var(--awe-color-surface-hover);
+}
+
+.notification .notification-title {
+  grid-area: title;
+  font-size: var(--awe-font-size-base);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.notification .notification-description {
+  grid-area: description;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text);
+}
+
+.notification .notification-ago {
+  grid-area: ago;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+.notification .notification-icon {
+  grid-area: icon;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--awe-space-10);
+  height: var(--awe-space-10);
+  border-radius: 50%;
+  color: var(--awe-color-info-text);
+  background: var(--awe-color-info-subtle);
+}
+
+.notification .notification-icon-warning {
+  color: var(--awe-color-warning-text);
+  background: var(--awe-color-warning-subtle);
+}
+
+.notification .notification-icon-danger {
+  color: var(--awe-color-danger-text);
+  background: var(--awe-color-danger-subtle);
+}
+
+.notification .notification-icon-success {
+  color: var(--awe-color-success-text);
+  background: var(--awe-color-success-subtle);
+}
+
+/* The extra large dropdown of an info (the notification bell) */
+.info-dropdown.dropdown-xl {
+  width: calc(var(--awe-space-16) * 6);
+}
+
+/* Links under the notification rows: the full list, and the empty state when there is no notification */
+.info-dropdown .notifications-link.p-button {
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.info-dropdown .notifications-more.p-button {
+  flex-direction: row-reverse;
+  justify-content: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-3) var(--awe-space-4);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-primary-text);
+  border-top: var(--awe-border-width) solid var(--awe-color-border-subtle);
+}
+
+.info-dropdown .notifications-more.p-button:hover,
+.info-dropdown .notifications-more.p-button:focus-visible {
+  background: var(--awe-color-surface-hover);
+}
+
+.info-dropdown .notifications-empty.p-button,
+.info-dropdown .notifications-empty.p-button:disabled {
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  padding: var(--awe-space-8) var(--awe-space-4);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+  opacity: 1;
+  cursor: default;
+}
+
+.info-dropdown .notifications-empty .p-button-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--awe-space-12);
+  height: var(--awe-space-12);
+  margin: 0;
+  border-radius: 50%;
+  color: var(--awe-color-text-muted);
+  background: var(--awe-color-surface-subtle);
+}
+
+/* Count badge over an icon (the unread notifications of the bell): small, on the top right corner, with its number
+   centred */
+.p-overlay-badge {
+  position: relative;
+}
+
+.p-overlay-badge > .p-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  transform: translate(25%, -25%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--awe-space-4);
+  height: var(--awe-space-4);
+  padding: 0 var(--awe-space-1);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: 1;
+  border-radius: var(--awe-radius-full);
+}

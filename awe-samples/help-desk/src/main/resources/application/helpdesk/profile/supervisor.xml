@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : supervisor.xml
+    Description: Supervisor: everything of the agent plus reassignment, critical priority, the knowledge base, the teams and the SLA dashboard
+-->
+<profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/profile.xsd">
+  <restriction option="customer-section"/>
+  <restriction option="hd-my-tickets"/>
+  <restriction option="administration"/>
+  <permission id="tickets.read"/>
+  <permission id="tickets.create"/>
+  <permission id="tickets.update"/>
+  <permission id="kb.read"/>
+  <permission id="tickets.reassign"/>
+  <permission id="tickets.critical"/>
+  <permission id="kb.create"/>
+  <permission id="kb.update"/>
+  <permission id="kb.delete"/>
+  <permission id="reports.read"/>
+  <permission id="teams.read"/>
+</profile>

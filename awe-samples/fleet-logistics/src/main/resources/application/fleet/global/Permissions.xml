@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Permissions.xml
+    Description: Permission catalog of the fleet application. Every query and maintain target declares the permission it
+                 requires; profile/dispatcher.xml and profile/customer.xml grant them
+-->
+<permissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd">
+  <resource id="dashboard" label="FLT_PERMISSION_DASHBOARD" verbs="read"/>
+  <resource id="shipments" label="FLT_PERMISSION_SHIPMENTS" verbs="read,export"/>
+  <resource id="vehicles" label="FLT_PERMISSION_VEHICLES" verbs="read,create,update,delete"/>
+  <resource id="drivers" label="FLT_PERMISSION_DRIVERS" verbs="read,create,update,delete"/>
+  <resource id="routes" label="FLT_PERMISSION_ROUTES" verbs="read,update"/>
+  <resource id="requests" label="FLT_PERMISSION_REQUESTS" verbs="read,update"/>
+  <resource id="portal" label="FLT_PERMISSION_PORTAL" verbs="read,create,update"/>
+</permissions>

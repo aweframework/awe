@@ -1,7 +1,6 @@
-import React, {createContext, useCallback, useContext, useEffect, useId, useMemo, useRef, useState} from "react";
+import React, {createContext, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {useTranslation} from "react-i18next";
-import {Dropdown} from "primereact/dropdown";
 import PropTypes from "prop-types";
 import {DEFAULT_LOGIN_SETTINGS, updateSettings} from "../redux/actions/settings";
 import {removeSigninAlert} from "../redux/actions/messages";
@@ -9,6 +8,7 @@ import {selectServerActionComponent, selectServerActionRunning} from "../redux/s
 import {getAllComponents} from "../redux/selectors/componentSelectors";
 import {ButtonTypes} from "../redux/actions/components";
 import {useDarkMode} from "../hooks/useDarkMode";
+import {ColorModeSelector, LanguageSelector, useRestoredThemeMode} from "./Preferences";
 import {getBusyIcon} from "../hooks/useBusy";
 import {getIconNode} from "../utilities";
 import {classNames} from "../utilities/components";
@@ -21,12 +21,9 @@ import {
   LOGIN_ACTION,
   loginEffectName,
   loginLayout,
-  loginMode,
   loginText,
-  readLoginMode,
   resolveImageUrl,
-  SIGNIN_PAGE_ID,
-  storeLoginMode
+  SIGNIN_PAGE_ID
 } from "../utilities/signin";
 
 /**
@@ -244,68 +241,6 @@ export function useSigninAlert() {
   return useContext(SigninContext)?.alert;
 }
 
-const MODE_OPTIONS = [
-  {mode: "light", icon: "lucide:sun", label: "ENUM_THEME_MODE_LIGHT"},
-  {mode: "dark", icon: "lucide:moon", label: "ENUM_THEME_MODE_DARK"},
-  {mode: "system", icon: "lucide:monitor", label: "ENUM_THEME_MODE_SYSTEM"}
-];
-
-/**
- * Language selector of the footer: the languages of the application in the AWE select. A change is the change of
- * language of the application (the language of the settings, which the view turns into the language of the texts)
- */
-function SigninLanguage({languages}) {
-  const dispatch = useDispatch();
-  const language = useSelector(state => state.settings.language);
-  const {t} = useTranslation();
-  const options = languages.map(code => ({value: code, label: t(`ENUM_LAN_${code.toUpperCase()}`)}));
-  const valueTemplate = option => <>
-    {getIconNode("lucide:globe", {className: "signin-language-icon", "aria-hidden": "true"})}
-    <span className="signin-language-value">{option?.label}</span>
-  </>;
-
-  return <Dropdown
-    className="signin-language p-inputtext-sm"
-    panelClassName="signin-language-panel"
-    value={language}
-    options={options}
-    onChange={event => dispatch(updateSettings({language: event.value}))}
-    valueTemplate={valueTemplate}
-    ariaLabel={t("PARAMETER_LANGUAGE")}
-    aria-label={t("PARAMETER_LANGUAGE")}
-  />;
-}
-
-SigninLanguage.propTypes = {
-  languages: PropTypes.arrayOf(PropTypes.string).isRequired
-};
-
-/**
- * Colour mode selector of the footer: light, dark or system as a segmented radio group. A change is the theme mode of
- * the settings (drawn at once on the page by the theme appearance of the application), kept for the next visit
- */
-function SigninMode() {
-  const dispatch = useDispatch();
-  const current = loginMode(useSelector(state => state.settings.themeMode));
-  const {t} = useTranslation();
-  const name = useId();
-  const change = mode => {
-    storeLoginMode(mode);
-    dispatch(updateSettings({themeMode: mode}));
-  };
-
-  return <div className="signin-mode" role="radiogroup" aria-label={t("PARAMETER_THEME_MODE")}>
-    {MODE_OPTIONS.map(({mode, icon, label}) => <label key={mode} title={t(label)}>
-      <input type="radio" name={name} value={mode} checked={current === mode} onChange={() => change(mode)}
-             aria-label={t(label)}/>
-      <span>
-        {getIconNode(icon, {"aria-hidden": "true"})}
-        <span className="p-hidden-accessible">{t(label)}</span>
-      </span>
-    </label>)}
-  </div>;
-}
-
 // Canvas effect of awe.application.login.background-effect (the application registers it in its own bundle)
 
 /**
@@ -411,8 +346,8 @@ function SigninFooter({footerText, poweredBy, languageSelector, modeSelector, la
       </span>}
     </div>}
     {prefs && <div className="signin-prefs">
-      {languageSelector && <SigninLanguage languages={languages}/>}
-      {modeSelector && <SigninMode/>}
+      {languageSelector && <LanguageSelector languages={languages}/>}
+      {modeSelector && <ColorModeSelector/>}
     </div>}
   </footer>;
 }
@@ -509,14 +444,8 @@ function SigninPage({id, className, children}) {
   }, [signingIn, hideAlert]);
   useEffect(() => signIn ? hideAlert : undefined, [signIn, hideAlert]);
 
-  // The mode chosen before on the sign-in page is drawn again on the next visit (once: a later change is a choice)
-  const themeMode = useSelector(state => state.settings.themeMode);
-  useEffect(() => {
-    const stored = modeSelector ? readLoginMode() : undefined;
-    if (stored && stored !== themeMode) {
-      dispatch(updateSettings({themeMode: stored}));
-    }
-  }, [modeSelector]);
+  // The mode chosen before on the sign-in page is drawn again on the next visit
+  useRestoredThemeMode(modeSelector);
 
   return (
     <SigninContext.Provider value={context}>

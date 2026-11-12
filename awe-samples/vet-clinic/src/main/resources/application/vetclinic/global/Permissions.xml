@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Permissions.xml
+    Description: Permission catalog of the veterinary clinic. Every query and maintain target declares the permission
+                 it requires, and the profiles vet and owner grant them (see profile/vet.xml and profile/owner.xml).
+                 The verbs read, create, update, delete and export are declared by AWE.
+-->
+<permissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd">
+  <resource id="dashboard" label="VET_PERMISSION_DASHBOARD" verbs="read"/>
+  <resource id="owners" label="VET_PERMISSION_OWNERS" verbs="read,create,update"/>
+  <resource id="pets" label="VET_PERMISSION_PETS" verbs="read,create,update,delete"/>
+  <resource id="visits" label="VET_PERMISSION_VISITS" verbs="read,create,update"/>
+  <resource id="appointments" label="VET_PERMISSION_APPOINTMENTS" verbs="read,create,update"/>
+  <resource id="requests" label="VET_PERMISSION_REQUESTS" verbs="read,update"/>
+  <resource id="vaccinations" label="VET_PERMISSION_VACCINATIONS" verbs="read,create,delete"/>
+  <resource id="documents" label="VET_PERMISSION_DOCUMENTS" verbs="read,create,delete"/>
+  <resource id="invoices" label="VET_PERMISSION_INVOICES" verbs="read,update,export"/>
+  <resource id="portal" label="VET_PERMISSION_PORTAL" verbs="read,create,update"/>
+</permissions>

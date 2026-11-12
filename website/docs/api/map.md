@@ -38,6 +38,8 @@ The map is drawn with [Leaflet](https://leafletjs.com/) (BSD-2-Clause licence) a
 | latitude | Optional | String | Name of the data column with the latitude of the marker | Defaults to `latitude` |
 | longitude | Optional | String | Name of the data column with the longitude of the marker | Defaults to `longitude` |
 | marker-label | Optional | String | Name of the data column shown in the popup of the marker | Without it the markers have no popup |
+| marker-number | Optional | String | Name of the data column drawn as a number inside the marker, which becomes a numbered pin | Without it the markers are plain circles |
+| route-markers | Optional | Boolean | Keeps the markers visible while a route is shown | Defaults to `false`, see [Drawing a route](#route) |
 | zoom | Optional | Number | Initial zoom level | Defaults to `4`. It applies when the map has a center |
 | center-latitude | Optional | Decimal | Latitude of the initial center of the map | Set it together with `center-longitude` |
 | center-longitude | Optional | Decimal | Longitude of the initial center of the map | Set it together with `center-latitude` |
@@ -85,6 +87,15 @@ The `polyline` [client action](actions.md) draws a route over the map: the point
 latitude and longitude columns of the map (`latitude` and `longitude` by default). While the route is shown the markers
 are hidden and the view centers on the first point of the route (zoom level `8`). A route without points removes the
 route and the markers come back.
+
+With `route-markers="true"` the markers stay visible while the route is shown and the view fits the route and the
+markers, instead of centering on the first point. Together with `marker-number` the markers are numbered pins, so a
+route shows its stops in order over the road line:
+
+```xml
+<map id="route" target-action="RouteStops" latitude="Lat" longitude="Lon"
+     marker-label="Town" marker-number="Seq" route-markers="true" style="expand"/>
+```
 
 ```java
 public ServiceData route() {

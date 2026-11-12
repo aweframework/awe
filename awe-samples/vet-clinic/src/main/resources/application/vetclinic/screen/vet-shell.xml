@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-shell.xml
+    Description: Private shell of the veterinary clinic: the side menu, the toggle of the menu, the name of the application and the user
+                 (avatar with name and profile; settings, dark mode, language and logout). Copied from home-sidebar.xml of
+                 AWE without the tools that mean nothing in a sample (favourites, help, site and database selector, auto
+                 refresh and the classic theme selector). The ids and the layout classes are the ones the client relies on
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" onload="MgrUsrLogIn">
+  <tag source="center">
+    <tag type="div" id="page-home" style="expand" expandible="vertical">
+      <tag type="div" style="layout-container layout-static">
+        <tag type="div" style="layout-sidebar">
+          <tag type="div" style="sidebar-header">
+            <tag type="h1" style="application-logo">
+              <tag type="span" label="APP_CLIENT"/>
+            </tag>
+          </tag>
+          <tag type="div" style="layout-menu-container">
+            <menu-container id="MainMenu" style="vertical navigation"/>
+          </tag>
+          <tag type="div" style="sidebar-footer">
+            <tag type="span" style="sidebar-powered">
+              <tag type="span" label="SIDEBAR_POWERED_BY"/>
+              <tag type="strong" label="SIDEBAR_POWERED_BRAND"/>
+            </tag>
+            <info-button id="collapse-menu" title="BUTTON_TOGGLE_MENU" icon="lucide:chevrons-left" style="sidebar-collapse">
+              <button-action type="toggle-class" target-action="layout-static-inactive" target=".layout-container"/>
+            </info-button>
+          </tag>
+        </tag>
+        <tag type="div" style="layout-content-wrapper" expandible="vertical">
+          <tag type="div" style="layout-topbar">
+            <tag type="div" style="topbar-start">
+              <info-button id="toggle-menu" title="BUTTON_TOGGLE_MENU" icon="lucide:panel-left">
+                <button-action type="toggle-class" target-action="layout-static-inactive" target=".layout-container"/>
+              </info-button>
+              <tag type="h3" label="APP_NAME"/>
+            </tag>
+            <tag type="div" style="topbar-end">
+              <tag type="ul" style="navbar p-2">
+                <avatar id="ButUsrAct" initial-load="query" target-action="connectedUser" show-label="true">
+                  <include target-screen="notification-panel" target-source="user-settings"/>
+                  <include target-screen="info-buttons" target-source="themeModeSelector"/>
+                  <include target-screen="info-buttons" target-source="languageSelector"/>
+                  <tag type="div" style="dropdown-separator"/>
+                  <include target-screen="info-buttons" target-source="logout"/>
+                </avatar>
+              </tag>
+            </tag>
+          </tag>
+          <tag type="div" style="layout-content expand" expandible="vertical">
+            <view name="report" style="expand expandible-vertical"/>
+          </tag>
+        </tag>
+      </tag>
+    </tag>
+  </tag>
+</screen>

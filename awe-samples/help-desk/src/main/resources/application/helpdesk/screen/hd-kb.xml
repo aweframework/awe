@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : hd-kb.xml
+    Description: Public knowledge base: published articles by category (public query HdkArtPub, read only), the text opens in the detail of each row
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="HD_KB_TITLE">
+  <tag source="center">
+    <tag type="div" style="hd-landing">
+      <tag type="header" style="hd-topbar">
+        <tag type="div" style="hd-brand">
+          <tag type="span" style="hd-brand-name" label="HD_BRAND"/>
+        </tag>
+        <tag type="nav" style="hd-topbar-actions">
+          <button label="HD_BTN_BACK_HOME" icon="lucide:arrow-left" id="ButTopHome" style="btn-ghost">
+            <button-action type="screen" target="/"/>
+          </button>
+          <button label="HD_HOME_SIGN_IN" icon="lucide:log-in" id="ButTopLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+        </tag>
+      </tag>
+      <tag type="section" style="hd-kb-head">
+        <tag type="h1" label="HD_KB_TITLE"/>
+        <tag type="p" style="hd-lead" label="HD_KB_LEAD"/>
+        <tag type="div" style="hd-kb-bar">
+          <criteria label="HD_SEARCH" id="CrtKbSch" component="text" icon="lucide:search" style="hd-kb-search" placeholder="HD_SEARCH_KB"/>
+          <criteria label="HD_COL_CATEGORY" id="CrtKbCat" component="select" initial-load="query" target-action="HdkCatPub" optional="true" style="hd-kb-category"/>
+          <button button-type="submit" label="HD_SEARCH" icon="lucide:search" id="ButKbSearch" style="btn-primary btn-lg">
+            <button-action type="filter" target="GrdKb"/>
+          </button>
+        </tag>
+      </tag>
+      <tag type="div" style="hd-kb-wrap">
+        <tag type="section" style="hd-kb-card">
+          <grid id="GrdKb" initial-load="query" server-action="data" target-action="HdkArtPub" max="10" pagination-disabled="false">
+            <column label="HD_COL_TITLE" name="Tit" sort-field="Tit" align="left" charlength="40" width="*" sendable="false"/>
+            <column label="HD_COL_CATEGORY" name="CatTxt" sort-field="Cat" align="left" charlength="18" sendable="false"/>
+            <column label="HD_COL_VIEWS" name="Vws" sort-field="Vws" align="right" charlength="8" sendable="false"/>
+            <column name="Txt" hidden="true" sendable="false"/>
+            <column name="Cat" hidden="true" sendable="false"/>
+            <column name="IdeArt" hidden="true" sendable="false"/>
+            <row-detail style="row-detail-card"><![CDATA[{Txt}]]></row-detail>
+          </grid>
+        </tag>
+      </tag>
+    </tag>
+  </tag>
+</screen>

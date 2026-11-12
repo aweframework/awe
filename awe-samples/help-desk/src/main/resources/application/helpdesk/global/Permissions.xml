@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Permissions.xml
+    Description: Permission catalog of the help desk. The supervisor-only ones are tickets.reassign, tickets.critical,
+                 kb.create, kb.update, kb.delete, reports.read and teams.read: profile/agent.xml does not grant them
+-->
+<permissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd">
+  <resource id="tickets" label="HD_PERMISSION_TICKETS" verbs="read,create,update">
+    <action id="reassign" label="HD_PERMISSION_ACTION_REASSIGN"/>
+    <action id="critical" label="HD_PERMISSION_ACTION_CRITICAL"/>
+  </resource>
+  <resource id="kb" label="HD_PERMISSION_KB" verbs="read,create,update,delete"/>
+  <resource id="reports" label="HD_PERMISSION_REPORTS" verbs="read"/>
+  <resource id="teams" label="HD_PERMISSION_TEAMS" verbs="read"/>
+  <resource id="portal" label="HD_PERMISSION_PORTAL" verbs="read,create,update"/>
+</permissions>

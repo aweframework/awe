@@ -39,7 +39,7 @@ class MapElementXsdTest {
   @Test
   void mapAcceptsAllAttributesAndDependencies() throws Exception {
     validate("<tag source=\"center\"><map id=\"fleet\" initial-load=\"query\" target-action=\"TstMapPoints\""
-      + " latitude=\"Lat\" longitude=\"Lon\" marker-label=\"Lug\" zoom=\"4\""
+      + " latitude=\"Lat\" longitude=\"Lon\" marker-label=\"Lug\" marker-number=\"Seq\" route-markers=\"true\" zoom=\"4\""
       + " center-latitude=\"43.86\" center-longitude=\"1.11\" style=\"expand\">"
       + "<dependency initial=\"true\" server-action=\"data\" target-action=\"Other\">"
       + "<dependency-element id=\"fleet\" condition=\"eq\" value=\"1\"/></dependency></map></tag>");

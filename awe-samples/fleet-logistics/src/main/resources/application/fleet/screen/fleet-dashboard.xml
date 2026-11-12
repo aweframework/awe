@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-dashboard.xml
+    Description: Operations dashboard: key figures as cards and ECharts charts (deliveries per day with date axis and zoom, on-time percentage per week, stacked shipments by region, fleet status donut) and a map of the vehicles on route
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FLT_MENU_DASHBOARD">
+  <tag source="buttons">
+    <button label="FLT_BTN_REFRESH" icon="lucide:refresh-cw" id="ButRefresh" button-type="button">
+      <button-action type="reload"/>
+    </button>
+  </tag>
+  <tag source="center" expandible="vertical">
+    <tag type="div" style="awe-card-grid m-2">
+      <card id="CrdFltDel" title="FLT_DSH_DELIVERED" icon="lucide:package-check" icon-tone="success" initial-load="query" target-action="FltDshDelivered" number-decimals="0"/>
+      <card id="CrdFltOtp" title="FLT_DSH_ONTIME" icon="lucide:timer" icon-tone="info" initial-load="query" target-action="FltDshOnTime" unit="%" number-decimals="1"/>
+      <card id="CrdFltDly" title="FLT_DSH_DELAYED" icon="lucide:triangle-alert" icon-tone="danger" initial-load="query" target-action="FltDshDelayed" good-trend="down" number-decimals="0"/>
+      <card id="CrdFltOpn" title="FLT_DSH_OPEN" icon="lucide:package" icon-tone="warning" initial-load="query" target-action="FltDshOpen" number-decimals="0"/>
+      <card id="CrdFltVeh" title="FLT_DSH_ONROUTE" icon="lucide:truck" initial-load="query" target-action="FltDshOnRoute" number-decimals="0"/>
+      <card id="CrdFltSvc" title="FLT_DSH_SERVICE" icon="lucide:wrench" icon-tone="warning" initial-load="query" target-action="FltDshService" good-trend="down" number-decimals="0"/>
+    </tag>
+    <tag type="div" style="h-20rem" expandible="horizontal">
+      <window label="FLT_DSH_CHART_DAY" icon="lucide:chart-line" style="expand">
+        <chart id="ChrFltDay" type="line" initial-load="query" target-action="FltDshDay" zoom-type="xAxis" max="0">
+          <chart-legend enabled="false"/>
+          <x-axis type="datetime"/>
+          <y-axis/>
+          <chart-tooltip number-decimals="0"/>
+          <chart-serie id="deliveries" x-value="dates" y-value="deliveries" label="FLT_DSH_SERIE_DELIVERIES"/>
+        </chart>
+      </window>
+      <window label="FLT_DSH_CHART_WEEK" icon="lucide:chart-column" style="expand">
+        <chart id="ChrFltWeek" type="column" initial-load="query" target-action="FltDshWeek">
+          <chart-legend enabled="false"/>
+          <x-axis type="category"/>
+          <y-axis/>
+          <chart-tooltip suffix=" %" number-decimals="1"/>
+          <chart-serie id="onTime" x-value="week" y-value="onTime" label="FLT_DSH_SERIE_ONTIME"/>
+        </chart>
+      </window>
+    </tag>
+    <tag type="div" style="h-20rem" expandible="horizontal">
+      <window label="FLT_DSH_CHART_REGION" icon="lucide:chart-column-stacked" style="expand">
+        <chart id="ChrFltRegion" type="column" initial-load="query" target-action="FltDshRegion">
+          <chart-legend enabled="true"/>
+          <x-axis type="category"/>
+          <y-axis/>
+          <chart-tooltip number-decimals="0"/>
+          <chart-serie id="delivered" x-value="region" y-value="delivered" label="FLT_SHIPMENT_DELIVERED"/>
+          <chart-serie id="transit" x-value="region" y-value="transit" label="FLT_DSH_SERIE_TRANSIT"/>
+          <chart-serie id="delayed" x-value="region" y-value="delayed" label="FLT_SHIPMENT_DELAYED"/>
+          <chart-serie id="created" x-value="region" y-value="created" label="FLT_SHIPMENT_CREATED"/>
+          <chart-parameter type="object" name="plotOptions">
+            <chart-parameter type="object" name="column">
+              <chart-parameter type="string" name="stacking" value="normal"/>
+            </chart-parameter>
+          </chart-parameter>
+        </chart>
+      </window>
+      <window label="FLT_DSH_CHART_FLEET" icon="lucide:chart-pie" style="expand">
+        <chart id="ChrFltFleet" type="donut" initial-load="query" target-action="FltDshFleet">
+          <chart-legend enabled="true"/>
+          <x-axis type="category"/>
+          <y-axis/>
+          <chart-tooltip number-decimals="0"/>
+          <chart-serie id="fleet" x-value="status" y-value="vehicles" label="FLT_DSH_SERIE_FLEET"/>
+        </chart>
+      </window>
+    </tag>
+    <tag type="div" style="h-20rem" expandible="horizontal">
+      <window label="FLT_DSH_MAP" icon="lucide:map-pin" style="expand">
+        <tag type="div" expandible="vertical" style="expand">
+          <map id="MapFltVeh" initial-load="query" target-action="FltDshVehMap" latitude="Lat" longitude="Lon" marker-label="Lbl" autorefresh="60" style="expand"/>
+        </tag>
+      </window>
+      <window label="FLT_DSH_MAP_SELECTED" icon="lucide:truck" style="expand">
+        <tag type="div" style="panel-body">
+          <criteria label="FLT_COL_PLATE" id="MapVehPlt" component="text" readonly="true" style="col-xs-12 col-sm-6" icon="lucide:truck">
+            <dependency source-type="launcher" target-type="input" target-action="value">
+              <dependency-element id="MapFltVeh" column="Plt" attribute="selectedRowValue" alias="value" optional="true"/>
+              <dependency-element id="MapFltVeh" event="select-row" optional="true"/>
+            </dependency>
+          </criteria>
+          <criteria label="FLT_COL_DRIVER" id="MapVehDrv" component="text" readonly="true" style="col-xs-12 col-sm-6" icon="lucide:user-round">
+            <dependency source-type="launcher" target-type="input" target-action="value">
+              <dependency-element id="MapFltVeh" column="DrvNam" attribute="selectedRowValue" alias="value" optional="true"/>
+              <dependency-element id="MapFltVeh" event="select-row" optional="true"/>
+            </dependency>
+          </criteria>
+          <criteria label="FLT_COL_ROUTE" id="MapVehRte" component="text" readonly="true" style="col-xs-12 col-sm-4" icon="lucide:route">
+            <dependency source-type="launcher" target-type="input" target-action="value">
+              <dependency-element id="MapFltVeh" column="RteCod" attribute="selectedRowValue" alias="value" optional="true"/>
+              <dependency-element id="MapFltVeh" event="select-row" optional="true"/>
+            </dependency>
+          </criteria>
+          <criteria label="FLT_DSH_MAP_SHIPMENTS" id="MapVehCnt" component="text" readonly="true" style="col-xs-12 col-sm-4" icon="lucide:package">
+            <dependency source-type="launcher" target-type="input" target-action="value">
+              <dependency-element id="MapFltVeh" column="Cnt" attribute="selectedRowValue" alias="value" optional="true"/>
+              <dependency-element id="MapFltVeh" event="select-row" optional="true"/>
+            </dependency>
+          </criteria>
+          <criteria label="FLT_COL_WEIGHT" id="MapVehWgt" component="text" readonly="true" style="col-xs-12 col-sm-4" icon="lucide:weight">
+            <dependency source-type="launcher" target-type="input" target-action="value">
+              <dependency-element id="MapFltVeh" column="Wgt" attribute="selectedRowValue" alias="value" optional="true"/>
+              <dependency-element id="MapFltVeh" event="select-row" optional="true"/>
+            </dependency>
+          </criteria>
+        </tag>
+      </window>
+    </tag>
+  </tag>
+</screen>

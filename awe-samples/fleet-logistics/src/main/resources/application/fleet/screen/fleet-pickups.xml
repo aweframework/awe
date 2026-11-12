@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-pickups.xml
+    Description: Pickup requests of the customers
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FLT_MENU_PICKUPS">
+  <tag source="center">
+    <window style="expand" label="FLT_MENU_PICKUPS" icon="lucide:package-plus">
+      <grid id="GrdPck" style="expand" initial-load="query" server-action="data" target-action="FltPckLst" max="15">
+        <column label="FLT_COL_CUSTOMER" name="CusNam" sort-field="CusNam" align="left" charlength="20" width="*" secondary-field="Adr" sendable="false"/>
+        <column label="FLT_COL_PICKUP_DATE" name="PckDat" sort-field="PckDat" align="center" charlength="14" sendable="false"/>
+        <column label="FLT_COL_PIECES" name="Pcs" sort-field="Pcs" align="center" charlength="8" sendable="false"/>
+        <column label="FLT_COL_WEIGHT" name="Wgt" sort-field="Wgt" align="right" charlength="12" sendable="false"/>
+        <column label="FLT_COL_NOTES" name="Nte" sort-field="Nte" align="left" charlength="20" sendable="false"/>
+        <column label="FLT_COL_STATUS" name="StaTxt" sort-field="Sta" align="left" charlength="12" status-field="Ton" sendable="false"/>
+        <column name="IdePck" hidden="true"/>
+        <column name="Adr" hidden="true" sendable="false"/>
+        <column name="Sta" hidden="true" sendable="false"/>
+        <column name="Ton" hidden="true" sendable="false"/>
+        <button label="FLT_BTN_HANDLED" icon="lucide:circle-check" id="ButHan" selection="true">
+          <button-action type="check-some-selected" target="GrdPck"/>
+          <button-action type="server" server-action="maintain" target-action="FltPckHan"/>
+          <button-action type="filter" target="GrdPck"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdPck" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+  </tag>
+</screen>

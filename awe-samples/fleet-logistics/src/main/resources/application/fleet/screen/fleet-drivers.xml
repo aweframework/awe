@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-drivers.xml
+    Description: Drivers: create, edit and delete with a side panel
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FLT_MENU_DRIVERS" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW"/>
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE"/>
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE"/>
+    <criteria id="PnlMod" component="hidden" value="new"/>
+  </tag>
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdDrv"/>
+    </button>
+    <button label="FLT_BTN_NEW_DRIVER" icon="lucide:plus" id="ButNew" style="btn-primary" permission="drivers.create">
+      <button-action type="unselect-all-rows" target="GrdDrv"/>
+      <button-action type="value" target="PnlMod" value="new"/>
+      <button-action type="reset" target="Nam"/>
+      <button-action type="reset" target="Lic"/>
+      <button-action type="reset" target="Pho"/>
+      <button-action type="reset" target="Sta"/>
+      <button-action type="reset" target="Reg"/>
+      <button-action type="dialog" target="PnlDrv"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="FLT_MENU_DRIVERS" icon="lucide:id-card">
+      <tag type="div" style="panel-body flt-command">
+        <criteria label="FLT_SEARCH" id="CrtDrvSch" component="text" icon="lucide:search" style="col-xs-12 col-sm-6 col-lg-4" placeholder="FLT_SEARCH_DRIVER"/>
+      </tag>
+      <grid id="GrdDrv" style="expand" initial-load="query" server-action="data" target-action="FltDrvLst" max="15">
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit"/>
+          <button-action type="dialog" target="PnlDrv" edit-permission="drivers.update"/>
+        </column>
+        <column label="FLT_COL_NAME" name="Nam" sort-field="Nam" align="left" charlength="22" width="*" secondary-field="Lic" sendable="false"/>
+        <column label="FLT_COL_PHONE" name="Pho" sort-field="Pho" align="left" charlength="14" sendable="false"/>
+        <column label="FLT_COL_BASE_REGION" name="RegTxt" sort-field="Reg" align="left" charlength="13" sendable="false"/>
+        <column label="FLT_COL_STATUS" name="StaTxt" sort-field="Sta" align="left" charlength="12" sendable="false"/>
+        <column name="IdeDrv" hidden="true"/>
+        <column name="Lic" hidden="true" sendable="false"/>
+        <column name="Sta" hidden="true" sendable="false"/>
+        <column name="Reg" hidden="true" sendable="false"/>
+        <button label="FLT_BTN_DELETE" icon="lucide:trash" id="ButDel" selection="true" style="btn-danger">
+          <button-action type="check-some-selected" target="GrdDrv"/>
+          <button-action type="confirm" target="DelMsg"/>
+          <button-action type="server" server-action="maintain" target-action="FltDrvDel"/>
+          <button-action type="filter" target="GrdDrv"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdDrv" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+    <side-panel id="PnlDrv" label="FLT_DRV_PANEL" icon="lucide:id-card" max-width="40rem">
+      <tag type="div" style="panel-body" id="PnlDrvBdy">
+        <criteria label="FLT_COL_NAME" id="Nam" component="text" style="col-xs-12" validation="{required:true, maxlength:80}" icon="lucide:user-round">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDrv" column="Nam" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdDrv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="FLT_COL_LICENCE" id="Lic" component="text" style="col-xs-12 col-sm-6" validation="{required:true, maxlength:12}" icon="lucide:id-card">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDrv" column="Lic" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdDrv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="FLT_COL_PHONE" id="Pho" component="text" style="col-xs-12 col-sm-6" validation="{maxlength:20}" icon="lucide:phone">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDrv" column="Pho" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdDrv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="FLT_COL_STATUS" id="Sta" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="FltDriverStatus">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDrv" column="Sta" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdDrv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="FLT_COL_BASE_REGION" id="Reg" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="FltRegion">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdDrv" column="Reg" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdDrv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlDrvCnl">
+          <button-action type="close-cancel" target="PnlDrv"/>
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="lucide:save" id="ButPnlDrvUpd" style="btn-primary">
+          <button-action type="validate" target="PnlDrvBdy"/>
+          <button-action type="confirm" target="UpdMsg"/>
+          <button-action type="server" server-action="maintain" target-action="FltDrvUpd"/>
+          <button-action type="close" target="PnlDrv"/>
+          <button-action type="filter" target="GrdDrv"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit"/>
+          </dependency>
+        </button>
+        <button label="FLT_BTN_CREATE" icon="lucide:check" id="ButPnlDrvNew" style="btn-primary">
+          <button-action type="validate" target="PnlDrvBdy"/>
+          <button-action type="confirm" target="NewMsg"/>
+          <button-action type="server" server-action="maintain" target-action="FltDrvNew"/>
+          <button-action type="close" target="PnlDrv"/>
+          <button-action type="filter" target="GrdDrv"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new"/>
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+</screen>

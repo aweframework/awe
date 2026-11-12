@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Enumerated.xml
+    Description: Lists of values of the fleet application. Their labels are locale keys, so each user sees them in their
+                 language (also in the queries that use translate="Group")
+-->
+<enumerated xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/enumerated.xsd">
+  <group id="FltRegion">
+    <option label="FLT_REGION_NORTH" value="NORTH"/>
+    <option label="FLT_REGION_SOUTH" value="SOUTH"/>
+    <option label="FLT_REGION_EAST" value="EAST"/>
+    <option label="FLT_REGION_WEST" value="WEST"/>
+    <option label="FLT_REGION_CENTRAL" value="CENTRAL"/>
+  </group>
+  <group id="FltPriority">
+    <option label="FLT_PRIORITY_STANDARD" value="STANDARD"/>
+    <option label="FLT_PRIORITY_EXPRESS" value="EXPRESS"/>
+  </group>
+  <group id="FltShipmentStatus">
+    <option label="FLT_SHIPMENT_CREATED" value="CREATED"/>
+    <option label="FLT_SHIPMENT_PICKED_UP" value="PICKED_UP"/>
+    <option label="FLT_SHIPMENT_IN_TRANSIT" value="IN_TRANSIT"/>
+    <option label="FLT_SHIPMENT_OUT_FOR_DELIVERY" value="OUT_FOR_DELIVERY"/>
+    <option label="FLT_SHIPMENT_DELIVERED" value="DELIVERED"/>
+    <option label="FLT_SHIPMENT_DELAYED" value="DELAYED"/>
+  </group>
+  <group id="FltVehicleType">
+    <option label="FLT_VEHICLE_TYPE_VAN" value="VAN"/>
+    <option label="FLT_VEHICLE_TYPE_TRUCK" value="TRUCK"/>
+    <option label="FLT_VEHICLE_TYPE_HEAVY" value="HEAVY"/>
+  </group>
+  <group id="FltVehicleStatus">
+    <option label="FLT_VEHICLE_AVAILABLE" value="AVAILABLE"/>
+    <option label="FLT_VEHICLE_ON_ROUTE" value="ON_ROUTE"/>
+    <option label="FLT_VEHICLE_MAINTENANCE" value="MAINTENANCE"/>
+  </group>
+  <group id="FltServiceStatus">
+    <option label="FLT_SERVICE_OVERDUE" value="OVERDUE"/>
+    <option label="FLT_SERVICE_DUE_SOON" value="DUE_SOON"/>
+    <option label="FLT_SERVICE_OK" value="OK"/>
+  </group>
+  <group id="FltDriverStatus">
+    <option label="FLT_DRIVER_ACTIVE" value="ACTIVE"/>
+    <option label="FLT_DRIVER_ON_LEAVE" value="ON_LEAVE"/>
+  </group>
+  <group id="FltRouteStatus">
+    <option label="FLT_ROUTE_PLANNED" value="PLANNED"/>
+    <option label="FLT_ROUTE_IN_PROGRESS" value="IN_PROGRESS"/>
+    <option label="FLT_ROUTE_COMPLETED" value="COMPLETED"/>
+  </group>
+  <group id="FltInvoiceStatus">
+    <option label="FLT_INVOICE_PAID" value="PAID"/>
+    <option label="FLT_INVOICE_PENDING" value="PENDING"/>
+    <option label="FLT_INVOICE_OVERDUE" value="OVERDUE"/>
+  </group>
+  <group id="FltRequestStatus">
+    <option label="FLT_REQUEST_PENDING" value="PENDING"/>
+    <option label="FLT_REQUEST_HANDLED" value="HANDLED"/>
+    <option label="FLT_REQUEST_CANCELLED" value="CANCELLED"/>
+  </group>
+</enumerated>

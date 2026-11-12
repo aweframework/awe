@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<permissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd">
+  <resource id="fixtures" label="FIX_PERMISSION_RESOURCE" verbs="read"/>
+</permissions>

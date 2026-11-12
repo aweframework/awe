@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : hd-dashboard.xml
+    Description: SLA and agent performance dashboard (supervisors): key figures and ECharts charts (tickets per day with date axis and zoom, backlog by priority, resolution time per team, SLA donut)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="HD_MENU_DASHBOARD">
+  <tag source="buttons">
+    <button label="HD_BTN_REFRESH" icon="lucide:refresh-cw" id="ButRefresh" button-type="button">
+      <button-action type="reload"/>
+    </button>
+  </tag>
+  <tag source="center" expandible="vertical">
+    <tag type="div" style="awe-card-grid m-2">
+      <card id="CrdHdOpen" title="HD_DSH_OPEN" icon="lucide:inbox" icon-tone="info" initial-load="query" target-action="HdkDashOpen" number-decimals="0"/>
+      <card id="CrdHdNew" title="HD_DSH_NEW" icon="lucide:ticket-plus" icon-tone="warning" initial-load="query" target-action="HdkDashNew" good-trend="down" number-decimals="0"/>
+      <card id="CrdHdBrc" title="HD_DSH_BREACH" icon="lucide:timer-off" icon-tone="danger" initial-load="query" target-action="HdkDashBreach" unit="%" good-trend="down" number-decimals="1"/>
+      <card id="CrdHdHrs" title="HD_DSH_HOURS" icon="lucide:hourglass" icon-tone="success" initial-load="query" target-action="HdkDashHours" number-decimals="1"/>
+    </tag>
+    <tag type="div" style="h-20rem" expandible="horizontal">
+      <window label="HD_DSH_CHART_DAY" icon="lucide:chart-line" style="expand">
+        <chart id="ChrHdDay" type="line" initial-load="query" target-action="HdkDashTickets" zoom-type="xAxis" max="0">
+          <chart-legend enabled="true"/>
+          <x-axis type="datetime"/>
+          <y-axis/>
+          <chart-tooltip number-decimals="0"/>
+          <chart-serie id="created" x-value="dates" y-value="created" label="HD_DSH_SERIE_CREATED"/>
+          <chart-serie id="resolved" x-value="dates" y-value="resolved" label="HD_DSH_SERIE_RESOLVED"/>
+        </chart>
+      </window>
+      <window label="HD_DSH_CHART_BACKLOG" icon="lucide:chart-column" style="expand">
+        <chart id="ChrHdBacklog" type="column" initial-load="query" target-action="HdkDashBacklog">
+          <chart-legend enabled="false"/>
+          <x-axis type="category"/>
+          <y-axis/>
+          <chart-tooltip number-decimals="0"/>
+          <chart-serie id="tickets" x-value="priority" y-value="tickets" label="HD_DSH_SERIE_BACKLOG"/>
+        </chart>
+      </window>
+    </tag>
+    <tag type="div" style="h-20rem" expandible="horizontal">
+      <window label="HD_DSH_CHART_TEAMS" icon="lucide:chart-bar" style="expand">
+        <chart id="ChrHdTeams" type="column" initial-load="query" target-action="HdkDashTeams">
+          <chart-legend enabled="false"/>
+          <x-axis type="category"/>
+          <y-axis/>
+          <chart-tooltip number-decimals="1"/>
+          <chart-serie id="hours" x-value="team" y-value="hours" label="HD_DSH_SERIE_HOURS"/>
+        </chart>
+      </window>
+      <window label="HD_DSH_CHART_SLA" icon="lucide:chart-pie" style="expand">
+        <chart id="ChrHdSla" type="donut" initial-load="query" target-action="HdkDashSla">
+          <chart-legend enabled="true"/>
+          <x-axis type="category"/>
+          <y-axis/>
+          <chart-tooltip number-decimals="0"/>
+          <chart-serie id="sla" x-value="sla" y-value="tickets" label="HD_DSH_SERIE_SLA"/>
+        </chart>
+      </window>
+    </tag>
+  </tag>
+</screen>

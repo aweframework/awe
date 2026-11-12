@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Queries.xml
+    Description: Queries of the help desk. The lists read the SQL views of the Flyway migration; every query declares the
+                 permission it requires, except the public ones and the server-only helpers
+-->
+<queries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/queries.xsd">
+  <!-- ===== PUBLIC: reads only. The ticket check needs the code AND the requester email (all variables mandatory) ===== -->
+  <!-- Status of the services of the landing page -->
+  <query id="HdkSvcPub" public="true">
+    <table id="HdkSvc"/>
+    <field id="Nam"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="HdkServiceStatus"/>
+    <field id="Sta" alias="Ton" translate="HdkServiceTone"/>
+    <order-by field="IdeSvc" type="ASC"/>
+  </query>
+  <query id="HdkCatPub" enumerated="HdkCategory" public="true"/>
+  <!-- Published articles only (the Pub = 1 filter is a constant of the query, a client cannot change it) -->
+  <query id="HdkArtPub" public="true">
+    <table id="HdkArtLst"/>
+    <field id="IdeArt"/>
+    <field id="Cat"/>
+    <field id="Cat" alias="CatTxt" translate="HdkCategory"/>
+    <field id="Tit"/>
+    <field id="Txt"/>
+    <field id="Vws"/>
+    <where>
+      <and>
+        <filter left-field="Pub" condition="eq" right-variable="Pub"/>
+        <filter left-field="Cat" condition="eq" right-variable="Cat" optional="true"/>
+      </and>
+      <and>
+        <or>
+          <filter left-field="Tit" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="Txt" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="Vws" type="DESC"/>
+    <variable id="Pub" type="INTEGER" value="1"/>
+    <variable id="Cat" type="STRING" name="CrtKbCat"/>
+    <variable id="Sch" type="STRINGB" name="CrtKbSch"/>
+  </query>
+  <!-- Status and last update of ONE ticket: the public access key of the ticket and the requester email are both required and must match (the ticket code is not enough) -->
+  <query id="HdkStatusPub" public="true">
+    <table id="HdkTrkSta"/>
+    <field id="Sta" alias="StaTxt" translate="HdkStatus"/>
+    <field id="UpdDat" transform="TIMESTAMP"/>
+    <where>
+      <and>
+        <filter left-field="AccKey" condition="eq" right-variable="Key" ignorecase="true"/>
+        <filter left-field="Eml" condition="eq" right-variable="Eml" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="Key" type="STRING" name="ChkKey"/>
+    <variable id="Eml" type="STRING" name="ChkEml"/>
+  </query>
+  <!-- Public replies of that ticket only (internal notes are not in the view) -->
+  <query id="HdkRepliesPub" public="true">
+    <table id="HdkTrkRep"/>
+    <field id="MsgDat" transform="TIMESTAMP"/>
+    <field id="Aut"/>
+    <field id="Txt"/>
+    <where>
+      <and>
+        <filter left-field="AccKey" condition="eq" right-variable="Key" ignorecase="true"/>
+        <filter left-field="Eml" condition="eq" right-variable="Eml" ignorecase="true"/>
+      </and>
+    </where>
+    <order-by field="MsgDat" type="ASC"/>
+    <variable id="Key" type="STRING" name="ChkKey"/>
+    <variable id="Eml" type="STRING" name="ChkEml"/>
+  </query>
+  <!-- Support chat (server only: HdkChatTicket launches them) -->
+  <query id="HdkChatReqByEml" server-only="true">
+    <table id="HdkReq"/>
+    <field id="IdeReq"/>
+    <where>
+      <and>
+        <filter left-field="Eml" condition="eq" right-variable="Eml" ignorecase="true"/>
+      </and>
+    </where>
+    <order-by field="IdeReq" type="ASC"/>
+    <variable id="Eml" type="STRING" name="Eml"/>
+  </query>
+  <!-- Code and public access key of the ticket the chat has just created -->
+  <query id="HdkChatTktKey" server-only="true">
+    <table id="HdkTktLst"/>
+    <field id="Cod"/>
+    <field id="AccKey"/>
+    <where>
+      <and>
+        <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+      </and>
+    </where>
+    <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+  </query>
+  <!-- ===== AGENTS AND SUPERVISORS ===== -->
+  <!-- Ticket queue: the grid loads all the rows (load-all) and groups them by status, priority or team -->
+  <query id="HdkTktLst" permission="tickets.read">
+    <table id="HdkTktLst"/>
+    <field id="IdeTkt"/>
+    <field id="Cod"/>
+    <field id="AccKey"/>
+    <field id="ReqNam"/>
+    <field id="ReqEml"/>
+    <field id="TeamNam"/>
+    <field id="Cat"/>
+    <field id="Cat" alias="CatTxt" translate="HdkCategory"/>
+    <field id="Pri"/>
+    <field id="Pri" alias="PriTxt" translate="HdkPriority"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="HdkStatus"/>
+    <field id="Sub"/>
+    <field id="Dsc"/>
+    <field id="IdeAgt"/>
+    <field id="AgtNam"/>
+    <field id="CreDat" transform="TIMESTAMP"/>
+    <field id="UpdDat" transform="TIMESTAMP"/>
+    <field id="Due" transform="TIMESTAMP"/>
+    <field id="Sla" alias="SlaTxt" translate="HdkSla"/>
+    <field id="Sla"/>
+    <field id="Ton"/>
+    <field id="PriTon"/>
+    <field id="Chn" alias="ChnTxt" translate="HdkChannel"/>
+    <where>
+      <and>
+        <filter left-field="Sta" condition="eq" right-variable="Sta" optional="true"/>
+        <filter left-field="Pri" condition="eq" right-variable="Pri" optional="true"/>
+        <filter left-field="IdeTeam" condition="eq" right-variable="Team" optional="true"/>
+        <filter left-field="IdeAgt" condition="eq" right-variable="Agt" optional="true"/>
+      </and>
+      <and>
+        <or>
+          <filter left-field="Sub" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="Cod" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="ReqNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="CreDat" type="DESC"/>
+    <variable id="Sta" type="STRING" name="CrtTktSta"/>
+    <variable id="Pri" type="STRING" name="CrtTktPri"/>
+    <variable id="Team" type="INTEGER" name="CrtTktTeam"/>
+    <variable id="Agt" type="INTEGER" name="CrtTktAgt"/>
+    <variable id="Sch" type="STRINGB" name="CrtTktSch"/>
+  </query>
+  <!-- Status of a ticket by code, for integrations (REST) -->
+  <query id="HdkTktByCode" permission="tickets.read">
+    <table id="HdkTktLst"/>
+    <field id="Cod"/>
+    <field id="AccKey"/>
+    <field id="ReqNam"/>
+    <field id="Sta" alias="StaTxt" translate="HdkStatus"/>
+    <field id="Sta"/>
+    <field id="Pri" alias="PriTxt" translate="HdkPriority"/>
+    <field id="AgtNam"/>
+    <field id="UpdDat" transform="TIMESTAMP"/>
+    <field id="Sla" alias="SlaTxt" translate="HdkSla"/>
+    <where>
+      <and>
+        <filter left-field="Cod" condition="eq" right-variable="Cod" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="Cod" type="STRING" name="Cod"/>
+  </query>
+  <!-- Conversation of a ticket, public replies and internal notes (grid of the ticket panel: the selected ticket comes as IdeTkt) -->
+  <query id="HdkMsgLst" permission="tickets.read">
+    <table id="HdkMsgLst"/>
+    <field id="IdeMsg"/>
+    <field id="MsgDat" alias="MsgTim" transform="TIMESTAMP"/>
+    <field id="Aut" alias="MsgAut"/>
+    <field id="Typ"/>
+    <field id="Typ" alias="MsgTyp" translate="HdkMsgType"/>
+    <field id="Txt" alias="MsgTxt"/>
+    <where>
+      <and>
+        <filter left-field="IdeTkt" condition="eq" right-variable="Tkt"/>
+      </and>
+    </where>
+    <order-by field="MsgDat" type="ASC"/>
+    <variable id="Tkt" type="INTEGER" name="IdeTkt"/>
+  </query>
+  <!-- Open tickets for the reassignment grid (supervisors) -->
+  <query id="HdkTktAsgLst" permission="tickets.reassign">
+    <table id="HdkTktLst"/>
+    <field id="IdeTkt"/>
+    <field id="Cod"/>
+    <field id="Sub"/>
+    <field id="TeamNam"/>
+    <field id="IdeAgt"/>
+    <field id="Pri"/>
+    <field id="Sta" alias="StaTxt" translate="HdkStatus"/>
+    <field id="Ton"/>
+    <field id="Sla"/>
+    <field id="Sla" alias="SlaTxt" translate="HdkSla"/>
+    <where>
+      <and>
+        <filter left-field="Sta" condition="in" right-variable="Open"/>
+      </and>
+    </where>
+    <order-by field="CreDat" type="ASC"/>
+    <variable id="Open" type="STRING_TO_LIST" value="NEW,OPEN,PENDING"/>
+  </query>
+  <!-- The priority an agent asks for, only when the agent may set it: CRITICAL returns no row, so the update stores NULL and the database refuses it -->
+  <query id="HdkPriAgent" server-only="true">
+    <table id="HdkPri"/>
+    <field id="Pri"/>
+    <where>
+      <and>
+        <filter left-field="Pri" condition="eq" right-variable="Pri"/>
+        <filter left-field="Agt" condition="eq" right-variable="One"/>
+      </and>
+    </where>
+    <variable id="Pri" type="STRING" name="Pri"/>
+    <variable id="One" type="INTEGER" value="1"/>
+  </query>
+  <query id="HdkTeamSel" permission="tickets.read">
+    <table id="HdkTeam"/>
+    <field id="IdeTeam" alias="value"/>
+    <field id="Nam" alias="label"/>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+  <query id="HdkAgtSel" permission="tickets.read">
+    <table id="HdkAgt"/>
+    <field id="IdeAgt" alias="value"/>
+    <field id="Nam" alias="label"/>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+  <!-- Suggest of requesters -->
+  <query id="HdkReqSug" permission="tickets.read">
+    <table id="HdkReq"/>
+    <field id="IdeReq" alias="value"/>
+    <field id="Nam" alias="Nam"/>
+    <field id="Eml" alias="Eml"/>
+    <where>
+      <and>
+        <or>
+          <filter left-field="Nam" condition="like" right-variable="Sug" ignorecase="true"/>
+          <filter left-field="Eml" condition="like" right-variable="Sug" ignorecase="true"/>
+        </or>
+      </and>
+    </where>
+    <computed format="[Nam] ([Eml])" alias="label"/>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="Sug" type="STRINGB" name="suggest"/>
+  </query>
+  <query id="HdkReqIni" permission="tickets.read">
+    <table id="HdkReq"/>
+    <field id="IdeReq" alias="value"/>
+    <field id="Nam" alias="Nam"/>
+    <field id="Eml" alias="Eml"/>
+    <where>
+      <and>
+        <filter left-field="IdeReq" condition="eq" right-variable="Ide"/>
+      </and>
+    </where>
+    <computed format="[Nam] ([Eml])" alias="label"/>
+    <variable id="Ide" type="INTEGER" name="suggest"/>
+  </query>
+  <!-- Team of a category -->
+  <query id="HdkCatTeam" server-only="true">
+    <table id="HdkCat"/>
+    <field id="IdeTeam"/>
+    <where>
+      <and>
+        <filter left-field="Cat" condition="eq" right-variable="Cat"/>
+      </and>
+    </where>
+    <variable id="Cat" type="STRING" name="Cat"/>
+  </query>
+  <!-- Teams as a tree grid (supervisors) -->
+  <query id="HdkTeamTree" permission="teams.read">
+    <table id="HdkTeamTree"/>
+    <field id="Ide" alias="id"/>
+    <field id="Par" alias="parent"/>
+    <field id="IsLeaf" alias="isLeaf"/>
+    <field id="Nam"/>
+    <field id="Des"/>
+    <field id="Agts"/>
+    <field id="Opn"/>
+  </query>
+  <!-- All the articles, also the drafts -->
+  <query id="HdkArtLst" permission="kb.read">
+    <table id="HdkArtLst"/>
+    <field id="IdeArt"/>
+    <field id="Cat"/>
+    <field id="Cat" alias="CatTxt" translate="HdkCategory"/>
+    <field id="Tit"/>
+    <field id="Txt"/>
+    <field id="Pub"/>
+    <field id="Vws"/>
+    <field id="UpdDat" transform="DATE"/>
+    <where>
+      <and>
+        <filter left-field="Cat" condition="eq" right-variable="Cat" optional="true"/>
+      </and>
+      <and>
+        <or>
+          <filter left-field="Tit" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="Tit" type="ASC"/>
+    <variable id="Cat" type="STRING" name="CrtKbCat"/>
+    <variable id="Sch" type="STRINGB" name="CrtKbSch"/>
+  </query>
+  <query id="HdkDashOpen" permission="reports.read">
+    <table id="HdkKpi"/>
+    <field id="Opn" alias="value"/>
+  </query>
+  <query id="HdkDashNew" permission="reports.read">
+    <table id="HdkKpi"/>
+    <field id="Nw" alias="value"/>
+  </query>
+  <query id="HdkDashBreach" permission="reports.read">
+    <table id="HdkKpi"/>
+    <field id="Brc" alias="value"/>
+  </query>
+  <query id="HdkDashHours" permission="reports.read">
+    <table id="HdkKpi"/>
+    <field id="Hrs" alias="value"/>
+  </query>
+  <query id="HdkDashUnassigned" permission="reports.read">
+    <table id="HdkKpi"/>
+    <field id="Una" alias="value"/>
+  </query>
+  <query id="HdkDashTickets" permission="reports.read">
+    <table id="HdkDay"/>
+    <field id="Dat" alias="dates" transform="DATE_MS"/>
+    <field id="Cre" alias="created"/>
+    <field id="Res" alias="resolved"/>
+    <order-by field="Dat" type="ASC"/>
+  </query>
+  <query id="HdkDashBacklog" permission="reports.read">
+    <table id="HdkBacklog"/>
+    <field id="Pri" alias="priority" translate="HdkPriority"/>
+    <field id="Cnt" alias="tickets"/>
+  </query>
+  <query id="HdkDashTeams" permission="reports.read">
+    <table id="HdkResTeam"/>
+    <field id="Team" alias="team"/>
+    <field id="Hrs" alias="hours"/>
+    <order-by field="Team" type="ASC"/>
+  </query>
+  <query id="HdkDashSla" permission="reports.read">
+    <table id="HdkSlaCnt"/>
+    <field id="Sla" alias="sla" translate="HdkSla"/>
+    <field id="Cnt" alias="tickets"/>
+  </query>
+  <!-- ===== REQUESTERS: every query and maintain target filters by the connected user (HdkSelfReq) ===== -->
+  <query id="HdkSelfReq" server-only="true">
+    <table id="HdkSelfReq"/>
+    <field id="IdeReq"/>
+    <where>
+      <and>
+        <filter left-field="Usr" condition="eq" right-variable="User" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="User" type="STRING" session="user"/>
+  </query>
+  <!-- Name of the connected requester -->
+  <query id="HdkSelfReqNam" server-only="true">
+    <table id="HdkReq"/>
+    <field id="Nam"/>
+    <where>
+      <and>
+        <filter left-field="IdeReq" condition="in" query="HdkSelfReq"/>
+      </and>
+    </where>
+  </query>
+  <!-- Agent of the connected user -->
+  <query id="HdkSelfAgt" server-only="true">
+    <table id="HdkSelfAgt"/>
+    <field id="IdeAgt"/>
+    <where>
+      <and>
+        <filter left-field="Usr" condition="eq" right-variable="User" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="User" type="STRING" session="user"/>
+  </query>
+  <query id="HdkSelfAgtNam" server-only="true">
+    <table id="HdkSelfAgt"/>
+    <field id="Nam"/>
+    <where>
+      <and>
+        <filter left-field="Usr" condition="eq" right-variable="User" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="User" type="STRING" session="user"/>
+  </query>
+  <query id="HdkMyOpen" permission="portal.read">
+    <table id="HdkReqKpi"/>
+    <field id="Opn" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeReq" condition="in" query="HdkSelfReq"/>
+      </and>
+    </where>
+  </query>
+  <query id="HdkMyPending" permission="portal.read">
+    <table id="HdkReqKpi"/>
+    <field id="Pnd" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeReq" condition="in" query="HdkSelfReq"/>
+      </and>
+    </where>
+  </query>
+  <query id="HdkMyResolved" permission="portal.read">
+    <table id="HdkReqKpi"/>
+    <field id="Rsv" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeReq" condition="in" query="HdkSelfReq"/>
+      </and>
+    </where>
+  </query>
+  <query id="HdkMyTktLst" permission="portal.read">
+    <table id="HdkTktLst"/>
+    <field id="IdeTkt"/>
+    <field id="Cod"/>
+    <field id="AccKey"/>
+    <field id="Cat" alias="CatTxt" translate="HdkCategory"/>
+    <field id="Pri" alias="PriTxt" translate="HdkPriority"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="HdkStatus"/>
+    <field id="Sub"/>
+    <field id="Ton"/>
+    <field id="CreDat" transform="TIMESTAMP"/>
+    <field id="UpdDat" transform="TIMESTAMP"/>
+    <where>
+      <and>
+        <filter left-field="IdeReq" condition="in" query="HdkSelfReq"/>
+        <filter left-field="Sta" condition="eq" right-variable="Sta" optional="true"/>
+      </and>
+    </where>
+    <order-by field="UpdDat" type="DESC"/>
+    <variable id="Sta" type="STRING" name="CrtMyTktSta"/>
+  </query>
+  <!-- Conversation of one of my tickets without the internal notes (nested grid, parameter GrdMyTkt.row.IdeTkt) -->
+  <query id="HdkMyMsgLst" permission="portal.read">
+    <table id="HdkMsgLst"/>
+    <field id="IdeMsg"/>
+    <field id="MsgDat" alias="MsgTim" transform="TIMESTAMP"/>
+    <field id="Aut" alias="MsgAut"/>
+    <field id="Txt" alias="MsgTxt"/>
+    <where>
+      <and>
+        <filter left-field="IdeReq" condition="in" query="HdkSelfReq"/>
+        <filter left-field="IdeTkt" condition="eq" right-variable="Tkt"/>
+        <filter left-field="Typ" condition="ne" right-variable="Internal"/>
+      </and>
+    </where>
+    <order-by field="MsgDat" type="ASC"/>
+    <variable id="Tkt" type="INTEGER" name="GrdMyTkt.row.IdeTkt"/>
+    <variable id="Internal" type="STRING" value="INTERNAL"/>
+  </query>
+  <!-- Ticket of the connected requester: a reply takes the ticket through this query, so a ticket of somebody else is never written -->
+  <query id="HdkMyTktCheck" server-only="true">
+    <table id="HdkTkt"/>
+    <field id="IdeTkt"/>
+    <where>
+      <and>
+        <filter left-field="IdeReq" condition="in" query="HdkSelfReq"/>
+        <filter left-field="IdeTkt" condition="eq" right-variable="Tkt"/>
+      </and>
+    </where>
+    <variable id="Tkt" type="INTEGER" name="IdeTkt"/>
+  </query>
+</queries>

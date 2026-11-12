@@ -17,7 +17,7 @@
 
   <properties>
     <!-- Application maven properties -->
-    <java.version>17</java.version>
+    <java.version>21</java.version>
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
     <video-recorder-junit5.version>2.0</video-recorder-junit5.version>
     <sonar.exclusions>src/**</sonar.exclusions>
@@ -30,6 +30,14 @@
   </properties>
 
   <dependencies>
+    <!-- Descriptor tests of the applications (XStream model of the XML descriptors). Provided: every application
+         that uses the descriptor test base already has the model on its classpath -->
+    <dependency>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-model</artifactId>
+      <version>${awe.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>

@@ -4,7 +4,7 @@ import { renderWithProviders } from '../test-utils';
 import { DEFAULT_SETTINGS } from '../../../src/redux/actions/settings';
 import { ADD_ACTIONS_TOP } from '../../../src/redux/actions/actions';
 import { ButtonTypes } from '../../../src/redux/actions/components';
-import {act, render} from "@testing-library/react";
+import {act, fireEvent, render} from "@testing-library/react";
 import { ButtonSkeleton } from '../../../src/components/AweSkeleton';
 import { acceptAction, addActionsTop, addStack, toggleActionsRunning } from '../../../src/redux/actions/actions';
 import { BUSY_THRESHOLD } from '../../../src/hooks/useBusy';
@@ -492,6 +492,94 @@ describe('awe-react-client/test/js/components/AweButtonTest.jsx styles', () => {
       expect(button.querySelector('.p-button-label').textContent).toBe('Print');
       expect(button.getAttribute('aria-label')).toBe('Print');
       expect(button.hasAttribute('title')).toBe(false);
+    });
+  });
+
+  describe('with child elements (a type="div" button, as the notification rows)', () => {
+    const children = [
+      { elementType: 'Tag', type: 'div', style: 'notification-title', label: 'Late shipments' },
+      { elementType: 'Tag', type: 'div', style: 'notification-description', label: '7 shipments are late' },
+      { elementType: 'ButtonAction', type: 'value', target: 'selected' }
+    ];
+
+    function rowState() {
+      return baseState({
+        components: {
+          btn1: {
+            address: { view: 'v', component: 'btn1' },
+            attributes: { visible: true, buttonType: ButtonTypes.BUTTON_NORMAL, style: 'no-class notification' },
+            actions: [{ type: 'filter', target: 'bulletin' }]
+          }
+        }
+      });
+    }
+
+    it('renders its children inside an element of its type, not an empty PrimeReact button', () => {
+      const { container } = renderWithProviders(<AweButton id="btn1" type="div" elementList={children} />,
+        { preloadedState: rowState() });
+
+      const row = container.querySelector('#btn1');
+      expect(row.tagName).toBe('DIV');
+      expect(row.getAttribute('role')).toBe('button');
+      expect(row.classList.contains('p-button')).toBe(false);
+      expect(row.querySelector('.notification-title').textContent).toBe('Late shipments');
+      expect(row.querySelector('.notification-description').textContent).toBe('7 shipments are late');
+    });
+
+    it('stays a button when its only children are its context menu entries', () => {
+      const contextMenu = [
+        { elementType: 'ContextButton', id: 'CtxSet', label: 'Set value' },
+        { elementType: 'ContextSeparator' },
+        { elementType: 'ButtonAction', type: 'value', target: 'selected' }
+      ];
+      const { container } = renderWithProviders(<AweButton id="btn1" elementList={contextMenu} />,
+        { preloadedState: rowState() });
+
+      const button = container.querySelector('#btn1');
+      expect(button.tagName).toBe('BUTTON');
+      expect(button.classList.contains('awe-button-content')).toBe(false);
+    });
+
+    it('launches its actions when clicked', () => {
+      const { container, dispatchSpy } = renderWithProviders(<AweButton id="btn1" type="div" elementList={children} />,
+        { preloadedState: rowState(), spyDispatch: true });
+
+      fireEvent.click(container.querySelector('#btn1'));
+
+      expect(getAddActionsTopCalls(dispatchSpy)).toHaveLength(1);
+    });
+
+    it('launches its actions with Enter and Space', () => {
+      const { container, dispatchSpy } = renderWithProviders(<AweButton id="btn1" type="div" elementList={children} />,
+        { preloadedState: rowState(), spyDispatch: true });
+
+      fireEvent.keyDown(container.querySelector('#btn1'), { key: 'Enter' });
+      fireEvent.keyDown(container.querySelector('#btn1'), { key: ' ' });
+
+      expect(getAddActionsTopCalls(dispatchSpy)).toHaveLength(2);
+    });
+
+    it('does not launch its actions when it is disabled, by click or by key', () => {
+      const state = rowState();
+      state.components.btn1.attributes.disabled = true;
+      const { container, dispatchSpy } = renderWithProviders(<AweButton id="btn1" type="div" elementList={children} />,
+        { preloadedState: state, spyDispatch: true });
+      const row = container.querySelector('#btn1');
+
+      fireEvent.click(row);
+      fireEvent.keyDown(row, { key: 'Enter' });
+      fireEvent.keyDown(row, { key: ' ' });
+
+      expect(getAddActionsTopCalls(dispatchSpy)).toHaveLength(0);
+      expect(row.getAttribute('aria-disabled')).toBe('true');
+      expect(row.getAttribute('tabindex')).toBe('-1');
+    });
+
+    it('keeps the PrimeReact button when it has only actions as children', () => {
+      const { container } = renderWithProviders(<AweButton id="btn1" elementList={[children[2]]} />,
+        { preloadedState: rowState() });
+
+      expect(container.querySelector('button#btn1.p-button')).toBeTruthy();
     });
   });
 });

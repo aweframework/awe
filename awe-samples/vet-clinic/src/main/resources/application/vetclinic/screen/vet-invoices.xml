@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-invoices.xml
+    Description: Invoices with period, status and search filters, payment of the selected invoices, detail of an invoice with its PDF, and print or export of the list
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="VET_MENU_INVOICES" keep-criteria="true">
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdInv"/>
+    </button>
+    <button label="BUTTON_PRINT" icon="lucide:printer" id="ButPrn">
+      <button-action type="dialog" target="PrnOpt"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="VET_MENU_INVOICES" icon="lucide:receipt">
+      <tag type="div" style="panel-body vet-chips">
+        <criteria label="VET_FLD_PERIOD" id="CrtInvDat" component="date-range" presets="1M,3M,YTD,12M,ALL" style="col-xs-12 col-lg-4"/>
+        <criteria label="VET_COL_STATUS" id="CrtInvSta" component="select" initial-load="enum" target-action="VetInvStatus" optional="true" style="col-xs-12 col-sm-6 col-lg-3"/>
+        <criteria label="VET_SEARCH_VISITS_LABEL" id="CrtInvSch" component="text" icon="lucide:search" style="col-xs-12 col-lg-4" placeholder="VET_SEARCH_INV_PH"/>
+      </tag>
+      <grid id="GrdInv" style="expand" initial-load="query" server-action="data" target-action="VetInvLst" max="15" multiselect="true">
+        <column name="ViwBtn" component="button" icon="lucide:file-text" title="VET_BTN_VIEW_INVOICE" style="btn-ghost no-label" align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="filter" target="GrdInvLin"/>
+          <button-action type="dialog" target="PnlInv"/>
+        </column>
+        <column label="VET_COL_INVOICE" name="IdeInv" sort-field="IdeInv" align="center" charlength="9"/>
+        <column label="VET_COL_DATE" name="InvDat" sort-field="InvDat" align="center" charlength="12" sendable="false"/>
+        <column label="VET_COL_OWNER" name="OwnNam" sort-field="OwnNam" align="left" charlength="22" width="*" secondary-field="PetNam" sendable="false"/>
+        <column label="VET_COL_CONCEPT" name="TypTxt" sort-field="VisTyp" align="left" charlength="16" sendable="false"/>
+        <column label="VET_COL_AMOUNT" name="Amt" sort-field="Amt" align="right" charlength="13" sendable="false"/>
+        <column label="VET_COL_STATUS" name="StaTxt" sort-field="Sta" align="left" charlength="12" status-field="Ton" sendable="false"/>
+        <column name="Sta" hidden="true" sendable="false"/>
+        <column name="Ton" hidden="true" sendable="false"/>
+        <column name="PetNam" hidden="true" sendable="false"/>
+        <column name="InvNum" hidden="true" sendable="false"/>
+        <column name="Sub" hidden="true" sendable="false"/>
+        <column name="Tax" hidden="true" sendable="false"/>
+        <button label="VET_BTN_MARK_PAID" icon="lucide:badge-euro" id="ButPay" selection="true">
+          <button-action type="check-some-selected" target="GrdInv"/>
+          <button-action type="server" server-action="maintain" target-action="VetInvPay"/>
+          <button-action type="filter" target="GrdInv"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdInv" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+    <side-panel id="PnlInv" label="VET_INV_PANEL" icon="lucide:receipt" max-width="44rem">
+      <tag type="div" style="panel-body" id="PnlInvBdy">
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="VET_SEC_INVOICE"/>
+        <criteria label="VET_FLD_INV_NUMBER" id="DtlInvNum" component="text" style="col-xs-12 col-sm-6" readonly="true">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdInv" column="InvNum" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdInv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_DATE" id="DtlInvDat" component="text" style="col-xs-12 col-sm-6" readonly="true">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdInv" column="InvDat" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdInv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_OWNER" id="DtlInvOwn" component="text" style="col-xs-12 col-sm-6" readonly="true">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdInv" column="OwnNam" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdInv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_PET" id="DtlInvPet" component="text" style="col-xs-12 col-sm-6" readonly="true">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdInv" column="PetNam" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdInv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_STATUS" id="DtlInvSta" component="text" style="col-xs-12 col-sm-6" readonly="true">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdInv" column="StaTxt" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdInv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="VET_SEC_INVOICE_LINES"/>
+        <tag type="div" style="col-xs-12 vet-inv-lines">
+        <grid id="GrdInvLin" style="expand" initial-load="query" server-action="data" target-action="VetInvLinLst" max="30">
+          <column label="VET_COL_CONCEPT" name="LinCon" align="left" charlength="22" width="*" sortable="false" sendable="false"/>
+          <column label="VET_COL_QUANTITY" name="LinQty" align="right" charlength="8" sortable="false" sendable="false"/>
+          <column label="VET_COL_UNIT_PRICE" name="LinPrc" component="numeric" number-format="{precision: 2, aPad: true}" align="right" charlength="12" sortable="false" sendable="false"/>
+          <column label="VET_COL_AMOUNT" name="LinAmt" component="numeric" number-format="{precision: 2, aPad: true}" align="right" charlength="12" sortable="false" sendable="false"/>
+        </grid>
+        </tag>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="VET_SEC_INVOICE_TOTALS"/>
+        <criteria label="VET_FLD_SUBTOTAL" id="DtlInvSub" component="numeric" style="col-xs-12 col-sm-4" readonly="true" number-format="{min: 0, max: 100000, precision: 2, aSign: ' EUR', pSign: 's', aPad: true}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdInv" column="Sub" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdInv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_VAT" id="DtlInvTax" component="numeric" style="col-xs-12 col-sm-4" readonly="true" number-format="{min: 0, max: 100000, precision: 2, aSign: ' EUR', pSign: 's', aPad: true}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdInv" column="Tax" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdInv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_TOTAL" id="DtlInvAmt" component="numeric" style="col-xs-12 col-sm-4" readonly="true" number-format="{min: 0, max: 100000, precision: 2, aSign: ' EUR', pSign: 's', aPad: true}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdInv" column="Amt" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdInv" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlInvCnl">
+          <button-action type="close-cancel" target="PnlInv"/>
+        </button>
+        <button label="VET_BTN_DOWNLOAD_PDF" icon="lucide:download" id="ButPnlInvPdf" style="btn-primary">
+          <button-action type="server-download" server-action="get-file-maintain" target-action="VetInvPdf"/>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center"/>
+  </tag>
+</screen>

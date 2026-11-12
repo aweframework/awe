@@ -564,6 +564,34 @@
   white-space: nowrap;
 }
 
+/*
+ * Compact selectors of a tag with the class awe-preferences (the top bar of a public home): ghost buttons that open a
+ * menu, so they read as part of the bar next to its text buttons. The buttons are the AWE ghost ones; the options
+ * take the look of the options of the user menu (shell.css)
+ */
+.awe-preferences {
+  display: flex;
+  align-items: center;
+}
+
+.awe-preferences-panel {
+  min-width: var(--awe-menu-flyout-width);
+}
+
+.awe-preferences-option {
+  font-weight: var(--awe-font-weight-normal);
+}
+
+.awe-preferences-option[aria-checked="true"] {
+  font-weight: var(--awe-font-weight-semibold);
+}
+
+.awe-preferences-option > .awe-preferences-check {
+  flex: none;
+  margin-inline-start: auto;
+  color: var(--awe-color-primary-text);
+}
+
 /* Right column: the language select and the colour mode segmented control */
 .signin-footer > .signin-prefs {
   display: flex;
@@ -745,6 +773,8 @@
   z-index: auto;
   grid-row: auto;
   grid-column: auto;
+  /* Only the space left of the centred card, so the caption never runs under it */
+  max-width: calc((100% - var(--awe-login-card-width)) / 2);
 }
 
 /* Under the card the footer keeps the surface of the card, so its text keeps the contrast over any image */

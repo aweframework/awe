@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-track.xml
+    Description: Public shipment tracking: the visitor enters the tracking code and the destination postal code and gets the timeline and the numbered points on the map of that shipment only (public query FltTrackPub, public target FltTrackRoute)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="FLT_TRACK_TITLE">
+  <tag source="center">
+    <tag type="div" style="flt-landing">
+      <tag type="header" style="flt-topbar">
+        <tag type="div" style="flt-brand">
+          <tag type="span" style="flt-brand-name" label="FLT_BRAND"/>
+        </tag>
+        <tag type="nav" style="flt-topbar-actions">
+          <button label="FLT_BTN_BACK_HOME" icon="lucide:arrow-left" id="ButTopHome" style="btn-ghost">
+            <button-action type="screen" target="/"/>
+          </button>
+          <button label="FLT_HOME_SIGN_IN" icon="lucide:log-in" id="ButTopLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+        </tag>
+      </tag>
+      <tag type="div" style="flt-form-wrap">
+        <tag type="section" style="flt-form-card">
+          <tag type="h1" label="FLT_TRACK_TITLE"/>
+          <tag type="p" style="flt-lead" label="FLT_TRACK_LEAD"/>
+          <tag type="div" id="PnlTrkBdy" style="panel-body">
+            <criteria label="FLT_TRACK_CODE" id="TrkCod" component="text" icon="lucide:package" style="col-xs-12 col-sm-6" validation="{required:true, maxlength:12}"/>
+            <criteria label="FLT_TRACK_POSTAL" id="TrkPst" component="text" icon="lucide:map-pin" style="col-xs-12 col-sm-6" validation="{required:true, digits:true, equallength:5}"/>
+          </tag>
+          <tag type="div" style="flt-form-actions">
+            <button button-type="submit" label="FLT_TRACK_BUTTON" icon="lucide:search" id="ButTrack" style="btn-primary btn-lg">
+              <button-action type="validate" target="PnlTrkBdy"/>
+              <button-action type="filter" target="GrdTrk"/>
+              <button-action type="server" server-action="maintain-silent" target-action="FltTrackRoute"/>
+            </button>
+          </tag>
+          <grid id="GrdTrk" server-action="data" target-action="FltTrackPub" max="20" pagination-disabled="true">
+            <column label="FLT_TRACK_WHEN" name="EvtDat" align="left" charlength="20" sortable="false" sendable="false"/>
+            <column label="FLT_COL_STATUS" name="StaTxt" align="left" charlength="18" sortable="false" sendable="false"/>
+            <column label="FLT_TRACK_WHERE" name="Loc" align="left" charlength="26" width="*" sortable="false" sendable="false"/>
+          </grid>
+          <tag type="h2" style="flt-track-map-title" label="FLT_TRACK_MAP"/>
+          <tag type="div" style="flt-track-map">
+            <map id="MapFltTrack" latitude="Lat" longitude="Lon" marker-label="Loc" marker-number="Seq" style="expand"/>
+          </tag>
+        </tag>
+      </tag>
+    </tag>
+  </tag>
+</screen>

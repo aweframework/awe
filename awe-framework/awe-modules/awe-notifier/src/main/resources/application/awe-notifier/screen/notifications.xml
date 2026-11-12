@@ -31,13 +31,13 @@
     </window>
     <window style="expand" maximize="true" label="SCREEN_TEXT_NOTIFICATIONS" icon="bell-o">
       <grid id="notification-list" style="expand" initial-load="query" server-action="data" target-action="notification-list" multiselect="true" max="30">
-        <column name="notification-icon" component="icon" sort-field="typeSort" align="center" charlength="4" />
+        <column label="PARAMETER_TYPE" name="notification-icon" component="icon" sort-field="typeSort" align="center" charlength="4" />
         <column name="id" hidden="true" />
         <column label="PARAMETER_NAME" name="notification-name" charlength="30" />
         <column label="PARAMETER_DESCRIPTION" name="notification-description" charlength="50" />
         <column label="PARAMETER_SCREEN" name="notification-screen" align="center" charlength="20" />
         <column label="PARAMETER_DATE" name="notification-date" align="center" charlength="20" />
-        <column name="notification-read" component="icon" sort-field="unreadSort" align="center" charlength="4" />
+        <column label="PARAMETER_UNREAD" name="notification-read" component="icon" sort-field="unreadSort" align="center" charlength="4" />
         <button label="BUTTON_SET_UNREAD" icon="eye-slash" id="button-set-unread" help="HELP_SET_UNREAD" value="1">
           <button-action type="server" server-action="maintain-silent" target-action="toggle-notifications" silent="true"/>
           <button-action type="filter" target="notification-list" async="true" silent="true"/>

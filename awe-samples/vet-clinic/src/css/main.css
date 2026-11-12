@@ -1,0 +1,1057 @@
+/*
+ * Veterinary clinic: landing page and appointment request form (public screens vet-home and vet-request).
+ *
+ * Only --awe-* semantic tokens (no colour literals, no bare pixel sizes, no palette tokens), so the page follows the
+ * theme, the primary colour, light and dark and the density with nothing else to do. The interactive elements of the
+ * page are AWE buttons, which bring their own focus ring; these classes only draw layout and surfaces.
+ */
+
+.vet-landing {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface-subtle);
+  font-family: var(--awe-font-family-base);
+}
+
+/* ---- Top bar ---- */
+.vet-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-4);
+  padding: var(--awe-space-3) var(--awe-space-6);
+  background: var(--awe-color-surface);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.vet-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  font-size: var(--awe-font-size-lg);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.vet-brand-name,
+.vet-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+}
+
+.vet-brand-name svg,
+.vet-card-title svg {
+  flex: none;
+  color: var(--awe-color-primary-text);
+}
+
+.vet-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+}
+
+/* ---- Hero ---- */
+.vet-hero,
+.vet-section,
+.vet-form-wrap {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+.vet-hero {
+  position: relative;
+  display: grid;
+  gap: var(--awe-space-8);
+  align-items: center;
+  margin-top: var(--awe-space-8);
+  padding: var(--awe-space-10) var(--awe-space-8);
+  overflow: hidden;
+  border-radius: var(--awe-radius-xl);
+  background:
+    radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--awe-color-primary) 28%, transparent), transparent 55%),
+    radial-gradient(circle at 5% 100%, color-mix(in srgb, var(--awe-color-primary) 16%, transparent), transparent 50%),
+    var(--awe-color-primary-subtle);
+}
+
+.vet-eyebrow {
+  margin: 0 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-label);
+  font-weight: var(--awe-font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--awe-color-primary-text);
+}
+
+.vet-hero h1,
+.vet-form-card h1 {
+  margin: 0 0 var(--awe-space-4);
+  font-size: var(--awe-font-size-display);
+  line-height: 1.15;
+  font-weight: var(--awe-font-weight-bold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.vet-lead,
+.vet-section-lead {
+  max-width: 40rem;
+  margin: 0 0 var(--awe-space-6);
+  font-size: var(--awe-font-size-md);
+  line-height: 1.6;
+  color: var(--awe-color-text);
+}
+
+.vet-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--awe-space-3);
+}
+
+.vet-hero-stats {
+  display: grid;
+  gap: var(--awe-space-3);
+}
+
+.vet-stat {
+  display: flex;
+  flex-direction: column;
+  padding: var(--awe-space-4) var(--awe-space-5);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+}
+
+.vet-stat strong {
+  font-size: var(--awe-font-size-3xl);
+  line-height: 1.1;
+  color: var(--awe-color-primary-text);
+}
+
+.vet-stat span {
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-sm);
+}
+
+/* ---- Sections ---- */
+.vet-section {
+  padding: var(--awe-space-10) var(--awe-space-6) var(--awe-space-4);
+}
+
+.vet-section h2 {
+  margin: 0 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-2xl);
+  font-weight: var(--awe-font-weight-bold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.vet-section-alt {
+  margin-top: var(--awe-space-8);
+  padding-bottom: var(--awe-space-10);
+  border-radius: var(--awe-radius-xl);
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.vet-cards,
+.vet-members {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--awe-space-4);
+}
+
+.vet-card,
+.vet-member {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-5);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+  transition: transform var(--awe-motion-duration-base) var(--awe-motion-easing-standard),
+    box-shadow var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+}
+
+.vet-card:hover,
+.vet-member:hover {
+  transform: translateY(calc(-1 * var(--awe-space-1)));
+  box-shadow: var(--awe-shadow-md);
+}
+
+.vet-card h3,
+.vet-member h3 {
+  margin: var(--awe-space-2) 0 0;
+  font-size: var(--awe-font-size-md);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.vet-card p,
+.vet-member p {
+  margin: 0;
+  color: var(--awe-color-text-muted);
+  line-height: 1.5;
+}
+
+.vet-avatar {
+  display: grid;
+  place-items: center;
+  width: var(--awe-size-control-lg);
+  height: var(--awe-size-control-lg);
+  border-radius: var(--awe-radius-full);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-on-primary);
+  background: var(--awe-color-primary);
+}
+
+/* ---- Opening hours and contact ---- */
+.vet-split {
+  display: grid;
+  gap: var(--awe-space-8);
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.vet-hours,
+.vet-contact {
+  margin: var(--awe-space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vet-hours li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--awe-space-4);
+  padding: var(--awe-space-3) 0;
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle);
+}
+
+.vet-hours-day {
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-emphasis);
+}
+
+.vet-hours-time {
+  color: var(--awe-color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.vet-contact li {
+  padding: var(--awe-space-2) 0;
+}
+
+/* ---- Footer ---- */
+.vet-footer {
+  margin-top: auto;
+  padding: var(--awe-space-8) var(--awe-space-6);
+  text-align: center;
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-sm);
+}
+
+/* ---- Appointment request form ---- */
+.vet-form-wrap {
+  padding: var(--awe-space-8) var(--awe-space-4);
+  max-width: 48rem;
+}
+
+.vet-form-card {
+  padding: var(--awe-space-8);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-xl);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-md);
+}
+
+.vet-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--awe-space-6);
+}
+
+/* ---- Wide screens: copy and figures side by side ---- */
+@media (min-width: 60rem) {
+  .vet-hero {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+/* ---- Narrow screens ---- */
+@media (max-width: 40rem) {
+  .vet-topbar {
+    padding-inline: var(--awe-space-4);
+  }
+
+  .vet-hero {
+    margin-inline: var(--awe-space-4);
+    width: auto;
+    padding: var(--awe-space-6) var(--awe-space-5);
+  }
+
+  .vet-form-card {
+    padding: var(--awe-space-5);
+  }
+}
+
+/* ---- Reduced motion: no lift, no transition ---- */
+@media (prefers-reduced-motion: reduce) {
+  .vet-card,
+  .vet-member {
+    transition: none;
+  }
+
+  .vet-card:hover,
+  .vet-member:hover {
+    transform: none;
+  }
+}
+
+/* ---- Main screens: a grid window gets room for its rows instead of a fixed short height ---- */
+.vet-tall {
+  min-height: 46rem;
+}
+
+/* ---- Try the demo: sample users and passwords of the landing page ---- */
+.vet-demo {
+  margin-block: var(--awe-space-6);
+  padding: var(--awe-space-6);
+  border: var(--awe-border-width) solid var(--awe-color-primary);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-primary-subtle);
+}
+
+.vet-demo h2 {
+  margin-top: 0;
+}
+
+.vet-demo-table {
+  display: grid;
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-surface);
+  overflow: hidden;
+}
+
+.vet-demo-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(7rem, 1fr) minmax(0, 4fr);
+  gap: var(--awe-space-3);
+  align-items: baseline;
+  padding: var(--awe-space-2) var(--awe-space-4);
+  border-top: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  color: var(--awe-color-text);
+}
+
+.vet-demo-row:first-child {
+  border-top: 0;
+}
+
+.vet-demo-head {
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-muted);
+  background: var(--awe-color-surface-subtle);
+}
+
+.vet-demo-user,
+.vet-demo-pass {
+  font-family: var(--awe-font-family-monospace);
+  color: var(--awe-color-text-emphasis);
+  overflow-wrap: anywhere;
+}
+
+.vet-demo-public,
+.vet-demo-note {
+  margin: var(--awe-space-3) 0 0;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text);
+}
+
+.vet-demo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-4);
+  margin-top: var(--awe-space-4);
+}
+
+.vet-demo-actions .vet-demo-note {
+  margin: 0;
+}
+
+@media (max-width: 40rem) {
+  .vet-demo {
+    margin-inline: var(--awe-space-4);
+    padding: var(--awe-space-4);
+  }
+
+  .vet-demo-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--awe-space-1) var(--awe-space-3);
+  }
+
+  .vet-demo-head .vet-demo-role,
+  .vet-demo-head span:last-child {
+    display: none;
+  }
+
+  .vet-demo-role {
+    grid-column: 1 / -1;
+    font-size: var(--awe-font-size-sm);
+  }
+}
+
+/* ---- Own logo in the private area: the paw mark in the primary colour plus the name as text (follows light and dark) ---- */
+#page-home .layout-sidebar h1.application-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  aspect-ratio: auto;
+  min-width: 0;
+  background: none;
+  font-size: var(--awe-font-size-lg);
+  font-weight: var(--awe-font-weight-bold);
+  color: var(--awe-color-text-emphasis);
+}
+
+#page-home .layout-sidebar h1.application-logo::before {
+  content: "";
+  flex: none;
+  width: var(--awe-header-logo-height);
+  aspect-ratio: 1;
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/paw-mark.svg") no-repeat center / contain;
+}
+
+#page-home .layout-sidebar h1.application-logo::after {
+  display: none;
+}
+
+#page-home .layout-sidebar h1.application-logo span {
+  display: inline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 1025px) {
+  #page-home .layout-static-inactive h1.application-logo {
+    aspect-ratio: auto;
+  }
+
+  #page-home .layout-static-inactive h1.application-logo span {
+    display: none;
+  }
+}
+
+/* ---- Playful look: warm hero with a photo, soft shapes and paw-print accents ---- */
+.vet-landing {
+  --vet-round: calc(var(--awe-radius-xl) * 2);
+}
+
+.vet-hero {
+  border-radius: var(--vet-round);
+  isolation: isolate;
+}
+
+/* A soft blob behind the photo and a trail of paws in the corner (masks, so they follow the theme) */
+.vet-hero::before,
+.vet-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--awe-color-primary);
+}
+
+.vet-hero::before {
+  inset: auto -10% -35% auto;
+  width: 60%;
+  aspect-ratio: 1;
+  opacity: 0.18;
+  mask: url("../main/resources/static/images/illustrations/blob.svg") no-repeat center / contain;
+}
+
+.vet-hero::after {
+  inset: var(--awe-space-4) auto auto var(--awe-space-4);
+  width: var(--awe-space-10);
+  aspect-ratio: 1;
+  opacity: 0.2;
+  transform: rotate(-18deg);
+  mask: url("../main/resources/static/images/illustrations/paw.svg") no-repeat center / contain;
+}
+
+.vet-hero-photo,
+.vet-form-photo,
+.vet-gallery-item {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-md);
+}
+
+.vet-hero-photo {
+  border-radius: var(--vet-round) var(--vet-round) var(--vet-round) var(--awe-radius-sm);
+  aspect-ratio: 4 / 5;
+  max-height: 32rem;
+  justify-self: center;
+  width: 100%;
+}
+
+.vet-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The photo descriptions are the image title and are read by screen readers, but not shown over the photos */
+.vet-visually-hidden {
+  position: absolute;
+  width: var(--awe-border-width);
+  height: var(--awe-border-width);
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Stats as friendly pills under the hero */
+.vet-stats {
+  width: 100%;
+  max-width: 72rem;
+  margin: calc(-1 * var(--awe-space-6)) auto 0;
+  padding-inline: var(--awe-space-6);
+  box-sizing: border-box;
+  position: relative;
+}
+
+.vet-stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--awe-space-3);
+}
+
+.vet-stat {
+  align-items: center;
+  text-align: center;
+  border-radius: var(--awe-radius-full);
+}
+
+/* Cards: rounder and with a pinch of colour per card (semantic subtle tokens) */
+.vet-card,
+.vet-member {
+  border-radius: var(--vet-round);
+  padding: var(--awe-space-6);
+}
+
+.vet-cards .vet-card:nth-child(5n + 1) { background: var(--awe-color-primary-subtle); }
+.vet-cards .vet-card:nth-child(5n + 2) { background: var(--awe-color-info-subtle); }
+.vet-cards .vet-card:nth-child(5n + 3) { background: var(--awe-color-success-subtle); }
+.vet-cards .vet-card:nth-child(5n + 4) { background: var(--awe-color-danger-subtle); }
+.vet-cards .vet-card:nth-child(5n) { background: var(--awe-color-warning-subtle); }
+
+.vet-card-title svg {
+  padding: var(--awe-space-1);
+  box-sizing: content-box;
+  border-radius: var(--awe-radius-full);
+  background: var(--awe-color-surface);
+}
+
+.vet-section h2:not(.vet-card-title)::after {
+  content: "";
+  display: block;
+  width: calc(var(--awe-space-12) * 2);
+  height: var(--awe-space-3);
+  margin-top: var(--awe-space-2);
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/squiggle.svg") no-repeat left center / 100% 100%;
+}
+
+.vet-section-alt {
+  border-radius: var(--vet-round);
+}
+
+/* Gallery of the family */
+.vet-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(14rem, 100%), 1fr));
+  gap: var(--awe-space-5);
+}
+
+.vet-gallery-item {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--vet-round);
+}
+
+.vet-gallery-item .vet-photo {
+  aspect-ratio: 4 / 3;
+}
+
+.vet-gallery-item:nth-child(even) {
+  transform: translateY(var(--awe-space-4));
+}
+
+/* Demo box and form with the same soft shapes */
+.vet-demo,
+.vet-demo-table,
+.vet-form-card {
+  border-radius: var(--vet-round);
+}
+
+.vet-demo::after {
+  content: "";
+  position: absolute;
+  inset: var(--awe-space-3) var(--awe-space-4) auto auto;
+  width: var(--awe-space-8);
+  aspect-ratio: 1;
+  background-color: var(--awe-color-primary);
+  opacity: 0.25;
+  transform: rotate(14deg);
+  mask: url("../main/resources/static/images/illustrations/bone.svg") no-repeat center / contain;
+}
+
+.vet-demo {
+  position: relative;
+}
+
+.vet-form-wrap {
+  display: grid;
+  gap: var(--awe-space-6);
+  max-width: 64rem;
+}
+
+.vet-form-photo {
+  display: none;
+  border-radius: var(--vet-round);
+}
+
+.vet-form-photo .vet-photo {
+  min-height: 16rem;
+}
+
+@media (min-width: 60rem) {
+  .vet-form-wrap {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: start;
+  }
+
+  .vet-form-photo {
+    display: block;
+    position: sticky;
+    top: var(--awe-space-6);
+  }
+
+  .vet-form-photo .vet-photo {
+    aspect-ratio: 3 / 4;
+  }
+}
+
+/* Private area: rounder windows for the dashboards, grids stay plain */
+.vet-tall {
+  border-radius: var(--awe-radius-xl);
+}
+
+@media (max-width: 40rem) {
+  .vet-hero-photo {
+    aspect-ratio: 4 / 3;
+  }
+
+  /* The landscape crop of a portrait photo keeps its top, where the head is */
+  .vet-hero-photo .vet-photo {
+    object-position: center 15%;
+  }
+
+  .vet-stats {
+    padding-inline: var(--awe-space-4);
+  }
+
+  .vet-gallery-item:nth-child(even) {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vet-gallery-item:nth-child(even) {
+    transform: none;
+  }
+}
+
+@media (max-width: 40rem) {
+  .vet-demo {
+    width: auto;
+  }
+
+  .vet-brand-name {
+    white-space: nowrap;
+  }
+
+  /* Icon only: the text of the buttons of the bar is kept for assistive technology */
+  .vet-topbar-actions .btn-ghost .p-button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .vet-topbar-actions .btn-ghost {
+    justify-content: center;
+    width: var(--awe-size-control);
+    height: var(--awe-size-control);
+    padding: 0;
+  }
+
+  .vet-topbar-actions .btn-ghost .p-button-icon {
+    margin: 0;
+  }
+}
+
+@media (max-width: 40rem) {
+  .vet-brand {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .vet-brand-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .vet-topbar-actions {
+    flex: none;
+    white-space: nowrap;
+  }
+}
+
+/* ---- Round two: full-bleed colour bands, wavy joins and decorations peeking in from the sides ---- */
+#vet-landing {
+  --vet-edge: max(var(--awe-space-6), calc((100% - 72rem) / 2));
+  overflow-x: clip;
+}
+
+#vet-landing > section {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  width: auto;
+  max-width: none;
+  margin: 0;
+  padding-inline: var(--vet-edge);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+#vet-landing > .vet-hero {
+  padding-block: var(--awe-space-12);
+  padding-inline: var(--vet-edge);
+}
+
+#vet-landing > .vet-section {
+  padding-block: calc(var(--awe-space-12) + var(--awe-space-6)) var(--awe-space-12);
+}
+
+#vet-landing > .vet-stats {
+  padding-block: calc(var(--awe-space-12) + var(--awe-space-2)) var(--awe-space-8);
+  color: var(--awe-color-on-primary);
+  background: var(--awe-color-primary);
+}
+
+#vet-landing > .vet-stats .vet-stats-row {
+  margin: 0;
+}
+
+/* The stats band climbs over the bottom of the hero with a wavy edge: above the wave the hero itself shows, so its
+   gradient and blob run on with no straight cut */
+#vet-landing > .vet-hero {
+  padding-bottom: calc(var(--awe-space-12) * 2);
+}
+
+#vet-landing > .vet-stats {
+  margin-top: calc(var(--awe-space-12) * -1);
+  mask:
+    url("../main/resources/static/images/illustrations/wave-fill.svg") no-repeat center top / 100% var(--awe-space-12),
+    linear-gradient(var(--awe-color-primary), var(--awe-color-primary)) no-repeat left 0 top var(--awe-space-12) / 100% 100%;
+}
+
+#vet-landing > .vet-stats::before {
+  display: none;
+}
+
+/* Band colours: one tone per band from the semantic tokens, so the page has a rhythm */
+#vet-landing > .vet-demo { background: var(--awe-color-warning-subtle); }
+#vet-landing > .vet-section:nth-child(5) { background: var(--awe-color-surface); }
+#vet-landing > .vet-gallery-section { background: var(--awe-color-info-subtle); }
+#vet-landing > .vet-section-alt { background: var(--awe-color-success-subtle); }
+#vet-landing > .vet-section:nth-child(8) { background: var(--awe-color-surface); }
+
+#vet-landing > .vet-footer {
+  padding-block: var(--awe-space-12) var(--awe-space-8);
+  color: var(--awe-color-on-primary);
+  background: var(--awe-color-primary);
+}
+
+/* The wavy join: the colour of the band above pours into the top of the band below */
+#vet-landing > section:not(.vet-hero)::before,
+#vet-landing > .vet-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: -1;
+  height: var(--awe-space-12);
+  mask: url("../main/resources/static/images/illustrations/wave-edge.svg") no-repeat center top / 100% 100%;
+  background-color: var(--awe-color-primary-subtle);
+}
+
+#vet-landing > .vet-demo::before { background-color: var(--awe-color-primary); }
+#vet-landing > .vet-section:nth-child(5)::before { background-color: var(--awe-color-warning-subtle); }
+#vet-landing > .vet-gallery-section::before { background-color: var(--awe-color-surface); }
+#vet-landing > .vet-section-alt::before { background-color: var(--awe-color-info-subtle); }
+#vet-landing > .vet-section:nth-child(8)::before { background-color: var(--awe-color-success-subtle); }
+#vet-landing > .vet-footer::before { background-color: var(--awe-color-surface); }
+
+/* Decorations peeking in from the left and right edges (two masks on one pseudo-element) */
+#vet-landing > .vet-section::after,
+#vet-landing > .vet-stats::after,
+#vet-landing > .vet-footer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--awe-color-primary);
+  opacity: 0.14;
+  mask-repeat: no-repeat;
+}
+
+#vet-landing > .vet-demo::after {
+  inset: 0;
+  transform: none;
+  width: auto;
+  aspect-ratio: auto;
+  mask-image: url("../main/resources/static/images/illustrations/paw.svg"), url("../main/resources/static/images/illustrations/bone.svg");
+  mask-size: 9rem, 7rem;
+  mask-position: left -3rem top 45%, right -2rem top 25%;
+}
+
+#vet-landing > .vet-section:nth-child(5)::after {
+  mask-image: url("../main/resources/static/images/illustrations/blob.svg"), url("../main/resources/static/images/illustrations/paw.svg");
+  mask-size: 14rem, 7rem;
+  mask-position: left -7rem top 30%, right -2rem bottom 12%;
+}
+
+#vet-landing > .vet-gallery-section::after {
+  mask-image: url("../main/resources/static/images/illustrations/heart.svg"), url("../main/resources/static/images/illustrations/blob.svg");
+  mask-size: 7rem, 15rem;
+  mask-position: left -2rem bottom 14%, right -7rem top 12%;
+}
+
+#vet-landing > .vet-section-alt::after {
+  mask-image: url("../main/resources/static/images/illustrations/bone.svg"), url("../main/resources/static/images/illustrations/paw.svg");
+  mask-size: 8rem, 8rem;
+  mask-position: left -3rem top 40%, right -2rem bottom 10%;
+}
+
+#vet-landing > .vet-section:nth-child(8)::after {
+  mask-image: url("../main/resources/static/images/illustrations/paw.svg"), url("../main/resources/static/images/illustrations/heart.svg");
+  mask-size: 8rem, 6rem;
+  mask-position: left -2rem top 25%, right -1rem bottom 18%;
+}
+
+#vet-landing > .vet-footer::after {
+  background-color: var(--awe-color-on-primary);
+  opacity: 0.12;
+  mask-image: url("../main/resources/static/images/illustrations/paw.svg"), url("../main/resources/static/images/illustrations/paw.svg");
+  mask-size: 5rem, 4rem;
+  mask-position: left 6% center, right 8% center;
+}
+
+#vet-landing > .vet-footer,
+#vet-landing > .vet-footer p {
+  color: var(--awe-color-on-primary);
+}
+
+/* Inside the bands: no boxes, the colour of the band is the container */
+#vet-landing > .vet-section-alt .vet-split,
+#vet-landing > .vet-section h2 {
+  position: relative;
+}
+
+#vet-landing > .vet-stats .vet-stat {
+  border-color: transparent;
+}
+
+/* The hero keeps its own blob and paw, now on the full-width band */
+#vet-landing > .vet-hero {
+  /* Square edges: the band flows into the next one, like the other full-width bands */
+  border-radius: 0;
+  background:
+    radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--awe-color-primary) 30%, transparent), transparent 55%),
+    radial-gradient(circle at 5% 90%, color-mix(in srgb, var(--awe-color-primary) 18%, transparent), transparent 50%),
+    var(--awe-color-primary-subtle);
+}
+
+@media (max-width: 40rem) {
+  #vet-landing {
+    --vet-edge: var(--awe-space-4);
+  }
+
+  #vet-landing > .vet-hero {
+    margin: 0;
+    padding-inline: var(--vet-edge);
+  }
+
+  #vet-landing > .vet-demo {
+    margin: 0;
+    padding-inline: var(--vet-edge);
+  }
+}
+
+/* ---- Private area: a warm, friendly shell (component tokens of the shell, scoped to this application) ---- */
+#page-home {
+  --awe-menu-background: var(--awe-color-primary-subtle);
+  --awe-menu-border: transparent;
+  --awe-menu-item-radius: var(--awe-radius-full);
+}
+
+#page-home .layout-topbar {
+  border-bottom: calc(var(--awe-border-width) * 3) solid var(--awe-color-primary);
+}
+
+/* A trail of paw prints along the foot of the sidebar */
+#page-home .layout-sidebar::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 calc(var(--awe-space-12) * 1.5) 0;
+  height: calc(var(--awe-space-12) * 2);
+  pointer-events: none;
+  background-color: var(--awe-color-primary);
+  opacity: 0.12;
+  mask: url("../main/resources/static/images/illustrations/paw.svg") no-repeat left var(--awe-space-2) top 10% / var(--awe-space-8),
+    url("../main/resources/static/images/illustrations/paw.svg") no-repeat right var(--awe-space-3) top 45% / var(--awe-space-8),
+    url("../main/resources/static/images/illustrations/paw.svg") no-repeat left var(--awe-space-6) bottom 5% / var(--awe-space-8);
+}
+
+/* Filters as friendly chips: a soft pill around the search and the segmented species or status */
+#page-home .vet-chips {
+  padding: var(--awe-space-3) var(--awe-space-4);
+  border-radius: calc(var(--awe-radius-xl) * 1.5);
+  background: var(--awe-color-primary-subtle);
+}
+
+#page-home .vet-chips .segmented,
+#page-home .vet-chips [class*="button-radio"] {
+  flex-wrap: wrap;
+}
+
+/* Lines of an invoice in its side panel: tall enough for the usual lines (the panel does not give the grid a height) */
+.vet-inv-lines .grid-container {
+  height: calc(var(--awe-size-control) * 9);
+}
+
+/* ---- Public topbar: the same mark as the sidebar and the sign-in logo, in the primary colour ---- */
+.vet-brand-name::before {
+  content: "";
+  flex: none;
+  width: var(--awe-space-8);
+  aspect-ratio: 1;
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/paw-mark.svg") no-repeat center / contain;
+}
+
+/* Sign-in: the logo is the mark plus the name, so it gets a taller slot than the default AWE logo */
+.signin-container {
+  --awe-login-logo-height: calc(var(--awe-space-8) + var(--awe-space-4));
+}
+
+/* ---- Sign-in: a friendly card over a warm photo, with paw prints around it ---- */
+.signin-page[data-awe-login-layout="card"] {
+  --awe-login-backdrop-veil: color-mix(in srgb, var(--awe-color-primary) 38%, transparent);
+  --awe-login-card-radius: calc(var(--awe-radius-xl) * 2);
+}
+
+.signin-page[data-awe-login-layout="card"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--awe-color-surface);
+  opacity: 0.3;
+  mask:
+    url("../main/resources/static/images/illustrations/paw.svg") no-repeat left 6% top 12% / var(--awe-space-12),
+    url("../main/resources/static/images/illustrations/paw.svg") no-repeat left 14% bottom 14% / calc(var(--awe-space-12) * 1.5),
+    url("../main/resources/static/images/illustrations/paw.svg") no-repeat right 8% top 18% / calc(var(--awe-space-12) * 1.5),
+    url("../main/resources/static/images/illustrations/paw.svg") no-repeat right 18% bottom 10% / var(--awe-space-12);
+}
+
+.signin-page[data-awe-login-layout="card"] .signin-title {
+  font-size: var(--awe-font-size-2xl);
+}
+
+.signin-page[data-awe-login-layout="card"] .signin-form .p-button {
+  border-radius: var(--awe-radius-full);
+}
+
+/* ---- Top bar on a phone: one row; the mark keeps its size, the name truncates and below 22.5rem leaves only the mark ---- */
+@media (max-width: 40rem) {
+  .vet-topbar {
+    flex-wrap: nowrap;
+    gap: var(--awe-space-2);
+  }
+
+  .vet-topbar .vet-brand {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .vet-topbar .vet-brand-name {
+    position: relative;
+    display: block;
+    min-width: 0;
+    min-height: var(--awe-space-8);
+    padding-inline-start: calc(var(--awe-space-8) + var(--awe-space-2));
+    overflow: hidden;
+    line-height: var(--awe-space-8);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .vet-topbar .vet-brand-name::before {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    height: var(--awe-space-8);
+  }
+
+  .vet-topbar-actions {
+    flex: none;
+    gap: var(--awe-space-1);
+  }
+
+  .vet-topbar-actions .p-button {
+    margin: 0;
+  }
+}
+
+/* Below a phone width the name would show a few letters: the mark alone is the brand (the window width in px: a media
+   query cannot read a token) */
+@media (max-width: 380px) {
+  .vet-topbar .vet-brand-name {
+    min-width: var(--awe-space-8);
+    padding-inline-start: var(--awe-space-8);
+    font-size: 0;
+  }
+}

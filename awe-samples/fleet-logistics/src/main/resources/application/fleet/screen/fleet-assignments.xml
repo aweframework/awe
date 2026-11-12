@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-assignments.xml
+    Description: Inline-editable grid: assign a vehicle and a driver to the routes of today, select the edited rows and save
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FLT_MENU_ASSIGNMENTS">
+  <tag source="hidden">
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE"/>
+  </tag>
+  <tag source="buttons">
+    <button label="FLT_BTN_SAVE_ASSIGNMENTS" icon="lucide:save" id="ButAsgSave" style="btn-primary" permission="routes.update">
+      <button-action type="check-some-selected" target="GrdAsg"/>
+      <button-action type="confirm" target="UpdMsg"/>
+      <button-action type="server" server-action="maintain" target-action="FltRteAssign"/>
+      <button-action type="filter" target="GrdAsg"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="FLT_MENU_ASSIGNMENTS" icon="lucide:calendar-check">
+      <grid id="GrdAsg" style="expand" initial-load="query" server-action="data" target-action="FltRteToday" max="25" editable="true" multiselect="true">
+        <column label="FLT_COL_ROUTE" name="Cod" align="left" charlength="10" sendable="false"/>
+        <column label="FLT_COL_REGION" name="RegTxt" align="left" charlength="12" sendable="false"/>
+        <column label="FLT_COL_VEHICLE" name="IdeVeh" component="select" initial-load="query" target-action="FltVehSel" optional="true" align="left" charlength="16"/>
+        <column label="FLT_COL_DRIVER" name="IdeDrv" component="select" initial-load="query" target-action="FltDrvSel" optional="true" align="left" charlength="16"/>
+        <column label="FLT_COL_STATUS" name="StaTxt" sort-field="StaTxt" align="left" charlength="12" status-field="Ton" sendable="false"/>
+        <column name="IdeRte" hidden="true"/>
+        <column name="RteDat" hidden="true" sendable="false"/>
+        <column name="Ton" hidden="true" sendable="false"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

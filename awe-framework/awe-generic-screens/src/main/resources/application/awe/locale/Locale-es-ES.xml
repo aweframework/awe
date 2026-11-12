@@ -2038,6 +2038,8 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TITLE_SCR_CNF" value="Configuración de pantallas"/>
   <locale name="SCREEN_TITLE_SECURITY_SCREEN" value="Acceso a pantallas"/>
   <locale name="SCREEN_TITLE_SESSION_CLOSED" value="Sesión Cerrada"/>
+  <locale name="SCREEN_TITLE_SETTINGS" value="Configuración de usuario"/>
+  <locale name="SCREEN_HELP_SETTINGS" value="Tu perfil, tu contraseña y el segundo factor de tu acceso."/>
   <locale name="SCREEN_TITLE_SEL_PRN" value="Seleccionar impresora web"/>
   <locale name="SCREEN_TITLE_SEQUENCE_ADMIN" value="Secuencias"/>
   <locale name="SCREEN_TITLE_SEQUENCE_PANEL" value="Secuencia"/>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : dispatcher.xml
+    Description: Operations staff: the whole fleet application, the scheduler and the notifier subscriptions, nothing
+                 of the customer area
+-->
+<profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/profile.xsd">
+  <restriction option="customer-section"/>
+  <restriction option="fleet-my-shipments"/>
+  <restriction option="fleet-my-pickups"/>
+  <restriction option="fleet-my-invoices"/>
+  <restriction option="administration"/>
+  <permission id="dashboard.*"/>
+  <permission id="shipments.*"/>
+  <permission id="vehicles.*"/>
+  <permission id="drivers.*"/>
+  <permission id="routes.*"/>
+  <permission id="requests.*"/>
+  <permission id="scheduler.*"/>
+  <permission id="subscriptions.*"/>
+</profile>

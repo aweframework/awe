@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FIX_TITLE">
+  <tag source="center">
+    <window label="FIX_TITLE" icon="list">
+      <tag type="div" style="panel-body">
+        <criteria label="FIX_PET" id="Pet" component="select" initial-load="query" target-action="FixSel" style="col-xs-12"/>
+        <criteria label="FIX_KIND" id="Kind" component="select" initial-load="enum" target-action="FixEnum" style="col-xs-12"/>
+        <criteria label="FWK_KEY" id="Fwk" component="select" initial-load="query" target-action="FwkQuery" style="col-xs-12"/>
+      </tag>
+      <grid id="GrdFix" style="expand" initial-load="query" server-action="data" target-action="FixSel">
+        <column label="FIX_PET" name="PetNam" align="left" charlength="20"/>
+      </grid>
+      <button label="FIX_SAVE" id="ButSave">
+        <button-action type="server" server-action="maintain" target-action="FixSave"/>
+      </button>
+    </window>
+  </tag>
+</screen>

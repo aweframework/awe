@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Maintain.xml
+    Description: Maintain targets of the fleet application. Each one declares the permission it requires, except the public
+                 ones: the quote request, the route of the tracking map and the two targets of the scheduled tasks
+-->
+<maintain xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/maintain.xsd">
+  <!-- ===== PUBLIC =====
+       FltQuoNew only inserts a pending quote request (the status is a constant, the database checks the fields).
+       FltFlagLate and FltCloseRoute are launched by the scheduler, which has no session, so they are public: they take no
+       input and are idempotent (they only flag what is already late and complete past routes), so calling them is harmless -->
+  <!-- FltTrackRoute shows the numbered points of a shipment on the tracking map. It is public because the tracking is, and it is as
+       guarded as the timeline: the service only reads the points through FltTrackPts, which needs the tracking code AND
+       the postal code -->
+  <target name="FltTrackRoute" public="true">
+    <serve service="FltTrackRoute">
+      <variable id="TrkCod" type="STRING" name="TrkCod"/>
+      <variable id="TrkPst" type="STRING" name="TrkPst"/>
+    </serve>
+  </target>
+  <target name="FltQuoNew" public="true">
+    <insert>
+      <table id="FltQuo"/>
+      <field id="IdeQuo" variable="NewQuo" sequence="QuoKey"/>
+      <field id="QuoDat" variable="Now"/>
+      <field id="Nam" variable="Nam"/>
+      <field id="Eml" variable="Eml"/>
+      <field id="Tel" variable="Tel"/>
+      <field id="OrgReg" variable="OrgReg"/>
+      <field id="DstReg" variable="DstReg"/>
+      <field id="Wgt" variable="Wgt"/>
+      <field id="Nte" variable="Nte"/>
+      <field id="Sta" variable="Pending"/>
+      <variable id="NewQuo" type="INTEGER" name="NewQuo"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="Eml" type="STRING" name="Eml"/>
+      <variable id="Tel" type="STRINGN" name="Tel"/>
+      <variable id="OrgReg" type="STRING" name="OrgReg"/>
+      <variable id="DstReg" type="STRING" name="DstReg"/>
+      <variable id="Wgt" type="DOUBLE" name="Wgt"/>
+      <variable id="Nte" type="STRINGN" name="Nte"/>
+      <variable id="Pending" type="STRING" value="PENDING"/>
+    </insert>
+  </target>
+  <!-- Scheduled every 5 minutes: notifies the dispatchers (subscription FLEET) and each affected customer (subscription CUSn), adds the DELAYED event to the tracking timeline and flags the shipments. The notifications and the events are inserted first, from views that select the shipments that are still IN_TRANSIT and late -->
+  <target name="FltFlagLate" public="true">
+    <insert query="FltNotDsp">
+      <table id="AweNot"/>
+      <field id="Ide"/>
+      <field id="IdeSub"/>
+      <field id="Typ"/>
+      <field id="Ico"/>
+      <field id="Nom"/>
+      <field id="Des"/>
+      <field id="Scr"/>
+      <field id="Cod"/>
+      <field id="Dat"/>
+    </insert>
+    <insert query="FltNotCus">
+      <table id="AweNot"/>
+      <field id="Ide"/>
+      <field id="IdeSub"/>
+      <field id="Typ"/>
+      <field id="Ico"/>
+      <field id="Nom"/>
+      <field id="Des"/>
+      <field id="Scr"/>
+      <field id="Cod"/>
+      <field id="Dat"/>
+    </insert>
+    <insert query="FltEvtLate">
+      <table id="FltEvt"/>
+      <field id="IdeEvt"/>
+      <field id="IdeShp"/>
+      <field id="EvtDat"/>
+      <field id="Sta"/>
+      <field id="Loc"/>
+    </insert>
+    <update>
+      <table id="FltShp"/>
+      <field id="Sta" variable="Delayed"/>
+      <where>
+        <and>
+          <filter left-field="Sta" condition="eq" right-variable="Transit"/>
+          <filter left-field="Eta" condition="lt" right-variable="Now"/>
+        </and>
+      </where>
+      <variable id="Delayed" type="STRING" value="DELAYED"/>
+      <variable id="Transit" type="STRING" value="IN_TRANSIT"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+    </update>
+  </target>
+  <!-- Scheduled every hour: completes the routes of past days -->
+  <target name="FltCloseRoute" public="true">
+    <update>
+      <table id="FltRte"/>
+      <field id="Sta" variable="Done"/>
+      <where>
+        <and>
+          <filter left-field="Sta" condition="in" right-variable="Open"/>
+          <filter left-field="RteDat" condition="lt" right-variable="Today"/>
+        </and>
+      </where>
+      <variable id="Done" type="STRING" value="COMPLETED"/>
+      <variable id="Open" type="STRING_TO_LIST" value="PLANNED,IN_PROGRESS"/>
+      <variable id="Today" type="SYSTEM_DATE"/>
+    </update>
+  </target>
+  <!-- ===== DISPATCHERS ===== -->
+  <target name="FltVehNew" permission="vehicles.create">
+    <insert>
+      <table id="FltVeh"/>
+      <field id="IdeVeh" variable="NewVeh" sequence="VehKey"/>
+      <field id="Plt" variable="Plt"/>
+      <field id="Typ" variable="Typ"/>
+      <field id="Cap" variable="Cap"/>
+      <field id="Mil" variable="Mil"/>
+      <field id="Sta" variable="Sta"/>
+      <field id="NxtSvc" variable="NxtSvc"/>
+      <field id="Reg" variable="Reg"/>
+      <variable id="NewVeh" type="INTEGER" name="NewVeh"/>
+      <variable id="Plt" type="STRING" name="Plt"/>
+      <variable id="Typ" type="STRING" name="Typ"/>
+      <variable id="Cap" type="INTEGER" name="Cap"/>
+      <variable id="Mil" type="INTEGER" name="Mil"/>
+      <variable id="Sta" type="STRING" name="Sta"/>
+      <variable id="NxtSvc" type="DATE" name="NxtSvc"/>
+      <variable id="Reg" type="STRING" name="Reg"/>
+    </insert>
+  </target>
+  <target name="FltVehUpd" permission="vehicles.update">
+    <update>
+      <table id="FltVeh"/>
+      <field id="Plt" variable="Plt"/>
+      <field id="Typ" variable="Typ"/>
+      <field id="Cap" variable="Cap"/>
+      <field id="Mil" variable="Mil"/>
+      <field id="Sta" variable="Sta"/>
+      <field id="NxtSvc" variable="NxtSvc"/>
+      <field id="Reg" variable="Reg"/>
+      <where>
+        <and>
+          <filter left-field="IdeVeh" condition="eq" right-variable="IdeVeh"/>
+        </and>
+      </where>
+      <variable id="IdeVeh" type="INTEGER" name="IdeVeh"/>
+      <variable id="Plt" type="STRING" name="Plt"/>
+      <variable id="Typ" type="STRING" name="Typ"/>
+      <variable id="Cap" type="INTEGER" name="Cap"/>
+      <variable id="Mil" type="INTEGER" name="Mil"/>
+      <variable id="Sta" type="STRING" name="Sta"/>
+      <variable id="NxtSvc" type="DATE" name="NxtSvc"/>
+      <variable id="Reg" type="STRING" name="Reg"/>
+    </update>
+  </target>
+  <!-- The routes of a deleted vehicle stay unassigned (ON DELETE SET NULL) -->
+  <target name="FltVehDel" permission="vehicles.delete">
+    <delete multiple="true">
+      <table id="FltVeh"/>
+      <where>
+        <and>
+          <filter left-field="IdeVeh" condition="eq" right-variable="IdeVeh"/>
+        </and>
+      </where>
+      <variable id="IdeVeh" type="INTEGER" name="IdeVeh"/>
+    </delete>
+  </target>
+  <target name="FltDrvNew" permission="drivers.create">
+    <insert>
+      <table id="FltDrv"/>
+      <field id="IdeDrv" variable="NewDrv" sequence="DrvKey"/>
+      <field id="Nam" variable="Nam"/>
+      <field id="Lic" variable="Lic"/>
+      <field id="Pho" variable="Pho"/>
+      <field id="Sta" variable="Sta"/>
+      <field id="Reg" variable="Reg"/>
+      <variable id="NewDrv" type="INTEGER" name="NewDrv"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="Lic" type="STRING" name="Lic"/>
+      <variable id="Pho" type="STRINGN" name="Pho"/>
+      <variable id="Sta" type="STRING" name="Sta"/>
+      <variable id="Reg" type="STRING" name="Reg"/>
+    </insert>
+  </target>
+  <target name="FltDrvUpd" permission="drivers.update">
+    <update>
+      <table id="FltDrv"/>
+      <field id="Nam" variable="Nam"/>
+      <field id="Lic" variable="Lic"/>
+      <field id="Pho" variable="Pho"/>
+      <field id="Sta" variable="Sta"/>
+      <field id="Reg" variable="Reg"/>
+      <where>
+        <and>
+          <filter left-field="IdeDrv" condition="eq" right-variable="IdeDrv"/>
+        </and>
+      </where>
+      <variable id="IdeDrv" type="INTEGER" name="IdeDrv"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="Lic" type="STRING" name="Lic"/>
+      <variable id="Pho" type="STRINGN" name="Pho"/>
+      <variable id="Sta" type="STRING" name="Sta"/>
+      <variable id="Reg" type="STRING" name="Reg"/>
+    </update>
+  </target>
+  <target name="FltDrvDel" permission="drivers.delete">
+    <delete multiple="true">
+      <table id="FltDrv"/>
+      <where>
+        <and>
+          <filter left-field="IdeDrv" condition="eq" right-variable="IdeDrv"/>
+        </and>
+      </where>
+      <variable id="IdeDrv" type="INTEGER" name="IdeDrv"/>
+    </delete>
+  </target>
+  <!-- Shows the numbered stops and the road of the selected route of the route planner on its map -->
+  <target name="FltRouteMap" permission="routes.read">
+    <serve service="FltRouteMap">
+      <variable id="Ide" type="INTEGER" name="id"/>
+    </serve>
+  </target>
+  <!-- Saves the vehicle and the driver edited in the grid, one update per selected row -->
+  <target name="FltRteAssign" permission="routes.update">
+    <update multiple="true">
+      <table id="FltRte"/>
+      <field id="IdeVeh" variable="Veh"/>
+      <field id="IdeDrv" variable="Drv"/>
+      <where>
+        <and>
+          <filter left-field="IdeRte" condition="eq" right-variable="IdeRte"/>
+        </and>
+      </where>
+      <variable id="IdeRte" type="INTEGER" name="IdeRte"/>
+      <variable id="Veh" type="INTEGER" name="IdeVeh"/>
+      <variable id="Drv" type="INTEGER" name="IdeDrv"/>
+    </update>
+  </target>
+  <target name="FltQuoHan" permission="requests.update">
+    <update multiple="true">
+      <table id="FltQuo"/>
+      <field id="Sta" variable="Done"/>
+      <where>
+        <and>
+          <filter left-field="IdeQuo" condition="eq" right-variable="IdeQuo"/>
+        </and>
+      </where>
+      <variable id="IdeQuo" type="INTEGER" name="IdeQuo"/>
+      <variable id="Done" type="STRING" value="HANDLED"/>
+    </update>
+  </target>
+  <target name="FltPckHan" permission="requests.update">
+    <update multiple="true">
+      <table id="FltPck"/>
+      <field id="Sta" variable="Done"/>
+      <where>
+        <and>
+          <filter left-field="IdePck" condition="eq" right-variable="IdePck"/>
+        </and>
+      </where>
+      <variable id="IdePck" type="INTEGER" name="IdePck"/>
+      <variable id="Done" type="STRING" value="HANDLED"/>
+    </update>
+  </target>
+  <!-- ===== CUSTOMERS: the account is taken on the server, never from the screen ===== -->
+  <target name="FltMyPckNew" permission="portal.create">
+    <insert>
+      <table id="FltPck"/>
+      <field id="IdePck" variable="NewPck" sequence="PckKey"/>
+      <field id="IdeCus" query="FltSelfCus"/>
+      <field id="PckDat" variable="PckDat"/>
+      <field id="Adr" variable="Adr"/>
+      <field id="Pcs" variable="Pcs"/>
+      <field id="Wgt" variable="Wgt"/>
+      <field id="Nte" variable="Nte"/>
+      <field id="Sta" variable="Pending"/>
+      <variable id="NewPck" type="INTEGER" name="NewPck"/>
+      <variable id="PckDat" type="DATE" name="PckDat"/>
+      <variable id="Adr" type="STRING" name="Adr"/>
+      <variable id="Pcs" type="INTEGER" name="Pcs"/>
+      <variable id="Wgt" type="DOUBLE" name="Wgt"/>
+      <variable id="Nte" type="STRINGN" name="Nte"/>
+      <variable id="Pending" type="STRING" value="PENDING"/>
+    </insert>
+  </target>
+  <!-- Cancels only pending pickups of the connected account -->
+  <target name="FltMyPckCan" permission="portal.update">
+    <update multiple="true">
+      <table id="FltPck"/>
+      <field id="Sta" variable="Cancelled"/>
+      <where>
+        <and>
+          <filter left-field="IdePck" condition="eq" right-variable="IdePck"/>
+          <filter left-field="IdeCus" condition="in" query="FltSelfCus"/>
+          <filter left-field="Sta" condition="eq" right-variable="Pending"/>
+        </and>
+      </where>
+      <variable id="IdePck" type="INTEGER" name="IdePck"/>
+      <variable id="Cancelled" type="STRING" value="CANCELLED"/>
+      <variable id="Pending" type="STRING" value="PENDING"/>
+    </update>
+  </target>
+</maintain>

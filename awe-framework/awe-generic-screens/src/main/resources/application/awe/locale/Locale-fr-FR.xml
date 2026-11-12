@@ -2035,6 +2035,8 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TITLE_SCR_CNF" value="Screen configuration"/>
   <locale name="SCREEN_TITLE_SECURITY_SCREEN" value="Accès à l&apos;écran"/>
   <locale name="SCREEN_TITLE_SESSION_CLOSED" value="Session Fermée"/>
+  <locale name="SCREEN_TITLE_SETTINGS" value="Paramètres d&apos;utilisateur"/>
+  <locale name="SCREEN_HELP_SETTINGS" value="Votre profil, votre mot de passe et le second facteur de votre connexion."/>
   <locale name="SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
   <locale name="SCREEN_TITLE_SEQUENCE_ADMIN" value="Séquences"/>
   <locale name="SCREEN_TITLE_SEQUENCE_PANEL" value="Séquence"/>

@@ -169,6 +169,7 @@ module.exports = {
     '**/components/AweButtonTest.{js,jsx}',
     '**/components/AweTagListTest.{js,jsx}',
     '**/components/TagTest.{js,jsx}',
+    '**/components/PreferencesTest.{js,jsx}',
     '**/components/AweChartTest.{js,jsx}',
     '**/components/AweMenuTest.{js,jsx}',
     '**/components/AweMenuSearchTest.{js,jsx}',

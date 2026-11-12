@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-vehicles.xml
+    Description: Vehicles: status and maintenance tones, mileage, and a side panel to create and edit
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FLT_MENU_VEHICLES" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW"/>
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE"/>
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE"/>
+    <criteria id="PnlMod" component="hidden" value="new"/>
+  </tag>
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdVeh"/>
+    </button>
+    <button label="FLT_BTN_NEW_VEHICLE" icon="lucide:plus" id="ButNew" style="btn-primary" permission="vehicles.create">
+      <button-action type="unselect-all-rows" target="GrdVeh"/>
+      <button-action type="value" target="PnlMod" value="new"/>
+      <button-action type="reset" target="Plt"/>
+      <button-action type="reset" target="Typ"/>
+      <button-action type="reset" target="Cap"/>
+      <button-action type="reset" target="Mil"/>
+      <button-action type="reset" target="Sta"/>
+      <button-action type="reset" target="Reg"/>
+      <button-action type="reset" target="NxtSvc"/>
+      <button-action type="dialog" target="PnlVeh"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="FLT_MENU_VEHICLES" icon="lucide:truck">
+      <tag type="div" style="panel-body flt-command">
+        <criteria label="FLT_SEARCH" id="CrtVehSch" component="text" icon="lucide:search" style="col-xs-12 col-sm-6 col-lg-4" placeholder="FLT_SEARCH_PLATE"/>
+      </tag>
+      <grid id="GrdVeh" style="expand" initial-load="query" server-action="data" target-action="FltVehLst" max="15">
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit"/>
+          <button-action type="dialog" target="PnlVeh" edit-permission="vehicles.update"/>
+        </column>
+        <column label="FLT_COL_PLATE" name="Plt" sort-field="Plt" align="left" charlength="14" secondary-field="RegTxt" sendable="false"/>
+        <column label="FLT_COL_TYPE" name="TypTxt" sort-field="Typ" align="left" charlength="13" sendable="false"/>
+        <column label="FLT_COL_CAPACITY_KG" name="Cap" sort-field="Cap" align="right" charlength="13" sendable="false"/>
+        <column label="FLT_COL_MILEAGE_KM" name="Mil" sort-field="Mil" align="right" charlength="13" sendable="false"/>
+        <column label="FLT_COL_STATUS" name="StaTxt" sort-field="Sta" align="left" charlength="15" status-field="Ton" sendable="false"/>
+        <column label="FLT_COL_NEXT_SERVICE" name="NxtSvc" sort-field="NxtSvc" align="center" charlength="15" sendable="false"/>
+        <column label="FLT_COL_MAINTENANCE" name="SvcTxt" sort-field="SvcTxt" align="left" charlength="13" status-field="SvcTon" sendable="false"/>
+        <column name="IdeVeh" hidden="true"/>
+        <column name="Typ" hidden="true" sendable="false"/>
+        <column name="Sta" hidden="true" sendable="false"/>
+        <column name="Reg" hidden="true" sendable="false"/>
+        <column name="Ton" hidden="true" sendable="false"/>
+        <column name="SvcTon" hidden="true" sendable="false"/>
+        <column name="RegTxt" hidden="true" sendable="false"/>
+        <button label="FLT_BTN_DELETE" icon="lucide:trash" id="ButDel" selection="true" style="btn-danger">
+          <button-action type="check-some-selected" target="GrdVeh"/>
+          <button-action type="confirm" target="DelMsg"/>
+          <button-action type="server" server-action="maintain" target-action="FltVehDel"/>
+          <button-action type="filter" target="GrdVeh"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdVeh" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+    <side-panel id="PnlVeh" label="FLT_VEH_PANEL" icon="lucide:truck" max-width="40rem">
+      <tag type="div" style="panel-body" id="PnlVehBdy">
+        <criteria label="FLT_COL_PLATE" id="Plt" component="text" style="col-xs-12 col-sm-6" validation="{required:true, maxlength:10}" icon="lucide:truck">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVeh" column="Plt" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVeh" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="FLT_COL_TYPE" id="Typ" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="FltVehicleType">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVeh" column="Typ" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVeh" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="FLT_COL_CAPACITY" id="Cap" component="numeric" style="col-xs-12 col-sm-6" validation="{required:true, ge:0}" number-format="{min: 0, max: 60000, precision: 0, aSign: ' kg', pSign: 's'}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVeh" column="Cap" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVeh" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="FLT_COL_MILEAGE" id="Mil" component="numeric" style="col-xs-12 col-sm-6" validation="{required:true, ge:0}" number-format="{min: 0, max: 2000000, precision: 0, aSign: ' km', pSign: 's'}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVeh" column="Mil" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVeh" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="FLT_COL_STATUS" id="Sta" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="FltVehicleStatus">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVeh" column="Sta" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVeh" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="FLT_COL_BASE_REGION" id="Reg" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="FltRegion">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVeh" column="Reg" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVeh" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="FLT_COL_NEXT_SERVICE" id="NxtSvc" component="date" style="col-xs-12" validation="required">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdVeh" column="NxtSvc" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdVeh" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlVehCnl">
+          <button-action type="close-cancel" target="PnlVeh"/>
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="lucide:save" id="ButPnlVehUpd" style="btn-primary">
+          <button-action type="validate" target="PnlVehBdy"/>
+          <button-action type="confirm" target="UpdMsg"/>
+          <button-action type="server" server-action="maintain" target-action="FltVehUpd"/>
+          <button-action type="close" target="PnlVeh"/>
+          <button-action type="filter" target="GrdVeh"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit"/>
+          </dependency>
+        </button>
+        <button label="FLT_BTN_CREATE" icon="lucide:check" id="ButPnlVehNew" style="btn-primary">
+          <button-action type="validate" target="PnlVehBdy"/>
+          <button-action type="confirm" target="NewMsg"/>
+          <button-action type="server" server-action="maintain" target-action="FltVehNew"/>
+          <button-action type="close" target="PnlVeh"/>
+          <button-action type="filter" target="GrdVeh"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new"/>
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+</screen>

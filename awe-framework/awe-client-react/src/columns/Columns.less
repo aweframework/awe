@@ -296,3 +296,69 @@
     vertical-align: middle;
   }
 }
+
+// Legacy icon cells (bg-<tone> with an inverse glyph, the notifications screen) as badges of the design system: the tone
+// the Bootstrap background gave is a subtle background with its text colour, in light and dark
+.icon-container .awe-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--awe-space-8);
+  height: var(--awe-space-8);
+  border-radius: var(--awe-radius-md);
+
+  .awe-icon {
+    border: 0;
+    padding: 0;
+    width: var(--awe-space-4);
+    height: var(--awe-space-4);
+  }
+}
+
+.icon-container .awe-icon-badge-primary {
+  background: var(--awe-color-primary-subtle);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-primary-text);
+  }
+}
+
+.icon-container .awe-icon-badge-success {
+  background: var(--awe-color-success-subtle);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-success-text);
+  }
+}
+
+.icon-container .awe-icon-badge-info {
+  background: var(--awe-color-info-subtle);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-info-text);
+  }
+}
+
+.icon-container .awe-icon-badge-warning {
+  background: var(--awe-color-warning-subtle);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-warning-text);
+  }
+}
+
+.icon-container .awe-icon-badge-danger {
+  background: var(--awe-color-danger-subtle);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-danger-text);
+  }
+}
+
+.icon-container .awe-icon-badge-default {
+  background: var(--awe-color-surface-hover);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-text-muted);
+  }
+}

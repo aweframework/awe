@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maintain xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/maintain.xsd">
+  <!-- The selected row, a criterion that shares the name of a column and a multiple operation are all fine -->
+  <target name="FixReply">
+    <insert>
+      <table id="FixMsg"/>
+      <field id="IdeTkt" variable="IdeTkt"/>
+      <field id="Txt" variable="Txt"/>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt.selected"/>
+      <variable id="Txt" type="STRING" name="Txt"/>
+    </insert>
+  </target>
+  <target name="FixTake">
+    <update multiple="true">
+      <table id="FixMsg"/>
+      <field id="Sta" variable="Sta"/>
+      <variable id="Sta" type="STRING" name="IdeTkt"/>
+    </update>
+  </target>
+</maintain>

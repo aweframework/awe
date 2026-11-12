@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : hd-kb-admin.xml
+    Description: Knowledge base: every agent reads it, only supervisors see the buttons to create, edit and delete (permissions kb.create, kb.update, kb.delete)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="HD_MENU_KB_ADMIN" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW"/>
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE"/>
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE"/>
+    <criteria id="PnlMod" component="hidden" value="new"/>
+  </tag>
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdArt"/>
+    </button>
+    <button label="HD_BTN_NEW_ARTICLE" icon="lucide:plus" id="ButNew" style="btn-primary" permission="kb.create">
+      <button-action type="unselect-all-rows" target="GrdArt"/>
+      <button-action type="value" target="PnlMod" value="new"/>
+      <button-action type="reset" target="Cat"/>
+      <button-action type="value" target="Pub" value="1"/>
+      <button-action type="reset" target="Tit"/>
+      <button-action type="reset" target="Txt"/>
+      <button-action type="dialog" target="PnlArt"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="HD_MENU_KB_ADMIN" icon="lucide:book-open">
+      <tag type="div" style="panel-body">
+        <criteria label="HD_COL_CATEGORY" id="CrtKbCat" component="select" initial-load="enum" target-action="HdkCategory" optional="true" style="col-xs-12 col-sm-6 col-lg-3"/>
+        <criteria label="HD_SEARCH" id="CrtKbSch" component="text" icon="lucide:search" style="col-xs-12 col-lg-4" placeholder="HD_SEARCH_ARTICLE"/>
+      </tag>
+      <grid id="GrdArt" style="expand" initial-load="query" server-action="data" target-action="HdkArtLst" max="15">
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit"/>
+          <button-action type="dialog" target="PnlArt" edit-permission="kb.update"/>
+        </column>
+        <column label="HD_COL_CATEGORY" name="CatTxt" sort-field="Cat" align="left" charlength="16" sendable="false"/>
+        <column label="HD_COL_TITLE" name="Tit" sort-field="Tit" align="left" charlength="34" width="*" sendable="false"/>
+        <column label="HD_COL_PUBLISHED" name="Pub" sort-field="Pub" align="center" charlength="10" sendable="false"/>
+        <column label="HD_COL_VIEWS" name="Vws" sort-field="Vws" align="right" charlength="8" sendable="false"/>
+        <column label="HD_COL_UPDATED" name="UpdDat" sort-field="UpdDat" align="center" charlength="12" sendable="false"/>
+        <column name="IdeArt" hidden="true"/>
+        <column name="Cat" hidden="true" sendable="false"/>
+        <column name="Txt" hidden="true" sendable="false"/>
+        <button label="HD_BTN_DELETE" icon="lucide:trash" id="ButDel" permission="kb.delete" selection="true" style="btn-danger">
+          <button-action type="check-some-selected" target="GrdArt"/>
+          <button-action type="confirm" target="DelMsg"/>
+          <button-action type="server" server-action="maintain" target-action="HdkKbDel"/>
+          <button-action type="filter" target="GrdArt"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdArt" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+    <side-panel id="PnlArt" label="HD_ART_PANEL" icon="lucide:book-open" max-width="40rem">
+      <tag type="div" style="panel-body" id="PnlArtBdy">
+        <criteria label="HD_COL_CATEGORY" id="Cat" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="HdkCategory">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdArt" column="Cat" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdArt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="HD_COL_PUBLISHED" id="Pub" component="checkbox" style="col-xs-12 col-sm-6 switch" value="1">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdArt" column="Pub" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdArt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="HD_COL_TITLE" id="Tit" component="text" style="col-xs-12" validation="{required:true, maxlength:120}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdArt" column="Tit" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdArt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="HD_COL_ARTICLE" id="Txt" component="textarea" style="col-xs-12" validation="{required:true, maxlength:1500}" area-rows="8">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdArt" column="Txt" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdArt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlArtCnl">
+          <button-action type="close-cancel" target="PnlArt"/>
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="lucide:save" id="ButPnlArtUpd" style="btn-primary" permission="kb.update">
+          <button-action type="validate" target="PnlArtBdy"/>
+          <button-action type="confirm" target="UpdMsg"/>
+          <button-action type="server" server-action="maintain" target-action="HdkKbUpd"/>
+          <button-action type="close" target="PnlArt"/>
+          <button-action type="filter" target="GrdArt"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit"/>
+          </dependency>
+        </button>
+        <button label="HD_BTN_CREATE" icon="lucide:check" id="ButPnlArtNew" style="btn-primary" permission="kb.create">
+          <button-action type="validate" target="PnlArtBdy"/>
+          <button-action type="confirm" target="NewMsg"/>
+          <button-action type="server" server-action="maintain" target-action="HdkKbNew"/>
+          <button-action type="close" target="PnlArt"/>
+          <button-action type="filter" target="GrdArt"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new"/>
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+</screen>

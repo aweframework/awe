@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-quote.xml
+    Description: Public quote request form: the maintain FltQuoNew is public and can only insert a pending request
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="FLT_QUOTE_TITLE">
+  <tag source="center">
+    <tag type="div" style="flt-landing">
+      <tag type="header" style="flt-topbar">
+        <tag type="div" style="flt-brand">
+          <tag type="span" style="flt-brand-name" label="FLT_BRAND"/>
+        </tag>
+        <tag type="nav" style="flt-topbar-actions">
+          <button label="FLT_BTN_BACK_HOME" icon="lucide:arrow-left" id="ButTopHome" style="btn-ghost">
+            <button-action type="screen" target="/"/>
+          </button>
+          <button label="FLT_HOME_SIGN_IN" icon="lucide:log-in" id="ButTopLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+        </tag>
+      </tag>
+      <tag type="div" style="flt-form-wrap">
+        <tag type="figure" style="flt-form-photo">
+          <image id="ImgQuoMountain" url="/images/photos/fleet-truck-mountain-1200.webp" alternate-url="" style="flt-photo"/>
+          <tag type="figcaption" label="FLT_PHOTO_MOUNTAIN" icon="lucide:route"/>
+        </tag>
+        <tag type="section" style="flt-form-card">
+          <tag type="h1" label="FLT_QUOTE_TITLE"/>
+          <tag type="p" style="flt-lead" label="FLT_QUOTE_LEAD"/>
+          <tag type="div" id="PnlQuoBdy" style="panel-body">
+            <criteria label="FLT_QUOTE_NAME" id="Nam" component="text" style="col-xs-12 col-sm-6" validation="{required:true, minlength:2, maxlength:80}" icon="lucide:building-2"/>
+            <criteria label="FLT_QUOTE_EMAIL" id="Eml" component="text" style="col-xs-12 col-sm-6" validation="{required:true, email:true, maxlength:80}" icon="lucide:mail"/>
+            <criteria label="FLT_COL_PHONE" id="Tel" component="text" style="col-xs-12 col-sm-6" validation="{maxlength:20}" icon="lucide:phone"/>
+            <criteria label="FLT_QUOTE_WEIGHT" id="Wgt" component="numeric" style="col-xs-12 col-sm-6" validation="{required:true, gt:0}" number-format="{min: 0, max: 30000, precision: 1, aSign: ' kg', pSign: 's'}"/>
+            <criteria label="FLT_COL_FROM" id="OrgReg" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="query" target-action="FltRegPub"/>
+            <criteria label="FLT_COL_TO" id="DstReg" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="query" target-action="FltRegPub"/>
+            <criteria label="FLT_COL_NOTES" id="Nte" component="textarea" style="col-xs-12" validation="{maxlength:400}" area-rows="3"/>
+          </tag>
+          <tag type="div" style="flt-form-actions">
+            <button label="FLT_QUOTE_SEND" icon="lucide:send" id="ButQuoSend" style="btn-primary btn-lg">
+              <button-action type="validate" target="PnlQuoBdy"/>
+              <button-action type="server" server-action="maintain" target-action="FltQuoNew"/>
+              <button-action type="restore"/>
+            </button>
+          </tag>
+        </tag>
+      </tag>
+    </tag>
+  </tag>
+</screen>

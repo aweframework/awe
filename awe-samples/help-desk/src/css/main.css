@@ -1,0 +1,1495 @@
+/*
+ * Beacon Desk: support portal, knowledge base and ticket status (public screens hd-home, hd-kb and hd-check).
+ *
+ * Only --awe-* semantic tokens (no colour literals, no bare pixel sizes, no palette tokens), so the page follows the
+ * theme, the primary colour, light and dark and the density with nothing else to do. The interactive elements of the
+ * page are AWE buttons, which bring their own focus ring; these classes only draw layout and surfaces.
+ */
+
+.hd-landing {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface-subtle);
+  font-family: var(--awe-font-family-base);
+}
+
+/* ---- Top bar ---- */
+.hd-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-4);
+  padding: var(--awe-space-3) var(--awe-space-6);
+  background: var(--awe-color-surface);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.hd-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  font-size: var(--awe-font-size-lg);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.hd-brand-name,
+.hd-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+}
+
+.hd-brand-name svg,
+.hd-card-title svg {
+  flex: none;
+  color: var(--awe-color-primary-text);
+}
+
+.hd-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+}
+
+/* ---- Hero ---- */
+.hd-hero,
+.hd-section,
+.hd-form-wrap {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+.hd-hero {
+  position: relative;
+  display: grid;
+  gap: var(--awe-space-8);
+  align-items: center;
+  margin-top: var(--awe-space-8);
+  padding: var(--awe-space-10) var(--awe-space-8);
+  overflow: hidden;
+  border-radius: var(--awe-radius-xl);
+  background:
+    radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--awe-color-primary) 28%, transparent), transparent 55%),
+    radial-gradient(circle at 5% 100%, color-mix(in srgb, var(--awe-color-primary) 16%, transparent), transparent 50%),
+    var(--awe-color-primary-subtle);
+}
+
+.hd-eyebrow {
+  margin: 0 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-label);
+  font-weight: var(--awe-font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--awe-color-primary-text);
+}
+
+.hd-hero h1,
+.hd-form-card h1 {
+  margin: 0 0 var(--awe-space-4);
+  font-size: var(--awe-font-size-display);
+  line-height: 1.15;
+  font-weight: var(--awe-font-weight-bold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.hd-lead,
+.hd-section-lead {
+  max-width: 40rem;
+  margin: 0 0 var(--awe-space-6);
+  font-size: var(--awe-font-size-md);
+  line-height: 1.6;
+  color: var(--awe-color-text);
+}
+
+.hd-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--awe-space-3);
+}
+
+.hd-hero-stats {
+  display: grid;
+  gap: var(--awe-space-3);
+}
+
+.hd-stat {
+  display: flex;
+  flex-direction: column;
+  padding: var(--awe-space-4) var(--awe-space-5);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+}
+
+.hd-stat strong {
+  font-size: var(--awe-font-size-3xl);
+  line-height: 1.1;
+  color: var(--awe-color-primary-text);
+}
+
+.hd-stat span {
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-sm);
+}
+
+/* ---- Sections ---- */
+.hd-section {
+  padding: var(--awe-space-10) var(--awe-space-6) var(--awe-space-4);
+}
+
+.hd-section h2 {
+  margin: 0 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-2xl);
+  font-weight: var(--awe-font-weight-bold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.hd-section-alt {
+  margin-top: var(--awe-space-8);
+  padding-bottom: var(--awe-space-10);
+  border-radius: var(--awe-radius-xl);
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.hd-cards,
+.hd-members {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--awe-space-4);
+}
+
+.hd-card,
+.hd-member {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-5);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+  transition: transform var(--awe-motion-duration-base) var(--awe-motion-easing-standard),
+    box-shadow var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+}
+
+.hd-card:hover,
+.hd-member:hover {
+  transform: translateY(calc(-1 * var(--awe-space-1)));
+  box-shadow: var(--awe-shadow-md);
+}
+
+.hd-card h3,
+.hd-member h3 {
+  margin: var(--awe-space-2) 0 0;
+  font-size: var(--awe-font-size-md);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.hd-card p,
+.hd-member p {
+  margin: 0;
+  color: var(--awe-color-text-muted);
+  line-height: 1.5;
+}
+
+.hd-avatar {
+  display: grid;
+  place-items: center;
+  width: var(--awe-size-control-lg);
+  height: var(--awe-size-control-lg);
+  border-radius: var(--awe-radius-full);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-on-primary);
+  background: var(--awe-color-primary);
+}
+
+/* ---- Opening hours and contact ---- */
+.hd-split {
+  display: grid;
+  gap: var(--awe-space-8);
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.hd-hours,
+.hd-contact {
+  margin: var(--awe-space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hd-hours li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--awe-space-4);
+  padding: var(--awe-space-3) 0;
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle);
+}
+
+.hd-hours-day {
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-emphasis);
+}
+
+.hd-hours-time {
+  color: var(--awe-color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.hd-contact li {
+  padding: var(--awe-space-2) 0;
+}
+
+/* ---- Footer ---- */
+.hd-footer {
+  margin-top: auto;
+  padding: var(--awe-space-8) var(--awe-space-6);
+  text-align: center;
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-sm);
+}
+
+/* ---- Appointment request form ---- */
+.hd-form-wrap {
+  padding: var(--awe-space-8) var(--awe-space-4);
+  max-width: 48rem;
+}
+
+.hd-form-card {
+  padding: var(--awe-space-8);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-xl);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-md);
+}
+
+.hd-panel {
+  padding: var(--awe-space-2);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+}
+
+.hd-form-card .grid-container {
+  /* Room for the header plus the empty-state message, so the grid never scrolls inside before a search */
+  min-height: 22rem;
+  margin-bottom: var(--awe-space-4);
+}
+
+.hd-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--awe-space-6);
+}
+
+/* ---- Wide screens: copy and figures side by side ---- */
+@media (min-width: 60rem) {
+  .hd-hero {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+/* ---- Narrow screens ---- */
+@media (max-width: 40rem) {
+  .hd-topbar {
+    padding-inline: var(--awe-space-4);
+  }
+
+  .hd-hero {
+    margin-inline: var(--awe-space-4);
+    width: auto;
+    padding: var(--awe-space-6) var(--awe-space-5);
+  }
+
+  .hd-form-card {
+    padding: var(--awe-space-5);
+  }
+}
+
+/* ---- Reduced motion: no lift, no transition ---- */
+@media (prefers-reduced-motion: reduce) {
+  .hd-card,
+  .hd-member {
+    transition: none;
+  }
+
+  .hd-card:hover,
+  .hd-member:hover {
+    transform: none;
+  }
+}
+
+/* ---- Main screens: a grid window gets room for its rows instead of a fixed short height ---- */
+.hd-tall {
+  min-height: 46rem;
+}
+
+/* The grids of the landing page show all their rows: no fixed height, no inner scroll */
+.hd-panel .grid-container,
+.hd-panel .grid-contents,
+.hd-panel .p-datatable {
+  height: auto;
+  max-height: none;
+}
+
+.hd-panel .p-datatable-wrapper {
+  height: auto;
+  flex: none;
+  overflow: visible;
+}
+
+/* ---- Try the demo: sample users and passwords of the landing page ---- */
+.hd-demo {
+  margin-block: var(--awe-space-6);
+  padding: var(--awe-space-6);
+  border: var(--awe-border-width) solid var(--awe-color-primary);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-primary-subtle);
+}
+
+.hd-demo h2 {
+  margin-top: 0;
+}
+
+.hd-demo-table {
+  display: grid;
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-surface);
+  overflow: hidden;
+}
+
+.hd-demo-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(7rem, 1fr) minmax(0, 4fr);
+  gap: var(--awe-space-3);
+  align-items: baseline;
+  padding: var(--awe-space-2) var(--awe-space-4);
+  border-top: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  color: var(--awe-color-text);
+}
+
+.hd-demo-row:first-child {
+  border-top: 0;
+}
+
+.hd-demo-head {
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-muted);
+  background: var(--awe-color-surface-subtle);
+}
+
+.hd-demo-user,
+.hd-demo-pass {
+  font-family: var(--awe-font-family-monospace);
+  color: var(--awe-color-text-emphasis);
+  overflow-wrap: anywhere;
+}
+
+.hd-demo-public,
+.hd-demo-note {
+  margin: var(--awe-space-3) 0 0;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text);
+}
+
+.hd-demo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-4);
+  margin-top: var(--awe-space-4);
+}
+
+.hd-demo-actions .hd-demo-note {
+  margin: 0;
+}
+
+@media (max-width: 40rem) {
+  .hd-demo {
+    margin-inline: var(--awe-space-4);
+    padding: var(--awe-space-4);
+  }
+
+  .hd-demo-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--awe-space-1) var(--awe-space-3);
+  }
+
+  .hd-demo-head .hd-demo-role,
+  .hd-demo-head span:last-child {
+    display: none;
+  }
+
+  .hd-demo-role {
+    grid-column: 1 / -1;
+    font-size: var(--awe-font-size-sm);
+  }
+}
+
+/* ---- Own logo in the private area: the beacon mark in the primary colour plus the name (light and dark) ---- */
+#page-home .layout-sidebar h1.application-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  aspect-ratio: auto;
+  min-width: 0;
+  background: none;
+  font-size: var(--awe-font-size-lg);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+#page-home .layout-sidebar h1.application-logo::before {
+  content: "";
+  flex: none;
+  width: var(--awe-header-logo-height);
+  aspect-ratio: 1;
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/beacon-mark.svg") no-repeat center / contain;
+}
+
+#page-home .layout-sidebar h1.application-logo::after {
+  display: none;
+}
+
+#page-home .layout-sidebar h1.application-logo span {
+  display: inline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 1025px) {
+  #page-home .layout-static-inactive h1.application-logo {
+    aspect-ratio: auto;
+  }
+
+  #page-home .layout-static-inactive h1.application-logo span {
+    display: none;
+  }
+}
+
+/* ---- Calm and digital look: a centred hero, soft gradients from the tokens and generous white space ---- */
+.hd-landing {
+  --hd-round: calc(var(--awe-radius-xl) * 1.5);
+}
+
+.hd-hero {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: var(--awe-space-6);
+  margin-top: var(--awe-space-10);
+  padding: var(--awe-space-12) var(--awe-space-6);
+  text-align: center;
+  border-radius: calc(var(--hd-round) * 1.5);
+  isolation: isolate;
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--awe-color-primary) 22%, transparent), transparent 65%),
+    linear-gradient(180deg, var(--awe-color-primary-subtle), var(--awe-color-surface));
+}
+
+.hd-hero-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 44rem;
+}
+
+.hd-hero .hd-lead {
+  margin-inline: auto;
+}
+
+/* Chat bubbles and signal waves around the hero (masks coloured with the primary token) */
+.hd-hero::before,
+.hd-hero::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  background-color: var(--awe-color-primary);
+  opacity: 0.16;
+}
+
+.hd-hero::before {
+  inset: var(--awe-space-8) auto auto var(--awe-space-8);
+  width: var(--awe-space-12);
+  aspect-ratio: 1;
+  mask: url("../main/resources/static/images/illustrations/chat.svg") no-repeat center / contain;
+}
+
+.hd-hero::after {
+  inset: auto var(--awe-space-8) var(--awe-space-8) auto;
+  width: calc(var(--awe-space-12) * 1.5);
+  aspect-ratio: 1;
+  mask: url("../main/resources/static/images/illustrations/chat-reply.svg") no-repeat center / contain;
+}
+
+.hd-hero-avatar {
+  width: calc(var(--awe-space-12) * 3);
+  aspect-ratio: 1;
+  margin: 0;
+  overflow: hidden;
+  border-radius: var(--awe-radius-full);
+  border: calc(var(--awe-border-width) * 4) solid var(--awe-color-surface);
+  box-shadow: 0 0 0 calc(var(--awe-border-width) * 3) var(--awe-color-primary), var(--awe-shadow-md);
+}
+
+.hd-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hd-hero-avatar .hd-photo {
+  object-position: center 25%;
+}
+
+/* A search-like pill that opens the knowledge base */
+.hd-search-pill {
+  width: min(100%, 32rem);
+  margin: 0 0 var(--awe-space-4);
+}
+
+.hd-search-pill .hd-search-button {
+  width: 100%;
+  justify-content: flex-start;
+  min-height: calc(var(--awe-space-12) + var(--awe-space-2));
+  border-radius: var(--awe-radius-full);
+  color: var(--awe-color-text-muted);
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  box-shadow: var(--awe-shadow-md);
+}
+
+.hd-hero-actions {
+  justify-content: center;
+}
+
+.hd-hero-note {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  margin: var(--awe-space-5) 0 0;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text);
+}
+
+.hd-hero-note svg {
+  color: var(--awe-color-primary-text);
+}
+
+/* More air between sections, softer cards */
+.hd-section {
+  padding-top: var(--awe-space-12);
+}
+
+.hd-section h2 {
+  text-align: center;
+}
+
+.hd-section .hd-section-lead {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.hd-panel,
+.hd-demo,
+.hd-demo-table,
+.hd-form-card,
+.hd-human-item {
+  border-radius: var(--hd-round);
+}
+
+.hd-demo {
+  background: linear-gradient(180deg, var(--awe-color-primary-subtle), var(--awe-color-surface));
+  border-color: var(--awe-color-border);
+}
+
+.hd-demo::after {
+  content: "";
+  position: absolute;
+  inset: var(--awe-space-4) var(--awe-space-4) auto auto;
+  width: var(--awe-space-12);
+  aspect-ratio: 3 / 2;
+  background-color: var(--awe-color-primary);
+  opacity: 0.25;
+  mask: url("../main/resources/static/images/illustrations/signal.svg") no-repeat center / contain;
+}
+
+.hd-demo {
+  position: relative;
+}
+
+.hd-human {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  gap: var(--awe-space-6);
+}
+
+.hd-human-item,
+.hd-form-photo {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+}
+
+.hd-human-item .hd-photo {
+  aspect-ratio: 4 / 3;
+}
+
+.hd-human-item figcaption,
+.hd-form-photo figcaption {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-4) var(--awe-space-5);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text);
+}
+
+.hd-form-wrap {
+  display: grid;
+  gap: var(--awe-space-6);
+  max-width: 64rem;
+}
+
+.hd-form-photo {
+  display: none;
+}
+
+@media (min-width: 60rem) {
+  .hd-hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hd-form-wrap {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: start;
+  }
+
+  .hd-form-photo {
+    display: block;
+    position: sticky;
+    top: var(--awe-space-6);
+  }
+
+  .hd-form-photo .hd-photo {
+    aspect-ratio: 3 / 4;
+  }
+}
+
+@media (max-width: 40rem) {
+  .hd-hero {
+    padding: var(--awe-space-8) var(--awe-space-4);
+  }
+
+  .hd-hero-avatar {
+    width: calc(var(--awe-space-12) * 2);
+  }
+
+  .hd-demo {
+    width: auto;
+  }
+
+  .hd-brand {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .hd-brand-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hd-topbar-actions {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  /* Icon only: the text of the buttons of the bar is kept for assistive technology */
+  .hd-topbar-actions .btn-ghost .p-button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .hd-topbar-actions .btn-ghost {
+    justify-content: center;
+    width: var(--awe-size-control);
+    height: var(--awe-size-control);
+    padding: 0;
+  }
+
+  .hd-topbar-actions .btn-ghost .p-button-icon {
+    margin: 0;
+  }
+}
+
+.hd-human-item,
+.hd-form-photo {
+  display: flex;
+  flex-direction: column;
+}
+
+.hd-human-item .hd-photo {
+  height: auto;
+}
+
+@media (max-width: 59.99rem) {
+  .hd-form-photo {
+    display: none;
+  }
+}
+
+/* ---- Knowledge base: a full-width page, search first, a readable list and article ---- */
+.hd-kb-head,
+.hd-kb-wrap,
+.hd-check-wrap {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: var(--awe-space-6);
+  box-sizing: border-box;
+}
+
+.hd-kb-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-block: var(--awe-space-10) var(--awe-space-6);
+  text-align: center;
+}
+
+.hd-kb-head h1 {
+  margin: 0 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-display);
+  color: var(--awe-color-text-emphasis);
+}
+
+.hd-kb-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: var(--awe-space-3);
+  width: 100%;
+  max-width: 48rem;
+  padding: var(--awe-space-4);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--hd-round);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-md);
+  text-align: left;
+}
+
+.hd-kb-bar .hd-kb-search {
+  flex: 3 1 14rem;
+  min-width: 0;
+}
+
+.hd-kb-bar .hd-kb-category {
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+.hd-kb-wrap {
+  padding-block: var(--awe-space-4) var(--awe-space-12);
+}
+
+.hd-kb-card {
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--hd-round);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+  padding: var(--awe-space-3);
+  min-height: 28rem;
+}
+
+/* ---- Check a ticket: one centred card, then the result once a search has been made ---- */
+.hd-check-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--awe-space-6);
+  max-width: 48rem;
+  padding-block: var(--awe-space-12);
+}
+
+.hd-check-card,
+.hd-check-result {
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--awe-space-8);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: calc(var(--hd-round) * 1.25);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-md);
+}
+
+.hd-check-card {
+  text-align: center;
+  background: linear-gradient(180deg, var(--awe-color-primary-subtle), var(--awe-color-surface) 55%);
+}
+
+.hd-check-card h1 {
+  margin: var(--awe-space-3) 0;
+  font-size: var(--awe-font-size-2xl);
+  color: var(--awe-color-text-emphasis);
+}
+
+.hd-check-card .panel-body {
+  text-align: left;
+}
+
+.hd-check-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(var(--awe-space-12) + var(--awe-space-4));
+  aspect-ratio: 1;
+  border-radius: var(--awe-radius-full);
+  color: var(--awe-color-primary-text);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+}
+
+.hd-check-icon svg {
+  width: var(--awe-space-8);
+  height: var(--awe-space-8);
+}
+
+.hd-check-result {
+  padding: var(--awe-space-4);
+}
+
+.hd-check-grid {
+  margin-bottom: var(--awe-space-4);
+}
+
+/* The replies wrap over several lines: room for a few of them without a scroll inside the card */
+.hd-check-replies {
+  min-height: 20rem;
+}
+
+@media (max-width: 40rem) {
+  .hd-kb-head,
+  .hd-kb-wrap,
+  .hd-check-wrap {
+    padding-inline: var(--awe-space-4);
+  }
+
+  .hd-check-card,
+  .hd-check-result {
+    padding: var(--awe-space-5);
+  }
+}
+
+/* The result block carries no box of its own: each grid is the card, and a hidden grid leaves no trace */
+.hd-check-result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-4);
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.hd-check-result:not(:has(.p-datatable)) {
+  display: none;
+}
+
+.hd-check-result .hd-check-grid {
+  margin: 0;
+  padding: var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--hd-round);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+}
+
+.hd-check-result #GrdChkSta .grid-container {
+  min-height: 15rem;
+}
+
+.hd-check-result #GrdChkRep .grid-container {
+  min-height: 8rem;
+}
+
+.hd-check-icon {
+  position: relative;
+}
+
+.hd-check-icon::before {
+  content: "";
+  width: var(--awe-space-8);
+  aspect-ratio: 1;
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/chat.svg") no-repeat center / contain;
+}
+
+/* The article list shows all its rows (the grid keeps no fixed height) */
+.hd-kb-card .grid-container,
+.hd-kb-card .grid-contents,
+.hd-kb-card .p-datatable {
+  height: auto;
+  max-height: none;
+}
+
+.hd-kb-card .p-datatable-wrapper {
+  height: auto;
+  flex: none;
+  overflow: visible;
+}
+
+.hd-kb-card .row-detail-card {
+  padding: var(--awe-space-4) var(--awe-space-6);
+  line-height: 1.7;
+  color: var(--awe-color-text);
+}
+
+/* ---- Private area: a calm, search-first shell ---- */
+#page-home {
+  --awe-menu-background: var(--awe-color-primary-subtle);
+  --awe-menu-border: transparent;
+  --awe-menu-item-radius: var(--awe-radius-lg);
+}
+
+#page-home .layout-topbar {
+  border-bottom-color: transparent;
+  box-shadow: var(--awe-shadow-card);
+}
+
+/* The queue starts with a prominent search box, then quick status tabs, then the finer filters */
+#page-home .hd-search-layout {
+  padding: var(--awe-space-4);
+  border-radius: calc(var(--awe-radius-xl) * 1.5);
+  background: linear-gradient(180deg, var(--awe-color-primary-subtle), var(--awe-color-surface));
+}
+
+/* The search icon and the input are one pill: the group carries the border, the surface and the shadow */
+#page-home .hd-search-first .p-inputgroup {
+  overflow: hidden;
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-full);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-md);
+}
+
+#page-home .hd-search-first .p-inputgroup:focus-within {
+  border-color: var(--awe-color-primary);
+}
+
+#page-home .hd-search-first .p-inputgroup-addon {
+  padding-inline: var(--awe-space-4) var(--awe-space-1);
+  border: none;
+  background: transparent;
+  color: var(--awe-color-text-muted);
+}
+
+#page-home .hd-search-first input {
+  min-height: calc(var(--awe-space-12) + var(--awe-space-2));
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  font-size: var(--awe-font-size-lg);
+  box-shadow: none;
+}
+
+#page-home .hd-search-first label,
+#page-home .hd-status-tabs label {
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+/* ---- Public topbar: the same mark as the sidebar and the sign-in logo, in the primary colour ---- */
+.hd-brand-name::before {
+  content: "";
+  flex: none;
+  width: var(--awe-space-8);
+  aspect-ratio: 1;
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/beacon-mark.svg") no-repeat center / contain;
+}
+
+/* Sign-in: the logo is the mark plus the name, so it gets a taller slot than the default AWE logo */
+.signin-container {
+  --awe-login-logo-height: calc(var(--awe-space-8) + var(--awe-space-4));
+}
+
+/* ---- Sign-in: a calm centred form on a soft violet gradient, the beacon above the title ---- */
+.signin-page[data-awe-login-layout="form-only"] {
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--awe-color-primary) 22%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--awe-color-primary-subtle), var(--awe-color-surface));
+}
+
+.signin-page[data-awe-login-layout="form-only"] > .signin-container {
+  background: transparent;
+}
+
+.signin-page[data-awe-login-layout="form-only"] > .signin-container > .signin-form {
+  padding: var(--awe-space-8);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: calc(var(--awe-radius-xl) * 1.5);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-md);
+  text-align: center;
+}
+
+.signin-page[data-awe-login-layout="form-only"] .signin-title::before {
+  content: "";
+  display: block;
+  width: calc(var(--awe-space-12) + var(--awe-space-4));
+  aspect-ratio: 72 / 64;
+  margin: 0 auto var(--awe-space-3);
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/beacon-mark.svg") no-repeat center / contain;
+}
+
+.signin-page[data-awe-login-layout="form-only"] .signin-form label {
+  text-align: left;
+}
+
+/* ---- Top bar on a phone: one row; the mark keeps its size, the name truncates and below 22.5rem leaves only the mark ---- */
+@media (max-width: 40rem) {
+  .hd-topbar {
+    flex-wrap: nowrap;
+    gap: var(--awe-space-2);
+  }
+
+  .hd-topbar .hd-brand {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .hd-topbar .hd-brand-name {
+    position: relative;
+    display: block;
+    min-width: 0;
+    min-height: var(--awe-space-8);
+    padding-inline-start: calc(var(--awe-space-8) + var(--awe-space-2));
+    overflow: hidden;
+    line-height: var(--awe-space-8);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hd-topbar .hd-brand-name::before {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    height: var(--awe-space-8);
+  }
+
+  .hd-topbar-actions {
+    flex: none;
+    gap: var(--awe-space-1);
+  }
+
+  .hd-topbar-actions .p-button {
+    margin: 0;
+  }
+}
+
+/* Below a phone width the name would show a few letters: the mark alone is the brand (the window width in px: a media
+   query cannot read a token) */
+@media (max-width: 380px) {
+  .hd-topbar .hd-brand-name {
+    min-width: var(--awe-space-8);
+    padding-inline-start: var(--awe-space-8);
+    font-size: 0;
+  }
+}
+
+/* ---- Support chat: floating launcher and panel of the portal (widget support-chat). Tokens only, light and dark with the theme ---- */
+.hd-chat {
+  position: fixed;
+  inset-block-end: var(--awe-space-6);
+  inset-inline-end: var(--awe-space-6);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--awe-space-3);
+  font-family: var(--awe-font-family-base);
+  font-size: var(--awe-font-size-md);
+  color: var(--awe-color-text);
+}
+
+.hd-chat button,
+.hd-chat input {
+  font: inherit;
+}
+
+.hd-chat button:focus-visible,
+.hd-chat input:focus-visible,
+.hd-chat a:focus-visible {
+  outline: var(--awe-focus-ring);
+  outline-offset: var(--awe-focus-ring-offset);
+}
+
+.hd-chat-launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  min-block-size: var(--awe-size-control-lg);
+  padding-inline: var(--awe-space-5);
+  border: 0;
+  border-radius: var(--awe-radius-full);
+  background: var(--awe-color-primary);
+  color: var(--awe-color-on-primary);
+  font-weight: var(--awe-font-weight-semibold);
+  box-shadow: var(--awe-shadow-lg);
+  cursor: pointer;
+  transition: background var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+}
+
+.hd-chat-launcher:hover {
+  background: var(--awe-color-primary-hover);
+}
+
+.hd-chat-launcher:active {
+  background: var(--awe-color-primary-active);
+}
+
+.hd-chat-panel {
+  display: flex;
+  flex-direction: column;
+  inline-size: min(26rem, calc(100vw - 2 * var(--awe-space-4)));
+  block-size: min(36rem, calc(100dvh - 9rem));
+  overflow: hidden;
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-xl);
+  box-shadow: var(--awe-shadow-lg);
+  animation: hd-chat-in var(--awe-motion-duration-base) var(--awe-motion-easing-enter);
+}
+
+.hd-chat-panel[hidden] {
+  display: none;
+}
+
+@keyframes hd-chat-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--awe-space-2));
+  }
+}
+
+.hd-chat-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--awe-space-3);
+  padding: var(--awe-space-4) var(--awe-space-4) var(--awe-space-4) var(--awe-space-5);
+  background: var(--awe-color-primary);
+  color: var(--awe-color-on-primary);
+}
+
+.hd-chat-title {
+  margin: 0;
+  font-size: var(--awe-font-size-lg);
+  font-weight: var(--awe-font-weight-semibold);
+}
+
+.hd-chat-subtitle {
+  margin: 0;
+  font-size: var(--awe-font-size-sm);
+  opacity: 0.85;
+}
+
+.hd-chat-close {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--awe-size-control);
+  block-size: var(--awe-size-control);
+  border: 0;
+  border-radius: var(--awe-radius-full);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.hd-chat-close:hover {
+  background: var(--awe-color-primary-hover);
+}
+
+.hd-chat-log {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  padding: var(--awe-space-4);
+  overflow-y: auto;
+  background: var(--awe-color-surface-subtle);
+}
+
+.hd-chat-message {
+  display: flex;
+  max-inline-size: 92%;
+}
+
+.hd-chat-bot {
+  align-self: flex-start;
+}
+
+.hd-chat-visitor {
+  align-self: flex-end;
+}
+
+.hd-chat-sr {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.hd-chat-bubble {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-3) var(--awe-space-4);
+  border-radius: var(--awe-radius-lg);
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.hd-chat-bot .hd-chat-bubble {
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  border-end-start-radius: var(--awe-radius-sm);
+  color: var(--awe-color-text);
+}
+
+.hd-chat-visitor .hd-chat-bubble {
+  background: var(--awe-color-primary);
+  border-end-end-radius: var(--awe-radius-sm);
+  color: var(--awe-color-on-primary);
+}
+
+.hd-chat-text {
+  margin: 0;
+}
+
+.hd-chat-articles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hd-chat-article {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-1);
+  padding: var(--awe-space-3);
+  background: var(--awe-color-primary-subtle);
+  border-radius: var(--awe-radius-md);
+  font-size: var(--awe-font-size-sm);
+}
+
+.hd-chat-article strong {
+  color: var(--awe-color-text-emphasis);
+}
+
+.hd-chat-article span {
+  color: var(--awe-color-text-muted);
+}
+
+.hd-chat-link {
+  color: var(--awe-color-primary-text);
+  font-weight: var(--awe-font-weight-medium);
+}
+
+.hd-chat-summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--awe-space-1) var(--awe-space-3);
+  margin: 0;
+  font-size: var(--awe-font-size-sm);
+}
+
+.hd-chat-summary dt {
+  color: var(--awe-color-text-muted);
+}
+
+.hd-chat-summary dd {
+  margin: 0;
+  color: var(--awe-color-text-emphasis);
+}
+
+.hd-chat-ticket dd {
+  font-family: var(--awe-font-family-monospace);
+  font-weight: var(--awe-font-weight-semibold);
+}
+
+.hd-chat-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--awe-space-2);
+}
+
+.hd-chat-chip {
+  min-block-size: var(--awe-size-control);
+  padding-inline: var(--awe-space-4);
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-primary);
+  border-radius: var(--awe-radius-full);
+  color: var(--awe-color-primary-text);
+  font-weight: var(--awe-font-weight-medium);
+  cursor: pointer;
+  transition: background var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.hd-chat-chip:hover {
+  background: var(--awe-color-primary-subtle);
+}
+
+.hd-chat-form {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-3) var(--awe-space-4);
+  background: var(--awe-color-surface);
+  border-block-start: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.hd-chat-input {
+  flex: 1;
+  min-inline-size: 0;
+  min-block-size: var(--awe-size-control);
+  padding-inline: var(--awe-space-3);
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-field);
+  color: var(--awe-color-text);
+}
+
+.hd-chat-input:disabled {
+  background: var(--awe-color-surface-subtle);
+  color: var(--awe-color-text-muted);
+}
+
+.hd-chat-send {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--awe-size-control);
+  block-size: var(--awe-size-control);
+  border: 0;
+  border-radius: var(--awe-radius-full);
+  background: var(--awe-color-primary);
+  color: var(--awe-color-on-primary);
+  cursor: pointer;
+}
+
+.hd-chat-send:hover:not(:disabled) {
+  background: var(--awe-color-primary-hover);
+}
+
+.hd-chat-send:disabled {
+  background: var(--awe-color-surface-subtle);
+  color: var(--awe-color-text-muted);
+  cursor: not-allowed;
+}
+
+/* The honeypot is out of the screen, not hidden with display: a bot that fills every field still finds it */
+.hd-chat-hp {
+  position: absolute;
+  inset-inline-start: -999rem;
+  inline-size: 1px;
+  block-size: 1px;
+  opacity: 0;
+}
+
+/* A phone: the panel takes the screen but leaves the top bar (and its logo) free, and opening it hides the launcher */
+@media (max-width: 40rem) {
+  .hd-chat {
+    inset: auto 0 0 0;
+    align-items: stretch;
+  }
+
+  .hd-chat.is-open .hd-chat-launcher {
+    display: none;
+  }
+
+  .hd-chat:not(.is-open) {
+    inset-block-end: var(--awe-space-4);
+    inset-inline: auto var(--awe-space-4);
+  }
+
+  .hd-chat-launcher-text {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .hd-chat-launcher {
+    inline-size: var(--awe-size-control-lg);
+    padding-inline: 0;
+    justify-content: center;
+  }
+
+  .hd-chat-panel {
+    inline-size: auto;
+    block-size: calc(100dvh - var(--awe-space-16));
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hd-chat-panel {
+    animation: none;
+  }
+
+  .hd-chat-launcher,
+  .hd-chat-chip {
+    transition: none;
+  }
+}
+
+/* ---- Ticket panel of the queue (hd-queue): read-only facts, conversation and priority row ---- */
+
+/* The text-view of the framework pads its value with p-2 (!important), so it starts to the right of its label: the facts of the panel line up with their labels */
+.hd-ticket-panel .hd-fact > .flex.p-2 {
+  padding-inline: 0 !important;
+}
+
+/* The conversation keeps room for its empty state (icon, title and text) and a few messages instead of the height of an empty table */
+.hd-ticket-panel .grid-container {
+  min-height: 20rem;
+}
+
+/* The action of a field sits on the line of the field, not of its label: the row is as tall as the field and the button hangs from its bottom */
+.hd-ticket-panel .hd-field-action {
+  align-self: flex-end;
+}

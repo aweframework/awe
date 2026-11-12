@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Enumerated.xml
+    Description: Lists of values of the help desk. Their labels are locale keys, so each user sees them in their language
+-->
+<enumerated xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/enumerated.xsd">
+  <group id="HdkPriority">
+    <option label="HD_PRIORITY_LOW" value="LOW"/>
+    <option label="HD_PRIORITY_NORMAL" value="NORMAL"/>
+    <option label="HD_PRIORITY_HIGH" value="HIGH"/>
+    <option label="HD_PRIORITY_CRITICAL" value="CRITICAL"/>
+  </group>
+  <group id="HdkPriorityAgent">
+    <option label="HD_PRIORITY_LOW" value="LOW"/>
+    <option label="HD_PRIORITY_NORMAL" value="NORMAL"/>
+    <option label="HD_PRIORITY_HIGH" value="HIGH"/>
+  </group>
+  <group id="HdkStatus">
+    <option label="HD_STATUS_NEW" value="NEW"/>
+    <option label="HD_STATUS_OPEN" value="OPEN"/>
+    <option label="HD_STATUS_PENDING" value="PENDING"/>
+    <option label="HD_STATUS_RESOLVED" value="RESOLVED"/>
+    <option label="HD_STATUS_CLOSED" value="CLOSED"/>
+  </group>
+  <group id="HdkCategory">
+    <option label="HD_CATEGORY_NETWORK" value="NETWORK"/>
+    <option label="HD_CATEGORY_SOFTWARE" value="SOFTWARE"/>
+    <option label="HD_CATEGORY_HARDWARE" value="HARDWARE"/>
+    <option label="HD_CATEGORY_ACCESS" value="ACCESS"/>
+    <option label="HD_CATEGORY_BILLING" value="BILLING"/>
+    <option label="HD_CATEGORY_OTHER" value="OTHER"/>
+  </group>
+  <group id="HdkChannel">
+    <option label="HD_CHANNEL_WEB" value="WEB"/>
+    <option label="HD_CHANNEL_EMAIL" value="EMAIL"/>
+    <option label="HD_CHANNEL_API" value="API"/>
+  </group>
+  <group id="HdkMsgType">
+    <option label="HD_MSG_PUBLIC" value="PUBLIC"/>
+    <option label="HD_MSG_INTERNAL" value="INTERNAL"/>
+    <option label="HD_MSG_REQUESTER" value="REQUESTER"/>
+  </group>
+  <group id="HdkMsgTypeAgent">
+    <option label="HD_MSG_PUBLIC" value="PUBLIC"/>
+    <option label="HD_MSG_INTERNAL" value="INTERNAL"/>
+  </group>
+  <group id="HdkServiceStatus">
+    <option label="HD_SERVICE_OPERATIONAL" value="OPERATIONAL"/>
+    <option label="HD_SERVICE_DEGRADED" value="DEGRADED"/>
+    <option label="HD_SERVICE_OUTAGE" value="OUTAGE"/>
+  </group>
+  <group id="HdkSla">
+    <option label="HD_SLA_OK" value="OK"/>
+    <option label="HD_SLA_BREACHED" value="BREACHED"/>
+  </group>
+  <group id="HdkWizard">
+    <option label="HD_STEP_HdStep1" value="HdStep1"/>
+    <option label="HD_STEP_HdStep2" value="HdStep2"/>
+    <option label="HD_STEP_HdStep3" value="HdStep3"/>
+    <option label="HD_STEP_HdStep4" value="HdStep4"/>
+  </group>
+  <!-- Tone of a service status for the status column of a grid -->
+  <group id="HdkServiceTone">
+    <option label="success" value="OPERATIONAL"/>
+    <option label="warning" value="DEGRADED"/>
+    <option label="danger" value="OUTAGE"/>
+  </group>
+</enumerated>

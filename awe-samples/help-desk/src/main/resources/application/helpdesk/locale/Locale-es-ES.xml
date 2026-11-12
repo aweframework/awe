@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Locale-es-ES.xml
+    Description: Texts of the help desk (es-ES)
+-->
+<locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
+  <locale name="APP_CLIENT" value="Beacon Desk"/>
+  <locale name="APP_NAME" value="Beacon Desk"/>
+  <locale name="HD_ART_PANEL" value="Artículo"/>
+  <locale name="HD_BRAND" value="Beacon Desk"/>
+  <locale name="HD_BTN_BACK_HOME" value="Volver al portal"/>
+  <locale name="HD_BTN_CHANGE_PRIORITY" value="Cambiar prioridad"/>
+  <locale name="HD_BTN_CLOSE" value="Cerrar"/>
+  <locale name="HD_BTN_CLOSE_TICKET" value="Cerrar el ticket"/>
+  <locale name="HD_BTN_CREATE" value="Crear"/>
+  <locale name="HD_BTN_DELETE" value="Eliminar"/>
+  <locale name="HD_BTN_NEW_ARTICLE" value="Nuevo artículo"/>
+  <locale name="HD_BTN_OPEN_NEW" value="Abrir un ticket"/>
+  <locale name="HD_BTN_OPEN_TICKET" value="Abrir el ticket"/>
+  <locale name="HD_BTN_PENDING" value="Esperando al solicitante"/>
+  <locale name="HD_BTN_REFRESH" value="Actualizar"/>
+  <locale name="HD_BTN_REOPEN" value="Reabrir"/>
+  <locale name="HD_BTN_REPLY" value="Responder"/>
+  <locale name="HD_BTN_RESOLVE" value="Resolver"/>
+  <locale name="HD_BTN_SAVE_ASSIGNMENTS" value="Guardar cambios"/>
+  <locale name="HD_BTN_SEND" value="Enviar"/>
+  <locale name="HD_BTN_TAKE" value="Tomar"/>
+  <locale name="HD_CATEGORY_ACCESS" value="Accesos y cuentas"/>
+  <locale name="HD_CATEGORY_BILLING" value="Facturación"/>
+  <locale name="HD_CATEGORY_HARDWARE" value="Hardware"/>
+  <locale name="HD_CATEGORY_NETWORK" value="Red"/>
+  <locale name="HD_CATEGORY_OTHER" value="Otros"/>
+  <locale name="HD_CATEGORY_SOFTWARE" value="Software"/>
+  <locale name="HD_CHANNEL_API" value="API"/>
+  <locale name="HD_CHANNEL_EMAIL" value="Correo"/>
+  <locale name="HD_CHANNEL_WEB" value="Web"/>
+  <locale name="HD_CHAT_ASK_CATEGORY" value="¿De qué área se trata?"/>
+  <locale name="HD_CHAT_ASK_EMAIL" value="¿A qué correo podemos escribirte? Lo necesitarás, junto con la clave de acceso, para seguir tu ticket."/>
+  <locale name="HD_CHAT_ASK_PROBLEM" value="¿Qué está fallando? Cuéntalo en una o dos frases."/>
+  <locale name="HD_CHAT_CHECK_LINK" value="Consultar un ticket"/>
+  <locale name="HD_CHAT_CLOSE" value="Cerrar el chat"/>
+  <locale name="HD_CHAT_DONE" value="Tu ticket está abierto. Guarda estos dos datos:"/>
+  <locale name="HD_CHAT_EDIT" value="Sin problema. Describe de nuevo el problema."/>
+  <locale name="HD_CHAT_EMAIL_INVALID" value="Ese correo no parece correcto. Revísalo e inténtalo de nuevo."/>
+  <locale name="HD_CHAT_ERR_DESCRIPTION" value="La descripción es demasiado corta o demasiado larga. Escríbela de nuevo."/>
+  <locale name="HD_CHAT_ERR_GENERIC" value="Algo ha fallado y no se ha creado el ticket. ¿Quieres intentarlo otra vez?"/>
+  <locale name="HD_CHAT_ERR_LIMIT" value="Ya has abierto los tickets que permite una sesión. Consulta el estado de los que abriste o inicia sesión."/>
+  <locale name="HD_CHAT_FOLLOW" value="Puedes seguirlo cuando quieras con la consulta de tickets: te pedirá la clave de acceso y tu correo."/>
+  <locale name="HD_CHAT_FOUND" value="He encontrado estos artículos que pueden ayudarte:"/>
+  <locale name="HD_CHAT_GLAD" value="¡Me alegro de que te haya servido! Vuelve cuando quieras."/>
+  <locale name="HD_CHAT_GREETING" value="¡Hola! Soy el asistente de Beacon Desk. Puedo buscar una respuesta o abrirte un ticket, sin iniciar sesión."/>
+  <locale name="HD_CHAT_INPUT_CHOOSE" value="Elige una opción de arriba"/>
+  <locale name="HD_CHAT_INPUT_EMAIL" value="tu@empresa.com"/>
+  <locale name="HD_CHAT_INPUT_PROBLEM" value="Describe el problema"/>
+  <locale name="HD_CHAT_KB_LINK" value="Abrir la base de conocimiento"/>
+  <locale name="HD_CHAT_LAUNCHER" value="Abrir el chat de soporte"/>
+  <locale name="HD_CHAT_LAUNCHER_SHORT" value="Chatea con nosotros"/>
+  <locale name="HD_CHAT_LOG" value="Conversación con el asistente de soporte"/>
+  <locale name="HD_CHAT_NONE" value="No he encontrado ningún artículo sobre eso."/>
+  <locale name="HD_CHAT_OPT_EDIT" value="Editar"/>
+  <locale name="HD_CHAT_OPT_HELP" value="Sigo necesitando ayuda"/>
+  <locale name="HD_CHAT_OPT_SEND" value="Enviar el ticket"/>
+  <locale name="HD_CHAT_OPT_SOLVED" value="Esto lo resolvió"/>
+  <locale name="HD_CHAT_PROBLEM_SHORT" value="Cuéntame un poco más, por favor: basta con una frase."/>
+  <locale name="HD_CHAT_RECEIVED" value="Gracias, hemos recibido tu solicitud."/>
+  <locale name="HD_CHAT_SEARCHING" value="Voy a mirar en la base de conocimiento..."/>
+  <locale name="HD_CHAT_SEARCH_ERROR" value="Ahora mismo no he podido buscar en la base de conocimiento."/>
+  <locale name="HD_CHAT_SEND" value="Enviar"/>
+  <locale name="HD_CHAT_SENDING" value="Abriendo tu ticket..."/>
+  <locale name="HD_CHAT_SUBTITLE" value="Abre un ticket sin iniciar sesión"/>
+  <locale name="HD_CHAT_SUMMARY" value="Esto es lo que voy a enviar. ¿Es correcto?"/>
+  <locale name="HD_CHAT_SUMMARY_CATEGORY" value="Área"/>
+  <locale name="HD_CHAT_SUMMARY_EMAIL" value="Correo"/>
+  <locale name="HD_CHAT_SUMMARY_PROBLEM" value="Problema"/>
+  <locale name="HD_CHAT_TICKET_CODE" value="Ticket"/>
+  <locale name="HD_CHAT_TICKET_KEY" value="Clave de acceso"/>
+  <locale name="HD_CHAT_TITLE" value="Asistente de Beacon Desk"/>
+  <locale name="HD_CHAT_YOU" value="Tú"/>
+  <locale name="HD_CHK_BUTTON" value="Consultar"/>
+  <locale name="HD_CHK_EMAIL" value="Correo del solicitante"/>
+  <locale name="HD_CHK_KEY" value="Clave de acceso del ticket"/>
+  <locale name="HD_CHK_LEAD" value="Introduce la clave de acceso de tu ticket (la ves en Mis tickets) y el correo que usaste. Se necesitan ambos: verás su estado y nuestras respuestas."/>
+  <locale name="HD_CHK_TITLE" value="Consultar un ticket"/>
+  <locale name="HD_COL_ACCESS_KEY" value="Clave de acceso publica"/>
+  <locale name="HD_COL_ACCESS_KEY_SHORT" value="Clave de acceso"/>
+  <locale name="HD_COL_AGENT" value="Agente"/>
+  <locale name="HD_COL_AGENTS" value="Agentes"/>
+  <locale name="HD_COL_ARTICLE" value="Artículo"/>
+  <locale name="HD_COL_AUTHOR" value="Autor"/>
+  <locale name="HD_COL_CATEGORY" value="Categoría"/>
+  <locale name="HD_COL_CHANNEL" value="Canal"/>
+  <locale name="HD_COL_CODE" value="Ticket"/>
+  <locale name="HD_COL_CREATED" value="Creado"/>
+  <locale name="HD_COL_DESCRIPTION" value="Descripción"/>
+  <locale name="HD_COL_MESSAGE" value="Mensaje"/>
+  <locale name="HD_COL_OPEN_TICKETS" value="Tickets abiertos"/>
+  <locale name="HD_COL_PRIORITY" value="Prioridad"/>
+  <locale name="HD_COL_PUBLISHED" value="Publicado"/>
+  <locale name="HD_COL_REPLY" value="Respuesta"/>
+  <locale name="HD_COL_REQUESTER" value="Solicitante"/>
+  <locale name="HD_COL_SERVICE" value="Servicio"/>
+  <locale name="HD_COL_SLA" value="SLA"/>
+  <locale name="HD_COL_STATUS" value="Estado"/>
+  <locale name="HD_COL_SUBJECT" value="Asunto"/>
+  <locale name="HD_COL_TEAM" value="Equipo"/>
+  <locale name="HD_COL_TITLE" value="Título"/>
+  <locale name="HD_COL_TYPE" value="Tipo"/>
+  <locale name="HD_COL_UPDATED" value="Actualizado"/>
+  <locale name="HD_COL_VIEWS" value="Visitas"/>
+  <locale name="HD_COL_WHEN" value="Fecha y hora"/>
+  <locale name="HD_DSH_BREACH" value="SLA incumplido, 30 días"/>
+  <locale name="HD_DSH_CHART_BACKLOG" value="Pendientes por prioridad"/>
+  <locale name="HD_DSH_CHART_DAY" value="Tickets por día"/>
+  <locale name="HD_DSH_CHART_SLA" value="SLA, últimos 30 días"/>
+  <locale name="HD_DSH_CHART_TEAMS" value="Tiempo de resolución por equipo (horas)"/>
+  <locale name="HD_DSH_HOURS" value="Resolución media (horas)"/>
+  <locale name="HD_DSH_NEW" value="Nuevos sin atender"/>
+  <locale name="HD_DSH_OPEN" value="Tickets abiertos"/>
+  <locale name="HD_DSH_SERIE_BACKLOG" value="Tickets abiertos"/>
+  <locale name="HD_DSH_SERIE_CREATED" value="Creados"/>
+  <locale name="HD_DSH_SERIE_HOURS" value="Horas"/>
+  <locale name="HD_DSH_SERIE_RESOLVED" value="Resueltos"/>
+  <locale name="HD_DSH_SERIE_SLA" value="Tickets"/>
+  <locale name="HD_FLD_MESSAGE" value="Mensaje"/>
+  <locale name="HD_FLD_NEW_PRIORITY" value="Nueva prioridad"/>
+  <locale name="HD_FLD_REPLY_TYPE" value="Tipo"/>
+  <locale name="HD_FOOTER" value="Beacon Desk es un servicio de soporte de demostración de las aplicaciones de ejemplo de AWE. Agentes, supervisores y clientes: accede a tu área."/>
+  <locale name="HD_HOME_CHECK" value="Consultar un ticket"/>
+  <locale name="HD_HOME_EYEBROW" value="Portal de soporte"/>
+  <locale name="HD_HOME_HEADLINE" value="¿En qué podemos ayudarte hoy?"/>
+  <locale name="HD_HOME_KB" value="Base de conocimiento"/>
+  <locale name="HD_HOME_LEAD" value="Encuentra una respuesta en la base de conocimiento, consulta el estado de tu ticket o accede para abrir uno nuevo y seguirlo."/>
+  <locale name="HD_HOME_SIGN_IN" value="Acceder"/>
+  <locale name="HD_HOME_TITLE" value="Beacon Desk"/>
+  <locale name="HD_KB_LEAD" value="Artículos publicados, por categoría. Abre una fila para leerlo."/>
+  <locale name="HD_KB_TITLE" value="Base de conocimiento"/>
+  <locale name="HD_LOGIN_DEMO" value="Demo: alex / helpdemo (agente) o emma / deskdemo (solicitante). Todos los usuarios están en la página de inicio."/>
+  <locale name="HD_LOGIN_PANEL_TITLE" value="¿En qué podemos ayudarte hoy?"/>
+  <locale name="HD_LOGIN_SUBTITLE" value="Estamos para ayudarte. Accede para atender tickets o seguir los tuyos."/>
+  <locale name="HD_LOGIN_TITLE" value="Te damos la bienvenida a Beacon Desk"/>
+  <locale name="HD_MENU_ADMINISTRATION" value="Administración"/>
+  <locale name="HD_MENU_ASSIGN" value="Reasignar tickets"/>
+  <locale name="HD_MENU_CHECK" value="Consultar un ticket"/>
+  <locale name="HD_MENU_CUSTOMER" value="Ayuda para ti"/>
+  <locale name="HD_MENU_DASHBOARD" value="Resumen del servicio"/>
+  <locale name="HD_MENU_HOME" value="Portal de soporte"/>
+  <locale name="HD_MENU_KB" value="Base de conocimiento"/>
+  <locale name="HD_MENU_KB_ADMIN" value="Base de conocimiento"/>
+  <locale name="HD_MENU_MY_TICKETS" value="Mis tickets"/>
+  <locale name="HD_MENU_NEW_TICKET" value="Nuevo ticket"/>
+  <locale name="HD_MENU_QUEUE" value="Tu bandeja"/>
+  <locale name="HD_MENU_STAFF" value="Tu puesto"/>
+  <locale name="HD_MENU_TEAMS" value="Equipos"/>
+  <locale name="HD_MSG_INTERNAL" value="Nota interna"/>
+  <locale name="HD_MSG_PUBLIC" value="Respuesta al solicitante"/>
+  <locale name="HD_MSG_REQUESTER" value="Solicitante"/>
+  <locale name="HD_MY_NEW_PANEL" value="Abrir un ticket"/>
+  <locale name="HD_MY_OPEN" value="Abiertos"/>
+  <locale name="HD_MY_PENDING" value="Esperando tu respuesta"/>
+  <locale name="HD_MY_RESOLVED" value="Resueltos, por cerrar"/>
+  <locale name="HD_PERMISSION_ACTION_CRITICAL" value="Prioridad crítica"/>
+  <locale name="HD_PERMISSION_ACTION_REASSIGN" value="Reasignar tickets"/>
+  <locale name="HD_PERMISSION_KB" value="Base de conocimiento"/>
+  <locale name="HD_PERMISSION_PORTAL" value="Área del solicitante"/>
+  <locale name="HD_PERMISSION_REPORTS" value="Panel de SLA y rendimiento"/>
+  <locale name="HD_PERMISSION_TEAMS" value="Equipos"/>
+  <locale name="HD_PERMISSION_TICKETS" value="Tickets"/>
+  <locale name="HD_POPULAR_TITLE" value="Artículos populares"/>
+  <locale name="HD_PRIORITY_CRITICAL" value="Crítica"/>
+  <locale name="HD_PRIORITY_HIGH" value="Alta"/>
+  <locale name="HD_PRIORITY_LOW" value="Baja"/>
+  <locale name="HD_PRIORITY_NORMAL" value="Normal"/>
+  <locale name="HD_SEARCH" value="Buscar"/>
+  <locale name="HD_SEARCH_ARTICLE" value="Título"/>
+  <locale name="HD_SEARCH_KB" value="Buscar en los artículos"/>
+  <locale name="HD_SEARCH_TICKET" value="Código, asunto o solicitante"/>
+  <locale name="HD_SEC_CONVERSATION" value="Conversación"/>
+  <locale name="HD_SEC_PRIORITY" value="Prioridad"/>
+  <locale name="HD_SEC_REPLY" value="Responder o anotar"/>
+  <locale name="HD_SERVICES_TITLE" value="Estado de los servicios"/>
+  <locale name="HD_SERVICE_DEGRADED" value="Degradado"/>
+  <locale name="HD_SERVICE_OPERATIONAL" value="Operativo"/>
+  <locale name="HD_SERVICE_OUTAGE" value="Caído"/>
+  <locale name="HD_SLA_BREACHED" value="SLA incumplido"/>
+  <locale name="HD_SLA_OK" value="Dentro del SLA"/>
+  <locale name="HD_STATUS_CLOSED" value="Cerrado"/>
+  <locale name="HD_STATUS_NEW" value="Nuevo"/>
+  <locale name="HD_STATUS_OPEN" value="Abierto"/>
+  <locale name="HD_STATUS_PENDING" value="Pendiente"/>
+  <locale name="HD_STATUS_RESOLVED" value="Resuelto"/>
+  <locale name="HD_STEP_HdStep1" value="Solicitante"/>
+  <locale name="HD_STEP_HdStep2" value="Categoría"/>
+  <locale name="HD_STEP_HdStep3" value="Detalles"/>
+  <locale name="HD_STEP_HdStep4" value="Revisión"/>
+  <locale name="HD_TKT_PANEL" value="Ticket"/>
+  <locale name="HD_WZ_1" value="¿Quién pide ayuda?"/>
+  <locale name="HD_WZ_2" value="¿De qué se trata?"/>
+  <locale name="HD_WZ_3" value="Describe el problema."/>
+  <locale name="HD_WZ_4" value="Revisa los datos de los pasos anteriores y crea el ticket. Solo un supervisor puede poner después la prioridad crítica."/>
+  <locale name="HD_WZ_STEP" value="Paso"/>
+  <locale name="HD_DEMO_TITLE" value="Prueba la demo"/>
+  <locale name="HD_DEMO_LEAD" value="Son usuarios de ejemplo de una demo: accede con cualquiera para ver lo que puede hacer cada rol."/>
+  <locale name="HD_DEMO_COL_USER" value="Usuario"/>
+  <locale name="HD_DEMO_COL_PASS" value="Contrasena"/>
+  <locale name="HD_DEMO_COL_ROLE" value="Que ve este usuario"/>
+  <locale name="HD_DEMO_NOTE" value="Credenciales de ejemplo, válidas solo en esta demo. No las uses nunca en un despliegue real."/>
+  <locale name="HD_DEMO_U1_USER" value="alex"/>
+  <locale name="HD_DEMO_U1_PASS" value="helpdemo"/>
+  <locale name="HD_DEMO_U1_ROLE" value="Agente: la cola, el asistente de tickets nuevos y la base de conocimiento (solo lectura)."/>
+  <locale name="HD_DEMO_U2_USER" value="blake"/>
+  <locale name="HD_DEMO_U2_PASS" value="helpdemo"/>
+  <locale name="HD_DEMO_U2_ROLE" value="Agente: la cola, el asistente de tickets nuevos y la base de conocimiento (solo lectura). Idioma: español."/>
+  <locale name="HD_DEMO_U3_USER" value="casey"/>
+  <locale name="HD_DEMO_U3_PASS" value="helpdemo"/>
+  <locale name="HD_DEMO_U3_ROLE" value="Agente: la cola, el asistente de tickets nuevos y la base de conocimiento (solo lectura). Idioma: francés."/>
+  <locale name="HD_DEMO_U4_USER" value="sam"/>
+  <locale name="HD_DEMO_U4_PASS" value="helpdemo"/>
+  <locale name="HD_DEMO_U4_ROLE" value="Supervisor: todo lo del agente más el panel de SLA, la reasignación, la prioridad crítica, los equipos y los cambios de la base de conocimiento."/>
+  <locale name="HD_DEMO_U5_USER" value="emma"/>
+  <locale name="HD_DEMO_U5_PASS" value="deskdemo"/>
+  <locale name="HD_DEMO_U5_ROLE" value="Solicitante: solo sus tickets."/>
+  <locale name="HD_DEMO_U6_USER" value="liam"/>
+  <locale name="HD_DEMO_U6_PASS" value="deskdemo"/>
+  <locale name="HD_DEMO_U6_ROLE" value="Solicitante: solo sus tickets. Idioma: español."/>
+  <locale name="HD_DEMO_U7_USER" value="olivia"/>
+  <locale name="HD_DEMO_U7_PASS" value="deskdemo"/>
+  <locale name="HD_DEMO_U7_ROLE" value="Solicitante: solo sus tickets. Idioma: francés."/>
+  <locale name="HD_DEMO_ADM_USER" value="test"/>
+  <locale name="HD_DEMO_ADM_PASS" value="test"/>
+  <locale name="HD_DEMO_ADMIN_ROLE" value="Administrador de AWE: usuarios, perfiles y acceso a pantallas. Solo para la demo."/>
+  <locale name="HD_DEMO_PUBLIC" value="Consulta publica de un ticket (sin acceso): clave de acceso G6AP6EHR con el correo ava.parker@contoso.example (ticket HD-1)."/>
+  <locale name="HD_HOME_SEARCH" value="Buscar en la base de conocimiento"/>
+  <locale name="HD_PHOTO_AGENT" value="Nuestros agentes responden en menos de una hora"/>
+  <locale name="HD_PHOTO_TEAM" value="Un equipo cercano a tu lado"/>
+  <locale name="HD_PHOTO_OFFICE" value="Soporte desde nuestra oficina abierta"/>
+  <locale name="HD_PHOTO_LAPTOP" value="Sigue tu ticket desde cualquier portátil"/>
+  <locale name="HD_HUMAN_TITLE" value="Soporte con trato humano"/>
+  <locale name="HD_HUMAN_LEAD" value="Personas reales, respuestas claras y ningún ticket olvidado."/>
+</locales>
