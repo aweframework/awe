@@ -6,7 +6,7 @@ import {TestAttributes, TestIds} from "../../../main/resources/js/awe/data/testI
 import {ClientActions} from "../../../main/resources/js/awe/data/actions";
 
 // Leaflet needs a real layout (jsdom has none): the map is tested against a fake that records what it is given
-const mockLeaflet = {maps: [], tiles: [], groups: [], markers: [], polylines: []};
+const mockLeaflet = {maps: [], tiles: [], groups: [], markers: [], polylines: [], pins: [], icons: []};
 jest.mock("leaflet", () => {
   return {
     __esModule: true,
@@ -45,6 +45,22 @@ jest.mock("leaflet", () => {
       marker.getElement = jest.fn(() => marker.element);
       mockLeaflet.markers.push(marker);
       return marker;
+    }),
+    divIcon: jest.fn((options) => {
+      const icon = {options};
+      mockLeaflet.icons.push(icon);
+      return icon;
+    }),
+    marker: jest.fn((latlng, options) => {
+      const pin = {latlng, options, element: globalThis.document.createElement("div"), handlers: {}};
+      pin.on = jest.fn((event, handler) => {
+        pin.handlers[event] = handler;
+        return pin;
+      });
+      pin.bindPopup = jest.fn(() => pin);
+      pin.getElement = jest.fn(() => pin.element);
+      mockLeaflet.pins.push(pin);
+      return pin;
     }),
     polyline: jest.fn((latlngs, options) => {
       const line = {latlngs, options, element: globalThis.document.createElementNS("http://www.w3.org/2000/svg", "path")};
@@ -365,6 +381,85 @@ describe("awe-client-angular/src/test/jest/directives/geoMap.test.js", () => {
 
       expect(mockLeaflet.polylines.length).toBe(1);
       expect(group.layers.map(layer => layer.latlng)).toEqual([[40.4, -3.7], [41.38, 2.17]]);
+    });
+  });
+
+  describe("numbered markers", () => {
+    const STOPS = [{id: "1", Lat: 40.4, Lon: -3.7, Lug: "Madrid", Seq: 1}, {id: "2", Lat: 41.38, Lon: 2.17, Lug: "Barcelona", Seq: 2}];
+    const ROUTE = [{Lat: 10, Lon: 20}, {Lat: 11, Lon: 21}, {Lat: 12, Lon: 22}];
+
+    /**
+     * Run the polyline action as the action controller does
+     */
+    function polyline(rows) {
+      const [, actions, scope, executor] = actionController.defineActionListeners.mock.calls[0];
+      executor[actions.polyline.method]({rows}, scope);
+    }
+
+    beforeEach(() => {
+      controller.markerNumber = "Seq";
+      model.values = copy(STOPS);
+    });
+
+    it("draws a numbered pin per row instead of a circle marker", () => {
+      compileMap();
+
+      expect(mockLeaflet.markers).toHaveLength(0);
+      expect(mockLeaflet.pins.map(pin => pin.latlng)).toEqual([[40.4, -3.7], [41.38, 2.17]]);
+      expect(mockLeaflet.icons.map(icon => icon.options.html)).toEqual(["<span>1</span>", "<span>2</span>"]);
+      expect(mockLeaflet.icons[0].options.className).toBe("awe-map-pin");
+      expect(mockLeaflet.pins[0].options.icon).toBe(mockLeaflet.icons[0]);
+      expect(mockLeaflet.pins[1].bindPopup).toHaveBeenCalledWith("Barcelona");
+    });
+
+    it("escapes the number it shows", () => {
+      model.values = [{id: "1", Lat: 1, Lon: 2, Seq: "<b>"}];
+      compileMap();
+
+      expect(mockLeaflet.icons[0].options.html).toBe("<span>&lt;b&gt;</span>");
+    });
+
+    it("selects the row of a clicked pin and shows it as selected", () => {
+      compileMap();
+
+      mockLeaflet.pins[1].handlers.click();
+      $timeout.flush();
+
+      expect(mockLeaflet.pins[1].element.classList.contains("awe-map-pin-selected")).toBe(true);
+      expect(mockLeaflet.pins[1].element.getAttribute(TestAttributes.selected)).toBe("true");
+      expect(mockLeaflet.pins[0].element.classList.contains("awe-map-pin-selected")).toBe(false);
+    });
+
+    it("keeps the pins and fits the view to the route and the markers with route-markers", () => {
+      controller.routeMarkers = true;
+      const {map, group} = compileMap();
+
+      polyline(ROUTE);
+
+      expect(mockLeaflet.polylines).toHaveLength(1);
+      expect(group.layers).toHaveLength(3);
+      expect(map.fitBounds).toHaveBeenLastCalledWith([[10, 20], [11, 21], [12, 22], [40.4, -3.7], [41.38, 2.17]]);
+      expect(map.setView).not.toHaveBeenCalled();
+    });
+
+    it("keeps the circle markers with route-markers when the markers have no number", () => {
+      delete controller.markerNumber;
+      controller.routeMarkers = true;
+      const {group} = compileMap();
+
+      polyline(ROUTE);
+
+      expect(group.layers.filter(layer => layer.latlng)).toHaveLength(2);
+      expect(mockLeaflet.pins).toHaveLength(0);
+    });
+
+    it("draws the route alone and centres on its first point without route-markers", () => {
+      const {map, group} = compileMap();
+
+      polyline(ROUTE);
+
+      expect(group.layers).toHaveLength(1);
+      expect(map.setView).toHaveBeenLastCalledWith([10, 20], 8);
     });
   });
 

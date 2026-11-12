@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Locale-en-GB.xml
+    Description: Texts of the veterinary clinic (en-GB)
+-->
+<locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
+  <locale name="APP_CLIENT" value="Happy Paws"/>
+  <locale name="APP_NAME" value="Happy Paws"/>
+  <locale name="VET_APT_PANEL" value="New appointment"/>
+  <locale name="VET_APT_STATUS_CANCELLED" value="Cancelled"/>
+  <locale name="VET_APT_STATUS_CONFIRMED" value="Confirmed"/>
+  <locale name="VET_APT_STATUS_DONE" value="Done"/>
+  <locale name="VET_APT_STATUS_PENDING" value="Pending"/>
+  <locale name="VET_BRAND" value="Happy Paws Veterinary Clinic"/>
+  <locale name="VET_BTN_ARCHIVE" value="Archive"/>
+  <locale name="VET_BTN_BACK_HOME" value="Back to the clinic"/>
+  <locale name="VET_BTN_CANCEL_APT" value="Cancel"/>
+  <locale name="VET_BTN_CANCEL_MY_APT" value="Cancel appointment"/>
+  <locale name="VET_BTN_CONFIRM" value="Confirm"/>
+  <locale name="VET_BTN_CREATE" value="Create"/>
+  <locale name="VET_BTN_DELETE" value="Delete"/>
+  <locale name="VET_BTN_DOWNLOAD_PDF" value="Download PDF"/>
+  <locale name="VET_BTN_MARK_DONE" value="Mark as done"/>
+  <locale name="VET_BTN_MARK_HANDLED" value="Mark as handled"/>
+  <locale name="VET_BTN_MARK_PAID" value="Mark as paid"/>
+  <locale name="VET_BTN_NEW_APT" value="New appointment"/>
+  <locale name="VET_BTN_NEW_OWNER" value="New owner"/>
+  <locale name="VET_BTN_NEW_PET" value="New pet"/>
+  <locale name="VET_BTN_NEW_VACCINATION" value="Register vaccination"/>
+  <locale name="VET_BTN_NEW_VISIT" value="New visit"/>
+  <locale name="VET_BTN_REFRESH" value="Refresh"/>
+  <locale name="VET_BTN_REJECT" value="Reject"/>
+  <locale name="VET_BTN_REQUEST_APT" value="Request an appointment"/>
+  <locale name="VET_BTN_UPLOAD" value="Upload a document"/>
+  <locale name="VET_BTN_VIEW_INVOICE" value="View invoice"/>
+  <locale name="VET_COL_AGE" value="Age (years)"/>
+  <locale name="VET_COL_AMOUNT" value="Amount (EUR)"/>
+  <locale name="VET_COL_APPLIED" value="Applied on"/>
+  <locale name="VET_COL_BREED" value="Breed"/>
+  <locale name="VET_COL_CONCEPT" value="Concept"/>
+  <locale name="VET_COL_DATE" value="Date"/>
+  <locale name="VET_COL_DESCRIPTION" value="Description"/>
+  <locale name="VET_COL_DIAGNOSIS" value="Diagnosis"/>
+  <locale name="VET_COL_FEE" value="Fee (EUR)"/>
+  <locale name="VET_COL_FILE" value="File"/>
+  <locale name="VET_COL_INVOICE" value="Invoice"/>
+  <locale name="VET_COL_NEXT_DOSE" value="Next dose"/>
+  <locale name="VET_COL_NEXT_VACCINE" value="Next vaccine"/>
+  <locale name="VET_COL_ORIGIN" value="Origin"/>
+  <locale name="VET_COL_OWNER" value="Owner"/>
+  <locale name="VET_COL_PET" value="Pet"/>
+  <locale name="VET_COL_PETS" value="Pets"/>
+  <locale name="VET_COL_PREFERRED_DATE" value="Preferred date"/>
+  <locale name="VET_COL_QUANTITY" value="Qty"/>
+  <locale name="VET_COL_REASON" value="Reason"/>
+  <locale name="VET_COL_RECEIVED" value="Received"/>
+  <locale name="VET_COL_REGISTERED" value="Registered"/>
+  <locale name="VET_COL_REQUESTER" value="Requested by"/>
+  <locale name="VET_COL_SEX" value="Sex"/>
+  <locale name="VET_COL_SIGN_IN" value="Can sign in"/>
+  <locale name="VET_COL_SPECIES" value="Species"/>
+  <locale name="VET_COL_STATUS" value="Status"/>
+  <locale name="VET_COL_TIME" value="Time"/>
+  <locale name="VET_COL_TREATMENT" value="Treatment"/>
+  <locale name="VET_COL_TYPE" value="Type"/>
+  <locale name="VET_COL_UNIT_PRICE" value="Unit price (EUR)"/>
+  <locale name="VET_COL_VACCINE" value="Vaccine"/>
+  <locale name="VET_COL_VET" value="Veterinarian"/>
+  <locale name="VET_COL_WEIGHT" value="Weight (kg)"/>
+  <locale name="VET_CONTACT_ADDRESS" value="Calle de la Esperanza 24, 28012 Madrid"/>
+  <locale name="VET_CONTACT_EMAIL" value="hello@happypaws.example"/>
+  <locale name="VET_CONTACT_PHONE" value="+34 910 000 000"/>
+  <locale name="VET_CONTACT_TITLE" value="Find us"/>
+  <locale name="VET_DAY_SATURDAY" value="Saturday"/>
+  <locale name="VET_DAY_SUNDAY" value="Sunday"/>
+  <locale name="VET_DAY_WEEK" value="Monday to Friday"/>
+  <locale name="VET_DOC_PANEL" value="Upload a document"/>
+  <locale name="VET_DOC_TYPE_LAB" value="Lab results"/>
+  <locale name="VET_DOC_TYPE_OTHER" value="Other"/>
+  <locale name="VET_DOC_TYPE_REPORT" value="Report"/>
+  <locale name="VET_DOC_TYPE_XRAY" value="X-ray"/>
+  <locale name="VET_DSH_CHART_REVENUE" value="Revenue per month (EUR)"/>
+  <locale name="VET_DSH_CHART_REVENUE_SERIE" value="Revenue"/>
+  <locale name="VET_DSH_CHART_SPECIES" value="Patients by species"/>
+  <locale name="VET_DSH_CHART_SPECIES_SERIE" value="Patients"/>
+  <locale name="VET_DSH_CHART_VISITS" value="Visits per month"/>
+  <locale name="VET_DSH_CHART_VISITS_SERIE" value="Visits"/>
+  <locale name="VET_DSH_DUE" value="Vaccinations to renew"/>
+  <locale name="VET_DSH_OVERDUE" value="Overdue vaccinations"/>
+  <locale name="VET_DSH_PETS" value="Active patients"/>
+  <locale name="VET_DSH_REQUESTS" value="Web requests to answer"/>
+  <locale name="VET_DSH_REVENUE" value="Revenue, last 30 days"/>
+  <locale name="VET_DSH_VISITS" value="Visits, last 30 days"/>
+  <locale name="VET_DSH_VS_PREVIOUS" value="vs. previous 30 days"/>
+  <locale name="VET_FLD_ADDRESS" value="Address"/>
+  <locale name="VET_FLD_BIRTH_DATE" value="Birth date"/>
+  <locale name="VET_FLD_CITY" value="City"/>
+  <locale name="VET_FLD_EMAIL" value="Email"/>
+  <locale name="VET_FLD_FEE" value="Fee"/>
+  <locale name="VET_FLD_FILE" value="File"/>
+  <locale name="VET_FLD_FULL_NAME" value="Full name"/>
+  <locale name="VET_FLD_INV_NUMBER" value="Invoice number"/>
+  <locale name="VET_FLD_MICROCHIP" value="Microchip"/>
+  <locale name="VET_FLD_NOTES" value="Notes"/>
+  <locale name="VET_FLD_PERIOD" value="Period"/>
+  <locale name="VET_FLD_PET_NAME" value="Name"/>
+  <locale name="VET_FLD_PHONE" value="Phone"/>
+  <locale name="VET_FLD_PREFERRED_DATE" value="Preferred date"/>
+  <locale name="VET_FLD_PREFERRED_TIME" value="Preferred time"/>
+  <locale name="VET_FLD_SUBTOTAL" value="Subtotal"/>
+  <locale name="VET_FLD_TOTAL" value="Total"/>
+  <locale name="VET_FLD_VAT" value="VAT (21%)"/>
+  <locale name="VET_FLD_WEIGHT" value="Weight"/>
+  <locale name="VET_FOOTER" value="Happy Paws is a demo clinic of the AWE sample applications. Staff and pet owners: sign in to open your area."/>
+  <locale name="VET_HOME_EYEBROW" value="Care for every member of the family"/>
+  <locale name="VET_HOME_HEADLINE" value="Healthy pets, happy families"/>
+  <locale name="VET_HOME_LEAD" value="Check-ups, vaccinations, surgery and emergencies in one friendly clinic. Ask for an appointment in a minute or sign in to follow the health of your pets."/>
+  <locale name="VET_HOME_OWNER_AREA" value="Pet owner area"/>
+  <locale name="VET_HOME_REQUEST" value="Request an appointment"/>
+  <locale name="VET_HOME_SIGN_IN" value="Sign in"/>
+  <locale name="VET_HOME_TITLE" value="Happy Paws Veterinary Clinic"/>
+  <locale name="VET_HOURS_TITLE" value="Opening hours"/>
+  <locale name="VET_INV_CONCEPT_CLINIC" value="Clinic fee"/>
+  <locale name="VET_INV_CONCEPT_MATERIALS" value="Materials and medication"/>
+  <locale name="VET_INV_CONCEPT_VISIT" value="Veterinary visit"/>
+  <locale name="VET_INV_PANEL" value="Invoice"/>
+  <locale name="VET_INV_STATUS_OVERDUE" value="Overdue"/>
+  <locale name="VET_INV_STATUS_PAID" value="Paid"/>
+  <locale name="VET_INV_STATUS_PENDING" value="Pending"/>
+  <locale name="VET_LOGIN_DEMO" value="Demo: dr.garcia / vetdemo (staff) or ana / petdemo (owner). All users are on the home page."/>
+  <locale name="VET_LOGIN_PANEL_TITLE" value="Care for every member of the family"/>
+  <locale name="VET_LOGIN_SUBTITLE" value="Sign in to manage the clinic or to check on your furry family."/>
+  <locale name="VET_LOGIN_TITLE" value="Welcome back to Happy Paws!"/>
+  <locale name="VET_MENU_ADMINISTRATION" value="Administration"/>
+  <locale name="VET_MENU_APPOINTMENTS" value="Appointment book"/>
+  <locale name="VET_MENU_CLINIC" value="The clinic"/>
+  <locale name="VET_MENU_DASHBOARD" value="Today's patients"/>
+  <locale name="VET_MENU_DOCUMENTS" value="Documents"/>
+  <locale name="VET_MENU_HOME" value="Home"/>
+  <locale name="VET_MENU_INVOICES" value="Invoices"/>
+  <locale name="VET_MENU_MY_APPOINTMENTS" value="My appointments"/>
+  <locale name="VET_MENU_MY_AREA" value="My area"/>
+  <locale name="VET_MENU_MY_HOME" value="My pets' corner"/>
+  <locale name="VET_MENU_MY_INVOICES" value="My invoices"/>
+  <locale name="VET_MENU_MY_PETS" value="My pets"/>
+  <locale name="VET_MENU_MY_VACCINATIONS" value="Vaccinations"/>
+  <locale name="VET_MENU_OWNERS" value="Owners"/>
+  <locale name="VET_MENU_PETS" value="Our patients"/>
+  <locale name="VET_MENU_REQUEST" value="Request an appointment"/>
+  <locale name="VET_MENU_REQUESTS" value="Web requests"/>
+  <locale name="VET_MENU_VACCINATIONS" value="Vaccinations"/>
+  <locale name="VET_MENU_VISITS" value="Visits"/>
+  <locale name="VET_MY_APT_PANEL" value="Request an appointment"/>
+  <locale name="VET_MY_INVOICE_DUE" value="Pending payment"/>
+  <locale name="VET_MY_NEXT_APT" value="Next appointment"/>
+  <locale name="VET_MY_PETS_CARD" value="My pets"/>
+  <locale name="VET_MY_UPCOMING" value="Upcoming appointments"/>
+  <locale name="VET_MY_VAC_DUE" value="Vaccines due within 30 days"/>
+  <locale name="VET_OWN_PANEL" value="Owner"/>
+  <locale name="VET_PDF_AMOUNT" value="Amount"/>
+  <locale name="VET_PDF_BILLED_TO" value="Billed to"/>
+  <locale name="VET_PDF_CLINIC_NAME" value="Happy Paws"/>
+  <locale name="VET_PDF_CLINIC_SUBTITLE" value="Veterinary Clinic"/>
+  <locale name="VET_PDF_CONCEPT" value="Concept"/>
+  <locale name="VET_PDF_DATE" value="Date"/>
+  <locale name="VET_PDF_DETAILS" value="Invoice details"/>
+  <locale name="VET_PDF_INVOICE" value="INVOICE"/>
+  <locale name="VET_PDF_NOT_FOUND_MESSAGE" value="The invoice does not exist or is not one of yours."/>
+  <locale name="VET_PDF_NOT_FOUND_TITLE" value="Invoice not found"/>
+  <locale name="VET_PDF_PAGE" value="Page"/>
+  <locale name="VET_PDF_PATIENT" value="Patient"/>
+  <locale name="VET_PDF_QUANTITY" value="Qty"/>
+  <locale name="VET_PDF_STATUS" value="Status"/>
+  <locale name="VET_PDF_SUBTOTAL" value="Subtotal"/>
+  <locale name="VET_PDF_THANKS" value="Thank you for trusting Happy Paws with your pet's care."/>
+  <locale name="VET_PDF_TOTAL" value="Total"/>
+  <locale name="VET_PDF_UNIT_PRICE" value="Unit price"/>
+  <locale name="VET_PDF_VAT" value="VAT (21%)"/>
+  <locale name="VET_PERMISSION_APPOINTMENTS" value="Appointments"/>
+  <locale name="VET_PERMISSION_DASHBOARD" value="Dashboard"/>
+  <locale name="VET_PERMISSION_DOCUMENTS" value="Documents"/>
+  <locale name="VET_PERMISSION_INVOICES" value="Invoices"/>
+  <locale name="VET_PERMISSION_OWNERS" value="Owners"/>
+  <locale name="VET_PERMISSION_PETS" value="Pets"/>
+  <locale name="VET_PERMISSION_PORTAL" value="Pet owner area"/>
+  <locale name="VET_PERMISSION_REQUESTS" value="Appointment requests"/>
+  <locale name="VET_PERMISSION_VACCINATIONS" value="Vaccinations"/>
+  <locale name="VET_PERMISSION_VISITS" value="Visits and medical history"/>
+  <locale name="VET_PET_PANEL" value="Pet"/>
+  <locale name="VET_REQ_LEAD" value="Tell us about your pet and when it suits you. We will contact you to confirm the appointment."/>
+  <locale name="VET_REQ_NAME" value="Your name"/>
+  <locale name="VET_REQ_PET_NAME" value="Name of your pet"/>
+  <locale name="VET_REQ_SEND" value="Send request"/>
+  <locale name="VET_REQ_STATUS_HANDLED" value="Handled"/>
+  <locale name="VET_REQ_STATUS_PENDING" value="Pending"/>
+  <locale name="VET_REQ_STATUS_REJECTED" value="Rejected"/>
+  <locale name="VET_REQ_TITLE" value="Request an appointment"/>
+  <locale name="VET_SEARCH_APT_PH" value="Pet or owner"/>
+  <locale name="VET_SEARCH_DOC_PH" value="Pet or description"/>
+  <locale name="VET_SEARCH_INV_PH" value="Owner or pet"/>
+  <locale name="VET_SEARCH_OWNERS" value="Search owners"/>
+  <locale name="VET_SEARCH_OWNERS_PH" value="Name, email or city"/>
+  <locale name="VET_SEARCH_PETS" value="Search"/>
+  <locale name="VET_SEARCH_PETS_PH" value="Pet, owner, breed or microchip"/>
+  <locale name="VET_SEARCH_VISITS_LABEL" value="Search"/>
+  <locale name="VET_SEARCH_VISITS_PH" value="Pet, owner or diagnosis"/>
+  <locale name="VET_SEC_BILLING" value="Billing"/>
+  <locale name="VET_SEC_CONTACT" value="Contact"/>
+  <locale name="VET_SEC_INVOICE" value="Invoice"/>
+  <locale name="VET_SEC_INVOICE_LINES" value="Lines"/>
+  <locale name="VET_SEC_INVOICE_TOTALS" value="Totals"/>
+  <locale name="VET_SEC_MEDICAL" value="Medical record"/>
+  <locale name="VET_SEC_PET" value="Pet"/>
+  <locale name="VET_SEC_VISIT" value="Visit"/>
+  <locale name="VET_SERVICES_LEAD" value="Everything your pet needs, from the first vaccine to senior care."/>
+  <locale name="VET_SERVICES_TITLE" value="What we do"/>
+  <locale name="VET_SEX_F" value="Female"/>
+  <locale name="VET_SEX_M" value="Male"/>
+  <locale name="VET_SPECIES_BIRD" value="Bird"/>
+  <locale name="VET_SPECIES_CAT" value="Cat"/>
+  <locale name="VET_SPECIES_DOG" value="Dog"/>
+  <locale name="VET_SPECIES_RABBIT" value="Rabbit"/>
+  <locale name="VET_SPECIES_REPTILE" value="Reptile"/>
+  <locale name="VET_STAT_1_LABEL" value="Emergency care"/>
+  <locale name="VET_STAT_1_VALUE" value="24/7"/>
+  <locale name="VET_STAT_2_LABEL" value="Caring for pets"/>
+  <locale name="VET_STAT_2_VALUE" value="15 years"/>
+  <locale name="VET_STAT_3_LABEL" value="Happy patients"/>
+  <locale name="VET_STAT_3_VALUE" value="4,800+"/>
+  <locale name="VET_SVC_CHECKUP" value="Check-ups"/>
+  <locale name="VET_SVC_CHECKUP_TEXT" value="Routine exams, blood tests and nutrition advice to keep them in shape."/>
+  <locale name="VET_SVC_DENTAL" value="Dental care"/>
+  <locale name="VET_SVC_DENTAL_TEXT" value="Cleaning and treatment for a healthy mouth and fresh breath."/>
+  <locale name="VET_SVC_EMERGENCY" value="Emergencies"/>
+  <locale name="VET_SVC_EMERGENCY_TEXT" value="A vet on call every day of the year, also at night."/>
+  <locale name="VET_SVC_EXOTIC" value="Exotic animals"/>
+  <locale name="VET_SVC_EXOTIC_TEXT" value="Rabbits, birds and reptiles are welcome, with a specialist vet."/>
+  <locale name="VET_SVC_SURGERY" value="Surgery"/>
+  <locale name="VET_SVC_SURGERY_TEXT" value="Modern operating room, safe anaesthesia and careful recovery."/>
+  <locale name="VET_SVC_VACCINES" value="Vaccinations"/>
+  <locale name="VET_SVC_VACCINES_TEXT" value="Personal vaccination calendar with a reminder before every booster."/>
+  <locale name="VET_TEAM_1_INI" value="EG"/>
+  <locale name="VET_TEAM_1_NAME" value="Dr. Elena Garcia"/>
+  <locale name="VET_TEAM_1_ROLE" value="Internal medicine"/>
+  <locale name="VET_TEAM_2_INI" value="ML"/>
+  <locale name="VET_TEAM_2_NAME" value="Dr. Marcos Lopez"/>
+  <locale name="VET_TEAM_2_ROLE" value="Surgery"/>
+  <locale name="VET_TEAM_3_INI" value="CM"/>
+  <locale name="VET_TEAM_3_NAME" value="Dr. Claire Martin"/>
+  <locale name="VET_TEAM_3_ROLE" value="Exotic animals"/>
+  <locale name="VET_TEAM_TITLE" value="Meet the team"/>
+  <locale name="VET_TIME_SATURDAY" value="10:00 - 14:00"/>
+  <locale name="VET_TIME_SUNDAY" value="Emergencies only"/>
+  <locale name="VET_TIME_WEEK" value="9:00 - 20:00"/>
+  <locale name="VET_VACCINE_FELINE_LEUKEMIA" value="Feline leukaemia"/>
+  <locale name="VET_VACCINE_KENNEL_COUGH" value="Kennel cough"/>
+  <locale name="VET_VACCINE_MYXOMATOSIS" value="Myxomatosis"/>
+  <locale name="VET_VACCINE_POLYVALENT" value="Polyvalent"/>
+  <locale name="VET_VACCINE_RABIES" value="Rabies"/>
+  <locale name="VET_VAC_PANEL" value="Register vaccination"/>
+  <locale name="VET_VAC_STATUS_DUE_SOON" value="Due soon"/>
+  <locale name="VET_VAC_STATUS_OVERDUE" value="Overdue"/>
+  <locale name="VET_VAC_STATUS_UP_TO_DATE" value="Up to date"/>
+  <locale name="VET_VISIT_CHECKUP" value="Check-up"/>
+  <locale name="VET_VISIT_DENTAL" value="Dental care"/>
+  <locale name="VET_VISIT_EMERGENCY" value="Emergency"/>
+  <locale name="VET_VISIT_SURGERY" value="Surgery"/>
+  <locale name="VET_VISIT_VACCINATION" value="Vaccination"/>
+  <locale name="VET_VIS_PANEL" value="Visit"/>
+  <locale name="VET_YES_NO_0" value="No"/>
+  <locale name="VET_YES_NO_1" value="Yes"/>
+  <locale name="VET_DEMO_TITLE" value="Try the demo"/>
+  <locale name="VET_DEMO_LEAD" value="These are sample users of a demo: sign in with any of them to see what each role can do."/>
+  <locale name="VET_DEMO_COL_USER" value="User"/>
+  <locale name="VET_DEMO_COL_PASS" value="Password"/>
+  <locale name="VET_DEMO_COL_ROLE" value="What this user sees"/>
+  <locale name="VET_DEMO_NOTE" value="Sample credentials, valid only in this demo. Never use them in a real deployment."/>
+  <locale name="VET_DEMO_U1_USER" value="dr.garcia"/>
+  <locale name="VET_DEMO_U1_PASS" value="vetdemo"/>
+  <locale name="VET_DEMO_U1_ROLE" value="Veterinarian: the whole clinic (patients, visits, invoices, dashboard)."/>
+  <locale name="VET_DEMO_U2_USER" value="dr.lopez"/>
+  <locale name="VET_DEMO_U2_PASS" value="vetdemo"/>
+  <locale name="VET_DEMO_U2_ROLE" value="Veterinarian: the whole clinic (patients, visits, invoices, dashboard). Language: Spanish."/>
+  <locale name="VET_DEMO_U3_USER" value="ana"/>
+  <locale name="VET_DEMO_U3_PASS" value="petdemo"/>
+  <locale name="VET_DEMO_U3_ROLE" value="Pet owner: only their own pets, appointments and invoices. Language: Spanish."/>
+  <locale name="VET_DEMO_U4_USER" value="luis"/>
+  <locale name="VET_DEMO_U4_PASS" value="petdemo"/>
+  <locale name="VET_DEMO_U4_ROLE" value="Pet owner: only their own pets, appointments and invoices."/>
+  <locale name="VET_DEMO_U5_USER" value="marie"/>
+  <locale name="VET_DEMO_U5_PASS" value="petdemo"/>
+  <locale name="VET_DEMO_U5_ROLE" value="Pet owner: only their own pets, appointments and invoices. Language: French."/>
+  <locale name="VET_DEMO_ADM_USER" value="test"/>
+  <locale name="VET_DEMO_ADM_PASS" value="test"/>
+  <locale name="VET_DEMO_ADMIN_ROLE" value="AWE administrator: users, profiles and screen access. Demo only."/>
+  <locale name="VET_PHOTO_DOG" value="A happy golden retriever, ready for its check-up"/>
+  <locale name="VET_PHOTO_CAT" value="Cats are welcome too"/>
+  <locale name="VET_PHOTO_EXAM" value="A gentle check-up on the exam table"/>
+  <locale name="VET_PHOTO_DACHSHUND" value="A dachshund gets a dental check"/>
+  <locale name="VET_PHOTO_PUPPY" value="A puppy waiting for its first visit"/>
+  <locale name="VET_GALLERY_TITLE" value="Every pet is family"/>
+  <locale name="VET_GALLERY_LEAD" value="A calm place, gentle hands and a treat at the end."/>
+</locales>

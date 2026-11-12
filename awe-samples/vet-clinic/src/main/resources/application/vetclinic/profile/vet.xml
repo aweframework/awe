@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet.xml
+    Description: Profile of the clinic staff (veterinarians and reception): the whole clinic, nothing of the pet owner
+                 area and none of the AWE administration
+-->
+<profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/profile.xsd">
+  <restriction option="my-section"/>
+  <restriction option="vet-my-home"/>
+  <restriction option="vet-my-pets"/>
+  <restriction option="vet-my-appointments"/>
+  <restriction option="vet-my-vaccinations"/>
+  <restriction option="vet-my-invoices"/>
+  <restriction option="administration"/>
+  <restriction option="tools"/>
+  <restriction option="settings"/>
+  <permission id="owners.*"/>
+  <permission id="pets.*"/>
+  <permission id="visits.*"/>
+  <permission id="appointments.*"/>
+  <permission id="requests.*"/>
+  <permission id="vaccinations.*"/>
+  <permission id="documents.*"/>
+  <permission id="invoices.*"/>
+  <permission id="dashboard.*"/>
+</profile>

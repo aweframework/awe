@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : hd-home.xml
+    Description: Public support portal (no sign-in): status of the services, popular articles and the knowledge base, ticket check, sign-in actions and the support chat (open a ticket without signing in)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="HD_HOME_TITLE">
+  <tag source="center">
+    <tag type="div" id="hd-landing" style="hd-landing">
+      <tag type="header" style="hd-topbar">
+        <tag type="div" style="hd-brand">
+          <tag type="span" style="hd-brand-name" label="HD_BRAND"/>
+        </tag>
+        <tag type="nav" style="hd-topbar-actions">
+          <tag type="div" style="awe-preferences"/>
+          <button label="HD_HOME_KB" icon="lucide:book-open" id="ButTopKb" style="btn-ghost">
+            <button-action type="screen" target="/screen/hd-kb"/>
+          </button>
+          <button label="HD_HOME_CHECK" icon="lucide:search" id="ButTopCheck" style="btn-ghost">
+            <button-action type="screen" target="/screen/hd-check"/>
+          </button>
+          <button label="HD_HOME_SIGN_IN" icon="lucide:log-in" id="ButTopLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+        </tag>
+      </tag>
+      <tag type="section" style="hd-hero">
+        <tag type="figure" style="hd-hero-avatar">
+          <image id="ImgHeroAgent" url="/images/photos/hd-agent-1200.webp" alternate-url="" style="hd-photo"/>
+        </tag>
+        <tag type="div" style="hd-hero-copy">
+          <tag type="p" style="hd-eyebrow" label="HD_HOME_EYEBROW"/>
+          <tag type="h1" label="HD_HOME_HEADLINE"/>
+          <tag type="p" style="hd-lead" label="HD_HOME_LEAD"/>
+          <tag type="div" style="hd-search-pill">
+            <button label="HD_HOME_SEARCH" icon="lucide:search" id="ButHeroSearch" style="btn-lg hd-search-button">
+              <button-action type="screen" target="/screen/hd-kb"/>
+            </button>
+          </tag>
+          <tag type="div" style="hd-hero-actions">
+            <button label="HD_HOME_KB" icon="lucide:book-open" id="ButHeroKb" style="btn-primary btn-lg">
+              <button-action type="screen" target="/screen/hd-kb"/>
+            </button>
+            <button label="HD_HOME_CHECK" icon="lucide:ticket" id="ButHeroCheck" style="btn-lg">
+              <button-action type="screen" target="/screen/hd-check"/>
+            </button>
+          </tag>
+          <tag type="p" style="hd-hero-note" label="HD_PHOTO_AGENT" icon="lucide:headset"/>
+        </tag>
+      </tag>
+      <tag type="section" style="hd-section hd-demo">
+        <tag type="h2" style="hd-card-title" label="HD_DEMO_TITLE" icon="lucide:key-round"/>
+        <tag type="p" style="hd-section-lead" label="HD_DEMO_LEAD"/>
+        <tag type="div" style="hd-demo-table">
+          <tag type="div" style="hd-demo-row hd-demo-head">
+            <tag type="span" label="HD_DEMO_COL_USER"/>
+            <tag type="span" label="HD_DEMO_COL_PASS"/>
+            <tag type="span" label="HD_DEMO_COL_ROLE"/>
+          </tag>
+          <tag type="div" style="hd-demo-row">
+            <tag type="strong" style="hd-demo-user" label="HD_DEMO_U1_USER"/>
+            <tag type="span" style="hd-demo-pass" label="HD_DEMO_U1_PASS"/>
+            <tag type="span" style="hd-demo-role" label="HD_DEMO_U1_ROLE"/>
+          </tag>
+          <tag type="div" style="hd-demo-row">
+            <tag type="strong" style="hd-demo-user" label="HD_DEMO_U2_USER"/>
+            <tag type="span" style="hd-demo-pass" label="HD_DEMO_U2_PASS"/>
+            <tag type="span" style="hd-demo-role" label="HD_DEMO_U2_ROLE"/>
+          </tag>
+          <tag type="div" style="hd-demo-row">
+            <tag type="strong" style="hd-demo-user" label="HD_DEMO_U3_USER"/>
+            <tag type="span" style="hd-demo-pass" label="HD_DEMO_U3_PASS"/>
+            <tag type="span" style="hd-demo-role" label="HD_DEMO_U3_ROLE"/>
+          </tag>
+          <tag type="div" style="hd-demo-row">
+            <tag type="strong" style="hd-demo-user" label="HD_DEMO_U4_USER"/>
+            <tag type="span" style="hd-demo-pass" label="HD_DEMO_U4_PASS"/>
+            <tag type="span" style="hd-demo-role" label="HD_DEMO_U4_ROLE"/>
+          </tag>
+          <tag type="div" style="hd-demo-row">
+            <tag type="strong" style="hd-demo-user" label="HD_DEMO_U5_USER"/>
+            <tag type="span" style="hd-demo-pass" label="HD_DEMO_U5_PASS"/>
+            <tag type="span" style="hd-demo-role" label="HD_DEMO_U5_ROLE"/>
+          </tag>
+          <tag type="div" style="hd-demo-row">
+            <tag type="strong" style="hd-demo-user" label="HD_DEMO_U6_USER"/>
+            <tag type="span" style="hd-demo-pass" label="HD_DEMO_U6_PASS"/>
+            <tag type="span" style="hd-demo-role" label="HD_DEMO_U6_ROLE"/>
+          </tag>
+          <tag type="div" style="hd-demo-row">
+            <tag type="strong" style="hd-demo-user" label="HD_DEMO_U7_USER"/>
+            <tag type="span" style="hd-demo-pass" label="HD_DEMO_U7_PASS"/>
+            <tag type="span" style="hd-demo-role" label="HD_DEMO_U7_ROLE"/>
+          </tag>
+          <tag type="div" style="hd-demo-row">
+            <tag type="strong" style="hd-demo-user" label="HD_DEMO_ADM_USER"/>
+            <tag type="span" style="hd-demo-pass" label="HD_DEMO_ADM_PASS"/>
+            <tag type="span" style="hd-demo-role" label="HD_DEMO_ADMIN_ROLE"/>
+          </tag>
+        </tag>
+        <tag type="p" style="hd-demo-public" label="HD_DEMO_PUBLIC"/>
+        <tag type="div" style="hd-demo-actions">
+          <button label="HD_HOME_SIGN_IN" icon="lucide:log-in" id="ButDemoLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+          <tag type="p" style="hd-demo-note" label="HD_DEMO_NOTE"/>
+        </tag>
+      </tag>
+      <tag type="section" style="hd-section">
+        <tag type="h2" label="HD_SERVICES_TITLE"/>
+        <tag type="div" style="hd-panel">
+          <grid id="GrdSvc" initial-load="query" server-action="data" target-action="HdkSvcPub" max="10" pagination-disabled="true" show-toolbar="false">
+            <column label="HD_COL_SERVICE" name="Nam" align="left" charlength="20" width="*" sendable="false"/>
+            <column label="HD_COL_STATUS" name="StaTxt" sort-field="StaTxt" align="left" charlength="14" status-field="Ton" sendable="false"/>
+            <column name="Sta" hidden="true" sendable="false"/>
+          </grid>
+        </tag>
+      </tag>
+      <tag type="section" style="hd-section">
+        <tag type="h2" label="HD_POPULAR_TITLE"/>
+        <tag type="div" style="hd-panel">
+          <grid id="GrdPop" initial-load="query" server-action="data" target-action="HdkArtPub" max="5" pagination-disabled="true" show-toolbar="false">
+            <column label="HD_COL_TITLE" name="Tit" align="left" charlength="34" width="*" sendable="false"/>
+            <column label="HD_COL_CATEGORY" name="CatTxt" align="left" charlength="14" sendable="false"/>
+            <column label="HD_COL_VIEWS" name="Vws" align="right" charlength="8" sendable="false"/>
+            <column name="Txt" hidden="true" sendable="false"/>
+            <column name="Cat" hidden="true" sendable="false"/>
+            <column name="IdeArt" hidden="true" sendable="false"/>
+          </grid>
+        </tag>
+      </tag>
+      <tag type="section" style="hd-section hd-human-section">
+        <tag type="h2" label="HD_HUMAN_TITLE"/>
+        <tag type="p" style="hd-section-lead" label="HD_HUMAN_LEAD"/>
+        <tag type="div" style="hd-human">
+          <tag type="figure" style="hd-human-item">
+            <image id="ImgHumTeam" url="/images/photos/hd-team-600.webp" alternate-url="" style="hd-photo"/>
+            <tag type="figcaption" label="HD_PHOTO_TEAM"/>
+          </tag>
+          <tag type="figure" style="hd-human-item">
+            <image id="ImgHumOffice" url="/images/photos/hd-office-600.webp" alternate-url="" style="hd-photo"/>
+            <tag type="figcaption" label="HD_PHOTO_OFFICE"/>
+          </tag>
+          <tag type="figure" style="hd-human-item">
+            <image id="ImgHumLaptop" url="/images/photos/hd-laptop-600.webp" alternate-url="" style="hd-photo"/>
+            <tag type="figcaption" label="HD_PHOTO_LAPTOP"/>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="footer" style="hd-footer">
+        <tag type="p" label="HD_FOOTER"/>
+      </tag>
+      <widget type="support-chat" id="WdgSupportChat"/>
+    </tag>
+  </tag>
+</screen>

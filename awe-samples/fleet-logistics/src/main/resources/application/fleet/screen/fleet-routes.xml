@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-routes.xml
+    Description: Routes and their stops as a tree grid: expand a route to see its stops. Selecting a route (or one of its stops) shows its numbered stops and the road between them on the map (Java service FleetMapService, polyline client action)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FLT_MENU_ROUTES">
+  <tag source="center" expandible="vertical">
+    <tag type="div" style="expand" expandible="horizontal">
+      <window style="expand flt-routes-tree" label="FLT_MENU_ROUTES" icon="lucide:route">
+        <grid id="GrdRte" style="expand" initial-load="query" server-action="data" target-action="FltRteTree" load-all="true" treegrid="true" tree-id="id" tree-parent="parent" tree-leaf="isLeaf" expand-column="Nam" initial-level="0">
+          <column label="FLT_COL_ROUTE_STOP" name="Nam" align="left" charlength="28" sendable="false"/>
+          <column label="FLT_COL_DATE" name="RteDat" align="center" charlength="12" sendable="false"/>
+          <column label="FLT_COL_REGION" name="RegTxt" align="left" charlength="12" sendable="false"/>
+          <column label="FLT_COL_VEHICLE" name="Plt" align="left" charlength="12" sendable="false"/>
+          <column label="FLT_COL_DRIVER" name="DrvNam" align="left" charlength="18" sendable="false"/>
+          <column label="FLT_COL_STATUS" name="StaTxt" align="left" charlength="13" sendable="false"/>
+          <column name="id" hidden="true"/>
+          <column name="parent" hidden="true" sendable="false"/>
+          <column name="isLeaf" hidden="true" sendable="false"/>
+          <column name="Seq" hidden="true" sendable="false"/>
+        </grid>
+      </window>
+      <window style="expand" label="FLT_ROUTES_MAP" icon="lucide:map-pin">
+        <tag type="div" expandible="vertical" style="expand">
+          <map id="MapFltRoute" latitude="Lat" longitude="Lon" marker-label="Loc" marker-number="Seq" route-markers="true" style="expand" zoom="5" center-latitude="40.2" center-longitude="-3.7">
+            <dependency>
+              <dependency-element id="GrdRte" attribute="selectedRows" condition="eq" value="1"/>
+              <dependency-element id="GrdRte" event="select-row"/>
+              <dependency-action type="server" server-action="maintain-silent" target-action="FltRouteMap" silent="true"/>
+            </dependency>
+          </map>
+        </tag>
+      </window>
+    </tag>
+  </tag>
+</screen>

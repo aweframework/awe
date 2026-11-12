@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-owners.xml
+    Description: Owners with their pets (master-detail): grid with search, nested grid of pets in each row and a side panel to create and edit
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="VET_MENU_OWNERS" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW"/>
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE"/>
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE"/>
+    <criteria id="PnlMod" component="hidden" value="new"/>
+  </tag>
+  <tag source="buttons">
+    <button label="VET_BTN_NEW_OWNER" icon="lucide:plus" id="ButNew" style="btn-primary" permission="owners.create">
+      <button-action type="unselect-all-rows" target="GrdOwn"/>
+      <button-action type="value" target="PnlMod" value="new"/>
+      <button-action type="reset" target="Nam"/>
+      <button-action type="reset" target="Eml"/>
+      <button-action type="reset" target="Tel"/>
+      <button-action type="reset" target="Adr"/>
+      <button-action type="reset" target="Cit"/>
+      <button-action type="reset" target="Nte"/>
+      <button-action type="dialog" target="PnlOwn"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="VET_MENU_OWNERS" icon="lucide:users">
+      <grid id="GrdOwn" style="expand" initial-load="query" server-action="data" target-action="VetOwnLst" max="15">
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit"/>
+          <button-action type="dialog" target="PnlOwn" edit-permission="owners.update"/>
+        </column>
+        <search id="CrtOwnSch" label="VET_SEARCH_OWNERS" placeholder="VET_SEARCH_OWNERS_PH"/>
+        <column label="VET_COL_OWNER" name="Nam" sort-field="Nam" align="left" charlength="26" width="*" secondary-field="Eml" avatar-field="Ini" sendable="false"/>
+        <column label="VET_FLD_PHONE" name="Tel" sort-field="Tel" align="left" charlength="14" sendable="false"/>
+        <column label="VET_FLD_CITY" name="Cit" sort-field="Cit" align="left" charlength="14" sendable="false"/>
+        <column label="VET_COL_PETS" name="Pets" sort-field="Pets" align="center" charlength="8" sendable="false"/>
+        <column label="VET_COL_SIGN_IN" name="AccTxt" sort-field="AccTxt" align="left" charlength="12" sendable="false"/>
+        <column label="VET_COL_REGISTERED" name="RegDat" sort-field="RegDat" align="center" charlength="12" sendable="false"/>
+        <column name="IdeOwn" hidden="true"/>
+        <column name="Adr" hidden="true" sendable="false"/>
+        <column name="Nte" hidden="true" sendable="false"/>
+        <column name="Ini" hidden="true" sendable="false"/>
+        <column name="Acc" hidden="true" sendable="false"/>
+        <column name="Eml" hidden="true" sendable="false"/>
+        <row-detail style="row-detail-card">
+          <grid id="GrdOwnPet" server-action="data" target-action="VetOwnPetLst" max="10">
+            <column label="VET_COL_PET" name="PetNam" sort-field="PetNam" align="left" charlength="16" sendable="false"/>
+            <column label="VET_COL_SPECIES" name="SpcTxt" sort-field="SpcTxt" align="left" charlength="12" sendable="false"/>
+            <column label="VET_COL_BREED" name="Brd" sort-field="Brd" align="left" charlength="20" sendable="false"/>
+            <column label="VET_COL_SEX" name="SexTxt" sort-field="SexTxt" align="left" charlength="10" sendable="false"/>
+            <column label="VET_COL_AGE" name="Age" sort-field="Age" align="center" charlength="10" sendable="false"/>
+            <column label="VET_COL_WEIGHT" name="Wgt" sort-field="Wgt" align="right" charlength="10" sendable="false"/>
+            <column label="VET_COL_NEXT_VACCINE" name="NxtVac" sort-field="NxtVac" align="left" charlength="14" sendable="false"/>
+          </grid>
+        </row-detail>
+      </grid>
+    </window>
+    <side-panel id="PnlOwn" label="VET_OWN_PANEL" icon="lucide:user-round" max-width="40rem">
+      <tag type="div" style="panel-body" id="PnlOwnBdy">
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="VET_SEC_CONTACT"/>
+        <criteria label="VET_FLD_FULL_NAME" id="Nam" component="text" style="col-xs-12" validation="required" icon="lucide:user-round">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdOwn" column="Nam" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdOwn" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_EMAIL" id="Eml" component="text" style="col-xs-12 col-sm-6" validation="{email:true, maxlength:80}" icon="lucide:mail">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdOwn" column="Eml" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdOwn" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_PHONE" id="Tel" component="text" style="col-xs-12 col-sm-6" validation="{maxlength:20}" icon="lucide:phone">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdOwn" column="Tel" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdOwn" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_ADDRESS" id="Adr" component="text" style="col-xs-12 col-sm-8" validation="{maxlength:120}" icon="lucide:map-pin">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdOwn" column="Adr" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdOwn" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_CITY" id="Cit" component="text" style="col-xs-12 col-sm-4" validation="{maxlength:60}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdOwn" column="Cit" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdOwn" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_NOTES" id="Nte" component="textarea" style="col-xs-12" validation="{maxlength:400}" area-rows="3">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdOwn" column="Nte" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdOwn" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlOwnCnl">
+          <button-action type="close-cancel" target="PnlOwn"/>
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="lucide:save" id="ButPnlOwnUpd" style="btn-primary">
+          <button-action type="validate" target="PnlOwnBdy"/>
+          <button-action type="confirm" target="UpdMsg"/>
+          <button-action type="server" server-action="maintain" target-action="VetOwnUpd"/>
+          <button-action type="close" target="PnlOwn"/>
+          <button-action type="filter" target="GrdOwn"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit"/>
+          </dependency>
+        </button>
+        <button label="VET_BTN_CREATE" icon="lucide:check" id="ButPnlOwnNew" style="btn-primary">
+          <button-action type="validate" target="PnlOwnBdy"/>
+          <button-action type="confirm" target="NewMsg"/>
+          <button-action type="server" server-action="maintain" target-action="VetOwnNew"/>
+          <button-action type="close" target="PnlOwn"/>
+          <button-action type="filter" target="GrdOwn"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new"/>
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+</screen>

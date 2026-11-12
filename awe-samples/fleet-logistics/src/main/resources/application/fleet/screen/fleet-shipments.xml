@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-shipments.xml
+    Description: All the shipments in one grid that loads every row (load-all): column filters, a group selector (for instance destination and status) with subtotals, totals, and print or export of the list
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FLT_MENU_SHIPMENTS">
+  <tag source="buttons">
+    <button label="BUTTON_PRINT" icon="lucide:printer" id="ButPrn">
+      <button-action type="dialog" target="PrnOpt"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="FLT_MENU_SHIPMENTS" icon="lucide:package">
+      <grid id="GrdShp" style="expand" initial-load="query" server-action="data" target-action="FltShpLst" max="25" load-all="true" enable-filters="true" group-selector="true" show-totals="true">
+        <column label="FLT_COL_TRACKING" name="Cod" sort-field="Cod" align="left" charlength="14" secondary-field="CusNam" sendable="false"/>
+        <column label="FLT_COL_DESTINATION" name="DstTxt" sort-field="DstTxt" align="left" charlength="11" sendable="false"/>
+        <column label="FLT_COL_CITY" name="DstCit" sort-field="DstCit" align="left" charlength="11" sendable="false"/>
+        <column label="FLT_COL_STATUS" name="StaTxt" sort-field="StaTxt" align="left" charlength="16" status-field="Ton" sendable="false"/>
+        <column label="FLT_COL_PRIORITY" name="PriTxt" sort-field="PriTxt" align="left" charlength="10" sendable="false"/>
+        <column label="FLT_COL_WEIGHT" name="Wgt" sort-field="Wgt" align="right" charlength="11" sendable="false" summary-type="sum"/>
+        <column label="FLT_COL_FEE" name="Fee" sort-field="Fee" align="right" charlength="11" sendable="false" summary-type="sum"/>
+        <column label="FLT_COL_CREATED" name="CreDat" sort-field="CreDat" align="center" charlength="11" sendable="false"/>
+        <column label="FLT_COL_ETA" name="Eta" sort-field="Eta" align="center" charlength="17" sendable="false"/>
+        <column name="IdeShp" hidden="true" sendable="false"/>
+        <column name="Ton" hidden="true" sendable="false"/>
+        <column name="CusNam" hidden="true" sendable="false"/>
+        <column name="DstPst" hidden="true" sendable="false"/>
+      </grid>
+    </window>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center"/>
+  </tag>
+</screen>

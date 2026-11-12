@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Locale-fr-FR.xml
+    Description: Texts of the fleet application (fr-FR)
+-->
+<locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
+  <locale name="APP_CLIENT" value="Meridian Freight"/>
+  <locale name="APP_NAME" value="Meridian Freight"/>
+  <locale name="FLT_BRAND" value="Meridian Freight"/>
+  <locale name="FLT_BTN_BACK_HOME" value="Retour à l'accueil"/>
+  <locale name="FLT_BTN_CANCEL_PICKUP" value="Annuler l'enlèvement"/>
+  <locale name="FLT_BTN_CREATE" value="Créer"/>
+  <locale name="FLT_BTN_DELETE" value="Supprimer"/>
+  <locale name="FLT_BTN_HANDLED" value="Marquer comme traitée"/>
+  <locale name="FLT_BTN_NEW_DRIVER" value="Nouveau chauffeur"/>
+  <locale name="FLT_BTN_NEW_VEHICLE" value="Nouveau véhicule"/>
+  <locale name="FLT_BTN_REFRESH" value="Actualiser"/>
+  <locale name="FLT_BTN_REQUEST_PICKUP" value="Demander un enlèvement"/>
+  <locale name="FLT_BTN_SAVE_ASSIGNMENTS" value="Enregistrer les affectations"/>
+  <locale name="FLT_COL_ADDRESS" value="Adresse d'enlèvement"/>
+  <locale name="FLT_COL_AMOUNT" value="Montant (EUR)"/>
+  <locale name="FLT_COL_BASE_REGION" value="Région de base"/>
+  <locale name="FLT_COL_CAPACITY" value="Capacité"/>
+  <locale name="FLT_COL_CAPACITY_KG" value="Capacité (kg)"/>
+  <locale name="FLT_COL_CITY" value="Ville"/>
+  <locale name="FLT_COL_CREATED" value="Créé"/>
+  <locale name="FLT_COL_CUSTOMER" value="Client"/>
+  <locale name="FLT_COL_DATE" value="Date"/>
+  <locale name="FLT_COL_DESTINATION" value="Destination"/>
+  <locale name="FLT_COL_DRIVER" value="Chauffeur"/>
+  <locale name="FLT_COL_ETA" value="Arrivée estimée"/>
+  <locale name="FLT_COL_FEE" value="Prix (EUR)"/>
+  <locale name="FLT_COL_FROM" value="Origine"/>
+  <locale name="FLT_COL_INVOICE" value="Facture"/>
+  <locale name="FLT_COL_LICENCE" value="Permis"/>
+  <locale name="FLT_COL_MAINTENANCE" value="Entretien"/>
+  <locale name="FLT_COL_MILEAGE" value="Kilométrage"/>
+  <locale name="FLT_COL_MILEAGE_KM" value="Kilométrage (km)"/>
+  <locale name="FLT_COL_NAME" value="Nom"/>
+  <locale name="FLT_COL_NEXT_SERVICE" value="Prochain entretien"/>
+  <locale name="FLT_COL_NOTES" value="Notes"/>
+  <locale name="FLT_COL_PHONE" value="Téléphone"/>
+  <locale name="FLT_COL_PICKUP_DATE" value="Date d'enlèvement"/>
+  <locale name="FLT_COL_PIECES" value="Colis"/>
+  <locale name="FLT_COL_PLATE" value="Immatriculation"/>
+  <locale name="FLT_COL_PRIORITY" value="Priorité"/>
+  <locale name="FLT_COL_RECEIVED" value="Reçue"/>
+  <locale name="FLT_COL_REGION" value="Région"/>
+  <locale name="FLT_COL_REQUESTER" value="Demandeur"/>
+  <locale name="FLT_COL_ROUTE" value="Itinéraire"/>
+  <locale name="FLT_COL_ROUTE_STOP" value="Itinéraire / arrêt"/>
+  <locale name="FLT_COL_STATUS" value="Statut"/>
+  <locale name="FLT_COL_TO" value="Destination"/>
+  <locale name="FLT_COL_TRACKING" value="Code de suivi"/>
+  <locale name="FLT_COL_TYPE" value="Type"/>
+  <locale name="FLT_COL_VEHICLE" value="Véhicule"/>
+  <locale name="FLT_COL_WEIGHT" value="Poids (kg)"/>
+  <locale name="FLT_COL_WEIGHT_TOTAL" value="Poids total"/>
+  <locale name="FLT_COVERAGE_TITLE" value="Couverture"/>
+  <locale name="FLT_DRIVER_ACTIVE" value="Actif"/>
+  <locale name="FLT_DRIVER_ON_LEAVE" value="En congé"/>
+  <locale name="FLT_DRV_PANEL" value="Chauffeur"/>
+  <locale name="FLT_DSH_CHART_DAY" value="Livraisons par jour"/>
+  <locale name="FLT_DSH_CHART_FLEET" value="État de la flotte"/>
+  <locale name="FLT_DSH_CHART_REGION" value="Colis par région"/>
+  <locale name="FLT_DSH_CHART_WEEK" value="Livraisons à l'heure par semaine"/>
+  <locale name="FLT_DSH_DELAYED" value="Colis en retard"/>
+  <locale name="FLT_DSH_DELIVERED" value="Livrés, 7 derniers jours"/>
+  <locale name="FLT_DSH_ONROUTE" value="Véhicules en route"/>
+  <locale name="FLT_DSH_ONTIME" value="Livraisons à l'heure, 30 jours"/>
+  <locale name="FLT_DSH_OPEN" value="Colis en cours"/>
+  <locale name="FLT_DSH_SERIE_DELIVERIES" value="Livraisons"/>
+  <locale name="FLT_DSH_SERIE_FLEET" value="Véhicules"/>
+  <locale name="FLT_DSH_SERIE_ONTIME" value="À l'heure (%)"/>
+  <locale name="FLT_DSH_SERIE_TRANSIT" value="En transit"/>
+  <locale name="FLT_DSH_SERVICE" value="Entretiens sous 14 jours"/>
+  <locale name="FLT_FOOTER" value="Meridian Freight est une entreprise de démonstration des applications d'exemple d'AWE. Opérateurs et clients : connectez-vous à votre espace."/>
+  <locale name="FLT_HOME_EYEBROW" value="Logistique de fret et de flotte"/>
+  <locale name="FLT_HOME_HEADLINE" value="Chaque colis à l'heure, chaque étape visible"/>
+  <locale name="FLT_HOME_LEAD" value="Fret routier dans toute la péninsule avec suivi en direct. Suivez un colis avec son code, demandez un devis ou connectez-vous pour gérer vos expéditions."/>
+  <locale name="FLT_HOME_QUOTE" value="Demander un devis"/>
+  <locale name="FLT_HOME_SIGN_IN" value="Se connecter"/>
+  <locale name="FLT_HOME_TITLE" value="Meridian Freight"/>
+  <locale name="FLT_HOME_TRACK" value="Suivre un colis"/>
+  <locale name="FLT_HUB_CENTRAL" value="Hub central, Madrid"/>
+  <locale name="FLT_HUB_CENTRAL_TEXT" value="Madrid et les deux Castilles"/>
+  <locale name="FLT_HUB_EAST" value="Hub est, Valence"/>
+  <locale name="FLT_HUB_EAST_TEXT" value="Valence, Catalogne et Murcie"/>
+  <locale name="FLT_HUB_NORTH" value="Hub nord, Bilbao"/>
+  <locale name="FLT_HUB_NORTH_TEXT" value="Pays basque, Cantabrie et Asturies"/>
+  <locale name="FLT_HUB_SOUTH" value="Hub sud, Séville"/>
+  <locale name="FLT_HUB_SOUTH_TEXT" value="Andalousie et Estrémadure"/>
+  <locale name="FLT_HUB_WEST" value="Hub ouest, Vigo"/>
+  <locale name="FLT_HUB_WEST_TEXT" value="Galice et nord du Portugal"/>
+  <locale name="FLT_INVOICE_OVERDUE" value="En retard"/>
+  <locale name="FLT_INVOICE_PAID" value="Payée"/>
+  <locale name="FLT_INVOICE_PENDING" value="En attente"/>
+  <locale name="FLT_LOGIN_DEMO" value="Démo : maria / fleetdemo (régulatrice) ou acme / shipdemo (client). Tous les utilisateurs sont sur la page d'accueil."/>
+  <locale name="FLT_LOGIN_PANEL_TITLE" value="Chaque colis à l'heure, chaque étape visible"/>
+  <locale name="FLT_LOGIN_SUBTITLE" value="Connectez-vous pour gérer les opérations ou suivre vos colis."/>
+  <locale name="FLT_LOGIN_TITLE" value="Bienvenue chez Meridian Freight"/>
+  <locale name="FLT_MENU_ADMINISTRATION" value="Administration"/>
+  <locale name="FLT_MENU_ASSIGNMENTS" value="Affectations du jour"/>
+  <locale name="FLT_MENU_AUTOMATION" value="Automatisation"/>
+  <locale name="FLT_MENU_CUSTOMER" value="Mon compte"/>
+  <locale name="FLT_MENU_DASHBOARD" value="Tableau de bord"/>
+  <locale name="FLT_MENU_DRIVERS" value="Conducteurs"/>
+  <locale name="FLT_MENU_HOME" value="Accueil"/>
+  <locale name="FLT_MENU_MY_INVOICES" value="Mes factures"/>
+  <locale name="FLT_MENU_MY_PICKUPS" value="Mes enlèvements"/>
+  <locale name="FLT_MENU_MY_SHIPMENTS" value="Mes colis"/>
+  <locale name="FLT_MENU_OPERATIONS" value="Opérations"/>
+  <locale name="FLT_MENU_PICKUPS" value="Enlèvements"/>
+  <locale name="FLT_MENU_QUOTE" value="Demander un devis"/>
+  <locale name="FLT_MENU_QUOTES" value="Demandes de devis"/>
+  <locale name="FLT_MENU_ROUTES" value="Planificateur de tournées"/>
+  <locale name="FLT_MENU_SHIPMENTS" value="Expéditions"/>
+  <locale name="FLT_MENU_TRACK" value="Suivre un colis"/>
+  <locale name="FLT_MENU_VEHICLES" value="Flotte"/>
+  <locale name="FLT_MY_DELAYED" value="En retard"/>
+  <locale name="FLT_MY_DELIVERED" value="Livrés, 30 derniers jours"/>
+  <locale name="FLT_MY_DUE" value="À payer"/>
+  <locale name="FLT_MY_OPEN" value="Colis en cours"/>
+  <locale name="FLT_PCK_PANEL" value="Demander un enlèvement"/>
+  <locale name="FLT_PERMISSION_DASHBOARD" value="Tableau de bord"/>
+  <locale name="FLT_PERMISSION_DRIVERS" value="Chauffeurs"/>
+  <locale name="FLT_PERMISSION_PORTAL" value="Espace client"/>
+  <locale name="FLT_PERMISSION_REQUESTS" value="Devis et enlèvements"/>
+  <locale name="FLT_PERMISSION_ROUTES" value="Itinéraires"/>
+  <locale name="FLT_PERMISSION_SHIPMENTS" value="Expéditions"/>
+  <locale name="FLT_PERMISSION_VEHICLES" value="Véhicules"/>
+  <locale name="FLT_PRIORITY_EXPRESS" value="Express"/>
+  <locale name="FLT_PRIORITY_STANDARD" value="Standard"/>
+  <locale name="FLT_QUOTE_EMAIL" value="E-mail"/>
+  <locale name="FLT_QUOTE_LEAD" value="Dites-nous ce que vous expédiez et où. Nous répondrons par e-mail."/>
+  <locale name="FLT_QUOTE_NAME" value="Votre nom ou société"/>
+  <locale name="FLT_QUOTE_SEND" value="Envoyer la demande"/>
+  <locale name="FLT_QUOTE_TITLE" value="Demandez un devis"/>
+  <locale name="FLT_QUOTE_WEIGHT" value="Poids"/>
+  <locale name="FLT_REGION_CENTRAL" value="Centre"/>
+  <locale name="FLT_REGION_EAST" value="Est"/>
+  <locale name="FLT_REGION_NORTH" value="Nord"/>
+  <locale name="FLT_REGION_SOUTH" value="Sud"/>
+  <locale name="FLT_REGION_WEST" value="Ouest"/>
+  <locale name="FLT_REQUEST_CANCELLED" value="Annulée"/>
+  <locale name="FLT_REQUEST_HANDLED" value="Traitée"/>
+  <locale name="FLT_REQUEST_PENDING" value="En attente"/>
+  <locale name="FLT_ROUTE_COMPLETED" value="Terminée"/>
+  <locale name="FLT_ROUTE_IN_PROGRESS" value="En cours"/>
+  <locale name="FLT_ROUTE_PLANNED" value="Planifiée"/>
+  <locale name="FLT_SEARCH" value="Rechercher"/>
+  <locale name="FLT_SEARCH_DRIVER" value="Nom ou permis"/>
+  <locale name="FLT_SEARCH_PLATE" value="Immatriculation"/>
+  <locale name="FLT_SERVICES_TITLE" value="Nos services"/>
+  <locale name="FLT_SERVICE_DUE_SOON" value="Bientôt"/>
+  <locale name="FLT_SERVICE_OK" value="À jour"/>
+  <locale name="FLT_SERVICE_OVERDUE" value="En retard"/>
+  <locale name="FLT_SHIPMENT_CREATED" value="Créé"/>
+  <locale name="FLT_SHIPMENT_DELAYED" value="En retard"/>
+  <locale name="FLT_SHIPMENT_DELIVERED" value="Livré"/>
+  <locale name="FLT_SHIPMENT_IN_TRANSIT" value="En transit"/>
+  <locale name="FLT_SHIPMENT_OUT_FOR_DELIVERY" value="En livraison"/>
+  <locale name="FLT_SHIPMENT_PICKED_UP" value="Collecté"/>
+  <locale name="FLT_STAT_1_LABEL" value="Livraisons à l'heure"/>
+  <locale name="FLT_STAT_1_VALUE" value="98 %"/>
+  <locale name="FLT_STAT_2_LABEL" value="Couvrant la péninsule"/>
+  <locale name="FLT_STAT_2_VALUE" value="5 hubs"/>
+  <locale name="FLT_STAT_3_LABEL" value="Colis par an"/>
+  <locale name="FLT_STAT_3_VALUE" value="25 000+"/>
+  <locale name="FLT_SVC_COLD" value="Chaîne du froid"/>
+  <locale name="FLT_SVC_COLD_TEXT" value="Transport sous température dirigée pour l'alimentaire et la pharmacie."/>
+  <locale name="FLT_SVC_EXPRESS" value="Livraison express"/>
+  <locale name="FLT_SVC_EXPRESS_TEXT" value="Livraison le lendemain avec traitement prioritaire."/>
+  <locale name="FLT_SVC_LAST_MILE" value="Dernier kilomètre"/>
+  <locale name="FLT_SVC_LAST_MILE_TEXT" value="Livraison programmée à domicile avec preuve de livraison."/>
+  <locale name="FLT_SVC_ROAD" value="Fret routier"/>
+  <locale name="FLT_SVC_ROAD_TEXT" value="Chargements complets et partiels en fourgons, camions et poids lourds."/>
+  <locale name="FLT_SVC_TRACKING" value="Suivi en direct"/>
+  <locale name="FLT_SVC_TRACKING_TEXT" value="Chaque changement de statut sur une chronologie, consultable publiquement avec votre code."/>
+  <locale name="FLT_SVC_WAREHOUSE" value="Entreposage"/>
+  <locale name="FLT_SVC_WAREHOUSE_TEXT" value="Stockage et cross-docking dans nos hubs."/>
+  <locale name="FLT_TRACK_BUTTON" value="Suivre"/>
+  <locale name="FLT_TRACK_CODE" value="Code de suivi"/>
+  <locale name="FLT_TRACK_LEAD" value="Saisissez votre code de suivi et le code postal de destination. Les deux sont nécessaires pour afficher la chronologie."/>
+  <locale name="FLT_TRACK_POSTAL" value="Code postal de destination"/>
+  <locale name="FLT_TRACK_TITLE" value="Suivre un colis"/>
+  <locale name="FLT_TRACK_WHEN" value="Date et heure"/>
+  <locale name="FLT_TRACK_WHERE" value="Lieu"/>
+  <locale name="FLT_VEHICLE_AVAILABLE" value="Disponible"/>
+  <locale name="FLT_VEHICLE_MAINTENANCE" value="En maintenance"/>
+  <locale name="FLT_VEHICLE_ON_ROUTE" value="En route"/>
+  <locale name="FLT_VEHICLE_TYPE_HEAVY" value="Poids lourd"/>
+  <locale name="FLT_VEHICLE_TYPE_TRUCK" value="Camion"/>
+  <locale name="FLT_VEHICLE_TYPE_VAN" value="Fourgon"/>
+  <locale name="FLT_VEH_PANEL" value="Véhicule"/>
+  <locale name="FLT_DEMO_TITLE" value="Essayez la démo"/>
+  <locale name="FLT_DEMO_LEAD" value="Ce sont des utilisateurs d'exemple d'une démo : connectez-vous avec l'un d'eux pour voir ce que chaque rôle peut faire."/>
+  <locale name="FLT_DEMO_COL_USER" value="Utilisateur"/>
+  <locale name="FLT_DEMO_COL_PASS" value="Mot de passe"/>
+  <locale name="FLT_DEMO_COL_ROLE" value="Ce que voit cet utilisateur"/>
+  <locale name="FLT_DEMO_NOTE" value="Identifiants d'exemple, valables uniquement dans cette démo. Ne les utilisez jamais dans un vrai déploiement."/>
+  <locale name="FLT_DEMO_U1_USER" value="maria"/>
+  <locale name="FLT_DEMO_U1_PASS" value="fleetdemo"/>
+  <locale name="FLT_DEMO_U1_ROLE" value="Régulateur : opérations, tournées, planificateur et notificateur."/>
+  <locale name="FLT_DEMO_U2_USER" value="jorge"/>
+  <locale name="FLT_DEMO_U2_PASS" value="fleetdemo"/>
+  <locale name="FLT_DEMO_U2_ROLE" value="Régulateur : opérations, tournées, planificateur et notificateur. Langue : espagnol."/>
+  <locale name="FLT_DEMO_U3_USER" value="acme"/>
+  <locale name="FLT_DEMO_U3_PASS" value="shipdemo"/>
+  <locale name="FLT_DEMO_U3_ROLE" value="Client : uniquement ses colis, enlèvements et factures."/>
+  <locale name="FLT_DEMO_U4_USER" value="globex"/>
+  <locale name="FLT_DEMO_U4_PASS" value="shipdemo"/>
+  <locale name="FLT_DEMO_U4_ROLE" value="Client : uniquement ses colis, enlèvements et factures. Langue : espagnol."/>
+  <locale name="FLT_DEMO_U5_USER" value="initech"/>
+  <locale name="FLT_DEMO_U5_PASS" value="shipdemo"/>
+  <locale name="FLT_DEMO_U5_ROLE" value="Client : uniquement ses colis, enlèvements et factures. Langue : français."/>
+  <locale name="FLT_DEMO_ADM_USER" value="test"/>
+  <locale name="FLT_DEMO_ADM_PASS" value="test"/>
+  <locale name="FLT_DEMO_ADMIN_ROLE" value="Administrateur AWE : utilisateurs, profils et accès aux écrans. Démo uniquement."/>
+  <locale name="FLT_DEMO_PUBLIC" value="Suivi public (sans connexion) : code MF-T9JSDP6N avec le code postal 36919, ou MF-MPL9GK42 avec 41838."/>
+  <locale name="FLT_PHOTO_ROAD" value="Transport routier dans toute la péninsule"/>
+  <locale name="FLT_PHOTO_HIGHWAY" value="Deux camions sur l'autoroute"/>
+  <locale name="FLT_PHOTO_WAREHOUSE" value="Nos plateformes : rayonnages, palettes et cross-docking"/>
+  <locale name="FLT_PHOTO_MOUNTAIN" value="Un camion bleu sur une route de montagne"/>
+  <locale name="FLT_GALLERY_TITLE" value="Sur la route, chaque jour"/>
+  <locale name="FLT_GALLERY_LEAD" value="Camions, plateformes et itinéraires qui fonctionnent comme un seul réseau."/>
+  <locale name="FLT_GALLERY_ROUTE_TEXT" value="Suivi en direct de l'enlèvement à la livraison"/>
+  <locale name="FLT_TRACK_MAP" value="Itinéraire de l'envoi"/>
+  <locale name="FLT_DSH_MAP" value="Véhicules en route"/>
+  <locale name="FLT_DSH_MAP_SELECTED" value="Véhicule sélectionné"/>
+  <locale name="FLT_DSH_MAP_SHIPMENTS" value="Envois"/>
+  <locale name="FLT_ROUTES_MAP" value="Arrêts sur la carte"/>
+</locales>

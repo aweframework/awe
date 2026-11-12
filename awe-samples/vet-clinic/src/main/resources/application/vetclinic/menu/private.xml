@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : private.xml
+    Description: Options after the sign-in. The profiles vet and owner restrict the options of the other one
+                 (profile/vet.xml and profile/owner.xml). Every screen must be in the menu to be reachable
+-->
+<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" screen="vet-shell" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/menu.xsd" context="screen/private/home" default-action="screen">
+  <option name="information" screen="info" invisible="true"/>
+  <option name="user-settings" screen="user-settings" invisible="true"/>
+  <!-- Clinic staff -->
+  <option name="vet-dashboard" label="VET_MENU_DASHBOARD" screen="vet-dashboard" icon="lucide:layout-dashboard"/>
+  <option name="clinic-section" label="VET_MENU_CLINIC" separator="true"/>
+  <option name="vet-owners" label="VET_MENU_OWNERS" screen="vet-owners" icon="lucide:users"/>
+  <option name="vet-pets" label="VET_MENU_PETS" screen="vet-pets" icon="lucide:paw-print"/>
+  <option name="vet-visits" label="VET_MENU_VISITS" screen="vet-visits" icon="lucide:stethoscope"/>
+  <option name="vet-appointments" label="VET_MENU_APPOINTMENTS" screen="vet-appointments" icon="lucide:calendar-days"/>
+  <option name="vet-requests" label="VET_MENU_REQUESTS" screen="vet-requests" icon="lucide:inbox"/>
+  <option name="vet-vaccinations" label="VET_MENU_VACCINATIONS" screen="vet-vaccinations" icon="lucide:syringe"/>
+  <option name="vet-documents" label="VET_MENU_DOCUMENTS" screen="vet-documents" icon="lucide:folder-open"/>
+  <option name="vet-invoices" label="VET_MENU_INVOICES" screen="vet-invoices" icon="lucide:receipt"/>
+  <!-- Pet owners: their own records only -->
+  <option name="my-section" label="VET_MENU_MY_AREA" separator="true"/>
+  <option name="vet-my-home" label="VET_MENU_MY_HOME" screen="vet-my-home" icon="lucide:house"/>
+  <option name="vet-my-pets" label="VET_MENU_MY_PETS" screen="vet-my-pets" icon="lucide:paw-print"/>
+  <option name="vet-my-appointments" label="VET_MENU_MY_APPOINTMENTS" screen="vet-my-appointments" icon="lucide:calendar-days"/>
+  <option name="vet-my-vaccinations" label="VET_MENU_MY_VACCINATIONS" screen="vet-my-vaccinations" icon="lucide:syringe"/>
+  <option name="vet-my-invoices" label="VET_MENU_MY_INVOICES" screen="vet-my-invoices" icon="lucide:receipt"/>
+  <!-- AWE administration, for the administrator profile (the default user "test") -->
+  <option name="administration" label="VET_MENU_ADMINISTRATION" icon="lucide:settings">
+    <option name="users" label="MENU_TOOLS_USERS" screen="user-admin" icon="lucide:user-cog"/>
+    <option name="profiles" label="MENU_TOOLS_PROFILES" screen="profile-admin" icon="lucide:users-round"/>
+    <option name="screen-access" label="MENU_TOOLS_SCREENS_ACCESS" screen="access-admin" icon="lucide:shield-check"/>
+  </option>
+</menu>

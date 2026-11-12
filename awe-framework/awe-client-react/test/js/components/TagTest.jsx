@@ -163,4 +163,14 @@ describe('awe-react-client/test/js/components/TagTest.jsx', () => {
       expect(container.querySelector('h3#access').innerHTML).toBe('Access');
     });
   });
+
+  it('draws its icon when it has an icon but no label, value or children', () => {
+    const { container } = renderWithProviders(
+      <Tag type="div" id="state" style="notification-icon" icon="bell" elementList={[]} />,
+      { preloadedState: { settings: DEFAULT_SETTINGS } }
+    );
+
+    expect(container.querySelector('#state.notification-icon svg.awe-icon')).toBeTruthy();
+  });
+
 });

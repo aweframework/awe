@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-appointments.xml
+    Description: Appointment agenda: date range, status and veterinarian filters, status tones, actions on the selected rows and a panel to book
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="VET_MENU_APPOINTMENTS" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW"/>
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE"/>
+    <criteria id="PnlMod" component="hidden" value="new"/>
+  </tag>
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdApt"/>
+    </button>
+    <button label="VET_BTN_NEW_APT" icon="lucide:calendar-plus" id="ButNewApt" style="btn-primary" permission="appointments.create">
+      <button-action type="reset" target="IdePet"/>
+      <button-action type="reset" target="IdeVet"/>
+      <button-action type="reset" target="Rea"/>
+      <button-action type="reset" target="AptDat"/>
+      <button-action type="reset" target="AptTim"/>
+      <button-action type="reset" target="Nte"/>
+      <button-action type="dialog" target="PnlApt"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="VET_MENU_APPOINTMENTS" icon="lucide:calendar-days">
+      <tag type="div" style="panel-body vet-chips">
+        <criteria label="VET_FLD_PERIOD" id="CrtAptDat" component="date-range" presets="TODAY,YTD,ALL" style="col-xs-12 col-lg-4"/>
+        <criteria label="VET_COL_STATUS" id="CrtAptSta" component="button-radio" initial-load="enum" target-action="VetAptStatus" optional="true" style="col-xs-12 col-lg-6"/>
+        <criteria label="VET_COL_VET" id="CrtAptVet" component="select" initial-load="query" target-action="VetVetSel" optional="true" style="col-xs-12 col-sm-6 col-lg-3"/>
+        <criteria label="VET_SEARCH_VISITS_LABEL" id="CrtAptSch" component="text" icon="lucide:search" style="col-xs-12 col-lg-3" placeholder="VET_SEARCH_APT_PH"/>
+      </tag>
+      <grid id="GrdApt" style="expand" initial-load="query" server-action="data" target-action="VetAptLst" max="15">
+        <column label="VET_COL_DATE" name="AptDat" sort-field="AptDat" align="center" charlength="12" sendable="false"/>
+        <column label="VET_COL_TIME" name="AptTim" sort-field="AptTim" align="center" charlength="8" sendable="false"/>
+        <column label="VET_COL_PET" name="PetNam" sort-field="PetNam" align="left" charlength="18" width="*" secondary-field="OwnNam" sendable="false"/>
+        <column label="VET_COL_REASON" name="ReaTxt" sort-field="Rea" align="left" charlength="14" sendable="false"/>
+        <column label="VET_COL_VET" name="VetNam" sort-field="VetNam" align="left" charlength="18" sendable="false"/>
+        <column label="VET_COL_STATUS" name="StaTxt" sort-field="Sta" align="left" charlength="12" status-field="Ton" sendable="false"/>
+        <column label="VET_COL_ORIGIN" name="Src" sort-field="Src" align="left" charlength="10" sendable="false"/>
+        <column name="IdeApt" hidden="true"/>
+        <column name="IdePet" hidden="true" sendable="false"/>
+        <column name="IdeVet" hidden="true" sendable="false"/>
+        <column name="Rea" hidden="true" sendable="false"/>
+        <column name="Sta" hidden="true" sendable="false"/>
+        <column name="Ton" hidden="true" sendable="false"/>
+        <column name="OwnNam" hidden="true" sendable="false"/>
+        <column name="Nte" hidden="true" sendable="false"/>
+        <button label="VET_BTN_CONFIRM" icon="lucide:calendar-check" id="ButCon" selection="true">
+          <button-action type="check-some-selected" target="GrdApt"/>
+          <button-action type="server" server-action="maintain" target-action="VetAptCon"/>
+          <button-action type="filter" target="GrdApt"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdApt" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+        <button label="VET_BTN_MARK_DONE" icon="lucide:circle-check" id="ButDon" selection="true">
+          <button-action type="check-some-selected" target="GrdApt"/>
+          <button-action type="server" server-action="maintain" target-action="VetAptDon"/>
+          <button-action type="filter" target="GrdApt"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdApt" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+        <button label="VET_BTN_CANCEL_APT" icon="lucide:calendar-x" id="ButCan" selection="true" style="btn-danger">
+          <button-action type="check-some-selected" target="GrdApt"/>
+          <button-action type="confirm" target="DelMsg"/>
+          <button-action type="server" server-action="maintain" target-action="VetAptCan"/>
+          <button-action type="filter" target="GrdApt"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdApt" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+    <side-panel id="PnlApt" label="VET_APT_PANEL" icon="lucide:calendar-plus" max-width="36rem">
+      <tag type="div" style="panel-body" id="PnlAptBdy">
+        <criteria label="VET_COL_PET" id="IdePet" component="suggest" style="col-xs-12" validation="required" server-action="data" target-action="VetPetSug" check-target="VetPetIni"/>
+        <criteria label="VET_COL_VET" id="IdeVet" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="query" target-action="VetVetSel"/>
+        <criteria label="VET_COL_REASON" id="Rea" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="VetVisitType"/>
+        <criteria label="VET_COL_DATE" id="AptDat" component="date" style="col-xs-12 col-sm-6" validation="required"/>
+        <criteria label="VET_COL_TIME" id="AptTim" component="time" style="col-xs-12 col-sm-6" validation="required"/>
+        <criteria label="VET_FLD_NOTES" id="Nte" component="textarea" style="col-xs-12" validation="{maxlength:400}" area-rows="3"/>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlAptCnl">
+          <button-action type="close-cancel" target="PnlApt"/>
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="lucide:check" id="ButPnlAptSav" style="btn-primary">
+          <button-action type="validate" target="PnlAptBdy"/>
+          <button-action type="confirm" target="NewMsg"/>
+          <button-action type="server" server-action="maintain" target-action="VetAptNew"/>
+          <button-action type="close" target="PnlApt"/>
+          <button-action type="filter" target="GrdApt"/>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+</screen>

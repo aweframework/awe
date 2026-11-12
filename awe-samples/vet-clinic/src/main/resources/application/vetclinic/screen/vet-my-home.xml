@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-my-home.xml
+    Description: Home of the pet owner: key figures of their own records and their upcoming appointments
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="VET_MENU_MY_HOME">
+  <tag source="buttons">
+    <button label="VET_BTN_REQUEST_APT" icon="lucide:calendar-plus" id="ButReq" style="btn-primary" permission="portal.create">
+      <button-action type="screen" target="vet-my-appointments"/>
+    </button>
+  </tag>
+  <tag source="center" expandible="vertical">
+    <tag type="div" style="awe-card-grid m-2">
+      <card id="CrdMyPets" title="VET_MY_PETS_CARD" icon="lucide:paw-print" icon-tone="info" initial-load="query" target-action="VetMyPets" number-decimals="0"/>
+      <card id="CrdMyNext" title="VET_MY_NEXT_APT" icon="lucide:calendar-check" initial-load="query" target-action="VetMyNextApt"/>
+      <card id="CrdMyVac" title="VET_MY_VAC_DUE" icon="lucide:syringe" icon-tone="warning" initial-load="query" target-action="VetMyVacDue" good-trend="down" number-decimals="0"/>
+      <card id="CrdMyDue" title="VET_MY_INVOICE_DUE" icon="lucide:receipt" icon-tone="danger" initial-load="query" target-action="VetMyInvoiceDue" unit="EUR" good-trend="down" number-decimals="2"/>
+    </tag>
+    <tag type="div" style="vet-tall" expandible="horizontal">
+      <window style="expand" label="VET_MY_UPCOMING" icon="lucide:calendar-days">
+        <grid id="GrdMyUp" style="expand" initial-load="query" server-action="data" target-action="VetMyUpcoming" max="10">
+          <column label="VET_COL_DATE" name="AptDat" sort-field="AptDat" align="center" charlength="12" sendable="false"/>
+          <column label="VET_COL_TIME" name="AptTim" sort-field="AptTim" align="center" charlength="8" sendable="false"/>
+          <column label="VET_COL_PET" name="PetNam" sort-field="PetNam" align="left" charlength="18" width="*" sendable="false"/>
+          <column label="VET_COL_REASON" name="ReaTxt" sort-field="ReaTxt" align="left" charlength="16" sendable="false"/>
+          <column label="VET_COL_STATUS" name="StaTxt" sort-field="StaTxt" align="left" charlength="13" status-field="Ton" sendable="false"/>
+          <column name="Ton" hidden="true"/>
+        </grid>
+      </window>
+    </tag>
+  </tag>
+</screen>

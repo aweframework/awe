@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Services.xml
+    Description: Java services of the veterinary clinic. Both return the PDF of an invoice as a file to download: the
+                 first one reads the invoice as staff and the second one only reads the invoices of the connected owner
+-->
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/services.xsd">
+  <service id="VetInvoicePdfStaff">
+    <java classname="com.almis.awe.samples.vetclinic.invoice.InvoiceService" method="staffInvoicePdf">
+      <service-parameter type="INTEGER" name="IdeInv"/>
+    </java>
+  </service>
+  <service id="VetInvoicePdfOwner">
+    <java classname="com.almis.awe.samples.vetclinic.invoice.InvoiceService" method="ownerInvoicePdf">
+      <service-parameter type="INTEGER" name="IdeInv"/>
+    </java>
+  </service>
+</services>

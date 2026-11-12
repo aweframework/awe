@@ -1,0 +1,745 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Queries.xml
+    Description: Queries of the veterinary clinic. The lists read the SQL views of the Flyway migration (the read model
+                 of each screen); every query declares the permission it requires, except the public ones and the
+                 server-only helpers
+-->
+<queries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/queries.xsd">
+  <!-- ===== PUBLIC: the lists of the appointment request form of the landing page ===== -->
+  <query id="VetSpcPub" enumerated="VetSpecies" public="true"/>
+  <query id="VetReaPub" enumerated="VetVisitType" public="true"/>
+  <!-- ===== STAFF: dashboard ===== -->
+  <query id="VetDshVisits" permission="dashboard.read">
+    <table id="VetKpi"/>
+    <field id="VisCur" alias="value"/>
+    <field id="VisDel" alias="delta"/>
+  </query>
+  <query id="VetDshRevenue" permission="dashboard.read">
+    <table id="VetKpi"/>
+    <field id="RevCur" alias="value"/>
+    <field id="RevDel" alias="delta"/>
+  </query>
+  <query id="VetDshPets" permission="dashboard.read">
+    <table id="VetKpi"/>
+    <field id="PetAct" alias="value"/>
+  </query>
+  <query id="VetDshRequests" permission="dashboard.read">
+    <table id="VetKpi"/>
+    <field id="ReqPen" alias="value"/>
+  </query>
+  <query id="VetDshOverdue" permission="dashboard.read">
+    <table id="VetKpi"/>
+    <field id="VacOvd" alias="value"/>
+  </query>
+  <!-- Visits per month (last 12 months) -->
+  <query id="VetDshVisMon" permission="dashboard.read">
+    <table id="VetVisMon"/>
+    <field id="Mon" alias="month"/>
+    <field id="Vis" alias="visits"/>
+    <order-by field="Mon" type="ASC"/>
+  </query>
+  <!-- Revenue per month (last 12 months) -->
+  <query id="VetDshRevMon" permission="dashboard.read">
+    <table id="VetVisMon"/>
+    <field id="Mon" alias="month"/>
+    <field id="Rev" alias="revenue"/>
+    <order-by field="Mon" type="ASC"/>
+  </query>
+  <!-- Active pets per species -->
+  <query id="VetDshSpecies" permission="dashboard.read">
+    <table id="VetSpcCnt"/>
+    <field id="Spc" alias="species" translate="VetSpecies"/>
+    <field id="Cnt" alias="pets"/>
+  </query>
+  <!-- Vaccinations overdue or due in the next 30 days -->
+  <query id="VetDshDueVac" permission="dashboard.read">
+    <table id="VetVacLst"/>
+    <field id="IdeVac"/>
+    <field id="PetNam"/>
+    <field id="OwnNam"/>
+    <field id="Vcc" alias="VccTxt" translate="VetVaccine"/>
+    <field id="NxtDat" transform="DATE"/>
+    <field id="Sta" alias="StaTxt" translate="VetVacStatus"/>
+    <field id="Ton"/>
+    <where>
+      <and>
+        <filter left-field="Sta" condition="ne" right-variable="Ok"/>
+      </and>
+    </where>
+    <order-by field="NxtDat" type="ASC"/>
+    <variable id="Ok" type="STRING" value="UP_TO_DATE"/>
+  </query>
+  <!-- ===== STAFF: owners ===== -->
+  <query id="VetOwnLst" permission="owners.read">
+    <table id="VetOwnLst"/>
+    <field id="IdeOwn"/>
+    <field id="Nam"/>
+    <field id="Eml"/>
+    <field id="Tel"/>
+    <field id="Adr"/>
+    <field id="Cit"/>
+    <field id="RegDat" transform="DATE"/>
+    <field id="Nte"/>
+    <field id="Ini"/>
+    <field id="Pets"/>
+    <field id="Acc" alias="Acc"/>
+    <field id="Acc" alias="AccTxt" translate="VetYesNo"/>
+    <where>
+      <and>
+        <or>
+          <filter left-field="Nam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="Eml" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="Cit" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="Sch" type="STRINGB" name="CrtOwnSch"/>
+  </query>
+  <!-- Suggest of owners -->
+  <query id="VetOwnSug" permission="owners.read">
+    <table id="VetOwnLst"/>
+    <field id="IdeOwn" alias="value"/>
+    <field id="Nam" alias="label"/>
+    <where>
+      <and>
+        <or>
+          <filter left-field="Nam" condition="like" right-variable="Sug" ignorecase="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="Sug" type="STRINGB" name="suggest"/>
+  </query>
+  <!-- Label of the selected owner of a suggest -->
+  <query id="VetOwnIni" permission="owners.read">
+    <table id="VetOwnLst"/>
+    <field id="IdeOwn" alias="value"/>
+    <field id="Nam" alias="label"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="eq" right-variable="Ide"/>
+      </and>
+    </where>
+    <variable id="Ide" type="INTEGER" name="suggest"/>
+  </query>
+  <!-- ===== STAFF: pets ===== -->
+  <query id="VetPetLst" permission="pets.read">
+    <table id="VetPetLst"/>
+    <field id="IdePet"/>
+    <field id="IdeOwn"/>
+    <field id="Nam"/>
+    <field id="Spc"/>
+    <field id="Spc" alias="SpcTxt" translate="VetSpecies"/>
+    <field id="Brd"/>
+    <field id="Sex"/>
+    <field id="Sex" alias="SexTxt" translate="VetSex"/>
+    <field id="BrnDat" transform="DATE"/>
+    <field id="Wgt"/>
+    <field id="Chp"/>
+    <field id="Age"/>
+    <field id="NxtVac" transform="DATE"/>
+    <field id="OwnNam"/>
+    <field id="Ini"/>
+    <where>
+      <and>
+        <filter left-field="Act" condition="eq" right-variable="Act"/>
+        <filter left-field="Spc" condition="eq" right-variable="Spc" optional="true"/>
+      </and>
+      <and>
+        <or>
+          <filter left-field="Nam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="OwnNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="Brd" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="Chp" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="Act" type="INTEGER" value="1"/>
+    <variable id="Spc" type="STRING" name="CrtPetSpc"/>
+    <variable id="Sch" type="STRINGB" name="CrtPetSch"/>
+  </query>
+  <!-- Pets of an owner: the nested grid of the owners screen (parameter GrdOwn.row.IdeOwn) -->
+  <query id="VetOwnPetLst" permission="pets.read">
+    <table id="VetPetLst"/>
+    <field id="IdePet"/>
+    <field id="Nam" alias="PetNam"/>
+    <field id="Spc" alias="SpcTxt" translate="VetSpecies"/>
+    <field id="Brd"/>
+    <field id="Sex" alias="SexTxt" translate="VetSex"/>
+    <field id="Age"/>
+    <field id="Wgt"/>
+    <field id="NxtVac" transform="DATE"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="eq" right-variable="Own"/>
+        <filter left-field="Act" condition="eq" right-variable="Act"/>
+      </and>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="Own" type="INTEGER" name="GrdOwn.row.IdeOwn"/>
+    <variable id="Act" type="INTEGER" value="1"/>
+  </query>
+  <!-- Suggest of pets, with the owner in the label -->
+  <query id="VetPetSug" permission="pets.read">
+    <table id="VetPetLst"/>
+    <field id="IdePet" alias="value"/>
+    <field id="Nam" alias="Nam"/>
+    <field id="OwnNam" alias="OwnNam"/>
+    <where>
+      <and>
+        <filter left-field="Act" condition="eq" right-variable="Act"/>
+      </and>
+      <and>
+        <or>
+          <filter left-field="Nam" condition="like" right-variable="Sug" ignorecase="true"/>
+          <filter left-field="OwnNam" condition="like" right-variable="Sug" ignorecase="true"/>
+        </or>
+      </and>
+    </where>
+    <computed format="[Nam] ([OwnNam])" alias="label"/>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="Act" type="INTEGER" value="1"/>
+    <variable id="Sug" type="STRINGB" name="suggest"/>
+  </query>
+  <!-- Label of the selected pet of a suggest -->
+  <query id="VetPetIni" permission="pets.read">
+    <table id="VetPetLst"/>
+    <field id="IdePet" alias="value"/>
+    <field id="Nam" alias="Nam"/>
+    <field id="OwnNam" alias="OwnNam"/>
+    <where>
+      <and>
+        <filter left-field="IdePet" condition="eq" right-variable="Ide"/>
+      </and>
+    </where>
+    <computed format="[Nam] ([OwnNam])" alias="label"/>
+    <variable id="Ide" type="INTEGER" name="suggest"/>
+  </query>
+  <!-- Owner of a pet: the maintain targets take the owner from the pet -->
+  <query id="VetPetOwn" server-only="true">
+    <table id="VetPet"/>
+    <field id="IdeOwn"/>
+    <where>
+      <and>
+        <filter left-field="IdePet" condition="eq" right-variable="Pet"/>
+      </and>
+    </where>
+    <variable id="Pet" type="INTEGER" name="IdePet"/>
+  </query>
+  <!-- ===== STAFF: visits and medical history ===== -->
+  <query id="VetVisLst" permission="visits.read">
+    <table id="VetVisLst"/>
+    <field id="IdeVis"/>
+    <field id="IdePet"/>
+    <field id="PetNam"/>
+    <field id="OwnNam"/>
+    <field id="IdeVet"/>
+    <field id="VetNam"/>
+    <field id="VisDat" transform="DATE"/>
+    <field id="VisTim" transform="TIME"/>
+    <field id="Typ"/>
+    <field id="Typ" alias="TypTxt" translate="VetVisitType"/>
+    <field id="Dia"/>
+    <field id="Trt"/>
+    <field id="Fee"/>
+    <where>
+      <and>
+        <filter left-field="VisDat" condition="ge" right-variable="From" optional="true"/>
+        <filter left-field="VisDat" condition="le" right-variable="To" optional="true"/>
+        <filter left-field="Typ" condition="eq" right-variable="Typ" optional="true"/>
+        <filter left-field="IdeVet" condition="eq" right-variable="Vet" optional="true"/>
+      </and>
+      <and>
+        <or>
+          <filter left-field="PetNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="OwnNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="Dia" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="VisDat" type="DESC"/>
+    <variable id="From" type="DATE" name="CrtVisDat.from"/>
+    <variable id="To" type="DATE" name="CrtVisDat.to"/>
+    <variable id="Typ" type="STRING" name="CrtVisTyp"/>
+    <variable id="Vet" type="INTEGER" name="CrtVisVet"/>
+    <variable id="Sch" type="STRINGB" name="CrtVisSch"/>
+  </query>
+  <!-- Medical history of a pet: the nested grid of the pets screen (parameter GrdPet.row.IdePet) -->
+  <query id="VetPetVisLst" permission="visits.read">
+    <table id="VetVisLst"/>
+    <field id="IdeVis"/>
+    <field id="VisDat" transform="DATE"/>
+    <field id="Typ" alias="TypTxt" translate="VetVisitType"/>
+    <field id="VetNam"/>
+    <field id="Dia"/>
+    <field id="Trt"/>
+    <field id="Fee"/>
+    <where>
+      <and>
+        <filter left-field="IdePet" condition="eq" right-variable="Pet"/>
+      </and>
+    </where>
+    <order-by field="VisDat" type="DESC"/>
+    <variable id="Pet" type="INTEGER" name="GrdPet.row.IdePet"/>
+  </query>
+  <!-- Veterinarians -->
+  <query id="VetVetSel" permission="visits.read">
+    <table id="VetVet"/>
+    <field id="IdeVet" alias="value"/>
+    <field id="Nam" alias="label"/>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+  <!-- ===== STAFF: appointments and requests ===== -->
+  <query id="VetAptLst" permission="appointments.read">
+    <table id="VetAptLst"/>
+    <field id="IdeApt"/>
+    <field id="IdePet"/>
+    <field id="PetNam"/>
+    <field id="OwnNam"/>
+    <field id="IdeVet"/>
+    <field id="VetNam"/>
+    <field id="AptDat" transform="DATE"/>
+    <field id="AptTim" transform="TIME"/>
+    <field id="Rea"/>
+    <field id="Rea" alias="ReaTxt" translate="VetVisitType"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="VetAptStatus"/>
+    <field id="Ton"/>
+    <field id="Src"/>
+    <field id="Nte"/>
+    <where>
+      <and>
+        <filter left-field="AptDat" condition="ge" right-variable="From" optional="true"/>
+        <filter left-field="AptDat" condition="le" right-variable="To" optional="true"/>
+        <filter left-field="Sta" condition="eq" right-variable="Sta" optional="true"/>
+        <filter left-field="IdeVet" condition="eq" right-variable="Vet" optional="true"/>
+      </and>
+      <and>
+        <or>
+          <filter left-field="PetNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="OwnNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="AptDat" type="ASC"/>
+    <order-by field="AptTim" type="ASC"/>
+    <variable id="From" type="DATE" name="CrtAptDat.from"/>
+    <variable id="To" type="DATE" name="CrtAptDat.to"/>
+    <variable id="Sta" type="STRING" name="CrtAptSta"/>
+    <variable id="Vet" type="INTEGER" name="CrtAptVet"/>
+    <variable id="Sch" type="STRINGB" name="CrtAptSch"/>
+  </query>
+  <!-- Requests of the public form of the landing page -->
+  <query id="VetReqLst" permission="requests.read">
+    <table id="VetReq"/>
+    <field id="IdeReq"/>
+    <field id="ReqDat" transform="TIMESTAMP"/>
+    <field id="OwnNam"/>
+    <field id="Eml"/>
+    <field id="Tel"/>
+    <field id="PetNam"/>
+    <field id="Spc" alias="SpcTxt" translate="VetSpecies"/>
+    <field id="PrfDat" transform="DATE"/>
+    <field id="Rea" alias="ReaTxt" translate="VetVisitType"/>
+    <field id="Nte"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="VetReqStatus"/>
+    <where>
+      <and>
+        <filter left-field="Sta" condition="eq" right-variable="Sta" optional="true"/>
+      </and>
+    </where>
+    <order-by field="ReqDat" type="DESC"/>
+    <variable id="Sta" type="STRING" name="CrtReqSta"/>
+  </query>
+  <!-- ===== STAFF: vaccinations ===== -->
+  <query id="VetVacLst" permission="vaccinations.read">
+    <table id="VetVacLst"/>
+    <field id="IdeVac"/>
+    <field id="IdePet"/>
+    <field id="PetNam"/>
+    <field id="OwnNam"/>
+    <field id="Vcc"/>
+    <field id="Vcc" alias="VccTxt" translate="VetVaccine"/>
+    <field id="VacDat" transform="DATE"/>
+    <field id="NxtDat" transform="DATE"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="VetVacStatus"/>
+    <field id="Ton"/>
+    <where>
+      <and>
+        <filter left-field="Sta" condition="eq" right-variable="Sta" optional="true"/>
+        <filter left-field="Vcc" condition="eq" right-variable="Vcc" optional="true"/>
+      </and>
+      <and>
+        <or>
+          <filter left-field="PetNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="OwnNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="NxtDat" type="ASC"/>
+    <variable id="Sta" type="STRING" name="CrtVacSta"/>
+    <variable id="Vcc" type="STRING" name="CrtVacVcc"/>
+    <variable id="Sch" type="STRINGB" name="CrtVacSch"/>
+  </query>
+  <!-- ===== STAFF: documents (x-rays, lab results, reports) ===== -->
+  <query id="VetDocLst" permission="documents.read">
+    <table id="VetDocLst"/>
+    <field id="IdeDoc"/>
+    <field id="IdePet"/>
+    <field id="PetNam"/>
+    <field id="DocDat" transform="DATE"/>
+    <field id="Typ"/>
+    <field id="Typ" alias="TypTxt" translate="VetDocType"/>
+    <field id="Des"/>
+    <field id="FilNam"/>
+    <where>
+      <and>
+        <filter left-field="Typ" condition="eq" right-variable="Typ" optional="true"/>
+      </and>
+      <and>
+        <or>
+          <filter left-field="PetNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="Des" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="DocDat" type="DESC"/>
+    <variable id="Typ" type="STRING" name="CrtDocTyp"/>
+    <variable id="Sch" type="STRINGB" name="CrtDocSch"/>
+  </query>
+  <!-- ===== STAFF: invoices ===== -->
+  <query id="VetInvLst" permission="invoices.read">
+    <table id="VetInvLst"/>
+    <field id="IdeInv"/>
+    <field id="InvNum"/>
+    <field id="OwnNam"/>
+    <field id="PetNam"/>
+    <field id="InvDat" transform="DATE"/>
+    <field id="VisTyp" alias="TypTxt" translate="VetVisitType"/>
+    <field id="Sub"/>
+    <field id="Tax"/>
+    <field id="Amt"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="VetInvStatus"/>
+    <field id="Ton"/>
+    <where>
+      <and>
+        <filter left-field="InvDat" condition="ge" right-variable="From" optional="true"/>
+        <filter left-field="InvDat" condition="le" right-variable="To" optional="true"/>
+        <filter left-field="Sta" condition="eq" right-variable="Sta" optional="true"/>
+      </and>
+      <and>
+        <or>
+          <filter left-field="OwnNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="PetNam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="InvDat" type="DESC"/>
+    <variable id="From" type="DATE" name="CrtInvDat.from"/>
+    <variable id="To" type="DATE" name="CrtInvDat.to"/>
+    <variable id="Sta" type="STRING" name="CrtInvSta"/>
+    <variable id="Sch" type="STRINGB" name="CrtInvSch"/>
+  </query>
+  <!-- Invoice detail of the staff: the data of the invoice and its lines. The invoice is the one selected in the grid
+       (IdeInv), and the PDF of the invoice reads these same two queries -->
+  <query id="VetInvHdr" permission="invoices.read">
+    <table id="VetInvDoc"/>
+    <field id="IdeInv"/>
+    <field id="InvNum"/>
+    <field id="OwnNam"/>
+    <field id="OwnAdr"/>
+    <field id="OwnCit"/>
+    <field id="OwnEml"/>
+    <field id="PetNam"/>
+    <field id="InvIso"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="VetInvStatus"/>
+    <field id="Sub"/>
+    <field id="Tax"/>
+    <field id="Amt"/>
+    <where>
+      <and>
+        <filter left-field="IdeInv" condition="eq" right-variable="IdeInv"/>
+      </and>
+    </where>
+    <variable id="IdeInv" type="INTEGER" name="IdeInv"/>
+  </query>
+  <query id="VetInvLinLst" permission="invoices.read">
+    <table id="VetInvLinDoc"/>
+    <field id="Pos"/>
+    <field id="Con" alias="LinCon" translate="VetInvConcept"/>
+    <field id="Qty" alias="LinQty"/>
+    <field id="Prc" alias="LinPrc"/>
+    <field id="Amt" alias="LinAmt"/>
+    <where>
+      <and>
+        <filter left-field="IdeInv" condition="eq" right-variable="IdeInv"/>
+      </and>
+    </where>
+    <order-by field="Pos" type="ASC"/>
+    <variable id="IdeInv" type="INTEGER" name="IdeInv"/>
+  </query>
+  <!-- ===== PET OWNER AREA: every query and maintain filters by the connected user =====
+       VetSelfOwn gives the owner of the session user (variable session="user"); the filter in (VetSelfOwn)
+       is on the server, so a pet owner never reads or writes the rows of another owner -->
+  <!-- Owner of the connected user -->
+  <query id="VetSelfOwn" server-only="true">
+    <table id="VetOwnUsr"/>
+    <field id="IdeOwn"/>
+    <where>
+      <and>
+        <filter left-field="Usr" condition="eq" right-variable="User" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="User" type="STRING" session="user"/>
+  </query>
+  <query id="VetMyPets" permission="portal.read">
+    <table id="VetOwnKpi"/>
+    <field id="Pets" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+      </and>
+    </where>
+  </query>
+  <query id="VetMyNextApt" permission="portal.read">
+    <table id="VetOwnKpi"/>
+    <field id="NxtApt" alias="value" transform="DATE"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+      </and>
+    </where>
+  </query>
+  <query id="VetMyInvoiceDue" permission="portal.read">
+    <table id="VetOwnKpi"/>
+    <field id="InvDue" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+      </and>
+    </where>
+  </query>
+  <query id="VetMyVacDue" permission="portal.read">
+    <table id="VetOwnKpi"/>
+    <field id="VacDue" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+      </and>
+    </where>
+  </query>
+  <query id="VetMyPetLst" permission="portal.read">
+    <table id="VetPetLst"/>
+    <field id="IdePet"/>
+    <field id="IdeOwn"/>
+    <field id="Nam"/>
+    <field id="Spc"/>
+    <field id="Spc" alias="SpcTxt" translate="VetSpecies"/>
+    <field id="Brd"/>
+    <field id="Sex"/>
+    <field id="Sex" alias="SexTxt" translate="VetSex"/>
+    <field id="BrnDat" transform="DATE"/>
+    <field id="Wgt"/>
+    <field id="Chp"/>
+    <field id="Age"/>
+    <field id="NxtVac" transform="DATE"/>
+    <field id="OwnNam"/>
+    <field id="Ini"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+        <filter left-field="Act" condition="eq" right-variable="Act"/>
+      </and>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="Act" type="INTEGER" value="1"/>
+  </query>
+  <!-- Pets of the connected owner, for the appointment request -->
+  <query id="VetMyPetSel" permission="portal.read">
+    <table id="VetPetLst"/>
+    <field id="IdePet" alias="value"/>
+    <field id="Nam" alias="label"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+        <filter left-field="Act" condition="eq" right-variable="Act"/>
+      </and>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="Act" type="INTEGER" value="1"/>
+  </query>
+  <!-- Medical history of one of my pets: the nested grid of my pets (parameter GrdMyPet.row.IdePet). The owner filter also holds when a pet of another owner is asked for -->
+  <query id="VetMyPetVisLst" permission="portal.read">
+    <table id="VetVisLst"/>
+    <field id="IdeVis"/>
+    <field id="VisDat" transform="DATE"/>
+    <field id="Typ" alias="TypTxt" translate="VetVisitType"/>
+    <field id="VetNam"/>
+    <field id="Dia"/>
+    <field id="Trt"/>
+    <field id="Fee"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+        <filter left-field="IdePet" condition="eq" right-variable="Pet"/>
+      </and>
+    </where>
+    <order-by field="VisDat" type="DESC"/>
+    <variable id="Pet" type="INTEGER" name="GrdMyPet.row.IdePet"/>
+  </query>
+  <query id="VetMyAptLst" permission="portal.read">
+    <table id="VetAptLst"/>
+    <field id="IdeApt"/>
+    <field id="PetNam"/>
+    <field id="AptDat" transform="DATE"/>
+    <field id="AptTim" transform="TIME"/>
+    <field id="Rea" alias="ReaTxt" translate="VetVisitType"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="VetAptStatus"/>
+    <field id="Ton"/>
+    <field id="VetNam"/>
+    <field id="PubNte" alias="Nte"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+        <filter left-field="Sta" condition="eq" right-variable="Sta" optional="true"/>
+      </and>
+    </where>
+    <order-by field="AptDat" type="DESC"/>
+    <variable id="Sta" type="STRING" name="CrtMyAptSta"/>
+  </query>
+  <query id="VetMyVacLst" permission="portal.read">
+    <table id="VetVacLst"/>
+    <field id="IdeVac"/>
+    <field id="PetNam"/>
+    <field id="Vcc" alias="VccTxt" translate="VetVaccine"/>
+    <field id="VacDat" transform="DATE"/>
+    <field id="NxtDat" transform="DATE"/>
+    <field id="Sta" alias="StaTxt" translate="VetVacStatus"/>
+    <field id="Ton"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+      </and>
+    </where>
+    <order-by field="NxtDat" type="ASC"/>
+  </query>
+  <query id="VetMyInvLst" permission="portal.read">
+    <table id="VetInvLst"/>
+    <field id="IdeInv"/>
+    <field id="InvNum"/>
+    <field id="PetNam"/>
+    <field id="InvDat" transform="DATE"/>
+    <field id="VisTyp" alias="TypTxt" translate="VetVisitType"/>
+    <field id="Sub"/>
+    <field id="Tax"/>
+    <field id="Amt"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="VetInvStatus"/>
+    <field id="Ton"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+        <filter left-field="Sta" condition="eq" right-variable="Sta" optional="true"/>
+      </and>
+    </where>
+    <order-by field="InvDat" type="DESC"/>
+    <variable id="Sta" type="STRING" name="CrtMyInvSta"/>
+  </query>
+  <!-- Invoice detail of the owner: same as the staff one, and only the invoices of the owner of the connected user. An
+       invoice number of another owner (sent by hand, not from the grid) finds no row, so it is never shown or printed -->
+  <query id="VetMyInvHdr" permission="portal.read">
+    <table id="VetInvDoc"/>
+    <field id="IdeInv"/>
+    <field id="InvNum"/>
+    <field id="OwnNam"/>
+    <field id="OwnAdr"/>
+    <field id="OwnCit"/>
+    <field id="OwnEml"/>
+    <field id="PetNam"/>
+    <field id="InvIso"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="VetInvStatus"/>
+    <field id="Sub"/>
+    <field id="Tax"/>
+    <field id="Amt"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+        <filter left-field="IdeInv" condition="eq" right-variable="IdeInv"/>
+      </and>
+    </where>
+    <variable id="IdeInv" type="INTEGER" name="IdeInv"/>
+  </query>
+  <query id="VetMyInvLinLst" permission="portal.read">
+    <table id="VetInvLinDoc"/>
+    <field id="Pos"/>
+    <field id="Con" alias="LinCon" translate="VetInvConcept"/>
+    <field id="Qty" alias="LinQty"/>
+    <field id="Prc" alias="LinPrc"/>
+    <field id="Amt" alias="LinAmt"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+        <filter left-field="IdeInv" condition="eq" right-variable="IdeInv"/>
+      </and>
+    </where>
+    <order-by field="Pos" type="ASC"/>
+    <variable id="IdeInv" type="INTEGER" name="IdeInv"/>
+  </query>
+  <!-- Upcoming appointments of the connected owner -->
+  <query id="VetMyUpcoming" permission="portal.read">
+    <table id="VetAptLst"/>
+    <field id="IdeApt"/>
+    <field id="PetNam"/>
+    <field id="AptDat" transform="DATE"/>
+    <field id="AptTim" transform="TIME"/>
+    <field id="Rea" alias="ReaTxt" translate="VetVisitType"/>
+    <field id="Sta" alias="StaTxt" translate="VetAptStatus"/>
+    <field id="Ton"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+        <filter left-field="Sta" condition="in" right-variable="Open"/>
+        <filter left-field="AptDat" condition="ge" right-variable="Today"/>
+      </and>
+    </where>
+    <order-by field="AptDat" type="ASC"/>
+    <order-by field="AptTim" type="ASC"/>
+    <variable id="Open" type="STRING_TO_LIST" value="PENDING,CONFIRMED"/>
+    <variable id="Today" type="SYSTEM_DATE"/>
+  </query>
+  <!-- Appointment of the connected owner, to check that it is hers or his -->
+  <query id="VetMyOpenApt" server-only="true">
+    <table id="VetApt"/>
+    <field id="IdeApt"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+        <filter left-field="IdeApt" condition="eq" right-variable="Apt"/>
+      </and>
+    </where>
+    <variable id="Apt" type="INTEGER" name="IdeApt"/>
+  </query>
+  <!-- Pet of the connected owner: the appointment request of an owner takes the pet through this query, so a pet of another owner is never stored -->
+  <query id="VetMyPetCheck" server-only="true">
+    <table id="VetPet"/>
+    <field id="IdePet"/>
+    <where>
+      <and>
+        <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+        <filter left-field="IdePet" condition="eq" right-variable="Pet"/>
+        <filter left-field="Act" condition="eq" right-variable="Act"/>
+      </and>
+    </where>
+    <variable id="Pet" type="INTEGER" name="IdePet"/>
+    <variable id="Act" type="INTEGER" value="1"/>
+  </query>
+</queries>

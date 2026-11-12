@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Enumerated.xml
+    Description: Lists of values of the veterinary clinic. Their labels are locale keys, so each user sees them in
+                 their language (also in the queries that use translate="Group")
+-->
+<enumerated xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/enumerated.xsd">
+  <group id="VetSpecies">
+    <option label="VET_SPECIES_DOG" value="DOG"/>
+    <option label="VET_SPECIES_CAT" value="CAT"/>
+    <option label="VET_SPECIES_RABBIT" value="RABBIT"/>
+    <option label="VET_SPECIES_BIRD" value="BIRD"/>
+    <option label="VET_SPECIES_REPTILE" value="REPTILE"/>
+  </group>
+  <group id="VetSex">
+    <option label="VET_SEX_M" value="M"/>
+    <option label="VET_SEX_F" value="F"/>
+  </group>
+  <group id="VetVisitType">
+    <option label="VET_VISIT_CHECKUP" value="CHECKUP"/>
+    <option label="VET_VISIT_VACCINATION" value="VACCINATION"/>
+    <option label="VET_VISIT_DENTAL" value="DENTAL"/>
+    <option label="VET_VISIT_SURGERY" value="SURGERY"/>
+    <option label="VET_VISIT_EMERGENCY" value="EMERGENCY"/>
+  </group>
+  <group id="VetInvConcept">
+    <option label="VET_VISIT_CHECKUP" value="CHECKUP"/>
+    <option label="VET_VISIT_VACCINATION" value="VACCINATION"/>
+    <option label="VET_VISIT_DENTAL" value="DENTAL"/>
+    <option label="VET_VISIT_SURGERY" value="SURGERY"/>
+    <option label="VET_VISIT_EMERGENCY" value="EMERGENCY"/>
+    <option label="VET_INV_CONCEPT_VISIT" value="VISIT"/>
+    <option label="VET_INV_CONCEPT_MATERIALS" value="MATERIALS"/>
+    <option label="VET_INV_CONCEPT_CLINIC" value="CLINIC"/>
+  </group>
+  <group id="VetAptStatus">
+    <option label="VET_APT_STATUS_PENDING" value="PENDING"/>
+    <option label="VET_APT_STATUS_CONFIRMED" value="CONFIRMED"/>
+    <option label="VET_APT_STATUS_DONE" value="DONE"/>
+    <option label="VET_APT_STATUS_CANCELLED" value="CANCELLED"/>
+  </group>
+  <group id="VetVaccine">
+    <option label="VET_VACCINE_RABIES" value="RABIES"/>
+    <option label="VET_VACCINE_POLYVALENT" value="POLYVALENT"/>
+    <option label="VET_VACCINE_FELINE_LEUKEMIA" value="FELINE_LEUKEMIA"/>
+    <option label="VET_VACCINE_KENNEL_COUGH" value="KENNEL_COUGH"/>
+    <option label="VET_VACCINE_MYXOMATOSIS" value="MYXOMATOSIS"/>
+  </group>
+  <group id="VetVacStatus">
+    <option label="VET_VAC_STATUS_OVERDUE" value="OVERDUE"/>
+    <option label="VET_VAC_STATUS_DUE_SOON" value="DUE_SOON"/>
+    <option label="VET_VAC_STATUS_UP_TO_DATE" value="UP_TO_DATE"/>
+  </group>
+  <group id="VetInvStatus">
+    <option label="VET_INV_STATUS_PAID" value="PAID"/>
+    <option label="VET_INV_STATUS_PENDING" value="PENDING"/>
+    <option label="VET_INV_STATUS_OVERDUE" value="OVERDUE"/>
+  </group>
+  <group id="VetDocType">
+    <option label="VET_DOC_TYPE_XRAY" value="XRAY"/>
+    <option label="VET_DOC_TYPE_LAB" value="LAB"/>
+    <option label="VET_DOC_TYPE_REPORT" value="REPORT"/>
+    <option label="VET_DOC_TYPE_OTHER" value="OTHER"/>
+  </group>
+  <group id="VetReqStatus">
+    <option label="VET_REQ_STATUS_PENDING" value="PENDING"/>
+    <option label="VET_REQ_STATUS_HANDLED" value="HANDLED"/>
+    <option label="VET_REQ_STATUS_REJECTED" value="REJECTED"/>
+  </group>
+  <group id="VetYesNo">
+    <option label="VET_YES_NO_1" value="1"/>
+    <option label="VET_YES_NO_0" value="0"/>
+  </group>
+</enumerated>

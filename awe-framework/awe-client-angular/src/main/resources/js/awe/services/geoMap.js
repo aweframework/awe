@@ -1,6 +1,6 @@
 import {aweApplication} from "../awe";
 import * as L from "leaflet";
-import {DEFAULT_LATITUDE, DEFAULT_LONGITUDE, toPosition} from "awe-client-react/utilities/map";
+import {DEFAULT_LATITUDE, DEFAULT_LONGITUDE, PIN_CLASS, PIN_SELECTED_CLASS, pinHtml, toPosition} from "awe-client-react/utilities/map";
 import {TestAttributes, TestIds} from "../data/testIds";
 import {ClientActions} from "../data/actions";
 
@@ -93,6 +93,7 @@ aweApplication.factory('GeoMap',
           const controller = component.controller;
           const container = this.element[0].querySelector(".awe-map-canvas");
           let markerById = {};
+          let pinIds = new Set();
 
           /**
            * Retrieve the ids of the selected rows
@@ -119,7 +120,7 @@ aweApplication.factory('GeoMap',
 
           /**
            * Retrieve the points of the rows that have valid coordinates
-           * @returns {object[]} Points: {id, position: [latitude, longitude], label}
+           * @returns {object[]} Points: {id, position: [latitude, longitude], label, number}
            */
           const getPoints = () => {
             return (component.model.values || []).flatMap(row => {
@@ -128,7 +129,9 @@ aweApplication.factory('GeoMap',
                 return [];
               }
               const text = controller.markerLabel ? row[controller.markerLabel] : undefined;
-              return [{id: String(row.id), position, label: isSet(text) ? String(text) : undefined}];
+              const number = controller.markerNumber ? row[controller.markerNumber] : undefined;
+              return [{id: String(row.id), position, label: isSet(text) ? String(text) : undefined,
+                number: isSet(number) ? String(number) : undefined}];
             });
           };
 
@@ -145,10 +148,13 @@ aweApplication.factory('GeoMap',
             const selectedIds = getSelectedIds();
             Object.entries(markerById).forEach(([pointId, marker]) => {
               const isSelected = selectedIds.includes(pointId);
-              marker.setStyle(isSelected ? SELECTED_STYLE : MARKER_STYLE);
+              const isPin = pinIds.has(pointId);
+              if (!isPin) {
+                marker.setStyle(isSelected ? SELECTED_STYLE : MARKER_STYLE);
+              }
               const markerElement = marker.getElement();
               if (markerElement) {
-                markerElement.classList.toggle(SELECTED_CLASS, isSelected);
+                markerElement.classList.toggle(isPin ? PIN_SELECTED_CLASS : SELECTED_CLASS, isSelected);
                 setAttributes(markerElement, {[TestAttributes.testId]: TestIds.mapMarker, "row-id": pointId, "map-id": component.id,
                   [TestAttributes.selected]: String(isSelected)});
               }
@@ -182,28 +188,41 @@ aweApplication.factory('GeoMap',
           component.drawMarkers = function () {
             markers.clearLayers();
             markerById = {};
+            pinIds = new Set();
             const route = component.model.route || [];
-            if (route.length > 0) {
-              // A route replaces the markers and the view goes to its first point
+            const showRoute = route.length > 0;
+            if (showRoute) {
               const line = L.polyline(route, ROUTE_STYLE);
               markers.addLayer(line);
               setAttributes(line.getElement(), {[TestAttributes.testId]: TestIds.mapRoute, "map-id": component.id});
-              map.setView(route[0], ROUTE_ZOOM);
-              component.rendered = true;
-              return;
+              if (!controller.routeMarkers) {
+                // A route replaces the markers and the view goes to its first point
+                map.setView(route[0], ROUTE_ZOOM);
+                component.rendered = true;
+                return;
+              }
             }
             const points = getPoints();
             points.forEach(point => {
-              const marker = L.circleMarker(point.position, {...MARKER_STYLE, className: MARKER_CLASS});
+              const numbered = point.number !== undefined;
+              const marker = numbered
+                ? L.marker(point.position, {icon: L.divIcon({className: PIN_CLASS, html: pinHtml(point.number), iconSize: null})})
+                : L.circleMarker(point.position, {...MARKER_STYLE, className: MARKER_CLASS});
               if (point.label !== undefined) {
                 marker.bindPopup(point.label);
               }
               marker.on("click", () => component.selectRow(point.id));
               markers.addLayer(marker);
               markerById[point.id] = marker;
+              if (numbered) {
+                pinIds.add(point.id);
+              }
             });
 
-            if (isSet(controller.centerLatitude) && isSet(controller.centerLongitude)) {
+            if (showRoute) {
+              // The view shows the whole route and its markers
+              map.fitBounds([...route, ...points.map(point => point.position)]);
+            } else if (isSet(controller.centerLatitude) && isSet(controller.centerLongitude)) {
               map.setView([Number(controller.centerLatitude), Number(controller.centerLongitude)], controller.zoom ?? DEFAULT_ZOOM);
             } else if (points.length > 0) {
               map.fitBounds(points.map(point => point.position));

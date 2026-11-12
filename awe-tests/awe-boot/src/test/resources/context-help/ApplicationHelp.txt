@@ -1427,6 +1427,10 @@
           </thead>
           <tbody>
           <tr>
+            <td><strong translate-multiple="PARAMETER_TYPE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
             <td><strong translate-multiple="PARAMETER_NAME"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
@@ -1440,6 +1444,10 @@
             <td></td>
           </tr><tr>
             <td><strong translate-multiple="PARAMETER_DATE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_UNREAD"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr>

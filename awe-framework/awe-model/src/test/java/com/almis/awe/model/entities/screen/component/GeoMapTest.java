@@ -19,7 +19,7 @@ class GeoMapTest {
     <screen template="window" label="Maps">
       <tag source="center">
         <map id="fleet" initial-load="query" target-action="TstMapPoints"
-             latitude="Lat" longitude="Lon" marker-label="Lug" zoom="4"
+             latitude="Lat" longitude="Lon" marker-label="Lug" marker-number="Seq" route-markers="true" zoom="4"
              center-latitude="43.86" center-longitude="1.11" style="expand">
           <dependency initial="true" server-action="data" target-action="Other">
             <dependency-element id="fleet" condition="eq" value="1"/>
@@ -42,6 +42,8 @@ class GeoMapTest {
     assertThat(map.getLatitude()).isEqualTo("Lat");
     assertThat(map.getLongitude()).isEqualTo("Lon");
     assertThat(map.getMarkerLabel()).isEqualTo("Lug");
+    assertThat(map.getMarkerNumber()).isEqualTo("Seq");
+    assertThat(map.getRouteMarkers()).isTrue();
     assertThat(map.getZoom()).isEqualTo(4);
     assertThat(map.getCenterLatitude()).isEqualTo(43.86);
     assertThat(map.getCenterLongitude()).isEqualTo(1.11);
@@ -60,6 +62,8 @@ class GeoMapTest {
 
     assertThat(copy).isNotSameAs(map);
     assertThat(copy.getMarkerLabel()).isEqualTo("Lug");
+    assertThat(copy.getMarkerNumber()).isEqualTo("Seq");
+    assertThat(copy.getRouteMarkers()).isTrue();
     assertThat(copy.getZoom()).isEqualTo(4);
     assertThat(copy.getChildrenByType(Dependency.class)).hasSize(1);
   }
@@ -73,6 +77,8 @@ class GeoMapTest {
     assertThat(json.get("latitude").asString()).isEqualTo("Lat");
     assertThat(json.get("longitude").asString()).isEqualTo("Lon");
     assertThat(json.get("markerLabel").asString()).isEqualTo("Lug");
+    assertThat(json.get("markerNumber").asString()).isEqualTo("Seq");
+    assertThat(json.get("routeMarkers").asBoolean()).isTrue();
     assertThat(json.get("zoom").asInt()).isEqualTo(4);
     assertThat(json.get("centerLatitude").asDouble()).isEqualTo(43.86);
     assertThat(json.get("centerLongitude").asDouble()).isEqualTo(1.11);

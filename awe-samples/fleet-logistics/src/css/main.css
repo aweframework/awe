@@ -1,0 +1,920 @@
+/*
+ * Meridian Freight: landing page, shipment tracking and quote request (public screens fleet-home, fleet-track and fleet-quote).
+ *
+ * Only --awe-* semantic tokens (no colour literals, no bare pixel sizes, no palette tokens), so the page follows the
+ * theme, the primary colour, light and dark and the density with nothing else to do. The interactive elements of the
+ * page are AWE buttons, which bring their own focus ring; these classes only draw layout and surfaces.
+ */
+
+.flt-landing {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface-subtle);
+  font-family: var(--awe-font-family-base);
+}
+
+/* ---- Top bar ---- */
+.flt-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-4);
+  padding: var(--awe-space-3) var(--awe-space-6);
+  background: var(--awe-color-surface);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.flt-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  font-size: var(--awe-font-size-lg);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.flt-brand-name,
+.flt-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+}
+
+.flt-brand-name svg,
+.flt-card-title svg {
+  flex: none;
+  color: var(--awe-color-primary-text);
+}
+
+.flt-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+}
+
+/* ---- Hero ---- */
+.flt-hero,
+.flt-section,
+.flt-form-wrap {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  box-sizing: border-box;
+}
+
+.flt-hero {
+  position: relative;
+  display: grid;
+  gap: var(--awe-space-8);
+  align-items: center;
+  margin-top: var(--awe-space-8);
+  padding: var(--awe-space-10) var(--awe-space-8);
+  overflow: hidden;
+  border-radius: var(--awe-radius-xl);
+  background:
+    radial-gradient(circle at 90% 10%, color-mix(in srgb, var(--awe-color-primary) 28%, transparent), transparent 55%),
+    radial-gradient(circle at 5% 100%, color-mix(in srgb, var(--awe-color-primary) 16%, transparent), transparent 50%),
+    var(--awe-color-primary-subtle);
+}
+
+.flt-eyebrow {
+  margin: 0 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-label);
+  font-weight: var(--awe-font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--awe-color-primary-text);
+}
+
+.flt-hero h1,
+.flt-form-card h1 {
+  margin: 0 0 var(--awe-space-4);
+  font-size: var(--awe-font-size-display);
+  line-height: 1.15;
+  font-weight: var(--awe-font-weight-bold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.flt-lead,
+.flt-section-lead {
+  max-width: 40rem;
+  margin: 0 0 var(--awe-space-6);
+  font-size: var(--awe-font-size-md);
+  line-height: 1.6;
+  color: var(--awe-color-text);
+}
+
+.flt-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--awe-space-3);
+}
+
+.flt-hero-stats {
+  display: grid;
+  gap: var(--awe-space-3);
+}
+
+.flt-stat {
+  display: flex;
+  flex-direction: column;
+  padding: var(--awe-space-4) var(--awe-space-5);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+}
+
+.flt-stat strong {
+  font-size: var(--awe-font-size-3xl);
+  line-height: 1.1;
+  color: var(--awe-color-primary-text);
+}
+
+.flt-stat span {
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-sm);
+}
+
+/* ---- Sections ---- */
+.flt-section {
+  padding: var(--awe-space-10) var(--awe-space-6) var(--awe-space-4);
+}
+
+.flt-section h2 {
+  margin: 0 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-2xl);
+  font-weight: var(--awe-font-weight-bold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.flt-section-alt {
+  margin-top: var(--awe-space-8);
+  padding-bottom: var(--awe-space-10);
+  border-radius: var(--awe-radius-xl);
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.flt-cards,
+.flt-members {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--awe-space-4);
+}
+
+.flt-card,
+.flt-member {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-5);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-card);
+  transition: transform var(--awe-motion-duration-base) var(--awe-motion-easing-standard),
+    box-shadow var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+}
+
+.flt-card:hover,
+.flt-member:hover {
+  transform: translateY(calc(-1 * var(--awe-space-1)));
+  box-shadow: var(--awe-shadow-md);
+}
+
+.flt-card h3,
+.flt-member h3 {
+  margin: var(--awe-space-2) 0 0;
+  font-size: var(--awe-font-size-md);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.flt-card p,
+.flt-member p {
+  margin: 0;
+  color: var(--awe-color-text-muted);
+  line-height: 1.5;
+}
+
+.flt-avatar {
+  display: grid;
+  place-items: center;
+  width: var(--awe-size-control-lg);
+  height: var(--awe-size-control-lg);
+  border-radius: var(--awe-radius-full);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-on-primary);
+  background: var(--awe-color-primary);
+}
+
+/* ---- Opening hours and contact ---- */
+.flt-split {
+  display: grid;
+  gap: var(--awe-space-8);
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+}
+
+.flt-hours,
+.flt-contact {
+  margin: var(--awe-space-4) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.flt-hours li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--awe-space-4);
+  padding: var(--awe-space-3) 0;
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle);
+}
+
+.flt-hours-day {
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-emphasis);
+}
+
+.flt-hours-time {
+  color: var(--awe-color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.flt-contact li {
+  padding: var(--awe-space-2) 0;
+}
+
+/* ---- Footer ---- */
+.flt-footer {
+  margin-top: auto;
+  padding: var(--awe-space-8) var(--awe-space-6);
+  text-align: center;
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-sm);
+}
+
+/* ---- Appointment request form ---- */
+.flt-form-wrap {
+  padding: var(--awe-space-8) var(--awe-space-4);
+  max-width: 48rem;
+}
+
+.flt-form-card {
+  padding: var(--awe-space-8);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-xl);
+  background: var(--awe-color-surface);
+  box-shadow: var(--awe-shadow-md);
+}
+
+.flt-form-card .grid-container {
+  min-height: 24rem;
+}
+
+.flt-form-card h2 {
+  margin: var(--awe-space-6) 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-lg);
+  color: var(--awe-color-text);
+}
+
+.flt-track-map {
+  height: 22rem;
+  overflow: hidden;
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-sm);
+}
+
+.flt-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--awe-space-6);
+}
+
+/* ---- Wide screens: copy and figures side by side ---- */
+@media (min-width: 60rem) {
+  .flt-hero {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  }
+}
+
+/* ---- Narrow screens ---- */
+@media (max-width: 40rem) {
+  .flt-topbar {
+    padding-inline: var(--awe-space-4);
+  }
+
+  .flt-hero {
+    margin-inline: var(--awe-space-4);
+    width: auto;
+    padding: var(--awe-space-6) var(--awe-space-5);
+  }
+
+  .flt-form-card {
+    padding: var(--awe-space-5);
+  }
+}
+
+/* ---- Reduced motion: no lift, no transition ---- */
+@media (prefers-reduced-motion: reduce) {
+  .flt-card,
+  .flt-member {
+    transition: none;
+  }
+
+  .flt-card:hover,
+  .flt-member:hover {
+    transform: none;
+  }
+}
+
+/* ---- Main screens: a grid window gets room for its rows instead of a fixed short height ---- */
+.flt-tall {
+  min-height: 46rem;
+}
+
+/* ---- Try the demo: sample users and passwords of the landing page ---- */
+.flt-demo {
+  margin-block: var(--awe-space-6);
+  padding: var(--awe-space-6);
+  border: var(--awe-border-width) solid var(--awe-color-primary);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-primary-subtle);
+}
+
+.flt-demo h2 {
+  margin-top: 0;
+}
+
+.flt-demo-table {
+  display: grid;
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card);
+  background: var(--awe-color-surface);
+  overflow: hidden;
+}
+
+.flt-demo-row {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(7rem, 1fr) minmax(0, 4fr);
+  gap: var(--awe-space-3);
+  align-items: baseline;
+  padding: var(--awe-space-2) var(--awe-space-4);
+  border-top: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  color: var(--awe-color-text);
+}
+
+.flt-demo-row:first-child {
+  border-top: 0;
+}
+
+.flt-demo-head {
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-muted);
+  background: var(--awe-color-surface-subtle);
+}
+
+.flt-demo-user,
+.flt-demo-pass {
+  font-family: var(--awe-font-family-monospace);
+  color: var(--awe-color-text-emphasis);
+  overflow-wrap: anywhere;
+}
+
+.flt-demo-public,
+.flt-demo-note {
+  margin: var(--awe-space-3) 0 0;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text);
+}
+
+.flt-demo-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-4);
+  margin-top: var(--awe-space-4);
+}
+
+.flt-demo-actions .flt-demo-note {
+  margin: 0;
+}
+
+@media (max-width: 40rem) {
+  .flt-demo {
+    margin-inline: var(--awe-space-4);
+    padding: var(--awe-space-4);
+  }
+
+  .flt-demo-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--awe-space-1) var(--awe-space-3);
+  }
+
+  .flt-demo-head .flt-demo-role,
+  .flt-demo-head span:last-child {
+    display: none;
+  }
+
+  .flt-demo-role {
+    grid-column: 1 / -1;
+    font-size: var(--awe-font-size-sm);
+  }
+}
+
+/* ---- Own logo in the private area: truck mark in the primary colour plus the name in capitals (light and dark) ---- */
+#page-home .layout-sidebar h1.application-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  aspect-ratio: auto;
+  min-width: 0;
+  background: none;
+  font-size: var(--awe-font-size-md);
+  font-weight: var(--awe-font-weight-bold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--awe-color-text-emphasis);
+}
+
+#page-home .layout-sidebar h1.application-logo::before {
+  content: "";
+  flex: none;
+  width: var(--awe-header-logo-height);
+  aspect-ratio: 1;
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/truck-mark.svg") no-repeat center / contain;
+}
+
+#page-home .layout-sidebar h1.application-logo::after {
+  display: none;
+}
+
+#page-home .layout-sidebar h1.application-logo span {
+  display: inline;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 1025px) {
+  #page-home .layout-static-inactive h1.application-logo {
+    aspect-ratio: auto;
+  }
+
+  #page-home .layout-static-inactive h1.application-logo span {
+    display: none;
+  }
+}
+
+/* ---- Industrial look: square corners, capitals, a strong grid and a full-bleed photo band ---- */
+.flt-landing h1,
+.flt-landing h2,
+.flt-landing h3 {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.flt-topbar {
+  border-bottom-width: calc(var(--awe-border-width) * 3);
+  border-bottom-color: var(--awe-color-primary);
+}
+
+.flt-band {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  min-height: 32rem;
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--awe-color-text-emphasis);
+}
+
+.flt-band-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The overlay keeps the text readable whatever the photo is: the text colour and the plate are opposite tokens */
+.flt-band::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--awe-color-text-emphasis) 92%, transparent) 0%,
+    color-mix(in srgb, var(--awe-color-text-emphasis) 78%, transparent) 55%,
+    color-mix(in srgb, var(--awe-color-text-emphasis) 45%, transparent) 100%);
+}
+
+/* Motion arrows along the lower edge */
+.flt-band::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: var(--awe-space-3);
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/arrows.svg") repeat-x left center / auto 100%;
+}
+
+.flt-band-copy {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding: var(--awe-space-10) var(--awe-space-6) var(--awe-space-12);
+  box-sizing: border-box;
+  color: var(--awe-color-surface);
+}
+
+.flt-band-copy h1,
+.flt-band-copy .flt-lead,
+.flt-band-copy .flt-eyebrow {
+  max-width: 40rem;
+  color: var(--awe-color-surface);
+}
+
+.flt-band-copy .flt-eyebrow {
+  padding-left: var(--awe-space-3);
+  border-left: calc(var(--awe-border-width) * 4) solid var(--awe-color-primary);
+}
+
+.flt-band-caption {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  margin: var(--awe-space-6) 0 0;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-surface);
+}
+
+/* Stats strip: a hard grid of cells under the band */
+.flt-strip {
+  width: 100%;
+  background: var(--awe-color-surface);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.flt-strip-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  max-width: 72rem;
+  margin-inline: auto;
+}
+
+.flt-strip .flt-stat {
+  padding: var(--awe-space-5) var(--awe-space-6);
+  border: 0;
+  border-right: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.flt-strip .flt-stat:first-child {
+  border-left: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+/* Cards: square, with a thick rail in the primary colour */
+.flt-card,
+.flt-member,
+.flt-stat,
+.flt-section-alt,
+.flt-demo,
+.flt-demo-table,
+.flt-form-card,
+.flt-gallery-item {
+  border-radius: var(--awe-radius-sm);
+}
+
+.flt-card,
+.flt-member {
+  border-left: calc(var(--awe-border-width) * 4) solid var(--awe-color-primary);
+  box-shadow: none;
+}
+
+.flt-card-title svg {
+  padding: var(--awe-space-1);
+  box-sizing: content-box;
+  background: var(--awe-color-primary);
+  color: var(--awe-color-on-primary);
+}
+
+.flt-section h2 {
+  display: inline-block;
+  padding-bottom: var(--awe-space-1);
+  border-bottom: calc(var(--awe-border-width) * 3) solid var(--awe-color-primary);
+}
+
+.flt-section h2.flt-card-title {
+  border-bottom: 0;
+}
+
+.flt-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
+  gap: var(--awe-space-4);
+}
+
+.flt-gallery-item,
+.flt-form-photo {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  background: var(--awe-color-surface);
+}
+
+.flt-gallery-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.flt-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.flt-gallery-item .flt-photo {
+  aspect-ratio: 3 / 2;
+}
+
+.flt-gallery-item figcaption,
+.flt-form-photo figcaption {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-3) var(--awe-space-4);
+  border-top: calc(var(--awe-border-width) * 3) solid var(--awe-color-primary);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+  background: var(--awe-color-surface);
+}
+
+/* Stylised route and map as the third tile of the gallery */
+.flt-route-card {
+  justify-content: flex-end;
+  background: var(--awe-color-primary-subtle);
+}
+
+.flt-route {
+  flex: 1;
+  min-height: 9rem;
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/map.svg") no-repeat center / contain;
+}
+
+.flt-demo {
+  border-left: calc(var(--awe-border-width) * 4) solid var(--awe-color-primary);
+}
+
+.flt-demo::after {
+  content: "";
+  position: absolute;
+  inset: var(--awe-space-3) var(--awe-space-4) auto auto;
+  width: var(--awe-space-12);
+  height: var(--awe-space-4);
+  background-color: var(--awe-color-primary);
+  opacity: 0.35;
+  mask: url("../main/resources/static/images/illustrations/route.svg") no-repeat center / 100% 100%;
+}
+
+.flt-demo {
+  position: relative;
+}
+
+.flt-form-wrap {
+  display: grid;
+  gap: var(--awe-space-6);
+  max-width: 64rem;
+}
+
+.flt-form-photo {
+  display: none;
+}
+
+@media (min-width: 60rem) {
+  .flt-form-wrap {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    align-items: start;
+  }
+
+  /* A form without a photo (tracking) takes the whole row */
+  .flt-form-wrap > .flt-form-card:only-child {
+    grid-column: 1 / -1;
+  }
+
+  .flt-form-photo {
+    display: block;
+    position: sticky;
+    top: var(--awe-space-6);
+  }
+
+  .flt-form-photo .flt-photo {
+    aspect-ratio: 3 / 4;
+  }
+}
+
+.flt-tall {
+  border-radius: var(--awe-radius-sm);
+}
+
+@media (max-width: 40rem) {
+  .flt-band {
+    min-height: 28rem;
+  }
+
+  .flt-band-copy {
+    padding-inline: var(--awe-space-4);
+  }
+
+  .flt-demo {
+    width: auto;
+  }
+
+  .flt-brand {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .flt-brand-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .flt-topbar-actions {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  /* Icon only: the text of the buttons of the bar is kept for assistive technology */
+  .flt-topbar-actions .btn-ghost .p-button-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .flt-topbar-actions .btn-ghost {
+    justify-content: center;
+    width: var(--awe-size-control);
+    height: var(--awe-size-control);
+    padding: 0;
+  }
+
+  .flt-topbar-actions .btn-ghost .p-button-icon {
+    margin: 0;
+  }
+
+  .flt-strip .flt-stat {
+    border-left: 0;
+    border-right: 0;
+    border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+  }
+}
+
+/* ---- Private area: a control-room shell, square and ruled ---- */
+#page-home {
+  --awe-menu-background: var(--awe-color-surface-subtle);
+  --awe-menu-item-radius: var(--awe-radius-sm);
+}
+
+#page-home .layout-sidebar {
+  border-right: calc(var(--awe-border-width) * 3) solid var(--awe-color-primary);
+}
+
+#page-home .layout-topbar {
+  border-bottom: calc(var(--awe-border-width) * 3) solid var(--awe-color-primary);
+}
+
+#page-home .sidebar-header {
+  background: var(--awe-color-surface);
+}
+
+/* The filter row as a dense command bar above the big grid */
+#page-home .flt-command {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--awe-space-2) var(--awe-space-3);
+  padding: var(--awe-space-2) var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-left: calc(var(--awe-border-width) * 4) solid var(--awe-color-primary);
+  border-radius: var(--awe-radius-sm);
+  background: var(--awe-color-surface-subtle);
+}
+
+#page-home .flt-command label {
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--awe-color-text-muted);
+}
+
+/* ---- Public topbar: the same mark as the sidebar and the sign-in logo, in the primary colour ---- */
+.flt-brand-name::before {
+  content: "";
+  flex: none;
+  width: var(--awe-space-8);
+  aspect-ratio: 1;
+  background-color: var(--awe-color-primary);
+  mask: url("../main/resources/static/images/illustrations/truck-mark.svg") no-repeat center / contain;
+}
+
+/* Sign-in: the logo is the mark plus the name, so it gets a taller slot than the default AWE logo */
+.signin-container {
+  --awe-login-logo-height: calc(var(--awe-space-8) + var(--awe-space-4));
+}
+
+/* ---- Sign-in: an industrial form column beside the route grid ---- */
+.signin-page[data-awe-login-layout="split"] .signin-title {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.signin-page[data-awe-login-layout="split"] .signin-form label {
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.signin-page[data-awe-login-layout="split"] .signin-form .p-inputtext,
+.signin-page[data-awe-login-layout="split"] .signin-form .p-inputgroup-addon,
+.signin-page[data-awe-login-layout="split"] .signin-form .p-button {
+  border-radius: var(--awe-radius-sm);
+}
+
+.signin-page[data-awe-login-layout="split"] .signin-container {
+  border-right: calc(var(--awe-border-width) * 3) solid var(--awe-color-primary);
+}
+
+/* ---- Top bar on a phone: one row; the mark keeps its size, the name truncates and below 22.5rem leaves only the mark ---- */
+@media (max-width: 40rem) {
+  .flt-topbar {
+    flex-wrap: nowrap;
+    gap: var(--awe-space-2);
+  }
+
+  .flt-topbar .flt-brand {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+
+  .flt-topbar .flt-brand-name {
+    position: relative;
+    display: block;
+    min-width: 0;
+    min-height: var(--awe-space-8);
+    padding-inline-start: calc(var(--awe-space-8) + var(--awe-space-2));
+    overflow: hidden;
+    line-height: var(--awe-space-8);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .flt-topbar .flt-brand-name::before {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-start: 0;
+    height: var(--awe-space-8);
+  }
+
+  .flt-topbar-actions {
+    flex: none;
+    gap: var(--awe-space-1);
+  }
+
+  .flt-topbar-actions .p-button {
+    margin: 0;
+  }
+}
+
+/* Below a phone width the name would show a few letters: the mark alone is the brand (the window width in px: a media
+   query cannot read a token) */
+@media (max-width: 380px) {
+  .flt-topbar .flt-brand-name {
+    min-width: var(--awe-space-8);
+    padding-inline-start: var(--awe-space-8);
+    font-size: 0;
+  }
+}
+
+/* ---- Route planner: the tree keeps its columns, the map takes the rest ---- */
+.expandible-horizontal > .flt-routes-tree {
+  flex-grow: 2;
+}

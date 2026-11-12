@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<maintain>
+  <target name="LeakWrite" public="true"><insert><table id="FixPet"/><field id="Nam" variable="Nam"/><variable id="Nam" type="STRING" name="Nam"/></insert></target>
+</maintain>

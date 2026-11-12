@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-my-pets.xml
+    Description: Pets of the pet owner with their medical history in the detail of each row (only their own pets: the queries filter by the connected user)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="VET_MENU_MY_PETS">
+  <tag source="center">
+    <window style="expand" label="VET_MENU_MY_PETS" icon="lucide:paw-print">
+      <grid id="GrdMyPet" style="expand" initial-load="query" server-action="data" target-action="VetMyPetLst" max="12">
+        <column label="VET_COL_PET" name="Nam" sort-field="Nam" align="left" charlength="18" width="*" secondary-field="Brd" avatar-field="Ini" sendable="false"/>
+        <column label="VET_COL_SPECIES" name="SpcTxt" sort-field="Spc" align="left" charlength="12" sendable="false"/>
+        <column label="VET_COL_SEX" name="SexTxt" sort-field="SexTxt" align="left" charlength="9" sendable="false"/>
+        <column label="VET_COL_AGE" name="Age" sort-field="Age" align="center" charlength="10" sendable="false"/>
+        <column label="VET_COL_WEIGHT" name="Wgt" sort-field="Wgt" align="right" charlength="10" sendable="false"/>
+        <column label="VET_COL_NEXT_VACCINE" name="NxtVac" sort-field="NxtVac" align="center" charlength="13" sendable="false"/>
+        <column name="IdePet" hidden="true"/>
+        <column name="Spc" hidden="true" sendable="false"/>
+        <column name="Brd" hidden="true" sendable="false"/>
+        <column name="Ini" hidden="true" sendable="false"/>
+        <row-detail style="row-detail-card">
+          <grid id="GrdMyHist" server-action="data" target-action="VetMyPetVisLst" max="10">
+            <column label="VET_COL_DATE" name="VisDat" sort-field="VisDat" align="center" charlength="12" sendable="false"/>
+            <column label="VET_COL_TYPE" name="TypTxt" sort-field="TypTxt" align="left" charlength="14" sendable="false"/>
+            <column label="VET_COL_VET" name="VetNam" sort-field="VetNam" align="left" charlength="18" sendable="false"/>
+            <column label="VET_COL_DIAGNOSIS" name="Dia" sort-field="Dia" align="left" charlength="28" width="*" sendable="false"/>
+            <column label="VET_COL_TREATMENT" name="Trt" sort-field="Trt" align="left" charlength="28" sendable="false"/>
+            <column label="VET_COL_FEE" name="Fee" sort-field="Fee" align="right" charlength="10" sendable="false"/>
+          </grid>
+        </row-detail>
+      </grid>
+    </window>
+  </tag>
+</screen>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-dashboard.xml
+    Description: Staff dashboard: key figures as cards, ECharts charts (visits and revenue per month, patients by species) and the vaccinations to renew
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="VET_MENU_DASHBOARD">
+  <tag source="buttons">
+    <button label="VET_BTN_REFRESH" icon="lucide:refresh-cw" id="ButRefresh" button-type="button">
+      <button-action type="reload"/>
+    </button>
+  </tag>
+  <tag source="center" expandible="vertical">
+    <tag type="div" style="awe-card-grid m-2">
+      <card id="CrdDshVisits" title="VET_DSH_VISITS" icon="lucide:stethoscope" caption="VET_DSH_VS_PREVIOUS" initial-load="query" target-action="VetDshVisits" number-decimals="0"/>
+      <card id="CrdDshRevenue" title="VET_DSH_REVENUE" icon="lucide:badge-euro" icon-tone="success" unit="EUR" caption="VET_DSH_VS_PREVIOUS" initial-load="query" target-action="VetDshRevenue" number-decimals="0"/>
+      <card id="CrdDshPets" title="VET_DSH_PETS" icon="lucide:paw-print" icon-tone="info" initial-load="query" target-action="VetDshPets" number-decimals="0"/>
+      <card id="CrdDshRequests" title="VET_DSH_REQUESTS" icon="lucide:inbox" icon-tone="warning" initial-load="query" target-action="VetDshRequests" number-decimals="0"/>
+      <card id="CrdDshOverdue" title="VET_DSH_OVERDUE" icon="lucide:syringe" icon-tone="danger" good-trend="down" initial-load="query" target-action="VetDshOverdue" number-decimals="0"/>
+    </tag>
+    <tag type="div" style="h-20rem" expandible="horizontal">
+      <window label="VET_DSH_CHART_VISITS" icon="lucide:chart-column" style="expand">
+        <chart id="ChrDshVisits" type="column" initial-load="query" target-action="VetDshVisMon">
+          <chart-legend enabled="false"/>
+          <x-axis type="category"/>
+          <y-axis/>
+          <chart-tooltip number-decimals="0"/>
+          <chart-serie id="visits" x-value="month" y-value="visits" label="VET_DSH_CHART_VISITS_SERIE"/>
+        </chart>
+      </window>
+      <window label="VET_DSH_CHART_REVENUE" icon="lucide:chart-line" style="expand">
+        <chart id="ChrDshRevenue" type="areaspline" initial-load="query" target-action="VetDshRevMon">
+          <chart-legend enabled="false"/>
+          <x-axis type="category"/>
+          <y-axis/>
+          <chart-tooltip suffix=" EUR" number-decimals="0"/>
+          <chart-serie id="revenue" x-value="month" y-value="revenue" label="VET_DSH_CHART_REVENUE_SERIE"/>
+        </chart>
+      </window>
+      <window label="VET_DSH_CHART_SPECIES" icon="lucide:chart-pie" style="expand">
+        <chart id="ChrDshSpecies" type="donut" initial-load="query" target-action="VetDshSpecies">
+          <chart-legend enabled="true"/>
+          <x-axis/>
+          <y-axis/>
+          <chart-tooltip number-decimals="0"/>
+          <chart-serie id="species" x-value="species" y-value="pets" label="VET_DSH_CHART_SPECIES_SERIE"/>
+        </chart>
+      </window>
+    </tag>
+    <tag type="div" style="vet-tall" expandible="horizontal">
+      <window label="VET_DSH_DUE" icon="lucide:syringe" style="expand">
+        <grid id="GrdDshDue" style="expand" initial-load="query" server-action="data" target-action="VetDshDueVac" max="10">
+          <column label="VET_COL_PET" name="PetNam" sort-field="PetNam" align="left" charlength="18" width="*" secondary-field="OwnNam"/>
+          <column label="VET_COL_VACCINE" name="VccTxt" sort-field="VccTxt" align="left" charlength="18" sendable="false"/>
+          <column label="VET_COL_NEXT_DOSE" name="NxtDat" sort-field="NxtDat" align="center" charlength="13" sendable="false"/>
+          <column label="VET_COL_STATUS" name="StaTxt" sort-field="Sta" align="left" charlength="13" status-field="Ton" sendable="false"/>
+          <column name="OwnNam" hidden="true"/>
+          <column name="Ton" hidden="true"/>
+        </grid>
+      </window>
+    </tag>
+  </tag>
+</screen>

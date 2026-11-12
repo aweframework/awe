@@ -587,6 +587,7 @@ export function coverageSource(file) {
   if (file.endsWith('.java')) {
     if (!/^(awe-framework|awe-samples)\/.*\/src\/main\/java\//.test(file)) return null;
     if (/^awe-framework\/(awe-testing|awe-boot-angular-archetype|awe-boot-react-archetype)\//.test(file)) return null;
+    if (/^awe-samples\//.test(file)) return null;
     return { kind: 'jacoco', key: file.replace(/^.*\/src\/main\/java\//, '') };
   }
   if (/^awe-framework\/awe-client-angular\/src\/main\/resources\/js\/awe\/.*\.js$/.test(file)) {

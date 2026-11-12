@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-pets.xml
+    Description: Pets with their medical history in the detail of each row (nested grid), numeric weight, birth date, owner suggest and archive
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="VET_MENU_PETS" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW"/>
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE"/>
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE"/>
+    <criteria id="PnlMod" component="hidden" value="new"/>
+  </tag>
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdPet"/>
+    </button>
+    <button label="VET_BTN_NEW_PET" icon="lucide:plus" id="ButNew" style="btn-primary" permission="pets.create">
+      <button-action type="unselect-all-rows" target="GrdPet"/>
+      <button-action type="value" target="PnlMod" value="new"/>
+      <button-action type="reset" target="IdeOwn"/>
+      <button-action type="reset" target="Nam"/>
+      <button-action type="reset" target="Spc"/>
+      <button-action type="reset" target="Brd"/>
+      <button-action type="reset" target="Sex"/>
+      <button-action type="reset" target="BrnDat"/>
+      <button-action type="reset" target="Wgt"/>
+      <button-action type="reset" target="Chp"/>
+      <button-action type="dialog" target="PnlPet"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="VET_MENU_PETS" icon="lucide:paw-print">
+      <tag type="div" style="panel-body vet-chips">
+        <criteria label="VET_SEARCH_PETS" id="CrtPetSch" component="text" icon="lucide:search" style="col-xs-12 col-sm-6 col-lg-4" placeholder="VET_SEARCH_PETS_PH"/>
+        <criteria label="VET_COL_SPECIES" id="CrtPetSpc" component="button-radio" initial-load="enum" target-action="VetSpecies" optional="true" style="col-xs-12 col-lg-8"/>
+      </tag>
+      <grid id="GrdPet" style="expand" initial-load="query" server-action="data" target-action="VetPetLst" max="15">
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit"/>
+          <button-action type="dialog" target="PnlPet" edit-permission="pets.update"/>
+        </column>
+        <column label="VET_COL_PET" name="Nam" sort-field="Nam" align="left" charlength="18" width="*" secondary-field="OwnNam" avatar-field="Ini" sendable="false"/>
+        <column label="VET_COL_SPECIES" name="SpcTxt" sort-field="Spc" align="left" charlength="12" sendable="false"/>
+        <column label="VET_COL_BREED" name="Brd" sort-field="Brd" align="left" charlength="20" sendable="false"/>
+        <column label="VET_COL_SEX" name="SexTxt" sort-field="SexTxt" align="left" charlength="9" sendable="false"/>
+        <column label="VET_COL_AGE" name="Age" sort-field="Age" align="center" charlength="10" sendable="false"/>
+        <column label="VET_COL_WEIGHT" name="Wgt" sort-field="Wgt" align="right" charlength="10" sendable="false"/>
+        <column label="VET_COL_NEXT_VACCINE" name="NxtVac" sort-field="NxtVac" align="center" charlength="13" sendable="false"/>
+        <column name="IdePet" hidden="true"/>
+        <column name="IdeOwn" hidden="true" sendable="false"/>
+        <column name="Spc" hidden="true" sendable="false"/>
+        <column name="Sex" hidden="true" sendable="false"/>
+        <column name="BrnDat" hidden="true" sendable="false"/>
+        <column name="Chp" hidden="true" sendable="false"/>
+        <column name="Ini" hidden="true" sendable="false"/>
+        <column name="OwnNam" hidden="true" sendable="false"/>
+        <button label="VET_BTN_ARCHIVE" icon="lucide:archive" id="ButArc" selection="true" style="btn-danger">
+          <button-action type="check-some-selected" target="GrdPet"/>
+          <button-action type="confirm" target="DelMsg"/>
+          <button-action type="server" server-action="maintain" target-action="VetPetArc"/>
+          <button-action type="filter" target="GrdPet"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdPet" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+        <row-detail style="row-detail-card">
+          <grid id="GrdPetHist" server-action="data" target-action="VetPetVisLst" max="10">
+            <column label="VET_COL_DATE" name="VisDat" sort-field="VisDat" align="center" charlength="12" sendable="false"/>
+            <column label="VET_COL_TYPE" name="TypTxt" sort-field="TypTxt" align="left" charlength="14" sendable="false"/>
+            <column label="VET_COL_VET" name="VetNam" sort-field="VetNam" align="left" charlength="18" sendable="false"/>
+            <column label="VET_COL_DIAGNOSIS" name="Dia" sort-field="Dia" align="left" charlength="28" width="*" sendable="false"/>
+            <column label="VET_COL_TREATMENT" name="Trt" sort-field="Trt" align="left" charlength="28" sendable="false"/>
+            <column label="VET_COL_FEE" name="Fee" sort-field="Fee" align="right" charlength="10" sendable="false"/>
+          </grid>
+        </row-detail>
+      </grid>
+    </window>
+    <side-panel id="PnlPet" label="VET_PET_PANEL" icon="lucide:paw-print" max-width="40rem">
+      <tag type="div" style="panel-body" id="PnlPetBdy">
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="VET_SEC_PET"/>
+        <criteria label="VET_COL_OWNER" id="IdeOwn" component="suggest" style="col-xs-12" validation="required" server-action="data" target-action="VetOwnSug" check-target="VetOwnIni">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdPet" column="IdeOwn" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdPet" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_PET_NAME" id="Nam" component="text" style="col-xs-12 col-sm-6" validation="{required:true, maxlength:40}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdPet" column="Nam" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdPet" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_SPECIES" id="Spc" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="VetSpecies">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdPet" column="Spc" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdPet" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_BREED" id="Brd" component="text" style="col-xs-12 col-sm-6" validation="{maxlength:60}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdPet" column="Brd" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdPet" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_COL_SEX" id="Sex" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="VetSex">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdPet" column="Sex" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdPet" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_BIRTH_DATE" id="BrnDat" component="date" style="col-xs-12 col-sm-6" show-future-dates="false">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdPet" column="BrnDat" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdPet" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_WEIGHT" id="Wgt" component="numeric" style="col-xs-12 col-sm-6" number-format="{min: 0, max: 200, precision: 2, aSign: ' kg', pSign: 's'}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdPet" column="Wgt" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdPet" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="VET_FLD_MICROCHIP" id="Chp" component="text" style="col-xs-12" validation="{maxlength:20}">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdPet" column="Chp" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdPet" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlPetCnl">
+          <button-action type="close-cancel" target="PnlPet"/>
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="lucide:save" id="ButPnlPetUpd" style="btn-primary">
+          <button-action type="validate" target="PnlPetBdy"/>
+          <button-action type="confirm" target="UpdMsg"/>
+          <button-action type="server" server-action="maintain" target-action="VetPetUpd"/>
+          <button-action type="close" target="PnlPet"/>
+          <button-action type="filter" target="GrdPet"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit"/>
+          </dependency>
+        </button>
+        <button label="VET_BTN_CREATE" icon="lucide:check" id="ButPnlPetNew" style="btn-primary">
+          <button-action type="validate" target="PnlPetBdy"/>
+          <button-action type="confirm" target="NewMsg"/>
+          <button-action type="server" server-action="maintain" target-action="VetPetNew"/>
+          <button-action type="close" target="PnlPet"/>
+          <button-action type="filter" target="GrdPet"/>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new"/>
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+</screen>

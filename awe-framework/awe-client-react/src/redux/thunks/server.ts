@@ -20,6 +20,20 @@ interface ServerClientAction extends ClientAction {
 
 let downloadFormIdentifier = 0;
 
+/**
+ * Value and address of the button that calls a server action, as the AngularJS client sends them (the notification
+ * rows read their notification from buttonValue)
+ * @param caller State of the component that calls the action
+ * @param address Address of the component that calls the action
+ * @return Parameters buttonValue and buttonAddress, or nothing when the caller is not a button or has no value
+ */
+function getButtonValue(caller: ComponentState | null | undefined, address?: ComponentAddress): Record<string, unknown> {
+  const { value, buttonType, elementType } = (caller?.attributes || {}) as { value?: unknown; buttonType?: string; elementType?: string };
+  // Only buttons send it, as the AngularJS client: a button has a button type, and the copy of a tag-list row its element type
+  const isButton = buttonType !== undefined || elementType === "Button" || elementType === "InfoButton";
+  return !isButton || value === undefined || value === null ? {} : { buttonValue: value, buttonAddress: address };
+}
+
 export const serverAction = (
   action: ServerClientAction,
   forPrinting = false,
@@ -60,7 +74,7 @@ export const serverAction = (
         // Form values win over the action parameters (as in the AngularJS client): the action always carries
         // null target, value and label, which would otherwise wipe a component or column with that name. The
         // components of a grid row detail instance also send the values of their instance
-        { ...parameters, ...getFormValues(getState(), forPrinting, t, address, origin === "menu" ? "base" : undefined) },
+        { ...parameters, ...getButtonValue(callerGrid as ComponentState | null | undefined, address), ...getFormValues(getState(), forPrinting, t, address, origin === "menu" ? "base" : undefined) },
         settings.token,
         null
       ) as ClientAction[];

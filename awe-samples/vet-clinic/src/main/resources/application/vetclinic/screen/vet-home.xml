@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-home.xml
+    Description: Public landing page (no sign-in): presentation, services, opening hours and team, with the sign-in and the appointment request actions
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="VET_HOME_TITLE">
+  <tag source="center">
+    <tag type="div" id="vet-landing" style="vet-landing">
+      <tag type="header" style="vet-topbar">
+        <tag type="div" style="vet-brand">
+          <tag type="span" style="vet-brand-name" label="VET_BRAND"/>
+        </tag>
+        <tag type="nav" style="vet-topbar-actions">
+          <tag type="div" style="awe-preferences"/>
+          <button label="VET_HOME_REQUEST" icon="lucide:calendar-plus" id="ButTopReq" style="btn-ghost">
+            <button-action type="screen" target="/screen/vet-request"/>
+          </button>
+          <button label="VET_HOME_SIGN_IN" icon="lucide:log-in" id="ButTopLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+        </tag>
+      </tag>
+      <tag type="section" style="vet-hero">
+        <tag type="div" style="vet-hero-copy">
+          <tag type="p" style="vet-eyebrow" label="VET_HOME_EYEBROW"/>
+          <tag type="h1" label="VET_HOME_HEADLINE"/>
+          <tag type="p" style="vet-lead" label="VET_HOME_LEAD"/>
+          <tag type="div" style="vet-hero-actions">
+            <button label="VET_HOME_REQUEST" icon="lucide:calendar-plus" id="ButHeroReq" style="btn-primary btn-lg">
+              <button-action type="screen" target="/screen/vet-request"/>
+            </button>
+            <button label="VET_HOME_OWNER_AREA" icon="lucide:log-in" id="ButHeroLogin" style="btn-lg">
+              <button-action type="screen" target="/screen/signin"/>
+            </button>
+          </tag>
+        </tag>
+        <tag type="figure" style="vet-hero-photo">
+          <image id="ImgHeroDog" url="/images/photos/dog-1200.webp" alternate-url="" style="vet-photo" title="VET_PHOTO_DOG"/>
+          <tag type="figcaption" style="vet-visually-hidden" label="VET_PHOTO_DOG"/>
+        </tag>
+      </tag>
+      <tag type="section" style="vet-stats">
+        <tag type="div" style="vet-stats-row">
+          <tag type="div" style="vet-stat">
+            <tag type="strong" label="VET_STAT_1_VALUE"/>
+            <tag type="span" label="VET_STAT_1_LABEL"/>
+          </tag>
+          <tag type="div" style="vet-stat">
+            <tag type="strong" label="VET_STAT_2_VALUE"/>
+            <tag type="span" label="VET_STAT_2_LABEL"/>
+          </tag>
+          <tag type="div" style="vet-stat">
+            <tag type="strong" label="VET_STAT_3_VALUE"/>
+            <tag type="span" label="VET_STAT_3_LABEL"/>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="section" style="vet-section vet-demo">
+        <tag type="h2" style="vet-card-title" label="VET_DEMO_TITLE" icon="lucide:key-round"/>
+        <tag type="p" style="vet-section-lead" label="VET_DEMO_LEAD"/>
+        <tag type="div" style="vet-demo-table">
+          <tag type="div" style="vet-demo-row vet-demo-head">
+            <tag type="span" label="VET_DEMO_COL_USER"/>
+            <tag type="span" label="VET_DEMO_COL_PASS"/>
+            <tag type="span" label="VET_DEMO_COL_ROLE"/>
+          </tag>
+          <tag type="div" style="vet-demo-row">
+            <tag type="strong" style="vet-demo-user" label="VET_DEMO_U1_USER"/>
+            <tag type="span" style="vet-demo-pass" label="VET_DEMO_U1_PASS"/>
+            <tag type="span" style="vet-demo-role" label="VET_DEMO_U1_ROLE"/>
+          </tag>
+          <tag type="div" style="vet-demo-row">
+            <tag type="strong" style="vet-demo-user" label="VET_DEMO_U2_USER"/>
+            <tag type="span" style="vet-demo-pass" label="VET_DEMO_U2_PASS"/>
+            <tag type="span" style="vet-demo-role" label="VET_DEMO_U2_ROLE"/>
+          </tag>
+          <tag type="div" style="vet-demo-row">
+            <tag type="strong" style="vet-demo-user" label="VET_DEMO_U3_USER"/>
+            <tag type="span" style="vet-demo-pass" label="VET_DEMO_U3_PASS"/>
+            <tag type="span" style="vet-demo-role" label="VET_DEMO_U3_ROLE"/>
+          </tag>
+          <tag type="div" style="vet-demo-row">
+            <tag type="strong" style="vet-demo-user" label="VET_DEMO_U4_USER"/>
+            <tag type="span" style="vet-demo-pass" label="VET_DEMO_U4_PASS"/>
+            <tag type="span" style="vet-demo-role" label="VET_DEMO_U4_ROLE"/>
+          </tag>
+          <tag type="div" style="vet-demo-row">
+            <tag type="strong" style="vet-demo-user" label="VET_DEMO_U5_USER"/>
+            <tag type="span" style="vet-demo-pass" label="VET_DEMO_U5_PASS"/>
+            <tag type="span" style="vet-demo-role" label="VET_DEMO_U5_ROLE"/>
+          </tag>
+          <tag type="div" style="vet-demo-row">
+            <tag type="strong" style="vet-demo-user" label="VET_DEMO_ADM_USER"/>
+            <tag type="span" style="vet-demo-pass" label="VET_DEMO_ADM_PASS"/>
+            <tag type="span" style="vet-demo-role" label="VET_DEMO_ADMIN_ROLE"/>
+          </tag>
+        </tag>
+        <tag type="div" style="vet-demo-actions">
+          <button label="VET_HOME_SIGN_IN" icon="lucide:log-in" id="ButDemoLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+          <tag type="p" style="vet-demo-note" label="VET_DEMO_NOTE"/>
+        </tag>
+      </tag>
+      <tag type="section" style="vet-section">
+        <tag type="h2" label="VET_SERVICES_TITLE"/>
+        <tag type="p" style="vet-section-lead" label="VET_SERVICES_LEAD"/>
+        <tag type="div" style="vet-cards">
+          <tag type="article" style="vet-card">
+            <tag type="h3" style="vet-card-title" label="VET_SVC_CHECKUP" icon="lucide:stethoscope"/>
+            <tag type="p" label="VET_SVC_CHECKUP_TEXT"/>
+          </tag>
+          <tag type="article" style="vet-card">
+            <tag type="h3" style="vet-card-title" label="VET_SVC_VACCINES" icon="lucide:syringe"/>
+            <tag type="p" label="VET_SVC_VACCINES_TEXT"/>
+          </tag>
+          <tag type="article" style="vet-card">
+            <tag type="h3" style="vet-card-title" label="VET_SVC_SURGERY" icon="lucide:scissors"/>
+            <tag type="p" label="VET_SVC_SURGERY_TEXT"/>
+          </tag>
+          <tag type="article" style="vet-card">
+            <tag type="h3" style="vet-card-title" label="VET_SVC_EMERGENCY" icon="lucide:heart-pulse"/>
+            <tag type="p" label="VET_SVC_EMERGENCY_TEXT"/>
+          </tag>
+          <tag type="article" style="vet-card">
+            <tag type="h3" style="vet-card-title" label="VET_SVC_DENTAL" icon="lucide:bone"/>
+            <tag type="p" label="VET_SVC_DENTAL_TEXT"/>
+          </tag>
+          <tag type="article" style="vet-card">
+            <tag type="h3" style="vet-card-title" label="VET_SVC_EXOTIC" icon="lucide:bird"/>
+            <tag type="p" label="VET_SVC_EXOTIC_TEXT"/>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="section" style="vet-section vet-gallery-section">
+        <tag type="h2" label="VET_GALLERY_TITLE"/>
+        <tag type="p" style="vet-section-lead" label="VET_GALLERY_LEAD"/>
+        <tag type="div" style="vet-gallery">
+          <tag type="figure" style="vet-gallery-item">
+            <image id="ImgGalCat" url="/images/photos/cat-600.webp" alternate-url="" style="vet-photo" title="VET_PHOTO_CAT"/>
+            <tag type="figcaption" style="vet-visually-hidden" label="VET_PHOTO_CAT"/>
+          </tag>
+          <tag type="figure" style="vet-gallery-item">
+            <image id="ImgGalExam" url="/images/photos/vet-exam-600.webp" alternate-url="" style="vet-photo" title="VET_PHOTO_EXAM"/>
+            <tag type="figcaption" style="vet-visually-hidden" label="VET_PHOTO_EXAM"/>
+          </tag>
+          <tag type="figure" style="vet-gallery-item">
+            <image id="ImgGalDachs" url="/images/photos/vet-dachshund-600.webp" alternate-url="" style="vet-photo" title="VET_PHOTO_DACHSHUND"/>
+            <tag type="figcaption" style="vet-visually-hidden" label="VET_PHOTO_DACHSHUND"/>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="section" style="vet-section vet-section-alt">
+        <tag type="div" style="vet-split">
+          <tag type="div">
+            <tag type="h2" label="VET_HOURS_TITLE"/>
+            <tag type="ul" style="vet-hours">
+              <tag type="li">
+                <tag type="span" style="vet-hours-day" label="VET_DAY_WEEK"/>
+                <tag type="span" style="vet-hours-time" label="VET_TIME_WEEK"/>
+              </tag>
+              <tag type="li">
+                <tag type="span" style="vet-hours-day" label="VET_DAY_SATURDAY"/>
+                <tag type="span" style="vet-hours-time" label="VET_TIME_SATURDAY"/>
+              </tag>
+              <tag type="li">
+                <tag type="span" style="vet-hours-day" label="VET_DAY_SUNDAY"/>
+                <tag type="span" style="vet-hours-time" label="VET_TIME_SUNDAY"/>
+              </tag>
+            </tag>
+          </tag>
+          <tag type="div">
+            <tag type="h2" label="VET_CONTACT_TITLE"/>
+            <tag type="ul" style="vet-contact">
+              <tag type="li" label="VET_CONTACT_ADDRESS"/>
+              <tag type="li" label="VET_CONTACT_PHONE"/>
+              <tag type="li" label="VET_CONTACT_EMAIL"/>
+            </tag>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="section" style="vet-section">
+        <tag type="h2" label="VET_TEAM_TITLE"/>
+        <tag type="div" style="vet-members">
+          <tag type="article" style="vet-member">
+            <tag type="div" style="vet-avatar" label="VET_TEAM_1_INI"/>
+            <tag type="h3" label="VET_TEAM_1_NAME"/>
+            <tag type="p" label="VET_TEAM_1_ROLE"/>
+          </tag>
+          <tag type="article" style="vet-member">
+            <tag type="div" style="vet-avatar" label="VET_TEAM_2_INI"/>
+            <tag type="h3" label="VET_TEAM_2_NAME"/>
+            <tag type="p" label="VET_TEAM_2_ROLE"/>
+          </tag>
+          <tag type="article" style="vet-member">
+            <tag type="div" style="vet-avatar" label="VET_TEAM_3_INI"/>
+            <tag type="h3" label="VET_TEAM_3_NAME"/>
+            <tag type="p" label="VET_TEAM_3_ROLE"/>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="footer" style="vet-footer">
+        <tag type="p" label="VET_FOOTER"/>
+      </tag>
+    </tag>
+  </tag>
+</screen>

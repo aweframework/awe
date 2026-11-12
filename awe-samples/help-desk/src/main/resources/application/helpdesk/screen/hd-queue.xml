@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : hd-queue.xml
+    Description: Ticket queue: filters, group selector (status, priority, team), status tones, workflow buttons (each transition is enforced on the server) and a panel with the conversation, replies and internal notes
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="HD_MENU_QUEUE" keep-criteria="true">
+  <tag source="hidden">
+    <message id="CloseMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE"/>
+  </tag>
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdTkt"/>
+    </button>
+    <button label="BUTTON_PRINT" icon="lucide:printer" id="ButPrn">
+      <button-action type="dialog" target="PrnOpt"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="HD_MENU_QUEUE" icon="lucide:inbox">
+      <tag type="div" style="panel-body hd-search-layout">
+        <criteria label="HD_SEARCH" id="CrtTktSch" component="text" icon="lucide:search" style="col-xs-12 hd-search-first" placeholder="HD_SEARCH_TICKET"/>
+        <criteria label="HD_COL_STATUS" id="CrtTktSta" component="button-radio" initial-load="enum" target-action="HdkStatus" optional="true" style="col-xs-12 hd-status-tabs"/>
+        <criteria label="HD_COL_PRIORITY" id="CrtTktPri" component="select" initial-load="enum" target-action="HdkPriority" optional="true" style="col-xs-12 col-sm-6 col-lg-3"/>
+        <criteria label="HD_COL_TEAM" id="CrtTktTeam" component="select" initial-load="query" target-action="HdkTeamSel" optional="true" style="col-xs-12 col-sm-6 col-lg-3"/>
+        <criteria label="HD_COL_AGENT" id="CrtTktAgt" component="select" initial-load="query" target-action="HdkAgtSel" optional="true" style="col-xs-12 col-sm-6 col-lg-3"/>
+      </tag>
+      <grid id="GrdTkt" style="expand" initial-load="query" server-action="data" target-action="HdkTktLst" max="20" load-all="true" enable-filters="true" group-selector="true">
+        <column name="OpnBtn" component="button" icon="lucide:message-square-text" title="HD_BTN_OPEN_TICKET" style="btn-ghost no-label" align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="filter" target="GrdConv"/>
+          <button-action type="dialog" target="PnlTkt"/>
+        </column>
+        <column label="HD_COL_CODE" name="Cod" sort-field="Cod" align="left" charlength="10" secondary-field="ReqNam" sendable="false"/>
+        <column label="HD_COL_SUBJECT" name="Sub" sort-field="Sub" align="left" charlength="28" sendable="false"/>
+        <column label="HD_COL_CATEGORY" name="CatTxt" sort-field="CatTxt" align="left" charlength="12" sendable="false"/>
+        <column label="HD_COL_TEAM" name="TeamNam" sort-field="TeamNam" align="left" charlength="12" sendable="false"/>
+        <column label="HD_COL_PRIORITY" name="PriTxt" sort-field="PriTxt" align="left" charlength="10" status-field="PriTon" sendable="false"/>
+        <column label="HD_COL_STATUS" name="StaTxt" sort-field="StaTxt" align="left" charlength="11" status-field="Ton" sendable="false"/>
+        <column label="HD_COL_AGENT" name="AgtNam" sort-field="AgtNam" align="left" charlength="13" sendable="false"/>
+        <column label="HD_COL_SLA" name="SlaTxt" sort-field="SlaTxt" align="left" charlength="13" sendable="false"/>
+        <column label="HD_COL_CREATED" name="CreDat" sort-field="CreDat" align="center" charlength="17" sendable="false"/>
+        <column name="IdeTkt" hidden="true"/>
+        <column name="ReqNam" hidden="true" sendable="false"/>
+        <column name="ReqEml" hidden="true" sendable="false"/>
+        <column name="Dsc" hidden="true" sendable="false"/>
+        <column name="AccKey" hidden="true" sendable="false"/>
+        <column name="Ton" hidden="true" sendable="false"/>
+        <column name="PriTon" hidden="true" sendable="false"/>
+        <column name="Sta" hidden="true" sendable="false"/>
+        <column name="Sla" hidden="true" sendable="false"/>
+        <column name="Pri" hidden="true" sendable="false"/>
+        <column name="Cat" hidden="true" sendable="false"/>
+        <column name="IdeAgt" hidden="true" sendable="false"/>
+        <column name="UpdDat" hidden="true" sendable="false"/>
+        <column name="Due" hidden="true" sendable="false"/>
+        <column name="ChnTxt" hidden="true" sendable="false"/>
+        <button label="HD_BTN_TAKE" icon="lucide:hand" id="ButTake" permission="tickets.update" selection="true">
+          <button-action type="check-some-selected" target="GrdTkt"/>
+          <button-action type="server" server-action="maintain" target-action="HdkTktTake"/>
+          <button-action type="filter" target="GrdTkt"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdTkt" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+        <button label="HD_BTN_PENDING" icon="lucide:clock" id="ButPend" permission="tickets.update" selection="true">
+          <button-action type="check-some-selected" target="GrdTkt"/>
+          <button-action type="server" server-action="maintain" target-action="HdkTktPend"/>
+          <button-action type="filter" target="GrdTkt"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdTkt" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+        <button label="HD_BTN_RESOLVE" icon="lucide:circle-check" id="ButRes" permission="tickets.update" selection="true">
+          <button-action type="check-some-selected" target="GrdTkt"/>
+          <button-action type="server" server-action="maintain" target-action="HdkTktResolve"/>
+          <button-action type="filter" target="GrdTkt"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdTkt" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+        <button label="HD_BTN_CLOSE" icon="lucide:archive" id="ButCls" permission="tickets.update" selection="true">
+          <button-action type="check-some-selected" target="GrdTkt"/>
+          <button-action type="confirm" target="CloseMsg"/>
+          <button-action type="server" server-action="maintain" target-action="HdkTktClose"/>
+          <button-action type="filter" target="GrdTkt"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdTkt" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+        <button label="HD_BTN_REOPEN" icon="lucide:rotate-ccw" id="ButReo" permission="tickets.update" selection="true">
+          <button-action type="check-some-selected" target="GrdTkt"/>
+          <button-action type="server" server-action="maintain" target-action="HdkTktReopen"/>
+          <button-action type="filter" target="GrdTkt"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdTkt" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+    <side-panel id="PnlTkt" label="HD_TKT_PANEL" icon="lucide:ticket" max-width="46rem">
+      <tag type="div" style="panel-body hd-ticket-panel" id="PnlTktBdy">
+        <criteria label="HD_COL_CODE" id="Cod" component="text-view" style="col-xs-12 col-sm-4 hd-fact">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTkt" column="Cod" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdTkt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="HD_COL_REQUESTER" id="ReqNam" component="text-view" style="col-xs-12 col-sm-4 hd-fact">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTkt" column="ReqNam" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdTkt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="HD_COL_ACCESS_KEY" id="AccKey" component="text-view" style="col-xs-12 col-sm-4 hd-fact">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTkt" column="AccKey" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdTkt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="HD_COL_SUBJECT" id="Sub" component="text-view" style="col-xs-12 hd-fact">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTkt" column="Sub" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdTkt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="HD_COL_DESCRIPTION" id="Dsc" component="text-view" style="col-xs-12 hd-fact">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTkt" column="Dsc" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdTkt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="HD_COL_STATUS" id="StaTxt" component="text-view" style="col-xs-12 col-sm-4 hd-fact">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTkt" column="StaTxt" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdTkt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="HD_COL_PRIORITY" id="PriTxt" component="text-view" style="col-xs-12 col-sm-4 hd-fact">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTkt" column="PriTxt" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdTkt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="HD_COL_SLA" id="SlaTxt" component="text-view" style="col-xs-12 col-sm-4 hd-fact">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTkt" column="SlaTxt" attribute="selectedRowValue" alias="value" optional="true"/>
+            <dependency-element id="GrdTkt" event="select-row" optional="true"/>
+          </dependency>
+        </criteria>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="HD_SEC_CONVERSATION"/>
+        <grid id="GrdConv" row-numbers="false" server-action="data" target-action="HdkMsgLst" max="50" pagination-disabled="true" style="col-xs-12">
+          <column label="HD_COL_WHEN" name="MsgTim" align="left" charlength="11" wrap="true" sendable="false"/>
+          <column label="HD_COL_AUTHOR" name="MsgAut" align="left" charlength="10" wrap="true" sendable="false"/>
+          <column label="HD_COL_TYPE" name="MsgTyp" align="left" charlength="10" wrap="true" sendable="false"/>
+          <column label="HD_COL_MESSAGE" name="MsgTxt" align="left" charlength="34" width="*" wrap="true" sendable="false"/>
+        </grid>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="HD_SEC_REPLY"/>
+        <criteria label="HD_FLD_REPLY_TYPE" id="Typ" component="select" style="col-xs-12 col-sm-6" validation="required" initial-load="enum" target-action="HdkMsgTypeAgent" value="PUBLIC"/>
+        <criteria label="HD_FLD_MESSAGE" id="Txt" component="textarea" style="col-xs-12" validation="{required:true, maxlength:1000}" area-rows="3"/>
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="HD_SEC_PRIORITY"/>
+        <criteria label="HD_FLD_NEW_PRIORITY" id="Pri" component="select" style="col-xs-12 col-sm-6" initial-load="enum" target-action="HdkPriorityAgent"/>
+        <tag type="div" style="col-xs-12 col-sm-6 hd-field-action">
+          <button label="HD_BTN_CHANGE_PRIORITY" icon="lucide:flag" id="ButPnlTktPri" permission="tickets.update">
+            <button-action type="validate" target="Pri"/>
+            <button-action type="server" server-action="maintain" target-action="HdkTktPrio"/>
+            <button-action type="filter" target="GrdTkt"/>
+          </button>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CLOSE" icon="lucide:x" id="ButPnlTktCls">
+          <button-action type="close-cancel" target="PnlTkt"/>
+        </button>
+        <button label="HD_BTN_SEND" icon="lucide:send" id="ButPnlTktSnd" style="btn-primary" permission="tickets.update">
+          <button-action type="validate" target="PnlTktBdy"/>
+          <button-action type="server" server-action="maintain" target-action="HdkMsgNew"/>
+          <button-action type="reset" target="Txt"/>
+          <button-action type="filter" target="GrdConv"/>
+          <button-action type="filter" target="GrdTkt"/>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center"/>
+  </tag>
+</screen>

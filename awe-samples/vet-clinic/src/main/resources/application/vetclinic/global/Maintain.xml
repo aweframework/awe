@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Maintain.xml
+    Description: Maintain targets of the veterinary clinic. Each one declares the permission it requires; the only public
+                 one is VetReqNew (the appointment request of the landing page)
+-->
+<maintain xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/maintain.xsd">
+  <!-- ===== PUBLIC: the appointment request of the landing page =====
+       The only public maintain. It can only insert a pending request: the status is a constant of the target (a client
+       cannot send it), the date is the server one, the species and the reason are limited by the database and the
+       lengths and the email format are checked by the constraints of VetReq, so the fields are validated on the server -->
+  <target name="VetReqNew" public="true">
+    <insert>
+      <table id="VetReq"/>
+      <field id="IdeReq" variable="NewReq" sequence="ReqKey"/>
+      <field id="ReqDat" variable="Now"/>
+      <field id="OwnNam" variable="OwnNam"/>
+      <field id="Eml" variable="Eml"/>
+      <field id="Tel" variable="Tel"/>
+      <field id="PetNam" variable="PetNam"/>
+      <field id="Spc" variable="Spc"/>
+      <field id="PrfDat" variable="PrfDat"/>
+      <field id="Rea" variable="Rea"/>
+      <field id="Nte" variable="Nte"/>
+      <field id="Sta" variable="Pending"/>
+      <variable id="NewReq" type="INTEGER" name="NewReq"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="OwnNam" type="STRING" name="OwnNam"/>
+      <variable id="Eml" type="STRING" name="Eml"/>
+      <variable id="Tel" type="STRINGN" name="Tel"/>
+      <variable id="PetNam" type="STRING" name="PetNam"/>
+      <variable id="Spc" type="STRING" name="Spc"/>
+      <variable id="PrfDat" type="DATE" name="PrfDat"/>
+      <variable id="Rea" type="STRING" name="Rea"/>
+      <variable id="Nte" type="STRINGN" name="Nte"/>
+      <variable id="Pending" type="STRING" value="PENDING"/>
+    </insert>
+  </target>
+  <!-- ===== STAFF ===== -->
+  <target name="VetOwnNew" permission="owners.create">
+    <insert>
+      <table id="VetOwn"/>
+      <field id="IdeOwn" variable="NewOwn" sequence="OwnKey"/>
+      <field id="RegDat" variable="Today"/>
+      <field id="Nam" variable="Nam"/>
+      <field id="Eml" variable="Eml"/>
+      <field id="Tel" variable="Tel"/>
+      <field id="Adr" variable="Adr"/>
+      <field id="Cit" variable="Cit"/>
+      <field id="Nte" variable="Nte"/>
+      <variable id="NewOwn" type="INTEGER" name="NewOwn"/>
+      <variable id="Today" type="SYSTEM_DATE"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="Eml" type="STRINGN" name="Eml"/>
+      <variable id="Tel" type="STRINGN" name="Tel"/>
+      <variable id="Adr" type="STRINGN" name="Adr"/>
+      <variable id="Cit" type="STRINGN" name="Cit"/>
+      <variable id="Nte" type="STRINGN" name="Nte"/>
+    </insert>
+  </target>
+  <target name="VetOwnUpd" permission="owners.update">
+    <update>
+      <table id="VetOwn"/>
+      <field id="Nam" variable="Nam"/>
+      <field id="Eml" variable="Eml"/>
+      <field id="Tel" variable="Tel"/>
+      <field id="Adr" variable="Adr"/>
+      <field id="Cit" variable="Cit"/>
+      <field id="Nte" variable="Nte"/>
+      <where>
+        <and>
+          <filter left-field="IdeOwn" condition="eq" right-variable="IdeOwn"/>
+        </and>
+      </where>
+      <variable id="IdeOwn" type="INTEGER" name="IdeOwn"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="Eml" type="STRINGN" name="Eml"/>
+      <variable id="Tel" type="STRINGN" name="Tel"/>
+      <variable id="Adr" type="STRINGN" name="Adr"/>
+      <variable id="Cit" type="STRINGN" name="Cit"/>
+      <variable id="Nte" type="STRINGN" name="Nte"/>
+    </update>
+  </target>
+  <target name="VetPetNew" permission="pets.create">
+    <insert>
+      <table id="VetPet"/>
+      <field id="IdePet" variable="NewPet" sequence="PetKey"/>
+      <field id="IdeOwn" variable="Own"/>
+      <field id="Nam" variable="Nam"/>
+      <field id="Spc" variable="Spc"/>
+      <field id="Brd" variable="Brd"/>
+      <field id="Sex" variable="Sex"/>
+      <field id="BrnDat" variable="BrnDat"/>
+      <field id="Wgt" variable="Wgt"/>
+      <field id="Chp" variable="Chp"/>
+      <variable id="NewPet" type="INTEGER" name="NewPet"/>
+      <variable id="Own" type="INTEGER" name="IdeOwn"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="Spc" type="STRING" name="Spc"/>
+      <variable id="Brd" type="STRINGN" name="Brd"/>
+      <variable id="Sex" type="STRING" name="Sex"/>
+      <variable id="BrnDat" type="DATE" name="BrnDat"/>
+      <variable id="Wgt" type="DOUBLE" name="Wgt"/>
+      <variable id="Chp" type="STRINGN" name="Chp"/>
+    </insert>
+  </target>
+  <target name="VetPetUpd" permission="pets.update">
+    <update>
+      <table id="VetPet"/>
+      <field id="IdeOwn" variable="Own"/>
+      <field id="Nam" variable="Nam"/>
+      <field id="Spc" variable="Spc"/>
+      <field id="Brd" variable="Brd"/>
+      <field id="Sex" variable="Sex"/>
+      <field id="BrnDat" variable="BrnDat"/>
+      <field id="Wgt" variable="Wgt"/>
+      <field id="Chp" variable="Chp"/>
+      <where>
+        <and>
+          <filter left-field="IdePet" condition="eq" right-variable="IdePet"/>
+        </and>
+      </where>
+      <variable id="IdePet" type="INTEGER" name="IdePet"/>
+      <variable id="Own" type="INTEGER" name="IdeOwn"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="Spc" type="STRING" name="Spc"/>
+      <variable id="Brd" type="STRINGN" name="Brd"/>
+      <variable id="Sex" type="STRING" name="Sex"/>
+      <variable id="BrnDat" type="DATE" name="BrnDat"/>
+      <variable id="Wgt" type="DOUBLE" name="Wgt"/>
+      <variable id="Chp" type="STRINGN" name="Chp"/>
+    </update>
+  </target>
+  <!-- Pets are archived, never deleted: their medical history stays -->
+  <target name="VetPetArc" permission="pets.delete">
+    <update multiple="true">
+      <table id="VetPet"/>
+      <field id="Act" variable="Inactive"/>
+      <where>
+        <and>
+          <filter left-field="IdePet" condition="eq" right-variable="IdePet"/>
+        </and>
+      </where>
+      <variable id="IdePet" type="INTEGER" name="IdePet"/>
+      <variable id="Inactive" type="INTEGER" value="0"/>
+    </update>
+  </target>
+  <!-- A visit and its invoice in one target: the key of the visit generated by the first insert is used by the second -->
+  <target name="VetVisNew" permission="visits.create">
+    <insert>
+      <table id="VetVis"/>
+      <field id="IdeVis" variable="NewVis" sequence="VisKey"/>
+      <field id="IdePet" variable="Pet"/>
+      <field id="IdeVet" variable="Vet"/>
+      <field id="VisDat" variable="VisDat"/>
+      <field id="VisTim" variable="VisTim"/>
+      <field id="Typ" variable="Typ"/>
+      <field id="Dia" variable="Dia"/>
+      <field id="Trt" variable="Trt"/>
+      <field id="Fee" variable="Fee"/>
+      <variable id="NewVis" type="INTEGER" name="NewVis"/>
+      <variable id="Pet" type="INTEGER" name="IdePet"/>
+      <variable id="Vet" type="INTEGER" name="IdeVet"/>
+      <variable id="VisDat" type="DATE" name="VisDat"/>
+      <variable id="VisTim" type="TIME" name="VisTim"/>
+      <variable id="Typ" type="STRING" name="Typ"/>
+      <variable id="Dia" type="STRINGN" name="Dia"/>
+      <variable id="Trt" type="STRINGN" name="Trt"/>
+      <variable id="Fee" type="DOUBLE" name="Fee"/>
+    </insert>
+    <insert>
+      <table id="VetInv"/>
+      <field id="IdeInv" variable="NewInv" sequence="InvKey"/>
+      <field id="IdeOwn" query="VetPetOwn"/>
+      <field id="IdeVis" variable="NewVis"/>
+      <field id="InvDat" variable="VisDat"/>
+      <field id="Amt" variable="Fee"/>
+      <field id="Sta" variable="Pending"/>
+      <variable id="NewInv" type="INTEGER" name="NewInv"/>
+      <variable id="NewVis" type="INTEGER" name="NewVis"/>
+      <variable id="VisDat" type="DATE" name="VisDat"/>
+      <variable id="Fee" type="DOUBLE" name="Fee"/>
+      <variable id="Pending" type="STRING" value="PENDING"/>
+    </insert>
+  </target>
+  <target name="VetVisUpd" permission="visits.update">
+    <update>
+      <table id="VetVis"/>
+      <field id="IdePet" variable="Pet"/>
+      <field id="IdeVet" variable="Vet"/>
+      <field id="VisDat" variable="VisDat"/>
+      <field id="VisTim" variable="VisTim"/>
+      <field id="Typ" variable="Typ"/>
+      <field id="Dia" variable="Dia"/>
+      <field id="Trt" variable="Trt"/>
+      <where>
+        <and>
+          <filter left-field="IdeVis" condition="eq" right-variable="IdeVis"/>
+        </and>
+      </where>
+      <variable id="IdeVis" type="INTEGER" name="IdeVis"/>
+      <variable id="Pet" type="INTEGER" name="IdePet"/>
+      <variable id="Vet" type="INTEGER" name="IdeVet"/>
+      <variable id="VisDat" type="DATE" name="VisDat"/>
+      <variable id="VisTim" type="TIME" name="VisTim"/>
+      <variable id="Typ" type="STRING" name="Typ"/>
+      <variable id="Dia" type="STRINGN" name="Dia"/>
+      <variable id="Trt" type="STRINGN" name="Trt"/>
+    </update>
+  </target>
+  <!-- The owner of the appointment is the owner of the pet (query VetPetOwn) -->
+  <target name="VetAptNew" permission="appointments.create">
+    <insert>
+      <table id="VetApt"/>
+      <field id="IdeApt" variable="NewApt" sequence="AptKey"/>
+      <field id="IdePet" variable="Pet"/>
+      <field id="IdeOwn" query="VetPetOwn"/>
+      <field id="IdeVet" variable="Vet"/>
+      <field id="AptDat" variable="AptDat"/>
+      <field id="AptTim" variable="AptTim"/>
+      <field id="Rea" variable="Rea"/>
+      <field id="Sta" variable="Confirmed"/>
+      <field id="Src" variable="Staff"/>
+      <field id="Nte" variable="Nte"/>
+      <variable id="NewApt" type="INTEGER" name="NewApt"/>
+      <variable id="Pet" type="INTEGER" name="IdePet"/>
+      <variable id="Vet" type="INTEGER" name="IdeVet"/>
+      <variable id="AptDat" type="DATE" name="AptDat"/>
+      <variable id="AptTim" type="TIME" name="AptTim"/>
+      <variable id="Rea" type="STRING" name="Rea"/>
+      <variable id="Confirmed" type="STRING" value="CONFIRMED"/>
+      <variable id="Staff" type="STRING" value="STAFF"/>
+      <variable id="Nte" type="STRINGN" name="Nte"/>
+    </insert>
+  </target>
+  <target name="VetAptCon" permission="appointments.update">
+    <update multiple="true">
+      <table id="VetApt"/>
+      <field id="Sta" variable="NewSta"/>
+      <where>
+        <and>
+          <filter left-field="IdeApt" condition="eq" right-variable="IdeApt"/>
+        </and>
+      </where>
+      <variable id="IdeApt" type="INTEGER" name="IdeApt"/>
+      <variable id="NewSta" type="STRING" value="CONFIRMED"/>
+    </update>
+  </target>
+  <target name="VetAptDon" permission="appointments.update">
+    <update multiple="true">
+      <table id="VetApt"/>
+      <field id="Sta" variable="NewSta"/>
+      <where>
+        <and>
+          <filter left-field="IdeApt" condition="eq" right-variable="IdeApt"/>
+        </and>
+      </where>
+      <variable id="IdeApt" type="INTEGER" name="IdeApt"/>
+      <variable id="NewSta" type="STRING" value="DONE"/>
+    </update>
+  </target>
+  <target name="VetAptCan" permission="appointments.update">
+    <update multiple="true">
+      <table id="VetApt"/>
+      <field id="Sta" variable="NewSta"/>
+      <where>
+        <and>
+          <filter left-field="IdeApt" condition="eq" right-variable="IdeApt"/>
+        </and>
+      </where>
+      <variable id="IdeApt" type="INTEGER" name="IdeApt"/>
+      <variable id="NewSta" type="STRING" value="CANCELLED"/>
+    </update>
+  </target>
+  <target name="VetReqHan" permission="requests.update">
+    <update multiple="true">
+      <table id="VetReq"/>
+      <field id="Sta" variable="NewSta"/>
+      <where>
+        <and>
+          <filter left-field="IdeReq" condition="eq" right-variable="IdeReq"/>
+        </and>
+      </where>
+      <variable id="IdeReq" type="INTEGER" name="IdeReq"/>
+      <variable id="NewSta" type="STRING" value="HANDLED"/>
+    </update>
+  </target>
+  <target name="VetReqRej" permission="requests.update">
+    <update multiple="true">
+      <table id="VetReq"/>
+      <field id="Sta" variable="NewSta"/>
+      <where>
+        <and>
+          <filter left-field="IdeReq" condition="eq" right-variable="IdeReq"/>
+        </and>
+      </where>
+      <variable id="IdeReq" type="INTEGER" name="IdeReq"/>
+      <variable id="NewSta" type="STRING" value="REJECTED"/>
+    </update>
+  </target>
+  <target name="VetVacNew" permission="vaccinations.create">
+    <insert>
+      <table id="VetVac"/>
+      <field id="IdeVac" variable="NewVac" sequence="VacKey"/>
+      <field id="IdePet" variable="Pet"/>
+      <field id="IdeVet" variable="Vet"/>
+      <field id="Vcc" variable="Vcc"/>
+      <field id="VacDat" variable="VacDat"/>
+      <field id="NxtDat" variable="NxtDat"/>
+      <variable id="NewVac" type="INTEGER" name="NewVac"/>
+      <variable id="Pet" type="INTEGER" name="IdePet"/>
+      <variable id="Vet" type="INTEGER" name="IdeVet"/>
+      <variable id="Vcc" type="STRING" name="Vcc"/>
+      <variable id="VacDat" type="DATE" name="VacDat"/>
+      <variable id="NxtDat" type="DATE" name="NxtDat"/>
+    </insert>
+  </target>
+  <target name="VetVacDel" permission="vaccinations.delete">
+    <delete multiple="true">
+      <table id="VetVac"/>
+      <where>
+        <and>
+          <filter left-field="IdeVac" condition="eq" right-variable="IdeVac"/>
+        </and>
+      </where>
+      <variable id="IdeVac" type="INTEGER" name="IdeVac"/>
+    </delete>
+  </target>
+  <!-- The uploader criterion (DocFil) stores the file in the folder of its destination and sends its name -->
+  <target name="VetDocNew" permission="documents.create">
+    <insert>
+      <table id="VetDoc"/>
+      <field id="IdeDoc" variable="NewDoc" sequence="DocKey"/>
+      <field id="IdePet" variable="Pet"/>
+      <field id="DocDat" variable="Today"/>
+      <field id="Typ" variable="Typ"/>
+      <field id="Des" variable="Des"/>
+      <field id="FilNam" variable="DocFil"/>
+      <variable id="NewDoc" type="INTEGER" name="NewDoc"/>
+      <variable id="Pet" type="INTEGER" name="IdePet"/>
+      <variable id="Today" type="SYSTEM_DATE"/>
+      <variable id="Typ" type="STRING" name="Typ"/>
+      <variable id="Des" type="STRING" name="Des"/>
+      <variable id="DocFil" type="STRING" name="DocFil"/>
+    </insert>
+  </target>
+  <target name="VetDocDel" permission="documents.delete">
+    <delete multiple="true">
+      <table id="VetDoc"/>
+      <where>
+        <and>
+          <filter left-field="IdeDoc" condition="eq" right-variable="IdeDoc"/>
+        </and>
+      </where>
+      <variable id="IdeDoc" type="INTEGER" name="IdeDoc"/>
+    </delete>
+  </target>
+  <!-- PDF of an invoice: the service reads the invoice with the permission queries of its profile (VetInvHdr for the
+       staff, VetMyInvHdr for the owners, which only finds the invoices of the connected owner) -->
+  <target name="VetInvPdf" permission="invoices.read">
+    <serve service="VetInvoicePdfStaff">
+      <variable id="IdeInv" type="INTEGER" name="IdeInv"/>
+    </serve>
+  </target>
+  <target name="VetMyInvPdf" permission="portal.read">
+    <serve service="VetInvoicePdfOwner">
+      <variable id="IdeInv" type="INTEGER" name="IdeInv"/>
+    </serve>
+  </target>
+  <target name="VetInvPay" permission="invoices.update">
+    <update multiple="true">
+      <table id="VetInv"/>
+      <field id="Sta" variable="Paid"/>
+      <where>
+        <and>
+          <filter left-field="IdeInv" condition="eq" right-variable="IdeInv"/>
+        </and>
+      </where>
+      <variable id="IdeInv" type="INTEGER" name="IdeInv"/>
+      <variable id="Paid" type="STRING" value="PAID"/>
+    </update>
+  </target>
+  <!-- ===== PET OWNER AREA: the owner and the pet are taken on the server, never from the screen ===== -->
+  <!-- IdePet comes from VetMyPetCheck, which only returns a pet of the connected owner: with the pet of someone else the insert fails (the column is not null) -->
+  <target name="VetMyAptNew" permission="portal.create">
+    <insert>
+      <table id="VetApt"/>
+      <field id="IdeApt" variable="NewApt" sequence="AptKey"/>
+      <field id="IdePet" query="VetMyPetCheck"/>
+      <field id="IdeOwn" query="VetSelfOwn"/>
+      <field id="AptDat" variable="AptDat"/>
+      <field id="AptTim" variable="AptTim"/>
+      <field id="Rea" variable="Rea"/>
+      <field id="Sta" variable="Pending"/>
+      <field id="Src" variable="Owner"/>
+      <field id="Nte" variable="Nte"/>
+      <variable id="NewApt" type="INTEGER" name="NewApt"/>
+      <variable id="AptDat" type="DATE" name="AptDat"/>
+      <variable id="AptTim" type="TIME" name="AptTim"/>
+      <variable id="Rea" type="STRING" name="Rea"/>
+      <variable id="Pending" type="STRING" value="PENDING"/>
+      <variable id="Owner" type="STRING" value="OWNER"/>
+      <variable id="Nte" type="STRINGN" name="Nte"/>
+    </insert>
+  </target>
+  <!-- Cancels only appointments of the connected owner that are still open -->
+  <target name="VetMyAptCan" permission="portal.update">
+    <update multiple="true">
+      <table id="VetApt"/>
+      <field id="Sta" variable="Cancelled"/>
+      <where>
+        <and>
+          <filter left-field="IdeApt" condition="eq" right-variable="IdeApt"/>
+          <filter left-field="IdeOwn" condition="in" query="VetSelfOwn"/>
+          <or>
+            <filter left-field="Sta" condition="eq" right-variable="Pending"/>
+            <filter left-field="Sta" condition="eq" right-variable="Confirmed"/>
+          </or>
+        </and>
+      </where>
+      <variable id="IdeApt" type="INTEGER" name="IdeApt"/>
+      <variable id="Cancelled" type="STRING" value="CANCELLED"/>
+      <variable id="Pending" type="STRING" value="PENDING"/>
+      <variable id="Confirmed" type="STRING" value="CONFIRMED"/>
+    </update>
+  </target>
+</maintain>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-requests.xml
+    Description: Appointment requests sent by the public form of the landing page (read by the staff only)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="VET_MENU_REQUESTS" keep-criteria="true">
+  <tag source="hidden">
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE"/>
+  </tag>
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdReq"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="VET_MENU_REQUESTS" icon="lucide:inbox">
+      <tag type="div" style="panel-body vet-chips">
+        <criteria label="VET_COL_STATUS" id="CrtReqSta" component="select" initial-load="enum" target-action="VetReqStatus" optional="true" style="col-xs-12 col-sm-6 col-lg-3"/>
+      </tag>
+      <grid id="GrdReq" style="expand" initial-load="query" server-action="data" target-action="VetReqLst" max="15">
+        <column label="VET_COL_RECEIVED" name="ReqDat" sort-field="ReqDat" align="center" charlength="18" sendable="false"/>
+        <column label="VET_COL_REQUESTER" name="OwnNam" sort-field="OwnNam" align="left" charlength="22" width="*" secondary-field="Eml" sendable="false"/>
+        <column label="VET_FLD_PHONE" name="Tel" sort-field="Tel" align="left" charlength="14" sendable="false"/>
+        <column label="VET_COL_PET" name="PetNam" sort-field="PetNam" align="left" charlength="14" sendable="false"/>
+        <column label="VET_COL_SPECIES" name="SpcTxt" sort-field="Spc" align="left" charlength="12" sendable="false"/>
+        <column label="VET_COL_PREFERRED_DATE" name="PrfDat" sort-field="PrfDat" align="center" charlength="13" sendable="false"/>
+        <column label="VET_COL_REASON" name="ReaTxt" sort-field="Rea" align="left" charlength="14" sendable="false"/>
+        <column label="VET_FLD_NOTES" name="Nte" sort-field="Nte" align="left" charlength="26" sendable="false"/>
+        <column label="VET_COL_STATUS" name="StaTxt" sort-field="Sta" align="left" charlength="12" sendable="false"/>
+        <column name="IdeReq" hidden="true"/>
+        <column name="Eml" hidden="true" sendable="false"/>
+        <column name="Sta" hidden="true" sendable="false"/>
+        <button label="VET_BTN_MARK_HANDLED" icon="lucide:circle-check" id="ButHan" selection="true">
+          <button-action type="check-some-selected" target="GrdReq"/>
+          <button-action type="server" server-action="maintain" target-action="VetReqHan"/>
+          <button-action type="filter" target="GrdReq"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdReq" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+        <button label="VET_BTN_REJECT" icon="lucide:circle-x" id="ButRej" selection="true" style="btn-danger">
+          <button-action type="check-some-selected" target="GrdReq"/>
+          <button-action type="confirm" target="DelMsg"/>
+          <button-action type="server" server-action="maintain" target-action="VetReqRej"/>
+          <button-action type="filter" target="GrdReq"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdReq" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+  </tag>
+</screen>

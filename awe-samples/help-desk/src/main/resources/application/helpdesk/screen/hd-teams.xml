@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : hd-teams.xml
+    Description: Teams as a tree grid (supervisors): groups and teams with their agents and open tickets
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="HD_MENU_TEAMS">
+  <tag source="center">
+    <window style="expand" label="HD_MENU_TEAMS" icon="lucide:network">
+      <grid id="GrdTeam" style="expand" initial-load="query" server-action="data" target-action="HdkTeamTree" load-all="true" treegrid="true" tree-id="id" tree-parent="parent" tree-leaf="isLeaf" expand-column="Nam" initial-level="1">
+        <column label="HD_COL_TEAM" name="Nam" align="left" charlength="30" sendable="false"/>
+        <column label="HD_COL_DESCRIPTION" name="Des" align="left" charlength="34" width="*" sendable="false"/>
+        <column label="HD_COL_AGENTS" name="Agts" align="center" charlength="9" sendable="false"/>
+        <column label="HD_COL_OPEN_TICKETS" name="Opn" align="center" charlength="13" sendable="false"/>
+        <column name="id" hidden="true" sendable="false"/>
+        <column name="parent" hidden="true" sendable="false"/>
+        <column name="isLeaf" hidden="true" sendable="false"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

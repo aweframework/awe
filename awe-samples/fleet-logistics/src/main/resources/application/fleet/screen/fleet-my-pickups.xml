@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-my-pickups.xml
+    Description: Pickup requests of the customer: request one for their own account (taken on the server) and cancel a pending one
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FLT_MENU_MY_PICKUPS">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW"/>
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE"/>
+  </tag>
+  <tag source="buttons">
+    <button label="FLT_BTN_REQUEST_PICKUP" icon="lucide:package-plus" id="ButNewPck" style="btn-primary" permission="portal.create">
+      <button-action type="reset" target="PckDat"/>
+      <button-action type="reset" target="Pcs"/>
+      <button-action type="reset" target="Adr"/>
+      <button-action type="reset" target="Wgt"/>
+      <button-action type="reset" target="Nte"/>
+      <button-action type="dialog" target="PnlMyPck"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="FLT_MENU_MY_PICKUPS" icon="lucide:package-plus">
+      <grid id="GrdMyPck" style="expand" initial-load="query" server-action="data" target-action="FltMyPckLst" max="12">
+        <column label="FLT_COL_PICKUP_DATE" name="PckDat" sort-field="PckDat" align="center" charlength="14" sendable="false"/>
+        <column label="FLT_COL_ADDRESS" name="Adr" sort-field="Adr" align="left" charlength="28" width="*" sendable="false"/>
+        <column label="FLT_COL_PIECES" name="Pcs" sort-field="Pcs" align="center" charlength="8" sendable="false"/>
+        <column label="FLT_COL_WEIGHT" name="Wgt" sort-field="Wgt" align="right" charlength="12" sendable="false"/>
+        <column label="FLT_COL_STATUS" name="StaTxt" sort-field="Sta" align="left" charlength="12" status-field="Ton" sendable="false"/>
+        <column name="IdePck" hidden="true"/>
+        <column name="Sta" hidden="true" sendable="false"/>
+        <column name="Ton" hidden="true" sendable="false"/>
+        <column name="Nte" hidden="true" sendable="false"/>
+        <button label="FLT_BTN_CANCEL_PICKUP" icon="lucide:x" id="ButMyCan" selection="true" style="btn-danger">
+          <button-action type="check-some-selected" target="GrdMyPck"/>
+          <button-action type="confirm" target="DelMsg"/>
+          <button-action type="server" server-action="maintain" target-action="FltMyPckCan"/>
+          <button-action type="filter" target="GrdMyPck"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdMyPck" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+    <side-panel id="PnlMyPck" label="FLT_PCK_PANEL" icon="lucide:package-plus" max-width="36rem">
+      <tag type="div" style="panel-body" id="PnlMyPckBdy">
+        <criteria label="FLT_COL_PICKUP_DATE" id="PckDat" component="date" style="col-xs-12 col-sm-6" validation="required"/>
+        <criteria label="FLT_COL_PIECES" id="Pcs" component="numeric" style="col-xs-12 col-sm-6" validation="{required:true, ge:1}" number-format="{min: 1, max: 999, precision: 0}"/>
+        <criteria label="FLT_COL_ADDRESS" id="Adr" component="text" style="col-xs-12" validation="{required:true, maxlength:120}" icon="lucide:map-pin"/>
+        <criteria label="FLT_COL_WEIGHT_TOTAL" id="Wgt" component="numeric" style="col-xs-12 col-sm-6" validation="{required:true, gt:0}" number-format="{min: 0, max: 30000, precision: 1, aSign: ' kg', pSign: 's'}"/>
+        <criteria label="FLT_COL_NOTES" id="Nte" component="textarea" style="col-xs-12" validation="{maxlength:400}" area-rows="3"/>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlMyPckCnl">
+          <button-action type="close-cancel" target="PnlMyPck"/>
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="lucide:check" id="ButPnlMyPckSav" style="btn-primary">
+          <button-action type="validate" target="PnlMyPckBdy"/>
+          <button-action type="confirm" target="NewMsg"/>
+          <button-action type="server" server-action="maintain" target-action="FltMyPckNew"/>
+          <button-action type="close" target="PnlMyPck"/>
+          <button-action type="filter" target="GrdMyPck"/>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+</screen>

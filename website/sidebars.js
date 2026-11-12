@@ -122,6 +122,7 @@ module.exports = {
 			collapsed: true,
 			items: [
 				"guides/project-structure",
+				"guides/sample-applications",
 				"guides/scheduler",
 				"guides/notifier",
 				"guides/observability",

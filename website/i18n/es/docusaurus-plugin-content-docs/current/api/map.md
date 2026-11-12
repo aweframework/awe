@@ -35,6 +35,8 @@ El mapa se dibuja con [Leaflet](https://leafletjs.com/) (licencia BSD-2-Clause) 
 | latitude | Opcional | String | Nombre de la columna de datos con la latitud del marcador | Por defecto `latitude` |
 | longitude | Opcional | String | Nombre de la columna de datos con la longitud del marcador | Por defecto `longitude` |
 | marker-label | Opcional | String | Nombre de la columna de datos que se muestra en el popup del marcador | Sin él los marcadores no tienen popup |
+| marker-number | Opcional | String | Nombre de la columna de datos que se dibuja como número dentro del marcador, que pasa a ser un pin numerado | Sin él los marcadores son círculos |
+| route-markers | Opcional | Boolean | Mantiene visibles los marcadores mientras se muestra una ruta | Por defecto `false`, ver [Dibujar una ruta](#route) |
 | zoom | Opcional | Número | Nivel de zoom inicial | Por defecto `4`. Se aplica cuando el mapa tiene centro |
 | center-latitude | Opcional | Decimal | Latitud del centro inicial del mapa | Indíquelo junto con `center-longitude` |
 | center-longitude | Opcional | Decimal | Longitud del centro inicial del mapa | Indíquelo junto con `center-latitude` |
@@ -73,6 +75,13 @@ El mapa también puede tener sus propios hijos `dependency`, como los demás com
 ## Dibujar una ruta {#route}
 
 La [acción de cliente](actions.md) `polyline` dibuja una ruta sobre el mapa: los puntos van en el parámetro `rows`, con las columnas de latitud y longitud del mapa (`latitude` y `longitude` por defecto). Mientras se muestra la ruta los marcadores se ocultan y la vista se centra en el primer punto de la ruta (zoom `8`). Una ruta sin puntos elimina la ruta y los marcadores vuelven.
+
+Con `route-markers="true"` los marcadores siguen visibles mientras se muestra la ruta y la vista se ajusta a la ruta y a los marcadores, en lugar de centrarse en el primer punto. Junto con `marker-number` los marcadores son pines numerados, de modo que una ruta muestra sus paradas en orden sobre la línea de la carretera:
+
+```xml
+<map id="route" target-action="RouteStops" latitude="Lat" longitude="Lon"
+     marker-label="Town" marker-number="Seq" route-markers="true" style="expand"/>
+```
 
 ```java
 public ServiceData route() {

@@ -33,3 +33,19 @@ export function toPosition(
   const lng = toCoordinate(row?.[longitude]);
   return lat === null || lng === null ? null : [lat, lng];
 }
+
+/**
+ * Class of the numbered pin of a marker (and of the selected one)
+ */
+export const PIN_CLASS = "awe-map-pin";
+export const PIN_SELECTED_CLASS = "awe-map-pin-selected";
+
+/**
+ * Retrieve the html of a numbered pin: the number is text, never markup
+ * @param {unknown} number Number (or text) shown in the pin
+ * @returns {string} Html of the pin
+ */
+export function pinHtml(number: unknown): string {
+  const text = String(number).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return `<span>${text}</span>`;
+}

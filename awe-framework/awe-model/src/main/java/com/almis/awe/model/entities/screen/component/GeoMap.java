@@ -45,6 +45,16 @@ public class GeoMap extends Component {
   @XStreamAsAttribute
   private String markerLabel;
 
+  // Name of the column with the number drawn in the marker
+  @XStreamAlias("marker-number")
+  @XStreamAsAttribute
+  private String markerNumber;
+
+  // Keep the markers visible, and fit the view to them, while a route is shown
+  @XStreamAlias("route-markers")
+  @XStreamAsAttribute
+  private Boolean routeMarkers;
+
   // Initial zoom level
   @XStreamAlias("zoom")
   @XStreamAsAttribute

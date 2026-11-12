@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Queries.xml
+    Description: Queries of the fleet application. The lists read the SQL views of the Flyway migration; every query declares
+                 the permission it requires, except the public ones and the server-only helpers
+-->
+<queries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/queries.xsd">
+  <!-- ===== PUBLIC ===== -->
+  <query id="FltRegPub" enumerated="FltRegion" public="true"/>
+  <!-- Public tracking: the timeline of ONE shipment. Both the tracking code and the destination postal code are required and must match (both variables are mandatory), and only the date, the status and the place are returned -->
+  <query id="FltTrackPub" public="true">
+    <table id="FltTrk"/>
+    <field id="EvtDat" transform="TIMESTAMP"/>
+    <field id="Sta" alias="StaTxt" translate="FltShipmentStatus"/>
+    <field id="Loc"/>
+    <where>
+      <and>
+        <filter left-field="Cod" condition="eq" right-variable="Cod" ignorecase="true"/>
+        <filter left-field="DstPst" condition="eq" right-variable="Pst"/>
+      </and>
+    </where>
+    <order-by field="EvtDat" type="ASC"/>
+    <variable id="Cod" type="STRING" name="TrkCod"/>
+    <variable id="Pst" type="STRING" name="TrkPst"/>
+  </query>
+  <!-- Public tracking map: the numbered points (origin hub, central hub, destination) of ONE shipment. It is NOT public: only FltTrackRoute (through the Java
+       service FleetMapService) launches it, and, like FltTrackPub, it needs the code AND the postal code, so there is no way
+       to read the points of a shipment without both values -->
+  <query id="FltTrackPts">
+    <table id="FltTrkPts"/>
+    <field id="Seq"/>
+    <field id="Loc"/>
+    <field id="Lat"/>
+    <field id="Lon"/>
+    <where>
+      <and>
+        <filter left-field="Cod" condition="eq" right-variable="Cod" ignorecase="true"/>
+        <filter left-field="DstPst" condition="eq" right-variable="Pst"/>
+      </and>
+    </where>
+    <order-by field="Seq" type="ASC"/>
+    <variable id="Cod" type="STRING" name="TrkCod"/>
+    <variable id="Pst" type="STRING" name="TrkPst"/>
+  </query>
+  <!-- ===== DISPATCHERS ===== -->
+  <query id="FltDshDelivered" permission="dashboard.read">
+    <table id="FltKpi"/>
+    <field id="Del7" alias="value"/>
+  </query>
+  <query id="FltDshOnTime" permission="dashboard.read">
+    <table id="FltKpi"/>
+    <field id="Otp" alias="value"/>
+  </query>
+  <query id="FltDshDelayed" permission="dashboard.read">
+    <table id="FltKpi"/>
+    <field id="Dly" alias="value"/>
+  </query>
+  <query id="FltDshOpen" permission="dashboard.read">
+    <table id="FltKpi"/>
+    <field id="Opn" alias="value"/>
+  </query>
+  <query id="FltDshOnRoute" permission="dashboard.read">
+    <table id="FltKpi"/>
+    <field id="Rou" alias="value"/>
+  </query>
+  <query id="FltDshService" permission="dashboard.read">
+    <table id="FltKpi"/>
+    <field id="Svc" alias="value"/>
+  </query>
+  <!-- Vehicles on route, one marker each (map of the dashboard): the label is the plate and the driver -->
+  <query id="FltDshVehMap" permission="dashboard.read">
+    <table id="FltVehMap"/>
+    <field id="Ide" alias="id"/>
+    <field id="Lat"/>
+    <field id="Lon"/>
+    <field id="Lbl"/>
+    <field id="Plt"/>
+    <field id="DrvNam"/>
+    <field id="RteCod"/>
+    <field id="Cnt"/>
+    <field id="Wgt"/>
+  </query>
+  <!-- Deliveries per day (line chart with a date axis and zoom) -->
+  <query id="FltDshDay" permission="dashboard.read">
+    <table id="FltDayDel"/>
+    <field id="Dat" alias="dates" transform="DATE_MS"/>
+    <field id="Cnt" alias="deliveries"/>
+    <where>
+      <and>
+        <filter left-field="Dat" condition="ge" right-variable="From"/>
+      </and>
+    </where>
+    <order-by field="Dat" type="ASC"/>
+    <variable id="From" type="DATE" value="01/01/2000"/>
+  </query>
+  <!-- On-time deliveries per week (%) -->
+  <query id="FltDshWeek" permission="dashboard.read">
+    <table id="FltWeekOtp"/>
+    <field id="Wk" alias="week"/>
+    <field id="Otp" alias="onTime"/>
+    <order-by field="Wk" type="ASC"/>
+  </query>
+  <!-- Shipments by destination region and status (stacked columns) -->
+  <query id="FltDshRegion" permission="dashboard.read">
+    <table id="FltRegSta"/>
+    <field id="Reg" alias="region" translate="FltRegion"/>
+    <field id="Del" alias="delivered"/>
+    <field id="Trn" alias="transit"/>
+    <field id="Dly" alias="delayed"/>
+    <field id="Cre" alias="created"/>
+  </query>
+  <!-- Fleet status (donut) -->
+  <query id="FltDshFleet" permission="dashboard.read">
+    <table id="FltVehCnt"/>
+    <field id="Sta" alias="status" translate="FltVehicleStatus"/>
+    <field id="Cnt" alias="vehicles"/>
+  </query>
+  <!-- All the shipments: the grid loads them all (load-all) and groups, filters and totals them on the client -->
+  <query id="FltShpLst" permission="shipments.read">
+    <table id="FltShpLst"/>
+    <field id="IdeShp"/>
+    <field id="Cod"/>
+    <field id="CusNam"/>
+    <field id="OrgReg" alias="OrgTxt" translate="FltRegion"/>
+    <field id="DstReg" alias="DstTxt" translate="FltRegion"/>
+    <field id="DstCit"/>
+    <field id="DstPst"/>
+    <field id="Wgt"/>
+    <field id="Pri" alias="PriTxt" translate="FltPriority"/>
+    <field id="Sta" alias="StaTxt" translate="FltShipmentStatus"/>
+    <field id="Ton"/>
+    <field id="CreDat" transform="DATE"/>
+    <field id="Eta" transform="TIMESTAMP"/>
+    <field id="Fee"/>
+    <order-by field="CreDat" type="DESC"/>
+  </query>
+  <query id="FltVehLst" permission="vehicles.read">
+    <table id="FltVehLst"/>
+    <field id="IdeVeh"/>
+    <field id="Plt"/>
+    <field id="Typ"/>
+    <field id="Typ" alias="TypTxt" translate="FltVehicleType"/>
+    <field id="Cap"/>
+    <field id="Mil"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="FltVehicleStatus"/>
+    <field id="Ton"/>
+    <field id="NxtSvc" transform="DATE"/>
+    <field id="SvcSta" alias="SvcTxt" translate="FltServiceStatus"/>
+    <field id="SvcTon"/>
+    <field id="Reg"/>
+    <field id="Reg" alias="RegTxt" translate="FltRegion"/>
+    <where>
+      <and>
+        <or>
+          <filter left-field="Plt" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="Plt" type="ASC"/>
+    <variable id="Sch" type="STRINGB" name="CrtVehSch"/>
+  </query>
+  <!-- Vehicles for the assignment -->
+  <query id="FltVehSel" permission="routes.read">
+    <table id="FltVeh"/>
+    <field id="IdeVeh" alias="value"/>
+    <field id="Plt" alias="label"/>
+    <order-by field="Plt" type="ASC"/>
+  </query>
+  <query id="FltDrvLst" permission="drivers.read">
+    <table id="FltDrv"/>
+    <field id="IdeDrv"/>
+    <field id="Nam"/>
+    <field id="Lic"/>
+    <field id="Pho"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="FltDriverStatus"/>
+    <field id="Reg"/>
+    <field id="Reg" alias="RegTxt" translate="FltRegion"/>
+    <where>
+      <and>
+        <or>
+          <filter left-field="Nam" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+          <filter left-field="Lic" condition="like" right-variable="Sch" ignorecase="true" optional="true"/>
+        </or>
+      </and>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="Sch" type="STRINGB" name="CrtDrvSch"/>
+  </query>
+  <!-- Active drivers for the assignment -->
+  <query id="FltDrvSel" permission="routes.read">
+    <table id="FltDrv"/>
+    <field id="IdeDrv" alias="value"/>
+    <field id="Nam" alias="label"/>
+    <where>
+      <and>
+        <filter left-field="Sta" condition="eq" right-variable="Act"/>
+      </and>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="Act" type="STRING" value="ACTIVE"/>
+  </query>
+  <!-- Routes and their stops as a tree grid (id and parent) -->
+  <query id="FltRteTree" permission="routes.read">
+    <table id="FltRteTree"/>
+    <field id="Ide" alias="id"/>
+    <field id="Par" alias="parent"/>
+    <field id="IsLeaf" alias="isLeaf"/>
+    <field id="Nam"/>
+    <field id="RteDat" transform="DATE"/>
+    <field id="Reg" alias="RegTxt" translate="FltRegion"/>
+    <field id="Plt"/>
+    <field id="DrvNam"/>
+    <field id="Sta" alias="StaTxt" translate="FltRouteStatus"/>
+    <field id="Seq"/>
+    <where>
+      <and>
+        <filter left-field="RteDat" condition="ge" right-variable="From" optional="true"/>
+      </and>
+    </where>
+    <variable id="From" type="DATE" name="CrtRteFro"/>
+  </query>
+  <!-- Road of a route in order, for the map of the route planner: the key is the id of the selected row of the tree -->
+  <query id="FltRteMapPts" permission="routes.read">
+    <table id="FltRteGeo"/>
+    <field id="Lat"/>
+    <field id="Lon"/>
+    <where>
+      <and>
+        <filter left-field="Ide" condition="eq" right-variable="Ide"/>
+      </and>
+    </where>
+    <order-by field="Seq" type="ASC"/>
+    <variable id="Ide" type="INTEGER" name="Ide"/>
+  </query>
+  <!-- Stops of a route in order, the numbered markers of the map of the route planner (same key as FltRteMapPts) -->
+  <query id="FltRteMapStops" permission="routes.read">
+    <table id="FltRtePts"/>
+    <field id="Seq"/>
+    <field id="Loc"/>
+    <field id="Lat"/>
+    <field id="Lon"/>
+    <where>
+      <and>
+        <filter left-field="Ide" condition="eq" right-variable="Ide"/>
+      </and>
+    </where>
+    <order-by field="Seq" type="ASC"/>
+    <variable id="Ide" type="INTEGER" name="Ide"/>
+  </query>
+  <!-- Routes of today: the vehicle and the driver are edited in the grid -->
+  <query id="FltRteToday" permission="routes.read">
+    <table id="FltRteToday"/>
+    <field id="IdeRte"/>
+    <field id="Cod"/>
+    <field id="RteDat" transform="DATE"/>
+    <field id="Reg" alias="RegTxt" translate="FltRegion"/>
+    <field id="IdeVeh"/>
+    <field id="IdeDrv"/>
+    <field id="Sta" alias="StaTxt" translate="FltRouteStatus"/>
+    <field id="Ton"/>
+    <order-by field="Cod" type="ASC"/>
+  </query>
+  <!-- Quote requests of the public form -->
+  <query id="FltQuoLst" permission="requests.read">
+    <table id="FltQuo"/>
+    <field id="IdeQuo"/>
+    <field id="QuoDat" transform="TIMESTAMP"/>
+    <field id="Nam"/>
+    <field id="Eml"/>
+    <field id="Tel"/>
+    <field id="OrgReg" alias="OrgTxt" translate="FltRegion"/>
+    <field id="DstReg" alias="DstTxt" translate="FltRegion"/>
+    <field id="Wgt"/>
+    <field id="Nte"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="FltRequestStatus"/>
+    <order-by field="QuoDat" type="DESC"/>
+  </query>
+  <query id="FltPckLst" permission="requests.read">
+    <table id="FltPckLst"/>
+    <field id="IdePck"/>
+    <field id="CusNam"/>
+    <field id="PckDat" transform="DATE"/>
+    <field id="Adr"/>
+    <field id="Pcs"/>
+    <field id="Wgt"/>
+    <field id="Nte"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="FltRequestStatus"/>
+    <field id="Ton"/>
+    <order-by field="PckDat" type="DESC"/>
+  </query>
+  <!-- ===== CUSTOMERS: every query and maintain target filters by the connected user =====
+       FltSelfCus gives the account of the session user; the filter in (FltSelfCus) is on the server, so a customer
+       never reads or writes the rows of another account -->
+  <!-- Account of the connected user -->
+  <query id="FltSelfCus" server-only="true">
+    <table id="FltSelfCus"/>
+    <field id="IdeCus"/>
+    <where>
+      <and>
+        <filter left-field="Usr" condition="eq" right-variable="User" ignorecase="true"/>
+      </and>
+    </where>
+    <variable id="User" type="STRING" session="user"/>
+  </query>
+  <query id="FltMyOpen" permission="portal.read">
+    <table id="FltCusKpi"/>
+    <field id="Opn" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeCus" condition="in" query="FltSelfCus"/>
+      </and>
+    </where>
+  </query>
+  <query id="FltMyDelayed" permission="portal.read">
+    <table id="FltCusKpi"/>
+    <field id="Dly" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeCus" condition="in" query="FltSelfCus"/>
+      </and>
+    </where>
+  </query>
+  <query id="FltMyDelivered" permission="portal.read">
+    <table id="FltCusKpi"/>
+    <field id="Del30" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeCus" condition="in" query="FltSelfCus"/>
+      </and>
+    </where>
+  </query>
+  <query id="FltMyDue" permission="portal.read">
+    <table id="FltCusKpi"/>
+    <field id="Due" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeCus" condition="in" query="FltSelfCus"/>
+      </and>
+    </where>
+  </query>
+  <query id="FltMyShpLst" permission="portal.read">
+    <table id="FltShpLst"/>
+    <field id="IdeShp"/>
+    <field id="Cod"/>
+    <field id="CusNam"/>
+    <field id="OrgReg" alias="OrgTxt" translate="FltRegion"/>
+    <field id="DstReg" alias="DstTxt" translate="FltRegion"/>
+    <field id="DstCit"/>
+    <field id="DstPst"/>
+    <field id="Wgt"/>
+    <field id="Pri" alias="PriTxt" translate="FltPriority"/>
+    <field id="Sta" alias="StaTxt" translate="FltShipmentStatus"/>
+    <field id="Ton"/>
+    <field id="CreDat" transform="DATE"/>
+    <field id="Eta" transform="TIMESTAMP"/>
+    <field id="Fee"/>
+    <where>
+      <and>
+        <filter left-field="IdeCus" condition="in" query="FltSelfCus"/>
+        <filter left-field="Sta" condition="eq" right-variable="Sta" optional="true"/>
+      </and>
+    </where>
+    <order-by field="CreDat" type="DESC"/>
+    <variable id="Sta" type="STRING" name="CrtMyShpSta"/>
+  </query>
+  <!-- Timeline of one of my shipments (nested grid, parameter GrdMyShp.row.IdeShp). The account filter also holds when the shipment of another account is asked for -->
+  <query id="FltMyEvtLst" permission="portal.read">
+    <table id="FltEvtLst"/>
+    <field id="IdeEvt"/>
+    <field id="EvtDat" alias="EvtTim" transform="TIMESTAMP"/>
+    <field id="Sta" alias="EvtSta" translate="FltShipmentStatus"/>
+    <field id="Loc" alias="EvtLoc"/>
+    <where>
+      <and>
+        <filter left-field="IdeCus" condition="in" query="FltSelfCus"/>
+        <filter left-field="IdeShp" condition="eq" right-variable="Shp"/>
+      </and>
+    </where>
+    <order-by field="EvtDat" type="ASC"/>
+    <variable id="Shp" type="INTEGER" name="GrdMyShp.row.IdeShp"/>
+  </query>
+  <query id="FltMyPckLst" permission="portal.read">
+    <table id="FltPckLst"/>
+    <field id="IdePck"/>
+    <field id="PckDat" transform="DATE"/>
+    <field id="Adr"/>
+    <field id="Pcs"/>
+    <field id="Wgt"/>
+    <field id="Nte"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="FltRequestStatus"/>
+    <field id="Ton"/>
+    <where>
+      <and>
+        <filter left-field="IdeCus" condition="in" query="FltSelfCus"/>
+      </and>
+    </where>
+    <order-by field="PckDat" type="DESC"/>
+  </query>
+  <query id="FltMyInvLst" permission="portal.read">
+    <table id="FltInvLst"/>
+    <field id="IdeInv"/>
+    <field id="InvDat" transform="DATE"/>
+    <field id="Amt"/>
+    <field id="Sta"/>
+    <field id="Sta" alias="StaTxt" translate="FltInvoiceStatus"/>
+    <field id="Ton"/>
+    <where>
+      <and>
+        <filter left-field="IdeCus" condition="in" query="FltSelfCus"/>
+        <filter left-field="Sta" condition="eq" right-variable="Sta" optional="true"/>
+      </and>
+    </where>
+    <order-by field="InvDat" type="DESC"/>
+    <variable id="Sta" type="STRING" name="CrtMyInvSta"/>
+  </query>
+  <!-- ===== SCHEDULED TASKS: the rows of the notifier tables and of the tracking timeline that the tasks insert ===== -->
+  <query id="FltNotDsp" server-only="true">
+    <table id="FltNotDsp"/>
+    <field id="Ide"/>
+    <field id="IdeSub"/>
+    <field id="Typ"/>
+    <field id="Ico"/>
+    <field id="Nom"/>
+    <field id="Des"/>
+    <field id="Scr"/>
+    <field id="Cod"/>
+    <field id="Dat"/>
+  </query>
+  <query id="FltNotCus" server-only="true">
+    <table id="FltNotCus"/>
+    <field id="Ide"/>
+    <field id="IdeSub"/>
+    <field id="Typ"/>
+    <field id="Ico"/>
+    <field id="Nom"/>
+    <field id="Des"/>
+    <field id="Scr"/>
+    <field id="Cod"/>
+    <field id="Dat"/>
+  </query>
+  <query id="FltEvtLate" server-only="true">
+    <table id="FltEvtLate"/>
+    <field id="IdeEvt"/>
+    <field id="IdeShp"/>
+    <field id="EvtDat"/>
+    <field id="Sta"/>
+    <field id="Loc"/>
+  </query>
+</queries>

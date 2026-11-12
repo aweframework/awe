@@ -14,5 +14,11 @@
   <artifactId>awe-samples</artifactId>
   <packaging>pom</packaging>
 
+  <!-- Standalone sample applications on the React engine. Each one has its own port, database and README -->
+  <modules>
+    <module>vet-clinic</module>
+    <module>fleet-logistics</module>
+    <module>help-desk</module>
+  </modules>
 
 </project>

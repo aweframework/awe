@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Maintain.xml
+    Description: Maintain targets of the help desk. Only HdkChatTicket (the public support chat) is public. The workflow targets update a ticket only from the allowed
+                 previous states; the supervisor-only ones require tickets.reassign, tickets.critical or kb.*
+-->
+<maintain xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/maintain.xsd">
+  <!-- ===== AGENTS ===== -->
+  <!-- New ticket on behalf of a requester (the wizard and the REST API). A critical priority is lowered to HIGH: only a supervisor can make a ticket critical afterwards (HdkTktPrioAny) -->
+  <target name="HdkTktNew" permission="tickets.create">
+    <insert>
+      <table id="HdkTkt"/>
+      <field id="IdeTkt" variable="NewTkt" sequence="TktKey"/>
+      <field id="IdeReq" variable="Req"/>
+      <field id="IdeTeam" query="HdkCatTeam"/>
+      <field id="Cat" variable="Cat"/>
+      <field id="Pri" variable="Pri"/>
+      <field id="Sta" variable="Nw"/>
+      <field id="Sub" variable="Sub"/>
+      <field id="Dsc" variable="Dsc"/>
+      <field id="CreDat" variable="Now"/>
+      <field id="UpdDat" variable="Now"/>
+      <field id="Chn" variable="Chn"/>
+      <variable id="NewTkt" type="INTEGER" name="NewTkt"/>
+      <variable id="Req" type="INTEGER" name="IdeReq"/>
+      <variable id="Cat" type="STRING" name="Cat"/>
+      <variable id="Pri" type="STRING" name="Pri"/>
+      <variable id="Nw" type="STRING" value="NEW"/>
+      <variable id="Sub" type="STRING" name="Sub"/>
+      <variable id="Dsc" type="STRINGN" name="Dsc"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="Chn" type="STRING" name="Chn"/>
+    </insert>
+    <update>
+      <table id="HdkTkt"/>
+      <field id="Pri" variable="High"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="NewTkt"/>
+          <filter left-field="Pri" condition="eq" right-variable="Crit"/>
+        </and>
+      </where>
+      <variable id="NewTkt" type="INTEGER" name="NewTkt"/>
+      <variable id="High" type="STRING" value="HIGH"/>
+      <variable id="Crit" type="STRING" value="CRITICAL"/>
+    </update>
+  </target>
+  <!-- Workflow: only from NEW to OPEN (the WHERE condition enforces it, whatever the screen sends) -->
+  <target name="HdkTktTake" permission="tickets.update">
+    <update multiple="true">
+      <table id="HdkTkt"/>
+      <field id="Sta" variable="To"/>
+      <field id="UpdDat" variable="Now"/>
+      <field id="IdeAgt" query="HdkSelfAgt"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+          <filter left-field="Sta" condition="eq" right-variable="From0"/>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+      <variable id="To" type="STRING" value="OPEN"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="From0" type="STRING" value="NEW"/>
+    </update>
+  </target>
+  <!-- Workflow: only from OPEN to PENDING (the WHERE condition enforces it, whatever the screen sends) -->
+  <target name="HdkTktPend" permission="tickets.update">
+    <update multiple="true">
+      <table id="HdkTkt"/>
+      <field id="Sta" variable="To"/>
+      <field id="UpdDat" variable="Now"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+          <filter left-field="Sta" condition="eq" right-variable="From0"/>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+      <variable id="To" type="STRING" value="PENDING"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="From0" type="STRING" value="OPEN"/>
+    </update>
+  </target>
+  <!-- Workflow: only from OPEN or PENDING to RESOLVED (the WHERE condition enforces it, whatever the screen sends) -->
+  <target name="HdkTktResolve" permission="tickets.update">
+    <update multiple="true">
+      <table id="HdkTkt"/>
+      <field id="Sta" variable="To"/>
+      <field id="UpdDat" variable="Now"/>
+      <field id="ResDat" variable="Now"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+          <or>
+            <filter left-field="Sta" condition="eq" right-variable="From0"/>
+            <filter left-field="Sta" condition="eq" right-variable="From1"/>
+          </or>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+      <variable id="To" type="STRING" value="RESOLVED"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="From0" type="STRING" value="OPEN"/>
+      <variable id="From1" type="STRING" value="PENDING"/>
+    </update>
+  </target>
+  <!-- Workflow: only from RESOLVED to CLOSED (the WHERE condition enforces it, whatever the screen sends) -->
+  <target name="HdkTktClose" permission="tickets.update">
+    <update multiple="true">
+      <table id="HdkTkt"/>
+      <field id="Sta" variable="To"/>
+      <field id="UpdDat" variable="Now"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+          <filter left-field="Sta" condition="eq" right-variable="From0"/>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+      <variable id="To" type="STRING" value="CLOSED"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="From0" type="STRING" value="RESOLVED"/>
+    </update>
+  </target>
+  <!-- Workflow: only from RESOLVED or PENDING to OPEN (the WHERE condition enforces it, whatever the screen sends) -->
+  <target name="HdkTktReopen" permission="tickets.update">
+    <update multiple="true">
+      <table id="HdkTkt"/>
+      <field id="Sta" variable="To"/>
+      <field id="UpdDat" variable="Now"/>
+      <field id="ResDat" variable="NoDate"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+          <or>
+            <filter left-field="Sta" condition="eq" right-variable="From0"/>
+            <filter left-field="Sta" condition="eq" right-variable="From1"/>
+          </or>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+      <variable id="To" type="STRING" value="OPEN"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="From0" type="STRING" value="RESOLVED"/>
+      <variable id="From1" type="STRING" value="PENDING"/>
+      <variable id="NoDate" type="NULL"/>
+    </update>
+  </target>
+  <!-- Reply (PUBLIC) or internal note (INTERNAL) of the connected agent -->
+  <target name="HdkMsgNew" permission="tickets.update">
+    <insert>
+      <table id="HdkMsg"/>
+      <field id="IdeMsg" variable="NewMsg" sequence="MsgKey"/>
+      <field id="IdeTkt" variable="IdeTkt"/>
+      <field id="MsgDat" variable="Now"/>
+      <field id="Aut" query="HdkSelfAgtNam"/>
+      <field id="Typ" variable="Typ"/>
+      <field id="Txt" variable="Txt"/>
+      <variable id="NewMsg" type="INTEGER" name="NewMsg"/>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt.selected"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="Typ" type="STRING" name="Typ"/>
+      <variable id="Txt" type="STRING" name="Txt"/>
+    </insert>
+    <update>
+      <table id="HdkTkt"/>
+      <field id="UpdDat" variable="Now"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt.selected"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+    </update>
+  </target>
+  <!-- Changes the priority to LOW, NORMAL or HIGH. The new value comes from HdkPriAgent (table HdkPri): asking for CRITICAL stores NULL and the database refuses it, so only HdkTktPrioAny (supervisors) can set it -->
+  <target name="HdkTktPrio" permission="tickets.update">
+    <update multiple="true">
+      <table id="HdkTkt"/>
+      <field id="Pri" query="HdkPriAgent"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+    </update>
+  </target>
+  <!-- ===== SUPERVISORS ===== -->
+  <!-- Any priority, critical included -->
+  <target name="HdkTktPrioAny" permission="tickets.critical">
+    <update multiple="true">
+      <table id="HdkTkt"/>
+      <field id="Pri" variable="Pri"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+      <variable id="Pri" type="STRING" name="Pri"/>
+    </update>
+  </target>
+  <!-- Reassigns the selected tickets to an agent -->
+  <target name="HdkTktAssign" permission="tickets.reassign">
+    <update multiple="true">
+      <table id="HdkTkt"/>
+      <field id="IdeAgt" variable="IdeAgt"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+      <variable id="IdeAgt" type="INTEGER" name="IdeAgt"/>
+    </update>
+  </target>
+  <target name="HdkKbNew" permission="kb.create">
+    <insert>
+      <table id="HdkArt"/>
+      <field id="IdeArt" variable="NewArt" sequence="ArtKey"/>
+      <field id="Cat" variable="Cat"/>
+      <field id="Tit" variable="Tit"/>
+      <field id="Txt" variable="Txt"/>
+      <field id="Pub" variable="Pub"/>
+      <field id="UpdDat" variable="Now"/>
+      <field id="Vws" variable="Zero"/>
+      <variable id="NewArt" type="INTEGER" name="NewArt"/>
+      <variable id="Zero" type="INTEGER" value="0"/>
+      <variable id="Cat" type="STRING" name="Cat"/>
+      <variable id="Tit" type="STRING" name="Tit"/>
+      <variable id="Txt" type="STRING" name="Txt"/>
+      <variable id="Pub" type="INTEGER" name="Pub"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+    </insert>
+  </target>
+  <target name="HdkKbUpd" permission="kb.update">
+    <update>
+      <table id="HdkArt"/>
+      <field id="Cat" variable="Cat"/>
+      <field id="Tit" variable="Tit"/>
+      <field id="Txt" variable="Txt"/>
+      <field id="Pub" variable="Pub"/>
+      <field id="UpdDat" variable="Now"/>
+      <where>
+        <and>
+          <filter left-field="IdeArt" condition="eq" right-variable="IdeArt"/>
+        </and>
+      </where>
+      <variable id="IdeArt" type="INTEGER" name="IdeArt"/>
+      <variable id="Cat" type="STRING" name="Cat"/>
+      <variable id="Tit" type="STRING" name="Tit"/>
+      <variable id="Txt" type="STRING" name="Txt"/>
+      <variable id="Pub" type="INTEGER" name="Pub"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+    </update>
+  </target>
+  <target name="HdkKbDel" permission="kb.delete">
+    <delete multiple="true">
+      <table id="HdkArt"/>
+      <where>
+        <and>
+          <filter left-field="IdeArt" condition="eq" right-variable="IdeArt"/>
+        </and>
+      </where>
+      <variable id="IdeArt" type="INTEGER" name="IdeArt"/>
+    </delete>
+  </target>
+  <!-- ===== REQUESTERS: the requester and the ticket are taken on the server, never from the screen ===== -->
+  <!-- Insert-only for the connected requester: priority NORMAL and status NEW are constants -->
+  <target name="HdkMyTktNew" permission="portal.create">
+    <insert>
+      <table id="HdkTkt"/>
+      <field id="IdeTkt" variable="NewTkt" sequence="TktKey"/>
+      <field id="IdeReq" query="HdkSelfReq"/>
+      <field id="IdeTeam" query="HdkCatTeam"/>
+      <field id="Cat" variable="Cat"/>
+      <field id="Pri" variable="Normal"/>
+      <field id="Sta" variable="Nw"/>
+      <field id="Sub" variable="Sub"/>
+      <field id="Dsc" variable="Dsc"/>
+      <field id="CreDat" variable="Now"/>
+      <field id="UpdDat" variable="Now"/>
+      <field id="Chn" variable="Web"/>
+      <variable id="NewTkt" type="INTEGER" name="NewTkt"/>
+      <variable id="Cat" type="STRING" name="Cat"/>
+      <variable id="Normal" type="STRING" value="NORMAL"/>
+      <variable id="Nw" type="STRING" value="NEW"/>
+      <variable id="Sub" type="STRING" name="Sub"/>
+      <variable id="Dsc" type="STRINGN" name="Dsc"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="Web" type="STRING" value="WEB"/>
+    </insert>
+  </target>
+  <!-- Reply of the requester on its own ticket (the ticket comes from HdkMyTktCheck: with a ticket of somebody else the insert fails). A reply on a PENDING ticket reopens it -->
+  <target name="HdkMyReply" permission="portal.update">
+    <insert>
+      <table id="HdkMsg"/>
+      <field id="IdeMsg" variable="NewMsg" sequence="MsgKey"/>
+      <field id="IdeTkt" query="HdkMyTktCheck"/>
+      <field id="MsgDat" variable="Now"/>
+      <field id="Aut" query="HdkSelfReqNam"/>
+      <field id="Typ" variable="Req"/>
+      <field id="Txt" variable="Txt"/>
+      <variable id="NewMsg" type="INTEGER" name="NewMsg"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="Req" type="STRING" value="REQUESTER"/>
+      <variable id="Txt" type="STRING" name="Txt"/>
+    </insert>
+    <update>
+      <table id="HdkTkt"/>
+      <field id="Sta" variable="Open"/>
+      <field id="UpdDat" variable="Now"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+          <filter left-field="IdeReq" condition="in" query="HdkSelfReq"/>
+          <filter left-field="Sta" condition="eq" right-variable="Pending"/>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+      <variable id="Open" type="STRING" value="OPEN"/>
+      <variable id="Pending" type="STRING" value="PENDING"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+    </update>
+  </target>
+  <!-- Workflow: only from RESOLVED to CLOSED (the WHERE condition enforces it, whatever the screen sends) -->
+  <target name="HdkMyClose" permission="portal.update">
+    <update multiple="true">
+      <table id="HdkTkt"/>
+      <field id="Sta" variable="To"/>
+      <field id="UpdDat" variable="Now"/>
+      <where>
+        <and>
+          <filter left-field="IdeTkt" condition="eq" right-variable="IdeTkt"/>
+          <filter left-field="Sta" condition="eq" right-variable="From0"/>
+          <filter left-field="IdeReq" condition="in" query="HdkSelfReq"/>
+        </and>
+      </where>
+      <variable id="IdeTkt" type="INTEGER" name="IdeTkt"/>
+      <variable id="To" type="STRING" value="CLOSED"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="From0" type="STRING" value="RESOLVED"/>
+    </update>
+  </target>
+  <!-- ===== VISITORS: the public support chat (no sign-in). The requester is identified by email ===== -->
+  <!-- The only public maintain. Everything is checked in Java (ChatTicketService): the hidden Hp field (a bot fills it, it creates nothing),
+       3 tickets per session, a valid email, a category of HdkCategory and a description. The answer title is the ticket code and the
+       message its access key (the public status check takes the key and the email) -->
+  <target name="HdkChatTicket" public="true">
+    <serve service="HdkChatTicket">
+      <variable id="Hp" type="STRINGN" name="Hp"/>
+      <variable id="Eml" type="STRINGN" name="Eml"/>
+      <variable id="Cat" type="STRINGN" name="Cat"/>
+      <variable id="Dsc" type="STRINGN" name="Dsc"/>
+    </serve>
+  </target>
+  <!-- Requester of a visitor who gave only an email (HdkChatTicket launches it; no client can) -->
+  <target name="HdkChatReqNew" server-only="true">
+    <insert>
+      <table id="HdkReq"/>
+      <field id="IdeReq" variable="IdeReq"/>
+      <field id="Nam" variable="Nam"/>
+      <field id="Eml" variable="Eml"/>
+      <variable id="IdeReq" type="INTEGER" name="IdeReq"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="Eml" type="STRING" name="Eml"/>
+    </insert>
+  </target>
+  <!-- Ticket of a visitor, as HdkTktNew but with the key the service reserved (it needs it to read the access key) and the constants of a
+       visitor: priority NORMAL, status NEW and channel WEB -->
+  <target name="HdkChatTktNew" server-only="true">
+    <insert>
+      <table id="HdkTkt"/>
+      <field id="IdeTkt" variable="NewTkt"/>
+      <field id="IdeReq" variable="IdeReq"/>
+      <field id="IdeTeam" query="HdkCatTeam"/>
+      <field id="Cat" variable="Cat"/>
+      <field id="Pri" variable="Normal"/>
+      <field id="Sta" variable="Nw"/>
+      <field id="Sub" variable="Sub"/>
+      <field id="Dsc" variable="Dsc"/>
+      <field id="CreDat" variable="Now"/>
+      <field id="UpdDat" variable="Now"/>
+      <field id="Chn" variable="Web"/>
+      <variable id="NewTkt" type="INTEGER" name="NewTkt"/>
+      <variable id="IdeReq" type="INTEGER" name="IdeReq"/>
+      <variable id="Cat" type="STRING" name="Cat"/>
+      <variable id="Normal" type="STRING" value="NORMAL"/>
+      <variable id="Nw" type="STRING" value="NEW"/>
+      <variable id="Sub" type="STRING" name="Sub"/>
+      <variable id="Dsc" type="STRINGN" name="Dsc"/>
+      <variable id="Now" type="SYSTEM_TIMESTAMP"/>
+      <variable id="Web" type="STRING" value="WEB"/>
+    </insert>
+  </target>
+</maintain>

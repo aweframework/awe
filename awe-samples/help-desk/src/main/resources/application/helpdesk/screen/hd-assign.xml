@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : hd-assign.xml
+    Description: Supervisors only: inline-editable grid to reassign open tickets and change their priority, critical included (HdkTktAssign requires tickets.reassign, HdkTktPrioAny requires tickets.critical)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="HD_MENU_ASSIGN">
+  <tag source="hidden">
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE"/>
+  </tag>
+  <tag source="buttons">
+    <button label="HD_BTN_SAVE_ASSIGNMENTS" icon="lucide:save" id="ButAsgSave" style="btn-primary" permission="tickets.reassign">
+      <button-action type="check-some-selected" target="GrdAsg"/>
+      <button-action type="confirm" target="UpdMsg"/>
+      <button-action type="server" server-action="maintain" target-action="HdkTktAssign"/>
+      <button-action type="server" server-action="maintain" target-action="HdkTktPrioAny"/>
+      <button-action type="filter" target="GrdAsg"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="HD_MENU_ASSIGN" icon="lucide:user-cog">
+      <grid id="GrdAsg" style="expand" initial-load="query" server-action="data" target-action="HdkTktAsgLst" max="20" editable="true" multiselect="true">
+        <column label="HD_COL_CODE" name="Cod" align="left" charlength="9" sendable="false"/>
+        <column label="HD_COL_SUBJECT" name="Sub" align="left" charlength="30" width="*" sendable="false"/>
+        <column label="HD_COL_TEAM" name="TeamNam" align="left" charlength="16" sendable="false"/>
+        <column label="HD_COL_PRIORITY" name="Pri" component="select" initial-load="enum" target-action="HdkPriority" align="left" charlength="12"/>
+        <column label="HD_COL_AGENT" name="IdeAgt" component="select" initial-load="query" target-action="HdkAgtSel" optional="true" align="left" charlength="16"/>
+        <column label="HD_COL_STATUS" name="StaTxt" sort-field="StaTxt" align="left" charlength="10" status-field="Ton" sendable="false"/>
+        <column name="IdeTkt" hidden="true"/>
+        <column name="Ton" hidden="true" sendable="false"/>
+        <column name="Sla" hidden="true" sendable="false"/>
+        <column name="SlaTxt" hidden="true" sendable="false"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

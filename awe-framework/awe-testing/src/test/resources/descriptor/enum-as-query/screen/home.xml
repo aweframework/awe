@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FIX_TITLE">
+  <tag source="center">
+    <window label="FIX_TITLE" icon="list">
+      <criteria label="FIX_TITLE" id="Kind" component="select" initial-load="query" target-action="FixEnum"/>
+    </window>
+  </tag>
+</screen>

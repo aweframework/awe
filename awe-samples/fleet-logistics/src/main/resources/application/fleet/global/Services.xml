@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Services.xml
+    Description: Java services of the fleet application. Both show points on a map (client actions fill and polyline) with the
+                 points of AWE queries, so the guard of the query (code and postal code, or permission) always applies
+-->
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/services.xsd">
+  <service id="FltTrackRoute">
+    <java classname="com.almis.awe.samples.fleetlogistics.map.FleetMapService" method="trackRoute">
+      <service-parameter type="STRING" name="TrkCod"/>
+      <service-parameter type="STRING" name="TrkPst"/>
+    </java>
+  </service>
+  <service id="FltRouteMap">
+    <java classname="com.almis.awe.samples.fleetlogistics.map.FleetMapService" method="routeStops">
+      <service-parameter type="INTEGER" name="Ide"/>
+    </java>
+  </service>
+</services>

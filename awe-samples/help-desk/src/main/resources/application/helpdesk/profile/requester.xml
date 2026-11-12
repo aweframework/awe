@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : requester.xml
+    Description: Requester (customer): only their own tickets. The queries and maintain targets also filter by the connected user
+-->
+<profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/profile.xsd">
+  <restriction option="staff-section"/>
+  <restriction option="hd-dashboard"/>
+  <restriction option="hd-queue"/>
+  <restriction option="hd-new-ticket"/>
+  <restriction option="hd-assign"/>
+  <restriction option="hd-kb-admin"/>
+  <restriction option="hd-teams"/>
+  <restriction option="administration"/>
+  <permission id="portal.read"/>
+  <permission id="portal.create"/>
+  <permission id="portal.update"/>
+</profile>

@@ -443,6 +443,12 @@ run node "$TOOL" coverage --diff "$WORK/docs.diff" --threshold 80
 case "$OUT" in *"nothing to measure"*) text_ok=1 ;; *) text_ok=0 ;; esac
 if [ "$RC" -eq 0 ] && [ "$text_ok" -eq 1 ]; then pass "coverage: no new executable line passes"; else fail "coverage: nothing to measure (exit $RC)" "$OUT"; fi
 
+# The sample applications are excluded from Sonar (sonar.exclusions in their poms), like awe-testing and the archetypes
+printf '+++ b/awe-samples/vet-clinic/src/main/java/com/almis/awe/samples/A.java\n@@ -1,0 +2 @@\n+class A {}\n' > "$WORK/sample.diff"
+run node "$TOOL" coverage --diff "$WORK/sample.diff" --threshold 80
+case "$OUT" in *"nothing to measure"*) sample_ok=1 ;; *) sample_ok=0 ;; esac
+if [ "$RC" -eq 0 ] && [ "$sample_ok" -eq 1 ]; then pass "coverage: the sample applications are not measured"; else fail "coverage: sample applications (exit $RC)" "$OUT"; fi
+
 # Type-only TypeScript (#890): Jest emits no lcov data for declarations, interfaces, type aliases and type-only imports
 # and exports, and Sonar counts no lines to cover in them, so they are not "NO DATA". A file with runtime code still is.
 TS_ROOT="$WORK/ts"

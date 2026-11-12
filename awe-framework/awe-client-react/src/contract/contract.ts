@@ -441,6 +441,8 @@ export interface GeoMap extends Component {
     latitude?: string;
     longitude?: string;
     markerLabel?: string;
+    markerNumber?: string;
+    routeMarkers?: boolean;
     zoom?: number;
 }
 

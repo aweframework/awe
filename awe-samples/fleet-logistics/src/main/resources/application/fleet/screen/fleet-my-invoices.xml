@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-my-invoices.xml
+    Description: Invoices of the customer (only their own) with status filter and print
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FLT_MENU_MY_INVOICES" keep-criteria="true">
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdMyInv"/>
+    </button>
+    <button label="BUTTON_PRINT" icon="lucide:printer" id="ButPrn">
+      <button-action type="dialog" target="PrnOpt"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="FLT_MENU_MY_INVOICES" icon="lucide:receipt">
+      <tag type="div" style="panel-body flt-command">
+        <criteria label="FLT_COL_STATUS" id="CrtMyInvSta" component="select" initial-load="enum" target-action="FltInvoiceStatus" optional="true" style="col-xs-12 col-sm-6 col-lg-3"/>
+      </tag>
+      <grid id="GrdMyInv" style="expand" initial-load="query" server-action="data" target-action="FltMyInvLst" max="12">
+        <column label="FLT_COL_INVOICE" name="IdeInv" sort-field="IdeInv" align="center" charlength="9" sendable="false"/>
+        <column label="FLT_COL_DATE" name="InvDat" sort-field="InvDat" align="center" charlength="12" sendable="false"/>
+        <column label="FLT_COL_AMOUNT" name="Amt" sort-field="Amt" align="right" charlength="14" width="*" sendable="false"/>
+        <column label="FLT_COL_STATUS" name="StaTxt" sort-field="StaTxt" align="left" charlength="13" status-field="Ton" sendable="false"/>
+        <column name="Ton" hidden="true" sendable="false"/>
+        <column name="Sta" hidden="true" sendable="false"/>
+      </grid>
+    </window>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center"/>
+  </tag>
+</screen>
