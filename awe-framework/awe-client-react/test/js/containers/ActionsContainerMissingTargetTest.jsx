@@ -8,6 +8,7 @@ import useGridService from "../../../src/services/components/GridService";
 import useComponentService from "../../../src/services/ComponentService";
 import {ActionStatus} from "../../../src/redux/actions/actions";
 import {isComponentAction} from "../../../src/redux/thunks/targets";
+import {GRID_ACTIONS, isGridAction} from "../../../src/redux/actions/gridActions";
 import {checkActions} from "../../../src/utilities";
 import {runAction} from "../../../src/redux/actions/actions";
 import {updateComponent} from "../../../src/redux/actions/components";
@@ -72,6 +73,12 @@ describe("awe-react-client/test/js/containers/ActionsContainerMissingTargetTest.
   it("covers every action of the grid service", () => {
     expect(gridActions.length).toBeGreaterThan(30);
     gridActions.forEach(type => expect(isComponentAction(type)).toBe(true));
+  });
+
+  it("runs every action of the grid service as a silent client grid action", () => {
+    expect([...gridActions].sort()).toEqual([...GRID_ACTIONS].sort());
+    expect(isGridAction("server")).toBe(false);
+    expect(isGridAction("filter")).toBe(false);
   });
 
   it("covers the component actions of the component service and leaves the menu ones alone", () => {

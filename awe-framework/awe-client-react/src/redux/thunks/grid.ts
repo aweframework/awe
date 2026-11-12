@@ -931,7 +931,9 @@ export const cancelRowGridAction = (action: ClientAction): AppThunk => {
     dispatch(raiseEventOnDependencies(address, "before-cancel-row"));
     const components = getAllComponents(getState());
     const { component, values } = getGridAndRows(components, address);
-    const editingRow: Row = values.find(row => row.$row?.editing)?.$row?.editingRow || {};
+    // Without a row being edited there is nothing to cancel: no event is raised and the selection is kept
+    const editing = values.find(row => row.$row?.editing);
+    const editingRow: Row | undefined = editing ? editing.$row?.editingRow || {} : undefined;
     const gridId = getGridIdentifier(component.attributes);
 
     // Verify if editing row

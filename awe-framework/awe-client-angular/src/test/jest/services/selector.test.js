@@ -186,7 +186,28 @@ describe("Selector", function () {
     $rootScope.$broadcast("modelChanged", [suggest.component.address]);
 
     expect(suggest.controller.targetAction).toBe("checkTags");
-    expect(suggest.component.reload).toHaveBeenCalledTimes(1);
+    // The lookup launched when the suggest was created is still running: the start does not launch it again
+    expect($actionController.addActionList).toHaveBeenCalledTimes(1);
+    expect(suggest.component.reload).not.toHaveBeenCalled();
     expect(suggest.scope.initialized).toBe(false);
+  });
+
+  // A value set from outside (a dependency fills the suggest from the selected row of a grid) looks up its label in
+  // the background: once, and silent, so the buttons are not disabled nor the loading bar shown
+  it("looks up the label of a value set from outside once and silently", function () {
+    installSelectorSpies();
+    jest.spyOn($actionController, "addActionList").mockReturnValue("queued");
+    const suggest = createSelector("suggest", {id: "CrtThm", model: {values: [], selected: null, storedValues: []},
+      controller: {targetAction: "ThmSug", checkTarget: "ThmIni"}});
+    const lookup = {isAlive: () => true};
+    suggest.component.reload = jest.fn().mockName("reload").mockReturnValue(lookup);
+
+    // As Control.changeModelAttribute does: the api updates the model and then the model change is published
+    suggest.component.api.updateModelValues({selected: "7"});
+    $rootScope.$broadcast("modelChanged", {CrtThm: {selected: "7"}});
+
+    expect(suggest.component.reload).toHaveBeenCalledTimes(1);
+    expect(suggest.component.reload).toHaveBeenCalledWith(expect.objectContaining({silent: true}));
+    expect(suggest.controller.targetAction).toBe("ThmIni");
   });
 });

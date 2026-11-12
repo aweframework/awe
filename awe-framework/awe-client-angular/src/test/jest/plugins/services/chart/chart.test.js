@@ -308,7 +308,8 @@ describe("Chart (ECharts)", () => {
 
     const series = chart.getOption().series;
     expect(series.map(serie => [serie.id, serie.type])).toEqual([["serie1", "line"], ["serie2", "bar"]]);
-    expect(series[1].data).toEqual([[1, 5], [2, 6], [3, 7], [4, 8], [5, 9]]);
+    // The bars are points with their own style (rounded top, #959): their values are the points of the series
+    expect(series[1].data.map(point => point.value ?? point)).toEqual([[1, 5], [2, 6], [3, 7], [4, 8], [5, 9]]);
   });
 
   it("adds and replaces the series that a Java service builds with their points only (no xValue nor yValue)", () => {

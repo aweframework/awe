@@ -48,6 +48,19 @@ describe('awe-react-client/test/js/redux/thunks/serverThunkTest.js', () => {
       expect(update.data).toEqual({deferredLoaded: false});
     });
 
+    // The answer of a silent server action is silent too, as in the AngularJS client: a background lookup (a query
+    // dependency that fills a criterion) never disables the buttons while its answer is applied
+    it.each([[true, true], [false, undefined]])('launches the answer of a server action with silent %s as silent %s', async (silent, answerSilent) => {
+      const address = {view: 'report', component: 'AddPro'};
+      global.fetch.mockResolvedValue({ok: true, json: () => Promise.resolve([{type: 'select', parameters: {values: [1]}}])});
+
+      await serverAction({type: 'server', silent, address, parameters: {serverAction: 'value', targetAction: 'UsrAddProSel'}})(
+        dispatch, () => ({settings: {token: 'token'}, components: {}}));
+
+      const added = dispatch.mock.calls.map(([call]) => call).find(call => call.type === ADD_ACTIONS_TOP);
+      expect(added.actions.map(answer => answer.silent)).toEqual([answerSilent]);
+    });
+
     describe('action called from a button with a value (#768)', () => {
       const address = {view: 'base', component: 'notification-1'};
       const send = async (attributes) => {

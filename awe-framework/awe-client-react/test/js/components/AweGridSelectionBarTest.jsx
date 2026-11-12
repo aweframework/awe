@@ -57,6 +57,31 @@ function selectionState(buttons, selected = [], attributes = {}) {
   };
 }
 
+const quickFilterValues = (chosen) => [{ value: "", label: "All" }, { value: "no2fa", label: "Without 2FA" }]
+  .map(option => ({ ...option, selected: option.value === chosen }));
+
+/**
+ * Add the quick filter (CrtSta) and the search (CrtSch) of the grid to a state
+ * @param {object} state State
+ * @param {string|null} quickFilter Chosen option of the quick filter, null without quick filter
+ * @param {string} search Text of the search
+ * @returns {object} State
+ */
+const withCriteria = (state, quickFilter, search) => {
+  const criterion = (component, values) => ({ address: { component, view: "report" }, attributes: { visible: true }, model: { values } });
+  return { ...state, components: {
+    ...state.components,
+    ...(quickFilter === null ? {} : { CrtSta: criterion("CrtSta", quickFilterValues(quickFilter)) }),
+    CrtSch: criterion("CrtSch", [{ value: search, selected: true }])
+  } };
+};
+
+const context = () => bar()?.querySelector(hook("grid-selection-context")) || null;
+const addedActions = (dispatchSpy) => dispatchSpy.mock.calls.map(([action]) => action)
+  .filter(action => action?.type === ADD_ACTIONS_TOP).flatMap(action => action.actions);
+const rowActions = (dispatchSpy, type) => addedActions(dispatchSpy).filter(action => action.type === type);
+const clearActions = (dispatchSpy) => rowActions(dispatchSpy, "unselect-all-rows");
+
 // The rows are selected as a click on them does
 const selectRows = (store, selected) => act(() => {
   store.dispatch(updateModel({ component: "grid", view: "report" }, { selected }));
@@ -67,7 +92,9 @@ describe("grid selection bar", () => {
   beforeAll(() => {
     i18n.addResourceBundle("en", "translation", {
       SCREEN_TEXT_GRID_SELECTED_ROW: "{{count}} selected (one)",
-      SCREEN_TEXT_GRID_SELECTED_ROWS: "{{count}} selected"
+      SCREEN_TEXT_GRID_SELECTED_ROWS: "{{count}} selected",
+      SCREEN_TEXT_GRID_CLEAR_SELECTION: "Clear selection",
+      SCREEN_TEXT_FILTERED_BY: "Filtered by"
     }, true, true);
   });
 
@@ -84,11 +111,24 @@ describe("grid selection bar", () => {
     expect(bar().getAttribute("data-testid-owner")).toBe("grid");
   });
 
-  it("places the bar between the toolbar and the table", () => {
+  it("draws the bar in the band of the toolbar, keeping the Columns and Maximize buttons", () => {
     renderWithProviders(<AweGrid id="grid" />, { preloadedState: selectionState([selectionButton("ButDel", { selection: true })], [1]) });
 
-    expect(bar().previousElementSibling.getAttribute("data-testid")).toBe("grid-toolbar");
-    expect(bar().nextElementSibling.classList.contains("grid-contents")).toBe(true);
+    const toolbar = document.querySelector(hook("grid-toolbar"));
+    expect(toolbar.contains(bar())).toBe(true);
+    expect(toolbar.querySelector(hook("grid-columns-button"))).not.toBeNull();
+    expect(toolbar.querySelector(hook("grid-maximize-button"))).not.toBeNull();
+  });
+
+  it("draws the bar over the column header of a grid without toolbar, leaving the select-all checkbox", () => {
+    renderWithProviders(<AweGrid id="grid" />, { preloadedState: selectionState([selectionButton("ButDel", { selection: true })], [1],
+      { showToolbar: false }) });
+
+    expect(document.querySelector(hook("grid-toolbar"))).toBeNull();
+    const contents = document.querySelector("[role='grid-container']");
+    expect(contents.contains(bar())).toBe(true);
+    expect(contents.querySelector("thead " + hook("grid-header-checkbox"))).not.toBeNull();
+    expect(bar().querySelector(hook("grid-selection-count")).textContent).toBe("1 selected (one)");
   });
 
   it("is hidden while no row is selected, and its buttons are not rendered", () => {
@@ -118,10 +158,12 @@ describe("grid selection bar", () => {
     expect(bar().querySelector(hook("grid-selection-count")).textContent).toBe("");
   });
 
-  it("is a polite live region with a decorative check icon", () => {
+  it("is a region named by its count, which is announced politely, with a decorative check icon", () => {
     renderWithProviders(<AweGrid id="grid" />, { preloadedState: selectionState([selectionButton("ButDel", { selection: true })], [1]) });
 
-    expect(bar().getAttribute("aria-live")).toBe("polite");
+    const region = screen.getByRole("region", { name: "1 selected (one)" });
+    expect(region).toBe(bar());
+    expect(bar().querySelector(hook("grid-selection-count")).getAttribute("aria-live")).toBe("polite");
     const icon = bar().querySelector(".grid-selection-bar-icon");
     expect(icon.getAttribute("aria-hidden")).toBe("true");
     expect(icon.innerHTML).toContain("circle-check");
@@ -166,6 +208,58 @@ describe("grid selection bar", () => {
     expect(footerButtons()).toEqual(["ButNew", "ButDel"]);
     expect(document.querySelector("#ButNew").className).toContain("awe-button-spaced");
     expect(document.querySelector("#ButNew").className).toContain("p-button-outlined");
+  });
+
+  it("shows the active quick filter, but not the all option, and the search text as the context of the selection", () => {
+    const state = withCriteria(selectionState([selectionButton("ButDel", { selection: true })], [1],
+      { quickFilter: "CrtSta", search: "CrtSch" }), "no2fa", "john");
+    const { store } = renderWithProviders(<AweGrid id="grid" />, { preloadedState: state });
+
+    expect(context().textContent).toBe("Filtered by Without 2FA “john”");
+
+    act(() => {
+      store.dispatch(updateModel({ component: "CrtSta", view: "report" }, { values: quickFilterValues("") }));
+      store.dispatch(updateModel({ component: "CrtSch", view: "report" }, { values: [{ value: "", selected: true }] }));
+    });
+    expect(context()).toBeNull();
+  });
+
+  it("clears the whole selection with its clear button", () => {
+    const { dispatchSpy, store } = renderWithProviders(<AweGrid id="grid" />, {
+      preloadedState: selectionState([selectionButton("ButDel", { selection: true })], [1, 2]), spyDispatch: true });
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear selection (Esc)" }));
+
+    expect(clearActions(dispatchSpy)).toEqual([{ type: "unselect-all-rows", address: { component: "grid", view: "report" } }]);
+    // Clearing the selection is immediate: it does not disable the buttons of the screen
+    expect(store.getState().actions.running).toBe(false);
+  });
+
+  it.each([[[2]], [[1, 3]]])("clears the selection of %j with Esc in the grid when no row is being edited", (selected) => {
+    const { dispatchSpy } = renderWithProviders(<AweGrid id="grid" />, {
+      preloadedState: selectionState([selectionButton("ButDel", { selection: true })], selected), spyDispatch: true });
+
+    fireEvent.keyDown(document.querySelector("[role='grid-container']"), { key: "Escape" });
+
+    expect(clearActions(dispatchSpy)).toEqual([{ type: "unselect-all-rows", address: { component: "grid", view: "report" } }]);
+    expect(rowActions(dispatchSpy, "cancel-row")).toEqual([]);
+  });
+
+  it.each([
+    ["the search", { search: "CrtSch" }, () => document.querySelector(hook("grid-search") + " input")],
+    ["the select-all checkbox", {}, () => document.querySelector(hook("grid-header-checkbox") + " input")]
+  ])("gives the focus to %s once the selection is cleared, and not when a row is selected", (_, attributes, target) => {
+    const { store } = renderWithProviders(<AweGrid id="grid" />, {
+      preloadedState: withCriteria(selectionState([selectionButton("ButDel", { selection: true })], [], attributes), null, "") });
+    const focused = document.activeElement;
+
+    selectRows(store, [2]);
+    expect(document.activeElement).toBe(focused);
+
+    fireEvent.click(screen.getByRole("button", { name: "Clear selection (Esc)" }));
+    selectRows(store, []);
+    expect(target()).not.toBeNull();
+    expect(document.activeElement).toBe(target());
   });
 
   it("shows the bar in a tree grid too", () => {

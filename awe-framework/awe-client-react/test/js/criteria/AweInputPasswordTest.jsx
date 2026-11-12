@@ -32,6 +32,14 @@ describe('awe-react-client/test/js/criteria/AweInputPasswordTest.jsx', () => {
     expect(document.querySelector("input#password")).not.toBeNull();
   });
 
+  // A password criterion of a screen is never a login: the browser must not fill a saved credential in it or in the
+  // text field before it (the search of a grid)
+  it('asks the browser not to autofill saved credentials', () => {
+    renderWithProviders(<AweInputPassword id="password"/>, {preloadedState});
+
+    expect(document.querySelector("input#password").getAttribute("autocomplete")).toBe("new-password");
+  });
+
   const submitActions = (dispatchSpy) => dispatchSpy.mock.calls
     .map(([action]) => action)
     .filter(action => action.type === "ADD_ACTIONS_TOP")

@@ -320,7 +320,21 @@ describe("tree grid toolbar, cells and selection", () => {
 
       expect(bar().attr("data-count")).toBe("2");
       expect(bar().find(hook("grid-selection-count")).text().trim()).toBe("SCREEN_TEXT_GRID_SELECTED_ROWS(2)");
-      expect(bar().find("button").map((index, node) => node.id).get()).toEqual(["ButAlw"]);
+      expect(bar().find(".grid-selection-bar-actions button").map((index, node) => node.id).get()).toEqual(["ButAlw"]);
+    });
+
+    it("clears the selection of the tree with the clear button of the selection bar, in the band of the toolbar", () => {
+      const component = mount({multiselect: true, search: "CrtTxt"}, [button("ButAlw", {selection: true})]);
+      component.setSelection(["Root", "Child2"]);
+      digest();
+
+      expect(element.find(hook("grid-toolbar")).find(hook("grid-selection-bar")).length).toBe(1);
+      bar().find(".grid-selection-bar-clear")[0].click();
+      digest();
+
+      expect(component.getSelection()).toEqual([]);
+      expect(bar().attr("data-count")).toBe("0");
+      expect(document.activeElement).toBe(element.find(`${hook("grid-search")} input`)[0]);
     });
 
     it("sends the values of the selected rows of a column, as the flat grid does", () => {

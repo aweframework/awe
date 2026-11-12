@@ -13,6 +13,8 @@ abstract class AbstractScreenPersonalizationTests extends AbstractApplicationTes
   private static final Locator LABEL_FIELD = Locator.css("#scr-per-label");
   private static final Locator STATUS = Locator.css(".scr-per-status");
   private static final Locator HISTORY = Locator.css(".scr-per-history-rows");
+  private static final Locator EDIT_MODE_OFF = Locator.xpath("//*[contains(@class,'p-selectbutton')]"
+    + "//*[contains(@class,'p-button')][normalize-space(.)='Edit'][@aria-pressed='false']");
 
   /**
    * Open the editor and choose the screen to personalize
@@ -21,6 +23,13 @@ abstract class AbstractScreenPersonalizationTests extends AbstractApplicationTes
    */
   void openEditorOn(String screenLabel) {
     gotoScreen("settings", "screen-personalization");
+    // The editor may be open already (the menu does not open the current screen again): it keeps the mode and the screen
+    // chosen before, so it goes back to Edit and the text of its picker is replaced, not appended to
+    checkVisible(SCREEN_PICKER);
+    if (getBrowser().isVisible(EDIT_MODE_OFF)) {
+      getBrowser().click(EDIT_MODE_OFF);
+    }
+    getBrowser().clear(SCREEN_PICKER);
     writeText(SCREEN_PICKER, screenLabel);
     // A suggestion reads "label (option id)"
     Locator suggestion = Locator.xpath("//li[contains(@class,'p-autocomplete-item')][starts-with(normalize-space(.),'" + screenLabel + " (')]");

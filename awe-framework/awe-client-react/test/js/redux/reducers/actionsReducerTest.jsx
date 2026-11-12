@@ -84,6 +84,18 @@ describe('awe-react-client/test/js/redux/reducers/actionsReducerTest.jsx', () =>
     expect(state.running).toBe(false);
   });
 
+  // The client actions of a grid are silent by default: they are immediate and never disable the buttons. A grid
+  // action that calls the server (a server action on the grid) blocks unless it is marked silent
+  it.each([
+    ['a client grid action', false, { type: 'select-row', address: { view: 'report', component: 'GrdUsr' } }],
+    ['a server action of a grid', true, { type: 'server', address: { view: 'report', component: 'GrdUsr' } }],
+    ['a silent server action of a grid', false, { type: 'server', silent: true, address: { view: 'report', component: 'GrdUsr' } }]
+  ])('%s sets running to %s', (_name, running, action) => {
+    const state = actionsReducer(undefined, { type: ADD_ACTIONS, payload: [action] });
+    expect(currentStack(state)[0].status).toBe(ActionStatus.STATUS_RUNNING);
+    expect(state.running).toBe(running);
+  });
+
   it('an async action alone does not keep running', () => {
     const state = actionsReducer(undefined, { type: ADD_ACTIONS, payload: [{ type: 'background', async: true }] });
     expect(state.async[0].status).toBe(ActionStatus.STATUS_RUNNING);

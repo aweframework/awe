@@ -12,7 +12,9 @@ const button = (id, extra = {}) => ({id, label: `LABEL_${id}`, icon: "trash", vi
 
 /**
  * Selection bar of a grid (#793): the buttons of the grid with selection="true" leave the footer and are shown in a bar
- * between the toolbar and the header while there are selected rows, with the number of selected rows
+ * while there are selected rows, with the number of selected rows. The bar takes the band of the toolbar, or the row of
+ * the column headers of a grid without toolbar, so the rows never move; it shows the filter of the selection, clears it
+ * with its button or Esc and gives the focus back to the search or the select-all checkbox
  */
 describe("grid selection bar", () => {
   let refs;
@@ -25,7 +27,17 @@ describe("grid selection bar", () => {
   const digest = () => refs.$rootScope.$digest();
   const bar = () => element.find(hook("grid-selection-bar"));
   const footerButtons = () => element.find(".table-footer button").map((index, node) => node.id).get();
-  const barButtons = () => bar().find("button").map((index, node) => node.id).get();
+  const barButtons = () => bar().find(".grid-selection-bar-actions button").map((index, node) => node.id).get();
+  const clearButton = () => bar().find(hook("grid-selection-clear"));
+  const context = () => bar().find(".grid-selection-bar-context");
+  const searchInput = () => element.find(`${hook("grid-search")} input`);
+  const selectAll = () => element.find(`${hook("grid-header-checkbox")} input`);
+  const pressEscape = target => {
+    const event = new KeyboardEvent("keydown", {key: "Escape", bubbles: true, cancelable: true});
+    target.dispatchEvent(event);
+    digest();
+    return event;
+  };
 
   const store = (id, controller, model = {}) => {
     $serverData.storeComponent({id, controller, model}, storage("model"), storage("controller"), storage("api"), "users");
@@ -35,9 +47,10 @@ describe("grid selection bar", () => {
    * Mount a grid with its buttons, as the server renders it (the buttons inside the grid), with the real storage
    * @param {object[]} buttons Buttons of the grid
    * @param {object} controller Grid controller attributes
+   * @param {{search?: string, quickFilter?: string}} values Values of the search (CrtTxt) and the quick filter (CrtSta)
    * @returns {object} Grid component
    */
-  const mount = (buttons, controller = {}) => {
+  const mount = (buttons, controller = {}, {search = "", quickFilter = ""} = {}) => {
     inject(["$templateCache", cacheGridTemplates]);
     ["controller", "model", "api", "messages", "screen", "status"].forEach(kind => refs.$storage.put(kind, {[VIEW]: {}}));
     refs.$storage.get("screen")[VIEW] = {name: "users", option: "users"};
@@ -50,6 +63,11 @@ describe("grid selection bar", () => {
       buttonModel: buttons, headerModel: [], ...controller
     }, {page: 1, records: ROWS.length, total: 1, selected: [], values: ROWS.map(row => ({...row}))});
     buttons.forEach(definition => store(definition.id, {...definition}));
+    store("CrtTxt", {id: "CrtTxt", component: "grid-search", visible: true, contextMenu: [], dependencies: []},
+      {selected: search, values: [], page: 1, records: 0, total: 0});
+    store("CrtSta", {id: "CrtSta", component: "quick-filter", visible: true, contextMenu: [], dependencies: []},
+      {selected: quickFilter, values: [{value: "", label: "LABEL_ALL", count: 3}, {value: "LCK", label: "LABEL_LOCKED", count: 1}],
+        page: 1, records: 2, total: 1});
 
     jest.spyOn(refs.$utilities, "timeout").mockImplementation(callback => callback());
     refs.$utilities.timeout.cancel = jest.fn();
@@ -98,28 +116,38 @@ describe("grid selection bar", () => {
     expect(bar().attr("data-testid-owner")).toBe(GRID);
   });
 
-  it("places the bar between the toolbar and the table header", () => {
-    mount([button("ButDel", {selection: true})]);
+  it("takes the band of the toolbar, leaving the Columns and Maximize buttons out of it", () => {
+    mount([button("ButDel", {selection: true})], {search: "CrtTxt"});
 
-    const previous = $(bar()[0].previousElementSibling);
-    const next = $(bar()[0].nextElementSibling);
-    expect(previous.is(hook("grid-toolbar")) || previous.find(hook("grid-toolbar")).length === 1).toBe(true);
-    expect(next.hasClass("grid-container")).toBe(true);
+    const toolbar = element.find(hook("grid-toolbar"));
+    expect(toolbar.find(hook("grid-selection-bar")).length).toBe(1);
+    expect(bar().find(`${hook("grid-search")}, ${hook("grid-columns-button")}, ${hook("grid-maximize-button")}`).length).toBe(0);
+    expect(toolbar.find(`${hook("grid-columns-button")}, ${hook("grid-maximize-button")}`).length).toBe(2);
+  });
+
+  it("covers the row of the column headers of a grid without toolbar, leaving the select-all checkbox out of it", () => {
+    const component = mount([button("ButDel", {selection: true})], {showToolbar: false});
+    select(component, [1]);
+
+    expect(element.find(hook("grid-toolbar")).length).toBe(0);
+    expect(bar().length).toBe(1);
+    expect(bar().attr("data-count")).toBe("1");
+    expect(selectAll().length).toBe(1);
+    expect(bar().find(hook("grid-header-checkbox")).length).toBe(0);
   });
 
   it("is hidden while no row is selected", () => {
     mount([button("ButDel", {selection: true})]);
 
     expect(bar().length).toBe(1);
-    expect(bar().hasClass("is-visible")).toBe(false);
     expect(bar().attr("data-count")).toBe("0");
+    expect(bar().find(hook("grid-selection-count")).text().trim()).toBe("");
   });
 
   it("shows the number of selected rows with the singular and plural texts", () => {
     const component = mount([button("ButDel", {selection: true})]);
 
     select(component, [2]);
-    expect(bar().hasClass("is-visible")).toBe(true);
     expect(bar().attr("data-count")).toBe("1");
     expect(bar().find(hook("grid-selection-count")).text().trim()).toBe("SCREEN_TEXT_GRID_SELECTED_ROW(1)");
 
@@ -128,12 +156,95 @@ describe("grid selection bar", () => {
     expect(bar().find(hook("grid-selection-count")).text().trim()).toBe("SCREEN_TEXT_GRID_SELECTED_ROWS(2)");
   });
 
-  it("is a polite live region with a check icon", () => {
+  it("is a named region whose count is a polite live region, with a decorative check icon", () => {
     mount([button("ButDel", {selection: true})]);
 
-    expect(bar().attr("aria-live")).toBe("polite");
+    expect(bar().attr("role")).toBe("region");
+    expect(bar().attr("aria-label")).toBe("SCREEN_TEXT_SELECTED");
+    expect(bar().find(hook("grid-selection-count")).attr("aria-live")).toBe("polite");
     expect(bar().find(".grid-selection-bar-icon svg").attr("aria-hidden")).toBe("true");
     expect(bar().find(".grid-selection-bar-icon svg use").attr("href")).toContain("#circle-check");
+  });
+
+  it("shows the active quick filter and the search text after the count, read as filtered by", () => {
+    const component = mount([button("ButDel", {selection: true})], {search: "CrtTxt", quickFilter: "CrtSta"},
+      {search: "adm", quickFilter: "LCK"});
+    select(component, [1]);
+
+    expect(context().find(".sr-only").text().trim()).toBe("SCREEN_TEXT_FILTERED_BY");
+    expect(context().find(".grid-selection-bar-context-label").text().trim()).toBe("LABEL_LOCKED");
+    expect(context().find(".grid-selection-bar-context-search").text().trim()).toBe("adm");
+    expect(context().find("svg").attr("aria-hidden")).toBe("true");
+  });
+
+  it("shows no filter with the all option of the quick filter and an empty search", () => {
+    const component = mount([button("ButDel", {selection: true})], {search: "CrtTxt", quickFilter: "CrtSta"});
+    select(component, [1]);
+
+    expect(context().length).toBe(0);
+  });
+
+  it("clears every selected row with the clear button at its start, named clear selection (Esc)", () => {
+    const component = mount([button("ButDel", {selection: true})]);
+    select(component, [1, 3]);
+
+    expect(bar().children().first().is(clearButton())).toBe(true);
+    expect(clearButton().attr("aria-label")).toBe("SCREEN_TEXT_GRID_CLEAR_SELECTION (Esc)");
+    expect(clearButton().attr("title")).toBe("SCREEN_TEXT_GRID_CLEAR_SELECTION (Esc)");
+    expect(clearButton().find("svg use").attr("href")).toContain("#x");
+    clearButton()[0].click();
+    digest();
+
+    expect(component.getSelection()).toEqual([]);
+    expect(bar().attr("data-count")).toBe("0");
+  });
+
+  it("clears the selection with Esc in the grid, with one or many selected rows", () => {
+    const component = mount([button("ButDel", {selection: true})]);
+
+    select(component, [2]);
+    const event = pressEscape(element.find(".grid-container")[0]);
+    expect(component.getSelection()).toEqual([]);
+    expect(event.defaultPrevented).toBe(true);
+
+    select(component, [1, 2, 3]);
+    pressEscape(element.find(".grid-container")[0]);
+    expect(component.getSelection()).toEqual([]);
+  });
+
+  it("keeps the selection on Esc while a row is being edited", () => {
+    const component = mount([button("ButDel", {selection: true})], {editable: true, multiselect: false});
+    select(component, [2]);
+    component.isEditing = true;
+
+    const event = pressEscape(element.find(".grid-container")[0]);
+
+    expect(component.model.selected).toEqual([2]);
+    expect(event.defaultPrevented).toBe(false);
+  });
+
+  it("gives the focus to the search after clearing, or to the select-all checkbox when the grid has no search", () => {
+    const withSearch = mount([button("ButDel", {selection: true})], {search: "CrtTxt"});
+    select(withSearch, [1]);
+    clearButton()[0].click();
+    digest();
+    expect(document.activeElement).toBe(searchInput()[0]);
+
+    element.closest("form").remove();
+    const withoutSearch = mount([button("ButDel", {selection: true})]);
+    select(withoutSearch, [1]);
+    pressEscape(element.find(".grid-container")[0]);
+    expect(document.activeElement).toBe(selectAll()[0]);
+  });
+
+  it("leaves the focus where it is when a row is selected", () => {
+    const component = mount([button("ButDel", {selection: true})], {search: "CrtTxt"});
+    const focused = element.find(hook("grid-columns-button"))[0];
+    focused.focus();
+
+    select(component, [1, 2]);
+
+    expect(document.activeElement).toBe(focused);
   });
 
   it("hides again when the selection is cleared, as a reload of the grid does", () => {
@@ -143,7 +254,6 @@ describe("grid selection bar", () => {
     component.unselectRows();
     digest();
 
-    expect(bar().hasClass("is-visible")).toBe(false);
     expect(bar().attr("data-count")).toBe("0");
   });
 
@@ -152,7 +262,7 @@ describe("grid selection bar", () => {
 
     select(component, [3]);
 
-    expect(bar().hasClass("is-visible")).toBe(true);
+    expect(bar().attr("data-count")).toBe("1");
     expect(bar().find(hook("grid-selection-count")).text().trim()).toBe("SCREEN_TEXT_GRID_SELECTED_ROW(1)");
   });
 
@@ -175,7 +285,7 @@ describe("grid selection bar", () => {
     const remove = bar().find("button#ButDel");
     expect(reset.hasClass("btn-danger")).toBe(false);
     expect(remove.hasClass("btn-danger")).toBe(true);
-    expect(bar().find(".grid-selection-bar-actions").children().length).toBe(2);
+    expect(barButtons()).toEqual(["ButRst", "ButDel"]);
   });
 
   it("leaves a grid without selection buttons as it was: no bar, every button in the footer", () => {

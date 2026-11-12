@@ -1797,6 +1797,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_SHOW" value="Afficher le détail de la ligne"/>
   <locale name="SCREEN_TEXT_GRID_SELECTED_ROW" value="{{count}} sélectionné"/>
   <locale name="SCREEN_TEXT_GRID_SELECTED_ROWS" value="{{count}} sélectionnés"/>
+  <locale name="SCREEN_TEXT_GRID_CLEAR_SELECTION" value="Effacer la sélection"/>
   <locale name="SCREEN_TEXT_GRID_VIEW" value="Résultats"/>
   <locale name="SCREEN_TEXT_IDENTIFIER_OR_TEXT" value="Identificateur de texte ou de recherche"/>
   <locale name="SCREEN_TEXT_INFO_CURRENCY" value="Devise de reference: {0}"/>

@@ -17,6 +17,8 @@ function ColumnPassword(props) {
       address={address}
       t={t}
       inputType="password"
+      // A password cell is never a login: the browser must not fill a saved credential in it
+      autoComplete="new-password"
       updateModelWithDependencies={updateModelWithDependencies}
     />
   );

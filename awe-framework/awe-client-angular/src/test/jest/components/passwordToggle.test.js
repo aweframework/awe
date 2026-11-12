@@ -31,14 +31,15 @@ describe("password criterion show / hide button (#793 S17)", () => {
       }]);
   });
 
-  const render = ({readonly = false, values = [{value: "secret", label: "secret", selected: true}]} = {}) => {
+  const render = ({readonly = false, values = [{value: "secret", label: "secret", selected: true}], wrapper = null} = {}) => {
     const address = {view: "base", component: "Pas"};
     $control.setAddressController(address, {
       component: "password", contextMenu: [], dependencies: [], id: "Pas", optional: false, readonly, required: true,
       size: "md", visible: true, validation: ""
     });
     $control.setAddressModel(address, {defaultValues: [], page: 1, records: 0, selected: "secret", total: 0, values});
-    const element = $compile("<awe-input-password input-password-id='Pas'></awe-input-password>")($rootScope);
+    const markup = "<awe-input-password input-password-id='Pas'></awe-input-password>";
+    const element = $compile(wrapper ? `<div class="${wrapper}">${markup}</div>` : markup)($rootScope);
     $rootScope.$digest();
     return {element: element[0], address};
   };
@@ -94,6 +95,20 @@ describe("password criterion show / hide button (#793 S17)", () => {
     $rootScope.$digest();
 
     expect(toggle(element).disabled).toBe(false);
+  });
+
+  // A password criterion of a screen is never a login: the browser must not fill a saved credential in it or in the
+  // text field before it (the search of a grid)
+  it("asks the browser not to autofill saved credentials", () => {
+    const {element} = render();
+
+    expect(input(element).getAttribute("autocomplete")).toBe("new-password");
+  });
+
+  it("lets the browser fill the saved credential in the password of the sign-in page", () => {
+    const {element} = render({wrapper: "awe-signin"});
+
+    expect(input(element).hasAttribute("autocomplete")).toBe(false);
   });
 
   it("keeps the Caps Lock icon of the criterion", () => {

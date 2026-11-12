@@ -1,0 +1,27 @@
+{
+  "title": "Grid selection bar",
+  "brief": "Mover la barra de selección de los grids multiselección para que las filas no se desplacen al seleccionar",
+  "artboards": [
+    {
+      "file": "01-barra-en-toolbar.html",
+      "title": "01 · La barra de selección sustituye al toolbar",
+      "tradeoff": "Cero salto y patrón conocido; dos ubicaciones según haya toolbar o no",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "02-barra-en-cabecera.html",
+      "title": "02 · La barra de selección cubre la cabecera de columnas",
+      "tradeoff": "Una sola ubicación y filtros visibles; oculta títulos y ordenación mientras hay selección",
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "file": "03-barra-flotante.html",
+      "title": "03 · Barra flotante en la parte inferior del grid",
+      "tradeoff": "No oculta nada; queda lejos del toolbar y puede salir de la vista en grids altos",
+      "width": 1440,
+      "height": 900
+    }
+  ]
+}

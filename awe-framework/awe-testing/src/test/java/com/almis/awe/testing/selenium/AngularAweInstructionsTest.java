@@ -103,12 +103,16 @@ class AngularAweInstructionsTest {
       + "[data-testid='grid-selection-bar'][data-testid-owner='GrdUsr']");
     assertThat(instructions.getGridSelectionCount("GrdUsr")).hasToString("By.cssSelector: "
       + "[data-testid='grid-selection-bar'][data-testid-owner='GrdUsr'] [data-testid='grid-selection-count']");
+    assertThat(instructions.getGridSelectionClear("GrdUsr")).hasToString("By.cssSelector: "
+      + "[data-testid='grid-selection-bar'][data-testid-owner='GrdUsr'] [data-testid='grid-selection-clear']");
     assertThat(instructions.getGridSelectionButton("GrdUsr", "ButDel")).hasToString("By.cssSelector: "
       + "[data-testid='grid-selection-bar'][data-testid-owner='GrdUsr'] #ButDel:not([disabled])");
   }
 
   @Test
   void shouldLocateTheInputAndTheClearButtonOfAGridSearch() {
+    assertThat(instructions.getGridSearch("CrtTxt")).hasToString("By.cssSelector: "
+      + "[criterion-id='CrtTxt'][data-testid='grid-search']");
     assertThat(instructions.getGridSearchInput("CrtTxt")).hasToString("By.cssSelector: "
       + "[criterion-id='CrtTxt'][data-testid='grid-search'] [data-testid='criterion-input']");
     assertThat(instructions.getGridSearchClear("CrtTxt")).hasToString("By.cssSelector: "

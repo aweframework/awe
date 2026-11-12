@@ -11,7 +11,7 @@ import useCapsLock from "../hooks/useCapsLock";
 import PropTypes from "prop-types";
 import useEnterKey from "../hooks/useEnterKey";
 import {TestIds, testHook} from "../utilities/testIds";
-import {useInSigninPage, useSigninAlert, useSigningIn} from "../components/SigninPage";
+import {useInLoginPage, useInSigninPage, useSigninAlert, useSigningIn} from "../components/SigninPage";
 import {updateModelWithDependencies} from "../redux/thunks/components";
 
 function AweInputPassword(props) {
@@ -23,6 +23,8 @@ function AweInputPassword(props) {
   // Every password has a show / hide button at the end of the field. On the sign-in page it is drawn as the prototype
   // (the sign-in toggle) with a Caps Lock warning under the field
   const signin = useInSigninPage();
+  // Only the login page asks for the current credentials: the browser fills the saved one there
+  const login = useInLoginPage();
   // and the field is disabled while the login runs
   const signingIn = useSigningIn();
   const [shown, setShown] = useState(false);
@@ -67,6 +69,9 @@ function AweInputPassword(props) {
         {...requiredAria(attributes, validationRules)}
         disabled={readonly || signingIn}
         aria-describedby={capsWarning ? capsId : undefined}
+        // Out of the login page a password is a new one: the browser must not fill a saved credential in it or in the
+        // text field before it (the search of a grid)
+        autoComplete={login ? undefined : "new-password"}
         {...testHook(TestIds.criterionInput)}
       />
       {/* The type of the input is only visual: the value, the validation and the model do not change */}

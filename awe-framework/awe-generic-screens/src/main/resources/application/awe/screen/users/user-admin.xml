@@ -273,7 +273,8 @@
              UsrNew and UsrUpd never store the main profile. Full width on its own row, so its chips wrap onto several
              lines without leaving a tall box beside a one-line field -->
         <criteria label="PARAMETER_ADDITIONAL_PROFILES" id="AddPro" component="suggest-multiple" server-action="data" target-action="ProSug" check-target="UsrAddProIni" style="col-xs-12">
-          <dependency source-type="query" target-type="input" server-action="value" target-action="UsrAddProSel">
+          <!-- Silent: it only fills the panel, so selecting a row does not disable the buttons nor show the loading bar -->
+          <dependency source-type="query" target-type="input" server-action="value" target-action="UsrAddProSel" silent="true">
             <dependency-element id="GrdUsrAdm" column="IdeOpe" attribute="selectedRowValue" alias="IdeOpeSel" optional="true" />
             <dependency-element id="GrdUsrAdm" event="select-row" optional="true" />
           </dependency>

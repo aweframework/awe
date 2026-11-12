@@ -4,8 +4,9 @@ Captured from the project sources, not invented: every value below exists in the
 
 | Source | What it gives |
 |--------|---------------|
-| `awe-framework/awe-design-tokens/tokens.css` | The single AWE 5 token file of both engines: 616 unique `--awe-*` tokens (964 declarations, density and palette overrides included) |
-| `awe-framework/awe-client-react/src/main.css` | Imports `tokens.css` and sets the colour mode on `<html>` (`light`, `dark`, or the system one) |
+| `awe-framework/awe-design-tokens/tokens.css` | The single AWE 5 token file of both engines: 661 unique `--awe-*` tokens (1013 declarations, density and palette overrides included) |
+| `awe-framework/awe-client-react/src/main.css` | Imports `tokens.css` and sets the colour mode on `<html>` (`light`, `dark`, or the system one); the system mode is declared on `:root:not(.light):not(.dark)` so the PrimeReact theme, loaded later, cannot force light |
+| `awe-framework/awe-client-react/src/static/css/splash.css`, `awe-framework/awe-client-angular/src/main/resources/css/splash.css` | Splash (#964): standalone, loads before the tokens, so it keeps its own literals (`--awe-splash-background`, `--awe-splash-empty`, light and dark); the logo is a mask (`--awe-splash-logo`, `--awe-splash-liquid`) that fills up while the page loads, animating only transform and opacity |
 | `awe-framework/awe-client-angular/src/main/resources/tailwind/theme.css` | Tailwind theme: one to one aliases of the `--awe-*` tokens, so utilities follow the theme and the mode |
 | `website/docs/design-system/foundations.md` | Token tiers, colour, typography, spacing rules |
 | `website/docs/design-system/color-and-themes.md` | Primary and surface palettes, light and dark |
@@ -72,8 +73,8 @@ palette so the label on them reaches WCAG AA).
 
 Roles: `--awe-font-size-page-title` (2xl), `--awe-font-size-section-title` (md), `--awe-font-size-dialog-title` (lg),
 `--awe-font-size-display` (3xl, standalone pages), `--awe-font-size-label` (sm), `--awe-font-size-caption` (xs).
-Weights `400/500/600/700`; line heights `1.25/1.375/1.5`; letter spacing `-0.011em`, `-0.022em` (display), `0.06em`
-(caps). Font features `'cv05', 'calt'`, numeric `tabular-nums`.
+Weights `400/500/600/700`; line heights `--awe-line-height-tight/-snug/-base` (`1.25/1.375/1.5`); letter spacing
+`--awe-letter-spacing-tight` (`-0.011em`), `-display` (`-0.022em`), `-caps` (`0.06em`). Font features `'cv05', 'calt'`, numeric `tabular-nums`.
 
 ## Spacing, radius, elevation, focus, motion
 
@@ -90,6 +91,7 @@ Weights `400/500/600/700`; line heights `1.25/1.375/1.5`; letter spacing `-0.011
   `0ms` under `prefers-reduced-motion: reduce`.
 - Layers: header 100, menu 110, dropdown 1000, modal 1100, toast 1200, tooltip 1300.
 - Opacity: `--awe-opacity-disabled: 0.6`.
+- Borders: `--awe-border-width: 1px`, `--awe-border-width-strong: 2px`.
 
 ## Density
 
@@ -114,7 +116,13 @@ Comfortable by default; `<html data-awe-density="compact">` changes sizes, not s
 
 | Component | Tokens (`tokens.css`, Tier 3) |
 |-----------|-------------------------------|
-| Grid | `--awe-grid-header-background/-text/-font-size/-font-weight`, `--awe-grid-border`, `--awe-grid-row-background/-hover-background/-selected-background/-selected-text`, `--awe-grid-loading-overlay`, `--awe-grid-cell-padding-x/-y`, `--awe-grid-row-marker-width: 3px`, `--awe-grid-drop-indicator-width`, `--awe-grid-min-body-height: 12rem`, `--awe-grid-columns-panel-width: 432px` |
+| Buttons | `--awe-button-padding-x: 14px`, `--awe-button-font-size/-sm/-lg` (base/sm/md), `--awe-button-gap`, `--awe-button-default-background/-border-color/-color/-font-weight` with `-hover` and `-active` variants |
+| Labels | `--awe-label-font-weight` (medium), `--awe-label-text-transform: none`, `--awe-label-letter-spacing: normal` |
+| Card | `--awe-card-title-font-size` (base), `-title-text-transform: uppercase`, `-title-letter-spacing` (caps), `--awe-card-padding` (content padding), `--awe-card-gap` (space-3), `--awe-card-icon-size` (control), `--awe-card-grid-inset`, `--awe-card-grid-gap-after`; `.awe-card-compact` lowers padding to space-4, gap to space-2 and the icon to control-sm |
+| Readout | `--awe-readout-label-color/-font-size/-font-weight` (muted, xs, normal), `--awe-readout-value-color/-font-size`, `--awe-readout-block-background/-border/-radius/-padding` (style `awe-readout`, `awe-readout-block`) |
+| Datepicker | `--awe-datepicker-day-size` (space-8), `--awe-datepicker-cell-gap` (space-0-5) |
+| Side panel | `--awe-panel-avatar-icon-size` (icon) |
+| Grid | `--awe-grid-search-width: 32ch` (least width of the toolbar search), `--awe-grid-avatar-icon-size` (icon-sm), `--awe-grid-header-background/-text/-font-size/-font-weight`, `--awe-grid-border`, `--awe-grid-row-background/-hover-background/-selected-background/-selected-text`, `--awe-grid-loading-overlay`, `--awe-grid-cell-padding-x/-y`, `--awe-grid-row-marker-width: 3px`, `--awe-grid-drop-indicator-width`, `--awe-grid-min-body-height: 12rem`, `--awe-grid-columns-panel-width: 432px` |
 | Side menu | `--awe-menu-width`, `-width-collapsed: 68px`, `-background`, `-border`, `-item-text/-icon/-hover-background/-active-background/-active-text/-active-icon`, `-item-radius`, `-item-height`, `-section-label`, `-item-sub-text`, `-indent` (30px), `-indent-l3` (22px), `-guide-l2/-l3`, `-guide`, `-guide-active`, `-flyout-width` |
 | Header | `--awe-header-height`, `-background` (85% navbar), `-border`, `-backdrop-filter: saturate(1.4) blur(10px)`, `-search-width: 380px`, `-logo-height: 34px` |
 | Overlays | `--awe-mask-backdrop-filter: blur(2px)`, `--awe-toast-backdrop-filter: blur(8px)` |
@@ -135,6 +143,8 @@ implementation are the source of truth.
   `aria-invalid`; auto-fill grid of 232px columns; numbers right-aligned, tabular.
 - **Select**: never the native popup; combobox with listbox overlay (`--awe-shadow-overlay`), 8×12 padding options,
   `--awe-radius-list-option`, check on the selected one, filter when more than 10 options.
+- **Readout**: a read-only criterion shows a muted small label over the value; `awe-readout-block` boxes long values
+  (detail, hash, user agent).
 - **Grid**: lives in a card; toolbar with search, filters, columns, export; sticky header
   (`--awe-grid-header-*`); no zebra; selection uses `--awe-color-highlight` plus a selection bar; status as tags with a
   dot; row actions as ghost icon buttons; pager "Showing 1–10 of 1,284"; skeleton rows while loading; empty state.

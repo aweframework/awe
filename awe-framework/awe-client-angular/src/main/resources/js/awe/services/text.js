@@ -78,7 +78,7 @@ export const passwordInputTemplate = `<div ng-show="controller.visible" class="c
       ${getIconTemplate("{{::iconClass}}")}
       <input type="password" class="form-control {{classes}}" ng-disabled="controller.readonly" ng-model="model.selected" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}{{requiredMark()}}" ng-attr-aria-required="{{ariaRequired()}}" ng-model-options="{updateOn: 'change'}"
-             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-press-enter="submit($event)" autocomplete="off"
+             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-press-enter="submit($event)" autocomplete="new-password"
              data-testid="${TestIds.criterionInput}"/>
       <button type="button" class="password-toggle" ng-click="togglePassword()" ng-disabled="controller.readonly" ng-attr-aria-controls="{{::controller.id}}"
               aria-pressed="{{passwordShown}}" aria-label="{{(passwordShown ? 'SCREEN_TEXT_HIDE_PASSWORD' : 'SCREEN_TEXT_SHOW_PASSWORD')| translateMultiple}}">${iconMarkup("eye", 'ng-if="!passwordShown"')}${iconMarkup("eye-slash", 'ng-if="passwordShown"')}</button>
@@ -95,7 +95,7 @@ export const passwordColumnTemplate = `<div ng-show="component.controller.visibl
     <div class="input input-group-{{::size}} focus-target"><!--  ng-class="{'input-group': component.controller.unit, 'has-warning has-feedback': $root.isCapsLockOn}" -->
       <input type="password" class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" ng-disabled="component.controller.readonly" ng-model="component.model.selected"
              placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-model-options="{updateOn: 'change'}"
-             ng-focus="focus()" ng-blur="blur()" ng-change="component.columnModelChange()" ng-press-enter="saveRow($event)" autocomplete="off" data-testid="${TestIds.criterionInput}"/>
+             ng-focus="focus()" ng-blur="blur()" ng-change="component.columnModelChange()" ng-press-enter="saveRow($event)" autocomplete="new-password" data-testid="${TestIds.criterionInput}"/>
       <span ng-show="$root.isCapsLockOn" class="form-control-feedback">${iconMarkup("arrow-circle-up", "ng-class=\"::'awe-icon-' + size\"")}</span>
     </div>
     ${getIconTemplate("{{::iconClass}}")}

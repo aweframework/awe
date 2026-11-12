@@ -302,10 +302,13 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getDateRangePresetActive", () -> i.getDateRangePresetActive(CRITERION, "1M"));
     catalog.put("getGridQuickFilterOption", () -> i.getGridQuickFilterOption(CRITERION, "locked"));
     catalog.put("getGridQuickFilterOptionChosen", () -> i.getGridQuickFilterOptionChosen(CRITERION, "locked"));
+    catalog.put("getGridQuickFilter", () -> i.getGridQuickFilter(CRITERION));
+    catalog.put("getGridSearch", () -> i.getGridSearch(CRITERION));
     catalog.put("getGridSearchInput", () -> i.getGridSearchInput(CRITERION));
     catalog.put("getGridSearchClear", () -> i.getGridSearchClear(CRITERION));
     catalog.put("getGridSelectionBar", () -> i.getGridSelectionBar(GRID));
     catalog.put("getGridSelectionCount", () -> i.getGridSelectionCount(GRID));
+    catalog.put("getGridSelectionClear", () -> i.getGridSelectionClear(GRID));
     catalog.put("getGridSelectionButton", () -> i.getGridSelectionButton(GRID, "ButDel"));
     catalog.put("getUploaderDropZone", () -> i.getUploaderDropZone(CRITERION));
     catalog.put("getUploaderFilename", () -> i.getUploaderFilename(CRITERION));

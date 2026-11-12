@@ -104,7 +104,7 @@ Read-only uploaders show the file and disable the actions.
 | Active filters | A "Filtered by" row under the toolbar: one removable dashed chip per filtered column ("Profile: Operator, Viewer", three labels then "+N"), plus "Clear all" (#912). |
 | Header | `--awe-grid-header-*`, sortable columns show an arrow; the sorted one in the primary. Sticky. A column with an autofilter shows a funnel: outlined without a filter, filled with one (#912). |
 | Rows | Cell padding `--awe-grid-cell-padding-*`, hover background, no zebra. |
-| Selection | Checkbox column; selected rows use the highlight background; a selection bar shows the count and bulk actions. |
+| Selection | Checkbox column; selected rows use the highlight background. While rows are selected, a selection bar takes the band of the toolbar, with its same height, so rows never move: clear button (`x`, also Esc), the count, a chip with the context of the selection (active quick filter, search text) and the bulk actions; Columns and Maximize stay at the right. A grid without toolbar draws the bar over the column header, leaving the select-all checkbox. Clearing returns the focus to the search, or to the select-all checkbox. |
 | Numbers | Right-aligned, tabular, negatives in the danger colour with a minus sign. |
 | Status | Tags with a dot (`tag--success`, `--warning`, `--danger`, `--info`). |
 | Inline edit | The edited row gets a primary outline, fields inside the cells (small controls), Save and Cancel in the actions column. |

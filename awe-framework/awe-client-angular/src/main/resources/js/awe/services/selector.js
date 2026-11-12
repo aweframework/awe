@@ -665,8 +665,15 @@ aweApplication.factory('Selector',
           function checkSelectedValue(model) {
             let check = false;
             if (model.values.length === 0 && !Utilities.isEmpty(model.selected)) {
-              selector.term = model.selected;
-              component.suggest(selector.initialTarget);
+              // The label of the value is looked up once (the api and the model change listener both check it), in
+              // the background: it is silent, so it does not disable the buttons nor show the loading bar
+              const pending = selector.lookup && selector.lookup.isAlive() && _.isEqual(selector.lookupTerm, model.selected);
+              if (!pending) {
+                selector.term = model.selected;
+                selector.lookupTerm = _.cloneDeep(model.selected);
+                component.controller[$settings.get("targetActionKey")] = selector.initialTarget;
+                selector.lookup = component.reload({silent: true, async: component.reloadAsync});
+              }
               check = true;
             }
             return check;

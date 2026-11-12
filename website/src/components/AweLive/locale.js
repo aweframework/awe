@@ -118,6 +118,7 @@ export const EN_TEXTS = {
   SCREEN_TEXT_GRID_ROW_DETAIL_SHOW: 'Show row details',
   SCREEN_TEXT_GRID_SELECTED_ROW: '{{count}} selected',
   SCREEN_TEXT_GRID_SELECTED_ROWS: '{{count}} selected',
+  SCREEN_TEXT_GRID_CLEAR_SELECTION: 'Clear selection',
   SCREEN_TEXT_GRID_VIEW: 'View',
   SCREEN_TEXT_MAXIMIZE: 'Maximize',
   SCREEN_TEXT_HIDE_PASSWORD: 'Hide password',

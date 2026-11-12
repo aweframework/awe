@@ -483,9 +483,10 @@ aweApplication.factory('Dependency',
           // Add component identifier and target action
           values.componentId = this.component.id;
           values[$settings.get("targetActionKey")] = this[$settings.get("targetActionKey")];
-          // Launch end dependency
+          // Launch end dependency (silent as the query, so a silent dependency never disables the buttons)
           let endDependency = {
             type: 'end-dependency',
+            silent: this.silent,
             parameters: {
               dependency: this
             }

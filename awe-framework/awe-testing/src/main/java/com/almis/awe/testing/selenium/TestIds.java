@@ -87,9 +87,11 @@ public final class TestIds {
   public static final String GRID_COLUMN_FILTER_CHIPS = "grid-column-filter-chips";
   public static final String GRID_COLUMN_FILTER_CHIP = "grid-column-filter-chip";
   public static final String GRID_COLUMN_FILTER_CHIP_REMOVE = "grid-column-filter-chip-remove";
-  // Selection bar of the grid (identified by its owner, the grid; "data-count" is the number of selected rows) and its text
+  // Selection bar of the grid (identified by its owner, the grid; "data-count" is the number of selected rows), its text
+  // and its clear button
   public static final String GRID_SELECTION_BAR = "grid-selection-bar";
   public static final String GRID_SELECTION_COUNT = "grid-selection-count";
+  public static final String GRID_SELECTION_CLEAR = "grid-selection-clear";
   // Windows: the window root (identified by its owner) and its Maximize button
   public static final String WINDOW = "window";
   public static final String WINDOW_MAXIMIZE_BUTTON = "window-maximize-button";

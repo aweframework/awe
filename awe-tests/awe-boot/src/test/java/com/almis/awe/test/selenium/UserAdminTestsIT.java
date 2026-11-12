@@ -246,9 +246,9 @@ class UserAdminTestsIT extends AbstractCrudTests {
 
   /**
    * Selecting users shows the selection bar with their number and the selection actions, and unselecting them all hides
-   * it; Reset 2FA runs from the bar on the selected user. The grid keeps its selection when it is searched again or
-   * reloaded, so the user of the row menu is still selected (only it: a row button selects only its row), and a click on
-   * a row toggles it
+   * it; Reset 2FA runs from the bar on the selected user. The bar covers the search, so searching again clears the
+   * selection first (the user of the row menu is no longer selected); a click on a row toggles it, and the grid keeps its
+   * selection when it is reloaded
    */
   @Test
   void t008_resetTwoFactorFromTheSelectionBar() {
@@ -256,9 +256,11 @@ class UserAdminTestsIT extends AbstractCrudTests {
 
     searchUsersOfTheProfile();
     checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
-    checkGridSelectionBar(GRID, "1 selected");
+    checkGridSelectionBarNotVisible(GRID);
 
     toggleRowContents(GRID, ACTIVE_USER);
+    checkGridSelectionBar(GRID, "1 selected");
+    toggleRowContents(GRID, INACTIVE_USER);
     checkGridSelectionBar(GRID, "2 selected");
     toggleRowContents(GRID, ACTIVE_USER);
     checkGridSelectionBar(GRID, "1 selected");

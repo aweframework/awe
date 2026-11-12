@@ -99,7 +99,9 @@ describe("awe-react-client/test/js/components/AweGridSavedSearchesTest.jsx", () 
     renderWithProviders(<AweGridToolbar id="grid"/>, {preloadedState: gridState()});
 
     expect(button().getAttribute("data-testid-owner")).toBe("grid");
-    expect(button().nextElementSibling).toBe(byTestId("grid-columns-button"));
+    // Last of the band of the toolbar (the selection bar covers it), right before the Columns button
+    const buttons = Array.from(document.querySelectorAll("[data-testid='grid-toolbar'] button"));
+    expect(buttons.indexOf(byTestId("grid-columns-button")) - buttons.indexOf(button())).toBe(1);
   });
 
   it.each([

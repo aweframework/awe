@@ -269,6 +269,13 @@ describe("column editor test ids", () => {
     expect(hooked.is(control)).toBe(true);
   });
 
+  // A password cell of a grid is never a login: the browser must not fill a saved credential in it
+  it("asks the browser not to autofill saved credentials in the password column", () => {
+    const root = $("<div></div>").html(passwordColumnTemplate);
+
+    expect(root.find("input[type='password']").attr("autocomplete")).toBe("new-password");
+  });
+
   it("marks the clear action of the uploader column", () => {
     const root = $("<div></div>").html(uploaderColumnTemplate);
 

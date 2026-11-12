@@ -16,6 +16,12 @@ aweApplication.directive('aweInputPassword',
           // Initialize criterion
           scope.initialized = new Criterion(scope, scope.criterionId, elem).asCriterion();
 
+          // Out of the sign-in page a password is never a login (new-password): the browser does not fill a saved
+          // credential in it or in the text field before it. The sign-in page keeps the credential autofill
+          if (elem[0].closest(".awe-signin")) {
+            elem[0].querySelector(".validator > input")?.removeAttribute("autocomplete");
+          }
+
           // Show / hide button: only the type of the input changes, the value and the model stay as they are
           scope.passwordShown = false;
           scope.togglePassword = function () {

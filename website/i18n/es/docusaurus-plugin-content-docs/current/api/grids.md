@@ -1760,6 +1760,16 @@ cliente**.
 - El texto es el literal `SCREEN_TEXT_GRID_SELECTED_ROW` para una fila y `SCREEN_TEXT_GRID_SELECTED_ROWS` para más,
   con `{{count}}` para el número (`{{count}} seleccionados`).
 - En un grid sin `multiselect` la barra muestra la fila seleccionada.
+- Mientras hay filas seleccionadas, la barra ocupa la banda de la barra de herramientas del grid, con la misma altura,
+  así que las filas y la cabecera nunca se mueven: cubre el buscador, el quick filter, las búsquedas guardadas y la
+  agrupación, y los botones Columnas y Maximizar siguen a la derecha. En un grid sin barra de herramientas cubre la
+  fila de cabeceras de columna y deja visible la casilla de seleccionar todo.
+- Tras el recuento, un chip muestra el contexto de la selección: la etiqueta del quick filter activo (no la opción
+  "todos") y el texto buscado, leído como `SCREEN_TEXT_FILTERED_BY` (`Filtrado por`). Filtrar o buscar borra la
+  selección.
+- Un botón de limpiar al inicio de la barra (`SCREEN_TEXT_GRID_CLEAR_SELECTION`, `Limpiar selección`) y la tecla Esc
+  en el grid deseleccionan todas las filas, una o varias; mientras se edita una fila, Esc cancela la edición. Tras
+  limpiar, el foco va al buscador del grid, o a la casilla de seleccionar todo si no tiene buscador.
 - La barra es una región viva cortés (`aria-live="polite"`), así que los lectores de pantalla anuncian el número de
   filas seleccionadas; sus botones siguen al texto en el orden de tabulación y salen de él mientras la barra está
   oculta. Usa los tokens de resaltado de las filas seleccionadas en los modos claro y oscuro y en las densidades
