@@ -34,7 +34,7 @@
         ng-click="setViewAsType(type)" translate-multiple="{{type === 'scope' ? 'SCR_PER_VIEW_AS_EDITED' : 'SCR_PER_SCOPE_' + type.toUpperCase()}}"></button>
     </div>
     <div class="dropdown scr-per-dropdown" ng-if="viewAs.type === 'profile'">
-      <button type="button" class="btn btn-awe btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
+      <button type="button" class="btn btn-awe btn-default" data-toggle="dropdown" aria-haspopup="true">
         <span ng-bind="viewAsProfileLabel() || ('PARAMETER_PROFILE' | translateMultiple)"></span>
       </button>
       <div class="dropdown-menu scr-per-menu">
@@ -56,7 +56,7 @@
         ng-click="setScopeType(type)" translate-multiple="{{'SCR_PER_SCOPE_' + type.toUpperCase()}}"></button>
     </div>
     <div class="dropdown scr-per-dropdown" ng-if="applies.type === 'profile'">
-      <button type="button" class="btn btn-awe btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true">
+      <button type="button" class="btn btn-awe btn-default" data-toggle="dropdown" aria-haspopup="true">
         <span ng-bind="profileLabel() || ('PARAMETER_PROFILE' | translateMultiple)"></span>
       </button>
       <div class="dropdown-menu scr-per-menu">
@@ -165,7 +165,7 @@
       <span class="switch__track"></span>
     </label>
     <div ng-if="row.valueType === 'ENUM'" class="dropdown scr-per-dropdown">
-      <button type="button" id="scr-per-{{row.attribute}}" class="btn btn-awe btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-label="{{row.label}}" ng-bind="row.value"></button>
+      <button type="button" id="scr-per-{{row.attribute}}" class="btn btn-awe btn-default" data-toggle="dropdown" aria-haspopup="true" aria-label="{{row.label}}" ng-bind="row.value"></button>
       <div class="dropdown-menu scr-per-menu">
         <ul class="scr-per-options" role="listbox">
           <li role="option" ng-repeat="option in row.allowedValues" ng-class="{'active': option === row.value}"><a href="" ng-click="edit(row.attribute, option)" ng-bind="option"></a></li>
@@ -175,11 +175,11 @@
     <input ng-if="row.valueType !== 'BOOLEAN' && row.valueType !== 'ENUM'" type="text" id="scr-per-{{row.attribute}}" class="form-control" aria-label="{{row.label}}"
       ng-attr-inputmode="{{row.valueType === 'INTEGER' ? 'numeric' : undefined}}" ng-attr-maxlength="{{row.valueType === 'INTEGER' ? undefined : 60}}"
       aria-invalid="{{!!row.error}}" ng-model="row.text" ng-change="edit(row.attribute, row.text)">
-    <small class="scr-per-key" ng-if="row.key" ng-bind="row.key"></small>
+    <span class="scr-per-key" ng-if="row.key" ng-bind="row.key"></span>
     <div class="scr-per-origin">
       <span ng-bind="row.origin"></span>
       <button type="button" class="btn btn-link scr-per-reset" ng-if="row.overridden" ng-click="edit(row.attribute, null)" aria-label="{{row.resetLabel}}" translate-multiple="SCR_PER_RESET_ATTRIBUTE"></button>
     </div>
-    <small class="scr-per-error" role="alert" ng-if="row.error" ng-bind="row.error"></small>
+    <span class="scr-per-error" role="alert" ng-if="row.error" ng-bind="row.error"></span>
   </script>
 </div>

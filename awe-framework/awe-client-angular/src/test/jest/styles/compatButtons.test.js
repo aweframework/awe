@@ -28,6 +28,8 @@ const LEFT_OUT = [
     reason: "the AWE 5 tonal modifier of a button (.btn.btn-awe.btn-tonal, #791): an AWE style that the LESS build serves, with no vendored Bootstrap rule behind it"},
   {names: ["button-radio-group"],
     reason: "the button group of an AWE criterion radio (#791): the criterion owns the layout of its group, and the family serves the .btn-group inside it"},
+  {names: ["scr-per-reset", "scr-per-overview-name", "scr-per-overview-subject", "scr-per-link"],
+    reason: "the link buttons of the screen personalizer (#792): component rules of screen-personalizer.less that clear the filled AWE 5 .btn look"},
   {match: name => /^theme-/.test(name) || ["awe-theme", "base-theme", "btn-awe"].includes(name), reason: "selectors that depend on a theme class of the body: themed (AWE button themes)"},
   {match: name => name.startsWith("#"), reason: "id-scoped selectors: the ui-grid library ships its own Bootstrap subset under #ui-grid-twbs"},
   {names: ["badge", "label", "caret", "fa", "fa-caret-down", "icon", "input-group", "input-group-btn", "input-group-lg", "input-group-sm", "navbar-default", "navbar-inverse",
