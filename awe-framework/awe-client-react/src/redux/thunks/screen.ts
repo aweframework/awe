@@ -39,6 +39,7 @@ import {getAllComponents} from "../selectors/componentSelectors";
 import {ComponentType, getFirstDefinedAndNotNullValue} from "../../utilities/general";
 import {clearClassChanges} from "../../utilities/classChanges";
 import {pickThemeAppearance} from "../../utilities/themeAppearance";
+import {clearPendingLoginChoices} from "../../utilities/signin";
 import {navigationActions} from "../actions/navigation";
 import type {AppThunk, MenuOption} from "../types";
 import type {ClientAction, Translate} from "./types";
@@ -312,6 +313,9 @@ export const changeThemeAction = (action: ClientAction): AppThunk => {
     if (theme || targetTheme) {
       dispatch(updateSettings({ theme: theme || targetTheme as string }));
     }
+    // The login completed (it ends with the theme of the user): the mode and the language chosen on the sign-in page are
+    // saved now
+    clearPendingLoginChoices();
     dispatch(acceptAction(action));
     if (theme || targetTheme) {
       dispatch(refreshThemeAppearanceAction());

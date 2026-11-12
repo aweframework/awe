@@ -137,6 +137,9 @@ class AccessServiceTest {
     lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
     lenient().when(authentication.getPrincipal()).thenReturn(aweUserDetails);
     SecurityContextHolder.setContext(securityContext);
+    // The login reads the colour mode chosen on the sign-in page from the request
+    lenient().when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    lenient().when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     accessService.setApplicationContext(applicationContext);
   }
 

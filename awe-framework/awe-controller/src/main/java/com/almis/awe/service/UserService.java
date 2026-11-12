@@ -60,6 +60,21 @@ public class UserService extends ServiceConfig {
   }
 
   /**
+   * Save the language of a user. The user is a parameter, not the session user: the login saves the language chosen on
+   * the sign-in page before the session details are stored
+   * @param user User name
+   * @param language Language (one of the languages of the application, checked by the caller)
+   * @return Service data
+   * @throws AWException The language could not be stored
+   */
+  public ServiceData changeUserLanguage(String user, String language) throws AWException {
+    ObjectNode parameters = queryUtil.getParameters();
+    parameters.put("user", user);
+    parameters.put("language", language);
+    return maintainService.launchPrivateMaintain("updateUserLanguage", parameters);
+  }
+
+  /**
    * Change the density of the user
    * @param user User name
    * @param density New density (comfortable or compact)

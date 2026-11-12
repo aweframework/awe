@@ -155,8 +155,9 @@ no colour property. An empty text hides its element.
 | Light, dark and system mode selector (right of the footer) | `awe.application.login.mode-selector` | `true` |
 
 The password field has a show/hide button and warns while Caps Lock is on. Before signing in, the chosen language
-applies to the page and the chosen mode is kept in the browser (`localStorage`); after signing in, the user's own
-language and mode apply.
+applies to the page and the chosen mode is kept in the browser (`localStorage`). A language or mode changed on the
+sign-in page wins after signing in (local login, 2FA or SSO) and is saved as the user's own; when the selectors are not
+touched, the user's own language and mode apply.
 
 - **Texts** are a locale key or a literal: a value that is a whole locale key shows its translation in the language of
   the user; any other value shows as it is.

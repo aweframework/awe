@@ -239,6 +239,32 @@ describe("ServerData", function () {
     expect($actionController.addActionList).toHaveBeenCalledWith([{type: "server", async: false, silent: true, parameters: {[$settings.get("serverActionKey")]: "maintain", [$settings.get("targetActionKey")]: "SaveStatus"}}], true, {address: {}, context: ""});
   });
 
+  it("sends with the login the colour mode chosen on the sign-in page, saved as the mode of the user", function () {
+    const action = {attr: jest.fn().mockImplementation(key => ({parameters: {serverAction: "login"}}[key]))};
+    jest.spyOn($control, "changeControllerAttribute");
+    jest.spyOn($connection, "sendMessage").mockReturnValue({});
+    sessionStorage.setItem("awe-login-mode-pending", "dark");
+
+    $serverData.launchServerAction(action, {username: "jdoe"});
+
+    expect($connection.sendMessage).toHaveBeenCalledWith({action, target: undefined,
+      values: {serverAction: "login", username: "jdoe", signinThemeMode: "dark"}});
+    sessionStorage.removeItem("awe-login-mode-pending");
+  });
+
+  it("sends with the login the language chosen on the sign-in page, saved as the language of the user", function () {
+    const action = {attr: jest.fn().mockImplementation(key => ({parameters: {serverAction: "login"}}[key]))};
+    jest.spyOn($control, "changeControllerAttribute");
+    jest.spyOn($connection, "sendMessage").mockReturnValue({});
+    sessionStorage.setItem("awe-login-language-pending", "es-ES");
+
+    $serverData.launchServerAction(action, {username: "jdoe"});
+
+    expect($connection.sendMessage).toHaveBeenCalledWith({action, target: undefined,
+      values: {serverAction: "login", username: "jdoe", signinLanguage: "es-ES"}});
+    sessionStorage.removeItem("awe-login-language-pending");
+  });
+
   it("cancels an in-flight server action by rejecting the current request", function () {
     const callbackTarget = {view: "center", component: "CrtStatus"};
     const request = {reject: jest.fn().mockName("reject")};

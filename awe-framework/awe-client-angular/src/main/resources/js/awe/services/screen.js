@@ -1,5 +1,6 @@
 import {aweApplication} from "../awe";
 import {TestIds} from "../data/testIds";
+import {clearPendingLoginChoices} from "awe-client-react/utilities/signin";
 
 // Screen service
 aweApplication.factory("Screen",
@@ -156,6 +157,10 @@ aweApplication.factory("Screen",
             $settings.update({theme: theme});
             $settings.refreshAppearance();
           }
+
+          // The login completed (it ends with the theme of the user): the mode and the language chosen on the sign-in page
+          // are saved now
+          clearPendingLoginChoices();
 
           // Finish screen action
           $actionController.acceptAction(action);

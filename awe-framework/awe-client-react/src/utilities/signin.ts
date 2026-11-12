@@ -89,8 +89,101 @@ export function readLoginMode(): LoginMode | undefined {
 export function storeLoginMode(mode: LoginMode): void {
   try {
     window.localStorage.setItem(LOGIN_MODE_KEY, mode);
+    window.sessionStorage.setItem(PENDING_LOGIN_MODE_KEY, mode);
   } catch {
     // The storage is not available (private mode, disabled): the choice lasts until the page is left
+  }
+}
+
+/**
+ * Key of the session storage with the colour mode chosen on the sign-in page and not saved for the user yet: the login
+ * sends it, so it wins over the mode stored for the user and becomes it
+ */
+export const PENDING_LOGIN_MODE_KEY = "awe-login-mode-pending";
+
+/**
+ * Server actions of the logins that send the colour mode and the language chosen on the sign-in page: the local one and
+ * the SSO ones
+ */
+const MODE_LOGIN_ACTIONS = [LOGIN_ACTION, "login-azure", "login-sso"];
+
+/** Login parameter with the colour mode chosen on the sign-in page */
+export const SIGNIN_THEME_MODE_PARAMETER = "signinThemeMode";
+
+/**
+ * Parameters a server action adds for the colour mode chosen on the sign-in page: only the logins send it (the local one
+ * and the SSO ones), and only when the user changed the mode since the last login
+ * @param serverAction Server action
+ * @return Parameters to add (none for other actions or without a pending mode)
+ */
+export function loginModeParameters(serverAction: unknown): Record<string, LoginMode> {
+  if (!MODE_LOGIN_ACTIONS.includes(serverAction as string)) {
+    return {};
+  }
+  try {
+    const pending = window.sessionStorage.getItem(PENDING_LOGIN_MODE_KEY);
+    const mode = LOGIN_MODES.find(value => value === pending);
+    return mode ? {[SIGNIN_THEME_MODE_PARAMETER]: mode} : {};
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Key of the session storage with the language chosen on the sign-in page and not saved for the user yet: the login
+ * sends it, so it wins over the language stored for the user and becomes it
+ */
+export const PENDING_LOGIN_LANGUAGE_KEY = "awe-login-language-pending";
+
+/** Login parameter with the language chosen on the sign-in page */
+export const SIGNIN_LANGUAGE_PARAMETER = "signinLanguage";
+
+/**
+ * Keep the language chosen without a user session (the sign-in page, or the public pages before the login) as the
+ * pending choice the login saves for the user. A language changed in a user session is not a sign-in choice
+ * @param language Language code
+ * @param authenticated The settings belong to a user session
+ */
+export function storeLoginLanguage(language: string, authenticated?: boolean | null): void {
+  if (authenticated === true || !language) {
+    return;
+  }
+  try {
+    window.sessionStorage.setItem(PENDING_LOGIN_LANGUAGE_KEY, language);
+  } catch {
+    // The storage is not available: the language stored for the user wins after the login
+  }
+}
+
+/**
+ * Parameters a server action adds for the language chosen on the sign-in page: only the logins send it (the local one
+ * and the SSO ones), and only when the user changed the language since the last login. The server checks it is a
+ * language of the application
+ * @param serverAction Server action
+ * @return Parameters to add (none for other actions or without a pending language)
+ */
+export function loginLanguageParameters(serverAction: unknown): Record<string, string> {
+  if (!MODE_LOGIN_ACTIONS.includes(serverAction as string)) {
+    return {};
+  }
+  try {
+    const language = window.sessionStorage.getItem(PENDING_LOGIN_LANGUAGE_KEY);
+    return language ? {[SIGNIN_LANGUAGE_PARAMETER]: language} : {};
+  } catch {
+    return {};
+  }
+}
+
+/**
+ * Forget the colour mode and the language chosen on the sign-in page once the login completed (the server saved them
+ * for the user), so a later login keeps the mode and the language stored for the user
+ */
+export function clearPendingLoginChoices(): void {
+  try {
+    window.sessionStorage.removeItem(PENDING_LOGIN_MODE_KEY);
+    window.sessionStorage.removeItem(PENDING_LOGIN_LANGUAGE_KEY);
+  } catch {
+    // The storage is not available: there is nothing to forget
   }
 }
 
@@ -103,6 +196,11 @@ export function storeLoginMode(mode: LoginMode): void {
  */
 export function withLoginMode<T extends {authenticated?: boolean | null; themeMode?: string | null;
   login?: {modeSelector?: boolean} | null}>(settings: T): T {
+  // A page loaded with a user session comes after the login (the SSO one ends with a page load): the server saved the
+  // mode and the language chosen on the sign-in page, so a later login keeps the ones stored for the user
+  if (settings.authenticated === true) {
+    clearPendingLoginChoices();
+  }
   const mode = settings.authenticated === false && settings.login?.modeSelector !== false ? readLoginMode() : undefined;
   return mode ? {...settings, themeMode: mode} : settings;
 }

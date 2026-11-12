@@ -134,6 +134,16 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
       expect(typeof calls[2]).toBe('function');
     });
 
+    it('forgets the colour mode and the language chosen on the sign-in page once the login completed, as the server saved them', () => {
+      sessionStorage.setItem('awe-login-mode-pending', 'dark');
+      sessionStorage.setItem('awe-login-language-pending', 'es-ES');
+
+      screenThunks.changeThemeAction({ parameters: { theme: 'sky' } })(dispatch, getState);
+
+      expect(sessionStorage.getItem('awe-login-mode-pending')).toBeNull();
+      expect(sessionStorage.getItem('awe-login-language-pending')).toBeNull();
+    });
+
     it('does not read the theme appearance when there is no theme', () => {
       screenThunks.changeThemeAction({ parameters: {} })(dispatch, getState);
 

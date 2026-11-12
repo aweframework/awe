@@ -63,6 +63,9 @@ describe('awe-react-client/test/js/components/PreferencesTest.jsx', () => {
     expect(languages.map(option => option.textContent)).toEqual(['English', 'Spanish', 'French']);
     fireEvent.click(languages[2]);
     expect(store.getState().settings.language).toBe('fr-FR');
+    // Without a user session the language is a sign-in choice the login saves for the user
+    expect(sessionStorage.getItem('awe-login-language-pending')).toBe('fr-FR');
+    sessionStorage.removeItem('awe-login-language-pending');
   });
 
   it('draws again the mode chosen before, and hides the selectors the application does not offer', () => {

@@ -426,6 +426,9 @@ describe("awe-signin: configurable sign-in page", () => {
       expect($settings.changeLanguage).toHaveBeenCalledWith("es-ES");
       expect(listbox(page).hidden).toBe(true);
       expect(options(page).map(option => option.getAttribute("aria-selected"))).toEqual(["false", "true", "false"]);
+      // The choice is pending until the login saves it as the language of the user
+      expect(window.sessionStorage.getItem("awe-login-language-pending")).toBe("es-ES");
+      window.sessionStorage.removeItem("awe-login-language-pending");
     });
 
     it("opens with the keyboard, moves with the arrows, chooses with Enter and closes with Escape", () => {
@@ -525,6 +528,9 @@ describe("awe-signin: configurable sign-in page", () => {
       expect(root.classList.contains("light") || root.classList.contains("dark")).toBe(false);
       expect(window.localStorage.getItem(MODE_KEY)).toBe("system");
       expect(checked(page)).toBe("system");
+      // The choice is pending until the login saves it as the mode of the user
+      expect(window.sessionStorage.getItem("awe-login-mode-pending")).toBe("system");
+      window.sessionStorage.removeItem("awe-login-mode-pending");
     });
 
     it("applies the remembered mode when the sign-in page opens", () => {

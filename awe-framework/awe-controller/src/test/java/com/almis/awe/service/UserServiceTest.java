@@ -125,6 +125,21 @@ class UserServiceTest {
   }
 
   @Test
+  void changeUserLanguageSavesTheLanguageOfTheGivenUser() throws Exception {
+    when(queryUtil.getParameters()).thenReturn(JsonNodeFactory.instance.objectNode());
+    when(maintainService.launchPrivateMaintain(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData());
+
+    ServiceData serviceData = userService.changeUserLanguage("jdoe", "es-ES");
+
+    // The user is a parameter, not the session user: the login saves it before the session details are stored
+    assertEquals(AnswerType.OK, serviceData.getType());
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService).launchPrivateMaintain(eq("updateUserLanguage"), parameters.capture());
+    assertThat(parameters.getValue().get("user").asText()).isEqualTo("jdoe");
+    assertThat(parameters.getValue().get("language").asText()).isEqualTo("es-ES");
+  }
+
+  @Test
   void changeUserDensityRejectsAnInvalidDensity() {
     assertThatThrownBy(() -> userService.changeUserDensity("user", "cozy")).isInstanceOf(AWException.class);
     assertThatThrownBy(() -> userService.changeUserDensity("user", null)).isInstanceOf(AWException.class);

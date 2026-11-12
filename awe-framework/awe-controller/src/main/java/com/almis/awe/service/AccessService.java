@@ -20,6 +20,7 @@ import com.almis.awe.model.security.audit.SecurityAuditEventType;
 import com.almis.awe.model.security.audit.SecurityAuditOutcome;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.model.util.theme.ThemeOptions;
 import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.security.authentication.SsoRoleNotMappedException;
 import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
@@ -83,6 +84,19 @@ public class AccessService extends ServiceConfig {
   public static final String SSO_REJECTED_USERNAME_ATTRIBUTE = AccessService.class.getName() + ".ssoRejectedUsername";
 
   private SecurityAuditService securityAuditService = SecurityAuditService.disabled();
+  private UserService userService;
+
+  /**
+   * Login parameter with the colour mode the user chose on the sign-in page (light, dark or system), also the session
+   * parameter that keeps it until the login completes
+   */
+  public static final String SIGNIN_THEME_MODE_PARAMETER = "signinThemeMode";
+
+  /**
+   * Login parameter with the language the user chose on the sign-in page (one of the languages of the application),
+   * also the session parameter that keeps it until the login completes
+   */
+  public static final String SIGNIN_LANGUAGE_PARAMETER = "signinLanguage";
 
   @Value("${jasypt.encryptor.algorithm:PBEWithMD5AndDES}")
   private String jasyptAlgorithm;
@@ -141,6 +155,16 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
+   * Save the colour mode and the language chosen on the sign-in page for the user once the login completes
+   *
+   * @param userService User service
+   */
+  @Autowired(required = false)
+  public void setUserService(UserService userService) {
+    this.userService = userService;
+  }
+
+  /**
    * Performs the login action
    *
    * @return serviceData the result of the login
@@ -150,6 +174,11 @@ public class AccessService extends ServiceConfig {
 
     // Get user details
     AweUserDetails userDetails = ((AweUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+    // The mode and the language chosen on the sign-in page are saved when the login completes (after the second factor,
+    // if any)
+    keepSigninThemeMode();
+    keepSigninLanguage();
 
     // Go to the corresponding screen depending on the second authentication factor
     switch (totpConfigProperties.getEnabled()) {
@@ -180,6 +209,10 @@ public class AccessService extends ServiceConfig {
    * @return do send redirect to Azure oauth portal
    */
   public ServiceData loginWithAzureEntraID() {
+    // The mode and the language chosen on the sign-in page are saved when the provider returns (the session survives
+    // the round trip)
+    keepSigninThemeMode();
+    keepSigninLanguage();
     return new ServiceData().addClientAction(new ClientAction(REDIRECT).setTarget(getRequest().getHttpRequest().getContextPath() + AZURE_OAUTH2_AUTHORIZATION_URL));
   }
 
@@ -190,6 +223,10 @@ public class AccessService extends ServiceConfig {
 	 * @return ServiceData with redirect action to the appropriate OAuth2 provider
 	 */
   public ServiceData loginWithSSO() {
+    // The mode and the language chosen on the sign-in page are saved when the provider returns (the session survives
+    // the round trip)
+    keepSigninThemeMode();
+    keepSigninLanguage();
 
 		OAuth2UrlService oAuth2UrlService = this.getApplicationContext().getBean(OAuth2UrlService.class);
 		Assert.notNull(oAuth2UrlService, "OAuth2UrlService bean not found");
@@ -225,8 +262,14 @@ public class AccessService extends ServiceConfig {
     // The session authentication gets the roles and permissions of the AWE user
     addUserAuthorities(oAuth2Token, userDetails);
 
+    // The language chosen on the sign-in page before the SSO login wins over the language stored for the user
+    saveSigninLanguage(userDetails);
+
     // Store session details
     sessionDetails.onLoginSuccess(userDetails);
+
+    // The mode chosen on the sign-in page before the SSO login wins over the mode stored for the user, and becomes it
+    saveSigninThemeMode(userDetails);
 
     // Generate initial URL
     Menu menu = menuService.getMenu();
@@ -508,15 +551,108 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
-     * Go home screen
-     *
-     * @param userDetails User details
-     * @return Service data
-     * @throws AWException AWE exception
-     */
+   * Keep in session the colour mode chosen on the sign-in page, sent with the login, until the login completes
+   */
+  private void keepSigninThemeMode() {
+    String mode = getRequest().getParameterAsString(SIGNIN_THEME_MODE_PARAMETER);
+    if (ThemeOptions.isMode(mode)) {
+      getSession().setParameter(SIGNIN_THEME_MODE_PARAMETER, ThemeOptions.normalize(mode));
+    } else {
+      // A mode left by a login that did not complete (second factor or SSO abandoned) never reaches another login
+      getSession().removeParameter(SIGNIN_THEME_MODE_PARAMETER);
+    }
+  }
+
+  /**
+   * Save the colour mode chosen on the sign-in page as the mode of the user. A failure is logged and does not stop the
+   * login: the user keeps the mode stored before
+   *
+   * @param userDetails User details
+   */
+  private void saveSigninThemeMode(AweUserDetails userDetails) {
+    AweSession session = getSession();
+    String mode = session.getParameter(String.class, SIGNIN_THEME_MODE_PARAMETER);
+    if (mode == null || userService == null) {
+      return;
+    }
+    session.removeParameter(SIGNIN_THEME_MODE_PARAMETER);
+    try {
+      userService.changeUserMode(userDetails.getUsername(), mode);
+    } catch (Exception exc) {
+      log.warn("The colour mode chosen on the sign-in page could not be saved for the user", exc);
+    }
+  }
+
+  /**
+   * Keep in session the language chosen on the sign-in page, sent with the login, until the login completes. Only a
+   * language of the application is kept
+   */
+  private void keepSigninLanguage() {
+    String language = getRequest().getParameterAsString(SIGNIN_LANGUAGE_PARAMETER);
+    Optional<String> known = language == null ? Optional.empty() : baseConfigProperties.getLanguageList().stream()
+      .filter(language::equalsIgnoreCase)
+      .findFirst();
+    if (known.isPresent()) {
+      getSession().setParameter(SIGNIN_LANGUAGE_PARAMETER, known.get());
+    } else {
+      // A language left by a login that did not complete (second factor or SSO abandoned) never reaches another login
+      getSession().removeParameter(SIGNIN_LANGUAGE_PARAMETER);
+    }
+  }
+
+  /**
+   * Language of the screen the login shows before it completes (second factor): the one chosen on the sign-in page, else
+   * the language of the user
+   *
+   * @param userDetails User details
+   * @return Language
+   */
+  private String pendingLanguage(AweUserDetails userDetails) {
+    String language = getSession().getParameter(String.class, SIGNIN_LANGUAGE_PARAMETER);
+    return language == null ? userDetails.getLanguage() : language;
+  }
+
+  /**
+   * Make the language chosen on the sign-in page the language of the user: the language of the user details (so the
+   * session language and the change language action carry it), saved for the user. Called before the session details
+   * are stored. A failure saving it is logged and does not stop the login
+   *
+   * @param userDetails User details
+   */
+  private void saveSigninLanguage(AweUserDetails userDetails) {
+    AweSession session = getSession();
+    String language = session.getParameter(String.class, SIGNIN_LANGUAGE_PARAMETER);
+    if (language == null) {
+      return;
+    }
+    session.removeParameter(SIGNIN_LANGUAGE_PARAMETER);
+    userDetails.setLanguage(language);
+    if (userService == null) {
+      return;
+    }
+    try {
+      userService.changeUserLanguage(userDetails.getUsername(), language);
+    } catch (Exception exc) {
+      log.warn("The language chosen on the sign-in page could not be saved for the user", exc);
+    }
+  }
+
+  /**
+   * Go home screen
+   *
+   * @param userDetails User details
+   * @return Service data
+   * @throws AWException AWE exception
+   */
   private ServiceData goToHomeScreen(AweUserDetails userDetails) throws AWException {
+    // The language chosen on the sign-in page wins over the language stored for the user, and becomes it
+    saveSigninLanguage(userDetails);
+
     // Store session details
     sessionDetails.onLoginSuccess(userDetails);
+
+    // The mode chosen on the sign-in page wins over the mode stored for the user, and becomes it
+    saveSigninThemeMode(userDetails);
 
     // Generate initial URL
     Menu menu = menuService.getMenu();
@@ -548,7 +684,7 @@ public class AccessService extends ServiceConfig {
         .setContext(SCREEN)
         .addParameter(JSON_SCREEN, totpConfigProperties.getActivateScreen()))
       .addClientAction(new ClientAction(CHANGE_LANGUAGE)
-        .addParameter(SESSION_LANGUAGE, userDetails.getLanguage()))
+        .addParameter(SESSION_LANGUAGE, pendingLanguage(userDetails)))
       .addClientAction(new ClientAction(CHANGE_THEME)
         .addParameter(SESSION_THEME, userDetails.getTheme()));
   }
@@ -565,7 +701,7 @@ public class AccessService extends ServiceConfig {
         .setContext(SCREEN)
         .addParameter(JSON_SCREEN, totpConfigProperties.getInitialScreen()))
       .addClientAction(new ClientAction(CHANGE_LANGUAGE)
-        .addParameter(SESSION_LANGUAGE, userDetails.getLanguage()))
+        .addParameter(SESSION_LANGUAGE, pendingLanguage(userDetails)))
       .addClientAction(new ClientAction(CHANGE_THEME)
         .addParameter(SESSION_THEME, userDetails.getTheme()));
   }
