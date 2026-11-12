@@ -133,6 +133,27 @@ export function buildComponent(
   };
 }
 
+/**
+ * Build the state of every component of a screen response
+ * @param view View identifier
+ * @param components Screen response components
+ * @param settings Application settings
+ * @param structure Structure path of each component, by identifier
+ * @returns Component states by identifier (the last one wins when an identifier repeats)
+ */
+export function buildComponentsById(
+  view: string,
+  components: ScreenDataComponent[],
+  settings: Settings,
+  structure: Record<string, string[]>
+): Record<string, ComponentState> {
+  // Each component is added to the same object: joining a copy per component would be quadratic
+  return components.reduce((list = {}, component = {} as ScreenDataComponent) => {
+    list[component.id] = buildComponent(view, component, settings, structure[component.id] || []);
+    return list;
+  }, {} as Record<string, ComponentState>);
+}
+
 // A fresh screen (opened from a menu option) is flagged so the server keeps the criteria of the screen it leaves but
 // does not give its values to the new screen; extra parameters go with the request (the personalizer "view as")
 export const loadScreen = (view: string, option: string, t: Translate, fresh = false, parameters: Record<string, unknown> = {}): AppThunk<Promise<void>> => async (dispatch, getState) => {
@@ -172,10 +193,7 @@ export const loadScreen = (view: string, option: string, t: Translate, fresh = f
     dispatch({ ...clearComponents(view), settings });
 
     // Register components with their dependencies.
-    dispatch(updateViewComponentsWithDependencies(view, response.components.reduce((list = {}, component = {} as ScreenDataComponent) => ({
-      ...list,
-      [component.id]: buildComponent(view, component, settings, componentStructure[component.id] || [])
-    }), {})));
+    dispatch(updateViewComponentsWithDependencies(view, buildComponentsById(view, response.components, settings, componentStructure)));
 
     const menu = response.components.find((component) => component.id === "MainMenu");
     if (menu) {

@@ -16,7 +16,8 @@ function ColumnTime(props) {
   const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
 
-  const settings = useSelector(state => state.settings);
+  // Only the setting the component reads: any other change of the settings does not render it again
+  const language = useSelector(state => state.settings?.language);
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const updateModelWithDependencies = (addr, payload) => dispatch(updateThunk(addr, payload));
@@ -40,7 +41,7 @@ function ColumnTime(props) {
       timeOnly
       showSeconds
       onChange={onChange}
-      locale={settings.language}
+      locale={language}
       pt={calendarPassThrough(address.component)}
       tooltip={formatMessage(error, t)}
       tooltipOptions={{position: "bottom", className: "validation-tooltip"}}

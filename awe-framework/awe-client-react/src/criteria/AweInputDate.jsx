@@ -17,10 +17,11 @@ function AweInputDate(props) {
   const { id } = props;
   const dispatch = useDispatch();
   const { t } = useTranslation();
-  const settings = useSelector(state => state.settings);
+  // Only the setting the component reads: any other change of the settings does not render it again
+  const settingsLanguage = useSelector(state => state.settings?.language);
   const { address, attributes, validationRules, value, onSubmit } = useText(id);
 
-  const { format, language, calendarProps } = useDateOptions(attributes, value, settings.language);
+  const { format, language, calendarProps } = useDateOptions(attributes, value, settingsLanguage);
 
   const onChange = useCallback((e) => {
     const newDate = e?.value ?? e?.target?.value ?? null;
@@ -43,7 +44,7 @@ function AweInputDate(props) {
         onChange={onChange}
         required={required}
         disabled={readonly}
-        locale={settings.language}
+        locale={settingsLanguage}
         pt={calendarPassThrough(address?.component, onKeyDown, undefined, requiredAria(attributes, validationRules))}
         showButtonBar
         {...calendarProps}

@@ -284,9 +284,16 @@ export function useGrid(id) {
       footer={(footer[column.name] ?? {}).label ?? ""} />;
   };
 
+  // Definition of each column by name (the first one of a repeated name, as a scan of the column model gives it)
+  const columnsByName = useMemo(() => {
+    const byName = new Map();
+    (allColumns || []).forEach(c => byName.has(c.name) || byName.set(c.name, c));
+    return byName;
+  }, [allColumns]);
+
   const cellTemplate = (rowData, column, hasFrozen = false) => {
     const gridId = getGridIdentifier(attributes);
-    const definition = attributes.columnModel?.find(c => c.name === column);
+    const definition = columnsByName.get(column);
     // A grid with frozen columns keeps its single-line rows, like in AngularJS
     const lines = hasFrozen ? { wrap: false, maxLines: null } : {};
     return Columns({

@@ -15,7 +15,8 @@ function AweInfoButton(props) {
 
   const { id } = props;
   const { address = {}, attributes = {}, actions } = useComponentState(id);
-  const settings = useSelector(state => state.settings);
+  // Only the settings the component reads: any other change of the settings does not render it again
+  const helpTimeout = useSelector(state => state.settings?.helpTimeout);
   const { t } = useTranslation();
   const { style, icon, disabled, label, size, visible, help, helpImage, unit } = attributes;
   const dispatch = useDispatch();
@@ -42,7 +43,7 @@ function AweInfoButton(props) {
       iconPos={"left"}
       onClick={onClick}
       data-pr-position={"bottom"}
-      data-pr-showdelay={settings.helpTimeout}
+      data-pr-showdelay={helpTimeout}
       {...testHook(TestIds.infoButton)}
     />
     {unit && <Badge value={unit} severity="info" />}

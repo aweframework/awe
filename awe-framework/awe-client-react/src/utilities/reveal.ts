@@ -151,6 +151,29 @@ export function getInvalidPanelValues(components: ComponentsById<RevealComponent
 }
 
 /**
+ * Get, in one pass over the components, the options of every container that hold invalid fields or a grid with unsaved
+ * records. For each container it gives the same values, in the same order, as getInvalidPanelValues
+ * @param {object} components Components by id
+ * @return {object} Values of the options with invalid fields, by container id
+ */
+export function getInvalidValuesByPanel(components: ComponentsById<RevealComponent> | null | undefined): Record<string, string[]> {
+  const invalid: Record<string, Set<string>> = {};
+  Object.values(components || {}).forEach(component => {
+    if (!(component?.attributes?.error || hasUnsavedRows(component))) {
+      return;
+    }
+    const source = component?.context?.source || [];
+    source.forEach((panelId, position) => {
+      // Only the first place of a container in the source counts, as in getInvalidPanelValues
+      if (source.indexOf(panelId) === position && position + 1 < source.length) {
+        (invalid[panelId] ??= new Set<string>()).add(source[position + 1]);
+      }
+    });
+  });
+  return Object.fromEntries(Object.entries(invalid).map(([panelId, values]) => [panelId, [...values]]));
+}
+
+/**
  * Scroll the row of a grid into view. A grid inside a panel that has just been opened is not rendered yet, so the
  * lookup is retried a few times.
  * @param {string} gridId Grid identifier
