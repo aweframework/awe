@@ -6,9 +6,11 @@
  * Free of React so that node:test can run it.
  *
  * @param {Object} description
- * @param {string} description.type AWE chart type: line, spline, area, areaspline, column, bar, pie, donut or semicircle
+ * @param {string} description.type AWE chart type: line, spline, area, areaspline, column, bar, pie, donut, semicircle, scatter,
+ *   bubble, arearange, areasplinerange, radar, heatmap, gauge or funnel
  * @param {string} description.category Field of the rows that names each point (the month, the product line)
- * @param {Array<{id: string, label: string, field: string}>} description.series Series: the field of the rows each one reads
+ * @param {Array<{id: string, label: string, field: string, z?: string}>} description.series Series: the fields of the rows each
+ *   one reads (field is the y value, z the z value: the size of a bubble, the high of a range, the cell of a heatmap)
  * @param {string} [description.stacking] normal or percent
  * @param {boolean} [description.legend] Legend; hidden by default on a chart with axes, shown on a pie
  * @param {boolean} [description.dataLabels] Value on every point
@@ -20,8 +22,13 @@
  * @returns {Object} ECharts model
  */
 const PIES = new Set(['pie', 'donut', 'semicircle']);
-const SMOOTH = new Set(['spline', 'areaspline']);
-const AREAS = new Set(['area', 'areaspline']);
+const SMOOTH = new Set(['spline', 'areaspline', 'areasplinerange']);
+const AREAS = new Set(['area', 'areaspline', 'arearange', 'areasplinerange']);
+const RANGES = new Set(['arearange', 'areasplinerange']);
+const POINTS = new Set(['scatter', 'bubble']);
+/** Types that are not drawn on axes: they have no axes, an item tooltip and no stacking */
+const AXIS_FREE = new Set([...PIES, 'radar', 'gauge', 'funnel']);
+const STACKABLE = new Set(['line', 'spline', 'area', 'areaspline', 'column', 'bar']);
 
 function axisOf(role, type, label, inverse) {
   return {
@@ -32,14 +39,22 @@ function axisOf(role, type, label, inverse) {
   };
 }
 
-function serieOf(description, serie, pie) {
+function echartsTypeOf(type) {
+  if (PIES.has(type)) return 'pie';
+  if (POINTS.has(type)) return 'scatter';
+  if (type === 'column' || type === 'bar') return 'bar';
+  if (['radar', 'heatmap', 'gauge', 'funnel'].includes(type)) return type;
+  return 'line';
+}
+
+function serieOf(description, serie) {
   const {type, category, stacking, dataLabels} = description;
-  const stacked = stacking && !pie;
-  const echartsType = pie ? 'pie' : (type === 'column' || type === 'bar' ? 'bar' : 'line');
+  const pie = PIES.has(type);
+  const stacked = stacking && STACKABLE.has(type);
   return {
     id: serie.id,
     name: serie.label,
-    type: echartsType,
+    type: echartsTypeOf(type),
     ...(SMOOTH.has(type) && {smooth: true}),
     ...(AREAS.has(type) && {areaStyle: {}}),
     ...(stacked && {stack: 'stack'}),
@@ -48,31 +63,45 @@ function serieOf(description, serie, pie) {
     ...(type === 'semicircle' && {radius: ['50%', '75%'], startAngle: 180, endAngle: 360, center: ['50%', '75%']}),
     awe: {
       type: pie ? 'pie' : type,
-      xValue: category,
+      ...(RANGES.has(type) && {range: true}),
+      ...(category && {xValue: category}),
       yValue: serie.field,
-      ...(stacking === 'percent' && !pie && {stackPercent: true}),
+      ...(serie.z && {zValue: serie.z}),
+      ...(stacking === 'percent' && stacked && {stackPercent: true}),
     },
   };
 }
 
-function buildEchartsModel(description) {
-  const {type, series, stacking, legend, sharedTooltip, title, subtitle, xLabel, yLabel} = description;
-  const pie = PIES.has(type);
+/** Axes of a chart that has them: both categories for a heatmap, both values for points, a category and a value otherwise */
+function axesOf(description) {
+  const {type, xLabel, yLabel} = description;
+  if (type === 'heatmap') return {xAxis: [axisOf('x', 'category', xLabel)], yAxis: [axisOf('y', 'category', yLabel)]};
+  if (POINTS.has(type)) return {xAxis: [axisOf('x', 'value', xLabel)], yAxis: [axisOf('y', 'value', yLabel)]};
   const inverted = type === 'bar';
-  // A pie draws one series
-  const used = pie ? series.slice(0, 1) : series;
-  const model = {
+  return {
+    xAxis: [inverted ? axisOf('y', 'value', yLabel) : axisOf('x', 'category', xLabel)],
+    yAxis: [inverted ? axisOf('x', 'category', xLabel, true) : axisOf('y', 'value', yLabel)],
+  };
+}
+
+function buildEchartsModel(description) {
+  const {type, series, stacking, legend, sharedTooltip, title, subtitle} = description;
+  const pie = PIES.has(type);
+  const axisFree = AXIS_FREE.has(type);
+  const inverted = type === 'bar';
+  const stackable = STACKABLE.has(type);
+  // A pie, a gauge and a funnel draw one series
+  const used = pie || type === 'gauge' || type === 'funnel' ? series.slice(0, 1) : series;
+  return {
     ...((title || subtitle) && {title: {...(title && {text: title}), ...(subtitle && {subtext: subtitle}), left: 'center'}}),
     legend: {show: legend ?? pie, left: 'center', top: 'bottom'},
-    tooltip: {show: true, trigger: sharedTooltip && !pie ? 'axis' : 'item'},
-    ...(!pie && {
-      xAxis: [inverted ? axisOf('y', 'value', yLabel) : axisOf('x', 'category', xLabel)],
-      yAxis: [inverted ? axisOf('x', 'category', xLabel, true) : axisOf('y', 'value', yLabel)],
-    }),
-    series: used.map(serie => serieOf(description, serie, pie)),
-    awe: {chartType: type, ...(inverted && {inverted: true}), ...(stacking && !pie && {stacking})},
+    tooltip: {show: true, trigger: sharedTooltip && !axisFree ? 'axis' : 'item'},
+    ...(!axisFree && axesOf(description)),
+    ...(type === 'heatmap' && {visualMap: {type: 'continuous', calculable: true, orient: 'horizontal', left: 'center', bottom: 0}}),
+    ...(type === 'radar' && {radar: {}}),
+    series: used.map(serie => serieOf(description, serie)),
+    awe: {chartType: type, ...(inverted && {inverted: true}), ...(stacking && stackable && {stacking})},
   };
-  return model;
 }
 
 module.exports = {buildEchartsModel};

@@ -5,6 +5,8 @@
  * `color` of a probe element inside the chart, which also follows the `color-scheme` of that element.
  */
 
+import {colorSeries, each, withDefaults} from "./echartsStyle";
+
 /**
  * Semantic token of each role of a chart. Roles never use the palette primitives
  */
@@ -23,16 +25,51 @@ export const CHART_TOKENS = {
 export type ChartColorRole = keyof typeof CHART_TOKENS;
 
 /**
+ * Tokens of the colors of the series (categorical palette) and of the 5 steps of the color scale of a heatmap
+ */
+export const SERIES_TOKENS = Array.from({length: 8}, (_, index) => `--awe-color-chart-series-${index + 1}`);
+export const SCALE_TOKENS = Array.from({length: 5}, (_, index) => `--awe-color-scale-${index + 1}`);
+
+/**
  * Resolved color (rgb) of each role. A role whose token is not defined in the page is left out, so it keeps the
  * ECharts default; the text color is always there
  */
-export type ChartColors = Partial<Record<ChartColorRole, string>> & {text: string};
+export type ChartColors = Partial<Record<ChartColorRole, string>> & {
+  text: string;
+  /** Colors of the series, in order; missing when the page does not define the palette tokens */
+  series?: string[];
+  /** Colors of the heatmap scale, from the lowest to the highest; missing when the page does not define them */
+  scale?: string[];
+};
 
 type Node = Record<string, unknown>;
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
 // What changes the mode, the surface or the palette of the application
 const ROOT_ATTRIBUTES = ["class", "style", "data-awe-primary", "data-awe-surface"];
+
+const SRGB = /^color\(srgb\s+([\d.e+-]+)\s+([\d.e+-]+)\s+([\d.e+-]+)(?:\s*\/\s*([\d.e+-]+%?))?\s*\)$/;
+
+/**
+ * Computed color of the probe, in a notation that ECharts can read. A token made with `color-mix()` computes to
+ * `color(srgb r g b)`, which ECharts does not parse (it would draw it black), so it is written as `rgb()`/`rgba()`
+ * @param {HTMLElement} probe Probe element
+ * @returns {string} Color
+ */
+function probeColor(probe: HTMLElement): string {
+  const color = getComputedStyle(probe).color;
+  const match = SRGB.exec(color ?? "");
+  if (!match) {
+    return color;
+  }
+  const [red, green, blue] = match.slice(1, 4).map(channel => Math.round(Math.min(1, Math.max(0, Number(channel))) * 255));
+  const alpha = match[4];
+  if (alpha === undefined) {
+    return `rgb(${red}, ${green}, ${blue})`;
+  }
+  const opacity = alpha.endsWith("%") ? Number(alpha.slice(0, -1)) / 100 : Number(alpha);
+  return `rgba(${red}, ${green}, ${blue}, ${opacity})`;
+}
 
 /**
  * Resolve the colors of the chart roles in the place where the chart is
@@ -54,10 +91,26 @@ export function resolveChartColors(element?: Element | null): ChartColors | null
     const resolved = Object.fromEntries(defined
       .map(([role, token]) => {
         probe.style.color = `var(${token})`;
-        return [role, getComputedStyle(probe).color];
+        return [role, probeColor(probe)];
       })
       .filter(([, color]) => color)) as Partial<Record<ChartColorRole, string>>;
-    return resolved.text ? resolved as ChartColors : null;
+    if (!resolved.text) {
+      return null;
+    }
+    // A list is used whole or not at all: a palette with holes would repeat or skip colors
+    const list = (tokens: string[]): string[] | undefined => {
+      const colors = tokens.map(token => {
+        if (declared.getPropertyValue(token).trim() === "") {
+          return "";
+        }
+        probe.style.color = `var(${token})`;
+        return probeColor(probe);
+      });
+      return colors.every(Boolean) ? colors : undefined;
+    };
+    const series = list(SERIES_TOKENS);
+    const scale = list(SCALE_TOKENS);
+    return {...resolved, ...series ? {series} : {}, ...scale ? {scale} : {}} as ChartColors;
   } finally {
     probe.remove();
   }
@@ -73,41 +126,12 @@ export function sameColors(left: ChartColors | null, right: ChartColors | null):
   if (!left || !right) {
     return left === right;
   }
-  return (Object.keys(CHART_TOKENS) as ChartColorRole[]).every(role => left[role] === right[role]);
+  const sameList = (one?: string[], other?: string[]) => one === other || (one?.length === other?.length && Boolean(one) && one!.every((color, index) => color === other![index]));
+  return (Object.keys(CHART_TOKENS) as ChartColorRole[]).every(role => left[role] === right[role]) &&
+    sameList(left.series, right.series) && sameList(left.scale, right.scale);
 }
 
 const isNode = (value: unknown): value is Node => Boolean(value) && typeof value === "object" && !Array.isArray(value);
-
-/**
- * Add the properties that a node does not have, at any depth. The node is not changed
- * @param {object} node Node, may be missing
- * @param {object} defaults Properties to add
- * @returns {object} New node
- */
-function withDefaults(node: unknown, defaults: Node): Node {
-  const result: Node = isNode(node) ? {...node} : {};
-  Object.entries(defaults).forEach(([key, value]) => {
-    if (result[key] === undefined) {
-      result[key] = value;
-    } else if (isNode(value) && isNode(result[key])) {
-      result[key] = withDefaults(result[key], value);
-    }
-  });
-  return result;
-}
-
-/**
- * Apply a function to an element or to each element of a list
- * @param {object|object[]|undefined} value Element or list
- * @param {function} apply Function
- * @returns {object|object[]|undefined} Result
- */
-function each(value: unknown, apply: (node: Node) => Node): unknown {
-  if (Array.isArray(value)) {
-    return value.map(apply);
-  }
-  return isNode(value) ? apply(value) : value;
-}
 
 const line = (color?: string) => ({lineStyle: {color}});
 
@@ -157,12 +181,23 @@ export function applyChartColors<T extends object>(option: T, colors: ChartColor
   });
   set("xAxis", axis);
   set("yAxis", axis);
+  const heatmap = Array.isArray(source.series) && source.series.some(serie => isNode(serie) && serie.type === "heatmap");
+  set("visualMap", map => withDefaults(map, {
+    textStyle: {color: colors.text}, ...heatmap && colors.scale ? {inRange: {color: colors.scale}} : {}
+  }));
+  set("radar", radar => withDefaults(radar, {
+    axisName: {color: colors.text}, axisLine: line(colors.axis), splitLine: line(colors.split)
+  }));
   set("dataZoom", zoom => withDefaults(zoom, {textStyle: {color: colors.muted}}));
   set("graphic", element => element.type === "text" ? withDefaults(element, {style: {fill: colors.text}}) : element);
   if (Array.isArray(source.series)) {
-    result.series = source.series.map(serie => isNode(serie) && hasOutsideLabel(serie)
-      ? withDefaults(serie, {label: {color: colors.text, textBorderWidth: 0}})
-      : serie);
+    result.series = source.series.map(serie => {
+      if (!isNode(serie)) {
+        return serie;
+      }
+      const styled = colorSeries(serie, colors);
+      return hasOutsideLabel(styled) ? withDefaults(styled, {label: {color: colors.text, textBorderWidth: 0}}) : styled;
+    });
   }
   return result as T;
 }

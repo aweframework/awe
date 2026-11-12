@@ -2,7 +2,7 @@
 id: chart
 title: Chart
 sidebar_label: Chart
-description: The AWE chart, live. Switch between lines, columns, areas and pies, stack the series and copy the XML that produces it.
+description: The AWE chart, live. Switch between lines, columns, areas, pies, scatter, radar, heatmap, gauge and funnel, stack the series and copy the XML that produces it.
 ---
 
 import AweLive from '@site/src/components/AweLive';
@@ -75,6 +75,104 @@ horizontally.
   <chart-legend enabled="true" />
 </chart>
 ```
+
+### Two measures of every deal {#recipe-scatter}
+
+`scatter` draws one point for each row, with the x and y values on two numeric axes. Use it to see whether two measures move together.
+
+<AweLive height="26rem" {...chartExample({type: 'scatter', title: 'Deals: size and margin', xLabel: 'Deal size (kEUR)', yLabel: 'Margin (%)'})} />
+
+```xml
+<chart id="deals" type="scatter" label="Deals: size and margin" initial-load="query" target-action="Deals">
+  <x-axis label="Deal size (kEUR)" />
+  <y-axis label="Margin (%)" />
+  <chart-serie id="deals" label="Deals" x-value="size" y-value="margin" />
+</chart>
+```
+
+### A third measure as the size {#recipe-bubble}
+
+`bubble` is a scatter whose `z-value` sets the size of each point, here the seats of the licence.
+
+<AweLive height="26rem" {...chartExample({type: 'bubble', title: 'Deals: size and margin', xLabel: 'Deal size (kEUR)', yLabel: 'Margin (%)'})} />
+
+```xml
+<chart id="dealsSeats" type="bubble" label="Deals: size and margin" initial-load="query" target-action="Deals">
+  <x-axis label="Deal size (kEUR)" />
+  <y-axis label="Margin (%)" />
+  <chart-serie id="deals" label="Deals" x-value="size" y-value="margin" z-value="seats" />
+</chart>
+```
+
+### A range between a low and a high {#recipe-range}
+
+`arearange` (or `areasplinerange`) draws a band: the `y-value` is the low end and the `z-value` the high end. The tooltip shows both.
+
+<AweLive height="26rem" {...chartExample({type: 'arearange', title: 'Software forecast', subtitle: 'Thousands of euros', xLabel: 'Month', yLabel: 'Revenue (kEUR)'})} />
+
+```xml
+<chart id="forecast" type="arearange" label="Software forecast" initial-load="query" target-action="Forecast">
+  <x-axis label="Month" type="category" />
+  <y-axis label="Revenue (kEUR)" />
+  <chart-serie id="forecast" label="Software forecast" x-value="month" y-value="low" z-value="high" />
+</chart>
+```
+
+### Compare several measures at once {#recipe-radar}
+
+A `radar` has one spoke for each distinct `x-value`, and every `chart-serie` is one polygon. Add a `chart-legend` to tell the polygons apart.
+
+<AweLive height="28rem" {...chartExample({type: 'radar', legend: true, title: 'Score by product line'})} />
+
+```xml
+<chart id="profile" type="radar" label="Score by product line" initial-load="query" target-action="Profile">
+  <chart-serie id="software" label="Software" x-value="measure" y-value="software" />
+  <chart-serie id="services" label="Services" x-value="measure" y-value="services" />
+  <chart-serie id="support" label="Support" x-value="measure" y-value="support" />
+  <chart-legend enabled="true" />
+</chart>
+```
+
+### Intensity by two categories {#recipe-heatmap}
+
+A `heatmap` puts the `x-value` and the `y-value` on two category axes and colours each cell with the `z-value`. The colour scale appears under the chart.
+
+<AweLive height="26rem" {...chartExample({type: 'heatmap', title: 'Orders by weekday and time'})} />
+
+```xml
+<chart id="activity" type="heatmap" label="Orders by weekday and time" initial-load="query" target-action="Activity">
+  <chart-serie id="orders" label="Orders" x-value="slot" y-value="day" z-value="orders" />
+</chart>
+```
+
+### One value against a target {#recipe-gauge}
+
+A `gauge` draws the `y-value` on a dial; the `z-value` is the maximum of the dial.
+
+<AweLive height="22rem" {...chartExample({type: 'gauge', title: 'Sales target'})} />
+
+```xml
+<chart id="target" type="gauge" label="Sales target" initial-load="query" target-action="Target">
+  <chart-serie id="target" label="Target reached (%)" y-value="reached" z-value="target" />
+</chart>
+```
+
+### Steps that narrow {#recipe-funnel}
+
+A `funnel` draws one stage for each row, with the `x-value` as its name and the `y-value` as its size.
+
+<AweLive height="26rem" {...chartExample({type: 'funnel', dataLabels: true, title: 'Sales pipeline'})} />
+
+```xml
+<chart id="pipeline" type="funnel" label="Sales pipeline" enable-data-labels="true"
+       initial-load="query" target-action="Pipeline">
+  <chart-serie id="pipeline" label="Deals" x-value="step" y-value="deals" />
+</chart>
+```
+
+:::info React engine only
+Radar, heatmap, gauge and funnel are drawn by the React client (AWE 5). The AngularJS engine is not extended with new types. The range band is drawn by the React client too; the AngularJS one approximates it with a filled line.
+:::
 
 ## Events and actions {#events-and-actions}
 

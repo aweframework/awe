@@ -85,6 +85,8 @@ module.exports = {
     '**/utilities/echartsLayoutTest.{js,jsx}',
     '**/utilities/echartsEventsTest.{js,jsx}',
     '**/utilities/echartsAdvancedOptionsTest.{js,jsx}',
+    '**/utilities/echartsChartTypesTest.{js,jsx}',
+    '**/utilities/echartsModernStyleTest.{js,jsx}',
     '**/utilities/echartsHelpersTest.{js,jsx}',
     '**/utilities/aweIconTest.{js,jsx}',
     '**/utilities/iconResolverTest.{js,jsx}',

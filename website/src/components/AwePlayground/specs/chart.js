@@ -6,16 +6,42 @@
  * A playground spec is described in playgroundModel.js.
  */
 const {buildEchartsModel} = require('./data/chartModel');
-const {monthly, shares, SERIES, SHARE_SERIES} = require('./data/revenue');
+const data = require('./data/revenue');
+
+const {monthly, shares, SERIES, SHARE_SERIES} = data;
 
 const CARTESIAN = ['line', 'spline', 'area', 'areaspline', 'column', 'bar'];
 const PIES = ['pie', 'donut', 'semicircle'];
+const POINTS = ['scatter', 'bubble'];
+const RANGES = ['arearange', 'areasplinerange'];
 const STACKABLE = ['area', 'areaspline', 'column', 'bar'];
+const MONTHLY = [...CARTESIAN, ...RANGES];
+const WITH_LEGEND = [...CARTESIAN, ...POINTS, ...RANGES, 'radar'];
 const TITLE = 'Revenue by product line';
 const SUBTITLE = 'Thousands of euros, 2025';
 
-const isPie = values => PIES.includes(values.type);
-const seriesOf = values => (isPie(values) ? SHARE_SERIES : SERIES);
+// What each kind of chart reads: its rows, the series and the field that names a point, and the labels of its axes
+const MONTH_AXES = {xLabel: 'Month', yLabel: 'Revenue (kEUR)'};
+const KINDS = {
+  point: {types: POINTS, category: 'size', rows: data.DEALS, xLabel: 'Deal size (kEUR)', yLabel: 'Margin (%)'},
+  range: {types: RANGES, category: 'month', rows: data.FORECAST, series: data.RANGE_SERIES, ...MONTH_AXES},
+  radar: {types: ['radar'], category: 'measure', rows: data.PROFILES, series: data.RADAR_SERIES},
+  heatmap: {types: ['heatmap'], category: 'slot', rows: data.ACTIVITY, series: data.HEATMAP_SERIES},
+  gauge: {types: ['gauge'], category: undefined, rows: data.TARGET, series: data.GAUGE_SERIES},
+  funnel: {types: ['funnel'], category: 'step', rows: data.PIPELINE, series: data.FUNNEL_SERIES},
+  share: {types: PIES, category: 'line', rows: shares, series: SHARE_SERIES},
+  month: {types: CARTESIAN, category: 'month', rows: monthly, series: SERIES, ...MONTH_AXES},
+};
+
+/**
+ * The rows, the series and the axis labels a chart type reads
+ * @param {string} type AWE chart type
+ * @returns {{category: string, rows: Object[], series: Object[], xLabel: string, yLabel: string}}
+ */
+const kindOf = type => {
+  const kind = Object.values(KINDS).find(candidate => candidate.types.includes(type)) ?? KINDS.month;
+  return {series: type === 'bubble' ? data.BUBBLE_SERIES : data.DEAL_SERIES, ...kind};
+};
 
 const chart = {
   name: 'chart',
@@ -40,6 +66,14 @@ const chart = {
         {value: 'pie', label: 'Pie'},
         {value: 'donut', label: 'Donut'},
         {value: 'semicircle', label: 'Semicircle'},
+        {value: 'scatter', label: 'Scatter'},
+        {value: 'bubble', label: 'Bubbles'},
+        {value: 'arearange', label: 'Range'},
+        {value: 'areasplinerange', label: 'Smooth range'},
+        {value: 'radar', label: 'Radar'},
+        {value: 'heatmap', label: 'Heatmap'},
+        {value: 'gauge', label: 'Gauge'},
+        {value: 'funnel', label: 'Funnel'},
       ],
     },
     {
@@ -56,41 +90,71 @@ const chart = {
     {id: 'dataLabels', type: 'switch', label: 'Data labels', xml: 'enable-data-labels', client: '', default: false},
     {
       id: 'legend', type: 'switch', label: 'Legend', client: '', writes: 'chart-legend', default: false, initial: true,
-      when: {id: 'type', in: CARTESIAN},
+      when: {id: 'type', in: WITH_LEGEND},
     },
-    {id: 'sharedTooltip', type: 'switch', label: 'Shared tooltip', client: '', writes: 'chart-tooltip', default: false, when: {id: 'type', in: CARTESIAN}},
+    {id: 'sharedTooltip', type: 'switch', label: 'Shared tooltip', client: '', writes: 'chart-tooltip', default: false, when: {id: 'type', in: MONTHLY}},
   ],
   xmlAttributes: () => [['initial-load', 'query'], ['target-action', 'Revenue']],
   children: [
-    {when: {id: 'type', in: CARTESIAN}, tag: 'x-axis', attrs: {label: 'Month', type: 'category'}},
-    {when: {id: 'type', in: CARTESIAN}, tag: 'y-axis', attrs: {label: 'Revenue (kEUR)'}},
+    {when: {id: 'type', in: MONTHLY}, tag: 'x-axis', attrs: {label: 'Month', type: 'category'}},
+    {when: {id: 'type', in: MONTHLY}, tag: 'y-axis', attrs: {label: 'Revenue (kEUR)'}},
+    {when: {id: 'type', in: POINTS}, tag: 'x-axis', attrs: {label: 'Deal size (kEUR)'}},
+    {when: {id: 'type', in: POINTS}, tag: 'y-axis', attrs: {label: 'Margin (%)'}},
     ...SERIES.map(serie => ({
       when: {id: 'type', in: CARTESIAN},
       tag: 'chart-serie',
       attrs: {id: serie.id, label: serie.label, 'x-value': 'month', 'y-value': serie.field},
     })),
     {when: {id: 'type', in: PIES}, tag: 'chart-serie', attrs: {id: 'share', label: 'Revenue', 'x-value': 'line', 'y-value': 'revenue'}},
+    {when: {id: 'type', in: ['scatter']}, tag: 'chart-serie', attrs: {id: 'deals', label: 'Deals', 'x-value': 'size', 'y-value': 'margin'}},
+    {
+      when: {id: 'type', in: ['bubble']},
+      tag: 'chart-serie',
+      attrs: {id: 'deals', label: 'Deals', 'x-value': 'size', 'y-value': 'margin', 'z-value': 'seats'},
+    },
+    {
+      when: {id: 'type', in: RANGES},
+      tag: 'chart-serie',
+      attrs: {id: 'forecast', label: 'Software forecast', 'x-value': 'month', 'y-value': 'low', 'z-value': 'high'},
+    },
+    {when: {id: 'type', in: ['radar']}, tag: 'chart-serie', attrs: {id: 'software', label: 'Software', 'x-value': 'measure', 'y-value': 'software'}},
+    {when: {id: 'type', in: ['radar']}, tag: 'chart-serie', attrs: {id: 'services', label: 'Services', 'x-value': 'measure', 'y-value': 'services'}},
+    {when: {id: 'type', in: ['radar']}, tag: 'chart-serie', attrs: {id: 'support', label: 'Support', 'x-value': 'measure', 'y-value': 'support'}},
+    {
+      when: {id: 'type', in: ['heatmap']},
+      tag: 'chart-serie',
+      attrs: {id: 'orders', label: 'Orders', 'x-value': 'slot', 'y-value': 'day', 'z-value': 'orders'},
+    },
+    {
+      when: {id: 'type', in: ['gauge']},
+      tag: 'chart-serie',
+      attrs: {id: 'target', label: 'Target reached (%)', 'y-value': 'reached', 'z-value': 'target'},
+    },
+    {when: {id: 'type', in: ['funnel']}, tag: 'chart-serie', attrs: {id: 'pipeline', label: 'Deals', 'x-value': 'step', 'y-value': 'deals'}},
     {when: 'legend', tag: 'chart-legend', attrs: {enabled: 'true'}},
     {when: 'sharedTooltip', tag: 'chart-tooltip', attrs: {shared: 'true', suffix: ' kEUR'}},
   ],
-  scene: values => ({
-    attributes: {
-      echartsModel: buildEchartsModel({
-        type: values.type,
-        category: isPie(values) ? 'line' : 'month',
-        series: seriesOf(values),
-        stacking: STACKABLE.includes(values.type) ? values.stacking || undefined : undefined,
-        legend: isPie(values) ? undefined : values.legend,
-        dataLabels: values.dataLabels,
-        sharedTooltip: !isPie(values) && values.sharedTooltip,
-        title: values.title,
-        subtitle: values.subtitle,
-        xLabel: isPie(values) ? undefined : 'Month',
-        yLabel: isPie(values) ? undefined : 'Revenue (kEUR)',
-      }),
-    },
-    model: {values: isPie(values) ? shares : monthly},
-  }),
+  scene: values => {
+    const kind = kindOf(values.type);
+    return {
+      attributes: {
+        echartsModel: buildEchartsModel({
+          type: values.type,
+          category: kind.category,
+          series: kind.series,
+          stacking: STACKABLE.includes(values.type) ? values.stacking || undefined : undefined,
+          legend: WITH_LEGEND.includes(values.type) ? values.legend : undefined,
+          dataLabels: values.dataLabels,
+          sharedTooltip: MONTHLY.includes(values.type) && values.sharedTooltip,
+          title: values.title,
+          subtitle: values.subtitle,
+          xLabel: kind.xLabel,
+          yLabel: kind.yLabel,
+        }),
+      },
+      model: {values: kind.rows},
+    };
+  },
   events: [
     {name: 'click', description: 'A point is clicked: its x, y and series are written to the chart and its dependencies run.'},
     {name: 'double-click', description: 'A point is double clicked.'},
@@ -109,16 +173,14 @@ const chart = {
  * @param {Object} description What buildEchartsModel takes, over the monthly revenue of the three product lines
  */
 const chartExample = (description = {}) => {
-  const pie = PIES.includes(description.type);
+  const kind = kindOf(description.type);
   return {
     components: {
       chart: {
         attributes: {
-          echartsModel: buildEchartsModel({
-            category: pie ? 'line' : 'month', series: pie ? SHARE_SERIES : SERIES, ...description,
-          }),
+          echartsModel: buildEchartsModel({category: kind.category, series: kind.series, ...description}),
         },
-        model: {values: pie ? shares : monthly},
+        model: {values: kind.rows},
       },
     },
     nodes: [{elementType: 'Chart', id: 'chart'}],

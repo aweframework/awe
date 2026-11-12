@@ -17,7 +17,11 @@ enum EChartsSeriesType {
   AREASPLINERANGE("areasplinerange", "line", true, true, true),
   PIE("pie", "pie", false, false, false),
   SCATTER("scatter", EChartsKeys.SCATTER, false, false, false),
-  BUBBLE("bubble", EChartsKeys.SCATTER, false, false, false);
+  BUBBLE("bubble", EChartsKeys.SCATTER, false, false, false),
+  RADAR("radar", "radar", false, false, false),
+  HEATMAP("heatmap", "heatmap", false, false, false),
+  GAUGE("gauge", "gauge", false, false, false),
+  FUNNEL("funnel", "funnel", false, false, false);
 
   private final String highchartsName;
   private final String echartsType;
@@ -73,6 +77,24 @@ enum EChartsSeriesType {
   }
 
   /**
+   * Series that are not drawn on cartesian axes: pies, radars, gauges and funnels
+   */
+  boolean isAxisFree() {
+    return this == PIE || this == RADAR || this == GAUGE || this == FUNNEL;
+  }
+
+  boolean isHeatmap() {
+    return this == HEATMAP;
+  }
+
+  /**
+   * The client draws the band between the y value (low) and the z value (high)
+   */
+  boolean isRange() {
+    return this == AREARANGE || this == AREASPLINERANGE;
+  }
+
+  /**
    * Highcharts bar series are horizontal, which inverts the whole chart
    */
   boolean isHorizontalBar() {
@@ -83,7 +105,7 @@ enum EChartsSeriesType {
    * Series that accumulate over each other when stacking is enabled
    */
   boolean isStackable() {
-    return !isPie() && this != SCATTER && this != BUBBLE && !approximated;
+    return !isAxisFree() && !isHeatmap() && this != SCATTER && this != BUBBLE && !approximated;
   }
 
   /**

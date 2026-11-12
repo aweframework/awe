@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsKeys.TITLE;
 import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsMaps.child;
@@ -69,6 +70,9 @@ import static com.almis.awe.model.entities.screen.component.chart.echarts.EChart
  */
 public final class EChartsModelBuilder {
 
+  private static final String LEFT = "left";
+  private static final String CENTER = "center";
+
   private final UnsupportedOptionReporter reporter;
   private final HighchartsParameterTranslator translator;
 
@@ -101,14 +105,17 @@ public final class EChartsModelBuilder {
 
     putTitle(model, chart);
     translator.apply(chart, ParameterScope.CHART, root);
-    if (model.get(TITLE) instanceof Map<?, ?> title && !title.containsKey("left")) {
-      child(model, TITLE).put("left", "center");
+    if (model.get(TITLE) instanceof Map<?, ?> title && !title.containsKey(LEFT)) {
+      child(model, TITLE).put(LEFT, CENTER);
     }
 
     List<ChartSerie> series = Optional.ofNullable(chart.getSerieList()).orElse(Collections.emptyList());
     SeriesTypeResolver typeResolver = new SeriesTypeResolver(chart, reporter);
     boolean inverted = chart.isInverted() || isHorizontalBar(series, typeResolver);
     boolean cartesian = isCartesian(series, typeResolver);
+    boolean heatmap = hasType(series, typeResolver, EChartsSeriesType::isHeatmap);
+    boolean heatmapOnly = allOfType(series, typeResolver, EChartsSeriesType::isHeatmap);
+    boolean radar = hasType(series, typeResolver, type -> type == EChartsSeriesType.RADAR);
     EChartsSeriesBuilder seriesBuilder =
       new EChartsSeriesBuilder(chart, inverted, root, translator, typeResolver, reporter);
 
@@ -117,25 +124,74 @@ public final class EChartsModelBuilder {
     model.put("tooltip", new EChartsTooltipBuilder(translator).build(chart.getChartTooltip(), !cartesian));
 
     if (cartesian) {
-      EChartsAxisBuilder axisBuilder = new EChartsAxisBuilder(translator);
-      List<Object> xAxes = axisBuilder.build(chart.getXAxisList(), true, inverted, true);
-      List<Object> yAxes = axisBuilder.build(chart.getYAxisList(), false, inverted, true);
-      if (hints(model).remove(EChartsMaps.ALIGN_TICKS) != null) {
-        alignTicks(xAxes);
-        alignTicks(yAxes);
-      }
-      model.put("xAxis", inverted ? yAxes : xAxes);
-      model.put("yAxis", inverted ? xAxes : yAxes);
-      List<Object> zoom = dataZoom(chart, inverted);
-      if (!zoom.isEmpty()) {
-        model.put("dataZoom", zoom);
-      }
+      putCartesianAxes(model, chart, inverted, heatmapOnly);
+    }
+    if (heatmap) {
+      model.putIfAbsent("visualMap", heatmapVisualMap());
+    }
+    if (radar) {
+      // The client fills the indicators from the data
+      model.putIfAbsent("radar", map());
     }
 
     hints(model).remove(EChartsMaps.ALIGN_TICKS);
     model.put("series", buildSeries(series, seriesBuilder, false));
     putHints(model, chart, inverted, buildSeries(series, seriesBuilder, true));
     return model;
+  }
+
+  /**
+   * Put the axes and the data zoom of a cartesian chart
+   *
+   * @param model       ECharts model
+   * @param chart       Chart element
+   * @param inverted    The chart is inverted, so the axes swap
+   * @param heatmapOnly Every series is a heatmap, so both axes are categories
+   */
+  private void putCartesianAxes(Map<String, Object> model, Chart chart, boolean inverted, boolean heatmapOnly) {
+    EChartsAxisBuilder axisBuilder = new EChartsAxisBuilder(translator);
+    List<Object> xAxes = axisBuilder.build(chart.getXAxisList(), true, inverted, true);
+    List<Object> yAxes = axisBuilder.build(chart.getYAxisList(), false, inverted, true);
+    // The other series of a mixed chart keep their axis types
+    if (heatmapOnly) {
+      categorize(xAxes);
+      categorize(yAxes);
+    }
+    if (hints(model).remove(EChartsMaps.ALIGN_TICKS) != null) {
+      alignTicks(xAxes);
+      alignTicks(yAxes);
+    }
+    model.put("xAxis", inverted ? yAxes : xAxes);
+    model.put("yAxis", inverted ? xAxes : yAxes);
+    List<Object> zoom = dataZoom(chart, inverted);
+    if (!zoom.isEmpty()) {
+      model.put("dataZoom", zoom);
+    }
+  }
+
+  /**
+   * The cells of a heatmap are placed by the category of both axes
+   */
+  @SuppressWarnings("unchecked")
+  private static void categorize(List<Object> axes) {
+    axes.stream().map(axis -> (Map<String, Object>) axis).forEach(axis -> {
+      axis.put("type", "category");
+      axis.remove("minInterval");
+      axis.remove("interval");
+    });
+  }
+
+  /**
+   * Color scale of a heatmap. The client fills the range and the colors once it has the data
+   */
+  private static Map<String, Object> heatmapVisualMap() {
+    Map<String, Object> visualMap = map();
+    visualMap.put("type", "continuous");
+    visualMap.put("calculable", true);
+    visualMap.put("orient", "horizontal");
+    visualMap.put(LEFT, CENTER);
+    visualMap.put("bottom", 0);
+    return visualMap;
   }
 
   /**
@@ -177,7 +233,7 @@ public final class EChartsModelBuilder {
       title.put("subtext", chart.getSubTitle());
     }
     // Highcharts titles are centered
-    title.put("left", "center");
+    title.put(LEFT, CENTER);
   }
 
   /**
@@ -188,14 +244,34 @@ public final class EChartsModelBuilder {
   }
 
   /**
-   * The chart is drawn on axes unless all its series are pies
+   * The chart is drawn on axes unless all its series are pies, radars, gauges or funnels
    */
   private static boolean isCartesian(List<ChartSerie> series, SeriesTypeResolver typeResolver) {
     List<ChartSerie> mainSeries = series.stream().filter(serie -> !isDrilldown(serie)).toList();
     if (mainSeries.isEmpty()) {
-      return !typeResolver.defaultType().isPie();
+      return !typeResolver.defaultType().isAxisFree();
     }
-    return mainSeries.stream().anyMatch(serie -> !typeResolver.typeOf(serie).isPie());
+    return mainSeries.stream().anyMatch(serie -> !typeResolver.typeOf(serie).isAxisFree());
+  }
+
+  /**
+   * Some main series (or the chart type, when it has none) are of a type that matches
+   */
+  private static boolean hasType(List<ChartSerie> series, SeriesTypeResolver typeResolver,
+                                 Predicate<EChartsSeriesType> matches) {
+    List<ChartSerie> mainSeries = series.stream().filter(serie -> !isDrilldown(serie)).toList();
+    if (mainSeries.isEmpty()) {
+      return matches.test(typeResolver.defaultType());
+    }
+    return mainSeries.stream().anyMatch(serie -> matches.test(typeResolver.typeOf(serie)));
+  }
+
+  /**
+   * All main series (or the chart type, when it has none) are of a type that matches
+   */
+  private static boolean allOfType(List<ChartSerie> series, SeriesTypeResolver typeResolver,
+                                   Predicate<EChartsSeriesType> matches) {
+    return !hasType(series, typeResolver, matches.negate());
   }
 
   private static boolean isDrilldown(ChartSerie serie) {

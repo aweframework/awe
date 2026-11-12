@@ -168,7 +168,7 @@ chart to use the attributes of the XML.
 
 | Case                                                                     | Result in both engines                                        |
 | ------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| Series type `arearange` and `areasplinerange`                            | Drawn as a filled line (warning)                              |
+| Series type `arearange` and `areasplinerange`                            | A band in the React engine; a filled line in the AngularJS engine (warning) |
 | A series `type` that is not in the table of chart types                   | Drawn as a line (warning)                                     |
 | `crosshairs="yAxis"` in `chart-tooltip`                                  | Drawn as the pair of crosshairs of both axes (no warning)     |
 

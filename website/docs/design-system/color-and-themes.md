@@ -217,6 +217,7 @@ Measured for 17 primaries × 6 surface settings × 2 modes with the prototype to
 | Colour scale cells (heatmap), 5 steps from the primary | `--awe-color-scale-1..5`, text `--awe-color-on-scale-1..5` |
 | Data bars in cells | `--awe-color-data-bar`, `--awe-color-data-bar-negative` |
 | Sparklines and small charts | `--awe-color-chart-line`, `--awe-color-chart-area`, `--awe-color-chart-negative`, `--awe-color-chart-axis` |
+| Series of a chart (categorical palette, 8 hues) | `--awe-color-chart-series-1..8`: the primary, orange, sky, fuchsia, lime, indigo, rose and teal (the first follows the primary; the others do not, so none is close to the default emerald). The React charts use them for series without a colour of their own, and `--awe-color-scale-1..5` for heatmaps |
 | Map illustration and map controls | `--awe-color-map-*` |
 
 Negative values always use the danger colour **and** a second cue (sign, position), never colour alone.

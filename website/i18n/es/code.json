@@ -1625,6 +1625,38 @@
     "message": "Semicírculo",
     "description": "Component catalog and playground: playground.chart.option.type.semicircle"
   },
+  "playground.chart.option.type.scatter": {
+    "message": "Dispersión",
+    "description": "Component catalog and playground: playground.chart.option.type.scatter"
+  },
+  "playground.chart.option.type.bubble": {
+    "message": "Burbujas",
+    "description": "Component catalog and playground: playground.chart.option.type.bubble"
+  },
+  "playground.chart.option.type.arearange": {
+    "message": "Rango",
+    "description": "Component catalog and playground: playground.chart.option.type.arearange"
+  },
+  "playground.chart.option.type.areasplinerange": {
+    "message": "Rango suave",
+    "description": "Component catalog and playground: playground.chart.option.type.areasplinerange"
+  },
+  "playground.chart.option.type.radar": {
+    "message": "Radar",
+    "description": "Component catalog and playground: playground.chart.option.type.radar"
+  },
+  "playground.chart.option.type.heatmap": {
+    "message": "Mapa de calor",
+    "description": "Component catalog and playground: playground.chart.option.type.heatmap"
+  },
+  "playground.chart.option.type.gauge": {
+    "message": "Indicador",
+    "description": "Component catalog and playground: playground.chart.option.type.gauge"
+  },
+  "playground.chart.option.type.funnel": {
+    "message": "Embudo",
+    "description": "Component catalog and playground: playground.chart.option.type.funnel"
+  },
   "playground.chart.control.stacking": {
     "message": "Apilado",
     "description": "Component catalog and playground: playground.chart.control.stacking"

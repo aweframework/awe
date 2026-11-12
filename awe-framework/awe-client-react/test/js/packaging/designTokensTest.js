@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const {PALETTE} = require('../../../src/utilities/echartsOption');
 
 const MAIN_CSS = path.join(__dirname, '../../../src/main.css');
 const ANGULAR_TOKENS = path.join(__dirname, '../../../../awe-client-angular/src/main/resources/less/awe/tokens.less');
@@ -72,5 +73,29 @@ describe('design tokens of the React client', () => {
         .filter(line => PRIMEREACT_VARIABLE.test(line))
         .map(line => `${path.relative(path.join(__dirname, '../../..'), file)}: ${line.trim()}`));
     expect(offending).toEqual([]);
+  });
+});
+
+// The series palette of the charts: the print and server renders cannot read CSS, so they use a copy of the light values
+describe('chart series palette', () => {
+  const tokens = new Map();
+  // The first declaration of a token is the one of the default theme, where emerald is the primary color
+  [...fs.readFileSync(SHARED_TOKENS, 'utf8').matchAll(/^\s*(--awe-[a-z0-9-]+)\s*:\s*([^;]+);/gm)]
+    .forEach(([, name, value]) => tokens.has(name) || tokens.set(name, value.trim()));
+  const resolve = value => {
+    const reference = value.match(/^var\((--[a-z0-9-]+)\)$/);
+    return reference ? resolve(tokens.get(reference[1])) : value;
+  };
+  const lightReference = name => tokens.get(name).match(/^light-dark\(\s*(var\([^)]+\))\s*,/)[1];
+  const seriesTokens = Array.from({length: 8}, (_, index) => `--awe-color-chart-series-${index + 1}`);
+
+  it('orders the hues so that no series is close to the default primary color', () => {
+    const hues = seriesTokens.map(name => lightReference(name).match(/^var\(--awe-(?:palette-)?([a-z]+)-600\)$/)[1]);
+
+    expect(hues).toEqual(['primary', 'orange', 'sky', 'fuchsia', 'lime', 'indigo', 'rose', 'teal']);
+  });
+
+  it('is mirrored by the fallback palette of the chart option, in the light values of the default theme', () => {
+    expect(PALETTE).toEqual(seriesTokens.map(name => resolve(lightReference(name))));
   });
 });

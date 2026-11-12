@@ -46,6 +46,9 @@ const values = [
   {dates: day(2), serie1: 20, serie2: 6, names: "Firefox", subserie1: 4}
 ];
 
+// Bars are rounded by default, so their points carry a radius next to their value
+const pairsOf = (data) => data.map(point => Array.isArray(point) ? point : point.value);
+
 describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   let instances;
   let observers;
@@ -213,8 +216,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
 
       const option = lastOption();
       expect(lastChart().setOption.mock.calls[0][1]).toEqual({notMerge: true});
-      expect(option.series[0].data).toEqual([[day(1), 10], [day(2), 20]]);
-      expect(option.series[1].data).toEqual([[day(1), 5], [day(2), 6]]);
+      expect(pairsOf(option.series[0].data)).toEqual([[day(1), 10], [day(2), 20]]);
+      expect(pairsOf(option.series[1].data)).toEqual([[day(1), 5], [day(2), 6]]);
       expect(JSON.stringify(option)).not.toContain("\"awe\"");
     });
 
@@ -251,7 +254,7 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       });
 
       expect(lastChart().setOption.mock.calls.length).toBeGreaterThan(calls);
-      expect(lastOption().series[0].data).toEqual([[day(1), 10]]);
+      expect(pairsOf(lastOption().series[0].data)).toEqual([[day(1), 10]]);
     });
 
     it('should draw again when the server replaces the echarts model', () => {
@@ -305,7 +308,7 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       const [portrait, landscape] = renderSvg.mock.calls;
       expect(portrait[1]).toEqual({width: 796, height: 540});
       expect(landscape[1]).toEqual({width: 1167, height: 360});
-      expect(portrait[0].series[0].data).toEqual([[day(1), 10], [day(2), 20]]);
+      expect(pairsOf(portrait[0].series[0].data)).toEqual([[day(1), 10], [day(2), 20]]);
       expect(portrait[2]).toBe(i18n.language);
     });
 
@@ -317,7 +320,7 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       });
       getChartImage("chart", "PORTRAIT");
 
-      expect(renderSvg.mock.calls[0][0].series[0].data).toEqual([[day(2), 20]]);
+      expect(pairsOf(renderSvg.mock.calls[0][0].series[0].data)).toEqual([[day(2), 20]]);
     });
   });
 

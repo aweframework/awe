@@ -105,3 +105,78 @@ test('a pie ignores stacking and draws only the first series', () => {
   assert.equal('stack' in pie.series[0], false);
   assert.equal('stacking' in pie.awe, false);
 });
+
+const POINTS = [{id: 'deals', label: 'Deals', field: 'margin', z: 'seats'}];
+const byPoint = {category: 'size', series: POINTS};
+
+test('scatter and bubble draw points on two value axes, and the bubble reads its size from the z value', () => {
+  const scatter = buildEchartsModel({...byPoint, type: 'scatter', xLabel: 'Deal size', yLabel: 'Margin'});
+  const bubble = buildEchartsModel({...byPoint, type: 'bubble'});
+
+  assert.deepEqual(scatter.xAxis.map(axis => [axis.type, axis.awe.axis, axis.name]), [['value', 'x', 'Deal size']]);
+  assert.deepEqual(scatter.yAxis.map(axis => [axis.type, axis.awe.axis, axis.name]), [['value', 'y', 'Margin']]);
+  assert.equal(scatter.series[0].type, 'scatter');
+  assert.deepEqual(scatter.series[0].awe, {type: 'scatter', xValue: 'size', yValue: 'margin', zValue: 'seats'});
+  assert.equal(bubble.series[0].type, 'scatter');
+  assert.equal(bubble.series[0].awe.type, 'bubble');
+  assert.equal(bubble.awe.chartType, 'bubble');
+  assert.equal('smooth' in scatter.series[0], false);
+  assert.equal('areaStyle' in scatter.series[0], false);
+});
+
+test('a range is a filled line with the range hint: low in the y value and high in the z value, on a category axis', () => {
+  const range = buildEchartsModel({type: 'arearange', category: 'month', series: [{id: 'f', label: 'Forecast', field: 'low', z: 'high'}]});
+  const smooth = buildEchartsModel({type: 'areasplinerange', category: 'month', series: [{id: 'f', label: 'Forecast', field: 'low', z: 'high'}]});
+
+  assert.equal(range.xAxis[0].type, 'category');
+  assert.equal(range.series[0].type, 'line');
+  assert.deepEqual(range.series[0].areaStyle, {});
+  assert.deepEqual(range.series[0].awe, {type: 'arearange', range: true, xValue: 'month', yValue: 'low', zValue: 'high'});
+  assert.equal(smooth.series[0].smooth, true);
+  assert.equal(smooth.series[0].awe.range, true);
+});
+
+test('radar, gauge and funnel have no axes, show the item tooltip and hide the legend; only the radar has the radar component', () => {
+  for (const type of ['radar', 'gauge', 'funnel']) {
+    const model = buildEchartsModel({type, category: 'step', series: SERIES, sharedTooltip: true, stacking: 'normal'});
+
+    assert.equal('xAxis' in model, false, type);
+    assert.equal('yAxis' in model, false, type);
+    assert.equal(model.tooltip.trigger, 'item', type);
+    assert.equal(model.legend.show, false, type);
+    assert.equal(model.series[0].type, type);
+    assert.equal(model.series[0].awe.type, type);
+    assert.equal('stack' in model.series[0], false, type);
+    assert.equal('stacking' in model.awe, false, type);
+    assert.equal('radar' in model, type === 'radar', type);
+  }
+});
+
+test('a radar draws one polygon for each series and keeps the legend an option, a gauge and a funnel read one series', () => {
+  assert.equal(buildEchartsModel({type: 'radar', category: 'measure', series: SERIES}).series.length, 2);
+  assert.equal(buildEchartsModel({type: 'radar', category: 'measure', series: SERIES, legend: true}).legend.show, true);
+  assert.equal(buildEchartsModel({type: 'gauge', category: 'measure', series: SERIES}).series.length, 1);
+  assert.equal(buildEchartsModel({type: 'funnel', category: 'step', series: SERIES}).series.length, 1);
+});
+
+test('a heatmap has category axes, a visual map for the client to fill, the z value and no stack', () => {
+  const model = buildEchartsModel({type: 'heatmap', category: 'hour', series: [{id: 'orders', label: 'Orders', field: 'day', z: 'orders'}], stacking: 'normal'});
+
+  assert.deepEqual(model.xAxis.map(axis => [axis.type, axis.awe.axis]), [['category', 'x']]);
+  assert.deepEqual(model.yAxis.map(axis => [axis.type, axis.awe.axis]), [['category', 'y']]);
+  assert.deepEqual(model.visualMap, {type: 'continuous', calculable: true, orient: 'horizontal', left: 'center', bottom: 0});
+  assert.deepEqual(model.series[0].awe, {type: 'heatmap', xValue: 'hour', yValue: 'day', zValue: 'orders'});
+  assert.equal('stack' in model.series[0], false);
+  assert.equal('stacking' in model.awe, false);
+  assert.equal('visualMap' in buildEchartsModel(base), false);
+});
+
+test('types that cannot be stacked ignore the stacking', () => {
+  for (const type of ['scatter', 'bubble', 'arearange', 'areasplinerange']) {
+    const model = buildEchartsModel({...byPoint, type, stacking: 'percent'});
+
+    assert.equal('stack' in model.series[0], false, type);
+    assert.equal('stackPercent' in model.series[0].awe, false, type);
+    assert.equal('stacking' in model.awe, false, type);
+  }
+});

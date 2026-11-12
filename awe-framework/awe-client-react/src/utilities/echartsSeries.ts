@@ -24,7 +24,12 @@ export interface ActionSerie {
 type Row = Record<string, unknown>;
 type Binding = {xValue: string; yValue: string; zValue: string | undefined};
 
-const ECHARTS_TYPES: Record<string, string> = {column: "bar", bar: "bar", pie: "pie", scatter: "scatter", bubble: "scatter"};
+const ECHARTS_TYPES: Record<string, string> = {
+  column: "bar", bar: "bar", pie: "pie", scatter: "scatter", bubble: "scatter",
+  radar: "radar", heatmap: "heatmap", gauge: "gauge", funnel: "funnel",
+  arearange: "line", areasplinerange: "line"
+};
+const RANGE_TYPES = new Set(["arearange", "areasplinerange"]);
 
 /**
  * Retrieve the row keys that a series of a chart action reads: its xValue, yValue and zValue. A series built in Java with
@@ -83,8 +88,10 @@ export function getEChartsSerie(serie: ActionSerie, inverted: boolean): ModelSer
     name: serie.name ?? serie.label,
     type: ECHARTS_TYPES[serie.type as string] || "line",
     ...(serie.color ? {itemStyle: {color: serie.color}} : {}),
+    ...(RANGE_TYPES.has(serie.type as string) ? {areaStyle: {}} : {}),
     awe: {
       type: serie.type,
+      ...(RANGE_TYPES.has(serie.type as string) ? {range: true} : {}),
       xValue: serie.xValue,
       yValue: serie.yValue,
       ...(serie.zValue ? {zValue: serie.zValue} : {})

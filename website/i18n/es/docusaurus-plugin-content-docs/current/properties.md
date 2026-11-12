@@ -279,6 +279,7 @@ Estas son las propiedades de configuración del motor de correo electrónico par
 | <Anchor id="awe.mail.ssl"/> [awe.mail.ssl](#awe.mail.ssl)                   | Indicador para especificar el uso del protocolo SSL.                         | `false`              |
 | <Anchor id="awe.mail.tls"/> [awe.mail.tls](#awe.mail.tls)                   | Indicador para especificar el uso del protocolo TLS.                         | `false`              |
 | <Anchor id="awe.mail.localhost"/> [awe.mail.localhost](#awe.mail.localhost) | Nombre del servidor smtp local.                                         | `localhost`          |
+| <Anchor id="awe.mail.oauth2-registration"/> [awe.mail.oauth2-registration](#awe.mail.oauth2-registration) | Registro de cliente de Spring Security (authorization-grant-type=client_credentials) del servidor de correo por defecto. Si se define, el remitente por defecto se autentica con OAuth2 (SASL XOAUTH2): el usuario es el buzón del remitente, la contraseña no se usa y se requiere tls o ssl. | |
 
 ## Propiedades de Developer de AWE {#awe-developer-properties}
 

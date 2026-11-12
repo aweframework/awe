@@ -1,5 +1,5 @@
 import {translateLabel} from "./labels";
-import {ModelNode, ModelSeries, hintsOf, isPie, withoutAwe} from "./echartsContext";
+import {ModelNode, ModelSeries, hintsOf, isByData, withoutAwe} from "./echartsContext";
 
 /**
  * Legend that was built for ECharts
@@ -63,7 +63,7 @@ function buildLegend(legend: ModelNode, modelSeries: ModelSeries[], cartesian: b
   if (isNode(defaults.textStyle) && isNode(built.textStyle)) {
     built.textStyle = {...defaults.textStyle, ...built.textStyle};
   }
-  if (!cartesian || modelSeries.length === 0 || modelSeries.some(isPie)) {
+  if (!cartesian || modelSeries.length === 0 || modelSeries.some(isByData)) {
     return built;
   }
   const names = seriesNames(modelSeries, t);

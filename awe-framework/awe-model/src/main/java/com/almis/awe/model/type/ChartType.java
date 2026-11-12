@@ -24,5 +24,9 @@ public enum ChartType {
   SEMICIRCLE,
   MIXED,
   BUBBLE,
-  SCATTER
+  SCATTER,
+  RADAR,
+  HEATMAP,
+  GAUGE,
+  FUNNEL
 }

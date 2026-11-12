@@ -123,14 +123,14 @@ class EChartsModelBuilderTest {
   void unknownSeriesTypeFallsBackToLineAndIsReportedOnce() {
     List<String> messages = new ArrayList<>();
     UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
-    Chart chart = chart("mixed").serieList(List.of(serie("a").type("gauge").build())).build();
+    Chart chart = chart("mixed").serieList(List.of(serie("a").type("treemap").build())).build();
 
     JsonNode model = echarts(chart, reporter);
     echarts(chart, reporter);
 
     assertThat(model.at("/series/0/type").asString()).isEqualTo("line");
     assertThat(messages).hasSize(1);
-    assertThat(messages.get(0)).contains("gauge");
+    assertThat(messages.get(0)).contains("treemap");
   }
 
   // ------------------------------------------------------------------------------------------------------------

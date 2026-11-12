@@ -105,8 +105,10 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
     it('should bind the x and y values of a cartesian series', () => {
       const option = build("ChrLinTst");
 
-      expect(option.series[0].data).toEqual([[day(1), 10.12345], [day(2), 20], [day(3), null]]);
-      expect(option.series[1].data).toEqual([[day(1), 5], [day(2), 6], [day(3), 7]]);
+      const pairs = (serie) => serie.data.map(point => Array.isArray(point) ? point : point.value);
+
+      expect(pairs(option.series[0])).toEqual([[day(1), 10.12345], [day(2), 20], [day(3), null]]);
+      expect(pairs(option.series[1])).toEqual([[day(1), 5], [day(2), 6], [day(3), 7]]);
     });
 
     it('should swap the pairs of an inverted chart', () => {
@@ -164,7 +166,7 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
       });
 
       const option = buildEChartsOption(model, values, context());
-      const byId = Object.fromEntries(option.series.map(serie => [serie.id, serie.data]));
+      const byId = Object.fromEntries(option.series.map(serie => [serie.id, serie.data.map(point => Array.isArray(point) ? point : point.value)]));
 
       // first row: 10.12345 + 5 + 1
       expect(byId["serie2-1"][0][1]).toBeCloseTo(10.12345 / 16.12345 * 100, 5);
@@ -381,7 +383,17 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
       const many = Array.from({length: 41}, (_, index) => ({dates: day(1) + index, serie1: index, serie2: index}));
 
       expect(build("ChrStockTst", many).series[0].showSymbol).toBe(false);
-      expect(build("ChrStockTst").series[0].showSymbol).toBeUndefined();
+    });
+
+    it('should hide the symbols of every line until the mouse is over them, unless the model asks for markers', () => {
+      const markers = clone(models.ChrStockTst);
+      markers.series[0].showSymbol = true;
+      const symbols = clone(models.ChrStockTst);
+      symbols.series[0].symbol = "circle";
+
+      expect(build("ChrStockTst").series[0].showSymbol).toBe(false);
+      expect(buildEChartsOption(markers, values, context()).series[0].showSymbol).toBe(true);
+      expect(buildEChartsOption(symbols, values, context()).series[0].showSymbol).toBeUndefined();
     });
 
     it('should add a grid with room for the title, the legend and the slider', () => {
@@ -570,10 +582,10 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
   });
 
   describe('palette', () => {
-    it('should use the Highcharts palette', () => {
+    it('should use the palette of the series tokens', () => {
       expect(build("ChrLinTst").color).toEqual(PALETTE);
-      expect(PALETTE[0]).toBe("#2caffe");
-      expect(PALETTE).toHaveLength(10);
+      expect(PALETTE[0]).toBe("#059669");
+      expect(PALETTE).toHaveLength(8);
     });
 
     it('should give each series its color by its position in the model, before stacks are reversed', () => {
@@ -586,7 +598,7 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
 
     it('should keep the color of the series and skip the pies', () => {
       expect(build("ChrLinTst").series[0].itemStyle.color).toBe("#A8E0A6");
-      expect(build("ChrPieTst").series[0].itemStyle).toBeUndefined();
+      expect(build("ChrPieTst").series[0].itemStyle.color).toBeUndefined();
     });
 
     it('should advance the palette only with the series that have no color of their own', () => {
@@ -708,7 +720,8 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
       const option = build("ChrBarHorTst", negative);
 
       expect(option.series[0].label).toMatchObject({position: "inside", color: "#ffffff", fontWeight: "bold", fontSize: 11});
-      expect(option.series[0].data).toEqual([[10.12345, day(1)], [-4, day(2)], [null, day(3)]]);
+      expect(option.series[0].data.map(point => Array.isArray(point) ? point : point.value))
+        .toEqual([[10.12345, day(1)], [-4, day(2)], [null, day(3)]]);
       expect(option.xAxis[0].boundaryGap).toBeUndefined();
     });
 
@@ -771,8 +784,11 @@ describe('awe-react-client/test/js/utilities/echartsOptionTest.jsx', () => {
       expect(build("ChrBarTst").yAxis[0].boundaryGap).toBeUndefined();
     });
 
-    it('should keep the points of a series without labels as plain pairs', () => {
-      expect(build("ChrLinTst").series[0].data[0]).toEqual([day(1), 10.12345]);
+    it('should keep the points of a series without labels without a label of their own', () => {
+      const [point] = build("ChrLinTst").series[0].data;
+
+      expect(point.label).toBeUndefined();
+      expect(point.value).toEqual([day(1), 10.12345]);
     });
   });
 });

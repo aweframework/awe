@@ -2978,6 +2978,10 @@
       <xs:enumeration value="mixed" />
       <xs:enumeration value="bubble" />
       <xs:enumeration value="scatter" />
+      <xs:enumeration value="radar" />
+      <xs:enumeration value="heatmap" />
+      <xs:enumeration value="gauge" />
+      <xs:enumeration value="funnel" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -2994,6 +2998,11 @@
       <xs:enumeration value="bar" />
       <xs:enumeration value="spline" />
       <xs:enumeration value="scatter" />
+      <xs:enumeration value="bubble" />
+      <xs:enumeration value="radar" />
+      <xs:enumeration value="heatmap" />
+      <xs:enumeration value="gauge" />
+      <xs:enumeration value="funnel" />
     </xs:restriction>
   </xs:simpleType>
 
