@@ -30,9 +30,13 @@ import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.transaction.support.TransactionTemplate;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ArrayNode;
@@ -66,6 +70,19 @@ public class MaintainService extends ServiceConfig {
     this.executionObserver = executionObserver == null ? ExecutionObserver.NONE : executionObserver;
   }
 
+  // Cache manager used to evict the query cache once the data is committed. Optional: without one nothing is evicted here
+  private CacheManager cacheManager;
+
+  /**
+   * Set the cache manager
+   *
+   * @param cacheManager Cache manager (optional, defined when the application enables caching)
+   */
+  @Autowired(required = false)
+  public void setCacheManager(CacheManager cacheManager) {
+    this.cacheManager = cacheManager;
+  }
+
   // Maintain transaction boundaries. Optional: without them each maintain commits its own connection
   private MaintainConfigProperties maintainConfigProperties;
   private MaintainTransactionManagerProvider maintainTransactionManagerProvider;
@@ -91,6 +108,7 @@ public class MaintainService extends ServiceConfig {
   }
 
   // Constants
+  private static final String QUERY_DATA_CACHE = "queryData";
   private static final String ERROR_TITLE_LAUNCHING_MAINTAIN = "ERROR_TITLE_LAUNCHING_MAINTAIN";
   private static final String ERROR_MESSAGE_MAINTAIN_NOT_FOUND = "ERROR_MESSAGE_MAINTAIN_NOT_FOUND";
   private static final String ERROR_MESSAGE_DURING_MAINTAIN = "ERROR_MESSAGE_DURING_MAINTAIN";
@@ -655,6 +673,7 @@ public class MaintainService extends ServiceConfig {
     List<MaintainResultDetails> resultDetails = new ArrayList<>();
     StringBuilder messageBuilder = new StringBuilder();
     int operationNumber = 1;
+    boolean maintainLaunched = false;
 
     for (MaintainQuery maintainQuery : queryList) {
       maintainQuery.setOperationId(maintainTarget.getName() + "-" + operationNumber++);
@@ -662,6 +681,7 @@ public class MaintainService extends ServiceConfig {
         // If is a commit, launch it
         if (commitStep) {
           databaseConnection.getConnection().commit();
+          evictQueryDataAfterManualCommit(maintainLaunched);
         }
       } else if (maintainQuery instanceof RetrieveData) {
         QueryLauncher queryLauncher = getBean(QueryLauncher.class);
@@ -669,14 +689,11 @@ public class MaintainService extends ServiceConfig {
         queryUtil.addDataListToRequestParameters(result.getDataList(), parameters);
       } else {
         // Else launch maintain or service action
-        ServiceData resultingServiceData = maintainLauncher.launchMaintain(maintainQuery, databaseConnection, parameters);
-
-        // Store result
-        if (resultingServiceData != null) {
-          // Set the service data
-          result = resultingServiceData;
-          resultDetails.addAll(resultingServiceData.getResultDetails());
+        if (!maintainLaunched) {
+          maintainLaunched = true;
+          registerQueryDataEvictionAfterCompletion();
         }
+        result = launchMaintainStep(maintainQuery, databaseConnection, parameters, result, resultDetails);
       }
 
       if (result.getType() == AnswerType.ERROR) {
@@ -690,10 +707,81 @@ public class MaintainService extends ServiceConfig {
     // Commit transaction if connection is not null
     if (commitAtEnd) {
       databaseConnection.getConnection().commit();
+      evictQueryDataAfterManualCommit(maintainLaunched);
     }
 
     // Generate response and return data
     return generateResponse(result, maintainTarget, messageBuilder.toString(), resultDetails);
+  }
+
+  /**
+   * Launch a maintain or service step and store its result details
+   *
+   * @param maintainQuery      Step
+   * @param databaseConnection Database connection
+   * @param parameters         Parameters
+   * @param previous           Result before the step, kept when the step returns nothing
+   * @param resultDetails      Result details to fill
+   * @return Step result, or the previous one when the step returns nothing
+   * @throws AWException Error in maintain query
+   */
+  private ServiceData launchMaintainStep(MaintainQuery maintainQuery, DatabaseConnection databaseConnection, ObjectNode parameters,
+                                         ServiceData previous, List<MaintainResultDetails> resultDetails) throws AWException {
+    ServiceData resultingServiceData = maintainLauncher.launchMaintain(maintainQuery, databaseConnection, parameters);
+    if (resultingServiceData == null) {
+      return previous;
+    }
+    resultDetails.addAll(resultingServiceData.getResultDetails());
+    return resultingServiceData;
+  }
+
+  /**
+   * Register the eviction of the query cache once the Spring transaction completes. The launcher already evicts it after
+   * each step, but before the commit: a cacheable query launched in between would cache the old data again.
+   * The manual commits evict on their own, whether or not a synchronization is active.
+   * Limitation: when the caller keeps the connection alive and no transaction is active, the caller commits and
+   * only the launcher eviction (before the commit) applies.
+   */
+  private void registerQueryDataEvictionAfterCompletion() {
+    if (TransactionSynchronizationManager.isSynchronizationActive()) {
+      TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+        @Override
+        public void afterCompletion(int status) {
+          evictQueryData();
+        }
+      });
+    }
+  }
+
+  /**
+   * Evict the query cache after a manual commit when a maintain step has been launched. It does not depend on any
+   * active transaction synchronization (it may belong to an unrelated outer transaction); a second eviction on
+   * completion is harmless.
+   *
+   * @param maintainLaunched A maintain step has been launched
+   */
+  private void evictQueryDataAfterManualCommit(boolean maintainLaunched) {
+    if (maintainLaunched) {
+      evictQueryData();
+    }
+  }
+
+  /**
+   * Evict all the entries of the query cache (no-op without cache manager or cache). Best effort: the data is already
+   * committed, so a cache provider failure is logged and never propagated.
+   */
+  private void evictQueryData() {
+    if (cacheManager == null) {
+      return;
+    }
+    try {
+      Cache queryDataCache = cacheManager.getCache(QUERY_DATA_CACHE);
+      if (queryDataCache != null) {
+        queryDataCache.clear();
+      }
+    } catch (RuntimeException exc) {
+      log.warn("Query cache '{}' could not be evicted", QUERY_DATA_CACHE, exc);
+    }
   }
 
   /**

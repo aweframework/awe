@@ -169,6 +169,22 @@ Por eso un resultado cacheado nunca se comparte entre usuarios, idiomas o bases 
 Cuando una de las variables `session="..."` no tiene valor (una llamada sin usuario de sesión, como una llamada REST
 autenticada sin login web), el resultado no se cachea: no pertenece a ningún usuario.
 
+Cada mantenimiento vacía toda la caché, escriba en las tablas que escriba, y la vuelve a vaciar cuando sus datos se
+confirman. Esto acorta el tiempo en que puede cachearse un resultado obsoleto, pero no lo elimina: una consulta que leyó
+los datos antes del commit y termina después del segundo vaciado sigue guardando las filas antiguas, hasta el siguiente
+mantenimiento o la caducidad de la caché. Configura una caducidad (abajo) cuando importe. Un mantenimiento que se ejecuta
+en una conexión que mantiene abierta quien lo llama (un tratamiento que hace commit por su cuenta) solo vacía la caché
+al ejecutarse: lanza un mantenimiento después, o confía en la vida de la caché.
+
+El proveedor de caché decide la vida y el tamaño. AWE establece `spring.cache.type=none` por defecto (sin caché); la
+aplicación activa un proveedor y define la caché `queryData`:
+
+- Configura una caducidad en `queryData` (por ejemplo `<expiry><ttl unit="minutes">10</ttl></expiry>` en `ehcache.xml`,
+  o `spring.cache.redis.time-to-live`). Sin ella, los datos cambiados fuera de AWE (otra aplicación, un proceso por
+  lotes, un trigger lanzado por otro proceso) siguen en caché hasta el siguiente mantenimiento.
+- Con más de una instancia, usa un proveedor compartido (Redis). Una caché local (Ehcache, `simple`) solo se vacía en la
+  instancia que ejecuta el mantenimiento: las demás conservan sus resultados hasta que caducan.
+
 :::caution Consultas de servicio
 
 La caché solo conoce las variables que declara la consulta. Cuando una [consulta de servicio](#service-query) cacheable
