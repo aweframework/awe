@@ -205,6 +205,22 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldWaitForTheValueOfACriterionThatTheFrontEndRepaints() {
+    // The React suggest repaints its input when its initial value arrives: the input goes stale, then it is gone for a
+    // moment, then the new one holds the value (#969)
+    use(new ReactAweInstructions());
+    By portSelector = Locator.from(instructions.getCriterionInput(instructions.getCriterionCss("RefCurSug"))).toBy();
+    WebElement input = show(portSelector, "");
+    when(driver.findElement(argThat(portSelector::equals)))
+      .thenReturn(input)
+      .thenThrow(new NoSuchElementException("repainted"))
+      .thenReturn(input);
+    when(input.getAttribute("value")).thenThrow(new StaleElementReferenceException("repainted")).thenReturn("EUR");
+
+    assertThatCode(() -> utilities.checkCriterionContents("RefCurSug", "EUR")).doesNotThrowAnyException();
+  }
+
+  @Test
   void shouldWaitForTheChosenTextOfASelectThatIsStillLoading() {
     // The screen is still fading in: the select shows its placeholder until the value arrives
     WebElement chosen = show(instructions.getSelectChosen("Sug"), "");

@@ -1488,20 +1488,23 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkCriterionContains(By selector, String text) {
-    // An asynchronous action may still be changing the value: wait for it, then assert (with evidence) what is shown
+    // An asynchronous action may still be changing the value, and the front end may repaint the input meanwhile (a
+    // stale or missing element is "not yet"): the check is the wait itself, so a repaint after it cannot fail it (#969)
     Locator input = locator(selector);
     try {
-      poll(BrowserCondition.of("the value of " + input + " to contain '" + text + "'",
-        browser -> String.valueOf(browser.attribute(input, "value")).contains(text)), properties.getTimeout());
+      poll(BrowserCondition.valueContains(input, text), properties.getTimeout());
+      return;
     } catch (Exception exc) {
-      log.debug("The value of {} does not contain '{}' yet", selector, text);
+      log.debug("The value of {} does not contain '{}'", selector, text);
     }
 
-    String nodeText = getBrowser().attribute(input, "value");
-    String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
-
-    // Assert element is not located
-    assertWithScreenshot(message, nodeText.contains(text));
+    String nodeText;
+    try {
+      nodeText = getBrowser().attribute(input, "value");
+    } catch (ElementNotFoundException | ElementReplacedException exc) {
+      nodeText = null;
+    }
+    assertWithScreenshot(selector + TEXT_VALUE + nodeText + "' doesn't contain " + text, false);
   }
 
   // ===================================================================================================================
