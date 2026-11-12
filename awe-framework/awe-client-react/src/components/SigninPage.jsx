@@ -234,6 +234,15 @@ export function useInSigninPage() {
 }
 
 /**
+ * Check whether a component is drawn inside the login page itself (the current credentials), not in another page of the
+ * sign-in frame as the change password or two-factor ones (where a password is a new one)
+ * @returns {boolean} The component is inside the login page
+ */
+export function useInLoginPage() {
+  return Boolean(useContext(SigninContext)?.signIn);
+}
+
+/**
  * Alert of a failed login on the sign-in page: the password is cleared and focused when a new one shows
  * @returns {object|undefined} Alert (its id changes with each failed login), or undefined when none is shown
  */

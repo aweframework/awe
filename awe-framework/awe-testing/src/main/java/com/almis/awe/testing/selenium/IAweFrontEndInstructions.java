@@ -1080,6 +1080,16 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Get the quick filter of a grid, whose owner attribute is its grid
+   *
+   * @param criterionName Quick filter identifier
+   * @return Quick filter selector
+   */
+  default By getGridQuickFilter(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_QUICK_FILTER));
+  }
+
+  /**
    * Css of an option of the quick filter of a grid
    *
    * @param criterionName Quick filter identifier
@@ -1089,6 +1099,16 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   private String getGridQuickFilterOptionCss(String criterionName, String value) {
     return getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_QUICK_FILTER) + " "
       + TestIds.css(TestIds.GRID_QUICK_FILTER_OPTION) + "[option-id='" + value + "']";
+  }
+
+  /**
+   * Get the search of a grid, whose owner attribute is its grid
+   *
+   * @param criterionName Search identifier
+   * @return Search selector
+   */
+  default By getGridSearch(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_SEARCH));
   }
 
   /**
@@ -1132,6 +1152,16 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    */
   default By getGridSelectionCount(String gridId) {
     return By.cssSelector(gridSelectionBarCss(gridId) + " " + TestIds.css(TestIds.GRID_SELECTION_COUNT));
+  }
+
+  /**
+   * Get the clear button of the selection bar of a grid, which unselects every row (as Esc does)
+   *
+   * @param gridId Grid identifier
+   * @return Clear button selector
+   */
+  default By getGridSelectionClear(String gridId) {
+    return By.cssSelector(gridSelectionBarCss(gridId) + " " + TestIds.css(TestIds.GRID_SELECTION_CLEAR));
   }
 
   /**

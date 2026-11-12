@@ -1583,6 +1583,87 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
+  void shouldClearTheSelectionThatCoversTheSearchOfAGridBeforeTypingInIt() {
+    // While the grid has selected rows its selection bar covers the search (hidden) until its clear button is clicked
+    AtomicBoolean selected = new AtomicBoolean(true);
+    WebElement input = show(instructions.getGridSearchInput("CrtTxt"), "");
+    when(input.isDisplayed()).thenAnswer(invocation -> !selected.get());
+    StringBuilder value = new StringBuilder();
+    when(input.getAttribute("value")).thenAnswer(invocation -> value.toString());
+    doAnswer(invocation -> {
+      value.setLength(0);
+      return null;
+    }).when(input).clear();
+    WebElement search = show(instructions.getGridSearch("CrtTxt"), "");
+    when(search.getAttribute(TestAttributes.OWNER)).thenReturn("GrdUsr");
+    WebElement clear = show(instructions.getGridSelectionClear("GrdUsr"), "");
+    when(clear.isDisplayed()).thenAnswer(invocation -> selected.get());
+    // Steps: a click on the clear button of the bar, or a key
+    List<String> steps = new ArrayList<>();
+    StringBuilder keys = new StringBuilder();
+    doAnswer(invocation -> {
+      AtomicBoolean overClear = new AtomicBoolean();
+      ((Collection<Sequence>) invocation.getArgument(0)).forEach(sequence ->
+        ((List<Map<String, Object>>) sequence.toJson().get("actions")).forEach(action -> {
+          if ("keyDown".equals(action.get("type"))) {
+            steps.add("key");
+            keys.append(action.get("value"));
+            value.append(action.get("value"));
+          } else if ("pointerMove".equals(action.get("type"))) {
+            overClear.set(clear.equals(action.get("origin")));
+          } else if ("pointerDown".equals(action.get("type")) && overClear.get()) {
+            steps.add("clear");
+            selected.set(false);
+          }
+        }));
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.searchGrid("CrtTxt", "adm")).doesNotThrowAnyException();
+    // Without selected rows the search is typed at once
+    assertThatCode(() -> utilities.searchGrid("CrtTxt", "ope")).doesNotThrowAnyException();
+
+    // The selection is cleared once, before the first key
+    assertThat(steps).containsOnlyOnce("clear").first().isEqualTo("clear");
+    assertThat(String.valueOf(keys)).isEqualTo("adm" + Keys.ENTER + "ope" + Keys.ENTER);
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void shouldClearTheSelectionThatCoversTheQuickFilterOfAGridBeforeReadingIt() {
+    // While the grid has selected rows its selection bar covers the quick filter: its options are hidden (no text) until
+    // the clear button of the bar is clicked
+    AtomicBoolean selected = new AtomicBoolean(true);
+    WebElement option = show(instructions.getGridQuickFilterOption("CrtSta", "locked"), "");
+    when(option.isDisplayed()).thenAnswer(invocation -> !selected.get());
+    when(option.getText()).thenAnswer(invocation -> selected.get() ? "" : "Locked 3");
+    WebElement quickFilter = show(instructions.getGridQuickFilter("CrtSta"), "");
+    when(quickFilter.getAttribute(TestAttributes.OWNER)).thenReturn("GrdUsr");
+    WebElement clear = show(instructions.getGridSelectionClear("GrdUsr"), "");
+    when(clear.isDisplayed()).thenAnswer(invocation -> selected.get());
+    AtomicInteger clears = new AtomicInteger();
+    doAnswer(invocation -> {
+      AtomicBoolean overClear = new AtomicBoolean();
+      ((Collection<Sequence>) invocation.getArgument(0)).forEach(sequence ->
+        ((List<Map<String, Object>>) sequence.toJson().get("actions")).forEach(action -> {
+          if ("pointerMove".equals(action.get("type"))) {
+            overClear.set(clear.equals(action.get("origin")));
+          } else if ("pointerDown".equals(action.get("type")) && overClear.get()) {
+            clears.incrementAndGet();
+            selected.set(false);
+          }
+        }));
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.checkGridQuickFilterOption("CrtSta", "locked", "Locked 3")).doesNotThrowAnyException();
+    // Without selected rows the option is read at once
+    assertThatCode(() -> utilities.checkGridQuickFilterOption("CrtSta", "locked", "Locked 3")).doesNotThrowAnyException();
+    assertThat(clears).hasValue(1);
+  }
+
+  @Test
   void shouldWaitForARowToLeaveTheGrid() {
     show(instructions.findGridCell("Grd", "still here"), "still here");
 

@@ -11,7 +11,7 @@ import {useDispatch} from "react-redux";
 import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
 
 function ColumnTextType(props) {
-  const { placeholder, label, required, readonly, data, attrs, style, inputType, address } = props;
+  const { placeholder, label, required, readonly, data, attrs, style, inputType, autoComplete, address } = props;
   const {style: cellStyle, value: cellValue} = data;
   const {readonly: cellReadonly, validationRules = {}, visible = true, error = null} = attrs;
   const {required: cellRequired} = validationRules;
@@ -68,6 +68,7 @@ function ColumnTextType(props) {
     <InputText
       value={value}
       type={inputType || "text"}
+      autoComplete={autoComplete}
       placeholder={translateLabel(placeholder || label, t) + (required ? " *" : "")}
       required={getFirstDefinedValue(cellRequired, required, false)}
       disabled={getFirstDefinedValue(cellReadonly, readonly, false)}
@@ -92,6 +93,7 @@ ColumnTextType.propTypes = {
   required: PropTypes.bool,
   placeholder: PropTypes.string,
   inputType: PropTypes.string,
+  autoComplete: PropTypes.string,
 };
 
 export default ColumnTextType;

@@ -42,9 +42,10 @@ const PASSWORD = {
   attributes: { label: 'SCREEN_TEXT_PASS', icon: 'lock', readonly: false, visible: true },
   validationRules: {}
 };
-const renderPassword = (inSignin = true) => {
+// Page of the field: the sign-in page by default, another login page by its id, or none (false)
+const renderPassword = (page = 'page-signin') => {
   const field = <AweInputPassword id="pwd_usr"/>;
-  return renderWithProviders(inSignin ? <SigninPage id="page-signin">{field}</SigninPage> : field,
+  return renderWithProviders(page ? <SigninPage id={page}>{field}</SigninPage> : field,
     { preloadedState: { settings: settingsWith(LOGIN), components: { pwd_usr: PASSWORD } } });
 };
 
@@ -257,6 +258,18 @@ describe('awe-react-client/test/js/templates/SigninPageControlsTest.jsx', () => 
 
       expect(password().getAttribute('type')).toBe('password');
       expect(toggle.getAttribute('aria-label')).toBe('Show password');
+    });
+
+    it('lets the browser fill the saved credential in the sign-in password', () => {
+      renderPassword();
+
+      expect(password().hasAttribute('autocomplete')).toBe(false);
+    });
+
+    it('asks the browser not to fill a saved credential in the password of the change password page', () => {
+      renderPassword('page-change-expired-password');
+
+      expect(password().getAttribute('autocomplete')).toBe('new-password');
     });
 
     it('warns under the password while Caps Lock is on, described by the field', () => {

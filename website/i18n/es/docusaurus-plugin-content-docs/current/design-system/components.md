@@ -105,7 +105,7 @@ Ficheros listados con icono, nombre, tamaño, progreso o estado. Una imagen mues
 | Filtros activos | Una fila "Filtrado por" bajo la barra: un chip discontinuo eliminable por columna filtrada ("Perfil: Operador, Consulta", tres etiquetas y después "+N"), más "Quitar todos" (#912). |
 | Cabecera | `--awe-grid-header-*`; las columnas ordenables muestran una flecha y la ordenada va en el primario. Fija al desplazar. Una columna con autofiltro muestra un embudo: con contorno sin filtro, relleno con filtro (#912). |
 | Filas | Relleno de celda `--awe-grid-cell-padding-*`, fondo de hover, sin cebreado. |
-| Selección | Columna de casillas; las filas seleccionadas usan el fondo de resaltado; una barra de selección muestra el recuento y las acciones en bloque. |
+| Selección | Columna de casillas; las filas seleccionadas usan el fondo de resaltado. Mientras hay filas seleccionadas, una barra de selección ocupa la banda de la barra de herramientas, con su misma altura, para que las filas no se muevan: botón de limpiar (`x`, también Esc), el recuento, un chip con el contexto de la selección (quick filter activo, texto buscado) y las acciones en bloque; Columnas y Maximizar siguen a la derecha. Un grid sin barra de herramientas dibuja la barra sobre la cabecera de columnas, dejando la casilla de seleccionar todo. Al limpiar, el foco vuelve al buscador o a la casilla de seleccionar todo. |
 | Números | Alineados a la derecha, tabulares, negativos en color de peligro con signo menos. |
 | Estado | Etiquetas con punto (`tag--success`, `--warning`, `--danger`, `--info`). |
 | Edición en línea | La fila editada lleva un contorno primario, campos dentro de las celdas (controles pequeños) y Guardar y Cancelar en la columna de acciones. |

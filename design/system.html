@@ -777,7 +777,7 @@
   --awe-color-on-tooltip: var(--awe-surface-0);
 
   /* Form fields ---------------------------------------------------------- */
-  --awe-color-field: light-dark(var(--awe-surface-0), var(--awe-surface-950));
+  --awe-color-field: light-dark(var(--awe-surface-0), color-mix(in srgb, var(--awe-surface-900), var(--awe-surface-800)));
   --awe-color-field-filled: light-dark(var(--awe-surface-50), var(--awe-surface-800));
   --awe-color-field-border: light-dark(var(--awe-surface-300), var(--awe-surface-600));
   --awe-color-field-border-hover: light-dark(var(--awe-surface-400), var(--awe-surface-500));
@@ -1106,11 +1106,67 @@
    Tier 3 - Component tokens (only where a component needs its own knobs)
    ========================================================================== */
 :root {
+  /* Button */
+  --awe-button-font-size: var(--awe-font-size-base);
+  --awe-button-font-size-sm: var(--awe-font-size-sm);
+  --awe-button-font-size-lg: var(--awe-font-size-md);
+  --awe-button-gap: var(--awe-gap-inline);
+
+  /* Default button (a normal button without a btn-* style): outlined; an application restyles it with these */
+  --awe-button-default-background: var(--awe-color-surface);
+  --awe-button-default-border-color: var(--awe-color-field-border);
+  --awe-button-default-color: var(--awe-color-text);
+  --awe-button-default-font-weight: var(--awe-font-weight-medium);
+  --awe-button-default-background-hover: var(--awe-color-surface-subtle);
+  --awe-button-default-border-color-hover: var(--awe-color-field-border-hover);
+  --awe-button-default-color-hover: var(--awe-color-text);
+  --awe-button-default-background-active: var(--awe-color-surface-hover);
+  --awe-button-default-border-color-active: var(--awe-color-field-border-hover);
+  --awe-button-default-color-active: var(--awe-color-text);
+  /* Field label */
+  --awe-label-font-weight: var(--awe-font-weight-medium);
+  --awe-label-text-transform: none;
+  --awe-label-letter-spacing: normal;
+
+  --awe-card-title-font-size: var(--awe-font-size-base);
+  --awe-card-title-text-transform: uppercase;
+  --awe-card-title-letter-spacing: var(--awe-letter-spacing-caps);
+  /* Grid: least width of the search of the toolbar; it grows to show its whole placeholder */
+  --awe-grid-search-width: 32ch;
+  /* Grid: size of an icon drawn in the avatar of a cell (avatar-icon-field) */
+  --awe-grid-avatar-icon-size: var(--awe-size-icon-sm);
+  /* Side panel: size of an icon drawn in the avatar of the identity header (header-avatar-icon-field) */
+  --awe-panel-avatar-icon-size: var(--awe-size-icon);
+
+  /* Read-only value (style awe-readout on a criterion): a muted small label over the value; awe-readout-block also
+     boxes the value, for long texts such as a detail, a hash or a user agent */
+  --awe-readout-label-color: var(--awe-color-text-muted);
+  --awe-readout-label-font-size: var(--awe-font-size-xs);
+  --awe-readout-label-font-weight: var(--awe-font-weight-normal);
+  --awe-readout-value-color: var(--awe-color-text);
+  --awe-readout-value-font-size: var(--awe-font-size-base);
+  --awe-readout-block-background: var(--awe-color-surface-subtle);
+  --awe-readout-block-border: var(--awe-color-border);
+  --awe-readout-block-radius: var(--awe-radius-lg);
+  --awe-readout-block-padding: var(--awe-space-3);
+
+  /* Cards: inner padding, space between the parts and size of the icon tile (awe-card-compact lowers them) */
+  --awe-card-padding: var(--awe-content-padding);
+  --awe-card-gap: var(--awe-space-3);
+  --awe-card-icon-size: var(--awe-size-control);
+
+  /* Cards: the inset that aligns a grid of cards with the windows of the same screen */
+  --awe-card-grid-inset: calc(var(--awe-border-width) + var(--awe-space-1-5));
+  /* Space between a grid of cards and the block under it: the window brings the inset as its own margin */
+  --awe-card-grid-gap-after: calc(var(--awe-layout-gap) - var(--awe-card-grid-inset));
+
   /* Grid */
   --awe-grid-header-background: var(--awe-color-grid-header);
   --awe-grid-header-text: var(--awe-color-text-muted);
   --awe-grid-header-font-size: var(--awe-font-size-sm);
   --awe-grid-header-font-weight: var(--awe-font-weight-semibold);
+  --awe-grid-header-text-transform: none;
+  --awe-grid-header-letter-spacing: normal;
   --awe-grid-border: var(--awe-color-grid-border);
   --awe-grid-row-background: var(--awe-color-surface);
   --awe-grid-row-hover-background: var(--awe-color-surface-subtle);
@@ -1153,6 +1209,10 @@
   --awe-menu-guide: var(--awe-color-border);
   --awe-menu-guide-active: var(--awe-color-primary-text);
   --awe-menu-flyout-width: 264px;
+  --awe-menu-description-font-size: var(--awe-font-size-xs);
+  --awe-menu-description-color: var(--awe-color-text-muted);
+  --awe-menu-description-padding: var(--awe-space-2) var(--awe-space-3);
+  --awe-menu-description-border: var(--awe-border-width) solid var(--awe-color-border);
 
   /* Header and brand slot */
   --awe-header-height: var(--awe-size-header-height);
@@ -1183,6 +1243,11 @@
   --awe-switch-width: 36px;
   --awe-switch-height: 20px;
   --awe-switch-handle-size: 16px;
+
+  /* Calendar of a date criterion: the day of a date picker and the gap between the days of its grid. A table separates
+     its cells by their padding, so each side of a cell takes half of the gap */
+  --awe-datepicker-day-size: var(--awe-space-8);
+  --awe-datepicker-cell-gap: var(--awe-space-0-5);
 }
 
 :root[data-awe-density="compact"] {
@@ -1198,6 +1263,7 @@
   --awe-menu-flyout-width: 240px;
   --awe-header-search-width: 320px;
   --awe-header-logo-height: 30px;
+  --awe-datepicker-day-size: 28px;
 }
 
 /* ==========================================================================
@@ -1260,6 +1326,14 @@
   --awe-login-brand-logo-width: 280px;
   --awe-login-card-width: 420px;
   --awe-login-card-padding: var(--awe-space-8);
+}
+
+/* Compact grid of cards (style awe-card-compact on the container): tighter padding, gaps and icon tile, for a row of
+   summary figures above a grid */
+.awe-card-compact {
+  --awe-card-padding: var(--awe-space-4);
+  --awe-card-gap: var(--awe-space-2);
+  --awe-card-icon-size: var(--awe-size-control-sm);
 }
 
 /* ==== Board styles: tokens only ==== */
@@ -1459,8 +1533,17 @@ th { font-size: var(--awe-grid-header-font-size); font-weight: var(--awe-grid-he
   <code>--awe-color-highlight</code>, status as a tag with a dot, row actions as ghost icons.</p>
 </div>
 
+<h3>Readout and compact cards</h3>
+<div class="card"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--awe-card-gap)">
+<div><div style="color:var(--awe-readout-label-color);font-size:var(--awe-readout-label-font-size);font-weight:var(--awe-readout-label-font-weight)">Last sign-in</div>
+<div style="color:var(--awe-readout-value-color);font-size:var(--awe-readout-value-font-size)">12/11/2026 09:47</div></div>
+<div style="grid-column:span 2"><div style="color:var(--awe-readout-label-color);font-size:var(--awe-readout-label-font-size)">User agent</div>
+<div style="background:var(--awe-readout-block-background);border:var(--awe-border-width) solid var(--awe-readout-block-border);border-radius:var(--awe-readout-block-radius);padding:var(--awe-readout-block-padding);font-family:var(--awe-font-family-monospace);font-size:var(--awe-font-size-xs)">Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/142.0 Safari/537.36</div></div>
+</div>
+<p class="muted">Style <code>awe-readout</code> / <code>awe-readout-block</code> on a criterion (<code>--awe-readout-*</code>); <code>awe-card-compact</code> lowers <code>--awe-card-padding</code>, <code>--awe-card-gap</code> and <code>--awe-card-icon-size</code>.</p></div>
+
 <h2>Component tokens</h2>
-<div class="card"><table><thead><tr><th>Token</th><th>Value</th></tr></thead><tbody><tr><td><code>--awe-grid-header-background</code></td><td class="muted">var(--awe-color-grid-header)</td></tr><tr><td><code>--awe-grid-header-text</code></td><td class="muted">var(--awe-color-text-muted)</td></tr><tr><td><code>--awe-grid-header-font-size</code></td><td class="muted">var(--awe-font-size-sm)</td></tr><tr><td><code>--awe-grid-header-font-weight</code></td><td class="muted">var(--awe-font-weight-semibold)</td></tr><tr><td><code>--awe-grid-border</code></td><td class="muted">var(--awe-color-grid-border)</td></tr><tr><td><code>--awe-grid-row-background</code></td><td class="muted">var(--awe-color-surface)</td></tr><tr><td><code>--awe-grid-row-hover-background</code></td><td class="muted">var(--awe-color-surface-subtle)</td></tr><tr><td><code>--awe-grid-row-selected-background</code></td><td class="muted">var(--awe-color-highlight)</td></tr><tr><td><code>--awe-grid-row-selected-text</code></td><td class="muted">var(--awe-color-text)</td></tr><tr><td><code>--awe-grid-loading-overlay</code></td><td class="muted">color-mix(in srgb, var(--awe-color-surface) 50%, transparent)</td></tr><tr><td><code>--awe-grid-cell-padding-y</code></td><td class="muted">11px</td></tr><tr><td><code>--awe-grid-cell-padding-x</code></td><td class="muted">14px</td></tr><tr><td><code>--awe-grid-row-marker-width</code></td><td class="muted">3px</td></tr><tr><td><code>--awe-grid-drop-indicator-width</code></td><td class="muted">var(--awe-focus-ring-width)</td></tr><tr><td><code>--awe-grid-min-body-height</code></td><td class="muted">12rem</td></tr><tr><td><code>--awe-grid-columns-panel-width</code></td><td class="muted">432px</td></tr><tr><td><code>--awe-menu-width</code></td><td class="muted">var(--awe-size-menu-width)</td></tr><tr><td><code>--awe-menu-width-collapsed</code></td><td class="muted">68px</td></tr><tr><td><code>--awe-menu-background</code></td><td class="muted">var(--awe-color-menu)</td></tr><tr><td><code>--awe-menu-border</code></td><td class="muted">var(--awe-color-border)</td></tr><tr><td><code>--awe-menu-item-text</code></td><td class="muted">var(--awe-color-nav-item-text)</td></tr><tr><td><code>--awe-menu-item-icon</code></td><td class="muted">var(--awe-color-nav-item-icon)</td></tr><tr><td><code>--awe-menu-item-hover-background</code></td><td class="muted">var(--awe-color-nav-item-focus)</td></tr><tr><td><code>--awe-menu-item-active-background</code></td><td class="muted">var(--awe-color-menu-accent)</td></tr><tr><td><code>--awe-menu-item-active-text</code></td><td class="muted">var(--awe-color-on-highlight)</td></tr><tr><td><code>--awe-menu-item-active-icon</code></td><td class="muted">var(--awe-color-primary-text)</td></tr><tr><td><code>--awe-menu-item-radius</code></td><td class="muted">var(--awe-radius-md)</td></tr><tr><td><code>--awe-menu-section-label</code></td><td class="muted">var(--awe-color-nav-submenu-label)</td></tr><tr><td><code>--awe-menu-item-height</code></td><td class="muted">36px</td></tr><tr><td><code>--awe-menu-item-sub-text</code></td><td class="muted">var(--awe-color-text-muted)</td></tr><tr><td><code>--awe-menu-indent</code></td><td class="muted">30px</td></tr><tr><td><code>--awe-menu-indent-l3</code></td><td class="muted">22px</td></tr><tr><td><code>--awe-menu-guide-l2</code></td><td class="muted">20px</td></tr><tr><td><code>--awe-menu-guide-l3</code></td><td class="muted">14px</td></tr><tr><td><code>--awe-menu-guide-l3-flyout</code></td><td class="muted">16px</td></tr><tr><td><code>--awe-menu-guide</code></td><td class="muted">var(--awe-color-border)</td></tr><tr><td><code>--awe-menu-guide-active</code></td><td class="muted">var(--awe-color-primary-text)</td></tr><tr><td><code>--awe-menu-flyout-width</code></td><td class="muted">264px</td></tr><tr><td><code>--awe-header-height</code></td><td class="muted">var(--awe-size-header-height)</td></tr><tr><td><code>--awe-header-background</code></td><td class="muted">color-mix(in srgb, var(--awe-color-navbar), transparent 15%)</td></tr><tr><td><code>--awe-header-border</code></td><td class="muted">var(--awe-color-border)</td></tr><tr><td><code>--awe-header-backdrop-filter</code></td><td class="muted">saturate(1.4) blur(10px)</td></tr><tr><td><code>--awe-header-search-width</code></td><td class="muted">380px</td></tr><tr><td><code>--awe-header-logo-height</code></td><td class="muted">34px</td></tr><tr><td><code>--awe-mask-backdrop-filter</code></td><td class="muted">blur(2px)</td></tr><tr><td><code>--awe-toast-backdrop-filter</code></td><td class="muted">blur(8px)</td></tr><tr><td><code>--awe-segmented-track</code></td><td class="muted">light-dark(var(--awe-surface-100), var(--awe-surface-950))</td></tr><tr><td><code>--awe-segmented-border</code></td><td class="muted">light-dark(var(--awe-surface-200), var(--awe-surface-700))</td></tr><tr><td><code>--awe-segmented-text</code></td><td class="muted">light-dark(var(--awe-surface-600), var(--awe-surface-300))</td></tr><tr><td><code>--awe-segmented-hover-text</code></td><td class="muted">var(--awe-color-text-emphasis)</td></tr><tr><td><code>--awe-segmented-selected</code></td><td class="muted">light-dark(var(--awe-surface-0), var(--awe-surface-700))</td></tr><tr><td><code>--awe-segmented-selected-border</code></td><td class="muted">var(--awe-surface-500)</td></tr><tr><td><code>--awe-segmented-selected-text</code></td><td class="muted">light-dark(var(--awe-surface-900), var(--awe-surface-0))</td></tr><tr><td><code>--awe-checkbox-icon-size</code></td><td class="muted">12px</td></tr><tr><td><code>--awe-radio-dot-size</code></td><td class="muted">8px</td></tr><tr><td><code>--awe-switch-width</code></td><td class="muted">36px</td></tr><tr><td><code>--awe-switch-height</code></td><td class="muted">20px</td></tr><tr><td><code>--awe-switch-handle-size</code></td><td class="muted">16px</td></tr><tr><td><code>--awe-grid-cell-padding-y</code></td><td class="muted">6px</td></tr><tr><td><code>--awe-grid-cell-padding-x</code></td><td class="muted">10px</td></tr><tr><td><code>--awe-menu-width-collapsed</code></td><td class="muted">60px</td></tr><tr><td><code>--awe-menu-item-height</code></td><td class="muted">30px</td></tr><tr><td><code>--awe-menu-indent</code></td><td class="muted">26px</td></tr><tr><td><code>--awe-menu-indent-l3</code></td><td class="muted">18px</td></tr><tr><td><code>--awe-menu-guide-l2</code></td><td class="muted">17px</td></tr><tr><td><code>--awe-menu-guide-l3</code></td><td class="muted">11px</td></tr><tr><td><code>--awe-menu-guide-l3-flyout</code></td><td class="muted">13px</td></tr><tr><td><code>--awe-menu-flyout-width</code></td><td class="muted">240px</td></tr><tr><td><code>--awe-header-search-width</code></td><td class="muted">320px</td></tr><tr><td><code>--awe-header-logo-height</code></td><td class="muted">30px</td></tr></tbody></table></div>
+<div class="card"><table><thead><tr><th>Token</th><th>Value</th></tr></thead><tbody><tr><td><code>--awe-grid-header-background</code></td><td class="muted">var(--awe-color-grid-header)</td></tr><tr><td><code>--awe-grid-header-text</code></td><td class="muted">var(--awe-color-text-muted)</td></tr><tr><td><code>--awe-grid-header-font-size</code></td><td class="muted">var(--awe-font-size-sm)</td></tr><tr><td><code>--awe-grid-header-font-weight</code></td><td class="muted">var(--awe-font-weight-semibold)</td></tr><tr><td><code>--awe-grid-border</code></td><td class="muted">var(--awe-color-grid-border)</td></tr><tr><td><code>--awe-grid-row-background</code></td><td class="muted">var(--awe-color-surface)</td></tr><tr><td><code>--awe-grid-row-hover-background</code></td><td class="muted">var(--awe-color-surface-subtle)</td></tr><tr><td><code>--awe-grid-row-selected-background</code></td><td class="muted">var(--awe-color-highlight)</td></tr><tr><td><code>--awe-grid-row-selected-text</code></td><td class="muted">var(--awe-color-text)</td></tr><tr><td><code>--awe-grid-loading-overlay</code></td><td class="muted">color-mix(in srgb, var(--awe-color-surface) 50%, transparent)</td></tr><tr><td><code>--awe-grid-cell-padding-y</code></td><td class="muted">11px</td></tr><tr><td><code>--awe-grid-cell-padding-x</code></td><td class="muted">14px</td></tr><tr><td><code>--awe-grid-row-marker-width</code></td><td class="muted">3px</td></tr><tr><td><code>--awe-grid-drop-indicator-width</code></td><td class="muted">var(--awe-focus-ring-width)</td></tr><tr><td><code>--awe-grid-min-body-height</code></td><td class="muted">12rem</td></tr><tr><td><code>--awe-grid-columns-panel-width</code></td><td class="muted">432px</td></tr><tr><td><code>--awe-menu-width</code></td><td class="muted">var(--awe-size-menu-width)</td></tr><tr><td><code>--awe-menu-width-collapsed</code></td><td class="muted">68px</td></tr><tr><td><code>--awe-menu-background</code></td><td class="muted">var(--awe-color-menu)</td></tr><tr><td><code>--awe-menu-border</code></td><td class="muted">var(--awe-color-border)</td></tr><tr><td><code>--awe-menu-item-text</code></td><td class="muted">var(--awe-color-nav-item-text)</td></tr><tr><td><code>--awe-menu-item-icon</code></td><td class="muted">var(--awe-color-nav-item-icon)</td></tr><tr><td><code>--awe-menu-item-hover-background</code></td><td class="muted">var(--awe-color-nav-item-focus)</td></tr><tr><td><code>--awe-menu-item-active-background</code></td><td class="muted">var(--awe-color-menu-accent)</td></tr><tr><td><code>--awe-menu-item-active-text</code></td><td class="muted">var(--awe-color-on-highlight)</td></tr><tr><td><code>--awe-menu-item-active-icon</code></td><td class="muted">var(--awe-color-primary-text)</td></tr><tr><td><code>--awe-menu-item-radius</code></td><td class="muted">var(--awe-radius-md)</td></tr><tr><td><code>--awe-menu-section-label</code></td><td class="muted">var(--awe-color-nav-submenu-label)</td></tr><tr><td><code>--awe-menu-item-height</code></td><td class="muted">36px</td></tr><tr><td><code>--awe-menu-item-sub-text</code></td><td class="muted">var(--awe-color-text-muted)</td></tr><tr><td><code>--awe-menu-indent</code></td><td class="muted">30px</td></tr><tr><td><code>--awe-menu-indent-l3</code></td><td class="muted">22px</td></tr><tr><td><code>--awe-menu-guide-l2</code></td><td class="muted">20px</td></tr><tr><td><code>--awe-menu-guide-l3</code></td><td class="muted">14px</td></tr><tr><td><code>--awe-menu-guide-l3-flyout</code></td><td class="muted">16px</td></tr><tr><td><code>--awe-menu-guide</code></td><td class="muted">var(--awe-color-border)</td></tr><tr><td><code>--awe-menu-guide-active</code></td><td class="muted">var(--awe-color-primary-text)</td></tr><tr><td><code>--awe-menu-flyout-width</code></td><td class="muted">264px</td></tr><tr><td><code>--awe-header-height</code></td><td class="muted">var(--awe-size-header-height)</td></tr><tr><td><code>--awe-header-background</code></td><td class="muted">color-mix(in srgb, var(--awe-color-navbar), transparent 15%)</td></tr><tr><td><code>--awe-header-border</code></td><td class="muted">var(--awe-color-border)</td></tr><tr><td><code>--awe-header-backdrop-filter</code></td><td class="muted">saturate(1.4) blur(10px)</td></tr><tr><td><code>--awe-header-search-width</code></td><td class="muted">380px</td></tr><tr><td><code>--awe-header-logo-height</code></td><td class="muted">34px</td></tr><tr><td><code>--awe-mask-backdrop-filter</code></td><td class="muted">blur(2px)</td></tr><tr><td><code>--awe-toast-backdrop-filter</code></td><td class="muted">blur(8px)</td></tr><tr><td><code>--awe-segmented-track</code></td><td class="muted">light-dark(var(--awe-surface-100), var(--awe-surface-950))</td></tr><tr><td><code>--awe-segmented-border</code></td><td class="muted">light-dark(var(--awe-surface-200), var(--awe-surface-700))</td></tr><tr><td><code>--awe-segmented-text</code></td><td class="muted">light-dark(var(--awe-surface-600), var(--awe-surface-300))</td></tr><tr><td><code>--awe-segmented-hover-text</code></td><td class="muted">var(--awe-color-text-emphasis)</td></tr><tr><td><code>--awe-segmented-selected</code></td><td class="muted">light-dark(var(--awe-surface-0), var(--awe-surface-700))</td></tr><tr><td><code>--awe-segmented-selected-border</code></td><td class="muted">var(--awe-surface-500)</td></tr><tr><td><code>--awe-segmented-selected-text</code></td><td class="muted">light-dark(var(--awe-surface-900), var(--awe-surface-0))</td></tr><tr><td><code>--awe-checkbox-icon-size</code></td><td class="muted">12px</td></tr><tr><td><code>--awe-radio-dot-size</code></td><td class="muted">8px</td></tr><tr><td><code>--awe-switch-width</code></td><td class="muted">36px</td></tr><tr><td><code>--awe-switch-height</code></td><td class="muted">20px</td></tr><tr><td><code>--awe-switch-handle-size</code></td><td class="muted">16px</td></tr><tr><td><code>--awe-grid-cell-padding-y</code></td><td class="muted">6px</td></tr><tr><td><code>--awe-grid-cell-padding-x</code></td><td class="muted">10px</td></tr><tr><td><code>--awe-menu-width-collapsed</code></td><td class="muted">60px</td></tr><tr><td><code>--awe-menu-item-height</code></td><td class="muted">30px</td></tr><tr><td><code>--awe-menu-indent</code></td><td class="muted">26px</td></tr><tr><td><code>--awe-menu-indent-l3</code></td><td class="muted">18px</td></tr><tr><td><code>--awe-menu-guide-l2</code></td><td class="muted">17px</td></tr><tr><td><code>--awe-menu-guide-l3</code></td><td class="muted">11px</td></tr><tr><td><code>--awe-menu-guide-l3-flyout</code></td><td class="muted">13px</td></tr><tr><td><code>--awe-menu-flyout-width</code></td><td class="muted">240px</td></tr><tr><td><code>--awe-header-search-width</code></td><td class="muted">320px</td></tr><tr><td><code>--awe-header-logo-height</code></td><td class="muted">30px</td></tr><tr><td><code>--awe-button-padding-x</code></td><td class="muted">14px</td></tr><tr><td><code>--awe-button-font-size</code></td><td class="muted">var(--awe-font-size-base)</td></tr><tr><td><code>--awe-button-font-size-sm</code></td><td class="muted">var(--awe-font-size-sm)</td></tr><tr><td><code>--awe-button-font-size-lg</code></td><td class="muted">var(--awe-font-size-md)</td></tr><tr><td><code>--awe-button-gap</code></td><td class="muted">var(--awe-gap-inline)</td></tr><tr><td><code>--awe-button-default-background</code></td><td class="muted">var(--awe-color-surface)</td></tr><tr><td><code>--awe-button-default-border-color</code></td><td class="muted">var(--awe-color-field-border)</td></tr><tr><td><code>--awe-button-default-color</code></td><td class="muted">var(--awe-color-text)</td></tr><tr><td><code>--awe-button-default-font-weight</code></td><td class="muted">var(--awe-font-weight-medium)</td></tr><tr><td><code>--awe-button-default-background-hover</code></td><td class="muted">var(--awe-color-surface-subtle)</td></tr><tr><td><code>--awe-button-default-border-color-hover</code></td><td class="muted">var(--awe-color-field-border-hover)</td></tr><tr><td><code>--awe-button-default-color-hover</code></td><td class="muted">var(--awe-color-text)</td></tr><tr><td><code>--awe-button-default-background-active</code></td><td class="muted">var(--awe-color-surface-hover)</td></tr><tr><td><code>--awe-button-default-border-color-active</code></td><td class="muted">var(--awe-color-field-border-hover)</td></tr><tr><td><code>--awe-button-default-color-active</code></td><td class="muted">var(--awe-color-text)</td></tr><tr><td><code>--awe-label-font-weight</code></td><td class="muted">var(--awe-font-weight-medium)</td></tr><tr><td><code>--awe-label-text-transform</code></td><td class="muted">none</td></tr><tr><td><code>--awe-label-letter-spacing</code></td><td class="muted">normal</td></tr><tr><td><code>--awe-card-title-font-size</code></td><td class="muted">var(--awe-font-size-base)</td></tr><tr><td><code>--awe-card-title-text-transform</code></td><td class="muted">uppercase</td></tr><tr><td><code>--awe-card-title-letter-spacing</code></td><td class="muted">var(--awe-letter-spacing-caps)</td></tr><tr><td><code>--awe-grid-search-width</code></td><td class="muted">32ch</td></tr><tr><td><code>--awe-grid-avatar-icon-size</code></td><td class="muted">var(--awe-size-icon-sm)</td></tr><tr><td><code>--awe-panel-avatar-icon-size</code></td><td class="muted">var(--awe-size-icon)</td></tr><tr><td><code>--awe-readout-label-color</code></td><td class="muted">var(--awe-color-text-muted)</td></tr><tr><td><code>--awe-readout-label-font-size</code></td><td class="muted">var(--awe-font-size-xs)</td></tr><tr><td><code>--awe-readout-label-font-weight</code></td><td class="muted">var(--awe-font-weight-normal)</td></tr><tr><td><code>--awe-readout-value-color</code></td><td class="muted">var(--awe-color-text)</td></tr><tr><td><code>--awe-readout-value-font-size</code></td><td class="muted">var(--awe-font-size-base)</td></tr><tr><td><code>--awe-readout-block-background</code></td><td class="muted">var(--awe-color-surface-subtle)</td></tr><tr><td><code>--awe-readout-block-border</code></td><td class="muted">var(--awe-color-border)</td></tr><tr><td><code>--awe-readout-block-radius</code></td><td class="muted">var(--awe-radius-lg)</td></tr><tr><td><code>--awe-readout-block-padding</code></td><td class="muted">var(--awe-space-3)</td></tr><tr><td><code>--awe-card-padding</code></td><td class="muted">var(--awe-content-padding)</td></tr><tr><td><code>--awe-card-gap</code></td><td class="muted">var(--awe-space-3)</td></tr><tr><td><code>--awe-card-icon-size</code></td><td class="muted">var(--awe-size-control)</td></tr><tr><td><code>--awe-card-grid-inset</code></td><td class="muted">calc(var(--awe-border-width) + var(--awe-space-1-5))</td></tr><tr><td><code>--awe-card-grid-gap-after</code></td><td class="muted">calc(var(--awe-layout-gap) - var(--awe-card-grid-inset))</td></tr><tr><td><code>--awe-datepicker-day-size</code></td><td class="muted">var(--awe-space-8)</td></tr><tr><td><code>--awe-datepicker-cell-gap</code></td><td class="muted">var(--awe-space-0-5)</td></tr></tbody></table></div>
 
 <h2>Rules captured</h2>
 <div class="card"><p>Contrast ≥ 4.5:1 in light and dark with any primary; visible <code>:focus-visible</code> ring

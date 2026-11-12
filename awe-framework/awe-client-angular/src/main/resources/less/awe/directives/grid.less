@@ -1555,11 +1555,15 @@
   }
 }
 
-// Selection bar of the grid (#793): between the toolbar and the header while there are selected rows, on the highlight
-// of the selected rows, with a check, "N selected" and the selection buttons of the grid (selection="true") at the end:
-// small ghost buttons, the destructive one (btn-danger) filled with the danger colour. The text of the ghost buttons is
-// the one of the bar (on-highlight), so it keeps its contrast on the highlight in light and dark. pixel-admin forces
-// the backgrounds of the button states with !important, so these need it too
+// Selection bar of the grid (#793): while there are selected rows it takes the band of the toolbar, which turns to the
+// highlight of the selected rows, over the search, the quick filters, the group by and the saved searches (they stay in
+// the same cell, hidden, so the band keeps its height and the rows never move); the Columns and Maximize buttons stay at
+// the end. In a grid without toolbar it covers the row of the column headers but the select-all checkbox (the component
+// sets its box). It has the clear button, a check, "N selected", the chip of the filter the selection was made with and
+// the selection buttons of the grid (selection="true") at the end: small ghost buttons, the destructive one (btn-danger)
+// filled with the danger colour. The text of the ghost buttons is the one of the bar (on-highlight), so it keeps its
+// contrast on the highlight in light and dark. pixel-admin forces the backgrounds of the button states with !important,
+// so these need it too
 @keyframes awe-grid-selection-bar-in {
   from {
     opacity: 0;
@@ -1570,20 +1574,94 @@
   }
 }
 
+.grid-toolbar {
+  .grid-toolbar-band {
+    display: grid;
+    flex: 1 1 0;
+    align-items: center;
+    min-width: 0;
+
+    // One cell for the toolbar and the selection bar (grid-row and grid-column: Less 3 divides "1 / 1")
+    > * {
+      grid-row: 1;
+      grid-column: 1;
+    }
+  }
+
+  .grid-toolbar-main {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--awe-space-2);
+    min-width: 0;
+  }
+
+  &[data-selection="true"] {
+    color: var(--awe-color-on-highlight);
+    background: linear-gradient(var(--awe-color-highlight), var(--awe-color-highlight)) var(--awe-color-surface);
+
+    .grid-toolbar-main {
+      visibility: hidden;
+    }
+  }
+}
+
 .grid-selection-bar {
-  display: none;
+  display: flex;
   align-items: center;
   gap: var(--awe-space-2);
-  padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
+  min-width: 0;
   font-size: var(--awe-font-size-sm);
   font-weight: var(--awe-font-weight-medium);
   color: var(--awe-color-on-highlight);
-  background: var(--awe-color-highlight);
-  border-bottom: var(--awe-border-width) solid var(--awe-grid-border);
+  white-space: nowrap;
+  visibility: hidden;
 
-  &.is-visible {
-    display: flex;
+  &[data-selected="true"] {
+    visibility: visible;
     animation: awe-grid-selection-bar-in var(--awe-motion-duration-fast) var(--awe-motion-easing-enter);
+  }
+
+  // Over the column headers of a grid without toolbar, over the header and the loaders of the grid
+  &.grid-selection-bar-header {
+    position: absolute;
+    z-index: 11;
+    padding: 0 var(--awe-grid-cell-padding-x);
+    background: linear-gradient(var(--awe-color-highlight), var(--awe-color-highlight)) var(--awe-color-surface);
+    border-bottom: var(--awe-border-width) solid var(--awe-grid-border);
+
+    &:not([data-selected="true"]) {
+      display: none;
+    }
+  }
+
+  .grid-selection-bar-clear {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: var(--awe-size-control-sm);
+    height: var(--awe-size-control-sm);
+    margin-inline-start: calc(-1 * var(--awe-space-1-5));
+    padding: 0;
+    color: inherit;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+    border-radius: var(--awe-radius-field);
+
+    &:hover {
+      background: var(--awe-color-highlight-focus);
+    }
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: var(--awe-focus-ring-offset);
+    }
+
+    .awe-icon {
+      width: var(--awe-size-icon);
+      height: var(--awe-size-icon);
+    }
   }
 
   .grid-selection-bar-icon {
@@ -1595,13 +1673,41 @@
     }
   }
 
+  // Filter the selection was made with: the label of the quick filter and the search text, in a small outlined chip
+  .grid-selection-bar-context {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--awe-space-1);
+    min-width: 0;
+    padding: var(--awe-space-0-5) var(--awe-space-2);
+    overflow: hidden;
+    font-size: var(--awe-font-size-xs);
+    border: var(--awe-border-width) solid currentColor;
+    border-radius: var(--awe-radius-full);
+
+    .awe-icon {
+      flex: none;
+      width: var(--awe-size-icon-sm);
+      height: var(--awe-size-icon-sm);
+    }
+
+    .grid-selection-bar-context-label,
+    .grid-selection-bar-context-search {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .grid-selection-bar-context-search {
+      font-style: italic;
+    }
+  }
+
   .grid-selection-bar-spacer {
     flex: 1;
   }
 
   .grid-selection-bar-actions {
     display: flex;
-    flex-wrap: wrap;
     align-items: center;
     gap: var(--awe-space-2);
 
@@ -1658,7 +1764,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .grid-selection-bar.is-visible {
+  .grid-selection-bar[data-selected="true"] {
     animation: none;
   }
 }

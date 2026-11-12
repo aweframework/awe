@@ -30,7 +30,7 @@ jest.mock("react-i18next", () => {
 });
 
 /**
- * Render count tests of the actions running flag: a running/idle transition (a row selection runs a non silent action)
+ * Render count tests of the actions running flag: a running/idle transition (a grid filter runs a non silent action)
  * only renders the controls that it disables, not the body of the component nor the panels it shows
  */
 describe("awe-react-client/test/js/performance/ActionsRunningRenderTest.jsx", () => {
@@ -54,9 +54,9 @@ describe("awe-react-client/test/js/performance/ActionsRunningRenderTest.jsx", ()
     }
   };
 
-  const selectRow = (store) => {
+  const filterGrid = (store) => {
     act(() => {
-      store.dispatch({type: ADD_ACTIONS, payload: [{type: "select-row", address: address("grid")}]});
+      store.dispatch({type: ADD_ACTIONS, payload: [{type: "filter", address: address("grid")}]});
     });
     const running = store.getState().actions.running;
     act(() => {
@@ -71,13 +71,13 @@ describe("awe-react-client/test/js/performance/ActionsRunningRenderTest.jsx", ()
     useTranslation.mockClear();
   });
 
-  it("disables a button while the row selection runs without rendering the button body again", () => {
+  it("disables a button while the grid filter runs without rendering the button body again", () => {
     const {store, container} = renderWithProviders(<AweButton id="button"/>, {preloadedState});
     const button = container.querySelector("#button");
     useTranslation.mockClear();
 
     act(() => {
-      store.dispatch({type: ADD_ACTIONS, payload: [{type: "select-row", address: address("grid")}]});
+      store.dispatch({type: ADD_ACTIONS, payload: [{type: "filter", address: address("grid")}]});
     });
     expect(button.hasAttribute("disabled")).toBe(true);
 
@@ -88,23 +88,23 @@ describe("awe-react-client/test/js/performance/ActionsRunningRenderTest.jsx", ()
     expect(useTranslation).not.toHaveBeenCalled();
   });
 
-  it("does not render an info button body again on a row selection", () => {
+  it("does not render an info button body again on a grid filter", () => {
     const {store, container} = renderWithProviders(<AweInfoButton id="infoButton"/>, {preloadedState});
     useTranslation.mockClear();
 
-    expect(selectRow(store)).toBe(true);
+    expect(filterGrid(store)).toBe(true);
 
     expect(useTranslation).not.toHaveBeenCalled();
     expect(container.querySelector("#infoButton").hasAttribute("disabled")).toBe(false);
   });
 
-  it("disables the tabs while the row selection runs without rendering the tab content again", () => {
+  it("disables the tabs while the grid filter runs without rendering the tab content again", () => {
     const {store, container} = renderWithProviders(<AweTabs id="tabs" elementList={preloadedState.components.tabs.elementList}/>,
       {preloadedState});
     expect(contentRenders.count).toBe(1);
 
     act(() => {
-      store.dispatch({type: ADD_ACTIONS, payload: [{type: "select-row", address: address("grid")}]});
+      store.dispatch({type: ADD_ACTIONS, payload: [{type: "filter", address: address("grid")}]});
     });
     expect(container.querySelectorAll(".p-tabmenuitem.p-disabled").length).toBe(2);
 
@@ -115,12 +115,12 @@ describe("awe-react-client/test/js/performance/ActionsRunningRenderTest.jsx", ()
     expect(contentRenders.count).toBe(1);
   });
 
-  it("does not render the wizard panel again on a row selection", () => {
+  it("does not render the wizard panel again on a grid filter", () => {
     const {store} = renderWithProviders(<AweSteps id="steps" elementList={preloadedState.components.steps.elementList}/>,
       {preloadedState});
     expect(contentRenders.count).toBe(1);
 
-    expect(selectRow(store)).toBe(true);
+    expect(filterGrid(store)).toBe(true);
 
     expect(contentRenders.count).toBe(1);
   });

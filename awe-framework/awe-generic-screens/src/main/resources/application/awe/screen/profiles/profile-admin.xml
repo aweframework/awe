@@ -248,8 +248,9 @@
             <dependency-element id="PerAcc" condition="ne" value="none" />
             <dependency-action type="server" server-action="data" target-action="ProPerCat" target="Per" />
           </dependency>
-          <!-- Values: the assignments of the selected profile -->
-          <dependency source-type="query" target-type="input" server-action="value" target-action="ProPerSel">
+          <!-- Values: the assignments of the selected profile. Silent: it only fills the panel, so selecting a row does not
+               disable the buttons nor show the loading bar -->
+          <dependency source-type="query" target-type="input" server-action="value" target-action="ProPerSel" silent="true">
             <dependency-element id="GrdProAdm" column="IdePro" attribute="selectedRowValue" alias="IdeProSel" optional="true" />
             <dependency-element id="GrdProAdm" event="select-row" optional="true" />
             <dependency-element id="PerAcc" condition="ne" value="none" />

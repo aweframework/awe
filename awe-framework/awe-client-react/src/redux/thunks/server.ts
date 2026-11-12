@@ -58,11 +58,13 @@ export const serverAction = (
     }
 
     // Every action of the answer runs in the context the caller gave this one: its component (the target when
-    // the action loads one), its view and its origin
+    // the action loads one), its view and its origin. The answer of a silent action is silent too, as in the
+    // AngularJS client: applying the answer of a background lookup never disables the buttons
     const withCallerContext = (clientAction: ActionItem): ActionItem => ({
       ...clientAction,
       address: { ...address, component: target || component, ...(clientAction.address || {}) },
-      ...(origin ? { origin } : {})
+      ...(origin ? { origin } : {}),
+      ...(action.silent ? { silent: true } : {})
     } as ClientAction);
 
     try {

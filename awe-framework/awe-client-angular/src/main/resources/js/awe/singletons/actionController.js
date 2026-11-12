@@ -2,6 +2,16 @@ import {aweApplication} from "../awe";
 import {ClientActions} from "./../data/actions";
 import _ from "lodash";
 
+/**
+ * Client actions of a grid: the ones of its groups (commons, tree, editable) that no other component shares (reset and
+ * restore are also form actions). They are immediate, so they are silent by default: running them never disables the
+ * buttons. The work that goes to the server is a server action of its own, which disables them unless it is silent
+ */
+const OTHER_ACTIONS = new Set(Object.entries(ClientActions).filter(([group]) => group !== "grid")
+  .flatMap(([, actions]) => Object.keys(actions)));
+const GRID_ACTIONS = new Set(Object.values(ClientActions.grid).flatMap(actions => Object.keys(actions))
+  .filter(type => !OTHER_ACTIONS.has(type)));
+
 // Action controller
 aweApplication.service('ActionController',
   ['Storage', 'AweUtilities', 'Action', '$rootScope', '$log', 'Control',
@@ -234,6 +244,15 @@ aweApplication.service('ActionController',
       };
 
       /**
+       * Check if an action type is a client action of a grid (silent by default)
+       * @param {string} type Action type
+       * @returns {boolean} The action is a client action of a grid
+       */
+      $ctrl.isGridAction = function (type) {
+        return GRID_ACTIONS.has(type);
+      };
+
+      /**
        * Disables all buttons in screen if actions stack is not empty
        */
       $ctrl.disableButtons = function () {
@@ -247,8 +266,8 @@ aweApplication.service('ActionController',
        * @public
        */
       $ctrl.runAction = function (action) {
-        // Disable all buttons
-        if (!action.attr("silent")) {
+        // Disable all buttons, unless the action is silent (the client actions of a grid are silent by default)
+        if (!action.attr("silent") && !$ctrl.isGridAction(action.attr("type"))) {
           $ctrl.disableButtons();
         }
 

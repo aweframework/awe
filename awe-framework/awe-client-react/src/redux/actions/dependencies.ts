@@ -939,17 +939,72 @@ function executeDependency(dependency: PlacedDependency, component: DependencyCo
   return dispatchActions.filter((execution): execution is Execution => Boolean(execution));
 }
 
+/**
+ * Components whose changes do not launch a dependency because none of its events on them has been raised. As AngularJS
+ * does, an element with an event launches the dependency only when the event is raised: a change of the component
+ * itself (the selection or the rows of a grid without its select-row event) or the end of the event (the next check of
+ * the screen, i.e. when the answer of the dependency fills its component) does not launch it again. An edit of a cell of
+ * the selected row still launches it, as AngularJS publishes it on the cell (see hasChangedWithoutEvents)
+ * @param {object} dependency Dependency
+ * @param {object} values Values of its elements in the current check
+ * @returns {Set} Components of the events of the dependency that have not been raised (empty when one has been)
+ */
+function getSilentEventComponents(dependency: PlacedDependency, values: Record<string, Value>): Set<string> {
+  const events = (dependency.elements || []).filter(element => element.event);
+  if (events.some(element => values[getTriggerId(element, dependency)] === true)) {
+    return new Set();
+  }
+  return new Set(events.map(element => element.id as string));
+}
+
+/**
+ * Model context of the elements of a dependency on components that are not in a set
+ * @param {object} dependency Dependency
+ * @param {object} component Component that holds it
+ * @param {object} state State
+ * @param {Set} skipped Components to skip
+ * @returns {number|null} Hash of the model context
+ */
+function hashModelContextWithout(dependency: PlacedDependency, component: DependencyComponent, state: RootState,
+  skipped: Set<string>): number | null {
+  return hashContext(getDependencyModelContext({ ...dependency,
+    elements: (dependency.elements || []).filter(element => !skipped.has(element.id as string)) }, component, state));
+}
+
+/**
+ * Rows and selection of the components of the events of a dependency: the identifier of each row and whether it is
+ * selected. While it stays the same, a change of a value of those components is an edit of a cell, not a change of the
+ * component itself (a load, a new selection)
+ * @param {Set} components Components of the events
+ * @param {object} state State
+ * @returns {string} Signature of their rows
+ */
+function getEventRowsSignature(components: Set<string>, state: RootState): string {
+  const allComponents = getComponents(state);
+  return JSON.stringify([...components].map(componentId => {
+    const eventComponent = componentId in allComponents ? getComponent(componentId, allComponents) : null;
+    const gridId = eventComponent?.attributes?.columnModel ? getGridIdentifier(eventComponent.attributes) : null;
+    return gridId ? (eventComponent?.model?.values || []).map(row => [row[gridId], Boolean(row.selected)]) : null;
+  }));
+}
+
 function checkAndStoreResult(dependency: PlacedDependency, component: DependencyComponent, state: RootState): DependencyResult {
   const result = evaluateDependency(dependency, component, state);
   const modelContext = getDependencyModelContext(dependency, component, state);
   const modelHash = hashContext(modelContext);
+  // Model context without the components of its events, read while none of its events is raised
+  const eventComponents = new Set((dependency.elements || []).filter(element => element.event).map(element => element.id as string));
+  const modelHashWithoutEvents = eventComponents.size > 0
+    ? hashModelContextWithout(dependency, component, state, eventComponents) : undefined;
+  const eventRowsSignature = eventComponents.size > 0 ? getEventRowsSignature(eventComponents, state) : undefined;
 
   // Store check values
   const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
   const stored = {
     ...DEPENDENCY_VALUES[component.address?.view][componentId],
     ...result.values,
-    modelHash: modelHash
+    modelHash: modelHash,
+    ...(modelHashWithoutEvents !== undefined ? { modelHashWithoutEvents, eventRowsSignature } : {})
   };
 
   DEPENDENCY_VALUES[component.address?.view] = {
@@ -1047,6 +1102,47 @@ function isStoredRow(component: DependencyComponent, rowId: string | number | un
   return !isNewId && row?.$row?.operation !== OperationType.INSERT;
 }
 
+/**
+ * Check if a dependency whose events have not been raised has changed. Its elements on other components count; its
+ * elements on the components of its events count only while their rows and selection stay the same (an edit of a cell
+ * of the selected row, which AngularJS publishes on the cell), not when the component itself changes (a load, a new
+ * selection), which AngularJS publishes on the component and aborts the dependency. The stored values of its events go
+ * back to "not raised", so the next time one is raised the dependency is launched
+ * @param {object} dependency Dependency
+ * @param {object} component Component that holds it
+ * @param {object} state State
+ * @param {object} storedData Values stored in its last check
+ * @param {object} newValues Values of its elements in this check
+ * @param {Set} silentComponents Components of its events
+ * @returns {boolean} The dependency has changed
+ */
+function hasChangedWithoutEvents(dependency: PlacedDependency, component: DependencyComponent, state: RootState,
+  storedData: Record<string, unknown>, newValues: Record<string, Value>, silentComponents: Set<string>): boolean {
+  const elements = (dependency.elements || []).filter(element => !element.event);
+  const rowsSignature = getEventRowsSignature(silentComponents, state);
+  const sameRows = storedData.eventRowsSignature === rowsSignature;
+  const keys = elements
+    .filter(element => sameRows || !silentComponents.has(element.id as string))
+    .map(element => getTriggerId(element, dependency))
+    .filter(key => key in newValues);
+  const changed = keys.some(key => !_.isEqual(storedData[key], newValues[key]))
+    || storedData.modelHashWithoutEvents !== hashModelContextWithout(dependency, component, state, silentComponents);
+  if (!changed) {
+    (dependency.elements || []).filter(element => element.event).forEach(element => {
+      storedData[getTriggerId(element, dependency)] = false;
+    });
+    // The elements on the components of the events follow them, so a later edit of a cell compares with these values
+    elements.filter(element => silentComponents.has(element.id as string))
+      .map(element => getTriggerId(element, dependency))
+      .filter(key => key in newValues)
+      .forEach(key => {
+        storedData[key] = newValues[key];
+      });
+    storedData.eventRowsSignature = rowsSignature;
+  }
+  return changed;
+}
+
 function hasChanged(dependency: PlacedDependency, component: DependencyComponent, state: RootState): boolean {
   const componentId = getDependencyComponentId(component.address, { ...dependency.address, index: dependency.index });
   // Nothing it reads has changed since its result was stored: it has not changed (issue #960)
@@ -1070,6 +1166,13 @@ function hasChanged(dependency: PlacedDependency, component: DependencyComponent
   }
 
   const storedData = DEPENDENCY_VALUES[component.address?.view][componentId] || {};
+
+  // While none of its events is raised, the elements on the components of its events do not launch it (AngularJS)
+  const silentComponents = getSilentEventComponents(dependency, newValues);
+  if (silentComponents.size > 0) {
+    return hasChangedWithoutEvents(dependency, component, state, storedData, newValues, silentComponents);
+  }
+
   const modelContext = getDependencyModelContext(dependency, component, state);
   const currentModelHash = hashContext(modelContext);
 

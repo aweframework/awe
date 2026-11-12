@@ -81,6 +81,7 @@ describe("test id vocabulary", () => {
       gridColumnFilterClearAll: "grid-column-filter-clear-all",
       gridSelectionBar: "grid-selection-bar",
       gridSelectionCount: "grid-selection-count",
+      gridSelectionClear: "grid-selection-clear",
       gridGroupHeader: "grid-group-header",
       gridColumnsButton: "grid-columns-button",
       gridMaximizeButton: "grid-maximize-button",

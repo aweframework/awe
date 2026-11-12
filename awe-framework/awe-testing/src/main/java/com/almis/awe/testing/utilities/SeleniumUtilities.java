@@ -7452,7 +7452,8 @@ public class SeleniumUtilities implements IAweInstructions {
 
   /**
    * Check the text of an option of the quick filter of a grid: its label and its count, such as {@code Locked 3}. It
-   * waits for the counts to load
+   * waits for the counts to load. While the grid has selected rows its selection bar covers the quick filter, so the
+   * selection is cleared first, as the user does to read the counts
    *
    * @param criterionName Quick filter identifier
    * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
@@ -7460,17 +7461,21 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkGridQuickFilterOption(String criterionName, String value, String text) {
     Locator option = locator(frontEndInstructions.getGridQuickFilterOption(criterionName, value));
+    clearGridSelectionOver(locator(frontEndInstructions.getGridQuickFilter(criterionName)), option);
     waitUntil(BrowserCondition.of("quick filter " + criterionName + " option '" + value + "' to read '" + text + "'",
       browser -> browser.exists(option) && text.equals(browser.text(option).replaceAll("\\s+", " ").trim())));
   }
 
   /**
-   * Choose an option of the quick filter of a grid, which filters the grid, and wait for the grid to load
+   * Choose an option of the quick filter of a grid, which filters the grid, and wait for the grid to load. A selection
+   * bar over the quick filter is cleared first, as the user does
    *
    * @param criterionName Quick filter identifier
    * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
    */
   protected void clickGridQuickFilterOption(String criterionName, String value) {
+    clearGridSelectionOver(locator(frontEndInstructions.getGridQuickFilter(criterionName)),
+      locator(frontEndInstructions.getGridQuickFilterOption(criterionName, value)));
     clickSelector(frontEndInstructions.getGridQuickFilterOption(criterionName, value));
     waitForLoadingGrid();
   }
@@ -7528,6 +7533,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private Locator typeInGridSearch(String criterionName, String text) {
     Locator input = locator(frontEndInstructions.getGridSearchInput(criterionName));
+    clearGridSelectionOver(locator(frontEndInstructions.getGridSearch(criterionName)), input);
     waitUntil(BrowserCondition.visible(input));
     getBrowser().clear(input);
     writeText(input, text);
@@ -7536,6 +7542,26 @@ public class SeleniumUtilities implements IAweInstructions {
     waitUntil(BrowserCondition.of("search " + criterionName + " to hold the typed text '" + text + "'",
       browser -> text.equals(browser.attribute(input, VALUE_PROPERTY))));
     return input;
+  }
+
+  /**
+   * While a grid has selected rows its selection bar covers the toolbar of the grid (its search and its quick filter are
+   * hidden): clear the selection with the clear button of the bar, as the user does to search or filter again
+   *
+   * @param toolbarItem Element of the toolbar whose owner attribute is its grid (the search, the quick filter)
+   * @param input       Element of that item the step needs visible
+   */
+  private void clearGridSelectionOver(Locator toolbarItem, Locator input) {
+    waitUntil(BrowserCondition.anyOf(BrowserCondition.visible(input), BrowserCondition.present(toolbarItem)));
+    String gridId = getBrowser().isVisible(input) ? null : getBrowser().attribute(toolbarItem, TestAttributes.OWNER);
+    if (gridId == null || gridId.isEmpty()) {
+      return;
+    }
+    Locator clear = locator(frontEndInstructions.getGridSelectionClear(gridId));
+    waitUntil(BrowserCondition.anyOf(BrowserCondition.visible(input), BrowserCondition.visible(clear)));
+    if (!getBrowser().isVisible(input)) {
+      clickSelector(frontEndInstructions.getGridSelectionClear(gridId));
+    }
   }
 
   /**

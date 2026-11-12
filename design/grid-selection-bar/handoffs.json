@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "chosen": "01-barra-en-toolbar.html",
+  "handoffs": {
+    "01-barra-en-toolbar.html": {
+      "status": "in_progress",
+      "queued": false,
+      "sentAt": "2026-11-12T09:26:58.339Z",
+      "startedAt": "2026-11-12T09:27:53.522Z",
+      "implementedAt": null,
+      "note": "Implementing in both engines (feature/grid-selection-bar)"
+    }
+  }
+}

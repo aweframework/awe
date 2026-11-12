@@ -46,7 +46,7 @@ El elemento debe tener el atributo component para que funcione. Si el elemento n
 | type                        | Opcional | String  | Cómo evaluar las condiciones [condiciones](#dependency-element)                                                                  | Los valores posibles son `and` (por defecto) y `or`.                             |
 | invert                      | Opcional | Boolean | Invierte la evaluación de la condición [condición](#dependency-element)                                                        | El valor predeterminado es `false`                                            |
 | async                       | Opcional | Boolean | Ejecutar la acción del servidor de forma asincrónica                                                                  | El valor predeterminado es `false`                                            |
-| silent                      | Opcional | Boolean | Ejecutar la acción del servidor sin mostrar la barra de carga                                                         | El valor predeterminado es `false`                                            |
+| silent                      | Opcional | Boolean | Ejecutar la acción del servidor sin deshabilitar los botones ni mostrar la barra de carga (p. ej. una consulta que rellena un panel lateral desde la fila seleccionada de un grid) | El valor predeterminado es `false`                                            |
 
 ### Tipo de fuente {#source-type}
 

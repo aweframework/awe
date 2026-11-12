@@ -497,25 +497,6 @@ describe("AngularJS grid over ui-grid (#885)", () => {
   });
 
   describe("selection bar", () => {
-    it("draws the bar on the highlight, hidden until there are selected rows", () => {
-      expect(style(".grid-selection-bar")).toMatchObject({
-        "display": "none",
-        "gap": "var(--awe-space-2)",
-        "padding": "var(--awe-space-2) var(--awe-grid-cell-padding-x)",
-        "font-size": "var(--awe-font-size-sm)",
-        "font-weight": "var(--awe-font-weight-medium)",
-        "color": "var(--awe-color-on-highlight)",
-        "background": "var(--awe-color-highlight)",
-        "border-bottom": "var(--awe-border-width) solid var(--awe-grid-border)"
-      });
-      expect(style(".grid-selection-bar.is-visible")).toMatchObject({
-        "display": "flex",
-        "animation": "awe-grid-selection-bar-in var(--awe-motion-duration-fast) var(--awe-motion-easing-enter)"
-      });
-      expect(style(".grid-selection-bar.is-visible", REDUCED_MOTION)).toMatchObject({"animation": "none"});
-      expect(style(".grid-selection-bar .grid-selection-bar-spacer")).toMatchObject({"flex": "1"});
-    });
-
     it("draws its buttons small, ghost, and the btn-danger one filled with the danger colour", () => {
       expect(style(".grid-selection-bar .btn.btn-awe")).toMatchObject({
         "height": "var(--awe-size-control-sm)",

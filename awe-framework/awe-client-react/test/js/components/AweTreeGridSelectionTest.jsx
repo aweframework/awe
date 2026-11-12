@@ -161,6 +161,8 @@ describe("awe-react-client/test/js/components/AweTreeGridSelectionTest.jsx", () 
 
       const [action] = selectRowActions(dispatchSpy);
       expect(action.parameters).toEqual({ values: ["Child2"] });
+      // Selecting a row is immediate: it does not disable the buttons of the screen
+      expect(store.getState().actions.running).toBe(false);
       runSelectRow(store, action);
       expect(selectedIds(store)).toEqual(["Child2"]);
     });

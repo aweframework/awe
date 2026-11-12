@@ -1,5 +1,7 @@
 import * as gridThunks from '../../../../src/redux/thunks/grid';
 import {RowPositionType} from '../../../../src/utilities/grid';
+import {configureStore} from '@reduxjs/toolkit';
+import createRootReducer from '../../../../src/redux/reducers';
 
 describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
   let dispatch;
@@ -801,6 +803,30 @@ describe('awe-react-client/test/js/redux/thunks/gridThunkTest.js', () => {
       expect(updateModel.address.component).toBe('tabs');
       expect(updateModel.data.values.map((item) => item.selected)).toEqual([false, true]);
       expect(row.scrollIntoView).toHaveBeenCalledWith({ block: 'center', behavior: 'smooth' });
+    });
+  });
+  // Esc used to run cancel-row on any grid: with no row being edited there is nothing to cancel, so it must
+  // neither raise the cancel events nor touch the selection
+  describe('cancelRowGridAction without a row being edited', () => {
+    it('raises no cancel-row or after-cancel-row event and keeps the selection', () => {
+      const events = [];
+      const recorder = () => (next) => (action) => {
+        if (action?.type === 'SET_RUNTIME_EVENT') {
+          events.push(action.event);
+        }
+        return next(action);
+      };
+      const store = configureStore({
+        reducer: createRootReducer({}),
+        preloadedState: { components: { grid1: mockComponent } },
+        middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false }).concat(recorder)
+      });
+
+      store.dispatch(gridThunks.cancelRowGridAction({ type: 'cancel-row', address: mockAddress }));
+
+      expect(events).not.toContain('cancel-row');
+      expect(events).not.toContain('after-cancel-row');
+      expect(store.getState().components.grid1.model.values.map((row) => row.selected)).toEqual([false, true, false]);
     });
   });
 });

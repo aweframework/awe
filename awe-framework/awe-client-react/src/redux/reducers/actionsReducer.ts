@@ -33,6 +33,7 @@ import type {
   toggleActionsRunning as toggleActionsRunningCreator
 } from '../actions/actions';
 import type {ActionsState} from '../types';
+import {isGridAction} from "../actions/gridActions";
 
 const {STATUS_INITIAL, STATUS_STARTED, STATUS_RUNNING} = ActionStatus;
 
@@ -178,13 +179,15 @@ function changeActionAttribute(
 
 /**
  * Run an action. Only a sync action that is not silent disables the screen, as in the AngularJS engine: a silent
- * action leaves the flag as it was and an async action runs in the background
+ * action leaves the flag as it was and an async action runs in the background. The client actions of a grid are
+ * silent by default (they are immediate); the server actions they launch disable the screen unless marked silent
  * @param state State
  * @param action Action to run
  * @return {object}
  */
 function runAction(state: ActionsState, action: ActionItem): ActionsState {
-  const nextState = action.silent || action.async ? state : toggleActionsRunning(state, true);
+  const silent = action.silent || action.async || isGridAction(action.type);
+  const nextState = silent ? state : toggleActionsRunning(state, true);
   return changeActionAttribute(nextState, action.id, {"status": STATUS_RUNNING});
 }
 

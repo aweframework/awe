@@ -74,7 +74,9 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/gridSavedSea
     mount();
 
     expect(button().attr("data-testid-owner")).toBe("Grid");
-    expect(button().closest(".window-saved-searches").next().is(hook(TestIds.gridColumnsButton))).toBe(true);
+    const columns = grid.element.find(hook(TestIds.gridColumnsButton))[0];
+    expect(button().closest(hook(TestIds.gridToolbar)).length).toBe(1);
+    expect(button().closest(".window-saved-searches")[0].compareDocumentPosition(columns) & window.Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it("is an icon button by default, with its text as tooltip and accessible name, and shows its text with labels", () => {

@@ -49,6 +49,14 @@ describe("awe-react-client/test/js/components/AweGridSelectableTest.jsx", () => 
     expect(selectRowActions(dispatchSpy)).toEqual([expect.objectContaining({ parameters: { values: [1] } })]);
   });
 
+  it("selects a row without disabling the buttons of the screen", () => {
+    const { container, store } = render({});
+
+    clickRow(container, 0);
+
+    expect(store.getState().actions.running).toBe(false);
+  });
+
   it("selects the clicked row with selectable true", () => {
     const { container, dispatchSpy } = render({ selectable: true });
 

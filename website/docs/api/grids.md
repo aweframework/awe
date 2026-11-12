@@ -1730,6 +1730,16 @@ It disappears when no row is selected, also after a reload of the grid that clea
 - The text is the locale `SCREEN_TEXT_GRID_SELECTED_ROW` for one row and `SCREEN_TEXT_GRID_SELECTED_ROWS` for more,
   with `{{count}}` for the number (`{{count}} selected`).
 - In a grid without `multiselect` the bar shows the one selected row.
+- The bar takes the band of the grid toolbar while rows are selected, with the same height, so the rows and the header
+  never move: it covers the search, the quick filter, the saved searches and the group by, and the Columns and Maximize
+  buttons stay at the right. In a grid without toolbar it covers the row of the column headers, leaving the select-all
+  checkbox visible.
+- After the count, a chip shows the context of the selection: the label of the active quick filter (not the "all"
+  option) and the search text, read as `SCREEN_TEXT_FILTERED_BY` (`Filtered by`). Filtering or searching clears the
+  selection.
+- A clear button at the start of the bar (`SCREEN_TEXT_GRID_CLEAR_SELECTION`, `Clear selection`) and the Esc key in
+  the grid unselect every row, one or many; while a row is being edited, Esc cancels the edition instead. After
+  clearing, the focus goes to the search of the grid, or to the select-all checkbox when it has no search.
 - The bar is a polite live region (`aria-live="polite"`), so screen readers announce the number of selected rows; its
   buttons follow the text in the tab order and are out of it while the bar is hidden. It uses the highlight tokens of
   the selected rows in the light and dark modes and the comfortable and compact densities, and it appears with a short

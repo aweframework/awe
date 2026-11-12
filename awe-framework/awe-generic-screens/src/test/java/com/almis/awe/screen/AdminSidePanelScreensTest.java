@@ -2,6 +2,8 @@ package com.almis.awe.screen;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -18,7 +20,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  * active, and without the site, module, profile or user rows of the record edited before (those rows live in a grid of the
  * panel, which keeps them until it is reset). The broker user and password of the queues panel apply only to a remote
  * connection. The mail servers panel edits the port, the security mode and the authentication of the selected server, and
- * its user, password and OAuth2 registration follow the authentication type.
+ * its user, password and OAuth2 registration follow the authentication type. The values the side panel of the users and
+ * profiles screens loads from the server when a row is selected are loaded silently, so selecting a row does not disable
+ * the buttons of the screen (nor shows the loading bar of the AngularJS engine).
  */
 @DisplayName("Admin side panel screens")
 class AdminSidePanelScreensTest {
@@ -29,6 +33,7 @@ class AdminSidePanelScreensTest {
   private static final String MODULES = "screen/modules/module-admin.xml";
   private static final String QUEUES = "screen/queues/queue-admin.xml";
   private static final String EMAIL_SERVERS = "screen/email-servers/email-server-admin.xml";
+  private static final String SELECT_ROW = "select-row";
 
   private Document load(String path) throws Exception {
     try (InputStream stream = getClass().getClassLoader().getResourceAsStream(AWE + path)) {
@@ -190,6 +195,40 @@ class AdminSidePanelScreensTest {
 
     assertThat(dependenciesOn(screen, "SecMod", "Ath")).containsExactly("input/value=STARTTLS:Ath eq 2");
     assertThat(dependenciesOn(screen, "SecMod", "SecMod")).containsExactly("input/value=STARTTLS:SecMod eq NONE");
+  }
+
+  @ParameterizedTest(name = "{0} {1}")
+  @CsvSource({
+    "screen/users/user-admin.xml, AddPro, GrdUsrAdm",
+    "screen/profiles/profile-admin.xml, Per, GrdProAdm"
+  })
+  @DisplayName("The side panel loads the values of the selected row silently")
+  void sidePanelLoadsTheSelectedRowSilently(String path, String criterion, String grid) throws Exception {
+    assertThat(selectRowQueriesSilent(load(path), criterion, grid)).containsExactly("true");
+  }
+
+  /**
+   * Silent attribute of the query dependencies of a criterion fired by the row selection of a grid
+   */
+  private List<String> selectRowQueriesSilent(Document screen, String criterion, String grid) {
+    NodeList criteria = screen.getElementsByTagName("criteria");
+    for (int i = 0; i < criteria.getLength(); i++) {
+      Element current = (Element) criteria.item(i);
+      if (criterion.equals(current.getAttribute("id"))) {
+        List<String> silent = new ArrayList<>();
+        NodeList elements = current.getElementsByTagName("dependency-element");
+        for (int j = 0; j < elements.getLength(); j++) {
+          Element element = (Element) elements.item(j);
+          Element dependency = (Element) element.getParentNode();
+          if ("query".equals(dependency.getAttribute("source-type")) && grid.equals(element.getAttribute("id"))
+            && SELECT_ROW.equals(element.getAttribute("event"))) {
+            silent.add(dependency.getAttribute("silent"));
+          }
+        }
+        return silent;
+      }
+    }
+    throw new AssertionError("No criteria " + criterion);
   }
 
   /**

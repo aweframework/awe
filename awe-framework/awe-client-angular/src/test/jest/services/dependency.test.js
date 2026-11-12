@@ -95,8 +95,22 @@ describe("Dependency Jest behavior coverage", () => {
     expect(dependency.retrieveSource(values, true, false)).toBe("[[ DEFERRED ]]");
     expect(ActionController.addActionList).toHaveBeenCalledWith(expect.arrayContaining([
       expect.objectContaining({componentId: "Field1", controllerAttribute: "label", targetAction: "LoadField", type: "update-controller"}),
-      {type: "end-dependency", parameters: {dependency}}
+      {type: "end-dependency", silent: dependency.silent, parameters: {dependency}}
     ]), true, {address: dependency.component.address, context: dependency.component.context});
+  });
+
+  it("ends a silent query dependency silently, so the buttons are not disabled", () => {
+    const dependency = buildDependency({query: "sourceField", serverAction: "data", targetAction: "LoadField"});
+    dependency.silent = true;
+    dependency.source = "query";
+    jest.spyOn(ActionController, "addActionList").mockImplementation(() => null);
+    jest.spyOn(ServerData, "getServerAction").mockImplementation((address, custom) => ({address, ...custom}));
+
+    dependency.retrieveSource({sourceField: "from criteria"}, true, false);
+
+    expect(ActionController.addActionList).toHaveBeenCalledWith(expect.arrayContaining([
+      expect.objectContaining({type: "end-dependency", silent: true})
+    ]), true, expect.anything());
   });
 
   it("applies target updates to controller, model, api, and mapped follow-up actions", () => {

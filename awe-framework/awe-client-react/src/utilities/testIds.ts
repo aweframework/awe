@@ -99,9 +99,12 @@ export const TestIds = Object.freeze({
   gridColumnFilterChip: "grid-column-filter-chip",
   gridColumnFilterChipRemove: "grid-column-filter-chip-remove",
   gridColumnFilterClearAll: "grid-column-filter-clear-all",
-  // Selection bar of the grid (the owner is the grid; "data-count" is the number of selected rows) and its text
+  // Selection bar of the grid (the owner is the grid; "data-count" is the number of selected rows), its text, its clear
+  // button and the chip with the quick filter and the search the selection was made with
   gridSelectionBar: "grid-selection-bar",
   gridSelectionCount: "grid-selection-count",
+  gridSelectionClear: "grid-selection-clear",
+  gridSelectionContext: "grid-selection-context",
   gridGroupHeader: "grid-group-header",
   gridColumnsButton: "grid-columns-button",
   gridMaximizeButton: "grid-maximize-button",

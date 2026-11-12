@@ -43,10 +43,16 @@ const openDialog = async () => {
   });
 };
 
-// The parts of the toolbar with a test hook, in their order (and its spacer, when asked)
-const toolbarParts = (toolbar, withSpacer = false) => Array.from(toolbar.children)
-  .map(child => child.getAttribute("data-testid") || (withSpacer && child.classList.contains("grid-toolbar-spacer") ? "spacer" : null))
-  .filter(Boolean);
+// The parts of the toolbar with a test hook, in their order (and its spacer, when asked), also those in its band
+const toolbarParts = (toolbar, withSpacer = false) => Array.from(toolbar.children).flatMap(child => {
+  if (child.getAttribute("data-testid")) {
+    return [child.getAttribute("data-testid")];
+  }
+  if (child.classList.contains("grid-toolbar-spacer")) {
+    return withSpacer ? ["spacer"] : [];
+  }
+  return toolbarParts(child, withSpacer);
+});
 
 const itemOf = (dialog, name) => dialog.querySelector(`${hook("grid-column-item")}[column-id="${name}"]`);
 const itemNames = (dialog) => Array.from(byHook("grid-column-item", dialog)).map(item => item.getAttribute("column-id"));

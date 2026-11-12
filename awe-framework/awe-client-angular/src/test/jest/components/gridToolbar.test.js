@@ -56,6 +56,10 @@ describe("grid toolbar", () => {
   };
 
   const names = defs => defs.map(def => def.name);
+  // Parts of the toolbar, in the order of the page (the search, the quick filters and the saved searches share the band
+  // with the selection bar)
+  const PARTS = ["grid-search", "grid-quick-filter", "grid-columns-button", "grid-maximize-button"]
+    .map(id => `[data-testid='${id}']`).join(", ");
   const visibleNames = defs => defs.filter(def => !def.hidden).map(def => def.name);
 
   it("shows the toolbar by default and not when the grid opts out", () => {
@@ -66,7 +70,7 @@ describe("grid toolbar", () => {
   it("shows the quick filters of the grid first in the toolbar, before Columns and Maximize", () => {
     const toolbar = compileGrid({quickFilter: "CrtSta"}).element.find(hook("grid-toolbar"));
 
-    const parts = toolbar.children().map((index, child) => child.getAttribute("data-testid")).get();
+    const parts = toolbar.find(PARTS).map((index, child) => child.getAttribute("data-testid")).get();
     expect(parts.slice(0, 3)).toEqual(["grid-quick-filter", "grid-columns-button", "grid-maximize-button"]);
     expect(toolbar.find(hook("grid-quick-filter")).attr("data-testid-owner")).toBe("Grid");
     expect(compileGrid().element.find(hook("grid-quick-filter")).length).toBe(0);
@@ -84,7 +88,7 @@ describe("grid toolbar", () => {
   it("shows the search of the grid first in the toolbar, before the quick filters, Columns and Maximize", () => {
     const toolbar = compileGrid({search: "CrtTxt", quickFilter: "CrtSta"}).element.find(hook("grid-toolbar"));
 
-    const parts = toolbar.children().map((index, child) => child.getAttribute("data-testid")).get();
+    const parts = toolbar.find(PARTS).map((index, child) => child.getAttribute("data-testid")).get();
     expect(parts.slice(0, 4)).toEqual(["grid-search", "grid-quick-filter", "grid-columns-button", "grid-maximize-button"]);
     expect(toolbar.find(hook("grid-search")).attr("data-testid-owner")).toBe("Grid");
     expect(compileGrid({quickFilter: "CrtSta"}).element.find(hook("grid-search")).length).toBe(0);

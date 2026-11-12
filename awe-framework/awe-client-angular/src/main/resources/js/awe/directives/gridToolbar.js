@@ -6,6 +6,7 @@ import {appliedDefaultTemplate, getSavedSearchesTemplate} from "../services/save
 import {initGridSavedSearches} from "../services/gridSavedSearches";
 import "./gridQuickFilter";
 import "./gridSearch";
+import "./gridSelectionBar";
 
 // Space between the Columns button and the popover, and between the popover and the edges of the window
 const GAP = 8;
@@ -36,13 +37,21 @@ const SHOW_MAXIMIZE = "component.controller.showToolbar !== false && component.c
 // Names of the end buttons in the toolbar-labels of the grid
 const LABELLED_BUTTONS = ["group-by", "saved-searches", "columns", "maximize"];
 const MAXIMIZE_TEXT = "(iconMaximized ? 'SCREEN_TEXT_RESTORE' : 'SCREEN_TEXT_MAXIMIZE')";
-export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${TestIds.gridToolbar}" ng-attr-data-testid-owner="{{component.address.component}}" ng-attr-data-maximized="{{iconMaximized === true}}">
+// The band of the toolbar (#793): the search, the quick filters, the group by and the saved searches share one cell with
+// the selection bar of the grid, which covers them while there are selected rows (data-selection); the cell keeps the
+// height of the taller of the two, so the rows never move. The Columns and Maximize buttons stay out of it, at the end
+export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${TestIds.gridToolbar}" ng-attr-data-testid-owner="{{component.address.component}}" ng-attr-data-maximized="{{iconMaximized === true}}" ng-attr-data-selection="{{!!(component.selectionButtons.length && model.selected.length)}}">
+  <div class="grid-toolbar-band">
+  <div class="grid-toolbar-main">
   <awe-grid-search ng-if="component.controller.search" search-id="{{::component.controller.search}}" grid-id="{{::component.address.component}}"></awe-grid-search>
   <awe-grid-quick-filter ng-if="component.controller.quickFilter" quick-filter-id="{{::component.controller.quickFilter}}" grid-id="{{::component.address.component}}"></awe-grid-quick-filter>
   <awe-grid-group-by ng-if="::component.groupingConfigured && component.controller.showToolbar !== false" class="grid-group-by"></awe-grid-group-by>
   <span ng-if="component.controller.savedSearches || (${SHOW_COLUMNS}) || (${SHOW_MAXIMIZE})" class="grid-toolbar-spacer" aria-hidden="true"></span>
   ${getSavedSearchesTemplate("btn-awe btn-default grid-toolbar-button", "toolbarLabels['saved-searches']")}
   ${appliedDefaultTemplate}
+  </div>
+  <awe-grid-selection-bar ng-if="::component.selectionButtons.length"></awe-grid-selection-bar>
+  </div>
   <button ng-if="${SHOW_COLUMNS}" type="button" class="btn-awe btn-default grid-toolbar-button grid-columns-button" ng-class="{'grid-toolbar-button-icon': !toolbarLabels.columns}" data-testid="${TestIds.gridColumnsButton}" title="{{(toolbarLabels.columns ? 'GRID_COLUMNS_TITLE' : 'GRID_COLUMNS_BUTTON') | translateMultiple}}" ng-attr-aria-label="{{toolbarLabels.columns ? undefined : ('GRID_COLUMNS_BUTTON' | translateMultiple)}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{columnsOpen === true}}" ng-click="openColumns()">
     ${iconTemplate("columns")}
     <span ng-if="toolbarLabels.columns" class="button-text" translate-multiple="GRID_COLUMNS_BUTTON"></span>
