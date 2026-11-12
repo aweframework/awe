@@ -49,7 +49,7 @@ siempre procede de `support/4.x`, y una etiqueta `v5.y.z` (o posterior) siempre 
 | Etiquetas flotantes de Docker (`4`, `4.12`) | no | no | sí | no |
 | `Deploy · Maven snapshot` | sí | no | sí | no |
 | `Release · Start` (manual) | sí | no | sí | no |
-| `Deploy · Staging` / `Deploy · Production` (Kubernetes) | no | sí (prod) | no | no |
+| `Deploy · Staging` / `Deploy · Production` (Kubernetes) | sí (staging) | sí (prod) | no | no |
 | DAST | no | sí | no | no |
 | GitLab Pages (sitio de documentación) | sí | sí | no | no |
 | Pipeline de etiqueta (Maven Central, hitos, notas de versión) | en etiqueta | en etiqueta | en etiqueta | no |
@@ -488,9 +488,10 @@ explícita o, deliberadamente, uno de estos alias flotantes. La imagen `awe-boot
 pruebas que se ejecuta sobre el motor React, la contraparte de `awe-boot`. Sigue las mismas reglas que `awe-boot`
 (construida en `develop`, `master` y `support/*`, con las mismas etiquetas, registro de GitLab
 `registry.gitlab.com/aweframework/awe/awe-boot-react` y Docker Hub `aweframework/awe-boot-react`, firmada por digest y
-con la atestación del SBOM). Un job aparte, `Package · React jar`, empaqueta su jar a partir de los módulos y del bundle
-del cliente construido por `Build · Maven`. Ningún job de despliegue usa esta imagen: preproducción y producción
-despliegan solo `awe-boot`.
+con la atestación del SBOM). Un job aparte, `Package · React jar`, empaqueta su jar a partir de los módulos
+construidos por `Build · Maven` con el bundle de producción del cliente (`-Pproduction`: minificado y con las copias
+brotli y gzip que el servidor envía precomprimidas), y falla si el jar no lleva `bundle.js.br`. Los jobs de despliegue
+ejecutan esta imagen junto a `awe-boot`: `react-staging.aweframework.com` y `react-demo.aweframework.com`.
 
 ## Paquete npm {#npm-package}
 

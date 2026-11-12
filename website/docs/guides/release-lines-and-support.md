@@ -51,7 +51,7 @@ from `develop`/`master`.
 | Docker floating tags (`4`, `4.12`) | no | no | yes | no |
 | `Deploy · Maven snapshot` | yes | no | yes | no |
 | `Release · Start` (manual) | yes | no | yes | no |
-| `Deploy · Staging` / `Deploy · Production` (Kubernetes) | no | yes (prod) | no | no |
+| `Deploy · Staging` / `Deploy · Production` (Kubernetes) | yes (staging) | yes (prod) | no | no |
 | DAST | no | yes | no | no |
 | GitLab Pages (docs site) | yes | yes | no | no |
 | Tag pipeline (Maven Central, milestones, release notes) | on tag | on tag | on tag | no |
@@ -510,8 +510,10 @@ test application that runs on the React engine, the counterpart of `awe-boot`. I
 same rules as `awe-boot` (built on `develop`, `master` and `support/*`, with the same tags, GitLab
 registry `registry.gitlab.com/aweframework/awe/awe-boot-react` and Docker Hub
 `aweframework/awe-boot-react`, signed by digest and carrying the SBOM attestation). A separate job,
-`Package · React jar`, packages its jar from the modules and the client bundle built by
-`Build · Maven`. No deploy job uses this image: staging and production deploy `awe-boot` only.
+`Package · React jar`, packages its jar from the modules built by `Build · Maven` with the production client
+bundle (`-Pproduction`: minified, with the brotli and gzip copies the server sends precompressed), and fails if the
+jar has no `bundle.js.br`. The deploy jobs run this image next to `awe-boot`: `react-staging.aweframework.com` and
+`react-demo.aweframework.com`.
 
 ## npm package
 
