@@ -12,6 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
+import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -30,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -120,6 +122,53 @@ class SeleniumUtilitiesTest {
     long elapsedMillis = Duration.ofNanos(System.nanoTime() - startedAt).toMillis();
 
     assertThat(elapsedMillis).isLessThan(200L);
+  }
+
+  @Test
+  void shouldCheckTheValueOfACriterionWhoseInputIsGoneForAMoment() {
+    // The React suggest repaints its input when its initial value arrives: it is there for the wait, gone for the next
+    // look, then back with the value (#969)
+    WebElement input = repaintedInput();
+    when(driver.findElement(argThat(criterionInput()::equals)))
+      .thenReturn(input)
+      .thenThrow(new NoSuchElementException("repainted"))
+      .thenReturn(input);
+    when(input.getAttribute("value")).thenReturn("EUR");
+
+    assertThatCode(() -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "checkCriterionContents", "RefCurSug", "EUR"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldCheckTheValueOfACriterionWhoseInputIsReplaced() {
+    WebElement input = repaintedInput();
+    when(driver.findElement(argThat(criterionInput()::equals))).thenReturn(input);
+    when(input.getAttribute("value")).thenThrow(new StaleElementReferenceException("repainted")).thenReturn("EUR");
+
+    assertThatCode(() -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "checkCriterionContents", "RefCurSug", "EUR"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldFailWithTheValueThatWasReadWhenTheCriterionNeverContainsTheText() {
+    WebElement input = repaintedInput();
+    when(driver.findElement(argThat(criterionInput()::equals))).thenReturn(input);
+    when(input.getAttribute("value")).thenReturn("USD");
+
+    assertThatThrownBy(() -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "checkCriterionContents", "RefCurSug", "EUR"))
+      .isInstanceOf(AssertionFailedError.class)
+      .hasMessageContaining("USD");
+  }
+
+  private By criterionInput() {
+    IAweFrontEndInstructions instructions = (IAweFrontEndInstructions) ReflectionTestUtils.getField(seleniumUtilities, "frontEndInstructions");
+    return instructions.getCriterionInput(instructions.getCriterionCss("RefCurSug"));
+  }
+
+  private WebElement repaintedInput() {
+    WebElement input = mock(WebElement.class);
+    when(input.isDisplayed()).thenReturn(true);
+    return input;
   }
 
   @Test
