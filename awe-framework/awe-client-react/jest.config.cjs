@@ -72,6 +72,7 @@ module.exports = {
     '**/redux/storeShapeTest.{ts,tsx}',
     '**/utilities/menuSearchTest.{js,jsx}',
     '**/utilities/breadcrumbsTest.{js,jsx}',
+    '**/utilities/signinLoginModeTest.{js,jsx}',
     '**/utilities/numbersTest.{js,jsx}',
     '**/utilities/componentsTest.{js,jsx}',
     '**/utilities/revealTest.{js,jsx}',

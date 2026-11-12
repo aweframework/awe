@@ -1,6 +1,7 @@
 import {aweApplication} from "../awe";
 import _ from "lodash";
 import {getRowDetailInstanceData} from "./grid/rowDetail";
+import {loginLanguageParameters, loginModeParameters} from "awe-client-react/utilities/signin";
 
 // Server data service
 aweApplication.factory('ServerData',
@@ -364,6 +365,10 @@ aweApplication.factory('ServerData',
               _.merge(message.values, target.getSpecificFields());
             }
           }
+
+          // The login also sends the colour mode and the language chosen on the sign-in page, saved for the user
+          const launched = message.values[$settings.get("serverActionKey")];
+          Object.assign(message.values, loginModeParameters(launched), loginLanguageParameters(launched));
 
           // Launch server action
           let  request = Connection.sendMessage(message);

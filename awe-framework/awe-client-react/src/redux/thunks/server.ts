@@ -5,6 +5,7 @@ import type { ComponentState } from "../../utilities/mergeUtils";
 import { acceptAction, addActionsTop } from "../actions/actions";
 import type { ActionItem } from "../actions/actions";
 import { runRefusal } from "./refusal";
+import { loginLanguageParameters, loginModeParameters } from "../../utilities/signin";
 import { updateAttributes } from "../actions/components";
 import { getFormValues } from "../selectors/form";
 import { getAllComponents } from "../selectors/componentSelectors";
@@ -76,7 +77,8 @@ export const serverAction = (
         // Form values win over the action parameters (as in the AngularJS client): the action always carries
         // null target, value and label, which would otherwise wipe a component or column with that name. The
         // components of a grid row detail instance also send the values of their instance
-        { ...parameters, ...getButtonValue(callerGrid as ComponentState | null | undefined, address), ...getFormValues(getState(), forPrinting, t, address, origin === "menu" ? "base" : undefined) },
+        // The login also sends the colour mode and the language chosen on the sign-in page, saved for the user
+        { ...parameters, ...getButtonValue(callerGrid as ComponentState | null | undefined, address), ...getFormValues(getState(), forPrinting, t, address, origin === "menu" ? "base" : undefined), ...loginModeParameters(serverAction), ...loginLanguageParameters(serverAction) },
         settings.token,
         null
       ) as ClientAction[];

@@ -7,7 +7,7 @@ import {OverlayPanel} from "primereact/overlaypanel";
 import PropTypes from "prop-types";
 import {DEFAULT_LOGIN_SETTINGS, updateSettings} from "../redux/actions/settings";
 import {getIconCode, getIconNode} from "../utilities";
-import {loginMode, readLoginMode, storeLoginMode} from "../utilities/signin";
+import {loginMode, readLoginMode, storeLoginLanguage, storeLoginMode} from "../utilities/signin";
 
 /**
  * Language and colour mode selectors. The sign-in page shows them in its footer; any other screen shows a compact
@@ -23,13 +23,27 @@ const MODE_OPTIONS = [
 ];
 
 /**
+ * Change of language of a selector: the language of the settings and, without a user session, the pending choice the
+ * login saves as the language of the user
+ * @return Change the language
+ */
+function useChooseLanguage() {
+  const dispatch = useDispatch();
+  const authenticated = useSelector(state => state.settings.authenticated);
+  return language => {
+    storeLoginLanguage(language, authenticated);
+    dispatch(updateSettings({language}));
+  };
+}
+
+/**
  * Language selector: the languages of the application in the AWE select. A change is the change of language of the
  * application (the language of the settings, which the view turns into the language of the texts)
  * @param {object} props Component properties
  * @param {string[]} props.languages Codes of the languages to choose from
  */
 export function LanguageSelector({languages}) {
-  const dispatch = useDispatch();
+  const chooseLanguage = useChooseLanguage();
   const language = useSelector(state => state.settings.language);
   const {t} = useTranslation();
   const options = languages.map(code => ({value: code, label: t(`ENUM_LAN_${code.toUpperCase()}`)}));
@@ -43,7 +57,7 @@ export function LanguageSelector({languages}) {
     panelClassName="signin-language-panel"
     value={language}
     options={options}
-    onChange={event => dispatch(updateSettings({language: event.value}))}
+    onChange={event => chooseLanguage(event.value)}
     valueTemplate={valueTemplate}
     ariaLabel={t("PARAMETER_LANGUAGE")}
     aria-label={t("PARAMETER_LANGUAGE")}
@@ -151,14 +165,14 @@ PreferenceMenu.propTypes = {
  * @param {string[]} props.languages Codes of the languages to choose from
  */
 function CompactLanguage({languages}) {
-  const dispatch = useDispatch();
+  const chooseLanguage = useChooseLanguage();
   const language = useSelector(state => state.settings.language);
   const {t} = useTranslation();
   const options = languages.map(code => ({value: code, label: t(`ENUM_LAN_${code.toUpperCase()}`)}));
   const code = (language ?? "").split("-")[0].toUpperCase();
   return <PreferenceMenu className="awe-preferences-language" icon="lucide:globe" label={code}
                          name={t("PARAMETER_LANGUAGE")} options={options} value={language}
-                         onSelect={value => dispatch(updateSettings({language: value}))}/>;
+                         onSelect={chooseLanguage}/>;
 }
 
 CompactLanguage.propTypes = {

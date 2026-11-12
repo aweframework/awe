@@ -61,6 +61,30 @@ describe('awe-react-client/test/js/redux/thunks/serverThunkTest.js', () => {
       expect(added.actions.map(answer => answer.silent)).toEqual([answerSilent]);
     });
 
+    it('sends with the login the colour mode chosen on the sign-in page, saved as the mode of the user', async () => {
+      const address = {view: 'base', component: 'ButLogIn'};
+      sessionStorage.setItem('awe-login-mode-pending', 'dark');
+      global.fetch.mockResolvedValue({ok: true, json: () => Promise.resolve([])});
+
+      await serverAction({type: 'server', address, parameters: {serverAction: 'login', targetAction: null}})(
+        dispatch, () => ({settings: {token: 'token'}, components: {ButLogIn: {address, attributes: {}}}}));
+
+      expect(JSON.parse(global.fetch.mock.calls[0][1].body).signinThemeMode).toBe('dark');
+      sessionStorage.removeItem('awe-login-mode-pending');
+    });
+
+    it('sends with the login the language chosen on the sign-in page, saved as the language of the user', async () => {
+      const address = {view: 'base', component: 'ButLogIn'};
+      sessionStorage.setItem('awe-login-language-pending', 'es-ES');
+      global.fetch.mockResolvedValue({ok: true, json: () => Promise.resolve([])});
+
+      await serverAction({type: 'server', address, parameters: {serverAction: 'login', targetAction: null}})(
+        dispatch, () => ({settings: {token: 'token'}, components: {ButLogIn: {address, attributes: {}}}}));
+
+      expect(JSON.parse(global.fetch.mock.calls[0][1].body).signinLanguage).toBe('es-ES');
+      sessionStorage.removeItem('awe-login-language-pending');
+    });
+
     describe('action called from a button with a value (#768)', () => {
       const address = {view: 'base', component: 'notification-1'};
       const send = async (attributes) => {

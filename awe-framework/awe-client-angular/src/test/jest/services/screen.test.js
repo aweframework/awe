@@ -270,6 +270,18 @@ describe("Screen", () => {
     expect($actionController.acceptAction).toHaveBeenCalledWith(themeAction);
   });
 
+  it("forgets the colour mode and the language chosen on the sign-in page once the login completed, as the server saved them", () => {
+    jest.spyOn($storage, "get").mockReturnValue({base: {}});
+    jest.spyOn($settings, "refreshAppearance").mockReturnValue(Promise.resolve());
+    sessionStorage.setItem("awe-login-mode-pending", "dark");
+    sessionStorage.setItem("awe-login-language-pending", "es-ES");
+
+    $screen.changeTheme(action({context: "base", parameters: {theme: "sky"}}));
+
+    expect(sessionStorage.getItem("awe-login-mode-pending")).toBeNull();
+    expect(sessionStorage.getItem("awe-login-language-pending")).toBeNull();
+  });
+
   it("changes language from action parameters when storage has no selected language", () => {
     jest.spyOn($storage, "get").mockReturnValue({base: {}});
     jest.spyOn($settings, "changeLanguage");

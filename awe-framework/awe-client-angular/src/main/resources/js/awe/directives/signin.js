@@ -1,6 +1,7 @@
 import {aweApplication} from "../awe";
 import {observeModeClasses} from "awe-client-react/utilities/themeAppearance";
 import {subscribe} from "awe-client-react/utilities/loginEffects";
+import {storeLoginLanguage, storeLoginMode} from "awe-client-react/utilities/signin";
 import {iconMarkup} from "../services/icon";
 import {TestAttributes, TestIds} from "../data/testIds";
 
@@ -79,16 +80,11 @@ const storedMode = () => {
 };
 
 /**
- * Keep a mode in the local storage of the browser (nothing when the storage is not available)
+ * Keep a mode in the local storage of the browser for the next visit, and as the pending choice the login saves for the
+ * user (nothing when the storage is not available)
  * @param {string} mode Mode
  */
-const storeMode = mode => {
-  try {
-    window.localStorage.setItem(MODE_KEY, mode);
-  } catch {
-    // The mode applies to this page only
-  }
-};
+const storeMode = mode => storeLoginMode(mode);
 
 /**
  * Callback that does nothing: a selector that is not shown, or nothing to hide
@@ -266,7 +262,8 @@ const applyCaption = ({panel, login, translated}) => {
 
 /**
  * Language selector: a select-only combobox with the languages of settings.login in a listbox (no native select
- * popup). Choosing a language changes it as the language selector of the application does
+ * popup). Choosing a language changes it as the language selector of the application does, and the login saves it as the
+ * language of the user
  * @param {object} args Arguments
  * @param {number} args.scopeId Scope id (unique ids of the page)
  * @param {string[]} args.languages Language codes
@@ -331,6 +328,8 @@ const createLanguageSelector = ({scopeId, languages, $settings, translated, tran
       showSelected();
       translate();
       $settings.changeLanguage(current);
+      // Pending until the login saves it as the language of the user (the sign-in page has no user session)
+      storeLoginLanguage(current, $settings.get("authenticated"));
     }
   };
 

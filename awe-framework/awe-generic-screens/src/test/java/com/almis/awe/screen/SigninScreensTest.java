@@ -207,4 +207,26 @@ class SigninScreensTest {
     assertThat(byId(screen, "button", "ButLogIn")).isNotNull();
     assertThat(elements(screen, "dependency")).isEmpty();
   }
+
+  @Test
+  @DisplayName("The language chosen on the sign-in page is saved by a server-only target for the user the login names")
+  void signinLanguageIsSavedByAServerOnlyTarget() throws Exception {
+    Element target = byName(load("application/awe/global/Maintain.xml"), "updateUserLanguage");
+
+    // Not launchable from a client, and the user is the one the login passes (there is no session user yet)
+    assertThat(target.getAttribute("server-only")).isEqualTo("true");
+    Element field = (Element) target.getElementsByTagName("field").item(0);
+    assertThat(field.getAttribute("id") + " " + field.getAttribute("variable")).isEqualTo("l1_lan language");
+    Element filter = (Element) target.getElementsByTagName("filter").item(0);
+    assertThat(filter.getAttribute("left-field") + " " + filter.getAttribute("right-variable")).isEqualTo("l1_nom user");
+    assertThat(elements(target.getOwnerDocument(), "variable").stream()
+      .filter(variable -> variable.getParentNode().getParentNode() == target)
+      .map(variable -> variable.getAttribute("id") + " " + variable.getAttribute("name") + variable.getAttribute("session")))
+      .containsExactlyInAnyOrder("user user", "language language");
+  }
+
+  private Element byName(Document document, String name) {
+    return elements(document, "target").stream().filter(e -> name.equals(e.getAttribute("name"))).findFirst()
+      .orElseThrow(() -> new AssertionError("target " + name + " not found"));
+  }
 }
