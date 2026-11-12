@@ -1828,7 +1828,8 @@ Docs · Javadoc & schemas:
 # The React test application jar for the "awe-boot-react" image. "Build · Maven" artifacts only the awe-boot jar (every
 # test job downloads that job's artifacts, so a second ~250MB jar would be downloaded dozens of times); this job packages
 # the React application from the modules and the client bundle that "Build · Maven" already built, and runs on the
-# branches that publish images only.
+# branches that publish images only. The production profile builds the client with webpack.prod.js (minified, with the
+# brotli and gzip copies the server sends precompressed, #965): without it the image ships the development bundle.
 Package · React jar:
   stage: package
   tags: [ medium ]
@@ -1838,8 +1839,10 @@ Package · React jar:
     - job: Build · Maven
       artifacts: true
   script:
-    - mvn -f awe-tests/awe-boot-react/pom.xml $MAVEN_CLI_OPTS package $SKIP_TESTS
+    - mvn -f awe-tests/awe-boot-react/pom.xml $MAVEN_CLI_OPTS package $SKIP_TESTS -Pproduction
     - test -f awe-tests/awe-boot-react/target/awe-react.jar
+    # Stop before publishing an image without the production bundle (precompressed brotli copy)
+    - jar tf awe-tests/awe-boot-react/target/awe-react.jar | grep -q '^BOOT-INF/classes/static/js/bundle.js.br$'
   artifacts:
     paths:
       - awe-tests/awe-boot-react/target/awe-react.jar
