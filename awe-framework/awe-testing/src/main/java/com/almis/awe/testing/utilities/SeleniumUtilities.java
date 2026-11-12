@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -1119,11 +1120,24 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkCriterionContains(By selector, String text) {
-    String nodeText = getElement(selector).getAttribute("value");
-    String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
+    // The front end may repaint the input while its value arrives (#969): look it up again on every try, a stale or
+    // missing input is "not yet"
+    AtomicReference<String> nodeText = new AtomicReference<>();
+    try {
+      new WebDriverWait(seleniumModel.getDriver(), properties.getTimeout())
+        .ignoring(StaleElementReferenceException.class)
+        .until(driver -> {
+          nodeText.set(driver.findElement(selector).getAttribute("value"));
+          return nodeText.get() != null && nodeText.get().contains(text);
+        });
+    } catch (TimeoutException exc) {
+      log.debug("The value of {} does not contain '{}'", selector, text);
+    }
+    String value = nodeText.get();
+    String message = selector.toString() + TEXT_VALUE + value + "' doesn't contain " + text;
 
-    // Assert element is not located
-    assertWithScreenshot(message, nodeText.contains(text));
+    // Assert the value contains the text
+    assertWithScreenshot(message, value != null && value.contains(text));
   }
 
   // ===================================================================================================================
