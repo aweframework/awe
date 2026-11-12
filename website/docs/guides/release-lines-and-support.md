@@ -389,15 +389,28 @@ to 25) or tool major is a manual decision.
 | `develop` | Everything: major, minor, patch, pin, digest, lock file and security | Patch releases of direct Maven and npm dependencies, once they are old enough (see below), only when the merge-request pipeline passes (the approval rule is lifted for those merge requests only). Digests, pins, CI images, the Dockerfile, compose files and lock-file maintenance wait for a human |
 | `support/4.x` | Patch, pin, digest and security fixes (OSV) | None: a maintainer merges |
 
-Related updates are grouped into one merge request: Spring Boot, Spring Cloud, Selenium
-(with the WebDriver manager), Maven plugins, Babel, Jest, Docusaurus, the CI images, the
-docker-compose images and the Node toolchain. At most 8 bot merge requests are open at once
+Related updates are grouped into one merge request: the Spring platform (Spring Boot together
+with its Spring Cloud release train), Selenium (with the WebDriver manager), Maven plugins, Babel,
+Jest, Docusaurus, the CI images, the docker-compose images and the Node toolchain.
+
+The Spring platform is the base of the whole backend, so its merge request is created before
+the other updates. Every Spring Boot minor needs a new Spring Cloud train (for example Boot 4.2
+needs Cloud 2026.0), so both arrive in the same merge request and wait the same 14 days, even
+though Renovate counts a new Cloud train as a major. Patch releases of both merge by themselves
+like any other patch; a minor (a new Boot minor with its Cloud train) waits for a person. Spring
+Boot never moves to a new major through Renovate: Boot 5 is a manual migration. When the Cloud
+train for Boot 5 is published, Renovate may propose it alone; its pipeline fails (Spring Cloud
+checks the Boot version at startup) and the merge request is closed by hand. At most 8 bot merge requests are open at once
 (security fixes are exempt from that limit). Every merge request carries the `update-dependencies` label (plus `security` for
 vulnerability fixes) and a Conventional Commit message, `fix(deps)` for runtime
 dependencies and `chore(deps)` otherwise. A "Dependency Dashboard" issue lists pending,
 open and blocked updates; major updates of the legacy AngularJS client
 (`awe-client-angular`, `awe-tools` and the `awe-tests` applications) are only opened after
-someone ticks them there, since that client is being replaced in AWE 5. Security alerts come from the OSV database and cover direct
+someone ticks them there, since that client is being replaced in AWE 5. Major updates of the
+React client (`awe-client-react`) also wait for that approval: they need code changes, and with
+one run a week they would otherwise take the slots of the patch and minor updates. PrimeReact
+stays on version 10, because version 11 changed its licence (primeicons and primeflex are not
+affected). Security alerts come from the OSV database and cover direct
 dependencies only.
 
 Renovate does not propose a version as soon as it is published: every update waits until its version is 14 days
