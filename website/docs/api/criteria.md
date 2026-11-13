@@ -250,7 +250,12 @@ and `.to`. Both are dates in `dd/MM/yyyy` format (a `null` when the date is empt
 ```
 
 The **[value](#general-attributes)** attribute is a list of the two default dates separated by a comma
-(`value="01/01/2026,31/01/2026"`); an empty first date (`value=",31/01/2026"`) leaves the start open.
+(`value="01/01/2026,31/01/2026"`); an empty first date (`value=",31/01/2026"`) leaves the start open. It also accepts
+one of the preset codes below (`value="YTD"`): the server resolves it into its two dates from the server date, and the
+criterion opens with that preset shown as active. Reset and restore go back to that range.
+
+A value initial load (`initial-load="value"`) fills the range from the `value` column of the first two rows of its
+target: the first row is the start date and the second one the end date.
 
 The **[presets](#specific-attributes)** attribute defines the quick presets. Each code is shown as a button which fills
 both dates from the current date, and the active preset is cleared as soon as one of the dates is edited:

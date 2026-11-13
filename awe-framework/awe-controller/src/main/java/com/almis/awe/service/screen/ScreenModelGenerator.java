@@ -32,11 +32,13 @@ import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import static com.almis.awe.model.type.InputType.*;
 
@@ -488,7 +490,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       ComponentModel model = component.getModel();
       if (LoadType.VALUE.toString().equalsIgnoreCase(component.getController().getInitialLoad())) {
         List<CellData> selectedData = getSelectedData(componentData, "value");
-        List<CellData> initialSelectedData = isMultipleCriteria(component.getController()) ? selectedData : selectedData.stream().findFirst().map(List::of).orElse(Collections.emptyList());
+        List<CellData> initialSelectedData = selectedData.stream().limit(initialValueCount(component.getController())).collect(Collectors.toList());
         model.setDefaultValues(initialSelectedData);
         model.setSelected(initialSelectedData);
       }
@@ -747,14 +749,19 @@ public class ScreenModelGenerator extends ServiceConfig {
   }
 
   /**
-   * Check if a component is a multiple criteria selector.
+   * Number of rows a value initial load keeps: all of them for a multiple selector, the start and the end for a date
+   * range, the first one otherwise.
    *
    * @param component Component controller
-   * @return True when the criteria accepts multiple selected values
+   * @return Maximum number of selected values
    */
-  private boolean isMultipleCriteria(Component component) {
-    return component instanceof AbstractCriteria abstractCriteria
-      && isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE), abstractCriteria.getComponentType());
+  private long initialValueCount(Component component) {
+    if (!(component instanceof AbstractCriteria criteria)) {
+      return 1;
+    } else if (isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE), criteria.getComponentType())) {
+      return Long.MAX_VALUE;
+    }
+    return isSpecificComponent(List.of(DATE_RANGE), criteria.getComponentType()) ? 2 : 1;
   }
 
   /**
@@ -912,6 +919,12 @@ public class ScreenModelGenerator extends ServiceConfig {
       // Generic criteria (not RADIO BUTTON!)
     } else if (criterion.getValue() != null && !isRadioButton(criterion.getComponentType())) {
       defaultValues = getDefaultValuesAsString(criterion.getValue());
+      // A date range can default to one of its presets (value="YTD")
+      if (isSpecificComponent(List.of(DATE_RANGE), criterion.getComponentType())) {
+        defaultValues = DateRangePreset.resolve(criterion.getValue(), LocalDate.now())
+          .map(range -> range.stream().map(CellData::new).collect(Collectors.toList()))
+          .orElse(defaultValues);
+      }
     }
     return defaultValues;
   }
