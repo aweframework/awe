@@ -4,12 +4,11 @@ title: AWE 5 Migration Guide
 sidebar_label: AWE 5 Migration Guide
 ---
 
-This guide lists what an application has to review when it moves from AWE 4 to AWE 5. It is a living page: every
-change of the `develop` branch that can affect an existing application adds an entry here (see
-[Maintaining this guide](#maintaining-this-guide)), so it grows until the final 5.0 release.
+This guide lists what an application has to review when it moves from AWE 4 to AWE 5.0. Every later 5.x release that
+can affect an existing application adds its entries here (see [Maintaining this guide](#maintaining-this-guide)).
 
-Entries describe only changes that are already merged. Planned changes are listed apart, in
-[Coming in AWE 5](#coming-in-awe-5), and are not described in detail until they land.
+Entries describe only changes that are released. What is already announced for a later 5.x release is listed apart, in
+[Planned for AWE 5.1](#planned-for-awe-51).
 
 ## Who this guide is for
 
@@ -29,16 +28,16 @@ for example custom widgets or browser tests built on `awe-testing`.
 
 ## Compatibility matrix
 
-Only what the repository declares today is listed. Items marked *planned* are not in `develop` yet.
+Only what the repository declares is listed.
 
-| Component | AWE 4 (`support/4.x`) | AWE 5 (`develop`) | Notes |
+| Component | AWE 4 (`support/4.x`) | AWE 5.0 | Notes |
 |---|---|---|---|
 | Java (build target and runtime) | 17 | **21** | `java.version` in `awe-dependencies` and in the archetypes. A JDK 21 is required to build and to run. See [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41). |
 | Spring Boot | 3.5.16 | **4.1.1** | Spring Framework 7.0, Spring Security 7.0, JUnit 6, Flyway 11. |
 | Spring Cloud | 2025.0.3 | **2025.1.3** | |
 | Jackson | 2.x (`com.fasterxml.jackson`) | **3.2.1** (`tools.jackson`) | Annotations stay in `com.fasterxml.jackson.annotation`. See [Jackson 3](#jackson-3). |
-| java-jwt / springdoc-openapi | 3.18.2 / 2.8.13 | 4.5.0 / 3.0.3 | |
-| Node.js used by the Maven frontend build | v24.14.0 | v24.14.0 | `node.version` in `awe-dependencies`. Applications that build the React client with their own Node should use the same major version. |
+| java-jwt / springdoc-openapi | 3.18.2 / 2.8.13 | 4.6.2 / 3.1.1 | |
+| Node.js used by the Maven frontend build | v24.14.0 | v24.21.0 | `node.version` in `awe-dependencies`. Applications that build the React client with their own Node should use the same major version. |
 | React client (`awe-react-client`) | `2.x`, own version line | Same version as the framework (`5.y.z`) | See [React client upgrade](react-client-upgrade.md). React 19.3.1 (AWE 4: React 18). |
 | Charts, React engine | Highcharts | Apache ECharts 6.1.0 | See [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5). |
 | Charts, AngularJS engine | Highcharts | Apache ECharts 6.1.0 | Same option builder as the React engine. See [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5). |
@@ -112,6 +111,11 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Grid toolbar buttons | The end buttons of the grid toolbar (*Group by*, *Saved searches*, *Columns* and *Maximize*) show only their icon by default, in both engines; their label is the tooltip and the accessible name. New grid attributes `show-columns-button`, `show-maximize-button` and `toolbar-labels`. | Set `awe.application.component.grid-toolbar-labels=true` to keep the labels in every grid, or `toolbar-labels` on one grid: `true` for every end button, or a list of the buttons that keep it, such as `toolbar-labels="saved-searches"`. A grid with `show-columns-button="false"` ignores the column layout stored by its users. | [Labels of the toolbar buttons](../api/grids.md#toolbar-labels) |
 | Advanced search state (#790, new) | Flyway applies `AWE_V1.5.1__window_advanced_state.sql` and creates the `AweUsrWinCnf` table (and the `WinCnfKey` key). It only stores, per user and screen, whether the inline advanced block of a window was left open: windows without an `<advanced>` block do not use it. The script can be applied again. | Nothing. Applications that do not use the Flyway migrations of AWE have to create `AweUsrWinCnf` themselves (see the script of their database in `db/migration`). | [Advanced search](../api/window.md#advanced-search), issue #790 |
 | Saved searches (#790, new) | Flyway applies `AWE_V1.5.2__saved_searches.sql` and creates the `AweSavSch` table (and the `SavSchKey` key). It stores the searches users save in the windows with `saved-searches="true"`: own searches and searches published for a profile. Windows without the attribute do not use it. The script can be applied again. | Nothing. Applications that do not use the Flyway migrations of AWE have to create `AweSavSch` themselves (see the script of their database in `db/migration`). Who publishes for a profile is decided by the access to the menu option of `awe.saved-search.publish-option` (default `profiles`). | [Saved searches](../api/window.md#saved-searches), issue #790 |
+| Default saved search (#915, #945) | Flyway applies `AWE_V1.6.1__default_saved_search.sql`: it adds `AweUsrWinCnf.DefSavSch` and `AweSavSch.Def` and makes `AweUsrWinCnf.AdvOpn` nullable. A user or a profile can choose the search a window or a grid opens with. | Nothing with the AWE Flyway migrations. An application that manages its own schema applies the script of its database in `db/migration`. | |
+| Theme model (#885) | Flyway applies `AWE_V1.5.0__Theme_primary_surface.sql`: `AweThm` (and `HISAweThm`) gain the primary colour, surface and mode of a theme (`Pri`, `Srf`, `Mde`), filled from the light colours of `AweThmCol`, and `AweUsrSet` gains the density of the user. `AweThmCol` is kept but no longer used. | Nothing with the AWE Flyway migrations. An application that manages its own schema applies the script of its database in `db/migration` (it can be applied again: it only fills empty values). | [Colour and themes](../design-system/color-and-themes.md) |
+| HTML in React grid cells (#829) | A grid cell of the React client that renders HTML from the data loses its scripts, event handlers, `javascript:` links, inline `style` and `data-*` attributes; simple formatting tags (`b`, `em`, `span`, `a`, lists...) and the `class`, `href`, `target` and `title` attributes are kept. | Style the HTML of a cell with a CSS class instead of an inline `style`. | |
+| Map (AngularJS client) | The legacy `aweMap` directive and the vendored `angular-google-maps`, never bundled, are removed (#798, #882). | Use the new `map` screen element (Leaflet with OpenStreetMap tiles), available in both web engines. | |
+| AngularJS engine (#776) | Nothing changes: the AngularJS engine keeps working, `angular-ui-grid` included. It is frozen in AWE 5: its components are not replaced or extended, and new components land in the React engine only. | Plan new screens and components on the React engine. | |
 | Screen personalization (#792, new) | The *Screen configuration* option opens a visual editor in both engines: the rules of a screen are chosen element by element, validated, listed in an overview, kept in a history and exported or imported as a file. Flyway applies `AWE_V1.6.2__Screen_configuration_history_timestamp.sql`, which turns `HISAweScrCnf.HISdat` into a timestamp so the history shows the time of each change. The editor queries require `access.read` and saving requires `access.update`; every rule of a screen the user cannot open is refused. A sequence key of a grid `multiple` maintain is now stored only in the row it belongs to (before, it replaced the values of every row). | Nothing for the administrator profile. With `enforce`, give the other profiles that configure screens `access.read` and `access.update` in `AweProPer`. Applications that do not use the Flyway migrations of AWE alter `HISAweScrCnf` themselves (see the script of their database in `db/migration`). | [Screen personalization](screen-personalization.md), issue #792 |
 | Icons (both clients) | Icons look different: every Font Awesome name (`icon="name"`) and `mdi:` name of the equivalence table is drawn as a Lucide line icon, an inline `svg` that uses the sprite `icons/lucide-sprite.svg`, instead of the `fa fa-<name>` or Material Icons element (and, in React, instead of the PrimeIcons of the AWE components). Names without equivalence (brand icons such as `rebel`) keep their font. CSS of the application that targets the font glyph (`.fa-<name>:before`, `content` or `font-size` on `.fa`, `.pi-*`) no longer applies to the mapped icons. The element keeps the XML name in `data-icon`, so browser tests that locate icons keep working. | Nothing for the descriptors. Move the CSS that styled the glyph to the `svg.awe-icon` (it takes the text colour, `currentColor`, and the `--awe-size-icon` tokens). For new screens use `icon="lucide:<name>"` with any Lucide name. | [Icons](../api/icons.md), [Equivalence table](../api/icons.md#equivalence-table) (issue #885) |
 | Icon sprite and security configuration | The sign-in page (and every public screen) shows no icons: `GET /icons/lucide-sprite.svg` answers `401` because the application builds its own security configuration with its own list of public web resources. | Add `/icons/**` to the public web resources of your security configuration, next to `/css/**`, `/js/**` or `/fonts/**`. The AWE security configuration already allows it. | issue #885 |
@@ -1327,16 +1331,24 @@ compiled classes, so it includes the getters and setters that Lombok generates.
 
 </details>
 
-## Coming in AWE 5
+## Planned for AWE 5.1
 
-These initiatives are open, labelled for the 5.0.0 milestone and expected to need action from applications. They are
-listed so you can plan; each one adds its own entry above when it is merged.
+The screens that AWE 5.0 replaces with the new administration screens are deprecated and **will be removed in 5.1.0**.
+Point your own menu options, actions and tests to the new screens now (see the [Upgrade checklist](#upgrade-checklist)):
 
-| Issue | Title |
+| Deprecated screens | Replacement |
 |---|---|
-| [#755](https://gitlab.com/aweframework/awe/-/issues/755) | Replace vendored Bootstrap 3 with Tailwind and an AWE compatibility layer |
-| [#776](https://gitlab.com/aweframework/awe/-/issues/776) | Replace angular-ui-grid with a modern grid component |
-| [#829](https://gitlab.com/aweframework/awe/-/issues/829) | Sanitize the HTML of grid cells in the React client (an inline `style` in a cell will be dropped; use a CSS class) |
+| `ScrAccRes`, `menu-access`, `screen-access` | `access-admin` |
+| `Usr`, `UsrNew`, `UsrUpd`, `UsrViw` | `user-admin` |
+| `Prf`, `PrfNew`, `PrfUpd`, `PrfViw` | `profile-admin` |
+| `Thm`, `ThmNew`, `ThmUpd`, `ThmViw` | `theme-admin` |
+| `Dbs`, `DbsNew`, `DbsUpd`, `DbsViw` | `database-admin` |
+| `Sit`, `SitNew`, `SitUpd`, `SitViw` | `site-admin` |
+| `Mod`, `ModNew`, `ModUpd`, `ModViw` | `module-admin` |
+| `Que`, `QueNew`, `QueUpd` | `queue-admin` |
+| `EmlSrv`, `EmlSrvNew`, `EmlSrvUpd` | `email-server-admin` |
+| `AweKey` | `sequence-admin` |
+| `AweAppPar` | `application-parameter-admin` |
 
 ## Upgrade checklist
 
@@ -1410,6 +1422,6 @@ This guide is only useful if it stays current, so it is part of the definition o
   entry to the AWE 5 migration guide". The `has impacts` label marks these merge requests and issues.
 - **How:** add one row to the table [What changes](#what-changes) with the symptom, what to do and a link to the
   detailed page, and a sub-section below it when the row is not enough. Describe only what is merged and was checked in
-  the code; move the issue out of [Coming in AWE 5](#coming-in-awe-5) when it lands.
+  the code.
 - **Where:** edit `website/docs/guides/v5-migration.md` on `develop`. Changes that only exist on the 4.x line belong in
   the documentation of `support/4.x` (see [Documentation per line](release-lines-and-support.md#documentation-per-line)).

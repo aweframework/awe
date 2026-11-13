@@ -366,6 +366,22 @@ MR · Script tests:
         - bin/test-local-ci.sh
         - .gitlab/commitlint/**/*
 
+# Offline tests of the changelog functions of the release script (bin/lib/changelog.sh); only when they change. It uses
+# the image of the Release · Start job, which has the bash, jq and git that bin/release.sh needs.
+MR · Release script tests:
+  extends: .mr-checks
+  image: registry.gitlab.com/aweframework/docker-tools/ci-release:1.0.2@sha256:3d68a1ee1bdc8d448925ab62777644996bedda38cbb2add19fa23d0054bf5728
+  script:
+    - bash bin/test-release-changelog.sh
+  rules:
+    - if: '$CI_MERGE_REQUEST_IID'
+      changes:
+        - .gitlab-ci.yml
+        - bin/release.sh
+        - bin/lib/**/*
+        - bin/test-release-changelog.sh
+        - bin/test-fixtures/changelog/**/*
+
 # Blocking (#762): ESLint of the two front-end engines (AngularJS and React), in a job of its own so a lint failure shows
 # in about a minute, before the unit tests start. Each client has a "lint:ci" script (package.json) with --max-warnings set
 # to its current number of warnings: errors fail, and so does any new warning. The number only goes down: when a merge request
@@ -2321,6 +2337,8 @@ Release · Start:
     - ./bin/release.sh $API_URL $API_TOKEN "$CI_PROJECT_TITLE"
     - git checkout ./bin/release.sh
     - git add ./CHANGELOG.md
+    # The changelogs of the older lines (CHANGELOG-4.x.md...) that release.sh regenerated; none on support/*
+    - for file in ./CHANGELOG-*.x.md; do if [ -f "$file" ]; then git add "$file"; fi; done
     - git commit -m "Generated CHANGELOG"
     ## Generate new version of documentation if major or minor
     - chmod +x ./bin/docusaurus.sh

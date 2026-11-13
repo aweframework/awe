@@ -4,12 +4,12 @@ title: Guía de migración a AWE 5
 sidebar_label: Guía de migración a AWE 5
 ---
 
-Esta guía enumera lo que una aplicación debe revisar cuando pasa de AWE 4 a AWE 5. Es una página viva: cada cambio de
-la rama `develop` que pueda afectar a una aplicación existente añade aquí una entrada (consulte
-[Mantenimiento de esta guía](#maintaining-this-guide)), por lo que irá creciendo hasta la versión final 5.0.
+Esta guía enumera lo que una aplicación debe revisar cuando pasa de AWE 4 a AWE 5.0. Cada versión 5.x posterior que
+pueda afectar a una aplicación existente añade aquí sus entradas (consulte
+[Mantenimiento de esta guía](#maintaining-this-guide)).
 
-Las entradas describen únicamente cambios que ya están integrados. Los cambios previstos se listan aparte, en
-[Próximamente en AWE 5](#coming-in-awe-5), y no se describen en detalle hasta que se integren.
+Las entradas describen únicamente cambios ya publicados. Lo que ya está anunciado para una versión 5.x posterior se lista
+aparte, en [Previsto para AWE 5.1](#planned-for-awe-51).
 
 ## A quién va dirigida esta guía {#who-this-guide-is-for}
 
@@ -30,16 +30,16 @@ que extienden AWE, por ejemplo widgets personalizados o pruebas de navegador con
 
 ## Matriz de compatibilidad {#compatibility-matrix}
 
-Solo se lista lo que el repositorio declara hoy. Los elementos marcados como *previsto* todavía no están en `develop`.
+Solo se lista lo que el repositorio declara.
 
-| Componente | AWE 4 (`support/4.x`) | AWE 5 (`develop`) | Notas |
+| Componente | AWE 4 (`support/4.x`) | AWE 5.0 | Notas |
 |---|---|---|---|
 | Java (destino de compilación y ejecución) | 17 | **21** | `java.version` en `awe-dependencies` y en los arquetipos. Se necesita un JDK 21 para compilar y para ejecutar. Consulte [Java 21 y Spring Boot 4.1](#java-21-and-spring-boot-41). |
 | Spring Boot | 3.5.16 | **4.1.1** | Spring Framework 7.0, Spring Security 7.0, JUnit 6, Flyway 11. |
 | Spring Cloud | 2025.0.3 | **2025.1.3** | |
 | Jackson | 2.x (`com.fasterxml.jackson`) | **3.2.1** (`tools.jackson`) | Las anotaciones siguen en `com.fasterxml.jackson.annotation`. Consulte [Jackson 3](#jackson-3). |
-| java-jwt / springdoc-openapi | 3.18.2 / 2.8.13 | 4.5.0 / 3.0.3 | |
-| Node.js usado por la compilación del frontend con Maven | v24.14.0 | v24.14.0 | `node.version` en `awe-dependencies`. Las aplicaciones que compilan el cliente React con su propio Node deberían usar la misma versión mayor. |
+| java-jwt / springdoc-openapi | 3.18.2 / 2.8.13 | 4.6.2 / 3.1.1 | |
+| Node.js usado por la compilación del frontend con Maven | v24.14.0 | v24.21.0 | `node.version` en `awe-dependencies`. Las aplicaciones que compilan el cliente React con su propio Node deberían usar la misma versión mayor. |
 | Cliente React (`awe-react-client`) | `2.x`, línea de versiones propia | Misma versión que el framework (`5.y.z`) | Consulte [Actualización del cliente React](react-client-upgrade.md). React 19.3.1 (AWE 4: React 18). |
 | Gráficos, motor React | Highcharts | Apache ECharts 6.1.0 | Consulte [Actualización a AWE 5](../api/chart.md#upgrading-to-awe-5). |
 | Gráficos, motor AngularJS | Highcharts | Apache ECharts 6.1.0 | El mismo constructor de opciones que el motor React. Consulte [Actualización a AWE 5](../api/chart.md#upgrading-to-awe-5). |
@@ -112,6 +112,11 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Botones de la barra de herramientas del grid | Los botones del final de la barra de herramientas del grid (*Agrupar por*, *Búsquedas guardadas*, *Columnas* y *Maximizar*) muestran por defecto solo su icono, en ambos motores; su etiqueta es el tooltip y el nombre accesible. Nuevos atributos del grid `show-columns-button`, `show-maximize-button` y `toolbar-labels`. | Use `awe.application.component.grid-toolbar-labels=true` para mantener las etiquetas en todos los grids, o `toolbar-labels` en un grid: `true` para todos los botones del final, o una lista de los botones que la conservan, como `toolbar-labels="saved-searches"`. Un grid con `show-columns-button="false"` ignora la disposición de columnas que guardaron sus usuarios. | [Etiquetas de los botones de la barra de herramientas](../api/grids.md#toolbar-labels) |
 | Estado de la búsqueda avanzada (#790, nuevo) | Flyway aplica `AWE_V1.5.1__window_advanced_state.sql` y crea la tabla `AweUsrWinCnf` (y la clave `WinCnfKey`). Solo guarda, por usuario y pantalla, si el bloque avanzado en línea de una ventana se dejó abierto: las ventanas sin bloque `<advanced>` no la usan. El script se puede aplicar de nuevo. | Nada. Las aplicaciones que no usan las migraciones Flyway de AWE tienen que crear `AweUsrWinCnf` por su cuenta (ver el script de su base de datos en `db/migration`). | [Búsqueda avanzada](../api/window.md#advanced-search), issue #790 |
 | Búsquedas guardadas (#790, nuevo) | Flyway aplica `AWE_V1.5.2__saved_searches.sql` y crea la tabla `AweSavSch` (y la clave `SavSchKey`). Guarda las búsquedas que los usuarios guardan en las ventanas con `saved-searches="true"`: búsquedas propias y búsquedas publicadas para un perfil. Las ventanas sin el atributo no la usan. El script se puede aplicar de nuevo. | Nada. Las aplicaciones que no usan las migraciones Flyway de AWE tienen que crear `AweSavSch` por su cuenta (ver el script de su base de datos en `db/migration`). Quién publica para un perfil lo decide el acceso a la opción de menú de `awe.saved-search.publish-option` (por defecto `profiles`). | [Búsquedas guardadas](../api/window.md#saved-searches), issue #790 |
+| Búsqueda guardada por defecto (#915, #945) | Flyway aplica `AWE_V1.6.1__default_saved_search.sql`: añade `AweUsrWinCnf.DefSavSch` y `AweSavSch.Def` y hace que `AweUsrWinCnf.AdvOpn` admita nulos. Un usuario o un perfil puede elegir la búsqueda con la que se abre una ventana o un grid. | Nada con las migraciones Flyway de AWE. Una aplicación que gestiona su propio esquema aplica el script de su base de datos en `db/migration`. | |
+| Modelo de temas (#885) | Flyway aplica `AWE_V1.5.0__Theme_primary_surface.sql`: `AweThm` (y `HISAweThm`) ganan el color primario, la superficie y el modo del tema (`Pri`, `Srf`, `Mde`), rellenados a partir de los colores claros de `AweThmCol`, y `AweUsrSet` gana la densidad del usuario. `AweThmCol` se conserva pero ya no se usa. | Nada con las migraciones Flyway de AWE. Una aplicación que gestiona su propio esquema aplica el script de su base de datos en `db/migration` (puede aplicarse de nuevo: solo rellena los valores vacíos). | [Color y temas](../design-system/color-and-themes.md) |
+| HTML en las celdas de grid de React (#829) | Una celda de grid del cliente React que pinta HTML de los datos pierde sus scripts, manejadores de eventos, enlaces `javascript:`, `style` en línea y atributos `data-*`; se conservan las etiquetas de formato simple (`b`, `em`, `span`, `a`, listas...) y los atributos `class`, `href`, `target` y `title`. | Dé estilo al HTML de una celda con una clase CSS en lugar de un `style` en línea. | |
+| Mapa (cliente AngularJS) | Se eliminan la directiva heredada `aweMap` y el `angular-google-maps` incluido, que nunca se empaquetaron (#798, #882). | Use el nuevo elemento de pantalla `map` (Leaflet con teselas de OpenStreetMap), disponible en los dos motores web. | |
+| Motor AngularJS (#776) | No cambia nada: el motor AngularJS sigue funcionando, `angular-ui-grid` incluido. Queda congelado en AWE 5: sus componentes no se sustituyen ni se amplían, y los componentes nuevos llegan solo al motor React. | Planifique las pantallas y los componentes nuevos sobre el motor React. | |
 | Iconos (ambos clientes) | Los iconos cambian de aspecto: cada nombre de Font Awesome (`icon="nombre"`) y cada nombre `mdi:` de la tabla de equivalencias se dibuja como un icono de línea de Lucide, un `svg` en línea que usa el sprite `icons/lucide-sprite.svg`, en lugar del elemento `fa fa-<nombre>` o de Material Icons (y, en React, en lugar de los PrimeIcons de los componentes de AWE). Los nombres sin equivalencia (iconos de marca como `rebel`) conservan su fuente. El CSS de la aplicación dirigido al glifo de la fuente (`.fa-<nombre>:before`, `content` o `font-size` sobre `.fa`, `.pi-*`) deja de aplicarse a los iconos con equivalencia. El elemento conserva el nombre del XML en `data-icon`, por lo que las pruebas de navegador que localizan iconos siguen funcionando. | Nada para los descriptores. Traslade el CSS que daba estilo al glifo al `svg.awe-icon` (toma el color del texto, `currentColor`, y los tokens `--awe-size-icon`). En pantallas nuevas use `icon="lucide:<nombre>"` con cualquier nombre de Lucide. | [Iconos](../api/icons.md), [Tabla de equivalencias](../api/icons.md#equivalence-table) (issue #885) |
 | Sprite de iconos y configuración de seguridad | La página de inicio de sesión (y cualquier pantalla pública) no muestra iconos: `GET /icons/lucide-sprite.svg` responde `401` porque la aplicación construye su propia configuración de seguridad con su propia lista de recursos web públicos. | Añada `/icons/**` a los recursos web públicos de su configuración de seguridad, junto a `/css/**`, `/js/**` o `/fonts/**`. La configuración de seguridad de AWE ya lo permite. | issue #885 |
 | Mensajes (cliente AngularJS) | Las alertas de la zona de mensajes son toasts en la esquina superior derecha, bajo la cabecera, teñidos con el color de su tipo, como en el cliente React. | Nada. Revise el CSS de la aplicación que posiciona o da estilo a las alertas de la zona de mensajes. | [Capas superpuestas](../design-system/components.md#overlays) (issue #885) |
@@ -1368,16 +1373,25 @@ las clases compiladas, por lo que incluye los getters y setters que genera Lombo
 
 </details>
 
-## Próximamente en AWE 5 {#coming-in-awe-5}
+## Previsto para AWE 5.1 {#planned-for-awe-51}
 
-Estas iniciativas están abiertas, etiquetadas para el hito 5.0.0 y se espera que requieran acciones por parte de las
-aplicaciones. Se listan para que pueda planificar; cada una añadirá su propia entrada más arriba cuando se integre.
+Las pantallas que AWE 5.0 sustituye por las nuevas pantallas de administración están obsoletas y **se eliminarán en la
+5.1.0**. Apunte ya sus propias opciones de menú, acciones y pruebas a las pantallas nuevas (consulte la
+[Lista de comprobación de la actualización](#upgrade-checklist)):
 
-| Incidencia | Título |
+| Pantallas obsoletas | Sustituta |
 |---|---|
-| [#755](https://gitlab.com/aweframework/awe/-/issues/755) | Sustituir el Bootstrap 3 incluido por Tailwind y una capa de compatibilidad de AWE |
-| [#776](https://gitlab.com/aweframework/awe/-/issues/776) | Sustituir angular-ui-grid por un componente de *grid* moderno |
-| [#829](https://gitlab.com/aweframework/awe/-/issues/829) | Sanitizar el HTML de las celdas de grid en el cliente React (se descartará un `style` en línea en una celda; use una clase CSS) |
+| `ScrAccRes`, `menu-access`, `screen-access` | `access-admin` |
+| `Usr`, `UsrNew`, `UsrUpd`, `UsrViw` | `user-admin` |
+| `Prf`, `PrfNew`, `PrfUpd`, `PrfViw` | `profile-admin` |
+| `Thm`, `ThmNew`, `ThmUpd`, `ThmViw` | `theme-admin` |
+| `Dbs`, `DbsNew`, `DbsUpd`, `DbsViw` | `database-admin` |
+| `Sit`, `SitNew`, `SitUpd`, `SitViw` | `site-admin` |
+| `Mod`, `ModNew`, `ModUpd`, `ModViw` | `module-admin` |
+| `Que`, `QueNew`, `QueUpd` | `queue-admin` |
+| `EmlSrv`, `EmlSrvNew`, `EmlSrvUpd` | `email-server-admin` |
+| `AweKey` | `sequence-admin` |
+| `AweAppPar` | `application-parameter-admin` |
 
 ## Lista de comprobación de la actualización {#upgrade-checklist}
 
@@ -1452,7 +1466,7 @@ Esta guía solo es útil si se mantiene actualizada, por lo que forma parte de l
   entry to the AWE 5 migration guide». La etiqueta `has impacts` marca estas merge requests e incidencias.
 - **Cómo:** añada una fila a la tabla [Qué cambia](#what-changes) con el síntoma, qué hacer y un enlace a la página
   detallada, y una subsección debajo cuando la fila no sea suficiente. Describa solo lo que está integrado y se
-  comprobó en el código; saque la incidencia de [Próximamente en AWE 5](#coming-in-awe-5) cuando se integre.
+  comprobó en el código.
 - **Dónde:** edite `website/docs/guides/v5-migration.md` en `develop`. Los cambios que solo existen en la línea 4.x
   pertenecen a la documentación de `support/4.x` (consulte
   [Documentación por línea](release-lines-and-support.md#documentation-per-line)).

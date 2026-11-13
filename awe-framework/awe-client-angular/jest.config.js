@@ -28,8 +28,10 @@ module.exports = {
   transform: {
     "^.+\\.(js|ts)$": ["babel-jest", { envName: "jest", configFile: path.join(__dirname, ".babelrc"), babelrc: false }]
   },
-  // ECharts is loaded from its CommonJS bundle (moduleNameMapper below): only its locale modules are ES modules to compile
-  transformIgnorePatterns: ["/node_modules/(?!echarts/i18n/)"],
+  // ECharts is loaded from its CommonJS bundle (moduleNameMapper below): only its locale modules are ES modules to compile,
+  // plus zrender, whose color parser the shared chart style imports directly (zrender/lib/tool/color) to keep echarts/core
+  // out of the main bundle
+  transformIgnorePatterns: ["/node_modules/(?!(echarts/i18n|zrender)/)"],
   // The shared React sources import their packages (echarts, lodash) from this module, not from awe-client-react
   moduleDirectories: [path.join(__dirname, "node_modules"), "node_modules"],
   collectCoverageFrom: [

@@ -1,0 +1,1268 @@
+# Release notes for AWE 4.13.1
+*09/10/2026*
+ 
+🐛 Bug fixes:
+- build(deps): upgrade ADE to 3.0.3 on support/4.x (#851). [MR #903](https://gitlab.com/aweframework/awe/-/merge_requests/903) (Pablo Javier García Mora)
+- fix(awe-controller): do not mutate the shared microservice definition on each call (#850). [MR #899](https://gitlab.com/aweframework/awe/-/merge_requests/899) (Pablo Javier García Mora)
+- chore(deps): update dependency @babel/core to v7.29.6 [security] (support/4.x). [MR #755](https://gitlab.com/aweframework/awe/-/merge_requests/755) (Pablo Javier García Mora)
+- fix(deps): update dependency org.jsoup:jsoup to v1.23.2 [security] (support/4.x). [MR #747](https://gitlab.com/aweframework/awe/-/merge_requests/747) (Pablo Javier García Mora)
+- chore(deps): update dependency karma to v6.3.16 [security] (support/4.x). [MR #743](https://gitlab.com/aweframework/awe/-/merge_requests/743) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.13.0
+*06/10/2026*
+ 
+🐛 Bug fixes:
+- fix(awe-scheduler): keep the launcher credential columns in SCHEDULER_V1.0.5 (#816) [support/4.x]. [MR #844](https://gitlab.com/aweframework/awe/-/merge_requests/844) (Pablo Vidal Otero)
+- feat(ci): make the Selenium suites blocking on support/4.x (#766) [support/4.x]. [MR #839](https://gitlab.com/aweframework/awe/-/merge_requests/839) (Pablo Javier García Mora)
+- fix(awe-model): stop serializing Option children twice in menu JSON [support/4.x]. [MR #793](https://gitlab.com/aweframework/awe/-/merge_requests/793) (Pablo Javier García Mora)
+- chore(release): move the support/4.x line to 4.13.0-SNAPSHOT. [MR #777](https://gitlab.com/aweframework/awe/-/merge_requests/777) (Pablo Javier García Mora)
+- fix(ci): release scripts keep the changelog and assign milestones by git range (+ 4.12.10 changelog). [MR #776](https://gitlab.com/aweframework/awe/-/merge_requests/776) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.12.10
+*30/09/2026*
+ 
+✨ Features:
+- feat(ci): add support/4.x maintenance branch and branch-aware pipeline (#758). [MR #713](https://gitlab.com/aweframework/awe/-/merge_requests/713) (Pablo Javier García Mora)
+
+🐛 Bug fixes:
+- fix(ci): let the support release script find the hotfix branch that gitflow creates. [MR #774](https://gitlab.com/aweframework/awe/-/merge_requests/774) (Pablo Javier García Mora)
+- chore(deps): update dependency moment to v2.31.0 [security] (support/4.x). [MR #772](https://gitlab.com/aweframework/awe/-/merge_requests/772) (Pablo Javier García Mora)
+- fix(deps): update dependency io.github.bonigarcia:webdrivermanager to v6 [security] (support/4.x). [MR #750](https://gitlab.com/aweframework/awe/-/merge_requests/750) (Pablo Javier García Mora)
+- fix(deps): update dependency lodash to v4.18.1 [security] (support/4.x). [MR #746](https://gitlab.com/aweframework/awe/-/merge_requests/746) (Pablo Javier García Mora)
+- chore(deps): update dependency webpack [security] (support/4.x). [MR #745](https://gitlab.com/aweframework/awe/-/merge_requests/745) (Pablo Javier García Mora)
+- chore(deps): update dependency org.apache.maven.plugins:maven-archetype-plugin to v3.3.0 [security] (support/4.x). [MR #744](https://gitlab.com/aweframework/awe/-/merge_requests/744) (Pablo Javier García Mora)
+- chore(deps): update dependency com.microsoft.sqlserver:mssql-jdbc to v13.2.1.jre11 [security] (support/4.x). [MR #742](https://gitlab.com/aweframework/awe/-/merge_requests/742) (Pablo Javier García Mora)
+- fix(ci): provide AWE snapshot modules to browser tests through artifacts. [MR #712](https://gitlab.com/aweframework/awe/-/merge_requests/712) (Pablo Vidal Otero)
+- fix(awe-scheduler): make db and site nullable on SQL Server scheduler tables (#757). [MR #711](https://gitlab.com/aweframework/awe/-/merge_requests/711) (Pablo Vidal Otero)
+
+# Release notes for AWE 4.12.9
+*24/09/2026*
+ 
+✨ Features:
+- **[HAS IMPACTS]** [HAS IMPACTS] feat(awe-controller): keep existing SSO user profile when the provider sends no role (#756). [MR #710](https://gitlab.com/aweframework/awe/-/merge_requests/710) (Pablo Javier García Mora)
+- feat(awe-scheduler): test connection button on the external server screens (#748). [MR #703](https://gitlab.com/aweframework/awe/-/merge_requests/703) (Pablo Vidal Otero)
+- feat(awe-scheduler): unify file-trigger credentials into the external server (#750). [MR #702](https://gitlab.com/aweframework/awe/-/merge_requests/702) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- fix(awe-controller): guard the two reliability NPEs breaking the quality gate. [MR #709](https://gitlab.com/aweframework/awe/-/merge_requests/709) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** [HAS IMPACTS] fix(reports): honour printable on hidden grid columns and per output format (#753). [MR #708](https://gitlab.com/aweframework/awe/-/merge_requests/708) (Pablo Vidal Otero)
+- fix(awe-client-angular): raise ESLint ecmaVersion to 2020. [MR #707](https://gitlab.com/aweframework/awe/-/merge_requests/707) (Pablo Vidal Otero)
+- fix(awe-scheduler): resolve Sonar new-code issues from execution log persistence. [MR #706](https://gitlab.com/aweframework/awe/-/merge_requests/706) (Pablo Vidal Otero)
+- fix(awe-controller): print the grid page the user is looking at (#751). [MR #705](https://gitlab.com/aweframework/awe/-/merge_requests/705) (Pablo Vidal Otero)
+- feat(awe-scheduler): database-backed execution logs with remote trace capture. [MR #704](https://gitlab.com/aweframework/awe/-/merge_requests/704) (Pablo Vidal Otero)
+- feat(awe-controller): add optional attribute to maintain fields (#344). [MR #701](https://gitlab.com/aweframework/awe/-/merge_requests/701) (Pablo Javier García Mora)
+- fix(awe-scheduler): build file checker tracked paths with a separator (#749). [MR #700](https://gitlab.com/aweframework/awe/-/merge_requests/700) (Pablo Vidal Otero)
+- fix(awe-controller): honour composite expressions in window function partition-by (#345). [MR #699](https://gitlab.com/aweframework/awe/-/merge_requests/699) (Pablo Javier García Mora)
+- feat(awe-scheduler): support SFTP for file-existence trigger tasks (#722). [MR #698](https://gitlab.com/aweframework/awe/-/merge_requests/698) (Pablo Javier García Mora)
+- feat(awe-spring-boot-starter): allow configuring a virtual host in the websocket relay broker (#666). [MR #697](https://gitlab.com/aweframework/awe/-/merge_requests/697) (Pablo Javier García Mora)
+- Print query/maintain log with parameters. [MR #696](https://gitlab.com/aweframework/awe/-/merge_requests/696) (Pablo Javier García Mora)
+- fix(awe-controller): skip criterion print data overwritten by a same-named grid column (#747). [MR #695](https://gitlab.com/aweframework/awe/-/merge_requests/695) (Pablo Vidal Otero)
+
+# Release notes for AWE 4.12.8
+*24/08/2026*
+ 
+✨ Features:
+- feat(awe-scheduler): operator-supplied parameter override on manual launch of command tasks (#744). [MR #692](https://gitlab.com/aweframework/awe/-/merge_requests/692) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- fix(awe-scheduler): resolve command task action against the configured command path (#746). [MR #694](https://gitlab.com/aweframework/awe/-/merge_requests/694) (Pablo Vidal Otero)
+- build(dependencies): update ADE to 3.0.2 (#745). [MR #693](https://gitlab.com/aweframework/awe/-/merge_requests/693) (Pablo Vidal Otero)
+- fix(awe-scheduler): send an empty variables map on manual launch without operator values (#743). [MR #691](https://gitlab.com/aweframework/awe/-/merge_requests/691) (Pablo Vidal Otero)
+
+# Release notes for AWE 4.12.7
+*20/08/2026*
+ 
+✨ Features:
+- **[HAS IMPACTS]** feat(reports): adopt ADE 3.0.1 and pin AWE's HTTP wire format to JSON. [MR #690](https://gitlab.com/aweframework/awe/-/merge_requests/690) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- build(dependencies): update ADE to 2.2.9. [MR #689](https://gitlab.com/aweframework/awe/-/merge_requests/689) (Pablo Vidal Otero)
+- build(dependencies): update Spring Boot to 3.5.16 (#739). [MR #688](https://gitlab.com/aweframework/awe/-/merge_requests/688) (Pablo Vidal Otero)
+
+📄 Documentation:
+- fix(website): restore the mobile navbar sidebar entries (#738). [MR #687](https://gitlab.com/aweframework/awe/-/merge_requests/687) (Pablo Vidal Otero)
+- fix(website): make the homepage title and description translatable (#737). [MR #686](https://gitlab.com/aweframework/awe/-/merge_requests/686) (Pablo Vidal Otero)
+- feat(website): redesign the documentation homepage with AWE brand identity (#736). [MR #685](https://gitlab.com/aweframework/awe/-/merge_requests/685) (Pablo Vidal Otero)
+
+# Release notes for AWE 4.12.6
+*31/07/2026*
+ 
+🐛 Bug fixes:
+- fix(awe-model, awe-controller): avoid NullPointerException in ServiceData.setData and SQLBuilder.buildPath. [MR #683](https://gitlab.com/aweframework/awe/-/merge_requests/683) (Pablo Javier García Mora)
+
+🧪 Tests:
+- fix(awe-controller): keep query-backed maintain fields inline as subqueries (#735). [MR #684](https://gitlab.com/aweframework/awe/-/merge_requests/684) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.12.5
+*14/07/2026*
+ 
+# Release notes for AWE 4.12.4
+*14/07/2026*
+ 
+🐛 Bug fixes:
+- fix(awe-controller): suggest hydration parameter leak and microservice parameter contract (#733). [MR #682](https://gitlab.com/aweframework/awe/-/merge_requests/682) (Pablo Vidal Otero)
+- feat(awe-controller): make multiple-maintain list validation configurable (strict | warn) via property (#732). [MR #681](https://gitlab.com/aweframework/awe/-/merge_requests/681) (Pablo Javier García Mora)
+- feat(awe): XML hot-reload extension SPI (XmlReloadHandler) + framework-owned validation. [MR #680](https://gitlab.com/aweframework/awe/-/merge_requests/680) (Pablo Vidal Otero)
+
+# Release notes for AWE 4.12.3
+*13/07/2026*
+ 
+🐛 Bug fixes:
+- fix(awe): send uninformed service parameters as null instead of failing (#731). [MR #679](https://gitlab.com/aweframework/awe/-/merge_requests/679) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.12.2
+*10/07/2026*
+ 
+✨ Features:
+- **[HAS IMPACTS]** feat(awe): XML definition hot reload for development. [MR #676](https://gitlab.com/aweframework/awe/-/merge_requests/676) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** chore(dev): fast frontend hot-reload workflow (awe-boot + Angular archetype). [MR #671](https://gitlab.com/aweframework/awe/-/merge_requests/671) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- fix(ci): align test job JDK with sonar scanner to restore coverage. [MR #678](https://gitlab.com/aweframework/awe/-/merge_requests/678) (Pablo Vidal Otero)
+- fix(build): override delombok Lombok to 1.18.46 for JDK 21. [MR #677](https://gitlab.com/aweframework/awe/-/merge_requests/677) (Pablo Vidal Otero)
+- fix(archetype): point react archetype package-lock at public npm registry. [MR #675](https://gitlab.com/aweframework/awe/-/merge_requests/675) (Pablo Vidal Otero)
+- feat(react): archetype hot-reload workflow and custom-widget docs. [MR #674](https://gitlab.com/aweframework/awe/-/merge_requests/674) (Pablo Vidal Otero)
+- feat(awe-client-angular): add menu option search (#9). [MR #672](https://gitlab.com/aweframework/awe/-/merge_requests/672) (Pablo Javier García Mora)
+- feat(awe-scheduler): propagate parent task parameters to dependent tasks (#724). [MR #668](https://gitlab.com/aweframework/awe/-/merge_requests/668) (Pablo Vidal Otero)
+- chore: adopt agentskills.io skills/ layout with per-tool symlinks. [MR #667](https://gitlab.com/aweframework/awe/-/merge_requests/667) (Pablo Vidal Otero)
+- feat(awe-scheduler): operator-supplied VARIABLE task params via modal grid on manual launch. [MR #666](https://gitlab.com/aweframework/awe/-/merge_requests/666) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** feat(awe-model): add per-user avatar image via AweUserSettings (#572). [MR #665](https://gitlab.com/aweframework/awe/-/merge_requests/665) (Pablo Javier García Mora)
+- feat(awe-scheduler): email report notification variables (#382). [MR #664](https://gitlab.com/aweframework/awe/-/merge_requests/664) (Pablo Vidal Otero)
+- docs(awe-scheduler): document task target database selection (#718). [MR #663](https://gitlab.com/aweframework/awe/-/merge_requests/663) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** feat(awe-scheduler): run scheduler command tasks locally or remotely via SSH (#623). [MR #662](https://gitlab.com/aweframework/awe/-/merge_requests/662) (Pablo Vidal Otero)
+- chore(awe-dependencies): update ADE to version 2.2.8. [MR #661](https://gitlab.com/aweframework/awe/-/merge_requests/661) (Pablo Javier García Mora)
+- fix(awe-scheduler): show calendar name in configured/executing tasks columns (#720). [MR #660](https://gitlab.com/aweframework/awe/-/merge_requests/660) (Pablo Vidal Otero)
+- chore: archive scheduler datasource routing. [MR #659](https://gitlab.com/aweframework/awe/-/merge_requests/659) (Pablo Vidal Otero)
+- fix(awe-scheduler): drop dead datasource alias routing and AweSchTsk join (#685). [MR #658](https://gitlab.com/aweframework/awe/-/merge_requests/658) (Pablo Vidal Otero)
+
+📄 Documentation:
+- feat(widgets): open component type, add Angular calendar example (awe-boot) and docs. [MR #670](https://gitlab.com/aweframework/awe/-/merge_requests/670) (Pablo Vidal Otero)
+- docs(website): document all pending client actions. [MR #669](https://gitlab.com/aweframework/awe/-/merge_requests/669) (Pablo Javier García Mora)
+
+🧪 Tests:
+- fix(awe-controller): bind maintain serve variables to service parameters by name (#730). [MR #673](https://gitlab.com/aweframework/awe/-/merge_requests/673) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.12.1
+*01/07/2026*
+ 
+✨ Features:
+- feat(screen): hydrate suggest labels on initial load. [MR #651](https://gitlab.com/aweframework/awe/-/merge_requests/651) (Pablo Javier García Mora)
+
+🐛 Bug fixes:
+- fix(awe-controller): async parameter propagation lost on first async hop after putPropagatedRequestParameter. [MR #657](https://gitlab.com/aweframework/awe/-/merge_requests/657) (Pablo Vidal Otero)
+- docs(website): refresh print and message guides. [MR #656](https://gitlab.com/aweframework/awe/-/merge_requests/656) (Pablo Javier García Mora)
+- docs(training): refresh first-steps onboarding tutorials. [MR #655](https://gitlab.com/aweframework/awe/-/merge_requests/655) (Pablo Javier García Mora)
+- docs(query): document SQL functions on operations. [MR #654](https://gitlab.com/aweframework/awe/-/merge_requests/654) (Pablo Javier García Mora)
+- fix(scheduler): prevent startup trigger catch-up. [MR #652](https://gitlab.com/aweframework/awe/-/merge_requests/652) (Pablo Vidal Otero)
+- feat(model): add datalist merge by key. [MR #649](https://gitlab.com/aweframework/awe/-/merge_requests/649) (Pablo Javier García Mora)
+- feat(query): add substring operation support. [MR #648](https://gitlab.com/aweframework/awe/-/merge_requests/648) (Pablo Vidal Otero)
+- build(dependencies): update Spring Boot and Spring Cloud. [MR #646](https://gitlab.com/aweframework/awe/-/merge_requests/646) (Pablo Vidal Otero)
+- fix(auth): replace TOTP library and harden 2fa flows. [MR #645](https://gitlab.com/aweframework/awe/-/merge_requests/645) (Pablo Vidal Otero)
+- fix(controller): handle attachment names without extension. [MR #644](https://gitlab.com/aweframework/awe/-/merge_requests/644) (Pablo Vidal Otero)
+- fix: validate multiple maintain list inputs. [MR #643](https://gitlab.com/aweframework/awe/-/merge_requests/643) (Pablo Vidal Otero)
+- fix(client-angular): improve filtered calendar theme contrast. [MR #642](https://gitlab.com/aweframework/awe/-/merge_requests/642) (Pablo Vidal Otero)
+- fix(testing): harden selenium login readiness. [MR #641](https://gitlab.com/aweframework/awe/-/merge_requests/641) (Pablo Vidal Otero)
+- fix suggest-multiple maintain single-value handling. [MR #640](https://gitlab.com/aweframework/awe/-/merge_requests/640) (Pablo Javier García Mora)
+- ci: validate build with JDK 21. [MR #638](https://gitlab.com/aweframework/awe/-/merge_requests/638) (Pablo Vidal Otero)
+- fix: audit insert query maintains. [MR #637](https://gitlab.com/aweframework/awe/-/merge_requests/637) (Pablo Javier García Mora)
+
+📄 Documentation:
+- docs(query): document QueryUtil parameter snapshots. [MR #653](https://gitlab.com/aweframework/awe/-/merge_requests/653) (Pablo Javier García Mora)
+- docs(api): add DataList Java guide. [MR #650](https://gitlab.com/aweframework/awe/-/merge_requests/650) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.12.0
+*08/06/2026*
+ 
+🐛 Bug fixes:
+- feat: add REST OAuth2 Resource Server support. [MR #635](https://gitlab.com/aweframework/awe/-/merge_requests/635) (Pablo Vidal Otero)
+- fix(async): preserve propagated request snapshots in nested tasks. [MR #634](https://gitlab.com/aweframework/awe/-/merge_requests/634) (Pablo Vidal Otero)
+- Fix ChartService shared RestTemplate mutation on chart export. [MR #633](https://gitlab.com/aweframework/awe/-/merge_requests/633) (Pablo Vidal Otero)
+- fix(charts): preserve dark themes across screen navigation. [MR #632](https://gitlab.com/aweframework/awe/-/merge_requests/632) (Pablo Javier García Mora)
+- fix(charts): render dark-unica plot area correctly. [MR #631](https://gitlab.com/aweframework/awe/-/merge_requests/631) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** [HAS IMPACTS] Align frontend build modes for Webpack modules. [MR #630](https://gitlab.com/aweframework/awe/-/merge_requests/630) (Pablo Vidal Otero)
+
+🧪 Tests:
+- test(angular): migrate frontend tests to Jest. [MR #636](https://gitlab.com/aweframework/awe/-/merge_requests/636) (Pablo Vidal Otero)
+
+# Release notes for AWE 4.11.15
+*28/04/2026*
+ 
+🐛 Bug fixes:
+- fix(client-action): preserve criterion options on select. [MR #629](https://gitlab.com/aweframework/awe/-/merge_requests/629) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** [HAS IMPACTS] build(frontend): migrate frontend builds to npm. [MR #628](https://gitlab.com/aweframework/awe/-/merge_requests/628) (Pablo Vidal Otero)
+
+# Release notes for AWE 4.11.14
+*24/04/2026*
+ 
+🐛 Bug fixes:
+- refactor(selector): simplify selector model normalization. [MR #627](https://gitlab.com/aweframework/awe/-/merge_requests/627) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.11.13
+*17/04/2026*
+ 
+🐛 Bug fixes:
+- fix(criteria): preserve scalar values for single criteria updates. [MR #626](https://gitlab.com/aweframework/awe/-/merge_requests/626) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.11.12
+*15/04/2026*
+ 
+🐛 Bug fixes:
+- fix(service-binding): coerce scalar service parameters before Java invocation. [MR #625](https://gitlab.com/aweframework/awe/-/merge_requests/625) (Pablo Javier García Mora)
+
+📄 Documentation:
+- New function suggestMultipleList in Selenium Tests doc. [MR #616](https://gitlab.com/aweframework/awe/-/merge_requests/616) (Jorge Almarza Trigo)
+
+# Release notes for AWE 4.11.11
+*04/03/2026*
+ 
+🐛 Bug fixes:
+- Error db connection leak. [MR #623](https://gitlab.com/aweframework/awe/-/merge_requests/623) (Pablo Vidal Otero)
+
+# Release notes for AWE 4.11.10
+*02/03/2026*
+ 
+🐛 Bug fixes:
+- Leak database conections. [MR #622](https://gitlab.com/aweframework/awe/-/merge_requests/622) (Pablo Vidal Otero)
+
+# Release notes for AWE 4.11.9
+*17/02/2026*
+ 
+🐛 Bug fixes:
+- Select multiple and suggest multiple sends a single element when only one element is selected instead of sending a list every time. [MR #621](https://gitlab.com/aweframework/awe/-/merge_requests/621) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.11.8
+*09/02/2026*
+ 
+✨ Features:
+- Limit cache key in cacheable queries to variables defined in query and sort, max and page attributes. [MR #619](https://gitlab.com/aweframework/awe/-/merge_requests/619) (Pablo Javier García Mora)
+
+🐛 Bug fixes:
+- Check select client action working over multiple suggest criterion. [MR #620](https://gitlab.com/aweframework/awe/-/merge_requests/620) (Pablo Javier García Mora)
+- Fix parameter management issue when value is null. [MR #615](https://gitlab.com/aweframework/awe/-/merge_requests/615) (Pablo Javier García Mora)
+- Add stg templates in awe-boot-react-archetype. [MR #613](https://gitlab.com/aweframework/awe/-/merge_requests/613) (Pablo Vidal Otero)
+
+📄 Documentation:
+- Add remote scheduler properties and documentation. [MR #618](https://gitlab.com/aweframework/awe/-/merge_requests/618) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.11.7
+*22/01/2026*
+ 
+✨ Features:
+- Improve logout actions with SSO. [MR #610](https://gitlab.com/aweframework/awe/-/merge_requests/610) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- Avatar images doesn't work when there is a context path defined. [MR #614](https://gitlab.com/aweframework/awe/-/merge_requests/614) (Pablo Javier García Mora)
+- Uses of deprecated methods with Spring Security 6.5. [MR #612](https://gitlab.com/aweframework/awe/-/merge_requests/612) (Pablo Vidal Otero)
+- Public screens throws error on open. [MR #611](https://gitlab.com/aweframework/awe/-/merge_requests/611) (Pablo Javier García Mora)
+
+# Release notes for AWE 4.11.6
+*19/01/2026*
+ 
+✨ Features:
+- Change the PBKDF2 Algorithm hash to contain algorithm name, type, salt and iterations inside. [MR #609](https://gitlab.com/aweframework/awe/-/merge_requests/609) (Pablo Javier García Mora)
+
+🐛 Bug fixes:
+- Change the selectedRowAddress to [gridId].selectedRowAddress variable to allow multiple grid sending in a page. [MR #608](https://gitlab.com/aweframework/awe/-/merge_requests/608) (Pablo Javier García Mora)
+- keep empty string. [MR #607](https://gitlab.com/aweframework/awe/-/merge_requests/607) (Pablo Javier García Mora)
+- Error deploying in cloud environment. [MR #606](https://gitlab.com/aweframework/awe/-/merge_requests/606) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Update awe to Spring boot 3.5 LTS. [MR #605](https://gitlab.com/aweframework/awe/-/merge_requests/605) (Pablo Vidal Otero)
+- The select component does not save the value. [MR #604](https://gitlab.com/aweframework/awe/-/merge_requests/604) (Pablo Javier García Mora)
+- Destroy the server actions of **-target-**. [MR #603](https://gitlab.com/aweframework/awe/-/merge_requests/603) (Pablo Javier García Mora)
+
+
+# Changelog for AWE 4.11.5
+*25/11/2025*
+
+- **[HAS IMPACTS]** Change cell-style attribute on cells to style, to standarize in all cell components. [MR #602](https://gitlab.com/aweframework/awe/-/merge_requests/602) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Set validate-on-save default value to true. [MR #601](https://gitlab.com/aweframework/awe/-/merge_requests/601) (Pablo Javier García Mora)
+- Session expired don´t send 401 http error code. [MR #600](https://gitlab.com/aweframework/awe/-/merge_requests/600) (Pablo Vidal Otero)
+- Retrieve auto increments values. [MR #599](https://gitlab.com/aweframework/awe/-/merge_requests/599) (Pablo Vidal Otero)
+- Allow to select text inside the grids. [MR #598](https://gitlab.com/aweframework/awe/-/merge_requests/598) (Pablo Javier García Mora)
+- Bump version springdoc open api. [MR #597](https://gitlab.com/aweframework/awe/-/merge_requests/597) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.11.4
+*31/10/2025*
+
+- Error deserializing CellData objects from Long values. [MR #596](https://gitlab.com/aweframework/awe/-/merge_requests/596) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.11.3
+*28/10/2025*
+
+- **[HAS IMPACTS]** Upgrade spring boot framework to 3.4. [MR #592](https://gitlab.com/aweframework/awe/-/merge_requests/592) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.11.2
+*22/10/2025*
+
+- Sequences are failing in Postgres database when storing into audit tables. [MR #594](https://gitlab.com/aweframework/awe/-/merge_requests/594) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.11.1
+*09/10/2025*
+
+- Fix some screens to make them useful in react engine. [MR #593](https://gitlab.com/aweframework/awe/-/merge_requests/593) (Pablo Javier García Mora)
+- Improve log sql queries. [MR #591](https://gitlab.com/aweframework/awe/-/merge_requests/591) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.11.0
+*29/09/2025*
+
+- Add support for PostgreSQL database. [MR #590](https://gitlab.com/aweframework/awe/-/merge_requests/590) (Pablo Vidal Otero)
+- getDoubleValue of cellData throws NullPointerException if value is null. [MR #589](https://gitlab.com/aweframework/awe/-/merge_requests/589) (Pablo Javier García Mora)
+- HISAweSchTsk nulls inserts problem. [MR #541](https://gitlab.com/aweframework/awe/-/merge_requests/541) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Añadir la funcionalidad maxRepeat de AWE 3. [MR #539](https://gitlab.com/aweframework/awe/-/merge_requests/539) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.10.24
+*03/09/2025*
+
+# Changelog for AWE 4.10.23
+*03/09/2025*
+
+# Changelog for AWE 4.10.22
+*01/09/2025*
+
+- Improve authentication error handling in Azure SSO. [MR #588](https://gitlab.com/aweframework/awe/-/merge_requests/588) (Pablo Vidal Otero)
+- Improve handle microservice request parameter. [MR #587](https://gitlab.com/aweframework/awe/-/merge_requests/587) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.10.21
+*21/08/2025*
+
+- Fix oauth2 filter prefix. [MR #586](https://gitlab.com/aweframework/awe/-/merge_requests/586) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.10.20
+*07/08/2025*
+
+- When request is not available, retrieve variable parameter instead of checking request parameter on REST requests. [MR #585](https://gitlab.com/aweframework/awe/-/merge_requests/585) (Pablo Javier García Mora)
+- CellData should retrieve objectValue when type is BOOLEAN. [MR #584](https://gitlab.com/aweframework/awe/-/merge_requests/584) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Manage logout screen redirect in SSO. [MR #583](https://gitlab.com/aweframework/awe/-/merge_requests/583) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Improve oauth error handler. [MR #582](https://gitlab.com/aweframework/awe/-/merge_requests/582) (Pablo Vidal Otero)
+- Multi tenant SSO authentication. [MR #581](https://gitlab.com/aweframework/awe/-/merge_requests/581) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.10.19
+*22/07/2025*
+
+- Add orientation attribute to TabBuilder. [MR #580](https://gitlab.com/aweframework/awe/-/merge_requests/580) (Pablo Javier García Mora)
+- Fix awe-developer language issue with new language codes. [MR #579](https://gitlab.com/aweframework/awe/-/merge_requests/579) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.18
+*09/07/2025*
+
+- Select and suggest readonly format is not visible. [MR #578](https://gitlab.com/aweframework/awe/-/merge_requests/578) (Pablo Javier García Mora)
+- Add error management to uploader. [MR #577](https://gitlab.com/aweframework/awe/-/merge_requests/577) (Pablo Javier García Mora)
+- Be able to setup batch size by maintain, not only by properties. [MR #576](https://gitlab.com/aweframework/awe/-/merge_requests/576) (Pablo Javier García Mora)
+- Add a heartbeat to websocket to keep it open. [MR #575](https://gitlab.com/aweframework/awe/-/merge_requests/575) (Pablo Vidal Otero)
+- Rest messages management is not returning the right messages on disconnect. [MR #574](https://gitlab.com/aweframework/awe/-/merge_requests/574) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.17
+*27/06/2025*
+
+- Add link as column component. [MR #573](https://gitlab.com/aweframework/awe/-/merge_requests/573) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.16
+*24/06/2025*
+
+- Add support to expanded options. [MR #572](https://gitlab.com/aweframework/awe/-/merge_requests/572) (Pablo Vidal Otero)
+- Add dark/ligh mode query session parameter. [MR #571](https://gitlab.com/aweframework/awe/-/merge_requests/571) (Pablo Vidal Otero)
+- Allow symbols like dash in screen subfolders. [MR #570](https://gitlab.com/aweframework/awe/-/merge_requests/570) (Pablo Javier García Mora)
+- Set MD as default component size. [MR #569](https://gitlab.com/aweframework/awe/-/merge_requests/569) (Pablo Vidal Otero)
+- Fix issues found with Sonar. [MR #568](https://gitlab.com/aweframework/awe/-/merge_requests/568) (Pablo Javier García Mora)
+- The screen configuration is not applied to React structure. [MR #567](https://gitlab.com/aweframework/awe/-/merge_requests/567) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.15
+*19/06/2025*
+
+- Add a builder for Video, Image, Link and Frame. [MR #566](https://gitlab.com/aweframework/awe/-/merge_requests/566) (Pablo Javier García Mora)
+- Add orientation to WizardBuilder. [MR #565](https://gitlab.com/aweframework/awe/-/merge_requests/565) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.14
+*02/06/2025*
+
+# Changelog for AWE 4.10.13
+*28/05/2025*
+
+- Add a new picklist component similar to select-multiple. [MR #562](https://gitlab.com/aweframework/awe/-/merge_requests/562) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.12
+*14/05/2025*
+
+- Report Scheduler (email). [MR #561](https://gitlab.com/aweframework/awe/-/merge_requests/561) (Pablo Javier García Mora)
+- Translate on computed fields inside compound fields is not working. [MR #560](https://gitlab.com/aweframework/awe/-/merge_requests/560) (Pablo Javier García Mora)
+- Create computed and compound only after filtering and pagination. [MR #559](https://gitlab.com/aweframework/awe/-/merge_requests/559) (Pablo Javier García Mora)
+- Computed fields are overwriting totalize labels. [MR #558](https://gitlab.com/aweframework/awe/-/merge_requests/558) (Pablo Javier García Mora)
+- Add orientation attribute to wizard component. [MR #557](https://gitlab.com/aweframework/awe/-/merge_requests/557) (Pablo Javier García Mora)
+- Add help and help-image attribute to window elements. [MR #556](https://gitlab.com/aweframework/awe/-/merge_requests/556) (Pablo Javier García Mora)
+- Fix menu-screen restrictions. [MR #555](https://gitlab.com/aweframework/awe/-/merge_requests/555) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.12
+*14/05/2025*
+
+- Report Scheduler (email). [MR #561](https://gitlab.com/aweframework/awe/-/merge_requests/561) (Pablo Javier García Mora)
+- Translate on computed fields inside compound fields is not working. [MR #560](https://gitlab.com/aweframework/awe/-/merge_requests/560) (Pablo Javier García Mora)
+- Create computed and compound only after filtering and pagination. [MR #559](https://gitlab.com/aweframework/awe/-/merge_requests/559) (Pablo Javier García Mora)
+- Computed fields are overwriting totalize labels. [MR #558](https://gitlab.com/aweframework/awe/-/merge_requests/558) (Pablo Javier García Mora)
+- Add orientation attribute to wizard component. [MR #557](https://gitlab.com/aweframework/awe/-/merge_requests/557) (Pablo Javier García Mora)
+- Add help and help-image attribute to window elements. [MR #556](https://gitlab.com/aweframework/awe/-/merge_requests/556) (Pablo Javier García Mora)
+- Fix menu-screen restrictions. [MR #555](https://gitlab.com/aweframework/awe/-/merge_requests/555) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.11
+*09/04/2025*
+
+- **[HAS IMPACTS]** Change HISope column in audit tables. [MR #554](https://gitlab.com/aweframework/awe/-/merge_requests/554) (Pablo Vidal Otero)
+- Update spring-boot version to 3.3.10. [MR #553](https://gitlab.com/aweframework/awe/-/merge_requests/553) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.10.10
+*01/04/2025*
+
+- Fix sonar scheduler issues. [MR #552](https://gitlab.com/aweframework/awe/-/merge_requests/552) (Pablo Javier García Mora)
+- Error in awe-boot-react-archetype. [MR #551](https://gitlab.com/aweframework/awe/-/merge_requests/551) (Pablo Vidal Otero)
+- Change SQL managed-pagination attribute to be true by default. [MR #550](https://gitlab.com/aweframework/awe/-/merge_requests/550) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.9
+*25/03/2025*
+
+- Fix logout issue. [MR #549](https://gitlab.com/aweframework/awe/-/merge_requests/549) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.8
+*24/03/2025*
+
+- Fix spring session issue with angular engine. [MR #548](https://gitlab.com/aweframework/awe/-/merge_requests/548) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.7
+*12/03/2025*
+
+- Add frontend documentation and a new awe-react archetype. [MR #547](https://gitlab.com/aweframework/awe/-/merge_requests/547) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.6
+*05/03/2025*
+
+- Add the screen templates for AWE-React. [MR #546](https://gitlab.com/aweframework/awe/-/merge_requests/546) (Pablo Javier García Mora)
+- Remove RestTemplate from beans. [MR #545](https://gitlab.com/aweframework/awe/-/merge_requests/545) (Pablo Javier García Mora)
+- Share request parameters for async threads. [MR #544](https://gitlab.com/aweframework/awe/-/merge_requests/544) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.10.5
+*24/02/2025*
+
+- FormatNumber error when language is fr-FR. [MR #543](https://gitlab.com/aweframework/awe/-/merge_requests/543) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** New SSO integration with KeyCloak authentication server. [MR #542](https://gitlab.com/aweframework/awe/-/merge_requests/542) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.10.4
+*29/01/2025*
+
+- Azure starter dependency is mandatory. [MR #538](https://gitlab.com/aweframework/awe/-/merge_requests/538) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.10.3
+*15/01/2025*
+
+- Set context in azure redirection. [MR #537](https://gitlab.com/aweframework/awe/-/merge_requests/537) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.10.2
+*13/01/2025*
+
+- Add context path to Azure redirect action. [MR #536](https://gitlab.com/aweframework/awe/-/merge_requests/536) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.10.1
+*09/01/2025*
+
+- Add H2 Flyway tests. [MR #535](https://gitlab.com/aweframework/awe/-/merge_requests/535) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.10.0
+*07/01/2025*
+
+- Several sonar issues in new Sonarcloud version. [MR #534](https://gitlab.com/aweframework/awe/-/merge_requests/534) (Pablo Javier García Mora)
+- Add a test for each database to test flyway initialization. [MR #533](https://gitlab.com/aweframework/awe/-/merge_requests/533) (Pablo Vidal Otero)
+- Add integration with azure oauth2. [MR #532](https://gitlab.com/aweframework/awe/-/merge_requests/532) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Change language codes to use ISO 3166 and ISO 639 codes. [MR #531](https://gitlab.com/aweframework/awe/-/merge_requests/531) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.9.5
+*07/01/2025*
+
+# Changelog for AWE 4.9.4
+*21/11/2024*
+
+- Enconding error on login response. [MR #530](https://gitlab.com/aweframework/awe/-/merge_requests/530) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.9.3
+*19/11/2024*
+
+- Manage AWESessionException on screen-data calls. [MR #529](https://gitlab.com/aweframework/awe/-/merge_requests/529) (Pablo Javier García Mora)
+- Update spring boot to 3.3.5. [MR #528](https://gitlab.com/aweframework/awe/-/merge_requests/528) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.9.2
+*24/10/2024*
+
+- Pick the new ADE version - 2.2.4. [MR #527](https://gitlab.com/aweframework/awe/-/merge_requests/527) (Pablo Javier García Mora)
+- Error screens doesn't have the appropriate structure for awe-react. [MR #526](https://gitlab.com/aweframework/awe/-/merge_requests/526) (Pablo Javier García Mora)
+- Fix menu restrictions screen tree. [MR #525](https://gitlab.com/aweframework/awe/-/merge_requests/525) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.9.1
+*16/10/2024*
+
+- Fix transitive dependency vulnerabilities. [MR #524](https://gitlab.com/aweframework/awe/-/merge_requests/524) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.9.0
+*27/09/2024*
+
+- Prepare to new awe minor version 4.9.x. [MR #523](https://gitlab.com/aweframework/awe/-/merge_requests/523) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Migrate AWE to Spring Boot 3.3.x. [MR #522](https://gitlab.com/aweframework/awe/-/merge_requests/522) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.8.5
+*03/09/2024*
+
+- Add LENGTH function to query engine. [MR #519](https://gitlab.com/aweframework/awe/-/merge_requests/519) (Pablo Javier García Mora)
+- Add the Avatar component. [MR #518](https://gitlab.com/aweframework/awe/-/merge_requests/518) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.8.4
+*19/08/2024*
+
+- Error launching manual tasks from scheduler. [MR #517](https://gitlab.com/aweframework/awe/-/merge_requests/517) (Pablo Vidal Otero)
+- Add a new toggle class method which allows a button to toggle a class in a node. [MR #515](https://gitlab.com/aweframework/awe/-/merge_requests/515) (Pablo Javier García Mora)
+- Error closing milestone. [MR #514](https://gitlab.com/aweframework/awe/-/merge_requests/514) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.8.3
+*19/08/2024*
+
+# Changelog for AWE 4.8.2
+*29/07/2024*
+
+# Changelog for AWE 4.8.1
+*17/06/2024*
+
+# Changelog for AWE 4.8.0
+*31/05/2024*
+
+- Print actions is always downloading files. [MR #510](https://gitlab.com/aweframework/awe/-/merge_requests/510) (Pablo Javier García Mora)
+- Update MDC database variables. [MR #509](https://gitlab.com/aweframework/awe/-/merge_requests/509) (Pablo Vidal Otero)
+- Generate a bean which contains a list of defined email servers, to use them if user has assigned one. [MR #508](https://gitlab.com/aweframework/awe/-/merge_requests/508) (Pablo Javier García Mora)
+- Document validate-on-save attribute on grids. [MR #507](https://gitlab.com/aweframework/awe/-/merge_requests/507) (Pablo Javier García Mora)
+- Clipboard copy criteria action. [MR #506](https://gitlab.com/aweframework/awe/-/merge_requests/506) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.17
+*29/04/2024*
+
+- Pass task list criteria as parameters instead of retrieving them from request. [MR #505](https://gitlab.com/aweframework/awe/-/merge_requests/505) (Pablo Javier García Mora)
+- /api/mainain/async is always returning 401 when being called. [MR #504](https://gitlab.com/aweframework/awe/-/merge_requests/504) (Pablo Javier García Mora)
+- Add button action cancel-row to XSD. [MR #503](https://gitlab.com/aweframework/awe/-/merge_requests/503) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.7.16
+*15/04/2024*
+
+- Generate SYSTEM_DATE, SYSTEM_TIME and SYSTEM_TIMESTAMP for services. [MR #502](https://gitlab.com/aweframework/awe/-/merge_requests/502) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.15
+*20/03/2024*
+
+- Update doc for width and row _style_. [MR #501](https://gitlab.com/aweframework/awe/-/merge_requests/501) (Pablo Vidal Otero)
+- Error manage initial load data. [MR #500](https://gitlab.com/aweframework/awe/-/merge_requests/500) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.7.14
+*12/03/2024*
+
+- Fix primary button text color. [MR #499](https://gitlab.com/aweframework/awe/-/merge_requests/499) (Pablo Javier García Mora)
+- Manage screen error. [MR #498](https://gitlab.com/aweframework/awe/-/merge_requests/498) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.13
+*08/03/2024*
+
+- Fix some locales. [MR #497](https://gitlab.com/aweframework/awe/-/merge_requests/497) (Pablo Javier García Mora)
+- Add a new DATE_RDB type to format dates before calling REST services. [MR #496](https://gitlab.com/aweframework/awe/-/merge_requests/496) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.12
+*06/03/2024*
+
+- **[HAS IMPACTS]** Add a new DataList converter (asBeanList) using Jackson. [MR #495](https://gitlab.com/aweframework/awe/-/merge_requests/495) (Pablo Javier García Mora)
+- Change menu-screen style to set the icon position fixed in the upper side and the text smaller. [MR #494](https://gitlab.com/aweframework/awe/-/merge_requests/494) (Pablo Javier García Mora)
+- Generate some AI-driven unit tests with Codi. [MR #493](https://gitlab.com/aweframework/awe/-/merge_requests/493) (Pablo Javier García Mora)
+- Problem with 2fa spring security. [MR #492](https://gitlab.com/aweframework/awe/-/merge_requests/492) (Pablo Vidal Otero)
+- Bump webdriver manager and selenium dependencies. [MR #491](https://gitlab.com/aweframework/awe/-/merge_requests/491) (Pablo Javier García Mora)
+- Add title attribute to criteria. [MR #490](https://gitlab.com/aweframework/awe/-/merge_requests/490) (Pablo Javier García Mora)
+- Fix AweUsrFav primary key generation. [MR #489](https://gitlab.com/aweframework/awe/-/merge_requests/489) (Pablo Javier García Mora)
+- Fix AweUsrFav query on MySQL. [MR #488](https://gitlab.com/aweframework/awe/-/merge_requests/488) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.11
+*12/02/2024*
+
+- Screen restrictions are not applied in the right order. [MR #487](https://gitlab.com/aweframework/awe/-/merge_requests/487) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Update Spring Boot to 3.1.x branch. [MR #485](https://gitlab.com/aweframework/awe/-/merge_requests/485) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.7.10
+*29/11/2023*
+
+- Add information on data retrieval for component type select / select-multiple / suggest / suggest-multiple. [MR #483](https://gitlab.com/aweframework/awe/-/merge_requests/483) (Pablo Javier García Mora)
+- Fix security settings to allow access to locale reading from React. [MR #482](https://gitlab.com/aweframework/awe/-/merge_requests/482) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.9
+*27/11/2023*
+
+- Notifier module: Email notification doesn't search the user subscriptions to send the notification. [MR #481](https://gitlab.com/aweframework/awe/-/merge_requests/481) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.8
+*23/11/2023*
+
+- Document advise to avoid using initial-load with suggest components (specially if the query has variables inside the screen). [MR #480](https://gitlab.com/aweframework/awe/-/merge_requests/480) (Pablo Javier García Mora)
+- Add module-list step in modules documentation. [MR #479](https://gitlab.com/aweframework/awe/-/merge_requests/479) (Pablo Vidal Otero)
+- Spring security cve-2023-34035. [MR #478](https://gitlab.com/aweframework/awe/-/merge_requests/478) (Pablo Vidal Otero)
+- Sometimes components are loaded before load protocol, returning a timeout as components can't be found. [MR #477](https://gitlab.com/aweframework/awe/-/merge_requests/477) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.7
+*21/11/2023*
+
+- Documentation : add row-number and row-height attribute. [MR #476](https://gitlab.com/aweframework/awe/-/merge_requests/476) (Pablo Javier García Mora)
+- Need to specify that wizard panel id and tab container id must match the enum / querry. [MR #475](https://gitlab.com/aweframework/awe/-/merge_requests/475) (Pablo Javier García Mora)
+- Add setTemplate attribute to ScreenBuilder class in the example. [MR #474](https://gitlab.com/aweframework/awe/-/merge_requests/474) (Pablo Javier García Mora)
+- awe-boot-archetype changes. [MR #473](https://gitlab.com/aweframework/awe/-/merge_requests/473) (Pablo Javier García Mora)
+- redo the fill example without the class LokiPair and the object lokiMessage. [MR #472](https://gitlab.com/aweframework/awe/-/merge_requests/472) (Pablo Javier García Mora)
+- GridBuilder.setRowNumbers is by default false when it should be true. [MR #471](https://gitlab.com/aweframework/awe/-/merge_requests/471) (Pablo Javier García Mora)
+- Duplicated Email receiver and cc. [MR #470](https://gitlab.com/aweframework/awe/-/merge_requests/470) (Pablo Javier García Mora)
+- DependencyElementBuilder.CheckChanges is by default false when it should be true. [MR #469](https://gitlab.com/aweframework/awe/-/merge_requests/469) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.6
+*15/11/2023*
+
+- Allow parameter reading on template generation. [MR #468](https://gitlab.com/aweframework/awe/-/merge_requests/468) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.5
+*09/11/2023*
+
+- **[HAS IMPACTS]** Menu screens doesn't work when working on a cluster. [MR #467](https://gitlab.com/aweframework/awe/-/merge_requests/467) (Pablo Javier García Mora)
+- Use target-action in option if defined assembled with server-action. [MR #466](https://gitlab.com/aweframework/awe/-/merge_requests/466) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.4
+*19/10/2023*
+
+- Radio button groups are picking the last radio value even if they are not initialized. [MR #465](https://gitlab.com/aweframework/awe/-/merge_requests/465) (Pablo Javier García Mora)
+- Error loading default theme and language. [MR #464](https://gitlab.com/aweframework/awe/-/merge_requests/464) (Pablo Vidal Otero)
+- Add a new default font: Montserrat. [MR #463](https://gitlab.com/aweframework/awe/-/merge_requests/463) (Pablo Javier García Mora)
+- Make menu layout configurable by property. [MR #462](https://gitlab.com/aweframework/awe/-/merge_requests/462) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.7.3
+*15/09/2023*
+
+- Problem reading global files in a final app. [MR #461](https://gitlab.com/aweframework/awe/-/merge_requests/461) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.7.2
+*14/09/2023*
+
+- Fix sqlserver fields for theme colors. [MR #460](https://gitlab.com/aweframework/awe/-/merge_requests/460) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.1
+*14/09/2023*
+
+- Update maven plugins. [MR #459](https://gitlab.com/aweframework/awe/-/merge_requests/459) (Pablo Vidal Otero)
+- Remove deprecated gitlab license scanning. [MR #458](https://gitlab.com/aweframework/awe/-/merge_requests/458) (Pablo Vidal Otero)
+- Error in awe-testing with chromedriver and chrome. [MR #457](https://gitlab.com/aweframework/awe/-/merge_requests/457) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Move AWE framework to Spring Boot 3. [MR #456](https://gitlab.com/aweframework/awe/-/merge_requests/456) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Improve themes screen to define application colors and preferences and generate a css screen with css variables based on this. [MR #455](https://gitlab.com/aweframework/awe/-/merge_requests/455) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Allow the user to mark as 'favourite' some screens. [MR #454](https://gitlab.com/aweframework/awe/-/merge_requests/454) (Pablo Javier García Mora)
+- Mejora de los totalize en una query. [MR #453](https://gitlab.com/aweframework/awe/-/merge_requests/453) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.7.0
+*14/07/2023*
+
+- Change console pattern. [MR #452](https://gitlab.com/aweframework/awe/-/merge_requests/452) (Pablo Vidal Otero)
+- Change logback console pattern. [MR #451](https://gitlab.com/aweframework/awe/-/merge_requests/451) (Pablo Vidal Otero)
+- Generar chart con utf-8. [MR #450](https://gitlab.com/aweframework/awe/-/merge_requests/450) (Pablo Javier García Mora)
+- Verify computed eval is working with service data output. [MR #449](https://gitlab.com/aweframework/awe/-/merge_requests/449) (Pablo Javier García Mora)
+- Error manage maintain commit operation. [MR #448](https://gitlab.com/aweframework/awe/-/merge_requests/448) (Pablo Vidal Otero)
+- Datasource health don't work without flyway migration. [MR #447](https://gitlab.com/aweframework/awe/-/merge_requests/447) (Pablo Vidal Otero)
+- Remove XML files from cache when application is down. [MR #446](https://gitlab.com/aweframework/awe/-/merge_requests/446) (Pablo Javier García Mora)
+- Allow to pick some other icon sets. [MR #445](https://gitlab.com/aweframework/awe/-/merge_requests/445) (Pablo Javier García Mora)
+- Error flyway migration strategy. [MR #444](https://gitlab.com/aweframework/awe/-/merge_requests/444) (Pablo Vidal Otero)
+- Change the screen access screen to make it more usable, p.e. with a treegrid. [MR #443](https://gitlab.com/aweframework/awe/-/merge_requests/443) (Pablo Javier García Mora)
+- In the menu-screen you can't put more than one option if it's not inside a header, as it doesn't flow to the left. [MR #442](https://gitlab.com/aweframework/awe/-/merge_requests/442) (Pablo Javier García Mora)
+- Allow 'type' attribute inside the options to launch server actions. [MR #441](https://gitlab.com/aweframework/awe/-/merge_requests/441) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.6.10
+*30/05/2023*
+
+- Cyclic dependency when using Redis as cache manager. [MR #440](https://gitlab.com/aweframework/awe/-/merge_requests/440) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.6.9
+*30/05/2023*
+
+- Menu is retrieving the profile with the current module restricted. [MR #439](https://gitlab.com/aweframework/awe/-/merge_requests/439) (Pablo Javier García Mora)
+- New option screen for menu options. [MR #438](https://gitlab.com/aweframework/awe/-/merge_requests/438) (Pablo Javier García Mora)
+- Throw exception in Flyway migration. [MR #437](https://gitlab.com/aweframework/awe/-/merge_requests/437) (Pablo Vidal Otero)
+- Improve Selenium Utilities clicking behaviour with waits until element is clickable. [MR #436](https://gitlab.com/aweframework/awe/-/merge_requests/436) (Pablo Javier García Mora)
+- Change order of service launching in STARTs phases. [MR #435](https://gitlab.com/aweframework/awe/-/merge_requests/435) (Pablo Vidal Otero)
+- Build observability stack in awe-boot test application. [MR #434](https://gitlab.com/aweframework/awe/-/merge_requests/434) (Pablo Vidal Otero)
+- Adapt ReactInstructions in AWE Testing to react engine. [MR #433](https://gitlab.com/aweframework/awe/-/merge_requests/433) (Pablo Javier García Mora)
+- Fix Scheduler historization table from HisAweSchTsk to HISAweSchTsk. [MR #432](https://gitlab.com/aweframework/awe/-/merge_requests/432) (Pablo Javier García Mora)
+- Added stompjs management. [MR #431](https://gitlab.com/aweframework/awe/-/merge_requests/431) (Pablo Javier García Mora)
+- Queries add language parameter in order to use in translate functionallity. [MR #430](https://gitlab.com/aweframework/awe/-/merge_requests/430) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.6.8
+*30/03/2023*
+
+- Set checkbox value to '0' when resetting instead of null value. [MR #427](https://gitlab.com/aweframework/awe/-/merge_requests/427) (Pablo Javier García Mora)
+- Error with chrome selenium driver. [MR #426](https://gitlab.com/aweframework/awe/-/merge_requests/426) (Pablo Vidal Otero)
+- Change AWE rest authentication API. [MR #424](https://gitlab.com/aweframework/awe/-/merge_requests/424) (Pablo Vidal Otero)
+- Update ade and spring boot version. [MR #423](https://gitlab.com/aweframework/awe/-/merge_requests/423) (Pablo Vidal Otero)
+- Add a REST controller to scheduler module, allowing it to keep in a separate module. [MR #422](https://gitlab.com/aweframework/awe/-/merge_requests/422) (Pablo Javier García Mora)
+- The query getOptionRestrictionFromDatabase is very slow the first time launched. [MR #421](https://gitlab.com/aweframework/awe/-/merge_requests/421) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.6.7
+*06/03/2023*
+
+- DataListBuilder does not store records properly when merge datalists. [MR #420](https://gitlab.com/aweframework/awe/-/merge_requests/420) (Pablo Javier García Mora)
+- Problem sending email. [MR #419](https://gitlab.com/aweframework/awe/-/merge_requests/419) (Pablo Vidal Otero)
+- Clicking on grid row number header retrieves an error. [MR #418](https://gitlab.com/aweframework/awe/-/merge_requests/418) (Pablo Javier García Mora)
+- Problem with Email engine and attachment element. [MR #417](https://gitlab.com/aweframework/awe/-/merge_requests/417) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.6.6
+*22/02/2023*
+
+- Validate unique columns on new profile screen.. [MR #416](https://gitlab.com/aweframework/awe/-/merge_requests/416) (Pablo Javier García Mora)
+- Selenium utilities: check active tab on the three lines (many tabs). [MR #415](https://gitlab.com/aweframework/awe/-/merge_requests/415) (Pablo Javier García Mora)
+- Fix the training docs. [MR #414](https://gitlab.com/aweframework/awe/-/merge_requests/414) (Pablo Javier García Mora)
+- Fix RapidAPI integration to translate text. [MR #413](https://gitlab.com/aweframework/awe/-/merge_requests/413) (Pablo Javier García Mora)
+- Improve XML loading process. [MR #412](https://gitlab.com/aweframework/awe/-/merge_requests/412) (Pablo Javier García Mora)
+- Empty value when setting a radio button value previously retrieved. [MR #411](https://gitlab.com/aweframework/awe/-/merge_requests/411) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.6.5
+*07/02/2023*
+
+- The View Pdf File method is not implemented. [MR #410](https://gitlab.com/aweframework/awe/-/merge_requests/410) (Pablo Vidal Otero)
+- Update spring boot version to 2.7.8. [MR #409](https://gitlab.com/aweframework/awe/-/merge_requests/409) (Pablo Vidal Otero)
+- Add an action which fills both values and selected attributes of a suggest component. [MR #408](https://gitlab.com/aweframework/awe/-/merge_requests/408) (Pablo Javier García Mora)
+- Add ImageBuilder to allow using images with the awe-builder module. [MR #407](https://gitlab.com/aweframework/awe/-/merge_requests/407) (Pablo Javier García Mora)
+- Error passing DATE variables to sql services. [MR #406](https://gitlab.com/aweframework/awe/-/merge_requests/406) (Pablo Vidal Otero)
+- Fix Date (java.sql.Date). [MR #405](https://gitlab.com/aweframework/awe/-/merge_requests/405) (Pablo Javier García Mora)
+- Allow sending variables (in addition to request parameters) as default values for microservice calls. [MR #404](https://gitlab.com/aweframework/awe/-/merge_requests/404) (Pablo Javier García Mora)
+- Pick the new ADE version. [MR #403](https://gitlab.com/aweframework/awe/-/merge_requests/403) (Pablo Javier García Mora)
+- Make threadsafe the parameter list for microservices. [MR #402](https://gitlab.com/aweframework/awe/-/merge_requests/402) (Pablo Javier García Mora)
+- Add action control-empty-cancel in xsd. [MR #401](https://gitlab.com/aweframework/awe/-/merge_requests/401) (Pablo Javier García Mora)
+- Allow  CASE clause in GROUP BY. [MR #400](https://gitlab.com/aweframework/awe/-/merge_requests/400) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.6.4
+*01/12/2022*
+
+- Add 'AND' operator in queries with CASE. [MR #399](https://gitlab.com/aweframework/awe/-/merge_requests/399) (Pablo Vidal Otero)
+- Update spring boot version to 2.7.6. [MR #398](https://gitlab.com/aweframework/awe/-/merge_requests/398) (Pablo Vidal Otero)
+- Adapt awe compilation to JDK 17. [MR #397](https://gitlab.com/aweframework/awe/-/merge_requests/397) (Pablo Vidal Otero)
+- Fix oracle scripts for 2fa. [MR #396](https://gitlab.com/aweframework/awe/-/merge_requests/396) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.6.3
+*14/11/2022*
+
+- Allow to have an action which opens an url in a new window. [MR #395](https://gitlab.com/aweframework/awe/-/merge_requests/395) (Pablo Javier García Mora)
+- Show help messages on column headers. [MR #394](https://gitlab.com/aweframework/awe/-/merge_requests/394) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.6.2
+*31/10/2022*
+
+- Problem showing grids on dialog after opening them twice. [MR #393](https://gitlab.com/aweframework/awe/-/merge_requests/393) (Pablo Javier García Mora)
+- Multiple suggest is not updating right its values when it is updated from outside (a dependency or an action). [MR #392](https://gitlab.com/aweframework/awe/-/merge_requests/392) (Pablo Javier García Mora)
+- Add id column automatically in FillActionBuilder. [MR #391](https://gitlab.com/aweframework/awe/-/merge_requests/391) (Pablo Javier García Mora)
+- Delete server-action=update-model-no-cancel. [MR #390](https://gitlab.com/aweframework/awe/-/merge_requests/390) (Pablo Javier García Mora)
+- Allow having subfolders inside screen folder. [MR #389](https://gitlab.com/aweframework/awe/-/merge_requests/389) (Pablo Javier García Mora)
+- Error with max attribute in select component. [MR #388](https://gitlab.com/aweframework/awe/-/merge_requests/388) (Pablo Javier García Mora)
+- When printing the compound values on cells are fully sent in .selected values instead of in .data values. [MR #387](https://gitlab.com/aweframework/awe/-/merge_requests/387) (Pablo Javier García Mora)
+- Update docusaurus to the last release. [MR #386](https://gitlab.com/aweframework/awe/-/merge_requests/386) (Pablo Vidal Otero)
+- Error searching aweframework doc web. [MR #385](https://gitlab.com/aweframework/awe/-/merge_requests/385) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.6.1
+*19/08/2022*
+
+- Update spring boot version to 2.7.3. [MR #384](https://gitlab.com/aweframework/awe/-/merge_requests/384) (Pablo Vidal Otero)
+- Create a set of specific instructions for angular and react in awe testing utilities. [MR #382](https://gitlab.com/aweframework/awe/-/merge_requests/382) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.6.0
+*05/07/2022*
+
+- **[HAS IMPACTS]** Update AWE to Spring Boot 2.7.X. [MR #381](https://gitlab.com/aweframework/awe/-/merge_requests/381) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.5.3
+*30/05/2022*
+
+- Some warning messages in spring security permit all paths. [MR #373](https://gitlab.com/aweframework/awe/-/merge_requests/373) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Update Spring Boot framework to 2.6.x. [MR #372](https://gitlab.com/aweframework/awe/-/merge_requests/372) (Pablo Vidal Otero)
+- Error in sqlserver flyway scripts. [MR #371](https://gitlab.com/aweframework/awe/-/merge_requests/371) (Pablo Vidal Otero)
+- Copy method in DatalistUtil shouldn't throw any Exception. [MR #369](https://gitlab.com/aweframework/awe/-/merge_requests/369) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.5.2
+*31/03/2022*
+
+- Update spring-boot version to fix CVE-2022-22950. [MR #368](https://gitlab.com/aweframework/awe/-/merge_requests/368) (Pablo Vidal Otero)
+- Change awe.session.parameter to be LinkedHashMap. [MR #367](https://gitlab.com/aweframework/awe/-/merge_requests/367) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Make site and database parameters not required on HIS tables. [MR #366](https://gitlab.com/aweframework/awe/-/merge_requests/366) (Pablo Javier García Mora)
+- Fix microservice parameters (trying to retrieve parameter name as source). [MR #365](https://gitlab.com/aweframework/awe/-/merge_requests/365) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.5.1
+*23/03/2022*
+
+- Problem with cast in scheduler module. [MR #364](https://gitlab.com/aweframework/awe/-/merge_requests/364) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.5.0
+*23/03/2022*
+
+- Create documentation of logging in AWE. [MR #363](https://gitlab.com/aweframework/awe/-/merge_requests/363) (Pablo Vidal Otero)
+- Issue when trying to visualize some data in a suggest criterion of a modal dialog. [MR #362](https://gitlab.com/aweframework/awe/-/merge_requests/362) (Pablo Javier García Mora)
+- Review service output data merge with query fields. [MR #361](https://gitlab.com/aweframework/awe/-/merge_requests/361) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Refactor properties files to ConfigProperties classes. [MR #360](https://gitlab.com/aweframework/awe/-/merge_requests/360) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Add a second factor authentication functionality to login [MR #359](https://gitlab.com/aweframework/awe/-/merge_requests/359) (Pablo Javier García Mora)
+- Add video recording capabilities on selenium tests out of docker in docker browsers. [MR #346](https://gitlab.com/aweframework/awe/-/merge_requests/346) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.4.9
+*17/02/2022*
+
+- DATE variable types use locale to set data into database. [MR #358](https://gitlab.com/aweframework/awe/-/merge_requests/358) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Improve and add new translation apis to developer. [MR #357](https://gitlab.com/aweframework/awe/-/merge_requests/357) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.4.8
+*25/01/2022*
+
+- Delete EXCEL 2010, RTF and WORD 2010 formats. [MR #356](https://gitlab.com/aweframework/awe/-/merge_requests/356) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Remove LogUtil and use Slf4j. [MR #355](https://gitlab.com/aweframework/awe/-/merge_requests/355) (Pablo Vidal Otero)
+- Improve exception message in Rest conector. [MR #354](https://gitlab.com/aweframework/awe/-/merge_requests/354) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.4.7
+*10/01/2022*
+
+- **[HAS IMPACTS]** Update spring boot version to 2.5.x branch. [MR #352](https://gitlab.com/aweframework/awe/-/merge_requests/352) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.4.6
+*14/12/2021*
+
+- Fix styles.css issue (not working when context-path is defined). [MR #353](https://gitlab.com/aweframework/awe/-/merge_requests/353) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.4.5
+*13/12/2021*
+
+- Fix log4j2 vulnerability. [MR #351](https://gitlab.com/aweframework/awe/-/merge_requests/351) (Pablo Vidal Otero)
+- Fix datepicker coverage. [MR #350](https://gitlab.com/aweframework/awe/-/merge_requests/350) (Pablo Javier García Mora)
+- Reset dependency over date criteria sets value to empty instead of null. [MR #349](https://gitlab.com/aweframework/awe/-/merge_requests/349) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.4.4
+*30/11/2021*
+
+- Update awe-rest to OpenApi. [MR #347](https://gitlab.com/aweframework/awe/-/merge_requests/347) (Pablo Vidal Otero)
+- Set screenshot time to the moment when it started. [MR #345](https://gitlab.com/aweframework/awe/-/merge_requests/345) (Pablo Javier García Mora)
+- Change colon in screenshot names to underscore character (windows runners breaks on files with colon characters). [MR #344](https://gitlab.com/aweframework/awe/-/merge_requests/344) (Pablo Javier García Mora)
+- Allow file actions without authentication. [MR #343](https://gitlab.com/aweframework/awe/-/merge_requests/343) (Pablo Javier García Mora)
+- There is an error when generating, updating or deleting a Queue. [MR #342](https://gitlab.com/aweframework/awe/-/merge_requests/342) (Pablo Javier García Mora)
+- Make all Jobs in scheduler as InterruptableJobs, because ReportJobs can't be interrupted and it fails when stopping scheduler. [MR #341](https://gitlab.com/aweframework/awe/-/merge_requests/341) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.4.3
+*19/11/2021*
+
+- Run selenium tests on docker containers to record on video the execution. [MR #340](https://gitlab.com/aweframework/awe/-/merge_requests/340) (Pablo Javier García Mora)
+- Update spring security patterns to cover all data actions. [MR #338](https://gitlab.com/aweframework/awe/-/merge_requests/338) (Pablo Javier García Mora)
+- Configure Cloud SQL for awe-boot project on the CLOUD. [MR #337](https://gitlab.com/aweframework/awe/-/merge_requests/337) (Pablo Vidal Otero)
+- Update spring-boot and spring-cloud versions. [MR #336](https://gitlab.com/aweframework/awe/-/merge_requests/336) (Pablo Vidal Otero)
+- Add bootstrap.yaml to kubernetes profile. [MR #335](https://gitlab.com/aweframework/awe/-/merge_requests/335) (Pablo Vidal Otero)
+- Add validations to `left-field` and `right-field` attributes on `filter` and `when` tags. [MR #334](https://gitlab.com/aweframework/awe/-/merge_requests/334) (Pablo Javier García Mora)
+- Update H2 flyway Awe init script. [MR #333](https://gitlab.com/aweframework/awe/-/merge_requests/333) (Pablo Vidal Otero)
+- Fix in documentation that the pSign default value is 's' instead of 'p'. [MR #332](https://gitlab.com/aweframework/awe/-/merge_requests/332) (Pablo Javier García Mora)
+
+# Changelog for awe 4.4.2
+*08/10/2021*
+
+- Remove `report-title` from available attributes on documentation. [MR #330](https://gitlab.com/aweframework/awe/-/merge_requests/330) (Pablo Javier García Mora)
+- Add `TRIM` function to docs. [MR #329](https://gitlab.com/aweframework/awe/-/merge_requests/329) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Add a new validation to avoid inserting code in query attributes `id` and `alias`. [MR #328](https://gitlab.com/aweframework/awe/-/merge_requests/328) (Pablo Javier García Mora)
+
+# Changelog for awe 4.4.1
+*02/09/2021*
+
+- Add getEnumeratedAsDataList to EnumBuilder. [MR #327](https://gitlab.com/aweframework/awe/-/merge_requests/327) (Pablo Vidal Otero)
+- Error DAST job in gitlab pipeline. [MR #324](https://gitlab.com/aweframework/awe/-/merge_requests/324) (Pablo Vidal Otero)
+- Update Spring Boot libs to v2.4.10. [MR #323](https://gitlab.com/aweframework/awe/-/merge_requests/323) (Pablo Vidal Otero)
+- Clean internal dependencies  to removing spring boot actuator starter. [MR #322](https://gitlab.com/aweframework/awe/-/merge_requests/322) (Pablo Vidal Otero)
+- Create redis deployment to awe-boot kubernetes deploy. [MR #321](https://gitlab.com/aweframework/awe/-/merge_requests/321) (Pablo Vidal Otero)
+- CVE report published for Spring Security. [MR #320](https://gitlab.com/aweframework/awe/-/merge_requests/320) (Pablo Vidal Otero)
+- Configure HTTPS in AWE enviroments. [MR #319](https://gitlab.com/aweframework/awe/-/merge_requests/319) (Pablo Vidal Otero)
+- Add redis as database cache for persist user sessions. [MR #318](https://gitlab.com/aweframework/awe/-/merge_requests/318) (Pablo Vidal Otero)
+- Add i18n support for awe doc website. [MR #317](https://gitlab.com/aweframework/awe/-/merge_requests/317) (Pablo Vidal Otero)
+
+# Changelog for awe 4.4.0
+*11/06/2021*
+
+- The algolia search engine not working. [MR #316](https://gitlab.com/aweframework/awe/-/merge_requests/316) (Pablo Vidal Otero)
+- Update documentation of awe migration guide. [MR #315](https://gitlab.com/aweframework/awe/-/merge_requests/315) (Pablo Vidal Otero)
+- Update version to next minor and generate documentation. [MR #314](https://gitlab.com/aweframework/awe/-/merge_requests/314) (Pablo Vidal Otero)
+- Update ade version to use openPdf instead of Itext. [MR #313](https://gitlab.com/aweframework/awe/-/merge_requests/313) (Pablo Vidal Otero)
+- Update ade library. [MR #312](https://gitlab.com/aweframework/awe/-/merge_requests/312) (Pablo Vidal Otero)
+- Websocket generation failing due is not using application context-path. [MR #311](https://gitlab.com/aweframework/awe/-/merge_requests/311) (Pablo Javier García Mora)
+- Suggest value list not updated correctly when depends in other criteria. [MR #310](https://gitlab.com/aweframework/awe/-/merge_requests/310) (Pablo Javier García Mora)
+- Dynamically filled tabs (via java service) are not showing tab labels on Firefox or Edge.. [MR #309](https://gitlab.com/aweframework/awe/-/merge_requests/309) (Pablo Javier García Mora)
+- Numeric is not sending Integer value. [MR #308](https://gitlab.com/aweframework/awe/-/merge_requests/308) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Modify AWE Datasource strategy. [MR #307](https://gitlab.com/aweframework/awe/-/merge_requests/307) (Pablo Vidal Otero)
+- Update spring boot version to 2.4.6. [MR #306](https://gitlab.com/aweframework/awe/-/merge_requests/306) (Pablo Vidal Otero)
+- First trying to migrate junit5. [MR #305](https://gitlab.com/aweframework/awe/-/merge_requests/305) (Pablo Vidal Otero)
+- Query totalisation fails if there is any null CellData. [MR #304](https://gitlab.com/aweframework/awe/-/merge_requests/304) (Pablo Javier García Mora)
+- Websocket initialization fails on first deployment. [MR #303](https://gitlab.com/aweframework/awe/-/merge_requests/303) (Pablo Javier García Mora)
+- Allow `/screen-data` and `/locales` endpoints access for react engine. [MR #302](https://gitlab.com/aweframework/awe/-/merge_requests/302) (Pablo Javier García Mora)
+- Error highlight java block code. [MR #301](https://gitlab.com/aweframework/awe/-/merge_requests/301) (Pablo Vidal Otero)
+
+# Changelog for awe 4.3.6
+*04/05/2021*
+
+- Don't translate the selected language on developer module. [MR #300](https://gitlab.com/aweframework/awe/-/merge_requests/300) (Pablo Javier García Mora)
+- Screen load fails if initial target returns 0 rows. [MR #299](https://gitlab.com/aweframework/awe/-/merge_requests/299) (Pablo Javier García Mora)
+- Securize rest api module calls. [MR #298](https://gitlab.com/aweframework/awe/-/merge_requests/298) (Pablo Vidal Otero)
+- Create action `control-empty-cancel`. [MR #297](https://gitlab.com/aweframework/awe/-/merge_requests/297) (Pablo Javier García Mora)
+- Focus not moving to tab when required criterios is empty. [MR #296](https://gitlab.com/aweframework/awe/-/merge_requests/296) (Pablo Javier García Mora)
+- Avoid generating array lists when values are comma separated (unless defined as specific type). [MR #295](https://gitlab.com/aweframework/awe/-/merge_requests/295) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Bug with dialogs opened from home_navbar. [MR #294](https://gitlab.com/aweframework/awe/-/merge_requests/294) (Pablo Javier García Mora)
+- Problem printing dynamic columns in a grid. [MR #293](https://gitlab.com/aweframework/awe/-/merge_requests/293) (Pablo Javier García Mora)
+- Change Database pool to use Hikari. [MR #291](https://gitlab.com/aweframework/awe/-/merge_requests/291) (Pablo Vidal Otero)
+
+# Changelog for awe 4.3.4
+*08/04/2021*
+
+- Error in some selenium tests with Chrome Browser. [MR #290](https://gitlab.com/aweframework/awe/-/merge_requests/290) (Pablo Vidal Otero)
+- Update ADE dependency. [MR #289](https://gitlab.com/aweframework/awe/-/merge_requests/289) (Pablo Vidal Otero)
+- Fix InterruptedException issue found by Sonar. [MR #288](https://gitlab.com/aweframework/awe/-/merge_requests/288) (Pablo Javier García Mora)
+- Keep the attribute 'optional' in the variables that are used in the maintain and queries.. [MR #287](https://gitlab.com/aweframework/awe/-/merge_requests/287) (Pablo Javier García Mora)
+- Add a new default parameter for max rows per page on criteria. [MR #286](https://gitlab.com/aweframework/awe/-/merge_requests/286) (Pablo Javier García Mora)
+- Error sleuth starter dependency. [MR #285](https://gitlab.com/aweframework/awe/-/merge_requests/285) (Pablo Vidal Otero)
+- Warning messages from microservices responses are not retrieved successfully. [MR #284](https://gitlab.com/aweframework/awe/-/merge_requests/284) (Pablo Javier García Mora)
+- New jackson serializer in awe services for data binding. [MR #283](https://gitlab.com/aweframework/awe/-/merge_requests/283) (Pablo Vidal Otero)
+- Remove minor sonar issues. [MR #282](https://gitlab.com/aweframework/awe/-/merge_requests/282) (Pablo Javier García Mora)
+- Configure https in demo sites. [MR #281](https://gitlab.com/aweframework/awe/-/merge_requests/281) (Pablo Vidal Otero)
+- Session parameters like site and database are not retrieved on login. [MR #280](https://gitlab.com/aweframework/awe/-/merge_requests/280) (Pablo Javier García Mora)
+- Add button with a link to awe demo page. [MR #279](https://gitlab.com/aweframework/awe/-/merge_requests/279) (Pablo Vidal Otero)
+- Configure awe-boot for sending metrics to wavefront. [MR #278](https://gitlab.com/aweframework/awe/-/merge_requests/278) (Pablo Vidal Otero)
+- updateModel does not work, because it returns the object value instead of the value of the cell. [MR #277](https://gitlab.com/aweframework/awe/-/merge_requests/277) (Pablo Javier García Mora)
+- Revert email generation changes. [MR #276](https://gitlab.com/aweframework/awe/-/merge_requests/276) (Pablo Javier García Mora)
+- Update docusaurus version. [MR #275](https://gitlab.com/aweframework/awe/-/merge_requests/275) (Pablo Vidal Otero)
+
+# Changelog for awe 4.3.3
+*02/02/2021*
+
+- Change notification system. [MR #274](https://gitlab.com/aweframework/awe/-/merge_requests/274) (Pablo Javier García Mora)
+- Problem with /startup actuator endpoint. [MR #273](https://gitlab.com/aweframework/awe/-/merge_requests/273) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Make database variable allowed to be configured in properties. [MR #272](https://gitlab.com/aweframework/awe/-/merge_requests/272) (Pablo Javier García Mora)
+
+# Changelog for awe 4.3.2
+*25/01/2021*
+
+- Return AWException when service data retrieved by Rest or Microservice is ERROR or WARNING. [MR #271](https://gitlab.com/aweframework/awe/-/merge_requests/271) (Pablo Javier García Mora)
+
+# Changelog for awe 4.3.1
+*18/01/2021*
+
+- Update awe to Spring Boot 2.4.2. [MR #270](https://gitlab.com/aweframework/awe/-/merge_requests/270) (Pablo Vidal Otero)
+- Fix AWE email template. [MR #269](https://gitlab.com/aweframework/awe/-/merge_requests/269) (Pablo Javier García Mora)
+- Scheduler executions are not stored on the same database as tasks. [MR #268](https://gitlab.com/aweframework/awe/-/merge_requests/268) (Pablo Javier García Mora)
+- Error with sql logging. [MR #267](https://gitlab.com/aweframework/awe/-/merge_requests/267) (Pablo Vidal Otero)
+
+# Changelog for awe 4.3.0
+*14/12/2020*
+
+- Generate AWE doc to version 4.3.0. [MR #266](https://gitlab.com/aweframework/awe/-/merge_requests/266) (Pablo Vidal Otero)
+- Several downloads at once when a grid is filtered.. [MR #265](https://gitlab.com/aweframework/awe/-/merge_requests/265) (Pablo Javier García Mora)
+- Icon in text-view component inside a grid dissapears when clicked. [MR #264](https://gitlab.com/aweframework/awe/-/merge_requests/264) (Pablo Javier García Mora)
+- Add CLOB compatibility for queries/maintains. [MR #263](https://gitlab.com/aweframework/awe/-/merge_requests/263) (Pablo Javier García Mora)
+- Add ROUND operation. [MR #262](https://gitlab.com/aweframework/awe/-/merge_requests/262) (Pablo Vidal Otero)
+- Filter data without x coordinate when generating a chart in server side. [MR #261](https://gitlab.com/aweframework/awe/-/merge_requests/261) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Update AWE to Spring Boot 2.4. [MR #260](https://gitlab.com/aweframework/awe/-/merge_requests/260) (Pablo Vidal Otero)
+- Add a new interface in ChartService to allow sending a Chart object instead of a predefined chart inside a screen. [MR #259](https://gitlab.com/aweframework/awe/-/merge_requests/259) (Pablo Javier García Mora)
+- Method writeText() of SeleniumUtilities clicks on the body after inserting the value in the criteria. [MR #258](https://gitlab.com/aweframework/awe/-/merge_requests/258) (Pablo Javier García Mora)
+
+# Changelog for awe 4.2.9
+*09/11/2020*
+
+- Add common deployment scenarios to documentation. [MR #257](https://gitlab.com/aweframework/awe/-/merge_requests/257) (Pablo Vidal Otero)
+- Activate csrf protection by default. [MR #256](https://gitlab.com/aweframework/awe/-/merge_requests/256) (Pablo Javier García Mora)
+- Explain in detail security meassures that AWE has.. [MR #255](https://gitlab.com/aweframework/awe/-/merge_requests/255) (Pablo Vidal Otero)
+- Update QueryDSL lib. [MR #254](https://gitlab.com/aweframework/awe/-/merge_requests/254) (Pablo Vidal Otero)
+- Add a service to generate Highcharts charts from server. [MR #253](https://gitlab.com/aweframework/awe/-/merge_requests/253) (Pablo Javier García Mora)
+- Add a new method isWebDate to check date format dd/MM/yyyy. [MR #252](https://gitlab.com/aweframework/awe/-/merge_requests/252) (Pablo Javier García Mora)
+- Update spring-boot dependency to 3.3.5. [MR #251](https://gitlab.com/aweframework/awe/-/merge_requests/251) (Pablo Vidal Otero)
+- Allow to put names of the alias in the fieds of the querys equal to the id with uppercase. [MR #250](https://gitlab.com/aweframework/awe/-/merge_requests/250) (Pablo Javier García Mora)
+- Add repo AWE Training. [MR #249](https://gitlab.com/aweframework/awe/-/merge_requests/249) (Pablo Vidal Otero)
+- Allow to retrieve screen data in an endpoint. [MR #248](https://gitlab.com/aweframework/awe/-/merge_requests/248) (Pablo Javier García Mora)
+- Assure that sequence retrieving is thread safe. [MR #247](https://gitlab.com/aweframework/awe/-/merge_requests/247) (Pablo Javier García Mora)
+- Move template files (stg) to front-end client to allow working with different front-end clients. [MR #246](https://gitlab.com/aweframework/awe/-/merge_requests/246) (Pablo Javier García Mora)
+- Dependencies not working after a restore action. [MR #245](https://gitlab.com/aweframework/awe/-/merge_requests/245) (Pablo Javier García Mora)
+
+# Changelog for awe 4.2.8
+*23/09/2020*
+
+- Set `none` as default cache as `ehcache` has JDK8 dependencies. [MR #242](https://gitlab.com/aweframework/awe/-/merge_requests/242) (Pablo Vidal Otero)
+- Remove `@Component` from already initialized beans like WebSettings. [MR #241](https://gitlab.com/aweframework/awe/-/merge_requests/241) (Pablo Javier García Mora)
+- Load-all grid doesn't draw the rows well when page is defined and it's not the first one. [MR #240](https://gitlab.com/aweframework/awe/-/merge_requests/240) (Pablo Javier García Mora)
+- Update Spring Boot version to 2.2. [MR #239](https://gitlab.com/aweframework/awe/-/merge_requests/239) (Pablo Vidal Otero)
+- Review documentation. [MR #238](https://gitlab.com/aweframework/awe/-/merge_requests/238) (Mario Bastardo)
+- Bug in SeleniumUtilities.selectDate(). [MR #237](https://gitlab.com/aweframework/awe/-/merge_requests/237) (Pablo Javier García Mora)
+- Bug in SeleniumUtilities.selectDate(). [MR #236](https://gitlab.com/aweframework/awe/-/merge_requests/236) (Pablo Javier García Mora)
+- Update version in docusaurus framework. [MR #235](https://gitlab.com/aweframework/awe/-/merge_requests/235) (Pablo Vidal Otero)
+- Yandex translation API v1 has been deprecated. [MR #234](https://gitlab.com/aweframework/awe/-/merge_requests/234) (Pablo Vidal Otero)
+- Add filter version in search tool bar of website. [MR #233](https://gitlab.com/aweframework/awe/-/merge_requests/233) (Pablo Vidal Otero)
+- Build a new doc website with docusaurus. [MR #232](https://gitlab.com/aweframework/awe/-/merge_requests/232) (Pablo Vidal Otero)
+- Compile error with Jdk 11. [MR #231](https://gitlab.com/aweframework/awe/-/merge_requests/231) (Pablo Vidal Otero)
+
+# Changelog for awe 4.2.7
+*09/07/2020*
+
+- Add a method to select all rows from a Grid in SeleniumUtilities. [MR #230](https://gitlab.com/aweframework/awe/-/merge_requests/230) (Pablo Vidal Otero)
+- Add server attribute to microservices copying the functionality of rest connector. [MR #229](https://gitlab.com/aweframework/awe/-/merge_requests/229) (Pablo Vidal Otero)
+- EncodeUtil is not mockeable. [MR #228](https://gitlab.com/aweframework/awe/-/merge_requests/228) (Pablo Javier García Mora)
+- Exclude spring-boot-starter-logging. [MR #227](https://gitlab.com/aweframework/awe/-/merge_requests/227) (Pablo Vidal Otero)
+- Placeholder into select doesn´t change language. [MR #226](https://gitlab.com/aweframework/awe/-/merge_requests/226) (Pablo Javier García Mora)
+- Logo and background image paths doesn't work right when a context path is defined. [MR #225](https://gitlab.com/aweframework/awe/-/merge_requests/225) (Pablo Javier García Mora)
+
+# Changelog for awe 4.2.6
+*17/06/2020*
+
+- Add a null check in the parameter name of getRequest().setParameter(....). [MR #224](https://gitlab.com/aweframework/awe/-/merge_requests/224) (Pablo Javier García Mora)
+- Add PARAMETER_SELECT locale to awe-tools module. [MR #223](https://gitlab.com/aweframework/awe/-/merge_requests/223) (Pablo Javier García Mora)
+- Print grid total row. [MR #222](https://gitlab.com/aweframework/awe/-/merge_requests/222) (Pablo Javier García Mora)
+
+# Changelog for awe 4.2.5
+*11/06/2020*
+
+- `gotoScreen` doesn't wait for not disabled option, causing misclick on option. [MR #221](https://gitlab.com/aweframework/awe/-/merge_requests/221) (Pablo Javier García Mora)
+- Error filling a radio criteria using the target attribute of the screen. [MR #220](https://gitlab.com/aweframework/awe/-/merge_requests/220) (Pablo Javier García Mora)
+- Access to changelog MR is not being generated right. [MR #219](https://gitlab.com/aweframework/awe/-/merge_requests/219) (Pablo Javier García Mora)
+- Show currentOption on screenshot name when failing in selenium tests. [MR #218](https://gitlab.com/aweframework/awe/-/merge_requests/218) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.2.4
+*08/06/2020*
+
+- Another cast exception in generic print for grids with numeric values. [MR #217](https://gitlab.com/aweframework/awe/merge_requests/217) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Load all screens on startup. [MR #216](https://gitlab.com/aweframework/awe/merge_requests/216) (Pablo Javier García Mora)
+- Fix redirect issue when user is logged. [MR #215](https://gitlab.com/aweframework/awe/merge_requests/215) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.2.3
+*08/05/2020*
+
+- Removing a row without parent in a treegrid causes error. [MR #211](https://gitlab.com/aweframework/awe/merge_requests/211) (Pablo Javier García Mora)
+- Delete row doesn't allow a rowId even if it's defined. [MR #210](https://gitlab.com/aweframework/awe/merge_requests/210) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.2.2
+*01/04/2020*
+
+- Property `file.upload.max.size` is read in bytes instead of mega bytes. [MR #209](https://gitlab.com/aweframework/awe/merge_requests/209) (Pablo Javier García Mora)
+- Allow to define * as column width. [MR #208](https://gitlab.com/aweframework/awe/merge_requests/208) (Pablo Javier García Mora)
+- Application parameters not recoverd with getProperty. [MR #207](https://gitlab.com/aweframework/awe/merge_requests/207) (Pablo Javier García Mora)
+- Cast exception in generic print for grids with numeric values. [MR #206](https://gitlab.com/aweframework/awe/merge_requests/206) (Pablo Javier García Mora)
+- Make a Reports historic copy. [MR #205](https://gitlab.com/aweframework/awe/merge_requests/205) (Pablo Javier García Mora)
+- Treegrid doesn't open expanded branches on defined initial level if loaded with `autoload` and `load-all`. [MR #204](https://gitlab.com/aweframework/awe/merge_requests/204) (Pablo Javier García Mora)
+- Destroy help timeout when clicking a button. [MR #203](https://gitlab.com/aweframework/awe/merge_requests/203) (Pablo Javier García Mora)
+- Improve `screen` client action to reload the page if it is the same. [MR #202](https://gitlab.com/aweframework/awe/merge_requests/202) (Pablo Javier García Mora)
+- Add a new action to redirect a specific screen (broadcast to specific screen). [MR #201](https://gitlab.com/aweframework/awe/merge_requests/201) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Notification module. [MR #200](https://gitlab.com/aweframework/awe/merge_requests/200) (Pablo Javier García Mora)
+- Add function SQL RANK. [MR #199](https://gitlab.com/aweframework/awe/merge_requests/199) (Pablo Javier García Mora)
+- Add a broadcasting method to send actions to a concrete screen. [MR #198](https://gitlab.com/aweframework/awe/merge_requests/198) (Pablo Javier García Mora)
+- Allow to define component values for grids, wizards, tabs and charts when generating them with builder module. [MR #197](https://gitlab.com/aweframework/awe/merge_requests/197) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.2.1
+*24/02/2020*
+
+- Add a redirect action to go outside AWE. [MR #196](https://gitlab.com/aweframework/awe/merge_requests/196) (Pablo Javier García Mora)
+- Allow sending beans as json values in REST requests. [MR #193](https://gitlab.com/aweframework/awe/merge_requests/193) (Pablo Javier García Mora)
+- Docs - How to use a dependency just in the selected row. [MR #192](https://gitlab.com/aweframework/awe/merge_requests/192) (Mario Bastardo)
+- When a date is pasted into a date criterion, it doesn't take the date value. [MR #191](https://gitlab.com/aweframework/awe/merge_requests/191) (Pablo Javier García Mora)
+- Retrieve ServiceData even if rest response is null. [MR #190](https://gitlab.com/aweframework/awe/merge_requests/190) (Pablo Javier García Mora)
+- Allow to define security for REST Servers. [MR #189](https://gitlab.com/aweframework/awe/merge_requests/189) (Pablo Javier García Mora)
+- Fix menu visibility if started as minimized (still not working). [MR #188](https://gitlab.com/aweframework/awe/merge_requests/188) (Pablo Javier García Mora)
+- Missing request header exception using view-pdf-file action. [MR #187](https://gitlab.com/aweframework/awe/merge_requests/187) (Pablo Javier García Mora)
+- Fix menu visibility if started as minimized. [MR #186](https://gitlab.com/aweframework/awe/merge_requests/186) (Pablo Javier García Mora)
+- .SELECTED parameters are not being sent when there is a dialog and a request for print data. [MR #185](https://gitlab.com/aweframework/awe/merge_requests/185) (Pablo Javier García Mora)
+- Increase the version of frontend-maven-plugin to latest. [MR #184](https://gitlab.com/aweframework/awe/merge_requests/184) (Pablo Javier García Mora)
+- Cast exception in ReportDesigner.getGridDataParameters when a Parameter is null. [MR #183](https://gitlab.com/aweframework/awe/merge_requests/183) (Pablo Javier García Mora)
+- Panelable.getReportStructure tries to read dependencies as elements, and throws a null pointer. [MR #182](https://gitlab.com/aweframework/awe/merge_requests/182) (Pablo Javier García Mora)
+- Some Scheduler locales are not defined in the right module. [MR #181](https://gitlab.com/aweframework/awe/merge_requests/181) (Pablo Javier García Mora)
+- Define some performance tests over query computed components. [MR #180](https://gitlab.com/aweframework/awe/merge_requests/180) (Pablo Javier García Mora)
+- Error printing with awe-boot docker image. [MR #179](https://gitlab.com/aweframework/awe/merge_requests/179) (Pablo Vidal Otero)
+- Charts with  datetime type axis are not working correctly. [MR #178](https://gitlab.com/aweframework/awe/merge_requests/178) (Pablo Vidal Otero)
+- Remove RepGenPdf screen and all its queries. [MR #177](https://gitlab.com/aweframework/awe/merge_requests/177) (Pablo Vidal Otero)
+- Use sequence in `insert multiple=true`. [MR #176](https://gitlab.com/aweframework/awe/merge_requests/176) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Fix cell-style documentation in grid definitions. [MR #175](https://gitlab.com/aweframework/awe/merge_requests/175) (Pablo Javier García Mora)
+- getRequest() returns null when used in a Scheduler Task. [MR #174](https://gitlab.com/aweframework/awe/merge_requests/174) (Pablo Javier García Mora)
+- Task list grid in scheduler-tasks screen is only showing 30 results. [MR #173](https://gitlab.com/aweframework/awe/merge_requests/173) (Pablo Javier García Mora)
+- Exception in ServerDAO.findServer when there are no defined servers. [MR #172](https://gitlab.com/aweframework/awe/merge_requests/172) (Pablo Javier García Mora)
+- getRequest().setParameter POJO object. [MR #171](https://gitlab.com/aweframework/awe/merge_requests/171) (Pablo Javier García Mora)
+- getTaskExecutionList query adding fields in id instead of concat in SQS. [MR #170](https://gitlab.com/aweframework/awe/merge_requests/170) (Pablo Javier García Mora)
+- Scheduler Task list only retrieves 30 results at application start. [MR #169](https://gitlab.com/aweframework/awe/merge_requests/169) (Pablo Javier García Mora)
+- Server-print action error. [MR #168](https://gitlab.com/aweframework/awe/merge_requests/168) (Pablo Javier García Mora)
+- There are some warning in compilation process. [MR #167](https://gitlab.com/aweframework/awe/merge_requests/167) (Pablo Vidal Otero)
+- File Manager block. [MR #166](https://gitlab.com/aweframework/awe/merge_requests/166) (Pablo Vidal Otero)
+- bug awe builder criteria are hidden by default. [MR #165](https://gitlab.com/aweframework/awe/merge_requests/165) (Pablo Javier García Mora)
+- Invalid CronExpression when reading some scheduler tasks. [MR #164](https://gitlab.com/aweframework/awe/merge_requests/164) (Pablo Javier García Mora)
+- Fix hash tests. [MR #163](https://gitlab.com/aweframework/awe/merge_requests/163) (Pablo Vidal Otero)
+- Function ROW_NUMBER in over fields in SQL SERVER not working properly. [MR #162](https://gitlab.com/aweframework/awe/merge_requests/162) (Pablo Javier García Mora)
+- Pick a new ADE version. [MR #161](https://gitlab.com/aweframework/awe/merge_requests/161) (Pablo Javier García Mora)
+- DataSource Map doesn't initialize when FlyWay is not active. [MR #160](https://gitlab.com/aweframework/awe/merge_requests/160) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.2.0
+*20/12/2019*
+
+- Error with ArrayNode and TextNode from SEQUENCE. [MR #159](https://gitlab.com/aweframework/awe/merge_requests/159) (Pablo Javier García Mora)
+- Fix selenium tests issue on chrome when deleting an email server. [MR #158](https://gitlab.com/aweframework/awe/merge_requests/158) (Pablo Javier García Mora)
+- TextCriteriaBuilder doesn't have all required methods. [MR #157](https://gitlab.com/aweframework/awe/merge_requests/157) (Pablo Javier García Mora)
+- Add missing dependency action `change-language` in Actions. [MR #156](https://gitlab.com/aweframework/awe/merge_requests/156) (Pablo Javier García Mora)
+- Add a parameter to avoid AWE DataList post-processing when returns a DataList. [MR #155](https://gitlab.com/aweframework/awe/merge_requests/155) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Scheduler module. [MR #123](https://gitlab.com/aweframework/awe/merge_requests/123) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.1.7
+*05/12/2019*
+
+- Add `not in` in dependencies conditions. [MR #153](https://gitlab.com/aweframework/awe/merge_requests/153) (Pablo Javier García Mora)
+- Added QueryData to future query management. [MR #152](https://gitlab.com/aweframework/awe/merge_requests/152) (Pablo Javier García Mora)
+- Tooltip timeout validation zero meaning. [MR #151](https://gitlab.com/aweframework/awe/merge_requests/151) (Pablo Javier García Mora)
+- `show-column` and `hide-column` dependencies are not working. [MR #149](https://gitlab.com/aweframework/awe/merge_requests/149) (Pablo Javier García Mora)
+- `over` tag should be allowed inside `operand` tag. [MR #148](https://gitlab.com/aweframework/awe/merge_requests/148) (Pablo Javier García Mora)
+- Computeds show nulls when they shouldn't. [MR #147](https://gitlab.com/aweframework/awe/merge_requests/147) (Pablo Javier García Mora)
+- Dependencies that check the `visible` attribute of a criteria throw a js error. [MR #146](https://gitlab.com/aweframework/awe/merge_requests/146) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Overwrite properties system don´t work properly. [MR #145](https://gitlab.com/aweframework/awe/merge_requests/145) (Pablo Vidal Otero)
+- initDatasourceConnections throws NoSuchMethodException at window load. [MR #144](https://gitlab.com/aweframework/awe/merge_requests/144) (Pablo Vidal Otero)
+- APPLICATION START SERVICES throw exceptions when using datasources. [MR #142](https://gitlab.com/aweframework/awe/merge_requests/142) (Pablo Vidal Otero)
+- Sort DataList with DataListUtil allowing to specify if nulls should be listed at first or at last. [MR #141](https://gitlab.com/aweframework/awe/merge_requests/141) (Pablo Vidal Otero)
+- Allow to sort by DECIMAL type CellDatas comparing them as numbers, not as strings.. [MR #140](https://gitlab.com/aweframework/awe/merge_requests/140) (mbastardo)
+- Problem with DIFF functions in ORACLE. [MR #139](https://gitlab.com/aweframework/awe/merge_requests/139) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.1.6
+*10/11/2019*
+
+- Retrieving session parameters with type DATE returns a null value. [MR #138](https://gitlab.com/aweframework/awe/merge_requests/138) (Pablo Javier García Mora)
+- Error retrieving `ServiceData` messages. [MR #136](https://gitlab.com/aweframework/awe/merge_requests/136) (Pablo Javier García Mora)
+- ABS function in query fields not working properly. [MR #135](https://gitlab.com/aweframework/awe/merge_requests/135) (Pablo Javier García Mora)
+- Tree is not working when data is not sorted by id. [MR #134](https://gitlab.com/aweframework/awe/merge_requests/134) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Possibility to put tags: case, field, constant and operation in the left-operand and right-operand tags. [MR #133](https://gitlab.com/aweframework/awe/merge_requests/133) (Pablo Javier García Mora)
+- Update documentation: show actions stack in browser. [MR #132](https://gitlab.com/aweframework/awe/merge_requests/132) (Pablo Javier García Mora)
+- Update-model server action shows an error message and cancels the action when service fails. [MR #131](https://gitlab.com/aweframework/awe/merge_requests/131) (Pablo Javier García Mora)
+- Dependency-elements are treated as components by getElementsById(). [MR #130](https://gitlab.com/aweframework/awe/merge_requests/130) (Pablo Javier García Mora)
+- Cast into case. [MR #129](https://gitlab.com/aweframework/awe/merge_requests/129) (Pablo Javier García Mora)
+- Bug in addNoPrint() method from DataListBuilder. [MR #128](https://gitlab.com/aweframework/awe/merge_requests/128) (Pablo Javier García Mora)
+- nullValue attribute in computeds should also check for empty values. [MR #127](https://gitlab.com/aweframework/awe/merge_requests/127) (Pablo Javier García Mora)
+- ABS function in query fields not working properly. [MR #126](https://gitlab.com/aweframework/awe/merge_requests/126) (Pablo Javier García Mora)
+- Component numeric not storing values on Internet Explorer. [MR #125](https://gitlab.com/aweframework/awe/merge_requests/125) (Pablo Javier García Mora)
+- GridEvents.sendGridMessage not working properly. [MR #124](https://gitlab.com/aweframework/awe/merge_requests/124) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Add sorting field to modules table [MR #100](https://gitlab.com/aweframework/awe/merge_requests/100) (Fernando Burillo)
+
+# Changelog for AWE 4.1.5
+*11/10/2019*
+
+- Make audit with sequences simpler. [MR #122](https://gitlab.com/aweframework/awe/merge_requests/122) (Pablo Javier García Mora)
+- Invalid property 'component' generating component map. [MR #121](https://gitlab.com/aweframework/awe/merge_requests/121) (Pablo Javier García Mora)
+- Two-line Menu overlaps with the screen title/name. [MR #120](https://gitlab.com/aweframework/awe/merge_requests/120) (Pablo Javier García Mora)
+- Function `FIRST_VALUE` and `LAST_VALUE` in fields not working and add function `TRIM` to queries. [MR #119](https://gitlab.com/aweframework/awe/merge_requests/119) (Pablo Javier García Mora)
+- Test autoincrement fields in AWE. [MR #118](https://gitlab.com/aweframework/awe/merge_requests/118) (Pablo Javier García Mora)
+- Audit in multiple maintain not working. [MR #117](https://gitlab.com/aweframework/awe/merge_requests/117) (Pablo Javier García Mora)
+- Improve the validation documentation (add type of criteria and more description). [MR #116](https://gitlab.com/aweframework/awe/merge_requests/116) (Pablo Javier García Mora)
+- Error generating component map in some screens caused by Invalid property.... [MR #115](https://gitlab.com/aweframework/awe/merge_requests/115) (Pablo Javier García Mora)
+- Add a method to list all queries. [MR #114](https://gitlab.com/aweframework/awe/merge_requests/114) (Pablo Javier García Mora)
+- AWE throws exception when launching a query without tables. [MR #113](https://gitlab.com/aweframework/awe/merge_requests/113) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** Component dialog is not storing data on its model. [MR #112](https://gitlab.com/aweframework/awe/merge_requests/112) (Pablo Javier García Mora)
+- Filtered calendar doesn't show which months are allowed on month selection. [MR #111](https://gitlab.com/aweframework/awe/merge_requests/111) (Pablo Javier García Mora)
+- Allow to define database used on logs. [MR #110](https://gitlab.com/aweframework/awe/merge_requests/110) (Pablo Javier García Mora)
+- Allow to cast a number to varchar. [MR #109](https://gitlab.com/aweframework/awe/merge_requests/109) (Pablo Javier García Mora)
+- Retrieve current datasource when calling `getDataSource(String alias)` with a null value. [MR #108](https://gitlab.com/aweframework/awe/merge_requests/108) (Pablo Javier García Mora)
+- Launch asynchronously help template generation in application help. [MR #107](https://gitlab.com/aweframework/awe/merge_requests/107) (Pablo Javier García Mora)
+- Show a dev-friendly message when filtering a grid without target-action and initial-load defined. [MR #106](https://gitlab.com/aweframework/awe/merge_requests/106) (Pablo Vidal Otero)
+- Launching a `fill` action over a `select` component with values doesn't reset the component first. [MR #105](https://gitlab.com/aweframework/awe/merge_requests/105) (Pablo Javier García Mora)
+- Manage error message when the query/maintain is not defined. [MR #104](https://gitlab.com/aweframework/awe/merge_requests/104) (Pablo Vidal Otero)
+- Add power value to operator attribute inside operation. [MR #103](https://gitlab.com/aweframework/awe/merge_requests/103) (Pablo Vidal Otero)
+
+# Changelog for AWE 4.1.4
+*16/08/2019*
+
+- Suggest showing several same options due to not refreshing model. [MR #94](https://gitlab.com/aweframework/awe/merge_requests/94) (Pablo Javier García Mora)
+- Add functions to retrieve parts from dates in SQL (`YEAR`, `MONTH`, `DAY`, `HOUR`, `MINUTE`, `SECOND`). [MR #93](https://gitlab.com/aweframework/awe/merge_requests/93) (Pablo Javier García Mora)
+- Add a new field function: `CNT_DISTINCT`. [MR #92](https://gitlab.com/aweframework/awe/merge_requests/92) (Pablo Javier García Mora)
+- Unique action not working correctly. [MR #91](https://gitlab.com/aweframework/awe/merge_requests/91) (Pablo Javier García Mora)
+- Add a method to retrieve a sequence value once updated. [MR #90](https://gitlab.com/aweframework/awe/merge_requests/90) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.1.3
+*31/07/2019*
+
+- Sorting for a different sort-field than the one in the column name doesn't work on a non load-all grid with component. [MR #89](https://gitlab.com/aweframework/awe/merge_requests/89) (Pablo Javier García Mora)
+- Allow to configure xml parser allowed paths. [MR #88](https://gitlab.com/aweframework/awe/merge_requests/88) (Pablo Javier García Mora)
+- Operands doesn't allow functions nor cast attributes. [MR #87](https://gitlab.com/aweframework/awe/merge_requests/87) (Pablo Javier García Mora)
+- Fix XStream security. [MR #86](https://gitlab.com/aweframework/awe/merge_requests/86) (Pablo Javier García Mora)
+- Allow to configure REST requests timeout. [MR #85](https://gitlab.com/aweframework/awe/merge_requests/85) (Pablo Javier García Mora)
+- Add new client action builders on grid, such as `add-row` or `remove-row`. [MR #84](https://gitlab.com/aweframework/awe/merge_requests/84) (Pablo Javier García Mora)
+- Allow to cast fields on SQL queries. [MR #83](https://gitlab.com/aweframework/awe/merge_requests/83) (Pablo Javier García Mora)
+- SQL - Add `COALESCE` operation. [MR #82](https://gitlab.com/aweframework/awe/merge_requests/82) (Pablo Javier García Mora)
+- Add `exists` and `not exists` conditions to query filters and add `ABS` function. [MR #81](https://gitlab.com/aweframework/awe/merge_requests/81) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.1.2
+*09/07/2019*
+
+- Error in editable grids when you modify a cell with empty value.. [MR #80](https://gitlab.com/aweframework/awe/merge_requests/80) (Pablo Vidal Otero)
+- Upgrade spring boot version to last 1.x. [MR #79](https://gitlab.com/aweframework/awe/merge_requests/79) (Pablo Javier García Mora)
+- Fix some sonar issues. [MR #78](https://gitlab.com/aweframework/awe/merge_requests/78) (Pablo Javier García Mora)
+- Remove actuator libraries from AWE starters. [MR #77](https://gitlab.com/aweframework/awe/merge_requests/77) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.1.1
+*26/06/2019*
+
+- Add more ClientActionBuilders. [MR #76](https://gitlab.com/aweframework/awe/merge_requests/76) (Pablo Javier García Mora)
+- Allow to use spring-session or not. Document it. [MR #75](https://gitlab.com/aweframework/awe/merge_requests/75) (Pablo Javier García Mora)
+- Fix application cookie issue. [MR #74](https://gitlab.com/aweframework/awe/merge_requests/74) (Pablo Javier García Mora)
+- Maintain with audit table. [MR #73](https://gitlab.com/aweframework/awe/merge_requests/73) (Pablo Javier García Mora)
+- Add `first-step`, `last-step` and `nth-step` actions to `wizard` component. [MR #72](https://gitlab.com/aweframework/awe/merge_requests/72) (Pablo Javier García Mora)
+- Generate a global cookie for clustered environments. [MR #71](https://gitlab.com/aweframework/awe/merge_requests/71) (Pablo Javier García Mora)
+- Add karma tests for grid services. [MR #70](https://gitlab.com/aweframework/awe/merge_requests/70) (Pablo Javier García Mora)
+- Define session cookie even if user is not logged in. [MR #69](https://gitlab.com/aweframework/awe/merge_requests/69) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.1.0
+*12/06/2019*
+
+- Allow to configure the session cookie. [MR #68](https://gitlab.com/aweframework/awe/merge_requests/68) (Pablo Javier García Mora)
+- Add new specific criteria builders for each criteria type, such as `TextBuilder` or `SuggestBuilder`. [MR #67](https://gitlab.com/aweframework/awe/merge_requests/67) (Pablo Javier García Mora)
+- Allow subqueries on a maintain process. [MR #66](https://gitlab.com/aweframework/awe/merge_requests/66) (Pablo Javier García Mora)
+- Add client actions utilities. [MR #65](https://gitlab.com/aweframework/awe/merge_requests/65) (Pablo Javier García Mora)
+- Allow sending object beans as parameters to Java Services. [MR #64](https://gitlab.com/aweframework/awe/merge_requests/64) (Pablo Javier García Mora)
+- Add a contains in conditions for dependencies.. [MR #63](https://gitlab.com/aweframework/awe/merge_requests/63) (Pablo Javier García Mora)
+- Add a method to DataListUtil to convert rows from `List<Map<String, CellData>>` into `List<Bean>`. [MR #62](https://gitlab.com/aweframework/awe/merge_requests/62) (Pablo Javier García Mora)
+- Fix `select-all-rows` action on grid element. [MR #61](https://gitlab.com/aweframework/awe/merge_requests/61) (Pablo Javier García Mora)
+- Improve pipeline process parallelling tasks. [MR #60](https://gitlab.com/aweframework/awe/merge_requests/60) (Pablo Javier García Mora)
+- Add windows functions in SQL AWE 4.0. [MR #59](https://gitlab.com/aweframework/awe/merge_requests/59) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Change `static` field name to `constant`. [MR #58](https://gitlab.com/aweframework/awe/merge_requests/58) (Pablo Javier García Mora)
+- Row Number. [MR #57](https://gitlab.com/aweframework/awe/merge_requests/57) (Pablo Javier García Mora)
+- Inherit all Spring boot tests from one class with `@SpringBootTests` to improve test speed. [MR #56](https://gitlab.com/aweframework/awe/merge_requests/56) (Pablo Javier García Mora)
+- The replace-columns client action is not working correctly. [MR #55](https://gitlab.com/aweframework/awe/merge_requests/55) (Pablo Javier García Mora)
+- Add a nullif operation to SQL engine. [MR #54](https://gitlab.com/aweframework/awe/merge_requests/54) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.0.8
+*22/05/2019*
+
+- Add an attribute to services which allows to call beans from its qualifier name. [MR #53](https://gitlab.com/aweframework/awe/merge_requests/53) (Pablo Vidal Otero)
+- Add spring boot dev tools to AWE. [MR #52](https://gitlab.com/aweframework/awe/merge_requests/52) (Pablo Vidal Otero)
+- Remove limit to suggest and select components queries if there's no `max` attribute defined. [MR #51](https://gitlab.com/aweframework/awe/merge_requests/51) (Pablo Javier García Mora)
+- The replace-columns client action is not working correctly. [MR #50](https://gitlab.com/aweframework/awe/merge_requests/50) (Pablo Javier García Mora)
+- **[HAS IMPACTS]** Improve SQL fields to allow operations (improve also where clauses). [MR #49](https://gitlab.com/aweframework/awe/merge_requests/49) (Pablo Javier García Mora)
+- Manage beans with lombok. [MR #48](https://gitlab.com/aweframework/awe/merge_requests/48) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.0.7
+*29/04/2019*
+
+- Limit must be greater than 0 trying to execute queryService.launchQuery(queryID, 1, 0) with managed-pagination=true. [MR #47](https://gitlab.com/aweframework/awe/merge_requests/47) (Pablo Javier García Mora)
+- Fix deployment stages. [MR #46](https://gitlab.com/aweframework/awe/merge_requests/46) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.0.6
+*26/04/2019*
+
+- Organize project in submodules. [MR #45](https://gitlab.com/aweframework/awe/merge_requests/45) (Pablo Javier García Mora)
+- When an numeric input parameter is empty, it is sending 0 instead of null. [MR #44](https://gitlab.com/aweframework/awe/merge_requests/44) (Pablo Javier García Mora)
+- Error store user session with LDAP as auth mode. [MR #43](https://gitlab.com/aweframework/awe/merge_requests/43) (Pablo Vidal Otero)
+- Pagination error on load all attribute. [MR #42](https://gitlab.com/aweframework/awe/merge_requests/42) (Pablo Javier García Mora)
+- Join with query failed. [MR #41](https://gitlab.com/aweframework/awe/merge_requests/41) (Pablo Javier García Mora)
+- Fix IN condition in queries and maintains. [MR #40](https://gitlab.com/aweframework/awe/merge_requests/40) (Pablo Javier García Mora)
+- Fix sonar issues. [MR #39](https://gitlab.com/aweframework/awe/merge_requests/39) (Pablo Javier García Mora)
+- Remove karma phase from general frontend build options. [MR #37](https://gitlab.com/aweframework/awe/merge_requests/37) (Pablo Javier García Mora)
+- Launch a private query to retrieve user details instead of expecting to be authenticated. [MR #36](https://gitlab.com/aweframework/awe/merge_requests/36) (Pablo Javier García Mora)
+- Remove old cookies processor for embedded tomcat. [MR #35](https://gitlab.com/aweframework/awe/merge_requests/35) (Pablo Javier García Mora)
+- Fix awe-boot-archetype archetype-resources pom. [MR #34](https://gitlab.com/aweframework/awe/merge_requests/34) (Marcos)
+- Pager-values grid attribute doesn't work. [MR #33](https://gitlab.com/aweframework/awe/merge_requests/33) (Pablo Javier García Mora)
+- Improve jdbc authentication with a DAO. [MR #32](https://gitlab.com/aweframework/awe/merge_requests/32) (Pablo Javier García Mora)
+- awe-starter-parent. [MR #31](https://gitlab.com/aweframework/awe/merge_requests/31) (Marcos)
+- Clean image, icons, ... resources in build process. [MR #30](https://gitlab.com/aweframework/awe/merge_requests/30) (Pablo Javier García Mora)
+- Logs by user doesn´t work. [MR #29](https://gitlab.com/aweframework/awe/merge_requests/29) (Pablo Javier García Mora)
+- Pagination does not work if max attribute is not defined in the grid. [MR #28](https://gitlab.com/aweframework/awe/merge_requests/28) (Pablo Javier García Mora)
+- Sometimes, clicking on the screen option you are currently, causes to reload the screen with some components not found. [MR #27](https://gitlab.com/aweframework/awe/merge_requests/27) (Pablo Javier García Mora)
+- Fix Crypto tests. [MR #26](https://gitlab.com/aweframework/awe/merge_requests/26) (Pablo Javier García Mora)
+
+# Changelog for AWE 4.0.5
+*04/03/2019*
+
+- Generate a CHANGELOG. [MR #8](https://gitlab.com/aweframework/awe/merge_requests/8) (Pablo Javier García Mora)
+- Put SeleniumUtilities on awe-developer as part of development help tools. [MR #7](https://gitlab.com/aweframework/awe/merge_requests/7) (Pablo Javier García Mora)
+- Trying to enter the application after being kicked by session expiration always returns a Bad credentials warning. [MR #6](https://gitlab.com/aweframework/awe/merge_requests/6) (Pablo Javier García Mora)
+- Generate selenium print tests. [MR #5](https://gitlab.com/aweframework/awe/merge_requests/5) (Pablo Javier García Mora)
+- Generate selenium integration tests. [MR #4](https://gitlab.com/aweframework/awe/merge_requests/4) (Pablo Javier García Mora)
+- Generate selenium regression tests. [MR #3](https://gitlab.com/aweframework/awe/merge_requests/3) (Pablo Javier García Mora)
+- When a session has expired the broadcasting channel still remains opened. [MR #2](https://gitlab.com/aweframework/awe/merge_requests/2) (Pablo Javier García Mora)
+- Test a merge request. [MR #1](https://gitlab.com/aweframework/awe/merge_requests/1) (Pablo Vidal Otero)
+
