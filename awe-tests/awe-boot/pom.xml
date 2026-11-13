@@ -320,7 +320,7 @@
     <dependency>
       <groupId>org.jsmart</groupId>
       <artifactId>zerocode-tdd-jupiter</artifactId>
-      <version>1.4.4</version>
+      <version>1.4.6</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
