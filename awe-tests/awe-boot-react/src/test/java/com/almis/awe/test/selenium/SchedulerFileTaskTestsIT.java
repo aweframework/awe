@@ -6,43 +6,26 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * File triggered tasks of the scheduler, with the scheduler server that they watch. The class creates its own server and
- * task, changes the server to a folder one (so activating the task does not try to reach an FTP server), activates the task
- * and deletes both, the task first because it uses the server. It does not need any other record or class.
+ * File triggered tasks of the scheduler, with the scheduler server that they watch, one flow on their screens: create a
+ * folder server (so activating the task does not try to reach an FTP server) and an inactive task with a file launch on it
+ * in the wizard, activate the task (each button replaces the other one) and delete both, the task first because it uses
+ * the server. The class does not need any other record or class. The stored server, launch and states are proven by
+ * {@code SchedulerTaskMaintainTest} and {@code SchedulerServerCredentialMaintainTest}; the flow runs in this engine only.
  */
 @Tag("SchedulerIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class SchedulerFileTaskTestsIT extends AbstractSchedulerTests {
 
   private static final String SERVER = "File server";
-  private static final String SERVER_UPDATED = "File server updated";
   private static final String TASK = "File task";
 
   /**
-   * Log into the application
+   * Generate a new scheduler server and a new inactive file triggered task that watches it
    */
   @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    // The application asks for a confirmation before logging out
-    checkLogoutWithConfirmation();
-  }
-
-  /**
-   * Generate a new scheduler server
-   */
-  @Test
-  void t001_newSchedulerServer() {
+  void t001_newServerAndFileTask() {
     // Title
-    setTestTitle("Generate a new scheduler server");
+    setTestTitle("Generate a new scheduler server and a file triggered task");
 
     // New server
     addNew(CONFIRM_BUTTON, SCHEDULER, SERVERS_SCREEN);
@@ -57,34 +40,16 @@ class SchedulerFileTaskTestsIT extends AbstractSchedulerTests {
     writeText("Prt", "21212");
 
     // Suggest on selector
-    selectContain("Pro", "FTP");
+    selectContain("Pro", "Folder");
 
     // Store and confirm
     clickButtonAndConfirm(CONFIRM_BUTTON);
-
-    // Check element
-    verifyNew(SERVER_CRITERION, SERVER);
-  }
-
-  /**
-   * Generate a new file triggered task
-   */
-  @Test
-  void t002_newFileTask() {
-    // Title
-    setTestTitle("Generate a new file triggered task");
 
     // New task
     addNew(TASK_CHECK_BUTTON, SCHEDULER, TASK_LIST_SCREEN);
 
     // FILL TASK DATA
     changeTaskData(TASK, "File task description");
-
-    // Insert text
-    writeText("NumStoExe", "15");
-
-    // Insert text
-    writeText("TimOutExe", "60");
 
     // Suggest on selector
     selectContain("Act", "No");
@@ -95,28 +60,8 @@ class SchedulerFileTaskTestsIT extends AbstractSchedulerTests {
     // Suggest on selector
     suggest("maintain", "waitSomeSeconds", "waitSomeSeconds");
 
-    // Check
-    clickCheckbox("LchDepWrn");
-
-    // Check
-    clickCheckbox("LchDepErr");
-
-    // Check
-    clickCheckbox("LchSetWrn");
-
     // Click on next step
     clickButton("FwStep1");
-
-    // FILL PARAMETERS
-
-    // Click on row
-    editRow(PARAMETERS_GRID, EDITED_PARAMETER);
-
-    // Insert text
-    writeText(PARAMETERS_GRID, "ParVal", "45");
-
-    // Save row
-    saveRow(PARAMETERS_GRID);
 
     // Click on next step
     clickButton("FwStep2");
@@ -132,7 +77,7 @@ class SchedulerFileTaskTestsIT extends AbstractSchedulerTests {
     // Insert text
     writeText("RptNum", "1");
 
-    // Suggest on selector
+    // Suggest on selector: the search finds the new server
     suggest("LchSrv", SERVER, SERVER);
 
     // Insert text
@@ -144,24 +89,8 @@ class SchedulerFileTaskTestsIT extends AbstractSchedulerTests {
     // Click on next step
     clickButton("FwStep3");
 
-    // FILL DEPENDENCIES
-
     // Click on next step
     clickButton("FwStep4");
-
-    // FILL REPORT
-
-    // Suggest on selector
-    selectContain("RepTyp", BROADCAST);
-
-    // Suggest on selector
-    suggestMultipleList("RepSndSta", "Error", "Stopped");
-
-    // Suggest on selector
-    suggestMultiple("RepUsrDst", "test", "test");
-
-    // Insert text
-    writeText("RepMsg", "Test broadcast message");
 
     // Store and confirm
     clickButtonAndConfirm("Finish");
@@ -171,31 +100,7 @@ class SchedulerFileTaskTestsIT extends AbstractSchedulerTests {
   }
 
   /**
-   * Update a scheduler server
-   */
-  @Test
-  void t011_updateSchedulerServer() {
-    // Title
-    setTestTitle("Update a scheduler server");
-
-    // Go to server to update
-    update(SERVER_CRITERION, SERVER, CONFIRM_BUTTON, SCHEDULER, SERVERS_SCREEN);
-
-    // Insert text
-    writeText("Nom", SERVER_UPDATED);
-
-    // Suggest on selector
-    selectContain("Pro", "Folder");
-
-    // Store and confirm
-    clickButtonAndConfirm(CONFIRM_BUTTON);
-
-    // Check element
-    verifyNew(SERVER_CRITERION, SERVER_UPDATED);
-  }
-
-  /**
-   * Activate a task
+   * Activate the file task
    */
   @Test
   void t051_activateTask() {
@@ -214,32 +119,22 @@ class SchedulerFileTaskTestsIT extends AbstractSchedulerTests {
   }
 
   /**
-   * Delete the file task
+   * Delete the file task and then the scheduler server that it used
    */
   @Test
-  void t901_deleteFileTask() {
+  void t901_deleteFileTaskAndServer() {
     // Title
-    setTestTitle("Delete the file task");
+    setTestTitle("Delete the file task and the scheduler server");
 
-    // Delete the task
-    delete(TASK_CRITERION, TASK, SCHEDULER, TASK_LIST_SCREEN);
-
-    // Verify deleted task
-    verifyDeleted(TASK);
-  }
-
-  /**
-   * Delete the scheduler server
-   */
-  @Test
-  void t911_deleteSchedulerServer() {
-    // Title
-    setTestTitle("Delete the scheduler server");
-
-    // Delete the server
-    delete(SERVER_CRITERION, SERVER, SCHEDULER, SERVERS_SCREEN);
-
-    // Verify deleted server
-    verifyDeleted(SERVER);
+    // Delete the task and then the server, the server even when the task could not be deleted
+    cleanUp(
+      () -> {
+        delete(TASK_CRITERION, TASK, SCHEDULER, TASK_LIST_SCREEN);
+        verifyDeleted(TASK);
+      },
+      () -> {
+        delete(SERVER_CRITERION, SERVER, SCHEDULER, SERVERS_SCREEN);
+        verifyDeleted(SERVER);
+      });
   }
 }

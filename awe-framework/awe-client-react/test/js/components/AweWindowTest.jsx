@@ -221,6 +221,20 @@ describe("awe-react-client/test/js/components/AweWindowTest.jsx: advanced search
       ["CrtUsr", "CrtThm", "CrtBlk"].forEach(id => expect(field(id).classList).not.toContain("hidden"));
     });
 
+    // Replaces the browser check of AdvancedSearchTestsIT#t060_windowWithoutAdvancedCriteriaIsUnchanged: typing in a
+    // criterion of a window without advanced block draws no toggle and no filters in effect
+    it("keeps drawing no toggle and no filters in effect when a criterion changes", () => {
+      const {store} = renderWindow({advancedMode: undefined, advancedCriteria: undefined, searchCriteria: undefined});
+
+      update(store, "CrtUsr", [{value: "Ana", label: "Ana", selected: true}]);
+
+      expect(selected(store, "CrtUsr")).toEqual(["Ana"]);
+      expect(toggle()).toBeNull();
+      expect(badge()).toBeNull();
+      expect(byTestId("window-filter-chips")).toBeNull();
+      expect(chips()).toEqual([]);
+    });
+
     it("renders the children of an advanced block outside a window with advanced search as they are", () => {
       renderWindow({advancedMode: undefined, advancedCriteria: undefined, searchCriteria: undefined});
 
@@ -717,6 +731,7 @@ describe("awe-react-client/test/js/components/AweWindowTest.jsx: advanced search
     });
 
     describe("the button", () => {
+      // Covers AdvancedSearchTestsIT#t110_windowWithoutSavedSearchesHasNoSavedSearchesButton
       it("is not drawn when the window component does not carry savedSearches true", () => {
         renderSaved({}, {savedSearches: false});
 
@@ -1016,6 +1031,8 @@ describe("awe-react-client/test/js/components/AweWindowTest.jsx: advanced search
     });
 
     describe("manage", () => {
+      // Covers AdvancedSearchTestsIT#t130_userOfTheProfileAppliesTheSharedSearch: a shared search the user cannot change
+      // has no rename and no delete (and the Save dialog offers no profile, see "saves the selected values...")
       it("lists the searches with rename and delete for the own ones only, when the user may not publish", async () => {
         renderSaved();
         await openManageDialog();

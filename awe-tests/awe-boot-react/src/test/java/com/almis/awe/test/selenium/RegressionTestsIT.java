@@ -14,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * Regression tests of the test screens. Every test starts logged in with the Test module selected and opens its own screen,
  * so a failing test does not leave the next ones without a session or a screen. The wrong login test logs out and in again:
- * when it fails in between, the next test logs in again through the session setup.
+ * when it fails in between, the next test logs in again through the session setup. The login and logout flow itself is
+ * proven by IntegrationTestsIT, so this class has no login or logout test of its own.
  * <p>
  * The former t003_suggestStrict was removed: the security audit screen is redesigned without the non-strict user suggest
  * criterion it drove, and no other screen of the test application reachable through the menu declares a suggest criterion
@@ -32,23 +33,6 @@ class RegressionTestsIT extends AbstractSessionTests {
 
   RegressionTestsIT() {
     super(Session.TEST_MODULE);
-  }
-
-  /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogoutWithConfirmation();
   }
 
   /**
@@ -304,28 +288,15 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Click on suggest
     openSuggest("IdeThm");
 
-    // Pause
-    pause(1000);
-
-    // Write text
+    // Write the search one letter at a time, waiting for each search to finish before the next one
     writeSuggestSearch("IdeThm", "a");
-
-    // Pause
-    pause(1000);
-
-    // Write text
+    waitForLoadingBar();
     writeSuggestSearch("IdeThm", "s");
-
-    // Pause
-    pause(1000);
-
-    // Write text
+    waitForLoadingBar();
     writeSuggestSearch("IdeThm", "p");
+    waitForLoadingBar();
 
-    // Pause
-    pause(1000);
-
-    // Check there's only one result
+    // Check there's only one result: the check waits until the list of the last search replaces the earlier ones
     checkSuggestResultCount(1);
 
     // Click selector

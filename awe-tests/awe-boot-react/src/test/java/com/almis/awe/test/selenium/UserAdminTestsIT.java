@@ -6,16 +6,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * Users screen (user-admin, #793): the side panel creates an active and an inactive user (Active is a switch), the search
- * of its grid toolbar finds users by full name, login, email or profile, the quick filters count the users of the search
- * (All, Locked, Without 2FA, Inactive) and filter the grid, the pencil and the row menu of a row edit its user in the side
- * panel (whose header shows the user: name, login · profile and state), the selection bar resets the 2FA of the selected
- * users and the row menu and the selection bar delete them. The class creates its own profile and its two users with it,
- * so searching by the profile gives known counts; it deletes them at the end.
+ * Users screen (user-admin, #793), one flow per step of the screen: the side panel creates an active and an inactive user
+ * (Active is a switch), a quick filter and the search of its grid toolbar filter the grid, the pencil and the row menu of a
+ * row edit its user in the side panel (whose header shows the user: name, login · profile and state), the selection bar
+ * resets the 2FA of the selected users and the row menu and the selection bar delete them. The class creates its own
+ * profile and its two users with it, so searching by the profile gives known rows; it deletes them at the end.
  *
- * <p>No screen of the application locks a user any more (the side panel only unlocks one), so no user of the class is
- * locked: Locked counts none and empties the grid. The locked state (its count, its filter and the unlock) is covered by
- * the Spring tests (UserStateQuickFilterTest, UserListQueryTest, UserAdminScreenTest).</p>
+ * <p>Proven in a lower layer, not here: the counts of the quick filters, that they follow the search and stay whatever the
+ * option chosen, the rows of each option (Locked included: no screen of the application locks a user any more) and the
+ * search by full name, login, email or profile ignoring case (Spring {@code UserStateQuickFilterTest},
+ * {@code UserListQueryTest}); how the quick filter renders its options with their counts and the chosen one (Jest
+ * {@code AweGridQuickFilterTest}); the maintains the panel sends and the unlock ({@code UserAdminScreenTest}).</p>
+ *
+ * <p>This is the only browser flow of the side-panel admin pattern (React only, the AWE 5 engine); the modules screen,
+ * whose panel has tabs with nested grids, is proven by ModuleAdminScreenTest and ModuleListQueryTest.</p>
  */
 @Tag("CRUDCriteriaMatrixIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -36,23 +40,6 @@ class UserAdminTestsIT extends AbstractCrudTests {
   private static final String PANEL = "PnlUsr";
 
   /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogoutWithConfirmation();
-  }
-
-  /**
    * Open the users screen and search the users of the profile of the class by its name
    */
   private void searchUsersOfTheProfile() {
@@ -61,18 +48,7 @@ class UserAdminTestsIT extends AbstractCrudTests {
   }
 
   /**
-   * Tell whether the users screen lists a user of the class (a rerun finds what a failed attempt saved or deleted)
-   *
-   * @param login User login
-   * @return The grid shows the user
-   */
-  private boolean listed(String login) {
-    searchUsersOfTheProfile();
-    return hasRowContents(login);
-  }
-
-  /**
-   * Create a user of the profile of the class from the side panel of the users screen
+   * Create a user of the profile of the class from the side panel of the users screen, which is open
    *
    * @param login  Login
    * @param name   Full name
@@ -80,7 +56,6 @@ class UserAdminTestsIT extends AbstractCrudTests {
    * @param active Leave the Active switch on
    */
   private void createFromThePanel(String login, String name, String email, boolean active) {
-    openScreen(TOOLS, USERS);
     clickButton("ButNew");
     writeText("Nam", name);
     writeText("Eml", email);
@@ -99,104 +74,49 @@ class UserAdminTestsIT extends AbstractCrudTests {
   }
 
   /**
-   * Create the profile of the class and the active user with the side panel, unless they are there (a rerun)
+   * Create the profile of the class, and an active and an inactive user with the side panel, unless they are there (a
+   * rerun finds what a failed attempt saved)
    */
   @Test
-  void t001_newActiveUserFromThePanel() {
-    setTestTitle("Add the profile and an active user from the side panel");
+  void t010_newActiveAndInactiveUsersFromThePanel() {
+    setTestTitle("Add the profile, an active and an inactive user from the side panel");
 
     createProfile(PROFILE_ACRONYM, PROFILE);
 
-    if (!listed(ACTIVE_USER)) {
+    searchUsersOfTheProfile();
+    if (!hasRowContents(ACTIVE_USER)) {
       createFromThePanel(ACTIVE_USER, "Quick Active", "qfilter.active@almis.com", true);
     }
-
-    searchUsersOfTheProfile();
-    checkRowContentsGrid(GRID, ACTIVE_USER, "Active");
-  }
-
-  /**
-   * Create the inactive user with the side panel, unless it is there (a rerun)
-   */
-  @Test
-  void t002_newInactiveUserFromThePanel() {
-    setTestTitle("Add an inactive user from the side panel");
-
-    if (!listed(INACTIVE_USER)) {
+    if (!hasRowContents(INACTIVE_USER)) {
       createFromThePanel(INACTIVE_USER, INACTIVE_NAME, "qfilter.inactive@almis.com", false);
     }
 
-    searchUsersOfTheProfile();
+    searchGrid(SEARCH, PROFILE);
+    checkRowContentsGrid(GRID, ACTIVE_USER, "Active");
     checkRowContentsGrid(GRID, INACTIVE_USER, "Inactive");
   }
 
   /**
-   * The counts of the quick filters follow the search: the users of the profile
+   * A quick filter shows the users of its option, and All shows them all again; the search finds the users while typing
+   * (no Enter), and its clear button shows every user again
    */
   @Test
-  void t003_quickFilterCounts() {
-    setTestTitle("Quick filter counts of the users of the search");
-
-    searchUsersOfTheProfile();
-
-    checkGridQuickFilterOption(QUICK_FILTER, "", "All 2");
-    checkGridQuickFilterOption(QUICK_FILTER, "locked", "Locked 0");
-    checkGridQuickFilterOption(QUICK_FILTER, "no2fa", "Without 2FA 2");
-    checkGridQuickFilterOption(QUICK_FILTER, "inactive", "Inactive 1");
-    checkGridQuickFilterOptionChosen(QUICK_FILTER, "");
-  }
-
-  /**
-   * Each quick filter shows the users of its option, and All shows them all again
-   */
-  @Test
-  void t004_quickFilterChoices() {
-    setTestTitle("Quick filters filter the grid");
+  void t020_quickFilterAndSearchFilterTheGrid() {
+    setTestTitle("Filter the users with a quick filter and the search");
 
     searchUsersOfTheProfile();
     checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
-
-    // No user of the class is locked
-    clickGridQuickFilterOption(QUICK_FILTER, "locked");
-    checkGridQuickFilterOptionChosen(QUICK_FILTER, "locked");
-    checkRowGone(GRID, ACTIVE_USER);
-    checkRowGone(GRID, INACTIVE_USER);
 
     clickGridQuickFilterOption(QUICK_FILTER, "inactive");
     checkGridQuickFilterOptionChosen(QUICK_FILTER, "inactive");
     checkRowGone(GRID, ACTIVE_USER);
     checkRowContentsGrid(GRID, INACTIVE_USER);
 
-    // The counts stay the ones of the search, whatever the option chosen
-    checkGridQuickFilterOption(QUICK_FILTER, "no2fa", "Without 2FA 2");
-
     clickGridQuickFilterOption(QUICK_FILTER, "");
     checkGridQuickFilterOptionChosen(QUICK_FILTER, "");
     checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
-  }
-
-  /**
-   * The search finds the users by email (typing, with no Enter), full name and login, ignoring case, the counts follow
-   * it, and its clear button shows every user again
-   */
-  @Test
-  void t005_searchByEmailNameOrLogin() {
-    setTestTitle("Search users by email, full name or login");
-
-    searchUsersOfTheProfile();
-    checkRowContentsGrid(GRID, ACTIVE_USER, INACTIVE_USER);
 
     typeGridSearch(SEARCH, "qfilter.active@");
-    checkRowGone(GRID, INACTIVE_USER);
-    checkRowContentsGrid(GRID, ACTIVE_USER);
-    checkGridQuickFilterOption(QUICK_FILTER, "", "All 1");
-    checkGridQuickFilterOption(QUICK_FILTER, "inactive", "Inactive 0");
-
-    searchGrid(SEARCH, INACTIVE_NAME.toUpperCase());
-    checkRowGone(GRID, ACTIVE_USER);
-    checkRowContentsGrid(GRID, INACTIVE_USER);
-
-    searchGrid(SEARCH, ACTIVE_USER);
     checkRowGone(GRID, INACTIVE_USER);
     checkRowContentsGrid(GRID, ACTIVE_USER);
 
@@ -206,18 +126,19 @@ class UserAdminTestsIT extends AbstractCrudTests {
 
   /**
    * The pencil of a row opens the side panel in edit mode filled with the user of its row, its header shows the user
-   * (full name, login · profile and its state), the Active switch activates it and saving it updates the row. Help is an
+   * (full name, login · profile and its state), the Active switch activates it and saving it updates the row. The ellipsis
+   * of a row opens the row menu of its user, whose Edit opens the side panel filled with the saved values. Help is an
    * icon-only button named by its label
    */
   @Test
-  void t006_editUserFromThePencil() {
-    setTestTitle("Edit a user from the pencil of its row");
+  void t030_editUserFromThePencilAndTheRowMenu() {
+    setTestTitle("Edit a user from the pencil of its row and from its row menu");
 
     searchUsersOfTheProfile();
     checkButtonIconOnly("ButHlp", "Help");
 
+    // The pencil
     clickGridRowButton(GRID, INACTIVE_USER, EDIT_BUTTON);
-
     checkCriterionContents("Nam", INACTIVE_NAME);
     checkCriterionContents("Usr", INACTIVE_USER);
     checkSuggestContents("Pro", PROFILE_ACRONYM);
@@ -230,21 +151,11 @@ class UserAdminTestsIT extends AbstractCrudTests {
     clickCheckbox("Sta");
     checkCheckboxRadio(true, "Sta");
     clickButtonAndConfirm("ButPnlUpd");
-
     checkRowContentsGrid(GRID, UPDATED_EMAIL, "Active");
-  }
 
-  /**
-   * The ellipsis of a row opens the row menu of its user, whose Edit opens the side panel filled with it
-   */
-  @Test
-  void t007_editUserFromTheRowMenuButton() {
-    setTestTitle("Edit a user from the row menu of its ellipsis");
-
-    searchUsersOfTheProfile();
+    // The row menu
     clickGridRowButton(GRID, INACTIVE_USER, MORE_BUTTON);
     clickContextButton("CtxButUpd");
-
     checkCriterionContents("Nam", INACTIVE_NAME);
     checkCriterionContents("Eml", UPDATED_EMAIL);
     checkCheckboxRadio(true, "Sta");
@@ -255,12 +166,11 @@ class UserAdminTestsIT extends AbstractCrudTests {
 
   /**
    * Selecting users shows the selection bar with their number and the selection actions, and unselecting them all hides
-   * it; Reset 2FA runs from the bar on the selected user. The bar covers the search, so searching again clears the
-   * selection first (the user of the row menu is no longer selected); a click on a row toggles it, and the grid keeps its
-   * selection when it is reloaded
+   * it; Reset 2FA runs from the bar on the selected user (the only test of that rule). A click on a row toggles it, and the
+   * grid keeps its selection when it is reloaded
    */
   @Test
-  void t008_resetTwoFactorFromTheSelectionBar() {
+  void t040_resetTwoFactorFromTheSelectionBar() {
     setTestTitle("Reset 2FA of the selected users from the selection bar");
 
     searchUsersOfTheProfile();
@@ -289,13 +199,15 @@ class UserAdminTestsIT extends AbstractCrudTests {
 
   /**
    * Delete a user from the row menu (the ellipsis selects only its row) and, once it is gone and nothing is selected, the
-   * other one from the selection bar
+   * other one from the selection bar; then the profile of the class, once its users are deleted. A rerun finds what is
+   * already deleted
    */
   @Test
-  void t009_deleteUsers() {
-    setTestTitle("Delete the users from the row menu and the selection bar");
+  void t050_deleteUsersAndTheirProfile() {
+    setTestTitle("Delete the users from the row menu and the selection bar, and their profile");
 
-    if (listed(INACTIVE_USER)) {
+    searchUsersOfTheProfile();
+    if (hasRowContents(INACTIVE_USER)) {
       clickGridRowButton(GRID, INACTIVE_USER, MORE_BUTTON);
       clickContextButton("CtxButDel");
       acceptConfirm();
@@ -303,7 +215,7 @@ class UserAdminTestsIT extends AbstractCrudTests {
       checkRowGone(GRID, INACTIVE_USER);
     }
 
-    if (listed(ACTIVE_USER)) {
+    if (hasRowContents(ACTIVE_USER)) {
       toggleRowContents(GRID, ACTIVE_USER);
       checkGridSelectionBar(GRID, "1 selected");
       clickGridSelectionButton(GRID, "ButDel");
@@ -312,16 +224,9 @@ class UserAdminTestsIT extends AbstractCrudTests {
       checkRowGone(GRID, ACTIVE_USER);
     }
 
-    searchUsersOfTheProfile();
-    checkGridQuickFilterOption(QUICK_FILTER, "", "All 0");
-  }
-
-  /**
-   * Delete the profile of the class, once its users are deleted
-   */
-  @Test
-  void t010_deleteProfile() {
-    setTestTitle("Delete the profile");
+    searchGrid(SEARCH, PROFILE);
+    checkRowGone(GRID, INACTIVE_USER);
+    checkRowGone(GRID, ACTIVE_USER);
 
     verifyProfileDeleted(PROFILE_ACRONYM);
   }

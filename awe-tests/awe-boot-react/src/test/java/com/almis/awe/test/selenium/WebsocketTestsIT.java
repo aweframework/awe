@@ -1,39 +1,32 @@
 package com.almis.awe.test.selenium;
 
-import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
+/**
+ * Websocket messages: one flow that sends a message to the test user, invalidates the session, logs in again and sends a
+ * message to every user. Every test starts logged in (session setup of {@link AbstractSessionTests}); the login and logout
+ * flows are proven by IntegrationTestsIT.
+ */
 @Tag("RegressionWebsocketPrintIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
-class WebsocketTestsIT extends SeleniumUtilities {
+class WebsocketTestsIT extends AbstractSessionTests {
 
-  /**
-   * Log into the application
-   */
-  @Test
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
+  WebsocketTestsIT() {
+    super(Session.LOGGED_IN);
   }
 
   /**
-   * Log out from the application
+   * Websocket messages: a message to a user is received, an invalidated session warns the user, a message to the user is
+   * received again after logging in (and leaves no info message behind), and a message to all users is sent and clears
+   * its text
    */
   @Test
-  void t999_logoutTest() {
-    // The application asks for a confirmation before logging out
-    checkLogoutWithConfirmation();
-  }
-
-  /**
-   * Websocket message send test
-   */
-  @Test
-  void t001_checkWebsocketMessageSend() {
+  void t001_sendWebsocketMessages() {
     // Title
-    setTestTitle("Websocket message send test");
+    setTestTitle("Websocket messages: send to a user, invalidate the session, log in again and send to all users");
 
     // Do broadcast test
     broadcastMessageToUser("test", "This is a broadcast message test");
@@ -52,23 +45,14 @@ class WebsocketTestsIT extends SeleniumUtilities {
 
     // Assert there are no info messages
     checkMessageMissing("info");
-  }
 
-  /**
-   * Send websocket message to all users
-   */
-  @Test
-  void t002_sendWebsocketMessageToAllUsers() {
-    // Title
-    setTestTitle("Send websocket message to all users");
-
-    // Go to broadcast screen
+    // Send a message to all users from the broadcast screen
     gotoScreen("tools", "broadcast-messages");
 
     // Write on criterion
     writeText("MsgDes", "This is a broadcast message test");
 
-    // Search and wait
+    // Send the message
     clickButton("ButSnd");
 
     // Accept message

@@ -79,6 +79,7 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/windowSavedS
     digest();
   };
 
+  // Covers AdvancedSearchTestsIT#t110_windowWithoutSavedSearchesHasNoSavedSearchesButton
   describe("opt-in (S6)", () => {
     it("draws no Saved searches button for a window that does not opt in", () => {
       const element = compileWindow({});
@@ -493,6 +494,8 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/windowSavedS
       digest();
     };
 
+    // Covers AdvancedSearchTestsIT#t130_userOfTheProfileAppliesTheSharedSearch: a shared search the user cannot change
+    // has no rename and no delete (and the Save dialog offers no profile, see "has no Publish for a profile select...")
     it("lists the searches with who they are for, and the actions on the own ones only", () => {
       const element = compileWindow();
 

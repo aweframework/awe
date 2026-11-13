@@ -18,23 +18,6 @@ class MapTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogoutWithConfirmation();
-  }
-
-  /**
    * Map: it draws one marker per point of the query
    */
   @Test

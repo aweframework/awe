@@ -18,8 +18,11 @@ import static com.almis.awe.test.selenium.PaneBoxes.describe;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Matrix of the test screens: base, multiselect, editable and multioperation grids, and the tree grids. Every
- * test opens the matrix screen, so each one can run on its own.
+ * Matrix of the test screens, one flow per feature: selection and context menu, multi-operation, editing, tree,
+ * paging, cell rendering, themes, side panel and popover, deferred load, toolbar and maximize, row detail, cards,
+ * row grouping and split layout. Every test opens its screen, so each one can run on its own. The rules that the Jest tests
+ * of the client prove (sparkline, wrapping, empty state, window and tab maximize, row detail template, card formats,
+ * group subtotals and sort by aggregate, dialog size classes, page of the selected tab) are not checked again here.
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("CRUDCriteriaMatrixIT")
@@ -30,13 +33,15 @@ class MatrixTestsIT extends AbstractSessionTests {
   private static final String BUTTON_DEFERRED_SAVE = "ButDefSave";
   private static final String MATRIX_PAGER_OPTION = "matrix-test-pager";
   private static final String PAGER_GRID = "GrdPagerTst";
-  private static final String ROW_DETAIL_GRID = "GrdRowDetailTst";
   private static final String ROW_DETAIL_COMPONENTS_GRID = "GrdRowDetailCmp";
   private static final String ROW_DETAIL_NESTED_GRID = "GrdRowDetailCmpCus";
   private static final String ROW_DETAIL_INCLUDE_GRID = "GrdRowDetailCmpInc";
   private static final String ROW_DETAIL_INCLUDED_GRID = "GrdRowDetailCmpIncCus";
   private static final String MOVE_ROWS_GRID = "GrdMoveRows";
   private static final String MOVE_ROWS_COLUMN = "label";
+  private static final String LAYOUT_GRID = "GrdLayoutTst";
+  private static final String CELLS_GRID = "GrdCellTst";
+  private static final String GROUPS_GRID = "GrdGrpTst";
   private static final String STEP_ONE = "Step one";
   private static final String STEP_TWO = "Step two";
   private static final String STEP_THREE = "Step three";
@@ -48,24 +53,7 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogoutWithConfirmation();
-  }
-
-  /**
-   * Open the matrix test screen: every test of the class starts from it
+   * Open the matrix test screen
    */
   private void openMatrixScreen() {
     // Go to screen
@@ -76,237 +64,78 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Grid test: base grid
+   * Open a screen of the matrix menu by the name of its option
+   *
+   * @param option Menu option
+   */
+  private void openMatrixOption(String option) {
+    gotoScreen("test", "matrix", option);
+  }
+
+  /**
+   * Selection and context menu: the multiselect grid keeps several rows selected, a row selected in the base grid hides
+   * the multiselect grid, the context menu of the base grid shows the options of the row it opens on, and a click in a
+   * cell only launches the click dependency of its own column (#880)
    */
   @Test
-  void t041_gridTestBase() {
+  void t010_gridSelectionAndContextMenu() {
     // Title
-    setTestTitle("Grid test: base");
+    setTestTitle("Grid: selection and context menu");
 
     // Go to screen
     openMatrixScreen();
 
-    // Click row contents
-    clickRowContents("GrdSta", "awedb1");
-
-    // Wait for button
-    waitForButton("ButPrn");
-
-    // Click on tab
+    // Multiselect grid: several rows are selected
     clickTab("TabSelMat", "Multiselect");
+    clickRowContents("GrdMus", "AWE DB 2");
+    clickRowContents("GrdMus", "AWE DB 1");
+    clickRowContents("GrdMus", "AWE DB 3");
+    checkRowContentsGrid("GrdMus", "awedb2");
 
-    // Verify that button is present
+    // A row selected in the base grid hides the multiselect grid
+    clickTab("TabSelMat", "Static");
+    clickRowContents("GrdSta", "awedb1");
+    waitForButton("ButPrn");
+    clickTab("TabSelMat", "Multiselect");
     checkGridPresent("GrdMus");
-
-    // Verify that button is not visible
     checkGridNotVisible("GrdMus");
-  }
 
-  /**
-   * Grid test: base grid context menu
-   */
-  @Test
-  void t042_gridTestBaseContextMenu() {
-    // Title
-    setTestTitle("Grid test: base grid with context menu");
-
-    // Go to screen
-    openMatrixScreen();
-
-    // Click on tab
+    // The context menu of the base grid shows the options of its row, and closes
     clickTab("TabSelMat", "Static");
-
-    // Context menu on grid
     contextMenuRowContents("GrdSta", "awedb1");
-
-    // Wait for button
     waitForContextButton("CtxGrdStaAdd");
-
-    // Click on component mask
     closeContextMenu();
-
-    // Wait for context menu to hide
     checkContextMenuNotVisible();
-
-    // Context menu on grid
     contextMenuRowContents("GrdSta", "awedb2");
-
-    // Wait for button
     waitForContextButton("CtxGrdStaDel");
-
-    // Click on component mask
     closeContextMenu();
-
-    // Wait for context menu to hide
     checkContextMenuNotVisible();
 
-    // Click on viewport
+    // The grid keeps working after the menu: the row the context menu selected is selected again, so the click
+    // unselects it
     clickGridViewport("GrdSta");
-
-    // Click row contents: the row the context menu selected is selected again, so the click unselects it
     toggleRowContents("GrdSta", "awedb2");
-  }
 
-  /**
-   * Grid test: a row button with the show-context-menu action opens the context menu of the grid for its row
-   */
-  @Test
-  void t043_gridTestRowButtonContextMenu() {
-    // Title
-    setTestTitle("Grid test: row button that opens the context menu");
-
-    // Go to screen
-    openMatrixScreen();
-
-    // Click on tab
-    clickTab("TabSelMat", "Multioption");
-
-    // A left click on the button of a row selects the row and opens the menu of the grid under it
-    clickGridCellButton("GrdMuo", "3", "CtxBtn");
-
-    // The options that depend on the selected row are shown
-    waitForContextButton("CtxGrdMuoAddSel");
-
-    // The option runs its action over the selected row
-    clickContextButton("CtxGrdMuoDel");
-    checkGridIconVisible("GrdMuo", "RowIco", "trash");
-  }
-
-  /**
-   * Grid test: a click in a cell only launches the click dependency of its own column (#880). The column DwnFil
-   * downloads the file of the selected row when its cell is clicked: a click in another column downloads nothing
-   */
-  @Test
-  void t044_gridTestCellClickLaunchesOnlyItsColumnDependency() {
-    // Title
-    setTestTitle("Grid test: a cell click only launches the dependency of its column");
-
-    // Go to screen
-    openMatrixScreen();
-    clickTab("TabSelMat", "Static");
+    // The column DwnFil downloads the file of the selected row when its cell is clicked: a click in another column
+    // selects the row and downloads nothing, and a click in the download column downloads its file only once
     startRecordingDownloads();
-
-    // A click in another column selects the row and downloads nothing
     clickRowContents("GrdSta", "awedb3");
     checkFilesDownloaded(0);
-
-    // A click in the download column of the selected row downloads its file, only once
     clickCell("GrdSta", "DwnFil");
     checkFilesDownloaded(1);
   }
 
   /**
-   * Grid test: multiselect grid
-   */
-  @Test
-  void t051_gridTestMultiselect() {
-    // Title
-    setTestTitle("Grid test: Multiselect");
-
-    // Go to the screen from another one, so it is loaded again: the client does not reload the current screen from its
-    // own menu option, and the previous test leaves a row of GrdSta selected, which hides GrdMus
-    openMatrixOption(MATRIX_PAGER_OPTION);
-    openMatrixScreen();
-
-    // Click on tab
-    clickTab("TabSelMat", "Multiselect");
-
-    // Click on grid
-    clickRowContents("GrdMus", "AWE DB 2");
-
-    // Click on grid
-    clickRowContents("GrdMus", "AWE DB 1");
-
-    // Click on grid
-    clickRowContents("GrdMus", "AWE DB 3");
-
-    // Check row contents
-    checkRowContentsGrid("GrdMus", "awedb2");
-  }
-
-  /**
-   * Grid test: Editable grid
-   */
-  @Test
-  void t061_gridTestEditable() {
-    // Title
-    setTestTitle("Grid test: Editable");
-
-    // Go to screen
-    openMatrixScreen();
-
-    // Click on tab
-    clickTab("TabSelMat", "Editable");
-
-    // Pause for 5 seconds
-    pause(5000);
-
-    // Edit row
-    editRow("GrdEdi", "adminflare");
-
-    // Click on date
-    clickDate("GrdEdi", "FilDat");
-
-    // Click on selector
-    clickEnabledDatepickerDay();
-
-    // Get selector text
-    String date = getText("GrdEdi", "FilDat");
-
-    // Save row
-    saveRow("GrdEdi");
-
-    // Check date on second row
-    checkCellContents("GrdEdi", "2", "Dat", date);
-
-    // Edit row
-    editRow("GrdEdi", "asphalt");
-
-    // Edit row
-    editRow("GrdEdi", "clean");
-
-    // Click on date
-    selectDate("GrdEdi", "Dat", "23/10/1978");
-
-    // Get date
-    date = getText("GrdEdi", "Dat");
-
-    // Save row
-    saveRow("GrdEdi");
-
-    // Check date on second row
-    checkCellContents("GrdEdi", "2", "FilDat", date);
-
-    // Context menu
-    contextMenuRowContents("GrdEdi", "asphalt");
-
-    // Wait for context button
-    clickContextButton("CtxGrdEdiAddSel", "CtxGrdEdiAddUpp");
-
-    // Save row
-    saveRow("GrdEdi");
-
-    // Click on grid
-    checkRowContentsGrid("GrdEdi", "-123.456,10 $");
-
-    // Check cell contents
-    checkCellContents("GrdEdi", "1", "Txt", "adminflare");
-
-    // Check cell contents
-    checkCellContents("GrdEdi", "2", "Txt", "asphalt");
-  }
-
-  /**
-   * Grid test: move the selected row of an editable grid to the top, up, down and to the bottom, and drag the rows by
+   * Move rows: move the selected row of an editable grid to the top, up, down and to the bottom, and drag the rows by
    * their grip (grids with move-rows)
    */
   @Test
-  void t062_gridTestMoveRows() {
+  void t015_gridMoveRows() {
     // Title
-    setTestTitle("Grid test: move rows");
+    setTestTitle("Grid: move rows");
 
     // Go to screen
-    gotoScreen("test", "matrix", "matrix-test-move-rows");
+    openMatrixOption("matrix-test-move-rows");
 
     // The rows come in the order of the query
     checkGridColumnOrder(MOVE_ROWS_GRID, MOVE_ROWS_COLUMN, STEP_ONE, STEP_TWO, STEP_THREE, STEP_FOUR, STEP_FIVE);
@@ -347,243 +176,54 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Grid test: Multioperation grid
+   * Multi-operation grid: a new row, an edited row and a row deleted from the context menu that a row button opens show
+   * the icon of their operation
    */
   @Test
-  void t071_gridTestMultiOperation() {
+  void t020_gridMultiOperation() {
     // Title
-    setTestTitle("Grid test: Multioperation");
+    setTestTitle("Grid: multi-operation");
 
     // Go to screen
     openMatrixScreen();
-
-    // Click on tab
     clickTab("TabSelMat", "Multioption");
 
-    // Click on button
+    // New row
     clickButton("ButGrdMuoAdd");
-
-    // Wait for visible
     checkGridIconVisible("GrdMuo", "RowIco", "plus");
-
-    // Save row
     saveRow("GrdMuo");
-
-    // Check icon
     checkGridIconVisible("GrdMuo", "RowIco", "plus");
 
-    // Edit row
+    // Edited row
     editRow("GrdMuo", "1", "Des2");
-
-    // Write on text
     writeText("GrdMuo", "Des2", "asdasda");
-
-    // Save row
     saveRow("GrdMuo");
-
-    // Check icon
     checkGridIconVisible("GrdMuo", "RowIco", "edit");
 
-    // Context menu on grid
-    contextMenu("GrdMuo", "3", "Des2");
-
-    // Click on context button
+    // A left click on the button of a row selects the row and opens the menu of the grid under it, with the options
+    // that depend on the selected row, and the option runs its action over that row
+    clickGridCellButton("GrdMuo", "3", "CtxBtn");
+    waitForContextButton("CtxGrdMuoAddSel");
     clickContextButton("CtxGrdMuoDel");
-
-    // Check icon
     checkGridIconVisible("GrdMuo", "RowIco", "trash");
   }
 
   /**
-   * Grid test: Tree grid
+   * Radio columns: a radio column and a button-radio column show the options of their list in every cell, one choice
+   * per cell, and the server receives the choice of each row
    */
   @Test
-  void t081_gridTestTree() {
-    // Title
-    setTestTitle("Grid test: Tree grid");
-
-    // Go to screen
-    openMatrixScreen();
-
-    // Manage grid
-    manageTreeGrid("Tree", "TreGrd");
-  }
-
-  /**
-   * Grid test: Editable tree grid
-   */
-  @Test
-  void t082_gridTestTreeEditable() {
-    // Title
-    setTestTitle("Grid test: Editable tree grid");
-
-    // Go to screen
-    openMatrixScreen();
-
-    // Manage grid
-    manageTreeGrid("Editable tree", "TreGrdEdi");
-
-    // Context menu
-    contextMenu("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
-
-    // Select context menu option
-    clickContextButton("CtxTreGrdEdiAddSel", "CtxTreGrdEdiAddChl");
-
-    // Pause
-    pause(500);
-
-    // Click on a cell
-    editRow("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
-
-    // Click on a cell
-    editRow("TreGrdEdi", "new-row-0", "TreGrdEdi_Nam");
-
-    // Click on a cell
-    editRow("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
-
-    // Click on a cell
-    editRow("TreGrdEdi", "new-row-0", "TreGrdEdi_Nam");
-
-    // Save row
-    saveRow("TreGrdEdi");
-
-    // Click on button
-    clickTreeButton("TreGrdEdi", "ProOperator");
-
-    // Context menu
-    contextMenu("TreGrdEdi", "ProOperator", "TreGrdEdi_Nam");
-
-    // Select context menu option
-    clickContextButton("CtxTreGrdEdiDel");
-
-    // Check not visible
-    checkTreeRowNotVisible("TreGrdEdi", "ProOperator");
-  }
-
-  /**
-   * Grid test: Loading tree grid
-   */
-  @Test
-  void t083_gridTestLoadingTree() {
-    // Title
-    setTestTitle("Grid test: Loading tree grid");
-
-    // Go to screen
-    openMatrixScreen();
-
-    // Manage loading tree grid
-    manageLoadingTreeGrid("Loading tree", "TreGrdLoa");
-  }
-
-  /**
-   * Grid test: Loading tree grid
-   */
-  @Test
-  void t084_gridTestEditableLoadingTree() {
-    // Title
-    setTestTitle("Grid test: Loading editable tree grid");
-
-    // Go to screen
-    openMatrixScreen();
-
-    // Manage loading tree grid
-    manageLoadingTreeGrid("Editable multioperation tree", "TreGrdLoaEdi");
-
-    // Context menu
-    contextMenu("TreGrdLoaEdi", "ProGeneral-ModBase", "TreGrdLoaEdi_Nam");
-
-    // Select context menu option
-    clickContextButton("CtxTreGrdLoaEdiAddSel", "CtxTreGrdLoaEdiAddChl");
-
-    // Check new row visible
-    checkTreeRowVisible("TreGrdLoaEdi", "new-row-0");
-
-    // Pause
-    pause(250);
-
-    // Save row
-    saveRow("TreGrdLoaEdi");
-
-    // Click on button
-    clickTreeButton("TreGrdLoaEdi", "ProOperator");
-
-    // Context menu
-    contextMenu("TreGrdLoaEdi", "ProOperator", "TreGrdLoaEdi_Nam");
-
-    // Select context menu option
-    clickContextButton("CtxTreGrdLoaEdiDel");
-
-    // Check visible
-    checkTreeRowDeleted("TreGrdLoaEdi", "ProOperator");
-  }
-
-  /**
-   * Open a screen of the matrix menu by the name of its option
-   *
-   * @param option Menu option
-   */
-  private void openMatrixOption(String option) {
-    gotoScreen("test", "matrix", option);
-  }
-
-  /**
-   * Paginator test: the range of rows shown and the total
-   */
-  @Test
-  void t091_gridPaginatorShowsRangeAndTotal() {
-    // Title
-    setTestTitle("Grid paginator: visible range and total");
-
-    // Go to screen
-    openMatrixOption(MATRIX_PAGER_OPTION);
-
-    // First page: five rows of eighteen
-    checkRowContentsGrid(PAGER_GRID, "adminflare");
-    checkGridPaginationInfo("View 1 - 5 of 18");
-
-    // The grid has rows, so it does not show its empty state
-    checkGridEmptyStateNotVisible();
-
-    // Second page
-    clickGridNextPage();
-    checkGridPaginationInfo("View 6 - 10 of 18");
-  }
-
-  /**
-   * Paginator test: the user types a page on the go to page input and presses Enter
-   */
-  @Test
-  void t116_gridPaginatorGoesToTheTypedPage() {
-    // Title
-    setTestTitle("Grid paginator: go to the typed page");
-
-    // Go to screen
-    openMatrixOption(MATRIX_PAGER_OPTION);
-    checkRowContentsGrid(PAGER_GRID, "adminflare");
-    checkGridPaginationInfo("View 1 - 5 of 18");
-
-    // Third page of four
-    goToGridPage(3);
-    checkGridPaginationInfo("View 11 - 15 of 18");
-
-    // Last page
-    goToGridPage(4);
-    checkGridPaginationInfo("View 16 - 18 of 18");
-  }
-
-  /**
-   * Radio columns test: a radio column and a button-radio column show the options of their list in every cell
-   */
-  @Test
-  void t092_gridRadioColumnsChooseOneOptionPerCell() {
+  void t025_gridRadioColumnsChooseOneOptionPerCell() {
     // Title
     setTestTitle("Grid radio columns: one choice per cell");
 
     // Go to screen
     openMatrixOption("matrix-test-radio");
 
-    // The query chooses the option B in one row and nothing in the others
+    // The query chooses the option B in one row and nothing in the others. A grid without the grid-no-header class
+    // shows its header
     checkRowContentsGrid("GrdRadioTst", "adminflare");
+    checkGridHeaderVisible("GrdRadioTst", "name");
     checkGridRadioChoice("GrdRadioTst", "12", "choice", "B");
     checkGridRadioNoChoice("GrdRadioTst", "3", "choice");
     checkGridRadioNoChoice("GrdRadioTst", "3", "mode");
@@ -622,12 +262,169 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Theme class test: the grid without header hides it and keeps the rows, a normal grid shows it
+   * Editable grid: dates picked and typed in the inline editor are saved, and a row added from the context menu is saved
    */
   @Test
-  void t093_gridThemeNoHeader() {
+  void t030_gridEditable() {
     // Title
-    setTestTitle("Grid theme: no header");
+    setTestTitle("Grid: editable");
+
+    // Go to screen
+    openMatrixScreen();
+    clickTab("TabSelMat", "Editable");
+
+    // Edit row: editRow waits for the row of the grid of the tab to be shown with the grid loader hidden, so the click
+    // never reaches the grid before its data. Pick a date in the datepicker
+    editRow("GrdEdi", "adminflare");
+    clickDate("GrdEdi", "FilDat");
+    clickEnabledDatepickerDay();
+    String date = getText("GrdEdi", "FilDat");
+    saveRow("GrdEdi");
+    checkCellContents("GrdEdi", "2", "Dat", date);
+
+    // Type a date in another row
+    editRow("GrdEdi", "asphalt");
+    editRow("GrdEdi", "clean");
+    selectDate("GrdEdi", "Dat", "23/10/1978");
+    date = getText("GrdEdi", "Dat");
+    saveRow("GrdEdi");
+    checkCellContents("GrdEdi", "2", "FilDat", date);
+
+    // Add a row from the context menu
+    contextMenuRowContents("GrdEdi", "asphalt");
+    clickContextButton("CtxGrdEdiAddSel", "CtxGrdEdiAddUpp");
+    saveRow("GrdEdi");
+    checkRowContentsGrid("GrdEdi", "-123.456,10 $");
+    checkCellContents("GrdEdi", "1", "Txt", "adminflare");
+    checkCellContents("GrdEdi", "2", "Txt", "asphalt");
+  }
+
+  /**
+   * Paginator: the range of rows shown and the total, the next page and the page typed on the go to page input, and a
+   * grid with pagination disabled and without buttons has no paginator bar under its rows (#908)
+   */
+  @Test
+  void t035_gridPaginator() {
+    // Title
+    setTestTitle("Grid paginator: range, total, next and typed page, and no paginator when disabled");
+
+    // Go to screen
+    openMatrixOption(MATRIX_PAGER_OPTION);
+
+    // First page: five rows of eighteen
+    checkRowContentsGrid(PAGER_GRID, "adminflare");
+    checkGridPaginationInfo("View 1 - 5 of 18");
+
+    // The grid has rows, so it does not show its empty state
+    checkGridEmptyStateNotVisible();
+
+    // The paged grid keeps its paginator, the grid with pagination disabled has none
+    checkRowContentsGrid("GrdNoPagerTst", "awedb1");
+    checkGridPaginationPresent(PAGER_GRID);
+    checkGridPaginationNotPresent("GrdNoPagerTst");
+
+    // Second page
+    clickGridNextPage();
+    checkGridPaginationInfo("View 6 - 10 of 18");
+
+    // The page typed on the go to page input: the third and the last one
+    goToGridPage(3);
+    checkGridPaginationInfo("View 11 - 15 of 18");
+    goToGridPage(4);
+    checkGridPaginationInfo("View 16 - 18 of 18");
+  }
+
+  /**
+   * Tree grids: the editable tree and the editable loading tree (which loads its branches when they open) open and close
+   * their branches, add a child and delete a branch from the context menu. The read-only tree and loading tree run the
+   * same component with the same branch steps, so they are not opened again
+   */
+  @Test
+  void t040_treeGrids() {
+    // Title
+    setTestTitle("Tree grids: branches, add a child and delete a branch");
+
+    // Go to screen
+    openMatrixScreen();
+
+    // Editable tree grid: add a child and save it, then delete a branch. The editRow step never sees the edition of a
+    // tree row start in this client (it gives up after three double clicks), so the edition of tree rows is checked in
+    // the AngularJS flow only
+    manageTreeGrid("Editable tree", "TreGrdEdi");
+    contextMenu("TreGrdEdi", "ProGeneral-ModBase", "TreGrdEdi_Nam");
+    clickContextButton("CtxTreGrdEdiAddSel", "CtxTreGrdEdiAddChl");
+    checkTreeRowVisible("TreGrdEdi", "new-row-0");
+    saveRow("TreGrdEdi");
+    clickTreeButton("TreGrdEdi", "ProOperator");
+    contextMenu("TreGrdEdi", "ProOperator", "TreGrdEdi_Nam");
+    clickContextButton("CtxTreGrdEdiDel");
+    checkTreeRowNotVisible("TreGrdEdi", "ProOperator");
+
+    // Editable loading tree grid: the branches load when they open; add a child, then delete a branch
+    manageLoadingTreeGrid("Editable multioperation tree", "TreGrdLoaEdi");
+    contextMenu("TreGrdLoaEdi", "ProGeneral-ModBase", "TreGrdLoaEdi_Nam");
+    clickContextButton("CtxTreGrdLoaEdiAddSel", "CtxTreGrdLoaEdiAddChl");
+    checkTreeRowVisible("TreGrdLoaEdi", "new-row-0");
+    waitForLoadingGrid();
+    saveRow("TreGrdLoaEdi");
+    clickTreeButton("TreGrdLoaEdi", "ProOperator");
+    contextMenu("TreGrdLoaEdi", "ProOperator", "TreGrdLoaEdi_Nam");
+    clickContextButton("CtxTreGrdLoaEdiDel");
+    checkTreeRowDeleted("TreGrdLoaEdi", "ProOperator");
+  }
+
+  /**
+   * Cell rendering: a column with secondary-field shows a second line, a column with status-field a dot of the tone, a
+   * column with chips each item as a chip up to max-chips and a "+n" chip; the values are text, never HTML, and every
+   * row grows to fit its cells
+   */
+  @Test
+  void t050_gridCellRendering() {
+    // Title
+    setTestTitle("Grid cells: secondary line, status, chips, text and row height");
+
+    // Go to screen
+    openMatrixOption("matrix-test-cells");
+    checkRowContentsGrid(CELLS_GRID, "Javier García");
+
+    // The secondary value under the main one, and only the main line without it
+    checkGridCellSecondaryLine(CELLS_GRID, "1", "user", "Javier García", "jgarcia · j.garcia@almis.example");
+    checkGridCellSecondaryLine(CELLS_GRID, "2", "user", "Laura Pérez", "lperez · l.perez@almis.example");
+    checkGridCellSecondaryLine(CELLS_GRID, "4", "user", "Pablo Díaz", null);
+
+    // Every tone, and the unknown one as neutral
+    checkGridCellStatus(CELLS_GRID, "1", "status", "Locked", "danger");
+    checkGridCellStatus(CELLS_GRID, "2", "status", "Active", "success");
+    checkGridCellStatus(CELLS_GRID, "3", "status", "Pending activation", "info");
+    checkGridCellStatus(CELLS_GRID, "4", "status", "Inactive", "neutral");
+    checkGridCellStatus(CELLS_GRID, "5", "status", "Under review", "neutral");
+    checkGridCellStatus(CELLS_GRID, "6", "status", "Expiring", "warning");
+
+    // Two chips and "+2" with the hidden ones, the empty item dropped, as many chips as the maximum without "+n"
+    checkGridCellChips(CELLS_GRID, "1", "teams", List.of("Sales", "Finance"), List.of("Logistics", "Support"));
+    checkGridCellChips(CELLS_GRID, "2", "teams", List.of("A", "B"), List.of());
+    checkGridCellChips(CELLS_GRID, "5", "teams", List.of("Finance", "Support"), List.of());
+    checkGridCellChips(CELLS_GRID, "4", "teams", List.of("Sales"), List.of());
+
+    // The HTML of the value shows literally
+    checkGridCellChips(CELLS_GRID, "3", "teams", List.of("<b>bold</b>"), List.of());
+    checkGridCellsHaveNoActiveContent(CELLS_GRID);
+
+    // Each row fits its cells (the secondary line and the chips that wrap) and the last one is not cut
+    checkGridRowFitsItsCells(CELLS_GRID, "1", "user");
+    checkGridRowFitsItsCells(CELLS_GRID, "1", "teams");
+    checkGridRowFitsItsCells(CELLS_GRID, "4", "user");
+    checkGridRowNotCut(CELLS_GRID, "6", "user");
+  }
+
+  /**
+   * Theme classes: the grid without header hides it and keeps the rows, and the cells take the colour scale class that
+   * the query assigns
+   */
+  @Test
+  void t055_gridThemeClasses() {
+    // Title
+    setTestTitle("Grid theme: no header and colour scales");
 
     // The grid with the grid-no-header class keeps its rows but not its header
     openMatrixOption("matrix-test-no-header");
@@ -635,24 +432,8 @@ class MatrixTestsIT extends AbstractSessionTests {
     checkGridHeaderNotVisible("GrdNoHeaderTst", "name");
     checkGridFirstRowAtTop("GrdNoHeaderTst", "12", "name");
 
-    // A grid without the class shows it
-    openMatrixOption("matrix-test-radio");
-    checkRowContentsGrid("GrdRadioTst", "adminflare");
-    checkGridHeaderVisible("GrdRadioTst", "name");
-  }
-
-  /**
-   * Theme class test: the cells take the colour scale class that the query assigns
-   */
-  @Test
-  void t094_gridThemeColourScales() {
-    // Title
-    setTestTitle("Grid theme: colour scales");
-
-    // Go to screen
-    openMatrixOption("matrix-test-scale");
-
     // Every scale paints its cells with the class of the query
+    openMatrixOption("matrix-test-scale");
     checkRowContentsGrid("GrdScaleTst", "adminflare");
     checkCellHasClass("GrdScaleTst", "12", "seq3", "scale-seq-3");
     checkCellHasClass("GrdScaleTst", "12", "pos5", "scale-pos-5");
@@ -660,54 +441,11 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Empty state test: a grid without rows shows its configured empty state, and its action runs the button
+   * Side panel (#843): a panel opens against its edge as wide as its maximum width, keeps the focus inside while it is
+   * shown, closes with Esc, its buttons or its close button and gives the focus back to the button that opened it
    */
   @Test
-  void t095_gridEmptyState() {
-    // Title
-    setTestTitle("Grid empty state");
-
-    // Go to screen
-    openMatrixOption("matrix-test-empty");
-
-    // The configured empty state is shown
-    checkGridEmptyState("No themes found", "Clear the search to see the themes again");
-
-    // Its action runs the actions of the button of the grid
-    clickGridEmptyAction();
-    checkCriterionContents("EmptySearch", "cleared");
-  }
-
-  /**
-   * Dialog test: the size classes give the dialog its width
-   */
-  @Test
-  void t096_dialogSizeClasses() {
-    // Title
-    setTestTitle("Dialog size classes");
-
-    // Go to screen
-    openMatrixOption("matrix-test-dialog-size");
-
-    // Small dialog
-    clickButton("ButDlgSmall");
-    checkDialogWidth("DlgSmall", 300);
-    clickButton("ButDlgSmallClose");
-    checkDialogClosed("DlgSmall");
-
-    // Large dialog
-    clickButton("ButDlgLarge");
-    checkDialogWidth("DlgLarge", 900);
-    clickButton("ButDlgLargeClose");
-    checkDialogClosed("DlgLarge");
-  }
-
-  /**
-   * Side panel test (#843): a panel opens against its edge as wide as its maximum width, keeps the focus inside while it
-   * is shown, closes with Esc, its buttons or its close button and gives the focus back to the button that opened it
-   */
-  @Test
-  void t117_sidePanelEdgeWidthFocusAndClose() {
+  void t061_sidePanelEdgeWidthFocusAndClose() {
     // Title
     setTestTitle("Side panel: edge, width, focus and close");
 
@@ -744,13 +482,13 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Popover test (#843): a popover opens next to its anchor (below it or at its right), keeps the focus inside while it
-   * is shown, closes with Esc, its close button, its buttons or a click on its anchor (which does not open it again) and
+   * Popover (#843): a popover opens next to its anchor (below it or at its right), keeps the focus inside while it is
+   * shown, closes with Esc, its close button, its buttons or a click on its anchor (which does not open it again) and
    * gives the focus back to the button that opened it. The grid of the deferred popover is loaded once it opens, its
    * Columns work inside it, and its Cancel button closes it and leaves the result as it was
    */
   @Test
-  void t118_popoverNextToItsAnchorFocusAndClose() {
+  void t062_popoverNextToItsAnchorFocusAndClose() {
     // Title
     setTestTitle("Popover: anchor, focus and close");
 
@@ -811,487 +549,184 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Sparkline columns test: the series of every row is drawn as a small chart, whatever the type, and the series that
-   * cannot be drawn leave the cell empty
-   */
-  @Test
-  void t097_gridSparklineColumnsDrawTheSeriesOfEachRow() {
-    // Title
-    setTestTitle("Grid sparkline columns: the series of each row as a small chart");
-
-    // Go to screen
-    openMatrixOption("matrix-test-sparkline");
-
-    // The same series is drawn as a line, as bars and as an area, with a tooltip value per point
-    checkGridSparkline("GrdSparklineTst", "1", "line", "line", "1,2,3,5,8,13");
-    checkGridSparkline("GrdSparklineTst", "1", "bar", "bar", "1,2,3,5,8,13");
-    checkGridSparkline("GrdSparklineTst", "1", "area", "area", "1,2,3,5,8,13");
-
-    // Negative values are drawn too, and a series with a single value is one point
-    checkGridSparkline("GrdSparklineTst", "3", "bar", "bar", "3,5,-1,8,-4,2");
-    checkGridSparkline("GrdSparklineTst", "4", "line", "line", "-3,-5,-1,-8");
-    checkGridSparkline("GrdSparklineTst", "5", "line", "line", "7");
-    checkGridSparkline("GrdSparklineTst", "5", "bar", "bar", "7");
-
-    // The lowest, highest and last points are marked only in the column that asks for it
-    checkGridSparklineMarkers("GrdSparklineTst", "3", "marks", 3);
-    checkGridSparklineMarkers("GrdSparklineTst", "3", "line", 0);
-
-    // An empty series and a value that is not a series leave the cell empty, with no error
-    checkGridSparklineEmpty("GrdSparklineTst", "6", "line");
-    checkGridSparklineEmpty("GrdSparklineTst", "7", "bar");
-
-    // The chart does not take the keyboard focus, so the navigation of the grid is not affected
-    checkGridSparklineNotFocusable("GrdSparklineTst", "3", "line");
-  }
-
-  /**
-   * Check how many times the query of a component of the deferred load screen has run
+   * Check how many times the queries of some components of the deferred load screen have run
    *
-   * @param component Component whose query is counted
-   * @param calls     Times it has run
+   * @param componentCalls Pairs of component whose query is counted and times it has run
    */
-  private void checkDeferredCalls(String component, String calls) {
+  private void checkDeferredCalls(String... componentCalls) {
     clickButton("ButDefCalls");
-    checkCellContents("GrdDefCalls", component, "calls", calls);
+    for (int i = 0; i < componentCalls.length; i += 2) {
+      checkCellContents("GrdDefCalls", componentCalls[i], "calls", componentCalls[i + 1]);
+    }
   }
 
   /**
-   * Deferred dialog test: its queries do not run with the screen, they run the first time it is opened (and only then)
+   * Deferred load: the queries of a deferred dialog and of a deferred tab page do not run with the screen, they run the
+   * first time the dialog opens or the page is selected (and only then), and the required criteria of a deferred dialog
+   * never opened do not block the validation. A dialog which is not deferred shows its rows when it opens
    */
   @Test
-  void t110_deferredDialogLoadsOnFirstOpening() {
+  void t070_deferredLoad() {
     // Title
-    setTestTitle("Deferred dialog loads on its first opening");
+    setTestTitle("Deferred dialog and tab load on their first opening");
 
     // Go to screen
     openMatrixOption("matrix-test-deferred");
 
-    // The screen load ran the queries of what is not deferred, and none of the deferred dialog
-    checkDeferredCalls("EagSelect", "1");
-    checkDeferredCalls("TabFirstSelect", "1");
-    checkDeferredCalls(DEFERRED_SELECT, "0");
-    checkDeferredCalls("DefRows", "0");
-    checkDeferredCalls("DefText", "0");
+    // The screen load ran the queries of what is not deferred, and none of the deferred dialog and page
+    checkDeferredCalls("EagSelect", "1", "TabFirstSelect", "1", DEFERRED_SELECT, "0", "DefRows", "0", "DefText", "0",
+      "TabSecondSelect", "0", "TabSecondRows", "0");
+    waitForLoadingBar();
+    waitForButtonClickability(BUTTON_DEFERRED_SAVE);
 
-    // The first opening loads the data of the dialog
-    clickButton(BUTTON_DEFERRED_DIALOG);
-    checkRowContentsGrid("GrdDefRows", "3");
-    checkCriterionContents("DefText", "Loaded");
-    // The select has no selection from the server: it shows its first option
-    checkSelectContents(DEFERRED_SELECT, "One");
-    clickButton("ButDefClose");
-    checkDialogClosed("DlgDeferred");
-    checkDeferredCalls(DEFERRED_SELECT, "1");
-    checkDeferredCalls("DefRows", "1");
-    checkDeferredCalls("DefText", "1");
+    // The required criteria of the dialog never opened are ignored: the save goes through without opening it
+    clickButton(BUTTON_DEFERRED_SAVE);
+    checkCriterionContents("DefSaved", "Saved");
 
-    // The next openings do not load it again
-    clickButton(BUTTON_DEFERRED_DIALOG);
-    checkRowContentsGrid("GrdDefRows", "3");
-    clickButton("ButDefClose");
-    checkDialogClosed("DlgDeferred");
-    checkDeferredCalls(DEFERRED_SELECT, "1");
-    checkDeferredCalls("DefRows", "1");
-
-    // A deferred dialog does not make the other ones wait
-    checkDeferredCalls("TabSecondSelect", "0");
-  }
-
-  /**
-   * Control for the deferred dialog: a grid in a dialog which is not deferred shows its rows when the dialog opens
-   */
-  @Test
-  void t109_dialogGridRendersWithoutDeferral() {
-    // Title
-    setTestTitle("Dialog grid renders without deferral");
-
-    // Go to screen
-    openMatrixOption("matrix-test-deferred");
-
-    // The dialog was loaded with the screen
+    // The dialog which is not deferred was loaded with the screen
     clickButton("ButEagDialog");
     checkRowContentsGrid("GrdEagRows", "E3");
     clickButton("ButEagClose");
     checkDialogClosed("DlgEager");
-  }
 
-  /**
-   * Deferred tab test: the queries of a deferred page do not run with the screen, they run the first time it is selected
-   */
-  @Test
-  void t111_deferredTabLoadsOnFirstSelection() {
-    // Title
-    setTestTitle("Deferred tab loads on its first selection");
+    // The first opening loads the data of the deferred dialog. The select has no selection from the server: it shows
+    // its first option
+    clickButton(BUTTON_DEFERRED_DIALOG);
+    checkRowContentsGrid("GrdDefRows", "3");
+    checkCriterionContents("DefText", "Loaded");
+    checkSelectContents(DEFERRED_SELECT, "One");
+    clickButton("ButDefClose");
+    checkDialogClosed("DlgDeferred");
+    checkDeferredCalls(DEFERRED_SELECT, "1", "DefRows", "1", "DefText", "1");
 
-    // Go to screen
-    openMatrixOption("matrix-test-deferred");
+    // The next openings do not load it again, and a deferred dialog does not make the other ones wait
+    clickButton(BUTTON_DEFERRED_DIALOG);
+    checkRowContentsGrid("GrdDefRows", "3");
+    clickButton("ButDefClose");
+    checkDialogClosed("DlgDeferred");
+    checkDeferredCalls(DEFERRED_SELECT, "1", "DefRows", "1", "TabSecondSelect", "0");
 
-    // The first page was loaded with the screen, the deferred one was not
-    checkDeferredCalls("TabFirstSelect", "1");
-    checkDeferredCalls("TabSecondSelect", "0");
-    checkDeferredCalls("TabSecondRows", "0");
-
-    // The first selection of the deferred page loads its data
+    // The first selection of the deferred page loads its data, going back to it does not load it again
     clickTab("TabDeferred", "Deferred");
     checkRowContentsGrid("GrdTabRows", "Two");
     clickTab("TabDeferred", "Loaded with the screen");
-    checkDeferredCalls("TabSecondSelect", "1");
-    checkDeferredCalls("TabSecondRows", "1");
-
-    // Going back to it does not load it again
+    checkDeferredCalls("TabSecondSelect", "1", "TabSecondRows", "1");
     clickTab("TabDeferred", "Deferred");
     checkRowContentsGrid("GrdTabRows", "Two");
     clickTab("TabDeferred", "Loaded with the screen");
-    checkDeferredCalls("TabSecondSelect", "1");
-    checkDeferredCalls("TabSecondRows", "1");
+    checkDeferredCalls("TabSecondSelect", "1", "TabSecondRows", "1");
   }
 
   /**
-   * Deferred dialog test: a value set before the first opening is kept, the initial load does not replace it
+   * Grid toolbar: the Columns open as a popover where Cancel undoes the changes and the close button keeps them; the
+   * user hides and reorders columns, group headers stay aligned and columns never leave their group, the layout is
+   * saved for the user and the screen comes back with it, Reset goes back to the definition of the screen, and Maximize
+   * fills the window
    */
   @Test
-  void t112_deferredDialogKeepsTheValueSetBeforeItsFirstOpening() {
+  void t080_gridToolbarColumnsAndMaximize() {
     // Title
-    setTestTitle("Deferred dialog keeps a value set before its first opening");
-
-    // Go to screen
-    openMatrixOption("matrix-test-deferred");
-
-    // An action gives a value to a criterion of the dialog which was not opened yet
-    clickButton("ButDefPreset");
-
-    // The first opening loads the dialog, but the value of the action stays
-    clickButton(BUTTON_DEFERRED_DIALOG);
-    checkRowContentsGrid("GrdDefRows", "3");
-    checkCriterionContents("DefText", "Preset");
-    clickButton("ButDefClose");
-    checkDialogClosed("DlgDeferred");
-  }
-
-  /**
-   * Deferred dialog test: the required criteria of a deferred dialog which was never opened do not block the validation
-   */
-  @Test
-  void t113_deferredDialogNeverOpenedDoesNotBlockValidation() {
-    // Title
-    setTestTitle("Deferred dialog never opened does not block validation");
-
-    // Go to the screen from another one, so it is loaded again (the previous test leaves the dialog loaded on it)
-    openMatrixOption(MATRIX_PAGER_OPTION);
-    openMatrixOption("matrix-test-deferred");
-    checkDeferredCalls(DEFERRED_SELECT, "0");
-    waitForLoadingBar();
-    waitForButtonClickability(BUTTON_DEFERRED_SAVE);
-
-    // Its required criteria are ignored: the save goes through without opening the dialog
-    clickButton(BUTTON_DEFERRED_SAVE);
-    checkCriterionContents("DefSaved", "Saved");
-  }
-
-  /**
-   * Deferred dialog test: once the dialog was opened its required criteria validate as normal
-   */
-  @Test
-  void t114_deferredDialogOpenedValidatesItsRequiredCriteria() {
-    // Title
-    setTestTitle("Deferred dialog opened validates its required criteria");
-
-    // Go to screen
-    openMatrixOption("matrix-test-deferred");
-
-    // Open the dialog (its required criteria load), empty one and close it
-    clickButton(BUTTON_DEFERRED_DIALOG);
-    checkRowContentsGrid("GrdDefRows", "3");
-    writeText("DefText", "");
-    clickButton("ButDefClose");
-    checkDialogClosed("DlgDeferred");
-
-    // Now the empty required criterion blocks the validation. The React client unmounts a closed dialog, so open it again
-    // to wait for the validation error of its criterion, then check nothing was saved
-    clickButton(BUTTON_DEFERRED_SAVE);
-    clickButton(BUTTON_DEFERRED_DIALOG);
-    checkValidationErrorVisible();
-    checkCriterionContents("DefSaved", "");
-
-    // Close the dialog, so it does not cover the menu for the next tests
-    clickButton("ButDefClose");
-    checkDialogClosed("DlgDeferred");
-  }
-
-  /**
-   * Wrapping cells test: a column that wraps shows its whole text over several lines and the row grows to fit it; with
-   * a maximum number of lines the text is cut at that line and its whole value shows on hover and on keyboard focus.
-   * Selection, sorting and inline editing keep working with the taller rows
-   */
-  @Test
-  void t098_gridWrappingCells() {
-    // Title
-    setTestTitle("Grid wrapping cells");
-
-    // Go to screen
-    openMatrixOption("matrix-test-wrap");
-    checkRowContentsGrid("GrdWrapTst", "WR-005");
-
-    // The column that wraps shows its whole text over several lines
-    checkGridCellLinesAtLeast("GrdWrapTst", "5", "title", 2);
-    checkGridCellTextCut("GrdWrapTst", "5", "title", false);
-
-    // The column with a maximum shows three lines, and the whole value on hover and on keyboard focus
-    String description = words(5 * 7, 6 + (5 % 6) * 14);
-    checkGridCellLines("GrdWrapTst", "5", "description", 3);
-    checkGridCellTextCut("GrdWrapTst", "5", "description", true);
-    checkGridCellFullTextTooltip("GrdWrapTst", "5", "description", description);
-
-    // The row grows to fit the text, and a row with short texts stays low
-    checkGridRowFitsItsCells("GrdWrapTst", "5", "code");
-    checkGridRowTaller("GrdWrapTst", "5", "18", "code");
-
-    // The cell that the column width cuts shows its whole value as tooltip, and so does its header
-    checkGridCellTitle("GrdWrapTst", "5", "notes", words(5 * 3, 8));
-
-    // Selection
-    clickRowContents("GrdWrapTst", "WR-005");
-    checkRowSelected("GrdWrapTst", "WR-005");
-
-    // Inline editing of a row with taller cells
-    editRow("GrdWrapTst", "WR-002");
-    writeText("GrdWrapTst", "2", "code", "WR-X02");
-    saveRow("GrdWrapTst");
-    checkCellContents("GrdWrapTst", "2", "code", "WR-X02");
-    checkGridRowFitsItsCells("GrdWrapTst", "2", "code");
-
-    // Sorting
-    sortGrid("GrdWrapTst", "code");
-    sortGrid("GrdWrapTst", "code");
-    checkGridCellLines("GrdWrapTst", "5", "description", 3);
-    checkGridRowFitsItsCells("GrdWrapTst", "5", "code");
-  }
-
-  /**
-   * Text of the wrapping test screens: consecutive words of a list, as the test application generates them
-   *
-   * @param start Index of the first word
-   * @param count Number of words
-   * @return Text
-   */
-  private static String words(int start, int count) {
-    String[] list = {"alpha", "bravo", "charlie", "delta", "echo", "foxtrot", "golf", "hotel", "india", "juliet", "kilo", "lima"};
-    StringBuilder text = new StringBuilder();
-    for (int i = 0; i < count; i++) {
-      text.append(i == 0 ? "" : " ").append(list[(start + i) % list.length]);
-    }
-    return text.toString();
-  }
-
-  /**
-   * Grid toolbar test: the user hides and reorders columns with the Columns dialog, group headers stay aligned and
-   * columns never leave their group, the layout is saved for the user and the screen comes back with it, Reset goes back
-   * to the definition of the screen, and Maximize fills the window
-   */
-  @Test
-  void t115_gridToolbarColumnsAndMaximize() {
-    // Title
-    setTestTitle("Grid toolbar: columns dialog, saved layout and maximize");
+    setTestTitle("Grid toolbar: columns popover, saved layout and maximize");
 
     // Go to screen, with no layout saved by a previous run: the definition of the screen
     openMatrixOption("matrix-test-layout");
-    openGridColumns("GrdLayoutTst");
-    // The step waits until the server removes the layout (silent: no message)
-    clickGridColumnsReset("GrdLayoutTst");
-    closeGridColumns("GrdLayoutTst");
-    checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03", "c04", "c05", "c06", "c07");
-    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c03", "c06");
+    openGridColumns(LAYOUT_GRID);
+    clickGridColumnsReset(LAYOUT_GRID);
+    closeGridColumns(LAYOUT_GRID);
+    checkGridColumnsLeftToRight(LAYOUT_GRID, "c01", "c02", "c03", "c04", "c05", "c06", "c07");
+    checkGridGroupHeaderOver(LAYOUT_GRID, "Group A", "c03", "c06");
 
-    // The dialog lists the 26 columns that the screen shows, and not the key that it hides
-    openGridColumns("GrdLayoutTst");
-    checkGridColumnsCounter("GrdLayoutTst", 26, 26);
-    checkGridColumnsListed("GrdLayoutTst", "c01");
-    checkGridColumnsNotListed("GrdLayoutTst", "key");
+    // The Columns open as a popover (the default) and hiding a column updates the grid while it is open. Cancel shows the
+    // column again and closes the popover
+    openGridColumns(LAYOUT_GRID);
+    checkGridColumnsPanel(LAYOUT_GRID, "popover");
+    hideGridColumn(LAYOUT_GRID, "c01");
+    checkGridColumnNotShown(LAYOUT_GRID, "c01");
+    clickGridColumnsCancel(LAYOUT_GRID);
+    checkGridColumnsLeftToRight(LAYOUT_GRID, "c01", "c02", "c03");
+
+    // The close button keeps the change
+    openGridColumns(LAYOUT_GRID);
+    hideGridColumn(LAYOUT_GRID, "c01");
+    closeGridColumns(LAYOUT_GRID);
+    checkGridColumnNotShown(LAYOUT_GRID, "c01");
+
+    // The dialog lists the 26 columns that the screen shows (one hidden now), and not the key that it hides
+    openGridColumns(LAYOUT_GRID);
+    checkGridColumnsCounter(LAYOUT_GRID, 25, 26);
+    showGridColumn(LAYOUT_GRID, "c01");
+    checkGridColumnsCounter(LAYOUT_GRID, 26, 26);
+    checkGridColumnsListed(LAYOUT_GRID, "c01");
+    checkGridColumnsNotListed(LAYOUT_GRID, "key");
 
     // Hiding the first column of a group, and then one inside it, keeps the header over the columns that are left
-    hideGridColumn("GrdLayoutTst", "c03");
-    hideGridColumn("GrdLayoutTst", "c05");
-    checkGridColumnsCounter("GrdLayoutTst", 24, 26);
-    closeGridColumns("GrdLayoutTst");
-    checkGridColumnNotShown("GrdLayoutTst", "c03");
-    checkGridColumnNotShown("GrdLayoutTst", "c05");
-    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c04", "c06");
+    hideGridColumn(LAYOUT_GRID, "c03");
+    hideGridColumn(LAYOUT_GRID, "c05");
+    checkGridColumnsCounter(LAYOUT_GRID, 24, 26);
+    closeGridColumns(LAYOUT_GRID);
+    checkGridColumnNotShown(LAYOUT_GRID, "c03");
+    checkGridColumnNotShown(LAYOUT_GRID, "c05");
+    checkGridGroupHeaderOver(LAYOUT_GRID, "Group A", "c04", "c06");
 
     // A group without visible columns has no header
-    openGridColumns("GrdLayoutTst");
-    hideGridColumn("GrdLayoutTst", "c04");
-    hideGridColumn("GrdLayoutTst", "c06");
-    closeGridColumns("GrdLayoutTst");
-    checkGridGroupHeaderNotShown("GrdLayoutTst", "Group A");
-    openGridColumns("GrdLayoutTst");
-    showGridColumn("GrdLayoutTst", "c04");
-    closeGridColumns("GrdLayoutTst");
-    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c04", "c04");
+    openGridColumns(LAYOUT_GRID);
+    hideGridColumn(LAYOUT_GRID, "c04");
+    hideGridColumn(LAYOUT_GRID, "c06");
+    closeGridColumns(LAYOUT_GRID);
+    checkGridGroupHeaderNotShown(LAYOUT_GRID, "Group A");
+    openGridColumns(LAYOUT_GRID);
+    showGridColumn(LAYOUT_GRID, "c04");
+    closeGridColumns(LAYOUT_GRID);
+    checkGridGroupHeaderOver(LAYOUT_GRID, "Group A", "c04", "c04");
 
     // Columns move among their own siblings only: the ones of a group cannot leave it
-    openGridColumns("GrdLayoutTst");
-    checkGridColumnCannotMoveUp("GrdLayoutTst", "c03");
-    checkGridColumnCannotMoveDown("GrdLayoutTst", "c06");
-    moveGridColumnDown("GrdLayoutTst", "c01");
-    checkGridColumnCannotMoveUp("GrdLayoutTst", "c02");
-    closeGridColumns("GrdLayoutTst");
-    checkGridColumnsLeftToRight("GrdLayoutTst", "c02", "c01", "c04");
+    openGridColumns(LAYOUT_GRID);
+    checkGridColumnCannotMoveUp(LAYOUT_GRID, "c03");
+    checkGridColumnCannotMoveDown(LAYOUT_GRID, "c06");
+    moveGridColumnDown(LAYOUT_GRID, "c01");
+    checkGridColumnCannotMoveUp(LAYOUT_GRID, "c02");
+    closeGridColumns(LAYOUT_GRID);
+    checkGridColumnsLeftToRight(LAYOUT_GRID, "c02", "c01", "c04");
 
     // Save as default: the screen comes back with the layout of the user
-    openGridColumns("GrdLayoutTst");
+    openGridColumns(LAYOUT_GRID);
     // The step waits until the server stores the layout and Save closes the Columns, so the screen is opened again only
     // after that. It is silent
-    clickGridColumnsSave("GrdLayoutTst");
+    clickGridColumnsSave(LAYOUT_GRID);
     checkMessageMissing("success");
     openMatrixOption(MATRIX_PAGER_OPTION);
     openMatrixOption("matrix-test-layout");
-    checkGridColumnsLeftToRight("GrdLayoutTst", "c02", "c01", "c04", "c07");
-    checkGridColumnNotShown("GrdLayoutTst", "c03");
-    checkGridColumnNotShown("GrdLayoutTst", "c06");
-    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c04", "c04");
+    checkGridColumnsLeftToRight(LAYOUT_GRID, "c02", "c01", "c04", "c07");
+    checkGridColumnNotShown(LAYOUT_GRID, "c03");
+    checkGridColumnNotShown(LAYOUT_GRID, "c06");
+    checkGridGroupHeaderOver(LAYOUT_GRID, "Group A", "c04", "c04");
 
     // Show the hidden columns again, one by one
-    openGridColumns("GrdLayoutTst");
-    checkGridColumnsCounter("GrdLayoutTst", 23, 26);
-    showGridColumn("GrdLayoutTst", "c03");
-    showGridColumn("GrdLayoutTst", "c05");
-    showGridColumn("GrdLayoutTst", "c06");
-    checkGridColumnsCounter("GrdLayoutTst", 26, 26);
-    closeGridColumns("GrdLayoutTst");
-    checkGridColumnsLeftToRight("GrdLayoutTst", "c02", "c01", "c03", "c04", "c05", "c06");
-    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c03", "c06");
+    openGridColumns(LAYOUT_GRID);
+    checkGridColumnsCounter(LAYOUT_GRID, 23, 26);
+    showGridColumn(LAYOUT_GRID, "c03");
+    showGridColumn(LAYOUT_GRID, "c05");
+    showGridColumn(LAYOUT_GRID, "c06");
+    checkGridColumnsCounter(LAYOUT_GRID, 26, 26);
+    closeGridColumns(LAYOUT_GRID);
+    checkGridColumnsLeftToRight(LAYOUT_GRID, "c02", "c01", "c03", "c04", "c05", "c06");
+    checkGridGroupHeaderOver(LAYOUT_GRID, "Group A", "c03", "c06");
 
     // Reset goes back to the definition of the screen and removes the layout that was saved
-    openGridColumns("GrdLayoutTst");
-    // The step waits until the server removes the layout (silent: no message)
-    clickGridColumnsReset("GrdLayoutTst");
-    closeGridColumns("GrdLayoutTst");
-    checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03");
+    openGridColumns(LAYOUT_GRID);
+    clickGridColumnsReset(LAYOUT_GRID);
+    closeGridColumns(LAYOUT_GRID);
+    checkGridColumnsLeftToRight(LAYOUT_GRID, "c01", "c02", "c03");
     openMatrixOption(MATRIX_PAGER_OPTION);
     openMatrixOption("matrix-test-layout");
-    checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03", "c04", "c05", "c06", "c07");
-    checkGridGroupHeaderOver("GrdLayoutTst", "Group A", "c03", "c06");
+    checkGridColumnsLeftToRight(LAYOUT_GRID, "c01", "c02", "c03", "c04", "c05", "c06", "c07");
+    checkGridGroupHeaderOver(LAYOUT_GRID, "Group A", "c03", "c06");
 
     // Maximize fills the content area of the screen (the header stays visible) and restores the grid
-    maximizeGrid("GrdLayoutTst");
-    checkGridMaximized("GrdLayoutTst");
-    restoreGrid("GrdLayoutTst");
-    checkGridNotMaximized("GrdLayoutTst");
-  }
-
-  /**
-   * Window maximize test: a window with a label and maximize="true" fills the content area of the screen (the header
-   * of the application stays visible) and the Restore button brings it back
-   */
-  @Test
-  void t117_windowMaximizeAndRestore() {
-    // Title
-    setTestTitle("Window: maximize and restore");
-
-    // Go to screen
-    gotoScreen("test", "screen-test");
-
-    // Maximize fills the content area of the screen and restores the window
-    String windowId = "WinGrd";
-    maximizeWindow(windowId);
-    checkWindowMaximized(windowId);
-    restoreWindow(windowId);
-    checkWindowNotMaximized(windowId);
-  }
-
-  /**
-   * Tab maximize test: a tab with maximize="true" fills the content area of the screen (tab list and content, with the
-   * header of the application visible) and the Restore button brings it back
-   */
-  @Test
-  void t118_tabMaximizeAndRestore() {
-    // Title
-    setTestTitle("Tab: maximize and restore");
-
-    // Go to screen
-    gotoScreen("test", "chart", "queue-test");
-
-    // Maximize fills the content area of the screen and restores the tab component
-    String tabId = "QueTabSel";
-    maximizeTab(tabId);
-    checkTabMaximized(tabId);
-    restoreTab(tabId);
-    checkTabNotMaximized(tabId);
-  }
-
-  /**
-   * Row detail test (#835): the toggle of a row opens its detail under the row with a visible and a hidden column of
-   * the row, several rows stay open, the toggle does not select the row, the keyboard opens and closes it, and a reload
-   * of the data (a sort on the server) closes every detail
-   */
-  @Test
-  void t119_gridRowDetailOpensUnderItsRow() {
-    // Title
-    setTestTitle("Grid row detail: toggle, several rows, keyboard and reload");
-
-    // Go to screen
-    openMatrixOption("matrix-test-row-detail");
-    checkRowContentsGrid(ROW_DETAIL_GRID, "adminflare");
-
-    // The hidden column is not shown and no detail is open
-    checkGridHeaderNotVisible(ROW_DETAIL_GRID, "code");
-    checkNoGridRowDetailOpen(ROW_DETAIL_GRID);
-
-    // The toggle opens the detail under its row with the name (visible column), the code and the active flag (hidden
-    // columns), and keeps the line breaks of the template. The area has the style classes of the row detail. It does
-    // not select the row
-    clickGridRowDetailToggle(ROW_DETAIL_GRID, "12");
-    checkRowDetailOpen("12", "Theme: adminflare\nCode: THM-12\nActive: Yes");
-    checkGridRowDetailHasClass(ROW_DETAIL_GRID, "12", "grid-row-detail row-detail-card");
-    // The style of the row detail reaches the page: the card shows its left accent border
-    checkGridRowDetailComputedStyle(ROW_DETAIL_GRID, "12", "border-left-width", "4px");
-    checkGridRowDetailUnderItsRow(ROW_DETAIL_GRID, "12");
-    checkGridRowNotSelected(ROW_DETAIL_GRID, "12");
-
-    // Several rows can be open at the same time
-    clickGridRowDetailToggle(ROW_DETAIL_GRID, "15");
-    checkRowDetailOpen("15", "Theme: asphalt\nCode: THM-15\nActive: Yes");
-    checkRowDetailOpen("12", "Theme: adminflare\nCode: THM-12\nActive: Yes");
-
-    // The toggle closes the detail of its row only
-    clickGridRowDetailToggle(ROW_DETAIL_GRID, "15");
-    checkRowDetailClosed("15");
-    checkRowDetailOpen("12", "Theme: adminflare\nCode: THM-12\nActive: Yes");
-
-    // The keyboard: Enter on the focused toggle opens the detail and Space closes it
-    pressEnterOnGridRowDetailToggle(ROW_DETAIL_GRID, "10");
-    checkRowDetailOpen("10", "Theme: clean\nCode: THM-10\nActive: Yes");
-    pressSpaceOnGridRowDetailToggle(ROW_DETAIL_GRID, "10");
-    checkRowDetailClosed("10");
-
-    // A reload of the data (a sort on the server) closes every detail
-    sortGrid(ROW_DETAIL_GRID, "name");
-    checkRowContentsGrid(ROW_DETAIL_GRID, "adminflare");
-    checkNoGridRowDetailOpen(ROW_DETAIL_GRID);
-  }
-
-  /**
-   * Check that the detail of a row of the row detail test grid is shown with a text, and that its toggle says so, points
-   * to it and offers to hide it
-   *
-   * @param rowId Row identifier
-   * @param text  Text of the detail, with its line breaks
-   */
-  private void checkRowDetailOpen(String rowId, String text) {
-    checkGridRowDetailOpen(ROW_DETAIL_GRID, rowId, text);
-    checkGridRowDetailToggleLabel(ROW_DETAIL_GRID, rowId, "Hide row details");
-  }
-
-  /**
-   * Check that the detail of a row of the row detail test grid is not shown, and that its toggle says so and offers to
-   * show it
-   *
-   * @param rowId Row identifier
-   */
-  private void checkRowDetailClosed(String rowId) {
-    checkGridRowDetailClosed(ROW_DETAIL_GRID, rowId);
-    checkGridRowDetailToggleLabel(ROW_DETAIL_GRID, rowId, "Show row details");
+    maximizeGrid(LAYOUT_GRID);
+    checkGridMaximized(LAYOUT_GRID);
+    restoreGrid(LAYOUT_GRID);
+    checkGridNotMaximized(LAYOUT_GRID);
   }
 
   /**
@@ -1301,7 +736,7 @@ class MatrixTestsIT extends AbstractSessionTests {
    * second grid brings its nested grid with an include
    */
   @Test
-  void t120_gridRowDetailNestedGrid() {
+  void t090_gridRowDetailNestedGrid() {
     // Title
     setTestTitle("Grid row detail with a nested grid: own rows, independent sort, buttons, styles, reload and include");
 
@@ -1384,6 +819,38 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
+   * Card (#899, #836): a metric card filled from a query shows its value and its trend delta, the chart and the grid of
+   * other cards are drawn in their body with their data, and the reload button refreshes the cards filled from the
+   * server: the metric keeps its value and the status card shows another chip on every reload
+   */
+  @Test
+  void t100_cardDataFromTheServer() {
+    // Title
+    setTestTitle("Card: data from the server, body and reload");
+
+    // Go to screen
+    gotoScreen("test", "layout", "card-test");
+
+    // Metric filled from a query: the number of themes, rising (good news)
+    checkCardValue("CrdTstThemes", "18");
+    checkCardDelta("CrdTstThemes", "+12.5%", "up", "success");
+
+    // A chart and a grid in the body of their cards
+    checkCardBodyComponent("CrdTstChart", "ChrCrdTst");
+    checkChartVisible("ChrCrdTst");
+    checkCardBodyComponent("CrdTstGrid", "GrdCrdTst");
+    checkRowContentsGrid("GrdCrdTst", "awedb2");
+
+    // The status card shows a chip, and every reload changes it
+    checkCardChipChangesOnClick("CrdTstStatus", "ButCrdReload");
+    checkCardChipChangesOnClick("CrdTstStatus", "ButCrdReload");
+
+    // The reload keeps the value and the delta of the card filled from a query
+    checkCardValue("CrdTstThemes", "18");
+    checkCardDelta("CrdTstThemes", "+12.5%", "up", "success");
+  }
+
+  /**
    * Open and close some tree grid leafs
    *
    * @param gridTab Tab where the grid is
@@ -1428,19 +895,11 @@ class MatrixTestsIT extends AbstractSessionTests {
     // Click on tab
     clickTab("TabSelMat", gridTab);
 
-    // Click on button
+    // Open the roots and some branches
     clickTreeButton(gridId, "ProAdministrator");
-
-    // Click on button
     clickTreeButton(gridId, "ProGeneral");
-
-    // Click on button
     clickTreeButton(gridId, "ProOperator");
-
-    // Click on button
     clickTreeButton(gridId, "ProAdministrator-ModBase");
-
-    // Click on button
     clickTreeButton(gridId, "ProGeneral-ModBase");
 
     // Check visible
@@ -1448,13 +907,91 @@ class MatrixTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Split layout test (#892): on the Grid dependencies tab the two upper grids sit side by side with a splitter between
+   * Row grouping (#833): a grid grouped by region, country and city shows a group row per group of each level with its
+   * value and its number of rows, ordered by value; collapsed groups hide the groups under them. A group collapses and
+   * expands with its toggle, and every group with Collapse all and Expand all, and the Group by panel changes the
+   * grouping levels or removes them, all without calling the server
+   */
+  @Test
+  void t110_gridRowGrouping() {
+    // Title
+    setTestTitle("Grid row grouping: levels, expand and collapse, group by");
+
+    // Go to screen: every group starts expanded
+    openMatrixOption("matrix-test-groups");
+    checkGridGroupLabel(GROUPS_GRID, "America", "America", 13);
+    checkGridGroupExpanded(GROUPS_GRID, "America");
+    checkGridGroupLabel(GROUPS_GRID, "America/Canada", "Canada", 4);
+    checkGridGroupLabel(GROUPS_GRID, "America/Canada/Toronto", "Toronto", 2);
+    watchServerCalls();
+
+    // A group hides its groups, rows and subtotal, and shows them again
+    toggleGridGroup(GROUPS_GRID, "America");
+    checkGridGroupCollapsed(GROUPS_GRID, "America");
+    checkGridGroupExpanded(GROUPS_GRID, "Europe");
+    toggleGridGroup(GROUPS_GRID, "America");
+    checkGridGroupExpanded(GROUPS_GRID, "America");
+
+    // The regions, by value
+    collapseAllGridGroups(GROUPS_GRID);
+    checkGridGroupCollapsed(GROUPS_GRID, "America");
+    checkGridGroupCollapsed(GROUPS_GRID, "Europe");
+    checkGridGroupRowCount(GROUPS_GRID, 1, 2);
+    checkGridGroupRowCount(GROUPS_GRID, 2, 0);
+    checkGridGroupOrder(GROUPS_GRID, 1, "America", "Europe");
+    checkGridGroupLabel(GROUPS_GRID, "Europe", "Europe", 11);
+
+    // The countries of a region and the cities of a country
+    toggleGridGroup(GROUPS_GRID, "Europe");
+    checkGridGroupOrder(GROUPS_GRID, 2, "Europe/France", "Europe/Spain");
+    checkGridGroupLabel(GROUPS_GRID, "Europe/France", "France", 5);
+    checkGridGroupLabel(GROUPS_GRID, "Europe/Spain", "Spain", 6);
+    checkGridGroupRowCount(GROUPS_GRID, 3, 0);
+    toggleGridGroup(GROUPS_GRID, "Europe/Spain");
+    checkGridGroupOrder(GROUPS_GRID, 3, "Europe/Spain/Barcelona", "Europe/Spain/Madrid");
+    checkGridGroupLabel(GROUPS_GRID, "Europe/Spain/Madrid", "Madrid", 3);
+
+    // After Collapse all, the groups shown by expanding their parent are collapsed too
+    checkGridGroupCollapsed(GROUPS_GRID, "Europe/Spain/Madrid");
+    toggleGridGroup(GROUPS_GRID, "Europe/Spain/Madrid");
+    checkGridGroupExpanded(GROUPS_GRID, "Europe/Spain/Madrid");
+
+    // Expand all opens every group of every level
+    expandAllGridGroups(GROUPS_GRID);
+    checkGridGroupExpanded(GROUPS_GRID, "America");
+    checkGridGroupExpanded(GROUPS_GRID, "America/Canada");
+    checkGridGroupExpanded(GROUPS_GRID, "America/Canada/Toronto");
+
+    // Group by one level: the countries
+    groupGridBy(GROUPS_GRID, "country");
+    collapseAllGridGroups(GROUPS_GRID);
+    checkGridGroupOrder(GROUPS_GRID, 1, "Canada", "France", "Mexico", "Spain", "USA");
+    checkGridGroupRowCount(GROUPS_GRID, 2, 0);
+    checkGridGroupLabel(GROUPS_GRID, "Spain", "Spain", 6);
+    checkGridGroupCell(GROUPS_GRID, "Spain", "sales", "500");
+
+    // No grouping: the data rows
+    groupGridBy(GROUPS_GRID);
+    checkGridNotGrouped(GROUPS_GRID);
+    checkRowContentsGrid(GROUPS_GRID, "Store 1");
+
+    // Two levels again, in the order they are chosen
+    groupGridBy(GROUPS_GRID, "city", "region");
+    collapseAllGridGroups(GROUPS_GRID);
+    checkGridGroupRowCount(GROUPS_GRID, 1, 10);
+    toggleGridGroup(GROUPS_GRID, "Barcelona");
+    checkGridGroupOrder(GROUPS_GRID, 2, "Barcelona/Europe");
+    checkNoServerCalls();
+  }
+
+  /**
+   * Split layout (#892): on the Grid dependencies tab the two upper grids sit side by side with a splitter between
    * them and the lower grid under both, with a splitter above it. Each splitter follows the pointer: the pane before it
    * grows, the pane after it shrinks by the same amount, and the outer edges of both stay where they were, also when one
    * of them reaches its minimum size
    */
   @Test
-  void t121_gridDependenciesSplitLayout() {
+  void t120_gridDependenciesSplitLayout() {
     // Title
     setTestTitle("Grid dependencies: split layout with draggable splitters");
 
@@ -1509,432 +1046,5 @@ class MatrixTestsIT extends AbstractSessionTests {
     checkClose("bottom edge of the third grid", bottomRaised[TOP] + bottomRaised[HEIGHT], bottomDragged[TOP] + bottomDragged[HEIGHT]);
     checkClose("height of the upper row and the third grid", leftRaised[HEIGHT] + bottomRaised[HEIGHT],
       leftLowered[HEIGHT] + bottomLowered[HEIGHT]);
-  }
-
-  /**
-   * Card test (#899): the metric cards show their value with its unit, their trend delta with its direction and tone
-   * (the tone follows the good trend of the card, so a falling error rate is good news), and their progress towards the
-   * target. The chart and the grid of the other cards are drawn in their body. The reload button filters the card filled
-   * from a query, which keeps its value and its delta
-   */
-  @Test
-  void t122_cardMetricTrendProgressAndBody() {
-    // Title
-    setTestTitle("Card: metric, trend, progress and body");
-
-    // Go to screen
-    gotoScreen("test", "layout", "card-test");
-
-    // Metric filled from a query: the number of themes, rising (good news)
-    checkCardValue("CrdTstThemes", "18");
-    checkCardDelta("CrdTstThemes", "+12.5%", "up", "success");
-
-    // Static metric whose good trend is down: a falling error rate is good news, signed with U+2212
-    checkCardValue("CrdTstErrors", "0.42 %");
-    checkCardDelta("CrdTstErrors", "\u22120.18 pt", "down", "success");
-
-    // Progress towards the target: 412,600 of 500,000
-    checkCardValue("CrdTstTarget", "412,600 \u20ac");
-    checkCardDelta("CrdTstTarget", "+6.1%", "up", "success");
-    checkCardProgress("CrdTstTarget", 83);
-
-    // A gauge tells its progress like the bar does, and a sparkline from a query field shows its value
-    checkCardValue("CrdTstDisk", "720GB");
-    checkCardProgress("CrdTstDisk", 72);
-    checkCardValue("CrdTstOrders", "1,284");
-    checkCardDelta("CrdTstOrders", "+4.2%", "up", "success");
-
-    // A chart and a grid in the body of their cards
-    checkCardBodyComponent("CrdTstChart", "ChrCrdTst");
-    checkChartVisible("ChrCrdTst");
-    checkCardBodyComponent("CrdTstGrid", "GrdCrdTst");
-    checkRowContentsGrid("GrdCrdTst", "awedb2");
-
-    // The reload button filters the card filled from a query, which keeps its value and its delta
-    clickButton("ButCrdReload");
-    checkCardValue("CrdTstThemes", "18");
-    checkCardDelta("CrdTstThemes", "+12.5%", "up", "success");
-  }
-
-  /**
-   * Grid Columns popover test: a grid without columns-panel opens its Columns in a popover anchored to the Columns
-   * button, where the changes apply to the grid at once. Cancel undoes them and closes it, the close button (x) keeps
-   * them
-   */
-  @Test
-  void t123_gridColumnsPopoverCancelAndClose() {
-    // Title
-    setTestTitle("Grid toolbar: columns popover, cancel and close");
-
-    // Go to screen
-    openMatrixOption("matrix-test-layout");
-
-    // The Columns open as a popover (the default) and hiding a column updates the grid while it is open
-    openGridColumns("GrdLayoutTst");
-    checkGridColumnsPanel("GrdLayoutTst", "popover");
-    hideGridColumn("GrdLayoutTst", "c01");
-    checkGridColumnNotShown("GrdLayoutTst", "c01");
-
-    // Cancel shows the column again and closes the popover
-    clickGridColumnsCancel("GrdLayoutTst");
-    checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03");
-
-    // The close button keeps the change
-    openGridColumns("GrdLayoutTst");
-    hideGridColumn("GrdLayoutTst", "c01");
-    closeGridColumns("GrdLayoutTst");
-    checkGridColumnNotShown("GrdLayoutTst", "c01");
-
-    // Show the column again so that the grid is left as the screen defines it
-    openGridColumns("GrdLayoutTst");
-    showGridColumn("GrdLayoutTst", "c01");
-    closeGridColumns("GrdLayoutTst");
-    checkGridColumnsLeftToRight("GrdLayoutTst", "c01", "c02", "c03", "c04", "c05", "c06", "c07");
-  }
-
-  /**
-   * Card status chip (#836): a static chip at the top right of a card, and a status card filled from a service that
-   * moves to the next status on every call, so each reload shows another chip (text and tone)
-   */
-  @Test
-  void t124_cardStatusChip() {
-    // Title
-    setTestTitle("Card: status chip");
-
-    // Go to screen
-    gotoScreen("test", "layout", "card-test");
-
-    // Static chip from the XML of the card
-    checkCardChip("CrdTstTarget", "On track", "success");
-
-    // The status card shows a chip, and every reload changes it
-    checkCardChipChangesOnClick("CrdTstStatus", "ButCrdReload");
-    checkCardChipChangesOnClick("CrdTstStatus", "ButCrdReload");
-  }
-
-  /**
-   * Secondary line test: a column with secondary-field shows the login under the user, and a row without login shows only
-   * the main line
-   */
-  @Test
-  void t124_gridCellSecondaryLine() {
-    // Title
-    setTestTitle("Grid cells: secondary line");
-
-    // Go to screen
-    openMatrixOption("matrix-test-cells");
-    checkRowContentsGrid("GrdCellTst", "Javier García");
-
-    // The secondary value under the main one, and only the main line without it
-    checkGridCellSecondaryLine("GrdCellTst", "1", "user", "Javier García", "jgarcia · j.garcia@almis.example");
-    checkGridCellSecondaryLine("GrdCellTst", "2", "user", "Laura Pérez", "lperez · l.perez@almis.example");
-    checkGridCellSecondaryLine("GrdCellTst", "4", "user", "Pablo Díaz", null);
-  }
-
-  /**
-   * Status test: a column with status-field shows a dot of the tone and the text, and an unknown tone is neutral
-   */
-  @Test
-  void t125_gridCellStatus() {
-    // Title
-    setTestTitle("Grid cells: status");
-
-    // Go to screen
-    openMatrixOption("matrix-test-cells");
-    checkRowContentsGrid("GrdCellTst", "Javier García");
-
-    // Every tone, and the unknown one as neutral
-    checkGridCellStatus("GrdCellTst", "1", "status", "Locked", "danger");
-    checkGridCellStatus("GrdCellTst", "2", "status", "Active", "success");
-    checkGridCellStatus("GrdCellTst", "3", "status", "Pending activation", "info");
-    checkGridCellStatus("GrdCellTst", "4", "status", "Inactive", "neutral");
-    checkGridCellStatus("GrdCellTst", "5", "status", "Under review", "neutral");
-    checkGridCellStatus("GrdCellTst", "6", "status", "Expiring", "warning");
-  }
-
-  /**
-   * Chips test: a column with chips shows each item as a chip, up to max-chips and then a "+n" chip that lists the hidden
-   * ones; empty items are dropped
-   */
-  @Test
-  void t126_gridCellChips() {
-    // Title
-    setTestTitle("Grid cells: chips");
-
-    // Go to screen
-    openMatrixOption("matrix-test-cells");
-    checkRowContentsGrid("GrdCellTst", "Javier García");
-
-    // Two chips and "+2" with the hidden ones
-    checkGridCellChips("GrdCellTst", "1", "teams", List.of("Sales", "Finance"), List.of("Logistics", "Support"));
-
-    // The empty item is dropped
-    checkGridCellChips("GrdCellTst", "2", "teams", List.of("A", "B"), List.of());
-
-    // As many chips as the maximum, without "+n"
-    checkGridCellChips("GrdCellTst", "5", "teams", List.of("Finance", "Support"), List.of());
-    checkGridCellChips("GrdCellTst", "4", "teams", List.of("Sales"), List.of());
-  }
-
-  /**
-   * Text test: the values of the cells are shown as text, never as HTML
-   */
-  @Test
-  void t127_gridCellValuesAreText() {
-    // Title
-    setTestTitle("Grid cells: values are text");
-
-    // Go to screen
-    openMatrixOption("matrix-test-cells");
-    checkRowContentsGrid("GrdCellTst", "Javier García");
-
-    // The HTML of the value shows literally
-    checkGridCellChips("GrdCellTst", "3", "teams", List.of("<b>bold</b>"), List.of());
-    checkGridCellsHaveNoActiveContent("GrdCellTst");
-  }
-
-  /**
-   * Row height test: every row grows to fit its secondary line, status and chips (the height of a row is set by its tallest
-   * cell, so rows are not compared with each other)
-   */
-  @Test
-  void t128_gridCellRowsGrowToFit() {
-    // Title
-    setTestTitle("Grid cells: rows grow to fit");
-
-    // Go to screen
-    openMatrixOption("matrix-test-cells");
-    checkRowContentsGrid("GrdCellTst", "Javier García");
-
-    // Each row fits its cells: the secondary line of the user and the chips that wrap
-    checkGridRowFitsItsCells("GrdCellTst", "1", "user");
-    checkGridRowFitsItsCells("GrdCellTst", "1", "teams");
-    checkGridRowFitsItsCells("GrdCellTst", "4", "user");
-
-    // The grid grows with its rows: the last one is not cut
-    checkGridRowNotCut("GrdCellTst", "6", "user");
-  }
-
-  /**
-   * Open the row grouping screen with its initial state (the client keeps a screen that is opened again from the menu,
-   * with the grouping, expanded groups and sort that a previous test left)
-   */
-  private void openGroupingScreen() {
-    openMatrixOption("matrix-test-cells");
-    openMatrixOption("matrix-test-groups");
-  }
-
-  /**
-   * Row grouping test: a grid grouped by region, country and city shows a group row per group of each level with its
-   * value and its number of rows, ordered by value; collapsed groups hide the groups under them
-   */
-  @Test
-  void t129_gridGroupsThreeLevels() {
-    // Title
-    setTestTitle("Grid row grouping: three levels");
-
-    // Go to screen: every group starts expanded
-    openGroupingScreen();
-    checkGridGroupLabel("GrdGrpTst", "America", "America", 13);
-    checkGridGroupExpanded("GrdGrpTst", "America");
-    checkGridGroupLabel("GrdGrpTst", "America/Canada", "Canada", 4);
-    checkGridGroupLabel("GrdGrpTst", "America/Canada/Toronto", "Toronto", 2);
-
-    // The regions, by value
-    collapseAllGridGroups("GrdGrpTst");
-    checkGridGroupRowCount("GrdGrpTst", 1, 2);
-    checkGridGroupRowCount("GrdGrpTst", 2, 0);
-    checkGridGroupOrder("GrdGrpTst", 1, "America", "Europe");
-    checkGridGroupLabel("GrdGrpTst", "Europe", "Europe", 11);
-
-    // The countries of a region and the cities of a country
-    toggleGridGroup("GrdGrpTst", "Europe");
-    checkGridGroupOrder("GrdGrpTst", 2, "Europe/France", "Europe/Spain");
-    checkGridGroupLabel("GrdGrpTst", "Europe/France", "France", 5);
-    checkGridGroupLabel("GrdGrpTst", "Europe/Spain", "Spain", 6);
-    checkGridGroupRowCount("GrdGrpTst", 3, 0);
-    toggleGridGroup("GrdGrpTst", "Europe/Spain");
-    checkGridGroupOrder("GrdGrpTst", 3, "Europe/Spain/Barcelona", "Europe/Spain/Madrid");
-    checkGridGroupLabel("GrdGrpTst", "Europe/Spain/Madrid", "Madrid", 3);
-
-    // After Collapse all, the groups shown by expanding their parent are collapsed too
-    checkGridGroupCollapsed("GrdGrpTst", "Europe/Spain/Madrid");
-    toggleGridGroup("GrdGrpTst", "Europe/Spain/Madrid");
-    checkGridGroupExpanded("GrdGrpTst", "Europe/Spain/Madrid");
-  }
-
-  /**
-   * Subtotals test: the aggregates of the groups of a level add up to their parent group, and the groups of the first
-   * level to the grand total of the footer; each expanded group ends with its subtotal row
-   */
-  @Test
-  void t130_gridGroupSubtotalsAddUp() {
-    // Title
-    setTestTitle("Grid row grouping: subtotals add up to the grand total");
-
-    // Go to screen
-    openGroupingScreen();
-    checkGridGroupLabel("GrdGrpTst", "America", "America", 13);
-    collapseAllGridGroups("GrdGrpTst");
-
-    // Regions: 850 + 1.600 = 2.450 (the grand total), and the units
-    checkGridGroupCell("GrdGrpTst", "Europe", "sales", "850");
-    checkGridGroupCell("GrdGrpTst", "America", "sales", "1.600");
-    checkGridFooterTotal("GrdGrpTst", "sales", "2.450");
-    checkGridGroupCell("GrdGrpTst", "Europe", "units", "85");
-    checkGridGroupCell("GrdGrpTst", "America", "units", "160");
-    checkGridFooterTotal("GrdGrpTst", "units", "245");
-
-    // Countries: 500 + 350 = 850 and 800 + 550 + 250 = 1.600
-    toggleGridGroup("GrdGrpTst", "Europe");
-    toggleGridGroup("GrdGrpTst", "America");
-    checkGridGroupCell("GrdGrpTst", "Europe/Spain", "sales", "500");
-    checkGridGroupCell("GrdGrpTst", "Europe/France", "sales", "350");
-    checkGridGroupCell("GrdGrpTst", "America/Canada", "sales", "800");
-    checkGridGroupCell("GrdGrpTst", "America/Mexico", "sales", "550");
-    checkGridGroupCell("GrdGrpTst", "America/USA", "sales", "250");
-
-    // Cities: 300 + 200 = 500, and the average price of the group
-    toggleGridGroup("GrdGrpTst", "Europe/Spain");
-    checkGridGroupCell("GrdGrpTst", "Europe/Spain/Madrid", "sales", "300");
-    checkGridGroupCell("GrdGrpTst", "Europe/Spain/Barcelona", "sales", "200");
-    checkGridGroupCell("GrdGrpTst", "Europe/Spain/Madrid", "price", "20");
-    checkGridGroupCell("GrdGrpTst", "Europe/Spain", "price", "35");
-
-    // The subtotal rows of the expanded groups repeat their aggregates
-    checkGridSubtotalCell("GrdGrpTst", "Europe/Spain", "sales", "500");
-    checkGridSubtotalCell("GrdGrpTst", "Europe/Spain", "region", "Subtotal Spain");
-    checkGridSubtotalCell("GrdGrpTst", "Europe", "sales", "850");
-  }
-
-  /**
-   * Expand and collapse test: a group collapses and expands with its toggle, and every group with Collapse all and
-   * Expand all, without calling the server
-   */
-  @Test
-  void t131_gridGroupExpandAndCollapse() {
-    // Title
-    setTestTitle("Grid row grouping: expand and collapse");
-
-    // Go to screen
-    openGroupingScreen();
-    checkGridGroupExpanded("GrdGrpTst", "America");
-    watchServerCalls();
-
-    // A group hides its groups, rows and subtotal, and shows them again
-    toggleGridGroup("GrdGrpTst", "America");
-    checkGridGroupCollapsed("GrdGrpTst", "America");
-    checkGridGroupExpanded("GrdGrpTst", "Europe");
-    toggleGridGroup("GrdGrpTst", "America");
-    checkGridGroupExpanded("GrdGrpTst", "America");
-
-    // Every group of every level
-    collapseAllGridGroups("GrdGrpTst");
-    checkGridGroupCollapsed("GrdGrpTst", "America");
-    checkGridGroupCollapsed("GrdGrpTst", "Europe");
-    expandAllGridGroups("GrdGrpTst");
-    checkGridGroupExpanded("GrdGrpTst", "America");
-    checkGridGroupExpanded("GrdGrpTst", "America/Canada");
-    checkGridGroupExpanded("GrdGrpTst", "America/Canada/Toronto");
-    checkNoServerCalls();
-  }
-
-  /**
-   * Group by test: the Group by panel changes the grouping levels, or removes them, without calling the server
-   */
-  @Test
-  void t132_gridGroupBySelector() {
-    // Title
-    setTestTitle("Grid row grouping: group by selector");
-
-    // Go to screen
-    openGroupingScreen();
-    checkGridGroupLabel("GrdGrpTst", "America", "America", 13);
-    watchServerCalls();
-
-    // One level: the countries
-    groupGridBy("GrdGrpTst", "country");
-    collapseAllGridGroups("GrdGrpTst");
-    checkGridGroupOrder("GrdGrpTst", 1, "Canada", "France", "Mexico", "Spain", "USA");
-    checkGridGroupRowCount("GrdGrpTst", 2, 0);
-    checkGridGroupLabel("GrdGrpTst", "Spain", "Spain", 6);
-    checkGridGroupCell("GrdGrpTst", "Spain", "sales", "500");
-
-    // No grouping: the data rows
-    groupGridBy("GrdGrpTst");
-    checkGridNotGrouped("GrdGrpTst");
-    checkRowContentsGrid("GrdGrpTst", "Store 1");
-
-    // Two levels again, in the order they are chosen
-    groupGridBy("GrdGrpTst", "city", "region");
-    collapseAllGridGroups("GrdGrpTst");
-    checkGridGroupRowCount("GrdGrpTst", 1, 10);
-    toggleGridGroup("GrdGrpTst", "Barcelona");
-    checkGridGroupOrder("GrdGrpTst", 2, "Barcelona/Europe");
-    checkNoServerCalls();
-  }
-
-  /**
-   * Sort test: sorting by a column with summary type orders the groups of every level by their aggregate
-   */
-  @Test
-  void t133_gridGroupSortByAggregate() {
-    // Title
-    setTestTitle("Grid row grouping: sort the groups by their aggregate");
-
-    // Go to screen
-    openGroupingScreen();
-    checkGridGroupLabel("GrdGrpTst", "America", "America", 13);
-    collapseAllGridGroups("GrdGrpTst");
-    checkGridGroupOrder("GrdGrpTst", 1, "America", "Europe");
-
-    // By the sales of the groups, ascending: 850 before 1.600, and 250, 550, 800 in America
-    sortGrid("GrdGrpTst", "sales");
-    checkGridGroupOrder("GrdGrpTst", 1, "Europe", "America");
-    toggleGridGroup("GrdGrpTst", "America");
-    checkGridGroupOrder("GrdGrpTst", 2, "America/USA", "America/Mexico", "America/Canada");
-  }
-
-  /**
-   * Pagination disabled test: a grid with pagination disabled and without buttons has no paginator bar under its rows
-   * (#908)
-   */
-  @Test
-  void t134_gridWithPaginationDisabledHasNoPaginator() {
-    // Title
-    setTestTitle("Grid with pagination disabled: no paginator");
-
-    // Go to screen
-    openMatrixOption(MATRIX_PAGER_OPTION);
-    checkRowContentsGrid("GrdNoPagerTst", "awedb1");
-
-    // The paged grid keeps its paginator, the grid with pagination disabled has none
-    checkGridPaginationPresent(PAGER_GRID);
-    checkGridPaginationNotPresent("GrdNoPagerTst");
-  }
-
-  /**
-   * Tab order test: the page shown under a tab is the container whose id is the value of the selected option, whatever
-   * the order of the options and of the containers, and a container without option is never shown (#906)
-   */
-  @Test
-  void t135_tabShowsThePageOfTheSelectedValue() {
-    // Title
-    setTestTitle("Tab: the page of the selected value");
-
-    // Go to screen: the first option is selected
-    openMatrixOption("matrix-test-tab-order");
-    checkCriterionContents("TabOrdFirstTxt", "First");
-
-    // The second option is the third container
-    clickTab("TabOrder", "Third");
-    checkCriterionContents("TabOrdThirdTxt", "Third");
-    checkCriterionNotPresent("TabOrdSecondTxt");
-
-    // The third option is the second container
-    clickTab("TabOrder", "Second");
-    checkCriterionContents("TabOrdSecondTxt", "Second");
-    checkCriterionNotPresent("TabOrdThirdTxt");
-    checkCriterionNotPresent("TabOrdHiddenTxt");
   }
 }

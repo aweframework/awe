@@ -16,8 +16,8 @@ import java.util.Base64;
 
 /**
  * Criteria of the test screens: every criterion type, their dependencies and the reset of the criteria.
- * Every test opens its own screen, so each one can run on its own. The login and the module selection are checked
- * here once; the rest of the tests start from the state that the setup leaves.
+ * Every test opens its own screen, so each one can run on its own. The module selection is checked here once (the
+ * login is proven by IntegrationTestsIT); the rest of the tests start from the state that the setup leaves.
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("CRUDCriteriaMatrixIT")
@@ -42,23 +42,6 @@ class CriteriaTestsIT extends AbstractSessionTests {
 
   CriteriaTestsIT() {
     super(Session.TEST_MODULE);
-  }
-
-  /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogoutWithConfirmation();
   }
 
   /**
@@ -231,9 +214,6 @@ class CriteriaTestsIT extends AbstractSessionTests {
 
     // Wait for loader
     waitForLoadingBar();
-
-    // Pause
-    pause(250);
 
     // Select on selector
     selectContain("SelDepDep", "Yes");
@@ -637,11 +617,15 @@ class CriteriaTestsIT extends AbstractSessionTests {
     clearUpload(UPLOADER_DROP);
     checkNoUploadedFile(UPLOADER_DROP);
 
-    // A read-only uploader ignores what is dropped on it
+    // A read-only uploader ignores what is dropped on it. The same file is then dropped on the editable uploader: once
+    // that one shows it, the earlier drop on the read-only uploader has been handled too
     dropFile(UPLOADER_READONLY, PIXEL_FILE, PNG, PIXEL_PNG);
-    pause(1000);
+    dropFile(UPLOADER_DROP, PIXEL_FILE, PNG, PIXEL_PNG);
+    checkUploadedFile(UPLOADER_DROP, PIXEL_FILE);
     checkNoUploadedFile(UPLOADER_READONLY);
     checkNoUploadPreview(UPLOADER_READONLY);
+    clearUpload(UPLOADER_DROP);
+    checkNoUploadedFile(UPLOADER_DROP);
 
     // The uploader with a capture offers the camera button, the one with a drop zone only does not
     checkUploadCaptureButton(UPLOADER_CAMERA, true);

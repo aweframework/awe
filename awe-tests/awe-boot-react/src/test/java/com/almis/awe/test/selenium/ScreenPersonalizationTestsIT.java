@@ -20,23 +20,6 @@ class ScreenPersonalizationTestsIT extends AbstractScreenPersonalizationTests {
   private static final String NEW_LABEL = "Add person";
 
   /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogoutWithConfirmation();
-  }
-
-  /**
    * Change the label of a button of the Users screen for everyone and save it: the history lists the change
    */
   @Test
