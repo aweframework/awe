@@ -114,6 +114,18 @@ registerWidget("event-calendar", EventCalendar);
 
 The first argument (`"event-calendar"`) is the `type` used in the screen XML; the second is your component.
 
+A widget built on a large library (FullCalendar here) can be loaded on demand, so the sign-in and the screens without
+the widget never download it. Register a component that wraps a `React.lazy` import in its own `Suspense`, and keep the
+`commons` cache group of your webpack configuration on `chunks: 'initial'` (as the archetype does), so the library gets
+its own chunk:
+
+```js
+const { createElement, lazy, Suspense } = require('react');
+
+const EventCalendar = lazy(() => import('./widgets/EventCalendar'));
+registerWidget("event-calendar", (props) => createElement(Suspense, {fallback: null}, createElement(EventCalendar, props)));
+```
+
 ### 4. Add the styles
 
 Add your widget styles in `src/css/main.css` (imported by `src/js/main.js`). FullCalendar v6 injects its own base CSS at runtime, so you mainly override its CSS custom properties (scoped to your widget container) to blend with the active AWE theme:

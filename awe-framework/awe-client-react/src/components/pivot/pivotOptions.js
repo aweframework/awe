@@ -1,5 +1,3 @@
-import {aggregatorTemplates as tpl, aggregators, numberFormat, sortAs} from "react-pivottable/Utilities";
-
 /** Default number of values in the pivot filter menu (AngularJS pivotOptions.numGroup) */
 const DEFAULT_MENU_LIMIT = 5000;
 
@@ -83,9 +81,11 @@ function sumOverSumBound80(upper, formatter) {
  * Build the custom aggregators (library ones plus the formatted "Custom *" ones)
  * @param {Object} attributes Pivot attributes (decimalNumbers, thousandSeparator, decimalSeparator)
  * @param {Object} settings Application settings (numericOptions)
+ * @param {Object} utilities The `react-pivottable/Utilities` module (a heavy package, loaded on demand)
  * @returns {Object} Aggregators by name
  */
-export function buildCustomAggregators(attributes = {}, settings = {}) {
+export function buildCustomAggregators(attributes = {}, settings = {}, utilities) {
+  const {aggregatorTemplates: tpl, aggregators, numberFormat} = utilities;
   const numeric = settings.numericOptions ?? {};
   const format = numberFormat({
     // Like AngularJS: only the server mDec option sets default decimals, otherwise none
@@ -118,12 +118,13 @@ function isPlainObject(value) {
  * Build the react-pivottable props derived from the AWE pivot attributes (initial values)
  * @param {Object} attributes Pivot attributes
  * @param {Object} settings Application settings
+ * @param {Object} utilities The `react-pivottable/Utilities` module (a heavy package, loaded on demand)
  * @returns {Object} react-pivottable props
  */
-export function buildPivotProps(attributes = {}, settings = {}) {
+export function buildPivotProps(attributes = {}, settings = {}, utilities) {
   const {renderer, aggregator, aggregationField, sortMethod} = attributes;
   const props = {
-    aggregators: buildCustomAggregators(attributes, settings),
+    aggregators: buildCustomAggregators(attributes, settings, utilities),
     menuLimit: settings.pivotOptions?.numGroup ?? DEFAULT_MENU_LIMIT
   };
   if (renderer) {
@@ -139,7 +140,7 @@ export function buildPivotProps(attributes = {}, settings = {}) {
   const orders = isPlainObject(attributes.sorters) ? attributes.sorters : {};
   const fallback = sortMethod === "absolute" ? absoluteSort : undefined;
   if (fallback || Object.keys(orders).length > 0) {
-    props.sorters = attribute => attribute in orders ? sortAs(orders[attribute]) : fallback;
+    props.sorters = attribute => attribute in orders ? utilities.sortAs(orders[attribute]) : fallback;
   }
   return props;
 }

@@ -1,7 +1,10 @@
 import React from 'react';
 import TableRenderers from "react-pivottable/TableRenderers";
 import {render} from '@testing-library/react';
-import TableBarchartRenderer from "../../../../src/components/pivot/TableBarchartRenderer";
+import {PivotData} from "react-pivottable/Utilities";
+import {createTableBarchartRenderer} from "../../../../src/components/pivot/TableBarchartRenderer";
+
+const TableBarchartRenderer = createTableBarchartRenderer({TableRenderers, PivotData});
 
 const DATA = [
   {Row: "a", Col: "x", Qty: 10}, {Row: "a", Col: "y", Qty: 5}, {Row: "a", Col: "z", Qty: -4},

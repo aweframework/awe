@@ -1,5 +1,6 @@
-import React, {useCallback} from "react";
-import {Editor} from "primereact/editor";
+import React, {Suspense, useCallback} from "react";
+import {Editor} from "../utilities/lazyPackages";
+import {CriterionSkeleton} from "../components/AweSkeleton";
 import {classNames} from "../utilities/components";
 import {translateLabel} from "../utilities";
 import AweCriterion from "./AweCriterion";
@@ -28,16 +29,18 @@ function AweInputEditor(props) {
 
   return <AweCriterion address={address} attributes={attributes} validationRules={validationRules}
                        generateLabel={false} generateIcon={false} generateUnit={false} groupClass={"col-12"}>
+    <Suspense fallback={<CriterionSkeleton attributes={attributes} kind="textarea" generateLabel={false} />}>
       <Editor
-      id={id}
-      style={{height: "100%", minHeight:"4rem"}}
-      value={value}
-      className={classes}
-      placeholder={translateLabel(placeholder, t)}
-      onTextChange={onChange}
-      required={required}
-      disabled={readonly}
-    />
+        id={id}
+        style={{height: "100%", minHeight:"4rem"}}
+        value={value}
+        className={classes}
+        placeholder={translateLabel(placeholder, t)}
+        onTextChange={onChange}
+        required={required}
+        disabled={readonly}
+      />
+    </Suspense>
   </AweCriterion>;
 }
 

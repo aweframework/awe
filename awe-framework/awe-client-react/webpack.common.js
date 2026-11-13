@@ -20,6 +20,12 @@ const basePackage = {
 };
 const nodeExternals = require('webpack-node-externals');
 
+// Heavy packages (and their subpaths, CSS included) are loaded on demand: the library keeps a literal import() of them,
+// so the webpack of the application emits them as async chunks. The source must never import them statically (they
+// would be Promises there): lazyPackagesTest guards it.
+const HEAVY_PACKAGES = /^(echarts|leaflet|react-pivottable|react-player|react-pdfobject|react-lazylog|primereact\/editor|quill)(\/|$)/;
+const heavyExternals = ({request}, callback) => HEAVY_PACKAGES.test(request) ? callback(null, `import ${request}`) : callback();
+
 module.exports = {
   entry: {
     main: path.join(__dirname, "src", "index.js")
@@ -34,12 +40,13 @@ module.exports = {
     filename: "js/[name].js",
     path: path.resolve(__dirname, "dist"),
     libraryTarget: 'commonjs2',
+    environment: {dynamicImport: true},
     publicPath: '../',
     clean: true
   },
   //target: 'node',
   externalsPresets: { node: true },
-  externals: [nodeExternals({
+  externals: [heavyExternals, nodeExternals({
     // The AWE theme of PrimeReact is built from this Lara theme (PrimeReactThemePlugin): bundled in css/main.css, never
     // left to the application, which would load the Lara theme as it is
     allowlist: ['primereact/resources/themes/lara-light-indigo/theme.css']

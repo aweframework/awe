@@ -22,18 +22,28 @@ describe('awe-react-client/test/js/components/AwePivotTableTest.jsx', () => {
     }
   };
 
-  it('renders Awe Pivot Table component', () => {
+  it('renders Awe Pivot Table component', async () => {
     renderWithProviders(<AwePivotTable id="pivotTable" style="estilo-especifico"/>, {preloadedState});
 
     expect(document.querySelector("div.estilo-especifico")).not.toBeNull();
-    expect(document.querySelector("table.pvtUi")).not.toBeNull();
+    await waitFor(() => expect(document.querySelector("table.pvtUi")).not.toBeNull());
+  });
+
+  it('shows a skeleton until react-pivottable is loaded', async () => {
+    renderWithProviders(<AwePivotTable id="pivotTable"/>, {preloadedState});
+
+    expect(document.querySelector(".awe-pivot-table .p-skeleton")).not.toBeNull();
+    expect(document.querySelector("table.pvtUi")).toBeNull();
+
+    await waitFor(() => expect(document.querySelector("table.pvtUi")).not.toBeNull());
+    expect(document.querySelector(".awe-pivot-table .p-skeleton")).toBeNull();
   });
 
   it('renders Awe Pivot Table component with cols', async () => {
     renderWithProviders(<AwePivotTable id="pivotTable" style="estilo-especifico"/>, {preloadedState});
 
     expect(document.querySelector("div.estilo-especifico")).not.toBeNull();
-    expect(document.querySelector("table.pvtUi")).not.toBeNull();
+    await waitFor(() => expect(document.querySelector("table.pvtUi")).not.toBeNull());
     await waitFor(() => findByText(document.querySelector("td.pvtCols"), "Als"));
     expect(await findByText(document.querySelector("td.pvtCols"), "Als")).toBeDefined();
   });
@@ -42,7 +52,7 @@ describe('awe-react-client/test/js/components/AwePivotTableTest.jsx', () => {
     renderWithProviders(<AwePivotTable id="pivotTable" style="estilo-especifico"/>, {preloadedState});
 
     expect(document.querySelector("div.estilo-especifico")).not.toBeNull();
-    expect(document.querySelector("table.pvtUi")).not.toBeNull();
+    await waitFor(() => expect(document.querySelector("table.pvtUi")).not.toBeNull());
     expect(await findByText(document.querySelector("td.pvtCols"), "Als")).toBeDefined();
     await waitFor(() => screen.findByText("Count", {exact: false}));
 

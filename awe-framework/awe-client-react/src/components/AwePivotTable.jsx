@@ -1,8 +1,6 @@
 import React, {useEffect, useState} from "react";
-import PivotTableUI from 'react-pivottable/PivotTableUI';
-import 'react-pivottable/pivottable.css';
-import TableRenderers from 'react-pivottable/TableRenderers';
-import TableBarchartRenderer from "./pivot/TableBarchartRenderer";
+import {Skeleton} from "primereact/skeleton";
+import {loadPivot} from "./pivot/loadPivot";
 import {tokenColorScaleGenerator} from "./pivot/colorScale";
 import "./AwePivotTable.less";
 import {extractCellValue} from "../utilities/grid";
@@ -38,9 +36,6 @@ function writeValueList(value) {
 /** Props that react-pivottable gives back and that are not stored as attributes (data and derived props) */
 const NOT_STORED = ["data", "sorters", "aggregators", "renderers", "menuLimit", "onChange"];
 
-/** react-pivottable renderers plus the AngularJS "Table Barchart" */
-const RENDERERS = {...TableRenderers, "Table Barchart": TableBarchartRenderer};
-
 /**
  * AWE Pivot Table component
  * @category Components
@@ -53,6 +48,8 @@ function AwePivotTable(props) {
   const { address, model, attributes = {} } = useComponentState(id);
   const settings = useSelector(selectSettings);
   const [rendered, setRendered] = useState(false);
+  // react-pivottable is a heavy package, loaded on demand: null until it arrives
+  const [pivot, setPivot] = useState(null);
   const { onContextMenu, contextMenuTemplate } = useContextMenu({ address, contextMenu: attributes.contextMenu });
 
 
@@ -75,7 +72,14 @@ function AwePivotTable(props) {
 
   // Initialize on mount
   useEffect(() => {
+    let active = true;
     setRendered(true);
+    loadPivot().then(loaded => active && setPivot(loaded))
+      // eslint-disable-next-line no-console
+      .catch(error => console.error("[ERROR] The pivot table could not be loaded", error));
+    return () => {
+      active = false;
+    };
   }, []);
 
   /**
@@ -84,9 +88,9 @@ function AwePivotTable(props) {
    */
   const { cols, rows, vals, style, visible = true } = attributes;
   let fixedAttributes = {};
-  if (rendered) {
+  if (rendered && pivot) {
     // XML values are initial values only: later user choices (kept in attributes) win
-    const { aggregators, menuLimit, sorters, ...initial } = buildPivotProps(attributes, settings);
+    const { aggregators, menuLimit, sorters, ...initial } = buildPivotProps(attributes, settings, pivot.utilities);
     const userAttributes = Object.fromEntries(Object.entries(attributes)
       .filter(([name]) => !XML_ONLY_ATTRIBUTES.includes(name)));
     fixedAttributes = {
@@ -101,6 +105,13 @@ function AwePivotTable(props) {
     };
   }
   const classes = classNames(style, { "hidden": !visible });
+  if (!pivot) {
+    return (<div className={classNames("awe-pivot-table", classes)} onContextMenu={onContextMenu}>
+      <Skeleton width="100%" height="10rem" aria-hidden="true"/>
+      {contextMenuTemplate()}
+    </div>);
+  }
+  const {PivotTableUI, renderers} = pivot;
   return (<div className={classNames("awe-pivot-table", classes)} onContextMenu={onContextMenu}>
     <PivotTableUI
       data={model.values.map(row => Object.entries(row).reduce((prev, [key, value]) =>
@@ -108,7 +119,7 @@ function AwePivotTable(props) {
       onChange={onChange}
       unusedOrientationCutoff={Infinity}
       tableColorScaleGenerator={tokenColorScaleGenerator}
-      renderers={RENDERERS}
+      renderers={renderers}
       {...fixedAttributes}
     />
     {contextMenuTemplate()}
