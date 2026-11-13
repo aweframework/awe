@@ -1311,7 +1311,7 @@ if sed -n '/^db_item() {/,/^}/p' "$BIN_DIR/local-ci.sh" | sed -n '/nodocker)/,/;
 if ! grep -q 'System.getProperty' "$ROOT/awe-tests/awe-boot/src/test/java/com/almis/awe/config/TestServerPortEnvironmentPostProcessor.java"; then pass "test port: no redundant System.getProperty guard"; else fail "test port: guard still there"; fi
 
 # --- The Maven arguments of the unit-testing rows are the ones of the CI jobs ---
-# Unit · Java runs the reactor of CI and every database row only awe-boot (#863): a test count that differs from the CI job is a
+# Unit · Java runs the reactor of CI without awe-boot and every database row (Database · HSQL included) only awe-boot (#863): a test count that differs from the CI job is a
 # regression. The builders are run here as extracted from the script.
 ut_args_with() { # "$1" FAST value, "$2" code
   run bash -c "
@@ -1322,12 +1322,12 @@ ut_args_with() { # "$1" FAST value, "$2" code
     $2"
 }
 ut_args_with 0 'all_ut_args | tr "\n" " "'
-if [ "$OUT" = "-Dskip.frontend=true -DgenerateUnitReport=true -pl !awe-framework/awe-boot-angular-archetype -pl !awe-framework/awe-boot-react-archetype -Djacoco.file.name=jacoco-all-ut.exec -Dawe.test.playwright.required=true " ]; then
-  pass "unit rows: Unit · Java runs the CI module set (the reactor without the two archetypes) with the flags it always had"
+if [ "$OUT" = "-Dskip.frontend=true -DgenerateUnitReport=true -pl !awe-framework/awe-boot-angular-archetype -pl !awe-framework/awe-boot-react-archetype -pl !awe-tests/awe-boot -Djacoco.file.name=jacoco-all-ut.exec -Dawe.test.playwright.required=true " ]; then
+  pass "unit rows: Unit · Java runs the CI module set (the reactor without the two archetypes and awe-boot) with the flags it always had"
 else
   fail "unit rows: Unit · Java arguments" "$OUT"
 fi
-for profile in h2 mysql oracle-flyway sqlserver; do
+for profile in hsql h2 mysql oracle-flyway sqlserver; do
   ut_args_with 0 "unit_profile_args $profile | tr '\\n' ' '"
   if [ "$OUT" = "-Dskip.frontend=true -DgenerateUnitReport=true -pl awe-tests/awe-boot -P$profile -Djacoco.file.name=jacoco-$profile-ut.exec -Doracle.jdbc.J2EE13Compliant=true -Doracle.jdbc.timezoneAsRegion=false " ]; then
     pass "unit rows: the $profile row runs only awe-boot, as the database job of CI (#863)"
@@ -1344,6 +1344,30 @@ if grep -q -- '- mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify -Dskip
   pass "unit rows: the database jobs of CI run only awe-boot too"
 else
   fail "unit rows: the database jobs of .gitlab-ci.yml no longer run only awe-boot"
+fi
+# Unit · Java of CI leaves awe-boot to Database · HSQL, and the local all-ut job runs both rows (the coverage needs both)
+if node "$TOOL" script "$CI_FILE" "Unit · Java" | grep -q -- "-pl '!awe-tests/awe-boot'" \
+  && node "$TOOL" script "$CI_FILE" "Database · HSQL" | grep -q -- '-P$TEST_NAME' \
+  && grep -q '^DB_ITEMS=("all-ut||" "all-ut-hsql||")$' "$BIN_DIR/local-ci.sh" \
+  && sed -n '/^db_item() {/,/^}/p' "$BIN_DIR/local-ci.sh" | grep -q 'run_locked no all-ut all-ut-hsql "Database · HSQL" 40 step_unit_profile hsql all-ut-hsql'; then
+  pass "unit rows: awe-boot runs out of Unit · Java, as the Database · HSQL row of the all-ut job"
+else
+  fail "unit rows: the Database · HSQL row of all-ut does not mirror CI"
+fi
+# ALL_UT_OK (the Java coverage) needs both rows of all-ut passing
+all_ut_ok_with() { # "$1" results rows (id TAB label TAB status)
+  printf '%b' "$1" > "$WORK/all-ut-results.tsv"
+  run bash -c "RESULTS='$WORK/all-ut-results.tsv'
+    $(sed -n '/^ALL_UT_OK=0$/,/ALL_UT_OK=1$/p' "$BIN_DIR/local-ci.sh")
+    echo \$ALL_UT_OK"
+}
+all_ut_ok_with 'all-ut\tUnit · Java\tPASS\nall-ut-hsql\tDatabase · HSQL\tPASS\n'; both=$OUT
+all_ut_ok_with 'all-ut\tUnit · Java\tPASS\nall-ut-hsql\tDatabase · HSQL\tFAIL\n'; hsql_failed=$OUT
+all_ut_ok_with 'all-ut\tUnit · Java\tPASS\n'; hsql_missing=$OUT
+if [ "$both" = 1 ] && [ "$hsql_failed" = 0 ] && [ "$hsql_missing" = 0 ]; then
+  pass "coverage: the Java coverage needs Unit · Java and Database · HSQL passing in this run"
+else
+  fail "coverage: ALL_UT_OK" "both=$both hsql_failed=$hsql_failed hsql_missing=$hsql_missing"
 fi
 
 # --- Whose process is it: the checkout as a whole path component ---

@@ -43,7 +43,7 @@ export const JOBS = [
   { id: 'lint-frontend', label: 'Lint · Frontend', ci: ['Lint · Frontend'], blocking: true },
   { id: 'spanish-docs-lint', label: 'Lint · Spanish docs', ci: ['Lint · Spanish docs'], blocking: true },
   { id: 'build', label: 'Build · Maven (JDK 17)', ci: ['Build · Maven'], blocking: true },
-  { id: 'all-ut', label: 'Unit · Java', ci: ['Unit · Java'], blocking: true },
+  { id: 'all-ut', label: 'Unit · Java', ci: ['Unit · Java', 'Database · HSQL'], blocking: true },
   { id: 'embedded-db', label: 'Database · H2 and HSQL', ci: ['Database · H2', 'Database · H2 · Flyway', 'Database · HSQL · Flyway'], blocking: true },
   { id: 'db-mysql', label: 'Database · MySQL', ci: ['Database · MySQL', 'Database · MySQL · Flyway'], blocking: true },
   { id: 'db-postgresql', label: 'Database · PostgreSQL', ci: ['Database · PostgreSQL', 'Database · PostgreSQL · Flyway'], blocking: true },

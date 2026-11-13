@@ -58,7 +58,8 @@ default:
 #   runner that takes untagged jobs can take them. Docs · Javadoc check gets the AWE SNAPSHOT jars as Build · Maven
 #   artifacts. Analysis · Sonar reads the ones Build · Maven leaves in the Maven cache; on a runner outside the shared S3
 #   cache that cache may be empty.
-# - untagged (the big runners): Build · Maven, Unit · Java, Analysis · Sonar, Database · Oracle and Database · SQL Server
+# - untagged (the big runners): Build · Maven, Unit · Java, Database · HSQL (#977), Analysis · Sonar, Database · Oracle and
+#   Database · SQL Server
 #   (and their Flyway jobs: about 2 GB per database plus the JVM, too much for a 4 GB medium runner), Integration ·
 #   Keycloak, Build · Website and Build · Website (all locales) (about 4 GB of Node heap, see .build-website), the
 #   Selenium and Playwright suites (quarantine jobs included: they need a browser and the application),
@@ -263,8 +264,8 @@ stages:
   changes: *paths-website
 .if-branches: &if-branches           # develop, master, support/*: always complete
   if: '$RENOVATE_RUN != "true" && $FIREFOX_NIGHTLY != "true" && ($CI_COMMIT_REF_NAME == "master" || $CI_COMMIT_REF_NAME == "develop" || $CI_COMMIT_REF_NAME =~ /^support\//)'
-# "Unit · Java" (the adapter unit tests, which need the Chromium browser): AngularJS templates are compared by awe-boot unit tests,
-# so a frontend-only merge request that changes them can break it
+# "Unit · Java" (the adapter unit tests, which need the Chromium browser) and "Database · HSQL" (the awe-boot tests): AngularJS
+# templates are compared by awe-boot tests, so a frontend-only merge request that changes them can break them
 .rules-all-ut: &rules-all-ut
   - <<: *if-mr-backend
   - <<: *if-mr-angular-templates
@@ -800,7 +801,6 @@ Build · Firefox cache:
     paths:
       - "**/target/*.exec"
       - "**/target/surefire-reports"
-      - "**/target/zerocode*.csv"
     when: always
     expire_in: 1 day
     reports:
@@ -812,28 +812,68 @@ Unit · Java:
     - .unit-testing
     - .playwright-install   # Chromium for the adapter tests of awe-testing: variables, cache (read only) and install
     - .playwright-chromium
-  # Untagged, so the GitLab SaaS small runners also take it: there the whole build and its ~4,800 tests take 17-20 minutes,
-  # right at the 20 minute limit of .unit-testing, and a slightly slower run was cut by the timeout
+  # Untagged, so the GitLab SaaS small runners also take it. With awe-tests/awe-boot it took 17-20 minutes there and gated
+  # Analysis · Sonar; the awe-boot tests (about 1,000 Spring tests, 7 minutes) now run in parallel in "Database · HSQL"
   timeout: 30m
   script:
     # The Playwright tests must run here: without the browser they fail instead of being skipped as they are on a developer
     # machine, so the coverage that Sonar reads for the adapter is real and cannot stop silently
-    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -Djacoco.file.name=jacoco-all-ut.exec -Dawe.test.playwright.required=true
-  # Also on AngularJS template changes: awe-boot unit tests compare templates served by TemplateController
-  # (src/test/resources/templates/*.txt), so a frontend-only merge request can break them.
+    # The output of each test class goes to target/surefire-reports/<class>-output.txt (job artifacts), not to the job log:
+    # the stack traces the tests print exceeded the 4 MB log limit of the runner and cut the Maven summary
+    - mvn $MAVEN_CLI_OPTS verify $UT_OPTS -pl '!awe-tests/awe-boot' -Djacoco.file.name=jacoco-all-ut.exec -Dawe.test.playwright.required=true
+      -Dmaven.test.redirectTestOutputToFile=true
   rules: *rules-all-ut
+  # Also the compiled classes, for Analysis · Sonar: it analyzes and aggregates the coverage of these very classes instead of
+  # compiling the reactor again (JaCoCo matches the execution data by the bytes of each class)
+  artifacts:
+    paths:
+      - "**/target/*.exec"
+      - "**/target/surefire-reports"
+      - "**/target/classes/**/*.class"
+      - "**/target/test-classes/**/*.class"
+    when: always
+    expire_in: 1 day
+    reports:
+      junit:
+        - "**/target/surefire-reports/TEST-*.xml"
 
 # The database jobs (#863): only the awe-boot integration tests of one database profile. The profiles exist only in
 # awe-tests/awe-boot, so every other module would run the same tests as "Unit · Java" again; awe-boot gets the AWE modules of this
 # pipeline from the "Build · Maven" artifacts, as the browser suites do. Their JaCoCo data stays complete: Analysis · Sonar
-# aggregates the awe-boot *.exec of each job with the "Unit · Java" ones of every module.
+# aggregates the awe-boot *.exec of each job with the "Unit · Java" ones of every module. "Database · HSQL" runs the default
+# build of awe-boot (embedded HSQL, every test tagged integration), which "Unit · Java" leaves out.
 .database-testing:
   extends: .unit-testing
   needs:
     - job: Build · Maven
       artifacts: true
   script:
+    # Test output to target/surefire-reports/<class>-output.txt (artifacts), as in Unit · Java: the log limit of the runner
     - mvn -f awe-tests/awe-boot/pom.xml $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateUnitReport=true -P$TEST_NAME -Djacoco.file.name=jacoco-${TEST_NAME}-ut.exec -Doracle.jdbc.J2EE13Compliant=true -Doracle.jdbc.timezoneAsRegion=false
+      -Dmaven.test.redirectTestOutputToFile=true
+
+Database · HSQL:
+  extends: .database-testing
+  # Untagged, as Unit · Java was when it ran these tests: on the medium runners (pve, QEMU) the job takes twice as long and
+  # tests that share the HSQL data with the scheduler and the access screens fail (#977)
+  variables:
+    TEST_NAME: hsql
+  # Also on AngularJS template changes: awe-boot tests compare templates served by TemplateController
+  # (src/test/resources/templates/*.txt), so a frontend-only merge request can break them.
+  rules: *rules-all-ut
+  # Also the compiled classes, for Analysis · Sonar: it analyzes and aggregates the coverage of these very classes instead of
+  # compiling the reactor again (JaCoCo matches the execution data by the bytes of each class)
+  artifacts:
+    paths:
+      - "**/target/*.exec"
+      - "**/target/surefire-reports"
+      - "**/target/classes/**/*.class"
+      - "**/target/test-classes/**/*.class"
+    when: always
+    expire_in: 1 day
+    reports:
+      junit:
+        - "**/target/surefire-reports/TEST-*.xml"
 
 Database · H2:
   extends: .database-testing
@@ -1661,6 +1701,8 @@ Analysis · Sonar:
   needs:
     - job: Unit · Java
       optional: true
+    - job: Database · HSQL
+      optional: true
     - job: Database · H2
       optional: true
     - job: Database · H2 · Flyway
@@ -1790,7 +1832,23 @@ Analysis · Sonar:
     - if [ -z "$CI_MERGE_REQUEST_IID" ]; then SONAR_BRANCH_OPTS="-Dsonar.branch.name=$CI_COMMIT_REF_NAME"; fi
     # Dependency scanning is done by GitLab's gemnasium job and the CycloneDX SBOM, not by the
     # (unused) OWASP dependency-check Maven plugin, so its flag is not passed here.
-    - mvn $MAVEN_CLI_OPTS verify -Dskip.frontend=true -DgenerateCoverageReport=true sonar:sonar $SKIP_TESTS -Darchetype.test.skip=true $SONAR_OPTS $SONAR_BRANCH_OPTS
+    # The samples and the archetypes are left out of the reactor: their main sources are excluded from the analysis
+    # (sonar.exclusions=src/** in their poms); only the few tests of the samples stop being reported.
+    # The classes come from "Unit · Java" (every module but awe-boot) and "Database · HSQL" (awe-boot): Maven runs up to
+    # test-compile without compiling, then aggregates the coverage. A pipeline without those jobs (a change limited to a
+    # web client) compiles the reactor here, as before.
+    - |
+      if [ -n "$(find awe-framework/awe-controller/target/classes -name '*.class' -print -quit 2>/dev/null)" ] \
+        && [ -n "$(find awe-tests/awe-boot/target/test-classes -name '*.class' -print -quit 2>/dev/null)" ]; then
+        echo "Analysis on the classes of Unit · Java and Database · HSQL"
+        SONAR_BUILD="-Dmaven.main.skip=true -Dmaven.test.skip=true test-compile org.jacoco:jacoco-maven-plugin:report-aggregate@report-integration"
+      else
+        echo "No classes from Unit · Java and Database · HSQL in this pipeline: the reactor is compiled here"
+        SONAR_BUILD="verify $SKIP_TESTS -Darchetype.test.skip=true"
+      fi
+    - mvn $MAVEN_CLI_OPTS $SONAR_BUILD sonar:sonar -Dskip.frontend=true -DgenerateCoverageReport=true
+      -pl '!awe-samples,!awe-samples/vet-clinic,!awe-samples/fleet-logistics,!awe-samples/help-desk'
+      -pl '!awe-framework/awe-boot-angular-archetype,!awe-framework/awe-boot-react-archetype' $SONAR_OPTS $SONAR_BRANCH_OPTS
     - cat awe-tests/awe-boot/target/coverage-reports/index.html | grep -o 'Total[^%]*%' | sed -e 's/Total/Jacoco-Test-Coverage:/g'
   artifacts:
     paths:

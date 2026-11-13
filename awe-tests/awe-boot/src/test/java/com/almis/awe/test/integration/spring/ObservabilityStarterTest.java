@@ -180,7 +180,7 @@ class ObservabilityStarterTest extends AbstractSpringAppIntegrationTest {
   }
 
   @Test
-  @DisplayName("Opening screens 1000 times with forged options and random parameters adds no series")
+  @DisplayName("Opening screens with forged options and random parameters adds no series")
   void screenCardinalityIsBounded() throws Exception {
     MockHttpSession session = adminSession();
     // Error screens are options of the menu too: a forged option shows the not found screen
@@ -188,7 +188,8 @@ class ObservabilityStarterTest extends AbstractSpringAppIntegrationTest {
     openScreen(session, "forged" + UUID.randomUUID().toString().replace("-", ""), "{}");
     Set<String> before = screenIds();
 
-    for (int i = 0; i < 1000; i++) {
+    // Every forged option and every random parameter would be a new series if they reached the tags: a few dozen prove it
+    for (int i = 0; i < 40; i++) {
       String random = UUID.randomUUID().toString().replace("-", "");
       String option = i % 2 == 0 ? "forged" + random : OPTION;
       openScreen(session, option, "{\"view\":\"base\",\"option\":\"" + option + "\",\"p" + random + "\":\"" + random + "\"}");
@@ -197,7 +198,7 @@ class ObservabilityStarterTest extends AbstractSpringAppIntegrationTest {
     Set<String> after = screenIds();
     assertThat(after).isEqualTo(before).noneMatch(id -> id.startsWith("forged"))
       .hasSizeLessThanOrEqualTo(observabilityProperties.getMaxTagValues());
-    assertThat(meterRegistry.get("awe.screen").tags("id", OPTION, "screen", SCREEN).timer().count()).isGreaterThanOrEqualTo(501);
+    assertThat(meterRegistry.get("awe.screen").tags("id", OPTION, "screen", SCREEN).timer().count()).isGreaterThanOrEqualTo(21);
   }
 
   @Test

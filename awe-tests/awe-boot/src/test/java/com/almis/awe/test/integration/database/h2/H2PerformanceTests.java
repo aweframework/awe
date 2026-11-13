@@ -14,7 +14,9 @@ import org.springframework.test.context.TestPropertySource;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 @ExtendWith({LoadTestWarmUpExtension.class, ParallelLoadExtension.class})
 @DisplayName("H2 Performance Tests")
-@Tag("H2")
+// A load test (zerocode, 100 threads): a measurement, not a rule, so no build selects its tag and CI does not run it. To
+// measure, run the HSQL one with -Dtest.tags=performance; a database profile fixes its own tag (<groups> in the pom)
+@Tag("performance")
 @TestPropertySource("classpath:h2.properties")
 class H2PerformanceTests extends AbstractSpringAppIntegrationTest {
 

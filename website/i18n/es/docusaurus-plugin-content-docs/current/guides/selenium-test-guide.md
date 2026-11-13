@@ -1367,7 +1367,8 @@ En una clase de prueba no uses:
 
 `BrowserTestSourceGuard` (`com.almis.awe.testing.guard`, en `awe-testing`) comprueba esta regla sobre los fuentes Java, sin
 necesitar un navegador ni ninguna clase de Selenium. Por defecto solo analiza las clases de prueba (`*IT.java`), porque las clases
-ayudantes de tu producto son donde pertenecen los locators; `.files("*Page.java")` (cualquier glob sobre el nombre de archivo) analiza otros archivos. AWE lo aplica a sus propias aplicaciones de test en una prueba unitaria (`Unit · Java`), y un
+ayudantes de tu producto son donde pertenecen los locators; `.files("*Page.java")` (cualquier glob sobre el nombre de archivo) analiza otros archivos. AWE lo aplica a sus propias aplicaciones de test en una prueba unitaria (`Unit · Java` para `awe-boot-react`,
+`Database · HSQL` para `awe-boot`), y un
 producto puede hacer lo mismo con una prueba propia:
 
 ```java
@@ -1606,7 +1607,7 @@ Las reglas de una cuarentena:
 #### Pruebas guard de la CI {#ci-guard-tests}
 
 Tres pruebas unitarias evitan que las reglas anteriores se desvíen. Leen fuentes, clases compiladas o `.gitlab-ci.yml`, no necesitan
-navegador y se ejecutan con las pruebas unitarias (`Unit · Java`):
+navegador y se ejecutan con las pruebas unitarias (`Unit · Java`; las de `awe-boot`, en `Database · HSQL`):
 
 | Prueba | Módulo | Falla ante |
 |---|---|---|

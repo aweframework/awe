@@ -1367,7 +1367,8 @@ In a test class do not use:
 
 `BrowserTestSourceGuard` (`com.almis.awe.testing.guard`, in `awe-testing`) checks this rule over the Java sources, without
 needing a browser or any Selenium class. By default it scans only the test classes (`*IT.java`), because the helper
-classes of your product are where locators belong; `.files("*Page.java")` (any glob over the file name) scans other files. AWE applies it to its own test applications in a unit test (`Unit · Java`), and a
+classes of your product are where locators belong; `.files("*Page.java")` (any glob over the file name) scans other files. AWE applies it to its own test applications in a unit test (`Unit · Java` for `awe-boot-react`,
+`Database · HSQL` for `awe-boot`), and a
 product can do the same with a test of its own:
 
 ```java
@@ -1606,7 +1607,7 @@ The rules of a quarantine:
 #### CI guard tests
 
 Three unit tests keep the rules above from drifting. They read sources, compiled classes or `.gitlab-ci.yml`, need no
-browser and run with the unit tests (`Unit · Java`):
+browser and run with the unit tests (`Unit · Java`; those of `awe-boot` in `Database · HSQL`):
 
 | Test | Module | Fails on |
 |---|---|---|
