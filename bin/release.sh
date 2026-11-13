@@ -16,6 +16,10 @@ else
   DRY_RUN="${DRY_RUN:-0}"
 fi
 
+# Changelog functions (offline, tested by bin/test-release-changelog.sh)
+# shellcheck source=lib/changelog.sh
+source "$(dirname "${BASH_SOURCE[0]}")/lib/changelog.sh"
+
 HEADERS=(
   -H "Authorization: Bearer ${TOKEN}"
   -H "Accept: application/json"
@@ -112,17 +116,9 @@ gitlab_paginate() {
 # ============================================================
 # Obtener milestones
 # ============================================================
-milestones=$(curl -s "${GITLAB_API}/milestones?state=active&per_page=100" "${HEADERS[@]}")
+milestones=$(gitlab_paginate "${GITLAB_API}/milestones?state=active")
 
 current_milestone_id=$(echo "$milestones" | jq -r --arg V "$NEW_VERSION" '.[] | select(.title==$V) | .id')
-
-previous_milestone=$(echo "$milestones" \
-  | jq -r '.[] | .title' \
-  | grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' \
-  | sort -V \
-  | awk -v cur="$NEW_VERSION" '$0==cur {print prev} {prev=$0}')
-
-previous_milestone_id=$(echo "$milestones" | jq -r --arg V "$previous_milestone" '.[] | select(.title==$V) | .id')
 
 [[ -z "$current_milestone_id" ]] && {
   echo "❌ Current milestone $NEW_VERSION not found"
@@ -270,49 +266,13 @@ currentDate=$(date +%d/%m/%Y)
 mrs_current=$(gitlab_paginate "${GITLAB_API}/merge_requests?milestone=${NEW_VERSION}&state=merged")
 echo "Found $(echo "$mrs_current" | jq length) merged MRs for milestone ${NEW_VERSION}"
 
-FEATURES=""
-BUGS=""
-DOCS=""
-TESTS=""
+# La seccion generada sustituye a la seccion "(unreleased)" escrita a mano al principio de CHANGELOG.md, si la hay.
+changelog_update ./CHANGELOG.md "$RELEASE_NAME" "$NEW_VERSION" "$currentDate" "$mrs_current"
+echo "Generated changelog file at ./CHANGELOG.md"
 
-while IFS= read -r mr; do
-  labels=$(echo "$mr" | jq -r '.labels | join(",")')
-
-  # default a bug si no hay label de sección
-  section="bug"
-  for s in feature bug documentation test; do
-    [[ "$labels" == *"$s"* ]] && section="$s"
-  done
-
-  prefix=""
-  [[ "$labels" == *"has impacts"* ]] && prefix="**[HAS IMPACTS]** "
-
-  # Extract title and strip optional surrounding quotes (ASCII and smart)
-  title=$(echo "$mr" | jq -r '.title' | sed 's/^Resolve //' | sed -E 's/^[\"“”'"'"'‘’]+//; s/[\"“”'"'"'‘’]+$//')
-  iid=$(echo "$mr" | jq -r '.iid')
-  url=$(echo "$mr" | jq -r '.web_url')
-  author=$(echo "$mr" | jq -r '.merged_by.name')
-
-  line="- ${prefix}${title}. [MR #${iid}](${url}) (${author})"$'\n'
-
-  case "$section" in
-    feature) FEATURES+="$line" ;;
-    bug) BUGS+="$line" ;;
-    documentation) DOCS+="$line" ;;
-    test) TESTS+="$line" ;;
-  esac
-done < <(echo "$mrs_current" | jq -c '.[]')
-
-# Construir release notes con saltos de línea reales
-releaseNotes=$(printf "# Release notes for %s %s\n*%s*\n \n" "$RELEASE_NAME" "$NEW_VERSION" "$currentDate")
-
-[[ -n "$FEATURES" ]] && releaseNotes+=$'\n✨ Features:\n'"$FEATURES"
-[[ -n "$BUGS" ]] && releaseNotes+=$'\n🐛 Bug fixes:\n'"$BUGS"
-[[ -n "$DOCS" ]] && releaseNotes+=$'\n📄 Documentation:\n'"$DOCS"
-[[ -n "$TESTS" ]] && releaseNotes+=$'\n🧪 Tests:\n'"$TESTS"
-
-# Generate changelog
-echo "$releaseNotes" > changelogUpdate && cat changelogUpdate ./CHANGELOG.md > allChangelog && rm changelogUpdate && mv allChangelog ./CHANGELOG.md && echo "Generated changelog file at ./CHANGELOG.md"
+# Los CHANGELOG-<M>.x.md de las lineas anteriores se regeneran desde el ultimo tag vM.y.z, para que las releases
+# de support/<M>.x lleguen a develop y master.
+changelog_sync_previous_lines "$NEW_VERSION" .
 
 # ============================================================
 # Cerrar milestone actual
