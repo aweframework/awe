@@ -1,0 +1,129 @@
+---
+id: context-menu
+title: Menú contextual
+sidebar_label: Menú contextual
+description: El menú contextual de AWE, en vivo. Haz clic derecho en un botón, cambia sus opciones y mira el menú real y el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {contextMenu} from '@site/src/components/AwePlayground/specs/context-menu';
+
+Un menú contextual es una lista de opciones que se abre con un **clic derecho** (o con la tecla de menú del teclado) sobre el componente que lo
+declara. Sus opciones son elementos `context-button`, con los mismos atributos que un botón y las mismas acciones; un `context-separator` dibuja una línea
+entre grupos y un `context-button` dentro de otro forma un submenú. Pueden declararlo los botones, las tablas, las tablas en árbol, los gráficos, las pestañas y los asistentes.
+Aquí el componente es un botón: haz clic derecho sobre él, elige una opción y el campo de solo lectura muestra cuál se ejecutó.
+
+<AwePlayground spec={contextMenu} />
+
+:::note
+El menú se dibuja sobre toda la página, fuera de la vista previa, así que sigue el modo de color del sitio y no el del interruptor
+**Claro / Oscuro** de la vista previa.
+:::
+
+## Recetas {#recipes}
+
+### Menú de acciones de fila {#recipe-actions-menu}
+
+Un botón con la acción `show-context-menu` abre su propio menú con un clic izquierdo, justo debajo de sí mismo: el típico botón de "más acciones". Así también
+cada fila de una tabla obtiene un botón que abre el menú contextual de la tabla.
+
+<AweLive
+  components={{
+    More: {
+      attributes: {label: 'Más acciones', icon: 'lucide:ellipsis', style: 'no-label', contextMenu: [{id: 'Rename'}, {id: 'Move'}, {id: 'Archive'}]},
+      actions: [{type: 'show-context-menu'}],
+    },
+    Rename: {attributes: {label: 'Renombrar', icon: 'lucide:pencil', actions: [{type: 'value', target: 'Chosen', value: 'Renombrar'}]}},
+    Move: {attributes: {label: 'Mover a carpeta', icon: 'lucide:folder-input', actions: [{type: 'value', target: 'Chosen', value: 'Mover a carpeta'}]}},
+    Archive: {attributes: {label: 'Archivar', icon: 'lucide:archive', actions: [{type: 'value', target: 'Chosen', value: 'Archivar'}]}},
+    Chosen: {attributes: {label: 'Última opción elegida', readonly: true}},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'More'},
+    {elementType: 'Criteria', component: 'text', id: 'Chosen'},
+  ]}
+/>
+
+```xml
+<button id="More" label="Más acciones" icon="lucide:ellipsis" style="no-label">
+  <button-action type="show-context-menu" />
+  <context-button id="Rename" label="Renombrar" icon="lucide:pencil">
+    <button-action type="value" target="Chosen" value="Renombrar" />
+  </context-button>
+  <context-button id="Move" label="Mover a carpeta" icon="lucide:folder-input">
+    <button-action type="value" target="Chosen" value="Mover a carpeta" />
+  </context-button>
+  <context-button id="Archive" label="Archivar" icon="lucide:archive">
+    <button-action type="value" target="Chosen" value="Archivar" />
+  </context-button>
+</button>
+<criteria id="Chosen" component="text" label="Última opción elegida" readonly="true" />
+```
+
+### Opciones que ejecutan cualquier acción {#recipe-actions}
+
+Las acciones de una opción son las de cualquier botón. Aquí *Editar* abre un [diálogo](./dialog.mdx) y *Eliminar* pide una confirmación con
+un [mensaje](./messages-info.mdx) predefinido: el diálogo de confirmación es el real, y *Aceptar* deja continuar las acciones que lo siguen.
+
+<AweLive
+  messages={{DeleteMsg: {title: '¿Eliminar el cliente?', message: 'El cliente y sus pedidos se eliminarán.'}}}
+  components={{
+    Customer: {
+      attributes: {label: 'Clic derecho sobre el cliente', contextMenu: [{id: 'EditOpt'}, {id: 'Sep'}, {id: 'DeleteOpt'}]},
+    },
+    EditOpt: {attributes: {label: 'Editar', icon: 'lucide:pencil', actions: [{type: 'dialog', target: 'EditCustomer'}]}},
+    Sep: {attributes: {separator: true}},
+    DeleteOpt: {attributes: {label: 'Eliminar', icon: 'lucide:trash-2', actions: [{type: 'confirm', target: 'DeleteMsg', parameters: {target: 'DeleteMsg'}}]}},
+    EditCustomer: {attributes: {label: 'Editar cliente', style: 'modal-sm'}},
+    CloseEdit: {attributes: {label: 'Cerrar', style: 'btn-primary'}, actions: [{type: 'close', target: 'EditCustomer'}]},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'Customer'},
+    {elementType: 'Dialog', id: 'EditCustomer', elementList: [
+      {elementType: 'Tag', type: 'div', style: 'modal-body', label: 'Actualiza los datos del cliente y guarda los cambios.'},
+      {elementType: 'Tag', type: 'div', style: 'modal-footer', elementList: [{elementType: 'Button', id: 'CloseEdit'}]},
+    ]},
+  ]}
+/>
+
+```xml
+<button id="Customer" label="Clic derecho sobre el cliente">
+  <context-button id="EditOpt" label="Editar" icon="lucide:pencil">
+    <button-action type="dialog" target="EditCustomer" />
+  </context-button>
+  <context-separator />
+  <context-button id="DeleteOpt" label="Eliminar" icon="lucide:trash-2">
+    <button-action type="confirm" target="DeleteMsg" />
+  </context-button>
+</button>
+
+<dialog id="EditCustomer" label="Editar cliente" style="modal-sm">
+  <tag type="div" style="modal-body" label="Actualiza los datos del cliente y guarda los cambios." />
+  <tag type="div" style="modal-footer">
+    <button id="CloseEdit" label="Cerrar" style="btn-primary">
+      <button-action type="close" target="EditCustomer" />
+    </button>
+  </tag>
+</dialog>
+
+<message id="DeleteMsg" title="¿Eliminar el cliente?" message="El cliente y sus pedidos se eliminarán." />
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Elegir una opción guarda su evento `click`, así que una [dependencia](../api/dependencies.md) puede reaccionar a él. Sus acciones se ejecutan en el contexto del
+componente que posee el menú.
+
+| Acción              | Descripción                                                                                           |
+|---------------------|-------------------------------------------------------------------------------------------------------|
+| `show-context-menu` | Abre el menú contextual debajo del botón que la lanza (el botón de una fila de tabla abre el menú de su tabla) |
+
+Si ninguna de las opciones es visible (por ejemplo, por sus dependencias), el menú no se abre y se muestra el menú del navegador.
+Cuando un componente está dentro de otro que también declara un menú, gana el menú del componente interior. Un clic derecho sobre una fila de una tabla o
+tabla en árbol selecciona la fila antes de que se abra el menú.
+
+## Más {#more}
+
+* [Documentación completa del menú contextual](../api/context-menu.md): dónde se puede declarar, dependencias y permisos.
+* Referencia XSD del [elemento `context-button`](/reference/screen#element-context-button) y del [elemento `context-separator`](/reference/screen#element-context-separator).

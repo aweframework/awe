@@ -1,0 +1,96 @@
+---
+id: criteria-checkbox-radio
+title: Checkbox and radio
+sidebar_label: Checkbox and radio
+description: The AWE checkbox and radio criteria, live. Radio, button radio, checkbox, switch and button checkbox, with the XML that produces them.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteriaCheckboxRadio} from '@site/src/components/AwePlayground/specs/criteria-checkbox-radio';
+
+The checkbox and radio criteria answer a yes/no or pick one of a few visible options: `radio` and `button-radio` choose one,
+`checkbox` is a yes/no (drawn as a switch with the `switch` style) and `button-checkbox` chooses several. Below are the real criteria of
+the AWE React client: pick a type, change its attributes and the XML below follows. The [selects and suggests](./criteria-selects.mdx)
+criteria have their own page.
+
+<AwePlayground spec={criteriaCheckboxRadio} />
+
+The attributes shared by every criterion (label, size, validation) are in the [criteria overview](./criteria.mdx).
+Radios that share a `group` are one choice: choosing one clears the others. The options of a `button-radio` and a `button-checkbox`
+come from an enumerated list (`initial-load` and `target-action` say which one); here the server is simulated with a static list.
+
+## Recipes {#recipes}
+
+Common fields, rendered by the same components.
+
+### Radio group {#recipe-radio}
+
+Radios with the same `group` are one choice. Each one carries its own `value`, and `checked` marks the one chosen at the start.
+
+<AweLive
+  components={{
+    plan1: {attributes: {component: 'radio', label: 'Basic', group: 'plan', style: 'no-label'}, model: {values: [{value: 'basic', selected: true}]}},
+    plan2: {attributes: {component: 'radio', label: 'Business', group: 'plan', style: 'no-label'}, model: {values: [{value: 'business'}]}},
+    plan3: {attributes: {component: 'radio', label: 'Enterprise', group: 'plan', style: 'no-label'}, model: {values: [{value: 'enterprise'}]}},
+  }}
+  nodes={[
+    {elementType: 'Criteria', component: 'radio', id: 'plan1'},
+    {elementType: 'Criteria', component: 'radio', id: 'plan2'},
+    {elementType: 'Criteria', component: 'radio', id: 'plan3'},
+  ]}
+/>
+
+```xml
+<criteria id="plan1" component="radio" label="Basic" group="plan" value="basic" checked="true" style="no-label" />
+<criteria id="plan2" component="radio" label="Business" group="plan" value="business" style="no-label" />
+<criteria id="plan3" component="radio" label="Enterprise" group="plan" value="enterprise" style="no-label" />
+```
+
+### Required checkbox {#recipe-required}
+
+A `checkbox` with `validation="required"` must be checked before the form is sent. Use it for an acceptance, such as the terms of a service.
+
+<AweLive
+  components={{terms: {attributes: {label: 'I accept the terms', required: true}, model: {values: [{value: '1', label: 'Yes', selected: false}]}, validationRules: {required: true}}}}
+  nodes={[{elementType: 'Criteria', component: 'checkbox', id: 'terms'}]}
+/>
+
+```xml
+<criteria id="terms" component="checkbox" label="I accept the terms" validation="required" />
+```
+
+### Switch {#recipe-switch}
+
+A `checkbox` with the `switch` style is drawn as a switch. Its `label` is the text beside it.
+
+<AweLive
+  components={{notify: {attributes: {label: 'Email me when it ships', style: 'switch'}, model: {values: [{value: '1', label: 'Yes', selected: true}]}}}}
+  nodes={[{elementType: 'Criteria', component: 'checkbox', id: 'notify'}]}
+/>
+
+```xml
+<criteria id="notify" component="checkbox" label="Email me when it ships" style="switch" />
+```
+
+## Events and actions {#events-and-actions}
+
+A criterion has no event of its own to listen to: every change of its value checks the [dependencies](../api/dependencies.md) whose
+`dependency-element` names it, and pressing Enter in a text field runs the `submit` button of its window. The [actions](../api/actions.md)
+that work on criteria:
+
+| Action                           | Description                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Empties the value of the criterion                                   |
+| `restore`                        | Puts back the initial value of the criterion                         |
+| `validate`                       | Runs the validation of the criterion and shows its error             |
+| `set-invalid`                    | Marks the criterion as invalid with the message of the action        |
+| `set-valid`                      | Clears the validation error of the criterion                         |
+| `copy-criterion-value-clipboard` | Copies the value of the criterion to the clipboard                   |
+
+## More {#more}
+
+* [Selects and suggests](./criteria-selects.mdx): the criteria that pick among a list of options.
+* [Criteria overview](./criteria.mdx): the attributes every criterion shares and the other families of inputs.
+* [Full documentation of the criteria](../api/criteria.md): every type, attribute, validation and example.
+* [XSD reference of the `criteria` element](/reference/screen#element-criteria).

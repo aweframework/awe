@@ -1,0 +1,65 @@
+---
+id: criteria
+title: Criterios
+sidebar_label: Criterios
+description: Los criterios de AWE, en vivo. Los atributos que comparten todas las entradas y una guía de las familias de entradas con su propia área de pruebas.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteria} from '@site/src/components/AwePlayground/specs/criteria';
+
+Un criterio es una entrada de una pantalla: obtiene un valor del usuario y lo envía al servidor. Su atributo `component` elige el
+tipo de entrada y el resto de atributos (etiqueta, texto de ayuda, tamaño, validación...) valen para todos. Debajo está el criterio
+real del cliente React de AWE con los atributos que comparten: cámbialos y el XML de debajo se actualiza. Escribe también en él: es un campo real.
+
+<AwePlayground spec={criteria} />
+
+## Tipos de criterios {#types}
+
+Cada familia tiene su propia página, con un área de pruebas que cambia entre sus tipos:
+
+* [Entradas de texto](./criteria-text.mdx): `text`, `password`, `textarea`, `markdown-editor`, `text-view` y `color`.
+* [Números y fechas](./criteria-numbers.mdx): `numeric`, `date`, `date-range`, `time` y `filtered-calendar`.
+* [Selectores y sugerencias](./criteria-selects.mdx): `select`, `select-multiple`, `suggest`, `suggest-multiple` y `picklist`.
+* [Casilla y radio](./criteria-checkbox-radio.mdx): `radio`, `button-radio`, `checkbox` (también como interruptor) y `button-checkbox`.
+* [Subida de archivos](./criteria-upload.mdx): `uploader`.
+
+`hidden` no es visible, así que no tiene área de pruebas: lleva un valor al servidor sin mostrarlo. La [referencia de criterios](../api/criteria.md) describe todos los tipos.
+
+## Recetas {#recipes}
+
+Un campo habitual, dibujado por el mismo componente. Las demás recetas están en la página de cada familia.
+
+### Campo obligatorio con icono {#recipe-required}
+
+`validation="required"` hace obligatorio el campo y la etiqueta lo indica. El `placeholder` dice qué escribir y el `icon` va delante de la entrada.
+
+<AweLive
+  components={{email: {attributes: {label: 'Correo', placeholder: 'nombre@empresa.com', icon: 'lucide:mail', required: true}, validationRules: {required: true}}}}
+  nodes={[{elementType: 'Criteria', component: 'text', id: 'email'}]}
+/>
+
+```xml
+<criteria id="email" component="text" label="Correo" placeholder="nombre@empresa.com" icon="lucide:mail" validation="required" />
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Un criterio no tiene un evento propio al que escuchar: cada cambio de su valor comprueba las [dependencias](../api/dependencies.md) cuyo
+`dependency-element` lo nombra, y pulsar Intro en un campo de texto ejecuta el botón `submit` de su ventana. Las [acciones](../api/actions.md)
+que actúan sobre criterios:
+
+| Acción                           | Descripción                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Vacía el valor del criterio                                          |
+| `restore`                        | Devuelve el criterio a su valor inicial                              |
+| `validate`                       | Ejecuta la validación del criterio y muestra su error                |
+| `set-invalid`                    | Marca el criterio como inválido con el mensaje de la acción          |
+| `set-valid`                      | Borra el error de validación del criterio                            |
+| `copy-criterion-value-clipboard` | Copia el valor del criterio al portapapeles                          |
+
+## Más {#more}
+
+* [Documentación completa de los criterios](../api/criteria.md): todos los tipos, atributos, validaciones y ejemplos.
+* [Referencia XSD del elemento `criteria`](/reference/screen#element-criteria).

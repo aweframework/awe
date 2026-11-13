@@ -1,0 +1,86 @@
+---
+id: tree-grid
+title: Tree grid
+sidebar_label: Tree grid
+description: The AWE tree grid, live. Open and close the branches of a hierarchy and copy the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {treeGrid, treeGridExample} from '@site/src/components/AwePlayground/specs/tree-grid';
+
+A tree grid is a [grid](./grid.mdx) with `treegrid="true"`: its rows form a hierarchy, and the cells of one column carry the
+toggles that open and close each branch. Below is the real tree grid of the AWE React client. Open the departments, select a
+row and change the attributes: the XML below follows.
+
+<AwePlayground spec={treeGrid} />
+
+:::info The rows are a fixture
+The hierarchy comes from three fields of each row: `id`, `parent` (empty for a root) and `isLeaf`. In a screen they come from a
+query. With `load-all="true"` the grid receives the whole tree once, as here; without it, a branch is loaded from the server the
+first time it is opened.
+:::
+
+## Recipes {#recipes}
+
+### A tree with everything open {#recipe-open}
+
+`initial-level` is how many levels of the tree are shown when the screen loads: `1` shows only the roots and `3` shows this whole tree.
+
+<AweLive height="32rem" {...treeGridExample({initialLevel: 3})} />
+
+```xml
+<grid id="departments" treegrid="true" tree-id="id" tree-parent="parent" tree-leaf="isLeaf" expand-column="name"
+      initial-load="query" target-action="Departments" load-all="true" initial-level="3">
+  <column name="name" label="Department" component="text" />
+  <column name="people" label="People" component="text" align="right" />
+  <column name="budget" label="Budget (kEUR)" component="progress" align="right" bar-max="5500" bar-leaf-only="true" />
+</grid>
+```
+
+`bar-leaf-only` draws the data bar of the budget only on the leaves, where it is not the sum of its children.
+
+### Pick several branches {#recipe-select}
+
+`multiselect` adds a checkbox to every row, parents included, and the selection bar of the grid.
+
+<AweLive height="26rem" {...treeGridExample({multiselect: true, initialLevel: 2})} />
+
+```xml
+<grid id="departments" treegrid="true" tree-id="id" tree-parent="parent" tree-leaf="isLeaf" expand-column="name"
+      initial-load="query" target-action="Departments" load-all="true" multiselect="true" initial-level="2">
+  <column name="name" label="Department" component="text" />
+  <!-- ... -->
+</grid>
+```
+
+### Your own toggle icons {#recipe-icons}
+
+`icon-expand`, `icon-collapse` and `icon-leaf` replace the plus and minus squares and the dot of a leaf. They take the
+[icon names](../api/icons.md) of AWE.
+
+<AweLive height="26rem" {...treeGridExample({iconExpand: 'chevron-right', iconCollapse: 'chevron-down', initialLevel: 2})} />
+
+```xml
+<grid id="departments" treegrid="true" tree-id="id" tree-parent="parent" tree-leaf="isLeaf" expand-column="name"
+      icon-expand="chevron-right" icon-collapse="chevron-down" initial-level="2"
+      initial-load="query" target-action="Departments" load-all="true">
+  <column name="name" label="Department" component="text" />
+  <!-- ... -->
+</grid>
+```
+
+## Events and actions {#events-and-actions}
+
+Opening or closing a branch runs the `tree-branch` action; selecting a row raises the same `select-row` event as in a flat grid.
+These examples run both for real. In a screen without `load-all`, opening a branch for the first time sends a server action
+(`target-action`) that answers with the children of the row, which this page does not simulate.
+
+* `tree-branch`: opens or closes the branch of a row.
+* `select-row`, `select-all-rows`, `unselect-all-rows`: change the selection.
+* `filter`: reloads the tree from its query.
+
+## More {#more}
+
+* [Full documentation of grids and tree grids](../api/grids.md): every attribute, the tree attributes and the server side.
+* [XSD reference of the `grid` element](/reference/screen#element-grid).

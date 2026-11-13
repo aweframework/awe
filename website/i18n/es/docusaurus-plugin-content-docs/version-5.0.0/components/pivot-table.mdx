@@ -1,0 +1,76 @@
+---
+id: pivot-table
+title: Tabla dinámica
+sidebar_label: Tabla dinámica
+description: La tabla dinámica de AWE, en vivo. Arrastra atributos entre filas y columnas, cambia la visualización y la agregación, y copia el XML que la produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {pivotTable, pivotTableExample} from '@site/src/components/AwePlayground/specs/pivot-table';
+
+Una tabla dinámica convierte las filas de una consulta en una tabla cruzada: eliges los atributos que forman las filas y las columnas, y
+una agregación (un recuento, una suma, una media...) rellena cada celda. Debajo está la tabla dinámica real del cliente React de AWE,
+dibujada con react-pivottable. Los controles fijan cómo arranca; también puedes arrastrar los nombres de los atributos entre las filas y
+las columnas de la propia tabla, y elegir otra visualización o agregación desde sus menús.
+
+<AwePlayground spec={pivotTable} />
+
+:::info Los datos son de ejemplo
+En una pantalla, las filas vienen de una consulta (`initial-load="query"`). Aquí son 64 filas de ventas inventadas (región, producto,
+canal, trimestre, unidades e ingresos). Los nombres de las visualizaciones y agregaciones son los de react-pivottable, en inglés.
+:::
+
+## Recetas {#recipes}
+
+### Mapa de calor de los ingresos {#recipe-heatmap}
+
+La visualización `Heatmap` pinta cada celda con un color que crece con su valor: las regiones y trimestres fuertes destacan de un vistazo.
+
+<AweLive height="22rem" {...pivotTableExample({rows: 'Region', cols: 'Quarter', renderer: 'Heatmap', aggregator: 'Custom Sum', aggregationField: 'Revenue'})} />
+
+```xml
+<pivot-table id="revenue" rows="Region" cols="Quarter" renderer="Heatmap"
+             aggregator="Custom Sum" aggregation-field="Revenue"
+             decimal-numbers="0" initial-load="query" target-action="Sales" />
+```
+
+### Reparto del total {#recipe-share}
+
+`Sum as Fraction of Total` muestra cada celda como un porcentaje del total de la tabla. Las otras fracciones (de las filas, de las
+columnas) están en el menú de agregaciones.
+
+<AweLive height="22rem" {...pivotTableExample({rows: 'Product', cols: 'Channel', renderer: 'Table', aggregator: 'Sum as Fraction of Total', aggregationField: 'Revenue'})} />
+
+```xml
+<pivot-table id="share" rows="Product" cols="Channel" renderer="Table"
+             aggregator="Sum as Fraction of Total" aggregation-field="Revenue"
+             decimal-numbers="0" initial-load="query" target-action="Sales" />
+```
+
+### Barras dentro de la tabla {#recipe-bars}
+
+`Table Barchart` dibuja una barra detrás de cada número, a escala del mayor valor de su columna. Las agregaciones `Custom *` (`Custom Sum`,
+`Custom Average`...) dan formato a sus números con `decimal-numbers`, `thousand-separator` y `decimal-separator`.
+
+<AweLive height="30rem" {...pivotTableExample({rows: 'Product', cols: 'Quarter', renderer: 'Table Barchart', aggregator: 'Custom Sum', aggregationField: 'Units'})} />
+
+```xml
+<pivot-table id="units" rows="Product" cols="Quarter" renderer="Table Barchart"
+             aggregator="Custom Sum" aggregation-field="Units"
+             decimal-numbers="0" initial-load="query" target-action="Sales" />
+```
+
+## Eventos y acciones {#events-and-actions}
+
+La tabla dinámica no tiene eventos propios. Sus atributos (`rows`, `cols`, `renderer`, `aggregator`) son el punto de partida: lo que el lector
+cambia en la tabla se conserva en el componente, y estas acciones lo cambian desde una pantalla.
+
+* `set-pivot-sorters`: fija el orden de los valores de un atributo.
+* `set-pivot-group-rows`, `set-pivot-group-cols`: cambian los atributos que forman las filas y las columnas.
+* `filter`: recarga la tabla desde su consulta. Es una acción de servidor: aquí no se simula.
+
+## Más {#more}
+
+* [Documentación completa de la tabla dinámica](../api/pivot-table.md): cada atributo, las visualizaciones, las agregaciones y la parte de servidor.
+* [Referencia XSD del elemento `pivot-table`](/reference/screen#element-pivot-table).

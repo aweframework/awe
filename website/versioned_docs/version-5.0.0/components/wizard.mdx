@@ -1,0 +1,93 @@
+---
+id: wizard
+title: Wizard
+sidebar_label: Wizard
+description: The AWE wizard, live. Move through its steps with the buttons and see the real component and the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {wizard} from '@site/src/components/AwePlayground/specs/wizard';
+
+A wizard guides the user through an ordered group of steps. It shows the list of steps with the current one highlighted, and the
+panel of the current step. The user moves with buttons whose `next-step` and `prev-step` actions are the ones below: press **Next**
+and **Back** in the playground, they run for real.
+
+<AwePlayground spec={wizard} />
+
+The steps come from an enumerated list or a query of the server (`initial-load` and `target-action`), and the value of each option is the `id` of its
+`wizard-panel`. Here the stage fills that list with a static one. A step ahead of the current one cannot be clicked: the user reaches
+it with **Next**, and can go back to the steps already done.
+
+## Recipes {#recipes}
+
+### Sign-up in three steps {#recipe-signup}
+
+Each wizard panel holds any component. The buttons are placed after the wizard, in a `div` of their own.
+
+<AweLive
+  components={{
+    signup: {model: {values: [{value: 'who', label: 'Who you are', selected: true}, {value: 'plan', label: 'Plan'}, {value: 'done', label: 'Done'}]}},
+    Name: {attributes: {label: 'Name', placeholder: 'Full name'}},
+    Email: {attributes: {label: 'Email', icon: 'lucide:mail'}},
+    Plan: {attributes: {label: 'Plan'}, model: {values: [{value: 'm', label: 'Monthly'}, {value: 'y', label: 'Yearly'}]}},
+    Back: {attributes: {label: 'Back', style: 'btn-ghost'}, actions: [{type: 'prev-step', target: 'signup'}]},
+    Next: {attributes: {label: 'Next', style: 'btn-primary'}, actions: [{type: 'next-step', target: 'signup'}]},
+  }}
+  nodes={[
+    {elementType: 'Wizard', id: 'signup', elementList: [
+      {elementType: 'WizardPanel', id: 'who', elementList: [
+        {elementType: 'Criteria', component: 'text', id: 'Name'},
+        {elementType: 'Criteria', component: 'text', id: 'Email'},
+      ]},
+      {elementType: 'WizardPanel', id: 'plan', elementList: [{elementType: 'Criteria', component: 'select', id: 'Plan'}]},
+      {elementType: 'WizardPanel', id: 'done', elementList: [{elementType: 'Tag', type: 'p', label: 'All set. Press Next again to stay on the last step.'}]},
+    ]},
+    {elementType: 'Tag', type: 'div', style: 'awe-live-actions', elementList: [
+      {elementType: 'Button', id: 'Back'}, {elementType: 'Button', id: 'Next'},
+    ]},
+  ]}
+/>
+
+```xml
+<wizard id="signup" initial-load="enum" target-action="SignupSteps">
+  <wizard-panel id="who">
+    <criteria id="Name" component="text" label="Name" placeholder="Full name" />
+    <criteria id="Email" component="text" label="Email" icon="lucide:mail" />
+  </wizard-panel>
+  <wizard-panel id="plan">
+    <criteria id="Plan" component="select" label="Plan" initial-load="enum" target-action="PlanList" />
+  </wizard-panel>
+  <wizard-panel id="done">
+    <tag type="p" label="All set. Press Next again to stay on the last step." />
+  </wizard-panel>
+</wizard>
+<tag type="div">
+  <button id="Back" label="Back" style="btn-ghost">
+    <button-action type="prev-step" target="signup" />
+  </button>
+  <button id="Next" label="Next" style="btn-primary">
+    <button-action type="next-step" target="signup" />
+  </button>
+</tag>
+```
+
+## Events and actions {#events-and-actions}
+
+A wizard has no event of its own: the user moves with the buttons, or by clicking a step already done. The
+[actions](../api/actions.md) that move it:
+
+| Action       | Description                                   |
+|--------------|-----------------------------------------------|
+| `next-step`  | Moves to the next step of the wizard in `target` |
+| `prev-step`  | Moves to the previous step                    |
+| `first-step` | Moves to the first step                       |
+| `last-step`  | Moves to the last step                        |
+| `nth-step`   | Moves to the step whose id is in the `value` parameter |
+
+A step that holds an invalid field is marked in the list.
+
+## More {#more}
+
+* [Full documentation of the wizard](../api/wizard-and-wizard-panel.md): attributes, orientation and examples.
+* [XSD reference of the `wizard` element](/reference/screen#element-wizard).

@@ -1,0 +1,76 @@
+---
+id: pivot-table
+title: Pivot table
+sidebar_label: Pivot table
+description: The AWE pivot table, live. Drag attributes between rows and columns, switch the renderer and the aggregator, and copy the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {pivotTable, pivotTableExample} from '@site/src/components/AwePlayground/specs/pivot-table';
+
+A pivot table turns the rows of a query into a cross-tab: pick the attributes that make the rows and the columns, and an aggregation
+(a count, a sum, an average...) fills each cell. Below is the real pivot table of the AWE React client, drawn with react-pivottable. The
+controls set how it starts; you can also drag the attribute names between the rows and the columns of the table itself, and
+pick another renderer or aggregator from its own menus.
+
+<AwePlayground spec={pivotTable} />
+
+:::info The data is a fixture
+In a screen the rows come from a query (`initial-load="query"`). Here they are 64 rows of invented sales (region, product, channel,
+quarter, units and revenue). The names of the renderers and aggregators are the ones of react-pivottable, in English.
+:::
+
+## Recipes {#recipes}
+
+### Heatmap of the revenue {#recipe-heatmap}
+
+The `Heatmap` renderer paints each cell with a colour that grows with its value: the strong regions and quarters stand out at a glance.
+
+<AweLive height="22rem" {...pivotTableExample({rows: 'Region', cols: 'Quarter', renderer: 'Heatmap', aggregator: 'Custom Sum', aggregationField: 'Revenue'})} />
+
+```xml
+<pivot-table id="revenue" rows="Region" cols="Quarter" renderer="Heatmap"
+             aggregator="Custom Sum" aggregation-field="Revenue"
+             decimal-numbers="0" initial-load="query" target-action="Sales" />
+```
+
+### Share of the total {#recipe-share}
+
+`Sum as Fraction of Total` shows each cell as a percentage of the whole table. The other fractions (of rows, of columns) are
+in the aggregator menu.
+
+<AweLive height="22rem" {...pivotTableExample({rows: 'Product', cols: 'Channel', renderer: 'Table', aggregator: 'Sum as Fraction of Total', aggregationField: 'Revenue'})} />
+
+```xml
+<pivot-table id="share" rows="Product" cols="Channel" renderer="Table"
+             aggregator="Sum as Fraction of Total" aggregation-field="Revenue"
+             decimal-numbers="0" initial-load="query" target-action="Sales" />
+```
+
+### Bars inside the table {#recipe-bars}
+
+`Table Barchart` draws a bar behind each number, scaled to the largest value of its column. The `Custom *` aggregators (`Custom Sum`,
+`Custom Average`...) format their numbers with `decimal-numbers`, `thousand-separator` and `decimal-separator`.
+
+<AweLive height="30rem" {...pivotTableExample({rows: 'Product', cols: 'Quarter', renderer: 'Table Barchart', aggregator: 'Custom Sum', aggregationField: 'Units'})} />
+
+```xml
+<pivot-table id="units" rows="Product" cols="Quarter" renderer="Table Barchart"
+             aggregator="Custom Sum" aggregation-field="Units"
+             decimal-numbers="0" initial-load="query" target-action="Sales" />
+```
+
+## Events and actions {#events-and-actions}
+
+The pivot table has no event of its own. Its attributes (`rows`, `cols`, `renderer`, `aggregator`) are the starting point: what the
+reader changes in the table is kept in the component, and these actions change it from a screen.
+
+* `set-pivot-sorters`: sets the order of the values of an attribute.
+* `set-pivot-group-rows`, `set-pivot-group-cols`: change the attributes that make the rows and the columns.
+* `filter`: reloads the table from its query. A server action: it is not simulated here.
+
+## More {#more}
+
+* [Full documentation of the pivot table](../api/pivot-table.md): every attribute, the renderers, the aggregators and the server side.
+* [XSD reference of the `pivot-table` element](/reference/screen#element-pivot-table).
