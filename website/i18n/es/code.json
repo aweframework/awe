@@ -2848,5 +2848,13 @@
   "sidebar.docs.category.Criteria": {
     "message": "Criterios",
     "description": "The label for category Criteria in sidebar docs"
+  },
+  "announcementBar.awe5.title": {
+    "message": "¡Ya está aquí AWE 5!",
+    "description": "Title of the AWE 5 release announcement"
+  },
+  "announcementBar.awe5.link": {
+    "message": "Lee la guía de migración",
+    "description": "Link of the AWE 5 announcement to the migration guide"
   }
 }

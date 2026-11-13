@@ -74,6 +74,17 @@ module.exports = {
 		],
 	],
 	themeConfig: {
+		announcementBar: {
+			// The AWE 5 release announcement. src/theme/AnnouncementBar/Content renders it translated (<Translate>, es in
+			// i18n/es/code.json) with a link to the migration guide; this content is only the fallback text. Change the id
+			// with every new announcement so readers who closed the previous one see it again.
+			id: 'awe-5-release',
+			content: 'AWE 5 is out!',
+			// The theme writes both as inline styles: point them to the site tokens so the bar follows light and dark.
+			backgroundColor: 'var(--awe-panel-2)',
+			textColor: 'var(--awe-ink)',
+			isCloseable: true,
+		},
 		docs: {
 			sidebar: {
 				hideable: true,
@@ -142,6 +153,10 @@ module.exports = {
 						{
 							label: 'Introduction',
 							to: 'docs/',
+						},
+						{
+							label: 'Migration from v4 to v5',
+							to: 'docs/guides/v5-migration',
 						},
 						{
 							label: 'Migration from v3 to v4',

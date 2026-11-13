@@ -1,0 +1,12 @@
+[
+  {"iid": 10, "title": "feat(awe-model): new option", "labels": [], "web_url": "https://gitlab.example/mr/10", "merged_by": {"name": "Dev One"}},
+  {"iid": 11, "title": "Resolve \"Fix the grid\"", "labels": ["bug"], "web_url": "https://gitlab.example/mr/11", "merged_by": {"name": "Dev Two"}},
+  {"iid": 12, "title": "[HAS IMPACTS] feat: drop the old api", "labels": ["feature", "has impacts"], "web_url": "https://gitlab.example/mr/12", "merged_by": {"name": "Dev One"}},
+  {"iid": 13, "title": "docs(website): release guide", "labels": [], "web_url": "https://gitlab.example/mr/13", "merged_by": {"name": "Dev One"}},
+  {"iid": 14, "title": "test: more tests", "labels": [], "web_url": "https://gitlab.example/mr/14", "merged_by": {"name": "Dev Two"}},
+  {"iid": 15, "title": "chore(deps): bump something", "labels": ["update-dependencies"], "web_url": "https://gitlab.example/mr/15", "merged_by": {"name": "Dev Two"}},
+  {"iid": 16, "title": "refactor: change the behaviour", "labels": ["feature", "has impacts"], "web_url": "https://gitlab.example/mr/16", "merged_by": {"name": "Dev One"}},
+  {"iid": 17, "title": "feat: labelled as documentation", "labels": ["documentation"], "web_url": "https://gitlab.example/mr/17", "merged_by": {"name": "Dev One"}},
+  {"iid": 18, "title": "[has impacts] docs: lower case impacts", "labels": ["has impacts"], "web_url": "https://gitlab.example/mr/18", "merged_by": {"name": "Dev Two"}},
+  {"iid": 19, "title": "feat(awe-controller)!: breaking change", "labels": [], "web_url": "https://gitlab.example/mr/19", "merged_by": {"name": "Dev Two"}}
+]

@@ -487,6 +487,31 @@ After the job finishes, check:
 - The Docker image for the new version was pushed, and the floating `4` / `4.12` tags
   were repointed to it (see below).
 
+## Changelog per line
+
+Each release line keeps its own changelog, and `Release · Start` writes it with `bin/release.sh`:
+
+- **`develop` / `master`**: `CHANGELOG.md` holds the AWE 5 releases only and ends with a line that points to
+  `CHANGELOG-4.x.md`, the history of AWE 4 and older releases.
+- **`support/4.x`**: a single `CHANGELOG.md` with the AWE 4 history.
+
+While a release is being prepared, `CHANGELOG.md` may start with a hand-written section whose header ends in
+`(unreleased)`, such as `# Release notes for AWE 5 (unreleased)`. It is a draft for the team, not the release notes:
+the release removes it (the header and its text, up to the next `# Release notes for` header) and puts in its place
+the generated section, `# Release notes for AWE <version>` with the date and the merged merge requests of the milestone
+grouped into features, bug fixes, documentation and tests. A merge request without one of those labels goes to the
+group of its Conventional Commit prefix (`feat`, `fix`, `docs`, `test`; any other prefix counts as a bug fix), and the
+`has impacts` label adds `**[HAS IMPACTS]**` unless the title already says `[HAS IMPACTS]`. The release fails, without
+touching the file, when `CHANGELOG.md` already has a section for the version being released.
+
+The 4.x releases are made on `support/4.x`, which is never merged into `develop`, so they reach `develop` through the
+next release of `develop`: every release regenerates each `CHANGELOG-<M>.x.md` of an older line from the
+`CHANGELOG.md` of its latest `v<M>.y.z` tag (without its unreleased section), and `Release · Start` commits it with
+`CHANGELOG.md`. Do not edit `CHANGELOG-4.x.md` on `develop`: write the 4.x entries on `support/4.x`.
+
+The changelog functions live in `bin/lib/changelog.sh`; `bin/test-release-changelog.sh` tests them without GitLab, and
+the job `MR · Release script tests` runs it in the merge requests that change the release script.
+
 ## Backporting a fix
 
 The full policy lives in [`CONTRIBUTING.md`](https://gitlab.com/aweframework/awe/-/blob/develop/CONTRIBUTING.md):

@@ -469,6 +469,31 @@ Cuando el job termine, compruebe:
 - Que la imagen de Docker de la nueva versión se envió y que las etiquetas flotantes `4` / `4.12` se reapuntaron a
   ella (véase más abajo).
 
+## Changelog por línea {#changelog-per-line}
+
+Cada línea de versiones tiene su propio changelog, y `Release · Start` lo escribe con `bin/release.sh`:
+
+- **`develop` / `master`**: `CHANGELOG.md` contiene solo las versiones de AWE 5 y termina con una línea que apunta a
+  `CHANGELOG-4.x.md`, el historial de AWE 4 y de las versiones anteriores.
+- **`support/4.x`**: un único `CHANGELOG.md` con el historial de AWE 4.
+
+Mientras se prepara una versión, `CHANGELOG.md` puede empezar con una sección escrita a mano cuya cabecera termina en
+`(unreleased)`, como `# Release notes for AWE 5 (unreleased)`. Es un borrador para el equipo, no las notas de la
+versión: la publicación la elimina (la cabecera y su texto, hasta la siguiente cabecera `# Release notes for`) y pone en
+su lugar la sección generada, `# Release notes for AWE <versión>` con la fecha y las merge requests integradas del hito,
+agrupadas en funcionalidades, correcciones, documentación y tests. Una merge request sin ninguna de esas etiquetas va al
+grupo de su prefijo de Conventional Commits (`feat`, `fix`, `docs`, `test`; cualquier otro prefijo cuenta como
+corrección), y la etiqueta `has impacts` añade `**[HAS IMPACTS]**` salvo que el título ya diga `[HAS IMPACTS]`. La
+publicación falla, sin tocar el fichero, cuando `CHANGELOG.md` ya tiene una sección de la versión que se publica.
+
+Las versiones 4.x se publican en `support/4.x`, que nunca se integra en `develop`, así que llegan a `develop` con la
+siguiente publicación de `develop`: cada publicación regenera cada `CHANGELOG-<M>.x.md` de una línea anterior desde el
+`CHANGELOG.md` de su última etiqueta `v<M>.y.z` (sin su sección unreleased), y `Release · Start` lo confirma junto con
+`CHANGELOG.md`. No edite `CHANGELOG-4.x.md` en `develop`: escriba las entradas de 4.x en `support/4.x`.
+
+Las funciones del changelog están en `bin/lib/changelog.sh`; `bin/test-release-changelog.sh` las prueba sin GitLab, y
+el job `MR · Release script tests` lo ejecuta en las merge requests que cambian el script de publicación.
+
 ## Backport de una corrección {#backporting-a-fix}
 
 La política completa está en [`CONTRIBUTING.md`](https://gitlab.com/aweframework/awe/-/blob/develop/CONTRIBUTING.md):
