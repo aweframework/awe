@@ -284,7 +284,8 @@ file, so a model change that breaks the client fails the merge request either at
 warning for a few Sonar rules. `bin/local-ci.sh --list` shows what your changes trigger and why. The browser suites run in
 Chromium, as in a merge request (`--browsers firefox` adds the Firefox suites of the nightly schedule).
 
-The unit-testing jobs (Unit · Java and the database jobs) run three at a time, each in a clone of your checkout
+The unit-testing jobs (Unit · Java, Database · HSQL with the `awe-boot` tests, and the other database jobs) run three at a
+time, each in a clone of your checkout
 (`LOCAL_CI_DB_PARALLEL`, default 3; `1` runs them one after another). The `awe-boot` test context listens on a random port and
 every browser suite picks free ports for its application, so runs of different checkouts do not wait for each other; only one
 Oracle container, and `LOCAL_CI_BROWSER_PARALLEL` browser applications (default 2), run at a time on the machine. `--fast`

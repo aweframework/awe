@@ -574,7 +574,8 @@ in_work() {
 }
 
 # The Maven modules of the database rows: only awe-boot, as the database jobs of CI (#863). The database profiles exist only in
-# awe-boot, so the other modules would run the same tests as Unit · Java again; awe-boot resolves them from the build step's install
+# awe-boot, so the other modules would run the same tests as Unit · Java again; awe-boot resolves them from the build step's install.
+# Unit · Java leaves awe-boot out: its default build (embedded HSQL) is the Database · HSQL row of the all-ut job
 unit_modules() {
   printf '%s\n' -pl awe-tests/awe-boot
 }
@@ -582,9 +583,11 @@ unit_modules() {
 step_all_ut() { in_work all-ut jacoco-all-ut.exec all_ut_maven; }
 
 # The Maven arguments (after "verify") of the unit-testing rows, one per line, the ones of the CI jobs (bin/test-local-ci.sh pins
-# them): Unit · Java runs the reactor of CI, without the two archetypes; every database profile runs only awe-boot.
+# them): Unit · Java runs the reactor of CI, without the two archetypes and awe-boot; every database profile (hsql, the default
+# build of awe-boot, included) runs only awe-boot.
 all_ut_args() {
-  printf '%s\n' "${UT_OPTS[@]}" -Djacoco.file.name=jacoco-all-ut.exec -Dawe.test.playwright.required=true
+  printf '%s\n' "${UT_OPTS[@]}" -pl '!awe-tests/awe-boot' -Djacoco.file.name=jacoco-all-ut.exec \
+    -Dawe.test.playwright.required=true
 }
 unit_profile_args() {
   printf '%s\n' "${UT_FLAGS[@]}"
@@ -637,9 +640,10 @@ step_coverage() {
   # What Sonar measures among the changed files (the same rules as the coverage itself: local-ci-tool.mjs coverageSource)
   scope=$(node "$TOOL" scope "$CHANGED")
   if printf '%s\n' "$scope" | grep -qx jacoco; then
-    # Only the execution data of Unit · Java of this very run: an earlier run describes other code
+    # Only the execution data of Unit · Java and Database · HSQL of this very run: an earlier run describes other code
     if [ "$ALL_UT_OK" != 1 ]; then
-      echo "Java sources changed: the coverage needs Unit · Java to run and pass in this run (e.g. --only all-ut,coverage)."
+      echo "Java sources changed: the coverage needs Unit · Java and Database · HSQL (the all-ut job) to run and pass in this run" \
+        "(e.g. --only all-ut,coverage)."
       note "Java coverage needs all-ut passing in this run"
       return 1
     fi
@@ -971,7 +975,8 @@ after_build() { # id: false when the build failed and the job would run
   return 0
 }
 
-# One item of the unit-testing pool, "<kind>|<job id>|<profile>": Unit · Java, the profiles of the embedded DB jobs and of the database
+# One item of the unit-testing pool, "<kind>|<job id>|<profile>": Unit · Java, its Database · HSQL row (awe-boot on embedded HSQL,
+# which CI runs with the same rules as Unit · Java), the profiles of the embedded DB jobs and of the database
 # jobs, and the rows that only report (a job that is not selected, no Docker). Each item runs in a worker (run_pool) and writes its rows to
 # the results of the worker.
 db_item() {
@@ -980,6 +985,8 @@ db_item() {
   case "$kind" in
     all-ut)
       after_build all-ut && run_locked no all-ut all-ut "$(label_of all-ut)" 40 step_all_ut ;;
+    all-ut-hsql)
+      after_build all-ut && run_locked no all-ut all-ut-hsql "Database · HSQL" 40 step_unit_profile hsql all-ut-hsql ;;
     skipped)   # a job that is not selected: its row says why
       after_build "$job" && run_job "$job" 40 true ;;
     nodocker)
@@ -996,10 +1003,11 @@ db_item() {
   esac
 }
 
-# The items, in the order of the summary: Unit · Java, the embedded DB profiles, then each database with its flyway profile
+# The items, in the order of the summary: Unit · Java and its Database · HSQL row (in parallel), the embedded DB profiles, then each
+# database with its flyway profile
 DOCKER_OK=0
 docker info >/dev/null 2>&1 && DOCKER_OK=1
-DB_ITEMS=("all-ut||")
+DB_ITEMS=("all-ut||" "all-ut-hsql||")
 if [ "$(decision embedded-db)" = run ]; then
   for profile in h2 h2-flyway hsql-flyway; do DB_ITEMS+=("embedded|embedded-db|$profile"); done
 else
@@ -1018,8 +1026,11 @@ done
 lci_prune_work "$ROOT/target/local-ci" "$LOG_DIR"   # clones of failed earlier runs were kept for the developer; those of runs that are over go
 echo "Unit-testing jobs: ${#DB_ITEMS[@]} rows, $DB_PARALLEL at a time (LOCAL_CI_DB_PARALLEL)$([ "$DB_PARALLEL" -gt 1 ] && echo ", each in a clone of the checkout")"
 run_pool "$DB_PARALLEL" db_item "${DB_ITEMS[@]}"
+# The coverage needs both rows of all-ut: the JaCoCo data of Unit · Java and of awe-boot (Database · HSQL) of this run
 ALL_UT_OK=0
-[ "$(awk -F '\t' '$1 == "all-ut" { status = $3 } END { print status }' "$RESULTS")" = PASS ] && ALL_UT_OK=1
+all_ut_passed=$(awk -F '\t' '$1 == "all-ut" || $1 == "all-ut-hsql" { if ($3 == "PASS") ok[$1] = 1 }
+  END { print (ok["all-ut"] && ok["all-ut-hsql"]) ? "yes" : "no" }' "$RESULTS")
+[ "$all_ut_passed" = yes ] && ALL_UT_OK=1
 
 run_job frontend-ut 20 step_frontend_ut awe-framework/awe-client-angular frontend-ut
 run_job frontend-ut-react 20 step_frontend_ut awe-framework/awe-client-react frontend-ut-react

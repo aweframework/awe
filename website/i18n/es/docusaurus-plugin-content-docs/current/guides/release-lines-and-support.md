@@ -279,7 +279,8 @@ las `rules:changes` de `.gitlab-ci.yml` y añade la puerta de cobertura de Sonar
 para algunas reglas de Sonar. `bin/local-ci.sh --list` muestra qué lanzan tus cambios y por qué. Las suites de navegador se
 ejecutan en Chromium, como en una merge request (`--browsers firefox` añade las suites de Firefox de la programación nocturna).
 
-Los jobs de pruebas unitarias (Unit · Java y los de bases de datos) se ejecutan de tres en tres, cada uno en un
+Los jobs de pruebas unitarias (Unit · Java, Database · HSQL con las pruebas de `awe-boot` y los demás de bases de datos)
+se ejecutan de tres en tres, cada uno en un
 clon de tu checkout (`LOCAL_CI_DB_PARALLEL`, 3 por defecto; `1` los ejecuta uno tras otro). El contexto de pruebas de `awe-boot`
 escucha en un puerto aleatorio y cada suite de navegador elige puertos libres para su aplicación, así que las ejecuciones de
 distintos checkouts no se esperan entre sí; en la máquina solo corre un contenedor de Oracle, y `LOCAL_CI_BROWSER_PARALLEL`
