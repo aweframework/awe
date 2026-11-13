@@ -37,10 +37,19 @@ export function initDialogComponent(scope, id, {Component, $actionController, Ut
     return false;
   }
 
+  // End of a close not run yet: the close ends some time after the modal is hidden, and the focus is back on the
+  // control which opened it before that, so it can be opened again in between (#976)
+  let pendingClose = null;
+
   /**
    * Open modal screen
    */
   component.openDialog = function () {
+    if (pendingClose) {
+      // Opened again before the close ended: end it now (its stack and its opening action), then open
+      Utilities.timeout.cancel(pendingClose.timer);
+      pendingClose.end();
+    }
     if (!component.isOpened) {
       component.isOpened = true;
 
@@ -73,7 +82,7 @@ export function initDialogComponent(scope, id, {Component, $actionController, Ut
    * Close modal screen
    */
   component.closeDialog = function () {
-    if (component.isOpened) {
+    if (component.isOpened && !pendingClose) {
       // Store event
       component.storeEvent('close');
 
@@ -83,17 +92,25 @@ export function initDialogComponent(scope, id, {Component, $actionController, Ut
       // Broadcast model change
       Utilities.publishDelayedFromScope("modalChange", false, scope);
 
-      // Launch close dialog delayed
-      Utilities.timeout(function () {
-        // Remove modal action stack
-        $actionController.removeStack();
-        // Close dialog action
-        $actionController.finishAction(component.controller.openAction, component.controller.accept);
+      // The action which opened this opening: a new opening replaces the one of the controller
+      const {openAction, accept} = component.controller;
+      const close = {
+        end() {
+          pendingClose = null;
+          // Remove modal action stack
+          $actionController.removeStack();
+          // Close dialog action
+          $actionController.finishAction(openAction, accept);
 
-        // Set default action on accept
-        component.controller.accept = component.controller.acceptOnClose;
-        component.isOpened = false;
-      }, 200);
+          // Set default action on accept
+          component.controller.accept = component.controller.acceptOnClose;
+          component.isOpened = false;
+        }
+      };
+      pendingClose = close;
+
+      // Launch close dialog delayed
+      close.timer = Utilities.timeout(() => pendingClose === close && close.end(), 200);
     }
   };
 
