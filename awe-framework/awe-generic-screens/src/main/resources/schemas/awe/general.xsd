@@ -232,6 +232,7 @@
       <xs:enumeration value="view-pdf-file" />
       <xs:enumeration value="get-server-file" />
       <xs:enumeration value="get-log-file" />
+      <xs:enumeration value="get-execution-log" />
       <xs:enumeration value="get-file-maintain" />
       <xs:enumeration value="file" />
       <xs:enumeration value="help" />

@@ -599,7 +599,7 @@
   <locale name="ERROR_MESSAGE_FILE_INFO" value="Ha habido un problema recuperando la información del fichero: {0}"/>
   <locale name="ERROR_MESSAGE_FILE_NOT_DEFINED" value="El fichero al que se está accediendo no ha sido encontrado"/>
   <locale name="ERROR_MESSAGE_FILE_PARSING" value="Ha habido un problema interpretando el fichero"/>
-  <locale name="ERROR_MESSAGE_FILE_READING_ERROR" value="Ha habido un problema tratando de acceder al fichero: {0}"/>
+  <locale name="ERROR_MESSAGE_FILE_READING_ERROR" value="Ha habido un problema tratando de acceder al fichero"/>
   <locale name="ERROR_MESSAGE_FILE_TYPE_NOT_DEFINED" value="Tipo de fichero no definido"/>
   <locale name="ERROR_MESSAGE_FILE_UPLOAD" value="Ha habido un problema subiendo el fichero a la aplicación"/>
   <locale name="ERROR_MESSAGE_FILE_UPLOAD_STATUS" value="Ha habido un problema recuperando el estado de la subida del fichero"/>

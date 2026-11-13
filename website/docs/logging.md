@@ -349,6 +349,29 @@ By default, if you use AWE logback configuration includes, the logs are writen i
 |---------------------|-----------------|-------------------------------------------------------------------------------------------|
 | `logging.file.path` | `LOG_PATH`      | If defined, it is used in the default log configuration to configure destination log path |
 
+### Files the log viewer can read
+
+The log viewer of the `LogViw` screen reads the files through the `get-log-file` action. It only serves files under the
+log directories: the log manager path (`${logging.file.path}${awe.application.log.group}`, the folder the log list
+shows) and the folders declared as `LogDirectoryProvider` beans. Any other path, including one that leaves those
+folders with `..` segments or a symbolic link, is rejected with a generic file access error. The `/file/text` and
+`/file/stream` endpoints follow the same rule.
+
+The log list, the viewer and those endpoints require the `system.read` permission (the `getLogList` query and the
+`getLogFile` service declare it). The scheduler execution log viewer does not read files by path: it uses the
+`get-execution-log` action with the task and execution identifiers, which requires `scheduler.read`, in both execution
+log stores.
+
+An application that writes logs in another folder and wants to show them in the viewer declares that folder as a
+`LogDirectoryProvider` bean:
+
+```java
+@Bean
+public LogDirectoryProvider auditLogDirectory() {
+  return () -> Path.of("/var/log/my-app/audit");
+}
+```
+
 ## Log File Rotation
 By default, the log files are rotated when the file is 10 Mb, but you can tune the rotation policy using the next properties:
 

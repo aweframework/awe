@@ -432,7 +432,7 @@ class TaskDAOTest {
     ServiceData serviceData = taskDAO.loadExecutionScreen("lala", address);
 
     // Assert
-    assertEquals(16, serviceData.getClientActionList().size());
+    assertEquals(18, serviceData.getClientActionList().size());
   }
 
   /**
@@ -448,8 +448,9 @@ class TaskDAOTest {
 
     ServiceData serviceData = taskDAO.loadExecutionScreen("lala", address);
 
-    // Only the viewer-selection actions are emitted, none of the execution-header ones
-    assertEquals(3, serviceData.getClientActionList().size());
+    // Only the viewer-selection actions (reset, serverAction swap, task id, execution id, filter) are emitted,
+    // none of the execution-header ones
+    assertEquals(5, serviceData.getClientActionList().size());
   }
 
   /**

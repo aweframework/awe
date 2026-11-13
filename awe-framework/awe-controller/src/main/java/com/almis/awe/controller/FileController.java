@@ -1,10 +1,14 @@
 package com.almis.awe.controller;
 
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.file.FileUtil;
+import com.almis.awe.security.authorization.TargetKind;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizerChain;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.FileService;
 import com.almis.awe.service.MaintainService;
@@ -14,6 +18,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tools.jackson.databind.node.ObjectNode;
+
+import java.util.Objects;
 
 /**
  * Manage template request
@@ -27,18 +33,38 @@ public class FileController extends ServiceConfig {
   private final FileService fileService;
   private final MaintainService maintainService;
   private final EncodeService encodeService;
+  private final TargetLaunchAuthorizer targetLaunchAuthorizer;
+
+  // Service of the log viewer: its permission is the one the text and stream files need
+  private static final String LOG_VIEWER_SERVICE = "getLogFile";
 
   /**
    * Autowired constructor
    *
-   * @param fileService     File service
-   * @param maintainService Maintain service
-   * @param encodeService   Encode service
+   * @param fileService            File service
+   * @param maintainService        Maintain service
+   * @param encodeService          Encode service
+   * @param targetLaunchAuthorizer Authorizer of the targets launched by a client
    */
-  public FileController(FileService fileService, MaintainService maintainService, EncodeService encodeService) {
+  public FileController(FileService fileService, MaintainService maintainService, EncodeService encodeService,
+                        TargetLaunchAuthorizerChain targetLaunchAuthorizer) {
     this.fileService = fileService;
     this.maintainService = maintainService;
     this.encodeService = encodeService;
+    this.targetLaunchAuthorizer = Objects.requireNonNull(targetLaunchAuthorizer,
+      "targetLaunchAuthorizer is required: pass the TargetLaunchAuthorizerChain bean");
+  }
+
+  /**
+   * Check that the client can read log files: the text and stream files need the permission of the log viewer service
+   *
+   * @throws AWException The authorizers refuse the log viewer service
+   */
+  private void authorizeLogViewer() throws AWException {
+    if (!targetLaunchAuthorizer.authorize(LOG_VIEWER_SERVICE, TargetKind.SERVICE)) {
+      throw new AWEUnauthorizedException(getLocale(AWEUnauthorizedException.TITLE_KEY),
+        getLocale(AWEUnauthorizedException.MESSAGE_KEY));
+    }
   }
 
   /**
@@ -50,6 +76,9 @@ public class FileController extends ServiceConfig {
    */
   @PostMapping("/text")
   public ResponseEntity<String> getFileAsText(@RequestBody ObjectNode parameters) throws AWException {
+    // Only the users allowed to read logs
+    authorizeLogViewer();
+
     // Initialize parameters
     getRequest().setParameterList(parameters);
 
@@ -70,6 +99,9 @@ public class FileController extends ServiceConfig {
    */
   @PostMapping("/stream")
   public ResponseEntity<FileSystemResource> getFileAsStream(@RequestBody ObjectNode parameters) throws AWException {
+    // Only the users allowed to read logs
+    authorizeLogViewer();
+
     // Initialize parameters
     getRequest().setParameterList(parameters);
 

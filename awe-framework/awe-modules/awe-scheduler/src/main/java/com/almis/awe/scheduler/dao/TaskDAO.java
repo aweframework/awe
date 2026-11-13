@@ -497,7 +497,7 @@ public class TaskDAO extends ServiceConfig {
   /**
    * Load execution screen parameters
    *
-   * @param path    Log path
+   * @param path    Execution log locator ({@code "{taskId}-{executionId}"})
    * @param address Button address
    * @return ServiceData
    */
@@ -506,7 +506,7 @@ public class TaskDAO extends ServiceConfig {
   }
 
   /**
-   * Retrieve the database-mode execution log window from a line offset (get-execution-log action).
+   * Retrieve the execution log window from a line offset (get-execution-log action), in both store modes.
    *
    * @param taskId        Task identifier
    * @param executionId   Execution identifier

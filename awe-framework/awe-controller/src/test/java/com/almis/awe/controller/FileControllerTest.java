@@ -1,11 +1,15 @@
 package com.almis.awe.controller;
 
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.file.FileUtil;
+import com.almis.awe.security.authorization.TargetKind;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizerChain;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.FileService;
 import com.almis.awe.service.MaintainService;
@@ -27,6 +31,9 @@ import tools.jackson.databind.node.ObjectNode;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -47,6 +54,12 @@ class FileControllerTest {
   @Mock
   private FileService fileService;
 
+  @Mock
+  private TargetLaunchAuthorizerChain targetLaunchAuthorizer;
+
+  @Mock
+  private AweElements aweElements;
+
   @InjectMocks
   private FileController fileController;
 
@@ -59,6 +72,7 @@ class FileControllerTest {
   void testGetFileAsText() throws AWException {
     // Set up mock parameters and expected results
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    when(targetLaunchAuthorizer.authorize("getLogFile", TargetKind.SERVICE)).thenReturn(true);
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     when(fileService.getTextFile(any(), any())).thenReturn(ResponseEntity.ok("prueba"));
@@ -74,6 +88,7 @@ class FileControllerTest {
   @ValueSource(strings = { "validPath", "invalidPath" })
   void testGetFileAsStream(String path) throws AWException {
     when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    when(targetLaunchAuthorizer.authorize("getLogFile", TargetKind.SERVICE)).thenReturn(true);
 
     // Set up mock parameters
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
@@ -156,5 +171,52 @@ class FileControllerTest {
   void handleAWException() {
     fileController.handleAWException(new AWException("test"));
     assertTrue(true);
+  }
+
+  // Text and stream files need the permission of the log viewer service getLogFile (issue 975)
+
+  private void refuseLogViewer() {
+    when(targetLaunchAuthorizer.authorize("getLogFile", TargetKind.SERVICE)).thenReturn(false);
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), any())).thenAnswer(invocation -> invocation.getArgument(0));
+  }
+
+  @Test
+  void textFileRefusedByTheAuthorizerIsNotRead() throws AWException {
+    refuseLogViewer();
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode().put("path", "encoded");
+
+    AWEUnauthorizedException exception = assertThrows(AWEUnauthorizedException.class,
+      () -> fileController.getFileAsText(parameters));
+
+    assertEquals(AWEUnauthorizedException.TITLE_KEY, exception.getTitle());
+    assertEquals(AWEUnauthorizedException.MESSAGE_KEY, exception.getMessage());
+    verifyNoInteractions(fileService, encodeService);
+  }
+
+  @Test
+  void streamFileRefusedByTheAuthorizerIsNotRead() throws AWException {
+    refuseLogViewer();
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode().put("path", "encoded");
+
+    AWEUnauthorizedException exception = assertThrows(AWEUnauthorizedException.class,
+      () -> fileController.getFileAsStream(parameters));
+
+    assertEquals(AWEUnauthorizedException.TITLE_KEY, exception.getTitle());
+    assertEquals(AWEUnauthorizedException.MESSAGE_KEY, exception.getMessage());
+    verifyNoInteractions(fileService, encodeService);
+  }
+
+  @Test
+  void textFileAllowedByTheAuthorizerIsReadFromTheDecodedPath() throws AWException {
+    when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    when(targetLaunchAuthorizer.authorize("getLogFile", TargetKind.SERVICE)).thenReturn(true);
+    when(aweRequest.getParameterAsString("path")).thenReturn("encoded");
+    when(aweRequest.getParameterAsString("content-type")).thenReturn("text/plain");
+    when(encodeService.decodeSymmetric("encoded")).thenReturn("/logs/app.log");
+    when(fileService.getTextFile("/logs/app.log", "text/plain")).thenReturn(ResponseEntity.ok("line"));
+
+    assertEquals("line", fileController.getFileAsText(JsonNodeFactory.instance.objectNode()).getBody());
+    verify(fileService, never()).getFileStream(anyString(), anyString());
   }
 }

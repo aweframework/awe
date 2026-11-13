@@ -521,7 +521,7 @@
       <service-parameter type="STRING" name="endTime" />
     </java>
   </service>
-  <service id="getLogFile">
+  <service id="getLogFile" permission="system.read">
     <java classname="com.almis.awe.service.FileService" method="getLogFile" />
   </service>
 
