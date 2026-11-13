@@ -7,8 +7,8 @@
 
 <actions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/actions.xsd">
 
-  <!-- Database-mode execution log read path (ADR-5): preserves the get-log-file / log-delta
-       viewer contract for executions stored in AweSchExeLog instead of on disk. -->
+  <!-- Execution log read path of the execution screen (file and database mode): serves the log-delta
+       viewer contract by task and execution id, never by a client-supplied path. -->
   <action id="get-execution-log" format="JSON">
     <call service="getExecutionLog" />
     <answer type="ok">

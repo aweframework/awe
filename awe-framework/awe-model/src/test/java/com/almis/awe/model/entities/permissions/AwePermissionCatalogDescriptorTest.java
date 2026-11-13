@@ -167,6 +167,7 @@ class AwePermissionCatalogDescriptorTest {
     assertThat(services.stream().filter(service -> service.getPermission() != null)
       .collect(Collectors.toMap(Service::getId, Service::getPermission)))
       .containsEntry("ChgLogLvl", "system.update").containsEntry("EncTxt", "system.read")
+      .containsEntry("getLogFile", "system.read")
       .containsEntry("refreshMenu", "self.read");
   }
 }

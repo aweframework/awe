@@ -368,8 +368,8 @@ public class SchedulerService extends ServiceConfig {
   }
 
   /**
-   * Retrieve the database-mode execution log window from a line offset (get-execution-log
-   * action). Parameterless: services invoked through an Actions.xml &lt;call service&gt; receive
+   * Retrieve the execution log window from a line offset (get-execution-log action), in both
+   * store modes. Parameterless: services invoked through an Actions.xml &lt;call service&gt; receive
    * no parameter map, so the id/offset values are read directly from the request instead of
    * declared as service-parameters.
    *

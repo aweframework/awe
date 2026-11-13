@@ -25,10 +25,12 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Manage application initialization
@@ -44,6 +46,9 @@ public class FileService extends ServiceConfig {
 
   // Observer of the uploads and downloads (metrics...). Optional: without one nothing is recorded
   private FileTransferObserver fileTransferObserver = FileTransferObserver.NONE;
+
+  // Log directories besides the log manager path the log viewer may read (scheduler execution logs...)
+  private List<LogDirectoryProvider> logDirectoryProviders = List.of();
 
   private static final String ERROR_TITLE_FILE_READING_ERROR = "ERROR_TITLE_FILE_READING_ERROR";
   private static final String ERROR_MESSAGE_FILE_READING_ERROR = "ERROR_MESSAGE_FILE_READING_ERROR";
@@ -74,6 +79,16 @@ public class FileService extends ServiceConfig {
   }
 
   /**
+   * Set the log directories the log viewer may read besides the log manager path
+   *
+   * @param logDirectoryProviders Log directory providers (optional, defined by the modules that write their own logs)
+   */
+  @Autowired(required = false)
+  public void setLogDirectoryProviders(List<LogDirectoryProvider> logDirectoryProviders) {
+    this.logDirectoryProviders = logDirectoryProviders == null ? List.of() : List.copyOf(logDirectoryProviders);
+  }
+
+  /**
    * Retrieve a text file content
    *
    * @param path        File path
@@ -82,12 +97,13 @@ public class FileService extends ServiceConfig {
    * @throws AWException Error retrieving text file
    */
   public ResponseEntity<String> getTextFile(String path, String contentType) throws AWException {
+    checkWithinLogDirectories(path);
     String fileContent;
 
     try {
       fileContent = new String(Files.readAllBytes(Path.of(path)));
     } catch (Exception exc) {
-      throw new AWException(getLocale(ERROR_TITLE_FILE_READING_ERROR), getLocale(ERROR_MESSAGE_FILE_READING_ERROR, path), exc);
+      throw new AWException(getLocale(ERROR_TITLE_FILE_READING_ERROR), getLocale(ERROR_MESSAGE_FILE_READING_ERROR), exc);
     }
 
     // Generate text file headers
@@ -111,6 +127,9 @@ public class FileService extends ServiceConfig {
     String path = encodeService.decodeSymmetric(getRequest().getParameterAsString("path"));
     int offset = getRequest().getParameter("offset").asInt(0);
 
+    // Only the files under the log directories can be read: the path comes from the client
+    checkWithinLogDirectories(path);
+
     if (Path.of(path).toFile().exists()) {
       try (FileInputStream file = new FileInputStream(path);
            InputStreamReader fileReader = new InputStreamReader(file, StandardCharsets.UTF_8);
@@ -129,7 +148,7 @@ public class FileService extends ServiceConfig {
         // Generate output
         serviceData.addVariable("LOG_CONTENT", new CellData(content));
       } catch (Exception exc) {
-        throw new AWException(getLocale(ERROR_TITLE_FILE_READING_ERROR), getLocale(ERROR_MESSAGE_FILE_READING_ERROR, path), exc);
+        throw new AWException(getLocale(ERROR_TITLE_FILE_READING_ERROR), getLocale(ERROR_MESSAGE_FILE_READING_ERROR), exc);
       }
     }
 
@@ -138,14 +157,96 @@ public class FileService extends ServiceConfig {
   }
 
   /**
-   * Retrieve a text file content
+   * Reject a path that is not a file under one of the log directories. The error does not show the path
+   *
+   * @param path File path
+   * @throws AWException The path is not under a log directory
+   */
+  private void checkWithinLogDirectories(String path) throws AWException {
+    if (!isWithinLogDirectories(path)) {
+      log.warn("File request rejected: the path is not under a log directory");
+      throw new AWException(getLocale(ERROR_TITLE_FILE_READING_ERROR), getLocale(ERROR_MESSAGE_FILE_READING_ERROR));
+    }
+  }
+
+  /**
+   * Check whether a path is a file under one of the log directories: the log manager path and the directories of the
+   * {@link LogDirectoryProvider} beans. The path is normalized ({@code ..} segments resolved) and, when the file
+   * exists, its real path (symbolic links followed) has to stay under the real path of the directory too.
+   *
+   * @param path File path
+   * @return Path is under a log directory
+   */
+  public boolean isWithinLogDirectories(String path) {
+    if (path == null || path.isBlank()) {
+      return false;
+    }
+    try {
+      Path file = Path.of(path).toAbsolutePath().normalize();
+      for (Path directory : getLogDirectories()) {
+        if (file.startsWith(directory) && !file.equals(directory) && resolvesUnder(file, directory)) {
+          return true;
+        }
+      }
+    } catch (InvalidPathException | IOException exc) {
+      log.debug("Log file path could not be resolved", exc);
+    }
+    return false;
+  }
+
+  /**
+   * Retrieve the log directories, absolute and normalized. Blank paths and file system roots are left out
+   *
+   * @return Log directories
+   */
+  private List<Path> getLogDirectories() {
+    return Stream.concat(
+        Stream.of(baseConfigProperties.getLogManagerPath()).filter(path -> path != null && !path.isBlank()).map(Path::of),
+        logDirectoryProviders.stream().map(LogDirectoryProvider::getLogDirectory))
+      .filter(directory -> directory != null && !directory.toString().isBlank())
+      .map(directory -> directory.toAbsolutePath().normalize())
+      // A file system root would open every file: never a log directory
+      .filter(directory -> directory.getParent() != null)
+      .toList();
+  }
+
+  /**
+   * Check that an existing file stays under the directory once the symbolic links are followed
+   *
+   * @param file      Normalized file path, lexically under the directory
+   * @param directory Normalized directory path
+   * @return File resolves under the directory (or does not exist, so there is nothing to read)
+   * @throws IOException Error resolving the real paths
+   */
+  private boolean resolvesUnder(Path file, Path directory) throws IOException {
+    if (!Files.exists(file)) {
+      return true;
+    }
+    return file.toRealPath().startsWith(directory.toRealPath());
+  }
+
+  /**
+   * Retrieve a file stream from a client path. Only the files under the log directories can be read
    *
    * @param path        File path
    * @param contentType Content type
-   * @return Text file
-   * @throws AWException Error retrieving text file
+   * @return File stream
+   * @throws AWException The path is not under a log directory or the file can not be read
    */
   public ResponseEntity<FileSystemResource> getFileStream(String path, String contentType) throws AWException {
+    checkWithinLogDirectories(path);
+    return streamFile(path, contentType);
+  }
+
+  /**
+   * Retrieve a file stream. The caller has resolved the path (uploaded or generated file)
+   *
+   * @param path        File path
+   * @param contentType Content type
+   * @return File stream
+   * @throws AWException Error reading the file
+   */
+  private ResponseEntity<FileSystemResource> streamFile(String path, String contentType) throws AWException {
     HttpHeaders headers = new HttpHeaders();
 
     try {
@@ -159,7 +260,7 @@ public class FileService extends ServiceConfig {
       // Retrieve entity
       return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     } catch (Exception exc) {
-      throw new AWException(getLocale(ERROR_TITLE_FILE_READING_ERROR), getLocale(ERROR_MESSAGE_FILE_READING_ERROR, path), exc);
+      throw new AWException(getLocale(ERROR_TITLE_FILE_READING_ERROR), getLocale(ERROR_MESSAGE_FILE_READING_ERROR), exc);
     }
   }
 
@@ -172,7 +273,7 @@ public class FileService extends ServiceConfig {
    */
   public ResponseEntity<FileSystemResource> getFileStream(FileData fileData) throws AWException {
     String filePath = getFullPath(fileData, false) + fileData.getFileName();
-    return getFileStream(filePath, fileData.getMimeType());
+    return streamFile(filePath, fileData.getMimeType());
   }
 
   /**
@@ -209,7 +310,7 @@ public class FileService extends ServiceConfig {
       // Return the file stream
       return new ResponseEntity<>(outputStream.toByteArray(), headers, HttpStatus.OK);
     } catch (Exception exc) {
-      throw new AWException(getLocale(ERROR_TITLE_FILE_READING_ERROR), getLocale(ERROR_MESSAGE_FILE_READING_ERROR, filePath), exc);
+      throw new AWException(getLocale(ERROR_TITLE_FILE_READING_ERROR), getLocale(ERROR_MESSAGE_FILE_READING_ERROR), exc);
     }
   }
 

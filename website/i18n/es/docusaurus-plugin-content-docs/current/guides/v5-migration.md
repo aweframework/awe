@@ -554,6 +554,23 @@ El modo se configura con `awe.security.authorization.mode`:
 
 Consulte [Acceso por pantalla](../security/screen-access.md).
 
+### Visor de logs y endpoints de ficheros {#log-viewer-files}
+
+El issue #975 cierra un path traversal: el visor de logs leía cualquier fichero cuya ruta enviaba el cliente. Ahora:
+
+- La acción `get-log-file`, `/file/text` y `/file/stream` solo leen ficheros dentro de las carpetas de logs (la ruta del
+  gestor de logs y los beans `LogDirectoryProvider`) y requieren el permiso `system.read` (lo declara el servicio
+  `getLogFile`). Cualquier otra ruta se rechaza con un error genérico, sin la ruta. Una aplicación que usa un
+  `file-viewer` con `/file/text` o `/file/stream` para otros ficheros declara su carpeta como un bean
+  `LogDirectoryProvider`, y sus usuarios necesitan `system.read`.
+- El visor del log de ejecución del scheduler usa la acción `get-execution-log` (`scheduler.read`) con los dos almacenes
+  de logs de ejecución: lee por tarea y ejecución, nunca por ruta. Se elimina el criterio oculto `path` de
+  `scheduler-execution-data`.
+- Las implementaciones propias de `ExecutionLogStore` heredan `locatorNode` y `applyViewerSelection` como métodos por
+  defecto.
+
+Consulte [Ficheros que puede leer el visor de logs](../logging.md#files-the-log-viewer-can-read).
+
 ### Perfiles adicionales {#additional-profiles}
 
 Un usuario puede tener perfiles adicionales además del principal (`ope.IdePro`), guardados en la nueva tabla

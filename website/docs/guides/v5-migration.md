@@ -536,6 +536,21 @@ The mode is set with `awe.security.authorization.mode`:
 
 See [Screen access](../security/screen-access.md).
 
+### Log viewer and file endpoints {#log-viewer-files}
+
+Issue #975 closes a path traversal: the log viewer read any file whose path the client sent. Now:
+
+- The `get-log-file` action, `/file/text` and `/file/stream` only read files under the log directories (the log manager
+  path and the `LogDirectoryProvider` beans) and require the `system.read` permission (the `getLogFile` service declares
+  it). Any other path is refused with a generic error, without the path. An application that uses a `file-viewer` with
+  `/file/text` or `/file/stream` for other files declares their folder as a `LogDirectoryProvider` bean, and its users
+  need `system.read`.
+- The scheduler execution log viewer uses the `get-execution-log` action (`scheduler.read`) in both execution log stores:
+  it reads by task and execution, never by path. The hidden `path` criterion of `scheduler-execution-data` is removed.
+- Custom `ExecutionLogStore` implementations inherit `locatorNode` and `applyViewerSelection` as default methods.
+
+See [Files the log viewer can read](../logging.md#files-the-log-viewer-can-read).
+
 ### Additional profiles
 
 A user can have additional profiles besides the main one (`ope.IdePro`), stored in the new `AweOpeRol` table. The main

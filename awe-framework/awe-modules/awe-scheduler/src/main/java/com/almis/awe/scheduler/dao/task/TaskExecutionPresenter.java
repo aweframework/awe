@@ -192,7 +192,7 @@ public class TaskExecutionPresenter {
   /**
    * Load execution screen parameters
    *
-   * @param path    Log path
+   * @param path    Execution log locator ({@code "{taskId}-{executionId}"})
    * @param address Button address
    * @return ServiceData
    * @throws AWException Error loading the execution screen
@@ -214,8 +214,8 @@ public class TaskExecutionPresenter {
   }
 
   /**
-   * Retrieve the database-mode execution log window from a line offset (get-execution-log action).
-   * Unreachable in file mode: the widget polls get-log-file, served by FileService, unchanged.
+   * Retrieve the execution log window from a line offset (get-execution-log action), in both file and
+   * database mode: the log is resolved by task and execution id through the active store, never by a client path.
    * <p>
    * Single-response delivery: the store's lines always land in {@code LOG_CONTENT}, paired with
    * {@code LOG_CONTENT_REPLACE} telling the widget whether to append them or atomically replace

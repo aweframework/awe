@@ -349,6 +349,29 @@ Por defecto, si utiliza los includes de configuración de logback de AWE, los lo
 |---------------------|-----------------------|--------------------------------------------------------------------------------------------------------|
 | `logging.file.path` | `LOG_PATH`            | Si se define, se usa en la configuración de log por defecto para configurar la ruta de destino del log |
 
+### Ficheros que puede leer el visor de logs {#files-the-log-viewer-can-read}
+
+El visor de logs de la pantalla `LogViw` lee los ficheros con la acción `get-log-file`. Solo sirve ficheros dentro de las
+carpetas de logs: la ruta del gestor de logs (`${logging.file.path}${awe.application.log.group}`, la carpeta que muestra
+la lista de logs) y las carpetas declaradas como beans `LogDirectoryProvider`. Cualquier otra ruta, incluida una que sale
+de esas carpetas con segmentos `..` o con un enlace simbólico, se rechaza con un error genérico de acceso al fichero. Los
+endpoints `/file/text` y `/file/stream` siguen la misma regla.
+
+La lista de logs, el visor y esos endpoints requieren el permiso `system.read` (lo declaran la consulta `getLogList` y el
+servicio `getLogFile`). El visor del log de ejecución del scheduler no lee ficheros por ruta: usa la acción
+`get-execution-log` con los identificadores de tarea y ejecución, que requiere `scheduler.read`, con los dos almacenes de
+logs de ejecución.
+
+Una aplicación que escribe logs en otra carpeta y quiere mostrarlos en el visor declara esa carpeta como un bean
+`LogDirectoryProvider`:
+
+```java
+@Bean
+public LogDirectoryProvider auditLogDirectory() {
+  return () -> Path.of("/var/log/my-app/audit");
+}
+```
+
 ## Rotación de archivos de log {#log-file-rotation}
 Por defecto, los archivos de log se rotan cuando el archivo alcanza 10 Mb, pero puede ajustar la política de rotación mediante las siguientes propiedades:
 

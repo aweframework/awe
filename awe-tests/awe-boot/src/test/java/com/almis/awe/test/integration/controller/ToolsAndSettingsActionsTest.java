@@ -101,6 +101,32 @@ class ToolsAndSettingsActionsTest extends AbstractSpringAppIntegrationTest {
 
   @Test
   @WithMockUser(username = SIGNED_IN_USER, password = SIGNED_IN_USER, roles = {"ADMIN", "USER"})
+  void logViewerRejectsFilesOutsideTheLogDirectory() throws Exception {
+    createLogFiles();
+    Path secret = Files.createTempFile(PREFIX, ".txt");
+    try {
+      Files.writeString(secret, "secret " + PREFIX, StandardCharsets.UTF_8);
+      String outside = secret.toAbsolutePath().toString();
+      // The log folder followed by the '..' segments that lead to the file
+      String traversal = logFolder.toAbsolutePath() + File.separator
+        + logFolder.toAbsolutePath().relativize(secret.toAbsolutePath());
+
+      for (String path : List.of(outside, traversal)) {
+        String result = launch("/action/get-log-file",
+          "{\"path\":\"" + EncodeService.encodeSymmetric(path) + "\",\"offset\":0}");
+        List<Object> logs = JsonPath.read(result, "$[?(@.type == 'log-delta')]");
+        List<String> messages = JsonPath.read(result, "$[?(@.type == 'message')].parameters.type");
+        assertThat(logs).as("log-delta of %s: %s", path, result).isEmpty();
+        assertThat(messages).as("message of %s: %s", path, result).containsExactly("error");
+        assertThat(result).doesNotContain("secret " + PREFIX).doesNotContain(secret.getFileName().toString());
+      }
+    } finally {
+      Files.deleteIfExists(secret);
+    }
+  }
+
+  @Test
+  @WithMockUser(username = SIGNED_IN_USER, password = SIGNED_IN_USER, roles = {"ADMIN", "USER"})
   void sqlExtractorReturnsTheRowsAndTheColumnsOfTheSelect() throws Exception {
     String result = launch("/action/data/selectExtract",
       "{\"selectCriteria\":\"select * from awekey\",\"sqlType\":\"R\"}");
