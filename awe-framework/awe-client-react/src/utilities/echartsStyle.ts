@@ -4,7 +4,9 @@
  * `areaStyle`, `borderRadius`, `barMaxWidth`, markers...) always win. The colors come from the series palette, which are
  * the design tokens, or from the colors of the chrome.
  */
-import {color as zrenderColor} from "echarts/core";
+// zrender is the drawing library of ECharts: this module only needs its color parser, and it must not pull echarts/core
+// (a heavy package, loaded on demand) into the main bundle
+import {modifyAlpha} from "zrender/lib/tool/color";
 import {formatNumber} from "./chartFormat";
 import type {ChartLocale} from "./chartFormat";
 import {BuiltSeries, DataPoint, ModelNode, Size} from "./echartsContext";
@@ -80,7 +82,7 @@ export function each(value: unknown, apply: (node: Node) => Node): unknown {
  * @returns {string|undefined} Color with the opacity, undefined when the color cannot be read
  */
 export function withAlpha(color: unknown, alpha: number): string | undefined {
-  return typeof color === "string" ? zrenderColor.modifyAlpha(color, alpha) || undefined : undefined;
+  return typeof color === "string" ? modifyAlpha(color, alpha) || undefined : undefined;
 }
 
 /**

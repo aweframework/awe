@@ -2,8 +2,7 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import _ from "lodash";
 import PropTypes from "prop-types";
-import * as L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import {Skeleton} from "primereact/skeleton";
 import {useComponentState} from "../hooks/useComponentState";
 import {classNames} from "../utilities/components";
 import {TestIds, testHook} from "../utilities/testIds";
@@ -96,6 +95,8 @@ function AweMap(props) {
   const markersRef = useRef(null);
   const markerById = useRef({});
   const pinIds = useRef(new Set());
+  // Leaflet is a heavy package, loaded on demand (with its stylesheet): null until it arrives
+  const [L, setL] = useState(null);
   const [mapReady, setMapReady] = useState(false);
   const [rendered, setRendered] = useState(false);
 
@@ -112,9 +113,20 @@ function AweMap(props) {
     }));
   }, [dispatch]);
 
+  useEffect(() => {
+    let active = true;
+    Promise.all([import("leaflet"), import("leaflet/dist/leaflet.css")])
+      .then(([leaflet]) => active && setL(leaflet))
+      // eslint-disable-next-line no-console
+      .catch(error => console.error("[ERROR] Leaflet could not be loaded", error));
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // Create the map (again when it is shown after being hidden) and its tiles
   useEffect(() => {
-    if (!shown || !containerRef.current) {
+    if (!L || !shown || !containerRef.current) {
       return undefined;
     }
     const map = L.map(containerRef.current, MAP_OPTIONS);
@@ -137,7 +149,7 @@ function AweMap(props) {
       setMapReady(false);
       setRendered(false);
     };
-  }, [shown, mapTileUrl]);
+  }, [L, shown, mapTileUrl]);
 
   // Draw the markers and place the view
   useEffect(() => {
@@ -191,7 +203,7 @@ function AweMap(props) {
       map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
     }
     setRendered(true);
-  }, [mapReady, points, route, routeMarkers, centerLatitude, centerLongitude, zoom, select, id]);
+  }, [L, mapReady, points, route, routeMarkers, centerLatitude, centerLongitude, zoom, select, id]);
 
   // Style the markers and expose their test hooks (also after they are drawn again)
   useEffect(() => {
@@ -221,6 +233,7 @@ function AweMap(props) {
   const classes = classNames("awe-map", "expand", style);
   return <div className={classes} id={id} {...testHook(TestIds.map, {rendered, attributes: {"map-id": id}})}>
     <div className="awe-map-canvas" ref={containerRef}/>
+    {!mapReady && <Skeleton className="awe-map-canvas" height="100%" aria-hidden="true"/>}
   </div>;
 }
 

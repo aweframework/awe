@@ -21,12 +21,12 @@ module.exports = merge(common, {
   optimization: {
     minimize: true,
     splitChunks: {
-      name: "main",
       cacheGroups: {
         "commons": {
           test: /[\\/]node_modules[\\/]((?!(awe\-react\-client|primereact)))/,
           name: 'commons',
-          chunks: 'all'
+          // Initial chunks only: the packages the client loads on demand (charts, maps, editors) keep their own chunks
+          chunks: 'initial'
         },
       }
     }

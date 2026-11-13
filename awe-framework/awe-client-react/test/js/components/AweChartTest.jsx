@@ -5,7 +5,7 @@ import {renderWithProviders} from "../test-utils";
 import AweChart from "../../../src/components/AweChart";
 import {updateAttributes, updateModel} from "../../../src/redux/actions/components";
 import {getChartImage} from "../../../src/utilities/chartRegistry";
-import {echarts, renderSvg} from "../../../src/utilities/echartsSetup";
+import {loadEcharts} from "../../../src/utilities/echartsLoader";
 import {observeColorMode, resolveChartColors} from "../../../src/utilities/echartsTheme";
 import models from "./fixtures/chrTstEchartsModels.json";
 import advancedModels from "./fixtures/advancedEchartsModels.json";
@@ -14,11 +14,13 @@ import {updateAttributesWithDependencies} from "../../../src/redux/thunks/compon
 
 // The component is tested against a fake ECharts that records what it is given: the options are built by the real
 // code, and the real library is exercised (SVG output, no warnings) by echartsSvgTest
-jest.mock("../../../src/utilities/echartsSetup", () => ({
-  echarts: {init: jest.fn()},
-  getEChartsLocale: jest.requireActual("../../../src/utilities/echartsSetup").getEChartsLocale,
-  renderSvg: jest.fn(() => "<svg>print</svg>")
-}));
+jest.mock("../../../src/utilities/echartsLoader", () => {
+  const loaded = {echarts: {init: jest.fn()}, renderSvg: jest.fn(() => "<svg>print</svg>")};
+  return {
+    getEChartsLocale: jest.requireActual("../../../src/utilities/echartsLocale").getEChartsLocale,
+    loadEcharts: jest.fn(() => Promise.resolve(loaded))
+  };
+});
 
 // The colors come from the design tokens of the browser: the test gives them, and records the mode observer
 jest.mock("../../../src/utilities/echartsTheme", () => ({
@@ -50,6 +52,8 @@ const values = [
 const pairsOf = (data) => data.map(point => Array.isArray(point) ? point : point.value);
 
 describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
+  let echarts;
+  let renderSvg;
   let instances;
   let observers;
   let onModeChange;
@@ -86,11 +90,17 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
     }
   });
 
-  const renderChart = (echartsModel, rows, extra) => renderWithProviders(
-    <div style={{width: "1000px", height: "600px"}}><AweChart id="chart"/></div>,
-    {preloadedState: stateOf(echartsModel, rows, extra)});
+  // ECharts is loaded on demand: the chart is created once the load ends
+  const renderChart = async (echartsModel, rows, extra) => {
+    const rendered = renderWithProviders(
+      <div style={{width: "1000px", height: "600px"}}><AweChart id="chart"/></div>,
+      {preloadedState: stateOf(echartsModel, rows, extra)});
+    await act(async () => {});
+    return rendered;
+  };
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    ({echarts, renderSvg} = await loadEcharts());
     instances = [];
     observers = [];
     updateAttributesWithDependencies.mockClear();
@@ -125,8 +135,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   });
 
   describe('creation', () => {
-    it('should create an SVG chart in its container, with the plain theme', () => {
-      renderChart(models.ChrLinTst);
+    it('should create an SVG chart in its container, with the plain theme', async () => {
+      await renderChart(models.ChrLinTst);
 
       expect(echarts.init).toHaveBeenCalledTimes(1);
       const [element, theme, options] = echarts.init.mock.calls[0];
@@ -135,8 +145,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(options).toEqual({renderer: "svg", locale: "EN"});
     });
 
-    it('should draw the chrome of the chart with the colors of the design tokens, resolved in its container', () => {
-      renderChart(models.ChrBarTst);
+    it('should draw the chrome of the chart with the colors of the design tokens, resolved in its container', async () => {
+      await renderChart(models.ChrBarTst);
 
       expect(resolveChartColors).toHaveBeenCalledWith(document.querySelector("#chart"));
       expect(lastOption().title.textStyle.color).toBe(LIGHT.title);
@@ -144,17 +154,17 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastOption().backgroundColor).toBe("rgba(0, 0, 0, 0)");
     });
 
-    it('should draw a chart without colors when the page gives none', () => {
+    it('should draw a chart without colors when the page gives none', async () => {
       resolveChartColors.mockReturnValue(null);
 
-      renderChart(models.ChrBarTst);
+      await renderChart(models.ChrBarTst);
 
       expect(lastOption().title.textStyle).toBeUndefined();
       expect(lastOption().series.length).toBeGreaterThan(0);
     });
 
-    it('should expose the test hook with the chart identifier, rendered once ECharts finishes', () => {
-      renderChart(models.ChrLinTst);
+    it('should expose the test hook with the chart identifier, rendered once ECharts finishes', async () => {
+      await renderChart(models.ChrLinTst);
 
       const hook = document.querySelector("[data-testid='chart']");
       expect(hook.getAttribute("chart-id")).toBe("chart");
@@ -165,34 +175,62 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(hook.getAttribute("data-rendered")).toBe("true");
     });
 
-    it('should also mark the chart as rendered when ECharts reports a render', () => {
-      renderChart(models.ChrLinTst);
+    it('should also mark the chart as rendered when ECharts reports a render', async () => {
+      await renderChart(models.ChrLinTst);
 
       act(() => lastChart().handlers.rendered());
 
       expect(document.querySelector("[data-testid='chart']").getAttribute("data-rendered")).toBe("true");
     });
 
-    it('should hide the chart when it is not visible', () => {
-      renderChart(models.ChrLinTst, values, {visible: false});
+    it('should create the chart only once ECharts is loaded, with the skeleton in the meantime', async () => {
+      const loaded = await loadEcharts();
+      let finish;
+      loadEcharts.mockReturnValueOnce(new Promise(resolve => {
+        finish = () => resolve(loaded);
+      }));
 
-      expect(document.querySelector("div#chart").classList.contains("hidden")).toBe(true);
+      await renderChart(models.ChrLinTst);
+
+      expect(echarts.init).not.toHaveBeenCalled();
+      expect(document.querySelector(".awe-skeleton-chart")).not.toBeNull();
+
+      await act(async () => finish());
+
+      expect(echarts.init).toHaveBeenCalledTimes(1);
     });
 
-    it('should not crash the screen when ECharts cannot create the chart', () => {
+    it('should not crash the screen when ECharts cannot be loaded', async () => {
       const error = jest.spyOn(console, "error").mockImplementation(() => {});
-      echarts.init.mockImplementation(() => {
-        throw new Error("no svg");
-      });
+      loadEcharts.mockReturnValueOnce(Promise.reject(new Error("offline")));
 
-      renderChart(models.ChrLinTst);
+      await renderChart(models.ChrLinTst);
 
       expect(document.querySelector("div#chart")).not.toBeNull();
       expect(error).toHaveBeenCalled();
       error.mockRestore();
     });
 
-    it('should not crash the screen when ECharts cannot draw the option', () => {
+    it('should hide the chart when it is not visible', async () => {
+      await renderChart(models.ChrLinTst, values, {visible: false});
+
+      expect(document.querySelector("div#chart").classList.contains("hidden")).toBe(true);
+    });
+
+    it('should not crash the screen when ECharts cannot create the chart', async () => {
+      const error = jest.spyOn(console, "error").mockImplementation(() => {});
+      echarts.init.mockImplementation(() => {
+        throw new Error("no svg");
+      });
+
+      await renderChart(models.ChrLinTst);
+
+      expect(document.querySelector("div#chart")).not.toBeNull();
+      expect(error).toHaveBeenCalled();
+      error.mockRestore();
+    });
+
+    it('should not crash the screen when ECharts cannot draw the option', async () => {
       const error = jest.spyOn(console, "error").mockImplementation(() => {});
       echarts.init.mockImplementation(() => {
         const chart = fakeChart();
@@ -202,7 +240,7 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
         return chart;
       });
 
-      renderChart(models.ChrLinTst);
+      await renderChart(models.ChrLinTst);
 
       expect(document.querySelector("div#chart")).not.toBeNull();
       expect(error).toHaveBeenCalled();
@@ -211,8 +249,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   });
 
   describe('option', () => {
-    it('should give ECharts the option built from the model and the values', () => {
-      renderChart(models.ChrLinTst);
+    it('should give ECharts the option built from the model and the values', async () => {
+      await renderChart(models.ChrLinTst);
 
       const option = lastOption();
       expect(lastChart().setOption.mock.calls[0][1]).toEqual({notMerge: true});
@@ -221,16 +259,16 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(JSON.stringify(option)).not.toContain("\"awe\"");
     });
 
-    it('should translate the texts of the chart', () => {
-      renderChart(models.ChrLinTst);
+    it('should translate the texts of the chart', async () => {
+      await renderChart(models.ChrLinTst);
 
       expect(lastOption().title.text).toBe(i18n.t("SCREEN_TEXT_CHART_TITLE_1"));
     });
 
-    it('should draw an empty chart with the no data message when the server sent no echartsModel', () => {
+    it('should draw an empty chart with the no data message when the server sent no echartsModel', async () => {
       const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
 
-      renderChart(undefined);
+      await renderChart(undefined);
 
       expect(lastOption().series).toEqual([]);
       expect(texts(lastOption())).toEqual([expect.any(String)]);
@@ -238,15 +276,15 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       warn.mockRestore();
     });
 
-    it('should show the no data message when there are no values', () => {
-      renderChart(models.ChrLinTst, []);
+    it('should show the no data message when there are no values', async () => {
+      await renderChart(models.ChrLinTst, []);
 
       expect(texts(lastOption())).toHaveLength(1);
       expect(texts(lastOption())[0]).toBeTruthy();
     });
 
-    it('should draw again when the values change', () => {
-      const {store} = renderChart(models.ChrLinTst);
+    it('should draw again when the values change', async () => {
+      const {store} = await renderChart(models.ChrLinTst);
       const calls = lastChart().setOption.mock.calls.length;
 
       act(() => {
@@ -257,8 +295,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(pairsOf(lastOption().series[0].data)).toEqual([[day(1), 10]]);
     });
 
-    it('should draw again when the server replaces the echarts model', () => {
-      const {store} = renderChart(models.ChrLinTst);
+    it('should draw again when the server replaces the echarts model', async () => {
+      const {store} = await renderChart(models.ChrLinTst);
 
       act(() => {
         store.dispatch(updateAttributes({component: "chart", view: "report"}, {echartsModel: models.ChrStockTst}));
@@ -270,8 +308,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   });
 
   describe('lifecycle', () => {
-    it('should dispose the chart and forget its image when it is unmounted', () => {
-      const {unmount} = renderChart(models.ChrLinTst);
+    it('should dispose the chart and forget its image when it is unmounted', async () => {
+      const {unmount} = await renderChart(models.ChrLinTst);
       const chart = lastChart();
       expect(getChartImage("chart", "PORTRAIT")).toBe("<svg>print</svg>");
 
@@ -282,7 +320,7 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
     });
 
     it('should create the chart again when the language changes', async () => {
-      renderChart(models.ChrLinTst);
+      await renderChart(models.ChrLinTst);
       const first = lastChart();
 
       await act(async () => {
@@ -299,8 +337,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   });
 
   describe('print', () => {
-    it('should draw the image of the page size apart, without the colors of the screen, from the same model', () => {
-      renderChart(models.ChrLinTst);
+    it('should draw the image of the page size apart, without the colors of the screen, from the same model', async () => {
+      await renderChart(models.ChrLinTst);
 
       expect(getChartImage("chart", "PORTRAIT")).toBe("<svg>print</svg>");
       expect(getChartImage("chart", "LANDSCAPE")).toBe("<svg>print</svg>");
@@ -312,8 +350,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(portrait[2]).toBe(i18n.language);
     });
 
-    it('should print the latest values', () => {
-      const {store} = renderChart(models.ChrLinTst);
+    it('should print the latest values', async () => {
+      const {store} = await renderChart(models.ChrLinTst);
 
       act(() => {
         store.dispatch(updateModel({component: "chart", view: "report"}, {values: [values[1]]}));
@@ -325,9 +363,9 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   });
 
   describe('resize', () => {
-    it('should observe the container and resize the chart, debounced', () => {
+    it('should observe the container and resize the chart, debounced', async () => {
       jest.useFakeTimers();
-      renderChart(models.ChrLinTst);
+      await renderChart(models.ChrLinTst);
       const chart = lastChart();
       expect(observers).toHaveLength(1);
       expect(observers[0].observe).toHaveBeenCalledWith(document.querySelector("div#chart"));
@@ -342,18 +380,18 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(chart.resize).toHaveBeenCalledTimes(1);
     });
 
-    it('should build the option with the size of the container', () => {
+    it('should build the option with the size of the container', async () => {
       const model = clone(models.ChrSemiCircleTst);
 
-      renderChart(model);
+      await renderChart(model);
 
       // 500 / 2 + 50 - 12
       expect(lastOption().title.top).toBe(288);
     });
 
-    it('should place a semicircle again with the new size of the container', () => {
+    it('should place a semicircle again with the new size of the container', async () => {
       jest.useFakeTimers();
-      renderChart(clone(models.ChrSemiCircleTst));
+      await renderChart(clone(models.ChrSemiCircleTst));
       // Plot area of 900x500: margins of 16 and the legend below (34)
       expect(lastOption().series[0].center).toEqual([450, 16 + 0.75 * (500 - 16 - 50)]);
 
@@ -367,18 +405,18 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastOption().series[0].center).toEqual([300, 16 + 0.75 * (400 - 16 - 50)]);
     });
 
-    it('should stop observing when it is unmounted', () => {
-      const {unmount} = renderChart(models.ChrLinTst);
+    it('should stop observing when it is unmounted', async () => {
+      const {unmount} = await renderChart(models.ChrLinTst);
 
       unmount();
 
       expect(observers[0].disconnect).toHaveBeenCalled();
     });
 
-    it('should work without ResizeObserver', () => {
+    it('should work without ResizeObserver', async () => {
       delete global.ResizeObserver;
 
-      renderChart(models.ChrLinTst);
+      await renderChart(models.ChrLinTst);
 
       expect(echarts.init).toHaveBeenCalled();
     });
@@ -391,8 +429,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       return model;
     };
 
-    it('should hide and show a linked series together with the series it is linked to', () => {
-      renderChart(linkedModel(), []);
+    it('should hide and show a linked series together with the series it is linked to', async () => {
+      await renderChart(linkedModel(), []);
       const {handlers, dispatchAction} = lastChart();
 
       act(() => handlers.legendselectchanged({name: "max", selected: {max: false, Hombres: true}}));
@@ -402,8 +440,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(dispatchAction).toHaveBeenNthCalledWith(2, {type: "legendSelect", name: "min"});
     });
 
-    it('should not dispatch anything for a series that nothing is linked to', () => {
-      renderChart(linkedModel(), []);
+    it('should not dispatch anything for a series that nothing is linked to', async () => {
+      await renderChart(linkedModel(), []);
       const {handlers, dispatchAction} = lastChart();
 
       act(() => handlers.legendselectchanged({name: "Hombres", selected: {Hombres: false}}));
@@ -419,8 +457,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       {names: "Firefox", serie1: 20, subserie1: 4}
     ];
 
-    it('should replace a series that has a drilldown when it is clicked, and restore it with the back control', () => {
-      renderChart(models.ChrPieTst, pieValues);
+    it('should replace a series that has a drilldown when it is clicked, and restore it with the back control', async () => {
+      await renderChart(models.ChrPieTst, pieValues);
       expect(lastOption().series[0].id).toBe("serie1");
 
       act(() => lastChart().handlers.click({seriesId: "serie1", name: "Chrome"}));
@@ -435,8 +473,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastOption().graphic).toBeUndefined();
     });
 
-    it('should ignore the click on a series without drilldown', () => {
-      renderChart(models.ChrLinTst);
+    it('should ignore the click on a series without drilldown', async () => {
+      await renderChart(models.ChrLinTst);
       const calls = lastChart().setOption.mock.calls.length;
 
       act(() => lastChart().handlers.click({seriesId: "serie-1"}));
@@ -444,8 +482,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastChart().setOption.mock.calls.length).toBe(calls);
     });
 
-    it('should close the drilldown when the server sends another chart', () => {
-      const {store} = renderChart(models.ChrPieTst, pieValues);
+    it('should close the drilldown when the server sends another chart', async () => {
+      const {store} = await renderChart(models.ChrPieTst, pieValues);
       act(() => lastChart().handlers.click({seriesId: "serie1"}));
       expect(lastOption().series[0].id).toBe("serie1_1");
 
@@ -456,8 +494,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastOption().series[0].id).toBe("serie1");
     });
 
-    it('should keep the drilldown and the drawing when an event only writes the chart attributes', () => {
-      renderChart(models.ChrPieTst, pieValues);
+    it('should keep the drilldown and the drawing when an event only writes the chart attributes', async () => {
+      await renderChart(models.ChrPieTst, pieValues);
       act(() => lastChart().handlers.click({seriesId: "serie1"}));
       const calls = lastChart().setOption.mock.calls.length;
 
@@ -473,8 +511,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
     const attributesOf = (store) => store.getState().components.chart.attributes;
     const emitted = () => updateAttributesWithDependencies.mock.calls;
 
-    it('should emit click with the point as the x and y attributes', () => {
-      const {store} = renderChart(models.ChrLinTst);
+    it('should emit click with the point as the x and y attributes', async () => {
+      const {store} = await renderChart(models.ChrLinTst);
 
       act(() => lastChart().handlers.click({seriesId: "serie-1", value: [day(2), 20]}));
 
@@ -482,16 +520,16 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(attributesOf(store)).toMatchObject({x: day(2), y: 20});
     });
 
-    it('should use the name and the value of a point without coordinates (pie)', () => {
-      const {store} = renderChart(models.ChrPieTst, [{names: "Chrome", serie1: 3}]);
+    it('should use the name and the value of a point without coordinates (pie)', async () => {
+      const {store} = await renderChart(models.ChrPieTst, [{names: "Chrome", serie1: 3}]);
 
       act(() => lastChart().handlers.click({seriesId: "none", name: "Chrome", value: 3}));
 
       expect(attributesOf(store)).toMatchObject({x: "Chrome", y: 3});
     });
 
-    it('should emit double-click and context-menu with the point', () => {
-      renderChart(models.ChrLinTst);
+    it('should emit double-click and context-menu with the point', async () => {
+      await renderChart(models.ChrLinTst);
 
       act(() => lastChart().handlers.dblclick({value: [day(1), 10]}));
       act(() => lastChart().handlers.contextmenu({value: [day(2), 20]}));
@@ -502,8 +540,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       ]);
     });
 
-    it('should emit zoom with the range of the zoomed axes, and keep the y range empty', () => {
-      const {store} = renderChart(models.ChrLinTst);
+    it('should emit zoom with the range of the zoomed axes, and keep the y range empty', async () => {
+      const {store} = await renderChart(models.ChrLinTst);
       lastChart().getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 20, end: 60, startValue: day(2), endValue: day(5)}]});
 
       act(() => lastChart().handlers.datazoom({}));
@@ -512,8 +550,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(attributesOf(store)).toMatchObject({xMin: day(2), xMax: day(5), yMin: null, yMax: null});
     });
 
-    it('should tell through its test hook whether it is zoomed', () => {
-      renderChart(models.ChrLinTst);
+    it('should tell through its test hook whether it is zoomed', async () => {
+      await renderChart(models.ChrLinTst);
       const hook = () => document.querySelector("[data-testid='chart']").getAttribute("data-zoomed");
       expect(hook()).toBe("false");
 
@@ -523,8 +561,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(hook()).toBe("true");
     });
 
-    it('should emit zoom with an empty range when the zoom is reset', () => {
-      renderChart(models.ChrLinTst);
+    it('should emit zoom with an empty range when the zoom is reset', async () => {
+      await renderChart(models.ChrLinTst);
       lastChart().getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 0, end: 100, startValue: day(1), endValue: day(9)}]});
 
       act(() => lastChart().handlers.datazoom({}));
@@ -532,8 +570,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(emitted()[0][1]).toMatchObject({xMin: null, xMax: null, event: "zoom"});
     });
 
-    it('should not fail when the chart cannot tell its zoom', () => {
-      renderChart(models.ChrLinTst);
+    it('should not fail when the chart cannot tell its zoom', async () => {
+      await renderChart(models.ChrLinTst);
       lastChart().getOption.mockImplementation(() => {
         throw new Error("disposed");
       });
@@ -553,8 +591,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       {xAxisIndex: [0], start: 0, end: 100}
     ]});
 
-    it('should zoom every x data zoom to the range of the chart options', () => {
-      const {store} = renderChart(models.ChrStockTst);
+    it('should zoom every x data zoom to the range of the chart options', async () => {
+      const {store} = await renderChart(models.ChrStockTst);
       lastChart().getOption.mockReturnValue(zoomOption());
 
       setOptions(store, {zoom: {x: {min: day(2), max: day(5)}}});
@@ -564,8 +602,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(store.getState().components.chart.attributes).toMatchObject({xMin: day(2), xMax: day(5)});
     });
 
-    it('should accept the chart options as a JSON text', () => {
-      const {store} = renderChart(models.ChrStockTst);
+    it('should accept the chart options as a JSON text', async () => {
+      const {store} = await renderChart(models.ChrStockTst);
       lastChart().getOption.mockReturnValue(zoomOption());
 
       setOptions(store, `{"zoom": {"x": {"min": 10, "max": 20}}}`);
@@ -573,8 +611,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastChart().dispatchAction).toHaveBeenCalledWith(expect.objectContaining({startValue: 10, endValue: 20}));
     });
 
-    it('should show the whole range when the zoom of the options is empty', () => {
-      const {store} = renderChart(models.ChrStockTst, values, {xMin: day(2), xMax: day(5)});
+    it('should show the whole range when the zoom of the options is empty', async () => {
+      const {store} = await renderChart(models.ChrStockTst, values, {xMin: day(2), xMax: day(5)});
       lastChart().getOption.mockReturnValue(zoomOption());
 
       setOptions(store, {zoom: {x: {min: null, max: null}}});
@@ -583,8 +621,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(store.getState().components.chart.attributes).toMatchObject({xMin: null, xMax: null});
     });
 
-    it('should not zoom again to the range it already has', () => {
-      const {store} = renderChart(models.ChrStockTst, values, {xMin: day(2), xMax: day(5)});
+    it('should not zoom again to the range it already has', async () => {
+      const {store} = await renderChart(models.ChrStockTst, values, {xMin: day(2), xMax: day(5)});
       lastChart().getOption.mockReturnValue(zoomOption());
 
       setOptions(store, {zoom: {x: {min: day(2), max: day(5)}}});
@@ -592,8 +630,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastChart().dispatchAction).not.toHaveBeenCalled();
     });
 
-    it('should not emit the zoom event that its own zoom raises (no loop between linked charts)', () => {
-      const {store} = renderChart(models.ChrStockTst);
+    it('should not emit the zoom event that its own zoom raises (no loop between linked charts)', async () => {
+      const {store} = await renderChart(models.ChrStockTst);
       const chart = lastChart();
       chart.getOption.mockReturnValue(zoomOption());
       chart.dispatchAction.mockImplementation(() => chart.handlers.datazoom({}));
@@ -605,8 +643,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(store.getState().components.chart.attributes).toMatchObject({xMin: day(2), xMax: day(5)});
     });
 
-    it('should ignore the options that have no zoom, a text that is not JSON and an unknown axis', () => {
-      const {store} = renderChart(models.ChrStockTst);
+    it('should ignore the options that have no zoom, a text that is not JSON and an unknown axis', async () => {
+      const {store} = await renderChart(models.ChrStockTst);
       lastChart().getOption.mockReturnValue(zoomOption());
 
       setOptions(store, {title: {text: "none"}});
@@ -617,11 +655,11 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastChart().dispatchAction).not.toHaveBeenCalled();
     });
 
-    it('should zoom the chart that is linked to another one when the first one is zoomed', () => {
+    it('should zoom the chart that is linked to another one when the first one is zoomed', async () => {
       // Two charts: the zoom event of the first one becomes the chart options of the second one (the dependency)
-      const first = renderChart(models.ChrLinTst);
+      const first = await renderChart(models.ChrLinTst);
       const firstChart = lastChart();
-      const second = renderChart(models.ChrStockTst);
+      const second = await renderChart(models.ChrStockTst);
       const secondChart = lastChart();
       secondChart.getOption.mockReturnValue(zoomOption());
       firstChart.getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 10, end: 50, startValue: day(3), endValue: day(4)}]});
@@ -638,8 +676,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   describe('skeleton', () => {
     const loader = () => document.querySelector("[data-testid='chart'] .awe-skeleton-chart");
 
-    it('should show a hidden skeleton until the chart is drawn', () => {
-      renderChart(models.ChrBarTst);
+    it('should show a hidden skeleton until the chart is drawn', async () => {
+      await renderChart(models.ChrBarTst);
 
       expect(loader()).not.toBeNull();
       expect(loader().getAttribute("aria-hidden")).toBe("true");
@@ -654,35 +692,35 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       ['bars', models.ChrBarTst],
       ['trend', models.ChrStockTst],
       ['pie', models.ChrPieTst]
-    ])('should hint the %s of the chart in its skeleton', (hint, model) => {
-      renderChart(model);
+    ])('should hint the %s of the chart in its skeleton', async (hint, model) => {
+      await renderChart(model);
 
       expect(loader().classList.contains(`awe-skeleton-chart-${hint}`)).toBe(true);
       expect(loader().querySelectorAll(".p-skeleton").length).toBeGreaterThan(0);
     });
 
-    it('should not mark the skeleton as a loader, so browser waits do not depend on the chart being drawn', () => {
+    it('should not mark the skeleton as a loader, so browser waits do not depend on the chart being drawn', async () => {
       // A chart in a hidden tab is not drawn until it is shown: the chart hook tells whether it is rendered
-      renderChart(models.ChrBarTst);
+      await renderChart(models.ChrBarTst);
 
       expect(loader()).not.toBeNull();
       expect(document.querySelector("[data-testid='chart'] [data-testid='loader']")).toBeNull();
     });
 
-    it('should hint bars while the chart model has not arrived', () => {
-      renderChart(undefined);
+    it('should hint bars while the chart model has not arrived', async () => {
+      await renderChart(undefined);
 
       expect(loader().classList.contains("awe-skeleton-chart-bars")).toBe(true);
     });
 
-    it('should show no skeleton in a hidden chart', () => {
-      renderChart(models.ChrBarTst, values, {visible: false});
+    it('should show no skeleton in a hidden chart', async () => {
+      await renderChart(models.ChrBarTst, values, {visible: false});
 
       expect(loader()).toBeNull();
     });
 
-    it('should cover the drawn chart with its skeleton while it reloads, until the data arrives', () => {
-      const {store} = renderChart(models.ChrPieTst);
+    it('should cover the drawn chart with its skeleton while it reloads, until the data arrives', async () => {
+      const {store} = await renderChart(models.ChrPieTst);
       act(() => lastChart().handlers.finished());
       expect(loader()).toBeNull();
 
@@ -703,15 +741,15 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(loader()).toBeNull();
     });
 
-    it('should not cover the chart before it is first drawn', () => {
-      renderChart(models.ChrBarTst, values, {loading: true});
+    it('should not cover the chart before it is first drawn', async () => {
+      await renderChart(models.ChrBarTst, values, {loading: true});
 
       expect(loader()).not.toBeNull();
       expect(loader().classList.contains("awe-skeleton-chart-cover")).toBe(false);
     });
 
-    it('should show no skeleton in a hidden chart that reloads', () => {
-      const {store} = renderChart(models.ChrBarTst, values, {visible: false});
+    it('should show no skeleton in a hidden chart that reloads', async () => {
+      const {store} = await renderChart(models.ChrBarTst, values, {visible: false});
       act(() => lastChart().handlers.finished());
 
       act(() => {
@@ -723,8 +761,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
   });
 
   describe('color mode', () => {
-    it('should draw the chart again with the new colors when the mode changes, without creating it again', () => {
-      renderChart(models.ChrBarTst);
+    it('should draw the chart again with the new colors when the mode changes, without creating it again', async () => {
+      await renderChart(models.ChrBarTst);
       const chart = lastChart();
       expect(echarts.init).toHaveBeenCalledTimes(1);
 
@@ -737,8 +775,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(lastOption(chart).yAxis[0].splitLine.lineStyle.color).toBe(DARK.split);
     });
 
-    it('should not draw the chart again when the colors are the same', () => {
-      renderChart(models.ChrBarTst);
+    it('should not draw the chart again when the colors are the same', async () => {
+      await renderChart(models.ChrBarTst);
       const chart = lastChart();
       const draws = chart.setOption.mock.calls.length;
 
@@ -748,8 +786,8 @@ describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
       expect(chart.setOption).toHaveBeenCalledTimes(draws);
     });
 
-    it('should stop observing the mode when the chart is removed', () => {
-      const {unmount} = renderChart(models.ChrBarTst);
+    it('should stop observing the mode when the chart is removed', async () => {
+      const {unmount} = await renderChart(models.ChrBarTst);
 
       unmount();
 

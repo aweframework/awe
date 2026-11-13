@@ -243,6 +243,32 @@ La incidencia #769 limpió las dependencias npm de ambos clientes:
   `angular-ui-router` 0.4, `angular-ui-grid` (la 4.12.7 cambia el punto de entrada del paquete), Highcharts y
   jQuery/Bootstrap (#755, #772), Redux Toolkit 2 (#807) y React 19.
 
+### El cliente React carga sus paquetes pesados bajo demanda {#react-on-demand-packages}
+
+La issue #970 hace que el cliente React cargue echarts, leaflet, Quill (`primereact/editor`), `react-pivottable`,
+`react-pdfobject`, `react-lazylog` y `react-player` con un `import()` dinámico, la primera vez que una pantalla muestra un
+gráfico, un mapa, un editor, una tabla dinámica, un PDF, un log o un vídeo. El webpack de la aplicación pone cada uno en
+su propio chunk, así que el inicio de sesión y la primera pantalla ya no los descargan. Nada se rompe si la aplicación
+mantiene su configuración de webpack, pero solo obtiene el bundle más pequeño cuando el `splitChunks` de su
+`webpack.dev.js` y su `webpack.prod.js` coincide con el del arquetipo: sin un `name: "main"` global, y con un grupo
+`commons` que solo toma los chunks iniciales:
+
+```js
+splitChunks: {
+  cacheGroups: {
+    "commons": {
+      test: /[\\/]node_modules[\\/]((?!(awe\-react\-client|primereact)))/,
+      name: 'commons',
+      chunks: 'initial'
+    },
+  }
+}
+```
+
+Con `chunks: 'all'` los paquetes bajo demanda vuelven a `commons.js`, que cargan todas las páginas. Con el `name: "main"`
+global van todos a un único chunk `main.js`, así que el primer gráfico descarga también los mapas y los editores. Los
+widgets pesados de la propia aplicación se pueden cargar igual (consulte [widgets React propios](custom-widgets-react.md#3-register-the-component)).
+
 ### El JavaScript de Bootstrap ya no se publica {#bootstrap-javascript-is-no-longer-shipped}
 
 La incidencia #755 (slice 4) eliminó `import "bootstrap"` del cliente AngularJS y el paquete `bootstrap` de su `package.json`. El CSS de
@@ -1394,6 +1420,7 @@ Copie esta lista a la incidencia de su actualización y márquela a medida que a
 - [ ] Las opciones de menú propias que abren las pantallas deprecadas `Mod` apuntan a `module-admin`
 - [ ] Las opciones de menú propias que abren las pantallas deprecadas `ScrAccRes`, `menu-access` o `screen-access` apuntan a `access-admin`
 - [ ] Se quitaron `server.compression.*` y `spring.web.resources.chain.compressed` de `application.properties` (o la lista propia incluye `text/javascript` e `image/svg+xml`), y el `webpack.prod.js` de React tiene las entradas `CompressionPlugin` del arquetipo
+- [ ] The `splitChunks` of the React `webpack.dev.js` and `webpack.prod.js` have no global `name: "main"` and the `commons` cache group uses `chunks: 'initial'`, as the archetype does
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

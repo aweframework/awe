@@ -1,14 +1,13 @@
 "use strict";
 
-import React, { useEffect, useState } from "react";
-import { PDFObject } from 'react-pdfobject';
+import React, { Suspense, useEffect, useState } from "react";
 import "./AweCarousel.less";
 import { Skeleton } from "primereact/skeleton";
 import { useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
 import { useTranslation } from "react-i18next";
 import { Carousel } from "primereact/carousel";
-import ReactPlayer from "react-player";
+import { PDFObject, ReactPlayer } from "../utilities/lazyPackages";
 import { Image } from "primereact/image";
 import { translateLabel } from "../utilities";
 import PropTypes from "prop-types";
@@ -19,11 +18,13 @@ function AweCarousel({ id, style = "" }) {
   const { model = { values: [] } } = useComponentState(id);
   const [items, setItems] = useState([]);
   const videoTemplate = (item) => {
-    return <ReactPlayer url={item.url} controls />;
+    return <Suspense fallback={<Skeleton width="100%" height="100%" />}><ReactPlayer url={item.url} controls /></Suspense>;
   };
 
   const pdfTemplate = (item) => {
-    return <PDFObject url={item.url} height={"100%"} style={{ height: "100%" }} />;
+    return <Suspense fallback={<Skeleton width="100%" height="100%" />}>
+      <PDFObject url={item.url} height={"100%"} style={{ height: "100%" }} />
+    </Suspense>;
   };
 
   const imageTemplate = (item) => {

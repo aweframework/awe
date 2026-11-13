@@ -13,7 +13,7 @@ import {registerChart, unregisterChart} from "../utilities/chartRegistry";
 import {buildEChartsOption, findDrilldownId} from "../utilities/echartsOption";
 import {linkedNames} from "../utilities/echartsLegend";
 import {parseChartOptions, pointOf, zoomOf, zoomRequests} from "../utilities/echartsEvents";
-import {echarts, getEChartsLocale, renderSvg} from "../utilities/echartsSetup";
+import {getEChartsLocale, loadEcharts} from "../utilities/echartsLoader";
 import {observeColorMode, resolveChartColors, sameColors} from "../utilities/echartsTheme";
 
 import {ChartSkeleton, chartHintOf} from "./AweSkeleton";
@@ -63,11 +63,12 @@ function changedZoom(zoom, attributes) {
 
 /**
  * Create the ECharts instance of a container and track its drawing
+ * @param {object} echarts ECharts library
  * @param {HTMLElement} element Element that holds the chart
  * @param {string} language Language of the application
  * @returns {object|null} ECharts instance, null when it cannot be created
  */
-function createChart(element, language) {
+function createChart(echarts, element, language) {
   try {
     // The plain theme: the colors of the chrome come from the design tokens (see echartsTheme)
     return echarts.init(element, PLAIN_THEME, {
@@ -101,6 +102,8 @@ function AweChart(props) {
   const chartRef = useRef(null);
   const optionRef = useRef(null);
   const [rendered, setRendered] = useState(false);
+  // ECharts is a heavy package, loaded on demand: {echarts, renderSvg}, null until it arrives
+  const [library, setLibrary] = useState(null);
   const [size, setSize] = useState({width: 0, height: 0});
   const [drill, setDrill] = useState(null);
   // undefined until the tokens are read (before the first paint); null when the page gives no colours
@@ -155,10 +158,21 @@ function AweChart(props) {
     return observeColorMode(resolve);
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    loadEcharts().then(loaded => active && setLibrary(loaded)).catch(error => console.error("[ERROR] ECharts could not be loaded", error));
+    return () => {
+      active = false;
+    };
+  }, []);
+
   // Create the chart (again when the language changes: the texts of ECharts are set on creation)
   useEffect(() => {
+    if (!library) {
+      return undefined;
+    }
     const element = chartElementRef.current;
-    const chart = createChart(element, i18n.language);
+    const chart = createChart(library.echarts, element, i18n.language);
     if (!chart) {
       return undefined;
     }
@@ -191,7 +205,7 @@ function AweChart(props) {
       getImage: (imageSize) => {
         const {echartsModel: current, values: data, t: translate, locale: texts, language} = latest.current;
         const printOption = buildEChartsOption(current, data, {...imageSize, t: translate, locale: texts, print: true});
-        return renderSvg(printOption, imageSize, language);
+        return library.renderSvg(printOption, imageSize, language);
       }
     };
     registerChart(id, handle);
@@ -203,7 +217,7 @@ function AweChart(props) {
       chartRef.current = null;
       chart.dispose();
     };
-  }, [id, i18n.language, applyOption, emit]);
+  }, [id, i18n.language, library, applyOption, emit]);
 
   useEffect(() => {
     applyOption();

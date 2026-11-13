@@ -1,3 +1,4 @@
+import * as utilities from "react-pivottable/Utilities";
 import {
   absoluteSort,
   buildCustomAggregators,
@@ -26,7 +27,7 @@ describe('pivotOptions', () => {
   });
 
   it('builds initial props from attributes', () => {
-    const props = buildPivotProps({renderer: "Heatmap", aggregator: "Sum", aggregationField: "Als", sortMethod: "absolute"}, settings);
+    const props = buildPivotProps({renderer: "Heatmap", aggregator: "Sum", aggregationField: "Als", sortMethod: "absolute"}, settings, utilities);
     expect(props.rendererName).toBe("Table Heatmap");
     expect(props.aggregatorName).toBe("Sum");
     expect(props.vals).toEqual(["Als"]);
@@ -36,41 +37,41 @@ describe('pivotOptions', () => {
   });
 
   it('natural sort without set-pivot-sorters has no sorters', () => {
-    const props = buildPivotProps({sortMethod: "natural"}, settings);
+    const props = buildPivotProps({sortMethod: "natural"}, settings, utilities);
     expect(props.vals).toBeUndefined();
     expect(props.sorters).toBeUndefined();
     expect(props.aggregatorName).toBeUndefined();
   });
 
   it('applies set-pivot-sorters orders first, like AngularJS sortAs, then the sort method', () => {
-    const absolute = buildPivotProps({sortMethod: "absolute", sorters: {Als: ["b", "a"]}}, settings);
+    const absolute = buildPivotProps({sortMethod: "absolute", sorters: {Als: ["b", "a"]}}, settings, utilities);
     expect(["a", "b"].sort(absolute.sorters("Als"))).toEqual(["b", "a"]);
     expect(absolute.sorters("Other")).toBe(absoluteSort);
-    const natural = buildPivotProps({sorters: {Als: ["b", "a"]}}, settings);
+    const natural = buildPivotProps({sorters: {Als: ["b", "a"]}}, settings, utilities);
     expect(["a", "b"].sort(natural.sorters("Als"))).toEqual(["b", "a"]);
     expect(natural.sorters("Other")).toBeUndefined();
   });
 
   it('takes menuLimit from settings or falls back to 5000', () => {
-    expect(buildPivotProps({}, {pivotOptions: {numGroup: 10}}).menuLimit).toBe(10);
-    expect(buildPivotProps({}, {}).menuLimit).toBe(5000);
+    expect(buildPivotProps({}, {pivotOptions: {numGroup: 10}}, utilities).menuLimit).toBe(10);
+    expect(buildPivotProps({}, {}, utilities).menuLimit).toBe(5000);
   });
 
   it('does not forward raw XML attributes', () => {
     const props = buildPivotProps({renderer: "Table", aggregator: "Sum", aggregationField: "A", sortMethod: "absolute",
-      decimalNumbers: 2, thousandSeparator: ".", decimalSeparator: ",", totalColumnPlacement: "left", totalRowPlacement: "top"}, settings);
+      decimalNumbers: 2, thousandSeparator: ".", decimalSeparator: ",", totalColumnPlacement: "left", totalRowPlacement: "top"}, settings, utilities);
     XML_ONLY_ATTRIBUTES.forEach(name => expect(props).not.toHaveProperty(name));
     expect(XML_ONLY_ATTRIBUTES).toContain("totalRowPlacement");
   });
 
   it('formats Custom aggregators with attribute and numeric option defaults', () => {
     const format = (attrs, opts = settings) => {
-      const aggs = buildCustomAggregators(attrs, opts);
+      const aggs = buildCustomAggregators(attrs, opts, utilities);
       const agg = aggs["Custom Sum"](["v"])();
       agg.push({v: 1234.5});
       return agg.format(agg.value());
     };
-    expect(Object.keys(buildCustomAggregators({}, settings))).toEqual(expect.arrayContaining(["Custom Sum", "Custom Average",
+    expect(Object.keys(buildCustomAggregators({}, settings, utilities))).toEqual(expect.arrayContaining(["Custom Sum", "Custom Average",
       "Custom Minimum", "Custom Maximum", "Custom Sum over Sum", "Custom 80% Upper Bound", "Custom 80% Lower Bound", "Sum"]));
     expect(format({decimalNumbers: 2, thousandSeparator: ".", decimalSeparator: ","})).toBe("1.234,50");
     // AngularJS parity: no decimal-numbers means 0 decimals (its numeric mDec default is null)
@@ -81,7 +82,7 @@ describe('pivotOptions', () => {
   });
 
   it('computes the Custom 80% bounds over sum/sum like pivottable.js', () => {
-    const aggs = buildCustomAggregators({decimalNumbers: 6}, {});
+    const aggs = buildCustomAggregators({decimalNumbers: 6}, {}, utilities);
     const run = (name) => {
       const agg = aggs[name](["num", "den"])();
       [{num: 1, den: 4}, {num: 2, den: 6}, {num: "x", den: "y"}].forEach(record => agg.push(record));
@@ -99,7 +100,7 @@ describe('pivotOptions', () => {
   });
 
   it('leaves renderer and aggregator to the library when they are not set', () => {
-    const props = buildPivotProps({}, {});
+    const props = buildPivotProps({}, {}, utilities);
     expect(props).not.toHaveProperty("rendererName");
     expect(props).not.toHaveProperty("aggregatorName");
   });

@@ -9,13 +9,15 @@ import AweChart from "../../../src/components/AweChart";
 import AweInputText from "../../../src/criteria/AweInputText";
 import AweSteps from "../../../src/components/AweSteps";
 import AweTabs from "../../../src/components/AweTabs";
-import { echarts } from "../../../src/utilities/echartsSetup";
+import { loadEcharts } from "../../../src/utilities/echartsLoader";
 
-jest.mock("../../../src/utilities/echartsSetup", () => ({
-  echarts: { init: jest.fn() },
-  getEChartsLocale: jest.requireActual("../../../src/utilities/echartsSetup").getEChartsLocale,
-  renderSvg: jest.fn(() => "<svg>print</svg>")
-}));
+jest.mock("../../../src/utilities/echartsLoader", () => {
+  const loaded = { echarts: { init: jest.fn() }, renderSvg: jest.fn(() => "<svg>print</svg>") };
+  return {
+    getEChartsLocale: jest.requireActual("../../../src/utilities/echartsLocale").getEChartsLocale,
+    loadEcharts: jest.fn(() => Promise.resolve(loaded))
+  };
+});
 
 // The click event of the option goes through the thunk that stores it and checks the dependencies: it is spied
 jest.mock("../../../src/redux/thunks/components", () => {
@@ -69,8 +71,9 @@ const families = [
 ];
 
 describe("awe-react-client/test/js/components/ContextMenuFamiliesTest.jsx", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     updateModelWithDependencies.mockClear();
+    const { echarts } = await loadEcharts();
     echarts.init.mockReset();
     echarts.init.mockImplementation(() => ({
       setOption: jest.fn(), resize: jest.fn(), dispatchAction: jest.fn(), getOption: jest.fn(() => ({})),

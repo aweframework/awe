@@ -90,8 +90,12 @@ const stateOf = (attributes = {}, values = rows, model = {}) => ({
   }
 });
 
-const render = (attributes, values, model) => renderWithProviders(<AweMap id="fleet"/>,
-  {preloadedState: stateOf(attributes, values, model)});
+// Leaflet is loaded on demand: the map is created once the load ends
+const render = async (attributes, values, model) => {
+  const rendered = renderWithProviders(<AweMap id="fleet"/>, {preloadedState: stateOf(attributes, values, model)});
+  await act(async () => {});
+  return rendered;
+};
 
 describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
   const observers = [];
@@ -113,14 +117,14 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
     delete global.ResizeObserver;
   });
 
-  it('limits the tiles to the zoom the OpenStreetMap servers provide', () => {
-    render();
+  it('limits the tiles to the zoom the OpenStreetMap servers provide', async () => {
+    await render();
 
     expect(mockLeaflet.tiles[0].options.maxZoom).toBe(19);
   });
 
-  it('recalculates the map size when its container is resized', () => {
-    render();
+  it('recalculates the map size when its container is resized', async () => {
+    await render();
 
     expect(observers).toHaveLength(1);
     expect(observers[0].observe).toHaveBeenCalledWith(document.querySelector(".awe-map-canvas"));
@@ -128,24 +132,24 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
     expect(mockLeaflet.maps[0].invalidateSize).toHaveBeenCalled();
   });
 
-  it('stops observing the container when it unmounts', () => {
-    const {unmount} = render();
+  it('stops observing the container when it unmounts', async () => {
+    const {unmount} = await render();
 
     unmount();
 
     expect(observers[0].disconnect).toHaveBeenCalled();
   });
 
-  it('works without ResizeObserver', () => {
+  it('works without ResizeObserver', async () => {
     delete global.ResizeObserver;
 
-    render();
+    await render();
 
     expect(mockLeaflet.maps).toHaveLength(1);
   });
 
-  it('renders the map container with its test hook', () => {
-    render();
+  it('renders the map container with its test hook', async () => {
+    await render();
 
     const container = document.querySelector('[data-testid="map"]');
     expect(container).not.toBeNull();
@@ -155,8 +159,8 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
     expect(mockLeaflet.maps[0].options).toEqual(expect.objectContaining({minZoom: 3, maxZoom: 19}));
   });
 
-  it('draws the tiles of the url in the settings with the OpenStreetMap attribution', () => {
-    render();
+  it('draws the tiles of the url in the settings with the OpenStreetMap attribution', async () => {
+    await render();
 
     const [tile] = mockLeaflet.tiles;
     expect(tile.url).toBe("https://tiles.example.com/{z}/{x}/{y}.png");
@@ -165,8 +169,8 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
     expect(tile.addTo).toHaveBeenCalledWith(mockLeaflet.maps[0]);
   });
 
-  it('draws one marker per row with valid coordinates', () => {
-    render();
+  it('draws one marker per row with valid coordinates', async () => {
+    await render();
 
     expect(mockLeaflet.markers.map(marker => marker.latlng)).toEqual([[40.4, -3.7], [41.38, 2.17]]);
     const hooks = mockLeaflet.markers.map(marker => [
@@ -174,52 +178,52 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
     expect(hooks).toEqual([["map-marker", "1"], ["map-marker", "2"]]);
   });
 
-  it('reads the coordinates from the columns the attributes name', () => {
-    render({latitude: "lat", longitude: "lon"}, [{id: "9", lat: "10.5", lon: 20, latitude: 1, longitude: 1}]);
+  it('reads the coordinates from the columns the attributes name', async () => {
+    await render({latitude: "lat", longitude: "lon"}, [{id: "9", lat: "10.5", lon: 20, latitude: 1, longitude: 1}]);
 
     expect(mockLeaflet.markers.map(marker => marker.latlng)).toEqual([[10.5, 20]]);
   });
 
-  it('binds a popup with the marker label column', () => {
-    render({markerLabel: "name"});
+  it('binds a popup with the marker label column', async () => {
+    await render({markerLabel: "name"});
 
     expect(mockLeaflet.markers[0].bindPopup).toHaveBeenCalledWith("Madrid");
     expect(mockLeaflet.markers[1].bindPopup).toHaveBeenCalledWith("Barcelona");
   });
 
-  it('does not bind a popup without a marker label column', () => {
-    render();
+  it('does not bind a popup without a marker label column', async () => {
+    await render();
 
     expect(mockLeaflet.markers[0].bindPopup).not.toHaveBeenCalled();
   });
 
-  it('centers on the center and zoom attributes', () => {
-    render({centerLatitude: 10, centerLongitude: 20, zoom: 6});
+  it('centers on the center and zoom attributes', async () => {
+    await render({centerLatitude: 10, centerLongitude: 20, zoom: 6});
 
     expect(mockLeaflet.maps[0].setView).toHaveBeenCalledWith([10, 20], 6);
     expect(mockLeaflet.maps[0].fitBounds).not.toHaveBeenCalled();
   });
 
-  it('uses zoom 4 when only the center is set', () => {
-    render({centerLatitude: 10, centerLongitude: 20});
+  it('uses zoom 4 when only the center is set', async () => {
+    await render({centerLatitude: 10, centerLongitude: 20});
 
     expect(mockLeaflet.maps[0].setView).toHaveBeenCalledWith([10, 20], 4);
   });
 
-  it('fits the bounds to the markers when there is no center', () => {
-    render();
+  it('fits the bounds to the markers when there is no center', async () => {
+    await render();
 
     expect(mockLeaflet.maps[0].fitBounds).toHaveBeenCalledWith([[40.4, -3.7], [41.38, 2.17]]);
   });
 
-  it('shows the default view when there are no markers and no center', () => {
-    render({}, []);
+  it('shows the default view when there are no markers and no center', async () => {
+    await render({}, []);
 
     expect(mockLeaflet.maps[0].setView).toHaveBeenCalledWith([43.8667, 1.1111], 4);
   });
 
-  it('selects the row of a clicked marker', () => {
-    const {store} = render();
+  it('selects the row of a clicked marker', async () => {
+    const {store} = await render();
 
     act(() => mockLeaflet.markers[1].handlers.click());
 
@@ -228,16 +232,16 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
     expect(mockLeaflet.markers[0].element.getAttribute("data-selected")).toBe("false");
   });
 
-  it('does not draw the markers again when the selection changes', () => {
-    render();
+  it('does not draw the markers again when the selection changes', async () => {
+    await render();
 
     act(() => mockLeaflet.markers[0].handlers.click());
 
     expect(mockLeaflet.markers).toHaveLength(2);
   });
 
-  it('draws the markers again when the values change', () => {
-    const {store} = render();
+  it('draws the markers again when the values change', async () => {
+    const {store} = await render();
 
     act(() => {
       store.dispatch(updateModel({component: "fleet", view: "report"}, {values: [rows[0]]}));
@@ -247,8 +251,8 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
     expect(mockLeaflet.groups[0].clearLayers).toHaveBeenCalled();
   });
 
-  it('marks the map as rendered once the markers are drawn', () => {
-    render();
+  it('marks the map as rendered once the markers are drawn', async () => {
+    await render();
 
     expect(document.querySelector('[data-testid="map"]').getAttribute("data-rendered")).toBe("true");
   });
@@ -256,8 +260,8 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
   describe('route', () => {
     const route = [[10, 20], [11, 21], [12, 22]];
 
-    it('draws the route in a polyline and recenters on its first point with zoom 8', () => {
-      render({}, rows, {route});
+    it('draws the route in a polyline and recenters on its first point with zoom 8', async () => {
+      await render({}, rows, {route});
 
       expect(mockLeaflet.polylines).toHaveLength(1);
       expect(mockLeaflet.polylines[0].latlngs).toEqual(route);
@@ -265,29 +269,29 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
       expect(mockLeaflet.maps[0].setView).toHaveBeenLastCalledWith([10, 20], 8);
     });
 
-    it('exposes the test hook of the route', () => {
-      render({}, rows, {route});
+    it('exposes the test hook of the route', async () => {
+      await render({}, rows, {route});
 
       const element = mockLeaflet.polylines[0].element;
       expect(element.getAttribute("data-testid")).toBe("map-route");
       expect(element.getAttribute("map-id")).toBe("fleet");
     });
 
-    it('hides the markers while the route is shown', () => {
-      render({}, rows, {route});
+    it('hides the markers while the route is shown', async () => {
+      await render({}, rows, {route});
 
       expect(mockLeaflet.markers).toHaveLength(0);
     });
 
-    it('draws the markers when the route is empty', () => {
-      render({}, rows, {route: []});
+    it('draws the markers when the route is empty', async () => {
+      await render({}, rows, {route: []});
 
       expect(mockLeaflet.polylines).toHaveLength(0);
       expect(mockLeaflet.markers).toHaveLength(2);
     });
 
-    it('draws the route when it arrives after the markers', () => {
-      const {store} = render();
+    it('draws the route when it arrives after the markers', async () => {
+      const {store} = await render();
 
       act(() => {
         store.dispatch(updateModel({component: "fleet", view: "report"}, {route}));
@@ -305,8 +309,8 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
       {id: "2", latitude: 41.38, longitude: 2.17, name: "Barcelona", seq: 2}
     ];
 
-    it('draws a numbered pin per row instead of a circle marker', () => {
-      render({markerNumber: "seq"}, stops);
+    it('draws a numbered pin per row instead of a circle marker', async () => {
+      await render({markerNumber: "seq"}, stops);
 
       expect(mockLeaflet.markers).toHaveLength(0);
       expect(mockLeaflet.pins.map(pin => pin.latlng)).toEqual([[40.4, -3.7], [41.38, 2.17]]);
@@ -315,22 +319,22 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
       expect(mockLeaflet.pins[0].options.icon).toBe(mockLeaflet.icons[0]);
     });
 
-    it('escapes the number it shows', () => {
-      render({markerNumber: "seq"}, [{id: "1", latitude: 1, longitude: 2, seq: "<b>"}]);
+    it('escapes the number it shows', async () => {
+      await render({markerNumber: "seq"}, [{id: "1", latitude: 1, longitude: 2, seq: "<b>"}]);
 
       expect(mockLeaflet.icons[0].options.html).toBe('<span>&lt;b&gt;</span>');
     });
 
-    it('binds the popup and exposes the hooks of the pins', () => {
-      render({markerNumber: "seq", markerLabel: "name"}, stops);
+    it('binds the popup and exposes the hooks of the pins', async () => {
+      await render({markerNumber: "seq", markerLabel: "name"}, stops);
 
       expect(mockLeaflet.pins[1].bindPopup).toHaveBeenCalledWith("Barcelona");
       expect(mockLeaflet.pins[1].element.getAttribute("data-testid")).toBe("map-marker");
       expect(mockLeaflet.pins[1].element.getAttribute("row-id")).toBe("2");
     });
 
-    it('selects the row of a clicked pin and shows it as selected', () => {
-      const {store} = render({markerNumber: "seq"}, stops);
+    it('selects the row of a clicked pin and shows it as selected', async () => {
+      const {store} = await render({markerNumber: "seq"}, stops);
 
       act(() => mockLeaflet.pins[1].handlers.click());
 
@@ -339,8 +343,8 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
       expect(mockLeaflet.pins[0].element.classList.contains("awe-map-pin-selected")).toBe(false);
     });
 
-    it('keeps the circle markers without marker-number', () => {
-      render({}, stops);
+    it('keeps the circle markers without marker-number', async () => {
+      await render({}, stops);
 
       expect(mockLeaflet.pins).toHaveLength(0);
       expect(mockLeaflet.markers).toHaveLength(2);
@@ -354,8 +358,8 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
       {id: "2", latitude: 41.38, longitude: 2.17, seq: 2}
     ];
 
-    it('keeps the numbered pins and fits the view to the route and the markers', () => {
-      render({markerNumber: "seq", routeMarkers: true}, stops, {route});
+    it('keeps the numbered pins and fits the view to the route and the markers', async () => {
+      await render({markerNumber: "seq", routeMarkers: true}, stops, {route});
 
       expect(mockLeaflet.polylines).toHaveLength(1);
       expect(mockLeaflet.pins).toHaveLength(2);
@@ -363,38 +367,38 @@ describe('awe-react-client/test/js/components/AweMapTest.jsx', () => {
       expect(mockLeaflet.maps[0].setView).not.toHaveBeenCalled();
     });
 
-    it('keeps the circle markers when the markers have no number', () => {
-      render({routeMarkers: true}, stops, {route});
+    it('keeps the circle markers when the markers have no number', async () => {
+      await render({routeMarkers: true}, stops, {route});
 
       expect(mockLeaflet.polylines).toHaveLength(1);
       expect(mockLeaflet.markers).toHaveLength(2);
     });
 
-    it('selects the row of a pin while the route is shown', () => {
-      const {store} = render({markerNumber: "seq", routeMarkers: true}, stops, {route});
+    it('selects the row of a pin while the route is shown', async () => {
+      const {store} = await render({markerNumber: "seq", routeMarkers: true}, stops, {route});
 
       act(() => mockLeaflet.pins[0].handlers.click());
 
       expect(store.getState().components.fleet.model.selected).toEqual(["1"]);
     });
 
-    it('draws the route alone and recenters on its first point without route-markers', () => {
-      render({markerNumber: "seq"}, stops, {route});
+    it('draws the route alone and recenters on its first point without route-markers', async () => {
+      await render({markerNumber: "seq"}, stops, {route});
 
       expect(mockLeaflet.pins).toHaveLength(0);
       expect(mockLeaflet.maps[0].setView).toHaveBeenLastCalledWith([10, 20], 8);
     });
   });
 
-  it('renders nothing when it is not visible', () => {
-    render({visible: false});
+  it('renders nothing when it is not visible', async () => {
+    await render({visible: false});
 
     expect(document.querySelector('[data-testid="map"]')).toBeNull();
     expect(mockLeaflet.maps).toHaveLength(0);
   });
 
-  it('removes the map when it unmounts', () => {
-    const {unmount} = render();
+  it('removes the map when it unmounts', async () => {
+    const {unmount} = await render();
 
     unmount();
 

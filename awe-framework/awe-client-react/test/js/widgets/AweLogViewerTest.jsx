@@ -54,6 +54,16 @@ describe('awe-react-client/test/js/widgets/AweLogViewerTest.jsx', () => {
     }));
   });
 
+  // First test of the file: the viewer is loaded on the first render only
+  it('shows a skeleton until the log viewer is loaded', async () => {
+    renderWithProviders(<AweLogViewer id="logViewer"/>, {preloadedState});
+
+    expect(document.querySelector(".log-container .p-skeleton")).not.toBeNull();
+
+    expect(await screen.findByPlaceholderText("Search")).toBeDefined();
+    expect(document.querySelector(".log-container .p-skeleton")).toBeNull();
+  });
+
   it('renders AWE Log Viewer widget', async () => {
     renderWithProviders(<AweLogViewer id="logViewer"/>, {preloadedState});
 

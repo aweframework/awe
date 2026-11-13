@@ -1,5 +1,6 @@
 import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import React from "react";
+import {waitFor} from "@testing-library/react";
 import {renderWithProviders} from "../test-utils";
 import AweVideo from "../../../src/components/AweVideo";
 
@@ -28,11 +29,12 @@ describe('awe-react-client/test/js/criteria/AweVideoTest.jsx', () => {
     }
   };
 
-  it('renders video component', () => {
+  it('renders video component, with a skeleton until the player is loaded', async () => {
     renderWithProviders(<AweVideo id={"video"}/>, {preloadedState});
 
-    // check
-    expect(document.querySelector("div#video")).not.toBeNull();
+    expect(document.querySelector(".p-skeleton")).not.toBeNull();
+    await waitFor(() => expect(document.querySelector("div#video")).not.toBeNull());
+    expect(document.querySelector(".p-skeleton")).toBeNull();
   });
 
   const withAttributes = (attributes) => ({
@@ -51,15 +53,17 @@ describe('awe-react-client/test/js/criteria/AweVideoTest.jsx', () => {
 
   beforeEach(() => mockPlayer.mockClear());
 
-  it('passes the preload attribute to the player', () => {
+  it('passes the preload attribute to the player', async () => {
     renderWithProviders(<AweVideo id={"video"}/>, {preloadedState: withAttributes({preload: "none"})});
 
+    await waitFor(() => expect(mockPlayer).toHaveBeenCalled());
     expect(lastPlayerProps().config.file.attributes.preload).toBe("none");
   });
 
-  it('leaves the preload attribute to the browser when it is not defined', () => {
+  it('leaves the preload attribute to the browser when it is not defined', async () => {
     renderWithProviders(<AweVideo id={"video"}/>, {preloadedState: withAttributes({})});
 
+    await waitFor(() => expect(mockPlayer).toHaveBeenCalled());
     expect(lastPlayerProps().config.file.attributes.preload).toBeUndefined();
   });
 });

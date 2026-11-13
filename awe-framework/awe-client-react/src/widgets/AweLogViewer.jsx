@@ -1,5 +1,6 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
-import {LazyLog} from 'react-lazylog';
+import React, {Suspense, useCallback, useEffect, useRef, useState} from "react";
+import {Skeleton} from "primereact/skeleton";
+import {LazyLog} from "../utilities/lazyPackages";
 import {getIconCode} from "../utilities";
 import {isEmpty} from "../utilities/general";
 import {Button} from "primereact/button";
@@ -66,7 +67,9 @@ function AweLogViewer(props) {
       className={"p-button-text p-button-rounded log-button-autoload"}
       icon={getIconCode("refresh", showLoadingDots ? "fa-spin" : "")}
       onClick={toggleAutoRefresh} />
-    <LazyLog text={lazyLogText} scrollToLine={Number.isFinite(offset) ? offset : 1} enableSearch caseInsensitive selectableLines extraLines={1} />
+    <Suspense fallback={<Skeleton width="100%" height="100%" />}>
+      <LazyLog text={lazyLogText} scrollToLine={Number.isFinite(offset) ? offset : 1} enableSearch caseInsensitive selectableLines extraLines={1} />
+    </Suspense>
     <div className={"log-loading-dots " + (!showLoadingDots ? "hidden" : "")}>
       {getIconCode("circle", "fa-fw fade1 animation-dot")}
       {getIconCode("circle", "fa-fw fade2 animation-dot")}

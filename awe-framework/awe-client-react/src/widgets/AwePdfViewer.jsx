@@ -1,6 +1,6 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {Suspense, useCallback, useEffect, useState} from "react";
 import {classNames} from "../utilities/components";
-import {PDFObject} from 'react-pdfobject';
+import {PDFObject} from "../utilities/lazyPackages";
 import "./AwePdfViewer.less";
 import {Skeleton} from "primereact/skeleton";
 import {useDispatch} from "react-redux";
@@ -26,19 +26,17 @@ function AwePdfViewer(props) {
   }, []);
 
   const getPdfTemplate = useCallback((pdf) => {
-    if (pdf) {
-      return <PDFObject url={pdf} />;
-    } else {
-      return <li className="mb-3">
-        <div className="flex">
-          <Skeleton shape="circle" size="4rem" className="mr-2" />
-          <div style={{ flex: '1' }}>
-            <Skeleton width="100%" className="mb-2" />
-            <Skeleton width="75%" />
-          </div>
+    const placeholder = <li className="mb-3">
+      <div className="flex">
+        <Skeleton shape="circle" size="4rem" className="mr-2" />
+        <div style={{ flex: '1' }}>
+          <Skeleton width="100%" className="mb-2" />
+          <Skeleton width="75%" />
         </div>
-      </li>;
-    }
+      </div>
+    </li>;
+    // The PDF object is a heavy package loaded on demand: the same placeholder shows while it loads
+    return pdf ? <Suspense fallback={placeholder}><PDFObject url={pdf} /></Suspense> : placeholder;
   }, []);
 
   const { style, visible = true } = attributes;

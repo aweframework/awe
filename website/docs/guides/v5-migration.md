@@ -235,6 +235,32 @@ Issue #769 cleaned up the npm dependencies of both clients:
   `angular-ui-grid` (4.12.7 changes the package entry point), Highcharts and jQuery/Bootstrap (#755, #772), Redux Toolkit 2
   (#807) and React 19.
 
+### The React client loads its heavy packages on demand {#react-on-demand-packages}
+
+Issue #970 makes the React client load echarts, leaflet, Quill (`primereact/editor`), `react-pivottable`,
+`react-pdfobject`, `react-lazylog` and `react-player` with a dynamic `import()`, the first time a screen shows a chart,
+a map, an editor, a pivot table, a PDF, a log or a video. The application's webpack puts each one in its own chunk, so
+the sign-in and the first screen no longer download them. Nothing breaks if the application keeps its webpack
+configuration, but it only gets the smaller bundle when the `splitChunks` of its `webpack.dev.js` and
+`webpack.prod.js` match the archetype: no global `name: "main"`, and a `commons` cache group that takes the initial
+chunks only:
+
+```js
+splitChunks: {
+  cacheGroups: {
+    "commons": {
+      test: /[\\/]node_modules[\\/]((?!(awe\-react\-client|primereact)))/,
+      name: 'commons',
+      chunks: 'initial'
+    },
+  }
+}
+```
+
+With `chunks: 'all'` the on-demand packages go back into `commons.js`, which every page loads. With the global
+`name: "main"` they all go into one `main.js` chunk, so the first chart also downloads the maps and editors. Heavy widgets of the
+application itself can be loaded the same way (see [custom React widgets](custom-widgets-react.md#3-register-the-component)).
+
 ### Bootstrap JavaScript is no longer shipped {#bootstrap-javascript-is-no-longer-shipped}
 
 Issue #755 (slice 4) removed `import "bootstrap"` from the AngularJS client and the `bootstrap` package from its `package.json`. The CSS of
@@ -1355,6 +1381,7 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Own menu options that open the deprecated `Mod` screens point to `module-admin`
 - [ ] Own menu options that open the deprecated `ScrAccRes`, `menu-access` or `screen-access` screens point to `access-admin`
 - [ ] `server.compression.*` and `spring.web.resources.chain.compressed` were removed from `application.properties` (or the own list has `text/javascript` and `image/svg+xml`), and the React `webpack.prod.js` has the `CompressionPlugin` entries of the archetype
+- [ ] The `splitChunks` of the React `webpack.dev.js` and `webpack.prod.js` have no global `name: "main"` and the `commons` cache group uses `chunks: 'initial'`, as the archetype does
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

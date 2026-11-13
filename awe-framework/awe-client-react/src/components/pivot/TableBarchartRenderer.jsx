@@ -1,9 +1,5 @@
 import React, {Children, cloneElement} from "react";
-import TableRenderers from "react-pivottable/TableRenderers";
-import {PivotData} from "react-pivottable/Utilities";
 import "./TableBarchartRenderer.less";
-
-const {Table} = TableRenderers;
 
 /** Same scale as the AngularJS barchart: the maximum of the row uses 1/1.4 of the cell height */
 const BAR_SCALE = 1.4;
@@ -59,7 +55,7 @@ function drawBars(row, cellClass, values) {
 /**
  * Draw the bars of the table body, or return null when its layout is not the expected one
  * @param {Object} body tbody element
- * @param {PivotData} pivotData Pivot data
+ * @param {Object} pivotData Pivot data (PivotData of react-pivottable)
  * @returns {Array|null} Rows of the body
  */
 function drawBody(body, pivotData) {
@@ -83,23 +79,27 @@ function drawBody(body, pivotData) {
 }
 
 /**
- * "Table Barchart" pivot renderer: the react-pivottable Table with a bar behind every value, scaled per row,
+ * Create the "Table Barchart" pivot renderer: the react-pivottable Table with a bar behind every value, scaled per row,
  * and behind the totals of the columns (last row), as the AngularJS renderer does. It relies on the layout of the
  * react-pivottable 0.11 table: with any other layout it renders the plain table.
- * @param {Object} rendererProps react-pivottable renderer props
- * @returns {JSX.Element} Pivot table
+ * react-pivottable is a heavy package loaded on demand, so the renderer is built from the loaded modules.
+ * @param {Object} modules {TableRenderers, PivotData} of react-pivottable
+ * @returns {function(Object): JSX.Element} Renderer component, with the react-pivottable renderer props
  */
-function TableBarchartRenderer(rendererProps) {
-  const props = {...Table.defaultProps, ...rendererProps};
-  const table = new Table(props).render();
-  const [head, body] = Children.toArray(table?.props?.children);
-  if (head?.type !== "thead" || body?.type !== "tbody") {
-    return table;
+export function createTableBarchartRenderer({TableRenderers, PivotData}) {
+  const {Table} = TableRenderers;
+
+  function TableBarchartRenderer(rendererProps) {
+    const props = {...Table.defaultProps, ...rendererProps};
+    const table = new Table(props).render();
+    const [head, body] = Children.toArray(table?.props?.children);
+    if (head?.type !== "thead" || body?.type !== "tbody") {
+      return table;
+    }
+    const rows = drawBody(body, new PivotData(props));
+    return rows ? cloneElement(table, {}, head, cloneElement(body, {}, rows)) : table;
   }
-  const rows = drawBody(body, new PivotData(props));
-  return rows ? cloneElement(table, {}, head, cloneElement(body, {}, rows)) : table;
+
+  TableBarchartRenderer.propTypes = Table.propTypes;
+  return TableBarchartRenderer;
 }
-
-TableBarchartRenderer.propTypes = Table.propTypes;
-
-export default TableBarchartRenderer;
