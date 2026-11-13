@@ -2,6 +2,8 @@ import {aweApplication} from "../../awe";
 import {ClientActions} from "../../data/actions";
 import "jquery-ui-sortable-npm";
 import "PivotTable";
+import {buildCustomAggregators} from "./pivotCustomAggregators";
+import {resolvePivotLocale} from "./pivotLocale";
 
 // Pivot table plugin
 aweApplication.directive('uiPivotTable',
@@ -36,22 +38,7 @@ aweApplication.directive('uiPivotTable',
           // Add custom aggregators
           if (scope.controller.aggregator) {
             // Overwrite aggregators to apply number format
-            aggregatorList["Custom Sum"] = {fn: tpl.sum(customNumberFormat), label: "Custom Sum"};
-            aggregatorList["Custom Average"] = {fn: tpl.average(customNumberFormat), label: "Custom Average"};
-            aggregatorList["Custom Minimum"] = {fn: tpl.min(customNumberFormat), label: "Custom Minimum"};
-            aggregatorList["Custom Maximum"] = {fn: tpl.max(customNumberFormat), label: "Custom Maximum"};
-            aggregatorList["Custom Sum over Sum"] = {
-              fn: tpl.sumOverSum(customNumberFormat),
-              label: "Custom Sum over Sum"
-            };
-            aggregatorList["Custom 80% Upper Bound"] = {
-              fn: tpl.sumOverSumBound80(customNumberFormat),
-              label: "Custom 80% Upper Bound"
-            };
-            aggregatorList["Custom 80% Lower Bound"] = {
-              fn: tpl.sumOverSumBound80(customNumberFormat),
-              label: "Custom 80% Lower Bound"
-            };
+            Object.assign(aggregatorList, buildCustomAggregators(tpl, customNumberFormat));
           }
 
           // Init pivot configuration
@@ -121,7 +108,7 @@ aweApplication.directive('uiPivotTable',
             destroyPlugin();
 
             // Initialize element with options
-            elem.pivotUI(scope.datasource, config, update, language);
+            elem.pivotUI(scope.datasource, config, update, resolvePivotLocale(language, $.pivotUtilities.locales));
 
             // Set initialized as true
             initialized = true;
@@ -174,7 +161,7 @@ aweApplication.directive('uiPivotTable',
           scope.onModelChanged = function (changes) {
             scope.datasource = changes.values;
             // Remove id column
-            _.each(scope.datasource, function (data, key) {
+            _.each(scope.datasource, function (data) {
               delete data.id;
             });
             updatePlugin($settings.getLanguage(), true);

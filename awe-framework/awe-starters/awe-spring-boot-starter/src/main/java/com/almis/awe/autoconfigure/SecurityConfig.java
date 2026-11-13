@@ -7,10 +7,13 @@ import com.almis.awe.service.totp.AweTotpOperations;
 import com.almis.awe.service.totp.OtpJavaTotpOperations;
 import com.almis.awe.service.totp.ZxingQrPngGenerator;
 import com.almis.awe.service.user.AweUserDetailService;
+import com.almis.awe.service.user.PasswordChangeService;
 import com.almis.awe.session.AweSessionDetails;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -18,11 +21,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Clock;
 import java.util.Objects;
 
 @Configuration
+@AutoConfigureAfter(AuthenticationConfig.class)
 @Slf4j
 @EnableConfigurationProperties({SecurityConfigProperties.class, TotpConfigProperties.class})
 public class SecurityConfig extends ServiceConfig {
@@ -37,9 +42,12 @@ public class SecurityConfig extends ServiceConfig {
    *
    * @param securityConfigProperties Security configuration properties
    */
-  @Autowired
   public SecurityConfig(SecurityConfigProperties securityConfigProperties) {
     this.securityConfigProperties = securityConfigProperties;
+    if (SecurityConfigProperties.LEGACY_MASTER_KEY.equals(securityConfigProperties.getMasterKey())) {
+      log.warn("awe.security.master-key is set to the published AWE 4 default value. Keep it only while stored data "
+        + "encrypted with it is needed, and rotate it (see the AWE 5 migration guide)");
+    }
   }
 
   /**
@@ -104,6 +112,26 @@ public class SecurityConfig extends ServiceConfig {
 																		 UserDetailsService userDetailsService,
 																		 MaintainService maintainService) {
     return new AccessService(aweSessionDetails, menuService, encodeService, totpService, baseConfigProperties, securityConfigProperties, totpConfigProperties, (AweUserDetailService) userDetailsService, maintainService);
+  }
+
+  /**
+   * Password change service for users whose password has expired
+   *
+   * @param securityConfigProperties Security config properties
+   * @param userDetailsService       AWE user details
+   * @param maintainService          Maintain service
+   * @param passwordEncoder          Password encoder
+   * @return PasswordChangeService bean (only when AWE's user details service is in use; otherwise the expired password
+   * login answers with the localized message only)
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  @ConditionalOnBean(AweUserDetailService.class)
+  public PasswordChangeService passwordChangeService(SecurityConfigProperties securityConfigProperties,
+                                                     AweUserDetailService userDetailsService,
+                                                     MaintainService maintainService,
+                                                     PasswordEncoder passwordEncoder) {
+    return new PasswordChangeService(securityConfigProperties, userDetailsService, maintainService, passwordEncoder);
   }
 
   /**

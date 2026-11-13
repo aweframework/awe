@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en" data-awe-primary="emerald" data-awe-density="comfortable">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · Operations Hub — AWE 5 prototype</title>
+  <link rel="icon" href="data:,">
+  <link rel="preload" href="assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="prototype.css">
+  <script>
+    // Restore the prototype theme before the first paint (only <html> attributes, classes and inline tokens)
+    try {
+      const t = JSON.parse(localStorage.getItem('awe-prototype-theme') || '{}');
+      const r = document.documentElement;
+      if (t.mode === 'light' || t.mode === 'dark') r.classList.add(t.mode);
+      if (t.primary) r.dataset.awePrimary = t.primary;
+      if (t.surface && t.surface !== 'auto') r.dataset.aweSurface = t.surface;
+      if (t.density) r.dataset.aweDensity = t.density;
+      if (t.primaryHex) r.dataset.protoPrimaryHex = t.primaryHex;
+      if (t.surfaceHex) r.dataset.protoSurfaceHex = t.surfaceHex;
+      // Palettes generated from a custom hex (prototype.js stores them with the theme)
+      Object.entries(t.vars || {}).forEach(([k, v]) => r.style.setProperty(k, v));
+      if (t.brand) r.dataset.protoBrand = t.brand;
+      r.dataset.protoLoginImage = t.loginImage || 'brand';
+    } catch { /* no stored theme */ }
+  </script>
+  <script src="prototype.js" defer></script>
+  <script src="login.js" defer></script>
+</head>
+<body data-page="login" class="login-page">
+<div class="login">
+
+  <!-- ===================================================================== Form column -->
+  <main class="login__main">
+    <header class="login__brand">
+      <a class="brand brand--wide" href="login.html" aria-label="Veloria Logistics · Operations Hub">
+        <svg class="customer-wide" viewBox="0 0 176 36" aria-hidden="true">
+          <rect class="cl-primary" width="36" height="36" rx="9"/>
+          <path class="cl-on-primary" d="M9.5 11 17 25.5 24.8 10.6" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle class="cl-accent" cx="27.2" cy="25.2" r="3.2"/>
+          <text class="cl-ink" x="45" y="22.5" font-size="21" font-weight="700" letter-spacing="-0.6">veloria</text>
+          <text class="cl-muted" x="46" y="33" font-size="7.4" font-weight="600" letter-spacing="2.6">LOGISTICS</text>
+        </svg>
+      </a>
+      <a class="brand brand--mark" href="login.html" aria-label="Operations Hub">
+        <svg class="customer-mark" viewBox="0 0 36 36" aria-hidden="true">
+          <rect class="cl-primary" width="36" height="36" rx="9"/>
+          <path class="cl-on-primary" d="M9.5 11 17 25.5 24.8 10.6" fill="none" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle class="cl-accent" cx="27.2" cy="25.2" r="3.2"/>
+        </svg>
+        <span class="brand-text"><span class="brand-name">Operations Hub</span><span class="brand-sub">Veloria Logistics</span></span>
+      </a>
+      <a class="brand brand--awe" href="login.html" aria-label="Operations Hub on AWE">
+        <img class="awe-logo awe-logo--on-light" src="assets/logos/awe-logo-dark-text.svg" alt="">
+        <img class="awe-logo awe-logo--on-dark" src="assets/logos/awe-logo-light-text.svg" alt="">
+      </a>
+    </header>
+
+    <div class="login__center">
+      <div class="login__card">
+
+        <!-- Step 1: sign in -->
+        <section class="login__step" id="step-signin" aria-labelledby="lg-title">
+          <h1 class="login__title" id="lg-title" data-i18n="title">Sign in to the platform</h1>
+          <p class="login__subtitle" data-i18n="subtitle">Enter your corporate credentials to continue.</p>
+
+          <div class="message message--danger login__alert" id="lg-alert" role="alert" hidden>
+            <svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-x"/></svg><span><strong data-i18n="alertTitle">Incorrect username or password.</strong>
+              <span data-i18n="alertText">Check your credentials. 2 attempts left before the account is locked.</span></span>
+          </div>
+
+          <form class="login__form" id="lg-form" novalidate aria-labelledby="lg-title">
+            <fieldset class="login__fields" id="lg-fields">
+              <div class="field">
+                <label class="label" for="lg-user" data-i18n="user">Username</label>
+                <span class="control control--lg"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#user"/></svg><input id="lg-user" name="username" type="text" autocomplete="username"
+                  autocapitalize="none" spellcheck="false" required aria-describedby="lg-user-err"></span>
+                <span class="error-msg" id="lg-user-err" hidden><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-alert"/></svg><span data-i18n="userErr">Enter your username</span></span>
+              </div>
+              <div class="field">
+                <label class="label" for="lg-pass" data-i18n="pass">Password</label>
+                <span class="control control--lg"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#lock"/></svg><input id="lg-pass" name="password" type="password"
+                  autocomplete="current-password" required aria-describedby="lg-pass-err lg-caps">
+                  <button class="adorn" type="button" data-password-toggle="lg-pass" aria-label="Show password" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#eye"/></svg></button></span>
+                <span class="error-msg" id="lg-pass-err" hidden><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-alert"/></svg><span data-i18n="passErr">Enter your password</span></span>
+                <span class="help help--warning" id="lg-caps" hidden><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#triangle-alert"/></svg><span data-i18n="caps">Caps Lock is on</span></span>
+              </div>
+              <a class="login__forgot" href="#forgot" data-i18n="forgot">Forgot password?</a>
+            </fieldset>
+            <button class="btn btn--primary btn--block" type="submit" id="lg-submit">
+              <svg class="i btn__spin" aria-hidden="true"><use href="assets/icons/sprite.svg#loader-circle"/></svg><span data-i18n="submit">Sign in</span></button>
+          </form>
+
+          <p class="login__divider"><span data-i18n="or">or continue with</span></p>
+          <button class="btn btn--outlined btn--block" type="button" id="lg-sso">
+            <svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#key-round"/></svg><span data-i18n="sso">Continue with your organization</span></button>
+        </section>
+
+        <!-- Step 2: password expired (AWE #849) -->
+        <section class="login__step" id="step-change" aria-labelledby="ch-title" hidden>
+          <button class="btn btn--text btn--sm login__back" type="button" data-back><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-left"/></svg><span data-i18n="back">Back to sign in</span></button>
+          <h1 class="login__title" id="ch-title" data-i18n="chTitle">Change your password</h1>
+          <p class="login__subtitle"><span data-i18n="chSubtitle">Your password expired on 20 Oct 2026. Choose a new one to continue.</span></p>
+          <p class="login__account"><span class="avatar avatar--sm">PV</span><span><b>pat.vega</b><span class="muted"> · Veloria Logistics</span></span></p>
+
+          <form class="login__form" id="ch-form" novalidate aria-labelledby="ch-title">
+            <input type="text" name="username" autocomplete="username" value="pat.vega" hidden>
+            <fieldset class="login__fields" id="ch-fields">
+              <div class="field">
+                <label class="label" for="ch-new" data-i18n="newPass">New password</label>
+                <span class="control control--lg"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#lock"/></svg><input id="ch-new" name="new-password" type="password" autocomplete="new-password"
+                  required aria-describedby="ch-rules ch-new-err">
+                  <button class="adorn" type="button" data-password-toggle="ch-new" aria-label="Show password" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#eye"/></svg></button></span>
+                <span class="error-msg" id="ch-new-err" hidden><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-alert"/></svg><span data-i18n="newErr">The password does not meet every requirement</span></span>
+              </div>
+              <ul class="pw-rules" id="ch-rules" aria-label="Password requirements">
+                <li data-rule="len"><svg class="i rule-off" aria-hidden="true"><use href="assets/icons/sprite.svg#circle"/></svg><svg class="i rule-on" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><span data-i18n="ruleLen">At least 12 characters</span><span class="sr-only rule-state">, not met</span></li>
+                <li data-rule="case"><svg class="i rule-off" aria-hidden="true"><use href="assets/icons/sprite.svg#circle"/></svg><svg class="i rule-on" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><span data-i18n="ruleCase">Upper and lower case letters</span><span class="sr-only rule-state">, not met</span></li>
+                <li data-rule="digit"><svg class="i rule-off" aria-hidden="true"><use href="assets/icons/sprite.svg#circle"/></svg><svg class="i rule-on" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><span data-i18n="ruleDigit">At least one number</span><span class="sr-only rule-state">, not met</span></li>
+                <li data-rule="symbol"><svg class="i rule-off" aria-hidden="true"><use href="assets/icons/sprite.svg#circle"/></svg><svg class="i rule-on" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><span data-i18n="ruleSymbol">At least one symbol</span><span class="sr-only rule-state">, not met</span></li>
+                <li data-rule="history"><svg class="i rule-off" aria-hidden="true"><use href="assets/icons/sprite.svg#circle"/></svg><svg class="i rule-on" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><span data-i18n="ruleHistory">Different from your last 5 passwords</span><span class="sr-only rule-state">, not met</span></li>
+              </ul>
+              <div class="field">
+                <label class="label" for="ch-confirm" data-i18n="confirm">Confirm new password</label>
+                <span class="control control--lg"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#lock"/></svg><input id="ch-confirm" name="confirm-password" type="password"
+                  autocomplete="new-password" required aria-describedby="ch-confirm-err"></span>
+                <span class="error-msg" id="ch-confirm-err" hidden><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-alert"/></svg><span data-i18n="confirmErr">The passwords do not match</span></span>
+              </div>
+            </fieldset>
+            <button class="btn btn--primary btn--block" type="submit" id="ch-submit">
+              <svg class="i btn__spin" aria-hidden="true"><use href="assets/icons/sprite.svg#loader-circle"/></svg><span data-i18n="chSubmit">Change password and sign in</span></button>
+          </form>
+        </section>
+
+        <!-- Step 3: single sign-on in progress -->
+        <section class="login__step login__sso" id="step-sso" aria-labelledby="sso-title" hidden>
+          <span class="login__sso-icon" aria-hidden="true"><svg class="i i--lg" aria-hidden="true"><use href="assets/icons/sprite.svg#key-round"/></svg></span>
+          <h1 class="login__title" id="sso-title" data-i18n="ssoTitle">Signing you in</h1>
+          <p class="login__subtitle" role="status" data-i18n="ssoText">Redirecting to the Veloria Logistics identity provider. Keep this tab open.</p>
+          <div class="loading-bar login__sso-bar"></div>
+          <button class="btn btn--outlined btn--block" type="button" data-back><span data-i18n="cancel">Cancel</span></button>
+        </section>
+      </div>
+    </div>
+
+    <footer class="login__footer">
+      <div class="login__legal">
+      <span>Veloria Logistics © 2026</span>
+      <span class="powered"><img class="awe-mini-img" src="assets/logos/awe-mark.svg" alt="">
+        <span>Powered by <b>AWE</b> 5</span></span>
+      </div>
+      <div class="login__prefs">
+      <span class="control control--sm login__lang"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#globe"/></svg><select name="language" aria-label="Language">
+        <option value="en" selected>English</option><option value="es">Español</option><option value="fr">Français</option>
+      </select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+      <div class="segmented segmented--sm login__mode" role="radiogroup" aria-label="Colour mode">
+        <label title="Light"><input type="radio" name="lg-mode" value="light"><span><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#sun"/></svg><span class="sr-only">Light</span></span></label>
+        <label title="Dark"><input type="radio" name="lg-mode" value="dark"><span><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#moon"/></svg><span class="sr-only">Dark</span></span></label>
+        <label title="System"><input type="radio" name="lg-mode" value="system"><span><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#monitor"/></svg><span class="sr-only">System</span></span></label>
+      </div>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ===================================================================== Image panel -->
+  <aside class="login__visual" aria-label="Operations Hub on AWE">
+    <div class="login__brandpanel">
+      <img class="login__awe" src="assets/logos/awe-logo-light-text.svg" alt="AWE">
+    </div>
+    <div class="login__photo"></div>
+    <img class="login__img" alt="" hidden>
+    <div class="login__scrim"></div>
+    <div class="login__caption">
+      <p class="login__caption-title">Operations Hub</p>
+      <p class="login__caption-text">Veloria Logistics operations, from the warehouse to the customer’s door. Built on AWE 5.</p>
+    </div>
+  </aside>
+</div>
+
+<!-- Prototype only: preview the login states -->
+<div class="proto-state">
+  <span class="tag tag--primary tag--plain">Prototype</span>
+  <span class="control control--sm proto-state__select"><select id="lg-state" aria-label="Login state">
+    <option value="default">Default</option>
+    <option value="errors">Validation errors</option>
+    <option value="invalid">Invalid credentials</option>
+    <option value="caps">Caps Lock on</option>
+    <option value="loading">Loading</option>
+    <option value="expired">Password expired</option>
+    <option value="sso">SSO in progress</option>
+  </select><svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span>
+</div>
+
+<a id="lg-home" href="./" hidden>Operations Hub</a>
+<div class="toasts" id="toasts" popover="manual" aria-live="polite" aria-relevant="additions"></div>
+</body>
+</html>

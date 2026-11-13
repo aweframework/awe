@@ -7,10 +7,10 @@ import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import org.springframework.util.MimeType;
 import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.core.JacksonException;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -61,7 +61,7 @@ public class FileUtil  {
         .replaceAll("\\.\\.[\\\\/]", "")
         .replaceAll("[\\\\/]", Matcher.quoteReplacement(File.separator)));
     }
-    return Paths.get(".", fixedPaths.toArray(new String[0])).normalize().toString();
+    return Path.of(".", fixedPaths.toArray(new String[0])).normalize().toString();
   }
 
   /**
@@ -73,7 +73,7 @@ public class FileUtil  {
   public static String fileDataToString(FileData fileData) throws AWException {
     try {
       return Base64.getEncoder().encodeToString(CompressionUtil.compress(StringUtil.compressJson(DataListUtil.getMapper().writeValueAsString(fileData))));
-    } catch (IOException exc) {
+    } catch (JacksonException exc) {
       throw new AWException("Error encoding file into string", "There was an error trying to encode file data into string:\n" + fileData.getFileName(),  exc);
     }
   }
@@ -88,7 +88,7 @@ public class FileUtil  {
     try {
       String fileString = StringUtil.decompressJson(CompressionUtil.decompress(Base64.getDecoder().decode(fileStringEncoded)));
       return DataListUtil.getMapper().treeToValue(DataListUtil.getMapper().readTree(fileString), FileData.class);
-    } catch (IOException exc) {
+    } catch (JacksonException exc) {
       throw new AWException("Error decoding file from string", "There was an error trying to decode file data from string:\n" + fileStringEncoded,  exc);
     }
   }

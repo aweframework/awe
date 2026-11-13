@@ -8,7 +8,12 @@ aweApplication.factory('Panel',
      * @param {Service} Component
      */
     function (Component) {
-      return {
+      // Events
+      const VALIDITY_EVENT = "criterion-validity";
+      const UNSAVED_EVENT = "records-unsaved";
+      const SELECT_EVENT = "select-current-tab";
+
+      const Panel = {
         /**
          * Initialize numeric criteria
          * @param {Object} controller Panel controller
@@ -30,16 +35,74 @@ aweApplication.factory('Panel',
             return controller.isActive(identifier);
           };
 
+          // A deferred page loads its data the first time it becomes the active one
+          scope.$watch(function () {
+            return controller.isActive(identifier);
+          }, function (active) {
+            if (active) {
+              component.loadDeferred();
+            }
+          });
+
           /**
            * Event listeners
            */
           component.listeners = component.listeners || {};
 
           // Select current tab
-          component.listeners['selectCurrentTab'] = scope.$on("select-current-tab", function () {
+          component.listeners['selectCurrentTab'] = scope.$on(SELECT_EVENT, function () {
             controller.selectTab(identifier);
+          });
+
+          // Mark the panel while it holds invalid fields
+          if (controller.setInvalid) {
+            component.listeners['trackInvalid'] = Panel.trackInvalid(scope, function (invalid) {
+              controller.setInvalid(identifier, invalid);
+            });
+          }
+        },
+        /**
+         * Follow the validity of the fields inside a panel and the unsaved rows of its grids
+         * @param {Scope} scope Panel scope
+         * @param {function} onChange Called with true when the panel starts to hold invalid fields or unsaved rows and
+         * with false when it holds none anymore
+         * @return {function} Function to release the listeners
+         */
+        trackInvalid: function (scope, onChange) {
+          const invalidIds = new Set();
+          const onReport = function (event, data) {
+            const wasInvalid = invalidIds.size > 0;
+            if (data.invalid) {
+              invalidIds.add(data.id);
+            } else {
+              invalidIds.delete(data.id);
+            }
+            if (wasInvalid !== invalidIds.size > 0) {
+              onChange(invalidIds.size > 0);
+            }
+          };
+          const releaseValidity = scope.$on(VALIDITY_EVENT, onReport);
+          const releaseUnsaved = scope.$on(UNSAVED_EVENT, onReport);
+          return function () {
+            releaseValidity();
+            releaseUnsaved();
+          };
+        },
+        /**
+         * Open a collapsible item when a field inside it has to be revealed
+         * @param {Scope} scope Item scope
+         * @param {function} isOpen Returns true when the item is open
+         * @param {function} open Opens the item
+         * @return {function} Function to release the listener
+         */
+        revealOn: function (scope, isOpen, open) {
+          return scope.$on(SELECT_EVENT, function () {
+            if (!isOpen()) {
+              open();
+            }
           });
         }
       };
+      return Panel;
     }
   ]);

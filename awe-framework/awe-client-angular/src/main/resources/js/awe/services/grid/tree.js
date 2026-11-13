@@ -1,10 +1,51 @@
 import {aweApplication} from "../../awe";
+import {getIconTemplate} from "../component";
 import "./commons";
+import "./columnFilters";
+import {getMultiselectColumn, selectAllClick} from "./multiselect";
+
+// Order of the checkbox row header: the first column of the left container
+const MULTISELECT_ROW_HEADER_ORDER = -200;
+
+// Expand, collapse or leaf icon of a row, inside the cell of the expand column, before its content and indented by level
+const TREE_TOGGLE_TEMPLATE = `<span ng-if="::col.name === grid.appScope.component.expandColumn" class="tree-toggle" ng-style="{'padding-left': grid.options.treeIndent * row.treeLevel + 'px'}">
+  <i class="tree-icon" data-testid="tree-icon" ng-attr-data-expanded="{{!!row.entity.$$expanded}}" ng-attr-data-loading="{{!!row.entity.$$isLoading}}" ng-attr-tabindex="{{row.entity.$$isLeaf ? undefined : 0}}" ng-attr-role="{{row.entity.$$isLeaf ? undefined : 'button'}}" ng-attr-aria-expanded="{{row.entity.$$isLeaf ? undefined : !!row.entity.$$expanded}}" ng-click="grid.appScope.component.treeButtonClick(row, $event)" ng-keydown="($event.key === 'Enter' || $event.key === ' ') && ($event.preventDefault() || grid.appScope.component.treeButtonClick(row, $event))">${getIconTemplate("", "span", "(row.entity.$$treeIcon | aweIcon)")}</i>
+</span>`;
+
+// Row of a tree grid: the row of the grid (grid/row) with the tree icon in the cell of the expand column (ui-grid appends the
+// content of each cell after it)
+export const TREE_ROW_TEMPLATE = `<div ng-repeat="(colRenderIndex, col) in colContainer.renderedColumns track by col.uid"
+     ui-grid-one-bind-id-grid="rowRenderIndex + '-' + col.uid + '-cell'"
+     class="ui-grid-cell no-animate" ng-class="{'ui-grid-row-header-cell': col.isRowHeader, 'hidden': col.colDef.hidden, 'tree-expand-cell': col.name === grid.appScope.component.expandColumn}"
+     role="{{::col.isRowHeader ? 'rowheader' : 'gridcell'}}" ui-grid-cell>${TREE_TOGGLE_TEMPLATE}</div>`;
+
+/**
+ * Column that shows the tree icons: the expand column, or the tree id column (as in React); when that column is hidden or
+ * not in the grid, the first visible column
+ * @param {object} controller Tree grid controller
+ * @returns {string} Column name
+ */
+export function getExpandColumn(controller) {
+  const visible = (controller.columnModel || []).filter(column => !column.hidden);
+  const requested = controller.expandColumn || controller.treeId;
+  const column = visible.find(candidate => (candidate.name || candidate.id) === requested) || visible[0];
+  return column ? column.name || column.id : requested;
+}
+
+// ui-grid treeBase always adds its row header column, and showTreeRowHeader false only hides it: the hidden column keeps a
+// left pinned container that renders an empty copy of every row. Without tree row header, no column is created
+aweApplication.config(["$provide", $provide => $provide.decorator("uiGridTreeBaseService", ["$delegate", treeBase => {
+  const createRowHeader = treeBase.createRowHeader;
+  treeBase.createRowHeader = grid => grid.options.showTreeRowHeader === false ? undefined : createRowHeader(grid);
+  return treeBase;
+}])]);
 
 // Tree grid service
 aweApplication.factory('GridTree',
   ['AweUtilities', 'Control', 'Component', 'GridEvents', 'GridCommons', '$log', 'ActionController', 'ServerData', 'AweSettings', 'uiGridConstants',
-    function (Utilities, Control, Component, GridEvents, GridCommons, $log, ActionController, ServerData, $settings, uiGridConstants) {
+    'GridColumnFilters',
+    function (Utilities, Control, Component, GridEvents, GridCommons, $log, ActionController, ServerData, $settings, uiGridConstants,
+              GridColumnFilters) {
 
       /**
        * Fix identifier
@@ -188,6 +229,10 @@ aweApplication.factory('GridTree',
             // Manage tree events
             grid.api.treeBase.on.rowCollapsed(grid.scope, rowCollapsed);
             grid.api.treeBase.on.rowExpanded(grid.scope, rowExpanded);
+            // Add checkboxes, as the flat grid does (#791): as a row header, so they come before the tree icons
+            if (component.controller.multiselect) {
+              grid.api.core.addRowHeaderColumn(getMultiselectColumn(component), MULTISELECT_ROW_HEADER_ORDER);
+            }
 
             // Initialization
             component.treeHeaderIcon = component.scope.gridOptions.icons.expand;
@@ -210,9 +255,11 @@ aweApplication.factory('GridTree',
           };
 
           /**
-           * Add initial columns
+           * Select all rows (each row on its own: a parent does not select its children)
+           * @param {Event} event Click event
            */
-          component.addInitialColumns = function () {
+          component.selectAllClick = function (event) {
+            selectAllClick(grid.api, event);
           };
           /**
            * Toggle the tree row
@@ -334,8 +381,8 @@ aweApplication.factory('GridTree',
           component.onBranchExpand = function (data) {
             let  branch = component.loadingBranch;
 
-            // Finish loading parent
-            branch.entity.$$isLoading = false;
+            // Finish loading parent ($$isLoading stays set until the branch is expanded: it drives the
+            // data-loading test hook, and the expansion below re-renders the rows)
             branch.entity.$$loaded = true;
             branch.entity.$$expanded = true;
 
@@ -348,7 +395,11 @@ aweApplication.factory('GridTree',
             component.loadingBranch = null;
             Utilities.timeout(function () {
               component.isLoadingBranch = false;
-              grid.api.treeBase.expandRow(branch);
+              try {
+                grid.api.treeBase.expandRow(branch);
+              } finally {
+                branch.entity.$$isLoading = false;
+              }
             }, 500);
           };
 
@@ -491,11 +542,12 @@ aweApplication.factory('GridTree',
            * @returns {Object} Specific fields from component
            */
           component.getSpecificFields = function () {
-            // Retrieve specific query data
+            // Retrieve specific query data (and the column filters in effect, #912)
             return {
               max: component.controller.loadAll ? 0 : component.getMax(),
               page: component.currentPage,
-              sort: grid.sorting
+              sort: grid.sorting,
+              ...component.getColumnFiltersParameters()
             };
           };
 
@@ -996,20 +1048,29 @@ aweApplication.factory('GridTree',
           /* API                                                                */
           /**********************************************************************/
           /**
-           * Update model values
+           * Update model values: the values sent replace the current ones, as in a flat grid (a deep merge would keep the
+           * rows of a longer previous list, like a load-all tree reloaded with a quick filter or a search)
            * @param {type} data
            */
           component.api.updateModelValues = function (data) {
+            // The tree is known to be empty only once its data has arrived
+            component.loaded = true;
             if (component.model) {
-              _.merge(component.model, data);
+              _.assign(component.model, data);
               refreshModel();
             }
           };
+
+          // A tree without initial load has nothing to wait for, and one whose data came with the screen already has it
+          component.loaded = !component.controller.initialLoad || component.model.loaded === true;
 
           // Initialize common functions
           if (!this.commons.init()) {
             return false;
           }
+
+          // Column autofilter (#912)
+          GridColumnFilters.attach(component);
 
           /**********************************************************************/
           /* EVENTS                                                             */

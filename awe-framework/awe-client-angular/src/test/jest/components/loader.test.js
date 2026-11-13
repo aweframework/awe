@@ -3,21 +3,18 @@ import "./lightComponentTestUtils";
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/jest/components/loader.js', function () {
-    let  $injector, $rootScope, $templateCache, $compile, $httpBackend, Utilities, ServerData, $storage;
+    let  $rootScope, $templateCache, $compile, $httpBackend, ServerData, $storage;
 
     // Mock module
     beforeEach(function () {
         angular.mock.module('aweApplication');
 
         // Inject controller
-        inject(["$injector", "$rootScope", "$compile", "$templateCache", "$httpBackend", "Storage", "ServerData",  "AweUtilities",
-            function (__$injector__, _$rootScope_, _$compile_, _$templateCache_, _$httpBackend_, _$storage_,  _ServerData_, _Utilities_ ) {
-                $injector = __$injector__;
+        inject(["$rootScope", "$compile", "$templateCache", "$httpBackend", "Storage", "ServerData",  function (_$rootScope_, _$compile_, _$templateCache_, _$httpBackend_, _$storage_,  _ServerData_ ) {
                 $rootScope = _$rootScope_;
                 $compile = _$compile_;
                 $httpBackend = _$httpBackend_;
                 $templateCache = _$templateCache_;
-                Utilities = _Utilities_;
                 ServerData = _ServerData_;
                 $storage = _$storage_;
 
@@ -58,6 +55,19 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/loader.js', 
         // fire all the watches, so the scope expression {{1 + 1}} will be evaluated
         $rootScope.$digest();
         expect(element[0].tagName).toBe("AWE-LOADER");
+    });
+
+    it('renders a block skeleton without requesting a template when the icon is skeleton', function () {
+        jest.spyOn($storage, "get").mockReturnValue({'base': {}});
+        jest.spyOn(ServerData, "preloadAngularTemplate").mockImplementation((a, fn) => fn("TEMPLATE"));
+
+        let element = $compile("<awe-loader icon-loader='skeleton'/>")($rootScope);
+        $rootScope.$digest();
+
+        expect(ServerData.preloadAngularTemplate).not.toHaveBeenCalled();
+        expect(element.hasClass("skeleton-loader")).toBe(true);
+        expect(element.find(".skeleton-block .skeleton-bar").length).toBe(1);
+        expect(element.attr("data-testid")).toBe("loader");
     });
 
     it('try to initialize with a loaded template', function () {

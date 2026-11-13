@@ -50,6 +50,10 @@
       <xs:selector xpath=".//video" />
       <xs:field xpath="@id" />
     </xs:unique>
+    <xs:unique name="MapIdUnique">
+      <xs:selector xpath=".//map" />
+      <xs:field xpath="@id" />
+    </xs:unique>
     <xs:unique name="LinkIdUnique">
       <xs:selector xpath=".//link" />
       <xs:field xpath="@id" />
@@ -99,13 +103,17 @@
       <xs:field xpath="@id" />
     </xs:unique>
     <xs:unique name="DialogIdUnique">
-      <xs:selector xpath=".//dialog" />
+      <xs:selector xpath=".//dialog|.//side-panel|.//popover" />
       <xs:field xpath="@id" />
     </xs:unique>
   </xs:element>
 
   <!-- Grid Element -->
-  <xs:element name="grid" type="gridType" />
+  <xs:element name="grid" type="gridType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Data grid (or tree grid when treegrid is true) that shows the rows returned by a query. It contains the columns, optional group headers, buttons and context menu, and can be editable. Supported by both client engines; the tree grid support of the React engine is partial (see the attributes).</xs:documentation>
+    </xs:annotation>
+  </xs:element>
   
   <!-- Accordion Element -->
   <xs:element name="accordion" type="accordionType" />
@@ -117,10 +125,24 @@
   <xs:element name="pivot-table" type="pivotTableType" />
 
   <!-- Tag Element -->
-  <xs:element name="tag" type="elementType" />
+  <xs:element name="tag" type="htmlTagType" />
 
   <!-- Video Element -->
   <xs:element name="video" type="videoType" />
+
+  <!-- Map Element -->
+  <xs:element name="map" type="mapType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Interactive map (Leaflet with OpenStreetMap tiles). Each data row is a marker; clicking a marker selects its row and launches the dependencies.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Card Element -->
+  <xs:element name="card" type="cardType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Metric tile: a title, a big value with its unit, an icon, a change (delta) with its trend and caption, a description, a footer and an optional progress towards a target. Its attributes are static values; with initial-load the first row of the target query fills it, and the query fields (named as the attributes in camelCase: title, value, unit, delta, deltaUnit, trend, caption, tone...) override them. Its children (a chart, a grid, buttons...) are shown in its body, below the value. It refreshes with reload, filter and dependencies like any component. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Link Element -->
   <xs:element name="link" type="linkType" />
@@ -129,10 +151,28 @@
   <xs:element name="image" type="imageType" />
 
   <!-- Javascript Element -->
-  <xs:element name="javascript" type="javascriptType" />
+  <xs:element name="javascript" type="javascriptType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Deprecated in AWE 5.0 and removed in 6.0: no client engine renders it.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Dialog Element -->
   <xs:element name="dialog" type="dialogType" />
+
+  <!-- Side Panel Element -->
+  <xs:element name="side-panel" type="sidePanelType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Panel anchored to the left or right edge of the screen, with a header, a scrollable body and an optional footer (a child with style modal-footer). It is opened and closed as a dialog (button-action type dialog, close and close-cancel), it closes with its close button, a click outside or Esc, and it keeps the focus inside while it is open. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Popover Element -->
+  <xs:element name="popover" type="popoverType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Floating container anchored to the control named in anchor, opened on the side of it set in position (bottom, top, left or right), with a header, a body and an optional footer (a child with style modal-footer). It is opened and closed as a dialog (button-action type dialog, close and close-cancel), it closes with its close button, a click outside or Esc, and it keeps the focus inside while it is open. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Include Element -->
   <xs:element name="include" type="includeType" />
@@ -141,7 +181,7 @@
   <xs:element name="tab" type="tabType" />
 
   <!-- Tab Element -->
-  <xs:element name="tabcontainer" type="elementType" />
+  <xs:element name="tabcontainer" type="tabcontainerType" />
 
   <!-- Wizard Element -->
   <xs:element name="wizard" type="wizardType" />
@@ -150,19 +190,73 @@
   <xs:element name="wizard-panel" type="elementType" />
 
   <!-- Column Element -->
-  <xs:element name="column" type="columnType" />
+  <xs:element name="column" type="columnType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Column of a grid. It names the field of the data list to show and sets how the cell is shown or edited. It can also be placed inside a group-header.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Row detail Element -->
+  <xs:element name="row-detail" type="rowDetailType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Detail area of a grid row. A toggle at the start of each row opens it under the row, across the whole width of the grid; several rows can be open and a reload of the data closes them. The detail is either a template or components, never both. Template: its text, where each {name} placeholder is replaced with the field name of the row, also of hidden columns (the label of the cell when it has one); missing fields show nothing. The detail is plain text (HTML is shown as text) and keeps the line breaks. Use CDATA for multi-line templates. Components: a single read-only grid (no editable nor send-operations), inline or through an include whose source contains only that grid. Each open row gets its own instance of the grid, which loads only when the row is opened; its requests send every field of the parent row as [parent grid id].row.[field] (for example GrdProducts.row.id), so a query reads it with a variable of that name. The components of a row detail are not screen components: they cannot have dependencies (the screen fails to load) and cannot be the target of other components. Declare at most one per grid; only the first one is used. Supported by both client engines; tree grids do not show it.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Quick filter Element -->
+  <xs:element name="quick-filter" type="quickFilterType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Quick filters of a grid: a group of buttons (a segmented control) at the start of the grid toolbar, one per option, such as All 128 · Locked 3 · Inactive 12. It is a criterion of the screen: its options come from its initial load (a query or an enumerated) with the fields value, label (a localization key), count (optional, shown after the label) and tone (optional, the colour of the count: danger, warning, success or info). Its value is sent with every request of the grid as a variable named like its id, so the query of the grid reads it to filter the rows; the option with an empty value (usually the first one, All) leaves the grid unfiltered. Choosing an option filters the grid with no dependency, and every filter of the grid (a search, a filter after a maintain, choosing an option) reloads the options too, so the counts stay current. The arrow keys move the choice. The toolbar shows it also when the grid hides its toolbar buttons with show-toolbar="false". Declare at most one per grid; only the first one is used. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Grid search Element -->
+  <xs:element name="search" type="gridSearchType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Search field of a grid: a text box with a search icon at the start of the grid toolbar, before the quick filters. It is a text criterion of the screen with no query of its own (no server-action nor target-action): its value is sent with every request of the grid as a variable named like its id, so the query of the grid reads it to filter the rows (usually with a like filter on several fields). Typing filters the grid after a short pause (300 ms); Enter filters it at once, and the clear button or Escape empties it and filters the grid again. As every filter of the grid, a search reloads the quick filter of the grid too, so its counts follow the search. The toolbar shows it also when the grid hides its toolbar buttons with show-toolbar="false". Declare at most one per grid; only the first one is used. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Side panel header tag Element -->
+  <xs:element name="header-tag" type="headerTagType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Tag of the identity header of a side panel (only inside a side-panel with header-grid): a field of the selected row of the header grid shown as a tag after the subtitle, in the order of the XML, with the look of the status cells of a grid (the tone of tone-field and a dot, or the icon of icon-field in place of the dot). A tag whose field is empty in the selected row is not shown. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Column Element -->
-  <xs:element name="group-header" type="groupHeaderType" />
+  <xs:element name="group-header" type="groupHeaderType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Second header level that spans over a set of consecutive columns of the grid. The label is shown over the columns it contains, and printed reports keep the grouping.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Window Element -->
   <xs:element name="window" type="windowType" />
+
+  <!-- Advanced Element -->
+  <xs:element name="advanced" type="advancedType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Advanced block of a window: the advanced criteria of a search and their layout tags. Place it right after the essential criteria, inside the window (usually in its panel-body tag); declare at most one per window. The window draws an Advanced filters row where the block is, with the count of the advanced criteria whose value differs from its default, the filters in effect and Clear all, and shows the block on demand below the row or in a side panel (see advanced-mode on the window). Enter in a criterion and Show results launch the submit button of the window. It only has effect inside a window: elsewhere its children are shown as in a plain tag. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Theme preview Element -->
+  <xs:element name="theme-preview" type="themePreviewType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Preview of an AWE 5 theme that is being edited: a sample of the application (surfaces, buttons, a field, a tag, a link and text) drawn with the primary colour, surface and mode chosen in the criteria it names, updated while they change and before the theme is saved. Each colour is the palette of its select or, when the select is custom, the hex of its colour picker; an invalid or empty hex keeps the last valid preview. In the system mode it follows the device and offers a switch to check the light and the dark mode. The sample is isolated: it never changes the theme of the application. Only the React engine draws it; the AngularJS engine ignores it.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Resizable Element -->
   <xs:element name="resizable" type="resizableType" />
 
   <!-- Criteria Element -->
-  <xs:element name="criteria" type="criteriaType" />
+  <xs:element name="criteria" type="criteriaType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Input component (text, select, date, checkbox...) that gets a value from the user and sends it to the server. Its component attribute selects the kind of input. It can contain dependencies and a context menu.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- Button Element -->
   <xs:element name="button" type="buttonType" />
@@ -174,7 +268,7 @@
   <xs:element name="context-separator" type="contextSeparatorType" />
 
   <!-- Button Action Element -->
-  <xs:element name="button-action" type="actionType" />
+  <xs:element name="button-action" type="buttonActionType" />
 
   <!-- Message Element -->
   <xs:element name="message" type="messageType" />
@@ -198,7 +292,11 @@
   <xs:element name="menu-container" type="menuContainerType" />
 
   <!-- Frame Element -->
-  <xs:element name="frame" type="frameType" />
+  <xs:element name="frame" type="frameType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Deprecated in AWE 5.0 and removed in 6.0: no client engine renders it.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
 
   <!-- View Element -->
   <xs:element name="view" type="viewType" />
@@ -250,12 +348,36 @@
 
   <!-- Server Call Attributes -->
   <xs:attributeGroup name="serverCallAttr">
-    <xs:attribute name="initial-load" type="initialLoadEnum" />
-    <xs:attribute name="server-action" type="serverActionEnum" />
-    <xs:attribute name="target-action" type="nameEnum" />
-    <xs:attribute name="max" type="xs:integer" />
-    <xs:attribute name="autorefresh" type="xs:integer" />
-    <xs:attribute name="autoload" type="booleanEnum" />
+    <xs:attribute name="initial-load" type="initialLoadEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the component gets its data when the screen is built. query runs the target query, enum reads the target enumerated, and value runs the target and uses the first row to fill the selected value (for a criterion this overrides the value from variable, session, property and value). A grid only loads data with query.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="server-action" type="serverActionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Server action used to load or refresh the component data (for example data). Used together with target-action.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="target-action" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the target (query, enumerated or maintain) that the server action runs.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Number of rows requested per page; 0 shows every row in a single page, without paginator. Default: for a grid, the grid.rows.per.page property (30); for a criterion, the awe.application.component.criteria-rows-per-page property (100).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="autorefresh" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Reloads the component data from the server every this many seconds. 0 or empty means no automatic refresh.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="autoload" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">When true, the component is reloaded from the server as soon as it is created, after the screen is shown. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Screen Attributes -->
@@ -266,6 +388,17 @@
     <xs:attribute name="onload" type="xs:string" />
     <xs:attribute name="onunload" type="xs:string" />
     <xs:attribute name="keep-criteria" type="booleanEnum" />
+    <xs:attribute name="window-header">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">What the header of a screen with the window template shows: breadcrumb (the menu breadcrumb) or none (no breadcrumb, only the buttons row). Overrides the application property awe.application.window-header. Default: the application value.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="breadcrumb" />
+          <xs:enumeration value="none" />
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
   </xs:attributeGroup>
@@ -306,11 +439,230 @@
     <xs:attribute name="controls" type="booleanEnum" />
   </xs:attributeGroup>
 
+  <!-- Theme preview Attributes -->
+  <xs:attributeGroup name="themePreviewAttr">
+    <xs:attribute name="id" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the preview. Optional: the server generates one when it is missing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Accessible name of the sample (a localization key).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes of the preview.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="primary" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the criterion with the primary palette (a palette name or custom).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="primary-hex" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the criterion with the primary hex, read when the primary palette is custom.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="surface" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the criterion with the surface palette (a palette name, auto or custom).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="surface-hex" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the criterion with the surface hex, read when the surface palette is custom.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="mode" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the criterion with the mode (light, dark or system).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <!-- Card Attributes -->
+  <xs:attributeGroup name="cardAttr">
+    <xs:attribute name="id" type="nameEnum" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the card, unique in the screen. Actions (filter) and dependencies address the card with it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes of the card, separated by spaces (for example awe-card-wide to take two columns of an awe-card-grid). The query never overrides it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attributeGroup ref="serverCallAttr" />
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Title of the card (a locale key or a text). label is used when there is no title.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Title of the card when it has no title (a locale key or a text).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="subtitle" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Secondary text below the title.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon shown in a tile at the top right (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). With an icon the delta is shown in the footer; without it, in the header.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-tone" type="cardToneEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Colour of the icon tile and of the progress bar: success, warning, danger, info or neutral. Default: the primary colour.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="chip" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Status chip shown at the top right, before the icon or the delta (a locale key or a text), as a tag with a dot. The query can return it as a field to change the status.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="chip-tone" type="cardToneEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tone of the status chip: success, warning, danger, info or neutral. Default: neutral.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Main value. A number is formatted in the language of the user with number-decimals.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="unit" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unit or suffix of the value and of the target (%, €, ms...).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="number-decimals" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Decimals of the value and of the target when they are numbers. Default: the decimals they have, up to 2. The delta always keeps up to 2 decimals.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="delta" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Change of the value (for example 4.2), shown as a tag with the trend arrow and its text.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="delta-unit" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unit of the change. Default: %.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="trend" type="cardTrendEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Direction of the change: up, down or flat. Default: the sign of the delta (negative down, zero flat, positive up). When it is set, the delta is shown without sign.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="good-trend" type="cardGoodTrendEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Direction that is good news: up (default) or down (error rate, costs, response time). The trend in this direction is shown as success, the opposite as danger and flat as neutral.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tone" type="cardToneEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tone of the change, used as is instead of the one derived from trend and good-trend: success, warning, danger, info or neutral.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="caption" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text next to the change (for example vs. last month).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="target" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Target of the value. When it is a number, a progress bar shows the value against it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="progress-style" type="cardProgressStyleEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the progress towards the target is drawn: bar (default) or gauge (a half circle with the percent).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Series of numbers drawn as a sparkline below the value, as a JSON array (for example [93.1,93.8,92.6]). The query can return it as a field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-type" type="sparklineTypeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Type of the sparkline: line, area (default) or bar.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="description" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Paragraph below the value and the body.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="footer" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Muted text at the bottom left of the card.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <!-- Map Attributes -->
+  <xs:attributeGroup name="mapAttr">
+    <xs:attributeGroup ref="elementAttr" />
+    <xs:attributeGroup ref="serverCallAttr" />
+    <xs:attribute name="latitude" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the data column that holds the marker latitude. Default: latitude.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="longitude" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the data column that holds the marker longitude. Default: longitude.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="marker-label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the data column shown in the popup of a marker.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="marker-number" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the data column drawn as a number inside the marker (a numbered pin).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="route-markers" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Keep the markers visible while a route is shown and fit the view to the route and the markers. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="zoom" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Initial zoom level of the map.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="center-latitude" type="xs:decimal">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Latitude of the initial map center. Without a center, the map fits the markers.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="center-longitude" type="xs:decimal">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Longitude of the initial map center. Without a center, the map fits the markers.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
   <!-- Link Attributes -->
   <xs:attributeGroup name="linkAttr">
     <xs:attributeGroup ref="elementAttr" />
     <xs:attribute name="url" type="xs:string" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
   </xs:attributeGroup>
@@ -320,6 +672,11 @@
     <xs:attributeGroup ref="elementAttr" />
     <xs:attribute name="url" type="xs:string" />
     <xs:attribute name="alternate-url" type="xs:string" />
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Locale key (or text) of the title of the image: its tooltip in both engines</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
   </xs:attributeGroup>
@@ -349,7 +706,6 @@
     <xs:attribute name="subtitle" type="xs:string" />
     <xs:attribute name="type" use="required" type="chartTypesEnum" />
     <xs:attribute name="stock-chart" type="booleanEnum" />
-    <xs:attribute name="theme" type="xs:string" />
     <xs:attribute name="inverted" type="booleanEnum" />
     <xs:attribute name="stacking" type="stackTypeEnum" />
     <xs:attribute name="enable-data-labels" type="booleanEnum" />
@@ -439,45 +795,236 @@
 
   <!-- Criteria Attributes -->
   <xs:attributeGroup name="criteriaAttr">
-    <xs:attribute name="component" type="criteriaComponentType" use="required" />
-    <xs:attribute name="label" type="xs:string" />
-    <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="icon" type="xs:string" />
-    <xs:attribute name="unit" type="xs:string" />
-    <xs:attribute name="size" type="xs:string" />
-    <xs:attribute name="area-rows" type="xs:string" />
-    <xs:attribute name="placeholder" type="xs:string" />
-    <xs:attribute name="optional" type="booleanEnum" />
-    <xs:attribute name="value" type="xs:string" use="optional" default="" />
-    <xs:attribute name="readonly" type="booleanEnum" />
-    <xs:attribute name="variable" type="xs:string" />
-    <xs:attribute name="property" type="xs:string" />
-    <xs:attribute name="session" type="xs:string" />
-    <xs:attribute name="validation" type="xs:string" />
-    <xs:attribute name="number-format" type="xs:string" />
-    <xs:attribute name="show-slider" type="booleanEnum" />
-    <xs:attribute name="capitalize" type="booleanEnum" />
-    <xs:attribute name="strict" type="booleanEnum" />
-    <xs:attribute name="message" type="xs:string" />
-    <xs:attribute name="printable" type="printableEnum" />
-    <xs:attribute name="check-empty" type="booleanEnum" />
-    <xs:attribute name="check-initial" type="booleanEnum" />
-    <xs:attribute name="check-target" type="xs:string" />
-    <xs:attribute name="specific" type="xs:string" />
-    <xs:attribute name="checked" type="booleanEnum" />
-    <xs:attribute name="timeout" type="xs:integer" />
-    <xs:attribute name="group" type="xs:string" />
-    <xs:attribute name="destination" type="xs:string" />
-    <xs:attribute name="help" type="xs:string" />
-    <xs:attribute name="help-image" type="xs:string" />
-    <xs:attribute name="show-weekends" type="xs:boolean" />
-    <xs:attribute name="show-future-dates" type="xs:boolean" />
-    <xs:attribute name="date-format" type="xs:string" />
-    <xs:attribute name="date-show-today-button" type="booleanEnum" />
-    <xs:attribute name="date-view-mode" type="viewModeEnum" />
-    <xs:attribute name="left-label" type="xs:integer" />
-    <xs:attribute name="visible" type="booleanEnum" />
-    <xs:attribute name="title" type="xs:string" />
+    <xs:attribute name="component" type="criteriaComponentType" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Kind of input: hidden, text, numeric, select, suggest, suggest-multiple, select-multiple, picklist, date, time, filtered-calendar, color, textarea, uploader, checkbox, radio, button-checkbox, button-radio, password, text-view or markdown-editor (progress is accepted by the schema but no engine implements it). picklist exists only in the React engine. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text shown above the input. It is a localization key that is translated. A style containing no-label hides it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes of the criterion wrapper, usually Bootstrap grid classes such as col-sm-6. React adds col-12 when there is no style.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon shown next to the input (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). React does not show it in a textarea.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="unit" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unit text shown after the input (text, password, numeric and text-view). React hides it when the slider is shown and in a textarea.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="size" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Size of the input: xs, sm, md or lg. Default: md (property awe.component.size).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="display">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Select-multiple and suggest-multiple criteria only, in both clients. summary shows the chips that fit in one line and a +N counter that lists all the values (default of select-multiple). chip shows every value as a chip with its own remove icon, and the field grows with the values (default of suggest-multiple).</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="chip"/>
+          <xs:enumeration value="summary"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+    <xs:attribute name="area-rows" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Textarea only. Number of visible rows. Without it the browser default applies.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="placeholder" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Hint text shown inside an empty input. It is a localization key that is translated.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="optional" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Select and select-multiple only. When false the first value is selected automatically if nothing is selected; when true an empty value is allowed and the selection can be cleared. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string" use="optional" default="">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Static initial value of the criterion. A comma separated list gives several values. For a checkbox or radio it is the value sent when checked. It has the lowest priority: a screen target, a variable, the stored criteria, the session and the property replace it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="readonly" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Disables the input. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="variable" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the screen variable (a parameter sent from another screen) that gives the initial value. It also names the parameter sent to check a suggest value. Used by the server only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="property" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of an application property whose value is the initial value. Used by the server only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="session" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a session variable whose value is the initial value. Used by the server only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="validation" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Validation rules (for example required), separated by spaces. A rule list containing required also marks the criterion as required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="number-format" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Numeric only. Number format options in autoNumeric style (for example min, max, step and precision). AngularJS passes them to autoNumeric; React translates the common options.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-slider" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Numeric only. Shows a slider below the input. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="capitalize" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Declared but not read by any engine or by the server. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="strict" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Suggest only. When true the value must be one of the values suggested by the server; when false any typed text is accepted. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="message" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Declared but not read by any engine or by the server.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="printable" type="printableEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Whether the criterion goes to printed reports. Only false excludes it; hidden criteria are never printed. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="check-empty" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Includes the criterion in the check that warns when a form is empty. React only looks at the criteria that set it to true; AngularJS ignores the attribute and checks all the top level criteria. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="check-initial" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Declared for suggest criteria; neither client engine nor the server reads it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="check-target" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Suggest only. Query used to find the label of the selected value when only the value is known. Default: the target-action.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="specific" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Declared but not read by any engine or by the server.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="checked" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Checkbox and radio only. The criterion starts checked. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="timeout" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Suggest only. Delay in milliseconds before searching after typing. React uses this attribute (300 by default); AngularJS ignores it and uses a global setting.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Checkbox and radio only. Name of the group the criterion belongs to; the group is used in validation and to match the screen target field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="destination" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Uploader only. Folder where the uploaded files are stored.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="drop-zone" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Uploader only. Shows a drop area where files can be dragged and dropped, plus a preview of the selected image. Default is false</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="capture" type="captureEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Uploader only. Adds a button to take a photo with the device camera (user: front camera, environment: rear camera). Devices without a camera fall back to the file dialog</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="presets" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Quick presets of a date-range criterion, as a list of codes separated by commas or
+          spaces. Each code is shown as a button that fills the range from the current date: TODAY, YTD (year to date), ALL
+          (clears both dates) or a period back from today, a number followed by D (days), W (weeks), M (months) or Y (years),
+          for instance 7D, 1M, 3M, 12M, 3Y. The label of each preset is the locale DATE_RANGE_PRESET_ plus the code. The
+          active preset is cleared when the dates are edited. Only used by date-range criteria.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Help text shown in a tooltip next to the label. It is a localization key that is translated.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help-image" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Path of an image shown in the help tooltip.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-weekends" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date criteria only. When false, Saturdays and Sundays cannot be chosen. AngularJS only; React ignores it. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-future-dates" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date criteria only. When false, dates after the current selected value cannot be chosen. AngularJS only; React ignores it. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="date-format" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date criteria only. Date format in bootstrap-datepicker syntax (default dd/mm/yyyy). AngularJS only; React always uses its own fixed format.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="time-format" type="timeFormatEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Time criteria only (component="time"). Format of the time: HH:mm, HH:mm:ss, hh:mm a or hh:mm:ss a (hh = 12-hour clock with AM/PM). The value sent to the server is always 24-hour and includes seconds only when the format has them. Default: HH:mm:ss. React only; AngularJS ignores it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="date-show-today-button" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date criteria only. Shows the button that goes to today. AngularJS only (default: shown); React always shows it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="date-view-mode" type="viewModeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date criteria only. Smallest view of the calendar: days, months or years. Default: days. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="left-label" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the label to the left of the input, with a width of this many characters. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Initial visibility of the criterion. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tooltip shown over the input. AngularJS only; React does not use it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attributeGroup ref="serverCallAttr" />
   </xs:attributeGroup>
 
@@ -490,9 +1037,18 @@
     <xs:attribute name="value" type="xs:string" />
     <xs:attribute name="size" type="xs:string" />
     <xs:attribute name="button-type" type="buttonTypes" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
+    <xs:attribute name="permission" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Permissions of the catalog (Permissions.xml) required to show the button, separated by spaces: all of them are required. Without it, when the authorization mode is enforce, the server removes the button if one of its button actions launches a query, a maintain target or a service whose permission the user lacks. When present, it replaces that decision: the button is shown only to the users with all these permissions, which also protects a button that launches no target. An unknown permission is a load error.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Avatar Attributes -->
@@ -505,7 +1061,11 @@
     <xs:attribute name="value" type="xs:string" />
     <xs:attribute name="size" type="xs:string" />
     <xs:attribute name="button-type" type="buttonTypes" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
     <xs:attribute name="image" type="xs:string" />
@@ -517,19 +1077,37 @@
   <xs:attributeGroup name="windowAttr">
     <xs:attribute name="id" type="nameEnum" />
     <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="label" type="xs:string" />
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
     <xs:attribute name="expandible" type="orientationEnum" />
     <xs:attribute name="maximize" type="booleanEnum" />
+    <xs:attribute name="advanced-mode" type="advancedModeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the window shows its advanced block (the advanced element): inline (the Advanced filters row expands the block below it, inside the window) or side-panel (the same Advanced filters button opens the block in a side panel). Only used when the window holds an advanced block. Default: inline.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="saved-searches" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Show the Saved searches menu next to the Advanced filters button: each user saves, applies, renames and deletes their own searches of the window, and sees the ones published for their profile. Only used when the window holds an advanced block. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Resizable Attributes -->
   <xs:attributeGroup name="resizableAttr">
     <xs:attribute name="id" type="nameEnum" />
     <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="label" type="xs:string" />
     <xs:attribute name="expandible" type="orientationEnum" />
     <xs:attribute name="directions" type="xs:string" />
@@ -543,6 +1121,11 @@
     <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="maximize" type="booleanEnum" />
     <xs:attribute name="orientation" type="orientationEnum" />
+    <xs:attribute name="variable" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the screen variable (a parameter sent from another screen) that gives the selected tab page: the value of one of its options. Used by the server only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Wizard Attributes -->
@@ -557,35 +1140,226 @@
 
   <!-- Grid Attributes -->
   <xs:attributeGroup name="gridAttr">
-    <xs:attribute name="id" use="required" type="nameEnum" />
-    <xs:attribute name="name" type="nameEnum" />
-    <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="multiselect" type="booleanEnum" />
-    <xs:attribute name="checkbox-multiselect" type="booleanEnum" />
-    <xs:attribute name="send-operations" type="booleanEnum" />
-    <xs:attribute name="editable" type="booleanEnum" />
-    <xs:attribute name="show-totals" type="booleanEnum" />
-    <xs:attribute name="enable-filters" type="booleanEnum" />
-    <xs:attribute name="row-numbers" type="booleanEnum" />
-    <xs:attribute name="treegrid" type="booleanEnum" />
-    <xs:attribute name="tree-id" type="xs:string" />
-    <xs:attribute name="tree-parent" type="xs:string" />
-    <xs:attribute name="tree-leaf" type="xs:string" />
-    <xs:attribute name="expand-column" type="xs:string" />
-    <xs:attribute name="icon-expand" type="xs:string" />
-    <xs:attribute name="icon-collapse" type="xs:string" />
-    <xs:attribute name="icon-loading" type="loadingIconEnum" default="spinner" />
-    <xs:attribute name="initial-level" type="xs:integer" />
-    <xs:attribute name="icon-leaf" type="xs:string" />
-    <xs:attribute name="load-all" type="booleanEnum" />
-    <xs:attribute name="send-all" type="booleanEnum" />
-    <xs:attribute name="help" type="xs:string" />
-    <xs:attribute name="help-image" type="xs:string" />
-    <xs:attribute name="validate-on-save" type="booleanEnum" />
-    <xs:attribute name="pagination-disabled" type="booleanEnum" />
-    <xs:attribute name="pager-values" type="xs:string" />
-    <xs:attribute name="visible" type="booleanEnum" />
-    <xs:attribute name="row-height" type="xs:integer" />
+    <xs:attribute name="id" use="required" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Grid identifier. It is the key of the grid on the screen and the name of the grid variables sent to the server (for example id-RowTyp). Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="name" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Component name stored in the screen model. Neither client engine uses it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes added to the grid.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="multiselect" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Allows selecting several rows and adds a checkbox column to select them. Default: false. In a tree grid the React engine only supports single selection.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="selectable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Allows selecting rows by clicking them. Default: true. With false the grid never selects a row (no highlight, no toggle on click) while the row and cell click events, the cell buttons and the dependencies keep firing. Use it for grids whose rows only trigger actions. Supported by the React engine; ignored when multiselect is true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="checkbox-multiselect" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Read by the model but not implemented by either client engine; use multiselect to get a checkbox column. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="send-operations" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Makes the grid editable and sends only the rows that were inserted, updated or deleted, with the type of operation of each row in the id-RowTyp parameter, and shows an operation icon column. It takes precedence over editable in the AngularJS engine. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="editable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Allows editing rows. In AngularJS the selected row is edited in place with save and cancel buttons; in React a row is edited with a row editor opened by double click. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-totals" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows a footer row with the summary of each column that has a summary-type. AngularJS only calculates sums, whatever the summary-type; React supports sum, avg, max and min. When the rows are grouped, the footer is the grand total of all the rows. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-by" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Comma-separated column names that group the rows, one grouping level each, in order; unknown names are ignored. Each group row shows its value, its row count and the aggregates of the columns with a summary-type (sum, avg, max, min) in both engines. A grouped grid loads every row (as load-all) and does not paginate. Ignored on tree grids and on editable, send-operations, move-rows and row-detail grids.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-selector" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows a "Group by" control in the toolbar to choose the grouping levels at runtime (visible columns with a label and without summary-type). Like group-by, it makes the grid load every row. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="group-subtotals" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Closes each group with a subtotal row with the aggregates of the group. Only used when the rows are grouped. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enable-filters" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows a filter for each column. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="saved-searches" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the Saved searches menu in the grid toolbar: each user saves, applies, renames and deletes their own searches of the grid (its column filters, sort, quick filter and search), and sees the ones published for their profile. Both engines. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="row-numbers" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Adds a first column with the row number. Not shown in tree grids. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="move-rows" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Adds a leading column with a grip to move the rows by dragging them. The Alt+arrow shortcuts to move the selected row are also enabled. Not available in tree grids. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="treegrid" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the data as a tree grid instead of a plain grid. The rows are related by the tree-id and tree-parent fields. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tree-id" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Name of the field that identifies each row. Default: id.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tree-parent" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Name of the field with the identifier of the parent row. Default: parent.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tree-leaf" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Name of the field that tells whether a row is a leaf. Default: isLeaf.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="expand-column" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Name of the column that holds the expand and collapse toggle. React only (default: the tree-id field); the AngularJS engine ignores it and shows the toggle in the row header.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-expand" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon of a collapsed node (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). Default: plus-square. Both engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-collapse" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon of an expanded node (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). Default: minus-square. Both engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-loading" type="loadingIconEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Style of the loading indicator shown while the grid loads. skeleton shows placeholder rows with the grid columns on every load; skeleton-dim shows them on the first load and dims the rows on a reload. Default: the awe.application.component.grid-icon-loading property (skeleton). Set another value (spinner...) to disable the skeleton on this grid.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="initial-level" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Number of levels expanded after loading: a value of N expands N-1 levels, so 0 and 1 both start collapsed. Both engines; a row that carries an expanded field is expanded or collapsed by it, and only loaded nodes are expanded by the level.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-leaf" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tree grid only. Icon of a node without children (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). Default: dot-circle-o. Both engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="load-all" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Loads every row at once (max is ignored) and sorts and paginates locally in the client. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="send-all" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Sends the values of all the grid rows to the server instead of only the selected ones; the selected rows are then sent in the id.selected parameter. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Help text of the grid. AngularJS shows it in the column headers; React does not show it for grids.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help-image" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Path of an image shown in the grid help. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="validate-on-save" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">When false, the row being edited is not validated before it is saved, or before the page is changed. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pagination-disabled" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Hides the paginator of the grid. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pager-values" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Comma separated list of rows-per-page values the user can choose in the paginator (for example 5,25,50,100). Every value must be an integer. Without it AngularJS shows no selector and React offers 10, 20 and 30 plus the max value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Initial visibility of the grid. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="row-height" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Minimum height of each row in pixels. Plain grids in both engines (AngularJS default 27); tree grids ignore it in both.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-toolbar" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the grid toolbar, with the Columns dialog (show, hide and reorder columns, saved per user) and the Maximize button. Set it to false to opt out: it hides the group-by controls, the Columns and the Maximize buttons, and the stored column layout of the user is ignored. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-columns-button" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the Columns button of the grid toolbar. Both engines. When it is hidden (false), the column layout stored by the user is ignored: it is neither applied nor saved. show-toolbar="false" hides it too. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-maximize-button" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows the Maximize button of the grid toolbar. Both engines. show-toolbar="false" hides it too. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="toolbar-labels" type="gridToolbarLabelsType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Which end buttons of the grid toolbar show their label: true (all of them), false (none: only their icon, keeping the label as tooltip and accessible name) or a comma-separated list of the buttons that show it, from group-by (Group by), saved-searches (Saved searches), columns (Columns) and maximize (Maximize); the buttons not listed show only their icon. Example: toolbar-labels="saved-searches,columns". Both engines. Default: the property awe.application.component.grid-toolbar-labels (false, icon only, unless the application changes it).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="columns-panel" type="gridColumnsPanelEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the toolbar shows the Columns of the grid: popover (anchored to the Columns button, the grid stays in view), dialog (a modal dialog in the middle of the screen) or side-panel (a panel anchored to the right edge). Both engines. Default: the property awe.application.component.grid-columns-panel (popover unless the application changes it).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="empty-title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Title (locale or text) shown in the empty state of the grid. Default: a translated "No records" title</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="empty-text" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Description (locale or text) shown in the empty state of the grid. Default: a translated "No records match the search" text</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="empty-icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon shown in the empty state of the grid (grid without rows). Default: an inbox icon</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="empty-action" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of a button of the grid. The empty state shows a button with its label and icon that runs the button actions</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attributeGroup ref="serverCallAttr" />
   </xs:attributeGroup>
 
@@ -609,51 +1383,355 @@
 
   <!-- Group Header Column Attributes -->
   <xs:attributeGroup name="columnGroupHeaderAttr">
-    <xs:attribute use="required" name="name" type="nameEnum" />
-    <xs:attribute name="label" type="xs:string" />
+    <xs:attribute use="required" name="name" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Required by the schema, but the model does not read it: the group header position comes from the columns it contains.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text shown over the grouped columns. It is a localization key that is translated. The header spans all the columns it contains, starting at the first one.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Column Attributes -->
   <xs:attributeGroup name="columnAttr">
-    <xs:attribute name="name" use="required" type="nameEnum" />
-    <xs:attribute name="style" type="xs:string" />
-    <xs:attribute name="label" type="xs:string" />
-    <xs:attribute name="value" type="xs:string" />
-    <xs:attribute name="component" type="columnComponentType" />
-    <xs:attribute name="icon" type="xs:string" />
-    <xs:attribute name="unit" type="xs:string" />
-    <xs:attribute name="type" type="cellDataTypes" />
-    <xs:attribute name="server-action" type="serverActionEnum" />
-    <xs:attribute name="target-action" type="nameEnum" />
-    <xs:attribute name="initial-load" type="initialLoadEnum" />
-    <xs:attribute name="autorefresh" type="xs:integer" />
-    <xs:attribute name="align" type="alignEnum" />
-    <xs:attribute name="charlength" type="xs:integer" />
-    <xs:attribute name="width" type="columnWidth" />
-    <xs:attribute name="sort-field" type="xs:string" />
-    <xs:attribute name="hidden" type="booleanEnum" />
-    <xs:attribute name="visible" type="booleanEnum" />
-    <xs:attribute name="sortable" type="booleanEnum" />
-    <xs:attribute name="movable" type="booleanEnum" />    
-    <xs:attribute name="sendable" type="booleanEnum" />
-    <xs:attribute name="optional" type="booleanEnum" />
-    <xs:attribute name="summary-type" type="xs:string" />
-    <xs:attribute name="number-format" type="xs:string" />
-    <xs:attribute name="validation" type="xs:string" />
-    <xs:attribute name="formatter" type="xs:string" />
-    <xs:attribute name="format-options" type="xs:string" />
-    <xs:attribute name="frozen" type="booleanEnum" />
-    <xs:attribute name="pagebreak" type="booleanEnum" />
-    <xs:attribute name="printable" type="printableEnum" />
-    <xs:attribute name="help" type="xs:string" />
-    <xs:attribute name="help-image" type="xs:string" />
-    <xs:attribute name="check-initial" type="booleanEnum" />
-    <xs:attribute name="checked" type="booleanEnum" />
-    <xs:attribute name="readonly" type="booleanEnum" />
-    <xs:attribute name="max" type="xs:string" />
-    <xs:attribute name="dialog" type="xs:string" />
-    <xs:attribute name="show-weekends" type="booleanEnum"/>
-    <xs:attribute name="strict" type="xs:boolean"/>
+    <xs:attribute name="name" use="required" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of the field of the data list shown in the column. It is also the column identifier. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="permission" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Columns of component button only. Permissions of the catalog (Permissions.xml) required to show the column, separated by spaces: all of them are required. Without it, when the authorization mode is enforce, the server removes the column if one of its button actions launches a query, a maintain target or a service whose permission the user lacks. When present, it replaces that decision. An unknown permission is a load error.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS class applied to the column. AngularJS applies it to the header and the cells; in React plain text cells ignore it and only column components use it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Column header text. It is a localization key that is translated.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Static value of the column. Cell values normally come from the query, so no client engine uses it for plain cells.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="component" type="columnComponentType">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Component used to show or edit the cell value. Without it the cell shows plain text. The link component only exists in React; progress, image, icon, text-view, button, formatted-text and sparkline are display components. In React the editors of text, textarea, date, time, filtered-calendar, select-multiple, suggest and suggest-multiple only appear while a row is being edited; otherwise the cell is plain text.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon shown in the cell (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name). Used by text-view and button columns; an icon or unit sent in the cell data overrides it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="title" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Tooltip of the buttons of a button column (a locale key); a title sent in the cell data overrides it. A cell button without label shows only its icon and the title is its accessible name. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="unit" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Unit text shown to the right of the cell value (text-view, numeric and text cells). A unit sent in the cell data overrides it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="type" type="cellDataTypes">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Type of the data of the column, used when printing so exported cells get the right format. It is not used for sorting or filtering. An invalid value makes the report fail.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="server-action" type="serverActionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Server action that loads the options of the column component (for example the values of a select).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="target-action" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Query or enumerated that provides the options of the column component (select, suggest, radio and button-radio columns).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="initial-load" type="initialLoadEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the options of the column component are loaded when the screen is built: query, enum or value.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="autorefresh" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Reloads the column options from the server every this many seconds. No client engine applies it specifically to columns.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="align" type="alignEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Horizontal alignment of the cell text: left, center or right. The header is always centered. It also sets the alignment in printed reports.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="charlength" type="xs:integer">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Column width in characters. AngularJS uses it only when width is not set (characters times the character size, 8 pixels by default); React always uses it, as (characters + 4) times 8 pixels, and ignores width. Printed reports use it too.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="width" type="columnWidth">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Column width: a number of pixels, or * to share the free space. AngularJS uses it before charlength and also accepts a percentage (for example 20%), which this schema does not allow and which fails when printing. React ignores it and uses charlength. In reports, * is a fixed width.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="wrap" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The text of the cells wraps over several lines and the row grows to fit it, in both client engines. Without it (or with false) the text is one line cut with an ellipsis, as before. In AngularJS the row-height of the grid becomes the minimum row height, and a grid with frozen columns keeps its single-line rows. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max-lines" type="xs:positiveInteger">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Maximum number of lines of a wrapping cell; it implies wrap unless wrap is false. Line N ends in an ellipsis when the text is longer, and the full text shows on hover and on keyboard focus.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="secondary-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of another field of the row whose value is shown under the main value, smaller and muted. An empty secondary value shows only the main line. Sorting, filtering and export use the main value. Combines with plain text and with status-field; ignored in columns with a component.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="export-secondary" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Print and export add a column right after this one with the value of secondary-field, titled with secondary-label (or the column label without it). Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="secondary-label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Label (i18n key) of the column that export-secondary adds to print and export. Default: the column label.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="status-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with the tone of the cell: success, warning, danger, info or neutral. The main value is shown as a status, a dot plus the text, so the tone never relies on colour alone. An unknown or empty tone is neutral. Ignored with chips="true" and in columns with a component.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="chips" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The main value is split by chip-separator and each item, trimmed and not empty, is shown as a chip. Takes precedence over status-field; ignored in columns with a component. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="chip-separator" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text that separates the items of a chips column. Default: , (comma).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max-chips" type="xs:positiveInteger">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Maximum number of chips of a chips column. The first N chips are shown plus a +n chip whose tooltip and accessible label list the hidden items. Default: all the chips.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bar-min" type="xs:decimal">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for component="progress", React engine only (AngularJS ignores it). Lower end of the scale of the bar. Below 0 a zero mark is drawn and negative values fill to the left of it in the negative colour. Default: 0. It does not reuse the column max attribute, which sets the option rows of the column.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bar-max" type="xs:decimal">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for component="progress", React engine only (AngularJS ignores it). Upper end of the scale of the bar: a value of 4.13 with bar-max="40" fills 10.325 % of the bar. Default: 100. It does not reuse the column max attribute, which sets the option rows of the column.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bar-second-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for component="progress", React engine only (AngularJS ignores it). Name of a field of the row with a second value (a target, for instance) drawn as a thinner bar under the main one, on the same scale (bar-min and bar-max). Print and export write the cell value only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bar-stack-fields" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for component="progress", React engine only (AngularJS ignores it). Comma-separated names of fields of the row: the bar is drawn as stacked segments with their values (positive numbers, in the given order). The cell value stays the accessible value and the one that print and export write.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="bar-leaf-only" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for component="progress", React engine only (AngularJS ignores it). In a tree grid the bar is drawn only on leaf rows. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="avatar-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with the name (or the initials) the avatar is built from. The cell shows a small round avatar with its initials (the first letter of its first and its last word that start with a letter, in upper case) before the main value and its secondary line. An empty value shows no avatar. The avatar is decorative: sorting, filtering, print and export use the main value. Ignored in columns with a component.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="avatar-tone-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with the tone of the avatar: primary, info, success, warning, danger or neutral. An unknown or empty tone is neutral. Only with avatar-field.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="avatar-icon-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with an icon (lucide:name, fa-name...) drawn in the avatar instead of the initials, on the tone of avatar-tone-field. It works with or without avatar-field: a row without icon falls back to the initials, or to the empty space that keeps the column aligned. The avatar is decorative: the main value is the accessible text. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="swatch-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with a colour, drawn as a small decorative circle before the main value, in the place of the avatar: an AWE 5 palette name (red, orange, amber, yellow, lime, green, emerald, teal, cyan, sky, blue, indigo, violet, purple, fuchsia, pink, rose, slate, gray, zinc, neutral or stone, shown with its 500 shade) or a #RGB / #RRGGBB hex. Only these values reach the style of the circle. Any other value (or none) shows no circle, only an empty space that keeps the values aligned. With avatar-field too, the swatch is shown while the row has a valid colour, and the avatar otherwise. Sorting, filtering, print and export use the main value. Ignored in columns with a component.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Name of a field of the row with an icon (lucide:name, fa-name...) shown before the main value. With status-field the icon takes the place of the dot, so the status is a plain tag (a row without icon shows the tag without dot nor icon). The icon is decorative: the main value is the accessible text, and sorting, filtering, print and export use it. Ignored with chips="true" and in columns with a component.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sort-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field used to sort the column. Default: the column name.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="filter" type="columnFilterEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows a filter button in the column header to filter the grid by the values of the column, as the autofilter of a spreadsheet: values (pick from the list of values), text, number or date (conditions of that type). The filter runs on the server with the query (in the SQL WHERE of database queries, keeping the database pagination). It applies to the fields of filter-fields, else to sort-field, else to the column name, which must be fields of the query not marked noprint. When a column declares it, it replaces the filter of enable-filters for that column. Default: no filter.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="filter-fields" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Comma-separated query fields the column filter applies to, for a column that shows several values: a row matches when any of the fields matches (joined by OR). Default: sort-field, else the column name. Only used with filter.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="hidden" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Hides the column. Hidden columns are still sent to the server and can be printed with printable. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Not applied: the initial visibility of a column is the opposite of hidden, so visible=false has no effect on its own. Dependencies can still change the visibility at run time.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sortable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Allows sorting by the column. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="movable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model but not applied: neither client engine uses it to allow or forbid moving the column. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>    
+    <xs:attribute name="sendable" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Sends the column values to the server (and to the print request). A printed column that is not sendable shows empty cells. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="optional" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">For select and suggest column components, allows clearing the value. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="summary-type" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Calculation shown in the grid footer when show-totals is true, and in the group and subtotal rows of a grouped grid (both engines). AngularJS always calculates a sum; React supports sum, avg, max and min and shows nothing for other values.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="number-format" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Number format options (autoNumeric style) of numeric cells and of the footer total. Both engines apply it; React translates only the common options.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="validation" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Validation rules of the cell (for example required), applied when the cell is editable.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="formatter" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model but not used by either client engine or by printing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="format-options" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model but not used by either client engine or by printing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="frozen" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Pins the column on the left so it stays out of the horizontal scroll. Both client engines; do not use it when the header has more than one line. React moves the frozen columns to the left (with the row number and checkbox columns) and keeps single-line rows; it ignores frozen in a grid with grouped headers and in a tree grid. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="pagebreak" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model but not used by either client engine or by printing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-type" type="sparklineTypeEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Drawing of the series of a sparkline column: line, bar or area. Only the sparkline component reads it. Default: line.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-color" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS colour of the series of a sparkline column (for example #3b82f6 or rgb(59, 130, 246)). A value that is not a plain colour is ignored. Default: blue.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-negative-color" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS colour used for the negative values of a sparkline column: the bars below zero, or the parts of the line and the area that go below zero. Without it negative values use the colour of the series.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-last-point" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Highlights the last point of the series of a sparkline column with a dot (line and area) or a dark outline (bar). Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sparkline-min-max" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Marks the lowest (red) and highest (green) points of the series of a sparkline column. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="printable" type="printableEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Whether the column goes to printed reports: true always prints it, even if hidden; excel prints it only in spreadsheet formats (XLSX, CSV); false never prints it. Without it the column is printed only when it is visible on screen. Only the AngularJS engine sends this information; React ignores it and prints the visible columns.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Help text shown in the column header. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="help-image" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Path of an image shown in the column help. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="check-initial" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model for suggest cells; neither client engine reads it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="checked" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Checkbox cells only. Initial checked state. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="readonly" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Prevents editing the cell when the column has an editable component. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Maximum number of rows retrieved for the column options when the column is loaded from a target. Default: the awe.application.component.criteria-rows-per-page property (100).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="dialog" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Stored by the model but not used by either client engine.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="show-weekends" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Date cells only. Shows the weekends in the calendar. The AngularJS engine honours it; React ignores it.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="strict" type="xs:boolean">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Suggest cells only. When true (the default) the value must be one of the values suggested by the server. AngularJS only.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Action Attributes -->
@@ -714,7 +1792,11 @@
     <xs:attribute name="name" type="xs:string" />
     <xs:attribute name="style" type="xs:string" />
     <xs:attribute name="dropdown-style" type="xs:string" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="session" type="xs:string" />
     <xs:attribute name="value" type="xs:string" />
     <xs:attribute name="property" type="xs:string" />
@@ -758,10 +1840,96 @@
   <!-- Dialog Attributes -->
   <xs:attributeGroup name="dialogAttr">
     <xs:attribute name="modal" type="booleanEnum" />
-    <xs:attribute name="icon" type="xs:string" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="help" type="xs:string" />
     <xs:attribute name="help-image" type="xs:string" />
     <xs:attribute name="on-close" type="onCloseEnum" />
+    <xs:attribute name="deferred" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">When true, the initial load of the dialog components does not run with the screen: it runs when the dialog is opened for the first time. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <!-- Side Panel Attributes -->
+  <xs:attributeGroup name="sidePanelAttr">
+    <xs:attribute name="position" type="sidePanelPositionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Edge of the screen the panel is anchored to. Default: right.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max-width" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Maximum width of the panel as a CSS length (480px, 30rem, 50vw...). The panel takes the width of the screen up to this maximum. Default: 40rem.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-grid" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identity header: id of a grid of the screen. While exactly one row of that grid is selected, the header of the panel shows that row (a large avatar, a title, a muted subtitle and the header-tag children) instead of the label and the icon; with no row or several rows selected it shows the label and the icon. The header follows the selected row while the panel is open, and the title is the accessible name of the panel. Without it the header does not change. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-title-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row of header-grid with the title of the identity header (for example the full name).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-subtitle-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row of header-grid with the subtitle of the identity header, shown muted under the title. Not shown when empty.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-avatar-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row of header-grid the avatar of the identity header is built from: its initials (the first letter of its first and last words), as the avatar-field of a grid column. Decorative. No avatar when it is empty.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-avatar-tone-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row of header-grid with the tone of the avatar: primary, info, success, warning, danger or neutral (any other value, or none, is neutral).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-avatar-icon-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identity header: field of the selected row with an icon (lucide:name, fa-name...) drawn in the avatar instead of the initials, on the tone of header-avatar-tone-field. A row without icon falls back to the initials of header-avatar-field. Only with header-grid. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="header-swatch-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row of header-grid with a colour drawn as a large decorative circle in the place of the avatar, as the swatch-field of a grid column: an AWE 5 palette name or a #RGB / #RRGGBB hex. Any other value (or none) shows no circle. With header-avatar-field too, the swatch is shown while the row has a valid colour, and the avatar otherwise.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <!-- Popover Attributes -->
+  <xs:attributeGroup name="popoverAttr">
+    <xs:attribute name="anchor" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Id of the control of the screen the popover is anchored to.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="position" type="popoverPositionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Side of the anchor where the popover opens: bottom, top, left or right. Default: bottom.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="max-width" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Maximum width of the popover as a CSS length (320px, 20rem, 30vw...). Default: 20rem.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:attributeGroup>
+
+  <!-- Tab Container (tab page) Attributes -->
+  <xs:attributeGroup name="tabcontainerAttr">
+    <xs:attribute name="deferred" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">When true, the initial load of the tab page components does not run with the screen: it runs when the tab page is selected for the first time. Default false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Javascript Attributes -->
@@ -781,10 +1949,14 @@
       <xs:element ref="accordion" />
       <xs:element ref="pivot-table" />
       <xs:element ref="window" />
+      <xs:element ref="advanced" />
+      <xs:element ref="card" />
+      <xs:element ref="theme-preview" />
       <xs:element ref="resizable" />
       <xs:element ref="tag" />
       <xs:element ref="tab" />
       <xs:element ref="video" />
+      <xs:element ref="map" />
       <xs:element ref="link" />
       <xs:element ref="image" />
       <xs:element ref="wizard" />
@@ -798,6 +1970,8 @@
       <xs:element ref="javascript" />
       <xs:element ref="include" />
       <xs:element ref="dialog" />
+      <xs:element ref="side-panel" />
+      <xs:element ref="popover" />
       <xs:element ref="info" />
       <xs:element ref="info-button" />
       <xs:element ref="info-criteria" />
@@ -847,10 +2021,29 @@
     <xs:attributeGroup ref="elementAttr" />
   </xs:complexType>
 
+  <!-- HTML Tag Type (the tag element) -->
+  <xs:complexType name="htmlTagType">
+    <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
+    <xs:attributeGroup ref="elementAttr" />
+    <xs:attribute name="icon" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Icon shown before the label of the tag (an icon name of the Icons page: Font Awesome 4 by default, mdi:name or lucide:name), decorative. With style="section-title" a heading tag (h2, h3, h4) is the title of a section of a form: the icon and the label in one line, and a separator line above every section title but the first one of its container. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
   <!-- Element Type -->
   <xs:complexType name="videoType">
     <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
     <xs:attributeGroup ref="videoAttr" />
+  </xs:complexType>
+
+  <!-- Map Type -->
+  <xs:complexType name="mapType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:element ref="dependency" />
+    </xs:choice>
+    <xs:attributeGroup ref="mapAttr" />
   </xs:complexType>
 
   <!-- Element Type -->
@@ -872,6 +2065,9 @@
 
   <!-- Criteria Type -->
   <xs:complexType name="criteriaType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Content of a criterion: optional dependencies, context buttons and context separators. The id attribute is required.</xs:documentation>
+    </xs:annotation>
     <xs:complexContent>
       <xs:extension base="criteriaBaseType">
         <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -940,8 +2136,30 @@
       <xs:element ref="include" />
       <xs:element ref="button-action" />
       <xs:element ref="dependency" />
+      <xs:element ref="context-button" />
+      <xs:element ref="context-separator" />
     </xs:choice>
     <xs:attributeGroup ref="buttonAttr" />
+    <xs:attribute name="show-loading" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Busy state (true by default): when the action launched by the button is still running after a short time, the button shows a spinner instead of its icon until it ends. false turns it off.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="loading-label" type="xs:string">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Localisation key of the label shown instead of the label while the busy state is on, in both client engines. Absent keeps the label.</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="busy-threshold" type="xs:integer">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Milliseconds the actions launched by the button must still be running before it shows the busy state, so a quick action shows nothing. Absent keeps the threshold of the client engines (400); 0 shows the busy state on every click.</xs:documentation>
+    </xs:annotation>
+  </xs:attribute>
+  <xs:attribute name="selection" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Only for the buttons of a grid (false by default). true makes it an action on the selected rows: it is not shown in the footer of the grid but in its selection bar, which appears between the toolbar and the header of the grid while one or more rows are selected, with the number of selected rows and these buttons in the order of the screen, small and at the right. The button keeps all its behaviour (actions, dependencies, confirmations). With style="btn-danger" it is the destructive action (Delete) and is drawn in the danger colour. In a grid without multiselect the bar shows the one selected row. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Context Button Type -->
@@ -980,6 +2198,35 @@
     <xs:attributeGroup ref="windowAttr" />
   </xs:complexType>
 
+  <!-- Advanced Type -->
+  <xs:complexType name="advancedType">
+    <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
+    <xs:attribute name="id" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the advanced block. Optional: the server generates one when it is missing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes of the advanced block.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- Theme preview Type -->
+  <xs:complexType name="themePreviewType">
+    <xs:attributeGroup ref="themePreviewAttr" />
+  </xs:complexType>
+
+  <!-- Card Type -->
+  <xs:complexType name="cardType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:group ref="elementGroup" />
+      <xs:element ref="dependency" />
+    </xs:choice>
+    <xs:attributeGroup ref="cardAttr" />
+  </xs:complexType>
+
   <!-- Resizable Type -->
   <xs:complexType name="resizableType">
     <xs:group ref="elementGroup" minOccurs="0" maxOccurs="unbounded" />
@@ -988,15 +2235,85 @@
 
   <!-- Grid Type -->
   <xs:complexType name="gridType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Content of a grid: columns, group headers, buttons, context buttons and separators, dependencies, an optional row detail, an optional quick filter and an optional search, in any order and number.</xs:documentation>
+    </xs:annotation>
     <xs:choice maxOccurs="unbounded">
       <xs:element minOccurs="0" ref="group-header" />
       <xs:element minOccurs="0" ref="column" />
+      <xs:element minOccurs="0" ref="row-detail" />
+      <xs:element minOccurs="0" ref="quick-filter" />
+      <xs:element minOccurs="0" ref="search" />
       <xs:element minOccurs="0" ref="button" />
       <xs:element minOccurs="0" ref="context-button" />
       <xs:element minOccurs="0" ref="context-separator" />
       <xs:element minOccurs="0" ref="dependency" />
     </xs:choice>
     <xs:attributeGroup ref="gridAttr" />
+  </xs:complexType>
+
+  <!-- Quick filter Type -->
+  <xs:complexType name="quickFilterType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Attributes of the quick filters of a grid. It has no content.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="id" use="required" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the quick filter. It is also the name of the parameter that sends its value with the requests of the grid. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="initial-load" use="required" type="initialLoadEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Where the options come from: query runs the target query (the usual case, to get the counts) and enum reads the target enumerated. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="target-action" use="required" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Query or enumerated that returns the options, one row per option with the fields value, label, count (optional) and tone (optional). The query receives the values of the screen, so its counts can follow the other filters of the grid. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="server-action" type="serverActionEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Server action that reloads the options. Default: data.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Option chosen when the screen is opened. Default: empty, the option with an empty value (All); with no option of that value the first option is shown as chosen.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Accessible name of the group of buttons, read by screen readers (a localization key). It is not shown. Default: SCREEN_TEXT_FILTERS.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- Grid search Type -->
+  <xs:complexType name="gridSearchType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Attributes of the search field of a grid. It has no content.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="id" use="required" type="nameEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Identifier of the search. It is also the name of the parameter that sends its value with the requests of the grid. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="placeholder" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text shown in the empty field, such as "User, name or email…" (a localization key).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="label" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Accessible name of the field, read by screen readers (a localization key). It is not shown. Default: BUTTON_SEARCH.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="value" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Text of the field when the screen is opened. Default: empty, the grid unfiltered.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- PivotTable Type -->
@@ -1011,14 +2328,41 @@
 
   <!-- GroupHeader columns Type -->
   <xs:complexType name="groupHeaderType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Content of a group header: the columns it spans. The columns must be consecutive, because the header starts at the first column and spans as many columns as it contains.</xs:documentation>
+    </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element ref="column" />
     </xs:choice>
     <xs:attributeGroup ref="columnGroupHeaderAttr" />
   </xs:complexType>
 
+  <!-- Row detail Type -->
+  <xs:complexType name="rowDetailType" mixed="true">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Template of the row detail (plain text with {name} placeholders) or its component (a single read-only grid, inline or through an include), and the CSS classes of its area.</xs:documentation>
+    </xs:annotation>
+    <xs:choice minOccurs="0">
+      <xs:element ref="grid" />
+      <xs:element ref="include" />
+    </xs:choice>
+    <xs:attribute name="style" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">CSS classes added to the area of the detail, to give it a background, a border or a font. A template itself stays plain text.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="print" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Prints the detail under each row when the grid is printed or exported to PDF or XLSX: the template as a text block, or the nested grid as a table (it runs its query once per printed row). Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
   <!-- Column Type -->
   <xs:complexType name="columnType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Content of a column: optional dependencies and button actions. The button actions run when the user clicks a column of component button.</xs:documentation>
+    </xs:annotation>
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element ref="dependency" />
       <xs:element ref="button-action" />
@@ -1026,11 +2370,22 @@
     <xs:attributeGroup ref="columnAttr" />
   </xs:complexType>
 
+  <!-- Tab Container Type -->
+  <xs:complexType name="tabcontainerType">
+    <xs:complexContent>
+      <xs:extension base="elementType">
+        <xs:attributeGroup ref="tabcontainerAttr" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <!-- Tab Type -->
   <xs:complexType name="tabType">
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element ref="tabcontainer" />
       <xs:element ref="dependency" />
+      <xs:element ref="context-button" />
+      <xs:element ref="context-separator" />
     </xs:choice>
     <xs:attributeGroup ref="tabAttr" />
   </xs:complexType>
@@ -1040,6 +2395,8 @@
     <xs:choice minOccurs="0" maxOccurs="unbounded">
       <xs:element ref="wizard-panel" />
       <xs:element ref="dependency" />
+      <xs:element ref="context-button" />
+      <xs:element ref="context-separator" />
     </xs:choice>
     <xs:attributeGroup ref="wizardAttr" />
   </xs:complexType>
@@ -1047,6 +2404,16 @@
   <!-- Action Type -->
   <xs:complexType name="actionType">
     <xs:attributeGroup ref="actionAttr" />
+  </xs:complexType>
+
+  <!-- Button Action Type -->
+  <xs:complexType name="buttonActionType">
+    <xs:attributeGroup ref="actionAttr" />
+    <xs:attribute name="edit-permission" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Actions of type dialog only. Permissions of the catalog (Permissions.xml) required to edit in the dialog or side panel the action opens, separated by spaces: all of them are required. When the authorization mode is enforce and the user lacks one of them, the action opens the dialog in view mode, with its criteria read-only. Declare it on the action and not on the dialog, so a dialog shared by a new and an edit button only opens read-only from the edit one. An unknown permission is a load error.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
   <!-- Dependency Type -->
@@ -1171,6 +2538,49 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <!-- Side Panel Element -->
+  <xs:complexType name="sidePanelType">
+    <xs:choice minOccurs="0" maxOccurs="unbounded">
+      <xs:group ref="elementGroup" />
+      <xs:element ref="header-tag" />
+    </xs:choice>
+    <xs:attributeGroup ref="elementAttr" />
+    <xs:attributeGroup ref="dialogAttr" />
+    <xs:attributeGroup ref="sidePanelAttr" />
+  </xs:complexType>
+
+  <!-- Side panel header tag Type -->
+  <xs:complexType name="headerTagType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Attributes of a tag of the identity header of a side panel. It has no content.</xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="field" type="xs:string" use="required">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row with the text of the tag. The tag is not shown when it is empty. Required.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="tone-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row with the tone of the tag: success, warning, danger, info or neutral (any other value, or none, is neutral).</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="icon-field" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Field of the selected row with the icon of the tag (an icon name of the Icons page). With it the tag is plain: the icon, if the row has one, takes the place of the dot.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <!-- Popover Element -->
+  <xs:complexType name="popoverType">
+    <xs:complexContent>
+      <xs:extension base="elementType">
+        <xs:attributeGroup ref="dialogAttr" />
+        <xs:attributeGroup ref="popoverAttr" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <!-- Include Element -->
   <xs:complexType name="includeType">
     <xs:attributeGroup ref="includeAttr" />
@@ -1184,6 +2594,9 @@
 
   <!-- Printable Enumeration -->
   <xs:simpleType name="printableEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Printing mode: true always prints, false never prints, excel prints only in spreadsheet formats.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="true" />
       <xs:enumeration value="false" />
@@ -1192,7 +2605,17 @@
   </xs:simpleType>
 
   <!-- View Mode Enumeration  -->
+  <xs:simpleType name="captureEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="user" />
+      <xs:enumeration value="environment" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <xs:simpleType name="viewModeEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Smallest view of a date calendar: days, months or years.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="days" />
       <xs:enumeration value="months" />
@@ -1200,8 +2623,23 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <xs:simpleType name="timeFormatEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Format of a time criterion: 24-hour or 12-hour clock (with AM/PM), with or without seconds.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HH:mm" />
+      <xs:enumeration value="HH:mm:ss" />
+      <xs:enumeration value="hh:mm a" />
+      <xs:enumeration value="hh:mm:ss a" />
+    </xs:restriction>
+  </xs:simpleType>
+
   <!-- Initial load Enumeration -->
   <xs:simpleType name="initialLoadEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">How a component loads its data when the screen is built: from an enumerated, from a query, or from the first row of a query as a value.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="enum" />
       <xs:enumeration value="query" />
@@ -1339,6 +2777,9 @@
 
   <!-- Criteria component attribute values -->
   <xs:simpleType name="criteriaComponentType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Kind of input of a criterion. All values are implemented by both engines except picklist (React only) and the deprecated progress (not implemented as a criterion by any engine; it only exists as a grid column).</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="hidden" />
       <xs:enumeration value="text" />
@@ -1349,10 +2790,22 @@
       <xs:enumeration value="select-multiple" />
       <xs:enumeration value="picklist" />
       <xs:enumeration value="date" />
+      <xs:enumeration value="date-range">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">A pair of dates (start and end of a period) in one criterion. The end cannot be
+            before the start, and quick presets can be configured with the presets attribute. The criterion sends two
+            parameters, "id.from" and "id.to" (null when empty), both as dd/mm/yyyy dates. The default value is a list of two
+            dates separated by a comma ("01/01/2026,31/01/2026").</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="time" />
       <xs:enumeration value="filtered-calendar" />
       <xs:enumeration value="color" />
-      <xs:enumeration value="progress" />
+      <xs:enumeration value="progress">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Deprecated in AWE 5.0 and removed in 6.0: no client engine implements it as a criterion. The progress grid column stays.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="textarea" />
       <xs:enumeration value="uploader" />
       <xs:enumeration value="checkbox" />
@@ -1367,6 +2820,9 @@
 
   <!-- Column component attribute values -->
   <xs:simpleType name="columnComponentType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Component of a grid column. Most values reuse the criteria of the same name for editing; radio and button-radio columns show the options of their list in every cell, like a select column. link is React only; formatted-text renders sanitized HTML.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="text" />
       <xs:enumeration value="numeric" />
@@ -1378,18 +2834,72 @@
       <xs:enumeration value="time" />
       <xs:enumeration value="filtered-calendar" />
       <xs:enumeration value="color" />
-      <xs:enumeration value="progress" />
+      <xs:enumeration value="progress">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Progress bar of a numeric value, from 0 to 100 by default. The React engine tunes it with bar-min and bar-max (the scale, with a zero mark and negative fill below 0), bar-second-field (a thinner second bar, such as a target), bar-stack-fields (stacked segments) and bar-leaf-only (tree grids); AngularJS ignores these options. Print and export write the cell value.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="textarea" />
       <xs:enumeration value="uploader" />
       <xs:enumeration value="checkbox" />
+      <xs:enumeration value="radio">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Single choice among the options of a list, shown in every cell as a row of radio buttons with their labels. The options come from the list of the column exactly as for a select column (initial-load and target-action, a query or an enumerated with value and label), and the value of the chosen option is the value of the cell: it is sent like the one of a select column, as one value per row. The column is sortable and can be validated (a required column needs a choice in every row). Left and right arrow keys move the choice between the options of the cell. A read-only column cannot be changed.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="button-radio">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Same choice as the radio column, drawn as one joined bar of toggle buttons (a segmented control), like the button-radio criterion: adjacent buttons share their borders and only the ends of the bar are rounded. The options come from the list of the column, as for a select column, and the value of the chosen option is the value of the cell.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="image" />
       <xs:enumeration value="icon" />
-      <xs:enumeration value="sparkline" />
+      <xs:enumeration value="sparkline">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Small chart of a series of numbers, drawn inside the cell. The value of the cell is a JSON array of numbers, for example [3, 5, -1, 8], either as text or as an already parsed list; any other value (empty, not a list, or a list with something that is not a number) leaves the cell empty. The drawing is chosen with sparkline-type, and sparkline-color, sparkline-negative-color, sparkline-last-point and sparkline-min-max adjust it. Hovering a point shows its value in a tooltip. Both client engines draw the same SVG, which is 100 by 24 pixels. The cell is not editable.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="password" />
       <xs:enumeration value="text-view" />
       <xs:enumeration value="button" />
       <xs:enumeration value="formatted-text" />
       <xs:enumeration value="link" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Card trend values -->
+  <xs:simpleType name="cardTrendEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="up" />
+      <xs:enumeration value="down" />
+      <xs:enumeration value="flat" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Card good trend values -->
+  <xs:simpleType name="cardGoodTrendEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="up" />
+      <xs:enumeration value="down" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Card progress style values -->
+  <xs:simpleType name="cardProgressStyleEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="bar" />
+      <xs:enumeration value="gauge" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Card tone values -->
+  <xs:simpleType name="cardToneEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="success" />
+      <xs:enumeration value="warning" />
+      <xs:enumeration value="danger" />
+      <xs:enumeration value="info" />
+      <xs:enumeration value="neutral" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -1407,6 +2917,14 @@
     <xs:restriction base="xs:string">
       <xs:enumeration value="horizontal" />
       <xs:enumeration value="vertical" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- How a window shows its advanced block -->
+  <xs:simpleType name="advancedModeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="inline" />
+      <xs:enumeration value="side-panel" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -1429,6 +2947,9 @@
 
   <!-- Column cellData type Enumeration -->
   <xs:simpleType name="cellDataTypes">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Data type of a column used when printing: string, integer, float, date or boolean.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="string" />
       <xs:enumeration value="integer" />
@@ -1457,6 +2978,10 @@
       <xs:enumeration value="mixed" />
       <xs:enumeration value="bubble" />
       <xs:enumeration value="scatter" />
+      <xs:enumeration value="radar" />
+      <xs:enumeration value="heatmap" />
+      <xs:enumeration value="gauge" />
+      <xs:enumeration value="funnel" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -1473,6 +2998,11 @@
       <xs:enumeration value="bar" />
       <xs:enumeration value="spline" />
       <xs:enumeration value="scatter" />
+      <xs:enumeration value="bubble" />
+      <xs:enumeration value="radar" />
+      <xs:enumeration value="heatmap" />
+      <xs:enumeration value="gauge" />
+      <xs:enumeration value="funnel" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -1504,6 +3034,30 @@
       <xs:enumeration value="array" />
       <xs:enumeration value="object" />
       <xs:enumeration value="null" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Sparkline column type -->
+  <xs:simpleType name="columnFilterEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Type of the filter of a grid column: a list of values to pick, or conditions on text, numbers or dates.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="values" />
+      <xs:enumeration value="text" />
+      <xs:enumeration value="number" />
+      <xs:enumeration value="date" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="sparklineTypeEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Drawing of a sparkline column: a connected line, one bar per value (negative values go below the zero line) or a line with the area under it filled.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="line" />
+      <xs:enumeration value="bar" />
+      <xs:enumeration value="area" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -1641,6 +3195,9 @@
 
   <!-- Loading icon enum -->
   <xs:simpleType name="loadingIconEnum">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Style of the loading indicator of a grid.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:enumeration value="spinner" />
       <xs:enumeration value="square" />
@@ -1654,6 +3211,8 @@
       <xs:enumeration value="icon" />
       <xs:enumeration value="custom" />
       <xs:enumeration value="none" />
+      <xs:enumeration value="skeleton" />
+      <xs:enumeration value="skeleton-dim" />
     </xs:restriction>
   </xs:simpleType>
 
@@ -1682,9 +3241,45 @@
     </xs:restriction>
   </xs:simpleType>
 
+  <!-- Grid Columns panel enum -->
+  <xs:simpleType name="gridToolbarLabelsType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="true|false|(group-by|saved-searches|columns|maximize)( *, *(group-by|saved-searches|columns|maximize))*" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="gridColumnsPanelEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="popover" />
+      <xs:enumeration value="dialog" />
+      <xs:enumeration value="side-panel" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Side panel position enum -->
+  <xs:simpleType name="sidePanelPositionEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="left" />
+      <xs:enumeration value="right" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- Popover position enum -->
+  <xs:simpleType name="popoverPositionEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="bottom" />
+      <xs:enumeration value="top" />
+      <xs:enumeration value="left" />
+      <xs:enumeration value="right" />
+    </xs:restriction>
+  </xs:simpleType>
+
 
   <!-- Modal on close enum -->
   <xs:simpleType name="columnWidth">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Column width: a number of pixels or * for the free space.</xs:documentation>
+    </xs:annotation>
     <xs:restriction base="xs:string">
       <xs:pattern value="([0-9]+|\*)"/>
     </xs:restriction>

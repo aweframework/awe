@@ -1,0 +1,27 @@
+/* Placeholder rows shown in the body of a grid while its rows are loading: rows of the height of a row of text, with
+   a bar in each cell. The rows draw no separator lines: the bars appear after a delay, so on a fast load the lines
+   alone would flash. The border stays transparent to keep the height of the real rows */
+.grid-skeleton {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  .grid-skeleton-row {
+    display: flex;
+    border-bottom: var(--awe-border-width) solid transparent;
+  }
+
+  .grid-skeleton-cell {
+    display: flex;
+    flex: 1 1 0;
+    align-items: center;
+    min-width: 0;
+    min-height: calc(var(--awe-font-size-base) * var(--awe-line-height-base) + 2 * var(--awe-grid-cell-padding-y));
+    padding: var(--awe-grid-cell-padding-y) var(--awe-grid-cell-padding-x);
+
+    .p-skeleton {
+      height: var(--awe-space-3);
+      border-radius: var(--awe-radius-sm);
+    }
+  }
+}

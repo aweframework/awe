@@ -1,5 +1,5 @@
 import {aweApplication} from "../../awe";
-import marked from "marked";
+import {marked} from "marked";
 import "bootstrap-markdown/js/bootstrap-markdown";
 
 function getMarkdownProperties(scope, $settings, Utilities) {

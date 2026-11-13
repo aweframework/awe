@@ -1,0 +1,258 @@
+{
+  "docs": [
+    {
+      "type": "category",
+      "label": "AWE framework",
+      "collapsed": false,
+      "items": [
+        "intro",
+        "purpose",
+        "architecture",
+        {
+          "type": "category",
+          "label": "Security",
+          "collapsed": true,
+          "items": [
+            "security/protection-mechanism",
+            "security/security-authentication",
+            "security/authentication-sso",
+            "security/idp-first",
+            "security/idp-first-keycloak-entra",
+            "security/screen-access",
+            "security/additional-profiles",
+            "security/permissions",
+            "security/security-audit"
+          ]
+        },
+        {
+          "type": "category",
+          "label": "Architecture decisions",
+          "collapsed": true,
+          "items": [
+            "decisions/adr-001-react-modern-client"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Component catalog",
+      "collapsed": false,
+      "link": {
+        "type": "doc",
+        "id": "components/catalog"
+      },
+      "items": [
+        "components/button",
+        {
+          "type": "category",
+          "label": "Criteria",
+          "collapsed": true,
+          "link": {
+            "type": "doc",
+            "id": "components/criteria"
+          },
+          "items": [
+            "components/criteria-text",
+            "components/criteria-numbers",
+            "components/criteria-selects",
+            "components/criteria-checkbox-radio",
+            "components/criteria-upload"
+          ]
+        },
+        "components/card",
+        "components/dialog",
+        "components/side-panel-popover",
+        "components/context-menu",
+        "components/messages-info",
+        "components/window-layout",
+        "components/tags-lists",
+        "components/media-content",
+        "components/widgets",
+        "components/tabs-accordion",
+        "components/wizard",
+        "components/grid",
+        "components/tree-grid",
+        "components/pivot-table",
+        "components/chart",
+        "components/map",
+        "components/file-viewer"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Getting Started",
+      "collapsed": true,
+      "items": [
+        "getting-started",
+        "installation",
+        {
+          "Configuration": [
+            "maven",
+            "dev-tools",
+            {
+              "type": "category",
+              "label": "Modules",
+              "collapsed": true,
+              "items": [
+                "annotations",
+                "developer",
+                "developer-tools",
+                "builder",
+                "rest",
+                "rest-api",
+                "scheduler",
+                "notifier",
+                "supported-databases",
+                "database-migration"
+              ]
+            },
+            "properties",
+            "application-options",
+            "session",
+            "websockets",
+            "logging"
+          ]
+        },
+        "deployment"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Guides",
+      "collapsed": true,
+      "items": [
+        "guides/project-structure",
+        "guides/sample-applications",
+        "guides/scheduler",
+        "guides/notifier",
+        "guides/observability",
+        "guides/selenium-testing",
+        "guides/print-engine",
+        "guides/debugging",
+        "guides/parameter-handling",
+        "guides/validation",
+        "guides/v4-migration",
+        "guides/v5-migration",
+        "guides/xsd-tooling",
+        "guides/devcontainer",
+        "guides/default-screens",
+        "guides/screen-personalization",
+        "guides/custom-widgets",
+        "guides/custom-widgets-react",
+        "guides/design-tokens",
+        "guides/keyboard-shortcuts",
+        "guides/tailwind-compat",
+        "guides/react-client-upgrade",
+        "guides/release-lines-and-support",
+        "guides/docs-audit"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Design system",
+      "collapsed": true,
+      "items": [
+        "design-system/overview",
+        "design-system/color-and-themes",
+        "design-system/foundations",
+        "design-system/layout-and-shell",
+        "design-system/components",
+        "design-system/tokens-reference",
+        "design-system/for-developers"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "API Reference",
+      "items": [
+        "api/screens",
+        "api/menu",
+        "api/enumerate",
+        "api/query",
+        "api/maintain",
+        "api/service",
+        "api/datalist-java",
+        "api/queues",
+        "api/email",
+        "api/i18n-internationalization"
+      ]
+    }
+  ],
+  "screens": [
+    {
+      "type": "ref",
+      "id": "api/screens"
+    },
+    {
+      "type": "category",
+      "label": "API Reference",
+      "collapsed": false,
+      "items": [
+        "api/screen",
+        "api/template",
+        "api/layout",
+        "api/tags",
+        "api/window",
+        "api/card",
+        "api/resizable",
+        "api/button",
+        "api/criteria",
+        "api/tab-and-tabcontainer",
+        "api/wizard-and-wizard-panel",
+        "api/accordion",
+        "api/grids",
+        "api/pivot-table",
+        "api/context-menu",
+        "api/messages",
+        "api/info",
+        "api/media",
+        "api/include",
+        "api/dialog",
+        "api/side-panel",
+        "api/popover",
+        "api/theme-preview",
+        "api/chart",
+        "api/chart-format",
+        "api/chart-parameters",
+        "api/map",
+        "api/widget",
+        "api/actions",
+        "api/dependencies",
+        "api/icons"
+      ]
+    }
+  ],
+  "schedule": [
+    {
+      "type": "ref",
+      "id": "guides/scheduler"
+    },
+    {
+      "type": "category",
+      "label": "Schedule Task",
+      "collapsed": false,
+      "items": [
+        "guides/schedule-configuration",
+        "guides/dependency-task"
+      ]
+    }
+  ],
+  "training": [
+    {
+      "type": "category",
+      "label": "Basic tutorials",
+      "collapsed": false,
+      "items": [
+        "training/awe-101",
+        "training/awe-102",
+        "training/awe-103",
+        "training/awe-104",
+        "training/awe-105",
+        "training/awe-106",
+        "training/awe-107",
+        "training/awe-108"
+      ]
+    }
+  ]
+}

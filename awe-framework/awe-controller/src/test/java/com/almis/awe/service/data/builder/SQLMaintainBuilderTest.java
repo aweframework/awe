@@ -7,10 +7,11 @@ import com.almis.awe.model.entities.maintain.Insert;
 import com.almis.awe.model.entities.maintain.Update;
 import com.almis.awe.model.entities.queries.Field;
 import com.almis.awe.model.entities.queries.Table;
+import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.type.MaintainBuildOperation;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.almis.awe.template.FixedOracleTemplates;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
@@ -26,10 +27,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +45,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class SQLMaintainBuilderTest {
@@ -55,6 +57,30 @@ class SQLMaintainBuilderTest {
 
   @Mock
   private Connection connection;
+
+  @Test
+  void sequenceOfAGridRowIsStoredOnlyAtTheIndexOfThatRow() throws Exception {
+    // A grid multiple runs one query per row: the key generated for an inserted row must not replace the keys of the
+    // other rows, or the update of the next row targets the inserted one (#792)
+    lenient().when(queryUtil.isEmptyString(null)).thenReturn(true);
+    TrackingSQLMaintainBuilder builder = new TrackingSQLMaintainBuilder(queryUtil, databaseConfigProperties()) {
+      @Override
+      public String getSequence(String sequence) {
+        return "14";
+      }
+    };
+    var parameters = JsonNodeFactory.instance.objectNode();
+    parameters.putArray("IdeAweScrCnf").addNull().add(7);
+    builder.setMaintain(gridRowInsertWithSequence())
+      .setFactory(sqlQueryFactory())
+      .setVariables(new HashMap<>())
+      .setParameters(parameters)
+      .setVariableIndex(0)
+      .setOperation(MaintainBuildOperation.NO_BATCH)
+      .build();
+
+    assertEquals("[\"14\",7]", parameters.get("IdeAweScrCnf").toString());
+  }
 
   @Test
   void buildAuditedInsertQueryUsesProvidedMaterializedRowsForBaseAndAuditSingleRow() throws Exception {
@@ -93,6 +119,42 @@ class SQLMaintainBuilderTest {
     assertEquals(List.of("Anonymous", "I", 41, "ROW-MULTI-0", 1), builder.getAuditInsertQueryRowValues(rows.get(0)));
     assertEquals(List.of("Anonymous", "I", 42, "ROW-MULTI-1", 0), builder.getAuditInsertQueryRowValues(rows.get(1)));
     assertEquals(0, builder.getSubqueryInvocationCount());
+  }
+
+  @Test
+  void multipleRowInsertQueryNamesTheColumnsOfEveryRowOfTheOracleBulkInsert() throws Exception {
+    // QueryDSL clears the columns of the clause on every addBatch: Oracle writes one "into" per row, and a row without
+    // its columns fails as soon as the table has more columns than the inserted ones (ORA-00947)
+    SQLInsertClause clause = (SQLInsertClause) multipleRowInsertQueryBuilder(false).build();
+
+    String sql = clause.getSQL().get(0).getSQL();
+    assertEquals(2, countOccurrences(sql, "into AweThm (IdeThm, Nam, Act)"), sql);
+  }
+
+  @Test
+  void multipleRowInsertQueryNamesTheColumnsOfEveryRowOfTheOracleBulkAudit() throws Exception {
+    SQLInsertClause clause = (SQLInsertClause) multipleRowInsertQueryBuilder(true).build();
+
+    String sql = clause.getSQL().get(0).getSQL();
+    assertEquals(2, countOccurrences(sql, "into HISAweThm (HISope, HISdat, HISact, IdeThm, Nam, Act)"), sql);
+  }
+
+  private SQLMaintainBuilder multipleRowInsertQueryBuilder(boolean audit) throws AWException {
+    TrackingSQLMaintainBuilder builder = new TrackingSQLMaintainBuilder(queryUtil, databaseConfigProperties());
+    builder.setMaintain(insertQueryMaintain())
+      .setFactory(new SQLQueryFactory(new Configuration(new FixedOracleTemplates()), () -> connection))
+      .setVariables(Map.of())
+      .setParameters(JsonNodeFactory.instance.objectNode())
+      .setAudit(audit)
+      .setOperation(MaintainBuildOperation.NO_BATCH)
+      .setMaterializedInsertQueryRows(List.of(
+        tuple(41, "ROW-MULTI-0", 1),
+        tuple(42, "ROW-MULTI-1", 0)));
+    return builder;
+  }
+
+  private static int countOccurrences(String text, String part) {
+    return text.split(java.util.regex.Pattern.quote(part), -1).length - 1;
   }
 
   @Test
@@ -222,6 +284,16 @@ class SQLMaintainBuilderTest {
     properties.setAuditDate("HISdat");
     properties.setAuditAction("HISact");
     return properties;
+  }
+
+  private Insert gridRowInsertWithSequence() {
+    Insert insert = new Insert();
+    insert.setId("GridRowInsertWithSequence");
+    insert.setTableList(List.of(Table.builder().id("AweScrCnf").build()));
+    insert.setSqlFieldList(List.of(Field.builder().id("IdeAweScrCnf").variable("IdeAweScrCnf").sequence("ScrCnfKey").key(true).build()));
+    insert.setVariableDefinitionList(new ArrayList<>(List.of(Variable.builder().id("IdeAweScrCnf").type("INTEGER").name("IdeAweScrCnf").build())));
+    insert.setVariableIndex(0);
+    return insert;
   }
 
   private Insert insertQueryMaintain() {

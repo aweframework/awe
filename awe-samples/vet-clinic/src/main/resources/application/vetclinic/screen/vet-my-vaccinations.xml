@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : vet-my-vaccinations.xml
+    Description: Vaccination calendar of the pets of the owner: what is up to date, due soon or overdue
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="VET_MENU_MY_VACCINATIONS">
+  <tag source="center">
+    <window style="expand" label="VET_MENU_MY_VACCINATIONS" icon="lucide:syringe">
+      <grid id="GrdMyVac" style="expand" initial-load="query" server-action="data" target-action="VetMyVacLst" max="12">
+        <column label="VET_COL_PET" name="PetNam" sort-field="PetNam" align="left" charlength="16" width="*" sendable="false"/>
+        <column label="VET_COL_VACCINE" name="VccTxt" sort-field="VccTxt" align="left" charlength="18" sendable="false"/>
+        <column label="VET_COL_APPLIED" name="VacDat" sort-field="VacDat" align="center" charlength="13" sendable="false"/>
+        <column label="VET_COL_NEXT_DOSE" name="NxtDat" sort-field="NxtDat" align="center" charlength="13" sendable="false"/>
+        <column label="VET_COL_STATUS" name="StaTxt" sort-field="StaTxt" align="left" charlength="13" status-field="Ton" sendable="false"/>
+        <column name="Ton" hidden="true"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

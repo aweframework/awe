@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>4.12.9</version>
+    <version>5.0.0</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -17,18 +17,20 @@
 
   <properties>
     <!-- Application maven properties -->
-    <java.version>17</java.version>
+    <java.version>21</java.version>
     <application.name>awe-boot</application.name>
     <application.acronym>awe-boot</application.acronym>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <spring-cloud-gcp-dependencies.version>2.0.4</spring-cloud-gcp-dependencies.version>
     <log-back.version>0.1.5</log-back.version>
-    <logstash.version>8.0</logstash.version>
+    <logstash.version>8.1</logstash.version>
 
     <jacoco.base.reports>${project.build.directory}</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
     <jacoco.joined.coverage.path>${jacoco.reportPaths}</jacoco.joined.coverage.path>
+    <!-- The aggregate coverage report that Sonar reads (sonar.coverage.jacoco.xmlReportPaths) is built here only -->
+    <jacoco.aggregate.skip>false</jacoco.aggregate.skip>
     <aggregated.reportPaths>${jacoco.base.reports}/aggregated-reports</aggregated.reportPaths>
     <sonar.exclusions>src/**</sonar.exclusions>
     <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>
@@ -36,8 +38,17 @@
     <browser>headless-chrome</browser>
     <skip.main>false</skip.main>
     <skip.selenium>true</skip.selenium>
+    <awe.test.jmx-port>9001</awe.test.jmx-port>
     <skip.junit>false</skip.junit>
     <test.tags>integration</test.tags>
+    <!-- Browser tests (failsafe). The independent classes run in one execution that leaves out the quarantined tests
+         (@Quarantine) and the dependent chains (@DependentChain), and reruns a failed test alone; the chains run in a second
+         execution, without rerun, that leaves out the quarantined ones and everything that is not a chain.
+         The quarantine job of the pipeline runs the quarantined tests with -Dgroups=quarantine -Dit.excluded-groups=
+         -Dit.rerun-count=0 (JUnit tag expressions: | is "or", ! is "not") -->
+    <it.excluded-groups>quarantine | dependent-chain</it.excluded-groups>
+    <it.chains-excluded-groups>quarantine | !dependent-chain</it.chains-excluded-groups>
+    <it.rerun-count>1</it.rerun-count>
 
     <!-- Build environment -->
     <build.environment>development</build.environment>
@@ -81,8 +92,12 @@
       <artifactId>spring-boot-starter-data-redis</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.session</groupId>
-      <artifactId>spring-session-data-redis</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-flyway</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-session-data-redis</artifactId>
     </dependency>
 
     <dependency>
@@ -90,15 +105,10 @@
       <artifactId>awe-client-angular</artifactId>
     </dependency>
 
-    <!--  Observability and metrics -->
-    <!--  prometheus -->
+    <!--  Observability: health checks, metrics and traces of AWE (brings the Prometheus registry and the tracing bridge) -->
     <dependency>
-      <groupId>io.micrometer</groupId>
-      <artifactId>micrometer-registry-prometheus</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.micrometer</groupId>
-      <artifactId>micrometer-tracing-bridge-otel</artifactId>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-observability-spring-boot-starter</artifactId>
     </dependency>
     <!-- Dependencies for jacoco coverage tests -->
     <dependency>
@@ -258,6 +268,21 @@
       <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-micrometer-metrics-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-micrometer-tracing-test</artifactId>
+      <scope>test</scope>
+    </dependency>
 
     <!-- junit 5 -->
     <dependency>
@@ -276,15 +301,26 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-resttestclient</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.almis.awe</groupId>
       <artifactId>awe-testing</artifactId>
       <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <dependency>
       <groupId>org.jsmart</groupId>
       <artifactId>zerocode-tdd-jupiter</artifactId>
-      <version>1.3.42</version>
+      <version>1.4.6</version>
       <scope>test</scope>
       <exclusions>
         <exclusion>
@@ -460,6 +496,8 @@
           <profiles>
             <profile>gitlab-ci</profile>
           </profiles>
+          <!-- JMX port of the start and stop goals (the default of the plugin; bin/local-ci.sh picks a free one per run) -->
+          <jmxPort>${awe.test.jmx-port}</jmxPort>
         </configuration>
         <executions>
           <execution>
@@ -527,14 +565,9 @@
         <configuration>
           <skip>${skip.junit}</skip>
           <groups>${test.tags}</groups>
+          <!-- A run that finds no test must fail: it means broken discovery or a wrong tag, not a green build -->
+          <failIfNoTests>true</failIfNoTests>
         </configuration>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.maven.surefire</groupId>
-            <artifactId>surefire-junit-platform</artifactId>
-            <version>${plugin-surefire.version}</version>
-          </dependency>
-        </dependencies>
       </plugin>
     </plugins>
   </build>
@@ -600,6 +633,14 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <!-- HSQL profile: the default build of awe-boot (embedded HSQL, the tests tagged ${test.tags}). It changes nothing; it
+         names the default so the "Database · HSQL" job of CI runs it as -P$TEST_NAME, like the other database jobs -->
+    <profile>
+      <id>hsql</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
     </profile>
     <!-- HSQL Flyway profile -->
     <profile>
@@ -674,6 +715,27 @@
         </plugins>
       </build>
     </profile>
+    <!-- Keycloak profile: the IdP-first login tests against a real Keycloak in a container (#767). They need Docker and are
+         skipped without it; the default profile ("integration") never runs them. Run with -Pkeycloak -Dtest=KeycloakIdpFirstTest -->
+    <profile>
+      <id>keycloak</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <!-- JUnit -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <skip>${skip.junit}</skip>
+              <groups>Keycloak</groups>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     <!-- SQLServer profile -->
     <profile>
       <id>sqlserver</id>
@@ -684,7 +746,7 @@
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>mssql-jdbc</artifactId>
-          <version>13.2.0.jre11</version>
+          <version>13.6.1.jre11</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -713,7 +775,7 @@
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>mssql-jdbc</artifactId>
-          <version>13.2.0.jre11</version>
+          <version>13.6.1.jre11</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -854,6 +916,11 @@
               <skip>${skip.junit}</skip>
               <groups>Oracle</groups>
               <excludedGroups>NotOracleDatabase</excludedGroups>
+              <!-- Same driver settings as the CI jobs: without them the Oracle DATE columns of some queries are not read as dates -->
+              <systemPropertyVariables>
+                <oracle.jdbc.J2EE13Compliant>true</oracle.jdbc.J2EE13Compliant>
+                <oracle.jdbc.timezoneAsRegion>false</oracle.jdbc.timezoneAsRegion>
+              </systemPropertyVariables>
             </configuration>
           </plugin>
         </plugins>
@@ -885,6 +952,11 @@
               <skip>${skip.junit}</skip>
               <groups>Oracle-Flyway</groups>
               <excludedGroups>NotOracleDatabase</excludedGroups>
+              <!-- Same driver settings as the CI jobs: without them the Oracle DATE columns of some queries are not read as dates -->
+              <systemPropertyVariables>
+                <oracle.jdbc.J2EE13Compliant>true</oracle.jdbc.J2EE13Compliant>
+                <oracle.jdbc.timezoneAsRegion>false</oracle.jdbc.timezoneAsRegion>
+              </systemPropertyVariables>
             </configuration>
           </plugin>
         </plugins>
@@ -971,21 +1043,44 @@
                 <version>${plugin-surefire.version}</version>
               </dependency>
             </dependencies>
+            <configuration>
+              <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+              <skip>${skip.selenium}</skip>
+              <systemPropertyVariables>
+                <awe.test.browser>${browser}</awe.test.browser>
+              </systemPropertyVariables>
+            </configuration>
+            <!-- The browser tests run in two executions against the same application, and "verify" reads both results
+                 after the application has stopped (the failsafe summary adds up the executions):
+                 - integration-test: the independent classes; a failed test is rerun alone (see it.rerun-count);
+                 - integration-test-chains: the @DependentChain classes, which never rerun a step alone. -->
             <executions>
               <execution>
                 <id>integration-test</id>
                 <phase>integration-test</phase>
                 <goals>
                   <goal>integration-test</goal>
-                  <goal>verify</goal>
                 </goals>
                 <configuration>
-                  <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                  <skip>${skip.selenium}</skip>
-                  <systemPropertyVariables>
-                    <awe.test.browser>${browser}</awe.test.browser>
-                  </systemPropertyVariables>
+                  <excludedGroups>${it.excluded-groups}</excludedGroups>
+                  <rerunFailingTestsCount>${it.rerun-count}</rerunFailingTestsCount>
                 </configuration>
+              </execution>
+              <execution>
+                <id>integration-test-chains</id>
+                <phase>integration-test</phase>
+                <goals>
+                  <goal>integration-test</goal>
+                </goals>
+                <configuration>
+                  <excludedGroups>${it.chains-excluded-groups}</excludedGroups>
+                </configuration>
+              </execution>
+              <execution>
+                <id>verify</id>
+                <goals>
+                  <goal>verify</goal>
+                </goals>
               </execution>
             </executions>
           </plugin>
@@ -1032,7 +1127,14 @@
       <dependency>
         <groupId>com.google.cloud</groupId>
         <artifactId>spring-cloud-gcp-dependencies</artifactId>
-        <version>4.7.2</version>
+        <version>8.2.1</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>2025.1.4</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>

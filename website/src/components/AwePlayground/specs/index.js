@@ -1,0 +1,32 @@
+// Every playground spec of the catalog by name
+const {button} = require('./button');
+const {criteria} = require('./criteria');
+const {criteriaText} = require('./criteria-text');
+const {criteriaNumbers} = require('./criteria-numbers');
+const {criteriaSelects} = require('./criteria-selects');
+const {criteriaCheckboxRadio} = require('./criteria-checkbox-radio');
+const {criteriaUpload} = require('./criteria-upload');
+const {card} = require('./card');
+const {dialog} = require('./dialog');
+const {sidePanel} = require('./side-panel');
+const {popover} = require('./popover');
+const {contextMenu} = require('./context-menu');
+const {info} = require('./info');
+const {message} = require('./message');
+const {window: windowSpec} = require('./window');
+const {resizable} = require('./resizable');
+const {tag} = require('./tag');
+const {avatar} = require('./avatar');
+const {video} = require('./video');
+const {widget} = require('./widget');
+const {tabs} = require('./tabs');
+const {accordion} = require('./accordion');
+const {wizard} = require('./wizard');
+const {grid} = require('./grid');
+const {treeGrid} = require('./tree-grid');
+const {chart} = require('./chart');
+const {pivotTable} = require('./pivot-table');
+const {map} = require('./map');
+const {fileViewer} = require('./file-viewer');
+
+module.exports = {button, criteria, criteriaText, criteriaNumbers, criteriaSelects, criteriaCheckboxRadio, criteriaUpload, card, dialog, sidePanel, popover, contextMenu, info, message, window: windowSpec, resizable, tag, avatar, video, widget, tabs, accordion, wizard, grid, treeGrid, chart, pivotTable, map, fileViewer};

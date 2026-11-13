@@ -6,6 +6,7 @@ import com.almis.awe.testing.enumerated.SuggestBehavior;
 import org.openqa.selenium.By;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IAweFrontEndInstructions extends IAweInstructions {
 
@@ -26,6 +27,19 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    * @return Css parent selector
    */
   String getParentCss(String gridId, String rowId, String columnId);
+
+  /**
+   * Retrieve the parent selector in css of a cell of the row being edited, where the editor of the cell is. By default
+   * it is the selected row, as the clients edit the row the user selects; a client that can edit a row that is not
+   * selected overrides it
+   *
+   * @param gridId   Grid id
+   * @param columnId Column id
+   * @return Css parent selector
+   */
+  default String getEditingParentCss(String gridId, String columnId) {
+    return getParentCss(gridId, null, columnId);
+  }
 
   /**
    * Retrieve criterion css selector
@@ -100,11 +114,24 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   By getMenuOpenedChildren(String option);
 
   /**
-   * Get menu dropdown
+   * Get menu dropdown. It must disappear once an option has been clicked, unless the client keeps its menu open (see
+   * {@link #getMenuActiveOption(String)})
    *
    * @return Menu dropdown selector
    */
   By getMenuDropdown();
+
+  /**
+   * Get a menu option once its screen is the current one. A client whose menu stays open after a click (a side menu
+   * that does not collapse) returns it so that the tests wait for the screen instead of for the dropdown to close.
+   * By default it returns null: the tests wait for {@link #getMenuDropdown()} to disappear.
+   *
+   * @param option Option to check
+   * @return Selector of the option while its screen is the current one, or null when the client closes its dropdown
+   */
+  default By getMenuActiveOption(String option) {
+    return null;
+  }
 
   /*
   =================================
@@ -333,6 +360,37 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   By getGridCellText(String gridId, String rowId, String columnId, String search);
 
   /**
+   * Get the button of a cell of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @return Button selector
+   */
+  default By getGridCellButton(String gridId, String rowId, String columnId) {
+    String grid = Optional.ofNullable(gridId)
+      .map(id -> "//*[@grid-id=" + XpathLiterals.of(id) + " or @tree-grid-id=" + XpathLiterals.of(id) + "]").orElse("");
+    return By.xpath(grid + "//*[" + TestIds.xpath(TestIds.GRID_ROW) + " and @row-id=" + XpathLiterals.of(rowId) + "]//*["
+      + TestIds.xpath(TestIds.GRID_CELL) + " and @column-id=" + XpathLiterals.of(columnId) + "]//button");
+  }
+
+  /**
+   * Find the button of a column in the row of a grid that contains a text (a row action, as the edit button of a row)
+   *
+   * @param gridId   Grid identifier (null for any grid)
+   * @param search   Text of the row
+   * @param columnId Column of the button
+   * @return Button selector (the first matching row)
+   */
+  default By findGridRowButton(String gridId, String search, String columnId) {
+    String grid = Optional.ofNullable(gridId)
+      .map(id -> "//*[@grid-id=" + XpathLiterals.of(id) + " or @tree-grid-id=" + XpathLiterals.of(id) + "]").orElse("");
+    return By.xpath("(" + grid + "//*[" + TestIds.xpath(TestIds.GRID_ROW) + "][.//*[" + TestIds.xpath(TestIds.GRID_CELL)
+      + " and contains(normalize-space(.)," + XpathLiterals.of(search) + ")]]//*[" + TestIds.xpath(TestIds.GRID_CELL)
+      + " and @column-id=" + XpathLiterals.of(columnId) + "]//button)[1]");
+  }
+
+  /**
    * Find a cell containing a text
    *
    * @param gridId Grid identifier
@@ -340,6 +398,66 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    * @return Grid cell selector
    */
   By findGridCell(String gridId, String search);
+
+  /**
+   * Find the element to click to select the row that contains a text. By default it is the cell that contains it; a
+   * client whose multiselect grids select a row only through its checkbox returns the checkbox.
+   *
+   * @param gridId Grid identifier (null for any grid)
+   * @param search Text to search
+   * @return Selector of the element that selects the row
+   */
+  default By findGridRowSelection(String gridId, String search) {
+    return findGridCell(gridId, search);
+  }
+
+  /**
+   * Find the row that contains a text when it is already selected. A client that keeps the selection of a grid when
+   * the user comes back to its screen or searches again, and that toggles a selected row when it is selected again,
+   * returns it, so that selecting a row that is already selected leaves it as it is. By default there is no such row.
+   *
+   * @param gridId Grid identifier (null for any grid)
+   * @param search Text to search
+   * @return Selector of the selected row, or null if the client does not keep the selection
+   */
+  default By findGridSelectedRow(String gridId, String search) {
+    return null;
+  }
+
+  /**
+   * Find the row that contains a text when it is selected, to check that a click selected it. Unlike
+   * {@link #findGridSelectedRow} it does not decide whether a row is clicked again, so a client that toggles nothing
+   * can return it too. By default it is the row that {@link #findGridSelectedRow} returns.
+   *
+   * @param gridId Grid identifier (null for any grid)
+   * @param search Text to search
+   * @return Selector of the selected row, or null if the client cannot tell it
+   */
+  default By findSelectedGridRow(String gridId, String search) {
+    return findGridSelectedRow(gridId, search);
+  }
+
+  /**
+   * Find the row that contains an element of a grid cell, relative to that element. A client whose rows are edited with
+   * a double click returns it, together with {@link #getGridEditingRow}, so that a double click that did not start the
+   * edition of the row can be repeated. By default the row is not identified.
+   *
+   * @return Selector of the row, to be searched from an element of a cell, or null if the client does not identify it
+   */
+  default By getGridRowOfCell() {
+    return null;
+  }
+
+  /**
+   * Find a row of a grid when it is being edited
+   *
+   * @param gridId Grid identifier (null for any grid)
+   * @param rowId  Row identifier
+   * @return Selector of the row being edited, or null if the client does not tell it
+   */
+  default By getGridEditingRow(String gridId, String rowId) {
+    return null;
+  }
 
   /**
    * Get row edit behavior
@@ -360,6 +478,18 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    * @return Checkbox selector
    */
   By getCheckbox(String parentSelector);
+
+  /**
+   * Get an option of a button group (a button checkbox or a button radio that the client renders as a group of
+   * buttons). By default every option is a criterion of its own, as the AngularJS client renders it
+   *
+   * @param criterionName Criterion (group) name
+   * @param optionId      Value of the option
+   * @return Option selector
+   */
+  default By getCheckboxOption(String criterionName, String optionId) {
+    return getCheckbox(getCriterionCss(optionId));
+  }
 
   /**
    * Get checkbox checked or not
@@ -546,4 +676,2151 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    * @return true if manual click is needed, false otherwise.
    */
   boolean datePickerRequiresManualClick();
+
+  /**
+   * Check if the search box of a multiple choice (multiple select or suggest) lives inside a panel that must be
+   * opened first, and stays open after choosing. Engines whose search box is always on the page keep the default.
+   * @return true if the panel must be opened before searching, false otherwise.
+   */
+  default boolean multipleChoiceUsesPanel() {
+    return false;
+  }
+
+  /**
+   * Check if the values of a multiple choice are removed with the backspace key of its search box, because its chips
+   * show no remove link. Engines whose chips or panel offer a remove control keep the default.
+   * @return true if the multiple choice is cleared with the keyboard, false otherwise.
+   */
+  default boolean multipleChoiceClearsWithKeyboard() {
+    return false;
+  }
+
+  /*
+  =================================
+  SEMANTIC STEPS
+
+  The methods below locate what the semantic steps of SeleniumUtilities ask for (the logged user, the title of a
+  message, the active step of a wizard...). They are default methods so that implementations written before them keep
+  compiling: the default is the rendering of the AngularJS client (through the shared hooks whenever there is one) and
+  the clients that render something else override it.
+  =================================
+  */
+
+  /**
+   * Get the element that shows the name of the logged user once the user is logged in
+   *
+   * @return Logged user selector
+   */
+  default By getLoggedUser() {
+    return By.cssSelector("#ButUsrAct span.avatar-text");
+  }
+
+  /**
+   * Get the identifier of the button that opens the user menu, when the logout button is inside it. By default it returns
+   * null: the logout button is visible in the shell
+   *
+   * @return Identifier of the user menu button, or null when there is no menu to open
+   */
+  default String getUserMenuButtonId() {
+    return null;
+  }
+
+  /**
+   * Get the link of an option of the user menu (the dark mode, the light mode...). AngularJS: the link of the info button
+   *
+   * @param optionId Option identifier
+   * @return Option link selector
+   */
+  default By getUserMenuOption(String optionId) {
+    return By.cssSelector(TestIds.css(TestIds.INFO_BUTTON) + String.format("[info-button-id='%s'] ", optionId)
+      + TestIds.css(TestIds.INFO_BUTTON_LINK));
+  }
+
+  /**
+   * Get the page with a theme applied (AngularJS: the body carries the class of the theme)
+   *
+   * @param theme Theme name
+   * @return Themed page selector
+   */
+  default By getThemedPage(String theme) {
+    return By.cssSelector("body.base-theme.theme-" + theme);
+  }
+
+  /**
+   * Get the page in a color mode the user chose (AngularJS: the body carries the class dark or the class light, never both)
+   *
+   * @param mode Color mode: dark or light
+   * @return Page selector in that mode
+   */
+  default By getColorModePage(String mode) {
+    return By.cssSelector("dark".equals(mode) ? "body.base-theme.dark:not(.light)" : "body.base-theme.light:not(.dark)");
+  }
+
+  /**
+   * Tell whether the application asks for a confirmation before it logs the user out
+   *
+   * @return true when the logout must be confirmed. By default it is false
+   */
+  default boolean logoutNeedsConfirmation() {
+    return false;
+  }
+
+  /**
+   * Get the element that shows the login screen once the user has logged out
+   *
+   * @return Login screen marker selector
+   * @see #getLoginScreenText()
+   */
+  default By getLoginScreenMarker() {
+    return By.cssSelector(".slogan");
+  }
+
+  /**
+   * Get the text that {@link #getLoginScreenMarker()} shows
+   *
+   * @return Text of the login screen marker
+   */
+  default String getLoginScreenText() {
+    return "Almis Web Engine";
+  }
+
+  /**
+   * Get the title of a message
+   *
+   * @param type Message type (success, info, warning, danger)
+   * @return Message title selector
+   */
+  default By getMessageTitle(String type) {
+    return By.cssSelector(TestIds.css(TestIds.ALERT) + TestAttributes.css(TestAttributes.TYPE, type) + " "
+      + TestIds.css(TestIds.ALERT_TITLE));
+  }
+
+  /**
+   * Get the text of a message
+   *
+   * @param type Message type (success, info, warning, danger)
+   * @return Message text selector
+   */
+  default By getMessageText(String type) {
+    return By.cssSelector(TestIds.css(TestIds.ALERT) + TestAttributes.css(TestAttributes.TYPE, type) + " "
+      + TestIds.css(TestIds.ALERT_MESSAGE));
+  }
+
+  /**
+   * Get the popover of a target message, shown over the component the message points at. It is not the popover that
+   * {@link #getPopover()} moves the mouse away from: the React client does not hide it on hover
+   *
+   * @param component Id of the component the message points at
+   * @return Message popover selector
+   */
+  default By getMessagePopover(String component) {
+    return By.cssSelector(messagePopoverCss(component));
+  }
+
+  /**
+   * Get the title of the popover of a target message
+   *
+   * @param component Id of the component the message points at
+   * @return Message popover title selector
+   */
+  default By getMessagePopoverTitle(String component) {
+    return By.cssSelector(messagePopoverCss(component) + " " + TestIds.css(TestIds.POPOVER_TITLE));
+  }
+
+  /**
+   * Get the text of the popover of a target message
+   *
+   * @param component Id of the component the message points at
+   * @return Message popover text selector
+   */
+  default By getMessagePopoverText(String component) {
+    return By.cssSelector(messagePopoverCss(component) + " " + TestIds.css(TestIds.POPOVER_CONTENT));
+  }
+
+  /**
+   * Get the mask that covers the screen while the popover of a target message is shown, and hides it when it is
+   * clicked. The React client has no mask: its popover hides with the escape key
+   *
+   * @return Message popover mask selector, or null when the client has no mask
+   */
+  default By getMessagePopoverMask() {
+    return By.cssSelector("div.target-message.component-mask");
+  }
+
+  private static String messagePopoverCss(String component) {
+    return TestIds.css(TestIds.POPOVER) + TestAttributes.css(TestAttributes.OWNER, component);
+  }
+
+  /**
+   * Get an option of the application menu (the element that holds its link and its children)
+   *
+   * @param option Option name
+   * @return Menu option selector
+   */
+  default By getMenuOptionItem(String option) {
+    return By.cssSelector(TestIds.css(TestIds.MENU_OPTION) + "[option-name='" + option + "']");
+  }
+
+  /**
+   * Get the description (secondary line) of a card of a launcher page
+   *
+   * @param option Option name of the card
+   * @return Card description selector
+   */
+  default By getLauncherCardDescription(String option) {
+    // AWE gives the id "[option]-description" to the description of the card
+    return By.cssSelector("#" + option + "-description");
+  }
+
+  /**
+   * Get the breadcrumb of the page
+   *
+   * @return Breadcrumb selector
+   */
+  default By getBreadcrumb() {
+    return By.cssSelector(TestIds.css(TestIds.BREADCRUMB));
+  }
+
+  /**
+   * Get a level of the breadcrumb by the name of its menu option
+   *
+   * @param option Option name of the level
+   * @return Breadcrumb level selector
+   */
+  default By getBreadcrumbLevel(String option) {
+    return By.cssSelector(TestIds.css(TestIds.BREADCRUMB_LEVEL) + "[name='" + option + "']");
+  }
+
+  /**
+   * Get the current page of the breadcrumb (its last level)
+   *
+   * @return Current page selector
+   */
+  default By getBreadcrumbCurrentPage() {
+    return By.cssSelector(TestIds.css(TestIds.BREADCRUMB_LEVEL) + "[" + TestAttributes.ACTIVE + "='true']");
+  }
+
+  /**
+   * Get the label of a criterion
+   *
+   * @param criterionName Criterion name
+   * @return Criterion label selector
+   */
+  default By getCriterionLabel(String criterionName) {
+    return By.cssSelector("label[for='" + criterionName + "']");
+  }
+
+  /**
+   * Get the unit addon of a criterion (the text after the input, such as "EUR")
+   *
+   * @param criterionName Criterion name
+   * @return Criterion unit selector
+   */
+  default By getCriterionUnit(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " .unit");
+  }
+
+  /**
+   * Get the container of the validation errors of the screen
+   *
+   * @return Validation error container selector
+   */
+  default By getValidationError() {
+    return By.cssSelector("div.error-container");
+  }
+
+  /**
+   * Get a day of the open datepicker that can be picked
+   *
+   * @return Enabled day selector
+   */
+  default By getEnabledDatepickerDay() {
+    return By.cssSelector(TestIds.css(TestIds.DATEPICKER_DAY) + TestAttributes.css(TestAttributes.DISABLED, false));
+  }
+
+  /**
+   * Get the number of the active step of a wizard
+   *
+   * @return Active wizard step number selector
+   */
+  default By getActiveWizardStepNumber() {
+    return By.cssSelector(TestIds.css(TestIds.WIZARD_STEP) + TestAttributes.css(TestAttributes.ACTIVE, true)
+      + " > span.wizard-step-number");
+  }
+
+  /**
+   * Get the active step of a wizard, identified by its number. The client may show something else than the number in
+   * the step (an icon), so the number is part of the selector
+   *
+   * @param number Number of the step, starting at 1
+   * @return Active wizard step selector
+   */
+  default By getActiveWizardStep(String number) {
+    return By.xpath("//*[" + TestIds.xpath(TestIds.WIZARD_STEP) + " and " + TestAttributes.xpath(TestAttributes.ACTIVE, true)
+      + "]/span[contains(@class,'wizard-step-number') and contains(normalize-space(.)," + XpathLiterals.of(number) + ")]");
+  }
+
+  /**
+   * Get the active step of a wizard, whatever its number
+   *
+   * @param wizardId Wizard criterion identifier
+   * @return Active step selector of the wizard
+   */
+  default By getActiveWizardStepOf(String wizardId) {
+    return By.cssSelector(getCriterionCss(wizardId) + " " + TestIds.css(TestIds.WIZARD_STEP)
+      + TestAttributes.css(TestAttributes.ACTIVE, true));
+  }
+
+  /**
+   * Get the tag list of a screen (the AWE component that shows a list of tags)
+   *
+   * @param tagListId Tag list identifier
+   * @return Tag list selector
+   */
+  default By getTagList(String tagListId) {
+    return By.cssSelector("[awe-tag-list='" + tagListId + "'] span");
+  }
+
+  /**
+   * Get the tabs of a tab criterion that hold fields which failed the validation
+   *
+   * @param tabId Tab criterion identifier
+   * @return Invalid tabs selector
+   */
+  default By getInvalidTab(String tabId) {
+    return By.cssSelector(getCriterionCss(tabId) + " " + TestIds.css(TestIds.TAB) + TestAttributes.css(TestAttributes.INVALID, true));
+  }
+
+  /**
+   * Get the steps of a wizard that hold fields which failed the validation
+   *
+   * @param wizardId Wizard criterion identifier
+   * @return Invalid wizard steps selector
+   */
+  default By getInvalidWizardStep(String wizardId) {
+    return By.cssSelector(getCriterionCss(wizardId) + " " + TestIds.css(TestIds.WIZARD_STEP)
+      + TestAttributes.css(TestAttributes.INVALID, true));
+  }
+
+  /**
+   * Get the start input of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Start input selector
+   */
+  default By getDateRangeFrom(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.DATE_RANGE_FROM));
+  }
+
+  /**
+   * Get the end input of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return End input selector
+   */
+  default By getDateRangeTo(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.DATE_RANGE_TO));
+  }
+
+  /**
+   * Get every quick preset of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Presets selector
+   */
+  default By getDateRangePresets(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.DATE_RANGE_PRESET));
+  }
+
+  /**
+   * Get a quick preset of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @param presetCode    Preset code, such as {@code 1M}
+   * @return Preset selector
+   */
+  default By getDateRangePreset(String criterionName, String presetCode) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.DATE_RANGE_PRESET)
+      + "[option-id='" + presetCode + "']");
+  }
+
+  /**
+   * Get a quick preset of a date range criterion that is active (the dates are the ones of the preset)
+   *
+   * @param criterionName Criterion identifier
+   * @param presetCode    Preset code, such as {@code 1M}
+   * @return Active preset selector
+   */
+  default By getDateRangePresetActive(String criterionName, String presetCode) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.DATE_RANGE_PRESET)
+      + "[option-id='" + presetCode + "']" + TestAttributes.css(TestAttributes.ACTIVE, true));
+  }
+
+  /**
+   * Get an option of the quick filter of a grid. Its text is its label and its count
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
+   * @return Option selector
+   */
+  default By getGridQuickFilterOption(String criterionName, String value) {
+    return By.cssSelector(getGridQuickFilterOptionCss(criterionName, value));
+  }
+
+  /**
+   * Get an option of the quick filter of a grid when it is the chosen one
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
+   * @return Chosen option selector
+   */
+  default By getGridQuickFilterOptionChosen(String criterionName, String value) {
+    return By.cssSelector(getGridQuickFilterOptionCss(criterionName, value) + " " + TestIds.css(TestIds.CRITERION_INPUT)
+      + ":checked");
+  }
+
+  /**
+   * Get the quick filter of a grid, whose owner attribute is its grid
+   *
+   * @param criterionName Quick filter identifier
+   * @return Quick filter selector
+   */
+  default By getGridQuickFilter(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_QUICK_FILTER));
+  }
+
+  /**
+   * Css of an option of the quick filter of a grid
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option
+   * @return Option css
+   */
+  private String getGridQuickFilterOptionCss(String criterionName, String value) {
+    return getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_QUICK_FILTER) + " "
+      + TestIds.css(TestIds.GRID_QUICK_FILTER_OPTION) + "[option-id='" + value + "']";
+  }
+
+  /**
+   * Get the search of a grid, whose owner attribute is its grid
+   *
+   * @param criterionName Search identifier
+   * @return Search selector
+   */
+  default By getGridSearch(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_SEARCH));
+  }
+
+  /**
+   * Get the text box of the search of a grid
+   *
+   * @param criterionName Search identifier
+   * @return Text box selector
+   */
+  default By getGridSearchInput(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_SEARCH) + " "
+      + TestIds.css(TestIds.CRITERION_INPUT));
+  }
+
+  /**
+   * Get the clear button of the search of a grid, shown while the search has text
+   *
+   * @param criterionName Search identifier
+   * @return Clear button selector
+   */
+  default By getGridSearchClear(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + TestIds.css(TestIds.GRID_SEARCH) + " "
+      + TestIds.css(TestIds.GRID_SEARCH_CLEAR));
+  }
+
+  /**
+   * Get the selection bar of a grid: shown between the toolbar and the header while the grid has selected rows, with
+   * their number and the selection buttons of the grid
+   *
+   * @param gridId Grid identifier
+   * @return Selection bar selector
+   */
+  default By getGridSelectionBar(String gridId) {
+    return By.cssSelector(gridSelectionBarCss(gridId));
+  }
+
+  /**
+   * Get the text of the selection bar of a grid, the number of selected rows ("2 selected")
+   *
+   * @param gridId Grid identifier
+   * @return Text selector
+   */
+  default By getGridSelectionCount(String gridId) {
+    return By.cssSelector(gridSelectionBarCss(gridId) + " " + TestIds.css(TestIds.GRID_SELECTION_COUNT));
+  }
+
+  /**
+   * Get the clear button of the selection bar of a grid, which unselects every row (as Esc does)
+   *
+   * @param gridId Grid identifier
+   * @return Clear button selector
+   */
+  default By getGridSelectionClear(String gridId) {
+    return By.cssSelector(gridSelectionBarCss(gridId) + " " + TestIds.css(TestIds.GRID_SELECTION_CLEAR));
+  }
+
+  /**
+   * Get an enabled selection button (selection="true") in the selection bar of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param buttonId Button identifier
+   * @return Button selector
+   */
+  default By getGridSelectionButton(String gridId, String buttonId) {
+    return By.cssSelector(gridSelectionBarCss(gridId) + String.format(" #%s:not([disabled])", buttonId));
+  }
+
+  /**
+   * Get the css of the selection bar of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Selection bar css
+   */
+  private static String gridSelectionBarCss(String gridId) {
+    return TestIds.css(TestIds.GRID_SELECTION_BAR) + TestAttributes.css(TestAttributes.OWNER, gridId);
+  }
+
+  /**
+   * Get the drop zone of an uploader criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Drop zone selector
+   */
+  default By getUploaderDropZone(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.UPLOAD_DROP_ZONE));
+  }
+
+  /**
+   * Get the element that shows the name of the file that an uploader criterion holds
+   *
+   * @param criterionName Criterion identifier
+   * @return File name selector
+   */
+  default By getUploaderFilename(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.UPLOAD_FILENAME));
+  }
+
+  /**
+   * Get the image preview of an uploader criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Preview selector
+   */
+  default By getUploaderPreview(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.UPLOAD_PREVIEW));
+  }
+
+  /**
+   * Get the button that clears the file of an uploader criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Clear button selector
+   */
+  default By getUploaderClear(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.UPLOAD_CLEAR));
+  }
+
+  /**
+   * Get the button that opens the camera of an uploader criterion
+   *
+   * @param criterionName Criterion identifier
+   * @return Camera button selector
+   */
+  default By getUploaderCapture(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " " + TestIds.css(TestIds.UPLOAD_CAPTURE));
+  }
+
+  /**
+   * Get the file input that the camera capture of an uploader criterion opens
+   *
+   * @param criterionName Criterion identifier
+   * @return Capture file input selector
+   */
+  default By getUploaderCaptureInput(String criterionName) {
+    return By.cssSelector(getCriterionCss(criterionName) + " input[type='file'][capture][accept='image/*']");
+  }
+
+  /**
+   * Get a chart once it has been drawn. Both clients render the chart hook with its identifier ({@code chart-id})
+   *
+   * @param chartId Chart identifier
+   * @return Selector of the drawn chart
+   */
+  default By getChart(String chartId) {
+    return By.cssSelector(TestIds.css(TestIds.CHART) + "[chart-id='" + chartId + "']"
+      + TestAttributes.css(TestAttributes.RENDERED, true));
+  }
+
+  /**
+   * Get a map once its markers have been drawn
+   *
+   * @param mapId Map identifier
+   * @return Selector of the drawn map
+   */
+  default By getMap(String mapId) {
+    return By.cssSelector(TestIds.css(TestIds.MAP) + "[map-id='" + mapId + "']"
+      + TestAttributes.css(TestAttributes.RENDERED, true));
+  }
+
+  /**
+   * Get the markers of a map
+   *
+   * @param mapId Map identifier
+   * @return Selector of the markers
+   */
+  default By getMapMarkers(String mapId) {
+    return By.cssSelector(TestIds.css(TestIds.MAP_MARKER) + "[map-id='" + mapId + "']");
+  }
+
+  /**
+   * Get the marker of a row of a map
+   *
+   * @param mapId Map identifier
+   * @param rowId Row identifier (the value of the marker)
+   * @return Selector of the marker
+   */
+  default By getMapMarker(String mapId, String rowId) {
+    return By.cssSelector(TestIds.css(TestIds.MAP_MARKER) + "[map-id='" + mapId + "'][row-id='" + rowId + "']");
+  }
+
+  /**
+   * Get the marker of a row of a map once it is selected
+   *
+   * @param mapId Map identifier
+   * @param rowId Row identifier (the value of the marker)
+   * @return Selector of the selected marker
+   */
+  default By getMapMarkerSelected(String mapId, String rowId) {
+    return By.cssSelector(TestIds.css(TestIds.MAP_MARKER) + "[map-id='" + mapId + "'][row-id='" + rowId + "']"
+      + TestAttributes.css(TestAttributes.SELECTED, true));
+  }
+
+  /**
+   * Get the route that a map draws
+   *
+   * @param mapId Map identifier
+   * @return Selector of the route
+   */
+  default By getMapRoute(String mapId) {
+    return By.cssSelector(TestIds.css(TestIds.MAP_ROUTE) + "[map-id='" + mapId + "']");
+  }
+
+  /**
+   * Get the table of a pivot table once it has been drawn. Both clients render the component with its identifier as
+   * the DOM id, and draw the pivot table inside it
+   *
+   * @param pivotTableId Pivot table identifier
+   * @return Selector of the drawn pivot table
+   */
+  default By getPivotTable(String pivotTableId) {
+    return By.cssSelector("#" + pivotTableId + " table.pvtTable");
+  }
+
+  /**
+   * Get a chart that is zoomed
+   *
+   * @param chartId Chart identifier
+   * @return Selector of the chart once it shows a part of its range
+   */
+  default By getChartZoomed(String chartId) {
+    return By.cssSelector(TestIds.css(TestIds.CHART) + "[chart-id='" + chartId + "']"
+      + TestAttributes.css(TestAttributes.ZOOMED, true));
+  }
+
+  /**
+   * Get the element that holds the text of the log viewer
+   *
+   * @return Log viewer selector
+   */
+  default By getLogViewer() {
+    return By.cssSelector(TestIds.css(TestIds.LOG_VIEWER));
+  }
+
+  /**
+   * Get the element that holds the text of the file viewer
+   *
+   * @return File viewer selector
+   */
+  default By getFileViewer() {
+    return By.cssSelector(TestIds.css(TestIds.FILE_VIEWER));
+  }
+
+  /**
+   * Get the frame that embeds an external application in a screen
+   *
+   * @return Frame selector
+   */
+  default By getEmbeddedFrame() {
+    return By.cssSelector("iframe");
+  }
+
+  /**
+   * Get an open modal dialog
+   *
+   * @param dialogId Dialog identifier
+   * @return Open dialog selector
+   */
+  default By getOpenDialog(String dialogId) {
+    return By.cssSelector(TestIds.css(TestIds.DIALOG) + TestAttributes.css(TestAttributes.OWNER, dialogId)
+      + TestAttributes.css(TestAttributes.OPEN, true));
+  }
+
+  /**
+   * Get the close icon of the header of a modal dialog
+   *
+   * @param dialogId Dialog identifier
+   * @return Dialog close icon selector
+   */
+  default By getDialogClose(String dialogId) {
+    return By.cssSelector(TestIds.css(TestIds.DIALOG) + TestAttributes.css(TestAttributes.OWNER, dialogId)
+      + " " + TestIds.css(TestIds.DIALOG_CLOSE));
+  }
+
+  /**
+   * Get the css of a side panel, open or not
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel css selector
+   */
+  default String getSidePanelCss(String panelId) {
+    return TestIds.css(TestIds.SIDE_PANEL) + TestAttributes.css(TestAttributes.OWNER, panelId);
+  }
+
+  /**
+   * Get an open side panel
+   *
+   * @param panelId Side panel identifier
+   * @return Open side panel selector
+   */
+  default By getOpenSidePanel(String panelId) {
+    return By.cssSelector(getSidePanelCss(panelId) + TestAttributes.css(TestAttributes.OPEN, true));
+  }
+
+  /**
+   * Get the close button of the header of a side panel
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel close button selector
+   */
+  default By getSidePanelClose(String panelId) {
+    return By.cssSelector(getSidePanelCss(panelId) + " " + TestIds.css(TestIds.SIDE_PANEL_CLOSE));
+  }
+
+  /**
+   * Get the title of the header of a side panel: its label, or the title of its identity header while one row of its
+   * header grid is selected
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel title selector
+   */
+  default By getSidePanelTitle(String panelId) {
+    return By.cssSelector(getSidePanelCss(panelId) + " " + TestIds.css(TestIds.SIDE_PANEL_TITLE));
+  }
+
+  /**
+   * Get the subtitle of the identity header of a side panel
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel subtitle selector
+   */
+  default By getSidePanelSubtitle(String panelId) {
+    return By.cssSelector(getSidePanelCss(panelId) + " " + TestIds.css(TestIds.SIDE_PANEL_SUBTITLE));
+  }
+
+  /**
+   * Get the tags of the identity header of a side panel (each tag is an element)
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel tags selector
+   */
+  default By getSidePanelTags(String panelId) {
+    return By.cssSelector(getSidePanelCss(panelId) + " " + TestIds.css(TestIds.SIDE_PANEL_TAG));
+  }
+
+  /**
+   * Get the css of a popover anchored to a control, open or not. The AngularJS help and message popovers share the
+   * "popover" hook, so the owner (the popover id) tells them apart
+   *
+   * @param popoverId Popover identifier
+   * @return Popover css selector
+   */
+  default String getPopoverCss(String popoverId) {
+    return TestIds.css(TestIds.POPOVER) + TestAttributes.css(TestAttributes.OWNER, popoverId);
+  }
+
+  /**
+   * Get an open popover anchored to a control
+   *
+   * @param popoverId Popover identifier
+   * @return Open popover selector
+   */
+  default By getOpenPopover(String popoverId) {
+    return By.cssSelector(getPopoverCss(popoverId) + TestAttributes.css(TestAttributes.OPEN, true));
+  }
+
+  /**
+   * Get the close button of the header of a popover anchored to a control
+   *
+   * @param popoverId Popover identifier
+   * @return Popover close button selector
+   */
+  default By getPopoverClose(String popoverId) {
+    return By.cssSelector(getPopoverCss(popoverId) + " " + TestIds.css(TestIds.POPOVER_CLOSE));
+  }
+
+  /**
+   * Get the css of a card. Both clients render the card hook with the card id as owner
+   *
+   * @param cardId Card identifier
+   * @return Card css selector
+   */
+  default String getCardCss(String cardId) {
+    return TestIds.css(TestIds.CARD) + TestAttributes.css(TestAttributes.OWNER, cardId);
+  }
+
+  /**
+   * Get the value of a card (its number and its unit)
+   *
+   * @param cardId Card identifier
+   * @return Card value selector
+   */
+  default By getCardValue(String cardId) {
+    return By.cssSelector(getCardCss(cardId) + " " + TestIds.css(TestIds.CARD_VALUE));
+  }
+
+  /**
+   * Get the trend delta of a card, which carries its direction ({@code data-trend}) and its tone ({@code data-tone})
+   *
+   * @param cardId Card identifier
+   * @return Card delta selector
+   */
+  default By getCardDelta(String cardId) {
+    return By.cssSelector(getCardCss(cardId) + " " + TestIds.css(TestIds.CARD_DELTA));
+  }
+
+  /**
+   * Get the text of the trend delta of a card (the number and its unit, without the arrow and the hidden trend label).
+   * Both clients share the classes of the card
+   *
+   * @param cardId Card identifier
+   * @return Card delta text selector
+   */
+  default By getCardDeltaText(String cardId) {
+    return By.cssSelector(getCardCss(cardId) + " " + TestIds.css(TestIds.CARD_DELTA) + " .awe-card-delta-text");
+  }
+
+  /**
+   * Get the status chip of a card, next to its title, which carries its tone ({@code data-tone})
+   *
+   * @param cardId Card identifier
+   * @return Card chip selector
+   */
+  default By getCardChip(String cardId) {
+    return By.cssSelector(getCardCss(cardId) + " " + TestIds.css(TestIds.CARD_CHIP));
+  }
+
+  /**
+   * Get the target progress bar of a card, which carries the percent in {@code aria-valuenow}
+   *
+   * @param cardId Card identifier
+   * @return Card progress selector
+   */
+  default By getCardProgress(String cardId) {
+    return By.cssSelector(getCardCss(cardId) + " " + TestIds.css(TestIds.CARD_PROGRESS));
+  }
+
+  /**
+   * Get a criterion by the attribute that carries its id in both clients
+   *
+   * @param criterionId Criterion identifier
+   * @return Criterion selector
+   */
+  default By getCriterion(String criterionId) {
+    return By.cssSelector("[criterion-id='" + criterionId + "']");
+  }
+
+  /**
+   * Get a component in the body of a card, found as the clients identify it: by the attribute that carries the id of a
+   * criterion, a grid or a chart, or by the element id
+   *
+   * @param cardId      Card identifier
+   * @param componentId Component identifier
+   * @return Selector of the component in the body of the card
+   */
+  default By getCardBodyComponent(String cardId, String componentId) {
+    String body = getCardCss(cardId) + " .awe-card-body ";
+    return By.cssSelector(body + "[criterion-id='" + componentId + "']," + body + "[grid-id='" + componentId + "'],"
+      + body + "[chart-id='" + componentId + "']," + body + "#" + componentId);
+  }
+
+  /**
+   * Get the css of a button, the element that takes the focus
+   *
+   * @param buttonId Button identifier
+   * @return Button css selector
+   */
+  default String getButtonCss(String buttonId) {
+    return "#" + buttonId;
+  }
+
+  /**
+   * Get a button whatever its state (enabled or disabled)
+   *
+   * @param buttonId Button identifier
+   * @return Button selector
+   */
+  default By getAnyButton(String buttonId) {
+    return By.cssSelector("#" + buttonId);
+  }
+
+  /**
+   * Get a button, enabled or not, that has a style class
+   *
+   * @param buttonId Button identifier
+   * @param cssClass Style class
+   * @return Button selector
+   */
+  default By getButtonWithClass(String buttonId, String cssClass) {
+    return By.cssSelector("#" + buttonId + "." + cssClass);
+  }
+
+  /**
+   * Get a disabled button
+   *
+   * @param buttonId Button identifier
+   * @return Disabled button selector
+   */
+  default By getDisabledButton(String buttonId) {
+    return By.cssSelector("#" + buttonId + "[disabled]");
+  }
+
+  /**
+   * Get a grid (or a tree grid)
+   *
+   * @param gridId Grid identifier
+   * @return Grid selector
+   */
+  default By getGrid(String gridId) {
+    return By.cssSelector("[grid-id='" + gridId + "']");
+  }
+
+  /**
+   * Get the checkbox of the header of a grid once all its rows are selected
+   *
+   * @param gridId Grid identifier
+   * @return Selected header checkbox selector
+   */
+  default By getGridHeaderCheckboxSelected(String gridId) {
+    return By.cssSelector(getParentCss(gridId, null, null) + TestAttributes.css(TestAttributes.SELECTED, true));
+  }
+
+  /**
+   * Get the cells of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Grid cells selector
+   */
+  default By getGridCells(String gridId) {
+    String literal = XpathLiterals.of(gridId);
+    return By.xpath(String.format("//*[@grid-id=%s or @tree-grid-id=%s]//*[%s]", literal, literal, TestIds.xpath(TestIds.GRID_CELL)));
+  }
+
+  /**
+   * Get the cells of a column of a grid, in the order the grid shows its rows
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Column cells selector
+   */
+  default By getGridColumnCells(String gridId, String columnId) {
+    String literal = XpathLiterals.of(gridId);
+    return By.xpath(String.format("//*[@grid-id=%s or @tree-grid-id=%s]//*[%s and @column-id=%s]", literal, literal,
+      TestIds.xpath(TestIds.GRID_CELL), XpathLiterals.of(columnId)));
+  }
+
+  /**
+   * Get the active content that a cell of a grid holds: an element that loads or runs something (script, frame, image,
+   * object, svg, form), an event handler attribute or a link to a script url. A cell shows text, so it has none
+   *
+   * @param gridId Grid identifier
+   * @return Active content selector
+   */
+  default By getGridCellsActiveContent(String gridId) {
+    String lowerCaseHref = "translate(@href,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')";
+    return By.xpath(String.format("//*[@grid-id=%s or @tree-grid-id=%s]//*[%s]//*[self::script or self::iframe or self::img or self::object"
+        + " or self::embed or self::svg or self::form or self::style or @*[starts-with(name(),'on')]"
+        + " or starts-with(normalize-space(%s),'javascript:')]",
+      XpathLiterals.of(gridId), XpathLiterals.of(gridId), TestIds.xpath(TestIds.GRID_CELL), lowerCaseHref));
+  }
+
+  /**
+   * Get the open context menu
+   *
+   * @return Context menu selector
+   */
+  default By getContextMenu() {
+    return By.cssSelector(TestIds.css(TestIds.CONTEXT_MENU));
+  }
+
+  /**
+   * Get the mask that covers the screen while a context menu is open, and closes the menu when it is clicked. By default
+   * it returns null: the client closes its context menu with the keyboard
+   *
+   * @return Context menu mask selector, or null when the client has no mask
+   */
+  default By getContextMenuMask() {
+    return By.cssSelector("div.component-mask");
+  }
+
+  /**
+   * Get the selector of the page size of a grid
+   *
+   * @return Grid page size selector
+   */
+  default By getGridPageSize() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_PAGE_SIZE));
+  }
+
+  /**
+   * Get the button of the paginator that goes to the next page of a grid
+   *
+   * @return Next page button selector
+   */
+  default By getGridPageNext() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_PAGE_NEXT));
+  }
+
+  /**
+   * Get the input of the paginator of a grid that goes to the typed page
+   *
+   * @return Go to page input selector
+   */
+  default By getGridGotoPage() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_GOTO_PAGE));
+  }
+
+  /**
+   * Get the paginator of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Paginator selector
+   */
+  default By getGridPagination(String gridId) {
+    return By.cssSelector("[grid-id='" + gridId + "'] " + TestIds.css(TestIds.GRID_PAGINATION));
+  }
+
+  /**
+   * Get the text of the paginator of a grid that tells the range of rows shown and the total
+   *
+   * @return Paginator information selector
+   */
+  default By getGridPaginationInfo() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_PAGINATION_INFO));
+  }
+
+  /**
+   * Get the empty state that a grid without rows shows
+   *
+   * @return Empty state selector
+   */
+  default By getGridEmpty() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_EMPTY));
+  }
+
+  /**
+   * Get the title of the empty state of a grid
+   *
+   * @return Empty state title selector
+   */
+  default By getGridEmptyTitle() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_EMPTY_TITLE));
+  }
+
+  /**
+   * Get the text of the empty state of a grid
+   *
+   * @return Empty state text selector
+   */
+  default By getGridEmptyText() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_EMPTY_TEXT));
+  }
+
+  /**
+   * Get the button that the empty state of a grid offers
+   *
+   * @return Empty state action selector
+   */
+  default By getGridEmptyAction() {
+    return By.cssSelector(TestIds.css(TestIds.GRID_EMPTY_ACTION));
+  }
+
+  /**
+   * Get an option of the radio of a cell of a grid (a radio or a button-radio column), the element the user clicks to
+   * choose it. Every option of the list of the column is one element of the cell and carries its value as
+   * {@code option-id}
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param optionId Value of the option
+   * @return Option selector
+   */
+  default By getGridRadioOption(String gridId, String rowId, String columnId, String optionId) {
+    return By.cssSelector(getParentCss(gridId, rowId, columnId) + "[option-id='" + optionId + "']");
+  }
+
+  /**
+   * Get the radio input of a cell of a grid in a given state. By default the state is the native one ({@code checked});
+   * a client that renders it in another way overrides it
+   *
+   * @param gridId    Grid identifier
+   * @param rowId     Row identifier
+   * @param columnId  Column identifier
+   * @param optionId  Value of the option, or null for any option of the cell
+   * @param isChecked True for the radio that is checked, false for the one that is not
+   * @return Radio selector
+   */
+  default By getGridRadioChecked(String gridId, String rowId, String columnId, String optionId, boolean isChecked) {
+    return By.cssSelector(getParentCss(gridId, rowId, columnId) + " " + TestIds.css(TestIds.CRITERION_INPUT)
+      + (optionId == null ? "" : "[value='" + optionId + "']") + (isChecked ? ":checked" : ":not(:checked)"));
+  }
+
+  /**
+   * Get the input of the radio of a cell of a grid, the element that has the focus when the user moves the choice of
+   * its cell with the arrow keys. It is the same for a radio column and a button-radio column; the first one is the
+   * first option
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @return Radio input selector
+   */
+  default By getGridRadioInput(String gridId, String rowId, String columnId) {
+    return By.cssSelector(getParentCss(gridId, rowId, columnId) + " input[type='radio']");
+  }
+
+  /**
+   * Get the sparkline (the SVG chart) that a sparkline column draws in a cell of a grid. The cell has none when its
+   * value is not a valid series of numbers
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @return Sparkline selector
+   */
+  default By getGridSparkline(String gridId, String rowId, String columnId) {
+    return By.cssSelector(getParentCss(gridId, rowId, columnId) + " svg.awe-sparkline");
+  }
+
+  /**
+   * Get a cell of a grid (or the content it renders) that has a style class, as the query assigns it to the cell
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param cssClass Style class
+   * @return Cell selector
+   */
+  default By getGridCellWithClass(String gridId, String rowId, String columnId, String cssClass) {
+    String cell = String.format("//*[@grid-id=%1$s or @tree-grid-id=%1$s]//*[%2$s and @row-id=%3$s]//*[%4$s and @column-id=%5$s]",
+      XpathLiterals.of(gridId), TestIds.xpath(TestIds.GRID_ROW), XpathLiterals.of(rowId), TestIds.xpath(TestIds.GRID_CELL),
+      XpathLiterals.of(columnId));
+    return By.xpath(cell + "/descendant-or-self::*[contains(concat(' ', normalize-space(@class), ' '), "
+      + XpathLiterals.of(" " + cssClass + " ") + ")]");
+  }
+
+  /**
+   * Get a row of a grid
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   * @return Row selector
+   */
+  default By getGridRow(String gridId, String rowId) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW, rowId));
+  }
+
+  /**
+   * Get the grip that drags a row of a grid with move-rows, by the position of the row in the grid
+   *
+   * @param gridId    Grid identifier
+   * @param rowNumber Position of the row, starting at 1
+   * @return Grip selector
+   */
+  default By getGridRowGrip(String gridId, int rowNumber) {
+    return By.xpath(getGridRowByNumberXpath(gridId, rowNumber)
+      + "//*[contains(concat(' ', normalize-space(@class), ' '), ' grid-row-grip ')]");
+  }
+
+  /**
+   * Get the first cell of a row of a grid, by the position of the row in the grid. A cell is as tall as its row in both
+   * clients, while the hook of the row is on an element without height in AngularJS: it is where a dragged row is dropped
+   *
+   * @param gridId    Grid identifier
+   * @param rowNumber Position of the row, starting at 1
+   * @return Cell selector
+   */
+  default By getGridRowFirstCell(String gridId, int rowNumber) {
+    return By.xpath("(" + getGridRowByNumberXpath(gridId, rowNumber) + "//*[" + TestIds.xpath(TestIds.GRID_CELL) + "])[1]");
+  }
+
+  private String getGridRowByNumberXpath(String gridId, int rowNumber) {
+    return String.format("(//*[@grid-id=%s]//*[%s])[%d]", XpathLiterals.of(gridId), TestIds.xpath(TestIds.GRID_ROW), rowNumber);
+  }
+
+  /**
+   * Get a row of a grid that is selected or not
+   *
+   * @param gridId     Grid identifier
+   * @param rowId      Row identifier
+   * @param isSelected True for the row that is selected, false for the one that is not
+   * @return Row selector
+   */
+  default By getGridRowSelected(String gridId, String rowId, boolean isSelected) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW, rowId)
+      + TestAttributes.css(TestAttributes.SELECTED, isSelected));
+  }
+
+  /**
+   * Get the button that opens and closes the detail of a row of a grid
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier, or null for the toggle of any row
+   * @return Toggle selector
+   */
+  default By getGridRowDetailToggle(String gridId, String rowId) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW_DETAIL_TOGGLE, rowId));
+  }
+
+  /**
+   * Get the detail area that a grid shows under a row
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier, or null for the detail of any row
+   * @return Detail selector
+   */
+  default By getGridRowDetail(String gridId, String rowId) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW_DETAIL, rowId));
+  }
+
+  /**
+   * Get the closest resizable around an element that has a handle on a side. Both engines draw a resizable as a
+   * {@code resizable} container with the side as a class and a {@code rg-<side>} handle
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle: top, right, bottom or left
+   * @return Resizable selector
+   */
+  default By getResizable(String elementId, String direction) {
+    return By.xpath(resizableXpath(elementId, direction));
+  }
+
+  /**
+   * Get the handle of a side of the closest resizable around an element
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle: top, right, bottom or left
+   * @return Handle selector
+   */
+  default By getResizableHandle(String elementId, String direction) {
+    return By.xpath(resizableXpath(elementId, direction) + "/div[contains(@class,'rg-" + direction + "')]");
+  }
+
+  /**
+   * Get the element next to the closest resizable around an element: on the side of the handle (the next one for right
+   * and bottom, the previous one for left and top), or on the other side
+   *
+   * @param elementId  Identifier of an element inside the resizable
+   * @param direction  Side of the handle: top, right, bottom or left
+   * @param handleSide The neighbour on the side of the handle, or the one on the other side
+   * @return Neighbour selector
+   */
+  default By getResizableNeighbour(String elementId, String direction, boolean handleSide) {
+    boolean next = "right".equals(direction) || "bottom".equals(direction);
+    String axis = next == handleSide ? "following-sibling" : "preceding-sibling";
+    return By.xpath(resizableXpath(elementId, direction) + "/" + axis + "::*[1]");
+  }
+
+  private static String resizableXpath(String elementId, String direction) {
+    // The side is also a class of the resizable and the suffix of its handle, so only the four sides are accepted
+    if (direction == null || !List.of("top", "right", "bottom", "left").contains(direction)) {
+      throw new IllegalArgumentException("Unknown side of a resizable: " + direction + " (top, right, bottom or left)");
+    }
+    return "//*[@id=" + XpathLiterals.of(elementId) + "]/ancestor::div[contains(concat(' ', normalize-space(@class), ' '),"
+      + " ' resizable ') and contains(concat(' ', normalize-space(@class), ' '), ' " + direction + " ')][1]";
+  }
+
+  /**
+   * Get the detail area under a row of a grid when it has some style classes, as the {@code style} of the row detail of
+   * the grid assigns them
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param cssClass Style classes, separated by spaces
+   * @return Detail selector
+   */
+  default By getGridRowDetailWithClass(String gridId, String rowId, String cssClass) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW_DETAIL, rowId)
+      + "." + String.join(".", cssClass.trim().split("\\s+")));
+  }
+
+  /**
+   * Get a grid that the detail of a row of a grid shows inside it (a nested grid of a row detail with components)
+   *
+   * @param gridId       Grid identifier
+   * @param rowId        Row identifier
+   * @param nestedGridId Identifier of the nested grid, as the client renders it for the row ({@code GrdOrders-7})
+   * @return Nested grid selector
+   */
+  default By getGridRowDetailNestedGrid(String gridId, String rowId, String nestedGridId) {
+    return By.cssSelector(getGridRowPartCss(gridId, TestIds.GRID_ROW_DETAIL, rowId) + " [grid-id='" + nestedGridId + "']");
+  }
+
+  /**
+   * Css selector of a part of a row of a grid: the row itself, the toggle of its detail or its detail. Both clients
+   * render the identifier of the row on each part
+   *
+   * @param gridId Grid identifier
+   * @param testId Hook of the part
+   * @param rowId  Row identifier, or null for the part of any row
+   * @return Css selector of the part
+   */
+  private String getGridRowPartCss(String gridId, String testId, String rowId) {
+    return "[grid-id='" + gridId + "'] " + TestIds.css(testId) + (rowId == null ? "" : "[row-id='" + rowId + "']");
+  }
+
+  /**
+   * Get a part of the toolbar of a grid. The toolbar and the Columns dialog name their grid as the owner of the hook
+   *
+   * @param gridId Grid identifier
+   * @param testId Hook of the part
+   * @return Selector of the part
+   */
+  private By getGridToolbarPart(String gridId, String testId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_TOOLBAR) + TestAttributes.css(TestAttributes.OWNER, gridId) + " " + TestIds.css(testId));
+  }
+
+  /**
+   * Get a part of the Columns dialog of a grid (the dialog has to be open)
+   *
+   * @param gridId Grid identifier
+   * @param testId Hook of the part
+   * @return Selector of the part
+   */
+  private By getGridColumnsDialogPart(String gridId, String testId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId) + " " + TestIds.css(testId));
+  }
+
+  /**
+   * Css of a column listed in the Columns dialog of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Css selector
+   */
+  private String getGridColumnsItemCss(String gridId, String columnId) {
+    return TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId) + " "
+      + TestIds.css(TestIds.GRID_COLUMN_ITEM) + "[column-id='" + columnId + "']";
+  }
+
+  /**
+   * Get the button of the toolbar of a grid that opens its Columns dialog
+   *
+   * @param gridId Grid identifier
+   * @return Columns button selector
+   */
+  default By getGridColumnsButton(String gridId) {
+    return getGridToolbarPart(gridId, TestIds.GRID_COLUMNS_BUTTON);
+  }
+
+  /**
+   * Get the button of the toolbar of a grid that maximizes it and restores it
+   *
+   * @param gridId Grid identifier
+   * @return Maximize button selector
+   */
+  default By getGridMaximizeButton(String gridId) {
+    return getGridToolbarPart(gridId, TestIds.GRID_MAXIMIZE_BUTTON);
+  }
+
+  /**
+   * Get the toolbar of a grid in a state: the grid fills the window or it does not
+   *
+   * @param gridId    Grid identifier
+   * @param maximized True for the toolbar of a maximized grid
+   * @return Toolbar selector
+   */
+  default By getGridToolbarMaximized(String gridId, boolean maximized) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_TOOLBAR) + TestAttributes.css(TestAttributes.OWNER, gridId)
+      + TestAttributes.css(TestAttributes.MAXIMIZED, maximized));
+  }
+
+  /**
+   * Get a window
+   *
+   * @param windowId Window identifier
+   * @return Window selector
+   */
+  default By getWindow(String windowId) {
+    return By.cssSelector(TestIds.css(TestIds.WINDOW) + TestAttributes.css(TestAttributes.OWNER, windowId));
+  }
+
+  /**
+   * Get a window in a state: it fills the content area or it does not
+   *
+   * @param windowId  Window identifier
+   * @param maximized True for a maximized window
+   * @return Window selector
+   */
+  default By getWindow(String windowId, boolean maximized) {
+    return By.cssSelector(TestIds.css(TestIds.WINDOW) + TestAttributes.css(TestAttributes.OWNER, windowId)
+      + TestAttributes.css(TestAttributes.MAXIMIZED, maximized));
+  }
+
+  /**
+   * Get a tab component (the tab list and its content)
+   *
+   * @param tabId Tab identifier
+   * @return Tab component selector
+   */
+  default By getTabComponent(String tabId) {
+    return By.cssSelector(TestIds.css(TestIds.TABS) + TestAttributes.css(TestAttributes.OWNER, tabId));
+  }
+
+  /**
+   * Get a tab component in a state: it fills the content area or it does not
+   *
+   * @param tabId     Tab identifier
+   * @param maximized True for a maximized tab component
+   * @return Tab component selector
+   */
+  default By getTabComponent(String tabId, boolean maximized) {
+    return By.cssSelector(TestIds.css(TestIds.TABS) + TestAttributes.css(TestAttributes.OWNER, tabId)
+      + TestAttributes.css(TestAttributes.MAXIMIZED, maximized));
+  }
+
+  /**
+   * Get the button of a tab component that maximizes it and restores it
+   *
+   * @param tabId Tab identifier
+   * @return Maximize button selector
+   */
+  default By getTabMaximizeButton(String tabId) {
+    return By.cssSelector(TestIds.css(TestIds.TABS) + TestAttributes.css(TestAttributes.OWNER, tabId) + " " + TestIds.css(TestIds.TAB_MAXIMIZE_BUTTON));
+  }
+
+  /**
+   * Get the button of a window that maximizes it and restores it
+   *
+   * @param windowId Window identifier
+   * @return Maximize button selector
+   */
+  default By getWindowMaximizeButton(String windowId) {
+    return By.cssSelector(TestIds.css(TestIds.WINDOW) + TestAttributes.css(TestAttributes.OWNER, windowId) + " " + TestIds.css(TestIds.WINDOW_MAXIMIZE_BUTTON));
+  }
+
+  /**
+   * Get a part of the advanced search of a window (#790). Every part carries the window as its owner, so the side panel,
+   * which does not live inside the window, is found the same way
+   *
+   * @param testId   Hook of the part
+   * @param windowId Window identifier
+   * @return Css selector of the part
+   */
+  private static String getWindowAdvancedCss(String testId, String windowId) {
+    return TestIds.css(testId) + TestAttributes.css(TestAttributes.OWNER, windowId);
+  }
+
+  /**
+   * Get the button of a window that shows or hides its advanced criteria (inline) or opens its side panel
+   *
+   * @param windowId Window identifier
+   * @return Advanced filters toggle selector
+   */
+  default By getWindowAdvancedToggle(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_ADVANCED_TOGGLE, windowId));
+  }
+
+  /**
+   * Get the badge of the advanced filters toggle of a window: the number of advanced criteria that differ from their default
+   *
+   * @param windowId Window identifier
+   * @return Advanced filters count selector
+   */
+  default By getWindowAdvancedCount(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_ADVANCED_COUNT, windowId));
+  }
+
+  /**
+   * Get the row of the filters in effect of a window
+   *
+   * @param windowId Window identifier
+   * @return Filter chips row selector
+   */
+  default By getWindowFilterChips(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_FILTER_CHIPS, windowId));
+  }
+
+  /**
+   * Get the chip of a criterion in the filters in effect of a window
+   *
+   * @param windowId     Window identifier
+   * @param criterionId  Criterion identifier
+   * @return Filter chip selector
+   */
+  default By getWindowFilterChip(String windowId, String criterionId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_FILTER_CHIP, windowId)
+      + TestAttributes.css(TestAttributes.FILTER_ID, criterionId));
+  }
+
+  /**
+   * Get the chip of a criterion in the filters in effect of a window, marked as a hidden advanced filter or not
+   *
+   * @param windowId    Window identifier
+   * @param criterionId Criterion identifier
+   * @param hidden      True for the chip of an advanced criterion that is hidden
+   * @return Filter chip selector
+   */
+  default By getWindowFilterChip(String windowId, String criterionId, boolean hidden) {
+    String chip = getWindowAdvancedCss(TestIds.WINDOW_FILTER_CHIP, windowId) + TestAttributes.css(TestAttributes.FILTER_ID, criterionId);
+    return By.cssSelector(hidden ? chip + ".window-filter-chip-hidden" : chip + ":not(.window-filter-chip-hidden)");
+  }
+
+  /**
+   * Get the button of the chip of a criterion that restores the criterion to its default
+   *
+   * @param windowId    Window identifier
+   * @param criterionId Criterion identifier
+   * @return Filter chip remove button selector
+   */
+  default By getWindowFilterChipRemove(String windowId, String criterionId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_FILTER_CHIP, windowId)
+      + TestAttributes.css(TestAttributes.FILTER_ID, criterionId) + " " + TestIds.css(TestIds.WINDOW_FILTER_CHIP_REMOVE));
+  }
+
+  /**
+   * Get the Clear all button of the filters in effect of a window
+   *
+   * @param windowId Window identifier
+   * @return Clear all button selector
+   */
+  default By getWindowFilterClearAll(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_FILTER_CLEAR_ALL, windowId));
+  }
+
+  /**
+   * Css of a part of the column autofilter of a grid (#912), identified by its owner, the grid
+   *
+   * @param testId Hook of the part
+   * @param gridId Grid identifier
+   * @return Css selector
+   */
+  private static String getGridColumnFilterCss(String testId, String gridId) {
+    return TestIds.css(testId) + TestAttributes.css(TestAttributes.OWNER, gridId);
+  }
+
+  /**
+   * Get the funnel of a column of a grid that declares a filter
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Funnel selector
+   */
+  default By getGridColumnFilter(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER, gridId) + "[column-id='" + columnId + "']");
+  }
+
+  /**
+   * Get the funnel of a column of a grid that declares a filter, filtered or not
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param filtered True while the column is filtered
+   * @return Funnel selector
+   */
+  default By getGridColumnFilter(String gridId, String columnId, boolean filtered) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER, gridId) + "[column-id='" + columnId + "']"
+      + TestAttributes.css(TestAttributes.ACTIVE, filtered));
+  }
+
+  /**
+   * Get the autofilter menu of a column of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Autofilter menu selector
+   */
+  default By getGridColumnFilterMenu(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_MENU, gridId) + "[column-id='" + columnId + "']");
+  }
+
+  /**
+   * Get a value of the list of the open autofilter menu of a grid, checked or not
+   *
+   * @param gridId  Grid identifier
+   * @param value   Value (the code the column filters, not its label)
+   * @param checked True for the value when it is checked
+   * @return Value selector
+   */
+  default By getGridColumnFilterValue(String gridId, String value, boolean checked) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_VALUE, gridId) + "[option-id='" + value + "']"
+      + TestAttributes.css(TestAttributes.SELECTED, checked));
+  }
+
+  /**
+   * Get the Accept button of the open autofilter menu of a grid, when it can be pressed
+   *
+   * @param gridId Grid identifier
+   * @return Accept button selector
+   */
+  default By getGridColumnFilterAccept(String gridId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_ACCEPT, gridId) + ":not([disabled])");
+  }
+
+  /**
+   * Get the row of the column filters in effect of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Column filter chips row selector
+   */
+  default By getGridColumnFilterChips(String gridId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_CHIPS, gridId));
+  }
+
+  /**
+   * Get the chip of a column in the column filters in effect of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Column filter chip selector
+   */
+  default By getGridColumnFilterChip(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_CHIP, gridId) + "[column-id='" + columnId + "']");
+  }
+
+  /**
+   * Get the button of the chip of a column that removes the filter of the column
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Column filter chip remove button selector
+   */
+  default By getGridColumnFilterChipRemove(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnFilterCss(TestIds.GRID_COLUMN_FILTER_CHIP, gridId) + "[column-id='" + columnId + "'] "
+      + TestIds.css(TestIds.GRID_COLUMN_FILTER_CHIP_REMOVE));
+  }
+
+  /**
+   * Get the open side panel with the advanced criteria of a window
+   *
+   * @param windowId Window identifier
+   * @return Open advanced filters panel selector
+   */
+  default By getOpenWindowAdvancedPanel(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_ADVANCED_PANEL, windowId) + TestAttributes.css(TestAttributes.OPEN, true));
+  }
+
+  /**
+   * Get a button of the footer of the side panel with the advanced criteria of a window
+   *
+   * @param windowId Window identifier
+   * @param testId   Hook of the button: {@link TestIds#WINDOW_ADVANCED_RESET}, {@link TestIds#WINDOW_ADVANCED_CANCEL} or
+   *                 {@link TestIds#WINDOW_ADVANCED_APPLY}
+   * @return Advanced filters panel button selector
+   */
+  default By getWindowAdvancedPanelButton(String windowId, String testId) {
+    return By.cssSelector(getWindowAdvancedCss(testId, windowId));
+  }
+
+  /**
+   * Get a part of the saved searches of a window (#790, saved-searches="true") that is found by its hook: the Saved
+   * searches button, the Save current search and Manage searches options of its menu, the Save search dialog with its
+   * name, the trigger of its profile select and its buttons, and the Manage searches dialog with the rename input, the
+   * rename accept button and its Close button. Every part carries the window as its owner, also the dialogs, which do not
+   * live inside the window. The saved searches of a grid (#912, saved-searches="true") have the same parts, with the grid
+   * as their owner: every selector of the saved searches of a window takes the grid identifier as window identifier
+   *
+   * @param windowId Window identifier (or grid identifier)
+   * @param testId   Hook of the part, one of the {@code WINDOW_SAVED_SEARCH*} values of {@link TestIds}
+   * @return Saved searches part selector
+   */
+  default By getWindowSavedSearchesPart(String windowId, String testId) {
+    return By.cssSelector(getWindowAdvancedCss(testId, windowId));
+  }
+
+  /**
+   * Get the menu of the saved searches of a window once its searches are loaded (it is not busy)
+   *
+   * @param windowId Window identifier
+   * @return Loaded saved searches menu selector
+   */
+  default By getWindowSavedSearchesMenu(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.WINDOW_SAVED_SEARCHES_MENU, windowId) + ":not([aria-busy='true'])");
+  }
+
+  /**
+   * Get the xpath of a part of the saved searches of a window whose text (one of its text nodes) is a name
+   *
+   * @param testId    Hook of the part
+   * @param windowId  Window identifier
+   * @param name      Name of the search
+   * @param condition Other condition of the part, or null
+   * @return Xpath of the part
+   */
+  private static String getWindowSavedSearchXpath(String testId, String windowId, String name, String condition) {
+    return "//*[" + TestIds.xpath(testId) + " and " + TestAttributes.xpath(TestAttributes.OWNER, windowId)
+      + (condition == null ? "" : " and " + condition) + " and .//text()[normalize-space(.)=" + XpathLiterals.of(name) + "]]";
+  }
+
+  /**
+   * Get the option of a search in the menu of the saved searches of a window, by its name
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @return Saved search option selector
+   */
+  default By getWindowSavedSearchItem(String windowId, String name) {
+    return By.xpath(getWindowSavedSearchXpath(TestIds.WINDOW_SAVED_SEARCH_ITEM, windowId, name, null));
+  }
+
+  /**
+   * Get the option of a search in the menu of the saved searches of a window, by its name, among the searches of the
+   * user (My searches) or among the ones shared with its profile
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @param own      True for a search of the user, false for a search shared with its profile
+   * @return Saved search option selector
+   */
+  default By getWindowSavedSearchItem(String windowId, String name, boolean own) {
+    return By.xpath(getWindowSavedSearchXpath(TestIds.WINDOW_SAVED_SEARCH_ITEM, windowId, name,
+      TestAttributes.xpath(TestAttributes.TYPE, own ? "own" : "shared")));
+  }
+
+  /**
+   * Get the row of a search in the Manage searches dialog of a window, by its name
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @return Saved search row selector
+   */
+  default By getWindowSavedSearchRow(String windowId, String name) {
+    return By.xpath(getWindowSavedSearchXpath(TestIds.WINDOW_SAVED_SEARCH_ROW, windowId, name, null));
+  }
+
+  /**
+   * Get a button of the row of a search in the Manage searches dialog of a window: rename or delete
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @param testId   Hook of the button: {@link TestIds#WINDOW_SAVED_SEARCH_RENAME} or
+   *                 {@link TestIds#WINDOW_SAVED_SEARCH_DELETE}
+   * @return Saved search row button selector
+   */
+  default By getWindowSavedSearchRowButton(String windowId, String name, String testId) {
+    return By.xpath(getWindowSavedSearchXpath(TestIds.WINDOW_SAVED_SEARCH_ROW, windowId, name, null) + "//*[" + TestIds.xpath(testId) + "]");
+  }
+
+  /**
+   * Get an option of the profile select of the Save search dialog of a window, by its text (Only me or the name of a
+   * profile). The window owns the list of the select
+   *
+   * @param windowId Window identifier
+   * @param label    Text of the option
+   * @return Profile option selector
+   */
+  default By getWindowSavedSearchProfileOption(String windowId, String label) {
+    return By.xpath("//*[" + TestIds.xpath(TestIds.SELECT_OPTION) + " and " + TestAttributes.xpath(TestAttributes.OWNER, windowId)
+      + " and normalize-space(.)=" + XpathLiterals.of(label) + "]");
+  }
+
+  /**
+   * Get the accept button of the confirmation of the deletion of a saved search of a window. The window draws its own
+   * confirmation, which it owns
+   *
+   * @param windowId Window identifier
+   * @return Accept button selector
+   */
+  default By getWindowSavedSearchDeleteConfirm(String windowId) {
+    return By.cssSelector(getWindowAdvancedCss(TestIds.CONFIRM_ACCEPT, windowId));
+  }
+
+  /**
+   * Get the Columns dialog of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Columns dialog selector
+   */
+  default By getGridColumnsDialog(String gridId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId));
+  }
+
+  /**
+   * Get the open Columns of a grid shown as a popover anchored to the Columns button, as a modal dialog or as a side
+   * panel (grid attribute columns-panel)
+   *
+   * @param gridId Grid identifier
+   * @param panel  popover, dialog or side-panel
+   * @return Columns selector
+   */
+  default By getGridColumnsPanel(String gridId, String panel) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId)
+      + TestAttributes.css(TestAttributes.TYPE, panel));
+  }
+
+  /**
+   * Get the Columns of a grid (popover, dialog or side panel) while they wait for the server: Save and Restore default
+   * are silent (no message when they work), so both clients mark the Columns {@code aria-busy="true"} until the server
+   * answers, whatever the answer
+   *
+   * @param gridId Grid identifier
+   * @return Busy Columns selector
+   */
+  default By getGridColumnsBusy(String gridId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId)
+      + TestAttributes.css("aria-busy", true));
+  }
+
+  /**
+   * Get the counter of the Columns dialog of a grid ("N of M visible") when it has the given numbers
+   *
+   * @param gridId  Grid identifier
+   * @param visible Columns shown
+   * @param total   Columns listed
+   * @return Counter selector
+   */
+  default By getGridColumnsCounter(String gridId, String visible, String total) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_COLUMNS_DIALOG) + TestAttributes.css(TestAttributes.OWNER, gridId) + " "
+      + TestIds.css(TestIds.GRID_COLUMNS_COUNTER) + TestAttributes.css(TestAttributes.VISIBLE_COUNT, visible)
+      + TestAttributes.css(TestAttributes.TOTAL_COUNT, total));
+  }
+
+  /**
+   * Get a column listed in the Columns dialog of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Column item selector
+   */
+  default By getGridColumnsItem(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnsItemCss(gridId, columnId));
+  }
+
+  /**
+   * Css of a group or subtotal row of a grouped grid, by the path of its group (the encoded values of its levels joined
+   * by "/", as {@code America/USA/New%20York})
+   *
+   * @param gridId Grid identifier
+   * @param testId Hook of the row: group or subtotal
+   * @param path   Group path
+   * @return Css selector of the row
+   */
+  private static String getGridGroupRowCss(String gridId, String testId, String path) {
+    return "[grid-id='" + gridId + "'] " + TestIds.css(testId) + TestAttributes.css(TestAttributes.GROUP_PATH, path);
+  }
+
+  /**
+   * Get a cell of the group row of a grouped grid: the toggle, label and count of the group in the first visible
+   * column, the aggregate of the group in a column with summary type
+   *
+   * @param gridId   Grid identifier
+   * @param path     Group path
+   * @param columnId Column identifier
+   * @return Cell selector
+   */
+  default By getGridGroupCell(String gridId, String path, String columnId) {
+    return By.cssSelector(getGridGroupRowCss(gridId, TestIds.GRID_GROUP_ROW, path) + " " + TestIds.css(TestIds.GRID_CELL)
+      + "[column-id='" + columnId + "']");
+  }
+
+  /**
+   * Get a cell of the subtotal row of a group of a grouped grid
+   *
+   * @param gridId   Grid identifier
+   * @param path     Group path
+   * @param columnId Column identifier
+   * @return Cell selector
+   */
+  default By getGridSubtotalCell(String gridId, String path, String columnId) {
+    return By.cssSelector(getGridGroupRowCss(gridId, TestIds.GRID_SUBTOTAL_ROW, path) + " " + TestIds.css(TestIds.GRID_CELL)
+      + "[column-id='" + columnId + "']");
+  }
+
+  /**
+   * Get the toggle that expands or collapses a group of a grouped grid
+   *
+   * @param gridId Grid identifier
+   * @param path   Group path
+   * @return Toggle selector
+   */
+  default By getGridGroupToggle(String gridId, String path) {
+    return By.cssSelector(getGridGroupRowCss(gridId, TestIds.GRID_GROUP_ROW, path) + " " + TestIds.css(TestIds.GRID_GROUP_TOGGLE));
+  }
+
+  /**
+   * Get the button of the toolbar of a grouped grid that expands every group
+   *
+   * @param gridId Grid identifier
+   * @return Expand all selector
+   */
+  default By getGridGroupExpandAll(String gridId) {
+    return getGridToolbarPart(gridId, TestIds.GRID_GROUP_EXPAND_ALL);
+  }
+
+  /**
+   * Get the button of the toolbar of a grouped grid that collapses every group
+   *
+   * @param gridId Grid identifier
+   * @return Collapse all selector
+   */
+  default By getGridGroupCollapseAll(String gridId) {
+    return getGridToolbarPart(gridId, TestIds.GRID_GROUP_COLLAPSE_ALL);
+  }
+
+  /**
+   * Get the Group by button of the toolbar of a grid (grid with group-selector), which opens and closes its panel
+   *
+   * @param gridId Grid identifier
+   * @return Group by button selector
+   */
+  default By getGridGroupByButton(String gridId) {
+    return getGridToolbarPart(gridId, TestIds.GRID_GROUP_BY);
+  }
+
+  /**
+   * Get the Group by panel of a grid
+   *
+   * @param gridId Grid identifier
+   * @return Panel selector
+   */
+  default By getGridGroupByPanel(String gridId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_GROUP_BY_PANEL) + TestAttributes.css(TestAttributes.OWNER, gridId));
+  }
+
+  /**
+   * Get the No grouping action of the Group by panel of a grid (the panel has to be open)
+   *
+   * @param gridId Grid identifier
+   * @return No grouping selector
+   */
+  default By getGridGroupNone(String gridId) {
+    return By.cssSelector(TestIds.css(TestIds.GRID_GROUP_BY_PANEL) + TestAttributes.css(TestAttributes.OWNER, gridId) + " "
+      + TestIds.css(TestIds.GRID_GROUP_NONE));
+  }
+
+  /**
+   * Get the checkbox of a column in the Group by panel of a grid (the panel has to be open). The hook of the option is
+   * the checkbox itself (AngularJS) or the item that holds it (React)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Checkbox selector
+   */
+  default By getGridGroupOption(String gridId, String columnId) {
+    String panel = TestIds.css(TestIds.GRID_GROUP_BY_PANEL) + TestAttributes.css(TestAttributes.OWNER, gridId) + " ";
+    String option = TestIds.css(TestIds.GRID_GROUP_OPTION) + TestAttributes.css(TestAttributes.COLUMN, columnId);
+    return By.cssSelector(panel + "input" + option + ", " + panel + option + " input");
+  }
+
+  /**
+   * Get the checkbox that shows or hides a column in the Columns dialog of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Checkbox selector
+   */
+  default By getGridColumnsCheckbox(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnsItemCss(gridId, columnId) + " " + TestIds.css(TestIds.GRID_COLUMN_CHECKBOX));
+  }
+
+  /**
+   * Get the arrow that moves a column up in the Columns dialog of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Move up arrow selector
+   */
+  default By getGridColumnsMoveUp(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnsItemCss(gridId, columnId) + " " + TestIds.css(TestIds.GRID_COLUMN_UP));
+  }
+
+  /**
+   * Get the arrow that moves a column down in the Columns dialog of a grid
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Move down arrow selector
+   */
+  default By getGridColumnsMoveDown(String gridId, String columnId) {
+    return By.cssSelector(getGridColumnsItemCss(gridId, columnId) + " " + TestIds.css(TestIds.GRID_COLUMN_DOWN));
+  }
+
+  /**
+   * Get the action of the Columns dialog of a grid that shows all the columns
+   *
+   * @param gridId Grid identifier
+   * @return Show all selector
+   * @deprecated The Columns no longer have a Show all action: show each hidden column with its checkbox
+   * ({@link #getGridColumnsCheckbox(String, String)}). It stays available through the whole 5.x line and is not removed
+   * before 6.0
+   */
+  @Deprecated
+  default By getGridColumnsShowAll(String gridId) {
+    return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_SHOW_ALL);
+  }
+
+  /**
+   * Get the action of the Columns dialog of a grid that goes back to the definition of the screen
+   *
+   * @param gridId Grid identifier
+   * @return Reset selector
+   */
+  default By getGridColumnsReset(String gridId) {
+    return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_RESET);
+  }
+
+  /**
+   * Get the action of the Columns dialog of a grid that saves the layout as the default of the user
+   *
+   * @param gridId Grid identifier
+   * @return Save as default selector
+   */
+  default By getGridColumnsSave(String gridId) {
+    return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_SAVE);
+  }
+
+  /**
+   * Get the action of the Columns dialog of a grid that undoes the changes made since it was opened (or since the last
+   * save or reset) and closes it
+   *
+   * @param gridId Grid identifier
+   * @return Cancel selector
+   */
+  default By getGridColumnsCancel(String gridId) {
+    return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_CANCEL);
+  }
+
+  /**
+   * Get the action of the Columns dialog of a grid that closes it
+   *
+   * @param gridId Grid identifier
+   * @return Close selector
+   */
+  default By getGridColumnsClose(String gridId) {
+    return getGridColumnsDialogPart(gridId, TestIds.GRID_COLUMNS_CLOSE);
+  }
+
+  /**
+   * Get a group header of a grid, the second level header that spans over the columns of the group
+   *
+   * @param gridId Grid identifier
+   * @param title  Text that the title contains
+   * @return Group header selector
+   */
+  default By getGridGroupHeader(String gridId, String title) {
+    return By.xpath(String.format("//*[@grid-id=%1$s or @tree-grid-id=%1$s]//*[%2$s and contains(normalize-space(.), %3$s)]",
+      XpathLiterals.of(gridId), TestIds.xpath(TestIds.GRID_GROUP_HEADER), XpathLiterals.of(title)));
+  }
+
+  /**
+   * Get the panel of an open dialog, the element that has the size of the dialog. By default it is the dialog itself
+   *
+   * @param dialogId Dialog identifier
+   * @return Dialog panel selector
+   */
+  default By getDialogPanel(String dialogId) {
+    return getOpenDialog(dialogId);
+  }
+
+  /**
+   * Get the panel of an open side panel, the element that has its size and its place. By default it is the side panel
+   * itself
+   *
+   * @param panelId Side panel identifier
+   * @return Side panel panel selector
+   */
+  default By getSidePanelPanel(String panelId) {
+    return getOpenSidePanel(panelId);
+  }
+
+  /**
+   * Get the icon that a column of a grid shows for a row
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param icon     Name of the icon, without the prefix of the icon library (for instance {@code plus})
+   * @return Icon selector
+   */
+  default By getGridIcon(String gridId, String columnId, String icon) {
+    return By.cssSelector("[grid-id='" + gridId + "'] [column-id='" + columnId + "'] " + TestIds.css(TestIds.COLUMN_ICON)
+      + "[" + TestAttributes.ICON + "~='fa-" + icon + "']");
+  }
+
+  /**
+   * Get the success icon of a column of a grid
+   *
+   * @param columnId Column identifier
+   * @return Success icon selector
+   */
+  default By getColumnSuccessIcon(String columnId) {
+    return By.cssSelector("[column-id='" + columnId + "']:first-child span.text-success");
+  }
+
+  /**
+   * Get a row of a tree grid
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   * @return Tree row selector
+   */
+  default By getTreeRow(String gridId, String rowId) {
+    return By.cssSelector("[tree-grid-id='" + gridId + "'] [row-id='" + rowId + "']");
+  }
+
+  /**
+   * Get the expand/collapse icon of a row of a tree grid
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   * @return Tree row icon selector
+   */
+  default By getTreeRowIcon(String gridId, String rowId) {
+    return By.cssSelector("[tree-grid-id='" + gridId + "'] [row-id='" + rowId + "'] " + TestIds.css(TestIds.TREE_ICON));
+  }
+
+  /**
+   * Get a row of a tree grid that has been marked as deleted
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   * @return Deleted tree row selector
+   */
+  default By getDeletedTreeRow(String gridId, String rowId) {
+    return By.cssSelector("[tree-grid-id='" + gridId + "'] .DELETE [row-id='" + rowId + "']");
+  }
+
+  /**
+   * Get every option of the open select dropdown (or suggest list)
+   *
+   * @return Options selector
+   */
+  default By getSelectOptions() {
+    return By.xpath("//*[" + TestIds.xpath(TestIds.SELECT_DROPDOWN) + "]//*[" + TestIds.xpath(TestIds.SELECT_OPTION) + "]");
+  }
+
+  /**
+   * Get an option of the open select dropdown (or suggest list) by its position
+   *
+   * @param position Position of the option (the first is 1)
+   * @return Option selector
+   */
+  default By getSelectOption(int position) {
+    return By.xpath("(//*[" + TestIds.xpath(TestIds.SELECT_DROPDOWN) + "]//*[" + TestIds.xpath(TestIds.SELECT_OPTION)
+      + "])[" + position + "]");
+  }
 }

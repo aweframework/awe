@@ -1,9 +1,12 @@
 package com.almis.awe.testing.config;
 
+import com.almis.awe.testing.model.types.BrowserTool;
 import com.almis.awe.testing.model.types.BrowserType;
+import com.almis.awe.testing.model.types.EvidenceMode;
 import com.almis.awe.testing.model.types.FrontendType;
 import com.almis.awe.testing.model.types.RecordingSaveType;
 import com.almis.awe.testing.model.types.VideoFormatType;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.URL;
@@ -20,8 +23,20 @@ import java.time.Duration;
 @Data
 public class AweTestConfigProperties {
   /**
+   * Browser automation tool that runs the tests: selenium or playwright (pilot: local Chromium and Firefox only). An
+   * unknown tool stops the tests at startup. The Selenium driver (getDriver()) is only available with the selenium tool
+   */
+  @Valid
+  private BrowserTool tool = BrowserTool.SELENIUM;
+  /**
+   * Options of the Playwright tool (pilot)
+   */
+  @Valid
+  private PlaywrightProperties playwright = new PlaywrightProperties();
+  /**
    * Selenium browser type
    */
+  @Valid
   private BrowserType browser = BrowserType.CHROME;
   /**
    * Selenium browser width size
@@ -38,10 +53,12 @@ public class AweTestConfigProperties {
   /**
    * Video format type
    */
+  @Valid
   private VideoFormatType videoFormat = VideoFormatType.WEBM;
   /**
    * Recording save mode
    */
+  @Valid
   private RecordingSaveType videoSave = RecordingSaveType.FAILED;
   /**
    * Enable recording test video
@@ -100,5 +117,40 @@ public class AweTestConfigProperties {
   /**
    * Frontend type for tests
    */
+  @Valid
   private FrontendType frontend = FrontendType.ANGULAR;
+
+  /**
+   * Options of the Playwright tool
+   */
+  @Data
+  public static class PlaywrightProperties {
+    /**
+     * Whether Chromium runs without its sandbox ({@code --no-sandbox}). Left empty it is automatic: it runs without the
+     * sandbox when it is headless, or when the process runs as root or inside a container (Docker, Podman or Kubernetes),
+     * where the sandbox cannot start. Set it to false to keep the sandbox in such an environment, or to true to remove it
+     */
+    private Boolean noSandbox;
+    /**
+     * Playwright trace of each test (opened with {@code npx playwright show-trace file.zip} or at trace.playwright.dev):
+     * {@code off}, {@code on-failure} (a trace for each failed test, the default) or {@code always}. The trace has the
+     * screenshots of every action, which cost next to nothing
+     */
+    @Valid
+    private EvidenceMode trace = EvidenceMode.ON_FAILURE;
+    /**
+     * Whether the trace also takes the DOM snapshots of every action, which the Trace Viewer shows as the page you can
+     * inspect before and after each one. They make a run about 40% slower, so they are off by default: turn them on to
+     * investigate a failure that the screenshots do not explain
+     */
+    private boolean traceSnapshots = false;
+    /**
+     * Playwright page video of a test class (the browser lasts the whole class, so the video is one per class, with the
+     * start of each test in a {@code .video-times.txt} next to it): {@code off}, {@code on-failure} (kept only when a
+     * test of the class failed, the default) or {@code always}. It is independent of {@code awe.test.allowed-recording},
+     * which belongs to the screen recorder of the Selenium tool
+     */
+    @Valid
+    private EvidenceMode video = EvidenceMode.ON_FAILURE;
+  }
 }

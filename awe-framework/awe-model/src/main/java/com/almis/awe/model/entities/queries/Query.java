@@ -4,9 +4,6 @@ import com.almis.awe.model.entities.Copyable;
 import com.almis.awe.model.entities.XMLNode;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamImplicit;
@@ -17,8 +14,13 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.StringUtils;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serial;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -38,6 +40,7 @@ import java.util.stream.Collectors;
 @XStreamAlias("query")
 public class Query implements XMLNode, Copyable {
 
+  @Serial
   private static final long serialVersionUID = 4116800522035824625L;
 
   // Query identifier
@@ -79,6 +82,16 @@ public class Query implements XMLNode, Copyable {
   @XStreamAlias("public")
   @XStreamAsAttribute
   private Boolean isPublic;
+
+  // Permissions required to launch the query from a client, separated by spaces (all of them are required)
+  @XStreamAlias("permission")
+  @XStreamAsAttribute
+  private String permission;
+
+  // Query can only be launched from the server (never from a client request)
+  @XStreamAlias("server-only")
+  @XStreamAsAttribute
+  private Boolean serverOnly;
 
   // Query table list
   @XStreamImplicit
@@ -200,6 +213,14 @@ public class Query implements XMLNode, Copyable {
     return isPublic != null && isPublic;
   }
 
+  /**
+   * Returns if the query can only be launched from the server
+   * @return Is server only
+   */
+  public boolean isServerOnly() {
+    return serverOnly != null && serverOnly;
+  }
+
   @JsonIgnore
   @Override
   public String getElementKey() {
@@ -269,6 +290,7 @@ public class Query implements XMLNode, Copyable {
     allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_PAGE);
     allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_MAX);
     allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_SORT);
+    allowedParameters.add(com.almis.awe.model.constant.AweConstants.COMPONENT_COLUMN_FILTERS);
     if (getVariableDefinitionList() != null) {
       for (Variable variable : getVariableDefinitionList()) {
         String parameterKey = variable.getName() != null ? variable.getName() : variable.getId();
@@ -287,6 +309,46 @@ public class Query implements XMLNode, Copyable {
    * @return Cache key string
    */
   public String getQueryKeys(ObjectNode parameters) {
+    return getQueryKeys(parameters, sessionName -> null);
+  }
+
+  /**
+   * Builds the cache key based on query id, allowed parameters and the session values the query depends on.
+   * Session variables never come from the request, so their resolved values must be part of the key:
+   * otherwise every user shares the same cached result.
+   *
+   * @param parameters    Parameters
+   * @param sessionValues Resolves a session parameter name to its current value
+   * @return Cache key string
+   */
+  public String getQueryKeys(ObjectNode parameters, Function<String, Object> sessionValues) {
+    String key = getRequestQueryKeys(parameters);
+    Map<String, String> sessionKeys = new TreeMap<>();
+    if (getVariableDefinitionList() != null) {
+      for (Variable variable : getVariableDefinitionList()) {
+        if (variable.getSession() != null) {
+          sessionKeys.put(variable.getSession(), Objects.toString(sessionValues.apply(variable.getSession()), null));
+        }
+      }
+    }
+    return sessionKeys.isEmpty() ? key : key + "|" + sessionKeys;
+  }
+
+  /**
+   * Check whether every session value the query declares is present. A query run without one of them
+   * (a call with no session user, for example) must not be cached: its result does not belong to any user.
+   *
+   * @param sessionValues Resolves a session parameter name to its current value
+   * @return All the session values of the query are present
+   */
+  public boolean hasSessionValues(Function<String, Object> sessionValues) {
+    return getVariableDefinitionList() == null || getVariableDefinitionList().stream()
+      .map(Variable::getSession)
+      .filter(Objects::nonNull)
+      .allMatch(sessionName -> sessionValues.apply(sessionName) != null);
+  }
+
+  private String getRequestQueryKeys(ObjectNode parameters) {
     ObjectNode safeParameters = parameters == null ? JsonNodeFactory.instance.objectNode() : parameters;
     ObjectNode filteredParameters = JsonNodeFactory.instance.objectNode();
     for (String parameterKey : getCacheKeyParamNames()) {

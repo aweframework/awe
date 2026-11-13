@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Queue Class
  *
@@ -26,6 +28,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("queue")
 public class Queue implements XMLNode, Copyable {
 
+  @Serial
   private static final long serialVersionUID = 5332690961169706019L;
 
   // Queue identifier

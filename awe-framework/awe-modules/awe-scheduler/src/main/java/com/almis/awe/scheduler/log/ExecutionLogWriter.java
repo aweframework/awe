@@ -4,10 +4,10 @@ import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.enums.ExecutionLogOrigin;
 import com.almis.awe.service.MaintainService;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Clock;
 import java.time.Duration;

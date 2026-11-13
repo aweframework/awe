@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Wizard Class
  *
@@ -27,6 +29,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("wizard")
 public class Wizard extends Panelable {
 
+  @Serial
   private static final long serialVersionUID = -6523633454585300507L;
 
   @Override

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdQckFltTst.xml
+    Description: Grid with quick filters in its toolbar (All, Active and Inactive themes with their counts) and a
+                 selection bar (#793): with selected rows, Unselect and Delete (the danger one, which only unselects the
+                 rows after its confirmation) are shown between the toolbar and the header; Reload stays in the footer
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_QUICK_FILTER">
+  <tag source="hidden">
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE"/>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_QUICK_FILTER" expandible="vertical">
+      <grid id="GrdQckFltTst" style="expand" initial-load="query" server-action="data" target-action="QckFltTstThm" max="30" multiselect="true">
+        <quick-filter id="CrtQckFltSta" initial-load="query" target-action="QckFltTstSta" value=""/>
+        <column label="PARAMETER_ID" name="id" sort-field="id" align="center" charlength="8"/>
+        <column label="PARAMETER_NAME" name="name" sort-field="name" align="left" charlength="30"/>
+        <column label="COLUMN_QUICK_FILTER_STATE" name="state" sort-field="state" align="left" charlength="12"/>
+        <button label="BUTTON_RELOAD" icon="refresh" id="ButQckFltRel">
+          <button-action type="filter" target="GrdQckFltTst"/>
+        </button>
+        <button label="BUTTON_CLEAR" icon="eraser" id="ButQckFltUns" selection="true">
+          <button-action type="unselect-all-rows" target="GrdQckFltTst"/>
+        </button>
+        <button label="BUTTON_DELETE" icon="trash" id="ButQckFltDel" style="btn-danger" selection="true">
+          <button-action type="check-some-selected" target="GrdQckFltTst"/>
+          <button-action type="confirm" target="DelMsg"/>
+          <button-action type="unselect-all-rows" target="GrdQckFltTst"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdQckFltTst" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+  </tag>
+</screen>

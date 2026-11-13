@@ -1,17 +1,25 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.model.type.SecondFactorStatusType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.service.totp.AweTotpOperations;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import tools.jackson.databind.node.JsonNodeFactory;
+
+import java.security.SecureRandom;
 
 /**
  * Manage application accesses
@@ -19,8 +27,45 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @Slf4j
 public class TotpService extends ServiceConfig {
 
+  private SecurityAuditService securityAuditService = SecurityAuditService.disabled();
+
+  // Second factor configuration. Without it the service behaves as if 2FA were enabled
+  private TotpConfigProperties totpConfigProperties;
+
+  /**
+   * Set the second factor configuration
+   *
+   * @param totpConfigProperties Second factor configuration properties
+   */
+  @Autowired(required = false)
+  public void setTotpConfigProperties(TotpConfigProperties totpConfigProperties) {
+    this.totpConfigProperties = totpConfigProperties;
+  }
+
+  /**
+   * Check if the second factor is disabled in the application: it is the default value, so an application that does
+   * not configure it never offers 2FA
+   *
+   * @return Second factor is disabled
+   */
+  private boolean isTotpDisabled() {
+    return totpConfigProperties != null && totpConfigProperties.getEnabled() == SecondFactorStatusType.DISABLED;
+  }
+
+  /**
+   * Record the second factor enrollments and resets in the security audit
+   *
+   * @param securityAuditService Security audit service
+   */
+  @Autowired(required = false)
+  public void setSecurityAuditService(SecurityAuditService securityAuditService) {
+    this.securityAuditService = securityAuditService;
+  }
+
+
   private static final String ERROR_TITLE_ACCESS_DENIED = "ERROR_TITLE_ACCESS_DENIED";
   private static final String ERROR_MESSAGE_FORBIDDEN_ACCESS = "ERROR_MESSAGE_FORBIDDEN_ACCESS";
+  private static final SecureRandom RANDOM = new SecureRandom();
 
   // Autowire
   private final AweTotpOperations totpOperations;
@@ -130,6 +175,10 @@ public class TotpService extends ServiceConfig {
   public ServiceData getQRCodeList(Boolean generate) throws AWException {
     AweUserDetails userDetails = currentUserDetails();
     ServiceData serviceData = new ServiceData();
+    // The second factor is disabled in the application: no QR, no secret
+    if (isTotpDisabled()) {
+      return serviceData.setDataList(new DataList());
+    }
     if (userDetails.isEnabled2fa() || Boolean.TRUE.equals(generate)) {
 
       // Generate if forced — guarded: only allowed for pending enrollment or fully authenticated sessions
@@ -141,7 +190,7 @@ public class TotpService extends ServiceConfig {
       // Generate retrieval codes
       DataList qrCode = new DataList();
       DataListUtil.addColumnWithOneRow(qrCode, "secretCode", userDetails.getSecret2fa());
-      DataListUtil.addColumnWithOneRow(qrCode, "random", Math.random() * 10000);
+      DataListUtil.addColumnWithOneRow(qrCode, "random", RANDOM.nextDouble() * 10000);
 
       return serviceData.setDataList(qrCode);
     }
@@ -173,6 +222,7 @@ public class TotpService extends ServiceConfig {
   private void enforceGenerateAccess(AweUserDetails userDetails) throws AWException {
     if (!userDetails.isAwaitingTotpEnrollment() && !userDetails.isFullyAuthenticated()) {
       // Partially authenticated enrolled session: deny secret rotation before TOTP verification.
+      securityAuditService.failure(SecurityAuditEventType.TOTP_ENROLLMENT, userDetails.getUsername(), SecurityAuditCause.FORBIDDEN, null);
       log.warn("Secret generation denied for user '{}': session is not in an allowed enrollment state "
           + "(pendingTotpEnrollment={}, fullyAuthenticated={})",
         userDetails.getUsername(), userDetails.isAwaitingTotpEnrollment(), userDetails.isFullyAuthenticated());
@@ -194,6 +244,11 @@ public class TotpService extends ServiceConfig {
   }
 
   private ServiceData generate2faSecret(boolean preserveAuthenticatedSession) throws AWException {
+    // The second factor is disabled in the application: enrollment is refused in the server, not only in the screens
+    if (isTotpDisabled()) {
+      log.warn("Secret generation denied: the second factor is disabled (awe.security.totp.enabled)");
+      throw new AWException(getLocale(ERROR_TITLE_ACCESS_DENIED), getLocale(ERROR_MESSAGE_FORBIDDEN_ACCESS), AnswerType.ERROR);
+    }
     AweUserDetails userDetails = currentUserDetails();
     Authentication authentication = currentAuthentication();
     boolean was2faEnabled = userDetails.isEnabled2fa();
@@ -212,6 +267,7 @@ public class TotpService extends ServiceConfig {
       );
     } catch (Exception e) {
       log.error("TOTP secret storage failed for user '{}': {}", userDetails.getUsername(), e.getMessage(), e);
+      securityAuditService.failure(SecurityAuditEventType.TOTP_ENROLLMENT, userDetails.getUsername(), SecurityAuditCause.ERROR, null);
       if (e instanceof AWException aw) {
         throw aw;
       }
@@ -231,19 +287,29 @@ public class TotpService extends ServiceConfig {
     }
     userDetails.setFullyAuthenticated(wasFullyAuthenticated
       || preserveAuthenticatedSession && !was2faEnabled && wasSpringAuthenticated);
+    securityAuditService.success(SecurityAuditEventType.TOTP_ENROLLMENT, userDetails.getUsername(), null);
     return serviceData;
   }
 
   /**
-   * Update 2fa status
+   * Update 2fa status. Only disabling is allowed: enabling must go through
+   * {@link #generate2faSecret()}. An enable request is explicitly refused (issue #939).
    *
+   * @param enabled New status (anything but 1 disables)
    * @return Service data
+   * @throws AWException when enabling is requested through this service
    */
-  public ServiceData update2faStatus(Integer enabled) {
+  public ServiceData update2faStatus(Integer enabled) throws AWException {
     AweUserDetails userDetails = currentUserDetails();
 
+    if (enabled != null && enabled == 1) {
+      log.warn("2FA enable request denied for user '{}': enabling is done by generate2faSecret", userDetails.getUsername());
+      throw new AWException(getLocale(ERROR_TITLE_ACCESS_DENIED), getLocale(ERROR_MESSAGE_FORBIDDEN_ACCESS), AnswerType.ERROR);
+    }
+
     // Update enabled status on user details
-    userDetails.setEnabled2fa(enabled == 1);
+    userDetails.setEnabled2fa(false);
+    securityAuditService.success(SecurityAuditEventType.TOTP_RESET, userDetails.getUsername(), null);
 
     return new ServiceData();
   }

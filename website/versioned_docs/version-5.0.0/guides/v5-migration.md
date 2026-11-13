@@ -1,0 +1,1427 @@
+---
+id: v5-migration
+title: AWE 5 Migration Guide
+sidebar_label: AWE 5 Migration Guide
+---
+
+This guide lists what an application has to review when it moves from AWE 4 to AWE 5.0. Every later 5.x release that
+can affect an existing application adds its entries here (see [Maintaining this guide](#maintaining-this-guide)).
+
+Entries describe only changes that are released. What is already announced for a later 5.x release is listed apart, in
+[Planned for AWE 5.1](#planned-for-awe-51).
+
+## Who this guide is for
+
+Developers of applications built on AWE 4 (the AngularJS client or the React client) and of products that extend AWE,
+for example custom widgets or browser tests built on `awe-testing`.
+
+**Prerequisites**
+
+1. **Be on the latest 4.x release.** Upgrade to the last `4.x` version first and fix its deprecation warnings: a
+   deprecation of the 4.x line that is removed in 5 is cheaper to solve on a line that still receives fixes.
+2. Know which line you are on. AWE 4 is maintained on the `support/4.x` branch (security and critical fixes only) while
+   `develop` builds AWE 5. Branches, tags, Docker tags and the support window are explained in
+   [Release Lines and Support](release-lines-and-support.md#release-lines).
+3. If your application used the React client in its `2.x` line, read the
+   [React client upgrade guide](react-client-upgrade.md) as well: it has the step-by-step instructions that this page
+   only summarizes.
+
+## Compatibility matrix
+
+Only what the repository declares is listed.
+
+| Component | AWE 4 (`support/4.x`) | AWE 5.0 | Notes |
+|---|---|---|---|
+| Java (build target and runtime) | 17 | **21** | `java.version` in `awe-dependencies` and in the archetypes. A JDK 21 is required to build and to run. See [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41). |
+| Spring Boot | 3.5.16 | **4.1.1** | Spring Framework 7.0, Spring Security 7.0, JUnit 6, Flyway 11. |
+| Spring Cloud | 2025.0.3 | **2025.1.3** | |
+| Jackson | 2.x (`com.fasterxml.jackson`) | **3.2.1** (`tools.jackson`) | Annotations stay in `com.fasterxml.jackson.annotation`. See [Jackson 3](#jackson-3). |
+| java-jwt / springdoc-openapi | 3.18.2 / 2.8.13 | 4.6.2 / 3.1.1 | |
+| Node.js used by the Maven frontend build | v24.14.0 | v24.21.0 | `node.version` in `awe-dependencies`. Applications that build the React client with their own Node should use the same major version. |
+| React client (`awe-react-client`) | `2.x`, own version line | Same version as the framework (`5.y.z`) | See [React client upgrade](react-client-upgrade.md). React 19.3.1 (AWE 4: React 18). |
+| Charts, React engine | Highcharts | Apache ECharts 6.1.0 | See [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5). |
+| Charts, AngularJS engine | Highcharts | Apache ECharts 6.1.0 | Same option builder as the React engine. See [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5). |
+| Server chart rendering (`ChartService`) | Highcharts export server | AWE chart server (Apache ECharts, Node) | See [Chart server](../api/chart.md#chart-server). |
+| Browser tests (`awe-testing`) | Selenium | Selenium by default, Playwright as a pilot (`awe.test.tool`) | See [Selenium test guide](selenium-test-guide.md#automation-tool-awetesttool). |
+| Browsers used to test the framework | Chrome, Firefox (Selenium) | Chromium and Firefox (Playwright), Chrome and Firefox (Selenium, scheduled) | A list of supported end-user browsers is not declared in the repository yet. |
+
+## What changes
+
+Each row says what you notice, what to do and where to read more. "MR" is a merge request of the
+[AWE project](https://gitlab.com/aweframework/awe/-/merge_requests).
+
+| Area | Symptom | What to do | More |
+|---|---|---|---|
+| React client package | The `awe-react-client` version of your `package.json` is `2.x`, or the `npm ci` of a 2.x project fails after the upgrade. | Set `awe-react-client` to the exact version of your AWE version (for example `5.0.0`), run `npm install` once and commit the new lock file. Do not mix a 5.x client with an AWE 4 server. | [React client upgrade](react-client-upgrade.md), [npm package](release-lines-and-support.md#npm-package) |
+| React 19 | A custom React widget or component of your application warns or fails with React 19 (for example it uses `defaultProps` on a function component, `findDOMNode`, string refs or `react-dom/test-utils`), or it imported `react-helmet`, which no longer comes with the client. | Update your own React code and its libraries to versions that support React 19, and declare `react-helmet-async` (or set the title in an effect) if your code used `react-helmet`. Keep `react` and `react-dom` on the version the client declares. | [React 19 upgrade guide](https://react.dev/blog/2024/04/25/react-19-upgrade-guide) (#883) |
+| Docker images | You need an image of the React test application. | `awe-boot-react` is built and published on `develop`, `master` and `support/*` with the same tags as `awe-boot`. There is no `latest` tag: pin a version. | [React test application image](release-lines-and-support.md#react-test-application-image) |
+| Charts (React engine) | Charts are empty with an AWE 4 server, a series has a different color, 3D charts are flat, `.highcharts-*` CSS rules do nothing, or a custom component that imports Highcharts does not build. | Review the server log for `Highcharts chart-parameter` warnings, set colors and fonts in the XML, and declare Highcharts yourself if your own code imports it. | [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5), [React client upgrade](react-client-upgrade.md#charts-use-apache-echarts) (MR !854, !855, !856) |
+| Charts (AngularJS engine) | 3D charts are flat, a series has a different color, a stock chart has a slider instead of the Highstock range selector and scrollbar, there is no Reset zoom button, Highcharts options of `chart-parameter` or `chart-options` do nothing, `.highcharts-*` CSS rules do nothing, Highcharts scripts added in `scripts.xml` (themes, plugins) fail, or browser tests that look for `.highcharts-*` elements fail. | Review the server log for `Highcharts chart-parameter` warnings, set colors and fonts in the XML, remove Highcharts scripts and `.highcharts-*` rules, and wait for charts with the `getChart`/`getChartZoomed` instructions of `awe-testing`. | [Upgrading to AWE 5](../api/chart.md#upgrading-to-awe-5), [Changes from AWE 4](../api/chart.md#changes-from-awe-4-highcharts) (issue #795) |
+| Chart `theme` attribute | A chart with `theme="..."` loads, but the colors of its Highcharts theme are gone; code that calls `setTheme` of `ChartBuilder` or `Chart` does not compile. | Remove the attribute and the `setTheme` calls. The charts follow the light or dark theme of the application; set the colors with the `color` of the series or the `colors` parameter, and the fonts with `chart-parameter`. | [Styling a chart](../api/chart.md#styling-a-chart) (issue #795) |
+| Server chart rendering (`ChartService`) | `renderChart` fails: the chart is no longer sent to a Highcharts export server, and the default URL (`https://export.highcharts.com`) is gone. | Run the AWE chart server (image `registry.gitlab.com/aweframework/docker-tools/awe-chart-server:latest`) and set `awe.application.chart-server-url`. `awe.application.highcharts-server-url` is removed and no longer read: rename it to `awe.application.chart-server-url`. | [Chart server](../api/chart.md#chart-server) (issue #795) |
+| Browser tests | The compiler warns that `By` overloads and `getDriver()` are deprecated; tests depend on the order of the classes. | Move custom steps to the `Locator` overloads and to `getBrowser()`; set up the session in each test with `ensureLoggedIn`/`ensureModule`. To try Playwright, set `awe.test.tool=playwright`. Nothing is removed before 6.0. | [Selenium test guide](selenium-test-guide.md#api-compatibility-of-awe-testing), [independent test classes](selenium-test-guide.md#independent-test-classes), [Custom steps without Selenium types](selenium-test-guide.md#custom-steps-without-selenium-types) (MR !840, !841) |
+| `jsoup` dependency | `org.jsoup:jsoup` is no longer on the classpath of `awe-model` and is no longer managed by the `awe-dependencies` BOM. | If your own code uses jsoup, declare the dependency and its version in your `pom.xml`. No action otherwise. See the note below the table. | MR !849 |
+| Password expiration (`PwdExp`) | The application sets the `PwdExp` parameter. After the upgrade, users whose last password change is older than `PwdExp` days are told that the password has expired (they used to get in) and have to set a new one, and users who changed it recently can log in again (they used to be rejected). | Nothing for correct data: the check is no longer inverted and the login guides the user to change the password (see the note below the table). Review the users that never changed the password and the value of `PwdExp`. | [Password expiration](../security/authentication.md#password-expiration-local-login), issue #846 |
+| Menu JSON | The menu payload is smaller. | Nothing, unless a custom client reads `elementList` from a menu `Option`: read `options` instead. See the note below the table. | MR !792 |
+| Screen components JSON | The `screen-data` answer of screens with nested containers is much smaller. | Nothing, unless a custom client reads `elementList` from the `controller` of an entry of `components`: read the children from `structure` instead. In the React answer (`template: false`) `structure` is a skeleton: read the attributes of a component from its `controller`. See the note below the table. | Issues #907 and #909 |
+| SSO login of disabled or locked users | A user that is disabled or locked in AWE could log in through the identity provider; now the SSO login is refused with an error page. | Nothing, unless you relied on it: enable the user in AWE instead. | [Disabled and locked users](../security/authentication-sso.md#disabled-and-locked-users) |
+| SSO users with several roles | A user whose token carries several roles with the `filter-authority-prefix` may get a different profile than before: AWE 5 uses the first name in alphabetical order that exists as an AWE profile (AWE 4 took the first role of an unordered set). | Send one prefixed role per user, or check that the alphabetical choice is the expected one. Roles can now be read from other claims with `awe.security.sso.roles-claims`. | [Several roles: which profile wins](../security/authentication-sso.md#several-roles-which-profile-wins) |
+| SSO handler beans | Your own code calls `AweWebSecurityConfig.authSuccessHandler()` (it now takes the `AweOauth2AuthenticationFailureHandler` bean as a parameter), or builds `AweOauth2AuthenticationSuccessHandler` with one argument (deprecated for removal). | Pass the failure handler: `new AweOauth2AuthenticationSuccessHandler(accessService, failureHandler)`. Handler beans of your own are now honoured by the SSO login. | [Disabled and locked users](../security/authentication-sso.md#disabled-and-locked-users) |
+| Scheduler database | Flyway fails with a checksum mismatch on `SCHEDULER_V1.0.5`, or a new database cannot be built from scratch. | Run the migration step described below. | MR !843 |
+| Default folders (developer module, scheduler logs) | The developer module path and the scheduler execution logs are now in a folder without the stray `}` that the default value used to end with (`<user.home>/awe-developer` instead of `<user.home>/awe-developer}`, `<logging.file.path or java.io.tmpdir>/scheduler` instead of `.../scheduler}`). Only applies if you did not set `awe.developer.path` or `awe.scheduler.execution-log-path`. | Move your existing files from the old folder to the new one if you need them, or set the property to the old path. | MR !889 |
+| JDK and Spring Boot (#783) | The application does not start or build on JDK 17; Maven reports unknown starters such as `spring-boot-starter-web` or `spring-boot-starter-aop`; `@MockBean` does not compile. | Build and run on JDK 21, set `java.version` to 21 and move to the Spring Boot 4.1 starters and test annotations. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
+| Jackson 3 (#783) | Your code does not compile because an AWE method now takes or returns `tools.jackson.databind.node.ObjectNode` (or `JsonNode`, `ArrayNode`, `ObjectMapper`); `asText()` or `asInt()` throws `JsonNodeException`. | Change the imports to `tools.jackson.*`, use the default-value overloads (`asString("")`, `asInt(0)`...) and replace `JsonProcessingException` with `JacksonException`. | [Jackson 3](#jackson-3), [Jackson 3 public API](#jackson-3-public-api) |
+| JSON requests with trailing content (#783) | A client gets HTTP 400 for a body such as `{...},` or `{...}}` that AWE 4 accepted. | Fix the client: AWE 5 rejects content after the root JSON value. The rest of the JSON format is the AWE 4 one. | [JSON contract](#json-contract) |
+| Jackson 3 clients of AWE (#783) | A client built on Spring 7 / Jackson 3 defaults fails with `Cannot deserialize value of type AnswerType from String "OK"`. | Configure the client with the AWE mapper: `MessageConverterUtil.withJsonMapper(restTemplate, DataListUtil.getMapper())`. | [JSON contract](#json-contract) |
+| Logback configuration (#783) | The application fails at startup with `Logback configuration error detected` after the upgrade. | Remove the `applicationName` conversion rule from your own `logback-spring.xml`; use `%esb(){APPLICATION_NAME}%esb{APPLICATION_GROUP}`. | [Logging, database and web](#logging-database-and-web) |
+| Login redirects (#783) | An unauthenticated browser request is redirected to `Location: /` instead of an absolute URL. | Nothing, unless something parses the absolute URL: accept a relative one. Custom `AuthorizationManager` implementations must take `Supplier<? extends Authentication>`. | [Spring Security 7](#spring-security-7) |
+| Build plugins (#783) | Your `pom.xml` declares `lombok-maven-plugin` through the AWE plugin management and the build cannot resolve its version; `selenium-server` has no managed version. | Declare `maven-antrun-plugin` for delombok (AWE's `delombok` execution) or drop it; declare the `selenium-server` version yourself. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
+| Maintain transactions (#781) | A maintain that fails now leaves nothing behind: maintains launched from Java services and `retrieve-data` join the outer maintain, a step that returns `ERROR` rolls back, and a maintain launched inside an application `@Transactional` joins that transaction. A test that reads with its own JDBC connection inside a `@Transactional` test does not see the rows (or waits on a lock). | Nothing for correct maintains. If the application relies on partial commits, set `awe.maintain.transaction.enabled=false` or move that work to its own maintain. In tests, read through the transaction (`JdbcTemplate`, `TransactionAwareDataSourceProxy`). | [Maintain transactions](#maintain-transactions), [Transactions](../api/maintain-definition.md#transactions) |
+| Server-only maintain targets (#886, new) | A client request (`/action/maintain`, the file maintain endpoints, `/api/maintain`) that launches one of the framework targets that only Java launches (for example `addToFavourites`, `updateUserMode`, `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `insert-user-subscription`) now fails with the *access denied* error, even with a session. | Launch the client target that wraps it (`clickFavourite`, `selectDarkMode`, `toggle-web-subscription`...) or call the Java service. Mark your own Java-only targets with `server-only="true"`. | [Server-only maintain targets](#server-only-maintain-targets), [Server-only targets](../api/maintain-definition.md#server-only-targets) |
+| Server-only queries (new) | A client request (`/action/data`, `/api/data`, `/api/public/data`) that launches one of the framework login queries (`userDetails`, `userDetailsByEmail`, `userDetailsByProfile`, `checkProfileExists`...) now fails with the *access denied* error, even with a session. | Define your own query with the fields the client needs, reading the user from the session. Mark your own Java-only queries with `server-only="true"`. | [Server-only queries](#server-only-queries), [Server-only queries](../api/query-definition.md#server-only-queries) |
+| Access by screen (#914, new) | A client request that launches a maintain target or a query used by a menu screen (`/action/...`, the file maintain endpoints) is refused unless the session user can open at least one of the options whose screen uses it. The REST API (`/api/...`) is not checked by screen access, only by the permissions, and answers `403` to a refused request. | Run with `awe.security.authorization.mode=warn`, read the log and the `ACCESS_DENIED` events, fix screens and restrictions, then leave the default `enforce`. `off` keeps the AWE 4 behaviour. | [Access by screen](#access-by-screen), [Screen access](../security/screen-access.md) |
+| Additional profiles (new) | Flyway applies `AWE_V1.6.0__authorization.sql` and creates the `AweOpeRol` table (additional profiles of a user, unique by user and profile), its audit table `HISAweOpeRol` and the `OpeRolKey` key. The script can be applied again. Users without additional profiles behave as before. A user with additional profiles opens the windows that any of its active profiles opens (the restriction file of the user, when it has one, has the last word over every profile, and then the `AweScrRes` user rows), gets one `ROLE_<profile name>` authority per profile in the web session and with a `local-jwt` token of the REST API, and the session has the new values `profiles`, `restrictions` and `userRestriction`. Inactive additional profiles do not count. With single sign-on, the other provider roles that exist as profiles become additional profiles. In the `oauth2-resource-server` mode of the REST API, a profile claim that holds a list gives one `ROLE_<value>` per value. | Nothing. Applications that do not use the Flyway migrations of AWE create `AweOpeRol` and `HISAweOpeRol` themselves (see the script of their database in `db/migration`). A custom `UserDAO` implementation overrides the new default methods `supportsAdditionalProfiles`, `findAdditionalProfiles` and `findProfileId` to support additional profiles; while `supportsAdditionalProfiles()` returns `false`, the SSO login leaves `AweOpeRol` untouched. | [Additional profiles](#additional-profiles), [Additional profiles](../security/additional-profiles.md) |
+| Permissions (new) | A query or a maintain target can declare a `permission` attribute: a client launches it only when the session user has every permission it lists, after the access by screen. The catalog is the new descriptor `global/Permissions.xml`, the assignments to profiles are the rows of the new table `AweProPer` (`AWE_V1.6.0__authorization.sql`, which gives `*` to the administrator profile `ADM`) and the effective permissions are loaded at login as `PERM_<id>` authorities. A `<service>` can declare `permission` too, and the services that launch the query or target of the client are marked `authorization="target"`. The administration screens of AWE and of the scheduler, developer, tools and notifier modules declare `users`, `profiles`, `system`, `access`, `audit`, `themes`, `scheduler`, `developer`, `sql-extractor` and `subscriptions` permissions. **Upgrade impact: with `enforce` (the default), a profile other than the administrator that uses those administration areas today loses them until it gets rows in `AweProPer`; 23 administration targets of the developer, scheduler and tools modules are no longer public; selectors of an administration area require its permission; `ActionService` requires a `TargetLaunchAuthorizer`.** | **Before the upgrade reaches the users, give the profiles that use an administration area its permissions in `AweProPer` (for example `users.*`, `profiles.*`, `system.read` or `scheduler.*`)**; run with `awe.security.authorization.mode=warn` first and read the `ACCESS_DENIED` events with the `PERMISSION` cause to find the refusals. A custom `UserDAO` overrides the new default methods `findPermissions` and `findAllPermissions`: without them no profile has permissions, not even the administrator. | [Permissions](#permissions), [Permissions](../security/permissions.md) |
+| Date utilities (#782) | The compiler warns that `DateUtil` methods that take or return `java.util.Date` or `Calendar` are deprecated. | Nothing is required: they keep their behavior and are not removed before 6.0. Move to the `java.time` methods of `com.almis.awe.model.util.data.date`. | [Date utilities](#date-utilities) |
+| MenuService (#782) | Only for projects that extend `MenuService`: a method you override is no longer called by the other `MenuService` methods (for example, overriding `getOptionByName` no longer changes `getOptionScreen`). The compiler warns that the seven-argument `MenuService` constructor is deprecated. | Nothing if you only call `MenuService`. If you extend it, move the customization to your own bean of the collaborator that owns the method. | [MenuService](#menuservice) |
+| Spring Session with Redis (#861) | With several instances, users are logged out at random and screens fail after login (for example `Index 0 out of bounds for length 0`): the session cookie is `JSESSIONID` instead of `SESSION`, because the sessions stay in each server. | Replace `spring-session-data-redis` with `spring-boot-starter-session-data-redis`, rename `spring.session.redis.*` to `spring.session.data.redis.*` and update the Redis classes in `spring.autoconfigure.exclude`. | [Java 21 and Spring Boot 4.1](#java-21-and-spring-boot-41) |
+| `TemplateService.getTagList(Screen, String)` (#861) | Code that calls this method directly does not compile: it now declares `throws AWENotFoundException`. A tag list missing from the screen raises this error instead of an `IndexOutOfBoundsException`. | Catch or propagate `AWENotFoundException` (or `AWException`). | issue #861 |
+| SQLBuilder (#782) | Only for projects that extend `SQLQueryBuilder` or `SQLMaintainBuilder` and call removed private methods of `SQLBuilder` by reflection. The protected methods keep their signatures and still call each other in the same order. | Nothing if you only override protected methods. Replace reflective calls to the removed private methods with the protected methods. | [SQLBuilder](#sqlbuilder) |
+| Screen contract actions (#823) | Java code that uses the `awe-builder` `Action` enum now sends `check-records-generated`, `select-first-row` and `select-last-row` (they used to send names that no engine handled, so the action did nothing). The AngularJS engine now runs `toggle-class`, and the React engine shows `target-message` as a popover on the target component, as AngularJS does. The compiler warns that `Action.FORWARD`, `GET_LOCALS`, `CHECK_LEAF_SELECTED` and `CHECK_PARENT_SELECTED` are deprecated, and the IDE marks some XML values as deprecated. | Check the screens where these actions now run. Remove the deprecated values: they do nothing and are removed in 6.0. | [Screen contract values](#screen-contract-values) |
+| Menu options (#934) | A screen opened from the menu no longer receives the criteria, grid selections and other values of the screen the user was on: its `on-load` maintain does not get them and the menu option server action only sends the values of the main frame (menu and header). `keep-criteria` still saves the criteria of the screen left. `screen` actions launched from inside a screen still send the values of the screen. | Nothing, unless a screen relied on receiving the values of the previous screen when opened from the menu: pass them explicitly from a button or a service instead. | [Values sent when an option is clicked](../api/menu-definition.md#option-values) |
+| Virtual threads (#783, new) | Nothing changes unless you set `spring.threads.virtual.enabled=true`. | Optional: set the property to run Spring Boot and the AWE task executors on virtual threads. | [Virtual threads](../deployment.md#virtual-threads) |
+| Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
+| Themes and dark mode (AngularJS client) | The screens take the AWE 5 look of the theme: a theme name (`default`, `sunset`...) or a database theme is a preset of a primary, a surface and a mode, rendered on `<html>` (`dark` / `light` class, `data-awe-primary`, `data-awe-surface`, `data-awe-density`). The classic LESS themes, the `.theme-<name>` rules and `/css/themeVariables.css` are gone (the server no longer serves it: the request answers 404): CSS of the application that sets the AWE 4 theme variables (`--primary-color`, `--panel-background-color`...) or styles `.theme-<name>` changes nothing, and the *Customize theme* screen is gone (the `Customize` button of the *Themes* screen, the `customize-theme` menu option, the `customizeTheme` maintain, the `themeConfiguration` and `nextIdForThemeColors` queries and the locale keys only that screen used, such as `SCREEN_TITLE_THM_CUSTOM`): the colours it saved (table `AweThmCol`, kept unused) are not applied. Users that never chose a mode get the one of their operating system. | Read the `--awe-*` tokens in your CSS instead of the theme variables, and style the mode with `html.dark` if you must. Give a theme its colours with its primary, surface (palette or hex) and mode in the new and update screens of *Themes*, or with the `awe.application.theme-*` properties. Remove the `customize-theme` option (screen `customize-themes`) from the `private.xml` menu of your application. To ignore the operating system set `awe.application.theme-mode=light` (or `dark`); `@awe-follow-os-color-scheme` no longer does anything and the property `awe.application.theme-follow-os-color-scheme` is removed: delete it from your configuration. | [Design tokens and dark mode](design-tokens-guide.md), [Theme configuration](../design-system/for-developers.md) (issues #770, #885) |
+| Bootstrap grid, panels and utilities (AngularJS client, #755) | Nothing changes on a screen that writes these classes in the `style` of an XML screen or in a template: the grid (`col-*`, `container`, `row`), the panels (`panel*`) and the utilities (`pull-*`, `hide`, `show`, `hidden*`, `visible-*`, `clearfix`, `center-block`, `text-hide`) are now served by the compat layer. But a product LESS that called their Bootstrap rule sets (`.pull-right;`, `.hidden;`, `.panel;`, `.row;`...) or extended them (`&:extend(.clearfix all)`, `&:extend(.pull-right)`) silently loses those declarations (Less drops them without an error), `.affix` is gone, and the classes need a browser with cascade layers (Chrome 99, Firefox 97, Safari 15.4). A rule of your own now wins over these classes whatever its specificity or the order of the files (for example `td { padding: 0 }` over `col-*` on a cell). For that reason the accordion rules (`.panel-group`) and the base rule of the columns stay in LESS while the pixel-admin and AWE LESS ship. | Replace the call or the extend with the declarations you need, or with the mixin (`.clearfix()` still exists), and write `.affix` yourself if you used it. The pixel diff of the AWE screens before and after the removal is identical. | [Tailwind and compatibility](tailwind-compat-guide.md) (issue #755) |
+| Bootstrap buttons, button groups, forms and input groups (AngularJS client, #755) | Nothing changes on a screen that writes `btn*`, `form-*`, `input-group*`, `checkbox`, `radio` or `has-*` classes: they are served by the compat layer and their vendored Bootstrap rules are removed (`buttons.less`, `button-groups.less`, `forms.less`, `input-groups.less`). A product LESS that called their Bootstrap rule sets (`.btn-lg;`, `.btn-group-justified;`, `.form-inline();`) or extended them (`&:extend(.btn-xs)`) silently loses those declarations (Less drops them without an error): AWE keeps `.btn-lg()`, `.btn-group-justified()`, `.form-inline()` and the group-size extends in its `*-leftovers.less`, but your own calls to other removed rule sets are dropped. The compat classes sit in a cascade layer, so any unlayered rule of yours wins over them whatever its specificity; for the same reason the rules that used to win over a pixel-admin or AWE rule (disabled button colors, `.btn:active`, group sizes) stay unlayered in `libs/bootstrap-3.3.2/*-leftovers.less` while those LESS ship. | Replace the call or the extend with the declarations you need. Do not edit the leftovers files; they leave with the pixel-admin rules in slice 6. The pixel diff of the AWE screens before and after the removal is identical. | [Tailwind and compatibility](tailwind-compat-guide.md) (issue #755) |
+| pixel-admin LESS (AngularJS client, #755) | pixel-admin is no longer a vendored library; its rules used by AWE live in `less/legacy/pixel-admin` (entry `legacy/pixel-admin/pixel-admin.less`) and the unused files are deleted. The compiled CSS is identical, so nothing changes on a screen. | A product LESS that imports `libs/pixel-admin-less/...` (variables or mixins) changes the path to `legacy/pixel-admin/...`; a product that only builds on `awe.less` needs nothing. | [Tailwind compatibility layer](./tailwind-compat-guide.md) |
+| Bootstrap dropdowns, navs, navbar, modals, tooltip, popovers and component animations (AngularJS client, #755) | Nothing changes on a screen that writes `dropdown*`, `caret`, `nav*`, `tab-content`, `tab-pane`, `navbar*`, `modal*`, `close`, `popover*`, `tooltip*`, `fade`, `collapse` or `collapsing` classes: the compat layer serves them and their vendored Bootstrap rules are removed (`dropdowns.less`, `navs.less`, `navbar.less`, `modals.less`, `close.less`, `popovers.less`, `tooltip.less`, `component-animations.less`). A product LESS that called or extended one of the rule sets they defined (`&:extend(.navbar-nav)`, `.fade;`, `.caret;`, `.modal-content;`, `.tooltip-inner;`...) silently loses those declarations (Less drops them without an error). The compat classes sit in a cascade layer, so your own unlayered rule for the same class wins over them whatever its specificity, and the rules that used to win over a pixel-admin, theme or AWE rule (the dropdown menu and its links, `.nav-tabs`, the navbar links, the popover arrows...) stay unlayered in `libs/bootstrap-3.3.2/*-leftovers.less` while those LESS ship. The values of the removed rules are frozen as compiled: a Bootstrap LESS variable that a product overrides with `modifyVars` (the `.close` font size `19.5px`, the active dropdown and nav colors `#337ab7`) no longer changes them, while CSS custom properties (`var(--x, fallback)`) still follow the runtime theming. | Replace the call or the extend with the declarations you need. Do not edit the leftovers files; they leave with the pixel-admin rules in slice 6. If your own `!important` rule must win over a compat class, keep it unlayered (the compat layer never sets `!important` on a class that another rule marks `!important`). The pixel diff of the AWE screens before and after the removal is identical. | [Tailwind and compatibility](tailwind-compat-guide.md) (issue #755) |
+| Bootstrap tables, labels, badges, wells, alerts, breadcrumbs, progress bars and pagination (AngularJS client, #755) | Nothing changes on a screen that writes `table*`, `label*`, `badge*`, `well*`, `alert*`, `breadcrumb*`, `progress*` or `pagination*` classes: the compat layer serves them and their vendored Bootstrap rules are removed (`tables.less`, `labels.less`, `badges.less`, `wells.less`, `alerts.less`, `breadcrumbs.less`, `progress-bars.less`, `pagination.less`). A product LESS that called or extended one of the rule sets they defined (`&:extend(.label)`, `.well;`, `.alert;`, `&:extend(.table all)`...) silently loses those declarations (Less drops them without an error); the mixins (`.label-variant()`, `.alert-variant()`, `.progress-bar-variant()`...) still exist. The compat classes sit in a cascade layer, so your own unlayered rule for the same class wins over them whatever its specificity, and only 42 of the 263 compiled rules left the build: the rest stays unlayered in `libs/bootstrap-3.3.2/*-leftovers.less` while the pixel-admin and AWE LESS ship (the cells and rows of `.table`, the pagination, the base label, badge, alert and well rules). The striped progress bar and its width transition read `--awe-motion-duration-slow`, so they stop moving when the user asks for reduced motion. The AWE 5 message toast, the breadcrumb bar and the grid pager keep their AWE rules. The values of the removed rules are frozen as compiled: a Bootstrap LESS variable that a product overrides with `modifyVars` (`@table-border-color`, `@label-default-bg`, `@alert-success-bg`...) no longer changes them. | Replace the call or the extend with the declarations you need. Do not edit the leftovers files; they leave with the pixel-admin rules. Review the screens that use these classes in light and dark: they read the `--awe-*` tokens and can look different from AWE 4. | [Tailwind and compatibility](tailwind-compat-guide.md) (issue #755) |
+| Bootstrap pager, media object, jumbotron, carousel and icon font (AngularJS client, #755) | The vendored Bootstrap rules of `pager`, `media*`, `jumbotron`, `carousel*` and the Glyphicons Halflings font (`glyphicon*`) are removed (`pager.less`, `media.less`, `jumbotron.less`, `carousel.less`, `glyphicons.less`, the font files, the optional `theme.less` and the `.pre-scrollable` helper), and **no compat CSS replaces them**: nothing in the framework writes these classes. A product screen or template that writes one of them loses its look, and its LESS that called or extended one of their rule sets silently loses those declarations (Less drops them without an error). `list-group*`, `thumbnail` and `embed-responsive*` keep their look: something in the framework still writes them (the notifier settings screen and the file manager), so the compat layer serves them and only 2 of their 83 compiled rules left the build. | Provide your own CSS for each of these classes you write (or replace them with Tailwind utilities, an icon from the Lucide set or your own font). Nothing to do if you never wrote them. | [Tailwind and compatibility](tailwind-compat-guide.md) (issue #755) |
+| Bootstrap base styles (AngularJS client, #755) | The vendored Bootstrap `normalize.less`, `print.less`, `scaffolding.less`, `type.less` and the element rules of `code` are served by the compat layer (`normalize.css`, `print.css`, `scaffolding.css`, `type.css`, `code.css`), so the headings, the paragraphs, the lists, the links, the contextual text and background classes, the blockquotes and the code read the AWE 5 tokens. 226 of their 300 compiled rules left the build and 74 stay in the LESS (`normalize-leftovers.less`, `print-leftovers.less`, `scaffolding-leftovers.less`, `type-leftovers.less`, `pre-leftovers.less`): `html`, the print rules that print black on white and the rules that a pixel-admin or AWE rule would beat. The values that left follow the tokens: heading sizes follow the type scale (33, 27, 23, 17, 13 and 12px become 30, 24, 20, 18, 14 and 12px, one px less in the compact density), paragraph and list margins are 8px instead of 9px and the larger ones 20px instead of 18px, the blockquote bar is 2px instead of 5px, and `.lead` is 400 instead of 300. What a pixel-admin or AWE rule sets on the same element keeps winning, as before. | Nothing to do unless your own LESS or screens relied on the exact Bootstrap heading sizes, margins or colors. A LESS of yours that calls or extends a rule set of `type.less` or `scaffolding.less` (other than `.text-success`, `.text-info`, `.text-warning`, `.text-danger` and `.img-responsive`, which stay) loses those declarations without an error. | [Tailwind and compatibility](tailwind-compat-guide.md) (issue #755) |
+| Bootstrap 3 LESS leftovers (AngularJS client, #755) | The variables, mixins, grid columns and unlayered leftovers of Bootstrap 3 move from `libs/bootstrap-3.3.2` to `less/legacy` (entry `legacy/legacy.less`, the former `bootstrap.less`). The compiled CSS is identical, so nothing changes on a screen. | A product LESS that imports `libs/bootstrap-3.3.2/...` (variables or mixins) changes the path to `legacy/...`; a product that only builds on `awe.less` needs nothing. | [Tailwind compatibility layer](./tailwind-compat-guide.md) |
+| Bootstrap classes follow the AWE 5 tokens (AngularJS client, #755) | The compat classes that replace the vendored Bootstrap 3 rules (grid, panels, utilities, buttons, forms, input groups, dropdowns, navs, navbar, modals, tooltip, popovers, tables, labels, badges, wells, alerts, breadcrumbs, progress bars, pagination) read the `--awe-*` tokens instead of the Bootstrap colours and pixel sizes, so a screen that writes those classes follows the theme, the mode and the density, and **can look different** from AWE 4 (colours, spacing, radii, shadows). New tokens: `--awe-border-width`, `--awe-border-width-strong`, `--awe-grid-container-sm`, `--awe-grid-container-md`, `--awe-grid-container-lg`. | Review the screens that use these classes in light and dark; set the look with the theme (`awe.application.theme-*`), not with CSS of the application on these classes. | [Tailwind and compatibility](tailwind-compat-guide.md) (issue #755) |
+| Bootstrap JavaScript (AngularJS client, #755) | The client no longer ships the JavaScript of Bootstrap 3: dialogs, side panels, the confirm dialog, the target-message popover, the user and info dropdowns, the tab overflow menu and the accordion run on native code with the same markup, classes and timing. Nothing changes on an AWE screen. A product template or script that relied on the Bootstrap data-api or its jQuery plugins (`data-toggle="modal"`, `"collapse"`, `"tab"`, `"tooltip"`, `"popover"`, `"buttons"`, `data-target`, `data-parent`, `data-dismiss="alert"`, `$(el).modal(...)`, `.popover(...)`, `.tooltip(...)`, `.collapse(...)`, `.dropdown(...)`, `.tab(...)`, `.button(...)`) stops working: there is no such function and the attribute does nothing. | Use the AWE equivalent (see the section below): the `awe-dialog`, `awe-side-panel` and `awe-confirm` components, `AweModal`, `data-toggle="dropdown"`, `data-dismiss="modal"`, `awe-popover`, the AWE tabs and accordion. Remove `bootstrap` from your own `package.json` if it was there only for AWE. | [Bootstrap JavaScript is no longer shipped](#bootstrap-javascript-is-no-longer-shipped), [Tailwind and compatibility](tailwind-compat-guide.md) (issue #755) |
+| Splash (both clients) | While the page loads, the AWE logo fills up with a liquid instead of the rotating dots, on a light or dark background. `css/splash.css` and the splash markup of the page template change: CSS of the application that styles `#splash` or `.spinner` no longer applies. The page template has a one-line inline script that sets the last colour mode of the browser (local storage key `awe-theme-mode`) before the splash paints. | Optional: set `awe.application.paths.image-splash-logo` to show the logo of the application. An application with a Content-Security-Policy without `'unsafe-inline'` allows the inline script with `script-src 'sha256-KN8XY3QV0HIeZ1EJI8sJgOS5c+l2oqLH69zuAHbB7JQ='`; otherwise the splash follows the system preference. | [Splash](../design-system/layout-and-shell.md#splash) |
+| Loading indicators (both clients) | A grid or tree grid without `icon-loading` shows placeholder rows shaped like its columns while its rows load, instead of the spinner. A screen shows a placeholder layout while it opens; the first screen of the page (opening the application or reloading it) loads under the splash animation instead. Criteria show a placeholder with their shape (label and field, textarea rows, checkbox or radio, picklist options), buttons one as wide as their label, and charts their area with a hint of the chart type. Skeleton visuals appear only after 150 ms, so fast loads show nothing, and the shimmer stops with `prefers-reduced-motion: reduce`. A grid reload with rows on screen shows the placeholder rows too; with `icon-loading="skeleton-dim"` it keeps the rows dimmed instead of replacing them. Criteria, buttons and charts with a custom `icon-loading` keep their icon. The `data-testid` values of the loaders do not change, so browser test waits keep working. | Nothing. To keep the spinner in one grid, set `icon-loading="spinner"` on it; to keep it in every grid, set `awe.application.component.grid-icon-loading=spinner`. To dim the rows on a reload instead of showing the placeholders, use `skeleton-dim` in the attribute or the property. | [Grid attributes](../api/grids.md#general-attributes), [Properties](../properties#awe.application.component.grid-icon-loading) (issues #774, #856, #864) |
+| Security audit (#779, new) | Flyway applies `AWE_V1.3.0__Security_audit_events.sql` and creates the `AweSecAudEvt` table; security events are recorded in it and in the `awe.security.audit` logger; the **Security audit** option appears in the security menu. | Nothing. To switch the audit off set `awe.security.audit.enabled=false`; restrict the new option to the profiles that may see it. See the note below the table. | [Security audit](#security-audit), [Security audit page](../security/security-audit.md) |
+| Password hashing (#778) | New passwords are stored as BCrypt hashes (`{bcrypt}$2a$...`, 68 characters) instead of RIPEMD-160 hashes (40 characters), and each user is rehashed at the next successful login. Flyway applies `AWE_V1.4.0__Password_hash_length.sql`. Own XML that compares `l1_pas` with `STRING_HASH_RIPEMD160` stops matching the rehashed users, and external systems that read `l1_pas` find a format they do not know. | Widen `l1_pas` before the upgrade if you manage your own schema, write passwords with `STRING_HASH_PASSWORD` and check them in Java, and keep `awe.security.password-encoder=ripemd160` while an external system still reads `l1_pas`. Back up `ope`: rehashed users cannot log in to AWE 4 again. | [Password hashing and master key](#password-hashing-and-master-key) |
+| Master key (#778) | The application does not start: `awe.security.master-key is required: it encrypts stored data ...`. | Set `awe.security.master-key`. An application that never set it must set the former AWE 4 default value to keep decrypting its stored data, and then plan a rotation. | [Master key](#master-key) |
+| Grid toolbar | Every grid shows a toolbar with a *Columns* button and a *Maximize* button, and a new table `AweUsrGrdCnf` is created by the Flyway migration `AWE_V1.3.1` (it stores the column layout of each user). The Columns open in a popover anchored to the button (`columns-panel="popover"`, the default), with *Restore default*, *Cancel* and *Save*; there is no *Show all*. *Save* and *Restore default* show no message when they work, and *Save* closes the Columns. In React, the group headers of a grid are now computed from the visible columns of each group. | Nothing for the descriptors, which keep working. Set `show-toolbar="false"` on the grids that must not show the toolbar. To keep the modal dialog, set `columns-panel="dialog"` on the grid or `awe.application.component.grid-columns-panel=dialog`. Browser tests: replace `clickGridColumnsShowAll` (deprecated) with `showGridColumn` for each hidden column, and drop the success message checks after `clickGridColumnsSave` / `clickGridColumnsReset` (the steps wait for the save). Applications that do not use the Flyway migrations of AWE have to create `AweUsrGrdCnf` themselves (see the script of their database in `db/migration`). | [Toolbar](../api/grids.md#toolbar), issue #813 |
+| Grid toolbar buttons | The end buttons of the grid toolbar (*Group by*, *Saved searches*, *Columns* and *Maximize*) show only their icon by default, in both engines; their label is the tooltip and the accessible name. New grid attributes `show-columns-button`, `show-maximize-button` and `toolbar-labels`. | Set `awe.application.component.grid-toolbar-labels=true` to keep the labels in every grid, or `toolbar-labels` on one grid: `true` for every end button, or a list of the buttons that keep it, such as `toolbar-labels="saved-searches"`. A grid with `show-columns-button="false"` ignores the column layout stored by its users. | [Labels of the toolbar buttons](../api/grids.md#toolbar-labels) |
+| Advanced search state (#790, new) | Flyway applies `AWE_V1.5.1__window_advanced_state.sql` and creates the `AweUsrWinCnf` table (and the `WinCnfKey` key). It only stores, per user and screen, whether the inline advanced block of a window was left open: windows without an `<advanced>` block do not use it. The script can be applied again. | Nothing. Applications that do not use the Flyway migrations of AWE have to create `AweUsrWinCnf` themselves (see the script of their database in `db/migration`). | [Advanced search](../api/window.md#advanced-search), issue #790 |
+| Saved searches (#790, new) | Flyway applies `AWE_V1.5.2__saved_searches.sql` and creates the `AweSavSch` table (and the `SavSchKey` key). It stores the searches users save in the windows with `saved-searches="true"`: own searches and searches published for a profile. Windows without the attribute do not use it. The script can be applied again. | Nothing. Applications that do not use the Flyway migrations of AWE have to create `AweSavSch` themselves (see the script of their database in `db/migration`). Who publishes for a profile is decided by the access to the menu option of `awe.saved-search.publish-option` (default `profiles`). | [Saved searches](../api/window.md#saved-searches), issue #790 |
+| Default saved search (#915, #945) | Flyway applies `AWE_V1.6.1__default_saved_search.sql`: it adds `AweUsrWinCnf.DefSavSch` and `AweSavSch.Def` and makes `AweUsrWinCnf.AdvOpn` nullable. A user or a profile can choose the search a window or a grid opens with. | Nothing with the AWE Flyway migrations. An application that manages its own schema applies the script of its database in `db/migration`. | |
+| Theme model (#885) | Flyway applies `AWE_V1.5.0__Theme_primary_surface.sql`: `AweThm` (and `HISAweThm`) gain the primary colour, surface and mode of a theme (`Pri`, `Srf`, `Mde`), filled from the light colours of `AweThmCol`, and `AweUsrSet` gains the density of the user. `AweThmCol` is kept but no longer used. | Nothing with the AWE Flyway migrations. An application that manages its own schema applies the script of its database in `db/migration` (it can be applied again: it only fills empty values). | [Colour and themes](../design-system/color-and-themes.md) |
+| HTML in React grid cells (#829) | A grid cell of the React client that renders HTML from the data loses its scripts, event handlers, `javascript:` links, inline `style` and `data-*` attributes; simple formatting tags (`b`, `em`, `span`, `a`, lists...) and the `class`, `href`, `target` and `title` attributes are kept. | Style the HTML of a cell with a CSS class instead of an inline `style`. | |
+| Map (AngularJS client) | The legacy `aweMap` directive and the vendored `angular-google-maps`, never bundled, are removed (#798, #882). | Use the new `map` screen element (Leaflet with OpenStreetMap tiles), available in both web engines. | |
+| AngularJS engine (#776) | Nothing changes: the AngularJS engine keeps working, `angular-ui-grid` included. It is frozen in AWE 5: its components are not replaced or extended, and new components land in the React engine only. | Plan new screens and components on the React engine. | |
+| Screen personalization (#792, new) | The *Screen configuration* option opens a visual editor in both engines: the rules of a screen are chosen element by element, validated, listed in an overview, kept in a history and exported or imported as a file. Flyway applies `AWE_V1.6.2__Screen_configuration_history_timestamp.sql`, which turns `HISAweScrCnf.HISdat` into a timestamp so the history shows the time of each change. The editor queries require `access.read` and saving requires `access.update`; every rule of a screen the user cannot open is refused. A sequence key of a grid `multiple` maintain is now stored only in the row it belongs to (before, it replaced the values of every row). | Nothing for the administrator profile. With `enforce`, give the other profiles that configure screens `access.read` and `access.update` in `AweProPer`. Applications that do not use the Flyway migrations of AWE alter `HISAweScrCnf` themselves (see the script of their database in `db/migration`). | [Screen personalization](screen-personalization.md), issue #792 |
+| Icons (both clients) | Icons look different: every Font Awesome name (`icon="name"`) and `mdi:` name of the equivalence table is drawn as a Lucide line icon, an inline `svg` that uses the sprite `icons/lucide-sprite.svg`, instead of the `fa fa-<name>` or Material Icons element (and, in React, instead of the PrimeIcons of the AWE components). Names without equivalence (brand icons such as `rebel`) keep their font. CSS of the application that targets the font glyph (`.fa-<name>:before`, `content` or `font-size` on `.fa`, `.pi-*`) no longer applies to the mapped icons. The element keeps the XML name in `data-icon`, so browser tests that locate icons keep working. | Nothing for the descriptors. Move the CSS that styled the glyph to the `svg.awe-icon` (it takes the text colour, `currentColor`, and the `--awe-size-icon` tokens). For new screens use `icon="lucide:<name>"` with any Lucide name. | [Icons](../api/icons.md), [Equivalence table](../api/icons.md#equivalence-table) (issue #885) |
+| Icon sprite and security configuration | The sign-in page (and every public screen) shows no icons: `GET /icons/lucide-sprite.svg` answers `401` because the application builds its own security configuration with its own list of public web resources. | Add `/icons/**` to the public web resources of your security configuration, next to `/css/**`, `/js/**` or `/fonts/**`. The AWE security configuration already allows it. | issue #885 |
+| Messages (AngularJS client) | The alerts of the message zone are toasts at the top right, below the header, tinted with the colour of their type, as in the React client. | Nothing. Review CSS of the application that positions or styles the alerts of the message zone. | [Overlays](../design-system/components.md#overlays) (issue #885) |
+| Dialogs and confirms (AngularJS client) | When a confirm or a screen dialog opens, the keyboard focus moves into it (its first control) and goes back to the control that opened it when it closes. Escape now closes a confirm (as its cancel button: the action is rejected) and a dialog with a title (as its close button); a dialog without a title still does not close with Escape. A browser test that pressed Escape expecting nothing to happen, or that types on the page while a dialog is open, behaves differently. | Review browser tests that press Escape with a confirm or a dialog open, or that rely on the focus staying on the page. | issue #885 |
+| Grid row height (AngularJS client) | Grid rows are 43 px high in the comfortable density and 32 px in the compact one (they were 27 px) and change when the user changes the density. A `row-height` set in the XML is kept, and is now honoured on tree grids too (they ignored it and used 27 px). | Nothing. Set `row-height` on a grid that must keep a fixed height, and check the tree grids that set it. | [Grid attributes](../api/grids.md#general-attributes) (issue #885) |
+| Sign-in, change password and 2FA screens (both clients) | The sign-in, the change and expired password and the 2FA screens take the AWE 5 login layout: a form column next to a brand panel (hidden on narrow screens), large controls and full-width buttons. In AngularJS the pixel-admin `pages/signin.less` is no longer imported, so CSS of the application that overrides its rules may no longer apply. In AngularJS `awe.application.paths.image-startup-background` and `awe.application.paths.image-startup-logo` still style the change password and 2FA screens; for the sign-in page see the next row. | Review the CSS of the application that styles these screens, in light and dark. | [Login page](../design-system/layout-and-shell.md#login-page) (issue #885) |
+| Configurable sign-in page (both clients, new) | The sign-in page is branded with the `awe.application.login.*` properties: layout (`split`, `form-only` or `card`), logo and dark mode logo, background image, form title and subtitle, caption over the image, footer text and "Powered by AWE 5". `awe.application.paths.image-startup-logo` and `awe.application.paths.image-startup-background` are deprecated for the sign-in page: a value changed from its default is still used when `awe.application.login.logo` or `awe.application.login.background` is not set. The change password and 2FA screens of AngularJS keep using them. | Move a customized `image-startup-logo` and `image-startup-background` to `awe.application.login.logo` and `awe.application.login.background`, with a URL relative to the application root (without the leading `../`). Optional: set the rest of the `awe.application.login.*` properties. | [Login page](../design-system/layout-and-shell.md#login-page), [AWE Base Properties](../properties.md#awe-base-properties) |
+| Resizable (both clients) | Dragging the grabber of a `<resizable>` works as a splitter: it follows the pointer and only the element next to the grabber gives or takes the size, so the other panes of the parent no longer shrink or grow with it (they used to share the change). After a drag that element keeps its size along the axis, and the other expanding elements take the changes of the window size. In React, a resizable no longer splits its children in panels (#847): children that relied on a splitter between them are stacked. | Nothing for screens with the AngularJS structure (a resizable around one pane, its neighbour next to it). In React screens, put the second pane next to the resizable instead of inside it. | [Resizable](../api/resizable.md#how-a-drag-shares-the-space) (issue #892) |
+| Dark mode (React client) | The `layout-dark` and `layout-light` classes are no longer set on `<body>`: the mode is the `dark` or `light` class of `<html>`, next to `data-awe-primary`, `data-awe-surface` and `data-awe-density`. CSS of the application on `.layout-dark` no longer applies. The theme stylesheet `<link>` and the 18 compiled PrimeReact themes are gone: PrimeReact reads the AWE 5 tokens. | Style the mode with `html.dark`, or better with the `--awe-*` tokens, which already change with the mode. Remove the `add-class`/`remove-class` dependencies on `layout-dark` from your own copy of `info-buttons.xml`. | [Design tokens and dark mode](design-tokens-guide.md), [Theme configuration](../design-system/for-developers.md) (issue #885) |
+| User screens (both clients) | The *Users* option of the default menu (and of the archetypes) opens the new `user-admin` screen: a grid with search, quick filters and row actions and a side panel to create and edit users. The previous screens `Usr`, `UsrNew`, `UsrUpd` and `UsrViw` are deprecated and will be removed in 5.1.0. Grid columns with `component="button"` are no longer listed in the Columns of the grid toolbar nor printed or exported, and the React engine now honours `printable="false"`. | Point your own menu options from `Usr` to `user-admin` before 5.1.0. If you override the user queries or maintains (`UsrLst`, `UsrNew`, `UsrUpd`, `UsrDel`, `reset2fa`), the new screen uses them; check that the overrides keep the fields it reads. Browser tests that open the *Users* option expect the new screen. | [Users](default-screens.md#users) (issue #793) |
+| Profile screens (both clients) | The *Profiles* option of the default menu (and of the archetypes) opens the new `profile-admin` screen, built like `user-admin`: a grid with search, quick filters and row actions and a side panel to create and edit profiles. The previous screens `Prf`, `PrfNew`, `PrfUpd` and `PrfViw` are deprecated and will be removed in 5.1.0. `ProUpd` no longer writes the profile identifier, it only audits it. | Point your own menu options from `Prf` to `profile-admin` before 5.1.0. If you override the profile queries or maintains (`ProLst`, `ProNew`, `ProUpd`, `ProDel`, `check-profile-acronym`), the new screen uses them; check that the overrides keep the fields it reads and accept the identifier as a list. Browser tests that open the *Profiles* option expect the new screen. | [Profiles](default-screens.md#profiles) (issue #793) |
+| Theme screens (both clients) | The *Themes* option of the default menu (and of the archetypes) opens the new `theme-admin` screen, built like `user-admin`: a grid with search, quick filters and row actions and a side panel to create and edit themes with the palette selects and the colour pickers. The previous screens `Thm`, `ThmNew`, `ThmUpd` and `ThmViw` are deprecated and will be removed in 5.1.0. `ThmLst` returns new fields for the grid and `ThmStaCnt` counts its quick filters. | Point your own menu options from `Thm` to `theme-admin` before 5.1.0. If you override the theme queries or maintains (`ThmLst`, `ThmNew`, `ThmUpd`, `ThmDel`), the new screen uses them; check that the overrides keep the fields it reads and accept the identifier as a list. | [Themes](default-screens.md#themes) (issue #793) |
+| Database screens (both clients) | The *Databases* option of the default menu (and of the archetypes) opens the new `database-admin` screen, built like `user-admin`: a grid with search, quick filters and row actions and a side panel to create and edit connections with their sites and modules. The previous screens `Dbs`, `DbsNew`, `DbsUpd` and `DbsViw` are deprecated and will be removed in 5.1.0. `DbsLst` returns new fields for the grid and `DbsStaCnt` counts its quick filters. `DbsUpd` reads the connection of the site rows from `IdeDbs.selected` when it comes (the selected row of the grid). | Point your own menu options from `Dbs` to `database-admin` before 5.1.0. If you override the database queries or maintains (`DbsLst`, `DbsNew`, `DbsUpd`, `DbsDel`, `QryLstSitModByDbs`), the new screen uses them; check that the overrides keep the fields it reads and accept the identifier as a list. | [Databases](default-screens.md#databases) (issue #793) |
+| Site screens (both clients) | The *Sites* option of the default menu (and of the archetypes) opens the new `site-admin` screen, built like `user-admin`: a grid with search, quick filters and row actions and a side panel that creates and edits a site with the grid of its modules and databases inside it. The previous screens `Sit`, `SitNew`, `SitUpd` and `SitViw` are deprecated and will be removed in 5.1.0. `SitLst` returns the avatar and the state of each site and `SitStaCnt` counts its quick filters; the modules grid uses the new `QryLstModDbsBySitAdm`, which returns `IdeSitRow` and `SitModOrd`, and `SitNew` reads the order of the new site from `OrdCrt` (it still reads `Ord` when `OrdCrt` does not come). | Point your own menu options from `Sit` to `site-admin` before 5.1.0. If you override the site queries or maintains (`SitLst`, `SitNew`, `SitUpd`, `SitDel`, `SitNamUni`, `QryLstModDbsBySit`), the new screen uses them; check that the overrides keep the fields it reads and accept the identifier as a list. Browser tests that open the *Sites* option expect the new screen. | [Sites](default-screens.md#sites) (issue #917) |
+| Mail server screens (both clients) | The *Mail servers* option of the default menu (and of the archetypes) opens the new `email-server-admin` screen, built like `database-admin`: a grid with search, quick filters and row actions and a side panel to create and edit mail servers. The previous screens `EmlSrv`, `EmlSrvNew` and `EmlSrvUpd` are deprecated and will be removed in 5.1.0. `EmlSrvLst` returns new fields for the grid and `EmlSrvStaCnt` counts its quick filters. Mail servers get a port, a security mode (`None`, `STARTTLS`, `SSL/TLS`) and OAuth2 authentication (`Ath` 2, with the Spring Security client registration in `OauReg`): `EmlSrvNew`, `EmlSrvUpd` and `EmlSrvDel` write and audit `Prt`, `SecMod` and `OauReg`. `EmlSrvLst` no longer returns the password (`EmlPwd`) nor the `name`, `host`, `authenticated`, `user` and `pass` aliases: the mail senders read the server-only `EmlSrvSndLst`. The default sender (`awe.mail.*`) can also authenticate with OAuth2 through the new `awe.mail.oauth2-registration` property; without it, it works as before. | Point your own menu options from `EmlSrv` to `email-server-admin` before 5.1.0. If you override the mail server queries or maintains (`EmlSrvLst`, `EmlSrvNew`, `EmlSrvUpd`, `EmlSrvDel`), the new screen uses them; check that the overrides keep the fields it reads (`Prt`, `SecMod`, `OauReg`) and accept the identifier as a list. Java code that read the servers from `EmlSrvLst` reads `EmlSrvSndLst` with `QueryService.launchPrivateQuery`. | [Mail servers](default-screens.md#mail-servers), [OAuth2 authentication](default-screens.md#oauth2-authentication) |
+| Queue screens (both clients) | The *Message queues* option of the default menu (and of the archetypes) opens the new `queue-admin` screen, built like `email-server-admin`: a grid with search, quick filters and row actions and a side panel to create and edit JMS queues. The previous screens `Que`, `QueNew` and `QueUpd` are deprecated and will be removed in 5.1.0. `QueLst` returns new fields for the grid and `QueStaCnt` counts its quick filters. | Point your own menu options from `Que` to `queue-admin` before 5.1.0. If you override the queue queries or maintains (`QueLst`, `QueNew`, `QueUpd`, `QueDel`), the new screen uses them; check that the overrides keep the fields it reads and accept the identifier as a list. | [Message queues](default-screens.md#message-queues) |
+| Sequence and application parameter screens (both clients) | The *Sequences* and *Application parameters* options of the default menu (and of the archetypes) open the new `sequence-admin` and `application-parameter-admin` screens, built like `user-admin`: a grid with search, quick filters and row actions and a side panel to create and edit the record, whose name is read-only when editing. The previous screens `AweKey` and `AweAppPar` are deprecated and will be removed in 5.1.0. `AweKeyLst` and `AweAppParLst` return the state of each row (the parameters also return their category) and filter by the search text and by the state; `KeyStaCnt` and `AppParStaCnt` count the quick filters, and the maintains `AweKeyNew`, `AweKeyUpd`, `AweKeyDel`, `AweAppParNew`, `AweAppParUpd` and `AweAppParDel` work on one record each. `AweKeyUpd` names now the update of one sequence: the multiple maintain of its editable grid is `AweKeyMul`. | Point your own menu options from `AweKey` and `AweAppPar` to `sequence-admin` and `application-parameter-admin` before 5.1.0, and rename your override of the `AweKeyUpd` multiple maintain to `AweKeyMul`. If you override the queries or maintains of both screens, the new screens use them; check that the overrides keep the fields they read. Browser tests that open the *Sequences* or the *Application parameters* option expect the new screens. | [Sequences](default-screens.md#sequences), [Application parameters](default-screens.md#application-parameters) |
+| Module screens (both clients) | The *Modules* option of the default menu (and of the archetypes) opens the new `module-admin` screen, built like `site-admin`: a grid with search, quick filters and row actions and a side panel with three tabs (general, access with the profiles and users, sites and databases) that saves the module and its three grids with one action. The previous screens `Mod`, `ModNew`, `ModUpd` and `ModViw` are deprecated and will be removed in 5.1.0. The new screen has no theme (it was never applied): the `IdeThm` fields of `ModNew` and `ModUpd` are optional, so a save without a theme keeps the stored one, and `QryLstUsrByMod` lists the users that have no theme. The list uses the new `ModLstAdm`, `ModStaCnt` counts its quick filters, `ModNamUni` refuses a duplicated name and `ModDel` also reads the selected modules from `IdeModSel`. | Point your own menu options from `Mod` to `module-admin` before 5.1.0. In the deprecated screens an empty theme no longer clears the stored one. If you override `ModNew`, `ModUpd`, `ModDel` or `QryLstUsrByMod`, check that the overrides keep these changes. Browser tests that open the *Modules* option expect the new screen. | [Modules](default-screens.md#modules) |
+| Access screens (both clients) | The `screen-access` option (*Access control*, under *Security*) of the default menu (and of the archetypes) opens the new `access-admin` screen: the effective access of a profile or a user to every option of the private menu with the layer that decides it, allow and deny per option or in bulk with a preview, the *Why?* panel, compare, review and view as. The previous screens `ScrAccRes`, `menu-access` and `screen-access` are deprecated and will be removed in 5.1.0. The rules are the same `AweScrRes` rows and `profile/*.xml` files, changed through the same audited restriction maintains, so no data is migrated. The new screen has no import or export of rules: they point at the options of each `private.xml`. | Point your own menu options from `ScrAccRes`, `menu-access` or `screen-access` to `access-admin` before 5.1.0. If you override `ScrAccRes` (or the other two screens), move the customization to your own copy of `access-admin` or drop it. Access that must ship with the application goes in the base restriction files `profile/*.xml`. Browser tests that open the *Access control* option expect the new screen. | [Access control](default-screens.md#screen-access) (issue #791) |
+| AWE 5 shell (both clients) | The vertical home screens show a footer under the side menu ("Powered by AWE 5" and a button that collapses the menu) and the menu button of the header has the `panel-left` icon. The collapsed menu hides the option search and opens the options of a first level option as a flyout when the pointer is on it. In React, a separator option without label is drawn as a line in the vertical menu (it was hidden), the user menu shows the `name` of the `connectedUser` value instead of its label ("Manager" instead of "Manager (test)") with the profile below it, outlined buttons are neutral (they used the primary colour) and select criteria are as high as text criteria. The `connectedUser` query returns a new `description` field with the profile name. | Nothing for the descriptors. Browser tests of React applications that check the logged user with `checkLogin`/`ensureLoggedIn` must expect the name without the user code. Applications with their own copy of `home-sidebar.xml` or `home_vertical.xml` can add the footer as described in the layout guide. | [Side menu](../design-system/layout-and-shell.md#side-menu), [Avatar](../api/info.md#avatar-attributes) (issue #900) |
+| HTTP compression | The AWE starter now provides the compression defaults: `server.compression.enabled=true`, `min-response-size=256`, a `mime-types` list with `text/javascript` and `image/svg+xml`, and `spring.web.resources.chain.enabled`/`compressed=true`. The production builds of the AngularJS client and of the React archetype write `.br` and `.gz` copies of the scripts, styles and SVG files, and the server sends them to the browsers that accept them. With the AWE 4 archetype list the JavaScript bundles were sent uncompressed (Spring Boot serves `.js` as `text/javascript`): in the React test application the first load drops from 4.3 MB of scripts to 0.89 MB. | Remove `server.compression.*` and `spring.web.resources.chain.compressed` from your `application.properties` to take the defaults, or add `text/javascript` and `image/svg+xml` to your own list. To serve precompressed files in a React application, add `compression-webpack-plugin` and the two `CompressionPlugin` entries of the archetype `webpack.prod.js`. Set `server.compression.enabled=false` if a proxy compresses the responses. | Issue #965 |
+
+### jsoup in the input parameter sanitizer
+
+`StringUtil.sanitizeInputParameter`, which `ScreenDataController` applies to the `optionId` path variable, used to pass
+the escaped value through `Jsoup.clean(..., Safelist.basic())`. It now returns the value escaped by `escapeJson`,
+`escapeJava` and `escapeHtml4` without that last step (MR !849). The escaping already turns `<` and `>` into entities,
+so the difference is confined to the characters jsoup normalized after escaping: a double quote stays escaped as
+`&quot;` instead of being turned back into `"`, and repeated or leading spaces are no longer collapsed or trimmed. Code
+that compared the sanitized value with a fixed string needs the new value; the unit tests of `StringUtilTest` show the
+exact output.
+
+### Menu `Option` JSON
+
+A menu `Option` used to serialize its children twice, under `elementList` and under `options`, which doubled the size of
+the payload at each level of the menu tree. `elementList` is no longer part of the JSON of an `Option` (MR !792). The
+clients of this repository read `options`, so nothing changes for them. The `elementList` of the screen tree
+(components of a screen) is not affected.
+
+### Screen components JSON
+
+Each entry of `components` in the `screen-data` answer carried a `controller` with the whole `elementList` subtree of
+the component, so a definition was sent once in `structure` and once more for each component that contained it. On
+large screens most of the answer was those copies. `elementList` is no longer part of the JSON of a component
+`controller` (issue #907); `structure` still has it (as a skeleton in the React answer, see below), and the fields computed from the children (`columnModel`,
+`buttonModel`, `headerModel` of grids, `children` of avatars and info dropdowns) are still sent. The clients of this
+repository build the component tree from `structure`, so nothing changes for them.
+
+The `structure` of the answer sent to the React client (`template: false`) is a skeleton since issue #909: each
+definition travels once, in the `controller` of its component, and `structure` only says what each component is and
+where it is. A component node (an element with a component tag) only has `elementType`, `id`, `elementList` and, for a
+tree grid, `treegrid`; read its other attributes from the matching entry of `components`. Columns, dependencies and
+button actions are not in `structure` (they come in the `controller` of their component). Tag lists and row details
+keep their whole subtree, as the clients repeat it for each row, and the other elements (screen, tags, includes,
+views, messages) keep their attributes. The AngularJS answer (`template: true`) does not change.
+
+### Password expiration (`PwdExp`)
+
+When the `PwdExp` parameter is set, the local login evaluated the expiration the wrong way round: a password changed
+within the last `PwdExp` days was rejected as expired and an older one was accepted. It is now evaluated correctly
+(issue #846): the password is accepted until `PwdExp` days after the last change.
+
+What to do:
+
+- **Applications that do not set `PwdExp`:** nothing, passwords never expire.
+- **Applications that set `PwdExp`:** users whose last change is older than `PwdExp` days can no longer log in until
+  they change the password, and users with a recent change can log in. Check the value of `PwdExp` before the upgrade.
+  To avoid locking many users out at once, review the password change dates before the upgrade and raise `PwdExp`
+  (or deactivate it) for a transition period, until users have changed their passwords through the change-password
+  option. A password set by an administrator in the users screen does not help here: it leaves the change date empty,
+  which counts as expired while `PwdExp` is set (see below). Users do not need an administrator: the login guides them
+  to set a new password (see below).
+- **Rolling back to AWE 4** after users changed their passwords brings the inverted check back: users with a recent
+  change are rejected again. Deactivate `PwdExp` before rolling back.
+- **Users that never changed the password** (empty date) are still expired when `PwdExp` is set, as before. This
+  includes users whose password an administrator set in the users screen: they have to change it at the first login
+  (documented decision, issue #849).
+- **Expired passwords can be changed from the login** (issue #849). The user gets a localized message (the message used
+  to be Spring's English text under the invalid credentials title) and is taken to the public
+  `change-expired-password` screen in both web engines, then signs in with the new password. The user never gets a
+  session with the expired password. `POST /api/authenticate` answers `401` with a localized message and the code
+  `PASSWORD_EXPIRED`; REST clients cannot change the password and have to use the web application. See
+  [Password expiration](../security/authentication.md#password-expiration-local-login).
+- **The `ChdPwd` maintain target is no longer public.** It could be called without a session to change the password of
+  any user. It now needs a session and changes the password of the logged in user only. A custom screen that relied on
+  the anonymous call has to use `ChdPwdExpired` (expired passwords) or sign in first. An application that replaces the
+  whole `public` menu has to add the `change-expired-password` option.
+- **Test data:** an integration test that logs in with a user whose password date is old needs a `PwdExp` value larger than the age of that password (the AWE test apps use 36500 days).
+
+### Scheduler migration `SCHEDULER_V1.0.5`
+
+`SCHEDULER_V1.0.5__Unify_ftp_credentials_into_server.sql` carries the FTP credentials of each launcher over to the
+server they point at. It no longer drops the `SrvUsr` and `SrvPwd` columns of `AweSchTskLch` and `HISAweSchTskLch`: they
+stay as deprecated, nullable columns that the scheduler no longer reads or writes (MR !843). The script was changed
+because applications whose own scripts still insert launchers with those columns could not build an empty database.
+
+What to do:
+
+- **Empty database or a database that has not applied V1.0.5 yet:** nothing, the scripts run in order.
+- **Database that already applied the previous version of the script** (for example one built with 4.12.9 or 4.12.10):
+  its checksum changed, so Flyway refuses to start. Run `flyway repair` once, or recreate the database. The columns that
+  the old script dropped are not restored: if your own scripts insert them, add them back in your own migration.
+- **Applications with their own scripts:** do not rely on the credential columns of the launcher tables, they are
+  deprecated. Store the credentials in the server (`AweSchSrv`).
+
+### Client dependencies
+
+Issue #769 cleaned up the npm dependencies of both clients:
+
+- **`moment` is replaced by `day.js`** in the AngularJS client. The dates keep the `dd/mm/yyyy` format that the server
+  reads and the validation rules behave as before (impossible dates such as `31/02/2020` are still rejected).
+  `moment` was bundled inside the AWE bundle and was never a global, so only code that imports it from the
+  `awe-client-angular` package is affected. **Deprecation:** do not rely on `moment` or `lodash` coming with AWE; add
+  them to your own `package.json` if you use them. AWE may change or drop them again without a major version.
+- **Unused packages were removed** from both clients (see the table row). The React client still installs
+  `react-transition-group` through `primereact`, but import it only if you declare it yourself.
+- **Karma leftovers are gone** from the AngularJS client (Jasmine specs nobody ran, the Istanbul Babel environments and
+  the `babel-plugin-istanbul`, `exports-loader` and `@babel/types` packages). Coverage comes from Jest.
+- Major upgrades that need their own migration are not part of this clean-up: AngularJS 1.5, `angular-ui-router` 0.4,
+  `angular-ui-grid` (4.12.7 changes the package entry point), Highcharts and jQuery/Bootstrap (#755, #772), Redux Toolkit 2
+  (#807) and React 19.
+
+### The React client loads its heavy packages on demand {#react-on-demand-packages}
+
+Issue #970 makes the React client load echarts, leaflet, Quill (`primereact/editor`), `react-pivottable`,
+`react-pdfobject`, `react-lazylog` and `react-player` with a dynamic `import()`, the first time a screen shows a chart,
+a map, an editor, a pivot table, a PDF, a log or a video. The application's webpack puts each one in its own chunk, so
+the sign-in and the first screen no longer download them. Nothing breaks if the application keeps its webpack
+configuration, but it only gets the smaller bundle when the `splitChunks` of its `webpack.dev.js` and
+`webpack.prod.js` match the archetype: no global `name: "main"`, and a `commons` cache group that takes the initial
+chunks only:
+
+```js
+splitChunks: {
+  cacheGroups: {
+    "commons": {
+      test: /[\\/]node_modules[\\/]((?!(awe\-react\-client|primereact)))/,
+      name: 'commons',
+      chunks: 'initial'
+    },
+  }
+}
+```
+
+With `chunks: 'all'` the on-demand packages go back into `commons.js`, which every page loads. With the global
+`name: "main"` they all go into one `main.js` chunk, so the first chart also downloads the maps and editors. Heavy widgets of the
+application itself can be loaded the same way (see [custom React widgets](custom-widgets-react.md#3-register-the-component)).
+
+### Bootstrap JavaScript is no longer shipped {#bootstrap-javascript-is-no-longer-shipped}
+
+Issue #755 (slice 4) removed `import "bootstrap"` from the AngularJS client and the `bootstrap` package from its `package.json`. The CSS of
+Bootstrap is not part of this change. AWE only used four of its plugins, and each one is now native code that keeps the markup, the classes,
+the timing and the events, so no AWE screen changes. What a product has to review is code **of its own** that used the Bootstrap JavaScript:
+
+| You used | It does now | Use instead |
+|---|---|---|
+| `$(el).modal('show')`, `.modal('hide')`, `data-toggle="modal"` and `data-target="#id"` | Nothing: there is no `$.fn.modal` and the data-api is gone | The `awe-dialog` or `awe-side-panel` components (opened by an XML action), the `awe-confirm` component, or the `AweModal` service: `AweModal.show(el)`, `hide(el)`, `isShown(el)` and `dispose(el)`. `ui-modal` (with `on-open` and `on-close`) keeps working. |
+| `data-dismiss="modal"` inside a `.modal` | Works as before (it closes the modal) | Nothing to change |
+| `data-keyboard="false"` and `data-backdrop="static"` on a `.modal` | Work as before | Nothing to change |
+| The `show.bs.modal`, `shown.bs.modal`, `hide.bs.modal` and `hidden.bs.modal` events | Raised as before, on the element, as jQuery events | Nothing to change (`hidden.bs.modal` still comes after the backdrop is removed) |
+| `data-toggle="dropdown"` on a link inside a `li.dropdown` (or `.btn-group`) | Works as before (the `.open` class, `aria-expanded`, a click outside or Esc closes it) | Nothing to change |
+| `$(el).dropdown('toggle')` | Nothing | Trigger a `click` on the `[data-toggle="dropdown"]` element |
+| `$(el).popover({...})`, `data-toggle="popover"`, `data-toggle="tooltip"` and `$(el).tooltip(...)` | Nothing | The `awe-popover` component for a popover anchored to a control; the `title` attribute (or your own CSS) for a tooltip. The message popovers of `target-message` are native. |
+| `data-toggle="collapse"`, `data-parent` and `$(el).collapse(...)` | Nothing | The AWE accordion (`autocollapse` keeps one item open) or your own AngularJS state with `ng-class` |
+| `data-toggle="tab"` and `$(el).tab('show')` | Nothing (the AWE tabs never used it) | The AWE `tab` and `tab-container` components |
+| `data-toggle="buttons"`, `$(el).button(...)`, `data-dismiss="alert"` and `$(el).alert('close')` | Nothing | The AWE button, checkbox and radio components, and the AWE message actions |
+| `$.support.transition` and `$(el).emulateTransitionEnd(ms)` | Nothing | Listen to `transitionend`, with a timeout |
+
+The tests of your own modules do not need Bootstrap either: AWE services do not wait for a CSS transition the element does not have, so a
+`.modal.fade` shows and hides at once in `jsdom`.
+
+### Java 21 and Spring Boot 4.1
+
+Issue #783 moves AWE 5 to Java 21, Spring Boot 4.1.1 (Spring Framework 7.0, Spring Security 7.0) and Jackson 3.
+
+- **JDK 21 is required** to build and run. Set `java.version` to 21 in your `pom.xml` (the AWE 5 archetypes already do).
+  The build must run on a JDK 21 as well: on an older JDK the compilation fails.
+- **Spring Boot 4.1 removes everything that 4.0 deprecated**: the old starter names (`spring-boot-starter-web`,
+  `-aop`, `-oauth2-*`), `@MockBean`/`@SpyBean` and `spring-boot-jackson2`. Use the modular starters
+  (`spring-boot-starter-webmvc`, `-aspectj`, `-security-oauth2-*`) and the explicit test starters. The
+  [OpenRewrite](https://docs.openrewrite.org) recipes `UpgradeSpringBoot_4_0` and `SpringBootProperties_4_1` do most of
+  this work; review their output.
+- Classes that Spring Boot 4 moved and that applications may use directly: `ErrorController`
+  (`org.springframework.boot.webmvc.error`), JMS auto-configuration (`org.springframework.boot.jms.autoconfigure`),
+  OAuth2 resource server auto-configuration (split into `OAuth2ResourceServerAutoConfiguration` and
+  `OAuth2ResourceServerWebSecurityAutoConfiguration`) and `TestRestTemplate`
+  (`org.springframework.boot.resttestclient`).
+- `awe-spring-boot-starter` now brings `spring-boot-starter-cache` and `spring-boot-jms`, and `awe-controller` brings
+  `spring-boot-starter-webmvc`, so applications that relied on them transitively keep working.
+- **Tests.** `@SpringBootTest` no longer provides MockMvc or `TestRestTemplate`: add `@AutoConfigureMockMvc` or
+  `@AutoConfigureTestRestTemplate`. Mockito `@Mock` fields in Spring tests are no longer initialized (Spring Boot 4
+  removed `MockitoTestExecutionListener`) and stay `null`: add `@ExtendWith(MockitoExtension.class)`, with
+  `@MockitoSettings(strictness = Strictness.LENIENT)` to keep the lenient stubbing. With JUnit 6, a test that
+  wildcard-imports both `org.junit.jupiter.api.*` and `org.springframework.http.*` no longer compiles
+  (`reference to MediaType is ambiguous`): import `org.springframework.http.MediaType` explicitly.
+- **Selenium** follows the Spring Boot BOM (4.43.0 with Spring Boot 4.1.1) instead of the 4.18.1 that AWE pinned, and
+  `awe-dependencies` no longer manages `selenium-server`.
+- **`lombok-maven-plugin` is gone.** AWE ran delombok (the sources of the Javadoc) with this abandoned plugin. It now
+  uses the `delombok` execution of `maven-antrun-plugin`, managed in `awe-dependencies`, with the Lombok version of
+  the Spring Boot BOM. The `skip.delombok` property keeps working. If your `pom.xml` declared `lombok-maven-plugin`,
+  declare `maven-antrun-plugin` instead (it inherits the `delombok` execution) or remove it.
+- **Spring Session with Redis needs its starter** (#861). Spring Boot 4 moved the Spring Session auto-configuration to
+  its own module: with `spring-session-data-redis` alone the application starts without any error, but the sessions
+  stay in each server and are lost when a request reaches another instance. Depend on
+  `spring-boot-starter-session-data-redis` instead, and rename the `spring.session.redis.*` properties to
+  `spring.session.data.redis.*`. The Redis auto-configuration classes moved too: an exclusion of
+  `org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration` no longer excludes anything. Exclude
+  `org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration` and
+  `org.springframework.boot.session.data.redis.autoconfigure.SessionDataRedisAutoConfiguration` where there is no
+  Redis. With Spring Session active the session cookie is `SESSION`.
+- `TaskConfig` and `SchedulerTaskConfig` constructors now also take the `Environment`. This only matters if your code
+  creates these configuration classes itself.
+
+### Jackson 3
+
+- **Package change.** `com.fasterxml.jackson.core` and `com.fasterxml.jackson.databind` become `tools.jackson.core` and
+  `tools.jackson.databind`. The annotations stay in `com.fasterxml.jackson.annotation`. Every AWE method that takes or
+  returns `ObjectNode`, `JsonNode`, `ArrayNode` or `ObjectMapper` now uses the Jackson 3 type, so code that calls it
+  must change its imports. The full list is in [Jackson 3 public API](#jackson-3-public-api).
+- `JsonProcessingException` becomes `JacksonException`, which is unchecked.
+- **Jackson 3 throws where Jackson 2 returned a default** (measured on jackson-databind 3.2.1):
+
+  | Call | Jackson 2 | Jackson 3 |
+  |---|---|---|
+  | `asText()` / `asString()` on an array, object or POJO node | `""` | throws `JsonNodeException` |
+  | `asText()` / `asString()` on `NullNode` | `"null"` | `""` |
+  | `asInt()` / `asLong()` / `asDouble()` on an array or non-numeric text | `0` | throws |
+  | `asBoolean()` on an array or non-boolean text | `false` | throws |
+  | `intValue()` on a non-numeric node | `0` | throws |
+
+  AWE calls the default-value overloads (`asString("")`, `asInt(0)`, `asLong(0L)`, `asDouble(0.0)`,
+  `asBoolean(false)`), which give the Jackson 2 results except for the text of `NullNode` (`""` instead of
+  `"null"`). Do the same in your own code, or handle the exception.
+- `ObjectMapper.writer(PrettyPrinter)` was removed: use `writer().with(prettyPrinter)`. `MappingJackson2HttpMessageConverter`
+  becomes `JacksonJsonHttpMessageConverter`. java.time support is part of Jackson 3, so `JavaTimeModule` is not
+  registered any more.
+- Spring Boot 4 auto-configures a `JsonMapper`. To replace it, define a `JsonMapper` bean (an `ObjectMapper` bean is
+  not enough). Spring Boot 4 also registers every Jackson module on the classpath; set
+  `spring.jackson.find-and-add-modules=false` to opt out.
+- java-jwt 4 still depends on Jackson 2, so Jackson 2 stays on the classpath. Do not pass Jackson 2 types to AWE APIs.
+
+### JSON contract
+
+AWE 5 keeps the **AWE 4 JSON format** on Jackson 3 and becomes strict about trailing content. AWE applies its contract
+to the `JsonMapper` of Spring Boot with a `JsonMapperBuilderCustomizer` (`DataListUtil.applyAweJsonContract`, also used
+by the `DataListUtil` mapper), so the HTTP layer and the injected mapper use it.
+
+| Behavior | Jackson 3 default | AWE 5 |
+|---|---|---|
+| Enums | written and read with `toString()` (`MaintainType.INSERT` -> `"I"`) | **by name** (`"INSERT"`), as in AWE 4 |
+| Property order | alphabetical | **declaration order**, as in AWE 4 |
+| `null` for a primitive field | error | **accepted** (default value), as in AWE 4 |
+| Dates, durations, unknown properties, view inclusion | Jackson 3 defaults | Spring Boot 3 behavior through `spring.jackson.use-jackson2-defaults=true` (set in AWE's `base.properties`) |
+| Content after the root JSON value (`{...},`) | rejected | **rejected with HTTP 400** (AWE 4 ignored it) |
+
+- **Clients that send trailing content** after the JSON body now get HTTP 400 and must be fixed.
+- **Jackson 3 clients of AWE.** The format did not change, so Jackson 2 clients keep working. A client with the
+  Jackson 3 defaults (for example a plain `new RestTemplate()` with Spring 7) reads enums with `toString()` and fails
+  with `Cannot deserialize value of type AnswerType from String "OK"`. Configure it with the AWE mapper:
+  `MessageConverterUtil.withJsonMapper(restTemplate, DataListUtil.getMapper())`, or disable
+  `EnumFeature.READ_ENUMS_USING_TO_STRING`. `spring.jackson.use-jackson2-defaults` does not help here, because a plain
+  `RestTemplate` does not use the Spring Boot mapper. The REST and microservice connectors of AWE already do this.
+- To change the contract, add your own `JsonMapperBuilderCustomizer` or `spring.jackson.*` properties; a customizer
+  that runs after AWE's overrides it.
+- The OpenAPI document of the AWE REST API is unchanged (AWE keeps the `JsonNode` schema as `{}` for springdoc).
+
+### Spring Security 7
+
+- **Login redirects are relative.** An unauthenticated browser request gets `Location: /` instead of
+  `Location: http://host/` (Spring Security 7 default). Reverse proxies that rewrite absolute `Location` headers are not
+  affected; anything that parsed the absolute URL must accept a relative one.
+- `AuthorizationManager.authorize` takes a `Supplier<? extends Authentication>`; update your own implementations.
+- `DaoAuthenticationProvider` requires the `UserDetailsService` in its constructor.
+- Spring Boot 4 moved servlet web security to `ServletWebSecurityAutoConfiguration`; tests that list security
+  auto-configurations explicitly (for example with `ApplicationContextRunner`) must add it.
+
+### Logging, database and web
+
+- **Logback.** Spring Boot 4 removed `org.springframework.boot.logging.logback.ApplicationNameConverter`. A Logback
+  configuration that still declares `<conversionRule conversionWord="applicationName" .../>` stops the application at
+  startup. AWE's `awe-log.xml` and `scheduler-log.xml` use `%esb(){APPLICATION_NAME}%esb{APPLICATION_GROUP}` (same
+  output); a `logback-spring.xml` copied from AWE 4 or Spring Boot 3 must do the same.
+- **Metrics distribution bounds.** A `management.metrics.distribution.maximum-expected-value.http.server.requests` below
+  2 minutes, set without a `minimum-expected-value`, now makes **every HTTP request fail with 500**
+  (`InvalidConfigurationException: maximumExpectedValue ... must be equal to or greater than minimumExpectedValue`): the
+  prefix also matches the `http.server.requests.active` long task timer, whose default minimum is 2 minutes. Set both
+  bounds, for example `minimum-expected-value.http.server.requests=1ms`.
+- **H2 2.4 rejects the `DATETIME` type** (Spring Boot 4.1 manages H2 2.4). The AWE H2 script
+  `AWE_V1.0.0__Init_awe_schema.sql` now declares `HISAweAppPar.HISdat` as `TIMESTAMP`, so its Flyway checksum changes:
+  recreate your local H2 database (or run `flyway repair`). H2 is only meant for local development and tests. Your own H2
+  scripts that use `DATETIME` must use `TIMESTAMP`.
+- **Flyway 11 removed `cleanOnValidationError`**: `spring.flyway.clean-on-validation-error` has no effect.
+- File upload uses `commons-fileupload2-jakarta-servlet6` (package `org.apache.commons.fileupload2.jakarta.servlet6`).
+- In war deployments to an external container, `server.forward-headers-strategy` has no effect (Spring Boot 4); define a
+  `ForwardedHeaderFilter` bean if you need it.
+- **jasypt-spring-boot 3.0.5** keeps decrypting `ENC(...)` properties, but it does not declare Spring Boot 4 support
+  yet: check it when you upgrade it.
+
+### Maintain transactions
+
+Issue #781 runs each maintain inside one transaction of its datasource (`awe.maintain.transaction.enabled`, `true` by
+default). Compared with AWE 4:
+
+- A failing statement, or a step that returns an `ERROR` result without throwing, rolls back the **whole** maintain.
+  In AWE 4 an `ERROR` result without an exception was committed.
+- Maintains launched from a Java service (`serve`) and `retrieve-data` on the same datasource **join** the outer
+  maintain. In AWE 4 they used other connections: a nested maintain stayed committed when the outer one failed, and
+  `retrieve-data` did not see the rows the maintain had just written.
+- A maintain launched inside a Spring transaction of the application (`@Transactional`, `TransactionTemplate`) on the
+  same datasource **joins it**. In AWE 4 it always committed on its own connection.
+- A Java service that catches the failure of a nested maintain and returns `OK` now makes the outer maintain fail
+  with the generic maintain error, and everything is rolled back.
+- `<commit/>` still commits in the middle of the maintain.
+- **Tests.** In a `@Transactional` test the maintains now join the test transaction and are rolled back with it. A
+  test that reads or cleans with its own connection (`dataSource.getConnection()`) does not see their rows, and on
+  HSQLDB it waits forever on the lock. Read through the transaction: `JdbcTemplate`, or
+  `new TransactionAwareDataSourceProxy(dataSource).getConnection()`. A test that must check what a maintain commits
+  should not be `@Transactional`.
+
+Set `awe.maintain.transaction.enabled=false` to get the AWE 4 behavior. See [Transactions](../api/maintain-definition.md#transactions).
+
+### Server-only maintain targets
+
+Issue #886 adds the `server-only` attribute to `<target>`. A server-only target is refused to any client request, even
+from a signed-in user, and still runs when the server launches it with `MaintainService.launchPrivateMaintain` (Java
+services, the scheduler). In AWE 4 any signed-in user could launch any target that was not public, with the parameters
+of its choice, so a user could change the data of another user through the targets that the framework only launches
+from Java.
+
+The framework marks 39 of its targets as server-only: the user, password, second factor, lockout and SSO targets
+launched from Java, the user settings, favourites, avatar and grid layout targets, the menu restriction targets, and the
+internal targets of the notifier and the scheduler. The full list is in the
+[audit of the framework targets](../api/maintain-definition.md#maintain-targets-audit).
+
+- A screen, client code or REST client that launched one of them directly gets an error now. Launch the client target
+  that wraps it, or the Java service.
+- Mark with `server-only="true"` the targets of the application that only Java launches, especially those that take a
+  user from the parameters.
+- A target that a client launches about the signed-in user must read the user from the session
+  (`<variable ... session="user"/>`), never from the request.
+
+### Server-only queries {#server-only-queries}
+
+Queries get the same `server-only` attribute as maintain targets. A server-only query is refused to any client request,
+even from a signed-in user and whatever its `public` flag, and still runs when the server launches it with
+`QueryService.launchPrivateQuery`.
+
+The framework marks as server-only the login and SSO queries (`userDetails`, `userDetailsByEmail`,
+`userDetailsByProfile`, `checkProfileExists`), the lockout and security audit queries (`UsrGetNumLog`,
+`UsrGetSecSta`), the user queries of the access window services (`access-subject-user`, `access-compare-users`,
+`access-profile-users`, `access-profile-user-rules`), the database and JMS connections (`DatabaseConnections`,
+`JmsConnections`), the scheduler server data (`serverData`), the users subscribed to a notification
+(`get-interested-users`), the user queries by name (`GetChgPwdUsr`, `AutUsr`, `UsrInf`, `GetEmlSrvByOpe`) and the mail
+servers of the mail senders (`EmlSrvSndLst`).
+
+`server-only` only refuses client requests by query id: the XML of the server (a subquery, a union, an initial load,
+the retrieve-data of a maintain) can still launch the query, so do not use a server-only query to feed something a
+client sees.
+
+The queries of `awe.session.parameter` are launched by the server at login, so they can be server-only.
+
+- An application that launched one of them from a client must use its own query, with only the fields it needs and the
+  user read from the session (`<variable ... session="user"/>`).
+- Mark with `server-only="true"` the queries of the application that only Java launches, especially those that return
+  credentials or the data of other users.
+
+### Authorization refusals and expired sessions answer their HTTP status {#action-http-status}
+
+Issue #935. `/action/*` answered **HTTP 200** for every error, an authorization refusal and an expired session
+included: the client got a list of client actions (`end-load` and the message) and the 200 told proxies, monitors and
+the browser network tab that the call had succeeded.
+
+- A refused client launch (a `server-only` target, a target refused by the access by screen with
+  `awe.security.authorization.mode=enforce`, a service of a profile without the permission) answers **403 Forbidden**
+  with **the same body as before**: `end-load`, the access denied message and `cancel`. Nothing changes in what the
+  final user sees.
+- A request to `/action/**` without a session answers **401** with that same body, session expired message included,
+  instead of `text/plain` with the locale key.
+- `/screen-data/**` answers **401** for a private option requested without a session. It used to answer 200 with
+  the "screen not found" page, so a deep link to a private screen after the session expired showed a 404 instead
+  of asking the user to sign in again. A public option keeps answering 200.
+- Both clients read the body of a 403 or a 401 as client actions, so a refusal is shown and the loading state ends,
+  and an expired session opens a session panel with a single button (`BUTTON_RESTART_APPLICATION`, "Reload and go to start") that
+  reloads the application on the start screen. A `404` keeps its own not-found message instead of the connection lost
+  one.
+
+What an application must review:
+
+- A proxy, load balancer, WAF or monitoring rule that counted the refusals as successful calls (`200`) starts seeing
+  `403` and `401`. That is the intent; a rule that redirects on 401 must not swallow the JSON answer of `/action/**`.
+- Custom client code that launches `/action` and treats any non-2xx answer as a transport error has to read the body
+  as client actions, as the shipped clients do.
+- Code outside the browser that parsed the `text/plain` body of the 401 of `/action/**` reads a JSON list of actions
+  now.
+
+### Access by screen {#access-by-screen}
+
+Issue #914 checks the access to the screens before a client launches a maintain target or a query. At startup AWE
+indexes the targets and queries that each menu option uses (resolving includes and frames). A client request for an
+indexed target or query runs only if the session user can open at least one of the options whose screen uses it; the
+options of the public menu are open to everyone. Targets and queries that no screen uses keep their previous rules
+(`public`, signed-in session, `server-only`), and the launches made by Java services are not affected.
+
+The mode is set with `awe.security.authorization.mode`:
+
+| Value | Behaviour |
+|-------|-----------|
+| `enforce` (default) | The request is refused with the *unauthorized* error and audited. |
+| `warn` | The refusal is logged and audited (`ACCESS_DENIED`), but the request runs. |
+| `off` | No check, as in AWE 4. |
+
+- Roll it out in an existing application: set `warn`, review the log and the audit events, fix the screens or the
+  restrictions that do not match the intended access, then use `enforce`.
+- Screens generated at runtime (`dynamic-screen-service` and `menu-screen` options) are not indexed. A target used both
+  by one of them and by a restricted static screen is refused to the users who cannot open the static one.
+- The REST API (`/api/...`) is not checked by screen access: it is authorized by the
+  [permissions](../security/permissions.md#rest-api) only, and a refused request answers HTTP `403`.
+- An application that builds `QueryService` or `MaintainService` itself (overriding the AWE beans) passes the new
+  `TargetLaunchAuthorizer` argument, normally the `TargetLaunchAuthorizerChain` bean. An application adds its own
+  authorization layer by declaring a `TargetLaunchAuthorizer` bean.
+
+See [Screen access](../security/screen-access.md).
+
+### Log viewer and file endpoints {#log-viewer-files}
+
+Issue #975 closes a path traversal: the log viewer read any file whose path the client sent. Now:
+
+- The `get-log-file` action, `/file/text` and `/file/stream` only read files under the log directories (the log manager
+  path and the `LogDirectoryProvider` beans) and require the `system.read` permission (the `getLogFile` service declares
+  it). Any other path is refused with a generic error, without the path. An application that uses a `file-viewer` with
+  `/file/text` or `/file/stream` for other files declares their folder as a `LogDirectoryProvider` bean, and its users
+  need `system.read`.
+- The scheduler execution log viewer uses the `get-execution-log` action (`scheduler.read`) in both execution log stores:
+  it reads by task and execution, never by path. The hidden `path` criterion of `scheduler-execution-data` is removed.
+- Custom `ExecutionLogStore` implementations inherit `locatorNode` and `applyViewerSelection` as default methods.
+
+See [Files the log viewer can read](../logging.md#files-the-log-viewer-can-read).
+
+### Additional profiles
+
+A user can have additional profiles besides the main one (`ope.IdePro`), stored in the new `AweOpeRol` table. The main
+profile alone decides the initial screen, the theme and the `profile` value of the session; the access to the windows,
+the modules and the sites is the union of every active profile; the restriction file of the user, when it has one, has
+the last word over every profile, and then the user restrictions of `AweScrRes`. Inactive additional profiles do not
+count. A user without additional profiles behaves exactly as before.
+
+- **New migration.** `AWE_V1.6.0__authorization.sql` creates the authorization tables `AweOpeRol` and `AweProPer`, their
+  audit tables and their keys in H2, HSQLDB, MySQL, Oracle, PostgreSQL and SQL Server. The script can be applied again.
+  Applications that build their schema with their own scripts must add the tables.
+- **Custom `UserDAO`.** `UserDAO` has three new default methods: `supportsAdditionalProfiles()`, which returns
+  `false`, `findAdditionalProfiles(userName)`, which returns no profiles, and `findProfileId(profileName)`, which
+  returns an empty `Optional`. A custom implementation compiles and keeps the main profile only. Override the three to
+  support additional profiles: while `supportsAdditionalProfiles()` returns `false`, the SSO login leaves the
+  `AweOpeRol` rows of the user untouched.
+- **One `ROLE_` per profile.** In the web session the user gets one `ROLE_<profile name>` authority for each profile,
+  main and additional, so `hasRole` works with any profile of the user.
+- **REST API.** In the `oauth2-resource-server` mode the profiles come from the profile claim of the token
+  (`awe.rest.api.oauth2-resource-server.principal.profile-claim`), not from `AweOpeRol`, mapped as the single sign-on
+  login maps its roles: the claim may be a dotted path (`realm_access.roles`),
+  `awe.security.sso.filter-authority-prefix` is stripped, each role is compared with the profile names without case and
+  the roles without a profile are ignored. The main profile follows `awe.security.sso.profile-priority`, else the first
+  name in alphabetical order, and the rest are additional profiles; each one gives one `ROLE_<profile name>`. When no
+  role maps, the default profile applies, or the token is refused when `awe.security.sso.require-role` applies. The
+  `local-jwt` mode gives one `ROLE_<profile name>` per profile of the user of the token, main and additional, as the
+  web session.
+- **Session values.** The session has three new values: `profiles` (acronyms of every profile, main first, separated
+  by commas), `restrictions` (restriction files of those profiles) and `userRestriction` (restriction file of the user,
+  only when it has one). Read them with a `STRING_TO_LIST` variable, which
+  is now a list also when its value comes from the session.
+- **Single sign-on.** The main profile is chosen as before. When it comes from a provider role that exists as a
+  profile, the other provider roles that exist as profiles replace the additional profiles of the user. When no role
+  maps to an existing profile, the additional profiles are not touched.
+
+See [Additional profiles](../security/additional-profiles.md).
+
+### Permissions {#permissions}
+
+A query, a maintain target or a service can require **permissions**, declared by the code and assigned to profiles. A
+client launches a query or a target with `permission="users.delete"` only when the access by screen allows it **and**
+the session user has the `users.delete` permission; through the REST API only the permission is checked. Queries,
+targets and services without `permission` behave as before, and the launches made by the server (Java services,
+maintain includes) are never checked.
+
+- **New descriptor.** Each module may provide a permission catalog in `global/Permissions.xml` (schema
+  `permissions.xsd`). AWE combines the catalogs of every module. A `permission` attribute that names a permission
+  missing from the catalog, or a `permission` on a `public` query or target, is a load error.
+- **New table.** `AweProPer` assigns permissions to profiles (`IdePro`, `Per`), with wildcards: `*`, `users.*`,
+  `*.read`. It is created by the unified migration `AWE_V1.6.0__authorization.sql` described in
+  [Additional profiles](#additional-profiles), which also gives `*` to the administrator profile (`ADM`). Applications
+  that build their schema with their own scripts add `AweProPer`, `HISAweProPer` and the `ProPerKey` key, and give
+  their administrator profile its row.
+- **`PERM_` authorities.** At login the effective permissions (main and active additional profiles) become Spring
+  Security authorities `PERM_<id>`, so services can use `@PreAuthorize("hasAuthority('PERM_users.delete')")`. A change
+  applies at the next login. The `oauth2-resource-server` mode of the REST API gives the `PERM_` authorities of the
+  profiles of the token, read on every request.
+- **Custom `UserDAO`.** `UserDAO` has two new default methods: `findPermissions(profileAcronyms)` and
+  `findAllPermissions()`, which return no permissions. A custom implementation compiles, but its users get no
+  permission (only those granted always), not even the administrator: override both to read `AweProPer`.
+- **Services.** A `<service>` accepts `permission`, checked when a client action calls it. The services that only
+  launch the query or the target the client asks for (`launchQuery`, `launchMaintain`, `checkUnique`...) are marked
+  `authorization="target"`: the launched query or target is checked instead. The services of a query or a maintain of
+  type `service` and the server calls are not checked. See [Services](../security/permissions.md#services).
+- **Granted always.** The permissions granted always (`self`) need no authority, so the own settings of the user also
+  work for an authentication that the AWE login did not build.
+- **`ActionService` constructor.** `ActionService` takes a third argument, the `TargetLaunchAuthorizer` that checks the
+  services. AWE builds it as a bean; an application that builds `ActionService` by hand passes the
+  `TargetLaunchAuthorizerChain` bean, and a `null` fails at construction.
+- **Audit.** A refusal is audited as `ACCESS_DENIED` with the new cause `PERMISSION` (`SecurityAuditCause.PERMISSION`)
+  and the detail `query: <id>`, `maintain: <id>` or `service: <id>`.
+- **Inventory.** In `warn` mode AWE logs at startup the queries, targets and services that the private screens launch
+  and that declare no permission. See [Mode](../security/permissions.md#mode).
+- **Change password screen.** The confirm button of the public `change-password` screen no longer launches the `UsrLst`
+  query, which now requires `users.read`. An application with its own copy of that screen removes that action too.
+- **Screen elements.** With `enforce`, the screens no longer show the buttons, context buttons and button columns that
+  launch a target the user cannot launch. A `button`, `context-button` or button `column` accepts `permission` to
+  replace that decision, and a `dialog` button action accepts `edit-permission` to open its panel in view mode
+  (read-only criteria) for the users without it. See [Screen elements](../security/permissions.md#screen-elements).
+- **Create buttons.** The *New* and *Duplicate* buttons of the administration screens of AWE and its modules declare
+  the permission of the maintain target that creates the record (`users.create`, `profiles.create`, `themes.create`,
+  `system.update`, `scheduler.update`, `subscriptions.create`, `developer.update`), so a user who cannot create no
+  longer sees them.
+- **Profile files.** A profile file (`profile/*.xml`, the *restriction* of the profile) accepts `<permission>` and
+  `<exclude>`: the permissions of a profile are those of its file minus its exclusions, plus its `AweProPer` rows. An
+  identifier that matches no permission of the catalog fails the startup. `administrator.xml` grants nothing; `ADM`
+  keeps its `*` row. See [Profile files](../security/permissions.md#profile-files).
+- **Custom `UserDAO` and profile files.** `UserDAO` has a new default method `findProfileRestrictions(profileAcronyms)`,
+  which returns no files. A custom implementation compiles, but its profiles get no permission from their files (not
+  even Reader and Contributor): override it to read `AwePro.Res`.
+- **Predefined profiles.** At startup AWE creates the profiles Reader (`RDR`, `*.read`) and Contributor (`CTB`, every
+  permission except `users.*`, `profiles.*` and `permissions.*`) when no profile with their acronym exists; an existing
+  one is kept and a warning is logged. They are read-only in the *Profiles* screen and are duplicated to be changed.
+  Screens or tests that count the profiles see two more rows. `awe.security.permissions.predefined-profiles=false`
+  switches the creation off. See [Predefined profiles](../security/permissions.md#predefined-profiles).
+- **Profiles screen.** The side panel of `profile-admin` has a *Permissions* field that edits the `AweProPer` rows of
+  the profile (with `permissions.update` when they change), and *Duplicate profile* (`ProDup`). See
+  [The Profiles screen](../security/permissions.md#profiles-screen).
+- **Users screen.** `UsrLst` returns the additional profiles of each user (`AddProTxt`), shown in a new *Additional
+  profiles* column. An application that overrides `UsrLst` adds that field, or the column stays empty.
+- **Targets without permission.** `awe.security.permissions.require-undeclared` (`false` by default) makes a private
+  query without `permission` require `default.read`, and a private maintain target or service `default.write`. Before
+  you switch it on, give every existing profile `*` or `default.*`, and keep the `default` resource of AWE in the
+  catalog. See [Targets without permission](../security/permissions.md#require-undeclared).
+- **Audit in `warn` mode.** The detail of an `ACCESS_DENIED` event of a launch that `warn` lets through ends with
+  `(allowed: warn)`. Code that reads the detail accepts the suffix.
+
+:::caution Upgrade impact
+The user and profile administration screens of AWE now declare permissions (`users.read`, `users.create`,
+`users.update`, `users.delete`, `users.unlock`, `users.reset-2fa`, `profiles.read`, `profiles.create`,
+`profiles.update`, `profiles.delete`). Only the administrator profile (`ADM`) gets them from the migration. With
+`enforce`, the default mode, **any other profile that manages users or profiles today loses those actions** until it
+gets rows in `AweProPer`. With `enforce` the screens also hide the buttons of the actions a user cannot launch, so **the
+users other than the administrator see fewer buttons** than before the upgrade (the `user-admin` screen opens a user
+read-only without `users.update`).
+
+1. Run with `awe.security.authorization.mode=warn` and read the `ACCESS_DENIED` events with the `PERMISSION` cause.
+2. Give the permissions to the profiles that need them, for example to the profile with the acronym `MGR`:
+
+   ```sql
+   INSERT INTO AweProPer (IdeAweProPer, IdePro, Per)
+   SELECT k.KeyVal + 1, p.IdePro, 'users.*' FROM AwePro p, AweKey k WHERE p.Acr = 'MGR' AND k.KeyNam = 'ProPerKey';
+   INSERT INTO AweProPer (IdeAweProPer, IdePro, Per)
+   SELECT k.KeyVal + 2, p.IdePro, 'profiles.*' FROM AwePro p, AweKey k WHERE p.Acr = 'MGR' AND k.KeyNam = 'ProPerKey';
+   UPDATE AweKey SET KeyVal = KeyVal + 2 WHERE KeyNam = 'ProPerKey';
+   ```
+
+3. Return to `enforce` (remove the property).
+:::
+
+:::caution Upgrade impact: administration areas
+The other administration areas declare permissions too (see
+[Catalog resources](../security/permissions.md#catalog-resources)):
+
+| Area | Permissions |
+| --- | --- |
+| Sites, modules, databases, email servers, queues, sequences, application parameters, report configuration, log, encryption tools, messages to users | `system.read`, `system.update` |
+| Access by screen, screen configuration | `access.read`, `access.update` |
+| Security audit | `audit.read` |
+| Themes | `themes.*` |
+| Scheduler (`awe-scheduler`) | `scheduler.read`, `scheduler.update`, `scheduler.execute` |
+| Literals manager and path (`awe-developer`) | `developer.read`, `developer.update` |
+| SQL extractor (`awe-tools`) | `sql-extractor.read`, `sql-extractor.update` |
+| Subscriptions (`awe-notifier`) | `subscriptions.*` |
+
+With `enforce`, **any profile other than the administrator that uses one of these areas today loses it** until it gets
+rows in `AweProPer`. For example, to let the profile with the acronym `OPE` read the system configuration and run the
+scheduler:
+
+```sql
+INSERT INTO AweProPer (IdeAweProPer, IdePro, Per)
+SELECT k.KeyVal + 1, p.IdePro, 'system.read' FROM AwePro p, AweKey k WHERE p.Acr = 'OPE' AND k.KeyNam = 'ProPerKey';
+INSERT INTO AweProPer (IdeAweProPer, IdePro, Per)
+SELECT k.KeyVal + 2, p.IdePro, 'scheduler.*' FROM AwePro p, AweKey k WHERE p.Acr = 'OPE' AND k.KeyNam = 'ProPerKey';
+UPDATE AweKey SET KeyVal = KeyVal + 2 WHERE KeyNam = 'ProPerKey';
+```
+
+These administration targets are no longer `public`, so a request without a session gets `401`:
+
+| Module | Queries | Maintain targets |
+| --- | --- | --- |
+| `awe-developer` | `LitTra`, `LitLst`, `GetTraSer`, `GetSelectedLocale`, `SwitchLanguagesTxt`, `SwitchLanguagesMrk`, `checkPath` | `LitTra`, `LitSav`, `LitNew`, `LitDel`, `SetPath` |
+| `awe-scheduler` | `taskDependencies`, `taskParameters`, `taskVariableParameters`, `taskHasVariableParameters`, `SchCal`, `SchCalDatLst` | `ActSchTsk`, `DeaSchTsk` |
+| `awe-tools` | | `selectExtract`, `SaveSelectFile`, `DelSqlCol` |
+
+The selectors and suggests of an administration area require its permission: `DbsSel`, `DbsSug`, `SitSel`, `SitSug`,
+`ModSelBD`, `ModSug`, `ThmSel`, `UsrActSel`, `UsrActSug`, `CatParTyp` and `FntLst` require `system.read`, and
+`GetPrnLst` and `SelEmlSrvNom` require `users.read`. An application screen that reuses them needs that permission, or a
+query of its own.
+
+Run with `awe.security.authorization.mode=warn` first: read the `ACCESS_DENIED` events with the `PERMISSION` cause and
+the startup inventory of the targets left without permission, then return to `enforce`.
+:::
+
+See [Permissions](../security/permissions.md).
+
+### Date utilities
+
+Issue #782 splits `DateUtil` by responsibility into the `com.almis.awe.model.util.data.date` package, which works with
+`java.time`. `DateUtil` stays as a facade with the same methods, results and runtime classes as in AWE 4.
+
+| Class | Responsibility |
+|---|---|
+| `DateFormats` | The date and time formats (the `DateUtil` constants point to them). |
+| `DateTimeParser` | Text to `LocalDate`, `LocalTime` and `LocalDateTime`; `parseAnyFormat` detects the format. |
+| `DateTimeFormatting` | `java.time` values to text. |
+| `DateTextConverter` | Text from one format to another (lenient: invalid input is returned unchanged). |
+| `DateFormatDetector` | Which format a text is written in. |
+| `ElapsedTimeFormatter` | Human-readable elapsed time ("3 days ago"). |
+| `LegacyDateConverter` | `java.util.Date` and `java.sql` types to and from `java.time`. |
+
+The `DateUtil` methods whose signature uses `java.util.Date` or `Calendar` are deprecated; their Javadoc names the
+replacement. Methods that use `java.sql` types (`web2SqlDate`, `sqlDat2WebDate`...) are kept for JDBC code. Some
+deprecated methods return a `java.sql.Timestamp` or `java.sql.Time` declared as `Date` (`web2Timestamp`, `web2Time`,
+`sql2JavaDate`, `jsonDate`, `getDateWithTimeFromCriteria`, `addTimeToDate`); they still do.
+
+One behavior is fixed: the elapsed time (`DateUtil.elapsedTime`, `dateSince` and the `ELAPSED_TIME` and `DATE_SINCE` transforms)
+now counts hours on a 24-hour clock. AWE 4 showed 13 hours as "1 hour" and 12 hours in milliseconds.
+
+In the scheduler, `TaskDAO` keeps its methods and delegates to the classes of `com.almis.awe.scheduler.dao.task`.
+`TaskDAO.getProgress(Date, long)` and `TaskDAO.getElapsedTime(Date)` are deprecated in favour of their `Instant`
+overloads; a call with a literal `null` now needs a cast.
+
+### MenuService
+
+Issue #782 splits `MenuService` by responsibility into the `com.almis.awe.service.menu` package. `MenuService` keeps
+its 33 public methods, with the same signatures and results, and delegates each one to a collaborator. The methods
+that `Services.xml` calls by name (`getNameOptionList`, `getModuleList`, `refreshMenu`, the restriction tree
+services...) stay on `MenuService`.
+
+| Collaborator | Responsibility | `MenuService` methods that delegate to it |
+|---|---|---|
+| `MenuProvider` | Load the menus and apply restrictions and favourites. | `getMenu`, `getMenuWithRestrictions`, `getMenuWithAllRestrictions`, `refreshMenu` |
+| `MenuOptionLookup` | Find options and check whether they are available. | `getOptionByName`, `getAvailableOptionByName`, `checkOptionAddress`, `isAvailableOption` |
+| `MenuScreenResolver` | Resolve the screen of a menu or option and run its initial loads. | `getDefaultScreen`, `getOptionScreen`, `getAvailableOptionScreen`, `getScreen` |
+| `MenuSuggestionLists` | Suggestion lists of screens, options and modules. | `getAvailableScreenList`, `getAllScreenList`, `getNameOptionList`, `getModuleList` |
+| `MenuRestrictionTreeService` | Profile restrictions, and the restriction tree by user or profile of the deprecated `menu-access` screen. | `getScreenRestrictions`, `getMenuOptionTree`, `getMenuOptionTreeByModule`, `updateMenuRestrictionTree`, `allowMenuOption`, `restrictMenuOption`, `removeRestriction` |
+
+Notes for projects that extend `MenuService`:
+
+- **An override only affects direct callers.** In AWE 4 the methods of `MenuService` called each other, so overriding
+  `getOptionByName` also changed `getOptionScreen`, and overriding `getScreen` changed the suggestion lists. Now the collaborators call each other, not `MenuService`: your override is used by the code that calls
+  `MenuService` directly (controllers, `Services.xml`, your own services), but not by the other `MenuService`
+  methods.
+- **Customize the collaborator instead.** Every collaborator is a bean declared with `@ConditionalOnMissingBean`.
+  Declare your own bean of the same type (usually a subclass) and AWE uses it everywhere, `MenuService` included:
+
+  ```java
+  @Bean
+  public MenuOptionLookup menuOptionLookup(MenuProvider menuProvider, BaseConfigProperties baseConfigProperties) {
+    return new MyMenuOptionLookup(menuProvider, baseConfigProperties);
+  }
+  ```
+
+- **Constructors.** The seven-argument constructor (`QueryService`, `ScreenComponentGenerator`, ...) is deprecated
+  but still works: it builds its own default collaborators, which share the application context of your
+  `MenuService`, so they do not see the collaborator beans you declare. Move a `MenuService` subclass to the
+  constructor that takes the five collaborators. Nothing is removed before 6.0.
+
+### SQLBuilder
+
+Issue #782 moves the pure logic of `SQLBuilder` to the `com.almis.awe.service.data.builder.sql` package. Unlike
+`MenuService`, `SQLBuilder` is split without changing how its methods call each other, because projects replace the
+`SQLQueryBuilder` and `SQLMaintainBuilder` beans with their own subclasses:
+
+- Every public and protected method of `SQLBuilder` keeps its signature, and the protected methods still call each
+  other in the same order. An override of `getOperandExpression`, `getVariableAsExpression`, `getStringExpression`,
+  `buildPath` or any other protected method still applies wherever it did in AWE 4.
+- Only logic that calls no overridable method has moved: the private methods of the filters and the body of a few
+  protected methods. The protected methods are still there and delegate to the helpers.
+- The generated SQL and the classes of the bound values do not change: a `DATE` variable is still bound as
+  `java.sql.Date` and a `TIMESTAMP` variable as `java.sql.Timestamp`. Date operations (`ADD_DAYS`, `SUB_MONTHS`...)
+  and the `TRUNCDATE` function are still typed as `java.util.Date`, which decides how the JDBC driver reads them.
+
+| Helper | Responsibility | Moved from `SQLBuilder` |
+|---|---|---|
+| `SqlFilterConditions` | The condition of a filter (`eq`, `in`, `like`, `exists`...) and the union of a filter group. | Private `applyFilterCondition`, `getFilterEq`, `getFilterIn`, `getFilterLike`, `getFilterExists`, `getBooleanExpressionResults` |
+| `SqlOperations` | The expression of an operation (`CONCAT`, `ADD`, `ADD_DAYS`, `SUBSTRING`...). | Body of protected `generateOperationExpression` |
+| `SqlFieldFunctions` | The functions and casts of a field. | Bodies of protected `getExpressionFunction` and `getExpressionCast`; the unsupported-value error stays in `SQLBuilder` |
+| `SubstringValidator` | The operand count and index types of `SUBSTRING`. | Private `validateIntegerCompatibleOperand`, `validateConstantIntegerOperand`, `validateFieldIntegerOperand`; `validateSubstringOperation` stays and throws the localized error |
+| `SqlListValues` | Which values of a list variable a filter binds, and the `LIST_TO_STRING` join. | Part of private `convertVariableListToExpression` and `getListAsStringExpression`, private `addStringToListIfValid` |
+| `SqlPaths` | The path of a single node. | Body of protected `buildPath(String)` |
+| `SqlDateValues` | The `SYSTEM_TIME` value, read from a `Clock`, and the `TIMESTAMP` value. | Inline code of `getVariableAsExpression` and `getVariableAsExpressionOrNull` |
+
+Notes for projects that extend `SQLQueryBuilder` or `SQLMaintainBuilder`:
+
+- **Keep overriding the protected methods.** The helpers are `final` classes with static methods: they are not
+  extension points. To change an operator, a function or a cast, override `generateOperationExpression`,
+  `getExpressionFunction` or `getExpressionCast` as before; a `super` call returns the same expression as in AWE 4.
+- **Review reflective calls.** The private methods listed above no longer exist in `SQLBuilder`. A subclass that
+  calls them through reflection fails with `NoSuchMethodException`; call the protected method that uses them instead
+  (`getFilterGroups` for the filters, `getOperationExpression` for `SUBSTRING`).
+- **Nothing else changes.** The constructors, the bean declarations (`@ConditionalOnMissingBean`, prototype scope)
+  and the reflective join methods of `SQLQueryBuilder` are unchanged.
+
+### Screen contract values
+
+Issue #823 aligns the values that the builders emit and the XSDs accept with what the AngularJS and React engines
+handle.
+
+Fixed, so the action now runs:
+
+- `Action.CHECK_RECORDS_GENERATED`, `Action.SELECT_FIRST_ROW` and `Action.SELECT_LAST_ROW` send `check-records-generated`,
+  `select-first-row` and `select-last-row` (they sent `check-records-selected`, `select-first-rows` and
+  `select-last-rows`).
+- `toggle-class` runs in the AngularJS engine, as it already did in React.
+- `target-message` runs in the React engine. As in AngularJS, it shows a popover on the target component (or on the
+  grid cell, when the target has a row and a column) with the type, text and timeout of the message, and a new one
+  replaces the previous one. When the target is not on screen, React shows the message as a notification.
+- `close-window`, handled by both engines, is now a valid button action in `general.xsd`.
+
+Deprecated: still valid, no behaviour in either engine, removed in 6.0:
+
+| Value | Where | Instead |
+|---|---|---|
+| `forward`, `check-leaf-selected`, `check-parent-expanded` | Button action type (`general.xsd`), builder `Action` | Remove it. |
+| `get-locals` | Button action type, builder `Action.GET_LOCALS` | Remove it. The client keeps loading the locals with the `get-locals` server action. |
+| `check-parent-selected` | Builder `Action.CHECK_PARENT_SELECTED` (not in the XSD) | Remove it. |
+| `<frame>`, `<javascript>` | Screen elements (`screen.xsd`) | Remove them: no engine renders them. |
+| `component="progress"` on a criterion | `criteriaComponentType` (`screen.xsd`) | Remove it. The `progress` grid column is not affected. |
+
+### Security audit
+
+AWE 5 records the security events of the application (issue #779): logins, logouts, locks, password and second factor
+changes, SSO provisioning, denied accesses and REST tokens. See [Security audit](../security/security-audit.md).
+
+- **New table.** The migration `AWE_V1.3.0__Security_audit_events.sql` creates `AweSecAudEvt` in every database that
+  Flyway migrates. Applications that build their schema with their own scripts must add the table.
+- **On by default.** Events go to the table, to the JSON log (logger `awe.security.audit`) and, with the observability
+  starter, to the `awe.security.audit.events` counter. `awe.security.audit.enabled=false` switches the whole feature
+  off; `awe.security.audit.database.enabled=false` keeps the log only. Events older than 365 days are purged every day
+  at 03:00 (`awe.security.audit.database.retention-days`, `awe.security.audit.database.purge-cron`).
+- **Automatic lockout off by default.** `awe.security.lockout.max-attempts` stays `0`. When an application sets a
+  value, `ope.NumLog` is used as the counter of consecutive failed logins (wrong password): a successful login resets
+  it, and the account is locked (`ope.PwdLck`) when it reaches the limit. Code of your own that writes `NumLog` for
+  other purposes would interfere with the lockout.
+- **New menu option.** `security-audit` (screen `SecAud`) is added under Settings > Security in the `private` menu.
+  Applications that replace the whole menu do not get it unless they add it.
+
+### Password hashing and master key
+
+AWE 5 hashes user passwords with BCrypt and requires a master key from configuration (issue #778). Products upgraded
+from AWE 4 keep working with their RIPEMD-160 hashes and their encrypted data, but some steps must be done **before**
+the upgrade. Review both checklists.
+
+#### Password hashing
+
+| Topic | AWE 4 | AWE 5 |
+|---|---|---|
+| Algorithm of new passwords | RIPEMD-160, without salt (40 characters) | BCrypt, with salt and the `{bcrypt}` prefix (68 characters). `awe.security.password-encoder=ripemd160` keeps the AWE 4 format |
+| Stored RIPEMD-160 hashes | Validate | Keep validating, and are rehashed with BCrypt on the next successful login |
+| `ope.l1_pas`, `HISope.l1_pas` | `char(40)` | `varchar(255)` (Flyway `AWE_V1.4.0__Password_hash_length.sql`) |
+| Current password checks (settings and change password screens) | SQL comparison of hashes | Java, with `PasswordEncoder.matches` |
+| `OpePas` | Written by the standard screens (SHA-256 copy) | No longer written; the column stays |
+| Query `getUserData` | Returns the stored hash (`oldPassword`) | No longer returns it |
+
+Checklist:
+
+- [ ] **Choose the encoder.** `awe.security.password-encoder=bcrypt` (default) or `ripemd160`. With `bcrypt`, a user
+  whose hash is RIPEMD-160 is rehashed with BCrypt on the next successful login with the database authentication. A
+  failed rehash (for example a column that is still `char(40)`) does not break the login: the user signs in with the
+  current hash and the log shows the WARN `The password of user <user> could not be rehashed with the configured
+  algorithm. It keeps the current hash`. With `ripemd160`, new passwords keep the AWE 4 format and nothing is
+  rehashed; BCrypt hashes already stored keep validating.
+- [ ] **Widen the column before upgrading.** Flyway applies `AWE_V1.4.0__Password_hash_length.sql` on the six
+  supported databases: `ope.l1_pas` and `HISope.l1_pas` become `varchar(255)`. Products that manage their own schema
+  must apply the equivalent change **before** upgrading (see the script of their database in `db/migration`). The
+  script can be applied again, and it never shrinks a column that is already wider than 255 characters.
+- [ ] **Review your own XML that compares or writes `l1_pas`.** A BCrypt hash has its own salt, so the hash of the
+  same password is different every time: an SQL filter that compares `l1_pas` with a `STRING_HASH_RIPEMD160` variable
+  stops matching as soon as the user is rehashed. Write passwords with `STRING_HASH_PASSWORD` (it hashes with the
+  configured encoder) and check them in Java with `PasswordEncoder.matches`, as `CurrentPasswordChangeService` does.
+  `STRING_HASH_RIPEMD160` keeps working and is deprecated. See [Variable types](../api/query-definition.md#variable-types).
+- [ ] **Review the overridden standard targets.** If your own `Maintain.xml` or `Queries.xml` redefines the password
+  targets, compare them with AWE 5: `UsrUpdPwd` and `ChdPwdPub` now call a Java service that checks the current
+  password and then launches `UsrUpdPwdUpdate` and `ChdPwdPubUpdate`; the query `UsrChkPwd` is removed.
+- [ ] **Review external systems that read `l1_pas`.** A system that compares or copies the hash (another application,
+  a report, a single sign-on bridge) does not understand BCrypt. Keep `awe.security.password-encoder=ripemd160` until
+  it is adapted.
+- [ ] **Back up `ope` before the upgrade.** There is no rollback to AWE 4 for users already rehashed: AWE 4 cannot
+  validate a BCrypt hash. To roll back, restore the backup (users who changed their password after the upgrade lose
+  the change).
+- [ ] **Adapt anything that reads `OpePas`.** The standard screens no longer write it (it held an unsalted SHA-256
+  copy of the password). The column is kept; its values are no longer updated.
+- [ ] **Adapt custom screens that read `oldPassword`.** `getUserData` no longer sends the stored hash to the browser,
+  and the settings screens no longer validate the current password in the browser (`validation` with
+  `criterion:'oldPassword'`): the server checks it. A wrong current password still answers OK and updates nothing.
+- [ ] **Insert scripts for users.** The [Encrypt util](default-screens.md#encrypt-util) screen now shows the
+  **Password hash** of the text, ready to insert into `ope.l1_pas`, with the configured algorithm or, when you choose
+  it in **Password algorithm**, with the AWE 4 RIPEMD-160 hash.
+- [ ] **Masked values in the SQL log.** The SQL logged (and carried by query errors) shows `'********'` instead of the
+  values of `STRING_HASH_*` and `STRING_ENCRYPT` variables and of the values written to or compared with the columns
+  of `awe.database.log-masked-fields` (default `l1_pas`); the statement executed is unchanged. Add your own sensitive
+  columns to the property if you need them masked too.
+
+#### Master key
+
+`awe.security.master-key` encrypts stored data: `STRING_ENCRYPT` variables, `ENC(...)` properties and the values of
+the Encrypt util screen. AWE 4 used a published default value when the property was not set; AWE 5 has no default.
+
+Checklist:
+
+- [ ] **Set the master key.** Without it the application does not start, and Spring Boot reports this reason for the
+  property `awe.security.master-key`:
+
+  ```text
+  awe.security.master-key is required: it encrypts stored data (encrypted parameters and properties). Applications
+  upgraded from AWE 4 that never configured it must set the former default value (see the AWE 5 migration guide) to
+  keep decrypting their stored data, then rotate it.
+  ```
+
+- [ ] **Applications that never set it** encrypted their data with the AWE 4 default value. Set that value, copied
+  literally (`%25` included), to keep decrypting the `STRING_ENCRYPT` data and the `ENC(...)` properties:
+
+  ```properties
+  awe.security.master-key=B1Le3s%25abc75TeBe05
+  ```
+
+  The value is accepted, and each startup logs the WARN `awe.security.master-key is set to the published AWE 4
+  default value. Keep it only while stored data encrypted with it is needed, and rotate it (see the AWE 5 migration
+  guide)`.
+- [ ] **Plan the rotation.** The AWE 4 default value is public. Choose a new secret key per environment, generate the
+  new values from their plain text in the Encrypt util screen with the new key in the `Phrase key` field (`Encrypted`
+  for the database columns, `Encrypted property` for `ENC(...)`), and deploy the new values together with the new
+  `awe.security.master-key`.
+- [ ] **Jasypt and the JWT secret follow the master key.** `jasypt.encryptor.password` (the `ENC(...)` properties) and
+  the default of `awe.rest.api.jwt.secret` no longer hide a copy of the AWE 4 value: they take the master key. Unless
+  `awe.rest.api.jwt.secret` is set, rotating the master key invalidates the local JWT tokens already issued.
+- [ ] **Use only `awe.security.master-key`.** The legacy name `awe.security.master.key` still wins for jasypt and the
+  JWT secret when it is set, but it does not satisfy the required `awe.security.master-key`, and `STRING_ENCRYPT`
+  always uses `awe.security.master-key`. Move the value to the new name and remove the old one, so that both cannot
+  differ.
+
+### Jackson 3 public API
+
+The public and protected members of the AWE 5 framework modules whose signature uses a Jackson 3 type
+(`tools.jackson.core` or `tools.jackson.databind`). Code that calls one of them, overrides it or extends its class with
+Jackson 2 types must move to the Jackson 3 ones. Types are shown by their simple name; the list was taken from the
+compiled classes, so it includes the getters and setters that Lombok generates.
+
+<details>
+<summary>Show the list (204 members)</summary>
+
+**`awe-controller`**
+
+```java
+// com.almis.awe.controller.ActionController
+  List<ClientAction> launchAction(String, ObjectNode)
+  List<ClientAction> launchAction(String, String, ObjectNode)
+// com.almis.awe.controller.FileController
+  ResponseEntity<String> getFileAsText(ObjectNode)
+  ResponseEntity<FileSystemResource> getFileAsStream(ObjectNode)
+  ResponseEntity<FileSystemResource> getFileAsStreamPOST(ObjectNode, String)
+  ResponseEntity<byte[]> downloadFile(ObjectNode)
+  ResponseEntity<byte[]> downloadFileMaintain(ObjectNode, String)
+  ServiceData deleteFile(ObjectNode)
+// com.almis.awe.controller.ScreenDataController
+  ScreenData getDefaultScreenData(ObjectNode)
+  ScreenData getOptionScreenData(String, ObjectNode)
+// com.almis.awe.controller.UploadController
+  UploadController(FileService, BroadcastService, ObjectMapper, BaseConfigProperties)
+// com.almis.awe.security.authentication.filter.JsonAuthenticationFilter
+  JsonAuthenticationFilter(AweElements, ObjectMapper)
+// com.almis.awe.service.ChartService
+  ChartService(ObjectMapper, BaseConfigProperties)
+// com.almis.awe.service.EmailService
+  Future<ServiceData> sendEmail(String, ObjectNode)
+// com.almis.awe.service.MaintainService
+  ServiceData launchMaintain(String, ObjectNode)
+  ServiceData launchMaintain(String, ObjectNode, DatabaseConnection, boolean)
+  ServiceData launchPrivateMaintain(String, ObjectNode)
+  ServiceData launchPrivateMaintain(String, ObjectNode, DatabaseConnection, boolean)
+  DatabaseConnection getDatabaseConnection(ObjectNode)
+  ServiceData launchMaintain(Target, ObjectNode, DatabaseConnection, boolean)
+// com.almis.awe.service.QueryService
+  ServiceData launchQuery(String, ObjectNode)
+  ServiceData launchQuery(String, ObjectNode, boolean)
+  ServiceData launchPrivateQuery(String, ObjectNode)
+// com.almis.awe.service.connector.AbstractRestConnector
+  protected AbstractRestConnector(ClientHttpRequestFactory, ObjectMapper)
+// com.almis.awe.service.connector.JavaConnector
+  JavaConnector(ObjectMapper)
+// com.almis.awe.service.connector.MicroserviceConnector
+  MicroserviceConnector(ClientHttpRequestFactory, QueryUtil, ObjectMapper, RestConfigProperties)
+// com.almis.awe.service.connector.RestConnector
+  RestConnector(ClientHttpRequestFactory, ObjectMapper, RestConfigProperties)
+// com.almis.awe.service.data.builder.AbstractQueryBuilder
+  protected ObjectNode parameters
+  protected void addComponentSort(ArrayNode)
+  protected String getVariableAsString(JsonNode)
+  ObjectNode getParameters()
+  AbstractQueryBuilder setParameters(ObjectNode)
+// com.almis.awe.service.data.builder.EnumBuilder
+  ArrayNode getEnumeratedAsJson()
+  ArrayNode getOptionListAsJson(EnumeratedGroup)
+  ObjectNode getJsonRow(Global)
+// com.almis.awe.service.data.builder.QueueBuilder
+  QueueBuilder setParameters(ObjectNode)
+  AbstractQueryBuilder setParameters(ObjectNode)
+// com.almis.awe.service.data.builder.SQLMaintainBuilder
+  SQLMaintainBuilder setParameters(ObjectNode)
+  AbstractQueryBuilder setParameters(ObjectNode)
+// com.almis.awe.service.data.builder.SQLQueryBuilder
+  SQLQueryBuilder setComponentSort(ArrayNode)
+  SQLQueryBuilder setParameters(ObjectNode)
+  AbstractQueryBuilder setParameters(ObjectNode)
+// com.almis.awe.service.data.builder.XMLEmailBuilder
+  ObjectNode getParameters()
+  XMLEmailBuilder setParameters(ObjectNode)
+// com.almis.awe.service.data.connector.maintain.EmailMaintainConnector
+  <T extends MaintainQuery> ServiceData launch(T, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.maintain.MaintainConnector
+  abstract <T extends MaintainQuery> ServiceData launch(T, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.maintain.MaintainLauncher
+  ServiceData launchMaintain(MaintainQuery, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.maintain.QueueMaintainConnector
+  <T extends MaintainQuery> ServiceData launch(T, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.maintain.SQLMaintainConnector
+  <T extends MaintainQuery> ServiceData launch(T, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.maintain.ServiceMaintainConnector
+  <T extends MaintainQuery> ServiceData launch(T, DatabaseConnection, ObjectNode)
+// com.almis.awe.service.data.connector.query.AbstractQueryConnector
+  protected AbstractQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+// com.almis.awe.service.data.connector.query.EnumQueryConnector
+  EnumQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+  ServiceData launch(Query, ObjectNode)
+  ServiceData launchEnum(String, ObjectNode)
+  ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.connector.query.QueryConnector
+  abstract ServiceData launch(Query, ObjectNode)
+  abstract ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.connector.query.QueryLauncher
+  ServiceData launchQuery(Query, ObjectNode)
+  ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.connector.query.QueueQueryConnector
+  QueueQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+  ServiceData launch(Query, ObjectNode)
+  ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.connector.query.SQLQueryConnector
+  SQLQueryConnector(AweDatabaseContextHolder, QueryUtil, javax.sql.DataSource, BaseConfigProperties, AweElements, NumericService, EncodeService, DatabaseConfigProperties, ObjectMapper)
+  ServiceData launch(Query, ObjectNode)
+  ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.connector.query.ServiceQueryConnector
+  ServiceQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+  ServiceData launch(Query, ObjectNode)
+  ServiceData subscribe(Query, ComponentAddress, ObjectNode)
+// com.almis.awe.service.data.processor.CompoundColumnProcessor
+  CompoundColumnProcessor(AweElements, BaseConfigProperties, Compound, Map<String, QueryParameter>, NumericService, EncodeService, ObjectMapper)
+// com.almis.awe.service.report.ReportDesigner
+  ReportDesigner(QueryService, ObjectMapper, BaseConfigProperties)
+  com.almis.ade.api.bean.input.PrintBean getPrintDesign(List<Element>, ObjectNode)
+  com.almis.ade.api.bean.input.PrintBean getPrintDesign(List<Element>, ObjectNode, boolean)
+  boolean hasSpreadsheetOnlyColumns(List<Element>, ObjectNode)
+// com.almis.awe.service.report.ReportDesigner$1
+  type: extends TypeReference<List<PrintColumnData>>
+// com.almis.awe.service.report.ReportDesigner$2
+  type: extends TypeReference<Map<String, Object>>
+// com.almis.awe.service.report.ReportGenerator
+  FileData generateReportFormat(com.almis.ade.api.fluid.engine.generic.TemplateExporterBuilder, String, String, String, ObjectNode)
+// com.almis.awe.service.report.ReportGenerator$GeneratedScreenReportContext
+  ReportGenerator$GeneratedScreenReportContext(List<FileData>, ObjectNode)
+  ObjectNode parameters()
+// com.almis.awe.service.screen.ScreenComponentGenerator
+  Map<String, ScreenComponent> generateComponentMap(Screen, ScreenData, Menu, ObjectNode)
+```
+
+**`awe-model`**
+
+```java
+// com.almis.awe.config.ServiceConfig
+  ObjectNode getRequestParameters()
+  ObjectNode getMutableRequestParameters()
+  JsonNode getRequestParameter(String)
+  JsonNode getRequestParameter(String, ObjectNode)
+  String getRequestParameterAsString(String, ObjectNode)
+  void putRequestParameter(ObjectNode, String, JsonNode)
+  void putRequestParameter(ObjectNode, String, String)
+  void putPropagatedRequestParameter(String, JsonNode)
+  void mergePropagatedRequestParameters(ObjectNode)
+// com.almis.awe.model.component.AweRequest
+  AweRequest(HttpServletRequest, HttpServletResponse, ObjectMapper)
+  void setParameterList(ObjectNode)
+  JsonNode getParameter(String)
+  ObjectNode getParameterList()
+  ObjectNode getParametersSafe()
+  List<CellData> getParameterAsCellDataList(JsonNode)
+  CellData getParameterAsCellData(JsonNode)
+  ObjectNode getParameters()
+  ObjectMapper getMapper()
+  AweRequest setParameters(ObjectNode)
+// com.almis.awe.model.component.PrototypeRequestBeanHolder
+  ObjectNode getRequestDataSnapshot()
+  void mergeRequestData(ObjectNode)
+  ObjectNode getPendingPropagationSnapshot()
+// com.almis.awe.model.component.RequestDataHolder
+  ObjectNode getRequestData()
+  void setRequestData(ObjectNode)
+// com.almis.awe.model.dto.FilterColumn
+  FilterColumn(ObjectNode)
+// com.almis.awe.model.dto.QueryData
+  ObjectNode getParameters()
+  QueryData setParameters(ObjectNode)
+// com.almis.awe.model.dto.QueryParameter
+  QueryParameter(JsonNode)
+  QueryParameter(JsonNode, boolean, ParameterType)
+  JsonNode getValue()
+  void setValue(JsonNode)
+// com.almis.awe.model.dto.SortColumn
+  SortColumn(ObjectNode)
+// com.almis.awe.model.entities.Element
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.actions.ComponentAddress
+  static ComponentAddress fromJson(JsonNode)
+// com.almis.awe.model.entities.queries.Query
+  String getQueryKeys(ObjectNode)
+// com.almis.awe.model.entities.screen.Screen
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.Dialog
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.Window
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.chart.Chart
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.chart.ChartSeriePoint
+  List<JsonNode> getPositionPoint()
+  void setPositionPoint(List<JsonNode>)
+// com.almis.awe.model.entities.screen.component.criteria.AbstractCriteria
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.grid.AbstractGrid
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.panelable.Panelable
+  List<Element> getReportStructure(List<Element>, String, ObjectNode, String)
+// com.almis.awe.model.entities.screen.component.pivottable.PivotSorter
+  void addSorter(String, JsonNode)
+  Map<String, JsonNode> getSorterMap()
+  void setSorterMap(Map<String, JsonNode>)
+  PivotSorter(Map<String, JsonNode>)
+// com.almis.awe.model.entities.screen.data.AweThreadInitialization
+  ObjectNode getParameters()
+  AweThreadInitialization setParameters(ObjectNode)
+// com.almis.awe.model.util.data.DataListUtil
+  static JsonMapper$Builder applyAweJsonContract(JsonMapper$Builder)
+  static ObjectMapper getMapper()
+  static ArrayNode getColumnAsArrayNode(DataList, String)
+// com.almis.awe.model.util.data.QueryUtil
+  QueryUtil(BaseConfigProperties, DatabaseConfigProperties, ObjectMapper, PrototypeRequestBeanHolder)
+  List<SortColumn> getSortList(ArrayNode)
+  Map<String, QueryParameter> getDefaultVariableMap(ObjectNode)
+  Map<String, QueryParameter> getVariableMap(List<Variable>, ObjectNode, Integer)
+  Map<String, QueryParameter> getVariableMap(Query, ObjectNode)
+  void addToVariableMap(Map<String, QueryParameter>, Query, ObjectNode)
+  void addDataListToRequestParameters(DataList, ObjectNode)
+  Map<String, QueryParameter> getVariableMap(MaintainQuery, ObjectNode)
+  Map<String, QueryParameter> getVariableMap(MaintainQuery, ObjectNode, List<ServiceInputParameter>)
+  ObjectNode getParameters()
+  ObjectNode getParameters(ObjectNode)
+  <T> ObjectNode getParameters(T)
+  ObjectNode getParameters(String, String, String)
+  ObjectNode getParameters(String)
+  ObjectNode getParameters(ObjectNode, String, String, String)
+  JsonNode getParameter(Variable, ObjectNode)
+  JsonNode getParameter(String, JsonNode, ParameterType, String)
+  JsonNode getRequestParameter(String, ObjectNode)
+  JsonNode getRequestParameter(String)
+  boolean variableIsList(Variable, ObjectNode)
+  boolean isEmptyVariable(JsonNode)
+  boolean isNullVariable(JsonNode)
+// com.almis.awe.model.util.data.StringUtil
+  static ArrayNode toArrayNode(String, String)
+  static List<String> asList(JsonNode)
+// com.almis.awe.model.util.web.MessageConverterUtil
+  static RestTemplate withJsonMapper(RestTemplate, ObjectMapper)
+```
+
+**`awe-builder`**
+
+```java
+// com.almis.awe.builder.client.grid.AddRowActionBuilder
+  AddRowActionBuilder(RowPosition, String, ObjectNode)
+// com.almis.awe.builder.client.grid.RowsActionBuilder
+  RowsActionBuilder(String, RowPosition, String, ObjectNode)
+// com.almis.awe.builder.client.grid.UpdateCellActionBuilder
+  UpdateCellActionBuilder(ComponentAddress, JsonNode)
+// com.almis.awe.builder.client.grid.UpdateRowActionBuilder
+  UpdateRowActionBuilder(String, ObjectNode)
+  UpdateRowActionBuilder(String, String, ObjectNode)
+```
+
+**`awe-notifier`**
+
+```java
+// com.almis.awe.notifier.service.NotifierService
+  NotifierService(QueryService, MaintainService, BroadcastService, ObjectMapper)
+```
+
+**`awe-rest`**
+
+```java
+// com.almis.awe.rest.controller.AweRestController
+  AweRestController(QueryService, MaintainService, AweRequest, JWTTokenService, org.modelmapper.ModelMapper, ObjectMapper)
+// com.almis.awe.rest.security.JWTAuthenticationEntryPoint
+  JWTAuthenticationEntryPoint(ObjectMapper)
+// com.almis.awe.rest.security.JWTAuthenticationFilter
+  JWTAuthenticationFilter(AuthenticationManager, ObjectMapper, JWTTokenService)
+  JWTAuthenticationFilter(AuthenticationManager, ObjectMapper, JWTTokenService, AweElements)
+```
+
+**`awe-scheduler`**
+
+```java
+// com.almis.awe.scheduler.dao.CalendarDAO
+  CalendarDAO(org.quartz.Scheduler, QueryService, QueryUtil, ObjectMapper)
+// com.almis.awe.scheduler.dao.TaskDAO
+  ObjectNode getProgressNode(long)
+  ObjectNode getStatusIcon(TaskExecution)
+  ServiceData loadExecutionScreen(String, ObjectNode)
+// com.almis.awe.scheduler.log.DatabaseExecutionLogStore
+  ObjectNode locatorNode(ExecutionKey)
+// com.almis.awe.scheduler.log.ExecutionLogStore
+  abstract ObjectNode locatorNode(ExecutionKey)
+// com.almis.awe.scheduler.log.FileExecutionLogStore
+  ObjectNode locatorNode(ExecutionKey)
+// com.almis.awe.scheduler.service.RemoteSchedulerService
+  RemoteSchedulerService(SchedulerService, RemoteScheduler, ObjectMapper, boolean)
+// com.almis.awe.scheduler.service.RemoteSchedulerService$1
+  type: extends TypeReference<List<String>>
+// com.almis.awe.scheduler.service.SchedulerService
+  ServiceData loadExecutionScreen(String, JsonNode)
+// com.almis.awe.scheduler.service.report.SchedulerEmailReportService
+  SchedulerEmailReportService(QueryUtil, MaintainService, QueryService, ObjectMapper)
+// com.almis.awe.scheduler.service.scheduled.MaintainJobService
+  MaintainJobService(ExecutionService, MaintainService, QueryUtil, TaskDAO, ApplicationEventPublisher, ObjectMapper, ExecutionLogStore, java.time.Duration, boolean, java.net.URI, boolean, String, String, RestTemplate)
+// com.almis.awe.scheduler.service.scheduled.MaintainJobService$1
+  type: extends TypeReference<Map<String, Object>>
+```
+
+**`awe-tools`**
+
+```java
+// com.almis.awe.tools.controller.FileManagerController
+  FileManagerController(FileManagerService, ServletContext, ObjectMapper)
+// com.almis.awe.tools.service.FileManagerService
+  JsonNode uploadFile(String, List<MultipartFile>)
+  JsonNode fileOperation(ObjectNode)
+  JsonNode error(Exception)
+```
+
+**`awe-notifier-spring-boot-starter`**
+
+```java
+// com.almis.awe.notifier.autoconfigure.NotifierConfig
+  NotifierService notifierService(QueryService, MaintainService, BroadcastService, ObjectMapper)
+```
+
+**`awe-rest-spring-boot-starter`**
+
+```java
+// com.almis.awe.rest.autoconfigure.RestSecurityConfiguration
+  RestSecurityConfiguration(PublicQueryMaintainAuthorization, AuthenticationManager, AuthenticationManager, UserDetailsService, ObjectMapper, AweRestConfigProperties, BaseConfigProperties, SecurityConfigProperties)
+```
+
+**`awe-scheduler-spring-boot-starter`**
+
+```java
+// com.almis.awe.scheduler.autoconfigure.SchedulerConfig
+  RemoteSchedulerService remoteSchedulerService(SchedulerService, RemoteScheduler, ObjectMapper)
+  MaintainJobService maintainJobService(ExecutionService, MaintainService, QueryUtil, TaskDAO, ApplicationEventPublisher, ObjectMapper, ExecutionLogStore, RestTemplate)
+  SchedulerEmailReportService emailReportService(QueryUtil, MaintainService, QueryService, ObjectMapper)
+  CalendarDAO calendarDAO(org.quartz.Scheduler, QueryService, QueryUtil, ObjectMapper)
+```
+
+**`awe-spring-boot-starter`**
+
+```java
+// com.almis.awe.autoconfigure.AweAutoConfiguration
+  AweRequest aweRequest(HttpServletRequest, HttpServletResponse, ObjectMapper)
+  ObjectMapper objectMapper()
+  QueryUtil queryUtil(BaseConfigProperties, DatabaseConfigProperties, ObjectMapper, PrototypeRequestBeanHolder)
+  ChartService chartService(ObjectMapper, BaseConfigProperties)
+  ReportDesigner reportDesigner(QueryService, ObjectMapper, BaseConfigProperties)
+  JavaConnector javaConnector(ObjectMapper)
+  MicroserviceConnector microserviceConnector(ClientHttpRequestFactory, QueryUtil, ObjectMapper, RestConfigProperties)
+  RestConnector restConnector(ClientHttpRequestFactory, ObjectMapper, RestConfigProperties)
+  EnumQueryConnector enumQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+  ServiceQueryConnector serviceQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+// com.almis.awe.autoconfigure.AweWebSecurityConfig
+  AweWebSecurityConfig(ApplicationContext, BaseConfigProperties, SecurityConfigProperties, AweSessionDetails, AweElements, ActionService, ObjectMapper, AccessService, ErrorPageService, MultiTenantOAuth2Config, MultiTenantFilter)
+  JsonAuthenticationFilter jsonAuthenticationFilter(BaseConfigProperties, AweElements, ActionService, ObjectMapper)
+// com.almis.awe.autoconfigure.JmsConfig
+  QueueQueryConnector queueQueryConnector(QueryUtil, BaseConfigProperties, AweElements, NumericService, EncodeService, ObjectMapper)
+// com.almis.awe.autoconfigure.SQLConfig
+  SQLQueryConnector sqlQueryConnector(AweDatabaseContextHolder, QueryUtil, javax.sql.DataSource, BaseConfigProperties, AweElements, NumericService, EncodeService, DatabaseConfigProperties, ObjectMapper)
+```
+
+</details>
+
+## Planned for AWE 5.1
+
+The screens that AWE 5.0 replaces with the new administration screens are deprecated and **will be removed in 5.1.0**.
+Point your own menu options, actions and tests to the new screens now (see the [Upgrade checklist](#upgrade-checklist)):
+
+| Deprecated screens | Replacement |
+|---|---|
+| `ScrAccRes`, `menu-access`, `screen-access` | `access-admin` |
+| `Usr`, `UsrNew`, `UsrUpd`, `UsrViw` | `user-admin` |
+| `Prf`, `PrfNew`, `PrfUpd`, `PrfViw` | `profile-admin` |
+| `Thm`, `ThmNew`, `ThmUpd`, `ThmViw` | `theme-admin` |
+| `Dbs`, `DbsNew`, `DbsUpd`, `DbsViw` | `database-admin` |
+| `Sit`, `SitNew`, `SitUpd`, `SitViw` | `site-admin` |
+| `Mod`, `ModNew`, `ModUpd`, `ModViw` | `module-admin` |
+| `Que`, `QueNew`, `QueUpd` | `queue-admin` |
+| `EmlSrv`, `EmlSrvNew`, `EmlSrvUpd` | `email-server-admin` |
+| `AweKey` | `sequence-admin` |
+| `AweAppPar` | `application-parameter-admin` |
+
+## Upgrade checklist
+
+Copy this list to the issue of your upgrade and tick it as you go.
+
+```markdown
+- [ ] The application runs on the latest 4.x release and builds without deprecation warnings
+- [ ] `awe.version` (or the `awe-starter-parent` version) is set to the AWE 5 version
+- [ ] `awe-react-client` is set to the exact same version, `npm install` was run and the lock file is committed
+- [ ] Every screen with a chart was opened and the server log has no `Highcharts chart-parameter` warnings
+- [ ] Custom code that imports Highcharts or reads `.highcharts-*` CSS was reviewed
+- [ ] Highcharts scripts (themes, plugins) were removed from `scripts.xml` of AngularJS applications
+- [ ] The `theme` attribute was removed from the charts, and `setTheme` calls from the builders
+- [ ] Custom code that uses jsoup declares its own dependency
+- [ ] If the application sets `PwdExp`, the value and the users with an old or empty password change date were reviewed
+- [ ] Custom clients do not read `elementList` from the menu JSON
+- [ ] Custom clients do not read `elementList` from the `controller` of the `screen-data` components
+- [ ] Custom React-style clients (`template: false`) read the attributes of a component from its `controller`, not from `structure`
+- [ ] Flyway was repaired or the database recreated if `SCHEDULER_V1.0.5` had been applied before
+- [ ] The decision about the dark mode that follows the operating system was taken (`awe.application.theme-mode`)
+- [ ] CSS of the application no longer sets the AWE 4 theme variables (`--primary-color`...) or styles `.theme-<name>`
+- [ ] Browser tests compile; the `By` overloads and `getDriver()` were moved to `Locator` and `getBrowser()`
+- [ ] The application builds and runs on JDK 21 with `java.version` 21
+- [ ] Spring Boot 4.1 starters and test annotations replace the removed ones (`spring-boot-starter-web`, `@MockBean`...)
+- [ ] Spring Session with Redis uses `spring-boot-starter-session-data-redis` and `spring.session.data.redis.*` properties
+- [ ] Jackson imports moved to `tools.jackson.*`; `asText()`/`asInt()`/`asBoolean()` calls use the default-value overloads
+- [ ] Clients of the AWE API send no content after the JSON body; Jackson 3 clients use the AWE mapper
+- [ ] Own `logback-spring.xml` no longer declares the `applicationName` conversion rule
+- [ ] Maintains that relied on partial commits were reviewed, or `awe.maintain.transaction.enabled=false` is set
+- [ ] No client code, screen or REST client of the application launches a framework target that is now `server-only`; own Java-only targets are marked `server-only="true"`
+- [ ] `awe.security.authorization.mode=warn` was run, the `ACCESS_DENIED` events were reviewed and the application uses `enforce` (or `off` on purpose)
+- [ ] `AweOpeRol` and `HISAweOpeRol` exist (Flyway `AWE_V1.6.0` or own scripts), and a custom `UserDAO` overrides `supportsAdditionalProfiles`, `findAdditionalProfiles` and `findProfileId` if the application uses additional profiles
+- [ ] `AweProPer` exists, the profiles other than the administrator that manage users or profiles have their permissions in it (`users.*`, `profiles.*`...), the `PERMISSION` refusals of a run with `warn` were reviewed, and a custom `UserDAO` overrides `findPermissions` and `findAllPermissions`
+- [ ] The profiles other than the administrator that use the system, access, audit, themes, scheduler, developer, SQL extractor or subscriptions areas have their permissions in `AweProPer`
+- [ ] No client calls without a session the developer, scheduler and tools targets that are no longer public, and application screens that reuse an administration selector (`DbsSel`, `SitSel`, `ThmSel`, `GetPrnLst`...) were reviewed
+- [ ] Code that builds `ActionService` by hand passes the `TargetLaunchAuthorizerChain` bean
+- [ ] The security audit was reviewed: `AweSecAudEvt` exists, the `security-audit` option is restricted, `awe.security.lockout.max-attempts` decided
+- [ ] Screens and builders use no deprecated contract value (`forward`, `get-locals`, `<frame>`, `<javascript>`...)
+- [ ] `ope` was backed up, `l1_pas` is `varchar(255)` and `awe.security.password-encoder` was decided (own XML and external readers of `l1_pas` reviewed)
+- [ ] `awe.security.master-key` is set (the AWE 4 default value if the application never set it) and its rotation is planned
+- [ ] Own templates and scripts use no Bootstrap JavaScript (`data-toggle`, `data-target`, `data-parent`, `$(el).modal(...)`, `.popover(...)`...): the AWE components, `AweModal` or native code replace them
+- [ ] CSS of the application that styled icon font glyphs (`.fa-*:before`, `.pi-*`) or the `.layout-dark` class was reviewed
+- [ ] An own security configuration allows `/icons/**` (the sign-in shows its icons)
+- [ ] CSS overrides of the sign-in, change password and 2FA screens were reviewed in light and dark
+- [ ] AngularJS browser tests that press Escape in a confirm or dialog, or rely on the focus, were reviewed
+- [ ] React browser tests expect the user name without the user code in `checkLogin`/`ensureLoggedIn`
+- [ ] Own menu options that open the deprecated `Usr` screens point to `user-admin`
+- [ ] Own menu options that open the deprecated `Prf` screens point to `profile-admin`
+- [ ] Own menu options that open the deprecated `Thm` screens point to `theme-admin`
+- [ ] Own menu options that open the deprecated `Dbs` screens point to `database-admin`
+- [ ] Own menu options that open the deprecated `Sit` screens point to `site-admin`
+- [ ] Own menu options that open the deprecated `EmlSrv` screens point to `email-server-admin`
+- [ ] Own menu options that open the deprecated `Que` screens point to `queue-admin`
+- [ ] Own menu options that open the deprecated `AweKey` screens point to `sequence-admin`
+- [ ] Own overrides of the `AweKeyUpd` multiple maintain are renamed `AweKeyMul`
+- [ ] Own menu options that open the deprecated `AweAppPar` screen point to `application-parameter-admin`
+- [ ] Own menu options that open the deprecated `Mod` screens point to `module-admin`
+- [ ] Own menu options that open the deprecated `ScrAccRes`, `menu-access` or `screen-access` screens point to `access-admin`
+- [ ] `server.compression.*` and `spring.web.resources.chain.compressed` were removed from `application.properties` (or the own list has `text/javascript` and `image/svg+xml`), and the React `webpack.prod.js` has the `CompressionPlugin` entries of the archetype
+- [ ] The `splitChunks` of the React `webpack.dev.js` and `webpack.prod.js` have no global `name: "main"` and the `commons` cache group uses `chunks: 'initial'`, as the archetype does
+- [ ] The open items of "Coming in AWE 5" were reviewed against the application
+```
+
+## Maintaining this guide
+
+This guide is only useful if it stays current, so it is part of the definition of done of a change:
+
+- **Who:** the author of a merge request that can affect an existing application: a removed or renamed API, XML,
+  property, database script or JSON field, a changed default or a dependency that applications receive from AWE.
+- **When:** in the same merge request, tick the checkbox "If this MR has impacts on existing applications, I added an
+  entry to the AWE 5 migration guide". The `has impacts` label marks these merge requests and issues.
+- **How:** add one row to the table [What changes](#what-changes) with the symptom, what to do and a link to the
+  detailed page, and a sub-section below it when the row is not enough. Describe only what is merged and was checked in
+  the code.
+- **Where:** edit `website/docs/guides/v5-migration.md` on `develop`. Changes that only exist on the 4.x line belong in
+  the documentation of `support/4.x` (see [Documentation per line](release-lines-and-support.md#documentation-per-line)).

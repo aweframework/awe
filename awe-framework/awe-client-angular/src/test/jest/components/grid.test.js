@@ -1,5 +1,6 @@
 // Source-traceable focused Jest parity for components/grid.js.
 import {cleanupHeavyComponentTest, initHeavyComponentTest} from "./heavyComponentTestUtils";
+import {mountGrid} from "./gridTestUtils";
 
 describe("components/grid.js", () => {
   let refs;
@@ -67,5 +68,205 @@ describe("components/grid.js", () => {
     expect(event.stopPropagation).toHaveBeenCalled();
     expect(event.preventDefault).toHaveBeenCalled();
     expect(event.currentTarget.value).toBe("");
+  });
+
+  it("shows every row without pages in a grid with max 0, as in AWE 3 (#944)", () => {
+    const rows = [{id: 1, name: "One"}, {id: 2, name: "Two"}, {id: 3, name: "Three"}];
+    const {element, component} = mountGrid(refs, {loadAll: true, max: 0}, rows);
+    component.api.updateModelValues({values: rows, records: rows.length});
+    refs.$rootScope.$digest();
+
+    expect(component.grid.api.core.getVisibleRows().map(row => row.entity.name)).toEqual(["One", "Two", "Three"]);
+    expect(element.find("[data-testid='grid-pagination']").length).toBe(0);
+    element.remove();
+  });
+
+  describe("empty state", () => {
+    const EMPTY = "[data-testid='grid-empty']";
+    const baseController = {
+      id: "Grid",
+      visible: true,
+      loading: false,
+      targetAction: "getRows",
+      loadAll: false,
+      multiselect: false,
+      editable: false,
+      enableFilters: false,
+      showTotals: false,
+      disablePagination: false,
+      max: 10,
+      pagerValues: [10, 20],
+      columnModel: [{name: "date", field: "date"}],
+      buttonModel: [],
+      headerModel: []
+    };
+
+    const compileGrid = (controllerOverrides = {}, values = []) => {
+      const controller = {...baseController, ...controllerOverrides};
+      const model = {page: 1, records: values.length, total: 1, selected: [], values};
+      jest.spyOn(refs.$storage, "get").mockReturnValue({base: {}});
+      jest.spyOn(refs.$control, "checkComponent").mockReturnValue(true);
+      jest.spyOn(refs.$control, "checkOnlyComponent").mockReturnValue(true);
+      jest.spyOn(refs.$control, "getAddressModel").mockReturnValue(model);
+      jest.spyOn(refs.$control, "getAddressController").mockReturnValue(controller);
+      jest.spyOn(refs.$utilities, "timeout").mockImplementation(callback => callback());
+      refs.$utilities.timeout.cancel = jest.fn();
+      const element = refs.$compile("<awe-grid grid-id='Grid'></awe-grid>")(refs.$rootScope.$new());
+      refs.$rootScope.$digest();
+      return {element, scope: element.isolateScope() || element.scope()};
+    };
+
+    it("shows the default empty state in a grid without rows", () => {
+      const {element, scope} = compileGrid();
+
+      expect(element.find(EMPTY).length).toBe(1);
+      expect(scope.emptyState.title).toBe("SCREEN_TEXT_GRID_EMPTY_TITLE");
+      expect(scope.emptyState.text).toBe("SCREEN_TEXT_GRID_EMPTY_TEXT");
+      expect(scope.emptyState.icon).toEqual({family: "lucide", name: "inbox", classes: "", href: "icons/lucide-sprite.svg#inbox"});
+      expect(element.find(`${EMPTY} span.grid-empty-icon > svg.awe-icon > use`).attr("href")).toBe("icons/lucide-sprite.svg#inbox");
+      expect(scope.emptyState.button).toBeUndefined();
+    });
+
+    it("shows the configured icon, title and text", () => {
+      const {scope} = compileGrid({emptyIcon: "mdi:filter_alt", emptyTitle: "MY_TITLE", emptyText: "MY_TEXT"});
+
+      expect(scope.emptyState.icon).toEqual({name: "filter_alt", family: "mdi"});
+      expect(scope.emptyState.title).toBe("MY_TITLE");
+      expect(scope.emptyState.text).toBe("MY_TEXT");
+    });
+
+    it("does not show the empty state when the grid has rows", () => {
+      const {element} = compileGrid({}, [{id: 1, date: "23/10/1978"}]);
+
+      expect(element.find(EMPTY).length).toBe(0);
+    });
+
+    it("clicks the button of the grid that the empty action refers to", () => {
+      const clearButton = {id: "ClearFilters", label: "BUTTON_CLEAR", icon: "eraser"};
+      const {scope} = compileGrid({emptyAction: "ClearFilters", buttonModel: [clearButton]});
+      const onClick = jest.fn();
+      const domButton = document.createElement("button");
+      domButton.id = "ClearFilters";
+      domButton.addEventListener("click", onClick);
+      document.body.appendChild(domButton);
+
+      scope.onEmptyAction();
+      document.body.removeChild(domButton);
+
+      expect(scope.emptyState.button).toEqual(clearButton);
+      expect(scope.emptyState.buttonIcon).toEqual({family: "lucide", name: "eraser", classes: "", href: "icons/lucide-sprite.svg#eraser"});
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+
+    it("waits for the data of a grid with initial load before showing the empty state", () => {
+      const {element, scope} = compileGrid({initialLoad: "query"});
+
+      expect(element.find(EMPTY).length).toBe(0);
+
+      scope.component.api.updateModelValues({values: [], records: 0});
+      refs.$rootScope.$digest();
+
+      expect(element.find(EMPTY).length).toBe(1);
+    });
+
+    it("shows the empty state of a grid with initial load whose data came with the screen and has no rows", () => {
+      // The server sends the model of the grid inside the screen data: the query ran and returned no rows
+      let serverModel, serverController, serverApi = {};
+      angular.mock.inject(["ServerData", ServerData => {
+        const views = {model: {}, controller: {}, api: {}};
+        ServerData.storeComponent({
+          id: "Grid",
+          controller: {...baseController, initialLoad: "query"},
+          model: {total: 1, page: 1, records: 0, selected: null, values: []}
+        }, views.model, views.controller, views.api, "option");
+        serverModel = views.model.Grid;
+        serverController = views.controller.Grid;
+        serverApi = views.api.Grid;
+      }]);
+      jest.spyOn(refs.$storage, "get").mockReturnValue({base: {}});
+      jest.spyOn(refs.$control, "checkComponent").mockReturnValue(true);
+      jest.spyOn(refs.$control, "checkOnlyComponent").mockReturnValue(true);
+      jest.spyOn(refs.$control, "getAddressModel").mockReturnValue(serverModel);
+      jest.spyOn(refs.$control, "getAddressController").mockReturnValue(serverController);
+      jest.spyOn(refs.$control, "getAddressApi").mockReturnValue(serverApi);
+      jest.spyOn(refs.$utilities, "timeout").mockImplementation(callback => callback());
+      refs.$utilities.timeout.cancel = jest.fn();
+
+      const element = refs.$compile("<awe-grid grid-id='Grid'></awe-grid>")(refs.$rootScope.$new());
+      refs.$rootScope.$digest();
+
+      expect(element.find(EMPTY).length).toBe(1);
+    });
+
+    it("clicks the button of the grid outside of the digest of the click on the empty action", () => {
+      const {scope} = compileGrid({emptyAction: "ClearFilters", buttonModel: [{id: "ClearFilters"}]});
+      refs.$utilities.timeout.mockRestore();
+      const errors = [];
+      let clicks = 0;
+      const domButton = document.createElement("button");
+      domButton.id = "ClearFilters";
+      // The button of the grid runs its actions through ng-click, which starts a digest of its own
+      domButton.addEventListener("click", () => {
+        clicks++;
+        try {
+          refs.$rootScope.$apply();
+        } catch (error) {
+          errors.push(error.message);
+        }
+      });
+      document.body.appendChild(domButton);
+
+      // The empty action is itself an ng-click, so it runs inside a digest
+      refs.$rootScope.$apply(() => scope.onEmptyAction());
+      angular.mock.inject(["$timeout", $timeout => $timeout.flush()]);
+      document.body.removeChild(domButton);
+
+      expect(errors).toEqual([]);
+      expect(clicks).toBe(1);
+    });
+
+    it("has no action for a button that is not in the grid", () => {
+      const {scope} = compileGrid({emptyAction: "Unknown", buttonModel: [{id: "Other"}]});
+
+      expect(scope.emptyState.button).toBeUndefined();
+      expect(() => scope.onEmptyAction()).not.toThrow();
+    });
+  });
+
+  describe("wrapping cells", () => {
+    const compileGrid = (columnModel, rowHeight) => {
+      const controller = {
+        id: "Grid", visible: true, loading: false, targetAction: "getRows", loadAll: false, multiselect: false, editable: false,
+        enableFilters: false, showTotals: false, disablePagination: false, max: 10, pagerValues: [10, 20], rowHeight,
+        columnModel, buttonModel: [], headerModel: []
+      };
+      const model = {page: 1, records: 0, total: 1, selected: [], values: []};
+      jest.spyOn(refs.$storage, "get").mockReturnValue({base: {}});
+      jest.spyOn(refs.$control, "checkComponent").mockReturnValue(true);
+      jest.spyOn(refs.$control, "checkOnlyComponent").mockReturnValue(true);
+      jest.spyOn(refs.$control, "getAddressModel").mockReturnValue(model);
+      jest.spyOn(refs.$control, "getAddressController").mockReturnValue(controller);
+      jest.spyOn(refs.$utilities, "timeout").mockImplementation(callback => callback());
+      refs.$utilities.timeout.cancel = jest.fn();
+      const element = refs.$compile("<awe-grid grid-id='Grid'></awe-grid>")(refs.$rootScope.$new());
+      refs.$rootScope.$digest();
+      return {element, scope: element.isolateScope() || element.scope()};
+    };
+
+    it("renders as today without wrapping columns: virtualized, fixed row height, no wrap class", () => {
+      const {element, scope} = compileGrid([{name: "date", field: "date"}], "30");
+
+      expect(scope.gridOptions.virtualizationThreshold).toBe(50);
+      expect(scope.gridOptions.rowHeight).toBe(30);
+      expect(element.find(".grid-wrap").length + (element.hasClass("grid-wrap") ? 1 : 0)).toBe(0);
+    });
+
+    it("renders every row of the page, with the row height as the minimum, when a column wraps", () => {
+      const {element, scope} = compileGrid([{name: "date", field: "date", wrap: true}], "30");
+
+      expect(scope.gridOptions.virtualizationThreshold).toBeGreaterThanOrEqual(1000);
+      expect(scope.gridOptions.rowHeight).toBe(30);
+      expect(element.find(".grid").addBack(".grid").hasClass("grid-wrap")).toBe(true);
+    });
   });
 });

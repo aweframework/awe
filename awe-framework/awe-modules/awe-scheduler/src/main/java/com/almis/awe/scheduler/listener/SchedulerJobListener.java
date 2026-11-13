@@ -3,8 +3,6 @@ package com.almis.awe.scheduler.listener;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.scheduler.bean.event.SchedulerTaskFinishedEvent;
-import com.almis.awe.scheduler.bean.event.SchedulerTaskStartedEvent;
-import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobExecutionContext;
@@ -12,7 +10,6 @@ import org.quartz.JobExecutionException;
 import org.quartz.JobListener;
 import org.springframework.context.ApplicationEventPublisher;
 
-import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 import static com.almis.awe.scheduler.constant.ListenerConstants.JOB_LISTENER_NAME;
 
 /**
@@ -46,10 +43,7 @@ public class SchedulerJobListener extends ServiceConfig implements JobListener {
 
   @Override
   public void jobToBeExecuted(JobExecutionContext context) {
-    if (context.getJobInstance() instanceof SchedulerJob) {
-      Task task = (Task) context.getJobDetail().getJobDataMap().get(TASK);
-      eventPublisher.publishEvent(new SchedulerTaskStartedEvent(this, task));
-    }
+    // The started event is published by JobService#startTask, once the execution is stored (#815)
   }
 
   @Override

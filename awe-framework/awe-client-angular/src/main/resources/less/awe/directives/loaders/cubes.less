@@ -1,47 +1,36 @@
 /*******************************************************************************
  CUBES LOADER
 *******************************************************************************/
+// AWE 5 (#885), as the React loader: drawn in the primary colour, every size a share of the loader size (loader.less)
 
 .cubes-loader {
   margin: auto;
-  width: 40px;
-  height: 40px;
+  width: @loader-size;
+  height: @loader-size;
   position: relative;
-
   .cube1, .cube2 {
-    background-color: #444;
-    .opacity(0.7);
-    width: 15px;
-    height: 15px;
+    background-color: var(--awe-color-primary);
+    opacity: 0.7;
+    width: calc(@loader-size * 0.375);
+    height: calc(@loader-size * 0.375);
     position: absolute;
     top: 0;
     left: 0;
     animation: sk-cubemove 1.8s infinite ease-in-out;
   }
-
   .cube2 {
     animation-delay: -0.9s;
   }
-
 }
-
-
-@-webkit-keyframes sk-cubemove {
-  25% { transform: translateX(42px) rotate(-90deg) scale(0.5) }
-  50% { transform: translateX(42px) translateY(42px) rotate(-180deg) }
-  75% { transform: translateX(0) translateY(42px) rotate(-270deg) scale(0.5) }
-  100% { transform: rotate(-360deg) }
-}
-
 @keyframes sk-cubemove {
   25% {
-    transform: translateX(42px) rotate(-90deg) scale(0.5);
+    transform: translateX(calc(@loader-size * 1.05)) rotate(-90deg) scale(0.5);
   } 50% {
-    transform: translateX(42px) translateY(42px) rotate(-179deg);
+    transform: translateX(calc(@loader-size * 1.05)) translateY(calc(@loader-size * 1.05)) rotate(-179deg);
   } 50.1% {
-    transform: translateX(42px) translateY(42px) rotate(-180deg);
+    transform: translateX(calc(@loader-size * 1.05)) translateY(calc(@loader-size * 1.05)) rotate(-180deg);
   } 75% {
-    transform: translateX(0) translateY(42px) rotate(-270deg) scale(0.5);
+    transform: translateX(0) translateY(calc(@loader-size * 1.05)) rotate(-270deg) scale(0.5);
   } 100% {
     transform: rotate(-360deg);
   }

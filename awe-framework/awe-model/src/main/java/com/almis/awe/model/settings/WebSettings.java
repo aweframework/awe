@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
+import java.util.Map;
+
 /**
  * WebSettings component
  *
@@ -20,8 +22,16 @@ public class WebSettings {
   // Settings
   private String pathServer;
   private String initialURL;
+  // Whether the request has a user session: the clients apply the colour mode chosen on the sign-in page without one
+  private Boolean authenticated;
   private String language;
   private String theme;
+  // AWE 5 theme appearance
+  private String themePrimary;
+  private String themeSurface;
+  private String themeMode;
+  private String density;
+  private Map<String, String> themePalette;
   private String charset;
   private String applicationName;
   private String dataSuffix;
@@ -29,9 +39,15 @@ public class WebSettings {
   private Integer recordsPerPage;
   private Integer recordsPerPageOnCriteria;
   private Integer pixelsPerCharacter;
+  private String gridIconLoading;
+  private String gridColumnsPanel;
+  private Boolean gridToolbarLabels;
   private String defaultComponentSize;
   private Boolean reloadCurrentScreen;
   private Boolean menuSearchEnabled;
+  private String menuDescription;
+  private String menuFlyoutPlacement;
+  private String windowHeader;
   private long suggestTimeout;
   // Connection
   private Integer connectionTimeout;
@@ -61,4 +77,8 @@ public class WebSettings {
   private WebPivotOptions pivotOptions;
   // Chart options
   private WebChartOptions chartOptions;
+  // Map tile url
+  private String mapTileUrl;
+  // Sign-in page branding
+  private WebLoginSettings login;
 }

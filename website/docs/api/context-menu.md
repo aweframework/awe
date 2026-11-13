@@ -3,7 +3,35 @@ id: context-menu
 title: Context menu
 ---
 
-Awe engine allows define context menu inside a grid, criterias or charts. With these menus, you can add functionality to your window.
+:::tip See it live
+
+Try the context menu with live controls in the [component catalog](../components/context-menu.mdx): the real AWE component and the XML that produces it.
+
+:::
+
+Awe engine allows define context menu inside a grid, tree grid, chart, button, criterion, tab or wizard. With these menus, you can add functionality to your window.
+
+## Opening the menu
+
+The menu opens with a right click on the component that declares it: grids, tree grids, charts, buttons, criteria, tabs and wizards.
+
+- When none of the options is visible (for example, because of their dependencies), the menu does not open and the browser menu is shown instead. Grids and tree grids are the exception: the options of a grid usually depend on the selected row, and those dependencies are resolved after the click selects the row, so a grid opens its menu whenever it declares options.
+- When a component sits inside another one that also declares a context menu (a criterion inside a tab), the menu of the inner component wins over the menu of its container.
+
+### Opening the menu from a button
+
+A button opens a context menu with the `show-context-menu` client action. It is the way to give each row of a grid a button that opens the context menu of the grid with a left click:
+
+```xml
+<column name="Actions" label="" component="button" icon="ellipsis-v" charlength="12">
+  <button-action type="show-context-menu"/>
+</column>
+```
+
+- The button of a grid row selects its row (only it, as every [button of a row](grids.md#button-column-component) does) and opens the context menu of the grid just under the button.
+- Any other button opens its own context menu (the `context-button` elements declared inside the button), just under itself.
+- When there is nothing to open the action only finishes and the following actions go on. For a button outside a grid that means it declares no options or none of them is visible. A grid opens its menu whenever it declares options, even if none of them is visible at that moment, because their dependencies resolve after the row is selected; only a grid that declares no options has nothing to open (and then the row is not selected either).
+- The action works in both client engines (AngularJS and React) and it is allowed on any button. Do not set a `target`: the action always works on the button that launches it.
 
 <img alt="GridContextMenu" src={require('@docusaurus/useBaseUrl').default('img/GridContextMenu.png')} />
 
@@ -49,12 +77,13 @@ The xml structure of context menus is the following:
 | `id`    | String | **Required** | Context button identifier       |                                                                            |
 | `label` | String | **Required** | Label of the context button.    | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | `icon`  | String | Optional     | Icon name of the context button | **Note:** You can check all iconsets at [icons](icons.md) screen           |
+| `permission` | String | Optional | Permissions the user needs to see the context button. It replaces what is derived from the targets of its actions. See [screen elements](../security/permissions.md#screen-elements) | Permission identifiers separated by spaces, all required |
 
 > **Note:** The context button has the same attributes as button element. You can see more info [here](button.md#button-attributes)
 
 ### Button action attributes
 
-> **Note:** You can see all attributes of `button-action ` [here](button.md#button-actions)
+> **Note:** You can see all attributes of `button-action` [here](button.md#button-actions)
 
 ### Context separator attributes
 

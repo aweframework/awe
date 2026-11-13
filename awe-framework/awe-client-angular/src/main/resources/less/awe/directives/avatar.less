@@ -1,32 +1,40 @@
 /*******************************************************************************
  AVATAR DIRECTIVE
 *******************************************************************************/
+// The user avatar of the AWE 5 shell (#885): a round image or icon on the primary subtle colour, next to the name
 
 .nav li.avatar {
   cursor: pointer;
 
-  .avatar-icon {
-    margin-top: 0.5rem;
-    > .nav-icon {
-      font-size: 1.5rem;
-      &.material-icons {
-        font-size: 2rem;
-      }
-    }
-  }
-
-  .avatar-image {
-    margin-bottom: 0.5rem;
-  }
-
   .avatar-icon,
   .avatar-image {
-    border-radius: 50%;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-width: 2px;
-    box-shadow: 1px 2px 2px var(--shadow-color);
-    display: inline-block;
-    background-color: var(--secondary-background-color);
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: var(--awe-size-control-sm);
+    height: var(--awe-size-control-sm);
+    margin: 0;
+    color: var(--awe-color-on-primary-subtle);
+    background-color: var(--awe-color-primary-subtle);
+    border: 0;
+    border-radius: var(--awe-radius-full);
+    box-shadow: none;
+    object-fit: cover;
+  }
+
+  .avatar-icon > .nav-icon {
+    width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+    font-size: var(--awe-font-size-base);
+    line-height: 1;
+  }
+
+  .avatar-text {
+    font-size: var(--awe-font-size-sm);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-tight);
+    color: var(--awe-color-text-emphasis);
+    white-space: nowrap;
   }
 }

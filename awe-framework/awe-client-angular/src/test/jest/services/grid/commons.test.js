@@ -14,7 +14,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     },
     controller: {columnModel: [], headerModel: [{startColumnName: "other", numberOfColumns: 2, titleText: "Header text"}]},
     enableSorting: true,
-    scope: {$on: () => null, charSize: 7, gridOptions: {}},
+    scope: {$on: () => null, $emit: () => null, charSize: 7, gridOptions: {}},
     listeners: {},
     api: {},
     model: {
@@ -155,7 +155,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     expect(column.sortField).toBe("tutu");
     expect(column.enableFiltering).toBe(false);
     expect(column.footerCellTemplate).toBe("grid/footer");
-    expect(column.cellTemplate).toBe("<div class=\"ui-grid-cell-contents component\" title=\"TOOLTIP\" column-id=\"{{col.name}}\"><awe-column-text " +
+    expect(column.cellTemplate).toBe("<div class=\"ui-grid-cell-contents component\" title=\"TOOLTIP\" column-id=\"{{col.name}}\" data-testid=\"grid-cell\"><awe-column-text " +
       "cell-address='{\"hash\":\"{{row.uid}}\", \"view\":\"viewId\", \"component\":\"componentId\", \"row\":\"{{row.entity.id}}\", \"column\":\"{{col.name}}\"}'/></div>");
 
     expect(column2.enableSorting).toBe(true);
@@ -165,6 +165,77 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
 
     expect(column3.enableSorting).toBe(false);
 
+  });
+
+  // A column takes 4 more characters than its charlength for the cell padding, as in the React engine
+  it('should give a column 4 more characters of width than its charlength', function () {
+    let component = getDefaultComponent();
+    new GridCommons(component).init();
+    let plain = {id: "lan", charlength: 8};
+    let status = {id: "sta", charlength: "9", statusField: "StaTon"};
+    let fixed = {id: "fix", charlength: 9, width: 50};
+
+    [plain, status, fixed].forEach(component.fixColumn);
+
+    expect(plain.width).toBe((8 + 4) * 7);
+    expect(status.width).toBe((9 + 4) * 7);
+    expect(fixed.width).toBe(50);
+  });
+
+  // The header label fits: a column whose label is longer than its charlength takes the length of the label
+  it('should widen a column to fit its header label', function () {
+    let component = getDefaultComponent();
+    new GridCommons(component).init();
+    let longLabel = {id: "addPro", charlength: 13, label: "Additional profiles"};
+    let shortLabel = {id: "sta", charlength: 9, label: "Status"};
+    let fixed = {id: "fix", charlength: 9, label: "Additional profiles", width: 50};
+
+    [longLabel, shortLabel, fixed].forEach(component.fixColumn);
+
+    expect(longLabel.width).toBe((19 + 4) * 7);
+    expect(shortLabel.width).toBe((9 + 4) * 7);
+    expect(fixed.width).toBe(50);
+  });
+
+  // The width follows the translated label, not its key
+  it('should measure the translated header label', function () {
+    let component = getDefaultComponent();
+    new GridCommons(component).init();
+    const $translate = $injector.get("$translate");
+    jest.spyOn($translate, "instant").mockImplementation(key => key === "PARAMETER_LONG" ? "Additional profiles" : key);
+    let column = {id: "addPro", charlength: 5, label: "PARAMETER_LONG"};
+
+    component.fixColumn(column);
+
+    expect(column.width).toBe((19 + 4) * 7);
+    $translate.instant.mockRestore();
+  });
+
+  // A column without a charlength (missing, empty or zero) takes the default width of 20 characters
+  it('should use the default width for a column without charlength', function () {
+    let component = getDefaultComponent();
+    new GridCommons(component).init();
+    let columns = [{id: "missing"}, {id: "empty", charlength: ""}, {id: "zero", charlength: 0}, {id: "zeroText", charlength: "0"},
+      {id: "negative", charlength: -5}, {id: "notANumber", charlength: "abc"}];
+
+    columns.forEach(component.fixColumn);
+
+    columns.forEach(column => expect(column.width).toBe(20 * 7));
+  });
+
+  // The tag that the grid emits for a sparkline column is the one of the directive
+  it('should emit the tag of the sparkline directive for a sparkline column', function () {
+    let component = getDefaultComponent();
+    let column = {id: "trend", component: "sparkline", charlength: 14};
+    new GridCommons(component).init();
+
+    component.fixColumn(column);
+
+    expect(column.cellTemplate).toContain("<awe-column-sparkline cell-address=");
+    inject(["$injector", function ($injector) {
+      expect($injector.has("aweColumnSparklineDirective")).toBe(true);
+      expect($injector.has("aweColumnSparkLineDirective")).toBe(false);
+    }]);
   });
 
   // Set selection
@@ -854,14 +925,14 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
           component: "text",
           type: undefined,
           charlength: 20,
-          width: 140,
+          width: 168,
           align: undefined
         }, {
           name: "Header text",
           label: "Header text",
           columnList: [
-            { name: 'other', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: 'Other thing' },
-            { name: 'other2', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: '' }],
+            { name: 'other', type: undefined, component: undefined, width: 168, charlength: 20, align: undefined, label: 'Other thing' },
+            { name: 'other2', type: undefined, component: undefined, width: 168, charlength: 20, align: undefined, label: '' }],
           columnCounter: 0,
           header: true
         }, {
@@ -870,7 +941,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
             component: undefined,
             type: undefined,
             charlength: 20,
-            width: 140,
+            width: 168,
             align: undefined
         }],
         footer: {
@@ -918,14 +989,14 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
           type: undefined,
           component: "text",
           charlength: 20,
-          width: 140,
+          width: 168,
           align: undefined
         }, {
           name: "Header text",
           label: "Header text",
           columnList: [
-            { name: 'other', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: 'Other thing' },
-            { name: 'other2', type: undefined, component: undefined, width: 140, charlength: 20, align: undefined, label: '' }],
+            { name: 'other', type: undefined, component: undefined, width: 168, charlength: 20, align: undefined, label: 'Other thing' },
+            { name: 'other2', type: undefined, component: undefined, width: 168, charlength: 20, align: undefined, label: '' }],
           columnCounter: 0,
           header: true
         }, {
@@ -934,7 +1005,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
           component: undefined,
           type: undefined,
           charlength: 20,
-          width: 140,
+          width: 168,
           align: undefined
         }],
         footer: {
@@ -949,6 +1020,54 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
   });
 
   // Get printable columns (issue #753)
+  it('should send the group levels the user has chosen with the print data, even when there are none (#929)', function () {
+    // Mock
+    let component = getDefaultComponent();
+    let commons = new GridCommons(component);
+    commons.init();
+    component.getSpecificFields = () => ({});
+    component.addColumns(getDefaultColumnModel());
+    let levels = ["value", "other"];
+    component.getGroupLevels = () => levels;
+
+    // Launch
+    let notConfigured = component.getPrintData()["componentId.data"].groupBy;
+    component.groupingConfigured = true;
+    let grouped = component.getPrintData()["componentId.data"].groupBy;
+    levels = [];
+    let ungrouped = component.getPrintData()["componentId.data"].groupBy;
+
+    // Assert: a grid that cannot group keeps its print data as it was
+    expect(notConfigured).toBeUndefined();
+    expect(grouped).toEqual(["value", "other"]);
+    expect(ungrouped).toEqual([]);
+  });
+
+  it('should send the data of the secondary and the status fields of the printed columns (#929)', function () {
+    // Mock
+    let component = getDefaultComponent();
+    let commons = new GridCommons(component);
+    commons.init();
+    component.getSpecificFields = () => ({});
+    component.addColumns([
+      {id: "id", hidden: true, sendable: true, printable: true},
+      {id: "name", label: "Name", hidden: false, sendable: true, printable: true, secondaryField: "email", statusField: "tone"},
+      {id: "tone", hidden: true, sendable: false, printable: false, printMode: "false"}
+    ]);
+    component.model.values = [{id: 1, name: "Ann", email: "ann@x.com", tone: "success"}, {id: 2, name: "Bob", tone: "danger"}];
+
+    // Launch
+    let data = component.getPrintData();
+
+    // Assert
+    expect(data["email"]).toEqual(["ann@x.com", null]);
+    expect(data["email.data"].map(cell => [cell.value, cell.label])).toEqual([["ann@x.com", "ann@x.com"], [null, ""]]);
+    expect(data["tone"]).toEqual(["success", "danger"]);
+    expect(data["tone.data"].map(cell => cell.label)).toEqual(["success", "danger"]);
+    // A column already sent as data is not sent twice
+    expect(Object.keys(data).filter(key => key === "name.data").length).toBe(1);
+  });
+
   it('should decide print columns from the declared printable value, not from screen visibility', function () {
     // Mock
     let component = getDefaultComponent();
@@ -1010,7 +1129,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     expect(visibleColumns.map(column => column.name)).toEqual(["AmountRaw", "AmountExcel", "VisibleDefault"]);
     expect(visibleColumns.map(column => column.printable)).toEqual(["true", "excel", undefined]);
     // Hidden columns are sent with their initial width instead of the collapsed one
-    expect(visibleColumns[0].width).toBe(140);
+    expect(visibleColumns[0].width).toBe(168);
   });
 
   // Get printable columns inside a group header (issue #753)
@@ -1056,7 +1175,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
     expect(visibleColumns[0].header).toBe(true);
     expect(visibleColumns[0].name).toBe("Group");
     expect(visibleColumns[0].columnList.map(column => column.name)).toEqual(["AmountRaw", "Currency"]);
-    expect(visibleColumns[0].columnList[0].width).toBe(140);
+    expect(visibleColumns[0].columnList[0].width).toBe(168);
     expect(visibleColumns[1].name).toBe("Notes");
   });
 
@@ -1090,6 +1209,59 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
 
     // Assert
     expect(visibleColumns.map(column => column.name)).toEqual(["Third"]);
+  });
+
+  // Button columns are actions: never printed, whatever their printable value (#793)
+  it('should never print a button column, even when it is declared printable', function () {
+    // Mock
+    let component = getDefaultComponent();
+    component.controller.headerModel = [{startColumnName: "Grouped", numberOfColumns: 2, titleText: "Group"}];
+    let commons = new GridCommons(component);
+    commons.init();
+    component.addColumns([{
+      id: "Name",
+      hidden: false,
+      charlength: 20,
+      printable: true
+    }, {
+      id: "Edit",
+      component: "button",
+      hidden: false,
+      charlength: 4,
+      printable: true
+    }, {
+      id: "More",
+      component: "button",
+      hidden: false,
+      charlength: 4,
+      printable: true,
+      printMode: "true"
+    }, {
+      id: "Grouped",
+      hidden: false,
+      charlength: 20,
+      printable: true
+    }, {
+      id: "GroupedButton",
+      component: "button",
+      hidden: false,
+      charlength: 4,
+      printable: true,
+      printMode: "excel"
+    }, {
+      id: "NotPrinted",
+      hidden: false,
+      charlength: 20,
+      printable: true,
+      printMode: "false"
+    }]);
+
+    // Launch
+    let visibleColumns = component.getVisibleColumns();
+
+    // Assert
+    expect(visibleColumns.map(column => column.name)).toEqual(["Name", "Group"]);
+    expect(visibleColumns[1].columnList.map(column => column.name)).toEqual(["Grouped"]);
   });
 
   // Get column visible data
@@ -1133,6 +1305,16 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
 
     // Component select column
     testVisibleValue(component, row, column, undefined, "select", {value: 21, label: "tutu"}, "tutu");
+
+    // Component radio and button-radio columns: the label of the chosen option comes from the cell component, as
+    // in a select column, because the cell only stores the chosen value
+    ["radio", "button-radio"].forEach(function (radioComponent) {
+      column.type = undefined;
+      column.component = radioComponent;
+      row["value"] = "B";
+      component.getApi = () => ({getVisibleValue: () => "Option B"});
+      expect(component.getVisibleData({component: "componentId", row: 4, column: "value"}, row, column)).toEqual("Option B");
+    });
 
     // Component suggest column
     testVisibleValue(component, row, column, undefined, "suggest", {value: 21, label: "tutu"}, "tutu");
@@ -1356,5 +1538,184 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/commons.j
 
     // Assert
     expect(spy).toHaveBeenCalledWith('5');
+  });
+
+  describe('moving rows', () => {
+    const getMovableComponent = (selected = [3]) => {
+      const component = {
+        ...getDefaultComponent(),
+        model: {values: [{id: 1}, {id: 2}, {id: 3}, {id: 4}], selected},
+        editable: true,
+        hideContextMenu: jest.fn(),
+        updateModelSpecific: jest.fn().mockResolvedValue()
+      };
+      new GridCommons(component).init();
+      component.setSelection = jest.fn();
+      return component;
+    };
+    const ids = (component) => component.model.values.map(row => row.id);
+
+    it.each([
+      ["first", [3, 1, 2, 4]],
+      ["before", [1, 3, 2, 4]],
+      ["after", [1, 2, 4, 3]],
+      ["last", [1, 2, 4, 3]]
+    ])('moves the selected row to the %s position', (position, expected) => {
+      const component = getMovableComponent();
+
+      expect(component.moveRow(position)).toBe(true);
+
+      expect(ids(component)).toEqual(expected);
+      expect(component.updateModelSpecific).toHaveBeenCalledTimes(1);
+    });
+
+    it('moves the row given as parameter instead of the selected one', () => {
+      const component = getMovableComponent();
+
+      expect(component.moveRow("last", "1")).toBe(true);
+
+      expect(ids(component)).toEqual([2, 3, 4, 1]);
+    });
+
+    it('gives the model a new array, as the grid watches the reference of its data (fastWatch)', () => {
+      const component = getMovableComponent();
+      const previousValues = component.model.values;
+
+      component.moveRow("first");
+
+      expect(component.model.values).not.toBe(previousValues);
+      expect(ids(component)).toEqual([3, 1, 2, 4]);
+    });
+
+    it('keeps the moved row selected after the model is updated', async () => {
+      const component = getMovableComponent();
+
+      component.moveRow("first");
+      await Promise.resolve();
+
+      expect(component.setSelection).toHaveBeenCalledWith([3]);
+    });
+
+    it.each([
+      ["first", [1]],
+      ["before", [1]],
+      ["after", [4]],
+      ["last", [4]],
+      ["first", []],
+      ["first", [99]]
+    ])('does nothing when the row cannot move %s (selected %j)', (position, selected) => {
+      const component = getMovableComponent(selected);
+
+      expect(component.moveRow(position)).toBe(false);
+
+      expect(ids(component)).toEqual([1, 2, 3, 4]);
+      expect(component.updateModelSpecific).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      [{key: "ArrowUp", altKey: true}, "before"],
+      [{key: "ArrowDown", altKey: true}, "after"],
+      [{key: "Home", altKey: true}, "first"],
+      [{key: "End", altKey: true}, "last"]
+    ])('moves the selected row with the %j key combination', (eventInit, position) => {
+      const component = getMovableComponent();
+      const event = {...eventInit, preventDefault: jest.fn(), stopPropagation: jest.fn()};
+      jest.spyOn(component, "moveRow");
+
+      expect(component.onMoveRowKeyDown(event)).toBe(true);
+
+      expect(component.moveRow).toHaveBeenCalledWith(position);
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it.each([
+      [{key: "ArrowUp"}],
+      [{key: "ArrowUp", altKey: true, ctrlKey: true}],
+      [{key: "ArrowUp", altKey: true, shiftKey: true}],
+      [{key: "ArrowUp", altKey: true, metaKey: true}],
+      [{key: "Enter", altKey: true}]
+    ])('ignores the %j key combination', (eventInit) => {
+      const component = getMovableComponent();
+      const event = {...eventInit, preventDefault: jest.fn()};
+
+      expect(component.onMoveRowKeyDown(event)).toBe(false);
+
+      expect(ids(component)).toEqual([1, 2, 3, 4]);
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ["before", "1", "4", [2, 3, 1, 4]],
+      ["after", "1", "3", [2, 3, 1, 4]],
+      ["after", "1", "4", [2, 3, 4, 1]],
+      ["before", "4", "1", [4, 1, 2, 3]],
+      ["after", "4", "1", [1, 4, 2, 3]],
+      ["before", "3", "1", [3, 1, 2, 4]]
+    ])('moves the row to the %s of the target row (row %s, target %s)', (position, rowId, targetRowId, expected) => {
+      const component = getMovableComponent();
+
+      expect(component.moveRow(position, rowId, targetRowId)).toBe(true);
+
+      expect(ids(component)).toEqual(expected);
+      expect(component.updateModelSpecific).toHaveBeenCalledTimes(1);
+    });
+
+    it('selects the row moved next to a target once the model is updated', async () => {
+      const component = getMovableComponent([2]);
+
+      component.moveRow("after", "1", "4");
+      await Promise.resolve();
+
+      expect(component.setSelection).toHaveBeenCalledWith([1]);
+    });
+
+    it.each([
+      ["before", "3", "4"],
+      ["after", "3", "2"],
+      ["before", "3", "3"],
+      ["after", "3", "3"],
+      ["before", "3", "99"],
+      ["before", "99", "1"],
+      ["middle", "3", "1"]
+    ])('does nothing when moving the row to the %s of the target row does not change the order (row %s, target %s)', (position, rowId, targetRowId) => {
+      const component = getMovableComponent();
+
+      expect(component.moveRow(position, rowId, targetRowId)).toBe(false);
+
+      expect(ids(component)).toEqual([1, 2, 3, 4]);
+      expect(component.updateModelSpecific).not.toHaveBeenCalled();
+    });
+
+    it('never moves the rows of a tree grid next to a target row', () => {
+      const component = getMovableComponent();
+      component.isTree = true;
+
+      expect(component.moveRow("before", "3", "1")).toBe(false);
+
+      expect(ids(component)).toEqual([1, 2, 3, 4]);
+    });
+
+    it('moves the selected row with the keys on a grid with move-rows that is not editable', () => {
+      const component = getMovableComponent();
+      component.editable = false;
+      component.controller.moveRows = true;
+      const event = {key: "ArrowUp", altKey: true, preventDefault: jest.fn()};
+
+      expect(component.onMoveRowKeyDown(event)).toBe(true);
+
+      expect(ids(component)).toEqual([1, 3, 2, 4]);
+      expect(event.preventDefault).toHaveBeenCalled();
+    });
+
+    it('ignores the keys on a grid that is not editable', () => {
+      const component = getMovableComponent();
+      component.editable = false;
+      const event = {key: "ArrowUp", altKey: true, preventDefault: jest.fn()};
+
+      expect(component.onMoveRowKeyDown(event)).toBe(false);
+
+      expect(ids(component)).toEqual([1, 2, 3, 4]);
+      expect(event.preventDefault).not.toHaveBeenCalled();
+    });
   });
 });

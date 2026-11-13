@@ -7,7 +7,7 @@ package com.almis.awe.model.entities.screen.data;
 
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.type.LoadType;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * @author pgarcia

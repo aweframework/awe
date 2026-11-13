@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.12.9</version>
+    <version>5.0.0</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -24,6 +24,17 @@
     <performancetest.path/>
     <skip.delombok>false</skip.delombok>
   </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>2025.1.4</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
     <dependency>
@@ -101,6 +112,11 @@
       <groupId>com.google.zxing</groupId>
       <artifactId>javase</artifactId>
     </dependency>
+    <!-- Spring MVC: no longer brought in transitively by the websocket starter since Spring Boot 4 -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-webmvc</artifactId>
+    </dependency>
     <!-- Websocket -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -148,7 +164,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
-      <artifactId>commons-fileupload2-jakarta</artifactId>
+      <artifactId>commons-fileupload2-jakarta-servlet6</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework.security</groupId>
@@ -156,7 +172,11 @@
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-oauth2-client</artifactId>
+      <artifactId>spring-boot-starter-security-oauth2-client</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-restclient</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -169,8 +189,12 @@
     </dependency>
     <!-- Flyway -->
     <dependency>
-      <groupId>org.flywaydb</groupId>
-      <artifactId>flyway-core</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-flyway</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.jspecify</groupId>
+      <artifactId>jspecify</artifactId>
     </dependency>
 
     <!-- Test dependencies -->
@@ -208,7 +232,7 @@
     <dependency>
       <groupId>com.github.h-thurow</groupId>
       <artifactId>simple-jndi</artifactId>
-      <version>0.23.0</version>
+      <version>0.25.0</version>
       <scope>test</scope>
     </dependency>
       <dependency>
@@ -218,11 +242,24 @@
   </dependencies>
 
   <build>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+      </testResource>
+      <!-- The real screen templates of the AngularJS client, to render them in the tests (WindowTemplateRenderTest) -->
+      <testResource>
+        <directory>../awe-client-angular/src/main/resources/templates/awe</directory>
+        <includes>
+          <include>templates.stg</include>
+        </includes>
+        <targetPath>angular-templates</targetPath>
+      </testResource>
+    </testResources>
     <plugins>
       <!-- Lombok plugin -->
       <plugin>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

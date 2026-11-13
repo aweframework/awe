@@ -1,5 +1,6 @@
 package com.almis.awe.builder.screen.grid;
 
+import com.almis.awe.builder.enumerates.ColumnsPanel;
 import com.almis.awe.builder.screen.base.AbstractColumnBuilder;
 import com.almis.awe.builder.screen.base.AbstractComponentBuilder;
 import com.almis.awe.builder.screen.button.ButtonBuilder;
@@ -15,6 +16,7 @@ import lombok.Getter;
 public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
 
   private final GridAttributes<GridBuilder> gridAttributes;
+  private boolean savedSearches;
 
   public GridBuilder() {
     super();
@@ -29,6 +31,7 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
   @Override
   public Grid build(Grid grid) {
     getGridAttributes().asGrid(grid);
+    grid.setSavedSearches(isSavedSearches() ? Boolean.TRUE : null);
     return super.build(grid);
   }
 
@@ -62,6 +65,17 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
    */
   public GridBuilder setMultiselect(boolean multiselect) {
     getGridAttributes().setMultiselect(multiselect);
+    return this;
+  }
+
+  /**
+   * Set move rows (drag and drop of rows)
+   *
+   * @param moveRows
+   * @return
+   */
+  public GridBuilder setMoveRows(boolean moveRows) {
+    getGridAttributes().setMoveRows(moveRows);
     return this;
   }
 
@@ -121,6 +135,39 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
   }
 
   /**
+   * Group the rows by some columns (comma separated, one grouping level each). The grid loads every row
+   *
+   * @param groupBy Column names
+   * @return Grid builder
+   */
+  public GridBuilder setGroupBy(String groupBy) {
+    getGridAttributes().setGroupBy(groupBy);
+    return this;
+  }
+
+  /**
+   * Show the "Group by" control in the toolbar to change the grouping at runtime. The grid loads every row
+   *
+   * @param groupSelector Show the group selector
+   * @return Grid builder
+   */
+  public GridBuilder setGroupSelector(boolean groupSelector) {
+    getGridAttributes().setGroupSelector(groupSelector);
+    return this;
+  }
+
+  /**
+   * Close each group with a subtotal row. It is shown by default
+   *
+   * @param groupSubtotals Show the subtotal rows
+   * @return Grid builder
+   */
+  public GridBuilder setGroupSubtotals(boolean groupSubtotals) {
+    getGridAttributes().setGroupSubtotals(groupSubtotals);
+    return this;
+  }
+
+  /**
    * Set tree grid
    *
    * @param treeGrid
@@ -128,6 +175,86 @@ public class GridBuilder extends AbstractComponentBuilder<GridBuilder, Grid> {
    */
   public GridBuilder setTreeGrid(boolean treeGrid) {
     getGridAttributes().setTreeGrid(treeGrid);
+    return this;
+  }
+
+  /**
+   * Show the grid toolbar (columns dialog and maximize). It is shown by default
+   *
+   * @param showToolbar Show the toolbar
+   * @return Grid builder
+   */
+  public GridBuilder setShowToolbar(boolean showToolbar) {
+    getGridAttributes().setShowToolbar(showToolbar);
+    return this;
+  }
+
+  /**
+   * Show the Columns button of the grid toolbar. It is shown by default. When hidden, the stored column layout of the
+   * user is ignored
+   *
+   * @param showColumnsButton Show the Columns button
+   * @return Grid builder
+   */
+  public GridBuilder setShowColumnsButton(boolean showColumnsButton) {
+    getGridAttributes().setShowColumnsButton(showColumnsButton);
+    return this;
+  }
+
+  /**
+   * Show the Maximize button of the grid toolbar. It is shown by default
+   *
+   * @param showMaximizeButton Show the Maximize button
+   * @return Grid builder
+   */
+  public GridBuilder setShowMaximizeButton(boolean showMaximizeButton) {
+    getGridAttributes().setShowMaximizeButton(showMaximizeButton);
+    return this;
+  }
+
+  /**
+   * Show the label of the end buttons of the grid toolbar (true) or only their icon, with the label as tooltip (false).
+   * Null follows the application default (awe.application.component.grid-toolbar-labels)
+   *
+   * @param toolbarLabels Show the labels
+   * @return Grid builder
+   */
+  public GridBuilder setToolbarLabels(Boolean toolbarLabels) {
+    return setToolbarLabels(toolbarLabels == null ? null : toolbarLabels.toString());
+  }
+
+  /**
+   * Choose which end buttons of the grid toolbar show their label, as the XML attribute toolbar-labels: true (all),
+   * false (none, only the icon with the label as tooltip) or a comma-separated list of group-by, saved-searches,
+   * columns and maximize. Null follows the application default (awe.application.component.grid-toolbar-labels)
+   *
+   * @param toolbarLabels Buttons that show their label
+   * @return Grid builder
+   */
+  public GridBuilder setToolbarLabels(String toolbarLabels) {
+    getGridAttributes().setToolbarLabels(toolbarLabels);
+    return this;
+  }
+
+  /**
+   * Offer the saved searches of the grid in its toolbar (#912). Not offered by default
+   *
+   * @param savedSearches Offer the saved searches
+   * @return Grid builder
+   */
+  public GridBuilder setSavedSearches(boolean savedSearches) {
+    this.savedSearches = savedSearches;
+    return this;
+  }
+
+  /**
+   * Choose how the toolbar shows the Columns: a modal dialog (default) or a side panel
+   *
+   * @param columnsPanel Columns panel
+   * @return Grid builder
+   */
+  public GridBuilder setColumnsPanel(ColumnsPanel columnsPanel) {
+    getGridAttributes().setColumnsPanel(columnsPanel);
     return this;
   }
 

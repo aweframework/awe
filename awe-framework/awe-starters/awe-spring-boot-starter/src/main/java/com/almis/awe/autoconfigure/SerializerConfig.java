@@ -11,6 +11,7 @@ import com.almis.awe.model.entities.enumerated.Enumerated;
 import com.almis.awe.model.entities.locale.Locales;
 import com.almis.awe.model.entities.maintain.Maintain;
 import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.entities.permissions.Permissions;
 import com.almis.awe.model.entities.queries.Queries;
 import com.almis.awe.model.entities.queues.Queues;
 import com.almis.awe.model.entities.screen.Screen;
@@ -113,7 +114,8 @@ public class SerializerConfig {
       Profile.class,
       Screen.class,
       Menu.class,
-      Locales.class
+      Locales.class,
+      Permissions.class
     });
 
     return xstreamMarshaller;

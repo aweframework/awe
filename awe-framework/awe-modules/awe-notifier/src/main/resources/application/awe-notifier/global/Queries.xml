@@ -3,7 +3,7 @@
 <queries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/queries.xsd">
 
-  <query id="notifications" service="notifications"/>
+  <query id="notifications" permission="self.read" service="notifications"/>
   <query id="user-notifications">
     <table id="AweNot" alias="notifications"/>
     <field id="Ide" table="notifications" alias="value"/>
@@ -59,7 +59,7 @@
     <variable id="unread" type="INTEGER" value="1"/>
   </query>
 
-  <query id="get-interested-users" distinct="true">
+  <query id="get-interested-users" distinct="true" server-only="true">
     <table id="ope" alias="users"/>
     <field id="l1_nom" alias="user"/>
     <field id="SubNot" alias="byWeb" transform="BOOLEAN"/>
@@ -80,7 +80,7 @@
     <variable id="subscription" type="STRING" name="subscription"/>
   </query>
 
-  <query id="notification-list">
+  <query id="notification-list" permission="self.read">
     <table id="AweNot" alias="notifications"/>
     <field id="Ide" table="notifications" alias="id"/>
     <field id="Nom" table="notifications" alias="notification-name"/>
@@ -160,7 +160,7 @@
     <variable id="search" type="STRINGB" name="search"/>
   </query>
 
-  <query id="subscription-suggest">
+  <query id="subscription-suggest" permission="self.read">
     <table id="AweSub" alias="subscriptions"/>
     <field id="Ide" table="subscriptions" alias="value"/>
     <field id="Nom" table="subscriptions" alias="label"/>
@@ -185,7 +185,7 @@
     <variable id="acronym" type="STRING" name="subscription"/>
   </query>
 
-  <query id="check-subscription">
+  <query id="check-subscription" permission="subscriptions.read">
     <table id="AweSub" alias="subscriptions"/>
     <field id="Ide" table="subscriptions" alias="value"/>
     <where>
@@ -209,7 +209,7 @@
     <variable id="user" type="STRING" session="user"/>
   </query>
 
-  <query id="subscription-list">
+  <query id="subscription-list" permission="subscriptions.read">
     <table id="AweSub" alias="subscriptions"/>
     <field id="Ide" table="subscriptions" alias="id"/>
     <field id="Acr" table="subscriptions" alias="subscription-acronym"/>
@@ -236,7 +236,7 @@
     <variable id="search" type="STRINGB" name="search"/>
   </query>
 
-  <query id="my-subscriptions">
+  <query id="my-subscriptions" permission="self.read">
     <table id="AweSub" alias="subscriptions"/>
     <field id="Ide" table="subscriptions" alias="value"/>
     <field id="Nom" table="subscriptions" alias="name"/>

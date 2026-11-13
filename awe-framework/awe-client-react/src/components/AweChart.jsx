@@ -1,0 +1,283 @@
+import React, {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react";
+import {useTranslation} from "react-i18next";
+import {useDispatch} from "react-redux";
+import {localeOptions} from "primereact/api";
+import _ from "lodash";
+import PropTypes from "prop-types";
+import {useComponentState} from "../hooks/useComponentState";
+import {useContextMenu} from "../hooks/useContextMenu";
+import {classNames} from "../utilities/components";
+import {TestIds, testHook} from "../utilities/testIds";
+import {updateAttributesWithDependencies} from "../redux/thunks/components";
+import {registerChart, unregisterChart} from "../utilities/chartRegistry";
+import {buildEChartsOption, findDrilldownId} from "../utilities/echartsOption";
+import {linkedNames} from "../utilities/echartsLegend";
+import {parseChartOptions, pointOf, zoomOf, zoomRequests} from "../utilities/echartsEvents";
+import {getEChartsLocale, loadEcharts} from "../utilities/echartsLoader";
+import {observeColorMode, resolveChartColors, sameColors} from "../utilities/echartsTheme";
+
+import {ChartSkeleton, chartHintOf} from "./AweSkeleton";
+import "./AweChart.less";
+
+const RESIZE_DELAY = 50;
+const PLAIN_THEME = null;
+const AXES = ["x", "y"];
+
+/**
+ * Check if a chart is inverted (its AWE x axis is the vertical one)
+ * @param {object} echartsModel ECharts model of the chart
+ * @returns {boolean} The chart is inverted
+ */
+const isInverted = (echartsModel) => Boolean(echartsModel?.awe?.inverted);
+
+/**
+ * Keep the previous value while the new one is equal: the state of a component is copied when an attribute changes
+ * (the events of the chart write attributes), and the chart must not be drawn again (it would lose its zoom) for it
+ * @param {*} value Value
+ * @returns {*} The previous value when it equals the new one
+ */
+function useStable(value) {
+  const ref = useRef(value);
+  if (!_.isEqual(ref.current, value)) {
+    ref.current = value;
+  }
+  return ref.current;
+}
+
+/**
+ * Select the axes of a zoom whose range differs from the range the chart attributes tell
+ * @param {object} zoom Zoom of the chart options: {x: {min, max}, y: {min, max}}
+ * @param {object} attributes Chart attributes (xMin, xMax, yMin, yMax)
+ * @returns {object} Zoom with the axes that change
+ */
+function changedZoom(zoom, attributes) {
+  const changed = {};
+  AXES.filter(axis => zoom[axis]).forEach(axis => {
+    const {min = null, max = null} = zoom[axis];
+    if (min !== (attributes[`${axis}Min`] ?? null) || max !== (attributes[`${axis}Max`] ?? null)) {
+      changed[axis] = {min, max};
+    }
+  });
+  return changed;
+}
+
+/**
+ * Create the ECharts instance of a container and track its drawing
+ * @param {object} echarts ECharts library
+ * @param {HTMLElement} element Element that holds the chart
+ * @param {string} language Language of the application
+ * @returns {object|null} ECharts instance, null when it cannot be created
+ */
+function createChart(echarts, element, language) {
+  try {
+    // The plain theme: the colors of the chrome come from the design tokens (see echartsTheme)
+    return echarts.init(element, PLAIN_THEME, {
+      renderer: "svg",
+      locale: getEChartsLocale(language)
+    });
+  } catch (error) {
+    console.error("[ERROR] The chart could not be created", error);
+    return null;
+  }
+}
+
+/**
+ * AWE Chart component: draws the `echartsModel` that the server sends with the values of the component using
+ * Apache ECharts (SVG renderer).
+ * @category Components
+ * @subcategory Chart
+ */
+function AweChart(props) {
+  const {id} = props;
+  const {model = {values: []}, attributes = {}, address} = useComponentState(id);
+  const dispatch = useDispatch();
+  const {t, i18n} = useTranslation();
+  const {style, visible, chartOptions, xMin, xMax, yMin, yMax, loading = false} = attributes;
+  const {onContextMenu, contextMenuTemplate} = useContextMenu({address, contextMenu: attributes.contextMenu});
+  const echartsModel = useStable(attributes.echartsModel);
+  const values = useStable(model.values);
+
+  const containerRef = useRef(null);
+  const chartElementRef = useRef(null);
+  const chartRef = useRef(null);
+  const optionRef = useRef(null);
+  const [rendered, setRendered] = useState(false);
+  // ECharts is a heavy package, loaded on demand: {echarts, renderSvg}, null until it arrives
+  const [library, setLibrary] = useState(null);
+  const [size, setSize] = useState({width: 0, height: 0});
+  const [drill, setDrill] = useState(null);
+  // undefined until the tokens are read (before the first paint); null when the page gives no colours
+  const [colors, setColors] = useState(undefined);
+  // True while the chart is zoomed by the chart options: its own zoom event must not be sent as a user zoom
+  const zooming = useRef(false);
+
+  // The latest inputs, for the callbacks of the chart and the print image
+  const latest = useRef({});
+  const locale = useMemo(() => localeOptions(i18n.language) || {}, [i18n.language]);
+  latest.current = {echartsModel, values, t, locale, language: i18n.language, address, attributes, drilled: drill !== null, colors};
+
+  // Write the attributes of the chart (x, y, xMin...) and raise the event, which launches the dependencies
+  const emit = useCallback((data) => dispatch(updateAttributesWithDependencies(latest.current.address, data)), [dispatch]);
+
+  // The drilldown is closed when the server sends another chart definition
+  useEffect(() => {
+    setDrill(null);
+  }, [echartsModel]);
+
+  const option = useMemo(() => {
+    const context = {t, locale, width: size.width, height: size.height, drill, colors, onBack: () => setDrill(null)};
+    return buildEChartsOption(echartsModel, values, context);
+  }, [echartsModel, values, t, locale, size, drill, colors]);
+  optionRef.current = option;
+
+  // Definition drawn last: while it is the same, a reload only replaces the series (no full redraw, no flicker)
+  const drawnModel = useRef(null);
+  const applyOption = useCallback(() => {
+    // Never draw with the default colours of ECharts: the lines would show light first and turn to the tokens after
+    if (latest.current.colors === undefined) {
+      return;
+    }
+    try {
+      const model = latest.current.echartsModel;
+      const sameModel = drawnModel.current !== null && drawnModel.current === model && !latest.current.drilled;
+      chartRef.current?.setOption(optionRef.current, sameModel ? {replaceMerge: ["series"]} : {notMerge: true});
+      drawnModel.current = model;
+    } catch (error) {
+      console.error(`[ERROR] The chart '${id}' could not be drawn`, error);
+    }
+  }, [id]);
+
+  // The colors of the chrome follow the design tokens: they are resolved before the first paint (a layout effect), so
+  // the chart is never drawn with the default colours, and again when the mode changes (the chart is not created again)
+  useLayoutEffect(() => {
+    const resolve = () => {
+      const resolved = resolveChartColors(containerRef.current);
+      setColors(current => current !== undefined && sameColors(current, resolved) ? current : resolved);
+    };
+    resolve();
+    return observeColorMode(resolve);
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    loadEcharts().then(loaded => active && setLibrary(loaded)).catch(error => console.error("[ERROR] ECharts could not be loaded", error));
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Create the chart (again when the language changes: the texts of ECharts are set on creation)
+  useEffect(() => {
+    if (!library) {
+      return undefined;
+    }
+    const element = chartElementRef.current;
+    const chart = createChart(library.echarts, element, i18n.language);
+    if (!chart) {
+      return undefined;
+    }
+    chartRef.current = chart;
+    const markRendered = () => setRendered(true);
+    chart.on("rendered", markRendered);
+    chart.on("finished", markRendered);
+    chart.on("click", (params) => {
+      const target = findDrilldownId(latest.current.echartsModel, params.seriesId);
+      if (target) {
+        setDrill({from: params.seriesId, to: target});
+      }
+      emit({...pointOf(params, isInverted(latest.current.echartsModel)), event: "click"});
+    });
+    chart.on("dblclick", (params) => emit({...pointOf(params, isInverted(latest.current.echartsModel)), event: "double-click"}));
+    chart.on("contextmenu", (params) => emit({...pointOf(params, isInverted(latest.current.echartsModel)), event: "context-menu"}));
+    chart.on("datazoom", () => {
+      if (!zooming.current) {
+        emit({...zoomOf(chart, isInverted(latest.current.echartsModel)), event: "zoom"});
+      }
+    });
+    // A series that is linked to another one hides and shows with it
+    chart.on("legendselectchanged", ({name, selected}) => {
+      const {echartsModel: current, t: translate} = latest.current;
+      const type = selected?.[name] === false ? "legendUnSelect" : "legendSelect";
+      linkedNames(current?.series || [], name, translate).forEach(linked => chart.dispatchAction({type, name: linked}));
+    });
+    // The image to print is drawn apart, in light colors and with the size of the page
+    const handle = {
+      getImage: (imageSize) => {
+        const {echartsModel: current, values: data, t: translate, locale: texts, language} = latest.current;
+        const printOption = buildEChartsOption(current, data, {...imageSize, t: translate, locale: texts, print: true});
+        return library.renderSvg(printOption, imageSize, language);
+      }
+    };
+    registerChart(id, handle);
+    drawnModel.current = null;
+    applyOption();
+
+    return () => {
+      unregisterChart(id, handle);
+      chartRef.current = null;
+      chart.dispose();
+    };
+  }, [id, i18n.language, library, applyOption, emit]);
+
+  useEffect(() => {
+    applyOption();
+  }, [option, applyOption]);
+
+  // The chart options sent by a dependency: the zoom is applied to the chart (linked charts), the rest is ignored
+  useEffect(() => {
+    const chart = chartRef.current;
+    const {zoom} = parseChartOptions(chartOptions);
+    const changed = chart && zoom ? changedZoom(zoom, latest.current.attributes) : {};
+    const requests = chart ? zoomRequests(chart, changed, isInverted(latest.current.echartsModel)) : [];
+    if (requests.length === 0) {
+      return;
+    }
+    zooming.current = true;
+    try {
+      requests.forEach(request => chart.dispatchAction(request));
+    } finally {
+      zooming.current = false;
+    }
+    emit(Object.fromEntries(Object.entries(changed).flatMap(([axis, {min, max}]) => [[`${axis}Min`, min], [`${axis}Max`, max]])));
+  }, [chartOptions, emit]);
+
+  // Resize with the container
+  useEffect(() => {
+    const container = containerRef.current;
+    const measure = () => {
+      if (!container || container.clientWidth === 0 || container.clientHeight === 0) {
+        return;
+      }
+      chartRef.current?.resize();
+      setSize(current => current.width === container.clientWidth && current.height === container.clientHeight
+        ? current
+        : {width: container.clientWidth, height: container.clientHeight});
+    };
+    const resize = _.debounce(measure, RESIZE_DELAY);
+    measure();
+    let observer = null;
+    if (typeof ResizeObserver !== "undefined" && container) {
+      observer = new ResizeObserver(resize);
+      observer.observe(container);
+    }
+    return () => {
+      resize.cancel();
+      observer?.disconnect();
+    };
+  }, [visible]);
+
+  const zoomed = [xMin, xMax, yMin, yMax].some(limit => !_.isNil(limit));
+  const classes = classNames("awe-chart", "expand", style, {"hidden": !visible});
+  return <div className={classes} id={id} ref={containerRef} onContextMenu={onContextMenu}
+    {...testHook(TestIds.chart, {rendered, zoomed, attributes: {"chart-id": id}})}>
+    <div ref={chartElementRef} style={{position: "absolute", left: 0, top: 0, bottom: 0, right: 0}}/>
+    {(!rendered || loading) && visible !== false && <ChartSkeleton hint={chartHintOf(echartsModel)} cover={rendered}/>}
+    {contextMenuTemplate()}
+  </div>;
+}
+
+AweChart.propTypes = {
+  id: PropTypes.string
+};
+
+export default AweChart;

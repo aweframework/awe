@@ -21,7 +21,6 @@ import com.almis.awe.service.QueryService;
 import com.almis.awe.service.SessionService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
 import java.util.Date;
@@ -58,7 +57,6 @@ public class AweSessionDetails extends ServiceConfig {
    * @param sessionConfigProperties  Session properties
    * @param securityConfigProperties Security properties
    */
-  @Autowired
   public AweSessionDetails(AweClientTracker aweClientTracker, QueryService queryService, SessionService sessionService,
 													 AweConnectionTracker connectionTracker, BroadcastService broadcastService,  MenuService menuService, SessionConfigProperties sessionConfigProperties, SecurityConfigProperties securityConfigProperties) {
     this.clientTracker = aweClientTracker;
@@ -131,6 +129,9 @@ public class AweSessionDetails extends ServiceConfig {
     session.removeParameter(SESSION_THEME);
     session.removeParameter(SESSION_PROFILE);
     session.removeParameter(SESSION_RESTRICTION);
+    session.removeParameter(SESSION_PROFILES);
+    session.removeParameter(SESSION_RESTRICTIONS);
+    session.removeParameter(SESSION_USER_RESTRICTION);
     session.removeParameter(SESSION_INITIAL_SCREEN);
     session.removeParameter(SESSION_INITIAL_URL);
     session.removeParameter(SESSION_TOKEN);
@@ -142,7 +143,8 @@ public class AweSessionDetails extends ServiceConfig {
   private void initializeSessionVariables() {
     sessionConfigProperties.getParameter().forEach((paramName, queryName) -> {
       try {
-        ServiceData queryOutput = queryService.launchQuery(queryName, "1", "0");
+        // The query id comes from the server configuration: launch it as the server
+        ServiceData queryOutput = queryService.launchPrivateQuery(queryName, "1", "0");
         DataList queryData = queryOutput.getDataList();
         if (queryData != null && !queryData.getRows().isEmpty()) {
           Map<String, CellData> row = queryData.getRows().get(0);
@@ -169,6 +171,11 @@ public class AweSessionDetails extends ServiceConfig {
     session.setParameter(SESSION_THEME, userDetails.getTheme());
     session.setParameter(SESSION_PROFILE, userDetails.getProfile());
     session.setParameter(SESSION_RESTRICTION, userDetails.getRestrictions());
+    session.setParameter(SESSION_PROFILES, String.join(",", userDetails.getProfiles()));
+    session.setParameter(SESSION_RESTRICTIONS, String.join(",", userDetails.getProfileRestrictions()));
+    if (StringUtils.isNotBlank(userDetails.getUserRestriction())) {
+      session.setParameter(SESSION_USER_RESTRICTION, userDetails.getUserRestriction());
+    }
     session.setParameter(SESSION_INITIAL_SCREEN, userDetails.getInitialScreen());
     session.setParameter(SESSION_TOKEN, getRequest().getToken());
   }

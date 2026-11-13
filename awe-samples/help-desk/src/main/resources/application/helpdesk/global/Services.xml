@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : Services.xml
+    Description: Java services of the help desk. The chat ticket service opens a ticket for a visitor with no sign-in: it checks
+                 the honeypot, the limit of the session and every field, then finds or creates the requester of the email
+-->
+<services xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/services.xsd">
+  <service id="HdkChatTicket">
+    <java classname="com.almis.awe.samples.helpdesk.chat.ChatTicketService" method="createTicket">
+      <service-parameter type="STRING" name="Hp"/>
+      <service-parameter type="STRING" name="Eml"/>
+      <service-parameter type="STRING" name="Cat"/>
+      <service-parameter type="STRING" name="Dsc"/>
+    </java>
+  </service>
+</services>

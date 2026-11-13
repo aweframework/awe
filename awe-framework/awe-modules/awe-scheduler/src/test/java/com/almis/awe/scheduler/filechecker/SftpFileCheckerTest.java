@@ -6,8 +6,8 @@ import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.dao.FileDAO;
 import com.almis.awe.scheduler.enums.SshHostKeyPolicy;
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
+import org.apache.sshd.common.keyprovider.KeyPairProvider;
 import org.apache.sshd.server.SshServer;
-import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +23,9 @@ import org.quartz.TriggerBuilder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
@@ -53,6 +56,13 @@ class SftpFileCheckerTest {
   private static final String TEST_PASSWORD = "sftppass";
   private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
 
+  /**
+   * Host key shared by every embedded server in this class. Letting each test's server generate its own
+   * nistp521 key on the first handshake took 1-11 s on slow CI runners (and, counted against the 10 s
+   * connect/auth timeout, made the suite flaky), so a fast P-256 key is generated once.
+   */
+  private static final KeyPairProvider HOST_KEYS = KeyPairProvider.wrap(generateHostKey());
+
   @Mock
   private FileDAO fileDAO;
 
@@ -70,7 +80,7 @@ class SftpFileCheckerTest {
 
     sshServer = SshServer.setUpDefaultServer();
     sshServer.setPort(0);
-    sshServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(tempDir.resolve("host-key.ser")));
+    sshServer.setKeyPairProvider(HOST_KEYS);
     sshServer.setPasswordAuthenticator((username, password, session) -> TEST_USER.equals(username) && TEST_PASSWORD.equals(password));
     sshServer.setSubsystemFactories(Collections.singletonList(new SftpSubsystemFactory()));
     sshServer.setFileSystemFactory(new VirtualFileSystemFactory(remoteRoot));
@@ -286,5 +296,15 @@ class SftpFileCheckerTest {
       .setFileModifications(new HashMap<>())
       .setServer(server));
     return task;
+  }
+
+  private static KeyPair generateHostKey() {
+    try {
+      KeyPairGenerator generator = KeyPairGenerator.getInstance("EC");
+      generator.initialize(256);
+      return generator.generateKeyPair();
+    } catch (GeneralSecurityException exc) {
+      throw new IllegalStateException("Cannot generate the test SSH host key", exc);
+    }
   }
 }

@@ -1,0 +1,85 @@
+---
+id: criteria-numbers
+title: Numbers and dates
+sidebar_label: Numbers and dates
+description: The AWE number and date criteria, live. Numeric, date, date range, time and filtered calendar, with the XML that produces them.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteriaNumbers} from '@site/src/components/AwePlayground/specs/criteria-numbers';
+
+The number and date criteria collect a quantity (`numeric`), a day (`date`), a period (`date-range`), a time of day (`time`) or a day
+from the list the server allows (`filtered-calendar`). Below are the real criteria of the AWE React client: pick a type, change its
+attributes and the XML below follows. Try them, too: they are real fields.
+
+<AwePlayground spec={criteriaNumbers} />
+
+The attributes shared by every criterion (label, placeholder, icon, size, validation) are in the [criteria overview](./criteria.mdx).
+A `date-range` sends two parameters, `id.from` and `id.to`, and its `presets` add one button per code that fills the range from today.
+The days a `filtered-calendar` allows come from a query of the server (here a static list of Mondays and Thursdays), and the others are disabled.
+
+## Recipes {#recipes}
+
+Common fields, rendered by the same components.
+
+### Number with a slider {#recipe-slider}
+
+`show-slider` adds a slider under the input and `number-format` sets its range and step.
+
+<AweLive
+  components={{discount: {attributes: {label: 'Discount', showSlider: true, numberFormat: {min: 0, max: 100, step: 5, aSign: ' %', pSign: 's'}}, model: {values: [{value: '20', label: '20', selected: true}]}}}}
+  nodes={[{elementType: 'Criteria', component: 'numeric', id: 'discount'}]}
+/>
+
+```xml
+<criteria id="discount" component="numeric" label="Discount" show-slider="true"
+          number-format="{min: 0, max: 100, step: 5, aSign: ' %', pSign: 's'}" value="20" />
+```
+
+### Period with quick presets {#recipe-range}
+
+Each code of `presets` is a button: `1M` is one month back from today, `YTD` is the year to date and `ALL` clears both dates.
+
+<AweLive
+  components={{period: {attributes: {label: 'Period', presets: '1M,3M,YTD,ALL'}}}}
+  nodes={[{elementType: 'Criteria', component: 'date-range', id: 'period'}]}
+/>
+
+```xml
+<criteria id="period" component="date-range" label="Period" presets="1M,3M,YTD,ALL" />
+```
+
+### Time with a 12-hour clock {#recipe-time}
+
+`time-format` chooses how the time is shown. The value sent to the server is always a 24-hour time.
+
+<AweLive
+  components={{start: {attributes: {label: 'Start time', timeFormat: 'hh:mm a'}}}}
+  nodes={[{elementType: 'Criteria', component: 'time', id: 'start'}]}
+/>
+
+```xml
+<criteria id="start" component="time" label="Start time" time-format="hh:mm a" />
+```
+
+## Events and actions {#events-and-actions}
+
+A criterion has no event of its own to listen to: every change of its value checks the [dependencies](../api/dependencies.md) whose
+`dependency-element` names it, and pressing Enter in a text field runs the `submit` button of its window. The [actions](../api/actions.md)
+that work on criteria:
+
+| Action                           | Description                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Empties the value of the criterion                                   |
+| `restore`                        | Puts back the initial value of the criterion                         |
+| `validate`                       | Runs the validation of the criterion and shows its error             |
+| `set-invalid`                    | Marks the criterion as invalid with the message of the action        |
+| `set-valid`                      | Clears the validation error of the criterion                         |
+| `copy-criterion-value-clipboard` | Copies the value of the criterion to the clipboard                   |
+
+## More {#more}
+
+* [Criteria overview](./criteria.mdx): the attributes every criterion shares and the other families of inputs.
+* [Full documentation of the criteria](../api/criteria.md): every type, attribute, validation and example.
+* [XSD reference of the `criteria` element](/reference/screen#element-criteria).

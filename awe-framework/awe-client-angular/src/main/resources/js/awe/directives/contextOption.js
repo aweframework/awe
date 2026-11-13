@@ -1,15 +1,16 @@
 import {aweApplication} from "../awe";
 import "../services/contextMenu";
 import {getIconTemplate} from "../services/component";
+import {TestIds} from "../data/testIds";
 
 const template =
-`<li ng-show="controller.visible || controller.separator" class="context-option {{controller.opened ? 'open' : ''}}" ng-class="::{'divider': controller.separator, 'dropdown-submenu': controller.hasChildren}" ui-dependency="dependencies" ng-cloak>
-  <a ng-if="::!controller.separator" ng-disabled="isDisabled()" title="{{controller.label| translateMultiple}}" name="{{::controller.id}}" class="{{::controller.style}}"
+`<li ng-show="controller.visible || controller.separator" class="context-option {{controller.opened ? 'open' : ''}}" data-testid="${TestIds.contextMenuOption}" ng-class="::{'divider': controller.separator, 'dropdown-submenu': controller.hasChildren}" ui-dependency="dependencies" ng-cloak>
+  <a ng-if="::!controller.separator" ng-disabled="isDisabled()" title="{{controller.label| translateMultiple}}" name="{{::controller.id}}" class="{{::controller.style}}" data-testid="${TestIds.contextMenuLink}" ng-attr-data-disabled="{{!!isDisabled()}}"
      ng-click="onClick()">
      ${getIconTemplate("nav-icon")}
     <span ng-if="::controller.label" class="context-option-text" translate-multiple="{{::controller.label}}"></span>
   </a>
-  <ul ng-if="::!controller.separator && controller.hasChildren" class="context-submenu dropdown-menu" ng-show="controller.opened">
+  <ul ng-if="::!controller.separator && controller.hasChildren" class="context-submenu dropdown-menu" data-testid="${TestIds.contextSubmenu}" ng-show="controller.opened">
     <awe-context-option ng-repeat="option in controller.contextMenu track by option.id" option-id="{{::option.id}}" option="option"></awe-context-option>
   </ul>
 </li>`;

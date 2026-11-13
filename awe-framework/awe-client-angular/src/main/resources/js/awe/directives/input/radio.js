@@ -12,7 +12,7 @@ aweApplication.directive('aweInputRadio',
         scope: {
           'criterionId': '@inputRadioId'
         },
-        link: function (scope, elem, attrs) {
+        link: function (scope, elem) {
           // Initialize criterion
           scope.initialized = new CheckboxRadio(scope, scope.criterionId, elem).asRadio();
         }

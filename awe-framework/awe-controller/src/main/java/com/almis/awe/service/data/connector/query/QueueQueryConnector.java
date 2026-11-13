@@ -4,6 +4,7 @@ import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
@@ -14,9 +15,9 @@ import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.QueueBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,9 @@ public class QueueQueryConnector extends AbstractQueryConnector {
     // Log start query prepare time
     List<Long> timeLapse = LogUtil.prepareTimeLapse();
 
+    // Reject invalid grid column filters before the message is sent
+    validateColumnFilters(query, parameters);
+
     // Get query builder
     QueueBuilder builder = getBean(QueueBuilder.class);
     Queue queue = getElements().getQueue(query.getQueue()).copy();
@@ -84,10 +88,20 @@ public class QueueQueryConnector extends AbstractQueryConnector {
   }
 
   @Override
+  protected DataList getColumnValuesRows(Query query, ObjectNode parameters, Map<String, QueryParameter> variables) throws AWException {
+    QueueBuilder builder = getBean(QueueBuilder.class);
+    builder.setQueue(getElements().getQueue(query.getQueue()).copy());
+    return getFilteredRows(buildResults(builder, query), query, variables);
+  }
+
+  @Override
   public ServiceData subscribe(Query query, ComponentAddress address, ObjectNode parameters) throws AWException {
 
     // Log start query prepare time
     List<Long> timeLapse = LogUtil.prepareTimeLapse();
+
+    // Reject invalid grid column filters before subscribing
+    validateColumnFilters(query, parameters);
 
     // Get query builder
     QueueBuilder builder = getBean(QueueBuilder.class);

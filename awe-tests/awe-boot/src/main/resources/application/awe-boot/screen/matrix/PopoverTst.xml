@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : PopoverTst.xml
+    Description: Popovers anchored to a button, below it (two criteria, a grid loaded on the first opening, Cancel
+                 and Accept) and at its right (#843)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_POPOVER">
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_POPOVER" expandible="vertical">
+      <tag type="div" style="panel-body">
+        <button id="ButPopBottom" label="BUTTON_POPOVER_BOTTOM" icon="arrow-down">
+          <button-action type="dialog" target="PopBottom"/>
+        </button>
+        <button id="ButPopRight" label="BUTTON_POPOVER_RIGHT" icon="arrow-right">
+          <button-action type="dialog" target="PopRight"/>
+        </button>
+      </tag>
+      <tag type="div" style="panel-body">
+        <criteria id="CrtPopResult" label="PARAMETER_POPOVER_RESULT" component="text" readonly="true" value="pending"
+                  style="col-xs-12 col-sm-6"/>
+      </tag>
+    </window>
+
+    <popover id="PopBottom" label="POPOVER_TITLE_BOTTOM" anchor="ButPopBottom" max-width="40rem" deferred="true">
+      <tag type="div" style="panel-body">
+        <criteria id="CrtPopName" label="PARAMETER_NAME" component="text" style="col-xs-12 col-sm-6"/>
+        <criteria id="CrtPopUser" label="PARAMETER_USER" component="select" initial-load="query"
+                  target-action="TestComponentInitialLoadQuery" optional="true" style="col-xs-12 col-sm-6"/>
+        <grid id="GrdPopThemes" style="col-xs-12 height-lg" initial-load="query" server-action="data"
+              target-action="ThemeStyleTst" max="5">
+          <column label="PARAMETER_THEME" name="name" align="left" charlength="20"/>
+          <column label="PARAMETER_POPOVER_THEME_ID" name="id" align="right" charlength="10"/>
+        </grid>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button id="ButPopBottomCancel" label="BUTTON_CANCEL" icon="times">
+          <button-action type="close-cancel" target="PopBottom"/>
+        </button>
+        <button id="ButPopBottomAccept" label="BUTTON_ACCEPT" icon="check">
+          <button-action type="close" target="PopBottom"/>
+          <button-action type="value" target="CrtPopResult" value="accepted"/>
+        </button>
+      </tag>
+    </popover>
+
+    <popover id="PopRight" label="POPOVER_TITLE_RIGHT" anchor="ButPopRight" position="right" max-width="30rem"
+             on-close="reject" deferred="true">
+      <tag type="div" style="panel-body">
+        <criteria id="CrtPopNotes" label="PARAMETER_DESCRIPTION" component="textarea" style="col-xs-12"/>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button id="ButPopRightClose" label="BUTTON_CLOSE" icon="times">
+          <button-action type="close" target="PopRight"/>
+        </button>
+      </tag>
+    </popover>
+  </tag>
+</screen>

@@ -11,7 +11,6 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class XmlHotReloadService {
    * XML artifact types handled by the hot reload
    */
   public enum XmlArtifactType {
-    SCREEN, MENU, LOCALE, PROFILE, QUERIES, MAINTAIN, SERVICES, ENUMERATED, QUEUES, EMAIL, ACTIONS, NONE
+    SCREEN, MENU, LOCALE, PROFILE, QUERIES, MAINTAIN, SERVICES, ENUMERATED, QUEUES, EMAIL, ACTIONS, PERMISSIONS, NONE
   }
 
   /**
@@ -179,6 +178,8 @@ public class XmlHotReloadService {
       return XmlArtifactType.EMAIL;
     } else if (fileName.equals(files.getActions())) {
       return XmlArtifactType.ACTIONS;
+    } else if (fileName.equals(files.getPermissions())) {
+      return XmlArtifactType.PERMISSIONS;
     }
     return XmlArtifactType.NONE;
   }
@@ -245,6 +246,7 @@ public class XmlHotReloadService {
       case QUEUES -> aweElements.reloadQueues();
       case EMAIL -> aweElements.reloadEmails();
       case ACTIONS -> aweElements.reloadActions();
+      case PERMISSIONS -> aweElements.reloadPermissions();
       default -> {
         log.debug("XML hot reload: ignored change in '{}'", changedFile);
         return;
@@ -301,7 +303,7 @@ public class XmlHotReloadService {
    * @return Whether the reload must be skipped because the definition is invalid
    */
   private boolean isInvalidAgainstSchema(String changedFile) {
-    ValidationResult validation = schemaValidator.validate(Paths.get(changedFile));
+    ValidationResult validation = schemaValidator.validate(Path.of(changedFile));
     if (validation.isValidated() && !validation.isValid()) {
       log.warn("XML hot reload: '{}' is not valid against its schema; keeping the previous version and skipping reload:\n{}",
         changedFile, formatErrors(validation.getErrors()));
@@ -335,8 +337,11 @@ public class XmlHotReloadService {
       handlerCatalog -> new XmlSchemaValidator(List.of(XmlSchemaValidator.AWE_BASE_CATALOG, handlerCatalog)));
     ValidationResult validation = validator.validate(changedFile);
     if (validation.isValidated() && !validation.isValid()) {
-      log.warn("XML hot reload: '{}' is not valid against handler '{}' schema catalog '{}'; keeping the previous version"
-          + " and skipping reload:\n{}",
+      log.warn("""
+          XML hot reload: '{}' is not valid against handler '{}' schema catalog '{}'; keeping the previous version\
+           and skipping reload:
+          {}\
+          """,
         changedFile, handler.getClass().getSimpleName(), catalog.get(), formatErrors(validation.getErrors()));
       return true;
     }

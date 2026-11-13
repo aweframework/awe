@@ -43,7 +43,7 @@ describe("uiDate", () => {
     try {
       $httpBackend && $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend && $httpBackend.verifyNoOutstandingRequest();
-    } catch (error) {
+    } catch {
       // These focused specs do not flush settings; keep cleanup best-effort.
     }
     delete $.fn.datepicker;
@@ -89,5 +89,19 @@ describe("uiDate", () => {
 
     expect(component.pluginInitialized).toBe(true);
     expect(datepickerCalls).toContainEqual(["update", undefined]);
+  });
+
+  it("tags the datepicker popup with its owner when the plugin shows it", () => {
+    const popup = $("<div class='datepicker'><div class='datepicker-days'><table><tbody><tr><td class='day active'>1</td></tr></tbody></table></div></div>");
+    const component = {id: "birthDate", model: {selected: null, values: []}};
+    const {element} = compileWithScope("<input id='birthDate' ui-date='dateOptions' initialized='initialized'/>", {component, dateOptions: {format: "dd/mm/yyyy"}, initialized: true});
+    element.data("datepicker", {picker: popup});
+
+    element.trigger("show");
+
+    expect(popup.attr("data-testid")).toBe("datepicker");
+    expect(popup.attr("data-testid-owner")).toBe("birthDate");
+    expect(popup.find("td.day").attr("data-testid")).toBe("datepicker-day");
+    expect(popup.find("td.day").attr("data-selected")).toBe("true");
   });
 });

@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.Map;
 @XStreamAlias("chart-tooltip")
 public class ChartTooltip extends AbstractChart {
 
+  @Serial
   private static final long serialVersionUID = 8810846715874354742L;
   private static final String CROSSHAIRS_TEXT = "crosshairs";
 

@@ -1,0 +1,75 @@
+---
+id: map
+title: Map
+sidebar_label: Map
+description: The AWE map, live. Place the rows of a query as markers, pick the initial view and the label, and copy the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {map, mapExample} from '@site/src/components/AwePlayground/specs/map';
+
+A map shows the rows of a query as markers over a map drawn with Leaflet: each row needs a latitude and a longitude, and an optional
+label that opens when its marker is clicked. Clicking a marker selects its row. Below is the real map of the AWE React client. Click the
+markers, drag and zoom the map, and change the attributes: the XML below follows.
+
+<AwePlayground spec={map} />
+
+:::info The data is a fixture, and the tiles need a network
+In a screen the rows come from a query (`initial-load="query"`). Here they are 12 stores of an invented chain, placed on the real
+coordinates of their cities. The map draws the tiles the client uses by default, which are the OpenStreetMap ones, so it needs an
+internet connection: offline, the background stays grey but the markers still work. An application can use its own tiles with the
+`mapTileUrl` setting.
+:::
+
+## Recipes {#recipes}
+
+### Stores with their name {#recipe-labels}
+
+`marker-label` is the field of the row that opens in a popup when its marker is clicked. `latitude` and `longitude` name the fields that
+hold the coordinates (`latitude` and `longitude` by default). Without a centre, the map fits every marker.
+
+<AweLive height="24rem" {...mapExample({markerLabel: 'name'})} />
+
+```xml
+<map id="stores" latitude="latitude" longitude="longitude" marker-label="name"
+     initial-load="query" target-action="Stores" />
+```
+
+### Start on a city {#recipe-center}
+
+`center-latitude`, `center-longitude` and `zoom` fix the initial view instead of fitting the markers. A higher `zoom` is closer: `4` is a
+country, `11` a city.
+
+<AweLive height="24rem" {...mapExample({markerLabel: 'city', centerLatitude: 40.4168, centerLongitude: -3.7038, zoom: 11})} />
+
+```xml
+<map id="stores" latitude="latitude" longitude="longitude" marker-label="city"
+     center-latitude="40.4168" center-longitude="-3.7038" zoom="11"
+     initial-load="query" target-action="Stores" />
+```
+
+### A selected marker {#recipe-selected}
+
+The row that is selected in the model is drawn in a different colour, and so is the marker the reader clicks. The map is a selector: with a
+[dependency](../api/dependencies.md) on `select-row`, another component (a grid, a card) can show the data of the chosen store.
+
+<AweLive height="24rem" {...mapExample({markerLabel: 'name'}, 10)} />
+
+```xml
+<map id="stores" latitude="latitude" longitude="longitude" marker-label="name"
+     initial-load="query" target-action="Stores" />
+```
+
+## Events and actions {#events-and-actions}
+
+Clicking a marker selects its row and raises `select-row`, so the dependencies and the buttons that listen to the map run. These examples
+select for real; the actions below need a screen and are not run here.
+
+* `filter`: reloads the markers from the query of the map.
+* `polyline`: draws a route over the map instead of the markers.
+
+## More {#more}
+
+* [Full documentation of maps](../api/map.md): every attribute, the query fields and the server side.
+* [XSD reference of the `map` element](/reference/screen#element-map).

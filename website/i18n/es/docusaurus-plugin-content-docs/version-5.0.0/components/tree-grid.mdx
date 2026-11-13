@@ -1,0 +1,86 @@
+---
+id: tree-grid
+title: Grid en árbol
+sidebar_label: Grid en árbol
+description: El grid en árbol de AWE, en vivo. Abre y cierra las ramas de una jerarquía y copia el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {treeGrid, treeGridExample} from '@site/src/components/AwePlayground/specs/tree-grid';
+
+Un grid en árbol es un [grid](./grid.mdx) con `treegrid="true"`: sus filas forman una jerarquía y las celdas de una columna llevan los
+botones que abren y cierran cada rama. Debajo está el grid en árbol real del cliente React de AWE. Abre los departamentos, selecciona
+una fila y cambia los atributos: el XML de debajo se actualiza.
+
+<AwePlayground spec={treeGrid} />
+
+:::info Las filas son datos de ejemplo
+La jerarquía sale de tres campos de cada fila: `id`, `parent` (vacío en una raíz) e `isLeaf`. En una pantalla vienen de una consulta.
+Con `load-all="true"` el grid recibe el árbol entero de una vez, como aquí; sin él, una rama se carga del servidor la primera vez que se
+abre.
+:::
+
+## Recetas {#recipes}
+
+### Un árbol con todo abierto {#recipe-open}
+
+`initial-level` es cuántos niveles del árbol se muestran al cargar la pantalla: `1` muestra solo las raíces y `3` muestra este árbol entero.
+
+<AweLive height="32rem" {...treeGridExample({initialLevel: 3})} />
+
+```xml
+<grid id="departments" treegrid="true" tree-id="id" tree-parent="parent" tree-leaf="isLeaf" expand-column="name"
+      initial-load="query" target-action="Departments" load-all="true" initial-level="3">
+  <column name="name" label="Department" component="text" />
+  <column name="people" label="People" component="text" align="right" />
+  <column name="budget" label="Budget (kEUR)" component="progress" align="right" bar-max="5500" bar-leaf-only="true" />
+</grid>
+```
+
+`bar-leaf-only` dibuja la barra de datos del presupuesto solo en las hojas, donde no es la suma de sus hijas.
+
+### Elegir varias ramas {#recipe-select}
+
+`multiselect` añade una casilla a cada fila, padres incluidos, y la barra de selección del grid.
+
+<AweLive height="26rem" {...treeGridExample({multiselect: true, initialLevel: 2})} />
+
+```xml
+<grid id="departments" treegrid="true" tree-id="id" tree-parent="parent" tree-leaf="isLeaf" expand-column="name"
+      initial-load="query" target-action="Departments" load-all="true" multiselect="true" initial-level="2">
+  <column name="name" label="Department" component="text" />
+  <!-- ... -->
+</grid>
+```
+
+### Tus propios iconos de despliegue {#recipe-icons}
+
+`icon-expand`, `icon-collapse` e `icon-leaf` sustituyen los cuadrados de más y menos y el punto de una hoja. Aceptan los
+[nombres de icono](../api/icons.md) de AWE.
+
+<AweLive height="26rem" {...treeGridExample({iconExpand: 'chevron-right', iconCollapse: 'chevron-down', initialLevel: 2})} />
+
+```xml
+<grid id="departments" treegrid="true" tree-id="id" tree-parent="parent" tree-leaf="isLeaf" expand-column="name"
+      icon-expand="chevron-right" icon-collapse="chevron-down" initial-level="2"
+      initial-load="query" target-action="Departments" load-all="true">
+  <column name="name" label="Department" component="text" />
+  <!-- ... -->
+</grid>
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Abrir o cerrar una rama ejecuta la acción `tree-branch`; seleccionar una fila lanza el mismo evento `select-row` que en un grid plano.
+Estos ejemplos ejecutan ambas de verdad. En una pantalla sin `load-all`, abrir una rama por primera vez envía una acción de servidor
+(`target-action`) que responde con los hijos de la fila, algo que esta página no simula.
+
+* `tree-branch`: abre o cierra la rama de una fila.
+* `select-row`, `select-all-rows`, `unselect-all-rows`: cambian la selección.
+* `filter`: recarga el árbol desde su consulta.
+
+## Más {#more}
+
+* [Documentación completa de grids y grids en árbol](../api/grids.md): cada atributo, los atributos del árbol y la parte de servidor.
+* [Referencia XSD del elemento `grid`](/reference/screen#element-grid).

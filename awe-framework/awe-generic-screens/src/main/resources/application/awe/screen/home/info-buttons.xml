@@ -65,6 +65,15 @@
         <dependency-element id="currentMode" condition="eq" value="dark"/>
         <dependency-action type="add-class" target="body.base-theme" target-action="dark" silent="true" async="true"/>
       </dependency>
+      <!-- The light class tells the stylesheet that the user chose the light mode, so it wins over the OS dark preference -->
+      <dependency initial="true">
+        <dependency-element id="currentMode" condition="ne" value="light"/>
+        <dependency-action type="remove-class" target="body.base-theme" target-action="light" silent="true" async="true"/>
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="currentMode" condition="eq" value="light"/>
+        <dependency-action type="add-class" target="body.base-theme" target-action="light" silent="true" async="true"/>
+      </dependency>
     </criteria>
     <info-button label="BUTTON_DARK_MODE" id="dark-mode" icon="mdi:dark_mode">
       <button-action type="server" server-action="maintain-silent" target-action="selectDarkMode" silent="true" async="true"/>

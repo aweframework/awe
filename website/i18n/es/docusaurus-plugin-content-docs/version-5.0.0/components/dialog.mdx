@@ -1,0 +1,121 @@
+---
+id: dialog
+title: Diálogo
+sidebar_label: Diálogo
+description: El diálogo de AWE, en vivo. Ábrelo desde un botón, cambia sus atributos y mira el diálogo real y el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {dialog} from '@site/src/components/AwePlayground/specs/dialog';
+
+Un diálogo es una ventana modal con un título y un contenido. No se abre solo: lo abre un botón con una acción `dialog` y lo cierra
+un botón con una acción `close` situado dentro. El área de pruebas tiene ambos botones y ejecuta esas acciones, así que pulsa **Open the
+dialog**, cambia sus atributos y ábrelo de nuevo. El XML de debajo muestra el diálogo y el botón que lo abre.
+
+<AwePlayground spec={dialog} />
+
+:::note
+Un diálogo se dibuja sobre toda la página, fuera de la vista previa, así que la capa sigue el modo de color del sitio y no el del
+interruptor **Claro / Oscuro** de la vista previa. Ciérralo con su botón, con la cruz de su cabecera o con Esc.
+:::
+
+## Recetas {#recipes}
+
+### Confirmación {#recipe-confirm}
+
+Un diálogo `modal-sm` con dos botones en el `modal-footer`. `close-cancel` cierra el diálogo y cancela las acciones
+que lo esperaban, así que un botón *Cancelar* detiene la cadena que lo abrió; `close` deja que continúe.
+
+<AweLive
+  components={{
+    Remove: {attributes: {label: 'Eliminar cliente', icon: 'trash', style: 'btn-danger'}, actions: [{type: 'dialog', target: 'RemoveDlg'}]},
+    Cancel: {attributes: {label: 'Cancelar', style: 'btn-ghost'}, actions: [{type: 'close-cancel', target: 'RemoveDlg'}]},
+    Confirm: {attributes: {label: 'Eliminar', style: 'btn-danger'}, actions: [{type: 'close', target: 'RemoveDlg'}]},
+    RemoveDlg: {attributes: {label: '¿Eliminar el cliente?', style: 'modal-sm'}},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'Remove'},
+    {elementType: 'Dialog', id: 'RemoveDlg', elementList: [
+      {elementType: 'Tag', type: 'div', style: 'modal-body', label: 'Se borrarán el cliente y sus pedidos.'},
+      {elementType: 'Tag', type: 'div', style: 'modal-footer', elementList: [
+        {elementType: 'Button', id: 'Cancel'}, {elementType: 'Button', id: 'Confirm'},
+      ]},
+    ]},
+  ]}
+/>
+
+```xml
+<button id="Remove" label="Eliminar cliente" icon="trash" style="btn-danger">
+  <button-action type="dialog" target="RemoveDlg" />
+</button>
+
+<dialog id="RemoveDlg" label="¿Eliminar el cliente?" style="modal-sm">
+  <tag type="div" style="modal-body" label="Se borrarán el cliente y sus pedidos." />
+  <tag type="div" style="modal-footer">
+    <button id="Cancel" label="Cancelar" style="btn-ghost">
+      <button-action type="close-cancel" target="RemoveDlg" />
+    </button>
+    <button id="Confirm" label="Eliminar" style="btn-danger">
+      <button-action type="close" target="RemoveDlg" />
+    </button>
+  </tag>
+</dialog>
+```
+
+### Formulario en un diálogo {#recipe-form}
+
+Un diálogo contiene cualquier componente: aquí, dos criterios. Las clases de anchura son `modal-sm` (300px), `modal-md` (600px) y `modal-lg` (900px).
+
+<AweLive
+  components={{
+    Edit: {attributes: {label: 'Editar cliente', icon: 'pencil', style: 'btn-primary'}, actions: [{type: 'dialog', target: 'EditDlg'}]},
+    Save: {attributes: {label: 'Guardar', style: 'btn-primary'}, actions: [{type: 'close', target: 'EditDlg'}]},
+    EditDlg: {attributes: {label: 'Editar cliente', style: 'modal-md'}},
+    Name: {attributes: {label: 'Nombre', placeholder: 'Nombre completo', required: true}, validationRules: {required: true}},
+    Email: {attributes: {label: 'Correo', placeholder: 'nombre@empresa.com', icon: 'lucide:mail'}},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'Edit'},
+    {elementType: 'Dialog', id: 'EditDlg', elementList: [
+      {elementType: 'Tag', type: 'div', style: 'modal-body', elementList: [
+        {elementType: 'Criteria', component: 'text', id: 'Name'},
+        {elementType: 'Criteria', component: 'text', id: 'Email'},
+      ]},
+      {elementType: 'Tag', type: 'div', style: 'modal-footer', elementList: [{elementType: 'Button', id: 'Save'}]},
+    ]},
+  ]}
+/>
+
+```xml
+<dialog id="EditDlg" label="Editar cliente" style="modal-md">
+  <tag type="div" style="modal-body">
+    <criteria id="Name" component="text" label="Nombre" placeholder="Nombre completo" validation="required" />
+    <criteria id="Email" component="text" label="Correo" placeholder="nombre@empresa.com" icon="lucide:mail" />
+  </tag>
+  <tag type="div" style="modal-footer">
+    <button id="Save" label="Guardar" style="btn-primary">
+      <button-action type="close" target="EditDlg" />
+    </button>
+  </tag>
+</dialog>
+```
+
+## Eventos y acciones {#events-and-actions}
+
+El diálogo guarda los eventos `open` y `close` cuando se abre y se cierra, así que una dependencia puede reaccionar a ellos. Se abre y se cierra
+con [acciones](../api/actions.md) de los botones.
+
+| Acción         | Descripción                                                                  |
+|----------------|------------------------------------------------------------------------------|
+| `dialog`       | Abre el diálogo indicado en `target`                                         |
+| `close`        | Cierra el diálogo y continúa con las acciones que esperaban                  |
+| `close-cancel` | Cierra el diálogo y cancela las acciones que esperaban                       |
+
+Con `on-close="reject"`, la cruz de la cabecera y Esc actúan como `close-cancel`; por defecto (`accept`) actúan como `close`. Con
+`deferred="true"`, los datos de los componentes del diálogo se cargan la primera vez que se abre.
+
+## Más {#more}
+
+* [Documentación completa del diálogo](../api/dialog.md): atributos, pie, carga diferida y más.
+* [Referencia XSD del elemento `dialog`](/reference/screen#element-dialog).

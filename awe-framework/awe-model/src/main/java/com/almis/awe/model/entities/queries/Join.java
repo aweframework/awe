@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -29,6 +30,7 @@ import java.util.List;
 @XStreamAlias("join")
 public class Join implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -2168129287969817829L;
 
   // Join type

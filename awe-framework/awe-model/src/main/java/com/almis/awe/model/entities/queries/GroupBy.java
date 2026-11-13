@@ -9,6 +9,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * GroupBy Class
  * Used to parse the files Queries.xml with XStream
@@ -24,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("group-by")
 public class GroupBy implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = 7419599738628447856L;
 
   // Field to group by

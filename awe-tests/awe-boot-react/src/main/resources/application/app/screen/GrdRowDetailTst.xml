@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdRowDetailTst.xml
+    Description: Grid with server pagination and a styled row detail whose template uses a visible and two hidden columns
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_ROW_DETAIL">
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_ROW_DETAIL" expandible="vertical">
+      <grid id="GrdRowDetailTst" style="expand" initial-load="query" server-action="data" target-action="RowDetailTst" max="5">
+        <column label="PARAMETER_ID" name="id" align="center" charlength="10"/>
+        <column label="COLUMN_RADIO_THEME" name="name" align="left" charlength="30"/>
+        <column label="COLUMN_ROW_DETAIL_CODE" name="code" hidden="true"/>
+        <column label="COLUMN_ROW_DETAIL_ACTIVE" name="active" hidden="true"/>
+        <row-detail style="row-detail-card"><![CDATA[Theme: {name}
+Code: {code}
+Active: {active}]]></row-detail>
+      </grid>
+    </window>
+  </tag>
+</screen>

@@ -23,8 +23,17 @@ public enum ParameterType {
   STRING,
   // value | NULL
   STRINGN,
-  // Hashes a string with the RipEmd160 algorithm
+  /**
+   * Hashes a string with the RipEmd160 algorithm, without salt
+   *
+   * @deprecated For user passwords use {@link #STRING_HASH_PASSWORD}, which hashes them with the configured password
+   * encoder. Kept unchanged for the descriptors that still compare legacy hashes
+   */
+  @Deprecated
   STRING_HASH_RIPEMD160,
+  // Hashes a user password with the application password encoder (awe.security.password-encoder, BCrypt by default).
+  // The hash is salted, so it can be stored but never compared in SQL
+  STRING_HASH_PASSWORD,
   // Hashes a string with the SHA-256 algorithm
   STRING_HASH_SHA,
   // Hashes a string with the PBKDF2WithHmacSHA1

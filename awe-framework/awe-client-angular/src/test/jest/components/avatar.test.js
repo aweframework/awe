@@ -3,17 +3,7 @@ import "./lightComponentTestUtils";
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/jest/components/avatar.js', function () {
-  let $injector, $rootScope, $compile, $httpBackend, $actionController, $control, $storage, $utilities, $component, $serverData;
-  let model = {
-    values: [{
-      title: "User Avatar",
-      label: "John Doe",
-      image: "/images/avatar.png",
-      icon: "user",
-      unit: "Admin"
-    }]
-  };
-  let emptyModel = {values: []};
+  let $rootScope, $compile, $httpBackend, $actionController, $control, $storage, $utilities, $component;
   let controller = {
     id: "testAvatar",
     component: "avatar",
@@ -34,19 +24,14 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/avatar.js', 
       name: "viewProfile"
     }]
   };
-  let controllerWithChildren = {
-    ...controller,
-    children: 2
-  };
 
   // Mock module
   beforeEach(function () {
     angular.mock.module('aweApplication');
 
     // Inject controller
-    inject(["$injector", "$rootScope", "$compile", "$httpBackend", "ActionController", "Control", "Storage", "AweUtilities", "Component", "ServerData",
-      function (__$injector__, _$rootScope_, _$compile_, _$httpBackend_, _ActionController_, _Control_, __Storage__, _AweUtilities_, _Component_, _ServerData_) {
-        $injector = __$injector__;
+    inject(["$rootScope", "$compile", "$httpBackend", "ActionController", "Control", "Storage", "AweUtilities", "Component",
+      function (_$rootScope_, _$compile_, _$httpBackend_, _ActionController_, _Control_, __Storage__, _AweUtilities_, _Component_) {
         $rootScope = _$rootScope_;
         $compile = _$compile_;
         $httpBackend = _$httpBackend_;
@@ -55,7 +40,6 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/avatar.js', 
         $storage = __Storage__;
         $utilities = _AweUtilities_;
         $component = _Component_;
-        $serverData = _ServerData_;
 
         $rootScope.view = 'base';
         $rootScope.context = 'screen';
@@ -121,9 +105,6 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/avatar.js', 
 
     // Define avatar
     let element = defineAvatar();
-
-    // Get scope and trigger click
-    let scope = element.isolateScope();
 
     // Simulate a click on the avatar
     element.find('a').triggerHandler('click');

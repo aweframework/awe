@@ -1,0 +1,13 @@
+{
+  "name": "awe-mr-title-lint",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Tooling of the local merge request title check (see bin/lint-mr-title.sh), not run by the pipeline. Not part of any AWE artifact.",
+  "devDependencies": {
+    "@commitlint/cli": "21.2.4",
+    "@commitlint/config-conventional": "21.2.4"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

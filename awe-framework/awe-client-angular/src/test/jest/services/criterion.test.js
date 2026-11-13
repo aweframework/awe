@@ -5,7 +5,7 @@ import "../../../main/resources/webpack/locals-es-ES.config";
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/jest/services/criterion.js', function () {
-  let $rootScope, $injector, $control, $utilities, Criterion, $httpBackend;
+  let $injector, $control, Criterion, $httpBackend;
   let address = {"component": "comp1", "view": "report"};
   let scopedFunctions = {};
   let scope = {view: "report", $parent: {$parent: {}}, $on: (k, fn) => scopedFunctions[k] = fn, $emit: () => null};
@@ -17,9 +17,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/criterion.js',
 
     inject(["$injector", function (__$injector__) {
       $injector = __$injector__;
-      $rootScope = $injector.get('$rootScope');
       $control = $injector.get('Control');
-      $utilities = $injector.get('AweUtilities');
       Criterion = $injector.get('Criterion');
       $httpBackend = $injector.get("$httpBackend");
 
@@ -55,6 +53,24 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/criterion.js',
 
     // Assert
     expect(comp.address).toEqual(address);
+  });
+
+  it('should submit the screen on Enter clicking the first visible submit button of the form', function () {
+    // Prepare
+    const form = $("<form><input class='text'><button type='submit'>Search</button></form>").appendTo(document.body);
+    const button = form.find("button");
+    button[0].getClientRects = () => [{}];
+    const onClick = jest.fn();
+    button.data("$scope", {onClick});
+    let comp = new Criterion(scope, "comp1", form.find("input"));
+    comp.asCriterion();
+
+    // Run
+    scope.submit({stopPropagation: jest.fn(), preventDefault: jest.fn()});
+
+    // Assert
+    expect(onClick).toHaveBeenCalledTimes(1);
+    form.remove();
   });
 
   it('should check criterion is visible', function () {
@@ -104,5 +120,70 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/criterion.js',
 
     // Assert
     expect(comp.getData()).toEqual({ "comp1": "text" });
+  });
+
+  describe('validation reporting', function () {
+    const VALIDITY = "criterion-validity";
+    let emitted;
+    let comp;
+
+    beforeEach(function () {
+      emitted = [];
+      scope.$emit = jest.fn((event, data) => emitted.push({event, data}));
+      controller.validationRules = {required: true};
+      model.selected = "";
+      comp = new Criterion(scope, "comp1", document.createElement("div"));
+      comp.asCriterion();
+    });
+
+    function validityEvents() {
+      return emitted.filter(item => item.event === VALIDITY).map(item => item.data);
+    }
+
+    it('reports that the criterion is invalid when its validation fails', function () {
+      comp.api.validate(null, false);
+
+      expect(validityEvents()).toEqual([{id: "comp1", invalid: true}]);
+    });
+
+    it('selects the container of the first invalid criterion only', function () {
+      comp.api.validate(null, false);
+      comp.api.validate(null, true);
+
+      expect(emitted.filter(item => item.event === "select-current-tab")).toHaveLength(1);
+    });
+
+    it('reports an invalid criterion once, however many times it is validated', function () {
+      comp.api.validate(null, false);
+      comp.api.validate(null, true);
+
+      expect(validityEvents()).toEqual([{id: "comp1", invalid: true}]);
+    });
+
+    it('reports that the criterion is valid again when its classes are updated', function () {
+      comp.api.validate(null, false);
+
+      comp.updateClasses();
+
+      expect(validityEvents()).toEqual([{id: "comp1", invalid: true}, {id: "comp1", invalid: false}]);
+    });
+
+    it('reports that the criterion is valid again when a new validation passes', function () {
+      comp.api.validate(null, false);
+      model.selected = "filled";
+
+      expect(comp.api.validate(null, false)).toBeNull();
+
+      expect(validityEvents()).toEqual([{id: "comp1", invalid: true}, {id: "comp1", invalid: false}]);
+    });
+
+    it('does not report anything for a criterion that was always valid', function () {
+      model.selected = "filled";
+
+      comp.api.validate(null, false);
+      comp.updateClasses();
+
+      expect(validityEvents()).toEqual([]);
+    });
   });
 });

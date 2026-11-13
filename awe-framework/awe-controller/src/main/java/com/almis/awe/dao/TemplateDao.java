@@ -7,13 +7,16 @@ import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
+import com.almis.awe.model.util.icon.IconResolver;
 import com.almis.awe.service.MenuService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Future;
@@ -30,6 +33,12 @@ import java.util.stream.Collectors;
  * @author Pablo GARCIA - 20/MAR/2017
  */
 public class TemplateDao {
+
+  private static final String HELP_ICON_START = "<i role=\"icon\" class=\"help-icon text-primary";
+  // Font Awesome modifier classes written next to an icon -> classes of the AWE icon, as in the clients (fa-fw is
+  // dropped: the svg already has a fixed width)
+  private static final Map<String, String> ICON_MODIFIERS = Map.of("fa-spin", "awe-icon-spin",
+    "fa-pulse", "awe-icon-spin", "fa-lg", "awe-icon-lg", "fa-fw", "");
 
   // Autowired services
   private final MenuService menuService;
@@ -101,27 +110,34 @@ public class TemplateDao {
   }
 
   private String getIconTemplate(String iconValue) {
-    String iconTemplate = "";
-    if (iconValue != null) {
-      String[] iconValues = iconValue.split(":");
-      String icon = iconValue;
-      String family = "fa";
-      if (iconValues.length == 2) {
-        family = iconValues[0];
-        icon = iconValues[1];
-      }
+    // Lucide icon of the sprite for a name with equivalence (#885), the current font otherwise
+    return IconResolver.resolve(iconValue)
+      .map(icon -> icon.isLucide() ? getLucideIconTemplate(icon) : getFontIconTemplate(iconValue))
+      .orElse("");
+  }
 
-      switch (family) {
-        case "mdi":
-          iconTemplate = "<i role=\"icon\" class=\"help-icon text-primary material-icons\">" + icon + "</i>";
-          break;
-        case "fa":
-        default:
-          iconTemplate = "<i role=\"icon\" class=\"help-icon text-primary fa fa-" + icon + " fa-fw\"></i>";
-          break;
-      }
+  private String getLucideIconTemplate(IconResolver.Icon icon) {
+    String classes = Arrays.stream(("awe-icon " + icon.classes()).trim().split("\\s+"))
+      .map(name -> ICON_MODIFIERS.getOrDefault(name, name))
+      .filter(name -> !name.isEmpty())
+      .collect(Collectors.joining(" "));
+    return HELP_ICON_START + "\"><svg class=\"" + classes + "\" aria-hidden=\"true\" focusable=\"false\">"
+      + "<use href=\"" + IconResolver.SPRITE + "#" + icon.name() + "\"></use></svg></i>";
+  }
+
+  private String getFontIconTemplate(String iconValue) {
+    String[] iconValues = iconValue.split(":");
+    String icon = iconValue;
+    String family = "fa";
+    if (iconValues.length == 2) {
+      family = iconValues[0];
+      icon = iconValues[1];
     }
-    return iconTemplate;
+
+    if ("mdi".equals(family)) {
+      return HELP_ICON_START + " material-icons\">" + icon + "</i>";
+    }
+    return HELP_ICON_START + " fa fa-" + icon + " fa-fw\"></i>";
   }
 
   /**

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : AccTst.xml
+    Created on : 21 de Febrero de 2017
+    Author     : Jorge BELLON
+    Description: Accordion Test Screen
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="MENU_TEST_CAROUSEL">
+    <tag source="center" type="div" expandible="vertical" style="expand">
+        <widget type="carousel" id="carousel" initial-load="query" target-action="carousel" style="expand"/>
+    </tag>
+</screen>

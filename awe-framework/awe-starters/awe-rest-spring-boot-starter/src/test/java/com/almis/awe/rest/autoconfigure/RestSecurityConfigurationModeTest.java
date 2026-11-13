@@ -1,34 +1,41 @@
 package com.almis.awe.rest.autoconfigure;
 
+import com.almis.awe.autoconfigure.LocalLoginConfig;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.rest.security.JWTAuthenticationFilter;
 import com.almis.awe.rest.security.JWTAuthorizationFilter;
 import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
-import org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration;
-import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.SecurityFilterAutoConfiguration;
+import org.springframework.boot.security.autoconfigure.web.servlet.ServletWebSecurityAutoConfiguration;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.OAuth2ResourceServerAutoConfiguration;
+import org.springframework.boot.security.oauth2.server.resource.autoconfigure.web.OAuth2ResourceServerWebSecurityAutoConfiguration;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
@@ -47,17 +54,19 @@ class RestSecurityConfigurationModeTest {
     .withConfiguration(AutoConfigurations.of(
       SecurityAutoConfiguration.class,
       SecurityFilterAutoConfiguration.class,
+      ServletWebSecurityAutoConfiguration.class,
       UserDetailsServiceAutoConfiguration.class,
       OAuth2ResourceServerAutoConfiguration.class,
+      OAuth2ResourceServerWebSecurityAutoConfiguration.class,
       WebMvcAutoConfiguration.class
     ))
-    .withUserConfiguration(RestSecurityConfiguration.class, TestConfig.class);
+    .withUserConfiguration(RestSecurityConfiguration.class, LocalLoginConfig.class, TestConfig.class)
+    .withPropertyValues("awe.security.master-key=test-master-key");
 
   @Test
   void shouldKeepJwtFiltersAndAuthenticateEndpointInLocalModeByDefault() {
     contextRunner
       .withPropertyValues(
-        "awe.security.master.key=test-master-key",
         "awe.application.module-list[0]=awe"
       )
       .run(context -> {
@@ -132,6 +141,52 @@ class RestSecurityConfigurationModeTest {
       });
   }
 
+  @Test
+  void shouldAnswerARefusedLocalLoginExactlyLikeABadPassword() {
+    contextRunner
+      .withPropertyValues("awe.application.module-list[0]=awe")
+      .run(context -> {
+        SecurityConfigProperties.Sso sso = context.getBean(SecurityConfigProperties.class).getSso();
+        sso.setEnabled(true);
+        sso.setLocalLogin(false);
+        sso.setBreakGlassUsers(List.of("admin"));
+
+        MockMvc mockMvc = buildMockMvc(context);
+        MvcResult wrongPassword = mockMvc.perform(post("/api/authenticate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"username\":\"admin\",\"password\":\"wrong\"}"))
+          .andExpect(status().isUnauthorized())
+          .andReturn();
+        MvcResult refused = mockMvc.perform(post("/api/authenticate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"username\":\"demo\",\"password\":\"x\"}"))
+          .andExpect(status().isUnauthorized())
+          .andExpect(header().doesNotExist("Authorization"))
+          .andReturn();
+
+        assertThat(refused.getResponse().getContentAsString()).isEqualTo(wrongPassword.getResponse().getContentAsString());
+        assertThat(refused.getResponse().getContentType()).isEqualTo(wrongPassword.getResponse().getContentType());
+      });
+  }
+
+  @Test
+  void shouldKeepAuthenticateEndpointOpenForBreakGlassUsersWhenLocalLoginIsDisabled() {
+    contextRunner
+      .withPropertyValues("awe.application.module-list[0]=awe")
+      .run(context -> {
+        SecurityConfigProperties.Sso sso = context.getBean(SecurityConfigProperties.class).getSso();
+        sso.setEnabled(true);
+        sso.setLocalLogin(false);
+        sso.setBreakGlassUsers(List.of("admin"));
+
+        buildMockMvc(context).perform(post("/api/authenticate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"username\":\"admin\",\"password\":\"x\"}"))
+          .andExpect(status().isOk())
+          .andExpect(header().exists("Authorization"));
+      });
+  }
+
   private MockMvc buildMockMvc(org.springframework.boot.test.context.assertj.AssertableWebApplicationContext context) {
     return MockMvcBuilders.webAppContextSetup((WebApplicationContext) context.getSourceApplicationContext())
       .addFilters(context.getBean(FilterChainProxy.class))
@@ -142,8 +197,13 @@ class RestSecurityConfigurationModeTest {
   static class TestConfig {
 
     @Bean
+    @Primary
     AuthenticationManager authenticationManager() {
+      // Plays the role of the real providers. The decorated manager comes from the real LocalLoginConfig
       return authentication -> {
+        if ("wrong".equals(authentication.getCredentials())) {
+          throw new BadCredentialsException("Bad credentials");
+        }
         String username = String.valueOf(authentication.getPrincipal());
         return new UsernamePasswordAuthenticationToken(
           org.springframework.security.core.userdetails.User.withUsername(username).password("N/A").authorities(List.of()).build(),
@@ -160,13 +220,13 @@ class RestSecurityConfigurationModeTest {
 
     @Bean
     ObjectMapper objectMapper() {
-      return new ObjectMapper();
+      return new JsonMapper();
     }
 
     @Bean
     PublicQueryMaintainAuthorization publicQueryMaintainAuthorization() {
       PublicQueryMaintainAuthorization authorization = mock(PublicQueryMaintainAuthorization.class);
-      when(authorization.check(any(), any())).thenReturn(new AuthorizationDecision(true));
+      when(authorization.authorize(any(), any())).thenReturn(new AuthorizationDecision(true));
       return authorization;
     }
 

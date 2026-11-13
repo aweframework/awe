@@ -1,0 +1,86 @@
+// Quill (the markdown editor) draws its toolbar, pickers and editor area with a light palette of its own: they take the
+// semantic tokens here, so the editor follows the colour mode like the rest of the client
+// The root of the PrimeReact editor carries data-pc-name="editor" (it has no p-editor-container class in the client)
+[data-pc-name="editor"] .ql-snow {
+  &.ql-toolbar,
+  &.ql-container {
+    border-color: var(--awe-color-field-border);
+    color: var(--awe-color-field-text);
+  }
+
+  &.ql-toolbar {
+    background: var(--awe-color-surface-subtle);
+  }
+
+  &.ql-container {
+    background: var(--awe-color-field);
+  }
+
+  .ql-stroke {
+    stroke: var(--awe-color-text-muted);
+  }
+
+  .ql-fill,
+  .ql-stroke.ql-fill {
+    fill: var(--awe-color-text-muted);
+  }
+
+  .ql-picker,
+  .ql-picker-label,
+  &.ql-toolbar button {
+    color: var(--awe-color-text-muted);
+  }
+
+  // Picker dropdowns (header, font, size, colour...)
+  .ql-picker-options {
+    background: var(--awe-color-surface-raised);
+    border: var(--awe-border-width) solid var(--awe-color-border);
+    border-radius: var(--awe-radius-md);
+    box-shadow: var(--awe-shadow-overlay);
+    color: var(--awe-color-text);
+  }
+
+  .ql-picker.ql-expanded .ql-picker-label {
+    border-color: var(--awe-color-field-border);
+    color: var(--awe-color-text);
+
+    .ql-stroke {
+      stroke: var(--awe-color-text);
+    }
+  }
+
+  .ql-picker-item:hover,
+  .ql-picker-item.ql-selected,
+  .ql-picker-label:hover,
+  .ql-picker-label.ql-active {
+    color: var(--awe-color-primary);
+  }
+
+  .ql-picker-label:hover .ql-stroke,
+  .ql-picker-item:hover .ql-stroke,
+  .ql-picker-item.ql-selected .ql-stroke {
+    stroke: var(--awe-color-primary);
+  }
+
+  &.ql-toolbar button:hover .ql-stroke,
+  &.ql-toolbar button:focus-visible .ql-stroke,
+  &.ql-toolbar button.ql-active .ql-stroke {
+    stroke: var(--awe-color-primary);
+  }
+
+  &.ql-toolbar button:hover .ql-fill,
+  &.ql-toolbar button:focus-visible .ql-fill,
+  &.ql-toolbar button.ql-active .ql-fill {
+    fill: var(--awe-color-primary);
+  }
+
+  .ql-editor.ql-blank::before {
+    color: var(--awe-color-field-placeholder);
+  }
+
+  &.ql-toolbar button:focus-visible,
+  .ql-picker-label:focus-visible {
+    outline: var(--awe-border-width) solid var(--awe-color-primary);
+    outline-offset: var(--awe-space-1);
+  }
+}

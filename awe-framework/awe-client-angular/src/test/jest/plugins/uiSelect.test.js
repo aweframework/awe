@@ -2,6 +2,12 @@ import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 import "../../../main/resources/js/awe/app";
 import "../../../main/resources/webpack/locals-en-GB.config";
 import "../../../main/resources/webpack/locals-es-ES.config";
+import {attachSelectSummary} from "../../../main/resources/js/awe/services/selectSummary";
+
+jest.mock("../../../main/resources/js/awe/services/selectSummary", () => {
+  const actual = jest.requireActual("../../../main/resources/js/awe/services/selectSummary");
+  return {...actual, attachSelectSummary: jest.fn(actual.attachSelectSummary)};
+});
 
 describe("uiSelect2", () => {
   let $rootScope;
@@ -42,10 +48,36 @@ describe("uiSelect2", () => {
     try {
       $httpBackend && $httpBackend.verifyNoOutstandingExpectation();
       $httpBackend && $httpBackend.verifyNoOutstandingRequest();
-    } catch (error) {
+    } catch {
       // These focused specs do not flush settings; keep cleanup best-effort.
     }
     delete $.fn.select2;
+  });
+
+  it("asks select2 to keep the summary class of a select multiple in every sync of its classes (#922)", () => {
+    const container = $("<div class='select2-container-multi'><ul class='select2-choices'><li class='select2-search-field'><input/></li></ul></div>");
+    select2Spy.mockImplementation(function select2(method) {
+      return method === "container" ? container : this;
+    });
+    compileWithScope("<input ui-select2='aweSelectOptions' initialized='initialized'/>", {component: {onPluginInit: jest.fn()}, aweSelectOptions: {summary: true}, initialized: true});
+
+    expect(select2Spy.mock.calls[0][0]).toEqual(expect.objectContaining({containerCssClass: "awe-select-summary"}));
+  });
+
+  it("removes a value of the summary through the data of the chips, which a suggest also keeps (#845)", () => {
+    const container = $("<div class='select2-container-multi'><ul class='select2-choices'><li class='select2-search-field'><input/></li></ul></div>");
+    const chosen = [{id: "1", label: "One"}, {id: "2", label: "Two"}, {id: "3", label: "Three"}];
+    select2Spy.mockImplementation(function select2(method) {
+      if (method === "container") {
+        return container;
+      }
+      return method === "data" && arguments.length === 1 ? [...chosen] : this;
+    });
+    compileWithScope("<input ui-select2='aweSelectOptions' initialized='initialized'/>", {component: {onPluginInit: jest.fn()}, aweSelectOptions: {summary: true}, initialized: true});
+
+    attachSelectSummary.mock.calls[0][0].remove(1);
+
+    expect(select2Spy).toHaveBeenCalledWith("data", [{id: "1", label: "One"}, {id: "3", label: "Three"}], true);
   });
 
   it("translates placeholders on initialization and exposes fill/select methods through the component API", () => {
@@ -98,5 +130,131 @@ describe("uiSelect2", () => {
     scope.component.select("2");
 
     expect(select2Spy).toHaveBeenCalledWith("val", "2");
+  });
+
+  describe("test id hooks", () => {
+    const escapeMarkup = text => text;
+
+    let originalDefaults;
+
+    beforeEach(() => {
+      originalDefaults = select2Spy.defaults;
+    });
+
+    afterEach(() => {
+      select2Spy.defaults = originalDefaults;
+    });
+
+    // Behaves like select2 3.5.7: the instance is stored in the element data synchronously while the plugin initializes
+    function stubSelect2Instance(container, dropdown) {
+      select2Spy.mockImplementation(function select2(method) {
+        if (typeof method === "object") {
+          $(this).data("select2", {container, dropdown});
+          return this;
+        }
+        if (method === "container") {
+          return container;
+        }
+        if (method === "dropdown") {
+          return dropdown;
+        }
+        return this;
+      });
+      select2Spy.defaults = {
+        formatResult: function formatResult(result, label, query, escape) {
+          return escape(result.text);
+        },
+        formatSelection: function formatSelection(data, container, escape) {
+          return data ? escape(data.text) : undefined;
+        }
+      };
+    }
+
+    it("wraps the default formatters so options and chosen values carry the vocabulary", () => {
+      stubSelect2Instance($("<div></div>"), $("<div></div>"));
+      compileWithScope("<input id='country' ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {component: {id: "country", onPluginInit: jest.fn()}, aweSelectOptions: {}, initialized: true});
+
+      const options = select2Spy.mock.calls[0][0];
+      const label = $("<div></div>");
+      const chosen = $("<span class='select2-chosen'></span>");
+
+      expect(options.formatResult({text: "Spain"}, label, {term: ""}, escapeMarkup)).toBe("Spain");
+      expect(options.formatSelection({text: "Spain"}, chosen, escapeMarkup)).toBe("Spain");
+      expect(label.attr("data-testid")).toBe("select-option");
+      expect(label.attr("data-testid-owner")).toBe("country");
+      expect(chosen.attr("data-testid")).toBe("select-value");
+    });
+
+    it("tags the container and its search input when the plugin is created, and the dropdown on select2-open", () => {
+      const container = $("<div class='select2-container'><input class='select2-input'/></div>");
+      const dropdown = $("<div class='select2-drop'><input class='select2-input'/></div>");
+      stubSelect2Instance(container, dropdown);
+      const {element} = compileWithScope("<input id='country' ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {component: {id: "country", onPluginInit: jest.fn()}, aweSelectOptions: {}, initialized: true});
+
+      expect(container.attr("data-testid")).toBe("select");
+      expect(container.attr("data-testid-owner")).toBe("country");
+      expect(container.find(".select2-input").attr("data-testid")).toBe("select-search");
+      expect(dropdown.attr("data-testid")).toBeUndefined();
+
+      element.trigger($.Event("select2-open"));
+
+      expect(dropdown.attr("data-testid")).toBe("select-dropdown");
+      expect(dropdown.attr("data-testid-owner")).toBe("country");
+      expect(dropdown.find(".select2-input").attr("data-testid")).toBe("select-search");
+
+      element.trigger($.Event("select2-close"));
+
+      expect(dropdown.attr("data-testid")).toBeUndefined();
+    });
+  });
+
+  describe("required state", () => {
+    function stubContainer(container) {
+      select2Spy.mockImplementation(function select2(method) {
+        if (typeof method === "object") {
+          $(this).data("select2", {container, dropdown: $("<div></div>")});
+        }
+        return method === "container" ? container : this;
+      });
+    }
+
+    // The Criterion factory sets the helpers on the scope of the criterion, which the plugin scope inherits
+    const required = {requiredMark: () => " *", ariaRequired: () => "true"};
+
+    it("adds the required mark of the component to the translated placeholder", () => {
+      compileWithScope("<input ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {...required, component: {onPluginInit: jest.fn()}, aweSelectOptions: {placeholder: "SCREEN_TEXT_USER"}, initialized: true});
+
+      expect(select2Spy).toHaveBeenNthCalledWith(1, expect.objectContaining({placeholder: "translated:SCREEN_TEXT_USER *"}));
+    });
+
+    it("keeps the placeholder as it is when the component has no required mark", () => {
+      compileWithScope("<input ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {requiredMark: () => "", ariaRequired: () => undefined, component: {onPluginInit: jest.fn()},
+          aweSelectOptions: {placeholder: "SCREEN_TEXT_USER"}, initialized: true});
+
+      expect(select2Spy).toHaveBeenNthCalledWith(1, expect.objectContaining({placeholder: "translated:SCREEN_TEXT_USER"}));
+    });
+
+    it("marks the focusable inputs of the plugin as required", () => {
+      const container = $("<div class='select2-container'><input class='select2-focusser'/><input class='select2-input'/></div>");
+      stubContainer(container);
+      compileWithScope("<input id='country' ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {...required, component: {id: "country", onPluginInit: jest.fn()}, aweSelectOptions: {}, initialized: true});
+
+      expect(container.find(".select2-focusser").attr("aria-required")).toBe("true");
+      expect(container.find(".select2-input").attr("aria-required")).toBe("true");
+    });
+
+    it("does not mark the plugin as required when the component is not required", () => {
+      const container = $("<div class='select2-container'><input class='select2-focusser'/></div>");
+      stubContainer(container);
+      compileWithScope("<input id='country' ui-select2='aweSelectOptions' initialized='initialized'/>",
+        {ariaRequired: () => undefined, component: {id: "country", onPluginInit: jest.fn()}, aweSelectOptions: {}, initialized: true});
+
+      expect(container.find(".select2-focusser").attr("aria-required")).toBeUndefined();
+    });
   });
 });

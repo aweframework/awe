@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Permissions.xml
+    Description: Permission catalog of the awe-scheduler module
+-->
+
+<permissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd">
+  <!-- Tasks, servers and calendars of the scheduler, launch of tasks and start and stop of the scheduler -->
+  <resource id="scheduler" label="PERMISSION_RESOURCE_SCHEDULER" verbs="read,update">
+    <action id="execute" label="PERMISSION_SCHEDULER_EXECUTE" />
+  </resource>
+</permissions>

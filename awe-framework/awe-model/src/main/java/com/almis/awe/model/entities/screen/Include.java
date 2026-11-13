@@ -13,6 +13,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Include Class
  *
@@ -33,6 +35,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("include")
 public class Include extends Element {
 
+  @Serial
   private static final long serialVersionUID = 9060558303231661651L;
 
   // Menu which belongs the screen

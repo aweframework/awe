@@ -1,0 +1,79 @@
+{
+  "chart" : {
+    "inverted" : false,
+    "options3d" : {
+      "alpha" : 15,
+      "beta" : 15,
+      "enabled" : true
+    },
+    "type" : "column"
+  },
+  "credits" : {
+    "enabled" : false
+  },
+  "drilldown" : {
+    "series" : [ ]
+  },
+  "legend" : {
+    "align" : "right",
+    "enabled" : false,
+    "floating" : false,
+    "layout" : "vertical",
+    "verticalAlign" : "middle"
+  },
+  "plotOptions" : {
+    "column" : {
+      "stacking" : true
+    }
+  },
+  "series" : [ {
+    "id" : "serie2-1",
+    "name" : "SCREEN_TEXT_CHART_SERIE_1",
+    "type" : "column",
+    "xValue" : "dates",
+    "yValue" : "serie1"
+  }, {
+    "id" : "serie2-2",
+    "name" : "SCREEN_TEXT_CHART_SERIE_2",
+    "type" : "column",
+    "xValue" : "dates",
+    "yValue" : "serie2"
+  }, {
+    "id" : "serie2-3",
+    "name" : "SCREEN_TEXT_CHART_SERIE_3",
+    "type" : "column",
+    "xValue" : "dates",
+    "yValue" : "serie3"
+  } ],
+  "stockChart" : false,
+  "subtitle" : {
+    "text" : "Subtitulo grafico 2"
+  },
+  "title" : {
+    "text" : "Grafico 2"
+  },
+  "tooltip" : {
+    "crosshairs" : [ true, false ],
+    "enabled" : true,
+    "shared" : false,
+    "valueDecimals" : 3,
+    "valueSuffix" : " ºC"
+  },
+  "xAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "SCREEN_TEXT_CHART_AXIS_DATES"
+    },
+    "type" : "datetime"
+  } ],
+  "yAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Temperaturas (ºC)"
+    }
+  } ]
+}

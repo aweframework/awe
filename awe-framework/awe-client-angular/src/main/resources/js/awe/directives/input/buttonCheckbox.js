@@ -12,7 +12,7 @@ aweApplication.directive('aweInputButtonCheckbox',
         scope: {
           'criterionId': '@inputButtonCheckboxId'
         },
-        link: function (scope, elem, attrs) {
+        link: function (scope, elem) {
           // Initialize checkbox
           let  component = new CheckboxRadio(scope, scope.criterionId, elem);
           component.specialClass = "btn-" + scope.size;

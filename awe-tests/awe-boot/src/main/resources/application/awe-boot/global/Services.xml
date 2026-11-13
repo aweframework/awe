@@ -82,6 +82,18 @@
     </java>
   </service>
 
+  <service id="sparklineSeries">
+    <java classname="com.almis.awe.service.DummyService" method="getSparklineSeries"/>
+  </service>
+
+  <service id="returnRadioChoices">
+    <java classname="com.almis.awe.service.DummyService" method="returnRadioChoices">
+      <service-parameter type="STRING" name="id" list="true"/>
+      <service-parameter type="STRING" name="choice" list="true"/>
+      <service-parameter type="STRING" name="mode" list="true"/>
+    </java>
+  </service>
+
   <service id="returnMaintainOkNoParams">
     <java classname="com.almis.awe.service.DummyService" method="returnMaintainOkNoParams">
     </java>
@@ -126,6 +138,11 @@
   <service id="downloadFile">
     <java classname="com.almis.awe.test.File" method="downloadFile">
       <service-parameter type="STRING" name="filename" />
+    </java>
+  </service>
+  <service id="downloadGridFile">
+    <java classname="com.almis.awe.test.File" method="downloadGridFile">
+      <service-parameter type="STRING" name="fileName" />
     </java>
   </service>
   <service id="getFileInfo">
@@ -178,6 +195,21 @@
   <!-- Load user json file -->
   <service id="loadUserJsonFile">
     <java classname="com.almis.awe.test.UserList" method="loadUsersJsonFile" />
+  </service>
+
+  <!-- Sales of stores by region, country and city (GrdGrpTst screen) -->
+  <service id="loadGroupRows">
+    <java classname="com.almis.awe.test.GroupRows" method="loadGroupRows" />
+  </service>
+
+  <!-- Rows with a secondary line, a status and chips (GrdCellTst screen) -->
+  <service id="loadCellRows">
+    <java classname="com.almis.awe.test.CellRows" method="loadCellRows" />
+  </service>
+
+  <!-- Rows with texts of very different lengths (wrapping columns test screens) -->
+  <service id="loadWrapRows">
+    <java classname="com.almis.awe.test.WrapRows" method="loadWrapRows" />
   </service>
 
   <service id="loadTreeJsonFile">
@@ -347,7 +379,7 @@
   </service>
 
   <service id="testComplexRestPostParametersListGetParameters">
-    <rest method="POST" endpoint="http://localhost:18081/testapi/complex/parameterListGetParameters">
+    <rest method="POST" server="local" endpoint="/testapi/complex/parameterListGetParameters">
       <service-parameter type="INTEGER" name="integerList" list="true"/>
       <service-parameter type="STRING" name="stringList" list="true"/>
       <service-parameter type="DATE" name="dateList" list="true"/>
@@ -375,14 +407,14 @@
   </service>
 
   <service id="TestComplexRestParametersPOJO">
-    <rest method="PUT" endpoint="http://localhost:18081/testapi/complex/pojoJSON/{tutu}" content-type="JSON">
+    <rest method="PUT" server="local" endpoint="/testapi/complex/pojoJSON/{tutu}" content-type="JSON">
       <service-parameter type="STRING" name="tutu"/>
       <service-parameter type="OBJECT" name="concert" bean-class="com.almis.awe.model.Concert"/>
     </rest>
   </service>
 
   <service id="TestComplexRestParametersPOJOList">
-    <rest method="PUT" endpoint="http://localhost:18081/testapi/complex/pojoJSONList" content-type="JSON">
+    <rest method="PUT" server="local" endpoint="/testapi/complex/pojoJSONList" content-type="JSON">
       <service-parameter type="OBJECT" name="concertList" bean-class="com.almis.awe.model.Concert" list="true"/>
     </rest>
   </service>
@@ -492,6 +524,69 @@
 
   <service id="slowTraceService">
     <java classname="com.almis.awe.service.SlowTraceService" method="traceSlowly"/>
+  </service>
+
+  <!-- Maintain transaction tests -->
+  <service id="TxLaunchNestedMaintain">
+    <java classname="com.almis.awe.test.MaintainTransaction" method="launchNestedMaintain"/>
+  </service>
+
+  <service id="TxReturnError">
+    <java classname="com.almis.awe.test.MaintainTransaction" method="returnError"/>
+  </service>
+
+  <!-- Deferred load test (#824) -->
+  <service id="deferredLoadList">
+    <java classname="com.almis.awe.test.DeferredLoad" method="loadList">
+      <service-parameter type="STRING" name="component"/>
+    </java>
+  </service>
+  <service id="deferredLoadValue">
+    <java classname="com.almis.awe.test.DeferredLoad" method="loadValue">
+      <service-parameter type="STRING" name="component"/>
+    </java>
+  </service>
+  <service id="deferredLoadHeavy">
+    <java classname="com.almis.awe.test.DeferredLoad" method="loadHeavy">
+      <service-parameter type="STRING" name="component"/>
+    </java>
+  </service>
+  <service id="deferredLoadCalls">
+    <java classname="com.almis.awe.test.DeferredLoad" method="getCalls"/>
+  </service>
+  <service id="deferredLoadReset">
+    <java classname="com.almis.awe.test.DeferredLoad" method="reset"/>
+  </service>
+  <!-- STATUS CARD OF THE CARD TEST SCREEN (#836) -->
+  <service id="CrdTstStatus">
+    <java classname="com.almis.awe.test.CardStatusService" method="status"/>
+  </service>
+
+  <!-- Customers of the advanced search test screen (#790), filtered by the criteria of each example -->
+  <service id="getAdvancedSearchCustomers">
+    <java classname="com.almis.awe.test.AdvancedSearchCustomers" method="getCustomers">
+      <service-parameter type="STRING" name="name"/>
+      <service-parameter type="STRING" name="status"/>
+      <service-parameter type="STRING" name="country"/>
+      <service-parameter type="STRING" name="segment"/>
+      <service-parameter type="STRING" name="minAmount"/>
+      <service-parameter type="STRING" name="createdFrom"/>
+      <service-parameter type="STRING" name="priority"/>
+    </java>
+  </service>
+
+  <!-- MAP TEST SCREEN (#882) -->
+  <service id="TstMapPoints">
+    <java classname="com.almis.awe.service.DummyService" method="mapPoints"/>
+  </service>
+
+  <service id="TstMapRoute">
+    <java classname="com.almis.awe.service.DummyService" method="mapRoute"/>
+  </service>
+
+  <!-- Service that requires a permission when an action launches it -->
+  <service id="TstUsrRea" permission="users.read">
+    <java classname="com.almis.awe.service.DummyService" method="returnMaintainOkNoParams"/>
   </service>
 
 </services>

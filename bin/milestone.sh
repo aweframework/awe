@@ -13,8 +13,16 @@ function generate_milestone {
   echo ""
 }
 
-# Get version number
-new_version=$(cat ./pom.xml | grep -o '<version>[0-9\.]*[A-Z\-]*</version>' | sed -e 's/<[\/]*version>//g' | sed ':a;N;$!ba;s/\n/ /g' | sed 's/[A-Z\-]*//g' | awk '{printf $1}')
+# Get version number: use the explicit third argument when given (e.g. derived from
+# $CI_COMMIT_TAG on a tag pipeline), otherwise fall back to parsing pom.xml.
+if [[ -n "${3:-}" ]]; then
+  # The third argument is the version that has just been released (from the tag);
+  # the next bugfix milestone is therefore patch + 1, as pom.xml would show after a release.
+  IFS='.' read -r rel_major rel_minor rel_patch <<< "${3}"
+  new_version="${rel_major}.${rel_minor}.$((rel_patch + 1))"
+else
+  new_version=$(cat ./pom.xml | grep -o '<version>[0-9\.]*[A-Z\-]*</version>' | sed -e 's/<[\/]*version>//g' | sed ':a;N;$!ba;s/\n/ /g' | sed 's/[A-Z\-]*//g' | awk '{printf $1}')
+fi
 echo "Generating new milestone for version ${new_version}"
 
 # Get next major and minor versions number

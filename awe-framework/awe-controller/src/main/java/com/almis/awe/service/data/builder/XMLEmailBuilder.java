@@ -1,5 +1,6 @@
 package com.almis.awe.service.data.builder;
 
+import com.almis.awe.exception.AWERuntimeException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.dto.CellData;
@@ -13,15 +14,15 @@ import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.internet.InternetAddress;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.StringEscapeUtils;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;
@@ -193,14 +194,14 @@ public class XMLEmailBuilder extends EmailBuilder {
         if (emailAddressJson.isArray()) {
           for (int i = 0, t = emailAddressJson.size(); i < t; i++) {
             InternetAddress address = new InternetAddress();
-            address.setPersonal(emailNameJson.get(i).asText());
-            address.setAddress(emailAddressJson.get(i).asText());
+            address.setPersonal(emailNameJson.get(i).asString(""));
+            address.setAddress(emailAddressJson.get(i).asString(""));
             addresses.add(address);
           }
         } else {
           InternetAddress address = new InternetAddress();
-          address.setAddress(emailAddressJson.asText());
-          address.setPersonal(emailNameJson.asText());
+          address.setAddress(emailAddressJson.asString(""));
+          address.setPersonal(emailNameJson.asString(""));
           addresses.add(address);
         }
       }
@@ -375,7 +376,12 @@ public class XMLEmailBuilder extends EmailBuilder {
       for (int matIdx = 1, matTot = mat.groupCount(); matIdx <= matTot; matIdx++) {
         // Retrieve wildcard value
         String wldStr = mat.group(matIdx);
-        String val = getVariables().get(wldStr).getValue();
+        Variable variable = getVariables().get(wldStr);
+        if (variable == null) {
+          throw new AWERuntimeException(String.format("Email %s has no variable %s for the wildcard [#%s#]",
+            email.getId(), wldStr, wldStr));
+        }
+        String val = variable.getValue();
         if (val == null || val.trim().isEmpty()) {
           val = "";
         }
@@ -397,6 +403,6 @@ public class XMLEmailBuilder extends EmailBuilder {
   }
 
   private String getVariableAsString(Variable variable) {
-    return getVariable(variable).asText();
+    return getVariable(variable).asString("");
   }
 }

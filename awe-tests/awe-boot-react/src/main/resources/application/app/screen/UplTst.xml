@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Description: Test screen for the uploader drop zone, image preview and camera capture
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="MENU_TEST_CRITERIA_UPLOADER">
+  <tag source="center">
+    <window label="MENU_TEST_CRITERIA_UPLOADER" icon="filter">
+      <tag type="div" style="panel-body">
+        <criteria label="PARAMETER_UPLOADER" id="UplDrop" variable="UplDrop" component="uploader" style="col-xs-12 col-sm-6 col-lg-4" destination="testModule" drop-zone="true"/>
+        <criteria label="PARAMETER_UPLOADER" id="UplCam" variable="UplCam" component="uploader" style="col-xs-12 col-sm-6 col-lg-4" destination="testModule" capture="environment"/>
+        <criteria label="PARAMETER_UPLOADER_READONLY" id="UplDropRea" variable="UplDropRea" component="uploader" style="col-xs-12 col-sm-6 col-lg-4" drop-zone="true" capture="user" readonly="true"/>
+      </tag>
+    </window>
+  </tag>
+</screen>

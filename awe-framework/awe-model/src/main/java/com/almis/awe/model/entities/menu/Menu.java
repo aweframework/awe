@@ -10,6 +10,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
 @XStreamAlias("menu")
 public class Menu extends Element {
 
+  @Serial
   private static final long serialVersionUID = -786230210617881807L;
 
   // Option screen

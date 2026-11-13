@@ -9,47 +9,36 @@
 <menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/menu.xsd" context="screen/private/home" default-action="screen">
   <option name="information" screen="info" invisible="true" />
   <option name="tools" label="MENU_TOOLS" icon="wrench">
-    <option name="sites" label="MENU_TOOLS_SITES" screen="Sit" icon="sitemap">
-      <option name="new-site" screen="SitNew" invisible="true" />
-      <option name="update-site" screen="SitUpd" invisible="true" />
-      <option name="view-site" screen="SitViw" invisible="true" />
-    </option>
-    <option name="modules" label="MENU_TOOLS_MODULES" screen="Mod" icon="puzzle-piece">
-      <option name="new-module" screen="ModNew" invisible="true" />
-      <option name="update-module" screen="ModUpd" invisible="true" />
-      <option name="view-module" screen="ModViw" invisible="true" />
-    </option>
-    <option name="users" label="MENU_TOOLS_USERS" screen="Usr" icon="user">
+    <option name="sites" label="MENU_TOOLS_SITES" screen="site-admin" icon="sitemap"/>
+    <option name="modules" label="MENU_TOOLS_MODULES" screen="module-admin" icon="puzzle-piece"/>
+    <option name="users" label="MENU_TOOLS_USERS" screen="user-admin" icon="user">
+      <!-- Options of the deprecated Usr screens, kept for the applications that still open them; removed in 5.1.0 -->
       <option name="new-user" screen="UsrNew" invisible="true" />
       <option name="update-user" screen="UsrUpd" invisible="true" />
       <option name="view-user" screen="UsrViw" invisible="true" />
     </option>
-    <option name="profiles" label="MENU_TOOLS_PROFILES" screen="Prf" icon="group">
+    <option name="profiles" label="MENU_TOOLS_PROFILES" screen="profile-admin" icon="group">
+      <!-- Options of the deprecated Prf screens, kept for the applications that still open them; removed in 5.1.0 -->
       <option name="new-profile" screen="PrfNew" invisible="true" />
       <option name="update-profile" screen="PrfUpd" invisible="true" />
       <option name="view-profile" screen="PrfViw" invisible="true" />
     </option>
-    <option name="databases" label="MENU_TOOLS_DATABASE" screen="Dbs" icon="database">
+    <option name="databases" label="MENU_TOOLS_DATABASE" screen="database-admin" icon="database">
+      <!-- Options of the deprecated Dbs screens, kept for the applications that still open them; removed in 5.1.0 -->
       <option name="new-database" screen="DbsNew" invisible="true" />
       <option name="update-database" screen="DbsUpd" invisible="true" />
       <option name="view-database" screen="DbsViw" invisible="true" />
     </option>
-    <option name="themes" label="MENU_TOOLS_THEMES" screen="Thm" icon="picture-o">
+    <option name="themes" label="MENU_TOOLS_THEMES" screen="theme-admin" icon="picture-o">
+      <!-- Options of the deprecated Thm screens, kept for the applications that still open them; removed in 5.1.0 -->
       <option name="new-theme" screen="ThmNew" invisible="true" />
       <option name="update-theme" screen="ThmUpd" invisible="true" />
       <option name="view-theme" screen="ThmViw" invisible="true" />
-      <option name="customize-theme" screen="customize-themes" invisible="true"/>
     </option>
-    <option name="email-servers" label="MENU_TOOLS_AWE_EML_SRV" screen="EmlSrv" icon="envelope">
-      <option name="new-email-server" screen="EmlSrvNew" invisible="true" />
-      <option name="update-email-server" screen="EmlSrvUpd" invisible="true" />
-    </option>
-    <option name="queues" label="MENU_TOOLS_AWE_QUE" screen="Que" icon="exchange">
-      <option name="new-queue" screen="QueNew" invisible="true" />
-      <option name="update-queue" screen="QueUpd" invisible="true" />
-    </option>
-    <option name="sequences" label="MENU_TOOLS_AWEKEY" screen="AweKey" icon="key" />
-    <option name="application-parameters" label="MENU_TOOLS_AWE_APPPAR" screen="AweAppPar" icon="cogs" />
+    <option name="email-servers" label="MENU_TOOLS_AWE_EML_SRV" screen="email-server-admin" icon="envelope"/>
+    <option name="queues" label="MENU_TOOLS_AWE_QUE" screen="queue-admin" icon="exchange"/>
+    <option name="sequences" label="MENU_TOOLS_AWEKEY" screen="sequence-admin" icon="key" />
+    <option name="application-parameters" label="MENU_TOOLS_AWE_APPPAR" screen="application-parameter-admin" icon="cogs" />
     <option name="broadcast-messages" label="MENU_BROADCAST" screen="MsgUsr" icon="rss" />
     <option name="log" label="MENU_LOG" screen="Log" icon="file-text">
       <option name="view-log" screen="LogViw" invisible="true" />
@@ -57,10 +46,14 @@
   </option>
   <option name="settings" label="MENU_SETTINGS" icon="cog">
     <option name="security" label="MENU_TOOLS_SECURITY" icon="unlock-alt">
-      <option name="screen-access" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccRes" icon="eye-slash" />
+      <option name="screen-access" label="MENU_TOOLS_SCREENS_ACCESS" screen="access-admin" icon="eye-slash" />
       <option name="encrypt-tools" label="MENU_TOOLS_SCREEN_ENCRYPT" screen="ScrEncTxt" icon="lock" />
+      <option name="security-audit" label="MENU_TOOLS_SECURITY_AUDIT" screen="SecAud" icon="shield">
+        <option name="view-security-audit-event" screen="SecAudViw" invisible="true" />
+      </option>
     </option>
     <option name="screen-configuration" label="MENU_TOOLS_SCR_CNF" screen="ScrCnf" icon="laptop" />
+    <option name="screen-personalization" label="MENU_TOOLS_SCR_PER" screen="ScrPer" icon="pencil" />
     <option name="report-configuration" label="MENU_TOOLS_STL_CNF" screen="StlCnf" icon="tint" />
   </option>
   <option name="help-separator" separator="true" />

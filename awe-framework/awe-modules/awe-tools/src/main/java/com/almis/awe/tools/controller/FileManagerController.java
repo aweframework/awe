@@ -3,26 +3,25 @@ package com.almis.awe.tools.controller;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.tools.filemanager.enums.FileModeEnum;
 import com.almis.awe.tools.service.FileManagerService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.fileupload2.jakarta.JakartaServletFileUpload;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.commons.fileupload2.jakarta.servlet6.JakartaServletFileUpload;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -47,7 +46,6 @@ public class FileManagerController {
    * @param context Servlet context
    * @param mapper  Object Mapper
    */
-  @Autowired
   public FileManagerController(FileManagerService service, ServletContext context, ObjectMapper mapper) {
     this.service = service;
     this.context = context;
@@ -120,7 +118,7 @@ public class FileManagerController {
       // Clean temp zip files
       if (mode.equals(FileModeEnum.DOWNLOADMULTIPLE)) {
         try {
-          Files.deleteIfExists(Paths.get(file.toString()));
+          Files.deleteIfExists(Path.of(file.toString()));
         } catch (IOException ex) {
           log.error("Error deleting temporal zip", ex);
         }

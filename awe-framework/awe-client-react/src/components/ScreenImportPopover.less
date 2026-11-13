@@ -1,0 +1,58 @@
+// Popover of Import: same look as the overlay menus
+.scr-per-import-popover.p-overlaypanel {
+  width: 20rem;
+  max-width: calc(100vw - 2 * var(--awe-space-3));
+  background: var(--awe-color-overlay);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-md);
+  box-shadow: var(--awe-shadow-overlay);
+
+  &:before,
+  &:after {
+    border: none;
+  }
+
+  .p-overlaypanel-content {
+    padding: var(--awe-space-3);
+  }
+}
+
+.scr-per-import-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+}
+
+.scr-per-import-popover-title {
+  margin: 0;
+  font-size: var(--awe-font-size-md);
+  color: var(--awe-color-text-emphasis);
+}
+
+.scr-per-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-4);
+  border: var(--awe-border-width) dashed var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+  text-align: center;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-dropzone-over {
+  border-color: var(--awe-color-primary);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-dropzone-icon {
+  font-size: var(--awe-font-size-lg);
+}
+
+.scr-per-import-hint {
+  margin: 0;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}

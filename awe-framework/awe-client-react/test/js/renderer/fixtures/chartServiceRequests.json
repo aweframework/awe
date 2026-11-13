@@ -1,0 +1,452 @@
+{
+ "ChrLinTst": {
+  "translations": {
+   "SCREEN_TEXT_CHART_TITLE_1": "Chart 1"
+  },
+  "values": [
+   {
+    "serie1": 1666.6666666666665,
+    "serie2": 2008.0,
+    "dates": 1223762400000,
+    "id": 1
+   },
+   {
+    "serie1": 1111.111111111111,
+    "serie2": 2001.0,
+    "dates": 1223935200000,
+    "id": 2
+   },
+   {
+    "serie1": 2000.0,
+    "serie2": 2001.0,
+    "dates": 1224108000000,
+    "id": 3
+   },
+   {
+    "serie1": 1666.6666666666665,
+    "serie2": 2003.0,
+    "dates": 1224280800000,
+    "id": 4
+   },
+   {
+    "serie1": 2000.0,
+    "serie2": 2009.0,
+    "dates": 1224453600000,
+    "id": 5
+   },
+   {
+    "serie1": 1000.0,
+    "serie2": 2005.0,
+    "dates": 1224626400000,
+    "id": 6
+   },
+   {
+    "serie1": 1000.0,
+    "serie2": 2001.0,
+    "dates": 1224799200000,
+    "id": 7
+   },
+   {
+    "serie1": 1428.5714285714284,
+    "serie2": 2006.0,
+    "dates": 1224972000000,
+    "id": 8
+   },
+   {
+    "serie1": 3333.333333333333,
+    "serie2": 2007.0,
+    "dates": 1225148400000,
+    "id": 9
+   },
+   {
+    "serie1": 1000.0,
+    "serie2": 2004.0,
+    "dates": 1225321200000,
+    "id": 10
+   },
+   {
+    "serie1": 2000.0,
+    "serie2": 2006.0,
+    "dates": 1225494000000,
+    "id": 11
+   },
+   {
+    "serie1": 1666.6666666666665,
+    "serie2": 2004.0,
+    "dates": 1225666800000,
+    "id": 12
+   },
+   {
+    "serie1": 2500.0,
+    "serie2": 2004.0,
+    "dates": 1225839600000,
+    "id": 13
+   },
+   {
+    "serie1": 1250.0,
+    "serie2": 2009.0,
+    "dates": 1226012400000,
+    "id": 14
+   },
+   {
+    "serie1": 1428.5714285714284,
+    "serie2": 2000.0,
+    "dates": 1226185200000,
+    "id": 15
+   },
+   {
+    "serie1": 10000.0,
+    "serie2": 2005.0,
+    "dates": 1226358000000,
+    "id": 16
+   },
+   {
+    "serie1": 1111.111111111111,
+    "serie2": 2005.0,
+    "dates": 1226530800000,
+    "id": 17
+   },
+   {
+    "serie1": 1000.0,
+    "serie2": 2005.0,
+    "dates": 1226703600000,
+    "id": 18
+   },
+   {
+    "serie1": 2000.0,
+    "serie2": 2005.0,
+    "dates": 1226876400000,
+    "id": 19
+   },
+   {
+    "serie1": 5000.0,
+    "serie2": 2004.0,
+    "dates": 1227049200000,
+    "id": 20
+   },
+   {
+    "serie1": 1111.111111111111,
+    "serie2": 2007.0,
+    "dates": 1227222000000,
+    "id": 21
+   },
+   {
+    "serie1": 3333.333333333333,
+    "serie2": 2006.0,
+    "dates": 1227394800000,
+    "id": 22
+   },
+   {
+    "serie1": 5000.0,
+    "serie2": 2008.0,
+    "dates": 1227567600000,
+    "id": 23
+   },
+   {
+    "serie1": 3333.333333333333,
+    "serie2": 2005.0,
+    "dates": 1227740400000,
+    "id": 24
+   },
+   {
+    "serie1": 1428.5714285714284,
+    "serie2": 2005.0,
+    "dates": 1227913200000,
+    "id": 25
+   },
+   {
+    "serie1": 2500.0,
+    "serie2": 2005.0,
+    "dates": 1228086000000,
+    "id": 26
+   },
+   {
+    "serie1": 1000.0,
+    "serie2": 2004.0,
+    "dates": 1228258800000,
+    "id": 27
+   },
+   {
+    "serie1": 1111.111111111111,
+    "serie2": 2000.0,
+    "dates": 1228431600000,
+    "id": 28
+   },
+   {
+    "serie1": 1111.111111111111,
+    "serie2": 2006.0,
+    "dates": 1228604400000,
+    "id": 29
+   },
+   {
+    "serie1": 3333.333333333333,
+    "serie2": 2004.0,
+    "dates": 1228777200000,
+    "id": 30
+   }
+  ],
+  "language": "en-GB",
+  "infile": {
+   "title": {
+    "text": "SCREEN_TEXT_CHART_TITLE_1",
+    "subtext": "Subtitulo grafico 1",
+    "left": "center"
+   },
+   "legend": {
+    "show": false,
+    "left": "center",
+    "top": "bottom",
+    "awe": {
+     "title": "Leyenda"
+    }
+   },
+   "tooltip": {
+    "show": true,
+    "trigger": "axis",
+    "awe": {
+     "crosshairs": "xAxis",
+     "numberDecimals": 3,
+     "suffix": " ºC"
+    },
+    "axisPointer": {
+     "type": "line"
+    }
+   },
+   "awe": {
+    "chartType": "mixed"
+   },
+   "xAxis": [
+    {
+     "name": "Fechassss",
+     "nameLocation": "middle",
+     "nameGap": 30,
+     "type": "time",
+     "awe": {
+      "axis": "x"
+     }
+    }
+   ],
+   "yAxis": [
+    {
+     "name": "Temperaturas (ºC)",
+     "nameLocation": "middle",
+     "nameGap": 30,
+     "type": "value",
+     "minInterval": 1,
+     "awe": {
+      "axis": "y",
+      "formatter": "formatCurrencyMagnitude"
+     }
+    },
+    {
+     "name": "Lluvias (mm)",
+     "nameLocation": "middle",
+     "nameGap": 30,
+     "type": "value",
+     "position": "right",
+     "minInterval": 1,
+     "awe": {
+      "axis": "y"
+     }
+    }
+   ],
+   "dataZoom": [
+    {
+     "type": "inside",
+     "xAxisIndex": 0
+    }
+   ],
+   "series": [
+    {
+     "id": "serie-1",
+     "name": "Serie 1",
+     "type": "bar",
+     "yAxisIndex": 0,
+     "itemStyle": {
+      "color": "#A8E0A6"
+     },
+     "awe": {
+      "type": "column",
+      "xValue": "dates",
+      "yValue": "serie1"
+     }
+    },
+    {
+     "id": "serie-2",
+     "name": "Serie 2",
+     "type": "line",
+     "smooth": true,
+     "yAxisIndex": 1,
+     "awe": {
+      "type": "spline",
+      "xValue": "dates",
+      "yValue": "serie2"
+     }
+    }
+   ]
+  },
+  "type": "image/svg+xml"
+ },
+ "ChrPieTst": {
+  "translations": {},
+  "values": [
+   {
+    "names": "adminflare",
+    "serie1": 34.0,
+    "subserie1": 80.0,
+    "id": 1
+   },
+   {
+    "names": "amazonia",
+    "serie1": 5.0,
+    "subserie1": 84.0,
+    "id": 2
+   },
+   {
+    "names": "asphalt",
+    "serie1": 83.0,
+    "subserie1": 41.0,
+    "id": 3
+   },
+   {
+    "names": "clean",
+    "serie1": 79.0,
+    "subserie1": 67.0,
+    "id": 4
+   },
+   {
+    "names": "default",
+    "serie1": 44.0,
+    "subserie1": 61.0,
+    "id": 5
+   },
+   {
+    "names": "dust",
+    "serie1": 14.0,
+    "subserie1": 94.0,
+    "id": 6
+   },
+   {
+    "names": "eclipse",
+    "serie1": 97.0,
+    "subserie1": 51.0,
+    "id": 7
+   },
+   {
+    "names": "fresh",
+    "serie1": 93.0,
+    "subserie1": 33.0,
+    "id": 8
+   },
+   {
+    "names": "frost",
+    "serie1": 80.0,
+    "subserie1": 98.0,
+    "id": 9
+   },
+   {
+    "names": "grass",
+    "serie1": 27.0,
+    "subserie1": 82.0,
+    "id": 10
+   },
+   {
+    "names": "purple-hills",
+    "serie1": 54.0,
+    "subserie1": 69.0,
+    "id": 11
+   },
+   {
+    "names": "silver",
+    "serie1": 19.0,
+    "subserie1": 59.0,
+    "id": 12
+   },
+   {
+    "names": "sky",
+    "serie1": 58.0,
+    "subserie1": 5.0,
+    "id": 13
+   },
+   {
+    "names": "sunny",
+    "serie1": 16.0,
+    "subserie1": 32.0,
+    "id": 14
+   },
+   {
+    "names": "sunset",
+    "serie1": 96.0,
+    "subserie1": 7.0,
+    "id": 15
+   },
+   {
+    "names": "white",
+    "serie1": 82.0,
+    "subserie1": 82.0,
+    "id": 16
+   }
+  ],
+  "language": "en-GB",
+  "infile": {
+   "title": {
+    "text": "Grafico 6",
+    "left": "center"
+   },
+   "legend": {
+    "show": true,
+    "left": "center",
+    "top": "bottom"
+   },
+   "tooltip": {
+    "show": true,
+    "trigger": "item",
+    "awe": {
+     "numberDecimals": 2,
+     "suffix": " %"
+    }
+   },
+   "awe": {
+    "chartType": "pie",
+    "drilldown": {
+     "series": [
+      {
+       "id": "serie1_1",
+       "name": "SubThemes",
+       "type": "pie",
+       "label": {
+        "show": true
+       },
+       "awe": {
+        "type": "pie",
+        "xValue": "names",
+        "yValue": "subserie1",
+        "labelFormat": "<b>{point.name}</b>: {point.percentage:.1f} %"
+       },
+       "radius": "75%"
+      }
+     ]
+    }
+   },
+   "series": [
+    {
+     "id": "serie1",
+     "name": "Themes",
+     "type": "pie",
+     "label": {
+      "show": true
+     },
+     "awe": {
+      "type": "pie",
+      "xValue": "names",
+      "yValue": "serie1",
+      "drilldown": "serie1_1",
+      "labelFormat": "<b>{point.name}</b>: {point.percentage:.1f} %"
+     },
+     "radius": "75%"
+    }
+   ]
+  },
+  "type": "image/svg+xml"
+ }
+}

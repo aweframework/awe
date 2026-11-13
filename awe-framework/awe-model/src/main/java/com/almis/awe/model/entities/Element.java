@@ -8,9 +8,9 @@ import com.almis.awe.model.entities.screen.component.action.AbstractAction;
 import com.almis.awe.model.entities.screen.component.action.Dependency;
 import com.almis.awe.model.entities.screen.component.action.DependencyElement;
 import com.almis.awe.model.entities.screen.component.grid.GroupHeader;
+import com.almis.awe.model.entities.screen.component.grid.RowDetail;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -20,7 +20,9 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,10 +40,11 @@ import java.util.List;
 @Accessors(chain = true)
 @NoArgsConstructor
 @XStreamInclude({Screen.class, Tag.class, Component.class, Menu.class, Message.class, Dependency.class, DependencyElement.class,
-  AbstractAction.class, GroupHeader.class, Include.class, View.class, Message.class})
+  AbstractAction.class, GroupHeader.class, RowDetail.class, Include.class, View.class, Message.class})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public abstract class Element implements XMLNode, Copyable {
 
+  @Serial
   private static final long serialVersionUID = -5600527339665790940L;
 
   @XStreamOmitField

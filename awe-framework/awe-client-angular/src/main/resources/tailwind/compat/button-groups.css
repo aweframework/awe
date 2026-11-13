@@ -1,0 +1,287 @@
+/*
+ * Button groups: Bootstrap 3 button-groups.less, the group sizes of buttons.less (btn-group-lg|sm|xs), the pixel-admin and AWE rules on
+ * the same selectors and the print rule (less/awe/print.less), as the compiled vendored CSS renders them. Raw declarations in the order
+ * of the vendored build, with the compiled values (the corner radius of a vertical group keeps its `var(--awe-radius)`). Imported
+ * after buttons.css: the rules of both files that compete at the same specificity keep the vendored winner (compatButtons.test.js).
+ * !important stays on the print rule; as a layered !important it beats an unlayered one, which compatButtons.test.js reviews.
+ *
+ * Not here (they stay in LESS): the dropdown states of a group (`.btn-group.open .dropdown-toggle`, `.dropup`) and the menu, the pixel-admin
+ * modifiers inside a group (`.btn-group > .btn.btn-outline`), the `.criterion.btn` of the criteria, the theme selectors and the
+ * `#ui-grid-twbs` copy that the ui-grid library ships. compatButtons.test.js names every one of them.
+ */
+
+/* Bootstrap 3 buttons.less: sizes of the buttons inside a group */
+.btn-group-lg > .btn {
+  padding: var(--awe-space-3) var(--awe-space-4);
+  font-size: var(--awe-font-size-lg);
+  line-height: 1.3333333;
+  border-radius: var(--awe-radius-xs);
+}
+
+.btn-group-sm > .btn {
+  padding: var(--awe-space-1-5) var(--awe-space-3);
+  font-size: var(--awe-font-size-xs);
+  line-height: 1.25;
+  border-radius: var(--awe-radius-xs);
+}
+
+.btn-group-xs > .btn {
+  padding: var(--awe-space-0-5) var(--awe-space-1-5);
+  font-size: var(--awe-font-size-xs);
+  line-height: 1.25;
+  border-radius: var(--awe-radius-xs);
+}
+
+/* Bootstrap 3 button-groups.less: group, toolbar, joined corners, dropdown toggle, vertical, justified and toggle inputs */
+.dropdown-toggle:focus {
+  outline: 0;
+}
+
+.btn-group,
+.btn-group-vertical {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.btn-group > .btn,
+.btn-group-vertical > .btn {
+  position: relative;
+  float: left;
+}
+
+.btn-group > .btn:hover,
+.btn-group-vertical > .btn:hover,
+.btn-group > .btn:focus,
+.btn-group-vertical > .btn:focus,
+.btn-group > .btn:active,
+.btn-group-vertical > .btn:active,
+.btn-group > .btn.active,
+.btn-group-vertical > .btn.active {
+  z-index: 2;
+}
+
+.btn-group .btn + .btn,
+.btn-group .btn + .btn-group,
+.btn-group .btn-group + .btn,
+.btn-group .btn-group + .btn-group {
+  margin-left: calc(var(--awe-space-0-5) * -1);
+}
+
+.btn-toolbar {
+  margin-left: calc(var(--awe-space-1-5) * -1);
+}
+
+.btn-toolbar:before,
+.btn-toolbar:after {
+  content: " ";
+  display: table;
+}
+
+.btn-toolbar:after {
+  clear: both;
+}
+
+.btn-toolbar .btn-group {
+  float: left;
+}
+
+.btn-toolbar > .btn,
+.btn-toolbar > .btn-group {
+  margin-left: var(--awe-space-1-5);
+}
+
+.btn-group > .btn:not(:first-child):not(:last-child):not(.dropdown-toggle) {
+  border-radius: 0;
+}
+
+.btn-group > .btn:first-child {
+  margin-left: 0;
+}
+
+.btn-group > .btn:first-child:not(:last-child):not(.dropdown-toggle) {
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.btn-group > .btn:last-child:not(:first-child),
+.btn-group > .dropdown-toggle:not(:first-child) {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.btn-group > .btn-group {
+  float: left;
+}
+
+.btn-group > .btn-group:not(:first-child):not(:last-child) > .btn {
+  border-radius: 0;
+}
+
+.btn-group > .btn-group:first-child:not(:last-child) > .btn:last-child,
+.btn-group > .btn-group:first-child:not(:last-child) > .dropdown-toggle {
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
+
+.btn-group > .btn-group:last-child:not(:first-child) > .btn:first-child {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.btn-group .dropdown-toggle:active {
+  outline: 0;
+}
+
+.btn-group > .btn + .dropdown-toggle {
+  padding-left: var(--awe-space-2);
+  padding-right: var(--awe-space-2);
+}
+
+.btn-group > .btn-lg + .dropdown-toggle {
+  padding-left: var(--awe-space-3);
+  padding-right: var(--awe-space-3);
+}
+
+.btn-group-vertical > .btn,
+.btn-group-vertical > .btn-group,
+.btn-group-vertical > .btn-group > .btn {
+  display: block;
+  float: none;
+  width: 100%;
+  max-width: 100%;
+}
+
+.btn-group-vertical > .btn-group:before,
+.btn-group-vertical > .btn-group:after {
+  content: " ";
+  display: table;
+}
+
+.btn-group-vertical > .btn-group:after {
+  clear: both;
+}
+
+.btn-group-vertical > .btn-group > .btn {
+  float: none;
+}
+
+.btn-group-vertical > .btn + .btn,
+.btn-group-vertical > .btn + .btn-group,
+.btn-group-vertical > .btn-group + .btn,
+.btn-group-vertical > .btn-group + .btn-group {
+  margin-top: calc(var(--awe-space-0-5) * -1);
+  margin-left: 0;
+}
+
+.btn-group-vertical > .btn:not(:first-child):not(:last-child) {
+  border-radius: 0;
+}
+
+.btn-group-vertical > .btn:first-child:not(:last-child) {
+  border-top-right-radius: var(--awe-radius);
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.btn-group-vertical > .btn:last-child:not(:first-child) {
+  border-bottom-left-radius: var(--awe-radius);
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.btn-group-vertical > .btn-group:not(:first-child):not(:last-child) > .btn {
+  border-radius: 0;
+}
+
+.btn-group-vertical > .btn-group:first-child:not(:last-child) > .btn:last-child,
+.btn-group-vertical > .btn-group:first-child:not(:last-child) > .dropdown-toggle {
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.btn-group-vertical > .btn-group:last-child:not(:first-child) > .btn:first-child {
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.btn-group-justified {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: separate;
+}
+
+.btn-group-justified > .btn,
+.btn-group-justified > .btn-group {
+  float: none;
+  display: table-cell;
+  width: 1%;
+}
+
+.btn-group-justified > .btn-group .btn {
+  width: 100%;
+}
+
+[data-toggle="buttons"] > .btn input[type="radio"],
+[data-toggle="buttons"] > .btn-group > .btn input[type="radio"],
+[data-toggle="buttons"] > .btn input[type="checkbox"],
+[data-toggle="buttons"] > .btn-group > .btn input[type="checkbox"] {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+  pointer-events: none;
+}
+
+/* pixel-admin buttons.less: sizes of the buttons inside a group */
+.btn-group-lg > .btn {
+  font-size: var(--awe-font-size-md);
+  line-height: var(--awe-space-5);
+  padding: var(--awe-space-2) var(--awe-space-5);
+}
+
+.btn-group-sm > .btn {
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-space-4);
+  padding: var(--awe-space-1) var(--awe-space-2);
+}
+
+.btn-group-xs > .btn {
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-space-3);
+  padding: var(--awe-space-1) var(--awe-space-2);
+}
+
+.btn-group-lg .btn {
+  font-size: var(--awe-font-size-md);
+  line-height: var(--awe-space-5);
+  padding: var(--awe-space-2) var(--awe-space-5);
+}
+
+.btn-group-sm .btn {
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-space-4);
+  padding: var(--awe-space-1) var(--awe-space-2);
+}
+
+.btn-group-xs .btn {
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-space-3);
+  padding: var(--awe-space-1) var(--awe-space-2);
+}
+
+/* pixel-admin and AWE overrides of the groups */
+.btn-group > .btn:first-child {
+  margin-left: var(--awe-space-1-5);
+}
+
+.btn-group > .btn-group > .btn {
+  margin-left: 0;
+}
+
+/* AWE print.less: groups are not printed */
+@media print {
+  .btn-group {
+    display: none !important;
+  }
+
+}

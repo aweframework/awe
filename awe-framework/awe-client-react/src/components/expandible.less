@@ -1,0 +1,119 @@
+/*
+    Created on : 26-mar-2014, 14:23:20
+    Author     : pgarcia
+*/
+
+// Flex
+.display-flex {
+  display: flex;
+}
+
+.flex(@attrs) {
+  flex: @attrs;
+  flex-shrink: 1;
+}
+
+// Expanding child: it shares the free space of its expandible by its weight. The basis is a length: a percentage one is
+// read as the content size when the expandible has no definite size (the screens grow from min-height: 100vh), and the
+// children then kept their content size instead of sharing the space (the charts of a dashboard shrank to their title
+// next to a row of grids). Flex items keep min-width: auto, so an expanding child could not shrink below the fixed width
+// of its content (a grid) and would push its siblings out of the container: min-width: 0 lets it shrink and scroll its
+// own content
+.expand-flex(@grow) {
+  flex: @grow 1 0px;
+  min-width: 0;
+}
+
+// Flex direction
+.flex-direction(@attrs) {
+  flex-direction: @attrs;
+}
+
+// Flex order
+.flex-order(@attrs) {
+  order: @attrs;
+}
+
+// Flex align self
+.flex-align-self(@attrs) {
+  align-self: @attrs;
+}
+
+// Flex justify
+.flex-justify(@attrs) {
+  justify-content: @attrs;
+}
+
+// Flex basis
+.flex-basis(@attrs) {
+  flex-basis: @attrs;
+}
+
+// Expand vertically
+.expandible-vertical,
+.expandible-horizontal {
+  .display-flex;
+  .flex-basis(max-content);
+  > * {
+    .flex(none);
+  }
+  > .expand {
+    .expand-flex(1);
+  }
+  > .expand-2x {
+    .expand-flex(2);
+  }
+  > .expand-3x {
+    .expand-flex(3);
+  }
+  > .expand-4x {
+    .expand-flex(4);
+  }
+  > .expand-5x {
+    .expand-flex(5);
+  }
+  > .expand-6x {
+    .expand-flex(6);
+  }
+  > .expand-7x {
+    .expand-flex(7);
+  }
+  > .expand-8x {
+    .expand-flex(8);
+  }
+  > .expand-9x {
+    .expand-flex(9);
+  }
+  > .expand-10x {
+    .expand-flex(10);
+  }
+  > .expand-11x {
+    .expand-flex(11);
+  }
+  > .expand-12x {
+    .expand-flex(12);
+  }
+}
+
+// Expand vertically
+.expandible-vertical {
+  .flex-direction(column);
+}
+
+// Expand horizontally
+.expandible-horizontal {
+  .flex-direction(row);
+}
+
+// Inherit expandibility
+.expandible-inherit {
+  .display-flex;
+  .flex-direction(column);
+  > * {
+    .flex(1);
+  }
+}
+
+.scrollable {
+  overflow-y: auto;
+}

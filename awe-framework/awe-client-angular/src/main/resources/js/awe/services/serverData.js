@@ -1,5 +1,7 @@
 import {aweApplication} from "../awe";
 import _ from "lodash";
+import {getRowDetailInstanceData} from "./grid/rowDetail";
+import {loginLanguageParameters, loginModeParameters} from "awe-client-react/utilities/signin";
 
 // Server data service
 aweApplication.factory('ServerData',
@@ -21,11 +23,15 @@ aweApplication.factory('ServerData',
          * Retrieve a screen template code
          * @param {String} screen Screen name
          * @param {String} view Screen view
+         * @param {Boolean} fresh Opened from the menu: the server does not give the values sent to the new screen
+         * @param {Object} [extra] Extra request parameters
          * @returns {String} Screen template
          */
-        getScreenData: function (screen, view) {
+        getScreenData: function (screen, view, fresh = false, extra = {}) {
           let parameters = {
             ...ServerData.getFormValues(),
+            ...(fresh ? {freshScreen: true} : {}),
+            ...extra,
             view
           };
           let screenToRetrieve = "initial screen";
@@ -42,7 +48,12 @@ aweApplication.factory('ServerData',
                 return screenData.data.template;
               })
               .catch(function (response) {
-                const actions = $utilities.manageRestError({status: response?.status, title: response?.data?.title, message: response?.data?.message});
+                const actions = $utilities.manageRestError({
+                  status: response?.status,
+                  title: response?.data?.title,
+                  message: response?.data?.message,
+                  body: typeof response?.data === "string" ? response.data : undefined
+                });
                 ActionController.addActionList(actions, false, {address: {view: "base"}});
               });
         },
@@ -70,7 +81,7 @@ aweApplication.factory('ServerData',
             controller[view] = {};
             let modelView = {};
             _.each(data.components, function (component) {
-              ServerData.storeComponent(component, modelView, controller[view], api[view], screen[view].option)
+              ServerData.storeComponent(component, modelView, controller[view], api[view], screen[view].option);
             });
 
             // Change model
@@ -104,6 +115,11 @@ aweApplication.factory('ServerData',
             _.each(component.model, function (value, attribute) {
               fixedModel[attribute] = value;
             });
+
+            // A list sent with the screen (query already run, even with no rows) is a list whose data has arrived
+            if ("records" in component.model) {
+              fixedModel.loaded = true;
+            }
 
             // Get selected values as list or single value
             if ("selected" in component.model) {
@@ -244,17 +260,55 @@ aweApplication.factory('ServerData',
           return model;
         },
         /**
-         * Retrieve the updated model
+         * Check whether a component belongs to a grid row detail instance (the instance or one of its buttons). They are
+         * not screen components: they are not part of the form values of the screen
+         * @param {String} view Component view
+         * @param {String} componentId Component identifier
+         * @returns {Boolean} The component belongs to a row detail instance
          */
-        getFormValues: function () {
-          // Retrieve action data
-          let  model = {};
-          let  api = Storage.get("api");
+        isRowDetailComponent: function (view, componentId) {
+          return Boolean(((Storage.get("controller") || {})[view] || {})[componentId]?.rowDetailInstance);
+        },
+        /**
+         * Values of the grid row detail instance an address belongs to (the instance, one of its cells or one of its
+         * buttons): the data of the instance under the keys of its template and the values of its parent row. Other
+         * addresses have none
+         * @param {Object} address Address of the component that sends a request
+         * @param {String} method Method of the api that retrieves the data
+         * @param {*} args Method arguments
+         * @returns {Object} Values of the row detail instance
+         */
+        getRowDetailValues: function (address, method, args) {
+          const controllers = Storage.get("controller") || {};
+          const componentId = address?.component;
+          const view = address?.view in controllers ? address.view : _.findKey(controllers, viewControllers => componentId in viewControllers);
+          const marker = ((controllers[view] || {})[componentId] || {}).rowDetailInstance;
+          if (!marker) {
+            return {};
+          }
+          const api = ((Storage.get("api") || {})[view] || {})[marker.instance] || {};
+          const data = method in api ? api[method](args) : {};
+          return {...getRowDetailInstanceData(data, marker.instance, marker.template), ...marker.parameters};
+        },
+        /**
+         * Retrieve the data of every screen component with an api method
+         * @param {String} method Method to call
+         * @param {*} args Method arguments
+         * @returns {Object} Data of the screen
+         */
+        getScreenValues: function (method, args, onlyView) {
+          let model = {};
+          let api = Storage.get("api");
 
-          // Retrieve components from each view
-          _.each(api, function (view) {
-            _.each(view, function (component) {
-              model = ServerData.getComponentData(component, model, "getData");
+          // Retrieve components from each view (the row detail instances are not screen components)
+          _.each(api, function (view, viewId) {
+            if (onlyView && viewId !== onlyView) {
+              return;
+            }
+            _.each(view, function (component, componentId) {
+              if (!ServerData.isRowDetailComponent(viewId, componentId)) {
+                model = ServerData.getComponentData(component, model, method, args);
+              }
             });
           });
 
@@ -262,26 +316,27 @@ aweApplication.factory('ServerData',
           return model;
         },
         /**
-         * Retrieve the updated model for printing
+         * Retrieve the updated model
+         * @param {Object} address Address of the component that sends the values: a grid row detail instance adds its own
+         * @param {String} onlyView Retrieve only the values of this view
          */
-        getFormValuesForPrinting: function () {
-          // Retrieve action data
-          let model = {};
-          let api = Storage.get("api");
+        getFormValues: function (address = null, onlyView = undefined) {
+          return {...ServerData.getScreenValues("getData", undefined, onlyView), ...ServerData.getRowDetailValues(address, "getData")};
+        },
+        /**
+         * Retrieve the updated model for printing
+         * @param {Object} address Address of the component that sends the values: a grid row detail instance adds its own
+         */
+        getFormValuesForPrinting: function (address = null) {
           let fullModel = Storage.get("model");
           let fullModelReport = fullModel["report"] || {};
           let orientationModel = fullModelReport["reportOrientation"] || {};
           let orientation = orientationModel.selected || "PORTRAIT";
 
-          // Retrieve components from each view
-          _.each(api, function (view) {
-            _.each(view, function (component) {
-              model = ServerData.getComponentData(component, model, "getPrintData", orientation);
-            });
-          });
-
-          // Return data
-          return model;
+          return {
+            ...ServerData.getScreenValues("getPrintData", orientation),
+            ...ServerData.getRowDetailValues(address, "getPrintData", orientation)
+          };
         },
         /**
          * Retrieve parameters and send them to the server
@@ -310,6 +365,10 @@ aweApplication.factory('ServerData',
               _.merge(message.values, target.getSpecificFields());
             }
           }
+
+          // The login also sends the colour mode and the language chosen on the sign-in page, saved for the user
+          const launched = message.values[$settings.get("serverActionKey")];
+          Object.assign(message.values, loginModeParameters(launched), loginLanguageParameters(launched));
 
           // Launch server action
           let  request = Connection.sendMessage(message);

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Permissions.xml
+    Description: Permission catalog of the test application. It comes first in the module list, so it adds its own
+                 permissions to the catalog of AWE and overrides the labels of the AWE permissions it redeclares
+-->
+
+<permissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd">
+  <!-- Verb of the application, available to the resources of every module -->
+  <verb id="approve" label="PERMISSION_VERB_APPROVE" />
+
+  <!-- Resource of the application, with the verbs of AWE and its own one -->
+  <resource id="invoices" label="PERMISSION_RESOURCE_INVOICES" verbs="crud,export,approve" />
+
+  <!-- Resource of AWE: the label of the application wins, and its verbs are added to the ones of AWE -->
+  <resource id="themes" label="PERMISSION_RESOURCE_APP_THEMES" verbs="export" />
+
+  <!-- Action of AWE: the label of the application wins, and AWE logs that the permission is declared twice -->
+  <resource id="users" label="PERMISSION_RESOURCE_USERS">
+    <action id="unlock" label="PERMISSION_USERS_UNLOCK_ACCOUNT" />
+  </resource>
+</permissions>

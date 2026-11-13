@@ -280,7 +280,7 @@ class MultiTenantOAuth2AuthenticationEntryPointTest {
     String registrationId = "any-id";
     String defaultTenant = "default";
     String defaultRegistrationId = "default-registration";
-    
+
     when(request.getAttribute("oauth2.registration.id")).thenReturn(registrationId);
     ssoConfig.setAutoLaunch(false);
     // The implementation always validates the registration ID, even when autoLaunch is false
@@ -345,6 +345,28 @@ class MultiTenantOAuth2AuthenticationEntryPointTest {
     // Then
     verify(clientRegistrationRepository).findByRegistrationId(registrationId);
     verify(response).sendRedirect("/oauth2/authorization/" + registrationId);
+  }
+
+  @Test
+  void testCommence_WithAutoLaunchEnabled_NeverRedirectsToClientCredentialsRegistration() throws IOException {
+    // Given an email server registration (client_credentials) as the tenant registration
+    ClientRegistration emailRegistration = ClientRegistration.withRegistrationId("email")
+        .clientId("client-id")
+        .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+        .tokenUri("https://provider.com/oauth/token")
+        .build();
+
+    when(request.getAttribute("oauth2.registration.id")).thenReturn("email");
+    ssoConfig.setAutoLaunch(true);
+    when(clientRegistrationRepository.findByRegistrationId("email")).thenReturn(emailRegistration);
+    when(multiTenantConfig.getDefaultTenant()).thenReturn("default");
+    when(multiTenantConfig.getRegistrationId("default")).thenReturn("sso");
+
+    // When
+    entryPoint.commence(request, response, authException);
+
+    // Then the default login registration is launched instead
+    verify(response).sendRedirect("/oauth2/authorization/sso");
   }
 
   private ClientRegistration createClientRegistration(String registrationId) {

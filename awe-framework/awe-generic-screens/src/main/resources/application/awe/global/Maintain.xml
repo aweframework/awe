@@ -25,13 +25,12 @@
   -->
 
   <!-- Users -->
-  <target name="UsrNew">
+  <target name="UsrNew" permission="users.create">
     <insert>
       <table id="ope"/>
       <field id="IdeOpe" sequence="OpeKey" variable="IdeOpe"/>
       <field id="l1_nom" variable="Usr"/>
       <field id="l1_pas" variable="Pas"/>
-      <field id="OpePas" variable="OpePas"/>
       <field id="l1_act" variable="Sta"/>
       <field id="WebPrn" variable="WebPrn"/>
       <field id="PcPrn" variable="PcPrn"/>
@@ -47,8 +46,7 @@
       <field id="PwdLck" variable="PwdLck"/>
       <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
       <variable id="Usr" type="STRING" name="Usr"/>
-      <variable id="Pas" type="STRING_HASH_RIPEMD160" name="Pas"/>
-      <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="Pas" type="STRING_HASH_PASSWORD" name="Pas"/>
       <variable id="Sta" type="INTEGER" name="Sta"/>
       <variable id="WebPrn" type="STRINGN" name="WebPrn"/>
       <variable id="PcPrn" type="STRINGN" name="PcPrn"/>
@@ -63,9 +61,10 @@
       <variable id="Res" type="STRING" name="Res"/>
       <variable id="PwdLck" type="INTEGER" name="PwdLck"/>
     </insert>
+    <include-target name="UsrAddProUpd"/>
   </target>
 
-  <target name="ProvisionNewUser">
+  <target name="ProvisionNewUser" server-only="true">
     <insert>
       <table id="ope"/>
       <field id="IdeOpe" sequence="OpeKey"/>
@@ -85,7 +84,7 @@
     </insert>
   </target>
 
-  <target name="UpdateOauthUserProfile">
+  <target name="UpdateOauthUserProfile" server-only="true">
     <update>
       <table id="ope"/>
       <field id="IdePro" query="GetProfileId"/>
@@ -99,7 +98,37 @@
     </update>
   </target>
 
-  <target name="UsrUpd">
+  <!-- Additional profiles of a single sign-on user (AweOpeRol): the identity provider is the source of truth, so at
+       login AccessService replaces the rows of the user with the provider roles that map to a profile besides the main
+       one (profiles, a list of profile ids, empty to remove them all). Not public, and the user is never a request
+       parameter (any signed in user can launch a target): AccessService sets the session parameter ssoProfilesUser only
+       while it launches this target -->
+  <target name="UpdateOauthUserAdditionalProfiles" server-only="true">
+    <delete audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeOpe" query="SsoUsrIdeOpe" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="in" query="SsoUsrIdeOpe"/>
+        </and>
+      </where>
+    </delete>
+    <insert multiple="true" audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeAweOpeRol" sequence="OpeRolKey"/>
+      <field id="IdeOpe" query="SsoUsrIdeOpe"/>
+      <field id="IdePro" variable="profiles"/>
+      <variable id="profiles" type="INTEGER" name="profiles"/>
+    </insert>
+  </target>
+
+  <target name="UsrUpd" permission="users.update">
+    <!-- Security audit: compares the stored lock flag with the new one before the update -->
+    <serve service="audit-user-update">
+      <variable id="userId" type="INTEGER" name="IdeOpe"/>
+      <variable id="locked" type="INTEGER" name="PwdLck"/>
+      <variable id="passwordUpdate" type="INTEGER" name="FlgPwdUpd"/>
+    </serve>
     <update>
       <table id="ope"/>
       <field id="l1_act" variable="Sta"/>
@@ -138,7 +167,6 @@
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="Pwd"/>
-      <field id="OpePas" variable="OpePas"/>
       <field id="l1_psd" variable="l1_psd"/>
       <field id="PwdLck" variable="PwdLck"/>
       <field id="NumLog" variable="NumLog"/>
@@ -153,34 +181,90 @@
         </and>
       </where>
       <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
-      <variable id="Pwd" type="STRING_HASH_RIPEMD160" name="Pas"/>
-      <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="Pwd" type="STRING_HASH_PASSWORD" name="Pas"/>
       <variable id="l1_psd" type="DATE" value=""/>
       <variable id="PwdLck" type="INTEGER" value="0"/>
       <variable id="NumLog" type="INTEGER" value="0"/>
       <variable id="FlgPwdUpd" type="INTEGER" name="FlgPwdUpd"/>
     </update>
+    <include-target name="UsrAddProUpd"/>
   </target>
 
-  <target name="UsrUpdPwd">
+  <!-- Additional profiles of the user of UsrNew and UsrUpd (AweOpeRol): the new user (its id replaces IdeOpe in the
+       request) or the one selected in the grid (IdeOpe, a one element list in the users screen, a value in the legacy
+       UsrUpd one). The users screen (user-admin) sends the selected profiles (AddPro) and AddProUpd: only then the rows
+       of the user are replaced. The legacy UsrNew and UsrUpd screens send neither, so they keep its additional profiles -->
+  <target name="UsrAddProUpd" server-only="true">
+    <delete audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeOpe" variable="IdeOpe" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="eq" right-variable="IdeOpe"/>
+          <filter condition="eq" right-variable="AddProUpd">
+            <left-operand>
+              <constant value="1" type="INTEGER" cast="INTEGER"/>
+            </left-operand>
+          </filter>
+        </and>
+      </where>
+      <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
+      <variable id="AddProUpd" type="INTEGER" name="AddProUpd"/>
+    </delete>
+    <!-- One row per selected profile. The user comes from a query, as IdeOpe may be a one element list, which would
+         drive the rows of the multiple insert -->
+    <insert multiple="true" audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeAweOpeRol" sequence="OpeRolKey"/>
+      <field id="IdeOpe" query="UsrIdeOpe"/>
+      <field id="IdePro" variable="AddPro"/>
+      <variable id="AddPro" type="INTEGER" name="AddPro"/>
+      <!-- Always an empty list: a multiple maintain needs a list, so without AddPro (legacy screens) no row is inserted
+           instead of failing -->
+      <variable id="NoPro" type="STRING_TO_LIST" value=""/>
+    </insert>
+    <!-- The main profile is never an additional profile (also when a legacy screen makes it the main one) -->
+    <delete audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeOpe" variable="IdeOpe" audit="true"/>
+      <field id="IdePro" variable="Pro" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="eq" right-variable="IdeOpe"/>
+          <filter left-field="IdePro" condition="eq" right-variable="Pro"/>
+        </and>
+      </where>
+      <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
+      <variable id="Pro" type="INTEGER" name="Pro"/>
+    </delete>
+  </target>
+
+  <!-- Change the password of the user in session (settings screen): only when the current password matches. The stored hash
+       is salted, so CurrentPasswordChangeService checks it in Java and then launches UsrUpdPwdUpdate -->
+  <target name="UsrUpdPwd" permission="self.update">
+    <serve service="changeOwnPassword">
+      <variable id="currentPassword" type="STRING" name="OldPas"/>
+      <variable id="password" type="STRING" name="Pas"/>
+    </serve>
+  </target>
+
+  <!-- Stores the new password of UsrUpdPwd. Not public, and the user is never a request parameter (any signed in user can launch a
+       target): CurrentPasswordChangeService sets the session parameter verifiedPasswordUser only while it launches this target -->
+  <target name="UsrUpdPwdUpdate" server-only="true">
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="Pwd"/>
-      <field id="OpePas" variable="NewPwd"/>
       <where>
         <and>
           <filter left-field="l1_nom" condition="eq" right-variable="user" trim="true"/>
-          <filter left-field="l1_pas" condition="eq" right-variable="OldPwd" trim="true"/>
         </and>
       </where>
-      <variable id="user" type="STRING" session="user"/>
-      <variable id="OldPwd" type="STRING_HASH_RIPEMD160" name="OldPas"/>
-      <variable id="Pwd" type="STRING_HASH_RIPEMD160" name="Pas"/>
-      <variable id="NewPwd" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="user" type="STRING" session="verifiedPasswordUser"/>
+      <variable id="Pwd" type="STRING_HASH_PASSWORD" name="Pas"/>
     </update>
   </target>
 
-  <target name="updateUserData">
+  <target name="updateUserData" permission="self.update">
     <update>
       <table id="ope"/>
       <field id="OpeNam" variable="name"/>
@@ -196,25 +280,81 @@
     </update>
   </target>
 
-  <target name="ChdPwd" public="true">
+  <!-- Change the password of the user in session (not public: only an authenticated user can launch it) -->
+  <target name="ChdPwd" permission="self.update">
     <update>
       <table id="ope"/>
       <field id="l1_pas" variable="l1_pas"/>
-      <field id="OpePas" variable="OpePas"/>
       <field id="l1_psd" variable="SysDat"/>
       <where>
         <and>
           <filter left-field="l1_nom" condition="eq" right-variable="l1_nom" trim="true"/>
         </and>
       </where>
-      <variable id="l1_nom" type="STRING" name="Usr"/>
-      <variable id="l1_pas" type="STRING_HASH_RIPEMD160" name="Pas"/>
-      <variable id="OpePas" type="STRING_HASH_SHA" name="Pas"/>
+      <variable id="l1_nom" type="STRING" session="user"/>
+      <variable id="l1_pas" type="STRING_HASH_PASSWORD" name="Pas"/>
+      <variable id="SysDat" type="SYSTEM_DATE"/>
+    </update>
+    <!-- Security audit of the password change -->
+    <serve service="audit-password-change">
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="password" type="STRING" name="Pas"/>
+    </serve>
+  </target>
+
+  <!-- Change the expired password of the user who verified it at the login (no session: see PasswordChangeService) -->
+  <target name="ChdPwdExpired" public="true">
+    <serve service="changeExpiredPassword">
+      <variable id="password" type="STRING" name="Pas"/>
+    </serve>
+  </target>
+
+  <!-- Stores the new password of an expired one. Not public, and the user is never a request parameter (any signed in user can launch a
+       target): PasswordChangeService sets the session parameter expiredPasswordUser only while it launches this target -->
+  <target name="ChdPwdExpiredUpdate" server-only="true">
+    <update>
+      <table id="ope"/>
+      <field id="l1_pas" variable="l1_pas"/>
+      <field id="l1_psd" variable="SysDat"/>
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="l1_nom" trim="true"/>
+        </and>
+      </where>
+      <variable id="l1_nom" type="STRING" session="expiredPasswordUser"/>
+      <variable id="l1_pas" type="STRING_HASH_PASSWORD" name="Pas"/>
       <variable id="SysDat" type="SYSTEM_DATE"/>
     </update>
   </target>
 
-  <target name="UsrDel">
+  <!-- Stores a password rehashed with the configured algorithm after a successful login. Not public, and neither the user
+       nor the hash are request parameters (any signed in user can launch a target): UserDAOImpl sets the session parameters
+       passwordRehashUser and passwordRehashValue only while it launches this target -->
+  <target name="UsrRehashPwd" server-only="true">
+    <update>
+      <table id="ope"/>
+      <field id="l1_pas" variable="l1_pas"/>
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="l1_nom" trim="true"/>
+        </and>
+      </where>
+      <variable id="l1_nom" type="STRING" session="passwordRehashUser"/>
+      <variable id="l1_pas" type="STRING" session="passwordRehashValue"/>
+    </update>
+  </target>
+
+  <target name="UsrDel" permission="users.delete">
+    <delete multiple="true" audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
+      <field id="IdeOpe" variable="IdeOpe" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="eq" right-variable="IdeOpe"/>
+        </and>
+      </where>
+      <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
+    </delete>
     <delete multiple="true">
       <table id="ope"/>
       <where>
@@ -227,13 +367,52 @@
   </target>
 
 
+  <!-- Change the password without a session (ChdPwdPub and change-password screens): only when the current password matches and the
+       user is active. The stored hash is salted, so CurrentPasswordChangeService checks it in Java and then launches ChdPwdPubUpdate -->
+  <target name="ChdPwdPub" public="true">
+    <serve service="changePasswordWithCurrent">
+      <variable id="user" type="STRING" name="Usr"/>
+      <variable id="currentPassword" type="STRING" name="OldPas"/>
+      <variable id="password" type="STRING" name="Pas"/>
+    </serve>
+    <!-- Security audit of the password change (a wrong current password updates nothing) -->
+    <serve service="audit-password-change">
+      <variable id="user" type="STRING" name="Usr"/>
+      <variable id="password" type="STRING" name="Pas"/>
+    </serve>
+  </target>
+
+  <!-- Stores the new password of ChdPwdPub. Not public, and the user is never a request parameter (anybody can launch a public target
+       and any signed in user a private one): CurrentPasswordChangeService sets the session parameter verifiedPasswordUser only while it
+       launches this target -->
+  <target name="ChdPwdPubUpdate" server-only="true">
+    <update>
+      <table id="ope"/>
+      <field id="l1_pas" variable="l1_pas"/>
+      <field id="l1_psd" variable="SysDat"/>
+      <where>
+        <and>
+          <filter left-field="l1_nom" condition="eq" right-variable="l1_nom" trim="true"/>
+          <filter left-field="l1_act" condition="eq" right-variable="active"/>
+        </and>
+      </where>
+      <variable id="l1_nom" type="STRING" session="verifiedPasswordUser"/>
+      <variable id="active" type="INTEGER" value="1"/>
+      <variable id="l1_pas" type="STRING_HASH_PASSWORD" name="Pas"/>
+      <variable id="SysDat" type="SYSTEM_DATE"/>
+    </update>
+  </target>
+
   <!-- Modules -->
-  <target name="ModNew">
+  <!-- The modules screen (module-admin) has no theme (it was never applied): it sends no Thm and no IdeThm column, so the
+       IdeThm fields of ModNew and ModUpd are optional and left out of the statement without a value (a new module and its
+       new user rows get none, an update keeps the stored one). The deprecated ModNew and ModUpd screens still send them -->
+  <target name="ModNew" permission="system.update">
     <insert audit="HISAweMod">
       <table id="AweMod"/>
       <field id="IdeMod" sequence="ModKey" variable="IdeMod"/>
       <field id="Nam" variable="Nam"/>
-      <field id="IdeThm" variable="Thm"/>
+      <field id="IdeThm" variable="Thm" optional="true"/>
       <field id="ScrIni" variable="Scr"/>
       <field id="Ord" variable="Ord"/>
       <field id="Act" variable="Act"/>
@@ -249,7 +428,7 @@
       <field id="IdeModOpe" sequence="ModOpeKey" variable="IdeModOpe" key="true"/>
       <field id="IdeMod" variable="IdeMod"/>
       <field id="IdeOpe" variable="IdeOpe"/>
-      <field id="IdeThm" variable="IdeThm"/>
+      <field id="IdeThm" variable="IdeThm" optional="true"/>
       <variable id="IdeModOpe" type="INTEGER" name="IdeModOpe"/>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
       <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
@@ -279,13 +458,13 @@
     </multiple>
   </target>
 
-  <target name="ModUpd">
+  <target name="ModUpd" permission="system.update">
     <update audit="HISAweMod">
       <table id="AweMod"/>
       <field id="IdeMod" variable="IdeMod"/>
       <field id="Nam" variable="Nam"/>
       <field id="ScrIni" variable="ScrIni"/>
-      <field id="IdeThm" variable="IdeThm"/>
+      <field id="IdeThm" variable="IdeThm" optional="true"/>
       <field id="Ord" variable="Ord"/>
       <field id="Act" variable="Act"/>
       <where>
@@ -305,7 +484,7 @@
       <field id="IdeModOpe" variable="IdeModOpe" sequence="ModOpeKey" key="true"/>
       <field id="IdeMod" variable="IdeMod"/>
       <field id="IdeOpe" variable="IdeOpe"/>
-      <field id="IdeThm" variable="IdeThm"/>
+      <field id="IdeThm" variable="IdeThm" optional="true"/>
       <variable id="IdeModOpe" type="INTEGER" name="IdeModOpe"/>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
       <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
@@ -335,7 +514,10 @@
     </multiple>
   </target>
 
-  <target name="ModDel">
+  <!-- The modules screen (module-admin) sends the selected modules as IdeModSel (IdeMod is the hidden criterion of its side
+       panel, a single module): this optional second definition replaces the first one when it comes. The deprecated Mod
+       screen sends IdeMod from its grid and no IdeModSel -->
+  <target name="ModDel" permission="system.update">
     <delete multiple="true" audit="HISAweModOpe">
       <table id="AweModOpe"/>
       <field id="IdeMod" variable="IdeMod" audit="true"/>
@@ -345,6 +527,7 @@
         </and>
       </where>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
+      <variable id="IdeMod" type="INTEGER" name="IdeModSel" optional="true"/>
     </delete>
     <delete multiple="true" audit="HISAweModPro">
       <table id="AweModPro"/>
@@ -355,6 +538,7 @@
         </and>
       </where>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
+      <variable id="IdeMod" type="INTEGER" name="IdeModSel" optional="true"/>
     </delete>
     <delete multiple="true" audit="HISAweSitModDbs">
       <table id="AweSitModDbs"/>
@@ -365,6 +549,7 @@
         </and>
       </where>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
+      <variable id="IdeMod" type="INTEGER" name="IdeModSel" optional="true"/>
     </delete>
     <delete multiple="true" audit="HISAweMod">
       <table id="AweMod"/>
@@ -379,6 +564,7 @@
         </and>
       </where>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
+      <variable id="IdeMod" type="INTEGER" name="IdeModSel" optional="true"/>
       <variable id="Nam" type="STRING" name="Nam"/>
       <variable id="IdeThm" type="INTEGER" name="IdeThm"/>
       <variable id="ScrIni" type="STRINGN" name="ScrIni"/>
@@ -387,7 +573,7 @@
   </target>
 
   <!-- Sites -->
-  <target name="SitNew">
+  <target name="SitNew" permission="system.update">
     <insert audit="HISAweSit">
       <table id="AweSit"/>
       <field id="IdeSit" sequence="SitKey" variable="IdeSit"/>
@@ -396,6 +582,10 @@
       <field id="Act" variable="Act"/>
       <variable id="Nam" type="STRING" name="Nam"/>
       <variable id="Ord" type="INTEGER" name="Ord"/>
+      <!-- The sites screen (site-admin) names the order of the site OrdCrt, as SitUpd does: its modules grid already sends
+           Ord for the order of each row, and a variable the screen sends as an empty list left the insert without value.
+           The deprecated SitNew screen sends Ord and no OrdCrt, so this optional definition only replaces it when it comes -->
+      <variable id="Ord" type="INTEGER" name="OrdCrt" optional="true"/>
       <variable id="Act" type="INTEGER" name="Act"/>
       <variable id="IdeSit" type="INTEGER" name="IdeSit"/>
     </insert>
@@ -414,7 +604,7 @@
     </multiple>
   </target>
 
-  <target name="SitUpd">
+  <target name="SitUpd" permission="system.update">
     <update audit="HISAweSit">
       <table id="AweSit"/>
       <field id="IdeSit" variable="IdeSit"/>
@@ -427,6 +617,9 @@
         </and>
       </where>
       <variable id="IdeSit" type="INTEGER" name="IdeSit"/>
+      <!-- The sites screen (site-admin) sends IdeSit from the selected rows of its grid, so it also comes as a one element
+           list: this optional definition replaces the first one with the single value when it comes -->
+      <variable id="IdeSit" type="INTEGER" name="IdeSit.selected" optional="true"/>
       <variable id="Nam" type="STRING" name="Nam"/>
       <variable id="OrdCrt" type="INTEGER" name="OrdCrt"/>
       <variable id="Act" type="INTEGER" name="Act"/>
@@ -441,13 +634,19 @@
       <field id="Ord" variable="Ord"/>
       <variable id="IdeSitModDbs" type="INTEGER" name="IdeSitModDbs"/>
       <variable id="IdeSit" type="INTEGER" name="IdeSit"/>
+      <!-- The modules grid of the sites screen (site-admin) sends the site of each row, so the site comes with the rows of
+           the grid and not from the one element list of the selected site: the grid may send no rows at all -->
+      <variable id="IdeSit" type="INTEGER" name="IdeSitRow" optional="true"/>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
       <variable id="IdeDbs" type="INTEGER" name="IdeDbs"/>
       <variable id="Ord" type="INTEGER" name="Ord"/>
+      <!-- The modules grid of the sites screen (site-admin) names the order of the row SitModOrd, because Ord is the order
+           of the site in the grid of the screen: this optional definition replaces the first one when it comes -->
+      <variable id="Ord" type="INTEGER" name="SitModOrd" optional="true"/>
     </multiple>
   </target>
 
-  <target name="SitDel">
+  <target name="SitDel" permission="system.update">
     <delete multiple="true" audit="HISAweSitModDbs">
       <table id="AweSitModDbs"/>
       <field id="IdeSit" variable="IdeSit" audit="true"/>
@@ -477,7 +676,7 @@
   </target>
 
   <!-- Profiles -->
-  <target name="ProNew">
+  <target name="ProNew" permission="profiles.create">
     <insert audit="HISAwePro">
       <table id="AwePro"/>
       <field id="IdePro" sequence="ProKey" variable="IdePro"/>
@@ -495,12 +694,54 @@
       <variable id="Res" type="STRING" name="Res"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </insert>
+    <!-- Permissions of the profile (Per) sent by the profiles screen (PerUpd): stored only when they changed, which
+         requires the permission of ProPerUpd -->
+    <serve service="store-profile-permissions">
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="Per" type="STRING" name="Per"/>
+      <variable id="PerUpd" type="INTEGER" name="PerUpd"/>
+    </serve>
   </target>
 
-  <target name="ProUpd">
-    <update audit="HISAwePro">
+  <!-- Predefined profile created at startup: the server gives its identifier, the next of the highest profile
+       identifier and of ProKey, and moves ProKey to it so a later ProNew never collides. Theme and initial screen are
+       left empty, as ProNew does when the profiles screen does not fill them -->
+  <target name="PredefinedProNew" server-only="true">
+    <insert audit="HISAwePro">
       <table id="AwePro"/>
       <field id="IdePro" variable="IdePro"/>
+      <field id="Acr" variable="Acr"/>
+      <field id="Nam" variable="Nam"/>
+      <field id="Res" variable="Res"/>
+      <field id="Act" variable="Act"/>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="Acr" type="STRING" name="Acr"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="Res" type="STRING" name="Res"/>
+      <variable id="Act" type="INTEGER" value="1"/>
+    </insert>
+    <update>
+      <table id="AweKey"/>
+      <field id="KeyVal" variable="IdePro"/>
+      <where>
+        <and>
+          <filter left-field="KeyNam" condition="eq" right-variable="KeyNam"/>
+        </and>
+      </where>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="KeyNam" type="STRING" value="ProKey"/>
+    </update>
+  </target>
+
+  <!-- The predefined profiles (Reader, Contributor) are never changed: they are duplicated and the copy is changed -->
+  <target name="ProUpd" permission="profiles.update">
+    <serve service="check-editable-profile">
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+    </serve>
+    <update audit="HISAwePro">
+      <table id="AwePro"/>
+      <!-- Only audited: the key is not updated, so the profiles screen can send it as a one element list -->
+      <field id="IdePro" variable="IdePro" audit="true"/>
       <field id="Acr" variable="Acr"/>
       <field id="Nam" variable="Nam"/>
       <field id="IdeThm" variable="IdeThm"/>
@@ -520,11 +761,41 @@
       <variable id="Res" type="STRING" name="Res"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </update>
+    <!-- Permissions of the profile (Per) sent by the profiles screen (PerUpd): stored only when they changed, which
+         requires the permission of ProPerUpd -->
+    <serve service="store-profile-permissions">
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="Per" type="STRING" name="Per"/>
+      <variable id="PerUpd" type="INTEGER" name="PerUpd"/>
+    </serve>
   </target>
 
-  <target name="ProDel">
+  <target name="ProDel" permission="profiles.delete">
+    <serve service="check-editable-profile">
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+    </serve>
+    <delete multiple="true" audit="HISAweProPer">
+      <table id="AweProPer"/>
+      <field id="IdePro" variable="IdePro" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdePro" condition="eq" right-variable="IdePro"/>
+        </and>
+      </where>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+    </delete>
     <delete multiple="true" audit="HISAweModPro">
       <table id="AweModPro"/>
+      <field id="IdePro" variable="IdePro" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdePro" condition="eq" right-variable="IdePro"/>
+        </and>
+      </where>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+    </delete>
+    <delete multiple="true" audit="HISAweOpeRol">
+      <table id="AweOpeRol"/>
       <field id="IdePro" variable="IdePro" audit="true"/>
       <where>
         <and>
@@ -567,8 +838,50 @@
     </delete>
   </target>
 
+  <!-- Copy of a profile (profiles screen): a new profile with the data entered whose permissions are the effective
+       permissions of the selected profile (IdePro), stored as its assignments -->
+  <target name="ProDup" permission="profiles.create">
+    <serve service="duplicate-profile">
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+      <variable id="Acr" type="STRING" name="Acr"/>
+      <variable id="Nam" type="STRING" name="Nam"/>
+      <variable id="IdeThm" type="INTEGER" name="IdeThm"/>
+      <variable id="ScrIni" type="STRING" name="ScrIni"/>
+      <variable id="Res" type="STRING" name="Res"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </serve>
+  </target>
+
+  <!-- Replace the permissions of a profile (AweProPer) with the permissions of Per: launched by the server when the
+       profiles screen changes them (with the permission of this target) and when a profile is duplicated. IdePro is a
+       value or a one element list -->
+  <target name="ProPerUpd" server-only="true" permission="permissions.update">
+    <delete audit="HISAweProPer">
+      <table id="AweProPer"/>
+      <field id="IdePro" variable="IdePro" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdePro" condition="eq" right-variable="IdePro"/>
+        </and>
+      </where>
+      <variable id="IdePro" type="INTEGER" name="IdePro"/>
+    </delete>
+    <!-- One row per selected permission. The profile comes from a query, as IdePro may be a one element list, which
+         would drive the rows of the multiple insert -->
+    <insert multiple="true" audit="HISAweProPer">
+      <table id="AweProPer"/>
+      <field id="IdeAweProPer" sequence="ProPerKey"/>
+      <field id="IdePro" query="ProIdePro"/>
+      <field id="Per" variable="Per"/>
+      <variable id="Per" type="STRING" name="Per"/>
+      <!-- Always an empty list: a multiple maintain needs a list, so without Per no row is inserted instead of
+           failing -->
+      <variable id="NoPer" type="STRING_TO_LIST" value=""/>
+    </insert>
+  </target>
+
   <!-- Screen Access Multiple -->
-  <target name="updateScreenRestriction">
+  <target name="updateScreenRestriction" permission="access.update">
     <multiple audit="HISAweScrRes" grid="GrdScrAccLst">
       <table id="AweScrRes"/>
       <field id="IdeAweScrRes" variable="IdeAweScrRes" sequence="ScrResKey" key="true"/>
@@ -588,7 +901,7 @@
     </multiple>
   </target>
 
-  <target name="updateScreenRestrictionNew">
+  <target name="updateScreenRestrictionNew" permission="access.update">
     <multiple audit="HISAweScrRes" grid="restriction-list">
       <table id="AweScrRes"/>
       <field id="IdeAweScrRes" variable="IdeAweScrRes" sequence="ScrResKey" key="true"/>
@@ -606,13 +919,13 @@
     </multiple>
   </target>
 
-  <target name="updateMenuRestrictionTree">
+  <target name="updateMenuRestrictionTree" permission="access.update">
     <serve service="updateMenuRestrictionTree">
       <variable id="option" type="STRING" name="option-name.selected"/>
     </serve>
   </target>
 
-  <target name="allowMenuOption">
+  <target name="allowMenuOption" permission="access.update">
     <serve service="allowMenuOption">
       <variable id="user" type="INTEGER" name="selected-user"/>
       <variable id="profile" type="INTEGER" name="selected-profile"/>
@@ -620,7 +933,7 @@
     </serve>
   </target>
 
-  <target name="restrictMenuOption">
+  <target name="restrictMenuOption" permission="access.update">
     <serve service="restrictMenuOption">
       <variable id="user" type="INTEGER" name="selected-user"/>
       <variable id="profile" type="INTEGER" name="selected-profile"/>
@@ -628,7 +941,7 @@
     </serve>
   </target>
 
-  <target name="removeRestriction">
+  <target name="removeRestriction" permission="access.update">
     <serve service="removeRestriction">
       <variable id="user" type="INTEGER" name="selected-user"/>
       <variable id="profile" type="INTEGER" name="selected-profile"/>
@@ -636,7 +949,72 @@
     </serve>
   </target>
 
-  <target name="new-restriction">
+  <!-- Access window (access-admin): allow, deny or remove the own rule of the subject on one or more options. The service
+       stores them with new-restriction, update-restriction and delete-restriction (audit HISAweScrRes) -->
+  <target name="access-allow" permission="access.update">
+    <serve service="access-allow">
+      <variable id="subjectType" type="STRING" name="subject-type"/>
+      <variable id="user" type="INTEGER" name="IdeOpe"/>
+      <variable id="profile" type="INTEGER" name="IdePro"/>
+      <variable id="options" type="STRING" name="access-options"/>
+    </serve>
+  </target>
+
+  <target name="access-deny" permission="access.update">
+    <serve service="access-deny">
+      <variable id="subjectType" type="STRING" name="subject-type"/>
+      <variable id="user" type="INTEGER" name="IdeOpe"/>
+      <variable id="profile" type="INTEGER" name="IdePro"/>
+      <variable id="options" type="STRING" name="access-options"/>
+    </serve>
+  </target>
+
+  <target name="access-remove" permission="access.update">
+    <serve service="access-remove">
+      <variable id="subjectType" type="STRING" name="subject-type"/>
+      <variable id="user" type="INTEGER" name="IdeOpe"/>
+      <variable id="profile" type="INTEGER" name="IdePro"/>
+      <variable id="options" type="STRING" name="access-options"/>
+    </serve>
+  </target>
+
+  <!-- Access window: remove one rule of an option, of any subject (the side panel of an option lists them all). The service
+       removes only its row with delete-restriction-by-id (audit HISAweScrRes) -->
+  <target name="access-remove-rule" permission="access.update">
+    <serve service="access-remove-rule">
+      <variable id="rule" type="INTEGER" name="access-rule"/>
+    </serve>
+  </target>
+
+  <!-- Access window: switch one rule of an option, of any subject, from allow to deny or from deny to allow. The service
+       stores only its row with update-restriction-by-id (audit HISAweScrRes) -->
+  <target name="access-switch-rule" permission="access.update">
+    <serve service="access-switch-rule">
+      <variable id="rule" type="INTEGER" name="access-rule"/>
+    </serve>
+  </target>
+
+  <!-- Access window: fixes of the review. Remove the rule of a finding (sent as review-rule: access-rule is the rule of
+       the side panel of an option), allow the denied parent of a finding to the subject of its rule, and remove every
+       rule without effect. The services store them with new-restriction, update-restriction and delete-restriction (audit
+       HISAweScrRes); no user variable is read from the request -->
+  <target name="access-review-remove" permission="access.update">
+    <serve service="access-remove-rule">
+      <variable id="rule" type="INTEGER" name="review-rule"/>
+    </serve>
+  </target>
+
+  <target name="access-review-allow-parent" permission="access.update">
+    <serve service="access-review-allow-parent">
+      <variable id="rule" type="INTEGER" name="review-rule"/>
+    </serve>
+  </target>
+
+  <target name="access-review-clean" permission="access.update">
+    <serve service="access-review-clean"/>
+  </target>
+
+  <target name="new-restriction" server-only="true">
     <insert audit="HISAweScrRes">
       <table id="AweScrRes"/>
       <field id="IdeAweScrRes" variable="IdeAweScrRes" sequence="ScrResKey" key="true"/>
@@ -654,7 +1032,7 @@
     </insert>
   </target>
 
-  <target name="update-restriction">
+  <target name="update-restriction" server-only="true">
     <update audit="HISAweScrRes">
       <table id="AweScrRes"/>
       <field id="IdePro" variable="profile"/>
@@ -687,7 +1065,7 @@
     </update>
   </target>
 
-  <target name="delete-restriction">
+  <target name="delete-restriction" server-only="true">
     <delete audit="HISAweScrRes">
       <table id="AweScrRes"/>
       <field id="IdePro" variable="profile" audit="true"/>
@@ -716,9 +1094,63 @@
     </delete>
   </target>
 
+  <!-- One rule by identifier (access window): another row of the same subject and option is not touched. The subject, the
+       option and the rule are only for the audit -->
+  <target name="update-restriction-by-id" server-only="true">
+    <update audit="HISAweScrRes">
+      <table id="AweScrRes"/>
+      <field id="IdeAweScrRes" variable="id" audit="true"/>
+      <field id="IdePro" variable="profile" audit="true"/>
+      <field id="IdeOpe" variable="user" audit="true"/>
+      <field id="Opt" variable="option" audit="true"/>
+      <field id="AccMod" variable="restriction"/>
+      <field id="Act" variable="active"/>
+      <where>
+        <and>
+          <filter left-field="IdeAweScrRes" condition="eq" right-variable="id"/>
+        </and>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="INTEGER" name="user"/>
+      <variable id="profile" type="INTEGER" name="profile"/>
+      <variable id="option" type="STRING" name="option"/>
+      <variable id="restriction" type="STRING" name="restriction"/>
+      <variable id="active" type="INTEGER" name="active"/>
+    </update>
+  </target>
+
+  <target name="delete-restriction-by-id" server-only="true">
+    <delete audit="HISAweScrRes">
+      <table id="AweScrRes"/>
+      <field id="IdeAweScrRes" variable="id" audit="true"/>
+      <field id="IdePro" variable="profile" audit="true"/>
+      <field id="IdeOpe" variable="user" audit="true"/>
+      <field id="Opt" variable="option" audit="true"/>
+      <field id="AccMod" variable="restriction" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeAweScrRes" condition="eq" right-variable="id"/>
+        </and>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="INTEGER" name="user"/>
+      <variable id="profile" type="INTEGER" name="profile"/>
+      <variable id="option" type="STRING" name="option"/>
+      <variable id="restriction" type="STRING" name="restriction"/>
+    </delete>
+  </target>
+
   <!-- Screen configuration Multiple -->
-  <target name="updateScreenConfiguration">
-    <multiple grid="GrdScrCnf">
+  <target name="updateScreenConfiguration" permission="access.update">
+    <!-- Rejects the invalid rules before anything is saved -->
+    <serve service="validateScreenConfiguration">
+      <variable id="rowTypes" type="STRING" name="GrdScrCnf-RowTyp"/>
+      <variable id="screens" type="STRING" name="Scr"/>
+      <variable id="components" type="STRING" name="Nam"/>
+      <variable id="attributes" type="STRING" name="Atr"/>
+      <variable id="values" type="STRING" name="Val"/>
+    </serve>
+    <multiple grid="GrdScrCnf" audit="HISAweScrCnf">
       <table id="AweScrCnf"/>
       <field id="IdeAweScrCnf" variable="IdeAweScrCnf" sequence="ScrCnfKey" key="true"/>
       <field id="IdeOpe" variable="IdeOpe"/>
@@ -739,8 +1171,9 @@
     </multiple>
   </target>
 
-  <!-- AweKey Update Multiple -->
-  <target name="AweKeyUpd">
+  <!-- AweKey Update Multiple: the editable grid of the deprecated AweKey screen. It is named AweKeyMul (as
+       AweAppParMul) since the sequences screen (sequence-admin) took AweKeyUpd for the update of one sequence -->
+  <target name="AweKeyMul" permission="system.update">
     <multiple grid="GrdKeyLst">
       <table id="AweKey"/>
       <field id="KeyNam" variable="KeyNam" key="true"/>
@@ -752,8 +1185,54 @@
     </multiple>
   </target>
 
+  <!-- Sequences screen (sequence-admin): one sequence per action. The name of a sequence is its primary key and the screen
+       keeps it read-only when editing, so only the update of the value and the state needs the name of the selected row -->
+  <target name="AweKeyNew" permission="system.update">
+    <insert>
+      <table id="AweKey"/>
+      <field id="KeyNam" variable="KeyNam"/>
+      <field id="KeyVal" variable="KeyVal"/>
+      <field id="Act" variable="Act"/>
+      <!-- The screen names the typed name SeqNam: the grid sends KeyNam with the selected rows and the button of a new
+           sequence unselects them all, so KeyNam is empty when a sequence is created -->
+      <variable id="KeyNam" type="STRING" name="SeqNam"/>
+      <variable id="KeyVal" type="INTEGER" name="KeyVal"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </insert>
+  </target>
+
+  <target name="AweKeyUpd" permission="system.update">
+    <update>
+      <table id="AweKey"/>
+      <field id="KeyVal" variable="KeyVal"/>
+      <field id="Act" variable="Act"/>
+      <where>
+        <and>
+          <filter left-field="KeyNam" condition="eq" right-variable="KeyNam"/>
+        </and>
+      </where>
+      <!-- KeyNam.selected is the name of the selected row of the grid, a single value only with one row selected -->
+      <variable id="KeyNam" type="STRING" name="KeyNam.selected"/>
+      <variable id="KeyVal" type="INTEGER" name="KeyVal"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </update>
+  </target>
+
+  <target name="AweKeyDel" permission="system.update">
+    <!-- The grid sends the name of every selected sequence (a list) -->
+    <delete multiple="true">
+      <table id="AweKey"/>
+      <where>
+        <and>
+          <filter left-field="KeyNam" condition="eq" right-variable="KeyNam"/>
+        </and>
+      </where>
+      <variable id="KeyNam" type="STRING" name="KeyNam"/>
+    </delete>
+  </target>
+
   <!-- AweAppPar Application parameters -->
-  <target name="AweAppParMul">
+  <target name="AweAppParMul" permission="system.update">
     <multiple grid="GrdAppParLst" audit="HISAweAppPar">
       <table id="AweAppPar"/>
       <field id="IdeAweAppPar" variable="IdeAweAppPar" sequence="AppParKey" key="true"/>
@@ -769,6 +1248,77 @@
       <variable id="Des" type="STRING" name="Des"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </multiple>
+  </target>
+
+  <!-- Application parameters screen (application-parameter-admin): one parameter per action. The name of a parameter is the
+       key the application reads and the screen keeps it read-only when editing, so the update of the selected row writes it
+       again together with its value, its category, its description and its state -->
+  <target name="AweAppParNew" permission="system.update">
+    <insert audit="HISAweAppPar">
+      <table id="AweAppPar"/>
+      <field id="IdeAweAppPar" variable="IdeAweAppPar" sequence="AppParKey"/>
+      <field id="ParNam" variable="ParNam"/>
+      <field id="ParVal" variable="ParVal"/>
+      <field id="Cat" variable="Cat"/>
+      <field id="Des" variable="Des"/>
+      <field id="Act" variable="Act"/>
+      <!-- The screen names the typed name ParNam; its grid sends only the identifier of the selected rows, so ParNam is
+           empty when a parameter is created -->
+      <variable id="IdeAweAppPar" type="INTEGER" name="IdeAweAppPar"/>
+      <variable id="ParNam" type="STRING" name="ParNam"/>
+      <!-- The value and the description of a parameter are optional: an empty one is stored as null -->
+      <variable id="ParVal" type="STRINGN" name="ParVal"/>
+      <variable id="Cat" type="INTEGER" name="Cat"/>
+      <variable id="Des" type="STRINGN" name="Des"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </insert>
+  </target>
+
+  <target name="AweAppParUpd" permission="system.update">
+    <update audit="HISAweAppPar">
+      <table id="AweAppPar"/>
+      <field id="ParNam" variable="ParNam"/>
+      <field id="ParVal" variable="ParVal"/>
+      <field id="Cat" variable="Cat"/>
+      <field id="Des" variable="Des"/>
+      <field id="Act" variable="Act"/>
+      <where>
+        <and>
+          <filter left-field="IdeAweAppPar" condition="eq" right-variable="IdeAweAppPar"/>
+        </and>
+      </where>
+      <!-- IdeAweAppPar.selected is the identifier of the selected row of the grid, a single value only with one row selected -->
+      <variable id="IdeAweAppPar" type="INTEGER" name="IdeAweAppPar.selected"/>
+      <variable id="ParNam" type="STRING" name="ParNam"/>
+      <variable id="ParVal" type="STRINGN" name="ParVal"/>
+      <variable id="Cat" type="INTEGER" name="Cat"/>
+      <variable id="Des" type="STRINGN" name="Des"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </update>
+  </target>
+
+  <target name="AweAppParDel" permission="system.update">
+    <!-- The grid sends the identifier of every selected parameter (a list) -->
+    <delete multiple="true" audit="HISAweAppPar">
+      <table id="AweAppPar"/>
+      <field id="IdeAweAppPar" variable="IdeAweAppPar" audit="true"/>
+      <field id="ParNam" variable="ParNam" audit="true"/>
+      <field id="ParVal" variable="ParVal" audit="true"/>
+      <field id="Cat" variable="Cat" audit="true"/>
+      <field id="Des" variable="Des" audit="true"/>
+      <field id="Act" variable="Act" audit="true"/>
+      <where>
+        <and>
+          <filter left-field="IdeAweAppPar" condition="eq" right-variable="IdeAweAppPar"/>
+        </and>
+      </where>
+      <variable id="IdeAweAppPar" type="INTEGER" name="IdeAweAppPar"/>
+      <variable id="ParNam" type="STRING" name="ParNam"/>
+      <variable id="ParVal" type="STRINGN" name="ParVal"/>
+      <variable id="Cat" type="INTEGER" name="Cat"/>
+      <variable id="Des" type="STRINGN" name="Des"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
+    </delete>
   </target>
 
   <!-- Security application parameters -->
@@ -820,22 +1370,51 @@
   </target>
 
   <!-- Themes -->
-  <target name="ThmNew">
+  <target name="ThmNew" permission="themes.create">
+    <!-- Pri and Srf: the palette of each select or the hex of its picker when it is custom (an invalid one is rejected).
+         The service returns one row, read with LIST_TO_STRING -->
+    <retrieve-data service="composeThemeColors">
+      <field id="Pri"/>
+      <field id="Srf"/>
+      <variable id="primaryPalette" type="STRINGN" name="PriPal"/>
+      <variable id="primaryHex" type="STRINGN" name="PriHex"/>
+      <variable id="surfacePalette" type="STRINGN" name="SrfPal"/>
+      <variable id="surfaceHex" type="STRINGN" name="SrfHex"/>
+    </retrieve-data>
     <insert audit="HISAweThm">
       <table id="AweThm"/>
       <field id="IdeThm" sequence="ThmKey" variable="IdeThm"/>
       <field id="Nam" variable="Nam"/>
+      <field id="Pri" variable="Pri"/>
+      <field id="Srf" variable="Srf"/>
+      <field id="Mde" variable="Mde"/>
       <variable id="IdeThm" type="INTEGER"/>
       <variable id="Nam" type="STRINGN" name="Nam"/>
+      <variable id="Pri" type="LIST_TO_STRING" name="Pri"/>
+      <variable id="Srf" type="LIST_TO_STRING" name="Srf"/>
+      <variable id="Mde" type="STRINGN" name="Mde"/>
     </insert>
   </target>
 
-  <target name="ThmUpd">
+  <target name="ThmUpd" permission="themes.update">
+    <!-- Pri and Srf: the palette of each select or the hex of its picker when it is custom (an invalid one is rejected).
+         The service returns one row, read with LIST_TO_STRING -->
+    <retrieve-data service="composeThemeColors">
+      <field id="Pri"/>
+      <field id="Srf"/>
+      <variable id="primaryPalette" type="STRINGN" name="PriPal"/>
+      <variable id="primaryHex" type="STRINGN" name="PriHex"/>
+      <variable id="surfacePalette" type="STRINGN" name="SrfPal"/>
+      <variable id="surfaceHex" type="STRINGN" name="SrfHex"/>
+    </retrieve-data>
     <update audit="HISAweThm">
       <table id="AweThm"/>
       <field id="IdeThm" variable="IdeThm" audit="true"/>
       <field id="Nam" variable="Nam"/>
       <field id="Act" variable="Act"/>
+      <field id="Pri" variable="Pri"/>
+      <field id="Srf" variable="Srf"/>
+      <field id="Mde" variable="Mde"/>
       <where>
         <and>
           <filter left-field="IdeThm" condition="eq" right-variable="IdeThm"/>
@@ -844,15 +1423,21 @@
       <variable id="IdeThm" type="INTEGER" name="IdeThm"/>
       <variable id="Nam" type="STRINGN" name="Nam"/>
       <variable id="Act" type="INTEGER" name="Act"/>
+      <variable id="Pri" type="LIST_TO_STRING" name="Pri"/>
+      <variable id="Srf" type="LIST_TO_STRING" name="Srf"/>
+      <variable id="Mde" type="STRINGN" name="Mde"/>
     </update>
   </target>
 
-  <target name="ThmDel">
+  <target name="ThmDel" permission="themes.delete">
     <delete multiple="true" audit="HISAweThm">
       <table id="AweThm"/>
       <field id="IdeThm" variable="IdeThm" audit="true"/>
       <field id="Nam" variable="Nam" audit="true"/>
       <field id="Act" variable="Act" audit="true"/>
+      <field id="Pri" variable="Pri" audit="true"/>
+      <field id="Srf" variable="Srf" audit="true"/>
+      <field id="Mde" variable="Mde" audit="true"/>
       <where>
         <and>
           <filter left-field="IdeThm" condition="eq" right-variable="IdeThm"/>
@@ -861,11 +1446,14 @@
       <variable id="IdeThm" type="INTEGER" name="IdeThm"/>
       <variable id="Nam" type="STRINGN" name="Nam"/>
       <variable id="Act" type="INTEGER" name="Act"/>
+      <variable id="Pri" type="STRINGN" name="Pri"/>
+      <variable id="Srf" type="STRINGN" name="Srf"/>
+      <variable id="Mde" type="STRINGN" name="Mde"/>
     </delete>
   </target>
 
   <!-- Data base connections -->
-  <target name="DbsNew">
+  <target name="DbsNew" permission="system.update">
     <insert audit="HISAweDbs">
       <table id="AweDbs"/>
       <field id="IdeDbs" sequence="DbsKey" variable="IdeDbs"/>
@@ -908,7 +1496,7 @@
     <serve service="ReloadDatabaseConnections"/>
   </target>
 
-  <target name="DbsUpd">
+  <target name="DbsUpd" permission="system.update">
     <update audit="HISAweDbs">
       <table id="AweDbs"/>
       <field id="IdeDbs" variable="IdeDbs" audit="true"/>
@@ -965,13 +1553,19 @@
       <variable id="IdeSit" type="INTEGER" name="IdeSit"/>
       <variable id="IdeMod" type="INTEGER" name="IdeMod"/>
       <variable id="IdeDbs" type="INTEGER" name="IdeDbs"/>
+      <!-- The databases screen (database-admin) sends IdeDbs from its grid as a one element list, and a list variable of
+           a multiple takes the element of each row (row 2 and later would get none). With one selected row the grid also
+           sends IdeDbs.selected as a single value: this optional second definition replaces the first one when it comes,
+           so every row gets the connection. The legacy DbsUpd screen sends IdeDbs as a single value and no
+           IdeDbs.selected -->
+      <variable id="IdeDbs" type="INTEGER" name="IdeDbs.selected" optional="true"/>
       <variable id="Ord" type="INTEGER" name="Ord"/>
     </multiple>
     <commit/>
     <serve service="ReloadDatabaseConnections"/>
   </target>
 
-  <target name="DbsDel">
+  <target name="DbsDel" permission="system.update">
     <delete multiple="true" audit="HISAweSitModDbs">
       <table id="AweSitModDbs"/>
       <field id="IdeDbs" variable="IdeDbs" audit="true"/>
@@ -1095,11 +1689,11 @@
     <send-email id="SndRep"/>
   </target>
 
-  <target name="EmlActUsr">
+  <target name="EmlActUsr" permission="system.update">
     <send-email id="EmlActUsr"/>
   </target>
 
-  <target name="MsgUsr">
+  <target name="MsgUsr" permission="system.update">
     <serve service="sendMessageToUser">
       <variable id="target" type="STRINGN" name="MsgTar"/>
       <variable id="message" type="STRING" name="MsgDes"/>
@@ -1116,7 +1710,7 @@
   -->
 
   <!-- STORE SESSION VARIABLE 'module' -->
-  <target name="SesVarMod">
+  <target name="SesVarMod" permission="self.update">
     <serve service="storeSessionString">
       <variable id="name" type="STRING" value="module"/>
       <variable id="value" type="STRING" name="module"/>
@@ -1124,7 +1718,7 @@
   </target>
 
   <!-- STORE SESSION VARIABLE 'site' -->
-  <target name="SesVarSit">
+  <target name="SesVarSit" permission="self.update">
     <serve service="storeSessionString">
       <variable id="name" type="STRING" value="site"/>
       <variable id="value" type="STRING" name="site"/>
@@ -1132,7 +1726,7 @@
   </target>
 
   <!-- STORE SESSION VARIABLE 'database' -->
-  <target name="SesVarDbs">
+  <target name="SesVarDbs" permission="self.update">
     <serve service="storeSessionString">
       <variable id="name" type="STRING" value="database"/>
       <variable id="value" type="STRING" name="_database_"/>
@@ -1143,14 +1737,14 @@
   </target>
 
   <!-- STORE SESSION VARIABLE 'language' -->
-  <target name="SesVarLan">
+  <target name="SesVarLan" permission="self.update">
     <serve service="changeLanguage">
       <variable id="language" type="STRING" name="language"/>
     </serve>
   </target>
 
   <!-- STORE SESSION VARIABLE 'theme' -->
-  <target name="SesVarThm">
+  <target name="SesVarThm" permission="self.update">
     <serve service="storeSessionString">
       <variable id="name" type="STRING" value="theme"/>
       <variable id="value" type="STRING" name="theme"/>
@@ -1158,7 +1752,7 @@
   </target>
 
   <!-- Style configuration Multiple -->
-  <target name="StlCnfMul">
+  <target name="StlCnfMul" permission="system.update">
     <multiple grid="GrdStlCnf">
       <table id="AweStlCnf"/>
       <field id="IdeAweStlCnf" variable="IdeAweStlCnf" sequence="StlCnfKey" key="true"/>
@@ -1184,7 +1778,7 @@
   </target>
 
   <!-- Update count loggin -->
-  <target name="UpdCntLog" public="true">
+  <target name="UpdCntLog" server-only="true">
     <update>
       <table id="ope"/>
       <field id="NumLog" variable="NumLog"/>
@@ -1199,7 +1793,7 @@
   </target>
 
   <!-- Update flag password blocked -->
-  <target name="UpdPwdLck" public="true">
+  <target name="UpdPwdLck" server-only="true">
     <update>
       <table id="ope"/>
       <field id="PwdLck" variable="PwdLck"/>
@@ -1213,38 +1807,73 @@
     </update>
   </target>
 
+  <!-- Unlock the selected users (users screen): clears the lock flag and the failed logins -->
+  <target name="UsrUnl" permission="users.unlock">
+    <!-- Security audit: launched before the update, it publishes ACCOUNT_UNLOCKED for every locked user -->
+    <serve service="audit-user-update">
+      <variable id="userId" type="INTEGER" name="IdeOpe"/>
+      <variable id="locked" type="INTEGER" value="0"/>
+      <variable id="passwordUpdate" type="INTEGER" value="0"/>
+    </serve>
+    <update multiple="true">
+      <table id="ope"/>
+      <field id="PwdLck" variable="Unlocked"/>
+      <field id="NumLog" variable="NumLog"/>
+      <where>
+        <and>
+          <filter left-field="IdeOpe" condition="eq" right-variable="IdeOpe"/>
+        </and>
+      </where>
+      <variable id="IdeOpe" type="INTEGER" name="IdeOpe"/>
+      <variable id="Unlocked" type="INTEGER" value="0"/>
+      <variable id="NumLog" type="INTEGER" value="0"/>
+    </update>
+  </target>
+
   <!-- EMAIL SERVER -->
-  <target name="EmlSrvNew">
+  <target name="EmlSrvNew" permission="system.update">
     <insert audit="HISAweEmlSrv">
       <table id="AweEmlSrv"/>
       <field id="IdeAweEmlSrv" sequence="EmlSrvKey" variable="IdeAweEmlSrv"/>
       <field id="SrvNam" variable="SrvNam"/>
       <field id="Hst" variable="Hst"/>
+      <!-- Port (empty: the default port of the security mode) and security mode (NONE, STARTTLS, SSL) -->
+      <field id="Prt" variable="Prt"/>
+      <field id="SecMod" variable="SecMod"/>
+      <!-- Authentication: 0 none, 1 user and password, 2 OAuth2 (OauReg is its Spring Security client registration) -->
       <field id="Ath" variable="Ath"/>
       <field id="EmlUsr" variable="EmlUsr"/>
       <field id="EmlPwd" variable="EmlPwd"/>
-      <field id="Act" variable="Act"/>
+      <field id="OauReg" variable="OauReg"/>
+      <!-- The state comes from the screen (0 or 1): a missing one is left out, so the column default (1) applies -->
+      <field id="Act" variable="Act" optional="true"/>
       <variable id="IdeAweEmlSrv" type="INTEGER" name="IdeAweEmlSrv"/>
       <variable id="SrvNam" type="STRING" name="SrvNam"/>
       <variable id="Hst" type="STRING" name="Hst"/>
+      <variable id="Prt" type="INTEGER" name="Prt"/>
+      <variable id="SecMod" type="STRINGN" name="SecMod"/>
       <variable id="Ath" type="INTEGER" name="Ath"/>
       <variable id="EmlUsr" type="STRING" name="EmlUsr"/>
       <variable id="EmlPwd" type="STRING_ENCRYPT" name="EmlPwd"/>
-      <variable id="Act" type="INTEGER" name="Act" value="1"/>
+      <variable id="OauReg" type="STRINGN" name="OauReg"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
     </insert>
     <commit/>
     <serve service="reloadMailServers"/>
   </target>
 
-  <target name="EmlSrvDel">
+  <target name="EmlSrvDel" permission="system.update">
     <delete audit="HISAweEmlSrv" multiple="true">
       <table id="AweEmlSrv"/>
       <field id="IdeAweEmlSrv" variable="IdeAweEmlSrv" audit="true"/>
       <field id="SrvNam" variable="SrvNam" audit="true"/>
       <field id="Hst" variable="Hst" audit="true"/>
+      <field id="Prt" variable="Prt" audit="true"/>
+      <field id="SecMod" variable="SecMod" audit="true"/>
       <field id="Ath" variable="Ath" audit="true"/>
       <field id="EmlUsr" variable="EmlUsr" audit="true"/>
       <field id="EmlPwd" variable="EmlPwd" audit="true"/>
+      <field id="OauReg" variable="OauReg" audit="true"/>
       <field id="Act" variable="Act" audit="true"/>
       <where>
         <and>
@@ -1254,22 +1883,28 @@
       <variable id="IdeAweEmlSrv" type="INTEGER" name="IdeAweEmlSrv"/>
       <variable id="SrvNam" type="STRING" name="SrvNam"/>
       <variable id="Hst" type="STRING" name="Hst"/>
+      <variable id="Prt" type="INTEGER" name="Prt"/>
+      <variable id="SecMod" type="STRINGN" name="SecMod"/>
       <variable id="Ath" type="INTEGER" name="Ath"/>
       <variable id="EmlUsr" type="STRING" name="EmlUsr"/>
       <variable id="EmlPwd" type="STRING" name="EmlPwd"/>
+      <variable id="OauReg" type="STRINGN" name="OauReg"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </delete>
     <commit/>
     <serve service="reloadMailServers"/>
   </target>
 
-  <target name="EmlSrvUpd">
+  <target name="EmlSrvUpd" permission="system.update">
     <update audit="HISAweEmlSrv">
       <table id="AweEmlSrv"/>
       <field id="SrvNam" variable="SrvNam"/>
       <field id="Hst" variable="Hst"/>
+      <field id="Prt" variable="Prt"/>
+      <field id="SecMod" variable="SecMod"/>
       <field id="Ath" variable="Ath"/>
       <field id="EmlUsr" variable="EmlUsr"/>
+      <field id="OauReg" variable="OauReg"/>
       <field id="Act" variable="Act"/>
       <where>
         <and>
@@ -1279,9 +1914,12 @@
       <variable id="IdeAweEmlSrv" type="INTEGER" name="IdeAweEmlSrv"/>
       <variable id="SrvNam" type="STRING" name="SrvNam"/>
       <variable id="Hst" type="STRING" name="Hst"/>
+      <variable id="Prt" type="INTEGER" name="Prt"/>
+      <variable id="SecMod" type="STRINGN" name="SecMod"/>
       <variable id="Ath" type="INTEGER" name="Ath"/>
       <variable id="EmlUsr" type="STRINGN" name="EmlUsr"/>
       <variable id="EmlPwd" type="STRING_ENCRYPT" name="EmlPwd"/>
+      <variable id="OauReg" type="STRINGN" name="OauReg"/>
       <variable id="Act" type="INTEGER" name="Act"/>
     </update>
     <update>
@@ -1306,7 +1944,7 @@
   </target>
 
   <!-- QUEUE MESSAGES MAINTAINS -->
-  <target name="QueNew">
+  <target name="QueNew" permission="system.update">
     <insert audit="HISAweQue">
       <table id="AweQue"/>
       <field id="IdeAweQue" sequence="JmsKey" variable="IdeAweQue"/>
@@ -1318,7 +1956,8 @@
       <field id="JmsUsr" variable="JmsUsr"/>
       <field id="JmsPwd" variable="JmsPwd"/>
       <field id="DstNam" variable="DstNam"/>
-      <field id="Act" variable="Act"/>
+      <!-- The state comes from the screen (0 or 1): a missing one is left out, so the column default (1) applies -->
+      <field id="Act" variable="Act" optional="true"/>
       <variable id="IdeAweQue" type="INTEGER" name="IdeAweQue"/>
       <variable id="Als" type="STRING" name="Als"/>
       <variable id="Des" type="STRING" name="Des"/>
@@ -1328,11 +1967,11 @@
       <variable id="JmsUsr" type="STRING" name="JmsUsr"/>
       <variable id="JmsPwd" type="STRING_ENCRYPT" name="JmsPwd"/>
       <variable id="DstNam" type="STRING" name="DstNam"/>
-      <variable id="Act" type="INTEGER" name="Act" value="1"/>
+      <variable id="Act" type="INTEGER" name="Act"/>
     </insert>
   </target>
 
-  <target name="QueUpd">
+  <target name="QueUpd" permission="system.update">
     <update audit="HISAweQue">
       <table id="AweQue"/>
       <field id="Als" variable="Als"/>
@@ -1341,7 +1980,8 @@
       <field id="ConTyp" variable="ConTyp"/>
       <field id="JmsBrk" variable="JmsBrk"/>
       <field id="JmsUsr" variable="JmsUsr"/>
-      <field id="JmsPwd" variable="JmsPwd"/>
+      <!-- The password is not written here: the next update writes it only when a new one is typed (FlgPwdUpd is 1),
+           as EmlSrvUpd, so an update without a typed password keeps the stored one -->
       <field id="DstNam" variable="DstNam"/>
       <field id="Act" variable="Act"/>
       <where>
@@ -1379,7 +2019,7 @@
     </update>
   </target>
 
-  <target name="QueDel">
+  <target name="QueDel" permission="system.update">
     <delete audit="HISAweQue" multiple="true">
       <table id="AweQue"/>
       <field id="IdeAweQue" variable="IdeAweQue" audit="true"/>
@@ -1444,7 +2084,7 @@
   </target>
 
   <!-- Reload properties of application -->
-  <target name="refreshDatabaseProperties">
+  <target name="refreshDatabaseProperties" permission="system.update">
     <serve service="refreshDatabaseProperties"/>
   </target>
 
@@ -1458,11 +2098,11 @@
     </serve>
   </target>
 
-  <target name="generate2faSecret">
+  <target name="generate2faSecret" permission="self.update">
     <serve service="generate-2fa-secret"/>
   </target>
 
-  <target name="store2faSecret">
+  <target name="store2faSecret" server-only="true">
     <update>
       <table id="ope"/>
       <field id="enable2fa" variable="enabled"/>
@@ -1478,24 +2118,26 @@
     </update>
   </target>
 
-  <target name="update2faStatus">
+  <target name="update2faStatus" permission="self.update">
     <update>
       <table id="ope"/>
       <field id="enable2fa" variable="enable"/>
       <where>
         <and>
           <filter left-field="l1_nom" condition="eq" right-variable="user" ignorecase="true"/>
+          <filter left-variable="enable" condition="ne" right-variable="enableGuard"/>
         </and>
       </where>
       <variable id="user" type="STRING" session="user"/>
       <variable id="enable" type="INTEGER" name="enable2fa"/>
+      <variable id="enableGuard" type="INTEGER" value="1"/>
     </update>
     <serve service="update-2fa-status">
       <variable id="enable" type="INTEGER" name="enable2fa"/>
     </serve>
   </target>
 
-  <target name="reset2fa">
+  <target name="reset2fa" permission="users.reset-2fa">
     <update multiple="true">
       <table id="ope"/>
       <field id="enable2fa" variable="disable"/>
@@ -1509,46 +2151,50 @@
       <variable id="disable" type="INTEGER" value="0"/>
       <variable id="nullify" type="NULL"/>
     </update>
+    <!-- Security audit of the second factor reset -->
+    <serve service="audit-totp-reset">
+      <variable id="userIds" type="INTEGER" name="IdeOpe"/>
+    </serve>
   </target>
 
   <!--
   Favourites
   -->
 
-  <target name="clickFavourite">
+  <target name="clickFavourite" permission="self.update">
     <serve service="clickFavourite">
       <variable id="user" type="STRING" session="user"/>
       <variable id="option" type="STRING" name="currentOption"/>
     </serve>
   </target>
 
-  <target name="checkFavourites">
+  <target name="checkFavourites" permission="self.read">
     <serve service="checkFavourites">
       <variable id="user" type="STRING" session="user"/>
       <variable id="option" type="STRING" name="currentOption"/>
     </serve>
   </target>
 
-  <target name="addToFavourites">
+  <target name="addToFavourites" server-only="true">
     <insert>
       <table id="AweUsrFav"/>
       <field id="IdeFav" query="nextIdForFavourites"/>
       <field id="Ope" variable="user"/>
       <field id="Opt" variable="option"/>
       <field id="Ord" query="nextOrderForUser"/>
-      <variable id="user" type="STRING" name="user"/>
+      <variable id="user" type="STRING" session="user"/>
       <variable id="option" type="STRING" name="option"/>
     </insert>
   </target>
 
-  <target name="removeFromFavourites">
+  <target name="removeFromFavourites" server-only="true">
     <delete>
       <table id="AweUsrFav"/>
       <where>
         <filter left-field="Ope" condition="eq" right-variable="user"/>
         <filter left-field="Opt" condition="eq" right-variable="option"/>
       </where>
-      <variable id="user" type="STRING" name="user"/>
+      <variable id="user" type="STRING" session="user"/>
       <variable id="option" type="STRING" name="option"/>
     </delete>
   </target>
@@ -1557,25 +2203,25 @@
   User settings (avatar)
   -->
 
-  <target name="insertUserAvatar">
+  <target name="insertUserAvatar" server-only="true">
     <insert>
       <table id="AweUserSettings"/>
       <field id="IdeUsrSet" query="nextIdForUserSettings"/>
       <field id="Ope" variable="user"/>
       <field id="AvatarImage" variable="avatarToken"/>
-      <variable id="user" type="STRING" name="user"/>
+      <variable id="user" type="STRING" session="user"/>
       <variable id="avatarToken" type="STRING" name="avatarToken"/>
     </insert>
   </target>
 
-  <target name="updateUserAvatar">
+  <target name="updateUserAvatar" server-only="true">
     <update>
       <table id="AweUserSettings"/>
       <field id="AvatarImage" variable="avatarToken"/>
       <where>
         <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
       </where>
-      <variable id="user" type="STRING" name="user"/>
+      <variable id="user" type="STRING" session="user"/>
       <variable id="avatarToken" type="STRING" name="avatarToken"/>
     </update>
   </target>
@@ -1587,7 +2233,401 @@
     </serve>
   </target>
 
-  <target name="saveUserAvatar">
+  <!--
+  User grid layouts (toolbar columns dialog). The user always comes from the session
+  -->
+
+  <target name="insertGridLayout" server-only="true">
+    <insert>
+      <table id="AweUsrGrdCnf"/>
+      <field id="IdeUsrGrdCnf" sequence="GrdCnfKey"/>
+      <field id="Ope" variable="user"/>
+      <field id="Scr" variable="screen"/>
+      <field id="GrdId" variable="gridId"/>
+      <field id="Lay" variable="layout"/>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="gridId" type="STRING" name="gridId"/>
+      <variable id="layout" type="STRING" name="layout"/>
+    </insert>
+  </target>
+
+  <target name="updateGridLayout" server-only="true">
+    <update>
+      <table id="AweUsrGrdCnf"/>
+      <field id="Lay" variable="layout"/>
+      <where>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="GrdId" condition="eq" right-variable="gridId"/>
+      </where>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="gridId" type="STRING" name="gridId"/>
+      <variable id="layout" type="STRING" name="layout"/>
+    </update>
+  </target>
+
+  <target name="deleteGridLayout" server-only="true">
+    <delete>
+      <table id="AweUsrGrdCnf"/>
+      <where>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="GrdId" condition="eq" right-variable="gridId"/>
+      </where>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="gridId" type="STRING" name="gridId"/>
+    </delete>
+  </target>
+
+  <!-- The request parameter names are specific on purpose: the clients add the values of the screen criteria,
+       and a criterion called "screen" or "layout" would replace them -->
+  <target name="saveGridLayout" permission="self.update">
+    <serve service="saveGridLayout">
+      <variable id="screen" type="STRING" name="gridLayoutScreen"/>
+      <variable id="gridId" type="STRING" name="gridLayoutGrid"/>
+      <variable id="layout" type="STRING" name="gridLayoutJson"/>
+    </serve>
+  </target>
+
+  <target name="resetGridLayout" permission="self.update">
+    <serve service="resetGridLayout">
+      <variable id="screen" type="STRING" name="gridLayoutScreen"/>
+      <variable id="gridId" type="STRING" name="gridLayoutGrid"/>
+    </serve>
+  </target>
+
+  <!--
+  User window states (advanced block left open or closed). The user always comes from the session
+  -->
+
+  <target name="insertWindowAdvancedState">
+    <insert>
+      <table id="AweUsrWinCnf"/>
+      <field id="IdeUsrWinCnf" sequence="WinCnfKey"/>
+      <field id="Ope" variable="user"/>
+      <field id="Scr" variable="screen"/>
+      <field id="WinId" variable="windowId"/>
+      <field id="AdvOpn" variable="advancedOpen"/>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="advancedOpen" type="INTEGER" name="advancedOpen"/>
+    </insert>
+  </target>
+
+  <target name="updateWindowAdvancedState">
+    <update>
+      <table id="AweUsrWinCnf"/>
+      <field id="AdvOpn" variable="advancedOpen"/>
+      <where>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      </where>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="advancedOpen" type="INTEGER" name="advancedOpen"/>
+    </update>
+  </target>
+
+  <!-- The request parameter names are specific on purpose: the clients add the values of the screen criteria,
+       and a criterion called "screen" or "windowId" would replace them -->
+  <target name="saveWindowAdvancedState" permission="self.update">
+    <serve service="saveWindowAdvancedState">
+      <variable id="screen" type="STRING" name="advancedStateScreen"/>
+      <variable id="windowId" type="STRING" name="advancedStateWindow"/>
+      <variable id="open" type="STRING" name="advancedStateOpen"/>
+    </serve>
+  </target>
+
+  <!--
+  Saved searches of the advanced block of the windows. The user always comes from the session. The targets that write
+  an own search read it from the session parameter savedSearchOwner, and the targets of the searches published for a
+  profile read the profile from savedSearchPublishProfile: only SavedSearchService sets them, after its checks, so the
+  targets launched directly change nothing
+  -->
+
+  <!-- The request parameter names are specific on purpose: the clients add the values of the screen criteria -->
+  <target name="saveWindowSearch" permission="self.update">
+    <serve service="saveWindowSearch">
+      <variable id="screen" type="STRING" name="savedSearchScreen"/>
+      <variable id="windowId" type="STRING" name="savedSearchWindow"/>
+      <variable id="name" type="STRING" name="savedSearchName"/>
+      <variable id="values" type="STRING" name="savedSearchValues"/>
+      <variable id="profile" type="STRING" name="savedSearchProfile"/>
+    </serve>
+  </target>
+
+  <target name="renameWindowSearch" permission="self.update">
+    <serve service="renameWindowSearch">
+      <variable id="id" type="STRING" name="savedSearchId"/>
+      <variable id="name" type="STRING" name="savedSearchName"/>
+    </serve>
+  </target>
+
+  <target name="deleteWindowSearch" permission="self.update">
+    <serve service="deleteWindowSearch">
+      <variable id="id" type="STRING" name="savedSearchId"/>
+    </serve>
+  </target>
+
+  <!-- Default search of a window for the session user (#915): an empty savedSearchId clears it -->
+  <target name="setWindowDefaultSearch" permission="self.update">
+    <serve service="setWindowDefaultSearch">
+      <variable id="screen" type="STRING" name="savedSearchScreen"/>
+      <variable id="windowId" type="STRING" name="savedSearchWindow"/>
+      <variable id="id" type="STRING" name="savedSearchId"/>
+    </serve>
+  </target>
+
+  <!-- Default search of a window for a profile (#915): savedSearchDefault is 1 to mark the search, 0 to unmark it -->
+  <target name="setProfileDefaultSearch" permission="self.update">
+    <serve service="setProfileDefaultSearch">
+      <variable id="screen" type="STRING" name="savedSearchScreen"/>
+      <variable id="windowId" type="STRING" name="savedSearchWindow"/>
+      <variable id="id" type="STRING" name="savedSearchId"/>
+      <variable id="isDefault" type="STRING" name="savedSearchDefault"/>
+    </serve>
+  </target>
+
+  <target name="insertUserSavedSearch">
+    <insert>
+      <table id="AweSavSch"/>
+      <field id="IdeSavSch" sequence="SavSchKey"/>
+      <field id="Ope" variable="user"/>
+      <field id="Scr" variable="screen"/>
+      <field id="WinId" variable="windowId"/>
+      <field id="Nam" variable="name"/>
+      <field id="Val" variable="values"/>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="name" type="STRING" name="name"/>
+      <variable id="values" type="STRING" name="values"/>
+    </insert>
+  </target>
+
+  <target name="insertProfileSavedSearch">
+    <insert>
+      <table id="AweSavSch"/>
+      <field id="IdeSavSch" sequence="SavSchKey"/>
+      <field id="Pro" variable="profile"/>
+      <field id="Scr" variable="screen"/>
+      <field id="WinId" variable="windowId"/>
+      <field id="Nam" variable="name"/>
+      <field id="Val" variable="values"/>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="name" type="STRING" name="name"/>
+      <variable id="values" type="STRING" name="values"/>
+    </insert>
+  </target>
+
+  <target name="updateUserSavedSearchValues">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Val" variable="values"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="values" type="STRING" name="values"/>
+    </update>
+  </target>
+
+  <target name="updateProfileSavedSearchValues">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Val" variable="values"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="is null"/>
+        <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+      <variable id="values" type="STRING" name="values"/>
+    </update>
+  </target>
+
+  <target name="renameUserSavedSearch">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Nam" variable="name"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="name" type="STRING" name="name"/>
+    </update>
+  </target>
+
+  <target name="renameProfileSavedSearch">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Nam" variable="name"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="is null"/>
+        <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+      <variable id="name" type="STRING" name="name"/>
+    </update>
+  </target>
+
+  <target name="deleteUserSavedSearch">
+    <delete>
+      <table id="AweSavSch"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="STRING" session="user"/>
+    </delete>
+  </target>
+
+  <target name="deleteProfileSavedSearch">
+    <delete>
+      <table id="AweSavSch"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="is null"/>
+        <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+    </delete>
+  </target>
+
+  <!--
+  Default saved searches of the windows (#915). The default search of a user lives in its window state row (AweUsrWinCnf):
+  a row inserted only for it leaves the advanced block state empty. The default search of a profile is the mark Def of a
+  search published for it. They are server-only: only SavedSearchService launches them, after its checks. As the other
+  saved search targets, they also read the user from savedSearchOwner and the profile from savedSearchPublishProfile
+  -->
+
+  <target name="insertWindowDefaultSearch" server-only="true">
+    <insert>
+      <table id="AweUsrWinCnf"/>
+      <field id="IdeUsrWinCnf" sequence="WinCnfKey"/>
+      <field id="Ope" variable="user"/>
+      <field id="Scr" variable="screen"/>
+      <field id="WinId" variable="windowId"/>
+      <field id="DefSavSch" variable="defaultSearch"/>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="defaultSearch" type="INTEGER" name="defaultSearch"/>
+    </insert>
+  </target>
+
+  <target name="updateWindowDefaultSearch" server-only="true">
+    <update>
+      <table id="AweUsrWinCnf"/>
+      <field id="DefSavSch" variable="defaultSearch"/>
+      <where>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      </where>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="defaultSearch" type="INTEGER" name="defaultSearch"/>
+    </update>
+  </target>
+
+  <target name="clearWindowDefaultSearch" server-only="true">
+    <update>
+      <table id="AweUsrWinCnf"/>
+      <field id="DefSavSch" variable="nullify"/>
+      <where>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      </where>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="nullify" type="NULL"/>
+    </update>
+  </target>
+
+  <!-- A deleted own search stops being the default search of its owner -->
+  <target name="clearOwnSearchAsUserDefault" server-only="true">
+    <update>
+      <table id="AweUsrWinCnf"/>
+      <field id="DefSavSch" variable="nullify"/>
+      <where>
+        <filter left-field="DefSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="user" type="STRING" session="savedSearchOwner"/>
+      <variable id="nullify" type="NULL"/>
+    </update>
+  </target>
+
+  <!-- A deleted published search stops being the default search of every user: only SavedSearchService launches it,
+       after deleting the search for a user who may publish -->
+  <target name="clearProfileSearchAsUserDefault" server-only="true">
+    <update>
+      <table id="AweUsrWinCnf"/>
+      <field id="DefSavSch" variable="nullify"/>
+      <where>
+        <filter left-field="DefSavSch" condition="eq" right-variable="id"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="nullify" type="NULL"/>
+    </update>
+  </target>
+
+  <!-- Unmark the default search of the profile in a window, before another one is marked -->
+  <target name="clearProfileDefaultSearches" server-only="true">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Def" variable="unmarked"/>
+      <where>
+        <filter left-field="Ope" condition="is null"/>
+        <filter left-field="Pro" condition="eq" right-variable="profile"/>
+        <filter left-field="Scr" condition="eq" right-variable="screen"/>
+        <filter left-field="WinId" condition="eq" right-variable="windowId"/>
+      </where>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+      <variable id="screen" type="STRING" name="screen"/>
+      <variable id="windowId" type="STRING" name="windowId"/>
+      <variable id="unmarked" type="INTEGER" value="0"/>
+    </update>
+  </target>
+
+  <target name="updateProfileDefaultSearch" server-only="true">
+    <update>
+      <table id="AweSavSch"/>
+      <field id="Def" variable="default"/>
+      <where>
+        <filter left-field="IdeSavSch" condition="eq" right-variable="id"/>
+        <filter left-field="Ope" condition="is null"/>
+        <filter left-field="Pro" condition="eq" right-variable="profile"/>
+      </where>
+      <variable id="id" type="INTEGER" name="id"/>
+      <variable id="profile" type="STRING" session="savedSearchPublishProfile"/>
+      <variable id="default" type="INTEGER" name="default"/>
+    </update>
+  </target>
+
+  <target name="saveUserAvatar" permission="self.update">
     <serve service="saveUserAvatar">
       <variable id="avatarToken" type="STRING" name="CrtAvatar"/>
     </serve>
@@ -1597,203 +2637,81 @@
   Theme management
   -->
 
-  <target name="customizeTheme">
-    <delete>
-      <table id="AweThmCol"/>
-      <where>
-        <filter left-field="theme" condition="eq" right-variable="theme"/>
-      </where>
-      <variable id="theme" type="STRING" name="Nam"/>
-    </delete>
-    <insert>
-      <table id="AweThmCol"/>
-      <field id="IdeThmCol" query="nextIdForThemeColors"/>
-      <field id="theme" variable="theme"/>
-      <constant id="dark" value="0" type="INTEGER"/>
-      <field id="themeColor" variable="themeColor"/>
-      <field id="textColor" variable="textColor"/>
-      <field id="primaryColor" variable="primaryColor"/>
-      <field id="secondaryColor" variable="secondaryColor"/>
-      <field id="primaryTextColor" variable="primaryTextColor"/>
-      <field id="secondaryTextColor" variable="secondaryTextColor"/>
-      <field id="primaryBackgroundColor" variable="primaryBackgroundColor"/>
-      <field id="secondaryBackgroundColor" variable="secondaryBackgroundColor"/>
-      <field id="primaryMenuColor" variable="primaryMenuColor"/>
-      <field id="secondaryMenuColor" variable="secondaryMenuColor"/>
-      <field id="menuTextColor" variable="menuTextColor"/>
-      <field id="primaryNavbarColor" variable="primaryNavbarColor"/>
-      <field id="secondaryNavbarColor" variable="secondaryNavbarColor"/>
-      <field id="navbarTextColor" variable="navbarTextColor"/>
-      <field id="navbarDropdownColor" variable="navbarDropdownColor"/>
-      <field id="primaryFontSize" variable="primaryFontSize"/>
-      <field id="secondaryFontSize" variable="secondaryFontSize"/>
-      <field id="disabledColor" variable="disabledColor"/>
-      <field id="disabledBorderColor" variable="disabledBorderColor"/>
-      <field id="disabledTextColor" variable="disabledTextColor"/>
-      <field id="headerHeight" variable="headerHeight"/>
-      <field id="panelBackgroundColor" variable="panelBackgroundColor"/>
-      <field id="panelBorderColor" variable="panelBorderColor"/>
-      <field id="panelTextColor" variable="panelTextColor"/>
-      <field id="panelHeaderColor" variable="panelHeaderColor"/>
-      <field id="gridBorderColor" variable="gridBorderColor"/>
-      <field id="gridHeaderColor" variable="gridHeaderColor"/>
-      <field id="dangerColor" variable="dangerColor"/>
-      <field id="warningColor" variable="warningColor"/>
-      <field id="successColor" variable="successColor"/>
-      <field id="infoColor" variable="infoColor"/>
-      <field id="borderColor" variable="borderColor"/>
-      <field id="borderRadius" variable="borderRadius"/>
-      <field id="loadingBarColor" variable="loadingBarColor"/>
-      <field id="requiredColor" variable="requiredColor"/>
-      <variable id="theme" type="STRING" name="Nam"/>
-      <variable id="themeColor" type="STRINGN" name="themeColor"/>
-      <variable id="textColor" type="STRINGN" name="textColor"/>
-      <variable id="primaryColor" type="STRINGN" name="primaryColor"/>
-      <variable id="secondaryColor" type="STRINGN" name="secondaryColor"/>
-      <variable id="primaryTextColor" type="STRINGN" name="primaryTextColor"/>
-      <variable id="secondaryTextColor" type="STRINGN" name="secondaryTextColor"/>
-      <variable id="primaryBackgroundColor" type="STRINGN" name="primaryBackgroundColor"/>
-      <variable id="secondaryBackgroundColor" type="STRINGN" name="secondaryBackgroundColor"/>
-      <variable id="primaryMenuColor" type="STRINGN" name="primaryMenuColor"/>
-      <variable id="secondaryMenuColor" type="STRINGN" name="secondaryMenuColor"/>
-      <variable id="menuTextColor" type="STRINGN" name="menuTextColor"/>
-      <variable id="primaryNavbarColor" type="STRINGN" name="primaryNavbarColor"/>
-      <variable id="secondaryNavbarColor" type="STRINGN" name="secondaryNavbarColor"/>
-      <variable id="navbarTextColor" type="STRINGN" name="navbarTextColor"/>
-      <variable id="navbarDropdownColor" type="STRINGN" name="navbarDropdownColor"/>
-      <variable id="primaryFontSize" type="STRINGN" name="primaryFontSize"/>
-      <variable id="secondaryFontSize" type="STRINGN" name="secondaryFontSize"/>
-      <variable id="disabledColor" type="STRINGN" name="disabledColor"/>
-      <variable id="disabledBorderColor" type="STRINGN" name="disabledBorderColor"/>
-      <variable id="disabledTextColor" type="STRINGN" name="disabledTextColor"/>
-      <variable id="headerHeight" type="STRINGN" name="headerHeight"/>
-      <variable id="panelBackgroundColor" type="STRINGN" name="panelBackgroundColor"/>
-      <variable id="panelBorderColor" type="STRINGN" name="panelBorderColor"/>
-      <variable id="panelTextColor" type="STRINGN" name="panelTextColor"/>
-      <variable id="panelHeaderColor" type="STRINGN" name="panelHeaderColor"/>
-      <variable id="gridBorderColor" type="STRINGN" name="gridBorderColor"/>
-      <variable id="gridHeaderColor" type="STRINGN" name="gridHeaderColor"/>
-      <variable id="dangerColor" type="STRINGN" name="dangerColor"/>
-      <variable id="warningColor" type="STRINGN" name="warningColor"/>
-      <variable id="successColor" type="STRINGN" name="successColor"/>
-      <variable id="infoColor" type="STRINGN" name="infoColor"/>
-      <variable id="borderColor" type="STRINGN" name="borderColor"/>
-      <variable id="borderRadius" type="STRINGN" name="borderRadius"/>
-      <variable id="loadingBarColor" type="STRINGN" name="loadingBarColor"/>
-      <variable id="requiredColor" type="STRINGN" name="requiredColor"/>
-    </insert>
-    <insert>
-      <table id="AweThmCol"/>
-      <field id="IdeThmCol" query="nextIdForThemeColors"/>
-      <field id="theme" variable="theme"/>
-      <constant id="dark" value="1" type="INTEGER"/>
-      <field id="themeColor" variable="themeColor"/>
-      <field id="textColor" variable="textColor"/>
-      <field id="primaryColor" variable="primaryColor"/>
-      <field id="secondaryColor" variable="secondaryColor"/>
-      <field id="primaryTextColor" variable="primaryTextColor"/>
-      <field id="secondaryTextColor" variable="secondaryTextColor"/>
-      <field id="primaryBackgroundColor" variable="primaryBackgroundColor"/>
-      <field id="secondaryBackgroundColor" variable="secondaryBackgroundColor"/>
-      <field id="primaryMenuColor" variable="primaryMenuColor"/>
-      <field id="secondaryMenuColor" variable="secondaryMenuColor"/>
-      <field id="menuTextColor" variable="menuTextColor"/>
-      <field id="primaryNavbarColor" variable="primaryNavbarColor"/>
-      <field id="secondaryNavbarColor" variable="secondaryNavbarColor"/>
-      <field id="navbarTextColor" variable="navbarTextColor"/>
-      <field id="navbarDropdownColor" variable="navbarDropdownColor"/>
-      <field id="primaryFontSize" variable="primaryFontSize"/>
-      <field id="secondaryFontSize" variable="secondaryFontSize"/>
-      <field id="disabledColor" variable="disabledColor"/>
-      <field id="disabledBorderColor" variable="disabledBorderColor"/>
-      <field id="disabledTextColor" variable="disabledTextColor"/>
-      <field id="headerHeight" variable="headerHeight"/>
-      <field id="panelBackgroundColor" variable="panelBackgroundColor"/>
-      <field id="panelBorderColor" variable="panelBorderColor"/>
-      <field id="panelTextColor" variable="panelTextColor"/>
-      <field id="panelHeaderColor" variable="panelHeaderColor"/>
-      <field id="gridBorderColor" variable="gridBorderColor"/>
-      <field id="gridHeaderColor" variable="gridHeaderColor"/>
-      <field id="dangerColor" variable="dangerColor"/>
-      <field id="warningColor" variable="warningColor"/>
-      <field id="successColor" variable="successColor"/>
-      <field id="infoColor" variable="infoColor"/>
-      <field id="borderColor" variable="borderColor"/>
-      <field id="borderRadius" variable="borderRadius"/>
-      <field id="loadingBarColor" variable="loadingBarColor"/>
-      <field id="requiredColor" variable="requiredColor"/>
-      <variable id="theme" type="STRING" name="Nam"/>
-      <variable id="themeColor" type="STRINGN" name="themeColorDark"/>
-      <variable id="textColor" type="STRINGN" name="textColorDark"/>
-      <variable id="primaryColor" type="STRINGN" name="primaryColorDark"/>
-      <variable id="secondaryColor" type="STRINGN" name="secondaryColorDark"/>
-      <variable id="primaryTextColor" type="STRINGN" name="primaryTextColorDark"/>
-      <variable id="secondaryTextColor" type="STRINGN" name="secondaryTextColorDark"/>
-      <variable id="primaryBackgroundColor" type="STRINGN" name="primaryBackgroundColorDark"/>
-      <variable id="secondaryBackgroundColor" type="STRINGN" name="secondaryBackgroundColorDark"/>
-      <variable id="primaryMenuColor" type="STRINGN" name="primaryMenuColorDark"/>
-      <variable id="secondaryMenuColor" type="STRINGN" name="secondaryMenuColorDark"/>
-      <variable id="menuTextColor" type="STRINGN" name="menuTextColorDark"/>
-      <variable id="primaryNavbarColor" type="STRINGN" name="primaryNavbarColorDark"/>
-      <variable id="secondaryNavbarColor" type="STRINGN" name="secondaryNavbarColorDark"/>
-      <variable id="navbarTextColor" type="STRINGN" name="navbarTextColorDark"/>
-      <variable id="navbarDropdownColor" type="STRINGN" name="navbarDropdownColorDark"/>
-      <variable id="primaryFontSize" type="STRINGN" name="primaryFontSizeDark"/>
-      <variable id="secondaryFontSize" type="STRINGN" name="secondaryFontSizeDark"/>
-      <variable id="disabledColor" type="STRINGN" name="disabledColorDark"/>
-      <variable id="disabledBorderColor" type="STRINGN" name="disabledBorderColorDark"/>
-      <variable id="disabledTextColor" type="STRINGN" name="disabledTextColorDark"/>
-      <variable id="headerHeight" type="STRINGN" name="headerHeightDark"/>
-      <variable id="panelBackgroundColor" type="STRINGN" name="panelBackgroundColorDark"/>
-      <variable id="panelBorderColor" type="STRINGN" name="panelBorderColorDark"/>
-      <variable id="panelTextColor" type="STRINGN" name="panelTextColorDark"/>
-      <variable id="panelHeaderColor" type="STRINGN" name="panelHeaderColorDark"/>
-      <variable id="gridBorderColor" type="STRINGN" name="gridBorderColorDark"/>
-      <variable id="gridHeaderColor" type="STRINGN" name="gridHeaderColorDark"/>
-      <variable id="dangerColor" type="STRINGN" name="dangerColorDark"/>
-      <variable id="warningColor" type="STRINGN" name="warningColorDark"/>
-      <variable id="successColor" type="STRINGN" name="successColorDark"/>
-      <variable id="infoColor" type="STRINGN" name="infoColorDark"/>
-      <variable id="borderColor" type="STRINGN" name="borderColorDark"/>
-      <variable id="borderRadius" type="STRINGN" name="borderRadiusDark"/>
-      <variable id="loadingBarColor" type="STRINGN" name="loadingBarColorDark"/>
-      <variable id="requiredColor" type="STRINGN" name="requiredColorDark"/>
-    </insert>
-  </target>
-
-  <target name="selectDarkMode">
+  <target name="selectDarkMode" permission="self.update">
     <serve service="changeUserMode">
       <variable id="user" type="STRING" session="user"/>
       <variable id="mode" type="STRING" value="dark"/>
     </serve>
   </target>
 
-  <target name="selectLightMode">
+  <target name="selectLightMode" permission="self.update">
     <serve service="changeUserMode">
       <variable id="user" type="STRING" session="user"/>
       <variable id="mode" type="STRING" value="light"/>
     </serve>
   </target>
 
-  <target name="addUserSettings">
+  <target name="selectComfortableDensity" permission="self.update">
+    <serve service="changeUserDensity">
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="density" type="STRING" value="comfortable"/>
+    </serve>
+  </target>
+
+  <target name="selectCompactDensity" permission="self.update">
+    <serve service="changeUserDensity">
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="density" type="STRING" value="compact"/>
+    </serve>
+  </target>
+
+  <target name="addUserSettings" server-only="true">
     <insert>
       <table id="AweUsrSet"/>
       <field id="userName" variable="user"/>
       <field id="themeMode" variable="mode"/>
-      <variable id="user" type="STRING" name="user"/>
-      <variable id="mode" type="STRING" name="mode" optional="true"/>
+      <field id="density" variable="density"/>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="mode" type="STRINGN" name="mode" optional="true"/>
+      <variable id="density" type="STRINGN" name="density" optional="true"/>
     </insert>
   </target>
 
-  <target name="updateUserMode">
+  <target name="updateUserMode" server-only="true">
     <update>
       <table id="AweUsrSet"/>
       <field id="themeMode" variable="mode"/>
       <where>
         <filter left-field="userName" condition="eq" right-variable="user" ignorecase="true"/>
       </where>
-      <variable id="user" type="STRING" name="user"/>
+      <variable id="user" type="STRING" session="user"/>
       <variable id="mode" type="STRING" name="mode"/>
+    </update>
+  </target>
+
+  <target name="updateUserDensity" server-only="true">
+    <update>
+      <table id="AweUsrSet"/>
+      <field id="density" variable="density"/>
+      <where>
+        <filter left-field="userName" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="user" type="STRING" session="user"/>
+      <variable id="density" type="STRING" name="density"/>
+    </update>
+  </target>
+
+  <!-- Language chosen on the sign-in page: AccessService saves it as the language of the user once the login completes,
+       before the session details are stored, so the user is the one the login passes (there is no session user yet) -->
+  <target name="updateUserLanguage" server-only="true">
+    <update>
+      <table id="ope"/>
+      <field id="l1_lan" variable="language"/>
+      <where>
+        <filter left-field="l1_nom" condition="eq" right-variable="user" ignorecase="true"/>
+      </where>
+      <variable id="user" type="STRING" name="user"/>
+      <variable id="language" type="STRING" name="language"/>
     </update>
   </target>
 

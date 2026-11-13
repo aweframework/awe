@@ -122,4 +122,15 @@ class TemplateControllerTest extends AbstractSpringAppIntegrationTest {
   void testGetPublicScreenTemplate() throws Exception {
     testTemplate("templates/DefaultScreen.txt", "/template/screen/base/signin", status().isOk());
   }
+
+  /**
+   * Test of the local sign-in screen: the user, password and log in controls are always there and, unlike the
+   * main sign-in screen, there is no hidden criteria that can switch them off
+   *
+   * @throws Exception test error
+   */
+  @Test
+  void testGetLocalSigninScreenTemplate() throws Exception {
+    testTemplate("templates/SigninLocal.txt", "/template/screen/base/signin-local", status().isOk());
+  }
 }

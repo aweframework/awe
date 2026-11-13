@@ -89,7 +89,7 @@
         </chart>
       </window>
       <window label="SCREEN_TEXT_STOCK_CHART" maximize="true" icon="line-chart" style="expand">
-        <chart style="expand-3x" id="ChrStockTst" label="Grafico 4" theme="blue" stock-chart="true" zoom-type="xAxis" type="line" initial-load="query" target-action="TstChrThrDatSrcHor"
+        <chart style="expand-3x" id="ChrStockTst" label="Grafico 4" stock-chart="true" zoom-type="xAxis" type="line" initial-load="query" target-action="TstChrThrDatSrcHor"
                help-image="HELP_CHART_IMAGE_4" max="30">
           <x-axis label="Fechas" type="datetime" />
           <y-axis label="Temperaturas (ºC)" label-format="{value} ºC"/>
@@ -167,7 +167,7 @@
         </chart>
       </window>
       <window label="SCREEN_TEXT_SEMICIRCLE_CHART" icon="pie-chart" maximize="true" style="expand">
-        <chart id="ChrSemiCircleTst" label="Grafico 8" type="semicircle" theme="gray" enable-data-labels="true" initial-load="query" target-action="TstChrPieSrc" max="5"
+        <chart id="ChrSemiCircleTst" label="Grafico 8" type="semicircle" enable-data-labels="true" initial-load="query" target-action="TstChrPieSrc" max="5"
                help-image="HELP_CHART_IMAGE_8">
           <chart-legend enabled="true" />
           <x-axis label="Themes" />

@@ -12,10 +12,10 @@ import com.almis.awe.model.entities.queries.Compound;
 import com.almis.awe.model.entities.queries.Computed;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.HashMap;
 import java.util.Map;

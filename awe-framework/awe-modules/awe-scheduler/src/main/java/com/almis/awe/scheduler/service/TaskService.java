@@ -88,7 +88,9 @@ public class TaskService {
         taskDAO.addTaskToScheduler(lastLoadedTask);
       }
       return lastLoadedTask;
-    } catch (InterruptedException | ExecutionException exc) {
+    } catch (ExecutionException exc) {
+      log.error("Error trying to load task. Last loaded task: #{}", lastLoadedTask == null ? null : lastLoadedTask.getTaskId(), exc);
+    } catch (InterruptedException exc) {
       log.error("Error trying to load task. Last loaded task: #{}", lastLoadedTask == null ? null : lastLoadedTask.getTaskId(), exc);
       Thread.currentThread().interrupt();
     }

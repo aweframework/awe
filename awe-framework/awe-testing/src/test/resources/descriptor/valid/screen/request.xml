@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FIX_TITLE">
+  <tag source="center">
+    <window label="FIX_TITLE" icon="list">
+      <button label="FIX_SAVE" id="ButReq" help="FIX_SAVE">
+        <button-action type="server" server-action="maintain-silent" target-action="FixPublicInsert"/>
+      </button>
+    </window>
+  </tag>
+</screen>

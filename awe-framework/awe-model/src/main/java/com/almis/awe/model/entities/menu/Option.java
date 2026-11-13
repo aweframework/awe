@@ -16,6 +16,7 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,9 +36,10 @@ import java.util.Optional;
 @XStreamAlias("option")
 @NoArgsConstructor
 @Accessors(chain = true)
-@JsonIgnoreProperties({"invisible", "screen", "context", "silent", "async", "type", "target", "parameters", "value"})
+@JsonIgnoreProperties({"invisible", "screen", "context", "silent", "async", "type", "target", "parameters", "value", "elementList"})
 public class Option extends AbstractAction {
 
+  @Serial
   private static final long serialVersionUID = 2874594460515726127L;
 
   // Module of option
@@ -59,6 +61,11 @@ public class Option extends AbstractAction {
   @XStreamAlias("icon")
   @XStreamAsAttribute
   private String icon;
+
+  // Option description (i18n key). Shown as the secondary line of launcher cards and as a hint in the menu
+  @XStreamAlias("description")
+  @XStreamAsAttribute
+  private String description;
 
   // Option screen
   @XStreamAlias("screen")

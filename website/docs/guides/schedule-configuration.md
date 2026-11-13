@@ -24,7 +24,6 @@ But first, the next fields are common for all the possible options:
 | From ^1 | The start date / time for the current task schedule | Optional | None |
 | To ^2 | The end date / time for the current task schedule | Optional | None |
 | Repeat each | The time between executions | **Required** | None |
-º
 
 ***
 

@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,9 +18,9 @@ public class FileClient {
     Path folder;
 
     if (host.equalsIgnoreCase("localhost") || host.equals("127.0.0.1")) {
-      folder = Paths.get(path);
+      folder = Path.of(path);
     } else {
-      folder = Paths.get("\\\\" + host, path);
+      folder = Path.of("\\\\" + host, path);
     }
 
     if (folder.toFile().exists()) {

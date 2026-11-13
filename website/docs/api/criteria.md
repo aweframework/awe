@@ -3,6 +3,12 @@ id: criteria
 title: Criteria
 ---
 
+:::tip See it live
+
+Try the criteria with live controls in the [component catalog](../components/criteria.mdx): the real AWE inputs and the XML that produces them. Each family has its own playground: [text inputs](../components/criteria-text.mdx), [numbers and dates](../components/criteria-numbers.mdx), [selects and suggests](../components/criteria-selects.mdx), [checkbox and radio](../components/criteria-checkbox-radio.mdx) and [file upload](../components/criteria-upload.mdx).
+
+:::
+
 Criteria elements are window components which can get input from the user and send it to the application server (business logic).
 
 <img alt="Criteria" src={require('@docusaurus/useBaseUrl').default('img/Criteria.png')} />
@@ -73,7 +79,14 @@ The **selected** values can be fulfilled in several ways. Here is a priority lis
 | printable     | Optional     | String  | Check if criterion is printable                                               | `true` (default) or `false`. **Note:** `excel` only has effect on [grid columns](grids.md#printing-columns)                                                                                                                                                                                  |
 | help          | Optional     | String  | Help text for the criterion                                                   | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                                                                                                                                                                                                   |
 | help-image    | Optional     | String  | Help image for the criterion                                                  | This **must** be a image path                                                                                                                                                                                                                                                                |
-| left-label    | Optional     | Integer | Put the label on the left **and** give it a size in chars                     | Default value is empty (label is on top instead of left). If defined, the value must be a number of chars for the label                                                                                                                                                                      |
+| left-label    | Optional     | Integer | Put the label on the left **and** give it a size in chars                     | Default value is empty (label is on top instead of left). If defined, the value must be a number of chars for the label. The label is shown on the left from the `sm` breakpoint (576 px) and on top below it. Its width is the number of chars by the pixels per char of the criterion size (7 px for `sm`, 8 px for `md` and 10 px for `lg`) in both engines                                                                                                                                                                      |
+
+The `help` and `help-image` attributes show a tooltip when the user stays on the label of the criterion (a help icon is
+shown next to it). Both engines show it in every criterion, including checkboxes, radio buttons, button checkboxes and
+button radios, and also in [buttons](button.md) and in the headers of the [grid columns](grids.md#column-attributes).
+
+To keep the less frequent criteria of a search at hand, place them in the `<advanced>` block of their window: see
+[advanced search](window.md#advanced-search).
 
 ### Specific attributes
 
@@ -89,11 +102,15 @@ The **selected** values can be fulfilled in several ways. Here is a priority lis
 | group                  | [Checkbox](#checkbox-criterion), [Radio](#radio-button-criterion) | String  | Group of the criterion (for validation and management purposes)                |                                                                                                                                                      |
 | show-slider            | [Numeric](#numeric-criterion)                                     | Boolean | Used to show the graphic component slider                                      | **Note:** Only apply in numeric criteria                                                                                                             |
 | destination            | [Uploader](#uploader-criterion)                                   | String  | Destination relative folder to upload the file                                 |                                                                                                                                                      |
+| drop-zone              | [Uploader](#uploader-criterion)                                   | Boolean | Shows a drop area to drag and drop the file, and a preview of images           | Default value is `false`                                                                                                                             |
+| capture                | [Uploader](#uploader-criterion)                                   | String  | Adds a button to take a photo with the device camera                           | `user` (front camera) or `environment` (rear camera)                                                                                                 |
 | show-weekends          | [Date](#date-criterion)                                           | Boolean | For enable or disable the weekend days                                         | Default value is `true`                                                                                                                              |
 | show-future-dates      | [Date](#date-criterion)                                           | Boolean | For enable or disable the future days after date value selected                | Default value is `true`                                                                                                                              |
 | date-format            | [Date](#date-criterion)                                           | String  | To set the format of the date you want to show                                 | Default value is `dd/MM/yyyy`. **Note:** See the format in the following [link](https://bootstrap-datepicker.readthedocs.org/en/latest/options.html) |
 | date-show-today-button | [Date](#date-criterion)                                           | Boolean | To show or not the button to select today date                                 | Default value is `true`                                                                                                                              |
 | date-view-mode         | [Date](#date-criterion)                                           | String  | Select 'days', 'months' or 'years' to set the minimum magnitude to be shown    | Default value is `days`                                                                                                                              |
+| time-format | [Time](#time-criterion) | String | Format of the time you want to show | `HH:mm`, `HH:mm:ss`, `hh:mm a` or `hh:mm:ss a`. Default value is `HH:mm:ss`. React engine only |
+| presets                | [Date range](#date-range-criterion)                               | String  | Quick presets shown under the range, separated by commas or spaces             | `TODAY`, `YTD`, `ALL` or a period back from today (`7D`, `2W`, `1M`, `3M`, `12M`, `3Y`...). By default no preset is shown                            |
 
 ## Components
 
@@ -108,6 +125,15 @@ Basic text input.
 Basic text input, but the written characters are not shown to the user.
 
 <img alt="Password" src={require('@docusaurus/useBaseUrl').default('img/Password.png')} />
+
+While the caps lock is on, both engines mark the field with a warning color and an arrow icon. The state comes from the
+last key pressed on the page, so the warning shows even if the caps lock was switched on before the user reached the field.
+
+In both engines the field has a show / hide button at its right end (an eye icon, "Show password" / "Hide password"),
+reachable with the keyboard and disabled while the criterion is read-only. It only changes how the field is drawn: the
+value, the validation and the parameter sent stay the same. A field too narrow to hold the button without covering the
+text (under 6rem, as a password with a long left label in a narrow column) hides it. The sign-in page keeps its own
+button, and a password column of a grid has no button.
 
 ### Textarea criterion
 
@@ -162,11 +188,93 @@ Allows to select a date with a calendar.
 
 <img alt="dateCriteron" src={require('@docusaurus/useBaseUrl').default('img/dateCriteron.png')} />
 
+The AngularJS and the React engines apply the same options to the date criterion and to the date columns of a grid:
+
+* `date-format` sets the format of the date shown **and** of the value that the client sends to the server and expects
+  from it. The default is `dd/mm/yyyy`. The tokens are the ones of the bootstrap-datepicker plugin (`d`, `dd`, `m`, `mm`,
+  `M`, `MM`, `yy`, `yyyy`...), so `yyyy-mm-dd` sends `2024-03-15`.
+* `date-view-mode` set to `months` or `years` makes the calendar select a month or a year. Use it with a format
+  that has no day (`mm/yyyy` or `yyyy`).
+* `show-weekends="false"` disables the Saturdays and the Sundays.
+* `show-future-dates="false"` disables the dates after the date that the criterion has when the screen starts.
+* `date-show-today-button="false"` hides the button that selects today.
+
 ### Time criterion
 
 Allows to select a time with a time picker.
 
 <img alt="TimeCriterion" src={require('@docusaurus/useBaseUrl').default('img/TimeCriterion.png')} />
+
+The `time-format` attribute (React engine only) sets how the time is shown:
+
+| Format       | Shows                       | Value sent to the server |
+|--------------|-----------------------------|--------------------------|
+| `HH:mm`      | `14:30`                     | `14:30`                  |
+| `HH:mm:ss`   | `14:30:15` (default)        | `14:30:15`               |
+| `hh:mm a`    | `02:30 PM` (12-hour clock)  | `14:30`                  |
+| `hh:mm:ss a` | `02:30:15 PM` (12-hour clock) | `14:30:15`             |
+
+The value that the client sends is always a 24-hour time, and it has seconds only when the format has them.
+
+```xml
+<criteria label="PARAMETER_TIME" id="Time" component="time" time-format="HH:mm"/>
+```
+
+### Date range criterion
+
+Allows to select a period (a start date and an end date) in one criterion. The end date cannot be before the start date
+(an open end is allowed unless the criterion is `required`, which needs both dates). The user can type the dates, pick
+them in the calendar or click one of the quick presets.
+
+```xml
+<criteria id="Period" component="date-range" label="PERIOD" presets="1M,3M,YTD,12M,3Y,ALL"/>
+```
+
+The criterion sends **two parameters** to the server, named after the criterion identifier with the suffixes `.from`
+and `.to`. Both are dates in `dd/MM/yyyy` format (a `null` when the date is empty), so a criterion with identifier
+`Period` sends `Period.from` and `Period.to`, and a query reads them as any other parameter:
+
+```xml
+<query id="OrdersByPeriod">
+  <table id="Orders"/>
+  <field id="OrderDate"/>
+  <where>
+    <and>
+      <filter left-field="OrderDate" condition="ge" right-variable="PeriodFrom"/>
+      <filter left-field="OrderDate" condition="le" right-variable="PeriodTo"/>
+    </and>
+  </where>
+  <variable id="PeriodFrom" type="DATE" name="Period.from"/>
+  <variable id="PeriodTo" type="DATE" name="Period.to"/>
+</query>
+```
+
+The **[value](#general-attributes)** attribute is a list of the two default dates separated by a comma
+(`value="01/01/2026,31/01/2026"`); an empty first date (`value=",31/01/2026"`) leaves the start open. It also accepts
+one of the preset codes below (`value="YTD"`): the server resolves it into its two dates from the server date, and the
+criterion opens with that preset shown as active. Reset and restore go back to that range.
+
+A value initial load (`initial-load="value"`) fills the range from the `value` column of the first two rows of its
+target: the first row is the start date and the second one the end date.
+
+The **[presets](#specific-attributes)** attribute defines the quick presets. Each code is shown as a button which fills
+both dates from the current date, and the active preset is cleared as soon as one of the dates is edited:
+
+| Preset                 | Range                                            |
+|------------------------|--------------------------------------------------|
+| `TODAY`                | Today                                            |
+| `YTD`                  | From January 1st of the current year to today    |
+| `ALL`                  | Clears both dates (no period filter)             |
+| `<n>D`, `<n>W`         | The last `n` days or weeks until today           |
+| `<n>M`, `<n>Y`         | The last `n` months or years until today (`1M`, `3M`, `12M`, `3Y`...) |
+
+The label of a preset is the [locale](i18n-internationalization.md) `DATE_RANGE_PRESET_` followed by its code
+(`DATE_RANGE_PRESET_YTD`), which AWE provides for `TODAY`, `1W`, `1M`, `3M`, `6M`, `YTD`, `12M`, `3Y` and `ALL`; any
+other code shows the code itself unless you define its locale. The `DATE_RANGE_FROM` and `DATE_RANGE_TO` locales are
+the placeholders of the two inputs, and `VALIDATOR_MESSAGE_DATE_RANGE` the validation message.
+
+> **Note**: The dates are always `dd/MM/yyyy`: the `date-format`, `show-weekends`, `show-future-dates` and
+> `date-view-mode` attributes of the [date criterion](#date-criterion) do not apply to the date range.
 
 ### Filtered date criterion
 
@@ -198,6 +306,18 @@ Allows the user to search a value by typing some characters of the seek value.
 > with a `target` query on screen load but only with a field instead of a compound field with `value`
 > and `label` fields).
 
+The options of a suggest can be grouped: when the rows of its query carry a `group` field (a locale key, translated by
+the client), the list shows one header per group, in the order of the first option of each group, and the options of
+the group under it. A header cannot be chosen and the arrow keys skip it; the chosen option shows its own `label`. The
+options of a query without `group` are shown as always. For example, a service that searches profiles and users at once
+answers:
+
+```json
+[
+  {"value": "profile:1", "label": "ADM - Administrator", "group": "PARAMETER_PROFILE"},
+  {"value": "user:1", "label": "test - Manager", "group": "PARAMETER_USER"}
+]
+```
 
 ### Select VS Suggest
 
@@ -250,6 +370,15 @@ Shows a checkbox. It sends a `1` (or the value defined in the **[value](#general
 
 <img alt="Checkboxes" src={require('@docusaurus/useBaseUrl').default('img/Checkboxes.png')} />
 
+With `style="switch"` (it can be combined with the column classes, e.g. `style="col-xs-12 col-sm-6 switch"`) both
+engines draw the checkbox as a switch: a track with a handle and the label beside it. It sends the same values (`1`, or
+the **value** attribute, when on and `0` when off), the Space key toggles it, it is announced as a switch
+(`role="switch"`) with its state, and it is disabled while the criterion is read-only.
+
+```xml
+<criteria label="PARAMETER_ACTIVE" id="Sta" component="checkbox" value="1" style="col-xs-12 col-sm-6 switch" />
+```
+
 ### Radio button criterion
 
 Shows a radio button. It is mono-selection. It sends the **[value](#general-attributes)** attribute of the selected element between all the radio buttons with the same **[group](#specific-attributes)** attribute.
@@ -270,6 +399,19 @@ Similar to a [radio button](#radio-button-criterion) but it has a button appeara
 
 <img alt="ButtonRadio" src={require('@docusaurus/useBaseUrl').default('img/ButtonRadio.png')} />
 
+With options of its own (an `initial-load` of an enumerated or a query), one button radio criterion is one joined group
+of buttons, one per option, in both engines: it sends the value of the chosen option, and the option of its `value`
+starts chosen when it has `checked="true"`:
+
+```xml
+<criteria id="subject-type" label="SCREEN_TEXT_ACCESS_SUBJECT_TYPE" component="button-radio"
+          initial-load="enum" target-action="access-subject-types" value="user" checked="true"/>
+```
+
+Its `label` is shown above the buttons, as the label of any other criterion, so it lines up with the criteria of its
+row. Without options, each button radio criterion is one button of its own `value`, and the criteria with the same `group`
+make the group, as the radio buttons above (this is how the AngularJS engine draws them).
+
 ### Color criterion
 
 Color criterion. It is useful to get color hexadecimal value with a color picker widget. 
@@ -281,6 +423,19 @@ Color criterion. It is useful to get color hexadecimal value with a color picker
 Criterion useful to send files to the server. Once uploaded, the files can be managed by the server processes
 
 <img alt="UploaderCriterion" src={require('@docusaurus/useBaseUrl').default('img/UploaderCriterion.png')} />
+
+The uploader has two optional attributes, available in both the AngularJS and the React clients:
+
+- `drop-zone="true"` shows a dashed drop area with a hint. The user can drop a file on it (the file dialog keeps working,
+  and the **Choose** button stays reachable with the keyboard). When the file is a raster image (PNG, JPEG, GIF, WebP,
+  BMP or AVIF) a preview is shown. Other files, SVG images included, are uploaded without preview.
+- `capture="user|environment"` adds a **Take photo** button that opens the device camera on mobile browsers (`user` for
+  the front camera, `environment` for the rear one) and previews the photo. Browsers without a camera fall back to the
+  regular file dialog.
+
+Both options send the file through the same upload request as the **Choose** button, so the server keeps validating the
+file type and size (`uploadMaxSize`). The preview is generated in the browser from the selected file and is released
+when the file is cleared or replaced, or the screen is closed. The attributes are ignored in a read-only uploader.
 
 ### Text view criterion
 
@@ -330,6 +485,26 @@ This criterion simply shows a text, which can be retrieved from a variable, a pa
 
 <img alt="SelectMultiplePreselected" src={require('@docusaurus/useBaseUrl').default('img/SelectMultiplePreselected.png')} />
 
+By default the field of a multiple select is one control high, in both clients. It shows the chips of the chosen values
+that fit, in the order of the options (a label that does not fit ends with an ellipsis and shows in full as a tooltip),
+and a `+3` counter when some do not. The counter is a button: it opens a popover with every chosen value and a button to
+remove each one, and Escape, a click outside, a scroll or a resize close it. Optional criteria also have a clear icon;
+the chips have no remove icon of their own.
+
+The `display` attribute chooses how a `select-multiple` or a `suggest-multiple` shows its values:
+
+| Value | Shows | Default of |
+|-------|-------|------------|
+| `summary` | One line: the chips that fit and the `+N` counter described above | `select-multiple` |
+| `chip` | Every value as a chip with its own remove icon; the field grows with the values | `suggest-multiple` |
+
+```xml
+<!-- Every chosen value in sight, even if the field grows -->
+<criteria component="select-multiple" id="user" display="chip" .../>
+<!-- A suggest that keeps one line, for a filter bar -->
+<criteria component="suggest-multiple" id="portfolio" display="summary" .../>
+```
+
 ### Color criterion sample
 
 ```xml
@@ -348,3 +523,10 @@ This criterion simply shows a text, which can be retrieved from a variable, a pa
 ```
 
 <img alt="UploaderCriterion2" src={require('@docusaurus/useBaseUrl').default('img/UploaderCriterion2.png')} />
+
+### Uploader with drop zone and camera capture
+
+```xml
+<criteria label="PARAMETER_UPLOADER" id="Photo" component="uploader" destination="photos"
+          style="col-xs-12 col-sm-6 col-lg-4" drop-zone="true" capture="environment"/>
+```

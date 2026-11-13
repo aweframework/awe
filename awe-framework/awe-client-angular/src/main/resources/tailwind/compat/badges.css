@@ -1,0 +1,215 @@
+/*
+ * Badges: Bootstrap 3 badges.less and the pixel-admin badge rules on the same selectors, as the compiled vendored CSS renders them: badge,
+ * badge-success|warning|danger|info, the badge inside a button (and a colored one), a pill and a list group item, and its link states.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values.
+ * There is no !important in this file.
+ *
+ * Not here (they stay in LESS; compatBadges.test.js names every one of them with example selectors): the badges inside the navbar (navbar.css
+ * serves them), the pixel-admin main menu and tabs, the badges of a colored panel heading and of the ui-grid menu and pager, and the selectors
+ * that depend on a theme class or an Internet Explorer version.
+ */
+
+.btn-default .badge {
+  color: var(--awe-color-on-primary);
+  background-color: var(--awe-color-text);
+}
+
+.btn-primary .badge {
+  color: var(--awe-color-primary-text);
+  background-color: var(--awe-color-surface);
+}
+
+.btn-success .badge {
+  color: var(--awe-color-success);
+  background-color: var(--awe-color-surface);
+}
+
+.btn-info .badge {
+  color: var(--awe-color-info);
+  background-color: var(--awe-color-surface);
+}
+
+.btn-warning .badge {
+  color: var(--awe-color-warning);
+  background-color: var(--awe-color-surface);
+}
+
+.btn-danger .badge {
+  color: var(--awe-color-danger);
+  background-color: var(--awe-color-surface);
+}
+
+.badge {
+  display: inline-block;
+  min-width: var(--awe-space-3);
+  padding: var(--awe-space-1) var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: bold;
+  color: var(--awe-color-on-primary);
+  line-height: 1;
+  vertical-align: baseline;
+  white-space: nowrap;
+  text-align: center;
+  background-color: var(--awe-color-text-muted);
+  border-radius: var(--awe-radius);
+}
+
+.badge:empty {
+  display: none;
+}
+
+.btn .badge {
+  position: relative;
+  top: calc(var(--awe-border-width) * -1);
+}
+
+.btn-xs .badge {
+  top: 0;
+  padding: var(--awe-border-width) var(--awe-space-1-5);
+}
+
+a.badge:hover,
+a.badge:focus {
+  color: var(--awe-color-on-primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.list-group-item.active > .badge,
+.nav-pills > .active > a > .badge {
+  color: var(--awe-color-primary-text);
+  background-color: var(--awe-color-surface);
+}
+
+.list-group-item > .badge {
+  float: right;
+}
+
+.list-group-item > .badge + .badge {
+  margin-right: var(--awe-space-1-5);
+}
+
+.nav-pills > li > a > .badge {
+  margin-left: var(--awe-space-1);
+}
+
+.badge {
+  color: var(--awe-color-on-primary);
+  font-size: var(--awe-font-size-xs);
+  font-weight: 600;
+  line-height: var(--awe-space-5);
+  padding: 0 var(--awe-space-2);
+  text-shadow: 0 calc(var(--awe-border-width) * -1) 0 color-mix(in srgb, var(--awe-color-text), transparent 80%);
+}
+
+.badge.pull-right {
+  margin: 0;
+}
+
+.badge {
+  background: var(--awe-color-text-muted);
+  border: var(--awe-border-width) solid var(--awe-color-text-muted);
+}
+
+.badge[href]:hover,
+.badge[href]:focus {
+  background-color: var(--awe-color-text-muted);
+  border-color: var(--awe-color-text-muted);
+}
+
+.badge.badge-success {
+  background: var(--awe-color-success);
+  border: var(--awe-border-width) solid var(--awe-color-success);
+}
+
+.badge.badge-success[href]:hover,
+.badge.badge-success[href]:focus {
+  background-color: var(--awe-color-success);
+  border-color: var(--awe-color-success);
+}
+
+.badge.badge-warning {
+  background: var(--awe-color-warning);
+  border: var(--awe-border-width) solid var(--awe-color-warning);
+}
+
+.badge.badge-warning[href]:hover,
+.badge.badge-warning[href]:focus {
+  background-color: var(--awe-color-warning);
+  border-color: var(--awe-color-warning);
+}
+
+.badge.badge-danger {
+  background: var(--awe-color-danger);
+  border: var(--awe-border-width) solid var(--awe-color-danger);
+}
+
+.badge.badge-danger[href]:hover,
+.badge.badge-danger[href]:focus {
+  background-color: var(--awe-color-danger);
+  border-color: var(--awe-color-danger);
+}
+
+.badge.badge-info {
+  background: var(--awe-color-info);
+  border: var(--awe-border-width) solid var(--awe-color-info);
+}
+
+.badge.badge-info[href]:hover,
+.badge.badge-info[href]:focus {
+  background-color: var(--awe-color-info);
+  border-color: var(--awe-color-info);
+}
+
+.nav-pills > li > a > .badge {
+  position: relative;
+  background-color: color-mix(in srgb, var(--awe-color-text), transparent 75%);
+  border: var(--awe-border-width) solid transparent;
+  margin: 0 calc(var(--awe-space-1-5) * -1) calc(var(--awe-space-16) * -1) var(--awe-space-1-5);
+  padding: 0 var(--awe-space-1-5);
+  line-height: var(--awe-space-4);
+  top: 0;
+}
+
+.nav-pills > li > a > .badge.badge-success {
+  background-color: var(--awe-color-success);
+}
+
+.nav-pills > li > a > .badge.badge-warning {
+  background-color: var(--awe-color-warning);
+}
+
+.nav-pills > li > a > .badge.badge-danger {
+  background-color: var(--awe-color-danger);
+}
+
+.nav-pills > li > a > .badge.badge-info {
+  background-color: var(--awe-color-info);
+}
+
+.nav-pills > li.active > a > .badge {
+  background-color: color-mix(in srgb, var(--awe-color-text), transparent 75%);
+  border-color: transparent;
+  color: var(--awe-color-on-primary);
+}
+
+.nav-pills > li > a > .badge {
+  top: calc(var(--awe-border-width) * -1);
+}
+
+.list-group-item > .badge {
+  line-height: var(--awe-space-4);
+  padding-left: var(--awe-space-1-5);
+  padding-right: var(--awe-space-1-5);
+}
+
+.list-group-item > .badge + .badge {
+  margin-right: var(--awe-space-1-5);
+}
+
+a.list-group-item.active .badge {
+  background: color-mix(in srgb, var(--awe-color-text), transparent 75%);
+  border-color: transparent;
+  color: var(--awe-color-on-primary);
+}

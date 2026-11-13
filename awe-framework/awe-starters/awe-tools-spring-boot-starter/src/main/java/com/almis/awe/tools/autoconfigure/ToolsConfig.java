@@ -5,6 +5,7 @@ import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.tools.service.FileManagerService;
 import com.almis.awe.tools.service.SqlExtractorService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -35,6 +36,7 @@ public class ToolsConfig {
    */
   @Bean
   @ConditionalOnMissingBean
+  @DependsOnDatabaseInitialization
   public SqlExtractorService sqlExtractorService(DataListBuilder dataListBuilder, DataSource dataSource) {
     return new SqlExtractorService(dataListBuilder, dataSource);
   }

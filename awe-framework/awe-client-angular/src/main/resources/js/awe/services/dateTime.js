@@ -1,30 +1,32 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import "../directives/plugins/uiDate";
 import "../directives/plugins/uiTime";
-import moment from "moment";
 import {getIconTemplate} from "./component";
+import {formatDate, parseDate} from "./dateUtils";
+import {iconTemplate} from "./icon";
 
 export const calendarInputTemplate =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies"
      ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
-    <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    <label ng-attr-for="{{::controller.id}}" ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label | translateMultiple}}
     </label>
     <div class="validator input-group input-append date {{::validatorGroup}} focus-target" ui-date="aweDateOptions"
          initialized="initialized" ng-readonly="controller.readonly">
       ${getIconTemplate("{{::iconClass}}")}
       <input type="text" class="form-control {{classes}}"
-             placeholder="{{controller.placeholder| translateMultiple}}" autoComplete="off" ng-click="click($event)"
+             placeholder="{{controller.placeholder| translateMultiple}}{{requiredMark()}}" ng-attr-aria-required="{{ariaRequired()}}" autoComplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"
              ng-model="model.selected" ng-change="component.modelChange()"
              ng-model-options="{updateOn: 'change'}" ng-focus="focus()" ng-blur="blur()"
-             ng-press-enter="submit($event)"/>
-      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+             ng-press-enter="submit($event)" data-testid="${TestIds.criterionInput}"/>
+      <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon add-on">
-        <i class="fa fa-calendar"></i>
+        ${iconTemplate("calendar")}
       </span>
     </div>
   </div>
@@ -38,9 +40,9 @@ export const calendarColumnTemplate =
       <input type="text" class="form-control col-xs-12 {{classes}} {{component.model.values[0].style}}" placeholder="{{::component.controller.placeholder| translateMultiple}}"
              ng-disabled="component.controller.readonly" ng-model="component.model.selected" ng-focus="focus()" ng-blur="blur()"
              ng-model-options="{updateOn: 'change'}" ng-click="click($event)" ng-change="component.columnModelChange()"
-             ng-press-enter="saveRow($event)" autocomplete="off"/>
+             ng-press-enter="saveRow($event)" autocomplete="off" data-testid="${TestIds.criterionInput}"/>
       <span class="input-group-addon add-on">
-        <i class="fa fa-calendar"></i>
+        ${iconTemplate("calendar")}
       </span>
     </div>
     ${getIconTemplate("{{::iconClass}}")}
@@ -50,21 +52,22 @@ export const calendarColumnTemplate =
 
 export const timeInputTemplate =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
-    <label ng-attr-for="{{::controller.id}}" ng-class="labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    <label ng-attr-for="{{::controller.id}}" ng-if="hasLabelRow()" ng-class="labelClass" ng-style="::labelStyle" ng-cloak>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input-group input-append date {{::validatorGroup}} focus-target">
       ${getIconTemplate("{{::iconClass}}")}
       <input type="text" ui-time="aweTimeOptions" class="form-control add-on {{classes}}" autocomplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-model="model.selected"
-             ng-disabled="controller.readonly" placeholder="{{controller.placeholder| translateMultiple}}" ng-press-enter="submit($event)"
-             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-model-options="{updateOn: 'change'}" initialized="initialized"/>
-      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+             ng-disabled="controller.readonly" placeholder="{{controller.placeholder| translateMultiple}}{{requiredMark()}}" ng-attr-aria-required="{{ariaRequired()}}" ng-press-enter="submit($event)"
+             ng-focus="focus()" ng-blur="blur()" ng-change="component.modelChange()" ng-model-options="{updateOn: 'change'}" initialized="initialized"
+             data-testid="${TestIds.criterionInput}"/>
+      <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon add-on">
-        <i class="fa fa-clock-o"></i>
+        ${iconTemplate("clock-o")}
       </span>
     </div>
   </div>
@@ -78,9 +81,9 @@ export const timeColumnTemplate =
       <input type="text" ui-time="aweTimeOptions" class="form-control add-on col-xs-12 {{classes}} {{component.model.values[0].style}}"
              ng-press-enter="saveRow($event)" autocomplete="off" ng-model="component.model.selected" ng-disabled="component.controller.readonly"
              ng-model-options="{updateOn: 'change'}" placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-focus="focus()"
-             ng-blur="blur()" ng-click="click($event)" ng-change="component.columnModelChange()" initialized="initialized"/>
+             ng-blur="blur()" ng-click="click($event)" ng-change="component.columnModelChange()" initialized="initialized" data-testid="${TestIds.criterionInput}"/>
       <span class="input-group-addon add-on">
-        <i class="fa fa-clock-o"></i>
+        ${iconTemplate("clock-o")}
       </span>
     </div>
     ${getIconTemplate("{{::iconClass}}")}
@@ -215,14 +218,14 @@ aweApplication.factory('DateTime',
                 return;
               }
 
-              let momentDate = moment(date.value, "DD/MM/YYYY", true);
-              if (!momentDate.isValid()) {
+              let parsedDate = parseDate(date.value, true);
+              if (!parsedDate.isValid()) {
                 return;
               }
 
               dateTime.validDates[date.value] = true;
-              dateTime.validMonths[momentDate.format('MMYYYY')] = true;
-              dateTime.validYears[momentDate.format('YYYY')] = true;
+              dateTime.validMonths[parsedDate.format('MMYYYY')] = true;
+              dateTime.validYears[parsedDate.format('YYYY')] = true;
             });
           };
 
@@ -234,7 +237,7 @@ aweApplication.factory('DateTime',
            * @returns {boolean}
            */
           let filterDates = function (date, format, filteredSet) {
-            return moment(date).format(format) in filteredSet;
+            return formatDate(date, format) in filteredSet;
           };
 
           // Set filtered dates in dates with a day value

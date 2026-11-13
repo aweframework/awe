@@ -9,10 +9,10 @@ import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.bean.task.TaskVariable;
 import com.almis.awe.scheduler.feign.RemoteScheduler;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -419,23 +419,23 @@ public class RemoteSchedulerService extends ServiceConfig {
   }
 
   /**
-   * Read json node as integer
+   * Read json node as integer. A criterion that the client does not send (React omits the empty ones) is a null value
    *
    * @param jsonNode Json node
    * @return Integer value
    */
   private Integer readJsonAsInteger(JsonNode jsonNode) {
-    return jsonNode.isNull() ? null : Integer.parseInt(jsonNode.asText());
+    return jsonNode == null || jsonNode.isNull() ? null : Integer.parseInt(jsonNode.asString(""));
   }
 
   /**
-   * Read json node as integer list
+   * Read json node as integer list. A criterion that the client does not send is a null list
    *
    * @param jsonNode Node
    * @return Integer list
    */
   private List<String> readJsonAsList(JsonNode jsonNode) {
-    return jsonNode.isNull() ? null : mapper.convertValue(jsonNode, new TypeReference<List<String>>() {
+    return jsonNode == null || jsonNode.isNull() ? null : mapper.convertValue(jsonNode, new TypeReference<List<String>>() {
     });
   }
 }

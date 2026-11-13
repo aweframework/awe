@@ -1,0 +1,77 @@
+import React, { useCallback } from "react";
+import { Dialog } from 'primereact/dialog';
+import { Components } from "../utilities/structure";
+import { translateLabel } from "../utilities";
+import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { useComponentState } from "../hooks/useComponentState";
+import { useDeferredLoad } from "../hooks/useDeferredLoad";
+import { ViewModeContext, isViewMode } from "../hooks/useViewMode";
+import { CriteriaList } from "../criteria/AweCriteria";
+import { addActionsTop } from "../redux/actions/actions";
+import PropTypes from "prop-types";
+import { dialogPassThrough } from "../utilities/testPassThrough";
+
+const DEFAULT_SIZE = { minWidth: "40vw", maxWidth: "90vw" };
+const MAX_WIDTH = "90vw";
+// Same widths as the AngularJS engine (Bootstrap modal sizes)
+const SIZE_CLASSES = { "modal-sm": "300px", "modal-md": "600px", "modal-lg": "900px" };
+
+/**
+ * Get the dialog size for the size class found in the style (modal-sm, modal-md, modal-lg)
+ * @param {string} style Dialog style classes
+ * @returns {object} Dialog size style
+ */
+const getDialogSize = (style) => {
+  const sizeClass = String(style ?? "").split(/\s+/).find((name) => name in SIZE_CLASSES);
+  return sizeClass ? { width: SIZE_CLASSES[sizeClass], maxWidth: MAX_WIDTH } : DEFAULT_SIZE;
+};
+
+function AweDialog(props) {
+  const { id, elementList = [] } = props;
+  const { address, attributes } = useComponentState(id);
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+
+  const hide = useCallback(() => {
+    if (attributes.isShowing) {
+      // on-close="reject" (acceptOnClose false) rejects the action that opened the dialog, as the AngularJS engine does
+      const type = attributes.acceptOnClose === false ? "close-cancel" : "close";
+      dispatch(addActionsTop([{ address, type }]));
+    }
+  }, [dispatch, attributes?.isShowing, attributes?.acceptOnClose, address]);
+
+  // A deferred dialog loads the data of its components when it is shown for the first time
+  useDeferredLoad(address, attributes, !!attributes?.isShowing);
+
+  // If address is undefined, return skeleton
+  if (!address) {
+    return <></>;
+  }
+
+  const { style, label } = attributes;
+  return (
+    <Dialog
+      id={id}
+      className={style}
+      style={getDialogSize(style)}
+      header={translateLabel(label, t)}
+      visible={attributes?.isShowing}
+      onHide={hide}
+      focusOnShow={false}
+      pt={dialogPassThrough(id, !!attributes?.isShowing, address.view)}
+    >
+      {/* Opened by an action in view mode, its criteria are read-only */}
+      <ViewModeContext.Provider value={isViewMode(attributes) ? CriteriaList : null}>
+        {elementList.map((node, index) => Components(node, index))}
+      </ViewModeContext.Provider>
+    </Dialog>
+  );
+}
+
+AweDialog.propTypes = {
+  id: PropTypes.string,
+  elementList: PropTypes.array
+};
+
+export default AweDialog;

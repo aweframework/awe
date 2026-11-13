@@ -1,0 +1,58 @@
+//
+// Badges rules that the compat layer does not move
+//
+// The badges are served by the compat layer (src/main/resources/tailwind/compat/badges.css) and their Bootstrap 3 rules are gone from this build (#755).
+// What stays here, verbatim as it compiled, is what must keep winning over a rule that is still in the LESS (pixel-admin, the AWE components and the
+// themes restyle the same elements: a layered compat rule loses to any unlayered one whatever its specificity): the base badge, its empty, button, pill and list group variants and the link states.
+// The compat tests of the families name what they leave out, with example selectors.
+//
+// A selector can appear more than once below: these are the compiled blocks kept verbatim, in the order the Bootstrap build printed them. The order
+// decides the cascade among unlayered rules, and the baseline lists them by identity, so they are not merged or sorted.
+// --------------------------------------------------
+
+.badge {
+  display: inline-block;
+  min-width: 10px;
+  padding: 3px 7px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  line-height: 1;
+  vertical-align: baseline;
+  white-space: nowrap;
+  text-align: center;
+  background-color: color-mix(in srgb, #000, var(--awe-color-background) 46.7%);
+  border-radius: 10px;
+}
+.badge:empty {
+  display: none;
+}
+.btn .badge {
+  position: relative;
+  top: -1px;
+}
+.btn-xs .badge {
+  top: 0;
+  padding: 1px 5px;
+}
+a.badge:hover,
+a.badge:focus {
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
+.list-group-item.active > .badge,
+.nav-pills > .active > a > .badge {
+  color: #337ab7;
+  background-color: #fff;
+}
+.list-group-item > .badge {
+  float: right;
+}
+// The same rule as pixel-admin's: Less prints both, and the baseline counts them as two
+.list-group-item > .badge + .badge {
+  margin-right: 5px;
+}
+.nav-pills > li > a > .badge {
+  margin-left: 3px;
+}

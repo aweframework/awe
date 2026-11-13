@@ -36,12 +36,30 @@
   <service id="logoutMaintain">
     <java classname="com.almis.awe.service.AccessService" method="logoutMaintain" />
   </service>
+  <service id="changeExpiredPassword">
+    <java classname="com.almis.awe.service.user.PasswordChangeService" method="changeExpiredPassword">
+      <service-parameter type="STRING" name="password" />
+    </java>
+  </service>
+  <service id="changePasswordWithCurrent">
+    <java classname="com.almis.awe.service.user.CurrentPasswordChangeService" method="changePassword">
+      <service-parameter type="STRING" name="user" />
+      <service-parameter type="STRING" name="currentPassword" />
+      <service-parameter type="STRING" name="password" />
+    </java>
+  </service>
+  <service id="changeOwnPassword">
+    <java classname="com.almis.awe.service.user.CurrentPasswordChangeService" method="changeOwnPassword">
+      <service-parameter type="STRING" name="currentPassword" />
+      <service-parameter type="STRING" name="password" />
+    </java>
+  </service>
   <service id="verify2faCode">
     <java classname="com.almis.awe.service.AccessService" method="verify2faCode">
       <service-parameter type="STRING" name="code" />
     </java>
   </service>
-  <service id="EncTxt">
+  <service id="EncTxt" permission="system.read">
     <java classname="com.almis.awe.service.AccessService" method="encryptText" />
   </service>
   <service id="SerEncTxt">
@@ -49,6 +67,15 @@
       <service-parameter type="STRING" name="text" />
       <service-parameter type="STRING" name="phraseKey" />
     </java>
+  </service>
+  <service id="SerHasPwd">
+    <java classname="com.almis.awe.service.AccessService" method="hashPassword">
+      <service-parameter type="STRING" name="text" />
+      <service-parameter type="STRING" name="algorithm" />
+    </java>
+  </service>
+  <service id="SerPwdAlg">
+    <java classname="com.almis.awe.service.AccessService" method="getPasswordAlgorithms" />
   </service>
   <service id="SerEncPpt">
     <java classname="com.almis.awe.service.AccessService" method="encryptProperty">
@@ -59,7 +86,49 @@
   <service id="ProFilLst">
     <java classname="com.almis.awe.service.AccessService" method="getProfileNameFileList" />
   </service>
-  <service id="launchMaintain">
+  <!-- Permissions of the profiles (profile-admin): options of the catalog, access of the user, storage of the
+       permissions of a profile, predefined flag and guard of the selected profiles (IdePro: one identifier or the list
+       sent by the grid) and duplication of a profile -->
+  <service id="ProPerCat">
+    <java classname="com.almis.awe.service.user.ProfilePermissionService" method="getPermissionOptions" />
+  </service>
+  <service id="ProPerSel">
+    <java classname="com.almis.awe.service.user.ProfilePermissionService" method="getProfileAssignments">
+      <service-parameter type="INTEGER" name="IdePro" />
+    </java>
+  </service>
+  <service id="ProPerAcc">
+    <java classname="com.almis.awe.service.user.ProfilePermissionService" method="getPermissionAccess" />
+  </service>
+  <service id="store-profile-permissions">
+    <java classname="com.almis.awe.service.user.ProfilePermissionService" method="storeProfilePermissions">
+      <service-parameter type="INTEGER" name="IdePro" list="true" />
+      <service-parameter type="STRING" name="Per" list="true" />
+      <service-parameter type="INTEGER" name="PerUpd" />
+    </java>
+  </service>
+  <service id="ProPdfSel">
+    <java classname="com.almis.awe.service.user.ProfilePermissionService" method="getPredefinedFlag">
+      <service-parameter type="INTEGER" name="IdePro" list="true" />
+    </java>
+  </service>
+  <service id="check-editable-profile">
+    <java classname="com.almis.awe.service.user.ProfilePermissionService" method="checkEditableProfiles">
+      <service-parameter type="INTEGER" name="IdePro" list="true" />
+    </java>
+  </service>
+  <service id="duplicate-profile">
+    <java classname="com.almis.awe.service.user.ProfilePermissionService" method="duplicateProfile">
+      <service-parameter type="INTEGER" name="IdePro" list="true" />
+      <service-parameter type="STRING" name="Acr" />
+      <service-parameter type="STRING" name="Nam" />
+      <service-parameter type="INTEGER" name="IdeThm" />
+      <service-parameter type="STRING" name="ScrIni" />
+      <service-parameter type="STRING" name="Res" />
+      <service-parameter type="INTEGER" name="Act" />
+    </java>
+  </service>
+  <service id="launchMaintain" authorization="target">
     <java classname="com.almis.awe.service.MaintainService" method="launchMaintainAction" />
   </service>
   <service id="getMaintainList">
@@ -79,16 +148,19 @@
   <service id="ShwPrn">
     <java classname="com.almis.awe.service.ReportService" method="getShowPrint" />
   </service>
-  <service id="launchQuery">
+  <service id="launchQuery" authorization="target">
     <java classname="com.almis.awe.service.QueryService" method="launchQueryAction" />
   </service>
-  <service id="updateModel">
+  <service id="launchColumnValues" authorization="target">
+    <java classname="com.almis.awe.service.QueryService" method="launchColumnValuesAction" />
+  </service>
+  <service id="updateModel" authorization="target">
     <java classname="com.almis.awe.service.QueryService" method="updateModelAction" />
   </service>
-  <service id="checkUnique">
+  <service id="checkUnique" authorization="target">
     <java classname="com.almis.awe.service.QueryService" method="checkUniqueAction" />
   </service>
-  <service id="checkEmpty">
+  <service id="checkEmpty" authorization="target">
     <java classname="com.almis.awe.service.QueryService" method="checkEmptyAction" />
   </service>
   <service id="ReloadDatabaseConnections">
@@ -96,6 +168,9 @@
   </service>
   <service id="getScreenData">
     <java classname="com.almis.awe.service.ScreenService" method="getScreenDataAction" />
+  </service>
+  <service id="getDeferredData">
+    <java classname="com.almis.awe.service.ScreenService" method="getDeferredDataAction" />
   </service>
   <service id="getOptionList">
     <java classname="com.almis.awe.service.MenuService" method="getNameOptionList">
@@ -156,12 +231,265 @@
       <service-parameter type="STRING" name="option" />
     </java>
   </service>
+  <!-- Access window (access-admin): effective access of a profile or a user to the private menu -->
+  <service id="access-tree">
+    <java classname="com.almis.awe.service.access.AccessTreeService" method="getAccessTree">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+      <service-parameter type="STRING" name="filter" />
+      <service-parameter type="STRING" name="search" />
+      <service-parameter type="STRING" name="compareWith" />
+    </java>
+  </service>
+  <service id="access-tree-counts">
+    <java classname="com.almis.awe.service.access.AccessTreeService" method="getAccessTreeCounts">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+      <service-parameter type="STRING" name="search" />
+      <service-parameter type="STRING" name="compareWith" />
+    </java>
+  </service>
+  <!-- Access window: profiles and users to compare with (compare-with suggest), or the label of the selected one -->
+  <service id="access-compare-suggest">
+    <java classname="com.almis.awe.service.access.AccessCompareService" method="getCompareSuggest">
+      <service-parameter type="STRING" name="suggest" />
+    </java>
+  </service>
+  <!-- Access window, permissions view: the effective permissions of a user or a profile, the counts of its quick filter,
+       its summary and why a permission is granted, profile by profile -->
+  <service id="access-permissions">
+    <java classname="com.almis.awe.service.access.AccessPermissionService" method="getPermissions">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="filter" />
+      <service-parameter type="STRING" name="search" />
+      <service-parameter type="STRING" name="compareWith" />
+    </java>
+  </service>
+  <service id="access-permission-counts">
+    <java classname="com.almis.awe.service.access.AccessPermissionService" method="getPermissionCounts">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="search" />
+      <service-parameter type="STRING" name="compareWith" />
+    </java>
+  </service>
+  <service id="access-permission-summary">
+    <java classname="com.almis.awe.service.access.AccessPermissionService" method="getPermissionSummary">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="compareWith" />
+    </java>
+  </service>
+  <service id="access-permission-why">
+    <java classname="com.almis.awe.service.access.AccessPermissionService" method="getPermissionWhy">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="permission" />
+    </java>
+  </service>
+  <service id="access-permission-why-result">
+    <java classname="com.almis.awe.service.access.AccessPermissionService" method="getPermissionWhyResult">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="permission" />
+    </java>
+  </service>
+  <!-- Access window: preview of a bulk change (summary, options and users); the change is simulated, nothing is stored -->
+  <service id="access-impact">
+    <java classname="com.almis.awe.service.access.AccessImpactService" method="getAccessImpact">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+      <service-parameter type="STRING" name="change" />
+    </java>
+  </service>
+  <service id="access-impact-options">
+    <java classname="com.almis.awe.service.access.AccessImpactService" method="getAccessImpactOptions">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+      <service-parameter type="STRING" name="change" />
+    </java>
+  </service>
+  <service id="access-impact-users">
+    <java classname="com.almis.awe.service.access.AccessImpactService" method="getAccessImpactUsers">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+      <service-parameter type="STRING" name="change" />
+    </java>
+  </service>
+  <service id="access-why">
+    <java classname="com.almis.awe.service.access.AccessWhyService" method="getAccessWhy">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
+  <service id="access-why-result">
+    <java classname="com.almis.awe.service.access.AccessWhyService" method="getAccessResult">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
+  <service id="access-option-rules">
+    <java classname="com.almis.awe.service.access.AccessWhyService" method="getOptionRules">
+      <service-parameter type="STRING" name="option" />
+    </java>
+  </service>
+  <service id="access-allow">
+    <java classname="com.almis.awe.service.access.AccessChangeService" method="allowOptions">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+    </java>
+  </service>
+  <service id="access-deny">
+    <java classname="com.almis.awe.service.access.AccessChangeService" method="denyOptions">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+    </java>
+  </service>
+  <service id="access-remove">
+    <java classname="com.almis.awe.service.access.AccessChangeService" method="removeOptionRules">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="options" list="true" />
+    </java>
+  </service>
+  <service id="access-remove-rule">
+    <java classname="com.almis.awe.service.access.AccessChangeService" method="removeRules">
+      <service-parameter type="INTEGER" name="rule" list="true" />
+    </java>
+  </service>
+  <service id="access-switch-rule">
+    <java classname="com.almis.awe.service.access.AccessChangeService" method="switchRules">
+      <service-parameter type="INTEGER" name="rule" list="true" />
+    </java>
+  </service>
+  <!-- Access window: review of every rule of every profile and user (obsolete, parent denied, redundant) and its fixes -->
+  <service id="access-review">
+    <java classname="com.almis.awe.service.access.AccessReviewService" method="getAccessReview" />
+  </service>
+  <service id="access-review-counts">
+    <java classname="com.almis.awe.service.access.AccessReviewService" method="getAccessReviewCounts" />
+  </service>
+  <service id="access-review-label">
+    <java classname="com.almis.awe.service.access.AccessReviewService" method="getAccessReviewLabel">
+      <service-parameter type="STRING" name="kind" />
+    </java>
+  </service>
+  <service id="access-review-allow-parent">
+    <java classname="com.almis.awe.service.access.AccessReviewService" method="allowReviewParents">
+      <service-parameter type="INTEGER" name="rule" list="true" />
+    </java>
+  </service>
+  <service id="access-review-clean">
+    <java classname="com.almis.awe.service.access.AccessReviewService" method="removeRulesWithoutEffect" />
+  </service>
+  <!-- Access window: view as, the menu that a profile or a user would see in a module (nothing is stored) -->
+  <service id="access-menu-preview">
+    <java classname="com.almis.awe.service.access.AccessMenuPreviewService" method="getMenuPreview">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+    </java>
+  </service>
+  <service id="access-menu-preview-counts">
+    <java classname="com.almis.awe.service.access.AccessMenuPreviewService" method="getMenuPreviewCounts">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+    </java>
+  </service>
+  <service id="access-menu-preview-hidden">
+    <java classname="com.almis.awe.service.access.AccessMenuPreviewService" method="getMenuPreviewHidden">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+    </java>
+  </service>
+  <service id="access-menu-preview-banner">
+    <java classname="com.almis.awe.service.access.AccessMenuPreviewService" method="getMenuPreviewBanner">
+      <service-parameter type="STRING" name="subjectType" />
+      <service-parameter type="INTEGER" name="user" />
+      <service-parameter type="INTEGER" name="profile" />
+      <service-parameter type="STRING" name="module" />
+    </java>
+  </service>
   <service id="getScreenElementList">
     <java classname="com.almis.awe.service.ScreenService" method="getScreenElementList">
       <service-parameter type="STRING" name="screenName" />
       <service-parameter type="STRING" name="element" />
     </java>
   </service>
+  <service id="getScreenStructure">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenStructure">
+      <service-parameter type="STRING" name="screenId" />
+    </java>
+  </service>
+  <service id="getScreenConfigurationOverview">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenConfigurationOverview">
+      <service-parameter type="STRING" name="screenId" />
+    </java>
+  </service>
+  <service id="getScreenConfigurationHistory">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenConfigurationHistory">
+      <service-parameter type="STRING" name="screenId" />
+    </java>
+  </service>
+  <service id="getScreenConfigurationExport">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenConfigurationExport">
+      <service-parameter type="STRING" name="screenId" />
+    </java>
+  </service>
+  <service id="getScreenOption">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenOption">
+      <service-parameter type="STRING" name="screenId" />
+    </java>
+  </service>
+  <service id="getScreenElementAttributes">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="getScreenElementAttributes">
+      <service-parameter type="STRING" name="screenId" />
+      <service-parameter type="STRING" name="componentId" />
+    </java>
+  </service>
+  <!-- Validates the rules sent by the screen configuration grid (rowTypes: the operation of each row) -->
+  <service id="validateScreenConfiguration">
+    <java classname="com.almis.awe.service.screen.ScreenConfigurationService" method="validateRules">
+      <service-parameter type="STRING" name="rowTypes" list="true" />
+      <service-parameter type="STRING" name="screens" list="true" />
+      <service-parameter type="STRING" name="components" list="true" />
+      <service-parameter type="STRING" name="attributes" list="true" />
+      <service-parameter type="STRING" name="values" list="true" />
+    </java>
+  </service>
+
   <service id="getAttributeNameList">
     <java classname="com.almis.awe.service.ScreenService" method="getAttributeNameList">
       <service-parameter name="attributeKey" type="STRING" />
@@ -170,7 +498,7 @@
   <service id="refreshDatabaseProperties">
     <java classname="com.almis.awe.service.PropertyService" method="refreshDatabaseProperties" />
   </service>
-  <service id="refreshMenu">
+  <service id="refreshMenu" permission="self.read">
     <java classname="com.almis.awe.service.MenuService" method="refreshMenu" />
   </service>
   <service id="getFileInformation">
@@ -193,7 +521,7 @@
       <service-parameter type="STRING" name="endTime" />
     </java>
   </service>
-  <service id="getLogFile">
+  <service id="getLogFile" permission="system.read">
     <java classname="com.almis.awe.service.FileService" method="getLogFile" />
   </service>
 
@@ -202,7 +530,7 @@
       <service-parameter type="STRING" name="database" />
     </java>
   </service>
-  <service id="ChgLogLvl">
+  <service id="ChgLogLvl" permission="system.update">
     <java classname="com.almis.awe.service.LogService" method="changeLevel" />
   </service>
   <service id="viewPdf">
@@ -225,7 +553,7 @@
       <service-parameter type="STRING" name="fldLst" />
     </java>
   </service>
-  <service id="subscribe">
+  <service id="subscribe" authorization="target">
     <java classname="com.almis.awe.service.QueryService" method="subscribeAction" />
   </service>
   <service id="getApplicationLocales">
@@ -250,6 +578,42 @@
   </service>
   <service id="generate-2fa-secret">
     <java classname="com.almis.awe.service.TotpService" method="generate2faSecret"/>
+  </service>
+  <!-- Security audit screen -->
+  <service id="SecAudDefFro">
+    <java classname="com.almis.awe.security.audit.SecurityAuditScreenService" method="getDefaultDateFrom" />
+  </service>
+  <!-- Security audit time range: the two dates of the preset chosen in the range picker (15m, 1h, 6h, 24h, 7d, 30d) -->
+  <service id="SecAudRng">
+    <java classname="com.almis.awe.security.audit.SecurityAuditScreenService" method="getRange">
+      <service-parameter type="STRING" name="CrtRng" />
+    </java>
+  </service>
+  <!-- Label of the security audit time range picker: the two dates in force, with their time -->
+  <service id="SecAudRngTxt">
+    <java classname="com.almis.awe.security.audit.SecurityAuditScreenService" method="formatRange">
+      <service-parameter type="DATE" name="CrtFro" />
+      <service-parameter type="DATE" name="CrtTo" />
+    </java>
+  </service>
+  <!-- Security audit of user account changes (userId: one identifier or the list sent by a grid) -->
+  <service id="audit-user-update">
+    <java classname="com.almis.awe.security.audit.UserAccountAuditService" method="auditUserUpdate">
+      <service-parameter type="INTEGER" name="userId" list="true" />
+      <service-parameter type="INTEGER" name="locked" />
+      <service-parameter type="INTEGER" name="passwordUpdate" />
+    </java>
+  </service>
+  <service id="audit-password-change">
+    <java classname="com.almis.awe.security.audit.UserAccountAuditService" method="auditPasswordChange">
+      <service-parameter type="STRING" name="user" />
+      <service-parameter type="STRING" name="password" />
+    </java>
+  </service>
+  <service id="audit-totp-reset">
+    <java classname="com.almis.awe.security.audit.UserAccountAuditService" method="auditTotpReset">
+      <service-parameter type="INTEGER" name="userIds" list="true" />
+    </java>
   </service>
   <service id="update-2fa-status">
     <java classname="com.almis.awe.service.TotpService" method="update2faStatus">
@@ -281,6 +645,73 @@
       <service-parameter type="STRING" name="avatarToken" />
     </java>
   </service>
+  <!-- User grid layouts (the user comes from the session) -->
+  <service id="saveGridLayout">
+    <java classname="com.almis.awe.service.GridLayoutService" method="saveGridLayout">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="gridId" />
+      <service-parameter type="STRING" name="layout" />
+    </java>
+  </service>
+  <service id="resetGridLayout">
+    <java classname="com.almis.awe.service.GridLayoutService" method="resetGridLayout">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="gridId" />
+    </java>
+  </service>
+  <!-- User window states (the user comes from the session) -->
+  <service id="saveWindowAdvancedState">
+    <java classname="com.almis.awe.service.WindowStateService" method="saveAdvancedState">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="windowId" />
+      <service-parameter type="STRING" name="open" />
+    </java>
+  </service>
+  <!-- Saved searches (the user and the profile come from the session) -->
+  <service id="getWindowSavedSearches">
+    <java classname="com.almis.awe.service.SavedSearchService" method="getWindowSavedSearches">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="windowId" />
+    </java>
+  </service>
+  <service id="getSavedSearchProfiles">
+    <java classname="com.almis.awe.service.SavedSearchService" method="getSavedSearchProfiles" />
+  </service>
+  <service id="saveWindowSearch">
+    <java classname="com.almis.awe.service.SavedSearchService" method="saveWindowSearch">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="windowId" />
+      <service-parameter type="STRING" name="name" />
+      <service-parameter type="STRING" name="values" />
+      <service-parameter type="STRING" name="profile" />
+    </java>
+  </service>
+  <service id="renameWindowSearch">
+    <java classname="com.almis.awe.service.SavedSearchService" method="renameWindowSearch">
+      <service-parameter type="STRING" name="id" />
+      <service-parameter type="STRING" name="name" />
+    </java>
+  </service>
+  <service id="deleteWindowSearch">
+    <java classname="com.almis.awe.service.SavedSearchService" method="deleteWindowSearch">
+      <service-parameter type="STRING" name="id" />
+    </java>
+  </service>
+  <service id="setWindowDefaultSearch">
+    <java classname="com.almis.awe.service.SavedSearchService" method="setWindowDefaultSearch">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="windowId" />
+      <service-parameter type="STRING" name="id" />
+    </java>
+  </service>
+  <service id="setProfileDefaultSearch">
+    <java classname="com.almis.awe.service.SavedSearchService" method="setProfileDefaultSearch">
+      <service-parameter type="STRING" name="screen" />
+      <service-parameter type="STRING" name="windowId" />
+      <service-parameter type="STRING" name="id" />
+      <service-parameter type="STRING" name="isDefault" />
+    </java>
+  </service>
   <!-- Themes -->
   <service id="changeUserMode">
     <java classname="com.almis.awe.service.UserService" method="changeUserMode">
@@ -288,8 +719,34 @@
       <service-parameter type="STRING" name="mode" />
     </java>
   </service>
+  <service id="changeUserDensity">
+    <java classname="com.almis.awe.service.UserService" method="changeUserDensity">
+      <service-parameter type="STRING" name="user" />
+      <service-parameter type="STRING" name="density" />
+    </java>
+  </service>
+  <!-- Primary colour and surface of a theme from the palette selects and colour pickers of the theme screens -->
+  <service id="composeThemeColors">
+    <java classname="com.almis.awe.service.ThemeService" method="composeColors">
+      <service-parameter type="STRING" name="primaryPalette" />
+      <service-parameter type="STRING" name="primaryHex" />
+      <service-parameter type="STRING" name="surfacePalette" />
+      <service-parameter type="STRING" name="surfaceHex" />
+    </java>
+  </service>
+  <!-- Palette of the custom colours of the theme being edited, for its preview (#949) -->
+  <service id="themePreviewPalette">
+    <java classname="com.almis.awe.service.ThemeService" method="previewPalette">
+      <service-parameter type="STRING" name="primaryHex" />
+      <service-parameter type="STRING" name="surfaceHex" />
+    </java>
+  </service>
   <!-- Email service -->
   <service id="reloadMailServers">
     <java classname="com.almis.awe.service.EmailService" method="reloadMailServers"/>
+  </service>
+  <!-- Spring Security client registrations (client_credentials) available for email servers -->
+  <service id="getEmailOAuth2Registrations">
+    <java classname="com.almis.awe.service.email.EmailOAuth2RegistrationService" method="getClientCredentialsRegistrations"/>
   </service>
 </services>

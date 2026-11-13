@@ -139,7 +139,7 @@ public class ComputedColumnProcessor implements ColumnProcessor {
         // Check if fill with variable or cell
         if (variableMap != null && variableMap.containsKey(variableKey)) {
           // Fill with variable value
-          variableValue = variableMap.get(variableKey).getValue().asText();
+          variableValue = variableMap.get(variableKey).getValue().asString("");
         } else if (cell != null && !cell.getStringValue().isEmpty()) {
           // Fill with cell value
           variableValue = cell.getStringValue();

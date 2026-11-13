@@ -1,0 +1,100 @@
+---
+id: grid
+title: Grid
+sidebar_label: Grid
+description: The AWE grid, live. Sort, page, select and edit real rows, change its attributes and copy the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {grid, gridExample} from '@site/src/components/AwePlayground/specs/grid';
+
+The grid is the workhorse of an AWE screen: a table of rows fed by a query, with sorting, pagination, selection, editable
+rows, column filters, totals and grouping. Below is the real grid of the AWE React client. Click a header to sort, click a row
+to select it, move through the pages, and change the attributes: the XML below follows.
+
+<AwePlayground spec={grid} />
+
+:::info The rows are a fixture
+In a screen the rows come from a query (`initial-load="query"`). Here they are a fixed list of 24 sample customers, and the XML
+declares `load-all="true"`: the grid receives every row once and pages, sorts and selects them on the client, so no server is
+needed. With a real query and no `load-all`, paging and sorting reload the data from the server.
+:::
+
+## Recipes {#recipes}
+
+### Pick several rows {#recipe-select}
+
+`multiselect` adds a checkbox column and a selection bar that tells how many rows are selected and offers to clear them.
+`row-numbers` numbers the rows of the page.
+
+<AweLive height="26rem" {...gridExample({multiselect: true, rowNumbers: true})} />
+
+```xml
+<grid id="customers" initial-load="query" target-action="Customers" load-all="true"
+      multiselect="true" row-numbers="true" max="8">
+  <column name="name" label="Customer" component="text" sortable="true" avatar-field="initials" secondary-field="email" />
+  <column name="plan" label="Plan" component="text" sortable="true" status-field="planTone" />
+  <!-- ... -->
+</grid>
+```
+
+### Edit a row in place {#recipe-edit}
+
+`editable` adds a pencil to each row. A column whose `component` has an editor (`text`, `numeric`, `select`, `checkbox`, `date`...)
+turns into an input while its row is edited; the other components stay read only. Press **Enter** or the check to save and
+**Escape** or the cross to cancel. Here the edit is kept on the client: in a screen, a `button` with a `server` action saves the
+changed rows.
+
+<AweLive height="26rem" {...gridExample({editable: true, validateOnSave: false})} />
+
+```xml
+<grid id="customers" initial-load="query" target-action="Customers" load-all="true"
+      editable="true" validate-on-save="false" max="8">
+  <column name="name" label="Customer" component="text" sortable="true" />
+  <column name="country" label="Country" component="text" sortable="true" />
+  <!-- ... -->
+</grid>
+```
+
+### Group rows with subtotals {#recipe-group}
+
+`group-by` takes a comma-separated list of columns, one grouping level each. Each group row shows its value, its row count and
+the aggregate of the columns with a `summary-type` (here the sum of the MRR); a grouped grid shows every row without paging.
+
+<AweLive height="30rem" {...gridExample({groupBy: 'plan'})} />
+
+```xml
+<grid id="customers" initial-load="query" target-action="Customers" load-all="true" group-by="plan">
+  <column name="plan" label="Plan" component="text" sortable="true" />
+  <column name="mrr" label="MRR (EUR)" component="progress" bar-max="9500" summary-type="sum" />
+  <!-- ... -->
+</grid>
+```
+
+## Column types {#column-types}
+
+The `component` of a `column` chooses how a cell looks. The playground above uses:
+
+* `text`: plain text, with an avatar (`avatar-field`), a second line (`secondary-field`) and a coloured status (`status-field`)
+  read from other fields of the row.
+* `progress`: a data bar behind the number, scaled with `bar-min` and `bar-max`.
+* `sparkline`: a small chart of a series of numbers (`sparkline-type` is `line`, `bar` or `area`).
+
+Others are `numeric`, `select`, `checkbox`, `date`, `icon`, `image`, `link`, `color` and `button`. The
+[XSD reference of the `column` element](/reference/screen#element-column) lists them with their attributes.
+
+## Events and actions {#events-and-actions}
+
+Selecting a row is an event: its [dependencies](../api/dependencies.md) and the buttons that listen to the grid run. The actions
+below work on a grid; these examples run the client-side ones (select, page, sort, edit) for real, and nothing else.
+
+* `select-row`, `select-all-rows`, `unselect-all-rows`: change the selection.
+* `add-row`, `delete-row`, `update-row`: change the rows before they are saved.
+* `filter`: reloads the grid from its query. A server action: it is not simulated here.
+
+## More {#more}
+
+* [Full documentation of grids](../api/grids.md): every attribute, column type, action and the server side.
+* [XSD reference of the `grid` element](/reference/screen#element-grid).
+* [Tree grid](./tree-grid.mdx): the same grid with expandable parent and child rows.

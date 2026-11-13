@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : hd-check.xml
+    Description: Public ticket check: ticket code and requester email, both matched on the server; shows the status, the last update and the public replies of that ticket only
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="HD_CHK_TITLE">
+  <tag source="center">
+    <tag type="div" style="hd-landing">
+      <tag type="header" style="hd-topbar">
+        <tag type="div" style="hd-brand">
+          <tag type="span" style="hd-brand-name" label="HD_BRAND"/>
+        </tag>
+        <tag type="nav" style="hd-topbar-actions">
+          <button label="HD_BTN_BACK_HOME" icon="lucide:arrow-left" id="ButTopHome" style="btn-ghost">
+            <button-action type="screen" target="/"/>
+          </button>
+          <button label="HD_HOME_SIGN_IN" icon="lucide:log-in" id="ButTopLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+        </tag>
+      </tag>
+      <tag type="div" style="hd-check-wrap">
+        <tag type="section" style="hd-check-card">
+          <tag type="div" style="hd-check-icon" icon="lucide:ticket-check"/>
+          <tag type="h1" label="HD_CHK_TITLE"/>
+          <tag type="p" style="hd-lead" label="HD_CHK_LEAD"/>
+          <tag type="div" id="PnlChkBdy" style="panel-body">
+            <criteria label="HD_CHK_KEY" id="ChkKey" component="text" icon="lucide:ticket" style="col-xs-12 col-sm-6" validation="{required:true, maxlength:8}"/>
+            <criteria label="HD_CHK_EMAIL" id="ChkEml" component="text" icon="lucide:mail" style="col-xs-12 col-sm-6" validation="{required:true, email:true}"/>
+          </tag>
+          <criteria id="ChkDone" component="hidden" value="0"/>
+          <tag type="div" style="hd-form-actions">
+            <button button-type="submit" label="HD_CHK_BUTTON" icon="lucide:search" id="ButCheck" style="btn-primary btn-lg">
+              <button-action type="validate" target="PnlChkBdy"/>
+              <button-action type="value" target="ChkDone" value="1"/>
+              <button-action type="filter" target="GrdChkSta"/>
+              <button-action type="filter" target="GrdChkRep"/>
+            </button>
+          </tag>
+        </tag>
+        <tag type="section" style="hd-check-result">
+          <grid id="GrdChkSta" server-action="data" target-action="HdkStatusPub" max="1" pagination-disabled="true" show-toolbar="false" style="hd-check-grid">
+            <column label="HD_COL_STATUS" name="StaTxt" align="left" charlength="18" sendable="false"/>
+            <column label="HD_COL_UPDATED" name="UpdDat" align="left" charlength="20" width="*" sendable="false"/>
+            <dependency target-type="show" initial="true">
+              <dependency-element id="ChkDone" condition="eq" value="1"/>
+            </dependency>
+          </grid>
+          <grid id="GrdChkRep" row-numbers="false" server-action="data" target-action="HdkRepliesPub" max="30" pagination-disabled="true" show-toolbar="false" style="hd-check-grid hd-check-replies">
+            <column label="HD_COL_WHEN" name="MsgDat" align="left" charlength="11" wrap="true" sendable="false"/>
+            <column label="HD_COL_AUTHOR" name="Aut" align="left" charlength="10" wrap="true" sendable="false"/>
+            <column label="HD_COL_REPLY" name="Txt" align="left" charlength="34" width="*" wrap="true" sendable="false"/>
+            <dependency target-type="show" initial="true">
+              <dependency-element id="ChkDone" condition="eq" value="1"/>
+              <dependency-element id="GrdChkSta" attribute="totalRows" condition="gt" value="0"/>
+            </dependency>
+          </grid>
+        </tag>
+      </tag>
+    </tag>
+  </tag>
+</screen>

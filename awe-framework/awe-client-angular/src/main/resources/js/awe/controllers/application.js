@@ -9,7 +9,7 @@ function checkCapsLock($ctrl, event) {
 
 // Application controller
 aweApplication.controller('AppController',
-  ['$scope', '$log', 'LoadingBar', 'ServerData', 'Storage', 'AweUtilities', 'AweSettings', 'ActionController', '$rootScope',
+  ['$scope', '$log', 'LoadingBar', 'ServerData', 'Storage', 'AweUtilities', 'AweSettings', 'ActionController', '$rootScope', 'ScreenSkeleton',
     /**
      * Control the base application behaviour
      * @param {object} $scope
@@ -19,8 +19,11 @@ aweApplication.controller('AppController',
      * @param {object} $storage
      * @param {object} $utilities
      * @param {object} $settings
+     * @param {object} $actionController
+     * @param {object} $root
+     * @param {object} $screenSkeleton Screen loading skeleton
      */
-    function ($scope, $log, $loadingBar, $serverData, $storage, $utilities, $settings, $actionController, $root) {
+    function ($scope, $log, $loadingBar, $serverData, $storage, $utilities, $settings, $actionController, $root, $screenSkeleton) {
       // Define controller
       let $ctrl = this;
 
@@ -30,8 +33,8 @@ aweApplication.controller('AppController',
         $root.status = {
           ...$root.status,
           [id]:value
-        }
-      }
+        };
+      };
 
       /**
        * Manage keydown event
@@ -116,6 +119,16 @@ aweApplication.controller('AppController',
       };
 
       /**
+       * Remove the splash animation shown while the first screen of the page loads
+       */
+      let removeSplash = function () {
+        // The logo fills up (css/splash.css) while the splash fades out
+        $("#splash").addClass("splash-done").fadeOut(300, function () {
+          $(this).remove();
+        });
+      };
+
+      /**
        * Check on unload
        * @param {type} screenParameters
        * @param {type} closingTab       */
@@ -140,10 +153,16 @@ aweApplication.controller('AppController',
       };
 
       // Route change start (show loading message)
-      $scope.$on('$stateChangeStart', function (event, toState, _toParams, fromState/*, fromParams*/) {
+      $scope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
         // Prevent start if settings are still not defined
         if (!$storage.getRoot("cometUID")) {
           return event.preventDefault();
+        }
+
+        // Show the screen skeleton over the view that is going to load. The first screen of the page (it comes from the
+        // root state) loads under the splash animation instead
+        if (fromState.name) {
+          $screenSkeleton.show($screenSkeleton.getLoadingView(toState, toParams, fromState, fromParams));
         }
 
         let views = _.merge({}, fromState.views, toState.views);
@@ -181,6 +200,8 @@ aweApplication.controller('AppController',
 
       // Route change start (hide loading message)
       $scope.$on('$stateChangeError', function (_event, toState, _toParams, _fromState, _fromParams, error) {
+        $screenSkeleton.hide();
+        removeSplash();
         $ctrl.updateStatus("loading", false);
         $scope.resizing = false;
         $loadingBar.end();
@@ -190,6 +211,8 @@ aweApplication.controller('AppController',
       // Route state not found
       $scope.$on('$stateNotFound', function (_event, current/*, previous, reject*/) {
         //do you work here
+        $screenSkeleton.hide();
+        removeSplash();
         $ctrl.updateStatus("loading", false);
         $loadingBar.end();
         $log.warn("State not found: " + current);
@@ -212,15 +235,17 @@ aweApplication.controller('AppController',
       $scope.$on('cfpLoadingBar:started', initLoading);
       $scope.$on('cfpLoadingBar:completed', endLoading);
 
+      // Route change cancelled (the screen does not change)
+      $scope.$on('$stateChangeCancel', () => $screenSkeleton.hide());
+
       // On loaded screen
       $scope.$on('initialised', function () {
+        $screenSkeleton.hide();
+        removeSplash();
         $utilities.timeout(function () {
           $loadingBar.endTask();
         }, 100);
       });
-
-      // Remove splash screen & friends
-      $("#splash").fadeOut(250, () => $(this).remove());
 
       /**
        * Check for unload maintain actions in opened views

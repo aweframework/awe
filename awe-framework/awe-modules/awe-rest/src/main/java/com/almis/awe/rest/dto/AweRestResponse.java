@@ -24,6 +24,9 @@ public class AweRestResponse {
   private String title;
   private String message;
   @JsonInclude(NON_NULL)
+  @Schema(description = "Error code that tells apart the cause of an authentication error (for example PASSWORD_EXPIRED)")
+  private String code;
+  @JsonInclude(NON_NULL)
   private DataList dataList;
   @JsonInclude(NON_NULL)
   private List<MaintainResultDetails> resultDetails;

@@ -1,6 +1,8 @@
 import {aweApplication} from "../awe";
-import moment from "moment";
+import dayjs from "dayjs";
+import {parseDate} from "./dateUtils";
 import _ from "lodash";
+import {isDateRangeValid} from "./dateRange";
 
 // Validation rules service
 aweApplication.factory('ValidationRules',
@@ -13,7 +15,7 @@ aweApplication.factory('ValidationRules',
         NUMBER: /^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/,
         INTEGER: /^-?\d+$/,
         DIGITS: /^\d+$/,
-        EMAIL: /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
+        EMAIL: /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/,
         DATE: /^\d{1,2}\/\d{1,2}\/\d{4}$/,
         TIME: /^([0-1]\d|2[0-3]):([0-5]\d):([0-5]\d)$/
       };
@@ -54,6 +56,9 @@ aweApplication.factory('ValidationRules',
             requiredValue = value;
           }
           // Retrieve list values (for multiple)
+        } else if (controller.component === "date-range") {
+          // A date range requires both of its dates
+          requiredValue = $utilities.asArray(value).filter(date => !$utilities.isEmpty(date)).length === 2 ? value : null;
         } else if (angular.isArray(value)) {
           if (value.length !== 0) {
             requiredValue = value;
@@ -68,10 +73,9 @@ aweApplication.factory('ValidationRules',
       /**
        * Checks whether element is repeated n times in its grid column
        * @param {Object} address Element address
-       * @param {Object} param Times the element is allowed to be repeated
        * @returns {Number} Object with repetitions amount and limit allowed
        */
-      function checkRepeatedElement(address, param) {
+      function checkRepeatedElement(address) {
         let columnAddress = {};
 
         angular.forEach(address, function (value, key) {
@@ -159,7 +163,7 @@ aweApplication.factory('ValidationRules',
             break;
           case "date":
             _.each(parameters.values, function (value, valueId) {
-              parameters.values[valueId] = !$utilities.isEmpty(value) ? moment(value, "DD/MM/YYYY") : null;
+              parameters.values[valueId] = !$utilities.isEmpty(value) ? parseDate(value) : null;
             });
             break;
           default:
@@ -168,7 +172,7 @@ aweApplication.factory('ValidationRules',
                 parameters.values.value1 = getRequiredValue(value, address);
                 break;
               case "maxRepeat":
-                parameters.values.value1 = checkRepeatedElement(address, value);
+                parameters.values.value1 = checkRepeatedElement(address);
                 break;
               case "checkAtLeast":
                 parameters.values.value1 = getObjectsSelectedInGroup(address).length;
@@ -194,7 +198,7 @@ aweApplication.factory('ValidationRules',
         let messageFormatted = $translate.instant(message || "");
         _.each(parameters.values, function (value, key) {
           let formattedValue = value;
-          if (!$utilities.isEmpty(value) && value._isAMomentObject) {
+          if (!$utilities.isEmpty(value) && dayjs.isDayjs(value)) {
             formattedValue = formattedValue.format("DD/MM/YYYY");
           }
           messageFormatted = messageFormatted.replace("{" + key + "}", formattedValue);
@@ -263,7 +267,7 @@ aweApplication.factory('ValidationRules',
           };
           let passed = new RegExp(patterns.DATE).test(String(parameters.values.value1));
           if (passed) {
-            let d = moment(parameters.values.value1, 'DD/MM/YYYY');
+            let d = parseDate(parameters.values.value1);
             passed = d.isValid();
           }
           return $utilities.isEmpty(parameters.values.value1) || passed ? null : error;
@@ -316,6 +320,15 @@ aweApplication.factory('ValidationRules',
           };
           let passed = parameters.values.value1 >= parameters.values.value2;
           return $utilities.isEmpty(parameters.values.value1) || $utilities.isEmpty(parameters.values.value2) || passed ? null : error;
+        },
+        dateRange: function (parameters) {
+          let [from, to] = $utilities.asArray(parameters.values.value1);
+          parameters.values.from = from;
+          parameters.values.to = to;
+          let error = {
+            message: formatMessage(parameters.message || "VALIDATOR_MESSAGE_DATE_RANGE", parameters)
+          };
+          return isDateRangeValid(from, to) ? null : error;
         },
         mod: function (parameters) {
           let error = {

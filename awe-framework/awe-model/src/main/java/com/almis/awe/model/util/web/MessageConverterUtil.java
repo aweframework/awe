@@ -2,7 +2,10 @@ package com.almis.awe.model.util.web;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 
@@ -62,6 +65,22 @@ public final class MessageConverterUtil {
    */
   public static RestTemplate withoutXmlConverters(RestTemplate restTemplate) {
     removeXmlConverters(restTemplate.getMessageConverters());
+    return restTemplate;
+  }
+
+  /**
+   * Make a rest template read and write JSON with the given mapper instead of the Jackson 3 defaults.
+   * A plain rest template reads enums through {@code toString()}, while AWE writes enum names (the
+   * AWE 4 wire format), so an AWE client must share the AWE mapper to read AWE responses.
+   *
+   * @param restTemplate Rest template to pin
+   * @param mapper       JSON mapper, must be a {@link JsonMapper}
+   * @return the same rest template, for chaining
+   */
+  public static RestTemplate withJsonMapper(RestTemplate restTemplate, ObjectMapper mapper) {
+    JacksonJsonHttpMessageConverter jsonConverter = new JacksonJsonHttpMessageConverter((JsonMapper) mapper);
+    restTemplate.getMessageConverters().replaceAll(converter ->
+      converter instanceof JacksonJsonHttpMessageConverter ? jsonConverter : converter);
     return restTemplate;
   }
 

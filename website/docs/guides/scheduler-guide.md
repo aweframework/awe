@@ -61,10 +61,6 @@ A task consists on a job associated to a trigger that is executed by the Schedul
 
 A task can also be concatenated with other tasks to create a workflow. This can be done by adding those other tasks as dependencies in the parent task configuration wizard.
 
-A task consists on a job associated to a trigger that is executed by the Scheduler in the configured time / moment.
-
-A task can also be concatenated with other tasks in order to create a workflow. This can be done by adding those other tasks as dependencies in the parent task configuration wizard.
-
 ### Types
 
 There are two type of tasks that the scheduler can work with, the maintain tasks and the command tasks.
@@ -280,7 +276,7 @@ This reuses the same mechanism as the operator-supplied values on manual launch,
 Propagation is name-based: any dependent task that declares a `Variable` parameter matching a parent parameter name receives the parent's value at execution time &mdash; including values that may be sensitive (credentials, connection strings). Task configuration is an administrator-trusted boundary; do not attach dependencies of untrusted provenance to tasks holding sensitive parameters.
 :::
 
-#### 3. Task report ###
+#### 5. Task report ###
 
 The last step is to choose a report type.
 
@@ -288,13 +284,13 @@ The report will give information about the task when it finishes.
 
 We can choose one of these four options: 
 
-##### 3.1 None ####
+##### 5.1 None ####
 
 Used when we don't want to retrieve any report from the task.
 
 This could be compared to the silent-action in AWE.
 
-##### 3.2 Email ####
+##### 5.2 Email ####
 
 This option will send an email with the task information, and it will also add the dependencies information if any.
 
@@ -344,7 +340,7 @@ Any placeholder whose name matches a task parameter (from the task **Parameters*
 
 > **Note:** Variable substitution applies only to the **Title** and **Message** fields, not to the fixed task-details block that the report appends automatically.
 
-##### 3.3 Broadcast ####
+##### 5.3 Broadcast ####
 
 This option will send a broadcast message with the given message to the selected users only.
 
@@ -354,7 +350,7 @@ This option will send a broadcast message with the given message to the selected
 | Send to users    | The list of users to send the broadcast                                         | **Required** |
 | Message          | The message to be sent in the broadcast                                         | **Required** |
 
-#### 4. Maintain####
+##### 5.4 Maintain ####
 
 This option will launch the selected maintain as a report.
 
@@ -378,7 +374,7 @@ When selecting one task, some options will be activated:
 | Update              | Update the selected task                                                                                                           |    No    |
 | Delete              | Delete the selected task/s                                                                                                         |   Yes    |
 | Start               | Launch the selected task as a manual task. It doesn't need to be a manual task in order to launch an instance of the task manually |    No    |
-| Activate/Deactivate | Act                                                                                                                                |          |
+| Activate/Deactivate | Activates / deactivates the selected task, the label changes depending on the selected task current status                        |    No    |
 
 ## `Servers`
 

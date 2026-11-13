@@ -1,0 +1,2860 @@
+{
+  "homepage.meta.title": {
+    "message": "Aplicaciones web completas y funcionales con low code",
+    "description": "Browser tab and search result title for the home page"
+  },
+  "homepage.meta.description": {
+    "message": "AWE convierte XML declarativo en aplicaciones web completas: pantallas, menús, navegación y vinculación de datos, renderizadas con React sobre Spring Boot.",
+    "description": "Meta and social preview description for the home page"
+  },
+  "homepage.bento.title": {
+    "message": "Diseñado para aplicaciones empresariales",
+    "description": "Title of the homepage feature grid"
+  },
+  "homepage.bento.description": {
+    "message": "Todo lo que necesita una plataforma interna con gran volumen de datos, desde el primer momento.",
+    "description": "Description of the homepage feature grid"
+  },
+  "homepage.bento.frontends.title": {
+    "message": "Un XML, dos frontends",
+    "description": "Bento cell: one XML two frontends, title"
+  },
+  "homepage.bento.frontends.body": {
+    "message": "La misma definición de pantalla se renderiza con el cliente moderno de React o con el cliente estable de AngularJS. Migra motor a motor: tu XML no cambia.",
+    "description": "Bento cell: one XML two frontends, body"
+  },
+  "homepage.bento.engine.title": {
+    "message": "Motor de queries y maintains",
+    "description": "Bento cell: query and maintain engine, title"
+  },
+  "homepage.bento.engine.body": {
+    "message": "Lecturas declarativas y escrituras transaccionales con auditoría, bloqueo y paginación, sobre SQL, NoSQL, REST y JavaBeans.",
+    "description": "Bento cell: query and maintain engine, body"
+  },
+  "homepage.bento.starters.title": {
+    "message": "Starters modulares",
+    "description": "Bento cell: pluggable starters, title"
+  },
+  "homepage.bento.starters.body": {
+    "message": "Los starters de Spring Boot activan exactamente los módulos que necesitas: planificador, notificaciones, impresión, REST.",
+    "description": "Bento cell: pluggable starters, body"
+  },
+  "homepage.bento.theming.title": {
+    "message": "i18n y temas",
+    "description": "Bento cell: i18n and themes, title"
+  },
+  "homepage.bento.theming.body": {
+    "message": "Inglés, español y francés desde el inicio, y puedes añadir el idioma que necesites. Temas preconfigurados y personalizables con CSS.",
+    "description": "Bento cell: i18n and themes, body"
+  },
+  "homepage.bento.components.title": {
+    "message": "Componentes avanzados",
+    "description": "Bento cell: rich components, title"
+  },
+  "homepage.bento.components.body": {
+    "message": "Sobre PrimeReact: grids editables, matrices dinámicas, gráficos, calendarios y asistentes, o añade tus propios componentes.",
+    "description": "Bento cell: rich components, body"
+  },
+  "homepage.bento.security.title": {
+    "message": "Seguridad integrada",
+    "description": "Bento cell: security, title"
+  },
+  "homepage.bento.security.body": {
+    "message": "Autenticación, perfiles y permisos por pantalla gestionados con Spring Security.",
+    "description": "Bento cell: security, body"
+  },
+  "homepage.hub.start.title": {
+    "message": "Primeros pasos",
+    "description": "Docs hub card: getting started, title"
+  },
+  "homepage.hub.start.body": {
+    "message": "Instala, genera un proyecto y ejecuta tu primera pantalla.",
+    "description": "Docs hub card: getting started, body"
+  },
+  "homepage.hub.screens.title": {
+    "message": "Desarrollo de pantallas",
+    "description": "Docs hub card: screen development, title"
+  },
+  "homepage.hub.screens.body": {
+    "message": "Todo el vocabulario XML: ventanas, criterios, grids y gráficos.",
+    "description": "Docs hub card: screen development, body"
+  },
+  "homepage.hub.data.title": {
+    "message": "Motor de datos",
+    "description": "Docs hub card: data engine, title"
+  },
+  "homepage.hub.data.body": {
+    "message": "Queries, maintains, listas enumeradas y llamadas a servicios.",
+    "description": "Docs hub card: data engine, body"
+  },
+  "homepage.hub.theming.title": {
+    "message": "Temas e i18n",
+    "description": "Docs hub card: theming and i18n, title"
+  },
+  "homepage.hub.theming.body": {
+    "message": "Idiomas, temas y personalización con CSS para tu marca.",
+    "description": "Docs hub card: theming and i18n, body"
+  },
+  "homepage.hub.title": {
+    "message": "Encuentra tu camino en la documentación",
+    "description": "Title of the docs hub section"
+  },
+  "homepage.hub.description": {
+    "message": "Cuatro puntos de entrada cubren la mayoría de recorridos, desde la instalación hasta la vinculación avanzada de datos.",
+    "description": "Description of the docs hub section"
+  },
+  "homepage.hero.eyebrow": {
+    "message": "// Low-code · Spring Boot · React",
+    "description": "Small monospace kicker above the homepage headline"
+  },
+  "homepage.hero.title": {
+    "message": "Low code para{lineBreak}{gradient}.",
+    "description": "Homepage hero headline. {gradient} is the brand-gradient part of the sentence."
+  },
+  "homepage.hero.title.highlight": {
+    "message": "aplicaciones web completas y funcionales",
+    "description": "Gradient-highlighted part of the homepage headline"
+  },
+  "homepage.hero.subtitle": {
+    "message": "AWE convierte XML declarativo en aplicaciones web completas —pantallas, menús, navegación y vinculación de datos— renderizadas con React, sobre Spring Boot y el motor de queries y maintains.",
+    "description": "Paragraph below the homepage headline"
+  },
+  "homepage.hero.cta.start": {
+    "message": "Empezar con AWE",
+    "description": "Primary call to action of the homepage hero"
+  },
+  "homepage.hero.cta.demo": {
+    "message": "Probar la demo",
+    "description": "Secondary call to action of the homepage hero"
+  },
+  "homepage.steps.screen.title": {
+    "message": "Define la pantalla",
+    "description": "How it works, step 1 title"
+  },
+  "homepage.steps.screen.body": {
+    "message": "Ventanas, criterios, grids, gráficos y pestañas, declarados en un esquema XML validado.",
+    "description": "How it works, step 1 body"
+  },
+  "homepage.steps.data.title": {
+    "message": "Vincula los datos",
+    "description": "How it works, step 2 title"
+  },
+  "homepage.steps.data.body": {
+    "message": "Las queries leen y los maintains escriben. Apúntalos a SQL, NoSQL, servicios REST o beans de Java.",
+    "description": "How it works, step 2 body"
+  },
+  "homepage.steps.dynamic.title": {
+    "message": "Hazlo dinámico",
+    "description": "How it works, step 3 title"
+  },
+  "homepage.steps.dynamic.body": {
+    "message": "Las dependencias reaccionan a lo que introduce el usuario: validaciones, valores calculados, reglas de visibilidad y acciones encadenadas, todo en XML y sin una línea de JavaScript.",
+    "description": "How it works, step 3 body"
+  },
+  "homepage.steps.run.title": {
+    "message": "Ejecuta y renderiza",
+    "description": "How it works, step 4 title"
+  },
+  "homepage.steps.run.body": {
+    "message": "Los starters de Spring Boot sirven la aplicación y el cliente React la renderiza en vivo. AngularJS mantiene en marcha las aplicaciones existentes.",
+    "description": "How it works, step 4 body"
+  },
+  "homepage.steps.title": {
+    "message": "De XML a aplicación en cuatro pasos",
+    "description": "Title of the how-it-works section"
+  },
+  "homepage.steps.description": {
+    "message": "Todas las aplicaciones AWE siguen el mismo ciclo declarativo: sin controladores que conectar y sin JavaScript que escribir para el comportamiento dinámico.",
+    "description": "Description of the how-it-works section"
+  },
+  "homepage.quickstart.title": {
+    "message": "En marcha con un solo comando",
+    "description": "Title of the homepage quick start section"
+  },
+  "homepage.quickstart.description": {
+    "message": "Genera un proyecto AWE a partir del arquetipo de Maven, en React o AngularJS, y empieza a construir pantallas de inmediato. Incluye recarga en caliente.",
+    "description": "Description of the homepage quick start section"
+  },
+  "homepage.quickstart.cta": {
+    "message": "Leer la guía de inicio",
+    "description": "Call to action of the homepage quick start section"
+  },
+  "homepage.quickstart.copied": {
+    "message": "Copiado ✓",
+    "description": "Copy button label right after the command was copied"
+  },
+  "homepage.quickstart.copy": {
+    "message": "Copiar",
+    "description": "Copy button label of the homepage terminal"
+  },
+  "homepage.stats.components.label": {
+    "message": "Componentes avanzados",
+    "description": "Stats strip: rich components label"
+  },
+  "homepage.stats.components.caption": {
+    "message": "Basados en PrimeReact",
+    "description": "Stats strip: rich components caption"
+  },
+  "homepage.stats.databases.label": {
+    "message": "Cualquier base de datos SQL",
+    "description": "Stats strip: databases label"
+  },
+  "homepage.stats.databases.caption": {
+    "message": "6 motores compatibles",
+    "description": "Stats strip: databases caption"
+  },
+  "homepage.stats.frontends.label": {
+    "message": "Dos frontends",
+    "description": "Stats strip: frontends label"
+  },
+  "homepage.stats.frontends.caption": {
+    "message": "React · AngularJS",
+    "description": "Stats strip: frontends caption"
+  },
+  "homepage.stats.i18n.label": {
+    "message": "Multiidioma",
+    "description": "Stats strip: multi-language label"
+  },
+  "homepage.stats.i18n.caption": {
+    "message": "idiomas ampliables",
+    "description": "Stats strip: multi-language caption"
+  },
+  "homepage.stats.backend.label": {
+    "message": "Spring Boot",
+    "description": "Stats strip: backend label"
+  },
+  "homepage.stats.backend.caption": {
+    "message": "Backend en Java",
+    "description": "Stats strip: backend caption"
+  },
+  "homepage.demo.status.active": {
+    "message": "Active",
+    "description": "Active status value in the mock AWE screen"
+  },
+  "homepage.demo.tablist.label": {
+    "message": "Ficheros de definición de AWE",
+    "description": "Accessible label of the AWE definition files tab list"
+  },
+  "homepage.demo.rendered.label": {
+    "message": "Resultado renderizado",
+    "description": "Label above the mock AWE screen in the homepage demo"
+  },
+  "homepage.demo.engine.label": {
+    "message": "Motor de renderizado",
+    "description": "Accessible label of the rendering engine toggle"
+  },
+  "homepage.demo.window.title": {
+    "message": "Usuarios",
+    "description": "Title of the mock AWE window in the homepage demo"
+  },
+  "homepage.demo.criteria.name": {
+    "message": "Name",
+    "description": "Name criterion label in the mock AWE screen"
+  },
+  "homepage.demo.criteria.status": {
+    "message": "Estado",
+    "description": "Status criterion label in the mock AWE screen"
+  },
+  "homepage.demo.status.inactive": {
+    "message": "Inactivo",
+    "description": "Inactive status value in the mock AWE screen"
+  },
+  "homepage.demo.button.search": {
+    "message": "Buscar",
+    "description": "Search button of the mock AWE screen"
+  },
+  "homepage.demo.button.new": {
+    "message": "Nuevo",
+    "description": "New button of the mock AWE screen"
+  },
+  "homepage.demo.footer.react": {
+    "message": "El mismo XML, renderizado con {client}",
+    "description": "Caption below the demo when the React engine is selected"
+  },
+  "homepage.demo.footer.angular": {
+    "message": "El mismo XML, renderizado con {client} (estable / heredado)",
+    "description": "Caption below the demo when the AngularJS engine is selected"
+  },
+  "theme.ErrorPageContent.title": {
+    "message": "Esta página ha fallado.",
+    "description": "The title of the fallback page when the page crashed"
+  },
+  "theme.BackToTopButton.buttonAriaLabel": {
+    "message": "Desplazarse hacia arriba",
+    "description": "The ARIA label for the back to top button"
+  },
+  "theme.blog.archive.title": {
+    "message": "Archivo",
+    "description": "The page & hero title of the blog archive page"
+  },
+  "theme.blog.archive.description": {
+    "message": "Archivo",
+    "description": "The page & hero description of the blog archive page"
+  },
+  "theme.blog.paginator.navAriaLabel": {
+    "message": "Navegación por la página de la lista de blogs ",
+    "description": "The ARIA label for the blog pagination"
+  },
+  "theme.blog.paginator.newerEntries": {
+    "message": "Newer entries",
+    "description": "The label used to navigate to the newer blog posts page (previous page)"
+  },
+  "theme.blog.paginator.olderEntries": {
+    "message": "Older entries",
+    "description": "The label used to navigate to the older blog posts page (next page)"
+  },
+  "theme.blog.post.paginator.navAriaLabel": {
+    "message": "Navegación de la página de publicaciones del blog ",
+    "description": "The ARIA label for the blog posts pagination"
+  },
+  "theme.blog.post.paginator.newerPost": {
+    "message": "Newer post",
+    "description": "The blog post button label to navigate to the newer/previous post"
+  },
+  "theme.blog.post.paginator.olderPost": {
+    "message": "Older post",
+    "description": "The blog post button label to navigate to the older/next post"
+  },
+  "theme.tags.tagsPageLink": {
+    "message": "View all tags",
+    "description": "The label of the link targeting the tag list page"
+  },
+  "theme.colorToggle.ariaLabel.mode.system": {
+    "message": "system mode",
+    "description": "The name for the system color mode"
+  },
+  "theme.colorToggle.ariaLabel.mode.light": {
+    "message": "light mode",
+    "description": "The name for the light color mode"
+  },
+  "theme.colorToggle.ariaLabel.mode.dark": {
+    "message": "dark mode",
+    "description": "The name for the dark color mode"
+  },
+  "theme.colorToggle.ariaLabel": {
+    "message": "Switch between dark and light mode (currently {mode})",
+    "description": "The ARIA label for the color mode toggle"
+  },
+  "theme.docs.breadcrumbs.navAriaLabel": {
+    "message": "Breadcrumbs",
+    "description": "The ARIA label for the breadcrumbs"
+  },
+  "theme.docs.DocCard.categoryDescription.plurals": {
+    "message": "1 item|{count} items",
+    "description": "The default description for a category card in the generated index about how many items this category includes"
+  },
+  "theme.docs.paginator.navAriaLabel": {
+    "message": "Docs pages",
+    "description": "The ARIA label for the docs pagination"
+  },
+  "theme.docs.paginator.previous": {
+    "message": "Anterior",
+    "description": "The label used to navigate to the previous doc"
+  },
+  "theme.docs.paginator.next": {
+    "message": "Siguiente",
+    "description": "The label used to navigate to the next doc"
+  },
+  "theme.docs.tagDocListPageTitle.nDocsTagged": {
+    "message": "Un documento etiquetado|{count} documentos etiquetados",
+    "description": "Pluralized label for \"{count} docs tagged\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.docs.tagDocListPageTitle": {
+    "message": "{nDocsTagged} con \"{tagName}\"",
+    "description": "The title of the page for a docs tag"
+  },
+  "theme.docs.versionBadge.label": {
+    "message": "Version: {versionLabel}"
+  },
+  "theme.docs.versions.unreleasedVersionLabel": {
+    "message": "Esta es la versión {versionLabel} de la documentación no publicada de {siteTitle}.",
+    "description": "The label used to tell the user that he's browsing an unreleased doc version"
+  },
+  "theme.docs.versions.unmaintainedVersionLabel": {
+    "message": "Esta es la documentación para {siteTitle} {versionLabel}, que ya no está mantenida de forma activa.",
+    "description": "The label used to tell the user that he's browsing an unmaintained doc version"
+  },
+  "theme.docs.versions.latestVersionSuggestionLabel": {
+    "message": "Para obtener la última documentación actualizada, consulte {latestVersionLink} ({versionLabel}).",
+    "description": "The label used to tell the user to check the latest version"
+  },
+  "theme.docs.versions.latestVersionLinkLabel": {
+    "message": "última versión",
+    "description": "The label used for the latest version suggestion link label"
+  },
+  "theme.common.editThisPage": {
+    "message": "Editar esta página",
+    "description": "The link label to edit the current page"
+  },
+  "theme.common.headingLinkTitle": {
+    "message": "Direct link to {heading}",
+    "description": "Title for link to heading"
+  },
+  "theme.lastUpdated.atDate": {
+    "message": " en {date}",
+    "description": "The words used to describe on which date a page has been last updated"
+  },
+  "theme.lastUpdated.byUser": {
+    "message": " por {user}",
+    "description": "The words used to describe by who the page has been last updated"
+  },
+  "theme.lastUpdated.lastUpdatedAtBy": {
+    "message": "Última actualización {atDate} {byUser}",
+    "description": "The sentence used to display when a page has been last updated, and by who"
+  },
+  "theme.navbar.mobileVersionsDropdown.label": {
+    "message": "Versiones",
+    "description": "The label for the navbar versions dropdown on mobile view"
+  },
+  "theme.NotFound.title": {
+    "message": "Página no encontrada",
+    "description": "The title of the 404 page"
+  },
+  "theme.tags.tagsListLabel": {
+    "message": "Etiquetas:",
+    "description": "The label alongside a tag list"
+  },
+  "theme.admonition.caution": {
+    "message": "caution",
+    "description": "The default label used for the Caution admonition (:::caution)"
+  },
+  "theme.admonition.danger": {
+    "message": "danger",
+    "description": "The default label used for the Danger admonition (:::danger)"
+  },
+  "theme.admonition.info": {
+    "message": "info",
+    "description": "The default label used for the Info admonition (:::info)"
+  },
+  "theme.admonition.note": {
+    "message": "note",
+    "description": "The default label used for the Note admonition (:::note)"
+  },
+  "theme.admonition.tip": {
+    "message": "tip",
+    "description": "The default label used for the Tip admonition (:::tip)"
+  },
+  "theme.admonition.warning": {
+    "message": "warning",
+    "description": "The default label used for the Warning admonition (:::warning)"
+  },
+  "theme.AnnouncementBar.closeButtonAriaLabel": {
+    "message": "Cerrar",
+    "description": "The ARIA label for close button of announcement bar"
+  },
+  "theme.blog.sidebar.navAriaLabel": {
+    "message": "Navegación de publicaciones recientes del blog",
+    "description": "The ARIA label for recent posts in the blog sidebar"
+  },
+  "theme.DocSidebarItem.expandCategoryAriaLabel": {
+    "message": "Expand sidebar category '{label}'",
+    "description": "The ARIA label to expand the sidebar category"
+  },
+  "theme.DocSidebarItem.collapseCategoryAriaLabel": {
+    "message": "Collapse sidebar category '{label}'",
+    "description": "The ARIA label to collapse the sidebar category"
+  },
+  "theme.NavBar.navAriaLabel": {
+    "message": "Main",
+    "description": "The ARIA label for the main navigation"
+  },
+  "theme.navbar.mobileLanguageDropdown.label": {
+    "message": "Languages",
+    "description": "The label for the mobile language switcher dropdown"
+  },
+  "theme.NotFound.p1": {
+    "message": "No podemos encontrar lo que estás buscando.",
+    "description": "The first paragraph of the 404 page"
+  },
+  "theme.NotFound.p2": {
+    "message": "Por favor, contacte con el propietario del sitio al que está enlazada la URL original y hágale saber que el enlace está roto.",
+    "description": "The 2nd paragraph of the 404 page"
+  },
+  "theme.TOCCollapsible.toggleButtonLabel": {
+    "message": "En esta página",
+    "description": "The label used by the button on the collapsible TOC component"
+  },
+  "theme.blog.post.readMore": {
+    "message": "Read more",
+    "description": "The label used in blog post item excerpts to link to full blog posts"
+  },
+  "theme.blog.post.readMoreLabel": {
+    "message": "Read more about {title}",
+    "description": "The ARIA label for the link to full blog posts from excerpts"
+  },
+  "theme.blog.post.readingTime.plurals": {
+    "message": "Lectura de un minuto|{readingTime} min de lectura",
+    "description": "Pluralized label for \"{readingTime} min read\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.CodeBlock.copy": {
+    "message": "Copiar",
+    "description": "The copy button label on code blocks"
+  },
+  "theme.CodeBlock.copied": {
+    "message": "Copiado",
+    "description": "The copied button label on code blocks"
+  },
+  "theme.CodeBlock.copyButtonAriaLabel": {
+    "message": "Copiar en el portapapeles",
+    "description": "The ARIA label for copy code blocks button"
+  },
+  "theme.CodeBlock.wordWrapToggle": {
+    "message": "Toggle word wrap",
+    "description": "The title attribute for toggle word wrapping button of code block lines"
+  },
+  "theme.docs.breadcrumbs.home": {
+    "message": "Home page",
+    "description": "The ARIA label for the home page in the breadcrumbs"
+  },
+  "theme.docs.sidebar.collapseButtonTitle": {
+    "message": "Ocultar barra lateral",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.collapseButtonAriaLabel": {
+    "message": "Ocultar barra lateral",
+    "description": "The title attribute for collapse button of doc sidebar"
+  },
+  "theme.docs.sidebar.navAriaLabel": {
+    "message": "Docs sidebar",
+    "description": "The ARIA label for the sidebar navigation"
+  },
+  "theme.docs.sidebar.closeSidebarButtonAriaLabel": {
+    "message": "Close navigation bar",
+    "description": "The ARIA label for close button of mobile sidebar"
+  },
+  "theme.navbar.mobileSidebarSecondaryMenu.backButtonLabel": {
+    "message": "← Volver al menú principal",
+    "description": "The label of the back button to return to main menu, inside the mobile navbar sidebar secondary menu (notably used to display the docs sidebar)"
+  },
+  "theme.docs.sidebar.toggleSidebarButtonAriaLabel": {
+    "message": "Toggle navigation bar",
+    "description": "The ARIA label for hamburger menu button of mobile navigation"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.expandAriaLabel": {
+    "message": "Expand the dropdown",
+    "description": "The ARIA label of the button to expand the mobile dropdown navbar item"
+  },
+  "theme.navbar.mobileDropdown.collapseButton.collapseAriaLabel": {
+    "message": "Collapse the dropdown",
+    "description": "The ARIA label of the button to collapse the mobile dropdown navbar item"
+  },
+  "theme.docs.sidebar.expandButtonTitle": {
+    "message": "Expandir barra lateral",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.docs.sidebar.expandButtonAriaLabel": {
+    "message": "Expandir barra lateral",
+    "description": "The ARIA label and title attribute for expand button of doc sidebar"
+  },
+  "theme.SearchBar.seeAll": {
+    "message": "See all {count} results"
+  },
+  "theme.SearchPage.documentsFound.plurals": {
+    "message": "Un documento encontrado|{count} documentos encontrados",
+    "description": "Pluralized label for \"{count} documents found\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.SearchPage.existingResultsTitle": {
+    "message": "Resultados de búsqueda para \"{query}\"",
+    "description": "The search page title for non-empty query"
+  },
+  "theme.SearchPage.emptyResultsTitle": {
+    "message": "Buscar en la documentación",
+    "description": "The search page title for empty query"
+  },
+  "theme.SearchPage.inputPlaceholder": {
+    "message": "Escribe tu búsqueda aquí",
+    "description": "The placeholder for search page input"
+  },
+  "theme.SearchPage.inputLabel": {
+    "message": "Buscar",
+    "description": "The ARIA label for search page input"
+  },
+  "theme.SearchPage.algoliaLabel": {
+    "message": "Búsqueda por Algolia",
+    "description": "The ARIA label for Algolia mention"
+  },
+  "theme.SearchPage.noResultsText": {
+    "message": "No se han encontrado resultados",
+    "description": "The paragraph for empty search result"
+  },
+  "theme.SearchPage.fetchingNewResults": {
+    "message": "Obteniendo nuevos resultados...",
+    "description": "The paragraph for fetching new search results"
+  },
+  "theme.SearchBar.label": {
+    "message": "Buscar",
+    "description": "The ARIA label and placeholder for search button"
+  },
+  "theme.SearchModal.searchBox.resetButtonTitle": {
+    "message": "Clear the query",
+    "description": "The label and ARIA label for search box reset button"
+  },
+  "theme.SearchModal.searchBox.cancelButtonText": {
+    "message": "Cancel",
+    "description": "The label and ARIA label for search box cancel button"
+  },
+  "theme.SearchModal.startScreen.recentSearchesTitle": {
+    "message": "Recent",
+    "description": "The title for recent searches"
+  },
+  "theme.SearchModal.startScreen.noRecentSearchesText": {
+    "message": "No recent searches",
+    "description": "The text when no recent searches"
+  },
+  "theme.SearchModal.startScreen.saveRecentSearchButtonTitle": {
+    "message": "Save this search",
+    "description": "The label for save recent search button"
+  },
+  "theme.SearchModal.startScreen.removeRecentSearchButtonTitle": {
+    "message": "Remove this search from history",
+    "description": "The label for remove recent search button"
+  },
+  "theme.SearchModal.startScreen.favoriteSearchesTitle": {
+    "message": "Favorite",
+    "description": "The title for favorite searches"
+  },
+  "theme.SearchModal.startScreen.removeFavoriteSearchButtonTitle": {
+    "message": "Remove this search from favorites",
+    "description": "The label for remove favorite search button"
+  },
+  "theme.SearchModal.errorScreen.titleText": {
+    "message": "Unable to fetch results",
+    "description": "The title for error screen of search modal"
+  },
+  "theme.SearchModal.errorScreen.helpText": {
+    "message": "You might want to check your network connection.",
+    "description": "The help text for error screen of search modal"
+  },
+  "theme.SearchModal.footer.selectText": {
+    "message": "to select",
+    "description": "The explanatory text of the action for the enter key"
+  },
+  "theme.SearchModal.footer.selectKeyAriaLabel": {
+    "message": "Enter key",
+    "description": "The ARIA label for the Enter key button that makes the selection"
+  },
+  "theme.SearchModal.footer.navigateText": {
+    "message": "to navigate",
+    "description": "The explanatory text of the action for the Arrow up and Arrow down key"
+  },
+  "theme.SearchModal.footer.navigateUpKeyAriaLabel": {
+    "message": "Arrow up",
+    "description": "The ARIA label for the Arrow up key button that makes the navigation"
+  },
+  "theme.SearchModal.footer.navigateDownKeyAriaLabel": {
+    "message": "Arrow down",
+    "description": "The ARIA label for the Arrow down key button that makes the navigation"
+  },
+  "theme.SearchModal.footer.closeText": {
+    "message": "to close",
+    "description": "The explanatory text of the action for Escape key"
+  },
+  "theme.SearchModal.footer.closeKeyAriaLabel": {
+    "message": "Escape key",
+    "description": "The ARIA label for the Escape key button that close the modal"
+  },
+  "theme.SearchModal.footer.searchByText": {
+    "message": "Search by",
+    "description": "The text explain that the search is making by Algolia"
+  },
+  "theme.SearchModal.noResultsScreen.noResultsText": {
+    "message": "No results for",
+    "description": "The text explains that there are no results for the following search"
+  },
+  "theme.SearchModal.noResultsScreen.suggestedQueryText": {
+    "message": "Try searching for",
+    "description": "The text for the suggested query when no results are found for the following search"
+  },
+  "theme.SearchModal.noResultsScreen.reportMissingResultsText": {
+    "message": "Believe this query should return results?",
+    "description": "The text for the question where the user thinks there are missing results"
+  },
+  "theme.SearchModal.noResultsScreen.reportMissingResultsLinkText": {
+    "message": "Let us know.",
+    "description": "The text for the link to report missing results"
+  },
+  "theme.SearchModal.placeholder": {
+    "message": "Search docs",
+    "description": "The placeholder of the input of the DocSearch pop-up modal"
+  },
+  "theme.blog.post.plurals": {
+    "message": "Una publicación|{count} publicaciones",
+    "description": "Pluralized label for \"{count} posts\". Use as much plural forms (separated by \"|\") as your language support (see https://www.unicode.org/cldr/cldr-aux/charts/34/supplemental/language_plural_rules.html)"
+  },
+  "theme.blog.tagTitle": {
+    "message": "{nPosts} etiquetados con \\\"{tagName}\\\"",
+    "description": "The title of the page for a blog tag"
+  },
+  "theme.blog.author.pageTitle": {
+    "message": "{authorName} - {nPosts}",
+    "description": "The title of the page for a blog author"
+  },
+  "theme.blog.authorsList.pageTitle": {
+    "message": "Authors",
+    "description": "The title of the authors page"
+  },
+  "theme.blog.authorsList.viewAll": {
+    "message": "View all authors",
+    "description": "The label of the link targeting the blog authors page"
+  },
+  "theme.blog.author.noPosts": {
+    "message": "This author has not written any posts yet.",
+    "description": "The text for authors with 0 blog post"
+  },
+  "theme.contentVisibility.unlistedBanner.title": {
+    "message": "Unlisted page",
+    "description": "The unlisted content banner title"
+  },
+  "theme.contentVisibility.unlistedBanner.message": {
+    "message": "This page is unlisted. Search engines will not index it, and only users having a direct link can access it.",
+    "description": "The unlisted content banner message"
+  },
+  "theme.contentVisibility.draftBanner.title": {
+    "message": "Draft page",
+    "description": "The draft content banner title"
+  },
+  "theme.contentVisibility.draftBanner.message": {
+    "message": "This page is a draft. It will only be visible in dev and be excluded from the production build.",
+    "description": "The draft content banner message"
+  },
+  "theme.ErrorPageContent.tryAgain": {
+    "message": "Inténtelo de nuevo",
+    "description": "The label of the button to try again rendering when the React error boundary captures an error"
+  },
+  "theme.common.skipToMainContent": {
+    "message": "Saltar al contenido principal",
+    "description": "The skip to content label used for accessibility, allowing to rapidly navigate to main content with keyboard tab/enter navigation"
+  },
+  "theme.tags.tagsPageTitle": {
+    "message": "Etiquetas",
+    "description": "The title of the tag list page"
+  },
+  "catalog.status.live": {
+    "message": "En vivo",
+    "description": "Component catalog and playground: catalog.status.live"
+  },
+  "catalog.status.soon": {
+    "message": "Próximamente",
+    "description": "Component catalog and playground: catalog.status.soon"
+  },
+  "catalog.filters.label": {
+    "message": "Filtrar por familia",
+    "description": "Component catalog and playground: catalog.filters.label"
+  },
+  "catalog.count": {
+    "message": "{count} componentes",
+    "description": "Component catalog and playground: catalog.count"
+  },
+  "catalog.family.all": {
+    "message": "Todos",
+    "description": "Component catalog and playground: catalog.family.all"
+  },
+  "catalog.family.forms": {
+    "message": "Formularios",
+    "description": "Component catalog and playground: catalog.family.forms"
+  },
+  "catalog.family.data": {
+    "message": "Datos",
+    "description": "Component catalog and playground: catalog.family.data"
+  },
+  "catalog.family.layout": {
+    "message": "Diseño",
+    "description": "Component catalog and playground: catalog.family.layout"
+  },
+  "catalog.family.charts": {
+    "message": "Gráficos y mapas",
+    "description": "Component catalog and playground: catalog.family.charts"
+  },
+  "catalog.family.media": {
+    "message": "Multimedia",
+    "description": "Component catalog and playground: catalog.family.media"
+  },
+  "catalog.hero.eyebrow": {
+    "message": "Catálogo de componentes",
+    "description": "Component catalog and playground: catalog.hero.eyebrow"
+  },
+  "catalog.hero.title": {
+    "message": "Juega con los {real}",
+    "description": "Component catalog and playground: catalog.hero.title"
+  },
+  "catalog.hero.title.real": {
+    "message": "componentes reales",
+    "description": "Component catalog and playground: catalog.hero.title.real"
+  },
+  "catalog.hero.sub": {
+    "message": "Cada ejemplo es el cliente React real de AWE. Cambia un atributo y mira el componente y el XML que lo produce.",
+    "description": "Component catalog and playground: catalog.hero.sub"
+  },
+  "catalog.hero.cta.start": {
+    "message": "Empieza con el botón",
+    "description": "Component catalog and playground: catalog.hero.cta.start"
+  },
+  "catalog.hero.cta.reference": {
+    "message": "Referencia XSD",
+    "description": "Component catalog and playground: catalog.hero.cta.reference"
+  },
+  "catalog.title.button": {
+    "message": "Botón",
+    "description": "Component catalog and playground: catalog.title.button"
+  },
+  "catalog.description.button": {
+    "message": "Lanza acciones: buscar, guardar, confirmar. Normal, submit, reset y solo icono.",
+    "description": "Component catalog and playground: catalog.description.button"
+  },
+  "catalog.title.criteria": {
+    "message": "Criterios",
+    "description": "Component catalog and playground: catalog.title.criteria"
+  },
+  "catalog.description.criteria": {
+    "message": "Las entradas de un formulario: los atributos que comparten y una guía de todos los tipos.",
+    "description": "Component catalog and playground: catalog.description.criteria"
+  },
+  "catalog.title.grid": {
+    "message": "Tabla",
+    "description": "Component catalog and playground: catalog.title.grid"
+  },
+  "catalog.description.grid": {
+    "message": "Tablas editables, ordenables y paginadas, con filtros por columna y selección.",
+    "description": "Component catalog and playground: catalog.description.grid"
+  },
+  "catalog.title.tree-grid": {
+    "message": "Tabla en árbol",
+    "description": "Component catalog and playground: catalog.title.tree-grid"
+  },
+  "catalog.description.tree-grid": {
+    "message": "Una tabla con filas padre e hijas desplegables para datos jerárquicos.",
+    "description": "Component catalog and playground: catalog.description.tree-grid"
+  },
+  "catalog.title.pivot-table": {
+    "message": "Tabla dinámica",
+    "description": "Component catalog and playground: catalog.title.pivot-table"
+  },
+  "catalog.description.pivot-table": {
+    "message": "Matrices cruzadas con filas, columnas y agregaciones.",
+    "description": "Component catalog and playground: catalog.description.pivot-table"
+  },
+  "catalog.title.chart": {
+    "message": "Gráfico",
+    "description": "Component catalog and playground: catalog.title.chart"
+  },
+  "catalog.description.chart": {
+    "message": "Barras, líneas, sectores y más, alimentados por las mismas consultas que las tablas.",
+    "description": "Component catalog and playground: catalog.description.chart"
+  },
+  "catalog.title.wizard": {
+    "message": "Asistente",
+    "description": "Component catalog and playground: catalog.title.wizard"
+  },
+  "catalog.description.wizard": {
+    "message": "Flujos paso a paso con indicador de progreso y validación en cada paso.",
+    "description": "Component catalog and playground: catalog.description.wizard"
+  },
+  "catalog.title.tabs-accordion": {
+    "message": "Pestañas y acordeón",
+    "description": "Component catalog and playground: catalog.title.tabs-accordion"
+  },
+  "catalog.description.tabs-accordion": {
+    "message": "Organiza pantallas densas en pestañas o secciones plegables.",
+    "description": "Component catalog and playground: catalog.description.tabs-accordion"
+  },
+  "catalog.title.map": {
+    "message": "Mapa",
+    "description": "Component catalog and playground: catalog.title.map"
+  },
+  "catalog.description.map": {
+    "message": "Mapas interactivos con marcadores seleccionables y rutas.",
+    "description": "Component catalog and playground: catalog.description.map"
+  },
+  "catalog.title.file-viewer": {
+    "message": "Visor de archivos",
+    "description": "Component catalog and playground: catalog.title.file-viewer"
+  },
+  "catalog.description.file-viewer": {
+    "message": "Muestra archivos de texto y documentos PDF junto a tus datos.",
+    "description": "Component catalog and playground: catalog.description.file-viewer"
+  },
+  "catalog.title.card": {
+    "message": "Tarjeta",
+    "description": "Component catalog and playground: catalog.title.card"
+  },
+  "catalog.description.card": {
+    "message": "Agrupa contenido relacionado en una superficie con título y, opcionalmente, plegable.",
+    "description": "Component catalog and playground: catalog.description.card"
+  },
+  "catalog.title.dialog": {
+    "message": "Diálogo",
+    "description": "Component catalog and playground: catalog.title.dialog"
+  },
+  "catalog.description.dialog": {
+    "message": "Ventanas modales para confirmaciones y tareas concretas.",
+    "description": "Component catalog and playground: catalog.description.dialog"
+  },
+  "playground.stage.light": {
+    "message": "Claro",
+    "description": "Component catalog and playground: playground.stage.light"
+  },
+  "playground.stage.dark": {
+    "message": "Oscuro",
+    "description": "Component catalog and playground: playground.stage.dark"
+  },
+  "playground.stage.mode": {
+    "message": "Modo de color de la vista previa",
+    "description": "Component catalog and playground: playground.stage.mode"
+  },
+  "playground.stage.title": {
+    "message": "Vista previa en vivo",
+    "description": "Component catalog and playground: playground.stage.title"
+  },
+  "playground.icon.none": {
+    "message": "Sin icono",
+    "description": "Component catalog and playground: playground.icon.none"
+  },
+  "playground.controls.title": {
+    "message": "Controles",
+    "description": "Component catalog and playground: playground.controls.title"
+  },
+  "playground.controls.reset": {
+    "message": "Restablecer",
+    "description": "Component catalog and playground: playground.controls.reset"
+  },
+  "playground.tab.attributes": {
+    "message": "Atributos",
+    "description": "Component catalog and playground: playground.tab.attributes"
+  },
+  "playground.tab.events": {
+    "message": "Eventos y acciones",
+    "description": "Component catalog and playground: playground.tab.events"
+  },
+  "playground.tab.reference": {
+    "message": "Referencia completa",
+    "description": "Component catalog and playground: playground.tab.reference"
+  },
+  "playground.attributes.intro": {
+    "message": "Los controles de arriba escriben estos atributos. La referencia lista todos los atributos, con su tipo y valor por defecto.",
+    "description": "Component catalog and playground: playground.attributes.intro"
+  },
+  "playground.attributes.link": {
+    "message": "Atributos en la referencia XSD",
+    "description": "Component catalog and playground: playground.attributes.link"
+  },
+  "playground.attributes.col.attribute": {
+    "message": "Atributo",
+    "description": "Component catalog and playground: playground.attributes.col.attribute"
+  },
+  "playground.attributes.col.control": {
+    "message": "Control",
+    "description": "Component catalog and playground: playground.attributes.col.control"
+  },
+  "playground.attributes.col.values": {
+    "message": "Valores",
+    "description": "Component catalog and playground: playground.attributes.col.values"
+  },
+  "playground.events.col.event": {
+    "message": "Evento",
+    "description": "Component catalog and playground: playground.events.col.event"
+  },
+  "playground.events.col.description": {
+    "message": "Descripción",
+    "description": "Component catalog and playground: playground.events.col.description"
+  },
+  "playground.actions.col.action": {
+    "message": "Acción (type)",
+    "description": "Component catalog and playground: playground.actions.col.action"
+  },
+  "playground.actions.col.description": {
+    "message": "Qué hace",
+    "description": "Component catalog and playground: playground.actions.col.description"
+  },
+  "playground.reference.api": {
+    "message": "Documentación completa de este componente",
+    "description": "Component catalog and playground: playground.reference.api"
+  },
+  "playground.reference.xsd": {
+    "message": "Referencia XSD del elemento",
+    "description": "Component catalog and playground: playground.reference.xsd"
+  },
+  "playground.button.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.button.control.label"
+  },
+  "playground.button.control.buttonType": {
+    "message": "Tipo de botón",
+    "description": "Component catalog and playground: playground.button.control.buttonType"
+  },
+  "playground.button.control.look": {
+    "message": "Aspecto",
+    "description": "Component catalog and playground: playground.button.control.look"
+  },
+  "playground.button.control.icon": {
+    "message": "Icono",
+    "description": "Component catalog and playground: playground.button.control.icon"
+  },
+  "playground.button.control.size": {
+    "message": "Tamaño",
+    "description": "Component catalog and playground: playground.button.control.size"
+  },
+  "playground.button.control.iconOnly": {
+    "message": "Solo icono",
+    "description": "Component catalog and playground: playground.button.control.iconOnly"
+  },
+  "playground.button.control.help": {
+    "message": "Ayuda (tooltip)",
+    "description": "Component catalog and playground: playground.button.control.help"
+  },
+  "playground.button.control.disabled": {
+    "message": "Deshabilitado por una dependencia",
+    "description": "Component catalog and playground: playground.button.control.disabled"
+  },
+  "playground.button.option.buttonType.button": {
+    "message": "Normal",
+    "description": "Component catalog and playground: playground.button.option.buttonType.button"
+  },
+  "playground.button.option.buttonType.submit": {
+    "message": "Submit",
+    "description": "Component catalog and playground: playground.button.option.buttonType.submit"
+  },
+  "playground.button.option.buttonType.reset": {
+    "message": "Reset",
+    "description": "Component catalog and playground: playground.button.option.buttonType.reset"
+  },
+  "playground.button.option.look.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.button.option.look.none"
+  },
+  "playground.button.option.look.btn-primary": {
+    "message": "Primario",
+    "description": "Component catalog and playground: playground.button.option.look.btn-primary"
+  },
+  "playground.button.option.look.btn-default": {
+    "message": "Secundario",
+    "description": "Component catalog and playground: playground.button.option.look.btn-default"
+  },
+  "playground.button.option.look.btn-danger": {
+    "message": "Peligro",
+    "description": "Component catalog and playground: playground.button.option.look.btn-danger"
+  },
+  "playground.button.option.look.btn-success": {
+    "message": "Éxito",
+    "description": "Component catalog and playground: playground.button.option.look.btn-success"
+  },
+  "playground.button.option.look.btn-warning": {
+    "message": "Aviso",
+    "description": "Component catalog and playground: playground.button.option.look.btn-warning"
+  },
+  "playground.button.option.look.btn-dark": {
+    "message": "Oscuro",
+    "description": "Component catalog and playground: playground.button.option.look.btn-dark"
+  },
+  "playground.button.option.look.btn-ghost": {
+    "message": "Fantasma",
+    "description": "Component catalog and playground: playground.button.option.look.btn-ghost"
+  },
+  "playground.button.option.look.btn-tonal": {
+    "message": "Tonal",
+    "description": "Component catalog and playground: playground.button.option.look.btn-tonal"
+  },
+  "playground.button.option.size.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.button.option.size.none"
+  },
+  "playground.button.option.size.sm": {
+    "message": "Pequeño",
+    "description": "Component catalog and playground: playground.button.option.size.sm"
+  },
+  "playground.button.option.size.lg": {
+    "message": "Grande",
+    "description": "Component catalog and playground: playground.button.option.size.lg"
+  },
+  "playground.button.event.click": {
+    "message": "Se lanza cuando el usuario pulsa el botón; entonces ejecuta sus acciones de botón.",
+    "description": "Component catalog and playground: playground.button.event.click"
+  },
+  "playground.button.action.filter": {
+    "message": "Recarga una tabla o un gráfico con los criterios actuales.",
+    "description": "Component catalog and playground: playground.button.action.filter"
+  },
+  "playground.button.action.confirm": {
+    "message": "Pide al usuario que confirme antes de ejecutar las acciones siguientes.",
+    "description": "Component catalog and playground: playground.button.action.confirm"
+  },
+  "playground.button.action.server": {
+    "message": "Llama a una acción de servidor (maintain, query, servicio).",
+    "description": "Component catalog and playground: playground.button.action.server"
+  },
+  "playground.button.action.dialog": {
+    "message": "Abre un diálogo.",
+    "description": "Component catalog and playground: playground.button.action.dialog"
+  },
+  "playground.button.action.restore": {
+    "message": "Lo que lanza un botón reset sin acciones: restaura los criterios.",
+    "description": "Component catalog and playground: playground.button.action.restore"
+  },
+  "playground.criteria.control.component": {
+    "message": "Componente",
+    "description": "Component catalog and playground: playground.criteria.control.component"
+  },
+  "playground.criteria.option.component.text": {
+    "message": "Texto",
+    "description": "Component catalog and playground: playground.criteria.option.component.text"
+  },
+  "playground.criteria.option.component.select": {
+    "message": "Selector",
+    "description": "Component catalog and playground: playground.criteria.option.component.select"
+  },
+  "playground.criteria.option.component.checkbox": {
+    "message": "Casilla",
+    "description": "Component catalog and playground: playground.criteria.option.component.checkbox"
+  },
+  "playground.criteria.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.criteria.control.label"
+  },
+  "playground.criteria.control.placeholder": {
+    "message": "Texto de ayuda",
+    "description": "Component catalog and playground: playground.criteria.control.placeholder"
+  },
+  "playground.criteria.control.icon": {
+    "message": "Icono",
+    "description": "Component catalog and playground: playground.criteria.control.icon"
+  },
+  "playground.criteria.control.size": {
+    "message": "Tamaño",
+    "description": "Component catalog and playground: playground.criteria.control.size"
+  },
+  "playground.criteria.option.size.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.criteria.option.size.none"
+  },
+  "playground.criteria.option.size.sm": {
+    "message": "Pequeño",
+    "description": "Component catalog and playground: playground.criteria.option.size.sm"
+  },
+  "playground.criteria.option.size.lg": {
+    "message": "Grande",
+    "description": "Component catalog and playground: playground.criteria.option.size.lg"
+  },
+  "playground.criteria.control.required": {
+    "message": "Obligatorio",
+    "description": "Component catalog and playground: playground.criteria.control.required"
+  },
+  "playground.criteria.control.readonly": {
+    "message": "Solo lectura",
+    "description": "Component catalog and playground: playground.criteria.control.readonly"
+  },
+  "playground.criteria.action.reset": {
+    "message": "Vacía el valor del criterio.",
+    "description": "Component catalog and playground: playground.criteria.action.reset"
+  },
+  "playground.criteria.action.restore": {
+    "message": "Devuelve el criterio a su valor inicial.",
+    "description": "Component catalog and playground: playground.criteria.action.restore"
+  },
+  "playground.criteria.action.validate": {
+    "message": "Ejecuta la validación del criterio (obligatorio, formatos) y muestra su error.",
+    "description": "Component catalog and playground: playground.criteria.action.validate"
+  },
+  "playground.criteria.action.set-invalid": {
+    "message": "Marca el criterio como inválido con el mensaje de la acción.",
+    "description": "Component catalog and playground: playground.criteria.action.set-invalid"
+  },
+  "playground.criteria.action.set-valid": {
+    "message": "Borra el error de validación del criterio.",
+    "description": "Component catalog and playground: playground.criteria.action.set-valid"
+  },
+  "playground.criteria.action.copy-criterion-value-clipboard": {
+    "message": "Copia el valor del criterio al portapapeles.",
+    "description": "Component catalog and playground: playground.criteria.action.copy-criterion-value-clipboard"
+  },
+  "playground.card.control.title": {
+    "message": "Título",
+    "description": "Component catalog and playground: playground.card.control.title"
+  },
+  "playground.card.control.subtitle": {
+    "message": "Subtítulo",
+    "description": "Component catalog and playground: playground.card.control.subtitle"
+  },
+  "playground.card.control.value": {
+    "message": "Valor",
+    "description": "Component catalog and playground: playground.card.control.value"
+  },
+  "playground.card.control.unit": {
+    "message": "Unidad",
+    "description": "Component catalog and playground: playground.card.control.unit"
+  },
+  "playground.card.control.icon": {
+    "message": "Icono",
+    "description": "Component catalog and playground: playground.card.control.icon"
+  },
+  "playground.card.control.iconTone": {
+    "message": "Tono del icono",
+    "description": "Component catalog and playground: playground.card.control.iconTone"
+  },
+  "playground.card.option.iconTone.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.card.option.iconTone.none"
+  },
+  "playground.card.option.iconTone.success": {
+    "message": "Éxito",
+    "description": "Component catalog and playground: playground.card.option.iconTone.success"
+  },
+  "playground.card.option.iconTone.warning": {
+    "message": "Aviso",
+    "description": "Component catalog and playground: playground.card.option.iconTone.warning"
+  },
+  "playground.card.option.iconTone.danger": {
+    "message": "Peligro",
+    "description": "Component catalog and playground: playground.card.option.iconTone.danger"
+  },
+  "playground.card.option.iconTone.info": {
+    "message": "Información",
+    "description": "Component catalog and playground: playground.card.option.iconTone.info"
+  },
+  "playground.card.option.iconTone.neutral": {
+    "message": "Neutro",
+    "description": "Component catalog and playground: playground.card.option.iconTone.neutral"
+  },
+  "playground.card.control.delta": {
+    "message": "Variación",
+    "description": "Component catalog and playground: playground.card.control.delta"
+  },
+  "playground.card.control.trend": {
+    "message": "Tendencia",
+    "description": "Component catalog and playground: playground.card.control.trend"
+  },
+  "playground.card.option.trend.none": {
+    "message": "Automática",
+    "description": "Component catalog and playground: playground.card.option.trend.none"
+  },
+  "playground.card.option.trend.up": {
+    "message": "Sube",
+    "description": "Component catalog and playground: playground.card.option.trend.up"
+  },
+  "playground.card.option.trend.down": {
+    "message": "Baja",
+    "description": "Component catalog and playground: playground.card.option.trend.down"
+  },
+  "playground.card.option.trend.flat": {
+    "message": "Estable",
+    "description": "Component catalog and playground: playground.card.option.trend.flat"
+  },
+  "playground.card.control.caption": {
+    "message": "Leyenda",
+    "description": "Component catalog and playground: playground.card.control.caption"
+  },
+  "playground.card.control.chip": {
+    "message": "Etiqueta de estado",
+    "description": "Component catalog and playground: playground.card.control.chip"
+  },
+  "playground.card.control.chipTone": {
+    "message": "Tono de la etiqueta",
+    "description": "Component catalog and playground: playground.card.control.chipTone"
+  },
+  "playground.card.option.chipTone.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.card.option.chipTone.none"
+  },
+  "playground.card.option.chipTone.success": {
+    "message": "Éxito",
+    "description": "Component catalog and playground: playground.card.option.chipTone.success"
+  },
+  "playground.card.option.chipTone.warning": {
+    "message": "Aviso",
+    "description": "Component catalog and playground: playground.card.option.chipTone.warning"
+  },
+  "playground.card.option.chipTone.danger": {
+    "message": "Peligro",
+    "description": "Component catalog and playground: playground.card.option.chipTone.danger"
+  },
+  "playground.card.option.chipTone.info": {
+    "message": "Información",
+    "description": "Component catalog and playground: playground.card.option.chipTone.info"
+  },
+  "playground.card.option.chipTone.neutral": {
+    "message": "Neutro",
+    "description": "Component catalog and playground: playground.card.option.chipTone.neutral"
+  },
+  "playground.card.control.target": {
+    "message": "Objetivo",
+    "description": "Component catalog and playground: playground.card.control.target"
+  },
+  "playground.card.control.progressStyle": {
+    "message": "Estilo del progreso",
+    "description": "Component catalog and playground: playground.card.control.progressStyle"
+  },
+  "playground.card.option.progressStyle.none": {
+    "message": "Barra",
+    "description": "Component catalog and playground: playground.card.option.progressStyle.none"
+  },
+  "playground.card.option.progressStyle.gauge": {
+    "message": "Medidor",
+    "description": "Component catalog and playground: playground.card.option.progressStyle.gauge"
+  },
+  "playground.card.control.sparkline": {
+    "message": "Minigráfico",
+    "description": "Component catalog and playground: playground.card.control.sparkline"
+  },
+  "playground.card.option.sparkline.none": {
+    "message": "Ninguno",
+    "description": "Component catalog and playground: playground.card.option.sparkline.none"
+  },
+  "playground.card.option.sparkline.[8,12,10,16,14,22]": {
+    "message": "Creciente",
+    "description": "Component catalog and playground: playground.card.option.sparkline.[8,12,10,16,14,22]"
+  },
+  "playground.card.option.sparkline.[22,18,19,12,14,8]": {
+    "message": "Decreciente",
+    "description": "Component catalog and playground: playground.card.option.sparkline.[22,18,19,12,14,8]"
+  },
+  "playground.card.control.sparklineType": {
+    "message": "Tipo de minigráfico",
+    "description": "Component catalog and playground: playground.card.control.sparklineType"
+  },
+  "playground.card.option.sparklineType.none": {
+    "message": "Área",
+    "description": "Component catalog and playground: playground.card.option.sparklineType.none"
+  },
+  "playground.card.option.sparklineType.line": {
+    "message": "Línea",
+    "description": "Component catalog and playground: playground.card.option.sparklineType.line"
+  },
+  "playground.card.option.sparklineType.bar": {
+    "message": "Barras",
+    "description": "Component catalog and playground: playground.card.option.sparklineType.bar"
+  },
+  "playground.card.control.description": {
+    "message": "Descripción",
+    "description": "Component catalog and playground: playground.card.control.description"
+  },
+  "playground.card.control.footer": {
+    "message": "Pie",
+    "description": "Component catalog and playground: playground.card.control.footer"
+  },
+  "playground.card.control.body": {
+    "message": "Botón en el cuerpo",
+    "description": "Component catalog and playground: playground.card.control.body"
+  },
+  "playground.card.action.filter": {
+    "message": "Recarga la tarjeta con la primera fila de su consulta.",
+    "description": "Component catalog and playground: playground.card.action.filter"
+  },
+  "playground.card.action.reload": {
+    "message": "Recarga la tarjeta, como cualquier componente con initial-load.",
+    "description": "Component catalog and playground: playground.card.action.reload"
+  },
+  "playground.dialog.control.label": {
+    "message": "Título",
+    "description": "Component catalog and playground: playground.dialog.control.label"
+  },
+  "playground.dialog.control.size": {
+    "message": "Anchura",
+    "description": "Component catalog and playground: playground.dialog.control.size"
+  },
+  "playground.dialog.option.size.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.dialog.option.size.none"
+  },
+  "playground.dialog.option.size.modal-sm": {
+    "message": "Pequeña",
+    "description": "Component catalog and playground: playground.dialog.option.size.modal-sm"
+  },
+  "playground.dialog.option.size.modal-md": {
+    "message": "Mediana",
+    "description": "Component catalog and playground: playground.dialog.option.size.modal-md"
+  },
+  "playground.dialog.option.size.modal-lg": {
+    "message": "Grande",
+    "description": "Component catalog and playground: playground.dialog.option.size.modal-lg"
+  },
+  "playground.dialog.control.footer": {
+    "message": "Pie con un botón",
+    "description": "Component catalog and playground: playground.dialog.control.footer"
+  },
+  "playground.dialog.event.open": {
+    "message": "Se guarda en el diálogo cuando se abre.",
+    "description": "Component catalog and playground: playground.dialog.event.open"
+  },
+  "playground.dialog.event.close": {
+    "message": "Se guarda en el diálogo cuando se cierra.",
+    "description": "Component catalog and playground: playground.dialog.event.close"
+  },
+  "playground.dialog.action.dialog": {
+    "message": "Abre el diálogo indicado en target.",
+    "description": "Component catalog and playground: playground.dialog.action.dialog"
+  },
+  "playground.dialog.action.close": {
+    "message": "Cierra el diálogo y continúa con las acciones que esperaban.",
+    "description": "Component catalog and playground: playground.dialog.action.close"
+  },
+  "playground.dialog.action.close-cancel": {
+    "message": "Cierra el diálogo y cancela las acciones que esperaban.",
+    "description": "Component catalog and playground: playground.dialog.action.close-cancel"
+  },
+  "playground.tabs.control.orientation": {
+    "message": "Orientación",
+    "description": "Component catalog and playground: playground.tabs.control.orientation"
+  },
+  "playground.tabs.option.orientation.horizontal": {
+    "message": "Horizontal",
+    "description": "Component catalog and playground: playground.tabs.option.orientation.horizontal"
+  },
+  "playground.tabs.option.orientation.vertical": {
+    "message": "Vertical",
+    "description": "Component catalog and playground: playground.tabs.option.orientation.vertical"
+  },
+  "playground.accordion.control.autocollapse": {
+    "message": "Elementos abiertos",
+    "description": "Component catalog and playground: playground.accordion.control.autocollapse"
+  },
+  "playground.accordion.option.autocollapse.true": {
+    "message": "Uno cada vez",
+    "description": "Component catalog and playground: playground.accordion.option.autocollapse.true"
+  },
+  "playground.accordion.option.autocollapse.false": {
+    "message": "Varios",
+    "description": "Component catalog and playground: playground.accordion.option.autocollapse.false"
+  },
+  "playground.wizard.control.steps": {
+    "message": "Pasos",
+    "description": "Component catalog and playground: playground.wizard.control.steps"
+  },
+  "playground.wizard.option.steps.2": {
+    "message": "2",
+    "description": "Component catalog and playground: playground.wizard.option.steps.2"
+  },
+  "playground.wizard.option.steps.3": {
+    "message": "3",
+    "description": "Component catalog and playground: playground.wizard.option.steps.3"
+  },
+  "playground.wizard.option.steps.4": {
+    "message": "4",
+    "description": "Component catalog and playground: playground.wizard.option.steps.4"
+  },
+  "playground.wizard.control.orientation": {
+    "message": "Orientación",
+    "description": "Component catalog and playground: playground.wizard.control.orientation"
+  },
+  "playground.wizard.option.orientation.horizontal": {
+    "message": "Horizontal",
+    "description": "Component catalog and playground: playground.wizard.option.orientation.horizontal"
+  },
+  "playground.wizard.option.orientation.vertical": {
+    "message": "Vertical",
+    "description": "Component catalog and playground: playground.wizard.option.orientation.vertical"
+  },
+  "playground.wizard.action.next-step": {
+    "message": "Pasa al siguiente paso del asistente indicado en target.",
+    "description": "Component catalog and playground: playground.wizard.action.next-step"
+  },
+  "playground.wizard.action.prev-step": {
+    "message": "Vuelve al paso anterior.",
+    "description": "Component catalog and playground: playground.wizard.action.prev-step"
+  },
+  "playground.wizard.action.first-step": {
+    "message": "Va al primer paso.",
+    "description": "Component catalog and playground: playground.wizard.action.first-step"
+  },
+  "playground.wizard.action.last-step": {
+    "message": "Va al último paso.",
+    "description": "Component catalog and playground: playground.wizard.action.last-step"
+  },
+  "playground.wizard.action.nth-step": {
+    "message": "Va al paso cuyo valor (el id de su panel) está en el parámetro value de la acción.",
+    "description": "Component catalog and playground: playground.wizard.action.nth-step"
+  },
+  "playground.grid.control.rows": {
+    "message": "Filas por página",
+    "description": "Component catalog and playground: playground.grid.control.rows"
+  },
+  "playground.grid.option.rows.5": {
+    "message": "5",
+    "description": "Component catalog and playground: playground.grid.option.rows.5"
+  },
+  "playground.grid.option.rows.8": {
+    "message": "8",
+    "description": "Component catalog and playground: playground.grid.option.rows.8"
+  },
+  "playground.grid.option.rows.12": {
+    "message": "12",
+    "description": "Component catalog and playground: playground.grid.option.rows.12"
+  },
+  "playground.grid.control.multiselect": {
+    "message": "Selección múltiple",
+    "description": "Component catalog and playground: playground.grid.control.multiselect"
+  },
+  "playground.grid.control.rowNumbers": {
+    "message": "Números de fila",
+    "description": "Component catalog and playground: playground.grid.control.rowNumbers"
+  },
+  "playground.grid.control.enableFilters": {
+    "message": "Filtros por columna",
+    "description": "Component catalog and playground: playground.grid.control.enableFilters"
+  },
+  "playground.grid.control.showTotals": {
+    "message": "Fila de totales",
+    "description": "Component catalog and playground: playground.grid.control.showTotals"
+  },
+  "playground.grid.control.editable": {
+    "message": "Filas editables",
+    "description": "Component catalog and playground: playground.grid.control.editable"
+  },
+  "playground.grid.control.groupBy": {
+    "message": "Agrupar por",
+    "description": "Component catalog and playground: playground.grid.control.groupBy"
+  },
+  "playground.grid.option.groupBy.none": {
+    "message": "Nada",
+    "description": "Component catalog and playground: playground.grid.option.groupBy.none"
+  },
+  "playground.grid.option.groupBy.plan": {
+    "message": "Plan",
+    "description": "Component catalog and playground: playground.grid.option.groupBy.plan"
+  },
+  "playground.grid.option.groupBy.country": {
+    "message": "País",
+    "description": "Component catalog and playground: playground.grid.option.groupBy.country"
+  },
+  "playground.grid.event.select-row": {
+    "message": "Se selecciona una fila: se ejecutan las dependencias y acciones que escuchan al grid.",
+    "description": "Component catalog and playground: playground.grid.event.select-row"
+  },
+  "playground.grid.action.select-row": {
+    "message": "Selecciona las filas cuyos identificadores están en el valor.",
+    "description": "Component catalog and playground: playground.grid.action.select-row"
+  },
+  "playground.grid.action.select-all-rows": {
+    "message": "Selecciona todas las filas; unselect-all-rows limpia la selección.",
+    "description": "Component catalog and playground: playground.grid.action.select-all-rows"
+  },
+  "playground.grid.action.add-row": {
+    "message": "Añade una fila (add-row-top y add-row-bottom eligen dónde).",
+    "description": "Component catalog and playground: playground.grid.action.add-row"
+  },
+  "playground.grid.action.delete-row": {
+    "message": "Elimina las filas seleccionadas.",
+    "description": "Component catalog and playground: playground.grid.action.delete-row"
+  },
+  "playground.grid.action.filter": {
+    "message": "Recarga el grid desde su consulta, con los criterios de la pantalla.",
+    "description": "Component catalog and playground: playground.grid.action.filter"
+  },
+  "playground.tree-grid.control.initialLevel": {
+    "message": "Niveles visibles al inicio",
+    "description": "Component catalog and playground: playground.tree-grid.control.initialLevel"
+  },
+  "playground.tree-grid.option.initialLevel.1": {
+    "message": "Solo las raíces",
+    "description": "Component catalog and playground: playground.tree-grid.option.initialLevel.1"
+  },
+  "playground.tree-grid.option.initialLevel.2": {
+    "message": "Dos niveles",
+    "description": "Component catalog and playground: playground.tree-grid.option.initialLevel.2"
+  },
+  "playground.tree-grid.option.initialLevel.3": {
+    "message": "Todos los niveles",
+    "description": "Component catalog and playground: playground.tree-grid.option.initialLevel.3"
+  },
+  "playground.tree-grid.control.icons": {
+    "message": "Iconos de los botones",
+    "description": "Component catalog and playground: playground.tree-grid.control.icons"
+  },
+  "playground.tree-grid.option.icons.plus": {
+    "message": "Más y menos",
+    "description": "Component catalog and playground: playground.tree-grid.option.icons.plus"
+  },
+  "playground.tree-grid.option.icons.chevron": {
+    "message": "Flechas",
+    "description": "Component catalog and playground: playground.tree-grid.option.icons.chevron"
+  },
+  "playground.tree-grid.control.multiselect": {
+    "message": "Selección múltiple",
+    "description": "Component catalog and playground: playground.tree-grid.control.multiselect"
+  },
+  "playground.tree-grid.event.select-row": {
+    "message": "Se selecciona una fila: se ejecutan las dependencias y acciones que escuchan al grid.",
+    "description": "Component catalog and playground: playground.tree-grid.event.select-row"
+  },
+  "playground.tree-grid.action.tree-branch": {
+    "message": "Abre o cierra una rama. Sin load-all, abrir una rama pide sus filas al servidor.",
+    "description": "Component catalog and playground: playground.tree-grid.action.tree-branch"
+  },
+  "playground.tree-grid.action.select-row": {
+    "message": "Selecciona las filas cuyos identificadores están en el valor.",
+    "description": "Component catalog and playground: playground.tree-grid.action.select-row"
+  },
+  "playground.tree-grid.action.filter": {
+    "message": "Recarga el árbol desde su consulta.",
+    "description": "Component catalog and playground: playground.tree-grid.action.filter"
+  },
+  "playground.chart.control.type": {
+    "message": "Tipo de gráfico",
+    "description": "Component catalog and playground: playground.chart.control.type"
+  },
+  "playground.chart.option.type.line": {
+    "message": "Líneas",
+    "description": "Component catalog and playground: playground.chart.option.type.line"
+  },
+  "playground.chart.option.type.spline": {
+    "message": "Líneas suaves",
+    "description": "Component catalog and playground: playground.chart.option.type.spline"
+  },
+  "playground.chart.option.type.area": {
+    "message": "Áreas",
+    "description": "Component catalog and playground: playground.chart.option.type.area"
+  },
+  "playground.chart.option.type.areaspline": {
+    "message": "Áreas suaves",
+    "description": "Component catalog and playground: playground.chart.option.type.areaspline"
+  },
+  "playground.chart.option.type.column": {
+    "message": "Columnas",
+    "description": "Component catalog and playground: playground.chart.option.type.column"
+  },
+  "playground.chart.option.type.bar": {
+    "message": "Barras horizontales",
+    "description": "Component catalog and playground: playground.chart.option.type.bar"
+  },
+  "playground.chart.option.type.pie": {
+    "message": "Sectores",
+    "description": "Component catalog and playground: playground.chart.option.type.pie"
+  },
+  "playground.chart.option.type.donut": {
+    "message": "Anillo",
+    "description": "Component catalog and playground: playground.chart.option.type.donut"
+  },
+  "playground.chart.option.type.semicircle": {
+    "message": "Semicírculo",
+    "description": "Component catalog and playground: playground.chart.option.type.semicircle"
+  },
+  "playground.chart.option.type.scatter": {
+    "message": "Dispersión",
+    "description": "Component catalog and playground: playground.chart.option.type.scatter"
+  },
+  "playground.chart.option.type.bubble": {
+    "message": "Burbujas",
+    "description": "Component catalog and playground: playground.chart.option.type.bubble"
+  },
+  "playground.chart.option.type.arearange": {
+    "message": "Rango",
+    "description": "Component catalog and playground: playground.chart.option.type.arearange"
+  },
+  "playground.chart.option.type.areasplinerange": {
+    "message": "Rango suave",
+    "description": "Component catalog and playground: playground.chart.option.type.areasplinerange"
+  },
+  "playground.chart.option.type.radar": {
+    "message": "Radar",
+    "description": "Component catalog and playground: playground.chart.option.type.radar"
+  },
+  "playground.chart.option.type.heatmap": {
+    "message": "Mapa de calor",
+    "description": "Component catalog and playground: playground.chart.option.type.heatmap"
+  },
+  "playground.chart.option.type.gauge": {
+    "message": "Indicador",
+    "description": "Component catalog and playground: playground.chart.option.type.gauge"
+  },
+  "playground.chart.option.type.funnel": {
+    "message": "Embudo",
+    "description": "Component catalog and playground: playground.chart.option.type.funnel"
+  },
+  "playground.chart.control.stacking": {
+    "message": "Apilado",
+    "description": "Component catalog and playground: playground.chart.control.stacking"
+  },
+  "playground.chart.option.stacking.none": {
+    "message": "Sin apilar",
+    "description": "Component catalog and playground: playground.chart.option.stacking.none"
+  },
+  "playground.chart.option.stacking.normal": {
+    "message": "Apilado",
+    "description": "Component catalog and playground: playground.chart.option.stacking.normal"
+  },
+  "playground.chart.option.stacking.percent": {
+    "message": "Porcentaje",
+    "description": "Component catalog and playground: playground.chart.option.stacking.percent"
+  },
+  "playground.chart.control.title": {
+    "message": "Título",
+    "description": "Component catalog and playground: playground.chart.control.title"
+  },
+  "playground.chart.control.subtitle": {
+    "message": "Subtítulo",
+    "description": "Component catalog and playground: playground.chart.control.subtitle"
+  },
+  "playground.chart.control.dataLabels": {
+    "message": "Etiquetas de datos",
+    "description": "Component catalog and playground: playground.chart.control.dataLabels"
+  },
+  "playground.chart.control.legend": {
+    "message": "Leyenda",
+    "description": "Component catalog and playground: playground.chart.control.legend"
+  },
+  "playground.chart.control.sharedTooltip": {
+    "message": "Tooltip compartido",
+    "description": "Component catalog and playground: playground.chart.control.sharedTooltip"
+  },
+  "playground.chart.event.click": {
+    "message": "Se pulsa un punto: sus valores x, y y su serie se escriben en el gráfico y se ejecutan sus dependencias.",
+    "description": "Component catalog and playground: playground.chart.event.click"
+  },
+  "playground.chart.event.double-click": {
+    "message": "Se pulsa dos veces un punto.",
+    "description": "Component catalog and playground: playground.chart.event.double-click"
+  },
+  "playground.chart.event.context-menu": {
+    "message": "Se pulsa con el botón derecho un punto: se abre el menú contextual del gráfico.",
+    "description": "Component catalog and playground: playground.chart.event.context-menu"
+  },
+  "playground.chart.event.zoom": {
+    "message": "Se hace zoom en el gráfico (zoom-type): los nuevos límites se escriben en los atributos del gráfico.",
+    "description": "Component catalog and playground: playground.chart.event.zoom"
+  },
+  "playground.chart.action.filter": {
+    "message": "Recarga el gráfico desde su consulta, con los criterios de la pantalla.",
+    "description": "Component catalog and playground: playground.chart.action.filter"
+  },
+  "playground.chart.action.add-points": {
+    "message": "Añade puntos a las series del gráfico sin recargarlo.",
+    "description": "Component catalog and playground: playground.chart.action.add-points"
+  },
+  "playground.chart.action.add-chart-series": {
+    "message": "Añade una serie; remove-chart-series y replace-chart-series cambian las que tiene.",
+    "description": "Component catalog and playground: playground.chart.action.add-chart-series"
+  },
+  "playground.pivot-table.control.rows": {
+    "message": "Filas",
+    "description": "Component catalog and playground: playground.pivot-table.control.rows"
+  },
+  "playground.pivot-table.option.rows.Region": {
+    "message": "Region",
+    "description": "Component catalog and playground: playground.pivot-table.option.rows.Region"
+  },
+  "playground.pivot-table.option.rows.Product": {
+    "message": "Product",
+    "description": "Component catalog and playground: playground.pivot-table.option.rows.Product"
+  },
+  "playground.pivot-table.control.cols": {
+    "message": "Columnas",
+    "description": "Component catalog and playground: playground.pivot-table.control.cols"
+  },
+  "playground.pivot-table.option.cols.Quarter": {
+    "message": "Quarter",
+    "description": "Component catalog and playground: playground.pivot-table.option.cols.Quarter"
+  },
+  "playground.pivot-table.option.cols.Channel": {
+    "message": "Channel",
+    "description": "Component catalog and playground: playground.pivot-table.option.cols.Channel"
+  },
+  "playground.pivot-table.control.renderer": {
+    "message": "Visualización",
+    "description": "Component catalog and playground: playground.pivot-table.control.renderer"
+  },
+  "playground.pivot-table.option.renderer.Table": {
+    "message": "Tabla",
+    "description": "Component catalog and playground: playground.pivot-table.option.renderer.Table"
+  },
+  "playground.pivot-table.option.renderer.Heatmap": {
+    "message": "Mapa de calor",
+    "description": "Component catalog and playground: playground.pivot-table.option.renderer.Heatmap"
+  },
+  "playground.pivot-table.option.renderer.Row Heatmap": {
+    "message": "Mapa de calor por filas",
+    "description": "Component catalog and playground: playground.pivot-table.option.renderer.Row Heatmap"
+  },
+  "playground.pivot-table.option.renderer.Col Heatmap": {
+    "message": "Mapa de calor por columnas",
+    "description": "Component catalog and playground: playground.pivot-table.option.renderer.Col Heatmap"
+  },
+  "playground.pivot-table.option.renderer.Table Barchart": {
+    "message": "Tabla con barras",
+    "description": "Component catalog and playground: playground.pivot-table.option.renderer.Table Barchart"
+  },
+  "playground.pivot-table.control.aggregator": {
+    "message": "Agregación",
+    "description": "Component catalog and playground: playground.pivot-table.control.aggregator"
+  },
+  "playground.pivot-table.option.aggregator.Count": {
+    "message": "Recuento",
+    "description": "Component catalog and playground: playground.pivot-table.option.aggregator.Count"
+  },
+  "playground.pivot-table.option.aggregator.Custom Sum": {
+    "message": "Suma",
+    "description": "Component catalog and playground: playground.pivot-table.option.aggregator.Custom Sum"
+  },
+  "playground.pivot-table.option.aggregator.Custom Average": {
+    "message": "Media",
+    "description": "Component catalog and playground: playground.pivot-table.option.aggregator.Custom Average"
+  },
+  "playground.pivot-table.option.aggregator.Custom Maximum": {
+    "message": "Máximo",
+    "description": "Component catalog and playground: playground.pivot-table.option.aggregator.Custom Maximum"
+  },
+  "playground.pivot-table.option.aggregator.Sum as Fraction of Total": {
+    "message": "Suma como fracción del total",
+    "description": "Component catalog and playground: playground.pivot-table.option.aggregator.Sum as Fraction of Total"
+  },
+  "playground.pivot-table.control.field": {
+    "message": "Campo a agregar",
+    "description": "Component catalog and playground: playground.pivot-table.control.field"
+  },
+  "playground.pivot-table.option.field.Revenue": {
+    "message": "Revenue",
+    "description": "Component catalog and playground: playground.pivot-table.option.field.Revenue"
+  },
+  "playground.pivot-table.option.field.Units": {
+    "message": "Units",
+    "description": "Component catalog and playground: playground.pivot-table.option.field.Units"
+  },
+  "playground.pivot-table.action.set-pivot-sorters": {
+    "message": "Fija el orden de los valores de un atributo (filas y columnas).",
+    "description": "Component catalog and playground: playground.pivot-table.action.set-pivot-sorters"
+  },
+  "playground.pivot-table.action.set-pivot-group-rows": {
+    "message": "Cambia los atributos de las filas; set-pivot-group-cols lo hace con las columnas.",
+    "description": "Component catalog and playground: playground.pivot-table.action.set-pivot-group-rows"
+  },
+  "playground.pivot-table.action.filter": {
+    "message": "Recarga la tabla dinámica desde su consulta, con los criterios de la pantalla.",
+    "description": "Component catalog and playground: playground.pivot-table.action.filter"
+  },
+  "playground.map.control.view": {
+    "message": "Vista inicial",
+    "description": "Component catalog and playground: playground.map.control.view"
+  },
+  "playground.map.option.view.fit": {
+    "message": "Ajustar a los marcadores",
+    "description": "Component catalog and playground: playground.map.option.view.fit"
+  },
+  "playground.map.option.view.iberia": {
+    "message": "Península ibérica",
+    "description": "Component catalog and playground: playground.map.option.view.iberia"
+  },
+  "playground.map.option.view.city": {
+    "message": "Una ciudad",
+    "description": "Component catalog and playground: playground.map.option.view.city"
+  },
+  "playground.map.control.markerLabel": {
+    "message": "Etiqueta del marcador",
+    "description": "Component catalog and playground: playground.map.control.markerLabel"
+  },
+  "playground.map.option.markerLabel.none": {
+    "message": "Ninguna",
+    "description": "Component catalog and playground: playground.map.option.markerLabel.none"
+  },
+  "playground.map.option.markerLabel.name": {
+    "message": "Tienda",
+    "description": "Component catalog and playground: playground.map.option.markerLabel.name"
+  },
+  "playground.map.option.markerLabel.city": {
+    "message": "Ciudad",
+    "description": "Component catalog and playground: playground.map.option.markerLabel.city"
+  },
+  "playground.map.event.select-row": {
+    "message": "Se pulsa un marcador: se selecciona su fila y se ejecutan las dependencias del mapa.",
+    "description": "Component catalog and playground: playground.map.event.select-row"
+  },
+  "playground.map.action.filter": {
+    "message": "Recarga los marcadores desde la consulta del mapa, con los criterios de la pantalla.",
+    "description": "Component catalog and playground: playground.map.action.filter"
+  },
+  "playground.map.action.polyline": {
+    "message": "Dibuja una ruta sobre el mapa en lugar de los marcadores.",
+    "description": "Component catalog and playground: playground.map.action.polyline"
+  },
+  "playground.file-viewer.control.type": {
+    "message": "Tipo de widget",
+    "description": "Component catalog and playground: playground.file-viewer.control.type"
+  },
+  "playground.file-viewer.option.type.file-viewer": {
+    "message": "Visor de archivos",
+    "description": "Component catalog and playground: playground.file-viewer.option.type.file-viewer"
+  },
+  "playground.file-viewer.option.type.pdf-viewer": {
+    "message": "Visor de PDF",
+    "description": "Component catalog and playground: playground.file-viewer.option.type.pdf-viewer"
+  },
+  "playground.file-viewer.control.stickBottom": {
+    "message": "Seguir el final del archivo",
+    "description": "Component catalog and playground: playground.file-viewer.control.stickBottom"
+  },
+  "catalog.how.real.title": {
+    "message": "El cliente real",
+    "description": "Component catalog: catalog.how.real.title"
+  },
+  "catalog.how.real.text": {
+    "message": "Cada vista previa es el propio cliente React de AWE, alimentado con datos de ejemplo. Sin capturas ni maquetas.",
+    "description": "Component catalog: catalog.how.real.text"
+  },
+  "catalog.how.xml.title": {
+    "message": "XML que te sigue",
+    "description": "Component catalog: catalog.how.xml.title"
+  },
+  "catalog.how.xml.text": {
+    "message": "Cambia un control y el XML que lo declara se actualiza al instante, listo para copiar en tu pantalla.",
+    "description": "Component catalog: catalog.how.xml.text"
+  },
+  "catalog.how.mode.title": {
+    "message": "Claro y oscuro",
+    "description": "Component catalog: catalog.how.mode.title"
+  },
+  "catalog.how.mode.text": {
+    "message": "Cambia el modo de color de cualquier vista previa y mira cómo lo adopta el componente, con los tokens de diseño de AWE.",
+    "description": "Component catalog: catalog.how.mode.text"
+  },
+  "playground.criteriaText.control.component": {
+    "message": "Componente",
+    "description": "Component catalog and playground: playground.criteriaText.control.component"
+  },
+  "playground.criteriaText.option.component.text": {
+    "message": "Texto",
+    "description": "Component catalog and playground: playground.criteriaText.option.component.text"
+  },
+  "playground.criteriaText.option.component.password": {
+    "message": "Contraseña",
+    "description": "Component catalog and playground: playground.criteriaText.option.component.password"
+  },
+  "playground.criteriaText.option.component.textarea": {
+    "message": "Área de texto",
+    "description": "Component catalog and playground: playground.criteriaText.option.component.textarea"
+  },
+  "playground.criteriaText.option.component.markdown-editor": {
+    "message": "Editor Markdown",
+    "description": "Component catalog and playground: playground.criteriaText.option.component.markdown-editor"
+  },
+  "playground.criteriaText.option.component.text-view": {
+    "message": "Vista de texto",
+    "description": "Component catalog and playground: playground.criteriaText.option.component.text-view"
+  },
+  "playground.criteriaText.option.component.color": {
+    "message": "Color",
+    "description": "Component catalog and playground: playground.criteriaText.option.component.color"
+  },
+  "playground.criteriaText.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.criteriaText.control.label"
+  },
+  "playground.criteriaText.control.placeholder": {
+    "message": "Texto de ayuda",
+    "description": "Component catalog and playground: playground.criteriaText.control.placeholder"
+  },
+  "playground.criteriaText.control.icon": {
+    "message": "Icono",
+    "description": "Component catalog and playground: playground.criteriaText.control.icon"
+  },
+  "playground.criteriaText.control.size": {
+    "message": "Tamaño",
+    "description": "Component catalog and playground: playground.criteriaText.control.size"
+  },
+  "playground.criteriaText.option.size.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.criteriaText.option.size.none"
+  },
+  "playground.criteriaText.option.size.sm": {
+    "message": "Pequeño",
+    "description": "Component catalog and playground: playground.criteriaText.option.size.sm"
+  },
+  "playground.criteriaText.option.size.lg": {
+    "message": "Grande",
+    "description": "Component catalog and playground: playground.criteriaText.option.size.lg"
+  },
+  "playground.criteriaText.control.rows": {
+    "message": "Filas",
+    "description": "Component catalog and playground: playground.criteriaText.control.rows"
+  },
+  "playground.criteriaText.control.unit": {
+    "message": "Unidad",
+    "description": "Component catalog and playground: playground.criteriaText.control.unit"
+  },
+  "playground.criteriaText.control.content": {
+    "message": "Texto a mostrar",
+    "description": "Component catalog and playground: playground.criteriaText.control.content"
+  },
+  "playground.criteriaText.control.required": {
+    "message": "Obligatorio",
+    "description": "Component catalog and playground: playground.criteriaText.control.required"
+  },
+  "playground.criteriaText.control.readonly": {
+    "message": "Solo lectura",
+    "description": "Component catalog and playground: playground.criteriaText.control.readonly"
+  },
+  "playground.criteriaText.action.reset": {
+    "message": "Vacía el valor del criterio.",
+    "description": "Component catalog and playground: playground.criteriaText.action.reset"
+  },
+  "playground.criteriaText.action.restore": {
+    "message": "Devuelve el criterio a su valor inicial.",
+    "description": "Component catalog and playground: playground.criteriaText.action.restore"
+  },
+  "playground.criteriaText.action.validate": {
+    "message": "Ejecuta la validación del criterio (obligatorio, formatos) y muestra su error.",
+    "description": "Component catalog and playground: playground.criteriaText.action.validate"
+  },
+  "playground.criteriaText.action.set-invalid": {
+    "message": "Marca el criterio como inválido con el mensaje de la acción.",
+    "description": "Component catalog and playground: playground.criteriaText.action.set-invalid"
+  },
+  "playground.criteriaText.action.set-valid": {
+    "message": "Borra el error de validación del criterio.",
+    "description": "Component catalog and playground: playground.criteriaText.action.set-valid"
+  },
+  "playground.criteriaText.action.copy-criterion-value-clipboard": {
+    "message": "Copia el valor del criterio al portapapeles.",
+    "description": "Component catalog and playground: playground.criteriaText.action.copy-criterion-value-clipboard"
+  },
+  "playground.criteriaNumbers.control.component": {
+    "message": "Componente",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.component"
+  },
+  "playground.criteriaNumbers.option.component.numeric": {
+    "message": "Numérico",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.component.numeric"
+  },
+  "playground.criteriaNumbers.option.component.date": {
+    "message": "Fecha",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.component.date"
+  },
+  "playground.criteriaNumbers.option.component.date-range": {
+    "message": "Rango de fechas",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.component.date-range"
+  },
+  "playground.criteriaNumbers.option.component.time": {
+    "message": "Hora",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.component.time"
+  },
+  "playground.criteriaNumbers.option.component.filtered-calendar": {
+    "message": "Calendario filtrado",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.component.filtered-calendar"
+  },
+  "playground.criteriaNumbers.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.label"
+  },
+  "playground.criteriaNumbers.control.placeholder": {
+    "message": "Texto de ayuda",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.placeholder"
+  },
+  "playground.criteriaNumbers.control.icon": {
+    "message": "Icono",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.icon"
+  },
+  "playground.criteriaNumbers.control.size": {
+    "message": "Tamaño",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.size"
+  },
+  "playground.criteriaNumbers.option.size.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.size.none"
+  },
+  "playground.criteriaNumbers.option.size.sm": {
+    "message": "Pequeño",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.size.sm"
+  },
+  "playground.criteriaNumbers.option.size.lg": {
+    "message": "Grande",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.size.lg"
+  },
+  "playground.criteriaNumbers.control.unit": {
+    "message": "Unidad",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.unit"
+  },
+  "playground.criteriaNumbers.control.slider": {
+    "message": "Deslizador",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.slider"
+  },
+  "playground.criteriaNumbers.control.presets": {
+    "message": "Atajos",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.presets"
+  },
+  "playground.criteriaNumbers.control.timeFormat": {
+    "message": "Formato de hora",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.timeFormat"
+  },
+  "playground.criteriaNumbers.option.timeFormat.HH:mm": {
+    "message": "HH:mm",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.timeFormat.HH:mm"
+  },
+  "playground.criteriaNumbers.option.timeFormat.HH:mm:ss": {
+    "message": "HH:mm:ss",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.timeFormat.HH:mm:ss"
+  },
+  "playground.criteriaNumbers.option.timeFormat.hh:mm a": {
+    "message": "hh:mm a",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.timeFormat.hh:mm a"
+  },
+  "playground.criteriaNumbers.option.timeFormat.hh:mm:ss a": {
+    "message": "hh:mm:ss a",
+    "description": "Component catalog and playground: playground.criteriaNumbers.option.timeFormat.hh:mm:ss a"
+  },
+  "playground.criteriaNumbers.control.required": {
+    "message": "Obligatorio",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.required"
+  },
+  "playground.criteriaNumbers.control.readonly": {
+    "message": "Solo lectura",
+    "description": "Component catalog and playground: playground.criteriaNumbers.control.readonly"
+  },
+  "playground.criteriaNumbers.action.reset": {
+    "message": "Vacía el valor del criterio.",
+    "description": "Component catalog and playground: playground.criteriaNumbers.action.reset"
+  },
+  "playground.criteriaNumbers.action.restore": {
+    "message": "Devuelve el criterio a su valor inicial.",
+    "description": "Component catalog and playground: playground.criteriaNumbers.action.restore"
+  },
+  "playground.criteriaNumbers.action.validate": {
+    "message": "Ejecuta la validación del criterio (obligatorio, formatos) y muestra su error.",
+    "description": "Component catalog and playground: playground.criteriaNumbers.action.validate"
+  },
+  "playground.criteriaNumbers.action.set-invalid": {
+    "message": "Marca el criterio como inválido con el mensaje de la acción.",
+    "description": "Component catalog and playground: playground.criteriaNumbers.action.set-invalid"
+  },
+  "playground.criteriaNumbers.action.set-valid": {
+    "message": "Borra el error de validación del criterio.",
+    "description": "Component catalog and playground: playground.criteriaNumbers.action.set-valid"
+  },
+  "playground.criteriaNumbers.action.copy-criterion-value-clipboard": {
+    "message": "Copia el valor del criterio al portapapeles.",
+    "description": "Component catalog and playground: playground.criteriaNumbers.action.copy-criterion-value-clipboard"
+  },
+  "playground.criteriaSelects.control.component": {
+    "message": "Componente",
+    "description": "Component catalog and playground: playground.criteriaSelects.control.component"
+  },
+  "playground.criteriaSelects.option.component.select": {
+    "message": "Selector",
+    "description": "Component catalog and playground: playground.criteriaSelects.option.component.select"
+  },
+  "playground.criteriaSelects.option.component.select-multiple": {
+    "message": "Selector múltiple",
+    "description": "Component catalog and playground: playground.criteriaSelects.option.component.select-multiple"
+  },
+  "playground.criteriaSelects.option.component.suggest": {
+    "message": "Sugerencia",
+    "description": "Component catalog and playground: playground.criteriaSelects.option.component.suggest"
+  },
+  "playground.criteriaSelects.option.component.suggest-multiple": {
+    "message": "Sugerencia múltiple",
+    "description": "Component catalog and playground: playground.criteriaSelects.option.component.suggest-multiple"
+  },
+  "playground.criteriaSelects.option.component.picklist": {
+    "message": "Lista doble",
+    "description": "Component catalog and playground: playground.criteriaSelects.option.component.picklist"
+  },
+  "playground.criteriaSelects.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.criteriaSelects.control.label"
+  },
+  "playground.criteriaSelects.control.placeholder": {
+    "message": "Texto de ayuda",
+    "description": "Component catalog and playground: playground.criteriaSelects.control.placeholder"
+  },
+  "playground.criteriaSelects.control.icon": {
+    "message": "Icono",
+    "description": "Component catalog and playground: playground.criteriaSelects.control.icon"
+  },
+  "playground.criteriaSelects.control.size": {
+    "message": "Tamaño",
+    "description": "Component catalog and playground: playground.criteriaSelects.control.size"
+  },
+  "playground.criteriaSelects.option.size.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.criteriaSelects.option.size.none"
+  },
+  "playground.criteriaSelects.option.size.sm": {
+    "message": "Pequeño",
+    "description": "Component catalog and playground: playground.criteriaSelects.option.size.sm"
+  },
+  "playground.criteriaSelects.option.size.lg": {
+    "message": "Grande",
+    "description": "Component catalog and playground: playground.criteriaSelects.option.size.lg"
+  },
+  "playground.criteriaSelects.control.optional": {
+    "message": "Botón de borrar",
+    "description": "Component catalog and playground: playground.criteriaSelects.control.optional"
+  },
+  "playground.criteriaSelects.control.display": {
+    "message": "Valores elegidos",
+    "description": "Component catalog and playground: playground.criteriaSelects.control.display"
+  },
+  "playground.criteriaSelects.option.display.none": {
+    "message": "Una línea",
+    "description": "Component catalog and playground: playground.criteriaSelects.option.display.none"
+  },
+  "playground.criteriaSelects.option.display.chip": {
+    "message": "Etiquetas",
+    "description": "Component catalog and playground: playground.criteriaSelects.option.display.chip"
+  },
+  "playground.criteriaSelects.control.required": {
+    "message": "Obligatorio",
+    "description": "Component catalog and playground: playground.criteriaSelects.control.required"
+  },
+  "playground.criteriaSelects.control.readonly": {
+    "message": "Solo lectura",
+    "description": "Component catalog and playground: playground.criteriaSelects.control.readonly"
+  },
+  "playground.criteriaSelects.action.reset": {
+    "message": "Vacía el valor del criterio.",
+    "description": "Component catalog and playground: playground.criteriaSelects.action.reset"
+  },
+  "playground.criteriaSelects.action.restore": {
+    "message": "Devuelve el criterio a su valor inicial.",
+    "description": "Component catalog and playground: playground.criteriaSelects.action.restore"
+  },
+  "playground.criteriaSelects.action.validate": {
+    "message": "Ejecuta la validación del criterio (obligatorio, formatos) y muestra su error.",
+    "description": "Component catalog and playground: playground.criteriaSelects.action.validate"
+  },
+  "playground.criteriaSelects.action.set-invalid": {
+    "message": "Marca el criterio como inválido con el mensaje de la acción.",
+    "description": "Component catalog and playground: playground.criteriaSelects.action.set-invalid"
+  },
+  "playground.criteriaSelects.action.set-valid": {
+    "message": "Borra el error de validación del criterio.",
+    "description": "Component catalog and playground: playground.criteriaSelects.action.set-valid"
+  },
+  "playground.criteriaSelects.action.copy-criterion-value-clipboard": {
+    "message": "Copia el valor del criterio al portapapeles.",
+    "description": "Component catalog and playground: playground.criteriaSelects.action.copy-criterion-value-clipboard"
+  },
+  "playground.criteriaCheckboxRadio.control.component": {
+    "message": "Componente",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.component"
+  },
+  "playground.criteriaCheckboxRadio.option.component.radio": {
+    "message": "Radio",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.component.radio"
+  },
+  "playground.criteriaCheckboxRadio.option.component.button-radio": {
+    "message": "Botones radio",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.component.button-radio"
+  },
+  "playground.criteriaCheckboxRadio.option.component.checkbox": {
+    "message": "Casilla",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.component.checkbox"
+  },
+  "playground.criteriaCheckboxRadio.option.component.button-checkbox": {
+    "message": "Botones casilla",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.component.button-checkbox"
+  },
+  "playground.criteriaCheckboxRadio.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.label"
+  },
+  "playground.criteriaCheckboxRadio.control.size": {
+    "message": "Tamaño",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.size"
+  },
+  "playground.criteriaCheckboxRadio.option.size.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.size.none"
+  },
+  "playground.criteriaCheckboxRadio.option.size.sm": {
+    "message": "Pequeño",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.size.sm"
+  },
+  "playground.criteriaCheckboxRadio.option.size.lg": {
+    "message": "Grande",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.option.size.lg"
+  },
+  "playground.criteriaCheckboxRadio.control.asSwitch": {
+    "message": "Mostrar como interruptor",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.asSwitch"
+  },
+  "playground.criteriaCheckboxRadio.control.required": {
+    "message": "Obligatorio",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.required"
+  },
+  "playground.criteriaCheckboxRadio.control.readonly": {
+    "message": "Solo lectura",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.control.readonly"
+  },
+  "playground.criteriaCheckboxRadio.action.reset": {
+    "message": "Vacía el valor del criterio.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.reset"
+  },
+  "playground.criteriaCheckboxRadio.action.restore": {
+    "message": "Devuelve el criterio a su valor inicial.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.restore"
+  },
+  "playground.criteriaCheckboxRadio.action.validate": {
+    "message": "Ejecuta la validación del criterio (obligatorio, formatos) y muestra su error.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.validate"
+  },
+  "playground.criteriaCheckboxRadio.action.set-invalid": {
+    "message": "Marca el criterio como inválido con el mensaje de la acción.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.set-invalid"
+  },
+  "playground.criteriaCheckboxRadio.action.set-valid": {
+    "message": "Borra el error de validación del criterio.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.set-valid"
+  },
+  "playground.criteriaCheckboxRadio.action.copy-criterion-value-clipboard": {
+    "message": "Copia el valor del criterio al portapapeles.",
+    "description": "Component catalog and playground: playground.criteriaCheckboxRadio.action.copy-criterion-value-clipboard"
+  },
+  "playground.criteriaUpload.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.criteriaUpload.control.label"
+  },
+  "playground.criteriaUpload.control.placeholder": {
+    "message": "Texto de ayuda",
+    "description": "Component catalog and playground: playground.criteriaUpload.control.placeholder"
+  },
+  "playground.criteriaUpload.control.size": {
+    "message": "Tamaño",
+    "description": "Component catalog and playground: playground.criteriaUpload.control.size"
+  },
+  "playground.criteriaUpload.option.size.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.criteriaUpload.option.size.none"
+  },
+  "playground.criteriaUpload.option.size.sm": {
+    "message": "Pequeño",
+    "description": "Component catalog and playground: playground.criteriaUpload.option.size.sm"
+  },
+  "playground.criteriaUpload.option.size.lg": {
+    "message": "Grande",
+    "description": "Component catalog and playground: playground.criteriaUpload.option.size.lg"
+  },
+  "playground.criteriaUpload.control.dropZone": {
+    "message": "Zona para soltar",
+    "description": "Component catalog and playground: playground.criteriaUpload.control.dropZone"
+  },
+  "playground.criteriaUpload.control.capture": {
+    "message": "Cámara",
+    "description": "Component catalog and playground: playground.criteriaUpload.control.capture"
+  },
+  "playground.criteriaUpload.option.capture.none": {
+    "message": "No",
+    "description": "Component catalog and playground: playground.criteriaUpload.option.capture.none"
+  },
+  "playground.criteriaUpload.option.capture.user": {
+    "message": "Frontal",
+    "description": "Component catalog and playground: playground.criteriaUpload.option.capture.user"
+  },
+  "playground.criteriaUpload.option.capture.environment": {
+    "message": "Trasera",
+    "description": "Component catalog and playground: playground.criteriaUpload.option.capture.environment"
+  },
+  "playground.criteriaUpload.control.required": {
+    "message": "Obligatorio",
+    "description": "Component catalog and playground: playground.criteriaUpload.control.required"
+  },
+  "playground.criteriaUpload.control.readonly": {
+    "message": "Solo lectura",
+    "description": "Component catalog and playground: playground.criteriaUpload.control.readonly"
+  },
+  "playground.criteriaUpload.action.reset": {
+    "message": "Vacía el valor del criterio.",
+    "description": "Component catalog and playground: playground.criteriaUpload.action.reset"
+  },
+  "playground.criteriaUpload.action.restore": {
+    "message": "Devuelve el criterio a su valor inicial.",
+    "description": "Component catalog and playground: playground.criteriaUpload.action.restore"
+  },
+  "playground.criteriaUpload.action.validate": {
+    "message": "Ejecuta la validación del criterio (obligatorio, formatos) y muestra su error.",
+    "description": "Component catalog and playground: playground.criteriaUpload.action.validate"
+  },
+  "playground.criteriaUpload.action.set-invalid": {
+    "message": "Marca el criterio como inválido con el mensaje de la acción.",
+    "description": "Component catalog and playground: playground.criteriaUpload.action.set-invalid"
+  },
+  "playground.criteriaUpload.action.set-valid": {
+    "message": "Borra el error de validación del criterio.",
+    "description": "Component catalog and playground: playground.criteriaUpload.action.set-valid"
+  },
+  "playground.criteriaUpload.action.copy-criterion-value-clipboard": {
+    "message": "Copia el valor del criterio al portapapeles.",
+    "description": "Component catalog and playground: playground.criteriaUpload.action.copy-criterion-value-clipboard"
+  },
+  "catalog.title.criteria-text": {
+    "message": "Entradas de texto",
+    "description": "Component catalog and playground: catalog.title.criteria-text"
+  },
+  "catalog.description.criteria-text": {
+    "message": "Texto, contraseña, área de texto, editor Markdown, vista de texto y color.",
+    "description": "Component catalog and playground: catalog.description.criteria-text"
+  },
+  "catalog.title.criteria-numbers": {
+    "message": "Números y fechas",
+    "description": "Component catalog and playground: catalog.title.criteria-numbers"
+  },
+  "catalog.description.criteria-numbers": {
+    "message": "Numérico con deslizador, fecha, rango de fechas, hora y calendario filtrado.",
+    "description": "Component catalog and playground: catalog.description.criteria-numbers"
+  },
+  "catalog.title.criteria-choices": {
+    "message": "Opciones",
+    "description": "Component catalog and playground: catalog.title.criteria-choices"
+  },
+  "catalog.description.criteria-choices": {
+    "message": "Selector, sugerencia, lista doble, radio, casilla y sus versiones múltiples.",
+    "description": "Component catalog and playground: catalog.description.criteria-choices"
+  },
+  "catalog.title.criteria-upload": {
+    "message": "Subida de archivos",
+    "description": "Component catalog and playground: catalog.title.criteria-upload"
+  },
+  "catalog.description.criteria-upload": {
+    "message": "Sube un archivo con una zona para soltar, vista previa y captura con la cámara.",
+    "description": "Component catalog and playground: catalog.description.criteria-upload"
+  },
+  "playground.side-panel.control.label": {
+    "message": "Título",
+    "description": "Component catalog and playground: playground.side-panel.control.label"
+  },
+  "playground.side-panel.control.icon": {
+    "message": "Icono",
+    "description": "Component catalog and playground: playground.side-panel.control.icon"
+  },
+  "playground.side-panel.control.position": {
+    "message": "Borde",
+    "description": "Component catalog and playground: playground.side-panel.control.position"
+  },
+  "playground.side-panel.option.position.right": {
+    "message": "Derecho",
+    "description": "Component catalog and playground: playground.side-panel.option.position.right"
+  },
+  "playground.side-panel.option.position.left": {
+    "message": "Izquierdo",
+    "description": "Component catalog and playground: playground.side-panel.option.position.left"
+  },
+  "playground.side-panel.control.maxWidth": {
+    "message": "Ancho máximo",
+    "description": "Component catalog and playground: playground.side-panel.control.maxWidth"
+  },
+  "playground.side-panel.option.maxWidth.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.side-panel.option.maxWidth.none"
+  },
+  "playground.side-panel.option.maxWidth.20rem": {
+    "message": "Estrecho",
+    "description": "Component catalog and playground: playground.side-panel.option.maxWidth.20rem"
+  },
+  "playground.side-panel.option.maxWidth.30rem": {
+    "message": "Medio",
+    "description": "Component catalog and playground: playground.side-panel.option.maxWidth.30rem"
+  },
+  "playground.side-panel.option.maxWidth.50vw": {
+    "message": "La mitad de la pantalla",
+    "description": "Component catalog and playground: playground.side-panel.option.maxWidth.50vw"
+  },
+  "playground.side-panel.control.onClose": {
+    "message": "Al descartarlo",
+    "description": "Component catalog and playground: playground.side-panel.control.onClose"
+  },
+  "playground.side-panel.option.onClose.accept": {
+    "message": "Aceptar",
+    "description": "Component catalog and playground: playground.side-panel.option.onClose.accept"
+  },
+  "playground.side-panel.option.onClose.reject": {
+    "message": "Rechazar",
+    "description": "Component catalog and playground: playground.side-panel.option.onClose.reject"
+  },
+  "playground.side-panel.control.footer": {
+    "message": "Pie con botones",
+    "description": "Component catalog and playground: playground.side-panel.control.footer"
+  },
+  "playground.side-panel.event.open": {
+    "message": "Se guarda en el panel lateral cuando se abre.",
+    "description": "Component catalog and playground: playground.side-panel.event.open"
+  },
+  "playground.side-panel.event.close": {
+    "message": "Se guarda en el panel lateral cuando se cierra.",
+    "description": "Component catalog and playground: playground.side-panel.event.close"
+  },
+  "playground.side-panel.action.dialog": {
+    "message": "Abre el panel lateral indicado en target.",
+    "description": "Component catalog and playground: playground.side-panel.action.dialog"
+  },
+  "playground.side-panel.action.close": {
+    "message": "Cierra el panel lateral y continúa con las acciones que esperaban.",
+    "description": "Component catalog and playground: playground.side-panel.action.close"
+  },
+  "playground.side-panel.action.close-cancel": {
+    "message": "Cierra el panel lateral y cancela las acciones que esperaban.",
+    "description": "Component catalog and playground: playground.side-panel.action.close-cancel"
+  },
+  "playground.popover.control.label": {
+    "message": "Título",
+    "description": "Component catalog and playground: playground.popover.control.label"
+  },
+  "playground.popover.control.position": {
+    "message": "Lado del ancla",
+    "description": "Component catalog and playground: playground.popover.control.position"
+  },
+  "playground.popover.option.position.bottom": {
+    "message": "Abajo",
+    "description": "Component catalog and playground: playground.popover.option.position.bottom"
+  },
+  "playground.popover.option.position.top": {
+    "message": "Arriba",
+    "description": "Component catalog and playground: playground.popover.option.position.top"
+  },
+  "playground.popover.option.position.left": {
+    "message": "Izquierda",
+    "description": "Component catalog and playground: playground.popover.option.position.left"
+  },
+  "playground.popover.option.position.right": {
+    "message": "Derecha",
+    "description": "Component catalog and playground: playground.popover.option.position.right"
+  },
+  "playground.popover.control.maxWidth": {
+    "message": "Ancho máximo",
+    "description": "Component catalog and playground: playground.popover.control.maxWidth"
+  },
+  "playground.popover.option.maxWidth.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.popover.option.maxWidth.none"
+  },
+  "playground.popover.option.maxWidth.14rem": {
+    "message": "Estrecho",
+    "description": "Component catalog and playground: playground.popover.option.maxWidth.14rem"
+  },
+  "playground.popover.option.maxWidth.30rem": {
+    "message": "Ancho",
+    "description": "Component catalog and playground: playground.popover.option.maxWidth.30rem"
+  },
+  "playground.popover.control.footer": {
+    "message": "Pie con un botón",
+    "description": "Component catalog and playground: playground.popover.control.footer"
+  },
+  "playground.popover.event.open": {
+    "message": "Se guarda en el popover cuando se abre.",
+    "description": "Component catalog and playground: playground.popover.event.open"
+  },
+  "playground.popover.event.close": {
+    "message": "Se guarda en el popover cuando se cierra.",
+    "description": "Component catalog and playground: playground.popover.event.close"
+  },
+  "playground.popover.action.dialog": {
+    "message": "Abre el popover indicado en target, junto a su ancla.",
+    "description": "Component catalog and playground: playground.popover.action.dialog"
+  },
+  "playground.popover.action.close": {
+    "message": "Cierra el popover y continúa con las acciones que esperaban.",
+    "description": "Component catalog and playground: playground.popover.action.close"
+  },
+  "playground.popover.action.close-cancel": {
+    "message": "Cierra el popover y cancela las acciones que esperaban.",
+    "description": "Component catalog and playground: playground.popover.action.close-cancel"
+  },
+  "catalog.title.side-panel-popover": {
+    "message": "Panel lateral y popover",
+    "description": "Component catalog and playground: catalog.title.side-panel-popover"
+  },
+  "catalog.description.side-panel-popover": {
+    "message": "Paneles en el borde de la pantalla y popovers junto a un control, sin salir de la pantalla.",
+    "description": "Component catalog and playground: catalog.description.side-panel-popover"
+  },
+  "playground.context-menu.control.label": {
+    "message": "Etiqueta del botón",
+    "description": "Component catalog and playground: playground.context-menu.control.label"
+  },
+  "playground.context-menu.control.opens": {
+    "message": "Se abre con",
+    "description": "Component catalog and playground: playground.context-menu.control.opens"
+  },
+  "playground.context-menu.option.opens.right": {
+    "message": "Clic derecho",
+    "description": "Component catalog and playground: playground.context-menu.option.opens.right"
+  },
+  "playground.context-menu.option.opens.click": {
+    "message": "Clic izquierdo",
+    "description": "Component catalog and playground: playground.context-menu.option.opens.click"
+  },
+  "playground.context-menu.control.icons": {
+    "message": "Iconos",
+    "description": "Component catalog and playground: playground.context-menu.control.icons"
+  },
+  "playground.context-menu.control.submenu": {
+    "message": "Submenú Exportar",
+    "description": "Component catalog and playground: playground.context-menu.control.submenu"
+  },
+  "playground.context-menu.control.separator": {
+    "message": "Separador antes de Eliminar",
+    "description": "Component catalog and playground: playground.context-menu.control.separator"
+  },
+  "playground.context-menu.event.click": {
+    "message": "Se guarda en la opción del menú cuando el usuario la elige.",
+    "description": "Component catalog and playground: playground.context-menu.event.click"
+  },
+  "playground.context-menu.action.show-context-menu": {
+    "message": "Abre el menú contextual debajo del botón que la lanza, con un clic izquierdo.",
+    "description": "Component catalog and playground: playground.context-menu.action.show-context-menu"
+  },
+  "playground.info.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.info.control.label"
+  },
+  "playground.info.control.icon": {
+    "message": "Icono",
+    "description": "Component catalog and playground: playground.info.control.icon"
+  },
+  "playground.info.control.unit": {
+    "message": "Insignia",
+    "description": "Component catalog and playground: playground.info.control.unit"
+  },
+  "playground.info.control.content": {
+    "message": "Desplegable con contenido",
+    "description": "Component catalog and playground: playground.info.control.content"
+  },
+  "playground.info.event.click": {
+    "message": "Se guarda en el info cuando el usuario hace clic en él.",
+    "description": "Component catalog and playground: playground.info.event.click"
+  },
+  "playground.message.control.title": {
+    "message": "Título",
+    "description": "Component catalog and playground: playground.message.control.title"
+  },
+  "playground.message.control.message": {
+    "message": "Mensaje",
+    "description": "Component catalog and playground: playground.message.control.message"
+  },
+  "playground.message.action.confirm": {
+    "message": "Muestra el mensaje indicado en target en un diálogo de confirmación. Aceptar continúa con las acciones que siguen, Cancelar las detiene.",
+    "description": "Component catalog and playground: playground.message.action.confirm"
+  },
+  "catalog.title.context-menu": {
+    "message": "Menú contextual",
+    "description": "Component catalog and playground: catalog.title.context-menu"
+  },
+  "catalog.description.context-menu": {
+    "message": "Menús de clic derecho con iconos, separadores, submenús y cualquier acción.",
+    "description": "Component catalog and playground: catalog.description.context-menu"
+  },
+  "catalog.title.messages-info": {
+    "message": "Mensajes e información",
+    "description": "Component catalog and playground: catalog.title.messages-info"
+  },
+  "catalog.description.messages-info": {
+    "message": "Diálogos de confirmación, avisos y mensajes sobre un campo, y los controles de información de la cabecera.",
+    "description": "Component catalog and playground: catalog.description.messages-info"
+  },
+  "playground.window.control.label": {
+    "message": "Título",
+    "description": "Component catalog and playground: playground.window.control.label"
+  },
+  "playground.window.control.icon": {
+    "message": "Icono",
+    "description": "Component catalog and playground: playground.window.control.icon"
+  },
+  "playground.window.control.help": {
+    "message": "Texto de ayuda",
+    "description": "Component catalog and playground: playground.window.control.help"
+  },
+  "playground.window.control.maximize": {
+    "message": "Botón de maximizar",
+    "description": "Component catalog and playground: playground.window.control.maximize"
+  },
+  "playground.window.control.footer": {
+    "message": "Pie con un botón",
+    "description": "Component catalog and playground: playground.window.control.footer"
+  },
+  "playground.resizable.control.right": {
+    "message": "Tirador derecho",
+    "description": "Component catalog and playground: playground.resizable.control.right"
+  },
+  "playground.resizable.control.left": {
+    "message": "Tirador izquierdo",
+    "description": "Component catalog and playground: playground.resizable.control.left"
+  },
+  "playground.resizable.control.bottom": {
+    "message": "Tirador inferior",
+    "description": "Component catalog and playground: playground.resizable.control.bottom"
+  },
+  "playground.resizable.control.top": {
+    "message": "Tirador superior",
+    "description": "Component catalog and playground: playground.resizable.control.top"
+  },
+  "playground.tag.control.type": {
+    "message": "Elemento HTML",
+    "description": "Component catalog and playground: playground.tag.control.type"
+  },
+  "playground.tag.option.type.h3": {
+    "message": "h3",
+    "description": "Component catalog and playground: playground.tag.option.type.h3"
+  },
+  "playground.tag.option.type.p": {
+    "message": "p",
+    "description": "Component catalog and playground: playground.tag.option.type.p"
+  },
+  "playground.tag.option.type.div": {
+    "message": "div",
+    "description": "Component catalog and playground: playground.tag.option.type.div"
+  },
+  "playground.tag.option.type.span": {
+    "message": "span",
+    "description": "Component catalog and playground: playground.tag.option.type.span"
+  },
+  "playground.tag.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.tag.control.label"
+  },
+  "playground.tag.control.look": {
+    "message": "Estilo",
+    "description": "Component catalog and playground: playground.tag.control.look"
+  },
+  "playground.tag.option.look.none": {
+    "message": "Ninguno",
+    "description": "Component catalog and playground: playground.tag.option.look.none"
+  },
+  "playground.tag.option.look.awe-section-title": {
+    "message": "Título de sección",
+    "description": "Component catalog and playground: playground.tag.option.look.awe-section-title"
+  },
+  "playground.tag.option.look.awe-form-section-title": {
+    "message": "Título de sección de formulario",
+    "description": "Component catalog and playground: playground.tag.option.look.awe-form-section-title"
+  },
+  "playground.tag.control.icon": {
+    "message": "Icono",
+    "description": "Component catalog and playground: playground.tag.control.icon"
+  },
+  "catalog.title.window-layout": {
+    "message": "Ventana y diseño",
+    "description": "Component catalog and playground: catalog.title.window-layout"
+  },
+  "catalog.description.window-layout": {
+    "message": "Ventanas, paneles redimensionables y la plantilla de pantalla con sus migas de pan.",
+    "description": "Component catalog and playground: catalog.description.window-layout"
+  },
+  "catalog.title.tags-lists": {
+    "message": "Etiquetas y listas",
+    "description": "Component catalog and playground: catalog.title.tags-lists"
+  },
+  "catalog.description.tags-lists": {
+    "message": "Títulos de sección, texto sin formato y una etiqueta generada por cada fila de una consulta.",
+    "description": "Component catalog and playground: catalog.description.tags-lists"
+  },
+  "playground.avatar.control.label": {
+    "message": "Etiqueta",
+    "description": "Component catalog and playground: playground.avatar.control.label"
+  },
+  "playground.avatar.control.image": {
+    "message": "Imagen",
+    "description": "Component catalog and playground: playground.avatar.control.image"
+  },
+  "playground.avatar.option.image.none": {
+    "message": "Iniciales",
+    "description": "Component catalog and playground: playground.avatar.option.image.none"
+  },
+  "playground.avatar.option.image./live/media/avatar.svg": {
+    "message": "Retrato",
+    "description": "Component catalog and playground: playground.avatar.option.image./live/media/avatar.svg"
+  },
+  "playground.avatar.control.size": {
+    "message": "Tamaño",
+    "description": "Component catalog and playground: playground.avatar.control.size"
+  },
+  "playground.avatar.option.size.none": {
+    "message": "Por defecto",
+    "description": "Component catalog and playground: playground.avatar.option.size.none"
+  },
+  "playground.avatar.option.size.sm": {
+    "message": "Pequeño",
+    "description": "Component catalog and playground: playground.avatar.option.size.sm"
+  },
+  "playground.avatar.option.size.lg": {
+    "message": "Grande",
+    "description": "Component catalog and playground: playground.avatar.option.size.lg"
+  },
+  "playground.avatar.control.unit": {
+    "message": "Insignia",
+    "description": "Component catalog and playground: playground.avatar.control.unit"
+  },
+  "playground.avatar.control.showLabel": {
+    "message": "Mostrar la etiqueta",
+    "description": "Component catalog and playground: playground.avatar.control.showLabel"
+  },
+  "playground.avatar.control.menu": {
+    "message": "Menú desplegable",
+    "description": "Component catalog and playground: playground.avatar.control.menu"
+  },
+  "playground.avatar.event.click": {
+    "message": "Se guarda en el avatar cuando el usuario hace clic en él.",
+    "description": "Component catalog and playground: playground.avatar.event.click"
+  },
+  "playground.video.control.poster": {
+    "message": "Póster",
+    "description": "Component catalog and playground: playground.video.control.poster"
+  },
+  "playground.video.option.poster.none": {
+    "message": "Ninguno",
+    "description": "Component catalog and playground: playground.video.option.poster.none"
+  },
+  "playground.video.option.poster./live/media/poster.svg": {
+    "message": "Póster",
+    "description": "Component catalog and playground: playground.video.option.poster./live/media/poster.svg"
+  },
+  "playground.video.control.controls": {
+    "message": "Mostrar los controles",
+    "description": "Component catalog and playground: playground.video.control.controls"
+  },
+  "playground.video.control.loop": {
+    "message": "Repetir",
+    "description": "Component catalog and playground: playground.video.control.loop"
+  },
+  "playground.video.control.preload": {
+    "message": "Precarga",
+    "description": "Component catalog and playground: playground.video.control.preload"
+  },
+  "playground.video.option.preload.empty": {
+    "message": "Predeterminada",
+    "description": "Component catalog and playground: playground.video.option.preload.empty"
+  },
+  "playground.video.option.preload.none": {
+    "message": "Ninguna",
+    "description": "Component catalog and playground: playground.video.option.preload.none"
+  },
+  "playground.video.option.preload.metadata": {
+    "message": "Metadatos",
+    "description": "Component catalog and playground: playground.video.option.preload.metadata"
+  },
+  "playground.video.option.preload.full-video": {
+    "message": "Vídeo completo",
+    "description": "Component catalog and playground: playground.video.option.preload.full-video"
+  },
+  "catalog.title.media-content": {
+    "message": "Multimedia y contenido",
+    "description": "Component catalog and playground: catalog.title.media-content"
+  },
+  "catalog.description.media-content": {
+    "message": "Avatares, vídeos con póster, imágenes y enlaces.",
+    "description": "Component catalog and playground: catalog.description.media-content"
+  },
+  "playground.widget.control.type": {
+    "message": "Tipo de widget",
+    "description": "Component catalog and playground: playground.widget.control.type"
+  },
+  "playground.widget.option.type.carousel": {
+    "message": "Carrusel",
+    "description": "Component catalog and playground: playground.widget.option.type.carousel"
+  },
+  "playground.widget.option.type.help-viewer": {
+    "message": "Visor de ayuda",
+    "description": "Component catalog and playground: playground.widget.option.type.help-viewer"
+  },
+  "catalog.title.widgets": {
+    "message": "Widgets",
+    "description": "Component catalog and playground: catalog.title.widgets"
+  },
+  "catalog.description.widgets": {
+    "message": "Un carrusel de imágenes y vídeos, y el visor de ayuda de la aplicación.",
+    "description": "Component catalog and playground: catalog.description.widgets"
+  },
+  "sidebar.docs.category.Criteria": {
+    "message": "Criterios",
+    "description": "The label for category Criteria in sidebar docs"
+  },
+  "announcementBar.awe5.title": {
+    "message": "¡Ya está aquí AWE 5!",
+    "description": "Title of the AWE 5 release announcement"
+  },
+  "announcementBar.awe5.link": {
+    "message": "Lee la guía de migración",
+    "description": "Link of the AWE 5 announcement to the migration guide"
+  }
+}

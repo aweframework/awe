@@ -31,7 +31,6 @@ public class ChartConstants {
   // General constant
   public static final String ID = "id";
   public static final String CHART = "chart";
-  public static final String THEME = "theme";
   public static final String PLOT_OPTIONS = "plotOptions";
   public static final String CREDITS = "credits";
   public static final String TEXT = "text";

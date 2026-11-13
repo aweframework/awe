@@ -2,9 +2,12 @@ package com.almis.awe.service;
 
 import com.almis.awe.component.AweRoutingDataSource;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.ColumnFilter;
+import com.almis.awe.model.dto.ColumnValues;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
@@ -13,17 +16,22 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.security.authorization.TargetKind;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
 import com.almis.awe.service.data.connector.query.EnumQueryConnector;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.QueueQueryConnector;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Provides methods to retrieve application data
@@ -36,22 +44,30 @@ public class QueryService extends ServiceConfig {
   // Autowired services
   private final QueryLauncher queryLauncher;
   private final QueryUtil queryUtil;
+  private final TargetLaunchAuthorizer targetLaunchAuthorizer;
 
   // Constants
   private static final String ERROR_TITLE_RETRIEVING_DATA = "ERROR_TITLE_RETRIEVING_DATA";
   private static final String ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND = "ERROR_MESSAGE_TARGET_ACTION_NOT_FOUND";
+  /**
+   * @deprecated A refusal answers {@link AWEUnauthorizedException#MESSAGE_KEY}, which does not show the query name
+   */
+  @Deprecated(since = "5.0.0")
   public static final String ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY = "ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY";
   public static final String ERROR_MESSAGE_QUERY_NOT_FOUND = "ERROR_MESSAGE_QUERY_NOT_FOUND";
 
   /**
    * Autowired constructor
    *
-   * @param queryLauncher Query launcher
-   * @param queryUtil     Query utilities
+   * @param queryLauncher          Query launcher
+   * @param queryUtil              Query utilities
+   * @param targetLaunchAuthorizer Authorizer of the queries launched by a client
    */
-  public QueryService(QueryLauncher queryLauncher, QueryUtil queryUtil) {
+  public QueryService(QueryLauncher queryLauncher, QueryUtil queryUtil, TargetLaunchAuthorizer targetLaunchAuthorizer) {
     this.queryLauncher = queryLauncher;
     this.queryUtil = queryUtil;
+    this.targetLaunchAuthorizer = Objects.requireNonNull(targetLaunchAuthorizer,
+      "targetLaunchAuthorizer is required: pass the TargetLaunchAuthorizerChain bean");
   }
 
   /**
@@ -119,6 +135,67 @@ public class QueryService extends ServiceConfig {
 
     // Proceed with action
     return checkEmpty(getRequest().getTargetAction());
+  }
+
+  /**
+   * Retrieve the distinct values of a grid column for its autofilter (#912). The query comes defined in target-action
+   * variable, with the same checks as the data action; the column comes in the columnValues parameter.
+   *
+   * @return Service data with the values (value, label, count) and whether more exist
+   * @throws AWException Query failed or the column values are not valid
+   */
+  public ServiceData launchColumnValuesAction() throws AWException {
+    // Check if target action is filled up
+    checkAction();
+
+    // Proceed with action
+    return launchColumnValues(getRequest().getTargetAction());
+  }
+
+  /**
+   * Retrieve the distinct values of a grid column: the query runs without pagination nor sort, with every column filter
+   * of the request except the filter of the column itself
+   *
+   * @param queryId Query identifier
+   * @return Service data with the values (value, label, count) and whether more exist
+   * @throws AWException Query failed or the column values are not valid
+   */
+  public ServiceData launchColumnValues(String queryId) throws AWException {
+    Query query = getQuery(queryId, true);
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
+
+    // Check the column and its fields before running anything
+    ColumnValues columnValues = queryUtil.getColumnValues(parameters.get(AweConstants.COMPONENT_COLUMN_VALUES));
+    queryUtil.getColumnValuesFields(query, columnValues);
+
+    // Every column filter but the filter of the column itself, and no sort (an absent parameter falls back to the request)
+    parameters.set(AweConstants.COMPONENT_COLUMN_FILTERS, getOtherColumnFilters(parameters.get(AweConstants.COMPONENT_COLUMN_FILTERS), columnValues.getId()));
+    parameters.set(AweConstants.COMPONENT_SORT, JsonNodeFactory.instance.arrayNode());
+
+    ServiceData out = queryLauncher.launchColumnValues(query, parameters, columnValues);
+
+    // Add variables
+    addOutputVariables(out);
+    return out;
+  }
+
+  /**
+   * Retrieve the column filters of the other columns
+   *
+   * @param columnFilters Column filters parameter
+   * @param column        Column
+   * @return Column filters whose id is not the column
+   * @throws AWException The column filters are not valid
+   */
+  private ArrayNode getOtherColumnFilters(JsonNode columnFilters, String column) throws AWException {
+    ArrayNode otherColumnFilters = JsonNodeFactory.instance.arrayNode();
+    List<ColumnFilter> columnFilterList = queryUtil.getColumnFilterList(columnFilters);
+    for (int index = 0; index < columnFilterList.size(); index++) {
+      if (!column.equals(columnFilterList.get(index).getId())) {
+        otherColumnFilters.add(columnFilters.get(index));
+      }
+    }
+    return otherColumnFilters;
   }
 
   /**
@@ -422,10 +499,24 @@ public class QueryService extends ServiceConfig {
     DataList data = out.getDataList();
     out
       .addVariable(AweConstants.ACTION_DATA, new CellData(data))
-      .addVariable(AweConstants.ACTION_ROWS, new CellData(data.getRows()))
+      .addVariable(AweConstants.ACTION_ROWS, new CellData(data == null ? null : data.getRows()))
       .addVariable(AweConstants.ACTION_MESSAGE_TYPE, new CellData(out.getType().toString()))
       .addVariable(AweConstants.ACTION_MESSAGE_TITLE, new CellData(out.getTitle()))
       .addVariable(AweConstants.ACTION_MESSAGE_DESCRIPTION, new CellData(out.getMessage()));
+  }
+
+  /**
+   * Check that a client can launch a query that a screen launches through the server, as its initial loads
+   *
+   * @param queryId Query identifier
+   * @throws AWException The client cannot launch the query
+   */
+  public void authorizeClientLaunch(String queryId) throws AWException {
+    Query query = getElements().getQuery(queryId);
+    if (query != null) {
+      refuseServerOnly(queryId, query);
+      authorize(queryId, query);
+    }
   }
 
   /**
@@ -443,9 +534,16 @@ public class QueryService extends ServiceConfig {
     if (query != null) {
       // Get the query
       query = query.copy();
+      if (checkAvailable) {
+        refuseServerOnly(queryName, query);
+      }
       // If query is private, check security
       if (checkAvailable && !query.isPublic() && !getSession().isAuthenticated()) {
-        throw new SessionAuthenticationException(getLocale(ERROR_MESSAGE_LAUNCHING_UNAUTHORIZED_QUERY, queryName));
+        log.warn("Client launch of private query [{}] refused without an authenticated session", queryName);
+        throw new SessionAuthenticationException(getLocale(AWEUnauthorizedException.MESSAGE_KEY));
+      }
+      if (checkAvailable) {
+        authorize(queryName, query);
       }
     } else {
       throw new AWException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_QUERY_NOT_FOUND, queryName));
@@ -454,13 +552,51 @@ public class QueryService extends ServiceConfig {
   }
 
   /**
+   * A server-only query can never be launched from a client request, whatever the session or public flag
+   *
+   * @param queryName Query name
+   * @param query     Query
+   * @throws AWException The query is server-only
+   */
+  private void refuseServerOnly(String queryName, Query query) throws AWException {
+    if (query.isServerOnly()) {
+      log.warn("Client launch of server-only query [{}] refused{}", queryName,
+        query.isPublic() ? " (public flag ignored)" : "");
+      throw unauthorized();
+    }
+  }
+
+  /**
+   * A private query launched by a client goes on only when the authorizers allow it
+   *
+   * @param queryName Query name
+   * @param query     Query
+   * @throws AWException The client cannot launch the query
+   */
+  private void authorize(String queryName, Query query) throws AWException {
+    if (!query.isPublic() && !targetLaunchAuthorizer.authorize(queryName, TargetKind.QUERY)) {
+      throw unauthorized();
+    }
+  }
+
+  /**
+   * Refusal of a client launch: a generic message that never shows the query name
+   *
+   * @return Refusal
+   */
+  private AWEUnauthorizedException unauthorized() {
+    return new AWEUnauthorizedException(getLocale(AWEUnauthorizedException.TITLE_KEY),
+      getLocale(AWEUnauthorizedException.MESSAGE_KEY));
+  }
+
+  /**
    * Init datasource connections
    */
   public void initDatasourceConnections() {
     try {
       DataSource dataSource = getBean(DataSource.class);
-      if (dataSource instanceof AweRoutingDataSource) {
-        ((AweRoutingDataSource) dataSource).loadDataSources();
+      if (dataSource instanceof AweRoutingDataSource source) {
+        source.loadDataSources();
       }
     } catch (Exception exc) {
       log.info("AweRoutingDataSource not found. Using default datasource");
@@ -473,8 +609,8 @@ public class QueryService extends ServiceConfig {
   public void reloadDatasourceConnections() {
     try {
       DataSource dataSource = getBean(DataSource.class);
-      if (dataSource instanceof AweRoutingDataSource) {
-        ((AweRoutingDataSource) dataSource).reloadDataSources();
+      if (dataSource instanceof AweRoutingDataSource source) {
+        source.reloadDataSources();
       }
     } catch (Exception exc) {
       log.info("AweRoutingDataSource not found. Using default datasource");

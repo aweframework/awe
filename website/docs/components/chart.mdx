@@ -1,0 +1,192 @@
+---
+id: chart
+title: Chart
+sidebar_label: Chart
+description: The AWE chart, live. Switch between lines, columns, areas, pies, scatter, radar, heatmap, gauge and funnel, stack the series and copy the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {chart, chartExample} from '@site/src/components/AwePlayground/specs/chart';
+
+A chart draws the rows of a query: lines, columns, areas, pies... You describe it in the XML of the screen with a `chart`, its
+axes and one `chart-serie` for each series, and AWE draws it with Apache ECharts in the colours of its theme. Below is the real chart
+of the AWE React client. Pick another type, stack the series, hover a point and change the attributes: the XML below follows.
+
+<AwePlayground spec={chart} />
+
+:::info The data is a fixture
+In a screen the rows come from a query (`initial-load="query"`) and the server turns the `chart` elements into the model the client
+draws. Here the rows are the sample revenue of an invented company, in thousands of euros, and the model is the one those elements
+produce. Nothing is sent to a server.
+:::
+
+## Recipes {#recipes}
+
+### Compare lines over time {#recipe-lines}
+
+Lines with a `legend` and a shared tooltip show every series for the month under the mouse. Click a name in the legend to hide
+its series.
+
+<AweLive height="26rem" {...chartExample({type: 'spline', legend: true, sharedTooltip: true, title: 'Monthly revenue', subtitle: 'Thousands of euros', xLabel: 'Month', yLabel: 'Revenue (kEUR)'})} />
+
+```xml
+<chart id="monthly" type="spline" label="Monthly revenue" subtitle="Thousands of euros"
+       initial-load="query" target-action="Revenue">
+  <x-axis label="Month" type="category" />
+  <y-axis label="Revenue (kEUR)" />
+  <chart-serie id="software" label="Software" x-value="month" y-value="software" />
+  <chart-serie id="services" label="Services" x-value="month" y-value="services" />
+  <chart-serie id="support" label="Support" x-value="month" y-value="support" />
+  <chart-legend enabled="true" />
+  <chart-tooltip shared="true" suffix=" kEUR" />
+</chart>
+```
+
+Each `chart-serie` reads two fields of the rows: `x-value` names the point and `y-value` is its height.
+
+### Share of the year {#recipe-share}
+
+A `donut` (or `pie`, or `semicircle`) draws one series: one slice for each row. The legend is shown by default on these types.
+
+<AweLive height="24rem" {...chartExample({type: 'donut', dataLabels: true, title: 'Revenue of the year', subtitle: 'By product line'})} />
+
+```xml
+<chart id="share" type="donut" label="Revenue of the year" subtitle="By product line"
+       enable-data-labels="true" initial-load="query" target-action="YearByLine">
+  <chart-serie id="share" label="Revenue" x-value="line" y-value="revenue" />
+</chart>
+```
+
+### Percent of the total {#recipe-percent}
+
+`stacking="percent"` stacks the series and scales each point to 100%, so the bars show the mix, not the amount. `bar` draws them
+horizontally.
+
+<AweLive height="26rem" {...chartExample({type: 'bar', stacking: 'percent', legend: true, title: 'Revenue mix', xLabel: 'Month', yLabel: 'Revenue (kEUR)'})} />
+
+```xml
+<chart id="mix" type="bar" stacking="percent" label="Revenue mix" initial-load="query" target-action="Revenue">
+  <x-axis label="Month" type="category" />
+  <y-axis label="Revenue (kEUR)" />
+  <chart-serie id="software" label="Software" x-value="month" y-value="software" />
+  <chart-serie id="services" label="Services" x-value="month" y-value="services" />
+  <chart-serie id="support" label="Support" x-value="month" y-value="support" />
+  <chart-legend enabled="true" />
+</chart>
+```
+
+### Two measures of every deal {#recipe-scatter}
+
+`scatter` draws one point for each row, with the x and y values on two numeric axes. Use it to see whether two measures move together.
+
+<AweLive height="26rem" {...chartExample({type: 'scatter', title: 'Deals: size and margin', xLabel: 'Deal size (kEUR)', yLabel: 'Margin (%)'})} />
+
+```xml
+<chart id="deals" type="scatter" label="Deals: size and margin" initial-load="query" target-action="Deals">
+  <x-axis label="Deal size (kEUR)" />
+  <y-axis label="Margin (%)" />
+  <chart-serie id="deals" label="Deals" x-value="size" y-value="margin" />
+</chart>
+```
+
+### A third measure as the size {#recipe-bubble}
+
+`bubble` is a scatter whose `z-value` sets the size of each point, here the seats of the licence.
+
+<AweLive height="26rem" {...chartExample({type: 'bubble', title: 'Deals: size and margin', xLabel: 'Deal size (kEUR)', yLabel: 'Margin (%)'})} />
+
+```xml
+<chart id="dealsSeats" type="bubble" label="Deals: size and margin" initial-load="query" target-action="Deals">
+  <x-axis label="Deal size (kEUR)" />
+  <y-axis label="Margin (%)" />
+  <chart-serie id="deals" label="Deals" x-value="size" y-value="margin" z-value="seats" />
+</chart>
+```
+
+### A range between a low and a high {#recipe-range}
+
+`arearange` (or `areasplinerange`) draws a band: the `y-value` is the low end and the `z-value` the high end. The tooltip shows both.
+
+<AweLive height="26rem" {...chartExample({type: 'arearange', title: 'Software forecast', subtitle: 'Thousands of euros', xLabel: 'Month', yLabel: 'Revenue (kEUR)'})} />
+
+```xml
+<chart id="forecast" type="arearange" label="Software forecast" initial-load="query" target-action="Forecast">
+  <x-axis label="Month" type="category" />
+  <y-axis label="Revenue (kEUR)" />
+  <chart-serie id="forecast" label="Software forecast" x-value="month" y-value="low" z-value="high" />
+</chart>
+```
+
+### Compare several measures at once {#recipe-radar}
+
+A `radar` has one spoke for each distinct `x-value`, and every `chart-serie` is one polygon. Add a `chart-legend` to tell the polygons apart.
+
+<AweLive height="28rem" {...chartExample({type: 'radar', legend: true, title: 'Score by product line'})} />
+
+```xml
+<chart id="profile" type="radar" label="Score by product line" initial-load="query" target-action="Profile">
+  <chart-serie id="software" label="Software" x-value="measure" y-value="software" />
+  <chart-serie id="services" label="Services" x-value="measure" y-value="services" />
+  <chart-serie id="support" label="Support" x-value="measure" y-value="support" />
+  <chart-legend enabled="true" />
+</chart>
+```
+
+### Intensity by two categories {#recipe-heatmap}
+
+A `heatmap` puts the `x-value` and the `y-value` on two category axes and colours each cell with the `z-value`. The colour scale appears under the chart.
+
+<AweLive height="26rem" {...chartExample({type: 'heatmap', title: 'Orders by weekday and time'})} />
+
+```xml
+<chart id="activity" type="heatmap" label="Orders by weekday and time" initial-load="query" target-action="Activity">
+  <chart-serie id="orders" label="Orders" x-value="slot" y-value="day" z-value="orders" />
+</chart>
+```
+
+### One value against a target {#recipe-gauge}
+
+A `gauge` draws the `y-value` on a dial; the `z-value` is the maximum of the dial.
+
+<AweLive height="22rem" {...chartExample({type: 'gauge', title: 'Sales target'})} />
+
+```xml
+<chart id="target" type="gauge" label="Sales target" initial-load="query" target-action="Target">
+  <chart-serie id="target" label="Target reached (%)" y-value="reached" z-value="target" />
+</chart>
+```
+
+### Steps that narrow {#recipe-funnel}
+
+A `funnel` draws one stage for each row, with the `x-value` as its name and the `y-value` as its size.
+
+<AweLive height="26rem" {...chartExample({type: 'funnel', dataLabels: true, title: 'Sales pipeline'})} />
+
+```xml
+<chart id="pipeline" type="funnel" label="Sales pipeline" enable-data-labels="true"
+       initial-load="query" target-action="Pipeline">
+  <chart-serie id="pipeline" label="Deals" x-value="step" y-value="deals" />
+</chart>
+```
+
+:::info React engine only
+Radar, heatmap, gauge and funnel are drawn by the React client (AWE 5). The AngularJS engine is not extended with new types. The range band is drawn by the React client too; the AngularJS one approximates it with a filled line.
+:::
+
+## Events and actions {#events-and-actions}
+
+Clicking, double clicking or right clicking a point writes its coordinates and series to the attributes of the chart and raises
+the event (`click`, `double-click`, `context-menu`), so a [dependency](../api/dependencies.md) can filter another component with it.
+Zooming (`zoom-type`) raises `zoom`. These examples draw and react to the mouse for real; the dependencies and the actions below
+need a screen, so they are not run here.
+
+* `filter`: reloads the chart from its query.
+* `add-points`: adds points to a series without reloading it, for live data.
+* `add-chart-series`, `remove-chart-series`, `replace-chart-series`: change the series of the chart.
+
+## More {#more}
+
+* [Full documentation of charts](../api/chart.md): every element, the series types, the formats and the server side.
+* [Chart parameters](../api/chart-parameters.md): the Highcharts options AWE translates.
+* [XSD reference of the `chart` element](/reference/screen#element-chart).

@@ -7,7 +7,6 @@
       <directory/>
       <includes>
         <include>package.json</include>
-        <include>package-lock.json</include>
         <include>*.js</include>
         <include>README.md</include>
       </includes>

@@ -31,6 +31,9 @@ public class SchedulerEventListener {
   private final AweConnectionTracker connectionTracker;
   private final TaskDAO taskDAO;
   private static final String TASK_SCREEN = "scheduler-tasks";
+  // Menu screens are rendered in the nested "report" view (the "base" view holds the home layout), so that is where
+  // the components of the task screen live
+  private static final String TASK_SCREEN_VIEW = "report";
 
   /**
    * Autowired constructor
@@ -135,7 +138,7 @@ public class SchedulerEventListener {
    * @return
    */
   private ComponentAddress getAddress(String component) {
-    return new ComponentAddress().setView("report").setComponent(component);
+    return new ComponentAddress().setView(TASK_SCREEN_VIEW).setComponent(component);
   }
 
   /**

@@ -17,7 +17,7 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 
 import java.io.File;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 
 /**
  * GoTo annotations pointcuts and advices
@@ -71,7 +71,7 @@ public class DownloadAnnotation {
                       downloadAnnotation.value(),
                       File.class);
 
-      if (!downloadAnnotation.file().isEmpty() && Paths.get(downloadAnnotation.file()).toFile().exists()) {
+      if (!downloadAnnotation.file().isEmpty() && Path.of(downloadAnnotation.file()).toFile().exists()) {
         switch (downloadAnnotation.basePath()) {
           case APPLICATION_BASEPATH:
             file = new File(baseConfigProperties.getPaths().getBase() + File.separator + downloadAnnotation.file());
@@ -96,8 +96,8 @@ public class DownloadAnnotation {
       DownloadActionBuilder actionBuilder = new DownloadActionBuilder(fileData);
 
       // Return client action
-      if (result instanceof ServiceData) {
-        return ((ServiceData) result).addClientAction(actionBuilder.build());
+      if (result instanceof ServiceData data) {
+        return data.addClientAction(actionBuilder.build());
       } else if (result instanceof ClientAction) {
         return actionBuilder.build();
       }

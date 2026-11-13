@@ -1,0 +1,193 @@
+---
+id: tags
+title: Tag
+---
+
+:::tip See it live
+
+Try the tag, the tag list and the text with live controls in the [component catalog](../components/tags-lists.mdx): the real AWE component and the XML that produces it.
+
+:::
+
+A `tag` is the basic building block of a screen. It does two jobs:
+
+* **Structure.** With a `type` it generates an HTML element (`div`, `span`, `h3`...) that groups other elements, applies
+  CSS classes and, with `expandible`, [lays out](layout.md) its children.
+* **Source point.** With a `source` it fills one of the places of the [template](template.md) of the screen (`center`,
+  `buttons`, `modal`, `hidden`), or it marks a piece that other screens can pick with an [`include`](include.md).
+
+## XML skeleton
+
+```xml
+<tag type="[type]" label="[label]" style="[style]" id="[id]" source="[source]" expandible="[expand-direction]">
+  ...
+</tag>
+```
+
+A tag can contain any screen element: other tags, [windows](window.md), [grids](grids.md), [criteria](criteria.md),
+[buttons](button.md), [includes](include.md)...
+
+There is a special form that only contains text:
+
+```xml
+<tag type="p"><text>[text]</text></tag>
+```
+
+## Tag attributes
+
+| Attribute  | Use      | Type   | Description                                              | Values                                                                      |
+| ---------- | -------- | ------ | -------------------------------------------------------- | --------------------------------------------------------------------------- |
+| source     | Optional | String | Source point of the template that the tag fills          | `center`, `buttons`, `modal`, `hidden`... see [template](template.md)       |
+| type       | Optional | String | HTML element to generate                                 | `div`, `span`, `p`, `ul`, `h3`... any HTML element name                     |
+| label      | Optional | String | Text of the tag                                          | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  |
+| style      | Optional | String | CSS class or classes to apply to the element             |                                                                             |
+| id         | Optional | String | Tag identifier. Useful for external references           |                                                                             |
+| expandible | Optional | String | How to [expand](layout.md) the children of the tag       | `vertical`, `horizontal`                                                    |
+| icon       | Optional | String | Decorative icon drawn before the `label`. See [section titles](#section-titles) | **Note:** You can check all iconsets at [icons](icons.md) screen |
+
+A `source` can be used **once** per screen, and the tags that have a `source` are direct children of the `screen`.
+
+## What the tag generates
+
+* **With `type`** the tag generates `<type id="..." class="...">...</type>`. The classes are the `style` plus
+  `expandible-vertical` or `expandible-horizontal` when `expandible` is set.
+* **Without `type`** the tag does not need to generate any element of its own. This is how you define a source point
+  (`<tag source="center">...</tag>`) or group elements that must not be wrapped (see the differences below).
+* **The text** of the tag is its `label` (translated with the locales of the application) or, when there is no `label`,
+  the `<text>` element.
+* **The children** are the elements inside the tag.
+
+## AngularJS and React engines
+
+Both engines generate the same thing for a tag:
+
+| Case                                           | Result in both engines                                                                          |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Tag without `type` (and without `source`)      | No HTML element: its content is placed in the parent. Its `style` and `expandible` are ignored  |
+| Tag with `label`                               | Only the label is drawn. The `<text>` and the children of the tag are ignored                   |
+| Tag with `<text>` and no `label`               | Only the text is drawn. The children of the tag are ignored                                     |
+| `type` and `expandible` of a tag with `source` | Applied: the source tag generates its own element inside the template                           |
+
+The only remaining differences are minor:
+
+* The AngularJS engine draws the `label` inside a `span`; the React engine draws it directly in the element of the tag.
+* A tag without `type` that has a `style` ignores it in both engines. If you need the style, give the tag a `type`.
+* In the React engine the `style` of a source tag **without** `type` is still applied to the container that the template
+  draws for the source. The AngularJS engine ignores it. Do not rely on it: give the tag a `type`.
+
+Write tags so that the result is clear in both engines:
+
+* Give a `type` to every tag that has a `style` or an `expandible`, so it is a real element.
+* Use a tag with `label` for text only. If you need text next to other elements, put each one in its own tag.
+* Use `<tag source="...">` only to fill a source point. Add a `type` to it if it needs an `expandible`.
+
+The PrimeFlex spacing classes (`p-3`, `pt-5`, `mb-3`, `mx-auto`, `-mt-2`...) work in the `style` of any element in both
+engines: the React engine has them from PrimeFlex and the AngularJS engine serves the same names and values (only the
+plain classes, not the responsive `md:p-3` ones).
+
+## Section titles
+
+Two tag styles turn a heading tag (`h2` to `h6`, so screen readers announce the section) with a `label` into a section
+title. Both look the same in both client engines, in light and dark mode:
+
+* `awe-section-title` (#910): the section title of the design system, a small uppercase muted label followed by a line
+  that fills the rest of the row. Use it to split a long form or a dashboard into sections; the style removes the
+  default margins of the heading.
+* `awe-form-section-title` (#793): the title of a section of a form (a side panel, a dialog, a window), as in the side
+  panel of the `user-admin` screen: its `icon` and its label in one line, in the section title size, and a separator
+  line above every form section title but the first one of its container.
+
+```xml
+<tag type="h3" style="awe-section-title" label="SCREEN_TEXT_RECORD_DETAIL"/>
+```
+
+```xml
+<tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_USER_IDENTITY" icon="user" />
+<criteria label="PARAMETER_FULL_NAME" id="Nam" component="text" style="col-xs-12" />
+<tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_USER_SIGN_IN_SECURITY" icon="lucide:key-round" />
+<criteria label="PARAMETER_PASSWD" id="Pas" component="password" style="col-xs-12" />
+```
+
+The `icon` of a tag is decorative (hidden from screen readers) and is only drawn for a tag with a `label`, with either
+style. The separator of `awe-form-section-title` goes above a form section title that comes after another one inside
+the same container, so keep the titles and the criteria of a form as siblings (in the same `tag`).
+
+## Examples
+
+### Structure of a window
+
+The `panel-body` and `panel-footer` styles give a [window](window.md) its content and its footer. This is the pivot table
+screen of the test applications:
+
+```xml
+<window label="SCREEN_TEXT_CRITERIA">
+  <tag type="div" style="panel-body">
+    <criteria component="date" id="fecha" label="PARAMETER_DATE" style="col-xs-6 col-sm-3 col-md-2"/>
+  </tag>
+  <tag type="div" style="panel-footer">
+    <tag type="div" style="pull-right">
+      <button button-type="submit" label="BUTTON_SEARCH" icon="search" id="ButSch">
+        <button-action type="filter" target="listaDatos" />
+      </button>
+    </tag>
+  </tag>
+</window>
+```
+
+### Expandible tags
+
+A tag with `expandible` shares the space among its children: the ones with the `expand` style take the free space, the
+others keep their size (see [layout](layout.md)):
+
+```xml
+<tag type="div" style="panel-body expand" expandible="horizontal">
+  <tag type="div" style="p-2 expand">
+    <criteria label="SCREEN_TEXT_USER" component="text" id="gegtr" validation="required" style="col-xs-12" />
+    <criteria label="SCREEN_TEXT_PASS" component="password" id="ertge" validation="required" style="col-xs-12" />
+  </tag>
+  <tag type="div" style="p-2 staticWidthSample">
+    <criteria label="SCREEN_TEXT_USER" icon="user" component="text" id="etertg" validation="required" style="col-xs-12" />
+  </tag>
+</tag>
+```
+
+### Text tags
+
+A tag with a `label` writes translated text, and the `<text>` form writes the text as it is:
+
+```xml
+<tag type="h3" label="SCREEN_TEXT_USER_DATA"/>
+<tag type="p">
+  <text>Lorem ipsum dolor sit amet.</text>
+</tag>
+```
+
+### Source points
+
+```xml
+<screen template="window" label="SCREEN_TITLE_QUE">
+  <tag source="hidden"></tag>
+  <tag source="buttons">
+    <button label="BUTTON_SEND" icon="exchange" id="ButSndSyn">
+      <button-action type="server" server-action="maintain" target-action="TstQueSndSyn" />
+    </button>
+  </tag>
+  <tag source="center">
+    ...
+  </tag>
+</screen>
+```
+
+The examples are copies of parts of the test screens `pivot-test` (structure of a window), `layout` (expandible tags),
+`settings` (the `h3` tag with a label), `accordion` (the `<text>` form, there without `type`) and `QueTst` (source
+points) of `awe-tests/awe-boot-react`. `pivot-test` and `layout` are also in `awe-tests/awe-boot`.
+
+## Related pages
+
+* [Template](template.md): the source points of each template.
+* [Layout](layout.md): the `expandible` attribute and the `expand` styles.
+* [Include](include.md): pick a source of another screen.
+* [Window](window.md): the usual container of tags with `panel-body` and `panel-footer`.
+* [Screen](screen.md): the element that holds the source tags.
+
+_Reviewed for AWE 5._

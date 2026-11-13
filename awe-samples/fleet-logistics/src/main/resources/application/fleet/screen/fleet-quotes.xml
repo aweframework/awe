@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-quotes.xml
+    Description: Quote requests sent from the public form of the landing page
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FLT_MENU_QUOTES">
+  <tag source="center">
+    <window style="expand" label="FLT_MENU_QUOTES" icon="lucide:file-text">
+      <grid id="GrdQuo" style="expand" initial-load="query" server-action="data" target-action="FltQuoLst" max="15">
+        <column label="FLT_COL_RECEIVED" name="QuoDat" align="center" charlength="18" sendable="false"/>
+        <column label="FLT_COL_REQUESTER" name="Nam" align="left" charlength="20" width="*" secondary-field="Eml" sendable="false"/>
+        <column label="FLT_COL_FROM" name="OrgTxt" sort-field="OrgTxt" align="left" charlength="11" sendable="false"/>
+        <column label="FLT_COL_TO" name="DstTxt" sort-field="DstTxt" align="left" charlength="11" sendable="false"/>
+        <column label="FLT_COL_WEIGHT" name="Wgt" sort-field="Wgt" align="right" charlength="12" sendable="false"/>
+        <column label="FLT_COL_NOTES" name="Nte" sort-field="Nte" align="left" charlength="24" sendable="false"/>
+        <column label="FLT_COL_STATUS" name="StaTxt" sort-field="StaTxt" align="left" charlength="11" sendable="false"/>
+        <column name="IdeQuo" hidden="true"/>
+        <column name="Eml" hidden="true" sendable="false"/>
+        <column name="Tel" hidden="true" sendable="false"/>
+        <column name="Sta" hidden="true" sendable="false"/>
+        <button label="FLT_BTN_HANDLED" icon="lucide:circle-check" id="ButHan" selection="true">
+          <button-action type="check-some-selected" target="GrdQuo"/>
+          <button-action type="server" server-action="maintain" target-action="FltQuoHan"/>
+          <button-action type="filter" target="GrdQuo"/>
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdQuo" attribute="selectedRows" condition="ge" value="1"/>
+          </dependency>
+        </button>
+      </grid>
+    </window>
+  </tag>
+</screen>

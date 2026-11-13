@@ -18,7 +18,6 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 
 /**
  * Class used for testing FolderFileChecker
@@ -68,8 +67,6 @@ class FolderFileCheckerTest {
    */
   @Test
   void checkForChangesWithFiles() throws Exception {
-    // Mock
-    doNothing().when(fileDAO).addModification(any(Task.class), anyString(), any(Date.class), anyBoolean());
     java.io.File file = java.io.File.createTempFile("test", ".txt");
     file.deleteOnExit();
     List<java.io.File> files = new ArrayList<>();

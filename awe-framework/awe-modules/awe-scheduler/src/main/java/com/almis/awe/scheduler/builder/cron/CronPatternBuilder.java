@@ -226,7 +226,8 @@ public class CronPatternBuilder implements Serializable {
     String min;
     String sec;
     // Get execution time criterion value
-    String time = schedule.getDate() == null ? null : DateUtil.dat2WebTime(schedule.getDateTime());
+    Date dateTime = schedule.getDate() == null ? null : schedule.getDateTime();
+    String time = dateTime == null ? null : DateUtil.dat2WebTime(dateTime);
     // if the value is null the check values from individual hour, minute and
     // second values
     if (time == null) {

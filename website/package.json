@@ -3,34 +3,47 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "predocusaurus": "npm run generate:reference",
     "docusaurus": "docusaurus",
+    "generate:reference": "node scripts/xsd-reference/generate.js && node scripts/properties-reference/generate.js && node scripts/rest-reference/generate.js && node scripts/docs-audit/generate.js",
+    "lint:md": "markdownlint-cli2",
+    "lint:md:files": "markdownlint-cli2 --no-globs",
+    "check:translations": "node scripts/check-translations.js",
+    "refresh:properties": "node scripts/properties-reference/generate.js --refresh",
+    "test:reference": "node --test \"scripts/xsd-reference/__tests__/*.test.js\"",
+    "test:scripts": "node --test \"scripts/xsd-reference/__tests__/*.test.js\" \"scripts/properties-reference/__tests__/*.test.js\" \"scripts/rest-reference/__tests__/*.test.js\" \"scripts/docs-audit/__tests__/*.test.js\" \"src/components/AweLive/__tests__/*.test.js\" \"src/components/AwePlayground/__tests__/*.test.js\" \"src/components/ComponentCatalog/__tests__/*.test.js\" \"scripts/*.test.js\"",
+    "prestart": "node scripts/ensure-client-deps.js && npm run generate:reference",
     "start": "docusaurus start",
+    "prebuild": "node scripts/ensure-client-deps.js && npm run generate:reference",
     "build": "docusaurus build",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
     "serve": "docusaurus serve",
+    "prewrite-translations": "npm run generate:reference",
     "write-translations": "docusaurus write-translations",
-    "write-heading-ids": "docusaurus write-heading-ids",
-    "crowdin": "crowdin",
-    "crowdin:sync": "docusaurus write-translations && crowdin upload && crowdin download"
+    "write-heading-ids": "docusaurus write-heading-ids"
   },
   "dependencies": {
-    "@crowdin/cli": "3.7.7",
-    "@crowdin/crowdin-api-client": "1.23.1",
-    "@docusaurus/core": "3.8.1",
-    "@docusaurus/preset-classic": "3.8.1",
-    "@docusaurus/theme-mermaid": "3.8.1",
-    "@docusaurus/utils": "3.8.1",
-    "@docusaurus/utils-common": "3.8.1",
+    "@docusaurus/core": "3.10.2",
+    "@docusaurus/plugin-client-redirects": "3.10.2",
+    "@docusaurus/plugin-content-docs": "3.10.2",
+    "@docusaurus/preset-classic": "3.10.2",
+    "@docusaurus/theme-mermaid": "3.10.2",
+    "@docusaurus/utils": "3.10.2",
+    "@docusaurus/utils-common": "3.10.2",
+    "@xmldom/xmldom": "0.9.12",
+    "clsx": "^2.0.0",
+    "less": "4.2.0",
+    "less-loader": "12.3.3",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "clsx": "^2.0.0"
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "3.8.1",
-    "webpack": "5.95.0",
-    "webpackbar": "6.0.1"
+    "@docusaurus/module-type-aliases": "3.10.2",
+    "markdownlint-cli2": "0.23.3",
+    "webpack": "5.104.1",
+    "webpackbar": "7.0.0"
   },
   "browserslist": {
     "production": [

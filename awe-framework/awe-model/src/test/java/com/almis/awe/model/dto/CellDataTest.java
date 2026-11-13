@@ -1,12 +1,13 @@
 package com.almis.awe.model.dto;
 
 import com.almis.awe.model.entities.screen.component.grid.Column;
+import com.almis.awe.model.type.CellDataType;
 import com.almis.awe.model.util.data.DateUtil;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.springframework.util.SerializationUtils;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
@@ -325,4 +326,47 @@ class CellDataTest {
     assertFalse(columnData.isEmpty());
   }
 
+  @Test
+  void objectValueIsConvertedToTextOnlyWhenTheTextIsRead() {
+    // Prepare
+    CountingValue value = new CountingValue(" counted ");
+
+    // Run
+    CellData cell = new CellData(value);
+    CellData copy = cell.copy();
+
+    // Assert
+    assertEquals(0, value.calls);
+    assertSame(value, cell.getValue());
+    assertSame(value, copy.getObjectValue());
+    assertEquals("counted", cell.getStringValue());
+    assertEquals("counted", copy.getStringValue());
+    assertFalse(cell.isEmpty());
+  }
+
+  @Test
+  void objectValueKeepsItsTextWhenItsTypeIsChanged() {
+    // Run
+    CellData cell = new CellData(Thread.State.RUNNABLE).setType(CellDataType.STRING);
+
+    // Assert
+    assertEquals("RUNNABLE", cell.getStringValue());
+    assertEquals("RUNNABLE", cell.getValue());
+    assertFalse(cell.isEmpty());
+  }
+
+  private static final class CountingValue implements java.io.Serializable {
+    private final String text;
+    private int calls;
+
+    private CountingValue(String text) {
+      this.text = text;
+    }
+
+    @Override
+    public String toString() {
+      calls++;
+      return text;
+    }
+  }
 }

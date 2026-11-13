@@ -1,0 +1,101 @@
+---
+id: grid
+title: Grid
+sidebar_label: Grid
+description: El grid de AWE, en vivo. Ordena, pagina, selecciona y edita filas reales, cambia sus atributos y copia el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {grid, gridExample} from '@site/src/components/AwePlayground/specs/grid';
+
+El grid es el caballo de batalla de una pantalla de AWE: una tabla de filas alimentada por una consulta, con ordenación, paginación,
+selección, filas editables, filtros por columna, totales y agrupación. Debajo está el grid real del cliente React de AWE. Pulsa una
+cabecera para ordenar, pulsa una fila para seleccionarla, recorre las páginas y cambia los atributos: el XML de debajo se actualiza.
+
+<AwePlayground spec={grid} />
+
+:::info Las filas son datos de ejemplo
+En una pantalla, las filas vienen de una consulta (`initial-load="query"`). Aquí son una lista fija de 24 clientes de ejemplo, y el XML
+declara `load-all="true"`: el grid recibe todas las filas de una vez y las pagina, ordena y selecciona en el cliente, así que no hace
+falta servidor. Con una consulta real y sin `load-all`, paginar y ordenar vuelven a cargar los datos del servidor.
+:::
+
+## Recetas {#recipes}
+
+### Elegir varias filas {#recipe-select}
+
+`multiselect` añade una columna de casillas y una barra de selección que indica cuántas filas hay seleccionadas y permite limpiarlas.
+`row-numbers` numera las filas de la página.
+
+<AweLive height="26rem" {...gridExample({multiselect: true, rowNumbers: true})} />
+
+```xml
+<grid id="customers" initial-load="query" target-action="Customers" load-all="true"
+      multiselect="true" row-numbers="true" max="8">
+  <column name="name" label="Customer" component="text" sortable="true" avatar-field="initials" secondary-field="email" />
+  <column name="plan" label="Plan" component="text" sortable="true" status-field="planTone" />
+  <!-- ... -->
+</grid>
+```
+
+### Editar una fila en su sitio {#recipe-edit}
+
+`editable` añade un lápiz a cada fila. Una columna cuyo `component` tiene editor (`text`, `numeric`, `select`, `checkbox`, `date`...)
+se convierte en un campo mientras se edita su fila; los demás componentes siguen de solo lectura. Pulsa **Intro** o el check para
+guardar y **Escape** o la cruz para cancelar. Aquí la edición se queda en el cliente: en una pantalla, un `button` con una acción
+`server` guarda las filas modificadas.
+
+<AweLive height="26rem" {...gridExample({editable: true, validateOnSave: false})} />
+
+```xml
+<grid id="customers" initial-load="query" target-action="Customers" load-all="true"
+      editable="true" validate-on-save="false" max="8">
+  <column name="name" label="Customer" component="text" sortable="true" />
+  <column name="country" label="Country" component="text" sortable="true" />
+  <!-- ... -->
+</grid>
+```
+
+### Agrupar filas con subtotales {#recipe-group}
+
+`group-by` recibe una lista de columnas separadas por comas, un nivel de agrupación cada una. Cada fila de grupo muestra su valor, su
+número de filas y el agregado de las columnas con `summary-type` (aquí la suma del MRR); un grid agrupado muestra todas las filas sin
+paginar.
+
+<AweLive height="30rem" {...gridExample({groupBy: 'plan'})} />
+
+```xml
+<grid id="customers" initial-load="query" target-action="Customers" load-all="true" group-by="plan">
+  <column name="plan" label="Plan" component="text" sortable="true" />
+  <column name="mrr" label="MRR (EUR)" component="progress" bar-max="9500" summary-type="sum" />
+  <!-- ... -->
+</grid>
+```
+
+## Tipos de columna {#column-types}
+
+El `component` de una `column` elige el aspecto de una celda. El playground de arriba usa:
+
+* `text`: texto simple, con un avatar (`avatar-field`), una segunda línea (`secondary-field`) y un estado de color (`status-field`)
+  leídos de otros campos de la fila.
+* `progress`: una barra de datos detrás del número, escalada con `bar-min` y `bar-max`.
+* `sparkline`: un minigráfico de una serie de números (`sparkline-type` es `line`, `bar` o `area`).
+
+Otros son `numeric`, `select`, `checkbox`, `date`, `icon`, `image`, `link`, `color` y `button`. La
+[referencia XSD del elemento `column`](/reference/screen#element-column) los lista con sus atributos.
+
+## Eventos y acciones {#events-and-actions}
+
+Seleccionar una fila es un evento: se ejecutan sus [dependencias](../api/dependencies.md) y los botones que escuchan al grid. Las acciones
+de abajo actúan sobre un grid; estos ejemplos ejecutan de verdad las del lado cliente (seleccionar, paginar, ordenar, editar) y nada más.
+
+* `select-row`, `select-all-rows`, `unselect-all-rows`: cambian la selección.
+* `add-row`, `delete-row`, `update-row`: cambian las filas antes de guardarlas.
+* `filter`: recarga el grid desde su consulta. Es una acción de servidor: aquí no se simula.
+
+## Más {#more}
+
+* [Documentación completa de los grids](../api/grids.md): cada atributo, tipo de columna, acción y la parte de servidor.
+* [Referencia XSD del elemento `grid`](/reference/screen#element-grid).
+* [Grid en árbol](./tree-grid.mdx): el mismo grid con filas padre e hijas desplegables.

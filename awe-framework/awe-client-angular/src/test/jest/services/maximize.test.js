@@ -72,4 +72,42 @@ describe("Maximize Jest logging contract", () => {
       infoSpy.mockRestore();
     }
   });
+
+  it("empties the content selector of the options in the animation clone and keeps the default one", () => {
+    const grid = $("<div class='grid'><div class='grid-container'><span>rows</span></div><div class='maximize-content'><b>kept</b></div></div>");
+    const target = $("<div class='maximize-target'></div>").append(grid).appendTo(document.body);
+    const $scope = {$root: {}, $on: jest.fn(), $emit: jest.fn(), $broadcast: jest.fn()};
+    jest.spyOn(Utilities, "timeout").mockImplementation((fn) => fn());
+    let clone;
+    jest.spyOn(Utilities, "animateCSS").mockImplementation((node, size, time, fn) => {
+      clone = clone || node;
+      fn();
+    });
+
+    Maximize.initMaximize($scope, grid, {contentSelector: ".grid-container"});
+    $scope.maximizePanel();
+
+    expect(clone.find(".grid-container").children().length).toBe(0);
+    expect(clone.find(".maximize-content").text()).toBe("kept");
+    expect($scope.maximized).toBe(true);
+    target.remove();
+  });
+
+  it("keeps the custom properties of the element when it is maximized and restored", () => {
+    const grid = $("<div class='grid'><div class='grid-container'></div></div>");
+    grid[0].style.setProperty("--grid-row-height", "43px");
+    const target = $("<div class='maximize-target'></div>").append(grid).appendTo(document.body);
+    const $scope = {$root: {}, $on: jest.fn(), $emit: jest.fn(), $broadcast: jest.fn()};
+    jest.spyOn(Utilities, "timeout").mockImplementation((fn) => fn());
+    jest.spyOn(Utilities, "animateCSS").mockImplementation((node, size, time, fn) => fn());
+
+    Maximize.initMaximize($scope, grid, {contentSelector: ".grid-container"});
+    $scope.maximizePanel();
+    expect(grid[0].style.getPropertyValue("--grid-row-height")).toBe("43px");
+
+    $scope.restorePanel();
+    expect(grid[0].style.getPropertyValue("--grid-row-height")).toBe("43px");
+    expect(grid[0].style.getPropertyValue("position")).toBe("");
+    target.remove();
+  });
 });

@@ -1,4 +1,5 @@
 import {aweApplication} from "../awe";
+import {TestAttributes, TestIds} from "../data/testIds";
 
 // Loader directive
 aweApplication.directive('aweLoader',
@@ -13,9 +14,65 @@ aweApplication.directive('aweLoader',
     function (ServerData, $compile, $templateCache, Utilities) {
       // Action Controller methods
       let TEMPLATE_LOADING = "--LOADING--";
+      // The skeleton is drawn by the client: a block placeholder over the component that is loading
+      const SKELETON = "skeleton";
+      // The grid icon that dims the rows on a reload: anywhere else it is the skeleton
+      const SKELETON_DIM = "skeleton-dim";
+      const isSkeletonIcon = icon => icon === SKELETON || icon === SKELETON_DIM;
+      const SKELETON_TEMPLATE = `<div class="skeleton-block"><span class="skeleton-bar"></span></div>`;
+      // Skeleton kinds: the loader draws the shape of the component (a field, a box with its label, a button, a chart)
+      const RELOAD = "reload";
+      const BAR_HEIGHTS = [45, 70, 55, 85, 60, 40, 75];
+      const TREND_TYPES = ["line", "scatter"];
+      const bar = style => `<span class="skeleton-bar"${style ? ` style="${style}"` : ""}></span>`;
+      const CHECK_TEMPLATE = radio => `<div class="skeleton-block skeleton-box"><span class="skeleton-bar skeleton-check${radio ? " skeleton-radio" : ""}"></span>${bar("flex: 1 1 0")}</div>`;
+      const CHART_BARS = BAR_HEIGHTS.map(height => bar(`height: ${height}%`)).join("");
+
+      /**
+       * Check if the loading icon is the default one: the component draws its skeleton instead of a spinner
+       * @param {String} icon Loading icon
+       * @return {boolean} Default loading icon
+       */
+      const isDefaultIcon = icon => !icon || icon === "spinner" || isSkeletonIcon(icon);
+
+      /**
+       * Get the type of the chart the loader belongs to
+       * @param {Object} scope Loader scope
+       * @return {String} Chart type
+       */
+      function getChartType(scope) {
+        const model = (scope.controller && scope.controller.echartsModel) || {};
+        return (model.series && model.series[0] && model.series[0].type) || "";
+      }
+
+      /**
+       * Get the markup of a skeleton
+       * @param {String} kind Skeleton kind (field, checkbox, radio, button, chart)
+       * @param {Object} scope Loader scope
+       * @return {String} Markup
+       */
+      function getSkeletonTemplate(kind, scope) {
+        switch (kind) {
+          case "checkbox":
+          case "radio":
+            return CHECK_TEMPLATE(kind === "radio");
+          case "chart": {
+            const type = getChartType(scope);
+            const shape = type === "pie" ? "pie" : (TREND_TYPES.includes(type) ? "trend" : "bars");
+            return `<div class="skeleton-block"><div class="skeleton-chart skeleton-chart-${shape}">${shape === "bars" ? CHART_BARS : bar()}</div></div>`;
+          }
+          default:
+            return SKELETON_TEMPLATE;
+        }
+      }
       return {
         restrict: 'E',
         link: function (scope, elem, attrs) {
+          // Test hook: every loader is a "loader" unless its owner gave it a more specific hook
+          if (!elem.attr(TestAttributes.testId)) {
+            elem.attr(TestAttributes.testId, TestIds.loader);
+          }
+
           /**
            * Compile the template
            * @param {type} template
@@ -26,6 +83,60 @@ aweApplication.directive('aweLoader',
             let newElement = $compile(template)(scope);
             // Which we can then append to our DOM element.
             elem.append(newElement);
+          }
+
+          /**
+           * Mark an element while the skeleton is drawn, and restore it when the last loader that marked it goes away
+           * (several loaders can share a host, as the two fields of a date range)
+           * @param {Element} host Element to mark
+           * @param {String} className Class to add
+           */
+          function markHost(host, className) {
+            if (host) {
+              const hostElement = angular.element(host);
+              const countKey = `skeletonMarks-${className}`;
+              hostElement.data(countKey, (hostElement.data(countKey) || 0) + 1);
+              hostElement.addClass(className);
+              let restored = false;
+              const restore = () => {
+                if (restored) {
+                  return;
+                }
+                restored = true;
+                const marks = (hostElement.data(countKey) || 1) - 1;
+                hostElement.data(countKey, marks);
+                if (marks === 0) {
+                  hostElement.removeClass(className);
+                }
+              };
+              elem.on("$destroy", restore);
+              scope.$on("$destroy", restore);
+            }
+          }
+
+          /**
+           * Draw the skeleton of the component: the loader is the placeholder, and the element it belongs to (the criterion
+           * with its label, the button) is masked. The loader is the test hook from the start: only the visuals are delayed
+           * @param {String} kind Skeleton kind
+           */
+          function showSkeleton(kind) {
+            const criterion = elem[0].closest(".criterion");
+            elem.addClass("skeleton-loader");
+            if (kind === "button") {
+              elem.addClass("skeleton-hook");
+              markHost(elem[0].parentElement, "skeleton-pending");
+              return;
+            }
+            markHost(criterion, "skeleton-pending");
+            compileTemplate(getSkeletonTemplate(kind, scope));
+          }
+
+          /**
+           * Dim the rows of a grid that reloads: the loader keeps the hook and the grid is busy until the new rows arrive
+           */
+          function showReload() {
+            elem.addClass("grid-reload");
+            markHost(elem[0].parentElement, "grid-reloading");
           }
 
           /**
@@ -48,6 +159,24 @@ aweApplication.directive('aweLoader',
            * @param {String} iconLoader
            */
           function initLoader(iconLoader) {
+            const kind = attrs.skeleton;
+            if (kind === RELOAD && isSkeletonIcon(iconLoader)) {
+              showReload();
+              initWatch();
+              return;
+            }
+            if (kind && kind !== RELOAD && isDefaultIcon(iconLoader)) {
+              showSkeleton(kind);
+              initWatch();
+              return;
+            }
+            if (isSkeletonIcon(iconLoader)) {
+              elem.addClass("skeleton-loader");
+              compileTemplate(SKELETON_TEMPLATE);
+              initWatch();
+              return;
+            }
+
             // Add action
             let templateName = "loader/" + (iconLoader || "spinner");
 

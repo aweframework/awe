@@ -11,7 +11,7 @@ alt="AWE security"
 src={require('@docusaurus/useBaseUrl').default('img/undraw_notifications.svg')}
 />
 
-{/* truncate */}
+<!-- truncate -->
 
 `AWE Framework` now has a new _module_: **Notification module**.
 

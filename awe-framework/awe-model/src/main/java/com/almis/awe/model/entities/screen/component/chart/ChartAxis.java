@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import java.util.Map;
 @Accessors(chain = true)
 public class ChartAxis extends AbstractChart {
 
+  @Serial
   private static final long serialVersionUID = -870412966991859326L;
 
   // Label format of axis

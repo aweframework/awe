@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -28,6 +29,7 @@ import java.util.List;
 @XStreamAlias("java")
 public class ServiceJava implements ServiceType {
 
+  @Serial
   private static final long serialVersionUID = -6528311355783839256L;
 
   // Java service classname

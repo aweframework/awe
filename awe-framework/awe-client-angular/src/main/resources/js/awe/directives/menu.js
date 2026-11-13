@@ -2,6 +2,8 @@ import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
 import {searchOptions} from "../data/menuSearch";
 import _ from "lodash";
+import {TestIds} from "../data/testIds";
+import {iconTemplate} from "../services/icon";
 
 function getResolutionType(width) {
   if (width <= 640) {
@@ -15,21 +17,24 @@ function getResolutionType(width) {
 
 // Menu directive
 aweApplication.directive('aweMenu',
-  ['ServerData', 'Component', '$document', '$window', '$filter', '$location', 'AweUtilities', 'ActionController', '$translate', 'AweSettings',
-    function (serverData, Component, $document, $window, $filter, $location, Utilities, $actionController, $translate, $settings) {
+  ['ServerData', 'Component', '$document', '$window', '$filter', '$location', 'AweUtilities', 'ActionController', '$translate', 'AweSettings', 'Breadcrumb',
+    function (serverData, Component, $document, $window, $filter, $location, Utilities, $actionController, $translate, $settings, $breadcrumb) {
       return {
         restrict: 'E',
         replace: false,
         template:
-          `<ul class="awe-menu {{::controller.style}}" ng-class="{'menu-minimized': status.minimized, 'ng-hide': !isVisible()}" ng-cloak>
+          `<ul class="awe-menu {{::controller.style}}" data-testid="${TestIds.menu}" ng-class="{'menu-minimized': status.minimized, 'ng-hide': !isVisible()}" ng-cloak>
             <div class="awe-menu-search awe-menu-search-{{::menuType}}" ng-class="{'open': search.open}" ng-if="searchEnabled && isVisible()" ng-cloak>
-              <button type="button" class="awe-menu-search-toggle" ng-click="toggleSearch()"
-                      title="{{'BUTTON_SEARCH'| translateMultiple}}" aria-label="{{'BUTTON_SEARCH'| translateMultiple}}">
-                <i class="fa fa-search"></i>
+              <button type="button" class="awe-menu-search-toggle" ng-click="toggleSearch()" aria-keyshortcuts="Control+K Meta+K"
+                      title="{{searchTitle| translateMultiple}}" aria-label="{{searchTitle| translateMultiple}}">
+                ${iconTemplate("search")}
+                <span class="awe-menu-search-toggle-label">{{searchTitle| translateMultiple}}</span>
+                <kbd class="awe-menu-search-kbd" aria-hidden="true">Ctrl K</kbd>
               </button>
               <div class="awe-menu-search-panel" ng-if="search.open">
                 <input type="text" class="awe-menu-search-input form-control" ng-model="search.query" ng-change="onSearchChange()"
-                       ng-keydown="onSearchKeydown($event)" placeholder="{{'BUTTON_SEARCH'| translateMultiple}}"/>
+                       ng-keydown="onSearchKeydown($event)" placeholder="{{searchTitle| translateMultiple}}"
+                       aria-label="{{searchTitle| translateMultiple}}"/>
                 <ul class="awe-menu-search-results" ng-if="search.results.length">
                   <li ng-repeat="entry in search.results track by $index" ng-class="{'active': $index === search.active}"
                       ng-click="selectResult(entry)" ng-mouseenter="search.active = $index">
@@ -41,7 +46,7 @@ aweApplication.directive('aweMenu',
               </div>
             </div>
             <awe-option ng-repeat="option in options| allowedOption track by option.id" controller="option" status="status" on-option-click="onOptionClick()" menu-type="{{::menuType}}"
-                        close-first-level="closeFirstLevel()" first-level="true" selected-option="selectedOption" option-title="{{::option.title}}" option-name="{{::option.name}}"
+                        close-first-level="closeFirstLevel()" first-level="true" selected-option="selectedOption" option-title="{{::option.description || option.title}}" option-name="{{::option.name}}"
                         option-style="{{::option.style}}" option-icon="{{::option.icon}}" option-text="{{::option.label}}"></awe-option>
           </ul>`,
         scope: {
@@ -66,6 +71,11 @@ aweApplication.directive('aweMenu',
           scope.search = {open: false, query: "", results: [], active: -1};
           // Menu option search is enabled unless the 'menuSearchEnabled' setting is explicitly false
           scope.searchEnabled = $settings.get("menuSearchEnabled") !== false;
+          // The vertical menu invites to find an option, as the AWE 5 prototype; the icon toggle of the horizontal menu
+          // keeps the search title
+          // The invitation of the prototype titles the search of both menus: the bar shows the same field as the
+          // vertical menu, with its placeholder and the Ctrl K hint
+          scope.searchTitle = "MENU_SEARCH_PLACEHOLDER";
 
           // Update children
           if (component.controller && "options" in component.controller) {
@@ -138,13 +148,38 @@ aweApplication.directive('aweMenu',
            */
           scope.openSearch = function () {
             scope.search.open = true;
-            Utilities.timeout(function () {
-              let input = $(element).find(".awe-menu-search-input");
-              if (input.length) {
-                input[0].focus();
-              }
-            });
+            Utilities.timeout(focusSearchInput);
           };
+
+          /**
+           * Focus the input of the option search panel, when it is rendered
+           */
+          function focusSearchInput() {
+            let input = $(element).find(".awe-menu-search-input");
+            if (input.length) {
+              input[0].focus();
+            }
+          }
+
+          /**
+           * Ctrl + K (or Meta + K) opens the option search from anywhere. With the vertical menu collapsed the search is
+           * hidden, so the browser keeps the key
+           * @param {KeyboardEvent} event Keydown event
+           */
+          function onSearchShortcut(event) {
+            let isShortcut = (event.key === "k" || event.key === "K") && (event.ctrlKey || event.metaKey) &&
+              !(event.ctrlKey && event.metaKey) && !event.altKey && !event.shiftKey;
+            let isSearchShown = scope.searchEnabled && scope.isVisible() &&
+              !(scope.menuType === "vertical" && scope.status.minimized);
+            if (!isShortcut || !isSearchShown) {
+              return;
+            }
+            event.preventDefault();
+            if (!scope.search.open) {
+              scope.$apply(() => { scope.search.open = true; });
+            }
+            focusSearchInput();
+          }
 
           /**
            * Close the option search panel and reset its state
@@ -211,14 +246,37 @@ aweApplication.directive('aweMenu',
            * @param {object} entry Search result entry
            */
           scope.selectResult = function (entry) {
-            let option = entry && entry.option;
-            if (option && option.actions) {
-              $actionController.closeAllActions();
-              $actionController.addActionList(option.actions, true, {});
-              scope.$emit("optionClicked");
-            }
+            launchOption(entry && entry.option);
             scope.closeSearch();
           };
+
+          /**
+           * Launch an option of the menu (a search result, a level of the breadcrumb)
+           * @param {object} option Option
+           */
+          function launchOption(option) {
+            if (option && option.actions) {
+              $actionController.closeAllActions();
+              $actionController.addActionList(option.actions.map(a => ({...a, origin: "menu"})), true, {});
+              scope.$emit("optionClicked");
+            }
+          }
+
+          /**
+           * Open the menu at a group, with the groups above it: the collapsed rail opens, and so does the drawer of a
+           * narrow viewport, so the group shows
+           * @param {string[]} path Names of the groups, from the first level to the group
+           */
+          function expandTo(path) {
+            if (scope.status.minimized) {
+              component.toggleMenu();
+            }
+            scope.closeFirstLevel();
+            Object.keys(scope.selectedOption.opened).forEach(name => delete scope.selectedOption.opened[name]);
+            path.forEach((name, index) => {
+              scope.selectedOption.opened[name] = index === 0;
+            });
+          }
 
           /******************************************************************************
            * COMPONENT METHODS
@@ -414,10 +472,21 @@ aweApplication.directive('aweMenu',
             }
           });
 
+          $document.on("keydown", onSearchShortcut);
+
+          // The breadcrumb launches the options of this menu and, the vertical one, opens it at a group
+          const detachBreadcrumb = $breadcrumb.attachMenu({
+            options: () => scope.options,
+            launch: launchOption,
+            ...(scope.menuType === "vertical" ? {expand: expandTo} : {})
+          });
+
           // Remove all listeners on unload
           listeners['resize'] = scope.$on("$destroy", function () {
+            detachBreadcrumb();
             // Remove body classes
             $body.removeClass("mme");
+            $document.off("keydown", onSearchShortcut);
             Utilities.clearListeners(listeners);
           });
 

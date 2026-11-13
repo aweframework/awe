@@ -40,11 +40,22 @@ aweApplication.factory('ChartEvents', ['AweUtilities', 'ActionController',
               // Right click
               // Cancel event propagation
               $utilities.stopPropagation(event, true);
-              component.showContextMenu(event);
+              // A menu without visible options is never opened (the browser menu stays)
+              if (component.scope.contextMenu && component.scope.contextMenu.hasVisibleOptions()) {
+                component.showContextMenu(event);
+              }
               break;
             default:
           }
           return false;
+        });
+
+        // The chart handles its own context menu: the browser event must not open the menu of a tab or wizard,
+        // unless the menu has nothing to show (then the browser menu stays and the event bubbles)
+        component.chart.element.bind('contextmenu', function (event) {
+          if (component.scope.contextMenu && component.scope.contextMenu.hasVisibleOptions()) {
+            $utilities.stopPropagation(event, true);
+          }
         });
       },
       /**

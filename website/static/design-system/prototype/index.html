@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en" data-awe-primary="emerald" data-awe-density="comfortable">
+<head>
+  <meta charset="utf-8">
+  <script>
+    // Some servers serve this page as ".../prototype" (no trailing slash); the relative assets need the folder URL
+    if (!location.pathname.endsWith('/') && !location.pathname.endsWith('.html')) {
+      location.replace(location.pathname + '/' + location.search + location.hash);
+    }
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customer list · Operations Hub — AWE 5 prototype</title>
+  <link rel="icon" href="data:,">
+  <link rel="preload" href="assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="prototype.css">
+  <script>
+    // Restore the prototype theme before the first paint (only <html> attributes, classes and inline tokens)
+    try {
+      const t = JSON.parse(localStorage.getItem('awe-prototype-theme') || '{}');
+      const r = document.documentElement;
+      if (t.mode === 'light' || t.mode === 'dark') r.classList.add(t.mode);
+      if (t.primary) r.dataset.awePrimary = t.primary;
+      if (t.surface && t.surface !== 'auto') r.dataset.aweSurface = t.surface;
+      if (t.density) r.dataset.aweDensity = t.density;
+      if (t.primaryHex) r.dataset.protoPrimaryHex = t.primaryHex;
+      if (t.surfaceHex) r.dataset.protoSurfaceHex = t.surfaceHex;
+      // Palettes generated from a custom hex (prototype.js stores them with the theme)
+      Object.entries(t.vars || {}).forEach(([k, v]) => r.style.setProperty(k, v));
+      if (t.brand) r.dataset.protoBrand = t.brand;
+    } catch { /* no stored theme */ }
+  </script>
+  <script src="shell.js" defer></script>
+  <script src="prototype.js" defer></script>
+</head>
+<body data-page="customer-list">
+<div class="app" id="app" data-menu="expanded">
+
+  <!-- ===================================================================== Side menu -->
+  <aside class="sidebar" id="sidebar" aria-label="Main menu"></aside>
+
+  <!-- ===================================================================== Main -->
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+
+    <main class="content" id="content">
+      <!-- Breadcrumb + page header -->
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol>
+          <li><a href="#"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#house"/></svg><span class="sr-only">Home</span></a></li>
+          <li><svg class="i i--sm sep" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg><a href="#">Sales</a></li>
+          <li><svg class="i i--sm sep" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg><a href="#">Customers</a></li>
+          <li><svg class="i i--sm sep" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg><a href="#">Directory</a></li>
+          <li><svg class="i i--sm sep" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg><span aria-current="page">Customer list</span></li>
+        </ol>
+      </nav>
+
+      <div class="page-head">
+        <div>
+          <h1>Customer list</h1>
+          <p>Manage accounts, credit and contacts for 1,284 active customers.</p>
+        </div>
+        <div class="page-head__actions">
+          <button class="btn btn--text" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#clock"/></svg>History</button>
+          <button class="btn btn--ghost btn--icon" type="button" aria-label="Refresh" data-tooltip="Refresh data"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#refresh-cw"/></svg></button>
+          <div class="btn-group" role="group" aria-label="Output">
+            <button class="btn btn--outlined" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#printer"/></svg>Print</button>
+            <button class="btn btn--outlined" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#download"/></svg>Export</button>
+            <button class="btn btn--outlined btn--icon" type="button" aria-label="More output options" data-tooltip="More"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></button>
+          </div>
+          <button class="btn btn--secondary" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#upload"/></svg>Import</button>
+          <button class="btn btn--primary" type="button" data-open-dialog="dlg-edit"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#plus"/></svg>New customer</button>
+        </div>
+      </div>
+
+      <!-- KPIs -->
+      <section class="kpis" aria-label="Key figures">
+        <div class="card kpi">
+          <div class="kpi__top"><span class="kpi__label">Active customers</span><span class="kpi__icon"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#users"/></svg></span></div>
+          <div class="kpi__value">1,284</div>
+          <div class="kpi__foot"><span class="tag tag--success tag--plain"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#trending-up"/></svg>4.2%</span>vs. last month</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi__top"><span class="kpi__label">Open orders</span><span class="kpi__icon"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#shopping-cart"/></svg></span></div>
+          <div class="kpi__value">342</div>
+          <div class="kpi__foot"><span class="tag tag--primary tag--plain">+12</span>since yesterday</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi__top"><span class="kpi__label">Overdue balance</span><span class="kpi__icon"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#wallet"/></svg></span></div>
+          <div class="kpi__value">€48,920</div>
+          <div class="kpi__foot"><span class="tag tag--danger tag--plain"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#trending-up"/></svg>8.1%</span>23 invoices past due</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi__top"><span class="kpi__label">Revenue YTD</span><span class="kpi__icon"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#euro"/></svg></span></div>
+          <div class="kpi__value">€4.82M</div>
+          <div class="kpi__foot"><span class="tag tag--success tag--plain"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#trending-up"/></svg>11.6%</span>vs. 2025</div>
+        </div>
+      </section>
+
+      <!-- ================================================================= Criteria -->
+      <section class="card" aria-labelledby="criteria-title">
+        <div class="card__header card__header--divided">
+          <button class="btn btn--ghost btn--icon btn--sm collapse-toggle" type="button" aria-expanded="true" aria-controls="criteria-body" aria-label="Collapse search criteria">
+            <svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg>
+          </button>
+          <div>
+            <h2 class="card__title" id="criteria-title">Search criteria</h2>
+          </div>
+          <span class="spacer"></span>
+          <span class="card__subtitle hide-sm">3 filters applied</span>
+          <button class="btn btn--ghost btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#star"/></svg>Save view</button>
+        </div>
+        <div id="criteria-body">
+          <div class="card__body">
+            <div class="form-grid">
+              <div class="field">
+                <label class="label" for="f-name">Customer name</label>
+                <span class="control"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#search"/></svg><input id="f-name" type="text" placeholder="Name, trade name or code" value=""></span>
+              </div>
+
+              <div class="field">
+                <label class="label" for="f-tax">Tax ID <span class="req" aria-hidden="true">*</span></label>
+                <span class="control is-invalid"><input id="f-tax" type="text" placeholder="e.g. ESB12345678" aria-invalid="true" aria-describedby="f-tax-err" required></span>
+                <span class="error-msg" id="f-tax-err"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-alert"/></svg>Tax ID is required</span>
+              </div>
+
+              <div class="field">
+                <label class="label" for="f-email">Billing email</label>
+                <span class="control is-invalid"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#mail"/></svg><input id="f-email" type="email" value="billing@brightline" aria-invalid="true" aria-describedby="f-email-err"></span>
+                <span class="error-msg" id="f-email-err"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-alert"/></svg>Enter a valid email address</span>
+              </div>
+
+              <div class="field">
+                <label class="label" for="f-code">Customer code <span class="opt">Generated</span></label>
+                <span class="control is-disabled"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#lock"/></svg><input id="f-code" type="text" value="CUS-10483" disabled></span>
+              </div>
+
+              <div class="field">
+                <label class="label" for="f-country">Country</label>
+                <span class="control">
+                  <select id="f-country">
+                    <option value="">All countries</option>
+                    <optgroup label="Frequent">
+                      <option value="ES" selected>Spain</option>
+                      <option value="DE">Germany</option>
+                      <option value="FR">France</option>
+                    </optgroup>
+                    <optgroup label="Europe">
+                      <option value="AT">Austria</option>
+                      <option value="BE">Belgium</option>
+                      <option value="IE">Ireland</option>
+                      <option value="IT">Italy</option>
+                      <option value="NL">Netherlands</option>
+                      <option value="NO">Norway</option>
+                      <option value="PT">Portugal</option>
+                      <option value="CH">Switzerland</option>
+                      <option value="GB">United Kingdom</option>
+                    </optgroup>
+                    <optgroup label="Rest of the world">
+                      <option value="JP">Japan</option>
+                      <option value="MX">Mexico</option>
+                      <option value="US">United States</option>
+                    </optgroup>
+                  </select>
+                  <svg class="i select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg>
+                </span>
+              </div>
+
+              <div class="field field--span-2">
+                <span class="label" id="f-seg-label">Segments</span>
+                <span class="control control--chips" id="f-segments" data-multiselect="Enterprise,Mid-market,SMB,Public sector,Non-profit,Education,Healthcare,Retail"
+                  data-selected="Enterprise,Mid-market,Public sector" data-label-id="f-seg-label"></span>
+              </div>
+
+              <div class="field">
+                <label class="label" for="f-manager">Account manager</label>
+                <div class="dropdown combo" id="combo-manager">
+                  <span class="control">
+                    <svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#user"/></svg>
+                    <input id="f-manager" type="text" value="lau" role="combobox" aria-expanded="false" aria-controls="lb-manager" aria-autocomplete="list" autocomplete="off">
+                    <svg class="i control__icon" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg>
+                  </span>
+                  <div class="overlay" id="lb-manager" role="listbox" aria-label="Account managers">
+                    <div class="overlay__head">Sales team · 3 results</div>
+                    <button type="button" class="option is-focused" role="option" aria-selected="false"><span class="avatar avatar--sm">LM</span><span class="option__text"><span><mark>Lau</mark>ra Méndez</span><span class="option__meta">Key accounts · Madrid</span></span></button>
+                    <button type="button" class="option" role="option" aria-selected="false"><span class="avatar avatar--sm avatar--info">LB</span><span class="option__text"><span><mark>Lau</mark>rent Bernard</span><span class="option__meta">EMEA · Lyon</span></span></button>
+                    <button type="button" class="option" role="option" aria-selected="false"><span class="avatar avatar--sm avatar--warning">NL</span><span class="option__text"><span>Nico<mark>lau</mark> Ferrer</span><span class="option__meta">Public sector · Barcelona</span></span></button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label" for="f-limit">Min. credit limit</label>
+                <span class="control">
+                  <span class="affix">€</span>
+                  <input id="f-limit" class="num" type="text" inputmode="decimal" value="25,000.00">
+                  <span class="stepper">
+                    <button type="button" tabindex="-1" aria-label="Increase"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-up"/></svg></button>
+                    <button type="button" tabindex="-1" aria-label="Decrease"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></button>
+                  </span>
+                </span>
+              </div>
+
+              <div class="field">
+                <label class="label" for="f-created">Created on</label>
+                <div class="dropdown" id="dp">
+                  <span class="control">
+                    <input id="f-created" type="text" value="14/10/2026" placeholder="dd/mm/yyyy">
+                    <button class="adorn" type="button" id="dp-toggle" aria-label="Open calendar" aria-expanded="false"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar"/></svg></button>
+                  </span>
+                  <div class="overlay datepicker" role="dialog" aria-label="Choose date">
+                    <div class="datepicker__head">
+                      <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Previous month"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-left"/></svg></button>
+                      <span class="datepicker__title">October 2026</span>
+                      <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Next month"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button>
+                    </div>
+                    <div class="datepicker__grid" id="dp-grid"></div>
+                    <div class="datepicker__foot">
+                      <button class="btn btn--text btn--sm" type="button">Today</button>
+                      <button class="btn btn--ghost btn--sm" type="button">Clear</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field">
+                <label class="label" for="f-from">Order period</label>
+                <span class="control">
+                  <svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#calendar-range"/></svg>
+                  <input id="f-from" type="text" value="01/10/2026" aria-label="From">
+                  <span class="range-sep">→</span>
+                  <input type="text" value="31/10/2026" aria-label="To">
+                </span>
+              </div>
+
+              <div class="field">
+                <label class="label" for="f-time">Cut-off time</label>
+                <span class="control">
+                  <svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#clock"/></svg>
+                  <input id="f-time" class="num" type="text" value="17:30" style="text-align: left">
+                </span>
+                <span class="help">Orders after this time ship next day</span>
+              </div>
+
+              <div class="field">
+                <label class="label" for="f-pass">API password</label>
+                <span class="control">
+                  <svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#lock"/></svg>
+                  <input id="f-pass" type="password" value="veloria-2026">
+                  <button class="adorn" type="button" data-toggle-password="f-pass" aria-label="Show password"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#eye"/></svg></button>
+                </span>
+              </div>
+
+              <div class="field field--span-2">
+                <span class="label" id="f-status-label">Status</span>
+                <div class="segmented segmented--block" role="radiogroup" aria-labelledby="f-status-label">
+                  <label><input type="radio" name="f-status" checked><span>All</span></label>
+                  <label><input type="radio" name="f-status"><span>Active</span></label>
+                  <label><input type="radio" name="f-status"><span>On hold</span></label>
+                  <label><input type="radio" name="f-status"><span>Blocked</span></label>
+                </div>
+              </div>
+
+              <div class="field field--span-2">
+                <span class="label" id="f-type-label">Customer type</span>
+                <div class="choice-group" role="radiogroup" aria-labelledby="f-type-label">
+                  <label class="radio"><input type="radio" name="f-type" checked><span class="radio__dot"></span>Company</label>
+                  <label class="radio"><input type="radio" name="f-type"><span class="radio__dot"></span>Individual</label>
+                  <label class="radio"><input type="radio" name="f-type"><span class="radio__dot"></span>Public body</label>
+                  <label class="radio is-disabled-choice"><input type="radio" name="f-type" disabled><span class="radio__dot"></span>Reseller</label>
+                </div>
+              </div>
+
+              <div class="field field--span-2">
+                <span class="label">Options</span>
+                <div class="choice-group">
+                  <label class="check"><input type="checkbox" checked><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span>Include inactive</label>
+                  <label class="check"><input type="checkbox"><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span>Only with debt</label>
+                  <label class="switch"><input type="checkbox" role="switch" checked><span class="switch__track"></span>Only with open orders</label>
+                </div>
+              </div>
+
+              <div class="field field--full">
+                <label class="label" for="f-notes">Internal notes <span class="opt">Optional · 120 / 500</span></label>
+                <span class="control control--textarea"><textarea id="f-notes" rows="2" placeholder="Notes are visible to the sales team only">Priority accounts for the Q4 renewal campaign. Exclude customers under legal review.</textarea></span>
+              </div>
+            </div>
+          </div>
+          <div class="card__footer">
+            <div class="left message">
+              <svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#info"/></svg>
+              <span>Criteria are saved per user. <strong>Tip:</strong> press Enter in any field to search.</span>
+            </div>
+            <button class="btn btn--ghost" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#rotate-ccw"/></svg>Reset</button>
+            <button class="btn btn--primary" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#search"/></svg>Search</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= Grid -->
+      <section class="card" aria-labelledby="grid-title" id="grid-card">
+        <div class="card__header card__header--divided">
+          <div>
+            <h2 class="card__title" id="grid-title">Customers</h2>
+            <p class="card__subtitle">1,284 results · updated 2 minutes ago</p>
+          </div>
+          <span class="spacer"></span>
+          <span class="card__subtitle hide-sm">Preview state</span>
+          <div class="segmented segmented--sm" role="radiogroup" aria-label="Preview grid state (prototype)">
+            <label><input type="radio" name="grid-state" value="data" checked><span>Data</span></label>
+            <label><input type="radio" name="grid-state" value="loading"><span>Loading</span></label>
+            <label><input type="radio" name="grid-state" value="empty"><span>Empty</span></label>
+          </div>
+        </div>
+
+        <div class="grid-toolbar">
+          <label class="control control--sm grid-search">
+            <svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#search"/></svg>
+            <span class="sr-only">Search in results</span>
+            <input type="search" placeholder="Search in results…">
+          </label>
+          <button class="btn btn--outlined btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#filter"/></svg>Filters<span class="count">2</span></button>
+          <span class="spacer"></span>
+          <div class="dropdown">
+            <button class="btn btn--outlined btn--sm" type="button" data-dropdown aria-expanded="false" aria-haspopup="true"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#columns-3"/></svg>Columns</button>
+            <div class="overlay overlay--right" style="width: 220px">
+              <div class="overlay__head">Visible columns</div>
+              <label class="option"><span class="check"><input type="checkbox" checked><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></span>Code</label>
+              <label class="option"><span class="check"><input type="checkbox" checked><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></span>Country</label>
+              <label class="option"><span class="check"><input type="checkbox" checked><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></span>Segment</label>
+              <label class="option"><span class="check"><input type="checkbox"><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></span>Tax ID</label>
+              <label class="option"><span class="check"><input type="checkbox"><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></span>Account manager</label>
+              <div class="separator"></div>
+              <button class="option" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#rotate-ccw"/></svg>Restore default</button>
+            </div>
+          </div>
+          <div class="btn-group" role="group" aria-label="Export">
+            <button class="btn btn--outlined btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#file-spreadsheet"/></svg>Export</button>
+            <div class="dropdown">
+              <button class="btn btn--outlined btn--sm btn--icon" type="button" data-dropdown aria-expanded="false" aria-haspopup="menu" aria-label="Export formats" style="border-radius: 0 var(--awe-radius-field) var(--awe-radius-field) 0; margin-left: -1px"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></button>
+              <div class="overlay overlay--right" role="menu" style="width: 200px">
+                <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#file-spreadsheet"/></svg>Excel (.xlsx)</button>
+                <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#file-text"/></svg>CSV</button>
+                <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#file"/></svg>PDF</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-chips">
+          <span class="muted">Filtered by</span>
+          <span class="filter-chip">Country: <b>Spain</b><button type="button" aria-label="Remove filter Country"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button></span>
+          <span class="filter-chip">Segment: <b>3 selected</b><button type="button" aria-label="Remove filter Segment"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button></span>
+          <button class="btn btn--text btn--sm" type="button">Clear all</button>
+        </div>
+
+        <div class="selection-bar is-visible" id="selection-bar" aria-live="polite">
+          <svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-check"/></svg>
+          <span id="selection-count">2 selected</span>
+          <span class="spacer"></span>
+          <button class="btn btn--ghost btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#user"/></svg>Assign manager</button>
+          <button class="btn btn--ghost btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#send"/></svg>Send statement</button>
+          <button class="btn btn--danger btn--sm" type="button" data-open-dialog="dlg-confirm"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg>Delete</button>
+        </div>
+
+        <div class="loading-bar" id="grid-loading-bar" hidden></div>
+        <div class="table-wrap">
+          <table class="grid" id="customers-grid">
+            <thead>
+              <tr>
+                <th class="col-check"><label class="check"><input type="checkbox" id="select-all" aria-label="Select all rows"><span class="check__box"><svg class="i i--check" aria-hidden="true"><use href="assets/icons/sprite.svg#check"/></svg><svg class="i i--minus" aria-hidden="true"><use href="assets/icons/sprite.svg#minus"/></svg></span></label></th>
+                <th><button class="sort" type="button">Code<svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-up-down"/></svg></button></th>
+                <th aria-sort="ascending"><button class="sort" type="button">Customer<svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-up"/></svg></button></th>
+                <th><button class="sort" type="button">Country<svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-up-down"/></svg></button></th>
+                <th>Status</th>
+                <th class="num"><button class="sort" type="button">Orders<svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-up-down"/></svg></button></th>
+                <th class="num"><button class="sort" type="button">Balance (EUR)<svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-up-down"/></svg></button></th>
+                <th><button class="sort" type="button">Last order<svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-up-down"/></svg></button></th>
+                <th class="col-actions"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody id="grid-body-data"></tbody>
+            <tbody id="grid-body-loading" hidden></tbody>
+            <tbody id="grid-body-empty" hidden>
+              <tr>
+                <td colspan="9">
+                  <div class="empty">
+                    <span class="empty__icon"><svg class="i i--lg" aria-hidden="true"><use href="assets/icons/sprite.svg#search"/></svg></span>
+                    <p class="empty__title">No customers match these criteria</p>
+                    <p class="empty__text">Try removing a filter or widening the order period. Inactive customers are hidden unless you include them.</p>
+                    <div class="empty__actions">
+                      <button class="btn btn--outlined" type="button">Clear filters</button>
+                      <button class="btn btn--primary" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#plus"/></svg>New customer</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="paginator">
+          <div class="paginator__group">
+            <span>Showing <b class="num">1–10</b> of <b class="num">1,284</b></span>
+            <span class="control control--sm page-size">
+              <select aria-label="Rows per page"><option>10 / page</option><option>25 / page</option><option>50 / page</option><option>100 / page</option></select>
+              <svg class="i i--sm select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg>
+            </span>
+          </div>
+          <div class="pages" role="navigation" aria-label="Pagination">
+            <button class="page-btn" type="button" disabled aria-label="First page"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevrons-left"/></svg></button>
+            <button class="page-btn" type="button" disabled aria-label="Previous page"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-left"/></svg></button>
+            <button class="page-btn" type="button" aria-current="page">1</button>
+            <button class="page-btn" type="button">2</button>
+            <button class="page-btn" type="button">3</button>
+            <button class="page-btn" type="button">4</button>
+            <span class="page-gap">…</span>
+            <button class="page-btn" type="button">129</button>
+            <button class="page-btn" type="button" aria-label="Next page"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button>
+            <button class="page-btn" type="button" aria-label="Last page"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#chevrons-right"/></svg></button>
+          </div>
+          <div class="paginator__group goto">
+            <label for="goto-page">Go to page</label>
+            <span class="control control--sm"><input id="goto-page" class="num" type="text" inputmode="numeric" value="1"></span>
+            <button class="btn btn--outlined btn--sm" type="button">Go</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================================= Record detail -->
+      <h2 class="section-title">Record detail</h2>
+      <div class="cols cols--wide-left">
+        <section class="card" aria-labelledby="detail-title">
+          <div class="card__header">
+            <span class="avatar avatar--lg">AI</span>
+            <div>
+              <h3 class="card__title" id="detail-title">Acme Industrial Supplies</h3>
+              <p class="card__subtitle">CUS-10482 · Enterprise · Hamburg, Germany</p>
+            </div>
+            <span class="spacer"></span>
+            <span class="tag tag--success">Active</span>
+            <div class="dropdown">
+              <button class="btn btn--ghost btn--icon btn--sm" type="button" data-dropdown aria-expanded="false" aria-haspopup="menu" aria-label="Record actions"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#ellipsis-vertical"/></svg></button>
+              <div class="overlay overlay--right" role="menu" style="width: 200px">
+                <button class="option" role="menuitem" type="button" data-open-dialog="dlg-edit"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#pencil"/></svg>Edit<span class="trail">E</span></button>
+                <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#copy"/></svg>Duplicate</button>
+                <button class="option" role="menuitem" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#external-link"/></svg>Open in new tab</button>
+                <div class="separator"></div>
+                <button class="option option--danger" role="menuitem" type="button" data-open-dialog="dlg-confirm"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg>Delete</button>
+              </div>
+            </div>
+          </div>
+          <div class="tabs" data-tabs>
+            <div class="tablist" role="tablist" aria-label="Customer detail">
+              <button class="tab" role="tab" type="button" aria-selected="true" aria-controls="tp-overview" id="tab-overview">Overview</button>
+              <button class="tab" role="tab" type="button" aria-selected="false" aria-controls="tp-contacts" id="tab-contacts" tabindex="-1">Contacts <span class="badge">3</span></button>
+              <button class="tab" role="tab" type="button" aria-selected="false" aria-controls="tp-activity" id="tab-activity" tabindex="-1">Activity</button>
+              <button class="tab" role="tab" type="button" aria-selected="false" aria-controls="tp-docs" id="tab-docs" tabindex="-1">Documents <span class="badge">12</span></button>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="tp-overview" aria-labelledby="tab-overview">
+              <dl class="desc-list">
+                <div><dt>Legal name</dt><dd>Acme Industrial Supplies GmbH</dd></div>
+                <div><dt>Tax ID</dt><dd class="num">DE 284 551 902</dd></div>
+                <div><dt>Account manager</dt><dd>Laura Méndez</dd></div>
+                <div><dt>Payment terms</dt><dd>Net 30 · SEPA direct debit</dd></div>
+                <div><dt>Credit limit</dt><dd class="num">€150,000.00</dd></div>
+                <div><dt>Credit used</dt><dd><div class="num" style="margin-bottom: 6px">€82,450.00 · 55%</div><div class="progress"><span style="width: 55%"></span></div></dd></div>
+                <div><dt>Customer since</dt><dd>12 Mar 2019</dd></div>
+                <div><dt>Preferred language</dt><dd>German</dd></div>
+              </dl>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="tp-contacts" aria-labelledby="tab-contacts" hidden>
+              <ul class="contact-list">
+                <li><span class="avatar">JK</span><div class="grow"><div class="cell-entity__name">Jonas Krüger</div><div class="cell-entity__meta">Head of procurement · jonas.kruger@acme-industrial.example</div></div><span class="tag tag--primary tag--plain">Primary</span></li>
+                <li><span class="avatar avatar--info">MS</span><div class="grow"><div class="cell-entity__name">Mia Schulz</div><div class="cell-entity__meta">Accounts payable · +49 40 5550 1844</div></div><span class="tag tag--plain">Billing</span></li>
+                <li><span class="avatar avatar--warning">TB</span><div class="grow"><div class="cell-entity__name">Tobias Braun</div><div class="cell-entity__meta">Warehouse lead · Hamburg-Billbrook</div></div><span class="tag tag--plain">Shipping</span></li>
+              </ul>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="tp-activity" aria-labelledby="tab-activity" hidden>
+              <ol class="timeline">
+                <li><b>Order SO-58214 shipped</b><time>Today, 09:12 · 14 lines · €6,980.00</time></li>
+                <li><b>Invoice INV-2026-4471 paid</b><time>Yesterday, 16:40 · SEPA</time></li>
+                <li><b>Credit limit raised to €150,000</b><time>02 Oct 2026 · approved by Laura Méndez</time></li>
+              </ol>
+            </div>
+            <div class="tabpanel" role="tabpanel" id="tp-docs" aria-labelledby="tab-docs" hidden>
+              <p class="muted">12 documents: contracts, price agreements and certificates.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="card accordion" aria-labelledby="settings-title">
+          <div class="card__header card__header--divided">
+            <h3 class="card__title" id="settings-title">Account settings</h3>
+          </div>
+          <details open>
+            <summary><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#receipt"/></svg>Billing details<svg class="i chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></summary>
+            <div class="acc-body">
+              <div class="form-grid form-grid--2">
+                <div class="field field--full"><label class="label" for="a-iban">IBAN</label><span class="control is-readonly"><input id="a-iban" type="text" value="DE89 3704 0044 0532 0130 00" readonly></span></div>
+                <div class="field"><label class="label" for="a-cur">Currency</label><span class="control"><select id="a-cur"><option>EUR — Euro</option><option>USD — US dollar</option></select><svg class="i select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span></div>
+              </div>
+            </div>
+          </details>
+          <details>
+            <summary><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#truck"/></svg>Shipping preferences<svg class="i chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></summary>
+            <div class="acc-body">Deliveries Monday to Thursday, 08:00–14:00. Dock 4 requires a pallet jack.</div>
+          </details>
+          <details>
+            <summary><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#wallet"/></svg>Payment terms and credit<svg class="i chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></summary>
+            <div class="acc-body">Net 30 with 2% discount for payment within 10 days.</div>
+          </details>
+          <details>
+            <summary><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#bell"/></svg>Notifications<svg class="i chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></summary>
+            <div class="acc-body"><label class="switch"><input type="checkbox" role="switch" checked><span class="switch__track"></span>Email the account manager when an invoice is overdue</label></div>
+          </details>
+        </section>
+      </div>
+
+      <!-- ================================================================= More components -->
+      <h2 class="section-title">More components</h2>
+      <section class="card" aria-labelledby="tree-title">
+        <div class="card__header card__header--divided">
+          <div>
+            <h3 class="card__title" id="tree-title">Budget by cost center</h3>
+            <p class="card__subtitle">Fiscal year 2026 · figures in EUR</p>
+          </div>
+          <span class="spacer"></span>
+          <button class="btn btn--ghost btn--sm" type="button" id="tree-expand-all"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#layers"/></svg>Expand all</button>
+        </div>
+        <div class="table-wrap">
+          <table class="grid" id="tree-grid">
+            <thead>
+              <tr><th>Cost center</th><th>Code</th><th class="num">Budget</th><th class="num">Actual</th><th class="num">Variance</th></tr>
+            </thead>
+            <tbody>
+              <tr data-id="ops"><td><span class="tree-cell is-group"><button class="tree-toggle" type="button" aria-expanded="true" aria-label="Collapse Operations"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#folder-open"/></svg>Operations</span></td><td class="mono muted-cell">CC-100</td><td class="num">1,240,000.00</td><td class="num">1,118,450.00</td><td class="num positive">121,550.00</td></tr>
+              <tr data-id="log" data-parent="ops"><td><span class="tree-cell is-group" style="--level: 1"><button class="tree-toggle" type="button" aria-expanded="true" aria-label="Collapse Logistics"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#folder-open"/></svg>Logistics</span></td><td class="mono muted-cell">CC-110</td><td class="num">540,000.00</td><td class="num">512,300.00</td><td class="num positive">27,700.00</td></tr>
+              <tr data-parent="log"><td><span class="tree-cell" style="--level: 2"><span class="tree-spacer"></span><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#file"/></svg>Fleet maintenance</span></td><td class="mono muted-cell">CC-111</td><td class="num">210,000.00</td><td class="num">224,850.00</td><td class="num negative">−14,850.00</td></tr>
+              <tr data-parent="log"><td><span class="tree-cell" style="--level: 2"><span class="tree-spacer"></span><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#file"/></svg>Warehousing</span></td><td class="mono muted-cell">CC-112</td><td class="num">330,000.00</td><td class="num">287,450.00</td><td class="num positive">42,550.00</td></tr>
+              <tr data-parent="ops"><td><span class="tree-cell" style="--level: 1"><span class="tree-spacer"></span><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#file"/></svg>Procurement</span></td><td class="mono muted-cell">CC-120</td><td class="num">700,000.00</td><td class="num">606,150.00</td><td class="num positive">93,850.00</td></tr>
+              <tr data-id="sales"><td><span class="tree-cell is-group"><button class="tree-toggle" type="button" aria-expanded="false" aria-label="Expand Sales and marketing"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#folder"/></svg>Sales and marketing</span></td><td class="mono muted-cell">CC-200</td><td class="num">860,000.00</td><td class="num">902,400.00</td><td class="num negative">−42,400.00</td></tr>
+              <tr data-parent="sales" hidden><td><span class="tree-cell" style="--level: 1"><span class="tree-spacer"></span><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#file"/></svg>Field sales</span></td><td class="mono muted-cell">CC-210</td><td class="num">500,000.00</td><td class="num">548,900.00</td><td class="num negative">−48,900.00</td></tr>
+              <tr data-parent="sales" hidden><td><span class="tree-cell" style="--level: 1"><span class="tree-spacer"></span><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#file"/></svg>Digital marketing</span></td><td class="mono muted-cell">CC-220</td><td class="num">360,000.00</td><td class="num">353,500.00</td><td class="num positive">6,500.00</td></tr>
+              <tr data-id="rnd"><td><span class="tree-cell is-group"><button class="tree-toggle" type="button" aria-expanded="false" aria-label="Expand Research and development"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-right"/></svg></button><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#folder"/></svg>Research and development</span></td><td class="mono muted-cell">CC-300</td><td class="num">1,050,000.00</td><td class="num">744,800.00</td><td class="num positive">305,200.00</td></tr>
+              <tr data-parent="rnd" hidden><td><span class="tree-cell" style="--level: 1"><span class="tree-spacer"></span><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#file"/></svg>Platform</span></td><td class="mono muted-cell">CC-310</td><td class="num">650,000.00</td><td class="num">478,300.00</td><td class="num positive">171,700.00</td></tr>
+              <tr data-parent="rnd" hidden><td><span class="tree-cell" style="--level: 1"><span class="tree-spacer"></span><svg class="i tree-icon" aria-hidden="true"><use href="assets/icons/sprite.svg#file"/></svg>Labs</span></td><td class="mono muted-cell">CC-320</td><td class="num">400,000.00</td><td class="num">266,500.00</td><td class="num positive">133,500.00</td></tr>
+            </tbody>
+            <tfoot>
+              <tr><td>Total</td><td></td><td class="num">3,150,000.00</td><td class="num">2,765,650.00</td><td class="num">384,350.00</td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </section>
+
+      <div class="cols">
+        <section class="card" aria-labelledby="buttons-title">
+          <div class="card__header"><h3 class="card__title" id="buttons-title">Buttons</h3></div>
+          <div class="card__body">
+            <p class="demo-label">Variants</p>
+            <div class="demo-row">
+              <button class="btn btn--primary" type="button">Primary</button>
+              <button class="btn btn--secondary" type="button">Secondary</button>
+              <button class="btn btn--outlined" type="button">Outlined</button>
+              <button class="btn btn--text" type="button">Text</button>
+              <button class="btn btn--danger" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg>Danger</button>
+              <button class="btn btn--danger-outlined" type="button">Danger outlined</button>
+            </div>
+            <p class="demo-label">Sizes, icon-only and states</p>
+            <div class="demo-row">
+              <button class="btn btn--primary btn--sm" type="button">Small</button>
+              <button class="btn btn--primary" type="button">Default</button>
+              <button class="btn btn--primary btn--lg" type="button">Large</button>
+              <button class="btn btn--outlined btn--icon" type="button" aria-label="Edit" data-tooltip="Edit"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#pencil"/></svg></button>
+              <button class="btn btn--secondary btn--icon btn--rounded" type="button" aria-label="Add" data-tooltip="Add"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#plus"/></svg></button>
+              <button class="btn btn--primary is-loading" type="button" aria-busy="true"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#loader-circle"/></svg>Saving…</button>
+              <button class="btn btn--primary" type="button" disabled>Disabled</button>
+            </div>
+            <p class="demo-label">Groups</p>
+            <div class="demo-row">
+              <div class="btn-group" role="group" aria-label="Text alignment">
+                <button class="btn btn--outlined" type="button">Day</button>
+                <button class="btn btn--outlined" type="button">Week</button>
+                <button class="btn btn--outlined" type="button">Month</button>
+              </div>
+              <div class="btn-group btn-group--primary" role="group" aria-label="Save">
+                <button class="btn btn--primary" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#save"/></svg>Save</button>
+                <button class="btn btn--primary btn--icon" type="button" aria-label="More save options"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></button>
+              </div>
+              <div class="segmented" role="radiogroup" aria-label="View">
+                <label><input type="radio" name="view" checked><span><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#list"/></svg>List</span></label>
+                <label><input type="radio" name="view"><span><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#layout-dashboard"/></svg>Board</span></label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="feedback-title">
+          <div class="card__header"><h3 class="card__title" id="feedback-title">Overlays and feedback</h3></div>
+          <div class="card__body stack">
+            <div class="demo-row">
+              <button class="btn btn--outlined" type="button" data-open-dialog="dlg-edit"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#pencil"/></svg>Open dialog</button>
+              <button class="btn btn--danger-outlined" type="button" data-open-dialog="dlg-confirm"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg>Confirm dialog</button>
+              <button class="btn btn--ghost btn--icon is-tooltip-demo" type="button" aria-label="Tooltip example" data-tooltip="Tooltips use the inverse surface"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#info"/></svg></button>
+            </div>
+            <div class="demo-row">
+              <span class="muted" style="font-size: var(--awe-font-size-sm)">Toasts:</span>
+              <button class="btn btn--secondary btn--sm" type="button" data-toast="success">Success</button>
+              <button class="btn btn--secondary btn--sm" type="button" data-toast="info">Info</button>
+              <button class="btn btn--secondary btn--sm" type="button" data-toast="warning">Warning</button>
+              <button class="btn btn--secondary btn--sm" type="button" data-toast="danger">Error</button>
+            </div>
+            <div class="demo-row">
+              <span class="tag tag--success">Paid</span>
+              <span class="tag tag--info">Sent</span>
+              <span class="tag tag--warning">On hold</span>
+              <span class="tag tag--danger">Overdue</span>
+              <span class="tag tag--primary">New</span>
+              <span class="tag">Draft</span>
+              <span class="badge badge--danger" style="margin: 0">12</span>
+              <span class="badge" style="margin: 0">3</span>
+              <span class="badge badge--neutral" style="margin: 0">99+</span>
+            </div>
+            <div class="message message--success"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-check"/></svg><span><strong>Saved.</strong> Customer changes are visible to the whole sales team.</span></div>
+            <div class="message message--warning"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#triangle-alert"/></svg><span><strong>Credit limit at 92%.</strong> New orders will need approval.</span></div>
+            <div class="message message--danger"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-x"/></svg><span><strong>Sync failed.</strong> The ERP connector did not answer in 30 s.</span></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="cols">
+        <section class="card" aria-labelledby="upload-title">
+          <div class="card__header">
+            <div>
+              <h3 class="card__title" id="upload-title">Attachments</h3>
+              <p class="card__subtitle">Contracts and certificates for this customer</p>
+            </div>
+          </div>
+          <div class="card__body">
+            <div class="dropzone" id="dropzone">
+              <span class="dropzone__icon"><svg class="i i--lg" aria-hidden="true"><use href="assets/icons/sprite.svg#cloud-upload"/></svg></span>
+              <p class="dropzone__title">Drag and drop files here or <button type="button">browse</button></p>
+              <p class="help">PDF, XLSX or CSV · up to 25 MB each</p>
+            </div>
+            <ul class="file-list">
+              <li class="file-item">
+                <span class="file-item__icon"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#file-text"/></svg></span>
+                <div class="file-item__body">
+                  <div class="file-item__row"><span class="file-item__name">framework-agreement-2026.pdf</span><span class="file-item__meta ok">Uploaded</span></div>
+                  <span class="file-item__meta">2.4 MB · 21 Oct 2026</span>
+                </div>
+                <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove file" data-tooltip="Remove"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg></button>
+              </li>
+              <li class="file-item">
+                <span class="file-item__icon"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#file-spreadsheet"/></svg></span>
+                <div class="file-item__body">
+                  <div class="file-item__row"><span class="file-item__name">price-list-q4.xlsx</span><span class="file-item__meta num">64%</span></div>
+                  <div class="progress"><span style="width: 64%"></span></div>
+                </div>
+                <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Cancel upload" data-tooltip="Cancel"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button>
+              </li>
+              <li class="file-item is-error">
+                <span class="file-item__icon"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#file"/></svg></span>
+                <div class="file-item__body">
+                  <div class="file-item__row"><span class="file-item__name">iso-9001-scan.tiff</span></div>
+                  <span class="error-msg"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#circle-alert"/></svg>File type not allowed</span>
+                </div>
+                <button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Retry" data-tooltip="Retry"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#rotate-ccw"/></svg></button>
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="empty-title">
+          <div class="card__header card__header--divided">
+            <h3 class="card__title" id="empty-title">Invoices</h3>
+            <span class="spacer"></span>
+            <button class="btn btn--outlined btn--sm" type="button"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#filter"/></svg>Filters</button>
+          </div>
+          <div class="empty">
+            <span class="empty__icon"><svg class="i i--lg" aria-hidden="true"><use href="assets/icons/sprite.svg#receipt"/></svg></span>
+            <p class="empty__title">No invoices yet</p>
+            <p class="empty__text">Invoices appear here once an order for this customer is delivered. You can also create one manually.</p>
+            <div class="empty__actions">
+              <button class="btn btn--outlined" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#upload"/></svg>Import invoices</button>
+              <button class="btn btn--primary" type="button"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#plus"/></svg>Create invoice</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ======================================================================= Dialogs -->
+<dialog class="modal" id="dlg-edit" aria-labelledby="dlg-edit-title">
+  <div class="modal__header">
+    <div class="modal__titles">
+      <h2 class="modal__title" id="dlg-edit-title">Edit customer</h2>
+      <p class="modal__subtitle">Brightline Logistics SL · CUS-10477</p>
+    </div>
+    <button class="btn btn--ghost btn--icon btn--sm" type="button" data-close aria-label="Close"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#x"/></svg></button>
+  </div>
+  <div class="modal__body">
+    <div class="form-grid form-grid--2">
+      <div class="field"><label class="label" for="d-name">Legal name <span class="req" aria-hidden="true">*</span></label><span class="control"><input id="d-name" type="text" value="Brightline Logistics SL" required></span></div>
+      <div class="field"><label class="label" for="d-tax">Tax ID <span class="req" aria-hidden="true">*</span></label><span class="control"><input id="d-tax" type="text" value="ESB86512240" required></span></div>
+      <div class="field"><label class="label" for="d-email">Billing email</label><span class="control"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#mail"/></svg><input id="d-email" type="email" value="ap@brightline.example"></span></div>
+      <div class="field"><label class="label" for="d-seg">Segment</label><span class="control"><select id="d-seg"><option>Enterprise</option><option selected>Mid-market</option><option>SMB</option></select><svg class="i select-chev" aria-hidden="true"><use href="assets/icons/sprite.svg#chevron-down"/></svg></span></div>
+      <div class="field field--full"><label class="label" for="d-notes">Notes</label><span class="control control--textarea"><textarea id="d-notes" rows="3">Prefers consolidated monthly invoicing.</textarea></span></div>
+      <div class="field field--full"><label class="switch"><input type="checkbox" role="switch"><span class="switch__track"></span>Send the updated statement to the billing email</label></div>
+    </div>
+  </div>
+  <div class="modal__footer">
+    <button class="btn btn--outlined" type="button" data-close>Cancel</button>
+    <button class="btn btn--primary" type="button" data-close data-toast-after="success"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#save"/></svg>Save changes</button>
+  </div>
+</dialog>
+
+<dialog class="modal modal--sm" id="dlg-confirm" role="alertdialog" aria-labelledby="dlg-confirm-title" aria-describedby="dlg-confirm-text">
+  <div class="confirm">
+    <span class="confirm__icon"><svg class="i i--lg" aria-hidden="true"><use href="assets/icons/sprite.svg#triangle-alert"/></svg></span>
+    <div>
+      <h2 class="modal__title" id="dlg-confirm-title">Delete 2 customers?</h2>
+      <p id="dlg-confirm-text">Brightline Logistics SL and Lumen Retail Group will be removed with their contacts and addresses. Orders and invoices are kept. This cannot be undone.</p>
+    </div>
+  </div>
+  <div class="modal__footer">
+    <button class="btn btn--outlined" type="button" data-close autofocus>Cancel</button>
+    <button class="btn btn--danger" type="button" data-close data-toast-after="danger-delete"><svg class="i" aria-hidden="true"><use href="assets/icons/sprite.svg#trash-2"/></svg>Delete customers</button>
+  </div>
+</dialog>
+
+<div class="toasts" id="toasts" popover="manual" aria-live="polite" aria-relevant="additions"></div>
+</body>
+</html>

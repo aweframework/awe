@@ -355,7 +355,8 @@ All queries live in `global/Queries.xml`.
 | `FLOAT` | Decimal number |
 | `DATE` | Date value |
 | `OBJECT` | Generic object |
-| `STRING_HASH_RIPEMD160` | Hashed text (RIPEMD-160) |
+| `STRING_HASH_PASSWORD` | User password hashed with the configured password encoder (BCrypt by default, salted: never compare it in SQL) |
+| `STRING_HASH_RIPEMD160` | Hashed text (RIPEMD-160, unsalted). Deprecated for passwords: use `STRING_HASH_PASSWORD` |
 | `STRING_HASH_SHA` | Hashed text (SHA) |
 
 ### Maintain Descriptors
@@ -402,7 +403,7 @@ All maintain targets live in `global/Maintain.xml`.
     <field id="IdePro" variable="Pro" />
     <variable id="IdeOpe" type="INTEGER" name="IdeOpe" />
     <variable id="Usr" type="STRING" name="Usr" />
-    <variable id="Pas" type="STRING_HASH_RIPEMD160" name="Pas" />
+    <variable id="Pas" type="STRING_HASH_PASSWORD" name="Pas" />
     <variable id="Sta" type="INTEGER" name="Sta" />
     <variable id="Eml" type="STRING" name="Eml" />
     <variable id="Lan" type="STRING" name="Lan" />
@@ -721,12 +722,18 @@ AWE uses Gitflow. All branch operations follow this model:
 
 ### Testing Requirements
 
+The full policy is the **Test Policy** section of `AGENTS.md`; it wins over this summary. One test per rule, in the
+lowest layer that can prove it, within budgets measured on a GitLab SaaS `small` runner.
+
 | Requirement | Details |
 |-------------|---------|
-| New features | Must include unit tests covering the new functionality |
-| Bug fixes | Must include a test that previously failed and now passes |
-| Regressions | All existing tests must continue to pass |
-| Integration tests | Run via `awe-tests/awe-boot` module |
+| New rule | One test in the lowest layer that proves it: unit or descriptor test first; a Spring test in `awe-tests/awe-boot` only for wiring or SQL; a browser test only for a user flow no other layer can observe |
+| New or redesigned screen | At most one browser flow per screen (open, act, verify), in the engine the change touches (React by default for backend or XML changes); searches, filters, counts and validations are query/maintain tests |
+| Bug fixes | Must include the test that failed before the fix, in the lowest layer that reproduces it |
+| Regressions | All existing tests must continue to pass; a flaky browser test is quarantined with an issue, never retried until green |
+| Budget | Unit < 1 s, Spring class < 30 s, browser test < 20 s, suite job < 15 min; a suite over budget takes no new test until one is removed |
+| Forbidden | CSS/style assertions, time measurements, `pause()`/`sleep()`, whole-template golden files, duplicate coverage across layers |
+| Cleanup | A change that replaces a screen removes the old screen's tests; the MR description states tests added, layer and job duration |
 
 ### Creating a New Feature Branch
 

@@ -6,7 +6,8 @@
  * with their translated breadcrumb path, and matches them against a query.
  *
  * Translation and allowance are injected as dependencies (translate, isAllowed)
- * so this module stays free of Angular and trivially unit-testable.
+ * so this module stays free of any UI framework and trivially unit-testable. The AngularJS client keeps an
+ * identical copy (checked by menuSearchParity.jest.spec.js there).
  */
 
 /**
@@ -29,6 +30,16 @@ export function normalizeText(text) {
  */
 function optionLabel(option, translate) {
   return translate(option.label != null ? option.label : (option.name || ""));
+}
+
+/**
+ * Resolve the translated description of an option (empty when it has none).
+ * @param {object} option Menu option
+ * @param {function} translate Translation function (key -> visible text)
+ * @returns {string} Translated description
+ */
+function optionDescription(option, translate) {
+  return option.description ? translate(option.description) : "";
 }
 
 /**
@@ -55,7 +66,7 @@ function allowedChildren(option, isAllowed) {
  * @param {function} [deps.isAllowed] Allowance predicate (defaults to allow all)
  * @returns {Array<{option: object, path: string[]}>} Leaf options with breadcrumb paths
  */
-export function flattenMenuOptions(options, {translate, isAllowed = () => true} = {}) {
+export function flattenMenuOptions(options, { translate, isAllowed = () => true } = {}) {
   const result = [];
 
   const walk = (list, parentPath) => {
@@ -68,7 +79,7 @@ export function flattenMenuOptions(options, {translate, isAllowed = () => true} 
       if (children.length > 0) {
         walk(option.options, path);
       } else {
-        result.push({option, path});
+        result.push({ option, path });
       }
     });
   };
@@ -82,7 +93,7 @@ export function flattenMenuOptions(options, {translate, isAllowed = () => true} 
  *
  * Matching is case- and accent-insensitive, token-based (every whitespace
  * separated token must appear), and runs against both the translated
- * breadcrumb path and the option name. A blank query returns no results.
+ * breadcrumb path, the option name and the translated option description. A blank query returns no results.
  *
  * @param {Array} options Option list (tree root)
  * @param {string} query Search query
@@ -91,15 +102,15 @@ export function flattenMenuOptions(options, {translate, isAllowed = () => true} 
  * @param {function} [deps.isAllowed] Allowance predicate
  * @returns {Array<{option: object, path: string[]}>} Matching leaf options with breadcrumb paths
  */
-export function searchOptions(options, query, {translate, isAllowed = () => true} = {}) {
+export function searchOptions(options, query, { translate, isAllowed = () => true } = {}) {
   const normalizedQuery = normalizeText(query).trim();
   if (!normalizedQuery) {
     return [];
   }
 
   const tokens = normalizedQuery.split(/\s+/);
-  return flattenMenuOptions(options, {translate, isAllowed}).filter(({option, path}) => {
-    const haystack = normalizeText(path.join(" ") + " " + (option.name || ""));
+  return flattenMenuOptions(options, { translate, isAllowed }).filter(({ option, path }) => {
+    const haystack = normalizeText(path.join(" ") + " " + (option.name || "") + " " + optionDescription(option, translate));
     return tokens.every(token => haystack.includes(token));
   });
 }

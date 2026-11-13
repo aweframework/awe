@@ -12,6 +12,10 @@
   <locale name="BUTTON_CONFIRM_EMPTY" value="Confirm (check empty)"/>
   <locale name="BUTTON_FIRST" value="First"/>
   <locale name="BUTTON_LAST" value="Last"/>
+  <locale name="BUTTON_MOVE_ROW_BOTTOM" value="Move to bottom"/>
+  <locale name="BUTTON_MOVE_ROW_DOWN" value="Move down"/>
+  <locale name="BUTTON_MOVE_ROW_TOP" value="Move to top"/>
+  <locale name="BUTTON_MOVE_ROW_UP" value="Move up"/>
   <locale name="BUTTON_NEW_CHILD" value="Child row"/>
   <locale name="BUTTON_NTH" value="Nth"/>
   <locale name="BUTTON_PAUSE" value="Pause"/>
@@ -28,6 +32,7 @@
   <locale name="BUTTON_TEST_LOAD_SUGGEST" value="Test load suggest"/>
   <locale name="BUTTON_TEST_RESET_SUGGEST" value="Test reset suggest"/>
   <locale name="COLUMN_COUNTRY" value="Country"/>
+  <locale name="COLUMN_MOVE_ROW_STEP" value="Step"/>
   <locale name="COLUMN_NUMERIC" value="Numeric (test)"/>
   <locale name="ELEMENT_TYPE_GRID" value="Grid"/>
   <locale name="ENUM_MATRIX_EDITABLE" value="Editable"/>
@@ -43,6 +48,8 @@
   <locale name="ENUM_MATRIX_TREEGRID_EDITABLE" value="Editable tree"/>
   <locale name="ENUM_MATRIX_TREEGRID_EDITABLE_LOADNODE" value="Editable multioperation tree"/>
   <locale name="ENUM_MATRIX_TREEGRID_LOADNODE" value="Loading tree"/>
+  <locale name="ENUM_REVEAL_FIRST" value="First"/>
+  <locale name="ENUM_REVEAL_SECOND" value="Second"/>
   <locale name="ENUM_STEP_1" value="Message for step 1"/>
   <locale name="ENUM_STEP_2" value="Message for step 2"/>
   <locale name="ENUM_STEP_3" value="Message for step 3"/>
@@ -78,8 +85,26 @@
   <locale name="MENU_TEST_CHARTS" value="Charts"/>
   <locale name="MENU_TEST_CRITERIA" value="Criteria"/>
   <locale name="MENU_TEST_CRITERIA_RESET" value="Criteria Reset"/>
+  <locale name="MENU_TEST_CRITERIA_UPLOADER" value="Criteria Uploader"/>
   <locale name="MENU_TEST_FILEMANAGER" value="File Manager"/>
+  <locale name="MENU_TEST_FILE_VIEWER" value="File viewer"/>
   <locale name="MENU_TEST_EVENT_CALENDAR" value="Event Calendar"/>
+  <locale name="MENU_TEST_LAUNCHER" value="Launcher"/>
+  <locale name="MENU_TEST_LAUNCHER_DESCRIPTION" value="Launcher pages inside launcher pages"/>
+  <locale name="MENU_TEST_LAUNCHER_SALES" value="Sales"/>
+  <locale name="MENU_TEST_LAUNCHER_SALES_DESCRIPTION" value="Orders and sales reports"/>
+  <locale name="MENU_TEST_LAUNCHER_REPORTS" value="Reports"/>
+  <locale name="MENU_TEST_LAUNCHER_REPORTS_DESCRIPTION" value="Monthly and yearly sales"/>
+  <locale name="MENU_TEST_LAUNCHER_MONTHLY" value="Monthly report"/>
+  <locale name="MENU_TEST_LAUNCHER_MONTHLY_DESCRIPTION" value="Sales grouped by month"/>
+  <locale name="MENU_TEST_LAUNCHER_YEARLY" value="Yearly report"/>
+  <locale name="MENU_TEST_LAUNCHER_ORDERS" value="Orders"/>
+  <locale name="MENU_TEST_LAUNCHER_ORDERS_DESCRIPTION" value="Look up the orders of a customer"/>
+  <locale name="MENU_TEST_LAUNCHER_PLAIN" value="Plain option"/>
+  <locale name="MENU_TEST_REVEAL_INVALID" value="Reveal invalid field"/>
+  <locale name="SCREEN_TITLE_REVEAL_INVALID" value="Reveal invalid field"/>
+  <locale name="MENU_TEST_MATRIX_MOVE_ROWS" value="Move rows"/>
+  <locale name="SCREEN_TITLE_MOVE_ROWS" value="Move rows (Alt+Up, Alt+Down, Alt+Home, Alt+End)"/>
   <locale name="SCR_EVENT_CALENDAR_NEW" value="New event"/>
   <locale name="SCR_EVENT_CALENDAR_EDIT" value="Edit event"/>
   <locale name="SCR_EVENT_CALENDAR_TITLE" value="Event title"/>
@@ -171,4 +196,206 @@
   <locale name="SCREEN_TITLE_CRITERIA_TEST" value="Criteria test"/>
   <locale name="SCREEN_TITLE_MATRIX_TEST" value="Matrix test"/>
   <locale name="SCREEN_TITLE_WIZARD" value="Wizard"/>
+  <locale name="SCREEN_TITLE_DATE_RANGE_TEST" value="Date range criteria test"/>
+  <locale name="MENU_TEST_DATE_RANGE" value="Date range"/>
+  <locale name="PARAMETER_DATE_RANGE" value="Period with presets"/>
+  <locale name="PARAMETER_DATE_RANGE_REQUIRED" value="Period (required, with default)"/>
+  <locale name="PARAMETER_DATE_RANGE_READONLY" value="Period (read)"/>
+  <locale name="PARAMETER_DATE_RANGE_NO_PRESETS" value="Period without presets"/>
+  <locale name="COLUMN_DATE_RANGE_FROM" value="From"/>
+  <locale name="COLUMN_DATE_RANGE_TO" value="To"/>
+  <locale name="COLUMN_DATE_RANGE_REQUIRED_FROM" value="Required from"/>
+  <locale name="COLUMN_DATE_RANGE_REQUIRED_TO" value="Required to"/>
+  <locale name="COLUMN_RADIO_OPTION_A" value="Option A"/>
+  <locale name="COLUMN_RADIO_OPTION_B" value="Option B"/>
+  <locale name="COLUMN_RADIO_OPTION_C" value="Option C"/>
+  <locale name="COLUMN_RADIO_MODE_LOW" value="Low"/>
+  <locale name="COLUMN_RADIO_MODE_MID" value="Medium"/>
+  <locale name="COLUMN_RADIO_MODE_HIGH" value="High"/>
+  <locale name="BUTTON_RADIO_SEND" value="Send choices"/>
+  <locale name="SCREEN_TITLE_GRID_RADIO" value="Radio columns"/>
+  <locale name="COLUMN_RADIO_THEME" value="Theme"/>
+  <locale name="COLUMN_RADIO_CHOICE" value="Choice"/>
+  <locale name="COLUMN_RADIO_MODE" value="Mode"/>
+  <locale name="MENU_TEST_MATRIX_RADIO" value="Radio column"/>
+  <locale name="MENU_TEST_MATRIX_NO_HEADER" value="Grid without header"/>
+  <locale name="SCREEN_TITLE_GRID_NO_HEADER" value="Grid without header"/>
+  <locale name="MENU_TEST_MATRIX_SCALE" value="Colour scales"/>
+  <locale name="SCREEN_TITLE_GRID_SCALE" value="Colour scales"/>
+  <locale name="COLUMN_SCALE_SEQ_1" value="Sequential 1"/>
+  <locale name="COLUMN_SCALE_SEQ_2" value="Sequential 2"/>
+  <locale name="COLUMN_SCALE_SEQ_3" value="Sequential 3"/>
+  <locale name="COLUMN_SCALE_SEQ_4" value="Sequential 4"/>
+  <locale name="COLUMN_SCALE_SEQ_5" value="Sequential 5"/>
+  <locale name="COLUMN_SCALE_POS_1" value="Positive 1"/>
+  <locale name="COLUMN_SCALE_POS_2" value="Positive 2"/>
+  <locale name="COLUMN_SCALE_POS_3" value="Positive 3"/>
+  <locale name="COLUMN_SCALE_POS_4" value="Positive 4"/>
+  <locale name="COLUMN_SCALE_POS_5" value="Positive 5"/>
+  <locale name="COLUMN_SCALE_NEG_1" value="Negative 1"/>
+  <locale name="COLUMN_SCALE_NEG_2" value="Negative 2"/>
+  <locale name="COLUMN_SCALE_NEG_3" value="Negative 3"/>
+  <locale name="COLUMN_SCALE_NEG_4" value="Negative 4"/>
+  <locale name="COLUMN_SCALE_NEG_5" value="Negative 5"/>
+  <locale name="MENU_TEST_MATRIX_LAYOUT" value="Grid layout"/>
+  <locale name="SCREEN_TITLE_GRID_LAYOUT" value="Grid layout"/>
+  <locale name="MENU_TEST_MATRIX_PAGER" value="Grid pager"/>
+  <locale name="SCREEN_TITLE_GRID_PAGER" value="Grid pager"/>
+  <locale name="MENU_TEST_MATRIX_EMPTY" value="Empty grid"/>
+  <locale name="MENU_TEST_MATRIX_WRAP" value="Wrapping cells"/>
+  <locale name="SCREEN_TITLE_GRID_WRAP" value="Wrapping cells"/>
+  <locale name="SCREEN_TITLE_GRID_NOWRAP" value="Single-line cells"/>
+  <locale name="COLUMN_WRAP_CODE" value="Code"/>
+  <locale name="COLUMN_WRAP_TITLE" value="Title (wraps)"/>
+  <locale name="COLUMN_WRAP_DESCRIPTION" value="Description (3 lines)"/>
+  <locale name="COLUMN_WRAP_NOTES" value="Notes (one line)"/>
+  <locale name="MENU_TEST_MATRIX_CELLS" value="Secondary line, status and chips"/>
+  <locale name="SCREEN_TITLE_GRID_CELLS" value="Secondary line, status and chips"/>
+  <locale name="COLUMN_CELL_USER" value="User"/>
+  <locale name="COLUMN_CELL_LOGIN" value="Login"/>
+  <locale name="COLUMN_CELL_STATUS" value="Status"/>
+  <locale name="COLUMN_CELL_TONE" value="Tone"/>
+  <locale name="COLUMN_CELL_TEAMS" value="Teams"/>
+  <locale name="MENU_TEST_MATRIX_QUICK_FILTER" value="Quick filters"/>
+  <locale name="SCREEN_TITLE_GRID_QUICK_FILTER" value="Quick filters"/>
+  <locale name="COLUMN_QUICK_FILTER_STATE" value="State"/>
+  <locale name="QUICK_FILTER_ALL" value="All"/>
+  <locale name="QUICK_FILTER_ACTIVE" value="Active"/>
+  <locale name="QUICK_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="MENU_TEST_MATRIX_GROUPS" value="Row grouping"/>
+  <locale name="SCREEN_TITLE_GRID_GROUPS" value="Row grouping with subtotals"/>
+  <locale name="COLUMN_GROUP_REGION" value="Region"/>
+  <locale name="COLUMN_GROUP_COUNTRY" value="Country"/>
+  <locale name="COLUMN_GROUP_CITY" value="City"/>
+  <locale name="COLUMN_GROUP_STORE" value="Store"/>
+  <locale name="COLUMN_GROUP_SALES" value="Sales"/>
+  <locale name="COLUMN_GROUP_UNITS" value="Units"/>
+  <locale name="COLUMN_GROUP_PRICE" value="Average price"/>
+  <locale name="SCREEN_TITLE_GRID_EMPTY" value="Empty grid"/>
+  <locale name="GRID_EMPTY_TITLE_TST" value="No themes found"/>
+  <locale name="GRID_EMPTY_TEXT_TST" value="Clear the search to see the themes again"/>
+  <locale name="BUTTON_EMPTY_CLEAR" value="Clear search"/>
+  <locale name="MENU_TEST_MATRIX_ROW_DETAIL" value="Row detail"/>
+  <locale name="SCREEN_TITLE_GRID_ROW_DETAIL" value="Row detail"/>
+  <locale name="COLUMN_ROW_DETAIL_CODE" value="Code"/>
+  <locale name="COLUMN_ROW_DETAIL_ACTIVE" value="Active"/>
+  <locale name="MENU_TEST_MATRIX_ROW_DETAIL_COMPONENTS" value="Row detail with a grid"/>
+  <locale name="SCREEN_TITLE_GRID_ROW_DETAIL_COMPONENTS" value="Row detail with a nested grid"/>
+  <locale name="SCREEN_TITLE_GRID_ROW_DETAIL_INCLUDE" value="Row detail from an include"/>
+  <locale name="COLUMN_ROW_DETAIL_CUSTOMER" value="Customer"/>
+  <locale name="COLUMN_ROW_DETAIL_ADDRESS" value="Address"/>
+  <locale name="COLUMN_ROW_DETAIL_SINCE" value="Customer since"/>
+  <locale name="COLUMN_ROW_DETAIL_STATUS" value="Status"/>
+  <locale name="BUTTON_ROW_DETAIL_CUSTOMERS_INFO" value="About customers"/>
+  <locale name="CONFIRM_TITLE_ROW_DETAIL_CUSTOMERS" value="Customers"/>
+  <locale name="CONFIRM_MESSAGE_ROW_DETAIL_CUSTOMERS" value="The nested grid shows the customers of the country of its row"/>
+  <locale name="MENU_TEST_MATRIX_DIALOG_SIZE" value="Dialog sizes"/>
+  <locale name="SCREEN_TITLE_DIALOG_SIZE" value="Dialog sizes"/>
+  <locale name="MENU_TEST_MATRIX_DEFERRED" value="Deferred load"/>
+  <locale name="SCREEN_TITLE_DEFERRED_LOAD" value="Deferred load"/>
+  <locale name="BUTTON_DEFERRED_DIALOG" value="Deferred dialog"/>
+  <locale name="BUTTON_EAGER_DIALOG" value="Dialog (loaded with the screen)"/>
+  <locale name="BUTTON_DEFERRED_CALLS" value="Refresh calls"/>
+  <locale name="BUTTON_DEFERRED_PRESET" value="Set a value before opening"/>
+  <locale name="BUTTON_DEFERRED_SAVE" value="Save"/>
+  <locale name="DIALOG_TITLE_DEFERRED" value="Deferred dialog"/>
+  <locale name="DIALOG_TITLE_EAGER" value="Dialog loaded with the screen"/>
+  <locale name="ENUM_DEFERRED_FIRST" value="Loaded with the screen"/>
+  <locale name="ENUM_DEFERRED_SECOND" value="Deferred"/>
+  <locale name="MENU_TEST_MATRIX_DEFERRED_HEAVY" value="Deferred load (heavy)"/>
+  <locale name="SCREEN_TITLE_DEFERRED_HEAVY" value="Deferred load (heavy)"/>
+  <locale name="BUTTON_HEAVY_EAGER" value="Heavy dialog (loaded with the screen)"/>
+  <locale name="BUTTON_HEAVY_DEFERRED" value="Heavy deferred dialog"/>
+  <locale name="BUTTON_DIALOG_SMALL" value="Small dialog"/>
+  <locale name="BUTTON_DIALOG_LARGE" value="Large dialog"/>
+  <locale name="DIALOG_TITLE_SMALL" value="Small dialog"/>
+  <locale name="DIALOG_TITLE_LARGE" value="Large dialog"/>
+  <locale name="COLUMN_SPARKLINE_CASE" value="Series"/>
+  <locale name="COLUMN_SPARKLINE_LINE" value="Line"/>
+  <locale name="COLUMN_SPARKLINE_BAR" value="Bars"/>
+  <locale name="COLUMN_SPARKLINE_AREA" value="Area"/>
+  <locale name="COLUMN_SPARKLINE_MARKS" value="Marks"/>
+  <locale name="SCREEN_TITLE_GRID_SPARKLINE" value="Sparkline columns"/>
+  <locale name="MENU_TEST_MATRIX_SPARKLINE" value="Sparkline column"/>
+  <locale name="MENU_TEST_MATRIX_SIDE_PANEL" value="Side panels"/>
+  <locale name="SCREEN_TITLE_SIDE_PANEL" value="Side panels"/>
+  <locale name="BUTTON_SIDE_PANEL_RIGHT" value="Right panel"/>
+  <locale name="BUTTON_SIDE_PANEL_LEFT" value="Left panel"/>
+  <locale name="SIDE_PANEL_TITLE_RIGHT" value="Record details"/>
+  <locale name="SIDE_PANEL_TITLE_LEFT" value="Filters"/>
+  <locale name="MENU_TEST_MATRIX_ADVANCED_SEARCH" value="Advanced search"/>
+  <locale name="SCREEN_TITLE_ADVANCED_SEARCH" value="Advanced search"/>
+  <locale name="ENUM_ADV_SCH_INLINE" value="Advanced filters inline"/>
+  <locale name="ENUM_ADV_SCH_SIDE_PANEL" value="Advanced filters in a side panel"/>
+  <locale name="ENUM_ADV_SCH_SQL" value="Column filters on a SQL query"/>
+  <locale name="SCREEN_TEXT_ADVANCED_INLINE" value="Search customers"/>
+  <locale name="SCREEN_TEXT_ADVANCED_INLINE_RESULTS" value="Customers"/>
+  <locale name="SCREEN_TEXT_ADVANCED_SIDE_PANEL" value="Customer filters"/>
+  <locale name="SCREEN_TEXT_ADVANCED_SIDE_PANEL_RESULTS" value="Customers"/>
+  <locale name="PARAMETER_ADV_SCH_NAME" value="Customer"/>
+  <locale name="PARAMETER_ADV_SCH_STATUS" value="Status"/>
+  <locale name="PARAMETER_ADV_SCH_COUNTRY" value="Country"/>
+  <locale name="PARAMETER_ADV_SCH_SEGMENT" value="Segment"/>
+  <locale name="PARAMETER_ADV_SCH_MIN_AMOUNT" value="Minimum amount"/>
+  <locale name="PARAMETER_ADV_SCH_CREATED_FROM" value="Created from"/>
+  <locale name="PARAMETER_ADV_SCH_PRIORITY" value="Only priority customers"/>
+  <locale name="COLUMN_ADV_SCH_AMOUNT" value="Amount"/>
+  <locale name="COLUMN_ADV_SCH_CREATED" value="Created"/>
+  <locale name="COLUMN_ADV_SCH_PRIORITY" value="Priority"/>
+  <locale name="ENUM_ADV_SCH_ACTIVE" value="Active"/>
+  <locale name="ENUM_ADV_SCH_INACTIVE" value="Inactive"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_ES" value="Spain"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_FR" value="France"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_DE" value="Germany"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_IT" value="Italy"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_PT" value="Portugal"/>
+  <locale name="ENUM_ADV_SCH_COUNTRY_GB" value="United Kingdom"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_RET" value="Retail"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_WHO" value="Wholesale"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_PUB" value="Public sector"/>
+  <locale name="ENUM_ADV_SCH_SEGMENT_ONL" value="Online"/>
+  <locale name="PARAMETER_SIDE_PANEL_RESULT" value="Result"/>
+  <locale name="SCREEN_TITLE_SIDE_PANEL_COLUMNS" value="Columns in a side panel"/>
+  <locale name="PARAMETER_RELOAD" value="Reload"/>
+  <locale name="MENU_TEST_CARDS" value="Cards"/>
+  <locale name="CARD_TST_LIVE" value="Active sessions"/>
+  <locale name="CARD_TST_LIVE_CAPTION" value="vs. previous reload"/>
+  <locale name="CARD_TST_LIVE_FOOTER" value="Random figures: Reload changes them"/>
+  <locale name="CARD_TST_ORDERS" value="Weekly orders"/>
+  <locale name="CARD_TST_ORDERS_FOOTER" value="Last 12 weeks"/>
+  <locale name="CARD_TST_DISK" value="Disk usage"/>
+  <locale name="CARD_TST_DISK_FOOTER" value="Data volume of the file server"/>
+  <locale name="SCREEN_TITLE_CARD" value="Cards"/>
+  <locale name="CARD_TST_THEMES" value="Themes"/>
+  <locale name="CARD_TST_VS_LAST_MONTH" value="vs. last month"/>
+  <locale name="CARD_TST_ERRORS" value="Error rate"/>
+  <locale name="CARD_TST_STATIC" value="Static values"/>
+  <locale name="CARD_TST_REVENUE" value="Monthly revenue"/>
+  <locale name="CARD_TST_DAYS_LEFT" value="8 working days left"/>
+  <locale name="CARD_TST_FEATURE" value="Pluggable starters"/>
+  <locale name="CARD_TST_FEATURE_DESCRIPTION" value="Spring Boot starters enable exactly the modules you need: scheduler, notifications, printing, REST."/>
+  <locale name="CARD_TST_CHART" value="Themes by weight"/>
+  <locale name="CARD_TST_GRID" value="Latest records"/>
+  <locale name="CARD_TST_STATUS" value="Service status"/>
+  <locale name="CARD_TST_STATUS_OPERATIONAL" value="Operational"/>
+  <locale name="CARD_TST_STATUS_DEGRADED" value="Degraded"/>
+  <locale name="CARD_TST_STATUS_DOWN" value="Down"/>
+  <locale name="CARD_TST_STATUS_FOOTER" value="Reload changes the status"/>
+  <locale name="CARD_TST_ON_TRACK" value="On track"/>
+  <locale name="MENU_TEST_MATRIX_POPOVER" value="Popovers"/>
+  <locale name="SCREEN_TITLE_POPOVER" value="Popovers"/>
+  <locale name="BUTTON_POPOVER_BOTTOM" value="Popover below"/>
+  <locale name="BUTTON_POPOVER_RIGHT" value="Popover at the right"/>
+  <locale name="POPOVER_TITLE_BOTTOM" value="Quick edit"/>
+  <locale name="POPOVER_TITLE_RIGHT" value="Notes"/>
+  <locale name="PARAMETER_POPOVER_RESULT" value="Result"/>
+  <locale name="PARAMETER_POPOVER_THEME_ID" value="Identifier"/>
+  <locale name="LOGIN_DEMO_CREDENTIALS" value="Demo credentials: user test, password test"/>
+  <locale name="BUTTON_TEST_MAP_ROUTE" value="Draw route"/>
+  <locale name="PARAMETER_TEST_MAP_SELECTED" value="Selected place"/>
+  <locale name="MENU_TEST_MAP" value="Map"/>
+  <locale name="PERMISSION_VERB_APPROVE" value="Approve"/>
+  <locale name="PERMISSION_RESOURCE_INVOICES" value="Invoices"/>
+  <locale name="PERMISSION_RESOURCE_APP_THEMES" value="Themes and brand"/>
+  <locale name="PERMISSION_USERS_UNLOCK_ACCOUNT" value="Unlock account"/>
 </locales>

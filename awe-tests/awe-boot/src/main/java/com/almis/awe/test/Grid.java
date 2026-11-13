@@ -13,10 +13,10 @@ import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

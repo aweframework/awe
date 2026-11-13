@@ -1,34 +1,51 @@
 import {aweApplication} from "../awe";
 import {getIconTemplate} from "./component";
+import {TestIds} from "../data/testIds";
+import {busySpinnerTemplate, createBusyState} from "./busyState";
 
 export const templateButton = `<div ng-show="controller.visible" class="{{::groupClass}}" ui-dependency="dependencies" ng-cloak>
-  <button type="{{::component.buttonType}}" id="{{::buttonId}}" title="{{controller.title| translateMultiple}}"
-          class="{{classes}}" ng-disabled="isDisabled()" ng-click="onClick()" ng-mousedown="onMouseDown()" ng-transclude>
+  <button type="{{::component.buttonType}}" id="{{::buttonId}}" data-testid="${TestIds.button}" title="{{getTitle()| translateMultiple}}"
+          class="{{classes}}" ng-class="{'is-loading': busy}" ng-attr-aria-busy="{{busy ? 'true' : undefined}}"
+          ng-attr-aria-label="{{iconOnly ? ((controller.label | translateMultiple) || undefined) : undefined}}"
+          ng-disabled="isDisabled()" ng-click="onClick()" ng-mousedown="onMouseDown()" ng-transclude>
+    ${busySpinnerTemplate("busy")}
     ${getIconTemplate("button-icon", "i")}
-    <span ng-if="::controller.label" class="button-text" translate-multiple="{{controller.label}}"></span>
+    <span ng-if="controller.label && !iconOnly" class="button-text" translate-multiple="{{busy && controller.loadingLabel ? controller.loadingLabel : controller.label}}"></span>
   </button>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
+  <awe-loader class="loader button-loader" skeleton="button" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
 
 export const templateColumnButton = `<div ng-show="component.controller.visible" class="column text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
-  <button type="button" id="{{component.id}}" title="{{component.model.values[0].title| translateMultiple}}"
+  <button type="button" id="{{component.id}}" data-testid="${TestIds.button}" title="{{getCellTitle()| translateMultiple}}"
+          ng-attr-aria-label="{{component.model.values[0].label ? undefined : ((getCellTitle() | translateMultiple) || undefined)}}"
           class="{{classes}} {{component.model.values[0].style}}" ng-disabled="isDisabled()" ng-click="onClick($event)" ng-mousedown="onMouseDown()" ng-cloak>
     ${getIconTemplate("button-icon", "i")}
     <span ng-if="component.model.values[0].label" class="button-text" translate-multiple="{{component.model.values[0].label}}"></span>
   </button>
 </div>`;
 
+/**
+ * Check if a button style makes it icon-only (the no-label class, as for criteria)
+ * @param {string} style Button style
+ * @returns {boolean} The button shows only its icon
+ */
+export function isIconOnly(style) {
+  return String(style || "").split(/\s+/).includes("no-label");
+}
+
 // Button service
 aweApplication.factory('Button',
-  ['Component', 'Storage', 'ActionController', 'AweUtilities',
+  ['Component', 'Storage', 'ActionController', 'AweUtilities', '$timeout',
     /**
      * Button generic methods
      * @param {Object} Component component
      * @param {Object} Storage service
      * @param {Object} ActionController service
      * @param {Object} Utilities service
+     * @param {Function} $timeout Timeout service
      */
-    function (Component, Storage, ActionController, Utilities) {
+    function (Component, Storage, ActionController, Utilities, $timeout) {
 
       /**
        * Button constructor
@@ -41,6 +58,10 @@ aweApplication.factory('Button',
         this.id = id;
         this.element = element;
         this.component = new Component(scope, id);
+        // The context menu action hangs the menu from the button itself
+        this.component.getContextMenuAnchor = function () {
+          return element.is("button") ? element : element.find("button").first();
+        };
         // Store mouse down
         this.component.pendingActions = false;
         const button = this;
@@ -70,7 +91,8 @@ aweApplication.factory('Button',
 
           // Generate button class
           if (component.controller) {
-            component.scope.buttonClass = component.controller.buttonType === "submit" ? "primary" : null;
+            // Submit draws as primary and reset as default (Bootstrap secondary), as in React
+            component.scope.buttonClass = {submit: "primary", reset: "default"}[component.controller.buttonType] || null;
             // Add reset action if type is reset
             if (component.controller.actions && component.controller.actions.length === 0 && component.controller.buttonType === "reset") {
               let  resetAction = {type: "restore"};
@@ -80,6 +102,15 @@ aweApplication.factory('Button',
             // Generate buttonType
             component.buttonType = component.controller.buttonType === "reset" ? "button" : component.controller.buttonType;
           }
+
+          // Busy state of the button while the actions it launched run (unless the button sets show-loading="false")
+          const busyState = createBusyState({
+            scope: component.scope,
+            property: "busy",
+            isRunning: () => Storage.get("actions-running"),
+            timeout: $timeout,
+            threshold: component.controller.busyThreshold
+          });
 
           //*****************************************************************************
           // SCOPE METHODS
@@ -104,7 +135,22 @@ aweApplication.factory('Button',
               address: component.address,
               context: component.context
             });
+            if (component.controller && component.controller.showLoading !== false) {
+              busyState.start();
+            }
             component.storeEvent('click');
+          };
+
+          /**
+           * Tooltip of the button: its title; an icon-only button (style no-label) without help shows its label
+           * @returns {string} Tooltip
+           */
+          component.scope.getTitle = function () {
+            const controller = component.controller || {};
+            if (controller.title) {
+              return controller.title;
+            }
+            return component.scope.iconOnly && !("help" in controller) ? controller.label : "";
           };
 
           /**
@@ -211,6 +257,8 @@ aweApplication.factory('Button',
            * Store button classes
            */
           component.updateClasses = function () {
+            // An icon-only button (style no-label) shows only its icon: its label is its tooltip and accessible name
+            component.scope.iconOnly = isIconOnly(component.controller && component.controller.style);
             component.scope.groupClass = getGroupClass();
             component.scope.classes = getClass();
           };

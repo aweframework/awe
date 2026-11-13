@@ -1,21 +1,16 @@
 package com.almis.awe.scheduler.log;
 
-import com.almis.awe.builder.client.FilterActionBuilder;
-import com.almis.awe.builder.client.SelectActionBuilder;
-import com.almis.awe.builder.client.UpdateControllerActionBuilder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
-import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.enums.ExecutionLogOrigin;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,12 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.almis.awe.model.constant.AweConstants.JSON_ICON_PARAMETER;
-import static com.almis.awe.model.constant.AweConstants.JSON_LABEL_PARAMETER;
-import static com.almis.awe.model.constant.AweConstants.JSON_STYLE_PARAMETER;
-import static com.almis.awe.model.constant.AweConstants.JSON_TITLE_PARAMETER;
-import static com.almis.awe.model.constant.AweConstants.JSON_VALUE_PARAMETER;
 
 /**
  * Database-backed {@link ExecutionLogStore} adapter. Reads and purges
@@ -42,8 +31,6 @@ public class DatabaseExecutionLogStore extends ServiceConfig implements Executio
   private static final String EXECUTION_LOG_LINES_QUERY = "getExecutionLogLines";
   private static final String EXECUTION_LOG_KEYS_QUERY = "getExecutionLogKeys";
   private static final String PURGE_EXECUTION_LOG_LINES_TARGET = "purgeExecutionLogLines";
-  private static final String EXECUTION_LOG_VIEWER_ID = "executionLogViewer";
-  private static final String GET_EXECUTION_LOG_ACTION = "get-execution-log";
   private static final String HEAD_SECTION = "H";
   private static final String TASK_ID_PARAMETER = "taskId";
   private static final String EXECUTION_ID_PARAMETER = "executionId";
@@ -254,26 +241,6 @@ public class DatabaseExecutionLogStore extends ServiceConfig implements Executio
   }
 
   private record MergedLineId(String origin, int lineNumber) {
-  }
-
-  @Override
-  public ObjectNode locatorNode(ExecutionKey key) {
-    ObjectNode logNode = JsonNodeFactory.instance.objectNode();
-    logNode.put(JSON_VALUE_PARAMETER, key.mdcKey());
-    logNode.put(JSON_STYLE_PARAMETER, "no-btn");
-    logNode.put(JSON_TITLE_PARAMETER, "SCHEDULER_SHOW_EXECUTION_LOG");
-    logNode.put(JSON_ICON_PARAMETER, "file-text-o text-info");
-    logNode.put(JSON_LABEL_PARAMETER, "");
-    return logNode;
-  }
-
-  @Override
-  public void applyViewerSelection(String locatorValue, ExecutionKey key, ServiceData serviceData) {
-    serviceData.addClientAction(new ClientAction("reset").setTarget(EXECUTION_LOG_VIEWER_ID).setSilent(true));
-    serviceData.addClientAction(new UpdateControllerActionBuilder(EXECUTION_LOG_VIEWER_ID, "serverAction", GET_EXECUTION_LOG_ACTION).setSilent(true).build());
-    serviceData.addClientAction(new SelectActionBuilder("execution-log-task-id", key.taskId()).setSilent(true).build());
-    serviceData.addClientAction(new SelectActionBuilder("execution-log-execution-id", key.executionId()).setSilent(true).build());
-    serviceData.addClientAction(new FilterActionBuilder(EXECUTION_LOG_VIEWER_ID).setSilent(true).build());
   }
 
   @Override

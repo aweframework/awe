@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : public.xml
+    Description: Screens anybody can open without signing in: the support portal, the knowledge base, the ticket status check
+                 and the AWE sign-in screens. The portal is the initial screen
+-->
+<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" screen="hd-home" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/menu.xsd" context="screen" default-action="screen">
+  <option name="hd-home" label="HD_MENU_HOME" screen="hd-home" invisible="true"/>
+  <option name="hd-kb" label="HD_MENU_KB" screen="hd-kb" invisible="true"/>
+  <option name="hd-check" label="HD_MENU_CHECK" screen="hd-check" invisible="true"/>
+  <option name="signin" screen="signin" invisible="true"/>
+  <option name="signin-local" screen="signin-local" invisible="true"/>
+  <option name="change-password" screen="change-password" invisible="true"/>
+  <option name="change-expired-password" screen="change-expired-password" invisible="true"/>
+  <option name="check-2fa" screen="check-2fa" invisible="true"/>
+  <option name="activate-2fa" screen="activate-2fa" invisible="true"/>
+  <option name="logout-sso" screen="logout-sso" invisible="true"/>
+  <option name="error-4xx" screen="error-4xx" invisible="true"/>
+  <option name="error-5xx" screen="error-5xx" invisible="true"/>
+</menu>

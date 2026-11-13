@@ -8,7 +8,7 @@ Start here if you want the fastest path from zero to a running AWE application. 
 
 ## Quick path
 
-1. Install Java 17+ and Maven 3.x.
+1. Install Java 21+ and Maven 3.x.
 2. Choose the AngularJS or React archetype.
 3. Generate your project with Maven.
 4. Run the app with Spring Boot.
@@ -16,18 +16,20 @@ Start here if you want the fastest path from zero to a running AWE application. 
 
 ## Prerequisites
 
-- JDK 17 or higher
+- JDK 21 or higher
 - Maven 3.x or higher
 - Your preferred IDE or editor
 
 ## Choose your archetype
 
-Use the frontend that matches your project.
+React is the modern client of AWE 5 and the recommended one for new projects. The AngularJS client stays supported in
+compatibility mode through the whole 5.x line, so existing AngularJS projects keep it when they upgrade. See
+[ADR 001: React is the modern client of AWE 5](decisions/adr-001-react-modern-client.md).
 
 | Option | Archetype | Use it when |
 | --- | --- | --- |
-| AngularJS | `awe-boot-angular-archetype` | You want the classic AWE AngularJS stack |
-| React | `awe-boot-react-archetype` | You want the AWE React starter |
+| React (recommended) | `awe-boot-react-archetype` | You start a new project |
+| AngularJS | `awe-boot-angular-archetype` | You keep the classic AWE AngularJS stack, for example to match an existing project |
 
 Use the current AWE version from Maven Central: [![Version](https://img.shields.io/maven-central/v/com.almis.awe/awe-starter-parent.svg?label=maven%20central)](https://search.maven.org/search?q=g:%22com.almis.awe%22%20AND%20a:%22awe-starter-parent%22)
 
@@ -87,6 +89,8 @@ Continue with [awe-101 Your first AWE App](training/awe-101.md) for the first ha
 Use these docs as follow-up references after the first run:
 
 - [Project Structure](guides/project-structure.md) for the AWE XML layout and folders
+- [XSD tooling](guides/xsd-tooling.md) for XML autocompletion and validation in IntelliJ IDEA and VS Code
+- [Development container](guides/devcontainer.md) to build and test AWE from VS Code without installing a toolchain
 - [awe-101 Your first AWE App](training/awe-101.md) for the first practical tutorial after quick-start
 - [Installation](installation.md) for server and environment setup details
 - [Deployment](deployment.md) for JAR, WAR, Docker, and cloud packaging options

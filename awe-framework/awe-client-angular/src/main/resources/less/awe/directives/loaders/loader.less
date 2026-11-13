@@ -1,8 +1,12 @@
 /*******************************************************************************
  LOADER DIRECTIVE
 *******************************************************************************/
+// AWE 5 (#885): the loading icons are drawn in the primary colour, every size a share of the loader size, and they
+// stand still when the user prefers reduced motion
 
 .loader {
+  @loader-size: var(--awe-space-10);
+
   position: absolute;
   top: 0;
   left: 0;
@@ -25,7 +29,7 @@
   // Show/hide animations
   &.ng-enter,
   &.ng-leave {
-    .transition(opacity, ease-in-out, 150ms);
+    transition: opacity var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
   }
   &.ng-enter,
   &.ng-leave.ng-leave-active {
@@ -46,4 +50,11 @@
   @import "./folding.less";
   @import "./square.less";
   @import "./squarebar.less";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader *,
+  .loader *::before {
+    animation: none;
+  }
 }

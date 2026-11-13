@@ -47,6 +47,29 @@
     <variable type="STRINGR" id="variable" value="AWEBOOT-TEST"/>
   </query>
 
+  <!-- Maintain transaction tests: rows whose description / name starts with a prefix -->
+  <query id="TxCheckHISAweDbs">
+    <table id="HISAweDbs"/>
+    <field id="HISope"/>
+    <where>
+      <and>
+        <filter left-field="Des" condition="like" right-variable="prefix"/>
+      </and>
+    </where>
+    <variable type="STRINGR" id="prefix" name="prefix"/>
+  </query>
+
+  <query id="TxCheckHISAweThm">
+    <table id="HISAweThm"/>
+    <field id="HISope"/>
+    <where>
+      <and>
+        <filter left-field="Nam" condition="like" right-variable="prefix"/>
+      </and>
+    </where>
+    <variable type="STRINGR" id="prefix" name="prefix"/>
+  </query>
+
   <query id="SimpleGetManyRecords">
     <table id="HISAweSit" alias="awe"/>
     <field id="IdeSit" table="awe" alias="id"/>
@@ -90,6 +113,13 @@
   </query>
 
   <query id="TestComponentInitialLoadQuery" public="true">
+    <table id="ope" alias="awe"/>
+    <field id="IdeOpe" alias="value"/>
+    <field id="l1_nom" alias="label"/>
+    <order-by field="IdeOpe"/>
+  </query>
+
+  <query id="TestPublicScreenPrivateQuery">
     <table id="ope" alias="awe"/>
     <field id="IdeOpe" alias="value"/>
     <field id="l1_nom" alias="label"/>
@@ -1363,6 +1393,12 @@
     <variable id="var4" type="STRING" name="test"/>
   </query>
 
+  <!-- Rows of the editable grid of the MoveRowsTst screen -->
+  <query id="MoveRowTstLst" enumerated="MoveRowTst">
+    <field id="value"/>
+    <field id="label"/>
+  </query>
+
   <query id="SimpleEnum" enumerated="Es1Es0">
     <field id="value"/>
     <field id="label"/>
@@ -1426,6 +1462,19 @@
       </and>
     </where>
     <variable id="Grp" type="STRING" name="SelMul"/>
+  </query>
+
+  <!-- DATE RANGE CRITERION TEST: echoes the two parameters each date range sends -->
+  <query id="DatRngPrm">
+    <table id="ope" alias="awe"/>
+    <field variable="from" alias="DatFrm"/>
+    <field variable="to" alias="DatTo"/>
+    <field variable="reqFrom" alias="ReqFrm"/>
+    <field variable="reqTo" alias="ReqTo"/>
+    <variable id="from" type="STRING" name="DatRng.from"/>
+    <variable id="to" type="STRING" name="DatRng.to"/>
+    <variable id="reqFrom" type="STRING" name="DatRngReq.from"/>
+    <variable id="reqTo" type="STRING" name="DatRngReq.to"/>
   </query>
 
   <!-- TEST HAVING -->
@@ -1604,7 +1653,7 @@
     <field id="Des" table="testQuery" alias="Des3"/>
     <compound alias="DwnFil">
       <computed alias="label" format="[Des]"/>
-      <computed alias="value" format="d2ViYXBwLnJhciB8IDk2MjI5MDkgfCBhcHBsaWNhdGlvbi9vY3RldC1zdHJlYW0%3D"/>
+      <computed alias="value" format="grid-file.txt"/>
     </compound>
     <constant value="123456" alias="MulNum" transform="NUMBER" pattern="###,###.00"/>
     <computed alias="PrgVal" format="Math.round(Math.random()*100)" eval="true"/>
@@ -2381,6 +2430,41 @@
     <computed format="parseInt(Math.random()*100,10)" eval="true" alias="serie1" transform="NUMBER_PLAIN"/>
     <computed format="(parseInt(Math.random()*100,10))+2" eval="true" alias="subserie1" transform="NUMBER_PLAIN"/>
   </query>
+  <!-- SPARKLINE CARD OF THE CARD TEST SCREEN (#899): orders of the last 12 weeks -->
+  <query id="CrdTstOrders">
+    <table id="AweThm"/>
+    <field id="Nam" alias="name"/>
+    <constant value="1284" alias="value" type="INTEGER"/>
+    <constant value="4.2" alias="delta" type="DOUBLE"/>
+    <constant value="[980,1010,995,1060,1040,1105,1090,1150,1175,1160,1230,1284]" alias="sparkline"/>
+    <where>
+      <filter left-field="Nam" condition="eq" right-variable="ordersTheme"/>
+    </where>
+    <variable id="ordersTheme" type="STRING" value="sunset"/>
+  </query>
+
+  <!-- LIVE CARD OF THE CARD TEST SCREEN (#899): random figures, so its reload button shows new values -->
+  <query id="CrdTstLive">
+    <table id="AweThm"/>
+    <field id="Nam" alias="name"/>
+    <computed format="parseInt(Math.random()*900,10)+100" eval="true" alias="value" transform="NUMBER_PLAIN"/>
+    <computed format="parseInt(Math.random()*200,10)/10-10" eval="true" alias="delta" transform="NUMBER_PLAIN"/>
+    <where>
+      <filter left-field="Nam" condition="eq" right-variable="liveTheme"/>
+    </where>
+    <variable id="liveTheme" type="STRING" value="sunset"/>
+  </query>
+
+  <!-- METRIC CARD OF THE CARD TEST SCREEN (#899): the number of themes -->
+  <query id="CrdTstThemes">
+    <table id="AweThm"/>
+    <field id="IdeThm" function="CNT" alias="value"/>
+    <constant value="12.5" alias="delta"/>
+  </query>
+
+  <!-- STATUS CARD OF THE CARD TEST SCREEN (#836): the status cycles on every call, so its reload button changes the chip -->
+  <query id="CrdTstStatus" service="CrdTstStatus"/>
+
   <query id="TstChrPieSrc" distinct="true">
     <table id="AweThm"/>
     <field id="Nam" alias="names"/>
@@ -2571,6 +2655,94 @@
   </query>
 
   <!-- Load user Json file -->
+  <!-- Sales of stores by region, country and city (GrdGrpTst screen) -->
+  <query id="GroupRowsTst" service="loadGroupRows">
+    <field id="id" alias="id"/>
+    <field id="region" alias="region"/>
+    <field id="country" alias="country"/>
+    <field id="city" alias="city"/>
+    <field id="store" alias="store"/>
+    <field id="sales" alias="sales"/>
+    <field id="units" alias="units"/>
+    <field id="price" alias="price"/>
+  </query>
+
+  <!-- Rows with a secondary line, a status and chips (GrdCellTst screen) -->
+  <query id="CellRowsTst" service="loadCellRows">
+    <field id="id" alias="id"/>
+    <field id="user" alias="user"/>
+    <field id="login" alias="login"/>
+    <field id="status" alias="status"/>
+    <field id="tone" alias="tone"/>
+    <field id="teams" alias="teams"/>
+  </query>
+
+  <!-- Themes of the grid with quick filters, filtered by the value of its quick filter (GrdQckFltTst screen) -->
+  <query id="QckFltTstThm">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Act" alias="state" translate="active-label"/>
+    <where>
+      <and>
+        <filter left-field="Act" condition="eq" right-variable="state" optional="true"/>
+      </and>
+    </where>
+    <order-by field="Nam" type="ASC"/>
+    <variable id="state" type="INTEGER" name="CrtQckFltSta" optional="true"/>
+  </query>
+
+  <!-- Options of the quick filter of the GrdQckFltTst screen: all the themes, the active ones and the inactive ones
+       (the count in the danger tone), with their counts -->
+  <query id="QckFltTstSta">
+    <table id="AweThm"/>
+    <constant value="1" type="INTEGER" alias="pos"/>
+    <constant value="" alias="value"/>
+    <constant value="QUICK_FILTER_ALL" alias="label"/>
+    <field id="IdeThm" function="CNT" alias="count"/>
+    <constant value="" alias="tone"/>
+    <union type="ALL" query="QckFltTstStaAct"/>
+    <union type="ALL" query="QckFltTstStaIna"/>
+    <order-by field="pos" type="ASC"/>
+  </query>
+  <query id="QckFltTstStaAct">
+    <table id="AweThm"/>
+    <constant value="2" type="INTEGER" alias="pos"/>
+    <constant value="1" alias="value"/>
+    <constant value="QUICK_FILTER_ACTIVE" alias="label"/>
+    <field id="IdeThm" function="CNT" alias="count"/>
+    <constant value="" alias="tone"/>
+    <where>
+      <and>
+        <filter left-field="Act" condition="eq" right-variable="active"/>
+      </and>
+    </where>
+    <variable id="active" type="INTEGER" value="1"/>
+  </query>
+  <query id="QckFltTstStaIna">
+    <table id="AweThm"/>
+    <constant value="3" type="INTEGER" alias="pos"/>
+    <constant value="0" alias="value"/>
+    <constant value="QUICK_FILTER_INACTIVE" alias="label"/>
+    <field id="IdeThm" function="CNT" alias="count"/>
+    <constant value="danger" alias="tone"/>
+    <where>
+      <and>
+        <filter left-field="Act" condition="eq" right-variable="inactive"/>
+      </and>
+    </where>
+    <variable id="inactive" type="INTEGER" value="0"/>
+  </query>
+
+  <!-- Rows with texts of very different lengths (GrdWrapTst screen) -->
+  <query id="WrapRowsTst" service="loadWrapRows">
+    <field id="id" alias="id"/>
+    <field id="code" alias="code"/>
+    <field id="title" alias="title"/>
+    <field id="description" alias="description"/>
+    <field id="notes" alias="notes"/>
+  </query>
+
   <query id="QrySrvLoadJsonFile" service="loadUserJsonFile">
     <field id="id" alias="id"/>
     <field id="name" alias="name"/>
@@ -3558,5 +3730,373 @@
   </query>
 
   <query id="TestControlTarget" service="TestControlTarget"/>
+
+
+  <!-- One theme per row with the adminflare row choosing the option B of the choice column, to show the radio columns (GrdRadioTst screen) -->
+  <query id="RadioColumnTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <computed alias="choice" format="'[name]' == 'adminflare' ? 'B' : null" eval="true"/>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+
+
+  <!-- Themes list for the grid without header (GrdNoHeaderTst screen) -->
+  <query id="ThemeStyleTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+
+
+  <!-- 26 columns for the grid toolbar (GrdLayoutTst screen) -->
+  <query id="GrdLayoutTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="IdeThm" alias="key"/>
+    <computed alias="c01" format="V01"/>
+    <computed alias="c02" format="V02"/>
+    <computed alias="c03" format="V03"/>
+    <computed alias="c04" format="V04"/>
+    <computed alias="c05" format="V05"/>
+    <computed alias="c06" format="V06"/>
+    <computed alias="c07" format="V07"/>
+    <computed alias="c08" format="V08"/>
+    <computed alias="c09" format="V09"/>
+    <computed alias="c10" format="V10"/>
+    <computed alias="c11" format="V11"/>
+    <computed alias="c12" format="V12"/>
+    <computed alias="c13" format="V13"/>
+    <computed alias="c14" format="V14"/>
+    <computed alias="c15" format="V15"/>
+    <computed alias="c16" format="V16"/>
+    <computed alias="c17" format="V17"/>
+    <computed alias="c18" format="V18"/>
+    <computed alias="c19" format="V19"/>
+    <computed alias="c20" format="V20"/>
+    <computed alias="c21" format="V21"/>
+    <computed alias="c22" format="V22"/>
+    <computed alias="c23" format="V23"/>
+    <computed alias="c24" format="V24"/>
+    <computed alias="c25" format="V25"/>
+    <computed alias="c26" format="V26"/>
+    <order-by field="IdeThm" type="ASC"/>
+  </query>
+
+
+  <!-- Cells with the five steps of each colour scale, assigned with the style of the cell (GrdScaleTst screen) -->
+  <query id="ThemeScaleTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id" noprint="true"/>
+    <field id="Nam" alias="name"/>
+    <compound alias="seq1">
+      <computed alias="value" format="10"/>
+      <computed alias="label" format="10"/>
+      <computed alias="style" format="scale-seq-1"/>
+    </compound>
+    <compound alias="seq2">
+      <computed alias="value" format="20"/>
+      <computed alias="label" format="20"/>
+      <computed alias="style" format="scale-seq-2"/>
+    </compound>
+    <compound alias="seq3">
+      <computed alias="value" format="30"/>
+      <computed alias="label" format="30"/>
+      <computed alias="style" format="scale-seq-3"/>
+    </compound>
+    <compound alias="seq4">
+      <computed alias="value" format="40"/>
+      <computed alias="label" format="40"/>
+      <computed alias="style" format="scale-seq-4"/>
+    </compound>
+    <compound alias="seq5">
+      <computed alias="value" format="50"/>
+      <computed alias="label" format="50"/>
+      <computed alias="style" format="scale-seq-5"/>
+    </compound>
+    <compound alias="pos1">
+      <computed alias="value" format="10"/>
+      <computed alias="label" format="10"/>
+      <computed alias="style" format="scale-pos-1"/>
+    </compound>
+    <compound alias="pos2">
+      <computed alias="value" format="20"/>
+      <computed alias="label" format="20"/>
+      <computed alias="style" format="scale-pos-2"/>
+    </compound>
+    <compound alias="pos3">
+      <computed alias="value" format="30"/>
+      <computed alias="label" format="30"/>
+      <computed alias="style" format="scale-pos-3"/>
+    </compound>
+    <compound alias="pos4">
+      <computed alias="value" format="40"/>
+      <computed alias="label" format="40"/>
+      <computed alias="style" format="scale-pos-4"/>
+    </compound>
+    <compound alias="pos5">
+      <computed alias="value" format="50"/>
+      <computed alias="label" format="50"/>
+      <computed alias="style" format="scale-pos-5"/>
+    </compound>
+    <compound alias="neg1">
+      <computed alias="value" format="10"/>
+      <computed alias="label" format="10"/>
+      <computed alias="style" format="scale-neg-1"/>
+    </compound>
+    <compound alias="neg2">
+      <computed alias="value" format="20"/>
+      <computed alias="label" format="20"/>
+      <computed alias="style" format="scale-neg-2"/>
+    </compound>
+    <compound alias="neg3">
+      <computed alias="value" format="30"/>
+      <computed alias="label" format="30"/>
+      <computed alias="style" format="scale-neg-3"/>
+    </compound>
+    <compound alias="neg4">
+      <computed alias="value" format="40"/>
+      <computed alias="label" format="40"/>
+      <computed alias="style" format="scale-neg-4"/>
+    </compound>
+    <compound alias="neg5">
+      <computed alias="value" format="50"/>
+      <computed alias="label" format="50"/>
+      <computed alias="style" format="scale-neg-5"/>
+    </compound>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+
+  <!-- Themes with a code and an active flag that the grid keeps in hidden columns, for the row detail of a grid
+       (GrdRowDetailTst screen) -->
+  <query id="RowDetailTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <field id="Act" alias="active" translate="active-label"/>
+    <computed alias="code" format="THM-[id]"/>
+    <order-by field="Nam" type="ASC"/>
+  </query>
+
+  <!-- Countries with their identifier in a hidden column, for the row detail with a nested grid (GrdRowDetailCmpTst
+       screen) -->
+  <query id="RowDetailCmpCountries">
+    <table id="TST_COUNTRY"/>
+    <field id="ID" alias="id"/>
+    <field id="COUNTRY_NAME" alias="name"/>
+    <field id="COUNTRY_CODE" alias="code"/>
+    <field id="ID" alias="country"/>
+    <order-by field="COUNTRY_NAME" type="ASC"/>
+  </query>
+
+  <!-- Customers of the country of the open row of GrdRowDetailCmp (nested grid of its row detail), read from the hidden
+       column of the parent row. The status is a styled cell: customers since 2021 are new -->
+  <query id="RowDetailCmpCustomers">
+    <table id="TST_CUSTOMER"/>
+    <field id="ID" alias="id"/>
+    <field id="CUSTOMER_NAME" alias="customer"/>
+    <field id="CUSTOMER_ADDRESS" alias="address"/>
+    <field id="CUSTOMER_DATE" alias="since" transform="DATE"/>
+    <compound alias="status">
+      <computed alias="value" format="'[since]'.indexOf('2021') &gt;= 0 ? 'NEW' : 'REGULAR'" eval="true"/>
+      <computed alias="label" format="'[since]'.indexOf('2021') &gt;= 0 ? 'New' : 'Regular'" eval="true"/>
+      <computed alias="style" format="'[since]'.indexOf('2021') &gt;= 0 ? 'scale-pos-3' : 'scale-seq-2'" eval="true"/>
+    </compound>
+    <where>
+      <and>
+        <filter left-field="COUNTRY_ID" condition="eq" right-variable="country"/>
+      </and>
+    </where>
+    <order-by field="CUSTOMER_NAME" type="ASC"/>
+    <variable id="country" type="INTEGER" name="GrdRowDetailCmp.row.country"/>
+  </query>
+
+  <!-- Countries for the grid whose row detail brings its nested grid with an include (GrdRowDetailCmpTst screen) -->
+  <query id="RowDetailCmpIncCountries">
+    <table id="TST_COUNTRY"/>
+    <field id="ID" alias="id"/>
+    <field id="COUNTRY_NAME" alias="incName"/>
+    <field id="ID" alias="incCountry"/>
+    <order-by field="COUNTRY_NAME" type="ASC"/>
+  </query>
+
+  <!-- Customers of the country of the open row of GrdRowDetailCmpInc (nested grid of its row detail, brought by an
+       include from the GrdRowDetailCmpIncTst screen) -->
+  <query id="RowDetailCmpIncCustomers">
+    <table id="TST_CUSTOMER"/>
+    <field id="ID" alias="id"/>
+    <field id="CUSTOMER_NAME" alias="incCustomer"/>
+    <where>
+      <and>
+        <filter left-field="COUNTRY_ID" condition="eq" right-variable="country"/>
+      </and>
+    </where>
+    <order-by field="CUSTOMER_NAME" type="ASC"/>
+    <variable id="country" type="INTEGER" name="GrdRowDetailCmpInc.row.incCountry"/>
+  </query>
+
+  <!-- Themes list without rows, for the empty state of a grid (GrdEmptyTst screen) -->
+  <query id="EmptyGridTst">
+    <table id="AweThm"/>
+    <field id="IdeThm" alias="id"/>
+    <field id="Nam" alias="name"/>
+    <where>
+      <and>
+        <filter left-field="IdeThm" condition="eq" right-variable="noTheme"/>
+      </and>
+    </where>
+    <variable id="noTheme" type="INTEGER" value="-1"/>
+  </query>
+
+
+  <!-- JSON arrays of numbers for the sparkline columns, one row per case and up to a hundred rows (GrdSparklineTst screen) -->
+  <query id="SparklineTst" service="sparklineSeries">
+    <field id="id" alias="id"/>
+    <field id="name" alias="name"/>
+    <field id="line" alias="line"/>
+    <field id="bar" alias="bar"/>
+    <field id="area" alias="area"/>
+    <field id="marks" alias="marks"/>
+  </query>
+
+  <!-- Deferred load test (#824): every query counts its calls -->
+  <query id="DeferredLoadDefSelect" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="DefSelect"/>
+  </query>
+  <query id="DeferredLoadDefRows" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="DefRows"/>
+  </query>
+  <query id="DeferredLoadEagSelect" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="EagSelect"/>
+  </query>
+  <query id="DeferredLoadTabFirstSelect" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="TabFirstSelect"/>
+  </query>
+  <query id="DeferredLoadTabSecondSelect" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="TabSecondSelect"/>
+  </query>
+  <query id="DeferredLoadTabSecondRows" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="TabSecondRows"/>
+  </query>
+  <query id="DeferredLoadDefText" service="deferredLoadValue" public="true">
+    <field id="value"/>
+    <field id="label"/>
+    <variable id="component" type="STRING" value="DefText"/>
+  </query>
+  <query id="DeferredHeavyFirst" service="deferredLoadHeavy" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <field id="other"/>
+    <field id="first"/>
+    <field id="second"/>
+    <field id="third"/>
+    <field id="fourth"/>
+    <variable id="component" type="STRING" value="HeavyFirst"/>
+  </query>
+  <query id="DeferredHeavySecond" service="deferredLoadHeavy" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <field id="other"/>
+    <field id="first"/>
+    <field id="second"/>
+    <field id="third"/>
+    <field id="fourth"/>
+    <variable id="component" type="STRING" value="HeavySecond"/>
+  </query>
+  <query id="DeferredHeavyEagerDialog" service="deferredLoadHeavy" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <field id="other"/>
+    <field id="first"/>
+    <field id="second"/>
+    <field id="third"/>
+    <field id="fourth"/>
+    <variable id="component" type="STRING" value="HeavyEagerDialog"/>
+  </query>
+  <query id="DeferredHeavyDeferredDialog" service="deferredLoadHeavy" public="true">
+    <field id="id"/>
+    <field id="value"/>
+    <field id="label"/>
+    <field id="other"/>
+    <field id="first"/>
+    <field id="second"/>
+    <field id="third"/>
+    <field id="fourth"/>
+    <variable id="component" type="STRING" value="HeavyDeferredDialog"/>
+  </query>
+  <query id="DeferredLoadEagRows" service="deferredLoadList" public="true">
+    <field id="id"/>
+    <field id="eag"/>
+    <variable id="component" type="STRING" value="EagRows"/>
+  </query>
+  <query id="DeferredLoadCalls" service="deferredLoadCalls" public="true">
+    <field id="id"/>
+    <field id="calls"/>
+  </query>
+
+  <!-- Customers of the advanced search test screen (#790): the criteria of the inline example -->
+  <query id="AdvSchInlCst" service="getAdvancedSearchCustomers">
+    <field id="id" alias="InlIde"/>
+    <field id="name" alias="InlNam"/>
+    <field id="status" alias="InlSta" translate="AdvSchSta"/>
+    <field id="country" alias="InlCtr" translate="AdvSchCtr"/>
+    <field id="segment" alias="InlSeg" translate="AdvSchSeg"/>
+    <field id="amount" alias="InlAmt"/>
+    <field id="created" alias="InlDat"/>
+    <field id="createdSort" alias="InlDatSrt"/>
+    <field id="priority" alias="InlPri" translate="Es1Es0"/>
+    <variable id="name" type="STRING" name="AdvInlNam"/>
+    <variable id="status" type="STRING" name="AdvInlSta"/>
+    <variable id="country" type="STRING" name="AdvInlCtr"/>
+    <variable id="segment" type="STRING" name="AdvInlSeg"/>
+    <variable id="minAmount" type="STRING" name="AdvInlAmt"/>
+    <variable id="createdFrom" type="STRING" name="AdvInlDat"/>
+    <variable id="priority" type="STRING" name="AdvInlPri"/>
+  </query>
+
+  <!-- Customers of the advanced search test screen (#790): the criteria of the side panel example -->
+  <query id="AdvSchPnlCst" service="getAdvancedSearchCustomers">
+    <field id="id" alias="PnlIde"/>
+    <field id="name" alias="PnlNam"/>
+    <field id="status" alias="PnlSta" translate="AdvSchSta"/>
+    <field id="country" alias="PnlCtr" translate="AdvSchCtr"/>
+    <field id="segment" alias="PnlSeg" translate="AdvSchSeg"/>
+    <field id="amount" alias="PnlAmt"/>
+    <field id="created" alias="PnlDat"/>
+    <field id="createdSort" alias="PnlDatSrt"/>
+    <field id="priority" alias="PnlPri" translate="Es1Es0"/>
+    <variable id="name" type="STRING" name="AdvPnlNam"/>
+    <variable id="status" type="STRING" name="AdvPnlSta"/>
+    <variable id="country" type="STRING" name="AdvPnlCtr"/>
+    <variable id="segment" type="STRING" name="AdvPnlSeg"/>
+    <variable id="minAmount" type="STRING" name="AdvPnlAmt"/>
+    <variable id="createdFrom" type="STRING" name="AdvPnlDat"/>
+    <variable id="priority" type="STRING" name="AdvPnlPri"/>
+  </query>
+
+  <query id="TstMapPoints" service="TstMapPoints"/>
 
 </queries>

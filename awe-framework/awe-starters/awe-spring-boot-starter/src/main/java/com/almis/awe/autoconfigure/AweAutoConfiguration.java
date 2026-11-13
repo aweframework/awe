@@ -10,8 +10,25 @@ import com.almis.awe.model.dao.AweElementsDao;
 import com.almis.awe.model.service.DataListService;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.security.authorization.PermissionTargetAuthorizer;
+import com.almis.awe.security.authorization.ScreenElementAuthorizer;
+import com.almis.awe.security.authorization.ScreenTargetAuthorizer;
+import com.almis.awe.security.authorization.ScreenTargetIndex;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizerChain;
+import com.almis.awe.security.authorization.UndeclaredTargetInventory;
 import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.*;
+import com.almis.awe.service.access.AccessChangeService;
+import com.almis.awe.service.access.AccessCompareService;
+import com.almis.awe.service.access.AccessImpactService;
+import com.almis.awe.service.access.AccessMenuPreviewService;
+import com.almis.awe.service.access.AccessPermissionService;
+import com.almis.awe.service.access.AccessReviewService;
+import com.almis.awe.service.access.AccessSubjects;
+import com.almis.awe.service.access.AccessTexts;
+import com.almis.awe.service.access.AccessTreeService;
+import com.almis.awe.service.access.AccessWhyService;
 import com.almis.awe.service.connector.JavaConnector;
 import com.almis.awe.service.connector.MicroserviceConnector;
 import com.almis.awe.service.connector.RestConnector;
@@ -23,18 +40,28 @@ import com.almis.awe.service.data.connector.maintain.ServiceMaintainConnector;
 import com.almis.awe.service.data.connector.query.EnumQueryConnector;
 import com.almis.awe.service.data.connector.query.QueryLauncher;
 import com.almis.awe.service.data.connector.query.ServiceQueryConnector;
+import com.almis.awe.service.email.EmailOAuth2RegistrationService;
+import com.almis.awe.service.menu.MenuOptionLookup;
+import com.almis.awe.service.menu.MenuProvider;
+import com.almis.awe.service.menu.MenuRestrictionTreeService;
+import com.almis.awe.service.menu.MenuScreenResolver;
+import com.almis.awe.service.menu.MenuSuggestionLists;
 import com.almis.awe.service.report.ReportDesigner;
 import com.almis.awe.service.report.ReportGenerator;
 import com.almis.awe.service.screen.ScreenComponentGenerator;
 import com.almis.awe.service.screen.ScreenConfigurationGenerator;
+import com.almis.awe.service.screen.ScreenConfigurationService;
 import com.almis.awe.service.screen.ScreenModelGenerator;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.almis.awe.service.user.AweUserDetailService;
+import com.almis.awe.service.user.PredefinedProfileSeed;
+import com.almis.awe.service.user.ProfilePermissionService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
@@ -47,6 +74,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.annotation.RequestScope;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * AWE Autoconfiguration
@@ -57,7 +85,8 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
   NumericConfigProperties.class,
   DatabaseConfigProperties.class,
   MaintainConfigProperties.class,
-  RestConfigProperties.class})
+  RestConfigProperties.class,
+  SavedSearchConfigProperties.class})
 public class AweAutoConfiguration {
 
   // Autowired beans
@@ -68,7 +97,6 @@ public class AweAutoConfiguration {
    *
    * @param context Context
    */
-  @Autowired
   public AweAutoConfiguration(WebApplicationContext context) {
     this.context = context;
   }
@@ -268,6 +296,18 @@ public class AweAutoConfiguration {
 		return new MultiTenantFilter(multiTenantOAuth2Config);
 	}
   /**
+   * OAuth2 client registrations available for email servers
+   *
+   * @param clientRegistrationRepository Client registration repository (only when OAuth2 registrations exist)
+   * @return Email OAuth2 registration service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public EmailOAuth2RegistrationService emailOAuth2RegistrationService(ObjectProvider<ClientRegistrationRepository> clientRegistrationRepository) {
+    return new EmailOAuth2RegistrationService(clientRegistrationRepository.getIfAvailable());
+  }
+
+  /**
    * Init service
    *
    * @param launcherService Launcher service
@@ -282,27 +322,31 @@ public class AweAutoConfiguration {
   /**
    * Action service
    *
-   * @param launcherService      Launcher service
-   * @param baseConfigProperties Base configuration properties
+   * @param launcherService             Launcher service
+   * @param baseConfigProperties        Base configuration properties
+   * @param targetLaunchAuthorizerChain Authorizers of the client launches
    * @return Action service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public ActionService actionService(LauncherService launcherService, BaseConfigProperties baseConfigProperties) {
-    return new ActionService(launcherService, baseConfigProperties);
+  public ActionService actionService(LauncherService launcherService, BaseConfigProperties baseConfigProperties,
+                                     TargetLaunchAuthorizerChain targetLaunchAuthorizerChain) {
+    return new ActionService(launcherService, baseConfigProperties, targetLaunchAuthorizerChain);
   }
 
   /**
    * Query service
    *
-   * @param queryLauncher Query launcher
-   * @param queryUtil     Query utilities
+   * @param queryLauncher               Query launcher
+   * @param queryUtil                   Query utilities
+   * @param targetLaunchAuthorizerChain Authorizers of the client launches
    * @return Query service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public QueryService queryService(QueryLauncher queryLauncher, QueryUtil queryUtil) {
-    return new QueryService(queryLauncher, queryUtil);
+  public QueryService queryService(QueryLauncher queryLauncher, QueryUtil queryUtil,
+                                   TargetLaunchAuthorizerChain targetLaunchAuthorizerChain) {
+    return new QueryService(queryLauncher, queryUtil, targetLaunchAuthorizerChain);
   }
 
   /**
@@ -310,35 +354,384 @@ public class AweAutoConfiguration {
    *
    * @param maintainLauncher         Maintain launcher
    * @param queryUtil                Query utilities
-   * @param databaseConfigProperties Database configuration properties
+   * @param databaseConfigProperties    Database configuration properties
+   * @param targetLaunchAuthorizerChain Authorizers of the client launches
    * @return Maintain service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public MaintainService maintainService(MaintainLauncher maintainLauncher, QueryUtil queryUtil, DatabaseConfigProperties databaseConfigProperties) {
-    return new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties);
+  @DependsOnDatabaseInitialization
+  public MaintainService maintainService(MaintainLauncher maintainLauncher, QueryUtil queryUtil,
+                                         DatabaseConfigProperties databaseConfigProperties,
+                                         TargetLaunchAuthorizerChain targetLaunchAuthorizerChain) {
+    return new MaintainService(maintainLauncher, queryUtil, databaseConfigProperties, targetLaunchAuthorizerChain);
+  }
+
+  /**
+   * Chain of the authorizers of the maintain targets and queries launched by a client. Every
+   * {@link TargetLaunchAuthorizer} bean is a link of the chain
+   *
+   * @param authorizerProvider Provider of the authorizers
+   * @return Target launch authorizer chain bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public TargetLaunchAuthorizerChain targetLaunchAuthorizerChain(ObjectProvider<TargetLaunchAuthorizer> authorizerProvider) {
+    return new TargetLaunchAuthorizerChain(authorizerProvider);
+  }
+
+  /**
+   * Menu provider
+   *
+   * @param queryService             Query service
+   * @param screenComponentGenerator Screen component generator
+   * @param baseConfigProperties     Base configuration properties
+   * @param favouriteService         Favourite service
+   * @return Menu provider bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MenuProvider menuProvider(QueryService queryService, ScreenComponentGenerator screenComponentGenerator,
+                                   BaseConfigProperties baseConfigProperties, FavouriteService favouriteService) {
+    return new MenuProvider(queryService, screenComponentGenerator, baseConfigProperties, favouriteService);
+  }
+
+  /**
+   * Menu option lookup
+   *
+   * @param menuProvider         Menu provider
+   * @param baseConfigProperties Base configuration properties
+   * @return Menu option lookup bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MenuOptionLookup menuOptionLookup(MenuProvider menuProvider, BaseConfigProperties baseConfigProperties) {
+    return new MenuOptionLookup(menuProvider, baseConfigProperties);
+  }
+
+  /**
+   * Index of the targets used by the screens of the menu options
+   *
+   * @param baseConfigProperties Base configuration properties
+   * @return Screen target index bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ScreenTargetIndex screenTargetIndex(BaseConfigProperties baseConfigProperties) {
+    return new ScreenTargetIndex(baseConfigProperties);
+  }
+
+  /**
+   * Authorizer of the targets launched by a client according to the screens that use them
+   *
+   * @param securityConfigProperties Security configuration properties
+   * @param baseConfigProperties     Base configuration properties
+   * @param screenTargetIndex        Index of the targets used by each option
+   * @param menuOptionLookup         Menu option lookup
+   * @return Screen target authorizer bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ScreenTargetAuthorizer screenTargetAuthorizer(SecurityConfigProperties securityConfigProperties,
+                                                       BaseConfigProperties baseConfigProperties,
+                                                       ScreenTargetIndex screenTargetIndex,
+                                                       MenuOptionLookup menuOptionLookup) {
+    return new ScreenTargetAuthorizer(securityConfigProperties, baseConfigProperties, screenTargetIndex, menuOptionLookup);
+  }
+
+  /**
+   * Authorizer of the targets launched by a client according to the permissions they declare. It runs after the
+   * access by screen ({@link PermissionTargetAuthorizer#ORDER})
+   *
+   * @param securityConfigProperties Security configuration properties
+   * @return Permission target authorizer bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public PermissionTargetAuthorizer permissionTargetAuthorizer(SecurityConfigProperties securityConfigProperties) {
+    return new PermissionTargetAuthorizer(securityConfigProperties);
+  }
+
+  /**
+   * Authorizer of the screen elements: removes the buttons that launch targets the user cannot launch
+   *
+   * @param securityConfigProperties   Security configuration properties
+   * @param permissionTargetAuthorizer Permission target authorizer
+   * @return Screen element authorizer bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ScreenElementAuthorizer screenElementAuthorizer(SecurityConfigProperties securityConfigProperties,
+                                                         PermissionTargetAuthorizer permissionTargetAuthorizer) {
+    return new ScreenElementAuthorizer(securityConfigProperties, permissionTargetAuthorizer);
+  }
+
+  /**
+   * Inventory of the targets used by private screens that declare no permission, logged at startup in warn mode
+   *
+   * @param securityConfigProperties Security configuration properties
+   * @param baseConfigProperties     Base configuration properties
+   * @param screenTargetIndex        Index of the targets used by each option
+   * @return Undeclared target inventory bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public UndeclaredTargetInventory undeclaredTargetInventory(SecurityConfigProperties securityConfigProperties,
+                                                             BaseConfigProperties baseConfigProperties,
+                                                             ScreenTargetIndex screenTargetIndex) {
+    return new UndeclaredTargetInventory(securityConfigProperties, baseConfigProperties, screenTargetIndex);
+  }
+
+  /**
+   * Creation at startup of the predefined profiles Reader and Contributor
+   *
+   * @param securityConfigProperties Security configuration properties
+   * @param queryService             Query service
+   * @param maintainService          Maintain service
+   * @param queryUtil                Query utilities
+   * @return Predefined profile seed bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public PredefinedProfileSeed predefinedProfileSeed(SecurityConfigProperties securityConfigProperties,
+                                                     QueryService queryService, MaintainService maintainService,
+                                                     QueryUtil queryUtil) {
+    return new PredefinedProfileSeed(securityConfigProperties, queryService, maintainService, queryUtil);
+  }
+
+  /**
+   * Administration of the permissions of the profiles: catalog options, predefined profiles guard and duplication
+   *
+   * @param queryService               Query service
+   * @param maintainService            Maintain service
+   * @param queryUtil                  Query utilities
+   * @param userDetailService          User detail service, read when a profile is duplicated
+   * @param securityConfigProperties   Security configuration properties
+   * @param permissionTargetAuthorizer Permission target authorizer
+   * @return Profile permission service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ProfilePermissionService profilePermissionService(QueryService queryService, MaintainService maintainService,
+                                                           QueryUtil queryUtil,
+                                                           ObjectProvider<AweUserDetailService> userDetailService,
+                                                           SecurityConfigProperties securityConfigProperties,
+                                                           PermissionTargetAuthorizer permissionTargetAuthorizer) {
+    return new ProfilePermissionService(queryService, maintainService, queryUtil, userDetailService,
+      securityConfigProperties, permissionTargetAuthorizer);
+  }
+
+  /**
+   * Menu screen resolver
+   *
+   * @param menuProvider         Menu provider
+   * @param menuOptionLookup     Menu option lookup
+   * @param initialLoadDao       Initial load service
+   * @param launcherService      Launcher service
+   * @param baseConfigProperties Base configuration properties
+   * @return Menu screen resolver bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MenuScreenResolver menuScreenResolver(MenuProvider menuProvider, MenuOptionLookup menuOptionLookup,
+                                               InitialLoadDao initialLoadDao, LauncherService launcherService,
+                                               BaseConfigProperties baseConfigProperties) {
+    return new MenuScreenResolver(menuProvider, menuOptionLookup, initialLoadDao, launcherService, baseConfigProperties);
+  }
+
+  /**
+   * Menu suggestion lists
+   *
+   * @param menuOptionLookup   Menu option lookup
+   * @param menuScreenResolver Menu screen resolver
+   * @return Menu suggestion lists bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MenuSuggestionLists menuSuggestionLists(MenuOptionLookup menuOptionLookup,
+                                                 MenuScreenResolver menuScreenResolver) {
+    return new MenuSuggestionLists(menuOptionLookup, menuScreenResolver);
+  }
+
+  /**
+   * Menu restriction tree service
+   *
+   * @param menuProvider             Menu provider
+   * @param menuScreenResolver       Menu screen resolver
+   * @param queryService             Query service
+   * @param securityConfigProperties Security configuration properties
+   * @return Menu restriction tree service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MenuRestrictionTreeService menuRestrictionTreeService(MenuProvider menuProvider,
+                                                               MenuScreenResolver menuScreenResolver,
+                                                               QueryService queryService,
+                                                               SecurityConfigProperties securityConfigProperties) {
+    return new MenuRestrictionTreeService(menuProvider, menuScreenResolver, queryService, securityConfigProperties);
+  }
+
+  /**
+   * Subjects of the access window (access-admin) and their rules
+   *
+   * @param menuProvider             Menu provider
+   * @param queryService             Query service
+   * @param securityConfigProperties Security configuration properties
+   * @return Access subjects bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessSubjects accessSubjects(MenuProvider menuProvider, QueryService queryService,
+                                       SecurityConfigProperties securityConfigProperties) {
+    return new AccessSubjects(menuProvider, queryService, securityConfigProperties);
+  }
+
+  /**
+   * Texts of the access window (access-admin)
+   *
+   * @param menuScreenResolver Menu screen resolver
+   * @return Access texts bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessTexts accessTexts(MenuScreenResolver menuScreenResolver) {
+    return new AccessTexts(menuScreenResolver);
+  }
+
+  /**
+   * Comparison of the access window (access-admin)
+   *
+   * @param accessSubjects Access subjects
+   * @param accessTexts    Access texts
+   * @return Access compare service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessCompareService accessCompareService(AccessSubjects accessSubjects, AccessTexts accessTexts) {
+    return new AccessCompareService(accessSubjects, accessTexts);
+  }
+
+  /**
+   * Tree of the access window (access-admin)
+   *
+   * @param accessSubjects       Access subjects
+   * @param accessTexts          Access texts
+   * @param accessCompareService Access compare service
+   * @return Access tree service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessTreeService accessTreeService(AccessSubjects accessSubjects, AccessTexts accessTexts,
+                                             AccessCompareService accessCompareService) {
+    return new AccessTreeService(accessSubjects, accessTexts, accessCompareService);
+  }
+
+  /**
+   * Permissions view of the access window (access-admin)
+   *
+   * @param accessSubjects    Access subjects
+   * @param accessTexts       Access texts
+   * @param userDetailService User detail service, computes the effective permissions as the login does
+   * @return Access permission service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessPermissionService accessPermissionService(AccessSubjects accessSubjects, AccessTexts accessTexts,
+                                                         ObjectProvider<AweUserDetailService> userDetailService) {
+    return new AccessPermissionService(accessSubjects, accessTexts, userDetailService);
+  }
+
+  /**
+   * Why side panel of the access window (access-admin)
+   *
+   * @param accessSubjects Access subjects
+   * @param accessTexts    Access texts
+   * @param queryService   Query service
+   * @return Access why service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessWhyService accessWhyService(AccessSubjects accessSubjects, AccessTexts accessTexts,
+                                           QueryService queryService) {
+    return new AccessWhyService(accessSubjects, accessTexts, queryService);
+  }
+
+  /**
+   * Changes of the access window (access-admin)
+   *
+   * @param accessSubjects             Access subjects
+   * @param menuRestrictionTreeService Menu restriction tree service
+   * @return Access change service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessChangeService accessChangeService(AccessSubjects accessSubjects,
+                                                 MenuRestrictionTreeService menuRestrictionTreeService) {
+    return new AccessChangeService(accessSubjects, menuRestrictionTreeService);
+  }
+
+  /**
+   * Preview of a bulk change of the access window (access-admin)
+   *
+   * @param accessSubjects Access subjects
+   * @param accessTexts    Access texts
+   * @param queryService   Query service
+   * @return Access impact service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessImpactService accessImpactService(AccessSubjects accessSubjects, AccessTexts accessTexts,
+                                                 QueryService queryService) {
+    return new AccessImpactService(accessSubjects, accessTexts, queryService);
+  }
+
+  /**
+   * Review of the access window (access-admin)
+   *
+   * @param accessSubjects             Access subjects
+   * @param accessTexts                Access texts
+   * @param queryService               Query service
+   * @param menuRestrictionTreeService Menu restriction tree service
+   * @return Access review service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessReviewService accessReviewService(AccessSubjects accessSubjects, AccessTexts accessTexts,
+                                                 QueryService queryService,
+                                                 MenuRestrictionTreeService menuRestrictionTreeService) {
+    return new AccessReviewService(accessSubjects, accessTexts, queryService, menuRestrictionTreeService);
+  }
+
+  /**
+   * View as of the access window (access-admin)
+   *
+   * @param accessSubjects Access subjects
+   * @param accessTexts    Access texts
+   * @return Access menu preview service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public AccessMenuPreviewService accessMenuPreviewService(AccessSubjects accessSubjects, AccessTexts accessTexts) {
+    return new AccessMenuPreviewService(accessSubjects, accessTexts);
   }
 
   /**
    * Menu service
    *
-   * @param queryService             Query service
-   * @param screenComponentGenerator Screen component generator
-   * @param initialLoadDao           Initial load service
-   * @param baseConfigProperties     Base configuration properties
-   * @param securityConfigProperties Security configuration properties
-   * @param favouriteService         Favourite service
-   * @param launcherService          Launcher service
+   * @param menuProvider               Menu provider
+   * @param menuScreenResolver         Menu screen resolver
+   * @param menuOptionLookup           Menu option lookup
+   * @param menuSuggestionLists        Menu suggestion lists
+   * @param menuRestrictionTreeService Menu restriction tree service
    * @return Menu service bean
    */
   @Bean
   @ConditionalOnMissingBean
-  public MenuService menuService(QueryService queryService, ScreenComponentGenerator screenComponentGenerator,
-                                 InitialLoadDao initialLoadDao, BaseConfigProperties baseConfigProperties,
-                                 SecurityConfigProperties securityConfigProperties, FavouriteService favouriteService,
-                                 LauncherService launcherService) {
-    return new MenuService(queryService, screenComponentGenerator, initialLoadDao,
-      baseConfigProperties, securityConfigProperties, favouriteService, launcherService);
+  public MenuService menuService(MenuProvider menuProvider, MenuScreenResolver menuScreenResolver,
+                                 MenuOptionLookup menuOptionLookup, MenuSuggestionLists menuSuggestionLists,
+                                 MenuRestrictionTreeService menuRestrictionTreeService) {
+    return new MenuService(menuProvider, menuScreenResolver, menuOptionLookup, menuSuggestionLists,
+      menuRestrictionTreeService);
   }
 
   /**
@@ -354,6 +747,19 @@ public class AweAutoConfiguration {
   public UserService userService(QueryService queryService, QueryUtil queryUtil,
                                  MaintainService maintainService) {
     return new UserService(queryService, queryUtil, maintainService);
+  }
+
+  /**
+   * Theme service
+   *
+   * @param queryService         Query service
+   * @param baseConfigProperties Base configuration properties
+   * @return Theme service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ThemeService themeService(QueryService queryService, BaseConfigProperties baseConfigProperties) {
+    return new ThemeService(queryService, baseConfigProperties);
   }
 
   /**
@@ -385,6 +791,51 @@ public class AweAutoConfiguration {
   public UserSettingsService userSettingsService(QueryService queryService, QueryUtil queryUtil,
                                                  MaintainService maintainService, FileService fileService) {
     return new UserSettingsService(queryService, queryUtil, maintainService, fileService);
+  }
+
+  /**
+   * Grid layout service (per-user column layout of the grids)
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param maintainService Maintain service
+   * @return Grid layout service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public GridLayoutService gridLayoutService(QueryService queryService, QueryUtil queryUtil, MaintainService maintainService) {
+    return new GridLayoutService(queryService, queryUtil, maintainService);
+  }
+
+  /**
+   * Window state service (per-user state of the advanced block of the windows)
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param maintainService Maintain service
+   * @return Window state service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public WindowStateService windowStateService(QueryService queryService, QueryUtil queryUtil, MaintainService maintainService) {
+    return new WindowStateService(queryService, queryUtil, maintainService);
+  }
+
+  /**
+   * Saved search service (own and published searches of the advanced block of the windows)
+   *
+   * @param queryService    Query service
+   * @param queryUtil       Query utilities
+   * @param maintainService Maintain service
+   * @param menuService     Menu service
+   * @param properties      Saved search properties
+   * @return Saved search service bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public SavedSearchService savedSearchService(QueryService queryService, QueryUtil queryUtil, MaintainService maintainService,
+                                               MenuService menuService, SavedSearchConfigProperties properties) {
+    return new SavedSearchService(queryService, queryUtil, maintainService, menuService, properties);
   }
 
   /**
@@ -539,6 +990,18 @@ public class AweAutoConfiguration {
   }
 
   /**
+   * Screen configuration service
+   *
+   * @param menuService Menu service
+   * @return Screen configuration service
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public ScreenConfigurationService screenConfigurationService(MenuService menuService) {
+    return new ScreenConfigurationService(menuService);
+  }
+
+  /**
    * Screen configuration generator
    *
    * @return Screen configuration generator
@@ -563,8 +1026,10 @@ public class AweAutoConfiguration {
   @ConditionalOnMissingBean
   public ScreenComponentGenerator screenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
                                                            InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao,
-                                                           BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator) {
-    return new ScreenComponentGenerator(request, screenModelGenerator, initialLoadDao, aweElementsDao, baseConfigProperties, screenConfigurationGenerator);
+                                                           BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator,
+                                                           GridLayoutService gridLayoutService, WindowStateService windowStateService) {
+    return new ScreenComponentGenerator(request, screenModelGenerator, initialLoadDao, aweElementsDao, baseConfigProperties, screenConfigurationGenerator,
+      gridLayoutService, windowStateService);
   }
 
   /////////////////////////////////////////////

@@ -3,12 +3,15 @@ package com.almis.awe.model.entities.screen.component.button;
 import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
+import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
+
+import java.io.Serial;
 
 /**
  * Button Class
@@ -31,7 +34,38 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Button extends AbstractButton {
 
+  @Serial
   private static final long serialVersionUID = 4537762712903982049L;
+
+  // Busy state: a spinner while the action launched by the button runs (#771). Absent means true
+  @XStreamAlias("show-loading")
+  @XStreamAsAttribute
+  private Boolean showLoading;
+
+  // Label shown instead of the label while the busy state is on, in both client engines. Absent keeps the label
+  @XStreamAlias("loading-label")
+  @XStreamAsAttribute
+  private String loadingLabel;
+
+  // Time in milliseconds the actions launched by the button must still be running before it shows the busy state;
+  // absent keeps the threshold of the client engines (400). 0 shows the busy state on every click
+  @XStreamAlias("busy-threshold")
+  @XStreamAsAttribute
+  private Integer busyThreshold;
+
+  // Selection button of a grid (#793): shown in the selection bar of the grid while it has selected rows, not in its footer
+  @XStreamAlias("selection")
+  @XStreamAsAttribute
+  private Boolean selection;
+
+  /**
+   * Returns if the button shows its busy state while the action it launched runs. Not a bean getter: the clients only
+   * receive showLoading when the screen sets it
+   * @return The busy state is on (true unless show-loading is false)
+   */
+  public boolean showsLoading() {
+    return getShowLoading() == null || getShowLoading();
+  }
 
   @Override
   public Button copy() {

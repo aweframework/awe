@@ -151,7 +151,8 @@ connected browsers refreshed automatically
 Three safeguards keep the loop fast and safe:
 
 - **Schema validation.** Before reloading, the changed file is validated against its XSD (the same
-  schema the compile-time `xml-maven-plugin` uses). An invalid edit is reported with a clean
+  schema the compile-time `xml-maven-plugin` uses; see [XSD tooling](guides/xsd-tooling.md) to get the same
+  validation and autocompletion in your IDE). An invalid edit is reported with a clean
   `line:column` message and the reload is **skipped**, so the running application keeps the last
   valid version instead of crashing on a parse error.
 - **No-op saves are ignored.** Editors often rewrite a file on save even when nothing changed.

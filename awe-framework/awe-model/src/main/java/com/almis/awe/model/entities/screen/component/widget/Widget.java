@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.Map;
 
 /**
@@ -28,6 +29,7 @@ import java.util.Map;
 @XStreamAlias("widget")
 public class Widget extends AbstractWidget {
 
+  @Serial
   private static final long serialVersionUID = 7140906386094836409L;
 
   @Override

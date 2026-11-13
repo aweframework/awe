@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -30,6 +31,7 @@ import java.util.List;
 @XStreamAlias("compound")
 public class Compound extends OutputField {
 
+  @Serial
   private static final long serialVersionUID = -2436308077990244530L;
 
   // Computed list

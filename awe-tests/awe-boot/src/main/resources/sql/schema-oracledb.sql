@@ -23,7 +23,10 @@ CREATE TABLE AweThm
     IdeThm number(5)
         CONSTRAINT pk_AweThm PRIMARY KEY NOT NULL, --- Theme key
     Nam    varchar2(100)                 not NULL, --- Theme name
-    Act    number(5) default 1           not NULL  --- Active (1) or not (0)
+    Act    number(5) default 1           not NULL, --- Active (1) or not (0)
+    Pri    varchar2(20)                      NULL, --- Primary colour
+    Srf    varchar2(20)                      NULL, --- Surface
+    Mde    varchar2(10)                      NULL  --- Mode
 );
 CREATE UNIQUE INDEX AweThmI1 ON AweThm (Nam);
 
@@ -53,7 +56,7 @@ CREATE TABLE ope
     IdeOpe  number(5)
         CONSTRAINT pk_ope PRIMARY KEY NOT NULL, --- Operator key
     l1_nom  char(20),                           --- User name
-    l1_pas  char(40),                           --- User password hash
+    l1_pas  varchar(255),                           --- User password hash
     OpePas  char(200),                          --- User password hash (old)
     l1_con  number(5) DEFAULT 0,                --- Connected (1) or not (0)
     l1_dev  char(3),                            --- unused
@@ -188,13 +191,15 @@ CREATE TABLE AweEmlSrv
 (
     IdeAweEmlSrv number(5)
         CONSTRAINT pk_AweEmlSrv PRIMARY KEY NOT NULL, --- Email server key
-    SrvNam       varchar2(40)               NOT NULL, --- Server name
+    SrvNam       varchar2(100)              NOT NULL, --- Server name
     Hst          varchar2(60)               NOT NULL, --- Server host
     Prt          number(5)                  NULL,     --- Server port
     Ath          number(5) DEFAULT 0        NOT NULL, --- Needs authentication (1) or not (0)
-    EmlUsr       varchar2(40)               NULL,     --- Server username
-    EmlPwd       varchar2(40)               NULL,     --- Server password (encrypted)
-    Act          number(5) DEFAULT 1        NOT NULL  --- Active (1) or not (0)
+    EmlUsr       varchar2(255)              NULL,     --- Server username
+    EmlPwd       varchar2(512)              NULL,     --- Server password (encrypted)
+    Act          number(5) DEFAULT 1        NOT NULL, --- Active (1) or not (0)
+    SecMod       varchar2(10) NULL, -- Security mode: NONE, STARTTLS or SSL (NULL is NONE)
+    OauReg    varchar2(100) NULL -- OAuth2 client registration id (spring.security.oauth2.client.registration.<id>)
 );
 CREATE UNIQUE INDEX AweEmlSrvI1 ON AweEmlSrv (SrvNam);
 
@@ -272,6 +277,88 @@ CREATE TABLE AweUserSettings
     CONSTRAINT uk_AweUserSettings_Ope UNIQUE (Ope)
 );
 
+CREATE TABLE AweUsrGrdCnf (
+    IdeUsrGrdCnf number(10) CONSTRAINT pk_AweUsrGrdCnf PRIMARY KEY NOT NULL,   --  Table identifier
+    Ope varchar2(20) NOT NULL,                                                 --  User id
+    Scr varchar2(100) NOT NULL,                                                --  Screen id
+    GrdId varchar2(100) NOT NULL,                                              --  Grid id
+    Lay varchar2(4000) NOT NULL,                                               --  Layout (JSON with column order and hidden columns)
+    CONSTRAINT uk_AweUsrGrdCnf UNIQUE (Ope, Scr, GrdId)
+    );
+
+CREATE TABLE AweUsrWinCnf (
+    IdeUsrWinCnf number(10) CONSTRAINT pk_AweUsrWinCnf PRIMARY KEY NOT NULL,   --  Table identifier
+    Ope varchar2(20) NOT NULL,                                                 --  User id
+    Scr varchar2(100) NOT NULL,                                                --  Screen id
+    WinId varchar2(100) NOT NULL,                                              --  Window id
+    AdvOpn number(1) NULL,                                                     --  Advanced block left open (1), closed (0) or unknown (null)
+    DefSavSch number(10) NULL,                                                 --  Default saved search of the user (AweSavSch id)
+    CONSTRAINT uk_AweUsrWinCnf UNIQUE (Ope, Scr, WinId)
+    );
+
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'WinCnfKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'WinCnfKey');
+
+CREATE TABLE AweSavSch (
+    IdeSavSch number(10) CONSTRAINT pk_AweSavSch PRIMARY KEY NOT NULL,   --  Table identifier
+    Ope varchar2(20) NULL,                                              --  User id (own search)
+    Pro varchar2(3) NULL,                                               --  Profile acronym (search published for the profile)
+    Scr varchar2(100) NOT NULL,                                         --  Screen id
+    WinId varchar2(100) NOT NULL,                                       --  Window id
+    Nam varchar2(100) NOT NULL,                                         --  Search name
+    Val varchar2(4000) NOT NULL,                                        --  Values (JSON with the selected values of each search criterion)
+    Def number(1) DEFAULT 0 NOT NULL,                                   --  Default search of its profile (1) or not (0)
+    CONSTRAINT uk_AweSavSch UNIQUE (Ope, Pro, Scr, WinId, Nam),
+    CONSTRAINT ck_AweSavSch_Own CHECK ((Ope IS NULL AND Pro IS NOT NULL AND Pro <> '') OR (Ope IS NOT NULL AND Ope <> '' AND Pro IS NULL)),
+    CONSTRAINT ck_AweSavSch_Def CHECK (Def = 0 OR (Def = 1 AND Pro IS NOT NULL))
+    );
+
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'SavSchKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'SavSchKey');
+
+-- ------------------------------------------------------
+--  DDL for Table AweOpeRol (additional profiles of a user)
+-- ------------------------------------------------------
+CREATE TABLE AweOpeRol (
+    IdeAweOpeRol number(10) CONSTRAINT pk_AweOpeRol PRIMARY KEY NOT NULL,   --  Table identifier
+    IdeOpe number(5) NOT NULL,                                             --  User key
+    IdePro number(5) NOT NULL,                                             --  Additional profile key
+    CONSTRAINT uk_AweOpeRol UNIQUE (IdeOpe, IdePro),
+    CONSTRAINT fk_AweOpeRol1 FOREIGN KEY (IdeOpe) REFERENCES ope (IdeOpe),
+    CONSTRAINT fk_AweOpeRol2 FOREIGN KEY (IdePro) REFERENCES AwePro (IdePro)
+    );
+
+CREATE TABLE HISAweOpeRol (HISope char(100) NOT NULL, HISdat date NOT NULL, HISact varchar2(1) NOT NULL, IdeAweOpeRol number(10) NULL, IdeOpe number(5) NULL, IdePro number(5) NULL);
+CREATE INDEX HISAweOpeRolI1 ON HISAweOpeRol (HISope, HISdat, HISact);
+
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'OpeRolKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'OpeRolKey');
+
+-- ------------------------------------------------------
+--  DDL for Table AweProPer (permissions of a profile)
+-- ------------------------------------------------------
+CREATE TABLE AweProPer (
+    IdeAweProPer number(10) CONSTRAINT pk_AweProPer PRIMARY KEY NOT NULL,   --  Table identifier
+    IdePro number(5) NOT NULL,                                             --  Profile key
+    Per varchar2(100) NOT NULL,                                            --  Permission identifier or wildcard
+    CONSTRAINT uk_AweProPer UNIQUE (IdePro, Per),
+    CONSTRAINT fk_AweProPer1 FOREIGN KEY (IdePro) REFERENCES AwePro (IdePro)
+    );
+
+CREATE TABLE HISAweProPer (HISope char(100) NOT NULL, HISdat date NOT NULL, HISact varchar2(1) NOT NULL, IdeAweProPer number(10) NULL, IdePro number(5) NULL, Per varchar2(100) NULL);
+CREATE INDEX HISAweProPerI1 ON HISAweProPer (HISope, HISdat, HISact);
+
+INSERT INTO AweKey (KeyNam, KeyVal)
+SELECT 'ProPerKey', 0
+FROM DUAL
+WHERE NOT EXISTS(SELECT * FROM AweKey WHERE KeyNam = 'ProPerKey');
+
 CREATE TABLE AweUsrFav
 (
     IdeFav number(5) CONSTRAINT pk_AweUsrFav PRIMARY KEY NOT NULL,     --  Table identifier
@@ -307,7 +394,10 @@ CREATE TABLE HISAweThm
     HISact varchar2(1)   not NULL,
     IdeThm number(5)     NULL,
     Nam    varchar2(100) NULL,
-    Act    number(5)     NULL
+    Act    number(5)     NULL,
+    Pri    varchar2(20)  NULL,
+    Srf    varchar2(20)  NULL,
+    Mde    varchar2(10)  NULL
 );
 CREATE INDEX HISAweThmI1 ON HISAweThm (HISope, HISdat, HISact);
 CREATE TABLE HISAwePro
@@ -331,7 +421,7 @@ CREATE TABLE HISope
     HISact  varchar2(1)   not NULL,
     IdeOpe  number(5)     NULL,
     l1_nom  char(20)      NULL,
-    l1_pas  char(40)      NULL,
+    l1_pas  varchar(255)NULL,
     OpePas  char(200)     NULL,
     l1_con  number(5)     NULL,
     l1_dev  char(3)       NULL,
@@ -441,13 +531,15 @@ CREATE TABLE HISAweEmlSrv
     HISdat       date                not NULL,
     HISact       varchar2(1)         not NULL,
     IdeAweEmlSrv number(5)           NULL,
-    SrvNam       varchar2(40)        NULL,
+    SrvNam       varchar2(100)       NULL,
     Hst          varchar2(60)        NULL,
     Prt          number(5)           NULL,
     Ath          number(5) DEFAULT 0 NULL,
-    EmlUsr       varchar2(40)        NULL,
-    EmlPwd       varchar2(240)       NULL,
-    Act          number(5)           NULL
+    EmlUsr       varchar2(255)       NULL,
+    EmlPwd       varchar2(512)       NULL,
+    Act          number(5)           NULL,
+    SecMod       varchar2(10) NULL, -- Security mode: NONE, STARTTLS or SSL (NULL is NONE)
+    OauReg    varchar2(100) NULL -- OAuth2 client registration id (spring.security.oauth2.client.registration.<id>)
 );
 CREATE INDEX HISAweEmlSrvI1 ON HISAweEmlSrv (HISope, HISdat, HISact);
 CREATE TABLE HISAweScrCnf
@@ -1023,3 +1115,30 @@ CREATE TABLE tst_order_item
     order_quantity NUMBER NOT NULL,
     CONSTRAINT fk_order_item_order FOREIGN KEY (order_id) REFERENCES tst_order (id)
 );
+
+-- ------------------------------------------------------
+--  DDL for Table AweSecAudEvt
+--  Security audit events (append-only): logins, logouts, locks, password and second factor changes,
+--  denied accesses and REST tokens. Rows are only deleted by the retention purge.
+-- ------------------------------------------------------
+CREATE TABLE AweSecAudEvt (
+    IdeSecAud varchar2(36) CONSTRAINT pk_AweSecAudEvt PRIMARY KEY NOT NULL, --  Event identifier (UUID)
+    EvtDat timestamp NOT NULL,                  --  Event date
+    EvtDay date NOT NULL,                  --  Event day (server time zone), for day filters and charts
+    EvtTyp varchar2(40) NOT NULL,              --  Event type (LOGIN, LOGOUT, ACCOUNT_LOCKED...)
+    EvtRes varchar2(10) NOT NULL,              --  Outcome (SUCCESS, FAILURE)
+    EvtCau varchar2(40),                       --  Cause (BAD_CREDENTIALS, LOCKED, EXPIRED...)
+    UsrNam varchar2(255),                      --  User name
+    Ten varchar2(100),                         --  Tenant (SSO tenant or database alias)
+    Chn varchar2(10),                          --  Channel (WEB, SSO, REST, SYSTEM)
+    IpAdr varchar2(45),                        --  Client address
+    UsrAgt varchar2(512),                      --  Client user agent
+    SesHsh varchar2(64),                       --  SHA-256 of the session identifier
+    CorIde varchar2(64),                       --  Correlation identifier
+    Det varchar2(1000)                         --  Detail
+    );
+
+CREATE INDEX AweSecAudEvtI1 ON AweSecAudEvt (EvtDat);
+CREATE INDEX AweSecAudEvtI2 ON AweSecAudEvt (UsrNam, EvtDat);
+CREATE INDEX AweSecAudEvtI3 ON AweSecAudEvt (EvtTyp, EvtDat);
+CREATE INDEX AweSecAudEvtI4 ON AweSecAudEvt (EvtDay);

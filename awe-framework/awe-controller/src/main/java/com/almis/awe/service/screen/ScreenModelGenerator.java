@@ -3,6 +3,7 @@ package com.almis.awe.service.screen;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.InitialLoadDao;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
@@ -21,18 +22,23 @@ import com.almis.awe.model.entities.screen.data.AweThreadInitialization;
 import com.almis.awe.model.entities.screen.data.ComponentModel;
 import com.almis.awe.model.entities.screen.data.ScreenComponent;
 import com.almis.awe.model.entities.screen.data.ScreenData;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.type.InputType;
 import com.almis.awe.model.type.LoadType;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import static com.almis.awe.model.type.InputType.*;
 
@@ -41,6 +47,11 @@ import static com.almis.awe.model.type.InputType.*;
  */
 @Slf4j
 public class ScreenModelGenerator extends ServiceConfig {
+
+  private static final String WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA = "WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA";
+  private static final String WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA = "WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA";
+  private static final String DATE_RANGE_FROM_SUFFIX = ".from";
+  private static final String DATE_RANGE_TO_SUFFIX = ".to";
 
   // Autowired services
   private final InitialLoadDao initialLoadDao;
@@ -74,6 +85,15 @@ public class ScreenModelGenerator extends ServiceConfig {
    */
   AweThreadInitialization getScreenConfigurationThread() {
     return new AweThreadInitialization().setParameters(getRequest().getParametersSafe().put(AweConstants.COMPONENT_MAX, "0")).setTarget(AweConstants.SCREEN_CONFIGURATION_QUERY);
+  }
+
+  /**
+   * Screen configuration thread of the rules of every subject (filtered afterwards for the chosen subject)
+   *
+   * @return Screen configuration thread
+   */
+  AweThreadInitialization getScreenSubjectConfigurationThread() {
+    return new AweThreadInitialization().setParameters(getRequest().getParametersSafe().put(AweConstants.COMPONENT_MAX, "0")).setTarget(AweConstants.SCREEN_SUBJECT_CONFIGURATION_QUERY);
   }
 
   /**
@@ -122,6 +142,11 @@ public class ScreenModelGenerator extends ServiceConfig {
       // Specific sort
       if (specialAttributesNode.has(AweConstants.COMPONENT_SORT)) {
         parameters.set(AweConstants.COMPONENT_SORT, specialAttributesNode.get(AweConstants.COMPONENT_SORT));
+      }
+
+      // Column filters of the default search of a grid (#945): only for the initial load of that grid
+      if (specialAttributesNode.has(AweConstants.COMPONENT_COLUMN_FILTERS)) {
+        parameters.set(AweConstants.COMPONENT_COLUMN_FILTERS, specialAttributesNode.get(AweConstants.COMPONENT_COLUMN_FILTERS));
       }
     }
 
@@ -172,8 +197,10 @@ public class ScreenModelGenerator extends ServiceConfig {
 
     // Generate a thread for each initialization
     for (AweThreadInitialization initializationData : initializationList) {
+      addCriteriaDefaults(initializationData, componentMap);
+
       // Launch
-      Future<ServiceData> taskResult = initialLoadDao.launchInitialLoad(initializationData);
+      Future<ServiceData> taskResult = launchInitialLoad(initializationData);
 
       // If load type is screen, store screen results in list, otherwise store in a component map
       if (LoadType.MENU.equals(initializationData.getInitialLoadType())) {
@@ -205,6 +232,61 @@ public class ScreenModelGenerator extends ServiceConfig {
   }
 
   /**
+   * Add the values of the screen criteria to the parameters of a component or column initial load, as the client sends
+   * them on a reload (keyed by the criterion id), so the initial load gets the criteria defaults (XML value, session,
+   * property) too (#947). A value already in the parameters (request, keep-criteria, default search) is kept.
+   *
+   * @param initializationData Initialization data
+   * @param componentMap       Component map
+   */
+  private void addCriteriaDefaults(AweThreadInitialization initializationData, Map<String, ScreenComponent> componentMap) {
+    if (initializationData.getComponentId() == null || initializationData.getParameters() == null
+      || LoadType.MENU.equals(initializationData.getInitialLoadType())
+      || LoadType.SCREEN.equals(initializationData.getInitialLoadType())) {
+      return;
+    }
+
+    ObjectNode parameters = initializationData.getParameters();
+    for (ScreenComponent screenComponent : componentMap.values()) {
+      List<CellData> selectedValues = screenComponent.getModel().getSelected();
+      if (screenComponent.getController() instanceof AbstractCriteria criteria && !selectedValues.isEmpty()) {
+        addCriterionValue(parameters, criteria, selectedValues);
+      }
+    }
+  }
+
+  /**
+   * Add the selected values of a criterion to the parameters when they do not have them
+   *
+   * @param parameters     Parameters
+   * @param criteria       Criterion
+   * @param selectedValues Selected values
+   */
+  private static void addCriterionValue(ObjectNode parameters, AbstractCriteria criteria, List<CellData> selectedValues) {
+    String key = criteria.getElementKey();
+    if (isSpecificComponent(List.of(DATE_RANGE), criteria.getComponentType())) {
+      // The start and the end of the range go as two parameters, as the clients send them
+      String fromKey = key + DATE_RANGE_FROM_SUFFIX;
+      String toKey = key + DATE_RANGE_TO_SUFFIX;
+      if (!parameters.has(fromKey) && !parameters.has(toKey)) {
+        parameters.put(fromKey, selectedValues.get(0).getStringValue());
+        if (selectedValues.size() > 1) {
+          parameters.put(toKey, selectedValues.get(1).getStringValue());
+        } else {
+          parameters.putNull(toKey);
+        }
+      }
+    } else if (!parameters.has(key)) {
+      if (selectedValues.size() == 1 && !isSpecificComponent(List.of(SELECT_MULTIPLE, SUGGEST_MULTIPLE, PICKLIST), criteria.getComponentType())) {
+        parameters.put(key, selectedValues.get(0).getStringValue());
+      } else {
+        ArrayNode selectedArray = parameters.putArray(key);
+        selectedValues.forEach(selectedValue -> selectedArray.add(selectedValue.getStringValue()));
+      }
+    }
+  }
+
+  /**
    * Hydrate unresolved suggest labels after initial selected/default data is available.
    *
    * @param componentMap Component map
@@ -223,7 +305,8 @@ public class ScreenModelGenerator extends ServiceConfig {
 
       Map<String, Future<ServiceData>> componentTasks = new LinkedHashMap<>();
       for (String selectedValue : missingSelectedValues) {
-        componentTasks.put(selectedValue, initialLoadDao.launchInitialLoad(buildSuggestHydrationInitialization(componentMap, component, hydrationTarget, selectedValue)));
+        componentTasks.put(selectedValue, launchInitialLoad(
+          buildSuggestHydrationInitialization(componentMap, component, hydrationTarget, selectedValue)));
       }
       hydrationTaskMap.put(component, componentTasks);
     }
@@ -255,10 +338,14 @@ public class ScreenModelGenerator extends ServiceConfig {
         // For each column, store value in components
         addScreenTargetDataToComponent(screenTargetData, componentMap);
       } catch (Exception exc) {
+        if (isRefused(exc)) {
+          addRefusalWarning(data);
+          continue;
+        }
         String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA", entry.getKey());
         data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
         log.error(errorMessage, exc);
-        Thread.currentThread().interrupt();
+        restoreInterruptFlag(exc);
       }
     }
   }
@@ -281,6 +368,63 @@ public class ScreenModelGenerator extends ServiceConfig {
       String errorMessage = getLocale("ERROR_MESSAGE_SCREEN_RESTRICTIONS", screen);
       data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), errorMessage, exc));
       log.error("{}{}", errorMessage, screen, exc);
+      restoreInterruptFlag(exc);
+    }
+  }
+
+  /**
+   * Launch an initial load. A refusal raised by a synchronous launch is kept in the result, as the asynchronous launch
+   * does, so the refused component stays empty instead of failing the whole screen
+   *
+   * @param initializationData Initialization data
+   * @return Initial load result
+   * @throws AWException Error launching the initial load
+   */
+  private Future<ServiceData> launchInitialLoad(AweThreadInitialization initializationData) throws AWException {
+    try {
+      return initialLoadDao.launchInitialLoad(initializationData);
+    } catch (AWEUnauthorizedException exc) {
+      return CompletableFuture.failedFuture(exc);
+    }
+  }
+
+  /**
+   * Check if an initial load failed because the authorization refused its query, either inside the asynchronous
+   * launch or directly
+   *
+   * @param exc Caught exception
+   * @return The initial load was refused
+   */
+  private boolean isRefused(Exception exc) {
+    return exc instanceof AWEUnauthorizedException
+      || exc instanceof ExecutionException && exc.getCause() instanceof AWEUnauthorizedException;
+  }
+
+  /**
+   * Warn once per screen that some of its data is not shown: the components refused keep no data, and the queries
+   * refused are not given away
+   *
+   * @param data Screen data
+   */
+  private void addRefusalWarning(ScreenData data) {
+    String message = getLocale(WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA);
+    boolean warned = data.getActions().stream()
+      .filter(action -> "message".equals(action.getType()))
+      .map(action -> action.getParameters().get(AweConstants.ACTION_MESSAGE_DESCRIPTION_ATTRIBUTE))
+      .anyMatch(description -> description instanceof CellData cell && message.equals(cell.getStringValue()));
+    if (!warned) {
+      data.addError(new AWException(getLocale(WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA), message, AnswerType.WARNING));
+    }
+  }
+
+  /**
+   * Restore the interrupt flag of the request thread only when it was really interrupted. Re-interrupting after an
+   * ordinary failure leaves the flag set and the servlet container cannot write the response (#894).
+   *
+   * @param exc Caught exception
+   */
+  private void restoreInterruptFlag(Exception exc) {
+    if (exc instanceof InterruptedException) {
       Thread.currentThread().interrupt();
     }
   }
@@ -346,7 +490,7 @@ public class ScreenModelGenerator extends ServiceConfig {
       ComponentModel model = component.getModel();
       if (LoadType.VALUE.toString().equalsIgnoreCase(component.getController().getInitialLoad())) {
         List<CellData> selectedData = getSelectedData(componentData, "value");
-        List<CellData> initialSelectedData = isMultipleCriteria(component.getController()) ? selectedData : selectedData.stream().findFirst().map(List::of).orElse(Collections.emptyList());
+        List<CellData> initialSelectedData = selectedData.stream().limit(initialValueCount(component.getController())).collect(Collectors.toList());
         model.setDefaultValues(initialSelectedData);
         model.setSelected(initialSelectedData);
       }
@@ -358,10 +502,14 @@ public class ScreenModelGenerator extends ServiceConfig {
       model.setRecords(componentData.getRecords());
 
     } catch (InterruptedException | ExecutionException exc) {
+      if (isRefused(exc)) {
+        addRefusalWarning(data);
+        return;
+      }
       String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
       data.addError(new AWException(getLocale("ERROR_MESSAGE_RETRIEVING_DATA"), errorMessage, exc));
       log.error(errorMessage, exc);
-      Thread.currentThread().interrupt();
+      restoreInterruptFlag(exc);
     }
   }
 
@@ -396,7 +544,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    */
   private void overrideParametersWithCriteriaModels(ObjectNode parameters, Map<String, ScreenComponent> componentMap) {
     Set<String> originalKeys = new HashSet<>();
-    parameters.fieldNames().forEachRemaining(originalKeys::add);
+    parameters.propertyNames().iterator().forEachRemaining(originalKeys::add);
     Set<String> writtenKeys = new HashSet<>();
     for (ScreenComponent screenComponent : componentMap.values()) {
       if (!(screenComponent.getController() instanceof AbstractCriteria criteria)) {
@@ -429,8 +577,8 @@ public class ScreenModelGenerator extends ServiceConfig {
    * @param criteria Criteria controller
    * @return True when the criteria accepts multiple values
    */
-  private boolean isMultipleValueCriteria(AbstractCriteria criteria) {
-    return isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE, CHECKBOX, BUTTON_CHECKBOX), criteria.getComponentType());
+  static boolean isMultipleValueCriteria(AbstractCriteria criteria) {
+    return isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE, CHECKBOX, BUTTON_CHECKBOX, DATE_RANGE), criteria.getComponentType());
   }
 
   /**
@@ -457,10 +605,14 @@ public class ScreenModelGenerator extends ServiceConfig {
           .ifPresent(row -> component.getModel().getValues().add(new LinkedHashMap<>(row)));
       }
     } catch (InterruptedException | ExecutionException exc) {
+      if (isRefused(exc)) {
+        addRefusalWarning(data);
+        return;
+      }
       String errorMessage = getLocale("ERROR_MESSAGE_RETRIEVING_INITIAL_DATA_COMPONENT", target);
       data.addError(new AWException(getLocale("ERROR_MESSAGE_RETRIEVING_DATA"), errorMessage, exc));
       log.error(errorMessage, exc);
-      Thread.currentThread().interrupt();
+      restoreInterruptFlag(exc);
     }
   }
 
@@ -597,14 +749,19 @@ public class ScreenModelGenerator extends ServiceConfig {
   }
 
   /**
-   * Check if a component is a multiple criteria selector.
+   * Number of rows a value initial load keeps: all of them for a multiple selector, the start and the end for a date
+   * range, the first one otherwise.
    *
    * @param component Component controller
-   * @return True when the criteria accepts multiple selected values
+   * @return Maximum number of selected values
    */
-  private boolean isMultipleCriteria(Component component) {
-    return component instanceof AbstractCriteria abstractCriteria
-      && isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE), abstractCriteria.getComponentType());
+  private long initialValueCount(Component component) {
+    if (!(component instanceof AbstractCriteria criteria)) {
+      return 1;
+    } else if (isSpecificComponent(Arrays.asList(SELECT_MULTIPLE, SUGGEST_MULTIPLE), criteria.getComponentType())) {
+      return Long.MAX_VALUE;
+    }
+    return isSpecificComponent(List.of(DATE_RANGE), criteria.getComponentType()) ? 2 : 1;
   }
 
   /**
@@ -643,6 +800,19 @@ public class ScreenModelGenerator extends ServiceConfig {
 
     // Initialize Checkbox and Radio models
     initializeCheckboxRadioModel(criterion, screenComponent);
+  }
+
+  /**
+   * Default values of a criterion as its definition sets them, without the stored criteria: the values Clear all goes
+   * back to (#915)
+   *
+   * @param criterion Criterion object
+   * @return Default values
+   */
+  List<CellData> getDefinitionDefaultValues(AbstractCriteria criterion) {
+    ScreenComponent definition = new ScreenComponent().setModel(new ComponentModel());
+    generateScreenCriterionModel(criterion, definition, JsonNodeFactory.instance.objectNode());
+    return definition.getModel().getDefaultValues();
   }
 
   /**
@@ -688,7 +858,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    * @param parameterId Parameter identifier
    * @return Check if VALUE is
    */
-  private boolean checkParameter(String parameterId, ObjectNode parameterList) {
+  static boolean checkParameter(String parameterId, ObjectNode parameterList) {
     boolean valueIsGood = false;
     if (parameterId != null && parameterList.has(parameterId)) {
       valueIsGood = checkParameterValue(parameterList.get(parameterId));
@@ -702,7 +872,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    * @param parameter Parameter
    * @return Check if VALUE is
    */
-  private boolean checkParameterValue(JsonNode parameter) {
+  private static boolean checkParameterValue(JsonNode parameter) {
     boolean valueIsGood = false;
     if (parameter != null) {
       String variableAsText = parameter.toString();
@@ -749,6 +919,12 @@ public class ScreenModelGenerator extends ServiceConfig {
       // Generic criteria (not RADIO BUTTON!)
     } else if (criterion.getValue() != null && !isRadioButton(criterion.getComponentType())) {
       defaultValues = getDefaultValuesAsString(criterion.getValue());
+      // A date range can default to one of its presets (value="YTD")
+      if (isSpecificComponent(List.of(DATE_RANGE), criterion.getComponentType())) {
+        defaultValues = DateRangePreset.resolve(criterion.getValue(), LocalDate.now())
+          .map(range -> range.stream().map(CellData::new).collect(Collectors.toList()))
+          .orElse(defaultValues);
+      }
     }
     return defaultValues;
   }
@@ -781,7 +957,7 @@ public class ScreenModelGenerator extends ServiceConfig {
    * @param componentType Component type to check
    * @return Component type belongs to type list
    */
-  private boolean isSpecificComponent(List<InputType> typeList, String componentType) {
+  private static boolean isSpecificComponent(List<InputType> typeList, String componentType) {
     return typeList.contains(Optional.ofNullable(componentType)
       .map(c -> c.replace('-', '_').toUpperCase())
       .map(InputType::valueOf).orElse(InputType.OTHER));

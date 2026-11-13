@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.builder.client.ClientActionBuilder;
 import com.almis.awe.builder.client.SelectActionBuilder;
 import com.almis.awe.builder.enumerates.Action;
 import com.almis.awe.builder.screen.ScreenBuilder;
@@ -20,11 +21,11 @@ import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.service.data.builder.DataListBuilder;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -42,6 +43,18 @@ import static java.lang.Thread.sleep;
 @Slf4j
 public class DummyService extends ServiceConfig {
 
+  // Echo of a radio group without choice
+  private static final String NO_CHOICE = "-";
+
+  // Rows of the sparkline grid
+  private static final int SPARKLINE_ROWS = 100;
+
+  // Points of the map test screen
+  private static final List<String> MAP_IDS = List.of("1", "2", "3", "4");
+  private static final List<Double> MAP_LATITUDES = List.of(40.4168, 41.3874, 39.4699, 37.3891);
+  private static final List<Double> MAP_LONGITUDES = List.of(-3.7038, 2.1686, -0.3763, -5.9845);
+  private static final List<String> MAP_NAMES = List.of("Madrid", "Barcelona", "Valencia", "Sevilla");
+
   public static final String PROFILE_VALUE = "profileValue";
   public static final String PROFILE_NAME = "profileName";
   public static final String STAT_ROW = "stat-row";
@@ -56,6 +69,37 @@ public class DummyService extends ServiceConfig {
    */
   public DummyService(QueryService queryService) {
     this.queryService = queryService;
+  }
+
+  /**
+   * Points of the map test screen: fixed cities, so the map always draws the same
+   *
+   * @return Service data with the id, latitude, longitude and name of every point
+   */
+  public ServiceData mapPoints() {
+    DataList dataList = new DataList();
+    DataListUtil.addColumn(dataList, "id", MAP_IDS);
+    DataListUtil.addColumn(dataList, "Lat", MAP_LATITUDES);
+    DataListUtil.addColumn(dataList, "Lon", MAP_LONGITUDES);
+    DataListUtil.addColumn(dataList, "Lug", MAP_NAMES);
+    return new ServiceData().setDataList(dataList);
+  }
+
+  /**
+   * Route of the map test screen: goes through the points of the map in order
+   *
+   * @return Service data with the polyline action that draws the route in the map
+   */
+  public ServiceData mapRoute() {
+    List<Map<String, Object>> rows = new ArrayList<>();
+    for (int index = 0; index < MAP_IDS.size(); index++) {
+      rows.add(Map.of("Lat", MAP_LATITUDES.get(index), "Lon", MAP_LONGITUDES.get(index)));
+    }
+    ClientActionBuilder<?> builder = new ClientActionBuilder<>();
+    builder.setType("polyline");
+    builder.setTarget("MapTst");
+    builder.addParameter("rows", rows);
+    return new ServiceData().addClientAction(builder.build());
   }
 
   /**
@@ -240,6 +284,52 @@ public class DummyService extends ServiceConfig {
   }
 
   /**
+   * Returns the rows of the sparkline grid: the special series first (rising, falling, negatives, a single value, an empty
+   * one and one that is not a series), then generated rows of twelve points up to a hundred rows. Every sparkline column
+   * of the grid shows the same series, drawn in a different way
+   *
+   * @return ServiceData
+   */
+  public ServiceData getSparklineSeries() {
+    List<Integer> ids = new ArrayList<>();
+    List<String> names = new ArrayList<>();
+    List<String> series = new ArrayList<>();
+    String[][] special = {
+      {"Rising", "[1, 2, 3, 5, 8, 13]"},
+      {"Falling", "[13, 8, 5, 3, 2, 1]"},
+      {"Negatives", "[3, 5, -1, 8, -4, 2]"},
+      {"All negative", "[-3, -5, -1, -8]"},
+      {"Single value", "[7]"},
+      {"Empty series", "[]"},
+      {"Not a series", "oops"}
+    };
+    for (String[] row : special) {
+      ids.add(ids.size() + 1);
+      names.add(row[0]);
+      series.add(row[1]);
+    }
+    while (ids.size() < SPARKLINE_ROWS) {
+      int row = ids.size() + 1;
+      List<String> points = new ArrayList<>();
+      for (int point = 0; point < 12; point++) {
+        points.add(String.valueOf(Math.round(Math.sin((row + point) / 2.0) * 50)));
+      }
+      ids.add(row);
+      names.add("Row " + row);
+      series.add("[" + String.join(", ", points) + "]");
+    }
+
+    ServiceData out = new ServiceData();
+    out.setDataList(new DataList());
+    DataListUtil.addColumn(out.getDataList(), "id", ids);
+    DataListUtil.addColumn(out.getDataList(), "name", names);
+    for (String column : new String[]{"line", "bar", "area", "marks"}) {
+      DataListUtil.addColumn(out.getDataList(), column, series);
+    }
+    return out;
+  }
+
+  /**
    * Pretends to answer an OK from a maintain
    *
    * @return ServiceData
@@ -252,6 +342,32 @@ public class DummyService extends ServiceConfig {
     out.setMessage("The selected maintain operation has been successfully performed");
 
     return out;
+  }
+
+  /**
+   * Echoes the choices that the radio and button-radio columns of a grid send, one per row: "id:choice/mode" for the rows
+   * that have one of them, separated by semicolons, with a dash for the column without choice
+   *
+   * @param id     Row identifiers
+   * @param choice Chosen value of the choice column in each row
+   * @param mode   Chosen value of the mode column in each row
+   * @return ServiceData
+   */
+  public ServiceData returnRadioChoices(List<String> id, List<String> choice, List<String> mode) {
+    List<String> rows = new ArrayList<>();
+    for (int row = 0; row < (id == null ? 0 : id.size()); row++) {
+      String chosen = getChoice(choice, row);
+      String chosenMode = getChoice(mode, row);
+      if (!NO_CHOICE.equals(chosen) || !NO_CHOICE.equals(chosenMode)) {
+        rows.add(id.get(row) + ":" + chosen + "/" + chosenMode);
+      }
+    }
+    return returnMaintainOkMessageParam(String.join(";", rows));
+  }
+
+  private String getChoice(List<String> choices, int row) {
+    String value = choices != null && row < choices.size() ? choices.get(row) : null;
+    return value == null || value.isEmpty() || "null".equals(value) ? NO_CHOICE : value;
   }
 
   /**

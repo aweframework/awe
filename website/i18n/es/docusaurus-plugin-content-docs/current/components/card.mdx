@@ -1,0 +1,75 @@
+---
+id: card
+title: Tarjeta
+sidebar_label: Tarjeta
+description: La tarjeta de AWE, en vivo. Cambia sus atributos y mira la ficha de métrica real y el XML que la produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {card} from '@site/src/components/AwePlayground/specs/card';
+
+Una tarjeta es una ficha de métrica: un título, un valor grande con su unidad, un icono y una variación con su tendencia. También puede
+mostrar el progreso hacia un objetivo, un minigráfico, una descripción, un pie y, en su cuerpo, cualquier otro componente. Debajo está la
+tarjeta real del cliente React de AWE. Cambia sus atributos y el XML de debajo se actualiza; cópialo en tu pantalla.
+
+<AwePlayground spec={card} />
+
+## Recetas {#recipes}
+
+Los atributos de estas tarjetas son valores fijos. En una pantalla real, `initial-load="query"` rellena la tarjeta con la primera fila de una
+consulta, y los campos de la consulta (`title`, `value`, `delta`...) sustituyen a los atributos.
+
+### Cifra clave con su tendencia {#recipe-kpi}
+
+Con un `icon`, la variación pasa al pie, junto a la `caption`. La flecha y el color siguen el signo de `delta`.
+
+<AweLive
+  components={{revenue: {attributes: {title: 'Ingresos del mes', value: '84200', unit: '€', icon: 'lucide:euro', iconTone: 'success', delta: '12.4', caption: 'frente al mes anterior'}}}}
+  nodes={[{elementType: 'Card', id: 'revenue'}]}
+/>
+
+```xml
+<card id="revenue" title="Ingresos del mes" value="84200" unit="€" icon="lucide:euro" icon-tone="success"
+      delta="12.4" caption="frente al mes anterior" />
+```
+
+### Progreso hacia un objetivo {#recipe-target}
+
+`target` dibuja el progreso de `value` frente a él, como una barra o, con `progress-style="gauge"`, como un semicírculo.
+Una `chip` indica el estado de un vistazo.
+
+<AweLive
+  components={{goal: {attributes: {title: 'Objetivo anual de ventas', value: '412000', target: '500000', unit: '€', chip: 'En camino', chipTone: 'success', progressStyle: 'gauge'}}}}
+  nodes={[{elementType: 'Card', id: 'goal'}]}
+/>
+
+```xml
+<card id="goal" title="Objetivo anual de ventas" value="412000" target="500000" unit="€"
+      chip="En camino" chip-tone="success" progress-style="gauge" />
+```
+
+### Minigráfico y una tendencia buena que baja {#recipe-sparkline}
+
+`good-trend="down"` pinta una variación a la baja como una buena noticia (menos incidencias es mejor). `sparkline` es un array JSON de números dibujado bajo el valor.
+
+<AweLive
+  components={{incidents: {attributes: {title: 'Incidencias abiertas', value: '37', delta: '-8', deltaUnit: '%', goodTrend: 'down', sparkline: '[52,49,47,44,45,41,37]', sparklineType: 'line', caption: 'últimos 7 días'}}}}
+  nodes={[{elementType: 'Card', id: 'incidents'}]}
+/>
+
+```xml
+<card id="incidents" title="Incidencias abiertas" value="37" delta="-8" delta-unit="%" good-trend="down"
+      sparkline="[52,49,47,44,45,41,37]" sparkline-type="line" caption="últimos 7 días" />
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Una tarjeta no tiene un evento propio. Se actualiza como cualquier componente con `initial-load`: las
+[acciones](../api/actions.md) `filter` y `reload` vuelven a cargar su consulta, `autorefresh` la recarga cada pocos segundos y las
+[dependencias](../api/dependencies.md) pueden mostrarla, ocultarla o cambiar sus atributos. Los botones colocados en su cuerpo lanzan sus propias acciones.
+
+## Más {#more}
+
+* [Documentación completa de la tarjeta](../api/card.md): todos los atributos, la anatomía de la ficha y los campos de la consulta.
+* [Referencia XSD del elemento `card`](/reference/screen#element-card).

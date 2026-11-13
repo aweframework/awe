@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.12.9</version>
+    <version>5.0.0</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -29,6 +29,25 @@
     <performancetest.path/>
   </properties>
 
+  <dependencies>
+    <!-- Tests -->
+    <dependency>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-model</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
   <build>
     <finalName>${project.artifactId}</finalName>
     <resources>
@@ -51,6 +70,15 @@
         <directory>${project.basedir}/src/main/resources/templates</directory>
         <targetPath>${project.build.directory}/classes/templates</targetPath>
         <filtering>false</filtering>
+      </resource>
+      <!-- AWE 5 token file shared with both clients (#885), linked by the error page template -->
+      <resource>
+        <directory>${project.basedir}/../awe-design-tokens</directory>
+        <targetPath>${project.build.directory}/classes/static/css/awe-design-tokens</targetPath>
+        <filtering>false</filtering>
+        <includes>
+          <include>tokens.css</include>
+        </includes>
       </resource>
     </resources>
 
@@ -90,6 +118,26 @@
             <goals>
               <goal>validate</goal>
             </goals>
+            <configuration>
+              <!-- This list overrides the validationSets inherited from awe-dependencies (it is not merged),
+                   so the default set is repeated here with its options, plus the React client definitions -->
+              <validationSets>
+                <validationSet>
+                  <dir>${check.xml.directory}/${application.acronym}/</dir>
+                  <excludes>
+                    <exclude>templates/**</exclude>
+                  </excludes>
+                  <validating>true</validating>
+                </validationSet>
+                <validationSet>
+                  <dir>${check.xml.directory}/${application.acronym}-react/</dir>
+                  <excludes>
+                    <exclude>templates/**</exclude>
+                  </excludes>
+                  <validating>true</validating>
+                </validationSet>
+              </validationSets>
+            </configuration>
           </execution>
         </executions>
       </plugin>

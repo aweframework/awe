@@ -1,0 +1,797 @@
+import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
+import React from "react";
+import {act} from "@testing-library/react";
+import {renderWithProviders} from "../test-utils";
+import AweChart from "../../../src/components/AweChart";
+import {updateAttributes, updateModel} from "../../../src/redux/actions/components";
+import {getChartImage} from "../../../src/utilities/chartRegistry";
+import {loadEcharts} from "../../../src/utilities/echartsLoader";
+import {observeColorMode, resolveChartColors} from "../../../src/utilities/echartsTheme";
+import models from "./fixtures/chrTstEchartsModels.json";
+import advancedModels from "./fixtures/advancedEchartsModels.json";
+import i18n from "../../../src/i18n/i18n";
+import {updateAttributesWithDependencies} from "../../../src/redux/thunks/components";
+
+// The component is tested against a fake ECharts that records what it is given: the options are built by the real
+// code, and the real library is exercised (SVG output, no warnings) by echartsSvgTest
+jest.mock("../../../src/utilities/echartsLoader", () => {
+  const loaded = {echarts: {init: jest.fn()}, renderSvg: jest.fn(() => "<svg>print</svg>")};
+  return {
+    getEChartsLocale: jest.requireActual("../../../src/utilities/echartsLocale").getEChartsLocale,
+    loadEcharts: jest.fn(() => Promise.resolve(loaded))
+  };
+});
+
+// The colors come from the design tokens of the browser: the test gives them, and records the mode observer
+jest.mock("../../../src/utilities/echartsTheme", () => ({
+  ...jest.requireActual("../../../src/utilities/echartsTheme"),
+  resolveChartColors: jest.fn(),
+  observeColorMode: jest.fn()
+}));
+
+const LIGHT = {text: "rgb(10, 10, 10)", title: "rgb(0, 0, 0)", muted: "rgb(50, 50, 50)", axis: "rgb(100, 100, 100)",
+  split: "rgb(200, 200, 200)", tooltipBackground: "rgb(255, 255, 255)", tooltipBorder: "rgb(220, 220, 220)",
+  tooltipText: "rgb(10, 10, 10)", surface: "rgb(255, 255, 255)"};
+const DARK = {...LIGHT, text: "rgb(240, 240, 240)", title: "rgb(255, 255, 255)", muted: "rgb(180, 180, 180)",
+  surface: "rgb(20, 20, 20)"};
+
+// The events of the chart go through the thunk that writes the attributes and checks the dependencies: it is spied
+jest.mock("../../../src/redux/thunks/components", () => {
+  const actual = jest.requireActual("../../../src/redux/thunks/components");
+  return {...actual, updateAttributesWithDependencies: jest.fn(actual.updateAttributesWithDependencies)};
+});
+
+const clone = (value) => JSON.parse(JSON.stringify(value));
+const day = (value) => new Date(2024, 0, value).getTime();
+const values = [
+  {dates: day(1), serie1: 10, serie2: 5, names: "Chrome", subserie1: 3},
+  {dates: day(2), serie1: 20, serie2: 6, names: "Firefox", subserie1: 4}
+];
+
+// Bars are rounded by default, so their points carry a radius next to their value
+const pairsOf = (data) => data.map(point => Array.isArray(point) ? point : point.value);
+
+describe('awe-react-client/test/js/components/AweChartTest.jsx', () => {
+  let echarts;
+  let renderSvg;
+  let instances;
+  let observers;
+  let onModeChange;
+  let stopObserving;
+
+  const fakeChart = () => {
+    const handlers = {};
+    const chart = {
+      handlers,
+      setOption: jest.fn(),
+      resize: jest.fn(),
+      dispatchAction: jest.fn(),
+      getOption: jest.fn(() => ({})),
+      dispose: jest.fn(),
+      on: jest.fn((event, handler) => {
+        handlers[event] = handler;
+      })
+    };
+    instances.push(chart);
+    return chart;
+  };
+  const lastChart = () => instances[instances.length - 1];
+  const lastOption = (chart = lastChart()) => chart.setOption.mock.calls[chart.setOption.mock.calls.length - 1][0];
+  const texts = (option) => (option.graphic || []).map(element => element.style.text);
+
+  const stateOf = (echartsModel, rows = values, extra = {}) => ({
+    settings: DEFAULT_SETTINGS,
+    components: {
+      chart: {
+        address: {component: "chart", view: "report"},
+        model: {values: rows},
+        attributes: {visible: true, label: "chart", ...(echartsModel ? {echartsModel} : {}), ...extra}
+      }
+    }
+  });
+
+  // ECharts is loaded on demand: the chart is created once the load ends
+  const renderChart = async (echartsModel, rows, extra) => {
+    const rendered = renderWithProviders(
+      <div style={{width: "1000px", height: "600px"}}><AweChart id="chart"/></div>,
+      {preloadedState: stateOf(echartsModel, rows, extra)});
+    await act(async () => {});
+    return rendered;
+  };
+
+  beforeEach(async () => {
+    ({echarts, renderSvg} = await loadEcharts());
+    instances = [];
+    observers = [];
+    updateAttributesWithDependencies.mockClear();
+    echarts.init.mockReset();
+    echarts.init.mockImplementation(fakeChart);
+    resolveChartColors.mockReset();
+    resolveChartColors.mockReturnValue(LIGHT);
+    stopObserving = jest.fn();
+    observeColorMode.mockReset();
+    observeColorMode.mockImplementation((callback) => {
+      onModeChange = callback;
+      return stopObserving;
+    });
+    renderSvg.mockClear();
+    global.ResizeObserver = class {
+      constructor(callback) {
+        this.callback = callback;
+        this.observe = jest.fn();
+        this.disconnect = jest.fn();
+        observers.push(this);
+      }
+    };
+    Object.defineProperty(HTMLElement.prototype, "clientWidth", {configurable: true, get: () => 900});
+    Object.defineProperty(HTMLElement.prototype, "clientHeight", {configurable: true, get: () => 500});
+  });
+
+  afterEach(() => {
+    delete global.ResizeObserver;
+    delete HTMLElement.prototype.clientWidth;
+    delete HTMLElement.prototype.clientHeight;
+    jest.useRealTimers();
+  });
+
+  describe('creation', () => {
+    it('should create an SVG chart in its container, with the plain theme', async () => {
+      await renderChart(models.ChrLinTst);
+
+      expect(echarts.init).toHaveBeenCalledTimes(1);
+      const [element, theme, options] = echarts.init.mock.calls[0];
+      expect(element.parentElement.id).toBe("chart");
+      expect(theme).toBeNull();
+      expect(options).toEqual({renderer: "svg", locale: "EN"});
+    });
+
+    it('should draw the chrome of the chart with the colors of the design tokens, resolved in its container', async () => {
+      await renderChart(models.ChrBarTst);
+
+      expect(resolveChartColors).toHaveBeenCalledWith(document.querySelector("#chart"));
+      expect(lastOption().title.textStyle.color).toBe(LIGHT.title);
+      expect(lastOption().xAxis[0].axisLabel.color).toBe(LIGHT.muted);
+      expect(lastOption().backgroundColor).toBe("rgba(0, 0, 0, 0)");
+    });
+
+    it('should draw a chart without colors when the page gives none', async () => {
+      resolveChartColors.mockReturnValue(null);
+
+      await renderChart(models.ChrBarTst);
+
+      expect(lastOption().title.textStyle).toBeUndefined();
+      expect(lastOption().series.length).toBeGreaterThan(0);
+    });
+
+    it('should expose the test hook with the chart identifier, rendered once ECharts finishes', async () => {
+      await renderChart(models.ChrLinTst);
+
+      const hook = document.querySelector("[data-testid='chart']");
+      expect(hook.getAttribute("chart-id")).toBe("chart");
+      expect(hook.getAttribute("data-rendered")).toBe("false");
+
+      act(() => lastChart().handlers.finished());
+
+      expect(hook.getAttribute("data-rendered")).toBe("true");
+    });
+
+    it('should also mark the chart as rendered when ECharts reports a render', async () => {
+      await renderChart(models.ChrLinTst);
+
+      act(() => lastChart().handlers.rendered());
+
+      expect(document.querySelector("[data-testid='chart']").getAttribute("data-rendered")).toBe("true");
+    });
+
+    it('should create the chart only once ECharts is loaded, with the skeleton in the meantime', async () => {
+      const loaded = await loadEcharts();
+      let finish;
+      loadEcharts.mockReturnValueOnce(new Promise(resolve => {
+        finish = () => resolve(loaded);
+      }));
+
+      await renderChart(models.ChrLinTst);
+
+      expect(echarts.init).not.toHaveBeenCalled();
+      expect(document.querySelector(".awe-skeleton-chart")).not.toBeNull();
+
+      await act(async () => finish());
+
+      expect(echarts.init).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not crash the screen when ECharts cannot be loaded', async () => {
+      const error = jest.spyOn(console, "error").mockImplementation(() => {});
+      loadEcharts.mockReturnValueOnce(Promise.reject(new Error("offline")));
+
+      await renderChart(models.ChrLinTst);
+
+      expect(document.querySelector("div#chart")).not.toBeNull();
+      expect(error).toHaveBeenCalled();
+      error.mockRestore();
+    });
+
+    it('should hide the chart when it is not visible', async () => {
+      await renderChart(models.ChrLinTst, values, {visible: false});
+
+      expect(document.querySelector("div#chart").classList.contains("hidden")).toBe(true);
+    });
+
+    it('should not crash the screen when ECharts cannot create the chart', async () => {
+      const error = jest.spyOn(console, "error").mockImplementation(() => {});
+      echarts.init.mockImplementation(() => {
+        throw new Error("no svg");
+      });
+
+      await renderChart(models.ChrLinTst);
+
+      expect(document.querySelector("div#chart")).not.toBeNull();
+      expect(error).toHaveBeenCalled();
+      error.mockRestore();
+    });
+
+    it('should not crash the screen when ECharts cannot draw the option', async () => {
+      const error = jest.spyOn(console, "error").mockImplementation(() => {});
+      echarts.init.mockImplementation(() => {
+        const chart = fakeChart();
+        chart.setOption.mockImplementation(() => {
+          throw new Error("bad option");
+        });
+        return chart;
+      });
+
+      await renderChart(models.ChrLinTst);
+
+      expect(document.querySelector("div#chart")).not.toBeNull();
+      expect(error).toHaveBeenCalled();
+      error.mockRestore();
+    });
+  });
+
+  describe('option', () => {
+    it('should give ECharts the option built from the model and the values', async () => {
+      await renderChart(models.ChrLinTst);
+
+      const option = lastOption();
+      expect(lastChart().setOption.mock.calls[0][1]).toEqual({notMerge: true});
+      expect(pairsOf(option.series[0].data)).toEqual([[day(1), 10], [day(2), 20]]);
+      expect(pairsOf(option.series[1].data)).toEqual([[day(1), 5], [day(2), 6]]);
+      expect(JSON.stringify(option)).not.toContain("\"awe\"");
+    });
+
+    it('should translate the texts of the chart', async () => {
+      await renderChart(models.ChrLinTst);
+
+      expect(lastOption().title.text).toBe(i18n.t("SCREEN_TEXT_CHART_TITLE_1"));
+    });
+
+    it('should draw an empty chart with the no data message when the server sent no echartsModel', async () => {
+      const warn = jest.spyOn(console, "warn").mockImplementation(() => {});
+
+      await renderChart(undefined);
+
+      expect(lastOption().series).toEqual([]);
+      expect(texts(lastOption())).toEqual([expect.any(String)]);
+      expect(warn).toHaveBeenCalledWith(expect.stringContaining("echartsModel"));
+      warn.mockRestore();
+    });
+
+    it('should show the no data message when there are no values', async () => {
+      await renderChart(models.ChrLinTst, []);
+
+      expect(texts(lastOption())).toHaveLength(1);
+      expect(texts(lastOption())[0]).toBeTruthy();
+    });
+
+    it('should draw again when the values change', async () => {
+      const {store} = await renderChart(models.ChrLinTst);
+      const calls = lastChart().setOption.mock.calls.length;
+
+      act(() => {
+        store.dispatch(updateModel({component: "chart", view: "report"}, {values: [values[0]]}));
+      });
+
+      expect(lastChart().setOption.mock.calls.length).toBeGreaterThan(calls);
+      expect(pairsOf(lastOption().series[0].data)).toEqual([[day(1), 10]]);
+    });
+
+    it('should draw again when the server replaces the echarts model', async () => {
+      const {store} = await renderChart(models.ChrLinTst);
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {echartsModel: models.ChrStockTst}));
+      });
+
+      expect(lastOption().series).toHaveLength(1);
+      expect(lastOption().dataZoom).toHaveLength(2);
+    });
+  });
+
+  describe('lifecycle', () => {
+    it('should dispose the chart and forget its image when it is unmounted', async () => {
+      const {unmount} = await renderChart(models.ChrLinTst);
+      const chart = lastChart();
+      expect(getChartImage("chart", "PORTRAIT")).toBe("<svg>print</svg>");
+
+      unmount();
+
+      expect(chart.dispose).toHaveBeenCalledTimes(1);
+      expect(getChartImage("chart", "PORTRAIT")).toBeUndefined();
+    });
+
+    it('should create the chart again when the language changes', async () => {
+      await renderChart(models.ChrLinTst);
+      const first = lastChart();
+
+      await act(async () => {
+        await i18n.changeLanguage("es-ES");
+      });
+
+      expect(first.dispose).toHaveBeenCalled();
+      expect(echarts.init).toHaveBeenCalledTimes(2);
+      expect(echarts.init.mock.calls[1][2].locale).toBe("ES");
+      await act(async () => {
+        await i18n.changeLanguage("en-GB");
+      });
+    });
+  });
+
+  describe('print', () => {
+    it('should draw the image of the page size apart, without the colors of the screen, from the same model', async () => {
+      await renderChart(models.ChrLinTst);
+
+      expect(getChartImage("chart", "PORTRAIT")).toBe("<svg>print</svg>");
+      expect(getChartImage("chart", "LANDSCAPE")).toBe("<svg>print</svg>");
+
+      const [portrait, landscape] = renderSvg.mock.calls;
+      expect(portrait[1]).toEqual({width: 796, height: 540});
+      expect(landscape[1]).toEqual({width: 1167, height: 360});
+      expect(pairsOf(portrait[0].series[0].data)).toEqual([[day(1), 10], [day(2), 20]]);
+      expect(portrait[2]).toBe(i18n.language);
+    });
+
+    it('should print the latest values', async () => {
+      const {store} = await renderChart(models.ChrLinTst);
+
+      act(() => {
+        store.dispatch(updateModel({component: "chart", view: "report"}, {values: [values[1]]}));
+      });
+      getChartImage("chart", "PORTRAIT");
+
+      expect(pairsOf(renderSvg.mock.calls[0][0].series[0].data)).toEqual([[day(2), 20]]);
+    });
+  });
+
+  describe('resize', () => {
+    it('should observe the container and resize the chart, debounced', async () => {
+      jest.useFakeTimers();
+      await renderChart(models.ChrLinTst);
+      const chart = lastChart();
+      expect(observers).toHaveLength(1);
+      expect(observers[0].observe).toHaveBeenCalledWith(document.querySelector("div#chart"));
+      chart.resize.mockClear();
+
+      act(() => {
+        observers[0].callback();
+        observers[0].callback();
+        jest.advanceTimersByTime(60);
+      });
+
+      expect(chart.resize).toHaveBeenCalledTimes(1);
+    });
+
+    it('should build the option with the size of the container', async () => {
+      const model = clone(models.ChrSemiCircleTst);
+
+      await renderChart(model);
+
+      // 500 / 2 + 50 - 12
+      expect(lastOption().title.top).toBe(288);
+    });
+
+    it('should place a semicircle again with the new size of the container', async () => {
+      jest.useFakeTimers();
+      await renderChart(clone(models.ChrSemiCircleTst));
+      // Plot area of 900x500: margins of 16 and the legend below (34)
+      expect(lastOption().series[0].center).toEqual([450, 16 + 0.75 * (500 - 16 - 50)]);
+
+      Object.defineProperty(HTMLElement.prototype, "clientWidth", {configurable: true, get: () => 600});
+      Object.defineProperty(HTMLElement.prototype, "clientHeight", {configurable: true, get: () => 400});
+      act(() => {
+        observers[0].callback();
+        jest.advanceTimersByTime(60);
+      });
+
+      expect(lastOption().series[0].center).toEqual([300, 16 + 0.75 * (400 - 16 - 50)]);
+    });
+
+    it('should stop observing when it is unmounted', async () => {
+      const {unmount} = await renderChart(models.ChrLinTst);
+
+      unmount();
+
+      expect(observers[0].disconnect).toHaveBeenCalled();
+    });
+
+    it('should work without ResizeObserver', async () => {
+      delete global.ResizeObserver;
+
+      await renderChart(models.ChrLinTst);
+
+      expect(echarts.init).toHaveBeenCalled();
+    });
+  });
+
+  describe('linked series', () => {
+    const linkedModel = () => {
+      const model = clone(advancedModels.AdvPyramid);
+      delete model.series[3].silent;
+      return model;
+    };
+
+    it('should hide and show a linked series together with the series it is linked to', async () => {
+      await renderChart(linkedModel(), []);
+      const {handlers, dispatchAction} = lastChart();
+
+      act(() => handlers.legendselectchanged({name: "max", selected: {max: false, Hombres: true}}));
+      act(() => handlers.legendselectchanged({name: "max", selected: {max: true, Hombres: true}}));
+
+      expect(dispatchAction).toHaveBeenNthCalledWith(1, {type: "legendUnSelect", name: "min"});
+      expect(dispatchAction).toHaveBeenNthCalledWith(2, {type: "legendSelect", name: "min"});
+    });
+
+    it('should not dispatch anything for a series that nothing is linked to', async () => {
+      await renderChart(linkedModel(), []);
+      const {handlers, dispatchAction} = lastChart();
+
+      act(() => handlers.legendselectchanged({name: "Hombres", selected: {Hombres: false}}));
+      act(() => handlers.legendselectchanged({name: "min", selected: {min: false}}));
+
+      expect(dispatchAction).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('drilldown', () => {
+    const pieValues = [
+      {names: "Chrome", serie1: 10, subserie1: 3},
+      {names: "Firefox", serie1: 20, subserie1: 4}
+    ];
+
+    it('should replace a series that has a drilldown when it is clicked, and restore it with the back control', async () => {
+      await renderChart(models.ChrPieTst, pieValues);
+      expect(lastOption().series[0].id).toBe("serie1");
+
+      act(() => lastChart().handlers.click({seriesId: "serie1", name: "Chrome"}));
+
+      expect(lastOption().series[0].id).toBe("serie1_1");
+      expect(lastOption().series[0].data[0]).toEqual({name: "Chrome", value: 3});
+      expect(texts(lastOption())[0]).toContain(i18n.t("Themes"));
+
+      act(() => lastOption().graphic[0].onclick());
+
+      expect(lastOption().series[0].id).toBe("serie1");
+      expect(lastOption().graphic).toBeUndefined();
+    });
+
+    it('should ignore the click on a series without drilldown', async () => {
+      await renderChart(models.ChrLinTst);
+      const calls = lastChart().setOption.mock.calls.length;
+
+      act(() => lastChart().handlers.click({seriesId: "serie-1"}));
+
+      expect(lastChart().setOption.mock.calls.length).toBe(calls);
+    });
+
+    it('should close the drilldown when the server sends another chart', async () => {
+      const {store} = await renderChart(models.ChrPieTst, pieValues);
+      act(() => lastChart().handlers.click({seriesId: "serie1"}));
+      expect(lastOption().series[0].id).toBe("serie1_1");
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {echartsModel: {...clone(models.ChrPieTst), title: {text: "Other"}}}));
+      });
+
+      expect(lastOption().series[0].id).toBe("serie1");
+    });
+
+    it('should keep the drilldown and the drawing when an event only writes the chart attributes', async () => {
+      await renderChart(models.ChrPieTst, pieValues);
+      act(() => lastChart().handlers.click({seriesId: "serie1"}));
+      const calls = lastChart().setOption.mock.calls.length;
+
+      act(() => lastChart().handlers.contextmenu({name: "Chrome", value: 3}));
+
+      expect(lastOption().series[0].id).toBe("serie1_1");
+      expect(lastChart().setOption.mock.calls.length).toBe(calls);
+    });
+  });
+
+  describe('events and attributes', () => {
+    const address = {component: "chart", view: "report"};
+    const attributesOf = (store) => store.getState().components.chart.attributes;
+    const emitted = () => updateAttributesWithDependencies.mock.calls;
+
+    it('should emit click with the point as the x and y attributes', async () => {
+      const {store} = await renderChart(models.ChrLinTst);
+
+      act(() => lastChart().handlers.click({seriesId: "serie-1", value: [day(2), 20]}));
+
+      expect(emitted()).toEqual([[address, {x: day(2), y: 20, event: "click"}]]);
+      expect(attributesOf(store)).toMatchObject({x: day(2), y: 20});
+    });
+
+    it('should use the name and the value of a point without coordinates (pie)', async () => {
+      const {store} = await renderChart(models.ChrPieTst, [{names: "Chrome", serie1: 3}]);
+
+      act(() => lastChart().handlers.click({seriesId: "none", name: "Chrome", value: 3}));
+
+      expect(attributesOf(store)).toMatchObject({x: "Chrome", y: 3});
+    });
+
+    it('should emit double-click and context-menu with the point', async () => {
+      await renderChart(models.ChrLinTst);
+
+      act(() => lastChart().handlers.dblclick({value: [day(1), 10]}));
+      act(() => lastChart().handlers.contextmenu({value: [day(2), 20]}));
+
+      expect(emitted()).toEqual([
+        [address, {x: day(1), y: 10, event: "double-click"}],
+        [address, {x: day(2), y: 20, event: "context-menu"}]
+      ]);
+    });
+
+    it('should emit zoom with the range of the zoomed axes, and keep the y range empty', async () => {
+      const {store} = await renderChart(models.ChrLinTst);
+      lastChart().getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 20, end: 60, startValue: day(2), endValue: day(5)}]});
+
+      act(() => lastChart().handlers.datazoom({}));
+
+      expect(emitted()).toEqual([[address, {xMin: day(2), xMax: day(5), yMin: null, yMax: null, event: "zoom"}]]);
+      expect(attributesOf(store)).toMatchObject({xMin: day(2), xMax: day(5), yMin: null, yMax: null});
+    });
+
+    it('should tell through its test hook whether it is zoomed', async () => {
+      await renderChart(models.ChrLinTst);
+      const hook = () => document.querySelector("[data-testid='chart']").getAttribute("data-zoomed");
+      expect(hook()).toBe("false");
+
+      lastChart().getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 20, end: 60, startValue: day(2), endValue: day(5)}]});
+      act(() => lastChart().handlers.datazoom({}));
+
+      expect(hook()).toBe("true");
+    });
+
+    it('should emit zoom with an empty range when the zoom is reset', async () => {
+      await renderChart(models.ChrLinTst);
+      lastChart().getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 0, end: 100, startValue: day(1), endValue: day(9)}]});
+
+      act(() => lastChart().handlers.datazoom({}));
+
+      expect(emitted()[0][1]).toMatchObject({xMin: null, xMax: null, event: "zoom"});
+    });
+
+    it('should not fail when the chart cannot tell its zoom', async () => {
+      await renderChart(models.ChrLinTst);
+      lastChart().getOption.mockImplementation(() => {
+        throw new Error("disposed");
+      });
+
+      act(() => lastChart().handlers.datazoom({}));
+
+      expect(emitted()[0][1]).toMatchObject({xMin: null, xMax: null, event: "zoom"});
+    });
+  });
+
+  describe('chart options and linked zoom', () => {
+    const setOptions = (store, chartOptions) => act(() => {
+      store.dispatch(updateAttributes({component: "chart", view: "report"}, {chartOptions}));
+    });
+    const zoomOption = () => ({dataZoom: [
+      {xAxisIndex: [0], start: 0, end: 100},
+      {xAxisIndex: [0], start: 0, end: 100}
+    ]});
+
+    it('should zoom every x data zoom to the range of the chart options', async () => {
+      const {store} = await renderChart(models.ChrStockTst);
+      lastChart().getOption.mockReturnValue(zoomOption());
+
+      setOptions(store, {zoom: {x: {min: day(2), max: day(5)}}});
+
+      expect(lastChart().dispatchAction).toHaveBeenCalledWith({type: "dataZoom", dataZoomIndex: 0, startValue: day(2), endValue: day(5)});
+      expect(lastChart().dispatchAction).toHaveBeenCalledWith({type: "dataZoom", dataZoomIndex: 1, startValue: day(2), endValue: day(5)});
+      expect(store.getState().components.chart.attributes).toMatchObject({xMin: day(2), xMax: day(5)});
+    });
+
+    it('should accept the chart options as a JSON text', async () => {
+      const {store} = await renderChart(models.ChrStockTst);
+      lastChart().getOption.mockReturnValue(zoomOption());
+
+      setOptions(store, `{"zoom": {"x": {"min": 10, "max": 20}}}`);
+
+      expect(lastChart().dispatchAction).toHaveBeenCalledWith(expect.objectContaining({startValue: 10, endValue: 20}));
+    });
+
+    it('should show the whole range when the zoom of the options is empty', async () => {
+      const {store} = await renderChart(models.ChrStockTst, values, {xMin: day(2), xMax: day(5)});
+      lastChart().getOption.mockReturnValue(zoomOption());
+
+      setOptions(store, {zoom: {x: {min: null, max: null}}});
+
+      expect(lastChart().dispatchAction).toHaveBeenCalledWith({type: "dataZoom", dataZoomIndex: 0, start: 0, end: 100});
+      expect(store.getState().components.chart.attributes).toMatchObject({xMin: null, xMax: null});
+    });
+
+    it('should not zoom again to the range it already has', async () => {
+      const {store} = await renderChart(models.ChrStockTst, values, {xMin: day(2), xMax: day(5)});
+      lastChart().getOption.mockReturnValue(zoomOption());
+
+      setOptions(store, {zoom: {x: {min: day(2), max: day(5)}}});
+
+      expect(lastChart().dispatchAction).not.toHaveBeenCalled();
+    });
+
+    it('should not emit the zoom event that its own zoom raises (no loop between linked charts)', async () => {
+      const {store} = await renderChart(models.ChrStockTst);
+      const chart = lastChart();
+      chart.getOption.mockReturnValue(zoomOption());
+      chart.dispatchAction.mockImplementation(() => chart.handlers.datazoom({}));
+
+      setOptions(store, {zoom: {x: {min: day(2), max: day(5)}}});
+
+      const events = updateAttributesWithDependencies.mock.calls.filter(([, data]) => data.event);
+      expect(events).toEqual([]);
+      expect(store.getState().components.chart.attributes).toMatchObject({xMin: day(2), xMax: day(5)});
+    });
+
+    it('should ignore the options that have no zoom, a text that is not JSON and an unknown axis', async () => {
+      const {store} = await renderChart(models.ChrStockTst);
+      lastChart().getOption.mockReturnValue(zoomOption());
+
+      setOptions(store, {title: {text: "none"}});
+      setOptions(store, "not json at all");
+      setOptions(store, {zoom: {y: {min: 1, max: 2}}});
+      setOptions(store, null);
+
+      expect(lastChart().dispatchAction).not.toHaveBeenCalled();
+    });
+
+    it('should zoom the chart that is linked to another one when the first one is zoomed', async () => {
+      // Two charts: the zoom event of the first one becomes the chart options of the second one (the dependency)
+      const first = await renderChart(models.ChrLinTst);
+      const firstChart = lastChart();
+      const second = await renderChart(models.ChrStockTst);
+      const secondChart = lastChart();
+      secondChart.getOption.mockReturnValue(zoomOption());
+      firstChart.getOption.mockReturnValue({dataZoom: [{xAxisIndex: [0], start: 10, end: 50, startValue: day(3), endValue: day(4)}]});
+
+      act(() => firstChart.handlers.datazoom({}));
+      const {xMin, xMax} = first.store.getState().components.chart.attributes;
+      setOptions(second.store, {zoom: {x: {min: xMin, max: xMax}}});
+
+      expect(secondChart.dispatchAction).toHaveBeenCalledWith(expect.objectContaining({startValue: day(3), endValue: day(4)}));
+      expect(firstChart.dispatchAction).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('skeleton', () => {
+    const loader = () => document.querySelector("[data-testid='chart'] .awe-skeleton-chart");
+
+    it('should show a hidden skeleton until the chart is drawn', async () => {
+      await renderChart(models.ChrBarTst);
+
+      expect(loader()).not.toBeNull();
+      expect(loader().getAttribute("aria-hidden")).toBe("true");
+      expect(loader().classList.contains("awe-skeleton-chart")).toBe(true);
+
+      act(() => lastChart().handlers.finished());
+
+      expect(loader()).toBeNull();
+    });
+
+    it.each([
+      ['bars', models.ChrBarTst],
+      ['trend', models.ChrStockTst],
+      ['pie', models.ChrPieTst]
+    ])('should hint the %s of the chart in its skeleton', async (hint, model) => {
+      await renderChart(model);
+
+      expect(loader().classList.contains(`awe-skeleton-chart-${hint}`)).toBe(true);
+      expect(loader().querySelectorAll(".p-skeleton").length).toBeGreaterThan(0);
+    });
+
+    it('should not mark the skeleton as a loader, so browser waits do not depend on the chart being drawn', async () => {
+      // A chart in a hidden tab is not drawn until it is shown: the chart hook tells whether it is rendered
+      await renderChart(models.ChrBarTst);
+
+      expect(loader()).not.toBeNull();
+      expect(document.querySelector("[data-testid='chart'] [data-testid='loader']")).toBeNull();
+    });
+
+    it('should hint bars while the chart model has not arrived', async () => {
+      await renderChart(undefined);
+
+      expect(loader().classList.contains("awe-skeleton-chart-bars")).toBe(true);
+    });
+
+    it('should show no skeleton in a hidden chart', async () => {
+      await renderChart(models.ChrBarTst, values, {visible: false});
+
+      expect(loader()).toBeNull();
+    });
+
+    it('should cover the drawn chart with its skeleton while it reloads, until the data arrives', async () => {
+      const {store} = await renderChart(models.ChrPieTst);
+      act(() => lastChart().handlers.finished());
+      expect(loader()).toBeNull();
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {loading: true}));
+      });
+
+      expect(loader()).not.toBeNull();
+      expect(loader().classList.contains("awe-skeleton-chart-pie")).toBe(true);
+      expect(loader().classList.contains("awe-skeleton-chart-cover")).toBe(true);
+      expect(loader().getAttribute("aria-hidden")).toBe("true");
+      expect(document.querySelector("[data-testid='chart']").getAttribute("data-rendered")).toBe("true");
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {loading: false}));
+      });
+
+      expect(loader()).toBeNull();
+    });
+
+    it('should not cover the chart before it is first drawn', async () => {
+      await renderChart(models.ChrBarTst, values, {loading: true});
+
+      expect(loader()).not.toBeNull();
+      expect(loader().classList.contains("awe-skeleton-chart-cover")).toBe(false);
+    });
+
+    it('should show no skeleton in a hidden chart that reloads', async () => {
+      const {store} = await renderChart(models.ChrBarTst, values, {visible: false});
+      act(() => lastChart().handlers.finished());
+
+      act(() => {
+        store.dispatch(updateAttributes({component: "chart", view: "report"}, {loading: true}));
+      });
+
+      expect(loader()).toBeNull();
+    });
+  });
+
+  describe('color mode', () => {
+    it('should draw the chart again with the new colors when the mode changes, without creating it again', async () => {
+      await renderChart(models.ChrBarTst);
+      const chart = lastChart();
+      expect(echarts.init).toHaveBeenCalledTimes(1);
+
+      resolveChartColors.mockReturnValue(DARK);
+      act(() => onModeChange());
+
+      expect(echarts.init).toHaveBeenCalledTimes(1);
+      expect(chart.dispose).not.toHaveBeenCalled();
+      expect(lastOption(chart).title.textStyle.color).toBe(DARK.title);
+      expect(lastOption(chart).yAxis[0].splitLine.lineStyle.color).toBe(DARK.split);
+    });
+
+    it('should not draw the chart again when the colors are the same', async () => {
+      await renderChart(models.ChrBarTst);
+      const chart = lastChart();
+      const draws = chart.setOption.mock.calls.length;
+
+      resolveChartColors.mockReturnValue({...LIGHT});
+      act(() => onModeChange());
+
+      expect(chart.setOption).toHaveBeenCalledTimes(draws);
+    });
+
+    it('should stop observing the mode when the chart is removed', async () => {
+      const {unmount} = await renderChart(models.ChrBarTst);
+
+      unmount();
+
+      expect(stopObserving).toHaveBeenCalledTimes(1);
+    });
+  });
+});

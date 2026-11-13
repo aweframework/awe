@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : hd-my-tickets.xml
+    Description: Tickets of the requester (only their own: the queries filter by the connected user): open one, follow the conversation, reply and close a resolved ticket
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="HD_MENU_MY_TICKETS" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW"/>
+    <message id="CloseMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE"/>
+  </tag>
+  <tag source="buttons">
+    <button button-type="submit" label="BUTTON_SEARCH" icon="lucide:search" id="ButSch" style="btn-primary">
+      <button-action type="filter" target="GrdMyTkt"/>
+    </button>
+    <button label="HD_BTN_OPEN_NEW" icon="lucide:ticket-plus" id="ButMyNew" style="btn-primary" permission="portal.create">
+      <button-action type="reset" target="Cat"/>
+      <button-action type="reset" target="Sub"/>
+      <button-action type="reset" target="Dsc"/>
+      <button-action type="dialog" target="PnlMyNew"/>
+    </button>
+  </tag>
+  <tag source="center" expandible="vertical">
+    <tag type="div" style="awe-card-grid m-2">
+      <card id="CrdMyOpen" title="HD_MY_OPEN" icon="lucide:inbox" icon-tone="info" initial-load="query" target-action="HdkMyOpen" number-decimals="0"/>
+      <card id="CrdMyPnd" title="HD_MY_PENDING" icon="lucide:clock" icon-tone="warning" initial-load="query" target-action="HdkMyPending" number-decimals="0"/>
+      <card id="CrdMyRsv" title="HD_MY_RESOLVED" icon="lucide:circle-check" icon-tone="success" initial-load="query" target-action="HdkMyResolved" number-decimals="0"/>
+    </tag>
+    <tag type="div" style="hd-tall" expandible="horizontal">
+      <window style="expand" label="HD_MENU_MY_TICKETS" icon="lucide:ticket">
+        <tag type="div" style="panel-body">
+          <criteria label="HD_COL_STATUS" id="CrtMyTktSta" component="button-radio" initial-load="enum" target-action="HdkStatus" optional="true" style="col-xs-12 hd-status-tabs"/>
+        </tag>
+        <grid id="GrdMyTkt" style="expand" initial-load="query" server-action="data" target-action="HdkMyTktLst" max="12">
+          <column label="HD_COL_CODE" name="Cod" sort-field="Cod" align="left" charlength="10" secondary-field="CatTxt" sendable="false"/>
+          <column label="HD_COL_ACCESS_KEY_SHORT" name="AccKey" sort-field="AccKey" align="left" charlength="11" sendable="false"/>
+          <column label="HD_COL_SUBJECT" name="Sub" sort-field="Sub" align="left" charlength="32" width="*" sendable="false"/>
+          <column label="HD_COL_STATUS" name="StaTxt" sort-field="StaTxt" align="left" charlength="12" status-field="Ton" sendable="false"/>
+          <column label="HD_COL_UPDATED" name="UpdDat" sort-field="UpdDat" align="center" charlength="17" sendable="false"/>
+          <column name="IdeTkt" hidden="true"/>
+          <column name="Ton" hidden="true" sendable="false"/>
+          <column name="Sta" hidden="true" sendable="false"/>
+          <column name="CatTxt" hidden="true" sendable="false"/>
+          <column name="PriTxt" hidden="true" sendable="false"/>
+          <column name="CreDat" hidden="true" sendable="false"/>
+          <button label="HD_BTN_REPLY" icon="lucide:reply" id="ButMyReply" selection="true">
+            <button-action type="check-some-selected" target="GrdMyTkt"/>
+            <button-action type="dialog" target="PnlMyReply"/>
+            <button-action type="filter" target="GrdMyTkt"/>
+            <dependency target-type="enable" initial="true">
+              <dependency-element id="GrdMyTkt" attribute="selectedRows" condition="ge" value="1"/>
+            </dependency>
+          </button>
+          <button label="HD_BTN_CLOSE_TICKET" icon="lucide:archive" id="ButMyClose" selection="true">
+            <button-action type="check-some-selected" target="GrdMyTkt"/>
+            <button-action type="confirm" target="CloseMsg"/>
+            <button-action type="server" server-action="maintain" target-action="HdkMyClose"/>
+            <button-action type="filter" target="GrdMyTkt"/>
+            <dependency target-type="enable" initial="true">
+              <dependency-element id="GrdMyTkt" attribute="selectedRows" condition="ge" value="1"/>
+            </dependency>
+          </button>
+          <row-detail style="row-detail-card">
+            <grid id="GrdMyConv" row-numbers="false" server-action="data" target-action="HdkMyMsgLst" max="30">
+              <column label="HD_COL_WHEN" name="MsgTim" align="left" charlength="11" wrap="true" sendable="false"/>
+              <column label="HD_COL_AUTHOR" name="MsgAut" align="left" charlength="10" wrap="true" sendable="false"/>
+              <column label="HD_COL_MESSAGE" name="MsgTxt" align="left" charlength="36" width="*" wrap="true" sendable="false"/>
+            </grid>
+          </row-detail>
+        </grid>
+      </window>
+    </tag>
+    <side-panel id="PnlMyNew" label="HD_MY_NEW_PANEL" icon="lucide:ticket-plus" max-width="36rem">
+      <tag type="div" style="panel-body" id="PnlMyNewBdy">
+        <criteria label="HD_COL_CATEGORY" id="Cat" component="select" style="col-xs-12" validation="required" initial-load="enum" target-action="HdkCategory"/>
+        <criteria label="HD_COL_SUBJECT" id="Sub" component="text" style="col-xs-12" validation="{required:true, maxlength:120}"/>
+        <criteria label="HD_COL_DESCRIPTION" id="Dsc" component="textarea" style="col-xs-12" validation="{required:true, maxlength:1000}" area-rows="6"/>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlMyNewCnl">
+          <button-action type="close-cancel" target="PnlMyNew"/>
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="lucide:check" id="ButPnlMyNewSav" style="btn-primary">
+          <button-action type="validate" target="PnlMyNewBdy"/>
+          <button-action type="confirm" target="NewMsg"/>
+          <button-action type="server" server-action="maintain" target-action="HdkMyTktNew"/>
+          <button-action type="close" target="PnlMyNew"/>
+          <button-action type="filter" target="GrdMyTkt"/>
+        </button>
+      </tag>
+    </side-panel>
+    <side-panel id="PnlMyReply" label="HD_BTN_REPLY" icon="lucide:reply" max-width="36rem">
+      <tag type="div" style="panel-body" id="PnlMyReplyBdy">
+        <criteria label="HD_FLD_MESSAGE" id="Txt" component="textarea" style="col-xs-12" validation="{required:true, maxlength:1000}" area-rows="6"/>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="lucide:x" id="ButPnlMyReplyCnl">
+          <button-action type="close-cancel" target="PnlMyReply"/>
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="lucide:check" id="ButPnlMyReplySav" style="btn-primary">
+          <button-action type="validate" target="PnlMyReplyBdy"/>
+          <button-action type="confirm" target="NewMsg"/>
+          <button-action type="server" server-action="maintain" target-action="HdkMyReply"/>
+          <button-action type="close" target="PnlMyReply"/>
+          <button-action type="filter" target="GrdMyTkt"/>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+</screen>

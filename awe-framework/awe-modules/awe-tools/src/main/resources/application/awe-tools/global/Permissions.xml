@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Permissions.xml
+    Description: Permission catalog of the awe-tools module
+-->
+
+<permissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd">
+  <!-- Queries of the SQL extractor and their saved files -->
+  <resource id="sql-extractor" label="PERMISSION_RESOURCE_SQL_EXTRACTOR" verbs="read,update" />
+</permissions>

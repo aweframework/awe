@@ -11,7 +11,7 @@ aweApplication.directive('downloader',
           onLoad: '&',
           onFail: '&'
         },
-        link: function (scope, element) {
+        link: function (scope) {
           // Start loading bar task
           LoadingBar.startTask();
 

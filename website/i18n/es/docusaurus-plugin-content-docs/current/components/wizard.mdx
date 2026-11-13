@@ -1,0 +1,93 @@
+---
+id: wizard
+title: Asistente
+sidebar_label: Asistente
+description: El asistente de AWE, en vivo. Avanza por sus pasos con los botones y mira el componente real y el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {wizard} from '@site/src/components/AwePlayground/specs/wizard';
+
+Un asistente (wizard) guía al usuario por un grupo ordenado de pasos. Muestra la lista de pasos con el actual resaltado y el
+panel del paso actual. El usuario se mueve con botones cuyas acciones `next-step` y `prev-step` son las de abajo: pulsa **Next**
+y **Back** en el área de pruebas, se ejecutan de verdad.
+
+<AwePlayground spec={wizard} />
+
+Los pasos vienen de una lista enumerada o de una consulta del servidor (`initial-load` y `target-action`), y el valor de cada opción es el `id` de su
+`wizard-panel`. Aquí la vista previa rellena esa lista con una fija. Un paso posterior al actual no se puede pulsar: el usuario llega
+a él con **Next** y puede volver a los pasos ya hechos.
+
+## Recetas {#recipes}
+
+### Alta en tres pasos {#recipe-signup}
+
+Cada panel del asistente contiene cualquier componente. Los botones se colocan después del asistente, en un `div` propio.
+
+<AweLive
+  components={{
+    signup: {model: {values: [{value: 'who', label: 'Quién eres', selected: true}, {value: 'plan', label: 'Plan'}, {value: 'done', label: 'Hecho'}]}},
+    Name: {attributes: {label: 'Nombre', placeholder: 'Nombre completo'}},
+    Email: {attributes: {label: 'Correo', icon: 'lucide:mail'}},
+    Plan: {attributes: {label: 'Plan'}, model: {values: [{value: 'm', label: 'Mensual'}, {value: 'y', label: 'Anual'}]}},
+    Back: {attributes: {label: 'Atrás', style: 'btn-ghost'}, actions: [{type: 'prev-step', target: 'signup'}]},
+    Next: {attributes: {label: 'Siguiente', style: 'btn-primary'}, actions: [{type: 'next-step', target: 'signup'}]},
+  }}
+  nodes={[
+    {elementType: 'Wizard', id: 'signup', elementList: [
+      {elementType: 'WizardPanel', id: 'who', elementList: [
+        {elementType: 'Criteria', component: 'text', id: 'Name'},
+        {elementType: 'Criteria', component: 'text', id: 'Email'},
+      ]},
+      {elementType: 'WizardPanel', id: 'plan', elementList: [{elementType: 'Criteria', component: 'select', id: 'Plan'}]},
+      {elementType: 'WizardPanel', id: 'done', elementList: [{elementType: 'Tag', type: 'p', label: 'Todo listo. Pulsa Siguiente otra vez para quedarte en el último paso.'}]},
+    ]},
+    {elementType: 'Tag', type: 'div', style: 'awe-live-actions', elementList: [
+      {elementType: 'Button', id: 'Back'}, {elementType: 'Button', id: 'Next'},
+    ]},
+  ]}
+/>
+
+```xml
+<wizard id="signup" initial-load="enum" target-action="SignupSteps">
+  <wizard-panel id="who">
+    <criteria id="Name" component="text" label="Nombre" placeholder="Nombre completo" />
+    <criteria id="Email" component="text" label="Correo" icon="lucide:mail" />
+  </wizard-panel>
+  <wizard-panel id="plan">
+    <criteria id="Plan" component="select" label="Plan" initial-load="enum" target-action="PlanList" />
+  </wizard-panel>
+  <wizard-panel id="done">
+    <tag type="p" label="Todo listo. Pulsa Siguiente otra vez para quedarte en el último paso." />
+  </wizard-panel>
+</wizard>
+<tag type="div">
+  <button id="Back" label="Atrás" style="btn-ghost">
+    <button-action type="prev-step" target="signup" />
+  </button>
+  <button id="Next" label="Siguiente" style="btn-primary">
+    <button-action type="next-step" target="signup" />
+  </button>
+</tag>
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Un asistente no tiene un evento propio: el usuario se mueve con los botones o pulsando un paso ya hecho. Las
+[acciones](../api/actions.md) que lo mueven:
+
+| Acción       | Descripción                                       |
+|--------------|---------------------------------------------------|
+| `next-step`  | Pasa al siguiente paso del asistente de `target`  |
+| `prev-step`  | Vuelve al paso anterior                           |
+| `first-step` | Va al primer paso                                 |
+| `last-step`  | Va al último paso                                 |
+| `nth-step`   | Va al paso cuyo id está en el parámetro `value`   |
+
+Un paso que contiene un campo inválido se marca en la lista.
+
+## Más {#more}
+
+* [Documentación completa del asistente](../api/wizard-and-wizard-panel.md): atributos, orientación y ejemplos.
+* [Referencia XSD del elemento `wizard`](/reference/screen#element-wizard).

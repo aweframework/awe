@@ -1,0 +1,11 @@
+//
+// Base of the grid columns that the compat layer cannot take over
+//
+// The grid (container, row, the widths, offsets, pushes and pulls of every column) is served by the compat layer
+// (src/main/resources/tailwind/compat/grid.css) and its Bootstrap 3 rules are gone from this build (#755). The base rule of the
+// columns (`position`, `min-height`, side paddings) stays here, verbatim, because it has to win over `body * { min-height: 0 }`
+// (normalize.less): any unlayered rule beats a layered one whatever its specificity, so as a compat rule the 1px minimum height
+// of an empty column (the ones the screens use as spacers) would be lost.
+// --------------------------------------------------
+
+.make-grid-columns();

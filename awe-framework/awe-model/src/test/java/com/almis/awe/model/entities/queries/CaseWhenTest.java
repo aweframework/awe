@@ -10,26 +10,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CaseWhenTest {
 
-  private static final String CASE_WHEN_XML = "" +
-    "<case alias=\"label\">\n" +
-    "   <when left-field=\"Nam\" condition=\"eq\" right-variable=\"purple-hills\">\n" +
-    "     <then>\n" +
-    "       <constant value=\"PURPLE-HILLS\"/>\n" +
-    "     </then>\n" +
-    "   </when>\n" +
-    "   <when>\n" +
-    "     <and>\n" +
-    "       <filter left-field=\"Nam\" condition=\"eq\" right-variable=\"sunny\"/>\n" +
-    "       <filter left-field=\"Nam\" condition=\"is not null\"/>\n" +
-    "     </and>\n" +
-    "     <then>\n" +
-    "       <constant value=\"SUNNY\"/>\n" +
-    "     </then>\n" +
-    "   </when>\n" +
-    "   <else>\n" +
-    "     <constant value=\"null\" type=\"NULL\"/>\n" +
-    "   </else>\n" +
-    " </case>";
+  private static final String CASE_WHEN_XML = """
+    <case alias="label">
+       <when left-field="Nam" condition="eq" right-variable="purple-hills">
+         <then>
+           <constant value="PURPLE-HILLS"/>
+         </then>
+       </when>
+       <when>
+         <and>
+           <filter left-field="Nam" condition="eq" right-variable="sunny"/>
+           <filter left-field="Nam" condition="is not null"/>
+         </and>
+         <then>
+           <constant value="SUNNY"/>
+         </then>
+       </when>
+       <else>
+         <constant value="null" type="NULL"/>
+       </else>
+     </case>""";
 
   private static XStream xStreamMarshaller;
 

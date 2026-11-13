@@ -1,7 +1,7 @@
 package com.almis.awe.model.component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
+import tools.jackson.databind.node.ObjectNode;
 
 @Data
 public class RequestDataHolder {

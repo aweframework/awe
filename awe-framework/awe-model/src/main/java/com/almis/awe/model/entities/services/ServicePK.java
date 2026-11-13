@@ -8,6 +8,7 @@ import lombok.experimental.Accessors;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class ServicePK implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = -662538310201242257L;
 
   // Service name

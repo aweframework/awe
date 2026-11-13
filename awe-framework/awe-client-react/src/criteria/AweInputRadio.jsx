@@ -1,0 +1,43 @@
+import React from "react";
+import {useTranslation} from "react-i18next";
+import {RadioButton} from "primereact/radiobutton";
+import {classNames} from "../utilities/components";
+import {getIconNode, translateLabel} from "../utilities";
+import useCheckboxRadio from "../hooks/useCheckboxRadio";
+import AweCriterion from "./AweCriterion";
+import PropTypes from "prop-types";
+import {TestIds, testHook} from "../utilities/testIds";
+
+function AweInputRadio(props) {
+  const { id } = props;
+  const { t } = useTranslation();
+  const { address, attributes, validationRules, getChecked, onChangeRadio } = useCheckboxRadio(id);
+
+  const { placeholder, required, readonly, label, group, size, error = false, help, helpImage } = attributes;
+  const classes = classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+
+  return (
+    <AweCriterion address={address} attributes={attributes} validationRules={validationRules} generateLabel={false} skeletonKind="check" labelRow>
+      <div className="field-radiobutton">
+        <RadioButton
+          inputId={address?.component}
+          name={group}
+          checked={getChecked()}
+          placeholder={translateLabel(placeholder, t)}
+          onChange={onChangeRadio}
+          required={required}
+          disabled={readonly}
+          className={classes}
+          pt={{ root: testHook(TestIds.criterionInput, { selected: getChecked() }) }}
+        />
+        <label className={"cursor-pointer"} htmlFor={address?.component}>{(help || helpImage) && getIconNode("pi-question-circle", {role: "icon", className: "help-icon"})}{translateLabel(label, t)}</label>
+      </div>
+    </AweCriterion>
+  );
+}
+
+AweInputRadio.propTypes = {
+  id: PropTypes.string,
+};
+
+export default AweInputRadio;

@@ -1,9 +1,20 @@
+const os = require("os");
 const path = require("path");
+
+// The chart utilities of the React client are shared with this client (see webpack.config.js)
+const reactSourcePath = path.join(__dirname, "..", "awe-client-react", "src");
 
 // Jest is the canonical AngularJS frontend test runner. Maven and CI invoke
 // `npm run test:coverage`, which writes GitLab JUnit, Sonar test execution,
 // and LCOV reports under target/reports/jest.
 module.exports = {
+  // In CI the job shares the runner with other jobs: Jest's default of one worker per CPU gets workers killed (SIGKILL)
+  // when memory is short, and saturates the CPU of a small runner (a 4 vCPU VM on a host shared with other VMs, with a
+  // low-power 10 W laptop CPU, shows 10-16 % steal with 4 workers). CI runs half the CPUs as workers, at most 4 (the
+  // previous fixed value) and at least 1.
+  ...(process.env.CI
+    ? {maxWorkers: Math.min(4, Math.max(1, Math.floor(os.availableParallelism() / 2)))}
+    : {}),
   testEnvironment: "jsdom",
   cacheDirectory: path.join(__dirname, "target", ".cache", "jest"),
   setupFilesAfterEnv: [path.join(__dirname, "src", "test", "jest", "setup.js")],
@@ -11,9 +22,18 @@ module.exports = {
     "<rootDir>/src/test/jest/**/*.spec.js",
     "<rootDir>/src/test/jest/**/*.test.js"
   ],
+  // The compat guards of the styles compile the whole LESS and Tailwind builds: they run apart (jest.compat.config.js)
+  testPathIgnorePatterns: ["/node_modules/", "<rootDir>/src/test/jest/styles/"],
+  // The Babel configuration of this module also compiles the shared React sources and the ECharts modules
   transform: {
-    "^.+\\.js$": ["babel-jest", { envName: "jest" }]
+    "^.+\\.(js|ts)$": ["babel-jest", { envName: "jest", configFile: path.join(__dirname, ".babelrc"), babelrc: false }]
   },
+  // ECharts is loaded from its CommonJS bundle (moduleNameMapper below): only its locale modules are ES modules to compile,
+  // plus zrender, whose color parser the shared chart style imports directly (zrender/lib/tool/color) to keep echarts/core
+  // out of the main bundle
+  transformIgnorePatterns: ["/node_modules/(?!(echarts/i18n|zrender)/)"],
+  // The shared React sources import their packages (echarts, lodash) from this module, not from awe-client-react
+  moduleDirectories: [path.join(__dirname, "node_modules"), "node_modules"],
   collectCoverageFrom: [
     "src/main/resources/js/**/*.js",
     "!src/main/resources/js/lib/**"
@@ -39,16 +59,14 @@ module.exports = {
       }
     ]
   ],
-  moduleFileExtensions: ["js", "json"],
+  moduleFileExtensions: ["js", "ts", "json"],
   moduleNameMapper: {
     "^jquery$": path.join(__dirname, "node_modules", "jquery", "dist", "jquery"),
     "^jquery-ui$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
     "^bootstrap-tabdrop$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
-    "^highcharts/highstock$": path.join(__dirname, "src", "test", "jest", "mocks", "highchartsMock.js"),
-    "^highcharts/(.*)$": path.join(__dirname, "src", "test", "jest", "mocks", "highchartsModuleMock.js"),
-    "^HighchartsLocale$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
-    "^HighchartsThemes$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
-    ".*highcharts/i18n/highcharts\\..*$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
+    "^awe-client-react/(.*)$": path.join(reactSourcePath, "$1"),
+    "^echarts/core$": path.join(__dirname, "node_modules", "echarts", "dist", "echarts.js"),
+    "^echarts/(charts|components|renderers)$": path.join(__dirname, "src", "test", "jest", "mocks", "echartsExtensions.js"),
     ".*pivotTable/i18n/pivot\\..*$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
     "^bootstrap-datepicker/js/locales/.*$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),
     "^Tocify$": path.join(__dirname, "src", "test", "jest", "mocks", "pluginMock.js"),

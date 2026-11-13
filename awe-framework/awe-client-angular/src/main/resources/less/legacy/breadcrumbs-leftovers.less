@@ -1,0 +1,18 @@
+//
+// Breadcrumbs rules that the compat layer does not move
+//
+// The breadcrumbs are served by the compat layer (src/main/resources/tailwind/compat/breadcrumbs.css) and their Bootstrap 3 rules are gone from this build (#755).
+// What stays here, verbatim as it compiled, is what must keep winning over a rule that is still in the LESS (pixel-admin, the AWE components and the
+// themes restyle the same elements: a layered compat rule loses to any unlayered one whatever its specificity): the items and the active item.
+// The compat tests of the families name what they leave out, with example selectors.
+//
+// A selector can appear more than once below: these are the compiled blocks kept verbatim, in the order the Bootstrap build printed them. The order
+// decides the cascade among unlayered rules, and the baseline lists them by identity, so they are not merged or sorted.
+// --------------------------------------------------
+
+.breadcrumb > li {
+  display: inline-block;
+}
+.breadcrumb > .active {
+  color: color-mix(in srgb, #000, var(--awe-color-background) 46.7%);
+}

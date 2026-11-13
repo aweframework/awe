@@ -1,19 +1,70 @@
 import {aweApplication} from "../awe";
 import {getIconTemplate} from "../services/component";
+import {iconMarkup} from "../services/icon";
+import {TestIds} from "../data/testIds";
 
-const template = `<div class="panel panel-awe {{::panelClass + ' panel-' + size}} expandible-vertical" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing, 'expand': isExpandible || maximized}" ng-cloak>
+const template = `<div data-testid="${TestIds.window}" ng-attr-data-testid-owner="{{::windowId}}" ng-attr-data-maximized="{{iconMaximized === true}}" class="panel panel-awe {{::panelClass + ' panel-' + size}} expandible-vertical" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing, 'expand': isExpandible || maximized}" ng-cloak>
   <div ng-show="::panelTitle" class="awe-panel-heading panel-heading" ng-cloak>
     ${getIconTemplate("panel-title-icon")}
     <span translate-multiple="{{::panelTitle}}"></span>
     <div ng-if="::maximize" class="btn-group pull-right">
-      <button role="button" type="button" class="maximize-button" aria-hidden="true" ng-click="togglePanel()" title="{{togglePanelText| translateMultiple}}">
-        <i class="fa {{iconMaximized ? 'fa-compress' : 'fa-expand'}}"></i>
+      <button role="button" type="button" class="maximize-button" data-testid="${TestIds.windowMaximizeButton}" aria-hidden="true" ng-click="togglePanel()" title="{{togglePanelText| translateMultiple}}">
+        <i>${iconMarkup("compress", 'ng-if="iconMaximized"')}${iconMarkup("expand", 'ng-if="!iconMaximized"')}</i>
       </button>
     </div>
   </div>
   <div ng-transclude class="awe-panel-content panel-content maximize-content expandible-{{::expandDirection}}" ng-class="{'expand': isExpandible || maximized}" ng-cloak></div>
 </div>`;
 
+/**
+ * What the advanced block of a window needs from it (#790): its advanced search and its submit button
+ * @param {Object} $element Window element
+ * @param {Object} $attrs Window attributes
+ * @param {Object} Control Control service
+ * @constructor
+ */
+function WindowController($element, $attrs, Control) {
+  this.element = $element;
+  // The advanced block of the window, when it holds one
+  this.advancedBlock = null;
+
+  /**
+   * Advanced search of the window: null without an advanced block
+   * @param {string} view View of the window
+   * @returns {{windowId: string, label: string, mode: string, open: boolean, savedSearches: boolean, defaultSearch: Object|null, advancedIds: string[], searchIds: string[]}|null} Search
+   */
+  this.getAdvancedSearch = view => {
+    const controller = Control.getAddressController({view, component: $attrs.windowId}) || {};
+    if (!controller.advancedCriteria) {
+      return null;
+    }
+    return {
+      windowId: $attrs.windowId,
+      label: controller.label || "",
+      mode: controller.advancedMode,
+      // The user left the block open (the server sends it only when it is stored)
+      open: controller.advancedOpen === true,
+      // The window opts in to the saved searches (#790)
+      savedSearches: controller.savedSearches === true,
+      // The default saved search the server applied before the initial load (#915): id, name, values and layout
+      defaultSearch: controller.defaultSearch || null,
+      advancedIds: controller.advancedCriteria,
+      searchIds: controller.searchCriteria || []
+    };
+  };
+
+  /**
+   * Launch the submit button of the window
+   * @returns {boolean} The window has a submit button
+   */
+  this.submit = () => {
+    const own = $element.find(":submit:visible");
+    if (own.length > 0) {
+      $(own[0]).scope().onClick();
+    }
+    return own.length > 0;
+  };
+}
 
 // Window directive
 aweApplication.directive('aweWindow',
@@ -27,6 +78,7 @@ aweApplication.directive('aweWindow',
         scope: {
           windowId: '@'
         },
+        controller: ['$element', '$attrs', 'Control', WindowController],
         link: function (scope, elem) {
           // Init as component
           let  component = new Component(scope, scope.windowId);

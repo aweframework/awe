@@ -37,11 +37,11 @@ There are some kind of validation:
 | **ne**             | **All** except `checkbox` and `radio` | Check if the criterion value is different than `value`                                  | `validation="{ne:`[value](#validation-values)`}"`                                             |
 | **mod**            | `Numeric` / `Date` / `Time`           | Check if the criterion value is divisible by `value`                                    | `validation="{mod:`[value](#validation-values)`}"`                                            |
 | **range**          | `Numeric` / `Date` / `Time`           | Check if the value is inside the range                                                  | `validation="{range:{from:`[value](#validation-values)`, to:`[value](#validation-values)`}}"` |
-| **equallength**    | `Text` / `Textarea` / `Password`      | Check if the text length is equal to `value`                                            | `validation="{equallegth:`[value](#validation-values)`}"`                                     |
-| **maxlength**      | `Text` / `Textarea` / `Password`      | Check if the text length is less than `value`                                           | `validation="{maxlegth:`[value](#validation-values)`}"`                                       |
+| **equallength**    | `Text` / `Textarea` / `Password`      | Check if the text length is equal to `value`                                            | `validation="{equallength:`[value](#validation-values)`}"`                                     |
+| **maxlength**      | `Text` / `Textarea` / `Password`      | Check if the text length is less than `value`                                           | `validation="{maxlength:`[value](#validation-values)`}"`                                       |
 | **minlength**      | `Text` / `Textarea` / `Password`      | Check if the text length is bigger than `value`                                         | `validation="{minlength:`[value](#validation-values)`}"`                                      |
 | **checkAtLeast**   | `Checkbox` / `Button checkbox`        | Assure that there is at least `value` checked checkboxes in the group                   | `validation="{checkAtLeast:`[value](#validation-values)`}"`                                   |
-| **maxRepeat**      | `Grid columns`                        | Check whether element is repeated `value` times in its grid column                      | `validation="{maxRepeat:`[value](#validation-values)`}"`                                      |
+| **maxRepeat**      | `Grid columns`                        | Check that the value of the cell is not repeated more than `value` times in its grid column (the cell counts as one). As in AngularJS: values are compared strictly (`1` is not `"1"`), empty values are counted, and multiple (array) cells are never flagged. An empty `value` skips the rule and a non-numeric one flags every value. Only the edited cell is checked again: the other rows keep their state until they are edited or the form is validated | `validation="{maxRepeat:`[value](#validation-values)`}"`                                      |
 | **pattern**        | `Text` / `Textarea` / `Password`      | Check if the text is equal  to the parameter                                            | `validation="{pattern:`[value](#validation-values)`}"`                                        |
  
 ### Validation values
@@ -98,6 +98,27 @@ If you want to combine simple rules with complex rules, you need to define it as
 ```javascript 
 {required:true, maxlength:{value:6, type:"integer"}}
 ```
+
+## Fields in hidden content
+
+A criterion can sit in content the user does not see: a tab that is not the active one, a step of a wizard that is not the current one, or an accordion item that is collapsed. When a `validate` action fails, both clients (AngularJS and React) validate every criterion of the screen, hidden or not, and then bring the **first** invalid one into view:
+
+1. The tabs, wizard steps and accordion items that hide the field are opened, from the outer container to the inner one. A container that already shows the field is left as it is, and an accordion that allows several open items keeps the others open.
+2. The field is focused and scrolled into view.
+3. The tab header, the wizard step and the accordion item that hold invalid fields are marked with an error indicator (a red title with an exclamation mark, and a red number in a wizard step). The mark goes away when the fields are fixed.
+
+The first invalid field is the first one in the order of the screen definition. Screens without hidden content keep working as they did: the error message is shown next to the field.
+
+For automated tests, the marked tab, step or item carries the attribute `data-invalid="true"` (and `"false"` otherwise), next to `data-active` and `data-completed`. The test screen `reveal-invalid` of the test applications has a required field in a second tab, in a collapsed accordion item and in the second step of a wizard.
+
+## Grids with unsaved rows
+
+An editable grid can hold a row that is still being edited: a row the user just added, or one the user is changing. When an action with `check-records-saved` finds one, both clients keep the warning message and, as with an invalid field, tell the user where that grid is:
+
+1. The tabs, wizard steps and accordion items that hide the grid are opened, and the row being edited is scrolled into view.
+2. The tab header and the wizard step that hold the grid are marked with the same error indicator as an invalid field while the grid has unsaved rows. The mark goes away when the row is saved or cancelled.
+
+The warning message does not change, and a screen without hidden content keeps working as it did: the warning is the only thing the user sees. The test screen `unsaved-grid` of the test applications has a side panel with three tabs, each one with an editable grid, and a save button with a `check-records-saved` action on every grid.
 
 ## Examples
 

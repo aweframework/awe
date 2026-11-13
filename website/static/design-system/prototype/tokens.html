@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" data-awe-primary="emerald" data-awe-density="comfortable">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Design tokens — AWE 5 prototype</title>
+  <link rel="icon" href="data:,">
+  <link rel="preload" href="assets/fonts/inter-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="prototype.css">
+  <script>
+    // Restore the prototype theme before the first paint (only <html> attributes, classes and inline tokens)
+    try {
+      const t = JSON.parse(localStorage.getItem('awe-prototype-theme') || '{}');
+      const r = document.documentElement;
+      if (t.mode === 'light' || t.mode === 'dark') r.classList.add(t.mode);
+      if (t.primary) r.dataset.awePrimary = t.primary;
+      if (t.surface && t.surface !== 'auto') r.dataset.aweSurface = t.surface;
+      if (t.density) r.dataset.aweDensity = t.density;
+      if (t.primaryHex) r.dataset.protoPrimaryHex = t.primaryHex;
+      if (t.surfaceHex) r.dataset.protoSurfaceHex = t.surfaceHex;
+      // Palettes generated from a custom hex (prototype.js stores them with the theme)
+      Object.entries(t.vars || {}).forEach(([k, v]) => r.style.setProperty(k, v));
+    } catch { /* no stored theme */ }
+  </script>
+  <script src="prototype.js" defer></script>
+</head>
+<body>
+<header class="topbar tokens-topbar">
+  <span class="brand-mark" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 19 12 5l7.5 14"/><path d="M8.6 13.6h6.8"/></svg>
+  </span>
+  <span class="brand-text">
+    <span class="brand-name">AWE 5 design tokens</span>
+    <span class="brand-sub">Visual reference prototype · issue #883</span>
+  </span>
+  <div class="topbar__actions">
+    <a class="btn btn--outlined btn--sm" href="./"><svg class="i i--sm" aria-hidden="true"><use href="assets/icons/sprite.svg#arrow-right"/></svg>Sample application</a>
+  </div>
+</header>
+
+<main class="content" id="tokens-page">
+  <div class="page-head">
+    <div>
+      <h1>Design tokens</h1>
+      <p>Generated live from <code>tokens.css</code>. Use the Theme panel to change the configured palettes, mode and density.</p>
+    </div>
+  </div>
+
+  <section class="kpis" id="tier-counts" aria-label="Token counts per tier"></section>
+
+  <h2 class="section-title">Configured palettes (tier 1)</h2>
+  <section class="card">
+    <div class="card__body stack">
+      <div><p class="demo-label">--awe-primary-50..950 <span class="muted" id="primary-name"></span></p><div class="scale" id="scale-primary"></div></div>
+      <div><p class="demo-label">--awe-surface-0..950 <span class="muted" id="surface-name">(slate in light and zinc in dark unless data-awe-surface is set)</span></p>
+        <div class="scale light" id="scale-surface-light"></div>
+        <div class="scale dark" id="scale-surface-dark" style="margin-top: var(--awe-space-2)"></div></div>
+    </div>
+  </section>
+
+  <h2 class="section-title">Semantic colours (tier 2) · light and dark</h2>
+  <section class="card">
+    <div class="table-wrap">
+      <table class="grid token-table">
+        <thead><tr><th>Token</th><th class="sw-col">Light</th><th class="sw-col">Dark</th><th>Definition</th></tr></thead>
+        <tbody id="semantic-colors"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="cols">
+    <section class="card">
+      <div class="card__header"><h3 class="card__title">Text on surfaces</h3></div>
+      <div class="cols card__body pair-preview">
+        <div class="light preview-pane" id="text-light"></div>
+        <div class="dark preview-pane" id="text-dark"></div>
+      </div>
+    </section>
+    <section class="card">
+      <div class="card__header"><h3 class="card__title">Elevation</h3></div>
+      <div class="cols card__body pair-preview">
+        <div class="light preview-pane elevations" id="elev-light"></div>
+        <div class="dark preview-pane elevations" id="elev-dark"></div>
+      </div>
+    </section>
+  </div>
+
+  <h2 class="section-title">Typography (Inter)</h2>
+  <section class="card">
+    <div class="card__body" id="type-scale"></div>
+  </section>
+
+  <div class="cols">
+    <section class="card">
+      <div class="card__header"><h3 class="card__title">Spacing · 4px grid</h3></div>
+      <div class="card__body" id="spacing"></div>
+    </section>
+    <section class="card">
+      <div class="card__header"><h3 class="card__title">Radius · Aura scale</h3></div>
+      <div class="card__body radii" id="radii"></div>
+    </section>
+  </div>
+
+  <h2 class="section-title">Foundations, density and component tokens</h2>
+  <section class="card">
+    <div class="table-wrap">
+      <table class="grid token-table">
+        <thead><tr><th>Token</th><th>Tier</th><th>Comfortable</th><th>Compact</th></tr></thead>
+        <tbody id="other-tokens"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <h2 class="section-title">Primitive palettes (tier 1) · Aura values</h2>
+  <section class="card">
+    <div class="card__body stack" id="primitives"></div>
+  </section>
+</main>
+</body>
+</html>

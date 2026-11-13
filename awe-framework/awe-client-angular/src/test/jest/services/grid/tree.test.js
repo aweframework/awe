@@ -74,6 +74,45 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/tree.js',
       return tree;
     }
 
+    it('should not move the rows of a tree grid', function () {
+      let tree = initTree({...currentModel}, {...currentController});
+      const ids = tree.model.values.map(row => row._ID);
+
+      expect(tree.moveRow("first", "5")).toBe(false);
+
+      expect(tree.model.values.map(row => row._ID)).toEqual(ids);
+    });
+
+    it('should keep a loading branch flagged as loading until it is expanded', function () {
+      let pending;
+      jest.spyOn($utilities, "timeout").mockImplementation(callback => { pending = callback; });
+      let tree = initTree({...currentModel}, {...currentController});
+      const branch = {entity: {$$isLoading: true}};
+      tree.loadingBranch = branch;
+      tree.onBranchExpand({rows: []});
+
+      // The expansion runs later: tests wait on data-loading, so it must not be cleared yet
+      expect(branch.entity.$$isLoading).toBe(true);
+      expect(tree.grid.api.treeBase.expandRow).not.toHaveBeenCalled();
+
+      pending();
+      expect(branch.entity.$$isLoading).toBe(false);
+      expect(tree.grid.api.treeBase.expandRow).toHaveBeenCalledWith(branch);
+    });
+
+    it('should clear the loading flag even if the expansion fails', function () {
+      let pending;
+      jest.spyOn($utilities, "timeout").mockImplementation(callback => { pending = callback; });
+      let tree = initTree({...currentModel}, {...currentController});
+      tree.grid.api.treeBase.expandRow.mockImplementation(() => { throw new Error("expand failed"); });
+      const branch = {entity: {$$isLoading: true}};
+      tree.loadingBranch = branch;
+      tree.onBranchExpand({rows: []});
+
+      expect(() => pending()).toThrow("expand failed");
+      expect(branch.entity.$$isLoading).toBe(false);
+    });
+
     it('should expand a tree branch', function () {
       let tree = initTree({...currentModel}, {...currentController});
       let row = {};
@@ -188,6 +227,19 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/tree.js',
       // Assert
       expect(tree.grid.api.core.notifyDataChange).toHaveBeenCalled();
       expect(tree.grid.api.selection.clearSelectedRows).toHaveBeenCalled();
+    });
+
+    it('should replace the rows of a tree when it is filled with fewer rows', function () {
+      // A load-all tree reloaded with a quick filter or a search: the rows that are not sent again are gone
+      let tree = initTree({...currentModel}, {...currentController, loadAll: true});
+      jest.spyOn(tree, "updateModel").mockImplementation(() => null);
+      const values = [{_ID: 5, value: "lili"}, {_ID: 8, value: "lyly", parent: 5}];
+
+      tree.api.updateModelValues({values, records: 2});
+
+      expect(tree.model.values).toEqual([{_ID: 5, value: "lili"}, {_ID: 8, value: "lyly", parent: 5}]);
+      expect(tree.model.records).toBe(2);
+      expect(tree.updateModel).toHaveBeenCalled();
     });
 
     it('should delete a row without parent', function () {

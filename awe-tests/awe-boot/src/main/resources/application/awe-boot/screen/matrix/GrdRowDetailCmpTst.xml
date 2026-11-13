@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdRowDetailCmpTst.xml
+    Description: Countries whose row detail shows a nested grid with the customers of the country (master-detail). The
+                 nested query reads the country from a hidden column of the parent row. The second grid brings its nested
+                 grid with an include of the GrdRowDetailCmpIncTst screen
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_ROW_DETAIL_COMPONENTS">
+  <tag source="hidden">
+    <message id="RowDetailCmpInfoMsg" title="CONFIRM_TITLE_ROW_DETAIL_CUSTOMERS" message="CONFIRM_MESSAGE_ROW_DETAIL_CUSTOMERS"/>
+  </tag>
+  <tag source="center" expandible="vertical">
+    <window style="expand" label="SCREEN_TITLE_GRID_ROW_DETAIL_COMPONENTS" expandible="vertical">
+      <grid id="GrdRowDetailCmp" style="expand" initial-load="query" server-action="data" target-action="RowDetailCmpCountries" max="10">
+        <column label="COLUMN_COUNTRY" name="name" align="left" charlength="30"/>
+        <column label="COLUMN_ROW_DETAIL_CODE" name="code" align="center" charlength="10"/>
+        <column label="COLUMN_COUNTRY" name="country" hidden="true"/>
+        <row-detail style="row-detail-card">
+          <grid id="GrdRowDetailCmpCus" server-action="data" target-action="RowDetailCmpCustomers" max="10">
+            <column label="COLUMN_ROW_DETAIL_CUSTOMER" name="customer" align="left" charlength="20"/>
+            <column label="COLUMN_ROW_DETAIL_ADDRESS" name="address" align="left" charlength="30"/>
+            <column label="COLUMN_ROW_DETAIL_SINCE" name="since" align="center" charlength="12"/>
+            <column label="COLUMN_ROW_DETAIL_STATUS" name="status" align="center" charlength="10"/>
+            <button id="ButRowDetailCmpInfo" label="BUTTON_ROW_DETAIL_CUSTOMERS_INFO" icon="info-circle">
+              <button-action type="confirm" target="RowDetailCmpInfoMsg"/>
+            </button>
+          </grid>
+        </row-detail>
+      </grid>
+    </window>
+    <window style="expand" label="SCREEN_TITLE_GRID_ROW_DETAIL_INCLUDE" expandible="vertical">
+      <grid id="GrdRowDetailCmpInc" style="expand" initial-load="query" server-action="data" target-action="RowDetailCmpIncCountries" max="10">
+        <column label="COLUMN_COUNTRY" name="incName" align="left" charlength="30"/>
+        <column label="COLUMN_COUNTRY" name="incCountry" hidden="true"/>
+        <row-detail>
+          <include target-screen="GrdRowDetailCmpIncTst" target-source="customers"/>
+        </row-detail>
+      </grid>
+    </window>
+  </tag>
+</screen>

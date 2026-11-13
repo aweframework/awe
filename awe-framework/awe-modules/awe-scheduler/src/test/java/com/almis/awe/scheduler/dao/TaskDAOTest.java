@@ -20,12 +20,11 @@ import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.log.FileExecutionLogStore;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,6 +33,8 @@ import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.springframework.context.ApplicationContext;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,7 +46,6 @@ import java.util.Map;
 import static com.almis.awe.scheduler.constant.QueryConstants.*;
 import static com.almis.awe.scheduler.constant.TaskConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -85,12 +85,16 @@ class TaskDAOTest {
   @Mock
   private FileChecker fileChecker;
 
+  // The log folder: an empty path would be the working directory, and purging the orphan logs deletes every file in it
+  @TempDir
+  private java.nio.file.Path logFolder;
+
   /**
    * Initializes json mapper for tests
    */
   @BeforeEach
   void initBeans() {
-    taskDAO = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, new FileExecutionLogStore(""));
+    taskDAO = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, new FileExecutionLogStore(logFolder.toString()));
     taskDAO.setApplicationContext(context);
   }
 
@@ -428,7 +432,7 @@ class TaskDAOTest {
     ServiceData serviceData = taskDAO.loadExecutionScreen("lala", address);
 
     // Assert
-    assertEquals(16, serviceData.getClientActionList().size());
+    assertEquals(18, serviceData.getClientActionList().size());
   }
 
   /**
@@ -444,8 +448,9 @@ class TaskDAOTest {
 
     ServiceData serviceData = taskDAO.loadExecutionScreen("lala", address);
 
-    // Only the viewer-selection actions are emitted, none of the execution-header ones
-    assertEquals(3, serviceData.getClientActionList().size());
+    // Only the viewer-selection actions (reset, serverAction swap, task id, execution id, filter) are emitted,
+    // none of the execution-header ones
+    assertEquals(5, serviceData.getClientActionList().size());
   }
 
   /**

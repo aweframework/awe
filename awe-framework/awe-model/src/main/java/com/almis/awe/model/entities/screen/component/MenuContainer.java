@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,7 @@ import java.util.Optional;
 @XStreamAlias("menu-container")
 public class MenuContainer extends Component {
 
+  @Serial
   private static final long serialVersionUID = 8200951388289707350L;
 
   @JsonIgnore

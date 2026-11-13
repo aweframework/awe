@@ -1,46 +1,52 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import {DefaultSpin} from "../data/options";
 import {getIconTemplate} from "./component";
+import {iconTemplate} from "./icon";
 
 export const templateButtonCheckbox = `<label ng-show="controller.visible" class="criterion btn btn-awe validator input {{criterionClass}} focus-target" ng-class="{'active btn-primary': checked, 'disabled': controller.readonly}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" 
          ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly" 
-         ng-focus="focus()" ng-blur="blur()"/>
+         ng-focus="focus()" ng-blur="blur()" data-testid="${TestIds.criterionInput}"/>
   <i></i>       
   ${getIconTemplate("{{::iconClass}}", "i")}
   <span class="lbl label-{{::size}}" title="{{controller.title| translateMultiple}}" >
-    <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
     {{controller.label| translateMultiple}}
   </span>
-  <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-loader class="loader" skeleton="checkbox" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </label>`;
 export const templateButtonRadio = `<label ng-show="controller.visible" class="criterion btn btn-awe validator input {{criterionClass}} focus-target" ng-class="{'active btn-primary': component.model.selected === component.value, 'disabled': controller.readonly}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <input type="radio" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-focus="focus()" ng-blur="blur()"
-         ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"/>
+         ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"
+         data-testid="${TestIds.criterionInput}"/>
   <i></i>       
   ${getIconTemplate("{{::iconClass}}", "i")}
   <span class="lbl label-{{::size}}" title="{{controller.title| translateMultiple}}" >
-    <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
     {{controller.label| translateMultiple}}
   </span>
-  <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  <awe-loader class="loader" skeleton="radio" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </label>`;
 
 export const templateInputCheckbox = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" class="control-label label-{{::size}}" ng-cloak></label>
     <div class="validator input">
-      <label class="checkbox" title="{{controller.title | translateMultiple}}" >
+      <label class="checkbox" ng-class="::{'switch': isSwitch}" title="{{controller.title | translateMultiple}}" >
         <input type="checkbox" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}"
-               ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly"/>
+               ng-attr-role="{{::isSwitch ? 'switch' : undefined}}" ng-attr-aria-checked="{{isSwitch ? (checked ? 'true' : 'false') : undefined}}"
+               ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="controller.readonly"
+               data-testid="${TestIds.criterionInput}"/>
+        <span ng-if="::isSwitch" class="switch__track" aria-hidden="true"></span>
         <span class="lbl label-{{::size}}">
-          <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+          ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
           {{controller.label| translateMultiple}}
         </span>
-        <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+        <awe-loader class="loader" skeleton="checkbox" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       </label>
     </div>
   </div>
@@ -49,30 +55,106 @@ export const templateInputCheckbox = `<div ng-show="controller.visible" class="c
 export const templateColumnCheckbox = `<div ng-show="component.controller.visible" class="validator column-input criterion column-checkbox no-animate" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
   <div class="input">
     <label class="checkbox" title="{{component.model.values[0].title | translateMultiple}}" >
-      <input type="checkbox" class="px form-control" ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="component.controller.readonly || !component.editing"/>
+      <input type="checkbox" class="px form-control" ng-model="checked" ng-change="updateSelected(checked)" ng-disabled="component.controller.readonly || !component.editing" data-testid="${TestIds.criterionInput}"/>
       <span class="lbl"></span>
     </label>
   </div>
   <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
 
+export const templateColumnRadio = `<div ng-show="component.controller.visible" role="radiogroup" ng-attr-aria-label="{{component.controller.label | translateMultiple}}" class="validator column-input criterion column-radio no-animate {{criterionClass}}" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
+  <label class="radio" ng-repeat="option in component.model.values track by $index" ng-attr-option-id="{{option.value}}" title="{{option.title | translateMultiple}}">
+    <input type="radio" class="px form-control" ng-attr-name="{{radioName}}" ng-attr-value="{{option.value}}" ng-attr-aria-label="{{option.label | translateMultiple}}" ng-checked="isChecked(option)" ng-click="choose(option)" ng-disabled="component.controller.readonly" data-testid="${TestIds.criterionInput}"/>
+    <span class="lbl">{{option.label | translateMultiple}}</span>
+  </label>
+  <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+</div>`;
+
+export const templateColumnButtonRadio = `<div ng-show="component.controller.visible" role="radiogroup" ng-attr-aria-label="{{component.controller.label | translateMultiple}}" class="validator column-input criterion column-button-radio btn-group no-animate {{criterionClass}}" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
+  <label class="btn btn-awe" ng-repeat="option in component.model.values track by $index" ng-attr-option-id="{{option.value}}" ng-class="{'active btn-primary': isChecked(option), 'disabled': component.controller.readonly}" title="{{option.title | translateMultiple}}">
+    <input type="radio" class="form-control px" ng-attr-name="{{radioName}}" ng-attr-value="{{option.value}}" ng-attr-aria-label="{{option.label | translateMultiple}}" ng-checked="isChecked(option)" ng-click="choose(option)" ng-disabled="component.controller.readonly" data-testid="${TestIds.criterionInput}"/>
+    <i></i>
+    <span class="lbl">{{option.label | translateMultiple}}</span>
+  </label>
+  <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+</div>`;
+
+// Button radio criterion with options (initial-load enum or query): one joined group of buttons, one per option, as the
+// grid column and the React engine draw it
+export const templateButtonRadioGroup = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
+  <div ng-class="::groupClass" ng-cloak>
+    <label ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
+      {{controller.label| translateMultiple}}
+    </label>
+    <div role="radiogroup" ng-attr-aria-label="{{controller.label | translateMultiple}}" class="validator input btn-group button-radio-group focus-target">
+      <label class="btn btn-awe btn-{{::size}}" ng-repeat="option in component.model.values track by $index" ng-attr-option-id="{{option.value}}" ng-class="{'active btn-primary': isChecked(option), 'disabled': controller.readonly}" title="{{option.title | translateMultiple}}">
+        <input type="radio" class="form-control px" ng-attr-name="{{radioName}}" ng-attr-value="{{option.value}}" ng-attr-aria-label="{{option.label | translateMultiple}}" ng-checked="isChecked(option)" ng-click="choose(option)" ng-focus="focus()" ng-blur="blur()" ng-disabled="controller.readonly" data-testid="${TestIds.criterionInput}"/>
+        <i></i>
+        <span class="lbl">{{option.label | translateMultiple}}</span>
+      </label>
+    </div>
+    <awe-loader class="loader" skeleton="radio" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  </div>
+</div>`;
+
+/**
+ * Check if a button radio criterion has options of its own, drawn as one group of buttons. A criterion with an initial
+ * load (enum or query) has them, even before they arrive (deferred tabs and dialogs); the server gives a criterion
+ * without options only its own value, so more than one value are options too. Otherwise the criterion is one button of
+ * its value, grouped with the others of its group
+ * @param {Object} controller Criterion controller
+ * @param {Object} model Criterion model
+ * @return {boolean} The criterion draws its options as one group
+ */
+export function hasRadioOptions(controller, model) {
+  return Boolean(controller?.initialLoad) || (model?.values || []).length > 1;
+}
+
 export const templateRadio = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak>
     <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-cloak></label>
     <div class="validator input">
       <label class="radio" title="{{controller.title| translateMultiple}}" >
         <input type="radio" class="form-control px {{classes}}" ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.group}}"
-               ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"/>
+               ng-model="component.model.selected" ng-value="component.value" ng-change="component.modelChange()" ng-disabled="controller.readonly"
+               data-testid="${TestIds.criterionInput}"/>
         <span class="lbl label-{{::size}}">
-          <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+          ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
           {{controller.label| translateMultiple}}
         </span>
-        <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+        <awe-loader class="loader" skeleton="radio" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       </label>
     </div>
   </div>
 </div>`;
+
+// Keys that move the choice of a group of radios, with the step they take
+const KEY_STEP = {ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1};
+
+/**
+ * Move the choice of a group of radios (a radio column cell, the quick filters of a grid) to its next or previous
+ * enabled option and focus it. The options are the radio inputs of the group the key was pressed in.
+ * @param {Event} event Key down event on one option
+ */
+export function moveChoice(event) {
+  let  step = KEY_STEP[event.key];
+  if (!step) {
+    return;
+  }
+  let  group = event.target.closest ? event.target.closest("[role=radiogroup]") : null;
+  let  options = Array.from(group ? group.querySelectorAll("input[type=radio]") : []).filter((input) => !input.disabled);
+  let  current = options.indexOf(event.target);
+  if (options.length < 2 || current < 0) {
+    return;
+  }
+  event.preventDefault();
+  let  next = options[(current + step + options.length) % options.length];
+  next.focus();
+  next.click();
+}
 
 // Checkbox Radio service
 aweApplication.factory('CheckboxRadio',
@@ -105,6 +187,12 @@ aweApplication.factory('CheckboxRadio',
         this.component.asRadio = function () {
           return checkboxradio.asRadio();
         };
+        this.component.asColumnRadio = function () {
+          return checkboxradio.asColumnRadio();
+        };
+        this.component.asRadioGroup = function () {
+          return checkboxradio.asRadioGroup();
+        };
         return this.component;
       }
 
@@ -132,6 +220,9 @@ aweApplication.factory('CheckboxRadio',
 
           // Add group to address
           component.address.group = component.controller.group;
+
+          // style="switch": drawn as a switch (role switch and a track), with the same value
+          component.scope.isSwitch = String(component.controller.style || "").split(/\s+/).includes("switch");
 
           /******************************************************************************
            * COMPONENT METHODS
@@ -183,6 +274,111 @@ aweApplication.factory('CheckboxRadio',
           };
 
           // Return initialization
+          return true;
+        },
+        /**
+         * Initialize the choice of one option among the values of the model, shared by the grid column radios and the
+         * button radio criterion with options
+         */
+        initChoice: function () {
+          let  component = this.component;
+
+          /**
+           * Check if an option is the selected value
+           * @param {Object} option Option of the list
+           * @return {boolean} The option is the selected one
+           */
+          component.scope.isChecked = function (option) {
+            let  selected = component.model.selected;
+            return !Utilities.isEmpty(selected) && String(selected) === String(option.value);
+          };
+
+          /**
+           * Choose an option: its value is the selected value
+           * @param {Object} option Option of the list
+           */
+          component.scope.choose = function (option) {
+            if (component.controller.readonly || component.scope.isChecked(option)) {
+              return;
+            }
+            component.model.selected = option.value;
+            component.modelChange();
+          };
+
+          /**
+           * Move the choice with the arrow keys. It is bound outside AngularJS: the move clicks the next option, whose
+           * click starts its own digest
+           * @param {Event} event Key down event
+           */
+          component.scope.keyDown = moveChoice;
+          if (component.element && component.element.on) {
+            component.element.on("keydown", "input[type=radio]", moveChoice);
+          }
+
+          /**
+           * Retrieves the label of the selected option as the visible value
+           * @return {string} Visible value
+           */
+          component.getVisibleValue = function () {
+            let  option = _.find(component.model.values, (item) => component.scope.isChecked(item));
+            return option ? String(option.label) : "";
+          };
+        },
+        /**
+         * Initialize as button radio criterion with options: one group of buttons whose choice is the value of the
+         * criterion
+         */
+        asRadioGroup: function () {
+          let  component = this.component;
+          if (!component.asCriterion()) {
+            // If criterion is wrong, cancel initialization
+            return false;
+          }
+          component.scope.spinOptions = component.scope.spinOptions || DefaultSpin.small;
+          component.scope.radioName = [component.address.view, component.address.component].join("-");
+          this.initChoice();
+
+          // Restore goes back to the initial choice (the server only sends it as the selected value)
+          if (Utilities.isEmpty(component.model.defaultValues)) {
+            component.model.defaultValues = _.cloneDeep(component.model.selected);
+          }
+          return true;
+        },
+        /**
+         * Initialize as grid column radio or button-radio: the options come from the list of the column, like the ones
+         * of a select column, and the selected value is the value of the cell
+         */
+        asColumnRadio: function () {
+          let  component = this.component;
+          if (!component.asCriterion()) {
+            // If criterion is wrong, cancel initialization
+            return false;
+          }
+          component.scope.spinOptions = component.scope.spinOptions || DefaultSpin.small;
+          this.initChoice();
+
+          /**
+           * Refresh the name shared by the options of the cell, which is the one of its row, and the visible value
+           */
+          component.updateVisibleValue = function () {
+            let  address = component.address;
+            component.scope.radioName = [address.view, address.component, address.row, address.column].join("-");
+            component.visibleValue = component.getVisibleValue();
+          };
+          component.updateVisibleValue();
+
+          /**
+           * API link to update the model values
+           * @param {Object} data New model data attributes
+           */
+          component.api.updateModelValues = function (data) {
+            let  model = component.model;
+            if (model && "selected" in data) {
+              model.selected = Control.formatDataList(data.selected);
+              component.updateVisibleValue();
+            }
+          };
+
           return true;
         },
         /**

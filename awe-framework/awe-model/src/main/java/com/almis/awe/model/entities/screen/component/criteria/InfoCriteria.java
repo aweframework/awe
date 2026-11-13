@@ -14,6 +14,8 @@ import lombok.experimental.SuperBuilder;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
 
+import java.io.Serial;
+
 /**
  * InfoCriteria Class
  *
@@ -31,6 +33,7 @@ import org.stringtemplate.v4.STGroup;
 @XStreamAlias("info-criteria")
 public class InfoCriteria extends AbstractCriteria {
 
+  @Serial
   private static final long serialVersionUID = 6550382841315255907L;
   // Button Type (button, submit, reset)
   @JsonIgnore

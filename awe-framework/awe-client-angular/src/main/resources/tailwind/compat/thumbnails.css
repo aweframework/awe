@@ -1,0 +1,41 @@
+/*
+ * Thumbnails: Bootstrap 3 thumbnails.less as the compiled vendored CSS renders it: thumbnail, its images (responsive, centered), the linked
+ * thumbnail with its hover, focus and active border, and the caption.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values.
+ * The border color change follows the motion tokens, so it stops under prefers-reduced-motion. There is no !important in this file.
+ *
+ * Not here (it stays in LESS; compatThumbnails.test.js names it with an example selector): the selectors that depend on a theme class.
+ * The file manager of awe-tools writes the third-party `thumbnail` markup and keeps its own overrides in its LESS bundle.
+ */
+
+.thumbnail {
+  display: block;
+  padding: var(--awe-space-1);
+  margin-bottom: var(--awe-space-5);
+  line-height: 1.42857143;
+  background-color: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius);
+  transition: border var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+}
+
+.thumbnail > img,
+.thumbnail a > img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+a.thumbnail:hover,
+a.thumbnail:focus,
+a.thumbnail.active {
+  border-color: var(--awe-color-primary-text);
+}
+
+.thumbnail .caption {
+  padding: var(--awe-space-2);
+  color: var(--awe-color-text);
+}

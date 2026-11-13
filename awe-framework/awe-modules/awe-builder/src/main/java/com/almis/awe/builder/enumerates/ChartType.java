@@ -19,14 +19,18 @@ public enum ChartType {
   COLUMN_3D("column_3d"),
   DONUT("donut"),
   DONUT_3D("donut_3d"),
+  FUNNEL("funnel"),
+  GAUGE("gauge"),
+  HEATMAP("heatmap"),
   LINE("line"),
   MIXED("mixed"),
   PIE("pie"),
   PIE_3D("pie_3d"),
+  RADAR("radar"),
   SCATTER("scatter"),
   SEMICIRCLE("semicircle"),
   SPLINE("spline");
-  
+
   private final String value;
 
   private ChartType(String value) {
@@ -47,5 +51,5 @@ public enum ChartType {
   public String toString() {
     return this.value;
   }
-  
+
 }

@@ -7,6 +7,7 @@ import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.ColumnFilter;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
@@ -16,9 +17,6 @@ import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.SQLQueryBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.core.QueryMetadata;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
@@ -31,6 +29,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -38,16 +37,20 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.springframework.context.ApplicationContext;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -167,7 +170,7 @@ class SQLQueryConnectorTest {
     when(elements.getLocaleWithLanguage(anyString(), any())).thenReturn("msg");
 
     // --- QueryUtil stub: getFullSQL must return a non-null string to avoid NPE in StringUtil.toUnilineText ---
-    when(queryUtil.getFullSQL(anyString(), any())).thenReturn("SELECT 1");
+    when(queryUtil.getFullSQL(anyString(), any(), any())).thenReturn("SELECT 1");
     // getRequestParameter returns null by default (no database routing), which is correct for primary datasource tests
     when(queryUtil.getRequestParameter(any(), any())).thenReturn(null);
   }
@@ -178,8 +181,8 @@ class SQLQueryConnectorTest {
 
   private Map<String, QueryParameter> buildVariableMap(long max, long page) {
     Map<String, QueryParameter> map = new HashMap<>();
-    map.put(AweConstants.QUERY_MAX,  new QueryParameter(com.fasterxml.jackson.databind.node.LongNode.valueOf(max)));
-    map.put(AweConstants.QUERY_PAGE, new QueryParameter(com.fasterxml.jackson.databind.node.LongNode.valueOf(page)));
+    map.put(AweConstants.QUERY_MAX,  new QueryParameter(tools.jackson.databind.node.LongNode.valueOf(max)));
+    map.put(AweConstants.QUERY_PAGE, new QueryParameter(tools.jackson.databind.node.LongNode.valueOf(page)));
     return map;
   }
 
@@ -373,6 +376,60 @@ class SQLQueryConnectorTest {
 
   // -------------------------------------------------------------------------
   @Nested
+  @DisplayName("Sensitive values in the logged SQL")
+  class SensitiveValuesInLoggedSql {
+
+    @Test
+    @DisplayName("The SQL of a query error masks the sensitive values collected by the builder")
+    void querySqlMasksSensitiveValues() throws Exception {
+      Set<String> maskedValues = Set.of("{bcrypt}$2a$10$hash");
+      when(databaseConfigProperties.getLogMaskedFields()).thenReturn(new String[]{"l1_pas"});
+      when(sqlQueryBuilder.getLogMaskedValues()).thenReturn(maskedValues);
+      when(queryUtil.getFullSQL("SELECT 1", Collections.emptyList(), maskedValues))
+        .thenReturn("SELECT 1 WHERE l1_pas = '********'");
+      when(sqlQuery.fetch()).thenThrow(new RuntimeException("original cause"));
+
+      try (MockedStatic<DataSourceUtils> dsu = mockStatic(DataSourceUtils.class)) {
+        dsu.when(() -> DataSourceUtils.getConnection(dataSource)).thenReturn(connection);
+
+        assertThatThrownBy(() -> connector.launch(buildQuery("qMasked"), emptyParams()))
+          .isInstanceOfSatisfying(AWEQueryException.class,
+            exception -> assertThat(exception.getQuery()).isEqualTo("SELECT 1 WHERE l1_pas = '********'"));
+        verify(sqlQueryBuilder).setLogMaskedFields("l1_pas");
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  @Nested
+  @DisplayName("Grid column filters")
+  class GridColumnFilters {
+
+    @Test
+    @DisplayName("The columnFilters of the request reach the builder before it builds the query")
+    void columnFiltersReachTheBuilder() throws Exception {
+      ObjectNode columnFilters = JsonNodeFactory.instance.objectNode().put("id", "name");
+      Map<String, QueryParameter> variables = buildVariableMap(0L, 1L);
+      variables.put(AweConstants.QUERY_COLUMN_FILTERS, new QueryParameter(columnFilters));
+      List<ColumnFilter> parsed = List.of(mock(ColumnFilter.class));
+      when(sqlQueryBuilder.getVariables()).thenReturn(variables);
+      when(queryUtil.getColumnFilterList(columnFilters)).thenReturn(parsed);
+      when(sqlQuery.fetch()).thenReturn(Collections.emptyList());
+
+      try (MockedStatic<DataSourceUtils> dsu = mockStatic(DataSourceUtils.class)) {
+        dsu.when(() -> DataSourceUtils.getConnection(dataSource)).thenReturn(connection);
+
+        connector.launch(buildQuery("qFiltered"), emptyParams());
+
+        InOrder order = inOrder(sqlQueryBuilder);
+        order.verify(sqlQueryBuilder).setColumnFilters(parsed);
+        order.verify(sqlQueryBuilder).build();
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  @Nested
   @DisplayName("Alternate datasource routing")
   class AlternateDatasourceRouting {
 
@@ -494,18 +551,3 @@ class SQLQueryConnectorTest {
     }
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

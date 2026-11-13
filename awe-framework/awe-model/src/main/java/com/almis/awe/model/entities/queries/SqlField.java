@@ -44,6 +44,11 @@ public abstract class SqlField extends OutputField {
   @XStreamAsAttribute
   private String function;
 
+  // Separator of the functions that join values (STRING_AGG), ", " when not set; only allowed with those functions
+  @XStreamAlias("separator")
+  @XStreamAsAttribute
+  private String separator;
+
   // Cast to the field
   @XStreamAlias("cast")
   @XStreamAsAttribute

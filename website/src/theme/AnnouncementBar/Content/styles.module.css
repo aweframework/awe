@@ -1,0 +1,5 @@
+/* Layout of the announcement bar content; the look of the announcement is in src/css/custom.css (.awe-announcement) */
+.content {
+  text-align: center;
+  padding: 0.25rem 0;
+}

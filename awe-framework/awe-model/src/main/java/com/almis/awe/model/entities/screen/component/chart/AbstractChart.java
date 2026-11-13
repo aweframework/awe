@@ -13,6 +13,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import java.util.Map;
 @JsonPropertyOrder(alphabetic = true)
 public abstract class AbstractChart extends Component {
 
+  @Serial
   private static final long serialVersionUID = 5791670373535530051L;
 
   // Chart Axis parameter list

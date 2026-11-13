@@ -1,7 +1,6 @@
 package com.almis.awe.scheduler.executor;
 
 import com.almis.awe.scheduler.bean.task.Task;
-import com.almis.awe.scheduler.bean.task.TaskParameter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.SystemUtils;
 
@@ -10,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +55,7 @@ public class LocalCommandExecutor implements CommandExecutor {
 
     try {
       if (hasWorkingDir) {
-        proc = runtime.exec(finalCommand, envp, Paths.get(rawPath).toFile());
+        proc = runtime.exec(finalCommand, envp, Path.of(rawPath).toFile());
       } else {
         proc = runtime.exec(finalCommand, envp);
       }
@@ -168,7 +166,7 @@ public class LocalCommandExecutor implements CommandExecutor {
    */
   private Path toPath(String directory, String name) {
     try {
-      return Paths.get(directory).resolve(name).toAbsolutePath().normalize();
+      return Path.of(directory).resolve(name).toAbsolutePath().normalize();
     } catch (InvalidPathException exc) {
       log.debug("[Batch] Ignoring invalid path entry {} while resolving {}", directory, name, exc);
       return null;

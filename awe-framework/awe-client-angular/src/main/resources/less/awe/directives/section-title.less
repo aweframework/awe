@@ -1,0 +1,48 @@
+// Section title (#910): a style of any tag, <tag type="h3" style="awe-section-title" label="..."/>. A small
+// uppercase muted label followed by a line that fills the row. Same class as the React engine (Tag.less).
+.awe-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  margin: var(--awe-space-4) 0 var(--awe-space-2);
+  padding: 0;
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-tight);
+  letter-spacing: var(--awe-letter-spacing-caps);
+  color: var(--awe-color-text-muted);
+  text-transform: uppercase;
+}
+
+// The line fills the rest of the row after the label
+.awe-section-title::after {
+  flex: 1;
+  height: 1px;
+  content: "";
+  background: var(--awe-color-border);
+}
+
+// Form section title (#793): a heading tag with style="awe-form-section-title", its icon (tag icon attribute) and its
+// label in one line, and a separator line above every form section title but the first one of its container. Same
+// class as the React engine (Tag.less).
+.awe-form-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  margin: 0 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-section-title);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text-emphasis);
+
+  .tag-icon {
+    display: inline-flex;
+    color: var(--awe-color-text-muted);
+  }
+}
+
+.awe-form-section-title ~ .awe-form-section-title {
+  margin-top: var(--awe-space-5);
+  padding-top: var(--awe-space-5);
+  border-top: var(--awe-border-width) solid var(--awe-color-border-subtle);
+}

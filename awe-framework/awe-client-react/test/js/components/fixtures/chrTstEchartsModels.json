@@ -1,0 +1,703 @@
+{
+  "ChrLinTst": {
+    "title": {
+      "text": "SCREEN_TEXT_CHART_TITLE_1",
+      "subtext": "Subtitulo grafico 1",
+      "left": "center"
+    },
+    "legend": {
+      "show": false,
+      "left": "center",
+      "top": "bottom",
+      "awe": {
+        "title": "Leyenda"
+      }
+    },
+    "tooltip": {
+      "show": true,
+      "trigger": "axis",
+      "awe": {
+        "crosshairs": "xAxis",
+        "numberDecimals": 3,
+        "suffix": " ºC"
+      },
+      "axisPointer": {
+        "type": "line"
+      }
+    },
+    "xAxis": [
+      {
+        "name": "Fechassss",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "time",
+        "awe": {
+          "axis": "x"
+        }
+      }
+    ],
+    "yAxis": [
+      {
+        "name": "Temperaturas (ºC)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "value",
+        "minInterval": 1,
+        "awe": {
+          "axis": "y",
+          "formatter": "formatCurrencyMagnitude"
+        }
+      },
+      {
+        "name": "Lluvias (mm)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "value",
+        "position": "right",
+        "minInterval": 1,
+        "awe": {
+          "axis": "y"
+        }
+      }
+    ],
+    "dataZoom": [
+      {
+        "type": "inside",
+        "xAxisIndex": 0
+      }
+    ],
+    "series": [
+      {
+        "id": "serie-1",
+        "name": "Serie 1",
+        "type": "bar",
+        "yAxisIndex": 0,
+        "itemStyle": {
+          "color": "#A8E0A6"
+        },
+        "awe": {
+          "type": "column",
+          "xValue": "dates",
+          "yValue": "serie1"
+        }
+      },
+      {
+        "id": "serie-2",
+        "name": "Serie 2",
+        "type": "line",
+        "smooth": true,
+        "yAxisIndex": 1,
+        "awe": {
+          "type": "spline",
+          "xValue": "dates",
+          "yValue": "serie2"
+        }
+      }
+    ],
+    "awe": {
+      "chartType": "mixed"
+    }
+  },
+  "ChrBarTst": {
+    "title": {
+      "text": "Grafico 2",
+      "subtext": "Subtitulo grafico 2",
+      "left": "center"
+    },
+    "legend": {
+      "show": false,
+      "orient": "vertical",
+      "left": "right",
+      "top": "middle"
+    },
+    "tooltip": {
+      "show": true,
+      "trigger": "item",
+      "awe": {
+        "crosshairs": "xAxis",
+        "numberDecimals": 3,
+        "suffix": " ºC"
+      },
+      "axisPointer": {
+        "type": "line"
+      }
+    },
+    "xAxis": [
+      {
+        "name": "SCREEN_TEXT_CHART_AXIS_DATES",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "time",
+        "awe": {
+          "axis": "x"
+        }
+      }
+    ],
+    "yAxis": [
+      {
+        "name": "Temperaturas (ºC)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "value",
+        "minInterval": 1,
+        "awe": {
+          "axis": "y"
+        }
+      }
+    ],
+    "series": [
+      {
+        "id": "serie2-1",
+        "name": "SCREEN_TEXT_CHART_SERIE_1",
+        "type": "bar",
+        "stack": "stack",
+        "awe": {
+          "type": "column",
+          "xValue": "dates",
+          "yValue": "serie1"
+        }
+      },
+      {
+        "id": "serie2-2",
+        "name": "SCREEN_TEXT_CHART_SERIE_2",
+        "type": "bar",
+        "stack": "stack",
+        "awe": {
+          "type": "column",
+          "xValue": "dates",
+          "yValue": "serie2"
+        }
+      },
+      {
+        "id": "serie2-3",
+        "name": "SCREEN_TEXT_CHART_SERIE_3",
+        "type": "bar",
+        "stack": "stack",
+        "awe": {
+          "type": "column",
+          "xValue": "dates",
+          "yValue": "serie3"
+        }
+      }
+    ],
+    "awe": {
+      "chartType": "column_3d",
+      "stacking": "normal"
+    }
+  },
+  "ChrBarHorTst": {
+    "title": {
+      "text": "Grafico 3",
+      "left": "center"
+    },
+    "legend": {
+      "show": false,
+      "orient": "vertical",
+      "left": "right",
+      "top": "middle",
+      "borderWidth": 1
+    },
+    "tooltip": {
+      "show": true,
+      "trigger": "item",
+      "awe": {
+        "numberDecimals": 3,
+        "suffix": " ºC",
+        "dateFormat": "%Y-%m-%d"
+      }
+    },
+    "xAxis": [
+      {
+        "name": "Temperaturas (ºC)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "value",
+        "interval": 1,
+        "minInterval": 1,
+        "awe": {
+          "axis": "y",
+          "labelFormat": "{value} ºC"
+        }
+      }
+    ],
+    "yAxis": [
+      {
+        "name": "SCREEN_TEXT_CHART_AXIS_DATES",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "time",
+        "inverse": true,
+        "interval": 259200,
+        "awe": {
+          "axis": "x"
+        }
+      }
+    ],
+    "series": [
+      {
+        "id": "serie1",
+        "name": "Serie 1",
+        "type": "bar",
+        "label": {
+          "show": true
+        },
+        "awe": {
+          "type": "column",
+          "xValue": "dates",
+          "yValue": "serie1",
+          "labelFormat": "{y:.3f}"
+        }
+      },
+      {
+        "id": "serie2",
+        "name": "Serie 2",
+        "type": "bar",
+        "label": {
+          "show": true
+        },
+        "awe": {
+          "type": "column",
+          "xValue": "dates",
+          "yValue": "serie2",
+          "labelFormat": "{y:.3f}"
+        }
+      }
+    ],
+    "awe": {
+      "chartType": "column",
+      "inverted": true
+    }
+  },
+  "ChrStockTst": {
+    "title": {
+      "text": "Grafico 4",
+      "left": "center"
+    },
+    "legend": {
+      "show": false,
+      "left": "center",
+      "top": "bottom"
+    },
+    "tooltip": {
+      "show": true,
+      "trigger": "item",
+      "awe": {
+        "numberDecimals": 2,
+        "suffix": " ºC"
+      }
+    },
+    "xAxis": [
+      {
+        "name": "Fechas",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "time",
+        "awe": {
+          "axis": "x"
+        }
+      }
+    ],
+    "yAxis": [
+      {
+        "name": "Temperaturas (ºC)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "value",
+        "minInterval": 1,
+        "awe": {
+          "axis": "y",
+          "labelFormat": "{value} ºC"
+        }
+      }
+    ],
+    "dataZoom": [
+      {
+        "type": "inside",
+        "xAxisIndex": 0
+      },
+      {
+        "type": "slider",
+        "xAxisIndex": 0
+      }
+    ],
+    "series": [
+      {
+        "id": "serie1",
+        "name": "Serie 1",
+        "type": "line",
+        "awe": {
+          "type": "line",
+          "xValue": "dates",
+          "yValue": "serie1"
+        }
+      }
+    ],
+    "awe": {
+      "chartType": "line",
+      "theme": "blue",
+      "stock": true
+    }
+  },
+  "ChrAreTst": {
+    "title": {
+      "text": "Grafico 5",
+      "left": "center"
+    },
+    "legend": {
+      "show": false,
+      "left": "right",
+      "top": "top",
+      "awe": {
+        "floating": true
+      }
+    },
+    "tooltip": {
+      "show": true,
+      "trigger": "item",
+      "awe": {
+        "numberDecimals": 3,
+        "suffix": " ºC"
+      }
+    },
+    "xAxis": [
+      {
+        "name": "Fechas",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "time",
+        "awe": {
+          "axis": "x",
+          "dateTimeLabelFormats": {
+            "day": "%Y-%m-%d"
+          }
+        }
+      }
+    ],
+    "yAxis": [
+      {
+        "name": "Temperaturas (ºC)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "value",
+        "minInterval": 1,
+        "awe": {
+          "axis": "y"
+        }
+      }
+    ],
+    "series": [
+      {
+        "id": "serie1",
+        "name": "Serie 1",
+        "type": "line",
+        "smooth": true,
+        "areaStyle": {},
+        "awe": {
+          "type": "areaspline",
+          "xValue": "dates",
+          "yValue": "serie1"
+        }
+      },
+      {
+        "id": "serie2",
+        "name": "Serie 2",
+        "type": "line",
+        "smooth": true,
+        "areaStyle": {},
+        "awe": {
+          "type": "areaspline",
+          "xValue": "dates",
+          "yValue": "serie2"
+        }
+      }
+    ],
+    "awe": {
+      "chartType": "areaspline"
+    }
+  },
+  "ChrPieTst": {
+    "title": {
+      "text": "Grafico 6",
+      "left": "center"
+    },
+    "legend": {
+      "show": true,
+      "left": "center",
+      "top": "bottom"
+    },
+    "tooltip": {
+      "show": true,
+      "trigger": "item",
+      "awe": {
+        "numberDecimals": 2,
+        "suffix": " %"
+      }
+    },
+    "series": [
+      {
+        "id": "serie1",
+        "name": "Themes",
+        "type": "pie",
+        "label": {
+          "show": true
+        },
+        "awe": {
+          "type": "pie",
+          "xValue": "names",
+          "yValue": "serie1",
+          "drilldown": "serie1_1",
+          "labelFormat": "<b>{point.name}</b>: {point.percentage:.1f} %",
+          "keys": [
+            "name",
+            "y",
+            "drilldown"
+          ]
+        },
+        "radius": "75%"
+      }
+    ],
+    "awe": {
+      "chartType": "pie",
+      "drilldown": {
+        "series": [
+          {
+            "id": "serie1_1",
+            "name": "SubThemes",
+            "type": "pie",
+            "label": {
+              "show": true
+            },
+            "awe": {
+              "type": "pie",
+              "xValue": "names",
+              "yValue": "subserie1",
+              "labelFormat": "<b>{point.name}</b>: {point.percentage:.1f} %"
+            },
+            "radius": "75%"
+          }
+        ]
+      }
+    }
+  },
+  "ChrDonutTst": {
+    "title": {
+      "text": "Grafico 7",
+      "left": "center"
+    },
+    "legend": {
+      "show": true,
+      "left": "center",
+      "top": "bottom"
+    },
+    "tooltip": {
+      "show": true,
+      "trigger": "item",
+      "awe": {
+        "numberDecimals": 2,
+        "suffix": " %"
+      }
+    },
+    "series": [
+      {
+        "id": "serie1",
+        "name": "Themes",
+        "type": "pie",
+        "awe": {
+          "type": "pie",
+          "xValue": "names",
+          "yValue": "serie1"
+        },
+        "radius": [
+          "30%",
+          "75%"
+        ]
+      }
+    ],
+    "awe": {
+      "chartType": "donut_3d"
+    }
+  },
+  "ChrSemiCircleTst": {
+    "title": {
+      "text": "Grafico 8",
+      "left": "center",
+      "top": "middle",
+      "awe": {
+        "offsetY": 50
+      }
+    },
+    "legend": {
+      "show": true,
+      "left": "center",
+      "top": "bottom"
+    },
+    "tooltip": {
+      "show": true,
+      "trigger": "item",
+      "awe": {
+        "numberDecimals": 2,
+        "suffix": " %"
+      }
+    },
+    "series": [
+      {
+        "id": "serie1",
+        "name": "Themes",
+        "type": "pie",
+        "label": {
+          "show": true,
+          "position": "inside",
+          "color": "white",
+          "textShadowOffsetX": 0,
+          "textShadowOffsetY": 1,
+          "textShadowBlur": 2,
+          "textShadowColor": "black",
+          "fontWeight": "bold"
+        },
+        "awe": {
+          "type": "pie",
+          "xValue": "names",
+          "yValue": "serie1"
+        },
+        "radius": [
+          "30%",
+          "75%"
+        ],
+        "startAngle": 180,
+        "endAngle": 360,
+        "center": [
+          "50%",
+          "75%"
+        ]
+      }
+    ],
+    "awe": {
+      "chartType": "semicircle",
+      "theme": "gray"
+    }
+  },
+  "ChrScaTst": {
+    "title": {
+      "text": "Grafico 10",
+      "subtext": "Subtitulo grafico 10",
+      "left": "center"
+    },
+    "legend": {
+      "show": false,
+      "orient": "vertical",
+      "left": "right",
+      "top": "middle"
+    },
+    "tooltip": {
+      "show": true,
+      "trigger": "item",
+      "awe": {
+        "numberDecimals": 3,
+        "suffix": " ºC"
+      }
+    },
+    "xAxis": [
+      {
+        "name": "SCREEN_TEXT_CHART_AXIS_DATES",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "time",
+        "awe": {
+          "axis": "x"
+        }
+      }
+    ],
+    "yAxis": [
+      {
+        "name": "Temperaturas (ºC)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "value",
+        "minInterval": 1,
+        "awe": {
+          "axis": "y"
+        }
+      }
+    ],
+    "series": [
+      {
+        "id": "serie2-1",
+        "name": "SCREEN_TEXT_CHART_SERIE_1",
+        "type": "scatter",
+        "awe": {
+          "type": "scatter",
+          "xValue": "Ord",
+          "yValue": "serie1_1",
+          "zValue": "serie1_2"
+        }
+      }
+    ],
+    "awe": {
+      "chartType": "scatter"
+    }
+  },
+  "ChrBubTst": {
+    "title": {
+      "text": "Grafico 9",
+      "subtext": "Subtitulo grafico 9",
+      "left": "center"
+    },
+    "legend": {
+      "show": false,
+      "orient": "vertical",
+      "left": "right",
+      "top": "middle"
+    },
+    "tooltip": {
+      "show": true,
+      "trigger": "item",
+      "awe": {
+        "numberDecimals": 3,
+        "suffix": " ºC"
+      }
+    },
+    "xAxis": [
+      {
+        "name": "SCREEN_TEXT_CHART_AXIS_DATES",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "time",
+        "awe": {
+          "axis": "x"
+        }
+      }
+    ],
+    "yAxis": [
+      {
+        "name": "Temperaturas (ºC)",
+        "nameLocation": "middle",
+        "nameGap": 30,
+        "type": "value",
+        "minInterval": 1,
+        "awe": {
+          "axis": "y"
+        }
+      }
+    ],
+    "series": [
+      {
+        "id": "serie2-1",
+        "name": "SCREEN_TEXT_CHART_SERIE_1",
+        "type": "scatter",
+        "awe": {
+          "type": "bubble",
+          "xValue": "Ord",
+          "yValue": "serie1_1",
+          "zValue": "serie1_2",
+          "labelFormat": "{point.y:.2f}"
+        },
+        "label": {
+          "show": true
+        }
+      }
+    ],
+    "awe": {
+      "chartType": "bubble"
+    }
+  }
+}

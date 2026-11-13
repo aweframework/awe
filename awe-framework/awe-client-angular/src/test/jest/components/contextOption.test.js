@@ -3,15 +3,7 @@ import "./lightComponentTestUtils";
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
 
 describe('awe-framework/awe-client-angular/src/test/jest/components/contextOption.js', function () {
-  let  $injector, $rootScope, $compile, $httpBackend, $actionController, $screen, $control, $storage, $sce, Utilities;
-  let model = {
-    page: 1,
-    records: 1,
-    selected: "23/10/1978",
-    total: 1,
-    values: [{label: "23/10/1978", value: "23/10/1978"}]
-  };
-  let emptyModel = {page: 1, records: 0, selected: null, total: 0, values: []};
+  let  $rootScope, $compile, $httpBackend, $control, $storage, Utilities;
   let controller = {
     checkInitial: true,
     checkTarget: false,
@@ -40,17 +32,13 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/contextOptio
     angular.mock.module('aweApplication');
 
     // Inject controller
-    inject(["$injector", "$rootScope", "$compile", "$httpBackend", "ActionController", "Screen", "Control", "Storage", "$sce", "AweUtilities",
-      function (__$injector__, _$rootScope_, _$compile_, _$httpBackend_, _ActionController_, _Screen_, _Control_, __Storage__, _$sce_, _Utilities_) {
-        $injector = __$injector__;
+    inject(["$rootScope", "$compile", "$httpBackend", "Control", "Storage", "AweUtilities",
+      function (_$rootScope_, _$compile_, _$httpBackend_, _Control_, __Storage__, _Utilities_) {
         $rootScope = _$rootScope_;
         $compile = _$compile_;
         $httpBackend = _$httpBackend_;
-        $actionController = _ActionController_;
-        $screen = _Screen_;
         $control = _Control_;
         $storage = __Storage__;
-        $sce = _$sce_;
         Utilities = _Utilities_;
 
         $rootScope.view = 'base';

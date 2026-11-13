@@ -1,0 +1,101 @@
+const path = require("path");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
+const GeneratePackageJsonPlugin = require('generate-package-json-webpack-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
+const PACKAGE = require('./package.json');
+const {resolvePackageVersion} = require('./package-version.cjs');
+const {LucideSpritePlugin} = require('../awe-design-tokens/icons/lucide-sprite.cjs');
+const {PrimeReactThemePlugin} = require('../awe-design-tokens/primereact/primereact-theme.cjs');
+
+const basePackage = {
+  ...PACKAGE,
+  "version": resolvePackageVersion(),
+  "main": "./js/main.js",
+  "engines": {
+    "node": ">= 16"
+  },
+  "scripts": undefined,
+  "devDependencies": undefined,
+};
+const nodeExternals = require('webpack-node-externals');
+
+// Heavy packages (and their subpaths, CSS included) are loaded on demand: the library keeps a literal import() of them,
+// so the webpack of the application emits them as async chunks. The source must never import them statically (they
+// would be Promises there): lazyPackagesTest guards it.
+const HEAVY_PACKAGES = /^(echarts|leaflet|react-pivottable|react-player|react-pdfobject|react-lazylog|primereact\/editor|quill)(\/|$)/;
+const heavyExternals = ({request}, callback) => HEAVY_PACKAGES.test(request) ? callback(null, `import ${request}`) : callback();
+
+module.exports = {
+  entry: {
+    main: path.join(__dirname, "src", "index.js")
+  },
+  cache: {
+    type: 'filesystem',
+    buildDependencies: {
+      config: [__filename]
+    }
+  },
+  output: {
+    filename: "js/[name].js",
+    path: path.resolve(__dirname, "dist"),
+    libraryTarget: 'commonjs2',
+    environment: {dynamicImport: true},
+    publicPath: '../',
+    clean: true
+  },
+  //target: 'node',
+  externalsPresets: { node: true },
+  externals: [heavyExternals, nodeExternals({
+    // The AWE theme of PrimeReact is built from this Lara theme (PrimeReactThemePlugin): bundled in css/main.css, never
+    // left to the application, which would load the Lara theme as it is
+    allowlist: ['primereact/resources/themes/lara-light-indigo/theme.css']
+  })],
+  module: {
+    rules: [
+      {test: /\.(tsx|ts|jsx|js)$/, exclude: /node_modules/, use: {loader: 'babel-loader', options: {presets: ['@babel/preset-env', '@babel/preset-react', '@babel/preset-typescript']}}},
+      {test: /\.css$/, use: [MiniCssExtractPlugin.loader, "css-loader"]},
+      {test: /\.less$/, use: [MiniCssExtractPlugin.loader, "css-loader", "less-loader"]},
+      {test: /\.(jpg|gif|png|svg)$/, type: 'asset/resource', generator: { filename: 'images/[hash][ext][query]'}},
+      {test: /\.(ttf|eot|woff(2)?)(\?v=\d+\.\d+\.\d+)?$/, type: 'asset/resource', generator: {filename: "fonts/[hash][ext][query]"}},
+    ]
+  },
+  resolve: {
+    extensions: [".tsx", ".ts", ".jsx", ".js", ".css", ".less"]
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: "css/[name].css"
+    }),
+    new LodashModuleReplacementPlugin,
+    new GeneratePackageJsonPlugin(basePackage, {
+      // These runtime CSS packages are already declared in package.json, but GPJWP
+      // can't resolve them reliably when they are discovered through CSS imports.
+      // Excluding them from the module scan avoids noisy false-positive warnings,
+      // while basePackage preserves them in the generated dist/package.json.
+      excludeDependencies: ['primeicons', 'primeflex', 'font-awesome', 'material-icons']
+    }),
+    new CopyPlugin({
+      patterns: [
+        {from: "src/template.html", to: "[name][ext]"},
+        {from: "src/*.stg", to: "[name][ext]"},
+        {from: "src/plugins", to: "plugins/[name][ext]"},
+        {from: "src/static", to: "static/"},
+        {from: "README.md", to: "[name][ext]"},
+        // The licence of the AWE repository travels with the published package
+        {from: "../../LICENSE.md", to: "[name][ext]"},
+        // The SIL Open Font License travels with the Inter font of the bundle (#885)
+        {from: "../awe-design-tokens/fonts/LICENSE-inter-OFL.txt", to: "fonts/[name][ext]"},
+      ]
+    }),
+    // The AWE 5 icons (#885): every Lucide icon of the pinned lucide-static in one sprite, generated on each build
+    new LucideSpritePlugin({
+      lucideDir: path.resolve(__dirname, "node_modules", "lucide-static"),
+      filename: "static/icons/lucide-sprite.svg"
+    }),
+    // The AWE theme of PrimeReact (#885): the Lara theme imported by main.jsx is bundled with the AWE token values
+    new PrimeReactThemePlugin({
+      primereactDir: path.resolve(__dirname, "node_modules", "primereact")
+    })
+  ]
+};

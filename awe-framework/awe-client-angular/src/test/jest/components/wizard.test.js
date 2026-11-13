@@ -202,4 +202,21 @@ describe("components/wizard.js", () => {
       "wizardId.data": {text: "Step 3", all: panelValues}
     });
   });
+
+  it("marks the step that holds invalid fields and clears the mark when they are fixed", () => {
+    stubPanelComponent(refs, createPanelModel("1"), createPanelController("wizardId", "wizard"));
+    const element = refs.$compile("<awe-input-wizard input-wizard-id='wizardId'></awe-input-wizard>")(refs.$rootScope.$new());
+    refs.$rootScope.$digest();
+    const controllerApi = element.controller("aweInputWizard");
+    const steps = () => [...element[0].querySelectorAll("li[data-testid='wizard-step']")];
+
+    controllerApi.setInvalid("3", true);
+    refs.$rootScope.$digest();
+    expect(steps().map(step => step.getAttribute("data-invalid"))).toEqual(["false", "false", "true"]);
+    expect(steps()[2].classList.contains("step-invalid")).toBe(true);
+
+    controllerApi.setInvalid("3", false);
+    refs.$rootScope.$digest();
+    expect(steps().map(step => step.getAttribute("data-invalid"))).toEqual(["false", "false", "false"]);
+  });
 });

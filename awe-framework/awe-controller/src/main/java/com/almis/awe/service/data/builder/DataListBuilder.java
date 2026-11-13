@@ -3,6 +3,7 @@ package com.almis.awe.service.data.builder;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.ColumnFilter;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.FilterColumn;
 import com.almis.awe.model.dto.SortColumn;
@@ -58,6 +59,7 @@ public class DataListBuilder extends ServiceConfig {
   private List<SortColumn> sortList = null;
   private List<SortColumn> distinctList = null;
   private List<FilterColumn> filterList = null;
+  private List<ColumnFilter> columnFilterList = null;
   private List<TotalizeColumnProcessor> totalizeList = null;
   private List<ComputedColumnProcessor> computedList = null;
   private List<TransformCellProcessor> transformList = null;
@@ -402,7 +404,20 @@ public class DataListBuilder extends ServiceConfig {
    */
   public DataListBuilder filter(List<FilterColumn> filterList) {
     this.filterList = filterList;
-    this.filter = filterList != null && !filterList.isEmpty();
+    this.filter = filterList != null && !filterList.isEmpty() || columnFilterList != null && !columnFilterList.isEmpty();
+    return this;
+  }
+
+  /**
+   * Filter datalist with grid column filters, before sort and pagination. Their fields are the columns of the
+   * datalist, already checked against the query.
+   *
+   * @param columnFilterList Column filter list
+   * @return DataListBuilder
+   */
+  public DataListBuilder columnFilter(List<ColumnFilter> columnFilterList) {
+    this.columnFilterList = columnFilterList;
+    this.filter = this.filter || columnFilterList != null && !columnFilterList.isEmpty();
     return this;
   }
 
@@ -552,8 +567,8 @@ public class DataListBuilder extends ServiceConfig {
     List<String> columnNames = new ArrayList<>();
     List<Expression<?>> columns = ((QTuple) projection).getArgs();
     for (Expression<?> columnOperation : columns) {
-      if (columnOperation instanceof SimpleOperation) {
-        List<Expression<?>> columnData = ((SimpleOperation<?>) columnOperation).getArgs();
+      if (columnOperation instanceof SimpleOperation<?> operation) {
+        List<Expression<?>> columnData = operation.getArgs();
         columnNames.add(columnData.get(columnData.size() - 1).toString());
       } else {
         columnNames.add(columnOperation.toString());
@@ -659,7 +674,7 @@ public class DataListBuilder extends ServiceConfig {
    * @param rowIndex Row number
    * @return Row data
    */
-  private HashMap<String, CellData> generateFieldValues(Integer rowIndex) {
+  private HashMap<String, CellData> generateFieldValues(int rowIndex) {
     // Variable definition */
     HashMap<String, CellData> row = new HashMap<>();
     int columnIndex;
@@ -673,6 +688,9 @@ public class DataListBuilder extends ServiceConfig {
 
       // Store field value
       SqlField field = fieldList.get(columnIndex);
+      if (field == null) {
+        continue;
+      }
       String nom = field.getIdentifier();
       String value = serviceQueryResult.get(((rowIndex - 1) * totalColumns) + columnIndex);
 
@@ -710,7 +728,15 @@ public class DataListBuilder extends ServiceConfig {
    * Remove the rows whose column value is distinct to the value
    */
   private void doFilter() {
-    dataList.setRows(new FilterRowProcessor().setFilterList(filterList).process(dataList.getRows()));
+    dataList.setRows(new FilterRowProcessor()
+      .setFilterList(filterList)
+      .setColumnFilterList(columnFilterList)
+      .process(dataList.getRows()));
+
+    // Records and pages count the rows that match the column filters
+    if (columnFilterList != null && !columnFilterList.isEmpty()) {
+      setRecords((long) dataList.getRows().size());
+    }
   }
 
   /**

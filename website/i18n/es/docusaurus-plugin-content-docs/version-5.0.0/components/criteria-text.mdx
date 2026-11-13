@@ -1,0 +1,85 @@
+---
+id: criteria-text
+title: Entradas de texto
+sidebar_label: Entradas de texto
+description: Los criterios de texto de AWE, en vivo. Texto, contraseña, área de texto, editor Markdown, vista de texto y color, con el XML que los produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteriaText} from '@site/src/components/AwePlayground/specs/criteria-text';
+
+Los criterios de texto recogen texto libre: una línea (`text`), un secreto (`password`), varias líneas (`textarea`), texto con formato
+(`markdown-editor`), un valor para leer (`text-view`) o un color (`color`). Debajo están los criterios reales del cliente React de AWE:
+elige un tipo, cambia sus atributos y el XML de debajo se actualiza. Escribe también en ellos: son campos reales.
+
+<AwePlayground spec={criteriaText} />
+
+Los atributos que comparten todos los criterios (etiqueta, texto de ayuda, icono, tamaño, validación) están en la [vista general de criterios](./criteria.mdx).
+El `markdown-editor` no tiene etiqueta propia: ocupa el ancho de su fila y muestra su `placeholder` mientras está vacío. El `text-view`
+muestra su valor como texto y no es una entrada: no envía nada al servidor.
+
+## Recetas {#recipes}
+
+Campos habituales, dibujados por los mismos componentes.
+
+### Contraseña con botón para mostrarla {#recipe-password}
+
+Toda `password` tiene al final un botón que muestra u oculta lo escrito; el valor y su validación no cambian.
+
+<AweLive
+  components={{secret: {attributes: {label: 'Contraseña', placeholder: 'Al menos 12 caracteres', icon: 'lucide:lock', required: true}, validationRules: {required: true}}}}
+  nodes={[{elementType: 'Criteria', component: 'password', id: 'secret'}]}
+/>
+
+```xml
+<criteria id="secret" component="password" label="Contraseña" placeholder="Al menos 12 caracteres"
+          icon="lucide:lock" validation="required" />
+```
+
+### Editor Markdown {#recipe-markdown}
+
+El `markdown-editor` ofrece una barra de herramientas para títulos, énfasis, listas y enlaces. Su valor es el HTML que escribe el editor.
+
+<AweLive
+  components={{notes: {attributes: {placeholder: 'Escribe las notas de la versión'}}}}
+  nodes={[{elementType: 'Criteria', component: 'markdown-editor', id: 'notes'}]}
+/>
+
+```xml
+<criteria id="notes" component="markdown-editor" placeholder="Escribe las notas de la versión" />
+```
+
+### Color con selector {#recipe-color}
+
+Un criterio `color` es un texto hexadecimal con un botón que abre un selector de color. El `value` es el color con el que arranca el criterio.
+
+<AweLive
+  components={{brand: {attributes: {label: 'Color de marca'}, model: {values: [{value: '#4f46e5', label: '#4f46e5', selected: true}]}}}}
+  nodes={[{elementType: 'Criteria', component: 'color', id: 'brand'}]}
+/>
+
+```xml
+<criteria id="brand" component="color" label="Color de marca" value="#4f46e5" />
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Un criterio no tiene un evento propio al que escuchar: cada cambio de su valor comprueba las [dependencias](../api/dependencies.md) cuyo
+`dependency-element` lo nombra, y pulsar Intro en un campo de texto ejecuta el botón `submit` de su ventana. Las [acciones](../api/actions.md)
+que actúan sobre criterios:
+
+| Acción                           | Descripción                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Vacía el valor del criterio                                          |
+| `restore`                        | Devuelve el criterio a su valor inicial                              |
+| `validate`                       | Ejecuta la validación del criterio y muestra su error                |
+| `set-invalid`                    | Marca el criterio como inválido con el mensaje de la acción          |
+| `set-valid`                      | Borra el error de validación del criterio                            |
+| `copy-criterion-value-clipboard` | Copia el valor del criterio al portapapeles                          |
+
+## Más {#more}
+
+* [Vista general de criterios](./criteria.mdx): los atributos que comparten todos los criterios y las demás familias de entradas.
+* [Documentación completa de los criterios](../api/criteria.md): todos los tipos, atributos, validaciones y ejemplos.
+* [Referencia XSD del elemento `criteria`](/reference/screen#element-criteria).

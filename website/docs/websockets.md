@@ -104,8 +104,8 @@ awe.websocket.stomp.virtual-host=my-application
 ```
 
 The virtual host must already exist on the broker, and the configured credentials must be granted
-access to it. When this property is not set, the broker keeps applying its own default, which for
-both `RabbitMQ` and `ActiveMQ` is the relay host.
+access to it. When this property is not set, AWE sends no virtual host to the broker, so the broker keeps applying its
+own default (for `RabbitMQ`, the `/` virtual host unless the broker is configured otherwise).
 
 ### 🎯 Destination Prefixes
 

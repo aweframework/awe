@@ -9,6 +9,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
@@ -74,7 +75,8 @@ public class MultiTenantOAuth2AuthenticationEntryPoint implements Authentication
 		// Try to find the registration in Spring Security
 		try {
 			ClientRegistration clientRegistration = clientRegistrationRepository.findByRegistrationId(registrationId);
-			if (clientRegistration != null) {
+			// Only authorization code registrations log in: client credentials ones (email servers) are not login options
+			if (clientRegistration != null && AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
 				log.debug("Valid registration ID found: {}", registrationId);
 				return registrationId;
 			}
@@ -83,7 +85,7 @@ public class MultiTenantOAuth2AuthenticationEntryPoint implements Authentication
 		}
 
 		// Registration isn't found, use default
-		log.warn("Registration ID '{}' not found in ClientRegistrationRepository, using default", registrationId);
+		log.warn("Registration ID '{}' not found in ClientRegistrationRepository or not a login registration, using default", registrationId);
 		return getDefaultRegistrationId();
 	}
 

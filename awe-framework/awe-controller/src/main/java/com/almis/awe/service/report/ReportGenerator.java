@@ -16,19 +16,23 @@ import com.almis.awe.model.type.OutputFormatType;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.model.util.file.FileUtil;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.almis.awe.service.observation.ExecutionObserver;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jasperreports.engine.JREmptyDataSource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -38,10 +42,15 @@ import java.util.Optional;
 @Slf4j
 public class ReportGenerator extends ServiceConfig {
 
+  private static final String OTHER_FORMAT = "other";
+
   // Autowired services
   private final ReportDesigner designer;
   private final ADE adeAPI;
   private final BaseConfigProperties baseConfigProperties;
+
+  // Observer of the exports (metrics, traces...). Optional: without one the report is just generated
+  private ExecutionObserver executionObserver = ExecutionObserver.NONE;
 
   /**
    * Autowired constructor
@@ -54,6 +63,27 @@ public class ReportGenerator extends ServiceConfig {
     this.designer = reportDesigner;
     this.adeAPI = adeAPI;
     this.baseConfigProperties = baseConfigProperties;
+  }
+
+  /**
+   * Set the observer of the exports
+   *
+   * @param executionObserver Execution observer (optional, defined by the application when it needs one)
+   */
+  @Autowired(required = false)
+  public void setExecutionObserver(ExecutionObserver executionObserver) {
+    this.executionObserver = executionObserver == null ? ExecutionObserver.NONE : executionObserver;
+  }
+
+  /**
+   * Output format as a low-cardinality tag: the lower-case name of a known format, {@value #OTHER_FORMAT} otherwise
+   */
+  private static String formatTag(String format) {
+    return Arrays.stream(OutputFormatType.values())
+      .map(type -> type.name().toLowerCase(Locale.ROOT))
+      .filter(name -> name.equalsIgnoreCase(format))
+      .findFirst()
+      .orElse(OTHER_FORMAT);
   }
 
   public record GeneratedScreenReportContext(List<FileData> reportFiles, ObjectNode parameters) {
@@ -99,7 +129,7 @@ public class ReportGenerator extends ServiceConfig {
     putRequestParameter(parameters, "ScrTitFil", fileName);
 
     // Spreadsheet outputs get their own design only when some column is printable on spreadsheets only
-    boolean spreadsheetDesignRequired = designer.hasSpreadsheetOnlyColumns(reportStructure, parameters);
+    boolean spreadsheetDesignRequired = designer.needsSpreadsheetDesign(reportStructure, parameters);
 
     // Generate the requested formats, sharing the report design between formats with the same profile
     String basePath = StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReports(), baseConfigProperties.getPaths().getBase());
@@ -112,7 +142,9 @@ public class ReportGenerator extends ServiceConfig {
         builderService = buildReport(designer.getPrintDesign(reportStructure, parameters, spreadsheetProfile), fileName);
         buildersByProfile.put(spreadsheetProfile, builderService);
       }
-      reportFiles.add(generateReportFormat(builderService, format, fileName, basePath, parameters));
+      TemplateExporterBuilder formatBuilder = builderService;
+      reportFiles.add(executionObserver.observe(ExecutionObserver.ExecutionType.EXPORT, screen.getId(),
+        Map.of("format", formatTag(format)), () -> generateReportFormat(formatBuilder, format, fileName, basePath, parameters)));
     }
 
     mergePropagatedRequestParameters(parameters);
@@ -188,32 +220,32 @@ public class ReportGenerator extends ServiceConfig {
           builderService.toXlsx();
           mimeType = AweConstants.APPLICATION_EXCEL;
           fullFileName += ".xlsx";
-          putRequestParameter(parameters, "XlsNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "XlsNam", Path.of(basePath, fullFileName).toString());
           break;
         case CSV:
           builderService.toCsv();
           mimeType = AweConstants.APPLICATION_EXCEL;
           fullFileName += ".csv";
-          putRequestParameter(parameters, "CsvNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "CsvNam", Path.of(basePath, fullFileName).toString());
           break;
         case DOCX:
           builderService.toDocx();
           mimeType = AweConstants.APPLICATION_WORD;
           fullFileName += ".docx";
-          putRequestParameter(parameters, "DocNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "DocNam", Path.of(basePath, fullFileName).toString());
           break;
         case TEXT:
           builderService.toText();
           mimeType = MediaType.TEXT_PLAIN_VALUE;
           fullFileName += ".txt";
-          putRequestParameter(parameters, "TxtNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "TxtNam", Path.of(basePath, fullFileName).toString());
           break;
         case PDF:
         default:
           builderService.toPDF();
           mimeType = MediaType.APPLICATION_PDF_VALUE;
           fullFileName += ".pdf";
-          putRequestParameter(parameters, "PdfNam", Paths.get(basePath, fullFileName).toString());
+          putRequestParameter(parameters, "PdfNam", Path.of(basePath, fullFileName).toString());
           break;
       }
     } catch (Exception exc) {
@@ -245,10 +277,10 @@ public class ReportGenerator extends ServiceConfig {
     String reportDateFormatted = DateUtil.dat2SqlDateString(reportDate);
 
     // Generate historic directory
-    File historicPath = Paths.get(StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReportsHistoric(), baseConfigProperties.getPaths().getBase()), reportDateFormatted, Optional.ofNullable(database).orElse("")).toFile();
+    File historicPath = Path.of(StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReportsHistoric(), baseConfigProperties.getPaths().getBase()), reportDateFormatted, Optional.ofNullable(database).orElse("")).toFile();
     try {
       Files.createDirectories(historicPath.toPath());
-      Files.copy(reportFile.toPath(), Paths.get(historicPath.getAbsolutePath(), reportFile.getName()));
+      Files.copy(reportFile.toPath(), Path.of(historicPath.getAbsolutePath(), reportFile.getName()));
     } catch (IOException exc) {
       // Log report
       log.error("Historic report file ({}) NOT generated on {}", reportFile.getAbsolutePath(), historicPath.getAbsolutePath(), exc);

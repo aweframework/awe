@@ -9,6 +9,7 @@ import com.almis.awe.model.entities.enumerated.Enumerated;
 import com.almis.awe.model.entities.locale.Locales;
 import com.almis.awe.model.entities.maintain.Maintain;
 import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.entities.permissions.Permissions;
 import com.almis.awe.model.entities.queries.Queries;
 import com.almis.awe.model.entities.queues.Queues;
 import com.almis.awe.model.entities.screen.Screen;
@@ -35,6 +36,16 @@ public final class XmlSerializerTestUtil {
    * @return XStream serializer
    */
   public static XStreamSerializer buildSerializer() {
+    return new XStreamSerializer(buildMarshaller());
+  }
+
+  /**
+   * Build an XStream marshaller with the same driver, annotations and security settings
+   * used by the framework autoconfiguration
+   *
+   * @return XStream marshaller
+   */
+  public static XStreamMarshaller buildMarshaller() {
     XStreamMarshaller marshaller = new XStreamMarshaller();
     marshaller.setStreamDriver(new DomDriver(null, new NoNameCoder()));
     marshaller.getXStream().processAnnotations(new Class[]{
@@ -49,9 +60,10 @@ public final class XmlSerializerTestUtil {
       Profile.class,
       Screen.class,
       Menu.class,
-      Locales.class
+      Locales.class,
+      Permissions.class
     });
     marshaller.getXStream().allowTypesByWildcard(new String[]{"java.*", "com.almis.awe.model.entities.**"});
-    return new XStreamSerializer(marshaller);
+    return marshaller;
   }
 }

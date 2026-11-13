@@ -23,7 +23,6 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -146,8 +145,6 @@ class FTPFileCheckerTest {
    */
   @Test
   void checkConnectionUsesServerCredentials() throws Exception {
-    // Mock
-    doNothing().when(fileDAO).addModification(any(Task.class), anyString(), any(Date.class), anyBoolean());
     FTPFile ftpFile = new FTPFile();
     ftpFile.setName("test.txt");
     ftpFile.setTimestamp(Calendar.getInstance());

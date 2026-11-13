@@ -1,0 +1,57 @@
+---
+id: criteria-upload
+title: Subida de archivos
+sidebar_label: Subida de archivos
+description: El criterio de subida de archivos de AWE, en vivo. Elige un archivo, suéltalo en una zona, previsualiza una imagen, con el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteriaUpload} from '@site/src/components/AwePlayground/specs/criteria-upload';
+
+El criterio `uploader` envía un archivo al servidor, donde sus procesos pueden gestionarlo. Debajo está el criterio real del cliente
+React de AWE: elige un archivo, cambia sus atributos y el XML de debajo se actualiza.
+
+<AwePlayground spec={criteriaUpload} />
+
+La subida está simulada en estos ejemplos: la página muestra el progreso de la petición y el nombre y el tamaño del archivo como los
+respondería el servidor, pero **el archivo no se envía a ningún sitio**; se queda en tu navegador. `destination` es la carpeta del servidor
+donde una pantalla real guarda el archivo. Con `drop-zone` el usuario puede soltar el archivo y, si es una imagen, se muestra una vista previa.
+`capture` añade un botón **Take photo** que abre la cámara en los navegadores móviles.
+
+## Recetas {#recipes}
+
+### Zona para soltar con vista previa {#recipe-dropzone}
+
+Suelta una imagen en el área punteada, o elige una: se previsualiza junto al campo y **Clear** quita el archivo.
+
+<AweLive
+  components={{photo: {attributes: {label: 'Foto', dropZone: true, destination: 'photos'}}}}
+  nodes={[{elementType: 'Criteria', component: 'uploader', id: 'photo'}]}
+  uploads
+/>
+
+```xml
+<criteria id="photo" component="uploader" label="Foto" destination="photos" drop-zone="true" />
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Un criterio no tiene un evento propio al que escuchar: cada cambio de su valor comprueba las [dependencias](../api/dependencies.md) cuyo
+`dependency-element` lo nombra, y pulsar Intro en un campo de texto ejecuta el botón `submit` de su ventana. Las [acciones](../api/actions.md)
+que actúan sobre criterios:
+
+| Acción                           | Descripción                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Vacía el valor del criterio                                          |
+| `restore`                        | Devuelve el criterio a su valor inicial                              |
+| `validate`                       | Ejecuta la validación del criterio y muestra su error                |
+| `set-invalid`                    | Marca el criterio como inválido con el mensaje de la acción          |
+| `set-valid`                      | Borra el error de validación del criterio                            |
+| `copy-criterion-value-clipboard` | Copia el valor del criterio al portapapeles                          |
+
+## Más {#more}
+
+* [Vista general de criterios](./criteria.mdx): los atributos que comparten todos los criterios y las demás familias de entradas.
+* [Documentación completa de los criterios](../api/criteria.md): todos los tipos, atributos, validaciones y ejemplos.
+* [Referencia XSD del elemento `criteria`](/reference/screen#element-criteria).

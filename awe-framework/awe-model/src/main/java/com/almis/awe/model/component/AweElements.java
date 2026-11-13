@@ -2,6 +2,7 @@ package com.almis.awe.model.component;
 
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.exception.AWENotFoundException;
+import com.almis.awe.exception.AWERuntimeException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dao.AweElementsDao;
@@ -17,6 +18,8 @@ import com.almis.awe.model.entities.enumerated.EnumeratedGroup;
 import com.almis.awe.model.entities.maintain.Maintain;
 import com.almis.awe.model.entities.maintain.Target;
 import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.entities.permissions.PermissionCatalog;
+import com.almis.awe.model.entities.permissions.Permissions;
 import com.almis.awe.model.entities.queries.Queries;
 import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.entities.queues.Queue;
@@ -25,6 +28,10 @@ import com.almis.awe.model.entities.screen.Include;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.Tag;
 import com.almis.awe.model.entities.screen.component.Component;
+import com.almis.awe.model.entities.screen.component.action.ButtonAction;
+import com.almis.awe.model.entities.screen.component.button.AbstractButton;
+import com.almis.awe.model.entities.screen.component.grid.Column;
+import com.almis.awe.model.entities.screen.component.grid.RowDetail;
 import com.almis.awe.model.entities.services.Service;
 import com.almis.awe.model.entities.services.Services;
 import com.almis.awe.model.type.LaunchPhaseType;
@@ -37,12 +44,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.env.Environment;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.almis.awe.model.constant.AweConstants.*;
@@ -58,6 +67,8 @@ public class AweElements {
   private static final String NOT_FOUND = " not found: ";
   private static final String PROFILE = "profile";
   private static final String SCREEN = "screen";
+  private static final String PERMISSION_DETAIL = "' (permission '";
+  private static final String KEEPING_PREVIOUS_CATALOG = "Invalid permission catalog: keeping previous definitions. {}";
   // Autowired services
   private final WebApplicationContext context;
   private final AweElementsDao elementsDao;
@@ -74,6 +85,10 @@ public class AweElements {
   private volatile Map<String, Profile> profileList;
   private volatile Map<String, Menu> menuList;
   private volatile Map<String, Screen> screenMap;
+  // Swapped whole on reload while requests keep reading it
+  private final AtomicReference<PermissionCatalog> permissionCatalog = new AtomicReference<>();
+  // Incremented each time the screens, menus, queries or maintains are loaded again
+  private final AtomicLong reloadVersion = new AtomicLong();
   // Locale list
   private volatile Map<String, Map<String, String>> localeList;
 
@@ -117,6 +132,16 @@ public class AweElements {
   }
 
   /**
+   * Version of the loaded definitions. It changes each time the screens, menus, queries or maintains are loaded
+   * again, so a cache built from them can tell when it is stale
+   *
+   * @return Reload version
+   */
+  public long getReloadVersion() {
+    return reloadVersion.get();
+  }
+
+  /**
    * Reload all element maps (global files, screens, locales, profiles and menus).
    * Each map is fully rebuilt before being swapped in, so concurrent readers never
    * observe a partially loaded state.
@@ -141,7 +166,14 @@ public class AweElements {
   public void reloadQueries() {
     XMLInitData initData = new XMLInitData();
     waitForFuture(launchQueries(initData));
-    queryList = keepPreviousOnEmptyRebuild(initData.getQueries(), queryList, "query");
+    Map<String, Query> newQueryList = keepPreviousOnEmptyRebuild(initData.getQueries(), queryList, "query");
+    List<String> problems = findQueryPermissionProblems(newQueryList, getPermissionCatalog());
+    if (!problems.isEmpty()) {
+      log.error("Invalid permissions in the queries: keeping previous definitions. {}", problems);
+      return;
+    }
+    queryList = newQueryList;
+    reloadVersion.incrementAndGet();
   }
 
   /**
@@ -159,7 +191,14 @@ public class AweElements {
   public void reloadMaintains() {
     XMLInitData initData = new XMLInitData();
     waitForFuture(launchMaintains(initData));
-    maintainList = keepPreviousOnEmptyRebuild(initData.getMaintains(), maintainList, "maintain");
+    Map<String, Target> newMaintainList = keepPreviousOnEmptyRebuild(initData.getMaintains(), maintainList, "maintain");
+    List<String> problems = findMaintainPermissionProblems(newMaintainList, getPermissionCatalog());
+    if (!problems.isEmpty()) {
+      log.error("Invalid permissions in the maintain targets: keeping previous definitions. {}", problems);
+      return;
+    }
+    maintainList = newMaintainList;
+    reloadVersion.incrementAndGet();
   }
 
   /**
@@ -177,7 +216,13 @@ public class AweElements {
   public void reloadServices() {
     XMLInitData initData = new XMLInitData();
     waitForFuture(launchServices(initData));
-    serviceList = keepPreviousOnEmptyRebuild(initData.getServices(), serviceList, "service");
+    Map<String, Service> newServiceList = keepPreviousOnEmptyRebuild(initData.getServices(), serviceList, "service");
+    List<String> problems = findServicePermissionProblems(newServiceList, getPermissionCatalog());
+    if (!problems.isEmpty()) {
+      log.error("Invalid permissions in the services: keeping previous definitions. {}", problems);
+      return;
+    }
+    serviceList = newServiceList;
   }
 
   /**
@@ -190,19 +235,46 @@ public class AweElements {
   }
 
   /**
-   * Reload the profile map from the XML sources
+   * Reload the permission catalog from the XML sources. An invalid catalog, or one without a permission that a query,
+   * a maintain target, a service, a screen element or a profile file requires, keeps the previous one
+   */
+  public void reloadPermissions() {
+    PermissionCatalog newCatalog = buildPermissionCatalog(launchPermissions());
+    List<String> problems = findPermissionProblems(queryList, maintainList, serviceList, newCatalog);
+    problems.addAll(findScreenPermissionProblems(screenMap, newCatalog));
+    problems.addAll(findProfilePermissionProblems(profileList, newCatalog));
+    if (!problems.isEmpty() && permissionCatalog.get() != null) {
+      log.error(KEEPING_PREVIOUS_CATALOG, problems);
+      return;
+    }
+    permissionCatalog.set(newCatalog);
+  }
+
+  /**
+   * Reload the profile map from the XML sources. Profile files with a permission or an exclusion that is not valid
+   * against the catalog keep the previous profiles
    */
   public void reloadProfiles() {
-    profileList = keepPreviousOnEmptyRebuild(mergeModuleResults(launchProfiles(), PROFILE), profileList, PROFILE);
+    swapProfiles(keepPreviousOnEmptyRebuild(mergeModuleResults(launchProfiles(), PROFILE), profileList, PROFILE),
+      false);
   }
 
   /**
    * Reload the whole screen map from the XML sources. The full per-module folder scan
    * is repeated because include targets are embedded into containing screens at read
-   * time, so evicting a single screen is not enough.
+   * time, so evicting a single screen is not enough. Screens with an invalid permission
+   * attribute keep the previous screens.
    */
   public void reloadScreens() {
-    screenMap = keepPreviousOnEmptyRebuild(mergeModuleResults(launchScreens(), SCREEN), screenMap, SCREEN);
+    Map<String, Screen> newScreenMap = keepPreviousOnEmptyRebuild(mergeModuleResults(launchScreens(), SCREEN),
+      screenMap, SCREEN);
+    List<String> problems = findScreenPermissionProblems(newScreenMap, getPermissionCatalog());
+    if (!problems.isEmpty()) {
+      log.error("Invalid permissions in the screens: keeping previous definitions. {}", problems);
+      return;
+    }
+    screenMap = newScreenMap;
+    reloadVersion.incrementAndGet();
   }
 
   /**
@@ -223,6 +295,7 @@ public class AweElements {
     // Private menu
     reloadMenu(newMenuList, baseConfigProperties.getFiles().getMenuPrivate());
     menuList = newMenuList;
+    reloadVersion.incrementAndGet();
   }
 
   /**
@@ -265,23 +338,271 @@ public class AweElements {
       waitForFuture(result);
     }
 
+    // Combine the permission catalog and check against it the permissions of the queries, targets and services
+    boolean startup = permissionCatalog.get() == null;
+    swapPermissionDefinitions(buildPermissionCatalog(initData.getPermissionResults()),
+      keepPreviousOnEmptyRebuild(initData.getQueries(), queryList, "query"),
+      keepPreviousOnEmptyRebuild(initData.getMaintains(), maintainList, "maintain"),
+      keepPreviousOnEmptyRebuild(initData.getServices(), serviceList, "service"));
+
     // Swap global maps (fully built at this point, empty rebuilds keep the previous maps)
     enumeratedList = keepPreviousOnEmptyRebuild(initData.getEnumerated(), enumeratedList, "enumerated");
-    queryList = keepPreviousOnEmptyRebuild(initData.getQueries(), queryList, "query");
     queueList = keepPreviousOnEmptyRebuild(initData.getQueues(), queueList, "queue");
-    maintainList = keepPreviousOnEmptyRebuild(initData.getMaintains(), maintainList, "maintain");
     emailList = keepPreviousOnEmptyRebuild(initData.getEmails(), emailList, "email");
-    serviceList = keepPreviousOnEmptyRebuild(initData.getServices(), serviceList, "service");
     actionList = keepPreviousOnEmptyRebuild(initData.getActions(), actionList, "action");
 
-    // Read profile list
-    profileList = keepPreviousOnEmptyRebuild(mergeModuleResults(initData.getProfileResults(), PROFILE), profileList, PROFILE);
+    // Read profile list, checking its permissions and exclusions against the swapped catalog
+    swapProfiles(keepPreviousOnEmptyRebuild(mergeModuleResults(initData.getProfileResults(), PROFILE), profileList,
+      PROFILE), startup);
 
-    // Read screen list
-    screenMap = keepPreviousOnEmptyRebuild(mergeModuleResults(initData.getScreenResults(), SCREEN), screenMap, SCREEN);
+    // Read screen list, checking the permissions of its elements against the swapped catalog
+    swapScreens(keepPreviousOnEmptyRebuild(mergeModuleResults(initData.getScreenResults(), SCREEN), screenMap, SCREEN),
+      startup);
 
     // Read locale list
     localeList = keepPreviousLocalesOnEmptyRebuild(mergeLocaleResults(initData.getLocaleResults()), localeList);
+    reloadVersion.incrementAndGet();
+  }
+
+  /**
+   * Swap the profiles. A permission or an exclusion of a profile file that is not valid against the catalog fails the
+   * startup; on a reload the previous profiles are kept
+   *
+   * @param newProfileList New profile map
+   * @param startup        The definitions are loaded for the first time
+   */
+  private void swapProfiles(Map<String, Profile> newProfileList, boolean startup) {
+    List<String> problems = findProfilePermissionProblems(newProfileList, getPermissionCatalog());
+    if (problems.isEmpty()) {
+      profileList = newProfileList;
+    } else if (startup) {
+      throw new AWERuntimeException("Invalid permissions: " + String.join("; ", problems));
+    } else {
+      log.error("Invalid permissions in the profiles: keeping previous definitions. {}", problems);
+    }
+  }
+
+  /**
+   * Swap the screens. A screen element whose permission is not valid against the catalog fails the startup; on a
+   * reload the previous screens are kept
+   *
+   * @param newScreenMap New screen map
+   * @param startup      The definitions are loaded for the first time
+   */
+  private void swapScreens(Map<String, Screen> newScreenMap, boolean startup) {
+    List<String> problems = findScreenPermissionProblems(newScreenMap, permissionCatalog.get());
+    if (problems.isEmpty()) {
+      screenMap = newScreenMap;
+    } else if (startup) {
+      throw new AWERuntimeException("Invalid permissions: " + String.join("; ", problems));
+    } else {
+      log.error("Invalid permissions in the screens: keeping previous definitions. {}", problems);
+    }
+  }
+
+  /**
+   * Swap the permission catalog, the queries, the maintain targets and the services. A definition whose
+   * {@code permission} is not valid against the catalog fails the startup; on a reload the previous queries, targets
+   * or services are kept, and the previous catalog is kept when the new one misses a permission they, the loaded
+   * screens or the loaded profiles require. The new
+   * definitions are then checked again against the previous catalog, so the swapped definitions always match the
+   * swapped catalog
+   *
+   * @param newCatalog      New permission catalog
+   * @param newQueryList    New query map
+   * @param newMaintainList New maintain map
+   * @param newServiceList  New service map
+   */
+  private void swapPermissionDefinitions(PermissionCatalog newCatalog, Map<String, Query> newQueryList,
+                                         Map<String, Target> newMaintainList, Map<String, Service> newServiceList) {
+    if (permissionCatalog.get() == null) {
+      List<String> problems = findPermissionProblems(newQueryList, newMaintainList, newServiceList, newCatalog);
+      if (!problems.isEmpty()) {
+        throw new AWERuntimeException("Invalid permissions: " + String.join("; ", problems));
+      }
+      permissionCatalog.set(newCatalog);
+      queryList = newQueryList;
+      maintainList = newMaintainList;
+      serviceList = newServiceList;
+      return;
+    }
+
+    Map<String, Query> queries = newQueryList;
+    List<String> queryProblems = findQueryPermissionProblems(queries, newCatalog);
+    if (!queryProblems.isEmpty()) {
+      log.error("Invalid permissions in the queries: keeping previous definitions. {}", queryProblems);
+      queries = queryList;
+    }
+    Map<String, Target> maintains = newMaintainList;
+    List<String> maintainProblems = findMaintainPermissionProblems(maintains, newCatalog);
+    if (!maintainProblems.isEmpty()) {
+      log.error("Invalid permissions in the maintain targets: keeping previous definitions. {}", maintainProblems);
+      maintains = maintainList;
+    }
+    Map<String, Service> services = newServiceList;
+    List<String> serviceProblems = findServicePermissionProblems(services, newCatalog);
+    if (!serviceProblems.isEmpty()) {
+      log.error("Invalid permissions in the services: keeping previous definitions. {}", serviceProblems);
+      services = serviceList;
+    }
+    List<String> catalogProblems = findPermissionProblems(queries, maintains, services, newCatalog);
+    catalogProblems.addAll(findScreenPermissionProblems(screenMap, newCatalog));
+    catalogProblems.addAll(findProfilePermissionProblems(profileList, newCatalog));
+    if (catalogProblems.isEmpty()) {
+      permissionCatalog.set(newCatalog);
+    } else {
+      log.error(KEEPING_PREVIOUS_CATALOG, catalogProblems);
+      PermissionCatalog currentCatalog = permissionCatalog.get();
+      if (!findQueryPermissionProblems(queries, currentCatalog).isEmpty()) {
+        log.error("The queries need the rejected permission catalog: keeping previous definitions");
+        queries = queryList;
+      }
+      if (!findMaintainPermissionProblems(maintains, currentCatalog).isEmpty()) {
+        log.error("The maintain targets need the rejected permission catalog: keeping previous definitions");
+        maintains = maintainList;
+      }
+      if (!findServicePermissionProblems(services, currentCatalog).isEmpty()) {
+        log.error("The services need the rejected permission catalog: keeping previous definitions");
+        services = serviceList;
+      }
+    }
+    queryList = queries;
+    maintainList = maintains;
+    serviceList = services;
+  }
+
+  /**
+   * Check the {@code permission} attribute of the queries, the maintain targets and the services against a catalog
+   *
+   * @param queries   Query map
+   * @param maintains Maintain map
+   * @param services  Service map
+   * @param catalog   Permission catalog
+   * @return Problems found, naming the definition and the permission (empty when every attribute is valid)
+   */
+  private static List<String> findPermissionProblems(Map<String, Query> queries, Map<String, Target> maintains,
+                                                     Map<String, Service> services, PermissionCatalog catalog) {
+    List<String> problems = new ArrayList<>(findQueryPermissionProblems(queries, catalog));
+    problems.addAll(findMaintainPermissionProblems(maintains, catalog));
+    problems.addAll(findServicePermissionProblems(services, catalog));
+    return problems;
+  }
+
+  private static List<String> findQueryPermissionProblems(Map<String, Query> queries, PermissionCatalog catalog) {
+    return queries == null ? List.of() : queries.values().stream()
+      .flatMap(query -> catalog.validatePermissionAttribute(query.getPermission(), query.isPublic()).stream()
+        .map(problem -> "query '" + query.getId() + PERMISSION_DETAIL + query.getPermission() + "'): " + problem))
+      .sorted()
+      .toList();
+  }
+
+  private static List<String> findMaintainPermissionProblems(Map<String, Target> maintains, PermissionCatalog catalog) {
+    return maintains == null ? List.of() : maintains.values().stream()
+      .flatMap(target -> catalog.validatePermissionAttribute(target.getPermission(), target.isPublic()).stream()
+        .map(problem -> "maintain '" + target.getName() + PERMISSION_DETAIL + target.getPermission() + "'): "
+          + problem))
+      .sorted()
+      .toList();
+  }
+
+  /**
+   * Check the {@code permission} attribute of the services. A service authorized by its target is never checked
+   * itself, so it cannot declare a permission
+   */
+  private static List<String> findServicePermissionProblems(Map<String, Service> services, PermissionCatalog catalog) {
+    return services == null ? List.of() : services.values().stream()
+      .flatMap(service -> getServicePermissionProblems(service, catalog).stream()
+        .map(problem -> "service '" + service.getId() + PERMISSION_DETAIL + service.getPermission() + "'): "
+          + problem))
+      .sorted()
+      .toList();
+  }
+
+  /**
+   * Check the {@code permission} attribute of the buttons, context buttons and columns of the screens, and the
+   * {@code edit-permission} attribute of their button actions
+   */
+  private static List<String> findScreenPermissionProblems(Map<String, Screen> screens, PermissionCatalog catalog) {
+    if (screens == null) {
+      return List.of();
+    }
+    List<String> problems = new ArrayList<>();
+    for (Map.Entry<String, Screen> screen : screens.entrySet()) {
+      for (Element element : screen.getValue().getElementsByType(Element.class)) {
+        String attribute = switch (element) {
+          case AbstractButton button -> button.getPermission();
+          case Column column -> column.getPermission();
+          case ButtonAction action -> action.getEditPermission();
+          default -> null;
+        };
+        catalog.validatePermissionAttribute(attribute, false).forEach(problem -> problems.add("screen '"
+          + screen.getKey() + "' (" + describe(element) + " permission '" + attribute + "'): " + problem));
+      }
+    }
+    return problems.stream().sorted().toList();
+  }
+
+  /**
+   * Check the permissions and the exclusions of the profile files: catalog identifiers or wildcards that match some
+   * permission
+   */
+  private static List<String> findProfilePermissionProblems(Map<String, Profile> profiles, PermissionCatalog catalog) {
+    if (profiles == null) {
+      return List.of();
+    }
+    List<String> problems = new ArrayList<>();
+    profiles.forEach((name, profile) -> {
+      profile.getPermissionIds().forEach(entry -> catalog.validateAssignment(entry).forEach(problem ->
+        problems.add("profile '" + name + PERMISSION_DETAIL + entry + "'): " + problem)));
+      profile.getExclusionIds().forEach(entry -> catalog.validateAssignment(entry).forEach(problem ->
+        problems.add("profile '" + name + "' (exclude '" + entry + "'): " + problem)));
+    });
+    return problems.stream().sorted().toList();
+  }
+
+  private static String describe(Element element) {
+    return switch (element) {
+      case ButtonAction action -> "button action of target '" + action.getTarget() + "', edit";
+      case Column column -> "column '" + column.getName() + "',";
+      default -> "element '" + element.getElementKey() + "',";
+    };
+  }
+
+  private static List<String> getServicePermissionProblems(Service service, PermissionCatalog catalog) {
+    if (service.isAuthorizedByTarget() && service.getPermission() != null) {
+      return List.of("a service authorized by its target cannot declare a permission");
+    }
+    return catalog.validatePermissionAttribute(service.getPermission(), false);
+  }
+
+  /**
+   * Combine the Permissions.xml files of the modules into the permission catalog. An invalid catalog fails the
+   * startup; on a reload it keeps the previous catalog, as an invalid XML file does
+   *
+   * @param result Permissions files, in module order
+   * @return Permission catalog to swap in
+   */
+  private PermissionCatalog buildPermissionCatalog(Future<List<Permissions>> result) {
+    List<Permissions> files = List.of();
+    try {
+      files = result.get();
+    } catch (InterruptedException exc) {
+      log.error(" ===== ERROR loading permission files  ===== ", exc);
+      Thread.currentThread().interrupt();
+    } catch (ExecutionException exc) {
+      log.error(" ===== ERROR loading permission files  ===== ", exc);
+    }
+
+    PermissionCatalog currentCatalog = permissionCatalog.get();
+    try {
+      return PermissionCatalog.build(files);
+    } catch (AWERuntimeException exc) {
+      if (currentCatalog == null) {
+        throw exc;
+      }
+      log.error(KEEPING_PREVIOUS_CATALOG, exc.getMessage());
+      return currentCatalog;
+    }
   }
 
   /**
@@ -407,6 +728,9 @@ public class AweElements {
     initData.getGeneral().add(launchServices(initData));
     initData.getGeneral().add(launchActions(initData));
 
+    // Init permissions
+    initData.setPermissionResults(launchPermissions());
+
     // Init profiles
     initData.setProfileResults(launchProfiles());
 
@@ -499,6 +823,16 @@ public class AweElements {
   }
 
   /**
+   * Launch the read of the permission files of every module
+   *
+   * @return Read future
+   */
+  private Future<List<Permissions>> launchPermissions() {
+    String filePath = getGlobalFilePath(baseConfigProperties.getFiles().getPermissions());
+    return elementsDao.readXmlFileListAsync(Permissions.class, filePath);
+  }
+
+  /**
    * Launch the read of the profile folders per module
    *
    * @return Per-module read futures, in module order
@@ -538,7 +872,7 @@ public class AweElements {
         .stream()
         .flatMap(language -> {
           Map<String, Future<Map<String, String>>> languageMap = new ConcurrentHashMap<>();
-          languageMap.put(language, elementsDao.readLocaleModuleAsync(Paths.get(baseConfigProperties.getPaths().getApplication(),
+          languageMap.put(language, elementsDao.readLocaleModuleAsync(Path.of(baseConfigProperties.getPaths().getApplication(),
               module,
               baseConfigProperties.getPaths().getLocale() +
                 baseConfigProperties.getFiles().getLocale() +
@@ -735,7 +1069,7 @@ public class AweElements {
     screen = screen.copy();
 
     // Set screen identifier
-    List<Element> elements = screen.getElementsByType(Element.class);
+    List<Element> elements = withRowDetailElements(screen.getElementsByType(Element.class));
     for (Element element : elements) {
 
       // Generate component key if not defined
@@ -752,6 +1086,23 @@ public class AweElements {
 
     // Get Action
     return screen;
+  }
+
+  /**
+   * Add to a list of elements the ones inside their row details, which the searches by type do not return
+   *
+   * @param elements Elements
+   * @return Elements and the elements of their row details
+   */
+  private List<Element> withRowDetailElements(List<Element> elements) {
+    List<Element> allElements = new ArrayList<>();
+    for (Element element : elements) {
+      allElements.add(element);
+      if (element instanceof RowDetail rowDetail) {
+        allElements.addAll(withRowDetailElements(rowDetail.getDetailElements()));
+      }
+    }
+    return allElements;
   }
 
   /**
@@ -958,10 +1309,15 @@ public class AweElements {
    */
   public String getLocaleWithLanguage(String localeIdentifier, String language) {
     String locale = localeIdentifier;
-    Map<String, String> locales = localeList.get(language);
+    Map<String, String> locales = language == null ? null : localeList.get(language);
+
+    // A language that is not configured (e.g. the language of a user) falls back to the default language
+    if (locales == null) {
+      locales = localeList.get(baseConfigProperties.getLanguageDefault());
+    }
 
     // Check if locale exists, and retrieve it
-    if (localeIdentifier != null && locales.containsKey(localeIdentifier)) {
+    if (localeIdentifier != null && locales != null && locales.containsKey(localeIdentifier)) {
       locale = locales.get(localeIdentifier);
     }
 
@@ -1047,6 +1403,16 @@ public class AweElements {
 
     // Return object
     return phaseServices;
+  }
+
+  /**
+   * Retrieve the permission catalog
+   *
+   * @return Permission catalog
+   */
+  public PermissionCatalog getPermissionCatalog() {
+    PermissionCatalog catalog = permissionCatalog.get();
+    return catalog == null ? PermissionCatalog.empty() : catalog;
   }
 
   /**

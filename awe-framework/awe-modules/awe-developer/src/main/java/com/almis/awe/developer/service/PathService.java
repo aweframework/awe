@@ -11,7 +11,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -47,7 +46,7 @@ public class PathService extends ServiceConfig {
    * @return Path
    */
   private Path getFinalPath() {
-    return Paths.get(developerPath,developerPathFile);
+    return Path.of(developerPath,developerPathFile);
   }
 
   /**
@@ -103,7 +102,7 @@ public class PathService extends ServiceConfig {
     File propertiesFile = getFinalPath().toFile();
     if (!propertiesFile.exists()) {
       try {
-        Paths.get(developerPath).toFile().mkdirs();
+        Path.of(developerPath).toFile().mkdirs();
         if (!propertiesFile.createNewFile()) {
           throw new AWException(getLocale(ERROR_TITLE_UPDATE_WRK_DIR),
             getLocale(ERROR_MESSAGE_UPDATE_WRK_DIR));

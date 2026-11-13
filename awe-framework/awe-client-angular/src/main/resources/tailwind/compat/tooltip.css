@@ -1,0 +1,153 @@
+/*
+ * Tooltip: Bootstrap 3 tooltip.less as the compiled vendored CSS renders it: tooltip (+ in and the five placements), tooltip-inner and the
+ * tooltip-arrow of each placement.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values. There is no !important in this file.
+ *
+ * Not here (they stay in LESS; compatTooltip.test.js names every one of them with example selectors): the colored variants of pixel-admin,
+ * the slider plugin tooltip, the AWE grid cell tooltip and the selectors that depend on a theme class.
+ */
+
+.tooltip {
+  position: absolute;
+  z-index: 1030;
+  display: block;
+  visibility: visible;
+  font-family: var(--awe-font-family-base);
+  font-size: var(--awe-font-size-xs);
+  font-weight: normal;
+  line-height: 1.4;
+  opacity: 0;
+}
+
+.tooltip.in {
+  opacity: 0.9;
+}
+
+.tooltip.top {
+  margin-top: calc(var(--awe-space-1) * -1);
+  padding: var(--awe-space-1-5) 0;
+}
+
+.tooltip.right {
+  margin-left: var(--awe-space-1);
+  padding: 0 var(--awe-space-1-5);
+}
+
+.tooltip.bottom {
+  margin-top: var(--awe-space-1);
+  padding: var(--awe-space-1-5) 0;
+}
+
+.tooltip.left {
+  margin-left: calc(var(--awe-space-1) * -1);
+  padding: 0 var(--awe-space-1-5);
+}
+
+.tooltip-inner {
+  max-width: calc(var(--awe-space-16) * 3.12);
+  padding: var(--awe-space-1) var(--awe-space-2);
+  color: var(--awe-color-on-tooltip);
+  text-align: center;
+  text-decoration: none;
+  background-color: var(--awe-color-tooltip);
+  border-radius: var(--awe-radius);
+}
+
+.tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+}
+
+.tooltip.top .tooltip-arrow {
+  bottom: 0;
+  left: 50%;
+  margin-left: calc(var(--awe-space-1-5) * -1);
+  border-width: var(--awe-space-1-5) var(--awe-space-1-5) 0;
+  border-top-color: var(--awe-color-tooltip);
+}
+
+.tooltip.top-left .tooltip-arrow {
+  bottom: 0;
+  right: var(--awe-space-1-5);
+  margin-bottom: calc(var(--awe-space-1-5) * -1);
+  border-width: var(--awe-space-1-5) var(--awe-space-1-5) 0;
+  border-top-color: var(--awe-color-tooltip);
+}
+
+.tooltip.top-right .tooltip-arrow {
+  bottom: 0;
+  left: var(--awe-space-1-5);
+  margin-bottom: calc(var(--awe-space-1-5) * -1);
+  border-width: var(--awe-space-1-5) var(--awe-space-1-5) 0;
+  border-top-color: var(--awe-color-tooltip);
+}
+
+.tooltip.right .tooltip-arrow {
+  top: 50%;
+  left: 0;
+  margin-top: calc(var(--awe-space-1-5) * -1);
+  border-width: var(--awe-space-1-5) var(--awe-space-1-5) var(--awe-space-1-5) 0;
+  border-right-color: var(--awe-color-tooltip);
+}
+
+.tooltip.left .tooltip-arrow {
+  top: 50%;
+  right: 0;
+  margin-top: calc(var(--awe-space-1-5) * -1);
+  border-width: var(--awe-space-1-5) 0 var(--awe-space-1-5) var(--awe-space-1-5);
+  border-left-color: var(--awe-color-tooltip);
+}
+
+.tooltip.bottom .tooltip-arrow {
+  top: 0;
+  left: 50%;
+  margin-left: calc(var(--awe-space-1-5) * -1);
+  border-width: 0 var(--awe-space-1-5) var(--awe-space-1-5);
+  border-bottom-color: var(--awe-color-tooltip);
+}
+
+.tooltip.bottom-left .tooltip-arrow {
+  top: 0;
+  right: var(--awe-space-1-5);
+  margin-top: calc(var(--awe-space-1-5) * -1);
+  border-width: 0 var(--awe-space-1-5) var(--awe-space-1-5);
+  border-bottom-color: var(--awe-color-tooltip);
+}
+
+.tooltip.bottom-right .tooltip-arrow {
+  top: 0;
+  left: var(--awe-space-1-5);
+  margin-top: calc(var(--awe-space-1-5) * -1);
+  border-width: 0 var(--awe-space-1-5) var(--awe-space-1-5);
+  border-bottom-color: var(--awe-color-tooltip);
+}
+
+.tooltip-inner {
+  background-color: var(--awe-color-tooltip);
+  font-size: var(--awe-font-size-xs);
+  padding: var(--awe-space-1) var(--awe-space-3);
+}
+
+.tooltip.top .tooltip-arrow,
+.tooltip.top-left .tooltip-arrow,
+.tooltip.top-right .tooltip-arrow {
+  border-top-color: var(--awe-color-tooltip);
+}
+
+.tooltip.right .tooltip-arrow {
+  border-right-color: var(--awe-color-tooltip);
+}
+
+.tooltip.left .tooltip-arrow {
+  border-left-color: var(--awe-color-tooltip);
+}
+
+.tooltip.bottom .tooltip-arrow,
+.tooltip.bottom-left .tooltip-arrow,
+.tooltip.bottom-right .tooltip-arrow {
+  border-bottom-color: var(--awe-color-tooltip);
+}

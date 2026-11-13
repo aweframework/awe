@@ -1,0 +1,895 @@
+import _ from "lodash";
+import type { ComponentAddress } from "../contract";
+import { acceptAction, delayActions, startAction } from "../redux/actions/actions";
+import type { ActionItem } from "../redux/actions/actions";
+import type { AppDispatch } from "../redux/types";
+import { isComponentAction, runActionOnTarget } from "../redux/thunks/targets";
+import { fromDate } from "./dates";
+import download from "downloadjs";
+import React from "react";
+import { Tooltip } from "primereact/tooltip";
+import { isEmpty } from "./general";
+import { translateLabel } from "./labels";
+import { resolveIcon } from "./iconResolver";
+
+/**
+ * Utilities functions
+ * @category Utilities
+ * @namespace Utilities
+ */
+
+/** Translator of a text */
+type Translate = (key: string) => string;
+
+/** Address of a component: a component always belongs to a view */
+export interface Address extends ComponentAddress {
+  view: string;
+  component: string;
+}
+
+/** An option of a component model: its value, and whether it is selected */
+interface SelectableOption {
+  value?: unknown;
+  selected?: unknown;
+}
+
+/** Model of a component with a list of options */
+interface SelectableModel {
+  values?: SelectableOption[];
+}
+
+/** A component that has a group */
+interface GroupedComponent {
+  attributes: { group?: unknown };
+}
+
+/** An action the client is running */
+export interface RunningAction extends ActionItem {
+  type: string;
+}
+
+/** What the running actions of the client are, and what they were */
+interface ActionsChange {
+  prevRunningActions?: RunningAction[];
+  runningActions: RunningAction[];
+}
+
+/** Properties a component needs to run its actions */
+interface ActionsProps {
+  settings: { actionsStack?: number | null };
+  dispatch: AppDispatch;
+}
+
+/** The answer of a request that failed */
+export interface FetchError {
+  message: string;
+  status: number;
+  /** Body of the answer parsed as JSON, when it carries a JSON body (#935) */
+  body?: unknown;
+}
+
+/**
+ * Whether an answer is the error answer of a request that failed: `fetchJson` resolves it instead of rejecting, so
+ * the callers read it from the response (#935)
+ * @param answer Answer of a request
+ * @return The answer is a `FetchError`
+ * @memberOf Utilities
+ */
+export function isFetchError(answer: unknown): answer is FetchError {
+  return !!answer && typeof answer === "object" && "message" in answer && "status" in answer;
+}
+
+/**
+ * Parse the JSON body of a non-ok answer, when its text is a JSON object or array (#935)
+ * @param text Body text of the answer
+ * @returns The parsed body, or undefined when the text is not a JSON object or array
+ */
+function parseJsonBody(text: string): unknown {
+  const trimmed = text.trim();
+  if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) {
+    return undefined;
+  }
+  try {
+    const parsed = JSON.parse(trimmed);
+    return (typeof parsed === "object" && parsed !== null) ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Titles and texts of the messages a refused answer gets (#935). The message of a bare refusal uses the
+ * non-parametrised key of a refused action, not the screen-denied one: the rendered text never carries a `{0}` */
+const ACCESS_DENIED_TITLE = "ERROR_TITLE_ACCESS_DENIED";
+const ACCESS_DENIED_MESSAGE = "ERROR_MESSAGE_ACTION_NOT_PERMITTED";
+const NOT_FOUND_TITLE = "ERROR_TITLE_NOT_FOUND";
+const NOT_FOUND_MESSAGE = "ERROR_MESSAGE_NOT_FOUND";
+
+/** Whether a body text is markup: a page of the server is never shown inside a message (#935, S7) */
+const isMarkup = (text: string): boolean => /<[a-z!][^>]*>/i.test(text);
+
+/**
+ * Build the client actions a non-ok answer of the server runs, according to its status (#935)
+ * @param error Failed answer of a request
+ * @param target Component loading while the request ran (the end-load ends its loading state), if any
+ * @returns The actions of the refusal, or null when the answer is not one: the caller keeps the failed path it had
+ * @memberOf Utilities
+ */
+export function refusalActions(error: Partial<FetchError>, target?: ComponentAddress | null): ActionItem[] | null {
+  const endLoad: ActionItem[] = target ? [{type: "end-load", address: target}] : [];
+  switch (error.status) {
+    case 401:
+      // An expired session is answered with the client action that opens its own panel
+      return [...endLoad, {type: "session-expired"}];
+    case 403: {
+      // A refusal body carrying client actions is returned as it is: it is processed exactly like a 200 answer
+      if (Array.isArray(error.body)) {
+        return error.body as ActionItem[];
+      }
+      return [...endLoad, generateMessageAction(
+        "error", ACCESS_DENIED_TITLE,
+        (typeof error.message === "string" && error.message.trim() !== "" && !isMarkup(error.message))
+          ? error.message : ACCESS_DENIED_MESSAGE)];
+    }
+    case 404:
+      // A genuine 404 keeps a distinct not-found message: never the raw body, never the session panel
+      return [...endLoad, generateMessageAction("error", NOT_FOUND_TITLE, NOT_FOUND_MESSAGE)];
+    default:
+      return null;
+  }
+}
+
+/** An action that the server runs, or an action of the client that sends the parameters to it */
+export interface ServerAction extends ActionItem {
+  type: "server";
+  async: boolean;
+  silent: boolean;
+  address: Address;
+  parameters: Record<string, unknown> & { address: Address; component: string };
+}
+
+/** An action that shows a message */
+export interface MessageAction extends ActionItem {
+  type: "message";
+  parameters: { type: string; title: string | null; message: string };
+}
+
+/**
+ * Get REST url
+ * @returns {*}
+ * @memberOf Utilities
+ */
+export function getRestUrl(...segments: unknown[]): string {
+  return segments.reduce<string>((items, item) => isEmpty(item) ? items : `${items}/${item}`, "");
+}
+
+/**
+ * Generate an address
+ * @param {string} view View
+ * @param {string} component Component
+ * @param {string} column Column
+ * @param {string} row Row
+ * @memberOf Utilities
+ */
+export function generateAddress(view: string, component: string, column?: string, row?: string): Address {
+  let address: Address = { view: view, component: component };
+  address = column !== undefined ? { ...address, column: column } : address;
+  return row !== undefined ? { ...address, row: row } : address;
+}
+
+/**
+ * Manage parameter as array
+ * @param {Array|Object|String|Number} value
+ * @return {Array} value as array
+ * @memberOf Utilities
+ */
+export function asArray<T>(value: T | readonly T[] | null | undefined): T[] {
+  return isEmpty(value) ? [] : [...(Array.isArray(value) ? value : [value])];
+}
+
+/**
+ * Get component value depending on size: 0 -> null, 1 -> value, n -> list
+ * @param {Array} list
+ * @returns {*}
+ * @memberOf Utilities
+ */
+export function componentValue<T>(list: T[]): T | T[] | null {
+  return list.reduce<T | T[] | null>((items, item) => items == null ? item : [...asArray<T>(items), item], null);
+}
+
+/**
+ * Evaluates a expression
+ * @param {string} expression string
+ * @returns {Object} expression evaluated
+ * @memberOf Utilities
+ */
+export function evaluateExpression(expression: string): unknown {
+  const ctor = "constructor";
+  return (window.constructor[ctor][ctor] as unknown as FunctionConstructor)("return " + expression + ";")();
+}
+
+/**
+ * Evaluates a formule and retrieves the result
+ * @param {string} expression Formule expression
+ * @param {Object} values
+ * @returns {Object} expression evaluated
+ * @memberOf Utilities
+ */
+export function formule(expression: string, values?: Record<string, unknown>): unknown {
+  // Replace formule parameters
+  _.each(values, function (value, valueId) {
+    // The value is the replacement as it comes: a text, or anything String() turns into text
+    expression = expression.replace(new RegExp(`\\[${valueId}\\]`, "ig"), value as string);
+  });
+  expression = expression.replace(/#/ig, "\"");
+
+  // Eval formule
+  try {
+    return evaluateExpression(expression);
+  } catch (exc) {
+    console.error("[FORMULE] Formule: " + expression, { params: values, exception: exc });
+  }
+
+  return expression;
+}
+
+/**
+ * Replace the [id] wildcards of a text with the given values (case insensitive), like AngularJS does
+ * @param {string} text Text with wildcards
+ * @param {Object} values Values by wildcard id
+ * @returns {string|null} Text with the wildcards replaced, or null if there is no text
+ * @memberOf Utilities
+ */
+export function replaceWildcard(text: unknown, values?: Record<string, unknown> | null): string | null {
+  if (text === undefined || text === null) {
+    return null;
+  }
+  return Object.entries(values || {}).reduce(
+    (replaced, [valueId, value]) => replaced.replace(new RegExp(`\\[${valueId}\\]`, "ig"), () => String(value)),
+    String(text));
+}
+
+/**
+ * Check actions
+ * @param {object} allowedActions Object actions
+ * @param {object} actions Actions to launch
+ * @param {object} props Current properties
+ * @memberOf Utilities
+ */
+export function checkActions<P extends ActionsProps>(
+  allowedActions: Record<string, (action: RunningAction, props: P) => unknown>,
+  actions: ActionsChange,
+  props: P
+): void {
+  const { prevRunningActions, runningActions } = actions;
+  const { settings, dispatch } = props;
+  if (!_.isEqual(prevRunningActions, runningActions) && runningActions.length) {
+    runningActions.forEach(a => {
+      const { type } = a;
+      if (type in allowedActions) {
+        dispatch(startAction(a));
+        const run = () => allowedActions[type](a, props);
+        // A component action whose target is not on screen is ignored, as in the AngularJS client
+        delayActions(settings.actionsStack, isComponentAction(type) ? () => dispatch(runActionOnTarget(a, run)) : run);
+      } else {
+        // An unknown action never blocks the actions that follow it
+        // eslint-disable-next-line no-console
+        console.warn(`Unknown client action "${type}" skipped`, a);
+        dispatch(acceptAction(a));
+      }
+    });
+  }
+}
+
+/**
+ * Format a message with parameters
+ * @param {object} error
+ * @param {function} t translate function
+ * @returns {string|object} Message formatted
+ * @memberOf Utilities
+ */
+export function formatMessage(error: { message?: unknown; values?: Record<string, unknown> } | null | undefined, t: Translate): string | undefined {
+  if (error) {
+    const { message, values = {} } = error;
+    const fixDate = (value: unknown) => !isEmpty(value) && _.isDate(value) ? fromDate(value) : String(value);
+    return Object.entries(values).reduce((formatted, [key, value]) => formatted.replace(`{${key}}`, fixDate(value) as string), translateLabel(message, t));
+  } else {
+    return undefined;
+  }
+}
+
+/**
+ * Retrieve component values
+ * @param {object} component Component
+ * @memberOf Utilities
+ */
+export function getComponentValue(component?: { model?: SelectableModel } | null): unknown {
+  return getSelectedValues(component).reduce<unknown>((_lastValue, value) => value, null);
+}
+
+/**
+ * Retrieve component values
+ * @param {object} component Component
+ */
+export function getSelectedValues(component?: { model?: SelectableModel } | null): unknown[] {
+  return (component?.model?.values || [])
+    .filter((value) => value.selected)
+    .map((value) => value.value);
+}
+
+/**
+ * Retrieve group selected values
+ * @param {object} component Component
+ * @param {object} components Components
+ */
+export function getGroupSelectedValues(
+  component: GroupedComponent,
+  components: Record<string, GroupedComponent & { model?: SelectableModel }>
+): unknown[] {
+  const { group } = component.attributes;
+  return Object.values(components)
+    .filter(item => item.attributes.group === group)
+    .reduce((result, item) => [
+      ...result,
+      ...getSelectedValues(item)
+    ], [] as unknown[]);
+}
+
+/**
+ * Check if a component is inside context
+ * @param {object} searchContext Search context
+ * @param {string} view View
+ * @param {string} source Context source
+ * @return {boolean|*}
+ * @memberOf Utilities
+ */
+export function isInsideContext(
+  searchContext: { view?: string; source: string | readonly string[] },
+  view: string | undefined,
+  source: string | undefined
+): boolean {
+  // A missing source is looked for as it is
+  return searchContext.view === view && searchContext.source.includes(source as string);
+}
+
+/**
+ * Retrieve action source
+ * @param {object} action Action
+ * @param {object} components Component list
+ * @return {*}
+ * @memberOf Utilities
+ */
+export function getActionSource(
+  action: { address?: ComponentAddress; target?: string },
+  components: Record<string, { context: { source: string[] } }>
+): string | undefined {
+  // If target, get target
+  const { address, target } = action;
+  let source: string | undefined = target;
+
+  // If target is defined get components from target, else get all components from component inner source
+  if (!target) {
+    const callerSource = components[(address as Address).component].context.source;
+    source = callerSource[callerSource.length - 2];
+  }
+
+  return source;
+}
+
+/**
+ * Retrieve cookie value
+ * @param cookieName Cookie name
+ * @return {*}
+ * @memberOf Utilities
+ */
+export function getCookie(cookieName: string): string | undefined {
+  const cookieList = document.cookie.split(";");
+  const cookieMap = cookieList.reduce<Record<string, string | undefined>>((allCookies, cookie) => ({
+    ...allCookies,
+    [cookie.split("=")[0]]: cookie.split("=")[1]
+  }), {});
+  return cookieMap[cookieName];
+}
+
+/**
+ * Fetch an action
+ * @param serverAction Server action
+ * @param targetAction Target action
+ * @param data Action data
+ * @param token Authorization token
+ * @param signal Cancellation signal
+ * @return {Promise<unknown>}
+ * @memberOf Utilities
+ */
+export function fetchAction<T = unknown>(
+  serverAction: string | undefined,
+  targetAction: string | undefined,
+  data: unknown,
+  token: string | undefined,
+  signal: AbortSignal | null | undefined = undefined
+): Promise<T | FetchError> {
+  return fetchJson<T>("POST", getRestUrl("action", serverAction, targetAction), data, token, signal);
+}
+
+/**
+ * Fetch an screen
+ * @param option Option name
+ * @param view View name
+ * @param token Authorization token
+ * @param data Data sent to other screen
+ * @return {Promise<unknown>}
+ * @memberOf Utilities
+ */
+export function fetchScreen<T = unknown>(
+  option: string,
+  view: string,
+  token: string | undefined,
+  data?: Record<string, unknown>
+): Promise<T | FetchError> {
+  return fetchJson<T>("POST", getRestUrl("screen-data", option), {
+    ...data,
+    "serverAction": "screen-data",
+    "view": view,
+    "template": false
+  }, token);
+}
+
+/**
+ * Fetch json data
+ * @param method Method
+ * @param url Url
+ * @param body Data to send
+ * @param token Authorization token
+ * @param signal Cancellation signal
+ * @return {Promise<Response>}
+ * @memberOf Utilities
+ */
+export function fetchJson<T = unknown>(
+  method: string,
+  url: string,
+  body: unknown,
+  token: string | undefined,
+  signal: AbortSignal | null | undefined = undefined
+): Promise<T | FetchError> {
+  return fetch(`${getContextPath()}${url}`, {
+    signal,
+    method: method,
+    body: JSON.stringify(body),
+    headers: {
+      "Accept": "application/json,text/plain,*/*",
+      "Accept-Encoding": "gzip",
+      "Authorization": token,
+      "Content-Type": "application/json;charset=UTF-8",
+      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN")
+    } as Record<string, string> // A missing token or cookie is sent as it is
+  })
+    .then(response => response.ok ?
+      response.json() as Promise<T> :
+      response.text().then(message => {
+        // The body of an answer that failed is kept parsed when it carries JSON (#935): a refusal body is a list of
+        // client actions, and the caller needs it
+        const body = parseJsonBody(message);
+        return (body === undefined ? { message, status: response.status } : { message, status: response.status, body });
+      }));
+}
+
+/**
+ * Fetch file
+ * @param url File url
+ * @param data File data
+ * @param token Access token
+ * @returns {Promise}
+ * @memberOf Utilities
+ */
+export function fetchFile(url: string, data: unknown, token: string | undefined): Promise<boolean | XMLHttpRequest> {
+  let filename: string | null = "";
+  return fetch(`${getContextPath()}${url}`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+    headers: {
+      "Accept": "*/*",
+      "Authorization": token,
+      "Content-Type": "application/json",
+      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN")
+    } as Record<string, string> // A missing token or cookie is sent as it is
+  }).then((response) => {
+    filename = response.headers.get("Filename");
+    return response.blob();
+  }).then((blob) => download(blob, filename));
+}
+
+/**
+ * Fetch html
+ * @param url File url
+ * @param token Access token
+ * @returns {Promise}
+ * @memberOf Utilities
+ */
+export function fetchHtml(url: string, token: string | undefined): Promise<string> {
+  return fetch(`${getContextPath()}${url}`, {
+    method: 'GET',
+    headers: {
+      "Accept": "text/html",
+      "Authorization": token,
+      "X-XSRF-TOKEN": getCookie("XSRF-TOKEN")
+    } as Record<string, string> // A missing token or cookie is sent as it is
+  }).then(response => response.text());
+}
+
+/**
+ * Retrieve context path from html
+ */
+export function getContextPath(): string {
+  const contextPath = (document.getElementsByTagName('base')[0] || { href: "/" }).href
+    .replace(location.origin || "", "")
+    .replaceAll("/", "");
+  return isEmpty(contextPath) ? "" : `/${contextPath}`;
+}
+
+export function getBaseHref(): string {
+  return (document.getElementsByTagName('base')[0] || { href: "/" }).href;
+}
+
+/**
+ * Bind methods to object
+ * @param bindObject Bind object
+ * @param methods Methods to bind
+ * @memberOf Utilities
+ */
+export function bindMethods<K extends string, T extends Record<K, (...args: never[]) => unknown>>(
+  bindObject: T,
+  methods: readonly K[] = []
+): void {
+  methods.forEach(method => bindObject[method] = bindObject[method].bind(bindObject) as T[K]);
+}
+
+/**
+ * Generate server action
+ * @param {object} values
+ * @param {string} serverAction
+ * @param {string} targetAction
+ * @param {object} address
+ * @param {boolean} async
+ * @param {boolean} silent
+ * @param {object} settings
+ * @return {object} Server action
+ * @memberOf Utilities
+ */
+export function generateServerAction(
+  values: Record<string, unknown>,
+  serverAction: string,
+  targetAction: string,
+  address: Address,
+  async: boolean = false,
+  silent: boolean = false,
+  settings: { serverActionKey?: string; targetActionKey?: string } = {}
+): ServerAction {
+  return {
+    type: 'server',
+    async, silent, address,
+    parameters: {
+      ...values,
+      address,
+      component: address.component,
+      // Without settings the keys are named "undefined", as they always were
+      [settings.serverActionKey as string]: serverAction,
+      [settings.targetActionKey as string]: targetAction
+    }
+  };
+}
+
+/**
+ * Generate message action
+ * @param type Message type
+ * @param title Message title
+ * @param message Message content
+ * @returns {object} Message action
+ * @memberOf Utilities
+ */
+export function generateMessageAction(type: string = "ok", title: string | null = null, message: string = ""): MessageAction {
+  return {
+    type: 'message',
+    parameters: { type, title, message }
+  };
+}
+
+/**
+ * Get size string
+ * @param {number} size File size
+ * @return {string} Size string
+ * @memberOf Utilities
+ */
+export function getSizeString(size: number): string {
+  return ["B", "KB", "MB", "GB", "TB", "PB"]
+    .reduce((prev, current, index) => size >= Math.pow(1024, index) && size < Math.pow(1024, index + 1) ?
+      `${(Math.floor(size * 10 / Math.pow(1024, index)) / 10)} ${current}` : prev, `${size}`);
+}
+
+/**
+ * Get component with address. The address of a grid cell (with column and row) points to its grid, as the actions
+ * launched by a column dependency carry the cell address
+ * @param {object[]} components Component list
+ * @param {object} address Component or cell address
+ * @return component found
+ * @memberOf Utilities
+ */
+export function getComponent<C extends { address?: ComponentAddress }>(
+  components: Record<string, C> | ArrayLike<C>,
+  address: ComponentAddress
+): C | undefined {
+  const componentAddress = _.omit(address, ["column", "row"]);
+  return Object.values(components).find(component => _.isEqual(component.address, componentAddress));
+}
+
+/**
+ * Get component with address
+ * @param {object[]} components Component list
+ * @param {object} address Component address
+ * @return component found
+ * @memberOf Utilities
+ */
+export function getGridAndValues<C extends { address?: ComponentAddress; model?: { values?: unknown } }>(
+  components: Record<string, C> | ArrayLike<C>,
+  address: ComponentAddress
+): { component: C | undefined; values: NonNullable<C["model"]>["values"] | undefined } {
+  const component = getComponent(components, address);
+  const values = component?.model?.values;
+  return { component, values };
+}
+
+/**
+ * Get action address
+ * @param {object} action
+ * @return Action address
+ * @memberOf Utilities
+ */
+export function getActionAddress(action: { target?: string; address?: ComponentAddress; view?: string }): ComponentAddress {
+  const { target, address } = action;
+  return target ? { view: (address || action || {}).view, component: target } : { ...address };
+}
+
+/**
+ * Extract icon name and family
+ * @param icon
+ */
+export function extractIcon(icon: string = ""): { name: string; family: string } {
+  const [key, value] = icon.replace("fa-", "").split(":");
+  return { name: value || key, family: value ? key : "fa" };
+}
+
+/**
+ * The Lucide sprite of the build (#885). The application copies the static files of the client to its root, so the
+ * sprite is read under the context path, as the theme stylesheets are
+ * @memberOf Utilities
+ */
+export const ICON_SPRITE = "/icons/lucide-sprite.svg";
+
+/** An icon resolved to a Lucide icon of the sprite or to its current font (family and name null without icon) */
+export interface ResolvedIcon {
+  family: string | null;
+  name: string | null;
+  classes?: string;
+}
+
+/** Element of an icon written in the client: its tag and the attributes it keeps */
+export type IconNodeOptions = { tag?: string; className?: string } & Record<string, unknown>;
+
+// Font Awesome and PrimeIcons modifier classes -> classes of the AWE icon (the fixed width ones are dropped: the svg
+// already has a fixed width)
+const ICON_MODIFIERS: Record<string, string> = {
+  "fa-spin": "awe-icon-spin", "fa-pulse": "awe-icon-spin", "pi-spin": "awe-icon-spin", "fa-lg": "awe-icon-lg",
+  "fa-fw": "", "pi-fw": ""
+};
+const NO_ICON: ResolvedIcon = Object.freeze({ family: null, name: null });
+
+// Resolved icons by value: the components ask for the icon on every render
+const icons = new Map<string, ResolvedIcon>();
+
+const classList = (classes: unknown = ""): string[] => String(classes ?? "").split(/\s+/).filter(Boolean);
+const iconClasses = (classes: unknown): string[] => classList(classes)
+  .map(name => name in ICON_MODIFIERS ? ICON_MODIFIERS[name] : name)
+  .filter(Boolean);
+const contextClasses = (classes: unknown): string | undefined =>
+  classList(classes).filter(name => !(name in ICON_MODIFIERS)).join(" ") || undefined;
+const modifierClasses = (classes: unknown): string[] =>
+  iconClasses(classList(classes).filter(name => name in ICON_MODIFIERS).join(" "));
+
+const resolveAweIcon = (icon: string): ResolvedIcon => {
+  const resolved = resolveIcon(icon) as { family: string; name: string; classes: string } | null;
+  if (!resolved) {
+    return NO_ICON;
+  }
+  const classes = resolved.family === "lucide" ? iconClasses(resolved.classes).join(" ") : resolved.classes;
+  return { family: resolved.family, name: resolved.name, classes };
+};
+
+/**
+ * Resolve the icon value of the screen XML or the data
+ * @param {string} icon Icon value (a Font Awesome, mdi:, lucide: or PrimeIcons name) and its extra classes
+ * @returns {{family: string, name: string, classes?: string}} The Lucide icon ({family: "lucide"}) with its extra
+ * classes (the Font Awesome modifiers turned into AWE icon classes), or the family and name of the icon in its current
+ * font; family and name null without icon or for an unknown Lucide name
+ * @memberOf Utilities
+ */
+export function getIcon(icon?: string | null): ResolvedIcon {
+  if (!icon) {
+    return NO_ICON;
+  }
+  if (!icons.has(icon)) {
+    icons.set(icon, Object.freeze(resolveAweIcon(String(icon))));
+  }
+  return icons.get(icon) as ResolvedIcon;
+}
+
+/**
+ * Address of the Lucide sprite, under the context path of the application
+ * @returns {string} Sprite address
+ * @memberOf Utilities
+ */
+export function getIconSprite(): string {
+  return `${getContextPath()}${ICON_SPRITE}`;
+}
+
+// The decorative svg of a Lucide icon of the sprite, as the AngularJS client draws it
+const lucideSvg = (name: string | null, classes: string[]): React.ReactElement => <svg
+  className={["awe-icon", ...classes].join(" ")} aria-hidden="true" focusable="false">
+  <use href={`${getIconSprite()}#${name}`} /></svg>;
+
+// The element of a Lucide icon: it keeps its classes and attributes (layout, behaviour and test hooks) and holds the
+// svg; the modifier classes written next to the icon go to the svg
+const lucideElement = (tag: string, resolved: ResolvedIcon, attributes: Record<string, unknown>): React.ReactElement =>
+  React.createElement(tag,
+    { ...attributes, className: contextClasses(attributes.className) },
+    lucideSvg(resolved.name, [...classList(resolved.classes), ...modifierClasses(attributes.className)]));
+
+/**
+ * Get icon HTML template: the svg of the Lucide sprite inside the icon element for an icon with Lucide equivalence,
+ * the element of its current font otherwise
+ * @param icon Icon to generate ("name", "fa-name", "fa:name", "mdi:name", "lucide:name" and its extra classes)
+ * @param extraClasses Extra classes to add to the icon
+ * @memberOf Utilities
+ */
+export function getIconCode(icon?: string, extraClasses: string = ""): React.ReactElement | null {
+  if (!icon) {
+    return null;
+  }
+  const resolved = getIcon(icon);
+  if (resolved.family === "lucide") {
+    return lucideElement("i", resolved, { role: "icon", className: extraClasses });
+  }
+  if (!resolved.family) {
+    return null;
+  }
+  const iconValues = extractIcon(icon);
+  switch (iconValues.family) {
+    case "mdi":
+      return <i role="icon" className={`material-icons ${extraClasses}`}>{iconValues.name}</i>;
+    default:
+      return <i role="icon"
+        className={`${iconValues.family} ${iconValues.family}-${iconValues.name} ${extraClasses}`} />;
+  }
+}
+
+/**
+ * Icon written in the client ("pi-times", "pi-spinner pi-spin"...) in the element that holds it: the element keeps its
+ * classes and attributes and holds the svg of the Lucide icon, or it is the element of its current font
+ * @param {string} icon Icon value
+ * @param {object} [options] Element (tag, "i" by default), its classes (className) and its other attributes
+ * @returns {React.ReactElement|null} Icon element
+ * @memberOf Utilities
+ */
+export function getIconNode(icon?: string | null, { tag = "i", ...attributes }: IconNodeOptions = {}): React.ReactElement | null {
+  const resolved = getIcon(icon);
+  if (resolved.family === "lucide") {
+    return lucideElement(tag, resolved, attributes);
+  }
+  if (!resolved.family) {
+    return null;
+  }
+  const { className, ...others } = attributes;
+  const font = resolved.family === "material" ? ["material-icons"] : [resolved.family, `${resolved.family}-${resolved.name}`];
+  return React.createElement(tag,
+    { className: [...classList(className), ...font, ...classList(resolved.classes)].join(" "), ...others },
+    resolved.family === "material" ? resolved.name : undefined);
+}
+
+/**
+ * Add an event listener to a node to launch a function, and if timeout, launch timeout function
+ * @param node Node
+ * @param event Event to check
+ * @param fn Function
+ * @param fnTimeout Function in case of timeout
+ * @param timeout Timeout (in milliseconds)
+ */
+export function addEventListenerTimeout(
+  node: EventTarget,
+  event: string,
+  fn: () => void,
+  fnTimeout: () => void,
+  timeout: number
+): void {
+  const timer = setTimeout(() => {
+    node.removeEventListener(event, eventFn);
+    fnTimeout();
+  }, timeout);
+  const eventFn = () => {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    node.removeEventListener(event, eventFn);
+    fn();
+  };
+  node.addEventListener(event, eventFn);
+}
+
+/**
+ * Generate tooltip node for components
+ * @param help Help text
+ * @param helpImage Help image
+ * @param {function} t Translator function
+ * @param target Target node class
+ * @returns {JSX.Element}
+ */
+export function getHelpTooltipNode(help: string | undefined, helpImage: string | undefined, t: Translate, target: string): React.ReactElement | null {
+  const imageNode = helpImage ? <img src={translateLabel(helpImage, t)} alt={translateLabel(help, t)} /> : null;
+  if (help || helpImage) {
+    return <Tooltip target={target}>
+      {getVisibleTextData(help, t)}
+      {imageNode}
+    </Tooltip>;
+  }
+  return null;
+}
+
+/**
+ * Parse string to boolean
+ * @param value Value to parse
+ */
+export function parseBoolean(value: string | boolean = ""): boolean {
+  return typeof value === 'boolean' ? value : value.toLowerCase() === "true";
+}
+
+/**
+ * Retrieve visible text data
+ * @param {string} text Text to show
+ * @param {function} t Translator
+ * @return {object} Visible column data
+ */
+export function getVisibleTextData(text: unknown, t?: Translate): string {
+  return translateLabel(text, t);
+}
+
+export {translateLabel};
+
+/**
+ * Updates a specific element in an array by merging the existing element
+ * with the provided updates without mutating the original array.
+ *
+ * @param {Array} array - The array containing the element to be updated.
+ * @param {number} index - The index of the element to be updated.
+ * @param {Object} updates - An object containing the properties to be merged with the specified element.
+ * @return {Array} A new array with the updated element.
+ */
+export function updateArrayElement<T extends object>(array: readonly T[], index: number, updates: Partial<T>): T[] {
+  return [
+    ...array.slice(0, index),
+    { ...array[index], ...updates },
+    ...array.slice(index + 1)
+  ];
+}
+
+/**
+ * Get data depending of list length
+ * @param {array} data Data
+ * @return {null|*} null if length is 0, value if length is 1, array if length is higher
+ * @memberOf Components
+ */
+export function getDataDependingOnList<T>(data: T[]): T | T[] | null {
+  switch (data.length) {
+    case 0:
+      return null;
+    case 1:
+      return data[0];
+    default:
+      return data;
+  }
+}

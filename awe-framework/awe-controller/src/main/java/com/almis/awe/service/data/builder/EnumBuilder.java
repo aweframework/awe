@@ -6,9 +6,9 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.enumerated.EnumeratedGroup;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +26,7 @@ public class EnumBuilder extends ServiceConfig {
 
   /**
    * Assigns the query to be recovered
-   * 
+   *
    * @param enumeratedId Enumerated identifier
    * @return this
    */
@@ -124,7 +124,7 @@ public class EnumBuilder extends ServiceConfig {
 
   /**
    * Returns the group option list
-   * 
+   *
    * @param enumerated enumerated
    * @return Group option list
    */

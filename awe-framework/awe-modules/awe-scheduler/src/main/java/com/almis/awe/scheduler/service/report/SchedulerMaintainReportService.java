@@ -6,9 +6,9 @@ import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.enums.ReportType;
 import com.almis.awe.service.MaintainService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_JOB_EXECUTION;

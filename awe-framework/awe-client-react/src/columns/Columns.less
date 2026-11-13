@@ -1,0 +1,364 @@
+.column-editor {
+  width: 100%;
+  text-align: left;
+  position: relative;
+  .p-inputnumber-input {
+    width: 100%;
+    font-variant-numeric: var(--awe-font-variant-numeric);
+  }
+}
+
+.validation-tooltip.p-tooltip.p-tooltip-bottom {
+  .p-tooltip-arrow {
+    border-bottom-color: var(--awe-color-danger);
+  }
+  .p-tooltip-text {
+    color: var(--awe-color-on-danger);
+    background-color: var(--awe-color-danger);
+  }
+}
+
+// An invalid editor shows a warning mark at its end, hidden while the editor has the focus
+.column-editor.p-invalid {
+  &::before {
+    content: "⚠";
+    position: absolute;
+    top: 50%;
+    right: var(--awe-space-2);
+    translate: 0 -50%;
+    font-size: var(--awe-font-size-md);
+    line-height: 1;
+    color: var(--awe-color-danger-text);
+    pointer-events: none;
+  }
+  &.p-dropdown::before {
+    right: var(--awe-space-10);
+  }
+  &.p-autocomplete::before {
+    right: var(--awe-space-10);
+    z-index: 1;
+  }
+
+
+  &:focus-within {
+    &::before {
+      content: "" !important;
+    }
+  }
+}
+
+// Radio column: the options of the cell in a row, the checked one is always the solid primary colour with a white dot,
+// also under the pointer
+.column-radio {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--awe-space-1) var(--awe-space-3);
+
+  .column-radio-option {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--awe-space-1-5);
+  }
+
+  .column-radio-label {
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .p-radiobutton {
+    width: var(--awe-size-checkbox);
+    height: var(--awe-size-checkbox);
+
+    .p-radiobutton-box {
+      width: var(--awe-size-checkbox);
+      height: var(--awe-size-checkbox);
+    }
+
+    &.p-highlight .p-radiobutton-box,
+    &.p-highlight:not(.p-disabled):has(.p-radiobutton-input:hover) .p-radiobutton-box {
+      border-color: var(--awe-color-primary);
+      background: var(--awe-color-primary);
+
+      .p-radiobutton-icon {
+        width: var(--awe-radio-dot-size);
+        height: var(--awe-radio-dot-size);
+        background-color: var(--awe-color-on-primary);
+      }
+    }
+  }
+}
+
+// Button radio column: the options of the cell are a segmented control (the one of the button-radio criterion) at the
+// small control height of a cell
+.column-button-radio {
+  display: inline-flex;
+  gap: var(--awe-space-0-5);
+  max-width: 100%;
+  padding: var(--awe-space-0-5);
+  background: var(--awe-segmented-track);
+  border: var(--awe-border-width) solid var(--awe-segmented-border);
+  border-radius: var(--awe-radius-md);
+}
+
+.column-button-radio .p-button {
+  flex: 0 1 auto;
+  justify-content: center;
+  height: calc(var(--awe-size-control-sm) - 2 * (var(--awe-space-0-5) + 1px));
+  padding: 0 var(--awe-space-2);
+  margin: 0;
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-segmented-text);
+  white-space: nowrap;
+  cursor: pointer;
+  background: transparent;
+  border: var(--awe-border-width) solid transparent;
+  border-radius: var(--awe-radius-sm);
+}
+
+.column-button-radio .p-button:not(.p-disabled):not(.p-highlight):hover {
+  color: var(--awe-segmented-hover-text);
+  background: transparent;
+  border-color: transparent;
+}
+
+.column-button-radio .p-button.p-highlight {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-segmented-selected-text);
+  background: var(--awe-segmented-selected);
+  border-color: var(--awe-segmented-selected-border);
+  box-shadow: var(--awe-shadow-sm);
+}
+
+.column-button-radio .p-button:focus-within {
+  z-index: 1;
+  outline: var(--awe-focus-ring);
+  outline-offset: calc(-1 * var(--awe-focus-ring-width));
+}
+
+.column-button-radio .p-button.p-disabled {
+  cursor: default;
+}
+
+.column-button-radio .p-button .p-button-label {
+  font-weight: inherit;
+}
+
+.column-button-radio.p-invalid {
+  border-color: var(--awe-color-field-border-invalid);
+}
+
+// Progress column: a thin bar with its value, inside the height of a row of text
+.column-progress.p-progressbar {
+  height: var(--awe-space-4);
+  font-size: var(--awe-font-size-xs);
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  border-radius: var(--awe-radius-full);
+
+  .p-progressbar-value {
+    border-radius: var(--awe-radius-full);
+  }
+
+  .p-progressbar-label {
+    line-height: var(--awe-space-4);
+  }
+}
+
+// Progress column with a scale, a second value or stacked segments (#831): the number over a light data bar. The lanes
+// are drawn behind the number, the zero axis of a signed scale over them and under the number. The geometry (left and
+// width) is inline
+.awe-data-bar {
+  position: relative;
+  display: block;
+  width: auto;
+  padding: var(--awe-space-0-5) var(--awe-space-2);
+  margin: calc(var(--awe-space-0-5) * -1) calc(var(--awe-space-2) * -1);
+}
+
+.awe-data-bar-lanes {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-1);
+}
+
+.awe-data-bar-lane {
+  position: relative;
+  flex: 1;
+}
+
+.awe-data-bar-fill,
+.awe-data-bar-segment {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+}
+
+.awe-data-bar-fill {
+  background: var(--awe-color-data-bar);
+  border-radius: var(--awe-radius-md);
+}
+
+.awe-data-bar-fill.awe-data-bar-negative {
+  background: var(--awe-color-data-bar-negative);
+}
+
+.awe-data-bar-two .awe-data-bar-fill {
+  border-radius: var(--awe-radius-full);
+}
+
+// Signed scale: the end on the zero axis is square, only the outer end is rounded
+.awe-data-bar .awe-data-bar-signed {
+  border-radius: 0 var(--awe-radius-md) var(--awe-radius-md) 0;
+}
+
+.awe-data-bar .awe-data-bar-signed.awe-data-bar-negative {
+  border-radius: var(--awe-radius-md) 0 0 var(--awe-radius-md);
+}
+
+.awe-data-bar-two .awe-data-bar-signed {
+  border-radius: 0 var(--awe-radius-full) var(--awe-radius-full) 0;
+}
+
+.awe-data-bar-two .awe-data-bar-signed.awe-data-bar-negative {
+  border-radius: var(--awe-radius-full) 0 0 var(--awe-radius-full);
+}
+
+.awe-data-bar-lane-second .awe-data-bar-fill {
+  background: var(--awe-color-neutral-subtle);
+}
+
+.awe-data-bar-lane-second .awe-data-bar-fill.awe-data-bar-negative {
+  background: var(--awe-color-data-bar-negative);
+}
+
+// A stack is rounded only on its outer ends
+.awe-data-bar-segment:first-child {
+  border-radius: var(--awe-radius-md) 0 0 var(--awe-radius-md);
+}
+
+.awe-data-bar-segment:last-child {
+  border-radius: 0 var(--awe-radius-md) var(--awe-radius-md) 0;
+}
+
+.awe-data-bar-segment:only-child {
+  border-radius: var(--awe-radius-md);
+}
+
+.awe-data-bar-segment-0 {
+  background: var(--awe-color-scale-2);
+}
+
+.awe-data-bar-segment-1 {
+  background: var(--awe-color-scale-3);
+}
+
+.awe-data-bar-segment-2 {
+  background: var(--awe-color-scale-4);
+}
+
+.awe-data-bar-axis {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: thin solid var(--awe-color-chart-axis);
+}
+
+.awe-data-bar-value {
+  position: relative;
+  display: block;
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  text-align: right;
+}
+
+.awe-data-bar-value-negative {
+  color: var(--awe-color-danger-text);
+}
+
+// Image column: the image inside the height of a row of text
+.grid-image {
+  max-height: var(--awe-size-control);
+  vertical-align: middle;
+  border-radius: var(--awe-radius-sm);
+}
+
+.column-sparkline {
+  display: block;
+  width: 100%;
+  line-height: 0;
+
+  .awe-sparkline {
+    display: inline-block;
+    max-width: 100%;
+    vertical-align: middle;
+  }
+}
+
+// Legacy icon cells (bg-<tone> with an inverse glyph, the notifications screen) as badges of the design system: the tone
+// the Bootstrap background gave is a subtle background with its text colour, in light and dark
+.icon-container .awe-icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--awe-space-8);
+  height: var(--awe-space-8);
+  border-radius: var(--awe-radius-md);
+
+  .awe-icon {
+    border: 0;
+    padding: 0;
+    width: var(--awe-space-4);
+    height: var(--awe-space-4);
+  }
+}
+
+.icon-container .awe-icon-badge-primary {
+  background: var(--awe-color-primary-subtle);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-primary-text);
+  }
+}
+
+.icon-container .awe-icon-badge-success {
+  background: var(--awe-color-success-subtle);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-success-text);
+  }
+}
+
+.icon-container .awe-icon-badge-info {
+  background: var(--awe-color-info-subtle);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-info-text);
+  }
+}
+
+.icon-container .awe-icon-badge-warning {
+  background: var(--awe-color-warning-subtle);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-warning-text);
+  }
+}
+
+.icon-container .awe-icon-badge-danger {
+  background: var(--awe-color-danger-subtle);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-danger-text);
+  }
+}
+
+.icon-container .awe-icon-badge-default {
+  background: var(--awe-color-surface-hover);
+
+  .awe-icon.fa-inverse {
+    color: var(--awe-color-text-muted);
+  }
+}

@@ -149,7 +149,7 @@
 
   <!-- Reload properties of application -->
   <target name="downloadFileGrid">
-    <serve service="downloadFile">
+    <serve service="downloadGridFile">
       <variable id="fileName" type="STRING" name="DwnFil.selected"/>
     </serve>
   </target>
@@ -596,6 +596,134 @@
       <constant id="HISope" value="test"/>
       <field id="HISdat" variable="date"/>
       <constant id="Des" value="AWEBOOT-TEST-ROLLBACK-1"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+  </target>
+
+  <!-- Maintain transaction tests: the last insert of HISAweDbs without HISact (not null) always fails -->
+  <target name="TxFailingStatement">
+    <insert batch="false">
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="I"/>
+      <constant id="Des" value="AWEBOOT-TEST-TX-FAIL-0"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <insert batch="false">
+      <table id="HISAweThm"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="I"/>
+      <constant id="Nam" value="AWEBOOT-TEST-TX-FAIL-1"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <insert batch="false">
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="Des" value="AWEBOOT-TEST-TX-FAIL-2"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+  </target>
+
+  <target name="TxNestedServiceThenFail">
+    <insert batch="false">
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="I"/>
+      <constant id="Des" value="AWEBOOT-TEST-TX-NESTED-0"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <serve service="TxLaunchNestedMaintain"/>
+    <insert batch="false">
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="Des" value="AWEBOOT-TEST-TX-NESTED-2"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+  </target>
+
+  <!-- Launched by the TxLaunchNestedMaintain Java service -->
+  <target name="TxNestedInsert" public="false">
+    <insert batch="false">
+      <table id="HISAweThm"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="I"/>
+      <constant id="Nam" value="AWEBOOT-TEST-TX-NESTED-1"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+  </target>
+
+  <!-- The retrieve-data reads the row inserted before it and the last insert copies its description -->
+  <target name="TxRetrieveDataSeesWrites">
+    <insert batch="false">
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="I"/>
+      <constant id="Des" value="AWEBOOT-TEST-TX-READ-0"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <retrieve-data>
+      <table id="HISAweDbs"/>
+      <field id="Des" alias="readDes"/>
+      <where>
+        <and>
+          <filter left-field="Des" condition="like" right-variable="prefix"/>
+        </and>
+      </where>
+      <variable type="STRINGR" id="prefix" value="AWEBOOT-TEST-TX-READ-0"/>
+    </retrieve-data>
+    <insert multiple="true" batch="false">
+      <table id="HISAweThm"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="I"/>
+      <field id="Nam" variable="readDes"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+      <variable id="readDes" type="STRING" name="readDes"/>
+    </insert>
+  </target>
+
+  <target name="TxErrorResult">
+    <insert batch="false">
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="I"/>
+      <constant id="Des" value="AWEBOOT-TEST-TX-ERROR-0"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <serve service="TxReturnError"/>
+  </target>
+
+  <target name="TxCommitThenFail">
+    <insert batch="false">
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="I"/>
+      <constant id="Des" value="AWEBOOT-TEST-TX-COMMIT-0"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <commit/>
+    <insert batch="false">
+      <table id="HISAweThm"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="HISact" value="I"/>
+      <constant id="Nam" value="AWEBOOT-TEST-TX-COMMIT-1"/>
+      <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
+    </insert>
+    <insert batch="false">
+      <table id="HISAweDbs"/>
+      <constant id="HISope" value="test"/>
+      <field id="HISdat" variable="date"/>
+      <constant id="Des" value="AWEBOOT-TEST-TX-COMMIT-2"/>
       <variable id="date" type="TIMESTAMP" value="21/04/2017 00:00:00"/>
     </insert>
   </target>
@@ -1123,6 +1251,25 @@
 
   <target name="SlowTraceMaintain">
     <serve service="slowTraceService"/>
+  </target>
+
+  <!-- Echoes the choices sent by the radio columns of the GrdRadioTst screen -->
+  <target name="RadioChoicesEcho">
+    <serve service="returnRadioChoices">
+      <variable id="id" type="STRING" name="id"/>
+      <variable id="choice" type="STRING" name="choice"/>
+      <variable id="mode" type="STRING" name="mode"/>
+    </serve>
+  </target>
+
+  <!-- Deferred load test (#824): forget the calls when the screen loads -->
+  <target name="DeferredLoadReset">
+    <serve service="deferredLoadReset"/>
+  </target>
+
+  <!-- Route of the map test screen: a polyline client action -->
+  <target name="TstMapRoute">
+    <serve service="TstMapRoute"/>
   </target>
 
 </maintain>

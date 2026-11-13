@@ -1,0 +1,14 @@
+/*
+ * Where Tailwind looks for the classes in use. Paths are relative to this file.
+ *
+ * The AngularJS templates, the directives (classes added from JavaScript) and the XML screens of the framework, its
+ * modules and the test applications. A product has its own XML screens that this build cannot see: the classes AWE always
+ * emits for them (the Bootstrap 3 compat layer, grid included) come from the generated lists of ./compat, not from here.
+ */
+@source "../templates";
+@source "../js/awe";
+@source "../../../../../awe-generic-screens/src/main/resources/application";
+@source "../../../../../awe-modules/*/src/main/resources/application";
+@source "../../../../../awe-boot-angular-archetype/src/main/resources/archetype-resources/src/main/resources/application";
+@source "../../../../../../awe-tests/awe-boot/src/main/resources/application";
+@source "../../../../../../awe-tests/awe-scheduler-boot/src/main/resources/application";

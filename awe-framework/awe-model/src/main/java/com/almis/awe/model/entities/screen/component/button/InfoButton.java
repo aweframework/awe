@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * InfoButton Class
  *
@@ -28,6 +30,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("info-button")
 public class InfoButton extends AbstractButton {
 
+  @Serial
   private static final long serialVersionUID = -8521012517719249256L;
   // Info style
   @XStreamAlias("info-style")

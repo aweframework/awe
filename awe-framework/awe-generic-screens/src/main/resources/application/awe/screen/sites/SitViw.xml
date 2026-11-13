@@ -5,6 +5,8 @@
     Created on : 03 de Marzo de 2013
     Author     : Pablo VIDAL
     Description: Ventana de sites - Consulta de sitio
+    DEPRECATED since AWE 5.0.0: replaced by the site-admin screen (screen/sites/site-admin.xml), which the "sites" option
+    of the default menu opens. This screen will be removed in the next minor release (5.1.0).
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_SIT_VIW" help="HELP_SCREEN_TITLE_SIT_VIW">
   <tag source="hidden">

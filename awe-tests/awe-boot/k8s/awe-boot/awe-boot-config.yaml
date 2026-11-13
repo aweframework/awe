@@ -8,7 +8,7 @@ data:
     info.app.description=This is an awe application example
     # Redis key prefix
     spring.cache.redis.key-prefix=awe-boot::
-    spring.session.redis.namespace=awe-boot:session
+    spring.session.data.redis.namespace=awe-boot:session
     spring.data.redis.host=redis-service
     spring.data.redis.port=6379
     # Websocket Broker config

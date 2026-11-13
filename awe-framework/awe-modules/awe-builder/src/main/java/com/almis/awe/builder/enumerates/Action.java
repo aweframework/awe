@@ -18,10 +18,14 @@ public enum Action {
   CANCEL_ROW("cancel-row"),
   CHANGE_LANGUAGE("change-language"),
   CHANGE_THEME("change-theme"),
+  /** @deprecated No client engine handles it (#823); removed in AWE 6.0 */
+  @Deprecated(since = "5.0", forRemoval = true)
   CHECK_LEAF_SELECTED("check-leaf-selected"),
   CHECK_ONE_SELECTED("check-one-selected"),
+  /** @deprecated No client engine handles it (#823); removed in AWE 6.0 */
+  @Deprecated(since = "5.0", forRemoval = true)
   CHECK_PARENT_SELECTED("check-parent-selected"),
-  CHECK_RECORDS_GENERATED("check-records-selected"),
+  CHECK_RECORDS_GENERATED("check-records-generated"),
   CHECK_RECORDS_SAVED("check-records-saved"),
   CHECK_SOME_SELECTED("check-some-selected"),
   CLOSE("close"),
@@ -35,11 +39,19 @@ public enum Action {
   COPY_ROW_DOWN("copy-row-down"),
   COPY_ROW_UP("copy-row-up"),
   DELETE_ROW("delete-row"),
+  MOVE_ROW_TOP("move-row-top"),
+  MOVE_ROW_UP("move-row-up"),
+  MOVE_ROW_DOWN("move-row-down"),
+  MOVE_ROW_BOTTOM("move-row-bottom"),
   DIALOG("dialog"),
   DISABLE_DEPENDENCIES("disable-dependencies"),
   ENABLE_DEPENDENCIES("enable-dependencies"),
   FILTER("filter"),
+  /** @deprecated No client engine handles it (#823); removed in AWE 6.0 */
+  @Deprecated(since = "5.0", forRemoval = true)
   FORWARD("forward"),
+  /** @deprecated Does nothing as a button action (#823); removed in AWE 6.0 */
+  @Deprecated(since = "5.0", forRemoval = true)
   GET_LOCALS("get-locals"),
   LOGOUT("logout"),
   NEXT_STEP("next-step"),
@@ -57,8 +69,8 @@ public enum Action {
   SCREEN("screen"),
   RELOAD("reload"),
   SELECT_ALL_ROWS("select-all-rows"),
-  SELECT_FIRST_ROW("select-first-rows"),
-  SELECT_LAST_ROW("select-last-rows"),
+  SELECT_FIRST_ROW("select-first-row"),
+  SELECT_LAST_ROW("select-last-row"),
   SERVER("server"),
   SERVER_DOWNLOAD("server-download"),
   COPY_CRITERION_VALUE_CLIPBOARD("copy-criterion-value-clipboard"),
@@ -70,7 +82,7 @@ public enum Action {
   VALIDATE("validate"),
   VALUE("value"),
   WAIT("wait");
-  
+
   private final String value;
 
   private Action(String value) {
@@ -91,5 +103,5 @@ public enum Action {
   public String toString() {
     return this.value;
   }
-  
+
 }

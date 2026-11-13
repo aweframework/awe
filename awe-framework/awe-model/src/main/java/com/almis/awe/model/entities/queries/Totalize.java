@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +30,7 @@ import java.util.Map;
 @XStreamAlias("totalize")
 public class Totalize implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -1703530186967387913L;
 
   // Totalize function to apply to ALL fields (SUM, AVG, MAX, MIN)

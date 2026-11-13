@@ -1,8 +1,12 @@
 package com.almis.awe.rest.security;
 
 import com.almis.awe.model.component.AweUserDetails;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
 import com.almis.awe.rest.service.JWTTokenService;
+import com.almis.awe.security.audit.SecurityAuditService;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +29,7 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
   // Autowired
   private final UserDetailsService userDetailsService;
   private final JWTTokenService jwtTokenService;
+  private SecurityAuditService securityAuditService = SecurityAuditService.disabled();
 
   /**
    * JWTAuthorizationFilter constructor
@@ -37,6 +42,15 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
     super(authenticationManager);
     this.userDetailsService = userDetailsService;
     this.jwtTokenService = jwtTokenService;
+  }
+
+  /**
+   * Record the refused tokens in the security audit
+   *
+   * @param securityAuditService Security audit service
+   */
+  public void setSecurityAuditService(SecurityAuditService securityAuditService) {
+    this.securityAuditService = securityAuditService;
   }
 
   @Override
@@ -62,13 +76,17 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
         DecodedJWT decodedJWT = jwtTokenService.verifyToken(token);
         if (decodedJWT != null) {
           AweUserDetails userDetails = (AweUserDetails) userDetailsService.loadUserByUsername(decodedJWT.getSubject());
-          authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, new ArrayList<>());
+          // One role per profile of the user (main and additional), as in a web session
+          authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null,
+            userDetails.getAuthorities() == null ? new ArrayList<>() : userDetails.getAuthorities());
         }
       }
 
     } catch (JWTVerificationException ex) {
       //Invalid token
       logger.debug("Invalid JWT token", ex);
+      securityAuditService.failure(SecurityAuditEventType.TOKEN_REJECTED, null,
+        ex instanceof TokenExpiredException ? SecurityAuditCause.TOKEN_EXPIRED : SecurityAuditCause.INVALID_TOKEN, null);
       return null;
     }
     return authenticationToken;

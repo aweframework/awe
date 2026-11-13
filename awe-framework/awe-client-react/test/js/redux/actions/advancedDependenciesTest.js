@@ -1,0 +1,2138 @@
+import * as dependencies from '../../../../src/redux/actions/dependencies';
+
+describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', () => {
+  let dispatch;
+  let mockState;
+  let mockComponent;
+
+  beforeEach(() => {
+    dispatch = jest.fn();
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
+    mockComponent = {
+      address: { view: 'testView', component: 'comp1' },
+      context: 'form-context',
+      attributes: {
+        visible: true,
+        readonly: false,
+        disabled: false,
+        group: null,
+        columnModel: null
+      },
+      validationRules: {
+        required: false
+      },
+      model: {
+        values: [
+          { value: 'test1', label: 'Test 1', selected: true },
+          { value: 'test2', label: 'Test 2', selected: false }
+        ],
+        event: null
+      },
+      initialModel: {
+        values: []
+      },
+      dependencies: []
+    };
+
+    mockState = {
+      components: {
+        comp1: mockComponent,
+        comp2: {
+          address: { view: 'testView', component: 'comp2' },
+          attributes: { visible: false },
+          validationRules: {},
+          model: { values: [] },
+          dependencies: []
+        }
+      },
+      settings: {
+        activeDependencies: true,
+        serverActionKey: 'serverAction',
+        targetActionKey: 'targetAction'
+      },
+      view: {
+        view: 'testView',
+        testView: { name: 'Test Screen' }
+      }
+    };
+
+  });
+
+  // The selectors memoize the merge of every component by the reference of its delta, but these tests change the
+  // components in place, so every call gets a new reference for each component
+  const freshState = () => ({
+    ...mockState,
+    components: Object.fromEntries(Object.entries(mockState.components).map(([id, component]) => [id, { ...component }]))
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  describe('checkDependencies', () => {
+    it('debería verificar dependencias sin cambios', () => {
+      dependencies.checkDependencies(freshState(), dispatch);
+
+      // Sin cambios, no debería despachar nada
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('debería ejecutar dependencias cuando hay cambios', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: false
+      }];
+
+      // Primera llamada para inicializar
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+      dispatch.mockClear();
+
+      // Cambiar valor
+      mockState.components.comp2.model.values = [{ value: 'changed', selected: true }];
+
+      // Segunda llamada debería detectar cambios
+      dependencies.checkDependencies(freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+  });
+
+  describe('initializeDependencies', () => {
+    it('debería inicializar dependencias de una vista', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería limpiar valores previos de dependencias', () => {
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      // No debería fallar al reinicializar
+      expect(true).toBe(true);
+    });
+  });
+
+  describe('Evaluación de condiciones', () => {
+    beforeEach(() => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [],
+        target: 'show',
+        initial: true
+      }];
+    });
+
+    it('debería evaluar condición eq (igual)', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'eq',
+        value: 'test',
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar condición ne (no igual)', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'ne',
+        value: 'other',
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar condición ge (mayor o igual)', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'ge',
+        value: 5,
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 10, selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar condición le (menor o igual)', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'le',
+        value: 10,
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 5, selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar condición gt (mayor que)', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'gt',
+        value: 5,
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 10, selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar condición lt (menor que)', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'lt',
+        value: 10,
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 5, selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar condición in (contiene)', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'in',
+        value: 'option1,option2,option3',
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'option2', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar condición in con array', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'in',
+        value: ['option1', 'option2', 'option3'],
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'option2', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar condición "is not false"', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'is not false',
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [{ value: true, selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar condición "is empty"', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'is empty',
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar condición "is not empty"', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'is not empty',
+        checkChanges: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería manejar condición inválida', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'invalid-condition',
+        checkChanges: true
+      }];
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+      const invalidCalls = JSON.stringify(dispatch.mock.calls);
+
+      // An unknown condition is evaluated as a condition that does not match
+      dispatch.mockClear();
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'eq',
+        value: 'a value that does not match',
+        checkChanges: true
+      }];
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(invalidCalls).toEqual(JSON.stringify(dispatch.mock.calls));
+    });
+
+    it('debería evaluar trigger opcional', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp2',
+        attribute1: 'value',
+        condition: 'eq',
+        value: 'nonexistent',
+        optional: true,
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+  });
+
+  describe('Condition parity with the AngularJS engine', () => {
+    // Evaluates a dependency over comp2 and tells whether it was launched, comparing the dispatched actions with
+    // the ones of a dependency that is known to be launched (or not)
+    const run = (elements, type = 'and', values = [{ value: 'x', selected: true }]) => {
+      dispatch.mockClear();
+      mockComponent.dependencies = [{ type, elements, target: 'show', initial: true }];
+      mockState.components.comp2.model.values = values;
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+      return JSON.stringify(dispatch.mock.calls);
+    };
+    const element = (condition, value, extra = {}) => ({ id: 'comp2', attribute1: 'value', condition, value, ...extra });
+    const isLaunched = (elements, type, values) => {
+      const result = run(elements, type, values);
+      const launched = run([element('is not empty')], 'and', [{ value: 'x', selected: true }]);
+      const notLaunched = run([element('is empty')], 'and', [{ value: 'x', selected: true }]);
+      expect(launched).not.toEqual(notLaunched);
+      return result === launched;
+    };
+    const withValue = value => [{ value, selected: true }];
+
+    it('contains ignores the case and compares numbers as text', () => {
+      expect(isLaunched([element('contains', 'ES')], 'and', withValue('Testing'))).toBe(true);
+      expect(isLaunched([element('contains', 'zz')], 'and', withValue('Testing'))).toBe(false);
+      expect(isLaunched([element('contains', 23)], 'and', withValue(12345))).toBe(true);
+      expect(isLaunched([element('contains', '9')], 'and', withValue(12345))).toBe(false);
+    });
+
+    it('contains treats empty values as empty text', () => {
+      expect(isLaunched([element('contains', '')], 'and', withValue(null))).toBe(true);
+      expect(isLaunched([element('contains', 'a')], 'and', withValue(null))).toBe(false);
+    });
+
+    it('contains uses the text form of an array', () => {
+      expect(isLaunched([element('contains', 'b,c')], 'and', [{ value: 'a', selected: true }, { value: 'b', selected: true }]))
+        .toBe(false);
+      expect(isLaunched([element('contains', 'A,B')], 'and', [{ value: 'a', selected: true }, { value: 'b', selected: true }]))
+        .toBe(true);
+    });
+
+    it('not contains is the negation of contains', () => {
+      expect(isLaunched([element('not contains', 'ES')], 'and', withValue('Testing'))).toBe(false);
+      expect(isLaunched([element('not contains', 'zz')], 'and', withValue('Testing'))).toBe(true);
+    });
+
+    it('in compares a number with a comma separated text', () => {
+      expect(isLaunched([element('in', '1,2')], 'and', withValue(1))).toBe(true);
+      expect(isLaunched([element('in', '1,2')], 'and', withValue(3))).toBe(false);
+    });
+
+    it('in uses a strict comparison with an array and falls back to equality for other values', () => {
+      expect(isLaunched([element('in', [1, 2])], 'and', withValue(1))).toBe(true);
+      expect(isLaunched([element('in', [1, 2])], 'and', withValue('1'))).toBe(false);
+      expect(isLaunched([element('in', 5)], 'and', withValue('5'))).toBe(true);
+      expect(isLaunched([element('in', 5)], 'and', withValue('6'))).toBe(false);
+    });
+
+    it('not in is the negation of in', () => {
+      expect(isLaunched([element('not in', '1,2')], 'and', withValue(1))).toBe(false);
+      expect(isLaunched([element('not in', '1,2')], 'and', withValue(3))).toBe(true);
+    });
+
+    it('an unknown condition behaves like is not empty', () => {
+      expect(isLaunched([element('unknown')], 'and', withValue('x'))).toBe(true);
+      expect(isLaunched([element('unknown')], 'and', [])).toBe(false);
+    });
+
+    it('a failed cancel element prevents the whole dependency from being launched', () => {
+      const elements = [element('is not empty'), element('eq', 'other', { cancel: true })];
+      expect(isLaunched(elements, 'or', withValue('x'))).toBe(false);
+      expect(isLaunched([element('is not empty'), element('eq', 'x', { cancel: true })], 'or', withValue('x'))).toBe(true);
+    });
+
+    it('check-changes false still evaluates the condition', () => {
+      expect(isLaunched([element('eq', 'x', { checkChanges: false })], 'and', withValue('x'))).toBe(true);
+      expect(isLaunched([element('eq', 'y', { checkChanges: false })], 'and', withValue('x'))).toBe(false);
+    });
+  });
+
+  describe('Tipos de dependencias (and/or)', () => {
+    it('debería evaluar dependencia tipo AND correctamente', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [
+          { id: 'comp2', attribute1: 'value', value: 'test', condition: 'eq', checkChanges: true },
+          { id: 'comp2', attribute1: 'totalValues', value: 0, condition: 'gt', checkChanges: true }
+        ],
+        target: 'show',
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería evaluar dependencia tipo OR correctamente', () => {
+      mockComponent.dependencies = [{
+        type: 'or',
+        elements: [
+          { id: 'comp2', attribute1: 'value', value: 'other', condition: 'eq', checkChanges: true },
+          { id: 'comp2', attribute1: 'totalValues', value: 0, condition: 'gt', checkChanges: true }
+        ],
+        target: 'show',
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería cancelar dependencia con trigger cancel', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [
+          { id: 'comp2', attribute1: 'value', value: 'wrong', condition: 'eq', cancel: true, checkChanges: true },
+          { id: 'comp2', attribute1: 'totalValues', value: 0, condition: 'gt', checkChanges: true }
+        ],
+        target: 'input',
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      // Con cancel, no debería ejecutarse
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Atributos de componente', () => {
+    beforeEach(() => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [],
+        target: 'show',
+        initial: true
+      }];
+    });
+
+    it('debería obtener atributo visible', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp1',
+        attribute1: 'visible',
+        condition: 'is not false',
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener atributo editable', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp1',
+        attribute1: 'editable',
+        condition: 'is not false',
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener atributo required', () => {
+      mockComponent.dependencies[0].target = 'input';
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp1',
+        attribute1: 'required',
+        condition: 'is not false',
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      // required es false, por lo que no debería ejecutarse
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('debería obtener totalValues', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp1',
+        attribute1: 'totalValues',
+        condition: 'gt',
+        value: 0,
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener selectedValues', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'comp1',
+        attribute1: 'selectedValues',
+        condition: 'eq',
+        value: 1,
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+  });
+
+  describe('Atributos de grid', () => {
+    beforeEach(() => {
+      mockState.components.gridComp = {
+        address: { view: 'testView', component: 'gridComp' },
+        attributes: {
+          columnModel: [
+            { id: 'col1', label: 'Column 1' },
+            { id: 'col2', label: 'Column 2' }
+          ],
+          gridId: 'id'
+        },
+        validationRules: {},
+        model: {
+          values: [
+            { id: 1, col1: 'value1', col2: 'value2', selected: false },
+            { id: 2, col1: 'value3', col2: 'value4', selected: true, editing: true }
+          ]
+        },
+        dependencies: [{
+          type: 'and',
+          elements: [{
+            id: 'comp2',
+            attribute1: 'value',
+            checkChanges: true
+          }],
+          target: 'show',
+          initial: true
+        }]
+      };
+
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [],
+        target: 'show',
+        initial: true
+      }];
+    });
+
+    it('debería obtener currentRow', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'gridComp',
+        attribute1: 'currentRow',
+        row1: 2,
+        condition: 'eq',
+        value: 1,
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener selectedRow', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'gridComp',
+        attribute1: 'selectedRow',
+        condition: 'eq',
+        value: 1,
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener prevRow', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'gridComp',
+        attribute1: 'prevRow',
+        condition: 'eq',
+        value: 0,
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener nextRow', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'gridComp',
+        attribute1: 'nextRow',
+        condition: 'eq',
+        value: 2,
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener hasDataColumn', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'gridComp',
+        attribute1: 'hasDataColumn',
+        column1: 'col1',
+        condition: 'is not false',
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener emptyDataColumn', () => {
+      mockComponent.dependencies[0].elements = [{
+        id: 'gridComp',
+        attribute1: 'emptyDataColumn',
+        column1: 'col3',
+        condition: 'is not false',
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener modifiedRows', () => {
+      mockState.components.gridComp.model.values[0].ROW_TYPE = 'INSERT';
+
+      mockComponent.dependencies[0].elements = [{
+        id: 'gridComp',
+        attribute1: 'modifiedRows',
+        condition: 'gt',
+        value: 0,
+        checkChanges: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+  });
+
+  describe('Targets de dependencias', () => {
+    beforeEach(() => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          value: 'test',
+          condition: 'eq',
+          checkChanges: true
+        }],
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+    });
+
+    it('debería aplicar target show', () => {
+      mockComponent.dependencies[0].target = 'show';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasVisibleUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.visible === true)
+      );
+      expect(hasVisibleUpdate).toBe(true);
+    });
+
+    it('debería aplicar target hide', () => {
+      mockComponent.dependencies[0].target = 'hide';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasVisibleUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.visible === false)
+      );
+      expect(hasVisibleUpdate).toBe(true);
+    });
+
+    it('debería aplicar target enable', () => {
+      mockComponent.dependencies[0].target = 'enable';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasDisabledUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.disabled === false)
+      );
+      expect(hasDisabledUpdate).toBe(true);
+    });
+
+    it('debería aplicar target disable', () => {
+      mockComponent.dependencies[0].target = 'disable';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasDisabledUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.disabled === true)
+      );
+      expect(hasDisabledUpdate).toBe(true);
+    });
+
+    it('debería aplicar target set-editable', () => {
+      mockComponent.dependencies[0].target = 'set-editable';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasReadonlyUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.readonly === false)
+      );
+      expect(hasReadonlyUpdate).toBe(true);
+    });
+
+    it('debería aplicar target set-readonly', () => {
+      mockComponent.dependencies[0].target = 'set-readonly';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasReadonlyUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.readonly === true)
+      );
+      expect(hasReadonlyUpdate).toBe(true);
+    });
+
+    it('debería aplicar target set-required', () => {
+      mockComponent.dependencies[0].target = 'set-required';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasRequiredUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_VALIDATION' &&
+        action.componentList.some(item => item.data.required === true)
+      );
+      expect(hasRequiredUpdate).toBe(true);
+    });
+
+    it('debería aplicar target set-optional', () => {
+      mockComponent.dependencies[0].target = 'set-optional';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasRequiredUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_VALIDATION' &&
+        action.componentList.some(item => item.data.required === false)
+      );
+      expect(hasRequiredUpdate).toBe(true);
+    });
+
+    it('debería aplicar target set-visible', () => {
+      mockComponent.dependencies[0].target = 'set-visible';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasInvisibleUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.invisible === false)
+      );
+      expect(hasInvisibleUpdate).toBe(true);
+    });
+
+    it('debería aplicar target set-invisible', () => {
+      mockComponent.dependencies[0].target = 'set-invisible';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasInvisibleUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.invisible === true)
+      );
+      expect(hasInvisibleUpdate).toBe(true);
+    });
+
+    it('debería aplicar target label', () => {
+      mockComponent.dependencies[0].target = 'label';
+      mockComponent.dependencies[0].source = 'value';
+      mockComponent.dependencies[0].value = 'New Label';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasLabelUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.label === 'New Label')
+      );
+      expect(hasLabelUpdate).toBe(true);
+    });
+
+    it('debería aplicar target unit', () => {
+      mockComponent.dependencies[0].target = 'unit';
+      mockComponent.dependencies[0].source = 'value';
+      mockComponent.dependencies[0].value = 'kg';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasUnitUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.unit === 'kg')
+      );
+      expect(hasUnitUpdate).toBe(true);
+    });
+
+    it('debería aplicar target icon', () => {
+      mockComponent.dependencies[0].target = 'icon';
+      mockComponent.dependencies[0].source = 'value';
+      mockComponent.dependencies[0].value = 'fa-check';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasIconUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.icon === 'fa-check')
+      );
+      expect(hasIconUpdate).toBe(true);
+    });
+
+    it('debería aplicar target input', () => {
+      mockComponent.dependencies[0].target = 'input';
+      mockComponent.dependencies[0].source = 'value';
+      mockComponent.dependencies[0].value = ['selected1', 'selected2'];
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasInputUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_MODELS'
+      );
+      expect(hasInputUpdate).toBe(true);
+    });
+
+    it('debería aplicar target enable-autorefresh', () => {
+      mockComponent.dependencies[0].target = 'enable-autorefresh';
+      mockComponent.dependencies[0].source = 'value';
+      mockComponent.dependencies[0].value = 5000;
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasAutorefreshUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.autorefreshEnabled === true)
+      );
+      expect(hasAutorefreshUpdate).toBe(true);
+    });
+
+    it('debería aplicar target disable-autorefresh', () => {
+      mockComponent.dependencies[0].target = 'disable-autorefresh';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasAutorefreshUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.autorefreshEnabled === false)
+      );
+      expect(hasAutorefreshUpdate).toBe(true);
+    });
+
+    it('debería manejar target none', () => {
+      mockComponent.dependencies[0].target = 'none';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      // none no debería generar updates
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('debería advertir sobre target no definido', () => {
+      mockComponent.dependencies[0].target = 'unknown-target';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(console.warn).toHaveBeenCalled();
+    });
+  });
+
+  describe('Sources de dependencias', () => {
+    beforeEach(() => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          value: 'test',
+          condition: 'eq',
+          checkChanges: true
+        }],
+        target: 'label',
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+    });
+
+    it('debería usar source value', () => {
+      mockComponent.dependencies[0].source = 'value';
+      mockComponent.dependencies[0].value = 'Fixed Value';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasLabelUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.label === 'Fixed Value')
+      );
+      expect(hasLabelUpdate).toBe(true);
+    });
+
+    it('debería usar source label', () => {
+      mockComponent.dependencies[0].source = 'label';
+      mockComponent.dependencies[0].label = 'Fixed Label';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasLabelUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.label === 'Fixed Label')
+      );
+      expect(hasLabelUpdate).toBe(true);
+    });
+
+    it('debería usar source formule', () => {
+      mockComponent.dependencies[0].source = 'formule';
+      mockComponent.dependencies[0].formule = '[comp2] + 10';
+      mockComponent.dependencies[0].elements[0].query = 'comp2';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería usar source criteria-value', () => {
+      mockComponent.dependencies[0].source = 'criteria-value';
+      mockComponent.dependencies[0].query = 'comp2';
+      mockComponent.dependencies[0].elements[0].query = 'comp2';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería usar source launcher', () => {
+      mockComponent.dependencies[0].source = 'launcher';
+      mockComponent.dependencies[0].query = 'comp2';
+      mockComponent.dependencies[0].elements[0].query = 'comp2';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería usar source reset', () => {
+      mockComponent.dependencies[0].source = 'reset';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería manejar source query con target label', () => {
+      mockComponent.dependencies[0].source = 'query';
+      mockComponent.dependencies[0].target = 'label';
+      mockComponent.dependencies[0].serverAction = 'data';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
+      expect(hasAddActions).toBe(true);
+    });
+
+    it('debería manejar source query con target unit', () => {
+      mockComponent.dependencies[0].source = 'query';
+      mockComponent.dependencies[0].target = 'unit';
+      mockComponent.dependencies[0].serverAction = 'data';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
+      expect(hasAddActions).toBe(true);
+    });
+
+    it('debería manejar source query con target format-number', () => {
+      mockComponent.dependencies[0].source = 'query';
+      mockComponent.dependencies[0].target = 'format-number';
+      mockComponent.dependencies[0].serverAction = 'data';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
+      expect(hasAddActions).toBe(true);
+    });
+
+    it('debería manejar source query con target validate', () => {
+      mockComponent.dependencies[0].source = 'query';
+      mockComponent.dependencies[0].target = 'validate';
+      mockComponent.dependencies[0].serverAction = 'data';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
+      expect(hasAddActions).toBe(true);
+    });
+
+    it('debería manejar source query con target input', () => {
+      mockComponent.dependencies[0].source = 'query';
+      mockComponent.dependencies[0].target = 'input';
+      mockComponent.dependencies[0].serverAction = 'data';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasAddActions = calls.some(([action]) => action.type === 'ADD_ACTIONS_TOP');
+      expect(hasAddActions).toBe(true);
+    });
+
+    it('debería restaurar format-number cuando dependencia no se cumple', () => {
+      mockComponent.dependencies[0].source = 'query';
+      mockComponent.dependencies[0].target = 'format-number';
+      mockComponent.dependencies[0].serverAction = 'data';
+      mockComponent.dependencies[0].elements[0].value = 'wrong';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      // No debería despachar ADD_ACTIONS_TOP porque la condición no se cumple
+      const calls = dispatch.mock.calls;
+      const hasRestoreAttributes = calls.some(([action]) =>
+        action.type === 'RESTORE_MULTIPLE_ATTRIBUTES'
+      );
+      expect(hasRestoreAttributes).toBe(true);
+    });
+
+    it('debería restaurar validation cuando dependencia no se cumple', () => {
+      mockComponent.dependencies[0].source = 'query';
+      mockComponent.dependencies[0].target = 'validate';
+      mockComponent.dependencies[0].serverAction = 'data';
+      mockComponent.dependencies[0].elements[0].value = 'wrong';
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasRestoreValidation = calls.some(([action]) =>
+        action.type === 'RESTORE_MULTIPLE_VALIDATION'
+      );
+      expect(hasRestoreValidation).toBe(true);
+    });
+  });
+
+  describe('Dependencias invertidas', () => {
+    it('debería invertir resultado de dependencia', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        invert: true,
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          value: 'test',
+          condition: 'eq',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      // Con invert, debería ocultar en vez de mostrar
+      const calls = dispatch.mock.calls;
+      const hasVisibleUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.visible === false)
+      );
+      expect(hasVisibleUpdate).toBe(true);
+    });
+  });
+
+  describe('Acciones de dependencias', () => {
+    it('debería ejecutar acciones cuando se cumple la dependencia', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          value: 'test',
+          condition: 'eq',
+          checkChanges: true
+        }],
+        actions: [
+          { type: 'custom-action', parameters: {} },
+          { type: 'another-action', parameters: {} }
+        ],
+        target: 'show',
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasAddActions = calls.some(([action]) =>
+        action.type === 'ADD_ACTIONS_TOP' &&
+        action.payload.length === 2
+      );
+      expect(hasAddActions).toBe(true);
+    });
+
+    it('no debería ejecutar acciones cuando no se cumple la dependencia', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          value: 'other',
+          condition: 'eq',
+          checkChanges: true
+        }],
+        actions: [
+          { type: 'custom-action', parameters: {} }
+        ],
+        target: 'show',
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasAddActionsWithCustom = calls.some(([action]) =>
+        action.type === 'ADD_ACTIONS_TOP' &&
+        action.payload.some(a => a.type === 'custom-action')
+      );
+      expect(hasAddActionsWithCustom).toBe(false);
+    });
+  });
+
+  describe('Grupos de componentes', () => {
+    beforeEach(() => {
+      mockState.components.groupComp1 = {
+        address: { view: 'testView', component: 'groupComp1' },
+        attributes: { group: 'testGroup' },
+        validationRules: {},
+        model: { values: [{ value: 'g1', selected: true }] },
+        dependencies: []
+      };
+
+      mockState.components.groupComp2 = {
+        address: { view: 'testView', component: 'groupComp2' },
+        attributes: { group: 'testGroup' },
+        validationRules: {},
+        model: { values: [{ value: 'g2', selected: true }] },
+        dependencies: []
+      };
+    });
+
+    it('debería manejar dependencias de grupos', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'testGroup',
+          attribute1: 'totalValues',
+          condition: 'gt',
+          value: 0,
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+  });
+
+  describe('Dependencias con eventos', () => {
+    it('debería verificar evento del componente', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          event: 'click',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+      mockState.components.comp2.model.event = 'click';
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('no debería cumplirse si evento no coincide', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          event: 'click',
+          checkChanges: true
+        }],
+        target: 'label',
+        initial: true
+      }];
+      mockState.components.comp2.model.event = 'change';
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Dependencias de columnas de grid', () => {
+    beforeEach(() => {
+      mockState.components.gridComp = {
+        address: { view: 'testView', component: 'gridComp' },
+        attributes: {
+          columnModel: [
+            {
+              id: 'col1',
+              label: 'Column 1',
+              dependencies: [{
+                type: 'and',
+                elements: [{
+                  id: 'comp2',
+                  attribute1: 'value',
+                  value: 'test',
+                  condition: 'eq',
+                  checkChanges: true
+                }],
+                target: 'show',
+                initial: true
+              }]
+            }
+          ],
+          gridId: 'id'
+        },
+        validationRules: {},
+        model: {
+          values: [
+            { id: 1, col1: 'value1', editing: false },
+            { id: 2, col1: 'value2', editing: true }
+          ]
+        },
+        dependencies: []
+      };
+
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+    });
+
+    it('debería procesar dependencias de columnas', () => {
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería crear dependencias por fila en columnas', () => {
+      mockState.components.gridComp.attributes.columnModel[0].dependencies[0].elements[0].attribute1 = 'currentRow';
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería manejar show-column y hide-column para dependencias de columna', () => {
+      mockState.components.gridComp.attributes.columnModel[0].dependencies[0].target = 'show';
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasColumnUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES'
+      );
+      expect(hasColumnUpdate).toBe(true);
+    });
+  });
+
+  describe('Atributos de texto y celdas', () => {
+    beforeEach(() => {
+      mockState.components.gridComp = {
+        address: { view: 'testView', component: 'gridComp' },
+        attributes: {
+          columnModel: [{ id: 'col1' }],
+          gridId: 'id'
+        },
+        validationRules: {},
+        model: {
+          values: [
+            { id: 1, col1: { value: 'cell1', label: 'Cell 1' }, selected: false },
+            { id: 2, col1: { value: 'cell2', label: 'Cell 2' }, selected: true }
+          ]
+        },
+        dependencies: []
+      };
+    });
+
+    it('debería obtener valor de celda específica', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'value',
+          column1: 'col1',
+          row1: 2,
+          condition: 'eq',
+          value: 'cell2',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener label de celda', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'text',
+          column1: 'col1',
+          row1: 2,
+          condition: 'eq',
+          value: 'Cell 2',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería contar filas seleccionadas en grid', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'value',
+          condition: 'eq',
+          value: 1,
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+  });
+
+  describe('Advertencias y errores', () => {
+    it('debería advertir cuando componente no existe', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'nonexistent',
+          attribute1: 'value',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(console.warn).toHaveBeenCalledWith(expect.stringContaining('nonexistent is not defined'));
+    });
+  });
+
+  describe('Dependencias con checkChanges false', () => {
+    it('no debería crear triggers si checkChanges es false', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          checkChanges: false
+        }],
+        target: 'input',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      // Sin triggers, no debería despachar nada
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Atributos adicionales de grid', () => {
+    beforeEach(() => {
+      mockState.components.gridComp = {
+        address: { view: 'testView', component: 'gridComp' },
+        attributes: {
+          columnModel: [{ id: 'col1' }],
+          gridId: 'id'
+        },
+        validationRules: {},
+        model: {
+          values: [
+            { id: 1, col1: 'value1', editing: false },
+            { id: 2, col1: 'value2', editing: true },
+            { id: 3, col1: 'value3', editing: false }
+          ]
+        },
+        dependencies: []
+      };
+    });
+
+    it('debería obtener prevRowValue', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'prevRowValue',
+          column1: 'col1',
+          condition: 'eq',
+          value: 'value1',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener nextRowValue', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'nextRowValue',
+          column1: 'col1',
+          condition: 'eq',
+          value: 'value3',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener selectedRowValue', () => {
+      mockState.components.gridComp.model.values[1].selected = true;
+
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'selectedRowValue',
+          column1: 'col1',
+          condition: 'eq',
+          value: 'value2',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener footerValue', () => {
+      mockState.components.gridComp.model.values[1].selected = true;
+
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'footerValue',
+          condition: 'eq',
+          value: 1,
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener currentRowValue', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'currentRowValue',
+          column1: 'col1',
+          row1: 2,
+          condition: 'eq',
+          value: 'value2',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('no relanza una dependencia de currentRowValue cuando solo cambia otra celda de la tabla', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'currentRowValue',
+          column1: 'col1',
+          row1: 2,
+          condition: 'eq',
+          value: 'value2',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: false
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+      dispatch.mockClear();
+
+      // Another cell of the row changes: the model is updated, but the watched cell keeps its value
+      mockState.components.gridComp.model = {
+        ...mockState.components.gridComp.model,
+        values: [
+          { id: 1, col1: 'value1', col2: 'other' },
+          { id: 2, col1: 'value2', col2: 'changed', editing: true },
+          { id: 3, col1: 'value3', col2: 'other' }
+        ],
+        modelVersion: 1
+      };
+      dependencies.checkDependencies(freshState(), dispatch);
+
+      expect(dispatch).not.toHaveBeenCalled();
+
+      // The watched cell changes: the dependency is launched
+      mockState.components.gridComp.model = {
+        ...mockState.components.gridComp.model,
+        values: [
+          { id: 1, col1: 'value1', col2: 'other' },
+          { id: 2, col1: 'new value', col2: 'changed', editing: true },
+          { id: 3, col1: 'value3', col2: 'other' }
+        ],
+        modelVersion: 2
+      };
+      dependencies.checkDependencies(freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    describe('number of selected rows of a grid', () => {
+      const buildDependency = () => [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          condition: 'eq',
+          value: 1,
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: false
+      }];
+
+      const withRows = (selectedId, version, col1 = 'value') => ({
+        values: [1, 2, 3].map(id => ({ id, col1: `${col1}${id}`, selected: id === selectedId })),
+        modelVersion: version
+      });
+
+      beforeEach(() => {
+        mockState.components.gridComp.model = withRows(1, 0);
+        mockComponent.dependencies = buildDependency();
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
+        dispatch.mockClear();
+      });
+
+      it('relaunches the dependency when the selection moves to another row and the count stays the same', () => {
+        mockState.components.gridComp.model = withRows(2, 1);
+        dependencies.checkDependencies(freshState(), dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+
+      it('does not relaunch the dependency when the selection is the same row', () => {
+        mockState.components.gridComp.model = withRows(1, 1, 'changed');
+        dependencies.checkDependencies(freshState(), dispatch);
+
+        expect(dispatch).not.toHaveBeenCalled();
+      });
+    });
+
+    it('no lanza la comprobacion unique al empezar a editar una fila que no ha cambiado', () => {
+      mockState.components.gridComp = {
+        address: { view: 'testView', component: 'gridComp' },
+        attributes: {
+          columnModel: [{
+            id: 'col1',
+            dependencies: [{
+              type: 'and',
+              elements: [{ id: 'gridComp', attribute1: 'currentRowValue', column1: 'col1' }],
+              source: 'query',
+              serverAction: 'unique',
+              targetAction: 'UniqueCheck',
+              initial: false
+            }]
+          }],
+          gridId: 'id'
+        },
+        validationRules: {},
+        model: {
+          values: [
+            { id: 1, col1: 'value1', $row: {} },
+            { id: 2, col1: 'value2', $row: {} }
+          ]
+        },
+        dependencies: []
+      };
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+      dispatch.mockClear();
+
+      // The user starts editing the second row without changing it
+      mockState.components.gridComp.model = {
+        values: [
+          { id: 1, col1: 'value1', $row: {} },
+          { id: 2, col1: 'value2', $row: { editing: true } }
+        ],
+        modelVersion: 1
+      };
+      dependencies.checkDependencies(freshState(), dispatch);
+
+      expect(dispatch).not.toHaveBeenCalled();
+
+      // The user changes the value: the check is launched
+      mockState.components.gridComp.model = {
+        values: [
+          { id: 1, col1: 'value1', $row: {} },
+          { id: 2, col1: 'new value', $row: { editing: true } }
+        ],
+        modelVersion: 2
+      };
+      dependencies.checkDependencies(freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    describe('currentRowValue de la fila en edicion', () => {
+      const buildGrid = (serverAction, values) => ({
+        address: { view: 'testView', component: 'gridComp' },
+        attributes: {
+          columnModel: [{
+            id: 'col1',
+            dependencies: [{
+              type: 'and',
+              elements: [{ id: 'gridComp', attribute1: 'currentRowValue', column1: 'col1' }],
+              source: 'query',
+              ...(serverAction ? { serverAction } : {}),
+              targetAction: 'UniqueCheck',
+              initial: false
+            }]
+          }],
+          gridId: 'id'
+        },
+        validationRules: {},
+        model: { values },
+        dependencies: []
+      });
+
+      const startEditing = (values, version = 1) => ({ values, modelVersion: version });
+
+      it('reporta de inmediato un duplicado en una fila nueva con valor por defecto', () => {
+        mockState.components.gridComp = buildGrid('unique', [
+          { id: 1, col1: 'value1', $row: {} }
+        ]);
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
+        dispatch.mockClear();
+
+        mockState.components.gridComp.model = startEditing([
+          { id: 1, col1: 'value1', $row: {} },
+          { id: 'new-row-1', col1: 'value1', $row: { editing: true } }
+        ]);
+        dependencies.checkDependencies(freshState(), dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+
+      it('reporta de inmediato un duplicado en una fila copiada', () => {
+        mockState.components.gridComp = buildGrid('unique', [
+          { id: 1, col1: 'value1', $row: {} }
+        ]);
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
+        dispatch.mockClear();
+
+        mockState.components.gridComp.model = startEditing([
+          { id: 1, col1: 'value1', $row: {} },
+          { id: 'copied-row-1', col1: 'value1', $row: { editing: true } }
+        ]);
+        dependencies.checkDependencies(freshState(), dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+
+      it('reporta de inmediato un duplicado en una fila INSERT de una tabla multioperacion', () => {
+        mockState.components.gridComp = buildGrid('unique', [
+          { id: 1, col1: 'value1', $row: {} }
+        ]);
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
+        dispatch.mockClear();
+
+        mockState.components.gridComp.model = startEditing([
+          { id: 1, col1: 'value1', $row: {} },
+          { id: 7, col1: 'value1', $row: { editing: true, operation: 'INSERT' } }
+        ]);
+        dependencies.checkDependencies(freshState(), dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+
+      it('reevalua la dependencia cuando la fila en edicion cambia a otra con el mismo valor', () => {
+        mockState.components.gridComp = buildGrid(null, [
+          { id: 1, col1: 'same', $row: { editing: true } },
+          { id: 2, col1: 'same', $row: {} }
+        ]);
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
+        dispatch.mockClear();
+
+        mockState.components.gridComp.model = startEditing([
+          { id: 1, col1: 'same', $row: {} },
+          { id: 2, col1: 'same', $row: { editing: true } }
+        ]);
+        dependencies.checkDependencies(freshState(), dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+    });
+
+    it.each(['prevCurrentRowValue', 'nextCurrentRowValue', 'prevRowValue', 'nextRowValue'])(
+      'no falla con %s en un grid vacío (#946)', (attribute) => {
+        mockState.components.gridComp.model.values = [];
+        mockComponent.dependencies = [{
+          type: 'and',
+          elements: [{id: 'gridComp', attribute1: attribute, column1: 'col1', condition: 'eq', value: 'x', checkChanges: true}],
+          target: 'show',
+          initial: true
+        }];
+
+        expect(() => dependencies.initializeDependencies('testView', freshState(), dispatch)).not.toThrow();
+      });
+
+    it('debería obtener prevCurrentRowValue', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'prevCurrentRowValue',
+          column1: 'col1',
+          row1: 2,
+          condition: 'eq',
+          value: 'value1',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener nextCurrentRowValue', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'nextCurrentRowValue',
+          column1: 'col1',
+          row1: 2,
+          condition: 'eq',
+          value: 'value3',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
+    it('debería obtener fullDataColumn', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'gridComp',
+          attribute1: 'fullDataColumn',
+          column1: 'col1',
+          condition: 'is not false',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+  });
+
+  describe('Atributos específicos de componentes', () => {
+    it('debería obtener atributos de chart (xMin, xMax, yMin, yMax)', () => {
+      mockState.components.chartComp = {
+        address: { view: 'testView', component: 'chartComp' },
+        attributes: {
+          xMin: 0,
+          xMax: 100,
+          yMin: 0,
+          yMax: 50
+        },
+        validationRules: {},
+        model: { values: [] },
+        dependencies: []
+      };
+
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'chartComp',
+          attribute1: 'xMax',
+          condition: 'eq',
+          value: 100,
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+  });
+
+  describe('Dependencias con múltiples triggers', () => {
+    it('debería evaluar dependencia con dos triggers (id2)', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp1',
+          attribute1: 'totalValues',
+          id2: 'comp2',
+          attribute2: 'totalValues',
+          condition: 'gt',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+  });
+
+  describe('Dependencias con settings desactivadas', () => {
+    it('no debería ejecutar dependencias si activeDependencies es false', () => {
+      mockState.settings.activeDependencies = false;
+
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          value: 'test',
+          condition: 'eq',
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Target chart-options', () => {
+    it('debería aplicar target chart-options', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          value: 'test',
+          condition: 'eq',
+          checkChanges: true
+        }],
+        target: 'chart-options',
+        source: 'value',
+        value: { option1: true },
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasChartOptionsUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.chartOptions)
+      );
+      expect(hasChartOptionsUpdate).toBe(true);
+    });
+  });
+
+  describe('Target attribute', () => {
+    it('debería aplicar target attribute con query específico', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp2',
+          attribute1: 'value',
+          value: 'test',
+          condition: 'eq',
+          checkChanges: true
+        }],
+        target: 'attribute',
+        query: 'customAttr',
+        source: 'value',
+        value: 'customValue',
+        initial: true
+      }];
+      mockState.components.comp2.model.values = [{ value: 'test', selected: true }];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      const calls = dispatch.mock.calls;
+      const hasAttributeUpdate = calls.some(([action]) =>
+        action.type === 'UPDATE_MULTIPLE_ATTRIBUTES' &&
+        action.componentList.some(item => item.data.customAttr === 'customValue')
+      );
+      expect(hasAttributeUpdate).toBe(true);
+    });
+  });
+
+  describe('Prevención de índices negativos', () => {
+    it('debería manejar prevCurrentRow sin ir a índice negativo', () => {
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{
+          id: 'comp1',
+          attribute1: 'prevCurrentRow',
+          row1: 1,
+          condition: 'eq',
+          value: 0,
+          checkChanges: true
+        }],
+        target: 'show',
+        initial: true
+      }];
+      mockComponent.model.values = [
+        { value: 'val1', selected: true }
+      ];
+
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+  });
+});
+
+describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js (#818 specific targets and wildcards)', () => {
+  const SpecificDependencyRegistry = require('../../../../src/redux/registry/SpecificDependencyRegistry').default;
+  let dispatch;
+  let state;
+
+  const buildState = (componentType, dependency) => ({
+    components: {
+      comp1: {
+        address: { view: 'testView', component: 'comp1' },
+        attributes: { component: componentType },
+        validationRules: {},
+        model: { values: [{ value: 'x', selected: true }] },
+        dependencies: [dependency]
+      },
+      comp2: {
+        address: { view: 'testView', component: 'comp2' },
+        attributes: {},
+        validationRules: {},
+        model: { values: [{ value: 'test', label: 'Test', selected: true }] },
+        dependencies: []
+      }
+    },
+    settings: { activeDependencies: true, serverActionKey: 'serverAction', targetActionKey: 'targetAction' },
+    view: { view: 'testView', testView: { name: 'Test Screen' } }
+  });
+
+  const baseDependency = (extra) => ({
+    type: 'and',
+    elements: [{ id: 'comp2', attribute1: 'value', condition: 'is not empty', checkChanges: true }],
+    initial: true,
+    ...extra
+  });
+
+  beforeEach(() => {
+    dispatch = jest.fn();
+    jest.spyOn(console, 'info').mockImplementation(() => {});
+    jest.spyOn(console, 'log').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    SpecificDependencyRegistry.clear();
+    jest.restoreAllMocks();
+  });
+
+  it('routes a specific target to the handler registered for the component type', () => {
+    const handler = jest.fn(() => null);
+    SpecificDependencyRegistry.register('custom', handler);
+    state = buildState('custom', baseDependency({ target: 'specific', source: 'value', value: 'v' }));
+
+    dependencies.initializeDependencies('testView', state, dispatch);
+
+    expect(handler).toHaveBeenCalledTimes(1);
+    const [dependency, value, launch] = handler.mock.calls[0];
+    expect(dependency.target).toBe('specific');
+    expect(value).toBe('v');
+    expect(launch).toBe(true);
+  });
+
+  it('ignores a specific target without registered handler without warning', () => {
+    state = buildState('text', baseDependency({ target: 'specific', source: 'value', value: 'v' }));
+
+    dependencies.initializeDependencies('testView', state, dispatch);
+
+    expect(console.warn).not.toHaveBeenCalledWith(expect.stringContaining('not defined'));
+  });
+
+  it('replaces the wildcards of the target action of dependency actions', () => {
+    const dependency = baseDependency({
+      target: 'none',
+      actions: [{ type: 'server', targetAction: 'Save[comp2]', parameters: { targetAction: 'Save[comp2]', other: 1 } }]
+    });
+    dependency.elements[0].alias = 'comp2';
+    state = buildState('text', dependency);
+
+    dependencies.initializeDependencies('testView', state, dispatch);
+
+    const addActions = dispatch.mock.calls.map(([a]) => a).find(a => a.type === 'ADD_ACTIONS_TOP');
+    expect(addActions.payload[0].targetAction).toBe('Savetest');
+    expect(addActions.payload[0].parameters).toEqual({ targetAction: 'Savetest', other: 1 });
+  });
+
+  it('keeps dependency actions without target action untouched', () => {
+    state = buildState('text', baseDependency({ target: 'none', actions: [{ type: 'custom-action' }] }));
+
+    dependencies.initializeDependencies('testView', state, dispatch);
+
+    const addActions = dispatch.mock.calls.map(([a]) => a).find(a => a.type === 'ADD_ACTIONS_TOP');
+    expect(addActions.payload[0]).toEqual({ type: 'custom-action', address: { view: 'testView', component: 'comp1' } });
+  });
+});

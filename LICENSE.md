@@ -202,11 +202,8 @@
 
 ---
 
-All parts, except the contents of the graphical charts library, are licensed
-under Apache License v2.0. See the license text below.
+All parts are licensed under Apache License v2.0. See the license text below.
 
-The javascript library of Highcharts and Highstock are licensed depending on whether it is intended for commercial/government use, or for a personal or non-profit project.
-- Highcharts (https://shop.highsoft.com/highcharts)
-- Highstock (https://shop.highsoft.com/highstock)
+The charts are drawn with Apache ECharts (https://echarts.apache.org/), also licensed under Apache License v2.0.
 
 ---

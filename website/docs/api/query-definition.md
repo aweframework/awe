@@ -6,6 +6,10 @@ sidebar_label: Query definition
 
 The AWE query engine is used for querying data on external systems. It works as an interface.
 
+:::tip
+Every element and attribute of queries is listed in the generated [XSD reference](/reference/query).
+:::
+
 <img alt="engine" src={require('@docusaurus/useBaseUrl').default('img/Data_engine.png')}/>
 
 :::info
@@ -24,15 +28,15 @@ The complete sql query structure is the following:
 <!-- Example sql query -->
 
 <query id="[Query Id]" cacheable="[Cacheable]" distinct="Distinct" managed-pagination="Pagination" post-process="Post processed">
-  <table id="[Table id]" schema="[Schema name]" alias="[Table alias] query="[Subquery]"/>
+  <table id="[Table id]" schema="[Schema name]" alias="[Table alias]" query="[Subquery]"/>
   <field id="[Field id]" table="[Table field]" alias="[Alias field]"/>
   ...
   <field id="[Field id]" table="[Table field]" alias="[Alias field]"/>
   <field variable="[Variable id]"/>
   <constant value="[Constant value]" type="INTEGER"/>
-  <computed format="[Format]" alias="[Alias] transform="[Transform]"/>
+  <computed format="[Format]" alias="[Alias]" transform="[Transform]"/>
   ...
-  <computed format="[Format]" alias="[Alias] transform="[Transform]"/>
+  <computed format="[Format]" alias="[Alias]" transform="[Transform]"/>
   <compound alias="[Compoun alias]">
     <computed format="[Format]" alias="[Alias]"/>
     ...
@@ -54,7 +58,7 @@ The complete sql query structure is the following:
     <filter left-field="[Filter field]" table="[Filter table]" condition="[Condition]" right-variable="[Variable]" optional="[Filter Optional]"/>
     <filter left-field="[Field 1]" table="[Filter table]" condition="[Condition]" 
       right-field="[Field 2]" right-table="[Table 2]" ignorecase="[Ignorecase]" trim="[Trim]"/>
-    <filter left-field="[Field]" table="[Filter table]" condition="[Condition]" right-query="[Subquery]"/>
+    <filter left-field="[Field]" table="[Filter table]" condition="[Condition]" query="[Subquery]"/>
       <or>
        ... (more filters or filter groups)
       </or>
@@ -66,14 +70,14 @@ The complete sql query structure is the following:
  </where>
  <variable id="[Variable id]" type="[Variable Type]" name="[Variable name]" optional="[Optional]"/>
  ... (More <variable>)
- <group_by field="[Group field]" table="[Group table]" />
- ... (More <group_by>)
+ <group-by field="[Group field]" table="[Group table]" />
+ ... (More <group-by>)
  <order-by field="[Order field]" table="[Order table]" type="[Order type]"/>
  ... (More <order-by >)
  <totalize function="[Totalize function]" label="[Label]" field="[Totalize field]" style="[Totalize style]">
-   <totalize_by  field="[Totalize by field]"/>
+   <totalize-by field="[Totalize by field]"/>
    ... (more totalize by fields)
-   <totalize_field field="[Totalize field]"/>
+   <totalize-field field="[Totalize field]"/>
    ... (more totalized fields)
   </totalize>
 </query>
@@ -108,23 +112,103 @@ The *query* element has the following attributes:
 | id                 |  **Required**  |  String   | Query identifier                                                                                                                                                                      | **Note:**  The id name must be unique                                                                                                                             |
 | distinct           |    Optional    |  Boolean  | Used to return only distinct (different) values                                                                                                                                       | By default is `false`                                                                                                                                             |
 | cacheable          |    Optional    |  Boolean  | Used to set a query as cacheable (in order to save data in memory and avoid executing the query again)                                                                                | By default is `false`. **Note:** If you set a **query as cacheable** and there are subqueries, you must define on it the same variables that all subqueries have. |
-| managed-pagination |    Optional    |  Boolean  | To set a query as paginated (to load just the data in that specific page, not all query registries).  Used to achieve high performance in queries with a very high number of records. | By default is `false`. **Note:** Use this parameter only in queries without totalize.                                                                             |
+| managed-pagination |    Optional    |  Boolean  | To set how a SQL query is paginated. When `true` or omitted the database returns only the requested page (`limit` and `offset` plus a count query); when `false` all the rows are loaded and the page is cut in memory. Used to achieve high performance in queries with a very high number of records. | By default (omitted) it is the same as `true`, the database paginates. **Note:** It does not apply to queries with a `totalize` element, nor when the page size is 0. |
 | post-process       |    Optional    |  Boolean  | Launch or not the processing of the datalist that AWE performs, in order to to allow developers to do their own post processing                                                       | By default is `true`. **Note:** Only apply in service queries. For more info. see [service query](#service-query)                                                 |
 | public             |    Optional    |  Boolean  | Allows the query to run without the need to be logged                                                                                                                                 | By default is `false`                                                                                                                                             |
+| server-only        |    Optional    |  Boolean  | Refuses the query to any client request; only the server can launch it | By default is `false`. See [server-only queries](#server-only-queries) |
+| permission         |    Optional    |  String   | Permissions of the catalog that a client needs to launch the query, separated by spaces (all of them are required) | **Note:** An unknown permission, or a permission on a `public` query, is a load error. See [permissions](#query-permissions) |
 | enumerated         |    Optional    |  String   | The name of enumerate to fill the query                                                                                                                                               | **Note:** Only applies in enumerated queries. For more info. see [enumerated query](#enumerated-query)                                                            |
 | service            |    Optional    |  String   | The name of service to fill the query                                                                                                                                                 | **Note:** Only applies in service queries. For more info. see [service query](#service-query)                                                                     |
 | queue              |    Optional    |  String   | The name of queue to fill the query                                                                                                                                                   | **Note:** Only applies in queue queries. For more info. see [queue query](#queue-query)                                                                           |
 
+:::info Screen access
+When a query is used by a screen of the menu, a client request launches it only if the session user can open at least one of the screens that use it (`awe.security.authorization.mode`, `enforce` by default). Queries that no screen uses keep the rules of `public` and of the signed-in session. See [Screen access](../security/screen-access.md).
+:::
+
+#### Permissions {#query-permissions}
+
+A query with `permission="users.read"` is launched by a client only when the session user has the `users.read`
+permission, besides the access by screen. Server launches (`launchPrivateQuery`, subqueries) are never checked. See
+[Permissions](../security/permissions.md).
+
+#### Server-only queries {#server-only-queries}
+
+A query marked with `server-only="true"` can only be launched by the server (a Java service, the scheduler...) through `QueryService.launchPrivateQuery`. Any request from a client is refused with the *access denied* error, **even when the user is signed in**: `/action/data` and the other query actions (`update-model`, `unique`, `control`, `subscribe`...), `/api/data` and `/api/public/data`.
+
+```xml
+<query id="userDetails" cacheable="true" server-only="true">
+  ...
+</query>
+```
+
+Use it for every query that returns credentials or the data of other users and that a client must never launch by itself: the server sets the parameters it needs when it launches the query.
+
+| Attribute combination                    | Client request                                                                            | Server launch (`launchPrivateQuery`) |
+|------------------------------------------|-------------------------------------------------------------------------------------------|--------------------------------------|
+| neither `public` nor `server-only`       | Needs a signed-in session                                                                 | Allowed                              |
+| `public="true"`                          | Allowed without a session                                                                 | Allowed                              |
+| `server-only="true"`                     | **Refused**, even with a session                                                          | Allowed                              |
+| `public="true"` and `server-only="true"` | **Refused**: `server-only` wins (it is never treated as public, and a warning is logged)  | Allowed                              |
+
+The framework marks as server-only the login and SSO queries (`userDetails`, `userDetailsByEmail`, `userDetailsByProfile`, `checkProfileExists`), the lockout and security audit queries (`UsrGetNumLog`, `UsrGetSecSta`), the user queries of the access window services (`access-subject-user`, `access-compare-users`, `access-profile-users`, `access-profile-user-rules`), the database and JMS connections (`DatabaseConnections`, `JmsConnections`), the scheduler server data (`serverData`), the users subscribed to a notification (`get-interested-users`) and the user queries by name (`GetChgPwdUsr`, `AutUsr`, `UsrInf`, `GetEmlSrvByOpe`).
+
+`server-only` only refuses client requests by query id: the XML of the server (a subquery, a union, an initial load, the retrieve-data of a maintain) can still launch the query, so do not use a server-only query to feed something a client sees.
+
 ### Query cache and trace logging
 
-If `cacheable="true"`, the query result is cached using the query id plus the resolved parameters as the cache key.
-This avoids re-executing the same query with the same inputs during the cache lifetime.
+If `cacheable="true"`, the query result is cached and reused while the same inputs repeat during the cache lifetime.
+The cache key holds everything that changes the result:
+
+- the query id
+- the request parameters named after the query variables, plus `page`, `max` and `sort`
+- the current value of every variable declared with `session="..."`
+- the language the results are translated to (request `lang`, otherwise the session language)
+- the database the query runs on (request `_database_`, otherwise the session database)
+
+A cached result is therefore never shared between users, languages or databases through these inputs. When one of
+the `session="..."` variables has no value (a call with no session user, such as a REST call authenticated without a
+web login), the result is not cached: it does not belong to any user.
+
+Every maintain clears the whole cache, whichever tables it writes, and clears it again once its data is committed.
+This narrows the time a stale result can be cached, but does not close it: a query that read the data before the
+commit and finishes after the second clear still stores the old rows, until the next maintain or the cache expiry. Set
+an expiry (below) when that matters. A maintain that runs on a connection kept
+alive by the caller (a treatment that commits by itself) is only cleared when it runs: launch a maintain afterwards, or
+rely on the cache lifetime.
+
+The cache provider decides the lifetime and the size. AWE sets `spring.cache.type=none` by default (no cache at all);
+the application enables a provider and defines the `queryData` cache:
+
+- Set an expiry on `queryData` (for example `<expiry><ttl unit="minutes">10</ttl></expiry>` in `ehcache.xml`, or
+  `spring.cache.redis.time-to-live`). Without it, data changed outside AWE (another application, a batch, a trigger
+  fired by another process) stays cached until the next maintain.
+- With more than one instance, use a shared provider (Redis). A local cache (Ehcache, `simple`) only clears the instance
+  that runs the maintain: the other instances keep their results until they expire.
+
+:::caution Service queries
+
+The cache only knows the variables the query declares. When a cacheable [service query](#service-query) returns data that
+depends on the session (the user, the profile, the module...) without receiving it as a variable, declare those session
+values as variables of the query, even if the service does not use them. Otherwise every user shares the first cached
+result.
+
+```xml
+<query id="getScreenList" service="getScreenList" cacheable="true">
+  <field id="value"/>
+  <field id="label"/>
+  <variable id="screen" type="STRING" name="suggest" />
+  <variable id="user" type="STRING" session="user"/>
+  <variable id="profile" type="STRING" session="profile"/>
+</query>
+```
+
+:::
 
 To see cache hits in logs, set the logger `com.almis.awe.cache.LoggingCache` to `trace`.
 When enabled, you will see entries like:
 
 ```log
-Cache hit [queryData] key=getFavourites|{"max":0,"page":1,"user":"test"}
+Cache hit [queryData] key=getFavourites|{"max":0,"page":1,"user":"test"}|language=en-GB|database=null
 ```
 
 Example configuration in `application.properties`:
@@ -171,7 +255,7 @@ The *table* element has the following attributes:
   <!-- Define Subquery -->
   <query id="GetProcessedAccountingDirectDebit">
     <field id="Id" alias="idCol" table="a" />
-    <field id="Id" alias="OperationsCol" function="COUNT" table="a"/>
+    <field id="Id" alias="OperationsCol" function="CNT" table="a"/>
     <table id="ACCOUNTING" alias="a" />
     <join type="LEFT">
         <table id="ADEUDO_OPERACION"  alias="o"/>
@@ -201,6 +285,7 @@ The *field* element has the following attributes:
 | pattern   |  Optional  |  String   | Used in a number type field, defines the pattern to format the number               | Check out [this page](http://docs.oracle.com/javase/tutorial/i18n/format/decimalFormat.html) for more info |
 | translate |  Optional  |  String   | Translates the output with an enumerated group identifier                           | **Note:** If the field value is equal to an enumerated value, outputs the enumerated label                 |
 | function  |  Optional  |  String   | To apply an sql function to field                                                   | The possible values are defined in [field functions](#field-functions)                                     |
+| separator |  Optional  |  String   | Separator of the functions that join values (`STRING_AGG`)                          | Default `", "`. Only with a function that joins values, see [STRING_AGG](#string-agg)                        |
 | cast      |  Optional  |  String   | Changes the field format                                                            | The possible values are `STRING`, `INTEGER`, `LONG`, `FLOAT` and `DOUBLE`                                  |
 | query     |  Optional  |  String   | Query identifier to do a subquery                                                   | **Note:** The query id must exist, and `table` and `id` attributes will be ignored                         |
 | variable  |  Optional  |  String   | A variable identifier to be used as field value                                     | **Note:** If `variable` attribute is defined, `table` and `id` attributes will be ignored                  |
@@ -232,6 +317,66 @@ The *field* element has the following attributes:
 - `SECOND`: Retrieve seconds from date
 - `TRIM`: Remove all spaces from both sides of the string
 - `LENGTH`: Get length of field
+- `FIRST_VALUE`: First value of a window
+- `LAST_VALUE`: Last value of a window
+- `LAG`: Value of the previous row
+- `STRING_AGG`: Joins the text values of the group, ordered by value and separated by `", "` or by the
+  `separator` of the field (see [below](#string-agg))
+
+A `function` or a `cast` that is not listed is not supported: the query fails with an error that names the query, the field and the value. AWE never replaces it by another function or type.
+
+#### STRING_AGG {#string-agg}
+
+`STRING_AGG` is an aggregate: it joins the values of a text field of the group into one string, ordered by value and
+separated by a comma and a space (`", "`). Without values it is `null`. The `separator` attribute of the field
+changes the separator. As a field subquery it lists the related rows of each row, for example the additional profiles
+of each user, which a `chips` column shows as tags. The query separates them by `|`, and the column splits them by the
+same `chip-separator`, so a profile name with a comma stays one tag:
+
+```xml
+<field query="UsrAddProTxt" alias="AddProTxt" />
+
+<query id="UsrAddProTxt" server-only="true">
+  <table id="AweOpeRol" alias="rol" />
+  <field id="Nam" table="addPro" function="STRING_AGG" separator="|" alias="AddProTxt" />
+  <join>
+    <table id="AwePro" alias="addPro" />
+    <and>
+      <filter left-field="IdePro" left-table="rol" condition="eq" right-field="IdePro" right-table="addPro" />
+    </and>
+  </join>
+  <where>
+    <and>
+      <filter left-field="IdeOpe" left-table="rol" condition="eq" right-field="IdeOpe" right-table="ope" />
+    </and>
+  </where>
+</query>
+
+<!-- In the screen -->
+<column label="PARAMETER_ADDITIONAL_PROFILES" name="AddProTxt" chips="true" chip-separator="|" max-chips="2" />
+```
+
+The SQL of each database, with the default separator:
+
+| Database                | SQL                                                 |
+|-------------------------|-----------------------------------------------------|
+| HSQLDB, MySQL, MariaDB  | `group_concat(field order by field separator ', ')` |
+| H2, Oracle              | `listagg(field, ', ') within group (order by field)` |
+| SQL Server (2017 or later) | `string_agg(field, ', ') within group (order by field)` |
+| PostgreSQL              | `string_agg(field, ', ' order by field)`            |
+
+- Other databases, such as Sybase, use the `group_concat` form, which they may not support.
+- `separator` is the separator of the functions that join values; today only `STRING_AGG` uses it. It is only allowed
+  with one of them: in a field with another function, or without function, the query fails with an error that names
+  the query and the field.
+- The separator is any text written as a SQL string literal, escaped for each database, so it may contain quotes. It
+  may be empty (`separator=""`), which joins the values without separator. It cannot contain an opening
+  brace (`{`): the query fails.
+- A value that contains the separator cannot be told apart from two values once joined: choose a separator that the
+  values do not contain.
+- The result is limited by the database: 4000 bytes in Oracle and `group_concat_max_len` (1024 by default) in MySQL and
+  MariaDB.
+- It is not accepted by `totalize` or `over`, and a field with `STRING_AGG` cannot have a column filter.
 
 #### Transform attribute
 
@@ -299,7 +444,7 @@ The *operation* element allows to define operations between fields and will be r
   <constant value="[constant value]" />
   <field id="[field name]" table="[field table]" />
   ...
-</field>
+</operation>
 ```
 
 | Attribute |    Use     |    Type     | Description                                                              | Values                                                                                               |
@@ -414,7 +559,7 @@ Concatenated field: `("Pro" + pro.Nam + "-Mod" + mod.Nam) as parent`
   <field id="Nam" table="pro" />
   <constant value="-Mod" />
   <field id="Nam" table="mod" />
-</field>
+</operation>
 ```
 
 Add 1 to a field: `(pro.Nam + 1) as parent`
@@ -423,7 +568,7 @@ Add 1 to a field: `(pro.Nam + 1) as parent`
 <operation operator="ADD" alias="parent">
   <field id="Nam" table="pro" />
   <constant value="1" type="INTEGER"/>
-</field>
+</operation>
 ```
 
 Round field with 2 decimals: 'round(column, 2)'
@@ -431,7 +576,7 @@ Round field with 2 decimals: 'round(column, 2)'
 <operation operator="ROUND" alias="roundField">
   <field id="Rate" table="User" />
   <constant value="2" type="INTEGER"/>
-</field>
+</operation>
 ``` 
 
 ### Case element
@@ -799,11 +944,11 @@ The *group by* element has the following attributes:
 
 | Attribute |      Use      |   Type    | Description                      | Values                                                                 |
 |-----------|:-------------:|:---------:|----------------------------------|------------------------------------------------------------------------|
-| field     | **Required**  |  String   | Field alias to group the results |                                                                        |
+| field     |   Optional    |  String   | Field alias to group the results | **Note:** It can be omitted when the `group-by` has a `case`, which takes precedence |
 | table     |   Optional    |  String   | Table alias to group the results |                                                                        |
 | function  |   Optional    |  String   | Function to apply to the field   | The possible values are defined in [field functions](#field-functions) |
 
-Also, you can use `CASE` operation inside `group-by`.
+Also, you can use a `case` element inside `group-by`. When it is defined, the `field` attribute can be omitted and the `case` expression is the one used to group.
 
 ### Order by element
 
@@ -1023,7 +1168,9 @@ These are the possible variable types:
 * **STRINGB**: a string with % at both sides (for `LIKE` operator)
 * **STRINGN**: a string that has `NULL` when it's empty
 * **STRING**: a string that has "" when it's empty
-* **STRING_HASH**: applies Sha 256 function to string variable
+* **STRING_HASH_PASSWORD**: hashes a user password with the configured password encoder (`awe.security.password-encoder`, BCrypt by default). The hash is salted: store it, never compare it in SQL. Check passwords in Java with `PasswordEncoder.matches`
+* **STRING_HASH_RIPEMD160**: *deprecated for user passwords, use `STRING_HASH_PASSWORD`*. Applies the RIPEMD-160 hash, without salt, to string variable. Kept for the descriptors that still compare legacy hashes
+* **STRING_HASH_SHA**: applies Sha 256 function to string variable
 * **STRING_ENCRYPT**: applies encryptRipEmd160 function to string variable
 * **INTEGER**: integer number
 * **FLOAT**: float number (32 bits)
@@ -1038,7 +1185,7 @@ These are the possible variable types:
 * **OBJECT**: To define a variable as a java object
 * **CLOB**: To define a variable as a big text file
 * **LIST_TO_STRING**: Retrieve a list of values and manage them as a comma separated values in a string
-* **STRING_TO_LIST**: Retrieve comma separated string and transforms it into a list of values
+* **STRING_TO_LIST**: Retrieve comma separated string and transforms it into a list of values. It is always a list, also when the value comes from the session (`session="..."`) or holds a single value, so it can be used with `condition="in"`. An empty value is an empty list
 	
 ### Special variables
 
@@ -1066,7 +1213,7 @@ You can check out enumerate xml structure in [this page](enumerate-definition.md
 </query>
 ```
 
-> # **Note:** All enumerated are defined in the `Enumerated.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder) for more info.
+> **Note:** All enumerated are defined in the `Enumerated.xml` file at **global folder**. View [project structure](../guides/project-structure.md#global-folder) for more info.
 
 ### Enumerated examples
 

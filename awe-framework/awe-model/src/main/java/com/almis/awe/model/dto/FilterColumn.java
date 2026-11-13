@@ -3,8 +3,8 @@
  */
 package com.almis.awe.model.dto;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * FilterColumn Class
@@ -37,7 +37,7 @@ public class FilterColumn {
    * @param sortColumn Column to be sorted
    */
   public FilterColumn(ObjectNode sortColumn) {
-    this.columnId = sortColumn.get("id").asText();
-    this.value = sortColumn.get("value").asText();
+    this.columnId = sortColumn.get("id").asString("");
+    this.value = sortColumn.get("value").asString("");
   }
 }

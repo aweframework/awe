@@ -47,6 +47,8 @@ To activate this module, follow this steps:
 awe.application.module-list = APP, ..., awe-scheduler, ..., awe
 ```
 
+- Give the profiles that use the scheduler screens the `scheduler.read`, `scheduler.update` and `scheduler.execute` permissions (only the administrator profile has them). See [Permissions](security/permissions.md#catalog-resources).
+
 - Finally, if you are using `flyway`, add the scheduler tables into the migration module:
 
 ```properties

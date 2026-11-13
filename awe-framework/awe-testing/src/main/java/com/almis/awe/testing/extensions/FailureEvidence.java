@@ -1,0 +1,337 @@
+package com.almis.awe.testing.extensions;
+
+import com.almis.awe.testing.driver.BrowserDriver;
+import com.almis.awe.testing.driver.ConsoleEntry;
+import com.almis.awe.testing.driver.SeleniumBrowserDriver;
+import com.almis.awe.testing.model.SeleniumModel;
+import com.almis.awe.testing.utilities.TextUtilities;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.WebDriver;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+/**
+ * Builds unique, sortable names for test evidence (videos and screenshots) and applies the
+ * "evidence only on failure" policy: videos are kept only when they are evidence, and a screenshot
+ * is taken for every failed test.
+ * <p>
+ * Evidence collection never throws: it must not mask or replace the original test failure.
+ */
+@Slf4j
+public class FailureEvidence {
+
+  private static final String TIMESTAMP_PATTERN = "yyyy-MM-dd_HH-mm-ss-SSS";
+  private static final int MAX_PRINTED_CONSOLE_ENTRIES = 10;
+  private static final String ERROR_MARKER = "[ERROR]-";
+
+  private static final String PROJECT_DIR_VARIABLE = "CI_PROJECT_DIR";
+  private static final String JOB_URL_VARIABLE = "CI_JOB_URL";
+
+  private final Clock clock;
+  private final Function<String, String> environment;
+  private final PrintStream out;
+  private final DateTimeFormatter timestampFormatter;
+
+  /**
+   * Evidence using the system clock
+   */
+  public FailureEvidence() {
+    this(Clock.systemDefaultZone());
+  }
+
+  /**
+   * Evidence using the given clock (injectable for testing)
+   *
+   * @param clock Clock used to timestamp the names
+   */
+  public FailureEvidence(Clock clock) {
+    this(clock, System::getenv, null);
+  }
+
+  /**
+   * Evidence using the given clock, environment lookup and output sink (injectable for testing)
+   *
+   * @param clock       Clock used to timestamp the names
+   * @param environment Environment variable lookup, returns null when the variable is not set
+   * @param out         Sink of the evidence lines; null means the standard output at the time of printing
+   */
+  public FailureEvidence(Clock clock, Function<String, String> environment, PrintStream out) {
+    this.clock = clock;
+    this.environment = environment;
+    this.out = out;
+    this.timestampFormatter = DateTimeFormatter.ofPattern(TIMESTAMP_PATTERN).withZone(clock.getZone());
+  }
+
+  /**
+   * Build the base name of a piece of evidence:
+   * {@code <TestClass>-<yyyy-MM-dd_HH-mm-ss-SSS>-[ERROR]-<option>-<title>}. The {@code [ERROR]-} marker is
+   * only present for failures.
+   *
+   * @param testClass Test class name
+   * @param option    Current option
+   * @param title     Test title or assertion message
+   * @param failed    Whether the evidence belongs to a failure
+   * @return Evidence base name, without extension
+   */
+  public String buildName(String testClass, String option, String title, boolean failed) {
+    return String.format("%s-%s-%s%s-%s",
+      testClass,
+      timestampFormatter.format(clock.instant()),
+      failed ? ERROR_MARKER : "",
+      sanitize(option),
+      sanitize(title));
+  }
+
+  /**
+   * Keep the recorded video when it is evidence (test failed or every video must be saved),
+   * delete it otherwise. Never throws.
+   *
+   * @param video   Video file returned by the recorder (may be null)
+   * @param failed  Whether the test failed
+   * @param keepAll Whether every video must be kept
+   */
+  public void resolveVideo(File video, boolean failed, boolean keepAll) {
+    if (video == null) {
+      log.debug("No video recording available for this test");
+      return;
+    }
+
+    if (failed || keepAll) {
+      log.info("{}Video recording stored at {}", failed ? "Test failed. " : "", video.getAbsolutePath());
+      if (failed) {
+        print("Failure video: " + describe(video.toPath()));
+      }
+      return;
+    }
+
+    try {
+      Files.deleteIfExists(video.toPath());
+      log.debug("Test passed. Video recording discarded: {}", video.getAbsolutePath());
+    } catch (Exception exc) {
+      log.warn("Could not delete video recording {}", video.getAbsolutePath(), exc);
+    }
+  }
+
+  /**
+   * Take a screenshot of a failed test when none was taken yet. Never throws.
+   *
+   * @param model     Selenium model of the running test
+   * @param testClass Test class name
+   * @param failed    Whether the test failed
+   * @return Path of the stored screenshot, if any
+   */
+  public Optional<Path> captureScreenshotOnFailure(SeleniumModel model, String testClass, boolean failed) {
+    if (!failed || model.isScreenshotTaken()) {
+      return Optional.empty();
+    }
+
+    try {
+      BrowserDriver browser = model.getBrowser();
+      Optional<byte[]> screenshot = browser == null ? Optional.empty() : browser.screenshot();
+      if (screenshot.isEmpty()) {
+        log.warn("Test failed but no screenshot could be taken: the driver does not support screenshots");
+        return Optional.empty();
+      }
+
+      Path target = Path.of(model.getProperties().getScreenshotPath(),
+        buildName(testClass, model.getCurrentOption(), model.getTestTitle(), true) + ".png");
+      storeScreenshot(model, screenshot.get(), target);
+      log.error("Test failed. Screenshot stored at: {}", target);
+      return Optional.of(target);
+    } catch (Exception exc) {
+      log.warn("Test failed but the failure screenshot could not be stored", exc);
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Store a failure screenshot, flag it as taken in the model and announce it in the test output: an
+   * {@code [[ATTACHMENT|path]]} marker (GitLab shows it in the pipeline test report) plus a line with the link
+   * to the file. Both are only produced once the file is stored.
+   *
+   * @param model  Selenium model of the running test
+   * @param source Screenshot taken by the driver
+   * @param target Where the screenshot must be stored
+   * @throws IOException When the screenshot cannot be stored
+   */
+  public void storeScreenshot(SeleniumModel model, File source, Path target) throws IOException {
+    Files.createDirectories(target.getParent());
+    FileUtils.copyFile(source, target.toFile());
+    announceScreenshot(model, target);
+  }
+
+  /**
+   * Store a failure screenshot taken as an image, flag it as taken in the model and announce it in the test output, as
+   * {@link #storeScreenshot(SeleniumModel, File, Path)} does
+   *
+   * @param model  Selenium model of the running test
+   * @param image  PNG image of the screenshot
+   * @param target Where the screenshot must be stored
+   * @throws IOException When the screenshot cannot be stored
+   */
+  public void storeScreenshot(SeleniumModel model, byte[] image, Path target) throws IOException {
+    Files.createDirectories(target.getParent());
+    Files.write(target, image);
+    announceScreenshot(model, target);
+  }
+
+  /**
+   * Announce an evidence file that someone else stored (a trace, a video) in the test output: a line with the link to
+   * the file and, for the file of the running test, the {@code [[ATTACHMENT|path]]} marker that GitLab shows in the
+   * pipeline test report. Never throws: it must not mask the original test failure.
+   *
+   * @param label          What the file is (Failure trace, Failure video...)
+   * @param file           Stored file
+   * @param attachToReport Whether the report of the running test attaches it
+   */
+  public void announceFile(String label, Path file, boolean attachToReport) {
+    try {
+      if (attachToReport) {
+        relativeToProjectDir(file).ifPresent(relative -> print("[[ATTACHMENT|" + relative + "]]"));
+      }
+      print(label + ": " + describe(file));
+    } catch (Exception exc) {
+      log.warn("The {} could not be announced", label, exc);
+    }
+  }
+
+  private void announceScreenshot(SeleniumModel model, Path target) {
+    model.setScreenshotTaken(true);
+    relativeToProjectDir(target).ifPresent(relative -> print("[[ATTACHMENT|" + relative + "]]"));
+    print("Failure screenshot: " + describe(target));
+  }
+
+  /**
+   * Store the page source (DOM) of a failed test next to its screenshot: same name, {@code .html} extension. It
+   * announces the file in the test output with a link, like the screenshot. Never throws: it must not mask the
+   * original test failure.
+   *
+   * @param screenshotTarget Path of the failure screenshot the page source belongs to
+   * @param pageSource       Page source returned by the driver (may be null)
+   * @return Path of the stored page source, if any
+   */
+  public Optional<Path> storePageSource(Path screenshotTarget, String pageSource) {
+    if (pageSource == null) {
+      log.warn("Test failed but there is no page source to store");
+      return Optional.empty();
+    }
+
+    try {
+      String fileName = screenshotTarget.getFileName().toString();
+      String baseName = fileName.toLowerCase().endsWith(".png") ? fileName.substring(0, fileName.length() - 4) : fileName;
+      Path target = screenshotTarget.resolveSibling(baseName + ".html");
+      Files.createDirectories(target.getParent());
+      Files.write(target, pageSource.getBytes(StandardCharsets.UTF_8));
+      print("Failure page source: " + describe(target));
+      return Optional.of(target);
+    } catch (Exception exc) {
+      log.warn("Test failed but the page source could not be stored", exc);
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Store the browser console (JavaScript errors, warnings and logs) of a failed test next to its screenshot: same
+   * name, {@code .console.log} extension. The severe entries are also printed in the test output, since a blank
+   * screen caused by a client crash is otherwise undiagnosable. Drivers that do not expose the browser logs
+   * (Firefox, remote drivers…) are tolerated. Never throws: it must not mask the original test failure.
+   *
+   * @param screenshotTarget Path of the failure screenshot the console belongs to
+   * @param driver           Driver of the failed test (may be null)
+   * @return Path of the stored console log, if any
+   */
+  public Optional<Path> storeBrowserConsole(Path screenshotTarget, WebDriver driver) {
+    if (driver == null) {
+      return Optional.empty();
+    }
+    return storeConsoleEntries(screenshotTarget, new SeleniumBrowserDriver(driver).consoleEntries());
+  }
+
+  /**
+   * Store the entries of the browser console of a failed test, as {@link #storeBrowserConsole(Path, WebDriver)} does.
+   * Reading the console empties it, so whoever reads it once hands the entries over here instead of reading it again.
+   * Never throws: it must not mask the original test failure.
+   *
+   * @param screenshotTarget Path of the failure screenshot the console belongs to
+   * @param entries          Entries read from the browser (may be null or empty when there is nothing to store)
+   * @return Path of the stored console log, if any
+   */
+  public Optional<Path> storeConsoleEntries(Path screenshotTarget, List<ConsoleEntry> entries) {
+    if (entries == null || entries.isEmpty()) {
+      log.debug("The browser console of the failed test is empty");
+      return Optional.empty();
+    }
+
+    try {
+      String fileName = screenshotTarget.getFileName().toString();
+      String baseName = fileName.toLowerCase().endsWith(".png") ? fileName.substring(0, fileName.length() - 4) : fileName;
+      Path target = screenshotTarget.resolveSibling(baseName + ".console.log");
+      Files.createDirectories(target.getParent());
+      Files.write(target, entries.stream().map(ConsoleEntry::toString).collect(Collectors.joining("\n", "", "\n"))
+        .getBytes(StandardCharsets.UTF_8));
+      print("Failure browser console: " + describe(target));
+      entries.stream()
+        .filter(ConsoleEntry::isSevere)
+        .limit(MAX_PRINTED_CONSOLE_ENTRIES)
+        .forEach(entry -> print("Browser console " + entry.level() + ": " + entry.message()));
+      return Optional.of(target);
+    } catch (Exception exc) {
+      log.warn("Test failed but the browser console could not be stored", exc);
+      return Optional.empty();
+    }
+  }
+
+  /**
+   * Describe where a stored file can be reached: an artifact URL of the CI job when the job URL and the project
+   * directory are known and the file is inside the project, its absolute path otherwise.
+   */
+  private String describe(Path file) {
+    String jobUrl = variable(JOB_URL_VARIABLE);
+    return relativeToProjectDir(file)
+      .filter(relative -> jobUrl != null)
+      .map(relative -> jobUrl + "/artifacts/file/" + relative)
+      .orElseGet(() -> file.toAbsolutePath().toString());
+  }
+
+  /**
+   * Path of the file relative to the CI project directory, with forward slashes on every OS
+   */
+  private Optional<String> relativeToProjectDir(Path file) {
+    String projectDir = variable(PROJECT_DIR_VARIABLE);
+    if (projectDir == null) {
+      return Optional.empty();
+    }
+
+    Path root = Path.of(projectDir).toAbsolutePath().normalize();
+    Path absolute = file.toAbsolutePath().normalize();
+    if (!absolute.startsWith(root) || absolute.equals(root)) {
+      return Optional.empty();
+    }
+    return Optional.of(root.relativize(absolute).toString().replace('\\', '/'));
+  }
+
+  private String variable(String name) {
+    String value = environment.apply(name);
+    return value == null || value.trim().isEmpty() ? null : value.trim();
+  }
+
+  private void print(String line) {
+    (out == null ? System.out : out).println(line);
+  }
+
+  private String sanitize(String text) {
+    return TextUtilities.sanitizeMessage(text == null ? "" : text);
+  }
+}

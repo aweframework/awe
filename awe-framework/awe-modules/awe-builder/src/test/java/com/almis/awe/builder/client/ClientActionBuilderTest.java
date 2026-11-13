@@ -19,12 +19,12 @@ import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -270,6 +270,7 @@ class ClientActionBuilderTest {
    * Build a fill-suggest action with ClientActionBuilder
    */
   @Test
+  @SuppressWarnings("deprecation")
   void testFillSuggestAction() throws Exception {
     ObjectMapper mapper = DataListUtil.getMapper();
     List<SuggestValue> values = Arrays.asList(
@@ -306,6 +307,27 @@ class ClientActionBuilderTest {
     assertEquals(mapper.valueToTree(values), mapper.valueToTree(addressedActionWithList.getParameters().get("values")));
 
     checkSimpleClientActionBuilder("fill-suggest", new FillSuggestActionBuilder());
+  }
+
+  /**
+   * The replacement of the deprecated fill-suggest action: a fill with the values and a select of them
+   */
+  @Test
+  void testFillSuggestReplacement() {
+    DataList dataList = new DataList();
+    DataListUtil.addColumn(dataList, "value", List.of("aaa", "bbb"));
+    DataListUtil.addColumn(dataList, "label", List.of("Label aaa", "Label bbb"));
+    ClientAction fill = new FillActionBuilder("my-suggest", dataList).build();
+    ClientAction select = new SelectActionBuilder("my-suggest", "aaa", "bbb").build();
+
+    // Assertions
+    assertTrue(FillSuggestActionBuilder.class.isAnnotationPresent(Deprecated.class));
+    assertEquals("fill", fill.getType());
+    assertEquals("my-suggest", fill.getTarget());
+    assertEquals("Label bbb", dataList.getRows().get(1).get("label").getStringValue());
+    assertEquals("select", select.getType());
+    assertEquals("my-suggest", select.getTarget());
+    assertArrayEquals(new Object[]{"aaa", "bbb"}, (Object[]) select.getParameters().get("values"));
   }
 
   /**
@@ -514,6 +536,31 @@ class ClientActionBuilderTest {
     assertEquals("rowId", actionDown.getParameters().get("selectedRow"));
 
     checkSimpleClientActionBuilder("copy-row", new CopyRowActionBuilder());
+  }
+
+  /**
+   * Build a move-row action with ClientActionBuilder
+   */
+  @Test
+  void testMoveRowAction() {
+    ClientAction action = new MoveRowActionBuilder(null, "testGrid").build();
+    ClientAction actionTop = new MoveRowActionBuilder(RowPosition.TOP, "testGrid").build();
+    ClientAction actionBottom = new MoveRowActionBuilder(RowPosition.BOTTOM, "testGrid").build();
+    ClientAction actionUp = new MoveRowActionBuilder(RowPosition.UP, "testGrid").build();
+    ClientAction actionDown = new MoveRowActionBuilder(RowPosition.DOWN, "testGrid", "rowId").build();
+
+    // Assertions
+    assertEquals("move-row-bottom", action.getType());
+    assertEquals("testGrid", action.getTarget());
+
+    assertEquals("move-row-top", actionTop.getType());
+    assertEquals("move-row-bottom", actionBottom.getType());
+    assertEquals("move-row-up", actionUp.getType());
+    assertEquals("move-row-down", actionDown.getType());
+    assertEquals("testGrid", actionDown.getTarget());
+    assertEquals("rowId", actionDown.getParameters().get("selectedRow"));
+
+    checkSimpleClientActionBuilder("move-row-bottom", new MoveRowActionBuilder(RowPosition.BOTTOM));
   }
 
   /**

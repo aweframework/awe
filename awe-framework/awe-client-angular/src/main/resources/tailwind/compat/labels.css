@@ -1,0 +1,210 @@
+/*
+ * Labels: Bootstrap 3 labels.less, the pixel-admin label rules and the print rule on the same selectors, as the compiled vendored CSS renders
+ * them: label, label-default|primary|success|info|warning|danger with their link states, the label inside a button and inside a pill.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values.
+ * There is no !important in this file.
+ *
+ * Not here (they stay in LESS; compatLabels.test.js names every one of them with example selectors): the labels inside the navbar (navbar.css
+ * serves them), the pixel-admin main menu, tabs and tag labels, the labels of a list group item and of the panel heading controls, and the
+ * selectors that depend on a theme class or an Internet Explorer version.
+ */
+
+@media print {
+  .label {
+    border: var(--awe-border-width) solid var(--awe-color-text);
+  }
+}
+
+.label {
+  display: inline;
+  padding: 0.2em 0.6em 0.3em;
+  font-size: 75%;
+  font-weight: bold;
+  line-height: 1;
+  color: var(--awe-color-on-primary);
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  border-radius: 0.25em;
+}
+
+a.label:hover,
+a.label:focus {
+  color: var(--awe-color-on-primary);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.label:empty {
+  display: none;
+}
+
+.btn .label {
+  position: relative;
+  top: calc(var(--awe-border-width) * -1);
+}
+
+.label-default {
+  background-color: var(--awe-color-text-muted);
+}
+
+.label-default[href]:hover,
+.label-default[href]:focus {
+  background-color: color-mix(in srgb, var(--awe-color-text-muted), var(--awe-color-text) 10%);
+}
+
+.label-primary {
+  background-color: var(--awe-color-primary);
+}
+
+.label-primary[href]:hover,
+.label-primary[href]:focus {
+  background-color: color-mix(in srgb, var(--awe-color-primary), var(--awe-color-text) 10%);
+}
+
+.label-success {
+  background-color: var(--awe-color-success);
+}
+
+.label-success[href]:hover,
+.label-success[href]:focus {
+  background-color: color-mix(in srgb, var(--awe-color-success), var(--awe-color-text) 10%);
+}
+
+.label-info {
+  background-color: var(--awe-color-info);
+}
+
+.label-info[href]:hover,
+.label-info[href]:focus {
+  background-color: color-mix(in srgb, var(--awe-color-info), var(--awe-color-text) 10%);
+}
+
+.label-warning {
+  background-color: var(--awe-color-warning);
+}
+
+.label-warning[href]:hover,
+.label-warning[href]:focus {
+  background-color: color-mix(in srgb, var(--awe-color-warning), var(--awe-color-text) 10%);
+}
+
+.label-danger {
+  background-color: var(--awe-color-danger);
+}
+
+.label-danger[href]:hover,
+.label-danger[href]:focus {
+  background-color: color-mix(in srgb, var(--awe-color-danger), var(--awe-color-text) 10%);
+}
+
+.label {
+  color: var(--awe-color-on-primary);
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-space-5);
+  text-shadow: 0 calc(var(--awe-border-width) * -1) 0 color-mix(in srgb, var(--awe-color-text), transparent 80%);
+  padding: 0 var(--awe-space-1-5);
+  display: inline-block;
+  font-weight: 600;
+}
+
+.label.pull-right {
+  margin: 0;
+}
+
+h1 .label,
+h2 .label,
+h3 .label,
+h4 .label,
+h5 .label,
+h6 .label {
+  font-size: 75%;
+  padding: 0.2em 0.5em;
+}
+
+.label {
+  background: var(--awe-color-text-muted);
+}
+
+.label[href]:hover,
+.label[href]:focus {
+  background-color: var(--awe-color-text-muted);
+}
+
+.label.label-success {
+  background: var(--awe-color-success);
+}
+
+.label.label-success[href]:hover,
+.label.label-success[href]:focus {
+  background-color: var(--awe-color-success);
+}
+
+.label.label-warning {
+  background: var(--awe-color-warning);
+}
+
+.label.label-warning[href]:hover,
+.label.label-warning[href]:focus {
+  background-color: var(--awe-color-warning);
+}
+
+.label.label-danger {
+  background: var(--awe-color-danger);
+}
+
+.label.label-danger[href]:hover,
+.label.label-danger[href]:focus {
+  background-color: var(--awe-color-danger);
+}
+
+.label.label-info {
+  background: var(--awe-color-info);
+}
+
+.label.label-info[href]:hover,
+.label.label-info[href]:focus {
+  background-color: var(--awe-color-info);
+}
+
+.nav-pills > li > a > .label {
+  position: relative;
+  background-color: color-mix(in srgb, var(--awe-color-text), transparent 75%);
+  border: var(--awe-border-width) solid transparent;
+  margin: 0 calc(var(--awe-space-1-5) * -1) calc(var(--awe-space-16) * -1) var(--awe-space-1-5);
+  padding: 0 var(--awe-space-1-5);
+  line-height: var(--awe-space-4);
+  top: 0;
+}
+
+.nav-pills > li > a > .label {
+  padding-left: var(--awe-space-1);
+  padding-right: var(--awe-space-1);
+}
+
+.nav-pills > li > a > .label.label-success {
+  background-color: var(--awe-color-success);
+}
+
+.nav-pills > li > a > .label.label-warning {
+  background-color: var(--awe-color-warning);
+}
+
+.nav-pills > li > a > .label.label-danger {
+  background-color: var(--awe-color-danger);
+}
+
+.nav-pills > li > a > .label.label-info {
+  background-color: var(--awe-color-info);
+}
+
+.nav-pills > li.active > a > .label {
+  background-color: color-mix(in srgb, var(--awe-color-text), transparent 75%);
+  border-color: transparent;
+  color: var(--awe-color-on-primary);
+}
+
+.nav-pills > li > a > .label {
+  top: calc(var(--awe-border-width) * -1);
+}

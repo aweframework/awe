@@ -1,5 +1,7 @@
 import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
+import {popoverOptions} from "../services/testIds";
+import {createMessagePopover} from "../services/messagePopover";
 
 // Manage the message calls
 aweApplication.controller("MessageController",
@@ -90,10 +92,10 @@ aweApplication.controller("MessageController",
        * @param {Object} message Popover message
        */
       $ctrl.hidePopover = function (message = $ctrl.popover) {
-        if (message?.target?.popover) {
+        if (message?.handle) {
           message.visible = false;
           $utilities.timeout.cancel(message.timer);
-          message.target.popover('hide');
+          message.handle.hide();
         }
       };
 
@@ -102,15 +104,20 @@ aweApplication.controller("MessageController",
        * @param {Object} message Popover message
        */
       $ctrl.destroyPopover = function (message = $ctrl.popover) {
-        if (message?.target?.popover) {
+        // A popover is destroyed once (destroying it hides it, which asks to destroy it again)
+        if (message?.handle && !message.destroyed) {
+          message.destroyed = true;
           message.background.remove();
-          message.target.popover('destroy');
+          message.handle.destroy();
           // Finish action if alive
           if (message.action.isAlive()) {
             $actionController.acceptAction(message.action);
           }
         }
-        $ctrl.popover = null;
+        // A popover which was replaced does not clean the one which replaced it
+        if (!message || message === $ctrl.popover) {
+          $ctrl.popover = null;
+        }
       };
 
       $ctrl.MessageActions = {
@@ -123,6 +130,16 @@ aweApplication.controller("MessageController",
           let timeout;
           let type = getMessageType(parameters.type);
 
+          // A screen may show the message itself (the sign-in page shows a failed login in its form): it claims it by
+          // preventing the default of claim-message, and then there is no alert and the action ends at once
+          const messageText = getMessageText(action.attr("view"), parameters);
+          const claim = $scope.$root.$broadcast("claim-message", {type: parameters.type, title: messageText.title,
+            message: messageText.message, target: action.attr("callbackTarget"), view: action.attr("view")});
+          if (claim.defaultPrevented) {
+            $actionController.acceptAction(action);
+            return;
+          }
+
           // Retrieve timeout
           timeout = $settings.get('messageTimeout')[parameters.type];
 
@@ -132,8 +149,6 @@ aweApplication.controller("MessageController",
             action: action
           };
 
-          // Retrieve message text
-          let  messageText = getMessageText(action.attr("view"), parameters);
           if ("title" in messageText && !$utilities.isEmpty(messageText.title)) {
             messageContent.title = messageText.title;
           }
@@ -170,12 +185,14 @@ aweApplication.controller("MessageController",
             timeout: $settings.get('messageTimeout')[parameters.type]
           };
 
-          // Clean up function
-          let cleanUp = () => $ctrl.destroyPopover($ctrl.popover);
+          // Clean up function of this popover
+          const popover = $ctrl.popover;
+          let cleanUp = () => $ctrl.destroyPopover(popover);
 
           // Get message target
           let address = action.attr("callbackTarget") || {};
           if ("view" in address && "component" in address) {
+            $ctrl.popover.owner = address.component;
             if ("column" in address && "row" in address) {
               $ctrl.popover.target = $(`#${address.component} [row-id='${address.row}'] [column-id='${address.column}']`);
             } else {
@@ -183,6 +200,7 @@ aweApplication.controller("MessageController",
             }
             $ctrl.popover.view = $(`[ui-view='${address.view}']`);
           } else {
+            $ctrl.popover.owner = undefined;
             $ctrl.popover.target = $("body");
             $ctrl.popover.view = $("[ui-view='base']");
           }
@@ -190,16 +208,16 @@ aweApplication.controller("MessageController",
           // Create message
           $ctrl.popover.background = $(`<div class="target-message component-mask popover-dark popover-${$ctrl.popover.type}"></div>`);
           $('body').append($ctrl.popover.background);
-          $ctrl.popover.target.popover({
+          $ctrl.popover.handle = createMessagePopover($ctrl.popover.target, {
             container: 'body',
             title: "title" in $ctrl.popover.text ? $ctrl.popover.text.title : "",
             content: "message" in $ctrl.popover.text ? $ctrl.popover.text.message : "",
             placement: "auto bottom",
-            trigger: "manual"
-          })
-            .on('shown.bs.popover', () => $ctrl.startPopover($ctrl.popover))
-            .on('hidden.bs.popover', cleanUp)
-            .popover('show');
+            ...popoverOptions($ctrl.popover.type, $ctrl.popover.owner),
+            onShown: () => $ctrl.startPopover(popover),
+            onHidden: cleanUp
+          });
+          $ctrl.popover.handle.show();
 
           // Hide the popover on click
           let hide = () => $ctrl.hidePopover($ctrl.popover);

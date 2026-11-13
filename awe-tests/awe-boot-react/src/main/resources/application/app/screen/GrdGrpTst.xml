@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdGrpTst.xml
+    Description: Grid grouped by region, country and city (three levels), with a Group by selector, subtotal rows, the
+                 sum of the sales and units and the average price of each group, and the grand total in the footer
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_GROUPS">
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_GROUPS" expandible="vertical">
+      <grid id="GrdGrpTst" style="expand" initial-load="query" server-action="data" target-action="GroupRowsTst" max="10"
+            group-by="region,country,city" group-selector="true" show-totals="true">
+        <column label="COLUMN_GROUP_REGION" name="region" sort-field="region" align="left" charlength="24"/>
+        <column label="COLUMN_GROUP_COUNTRY" name="country" sort-field="country" align="left" charlength="14"/>
+        <column label="COLUMN_GROUP_CITY" name="city" sort-field="city" align="left" charlength="14"/>
+        <column label="COLUMN_GROUP_STORE" name="store" sort-field="store" align="left" charlength="12"/>
+        <column label="COLUMN_GROUP_SALES" name="sales" sort-field="sales" align="right" charlength="12" component="numeric"
+                number-format="{mDec: 0}" summary-type="sum"/>
+        <column label="COLUMN_GROUP_UNITS" name="units" sort-field="units" align="right" charlength="12" component="numeric"
+                number-format="{mDec: 0}" summary-type="sum"/>
+        <column label="COLUMN_GROUP_PRICE" name="price" sort-field="price" align="right" charlength="14" component="numeric"
+                number-format="{mDec: 2}" summary-type="avg"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

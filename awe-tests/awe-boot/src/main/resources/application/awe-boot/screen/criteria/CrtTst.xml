@@ -76,6 +76,11 @@
           </dependency>
         </criteria>
         <criteria label="PARAMETER_DATE_READONLY" id="CalRea" variable="CalRea" component="date" style="col-xs-6 col-sm-3 col-lg-2" readonly="true"/>
+        <criteria label="PARAMETER_DATE" id="CalFmt" variable="CalFmt" component="date" style="col-xs-6 col-sm-3 col-lg-2" date-format="yyyy-mm-dd" value="2024-03-15" help="PARAMETER_DATE"/>
+        <criteria label="PARAMETER_DATE" id="CalMon" variable="CalMon" component="date" style="col-xs-6 col-sm-3 col-lg-2" date-format="mm/yyyy" date-view-mode="months" value="03/2024"/>
+        <criteria label="PARAMETER_DATE" id="CalYea" variable="CalYea" component="date" style="col-xs-6 col-sm-3 col-lg-2" date-format="yyyy" date-view-mode="years" date-show-today-button="false"/>
+        <criteria label="SCREEN_TEXT_PASS" id="Pwd" variable="Pwd" component="password" style="col-xs-6 col-sm-3 col-lg-2" left-label="12"/>
+        <criteria label="PARAMETER_DATE" id="CalPas" variable="CalPas" component="date" style="col-xs-6 col-sm-3 col-lg-2" show-weekends="false" show-future-dates="false" value="15/03/2024"/>
         <criteria label="PARAMETER_TIME" id="Tim" variable="Tim" component="time" style="col-xs-6 col-sm-3 col-lg-2">
           <dependency source-type="value" target-type="validate" value="{'le':{'criterion':'TimReq'}}">
             <dependency-element id="CalReq" condition="eq" name="Cal" />
@@ -201,7 +206,7 @@
         <criteria label="PARAMETER_SUGGEST_MULTIPLE_READONLY" id="SugMulRea" variable="SugMul" component="suggest-multiple" style="col-xs-12 col-sm-6 col-lg-4" server-action="data" target-action="UsrEmlLstTstSugDelay" readonly="true" value="test" />
         <tag type="div" style="btn-group col-xs-12 col-sm-6">
           <criteria label="PARAMETER_CHECKBOX_1" id="ChkBoxVa1" group="ChkBoxVa" variable="ChkBoxVa1" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}" />
-          <criteria label="PARAMETER_CHECKBOX_2" id="ChkBoxVa2" group="ChkBoxVa" variable="ChkBoxVa2" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}"/>
+          <criteria label="PARAMETER_CHECKBOX_2" id="ChkBoxVa2" help="PARAMETER_CHECKBOX_2" group="ChkBoxVa" variable="ChkBoxVa2" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}"/>
           <criteria label="PARAMETER_CHECKBOX_3" id="ChkBoxVa3" group="ChkBoxVa" variable="ChkBoxVa3" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" readonly="true" />
           <criteria label="PARAMETER_CHECKBOX" id="ChkBoxVa4" group="ChkBoxVa" variable="ChkBoxVa4" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}" />
           <criteria label="PARAMETER_CHECKBOX" id="ChkBoxVa5" group="ChkBoxVa" variable="ChkBoxVa5" component="checkbox" style="col-xs-6 col-sm-4 col-lg-2 no-label" validation="{checkAtLeast:2}" checked="true" />

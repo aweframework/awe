@@ -18,6 +18,7 @@ import lombok.*;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,7 @@ import java.util.List;
 public class Column extends AbstractCriteria {
 
   // Serial UID
+  @Serial
   private static final long serialVersionUID = 1L;
 
   // Column FIELD name to sort
@@ -47,6 +49,17 @@ public class Column extends AbstractCriteria {
   @XStreamAlias("sort-field")
   @XStreamAsAttribute
   private String field;
+
+  // Column FILTER type (values, text, number or date)
+  @XStreamAlias("filter")
+  @XStreamAsAttribute
+  private String filter;
+
+  // Comma-separated query fields the column filter applies to (joined by OR)
+  @JsonProperty("filterFields")
+  @XStreamAlias("filter-fields")
+  @XStreamAsAttribute
+  private String filterFields;
 
   // Column POSITION in grid
   @XStreamOmitField
@@ -88,6 +101,13 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean sendable;
 
+  // Permissions required to show a button column, separated by spaces (all of them are required). It replaces the
+  // decision derived from the targets its actions launch. Read by the server only
+  @JsonIgnore
+  @XStreamAlias("permission")
+  @XStreamAsAttribute
+  private String permission;
+
   // Totalise TYPE
   @XStreamAlias("summary-type")
   @XStreamAsAttribute
@@ -113,10 +133,130 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean pagebreak;
 
+  // Cell text wraps over several lines
+  @XStreamAlias("wrap")
+  @XStreamAsAttribute
+  private Boolean wrap;
+
+  // Maximum number of lines of a wrapping cell
+  @XStreamAlias("max-lines")
+  @XStreamAsAttribute
+  private Integer maxLines;
+
+  // Field shown under the main value of the cell
+  @XStreamAlias("secondary-field")
+  @XStreamAsAttribute
+  private String secondaryField;
+
+  // Print and export the secondary field in its own column
+  @XStreamAlias("export-secondary")
+  @XStreamAsAttribute
+  private Boolean exportSecondary;
+
+  // Label of the exported secondary column
+  @XStreamAlias("secondary-label")
+  @XStreamAsAttribute
+  private String secondaryLabel;
+
+  // Field with the status tone of the cell
+  @XStreamAlias("status-field")
+  @XStreamAsAttribute
+  private String statusField;
+
+  // Cell value shown as a list of chips
+  @XStreamAlias("chips")
+  @XStreamAsAttribute
+  private Boolean chips;
+
+  // Separator of the chips items
+  @XStreamAlias("chip-separator")
+  @XStreamAsAttribute
+  private String chipSeparator;
+
+  // Maximum number of chips shown
+  @XStreamAlias("max-chips")
+  @XStreamAsAttribute
+  private Integer maxChips;
+
+  // Lower end of the scale of the bar of a progress column
+  @XStreamAlias("bar-min")
+  @XStreamAsAttribute
+  private Double barMin;
+
+  // Upper end of the scale of the bar of a progress column
+  @XStreamAlias("bar-max")
+  @XStreamAsAttribute
+  private Double barMax;
+
+  // Field with the second value drawn under the bar of a progress column
+  @XStreamAlias("bar-second-field")
+  @XStreamAsAttribute
+  private String barSecondField;
+
+  // Comma-separated fields with the stacked segments of the bar of a progress column
+  @XStreamAlias("bar-stack-fields")
+  @XStreamAsAttribute
+  private String barStackFields;
+
+  // Draw the bar of a progress column only on the leaf rows of a tree grid
+  @XStreamAlias("bar-leaf-only")
+  @XStreamAsAttribute
+  private Boolean barLeafOnly;
+
+  // Field with the name (or initials) of the avatar shown before the main value
+  @XStreamAlias("avatar-field")
+  @XStreamAsAttribute
+  private String avatarField;
+
+  // Field with the tone of the avatar
+  @XStreamAlias("avatar-tone-field")
+  @XStreamAsAttribute
+  private String avatarToneField;
+
+  // Field with an icon drawn in the avatar instead of the initials
+  @XStreamAlias("avatar-icon-field")
+  @XStreamAsAttribute
+  private String avatarIconField;
+
+  // Field with a colour (an AWE 5 palette name or a hex) drawn as a circle before the main value, in place of the avatar
+  @XStreamAlias("swatch-field")
+  @XStreamAsAttribute
+  private String swatchField;
+
+  // Field with the icon shown before the main value (in place of the dot of a status)
+  @XStreamAlias("icon-field")
+  @XStreamAsAttribute
+  private String iconField;
+
   // Dialog to open
   @XStreamAlias("dialog")
   @XStreamAsAttribute
   private String dialog;
+
+  // Sparkline TYPE (line, bar or area)
+  @XStreamAlias("sparkline-type")
+  @XStreamAsAttribute
+  private String sparklineType;
+
+  // Sparkline series COLOR
+  @XStreamAlias("sparkline-color")
+  @XStreamAsAttribute
+  private String sparklineColor;
+
+  // Sparkline COLOR of the negative values
+  @XStreamAlias("sparkline-negative-color")
+  @XStreamAsAttribute
+  private String sparklineNegativeColor;
+
+  // Sparkline highlights the LAST POINT
+  @XStreamAlias("sparkline-last-point")
+  @XStreamAsAttribute
+  private Boolean sparklineLastPoint;
+
+  // Sparkline marks the MINIMUM and MAXIMUM points
+  @XStreamAlias("sparkline-min-max")
+  @XStreamAsAttribute
+  private Boolean sparklineMinMax;
 
   // Sort by this column
   @XStreamOmitField
@@ -140,6 +280,20 @@ public class Column extends AbstractCriteria {
   @JsonIgnore
   public String getComponentTag() {
     return AweConstants.NO_TAG;
+  }
+
+  /**
+   * Returns if the text of the cells of the column wraps over several lines: the column declares wrap, or a
+   * maximum number of lines (which implies it). An explicit wrap="false" keeps the text in one line.
+   *
+   * @return Column wraps its text
+   */
+  @JsonIgnore
+  public boolean isWrapped() {
+    if (wrap != null) {
+      return wrap;
+    }
+    return maxLines != null && maxLines > 0;
   }
 
   /**
@@ -265,8 +419,8 @@ public class Column extends AbstractCriteria {
     List<ButtonAction> actionList = new ArrayList<>();
 
     for (Element element : getElementList()) {
-      if (element instanceof ButtonAction) {
-        actionList.add((ButtonAction) element);
+      if (element instanceof ButtonAction action) {
+        actionList.add(action);
       }
     }
 

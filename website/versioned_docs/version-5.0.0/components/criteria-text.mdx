@@ -1,0 +1,85 @@
+---
+id: criteria-text
+title: Text inputs
+sidebar_label: Text inputs
+description: The AWE text criteria, live. Text, password, text area, Markdown editor, text view and color, with the XML that produces them.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteriaText} from '@site/src/components/AwePlayground/specs/criteria-text';
+
+The text criteria collect free text: a line (`text`), a secret (`password`), several lines (`textarea`), formatted text
+(`markdown-editor`), a value to read (`text-view`) or a color (`color`). Below are the real criteria of the AWE React client:
+pick a type, change its attributes and the XML below follows. Type in them, too: they are real fields.
+
+<AwePlayground spec={criteriaText} />
+
+The attributes shared by every criterion (label, placeholder, icon, size, validation) are in the [criteria overview](./criteria.mdx).
+The `markdown-editor` has no label of its own: it takes the width of its row and shows its `placeholder` while empty. The `text-view`
+shows its value as text and is not an input: it sends nothing to the server.
+
+## Recipes {#recipes}
+
+Common fields, rendered by the same components.
+
+### Password with a show button {#recipe-password}
+
+Every `password` has a button at the end that shows or hides what was typed; the value and its validation do not change.
+
+<AweLive
+  components={{secret: {attributes: {label: 'Password', placeholder: 'At least 12 characters', icon: 'lucide:lock', required: true}, validationRules: {required: true}}}}
+  nodes={[{elementType: 'Criteria', component: 'password', id: 'secret'}]}
+/>
+
+```xml
+<criteria id="secret" component="password" label="Password" placeholder="At least 12 characters"
+          icon="lucide:lock" validation="required" />
+```
+
+### Markdown editor {#recipe-markdown}
+
+The `markdown-editor` offers a toolbar for headings, emphasis, lists and links. Its value is the HTML the editor writes.
+
+<AweLive
+  components={{notes: {attributes: {placeholder: 'Write the release notes'}}}}
+  nodes={[{elementType: 'Criteria', component: 'markdown-editor', id: 'notes'}]}
+/>
+
+```xml
+<criteria id="notes" component="markdown-editor" placeholder="Write the release notes" />
+```
+
+### Color with a picker {#recipe-color}
+
+A `color` criterion is a hexadecimal text with a button that opens a color picker. The `value` is the color the criterion starts with.
+
+<AweLive
+  components={{brand: {attributes: {label: 'Brand color'}, model: {values: [{value: '#4f46e5', label: '#4f46e5', selected: true}]}}}}
+  nodes={[{elementType: 'Criteria', component: 'color', id: 'brand'}]}
+/>
+
+```xml
+<criteria id="brand" component="color" label="Brand color" value="#4f46e5" />
+```
+
+## Events and actions {#events-and-actions}
+
+A criterion has no event of its own to listen to: every change of its value checks the [dependencies](../api/dependencies.md) whose
+`dependency-element` names it, and pressing Enter in a text field runs the `submit` button of its window. The [actions](../api/actions.md)
+that work on criteria:
+
+| Action                           | Description                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Empties the value of the criterion                                   |
+| `restore`                        | Puts back the initial value of the criterion                         |
+| `validate`                       | Runs the validation of the criterion and shows its error             |
+| `set-invalid`                    | Marks the criterion as invalid with the message of the action        |
+| `set-valid`                      | Clears the validation error of the criterion                         |
+| `copy-criterion-value-clipboard` | Copies the value of the criterion to the clipboard                   |
+
+## More {#more}
+
+* [Criteria overview](./criteria.mdx): the attributes every criterion shares and the other families of inputs.
+* [Full documentation of the criteria](../api/criteria.md): every type, attribute, validation and example.
+* [XSD reference of the `criteria` element](/reference/screen#element-criteria).

@@ -8,6 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+
+import java.util.stream.StreamSupport;
 
 /**
  * Service for building multi-tenant OAuth2 URLs
@@ -21,7 +24,6 @@ public class OAuth2UrlService {
 	private final MultiTenantOAuth2Config multiTenantConfig;
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
-	@Autowired
 	public OAuth2UrlService(
 			@Autowired(required = false) MultiTenantOAuth2Config multiTenantConfig,
 			ClientRegistrationRepository clientRegistrationRepository) {
@@ -93,11 +95,11 @@ public class OAuth2UrlService {
 		try {
 			ClientRegistration clientRegistration =	clientRegistrationRepository.findByRegistrationId(registrationId);
 
-			if (clientRegistration != null) {
+			if (isLoginRegistration(clientRegistration)) {
 				log.debug("Validated registration ID: {}", registrationId);
 				return registrationId;
 			} else {
-				log.warn("Registration ID '{}' not found in ClientRegistrationRepository, using default", registrationId);
+				log.warn("Registration ID '{}' not found in ClientRegistrationRepository or not a login registration, using default", registrationId);
 				return getDefaultRegistrationId();
 			}
 		} catch (Exception e) {
@@ -119,10 +121,24 @@ public class OAuth2UrlService {
 			return defaultRegistrationId;
 		}
 
-		// Get first client registration if available
-		if (clientRegistrationRepository != null && clientRegistrationRepository instanceof InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository) {
-			return inMemoryClientRegistrationRepository.iterator().next().getRegistrationId();
+		// Get first login client registration if available
+		if (clientRegistrationRepository instanceof InMemoryClientRegistrationRepository inMemoryClientRegistrationRepository) {
+			return StreamSupport.stream(inMemoryClientRegistrationRepository.spliterator(), false)
+					.filter(OAuth2UrlService::isLoginRegistration)
+					.map(ClientRegistration::getRegistrationId)
+					.findFirst()
+					.orElseThrow(() -> new IllegalStateException("No OAuth2 login client registrations found"));
 		} else
 			throw new IllegalStateException("No OAuth2 client registrations found");
+	}
+
+	/**
+	 * Only authorization_code registrations are login options: client_credentials ones (e.g. email servers) are not
+	 *
+	 * @param clientRegistration Client registration
+	 * @return Registration can be used to log in
+	 */
+	private static boolean isLoginRegistration(ClientRegistration clientRegistration) {
+		return clientRegistration != null && AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType());
 	}
 }

@@ -1,22 +1,13 @@
 package com.almis.awe.scheduler.log;
 
-import com.almis.awe.builder.client.FilterActionBuilder;
-import com.almis.awe.builder.client.SelectActionBuilder;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.scheduler.enums.ExecutionLogOrigin;
-import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,17 +15,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.almis.awe.model.constant.AweConstants.JSON_ICON_PARAMETER;
-import static com.almis.awe.model.constant.AweConstants.JSON_LABEL_PARAMETER;
-import static com.almis.awe.model.constant.AweConstants.JSON_STYLE_PARAMETER;
-import static com.almis.awe.model.constant.AweConstants.JSON_TITLE_PARAMETER;
-import static com.almis.awe.model.constant.AweConstants.JSON_VALUE_PARAMETER;
 import static com.almis.awe.scheduler.constant.TaskConstants.TASK_SEPARATOR;
 
 /**
- * On-disk {@link ExecutionLogStore} adapter. Pure extraction of the pre-existing execution log
- * logic from {@code TaskDAO}: every method reproduces the current behavior verbatim, so file mode
- * stays byte-for-byte unchanged.
+ * On-disk {@link ExecutionLogStore} adapter. The log viewer reads these files through the scheduler
+ * {@code get-execution-log} action by task and execution id ({@link #read(ExecutionKey, int, String)}),
+ * so no file path is ever sent to or accepted from the client.
  */
 @Slf4j
 public class FileExecutionLogStore implements ExecutionLogStore {
@@ -79,7 +65,7 @@ public class FileExecutionLogStore implements ExecutionLogStore {
 
     List<String> content = new ArrayList<>();
     int totalLines = 0;
-    try (BufferedReader reader = Files.newBufferedReader(logFilePath, StandardCharsets.UTF_8)) {
+    try (BufferedReader reader = Files.newBufferedReader(logFilePath)) {
       String lineString;
       while ((lineString = reader.readLine()) != null) {
         if (offset <= totalLines) {
@@ -88,29 +74,10 @@ public class FileExecutionLogStore implements ExecutionLogStore {
         totalLines++;
       }
     } catch (IOException exc) {
-      throw new AWException("Error reading execution log file: " + logFilePath, exc);
+      throw new AWException("Error reading the log of task " + key.taskId() + " and execution " + key.executionId(), exc);
     }
 
     return new ExecutionLogPage(content, false, totalLines, 0L);
-  }
-
-  @Override
-  public ObjectNode locatorNode(ExecutionKey key) throws AWException {
-    Path executionLogFilePath = getExecutionLogFilePath(key.taskId(), key.executionId());
-    ObjectNode logFileNode = JsonNodeFactory.instance.objectNode();
-    logFileNode.put(JSON_VALUE_PARAMETER, EncodeService.encodeSymmetric(executionLogFilePath.toString()));
-    logFileNode.put(JSON_STYLE_PARAMETER, "no-btn");
-    logFileNode.put(JSON_TITLE_PARAMETER, "SCHEDULER_SHOW_EXECUTION_LOG");
-    logFileNode.put(JSON_ICON_PARAMETER, "file-text-o text-info");
-    logFileNode.put(JSON_LABEL_PARAMETER, "");
-    return logFileNode;
-  }
-
-  @Override
-  public void applyViewerSelection(String locatorValue, ExecutionKey key, ServiceData serviceData) {
-    serviceData.addClientAction(new ClientAction("reset").setTarget("executionLogViewer").setSilent(true));
-    serviceData.addClientAction(new SelectActionBuilder("path", locatorValue).setSilent(true).build());
-    serviceData.addClientAction(new FilterActionBuilder("executionLogViewer").setSilent(true).build());
   }
 
   @Override
@@ -134,7 +101,7 @@ public class FileExecutionLogStore implements ExecutionLogStore {
       .map(key -> "execution_" + key.taskId() + TASK_SEPARATOR + key.executionId() + ".log")
       .collect(Collectors.toSet());
 
-    Path logPath = Paths.get(executionLogPath);
+    Path logPath = Path.of(executionLogPath);
     if (logPath.toFile().exists()) {
       try (Stream<Path> pathStream = Files.list(logPath)) {
         pathStream.forEach(path -> {
@@ -161,6 +128,6 @@ public class FileExecutionLogStore implements ExecutionLogStore {
    * @return Log file path
    */
   private Path getExecutionLogFilePath(Integer taskId, Integer executionId) {
-    return Paths.get(executionLogPath, "execution_" + taskId + TASK_SEPARATOR + executionId + ".log");
+    return Path.of(executionLogPath, "execution_" + taskId + TASK_SEPARATOR + executionId + ".log");
   }
 }

@@ -6,10 +6,10 @@ import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.DateUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
 
@@ -75,10 +75,27 @@ abstract class AbstractServiceConnector extends ServiceConfig implements Service
         paramsToInvoke[index] = getParameterListValue(parameter, paramsMapFromRequest);
         paramsClassesToInvoke[index] = List.class;
       } else {
-        paramsToInvoke[index] = getParameterValue(parameter, paramsMapFromRequest.get(parameter.getName()));
-        paramsClassesToInvoke[index] = getParameterClass(parameter);
+        Class parameterClass = getParameterClass(parameter);
+        paramsToInvoke[index] = getParameterValue(parameter, getSingleValue(parameterClass, paramsMapFromRequest.get(parameter.getName())));
+        paramsClassesToInvoke[index] = parameterClass;
       }
     }
+  }
+
+  /**
+   * Value of a single-value parameter: a list of one value (i.e. the selected row of a grid column with the same name,
+   * sent by the screen that navigates to this one) is that value, and an empty list is no value. A list of several
+   * values, or a parameter that accepts a list, keeps the value as it comes
+   *
+   * @param parameterClass Parameter class
+   * @param value          Value from the request
+   * @return Value to convert
+   */
+  private Object getSingleValue(Class parameterClass, Object value) {
+    if (value instanceof Collection<?> values && !parameterClass.isInstance(value) && values.size() <= 1) {
+      return values.isEmpty() ? null : values.iterator().next();
+    }
+    return value;
   }
 
   /**

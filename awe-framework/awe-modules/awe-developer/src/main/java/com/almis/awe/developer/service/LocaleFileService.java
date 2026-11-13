@@ -12,12 +12,11 @@ import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
 import com.thoughtworks.xstream.io.xml.PrettyPrintWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +43,6 @@ public class LocaleFileService extends ServiceConfig {
    * @param serializer           Serializer
    * @param baseConfigProperties Base config properties
    */
-  @Autowired
   public LocaleFileService(PathService pathService, XStreamSerializer serializer, BaseConfigProperties baseConfigProperties) {
     this.pathService = pathService;
     this.serializer = serializer;
@@ -69,7 +67,7 @@ public class LocaleFileService extends ServiceConfig {
   public Locales readLocalesFromFile(String codeLang) throws AWException {
 
     String fileName = baseConfigProperties.getFiles().getLocale() + codeLang;
-    File xmlFile = Paths.get(pathService.getPath(),fileName + baseConfigProperties.getExtensionXml()).toFile();
+    File xmlFile = Path.of(pathService.getPath(),fileName + baseConfigProperties.getExtensionXml()).toFile();
     return (Locales) readXmlFile(xmlFile);
   }
 
@@ -107,7 +105,7 @@ public class LocaleFileService extends ServiceConfig {
     String fileName = baseConfigProperties.getFiles().getLocale() + codeLang;
     XStream xstream;
     // Define XML file
-    File xmlFile = Paths.get(pathService.getPath(), fileName + baseConfigProperties.getExtensionXml()).toFile();
+    File xmlFile = Path.of(pathService.getPath(), fileName + baseConfigProperties.getExtensionXml()).toFile();
 
     try (FileOutputStream fileOutputStream = new FileOutputStream(xmlFile)) {
       // Retrieve xstream serializer

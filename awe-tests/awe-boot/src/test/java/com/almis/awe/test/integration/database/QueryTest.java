@@ -3,9 +3,7 @@ package com.almis.awe.test.integration.database;
 import com.almis.awe.component.AweDatabaseContextHolder;
 import com.almis.awe.service.EncodeService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.almis.awe.test.integration.util.WallClockTime;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,12 +16,17 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
-import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -176,7 +179,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       assertEquals(12, component.get("Cnt").asInt());
       assertEquals(3, component.get("CntDst").asInt());
       assertEquals(60, component.get("Min").asInt());
-      assertEquals("as as  daef", component.get("Trim").asText());
+      assertEquals("as as  daef", component.get("Trim").asString());
       assertEquals(4, component.get("StrLength").asInt());
       logger.debug(component.toString());
     }
@@ -810,11 +813,11 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultJson(queryName, result, 1);
     for (JsonNode element : rows) {
       ObjectNode row = (ObjectNode) element;
-      assertEquals("World", row.get("substringResult").asText(),
+      assertEquals("World", row.get("substringResult").asString(),
         "SUBSTRING('Hello World', 6, 11) should return 'World'");
-      assertEquals("te", row.get("substringShort").asText(),
+      assertEquals("te", row.get("substringShort").asString(),
         "SUBSTRING('test', 0, 2) should return 'te'");
-      assertEquals("test", row.get("name").asText());
+      assertEquals("test", row.get("name").asString());
     }
   }
 
@@ -831,9 +834,9 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultJson(queryName, result, 1);
     for (JsonNode element : rows) {
       ObjectNode row = (ObjectNode) element;
-      assertEquals("World", row.get("substringFromIndex").asText(),
+      assertEquals("World", row.get("substringFromIndex").asString(),
         "SUBSTRING('Hello World', 6) should return 'World'");
-      assertEquals("test", row.get("name").asText());
+      assertEquals("test", row.get("name").asString());
     }
   }
 
@@ -918,7 +921,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -929,7 +932,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(5, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -955,7 +958,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -966,7 +969,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(30, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -992,7 +995,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -1003,7 +1006,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(10, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -1029,7 +1032,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -1040,7 +1043,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(10, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -1216,8 +1219,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     testDatabaseRequest(
       "CrtTstDat",
       "",
-      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":4,\"rows\":[{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123}]}}},{\"type\":\"end-load\"}]",
-      4);
+      "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":6,\"rows\":[{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123},{\"TxtRea\":1000000.12123}]}}},{\"type\":\"end-load\"}]",
+      6);
   }
 
   /**
@@ -1548,7 +1551,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private void assertQueryResultJson(String queryName, String result, int expectedRows) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -1559,7 +1562,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(expectedRows, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -1737,8 +1740,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ObjectNode expectedRow2 = (ObjectNode) expectedRows.get(4);
     ObjectNode resultRow2 = (ObjectNode) resultRows.get(0);
 
-    assert (Math.abs(expectedRow1.get("fecha").asLong() - resultRow1.get("fecha").asLong()) < 7200001);
-    assert (Math.abs(expectedRow2.get("fecha").asLong() - resultRow2.get("fecha").asLong()) < 7200001);
+    assertTrue(Math.abs(expectedRow1.get("fecha").asLong() - resultRow1.get("fecha").asLong()) < 7200001);
+    assertTrue(Math.abs(expectedRow2.get("fecha").asLong() - resultRow2.get("fecha").asLong()) < 7200001);
   }
 
   /**
@@ -1772,8 +1775,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ObjectNode expectedRow2 = (ObjectNode) expectedRows.get(4);
     ObjectNode resultRow2 = (ObjectNode) resultRows.get(4);
 
-    assertEquals(expectedRow1.get("fecha").textValue().toUpperCase(), resultRow1.get("fecha").textValue().toUpperCase());
-    assertEquals(expectedRow2.get("fecha").textValue().toUpperCase(), resultRow2.get("fecha").textValue().toUpperCase());
+    assertEquals(expectedRow1.get("fecha").stringValue().toUpperCase(), resultRow1.get("fecha").stringValue().toUpperCase());
+    assertEquals(expectedRow2.get("fecha").stringValue().toUpperCase(), resultRow2.get("fecha").stringValue().toUpperCase());
   }
 
   /**
@@ -2211,7 +2214,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseSortOneFieldAsc() throws Exception {
     String queryName = "SortGetAll";
-    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"}]},";
+    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"}]";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"site\":10,\"database\":6,\"module\":916,\"id\":2580,\"order\":1},{\"site\":10,\"database\":6,\"module\":28,\"id\":75,\"order\":1},{\"site\":17,\"database\":7,\"module\":916,\"id\":2579,\"order\":1},{\"site\":17,\"database\":7,\"module\":28,\"id\":60,\"order\":1},{\"site\":10,\"database\":8,\"module\":916,\"id\":2582,\"order\":2},{\"site\":10,\"database\":8,\"module\":28,\"id\":76,\"order\":2},{\"site\":17,\"database\":15,\"module\":916,\"id\":2581,\"order\":2},{\"site\":17,\"database\":15,\"module\":28,\"id\":78,\"order\":2},{\"site\":10,\"database\":9,\"module\":916,\"id\":2584,\"order\":3},{\"site\":10,\"database\":9,\"module\":28,\"id\":77,\"order\":3},{\"site\":17,\"database\":16,\"module\":916,\"id\":2583,\"order\":3},{\"site\":17,\"database\":16,\"module\":28,\"id\":79,\"order\":3}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2226,7 +2229,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseSortOneFieldDesc() throws Exception {
     String queryName = "SortGetAll";
-    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"desc\"}]},";
+    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"desc\"}]";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"site\":10,\"database\":9,\"module\":916,\"id\":2584,\"order\":3},{\"site\":10,\"database\":9,\"module\":28,\"id\":77,\"order\":3},{\"site\":17,\"database\":16,\"module\":916,\"id\":2583,\"order\":3},{\"site\":17,\"database\":16,\"module\":28,\"id\":79,\"order\":3},{\"site\":10,\"database\":8,\"module\":916,\"id\":2582,\"order\":2},{\"site\":10,\"database\":8,\"module\":28,\"id\":76,\"order\":2},{\"site\":17,\"database\":15,\"module\":916,\"id\":2581,\"order\":2},{\"site\":17,\"database\":15,\"module\":28,\"id\":78,\"order\":2},{\"site\":10,\"database\":6,\"module\":28,\"id\":75,\"order\":1},{\"site\":10,\"database\":6,\"module\":916,\"id\":2580,\"order\":1},{\"site\":17,\"database\":7,\"module\":916,\"id\":2579,\"order\":1},{\"site\":17,\"database\":7,\"module\":28,\"id\":60,\"order\":1}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2241,7 +2244,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseSortTwoFieldsAscDesc() throws Exception {
     String queryName = "SortGetAll";
-    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"},{\"id\":\"module\",\"direction\":\"desc\"}]},";
+    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"},{\"id\":\"module\",\"direction\":\"desc\"}]";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"site\":10,\"database\":6,\"module\":916,\"id\":2580,\"order\":1},{\"site\":17,\"database\":7,\"module\":916,\"id\":2579,\"order\":1},{\"site\":10,\"database\":6,\"module\":28,\"id\":75,\"order\":1},{\"site\":17,\"database\":7,\"module\":28,\"id\":60,\"order\":1},{\"site\":10,\"database\":8,\"module\":916,\"id\":2582,\"order\":2},{\"site\":17,\"database\":15,\"module\":916,\"id\":2581,\"order\":2},{\"site\":10,\"database\":8,\"module\":28,\"id\":76,\"order\":2},{\"site\":17,\"database\":15,\"module\":28,\"id\":78,\"order\":2},{\"site\":10,\"database\":9,\"module\":916,\"id\":2584,\"order\":3},{\"site\":17,\"database\":16,\"module\":916,\"id\":2583,\"order\":3},{\"site\":10,\"database\":9,\"module\":28,\"id\":77,\"order\":3},{\"site\":17,\"database\":16,\"module\":28,\"id\":79,\"order\":3}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2256,7 +2259,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseSortTwoFieldsDescDesc() throws Exception {
     String queryName = "SortGetAll";
-    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"desc\"},{\"id\":\"module\",\"direction\":\"desc\"}]},";
+    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"desc\"},{\"id\":\"module\",\"direction\":\"desc\"}]";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"site\":10,\"database\":9,\"module\":916,\"id\":2584,\"order\":3},{\"site\":17,\"database\":16,\"module\":916,\"id\":2583,\"order\":3},{\"site\":10,\"database\":9,\"module\":28,\"id\":77,\"order\":3},{\"site\":17,\"database\":16,\"module\":28,\"id\":79,\"order\":3},{\"site\":10,\"database\":8,\"module\":916,\"id\":2582,\"order\":2},{\"site\":17,\"database\":15,\"module\":916,\"id\":2581,\"order\":2},{\"site\":10,\"database\":8,\"module\":28,\"id\":76,\"order\":2},{\"site\":17,\"database\":15,\"module\":28,\"id\":78,\"order\":2},{\"site\":10,\"database\":6,\"module\":916,\"id\":2580,\"order\":1},{\"site\":17,\"database\":7,\"module\":916,\"id\":2579,\"order\":1},{\"site\":10,\"database\":6,\"module\":28,\"id\":75,\"order\":1},{\"site\":17,\"database\":7,\"module\":28,\"id\":60,\"order\":1}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2271,7 +2274,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   @Test
   void testDatabaseSortThreeFieldsAscDescDesc() throws Exception {
     String queryName = "SortGetAll";
-    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"},{\"id\":\"database\",\"direction\":\"desc\"},{\"id\":\"module\",\"direction\":\"desc\"}]},";
+    String variables = "\"sort\":[{\"id\":\"order\",\"direction\":\"asc\"},{\"id\":\"database\",\"direction\":\"desc\"},{\"id\":\"module\",\"direction\":\"desc\"}]";
     String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":12,\"rows\":[{\"site\":17,\"database\":7,\"module\":916,\"id\":2579,\"order\":1},{\"site\":17,\"database\":7,\"module\":28,\"id\":60,\"order\":1},{\"site\":10,\"database\":6,\"module\":916,\"id\":2580,\"order\":1},{\"site\":10,\"database\":6,\"module\":28,\"id\":75,\"order\":1},{\"site\":17,\"database\":15,\"module\":916,\"id\":2581,\"order\":2},{\"site\":17,\"database\":15,\"module\":28,\"id\":78,\"order\":2},{\"site\":10,\"database\":8,\"module\":916,\"id\":2582,\"order\":2},{\"site\":10,\"database\":8,\"module\":28,\"id\":76,\"order\":2},{\"site\":17,\"database\":16,\"module\":916,\"id\":2583,\"order\":3},{\"site\":17,\"database\":16,\"module\":28,\"id\":79,\"order\":3},{\"site\":10,\"database\":9,\"module\":916,\"id\":2584,\"order\":3},{\"site\":10,\"database\":9,\"module\":28,\"id\":77,\"order\":3}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
@@ -2294,7 +2297,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private ArrayNode assertResultVariablesJson(String queryName, String result, int expectedRows) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -2305,7 +2308,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(expectedRows, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     // Test all keys
     for (JsonNode element : dataListRows) {
@@ -2344,7 +2347,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
     ObjectNode row = (ObjectNode) rows.get(0);
 
-    assertEquals("", row.get("string").asText());
+    assertEquals("", row.get("string").asString());
     assertTrue(row.get("stringN").isNull());
   }
 
@@ -2357,8 +2360,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
     ObjectNode row = (ObjectNode) rows.get(0);
 
-    assertEquals("", row.get("string").asText());
-    assertEquals("", row.get("stringN").asText());
+    assertEquals("", row.get("string").asString());
+    assertEquals("", row.get("stringN").asString());
   }
 
   @Test
@@ -2415,8 +2418,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultVariablesJson(queryName, result, 1);
     ObjectNode row = (ObjectNode) rows.get(0);
 
-    assertEquals("22/10/3100", row.get("dateValue").asText());
-    assertEquals("23/10/1978 15:03:01", row.get("timestampValue").asText());
+    assertEquals("22/10/3100", row.get("dateValue").asString());
+    assertEquals("23/10/1978 15:03:01", row.get("timestampValue").asString());
   }
 
   @Test
@@ -2512,24 +2515,24 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
     // Retrieve output values
     ObjectNode firstRow = (ObjectNode) data.get(0);
-    String date = firstRow.get("date").asText();
-    String time = firstRow.get("time").asText();
-    String timestamp = firstRow.get("timestamp").asText();
+    String date = firstRow.get("date").asString();
+    String time = firstRow.get("time").asString();
+    String timestamp = firstRow.get("timestamp").asString();
 
-    // Check current date vs retrieved date
-    Date currentDate = new Date();
-    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss");
-    Date parsedDate = sdf.parse(date + " " + time);
-    logger.debug("Retrieved date: " + parsedDate.toString() + " - Current date: " + currentDate);
-    logger.debug("Difference between dates: " + (currentDate.getTime() - parsedDate.getTime()));
+    // Check current date vs retrieved date. The values are wall-clock times without offset: read them as their earliest
+    // instant, so the repeated hour when summer time ends is not taken as one hour in the future
+    Instant currentDate = Instant.now();
+    ZoneId zone = ZoneId.systemDefault();
+    Instant parsedDate = WallClockTime.earliestInstant(WallClockTime.parse(date, time), zone);
+    logger.debug("Retrieved date: " + parsedDate + " - Current date: " + currentDate);
+    logger.debug("Difference between dates: " + Duration.between(parsedDate, currentDate).toMillis());
 
-    sdf = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss.SSS");
-    Date parsedTimestamp = sdf.parse(timestamp);
-    logger.debug("Difference between timestamp: " + (currentDate.getTime() - parsedTimestamp.getTime()));
+    Instant parsedTimestamp = WallClockTime.earliestInstant(WallClockTime.parseTimestamp(timestamp), zone);
+    logger.debug("Difference between timestamp: " + Duration.between(parsedTimestamp, currentDate).toMillis());
 
-    // Check that the difference is less than a second
-    assertTrue(parsedDate.getTime() - currentDate.getTime() < 1000);
-    assertTrue(parsedTimestamp.getTime() - currentDate.getTime() < 1000);
+    // Check that the retrieved values are not later than now (less than a second ahead)
+    assertTrue(Duration.between(currentDate, parsedDate).toMillis() < 1000);
+    assertTrue(Duration.between(currentDate, parsedTimestamp).toMillis() < 1000);
   }
 
   /**
@@ -2683,7 +2686,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     ArrayNode rows = assertResultVariablesJson(queryName, result, 2);
 
     Set<String> actualNames = StreamSupport.stream(rows.spliterator(), false)
-      .map(row -> row.get("l1_nom").asText())
+      .map(row -> row.get("l1_nom").asString())
       .collect(Collectors.toSet());
 
     assertEquals(Set.of("test", "jorgito"), actualNames);
@@ -2746,7 +2749,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private ArrayNode assertResultServiceJson(String queryName, String result, int expectedRows, int page, int totalPages, int records) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -2757,7 +2760,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(expectedRows, dataListRows.size());
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     logger.debug("--------------------------------------------------------------------------------------");
     logger.debug("There are " + dataListRows.size() + " rows as a result of launching query " + queryName);
@@ -2773,15 +2776,15 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private void assertQueryErrorMessage(String result, String expectedTitle, String expectedMessageFragment) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode endLoad = (ObjectNode) resultList.get(0);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     ObjectNode messageAction = (ObjectNode) resultList.get(1);
-    assertEquals("message", messageAction.get("type").textValue());
+    assertEquals("message", messageAction.get("type").stringValue());
 
     ObjectNode parameters = (ObjectNode) messageAction.get("parameters");
-    assertEquals("error", parameters.get("type").asText());
-    assertEquals(expectedTitle, parameters.get("title").asText());
-    assertTrue(parameters.get("message").asText().contains(expectedMessageFragment));
+    assertEquals("error", parameters.get("type").asString());
+    assertEquals(expectedTitle, parameters.get("title").asString());
+    assertTrue(parameters.get("message").asString().contains(expectedMessageFragment));
   }
 
   /**
@@ -3161,13 +3164,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(5, screenDataComponents.size());
-    assertEquals("TestInitialLoad", screenData.get("screen").get("name").textValue());
-    assertEquals("test-initial-load", screenData.get("screen").get("option").textValue());
+    assertEquals("TestInitialLoad", screenData.get("screen").get("name").stringValue());
+    assertEquals("test-initial-load", screenData.get("screen").get("option").stringValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
       ObjectNode component = (ObjectNode) element;
-      String key = component.get("id").asText();
+      String key = component.get("id").asString();
       logger.debug(key + ": " + component.get("model").get("selected").toString());
     }
 
@@ -3201,13 +3204,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(9, screenDataComponents.size());
-    assertEquals("TestInitialValues", screenData.get("screen").get("name").textValue());
-    assertEquals("test-initial-values", screenData.get("screen").get("option").textValue());
+    assertEquals("TestInitialValues", screenData.get("screen").get("name").stringValue());
+    assertEquals("test-initial-values", screenData.get("screen").get("option").stringValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
       ObjectNode component = (ObjectNode) element;
-      String key = component.get("id").asText();
+      String key = component.get("id").asString();
       logger.debug(key + ": " + component.get("model").get("selected").toString());
     }
 
@@ -3241,13 +3244,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(9, screenDataComponents.size());
-    assertEquals("TestInitialValues", screenData.get("screen").get("name").textValue());
-    assertEquals("test-initial-values", screenData.get("screen").get("option").textValue());
+    assertEquals("TestInitialValues", screenData.get("screen").get("name").stringValue());
+    assertEquals("test-initial-values", screenData.get("screen").get("option").stringValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
       ObjectNode component = (ObjectNode) element;
-      String key = component.get("id").asText();
+      String key = component.get("id").asString();
       logger.debug(key + ": " + component.get("model").get("selected").toString());
     }
 
@@ -3280,23 +3283,23 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(10, screenDataComponents.size());
-    assertEquals("TestInitialValuesLoad", screenData.get("screen").get("name").textValue());
-    assertEquals("test-initial-values-load", screenData.get("screen").get("option").textValue());
+    assertEquals("TestInitialValuesLoad", screenData.get("screen").get("name").stringValue());
+    assertEquals("test-initial-values-load", screenData.get("screen").get("option").stringValue());
 
     ObjectNode hydratedSuggest = findScreenComponent(screenDataComponents, "ComponentSuggestCheckInitial");
-    assertEquals("3", hydratedSuggest.get("model").get("selected").get(0).asText());
+    assertEquals("3", hydratedSuggest.get("model").get("selected").get(0).asString());
     assertEquals(1, hydratedSuggest.get("model").get("values").size());
-    assertEquals("3", hydratedSuggest.get("model").get("values").get(0).get("value").asText());
-    assertTrue(!hydratedSuggest.get("model").get("values").get(0).get("label").asText().isBlank());
+    assertEquals("3", hydratedSuggest.get("model").get("values").get(0).get("value").asString());
+    assertTrue(!hydratedSuggest.get("model").get("values").get(0).get("label").asString().isBlank());
 
     ObjectNode unresolvedSuggest = findScreenComponent(screenDataComponents, "ComponentSuggestCheckInitialMissing");
-    assertEquals("999", unresolvedSuggest.get("model").get("selected").get(0).asText());
+    assertEquals("999", unresolvedSuggest.get("model").get("selected").get(0).asString());
     assertEquals(0, unresolvedSuggest.get("model").get("values").size());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
       ObjectNode component = (ObjectNode) element;
-      String key = component.get("id").asText();
+      String key = component.get("id").asString();
       logger.debug(key + ": " + component.get("model").get("selected").toString());
     }
 
@@ -3308,7 +3311,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   private ObjectNode findScreenComponent(ArrayNode screenDataComponents, String componentId) {
     return StreamSupport.stream(screenDataComponents.spliterator(), false)
       .map(ObjectNode.class::cast)
-      .filter(component -> componentId.equals(component.get("id").asText()))
+      .filter(component -> componentId.equals(component.get("id").asString()))
       .findFirst()
       .orElseThrow(() -> new AssertionError("Missing component " + componentId));
   }
@@ -3338,13 +3341,13 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
     assertEquals(27, screenDataComponents.size());
-    assertEquals("GrdChrPrn", screenData.get("screen").get("name").textValue());
-    assertEquals("grid-and-chart", screenData.get("screen").get("option").textValue());
+    assertEquals("GrdChrPrn", screenData.get("screen").get("name").stringValue());
+    assertEquals("grid-and-chart", screenData.get("screen").get("option").stringValue());
 
     // Test all keys
     for (JsonNode element : screenDataComponents) {
       ObjectNode component = (ObjectNode) element;
-      String key = component.get("id").asText();
+      String key = component.get("id").asString();
       logger.debug(key + ": " + component.get("model").get("selected").toString());
     }
 
@@ -3394,10 +3397,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseLongerEnum() throws Exception {
     String queryName = "LongerEnum";
     String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":2,\"page\":1,\"records\":58,\"rows\":[{\"id\":1,\"value\":\"required\",\"label\":\"ENUM_SCR_ATR_REQUIRED\"},{\"id\":2,\"value\":\"validation\",\"label\":\"ENUM_SCR_ATR_VALIDATION\"},{\"id\":3,\"value\":\"style\",\"label\":\"ENUM_SCR_ATR_STYLE\"},{\"id\":4,\"value\":\"label\",\"label\":\"ENUM_SCR_ATR_LABEL\"},{\"id\":5,\"value\":\"value\",\"label\":\"ENUM_SCR_ATR_VALUE\"},{\"id\":6,\"value\":\"session\",\"label\":\"ENUM_SCR_ATR_SESSION\"},{\"id\":7,\"value\":\"variable\",\"label\":\"ENUM_SCR_ATR_VARIABLE\"},{\"id\":8,\"value\":\"componentType\",\"label\":\"ENUM_SCR_ATR_COMPONENT\"},{\"id\":9,\"value\":\"initialLoad\",\"label\":\"ENUM_SCR_ATR_INITLOAD\"},{\"id\":10,\"value\":\"format\",\"label\":\"ENUM_SCR_ATR_FORMAT\"},{\"id\":11,\"value\":\"numberFormat\",\"label\":\"ENUM_SCR_ATR_NUMFORMAT\"},{\"id\":12,\"value\":\"capitalize\",\"label\":\"ENUM_SCR_ATR_CAPITALIZE\"},{\"id\":13,\"value\":\"visible\",\"label\":\"ENUM_SCR_ATR_VISIBLE\"},{\"id\":14,\"value\":\"readonly\",\"label\":\"ENUM_SCR_ATR_READONLY\"},{\"id\":15,\"value\":\"checked\",\"label\":\"ENUM_SCR_ATR_CHECKED\"},{\"id\":16,\"value\":\"strict\",\"label\":\"ENUM_SCR_ATR_STRICT\"},{\"id\":17,\"value\":\"serverAction\",\"label\":\"ENUM_SCR_ATR_SERVERACTION\"},{\"id\":18,\"value\":\"targetAction\",\"label\":\"ENUM_SCR_ATR_TARGETACTION\"},{\"id\":19,\"value\":\"message\",\"label\":\"ENUM_SCR_ATR_MESSAGE\"},{\"id\":20,\"value\":\"formule\",\"label\":\"ENUM_SCR_ATR_FORMULE\"},{\"id\":21,\"value\":\"optional\",\"label\":\"ENUM_SCR_ATR_OPTIONAL\"},{\"id\":22,\"value\":\"max\",\"label\":\"ENUM_SCR_ATR_MAX\"},{\"id\":23,\"value\":\"movable\",\"label\":\"ENUM_SCR_ATR_MOVABLE\"},{\"id\":24,\"value\":\"printable\",\"label\":\"ENUM_SCR_ATR_PRINTABLE\"},{\"id\":25,\"value\":\"unit\",\"label\":\"ENUM_SCR_ATR_UNIT\"},{\"id\":26,\"value\":\"checkEmpty\",\"label\":\"ENUM_SCR_ATR_CHECKEMPTY\"},{\"id\":27,\"value\":\"checkInitial\",\"label\":\"ENUM_SCR_ATR_CHECKINITIAL\"},{\"id\":28,\"value\":\"checkTarget\",\"label\":\"ENUM_SCR_ATR_CHECKTARGET\"},{\"id\":29,\"value\":\"specific\",\"label\":\"ENUM_SCR_ATR_SPECIFIC\"},{\"id\":30,\"value\":\"timeout\",\"label\":\"ENUM_SCR_ATR_TIMEOUT\"}]}}},{\"type\":\"end-load\"}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":3,\"page\":1,\"records\":88,\"rows\":[{\"id\":1,\"value\":\"required\",\"label\":\"ENUM_SCR_ATR_REQUIRED\"},{\"id\":2,\"value\":\"validation\",\"label\":\"ENUM_SCR_ATR_VALIDATION\"},{\"id\":3,\"value\":\"style\",\"label\":\"ENUM_SCR_ATR_STYLE\"},{\"id\":4,\"value\":\"label\",\"label\":\"ENUM_SCR_ATR_LABEL\"},{\"id\":5,\"value\":\"value\",\"label\":\"ENUM_SCR_ATR_VALUE\"},{\"id\":6,\"value\":\"session\",\"label\":\"ENUM_SCR_ATR_SESSION\"},{\"id\":7,\"value\":\"variable\",\"label\":\"ENUM_SCR_ATR_VARIABLE\"},{\"id\":8,\"value\":\"componentType\",\"label\":\"ENUM_SCR_ATR_COMPONENT\"},{\"id\":9,\"value\":\"initialLoad\",\"label\":\"ENUM_SCR_ATR_INITLOAD\"},{\"id\":10,\"value\":\"numberFormat\",\"label\":\"ENUM_SCR_ATR_NUMFORMAT\"},{\"id\":11,\"value\":\"capitalize\",\"label\":\"ENUM_SCR_ATR_CAPITALIZE\"},{\"id\":12,\"value\":\"visible\",\"label\":\"ENUM_SCR_ATR_VISIBLE\"},{\"id\":13,\"value\":\"readonly\",\"label\":\"ENUM_SCR_ATR_READONLY\"},{\"id\":14,\"value\":\"checked\",\"label\":\"ENUM_SCR_ATR_CHECKED\"},{\"id\":15,\"value\":\"strict\",\"label\":\"ENUM_SCR_ATR_STRICT\"},{\"id\":16,\"value\":\"serverAction\",\"label\":\"ENUM_SCR_ATR_SERVERACTION\"},{\"id\":17,\"value\":\"targetAction\",\"label\":\"ENUM_SCR_ATR_TARGETACTION\"},{\"id\":18,\"value\":\"message\",\"label\":\"ENUM_SCR_ATR_MESSAGE\"},{\"id\":19,\"value\":\"formule\",\"label\":\"ENUM_SCR_ATR_FORMULE\"},{\"id\":20,\"value\":\"optional\",\"label\":\"ENUM_SCR_ATR_OPTIONAL\"},{\"id\":21,\"value\":\"max\",\"label\":\"ENUM_SCR_ATR_MAX\"},{\"id\":22,\"value\":\"movable\",\"label\":\"ENUM_SCR_ATR_MOVABLE\"},{\"id\":23,\"value\":\"printable\",\"label\":\"ENUM_SCR_ATR_PRINTABLE\"},{\"id\":24,\"value\":\"unit\",\"label\":\"ENUM_SCR_ATR_UNIT\"},{\"id\":25,\"value\":\"checkEmpty\",\"label\":\"ENUM_SCR_ATR_CHECKEMPTY\"},{\"id\":26,\"value\":\"checkInitial\",\"label\":\"ENUM_SCR_ATR_CHECKINITIAL\"},{\"id\":27,\"value\":\"checkTarget\",\"label\":\"ENUM_SCR_ATR_CHECKTARGET\"},{\"id\":28,\"value\":\"specific\",\"label\":\"ENUM_SCR_ATR_SPECIFIC\"},{\"id\":29,\"value\":\"timeout\",\"label\":\"ENUM_SCR_ATR_TIMEOUT\"},{\"id\":30,\"value\":\"field\",\"label\":\"ENUM_SCR_ATR_FIELD\"}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultServiceJson(queryName, result, 30, 1, 2, 58);
+    assertResultServiceJson(queryName, result, 30, 1, 3, 88);
   }
 
   /**
@@ -3409,10 +3412,10 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   void testDatabaseLongerPaginatedEnum() throws Exception {
     String queryName = "LongerEnum";
     String variables = "\"max\": 45, \"page\": 1";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":2,\"page\":1,\"records\":58,\"rows\":[{\"id\":1,\"value\":\"required\",\"label\":\"ENUM_SCR_ATR_REQUIRED\"},{\"id\":2,\"value\":\"validation\",\"label\":\"ENUM_SCR_ATR_VALIDATION\"},{\"id\":3,\"value\":\"style\",\"label\":\"ENUM_SCR_ATR_STYLE\"},{\"id\":4,\"value\":\"label\",\"label\":\"ENUM_SCR_ATR_LABEL\"},{\"id\":5,\"value\":\"value\",\"label\":\"ENUM_SCR_ATR_VALUE\"},{\"id\":6,\"value\":\"session\",\"label\":\"ENUM_SCR_ATR_SESSION\"},{\"id\":7,\"value\":\"variable\",\"label\":\"ENUM_SCR_ATR_VARIABLE\"},{\"id\":8,\"value\":\"componentType\",\"label\":\"ENUM_SCR_ATR_COMPONENT\"},{\"id\":9,\"value\":\"initialLoad\",\"label\":\"ENUM_SCR_ATR_INITLOAD\"},{\"id\":10,\"value\":\"format\",\"label\":\"ENUM_SCR_ATR_FORMAT\"},{\"id\":11,\"value\":\"numberFormat\",\"label\":\"ENUM_SCR_ATR_NUMFORMAT\"},{\"id\":12,\"value\":\"capitalize\",\"label\":\"ENUM_SCR_ATR_CAPITALIZE\"},{\"id\":13,\"value\":\"visible\",\"label\":\"ENUM_SCR_ATR_VISIBLE\"},{\"id\":14,\"value\":\"readonly\",\"label\":\"ENUM_SCR_ATR_READONLY\"},{\"id\":15,\"value\":\"checked\",\"label\":\"ENUM_SCR_ATR_CHECKED\"},{\"id\":16,\"value\":\"strict\",\"label\":\"ENUM_SCR_ATR_STRICT\"},{\"id\":17,\"value\":\"serverAction\",\"label\":\"ENUM_SCR_ATR_SERVERACTION\"},{\"id\":18,\"value\":\"targetAction\",\"label\":\"ENUM_SCR_ATR_TARGETACTION\"},{\"id\":19,\"value\":\"message\",\"label\":\"ENUM_SCR_ATR_MESSAGE\"},{\"id\":20,\"value\":\"formule\",\"label\":\"ENUM_SCR_ATR_FORMULE\"},{\"id\":21,\"value\":\"optional\",\"label\":\"ENUM_SCR_ATR_OPTIONAL\"},{\"id\":22,\"value\":\"max\",\"label\":\"ENUM_SCR_ATR_MAX\"},{\"id\":23,\"value\":\"movable\",\"label\":\"ENUM_SCR_ATR_MOVABLE\"},{\"id\":24,\"value\":\"printable\",\"label\":\"ENUM_SCR_ATR_PRINTABLE\"},{\"id\":25,\"value\":\"unit\",\"label\":\"ENUM_SCR_ATR_UNIT\"},{\"id\":26,\"value\":\"checkEmpty\",\"label\":\"ENUM_SCR_ATR_CHECKEMPTY\"},{\"id\":27,\"value\":\"checkInitial\",\"label\":\"ENUM_SCR_ATR_CHECKINITIAL\"},{\"id\":28,\"value\":\"checkTarget\",\"label\":\"ENUM_SCR_ATR_CHECKTARGET\"},{\"id\":29,\"value\":\"specific\",\"label\":\"ENUM_SCR_ATR_SPECIFIC\"},{\"id\":30,\"value\":\"timeout\",\"label\":\"ENUM_SCR_ATR_TIMEOUT\"},{\"id\":31,\"value\":\"field\",\"label\":\"ENUM_SCR_ATR_FIELD\"},{\"id\":32,\"value\":\"width\",\"label\":\"ENUM_SCR_ATR_WIDTH\"},{\"id\":33,\"value\":\"charLength\",\"label\":\"ENUM_SCR_ATR_CHARLENGTH\"},{\"id\":34,\"value\":\"align\",\"label\":\"ENUM_SCR_ATR_ALIGN\"},{\"id\":35,\"value\":\"inputType\",\"label\":\"ENUM_SCR_ATR_INPUTTYPE\"},{\"id\":36,\"value\":\"sortable\",\"label\":\"ENUM_SCR_ATR_SORTABLE\"},{\"id\":37,\"value\":\"hidden\",\"label\":\"ENUM_SCR_ATR_HIDDEN\"},{\"id\":38,\"value\":\"sendable\",\"label\":\"ENUM_SCR_ATR_SENDABLE\"},{\"id\":39,\"value\":\"summaryType\",\"label\":\"ENUM_SCR_ATR_SUMMARYTYPE\"},{\"id\":40,\"value\":\"formatter\",\"label\":\"ENUM_SCR_ATR_FORMATTER\"},{\"id\":41,\"value\":\"formatOptions\",\"label\":\"ENUM_SCR_ATR_FORMATOPTIONS\"},{\"id\":42,\"value\":\"frozen\",\"label\":\"ENUM_SCR_ATR_FROZEN\"},{\"id\":43,\"value\":\"position\",\"label\":\"ENUM_SCR_ATR_POSITION\"},{\"id\":44,\"value\":\"autoload\",\"label\":\"ENUM_SCR_ATR_AUTOLOAD\"},{\"id\":45,\"value\":\"totalize\",\"label\":\"ENUM_SCR_ATR_TOTALIZE\"}]}}},{\"type\":\"end-load\"}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":2,\"page\":1,\"records\":88,\"rows\":[{\"id\":1,\"value\":\"required\",\"label\":\"ENUM_SCR_ATR_REQUIRED\"},{\"id\":2,\"value\":\"validation\",\"label\":\"ENUM_SCR_ATR_VALIDATION\"},{\"id\":3,\"value\":\"style\",\"label\":\"ENUM_SCR_ATR_STYLE\"},{\"id\":4,\"value\":\"label\",\"label\":\"ENUM_SCR_ATR_LABEL\"},{\"id\":5,\"value\":\"value\",\"label\":\"ENUM_SCR_ATR_VALUE\"},{\"id\":6,\"value\":\"session\",\"label\":\"ENUM_SCR_ATR_SESSION\"},{\"id\":7,\"value\":\"variable\",\"label\":\"ENUM_SCR_ATR_VARIABLE\"},{\"id\":8,\"value\":\"componentType\",\"label\":\"ENUM_SCR_ATR_COMPONENT\"},{\"id\":9,\"value\":\"initialLoad\",\"label\":\"ENUM_SCR_ATR_INITLOAD\"},{\"id\":10,\"value\":\"numberFormat\",\"label\":\"ENUM_SCR_ATR_NUMFORMAT\"},{\"id\":11,\"value\":\"capitalize\",\"label\":\"ENUM_SCR_ATR_CAPITALIZE\"},{\"id\":12,\"value\":\"visible\",\"label\":\"ENUM_SCR_ATR_VISIBLE\"},{\"id\":13,\"value\":\"readonly\",\"label\":\"ENUM_SCR_ATR_READONLY\"},{\"id\":14,\"value\":\"checked\",\"label\":\"ENUM_SCR_ATR_CHECKED\"},{\"id\":15,\"value\":\"strict\",\"label\":\"ENUM_SCR_ATR_STRICT\"},{\"id\":16,\"value\":\"serverAction\",\"label\":\"ENUM_SCR_ATR_SERVERACTION\"},{\"id\":17,\"value\":\"targetAction\",\"label\":\"ENUM_SCR_ATR_TARGETACTION\"},{\"id\":18,\"value\":\"message\",\"label\":\"ENUM_SCR_ATR_MESSAGE\"},{\"id\":19,\"value\":\"formule\",\"label\":\"ENUM_SCR_ATR_FORMULE\"},{\"id\":20,\"value\":\"optional\",\"label\":\"ENUM_SCR_ATR_OPTIONAL\"},{\"id\":21,\"value\":\"max\",\"label\":\"ENUM_SCR_ATR_MAX\"},{\"id\":22,\"value\":\"movable\",\"label\":\"ENUM_SCR_ATR_MOVABLE\"},{\"id\":23,\"value\":\"printable\",\"label\":\"ENUM_SCR_ATR_PRINTABLE\"},{\"id\":24,\"value\":\"unit\",\"label\":\"ENUM_SCR_ATR_UNIT\"},{\"id\":25,\"value\":\"checkEmpty\",\"label\":\"ENUM_SCR_ATR_CHECKEMPTY\"},{\"id\":26,\"value\":\"checkInitial\",\"label\":\"ENUM_SCR_ATR_CHECKINITIAL\"},{\"id\":27,\"value\":\"checkTarget\",\"label\":\"ENUM_SCR_ATR_CHECKTARGET\"},{\"id\":28,\"value\":\"specific\",\"label\":\"ENUM_SCR_ATR_SPECIFIC\"},{\"id\":29,\"value\":\"timeout\",\"label\":\"ENUM_SCR_ATR_TIMEOUT\"},{\"id\":30,\"value\":\"field\",\"label\":\"ENUM_SCR_ATR_FIELD\"},{\"id\":31,\"value\":\"width\",\"label\":\"ENUM_SCR_ATR_WIDTH\"},{\"id\":32,\"value\":\"charLength\",\"label\":\"ENUM_SCR_ATR_CHARLENGTH\"},{\"id\":33,\"value\":\"align\",\"label\":\"ENUM_SCR_ATR_ALIGN\"},{\"id\":34,\"value\":\"sortable\",\"label\":\"ENUM_SCR_ATR_SORTABLE\"},{\"id\":35,\"value\":\"hidden\",\"label\":\"ENUM_SCR_ATR_HIDDEN\"},{\"id\":36,\"value\":\"sendable\",\"label\":\"ENUM_SCR_ATR_SENDABLE\"},{\"id\":37,\"value\":\"summaryType\",\"label\":\"ENUM_SCR_ATR_SUMMARYTYPE\"},{\"id\":38,\"value\":\"formatter\",\"label\":\"ENUM_SCR_ATR_FORMATTER\"},{\"id\":39,\"value\":\"formatOptions\",\"label\":\"ENUM_SCR_ATR_FORMATOPTIONS\"},{\"id\":40,\"value\":\"frozen\",\"label\":\"ENUM_SCR_ATR_FROZEN\"},{\"id\":41,\"value\":\"position\",\"label\":\"ENUM_SCR_ATR_POSITION\"},{\"id\":42,\"value\":\"autoload\",\"label\":\"ENUM_SCR_ATR_AUTOLOAD\"},{\"id\":43,\"value\":\"totalize\",\"label\":\"ENUM_SCR_ATR_TOTALIZE\"},{\"id\":44,\"value\":\"showTotals\",\"label\":\"ENUM_SCR_ATR_SHOWTOTALS\"},{\"id\":45,\"value\":\"autorefresh\",\"label\":\"ENUM_SCR_ATR_AUTOREFRESH\"}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
-    assertResultServiceJson(queryName, result, 45, 1, 2, 58);
+    assertResultServiceJson(queryName, result, 45, 1, 2, 88);
   }
 
   // *****************************************************************************************************************//
@@ -3443,7 +3446,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
 
   /**
    * connectedUser must return a null image when the connected user has no AweUserSettings row,
-   * while value/name/label remain unchanged.
+   * while value/name/label remain unchanged and description carries the profile of the user.
    *
    * @throws Exception Test error
    */
@@ -3453,7 +3456,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     setParameter("user", "test");
     String queryName = "connectedUser";
     String variables = "";
-    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":null}]}}},{\"type\":\"end-load\"}]";
+    String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"description\":\"administrator\",\"image\":null}]}}},{\"type\":\"end-load\"}]";
 
     String result = performRequest(queryName, variables, DATABASE, expected);
     assertResultJson(queryName, result, 1);
@@ -3478,7 +3481,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       String queryName = "connectedUser";
       String variables = "";
       String expectedImage = "/avatar?v=" + avatarTokenHash("fake-avatar-token");
-      String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":\"" + expectedImage + "\"}]}}},{\"type\":\"end-load\"}]";
+      String expected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"description\":\"administrator\",\"image\":\"" + expectedImage + "\"}]}}},{\"type\":\"end-load\"}]";
 
       String result = performRequest(queryName, variables, DATABASE, expected);
       assertResultJson(queryName, result, 1);
@@ -3509,7 +3512,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     try {
       // Prime the queryData cache with the "no avatar" state for both connectedUser and
       // getAvatarToken.
-      String noAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":null}]}}},{\"type\":\"end-load\"}]";
+      String noAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"description\":\"administrator\",\"image\":null}]}}},{\"type\":\"end-load\"}]";
       performRequest("connectedUser", "", DATABASE, noAvatarExpected);
       performRequest("getAvatarToken", "", DATABASE);
 
@@ -3526,7 +3529,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
       // Re-read through the SAME cached query path: the cache evict must make the new value
       // visible, not a stale "no avatar" result from the primed cache above.
       String firstVersion = avatarTokenHash("fresh-avatar-token");
-      String withAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":\"/avatar?v=" + firstVersion + "\"}]}}},{\"type\":\"end-load\"}]";
+      String withAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"description\":\"administrator\",\"image\":\"/avatar?v=" + firstVersion + "\"}]}}},{\"type\":\"end-load\"}]";
       performRequest("connectedUser", "", DATABASE, withAvatarExpected);
 
       String tokenExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"avatarToken\":\"fresh-avatar-token\"}]}}},{\"type\":\"end-load\"}]";
@@ -3553,7 +3556,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
         .andExpect(status().isOk());
       String secondVersion = avatarTokenHash("fresh-avatar-token-v2");
       assertNotEquals(firstVersion, secondVersion, "cache-buster version must change when the avatar token changes");
-      String withNewAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"image\":\"/avatar?v=" + secondVersion + "\"}]}}},{\"type\":\"end-load\"}]";
+      String withNewAvatarExpected = "[{\"type\":\"fill\",\"parameters\":{\"datalist\":{\"total\":1,\"page\":1,\"records\":1,\"rows\":[{\"value\":\"test\",\"name\":\"Manager\",\"label\":\"Manager (test)\",\"description\":\"administrator\",\"image\":\"/avatar?v=" + secondVersion + "\"}]}}},{\"type\":\"end-load\"}]";
       performRequest("connectedUser", "", DATABASE, withNewAvatarExpected);
     } finally {
       deleteUserSettingsRowByOpe("test");
@@ -3727,7 +3730,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   public ArrayNode assertResultSecurityJson(String queryName, String result, int expectedRows, int page, int totalPages, int records) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -3742,7 +3745,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     }
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     return dataListRows;
   }
@@ -3775,7 +3778,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
   public ArrayNode assertResultJson(String queryName, String result, int expectedRows, int page, int totalPages, int records) throws Exception {
     ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
     ObjectNode fillAction = (ObjectNode) resultList.get(0);
-    assertEquals("fill", fillAction.get("type").textValue());
+    assertEquals("fill", fillAction.get("type").stringValue());
     ObjectNode fillParameters = (ObjectNode) fillAction.get("parameters");
     assertEquals(1, fillParameters.size());
     ObjectNode dataList = (ObjectNode) fillParameters.get("datalist");
@@ -3790,7 +3793,7 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     }
 
     ObjectNode endLoad = (ObjectNode) resultList.get(1);
-    assertEquals("end-load", endLoad.get("type").textValue());
+    assertEquals("end-load", endLoad.get("type").stringValue());
 
     logger.debug("--------------------------------------------------------------------------------------");
     logger.debug("There are " + dataListRows.size() + " rows as a result of launching query " + queryName);
@@ -3897,5 +3900,227 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
         .session(session))
       .andReturn();
     mvcResult.getResponse().getContentAsString();
+  }
+
+  /**
+   * Rows of the datalist of a query answer
+   *
+   * @param result Answer of the query
+   * @return Rows
+   * @throws Exception Error reading the answer
+   */
+  private List<JsonNode> datalistRows(String result) throws Exception {
+    ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
+    assertEquals("fill", resultList.get(0).get("type").stringValue(), result);
+    List<JsonNode> rows = new ArrayList<>();
+    resultList.get(0).get("parameters").get("datalist").get("rows").forEach(rows::add);
+    return rows;
+  }
+
+  private static String text(JsonNode row, String field) {
+    JsonNode value = row.get(field);
+    return value == null || value.isNull() ? "" : value.asString("");
+  }
+
+  /**
+   * The fields that the user administration screen adds to UsrLst (#793) give the same text on every database: the
+   * secondary line is exactly "login · email" (or the login), with no padding of char columns, no lost separator and no
+   * empty text turned into null, and the state, tone and two-factor codes are known values
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseUserListFieldsOfTheUserAdministrationScreen() throws Exception {
+    List<JsonNode> rows = datalistRows(performRequest("UsrLst", "", DATABASE));
+
+    assertTrue(rows.stream().anyMatch(row -> "test".equals(text(row, "Nom").trim())), "The test user is listed");
+    for (JsonNode row : rows) {
+      String login = text(row, "Nom").trim();
+      String email = text(row, "Eml").trim();
+      assertEquals(email.isEmpty() ? login : login + " · " + email, text(row, "UsrSec"), "Secondary line of " + login);
+      assertTrue(!text(row, "FulNam").isBlank() && !text(row, "Ini").isBlank(), "Name and avatar of " + login);
+      assertTrue(Set.of("active", "inactive", "locked").contains(text(row, "StaCod")), "State of " + login);
+      assertTrue(Set.of("primary", "info", "success", "warning", "danger", "neutral").contains(text(row, "IniTon")),
+        "Avatar tone of " + login);
+      assertTrue(Set.of("on", "off").contains(text(row, "2faCod")), "Two-factor of " + login);
+    }
+
+    List<JsonNode> found = datalistRows(performRequest("UsrLst", "\"CrtUsrTxt\":\"TEST\"", DATABASE));
+    assertTrue(found.stream().anyMatch(row -> "test".equals(text(row, "Nom").trim())), "The search ignores the case");
+  }
+
+  /**
+   * The quick filter counts of the user administration screen (#793) run on every database: the four states, and the
+   * count of All is the number of users of UsrLst
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseUserStateCountsOfTheUserAdministrationScreen() throws Exception {
+    int users = datalistRows(performRequest("UsrLst", "", DATABASE)).size();
+    List<JsonNode> counts = datalistRows(performRequest("UsrStaCnt", "", DATABASE));
+
+    assertEquals(4, counts.size(), counts.toString());
+    JsonNode all = counts.stream().filter(row -> text(row, "value").isEmpty()).findFirst().orElseThrow();
+    assertEquals(users, all.get("count").asInt(), counts.toString());
+  }
+
+  /**
+   * The fields that the profile administration screen adds to ProLst (#793) give the same text on every database: the
+   * secondary line is exactly "acronym · theme" (or the acronym), with no padding of char columns, and the state and
+   * tone codes are known values
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseProfileListFieldsOfTheProfileAdministrationScreen() throws Exception {
+    List<JsonNode> rows = datalistRows(performRequest("ProLst", "", DATABASE));
+
+    assertTrue(rows.stream().anyMatch(row -> "administrator".equals(text(row, "Nam").trim())), "The administrator profile is listed");
+    for (JsonNode row : rows) {
+      String acronym = text(row, "Acr").trim();
+      String theme = text(row, "ThmTxt").trim();
+      assertEquals(theme.isEmpty() ? acronym : acronym + " · " + theme, text(row, "ProSec"), "Secondary line of " + acronym);
+      assertTrue(!text(row, "Ini").isBlank(), "Avatar of " + acronym);
+      assertTrue(Set.of("active", "inactive").contains(text(row, "StaCod")), "State of " + acronym);
+      assertTrue(Set.of("primary", "info", "success", "warning", "danger", "neutral").contains(text(row, "IniTon")),
+        "Avatar tone of " + acronym);
+    }
+
+    List<JsonNode> found = datalistRows(performRequest("ProLst", "\"CrtProTxt\":\"ADMINISTRATOR\"", DATABASE));
+    assertTrue(found.stream().anyMatch(row -> "administrator".equals(text(row, "Nam").trim())), "The search ignores the case");
+  }
+
+  /**
+   * The quick filter counts of the profile administration screen (#793) run on every database: All, Active and
+   * Inactive, the count of All is the number of profiles of ProLst and the others add up to it
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseProfileStateCountsOfTheProfileAdministrationScreen() throws Exception {
+    int profiles = datalistRows(performRequest("ProLst", "", DATABASE)).size();
+    List<JsonNode> counts = datalistRows(performRequest("ProStaCnt", "", DATABASE));
+
+    assertEquals(3, counts.size(), counts.toString());
+    assertEquals(profiles, counts.get(0).get("count").asInt(), counts.toString());
+    assertEquals(profiles, counts.get(1).get("count").asInt() + counts.get(2).get("count").asInt(), counts.toString());
+  }
+
+  /**
+   * The fields that the theme administration screen adds to ThmLst (#793) give the same text on every database: the
+   * secondary line is the primary colour and the surface (a translated palette or a hex), the mode is translated and the
+   * state and tone codes are known values
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseThemeListFieldsOfTheThemeAdministrationScreen() throws Exception {
+    List<JsonNode> rows = datalistRows(performRequest("ThmLst", "\"lang\":\"en-GB\"", DATABASE));
+
+    JsonNode sunset = rows.stream().filter(row -> "sunset".equals(text(row, "NamVal").trim())).findFirst().orElseThrow();
+    assertEquals("Red · Automatic", text(sunset, "ThmSec"), sunset.toString());
+    assertEquals("System", text(sunset, "MdeTxt"), sunset.toString());
+    for (JsonNode row : rows) {
+      String name = text(row, "NamVal").trim();
+      assertTrue(text(row, "ThmSec").contains(" · "), "Secondary line of " + name);
+      assertTrue(!text(row, "Ini").isBlank(), "Avatar of " + name);
+      assertTrue(Set.of("active", "inactive").contains(text(row, "StaCod")), "State of " + name);
+      assertTrue(Set.of("primary", "info", "success", "warning", "danger", "neutral").contains(text(row, "IniTon")),
+        "Avatar tone of " + name);
+    }
+
+    List<JsonNode> found = datalistRows(performRequest("ThmLst", "\"CrtThmTxt\":\"SUNSET\"", DATABASE));
+    assertTrue(found.stream().anyMatch(row -> "sunset".equals(text(row, "NamVal").trim())), "The search ignores the case");
+  }
+
+  /**
+   * The quick filter counts of the theme administration screen (#793) run on every database: All, Active and Inactive,
+   * the count of All is the number of themes of ThmLst and the others add up to it
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseThemeStateCountsOfTheThemeAdministrationScreen() throws Exception {
+    int themes = datalistRows(performRequest("ThmLst", "", DATABASE)).size();
+    List<JsonNode> counts = datalistRows(performRequest("ThmStaCnt", "", DATABASE));
+
+    assertEquals(3, counts.size(), counts.toString());
+    assertEquals(themes, counts.get(0).get("count").asInt(), counts.toString());
+    assertEquals(themes, counts.get(1).get("count").asInt() + counts.get(2).get("count").asInt(), counts.toString());
+  }
+
+  /**
+   * The list of the module administration screen runs on every database: each module has its avatar, a known state and
+   * the counts of its profiles, users and sites (correlated subqueries) match the rows of QryLstProByMod, QryLstUsrByMod
+   * and QryLstSitDbsByMod
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseModuleListFieldsOfTheModuleAdministrationScreen() throws Exception {
+    List<JsonNode> rows = datalistRows(performRequest("ModLstAdm", "\"lang\":\"en-GB\"", DATABASE));
+
+    assertTrue(!rows.isEmpty(), "There are modules");
+    for (JsonNode row : rows) {
+      String name = text(row, "Nam").trim();
+      String module = "\"IdeMod\":" + text(row, "IdeMod");
+      assertTrue(!text(row, "Ini").isBlank(), "Avatar of " + name);
+      assertTrue(Set.of("active", "inactive").contains(text(row, "StaCod")), "State of " + name);
+      assertEquals(datalistRows(performRequest("QryLstProByMod", module, DATABASE)).size(), row.get("ProCnt").asInt(),
+        "Profiles of " + name);
+      assertEquals(datalistRows(performRequest("QryLstUsrByMod", module, DATABASE)).size(), row.get("UsrCnt").asInt(),
+        "Users of " + name);
+      assertEquals(datalistRows(performRequest("QryLstSitDbsByMod", module, DATABASE)).stream()
+        .map(site -> text(site, "IdeSit")).distinct().count(), row.get("SitCnt").asLong(), "Sites of " + name);
+    }
+  }
+
+  /**
+   * The quick filter counts of the module administration screen run on every database: All, Active and Inactive, the
+   * count of All is the number of modules of ModLstAdm and the others add up to it
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseModuleStateCountsOfTheModuleAdministrationScreen() throws Exception {
+    int modules = datalistRows(performRequest("ModLstAdm", "", DATABASE)).size();
+    List<JsonNode> counts = datalistRows(performRequest("ModStaCnt", "", DATABASE));
+
+    assertEquals(3, counts.size(), counts.toString());
+    assertEquals(modules, counts.get(0).get("count").asInt(), counts.toString());
+    assertEquals(modules, counts.get(1).get("count").asInt() + counts.get(2).get("count").asInt(), counts.toString());
+  }
+
+  /**
+   * The fields that the database administration screen adds to DbsLst (#793) give the same values on every database: the
+   * avatar is the alias, the state and tone codes are known values, and the search finds a connection by its alias
+   * ignoring the case
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseConnectionListFieldsOfTheDatabaseAdministrationScreen() throws Exception {
+    List<JsonNode> rows = datalistRows(performRequest("DbsLst", "\"lang\":\"en-GB\"", DATABASE));
+
+    assertTrue(!rows.isEmpty(), "There are connections");
+    for (JsonNode row : rows) {
+      String alias = text(row, "Als").trim();
+      assertEquals(alias, text(row, "Ini").trim(), "Avatar of " + alias);
+      assertTrue(Set.of("active", "inactive").contains(text(row, "StaCod")), "State of " + alias);
+      assertEquals("active".equals(text(row, "StaCod")) ? "Active" : "Inactive", text(row, "StaTxt"), "State label of " + alias);
+      assertTrue(Set.of("primary", "info", "success", "warning", "danger", "neutral").contains(text(row, "IniTon")),
+        "Avatar tone of " + alias);
+    }
+
+    String alias = text(rows.getFirst(), "Als").trim();
+    List<JsonNode> found = datalistRows(performRequest("DbsLst", "\"CrtDbsTxt\":\"" + alias.toUpperCase() + "\"", DATABASE));
+    assertTrue(found.stream().anyMatch(row -> alias.equals(text(row, "Als").trim())), "The search ignores the case");
+  }
+
+  /**
+   * The quick filter counts of the database administration screen (#793) run on every database: All, Active and
+   * Inactive, the count of All is the number of connections of DbsLst and the others add up to it
+   */
+  @Test
+  @WithMockUser(username = "test", password = "test", roles = {"ADMIN", "USER"})
+  void testDatabaseConnectionStateCountsOfTheDatabaseAdministrationScreen() throws Exception {
+    int connections = datalistRows(performRequest("DbsLst", "", DATABASE)).size();
+    List<JsonNode> counts = datalistRows(performRequest("DbsStaCnt", "", DATABASE));
+
+    assertEquals(3, counts.size(), counts.toString());
+    assertEquals(connections, counts.get(0).get("count").asInt(), counts.toString());
+    assertEquals(connections, counts.get(1).get("count").asInt() + counts.get(2).get("count").asInt(), counts.toString());
   }
 }

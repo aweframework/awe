@@ -1,6 +1,8 @@
 package com.almis.awe.test.integration.controller;
 
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.model.util.web.MessageConverterUtil;
 import com.almis.awe.rest.dto.AweRestResponse;
 import com.almis.awe.rest.dto.LoginRequest;
 import com.almis.awe.rest.dto.LoginResponse;
@@ -11,9 +13,10 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.*;
+import org.springframework.http.MediaType;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Date;
@@ -23,6 +26,7 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 /**
  * Class used for testing /api rest controller
@@ -36,6 +40,11 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
 
   TestRestTemplate restTemplate = new TestRestTemplate();
   HttpHeaders headers = new HttpHeaders();
+
+  {
+    // AWE writes enum names (AWE 4 wire format); a default Jackson 3 client reads enums through toString()
+    MessageConverterUtil.withJsonMapper(restTemplate.getRestTemplate(), DataListUtil.getMapper());
+  }
 
   @Autowired
   private JWTTokenService jwtTokenService;
@@ -74,7 +83,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     @Test
     void authenticate_success() {
       // Build entity and variable maps
-      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"));
+      UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(createURLWithPort("/api/authenticate"));
       LoginRequest loginRequest = new LoginRequest()
         .setUsername("test")
         .setPassword("test");
@@ -90,7 +99,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     @Test
     void authenticateWithBadCredentials_unauthorized() {
       // Build entity and variable maps
-      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"));
+      UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(createURLWithPort("/api/authenticate"));
       LoginRequest loginRequest = new LoginRequest()
         .setUsername("test")
         .setPassword("dummy");
@@ -105,7 +114,7 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
     @Test
     void authenticateWithUserNotFound_unauthorized() {
       // Build entity and variable maps
-      UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(createURLWithPort("/api/authenticate"));
+      UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(createURLWithPort("/api/authenticate"));
       LoginRequest loginRequest = new LoginRequest()
         .setUsername("foo")
         .setPassword("dummy");
@@ -115,6 +124,39 @@ class ApiRestControllerTest extends AbstractSpringFixedEnvironmentIT {
               HttpMethod.POST, loginRequestEntity, AweRestResponse.class);
       assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
       assertEquals("User not found or not active", Objects.requireNonNull(response.getBody()).getMessage());
+    }
+
+    @Test
+    void authenticateWithExpiredPassword_unauthorizedWithLocalizedMessageAndCode() {
+      // The test user never changed the password and PwdExp is set: the password is expired
+      UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(createURLWithPort("/api/authenticate"));
+      LoginRequest loginRequest = new LoginRequest()
+        .setUsername("jaimito")
+        .setPassword("test");
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      HttpEntity<LoginRequest> loginRequestEntity = new HttpEntity<>(loginRequest, headers);
+      ResponseEntity<AweRestResponse> response = restTemplate.exchange(builder.toUriString(),
+        HttpMethod.POST, loginRequestEntity, AweRestResponse.class);
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
+      AweRestResponse body = Objects.requireNonNull(response.getBody());
+      assertEquals(AnswerType.ERROR, body.getType());
+      assertEquals("Your password has expired. Set a new password to continue.", body.getMessage());
+      assertEquals("PASSWORD_EXPIRED", body.getCode());
+    }
+
+    @Test
+    void authenticateWithBadCredentials_hasNoErrorCode() {
+      UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(createURLWithPort("/api/authenticate"));
+      LoginRequest loginRequest = new LoginRequest()
+        .setUsername("jaimito")
+        .setPassword("dummy");
+      headers.setContentType(MediaType.APPLICATION_JSON);
+      HttpEntity<LoginRequest> loginRequestEntity = new HttpEntity<>(loginRequest, headers);
+      ResponseEntity<AweRestResponse> response = restTemplate.exchange(builder.toUriString(),
+        HttpMethod.POST, loginRequestEntity, AweRestResponse.class);
+      assertEquals(HttpStatus.UNAUTHORIZED.value(), response.getStatusCode().value());
+      assertEquals("Bad credentials", Objects.requireNonNull(response.getBody()).getMessage());
+      assertNull(response.getBody().getCode());
     }
 
     // Queries

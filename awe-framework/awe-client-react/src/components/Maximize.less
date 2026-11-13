@@ -1,0 +1,33 @@
+// Classes of useMaximize (same names as the AngularJS Maximize service)
+.minimized {
+  display: none !important;
+}
+
+.maximizeParent {
+  position: static !important;
+}
+
+// A contained element (window) covers the target as its positioned child: the target is its containing block
+.maximize-target {
+  position: relative;
+}
+
+// Layer that grows over the maximize target while an element is maximized or restored
+.maximize-clone {
+  position: fixed;
+  z-index: 1050;
+  margin: 0;
+  box-sizing: border-box;
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+
+  &.maximize-animated {
+    transition-property: all;
+    transition-timing-function: ease-in-out;
+  }
+}
+
+// The element waits hidden while its clone is growing
+.maximize-resizing {
+  visibility: hidden !important;
+}

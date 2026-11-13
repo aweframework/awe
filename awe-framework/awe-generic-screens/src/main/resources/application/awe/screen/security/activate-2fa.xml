@@ -44,7 +44,7 @@
         </tag-list>
         <tag type="div" style="totp-with">
           <tag type="div" style="form-actions">
-            <button button-type="submit" label="BUTTON_CONFIRM" style="no-class btn btn-primary totp-btn bg-primary" icon="save" id="ButChk2fa">
+            <button button-type="submit" label="BUTTON_CONFIRM" style="no-class btn btn-primary totp-btn bg-primary" id="ButChk2fa">
               <button-action type="validate" />
               <button-action type="server" server-action="afterLogin"/>
             </button>

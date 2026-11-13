@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdWrapTst.xml
+    Description: Grid with a column that wraps over several lines (title) and a column limited to three lines (description); the notes column keeps one line
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_WRAP">
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_WRAP" expandible="vertical">
+      <grid id="GrdWrapTst" style="expand" initial-load="query" server-action="data" target-action="WrapRowsTst" editable="true" max="100" load-all="true">
+        <column label="COLUMN_WRAP_CODE" name="code" sort-field="code" align="left" charlength="8" component="text"/>
+        <column label="COLUMN_WRAP_TITLE" name="title" sort-field="title" align="left" charlength="16" wrap="true"/>
+        <column label="COLUMN_WRAP_DESCRIPTION" name="description" sort-field="description" align="left" charlength="30" max-lines="3"/>
+        <column label="COLUMN_WRAP_NOTES" name="notes" sort-field="notes" align="left" charlength="30"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

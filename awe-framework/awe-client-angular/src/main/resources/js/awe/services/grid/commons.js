@@ -4,12 +4,19 @@ import "./components";
 import "./editable";
 import "./multioperation";
 import "./events";
+import "./layout";
+import {getColumnHeaders, isActionColumn} from "./layoutRules";
+import {getDensityRowHeight, getExplicitRowHeight, getGridRowHeight, observeDensity} from "./density";
+import {AVATAR_TONES, getInitials, STATUS_TONES, toTone} from "./initials";
+import {getSwatchColor} from "./swatch";
+import {getIconTemplate} from "../component";
+import {getColumnFilterType} from "awe-client-react/utilities/columnFilters";
 
 // Add requirements
 aweApplication.requires.push.apply(aweApplication.requires, ["ui.grid", "ui.grid.resizeColumns", "ui.grid.pinning", "ui.grid.selection", "ui.grid.pagination", "ui.grid.moveColumns", "ui.grid.treeView"]);
 
 // Grid commons service
-aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMultioperation', 'GridEvents', '$translate', 'AweSettings', 'Control', 'AweUtilities', '$log',
+aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMultioperation', 'GridEvents', 'GridLayout', '$translate', 'AweSettings', 'Control', 'AweUtilities', '$log',
   /**
    * Grid common methods
    *
@@ -17,14 +24,265 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
    * @param {service} GridEditable Grid editable
    * @param {service} GridMultioperation Grid multioperation
    * @param {service} GridEvents Grid events
+   * @param {service} GridLayout Grid column layout
    * @param {service} $translate Translate service
    * @param {service} $settings AWE $settings
    * @param {service} Control Control service
    * @param {service} Utilities AWE Utilities
    * @param {object} $log
    */
-  function (GridComponents, GridEditable, GridMultioperation, GridEvents, $translate, $settings, Control, Utilities, $log) {
+  function (GridComponents, GridEditable, GridMultioperation, GridEvents, GridLayout, $translate, $settings, Control, Utilities, $log) {
     // Retrieve $settings
+
+    // Keys that move the selected row of an editable grid (or one with move-rows) while the Alt key is held
+    const MOVE_ROW_KEYS = {ArrowUp: "before", ArrowDown: "after", Home: "first", End: "last"};
+
+    // Selector of the cells whose text is cut by their maximum number of lines
+    const CLAMPED_CELL = ".cell-clamp";
+
+    /**
+     * Give the funnel of the autofilter (#912) to a column that declares a filter, instead of the filter of
+     * enable-filters, which the other columns keep
+     *
+     * @param {object} column Column model
+     */
+    const setColumnFilterType = function (column) {
+      const filterType = getColumnFilterType(column);
+      if (filterType) {
+        column.columnFilterType = filterType;
+        column.enableFiltering = false;
+      }
+    };
+
+    /**
+     * Retrieve how many lines the text of a column wraps over. A column wraps when it declares wrap, or a maximum
+     * number of lines (which implies it) unless wrap is explicitly false.
+     *
+     * @param {object} column Column model
+     * @returns {{wrap: boolean, maxLines: (number|null)}} Wrap flag and maximum number of lines (null when unlimited)
+     */
+    const getColumnWrap = function (column) {
+      const maxLines = parseInt(column.maxLines, 10);
+      const limit = maxLines > 0 ? maxLines : null;
+      if (column.wrap === false || (column.wrap !== true && limit === null)) {
+        return {wrap: false, maxLines: null};
+      }
+      return {wrap: true, maxLines: limit};
+    };
+
+    /**
+     * Cell template of a text column that wraps over several lines
+     *
+     * @param {{wrap: boolean, maxLines: (number|null)}} wrapping Column wrapping
+     * @returns {string} Cell template
+     */
+    const getWrapCellTemplate = function (wrapping) {
+      const clamp = wrapping.maxLines === null ? "" : " cell-clamp\" style=\"--cell-max-lines: " + wrapping.maxLines;
+      return "<div class=\"no-animate ui-grid-cell-contents cell-wrap" + clamp + " {{col.grid.appScope.component.getCellStyle(COL_FIELD)}}\"" +
+        " column-id=\"{{col.name}}\" data-testid=\"grid-cell\" ng-bind-html=\"col.grid.appScope.component.getCellValue(COL_FIELD)\"></div>";
+    };
+
+    // Component expression of the cell templates
+    const CELL_COMPONENT = "col.grid.appScope.component";
+
+    /**
+     * Check whether a column without component shows its value as a list of chips
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows chips
+     */
+    const hasChips = (column) => !("component" in column) && column.chips === true;
+
+    /**
+     * Check whether a column without component shows a secondary line under its value
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows a secondary line
+     */
+    const hasSecondary = (column) => !("component" in column) && !!column.secondaryField;
+
+    /**
+     * Check whether a column without component shows its value as a status (ignored in a column of chips)
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows a status
+     */
+    const hasStatus = (column) => !("component" in column) && !!column.statusField && !hasChips(column);
+
+    /**
+     * Check whether a column without component shows an avatar before its value
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows an avatar
+     */
+    const hasAvatar = (column) => !("component" in column) && (!!column.avatarField || !!column.avatarIconField);
+
+    /**
+     * Check whether a column without component shows a colour swatch before its value (in the place of the avatar)
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows a swatch
+     */
+    const hasSwatch = (column) => !("component" in column) && !!column.swatchField;
+
+    /**
+     * Check whether a column without component shows an icon before its value (ignored in a column of chips)
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Column shows an icon
+     */
+    const hasIcon = (column) => !("component" in column) && !!column.iconField && !hasChips(column);
+
+    /**
+     * Template of the icon of a cell: the icon of the icon field of the row, decorative (the text is the value of the
+     * cell); nothing when the row has no icon or an unknown one
+     *
+     * @returns {string} Template of the icon
+     */
+    const getCellIconTemplate = () => {
+      const icon = CELL_COMPONENT + ".getCellIcon(row.entity, col.colDef)";
+      // Without the spaces between its alternatives, which would add a space between the icon and the text
+      return getIconTemplate("awe-cell-icon", "span", icon, "aria-hidden=\"true\"").replace(/>\s+</g, "><");
+    };
+
+    // Characters added to the width of a column for its padding and decoration, the same margin of the React engine
+    const COLUMN_EXTRA_CHARS = 4;
+
+    /**
+     * Translate a label made of one or more keys separated by spaces
+     *
+     * @param {string} label Label
+     * @returns {string} Translated label
+     */
+    const translateLabel = (label) => label.split(" ").map(key => $translate.instant(key)).join(" ");
+
+    /**
+     * Width of a column: its declared width or, from its charlength, the margin of the cell padding as in the React
+     * engine and never narrower than its translated header label (the React table grows a column to fit its header).
+     * Without charlength, 20 characters
+     *
+     * @param {object} column Column model
+     * @param {number} charSize Pixels per character
+     * @returns {number|string} Column width
+     */
+    const getColumnWidth = (column, charSize) => {
+      const charLength = Number(column.charlength);
+      if (column.width) {
+        return column.width;
+      }
+      if (charLength > 0) {
+        const labelLength = column.label ? translateLabel(column.label).length : 0;
+        return (Math.max(charLength, labelLength) + COLUMN_EXTRA_CHARS) * charSize;
+      }
+      return 20 * charSize;
+    };
+
+    /**
+     * Check whether the cells of a column need more than one line (secondary line, chips, avatar or swatch), so the rows
+     * grow to fit them
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Cells of the column grow
+     */
+    const growsCell = (column) => hasSecondary(column) || hasChips(column) || hasAvatar(column) || hasSwatch(column);
+
+    /**
+     * Contents of the cell of a column with a secondary line, a status, chips, an avatar, a swatch or an icon. The values are always
+     * bound as text. With an icon the status is a plain tag: the icon of the row (if any) takes the place of the dot.
+     *
+     * @param {object} column Column model
+     * @returns {string} Contents of the cell
+     */
+    const getRichCellContents = function (column) {
+      const value = CELL_COMPONENT + ".getCellValue(COL_FIELD)";
+      const main = getMainCellContents(column, value);
+      let text = main;
+      if (hasSecondary(column)) {
+        const secondary = CELL_COMPONENT + ".getCellSecondary(row.entity, col.colDef)";
+        const mainLine = main === null ? "<span class=\"awe-cell-main\" ng-bind=\"" + value + "\"></span>" : "<span class=\"awe-cell-main\">" + main + "</span>";
+        text = "<div class=\"awe-cell-lines\">" + mainLine + "<span class=\"awe-cell-secondary\" ng-if=\"" + secondary + "\" ng-bind=\"" + secondary + "\"></span></div>";
+      }
+      if (!hasAvatar(column) && !hasSwatch(column)) {
+        return text;
+      }
+      return getEntityCellContents(column, text === null ? "<span class=\"awe-cell-main\" ng-bind=\"" + value + "\"></span>" : text);
+    };
+
+    /**
+     * Main contents of a rich cell: its chips, its status (a plain tag with the icon of the row when it has one) or its
+     * icon with the text (null when the column has none of them)
+     *
+     * @param {object} column Column model
+     * @param {string} value Expression of the cell value
+     * @returns {string|null} Main contents of the cell
+     */
+    const getMainCellContents = function (column, value) {
+      const tone = "{{" + CELL_COMPONENT + ".getCellTone(row.entity[col.colDef.statusField])}}";
+      // An empty status is not drawn, not even its dot (as in React)
+      const filled = " ng-if=\"(" + value + ") !== '' && (" + value + ") != null\"";
+      if (hasChips(column)) {
+        const chips = CELL_COMPONENT + ".getCellChips(COL_FIELD, col.colDef)";
+        return "<span class=\"awe-cell-chips\"><span class=\"awe-cell-chip\" ng-repeat=\"chip in " + chips + ".visible track by $index\" ng-bind=\"chip\"></span>" +
+          "<span class=\"awe-cell-chip awe-cell-chip-more\" ng-if=\"" + chips + ".hidden.length\" title=\"{{" + chips + ".hidden.join(', ')}}\"" +
+          " aria-label=\"{{" + chips + ".hidden.length}} more: {{" + chips + ".hidden.join(', ')}}\">+{{" + chips + ".hidden.length}}</span></span>";
+      }
+      if (hasStatus(column) && hasIcon(column)) {
+        return "<span class=\"awe-cell-status awe-cell-status-" + tone + " awe-cell-status-plain\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\"" + filled + ">" +
+          getCellIconTemplate() + "<span ng-bind=\"" + value + "\"></span></span>";
+      }
+      if (hasStatus(column)) {
+        return "<span class=\"awe-cell-status awe-cell-status-" + tone + "\" data-tone=\"" + tone + "\" title=\"{{" + value + "}}\" ng-bind=\"" + value + "\"" + filled + "></span>";
+      }
+      if (hasIcon(column)) {
+        return "<span class=\"awe-cell-icon-text\" title=\"{{" + value + "}}\">" + getCellIconTemplate() + "<span ng-bind=\"" + value + "\"></span></span>";
+      }
+      return null;
+    };
+
+    /**
+     * Contents of a cell with an avatar or a swatch before its text. Both are decorative (the name is the accessible text).
+     * The swatch takes the place of the avatar while the row has a valid colour; without both an empty space keeps the names
+     * aligned
+     *
+     * @param {object} column Column model
+     * @param {string} mainText Text of the cell (its main line and its secondary line)
+     * @returns {string} Contents of the cell
+     */
+    const getEntityCellContents = function (column, mainText) {
+      const swatch = hasSwatch(column) ? CELL_COMPONENT + ".getCellSwatch(row.entity, col.colDef)" : "''";
+      const initials = hasAvatar(column) ? CELL_COMPONENT + ".getCellInitials(row.entity, col.colDef)" : "''";
+      const avatarTone = "{{" + CELL_COMPONENT + ".getAvatarTone(row.entity[col.colDef.avatarToneField])}}";
+      const swatchTemplate = hasSwatch(column) ? "<span class=\"awe-cell-swatch\" aria-hidden=\"true\" ng-if=\"" + swatch + "\"" +
+        " ng-attr-style=\"--awe-swatch-color: {{" + swatch + "}}\"></span>" : "";
+      // An icon of the row takes the place of the initials (avatar-icon-field)
+      const avatarIcon = column.avatarIconField ? CELL_COMPONENT + ".getCellAvatarIcon(row.entity, col.colDef)" : "''";
+      const avatarIconTemplate = column.avatarIconField ? "<span class=\"awe-cell-avatar awe-cell-avatar-icon awe-cell-avatar-" + avatarTone + "\"" +
+        " data-tone=\"" + avatarTone + "\" aria-hidden=\"true\" ng-if=\"!" + swatch + " && " + avatarIcon + "\">" +
+        getIconTemplate("awe-cell-icon", "span", avatarIcon, "aria-hidden=\"true\"").replace(/>\s+</g, "><") + "</span>" : "";
+      const avatarTemplate = hasAvatar(column) ? avatarIconTemplate + "<span class=\"awe-cell-avatar awe-cell-avatar-" + avatarTone + "\" data-tone=\"" + avatarTone + "\"" +
+        " aria-hidden=\"true\" ng-if=\"!" + swatch + " && !" + avatarIcon + " && " + initials + "\" ng-bind=\"" + initials + "\"></span>" : "";
+      return "<div class=\"awe-cell-entity\">" + swatchTemplate + avatarTemplate +
+        "<span class=\"awe-cell-avatar-spacer\" aria-hidden=\"true\" ng-if=\"!" + swatch + " && !" + avatarIcon + " && !" + initials + "\"></span>" +
+        "<div class=\"awe-cell-entity-text\">" + mainText + "</div></div>";
+    };
+
+    /**
+     * Cell template of a column with a secondary line, a status or chips (null when the column has none of them)
+     *
+     * @param {object} column Column model
+     * @param {{wrap: boolean, maxLines: (number|null)}} wrapping Column wrapping
+     * @returns {string|null} Cell template
+     */
+    const getRichCellTemplate = function (column, wrapping) {
+      const contents = getRichCellContents(column);
+      if (contents === null) {
+        return null;
+      }
+      const clamp = wrapping.maxLines === null ? "" : " cell-clamp\" style=\"--cell-max-lines: " + wrapping.maxLines;
+      const classes = (growsCell(column) ? " cell-rich" : "") + (wrapping.wrap ? " cell-wrap" + clamp : "");
+      return "<div class=\"no-animate ui-grid-cell-contents" + classes + " {{" + CELL_COMPONENT + ".getCellStyle(COL_FIELD)}}\"" +
+        (wrapping.wrap ? "" : " title=\"TOOLTIP\"") + " column-id=\"{{col.name}}\" data-testid=\"grid-cell\">" + contents + "</div>";
+    };
 
     /**
      * Retrieve number of selected lines in grid
@@ -62,23 +320,6 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         }
       }
       return value;
-    };
-
-    /**
-     * Retrieve header by column name
-     *
-     * @param {type} headers
-     * @param {type} columnName
-     * @returns {undefined}
-     */
-    const getHeader = function (headers, columnName) {
-      let  selectedHeader = false;
-      _.each(headers, function (header) {
-        if (header.startColumnName === columnName) {
-          selectedHeader = header;
-        }
-      });
-      return selectedHeader;
     };
 
     /**
@@ -125,6 +366,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
       component.addedRows = 0;
       component.isEditing = false;
       component.columnModelStringified = {};
+
+      // Column layout of the user (grid toolbar)
+      GridLayout.attach(component);
 
       // Define attribute methods
       this.attributeMethods = {
@@ -373,10 +617,11 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           // Summarize value
           switch (column.type) {
             case "sum":
-            default:
+            default: {
               let value = parseFloat(getRowValue(component.model.values, rowIndex, columnId));
               column.value += isNaN(value) ? 0 : value;
               break;
+            }
           }
           // Store as footer data
           if (column.component) {
@@ -413,8 +658,102 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         // Initialize common methods
         let  component = this.component;
 
+        // Loading indicator: the icon-loading of the grid wins over the application default
+        component.scope.iconLoader = component.controller.iconLoading || $settings.get("gridIconLoading") || "spinner";
+        // skeleton draws placeholder rows on every load; skeleton-dim draws them on the first load and dims the rows on a
+        // reload while the grid has rows
+        component.scope.skeletonLoader = ["skeleton", "skeleton-dim"].includes(component.scope.iconLoader);
+        component.scope.dimReload = component.scope.iconLoader === "skeleton-dim";
+
+        // Row height of the cells (their line height and the minimum of the wrapping rows)
+        const setRowHeightProperty = (height) => component.element?.[0]?.style.setProperty("--grid-row-height", height + "px");
+
+        /**
+         * Change the row height of the grid: the options, the rows ui-grid has already built and the --grid-row-height
+         * of the cells (their line height and the minimum of the wrapping rows)
+         * @param {number} height Row height in pixels
+         */
+        component.applyRowHeight = function (height) {
+          setRowHeightProperty(height);
+          const options = component.scope.gridOptions;
+          if (!options || options.rowHeight === height) {
+            return;
+          }
+          options.rowHeight = height;
+          const uiGrid = component.grid?.api?.grid;
+          if (uiGrid) {
+            uiGrid.rows.forEach((row) => {
+              row.height = height;
+            });
+            component.updateGridScrollBars();
+          }
+        };
+
+        // Row height: the one of the screen, or the one of the density, read again when the density of the page changes
+        setRowHeightProperty(getGridRowHeight(component.controller));
+        if (!getExplicitRowHeight(component.controller)) {
+          const stopDensity = observeDensity(() => component.scope.$evalAsync(() => component.applyRowHeight(getDensityRowHeight())));
+          component.scope.$on("$destroy", stopDensity);
+        }
+
         // Check frozen attribute
         component.hasFrozen = this.hasFrozenColumns();
+
+        // Wrapping cells: they need rows of different heights, which a grid with frozen columns (a second container
+        // of rows) or a tree cannot keep aligned, so those keep their single-line rows
+        component.wrapsText = !component.hasFrozen && _.some(component.controller.columnModel, (column) => getColumnWrap(column).wrap || growsCell(column));
+
+        /**
+         * Mark the cells whose text is cut as reachable with the keyboard, so their full text shows on focus
+         */
+        component.markCutCells = function () {
+          component.element.find(CLAMPED_CELL).each(function () {
+            if (this.scrollHeight > this.clientHeight + 1) {
+              this.setAttribute("tabindex", "0");
+            } else {
+              this.removeAttribute("tabindex");
+            }
+          });
+        };
+
+        /**
+         * Initialize the wrapping cells: the minimum row height and the tooltip with the full text of the cut cells
+         * (one listener for the whole grid, on hover and on keyboard focus)
+         */
+        component.initWrapCells = function () {
+          const element = component.element;
+          setRowHeightProperty(component.scope.gridOptions?.rowHeight || getGridRowHeight(component.controller));
+          let tooltip = null;
+          const hide = function () {
+            if (tooltip) {
+              tooltip.remove();
+              tooltip = null;
+            }
+          };
+          const show = function (event) {
+            const cell = event.currentTarget;
+            hide();
+            if (cell.scrollHeight > cell.clientHeight + 1) {
+              const rect = cell.getBoundingClientRect();
+              tooltip = $("<div class=\"tooltip bottom in grid-cell-tooltip\" role=\"tooltip\"><div class=\"tooltip-arrow\"></div><div class=\"tooltip-inner\"></div></div>");
+              tooltip.find(".tooltip-inner").text($(cell).text());
+              tooltip.css({top: rect.bottom, left: rect.left}).appendTo(document.body);
+            }
+          };
+          element.off(".wrapCells")
+            .on("mouseover.wrapCells focusin.wrapCells", CLAMPED_CELL, show)
+            .on("mouseout.wrapCells focusout.wrapCells", CLAMPED_CELL, hide)
+            // The handler returns nothing: jQuery treats a returned false as preventDefault, which would swallow the keys typed in the inputs of the grid
+            .on("keydown.wrapCells", (event) => {
+              if (event.key === "Escape") {
+                hide();
+              }
+            });
+          component.scope.$on("$destroy", () => {
+            hide();
+            element.off(".wrapCells");
+          });
+        };
 
         /**
          * Custom scroll management
@@ -484,7 +823,33 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
 
             // Set button position
             component.layers["save"].css(buttonPosition);
+
+            // Tell the containers (tabs, wizard steps, accordion items) when the grid starts or stops editing a row
+            if (component.editable && (component.reportedUnsaved === true) !== component.isEditing) {
+              component.reportedUnsaved = component.isEditing;
+              component.scope.$emit("records-unsaved", {id: component.id, invalid: component.isEditing});
+            }
           }
+        };
+        /**
+         * Open the containers that hide the grid and scroll the row being edited into view
+         */
+        component.revealEditingRow = function () {
+          if (!component.layers || !component.currentSelection || component.currentSelection.length === 0) {
+            return;
+          }
+          const rowId = component.currentSelection[0];
+          // Select the tab of the grid (if it's in a tab)
+          component.scope.$emit("select-current-tab");
+          // Wait for the container to open before scrolling
+          Utilities.timeout(function () {
+            const content = component.layers["content"];
+            const row = content ? content.find(".ui-grid-row[id='" + rowId + "']").last()[0] :
+              document.querySelector('.ui-grid-row[id="' + rowId + '"]');
+            if (row) {
+              row.scrollIntoView({block: "center", behavior: "smooth"});
+            }
+          }, 250);
         };
         /**
          * Update button position
@@ -719,6 +1084,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
             }
           });
 
+          // Data of the fields the printed cells read from their row (secondary line, status tone)
+          _.merge(data, component.getReferencedPrintData(data));
+
           // Identifier data
           _.merge(data, component.getIdentifierColumnData());
 
@@ -730,6 +1098,11 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           // Add visible columns information
           data[component.address.component + $settings.get("dataSuffix")].visibleColumns = component.getVisibleColumns();
 
+          // Add the columns that group the rows now (the user may have changed the grouping of the screen definition)
+          if (component.groupingConfigured && typeof component.getGroupLevels === "function") {
+            data[component.address.component + $settings.get("dataSuffix")].groupBy = component.getGroupLevels();
+          }
+
           // Add footer information
           let footerData = {};
 
@@ -740,11 +1113,36 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
               footerData[column.id] = {
                 value: (component.model.footer || {})[column.id] || null,
                 label: component.getVisibleData(address, "footer", column)
-              }
+              };
             }
           });
           data[component.address.component + $settings.get("dataSuffix")].footer = footerData;
 
+          return data;
+        };
+
+        /**
+         * Retrieve the data of the fields that printed columns read from their rows (the secondary line and the status
+         * tone of a cell) when they are not already sent as column data, so the report prints what the screen shows.
+         * Same shape as the data of a column: the values and their value and label cells.
+         *
+         * @param {Object} sentData Data already sent
+         * @returns {Object} Data of the referenced fields
+         */
+        component.getReferencedPrintData = function (sentData) {
+          const dataSuffix = $settings.get("dataSuffix");
+          const data = {};
+          const fields = _.filter(component.controller.columnModel, isPrintableColumn)
+            .flatMap(column => [column.secondaryField, column.statusField]);
+          for (const field of fields) {
+            if (!field || field in sentData || field in data) {
+              continue;
+            }
+            const cells = _.map(component.model.values, row =>
+              ({...component.getCell(row[field]), label: component.getCellData(row[field], component.constants.CELL_LABEL)}));
+            data[field] = cells.map(cell => cell.value);
+            data[field + dataSuffix] = cells;
+          }
           return data;
         };
 
@@ -809,6 +1207,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
                 case "suggest":
                 case "select-multiple":
                 case "suggest-multiple":
+                case "radio":
+                case "button-radio":
                 case "progress":
                 case "numeric":
                   if (component.getApi) {
@@ -854,7 +1254,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
               name: header.titleText,
               label: header.titleText.split(" ").map(singleLabel => $translate.instant(singleLabel)).join(" "),
               header: true
-            }
+            };
           }
           return null;
         }
@@ -868,11 +1268,19 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           const {name, label, type, component, charlength, align} = column;
           // Hidden columns are rendered with width 0 on screen, so use their initial width for printing
           const width = column.hidden ? column.initialWidth : column.width;
-          return {
+          const translate = (text) => text.split(" ").map(l => $translate.instant(l)).join(" ");
+          const information = {
             name, type, component, width, charlength, align,
             printable: column.printMode,
-            label: (label || "").split(" ").map(l => $translate.instant(l)).join(" ")
+            label: translate(label || "")
           };
+          // Secondary field, which the export may write in its own column
+          if (column.secondaryField) {
+            information.secondaryField = column.secondaryField;
+            information.exportSecondary = column.exportSecondary === true;
+            information.secondaryLabel = column.secondaryLabel ? translate(column.secondaryLabel) : null;
+          }
+          return information;
         }
 
         /**
@@ -882,13 +1290,14 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * - `excel`: always (the server keeps it for spreadsheet outputs only)
          * - not declared: only when the column is visible on screen
          *
-         * Internal ui-grid columns (row numbers, selection checkbox) carry no `printable` flag and are never printed.
+         * Internal ui-grid columns (row numbers, selection checkbox) carry no `printable` flag and are never printed, and
+         * neither are the action columns (`component="button"`), whatever their `printable` value.
          *
          * @param {object} column Column model
          * @returns {boolean} Column must be printed
          */
         function isPrintableColumn(column) {
-          if (!column.printable) {
+          if (!column.printable || isActionColumn(column)) {
             return false;
           }
           switch (String(column.printMode || "").toLowerCase()) {
@@ -898,7 +1307,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
             case "excel":
               return true;
             default:
-              return !column.hidden;
+              // Columns hidden by the layout of the user are printed: reports use the definition of the screen
+              return !column.hidden || !!column.layoutHidden;
           }
         }
 
@@ -1024,14 +1434,14 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           }
         };
         /**
-         * On update cell data
+         * On update cell data (empty hook, overrides receive the parameters below)
          *
          * @param {type} rowId
          * @param {type} columnId
          * @param {type} value
          * @param {type} style
          */
-        component.updateCellSpecific = function (rowId, columnId, value, style) {
+        component.updateCellSpecific = function () {
         };
         /**
          * Retrieve column index
@@ -1231,6 +1641,58 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           component.addRowSpecific(selectedRow, position, data);
         };
         /**
+         * Move a row to a new position of the grid. The rows of the model keep the new order, so it is the order
+         * the grid sends to the server when it is saved
+         *
+         * @param {string} position Where to move the row: first, before (one up), after (one down) or last. With a
+         * target row, before or after that row
+         * @param {string} [rowId] Row identifier (the selected row by default)
+         * @param {string} [targetRowId] Row next to which the row lands (drag and drop), instead of the grid positions
+         * @return {boolean} The row has been moved (the rows of a tree grid follow its structure and never move)
+         */
+        component.moveRow = function (position, rowId, targetRowId) {
+          const values = component.model.values;
+          const row = rowId || component.getSelectedRow();
+          const index = row === null || row === undefined ? -1 : Utilities.getRowIndex(values, row, component.constants.ROW_IDENTIFIER);
+          const hasTarget = targetRowId !== undefined;
+          let target = {first: 0, before: index - 1, after: index + 1, last: values.length - 1}[position];
+          if (hasTarget) {
+            // The target row, once the moved one is out of the list, tells where the moved row lands
+            const others = values.filter((value, valueIndex) => valueIndex !== index);
+            const targetIndex = index < 0 ? -1 : Utilities.getRowIndex(others, targetRowId, component.constants.ROW_IDENTIFIER);
+            const offset = {before: 0, after: 1}[position];
+            target = targetIndex < 0 || offset === undefined ? undefined : targetIndex + offset;
+          }
+          if (component.isTree || index < 0 || target === undefined || target < 0 || target >= values.length || target === index) {
+            return false;
+          }
+
+          // Move the row and keep it selected (a dropped row is the one selected) once the grid shows the new order
+          // The grid watches only the reference and the length of its data (fastWatch), so the model gets a new array
+          const selection = hasTarget ? [values[index][component.constants.ROW_IDENTIFIER]] : component.model.selected;
+          const reordered = [...values];
+          reordered.splice(target, 0, reordered.splice(index, 1)[0]);
+          component.model.values = reordered;
+          component.updateModelSpecific().then(() => component.setSelection(selection));
+          return true;
+        };
+        /**
+         * Move the selected row of an editable grid with the keyboard:
+         * Alt+ArrowUp (up), Alt+ArrowDown (down), Alt+Home (top) and Alt+End (bottom)
+         *
+         * @param {KeyboardEvent} event Keyboard event
+         * @return {boolean} The key combination has been handled
+         */
+        component.onMoveRowKeyDown = function (event) {
+          const position = MOVE_ROW_KEYS[event.key];
+          if (!(component.editable || component.controller?.moveRows) || !position || !event.altKey || event.ctrlKey || event.shiftKey || event.metaKey) {
+            return false;
+          }
+          event.preventDefault();
+          component.moveRow(position);
+          return true;
+        };
+        /**
          * Update the selected row
          *
          * @param {string} rowId Row identifier
@@ -1365,6 +1827,11 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.fixColumnModel = function (fixEachColumn) {
 
+          // Store the columns of the screen before the grid adds its own ones
+          if (fixEachColumn) {
+            component.storeLayoutBase();
+          }
+
           // Add initial columns model if exists
           if (component.addInitialColumns) {
             component.addInitialColumns();
@@ -1387,15 +1854,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @param {object} column Column model
          */
         component.fixColumn = function (column) {
-          // Calculate width based on charlength
-          if (column.charlength !== "0" && !column.width) {
-            column.width = column.charlength * component.scope.charSize;
-          }
-
-          // Set default column width
-          if (!column.width) {
-            column.width = 20 * component.scope.charSize;
-          }
+          column.width = getColumnWidth(column, component.scope.charSize);
 
           // Store initial width
           column.initialWidth = column.width;
@@ -1418,6 +1877,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
 
           column.pinnedLeft = column.frozen;
 
+          setColumnFilterType(column);
+
           // Retrieve cell template
           column.cellClass = function (grid, row, col) {
             let  value = "text-" + col.colDef.align + (col.colDef.style ? " " + col.colDef.style : "");
@@ -1432,12 +1893,23 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           column.footerCellTemplate = column.footerCellTemplate || "grid/footer";
           column.filterHeaderTemplate = column.filterHeaderTemplate || "grid/headerFilter";
 
+          // Text that wraps over several lines, secondary line, status and chips
+          if (!("component" in column) && column.cellTemplate === "grid/cell") {
+            const wrapping = component.wrapsText ? getColumnWrap(column) : {wrap: false, maxLines: null};
+            const richTemplate = getRichCellTemplate(column, wrapping);
+            if (richTemplate !== null) {
+              column.cellTemplate = richTemplate;
+            } else if (wrapping.wrap) {
+              column.cellTemplate = getWrapCellTemplate(wrapping);
+            }
+          }
+
           column.sortingAlgorithm = component.sortingAlgorithm;
 
           // Calculate fields with components
           if ("component" in column) {
             column.enableFiltering = false;
-            column.cellTemplate = "<div class=\"ui-grid-cell-contents component\" title=\"TOOLTIP\" column-id=\"{{col.name}}\"><awe-column-" + column.component +
+            column.cellTemplate = "<div class=\"ui-grid-cell-contents component\" title=\"TOOLTIP\" column-id=\"{{col.name}}\" data-testid=\"grid-cell\"><awe-column-" + column.component +
               " cell-address='{\"hash\":\"{{row.uid}}\", \"view\":\"" + component.address.view + "\", \"component\":\"" + component.address.component + "\", \"row\":\"{{row.entity." +
               component.constants.ROW_IDENTIFIER + "}}\", \"column\":\"{{col.name}}\"}'/></div>";
             column.footerCellTemplate = column.summaryType ? "<div class=\"ui-grid-cell-contents ui-grid-cell-footer\" title=\"TOOLTIP\" column-id=\"{{col.name}}\"><awe-column-" +
@@ -1454,33 +1926,9 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         component.reportChangedColumns = function () {
           let  columns = component.getColumns();
           let  headerModel = component.controller.headerModel;
-          if (headerModel.length > 0 && !component.fixedHeaders) {
-            let  fixedHeaders = {};
-            let  currentHeaderColumn = 0;
-            let  currentHeader = null;
-
-            // For each column assign a header
-            _.each(columns, function (column) {
-              if (currentHeaderColumn > 0) {
-                currentHeaderColumn--;
-              } else {
-                let  header = getHeader(headerModel, column.name);
-                if (header) {
-                  currentHeader = header;
-                  currentHeaderColumn = header.numberOfColumns - 1;
-                } else {
-                  currentHeader = null;
-                }
-              }
-
-              // Stored each header for each column
-              if (currentHeader !== null) {
-                fixedHeaders[column.name] = currentHeader;
-              }
-            });
-
-            // Store fixedHeaders
-            component.fixedHeaders = fixedHeaders;
+          if (headerModel.length > 0) {
+            // The header of each column comes from the membership of the column, never from its position
+            component.fixedHeaders = getColumnHeaders(headerModel, component.layoutBase || component.controller.columnModel);
           }
           component.scope.gridOptions.columnHeaders = {
             columns: columns,
@@ -1497,6 +1945,43 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         component.rowContextMenu = function (event, row) {
           component.selectRow(row.entity);
           component.showContextMenu(event);
+        };
+        /**
+         * Select the row of a button of the grid before its actions: that row ends being the only selected one. A row
+         * that is already the only selected one is left as it is (an edited row keeps being edited), and an identifier
+         * that is not a row of the grid (the footer) changes nothing
+         *
+         * @param {String} rowId Row identifier
+         */
+        component.selectButtonRow = function (rowId) {
+          const data = component.model.values || [];
+          if (Utilities.getRowIndex(data, rowId, component.constants.ROW_IDENTIFIER) === -1) {
+            return;
+          }
+          const selected = component.model.selected || [];
+          if (selected.length === 1 && String(selected[0]) === String(rowId)) {
+            return;
+          }
+          component.setSelection([rowId]);
+        };
+        /**
+         * Select a row and show the context menu under an element (action show-context-menu of a row button)
+         *
+         * @param {String} rowId Row identifier
+         * @param {jQuery} anchor Element the menu hangs from
+         */
+        component.showRowContextMenu = function (rowId, anchor) {
+          // A grid that declares no options has nothing to open: the row is not selected either. A grid that does
+          // declare them opens its menu even if none is visible yet, as their dependencies resolve after the selection
+          if (!(component.controller.contextMenu || []).length) {
+            return;
+          }
+          const data = component.model.values;
+          const rowIndex = Utilities.getRowIndex(data, rowId, component.constants.ROW_IDENTIFIER);
+          if (rowIndex > -1) {
+            component.selectRow(data[rowIndex]);
+            component.showContextMenuUnder(anchor);
+          }
         };
         /**
          * Click over viewport
@@ -1535,6 +2020,104 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          */
         component.getCellStyle = function (cell) {
           return component.getCellData(cell, component.constants.CELL_STYLE);
+        };
+
+        /**
+         * Retrieve the tone of a status cell: one of STATUS_TONES, neutral for any other value
+         *
+         * @param {*} cell Cell of the status field
+         * @returns {String} Tone
+         */
+        component.getCellTone = function (cell) {
+          return toTone(component.getCellData(cell, component.constants.CELL_VALUE), STATUS_TONES);
+        };
+
+        /**
+         * Retrieve the tone of an avatar: one of AVATAR_TONES, neutral for any other value
+         *
+         * @param {*} cell Cell of the avatar tone field
+         * @returns {String} Tone
+         */
+        component.getAvatarTone = function (cell) {
+          return toTone(component.getCellData(cell, component.constants.CELL_VALUE), AVATAR_TONES);
+        };
+
+        /**
+         * Retrieve the icon of a cell, from the icon field of the row (no family when it has none)
+         *
+         * @param {object} row Row data
+         * @param {object} column Column model
+         * @returns {{family: String, name: String, classes?: String, href?: String}} Icon
+         */
+        component.getCellIcon = function (row, column) {
+          const icon = component.getCellData(row[column.iconField], component.constants.CELL_VALUE);
+          return Utilities.extractIcon(Utilities.isNull(icon) ? "" : String(icon));
+        };
+
+        /**
+         * Retrieve the icon of the avatar of a cell, from the avatar icon field of the row (empty when it has none)
+         *
+         * @param {object} row Row data
+         * @param {object} column Column model
+         * @returns {String} Icon
+         */
+        component.getCellAvatarIcon = function (row, column) {
+          const icon = component.getCellData(row[column.avatarIconField], component.constants.CELL_VALUE);
+          return Utilities.isNull(icon) || icon === "" ? "" : Utilities.extractIcon(String(icon));
+        };
+
+        /**
+         * Retrieve the initials of the avatar of a cell, built from the avatar field of the row (empty when it has none)
+         *
+         * @param {object} row Row data
+         * @param {object} column Column model
+         * @returns {String} Initials
+         */
+        component.getCellInitials = function (row, column) {
+          const name = component.getCellValue(row[column.avatarField]);
+          return Utilities.isNull(name) ? "" : getInitials(String(name));
+        };
+
+        /**
+         * Retrieve the colour of the swatch of a cell, from the swatch field of the row: a known palette or a hex (empty
+         * for any other value, so nothing else reaches the style of the swatch)
+         *
+         * @param {object} row Row data
+         * @param {object} column Column model
+         * @returns {String} CSS colour
+         */
+        component.getCellSwatch = function (row, column) {
+          return getSwatchColor(component.getCellData(row[column.swatchField], component.constants.CELL_VALUE));
+        };
+
+        /**
+         * Retrieve the text of the secondary line of a cell (empty when the row has none)
+         *
+         * @param {object} row Row data
+         * @param {object} column Column model
+         * @returns {String} Secondary text
+         */
+        component.getCellSecondary = function (row, column) {
+          const secondary = component.getCellValue(row[column.secondaryField]);
+          return Utilities.isNull(secondary) ? "" : String(secondary);
+        };
+
+        /**
+         * Retrieve the chips of a cell: its value split by the separator of the column, trimmed and without empty items.
+         * Over the maximum of the column, the rest are hidden (shown as a "+n" chip).
+         *
+         * @param {*} cell Cell
+         * @param {object} column Column model
+         * @returns {{visible: String[], hidden: String[]}} Visible and hidden chips
+         */
+        component.getCellChips = function (cell, column) {
+          const value = component.getCellValue(cell);
+          const items = Utilities.isNull(value) ? [] : String(value).split(column.chipSeparator || ",")
+            .map(item => item.trim())
+            .filter(item => item !== "");
+          const maxChips = parseInt(column.maxChips, 10);
+          const limit = maxChips > 0 ? maxChips : items.length;
+          return {visible: items.slice(0, limit), hidden: items.slice(limit)};
         };
         /**
          * Edit a row
@@ -1662,7 +2245,7 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           });
           // Retrieve new id
           return deferred.promise;
-        }
+        };
 
         /** ******************************************************************* */
         /* EVENTS */

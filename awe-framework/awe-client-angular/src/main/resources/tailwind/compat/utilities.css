@@ -1,0 +1,322 @@
+/*
+ * Bootstrap 3 utility classes (utilities.less, responsive-utilities.less and the text classes of type.less), written on
+ * Tailwind with @apply. Plain @media blocks, not Tailwind variants: the breakpoints have a max-width side.
+ *
+ * Bootstrap writes most of these with !important, and for !important the layer order inverts: this layered rule beats
+ * an unlayered !important one (the vendored LESS) whatever its specificity. See compatUtilities.test.js, which pins that no
+ * element in the framework mixes them. `.affix` is not reimplemented: nothing uses it.
+ */
+
+/* Floats */
+.clearfix::before,
+.clearfix::after {
+  content: " ";
+  display: table;
+}
+
+.clearfix::after {
+  clear: both;
+}
+
+.center-block {
+  @apply tw:block tw:ml-auto tw:mr-auto;
+}
+
+.pull-right {
+  @apply tw:float-right!;
+}
+
+.pull-left {
+  @apply tw:float-left!;
+}
+
+/* Toggling content */
+.hide {
+  @apply tw:hidden!;
+}
+
+.show {
+  @apply tw:block!;
+}
+
+.invisible {
+  @apply tw:invisible;
+}
+
+.text-hide {
+  font: 0/0 a;
+  color: transparent;
+  text-shadow: none;
+  background-color: transparent;
+  border: 0;
+}
+
+.hidden {
+  @apply tw:hidden! tw:invisible!;
+}
+
+/* Text */
+.text-left {
+  @apply tw:text-left;
+}
+
+.text-right {
+  @apply tw:text-right;
+}
+
+.text-center {
+  @apply tw:text-center;
+}
+
+.text-justify {
+  @apply tw:text-justify;
+}
+
+.text-nowrap {
+  @apply tw:whitespace-nowrap;
+}
+
+.text-lowercase {
+  @apply tw:lowercase;
+}
+
+.text-uppercase {
+  @apply tw:uppercase;
+}
+
+.text-capitalize {
+  @apply tw:capitalize;
+}
+
+/* Responsive visibility: hidden outside the breakpoint, shown inside it (table elements keep their own display) */
+
+.visible-xs,
+.visible-xs-block,
+.visible-xs-inline,
+.visible-xs-inline-block,
+.visible-sm,
+.visible-sm-block,
+.visible-sm-inline,
+.visible-sm-inline-block,
+.visible-md,
+.visible-md-block,
+.visible-md-inline,
+.visible-md-inline-block,
+.visible-lg,
+.visible-lg-block,
+.visible-lg-inline,
+.visible-lg-inline-block {
+  @apply tw:hidden!;
+}
+
+@media (max-width: 767px) {
+  .visible-xs {
+    @apply tw:block!;
+  }
+
+  table.visible-xs {
+    display: table;
+  }
+
+  tr.visible-xs {
+    @apply tw:table-row!;
+  }
+
+  th.visible-xs,
+  td.visible-xs {
+    @apply tw:table-cell!;
+  }
+}
+
+@media (max-width: 767px) {
+  .visible-xs-block {
+    @apply tw:block!;
+  }
+}
+
+@media (max-width: 767px) {
+  .visible-xs-inline {
+    @apply tw:inline!;
+  }
+}
+
+@media (max-width: 767px) {
+  .visible-xs-inline-block {
+    @apply tw:inline-block!;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .visible-sm {
+    @apply tw:block!;
+  }
+
+  table.visible-sm {
+    display: table;
+  }
+
+  tr.visible-sm {
+    @apply tw:table-row!;
+  }
+
+  th.visible-sm,
+  td.visible-sm {
+    @apply tw:table-cell!;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .visible-sm-block {
+    @apply tw:block!;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .visible-sm-inline {
+    @apply tw:inline!;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .visible-sm-inline-block {
+    @apply tw:inline-block!;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .visible-md {
+    @apply tw:block!;
+  }
+
+  table.visible-md {
+    display: table;
+  }
+
+  tr.visible-md {
+    @apply tw:table-row!;
+  }
+
+  th.visible-md,
+  td.visible-md {
+    @apply tw:table-cell!;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .visible-md-block {
+    @apply tw:block!;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .visible-md-inline {
+    @apply tw:inline!;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .visible-md-inline-block {
+    @apply tw:inline-block!;
+  }
+}
+
+@media (min-width: 1200px) {
+  .visible-lg {
+    @apply tw:block!;
+  }
+
+  table.visible-lg {
+    display: table;
+  }
+
+  tr.visible-lg {
+    @apply tw:table-row!;
+  }
+
+  th.visible-lg,
+  td.visible-lg {
+    @apply tw:table-cell!;
+  }
+}
+
+@media (min-width: 1200px) {
+  .visible-lg-block {
+    @apply tw:block!;
+  }
+}
+
+@media (min-width: 1200px) {
+  .visible-lg-inline {
+    @apply tw:inline!;
+  }
+}
+
+@media (min-width: 1200px) {
+  .visible-lg-inline-block {
+    @apply tw:inline-block!;
+  }
+}
+
+@media (max-width: 767px) {
+  .hidden-xs {
+    @apply tw:hidden!;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .hidden-sm {
+    @apply tw:hidden!;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .hidden-md {
+    @apply tw:hidden!;
+  }
+}
+
+@media (min-width: 1200px) {
+  .hidden-lg {
+    @apply tw:hidden!;
+  }
+}
+
+/* Print */
+.visible-print,
+.visible-print-block,
+.visible-print-inline,
+.visible-print-inline-block {
+  @apply tw:hidden!;
+}
+
+@media print {
+  .visible-print,
+  .visible-print-block {
+    @apply tw:block!;
+  }
+
+  table.visible-print {
+    display: table;
+  }
+
+  tr.visible-print {
+    @apply tw:table-row!;
+  }
+
+  th.visible-print,
+  td.visible-print {
+    @apply tw:table-cell!;
+  }
+
+  .visible-print-inline {
+    @apply tw:inline!;
+  }
+
+  .visible-print-inline-block {
+    @apply tw:inline-block!;
+  }
+
+  .hidden-print {
+    @apply tw:hidden!;
+  }
+}

@@ -1,33 +1,53 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.PasswordEncoderType;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditChannel;
+import com.almis.awe.model.security.audit.SecurityAuditEvent;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
+import com.almis.awe.model.security.audit.SecurityAuditOutcome;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.model.util.theme.ThemeOptions;
+import com.almis.awe.security.audit.SecurityAuditService;
+import com.almis.awe.security.authentication.SsoRoleNotMappedException;
+import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AccountStatusException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 
@@ -54,6 +74,29 @@ public class AccessService extends ServiceConfig {
 
   public static final String PROVISIONING_NEW_USER = "ProvisionNewUser";
   public static final String UPDATE_OAUTH_ROLE = "UpdateOauthUserProfile";
+  public static final String UPDATE_OAUTH_ADDITIONAL_PROFILES = "UpdateOauthUserAdditionalProfiles";
+  /** Session parameter with the SSO user whose additional profiles are replaced (only set while the target runs) */
+  public static final String SSO_PROFILES_USER_SESSION_PARAMETER = "ssoProfilesUser";
+  private static final String ADDITIONAL_PROFILES = "profiles";
+  // Column of the encrypted and hashed values returned to the Encrypt util screen
+  private static final String ENCODED_COLUMN = "encoded";
+  /** Request attribute holding the user name of an SSO login refused by AWE, for the security audit */
+  public static final String SSO_REJECTED_USERNAME_ATTRIBUTE = AccessService.class.getName() + ".ssoRejectedUsername";
+
+  private SecurityAuditService securityAuditService = SecurityAuditService.disabled();
+  private UserService userService;
+
+  /**
+   * Login parameter with the colour mode the user chose on the sign-in page (light, dark or system), also the session
+   * parameter that keeps it until the login completes
+   */
+  public static final String SIGNIN_THEME_MODE_PARAMETER = "signinThemeMode";
+
+  /**
+   * Login parameter with the language the user chose on the sign-in page (one of the languages of the application),
+   * also the session parameter that keeps it until the login completes
+   */
+  public static final String SIGNIN_LANGUAGE_PARAMETER = "signinLanguage";
 
   @Value("${jasypt.encryptor.algorithm:PBEWithMD5AndDES}")
   private String jasyptAlgorithm;
@@ -102,6 +145,26 @@ public class AccessService extends ServiceConfig {
   }
 
   /**
+   * Record the SSO logins, user provisioning, profile synchronization and second factor checks in the security audit
+   *
+   * @param securityAuditService Security audit service
+   */
+  @Autowired(required = false)
+  public void setSecurityAuditService(SecurityAuditService securityAuditService) {
+    this.securityAuditService = securityAuditService;
+  }
+
+  /**
+   * Save the colour mode and the language chosen on the sign-in page for the user once the login completes
+   *
+   * @param userService User service
+   */
+  @Autowired(required = false)
+  public void setUserService(UserService userService) {
+    this.userService = userService;
+  }
+
+  /**
    * Performs the login action
    *
    * @return serviceData the result of the login
@@ -111,6 +174,11 @@ public class AccessService extends ServiceConfig {
 
     // Get user details
     AweUserDetails userDetails = ((AweUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+    // The mode and the language chosen on the sign-in page are saved when the login completes (after the second factor,
+    // if any)
+    keepSigninThemeMode();
+    keepSigninLanguage();
 
     // Go to the corresponding screen depending on the second authentication factor
     switch (totpConfigProperties.getEnabled()) {
@@ -141,6 +209,10 @@ public class AccessService extends ServiceConfig {
    * @return do send redirect to Azure oauth portal
    */
   public ServiceData loginWithAzureEntraID() {
+    // The mode and the language chosen on the sign-in page are saved when the provider returns (the session survives
+    // the round trip)
+    keepSigninThemeMode();
+    keepSigninLanguage();
     return new ServiceData().addClientAction(new ClientAction(REDIRECT).setTarget(getRequest().getHttpRequest().getContextPath() + AZURE_OAUTH2_AUTHORIZATION_URL));
   }
 
@@ -151,6 +223,10 @@ public class AccessService extends ServiceConfig {
 	 * @return ServiceData with redirect action to the appropriate OAuth2 provider
 	 */
   public ServiceData loginWithSSO() {
+    // The mode and the language chosen on the sign-in page are saved when the provider returns (the session survives
+    // the round trip)
+    keepSigninThemeMode();
+    keepSigninLanguage();
 
 		OAuth2UrlService oAuth2UrlService = this.getApplicationContext().getBean(OAuth2UrlService.class);
 		Assert.notNull(oAuth2UrlService, "OAuth2UrlService bean not found");
@@ -170,10 +246,30 @@ public class AccessService extends ServiceConfig {
   public String onAuthenticationSuccess(OAuth2AuthenticationToken oAuth2Token) throws AWException {
 
     // Get user details
-    AweUserDetails userDetails = getUserDetails(oAuth2Token);
+    AweUserDetails userDetails;
+    try {
+      userDetails = getUserDetails(oAuth2Token);
+    } catch (AccountStatusException exc) {
+      // Recorded by the failure handler, which receives the refusal
+      rememberRejectedSsoUser(oAuth2Token);
+      throw exc;
+    } catch (AWException exc) {
+      auditSso(SecurityAuditEventType.LOGIN, SecurityAuditOutcome.FAILURE, SecurityAuditCause.ERROR, ssoUsername(oAuth2Token), exc.getTitle());
+      throw exc;
+    }
+    auditSso(SecurityAuditEventType.LOGIN, SecurityAuditOutcome.SUCCESS, null, userDetails.getUsername(), null);
+
+    // The session authentication gets the roles and permissions of the AWE user
+    addUserAuthorities(oAuth2Token, userDetails);
+
+    // The language chosen on the sign-in page before the SSO login wins over the language stored for the user
+    saveSigninLanguage(userDetails);
 
     // Store session details
     sessionDetails.onLoginSuccess(userDetails);
+
+    // The mode chosen on the sign-in page before the SSO login wins over the mode stored for the user, and becomes it
+    saveSigninThemeMode(userDetails);
 
     // Generate initial URL
     Menu menu = menuService.getMenu();
@@ -197,12 +293,62 @@ public class AccessService extends ServiceConfig {
 	 */
 	private AweUserDetails getUserDetails(OAuth2AuthenticationToken oauth2Token) throws AWException {
 		Map<String, Object> attributes = oauth2Token.getPrincipal().getAttributes();
-		log.debug("Available attributes in token: {}", getAllAttributes(oauth2Token));
+		// Attribute values may be personal or sensitive: only their names are logged
+		log.debug("Available attributes in token: {}", getAllAttributes(oauth2Token).keySet());
 
 		String userName = mapUsernameFromOauthToken(attributes);
 		Optional<String> roleFromOAuth = userDetailsService.mapGrantedAuthorityProfile(oauth2Token.getAuthorities());
+		checkRequiredRole(userName, roleFromOAuth.orElse(null));
 
 		return loadUserDetailsWithRoleSync(userName, roleFromOAuth, oauth2Token);
+	}
+
+	/**
+	 * Replaces the authentication of the security context with one that keeps the principal, the client registration
+	 * and the provider authorities, and adds the authorities of the AWE user (one role per profile and one
+	 * {@code PERM_} authority per effective permission). A {@code PERM_} authority sent by the provider is dropped: the
+	 * permissions come only from AWE. The success handler stores the context in the session
+	 *
+	 * @param oauth2Token OAuth2 token of the provider
+	 * @param userDetails AWE user details
+	 */
+	private void addUserAuthorities(OAuth2AuthenticationToken oauth2Token, AweUserDetails userDetails) {
+		Set<GrantedAuthority> authorities = new LinkedHashSet<>();
+		oauth2Token.getAuthorities().stream()
+			.filter(authority -> authority.getAuthority() == null
+				|| !authority.getAuthority().startsWith(AweUserDetailService.PERMISSION_AUTHORITY_PREFIX))
+			.forEach(authorities::add);
+		if (userDetails.getAuthorities() != null) {
+			authorities.addAll(userDetails.getAuthorities());
+		}
+		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(oauth2Token.getPrincipal(), authorities,
+			oauth2Token.getAuthorizedClientRegistrationId());
+		authentication.setDetails(oauth2Token.getDetails());
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(authentication);
+		SecurityContextHolder.setContext(context);
+	}
+
+	/**
+	 * Refuses the login when a role is required ({@code awe.security.sso.require-role}, or local login switched off) and
+	 * no role sent by the provider maps to an existing AWE profile. Neither the stored profile nor the default role is
+	 * used in that case (fail closed).
+	 *
+	 * @param userName      user name taken from the token
+	 * @param roleFromOAuth profile mapped from the provider roles, null if none
+	 * @throws AWException                AWE exception checking the profile
+	 * @throws SsoRoleNotMappedException if a role is required and none maps to an AWE profile
+	 */
+	private void checkRequiredRole(String userName, String roleFromOAuth) throws AWException {
+		if (!securityConfigProperties.getSso().isRoleRequired()) {
+			return;
+		}
+		boolean mapped = roleFromOAuth != null && userDetailsService.existRole(roleFromOAuth);
+		if (!mapped) {
+			log.warn("SSO login rejected: no role from the identity provider maps to an AWE profile for user {}",
+				userName.replaceAll("\\p{Cntrl}", "_"));
+			throw new SsoRoleNotMappedException(getLocale("ERROR_MESSAGE_SSO_NO_ROLE"));
+		}
 	}
 
 	/**
@@ -236,18 +382,79 @@ public class AccessService extends ServiceConfig {
 	private AweUserDetails loadUserDetailsWithRoleSync(String userName, Optional<String> roleFromOAuth, OAuth2AuthenticationToken oauth2Token) throws AWException {
 		try {
 			AweUserDetails userDetails = userDetailsService.loadUserByUsername(userName);
+			checkAccountStatus(userDetails);
 			checkUpdateRoleInOAuth(userDetails, roleFromOAuth);
+			updateAdditionalProfiles(userDetails, roleFromOAuth, oauth2Token);
 			return userDetails;
 		} catch (UsernameNotFoundException ex) {
 			// User not found in the database, provision a new one
-			return loadAndProvisionNewUser(oauth2Token);
+			return loadAndProvisionNewUser(oauth2Token, roleFromOAuth);
 		}
 	}
 
-	private AweUserDetails loadAndProvisionNewUser(OAuth2AuthenticationToken oauth2Token) throws AWException {
+	/**
+	 * Rejects an existing AWE user that is disabled or locked, so the identity provider cannot be used to bypass
+	 * those AWE flags. Credentials expiration is not checked: the password is not used on SSO.
+	 *
+	 * @param userDetails user details loaded from the database
+	 * @throws DisabledException if the user is disabled
+	 * @throws LockedException   if the user is locked
+	 */
+	private void checkAccountStatus(AweUserDetails userDetails) {
+		if (!userDetails.isEnabled()) {
+			log.warn("SSO login rejected: user {} is disabled in AWE", userDetails.getUsername());
+			throw new DisabledException(getLocale("ERROR_MESSAGE_SSO_USER_DISABLED"));
+		}
+		if (!userDetails.isAccountNonLocked()) {
+			log.warn("SSO login rejected: user {} is locked in AWE", userDetails.getUsername());
+			throw new LockedException(getLocale("ERROR_MESSAGE_SSO_USER_LOCKED"));
+		}
+	}
+
+	private AweUserDetails loadAndProvisionNewUser(OAuth2AuthenticationToken oauth2Token, Optional<String> roleFromOAuth)
+		throws AWException {
 		AweUserDetails userDetails = userDetailsService.loadUserByRole(oauth2Token);
-		autoProvisionUser(userDetails);
+		if (autoProvisionUser(userDetails)) {
+			updateAdditionalProfiles(userDetails, roleFromOAuth, oauth2Token);
+		}
 		return userDetails;
+	}
+
+	/**
+	 * Replaces the additional profiles of an SSO user (AweOpeRol) with the other provider roles that map to an AWE
+	 * profile: the provider is the source of truth. Only when the main profile comes from a provider role with a profile;
+	 * otherwise (no role, or roles without a profile) the login follows the current flow and the rows are kept. A user DAO
+	 * that does not support additional profiles never has its rows written nor deleted. The user is a session parameter
+	 * set only while the target runs, never a request parameter.
+	 *
+	 * @param userDetails   user details, refreshed with the stored additional profiles
+	 * @param roleFromOAuth main profile mapped from the provider roles, empty if none
+	 * @param oauth2Token   OAuth2 token with the provider roles
+	 * @throws AWException AWE exception
+	 */
+	private void updateAdditionalProfiles(AweUserDetails userDetails, Optional<String> roleFromOAuth,
+		OAuth2AuthenticationToken oauth2Token) throws AWException {
+		if (roleFromOAuth.isEmpty() || !userDetailsService.existRole(roleFromOAuth.get())) {
+			return;
+		}
+		if (!userDetailsService.supportsAdditionalProfiles()) {
+			log.debug("The user DAO does not support additional profiles: the additional profiles of user {} are not changed",
+				userDetails.getUsername());
+			return;
+		}
+		List<Integer> profiles = userDetailsService.mapAdditionalProfileIds(oauth2Token.getAuthorities(),
+			roleFromOAuth.get());
+		ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+		ArrayNode profileIds = parameters.putArray(ADDITIONAL_PROFILES);
+		profiles.forEach(profileId -> profileIds.add(profileId.intValue()));
+		AweSession session = getSession();
+		session.setParameter(SSO_PROFILES_USER_SESSION_PARAMETER, userDetails.getUsername());
+		try {
+			maintainService.launchPrivateMaintain(UPDATE_OAUTH_ADDITIONAL_PROFILES, parameters);
+		} finally {
+			session.removeParameter(SSO_PROFILES_USER_SESSION_PARAMETER);
+		}
+		userDetailsService.refreshAdditionalProfiles(userDetails);
 	}
 
 	/**
@@ -295,11 +502,14 @@ public class AccessService extends ServiceConfig {
       parameters.put(USERNAME, userDetails.getUsername());
       parameters.put(PROFILE, role);
       maintainService.launchPrivateMaintain(UPDATE_OAUTH_ROLE, parameters);
+      auditSso(SecurityAuditEventType.SSO_PROFILE_SYNC, SecurityAuditOutcome.SUCCESS, null, userDetails.getUsername(),
+        userDetails.getProfileName() + " -> " + role);
     }
   }
 
-  private void autoProvisionUser(AweUserDetails userDetails) throws AWException {
-    if (securityConfigProperties.getSso().isAutoProvisionUser()) {
+  private boolean autoProvisionUser(AweUserDetails userDetails) throws AWException {
+    boolean provision = securityConfigProperties.getSso().isAutoProvisionUser();
+    if (provision) {
       // Provision new user
       ObjectNode parameters = JsonNodeFactory.instance.objectNode();
       parameters.put(EMAIL, userDetails.getEmail());
@@ -308,19 +518,141 @@ public class AccessService extends ServiceConfig {
       parameters.put(PROFILE, userDetails.getProfile());
       parameters.put(SESSION_LANGUAGE, baseConfigProperties.getLanguageDefault());
       maintainService.launchPrivateMaintain(PROVISIONING_NEW_USER, parameters);
+      auditSso(SecurityAuditEventType.SSO_PROVISIONING, SecurityAuditOutcome.SUCCESS, null, userDetails.getUsername(),
+        userDetails.getProfile());
+    }
+    return provision;
+  }
+
+  private void auditSso(SecurityAuditEventType type, SecurityAuditOutcome outcome, SecurityAuditCause cause, String username, String detail) {
+    securityAuditService.publish(SecurityAuditEvent.builder()
+      .type(type)
+      .outcome(outcome)
+      .cause(cause)
+      .channel(SecurityAuditChannel.SSO)
+      .username(username)
+      .detail(detail)
+      .build());
+  }
+
+  /**
+   * User name of an SSO login for the security audit: the configured user name attribute, or the token name
+   */
+  private String ssoUsername(OAuth2AuthenticationToken oauth2Token) {
+    Object attribute = oauth2Token.getPrincipal().getAttributes().get(securityConfigProperties.getSso().getUserNameAttribute());
+    return attribute == null || attribute.toString().isEmpty() ? oauth2Token.getName() : attribute.toString();
+  }
+
+  private void rememberRejectedSsoUser(OAuth2AuthenticationToken oauth2Token) {
+    RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
+    if (attributes != null) {
+      attributes.setAttribute(SSO_REJECTED_USERNAME_ATTRIBUTE, ssoUsername(oauth2Token), RequestAttributes.SCOPE_REQUEST);
     }
   }
 
   /**
-     * Go home screen
-     *
-     * @param userDetails User details
-     * @return Service data
-     * @throws AWException AWE exception
-     */
+   * Keep in session the colour mode chosen on the sign-in page, sent with the login, until the login completes
+   */
+  private void keepSigninThemeMode() {
+    String mode = getRequest().getParameterAsString(SIGNIN_THEME_MODE_PARAMETER);
+    if (ThemeOptions.isMode(mode)) {
+      getSession().setParameter(SIGNIN_THEME_MODE_PARAMETER, ThemeOptions.normalize(mode));
+    } else {
+      // A mode left by a login that did not complete (second factor or SSO abandoned) never reaches another login
+      getSession().removeParameter(SIGNIN_THEME_MODE_PARAMETER);
+    }
+  }
+
+  /**
+   * Save the colour mode chosen on the sign-in page as the mode of the user. A failure is logged and does not stop the
+   * login: the user keeps the mode stored before
+   *
+   * @param userDetails User details
+   */
+  private void saveSigninThemeMode(AweUserDetails userDetails) {
+    AweSession session = getSession();
+    String mode = session.getParameter(String.class, SIGNIN_THEME_MODE_PARAMETER);
+    if (mode == null || userService == null) {
+      return;
+    }
+    session.removeParameter(SIGNIN_THEME_MODE_PARAMETER);
+    try {
+      userService.changeUserMode(userDetails.getUsername(), mode);
+    } catch (Exception exc) {
+      log.warn("The colour mode chosen on the sign-in page could not be saved for the user", exc);
+    }
+  }
+
+  /**
+   * Keep in session the language chosen on the sign-in page, sent with the login, until the login completes. Only a
+   * language of the application is kept
+   */
+  private void keepSigninLanguage() {
+    String language = getRequest().getParameterAsString(SIGNIN_LANGUAGE_PARAMETER);
+    Optional<String> known = language == null ? Optional.empty() : baseConfigProperties.getLanguageList().stream()
+      .filter(language::equalsIgnoreCase)
+      .findFirst();
+    if (known.isPresent()) {
+      getSession().setParameter(SIGNIN_LANGUAGE_PARAMETER, known.get());
+    } else {
+      // A language left by a login that did not complete (second factor or SSO abandoned) never reaches another login
+      getSession().removeParameter(SIGNIN_LANGUAGE_PARAMETER);
+    }
+  }
+
+  /**
+   * Language of the screen the login shows before it completes (second factor): the one chosen on the sign-in page, else
+   * the language of the user
+   *
+   * @param userDetails User details
+   * @return Language
+   */
+  private String pendingLanguage(AweUserDetails userDetails) {
+    String language = getSession().getParameter(String.class, SIGNIN_LANGUAGE_PARAMETER);
+    return language == null ? userDetails.getLanguage() : language;
+  }
+
+  /**
+   * Make the language chosen on the sign-in page the language of the user: the language of the user details (so the
+   * session language and the change language action carry it), saved for the user. Called before the session details
+   * are stored. A failure saving it is logged and does not stop the login
+   *
+   * @param userDetails User details
+   */
+  private void saveSigninLanguage(AweUserDetails userDetails) {
+    AweSession session = getSession();
+    String language = session.getParameter(String.class, SIGNIN_LANGUAGE_PARAMETER);
+    if (language == null) {
+      return;
+    }
+    session.removeParameter(SIGNIN_LANGUAGE_PARAMETER);
+    userDetails.setLanguage(language);
+    if (userService == null) {
+      return;
+    }
+    try {
+      userService.changeUserLanguage(userDetails.getUsername(), language);
+    } catch (Exception exc) {
+      log.warn("The language chosen on the sign-in page could not be saved for the user", exc);
+    }
+  }
+
+  /**
+   * Go home screen
+   *
+   * @param userDetails User details
+   * @return Service data
+   * @throws AWException AWE exception
+   */
   private ServiceData goToHomeScreen(AweUserDetails userDetails) throws AWException {
+    // The language chosen on the sign-in page wins over the language stored for the user, and becomes it
+    saveSigninLanguage(userDetails);
+
     // Store session details
     sessionDetails.onLoginSuccess(userDetails);
+
+    // The mode chosen on the sign-in page wins over the mode stored for the user, and becomes it
+    saveSigninThemeMode(userDetails);
 
     // Generate initial URL
     Menu menu = menuService.getMenu();
@@ -352,7 +684,7 @@ public class AccessService extends ServiceConfig {
         .setContext(SCREEN)
         .addParameter(JSON_SCREEN, totpConfigProperties.getActivateScreen()))
       .addClientAction(new ClientAction(CHANGE_LANGUAGE)
-        .addParameter(SESSION_LANGUAGE, userDetails.getLanguage()))
+        .addParameter(SESSION_LANGUAGE, pendingLanguage(userDetails)))
       .addClientAction(new ClientAction(CHANGE_THEME)
         .addParameter(SESSION_THEME, userDetails.getTheme()));
   }
@@ -369,7 +701,7 @@ public class AccessService extends ServiceConfig {
         .setContext(SCREEN)
         .addParameter(JSON_SCREEN, totpConfigProperties.getInitialScreen()))
       .addClientAction(new ClientAction(CHANGE_LANGUAGE)
-        .addParameter(SESSION_LANGUAGE, userDetails.getLanguage()))
+        .addParameter(SESSION_LANGUAGE, pendingLanguage(userDetails)))
       .addClientAction(new ClientAction(CHANGE_THEME)
         .addParameter(SESSION_THEME, userDetails.getTheme()));
   }
@@ -382,8 +714,10 @@ public class AccessService extends ServiceConfig {
   public ServiceData verify2faCode(String code) throws AWException {
     AweUserDetails userDetails = ((AweUserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal());
     if (totpService.verify2faCode(code)) {
+      securityAuditService.success(SecurityAuditEventType.TOTP_VERIFICATION, userDetails.getUsername(), null);
       return goToHomeScreen(userDetails);
     } else {
+      securityAuditService.failure(SecurityAuditEventType.TOTP_VERIFICATION, userDetails.getUsername(), SecurityAuditCause.INVALID_CODE, null);
       throw new AWException(getLocale("ERROR_TITLE_INVALID_2FA_CODE"), getLocale("ERROR_MESSAGE_INVALID_2FA_CODE"), AnswerType.WARNING);
     }
   }
@@ -461,7 +795,58 @@ public class AccessService extends ServiceConfig {
     // Encode the text
     String textEncrypted = encodeService.encryptRipEmd160WithPhraseKey(textToEncrypt, phraseKey);
     DataList dataList = new DataList();
-    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncrypted);
+    DataListUtil.addColumnWithOneRow(dataList, ENCODED_COLUMN, textEncrypted);
+    return new ServiceData()
+      .setDataList(dataList);
+  }
+
+  /**
+   * Hashes a password as the standard user screens store it in {@code ope.l1_pas}, with the given algorithm or, without
+   * it, with the configured password encoder. The result keeps the format of the algorithm (for example the
+   * {@code {bcrypt}} prefix, or the bare AWE 4 RIPEMD-160 hash), so it can be inserted into the database as is
+   *
+   * @param password  password to hash
+   * @param algorithm password algorithm ({@code bcrypt} or {@code ripemd160}); empty for the configured one
+   * @return Service Data with the password hash (empty without password)
+   * @throws AWException the algorithm is not a password algorithm
+   */
+  public ServiceData hashPassword(String password, String algorithm) throws AWException {
+    PasswordEncoderType type = null;
+    if (StringUtils.isNotBlank(algorithm)) {
+      try {
+        type = PasswordEncoderType.valueOf(algorithm.trim().toUpperCase(Locale.ROOT));
+      } catch (IllegalArgumentException exc) {
+        throw new AWException(getLocale("ERROR_TITLE_PASSWORD_HASH"), getLocale("ERROR_MESSAGE_PASSWORD_ALGORITHM"), AnswerType.WARNING);
+      }
+    }
+    String hash;
+    if (StringUtils.isEmpty(password)) {
+      hash = "";
+    } else if (type == null) {
+      hash = encodeService.encodePassword(password);
+    } else {
+      hash = new AwePasswordEncoder(type).encode(password);
+    }
+    DataList dataList = new DataList();
+    DataListUtil.addColumnWithOneRow(dataList, ENCODED_COLUMN, hash);
+    return new ServiceData()
+      .setDataList(dataList);
+  }
+
+  /**
+   * Password algorithms that {@link #hashPassword(String, String)} accepts, the configured one first so that it is the
+   * one selected by default
+   *
+   * @return Service Data with the algorithms (value and label)
+   */
+  public ServiceData getPasswordAlgorithms() {
+    PasswordEncoderType configured = securityConfigProperties.getPasswordEncoder();
+    List<PasswordEncoderType> types = new ArrayList<>(List.of(PasswordEncoderType.values()));
+    types.remove(configured);
+    types.add(0, configured);
+    DataList dataList = new DataList();
+    DataListUtil.addColumn(dataList, "value", types.stream().map(type -> type.name().toLowerCase(Locale.ROOT)).toList());
+    DataListUtil.addColumn(dataList, "label", types.stream().map(type -> type == PasswordEncoderType.BCRYPT ? "BCrypt" : "RIPEMD-160 (AWE 4)").toList());
     return new ServiceData()
       .setDataList(dataList);
   }
@@ -483,7 +868,7 @@ public class AccessService extends ServiceConfig {
     // Encode the text
     String textEncrypted = "ENC(" + encryptor.encrypt(textToEncrypt) + ")";
     DataList dataList = new DataList();
-    DataListUtil.addColumnWithOneRow(dataList, "encoded", textEncrypted);
+    DataListUtil.addColumnWithOneRow(dataList, ENCODED_COLUMN, textEncrypted);
     return new ServiceData()
       .setDataList(dataList);
   }

@@ -1,5 +1,6 @@
 package com.almis.awe.service;
 
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.dao.TemplateDao;
 import com.almis.awe.exception.AWENotFoundException;
@@ -14,13 +15,17 @@ import com.almis.awe.model.entities.menu.Option;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.Tag;
 import com.almis.awe.model.entities.screen.component.TagList;
+import com.almis.awe.model.type.WindowHeaderType;
 import com.almis.awe.model.util.data.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.web.util.HtmlUtils;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -126,9 +131,26 @@ public class TemplateService extends ServiceConfig {
     // Add screen title
     screenTemplate.add(AweConstants.TEMPLATE_TITLE, screen.getLabel());
 
+    // Add the window header, only to the templates that declare it (custom templates keep working)
+    if (declaresArgument(screenTemplate, AweConstants.TEMPLATE_HEADER)) {
+      WindowHeaderType applicationHeader = getBean(BaseConfigProperties.class).getWindowHeader();
+      screenTemplate.add(AweConstants.TEMPLATE_HEADER, WindowHeaderType.parse(screen.getWindowHeader(), applicationHeader).getValue());
+    }
+
     // Add breadcrumbs
     if (AweConstants.REPORT_VIEW.equalsIgnoreCase(view)) {
-      screenTemplate.add(AweConstants.TEMPLATE_BREADCRUMBS, generateBreadcrumbTemplate(optionId, menu));
+      Option option = menuService.getOptionByName(optionId, menu);
+      screenTemplate.add(AweConstants.TEMPLATE_BREADCRUMBS, generateBreadcrumbTemplate(option));
+
+      // The levels for the client breadcrumb, only to the templates that declare them (custom templates keep working)
+      if (declaresArgument(screenTemplate, AweConstants.TEMPLATE_LEVELS)) {
+        screenTemplate.add(AweConstants.TEMPLATE_LEVELS, generateBreadcrumbLevels(option));
+      }
+
+      // The name of the option of the screen, so the client knows which menu path the screen is on (same rule as the levels)
+      if (declaresArgument(screenTemplate, AweConstants.TEMPLATE_OPTION)) {
+        screenTemplate.add(AweConstants.TEMPLATE_OPTION, option == null ? "" : HtmlUtils.htmlEscape(option.getName()));
+      }
     }
 
     // Retrieve code
@@ -136,30 +158,69 @@ public class TemplateService extends ServiceConfig {
   }
 
   /**
+   * Check if a template declares an argument
+   *
+   * @param template Template
+   * @param argument Argument name
+   * @return The template declares the argument
+   */
+  private boolean declaresArgument(ST template, String argument) {
+    return template.impl != null && template.impl.formalArguments != null && template.impl.formalArguments.containsKey(argument);
+  }
+
+  /**
    * Generates screen breadcrumbs
    *
-   * @param optionId Option identifier
-   * @param menu     Menu
+   * @param option Option of the screen
    * @return Breadcrumbs
    * @throws AWException Error generating breadcrumbs
    */
-  private List<ST> generateBreadcrumbTemplate(String optionId, Menu menu) throws AWException {
-    // Variable definition
+  private List<ST> generateBreadcrumbTemplate(Option option) throws AWException {
     List<ST> breadcrumbs = new ArrayList<>();
-    Option option = menuService.getOptionByName(optionId, menu);
-
-    // Generate breadcrumbs
-    if (option != null) {
-      Option nextOption = option;
-      while (nextOption.getParent() != null) {
-        ST breadcrumb = elementsTemplateGroup.createStringTemplate(elementsTemplateGroup.rawGetTemplate(AweConstants.TEMPLATE_BREADCRUMB));
-
-        nextOption = nextOption.getParent();
-        breadcrumb.add("text", nextOption.getLabel());
-        breadcrumbs.add(0, breadcrumb);
-      }
+    for (Option parent : getParents(option)) {
+      ST breadcrumb = elementsTemplateGroup.createStringTemplate(elementsTemplateGroup.rawGetTemplate(AweConstants.TEMPLATE_BREADCRUMB));
+      breadcrumb.add("text", parent.getLabel());
+      breadcrumbs.add(breadcrumb);
     }
     return breadcrumbs;
+  }
+
+  /**
+   * Generates the levels of the client breadcrumb: the menu levels above the option, as a JSON list escaped to be an
+   * attribute value. A level that has actions, or a menu screen option, is an option the client launches like the
+   * menu, any other one is a group
+   *
+   * @param option Option of the screen
+   * @return Levels
+   */
+  private String generateBreadcrumbLevels(Option option) {
+    List<Map<String, Object>> levels = new ArrayList<>();
+    for (Option parent : getParents(option)) {
+      Map<String, Object> level = new LinkedHashMap<>();
+      level.put("name", parent.getName());
+      level.put("label", parent.getLabel());
+      boolean withoutActions = parent.getActionList() == null || parent.getActionList().isEmpty();
+      // A menu screen option is a leaf of the menu that opens its screen, not a group
+      level.put("group", !parent.isMenuScreen() && withoutActions);
+      levels.add(level);
+    }
+    return HtmlUtils.htmlEscape(JsonMapper.shared().writeValueAsString(levels));
+  }
+
+  /**
+   * Retrieve the options above an option
+   *
+   * @param option Option (null when the screen is not in the menu)
+   * @return Parent options, the outermost first
+   */
+  private List<Option> getParents(Option option) {
+    List<Option> parents = new ArrayList<>();
+    Option next = option;
+    while (next != null && next.getParent() != null) {
+      next = next.getParent();
+      parents.add(0, next);
+    }
+    return parents;
   }
 
   /**
@@ -181,10 +242,12 @@ public class TemplateService extends ServiceConfig {
     for (Future<ST> content : contents) {
       try {
         applicationTemplate.add(AweConstants.TEMPLATE_CONTENT, content.get());
+      } catch (InterruptedException exc) {
+        log.error("Error generating application help", exc);
+        Thread.currentThread().interrupt();
       } catch (Exception exc) {
         // Only show a log if a screen fails
         log.error("Error generating application help", exc);
-        Thread.currentThread().interrupt();
       }
     }
 
@@ -299,9 +362,15 @@ public class TemplateService extends ServiceConfig {
    * @param screen    Screen
    * @param tagListId Taglist identifier
    * @return Taglist template
+   * @throws AWENotFoundException Taglist is not defined in the screen
    */
-  public TagList getTagList(Screen screen, String tagListId) {
-    return (TagList) (screen.getElementsById(tagListId).get(0));
+  public TagList getTagList(Screen screen, String tagListId) throws AWENotFoundException {
+    List<Element> tagLists = screen.getElementsById(tagListId);
+    if (tagLists.isEmpty()) {
+      throw new AWENotFoundException(getLocale("ERROR_TITLE_NOT_DEFINED", tagListId),
+        getLocale("ERROR_MESSAGE_NOT_DEFINED_IN", tagListId, screen.getId()));
+    }
+    return (TagList) tagLists.get(0);
   }
 
   /**

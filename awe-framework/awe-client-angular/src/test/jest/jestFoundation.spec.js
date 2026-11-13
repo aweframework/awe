@@ -33,6 +33,40 @@ describe("Jest foundation configuration", () => {
     expect(obsoleteScopedScripts).toEqual([]);
   });
 
+  it("recycles the CI workers that keep too much memory in the compat run, the only one that builds the styles", () => {
+    const configWith = (ci, file) => {
+      const previous = process.env.CI;
+      if (ci === undefined) {
+        delete process.env.CI;
+      } else {
+        process.env.CI = ci;
+      }
+      try {
+        let config;
+        jest.isolateModules(() => {
+          config = require(file);
+        });
+        return config;
+      } finally {
+        if (previous === undefined) {
+          delete process.env.CI;
+        } else {
+          process.env.CI = previous;
+        }
+      }
+    };
+
+    // The compat guards of styles/ compile the LESS and Tailwind builds: their own run gets the limit and the long timeout
+    expect(configWith("true", "../../../jest.compat.config").workerIdleMemoryLimit).toBe("1GB");
+    expect(configWith("true", "../../../jest.compat.config").testTimeout).toBe(30000);
+    expect(configWith(undefined, "../../../jest.compat.config").workerIdleMemoryLimit).toBeUndefined();
+    // The default run (npm test, the merge request job) leaves them out, together with the styles/ suites
+    expect(configWith("true", "../../../jest.config").workerIdleMemoryLimit).toBeUndefined();
+    expect(configWith("true", "../../../jest.config").testTimeout).toBeUndefined();
+    expect(jestConfig.testPathIgnorePatterns).toEqual(expect.arrayContaining([expect.stringContaining("src/test/jest/styles/")]));
+    expect(packageConfig.scripts["test:compat"]).toBe("jest --config jest.compat.config.js");
+  });
+
   it("publishes stable GitLab JUnit, Sonar, and LCOV report locations", () => {
     expect(jestConfig.coverageDirectory).toBe(
       path.join(__dirname, "..", "..", "..", "target", "reports", "jest", "coverage")
@@ -58,7 +92,10 @@ describe("Jest foundation configuration", () => {
     const normalizedRootPom = collapseWhitespace(rootPomXml);
 
     expect(normalizedPom).toContain("<id>jest</id> <goals> <goal>npm</goal> </goals> <phase>test</phase>");
-    expect(normalizedPom).toContain("<arguments>run test:coverage</arguments>");
+    // The npm script is a property so that "Unit · AngularJS · Compat" runs test:compat with the same execution
+    expect(normalizedPom).toContain("<arguments>run ${jest.script}</arguments>");
+    expect(normalizedPom).toContain("<jest.script>test:coverage</jest.script>");
+    expect(gitlabCi).toContain("-Djest.script=test:compat");
     expect(pomXml).toContain("target/reports/jest/sonar/javascriptUnitTests.xml");
     expect(pomXml).toContain("target/reports/jest/coverage/lcov.info");
     expect(normalizedRootPom).toContain(
@@ -90,6 +127,34 @@ describe("Jest foundation configuration", () => {
     expect(rootPomXml).not.toContain("target/reports/karma/");
   });
 
+  it("does not keep unused build dependencies or Karma-era coverage instrumentation", () => {
+    const dependencyNames = [
+      ...Object.keys(packageConfig.dependencies || {}),
+      ...Object.keys(packageConfig.devDependencies || {})
+    ];
+
+    expect(dependencyNames).not.toEqual(expect.arrayContaining(["exports-loader"]));
+    expect(dependencyNames).not.toEqual(expect.arrayContaining(["@babel/types"]));
+    expect(dependencyNames).not.toEqual(expect.arrayContaining(["babel-plugin-istanbul"]));
+    expect(Object.keys(babelConfig.env)).toEqual(["jest", "production"]);
+  });
+
+  it("does not depend on moment and uses the lighter day.js instead", () => {
+    const dependencyNames = Object.keys(packageConfig.dependencies || {});
+
+    expect(dependencyNames).not.toContain("moment");
+    expect(dependencyNames).toContain("dayjs");
+  });
+
+  it("draws charts with the same ECharts version as the React client and without Highcharts", () => {
+    const reactPackage = JSON.parse(fs.readFileSync(
+      path.join(__dirname, "..", "..", "..", "..", "awe-client-react", "package.json"), "utf8"));
+    const dependencyNames = Object.keys(packageConfig.dependencies || {});
+
+    expect(dependencyNames).not.toContain("highcharts");
+    expect(packageConfig.dependencies.echarts).toBe(reactPackage.dependencies.echarts);
+  });
+
   it("discovers source-traceable Jest specs instead of relying on npm bucket scripts", () => {
     expect(jestConfig.testMatch).toEqual(expect.arrayContaining([
       "<rootDir>/src/test/jest/**/*.spec.js",
@@ -101,8 +166,7 @@ describe("Jest foundation configuration", () => {
     expect(jestConfig.moduleNameMapper).toEqual(expect.objectContaining({
       "^jquery$": expect.stringContaining(path.join("node_modules", "jquery", "dist", "jquery")),
       "^bootstrap-tabdrop$": expect.stringContaining(path.join("src", "test", "jest", "mocks", "pluginMock.js")),
-      "^highcharts/highstock$": expect.stringContaining(path.join("src", "test", "jest", "mocks", "highchartsMock.js")),
-      "^highcharts/(.*)$": expect.stringContaining(path.join("src", "test", "jest", "mocks", "highchartsModuleMock.js")),
+      "^awe-client-react/(.*)$": expect.stringContaining(path.join("awe-client-react", "src", "$1")),
       "\\.(css|less)$": expect.stringContaining(path.join("src", "test", "jest", "mocks", "styleMock.js")),
       "\\.(jpg|jpeg|png|gif|svg|ttf|eot|woff|woff2)$": expect.stringContaining(
         path.join("src", "test", "jest", "mocks", "fileMock.js")
@@ -111,21 +175,31 @@ describe("Jest foundation configuration", () => {
   });
 
   it("uses a Jest Babel environment without Karma's Istanbul preprocessing", () => {
-    expect(jestConfig.transform["^.+\\.js$"][1]).toEqual({ envName: "jest" });
+    expect(jestConfig.transform["^.+\\.(js|ts)$"][1]).toEqual({
+      envName: "jest",
+      configFile: path.join(__dirname, "..", "..", "..", ".babelrc"),
+      babelrc: false
+    });
     expect(babelConfig.env.jest).toEqual({
       compact: false,
       plugins: []
     });
   });
 
-  it("keeps migrated browser-selection tests declared in their Jest spec", () => {
-    const browserSelectionEntrypoint = fs.readFileSync(
-      path.join(__dirname, "karma", "browserSelection.jest.spec.js"),
-      "utf8"
-    );
+  it("keeps no Karma browser selection helpers or Jasmine-only specs outside the Jest owners", () => {
+    const legacyDir = path.join(__dirname, "..", "js");
+    const jestSources = fs.readdirSync(__dirname, {recursive: true})
+      .filter(file => String(file).endsWith(".js"))
+      .map(file => fs.readFileSync(path.join(__dirname, String(file)), "utf8"))
+      .join("\n");
+    const legacySpecs = fs.readdirSync(legacyDir, {recursive: true})
+      .filter(file => String(file).endsWith(".js"))
+      .map(String);
 
-    expect(browserSelectionEntrypoint).toContain('describe("karma browser selection"');
-    expect(browserSelectionEntrypoint).not.toContain("browserSelection.spec.js");
+    expect(legacySpecs).not.toContain(path.join("karma", "browserSelection.js"));
+    legacySpecs.filter(file => file !== "utils.js").forEach(file => {
+      expect(jestSources).toContain(file.split(path.sep).join("/"));
+    });
   });
 
   it("keeps Jest setup free of Jasmine compatibility bridge APIs", () => {
@@ -137,13 +211,8 @@ describe("Jest foundation configuration", () => {
   });
 
   it("preserves runtime shims required by migrated AngularJS suites", () => {
-    const highchartsMock = require("./mocks/highchartsMock.js");
-    const highchartsModuleMock = require("./mocks/highchartsModuleMock.js");
     const input = global.$("<input />");
     const target = { nested: { value: "original" } };
-
-    expect(highchartsMock.chart()).toEqual({ destroy: expect.any(Function), reflow: expect.any(Function) });
-    expect(highchartsModuleMock(highchartsMock)).toBe(highchartsMock);
 
     global._.merge(target, { nested: { extra: true } });
     expect(target).toEqual({ nested: { value: "original", extra: true } });

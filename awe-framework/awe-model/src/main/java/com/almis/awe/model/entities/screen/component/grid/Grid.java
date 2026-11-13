@@ -9,6 +9,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Grid Class
  *
@@ -29,6 +31,7 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Grid extends AbstractGrid {
 
+  @Serial
   private static final long serialVersionUID = 3775377158422655923L;
 
   @Override

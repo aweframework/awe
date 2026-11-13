@@ -6,7 +6,6 @@ import com.almis.awe.developer.translators.clients.MyMemoryClient;
 import com.almis.awe.developer.translators.clients.MyMemoryFeignClient;
 import com.almis.awe.developer.translators.clients.RapidAPIClient;
 import com.almis.awe.developer.translators.clients.RapidAPIFeignClient;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -22,7 +21,6 @@ public class TranslationServicesConfig {
   private final MyMemoryConfigProperties myMemoryConfigProperties;
   private final RapidAPIConfigProperties rapidAPIConfigProperties;
 
-  @Autowired
   public TranslationServicesConfig(MyMemoryConfigProperties myMemoryConfigProperties,
                                    RapidAPIConfigProperties rapidAPIConfigProperties) {
     this.myMemoryConfigProperties = myMemoryConfigProperties;

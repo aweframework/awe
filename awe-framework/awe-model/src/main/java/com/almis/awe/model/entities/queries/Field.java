@@ -9,6 +9,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Field Class
  * Used to parse the files Queries.xml and Maintain.xml with XStream
@@ -25,6 +27,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("field")
 public class Field extends SqlField {
 
+  @Serial
   private static final long serialVersionUID = 7587109759292448862L;
 
   // Query to be used as field

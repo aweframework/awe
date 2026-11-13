@@ -8,6 +8,7 @@
 -->
 <menu screen="signin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/menu.xsd" context="screen" default-action="screen">
   <option name="signin" screen="signin" invisible="true" />
+  <option name="signin-local" screen="signin-local" invisible="true" />
   <option name="logout-sso" screen="logout-sso" invisible="true" />
   <option name="change-password" screen="change-password" invisible="true" />
   <option name="check-2fa" screen="check-2fa" invisible="true" />
@@ -16,6 +17,7 @@
   <option name="test-initial-load" screen="TestInitialLoad" invisible="true" />
   <option name="test-initial-values" screen="TestInitialValues" invisible="true" />
   <option name="test-initial-values-load" screen="TestInitialValuesLoad" invisible="true" />
+  <option name="test-public-screen-private-load" screen="TestPublicScreenPrivateLoad" invisible="true" />
   <option name="error-4xx" screen="error-4xx" invisible="true" />
   <option name="error-5xx" screen="error-5xx" invisible="true" />
 </menu>

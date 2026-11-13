@@ -5,6 +5,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.TimeUtil;
+import com.almis.awe.scheduler.bean.event.SchedulerTaskStartedEvent;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.constant.TaskConstants;
@@ -141,6 +142,14 @@ public abstract class JobService extends ServiceConfig {
     // Mark tasks as started
     TaskExecution execution = taskDAO.startTask(task);
 
+    // Announce the started task once its execution is stored, so the task screen reloads executions that include it.
+    // The announcement only refreshes screens: a failing listener must not stop the task
+    try {
+      eventPublisher.publishEvent(new SchedulerTaskStartedEvent(this, task));
+    } catch (RuntimeException exc) {
+      log.warn("[SCHEDULER] Could not announce the start of task {}", task.getTaskId(), exc);
+    }
+
     // Start task progress
     startProgressThread(execution, taskDAO.getAverageTime(task.getTaskId()));
 
@@ -222,7 +231,10 @@ public abstract class JobService extends ServiceConfig {
     } catch (CancellationException | InterruptedException exc) {
       job.getTask().setStatus(TaskStatus.JOB_INTERRUPTED);
       job.getExecution().setDescription(getLocale(SCHEDULER_ERROR_MESSAGE_TIMEOUT, TimeUtil.formatTime(getTimeout(job.getTask()) * 1000, false)));
-      Thread.currentThread().interrupt();
+      // A timeout cancels the process, not this thread: restore the flag only for a real interruption
+      if (exc instanceof InterruptedException) {
+        Thread.currentThread().interrupt();
+      }
     } catch (Exception exc) {
       job.getTask().setStatus(TaskStatus.JOB_ERROR);
       job.getTask().getReport().setReportMessage(exc.getMessage());

@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamInclude;
@@ -22,7 +21,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -41,6 +42,7 @@ import java.util.List;
 @XStreamInclude({Criteria.class, Panelable.class, AbstractGrid.class, Column.class, AbstractButton.class, InfoCriteria.class})
 public abstract class AbstractCriteria extends Component {
 
+  @Serial
   private static final long serialVersionUID = -8937301673779113798L;
 
   // Static VALUE
@@ -160,6 +162,11 @@ public abstract class AbstractCriteria extends Component {
   @XStreamAsAttribute
   private String placeholder;
 
+  // How a select-multiple or suggest-multiple shows its values (summary: one line and a +N counter; chip: every chip)
+  @XStreamAlias("display")
+  @XStreamAsAttribute
+  private String display;
+
   // Text area rows
   @XStreamAlias("area-rows")
   @XStreamAsAttribute
@@ -169,6 +176,16 @@ public abstract class AbstractCriteria extends Component {
   @XStreamAlias("destination")
   @XStreamAsAttribute
   private String destination;
+
+  // Uploader drop zone with image preview
+  @XStreamAlias("drop-zone")
+  @XStreamAsAttribute
+  private Boolean dropZone;
+
+  // Uploader camera capture (user or environment)
+  @XStreamAlias("capture")
+  @XStreamAsAttribute
+  private String capture;
 
   // Show weekends in Date criteria
   @XStreamAlias("show-weekends")
@@ -185,6 +202,11 @@ public abstract class AbstractCriteria extends Component {
   @XStreamAsAttribute
   private String dateFormat;
 
+  // Format of a time (HH:mm, HH:mm:ss, hh:mm a, hh:mm:ss a)
+  @XStreamAlias("time-format")
+  @XStreamAsAttribute
+  private String timeFormat;
+
   // Show today button in date criteria
   @XStreamAlias("date-show-today-button")
   @XStreamAsAttribute
@@ -194,6 +216,11 @@ public abstract class AbstractCriteria extends Component {
   @XStreamAlias("date-view-mode")
   @XStreamAsAttribute
   private String dateViewMode;
+
+  // Quick presets of a date range criteria (list of codes: TODAY, YTD, ALL, nD, nW, nM, nY)
+  @XStreamAlias("presets")
+  @XStreamAsAttribute
+  private String presets;
 
   // Put label at left and give it a size
   @XStreamAlias("left-label")

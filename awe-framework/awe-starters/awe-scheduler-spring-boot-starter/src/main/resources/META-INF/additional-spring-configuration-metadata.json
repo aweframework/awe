@@ -1,0 +1,12 @@
+{
+  "properties": [
+    {
+      "name": "awe.scheduler.execution-log-path",
+      "defaultValue": "${logging.file.path:${java.io.tmpdir}}/scheduler"
+    },
+    {
+      "name": "awe.scheduler.ssh-known-hosts-path",
+      "defaultValue": "${user.home}/.ssh/known_hosts"
+    }
+  ]
+}

@@ -46,7 +46,7 @@ The element must have the component attribute to make it work. If the element do
 | type        | Optional     | String    | How to evaluate the [conditions](#dependency-element) | Possible values are `and` (default) and `or`. |
 | invert      | Optional     | Boolean   | Invert the [condition](#dependency-element) evaluation | Default value is `false` |
 | async      | Optional     | Boolean   | Run the server action asynchronously | Default value is `false` |
-| silent       | Optional     | Boolean   | Run the server action without showing the loading bar | Default value is `false` |
+| silent       | Optional     | Boolean   | Run the server action without disabling the buttons nor showing the loading bar (e.g. a query that fills a side panel from the selected row of a grid) | Default value is `false` |
 
 ### Source type
 
@@ -460,12 +460,12 @@ Once the queries are defined and points to a service we must create this service
 
 ```xml
 <service id="getErrorMessageInfo">
-  <java classname="com.isban.smgmi.web.controller.ErrorMessageController" method="getErrorMessageInfo">
+  <java classname="com.example.web.controller.ErrorMessageController" method="getErrorMessageInfo">
   </java>
 </service>
 ```
 
-This service launch the "getErrorMessageInfo" method in the "com.isban.smgmi.web.controller.ErrorMessageController" class.
+This service launch the "getErrorMessageInfo" method in the "com.example.web.controller.ErrorMessageController" class.
 
 **Java**
 

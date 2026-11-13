@@ -12,8 +12,8 @@ import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.log.LogUtil;
 import com.almis.awe.service.data.builder.ServiceBuilder;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collections;
 import java.util.List;

@@ -1,0 +1,313 @@
+package com.almis.awe.service.menu;
+
+import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWENotFoundException;
+import com.almis.awe.exception.AWESessionException;
+import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweSession;
+import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.entities.menu.Option;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
+import com.almis.awe.security.audit.SecurityAuditService;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.almis.awe.model.constant.AweConstants.PRIVATE_MENU;
+
+/**
+ * Finds menu options and checks whether they are available for the current user
+ */
+@Slf4j
+public class MenuOptionLookup extends ServiceConfig {
+
+  private static final String ERROR_TITLE_OPTION_NOT_DEFINED = "ERROR_TITLE_OPTION_NOT_DEFINED";
+  private static final String ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED = "ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED";
+  private final MenuProvider menuProvider;
+  private final BaseConfigProperties baseConfigProperties;
+
+  /**
+   * Autowired constructor
+   *
+   * @param menuProvider         Menu provider
+   * @param baseConfigProperties Base configuration properties
+   */
+  public MenuOptionLookup(MenuProvider menuProvider, BaseConfigProperties baseConfigProperties) {
+    this.menuProvider = menuProvider;
+    this.baseConfigProperties = baseConfigProperties;
+  }
+
+  /**
+   * Retrieve an option from the user menu
+   *
+   * @param optionId Option identifier
+   * @return Option retrieved
+   * @throws AWException Option has not been found
+   */
+  public Option getOptionByName(String optionId) throws AWException {
+    return getOptionByName(optionId, menuProvider.getMenu());
+  }
+
+  /**
+   * Retrieve an option from a menu (or from the public menu if the user is authenticated)
+   *
+   * @param optionId Option identifier
+   * @param menu     Menu
+   * @return Option retrieved
+   * @throws AWException Option has not been found
+   */
+  public Option getOptionByName(String optionId, Menu menu) throws AWException {
+    // Get screen from option
+    Option option = menu.getOptionByName(optionId);
+
+    // If option hasn't been found, search in public menu
+    if (option == null && getSession().isAuthenticated()) {
+      option = menuProvider.getMenu(baseConfigProperties.getFiles().getMenuPublic()).getOptionByName(optionId);
+    }
+
+    // Check if option is defined
+    if (option == null) {
+      // Check if session expired
+      if (sessionExpired(optionId)) {
+        throw new AWESessionException(getLocale("ERROR_TITLE_SESSION_EXPIRED"),
+          getLocale("ERROR_MESSAGE_SESSION_EXPIRED"));
+      } else {
+        throw new AWENotFoundException(getLocale(ERROR_TITLE_OPTION_NOT_DEFINED),
+          getLocale(ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED, optionId));
+      }
+    }
+
+    // Retrieve option
+    return option;
+  }
+
+  /**
+   * Retrieve a non-restricted option from the user menu
+   *
+   * @param optionId Option identifier
+   * @return Option retrieved
+   * @throws AWException Option has not been found
+   */
+  public Option getAvailableOptionByName(String optionId) throws AWException {
+    return getAvailableOptionByName(optionId, menuProvider.getMenu());
+  }
+
+  /**
+   * Retrieve a non-restricted option from a menu or from the public menu
+   *
+   * @param optionId Option identifier
+   * @param menu     Menu
+   * @return Option retrieved
+   * @throws AWException Option has not been found
+   */
+  public Option getAvailableOptionByName(String optionId, Menu menu) throws AWException {
+    // Find option
+    Option option = getAvailableOption(optionId, menu);
+
+    // Check if option is defined
+    if (option == null) {
+      // An option that cannot be resolved without a session is an expired session and not a missing screen: the client
+      // has to ask the user to sign in again instead of showing the screen as not found (#935). A context with no
+      // session at all keeps the not found answer
+      AweSession session = getSession();
+      if (session != null && !session.isAuthenticated()) {
+        throw new AWESessionException(getLocale("ERROR_TITLE_SESSION_EXPIRED"),
+          getLocale("ERROR_MESSAGE_SESSION_EXPIRED"));
+      }
+      auditRestrictedOption(optionId, menu);
+      throw new AWENotFoundException(getLocale(ERROR_TITLE_OPTION_NOT_DEFINED),
+        getLocale(ERROR_MESSAGE_OPTION_HAS_NOT_BEEN_DEFINED, optionId));
+    }
+
+    // Retrieve option
+    return option;
+  }
+
+  /**
+   * An option that exists in the menu but is not available (restricted for the user profile) is a denied access
+   */
+  private void auditRestrictedOption(String optionId, Menu menu) {
+    try {
+      SecurityAuditService securityAuditService = getApplicationContext() == null ? null
+        : getApplicationContext().getBeanProvider(SecurityAuditService.class).getIfAvailable();
+      if (securityAuditService != null && securityAuditService.isEnabled() && optionId != null
+        && menu.getOptionByName(optionId) != null) {
+        securityAuditService.failure(SecurityAuditEventType.ACCESS_DENIED, null, SecurityAuditCause.RESTRICTED, "option: " + optionId);
+      }
+    } catch (RuntimeException exc) {
+      log.debug("Denied access to option {} could not be audited", optionId, exc);
+    }
+  }
+
+  /**
+   * Check if address is valid
+   *
+   * @param address Option to check
+   * @return Address is valid
+   * @throws AWException Option has not been found
+   */
+  public boolean checkOptionAddress(String address) throws AWException {
+    // Step 1: Check if option is private
+    String optionId = address.startsWith(AweConstants.JSON_SCREEN)
+      ? address.substring(address.lastIndexOf('/') + 1) : null;
+    if (address.startsWith(AweConstants.JSON_SCREEN + "/" + PRIVATE_MENU)) {
+      return getSession().isAuthenticated() && isAvailableOption(optionId, getPrivateMenuId());
+    } else if (address.startsWith(AweConstants.JSON_SCREEN + "/")) {
+      return isAvailableOption(optionId, getPublicMenuId());
+    } else {
+      return false;
+    }
+  }
+
+  /**
+   * Retrieve if option is available
+   *
+   * @param optionId Option to check
+   * @param menuType Menu type
+   * @return Option is available
+   * @throws AWException Option has not been found
+   */
+  public boolean isAvailableOption(String optionId, String menuType) throws AWException {
+    // Get screen from option
+    Menu menu = menuProvider.getMenuWithRestrictions(menuType);
+    List<Option> optionList = menu.getElementsByType(Option.class);
+    for (Option option : optionList) {
+      if (!option.isRestricted() && optionId.equalsIgnoreCase(option.getName())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Retrieve all options of the user menu (and the public menu if the user is authenticated)
+   *
+   * @return Option list
+   * @throws AWException Option has not been found
+   */
+  public List<Option> getAllOptions() throws AWException {
+    // Get options
+    Menu menu = menuProvider.getMenu();
+    List<Option> optionList = menu.getElementsByType(Option.class);
+
+    // Add public menu options if authenticated
+    if (getSession().isAuthenticated()) {
+      menu = menuProvider.getMenu(getPublicMenuId());
+      optionList.addAll(menu.getElementsByType(Option.class));
+    }
+
+    return optionList;
+  }
+
+  /**
+   * Retrieve all non-restricted options of the user menu and the public menu
+   *
+   * @return Option list
+   * @throws AWException Option has not been found
+   */
+  public List<Option> getAllAvailableOptions() throws AWException {
+    return getAllAvailableOptions(menuProvider.getMenu());
+  }
+
+  /**
+   * Retrieve all non-restricted options of a menu and the public menu
+   *
+   * @param baseMenu Menu to retrieve
+   * @return Option list
+   * @throws AWException Option has not been found
+   */
+  public List<Option> getAllAvailableOptions(Menu baseMenu) throws AWException {
+    // Get options
+    Menu menu = menuProvider.getMenuWithAllRestrictions(baseMenu);
+    List<Option> optionList = menu.getElementsByType(Option.class);
+
+    // Add public menu options
+    menu = menuProvider.getMenuWithRestrictions(getPublicMenuId());
+    optionList.addAll(menu.getElementsByType(Option.class));
+
+    return filterRestrictedOptions(optionList);
+  }
+
+  /**
+   * Configured private menu, falling back to the default id when the configuration is not available (tests)
+   *
+   * @return Private menu identifier
+   */
+  private String getPrivateMenuId() {
+    try {
+      String menuPrivate = baseConfigProperties.getFiles().getMenuPrivate();
+      return menuPrivate != null ? menuPrivate : AweConstants.PRIVATE_MENU;
+    } catch (RuntimeException exc) {
+      return AweConstants.PRIVATE_MENU;
+    }
+  }
+
+  /**
+   * Configured public menu, falling back to the default id when the configuration is not available (tests)
+   *
+   * @return Public menu identifier
+   */
+  private String getPublicMenuId() {
+    try {
+      String menuPublic = baseConfigProperties.getFiles().getMenuPublic();
+      return menuPublic != null ? menuPublic : AweConstants.PUBLIC_MENU;
+    } catch (RuntimeException exc) {
+      return AweConstants.PUBLIC_MENU;
+    }
+  }
+
+  /**
+   * Check if session has expired and user is trying to access a private option
+   *
+   * @return Session has expired
+   * @throws AWException Menu has not been found
+   */
+  private boolean sessionExpired(String optionId) throws AWException {
+    // A launch without an option (the screen data action carries it in its parameters) has nothing to look for, and a
+    // context with no session at all is not a client answering with an expired session
+    AweSession session = getSession();
+    if (optionId == null || session == null || session.isAuthenticated()) {
+      return false;
+    }
+    Menu menu = menuProvider.getMenu(baseConfigProperties.getFiles().getMenuPrivate());
+    return menu != null && menu.getOptionByName(optionId) != null;
+  }
+
+  /**
+   * Retrieve the last available option matching the name
+   *
+   * @return Option found or null
+   * @throws AWException Option has not been found
+   */
+  private Option getAvailableOption(String optionName, Menu menu) throws AWException {
+    // Get options
+    Option optionFound = null;
+    List<Option> optionList = getAllAvailableOptions(menu);
+
+    // Add public menu options if authenticated
+    for (Option option : optionList) {
+      if (optionName.equalsIgnoreCase(option.getName())) {
+        optionFound = option;
+      }
+    }
+
+    return optionFound;
+  }
+
+  /**
+   * Remove restricted options from a list
+   *
+   * @param optionList Option list
+   * @return Option list filtered
+   */
+  private List<Option> filterRestrictedOptions(List<Option> optionList) {
+    return optionList.stream()
+      .filter(option -> !option.isRestricted())
+      .collect(Collectors.toCollection(ArrayList::new));
+  }
+}

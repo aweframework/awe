@@ -6,6 +6,10 @@ sidebar_label: Queues definition
 
 The AWE Jms engine allows integration with queue servers. Both JMS typologies, **point to point** and **publish/subscribe**.
 
+:::tip
+Every element and attribute of JMS queues is listed in the generated [XSD reference](/reference/queues).
+:::
+
 The `Java Message Service` (JMS) API is a Java Message Oriented Middleware (MOM) API for sending messages between two or more clients. JMS is a part of the Java Platform, Enterprise Edition, and is defined by a specification developed under the Java Community Process as JSR 914. 
 
 It is a messaging standard that allows application components based on the Java Enterprise Edition (Java EE) to create, send, receive, and read messages. It allows the communication between different components of a distributed application to be loosely coupled, reliable, and asynchronous.
@@ -63,6 +67,8 @@ For easier development of queues, not all elements are required.
 | [request-message](#request-message-element) |  Optional | No | Used to define the request in the jms comunication |
 | [response-message](#response-message-element) |  Optional | No | Used to define the response in the jms comunication |
 | [message-parameter](#message-parameter-element) |  Optional | Yes | Are parameters of message for the request or response |
+| [message-wrapper](#message-wrapper-element) |  Optional | No | Java class that builds the request or reads the response, instead of `message-parameter` elements |
+| [message-status](#message-status-element) |  Optional | No | Fields of a `MAP` response that carry the answer type, title and description |
 
 ### Queue element
 
@@ -81,17 +87,49 @@ The `request-message` element has the following attributes:
 | destination | **Required** | String | Physical name of queue in JMS Server | **Note:**  Must be exist one record in **AweQue** table with this name|
 | type | **Required** | String | Message type to send/receive | `MAP` (send a set of name-value pairs) or `TEXT` (sent a text info)    |
 | selector | Optional | String | Set a a selector to filter the message consumption | **Ex.:** `selector="EUR"` It will consume only messages whose header `"JMSType=EUR"`    |
+| separator | Optional | String | Separator character of the message fields | |
+| timeout | Optional | Long | Time to wait for the message | |
 
-## **Synchronous messages**
+### response-message element
 
-### **Send and receive data**
+The `response-message` element defines the message that is received as the answer of the queue. It has the same
+attributes as the [request-message element](#request-message-element) (`destination`, `type`, `selector`,
+`separator` and `timeout`) and contains [message-parameter](#message-parameter-element) elements, or a
+`message-wrapper` or `message-status` element.
 
-### **Send data and receive message**
+### message-parameter element
 
-## **Asynchronous messages**
+The `message-parameter` element, inside a `request-message` or a `response-message`, has the following attributes:
 
-### **Subscribe**
+| Attribute   | Use      | Type      |  Description                    |   Values                                           |
+| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
+| id | **Required** | String | Identifier of the parameter | |
+| type | **Required** | String | Data type of the parameter | `STRING`, `INTEGER`, `LONG`, `FLOAT`, `DOUBLE`, `BOOLEAN`, `DATE`, `TIME`, `TIMESTAMP`, `OBJECT`... (the same types as the other definition files) |
+| name | Optional | String | Name of the parameter in the message | |
+| value | Optional | String | Static value of the parameter | |
+| list | Optional | Boolean | Whether the parameter is a list of values | `true` or `false` |
 
-### **Publish**
+### message-wrapper element
 
-## Examples
+The `message-wrapper` element, inside a `request-message` or a `response-message`, maps the whole message to a Java
+class instead of listing `message-parameter` elements. A response wrapper class implements `ResponseWrapper`, and its
+`toServiceData()` result is the answer of the queue.
+
+| Attribute   | Use      | Type      |  Description                    |   Values                                           |
+| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
+| type | **Required** | String | How the message is mapped to the class | `XML` (the message text, or one field of a map message, is an XML document) or `OBJECT` (each field of a map message is copied to the class field with the same name) |
+| classname | **Required** | String | Fully qualified name of the wrapper class | |
+| name | Optional | String | Field of a `MAP` message that holds the wrapped value | Required with `XML` on a `MAP` response; must be omitted with `OBJECT` |
+
+### message-status element
+
+The `message-status` element, inside a `response-message` of type `MAP`, reads the result of the operation from the
+response and shows it to the user like the answer of any other action. Its attributes are the **names of the map
+fields** that hold each value, not the values themselves.
+
+| Attribute   | Use      | Type      |  Description                    |   Values                                           |
+| ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
+| type | **Required** | String | Field with the answer type | `ok`, `error`, `warning` or `info` (case insensitive) |
+| translate | Optional | String | Enumerated group used to translate the received value into an answer type | **Ex.:** the response sends `0` and the enumerated group maps `0` to `ok` |
+| title | Optional | String | Field with the title of the message | |
+| description | Optional | String | Field with the text of the message | |

@@ -1,0 +1,152 @@
+---
+id: window-layout
+title: Window and layout
+sidebar_label: Window and layout
+description: The AWE window, resizable and screen layout, live. Change their attributes, drag the handles and see the real components and the XML that produces them.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {window as windowSpec} from '@site/src/components/AwePlayground/specs/window';
+import {resizable} from '@site/src/components/AwePlayground/specs/resizable';
+
+A screen is built from containers. A **window** is the titled container that groups related content; a **resizable** lets the user decide
+how much room a part takes; and the **layout** (`expandible` and the `expand` styles) says how the free space of a container is shared
+among its children. The screen **template** puts them all in place: the row of buttons, the breadcrumb and the area where the windows go.
+
+## Window {#window}
+
+A `window` has a title bar with an optional icon and help, and a body (`panel-body`) and a footer (`panel-footer`) as child tags. With
+`maximize="true"` it gets a button that makes it grow over the center area of the template and restores it; in the preview it covers the
+preview area, which plays the part of that center area.
+
+<AwePlayground spec={windowSpec} />
+
+The advanced search (`advanced-mode`) and the saved searches (`saved-searches`) need an `advanced` block of criteria and the server of the
+screen: see [the advanced search](../api/window.md#advanced-search).
+
+## Resizable {#resizable}
+
+A `resizable` shows a handle on each side listed in `directions`; the user drags it to change the size of the container itself. In a flex
+layout the sibling next to the handle gives or takes the space, so the rest of the screen does not move. A resizable needs an initial size:
+a real screen gives it with a grid class in `style`, the preview with its own class. The handles turn off at small widths with the `no-resizable-*` styles.
+
+<AwePlayground spec={resizable} />
+
+## Recipes {#recipes}
+
+### Expand to fill the height {#recipe-expand}
+
+A container with `expandible="vertical"` lays its children out in a column. The ones with the `expand` style share the free space (`expand-2x`
+takes double); the others keep their height. Here the criteria window keeps its size and the results window takes the rest.
+
+<AweLive
+  components={{
+    Search: {attributes: {label: 'Search', placeholder: 'Name or email'}},
+  }}
+  nodes={[
+    {elementType: 'Tag', type: 'div', expand: 'vertical', style: 'live-height', elementList: [
+      {elementType: 'Window', id: 'CriteriaWindow', label: 'Criteria', icon: 'lucide:filter', elementList: [
+        {elementType: 'Tag', type: 'div', style: 'panel-body', elementList: [{elementType: 'Criteria', component: 'text', id: 'Search'}]},
+      ]},
+      {elementType: 'Window', id: 'ResultsWindow', label: 'Results', icon: 'lucide:list', style: 'expand', elementList: [
+        {elementType: 'Tag', type: 'div', style: 'panel-body expand', label: 'This window takes all the height that is left.'},
+      ]},
+    ]},
+  ]}
+/>
+
+```xml
+<tag type="div" expandible="vertical">
+  <window id="CriteriaWindow" label="Criteria" icon="lucide:filter">
+    <tag type="div" style="panel-body">
+      <criteria id="Search" component="text" label="Search" placeholder="Name or email" />
+    </tag>
+  </window>
+  <window id="ResultsWindow" label="Results" icon="lucide:list" style="expand">
+    <tag type="div" style="panel-body expand" label="This window takes all the height that is left." />
+  </window>
+</tag>
+```
+
+The height of the container comes from the template of a screen; the preview gives it 18rem. [Layout](../api/layout.md) explains the horizontal layout and
+the other expansion styles.
+
+### Screen template with breadcrumb {#recipe-template}
+
+The `window` template of a screen draws a header with the breadcrumb of the menu path and, on its right, the buttons of the `buttons` source;
+the `center` source holds the windows. Since #925 `window-header` on the `screen` chooses `breadcrumb` (the default) or `none`, which leaves only the buttons row.
+
+<AweLive
+  breadcrumbs={['Customers', 'Customer list']}
+  components={{
+    NewCustomer: {attributes: {label: 'New customer', icon: 'lucide:plus', style: 'btn-primary'}},
+    ListWindow: {attributes: {}},
+  }}
+>
+  {({WindowTemplate}) => (
+    <WindowTemplate
+      windowHeader="breadcrumb"
+      elementList={[
+        {source: 'buttons', elementList: [{elementType: 'Button', id: 'NewCustomer'}]},
+        {source: 'center', elementList: [
+          {elementType: 'Window', id: 'ListWindow', label: 'Customers', icon: 'lucide:users', elementList: [
+            {elementType: 'Tag', type: 'div', style: 'panel-body', label: 'The grid of customers goes here.'},
+          ]},
+        ]},
+      ]}
+    />
+  )}
+</AweLive>
+
+```xml
+<screen label="Customer list" template="window" window-header="breadcrumb">
+  <tag source="buttons">
+    <button id="NewCustomer" label="New customer" icon="lucide:plus" style="btn-primary" />
+  </tag>
+  <tag source="center">
+    <window id="ListWindow" label="Customers" icon="lucide:users">
+      <tag type="div" style="panel-body" label="The grid of customers goes here." />
+    </window>
+  </tag>
+</screen>
+```
+
+With `window-header="none"` the header keeps the buttons row and drops the breadcrumb; the application property `awe.application.window-header` sets the default for every screen.
+
+<AweLive
+  components={{
+    NewCustomerNone: {attributes: {label: 'New customer', icon: 'lucide:plus', style: 'btn-primary'}},
+    ListWindowNone: {attributes: {}},
+  }}
+>
+  {({WindowTemplate}) => (
+    <WindowTemplate
+      windowHeader="none"
+      elementList={[
+        {source: 'buttons', elementList: [{elementType: 'Button', id: 'NewCustomerNone'}]},
+        {source: 'center', elementList: [
+          {elementType: 'Window', id: 'ListWindowNone', label: 'Customers', icon: 'lucide:users', elementList: [
+            {elementType: 'Tag', type: 'div', style: 'panel-body', label: 'The grid of customers goes here.'},
+          ]},
+        ]},
+      ]}
+    />
+  )}
+</AweLive>
+
+```xml
+<screen label="Customer list" template="window" window-header="none">
+  ...
+</screen>
+```
+
+## Events and actions {#events-and-actions}
+
+Neither the window nor the resizable has an event or an action of its own: the window is a container, and the user maximizes it or drags a handle.
+A [dependency](../api/dependencies.md) can show or hide a window, and the maximize state is remembered only while the screen is open.
+
+## More {#more}
+
+* Full documentation of [the window](../api/window.md), of [the resizable](../api/resizable.md) and of [the layout](../api/layout.md).
+* XSD reference of the [`window` element](/reference/screen#element-window) and of the [`resizable` element](/reference/screen#element-resizable).

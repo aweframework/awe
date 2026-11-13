@@ -2,8 +2,6 @@ package com.almis.awe.config;
 
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +9,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -68,7 +68,7 @@ class ServiceConfigTest {
 
     serviceConfig.putRequestParameter(parameters, "PdfNam", "/tmp/report.pdf");
 
-    assertEquals("/tmp/report.pdf", parameters.get("PdfNam").asText());
+    assertEquals("/tmp/report.pdf", parameters.get("PdfNam").asString());
   }
 
   @Test
@@ -78,7 +78,7 @@ class ServiceConfigTest {
 
     serviceConfig.putRequestParameter(parameters, "report", nestedValue);
 
-    assertEquals("async", parameters.get("report").get("mode").asText());
+    assertEquals("async", parameters.get("report").get("mode").asString());
   }
 
   @Test
@@ -89,7 +89,7 @@ class ServiceConfigTest {
     serviceConfig.putPropagatedRequestParameter("PdfNam", "/tmp/report.pdf");
 
     verify(prototypeRequestBeanHolder).mergeRequestData(parametersCaptor.capture());
-    assertEquals("/tmp/report.pdf", parametersCaptor.getValue().get("PdfNam").asText());
+    assertEquals("/tmp/report.pdf", parametersCaptor.getValue().get("PdfNam").asString());
   }
 
   @Test
@@ -101,7 +101,7 @@ class ServiceConfigTest {
     serviceConfig.putPropagatedRequestParameter("report", nestedValue);
 
     verify(prototypeRequestBeanHolder).mergeRequestData(parametersCaptor.capture());
-    assertEquals("async", parametersCaptor.getValue().get("report").get("mode").asText());
+    assertEquals("async", parametersCaptor.getValue().get("report").get("mode").asString());
   }
 
   @Test

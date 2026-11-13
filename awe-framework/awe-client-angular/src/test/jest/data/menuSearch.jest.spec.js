@@ -8,7 +8,8 @@ const dictionary = {
   "INVOICE_LIST": "Listado de facturas",
   "PURCHASES": "Compras",
   "BILLING": "Facturación",
-  "RECEIVED_INVOICES": "Facturas recibidas"
+  "RECEIVED_INVOICES": "Facturas recibidas",
+  "INVOICE_LIST_DESCRIPTION": "Consulta de comprobantes emitidos"
 };
 const translate = (key) => dictionary[String(key || "")] || String(key || "");
 
@@ -22,7 +23,7 @@ const menu = [
       {
         name: "invoices", label: "INVOICES", visible: true, options: [
           {name: "newInvoice", label: "NEW_INVOICE", visible: true, actions: [{type: "screen"}]},
-          {name: "invoiceList", label: "INVOICE_LIST", visible: true, actions: [{type: "screen"}]}
+          {name: "invoiceList", label: "INVOICE_LIST", description: "INVOICE_LIST_DESCRIPTION", visible: true, actions: [{type: "screen"}]}
         ]
       }
     ]
@@ -140,6 +141,16 @@ describe('awe-framework/awe-client-angular/src/main/resources/js/awe/data/menuSe
       const result = searchOptions(menu, "ventas", {translate, isAllowed});
 
       expect(result.map(r => r.option.name)).toEqual(["newInvoice", "invoiceList"]);
+    });
+
+    it('should match by the translated description of an option', function () {
+      const result = searchOptions(menu, "comprobantes emitidos", {translate, isAllowed});
+
+      expect(result.map(r => r.option.name)).toEqual(["invoiceList"]);
+    });
+
+    it('should not match options without description by the description key', function () {
+      expect(searchOptions(menu, "undefined", {translate, isAllowed})).toEqual([]);
     });
   });
 });

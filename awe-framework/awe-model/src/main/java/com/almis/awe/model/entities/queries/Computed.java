@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Computed Class
  *
@@ -24,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("computed")
 public class Computed extends OutputField {
 
+  @Serial
   private static final long serialVersionUID = 8404251573226537433L;
 
   // Field format (p.e. '[alias1] - [alias2]')

@@ -183,6 +183,13 @@ aweApplication.factory('Ajax',
 
             // Add action list
             if (angular.isArray(data)) {
+              // The actions returned inherit the origin (the menu keeps its whole chain free of the screen values)
+              const origin = action.attr("origin");
+              if (origin) {
+                data.forEach(returned => {
+                  returned.origin = origin;
+                });
+              }
               $actionController.addActionList(data, false, {
                 address: action.attr("callbackTarget"),
                 context: action.attr("context")
@@ -196,7 +203,28 @@ aweApplication.factory('Ajax',
          * @param {Object} action Action launched
          */
         manageError: function (error, action) {
+          // A refused launch answers 403 with the client actions of the refusal, as a successful call answers 200
+          // with them (#935). The refusal check decodes the body safely: the body of any other 403 (a plain text
+          // answer of a proxy, with the transmission encoded) cannot be read as an action list
+          let refusalActions;
+          if (error?.status === 403) {
+            try {
+              refusalActions = $utilities.decodeData(error?.data, encodeTransmission);
+            } catch {
+              refusalActions = undefined;
+            }
+          }
+          if (angular.isArray(refusalActions)) {
+            $ajax.manageMessage(error, action);
+            return;
+          }
+
           let target = action.attr("callbackTarget");
+
+          // Tell the action that its call failed (it may have to undo what it marked)
+          if (typeof action.onError === "function") {
+            action.onError(error);
+          }
 
           // Finish call action (cancel)
           $actionController.closeAllActions();
@@ -207,8 +235,14 @@ aweApplication.factory('Ajax',
             modalElement.remove();
           }
 
-          // Handle by error status. Define actions to manage errors
-          const actions = $utilities.manageRestError({status: error?.status, title: error?.data?.error, message: error?.data?.message}, target);
+          // Handle by error status. Define actions to manage errors (for a 403, the plain text of the body travels
+          // in "body", to show it as it came)
+          const actions = $utilities.manageRestError({
+            status: error?.status,
+            title: error?.data?.error,
+            message: error?.data?.message,
+            body: typeof error?.data === "string" ? error.data : undefined
+          }, target);
 
           $actionController.addActionList(actions, false, {address: {view: "base"}});
         }

@@ -12,7 +12,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -35,7 +34,7 @@ class ErrorPageServiceTest {
     @BeforeEach
     void setUp() {
         errorPageService = new ErrorPageService(templateEngine);
-        
+
         // Mock the ApplicationContext to return AweElements (lenient to avoid unnecessary stubbing exceptions)
         lenient().when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
         ReflectionTestUtils.setField(errorPageService, "context", applicationContext);
@@ -157,7 +156,7 @@ class ErrorPageServiceTest {
             .thenThrow(new RuntimeException("Template processing failed"));
 
         // When & Then
-        RuntimeException exception = assertThrows(RuntimeException.class, 
+        RuntimeException exception = assertThrows(RuntimeException.class,
             () -> spyService.generateErrorPageFromTemplate(errorTitle, errorMessage));
 
         assertEquals("Template processing failed", exception.getMessage());
@@ -169,7 +168,7 @@ class ErrorPageServiceTest {
         String errorTitle = "Data Access Error";
         String errorMessage = "Database connection failed";
         String expectedHtml = "<html><body>Data Access Error Page</body></html>";
-        
+
         ErrorPageService spyService = spy(errorPageService);
         doReturn("Error occurred").when(spyService).getLocale("SCREEN_TEXT_ERROR_PREFIX");
         doReturn("Back").when(spyService).getLocale("BUTTON_BACK");
@@ -177,7 +176,7 @@ class ErrorPageServiceTest {
 
         when(templateEngine.process(eq("error"), any(Context.class))).thenAnswer(invocation -> {
             Context context = invocation.getArgument(1);
-            
+
             // Verify context variables are set correctly
             assertEquals("⚠", context.getVariable("icon"));
             assertEquals(errorTitle, context.getVariable("title"));
@@ -186,7 +185,7 @@ class ErrorPageServiceTest {
             assertEquals("Back", context.getVariable("backButtonText"));
             assertEquals("Home", context.getVariable("homeButtonText"));
             assertEquals("/", context.getVariable("homeUrl"));
-            
+
             return expectedHtml;
         });
 

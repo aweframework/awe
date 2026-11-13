@@ -1,6 +1,6 @@
 import "../../../main/resources/js/awe/app";
 
-import {routeMethods} from "../../../main/resources/js/awe/data/routes";
+import {routeMethods, states} from "../../../main/resources/js/awe/data/routes";
 
 describe('awe-framework/awe-client-angular/src/test/jest/data/routes.js', function() {
 
@@ -56,5 +56,16 @@ describe('awe-framework/awe-client-angular/src/test/jest/data/routes.js', functi
     jest.spyOn($injector, "get").mockReturnValue({getScreenData: () => {}});
     routeMethods.template({subScreenId: "lala", screenId:"tutu"});
     expect($injector.get).toHaveBeenCalled();
+  });
+
+  it('should ask for the screen data of a fresh screen', function() {
+    const getScreenData = jest.fn();
+    jest.spyOn(angular, 'element').mockReturnValue({injector: () => ({get: () => ({getScreenData})})});
+    routeMethods.template({screenId: "tutu", freshScreen: true});
+    expect(getScreenData.mock.calls[0][2]).toBe(true);
+  });
+
+  it('should declare the fresh screen as a state parameter that is not part of the url', function() {
+    states.filter(state => ["global", "public.screen", "private.screen"].includes(state.name)).forEach(state => expect(state.params).toHaveProperty("freshScreen"));
   });
 });

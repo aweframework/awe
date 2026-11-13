@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : customer.xml
+    Description: Customers: only their own area. The queries and maintain targets also filter by the connected user, so
+                 the restrictions below are never the only protection
+-->
+<profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/profile.xsd">
+  <restriction option="operations-section"/>
+  <restriction option="fleet-dashboard"/>
+  <restriction option="fleet-shipments"/>
+  <restriction option="fleet-vehicles"/>
+  <restriction option="fleet-drivers"/>
+  <restriction option="fleet-routes"/>
+  <restriction option="fleet-assignments"/>
+  <restriction option="fleet-quotes"/>
+  <restriction option="fleet-pickups"/>
+  <restriction option="scheduler"/>
+  <restriction option="notifier"/>
+  <restriction option="automation-section"/>
+  <restriction option="administration"/>
+  <permission id="portal.*"/>
+</profile>

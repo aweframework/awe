@@ -1,6 +1,8 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import "../directives/plugins/uiSelect";
 import {getIconTemplate} from "./component";
+import {iconTemplate} from "./icon";
 import {
   ensureSuggestVisibleOptions,
   filterSuggestModel as normalizeSuggestSelection,
@@ -25,17 +27,18 @@ import {
 // Selector template
 export const templateSelector =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak title="{{controller.title| translateMultiple}}">
-    <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    <label ng-attr-for="{{::controller.id}}" ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input {{::validatorGroup}} focus-target" ng-class="{'input-group': controller.unit}">
       ${getIconTemplate("{{::iconClass}}")}
       <input type="hidden" ui-select2="aweSelectOptions" class="form-control {{classes}}" initialized="initialized" autocomplete="off" ng-click="click($event)"
-             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"/>
-      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak/>
+             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly"
+             data-testid="${TestIds.criterionInput}"/>
+      <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak/>
       <span ng-if="controller.unit" class="input-group-addon add-on unit" translate-multiple="{{controller.unit}}" ng-cloak></span>
     </div>
   </div>
@@ -48,7 +51,7 @@ export const templateSelectorColumn =
   <span class="edition" title="{{component.model.values[0].title| translateMultiple}}">
     <div class="input input-group-{{::size}} focus-target">
       <input type="hidden" ui-select2="aweSelectOptions" class="form-control col-xs-12 {{classes}}" value="{{component.model.selected}}"
-             ng-disabled="component.controller.readonly" initialized="initialized" autocomplete="off"/>
+             ng-disabled="component.controller.readonly" initialized="initialized" autocomplete="off" data-testid="${TestIds.criterionInput}"/>
     </div>
     ${getIconTemplate("{{::iconClass}}")}
   </span>
@@ -130,6 +133,39 @@ aweApplication.factory('Selector',
       }
 
       /**
+       * Group select data by the "group" locale key of its values (in order of first appearance).
+       * Options without group stay where they are; group headers have no id, so select2 does not select them.
+       * @param {Array} values Model values
+       * @param {Array} data Formatted data (as returned by formatSelectData)
+       * @return {Array} grouped data
+       */
+      function groupSelectData(values, data) {
+        let groupByValue = {};
+        _.each(values, function (element) {
+          if (element && element.group && !(String(element.value) in groupByValue)) {
+            groupByValue[String(element.value)] = String(element.group);
+          }
+        });
+        if (_.isEmpty(groupByValue)) {
+          return data;
+        }
+        let grouped = [];
+        let headers = {};
+        _.each(data, function (option) {
+          let group = groupByValue[String(option.id)];
+          if (!group) {
+            grouped.push(option);
+          } else if (group in headers) {
+            headers[group].children.push(option);
+          } else {
+            headers[group] = {text: $translate.instant(group), children: [option]};
+            grouped.push(headers[group]);
+          }
+        });
+        return grouped;
+      }
+
+      /**
        * Format select data
        * @param {Array} values Model values
        * @param {Array} selected Model selected values
@@ -168,7 +204,7 @@ aweApplication.factory('Selector',
        * @param {String} term Search term
        */
       function fillCallback(values, callback, term) {
-        let results = formatSelectData(values, term);
+        let results = groupSelectData(values, formatSelectData(values, term));
         let data = {
           results: results
         };
@@ -308,6 +344,18 @@ aweApplication.factory('Selector',
       }
 
       /**
+       * Whether a multiple criterion shows its values as one line: the chips that fit and a +N counter (#922, #845).
+       * display="summary" asks for it and display="chip" for every chip; without display, the default of the criterion
+       * @param {Object} selector Selector
+       * @param {Object} controller Component controller
+       * @returns {boolean} The values are summarized
+       */
+      function showsSummary(selector, controller) {
+        const display = controller && controller.display;
+        return selector.summary === true && (display === "summary" || (selector.summaryByDefault && display !== "chip"));
+      }
+
+      /**
        * Selector constructor
        * @param {Scope} scope Selector scope
        * @param {String} id Selector id
@@ -329,13 +377,19 @@ aweApplication.factory('Selector',
           selector.initializable = initializable;
           return selector.asSuggest();
         };
-        this.component.asSelectMultiple = function () {
+        this.component.asSelectMultiple = function (summary) {
           selector.multiple = true;
+          // A criteria select multiple shows its values as one line (#922), unless it asks for the chips (display="chip")
+          selector.summary = summary === true;
+          selector.summaryByDefault = true;
           return selector.asSelect();
         };
-        this.component.asSuggestMultiple = function (initializable) {
+        this.component.asSuggestMultiple = function (initializable, summary) {
           selector.multiple = true;
           selector.initializable = initializable;
+          // A criteria suggest multiple shows its values as one line only when it asks for it (display="summary", #845)
+          selector.summary = summary === true;
+          selector.summaryByDefault = false;
           return selector.asSuggest();
         };
         return this.component;
@@ -363,6 +417,7 @@ aweApplication.factory('Selector',
            */
           let options = {
             allowClear: component.controller && component.controller.optional,
+            summary: showsSummary(selector, component.controller),
             minimumResultsForSearch: 5,
             multiple: selector.multiple,
             query: function (query) {
@@ -501,6 +556,7 @@ aweApplication.factory('Selector',
           let options = {
             allowClear: true,
             multiple: selector.multiple,
+            summary: showsSummary(selector, component.controller),
             minimumInputLength: 1,
             query: function (query) {
               // Remove timer
@@ -609,8 +665,15 @@ aweApplication.factory('Selector',
           function checkSelectedValue(model) {
             let check = false;
             if (model.values.length === 0 && !Utilities.isEmpty(model.selected)) {
-              selector.term = model.selected;
-              component.suggest(selector.initialTarget);
+              // The label of the value is looked up once (the api and the model change listener both check it), in
+              // the background: it is silent, so it does not disable the buttons nor show the loading bar
+              const pending = selector.lookup && selector.lookup.isAlive() && _.isEqual(selector.lookupTerm, model.selected);
+              if (!pending) {
+                selector.term = model.selected;
+                selector.lookupTerm = _.cloneDeep(model.selected);
+                component.controller[$settings.get("targetActionKey")] = selector.initialTarget;
+                selector.lookup = component.reload({silent: true, async: component.reloadAsync});
+              }
               check = true;
             }
             return check;

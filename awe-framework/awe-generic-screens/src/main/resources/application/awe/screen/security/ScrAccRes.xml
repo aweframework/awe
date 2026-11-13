@@ -5,6 +5,8 @@
     Created on : 15 de Enero de 2014
     Author     : Pablo Vidal
     Description: Ventana de herramientas - Gesti?n de acceso a las opciones de Men?
+    DEPRECATED since AWE 5.0.0: replaced by the access-admin screen (screen/security/access-admin.xml), which the
+    "screen-access" option of the default menu opens. This screen will be removed in the next minor release (5.1.0).
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_SECURITY_SCREEN" help="HELP_SCREEN_TITLE_SECURITY_SCREEN">
   <tag source="buttons">

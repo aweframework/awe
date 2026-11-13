@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 
 
@@ -29,6 +30,7 @@ import java.util.List;
 @NoArgsConstructor
 public abstract class AbstractServiceRest implements ServiceType {
 
+  @Serial
   private static final long serialVersionUID = 7493053120314893763L;
 
   // Service endpoint

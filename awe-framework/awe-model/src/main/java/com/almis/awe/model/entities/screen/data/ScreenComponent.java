@@ -8,6 +8,7 @@ package com.almis.awe.model.entities.screen.data;
  */
 
 import com.almis.awe.model.entities.screen.component.Component;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
@@ -27,7 +28,10 @@ public class ScreenComponent {
   // Component id
   private String id;
 
-  // Component controller
+  // Component controller, without its children: the clients build the component tree from the screen structure, so
+  // sending the subtree in every controller repeats each definition once per container (#907). The children are still
+  // read on the server, and by the fields computed from them (grid columnModel, buttonModel...)
+  @JsonIgnoreProperties("elementList")
   private Component controller;
 
   // Component model

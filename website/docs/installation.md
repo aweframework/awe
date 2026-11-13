@@ -62,7 +62,7 @@ We recommend to follow these steps to improve application server security.
     pattern="common" resolveHosts="false"/>
 ```
 
-*  Enable clickjacking protection (only for Tomcat version 8 or greater). :
+*  Enable clickjacking protection (only for Tomcat version 8 or greater).
 **web.xml**: Uncomment the following code
 
 ```xml

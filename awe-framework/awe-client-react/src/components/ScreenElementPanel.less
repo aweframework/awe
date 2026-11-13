@@ -1,0 +1,81 @@
+// Body and footer of the screen personalization side panel (#792): the footer stays in view, the body scrolls
+.scr-per-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+.scr-per-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  // The content of the side panel has no top padding: the first row (Visible) would touch the header
+  padding-top: var(--awe-space-4);
+}
+
+// As in the prototype: a switch sits right of its label; every other part of the row takes the full width
+.scr-per-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--awe-space-1) var(--awe-space-2);
+
+  > * {
+    grid-column: 1 / -1;
+  }
+
+  > .scr-per-label:has(+ .p-inputswitch) {
+    grid-column: 1;
+  }
+
+  > .p-inputswitch {
+    grid-column: 2;
+  }
+}
+
+.scr-per-label {
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-emphasis);
+}
+
+.scr-per-origin {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-reset.p-button {
+  padding: 0;
+  font-size: var(--awe-font-size-xs);
+}
+
+.scr-per-error {
+  color: var(--awe-color-danger-text);
+}
+
+.scr-per-advanced > summary {
+  cursor: pointer;
+  margin-bottom: var(--awe-space-2);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.scr-per-footer {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: var(--awe-space-2);
+  padding-top: var(--awe-space-3);
+  border-top: var(--awe-border-width) solid var(--awe-color-border);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-key {
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-xs);
+}

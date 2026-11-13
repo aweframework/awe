@@ -8,6 +8,7 @@ export const ClientActions = {
     "back": {method: "back"},
     "wait": {method: "wait"},
     "screen-data": {method: "screenData"},
+    "session-expired": {method: "sessionExpired"},
     "dialog": {method: "openDialog"},
     "close": {method: "closeDialog"},
     "close-cancel": {method: "closeDialogAndCancel"},
@@ -20,6 +21,7 @@ export const ClientActions = {
     "enable-dependencies": {method: "enableDependencies"},
     "add-class": {method: "addClass"},
     "remove-class": {method: "removeClass"},
+    "toggle-class": {method: "toggleClass"},
     "print": {method: "screenPrint"},
     "redirect": {method: "redirect"},
     "redirect-screen": {method: "redirectScreen"},
@@ -46,6 +48,8 @@ export const ClientActions = {
     "copy-criterion-value-clipboard": {method: "copyCriterionValueClipboard"},
 
     "fill": {method: "fill"},
+    "initial-model": {method: "initialModel"},
+    "deferred-failed": {method: "deferredFailed"},
     "fill-suggest": {method: "fillSuggest"},
     "update-controller": {method: "updateController"},
     "select": {method: "select"},
@@ -59,7 +63,8 @@ export const ClientActions = {
   // Available component actions
   component: {
     "filter": {method: "reload"},
-    "start-load": {method: "startLoad"}
+    "start-load": {method: "startLoad"},
+    "show-context-menu": {method: "onShowContextMenu"}
   },
   // Available component actions
   menu: {
@@ -71,10 +76,14 @@ export const ClientActions = {
   chart: {
     "add-points": {method: "onAddPoints", check: ["component", "view"]},
     "add-chart-series": {method: "onAddSeries", check: ["component", "view"]},
-    "remove-chart-series": {method: "onRemoveSeries"}, check: ["component", "view"],
+    "remove-chart-series": {method: "onRemoveSeries", check: ["component", "view"]},
     "replace-chart-series": {method: "onReplaceSeries", check: ["component", "view"]},
     "reset": {method: "onReset", check: ["component", "view"]},
     "restore": {method: "onRestore", check: ["component", "view"]}
+  },
+  // Available map actions
+  map: {
+    "polyline": {method: "onPolyline", check: ["component", "view"]}
   },
   // Available wizard actions
   wizard: {
@@ -125,6 +134,11 @@ export const ClientActions = {
       "copy-row-top": {method: "onCopyRowTop"},
       "copy-row-down": {method: "onCopyRowAfterSelected"},
       "copy-row-up": {method: "onCopyRowBeforeSelected"},
+      "copy-rows": {method: "onCopyRows"},
+      "move-row-top": {method: "onMoveRowTop"},
+      "move-row-up": {method: "onMoveRowBeforeSelected"},
+      "move-row-down": {method: "onMoveRowAfterSelected"},
+      "move-row-bottom": {method: "onMoveRowBottom"},
       "copy-selected-rows-clipboard": {method: "onCopySelectedRowsToClipboard"},
       "add-columns": {method: "onAddColumns"},
       "replace-columns": {method: "onReplaceColumns"},

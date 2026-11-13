@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : SidePanelTst.xml
+    Description: Side panels anchored to the right and to the left edge (#843)
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_SIDE_PANEL">
+  <tag source="buttons">
+    <button id="ButPnlRight" label="BUTTON_SIDE_PANEL_RIGHT" icon="arrow-left">
+      <button-action type="dialog" target="PnlRight"/>
+    </button>
+    <button id="ButPnlLeft" label="BUTTON_SIDE_PANEL_LEFT" icon="arrow-right">
+      <button-action type="dialog" target="PnlLeft"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_SIDE_PANEL" expandible="vertical">
+      <tag type="div" style="panel-body">
+        <criteria id="CrtPnlResult" label="PARAMETER_SIDE_PANEL_RESULT" component="text" readonly="true"
+                  style="col-xs-12 col-sm-6"/>
+      </tag>
+    </window>
+
+    <window style="expand" label="SCREEN_TITLE_SIDE_PANEL_COLUMNS" expandible="vertical">
+      <grid id="GrdPnlCols" style="expand" initial-load="query" server-action="data" target-action="GrdLayoutTst" max="5"
+            columns-panel="side-panel">
+        <column label="Col 01" name="c01" align="left" charlength="10"/>
+        <column label="Col 02" name="c02" align="left" charlength="10"/>
+        <column label="Col 03" name="c03" align="left" charlength="10"/>
+        <column label="Col 04" name="c04" align="left" charlength="10"/>
+      </grid>
+    </window>
+
+    <side-panel id="PnlRight" label="SIDE_PANEL_TITLE_RIGHT" max-width="30rem">
+      <tag type="div" style="panel-body">
+        <criteria id="CrtPnlName" label="PARAMETER_NAME" component="text" style="col-xs-12"/>
+        <criteria id="CrtPnlNotes" label="PARAMETER_DESCRIPTION" component="textarea" style="col-xs-12"/>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button id="ButPnlRightCancel" label="BUTTON_CANCEL" icon="times">
+          <button-action type="close-cancel" target="PnlRight"/>
+        </button>
+        <button id="ButPnlRightAccept" label="BUTTON_ACCEPT" icon="check">
+          <button-action type="close" target="PnlRight"/>
+          <button-action type="value" target="CrtPnlResult" value="accepted"/>
+        </button>
+      </tag>
+    </side-panel>
+
+    <side-panel id="PnlLeft" label="SIDE_PANEL_TITLE_LEFT" position="left" max-width="20rem" on-close="reject"
+                deferred="true">
+      <tag type="div" style="panel-body">
+        <criteria id="CrtPnlLeftName" label="PARAMETER_NAME" component="text" style="col-xs-12"/>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button id="ButPnlLeftClose" label="BUTTON_CLOSE" icon="times">
+          <button-action type="close" target="PnlLeft"/>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+</screen>

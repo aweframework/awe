@@ -17,8 +17,8 @@ public class CacheLoggingConfig {
     return new BeanPostProcessor() {
       @Override
       public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        if (bean instanceof CacheManager && !(bean instanceof LoggingCacheManager)) {
-          return new LoggingCacheManager((CacheManager) bean, "queryData");
+        if (bean instanceof CacheManager manager && !(bean instanceof LoggingCacheManager)) {
+          return new LoggingCacheManager(manager, "queryData");
         }
         return bean;
       }

@@ -5,9 +5,9 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.scheduler.bean.task.TaskVariable;
 import com.almis.awe.scheduler.feign.RemoteScheduler;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +15,8 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -43,7 +43,7 @@ class RemoteSchedulerServiceTest {
    * @return Service under test
    */
   private RemoteSchedulerService service(SchedulerService schedulerService, RemoteScheduler remoteScheduler, boolean remote) {
-    return new RemoteSchedulerService(schedulerService, remoteScheduler, new ObjectMapper(), remote);
+    return new RemoteSchedulerService(schedulerService, remoteScheduler, new JsonMapper(), remote);
   }
 
   /**

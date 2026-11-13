@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<queries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/queries.xsd">
+  <query id="FixSel" permission="fixtures.read">
+    <table id="FixPet"/>
+    <field id="Nam"/>
+  </query>
+  <query id="FixSelPub" public="true">
+    <table id="FixPet"/>
+    <field id="Nam"/>
+  </query>
+</queries>

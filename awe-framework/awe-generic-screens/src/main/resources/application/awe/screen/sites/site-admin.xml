@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : site-admin.xml
+    Description: Sites: list of sites with a side panel that creates and edits them and, inside the same panel, the grid of
+                 modules and databases of the site (design/sites/02-panel-ancho.html). Replaces the Sit, SitNew, SitUpd and
+                 SitViw screens; it reuses their queries and maintains (SitLst, SitStaCnt, QryLstModDbsBySit, SitNew, SitUpd,
+                 SitDel, SitNamUni, ModSelBD, DbsSel).
+                 The panel is 640px wide: the width of a side panel is in rem and the root font size is 10px in the AngularJS
+                 engine and 13px in React, so a rem value would give a different panel in each one. The three columns of the
+                 module grid fit in it in both engines.
+                 The site of the panel is the IdeSit column of the grid (sendable, so the selection bar deletes several sites)
+                 and the module rows come from QryLstModDbsBySitAdm, which returns the site of each row (IdeSitRow) and the
+                 order of the row as SitModOrd: saving a site without touching its rows works, and no column of the panel
+                 clashes with the Ord and the IdeSit of the site in the grid of the screen.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="SCREEN_TITLE_SIT_ADMIN" help="HELP_SCREEN_TITLE_SIT_ADMIN" keep-criteria="true">
+  <tag source="hidden">
+    <message id="NewMsg" title="CONFIRM_TITLE_NEW" message="CONFIRM_MESSAGE_NEW" />
+    <message id="UpdMsg" title="CONFIRM_TITLE_UPDATE" message="CONFIRM_MESSAGE_UPDATE" />
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE" />
+    <message id="UniMsg" title="WARNING_TITLE_DUPLICATED_SITE" message="WARNING_MESSAGE_DUPLICATED_SITE" />
+    <!-- Mode of the side panel: new or edit -->
+    <criteria id="PnlMod" component="hidden" value="new" />
+  </tag>
+  <tag source="buttons">
+    <!-- Icon only: its label is its tooltip and its accessible name -->
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <button label="BUTTON_PRINT" icon="print" id="ButPrn" help="HELP_PRINT_BUTTON">
+      <button-action type="dialog" target="PrnOpt" />
+    </button>
+    <button label="BUTTON_NEW_SITE" icon="plus-circle" id="ButNew" style="btn-primary" help="HELP_NEW_BUTTON" permission="system.update">
+      <!-- No selected row: no IdeSit is sent (SitNew takes it from its sequence) and the panel starts empty -->
+      <button-action type="unselect-all-rows" target="GrdSitAdm" />
+      <button-action type="value" target="PnlMod" value="new" />
+      <button-action type="reset" target="Nam" />
+      <button-action type="reset" target="OrdCrt" />
+      <button-action type="value" target="Act" value="1" />
+      <button-action type="reset" target="SitModDbsLst" />
+      <button-action type="dialog" target="PnlSit" />
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_SIT_ADMIN" icon="list">
+      <grid id="GrdSitAdm" style="expand" server-action="data" target-action="SitLst" initial-load="query" max="50" multiselect="true">
+        <!-- Search: the name of the site (SitLst and SitStaCnt read CrtSitTxt) -->
+        <search id="CrtSitTxt" placeholder="SCREEN_TEXT_SITE_SEARCH" label="SCREEN_TEXT_SITE_SEARCH_LABEL" />
+        <!-- Quick filters: All, Active and Inactive, counted with the search (SitStaCnt) -->
+        <quick-filter id="CrtSitSta" initial-load="query" target-action="SitStaCnt" label="SCREEN_TEXT_SITE_FILTERS" value="" />
+        <!-- The name takes the rest of the width; the order and the state do not sort the rows: the modules of a site are
+             ordered by the order of its rows, so the list keeps the order of SitLst -->
+        <column label="PARAMETER_NAME" name="Nam" sort-field="Nam" align="left" charlength="30" width="*" avatar-field="Ini" avatar-tone-field="IniTon" sendable="false" />
+        <column label="PARAMETER_ORDER" name="Ord" sort-field="Ord" align="center" charlength="10" sendable="false" />
+        <column label="PARAMETER_STATUS" name="StaTxt" sort-field="StaCod" align="left" charlength="14" status-field="StaTon" sendable="false" />
+        <!-- Sent to SitDel: identifier of the selected sites. It also filters the modules grid of the panel -->
+        <column name="IdeSit" hidden="true" />
+        <!-- Read by the cells and by the side panel; not sent (their names are criteria of the panel) -->
+        <column name="Act" hidden="true" sendable="false" />
+        <column name="StaCod" hidden="true" sendable="false" />
+        <column name="StaTon" hidden="true" sendable="false" />
+        <column name="Ini" hidden="true" sendable="false" />
+        <column name="IniTon" hidden="true" sendable="false" />
+        <!-- Row actions: the pencil edits the site of its row in the side panel and the ellipsis opens the row menu. A row
+             button selects its row (only it) before its actions, so the panel is filled with that site -->
+        <column name="EdtBtn" component="button" icon="lucide:pencil" title="BUTTON_EDIT" style="btn-ghost no-label" align="right" charlength="4" sortable="false" sendable="false">
+          <button-action type="value" target="PnlMod" value="edit" />
+          <button-action type="filter" target="SitModDbsLst" />
+          <button-action type="dialog" target="PnlSit" />
+        </column>
+        <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label" align="left" charlength="4" sortable="false" sendable="false">
+          <button-action type="show-context-menu" />
+        </column>
+        <!-- Row menu -->
+        <context-button label="BUTTON_EDIT" icon="edit" id="CtxButUpd">
+          <button-action type="check-one-selected" target="GrdSitAdm" />
+          <button-action type="value" target="PnlMod" value="edit" />
+          <button-action type="filter" target="SitModDbsLst" />
+          <button-action type="dialog" target="PnlSit" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdSitAdm" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <!-- Duplicate: the panel opens as a new site with the values of the selected one; its module rows start empty (the
+             name is taken, so the create action refuses it until it changes) -->
+        <context-button label="BUTTON_DUPLICATE_SITE" icon="copy" id="CtxButDup" permission="system.update">
+          <button-action type="check-one-selected" target="GrdSitAdm" />
+          <button-action type="value" target="PnlMod" value="new" />
+          <button-action type="reset" target="SitModDbsLst" />
+          <button-action type="dialog" target="PnlSit" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdSitAdm" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-separator name="CtxSepDel" />
+        <context-button label="BUTTON_DELETE" icon="trash" id="CtxButDel">
+          <button-action type="check-some-selected" target="GrdSitAdm" />
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="SitDel" />
+          <button-action type="filter" target="GrdSitAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdSitAdm" attribute="selectedRows" condition="ge" value="1" />
+          </dependency>
+        </context-button>
+        <!-- Selection actions: in the selection bar of the grid while there are selected sites, Delete as the danger one -->
+        <button label="BUTTON_DELETE" icon="trash" id="ButDel" help="HELP_DELETE_BUTTON" style="btn-danger" selection="true">
+          <button-action type="check-some-selected" target="GrdSitAdm" />
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="SitDel" />
+          <button-action type="filter" target="GrdSitAdm" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdSitAdm" attribute="selectedRows" condition="ge" value="1" />
+          </dependency>
+        </button>
+      </grid>
+    </window>
+
+    <!-- One side panel for new and edit: the criteria ids are the parameters of SitNew and SitUpd. When editing (one selected
+         site) its header shows the site: avatar, name and the state tag; for a new site (no selected row) it shows its label -->
+    <side-panel id="PnlSit" label="SCREEN_TITLE_SITE_PANEL" icon="sitemap" max-width="640px"
+                header-grid="GrdSitAdm" header-title-field="Nam" header-avatar-field="Ini" header-avatar-tone-field="IniTon">
+      <header-tag field="StaTxt" tone-field="StaTon" />
+      <tag type="div" style="panel-body" id="PnlSitBdy">
+        <!-- Identity -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_SITE_IDENTITY" icon="sitemap" />
+        <criteria label="PARAMETER_NAME" id="Nam" component="text" variable="Nam" validation="{required: true, maxlength: 40}" style="col-xs-12 col-sm-5">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSitAdm" column="Nam" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdSitAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <!-- SitUpd reads the order as OrdCrt: the identifier of the criterion is not the field of the row (Ord) -->
+        <criteria label="PARAMETER_ORDER" id="OrdCrt" component="text" style="col-xs-6 col-sm-3">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSitAdm" column="Ord" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdSitAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <!-- Active as a switch: 1 when on, 0 when off (SitNew and SitUpd read Act); a new site starts active -->
+        <criteria label="PARAMETER_ACTIVE" id="Act" component="checkbox" value="1" style="col-xs-6 col-sm-4 switch">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdSitAdm" column="Act" attribute="selectedRowValue" alias="value" optional="true" />
+            <dependency-element id="GrdSitAdm" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+
+        <!-- Modules and databases of the site: an editable grid inside the panel, with its rows sent to SitUpd and SitNew
+             together with the site (one save). Its rows carry the site (IdeSitRow) so the maintain takes the site of each
+             row even when the grid sends only the changed ones.
+             Its box is height-lg (a minimum height in both engines), which keeps room for the empty state of a new site and
+             lets a site with more rows than fit scroll inside the grid, not in the panel -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_SITE_MODULES" icon="lucide:network" />
+        <tag type="div" style="col-xs-12 height-lg" expandible="vertical">
+          <grid id="SitModDbsLst" style="expand" editable="true" send-operations="true" show-toolbar="false"
+                server-action="data" target-action="QryLstModDbsBySitAdm" max="20"
+                empty-title="SCREEN_TEXT_SITE_MODULES_EMPTY" empty-text="SCREEN_TEXT_SITE_MODULES_EMPTY_TEXT" empty-icon="lucide:network">
+            <column sort-field="IdeSitModDbs" name="IdeSitModDbs" hidden="true" />
+            <column label="PARAMETER_MODULE" name="IdeMod" sort-field="IdeMod" align="left" charlength="12" component="select" validation="required" initial-load="query" server-action="data" target-action="ModSelBD" sortable="false" />
+            <column label="PARAMETER_DB_ALS" name="IdeDbs" sort-field="IdeDbs" align="left" charlength="17" component="select" validation="required" initial-load="query" server-action="data" target-action="DbsSel" sortable="false" />
+            <column label="PARAMETER_ORDER" name="SitModOrd" sort-field="SitModOrd" align="center" charlength="6" component="text" sortable="false" />
+            <!-- The site of the row: read by SitUpd (and SitNew ignores it, it takes the sequence) -->
+            <column name="IdeSitRow" hidden="true" />
+            <button label="BUTTON_NEW" icon="plus-circle" id="ButSitModAdd">
+              <button-action type="add-row" target="SitModDbsLst" silent="true" />
+            </button>
+            <button label="BUTTON_DELETE" icon="trash" id="ButSitModDel">
+              <button-action type="delete-row" target="SitModDbsLst" silent="true" />
+              <dependency target-type="enable" initial="true">
+                <dependency-element id="SitModDbsLst" attribute="selectedRows" condition="eq" value="1" />
+              </dependency>
+            </button>
+          </grid>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button label="BUTTON_CANCEL" icon="times" id="ButPnlCnl">
+          <button-action type="close-cancel" target="PnlSit" />
+        </button>
+        <button label="BUTTON_SAVE_CHANGES" icon="save" id="ButPnlUpd" style="btn-primary">
+          <button-action type="validate" target="PnlSitBdy" />
+          <button-action type="check-records-saved" target="SitModDbsLst" />
+          <button-action type="confirm" target="UpdMsg" />
+          <button-action type="server" server-action="maintain" target-action="SitUpd" />
+          <button-action type="close" target="PnlSit" />
+          <button-action type="filter" target="GrdSitAdm" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="edit" />
+          </dependency>
+        </button>
+        <button label="BUTTON_CREATE_SITE" icon="check" id="ButPnlNew" style="btn-primary">
+          <button-action type="validate" target="PnlSitBdy" />
+          <button-action type="check-records-saved" target="SitModDbsLst" />
+          <button-action type="confirm" target="NewMsg" />
+          <button-action type="server" server-action="control-unique-cancel" target-action="SitNamUni" target="UniMsg" />
+          <button-action type="server" server-action="maintain" target-action="SitNew" />
+          <button-action type="close" target="PnlSit" />
+          <button-action type="filter" target="GrdSitAdm" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PnlMod" condition="eq" value="new" />
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+  <tag source="modal">
+    <include target-screen="PrnOpt" target-source="center" />
+    <include target-screen="screen-help" target-source="center" />
+  </tag>
+</screen>

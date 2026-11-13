@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Call Class
  * Used to parse the Actions.xml file with XStream
@@ -20,6 +22,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @Accessors(chain = true)
 public class Call implements Copyable {
+  @Serial
   private static final long serialVersionUID = -3441589614416031154L;
   // Service called
   @XStreamAlias("service")

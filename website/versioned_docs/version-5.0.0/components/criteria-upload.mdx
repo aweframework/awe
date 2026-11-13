@@ -1,0 +1,57 @@
+---
+id: criteria-upload
+title: File upload
+sidebar_label: File upload
+description: The AWE uploader criterion, live. Choose a file, drop it on a zone, preview an image, with the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {criteriaUpload} from '@site/src/components/AwePlayground/specs/criteria-upload';
+
+The `uploader` criterion sends a file to the server, where its processes can manage it. Below is the real criterion of the AWE React
+client: choose a file, change its attributes and the XML below follows.
+
+<AwePlayground spec={criteriaUpload} />
+
+The upload is simulated in these examples: the page reports the progress of the request and shows the file name and size as the
+server would answer, but **the file is never sent anywhere**; it stays in your browser. `destination` is the folder of the server
+where a real screen stores the file. With `drop-zone` the user can drop the file, and when it is a raster image a preview is shown.
+`capture` adds a **Take photo** button that opens the camera on mobile browsers.
+
+## Recipes {#recipes}
+
+### Drop zone with a preview {#recipe-dropzone}
+
+Drop an image on the dashed area, or choose one: it is previewed next to the field, and **Clear** removes the file.
+
+<AweLive
+  components={{photo: {attributes: {label: 'Photo', dropZone: true, destination: 'photos'}}}}
+  nodes={[{elementType: 'Criteria', component: 'uploader', id: 'photo'}]}
+  uploads
+/>
+
+```xml
+<criteria id="photo" component="uploader" label="Photo" destination="photos" drop-zone="true" />
+```
+
+## Events and actions {#events-and-actions}
+
+A criterion has no event of its own to listen to: every change of its value checks the [dependencies](../api/dependencies.md) whose
+`dependency-element` names it, and pressing Enter in a text field runs the `submit` button of its window. The [actions](../api/actions.md)
+that work on criteria:
+
+| Action                           | Description                                                          |
+|----------------------------------|----------------------------------------------------------------------|
+| `reset`                          | Empties the value of the criterion                                   |
+| `restore`                        | Puts back the initial value of the criterion                         |
+| `validate`                       | Runs the validation of the criterion and shows its error             |
+| `set-invalid`                    | Marks the criterion as invalid with the message of the action        |
+| `set-valid`                      | Clears the validation error of the criterion                         |
+| `copy-criterion-value-clipboard` | Copies the value of the criterion to the clipboard                   |
+
+## More {#more}
+
+* [Criteria overview](./criteria.mdx): the attributes every criterion shares and the other families of inputs.
+* [Full documentation of the criteria](../api/criteria.md): every type, attribute, validation and example.
+* [XSD reference of the `criteria` element](/reference/screen#element-criteria).

@@ -3,7 +3,7 @@ version: "2"
 services:
 
   tempo:
-    image: grafana/tempo:2.0.1
+    image: grafana/tempo:2.10.10@sha256:12b0820f13ffa10ce956b6e9acc3b03f3cffded99109be6cc09d106fe56e5d38
     container_name: tempo
     command: [ "-config.file=/etc/tempo.yaml" ]
     restart: unless-stopped
@@ -19,7 +19,7 @@ services:
       - loki
 
   prometheus:
-    image: prom/prometheus:v2.43.0
+    image: prom/prometheus:v2.55.1@sha256:2659f4c2ebb718e7695cb9b25ffa7d6be64db013daba13e05c875451cf51b0d3
     container_name: prometheus
     restart: unless-stopped
     volumes:
@@ -33,7 +33,7 @@ services:
       - loki
 
   grafana:
-    image: grafana/grafana-oss:9.4.7
+    image: grafana/grafana-oss:9.5.21@sha256:681dc3261b0a8050809733e04d76f10300b91a1400cea17abe102b2cdef36b6d
     container_name: grafana
     restart: unless-stopped
     user: root
@@ -42,6 +42,8 @@ services:
     volumes:
       - ./grafana/grafana-data:/var/lib/grafana
       - ./grafana/dashboards:/etc/grafana/dashboards
+      # Reference dashboard of the observability starter (single source: it is the file the starter ships)
+      - ../../../awe-framework/awe-starters/awe-observability-spring-boot-starter/src/main/resources/awe-observability/grafana/awe-observability-dashboard.json:/etc/grafana/dashboards/awe-observability-dashboard.json:ro
       - ./grafana/provisioning:/etc/grafana/provisioning
     environment:
       - GF_AUTH_ANONYMOUS_ENABLED=true
@@ -52,7 +54,7 @@ services:
       - prometheus
 
   loki:
-    image: grafana/loki:2.8.0
+    image: grafana/loki:2.9.17@sha256:c4a25af6f2709fa625d88ee5df494a332a85f30e9575854031667823ecc5be04
     container_name: loki
     restart: unless-stopped
     volumes:
@@ -62,7 +64,7 @@ services:
     command: -config.file=/etc/loki/loki-config.yaml
 
   promtail:
-    image: grafana/promtail:2.8.0
+    image: grafana/promtail:2.9.17@sha256:b28495fdab552b183428c5b5cebbf258231fc5f00be7724be2bc091ad21ac390
     container_name: promtail
     restart: unless-stopped
     volumes:
@@ -73,7 +75,7 @@ services:
     command: -config.file=/etc/promtail/promtail.yaml
 
   redis:
-    image: redis:7.0.10
+    image: redis:7.4.12@sha256:2e3eb11462c4e3759e6972678dd051d150ff54b1e60714b3c33b701260172a90
     container_name: redis-service
     ports:
       - "6379:6379"
@@ -81,6 +83,6 @@ services:
       - ALLOW_EMPTY_PASSWORD=yes
 
   redisinsight:
-    image: redislabs/redisinsight:latest
+    image: redislabs/redisinsight:latest@sha256:b5e19ee240abef6edb435871b90ff8a210995422e8e018ab61c0339d318a1f84
     ports:
       - "5540:5540"

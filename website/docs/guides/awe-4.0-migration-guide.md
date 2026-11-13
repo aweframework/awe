@@ -8,29 +8,24 @@ sidebar_label: v4.0 Migration Guide
 
 * Change project structure to a Spring project structure:
 
-> * **[application-name]** -> Project files (pom.xml, package.json...)
-    >
-* src
-  >
-* main
-  >
-* **java** -> ApplicationBoot + Java classes
->          * **resources** -> Properties
-             >
-* application/[application-name] -> XML files
->              * config -> AWE Properties overwritten
->              * js -> Javascript files
->              * css -> CSS files
->              * less -> LESS files
->              * schemas -> XSD Schemas
->              * static -> Images/Fonts
->              * webpack -> Webpack configuration
->              * sql -> SQL Initialization files
->      * test
-         >
-* *java* -> JUnit Tests
->          * *resources* -> Test properties
->          * *selenium* -> Selenium suites
+  - **[application-name]** -> Project files (pom.xml, package.json...)
+    - src
+      - main
+        - **java** -> ApplicationBoot + Java classes
+        - **resources** -> Properties
+          - application/[application-name] -> XML files
+          - config -> AWE Properties overwritten
+          - js -> Javascript files
+          - css -> CSS files
+          - less -> LESS files
+          - schemas -> XSD Schemas
+          - static -> Images/Fonts
+          - webpack -> Webpack configuration
+          - sql -> SQL Initialization files
+      - test
+        - *java* -> JUnit Tests
+        - *resources* -> Test properties
+        - *selenium* -> Selenium suites
 
 ## **Maven**
 
@@ -648,7 +643,7 @@ private static Logger logger=LogManager.getLogger(MyClass.class);
 
 1. Add `@Slf4j` annotation on top of the class:
 
- ```java
+```java
 @Slf4j
 public MyClass{
         ...
@@ -1027,7 +1022,7 @@ the following points:
 
     - *Maintains:* The attribute name of `service-parameter` has to be the same as the attribute `id` of `variable`
       field of serve elements.
-      ```jsx title=maintains.xml
+      ```xml title=maintains.xml
       <target name="MyMaintain">
          <serve service="MyService">
            <variable id="id1" type="STRING" name="criterion1.selected"/>
@@ -1036,7 +1031,7 @@ the following points:
         </serve>
       </target>
       ```
-       ```jsx title=global/Services.xml
+       ```xml title=global/Services.xml
       <service id="CtrEvnDetIsuCnfSer">
         <microservice name="alu-microservice" method="POST" endpoint="/maintain/myMicroservice" content-type="JSON">
           <service-parameter name="id1" type="STRING" list="true"/>
@@ -1045,7 +1040,7 @@ the following points:
         </microservice>
       </service>
       ```
-      ```jsx title=webservice/services.xml
+      ```xml title=webservice/services.xml
        <service name="myMicroService" type="MAINTAION" call="myWebService">
          <param list="false" name="id1" type="STRING"/>
          <param list="false" name="id2" type="STRING"/>
@@ -1055,7 +1050,7 @@ the following points:
 
     - *Queries:* The attribute name of `service-parameter` has to be the same as the attribute `id` of query `field`.
       Usually, you have to add alias field with the name to describe that field.
-      ```jsx title=queries.xml
+      ```xml title=queries.xml
        <query id="MyQuery" service="MyService">
          <field id="id1" alias="alias1"/>
          <field id="id2" alias="alias2"/>
@@ -1063,7 +1058,7 @@ the following points:
          ...
       </query>      
       ```
-      ```jsx title=global/services.xml
+      ```xml title=global/services.xml
        <service id="MyService">
          <microservice name="alu-microservice" method="POST" endpoint="/data/myMicroService" content-type="JSON">
            <service-parameter list="false" name="id1" type="STRING"/>
@@ -1072,7 +1067,7 @@ the following points:
          </microservice>
       </service>
       ```
-      ```jsx title=webservice/services.xml
+      ```xml title=webservice/services.xml
        <service name="myMicroService" type="DATA" call="myWebService">
          <param list="false" name="id1" type="STRING"/>
          <param list="false" name="id2" type="STRING"/>

@@ -1,6 +1,5 @@
-// ### Import bootstrap
-@import "./libs/bootstrap-3.3.2/bootstrap.less";
-//@import "~bootstrap/less/bootstrap";
+// ### Import the legacy Bootstrap 3 LESS (variables, mixins, grid columns, leftovers)
+@import "./legacy/legacy.less";
 
 // ### Libraries
 // Animate css
@@ -15,6 +14,9 @@
 // Angular loading bar
 // @import "./libs/loadingBar/loading-bar.less";
 @import "~angular-loading-bar/src/loading-bar.css";
+
+// Leaflet (map)
+@import (less) "~leaflet/dist/leaflet.css";
 
 // Bootstrap slider
 //@import (less) "~bootstrap-slider/dist/css/bootstrap-slider.css";
@@ -37,9 +39,9 @@
 // Boostrap tabdrop
 @import "./libs/bootstrap-tabdrop/src/less/tabdrop";
 
-// ### Pixel Admin stylesheets
-@import "./libs/pixel-admin-less/pixel-admin";
-@import "./libs/pixel-admin-less/widgets/notifications";
+// ### Pixel Admin stylesheets (AWE-owned LESS, no longer a vendored library: legacy/pixel-admin)
+@import "./legacy/pixel-admin/pixel-admin";
+@import "./legacy/pixel-admin/widgets/notifications";
 
 // ### Font Awesome stylesheets
 @import "~font-awesome/less/font-awesome";
@@ -51,11 +53,19 @@
 @import "./awe/variables.less";
 @import "./awe/mixins.less";
 
+// ### awe design tokens (--awe-* custom properties): the AWE 5 token file shared with the React engine, then the
+// current token names (they keep following the active theme until the engine adopts the AWE 5 values)
+@import (inline) "../../../../../awe-design-tokens/tokens.css";
+@import "./awe/tokens.less";
+
 // ### awe custom stylesheets
 @import "./awe/base.less";
 @import "./awe/breadcrumbs.less";
 @import "./awe/font.less";
 @import "./awe/icon.less";
+// The AWE 5 icons (#885): the rules shared with the React engine, then the contexts of this engine
+@import (inline) "../../../../../awe-design-tokens/icons/awe-icon.css";
+@import "./awe/awe-icon.less";
 @import "./awe/offset.less";
 @import "./awe/no-label.less";
 @import "./awe/button.less";
@@ -81,3 +91,6 @@
 
 // Favourites
 @import "./awe/favourites.less";
+
+// Window header (title mode)
+@import "./awe/window-header.less";

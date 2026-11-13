@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : TestPublicScreenPrivateLoad.xml
+    Description: Public screen whose initial load is a private query, opened without a session
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_BUTTON_TEST">
+  <tag source="center" expandible="vertical">
+    <window id="WinDat" label="SCREEN_TEXT_DATA" maximize="true">
+      <tag type="div" style="panel-body">
+        <criteria label="PARAMETER_SELECT" id="PrivateQuerySelect" component="select" initial-load="query" target-action="TestPublicScreenPrivateQuery" optional="true" style="col-xs-6 col-sm-3 col-lg-2" />
+      </tag>
+    </window>
+  </tag>
+</screen>

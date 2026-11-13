@@ -1,0 +1,53 @@
+.p-progressbar-determinate .p-progressbar-value-animate {
+  transition: width var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.p-cell-editing .p-fileupload .p-button-icon-left {
+  margin-right: 0;
+}
+
+.p-cell-editing .p-fileupload {
+  display: flex;
+}
+
+.p-fileupload .p-button {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+// Drop zone: dashed border, highlighted while a file is dragged over it
+.upload-drop-zone {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-2);
+  background: var(--awe-color-surface-subtle);
+  border: var(--awe-border-width) dashed var(--awe-color-field-border);
+  border-radius: var(--awe-radius-lg);
+  transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &.upload-drop-zone-active {
+    border-color: var(--awe-color-primary-text);
+    background-color: var(--awe-color-highlight);
+  }
+
+  // Alone in the drop zone, the button is not an addon of a field: all its corners are rounded
+  .p-fileupload .p-button {
+    border-radius: var(--awe-radius-md);
+  }
+
+  .upload-drop-hint {
+    flex: 1 0 100%;
+    color: var(--awe-color-field-help);
+    font-size: var(--awe-font-size-xs);
+  }
+
+  .upload-preview {
+    max-width: 100%;
+    max-height: calc(3 * var(--awe-space-16));
+    border-radius: var(--awe-radius-sm);
+    object-fit: contain;
+  }
+}

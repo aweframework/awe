@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * ContextButton Class
  *
@@ -24,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("context-button")
 public class ContextButton extends AbstractButton {
 
+  @Serial
   private static final long serialVersionUID = -3273278205411047836L;
 
   @Override

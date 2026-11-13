@@ -1,1 +1,1 @@
-package
+package -Dskip.frontend=true

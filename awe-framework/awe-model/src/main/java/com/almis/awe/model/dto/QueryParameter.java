@@ -7,9 +7,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.validation.constraints.NotNull;
 import lombok.experimental.Accessors;
+import tools.jackson.databind.JsonNode;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -153,7 +153,7 @@ public class QueryParameter implements Copyable {
     if (anotherObject == null) {
       return false;
     }
-    if (anotherObject instanceof QueryParameter anotherParameter 
+    if (anotherObject instanceof QueryParameter anotherParameter
             && getType().equals(anotherParameter.getType())) {
       if (anotherParameter.getValue() == null || this.getValue() == null) {
         return this.getValue() == anotherParameter.getValue();

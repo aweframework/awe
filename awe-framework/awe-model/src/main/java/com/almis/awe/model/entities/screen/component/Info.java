@@ -15,6 +15,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Info Class
  * <p>
@@ -31,6 +33,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("info")
 public class Info extends AbstractButton {
 
+  @Serial
   private static final long serialVersionUID = -2190505817555353007L;
 
   // Value from query

@@ -10,9 +10,9 @@ import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.dao.CalendarDAO;
 import com.almis.awe.scheduler.dao.SchedulerDAO;
 import com.almis.awe.scheduler.dao.TaskDAO;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collections;
 import java.util.List;
@@ -368,8 +368,8 @@ public class SchedulerService extends ServiceConfig {
   }
 
   /**
-   * Retrieve the database-mode execution log window from a line offset (get-execution-log
-   * action). Parameterless: services invoked through an Actions.xml &lt;call service&gt; receive
+   * Retrieve the execution log window from a line offset (get-execution-log action), in both
+   * store modes. Parameterless: services invoked through an Actions.xml &lt;call service&gt; receive
    * no parameter map, so the id/offset values are read directly from the request instead of
    * declared as service-parameters.
    *
@@ -396,7 +396,7 @@ public class SchedulerService extends ServiceConfig {
    */
   private Integer readRequestInteger(String name) {
     JsonNode parameter = getRequest().getParameter(name);
-    return parameter == null || parameter.isNull() ? null : parameter.asInt();
+    return parameter == null || parameter.isNull() ? null : parameter.asInt(0);
   }
 
   /**
@@ -407,7 +407,7 @@ public class SchedulerService extends ServiceConfig {
    */
   private String readRequestString(String name) {
     JsonNode parameter = getRequest().getParameter(name);
-    return parameter == null || parameter.isNull() ? null : parameter.asText();
+    return parameter == null || parameter.isNull() ? null : parameter.asString("");
   }
 
   /**

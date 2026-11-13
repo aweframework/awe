@@ -8,8 +8,7 @@ import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.entities.Element;
 import com.almis.awe.model.entities.screen.Screen;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.almis.awe.service.observation.ExecutionObserver;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,9 +17,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -74,7 +77,7 @@ class ReportGeneratorTest {
   @Test
   void generateScreenReportContextSharesOneDesignWhenNoColumnIsSpreadsheetOnly() throws Exception {
     parameters.set(AweConstants.PRINT_FORMATS, JsonNodeFactory.instance.arrayNode().add("PDF").add("XLSX").add("CSV"));
-    when(designer.hasSpreadsheetOnlyColumns(reportStructure, parameters)).thenReturn(false);
+    when(designer.needsSpreadsheetDesign(reportStructure, parameters)).thenReturn(false);
 
     ReportGenerator.GeneratedScreenReportContext context = reportGenerator.generateScreenReportContext(screen);
 
@@ -86,7 +89,7 @@ class ReportGeneratorTest {
   @Test
   void generateScreenReportContextDesignsSpreadsheetOutputsApartWhenSomeColumnIsSpreadsheetOnly() throws Exception {
     parameters.set(AweConstants.PRINT_FORMATS, JsonNodeFactory.instance.arrayNode().add("PDF").add("XLSX").add("CSV").add("DOCX"));
-    when(designer.hasSpreadsheetOnlyColumns(reportStructure, parameters)).thenReturn(true);
+    when(designer.needsSpreadsheetDesign(reportStructure, parameters)).thenReturn(true);
 
     ReportGenerator.GeneratedScreenReportContext context = reportGenerator.generateScreenReportContext(screen);
 
@@ -98,11 +101,30 @@ class ReportGeneratorTest {
   @Test
   void generateScreenReportContextWithOnlyDocumentOutputsNeverDesignsForSpreadsheets() throws Exception {
     parameters.set(AweConstants.PRINT_FORMATS, JsonNodeFactory.instance.arrayNode().add("PDF"));
-    when(designer.hasSpreadsheetOnlyColumns(reportStructure, parameters)).thenReturn(true);
+    when(designer.needsSpreadsheetDesign(reportStructure, parameters)).thenReturn(true);
 
     reportGenerator.generateScreenReportContext(screen);
 
     verify(designer, times(1)).getPrintDesign(reportStructure, parameters, false);
     verify(designer, never()).getPrintDesign(any(), any(), eq(true));
+  }
+
+  @Test
+  void eachExportedFormatIsObservedWithTheScreenAndItsFormat() throws Exception {
+    List<String> observed = new ArrayList<>();
+    reportGenerator.setExecutionObserver(new ExecutionObserver() {
+      @Override
+      public <T> T observe(ExecutionType type, String id, Map<String, String> tags, Execution<T> execution) throws com.almis.awe.exception.AWException {
+        observed.add(type + ":" + id + ":" + tags);
+        return execution.execute();
+      }
+    });
+    when(screen.getId()).thenReturn("ScrRep");
+    parameters.set(AweConstants.PRINT_FORMATS, JsonNodeFactory.instance.arrayNode().add("pdf").add("XLSX").add("<script>"));
+
+    ReportGenerator.GeneratedScreenReportContext context = reportGenerator.generateScreenReportContext(screen);
+
+    assertEquals(3, context.reportFiles().size());
+    assertEquals(List.of("EXPORT:ScrRep:{format=pdf}", "EXPORT:ScrRep:{format=xlsx}", "EXPORT:ScrRep:{format=other}"), observed);
   }
 }

@@ -1,0 +1,8 @@
+Pixel Admin LESS (legacy)
+
+The LESS files in this folder come from the Pixel Admin stylesheets that AWE vendored under less/libs/pixel-admin-less.
+They are now AWE-owned LESS: only the files that the AWE build imports were kept (the demo, the pages, the rtl rules,
+the unused widgets and the images no rule reaches were deleted), and the rules are unchanged.
+
+The original files carried no license or copyright notice of their own. The copyright of the Pixel Admin theme belongs
+to its authors, and this note keeps that provenance with the code.

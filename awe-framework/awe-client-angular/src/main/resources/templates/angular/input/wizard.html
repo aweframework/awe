@@ -1,9 +1,9 @@
 <div class="wizard wizard-{{::size}} expand expandible-vertical" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div class="{{::criterionClass}} expand expandible-vertical">
     <div class="wizard-wrapper">
       <ul class="wizard-steps" ng-class="{disabled:isDisabled()}">
-        <li ng-class="{'active':model.selectedIndex === $index, 'completed':model.selectedIndex > $index}" ng-repeat="wizard in model.values track by wizard.value" ng-click="clickTab(wizard.value)">
+        <li ng-class="{'active':model.selectedIndex === $index, 'completed':model.selectedIndex > $index}" ng-repeat="wizard in model.values track by wizard.value" ng-click="clickTab(wizard.value)" data-testid="wizard-step" ng-attr-data-active="{{model.selectedIndex === $index}}" ng-attr-data-completed="{{model.selectedIndex > $index}}">
           <span class="wizard-step-number">{{$index + 1}}</span>
           <span class="wizard-step-caption">
             <span translate-multiple="{{::controller.label}}"></span> {{$index + 1}}

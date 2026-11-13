@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : owner.xml
+    Description: Profile of the pet owners: only their own area. The queries and maintain targets of the area also
+                 filter by the connected user, so the restrictions below are never the only protection
+-->
+<profile xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/profile.xsd">
+  <restriction option="vet-dashboard"/>
+  <restriction option="clinic-section"/>
+  <restriction option="vet-owners"/>
+  <restriction option="vet-pets"/>
+  <restriction option="vet-visits"/>
+  <restriction option="vet-appointments"/>
+  <restriction option="vet-requests"/>
+  <restriction option="vet-vaccinations"/>
+  <restriction option="vet-documents"/>
+  <restriction option="vet-invoices"/>
+  <restriction option="administration"/>
+  <restriction option="tools"/>
+  <restriction option="settings"/>
+  <permission id="portal.*"/>
+</profile>

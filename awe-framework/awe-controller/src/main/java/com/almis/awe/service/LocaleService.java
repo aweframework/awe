@@ -35,7 +35,7 @@ public class LocaleService extends ServiceConfig {
   public ServiceData getApplicationLocales() throws AWException {
     try {
       // Get language parameter
-      String language = getRequest().getParameter(AweConstants.SESSION_LANGUAGE).asText();
+      String language = getRequest().getParameter(AweConstants.SESSION_LANGUAGE).asString("");
 
       // Write application settings in output
       Map<String, Map<String, String>> locals = getApplicationLocales(language);

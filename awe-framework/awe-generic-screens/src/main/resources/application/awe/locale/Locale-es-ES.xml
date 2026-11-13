@@ -12,6 +12,7 @@
   <locale name="APP_CLIENT" value="Almis I.F."/>
   <locale name="APP_NAME" value="Almis Web Engine"/>
   <locale name="BUTTON_ACCEPT" value="Aceptar"/>
+  <locale name="BUTTON_ACCESS_ALLOW_SUBJECT" value="Permitir al perfil o usuario elegido"/>
   <locale name="BUTTON_ACTIVATE" value="Activar"/>
   <locale name="BUTTON_ACTIVATE_BATCH" value="Activar tareas seleccionadas"/>
   <locale name="BUTTON_ADD" value="Agregar"/>
@@ -20,21 +21,47 @@
   <locale name="BUTTON_AUDIT" value="Auditoría"/>
   <locale name="BUTTON_BACK" value="Volver"/>
   <locale name="BUTTON_CANCEL" value="Cancelar"/>
+  <locale name="BUTTON_CAPTURE" value="Hacer foto"/>
   <locale name="BUTTON_CHOOSE" value="Seleccionar"/>
   <locale name="BUTTON_CLEAR" value="Borrar"/>
   <locale name="BUTTON_CLOSE" value="Cerrar"/>
   <locale name="BUTTON_CONFIRM" value="Confirmar"/>
   <locale name="BUTTON_COPY" value="Copiar"/>
-  <locale name="BUTTON_CUSTOMIZE" value="Personalizar"/>
+  <locale name="BUTTON_CREATE_APP_PAR" value="Crear parámetro"/>
+  <locale name="BUTTON_CREATE_DATABASE" value="Crear conexión"/>
+  <locale name="BUTTON_CREATE_EMAIL_SERVER" value="Crear servidor de correo"/>
+  <locale name="BUTTON_CREATE_MODULE" value="Crear módulo"/>
+  <locale name="BUTTON_CREATE_COPY" value="Crear copia"/>
+  <locale name="BUTTON_CREATE_PROFILE" value="Crear perfil"/>
+  <locale name="BUTTON_CREATE_QUEUE" value="Crear cola"/>
+  <locale name="BUTTON_CREATE_SEQUENCE" value="Crear secuencia"/>
+  <locale name="BUTTON_CREATE_SITE" value="Crear site"/>
+  <locale name="BUTTON_CREATE_THEME" value="Crear tema"/>
+  <locale name="BUTTON_CREATE_USER" value="Crear usuario"/>
   <locale name="BUTTON_DARK_MODE" value="Modo oscuro"/>
   <locale name="BUTTON_DEACTIVATE" value="Desactivar"/>
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Desactivar tareas seleccionadas"/>
   <locale name="BUTTON_DELETE" value="Borrar"/>
+  <locale name="BUTTON_DONE" value="Hecho"/>
+  <locale name="BUTTON_DUPLICATE_EMAIL_SERVER" value="Duplicar servidor de correo"/>
+  <locale name="BUTTON_DUPLICATE_MODULE" value="Duplicar módulo"/>
+  <locale name="BUTTON_DUPLICATE_PROFILE" value="Duplicar perfil"/>
+  <locale name="BUTTON_DUPLICATE_QUEUE" value="Duplicar cola"/>
+  <locale name="BUTTON_DUPLICATE_SITE" value="Duplicar site"/>
   <locale name="BUTTON_EDIT" value="Editar"/>
+  <locale name="BUTTON_EDIT_DATABASE_SITES" value="Editar sitios y módulos"/>
+  <locale name="BUTTON_MORE_ACTIONS" value="Más acciones"/>
   <locale name="BUTTON_ENCRYPT" value="Encriptar"/>
   <locale name="BUTTON_EXPORT" value="Exportar"/>
   <locale name="BUTTON_FINISH" value="Terminar"/>
   <locale name="BUTTON_HIDE_MENU" value="OCULTAR MENU"/>
+  <locale name="BUTTON_NEW_DATABASE" value="Nueva conexión"/>
+  <locale name="BUTTON_NEW_EMAIL_SERVER" value="Nuevo servidor de correo"/>
+  <locale name="BUTTON_NEW_MODULE" value="Nuevo módulo"/>
+  <locale name="BUTTON_NEW_PROFILE" value="Nuevo perfil"/>
+  <locale name="BUTTON_NEW_SITE" value="Nuevo site"/>
+  <locale name="BUTTON_NEW_THEME" value="Nuevo tema"/>
+  <locale name="BUTTON_TOGGLE_MENU" value="Mostrar u ocultar el menú"/>
   <locale name="BUTTON_HOME" value="Inicio"/>
   <locale name="BUTTON_LIGHT_MODE" value="Modo claro"/>
   <locale name="BUTTON_LOGIN" value="Acceder"/>
@@ -43,29 +70,41 @@
   <locale name="BUTTON_LOGOUT" value="Salir"/>
   <locale name="BUTTON_MODIFY" value="Modificar"/>
   <locale name="BUTTON_NEW" value="Nuevo"/>
+  <locale name="BUTTON_NEW_QUEUE" value="Nueva cola"/>
+  <locale name="BUTTON_NEW_APP_PAR" value="Nuevo parámetro"/>
   <locale name="BUTTON_NEW_ROW_DOWN" value="1 fila debajo"/>
   <locale name="BUTTON_NEW_ROW_UP" value="1 fila encima"/>
+  <locale name="BUTTON_NEW_SEQUENCE" value="Nueva secuencia"/>
+  <locale name="BUTTON_NEW_USER" value="Nuevo usuario"/>
   <locale name="BUTTON_NEXT" value="Siguiente"/>
   <locale name="BUTTON_PREVIOUS" value="Anterior"/>
   <locale name="BUTTON_PRINT" value="Imprimir"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Imprimir selección"/>
+  <locale name="BUTTON_RELOAD" value="Recargar página"/>
+  <locale name="BUTTON_RETRY" value="Reintentar"/>
   <locale name="BUTTON_REMOVE" value="Eliminar restricción"/>
   <locale name="BUTTON_REMOVE_FAVOURITE" value="Eliminar pantalla de favoritos"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Restablecer 2FA"/>
+  <locale name="BUTTON_RESTART_APPLICATION" value="Recargar e ir al inicio"/>
   <locale name="BUTTON_RESTRICT" value="Restringir acceso"/>
   <locale name="BUTTON_RUN" value="Comenzar"/>
+  <locale name="BUTTON_SAVE_CHANGES" value="Guardar cambios"/>
   <locale name="BUTTON_SAVE_MARKDOWN" value="Guardar markdown"/>
   <locale name="BUTTON_SAVE_ROW" value="Guardar fila"/>
   <locale name="BUTTON_SAVE_TEXT" value="Guardar texto"/>
   <locale name="BUTTON_SCREEN_HELP" value="Ayuda"/>
   <locale name="BUTTON_SEARCH" value="Buscar"/>
+  <locale name="BUTTON_RELOADING" value="Recargando…"/>
   <locale name="BUTTON_SEND" value="Envío"/>
   <locale name="BUTTON_UNBLOCK_BATCH_KO" value="Desbloquear batch como NO válido"/>
   <locale name="BUTTON_UNBLOCK_BATCH_OK" value="Desbloquear batch como válido"/>
+  <locale name="BUTTON_UNLOCK" value="Desbloquear"/>
+  <locale name="BUTTON_UNLOCK_ACCOUNT" value="Desbloquear cuenta"/>
   <locale name="BUTTON_UPDATE" value="Modificar"/>
   <locale name="BUTTON_VIEW" value="Consultar"/>
   <locale name="BUTTON_VIEW_ERROR_MESSAGES" value="Ver mensajes de error"/>
+  <locale name="BUTTON_VIEW_PERMISSIONS" value="Ver permisos"/>
   <locale name="COLUMN_ACR" value="Acrónimo"/>
   <locale name="COLUMN_ACT" value="Activo"/>
   <locale name="COLUMN_ALS" value="Alias"/>
@@ -115,6 +154,9 @@
   <locale name="COLUMN_TYPE_QUEUE" value="Tipo de cola"/>
   <locale name="COLUMN_USER" value="Usuario"/>
   <locale name="COLUMN_VALUE" value="Valor"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REMOVE_RULE" value="Se quita la regla de su perfil, de su usuario o de todos los usuarios, que puede no ser el elegido. ¿Está de acuerdo?"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REVIEW_ALLOW_PARENT" value="Se permite la opción padre al perfil o usuario de la regla, y con ella las opciones que tiene debajo y hoy deniega. ¿Está de acuerdo?"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REVIEW_CLEAN" value="Se quitan las reglas sin efecto de todos los perfiles y usuarios. El acceso de nadie cambia. ¿Está de acuerdo?"/>
   <locale name="CONFIRM_MESSAGE_DELETE" value="Se van a eliminar los registros seleccionados. ¿Está de acuerdo?"/>
   <locale name="CONFIRM_MESSAGE_EMPTY_DATA" value="Atención, todos los criterios están vacíos ¿Desea continuar?"/>
   <locale name="CONFIRM_MESSAGE_EXPORT_DOC" value="Se va a generar un fichero DOC con los datos de la pantalla ¿Está de acuerdo?"/>
@@ -128,8 +170,10 @@
   <locale name="CONFIRM_MESSAGE_TRIGGER_WITH_CALENDAR_EXIST" value="Los calendarios seleccionados están asociados a una o varias tareas. ¿Está seguro de que quiere continuar?"/>
   <locale name="CONFIRM_MESSAGE_UNBLOCK_BATCH_KO" value="Se van a desbloquear los batches seleccionados marcándolos como no válidos. ¿Está de acuerdo?"/>
   <locale name="CONFIRM_MESSAGE_UNBLOCK_BATCH_OK" value="Se van a desbloquear los batches seleccionados marcándolos como válidos. ¿Está de acuerdo?"/>
+  <locale name="CONFIRM_MESSAGE_UNLOCK_USER" value="El usuario podrá volver a iniciar sesión. ¿Está de acuerdo?"/>
   <locale name="CONFIRM_MESSAGE_UPDATE" value="Se van a almacenar los datos modificados. ¿Está de acuerdo?"/>
   <locale name="CONFIRM_MESSAGE_UPDATED_DATA" value="Atención, los datos introducidos se perderán ¿Desea continuar?"/>
+  <locale name="CONFIRM_TITLE_ACCESS_REVIEW_ALLOW_PARENT" value="Permitir la opción padre"/>
   <locale name="CONFIRM_TITLE_DELETE" value="Confirmación de borrado"/>
   <locale name="CONFIRM_TITLE_EMPTY_DATA" value="Datos vacíos"/>
   <locale name="CONFIRM_TITLE_EXPORT_FILE" value="Confirmación de generación de fichero"/>
@@ -138,6 +182,7 @@
   <locale name="CONFIRM_TITLE_PRINT_FILE" value="Confirmación de impresión de fichero"/>
   <locale name="CONFIRM_TITLE_RESET_2FA" value="Restablecimiento de autenticación de dos factores"/>
   <locale name="CONFIRM_TITLE_SND_EML" value="Confirmación de envío"/>
+  <locale name="CONFIRM_TITLE_UNLOCK_USER" value="Desbloquear cuenta"/>
   <locale name="CONFIRM_TITLE_UPDATE" value="Confirmación de modificación"/>
   <locale name="CONFIRM_TITLE_UPDATED_DATA" value="Datos modificados"/>
   <locale name="CONNECTION_TYPE_FOLDER" value="Directorio"/>
@@ -225,6 +270,12 @@
   <locale name="ENUM_EML_NO" value="No enviar"/>
   <locale name="ENUM_EML_REP_ALL" value="Enviar auditoría siempre"/>
   <locale name="ENUM_EML_REP_ERR" value="Enviar auditoría si hay un error"/>
+  <locale name="ENUM_EML_SRV_ATH_BASIC" value="Usuario y contraseña"/>
+  <locale name="ENUM_EML_SRV_ATH_NONE" value="Ninguna"/>
+  <locale name="ENUM_EML_SRV_ATH_OAUTH2" value="OAuth2"/>
+  <locale name="ENUM_EML_SRV_SEC_NONE" value="Ninguna"/>
+  <locale name="ENUM_EML_SRV_SEC_SSL" value="SSL/TLS"/>
+  <locale name="ENUM_EML_SRV_SEC_STARTTLS" value="STARTTLS"/>
   <locale name="ENUM_EML_TYP_GRP" value="Grupo de correo"/>
   <locale name="ENUM_EML_TYP_USR" value="Usuario"/>
   <locale name="ENUM_ENV_DES" value="Desarrollo"/>
@@ -330,6 +381,7 @@
   <locale name="ENUM_SCR_ATR_SUMMARYTYPE" value="Summary type"/>
   <locale name="ENUM_SCR_ATR_TARGETACTION" value="Target action"/>
   <locale name="ENUM_SCR_ATR_THOUSAND_SEPARATOR" value="Thousand separator"/>
+  <locale name="ENUM_SCR_ATR_DECIMAL_SEPARATOR" value="Decimal Separator"/>
   <locale name="ENUM_SCR_ATR_TIMEOUT" value="Time out"/>
   <locale name="ENUM_SCR_ATR_TOTALIZE" value="Totalize"/>
   <locale name="ENUM_SCR_ATR_TREEGRID" value="Tree grid"/>
@@ -339,6 +391,81 @@
   <locale name="ENUM_SCR_ATR_VARIABLE" value="Variable"/>
   <locale name="ENUM_SCR_ATR_VISIBLE" value="Visible"/>
   <locale name="ENUM_SCR_ATR_WIDTH" value="Width"/>
+  <locale name="ENUM_SCR_ATR_AGGREGATION_FIELD" value="Aggregation Field"/>
+  <locale name="ENUM_SCR_ATR_AGGREGATOR" value="Aggregator"/>
+  <locale name="ENUM_SCR_ATR_AREA_ROWS" value="Area Rows"/>
+  <locale name="ENUM_SCR_ATR_BROWSER_ACTION" value="Browser Action"/>
+  <locale name="ENUM_SCR_ATR_BUTTON_TYPE" value="Button Type"/>
+  <locale name="ENUM_SCR_ATR_CANCEL" value="Cancel"/>
+  <locale name="ENUM_SCR_ATR_COLS" value="Cols"/>
+  <locale name="ENUM_SCR_ATR_DATE_FORMAT" value="Date Format"/>
+  <locale name="ENUM_SCR_ATR_DATE_VIEW_MODE" value="Date View Mode"/>
+  <locale name="ENUM_SCR_ATR_DEFAULT_VALUE" value="Default Value"/>
+  <locale name="ENUM_SCR_ATR_DESTINATION" value="Destination"/>
+  <locale name="ENUM_SCR_ATR_EXPAND" value="Expand"/>
+  <locale name="ENUM_SCR_ATR_GROUP" value="Group"/>
+  <locale name="ENUM_SCR_ATR_HELP" value="Help"/>
+  <locale name="ENUM_SCR_ATR_HELP_IMAGE" value="Help Image"/>
+  <locale name="ENUM_SCR_ATR_LOAD_ALL" value="Load All"/>
+  <locale name="ENUM_SCR_ATR_PLACEHOLDER" value="Placeholder"/>
+  <locale name="ENUM_SCR_ATR_PROPERTY" value="Property"/>
+  <locale name="ENUM_SCR_ATR_RENDERER" value="Renderer"/>
+  <locale name="ENUM_SCR_ATR_ROWS" value="Rows"/>
+  <locale name="ENUM_SCR_ATR_SEND_ALL" value="Send All"/>
+  <locale name="ENUM_SCR_ATR_SHOW_FUTURE_DATES" value="Show Future Dates"/>
+  <locale name="ENUM_SCR_ATR_SHOW_SLIDER" value="Show Slider"/>
+  <locale name="ENUM_SCR_ATR_SHOW_TODAY_BUTTON" value="Show Today Button"/>
+  <locale name="ENUM_SCR_ATR_SHOW_WEEKENDS" value="Show Weekends"/>
+  <locale name="ENUM_SCR_ATR_SORT_METHOD" value="Sort Method"/>
+  <locale name="ENUM_SCR_ATR_TITLE" value="Title"/>
+  <locale name="ENUM_SCR_ATR_TOTAL_COLUMN_PLACEMENT" value="Total Column Placement"/>
+  <locale name="ENUM_SCR_ATR_TOTAL_ROW_PLACEMENT" value="Total Row Placement"/>
+  <locale name="ENUM_SCR_ATR_TREE_ID" value="Tree Id"/>
+  <locale name="ENUM_SCR_ATR_TREE_LEAF" value="Tree Leaf"/>
+  <locale name="ENUM_SCR_ATR_TREE_PARENT" value="Tree Parent"/>
+  <locale name="ENUM_SCR_ATR_TYPE" value="Type"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCESS_DENIED" value="Acceso denegado"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_LOCKED" value="Cuenta bloqueada"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_UNLOCKED" value="Cuenta desbloqueada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ACCOUNT_EXPIRED" value="Cuenta caducada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ADMINISTRATOR" value="Por un administrador"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_BAD_CREDENTIALS" value="Usuario o contraseña incorrectos"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_CREDENTIALS_EXPIRED" value="Contraseña caducada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_DISABLED" value="Cuenta deshabilitada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ERROR" value="Error"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_EXPIRED" value="Sesión caducada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_EXPLICIT" value="A petición del usuario"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_FORBIDDEN" value="Prohibido"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_INVALID_CODE" value="Código incorrecto"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_INVALID_TOKEN" value="Token no válido"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCAL_LOGIN_DISABLED" value="Acceso local deshabilitado"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCKED" value="Cuenta bloqueada"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_MAX_ATTEMPTS" value="Demasiados intentos fallidos"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PERMISSION" value="Permiso no concedido"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER" value="A petición del proveedor de identidad"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER_ERROR" value="Error del proveedor de identidad"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_RESTRICTED" value="Opción restringida"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ROLE_NOT_MAPPED" value="Rol no asignado"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_TOKEN_EXPIRED" value="Token caducado"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_REST" value="API REST"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_SSO" value="SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_SYSTEM" value="Sistema"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_WEB" value="Web"/>
+  <locale name="ENUM_SECURITY_AUDIT_FAILURE" value="Fallido"/>
+  <locale name="ENUM_SECURITY_AUDIT_LOGIN" value="Inicio de sesión"/>
+  <locale name="ENUM_SECURITY_AUDIT_LOGOUT" value="Cierre de sesión"/>
+  <locale name="ENUM_SECURITY_AUDIT_PASSWORD_CHANGE" value="Cambio de contraseña"/>
+  <locale name="ENUM_SECURITY_AUDIT_PASSWORD_RESET" value="Restablecimiento de contraseña"/>
+  <locale name="ENUM_SECURITY_AUDIT_SSO_PROFILE_SYNC" value="Sincronización de perfil por SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_SSO_PROVISIONING" value="Alta de usuario por SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_SUCCESS" value="Correcto"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOKEN_ISSUED" value="Token REST emitido"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOKEN_REJECTED" value="Token REST rechazado"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_ENROLLMENT" value="Alta del segundo factor"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_RESET" value="Baja del segundo factor"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_VERIFICATION" value="Verificación del segundo factor"/>
+  <locale name="ENUM_STATE_ACTIVE" value="Activo"/>
+  <locale name="ENUM_STATE_INACTIVE" value="Inactivo"/>
   <locale name="ENUM_STATUS_ERROR" value="Error"/>
   <locale name="ENUM_STATUS_INTERRUPTED" value="Interrumpido"/>
   <locale name="ENUM_STATUS_OK" value="Ok"/>
@@ -348,9 +475,42 @@
   <locale name="ENUM_STATUS_WARNING" value="Advertencia"/>
   <locale name="ENUM_SUB_STL" value="Estilo de subtotales"/>
   <locale name="ENUM_SUB_TIT_STL" value="Estilo de Subtitulo"/>
+  <locale name="ENUM_THEME_COLOR_CUSTOM" value="Personalizado"/>
+  <locale name="ENUM_THEME_MODE_DARK" value="Oscuro"/>
+  <locale name="ENUM_THEME_MODE_LIGHT" value="Claro"/>
+  <locale name="ENUM_THEME_MODE_SYSTEM" value="Sistema"/>
+  <locale name="ENUM_THEME_PRIMARY_AMBER" value="Ámbar"/>
+  <locale name="ENUM_THEME_PRIMARY_BLUE" value="Azul"/>
+  <locale name="ENUM_THEME_PRIMARY_CYAN" value="Cian"/>
+  <locale name="ENUM_THEME_PRIMARY_EMERALD" value="Esmeralda"/>
+  <locale name="ENUM_THEME_PRIMARY_FUCHSIA" value="Fucsia"/>
+  <locale name="ENUM_THEME_PRIMARY_GREEN" value="Verde"/>
+  <locale name="ENUM_THEME_PRIMARY_INDIGO" value="Índigo"/>
+  <locale name="ENUM_THEME_PRIMARY_LIME" value="Lima"/>
+  <locale name="ENUM_THEME_PRIMARY_ORANGE" value="Naranja"/>
+  <locale name="ENUM_THEME_PRIMARY_PINK" value="Rosa"/>
+  <locale name="ENUM_THEME_PRIMARY_PURPLE" value="Púrpura"/>
+  <locale name="ENUM_THEME_PRIMARY_RED" value="Rojo"/>
+  <locale name="ENUM_THEME_PRIMARY_ROSE" value="Rosa intenso"/>
+  <locale name="ENUM_THEME_PRIMARY_SKY" value="Cielo"/>
+  <locale name="ENUM_THEME_PRIMARY_TEAL" value="Verde azulado"/>
+  <locale name="ENUM_THEME_PRIMARY_VIOLET" value="Violeta"/>
+  <locale name="ENUM_THEME_PRIMARY_YELLOW" value="Amarillo"/>
+  <locale name="ENUM_THEME_SURFACE_AUTO" value="Automática"/>
+  <locale name="ENUM_THEME_SURFACE_GRAY" value="Gris"/>
+  <locale name="ENUM_THEME_SURFACE_NEUTRAL" value="Neutro"/>
+  <locale name="ENUM_THEME_SURFACE_SLATE" value="Pizarra"/>
+  <locale name="ENUM_THEME_SURFACE_STONE" value="Piedra"/>
+  <locale name="ENUM_THEME_SURFACE_ZINC" value="Zinc"/>
   <locale name="ENUM_TIT_STL" value="Estilo de título"/>
   <locale name="ENUM_TOP" value="TOPIC"/>
   <locale name="ENUM_TOT_STL" value="Estilo de subtotales"/>
+  <locale name="ENUM_USER_2FA_HEADER_ON" value="2FA activado"/>
+  <locale name="ENUM_USER_2FA_OFF" value="Desactivado"/>
+  <locale name="ENUM_USER_2FA_ON" value="Activado"/>
+  <locale name="ENUM_USER_STATE_ACTIVE" value="Activo"/>
+  <locale name="ENUM_USER_STATE_INACTIVE" value="Inactivo"/>
+  <locale name="ENUM_USER_STATE_LOCKED" value="Bloqueado"/>
   <locale name="ENUM_WEB" value="Web"/>
   <locale name="ENUM_YES" value="Si"/>
   <locale name="ENUM_ERROR_TYPOLOGY_AUTHENTICATION" value="Autenticación"/>
@@ -369,13 +529,34 @@
   <locale name="ERROR_GENERATING_PIE_CHART" value="Error generando el diagrama de tarta"/>
   <locale name="ERROR_LOG" value="Registro de Error"/>
   <locale name="ERROR_MESSAGE_ACCESS_DENIED" value="El acceso a la pantalla seleccionada ha sido denegado - {0}"/>
+  <locale name="ERROR_MESSAGE_ACCESS_NO_SUBJECT" value="Selecciona un perfil o un usuario para cambiar su acceso"/>
   <locale name="ERROR_MESSAGE_ACTION_NOT_DEFINED" value="La acción no ha sido definida"/>
+  <locale name="ERROR_MESSAGE_ACTION_NOT_PERMITTED" value="No tiene permiso para realizar esta acción. Si lo necesita, contacte con su administrador."/>
   <locale name="ERROR_MESSAGE_ADDING_COMPOUND_FIELDS" value="Ha habido un problema añadiendo los campos compuestos calculados de una consulta"/>
   <locale name="ERROR_MESSAGE_ADDING_COMPUTED_FIELDS" value="Ha habido un problema añadiendo los campos calculados de una consulta"/>
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="Ha habido un error añadiendo los totalizadores de la consulta {1} en la fila {0}"/>
   <locale name="ERROR_MESSAGE_AUTHENTICATE" value="Ha habido un problema realizando la autenticación"/>
   <locale name="ERROR_MESSAGE_AVATAR_TOO_LARGE" value="La imagen seleccionada supera el tamaño máximo permitido para el avatar de 2 MB"/>
+  <locale name="ERROR_TITLE_PASSWORD_HASH" value="Hash de contraseña"/>
+  <locale name="ERROR_MESSAGE_PASSWORD_ALGORITHM" value="El algoritmo de contraseña no es válido"/>
+  <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Disposición de grid no válida"/>
+  <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="La disposición del grid no es válida o no ha iniciado sesión, por lo que no se ha guardado"/>
+  <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="La disposición del grid tiene demasiadas columnas para guardarse"/>
+  <locale name="ERROR_TITLE_PREDEFINED_PROFILE" value="Perfil predefinido"/>
+  <locale name="ERROR_MESSAGE_PREDEFINED_PROFILE" value="El perfil predefinido {0} no se puede modificar ni borrar. Duplícalo y modifica la copia."/>
+  <locale name="ERROR_TITLE_DUPLICATE_PROFILE" value="Duplicar perfil"/>
+  <locale name="ERROR_MESSAGE_DUPLICATE_PROFILE" value="Selecciona el perfil que quieres duplicar"/>
+  <locale name="ERROR_TITLE_INVALID_SAVED_SEARCH" value="Búsqueda guardada no válida"/>
+  <locale name="ERROR_MESSAGE_INVALID_SAVED_SEARCH" value="La búsqueda guardada no es válida o no ha iniciado sesión, por lo que no se ha guardado"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_TOO_LARGE" value="La búsqueda tiene demasiados valores para guardarse"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NOT_ALLOWED" value="No tiene permiso para cambiar las búsquedas publicadas para un perfil"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NOT_FOUND" value="La búsqueda guardada no existe o no es suya"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NAME_EXISTS" value="Ya existe una búsqueda guardada con este nombre"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="La etiqueta &apos;include&apos; en la pantalla {0} no ha encontrado los siguientes elementos: screen: {1}, source: {2}"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_DEPENDENCY" value="El &apos;&apos;row-detail&apos;&apos; del grid &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos; contiene una &apos;&apos;dependency&apos;&apos;, que no se admite dentro del detalle de una fila"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_EDITABLE_GRID" value="El grid dentro del &apos;&apos;row-detail&apos;&apos; del grid &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos; debe ser de solo lectura: elimine sus atributos &apos;&apos;editable&apos;&apos; y &apos;&apos;send-operations&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_NOT_A_GRID" value="El &apos;&apos;row-detail&apos;&apos; del grid &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos; debe contener un único &apos;&apos;grid&apos;&apos;, directamente o mediante un &apos;&apos;include&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_TEMPLATE_AND_COMPONENTS" value="El &apos;&apos;row-detail&apos;&apos; del grid &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos; tiene una plantilla y componentes: use solo uno de ellos"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="No se ha definido un mensaje de envío en la cola {0}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_RESPONSE_DEFINITION_FORMAT" value="No se ha definido un mensaje de recepción en la cola {0}"/>
   <locale name="ERROR_MESSAGE_BLOCKED_PASSWORD" value="Contraseña bloqueada para el usuario {0}. Contacta con el administrador del sistema."/>
@@ -390,6 +571,7 @@
   <locale name="ERROR_MESSAGE_DEFAULT_SESSION_PARAMETERS" value="Ha habido un problema generando las variables por defecto de la sesión. Por favor, inténtelo de nuevo"/>
   <locale name="ERROR_MESSAGE_DESTINATION_FAILED" value="Ha habido un problema tratando de conectar con la cola {0}"/>
   <locale name="ERROR_MESSAGE_DUPLICATED_IDENTIFIER" value="Se ha encontrado un identificador duplicado en la pantalla. Identificador: &apos;&apos;{0}&apos;&apos;, Pantalla: &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_DEFERRED_CONTAINER_NOT_FOUND" value="No se ha encontrado el contenedor diferido &apos;&apos;{0}&apos;&apos; en la pantalla &apos;&apos;{1}&apos;&apos;"/>
   <locale name="ERROR_MESSAGE_DURING_EMAIL_SEND" value="Ha habido un problema enviando el correo"/>
   <locale name="ERROR_MESSAGE_DURING_MAINTAIN" value="Ha habido un problema en el proceso de mantenimiento"/>
   <locale name="ERROR_MESSAGE_DURING_ROLLBACK" value="Ha habido un problema realizando el rollback de la transacción"/>
@@ -409,6 +591,7 @@
   <locale name="ERROR_MESSAGE_ERROR_CALLING_METHOD" value="La ejecución del método {1} de la clase {0} ha ocasionado un problema"/>
   <locale name="ERROR_MESSAGE_ERROR_INITIALIZING_INSTANCE" value="Ha habido un problema tratando de generar una instancia de la clase"/>
   <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="Ha habido un problema ejecutando la consulta {0}."/>
+  <locale name="ERROR_MESSAGE_EXPIRED_PASSWORD" value="Su contraseña ha caducado. Establezca una nueva contraseña para continuar."/>
   <locale name="ERROR_MESSAGE_EXPORTING_FILE" value="Ha habido un error exportando el archivo"/>
   <locale name="ERROR_MESSAGE_EXPRESSION_EVALUATION" value="Ha habido un error tratando de evaluar la expresión:\n{0}"/>
   <locale name="ERROR_MESSAGE_FILE_ACCESS" value="Ha habido un problema tratando de acceder al fichero: {0}"/>
@@ -416,7 +599,7 @@
   <locale name="ERROR_MESSAGE_FILE_INFO" value="Ha habido un problema recuperando la información del fichero: {0}"/>
   <locale name="ERROR_MESSAGE_FILE_NOT_DEFINED" value="El fichero al que se está accediendo no ha sido encontrado"/>
   <locale name="ERROR_MESSAGE_FILE_PARSING" value="Ha habido un problema interpretando el fichero"/>
-  <locale name="ERROR_MESSAGE_FILE_READING_ERROR" value="Ha habido un problema tratando de acceder al fichero: {0}"/>
+  <locale name="ERROR_MESSAGE_FILE_READING_ERROR" value="Ha habido un problema tratando de acceder al fichero"/>
   <locale name="ERROR_MESSAGE_FILE_TYPE_NOT_DEFINED" value="Tipo de fichero no definido"/>
   <locale name="ERROR_MESSAGE_FILE_UPLOAD" value="Ha habido un problema subiendo el fichero a la aplicación"/>
   <locale name="ERROR_MESSAGE_FILE_UPLOAD_STATUS" value="Ha habido un problema recuperando el estado de la subida del fichero"/>
@@ -461,6 +644,8 @@
   <locale name="ERROR_MESSAGE_INVALID_DATASOURCE" value="No existe el datasource seleccionado: {0}"/>
   <locale name="ERROR_MESSAGE_INVALID_PASSWORD" value="La clave introducida para el usuario {0} es incorrecta"/>
   <locale name="ERROR_MESSAGE_INVALID_SESSION_TOKEN" value="No se ha podido generar una sesión para el usuario {0}"/>
+  <locale name="ERROR_MESSAGE_INVALID_THEME_PRIMARY" value="El color primario debe ser una de las paletas o, si es personalizado, un color hexadecimal #RGB o #RRGGBB"/>
+  <locale name="ERROR_MESSAGE_INVALID_THEME_SURFACE" value="La superficie debe ser una de las paletas, automática o, si es personalizada, un color hexadecimal #RGB o #RRGGBB"/>
   <locale name="ERROR_MESSAGE_INVALID_USER" value="El usuario introducido -{0}- es incorrecto o está desactivado"/>
   <locale name="ERROR_MESSAGE_IO_EXCEPTION" value="Se ha generado una excepción de tipo IO (Input/Output)"/>
   <locale name="ERROR_MESSAGE_JMS_TIMEOUT" value="El tiempo de espera ({1} ms) para la recepción del mensaje en la cola {0} ha sido excedido"/>
@@ -474,8 +659,19 @@
   <locale name="ERROR_MESSAGE_LDAP_USER" value="El usuario {0} no existe o está desactivado en el LDAP"/>
   <locale name="ERROR_MESSAGE_MAINTAIN_NOT_FOUND" value="La operación de mantenimiento -{0}- no ha sido definida"/>
   <locale name="ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD" value="Query mal formada, se está utilizando una variable de lista como campo: {0}"/>
+  <locale name="ERROR_MESSAGE_NOT_FOUND" value="El recurso solicitado no existe o ya no está disponible"/>
+  <locale name="ERROR_MESSAGE_PASSWORD_CHANGE_NOT_ALLOWED" value="El cambio de contraseña no está disponible o ha caducado. Inicie sesión de nuevo para cambiar la contraseña."/>
+  <locale name="ERROR_MESSAGE_PASSWORD_POLICY" value="La nueva contraseña no cumple la política de contraseñas. Inicie sesión de nuevo para establecer una nueva contraseña."/>
+  <locale name="ERROR_MESSAGE_PASSWORD_REPEATED" value="La nueva contraseña debe ser distinta de la caducada. Inicie sesión de nuevo para establecer una nueva contraseña."/>
+  <locale name="ERROR_MESSAGE_SSO_USER_DISABLED" value="Tu usuario está desactivado en la aplicación. Contacta con el administrador del sistema."/>
+  <locale name="ERROR_MESSAGE_SSO_USER_LOCKED" value="Tu usuario está bloqueado en la aplicación. Contacta con el administrador del sistema."/>
+  <locale name="ERROR_MESSAGE_SSO_NO_ROLE" value="Tu cuenta del proveedor de identidad no tiene ningún rol permitido en la aplicación. Contacta con el administrador del sistema."/>
    <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="La operación SUBSTRING requiere 2 o 3 operandos (fuente, beginIndex) o (fuente, beginIndex, endIndex), pero se recibieron {0}"/>
   <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE" value="El operando {0} de SUBSTRING debe ser una constante o variable compatible con entero, pero se obtuvo: {1}"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_CAST" value="El cast {2} del campo {1} de la query {0} no está soportado"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_FUNCTION" value="La función {2} del campo {1} de la query {0} no está soportada"/>
+  <locale name="ERROR_MESSAGE_SEPARATOR_WITHOUT_SEPARATED_FUNCTION" value="El campo {1} de la query {0} tiene el atributo separator, que solo aceptan las funciones que unen valores (STRING_AGG)"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_SEPARATOR" value="El separador {2} del campo {1} de la query {0} no puede contener una llave de apertura"/>
   <locale name="ERROR_MESSAGE_MENU_NOT_CLONEABLE" value="El menú actual no puede ser clonado"/>
   <locale name="ERROR_MESSAGE_METHOD_NOT_DEFINED" value="El método que se quiere invocar no está definido"/>
   <locale name="ERROR_MESSAGE_MULTIPLE_AUDIT_MAINTAIN" value="El mantenimiento de la sentencia individual con auditoría múltiple ha fallado. [{0}]"/>
@@ -570,6 +766,7 @@
   <locale name="ERROR_MESSAGE_WRONG_BANK_ACCOUNT" value="El número de cuenta {0} no es un número de cuenta bancaria válido."/>
   <locale name="ERROR_STARTING_APPLICATION" value="Error al iniciar la aplicación"/>
   <locale name="ERROR_TITLE_ACCESS_DENIED" value="Acceso denegado"/>
+  <locale name="ERROR_TITLE_ACCESS_NO_SUBJECT" value="Ningún perfil ni usuario seleccionado"/>
   <locale name="ERROR_TITLE_ACTION_NOT_DEFINED" value="Acción no definida"/>
   <locale name="ERROR_TITLE_ADDING_COMPOUND_FIELDS" value="Error añadiendo los campos compuestos"/>
   <locale name="ERROR_TITLE_ADDING_COMPUTED_FIELDS" value="Error añadiendo los campos calculados"/>
@@ -577,6 +774,7 @@
   <locale name="ERROR_TITLE_AUTHENTICATE" value="Error en la autenticación"/>
   <locale name="ERROR_TITLE_AVATAR_TOO_LARGE" value="Imagen de avatar demasiado grande"/>
   <locale name="ERROR_TITLE_BAD_INCLUDE_DEFINITION" value="Definición de &apos;include&apos; incorrecta"/>
+  <locale name="ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION" value="Definición de &apos;row-detail&apos; incorrecta"/>
   <locale name="ERROR_TITLE_BAD_QUEUE_DEFINITION_FORMAT" value="Error en el formato de la cola"/>
   <locale name="ERROR_TITLE_BBDD_AUTHENTICATE" value="Error de autenticación de base de datos"/>
   <locale name="ERROR_TITLE_BLOCKED_PASSWORD" value="Contraseña bloqueada"/>
@@ -598,6 +796,7 @@
   <locale name="ERROR_TITLE_ERROR_CALLING_METHOD" value="Error de llamada al método"/>
   <locale name="ERROR_TITLE_ERROR_EXECUTING_SERVICE_QUERY" value="Error ejecutando servicio de consulta"/>
   <locale name="ERROR_TITLE_ERROR_INITIALIZING_INSTANCE" value="Error generando instancia"/>
+  <locale name="ERROR_TITLE_EXPIRED_PASSWORD" value="Contraseña caducada"/>
   <locale name="ERROR_TITLE_EXPORTING_FILE" value="Error exportando archivo"/>
   <locale name="ERROR_TITLE_EXPRESSION_EVALUATION" value="Error evaluando expresión"/>
   <locale name="ERROR_TITLE_FILE_ACCESS" value="Error accediendo al fichero"/>
@@ -608,6 +807,195 @@
   <locale name="ERROR_TITLE_FILE_READING_ERROR" value="Error de lectura de fichero"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="Error en la subida del fichero"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Error comprobando la subida del fichero"/>
+  <locale name="HELP_SCREEN_TITLE_DATABASE_ADMIN" value="Conexiones a bases de datos de la aplicación: conexión, entorno, credenciales y los sitios y módulos que usan cada una."/>
+  <locale name="HELP_SCREEN_TITLE_EML_SRV_ADMIN" value="Servidores de correo de la aplicación: alias, host, puerto, seguridad, usuario, autenticación y estado."/>
+  <locale name="HELP_SCREEN_TITLE_PROFILE_ADMIN" value="Grupos de usuarios con su tema por defecto, pantalla inicial y restricción de ficheros."/>
+  <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Consulta los eventos de seguridad registrados por la aplicación: accesos, cierres de sesión, bloqueos de cuenta, cambios de contraseña y de segundo factor, accesos denegados y tokens REST. Filtra por fecha, evento, resultado, canal, usuario o dirección; selecciona un evento y pulsa Ver para consultar todos sus datos"/>
+  <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Todos los datos registrados de un evento de seguridad"/>
+  <locale name="HELP_SCREEN_TITLE_SIT_ADMIN" value="Los sites de la aplicación y la base de datos que usa cada módulo en ellos."/>
+  <locale name="HELP_SCREEN_TITLE_THEME_ADMIN" value="Temas de color de la aplicación: color primario, superficie y modo. Los perfiles y los usuarios eligen uno de los temas activos."/>
+  <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Auditoría de seguridad"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Causa"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Canal"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CORRELATION" value="Identificador de correlación"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_DETAIL" value="Detalle"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_EVENT" value="Evento"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_ID" value="Identificador"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_IP" value="Dirección IP"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_OUTCOME" value="Resultado"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_SESSION" value="Sesión (SHA-256)"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Tenant"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="Agente de usuario"/>
+  <locale name="PERMISSION_GROUP_UNAVAILABLE" value="Permisos no disponibles"/>
+  <locale name="PERMISSION_RESOURCE_ACCESS" value="Acceso a pantallas"/>
+  <locale name="PERMISSION_RESOURCE_ALL" value="Todos los recursos"/>
+  <locale name="PERMISSION_RESOURCE_AUDIT" value="Auditoría de seguridad"/>
+  <locale name="PERMISSION_RESOURCE_DEFAULT" value="Por defecto"/>
+  <locale name="PERMISSION_RESOURCE_PERMISSIONS" value="Permisos"/>
+  <locale name="PERMISSION_RESOURCE_PROFILES" value="Perfiles"/>
+  <locale name="PERMISSION_RESOURCE_SELF" value="Configuración propia"/>
+  <locale name="PERMISSION_RESOURCE_SYSTEM" value="Sistema"/>
+  <locale name="PERMISSION_RESOURCE_THEMES" value="Temas"/>
+  <locale name="PERMISSION_RESOURCE_USERS" value="Usuarios"/>
+  <locale name="PERMISSION_UNAVAILABLE" value="{0} (no disponible en esta versión)"/>
+  <locale name="PERMISSION_USERS_RESET_2FA" value="Restablecer la autenticación en dos pasos"/>
+  <locale name="PERMISSION_USERS_UNLOCK" value="Desbloquear"/>
+  <locale name="PERMISSION_VERB_ALL" value="Todo"/>
+  <locale name="PERMISSION_VERB_CREATE" value="Crear"/>
+  <locale name="PERMISSION_VERB_DELETE" value="Borrar"/>
+  <locale name="PERMISSION_VERB_EXPORT" value="Exportar"/>
+  <locale name="PERMISSION_VERB_READ" value="Consultar"/>
+  <locale name="PERMISSION_VERB_UPDATE" value="Modificar"/>
+  <locale name="PERMISSION_VERB_WRITE" value="Escribir"/>
+  <locale name="SCREEN_TEXT_ADVANCED_FILTERS" value="Filtros avanzados"/>
+  <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE" value="No se ha podido guardar si los filtros avanzados están abiertos"/>
+  <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE" value="Estado de los filtros avanzados no guardado"/>
+  <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Quitar todos"/>
+  <locale name="SCREEN_TEXT_DATABASE_CONNECTION" value="Conexión"/>
+  <locale name="SCREEN_TEXT_DATABASE_CREDENTIALS" value="Credenciales"/>
+  <locale name="SCREEN_TEXT_DATABASE_DESCRIPTION" value="Descripción"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTERS" value="Estado de la conexión"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_ACTIVE" value="Activas"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_ALL" value="Todas"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_INACTIVE" value="Inactivas"/>
+  <locale name="SCREEN_TEXT_DATABASE_SEARCH" value="Alias, descripción, conexión o usuario…"/>
+  <locale name="SCREEN_TEXT_DATABASE_SEARCH_LABEL" value="Buscar conexiones"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES" value="Sitios y módulos"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY" value="Sin sitios ni módulos"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY_TEXT" value="Ningún sitio ni módulo usa todavía esta conexión"/>
+  <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Borrar búsqueda"/>
+  <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="Se borrará la búsqueda guardada. ¿Desea continuar?"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_AUTHENTICATION" value="Autenticación"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_CONNECTION" value="Conexión"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTERS" value="Estado del servidor"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ACTIVE" value="Activos"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_SEARCH" value="Alias…"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_SEARCH_LABEL" value="Buscar servidores de correo"/>
+  <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtrado por"/>
+  <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Filtro avanzado oculto"/>
+  <locale name="SCREEN_TEXT_HIDE_ADVANCED_FILTERS" value="Ocultar filtros avanzados"/>
+  <locale name="SCREEN_TEXT_MANAGE_SEARCHES" value="Gestionar búsquedas…"/>
+  <locale name="SCREEN_TEXT_MANAGE_SEARCHES_TITLE" value="Gestionar búsquedas"/>
+  <locale name="SCREEN_TEXT_MY_SEARCHES" value="Mis búsquedas"/>
+  <locale name="SCREEN_TEXT_NO_SAVED_SEARCHES" value="Aún no hay búsquedas guardadas"/>
+  <locale name="SCREEN_TEXT_ONLY_ME" value="Solo yo"/>
+  <locale name="SCREEN_TEXT_PROFILE_DEFAULTS" value="Valores por defecto y acceso"/>
+  <locale name="SCREEN_TEXT_PROFILE_DUPLICATE_NOTICE" value="Copia del perfil seleccionado: introduce su acrónimo y su nombre. La copia recibe los permisos del perfil y se pueden modificar; el fichero de perfil de un perfil predefinido no se copia."/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTERS" value="Estado del perfil"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_ACTIVE" value="Activos"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_PROFILE_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_PROFILE_PREDEFINED_NOTICE" value="Perfil predefinido: no se puede modificar. Duplícalo y modifica la copia."/>
+  <locale name="SCREEN_TEXT_PROFILE_SEARCH" value="Nombre, acrónimo, tema o pantalla…"/>
+  <locale name="SCREEN_TEXT_PROFILE_SEARCH_LABEL" value="Buscar perfiles"/>
+  <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publicar para un perfil"/>
+  <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP" value="Los usuarios de ese perfil la verán en Compartidas con tu perfil. Pueden aplicarla, no modificarla."/>
+  <locale name="SCREEN_TEXT_QUEUE_CONNECTION" value="Conexión"/>
+  <locale name="SCREEN_TEXT_QUEUE_DATA" value="Cola"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTERS" value="Estado de la cola"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_ACTIVE" value="Activas"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_ALL" value="Todas"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_INACTIVE" value="Inactivas"/>
+  <locale name="SCREEN_TEXT_QUEUE_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_QUEUE_SEARCH" value="Alias…"/>
+  <locale name="SCREEN_TEXT_QUEUE_SEARCH_LABEL" value="Buscar colas"/>
+  <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Quitar filtro"/>
+  <locale name="SCREEN_TEXT_REMOVE_VALUE" value="Quitar {{label}}"/>
+  <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Renombrar"/>
+  <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Restablecer valores por defecto"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCHES" value="Búsquedas guardadas"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_APPLIED_DEFAULT" value="Búsqueda predeterminada aplicada"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_DEFAULT" value="Predeterminada"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_MESSAGE" value="No se han podido actualizar las búsquedas guardadas. Inténtelo más tarde."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_TITLE" value="Búsquedas guardadas"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT" value="Llevar a los filtros principales los criterios avanzados que estoy usando"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT_HELP" value="Al aplicar esta búsqueda se verán junto a los esenciales."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES" value="Guardar los valores de los criterios"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES_HELP" value="Sin marcar, la búsqueda deja los criterios vacíos: solo recuerda qué campos ver."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH" value="Abrir la pantalla con esta búsqueda"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH_HELP" value="Será tu búsqueda predeterminada: cada vez que entres, la pantalla cargará ya con estos valores y filtros."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_PROFILE_DEFAULT" value="Predeterminada del perfil"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_SET_DEFAULT" value="Usar como mi predeterminada"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_SET_PROFILE_DEFAULT" value="Usar como predeterminada del perfil"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_UNSET_DEFAULT" value="Dejar de usar como mi predeterminada"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_UNSET_PROFILE_DEFAULT" value="Dejar de usar como predeterminada del perfil"/>
+  <locale name="SCREEN_TEXT_SAVE_CURRENT_SEARCH" value="Guardar la búsqueda actual…"/>
+  <locale name="SCREEN_TEXT_SAVE_SEARCH" value="Guardar búsqueda"/>
+  <locale name="SCREEN_TEXT_SAVE_SEARCH_SUBTITLE" value="Guarda los criterios en uso de esta ventana, también los avanzados."/>
+  <locale name="SCREEN_TEXT_SEARCH_ACTIONS" value="Acciones"/>
+  <locale name="SCREEN_TEXT_SEARCH_FOR" value="Para"/>
+  <locale name="SCREEN_TEXT_SEARCH_NAME" value="Nombre"/>
+  <locale name="SCREEN_TEXT_SEARCH_OWNER_ME" value="Yo"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" value="Actividad por día"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Estadísticas"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Eventos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Fallos por causa"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHANNELS" value="Eventos por canal"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_HOURS" value="Franjas con más actividad"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_15M" value="Últimos 15 minutos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_1H" value="Última hora"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_6H" value="Últimas 6 horas"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_24H" value="Últimas 24 horas"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_7D" value="Últimos 7 días"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_30D" value="Últimos 30 días"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CUSTOM_RANGE" value="Rango personalizado"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_SEARCH" value="Buscar usuario, dirección IP o detalle"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_DATE_RANGE" value="Rango de fechas"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_OUTCOME_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_EVENTS" value="Eventos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_FAILURES" value="Fallidos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_USERS" value="Usuarios distintos"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_LOCKS" value="Bloqueos de cuenta"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_RANGE" value="En el rango seleccionado"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_RATE" value="Del total"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TITLE" value="Ningún evento con estos criterios"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TEXT" value="El rango de fechas, la búsqueda y los filtros de columna se aplican a la vez. Prueba a quitar alguno."/>
+  <locale name="BUTTON_CLEAR_FILTERS" value="Limpiar filtros"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Petición"/>
+  <locale name="SCREEN_TEXT_SITE_FILTERS" value="Estado del site"/>
+  <locale name="SCREEN_TEXT_SITE_FILTER_ACTIVE" value="Activos"/>
+  <locale name="SCREEN_TEXT_SITE_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_SITE_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_SITE_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_SITE_MODULES" value="Módulos y bases de datos"/>
+  <locale name="SCREEN_TEXT_SITE_MODULES_EMPTY" value="Todavía no hay módulos"/>
+  <locale name="SCREEN_TEXT_SITE_MODULES_EMPTY_TEXT" value="Añade la base de datos que usa cada módulo."/>
+  <locale name="SCREEN_TEXT_SITE_MODULES_ORDER" value="El orden de los módulos es el orden en que AWE los carga cuando varios módulos comparten base de datos."/>
+  <locale name="SCREEN_TEXT_SITE_SEARCH" value="Nombre…"/>
+  <locale name="SCREEN_TEXT_SITE_SEARCH_LABEL" value="Buscar sites"/>
+  <locale name="SCREEN_TEXT_THEME_COLOURS" value="Colores y modo"/>
+  <locale name="SCREEN_TEXT_THEME_FILTERS" value="Estado del tema"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_ACTIVE" value="Activos"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_THEME_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW" value="Vista previa"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_FIELD" value="Cliente"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_LINK" value="Ver detalles"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_MODE" value="Modo de la vista previa"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_PLACEHOLDER" value="Escribe un nombre…"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_SAMPLE" value="Muestra del tema"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_TEXT" value="Así se ven las páginas, los campos y las acciones con este tema. Nada cambia hasta que lo guardes."/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_TITLE" value="Informe mensual"/>
+  <locale name="SCREEN_TEXT_THEME_SEARCH" value="Nombre, primario o superficie…"/>
+  <locale name="SCREEN_TEXT_THEME_SEARCH_LABEL" value="Buscar temas"/>
+  <locale name="SCREEN_TITLE_DATABASE_ADMIN" value="Bases de datos"/>
+  <locale name="SCREEN_TITLE_DATABASE_PANEL" value="Conexión a base de datos"/>
+  <locale name="SCREEN_TITLE_EMAIL_SERVER_PANEL" value="Servidor de correo"/>
+  <locale name="SCREEN_TITLE_EML_SRV_ADMIN" value="Servidores de correo"/>
+  <locale name="SCREEN_TITLE_PROFILE_ADMIN" value="Perfiles"/>
+  <locale name="SCREEN_TITLE_PROFILE_PANEL" value="Perfil"/>
+  <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Auditoría de seguridad"/>
+  <locale name="SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Evento de seguridad"/>
+  <locale name="SCREEN_TITLE_SITE_PANEL" value="Site"/>
+  <locale name="SCREEN_TITLE_SIT_ADMIN" value="Sites"/>
+  <locale name="SCREEN_TITLE_THEME_ADMIN" value="Temas"/>
+  <locale name="SCREEN_TITLE_THEME_PANEL" value="Tema"/>
+  <locale name="UPLOADER_DROP_HINT" value="Arrastra un archivo aquí o selecciónalo"/>
   <locale name="ERROR_TITLE_FILENAME_SIZE_LIMIT" value="Se ha superado el tamaño de nombre de fichero"/>
   <locale name="ERROR_TITLE_FILLING_VARIABLE_LIST" value="Error rellenando la lista de variables"/>
   <locale name="ERROR_TITLE_FORMAT_DATA" value="Error formateando el dato"/>
@@ -646,6 +1034,7 @@
   <locale name="ERROR_TITLE_INVALID_CREDENTIALS" value="Credenciales inválidas"/>
   <locale name="ERROR_TITLE_INVALID_PASSWORD" value="Clave incorrecta"/>
   <locale name="ERROR_TITLE_INVALID_SESSION_TOKEN" value="Sesión no válida"/>
+  <locale name="ERROR_TITLE_INVALID_THEME_COLOR" value="Color de tema no válido"/>
   <locale name="ERROR_TITLE_INVALID_USER" value="Usuario no válido"/>
   <locale name="ERROR_TITLE_IO_EXCEPTION" value="Generada IOException"/>
   <locale name="ERROR_TITLE_JMS_TIMEOUT" value="Se ha superado el tiempo de espera"/>
@@ -664,6 +1053,7 @@
   <locale name="ERROR_TITLE_NO_AUDIT_FIELDS" value="No hay campos de auditoría definidos"/>
   <locale name="ERROR_TITLE_NONEXISTENT_FILE" value="Fichero inexistente"/>
   <locale name="ERROR_TITLE_NOT_DEFINED" value="Error: &apos;&apos;{0}&apos;&apos; no ha sido definido"/>
+  <locale name="ERROR_TITLE_NOT_FOUND" value="Recurso no encontrado"/>
   <locale name="ERROR_TITLE_OAUTH_NO_USERNAME_ATTR" value="Error de Oauth2 autenticación"/>
   <locale name="ERROR_TITLE_OPTION_NOT_DEFINED" value="La opción no está definida"/>
   <locale name="ERROR_TITLE_PARSE_EXCEPTION" value="Generada ParseException"/>
@@ -679,6 +1069,7 @@
   <locale name="ERROR_TITLE_PARSING_RESULTSET" value="Error generando los resultados"/>
   <locale name="ERROR_TITLE_PARSING_SERVICE_DATA" value="Error generando los resultados del servicio"/>
   <locale name="ERROR_TITLE_PARSING_TEXT" value="Error traduciendo el texto"/>
+  <locale name="ERROR_TITLE_PASSWORD_CHANGE" value="Cambio de contraseña"/>
   <locale name="ERROR_TITLE_PATH_NOT_FOUND" value="El directorio {0} no existe o no tiene permisos de lectura"/>
   <locale name="ERROR_TITLE_PRINTING_SCREEN" value="Error al tratar de imprimir el documento"/>
   <locale name="ERROR_TITLE_QUEUE_CONNECTION_FAILED" value="Conexión fallida"/>
@@ -701,6 +1092,15 @@
   <locale name="ERROR_TITLE_SAVING_ITEM" value="Error guardando archivo"/>
   <locale name="ERROR_TITLE_SESSION_CLOSED" value="Sesión cerrada"/>
   <locale name="ERROR_TITLE_SCREEN_GENERATION_ERROR" value="Error al generar la pantalla"/>
+  <locale name="ERROR_TITLE_SCREEN_CONFIGURATION_INVALID" value="Configuración de pantalla no válida"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_UNKNOWN_COMPONENT" value="El componente &apos;&apos;{0}&apos;&apos; no existe en la pantalla &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_UNKNOWN_ATTRIBUTE" value="El atributo &apos;&apos;{0}&apos;&apos; no se puede configurar"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_ATTRIBUTE_NOT_APPLICABLE" value="El atributo &apos;&apos;{0}&apos;&apos; no se aplica al componente &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_BOOLEAN" value="El atributo &apos;&apos;{0}&apos;&apos; solo admite true o false, no &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_INTEGER" value="El atributo &apos;&apos;{0}&apos;&apos; solo admite números enteros, no &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_ENUM" value="El atributo &apos;&apos;{0}&apos;&apos; no admite &apos;&apos;{1}&apos;&apos;. Valores permitidos: {2}"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_VALUE_TOO_LONG" value="El valor del atributo &apos;&apos;{0}&apos;&apos; no puede superar los {1} caracteres"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_NO_ACCESS" value="No puede personalizar la pantalla &apos;&apos;{0}&apos;&apos;: no tiene acceso a ella"/>
   <locale name="ERROR_TITLE_SCREEN_NOT_DEFINED" value="Pantalla no definida"/>
   <locale name="ERROR_TITLE_SCREEN_OPTION_NOT_DEFINED" value="Opción de pantalla no definida"/>
   <locale name="ERROR_TITLE_SENDING_QUEUE_MESSAGE" value="Error en el envío de un mensaje"/>
@@ -748,11 +1148,13 @@
   <locale name="HELP_CREATE_NEW_LOCAL_BUTTON" value="Crear un nuevo literal almacenarlo en el los ficheros xml de literales"/>
   <locale name="HELP_CRITERION" value="Criterio"/>
   <locale name="HELP_CRITERION_IDENTIFIER" value="Id. criterio"/>
-  <locale name="HELP_CUSTOM_BUTTON" value="Permite definir colores específicos para algunas partes del tema seleccionado para personalizarlo"/>
   <locale name="HELP_DELETE_BUTTON" value="Eliminar las líneas seleccionadas en la matriz"/>
   <locale name="HELP_DESCRIPTION" value="Descripción"/>
   <locale name="HELP_EDIT_BUTTON" value="Editar elemento seleccionado"/>
   <locale name="HELP_EDITABLE" value="Editable"/>
+  <locale name="HELP_EML_SRV_OAUTH_REGISTRATION" value="Registro de cliente de Spring Security que proporciona el token de acceso: spring.security.oauth2.client.registration.REGISTRATION_ID con authorization-grant-type=client_credentials (para Microsoft 365, scope https://outlook.office365.com/.default)"/>
+  <locale name="HELP_EML_SRV_PORT" value="Déjalo vacío para usar el puerto por defecto del modo de seguridad: 25 (ninguna), 587 (STARTTLS) o 465 (SSL/TLS)"/>
+  <locale name="HELP_EML_SRV_SECURITY" value="STARTTLS eleva la conexión a TLS (normalmente puerto 587). SSL/TLS conecta con TLS desde el inicio (normalmente puerto 465)"/>
   <locale name="HELP_GRID" value="Matriz"/>
   <locale name="HELP_GRID_IDENTIFIER" value="Id. matriz"/>
   <locale name="HELP_HELP_BUTTON" value="Abre un diálogo con la ayuda de la ventana"/>
@@ -764,6 +1166,11 @@
   <locale name="HELP_NEW_BUTTON" value="Ir a una nueva ventana para añadir un nuevo elemento"/>
   <locale name="HELP_PRINT_ACTION_CRITERION" value="Seleccione una acción para hacer: Generar ficheros, enviarlos por correo electrónico o imprimirlos"/>
   <locale name="HELP_PRINT_BUTTON" value="Abre un diálogo con las opciones de impresión de la ventana"/>
+  <locale name="HELP_PROFILE_PERMISSIONS" value="Permisos del perfil, agrupados por recurso. «Todo» da todos los permisos de un recurso y «Todos los recursos» una acción en todos los recursos. Los usuarios reciben los cambios la próxima vez que inician sesión."/>
+  <locale name="HELP_ACCESS_COMPARE_BUTTON" value="Compara el acceso con otro perfil u otro usuario, o simula el usuario con otro perfil. No se guarda nada"/>
+  <locale name="HELP_ACCESS_COMPARE_STOP_BUTTON" value="Deja de comparar y muestra solo el acceso del perfil o usuario elegido"/>
+  <locale name="HELP_ACCESS_REVIEW_BUTTON" value="Revisa las reglas de todos los perfiles y usuarios que no tienen efecto o no tienen sentido, y corrígelas"/>
+  <locale name="HELP_ACCESS_PREVIEW_BUTTON" value="Previsualiza el menú que vería el perfil o usuario elegido en el módulo, sin iniciar sesión con él"/>
   <locale name="HELP_PRINT_DESTINATION_USERS_CRITERION" value="Seleccione los usuarios a los que desea enviar los datos"/>
   <locale name="HELP_PRINT_FORMAT_CRITERION" value="Seleccione los formatos de archivo en los que desea recuperar los datos"/>
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Seleccione el formato que desea aplicar a los datos numéricos"/>
@@ -775,12 +1182,15 @@
   <locale name="HELP_SCREEN_HELP" value="Diálogo con la definición de los componentes de la ventana y su ayuda"/>
   <locale name="HELP_SCREEN_TEXT_PRINT_EMAIL" value="Diálogo que permite generar ficheros con la información de la ventana, imprimirlos y/o enviarlos por correo"/>
   <locale name="HELP_SCREEN_TITLE" value="Pantalla de ayuda"/>
+  <locale name="HELP_SCREEN_TITLE_ACCESS_ADMIN" value="El acceso efectivo de un perfil o de un usuario a cada opción del menú privado, la capa que lo decide y las reglas que lo cambian."/>
   <locale name="HELP_SCREEN_TITLE_APP_INF" value="Información del aplicativo"/>
   <locale name="HELP_SCREEN_TITLE_APP_PARAMETERS" value="Parámetros de la aplicación"/>
+  <locale name="HELP_SCREEN_TITLE_APP_PAR_ADMIN" value="Parámetros de la aplicación: los ajustes de seguridad, informes y generales que lee."/>
   <locale name="HELP_SCREEN_TITLE_AWEKEY" value="Secuencias"/>
   <locale name="HELP_SCREEN_TITLE_BROADCAST" value="Envío de eventos"/>
   <locale name="HELP_SCREEN_TITLE_CAL" value="Gestión de calendarios"/>
   <locale name="HELP_SCREEN_TITLE_CAL_VIW" value="Consulta de calendario"/>
+  <locale name="HELP_SCREEN_TITLE_CHANGE_EXPIRED_PWD" value="Establecer una nueva contraseña"/>
   <locale name="HELP_SCREEN_TITLE_CHD_PWD" value="Cambio de contraseña"/>
   <locale name="HELP_SCREEN_TITLE_COM" value="Gestión de comandos"/>
   <locale name="HELP_SCREEN_TITLE_COM_UPD" value="Modificación de comando"/>
@@ -794,6 +1204,8 @@
   <locale name="HELP_SCREEN_TITLE_EML_SRV_UPD" value="Modificar servidor de correo"/>
   <locale name="HELP_SCREEN_TITLE_EML_USR" value="Notificar usuarios activos"/>
   <locale name="HELP_SCREEN_TITLE_ENC" value="Manager de encriptación"/>
+  <locale name="HELP_PARAMETER_PASSWORD_ALGORITHM" value="Algoritmo del hash de la contraseña. Por defecto se selecciona el configurado (awe.security.password-encoder); RIPEMD-160 da el hash de AWE 4"/>
+  <locale name="HELP_PARAMETER_PASSWORD_HASH" value="Hash del texto con el algoritmo de contraseña seleccionado, listo para insertar en ope.l1_pas"/>
   <locale name="HELP_SCREEN_TITLE_ERROR" value="Error"/>
   <locale name="HELP_SCREEN_TITLE_GRP_EML" value="Grupos de correo"/>
   <locale name="HELP_SCREEN_TITLE_GRP_EML_NEW" value="Alta de grupo de correo"/>
@@ -808,6 +1220,7 @@
   <locale name="HELP_SCREEN_TITLE_MDL_UPD" value="Modificación de módulo"/>
   <locale name="HELP_SCREEN_TITLE_MDL_VIW" value="Consulta de módulo"/>
   <locale name="HELP_SCREEN_TITLE_MENU_ACCESS" value="Restricciones de acceso al menú"/>
+  <locale name="HELP_SCREEN_TITLE_MOD_ADMIN" value="Los módulos de la aplicación, quién puede entrar en cada uno y qué base de datos usa en cada site."/>
   <locale name="HELP_SCREEN_TITLE_OPT" value="Gestión de opciones del sistema"/>
   <locale name="HELP_SCREEN_TITLE_OPT_UPD" value="Modificación de opción del sistema"/>
   <locale name="HELP_SCREEN_TITLE_OPT_VIW" value="Consulta de opción del sistema"/>
@@ -818,6 +1231,7 @@
   <locale name="HELP_SCREEN_TITLE_QUE" value="Colas de mensajes"/>
   <locale name="HELP_SCREEN_TITLE_QUE_NEW" value="Nueva cola de mensajes"/>
   <locale name="HELP_SCREEN_TITLE_QUE_UPD" value="Modificar cola de mensajes"/>
+  <locale name="HELP_SCREEN_TITLE_QUEUE_ADMIN" value="Colas de mensajes de la aplicación: alias, destino, tipo de cola, broker, conexión y estado."/>
   <locale name="HELP_SCREEN_TITLE_REP" value="Asignación de informes"/>
   <locale name="HELP_SCREEN_TITLE_REP_GEN" value="Listado de informes generados"/>
   <locale name="HELP_SCREEN_TITLE_REP_GEN_VIW" value="Consulta de un informe generado"/>
@@ -825,6 +1239,7 @@
   <locale name="HELP_SCREEN_TITLE_SCR_CNF" value="Configuración de pantallas"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_SCREEN" value="Acceso a pantallas"/>
   <locale name="HELP_SCREEN_TITLE_SEL_PRN" value="Seleccionar impresora web"/>
+  <locale name="HELP_SCREEN_TITLE_SEQUENCE_ADMIN" value="Secuencias de la aplicación: el valor que AWE entrega como siguiente identificador de cada nombre."/>
   <locale name="HELP_SCREEN_TITLE_SIT"><![CDATA[Administrar los sitios de aplicación. Aquí se puede ver, agregar, modificar y eliminar todos los sitios de aplicación.
 
 Un sitio se define como un *nodo de aplicación separado*, con sus propias [bases de datos](#databases) y [módulos](#modules).]]></locale>
@@ -833,12 +1248,12 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="HELP_SCREEN_TITLE_SIT_VIW" value="Ver site"/>
   <locale name="HELP_SCREEN_TITLE_STL_CNF" value="Configuración de estilos de listados"/>
   <locale name="HELP_SCREEN_TITLE_THM" value="Gestión de temas"/>
-  <locale name="HELP_SCREEN_TITLE_THM_CUSTOM" value="En esta pantalla se pueden definir propiedades visuales específicas para cada parte de la pantalla definida en el tema seleccionado"/>
   <locale name="HELP_SCREEN_TITLE_THM_NEW" value="Alta de tema"/>
   <locale name="HELP_SCREEN_TITLE_THM_UPD" value="Modificación de tema"/>
   <locale name="HELP_SCREEN_TITLE_THM_VIW" value="Consulta de tema"/>
   <locale name="HELP_SCREEN_TITLE_TREE_TEST" value="Esta pantalla muestra el uso de datos de árbol no ordenados cargados en una matriz de árbol"/>
   <locale name="HELP_SCREEN_TITLE_UNIKEY" value="Códigos del sistema"/>
+  <locale name="HELP_SCREEN_TITLE_USER_ADMIN" value="Quién puede iniciar sesión, con qué perfil y el estado de su cuenta."/>
   <locale name="HELP_SCREEN_TITLE_USR" value="Gestión de usuarios"/>
   <locale name="HELP_SCREEN_TITLE_USR_NEW" value="Alta de usuario"/>
   <locale name="HELP_SCREEN_TITLE_USR_UPD" value="Modificación de usuario"/>
@@ -849,10 +1264,10 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="HELP_TYPE" value="Tipo"/>
   <locale name="HELP_UPDATE_BUTTON" value="Ir a una nueva ventana con los datos del elemento seleccionado donde pueden ser modificados"/>
   <locale name="HELP_VIEW_BUTTON" value="Ir a una nueva ventana con los datos del elemento seleccionado en modo consulta"/>
+  <locale name="HELP_VIEW_PERMISSIONS_BUTTON" value="Abre Control de acceso › Permisos con este usuario: los permisos de sus perfiles guardados"/>
   <locale name="HOURS" value="{0}h"/>
   <locale name="INFO_MESSAGE_PARSING_NUMBER_NULL" value="El parámetro {0} no puede ser analizado como número: &apos;&apos;{1}&apos;&apos; - Establecido como null"/>
   <locale name="INFO_TITLE_WEB_SERVICE_CALL" value="Información"/>
-  <locale name="LIGHT_THEME" value="Tema claro"/>
   <locale name="MENU_ACT_USR" value="Notificar usuarios activos"/>
   <locale name="MENU_APP_INF" value="Acerca de"/>
   <locale name="MENU_AUDITS" value="Auditorías"/>
@@ -874,6 +1289,9 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="MENU_REPORT_LIST" value="Visualización de informes"/>
   <locale name="MENU_REPORTS" value="Informes"/>
   <locale name="MENU_SEARCH_EMPTY" value="No se han encontrado opciones"/>
+  <locale name="MENU_SEARCH_PLACEHOLDER" value="Buscar una opción…"/>
+  <locale name="SIDEBAR_POWERED_BY" value="Desarrollado con"/>
+  <locale name="SIDEBAR_POWERED_BRAND" value="AWE 5"/>
   <locale name="MENU_SEL_PRN" value="Seleccionar impresora"/>
   <locale name="MENU_SETTINGS" value="Configuración"/>
   <locale name="MENU_SQL_EXTRACTOR" value="SQL Extractor"/>
@@ -903,13 +1321,15 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="MENU_TOOLS_PURGUES" value="Purgas del sistema"/>
   <locale name="MENU_TOOLS_SCR_CNF" value="Configuración de pantallas"/>
   <locale name="MENU_TOOLS_SCREEN_ENCRYPT" value="Encriptación"/>
-  <locale name="MENU_TOOLS_SCREENS_ACCESS" value="Acceso a pantallas"/>
+  <locale name="MENU_TOOLS_SCREENS_ACCESS" value="Control de acceso"/>
+  <locale name="MENU_TOOLS_SCREENS_ACCESS_BY_MENU" value="Acceso a pantallas por menú"/>
   <locale name="MENU_TOOLS_SECURITY" value="Seguridad"/>
   <locale name="MENU_TOOLS_SITES" value="Sites"/>
   <locale name="MENU_TOOLS_STL_CNF" value="Configuración de estilos de listados"/>
   <locale name="MENU_TOOLS_THEMES" value="Temas"/>
   <locale name="MENU_TOOLS_UNIKEY" value="Códigos del sistema"/>
   <locale name="MENU_TOOLS_USERS" value="Usuarios"/>
+  <locale name="MENU_TOOLS_USER_ADMIN" value="Administración de usuarios"/>
   <locale name="MENU_USER_HELP" value="Manual de usuario"/>
   <locale name="MILLISECONDS" value="{0}ms"/>
   <locale name="MINUTES" value="{0}m"/>
@@ -921,6 +1341,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="OK_MESSAGE_CLEARING_ALL_CACHE" value="Se han borrado todas las caches correctamente"/>
   <locale name="OK_MESSAGE_CLEARING_CACHE" value="Se ha borrado la cache -{0}- correctamente"/>
   <locale name="OK_MESSAGE_EMAIL_OPERATION" value="Se ha enviado un correo electrónico"/>
+  <locale name="OK_MESSAGE_EXPIRED_PASSWORD_CHANGED" value="Contraseña cambiada. Inicie sesión con la nueva contraseña."/>
   <locale name="OK_MESSAGE_GENERATING_DOCUMENT" value="Se ha generado el documento solicitado correctamente"/>
   <locale name="OK_MESSAGE_LAUNCHING_BATCH" value="El batch ha sido lanzado correctamente. Se redireccionará a la pantalla de procesos para ver el estado del proceso."/>
   <locale name="OK_MESSAGE_LOCAL_UPDATED" value="El literal -{0}- se ha actualizado correctamente"/>
@@ -931,6 +1352,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="OK_MESSAGE_REMOVED_LOCAL" value="El literal -{0}- se ha eliminado correctamente"/>
   <locale name="OK_TITLE_CLEARING_CACHE" value="Borrado de cache"/>
   <locale name="OK_TITLE_EMAIL_OPERATION" value="Correo enviado correctamente"/>
+  <locale name="OK_TITLE_EXPIRED_PASSWORD_CHANGED" value="Contraseña cambiada"/>
   <locale name="OK_TITLE_GENERATING_DOCUMENT" value="Documento generado correctamente"/>
   <locale name="OK_TITLE_LAUNCHING_BATCH" value="Batch lanzado correctamente"/>
   <locale name="OK_TITLE_MAINTAIN_OPERATION" value="Operación realizada correctamente"/>
@@ -943,6 +1365,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_ACCESS_MODE" value="Modo de acceso"/>
   <locale name="PARAMETER_ACRONYM" value="Acrónimo"/>
   <locale name="PARAMETER_ACTIVE" value="Activo"/>
+  <locale name="PARAMETER_ADDITIONAL_PROFILES" value="Perfiles adicionales"/>
   <locale name="PARAMETER_ALIAS" value="Alias"/>
   <locale name="PARAMETER_APPLICATION" value="Proyecto"/>
   <locale name="PARAMETER_APPLICATION_ACRONIME" value="Acrónimo"/>
@@ -951,32 +1374,25 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_AUTH" value="Autenticación"/>
   <locale name="PARAMETER_AVATAR" value="Avatar"/>
   <locale name="PARAMETER_AVERAGE_TIME" value="T. promedio"/>
-  <locale name="PARAMETER_BACKGROUND" value="Fondos"/>
-  <locale name="PARAMETER_BACKGROUND_COLOR" value="Color de fondo"/>
   <locale name="PARAMETER_BALANCE" value="Balance"/>
   <locale name="PARAMETER_BATCH" value="Batch"/>
   <locale name="PARAMETER_BATDES" value="Fuente"/>
   <locale name="PARAMETER_BATNAM" value="Batch"/>
   <locale name="PARAMETER_BLOCKED" value="Bloqueado"/>
   <locale name="PARAMETER_BLOCKING" value="Bloqueante"/>
-  <locale name="PARAMETER_BORDER_COLOR" value="Color del borde"/>
-  <locale name="PARAMETER_BORDER_RADIUS" value="Radio del borde"/>
   <locale name="PARAMETER_BROKER" value="Servidor de colas"/>
   <locale name="PARAMETER_CALENDAR" value="Calendario"/>
   <locale name="PARAMETER_CAPTURE_DATE_END" value="F. captura final"/>
   <locale name="PARAMETER_CAPTURE_DATE_INI" value="F. captura inicial"/>
   <locale name="PARAMETER_CATEGORY" value="Categoría"/>
   <locale name="PARAMETER_CHECK_EACH" value="Comprobar cada"/>
-  <locale name="PARAMETER_COLORS" value="Colores"/>
   <locale name="PARAMETER_COMMAND" value="Comando"/>
   <locale name="PARAMETER_CONN_TYPE" value="Tipo de conexión"/>
   <locale name="PARAMETER_CONNECTION" value="Conexión"/>
   <locale name="PARAMETER_COUNTERPARTY" value="Contratante"/>
   <locale name="PARAMETER_COUNTRY" value="Pais"/>
   <locale name="PARAMETER_CREDIT" value="Credito"/>
-  <locale name="PARAMETER_CRITERIA" value="Criterios"/>
   <locale name="PARAMETER_CURRENCY" value="Divisa"/>
-  <locale name="PARAMETER_DANGER_COLOR" value="Color para error"/>
   <locale name="PARAMETER_DATE" value="Fecha"/>
   <locale name="PARAMETER_DATE_INF" value="Fecha &lt;="/>
   <locale name="PARAMETER_DATE_SUP" value="Fecha &gt;="/>
@@ -990,18 +1406,17 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_DESTINATION" value="Cola destino"/>
   <locale name="PARAMETER_DIALECT" value="Dialecto"/>
   <locale name="PARAMETER_DIS" value="Distribucion auto."/>
-  <locale name="PARAMETER_DISABLED_BACKGROUND_COLOR" value="Color de fondo desactivado"/>
-  <locale name="PARAMETER_DISABLED_BORDER_COLOR" value="Color del borde desactivado"/>
-  <locale name="PARAMETER_DISABLED_TEXT_COLOR" value="Color de texto desactivado"/>
   <locale name="PARAMETER_DOUBLE" value="Double"/>
   <locale name="PARAMETER_DRIVER" value="Driver"/>
-  <locale name="PARAMETER_DROPDOWN_COLOR" value="Color del menú desplegable"/>
   <locale name="PARAMETER_DST" value="Destino"/>
   <locale name="PARAMETER_ELEMENT" value="Elemento"/>
   <locale name="PARAMETER_EMAIL" value="E-mail"/>
   <locale name="PARAMETER_EMAIL_DEST" value="Email destino"/>
   <locale name="PARAMETER_EMAIL_DESTINATION" value="Destinatario e-mail"/>
   <locale name="PARAMETER_EMAIL_SERVER" value="Servidor correo"/>
+  <locale name="PARAMETER_EML_SRV_OAUTH_REGISTRATION" value="Registro de cliente OAuth2"/>
+  <locale name="PARAMETER_EML_SRV_SECURITY" value="Seguridad"/>
+  <locale name="PARAMETER_EML_SRV_SENDER" value="Buzón remitente"/>
   <locale name="PARAMETER_EML_SUBJECT" value="Asunto"/>
   <locale name="PARAMETER_EML_TEXT" value="Contenido"/>
   <locale name="PARAMETER_ENCRYPT" value="Encriptado"/>
@@ -1018,14 +1433,12 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_FLOAT" value="Float"/>
   <locale name="PARAMETER_FREQUENCY" value="Frecuencia"/>
   <locale name="PARAMETER_FROM" value="De"/>
-  <locale name="PARAMETER_GRID" value="Tablas"/>
-  <locale name="PARAMETER_HEADER_COLOR" value="Color del encabezado"/>
-  <locale name="PARAMETER_HEIGHT" value="Altura"/>
+  <locale name="PARAMETER_FULL_NAME" value="Nombre completo"/>
   <locale name="PARAMETER_HOUR_FIN" value="Hora fin"/>
   <locale name="PARAMETER_HOUR_INI" value="Hora inicial"/>
   <locale name="PARAMETER_HOURS" value="Horas"/>
   <locale name="PARAMETER_IDE" value="Identificador"/>
-  <locale name="PARAMETER_INFO_COLOR" value="Color de información"/>
+  <locale name="PARAMETER_INITIAL_SCREEN" value="Pantalla inicial"/>
   <locale name="PARAMETER_INT_PATH" value="Ruta en int."/>
   <locale name="PARAMETER_INTEGER" value="Entero"/>
   <locale name="PARAMETER_ISLEAF" value="Es hoja"/>
@@ -1036,12 +1449,10 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_LAUNCH_DEPENDENCIES_ERROR" value="Lanzar dependencias en caso de error"/>
   <locale name="PARAMETER_LAUNCH_DEPENDENCIES_WARN" value="Lanzar las dependencias en caso de warning"/>
   <locale name="PARAMETER_LAUNCH_TYPE" value="Tipo de lanzamiento"/>
-  <locale name="PARAMETER_LOADING_BAR_COLOR" value="Color de la barra de carga"/>
   <locale name="PARAMETER_LOG" value="Log"/>
   <locale name="PARAMETER_LONG" value="Long"/>
   <locale name="PARAMETER_MAIN" value="Principal"/>
   <locale name="PARAMETER_MAINTAIN" value="Mantenimiento"/>
-  <locale name="PARAMETER_MENU" value="Menú"/>
   <locale name="PARAMETER_MESSAGE" value="Mensaje"/>
   <locale name="PARAMETER_MINUTES" value="Minutos"/>
   <locale name="PARAMETER_MODULE" value="Módulo"/>
@@ -1059,7 +1470,6 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_MONTH_SEPTEMBER" value="Septiembre"/>
   <locale name="PARAMETER_MONTHS" value="Meses"/>
   <locale name="PARAMETER_NAME" value="Nombre"/>
-  <locale name="PARAMETER_NAVBAR" value="Barra de navegación"/>
   <locale name="PARAMETER_NEW_PASSWD" value="Nueva contraseña"/>
   <locale name="PARAMETER_NEXT_EXECUTION" value="Siguiente ejecución"/>
   <locale name="PARAMETER_NOTIFY_TYPE" value="Tipo de notificación"/>
@@ -1069,7 +1479,6 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_OPERATOR" value="Operador"/>
   <locale name="PARAMETER_OPTION" value="Opción"/>
   <locale name="PARAMETER_ORDER" value="Orden"/>
-  <locale name="PARAMETER_PANEL" value="Panel"/>
   <locale name="PARAMETER_PARAMETERS" value="Parámetros"/>
   <locale name="PARAMETER_PARENT" value="Padre"/>
   <locale name="PARAMETER_PASSWD" value="Contraseña"/>
@@ -1077,11 +1486,8 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_PASSWD_EXPIRE" value="Caducidad de la contraseña en días"/>
   <locale name="PARAMETER_PASSWD_MIN" value="Longitud de contraseña"/>
   <locale name="PARAMETER_PASSWD_NEW" value="Nueva contraseña"/>
+  <locale name="PARAMETER_PERMISSIONS" value="Permisos"/>
   <locale name="PARAMETER_PHRASEKEY" value="Clave de encriptación"/>
-  <locale name="PARAMETER_PREVIEW_DARK" value="Vista previa del tema"/>
-  <locale name="PARAMETER_PREVIEW_LIGHT" value="Vista previa del tema claro"/>
-  <locale name="PARAMETER_PRIMARY_COLOR" value="Color primario"/>
-  <locale name="PARAMETER_PRIMARY_FONT_SIZE" value="Tamaño de fuente primario"/>
   <locale name="PARAMETER_PRINT" value="Imprimir"/>
   <locale name="PARAMETER_PRINTER" value="Impresora"/>
   <locale name="PARAMETER_PRN_ACTION" value="Acción"/>
@@ -1092,6 +1498,8 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_PROGRESS" value="Progreso"/>
   <locale name="PARAMETER_PROPERTY" value="Propiedad"/>
   <locale name="PARAMETER_PROPERTY_ENCRYPT" value="Propiedad cifrada"/>
+  <locale name="PARAMETER_PASSWORD_ALGORITHM" value="Algoritmo de contraseña"/>
+  <locale name="PARAMETER_PASSWORD_HASH" value="Hash de contraseña"/>
   <locale name="PARAMETER_PRVCMD" value="Comando previo"/>
   <locale name="PARAMETER_PURGUE" value="Purga"/>
   <locale name="PARAMETER_QUEUE_TYPE" value="Tipo de cola"/>
@@ -1099,14 +1507,11 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_REPEAT_EACH" value="Repetir cada"/>
   <locale name="PARAMETER_REPORT" value="Informe"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientación"/>
-  <locale name="PARAMETER_REQUIRED_COLOR" value="Color de parámetro requerido"/>
   <locale name="PARAMETER_RESTRICTION" value="Restricción"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Repita contraseña"/>
   <locale name="PARAMETER_SCREEN" value="Pantalla"/>
   <locale name="PARAMETER_SCRIPT" value="Script"/>
   <locale name="PARAMETER_SEARCH_AT" value="Buscar en"/>
-  <locale name="PARAMETER_SECONDARY_COLOR" value="Color secundario"/>
-  <locale name="PARAMETER_SECONDARY_FONT_SIZE" value="Tamaño de fuente secundaria"/>
   <locale name="PARAMETER_SECONDS" value="Segundos"/>
   <locale name="PARAMETER_SELECT_ALL" value="Todos"/>
   <locale name="PARAMETER_SEND_STATUS" value="Enviar en caso de"/>
@@ -1124,11 +1529,13 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_STORE_EXECUTION" value="Número de ejecuciones almacenadas"/>
   <locale name="PARAMETER_STRING" value="Cadena"/>
   <locale name="PARAMETER_STYLE" value="Estilo"/>
-  <locale name="PARAMETER_SUCCESS_COLOR" value="Color de éxito"/>
   <locale name="PARAMETER_TEXT" value="Texto"/>
-  <locale name="PARAMETER_TEXT_COLOR" value="Color del texto"/>
   <locale name="PARAMETER_THEME" value="Tema"/>
-  <locale name="PARAMETER_THEME_COLOR" value="Color principal del tema"/>
+  <locale name="PARAMETER_THEME_MODE" value="Modo"/>
+  <locale name="PARAMETER_THEME_PRIMARY" value="Primario"/>
+  <locale name="PARAMETER_THEME_PRIMARY_HEX" value="Primario personalizado"/>
+  <locale name="PARAMETER_THEME_SURFACE" value="Superficie"/>
+  <locale name="PARAMETER_THEME_SURFACE_HEX" value="Superficie personalizada"/>
   <locale name="PARAMETER_TIME" value="Hora"/>
   <locale name="PARAMETER_TIMEOUT" value="Tiempo de espera"/>
   <locale name="PARAMETER_TITLE" value="Título"/>
@@ -1137,7 +1544,6 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_USER" value="Usuario"/>
   <locale name="PARAMETER_VALUE" value="Valor"/>
   <locale name="PARAMETER_VARIABLE" value="Variable"/>
-  <locale name="PARAMETER_WARNING_COLOR" value="Color de advertencia"/>
   <locale name="PARAMETER_WEB_PRINTER" value="Impresora web"/>
   <locale name="PARAMETER_WEEKDAY_FRIDAY" value="Viernes"/>
   <locale name="PARAMETER_WEEKDAY_MONDAY" value="Lunes"/>
@@ -1156,10 +1562,220 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_APPLICATION_HELP" value="Ayuda sobre la aplicación"/>
   <locale name="SCREEN_HELP" value="Pantalla de ayuda"/>
   <locale name="SCREEN_TEXT_2FA_SETTINGS" value="Autenticación en dos pasos"/>
+  <locale name="SCREEN_TEXT_ACCESS_ALLOW" value="Permitir"/>
+  <locale name="SCREEN_TEXT_ACCESS_ALLOWED" value="Permitido"/>
+  <locale name="SCREEN_TEXT_ACCESS_CASCADE" value="Evaluación de las reglas de acceso"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_ACCESS" value="Acceso"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_AFTER" value="Tras el cambio"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_CHANGE" value="Qué cambia"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_COMPARE" value="En la comparación"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_COMPARE_REASON" value="Por qué cambia"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_DECIDES_TODAY" value="Hoy decide"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_KEY" value="Identificador"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_LAYER" value="Capa"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_OPTION" value="Opción del menú"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_OWN_RULE" value="Regla propia"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_REASON" value="Motivo"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_RULE" value="Regla"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_TODAY" value="Hoy"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_VERDICT" value="Veredicto"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_WARNING" value="Aviso"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_WHO" value="Quién"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE" value="Comparar"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_HELP" value="Con un perfil, el usuario mantiene sus reglas propias; con un usuario, se aplican su perfil y sus reglas. No se guarda nada"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_SAME" value="Igual"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_SEARCH" value="Buscar perfil o usuario"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_STOP" value="Dejar de comparar"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_WITH" value="Comparar con"/>
+  <locale name="SCREEN_TEXT_ACCESS_DECIDES" value="Decide"/>
+  <locale name="SCREEN_TEXT_ACCESS_DENIED" value="Denegado"/>
+  <locale name="SCREEN_TEXT_ACCESS_DENY" value="Denegar"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_BASE_NONE" value="El perfil base {0}.xml no tiene regla sobre la opción"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_BASE_RULE" value="Regla del perfil base {0}.xml sobre la opción"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_GLOBAL_NONE" value="Sin regla global sobre la opción"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_GLOBAL_RULE" value="Regla global sobre la opción, para todos los usuarios"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_INHERITED" value="Heredado de {0}: {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_MODULE_HIDDEN" value="Pertenece al módulo {0}, no al módulo seleccionado {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_MODULE_VISIBLE" value="Visible en el módulo {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NOT_INHERITED" value="Ninguna regla de una opción padre decide el acceso"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NO_MODULE" value="Sin módulo seleccionado"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NO_PROFILE" value="El usuario no tiene perfil"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_PROFILE_NONE" value="Sin regla del perfil {0} sobre la opción"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_PROFILE_RULE" value="Regla del perfil {0} sobre la opción"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_NONE" value="Sin regla del usuario {0} sobre la opción"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_NOT_APPLICABLE" value="No aplica: el sujeto es un perfil"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_RULE" value="Regla del usuario {0} sobre la opción"/>
+  <locale name="SCREEN_TEXT_ACCESS_EMPTY_TEXT" value="Aquí se muestra su acceso a cada opción del menú privado"/>
+  <locale name="SCREEN_TEXT_ACCESS_EMPTY_TITLE" value="Elige un perfil o un usuario"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTERS" value="Filtros de acceso"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_ALL" value="Todas"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_ALLOWED" value="Permitidas"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_DENIED" value="Denegadas"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_DIFFERENCES" value="Solo diferencias"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_WARNINGS" value="Avisos"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_WITH_RULE" value="Con regla"/>
+  <locale name="SCREEN_TEXT_ACCESS_HINT" value="Una regla de usuario gana a la de su perfil, y la del perfil a la global. Una regla sobre una opción se aplica también a sus hijas"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT" value="Vista previa del cambio"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_GAINS" value="Gana {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_HINT" value="El menú de los usuarios conectados se refresca al confirmar. Si alguno tiene abierta una de estas pantallas, la verá hasta que la cierre."/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEP" value="Usuarios que conservan alguna por su regla propia: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEPS" value="Mantiene {0} por su regla propia"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEPS_DENIED" value="Mantiene {0} denegado por su regla propia"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_LOSES" value="Pierde {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_MORE_OPTIONS" value="{0} y {1} más"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_MORE_USERS" value="{0} usuarios más"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_NO_USERS" value="Ningún usuario cambia"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_NO_USERS_TEXT" value="Aquí se listan los usuarios del sujeto cuyo acceso cambia"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS" value="Opciones"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_ALLOW" value="Opciones que pasan a permitidas: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_DENY" value="Opciones que pasan a denegadas: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_REMOVE" value="Opciones que cambian su acceso: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_ALLOW" value="Permitir las opciones seleccionadas a {1} ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_DENY" value="Denegar las opciones seleccionadas a {1} ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_REMOVE" value="Quitar la regla de {1} en las opciones seleccionadas ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS" value="Usuarios afectados"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_ALLOW" value="Usuarios de {2} que ganan alguna: {0} de {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_DENY" value="Usuarios de {2} que pierden alguna: {0} de {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_REMOVE" value="Usuarios de {2} con algún cambio: {0} de {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_MENU" value="Acceso a las opciones de menú"/>
+  <locale name="SCREEN_TEXT_ACCESS_NO_RULES" value="Ninguna regla sobre la opción"/>
+  <locale name="SCREEN_TEXT_ACCESS_NO_RULES_TEXT" value="Su acceso viene del módulo, del perfil base o de sus opciones padre"/>
+  <locale name="SCREEN_TEXT_ACCESS_OPTION_RULES" value="Todas las reglas sobre la opción"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSIONS" value="Permisos efectivos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ADDITIONAL_PROFILE" value="Perfil adicional"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_FILE" value="Fichero del perfil y asignaciones"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_KEY" value="Identificador"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_ORIGIN" value="Origen"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_PERMISSION" value="Permiso"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_RESOURCE" value="Recurso"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_STATE" value="Estado"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_WARNING" value="Aviso"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_DOES_NOT_GRANT" value="No lo concede"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EMPTY_TEXT" value="Elige un usuario o un perfil para ver lo que puede hacer"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EMPTY_TITLE" value="No hay permisos que mostrar"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EXCLUDED" value="Excluido por {0} en su fichero {1} ({2})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTERS" value="Filtros de permisos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_DIFFERENCES" value="Solo diferencias"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_GRANTED" value="Concedidos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_NOT_GRANTED" value="No concedidos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_WARNINGS" value="Avisos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GRANTED" value="Concedido"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GRANTS" value="Lo concede"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GROUP" value="{0} · {1} · {2} de {3} concedidos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_HINT" value="Por cada perfil: (fichero − exclusiones) + asignaciones. Se suman los de todos los perfiles y los concedidos siempre. Una exclusión no es una denegación. Los cambios se aplican en el siguiente inicio de sesión."/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_MAIN" value="(principal)"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_MAIN_PROFILE" value="Perfil principal"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NEXT_LOGIN" value="Los cambios se aplican en el siguiente inicio de sesión: es el estado configurado, no el de las sesiones abiertas"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NONE" value="Ningún perfil lo concede"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NOT_GRANTED" value="No concedido"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_ALWAYS" value="Siempre concedido"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_ASSIGNMENT" value="{0} · asignación {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_FILE" value="{0} · fichero {1} ({2})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_PREDEFINED" value="predefinido: se duplica para cambiarlo"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_GRANTED" value="{0} tiene {1} · {2}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_HINT" value="Basta con que un perfil lo conceda: una exclusión solo resta dentro de su propio fichero de perfil"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_NOT_GRANTED" value="{0} no tiene {1} · {2}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SEARCH" value="Buscar permiso o recurso…"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SEARCH_LABEL" value="Buscar permisos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_COMPARE" value="Solo {0}: {1} · Solo {2}: {3} · Iguales en los dos: {4}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_DIFFERENCES" value="{0} diferencias de {1} permisos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_GRANTED" value="{0} de {1} permisos concedidos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_PROFILES" value="Perfiles:"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_WARNINGS" value="{0} excluidos en un fichero de perfil y concedidos por otra vía"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WARNING_EXCLUDED" value="{0} lo excluye en su fichero {1} ({2}); lo concede otra vía"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ALWAYS" value="El catálogo lo concede a todo usuario autenticado"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ASSIGNMENT_GRANTS" value="La asignación {0} lo concede"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ASSIGNMENT_NOT_INCLUDED" value="Ninguna asignación lo incluye"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_CATALOG" value="Catálogo de permisos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_EXCLUDES" value="El fichero {0} lo excluye ({1}): el fichero no lo da"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_GRANTS" value="El fichero {0} lo concede ({1})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_NOT_INCLUDED" value="El fichero {0} no lo incluye"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_NO_ASSIGNMENTS" value="Sin asignaciones"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_NO_FILE" value="Sin fichero de perfil"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_PROFILES" value="Lo que aporta cada perfil"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW" value="Vista previa del menú"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_ALL_MODULES" value="todos los módulos"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_COUNT" value="{0} opciones visibles de {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_EMPTY_TEXT" value="El perfil o el usuario no ve ninguna opción del menú en este módulo"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_EMPTY_TITLE" value="Ninguna opción visible"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN" value="Opciones ocultas y su motivo"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN_BY_PARENT" value="Su padre {0} no se muestra"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN_TEXT" value="No se muestran las opciones que no puede abrir ni las que tienen debajo"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_MENU" value="El menú"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_MODULE" value="módulo {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_PARENT_HIDDEN" value="{0} no aparece: su padre {1} está denegado"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_TEXT" value="Es una vista previa del menú: no inicias sesión como {0} ni abres sus pantallas."/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_TITLE" value="Viendo como {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_BASE" value="Perfil base {0}.xml"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_GLOBAL" value="Regla global"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_INHERITED" value="Heredado de {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_MODULE" value="Pertenece al módulo {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_NONE" value="Sin reglas: permitido por defecto"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_PROFILE" value="Regla del perfil {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_USER" value="Regla del usuario {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REMOVE_RULE" value="Quitar regla"/>
+  <locale name="SCREEN_TEXT_ACCESS_RESULT_ALLOWED" value="{0} puede abrir {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_RESULT_DENIED" value="{0} no puede abrir {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW" value="Revisar"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_ALLOW_PARENT" value="Permitir también {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_BUTTON" value="Revisar · {0} avisos"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_CLEAN" value="Quitar las {0} reglas sin efecto"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_CLEAN_RULES" value="Quitar las reglas sin efecto"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_EMPTY_TEXT" value="Todas las reglas cambian el acceso de su perfil o usuario"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_EMPTY_TITLE" value="Nada que revisar"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_OBSOLETE" value="Reglas sobre opciones que ya no existen"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_PARENT_DENIED" value="Opciones permitidas con el padre denegado"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_REDUNDANT" value="Reglas que no cambian el resultado"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_HINT" value="La revisión cubre todos los perfiles y usuarios, no solo el que estás viendo. Las reglas de usuarios dados de baja también aparecen aquí."/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_NO_WARNINGS" value="Sin avisos: todas las reglas tienen efecto"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_OPTION" value="La opción {0} no está en el menú privado de esta aplicación: la regla no tiene efecto"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_PROFILE" value="El perfil ya no existe: la regla no tiene efecto"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_USER" value="El usuario ya no existe: la regla no tiene efecto"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_PARENT_DENIED" value="{0} está denegada ({1}), así que {2} no aparece en el menú de {3} aunque esté permitida"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REDUNDANT_ALLOWED" value="Sin esta regla el resultado es el mismo: {0} ya puede abrir {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REDUNDANT_DENIED" value="Sin esta regla el resultado es el mismo: {0} ya no puede abrir {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REMOVED_PROFILE" value="Perfil #{0} (borrado)"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REMOVED_USER" value="Usuario #{0} (dado de baja)"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_SUMMARY" value="En {0} reglas de {1} perfiles y {2} usuarios"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_TITLE" value="Revisión del acceso"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_WARNINGS" value="{0} avisos"/>
+  <locale name="SCREEN_TEXT_ACCESS_SEARCH" value="Buscar opción…"/>
+  <locale name="SCREEN_TEXT_ACCESS_SEARCH_LABEL" value="Buscar opciones por nombre o identificador"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_BASE" value="Perfil base"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_GLOBAL" value="Regla global"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_INHERITANCE" value="Herencia"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_MODULE" value="Módulo"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_PROFILE" value="Regla del perfil"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_USER" value="Regla del usuario"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_PROFILE" value="el perfil {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT" value="Perfil o usuario"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_TYPE" value="Ver el acceso de"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_USER" value="el usuario {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_SWITCH_RULE" value="Cambiar la regla: Permitir ↔ Denegar"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_BUTTON" value="Previsualizar"/>
+  <locale name="SCREEN_TEXT_ACCESS_TAB_MENU" value="Opciones de menú"/>
+  <locale name="SCREEN_TEXT_ACCESS_TAB_PERMISSIONS" value="Permisos"/>
+  <locale name="SCREEN_TEXT_ACCESS_WARNING_PARENT_DENIED" value="Permitida, pero su padre está denegado: no se puede llegar a ella desde el menú"/>
+  <locale name="SCREEN_TEXT_ACCESS_WARNING_REDUNDANT" value="Regla redundante: quitarla no cambia el acceso"/>
+  <locale name="SCREEN_TEXT_ACCESS_WHO_GLOBAL" value="Todos los usuarios"/>
+  <locale name="SCREEN_TEXT_ACCESS_WHY" value="¿Por qué?"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL" value="Agregar el texto del literal"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Añadir un identificador de literal"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTERS" value="Estado del parámetro"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_ACTIVE" value="Activo"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_INACTIVE" value="Inactivo"/>
+  <locale name="SCREEN_TEXT_APP_PAR_IDENTITY" value="Parámetro"/>
+  <locale name="SCREEN_TEXT_APP_PAR_RELOAD_HINT" value="Al guardar un parámetro se recarga en la aplicación."/>
+  <locale name="SCREEN_TEXT_APP_PAR_SEARCH" value="Nombre o descripción…"/>
+  <locale name="SCREEN_TEXT_APP_PAR_SEARCH_LABEL" value="Buscar parámetros"/>
+  <locale name="SCREEN_TEXT_APP_PAR_VALUE" value="Valor"/>
+  <locale name="SCREEN_TEXT_BREADCRUMB" value="Ruta de navegación"/>
+  <locale name="SCREEN_TEXT_BREADCRUMB_EXPAND" value="Mostrar niveles ocultos"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendario"/>
   <locale name="SCREEN_TEXT_CALENDAR_DATES" value="Fechas añadidas"/>
+  <locale name="SCREEN_TEXT_CHANGE_EXPIRED_PWD" value="Su contraseña ha caducado. Establezca una nueva para iniciar sesión."/>
   <locale name="SCREEN_TEXT_CHANGE_PWD" value="Cambio de contraseña"/>
   <locale name="SCREEN_TEXT_CONFIGURATION" value="Configuración"/>
   <locale name="SCREEN_TEXT_CRITERIA" value="Criterios"/>
@@ -1170,12 +1786,21 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_ERROR_PREFIX" value="No se pudo completar el proceso:"/>
   <locale name="SCREEN_TEXT_DATE" value="Fecha del sistema"/>
   <locale name="SCREEN_TEXT_DBS" value="Data base"/>
+  <locale name="SCREEN_TEXT_EML_SRV_KEEP_SECRET" value="Déjalo vacío para mantener el valor actual"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Filtros"/>
+  <locale name="SCREEN_TEXT_GRID_EMPTY_TEXT" value="No hay registros que mostrar. Prueba a cambiar los criterios de búsqueda."/>
+  <locale name="SCREEN_TEXT_GRID_EMPTY_TITLE" value="No se han encontrado registros"/>
   <locale name="SCREEN_TEXT_GRID_FIRST" value="Primero"/>
   <locale name="SCREEN_TEXT_GRID_LAST" value="Último"/>
   <locale name="SCREEN_TEXT_GRID_NEXT" value="Siguiente"/>
   <locale name="SCREEN_TEXT_GRID_OF" value="de"/>
+  <locale name="SCREEN_TEXT_GRID_PAGE" value="Página"/>
   <locale name="SCREEN_TEXT_GRID_PREVIOUS" value="Anterior"/>
+  <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_HIDE" value="Ocultar el detalle de la fila"/>
+  <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_SHOW" value="Mostrar el detalle de la fila"/>
+  <locale name="SCREEN_TEXT_GRID_SELECTED_ROW" value="{{count}} seleccionado"/>
+  <locale name="SCREEN_TEXT_GRID_SELECTED_ROWS" value="{{count}} seleccionados"/>
+  <locale name="SCREEN_TEXT_GRID_CLEAR_SELECTION" value="Limpiar selección"/>
   <locale name="SCREEN_TEXT_GRID_VIEW" value="Filas"/>
   <locale name="SCREEN_TEXT_IDENTIFIER_OR_TEXT" value="Identificador o el texto de búsqueda"/>
   <locale name="SCREEN_TEXT_INFO_CURRENCY" value="Divisa de referencia: {0}"/>
@@ -1187,22 +1812,143 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_INFORMATION_MESSAGE_2" value="Si desea salir de la aplicación, pulse el botón de salir en el extremo superior derecho de la pantalla."/>
   <locale name="SCREEN_TEXT_INFORMATION_TITLE" value="awe - Almis Web Engine"/>
   <locale name="SCREEN_TEXT_LOADING" value="Cargando"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_UP" value="Sube"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_DOWN" value="Baja"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_FLAT" value="Sin cambios"/>
+  <locale name="SCREEN_TEXT_CARD_TARGET_OF" value="de"/>
   <locale name="SCREEN_TEXT_MAXIMIZE" value="Maximizar"/>
+  <locale name="GRID_COLUMNS_BUTTON" value="Columnas"/>
+  <locale name="GRID_COLUMNS_TITLE" value="Columnas del grid"/>
+  <locale name="GRID_COLUMNS_VISIBLE" value="visibles"/>
+  <locale name="GRID_COLUMNS_SHOW_ALL" value="Mostrar todas"/>
+  <locale name="GRID_COLUMNS_RESET" value="Restaurar predeterminado"/>
+  <locale name="GRID_COLUMNS_SAVE" value="Guardar"/>
+  <locale name="GRID_COLUMNS_SAVING" value="Guardando…"/>
+  <locale name="GRID_COLUMNS_CLOSE" value="Cerrar"/>
+  <locale name="GRID_COLUMNS_CANCEL" value="Cancelar"/>
+  <locale name="GRID_COLUMNS_MOVE_UP" value="Subir"/>
+  <locale name="GRID_COLUMNS_MOVE_DOWN" value="Bajar"/>
+  <locale name="GRID_COLUMNS_DRAG" value="Arrastrar para reordenar"/>
+  <locale name="GRID_ROW_DRAG" value="Arrastrar para mover la fila. Con el teclado, selecciónala y pulsa Alt+Arriba, Alt+Abajo, Alt+Inicio o Alt+Fin"/>
+  <locale name="GRID_GROUP_BY" value="Agrupar por"/>
+  <locale name="GRID_GROUP_NONE" value="Sin agrupar"/>
+  <locale name="GRID_GROUP_EXPAND_ALL" value="Expandir todos los grupos"/>
+  <locale name="GRID_GROUP_COLLAPSE_ALL" value="Contraer todos los grupos"/>
+  <locale name="GRID_GROUP_EXPAND" value="Expandir grupo"/>
+  <locale name="GRID_GROUP_COLLAPSE" value="Contraer grupo"/>
+  <locale name="GRID_GROUP_EMPTY" value="(vacío)"/>
+  <locale name="GRID_GROUP_SUBTOTAL" value="Subtotal"/>
+  <locale name="GRID_COLUMNS_ERROR_TITLE" value="Disposición del grid no guardada"/>
+  <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="No se ha podido guardar ni eliminar la disposición del grid"/>
+  <locale name="GRID_COLUMNS_SAVED" value="Guardado"/>
+  <locale name="GRID_FILTER_BUTTON" value="Filtrar y ordenar {{label}}"/>
+  <locale name="GRID_FILTER_SORT_ASC_TEXT" value="Ordenar de A a Z"/>
+  <locale name="GRID_FILTER_SORT_DESC_TEXT" value="Ordenar de Z a A"/>
+  <locale name="GRID_FILTER_SORT_ASC_NUMBER" value="Ordenar de menor a mayor"/>
+  <locale name="GRID_FILTER_SORT_DESC_NUMBER" value="Ordenar de mayor a menor"/>
+  <locale name="GRID_FILTER_SORT_ASC_DATE" value="Ordenar de más antiguo a más reciente"/>
+  <locale name="GRID_FILTER_SORT_DESC_DATE" value="Ordenar de más reciente a más antiguo"/>
+  <locale name="GRID_FILTER_CLEAR" value="Borrar filtro de «{{label}}»"/>
+  <locale name="GRID_FILTER_TEXT_FILTERS" value="Filtros de texto"/>
+  <locale name="GRID_FILTER_NUMBER_FILTERS" value="Filtros de número"/>
+  <locale name="GRID_FILTER_DATE_FILTERS" value="Filtros de fecha"/>
+  <locale name="GRID_FILTER_OPERATOR_EQ" value="Es igual a"/>
+  <locale name="GRID_FILTER_OPERATOR_NE" value="No es igual a"/>
+  <locale name="GRID_FILTER_OPERATOR_STARTS_WITH" value="Comienza por"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_STARTS_WITH" value="No comienza por"/>
+  <locale name="GRID_FILTER_OPERATOR_ENDS_WITH" value="Termina con"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_ENDS_WITH" value="No termina con"/>
+  <locale name="GRID_FILTER_OPERATOR_CONTAINS" value="Contiene"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_CONTAINS" value="No contiene"/>
+  <locale name="GRID_FILTER_OPERATOR_GT" value="Es mayor que"/>
+  <locale name="GRID_FILTER_OPERATOR_GE" value="Es mayor o igual que"/>
+  <locale name="GRID_FILTER_OPERATOR_LT" value="Es menor que"/>
+  <locale name="GRID_FILTER_OPERATOR_LE" value="Es menor o igual que"/>
+  <locale name="GRID_FILTER_OPERATOR_BETWEEN" value="Entre"/>
+  <locale name="GRID_FILTER_OPERATOR_EMPTY" value="Está vacío"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_EMPTY" value="No está vacío"/>
+  <locale name="GRID_FILTER_OPERATOR_BEFORE" value="Antes de"/>
+  <locale name="GRID_FILTER_OPERATOR_ON_OR_BEFORE" value="Hasta el"/>
+  <locale name="GRID_FILTER_OPERATOR_AFTER" value="Después de"/>
+  <locale name="GRID_FILTER_OPERATOR_ON_OR_AFTER" value="Desde el"/>
+  <locale name="GRID_FILTER_TODAY" value="Hoy"/>
+  <locale name="GRID_FILTER_YESTERDAY" value="Ayer"/>
+  <locale name="GRID_FILTER_THIS_WEEK" value="Esta semana"/>
+  <locale name="GRID_FILTER_LAST_MONTH" value="Mes pasado"/>
+  <locale name="GRID_FILTER_THIS_YEAR" value="Este año"/>
+  <locale name="GRID_FILTER_CUSTOM" value="Filtro personalizado…"/>
+  <locale name="GRID_FILTER_CUSTOM_TITLE" value="Filtro personalizado"/>
+  <locale name="GRID_FILTER_AND" value="Y"/>
+  <locale name="GRID_FILTER_OR" value="O"/>
+  <locale name="GRID_FILTER_UNION" value="Unión de las condiciones"/>
+  <locale name="GRID_FILTER_NO_CONDITION" value="(Ninguna)"/>
+  <locale name="GRID_FILTER_CONDITION_OPERATOR" value="Operador de la condición {{number}}"/>
+  <locale name="GRID_FILTER_CONDITION_VALUE" value="Valor de la condición {{number}}"/>
+  <locale name="GRID_FILTER_CONDITION_TO" value="Valor final de la condición {{number}}"/>
+  <locale name="GRID_FILTER_SEARCH" value="Buscar"/>
+  <locale name="GRID_FILTER_SELECT_ALL" value="(Seleccionar todo)"/>
+  <locale name="GRID_FILTER_BLANKS" value="(Vacías)"/>
+  <locale name="GRID_FILTER_VALUES" value="Valores de {{label}}"/>
+  <locale name="GRID_FILTER_LOADING" value="Cargando valores…"/>
+  <locale name="GRID_FILTER_NO_VALUES" value="Sin valores"/>
+  <locale name="GRID_FILTER_MORE_VALUES" value="Solo se muestran los primeros {{count}} valores: escribe para buscar los demás o usa los filtros de la columna."/>
   <locale name="SCREEN_TEXT_MENU" value="Menú"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Mensaje de {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Modulo"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTERS" value="Estado del módulo"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_ACTIVE" value="Activos"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_MODULE_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES" value="Perfiles"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES_EMPTY" value="Todavía no hay perfiles"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES_EMPTY_TEXT" value="Añade los perfiles cuyos usuarios pueden entrar en el módulo."/>
+  <locale name="SCREEN_TEXT_MODULE_SEARCH" value="Nombre…"/>
+  <locale name="SCREEN_TEXT_MODULE_SEARCH_LABEL" value="Buscar módulos"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES" value="Sites"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_DATABASES" value="Sites y bases de datos"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_EMPTY" value="Todavía no hay sites"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_EMPTY_TEXT" value="Añade la base de datos que usa el módulo en cada site."/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_ACCESS" value="Acceso"/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_GENERAL" value="General"/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_SITES" value="Sites y bases de datos"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS" value="Usuarios"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS_EMPTY" value="Todavía no hay usuarios"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS_EMPTY_TEXT" value="Añade los usuarios que pueden entrar en el módulo además de los de sus perfiles."/>
   <locale name="SCREEN_TEXT_NAVIGATION" value="Navegación"/>
   <locale name="SCREEN_TEXT_NEW_DATE" value="Nueva fecha"/>
   <locale name="SCREEN_TEXT_PARAM_LIST" value="Listado de parámetros"/>
   <locale name="SCREEN_TEXT_PASS" value="Clave"/>
+  <locale name="SCREEN_TEXT_LOGIN_TITLE" value="Bienvenido a AWE"/>
+  <locale name="SCREEN_TEXT_LOGIN_SUBTITLE" value="Introduce tus credenciales para continuar."/>
+  <locale name="SCREEN_TEXT_LOGIN_PANEL_TITLE" value="AWE Framework"/>
+  <locale name="SCREEN_TEXT_LOGIN_PANEL_SUBTITLE" value="Aplicaciones web funcionales completas con low code"/>
+  <locale name="SCREEN_TEXT_SHARED_SEARCHES" value="Compartidas con tu perfil"/>
+  <locale name="SCREEN_TEXT_SHOW_PASSWORD" value="Mostrar contraseña"/>
+  <locale name="SCREEN_TEXT_HIDE_PASSWORD" value="Ocultar contraseña"/>
+  <locale name="SCREEN_TEXT_CAPS_LOCK_ON" value="Bloq Mayús está activado"/>
+  <locale name="SCREEN_TEXT_SHOW_RESULTS" value="Ver resultados"/>
+  <locale name="SCREEN_TEXT_SIGNING_IN" value="Iniciando sesión…"/>
+  <locale name="SCREEN_TEXT_SIGN_IN_MICROSOFT" value="Iniciar sesión con Microsoft"/>
+  <locale name="SCREEN_TEXT_LOGIN_OR" value="o continúa con"/>
+  <locale name="SCREEN_TEXT_POWERED_BY" value="Desarrollado con"/>
   <locale name="SCREEN_TEXT_PRINT_EMAIL" value="Propiedades de impresión / Envío de correo"/>
   <locale name="SCREEN_TEXT_PROFILES" value="Profiles"/>
   <locale name="SCREEN_TEXT_RESTRICTIONS" value="Restricciones"/>
   <locale name="SCREEN_TEXT_SECUENCE" value="Secuences"/>
   <locale name="SCREEN_TEXT_SEL_DAT" value="Seleccione una fecha"/>
   <locale name="SCREEN_TEXT_SEL_PRN" value="Selección de impresora"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTERS" value="Estado de la secuencia"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_ACTIVE" value="Activa"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_ALL" value="Todas"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_INACTIVE" value="Inactiva"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_IDENTITY" value="Secuencia"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_SEARCH" value="Nombre…"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_SEARCH_LABEL" value="Buscar secuencias"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_VALUE_HINT" value="Último identificador que AWE ha entregado para este nombre; se incrementa con cada registro nuevo."/>
   <locale name="SCREEN_TEXT_SELECT_FILE" value="Poner nombre de archivo sin la extensión"/>
   <locale name="SCREEN_TEXT_SELECTED" value="Seleccionados"/>
+  <locale name="SCREEN_TEXT_SELECTED_VALUES_SHOW_ALL" value="+{{count}} valores seleccionados, mostrar todos"/>
   <locale name="SCREEN_TEXT_SERVERS" value="Servidores"/>
   <locale name="SCREEN_TEXT_SETTINGS" value="Opciones"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>
@@ -1210,17 +1956,34 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TEXT_TOTP_CODE" value="Insertar código aquí"/>
   <locale name="SCREEN_TEXT_USER" value="Usuario"/>
   <locale name="SCREEN_TEXT_USER_DATA" value="Datos del usuario"/>
+  <locale name="SCREEN_TEXT_USER_IDENTITY" value="Identidad"/>
+  <locale name="SCREEN_TEXT_USER_LOCKED_NOTICE" value="Cuenta bloqueada. El usuario no puede iniciar sesión hasta que se desbloquee."/>
+  <locale name="SCREEN_TEXT_USER_SIGN_IN_SECURITY" value="Seguridad de acceso"/>
   <locale name="SCREEN_TEXT_USERS" value="Usuarios"/>
+  <locale name="SCREEN_TEXT_USER_ACCESS" value="Acceso"/>
+  <locale name="SCREEN_TEXT_USER_APPEARANCE_OUTPUT" value="Apariencia y salida"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_ALL" value="Todos"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_LOCKED" value="Bloqueados"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_WITHOUT_2FA" value="Sin 2FA"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_INACTIVE" value="Inactivos"/>
+  <locale name="SCREEN_TEXT_USER_FILTERS" value="Estado del usuario"/>
+  <locale name="SCREEN_TEXT_USER_SEARCH" value="Usuario, nombre, email o perfil…"/>
+  <locale name="SCREEN_TEXT_USER_SEARCH_LABEL" value="Buscar usuarios"/>
+  <locale name="SCREEN_TEXT_USER_VIEW_PERMISSIONS_HELP" value="Muestra los perfiles guardados: guarda antes los cambios"/>
   <locale name="SCREEN_TEXT_VERSION" value="Entorno"/>
+  <locale name="SCREEN_TITLE_ACCESS_ADMIN" value="Control de acceso"/>
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activación de autenticación en dos pasos"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Información del aplicativo"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Parámetros de la aplicación"/>
+  <locale name="SCREEN_TITLE_APP_PAR_ADMIN" value="Parámetros de la aplicación"/>
+  <locale name="SCREEN_TITLE_APP_PAR_PANEL" value="Parámetro de la aplicación"/>
   <locale name="SCREEN_TITLE_AWEKEY" value="Secuencias"/>
   <locale name="SCREEN_TITLE_BATCH" value="Definición del batch"/>
   <locale name="SCREEN_TITLE_BATCH_AUDIT" value="Gestión de auditoría del batch"/>
   <locale name="SCREEN_TITLE_BROADCAST" value="Envío de eventos"/>
   <locale name="SCREEN_TITLE_CAL" value="Gestión de calendarios"/>
   <locale name="SCREEN_TITLE_CAL_VIW" value="Consulta de calendario"/>
+  <locale name="SCREEN_TITLE_CHANGE_EXPIRED_PWD" value="Contraseña caducada"/>
   <locale name="SCREEN_TITLE_CHD_PWD" value="Cambio de contraseña"/>
   <locale name="SCREEN_TITLE_CHECK_2FA" value="Comprobación del segundo factor de autenticación"/>
   <locale name="SCREEN_TITLE_COM" value="Gestión de comandos"/>
@@ -1250,6 +2013,8 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TITLE_MDL_UPD" value="Modificación de módulo"/>
   <locale name="SCREEN_TITLE_MDL_VIW" value="Consulta de módulo"/>
   <locale name="SCREEN_TITLE_MENU_ACCESS" value="Restricciones de menú"/>
+  <locale name="SCREEN_TITLE_MODULE_PANEL" value="Módulo"/>
+  <locale name="SCREEN_TITLE_MOD_ADMIN" value="Módulos"/>
   <locale name="SCREEN_TITLE_OPT" value="Gestión de opciones del sistema"/>
   <locale name="SCREEN_TITLE_OPT_UPD" value="Modificación de opción del sistema"/>
   <locale name="SCREEN_TITLE_OPT_VIW" value="Consulta de opción del sistema"/>
@@ -1265,6 +2030,8 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TITLE_QUE" value="Colas de mensajes"/>
   <locale name="SCREEN_TITLE_QUE_NEW" value="Nueva cola de mensajes"/>
   <locale name="SCREEN_TITLE_QUE_UPD" value="Modificar cola de mensajes"/>
+  <locale name="SCREEN_TITLE_QUEUE_ADMIN" value="Colas de mensajes"/>
+  <locale name="SCREEN_TITLE_QUEUE_PANEL" value="Cola de mensajes"/>
   <locale name="SCREEN_TITLE_REP" value="Asignación de informes"/>
   <locale name="SCREEN_TITLE_REP_GEN" value="Listado de informes generados"/>
   <locale name="SCREEN_TITLE_REP_GEN_VIW" value="Consulta de un informe generado"/>
@@ -1272,19 +2039,24 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SCREEN_TITLE_SCR_CNF" value="Configuración de pantallas"/>
   <locale name="SCREEN_TITLE_SECURITY_SCREEN" value="Acceso a pantallas"/>
   <locale name="SCREEN_TITLE_SESSION_CLOSED" value="Sesión Cerrada"/>
+  <locale name="SCREEN_TITLE_SETTINGS" value="Configuración de usuario"/>
+  <locale name="SCREEN_HELP_SETTINGS" value="Tu perfil, tu contraseña y el segundo factor de tu acceso."/>
   <locale name="SCREEN_TITLE_SEL_PRN" value="Seleccionar impresora web"/>
+  <locale name="SCREEN_TITLE_SEQUENCE_ADMIN" value="Secuencias"/>
+  <locale name="SCREEN_TITLE_SEQUENCE_PANEL" value="Secuencia"/>
   <locale name="SCREEN_TITLE_SIT" value="Gestión de sites"/>
   <locale name="SCREEN_TITLE_SIT_NEW" value="Nuevo site"/>
   <locale name="SCREEN_TITLE_SIT_UPD" value="Actualizar site"/>
   <locale name="SCREEN_TITLE_SIT_VIW" value="Ver site"/>
   <locale name="SCREEN_TITLE_STL_CNF" value="Configuración de estilos de listados"/>
   <locale name="SCREEN_TITLE_THM" value="Gestión de temas"/>
-  <locale name="SCREEN_TITLE_THM_CUSTOM" value="Personalizar el tema"/>
   <locale name="SCREEN_TITLE_THM_NEW" value="Alta de tema"/>
   <locale name="SCREEN_TITLE_THM_UPD" value="Modificación de tema"/>
   <locale name="SCREEN_TITLE_THM_VIW" value="Consulta de tema"/>
   <locale name="SCREEN_TITLE_TREE_TEST" value="Prueba de árbol"/>
   <locale name="SCREEN_TITLE_UNIKEY" value="Códigos del sistema"/>
+  <locale name="SCREEN_TITLE_USER_ADMIN" value="Usuarios"/>
+  <locale name="SCREEN_TITLE_USER_PANEL" value="Usuario"/>
   <locale name="SCREEN_TITLE_USR" value="Gestión de usuarios"/>
   <locale name="SCREEN_TITLE_USR_NEW" value="Alta de usuario"/>
   <locale name="SCREEN_TITLE_USR_UPD" value="Modificación de usuario"/>
@@ -1294,10 +2066,6 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="SECURITY" value="SEGURIDAD"/>
   <locale name="SELECT2_SEARCH_VALUE" value="Buscar un valor"/>
   <locale name="SELECT2_SELECT_VALUE" value="Seleccione un valor"/>
-  <locale name="TEXT_MESSAGE" value="Mensaje"/>
-  <locale name="TEXT_PREVIEW" value="Vista previa"/>
-  <locale name="TEXT_TEST" value="Prueba"/>
-  <locale name="TEXT_TITLE" value="Título"/>
   <locale name="TIME_AGO" value="hace {0}"/>
   <locale name="VALIDATOR_MESSAGE_CHECK_AT_LEAST" value="Por favor, marque al menos {value2} respuestas"/>
   <locale name="VALIDATOR_MESSAGE_DATE" value="Por favor, introduzca una fecha válida"/>
@@ -1307,6 +2075,18 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="VALIDATOR_MESSAGE_EQUAL" value="Por favor, introduzca el mismo valor de nuevo"/>
   <locale name="VALIDATOR_MESSAGE_EQUAL_LENGTH" value="Por favor, introduzca un valor de tamaño igual a {value2} caracteres"/>
   <locale name="VALIDATOR_MESSAGE_GREATER_OR_EQUAL" value="Por favor, escriba un valor mayor o igual a {value2}"/>
+  <locale name="VALIDATOR_MESSAGE_DATE_RANGE" value="La fecha final no puede ser anterior a la fecha inicial"/>
+  <locale name="DATE_RANGE_FROM" value="Desde"/>
+  <locale name="DATE_RANGE_TO" value="Hasta"/>
+  <locale name="DATE_RANGE_PRESET_TODAY" value="Hoy"/>
+  <locale name="DATE_RANGE_PRESET_1W" value="1 semana"/>
+  <locale name="DATE_RANGE_PRESET_1M" value="1 mes"/>
+  <locale name="DATE_RANGE_PRESET_3M" value="3 meses"/>
+  <locale name="DATE_RANGE_PRESET_6M" value="6 meses"/>
+  <locale name="DATE_RANGE_PRESET_YTD" value="Año en curso"/>
+  <locale name="DATE_RANGE_PRESET_12M" value="12 meses"/>
+  <locale name="DATE_RANGE_PRESET_3Y" value="3 años"/>
+  <locale name="DATE_RANGE_PRESET_ALL" value="Todo"/>
   <locale name="VALIDATOR_MESSAGE_GREATER_THAN" value="Por favor, escriba un valor mayor que {value2}"/>
   <locale name="VALIDATOR_MESSAGE_INTEGER" value="Por favor, introduzca un número entero válido"/>
   <locale name="VALIDATOR_MESSAGE_LESS_OR_EQUAL" value="Por favor, escriba un valor inferior o igual a {value2}"/>
@@ -1322,16 +2102,96 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="VALIDATOR_MESSAGE_TEXT" value="Por favor, introduzca un texto válido. Los valores numéricos y espacios en blanco no estan permitidos"/>
   <locale name="VALIDATOR_MESSAGE_TEXT_WHITESPACES" value="Por favor, introduzca un texto válido. Los valores numéricos no estan permitidos"/>
   <locale name="VALIDATOR_MESSAGE_TIME" value="Por favor, introduzca una hora válida, entre las 00:00:00 y las 23:59:59"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_APP_PAR" value="Ya existe un parámetro con este nombre. Cámbialo."/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_MODULE" value="Ya existe un módulo con este nombre. Por favor, cámbielo."/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_PROFILE" value="Ya existe un perfil con este acrónimo. Por favor, cámbielo."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_QUEUE" value="La cola ya existe"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_SEQUENCE" value="Ya existe una secuencia con este nombre. Cámbialo."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SERVER" value="El nombre del servidor de correo ya existe"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_SITE" value="Ya existe un site con este nombre. Por favor, cámbielo."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="El nombre de usuario que está intentando introducir ya existe"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="¡Atención! El literal -{0} ya existe y NO se sobrescribirá"/>
+  <locale name="WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA" value="Algunos datos de esta pantalla no se muestran porque no tiene autorización para verlos"/>
+  <locale name="WARNING_TITLE_DUPLICATED_APP_PAR" value="Parámetro duplicado"/>
+  <locale name="WARNING_TITLE_DUPLICATED_MODULE" value="Módulo duplicado"/>
+  <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Perfil duplicado"/>
   <locale name="WARNING_TITLE_DUPLICATED_QUEUE" value="Cola duplicada"/>
+  <locale name="WARNING_TITLE_DUPLICATED_SEQUENCE" value="Secuencia duplicada"/>
   <locale name="WARNING_TITLE_DUPLICATED_SERVER" value="Servidor duplicado"/>
+  <locale name="WARNING_TITLE_DUPLICATED_SITE" value="Site duplicado"/>
   <locale name="WARNING_TITLE_DUPLICATED_USER" value="Usuario duplicado"/>
+  <locale name="WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA" value="Datos restringidos"/>
   <locale name="WARNING_TITLE_WEB_SERVICE_CALL" value="Atención"/>
   <locale name="WEEK" value="{0} semana"/>
   <locale name="WEEKS" value="{0} semanas"/>
   <locale name="YEAR" value="{0} año"/>
   <locale name="YEARS" value="{0} años"/>
+  <locale name="HELP_SCREEN_TITLE_SCR_PER" value="Personaliza una pantalla de forma visual: pulsa un elemento de la pantalla y cambia sus atributos para todos, un perfil o un usuario"/>
+  <locale name="MENU_TOOLS_SCR_PER" value="Personalizar pantalla"/>
+  <locale name="SCREEN_TITLE_SCR_PER" value="Personalizar pantalla"/>
+  <locale name="SCR_PER_ADVANCED" value="Avanzado"/>
+  <locale name="SCR_PER_APPLIES_TO" value="Se aplica a"/>
+  <locale name="SCR_PER_CHANGES" value="{0} cambio(s)"/>
+  <locale name="SCR_PER_DISCARD" value="Descartar"/>
+  <locale name="SCR_PER_FOR" value="para"/>
+  <locale name="SCR_PER_HIDDEN" value="oculto"/>
+  <locale name="SCR_PER_INVALID" value="{0} valor(es) no válido(s)"/>
+  <locale name="SCR_PER_ORIGIN_DEFAULT" value="Heredado de la pantalla"/>
+  <locale name="SCR_PER_ORIGIN_EVERYONE" value="Heredado de todos"/>
+  <locale name="SCR_PER_ORIGIN_PERSONALIZED" value="Personalizado para este ámbito"/>
+  <locale name="SCR_PER_ORIGIN_PROFILE" value="Heredado del perfil"/>
+  <locale name="SCR_PER_ORIGIN_USER" value="Personalizado para el usuario"/>
+  <locale name="SCR_PER_PICK_SCREEN" value="Elige una pantalla para personalizar"/>
+  <locale name="SCR_PER_PRECEDENCE" value="El usuario gana al perfil, el perfil gana a todos"/>
+  <locale name="SCR_PER_RESET_ATTRIBUTE" value="Restablecer"/>
+  <locale name="SCR_PER_RESET_ELEMENT" value="Restablecer elemento"/>
+  <locale name="SCR_PER_SCOPE_EVERYONE" value="Todos"/>
+  <locale name="SCR_PER_SCOPE_PROFILE" value="Perfil"/>
+  <locale name="SCR_PER_SCOPE_USER" value="Usuario"/>
+  <locale name="SCR_PER_VIEW_AS" value="Ver como"/>
+  <locale name="SCR_PER_VIEW_AS_EDITED" value="Ámbito editado"/>
+  <locale name="SCR_PER_NO_OPTION" value="Esta pantalla no se abre desde ninguna opción de menú, por lo que no se puede mostrar aquí"/>
+  <locale name="SCR_PER_MODE" value="Modo"/>
+  <locale name="SCR_PER_MODE_EDIT" value="Editar"/>
+  <locale name="SCR_PER_MODE_OVERVIEW" value="Resumen"/>
+  <locale name="SCR_PER_OVERVIEW_TITLE" value="{0} · {1} elemento(s) cambiado(s)"/>
+  <locale name="SCR_PER_OVERVIEW_EMPTY" value="No hay nada personalizado en esta pantalla"/>
+  <locale name="SCR_PER_VALUE_VISIBLE" value="Visible"/>
+  <locale name="SCR_PER_VALUE_HIDDEN" value="Oculto"/>
+  <locale name="SCR_PER_VALUE_YES" value="Sí"/>
+  <locale name="SCR_PER_VALUE_NO" value="No"/>
+  <locale name="SCR_PER_PROBLEMS" value="{0} cambio(s) ya no funcionan"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_ELEMENT" value="{0} ya no está en esta pantalla ({1})"/>
+  <locale name="SCR_PER_PROBLEM_INVALID_ATTRIBUTE" value="{1} no se puede configurar en {0}"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_PROFILE" value="El perfil de la regla de {1} de {0} ya no existe"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_USER" value="El usuario de la regla de {1} de {0} ya no existe"/>
+  <locale name="SCR_PER_PROBLEM_DUPLICATE" value="{0} · {1} tiene {3} reglas para {2}"/>
+  <locale name="SCR_PER_DELETE" value="Eliminar"/>
+  <locale name="SCR_PER_KEEP_ONE" value="Conservar una:"/>
+  <locale name="SCR_PER_KEEP_VALUE" value="Conservar {0}"/>
+  <locale name="SCR_PER_MODE_HISTORY" value="Historial"/>
+  <locale name="SCR_PER_HISTORY_EMPTY" value="No se ha registrado ningún cambio en esta pantalla"/>
+  <locale name="SCR_PER_HISTORY_CREATED" value="Creado: {0}"/>
+  <locale name="SCR_PER_HISTORY_DELETED" value="Eliminado (era {0})"/>
+  <locale name="SCR_PER_UNDO" value="Deshacer"/>
+  <locale name="SCR_PER_CHANGED_LATER" value="Cambiado después"/>
+  <locale name="SCR_PER_HISTORY_UNRECORDED" value="Valor anterior no registrado"/>
+  <locale name="SCR_PER_HISTORY_CHANGED_TO" value="Cambiado a: {0}"/>
+  <locale name="SCR_PER_EXPORT" value="Exportar"/>
+  <locale name="SCR_PER_IMPORT" value="Importar"/>
+  <locale name="SCR_PER_IMPORT_FILE" value="Archivo a importar"/>
+  <locale name="SCR_PER_IMPORT_TITLE" value="Importar reglas"/>
+  <locale name="SCR_PER_IMPORT_DROP" value="Suelta un archivo .json o"/>
+  <locale name="SCR_PER_IMPORT_CHOOSE" value="elige uno"/>
+  <locale name="SCR_PER_IMPORT_HINT" value="Un archivo exportado desde esta pantalla. Verás qué cambia antes de guardar nada."/>
+  <locale name="SCR_PER_IMPORT_PREVIEW" value="Importación: {0} por añadir, {1} por cambiar"/>
+  <locale name="SCR_PER_IMPORT_SKIPPED" value="{0} regla(s) omitida(s)"/>
+  <locale name="SCR_PER_IMPORT_SKIPPED_ITEM" value="{0} · {1}: {2} {3}"/>
+  <locale name="SCR_PER_IMPORT_REASON_PROFILE" value="perfil no encontrado:"/>
+  <locale name="SCR_PER_IMPORT_REASON_USER" value="usuario no encontrado:"/>
+  <locale name="SCR_PER_IMPORT_REASON_ELEMENT" value="elemento que no está en esta pantalla:"/>
+  <locale name="SCR_PER_IMPORT_APPLY" value="Aplicar importación"/>
+  <locale name="SCR_PER_IMPORT_CANCEL" value="Cancelar"/>
+  <locale name="SCR_PER_IMPORT_INVALID_FILE" value="El archivo no es una exportación de la personalización de una pantalla"/>
+  <locale name="SCR_PER_IMPORT_OTHER_SCREEN" value="El archivo es de la pantalla {0}, no de esta"/>
 </locales>

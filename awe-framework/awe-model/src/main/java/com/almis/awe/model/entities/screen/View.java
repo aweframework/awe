@@ -12,6 +12,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Message Class
  *
@@ -32,6 +34,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("view")
 public class View extends Element {
 
+  @Serial
   private static final long serialVersionUID = 5250926094818702640L;
   // View name (identifier)
   @XStreamAlias("name")

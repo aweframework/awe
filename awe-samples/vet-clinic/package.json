@@ -1,0 +1,38 @@
+{
+  "name": "vet-clinic",
+  "version": "5.0.0-SNAPSHOT",
+  "description": "AWE sample application: veterinary clinic",
+  "private": true,
+  "license": "SEE LICENSE IN ./../LICENSE.md",
+  "scripts": {
+    "build": "npm run build:production",
+    "build:development": "webpack --config webpack.dev.js",
+    "build:production": "webpack --config webpack.prod.js",
+    "build:watch": "webpack --config webpack.dev.js --watch",
+    "refresh-client": "npm install ../../awe-framework/awe-client-react/dist"
+  },
+  "dependencies": {
+    "awe-react-client": "file:../../awe-framework/awe-client-react/dist"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.9",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "autoprefixer": "^10.4.20",
+    "babel-loader": "8.4.1",
+    "copy-webpack-plugin": "^14.0.0",
+    "css-loader": "^7.1.2",
+    "html-webpack-plugin": "^5.6.3",
+    "html-webpack-plugin-inject-thyme-leaf-tags": "^1.0.3",
+    "mini-css-extract-plugin": "2.9.1",
+    "postcss": "8.5.29",
+    "postcss-loader": "8.2.1",
+    "source-map-loader": "^5.0.0",
+    "webpack": "^5.98.0",
+    "webpack-cli": "^6.0.1",
+    "webpack-merge": "6.0.1"
+  },
+  "overrides": {
+    "lodash": "4.18.1"
+  }
+}

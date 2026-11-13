@@ -16,6 +16,7 @@ import lombok.experimental.Accessors;
 public class ScreenBuilder extends AbstractElementBuilder<ScreenBuilder, Screen> {
 
   private boolean keepCriteria;
+  private String windowHeader;
   private String template = "full";
   private String onLoad;
   private String onUnload;
@@ -35,6 +36,7 @@ public class ScreenBuilder extends AbstractElementBuilder<ScreenBuilder, Screen>
   public Screen build(Screen screen) {
     super.build(screen)
       .setKeepCriteria(isKeepCriteria())
+      .setWindowHeader(getWindowHeader())
       .setTemplate(getTemplate())
       .setOnLoad(getOnLoad())
       .setOnUnload(getOnUnload())

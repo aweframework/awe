@@ -5,7 +5,7 @@ sidebar_label: Deployment
 ---
 
 ## Intro
-Awe framework same as Spring Boot apps, has flexible packaging options provide a great deal of choice when it comes to deploying your application. You can deploy Awe applications to a variety of cloud platforms, to container images (such as Docker), or to virtual/real machines.
+Like Spring Boot applications, the AWE framework has flexible packaging options that provide a great deal of choice when it comes to deploying your application. You can deploy Awe applications to a variety of cloud platforms, to container images (such as Docker), or to virtual/real machines.
 
 This section covers some of the more common deployment scenarios.
 
@@ -76,7 +76,7 @@ On the first step, we need to build a container image. For this, we start with c
 
 For example:
 
-```shell script
+```shell
 # Use an official Open jdk runtime as a parent image
 FROM eclipse-temurin:17-jre-alpine
 # Copy the current directory contents into the container at /app
@@ -91,13 +91,33 @@ EXPOSE 8080
 ENTRYPOINT ["java", "-Dspring.devtools.restart.enabled=false", "-Djava.security.egd=file:/dev/./urandom", "-jar", "/awe-demo.jar"]
 ```
 
+## Virtual threads
+AWE applications run on Java 21, so they can use virtual threads. Enable them with the standard Spring Boot property, without code changes:
+
+```properties
+spring.threads.virtual.enabled=true
+```
+
+Besides the Spring Boot components (embedded web server, `@Async` and scheduling defaults), the property switches the AWE task executors to virtual threads:
+
+| Executor bean | Starter | Pool properties |
+|---|---|---|
+| `threadPoolTaskExecutor`, `threadHelpPoolTaskExecutor`, `contextLessTaskExecutor` | `awe-spring-boot-starter` | `awe.application.task.pool.*` |
+| `schedulerTaskPool`, `schedulerJobPool`, `schedulerTimeoutPool` | `awe-scheduler-spring-boot-starter` | `awe.scheduler.task-pool.*` |
+
+The executors keep their pool size, queue capacity, thread name prefix and, where they had it, context propagation (request data, security context and MDC), so the pool properties still bound the concurrency. The property is disabled by default, and the executors then use platform threads as before.
+
+:::caution
+Code that holds a lock (`synchronized`) while blocking on I/O can pin the carrier thread on Java 21. Test your own blocking code before enabling virtual threads in production. AWE itself reads its XML descriptors inside a `synchronized` block on `contextLessTaskExecutor`, so while they load at startup up to `awe.application.task.pool.max-size` carrier threads (by default, one per CPU core) can be pinned.
+:::
+
 ## Deploying in the CLOUD
 Awe apps same as Spring Boot’s executable jars are ready-made for most popular cloud PaaS (Platform-as-a-Service) providers. These providers tend to require that you “bring your own container”. They manage application processes (not Java applications specifically), so they need an intermediary layer that adapts your application to the cloud’s notion of a running process.
 
 Ideally, your application, like a Spring Boot executable jar, has everything that it needs to run packaged within it.
 
 :::tip Info
-You can read more docs about deploying **[here](https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#cloud-deploymenta)**
+You can read more docs about deploying **[here](https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html#cloud-deployment)**
 :::
 
 

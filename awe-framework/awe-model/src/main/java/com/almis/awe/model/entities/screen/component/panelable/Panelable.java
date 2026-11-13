@@ -7,9 +7,6 @@ import com.almis.awe.model.entities.screen.component.criteria.AbstractCriteria;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamInclude;
@@ -22,6 +19,9 @@ import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.Serial;
 import java.util.ArrayList;
@@ -64,8 +64,8 @@ public abstract class Panelable extends AbstractCriteria {
   @Override
   public List<Element> getReportStructure(List<Element> printElementList, String label, ObjectNode parameters, String dataSuffix) {
     // Check if print all tabs or only selected tab
-    boolean printAllTabs = "0".equalsIgnoreCase(parameters.get(AweConstants.PRINT_TABS).asText());
-    String selectedTab = parameters.get(this.getId()).asText();
+    boolean printAllTabs = "0".equalsIgnoreCase(parameters.get(AweConstants.PRINT_TABS).asString(""));
+    String selectedTab = parameters.get(this.getId()).asString("");
     ObjectNode dataNode = (ObjectNode) parameters.get(this.getId() + dataSuffix);
     ArrayNode panelableValues = (ArrayNode) dataNode.get(AweConstants.JSON_ALL);
 
@@ -88,8 +88,8 @@ public abstract class Panelable extends AbstractCriteria {
    */
   private String getTabLabel(String tabId, ArrayNode tabValues) {
     for (JsonNode tabValue : tabValues) {
-      if (tabId.equalsIgnoreCase(tabValue.get(AweConstants.JSON_VALUE_PARAMETER).asText())) {
-        return tabValue.get(AweConstants.JSON_LABEL_PARAMETER).asText();
+      if (tabId.equalsIgnoreCase(tabValue.get(AweConstants.JSON_VALUE_PARAMETER).asString(""))) {
+        return tabValue.get(AweConstants.JSON_LABEL_PARAMETER).asString("");
       }
     }
     return null;

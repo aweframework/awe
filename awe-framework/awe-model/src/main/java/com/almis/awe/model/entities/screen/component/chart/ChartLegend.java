@@ -12,6 +12,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.Map;
 @XStreamAlias("chart-legend")
 public class ChartLegend extends AbstractChart {
 
+  @Serial
   private static final long serialVersionUID = 3276211655233499386L;
 
   // Flag enable chart legend

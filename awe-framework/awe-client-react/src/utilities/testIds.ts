@@ -1,0 +1,418 @@
+/**
+ * Fixed vocabulary of "data-testid" values for the React client.
+ *
+ * It uses the SAME values as the AngularJS client (awe-client-angular, js/awe/data/testIds.js) for the same concepts,
+ * so a test or a Selenium instruction can locate a component part whatever the client renders. A Jest test fails if
+ * a shared value drifts. The entries marked "React only" name parts that PrimeReact renders and AngularJS does not.
+ *
+ * A value names the PART of a component (never an instance). The instance is identified by the attributes AWE
+ * renders ("criterion-id", "grid-id", "tree-grid-id", "row-id", "column-id", "option-id", "name"...) or, for DOM that
+ * PrimeReact appends to the body (dropdown panels, calendars, dialogs...), by the owner attribute "data-testid-owner".
+ */
+export const TestIds = Object.freeze({
+  // Real control of every criterion (input, textarea, checkbox, radio...)
+  criterionInput: "criterion-input",
+  // React only: unit addon of a criterion (the text after the input, such as "EUR")
+  criterionUnit: "criterion-unit",
+  // React only: validation error of a criterion (AngularJS draws it in the shared "error-container")
+  criterionError: "criterion-error",
+  // Selectors: container, chosen value, search input, multiple choice (and its close icon), overlay panel and options
+  select: "select",
+  selectValue: "select-value",
+  selectSearch: "select-search",
+  selectChoice: "select-choice",
+  selectChoiceClose: "select-choice-close",
+  selectClear: "select-clear",
+  selectDropdown: "select-dropdown",
+  // React only: arrow that opens the overlay panel (the middle of a short select can be its clear icon)
+  selectTrigger: "select-trigger",
+  selectOption: "select-option",
+  // Date criteria: calendar overlay and its day, month and year cells
+  datepicker: "datepicker",
+  datepickerDay: "datepicker-day",
+  datepickerMonth: "datepicker-month",
+  datepickerYear: "datepicker-year",
+  // Date range criterion: the start and the end inputs and a quick preset button (the element that carries
+  // "option-id" with the preset code; it is active while the dates are the ones of the preset)
+  dateRangeFrom: "date-range-from",
+  dateRangeTo: "date-range-to",
+  dateRangePreset: "date-range-preset",
+  // Uploader criterion: name of the uploaded file and clear action
+  uploadFilename: "upload-filename",
+  uploadClear: "upload-clear",
+  // Uploader criterion with drop zone / camera capture: drop area, image preview and camera button
+  uploadDropZone: "upload-drop-zone",
+  uploadPreview: "upload-preview",
+  uploadCapture: "upload-capture",
+  // Grids and tree grids: the instance is identified by "grid-id" / "tree-grid-id", "row-id" and "column-id"
+  grid: "grid",
+  gridViewport: "grid-viewport",
+  gridHeaderCell: "grid-header-cell",
+  gridHeaderCheckbox: "grid-header-checkbox",
+  gridRow: "grid-row",
+  gridCell: "grid-cell",
+  gridRowCheckbox: "grid-row-checkbox",
+  // React only: button that starts the edition of a row
+  gridRowEdit: "grid-row-edit",
+  gridRowSave: "grid-row-save",
+  gridRowCancel: "grid-row-cancel",
+  // Row detail: the button that shows or hides the detail of a row ("aria-expanded") and the detail under the row
+  // (both carry the "row-id" of their row)
+  gridRowDetailToggle: "grid-row-detail-toggle",
+  gridRowDetail: "grid-row-detail",
+  gridPagination: "grid-pagination",
+  gridPagePrevious: "grid-page-previous",
+  gridPageNext: "grid-page-next",
+  gridPageSize: "grid-page-size",
+  gridGotoPage: "grid-goto-page",
+  gridPaginationInfo: "grid-pagination-info",
+  gridEmpty: "grid-empty",
+  gridEmptyTitle: "grid-empty-title",
+  gridEmptyText: "grid-empty-text",
+  gridEmptyAction: "grid-empty-action",
+  gridLoader: "grid-loader",
+  // Grid toolbar: the toolbar, its Columns and Maximize buttons, and the Columns panel (popover, dialog or side panel,
+  // "data-type"; the instance is identified by "grid-id"): its group of columns (the title is its text), a column
+  // ("column-id") with its checkbox, handle and arrows, the "N of M visible" counter ("data-visible" / "data-total")
+  // and its actions (Show all is no longer shown)
+  gridToolbar: "grid-toolbar",
+  // Quick filters of the grid toolbar (the owner is the grid) and each of their options ("option-id")
+  gridQuickFilter: "grid-quick-filter",
+  gridQuickFilterOption: "grid-quick-filter-option",
+  // Search of the grid toolbar (the owner is the grid) and its clear button
+  gridSearch: "grid-search",
+  gridSearchClear: "grid-search-clear",
+  // Column autofilter (#912; the owner is the grid): the funnel of a column header ("column-id"; "data-active"
+  // while the column is filtered) and its menu ("column-id") with its options ("option-id": sort-asc, sort-desc, clear,
+  // conditions, an operator, a relative date or custom), its search, its Select all, a value ("option-id" with the value,
+  // "data-selected"; "data-type" blanks for the empty values), Accept and Cancel; the row of the column filters in effect
+  // with a chip per column ("column-id"), its remove button and Clear all
+  gridColumnFilter: "grid-column-filter",
+  gridColumnFilterMenu: "grid-column-filter-menu",
+  gridColumnFilterOption: "grid-column-filter-option",
+  gridColumnFilterSearch: "grid-column-filter-search",
+  gridColumnFilterSelectAll: "grid-column-filter-select-all",
+  gridColumnFilterValue: "grid-column-filter-value",
+  gridColumnFilterAccept: "grid-column-filter-accept",
+  gridColumnFilterCancel: "grid-column-filter-cancel",
+  gridColumnFilterChips: "grid-column-filter-chips",
+  gridColumnFilterChip: "grid-column-filter-chip",
+  gridColumnFilterChipRemove: "grid-column-filter-chip-remove",
+  gridColumnFilterClearAll: "grid-column-filter-clear-all",
+  // Selection bar of the grid (the owner is the grid; "data-count" is the number of selected rows), its text, its clear
+  // button and the chip with the quick filter and the search the selection was made with
+  gridSelectionBar: "grid-selection-bar",
+  gridSelectionCount: "grid-selection-count",
+  gridSelectionClear: "grid-selection-clear",
+  gridSelectionContext: "grid-selection-context",
+  gridGroupHeader: "grid-group-header",
+  gridColumnsButton: "grid-columns-button",
+  gridMaximizeButton: "grid-maximize-button",
+  gridColumnsDialog: "grid-columns-dialog",
+  gridColumnGroup: "grid-column-group",
+  gridColumnItem: "grid-column-item",
+  gridColumnCheckbox: "grid-column-checkbox",
+  gridColumnHandle: "grid-column-handle",
+  gridColumnUp: "grid-column-up",
+  gridColumnDown: "grid-column-down",
+  gridColumnsCounter: "grid-columns-counter",
+  gridColumnsShowAll: "grid-columns-show-all",
+  gridColumnsReset: "grid-columns-reset",
+  gridColumnsCancel: "grid-columns-cancel",
+  gridColumnsSave: "grid-columns-save",
+  gridColumnsClose: "grid-columns-close",
+  // React only: result of the last Save or Reset of the Columns panel ("data-type": saved or error)
+  gridColumnsStatus: "grid-columns-status",
+  // Row grouping (#833): group and subtotal rows ("data-group-path", "data-group-level"; groups carry "data-expanded")
+  // instead of grid-row, the toggle of a group, the Expand all / Collapse all buttons of the toolbar, and the Group by
+  // button with its panel ("data-testid-owner"): No grouping and an option per column ("data-column")
+  gridGroupRow: "grid-group-row",
+  gridSubtotalRow: "grid-subtotal-row",
+  gridGroupToggle: "grid-group-toggle",
+  gridGroupExpandAll: "grid-group-expand-all",
+  gridGroupCollapseAll: "grid-group-collapse-all",
+  gridGroupBy: "grid-group-by",
+  gridGroupByPanel: "grid-group-by-panel",
+  gridGroupNone: "grid-group-none",
+  gridGroupOption: "grid-group-option",
+  // Tree grids: expand/collapse icon of a row
+  treeIcon: "tree-icon",
+  // Icon column of a grid (the element that shows the icon; "data-icon" carries the icon of the cell value)
+  columnIcon: "column-icon",
+  // Tab criterion: the tab list, a tab header ("option-id") with its link and label, the content pane
+  // The whole tab component (list and content; the instance is identified by the owner) and its Maximize button
+  tabs: "tabs",
+  tabMaximizeButton: "tab-maximize-button",
+  tabList: "tab-list",
+  tab: "tab",
+  tabLink: "tab-link",
+  tabLabel: "tab-label",
+  tabPane: "tab-pane",
+  // Wizard criterion: a step (the button of the step header, it carries "option-id"), its number (React only) and a
+  // content pane
+  wizardStep: "wizard-step",
+  wizardStepNumber: "wizard-step-number",
+  wizardPane: "wizard-pane",
+  // Buttons (the element that carries the button id)
+  button: "button",
+  // Context menu, its options (the element that carries "option-id"), their links and nested menus
+  contextMenu: "context-menu",
+  contextMenuOption: "context-menu-option",
+  contextMenuLink: "context-menu-link",
+  contextSubmenu: "context-submenu",
+  // Application menu: the menu, an option (with "option-name"), its link (the element that carries "name"), the first
+  // level dropdown and the nested submenus
+  menu: "menu",
+  menuOption: "menu-option",
+  breadcrumb: "breadcrumb",
+  // Levels of the breadcrumb (the element that carries "name" for a menu level, "path" for a screen the user came from),
+  // its home level and the ellipsis button that expands the collapsed levels
+  breadcrumbLevel: "breadcrumb-level",
+  breadcrumbHome: "breadcrumb-home",
+  breadcrumbEllipsis: "breadcrumb-ellipsis",
+  menuLink: "menu-link",
+  menuDropdown: "menu-dropdown",
+  menuSubmenu: "menu-submenu",
+  // React only: avatar of the logged user in the header (the avatar itself and the user name that goes with it)
+  avatar: "avatar",
+  avatarName: "avatar-name",
+  // Chart (the instance is identified by "chart-id"); "data-rendered" tells that the chart was drawn
+  chart: "chart",
+  // Map (the instance is identified by "map-id") and its marker ("row-id" and "map-id"); "data-rendered" tells that the
+  // markers were drawn
+  map: "map",
+  mapMarker: "map-marker",
+  // The route (polyline) of a map, with the "map-id" of its map
+  mapRoute: "map-route",
+  // React only: tag list (the instance is identified by "tag-list-id")
+  tagList: "tag-list",
+  // Log viewer: the element that holds the text of the log
+  logViewer: "log-viewer",
+  // File viewer: the element that holds the text of the file
+  fileViewer: "file-viewer",
+  // Info dropdowns (the element that carries the id), its toggle and menu, and info buttons
+  infoDropdown: "info-dropdown",
+  infoDropdownToggle: "info-dropdown-toggle",
+  infoDropdownMenu: "info-dropdown-menu",
+  infoButton: "info-button",
+  // Messages: alerts (toasts) with their title, text and close icon
+  alert: "alert",
+  alertTitle: "alert-title",
+  alertMessage: "alert-message",
+  alertClose: "alert-close",
+  // Popover of a target message, shown over its target component (the owner), with its title and text
+  popover: "popover",
+  popoverTitle: "popover-title",
+  popoverContent: "popover-content",
+  // Modal dialogs and the confirm dialog with its buttons
+  dialog: "dialog",
+  dialogClose: "dialog-close",
+  // Side panels (dialogs anchored to an edge of the screen) with their close button, the title of their header and the
+  // subtitle and tags of their identity header
+  sidePanel: "side-panel",
+  sidePanelClose: "side-panel-close",
+  sidePanelTitle: "side-panel-title",
+  sidePanelSubtitle: "side-panel-subtitle",
+  sidePanelTag: "side-panel-tag",
+  // Popovers (dialogs anchored to a control; owner: popover id) share the "popover" hook above; their close button
+  popoverClose: "popover-close",
+  confirmDialog: "confirm-dialog",
+  confirmAccept: "confirm-accept",
+  confirmCancel: "confirm-cancel",
+  // React only: error panel shown by an error boundary when a part of the application failed to render (the instance
+  // is identified by "data-scope"), with its title, the message of the error, the component stack and its buttons
+  errorBoundary: "error-boundary",
+  errorBoundaryTitle: "error-boundary-title",
+  errorBoundaryMessage: "error-boundary-message",
+  errorBoundaryDetails: "error-boundary-details",
+  errorBoundaryRetry: "error-boundary-retry",
+  errorBoundaryReload: "error-boundary-reload",
+  // Windows (the instance is identified by the owner, "data-testid-owner") and their Maximize button
+  window: "window",
+  windowMaximizeButton: "window-maximize-button",
+  // Advanced search of a window (#790; the instance is identified by the owner, the window id): the button that shows
+  // its advanced criteria (inline, "aria-expanded") or opens its side panel, with the count of the advanced criteria
+  // in use; the row of filters in effect with a chip per filter ("criterion-id"), its remove button and Clear all;
+  // the side panel and its Reset to defaults, Cancel and Show results buttons
+  windowAdvancedToggle: "window-advanced-toggle",
+  windowAdvancedCount: "window-advanced-count",
+  windowFilterChips: "window-filter-chips",
+  windowFilterChip: "window-filter-chip",
+  windowFilterChipRemove: "window-filter-chip-remove",
+  windowFilterClearAll: "window-filter-clear-all",
+  windowAdvancedPanel: "window-advanced-panel",
+  windowAdvancedReset: "window-advanced-reset",
+  windowAdvancedCancel: "window-advanced-cancel",
+  windowAdvancedApply: "window-advanced-apply",
+  // Saved searches of a window (#790; the owner is the window id): the Saved searches button and its menu, a search of
+  // the menu ("data-saved-search-id", "data-type" own or shared), Save current search and Manage searches; the save
+  // dialog with its name, its profile select (only for users who may publish), Save and Cancel; the manage dialog with a
+  // row per search ("data-saved-search-id"), its rename (input, accept, cancel) and delete buttons, and Close
+  windowSavedSearches: "window-saved-searches",
+  windowSavedSearchesMenu: "window-saved-searches-menu",
+  windowSavedSearchItem: "window-saved-search-item",
+  windowSavedSearchSave: "window-saved-search-save",
+  windowSavedSearchManage: "window-saved-search-manage",
+  windowSavedSearchDialog: "window-saved-search-dialog",
+  windowSavedSearchName: "window-saved-search-name",
+  windowSavedSearchProfile: "window-saved-search-profile",
+  windowSavedSearchAccept: "window-saved-search-accept",
+  windowSavedSearchCancel: "window-saved-search-cancel",
+  windowSavedSearchManageDialog: "window-saved-search-manage-dialog",
+  windowSavedSearchRow: "window-saved-search-row",
+  windowSavedSearchRename: "window-saved-search-rename",
+  windowSavedSearchRenameInput: "window-saved-search-rename-input",
+  windowSavedSearchRenameAccept: "window-saved-search-rename-accept",
+  windowSavedSearchRenameCancel: "window-saved-search-rename-cancel",
+  windowSavedSearchDelete: "window-saved-search-delete",
+  windowSavedSearchManageClose: "window-saved-search-manage-close",
+  // Default search and layout of the saved searches of a window (#915; the owner is the window id): the Keep layout, Keep
+  // values and Open with this search checkboxes of the save dialog ("data-selected"), the Default and Profile default
+  // tags of a search of the menu, the toggles of a row of the manage dialog ("data-selected" when the search is the
+  // default) and the chip of the default search applied on load
+  windowSavedSearchKeepLayout: "window-saved-search-keep-layout",
+  windowSavedSearchKeepValues: "window-saved-search-keep-values",
+  windowSavedSearchOpenWith: "window-saved-search-open-with",
+  windowSavedSearchDefaultTag: "window-saved-search-default-tag",
+  windowSavedSearchProfileDefaultTag: "window-saved-search-profile-default-tag",
+  windowSavedSearchSetDefault: "window-saved-search-set-default",
+  windowSavedSearchSetProfileDefault: "window-saved-search-set-profile-default",
+  windowSavedSearchAppliedDefault: "window-saved-search-applied-default",
+  // Cards (the instance is identified by the owner) with their value, their trend delta and their target progress
+  card: "card",
+  cardValue: "card-value",
+  cardDelta: "card-delta",
+  cardProgress: "card-progress",
+  cardSparkline: "card-sparkline",
+  cardChip: "card-chip",
+  // Loaders: component loaders ("loader"; grids use "grid-loader") and the spinner shown while a view is loading
+  loader: "loader",
+  loadingSpinner: "loading-spinner"
+});
+
+/**
+ * Value of the "data-testid" attribute: one of the {@link TestIds}
+ */
+export type TestId = typeof TestIds[keyof typeof TestIds];
+
+/**
+ * Attribute names that carry the test hooks. State is exposed as data attributes ("true"/"false") so tests do not
+ * depend on PrimeReact state classes.
+ */
+export const TestAttributes = Object.freeze({
+  testId: "data-testid",
+  owner: "data-testid-owner",
+  selected: "data-selected",
+  // React only: a grid row is being edited (it is independent from the selection: a multiselect grid can toggle the
+  // selection of a row while the user double clicks it to edit it)
+  editing: "data-editing",
+  // React only: a grid row is marked to be deleted when the grid is saved (multioperation grids)
+  deleted: "data-deleted",
+  active: "data-active",
+  disabled: "data-disabled",
+  outsideMonth: "data-outside-month",
+  open: "data-open",
+  expanded: "data-expanded",
+  // A grid fills the window
+  maximized: "data-maximized",
+  // Columns the Columns dialog of a grid shows as visible, and the ones it lists
+  visibleCount: "data-visible",
+  totalCount: "data-total",
+  loading: "data-loading",
+  completed: "data-completed",
+  // A tab, wizard step or accordion item holds fields that failed the validation
+  invalid: "data-invalid",
+  // The component drew its content (a chart)
+  rendered: "data-rendered",
+  // The chart is zoomed (shows a part of its range)
+  zoomed: "data-zoomed",
+  // React only: number of a wizard step (the step shows an icon instead of its number when it has one)
+  stepNumber: "data-step-number",
+  type: "data-type",
+  container: "data-container",
+  // Icon shown by an icon column
+  icon: "data-icon",
+  // Group rows of a grid with row grouping: path and level of the group, and the column of a "Group by" option
+  groupPath: "data-group-path",
+  groupLevel: "data-group-level",
+  column: "data-column",
+  // React only: value of a control whose text repeats it (the page size of a grid)
+  value: "data-value",
+  // Criterion of a chip of the filters in effect of a window (#790)
+  filterId: "data-filter-id",
+  // Saved search of a window (#790) of an option of its menu or a row of its manage dialog
+  savedSearchId: "data-saved-search-id"
+});
+
+/**
+ * Boolean state options of {@link testHook}
+ */
+type TestState = "selected" | "editing" | "deleted" | "active" | "disabled" | "outsideMonth" | "open" | "expanded" |
+  "maximized" | "loading" | "completed" | "invalid" | "rendered" | "zoomed";
+
+/**
+ * Attributes of a test hook, ready to spread on an element
+ */
+export type TestHook = Record<string, unknown>;
+
+/**
+ * Options of {@link testHook}
+ */
+export type TestHookOptions = {[state in TestState]?: unknown} & {
+  owner?: string | null;
+  type?: string;
+  container?: string;
+  attributes?: Record<string, unknown>;
+};
+
+/**
+ * State options of {@link testHook}, mapped to the attribute that carries them
+ */
+const STATE_ATTRIBUTES: Record<TestState, string> = {
+  selected: TestAttributes.selected,
+  editing: TestAttributes.editing,
+  deleted: TestAttributes.deleted,
+  active: TestAttributes.active,
+  disabled: TestAttributes.disabled,
+  outsideMonth: TestAttributes.outsideMonth,
+  open: TestAttributes.open,
+  expanded: TestAttributes.expanded,
+  maximized: TestAttributes.maximized,
+  loading: TestAttributes.loading,
+  completed: TestAttributes.completed,
+  invalid: TestAttributes.invalid,
+  rendered: TestAttributes.rendered,
+  zoomed: TestAttributes.zoomed
+};
+
+/**
+ * Build the attributes of a test hook, ready to spread on an element or to return from a PrimeReact "pt" function
+ * @param {string} testId One of the {@link TestIds}
+ * @param {object} [options] Hook options
+ * @param {string} [options.owner] Id of the component that owns an overlay rendered outside of it
+ * @param {boolean} [options.selected] Boolean states (selected, active, disabled, outsideMonth, open, expanded,
+ * loading, completed, invalid, rendered, zoomed, editing, deleted): rendered as "true"/"false" and skipped when undefined
+ * @param {string} [options.type] Message type
+ * @param {string} [options.container] Container of a grid viewport
+ * @param {object} [options.attributes] Extra attributes (AWE identifiers such as "row-id")
+ * @returns {object} Attributes
+ */
+export function testHook(testId: TestId, options: TestHookOptions = {}): TestHook {
+  const { owner, type, container, attributes = {} } = options;
+  const hook: TestHook = { [TestAttributes.testId]: testId };
+  if (owner !== undefined && owner !== null) {
+    hook[TestAttributes.owner] = owner;
+  }
+  (Object.entries(STATE_ATTRIBUTES) as [TestState, string][]).forEach(([option, attribute]) => {
+    if (options[option] !== undefined && options[option] !== null) {
+      hook[attribute] = String(!!options[option]);
+    }
+  });
+  if (type !== undefined) {
+    hook[TestAttributes.type] = type;
+  }
+  if (container !== undefined) {
+    hook[TestAttributes.container] = container;
+  }
+  return { ...hook, ...attributes };
+}

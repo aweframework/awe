@@ -1,0 +1,80 @@
+---
+id: media-content
+title: Media and content
+sidebar_label: Media and content
+description: The AWE avatar, video, image and link, live. Change their attributes and see the real components and the XML that produces them.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {avatar} from '@site/src/components/AwePlayground/specs/avatar';
+import {video} from '@site/src/components/AwePlayground/specs/video';
+
+Four elements bring content that is not a control into a screen: an **avatar** with the user image of the header, a **video**, an **image**
+and a **link**. The images and the clip of the examples are small files generated for these docs.
+
+:::note
+The dropdown of the avatar is drawn over the whole page, so it follows the colour mode of the site and not the one of the **Light / Dark**
+switch of the preview.
+:::
+
+## Avatar {#avatar}
+
+An `avatar` shows an image, the initials of its label (or an icon) and the label next to it. With content inside it opens a dropdown, as the user menu of
+the header does; with actions instead, a click runs them. A real screen gives it the name and the description of the user with a query, which the
+playground does not simulate.
+
+<AwePlayground spec={avatar} />
+
+## Video {#video}
+
+A `video` plays the file of its `src`. With a `poster` the player shows that image and loads the clip only when the user clicks it.
+
+<AwePlayground spec={video} />
+
+## Recipes {#recipes}
+
+### Image {#recipe-image}
+
+An `image` draws the file of its `url`. In the React engine its `alternate-url` is the `alt` text of the image, which a screen reader reads.
+
+<AweLive
+  components={{
+    Mountains: {attributes: {url: '/live/media/photo-mountains.svg', alternateUrl: 'Snowy mountains at dusk'}},
+  }}
+  nodes={[{elementType: 'Image', id: 'Mountains'}]}
+/>
+
+```xml
+<image id="Mountains" url="/live/media/photo-mountains.svg" alternate-url="Snowy mountains at dusk" />
+```
+
+### Links {#recipe-link}
+
+A `link` opens its `url` in a new tab, so the user keeps the screen. Its `label` is translated with the locales of the application.
+
+<AweLive
+  components={{
+    Manual: {attributes: {label: 'Read the manual', url: 'https://docs.aweframework.com'}},
+    Source: {attributes: {label: 'Source code', url: 'https://gitlab.com/aweframework/awe'}},
+  }}
+  nodes={[
+    {elementType: 'Tag', type: 'p', elementList: [{elementType: 'Link', id: 'Manual'}]},
+    {elementType: 'Tag', type: 'p', elementList: [{elementType: 'Link', id: 'Source'}]},
+  ]}
+/>
+
+```xml
+<tag type="p"><link id="Manual" label="Read the manual" url="https://docs.aweframework.com" /></tag>
+<tag type="p"><link id="Source" label="Source code" url="https://gitlab.com/aweframework/awe" /></tag>
+```
+
+## Events and actions {#events-and-actions}
+
+The avatar stores its `click` event and, as a button, runs its actions; the `image`, the `video` and the `link` have no event or action of their own.
+The text of a screen has its own element: see [tags](./tags-lists.mdx#recipe-text) for `<text>`.
+
+## More {#more}
+
+* Full documentation of [the avatar](../api/info.md#avatar-attributes) and of [the image, video and link](../api/media.md).
+* XSD reference of the [`avatar` element](/reference/screen#element-avatar), of the [`video` element](/reference/screen#element-video), of the [`image` element](/reference/screen#element-image) and of the [`link` element](/reference/screen#element-link).

@@ -1,0 +1,34 @@
+//
+// Close button rules that the compat layer does not move
+//
+// The close button is served by the compat layer (src/main/resources/tailwind/compat/modals.css) and their Bootstrap 3 rules are gone from this build (#755).
+// What stays here, verbatim as it compiled, is what must keep winning over a rule that is still in the LESS (pixel-admin, the AWE components and the
+// themes restyle them: a layered compat rule loses to any unlayered one whatever its specificity), and the rules of selectors that the compat layer
+// leaves out (the compat tests of the families name every one of them, with example selectors).
+//
+// A selector can appear more than once below: these are the compiled blocks kept verbatim, in the order the Bootstrap build printed them. The order
+// decides the cascade among unlayered rules, and the baseline lists them by identity, so they are not merged or sorted.
+// --------------------------------------------------
+
+.close {
+  float: right;
+  font-size: 19.5px;
+  font-weight: bold;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  opacity: 0.2;
+}
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+  opacity: 0.5;
+}
+button.close {
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}

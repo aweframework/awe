@@ -9,7 +9,6 @@ import com.almis.awe.service.AccessService;
 import com.almis.awe.service.ActionService;
 import com.almis.awe.service.ErrorPageService;
 import com.almis.awe.session.AweSessionDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,6 +17,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -51,7 +52,7 @@ class AweWebSecurityConfigTest {
     sessionDetails = mock(AweSessionDetails.class);
     elements = mock(AweElements.class);
     actionService = mock(ActionService.class);
-    objectMapper = new ObjectMapper();
+    objectMapper = new JsonMapper();
     accessService = mock(AccessService.class);
     errorPageService = mock(ErrorPageService.class);
     multiTenantOAuth2Config = new MultiTenantOAuth2Config();

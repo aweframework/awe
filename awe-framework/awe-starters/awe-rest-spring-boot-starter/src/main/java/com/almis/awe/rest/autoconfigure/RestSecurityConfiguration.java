@@ -3,6 +3,7 @@ package com.almis.awe.rest.autoconfigure;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.model.component.AweElements;
 import com.almis.awe.rest.autoconfigure.config.AweRestConfigProperties;
 import com.almis.awe.rest.autoconfigure.config.JWTProperties;
 import com.almis.awe.rest.autoconfigure.config.RestAuthenticationMode;
@@ -13,10 +14,12 @@ import com.almis.awe.rest.security.JWTAuthenticationEntryPoint;
 import com.almis.awe.rest.security.JWTAuthenticationFilter;
 import com.almis.awe.rest.security.JWTAuthorizationFilter;
 import com.almis.awe.rest.service.JWTTokenService;
+import com.almis.awe.security.audit.SecurityAuditService;
 import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.almis.awe.service.user.AweUserDetailService;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +39,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.util.StringUtils;
+import tools.jackson.databind.ObjectMapper;
 
 /**
  * REST security configuration
@@ -55,15 +59,17 @@ public class RestSecurityConfiguration extends ServiceConfig {
 
   // Autowire services
   private final AuthenticationManager authenticationManager;
+  // Applies the local login policy (awe.security.sso.local-login). Used only by /api/authenticate
+  private final AuthenticationManager localLoginAuthenticationManager;
   private final UserDetailsService userDetailsService;
   private final ObjectMapper objectMapper;
   private final AweRestConfigProperties restConfigProperties;
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
 
-  @Autowired
   public RestSecurityConfiguration(PublicQueryMaintainAuthorization publicQueryMaintainAuthorization,
                                    AuthenticationManager authenticationManager,
+                                   @Qualifier("localLoginAuthenticationManager") AuthenticationManager localLoginAuthenticationManager,
                                    UserDetailsService userDetailsService,
                                    ObjectMapper objectMapper,
                                    AweRestConfigProperties restConfigProperties,
@@ -71,6 +77,7 @@ public class RestSecurityConfiguration extends ServiceConfig {
                                    SecurityConfigProperties securityConfigProperties) {
     this.publicQueryMaintainAuthorization = publicQueryMaintainAuthorization;
     this.authenticationManager = authenticationManager;
+    this.localLoginAuthenticationManager = localLoginAuthenticationManager;
     this.userDetailsService = userDetailsService;
     this.objectMapper = objectMapper;
     this.restConfigProperties = restConfigProperties;
@@ -127,16 +134,27 @@ public class RestSecurityConfiguration extends ServiceConfig {
   }
 
   private void configureLocalJwtMode(HttpSecurity httpSecurity) {
-    httpSecurity.addFilterBefore(new JWTAuthenticationFilter(authenticationManager, objectMapper, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
-    httpSecurity.addFilterBefore(new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class)), UsernamePasswordAuthenticationFilter.class);
+    SecurityAuditService securityAuditService = getApplicationContext().getBeanProvider(SecurityAuditService.class)
+      .getIfAvailable(SecurityAuditService::disabled);
+    JWTAuthenticationFilter authenticationFilter = new JWTAuthenticationFilter(localLoginAuthenticationManager, objectMapper, getBean(JWTTokenService.class), getApplicationContext().getBeanProvider(AweElements.class).getIfAvailable());
+    authenticationFilter.setSecurityAuditService(securityAuditService);
+    JWTAuthorizationFilter authorizationFilter = new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class));
+    authorizationFilter.setSecurityAuditService(securityAuditService);
+    httpSecurity.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    httpSecurity.addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class);
   }
 
   private void configureOauth2Mode(HttpSecurity httpSecurity) throws Exception {
     JwtDecoder jwtDecoder = buildJwtDecoder(restConfigProperties.getOauth2ResourceServer().getJwt());
+    // The roles of the token are mapped as the single sign-on maps them, and the profiles get the permissions of the
+    // local login, read on every request
+    ObjectProvider<AweUserDetailService> userDetailService = getApplicationContext()
+      .getBeanProvider(AweUserDetailService.class);
     AweRestJwtAuthenticationConverter authenticationConverter = new AweRestJwtAuthenticationConverter(
       baseConfigProperties,
       securityConfigProperties,
-      restConfigProperties
+      restConfigProperties,
+      userDetailService::getObject
     );
 
     httpSecurity.oauth2ResourceServer(oauth2ResourceServer ->

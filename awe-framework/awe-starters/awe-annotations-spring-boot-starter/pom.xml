@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starters</artifactId>
-    <version>4.12.9</version>
+    <version>5.0.0</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
@@ -16,6 +16,17 @@
   <properties>
     <skip.delombok>false</skip.delombok>
   </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>2025.1.4</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
   <dependencies>
 

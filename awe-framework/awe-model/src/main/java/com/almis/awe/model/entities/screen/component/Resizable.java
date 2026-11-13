@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Resizable Class
  *
@@ -30,6 +32,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("resizable")
 public class Resizable extends Component {
 
+  @Serial
   private static final long serialVersionUID = -185783597311876025L;
   // Resizable directions
   @XStreamAlias("directions")

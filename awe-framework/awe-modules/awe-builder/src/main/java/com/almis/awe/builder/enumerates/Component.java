@@ -10,12 +10,14 @@ public enum Component {
   CHECKBOX("checkbox"),
   COLOR("color"),
   DATE("date"),
+  DATE_RANGE("date-range"),
   FILTERED_CALENDAR("filtered-calendar"),
   HIDDEN("hidden"),
   MARKDOWN_EDITOR("markdown-editor"),
   NUMERIC("numeric"),
   PASSWORD("password"),
   PROGRESS("progress"),
+  SPARKLINE("sparkline"),
   ICON("icon"),
   IMAGE("image"),
   RADIO("radio"),
@@ -29,7 +31,7 @@ public enum Component {
   TIME("time"),
   UPLOADER("uploader"),
   PICKLIST("picklist");
-  
+
   private final String value;
 
   private Component(String value) {
@@ -50,5 +52,5 @@ public enum Component {
   public String toString() {
     return this.value;
   }
-  
+
 }

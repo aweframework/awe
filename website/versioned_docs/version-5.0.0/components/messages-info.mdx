@@ -1,0 +1,174 @@
+---
+id: messages-info
+title: Messages and info
+sidebar_label: Messages and info
+description: The AWE messages and info components, live. Confirm dialogs, toasts and messages over a field, and the info, info button and info criteria of the header.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {info} from '@site/src/components/AwePlayground/specs/info';
+import {message} from '@site/src/components/AwePlayground/specs/message';
+
+Two groups of small components that talk to the user. **Messages** are what a screen says after an action: a confirm dialog before a risky
+one, and the toasts and the messages over a field that the server sends in its answers. The **info** components (`info`, `info-button`
+and `info-criteria`) are the compact controls of the header: a value with a dropdown, a button and a criterion that sit next to the title.
+
+:::note
+Dialogs, toasts and dropdowns are drawn over the whole page, outside the preview, so they follow the colour mode of the site and not the one
+of the **Light / Dark** switch of the preview.
+:::
+
+## Message {#message}
+
+A `message` element defines a text once, usually in the hidden part of the screen, so that any button can use it. A `confirm` action shows
+it in a modal dialog: **Accept** goes on with the actions that follow the confirm (a save, a delete) and **Cancel** stops them. The stage has the button that raises it,
+as the XML shows. Press it and change the texts.
+
+<AwePlayground spec={message} />
+
+## Info {#info}
+
+An `info` is a rounded button of the header. Its label can come from a query or from the session, and a `unit` adds a badge. When it has
+content, a click opens it in a dropdown; with an action instead, a click runs the action.
+
+<AwePlayground spec={info} />
+
+## Recipes {#recipes}
+
+### Header controls {#recipe-header}
+
+The three info components together: an `info` with a dropdown, an `info-button` that runs actions (here it opens a dialog) and an `info-criteria`,
+a criterion in the style of the header.
+
+<AweLive
+  components={{
+    Alerts: {attributes: {label: 'Notifications', icon: 'lucide:bell', unit: '3'}},
+    HelpBtn: {attributes: {label: 'Help', icon: 'lucide:circle-help'}, actions: [{type: 'dialog', target: 'HelpDlg'}]},
+    Find: {attributes: {label: 'Find', placeholder: 'Customer or invoice'}},
+    HelpDlg: {attributes: {label: 'Help', style: 'modal-sm'}},
+    CloseHelp: {attributes: {label: 'Close', style: 'btn-primary'}, actions: [{type: 'close', target: 'HelpDlg'}]},
+  }}
+  nodes={[
+    {elementType: 'Info', id: 'Alerts', elementList: [{elementType: 'Tag', type: 'p', label: '3 invoices are overdue.'}]},
+    {elementType: 'InfoButton', id: 'HelpBtn'},
+    {elementType: 'InfoCriteria', component: 'text', id: 'Find'},
+    {elementType: 'Dialog', id: 'HelpDlg', elementList: [
+      {elementType: 'Tag', type: 'div', style: 'modal-body', label: 'Search by customer name or by invoice number.'},
+      {elementType: 'Tag', type: 'div', style: 'modal-footer', elementList: [{elementType: 'Button', id: 'CloseHelp'}]},
+    ]},
+  ]}
+/>
+
+```xml
+<info id="Alerts" label="Notifications" icon="lucide:bell" unit="3">
+  <tag type="p" label="3 invoices are overdue." />
+</info>
+<info-button id="HelpBtn" label="Help" icon="lucide:circle-help">
+  <button-action type="dialog" target="HelpDlg" />
+</info-button>
+<info-criteria id="Find" component="text" label="Find" placeholder="Customer or invoice" />
+
+<dialog id="HelpDlg" label="Help" style="modal-sm">
+  <tag type="div" style="modal-body" label="Search by customer name or by invoice number." />
+  <tag type="div" style="modal-footer">
+    <button id="CloseHelp" label="Close" style="btn-primary">
+      <button-action type="close" target="HelpDlg" />
+    </button>
+  </tag>
+</dialog>
+```
+
+### Toasts from the server {#recipe-toasts}
+
+Most messages are not written in the screen: the server answers an action with a `message` action and the client shows it as a toast. Its type
+(`ok`, `info`, `warning` or `error`) sets the look and how long it stays: the first three fade out, an error stays until it is closed. Each button here sends a server
+action; the docs have no server, so the example answers each one with the actions in the table, as the server would.
+
+<AweLive
+  answers={{
+    SaveCustomer: [{type: 'message', parameters: {type: 'ok', title: 'Customer saved', message: 'The changes were saved.'}}],
+    SyncCustomers: [{type: 'message', parameters: {type: 'info', title: 'Synchronising', message: '12 customers are being updated.'}}],
+    CheckLimit: [{type: 'message', parameters: {type: 'warning', title: 'Credit limit', message: 'The customer is close to the limit.'}}],
+    ChargeCustomer: [{type: 'message', parameters: {type: 'error', title: 'Payment refused', message: 'The bank rejected the payment.'}}],
+  }}
+  components={{
+    Save: {attributes: {label: 'Save', style: 'btn-primary'}, actions: [{type: 'server', parameters: {serverAction: 'maintain', targetAction: 'SaveCustomer'}}]},
+    Sync: {attributes: {label: 'Synchronise'}, actions: [{type: 'server', parameters: {serverAction: 'maintain', targetAction: 'SyncCustomers'}}]},
+    Check: {attributes: {label: 'Check the limit'}, actions: [{type: 'server', parameters: {serverAction: 'query', targetAction: 'CheckLimit'}}]},
+    Charge: {attributes: {label: 'Charge', style: 'btn-danger'}, actions: [{type: 'server', parameters: {serverAction: 'maintain', targetAction: 'ChargeCustomer'}}]},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'Save'},
+    {elementType: 'Button', id: 'Sync'},
+    {elementType: 'Button', id: 'Check'},
+    {elementType: 'Button', id: 'Charge'},
+  ]}
+/>
+
+```xml
+<button id="Save" label="Save" style="btn-primary">
+  <button-action type="server" server-action="maintain" target-action="SaveCustomer" />
+</button>
+<button id="Sync" label="Synchronise">
+  <button-action type="server" server-action="maintain" target-action="SyncCustomers" />
+</button>
+<button id="Check" label="Check the limit">
+  <button-action type="server" server-action="query" target-action="CheckLimit" />
+</button>
+<button id="Charge" label="Charge" style="btn-danger">
+  <button-action type="server" server-action="maintain" target-action="ChargeCustomer" />
+</button>
+```
+
+| Target action    | Message the server sends                                  | Type      |
+|------------------|-----------------------------------------------------------|-----------|
+| `SaveCustomer`   | **Customer saved**: The changes were saved.               | `ok`      |
+| `SyncCustomers`  | **Synchronising**: 12 customers are being updated.        | `info`    |
+| `CheckLimit`     | **Credit limit**: The customer is close to the limit.     | `warning` |
+| `ChargeCustomer` | **Payment refused**: The bank rejected the payment.       | `error`   |
+
+### A message over a field {#recipe-target-message}
+
+A `target-message` shows the message in a popover over the component it is about, so the user sees which field to fix. The answer names that
+component in its address. If it is not on the screen, the message is shown as a toast.
+
+<AweLive
+  answers={{
+    CheckEmail: [{type: 'target-message', address: {component: 'CustomerEmail'}, parameters: {type: 'error', title: 'Invalid email', message: 'It must contain an at sign.'}}],
+  }}
+  components={{
+    CustomerEmail: {attributes: {label: 'Email', placeholder: 'name@company.com', icon: 'lucide:mail'}, model: {values: [{value: 'ada.company.com', label: 'ada.company.com', selected: true}]}},
+    Verify: {attributes: {label: 'Verify', style: 'btn-primary'}, actions: [{type: 'server', parameters: {serverAction: 'validate', targetAction: 'CheckEmail'}}]},
+  }}
+  nodes={[
+    {elementType: 'Criteria', component: 'text', id: 'CustomerEmail'},
+    {elementType: 'Button', id: 'Verify'},
+  ]}
+/>
+
+```xml
+<criteria id="CustomerEmail" component="text" label="Email" placeholder="name@company.com" icon="lucide:mail" />
+<button id="Verify" label="Verify" style="btn-primary">
+  <button-action type="server" server-action="validate" target-action="CheckEmail" />
+</button>
+```
+
+The server answers `CheckEmail` with a `target-message` of type `error` addressed to the criterion `CustomerEmail`.
+
+## Events and actions {#events-and-actions}
+
+An `info` and an `info-button` store their `click` event when the user clicks them, so a [dependency](../api/dependencies.md) can react to it. The
+messages have no event: the actions below are the ones that show them. A message that is a toast finishes its action when it fades out or is closed,
+so the actions that follow it wait for it; a confirm finishes it with **Accept** and cancels the stack with **Cancel**.
+
+| Action           | Description                                                                                         |
+|------------------|-----------------------------------------------------------------------------------------------------|
+| `confirm`        | Shows the `message` named in `target` in a confirm dialog                                           |
+| `message`        | Shows a toast (sent by the server): `type`, `title` and `message` are in its parameters             |
+| `target-message` | Shows a message over a component (sent by the server); a toast if the component is not on the screen |
+
+## More {#more}
+
+* Full documentation of [the messages](../api/messages.md) and of [the info components](../api/info.md).
+* XSD reference of the [`message` element](/reference/screen#element-message), of the [`info` element](/reference/screen#element-info), of the [`info-button` element](/reference/screen#element-info-button) and of the [`info-criteria` element](/reference/screen#element-info-criteria).

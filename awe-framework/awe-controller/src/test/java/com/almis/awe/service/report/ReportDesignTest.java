@@ -3,26 +3,23 @@ package com.almis.awe.service.report;
 import com.almis.ade.api.bean.component.Criterion;
 import com.almis.ade.api.bean.component.Image;
 import com.almis.ade.api.bean.component.Layout;
+import com.almis.ade.api.bean.component.grid.ReportColumn;
 import com.almis.ade.api.bean.component.grid.ReportGrid;
 import com.almis.ade.api.bean.component.grid.ReportHeader;
 import com.almis.ade.api.bean.input.PrintBean;
+import com.almis.ade.api.enumerate.ColumnType;
 import com.almis.ade.api.enumerate.HorizontalTextAlignment;
 import com.almis.awe.builder.screen.chart.ChartBuilder;
 import com.almis.awe.builder.screen.criteria.TextCriteriaBuilder;
 import com.almis.awe.builder.screen.grid.GridBuilder;
 import com.almis.awe.builder.screen.grid.TextColumnBuilder;
+import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
-import com.almis.awe.model.dto.ServiceData;
-import com.almis.awe.service.QueryService;
-import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.model.dto.PrintColumnData;
+import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.Element;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.almis.awe.service.QueryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -30,6 +27,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -47,6 +49,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
@@ -80,7 +83,7 @@ class ReportDesignTest {
             new PrintColumnData().setName("bigIntegerColumn").setLabel("bigIntegerColumn")
     );
 
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode gridData = JsonNodeFactory.instance.objectNode();
@@ -119,7 +122,7 @@ class ReportDesignTest {
       new PrintColumnData().setName("intColumn").setLabel("intColumn"),
       new PrintColumnData().setName("stringColumn").setLabel("stringColumn")
     );
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     when(mapper.convertValue(any(ObjectNode.class), any(TypeReference.class)))
       .thenReturn(new HashMap<>(Map.of("value", "converted")));
@@ -163,7 +166,7 @@ class ReportDesignTest {
 
   @Test
   void getPrintDesignWithPaginatedQueryGridLiftsGridPaginationToTheQuery() throws Exception {
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
       .thenReturn(new ServiceData().setDataList(new DataList()));
@@ -194,12 +197,45 @@ class ReportDesignTest {
     ObjectNode rootParameters = queryParameters.getValue();
     assertEquals(10, rootParameters.get("max").asInt(), "grid page size must reach the query root");
     assertEquals(3, rootParameters.get("page").asInt(), "grid current page must reach the query root");
-    assertEquals("name", rootParameters.get("sort").get(0).get("id").asText());
+    assertEquals("name", rootParameters.get("sort").get(0).get("id").asString());
+  }
+
+  @Test
+  void getPrintDesignLiftsTheGridColumnFiltersToTheQuery() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(new DataList()));
+
+    // A grid filtered with its column autofilter (#912) prints and exports the filtered rows
+    ObjectNode gridData = JsonNodeFactory.instance.objectNode();
+    gridData.set("visibleColumns", JsonNodeFactory.instance.arrayNode());
+    gridData.set("columnFilters", JsonNodeFactory.instance.arrayNode()
+      .add(JsonNodeFactory.instance.objectNode().put("id", "name").put("type", "values")
+        .set("values", JsonNodeFactory.instance.arrayNode().add("Ann"))));
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", gridData);
+
+    List<Element> reportElementList = Collections.singletonList(
+      new GridBuilder()
+        .setId("gridId")
+        .setTargetAction("gridQuery")
+        .addColumn(new TextColumnBuilder().setName("name"))
+        .build()
+    );
+
+    reportDesigner.getPrintDesign(reportElementList, parameters);
+
+    ArgumentCaptor<ObjectNode> queryParameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(queryService).launchPrivateQuery(eq("gridQuery"), queryParameters.capture());
+    assertEquals("Ann", queryParameters.getValue().get("columnFilters").get(0).get("values").get(0).asString(),
+      "the column filters of the grid must reach the query root");
   }
 
   @Test
   void getPrintDesignWithQueryGridWithoutClientPaginationLeavesQueryDefaults() throws Exception {
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
       .thenReturn(new ServiceData().setDataList(new DataList()));
@@ -233,7 +269,7 @@ class ReportDesignTest {
   void getPrintDesignWithLabelledGridSetsStyledTitle() throws Exception {
     List<PrintColumnData> columnDataList = Collections.singletonList(
       new PrintColumnData().setName("intColumn").setLabel("intColumn"));
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     doReturn("Grid title").when(reportDesigner).getLocale(anyString());
 
@@ -332,8 +368,8 @@ class ReportDesignTest {
   /**
    * Build a grid design with columns declared as spreadsheet only (issue #753)
    */
-  private ReportGrid designGridWithSpreadsheetOnlyColumns(boolean includeSpreadsheetOnlyColumns) throws Exception {
-    List<PrintColumnData> columnDataList = Arrays.asList(
+  private ReportGrid designGridWithSpreadsheetOnlyColumns(boolean includeSpreadsheetOnlyColumns, PrintColumnData... extraColumns) throws Exception {
+    List<PrintColumnData> columnDataList = new ArrayList<>(Arrays.asList(
       new PrintColumnData().setName("visibleColumn").setLabel("visibleColumn"),
       new PrintColumnData().setName("excelColumn").setLabel("excelColumn").setPrintable("excel"),
       new PrintColumnData().setName("Mixed header").setLabel("Mixed header").setHeader(true).setColumnList(Arrays.asList(
@@ -341,8 +377,9 @@ class ReportDesignTest {
         new PrintColumnData().setName("alwaysInHeader").setLabel("alwaysInHeader").setPrintable("true"))),
       new PrintColumnData().setName("Excel header").setLabel("Excel header").setHeader(true).setColumnList(Collections.singletonList(
         new PrintColumnData().setName("onlyExcelInHeader").setLabel("onlyExcelInHeader").setPrintable("excel")))
-    );
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    ));
+    columnDataList.addAll(Arrays.asList(extraColumns));
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode gridData = JsonNodeFactory.instance.objectNode();
@@ -350,7 +387,7 @@ class ReportDesignTest {
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.set("gridId.data", gridData);
-    for (String field : Arrays.asList("visibleColumn", "excelColumn", "excelInHeader", "alwaysInHeader", "onlyExcelInHeader")) {
+    for (String field : Arrays.asList("visibleColumn", "excelColumn", "excelInHeader", "alwaysInHeader", "onlyExcelInHeader", "edit")) {
       parameters.set(field, JsonNodeFactory.instance.arrayNode().add(JsonNodeFactory.instance.objectNode().put("value", 1)));
     }
 
@@ -396,7 +433,7 @@ class ReportDesignTest {
     List<PrintColumnData> columnDataList = Arrays.asList(
       new PrintColumnData().setName("intColumn").setLabel("intColumn"),
       new PrintColumnData().setName("excelColumn").setLabel("excelColumn").setPrintable("excel"));
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode gridData = JsonNodeFactory.instance.objectNode();
@@ -423,7 +460,7 @@ class ReportDesignTest {
       new PrintColumnData().setName("intColumn").setLabel("intColumn"),
       new PrintColumnData().setName("Header").setLabel("Header").setHeader(true).setColumnList(Collections.singletonList(
         new PrintColumnData().setName("excelColumn").setLabel("excelColumn").setPrintable("excel"))));
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
@@ -439,7 +476,7 @@ class ReportDesignTest {
   void hasSpreadsheetOnlyColumnsIsFalseWithoutExcelColumnsOrWithoutGridData() throws Exception {
     List<PrintColumnData> columnDataList = Collections.singletonList(
       new PrintColumnData().setName("intColumn").setLabel("intColumn").setPrintable("true"));
-    when(mapper.readValue(any(JsonParser.class), any(TypeReference.class))).thenReturn(columnDataList);
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
@@ -461,5 +498,159 @@ class ReportDesignTest {
     assertFalse(ReportDesigner.isSpreadsheetFormat("TEXT"));
     assertFalse(ReportDesigner.isSpreadsheetFormat("unknown"));
     assertFalse(ReportDesigner.isSpreadsheetFormat(null));
+  }
+
+  /**
+   * Build a grid design with the given visible columns, every field holding one row (issue #832)
+   */
+  private ReportGrid designGrid(List<PrintColumnData> columnDataList, String... fields) throws Exception {
+    return designGrid(false, columnDataList, fields);
+  }
+
+  /**
+   * Same as designGrid, for a spreadsheet output when asked: secondary lines go to their own column there (#929)
+   */
+  private ReportGrid designGrid(boolean spreadsheet, List<PrintColumnData> columnDataList, String... fields) throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", JsonNodeFactory.instance.objectNode().set("visibleColumns", JsonNodeFactory.instance.arrayNode()));
+    GridBuilder gridBuilder = new GridBuilder().setId("gridId").setLoadAll(true);
+    for (String field : fields) {
+      parameters.set(field, JsonNodeFactory.instance.arrayNode().add(JsonNodeFactory.instance.objectNode().put("value", field)));
+      gridBuilder.addColumn(new TextColumnBuilder().setName(field));
+    }
+
+    PrintBean printBean = reportDesigner.getPrintDesign(Collections.singletonList(gridBuilder.build()), parameters, spreadsheet);
+    return (ReportGrid) ((Layout) ((Layout) printBean.getDetail()).getElements().get(0)).getElements().get(0);
+  }
+
+  @Test
+  void getPrintDesignExportsTheSecondaryFieldInItsOwnColumnAfterTheMainOne() throws Exception {
+    ReportGrid reportGrid = designGrid(true, Arrays.asList(
+      new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email").setExportSecondary(true).setSecondaryLabel("E-mail"),
+      new PrintColumnData().setName("city").setLabel("City")), "name", "city");
+
+    assertEquals(Arrays.asList("name", "email", "city"), reportGrid.getFields());
+    assertEquals(3, reportGrid.getGridHeaders().size());
+    ReportColumn main = assertInstanceOf(ReportColumn.class, reportGrid.getGridHeaders().get(0));
+    ReportColumn secondary = assertInstanceOf(ReportColumn.class, reportGrid.getGridHeaders().get(1));
+    assertEquals("name", main.getField());
+    assertEquals("Name", main.getLabel());
+    assertEquals("email", secondary.getField());
+    assertEquals("E-mail", secondary.getLabel());
+  }
+
+  @Test
+  void getPrintDesignTitlesTheSecondaryColumnWithTheMainLabelWithoutSecondaryLabel() throws Exception {
+    ReportGrid reportGrid = designGrid(true, Collections.singletonList(
+      new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email").setExportSecondary(true)), "name");
+
+    assertEquals(Arrays.asList("name", "email"), reportGrid.getFields());
+    ReportColumn secondary = assertInstanceOf(ReportColumn.class, reportGrid.getGridHeaders().get(1));
+    assertEquals("Name", secondary.getLabel());
+  }
+
+  @Test
+  void getPrintDesignExportsTheSecondaryFieldOfAColumnInsideAHeader() throws Exception {
+    ReportGrid reportGrid = designGrid(true, Collections.singletonList(
+      new PrintColumnData().setName("Header").setLabel("Header").setHeader(true).setColumnList(Collections.singletonList(
+        new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email").setExportSecondary(true).setSecondaryLabel("E-mail")))),
+      "name");
+
+    assertEquals(Arrays.asList("name", "email"), reportGrid.getFields());
+    ReportHeader header = assertInstanceOf(ReportHeader.class, reportGrid.getGridHeaders().get(0));
+    assertEquals(2, header.getColumns().size());
+    assertEquals("E-mail", header.getColumns().get(1).getLabel());
+  }
+
+  @Test
+  void getPrintDesignDoesNotExportTheSecondaryFieldUnlessAsked() throws Exception {
+    ReportGrid reportGrid = designGrid(true, Arrays.asList(
+      new PrintColumnData().setName("name").setLabel("Name").setSecondaryField("email"),
+      new PrintColumnData().setName("city").setLabel("City").setSecondaryField("zip").setExportSecondary(false),
+      new PrintColumnData().setName("phone").setLabel("Phone").setExportSecondary(true)), "name", "city", "phone");
+
+    assertEquals(Arrays.asList("name", "city", "phone"), reportGrid.getFields());
+    assertEquals(3, reportGrid.getGridHeaders().size());
+  }
+
+  @Test
+  void getPrintDesignNeverPrintsButtonColumnsWhateverTheirPrintableValue() throws Exception {
+    ReportGrid reportGrid = designGrid(Arrays.asList(
+      new PrintColumnData().setName("name").setLabel("Name"),
+      new PrintColumnData().setName("edit").setLabel("").setComponent("button"),
+      new PrintColumnData().setName("more").setLabel("").setComponent("button").setPrintable("true"),
+      new PrintColumnData().setName("Header").setLabel("Header").setHeader(true).setColumnList(Arrays.asList(
+        new PrintColumnData().setName("city").setLabel("City"),
+        new PrintColumnData().setName("open").setLabel("").setComponent("button"))),
+      new PrintColumnData().setName("Buttons").setLabel("Buttons").setHeader(true).setColumnList(Collections.singletonList(
+        new PrintColumnData().setName("download").setLabel("").setComponent("button")))),
+      "name", "edit", "more", "city", "open", "download");
+
+    assertEquals(Arrays.asList("name", "city"), reportGrid.getFields());
+    assertEquals(2, reportGrid.getGridHeaders().size());
+    ReportHeader header = assertInstanceOf(ReportHeader.class, reportGrid.getGridHeaders().get(1));
+    assertEquals(1, header.getColumns().size());
+  }
+
+  @Test
+  void getPrintDesignNeverPrintsColumnsDeclaredNotPrintable() throws Exception {
+    ReportGrid reportGrid = designGrid(Arrays.asList(
+      new PrintColumnData().setName("name").setLabel("Name"),
+      new PrintColumnData().setName("secret").setLabel("Secret").setPrintable("false"),
+      new PrintColumnData().setName("Header").setLabel("Header").setHeader(true).setColumnList(Arrays.asList(
+        new PrintColumnData().setName("city").setLabel("City"),
+        new PrintColumnData().setName("internal").setLabel("Internal").setPrintable("FALSE")))),
+      "name", "secret", "city", "internal");
+
+    assertEquals(Arrays.asList("name", "city"), reportGrid.getFields());
+  }
+
+  @Test
+  void getPrintDesignForSpreadsheetOutputsNeverExportsButtonColumns() throws Exception {
+    ReportGrid reportGrid = designGridWithSpreadsheetOnlyColumns(true, new PrintColumnData().setName("edit").setLabel("")
+      .setComponent("BUTTON").setPrintable("excel"));
+
+    assertEquals(Arrays.asList("visibleColumn", "excelColumn", "excelInHeader", "alwaysInHeader", "onlyExcelInHeader"), reportGrid.getFields());
+  }
+
+  @Test
+  void hasSpreadsheetOnlyColumnsIgnoresButtonColumns() throws Exception {
+    List<PrintColumnData> columnDataList = Collections.singletonList(
+      new PrintColumnData().setName("edit").setLabel("").setComponent("button").setPrintable("excel"));
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(columnDataList);
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", JsonNodeFactory.instance.objectNode().set("visibleColumns", JsonNodeFactory.instance.arrayNode()));
+
+    assertFalse(reportDesigner.hasSpreadsheetOnlyColumns(Collections.singletonList(new GridBuilder().setId("gridId").build()), parameters));
+  }
+
+  @Test
+  void getPrintDesignExportsAProgressColumnWithBarOptionsAsANormalColumn() throws Exception {
+    // The bar options (bar-max, bar-second-field...) only draw the bar on screen: export writes the cell number
+    String progressField = "progress";
+    ReportGrid reportGrid = designGrid(Arrays.asList(
+      new PrintColumnData().setName(progressField).setLabel("Progress").setComponent(progressField).setType("double"),
+      new PrintColumnData().setName("city").setLabel("City")), progressField, "city");
+
+    assertEquals(Arrays.asList(progressField, "city"), reportGrid.getFields());
+    assertEquals(2, reportGrid.getGridHeaders().size());
+    ReportColumn progress = assertInstanceOf(ReportColumn.class, reportGrid.getGridHeaders().get(0));
+    assertEquals(progressField, progress.getField());
+    assertEquals("Progress", progress.getLabel());
+    assertEquals(ColumnType.DOUBLE, progress.getType());
+  }
+
+  /**
+   * Match the visible-columns node only, so row cells (ObjectNode) keep their own conversion stub
+   *
+   * @return matcher
+   */
+  private static JsonNode visibleColumnsNode() {
+    return argThat(node -> node == null || !node.isObject());
   }
 }

@@ -1,5 +1,6 @@
 package com.almis.awe.rest.autoconfigure.config;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -70,15 +71,19 @@ public class AweRestConfigProperties {
   private String docExternalUrl;
 
   @NestedConfigurationProperty
+  @Valid
   private Auth auth = new Auth();
 
   @NestedConfigurationProperty
+  @Valid
   private Oauth2ResourceServer oauth2ResourceServer = new Oauth2ResourceServer();
 
   @NestedConfigurationProperty
+  @Valid
   private Openapi openapi = new Openapi();
 
   @NestedConfigurationProperty
+  @Valid
   private JWTProperties jwt = new JWTProperties();
 
   /**
@@ -116,6 +121,11 @@ public class AweRestConfigProperties {
    */
   @Data
   public static class Auth {
+    /**
+     * REST authentication mode. "local-jwt" authenticates with a token issued by AWE (/api/authenticate);
+     * "oauth2-resource-server" validates access tokens issued by an external OAuth2/OIDC provider.
+     */
+    @Valid
     private RestAuthenticationMode mode = RestAuthenticationMode.LOCAL_JWT;
   }
 
@@ -124,7 +134,9 @@ public class AweRestConfigProperties {
    */
   @Data
   public static class Oauth2ResourceServer {
+    @Valid
     private Jwt jwt = new Jwt();
+    @Valid
     private Principal principal = new Principal();
   }
 
@@ -133,8 +145,20 @@ public class AweRestConfigProperties {
    */
   @Data
   public static class Jwt {
+    /**
+     * Issuer URI of the provider. Tokens are accepted only when their "iss" claim matches it.
+     * Either this or the JWK set URI is required in oauth2-resource-server mode.
+     */
     private String issuerUri;
+    /**
+     * URI of the provider JSON Web Key set used to verify the token signature.
+     * Either this or the issuer URI is required in oauth2-resource-server mode.
+     */
     private String jwkSetUri;
+    /**
+     * Accepted values of the "aud" claim. Required (at least one) in oauth2-resource-server mode;
+     * a token is accepted when its audience matches any of them exactly.
+     */
     private List<String> audiences = new ArrayList<>();
   }
 
@@ -143,13 +167,48 @@ public class AweRestConfigProperties {
    */
   @Data
   public static class Principal {
+    /**
+     * Token claims, in order of precedence, holding the username of a delegated (user) token.
+     * The first non-blank one is used.
+     */
     private List<String> delegatedUsernameClaims = new ArrayList<>(List.of(PREFERRED_USERNAME_CLAIM, "upn", EMAIL_CLAIM, "oid"));
+    /**
+     * Token claims, in order of precedence, holding the display name of a delegated (user) token.
+     * The first non-blank one is used; the username when none is found.
+     */
     private List<String> delegatedDisplayNameClaims = new ArrayList<>(List.of("name", PREFERRED_USERNAME_CLAIM, EMAIL_CLAIM));
+    /**
+     * Token claims, in order of precedence, holding the email of a delegated (user) token.
+     * The first non-blank one is used.
+     */
     private List<String> delegatedEmailClaims = new ArrayList<>(List.of(EMAIL_CLAIM, "upn", PREFERRED_USERNAME_CLAIM));
+    /**
+     * Token claims, in order of precedence, holding the client identifier of an application token
+     * (one without a delegated username). The first non-blank one is used; the "sub" claim when none is found.
+     */
     private List<String> clientIdClaims = new ArrayList<>(List.of("azp", "appid", "client_id", "clientId", "sub"));
+    /**
+     * Token claims, in order of precedence, holding the display name of an application token.
+     * The first non-blank one is used; the principal username when none is found.
+     */
     private List<String> clientDisplayNameClaims = new ArrayList<>(List.of("app_displayname", "azp", "appid", "client_id", "clientId"));
+    /**
+     * Prefix added to the client identifier to build the username of an application token.
+     */
     private String clientPrincipalPrefix = "client:";
+    /**
+     * Token claim with the roles mapped to AWE profiles as the single sign-on login maps them: a claim name, or a
+     * dotted path to a nested claim (realm_access.roles), holding a list of roles or a single one. The prefix
+     * awe.security.sso.filter-authority-prefix is stripped, each role is compared with the profile names without case,
+     * the main profile follows awe.security.sso.profile-priority (else the first name in alphabetical order) and the
+     * roles without an AWE profile are ignored. When it is not set, or no role maps to a profile, the default profile
+     * is used, unless awe.security.sso.require-role applies: then the token is refused.
+     */
     private String profileClaim;
+    /**
+     * Name of the AWE profile assigned when the token does not provide one.
+     * When it is not set, the application default role (awe.application.default-role) is used.
+     */
     private String defaultProfile;
   }
 
@@ -158,6 +217,7 @@ public class AweRestConfigProperties {
    */
   @Data
   public static class Openapi {
+    @Valid
     private Oauth2 oauth2 = new Oauth2();
   }
 
@@ -166,10 +226,25 @@ public class AweRestConfigProperties {
    */
   @Data
   public static class Oauth2 {
+    /**
+     * Authorization endpoint of the provider, used by Swagger UI to start the authorization code flow.
+     */
     private String authorizationUrl;
+    /**
+     * Token endpoint of the provider, used by Swagger UI to exchange the authorization code.
+     */
     private String tokenUrl;
+    /**
+     * Client identifier of the public application Swagger UI authenticates with.
+     */
     private String clientId;
+    /**
+     * Use PKCE (Proof Key for Code Exchange) in the Swagger UI authorization code flow.
+     */
     private boolean usePkce = true;
+    /**
+     * Scopes offered by Swagger UI, mapped to their description.
+     */
     private Map<String, String> scopes = new LinkedHashMap<>();
   }
 }

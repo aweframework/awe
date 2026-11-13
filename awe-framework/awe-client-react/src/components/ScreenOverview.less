@@ -1,0 +1,72 @@
+// Overview mode of the screen personalization editor (#792)
+.scr-per-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  max-width: 48rem;
+}
+
+.scr-per-overview-title {
+  margin: 0;
+  font-size: var(--awe-font-size-lg);
+  color: var(--awe-color-text-emphasis);
+}
+
+.scr-per-overview-block,
+.scr-per-overview-problems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-overview-problems {
+  border-color: var(--awe-color-warning);
+  background: var(--awe-color-warning-subtle);
+}
+
+.scr-per-overview-warning {
+  margin: 0;
+  font-size: var(--awe-font-size-md);
+  color: var(--awe-color-warning-text);
+}
+
+.scr-per-overview-name.p-button {
+  align-self: flex-start;
+  padding: 0;
+  font-weight: var(--awe-font-weight-medium);
+}
+
+.scr-per-overview-subject.p-button {
+  padding: 0;
+  color: var(--awe-color-text);
+}
+
+.scr-per-overview-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scr-per-overview-problem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-2);
+  color: var(--awe-color-text);
+}
+
+.scr-per-overview-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}

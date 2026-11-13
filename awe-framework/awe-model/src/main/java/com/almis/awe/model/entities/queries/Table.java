@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Table Class
  *
@@ -23,6 +25,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("table")
 public class Table implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = 4859361797344642836L;
 
   // Table identifier (database )

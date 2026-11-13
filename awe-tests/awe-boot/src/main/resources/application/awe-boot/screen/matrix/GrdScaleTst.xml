@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdScaleTst.xml
+    Description: Grid whose cells are coloured by the scale-* theme classes that the query assigns to each cell
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_SCALE">
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_SCALE" expandible="vertical">
+      <grid id="GrdScaleTst" style="expand" initial-load="query" server-action="data" target-action="ThemeScaleTst" max="30" load-all="true">
+        <column label="COLUMN_RADIO_THEME" name="name" align="left" charlength="20"/>
+        <column label="COLUMN_SCALE_SEQ_1" name="seq1" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_SEQ_2" name="seq2" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_SEQ_3" name="seq3" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_SEQ_4" name="seq4" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_SEQ_5" name="seq5" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_POS_1" name="pos1" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_POS_2" name="pos2" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_POS_3" name="pos3" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_POS_4" name="pos4" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_POS_5" name="pos5" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_NEG_1" name="neg1" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_NEG_2" name="neg2" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_NEG_3" name="neg3" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_NEG_4" name="neg4" align="center" charlength="9"/>
+        <column label="COLUMN_SCALE_NEG_5" name="neg5" align="center" charlength="9"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

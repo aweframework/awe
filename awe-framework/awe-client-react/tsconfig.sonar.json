@@ -1,0 +1,10 @@
+{
+  // Read by the Sonar analysis only (sonar.typescript.tsconfigPaths in the root pom.xml). Sonar analyses every
+  // JavaScript file with type information, and the files outside this program (the AngularJS client, ...) take its
+  // compiler options too. With `strict` every JSDoc type is non-nullable, so the null checks of the JavaScript code read
+  // as "always false" (javascript:S3403). The build type check (npm run typecheck) keeps `strict` from tsconfig.json.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "strict": false
+  }
+}

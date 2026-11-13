@@ -125,13 +125,14 @@ aweApplication.factory('Control',
 
           // Check if address, action, view and component exists in both checks
           switch (Control.getAddressType(address)) {
-            case "cell":
+            case "cell": {
               // Retrieve cell id
               let cellId = Utilities.getCellId(address);
               let cells = storedAction[view][component].cells || {};
               cells[cellId] = value;
               target = cells[cellId];
               break;
+            }
             case "viewAndComponent":
               // Normal component
               storedAction[view] = storedAction[view] || {};
@@ -355,6 +356,11 @@ aweApplication.factory('Control',
         changeControllerAttribute: function (address, attributes) {
           let  controller = Control.getAddressController(address);
           if (controller) {
+            // A criterion of a panel in view mode stays read-only: the readonly asked for applies once the panel closes
+            if (controller.viewMode && "readonly" in attributes) {
+              controller.viewModeReadonly = attributes.readonly;
+              attributes = _.omit(attributes, "readonly");
+            }
             _.each(attributes, function (attribute, attributeId) {
               let  initialAttribute = INITIAL + attributeId;
               if (!(initialAttribute in controller)) {
@@ -366,6 +372,29 @@ aweApplication.factory('Control',
             // Publish controller change
             Control.publishControllerChanged(address, attributes);
           }
+        },
+        /**
+         * Set a criterion of a dialog or side panel in view mode (read-only, whatever a dependency asks for) or back to
+         * the readonly it had, or a dependency asked for, while it was in view mode
+         * @param {Object} address Criterion address
+         * @param {Boolean} viewMode View mode
+         */
+        setViewMode: function (address, viewMode) {
+          let  controller = Control.getAddressController(address);
+          if (!controller || !!controller.viewMode === viewMode) {
+            return;
+          }
+          if (viewMode) {
+            controller.viewModeReadonly = controller.readonly;
+            controller.readonly = true;
+          } else {
+            controller.readonly = controller.viewModeReadonly;
+            delete controller.viewModeReadonly;
+          }
+          controller.viewMode = viewMode;
+
+          // Publish controller change
+          Control.publishControllerChanged(address, {readonly: controller.readonly});
         },
         /**
          * Restore a controller attribute
@@ -427,6 +456,51 @@ aweApplication.factory('Control',
               Control.publishModelChanged(address, attributes);
             }
           }
+        },
+        /**
+         * Set the initial model of a component loaded after the screen (a deferred dialog or tab was opened). It does
+         * what the screen load does with the model of each component: the loaded model is also the initial one
+         * (restore-target) and the default values are the ones restore goes back to
+         * @param {Object} address Component address
+         * @param {Object} attributes Model attributes loaded (values, selected, page, total, records)
+         * @param {*} [defaultValues] Default values (restore). When they are not defined, they are not changed
+         */
+        changeInitialModel: function (address, attributes, defaultValues) {
+          let  model = Control.getAddressModel(address);
+          if (model) {
+            Control.changeModelAttribute(address, attributes, true);
+
+            // The loaded model is the initial one
+            _.each(attributes, function (attribute, attributeId) {
+              model[INITIAL + attributeId] = _.cloneDeep(model[attributeId]);
+            });
+            if (SELECTED in attributes) {
+              model[PREVIOUS] = _.cloneDeep(model[SELECTED]);
+            }
+            if (defaultValues !== undefined) {
+              model.defaultValues = Control.formatDataList(defaultValues);
+            }
+            model.loaded = true;
+          }
+        },
+        /**
+         * Set the initial model of a deferred component from the parameters of the initial-model action. Only the
+         * attributes the action brings are set, so the paging state is not wiped by the ones it leaves out
+         * @param {Object} address Component address
+         * @param {Object} parameters Action parameters: datalist, selected and defaultValues
+         */
+        changeInitialModelFromAction: function (address, parameters) {
+          let  data = parameters.datalist || {};
+          let  attributes = {values: data.rows || []};
+          _.each(["page", "total", "records"], function (attribute) {
+            if (data[attribute] !== undefined) {
+              attributes[attribute] = data[attribute];
+            }
+          });
+          if ("selected" in parameters) {
+            attributes.selected = Utilities.formatSelectedValues(parameters.selected);
+          }
+          Control.changeInitialModel(address, attributes, parameters.defaultValues);
         },
         /**
          * Restore model value

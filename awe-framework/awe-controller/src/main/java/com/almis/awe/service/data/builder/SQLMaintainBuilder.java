@@ -13,10 +13,6 @@ import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.type.ParameterType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Path;
@@ -30,6 +26,10 @@ import com.querydsl.sql.dml.AbstractSQLClause;
 import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.sql.Timestamp;
 import java.text.MessageFormat;
@@ -63,6 +63,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
   public SQLMaintainBuilder(QueryUtil queryUtil, EncodeService encodeService, DatabaseConfigProperties databaseConfigProperties) {
     super(queryUtil, encodeService);
     this.databaseConfigProperties = databaseConfigProperties;
+    setLogMaskedFields(databaseConfigProperties == null ? null : databaseConfigProperties.getLogMaskedFields());
   }
 
   /**
@@ -273,7 +274,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
     insertClause.columns(fieldPaths.toArray(new Path[0]));
     if (((Insert) getQuery()).getQuery() != null) {
       if (materializedInsertQueryRowsLoaded) {
-        addBaseInsertQueryRows(insertClause);
+        addBaseInsertQueryRows(insertClause, fieldPaths.toArray(new Path[0]));
       } else {
         insertClause.select(getSubquery(((Insert) getQuery()).getQuery()));
       }
@@ -501,7 +502,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
           values.add(calculateSequence((Field) field, getVariableIndex()));
           // Get field value
         } else if (!isIncrementalKey(field)) {
-          values.add(getSqlFieldExpression(field, getVariableIndex()));
+          values.add(getLogMaskedFieldExpression(field, getSqlFieldExpression(field, getVariableIndex())));
         }
       }
     }
@@ -517,14 +518,19 @@ public class SQLMaintainBuilder extends SQLBuilder {
     return hasInsertQuerySource() && ((MaintainQuery) getQuery()).getAuditTable() != null;
   }
 
-  private void addBaseInsertQueryRows(SQLInsertClause insertClause) throws AWException {
+  private void addBaseInsertQueryRows(SQLInsertClause insertClause, Path<?>[] columns) throws AWException {
     List<Tuple> rows = getMaterializedInsertQueryRows();
     List<SqlField> insertFields = getInsertableFields();
 
-    for (Tuple row : rows) {
-      Object[] values = getMaterializedRowValues(row);
+    for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+      restoreBatchColumns(insertClause, columns, rowIndex);
+      Object[] values = getMaterializedRowValues(rows.get(rowIndex));
       validateMaterializedInsertQueryRowWidth(insertFields, values);
-      addInsertValues(insertClause, mapMaterializedRowValues(values));
+      List<Expression> rowValues = mapMaterializedRowValues(values);
+      for (int index = 0; index < insertFields.size(); index++) {
+        getLogMaskedFieldExpression(insertFields.get(index), rowValues.get(index));
+      }
+      addInsertValues(insertClause, rowValues);
     }
 
     if (rows.size() > 1) {
@@ -535,9 +541,11 @@ public class SQLMaintainBuilder extends SQLBuilder {
   private void addAuditInsertQueryRows(SQLInsertClause insertClause) throws AWException {
     List<Tuple> rows = getMaterializedInsertQueryRows();
     List<SqlField> insertFields = getInsertableFields();
+    Path<?>[] columns = getAuditFieldPaths();
 
-    for (Tuple row : rows) {
-      Object[] values = getMaterializedRowValues(row);
+    for (int rowIndex = 0; rowIndex < rows.size(); rowIndex++) {
+      restoreBatchColumns(insertClause, columns, rowIndex);
+      Object[] values = getMaterializedRowValues(rows.get(rowIndex));
       validateMaterializedInsertQueryRowWidth(insertFields, values);
 
       addAuditInsertQueryRow(insertClause, insertFields, values);
@@ -607,7 +615,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
 
     for (int index = 0; index < insertFields.size(); index++) {
       if (insertFields.get(index).isAudit()) {
-        auditValues.add(toExpression(values[index]));
+        auditValues.add(getLogMaskedFieldExpression(insertFields.get(index), toExpression(values[index])));
       }
     }
 
@@ -621,8 +629,34 @@ public class SQLMaintainBuilder extends SQLBuilder {
     }
   }
 
+  /**
+   * QueryDSL clears the columns of the clause on every batch: every row after the first names them again, so a bulk
+   * insert that writes one "into" per row (Oracle "insert all") keeps its columns in every row
+   *
+   * @param insertClause Insert clause
+   * @param columns      Columns of the rows
+   * @param rowIndex     Index of the row about to be added
+   * @throws AWException AWE exception
+   */
+  private void restoreBatchColumns(SQLInsertClause insertClause, Path<?>[] columns, int rowIndex) throws AWException {
+    if (rowIndex > 0 && shouldAddBatch()) {
+      insertClause.columns(columns);
+    }
+  }
+
   private boolean shouldAddBatch() throws AWException {
     return hasInsertQuerySource() && getMaterializedInsertQueryRows().size() > 1;
+  }
+
+  /**
+   * Keep the value written to a masked column to mask it in the logged SQL
+   *
+   * @param field Field
+   * @param value Field value
+   * @return The same value
+   */
+  private Expression getLogMaskedFieldExpression(SqlField field, Expression value) {
+    return isLogMaskedField(field.getId()) ? addLogMaskedValues(value) : value;
   }
 
   private Expression toExpression(Object value) {
@@ -653,7 +687,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
 
     for (SqlField field : getQuery().getSqlFieldList()) {
       if (field.isAudit()) {
-        values.add(getSqlFieldExpression(field, num));
+        values.add(getLogMaskedFieldExpression(field, getSqlFieldExpression(field, num)));
       }
     }
 
@@ -739,11 +773,7 @@ public class SQLMaintainBuilder extends SQLBuilder {
     if (parameterType == MULTIPLE_SEQUENCE) {
       String value = getSequence(field.getSequence());
       fieldValue = getVariableAsExpression(value, ParameterType.LONG);
-
-      // Define variable if not defined
-      if (field.getVariable() == null) {
-        field.setVariable(sequenceIdentifier);
-      }
+      defineFieldVariable(field, sequenceIdentifier);
 
       // We add the value to the map of parsed variables if needed
       if (variables.get(sequenceIdentifier).getValue().size() == index) {
@@ -758,22 +788,36 @@ public class SQLMaintainBuilder extends SQLBuilder {
     } else if (queryUtil.isEmptyString(sequenceVariableValue)) {
       String value = getSequence(field.getSequence());
       fieldValue = getVariableAsExpression(value, ParameterType.LONG);
-
-      // Define variable if not defined
-      if (field.getVariable() == null) {
-        field.setVariable(sequenceIdentifier);
-      }
+      defineFieldVariable(field, sequenceIdentifier);
 
       // We add the value to the map of parsed variables if needed
       variables.put(sequenceIdentifier, new QueryParameter(JsonNodeFactory.instance.textNode(value), false, parameterType));
 
-      // Add the value to request parameters
-      getParameters().put(Optional.ofNullable(seqVariable.getName()).orElse(seqVariable.getId()), value);
+      setSequenceParameter(seqVariable, index, value);
     } else {
       fieldValue = getStringExpression(sequenceVariableValue);
     }
 
     return fieldValue;
+  }
+
+  /**
+   * Add the value to request parameters: a grid row (one query per row) only sets its own index, so the keys of
+   * the other rows survive for their own queries
+   */
+  private void setSequenceParameter(Variable seqVariable, Integer index, String value) {
+    String parameterName = Optional.ofNullable(seqVariable.getName()).orElse(seqVariable.getId());
+    if (index != null && getParameters().get(parameterName) instanceof ArrayNode rowValues && index < rowValues.size()) {
+      rowValues.set(index, value);
+    } else {
+      getParameters().put(parameterName, value);
+    }
+  }
+
+  private void defineFieldVariable(Field field, String variableIdentifier) {
+    if (field.getVariable() == null) {
+      field.setVariable(variableIdentifier);
+    }
   }
 
   /**

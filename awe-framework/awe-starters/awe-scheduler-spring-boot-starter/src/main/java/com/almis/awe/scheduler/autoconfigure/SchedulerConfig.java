@@ -36,10 +36,8 @@ import com.almis.awe.scheduler.service.scheduled.MaintainJobService;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.net.ftp.FTPClient;
 import org.quartz.Scheduler;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -49,8 +47,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.web.client.RestTemplate;
+import tools.jackson.databind.ObjectMapper;
 
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -63,7 +62,6 @@ public class SchedulerConfig {
 
   private final SchedulerConfigProperties schedulerConfigProperties;
 
-  @Autowired
   public SchedulerConfig(SchedulerConfigProperties schedulerConfigProperties) {
     this.schedulerConfigProperties = schedulerConfigProperties;
   }
@@ -415,7 +413,7 @@ public class SchedulerConfig {
   public ServerConnectionService serverConnectionService(ServerDAO serverDAO, FTPClient ftpClient) {
     return new ServerConnectionService(serverDAO, ftpClient,
       schedulerConfigProperties.getSshHostKeyPolicy(),
-      Paths.get(schedulerConfigProperties.getSshKnownHostsPath()),
+      Path.of(schedulerConfigProperties.getSshKnownHostsPath()),
       schedulerConfigProperties.getConnectionTestTimeout());
   }
 
@@ -453,7 +451,7 @@ public class SchedulerConfig {
   public SshCommandExecutor sshCommandExecutor(CommandStreamLogger commandStreamLogger, ServerDAO serverDAO) {
     return new SshCommandExecutor(commandStreamLogger, serverDAO,
       schedulerConfigProperties.getSshHostKeyPolicy(),
-      Paths.get(schedulerConfigProperties.getSshKnownHostsPath()),
+      Path.of(schedulerConfigProperties.getSshKnownHostsPath()),
       schedulerConfigProperties.getSshConnectTimeout());
   }
 
@@ -493,7 +491,7 @@ public class SchedulerConfig {
   public SftpFileChecker sftpFileChecker(FileDAO fileDAO) {
     return new SftpFileChecker(fileDAO,
       schedulerConfigProperties.getSshHostKeyPolicy(),
-      Paths.get(schedulerConfigProperties.getSshKnownHostsPath()),
+      Path.of(schedulerConfigProperties.getSshKnownHostsPath()),
       schedulerConfigProperties.getSshConnectTimeout());
   }
 

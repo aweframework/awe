@@ -1,14 +1,38 @@
 import {aweApplication} from "../awe";
 import {ClientActions} from "../data/actions";
 
-export function getIconTemplate(style = "", tag = "span") {
-  return `<${tag} ng-if="getIcon().family == 'fa'" class="${style} fa fa-{{getIcon().name}}" ng-cloak></${tag}>
-          <${tag} ng-if="getIcon().family == 'mdi'" class="${style} material-icons" ng-cloak>{{getIcon().name}}</${tag}>`;
+/**
+ * Template of the icon of the screen XML or the data: a Lucide icon is an svg of the sprite inside the element of the
+ * icon (which keeps the classes of the component); the icons without Lucide equivalence keep their current font
+ * @param {string} style Classes of the element of the icon
+ * @param {string} tag Element of the icon
+ * @param {string} icon Expression of the icon ({family, name, classes, href}, see services/icon)
+ * @param {string} [attributes] Extra attributes of the element of the icon (aria-hidden="true"...)
+ * @returns {string} Template
+ */
+export function getIconTemplate(style = "", tag = "span", icon = "getIcon()", attributes = "") {
+  const extra = attributes ? ` ${attributes}` : "";
+  return `<${tag} ng-if="${icon}.family == 'lucide'" class="${style}"${extra} ng-cloak><svg class="awe-icon" ng-class="${icon}.classes" aria-hidden="true" focusable="false"><use ng-attr-href="{{${icon}.href}}"></use></svg></${tag}>
+          <${tag} ng-if="${icon}.family == 'fa'" class="${style} fa fa-{{${icon}.name}}"${extra} ng-cloak></${tag}>
+          <${tag} ng-if="${icon}.family == 'mdi'" class="${style} material-icons"${extra} ng-cloak>{{${icon}.name}}</${tag}>`;
 }
 
 // Component service
+/**
+ * Find the element of a component by its identifier (criterion-id attribute or id). The identifier is compared as a
+ * value, never written into a selector, so CSS special characters (a dot, a colon...) are safe.
+ * @param {Object} $parent Parent node to search in
+ * @param {string} id Component identifier
+ * @return {Object} Matching nodes
+ */
+function findComponentElement($parent, id) {
+  return $parent.find("[criterion-id], [id]").filter(function () {
+    return this.getAttribute("criterion-id") === id || this.id === id;
+  });
+}
+
 aweApplication.factory('Component',
-  ['Control', 'AweSettings', 'AweUtilities', 'ServerData', 'ActionController', 'DependencyController', '$log',
+  ['Control', 'AweSettings', 'AweUtilities', 'ServerData', 'ActionController', 'DependencyController', '$log', 'Storage',
     /**
      * Component generic methods
      * @param {object} Control
@@ -18,8 +42,12 @@ aweApplication.factory('Component',
      * @param {object} $actionController Action controller
      * @param {object} $dependencyController Dependency controller
      * @param {object} $log Log
+     * @param {object} Storage Storage
      */
-    function (Control, $settings, Utilities, ServerData, $actionController, $dependencyController, $log) {
+    function (Control, $settings, Utilities, ServerData, $actionController, $dependencyController, $log, Storage) {
+
+      // Components with autoload waiting for their deferred container to be opened, by view/container
+      const waitingAutoLoads = {};
 
       /**
        * Destroys autorefresh timer
@@ -30,10 +58,27 @@ aweApplication.factory('Component',
       }
 
       /**
+       * Forget the autoload of a component which waits for its deferred container, and the ones waiting for it
+       * @param {object} component
+       */
+      function forgetWaitingAutoLoads(component) {
+        Object.keys(waitingAutoLoads).forEach(key => {
+          waitingAutoLoads[key] = waitingAutoLoads[key].filter(waiting => waiting !== component);
+          if (waitingAutoLoads[key].length === 0) {
+            delete waitingAutoLoads[key];
+          }
+        });
+        if (component.address) {
+          delete waitingAutoLoads[component.address.view + "/" + component.address.component];
+        }
+      }
+
+      /**
        * Destroy component
        * @param {object} component
        */
       function destroy(component) {
+        forgetWaitingAutoLoads(component);
         Object.values(component.helpTargets || {}).forEach(target => {
           target.over = false;
           target.node.off();
@@ -193,6 +238,8 @@ aweApplication.factory('Component',
              * Generate component API
              */
             component.api = component.api || {};
+            // The validator needs to know where the component is, to skip those inside unopened deferred containers
+            component.api.address = component.address;
             Control.setAddressApi(component.address, component.api);
             /**              * API link to specific getAttribute function;
              * @param {string} attribute Attribute to check
@@ -426,9 +473,28 @@ aweApplication.factory('Component',
           if (this.controller.autoload) {
             let  component = this;
             Utilities.timeout(function () {
-              component.reload();
+              // Inside a deferred dialog or tab which was not opened yet, the autoload waits for its first opening
+              const container = component.findPendingDeferredContainer();
+              if (container) {
+                const key = component.address.view + "/" + container;
+                waitingAutoLoads[key] = (waitingAutoLoads[key] || []).concat(component);
+              } else {
+                component.reload();
+              }
             });
           }
+        },
+        /**
+         * Find the deferred container (dialog or tab page) which holds this component and was not opened yet
+         * @return {string} Container identifier, or undefined if there is none
+         */
+        findPendingDeferredContainer: function () {
+          const view = this.address.view;
+          const id = this.address.component;
+          return _.findKey(Storage.get("controller")[view], function (componentController, containerId) {
+            return containerId !== id && componentController.deferred && !componentController.deferredLoaded
+              && findComponentElement($(document.getElementById(containerId)), id).length > 0;
+          });
         },
         /**
          * Checks autorefresh timeout
@@ -441,6 +507,70 @@ aweApplication.factory('Component',
               component.reload({silent: true, async: true});
             }, (this.controller.autorefresh * 1000));
           }
+        },
+        /**
+         * Set the criteria inside a container (a dialog or a side panel) in view mode, or back to their own readonly
+         * @param {Boolean} viewMode View mode
+         */
+        setViewMode: function (viewMode) {
+          const view = this.address.view;
+          const $container = $(document.getElementById(this.address.component));
+          // Kept on the panel, so the criteria rendered once it is opened are read-only too (see Criterion init)
+          $container.attr("data-view-mode", viewMode ? "true" : null);
+          $container.find(".criterion[criterion-id]").each(function () {
+            Control.setViewMode({view: view, component: this.getAttribute("criterion-id")}, viewMode);
+          });
+        },
+        /**
+         * Load the data of a deferred container (a dialog or a tab page with the deferred attribute) the first time it
+         * is opened. It sends one silent async server action which asks for the initial load of the components inside
+         * the container. The components which already have data or a selected value are reported, so the server leaves
+         * them as they are
+         */
+        loadDeferred: function () {
+          const controller = this.controller;
+          if (!controller?.deferred || controller.deferredLoaded) {
+            return;
+          }
+          controller.deferredLoaded = true;
+
+          // Find the components which got data or a value before the first opening
+          const view = this.address.view;
+          const $container = $(document.getElementById(this.address.component));
+          const loaded = [];
+          const valued = [];
+          _.each(Storage.get("controller")[view], function (componentController, id) {
+            if (id !== this.address.component && findComponentElement($container, id).length > 0) {
+              const model = Control.getAddressModel({view: view, component: id});
+              // The components with autoload load by themselves when the container opens: not twice
+              if ((model && !Utilities.isEmpty(model.values)) || componentController.autoload) {
+                loaded.push(id);
+              }
+              if (model && !Utilities.isEmpty(model.selected)) {
+                valued.push(id);
+              }
+            }
+          }.bind(this));
+
+          // Generate server action
+          const values = {type: "deferred-data", deferredLoaded: loaded, deferredValued: valued};
+          values[$settings.get("targetActionKey")] = this.address.component;
+          values[$settings.get("optionKey")] = controller.optionId;
+          const actionScope = {address: this.address, context: this.context};
+          const serverAction = $actionController.generateAction(ServerData.getServerAction(this.address, values, true, true), actionScope, true, true);
+
+          // If the call fails, the container is not loaded: the next opening tries again
+          serverAction.onError = function () {
+            controller.deferredLoaded = false;
+          };
+
+          // Send action
+          $actionController.addActionList([serverAction], false, actionScope);
+
+          // Components with autoload which were waiting for the first opening
+          const waiting = waitingAutoLoads[view + "/" + this.address.component] || [];
+          delete waitingAutoLoads[view + "/" + this.address.component];
+          waiting.forEach(component => component.reload());
         },
         /**
          * Reload data from element
@@ -554,6 +684,30 @@ aweApplication.factory('Component',
         showContextMenu: function (event) {
           if (this.scope.contextMenu) {
             this.scope.contextMenu.show(event);
+          }
+        },
+        /**
+         * Show the context menu under an element
+         * @param {jQuery} anchor Element the menu hangs from
+         */
+        showContextMenuUnder: function (anchor) {
+          if (this.scope.contextMenu) {
+            this.scope.contextMenu.showUnder(anchor);
+          }
+        },
+        /**
+         * Element the context menu hangs from when an action opens it (the component root by default)
+         * @returns {jQuery} Anchor element
+         */
+        getContextMenuAnchor: function () {
+          return this.element ? $(this.element) : $();
+        },
+        /**
+         * Action show-context-menu: open the menu of the component under it. Nothing to open, nothing done
+         */
+        onShowContextMenu: function () {
+          if (this.scope.contextMenu && this.scope.contextMenu.hasVisibleOptions()) {
+            this.showContextMenuUnder(this.getContextMenuAnchor());
           }
         },
         /**

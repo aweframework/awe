@@ -5,6 +5,8 @@
     Created on : 08 de Noviembre de 2013
     Author     : Pablo VIDAL
     Description: Ventana de herramientas - Gestion colas JMS
+    DEPRECATED since AWE 5.0.0: replaced by the queue-admin screen (screen/queues/queue-admin.xml), which the "queues"
+    option of the default menu opens. This screen will be removed in the next minor release (5.1.0).
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_QUE" help="HELP_SCREEN_TITLE_QUE" keep-criteria="true">
   <tag source="hidden">

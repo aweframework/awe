@@ -1,0 +1,6 @@
+# Violations of the browser test rule (no selectors, no automation-tool types in the IT classes) that the
+# Selenium tests of this application still have. Format: <file>:<snippet>, one line per occurrence.
+#
+# This is a ratchet, see BrowserTestSourcesGuardTest: a new violation fails the build, and so does a line below that
+# no longer matches the sources (delete it). Do not add lines: use a semantic step of SeleniumUtilities instead.
+# Regenerate after a migration with BrowserTestSourceGuard.create().scan(dir).toBaseline().

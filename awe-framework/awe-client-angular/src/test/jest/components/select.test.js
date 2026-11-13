@@ -84,7 +84,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/select.js', 
 
       let input = expectSelectorInput(element, "RefreshTime");
       expect(element.find(".form-group.group-lg.w-icon").length).toBe(1);
-      expect(element.find(".validator.input > span.criterion-icon-lg.form-icon.fa.fa-search").length).toBe(1);
+      expect(element.find(".validator.input > span.criterion-icon-lg.form-icon:not(.fa) > svg.awe-icon > use[href='icons/lucide-sprite.svg#search']").length).toBe(1);
       expect(input.attr("multiple")).toBeUndefined();
       expect(input.attr("on-refresh")).toBeUndefined();
       expect(getComponentScope(element).aweSelectOptions).toEqual(expect.objectContaining({
@@ -107,7 +107,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/select.js', 
 
       let input = expectSelectorInput(element, "RefreshTime");
       expect(element.find(".form-group.group-lg.w-icon").length).toBe(1);
-      expect(element.find(".validator.input > span.criterion-icon-lg.form-icon.fa.fa-search").length).toBe(1);
+      expect(element.find(".validator.input > span.criterion-icon-lg.form-icon:not(.fa) > svg.awe-icon > use[href='icons/lucide-sprite.svg#search']").length).toBe(1);
       expect(input.attr("multiple")).toBeUndefined();
       expect(input.attr("on-refresh")).toBeUndefined();
       expect(getComponentScope(element).aweSelectOptions).toEqual(expect.objectContaining({
@@ -130,7 +130,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/select.js', 
 
       let input = expectSelectorInput(element, "RefreshTime");
       expect(element.find(".form-group.group-lg.w-icon").length).toBe(1);
-      expect(element.find(".validator.input > span.criterion-icon-lg.form-icon.fa.fa-search").length).toBe(1);
+      expect(element.find(".validator.input > span.criterion-icon-lg.form-icon:not(.fa) > svg.awe-icon > use[href='icons/lucide-sprite.svg#search']").length).toBe(1);
       expect(input.attr("multiple")).toBeUndefined();
       expect(input.attr("on-refresh")).toBeUndefined();
       expect(getComponentScope(element).aweSelectOptions).toEqual(expect.objectContaining({
@@ -139,6 +139,20 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/select.js', 
         placeholder: "SCREEN_TEXT_USER"
       }));
     done();
+  });
+
+  it.each([[undefined, 1], ["chip", 0]])('shows a criteria select multiple of display %s as one line summary: %s', function(display, summaries) {
+    $rootScope.firstLoad = true;
+    registerSelectorData();
+    $control.setAddressController({view: "base", component: "RefreshTime"}, {
+      ...$control.getAddressController({view: "base", component: "RefreshTime"}), component: "select-multiple", display
+    });
+
+    let  element = $compile("<awe-input-select-multiple input-select-multiple-id='RefreshTime'></awe-input-select-multiple>")($rootScope);
+    $rootScope.$digest();
+
+    expect(element.find(".select2-container-multi.awe-select-summary").length).toBe(summaries);
+    expect(element.find(".awe-select-summary-more").length).toBe(summaries);
   });
 
   it('initializes a suggest multiple', function(done) {
@@ -153,7 +167,7 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/select.js', 
 
       let input = expectSelectorInput(element, "RefreshTime");
       expect(element.find(".form-group.group-lg.w-icon").length).toBe(1);
-      expect(element.find(".validator.input > span.criterion-icon-lg.form-icon.fa.fa-search").length).toBe(1);
+      expect(element.find(".validator.input > span.criterion-icon-lg.form-icon:not(.fa) > svg.awe-icon > use[href='icons/lucide-sprite.svg#search']").length).toBe(1);
       expect(input.attr("multiple")).toBeUndefined();
       expect(input.attr("on-refresh")).toBeUndefined();
       expect(getComponentScope(element).aweSelectOptions).toEqual(expect.objectContaining({

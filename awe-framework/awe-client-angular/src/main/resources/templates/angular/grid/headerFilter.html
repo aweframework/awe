@@ -6,14 +6,14 @@
         <option value=""></option>
       </select><div role="button" class="ui-grid-filter-button-select" ng-click="removeFilter(colFilter, $index)" ng-if="!colFilter.disableCancelFilterButton"
           ng-disabled="colFilter.term === undefined || colFilter.term === null || colFilter.term === ''"
-          ng-show="colFilter.term !== undefined && colFilter.term !== null"><i class="fa fa-times" ui-grid-one-bind-aria-label="aria.removeFilter"></i>
+          ng-show="colFilter.term !== undefined && colFilter.term !== null"><i ui-grid-one-bind-aria-label="aria.removeFilter"><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('times' | aweIcon).href}}"></use></svg></i>
       </div>
     </div>
     <div ng-switch-default>
       <input type="text" class="no-animate ui-grid-filter-input ui-grid-filter-input-{{$index}}" ng-model="colFilter.term" ng-attr-placeholder="{{::colFilter.placeholder || ''}}"
              aria-label="{{::colFilter.ariaLabel || aria.defaultFilterLabel}}"><div role="button" class="ui-grid-filter-button" ng-click="removeFilter(colFilter, $index)"
              ng-if="!colFilter.disableCancelFilterButton" ng-disabled="colFilter.term === undefined || colFilter.term === null || colFilter.term === ''"
-             ng-show="colFilter.term !== undefined && colFilter.term !== null && colFilter.term !== ''"><i class="fa fa-times" ui-grid-one-bind-aria-label="aria.removeFilter"></i>
+             ng-show="colFilter.term !== undefined && colFilter.term !== null && colFilter.term !== ''"><i ui-grid-one-bind-aria-label="aria.removeFilter"><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('times' | aweIcon).href}}"></use></svg></i>
       </div>
     </div>
   </div>

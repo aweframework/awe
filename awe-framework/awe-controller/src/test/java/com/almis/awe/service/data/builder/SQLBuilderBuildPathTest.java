@@ -1,5 +1,6 @@
 package com.almis.awe.service.data.builder;
 
+import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EncodeService;
 import com.querydsl.core.types.dsl.SimpleExpression;
@@ -95,13 +96,13 @@ class SQLBuilderBuildPathTest {
 
   @Test
   @DisplayName("getSimpleFieldExpression with a null field and no function returns null")
-  void getSimpleFieldExpressionWithNullFieldAndNoFunctionReturnsNull() {
+  void getSimpleFieldExpressionWithNullFieldAndNoFunctionReturnsNull() throws AWEQueryException {
     assertThat(builder.getSimpleFieldExpression(null, null, null)).isNull();
   }
 
   @Test
   @DisplayName("getSimpleFieldExpression still applies the function over a resolvable field")
-  void getSimpleFieldExpressionAppliesFunctionOverResolvableField() {
+  void getSimpleFieldExpressionAppliesFunctionOverResolvableField() throws AWEQueryException {
     assertThat(builder.getSimpleFieldExpression("myTable", "myCol", "ABS")).isNotNull();
   }
 }

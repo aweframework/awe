@@ -21,6 +21,7 @@ public enum InputType {
   SUGGEST_MULTIPLE,
   DATE,
   FILTERED_CALENDAR,
+  DATE_RANGE,
   TIME,
   HIDDEN,
   PASSWORD,
@@ -44,5 +45,7 @@ public enum InputType {
   WIZARD,
   GRID,
   PICKLIST,
+  QUICK_FILTER,
+  GRID_SEARCH,
   OTHER
 }

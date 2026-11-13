@@ -1,6 +1,7 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.exception.AWESessionException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweSession;
@@ -9,18 +10,30 @@ import com.almis.awe.model.dto.*;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.menu.Option;
+import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.service.screen.ScreenRestrictionRequestCache;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,8 +42,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 /**
  * Menu service tests
@@ -64,6 +81,9 @@ class MenuServiceTest {
   @BeforeEach
   void setUp() {
     menuService.setApplicationContext(context);
+    QueryUtil queryUtil = mock(QueryUtil.class);
+    lenient().when(context.getBean(QueryUtil.class)).thenReturn(queryUtil);
+    lenient().when(queryUtil.getParameters(any(), any(), any())).thenAnswer(invocation -> JsonNodeFactory.instance.objectNode());
   }
 
   @Test
@@ -288,7 +308,7 @@ class MenuServiceTest {
     // Assert
     assertEquals(AnswerType.OK, serviceData.getType());
     assertEquals(12, serviceData.getDataList().getRecords());
-    assertEquals("R", ((ObjectNode) serviceData.getDataList().getRows().get(1).get("restriction").getObjectValue()).get("value").asText());
+    assertEquals("R", ((ObjectNode) serviceData.getDataList().getRows().get(1).get("restriction").getObjectValue()).get("value").asString());
   }
 
   @Test
@@ -407,7 +427,7 @@ class MenuServiceTest {
 
     when(context.getBean(AweSession.class)).thenReturn(aweSession);
     when(aweSession.isAuthenticated()).thenReturn(true);
-    when(queryService.launchPrivateQuery(AweConstants.SCREEN_RESTRICTION_QUERY, "1", "0")).thenReturn(new ServiceData().setDataList(
+    when(queryService.launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class))).thenReturn(new ServiceData().setDataList(
       DataListUtil.fromBeanList(screenRestrictionList)
     ));
 
@@ -416,4 +436,160 @@ class MenuServiceTest {
     assertEquals(13, menu.getElementsByType(Option.class).size());
     assertEquals(9, menu.getElementsByType(Option.class).stream().filter(Option::isRestricted).count());
   }
- }
+
+  @Nested
+  class ScreenRestrictionsInARequest {
+
+    private final List<ScreenRestriction> restrictions = List.of(
+      new ScreenRestriction().setOption("test").setRestricted(true),
+      new ScreenRestriction().setOption("test2").setRestricted(true).setUser("test"));
+
+    @BeforeEach
+    void setUpRequest() throws AWException {
+      RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(new MockHttpServletRequest()));
+      when(context.getBean(AweSession.class)).thenReturn(aweSession);
+      when(aweSession.isAuthenticated()).thenReturn(true);
+      lenient().when(aweSession.getParameter(String.class, AweConstants.SESSION_USER)).thenReturn("test");
+      when(queryService.launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class)))
+        .thenAnswer(invocation -> new ServiceData().setDataList(DataListUtil.fromBeanList(restrictions)));
+    }
+
+    @AfterEach
+    void tearDownRequest() {
+      RequestContextHolder.resetRequestAttributes();
+    }
+
+    @Test
+    void areReadFromTheDatabaseOncePerRequest() throws AWException {
+      Menu first = menuService.getMenuWithRestrictions(restrictableMenu());
+      Menu second = menuService.getMenuWithRestrictions(restrictableMenu());
+
+      verify(queryService, times(1)).launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class));
+      assertEquals(List.of("test", "test2"), restrictedNames(first));
+      assertEquals(List.of("test", "test2"), restrictedNames(second));
+    }
+
+    @Test
+    void areReadAgainOutsideARequest() throws AWException {
+      RequestContextHolder.resetRequestAttributes();
+
+      menuService.getMenuWithRestrictions(restrictableMenu());
+      menuService.getMenuWithRestrictions(restrictableMenu());
+
+      verify(queryService, times(2)).launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {AweConstants.SESSION_USER, AweConstants.SESSION_PROFILE, AweConstants.SESSION_RESTRICTION,
+      AweConstants.SESSION_DATABASE, AweConstants.SESSION_LANGUAGE})
+    void areReadAgainWhenTheSessionChanges(String sessionParameter) throws AWException {
+      menuService.getMenuWithRestrictions(restrictableMenu());
+      lenient().when(aweSession.getParameter(String.class, sessionParameter)).thenReturn("changed");
+
+      menuService.getMenuWithRestrictions(restrictableMenu());
+
+      verify(queryService, times(2)).launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class));
+    }
+
+    @Test
+    void areReadAgainAfterAMaintain() throws AWException {
+      menuService.getMenuWithRestrictions(restrictableMenu());
+      ScreenRestrictionRequestCache.clear();
+
+      menuService.getMenuWithRestrictions(restrictableMenu());
+
+      verify(queryService, times(2)).launchPrivateQuery(eq(AweConstants.SCREEN_RESTRICTION_QUERY), any(ObjectNode.class));
+    }
+
+    private Menu restrictableMenu() {
+      return new Menu()
+        .addElement(new Option().setName("test"))
+        .addElement(new Option().setName("test2"))
+        .addElement(new Option().setName("test3"));
+    }
+
+    private List<String> restrictedNames(Menu menu) {
+      return menu.getElementsByType(Option.class).stream().filter(Option::isRestricted).map(Option::getName).toList();
+    }
+  }
+
+  private Option launcherOption(String name, Option... children) {
+    Option option = new Option().setMenuScreen(true).setScreen(name + "-screen");
+    option.setName(name);
+    option.setLabel("LABEL_" + name);
+    for (Option child : children) {
+      option.addElement(child);
+    }
+    return option;
+  }
+
+  private Menu threeLevelLauncherMenu() {
+    Option leaf = new Option().setScreen("leaf-screen");
+    leaf.setName("level3-leaf");
+    Menu menu = new Menu().addElement(
+      launcherOption("level1", launcherOption("level2", launcherOption("level3", leaf))));
+    menu.defineRelationship();
+    return menu;
+  }
+
+  private void mockAvailableOptions(Menu menu) throws AWException {
+    when(context.getBean(AweSession.class)).thenReturn(aweSession);
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweSession.isAuthenticated()).thenReturn(false);
+    when(baseConfigProperties.getScreen()).thenReturn(new BaseConfigProperties.Screen());
+    when(aweElements.getMenu(anyString())).thenReturn(menu);
+  }
+
+  @Test
+  void nestedLaunchersAreGeneratedAtEveryLevel() throws AWException {
+    Menu menu = threeLevelLauncherMenu();
+    mockAvailableOptions(menu);
+
+    for (String level : List.of("level1", "level2", "level3")) {
+      assertEquals(level + "-screen", menuService.getAvailableOptionScreen(level, menu).getId());
+    }
+  }
+
+  @Test
+  void restrictedNestedLauncherCannotBeOpened() throws AWException {
+    Menu menu = threeLevelLauncherMenu();
+    menu.getOptionByName("level2").setRestricted(true);
+    mockAvailableOptions(menu);
+
+    assertEquals("level1-screen", menuService.getAvailableOptionScreen("level1", menu).getId());
+    // Without a session a nested launcher that cannot be resolved is an expired session: the client asks the user to
+    // sign in again instead of showing the screen as not found (#935)
+    assertThrows(AWESessionException.class, () -> menuService.getAvailableOptionScreen("level2", menu));
+    assertThrows(AWESessionException.class, () -> menuService.getAvailableOptionScreen("level3", menu));
+  }
+
+  @Test
+  void getScreenStoresAnInitializedCopyIndependentOfTheReturnedScreen() throws AWException {
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    Screen definition = new Screen();
+    definition.setId("screen");
+    when(aweElements.getScreen("screen")).thenReturn(definition);
+    ArgumentCaptor<Screen> stored = ArgumentCaptor.forClass(Screen.class);
+
+    Screen screen = menuService.getScreen("screen", "option");
+
+    verify(aweElements).setScreen(stored.capture());
+    assertTrue(screen.isInitialized());
+    assertTrue(stored.getValue().isInitialized());
+    assertNotSame(screen, stored.getValue());
+  }
+
+  @Test
+  void getScreenDoesNotStoreAnAlreadyInitializedScreen() throws AWException {
+    when(context.getBean(AweElements.class)).thenReturn(aweElements);
+    Screen definition = new Screen();
+    definition.setId("screen");
+    definition.setInitialized(true);
+    when(aweElements.getScreen("screen")).thenReturn(definition);
+
+    Screen screen = menuService.getScreen("screen", "option");
+
+    assertTrue(screen.isInitialized());
+    verify(aweElements, never()).setScreen(any());
+  }
+}

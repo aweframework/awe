@@ -7,12 +7,14 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.util.security.Crypto;
 import com.almis.awe.model.util.security.RipEmd160;
+import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 import org.springframework.security.crypto.keygen.StringKeyGenerator;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -44,6 +46,7 @@ public class EncodeService extends ServiceConfig {
   // Autowire beans
   private final BaseConfigProperties baseConfigProperties;
   private final SecurityConfigProperties securityConfigProperties;
+  private PasswordEncoder passwordEncoder;
 
   /**
    * Static class to store hashing algorithms to make the call to these algorithms more understandable.
@@ -83,6 +86,31 @@ public class EncodeService extends ServiceConfig {
     /* Variable definition */
     RipEmd160 encoder = new RipEmd160();
     return encoder.encodeRipEmd160(text);
+  }
+
+  /**
+   * Hashes a user password with the application password encoder ({@code awe.security.password-encoder}). The hash is
+   * salted with BCrypt, so it can be stored but not compared: check passwords with {@link PasswordEncoder#matches}
+   *
+   * @param password Password
+   * @return Password hash
+   */
+  public String encodePassword(String password) {
+    return getPasswordEncoder().encode(password);
+  }
+
+  /**
+   * Retrieve the application password encoder, or the AWE one with the configured algorithm when there is none
+   *
+   * @return Password encoder
+   */
+  private PasswordEncoder getPasswordEncoder() {
+    if (passwordEncoder == null) {
+      passwordEncoder = Optional.ofNullable(getApplicationContext())
+        .map(context -> context.getBeanProvider(PasswordEncoder.class).getIfAvailable())
+        .orElseGet(() -> new AwePasswordEncoder(securityConfigProperties.getPasswordEncoder()));
+    }
+    return passwordEncoder;
   }
 
   /**
@@ -424,12 +452,12 @@ public class EncodeService extends ServiceConfig {
       String hashHex = Crypto.Utils.encodeHex(res);
 
       // Format: algorithm:type:salt:iterations:keyLength:hash
-      return String.format("%s:%s:%s:%d:%d:%s", 
-                          algorithm, 
-                          "hex", 
-                          salt, 
-                          iterations, 
-                          keyLength, 
+      return String.format("%s:%s:%s:%d:%d:%s",
+                          algorithm,
+                          "hex",
+                          salt,
+                          iterations,
+                          keyLength,
                           hashHex);
     } catch (NoSuchAlgorithmException exc) {
       throw new AWException(STRING_ENCODE_ERROR, "The algorithm does not exist.", exc);

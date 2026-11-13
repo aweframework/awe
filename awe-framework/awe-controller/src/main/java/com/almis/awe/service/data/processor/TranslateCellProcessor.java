@@ -7,7 +7,7 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.entities.enumerated.EnumeratedGroup;
 import com.almis.awe.model.entities.queries.OutputField;
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 import java.util.Map;
 import java.util.Optional;
@@ -79,7 +79,7 @@ public class TranslateCellProcessor implements CellProcessor {
     // Get language
     String language = Optional.ofNullable(variables.get(AweConstants.QUERY_LANGUAGE))
       .map(QueryParameter::getValue)
-      .map(JsonNode::asText)
+      .map(JsonNode::asString)
       .orElse(elements.getLanguage());
 
     // Get translated label

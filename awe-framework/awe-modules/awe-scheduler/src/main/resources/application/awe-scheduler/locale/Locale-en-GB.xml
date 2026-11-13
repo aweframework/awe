@@ -124,6 +124,8 @@
   <locale name="PARAMETER_TASKS_BATCH" value="Batch task"/>
   <locale name="PARAMETER_THIRD_WEEK" value="Third week"/>
   <locale name="PARAMETER_WEEKS" value="Weeks"/>
+  <locale name="PERMISSION_RESOURCE_SCHEDULER" value="Scheduler"/>
+  <locale name="PERMISSION_SCHEDULER_EXECUTE" value="Execute"/>
   <locale name="SCHEDULER_BATCH_LAUNCH_ERROR_MESSAGE" value="There has been an error launching the batch file."/>
   <locale name="SCHEDULER_BATCH_LAUNCH_ERROR_TITLE" value="Error launching batch"/>
   <locale name="SCHEDULER_BATCH_LAUNCH_MESSAGE" value="The batch has been launched successfully"/>

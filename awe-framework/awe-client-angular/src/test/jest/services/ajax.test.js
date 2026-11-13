@@ -84,7 +84,7 @@ describe("Ajax", () => {
     expect(loadingBar.endTask).toHaveBeenCalled();
     expect($actionController.closeAllActions).toHaveBeenCalled();
     expect($utilities.manageRestError).toHaveBeenCalledWith(
-      {status: 403, title: "Forbidden", message: "Forbidden access"},
+      {status: 403, title: "Forbidden", message: "Forbidden access", body: undefined},
       {view: "center"}
     );
     expect($actionController.addActionList).toHaveBeenCalledWith([{type: "message"}], false, {address: {view: "base"}});
@@ -132,6 +132,17 @@ describe("Ajax", () => {
     });
   });
 
+  it("passes the origin of the action to the actions it returns", () => {
+    const action = new Action();
+    action.attr("origin", "menu");
+    jest.spyOn($utilities, "decodeData").mockReturnValue([{type: "screen"}, {type: "message"}]);
+    jest.spyOn($actionController, "addActionList").mockReturnValue(undefined);
+
+    $ajax.manageMessage({data: []}, action);
+
+    expect($actionController.addActionList.mock.calls[0][0].map(a => a.origin)).toEqual(["menu", "menu"]);
+  });
+
   it("does not enqueue non-array response data or actions that are no longer alive", () => {
     const aliveAction = new Action();
     const deadAction = new Action();
@@ -161,7 +172,7 @@ describe("Ajax", () => {
     expect(document.querySelector(".modal-backdrop")).toBeNull();
     expect($actionController.closeAllActions).toHaveBeenCalled();
     expect($utilities.manageRestError).toHaveBeenCalledWith(
-      {status: undefined, title: undefined, message: undefined},
+      {status: undefined, title: undefined, message: undefined, body: undefined},
       {view: "base", component: "grid"}
     );
     expect($actionController.addActionList).toHaveBeenCalledWith(
@@ -289,6 +300,19 @@ describe("Ajax", () => {
     expect($actionController.acceptAction).toHaveBeenCalledWith(action);
   });
 
+  it("tells the action that its call failed, so it can undo what it marked (#824)", () => {
+    const action = new Action();
+    action.onError = jest.fn();
+    jest.spyOn($utilities, "manageRestError").mockReturnValue([]);
+    jest.spyOn($actionController, "closeAllActions");
+    jest.spyOn($actionController, "addActionList");
+    const error = {status: 500};
+
+    $ajax.manageError(error, action);
+
+    expect(action.onError).toHaveBeenCalledWith(error);
+  });
+
   it("passes REST error details and target address to the utilities boundary", () => {
     const action = new Action();
     action.attr("callbackTarget", {view: "dialog", component: "save"});
@@ -299,8 +323,83 @@ describe("Ajax", () => {
     $ajax.manageError({status: 401, data: {error: "Unauthorized", message: "Login"}}, action);
 
     expect($utilities.manageRestError).toHaveBeenCalledWith(
-      {status: 401, title: "Unauthorized", message: "Login"},
+      {status: 401, title: "Unauthorized", message: "Login", body: undefined},
       {view: "dialog", component: "save"}
+    );
+  });
+
+  it("processes a 403 refusal whose body is a list of client actions exactly like a 200 answer", async () => {
+    const action = new Action();
+    action.attr("silent", true);
+    const refusalActions = [
+      {type: "end-load"},
+      {type: "message", parameters: {type: "error", title: "ERROR_TITLE_ACCESS_DENIED", message: "Not authorized"}},
+      {type: "cancel"}
+    ];
+    jest.spyOn($ajax, "send").mockReturnValue(Promise.reject({status: 403, data: refusalActions}));
+    jest.spyOn($utilities, "decodeData").mockImplementation(data => data);
+    jest.spyOn($actionController, "closeAllActions");
+    jest.spyOn($actionController, "acceptAction");
+    jest.spyOn($actionController, "addActionList");
+    jest.spyOn($utilities, "manageRestError");
+
+    await $ajax.sendMessage({
+      target: {view: "base"},
+      values: {serverAction: "data", targetAction: "fail"},
+      action
+    });
+
+    // The refusal runs as a successful answer: the actions of the body are enqueued and the launch finishes
+    expect($actionController.acceptAction).toHaveBeenCalledWith(action);
+    expect($actionController.addActionList.mock.calls[0][0].map(a => a.type)).toEqual(["end-load", "message", "cancel"]);
+    // It is not mapped as a REST error: no pending action is cancelled and no message is built from a value list
+    expect($actionController.closeAllActions).not.toHaveBeenCalled();
+    expect($utilities.manageRestError).not.toHaveBeenCalled();
+  });
+
+  it("keeps processing the REST error boundary of a 403 whose body is not a list of client actions", async () => {
+    const action = new Action();
+    action.attr("silent", true);
+    jest.spyOn($ajax, "send").mockReturnValue(Promise.reject({status: 403, data: "Forbidden by the proxy"}));
+    jest.spyOn($utilities, "decodeData").mockImplementation(data => data);
+    jest.spyOn($actionController, "acceptAction");
+    jest.spyOn($actionController, "closeAllActions");
+    jest.spyOn($actionController, "addActionList");
+    jest.spyOn($utilities, "manageRestError");
+
+    await $ajax.sendMessage({
+      target: {view: "base"},
+      values: {serverAction: "data", targetAction: "fail"},
+      action
+    });
+
+    expect($utilities.manageRestError).toHaveBeenCalledWith(
+      {status: 403, title: undefined, message: undefined, body: "Forbidden by the proxy"},
+      {view: "base"}
+    );
+    expect($actionController.acceptAction).not.toHaveBeenCalled();
+    expect($actionController.closeAllActions).toHaveBeenCalled();
+  });
+
+  it("keeps processing the REST error boundary of a plain text 403 answered with the transmission encoded", () => {
+    const action = new Action();
+    action.attr("silent", true);
+    action.attr("callbackTarget", {view: "base"});
+    // Transmission encoded: the plain text body of a proxy cannot be read as an action list
+    $ajax.init("/api", true);
+    jest.spyOn($actionController, "acceptAction");
+    jest.spyOn($actionController, "closeAllActions");
+    jest.spyOn($actionController, "addActionList");
+    jest.spyOn($utilities, "manageRestError");
+
+    $ajax.manageError({status: 403, data: "Forbidden by the proxy"}, action);
+
+    // The refusal check does not throw on the undecodable body: the error keeps its REST error boundary
+    expect($actionController.acceptAction).not.toHaveBeenCalled();
+    expect($actionController.closeAllActions).toHaveBeenCalled();
+    expect($utilities.manageRestError).toHaveBeenCalledWith(
+      {status: 403, title: undefined, message: undefined, body: "Forbidden by the proxy"},
+      {view: "base"}
     );
   });
 

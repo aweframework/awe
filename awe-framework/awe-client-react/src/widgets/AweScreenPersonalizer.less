@@ -1,0 +1,68 @@
+// Visual screen personalization editor (#792)
+.scr-per {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+}
+
+.scr-per-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-3);
+  padding: var(--awe-space-3);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+  background: var(--awe-color-surface);
+}
+
+.scr-per-applies,
+.scr-per-hint,
+.scr-per-status {
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  margin-left: auto;
+}
+
+// Export and Import at the right end of the line of the mode selector; the break keeps the rest of the toolbar below it
+.scr-per-links {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-3);
+  margin-left: auto;
+}
+
+.scr-per-break {
+  flex-basis: 100%;
+  height: 0;
+}
+
+.scr-per-canvas {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: var(--awe-space-3);
+}
+
+// A wide screen makes room for the panel, so the selected element and Save stay visible (the menu, the panel and a
+// 48rem screen fit); on a narrower one the panel floats over the screen
+@scr-per-room-for-panel: 1440px;
+
+@media screen and (min-width: @scr-per-room-for-panel) {
+  .scr-per-with-panel {
+    padding-right: 26rem;
+  }
+}
+
+.scr-per-empty {
+  color: var(--awe-color-text-muted);
+}
+
+.scr-per-side.p-sidebar {
+  width: 100%;
+  max-width: 26rem;
+}

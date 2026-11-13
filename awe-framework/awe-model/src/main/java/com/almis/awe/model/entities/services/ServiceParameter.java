@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * ServiceParameter Class
  * Abstract class for Service Parameters
@@ -24,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamInclude({ServiceInputParameter.class, ServiceOutputParameter.class})
 abstract class ServiceParameter implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -4097764290823490551L;
 
   // Parameter type

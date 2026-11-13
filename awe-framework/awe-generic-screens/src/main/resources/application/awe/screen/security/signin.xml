@@ -29,16 +29,30 @@
         <tag type="div" style="signin-text">
           <tag type="span" label="SCREEN_TITLE_LOGIN"/>
         </tag>
-        <criteria placeholder="SCREEN_TEXT_USER" component="text" id="cod_usr" validation="required" size="lg" icon="user signin-form-icon" style="no-label" />
-        <criteria placeholder="SCREEN_TEXT_PASS" component="password" id="pwd_usr" validation="required" size="lg" icon="key signin-form-icon" style="no-label" />
+        <criteria label="SCREEN_TEXT_USER" component="text" id="cod_usr" validation="required" size="lg" icon="user signin-form-icon">
+          <dependency target-type="hide" initial="true" type="and">
+            <dependency-element id="local-login" condition="eq" value="false"/>
+            <dependency-element id="sso-master-enabled" condition="eq" value="true"/>
+          </dependency>
+        </criteria>
+        <criteria label="SCREEN_TEXT_PASS" component="password" id="pwd_usr" validation="required" size="lg" icon="lock signin-form-icon">
+          <dependency target-type="hide" initial="true" type="and">
+            <dependency-element id="local-login" condition="eq" value="false"/>
+            <dependency-element id="sso-master-enabled" condition="eq" value="true"/>
+          </dependency>
+        </criteria>
         <tag type="div" style="signin-with">
           <tag type="div" style="form-actions">
-            <button button-type="submit" label="BUTTON_LOGIN" style="no-class btn btn-awe btn-primary signin-btn bg-primary" icon="sign-in" id="ButLogIn">
+            <button button-type="submit" label="BUTTON_LOGIN" style="no-class btn btn-awe btn-primary signin-btn bg-primary" id="ButLogIn">
+              <dependency target-type="hide" initial="true" type="and">
+                <dependency-element id="local-login" condition="eq" value="false"/>
+                <dependency-element id="sso-master-enabled" condition="eq" value="true"/>
+              </dependency>
               <button-action type="validate" />
               <button-action type="server" server-action="login" />
             </button>
-            <!-- Azure EntraID -->
-            <button id="ButLogInAzure" style="no-class sign-in-azure-btn-light" >
+            <!-- Azure EntraID: the official Sign in with Microsoft button -->
+            <button id="ButLogInAzure" style="no-class signin-microsoft" label="SCREEN_TEXT_SIGN_IN_MICROSOFT">
               <dependency target-type="hide" initial="true" type="or">
                 <dependency-element id="azure-enabled" condition="eq" value="false"/>
                 <dependency-element id="azure-enabled" condition="is empty"/>
@@ -46,7 +60,7 @@
               <button-action type="server" server-action="login-azure"/>
             </button>
             <!-- Sign with SSO -->
-            <button id="ButLogInSSO" style="no-class btn btn-awe btn-dark signin-btn sign-in-sso-btn" label="BUTTON_LOGIN_SSO">
+            <button id="ButLogInSSO" style="no-class btn btn-awe signin-btn sign-in-sso-btn" label="BUTTON_LOGIN_SSO" icon="lucide:key-round">
               <dependency target-type="hide" initial="true" type="or">
                 <dependency-element id="sso-enabled" condition="eq" value="false"/>
                 <dependency-element id="sso-enabled" condition="is empty"/>
@@ -62,5 +76,7 @@
   <tag source="hidden">
     <criteria id="azure-enabled" component="text" property="awe.security.sso.enable-azure-button"/>
     <criteria id="sso-enabled" component="text" property="awe.security.sso.enable-generic-sso-button"/>
+    <criteria id="local-login" component="text" property="awe.security.sso.local-login"/>
+    <criteria id="sso-master-enabled" component="text" property="awe.security.sso.enabled"/>
   </tag>
 </screen>

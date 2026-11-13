@@ -10,8 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -73,6 +75,20 @@ class AweElementsDaoTest {
   }
 
   /**
+   * Test that a global file is read from each module that provides it, in module order, without merging them
+   */
+  @Test
+  void readXmlFileListKeepsOneFilePerModuleInModuleOrder() throws Exception {
+    baseConfigProperties.setModuleList(new String[]{"module-two", "module-without-files", "module-one"});
+
+    List<Queries> files = elementsDao.readXmlFileListAsync(Queries.class, "/global/Queries.xml").get();
+
+    assertEquals(2, files.size());
+    assertEquals("serviceModuleTwo", files.get(0).getQuery("sharedQuery").getService());
+    assertEquals("serviceModuleOne", files.get(1).getQuery("sharedQuery").getService());
+  }
+
+  /**
    * Test that unparseable global files (malformed XML or unmappable content) neither throw
    * nor corrupt the entries read from the other modules
    */
@@ -100,6 +116,47 @@ class AweElementsDaoTest {
     assertTrue(storage.containsKey("valid-screen"));
     assertFalse(storage.containsKey("broken"));
     assertFalse(storage.containsKey("unmapped"));
+  }
+
+  /**
+   * Build a DAO whose wall clock steps backwards on every reading (NTP adjustment)
+   *
+   * @return DAO with a backwards clock
+   */
+  private AweElementsDao backwardsClockDao() {
+    return new AweElementsDao(XmlSerializerTestUtil.buildSerializer(), baseConfigProperties) {
+      private final AtomicLong clock = new AtomicLong(1_000_000L);
+
+      @Override
+      protected long clockMillis() {
+        return clock.addAndGet(-1000L);
+      }
+    };
+  }
+
+  /**
+   * Test that a wall clock stepped backwards while a folder is scanned does not drop the screens:
+   * a negative elapsed time must never make a successfully read file disappear
+   */
+  @Test
+  void readModuleFolderXmlFileKeepsFilesWhenClockGoesBackwards() throws Exception {
+    Map<String, Screen> storage = backwardsClockDao().readModuleFolderXmlFile(Screen.class, "/application/module-broken/screen/").get();
+
+    assertTrue(storage.containsKey("valid-screen"));
+  }
+
+  /**
+   * Test that a wall clock stepped backwards while a global file is read still reports the read as OK
+   */
+  @Test
+  void readModuleFileReportsOkWhenClockGoesBackwards() {
+    Map<String, Query> storage = new ConcurrentHashMap<>();
+
+    String message = assertDoesNotThrow(() -> backwardsClockDao().readModuleFile(Queries.class, storage,
+      baseConfigProperties.getPaths().getApplication() + "module-one/global/Queries.xml"));
+
+    assertTrue(storage.containsKey("moduleOneQuery"));
+    assertFalse(message.contains("KO"), message);
   }
 
   /**

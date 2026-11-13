@@ -98,4 +98,40 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/base.js',
     expect(grid.model.values.length).toBe(5);
   });
 
+  function buildGridToAddRows() {
+    let $scope = $rootScope.$new();
+    $scope.gridOptions = {icons: {}};
+    let grid = new GridBase($scope, "id", {});
+    jest.spyOn(grid, "asComponent").mockReturnValue(true);
+    jest.spyOn(GridEvents, "mapCommonActions").mockReturnValue(true);
+    jest.spyOn(GridEvents, "mapTreeActions").mockReturnValue(true);
+    grid.api = {};
+    grid.model = {records: 3, total: 1, page: 1, values: [{id: 1}, {id: 2}, {id: 3}], selected: []};
+    grid.controller = currentController;
+    grid.asGrid();
+    grid.grid.measures = {};
+    jest.spyOn(grid, "unselectRows").mockReturnValue(true);
+    jest.spyOn(grid, "updateModelSpecific").mockReturnValue(true);
+    jest.spyOn(grid, "deferRowsRendered").mockReturnValue(true);
+    return grid;
+  }
+
+  it('should add a row after the selected row when it exists', function () {
+    let grid = buildGridToAddRows();
+
+    grid.addRowSpecific("2", "after", {id: "new"});
+
+    // Assert
+    expect(grid.model.values.map((value) => value.id)).toEqual([1, 2, "new", 3]);
+  });
+
+  it('should add a row at the end when the selected row does not exist', function () {
+    let grid = buildGridToAddRows();
+
+    grid.addRowSpecific("9", "before", {id: "new"});
+
+    // Assert
+    expect(grid.model.values.map((value) => value.id)).toEqual([1, 2, 3, "new"]);
+  });
+
 });

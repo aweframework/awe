@@ -6,22 +6,24 @@ import com.almis.awe.model.dto.CompareRow;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.FilterColumn;
 import com.almis.awe.model.dto.SortColumn;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.cfg.CoercionAction;
-import com.fasterxml.jackson.databind.cfg.CoercionInputShape;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.type.LogicalType;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.NonNull;
 import org.springframework.beans.PropertyAccessor;
 import org.springframework.beans.PropertyAccessorFactory;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.MapperFeature;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.CoercionAction;
+import tools.jackson.databind.cfg.CoercionInputShape;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.cfg.EnumFeature;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.type.LogicalType;
 
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
@@ -38,20 +40,37 @@ public final class DataListUtil {
   private static final String CANT_CREATE_INSTANCE = "Can't create instance of ";
   private static final String INVALID_KEY_COLUMN = "Invalid key column: ";
   private static final String KEY_SEPARATOR = "\u0000";
-  private static final ObjectMapper mapper = new Jackson2ObjectMapperBuilder()
-    .failOnUnknownProperties(false)
-    .defaultViewInclusion(false)
-    .simpleDateFormat("yyyy-MM-dd@HH:mm:ss.SSSZ")
-    .featuresToEnable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
-    //.serializationInclusion(JsonInclude.Include.NON_EMPTY)
-    .modules(new JavaTimeModule())
+  // java.time support is built into Jackson 3 databind (no JavaTimeModule needed)
+  private static final ObjectMapper mapper = applyAweJsonContract(JsonMapper.builder())
+    .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+    .disable(MapperFeature.DEFAULT_VIEW_INCLUSION)
+    .defaultDateFormat(new SimpleDateFormat("yyyy-MM-dd@HH:mm:ss.SSSZ"))
+    .enable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+    .enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)
+    .withCoercionConfig(LogicalType.Collection, config -> config.setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull))
     .build();
 
   /**
    * Private constructor to hide the implicit one
    */
   private DataListUtil() {
-    mapper.coercionConfigFor(LogicalType.Collection).setCoercion(CoercionInputShape.EmptyString, CoercionAction.AsNull);
+  }
+
+  /**
+   * Apply the AWE 5 JSON contract to a mapper builder. Jackson 3 changed several defaults; this restores the AWE 4
+   * (Jackson 2) wire format: enums are written and read by name, properties keep their declaration order and a null
+   * value for a primitive is read as its default value. {@code FAIL_ON_TRAILING_TOKENS} is enabled (Jackson 3
+   * default, but disabled by {@code configureForJackson2()}), so trailing content after the root value is rejected.
+   * @param builder Mapper builder
+   * @return The same builder
+   */
+  public static JsonMapper.Builder applyAweJsonContract(JsonMapper.Builder builder) {
+    return builder
+      .disable(EnumFeature.WRITE_ENUMS_USING_TO_STRING)
+      .disable(EnumFeature.READ_ENUMS_USING_TO_STRING)
+      .disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+      .disable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+      .enable(DeserializationFeature.FAIL_ON_TRAILING_TOKENS);
   }
 
   /**

@@ -2,16 +2,16 @@ package com.almis.awe.model.component;
 
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.util.data.DateUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.experimental.Accessors;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -154,7 +154,7 @@ public class AweRequest {
     String parameterValue = null;
     JsonNode parameter = getParameter(parameterId);
     if (parameter != null && !parameter.isNull()) {
-      parameterValue = parameter.asText();
+      parameterValue = parameter.asString("");
     }
     return parameterValue;
   }
@@ -211,17 +211,17 @@ public class AweRequest {
     if (parameter.isNull()) {
       parameterValue = new CellData();
     } else if (parameter.isInt()) {
-      parameterValue = new CellData(parameter.asInt());
+      parameterValue = new CellData(parameter.asInt(0));
     } else if (parameter.isLong()) {
-      parameterValue = new CellData(parameter.asLong());
+      parameterValue = new CellData(parameter.asLong(0L));
     } else if (parameter.isFloat()) {
       parameterValue = new CellData(parameter.floatValue());
     } else if (parameter.isDouble()) {
       parameterValue = new CellData(parameter.doubleValue());
     } else if (parameter.isBoolean()) {
       parameterValue = new CellData(parameter.booleanValue());
-    } else if (parameter.isTextual()) {
-      parameterValue = new CellData(parameter.asText());
+    } else if (parameter.isString()) {
+      parameterValue = new CellData(parameter.asString(""));
     } else {
       parameterValue = new CellData(parameter);
     }

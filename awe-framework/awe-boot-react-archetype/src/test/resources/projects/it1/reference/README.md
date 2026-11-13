@@ -1,5 +1,7 @@
 # test application powered by **AWE** 
 
+> Recommended archetype for new AWE 5 projects.
+
 ## Requirements
 
 - Apache Maven 3 or higher

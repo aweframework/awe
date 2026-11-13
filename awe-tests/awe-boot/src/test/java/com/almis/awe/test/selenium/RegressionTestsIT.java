@@ -1,42 +1,44 @@
 package com.almis.awe.test.selenium;
 
-import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.openqa.selenium.By;
 
+/**
+ * Regression tests of the test screens. Every test starts logged in with the Test module selected and opens its own screen,
+ * so a failing test does not leave the next ones without a session or a screen. The login and logout flow itself is proven
+ * by IntegrationTestsIT, so this class has no login or logout test of its own.
+ * <p>
+ * The backend rules of the keep criteria (t007), wrong login (t009) and sort by a component column (t010) tests are not
+ * specific to this engine: their flows run only in the React application ({@code awe-boot-react} RegressionTestsIT).
+ * <p>
+ * The former t003_suggestStrict was removed: the security audit screen is redesigned without the non-strict user suggest
+ * criterion it drove, and no other screen of the test application reachable through the menu declares a suggest criterion
+ * with strict="false" (the remaining ones, Usr, EmlSrv and Que, are deprecated and not in the menu).
+ */
 @Tag("RegressionWebsocketPrintIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
-class RegressionTestsIT extends SeleniumUtilities {
+class RegressionTestsIT extends AbstractSessionTests {
 
-  /**
-   * Log into the application
-   */
-  @Test
-  void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+  RegressionTestsIT() {
+    super(Session.TEST_MODULE);
   }
 
   /**
    * Select test module on select criterion
    */
   @Test
+  @StartsFrom(Session.LOGGED_IN)
   void t001_selectTestModule() {
     // Title
     setTestTitle("Select test module: Test to select test module");
 
     // Select module
-    selectTestModule();
+    selectModule("Test");
+
+    // Check the menu of the module
+    checkMenuOption("test", "Tests");
   }
 
   /**
@@ -58,33 +60,6 @@ class RegressionTestsIT extends SeleniumUtilities {
 
     // Check row contents
     checkRowContents("Prueba - adminflare");
-  }
-
-  /**
-   * Test to check suggest criteria with 'strict' attribute set to false
-   */
-  @Test
-  void t003_suggestStrict() {
-    // Title
-    setTestTitle("Suggest Strict: Test to check suggest criteria with 'strict' attribute set to false");
-
-    // Go to screen
-    gotoScreen("tools", "users");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest on column selector
-    suggestLast("CrtUsr", "te");
-
-    // Search and wait
-    searchAndWait();
-
-    // Check grid values
-    checkRowContents("test");
-
-    // Check criterion value
-    checkSelectContents("CrtUsr", "te");
   }
 
   /**
@@ -119,6 +94,12 @@ class RegressionTestsIT extends SeleniumUtilities {
     // Title
     setTestTitle("Quote check on unit label");
 
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test");
+
+    // Wait for button
+    waitForButton("ButPrn");
+
     // Write on criterion
     writeText("Tar", "\"");
 
@@ -126,7 +107,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickCheckbox("RadBox3");
 
     // Wait for text
-    checkText("[criterion-id='Unt'] .unit", "USD");
+    checkCriterionUnit("Unt", "USD");
   }
 
   /**
@@ -136,6 +117,12 @@ class RegressionTestsIT extends SeleniumUtilities {
   void t006_checkFilteredDateDependency() {
     // Title
     setTestTitle("Check filtered date dependency (#31141)");
+
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test");
+
+    // Wait for button
+    waitForButton("ButPrn");
 
     // Write on criterion
     writeText("Txt", "edita");
@@ -147,43 +134,7 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickDate("FilCalRea");
 
     // Click on selector
-    click(".datepicker td.day:not(.disabled)");
-  }
-
-  /**
-   * Keep criteria test
-   */
-  @Test
-  void t007_keepCriteria() {
-    // Title
-    setTestTitle("Keep criteria test");
-
-    // Go to screen
-    gotoScreen("tools", "users");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest on column selector
-    suggest("CrtUsr", "test", "test");
-
-    // Search and wait
-    searchAndWait();
-
-    // Check grid values
-    clickRowContents("test");
-
-    // Click button
-    clickButton("ButViw", true);
-
-    // Click button
-    clickButton("ButBck", true);
-
-    // Wait for button
-    waitForButton("ButRst");
-
-    // Wait for button
-    checkSelectContents("CrtUsr", "test");
+    clickEnabledDatepickerDay();
   }
 
   /**
@@ -201,83 +152,13 @@ class RegressionTestsIT extends SeleniumUtilities {
     clickButton("ButRst");
 
     // Suggest delayed
-    click("[criterion-id='Sug'] .select2-choice");
-    suggestDelayed("#select2-drop", "tee", "test", "test", 800);
+    suggestReplacingSearch("Sug", "tee", "test", "test", 800);
 
     // Suggest delayed
-    suggestDelayed("[criterion-id='SugMulReq']", "tee", "test", "test", 800);
+    suggestMultipleReplacingSearch("SugMulReq", "tee", "test", "test", 800);
 
     // Check selector
     checkMultipleSelectorContents("SugMulReq", "test (test@test.com)");
-  }
-
-  /**
-   * Wrong login
-   */
-  @Test
-  void t009_wrongLogin() {
-    // Title
-    setTestTitle("Wrong login");
-
-    // Do logout
-    checkLogout(".slogan", "Almis Web Engine");
-
-    // Check wrong login
-    checkLogin("test", "lala", ".alert.alert-warning div", "Invalid credentials  The credentials entered for the user -test- are not valid");
-
-    // Check wrong login
-    checkLogin("tutu", "lala", ".alert.alert-warning div", "Wrong username  Username -tutu- is wrong or inactive");
-
-    // Do right login
-    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
-  }
-
-  /**
-   * Sort a grid using a component column
-   */
-  @Test
-  void t010_sortComponentColumn() {
-    // Title
-    setTestTitle("Sort a grid using a component column");
-
-    // Go to screen
-    gotoScreen("tools", "users");
-
-    // Wait for button
-    clickButton("ButRst");
-
-    // Suggest on column selector
-    suggest("CrtUsr", "test", "test");
-
-    // Search and wait
-    searchAndWait();
-
-    // Scroll grid to the right
-    scrollGrid("GrdUsrLst", 10000, 0);
-
-    // Sort by a component field
-    sortGrid("GrdUsrLst", "StaIco");
-
-    // Expect not to have an error message
-    checkMessageMissing("danger");
-
-    // Sort by a component field
-    sortGrid("GrdUsrLst", "BlkIco");
-
-    // Expect not to have an error message
-    checkMessageMissing("danger");
-
-    // Sort by a component field
-    sortGrid("GrdUsrLst", "LanTxt");
-
-    // Expect not to have an error message
-    checkMessageMissing("danger");
-
-    // Sort by a component field
-    sortGrid("GrdUsrLst", "LanImg");
-
-    // Expect not to have an error message
-    checkMessageMissing("danger");
   }
 
   /**
@@ -288,44 +169,31 @@ class RegressionTestsIT extends SeleniumUtilities {
     // Title
     setTestTitle("Check that suggested values are not repeated");
 
-    // Go to screen
-    gotoScreen("tools", "themes");
+    // Go to screen: the side panel of a new profile has a theme suggest that searches the themes
+    gotoScreen("tools", "profiles");
 
-    // Wait for button
-    clickButton("ButRst");
+    // Open the side panel
+    clickButton("ButNew");
 
     // Click on suggest
-    click("[criterion-id='CrtNam'] .select2-choice");
+    openSuggest("IdeThm");
 
-    // Pause
-    pause(1000);
+    // Write the search one letter at a time, waiting for each search to finish before the next one
+    writeSuggestSearch("IdeThm", "a");
+    waitForLoadingBar();
+    writeSuggestSearch("IdeThm", "s");
+    waitForLoadingBar();
+    writeSuggestSearch("IdeThm", "p");
+    waitForLoadingBar();
 
-    // Write text
-    writeText(By.cssSelector("#select2-drop input.select2-input"), "a");
-
-    // Pause
-    pause(1000);
-
-    // Write text
-    writeText(By.cssSelector("#select2-drop input.select2-input"), "s");
-
-    // Pause
-    pause(1000);
-
-    // Write text
-    writeText(By.cssSelector("#select2-drop input.select2-input"), "p");
-
-    // Pause
-    pause(1000);
-
-    // Check there's one result
-    checkVisible(".select2-result:first-child");
-
-    // Check there's only one result
-    checkNotVisible(".select2-result:not(:first-child)");
+    // Check there's only one result: the check waits until the list of the last search replaces the earlier ones
+    checkSuggestResultCount(1);
 
     // Click selector
     selectResult("asp");
+
+    // Close the side panel without saving
+    clickButton("ButPnlCnl");
   }
 
   /**
@@ -333,8 +201,6 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t012_fillOverSelect() {
-    selectTestModule();
-
     // Title
     setTestTitle("Test filling a select with less values than usual");
 
@@ -363,7 +229,8 @@ class RegressionTestsIT extends SeleniumUtilities {
     writeText("TimReq", "12:23:41");
 
     // Assert text
-    checkSelectNumberOfResults("SelReq", 4);
+    // The four profiles of the test data and the predefined Reader and Contributor
+    checkSelectNumberOfResults("SelReq", 6);
 
     // Select result
     selectResult("General");
@@ -386,10 +253,11 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t020_checkDependenciesAfterRestore() {
-    selectTestModule();
-
     // Title
     setTestTitle("Check if dependencies are working after restore (issue #279)");
+
+    // Go to screen
+    gotoScreen("test", "criteria", "criteria-test");
 
     // Wait for button
     waitForButton("ButPrn");
@@ -435,10 +303,10 @@ class RegressionTestsIT extends SeleniumUtilities {
     waitForButton("ButPrn");
 
     // Click to select all rows of grid
-    selectAllRowsOfGrid("GrdUsrLst");
+    selectAllRowsOfGrid("GrdUsrAdm");
 
     // Wait for button
-    checkPresence(".grid [id='scope-GrdUsrLst'] .ui-grid-header-checkbox label.checkbox input:checked");
+    checkAllRowsSelected("GrdUsrAdm");
   }
 
   /**
@@ -446,8 +314,6 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t040_suggestChangeValue() {
-    selectTestModule();
-
     // Title
     setTestTitle("Launch 2 selected actions into a suggest and check value has changed successfully");
 
@@ -484,8 +350,6 @@ class RegressionTestsIT extends SeleniumUtilities {
    */
   @Test
   void t050_updateSuggestMultipleWithDependency() {
-    selectTestModule();
-
     // Title
     setTestTitle("Update suggest multiple with dependency");
 
@@ -507,42 +371,17 @@ class RegressionTestsIT extends SeleniumUtilities {
   }
 
   /**
-   * Suggest delayed
-   *
-   * @param selector Selector
-   * @param search1  Search on first case
-   * @param search2  Search on second case
-   * @param match    Match result
-   * @param pause    Pause
+   * Pivot table renders: the pivot locale is resolved from the application language (en-GB)
    */
-  private void suggestDelayed(String selector, String search1, String search2, String match, Integer pause) {
-    // Write text
-    writeText(By.cssSelector(selector + " input.select2-input"), search1);
+  @Test
+  void t060_pivotTableRenders() {
+    // Title
+    setTestTitle("Pivot table renders: the pivot locale is resolved from the application language (en-GB)");
 
-    // Pause
-    pause(pause);
+    // Go to screen
+    gotoScreen("test", "pivot-test");
 
-    // Clear text
-    clearText(selector + " input.select2-input");
-
-    // Write select
-    writeTextOnDriver(By.cssSelector(selector + " input.select2-input"), search2);
-
-    // Click selector
-    selectResult(match);
-  }
-
-  /**
-   * Select test module
-   */
-  private void selectTestModule() {
-    // Select module
-    selectModule("Test");
-
-    // Wait for text
-    waitForText("mm-text", "Tests");
-
-    // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    // Check the pivot table is drawn with its loaded data
+    checkPivotTableVisible("listaDatos");
   }
 }

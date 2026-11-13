@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import java.util.Map;
 @XStreamAlias("message-parameter")
 public class MessageParameter extends ServiceInputParameter {
 
+  @Serial
   private static final long serialVersionUID = -3825265381738837148L;
   // Parameter id
   @XStreamAlias("id")
@@ -131,7 +133,7 @@ public class MessageParameter extends ServiceInputParameter {
       case DATE:
       case TIME:
       case TIMESTAMP:
-        stringValue = value.toString();
+        stringValue = value == null ? null : value.toString();
         break;
       case STRING:
       default:

@@ -17,6 +17,15 @@
     <option label="ENUM_LAN_FR-FR" value="fr-FR" />
   </group>
 
+  <!-- MOVE ROWS TEST -->
+  <group id="MoveRowTst">
+    <option label="Step one" value="1" />
+    <option label="Step two" value="2" />
+    <option label="Step three" value="3" />
+    <option label="Step four" value="4" />
+    <option label="Step five" value="5" />
+  </group>
+
   <!-- MATRIX TEST TYPE -->
   <group id="EnuAweSelMat">
     <option label="ENUM_MATRIX_STATIC" value="StaMat" />
@@ -33,6 +42,17 @@
     <option label="ENUM_MATRIX_GRID_DEPENDENCIES" value="DepMat" />
   </group>
 
+  <!-- REVEAL INVALID FIELD TEST -->
+  <group id="RevTabs">
+    <option label="ENUM_REVEAL_FIRST" value="RevTabOne" />
+    <option label="ENUM_REVEAL_SECOND" value="RevTabTwo" />
+  </group>
+  <group id="RevSteps">
+    <option label="ENUM_REVEAL_FIRST" value="RevStepOne" />
+    <option label="ENUM_REVEAL_SECOND" value="RevStepTwo" />
+  </group>
+
+
   <!-- WIZARD TEST STEPS -->
   <group id="WizTst">
     <option label="ENUM_STEP_1" value="WizardStep1" />
@@ -40,4 +60,57 @@
     <option label="ENUM_STEP_3" value="WizardStep3" />
     <option label="ENUM_STEP_4" value="WizardStep4" />
   </group>
+
+  <!-- OPTIONS OF THE RADIO AND BUTTON-RADIO COLUMNS OF THE GRID WITH RADIO COLUMNS (GrdRadioTst screen) -->
+  <group id="RadioChoiceTst">
+    <option label="COLUMN_RADIO_OPTION_A" value="A" />
+    <option label="COLUMN_RADIO_OPTION_B" value="B" />
+    <option label="COLUMN_RADIO_OPTION_C" value="C" />
+  </group>
+
+  <group id="RadioModeTst">
+    <option label="COLUMN_RADIO_MODE_LOW" value="1" />
+    <option label="COLUMN_RADIO_MODE_MID" value="2" />
+    <option label="COLUMN_RADIO_MODE_HIGH" value="3" />
+  </group>
+
+  <!-- Deferred load test (#824) -->
+  <group id="DeferredTabs">
+    <option label="ENUM_DEFERRED_FIRST" value="DefFirst" />
+    <option label="ENUM_DEFERRED_SECOND" value="DefSecond" />
+  </group>
+
+  <group id="DeferredHeavyTabs">
+    <option label="ENUM_DEFERRED_FIRST" value="HeaFirst" />
+    <option label="ENUM_DEFERRED_SECOND" value="HeaSecond" />
+  </group>
+
+  <!-- Advanced search test screen (#790): its two examples, and the status, country and segment of the customers -->
+  <group id="AdvSchExm">
+    <option label="ENUM_ADV_SCH_INLINE" value="AdvSchInl" />
+    <option label="ENUM_ADV_SCH_SIDE_PANEL" value="AdvSchPnl" />
+    <option label="ENUM_ADV_SCH_SQL" value="AdvSchSql" />
+  </group>
+
+  <group id="AdvSchSta">
+    <option label="ENUM_ADV_SCH_ACTIVE" value="1" />
+    <option label="ENUM_ADV_SCH_INACTIVE" value="0" />
+  </group>
+
+  <group id="AdvSchCtr">
+    <option label="ENUM_ADV_SCH_COUNTRY_ES" value="ES" />
+    <option label="ENUM_ADV_SCH_COUNTRY_FR" value="FR" />
+    <option label="ENUM_ADV_SCH_COUNTRY_DE" value="DE" />
+    <option label="ENUM_ADV_SCH_COUNTRY_IT" value="IT" />
+    <option label="ENUM_ADV_SCH_COUNTRY_PT" value="PT" />
+    <option label="ENUM_ADV_SCH_COUNTRY_GB" value="GB" />
+  </group>
+
+  <group id="AdvSchSeg">
+    <option label="ENUM_ADV_SCH_SEGMENT_RET" value="RET" />
+    <option label="ENUM_ADV_SCH_SEGMENT_WHO" value="WHO" />
+    <option label="ENUM_ADV_SCH_SEGMENT_PUB" value="PUB" />
+    <option label="ENUM_ADV_SCH_SEGMENT_ONL" value="ONL" />
+  </group>
+
 </enumerated>

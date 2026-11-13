@@ -53,11 +53,18 @@ public abstract class AbstractButton extends AbstractCriteria {
   @XStreamAlias("button-type")
   @XStreamAsAttribute
   private String buttonType;
-  
+
   // Cancel queue or not (default true)
   @XStreamAlias("cancel")
   @XStreamAsAttribute
   private String cancel;
+
+  // Permissions required to show the button, separated by spaces (all of them are required). It replaces the decision
+  // derived from the targets its actions launch. Read by the server only
+  @JsonIgnore
+  @XStreamAlias("permission")
+  @XStreamAsAttribute
+  private String permission;
 
   @Override
   @JsonIgnore
@@ -95,8 +102,8 @@ public abstract class AbstractButton extends AbstractCriteria {
     List<ButtonAction> actionList = new ArrayList<>();
 
     for (Element element : getElementList()) {
-      if (element instanceof ButtonAction) {
-        actionList.add((ButtonAction) element);
+      if (element instanceof ButtonAction action) {
+        actionList.add(action);
       }
     }
 

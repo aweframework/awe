@@ -88,6 +88,142 @@ describe("components/menu.js", () => {
     expect(scope.status.minimized).toBe(true);
   });
 
+  describe("flyout of the collapsed menu", () => {
+    const groupOptions = [
+      {id: "group", name: "group", label: "Group", visible: true, options: [
+        {id: "child", name: "child", label: "Child", visible: true, actions: []}
+      ]},
+      {id: "other", name: "other", label: "Other", visible: true, options: [
+        {id: "otherChild", name: "otherChild", label: "Other child", visible: true, actions: []}
+      ]}
+    ];
+    const option = (element, name) => element.find(`a[name='${name}']`).parent();
+
+    it("opens the options of a first level option as a flyout while the pointer is over it, as the prototype", () => {
+      angular.element(document.body).addClass("mmc");
+      const {element} = compileMenu({style: "vertical", options: groupOptions});
+
+      option(element, "group").triggerHandler("mouseenter");
+      refs.$rootScope.$digest();
+
+      expect(option(element, "group").hasClass("mmc-dropdown-open")).toBe(true);
+      expect(option(element, "group").find("ul").hasClass("mmc-dropdown-open-ul")).toBe(true);
+
+      // Another option replaces the flyout
+      option(element, "other").triggerHandler("mouseenter");
+      refs.$rootScope.$digest();
+      expect(option(element, "group").hasClass("mmc-dropdown-open")).toBe(false);
+      expect(option(element, "other").hasClass("mmc-dropdown-open")).toBe(true);
+
+      // Leaving the option closes it after a moment (the test runs the timeout at once)
+      option(element, "other").triggerHandler("mouseleave");
+      refs.$rootScope.$digest();
+      expect(option(element, "other").hasClass("mmc-dropdown-open")).toBe(false);
+      expect(refs.$utilities.timeout).toHaveBeenCalledWith(expect.any(Function), 220);
+    });
+
+    it("does not open the options under the pointer while the menu is expanded", () => {
+      const {element} = compileMenu({style: "vertical", options: groupOptions});
+
+      option(element, "group").triggerHandler("mouseenter");
+      refs.$rootScope.$digest();
+
+      expect(option(element, "group").hasClass("open")).toBe(false);
+      expect(option(element, "group").hasClass("mmc-dropdown-open")).toBe(false);
+    });
+  });
+
+  describe("option description in the flyout of the collapsed menu (#924)", () => {
+    const describedOptions = [
+      {id: "tools", name: "tools", label: "Tools", description: "TOOLS_DESCRIPTION", visible: true, options: [
+        {id: "sites", name: "sites", label: "Sites", description: "SITES_DESCRIPTION", visible: true, actions: []},
+        {id: "users", name: "users", label: "Users", description: "USERS_DESCRIPTION", visible: true, actions: []},
+        {id: "plain", name: "plain", label: "Plain", visible: true, actions: []}
+      ]},
+      {id: "settings", name: "settings", label: "Settings", visible: true, options: [
+        {id: "first", name: "first", label: "First", visible: true, actions: []}
+      ]}
+    ];
+    const option = (element, name) => element.find(`a[name='${name}']`).parent();
+    const area = element => element.find(".awe-menu-description");
+    const useSettings = (settings) => jest.spyOn(getService("AweSettings"), "get").mockImplementation(key => settings[key]);
+    const compileRail = (settings = {}) => {
+      useSettings(settings);
+      angular.element(document.body).addClass("mmc");
+      return compileMenu({style: "vertical", options: describedOptions});
+    };
+    const hover = (element, name) => {
+      option(element, name).triggerHandler("mouseenter");
+      refs.$rootScope.$digest();
+    };
+
+    it("keeps the description as the hint of the option and shows no area by default (tooltip)", () => {
+      const {element} = compileRail();
+      hover(element, "tools");
+
+      expect(element.find("a[name='sites']").attr("title")).toBe("SITES_DESCRIPTION");
+      expect(area(element)).toHaveLength(0);
+    });
+
+    it("keeps the hint of the options in the expanded menu in panel mode", () => {
+      useSettings({menuDescription: "panel"});
+      const {element} = compileMenu({style: "vertical", options: describedOptions});
+      hover(element, "tools");
+
+      expect(element.find("a[name='sites']").attr("title")).toBe("SITES_DESCRIPTION");
+      expect(area(element)).toHaveLength(0);
+    });
+
+    it("describes the option under the pointer or with the focus, in an area linked to its link (panel)", () => {
+      const {element} = compileRail({menuDescription: "panel"});
+      hover(element, "tools");
+      // The option of the flyout describes itself until the pointer goes to one of its options
+      expect(area(element).text()).toBe("TOOLS_DESCRIPTION");
+      expect(element.find("a[name='tools']").attr("title")).toBe("TOOLS_DESCRIPTION");
+
+      hover(element, "sites");
+      expect(area(element).text()).toBe("SITES_DESCRIPTION");
+      expect(element.find("a[name='sites']").attr("aria-describedby")).toBe(area(element).attr("id"));
+      // The area replaces the hint: it is not announced twice
+      expect(element.find("a[name='sites']").attr("title")).toBeUndefined();
+
+      element.find("a[name='users']").triggerHandler("focus");
+      refs.$rootScope.$digest();
+      expect(area(element).text()).toBe("USERS_DESCRIPTION");
+      expect(element.find("a[name='sites']").attr("aria-describedby")).toBeUndefined();
+      expect(element.find("a[name='users']").attr("aria-describedby")).toBe(area(element).attr("id"));
+
+      // An option without description falls back to the description of the option of the flyout
+      hover(element, "plain");
+      expect(area(element).text()).toBe("TOOLS_DESCRIPTION");
+
+      // The area goes with the flyout
+      option(element, "tools").triggerHandler("mouseleave");
+      refs.$rootScope.$digest();
+      expect(area(element)).toHaveLength(0);
+    });
+
+    it("renders no area when neither the option nor its flyout have a description (panel)", () => {
+      const {element} = compileRail({menuDescription: "panel"});
+      hover(element, "settings");
+      hover(element, "first");
+
+      expect(area(element)).toHaveLength(0);
+    });
+
+    it("starts the flyout at the top of the menu in full-height placement", () => {
+      const {element} = compileRail({menuFlyoutPlacement: "full-height"});
+      const menu = element.find("ul.awe-menu")[0];
+      jest.spyOn(menu, "getBoundingClientRect").mockReturnValue({top: 56, bottom: 700, left: 0, right: 68, height: 644});
+
+      hover(element, "settings");
+
+      const flyout = option(element, "settings").find("ul")[0];
+      expect(flyout.style.getPropertyValue("--_flyout-top")).toBe("56px");
+      expect(flyout.classList.contains("mmc-dropdown-full-height")).toBe(true);
+    });
+  });
+
   it("renders only visible allowed menu options", () => {
     const {element} = compileMenu({options: [
       {id: "option1", name: "option1", label: "Option 1", visible: true},
@@ -98,8 +234,45 @@ describe("components/menu.js", () => {
     expect(element.text()).not.toContain("Option 2");
   });
 
+  it("shows the description of an option as the hint of its link", () => {
+    const {element} = compileMenu({options: [
+      {id: "described", name: "described", label: "Described", description: "Shown on hover", visible: true},
+      {id: "plain", name: "plain", label: "Plain", visible: true}
+    ]});
+
+    expect(element.find("a[name='described']").attr("title")).toBe("Shown on hover");
+    expect(element.find("a[name='plain']").attr("title")).toBeFalsy();
+  });
+
+  const translateWith = (dictionary) => jest.spyOn(getService("$translate"), "instant")
+    .mockImplementation(key => dictionary[key] || key);
+
+  it("shows the translated description as the hint of the option link", () => {
+    translateWith({MENU_DESC: "Translated hint"});
+    const {element} = compileMenu({options: [
+      {id: "described", name: "described", label: "Described", description: "MENU_DESC", visible: true}
+    ]});
+
+    expect(element.find("a[name='described']").attr("title")).toBe("Translated hint");
+  });
+
+  it("matches the search against the translated description, not its key", () => {
+    translateWith({MENU_DESC: "Quarterly figures"});
+    const {scope} = compileMenu({options: [
+      {id: "described", name: "described", label: "Described", description: "MENU_DESC", visible: true, actions: [{type: "screen"}]}
+    ]});
+
+    scope.search.query = "quarterly";
+    scope.onSearchChange();
+    expect(scope.search.results).toHaveLength(1);
+
+    scope.search.query = "menu_desc";
+    scope.onSearchChange();
+    expect(scope.search.results).toHaveLength(0);
+  });
+
   it("toggles a visible menu back to minimized state", () => {
-    const {scope} = compileMenu({style: "vertical"});
+    compileMenu({style: "vertical"});
 
     refs.$rootScope.$broadcast("/action/toggle-menu", createAction());
 
@@ -188,6 +361,17 @@ describe("components/menu.js", () => {
     expect(scope.search.open).toBe(false);
   });
 
+  it("launches the selected search result with the menu origin", () => {
+    const actionController = getService("ActionController");
+    jest.spyOn(actionController, "closeAllActions").mockImplementation(jest.fn());
+    const addActionList = jest.spyOn(actionController, "addActionList").mockImplementation(jest.fn());
+    const {scope} = compileMenu({style: "vertical"});
+
+    scope.selectResult({option: {name: "a", actions: [{type: "screen"}]}});
+
+    expect(addActionList.mock.calls[0][0]).toEqual([{type: "screen", origin: "menu"}]);
+  });
+
   it("closes the search on Escape and resets its state", () => {
     const {scope} = compileMenu({style: "vertical"});
 
@@ -218,5 +402,107 @@ describe("components/menu.js", () => {
     document.dispatchEvent(new Event("click"));
 
     expect(scope.search.open).toBe(false);
+  });
+
+  describe("Ctrl K shortcut", () => {
+    const pressShortcut = (init) => {
+      const event = new window.KeyboardEvent("keydown", {key: "k", code: "KeyK", bubbles: true, cancelable: true, ...init});
+      document.dispatchEvent(event);
+      return event;
+    };
+
+    afterEach(() => {
+      angular.element(document.body).removeClass("mmc");
+    });
+
+    it("shows the invitation and the shortcut in the vertical search field", () => {
+      const {element} = compileMenu({style: "vertical"});
+
+      const toggle = element.find(".awe-menu-search-toggle");
+      expect(toggle.attr("aria-keyshortcuts")).toBe("Control+K Meta+K");
+      expect(toggle.attr("title")).toBe("MENU_SEARCH_PLACEHOLDER");
+      expect(toggle.find(".awe-menu-search-toggle-label").text()).toBe("MENU_SEARCH_PLACEHOLDER");
+      const kbd = toggle.find("kbd.awe-menu-search-kbd");
+      expect(kbd.text()).toBe("Ctrl K");
+      expect(kbd.attr("aria-hidden")).toBe("true");
+    });
+
+    it("shows the same field with the invitation and the shortcut in the horizontal menu", () => {
+      const {element} = compileMenu({style: "horizontal"});
+
+      const toggle = element.find(".awe-menu-search-toggle");
+      expect(toggle.attr("aria-keyshortcuts")).toBe("Control+K Meta+K");
+      expect(toggle.attr("title")).toBe("MENU_SEARCH_PLACEHOLDER");
+      expect(toggle.find(".awe-menu-search-toggle-label").text()).toBe("MENU_SEARCH_PLACEHOLDER");
+      const kbd = toggle.find("kbd.awe-menu-search-kbd");
+      expect(kbd.text()).toBe("Ctrl K");
+      expect(kbd.attr("aria-hidden")).toBe("true");
+    });
+
+    it.each([["Ctrl", {ctrlKey: true}], ["Meta", {metaKey: true}], ["Ctrl with caps lock", {ctrlKey: true, key: "K"}]])(
+      "opens the search and focuses its input with %s + K", (_name, init) => {
+        const {element, scope} = compileMenu({style: "vertical"});
+        angular.element(document.body).append(element);
+
+        const event = pressShortcut(init);
+        refs.$rootScope.$digest();
+
+        expect(event.defaultPrevented).toBe(true);
+        expect(scope.search.open).toBe(true);
+        expect(document.activeElement).toBe(element.find(".awe-menu-search-input")[0]);
+        element.remove();
+      });
+
+    it("keeps the search open with its query when it is already open", () => {
+      const {scope} = compileMenu({style: "vertical"});
+      scope.openSearch();
+      scope.search.query = "invoice";
+
+      pressShortcut({ctrlKey: true});
+
+      expect(scope.search.open).toBe(true);
+      expect(scope.search.query).toBe("invoice");
+    });
+
+    it.each([["K alone", {}], ["Ctrl + Shift + K", {ctrlKey: true, shiftKey: true}], ["Alt + K", {altKey: true}],
+      ["Ctrl + J", {ctrlKey: true, key: "j", code: "KeyJ"}]])("ignores %s and leaves the event untouched", (_name, init) => {
+      const {scope} = compileMenu({style: "vertical"});
+
+      const event = pressShortcut(init);
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(scope.search.open).toBe(false);
+    });
+
+    it("ignores the shortcut when the vertical menu is collapsed", () => {
+      angular.element(document.body).addClass("mmc");
+      const {scope} = compileMenu({style: "vertical"});
+
+      const event = pressShortcut({ctrlKey: true});
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(scope.search.open).toBe(false);
+    });
+
+    it("ignores the shortcut when the option search is disabled", () => {
+      jest.spyOn(getService("AweSettings"), "get")
+        .mockImplementation(key => (key === "menuSearchEnabled" ? false : undefined));
+      const {scope} = compileMenu({style: "vertical"});
+
+      const event = pressShortcut({ctrlKey: true});
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(scope.search.open).toBe(false);
+    });
+
+    it("stops listening to the shortcut once the menu is destroyed", () => {
+      const {scope} = compileMenu({style: "vertical"});
+      scope.$destroy();
+
+      const event = pressShortcut({ctrlKey: true});
+
+      expect(event.defaultPrevented).toBe(false);
+      expect(scope.search.open).toBe(false);
+    });
   });
 });

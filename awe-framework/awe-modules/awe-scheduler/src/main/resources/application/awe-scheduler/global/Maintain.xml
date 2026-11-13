@@ -17,7 +17,7 @@
   SCHEDULER SERVER
   -->
   <!-- Insert new server -->
-  <target name="NewSchedulerServer">
+  <target name="NewSchedulerServer" permission="scheduler.update">
     <insert audit="HISAweSchSrv">
       <table id="AweSchSrv" />
       <field id="Ide" sequence="SchTskSrv" variable="IdeSrv"/>
@@ -44,7 +44,7 @@
   </target>
 
   <!--Delete server-->
-  <target name="DeleteSchedulerServer">
+  <target name="DeleteSchedulerServer" permission="scheduler.update">
     <delete multiple="true">
       <table id="AweSchSrv" />
       <field id="Ide" variable="Ide"/>
@@ -58,7 +58,7 @@
   </target>
 
   <!--Update server-->
-  <target name="UpdSchSrv">
+  <target name="UpdSchSrv" permission="scheduler.update">
     <update>
       <table id="AweSchSrv" />
       <field id="Nom" variable="Nom" />
@@ -133,7 +133,7 @@
     </update>
   </target>
   <!--Deactivate-->
-  <target name="DeaSchSrv">
+  <target name="DeaSchSrv" permission="scheduler.update">
     <update>
       <table id="AweSchSrv" />
       <field id="Act" variable="Act" />
@@ -148,7 +148,7 @@
   </target>
 
   <!--Activate-->
-  <target name="ActSchSrv">
+  <target name="ActSchSrv" permission="scheduler.update">
     <update>
       <table id="AweSchSrv" />
       <field id="Act" variable="Act" />
@@ -166,7 +166,7 @@
   SCHEDULER TASK
   -->
   <!-- Insert scheduled task -->
-  <target name="NewSchedulerTask">
+  <target name="NewSchedulerTask" permission="scheduler.update">
     <insert audit="HISAweSchTsk">
       <table id="AweSchTsk" />
       <field id="Ide" sequence="SchTskKey" variable="IdeTsk" />
@@ -296,7 +296,7 @@
   </target>
 
   <!-- Update scheduled task -->
-  <target name="UpdateSchedulerTask">
+  <target name="UpdateSchedulerTask" permission="scheduler.update">
     <update audit="HISAweSchTsk">
       <table id="AweSchTsk" />
       <field id="Nam" variable="Nam" />
@@ -452,7 +452,7 @@
   </target>
 
   <!--Deactivate Scheduler Task-->
-  <target name="DeaSchTsk" public="true">
+  <target name="DeaSchTsk" permission="scheduler.update">
     <update>
       <table id="AweSchTsk" />
       <field id="Act" variable="Act" />
@@ -471,7 +471,7 @@
   </target>
 
   <!--Activate Scheduler Task-->
-  <target name="ActSchTsk" public="true">
+  <target name="ActSchTsk" permission="scheduler.update">
     <update>
       <table id="AweSchTsk" />
       <field id="Act" variable="Act" />
@@ -489,7 +489,7 @@
     </serve>
   </target>
 
-  <target name="LchTsk">
+  <target name="LchTsk" permission="scheduler.execute">
     <serve service="executeTaskNow">
       <variable id="taskIde" type="INTEGER" name="IdeTsk.selected"/>
       <variable id="user" type="STRING" session="user"/>
@@ -501,7 +501,7 @@
        column arrays; ServiceMaintainConnector leaves the bean-class service-parameter un-remapped and
        carries the name/value keys through so getParameterBeanListValue assembles List<TaskVariable>.
        -->
-  <target name="LchTskVar">
+  <target name="LchTskVar" permission="scheduler.execute">
     <serve service="executeTaskNowVariables">
       <variable id="taskIde" type="INTEGER" name="IdeTsk.selected"/>
       <variable id="user" type="STRING" session="user"/>
@@ -512,7 +512,7 @@
 
   <!-- Validate the operator supplied parameters before launching. Runs before LchTskVar so an
        unresolved property aborts the chain with a message instead of launching the task. -->
-  <target name="VldTskPar">
+  <target name="VldTskPar" permission="scheduler.execute">
     <serve service="validateTaskParameters">
       <variable id="taskIde" type="INTEGER" name="IdeTsk.selected"/>
       <variable id="name" type="STRING" name="name"/>
@@ -521,7 +521,7 @@
   </target>
 
   <!-- Delete scheduled task -->
-  <target name="DeleteSchedulerTask">
+  <target name="DeleteSchedulerTask" permission="scheduler.update">
     <delete multiple="true">
       <table id="AweSchTskDpn" />
       <field id="IdePrn" variable="IdeTsk"/>
@@ -595,7 +595,7 @@
   SCHEDULER CALENDAR
   -->
   <!-- Insert Scheduler Calendar -->
-  <target name="NewSchedulerCalendar">
+  <target name="NewSchedulerCalendar" permission="scheduler.update">
     <insert audit="HISAweSchCal">
       <table id="AweSchCal" />
       <field id="Ide" sequence="SchTskCal" variable="IdeCal"/>
@@ -625,7 +625,7 @@
   </target>
 
   <!-- Delete Scheduler Calendar -->
-  <target name="DeleteSchedulerCalendar">
+  <target name="DeleteSchedulerCalendar" permission="scheduler.update">
     <serve service="deleteSchedulerCalendar">
       <variable id="calendarIde" type="INTEGER" name="Ide" />
     </serve>
@@ -662,7 +662,7 @@
   </target>
 
   <!-- Update Scheduler Calendar -->
-  <target name="UpdSchCal">
+  <target name="UpdSchCal" permission="scheduler.update">
     <update>
       <table id="AweSchCal" />
       <field id="Nom" variable="Nom" />
@@ -697,7 +697,7 @@
 
   <!--Deactivate-->
   <!--Deactivate Scheduler Calendar-->
-  <target name="DeaSchCal">
+  <target name="DeaSchCal" permission="scheduler.update">
     <serve service="deactivateSchedulerCalendar">
       <variable id="calendarIde" type="INTEGER" name="Ide"/>
     </serve>
@@ -715,7 +715,7 @@
   </target>
 
   <!--Activate Scheduler Calendar-->
-  <target name="ActSchCal">
+  <target name="ActSchCal" permission="scheduler.update">
     <update>
       <table id="AweSchCal" />
       <field id="Act" variable="Act" />
@@ -775,7 +775,7 @@
   SCHEDULER CALENDAR
   -->
   <!-- insert new file -->
-  <target name="insertFile">
+  <target name="insertFile" server-only="true">
     <insert>
       <table id="AweSchTskFilMod" />
       <field id="IdeTsk" variable="IdeTsk"/>
@@ -788,7 +788,7 @@
   </target>
 
   <!-- update new file -->
-  <target name="updateFile">
+  <target name="updateFile" server-only="true">
     <update>
       <table id="AweSchTskFilMod" />
       <field id="ModDat" variable="ModDat"/>
@@ -805,7 +805,7 @@
   </target>
 
   <!-- delete new file -->
-  <target name="deleteFile">
+  <target name="deleteFile" server-only="true">
     <delete>
       <table id="AweSchTskFilMod" />
       <where>
@@ -820,7 +820,7 @@
   </target>
 
   <!-- Start a task -->
-  <target name="startTask">
+  <target name="startTask" server-only="true">
     <insert>
       <table id="AweSchExe" />
       <field id="IdeTsk" variable="taskId"/>
@@ -844,7 +844,7 @@
   </target>
 
   <!-- Delete execution logs -->
-  <target name="purgeExecutionLogs">
+  <target name="purgeExecutionLogs" server-only="true">
     <delete>
       <table id="AweSchExe" />
       <where>
@@ -857,7 +857,7 @@
   </target>
 
   <!-- End a task -->
-  <target name="endTask">
+  <target name="endTask" server-only="true">
     <update>
       <table id="AweSchExe" />
       <constant id="EndDat" type="SYSTEM_TIMESTAMP"/>
@@ -882,7 +882,7 @@
   </target>
 
   <!-- End a task -->
-  <target name="updateExecutionTime">
+  <target name="updateExecutionTime" server-only="true">
     <update>
       <table id="AweSchExe" />
       <field id="ExeTim" variable="executionTime"/>
@@ -899,7 +899,7 @@
   </target>
 
   <!-- Change a task status -->
-  <target name="updateTaskStatus">
+  <target name="updateTaskStatus" server-only="true">
     <update>
       <table id="AweSchExe" />
       <field id="Sta" variable="status"/>
@@ -917,7 +917,7 @@
     </update>
   </target>
 
-  <target name="updateInterruptedTasks">
+  <target name="updateInterruptedTasks" server-only="true">
     <update>
       <table id="AweSchExe" />
       <constant id="EndDat" type="SYSTEM_TIMESTAMP"/>
@@ -931,19 +931,19 @@
     </update>
   </target>
 
-  <target name="stopScheduler">
+  <target name="stopScheduler" permission="scheduler.execute">
     <serve service="stopScheduler"/>
   </target>
 
-  <target name="startScheduler">
+  <target name="startScheduler" permission="scheduler.execute">
     <serve service="startScheduler"/>
   </target>
 
-  <target name="restartScheduler">
+  <target name="restartScheduler" permission="scheduler.execute">
     <serve service="restartScheduler"/>
   </target>
 
-  <target name="clearAndStop">
+  <target name="clearAndStop" permission="scheduler.execute">
     <serve service="clearAndStop"/>
   </target>
 
@@ -951,7 +951,7 @@
     <serve service="generateReport"/>
   </target>
 
-  <target name="loadExecutionScreen">
+  <target name="loadExecutionScreen" permission="scheduler.read">
     <serve service="loadExecutionScreen">
       <variable id="executionLogLocator" type="STRING" name="buttonValue"/>
       <variable id="address" type="OBJECT" name="buttonAddress"/>
@@ -959,7 +959,7 @@
   </target>
 
   <!-- Insert database-mode execution log window rows (dirty slots never persisted before) -->
-  <target name="insertExecutionLogLines">
+  <target name="insertExecutionLogLines" server-only="true">
     <insert multiple="true">
       <table id="AweSchExeLog"/>
       <field id="IdeTsk" variable="taskId" key="true"/>
@@ -982,7 +982,7 @@
   </target>
 
   <!-- Update database-mode execution log window rows (dirty slots already persisted) -->
-  <target name="updateExecutionLogLines">
+  <target name="updateExecutionLogLines" server-only="true">
     <update multiple="true">
       <table id="AweSchExeLog"/>
       <field id="LinNum" variable="lineNumber"/>
@@ -1010,7 +1010,7 @@
 
   <!-- Delete stored execution log window rows for a set of (task, execution) keys, across every
        origin. Issued only by DatabaseExecutionLogStore: per-task purge, orphan purge. -->
-  <target name="purgeExecutionLogLines">
+  <target name="purgeExecutionLogLines" server-only="true">
     <delete multiple="true">
       <table id="AweSchExeLog"/>
       <where>
@@ -1027,7 +1027,7 @@
   <!-- Delete stored execution log window rows for a single (task, execution) key, scoped to one
        origin only. Issued only by ExecutionLogWriter's first flush per partition, so the other
        origin's rows for the same execution are never touched. -->
-  <target name="purgeExecutionLogOrigin">
+  <target name="purgeExecutionLogOrigin" server-only="true">
     <delete multiple="true">
       <table id="AweSchExeLog"/>
       <where>
@@ -1043,7 +1043,7 @@
     </delete>
   </target>
 
-  <target name="reloadExecutionScreen">
+  <target name="reloadExecutionScreen" permission="scheduler.read">
     <serve service="reloadExecutionScreen">
       <variable id="taskId" type="INTEGER" name="task-id"/>
       <variable id="executionId" type="INTEGER" name="execution-id"/>
@@ -1073,7 +1073,7 @@
        server screens. Runs no query or maintain: nothing is persisted. IdeSrv is
        only present on the update screen, where blank secrets mean "keep the
        stored value" and are resolved against the stored server. -->
-  <target name="ChkSchSrvCnx">
+  <target name="ChkSchSrvCnx" permission="scheduler.update">
     <serve service="checkServerConnection">
       <variable id="type" type="STRING" name="Pro"/>
       <variable id="host" type="STRING" name="Hst"/>
@@ -1090,7 +1090,7 @@
        The grid carries no port or credentials, so only the selected row id is
        sent and the service loads the whole stored record. Runs no query or
        maintain: nothing is persisted. -->
-  <target name="ChkSchSrvCnxSel">
+  <target name="ChkSchSrvCnxSel" permission="scheduler.update">
     <serve service="checkServerConnection">
       <variable id="serverId" type="INTEGER" name="Ide.selected"/>
     </serve>

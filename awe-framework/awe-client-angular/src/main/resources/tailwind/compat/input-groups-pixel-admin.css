@@ -1,0 +1,41 @@
+/*
+ * Input groups, pixel-admin overrides (legacy/pixel-admin/forms.less) of the Bootstrap rules in input-groups.css: the validation colors of the
+ * addon, the button line height and margin, and the input position and z-index. The vendored build compiles them after the pixel-admin form rules,
+ * so this file is imported after forms-pixel-admin.css. Same conventions as input-groups.css: compiled values, no !important.
+ */
+
+.has-warning .input-group-addon {
+  color: var(--awe-color-warning-text);
+  border-color: var(--awe-color-warning-border);
+  background-color: var(--awe-color-warning-subtle);
+}
+
+.has-error .input-group-addon {
+  color: var(--awe-color-danger-text);
+  border-color: var(--awe-color-danger-border);
+  background-color: var(--awe-color-danger-subtle);
+}
+
+.has-success .input-group-addon {
+  color: var(--awe-color-success-text);
+  border-color: var(--awe-color-success-border);
+  background-color: var(--awe-color-success-subtle);
+}
+
+.input-group-btn > .btn {
+  line-height: var(--awe-space-4);
+  margin: 0;
+}
+
+.input-group input {
+  position: relative;
+  z-index: 3;
+}
+
+.input-group > .input-group-btn + input {
+  margin-left: calc(var(--awe-space-0-5) * -1);
+}
+
+.input-group > input + .input-group-btn .btn:first-child {
+  border-left-width: 0;
+}

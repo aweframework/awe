@@ -1,0 +1,22 @@
+//
+// Design tokens
+// --------------------------------------------------
+// The --awe-* custom properties come only from the AWE 5 token file shared with the React engine
+// (awe-design-tokens/tokens.css, imported before this file). See website/docs/design-system/tokens-reference.md.
+//
+// There are no classic themes any more (#885): a theme name is a preset that the server resolves into a primary, a
+// surface, a mode and a density, rendered on <html> (the `light` or `dark` class, data-awe-primary, data-awe-surface,
+// data-awe-density and the palette generated from a hex). The LESS variables of base.less read the tokens.
+
+// Colour mode of the tokens (light-dark()): the system one unless the user chose light or dark (class on <html>)
+:root {
+  color-scheme: light dark;
+}
+
+:root.light {
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
+}

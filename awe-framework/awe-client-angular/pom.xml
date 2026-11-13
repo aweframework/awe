@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.12.9</version>
+    <version>5.0.0</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -32,6 +32,9 @@
     <awe.build.timestamp>${project.version}-${maven.build.timestamp}</awe.build.timestamp>
     <maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
     <nodePackageSkipDevDependencies>true</nodePackageSkipDevDependencies>
+    <!-- npm script of the "jest" execution: the unit tests by default; the CI job "Unit · AngularJS · Compat" passes
+         -Djest.script=test:compat to run the compat guards of src/test/jest/styles (jest.compat.config.js) instead -->
+    <jest.script>test:coverage</jest.script>
   </properties>
 
   <build>
@@ -48,6 +51,14 @@
           <include>awe/mixins.less</include>
         </includes>
         <targetPath>${project.build.directory}/classes/less</targetPath>
+      </resource>
+      <resource>
+        <!-- The licence of the Inter font of the AWE 5 type scale (#885), next to the bundled fonts -->
+        <directory>${project.basedir}/../awe-design-tokens/fonts</directory>
+        <targetPath>${project.build.directory}/classes/static/fonts</targetPath>
+        <includes>
+          <include>LICENSE-inter-OFL.txt</include>
+        </includes>
       </resource>
       <resource>
         <directory>${project.basedir}/src/main/resources/css</directory>
@@ -74,6 +85,20 @@
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <executions>
+          <!-- Lint the AngularJS sources and their Jest tests before the unit tests: lint errors fail the build, and so do
+               more warnings than the limit of the lint:ci script (package.json), which only goes down. Declared before "jest" so
+               it runs first within the test phase. CI skips it (-Dskip.lint=true) because the "Lint · Frontend" job runs lint:ci. -->
+          <execution>
+            <id>lint</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>test</phase>
+            <configuration>
+              <arguments>run lint:ci</arguments>
+              <skip>${skip.lint}</skip>
+            </configuration>
+          </execution>
           <execution>
             <id>jest</id>
             <goals>
@@ -81,7 +106,7 @@
             </goals>
             <phase>test</phase>
             <configuration>
-              <arguments>run test:coverage</arguments>
+              <arguments>run ${jest.script}</arguments>
             </configuration>
           </execution>
         </executions>

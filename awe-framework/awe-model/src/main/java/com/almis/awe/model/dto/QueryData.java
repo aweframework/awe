@@ -3,10 +3,10 @@ package com.almis.awe.model.dto;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.entities.queries.Query;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 

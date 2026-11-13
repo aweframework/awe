@@ -1,0 +1,185 @@
+<div class="scr-per expand expandible-vertical {{::controller.style}}" ng-class="{'scr-per-with-panel': selected && mode === 'edit'}" ng-cloak>
+  <div class="scr-per-toolbar">
+    <div class="scr-per-user scr-per-screen">
+      <input type="text" class="form-control" ng-model="screenInput.text" ng-change="searchScreens()" ng-model-options="{debounce: 250}" aria-label="{{'PARAMETER_SCREEN' | translateMultiple}}"
+        placeholder="{{'PARAMETER_SCREEN' | translateMultiple}}" autocomplete="off">
+      <ul class="scr-per-options scr-per-suggestions" role="listbox" ng-if="screenInput.suggestions.length">
+        <li role="option" ng-repeat="item in screenInput.suggestions"><a href="" ng-click="chooseScreen(item)" ng-bind="item.label"></a></li>
+      </ul>
+    </div>
+    <div class="btn-group scr-per-scopes" role="group" ng-if="screen" aria-label="{{'SCR_PER_MODE' | translateMultiple}}">
+      <button type="button" ng-repeat="type in modes" class="btn btn-awe" ng-class="mode === type ? 'btn-primary' : 'btn-default'" aria-pressed="{{mode === type}}"
+        ng-click="setMode(type)" translate-multiple="{{'SCR_PER_MODE_' + type.toUpperCase()}}"></button>
+    </div>
+    <div class="scr-per-links" ng-show="screen">
+      <button type="button" class="btn btn-link scr-per-link" ng-click="exportRules()"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('lucide:download' | aweIcon).href}}"></use></svg></i> <span translate-multiple="SCR_PER_EXPORT"></span></button>
+      <div class="dropdown scr-per-import-dropdown">
+        <button type="button" class="btn btn-link scr-per-link" data-toggle="dropdown" aria-haspopup="dialog" aria-expanded="false"><i><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('lucide:upload' | aweIcon).href}}"></use></svg></i> <span translate-multiple="SCR_PER_IMPORT"></span></button>
+        <div class="dropdown-menu scr-per-import-menu" role="dialog" aria-label="{{'SCR_PER_IMPORT_TITLE' | translateMultiple}}">
+          <h3 class="scr-per-import-popover-title" translate-multiple="SCR_PER_IMPORT_TITLE"></h3>
+          <div class="scr-per-dropzone">
+            <i class="scr-per-dropzone-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use ng-attr-href="{{::('lucide:upload' | aweIcon).href}}"></use></svg></i>
+            <span><span translate-multiple="SCR_PER_IMPORT_DROP"></span> <button type="button" class="btn btn-link scr-per-link scr-per-choose" ng-click="chooseImportFile()" translate-multiple="SCR_PER_IMPORT_CHOOSE"></button></span>
+            <input type="file" class="scr-per-import-file" accept=".json,application/json" hidden aria-label="{{'SCR_PER_IMPORT_FILE' | translateMultiple}}">
+          </div>
+          <p class="scr-per-import-hint" translate-multiple="SCR_PER_IMPORT_HINT"></p>
+        </div>
+      </div>
+    </div>
+    <span class="scr-per-break"></span>
+    <div class="scr-per-edit-controls" ng-show="mode === 'edit'">
+    <span class="scr-per-applies" translate-multiple="SCR_PER_VIEW_AS"></span>
+    <div class="btn-group scr-per-scopes" role="group" aria-label="{{'SCR_PER_VIEW_AS' | translateMultiple}}">
+      <button type="button" ng-repeat="type in viewAsTypes" class="btn btn-awe" ng-class="viewAs.type === type ? 'btn-primary' : 'btn-default'" aria-pressed="{{viewAs.type === type}}"
+        ng-click="setViewAsType(type)" translate-multiple="{{type === 'scope' ? 'SCR_PER_VIEW_AS_EDITED' : 'SCR_PER_SCOPE_' + type.toUpperCase()}}"></button>
+    </div>
+    <div class="dropdown scr-per-dropdown" ng-if="viewAs.type === 'profile'">
+      <button type="button" class="btn btn-awe btn-default" data-toggle="dropdown" aria-haspopup="true">
+        <span ng-bind="viewAsProfileLabel() || ('PARAMETER_PROFILE' | translateMultiple)"></span>
+      </button>
+      <div class="dropdown-menu scr-per-menu">
+        <ul class="scr-per-options" role="listbox">
+          <li role="option" ng-repeat="item in profiles" ng-class="{'active': item.value === viewAs.id}"><a href="" ng-click="chooseViewAsProfile(item)" ng-bind="item.label"></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="scr-per-user" ng-if="viewAs.type === 'user'">
+      <input type="text" class="form-control" ng-model="viewAsUser.text" ng-change="searchViewAsUsers()" ng-model-options="{debounce: 250}" aria-label="{{'PARAMETER_USER' | translateMultiple}}"
+        placeholder="{{'PARAMETER_USER' | translateMultiple}}" autocomplete="off">
+      <ul class="scr-per-options scr-per-suggestions" role="listbox" ng-if="viewAsUser.suggestions.length">
+        <li role="option" ng-repeat="item in viewAsUser.suggestions"><a href="" ng-click="chooseViewAsUser(item)" ng-bind="item.label"></a></li>
+      </ul>
+    </div>
+    <span class="scr-per-applies" translate-multiple="SCR_PER_APPLIES_TO"></span>
+    <div class="btn-group scr-per-scopes" role="group">
+      <button type="button" ng-repeat="type in scopeTypes" class="btn btn-awe" ng-class="applies.type === type ? 'btn-primary' : 'btn-default'" aria-pressed="{{applies.type === type}}"
+        ng-click="setScopeType(type)" translate-multiple="{{'SCR_PER_SCOPE_' + type.toUpperCase()}}"></button>
+    </div>
+    <div class="dropdown scr-per-dropdown" ng-if="applies.type === 'profile'">
+      <button type="button" class="btn btn-awe btn-default" data-toggle="dropdown" aria-haspopup="true">
+        <span ng-bind="profileLabel() || ('PARAMETER_PROFILE' | translateMultiple)"></span>
+      </button>
+      <div class="dropdown-menu scr-per-menu">
+        <ul class="scr-per-options" role="listbox">
+          <li role="option" ng-repeat="item in profiles" ng-class="{'active': item.value === applies.id}"><a href="" ng-click="chooseProfile(item)" ng-bind="item.label"></a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="scr-per-user" ng-if="applies.type === 'user'">
+      <input type="text" class="form-control" ng-model="user.text" ng-change="searchUsers()" ng-model-options="{debounce: 250}" aria-label="{{'PARAMETER_USER' | translateMultiple}}"
+        placeholder="{{'PARAMETER_USER' | translateMultiple}}" autocomplete="off">
+      <ul class="scr-per-options scr-per-suggestions" role="listbox" ng-if="user.suggestions.length">
+        <li role="option" ng-repeat="item in user.suggestions"><a href="" ng-click="chooseUser(item)" ng-bind="item.label"></a></li>
+      </ul>
+    </div>
+    <span class="scr-per-hint" translate-multiple="SCR_PER_PRECEDENCE"></span>
+    <span class="scr-per-actions">
+      <span class="scr-per-status" role="status" ng-bind="status()"></span>
+      <button type="button" class="btn btn-awe btn-default" ng-disabled="changes().length === 0" ng-click="discard()" translate-multiple="SCR_PER_DISCARD"></button>
+      <button type="button" class="btn btn-awe btn-primary" ng-disabled="!canSave()" ng-click="save()" translate-multiple="BUTTON_SAVE_CHANGES"></button>
+    </span>
+    </div>
+  </div>
+  <section class="scr-per-import" ng-if="importPlan" role="region" aria-label="{{'SCR_PER_IMPORT' | translateMultiple}}">
+    <p class="scr-per-import-title" ng-if="importPlan.error.code === 'INVALID_FILE'" translate-multiple="SCR_PER_IMPORT_INVALID_FILE"></p>
+    <p class="scr-per-import-title" ng-if="importPlan.error.code === 'OTHER_SCREEN'" ng-bind="t('SCR_PER_IMPORT_OTHER_SCREEN', importPlan.error.screen)"></p>
+    <h3 class="scr-per-import-title" ng-if="!importPlan.error" ng-bind="t('SCR_PER_IMPORT_PREVIEW', importPlan.toAdd, importPlan.toChange)"></h3>
+    <span ng-if="importPlan.skipped.length" ng-bind="t('SCR_PER_IMPORT_SKIPPED', importPlan.skipped.length)"></span>
+    <ul class="scr-per-import-skipped" ng-if="importPlan.skipped.length">
+      <li ng-repeat="skip in importPlan.skipped" ng-bind="t('SCR_PER_IMPORT_SKIPPED_ITEM', importPlan.skippedLabels[$index].component, importPlan.skippedLabels[$index].attribute, t('SCR_PER_IMPORT_REASON_' + skip.reason.toUpperCase()), skip.name)"></li>
+    </ul>
+    <span class="scr-per-import-actions">
+      <button type="button" class="btn btn-awe btn-primary" ng-if="!importPlan.error" ng-disabled="!importPlan.changes.length" ng-click="applyImport()" translate-multiple="SCR_PER_IMPORT_APPLY"></button>
+      <button type="button" class="btn btn-awe btn-default" ng-click="cancelImport()" translate-multiple="SCR_PER_IMPORT_CANCEL"></button>
+    </span>
+  </section>
+  <p class="scr-per-empty" ng-if="!screen" translate-multiple="SCR_PER_PICK_SCREEN"></p>
+  <p class="scr-per-empty" ng-if="screen && noOption" translate-multiple="SCR_PER_NO_OPTION"></p>
+  <div class="scr-per-canvas" ng-if="screen && mode === 'overview' && overview">
+    <div class="scr-per-overview">
+      <h2 class="scr-per-overview-title" ng-bind="overview.title"></h2>
+      <p class="scr-per-empty" ng-if="!overview.blocks.length" translate-multiple="SCR_PER_OVERVIEW_EMPTY"></p>
+      <section class="scr-per-overview-block" ng-repeat="block in overview.blocks track by block.key">
+        <button type="button" class="btn btn-link scr-per-overview-name" ng-click="openFromOverview(block.component, null)" ng-bind="block.name"></button>
+        <ul class="scr-per-overview-rows">
+          <li ng-repeat="item in block.entries track by item.ruleId">
+            <button type="button" class="btn btn-link scr-per-overview-subject" ng-click="openFromOverview(block.component, item.entry)" ng-bind="item.text"></button>
+          </li>
+        </ul>
+      </section>
+      <section class="scr-per-overview-problems" ng-if="overview.problems.length" role="region" aria-label="{{overview.warning}}">
+        <h3 class="scr-per-overview-warning" ng-bind="overview.warning"></h3>
+        <ul class="scr-per-overview-rows">
+          <li class="scr-per-overview-problem" ng-repeat="problem in overview.problems track by problem.key">
+            <span ng-bind="problem.text"></span>
+            <button type="button" class="btn btn-awe btn-default" ng-if="problem.kind !== 'duplicate'" ng-click="deleteRules(problem.rows)" translate-multiple="SCR_PER_DELETE"></button>
+            <span class="scr-per-overview-actions" ng-if="problem.kind === 'duplicate'">
+              <span translate-multiple="SCR_PER_KEEP_ONE"></span>
+              <button type="button" class="btn btn-awe btn-default" ng-repeat="keep in problem.keep track by keep.ruleId" ng-click="keepOne(problem.rows, keep.ruleId)" ng-bind="keep.text"></button>
+            </span>
+          </li>
+        </ul>
+      </section>
+    </div>
+  </div>
+  <div class="scr-per-canvas" ng-if="screen && mode === 'history' && history">
+    <div class="scr-per-history">
+      <p class="scr-per-empty" ng-if="!history.length" translate-multiple="SCR_PER_HISTORY_EMPTY"></p>
+      <ul class="scr-per-history-rows">
+        <li class="scr-per-history-row" ng-repeat="item in history track by item.key">
+          <span class="scr-per-history-when" ng-bind="item.when"></span>
+          <span class="scr-per-history-operator" ng-bind="item.operator"></span>
+          <span class="scr-per-history-what">
+            <span class="scr-per-history-name" ng-bind="item.name"></span>
+            <span class="scr-per-history-change" ng-bind="item.change"></span>
+          </span>
+          <button type="button" class="btn btn-awe btn-default" ng-if="item.undoable" ng-click="undo(item.undo)" translate-multiple="SCR_PER_UNDO"></button>
+          <span class="scr-per-history-later" ng-if="!item.undoable" ng-bind="(item.unrecorded ? 'SCR_PER_HISTORY_UNRECORDED' : 'SCR_PER_CHANGED_LATER') | translateMultiple"></span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="scr-per-canvas expand expandible-vertical" ng-show="screen && !noOption && mode === 'edit'"></div>
+  <aside class="scr-per-side" ng-if="mode === 'edit' && selected && elements[selected]" role="complementary" aria-label="{{'SCR_PER_FOR' | translateMultiple}}">
+    <header class="scr-per-side-header">
+      <h4 class="scr-per-side-title" ng-bind="elements[selected].label || selected"></h4>
+      <p class="scr-per-side-subtitle"><span ng-bind="elements[selected].elementType"></span> &middot; <span translate-multiple="SCR_PER_FOR"></span> <span ng-bind="scopeLabel()"></span></p>
+    </header>
+    <div class="scr-per-body">
+      <div class="scr-per-row" ng-repeat="row in panel.common track by row.attribute" ng-include="'screenPersonalizerRow'"></div>
+      <details class="scr-per-advanced" ng-if="panel.advanced.length">
+        <summary translate-multiple="SCR_PER_ADVANCED"></summary>
+        <div class="scr-per-row" ng-repeat="row in panel.advanced track by row.attribute" ng-include="'screenPersonalizerRow'"></div>
+      </details>
+    </div>
+    <footer class="scr-per-footer">
+      <button type="button" class="btn btn-awe btn-default" ng-click="resetElement()" translate-multiple="SCR_PER_RESET_ELEMENT"></button>
+      <button type="button" class="btn btn-awe btn-primary" ng-click="closePanel()" translate-multiple="BUTTON_DONE"></button>
+    </footer>
+  </aside>
+  <script type="text/ng-template" id="screenPersonalizerRow">
+    <label class="scr-per-label" for="scr-per-{{row.attribute}}" ng-bind="row.label"></label>
+    <label ng-if="row.valueType === 'BOOLEAN'" class="checkbox switch scr-per-switch">
+      <input type="checkbox" id="scr-per-{{row.attribute}}" role="switch" aria-label="{{row.label}}"
+        ng-checked="row.value === 'true'" ng-click="edit(row.attribute, row.value === 'true' ? 'false' : 'true')">
+      <span class="switch__track"></span>
+    </label>
+    <div ng-if="row.valueType === 'ENUM'" class="dropdown scr-per-dropdown">
+      <button type="button" id="scr-per-{{row.attribute}}" class="btn btn-awe btn-default" data-toggle="dropdown" aria-haspopup="true" aria-label="{{row.label}}" ng-bind="row.value"></button>
+      <div class="dropdown-menu scr-per-menu">
+        <ul class="scr-per-options" role="listbox">
+          <li role="option" ng-repeat="option in row.allowedValues" ng-class="{'active': option === row.value}"><a href="" ng-click="edit(row.attribute, option)" ng-bind="option"></a></li>
+        </ul>
+      </div>
+    </div>
+    <input ng-if="row.valueType !== 'BOOLEAN' && row.valueType !== 'ENUM'" type="text" id="scr-per-{{row.attribute}}" class="form-control" aria-label="{{row.label}}"
+      ng-attr-inputmode="{{row.valueType === 'INTEGER' ? 'numeric' : undefined}}" ng-attr-maxlength="{{row.valueType === 'INTEGER' ? undefined : 60}}"
+      aria-invalid="{{!!row.error}}" ng-model="row.text" ng-change="edit(row.attribute, row.text)">
+    <span class="scr-per-key" ng-if="row.key" ng-bind="row.key"></span>
+    <div class="scr-per-origin">
+      <span ng-bind="row.origin"></span>
+      <button type="button" class="btn btn-link scr-per-reset" ng-if="row.overridden" ng-click="edit(row.attribute, null)" aria-label="{{row.resetLabel}}" translate-multiple="SCR_PER_RESET_ATTRIBUTE"></button>
+    </div>
+    <span class="scr-per-error" role="alert" ng-if="row.error" ng-bind="row.error"></span>
+  </script>
+</div>

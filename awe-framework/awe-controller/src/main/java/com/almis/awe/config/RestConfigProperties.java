@@ -2,6 +2,7 @@ package com.almis.awe.config;
 
 import com.almis.awe.model.rest.ServiceAuth;
 import com.almis.awe.model.rest.ServiceDetails;
+import jakarta.validation.Valid;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
@@ -53,5 +54,6 @@ public class RestConfigProperties {
   /**
    * Service authentication
    */
+  @Valid
   private ServiceAuth authentication;
 }

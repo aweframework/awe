@@ -3,8 +3,6 @@ package com.almis.awe.component;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.component.RequestDataHolder;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.MDC;
@@ -13,6 +11,8 @@ import org.springframework.core.task.TaskDecorator;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collections;
 import java.util.Map;

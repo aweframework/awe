@@ -16,7 +16,7 @@
   <tag source="center" type="div" style="fullScreen" expandible="vertical">
     <tag type="div" id="main-wrapper" style="expand" expandible="vertical">
       <tag type="div" id="main-navbar" style="navbar navbar-inverse">
-        <button label="BUTTON_HIDE_MENU" button-type="button" id="main-menu-toggle" icon="bars icon navbar-icon" style="no-class">
+        <button label="BUTTON_HIDE_MENU" button-type="button" id="main-menu-toggle" icon="lucide:panel-left icon navbar-icon" style="no-class">
           <button-action type="toggle-menu" />
         </button>
         <include target-screen="home_navbar" target-source="center" />
@@ -24,6 +24,16 @@
       <tag type="div" id="main-menu" style="menu-shadow vertical">
         <tag type="div" id="main-menu-bg" style="main-menu-inner">
           <menu-container id="MainMenu" style="navigation vertical" />
+          <!-- Footer of the side menu: who powers the application, and the button that collapses the menu -->
+          <tag type="div" style="sidebar-footer">
+            <tag type="span" style="sidebar-powered">
+              <tag type="span" label="SIDEBAR_POWERED_BY"/>
+              <tag type="strong" label="SIDEBAR_POWERED_BRAND"/>
+            </tag>
+            <button label="BUTTON_TOGGLE_MENU" button-type="button" id="collapse-menu" icon="lucide:chevrons-left" style="sidebar-collapse no-class">
+              <button-action type="toggle-menu" />
+            </button>
+          </tag>
         </tag>
       </tag>
       <tag type="div" id="content-wrapper" style="expand" expandible="vertical">

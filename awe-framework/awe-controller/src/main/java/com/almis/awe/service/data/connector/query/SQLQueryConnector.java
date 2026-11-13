@@ -7,12 +7,16 @@ import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.ColumnValues;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.model.entities.queries.Query;
+import com.almis.awe.model.entities.queries.SqlField;
+import com.almis.awe.model.type.ColumnFilterType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.StringUtil;
 import com.almis.awe.model.util.log.LogUtil;
@@ -20,24 +24,28 @@ import com.almis.awe.service.EncodeService;
 import com.almis.awe.service.NumericService;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import com.almis.awe.service.data.builder.SQLQueryBuilder;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.almis.awe.service.data.processor.ColumnValuesProcessor;
+import com.almis.awe.service.data.processor.ColumnValuesProcessor.ColumnValueGroup;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.sql.Configuration;
+import com.querydsl.sql.SQLBindings;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,7 +81,6 @@ public class SQLQueryConnector extends AbstractQueryConnector {
    * @param databaseConfigProperties Database configuration properties
    * @param mapper                   Object mapper
    */
-  @Autowired
   public SQLQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil, DataSource dataSource,
                            BaseConfigProperties baseConfigProperties, AweElements elements,
                            NumericService numericService, EncodeService encodeService,
@@ -107,6 +114,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
     try {
       // Get query builder
       SQLQueryBuilder builder = getBean(SQLQueryBuilder.class);
+      builder.setLogMaskedFields(databaseConfigProperties.getLogMaskedFields());
 
       // Get query variables for further usage
       Map<String, QueryParameter> variableMap = builder.setQuery(query)
@@ -120,8 +128,13 @@ public class SQLQueryConnector extends AbstractQueryConnector {
         builder.setComponentSort(sortList);
       }
 
+      // Set grid column filters
+      if (variableMap.containsKey(AweConstants.QUERY_COLUMN_FILTERS)) {
+        builder.setColumnFilters(getQueryUtil().getColumnFilterList(variableMap.get(AweConstants.QUERY_COLUMN_FILTERS).getValue()));
+      }
+
       // Get pagination
-      long elementsPerPage = variableMap.get(AweConstants.QUERY_MAX).getValue().asLong();
+      long elementsPerPage = variableMap.get(AweConstants.QUERY_MAX).getValue().asLong(0L);
 
       // Only manage pagination by default if there is no totalization and elements per page is greater than zero
       boolean paginate = (query.getPaginationManaged() == null || query.isPaginationManaged()) &&
@@ -142,10 +155,12 @@ public class SQLQueryConnector extends AbstractQueryConnector {
       long records;
 
       if (paginate) {
-        long page = variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong();
+        long page = variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong(0L);
         queryBuilt.limit(elementsPerPage).offset(elementsPerPage * (page - 1));
       }
-      String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(queryBuilt.getSQL().getSQL(), queryBuilt.getSQL().getNullFriendlyBindings()));
+      // Hashes and sensitive column values are masked in the logged SQL, not in the executed one
+      SQLBindings bindings = queryBuilt.getSQL();
+      String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(bindings.getSQL(), bindings.getNullFriendlyBindings(), builder.getLogMaskedValues()));
       try {
         // Launch query
         List<Tuple> allResults = queryBuilt.fetch();
@@ -192,6 +207,72 @@ public class SQLQueryConnector extends AbstractQueryConnector {
   }
 
   /**
+   * Retrieve the distinct values of a grid column (#912): the grid query, with the column filters of the parameters, is
+   * grouped in the database by the values of the filtered fields. The label of each value is computed from the smallest
+   * value of the fields its column needs. The search is applied in the database when the label is the value and the
+   * column is a text or a list of values, else on the labels of the first {@value #COLUMN_VALUES_SEARCH_LIMIT} values.
+   *
+   * @param query        Query of the grid
+   * @param parameters   Parameters, without pagination
+   * @param columnValues Column values
+   * @return Service data with the values and whether more exist
+   * @throws AWException Error launching the query
+   */
+  @Override
+  public ServiceData launchColumnValues(Query query, ObjectNode parameters, ColumnValues columnValues) throws AWException {
+    QueryFactoryWithConnection factoryWithConnection = getQueryFactoryWithConnection(parameters);
+    try {
+      SQLQueryBuilder builder = getBean(SQLQueryBuilder.class);
+      builder.setLogMaskedFields(databaseConfigProperties.getLogMaskedFields());
+      Map<String, QueryParameter> variableMap = builder.setQuery(query)
+        .setFactory(factoryWithConnection.queryFactory())
+        .setParameters(parameters)
+        .getVariables();
+      if (variableMap.containsKey(AweConstants.QUERY_COLUMN_FILTERS)) {
+        builder.setColumnFilters(getQueryUtil().getColumnFilterList(variableMap.get(AweConstants.QUERY_COLUMN_FILTERS).getValue()));
+      }
+
+      // Values, label fields, search and limit
+      List<SqlField> valueFields = getQueryUtil().getColumnValuesFields(query, columnValues);
+      boolean labelIsValue = ColumnValuesProcessor.isLabelTheValue(query, columnValues);
+      ColumnFilterType type = columnValues.getType();
+      // Only a text column is searched in the database: the field of a column of values may be numeric, and a
+      // case-insensitive search of a number is not valid SQL on every database
+      boolean searchInSql = columnValues.getSearch() != null && labelIsValue && type == ColumnFilterType.TEXT;
+      boolean searchInJava = columnValues.getSearch() != null && !searchInSql;
+      int maxGroups = searchInJava ? COLUMN_VALUES_SEARCH_LIMIT : ColumnValues.MAX_VALUES;
+      List<SqlField> labelFields = labelIsValue ? List.of() : ColumnValuesProcessor.getLabelQuery(query, columnValues.getId()).getSqlFieldList();
+      SQLQuery<Tuple> valuesQuery = builder.buildColumnValues(valueFields, labelFields, type,
+        searchInSql ? columnValues.getSearch() : null, maxGroups + 1L);
+
+      // Hashes and sensitive column values are masked in the logged SQL, not in the executed one
+      SQLBindings bindings = valuesQuery.getSQL();
+      String sql = StringUtil.toUnilineText(getQueryUtil().getFullSQL(bindings.getSQL(), bindings.getNullFriendlyBindings(), builder.getLogMaskedValues()));
+      List<Tuple> results;
+      try {
+        results = valuesQuery.fetch();
+      } catch (Exception exc) {
+        throw new AWEQueryException(getLocale(ERROR_TITLE_RETRIEVING_DATA), getLocale(ERROR_MESSAGE_EXECUTING_SERVICE_QUERY, query.getId()), sql, exc);
+      }
+      log.info("[\u001B[34m{}\u001B[0m] [{}] => {} column values", query.getId(), sql, results.size());
+
+      List<ColumnValueGroup> groups = new ArrayList<>();
+      for (Tuple tuple : results.subList(0, Math.min(results.size(), maxGroups))) {
+        Map<String, CellData> row = new HashMap<>();
+        for (int index = 0; index < labelFields.size(); index++) {
+          row.put(labelFields.get(index).getIdentifier(), new CellData(tuple.get(index + 2, Object.class)));
+        }
+        Number count = tuple.get(1, Number.class);
+        groups.add(new ColumnValueGroup(ColumnValuesProcessor.getValue(new CellData(tuple.get(0, Object.class)), type),
+          count == null ? 0L : count.longValue(), row));
+      }
+      return getColumnValuesResult(query, columnValues, groups, variableMap, searchInSql, results.size() > maxGroups);
+    } finally {
+      DataSourceUtils.releaseConnection(factoryWithConnection.connection(), factoryWithConnection.dataSource());
+    }
+  }
+
+  /**
    * Internal record to carry the query factory together with the connection and datasource
    * needed to release the connection after use.
    */
@@ -212,7 +293,7 @@ public class SQLQueryConnector extends AbstractQueryConnector {
 
     // Check if call refers to a specific database
     String database = Optional.ofNullable(getQueryUtil().getRequestParameter(databaseConfigProperties.getParameterName(), parameters))
-      .orElse(JsonNodeFactory.instance.nullNode()).textValue();
+      .orElse(JsonNodeFactory.instance.nullNode()).stringValue();
     if (database != null) {
       databaseConnection = contextHolder.getDatabaseConnection(database);
       currentDataSource = databaseConnection.getDataSource();
@@ -261,8 +342,8 @@ public class SQLQueryConnector extends AbstractQueryConnector {
     builder.setQueryProjection(projection)
       .setQueryResult(results)
       .setRecords(records)
-      .setMax(variableMap.get(AweConstants.QUERY_MAX).getValue().asLong())
-      .setPage(variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong())
+      .setMax(variableMap.get(AweConstants.QUERY_MAX).getValue().asLong(0L))
+      .setPage(variableMap.get(AweConstants.QUERY_PAGE).getValue().asLong(0L))
       .paginate(!query.isPaginationManaged())
       .generateIdentifiers();
 

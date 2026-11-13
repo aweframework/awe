@@ -1,0 +1,169 @@
+// Vertical tabs
+.p-tabmenu-container {
+  .p-tabmenu {
+    .p-tabmenuitem:before {
+      top: 33px;
+    }
+
+    .p-tabmenuitem {
+      .p-menuitem-link {
+        outline: inherit;
+        cursor: pointer;
+        display: flex;
+        flex-direction: row;
+
+        .p-tab-icon {
+          height: 1rem;
+          width: 2rem;
+        }
+
+        .p-tab-text {
+          justify-items: center;
+          display: inline-flex;
+          flex-direction: column;
+          text-align: left;
+
+          .p-tab-supertitle {
+            font-size: 0.8rem;
+            color: var(--awe-color-text-muted)
+          }
+        }
+
+        .p-tab-unit {
+          margin-left: 2rem;
+          align-self: flex-end;
+        }
+
+        &.p-highlight {
+          .p-tab-icon {
+            border: var(--awe-border-width) solid var(--awe-color-primary);
+            color: var(--awe-color-primary-text);
+            background: var(--awe-color-surface);
+          }
+        }
+      }
+    }
+  }
+
+  &.orientation-vertical {
+    .p-tabmenu {
+      margin-right: 1rem;
+      margin-left: 1rem;
+
+      .p-tabmenu-nav {
+        flex-direction: column;
+        border-width: 0 0 0 3px;
+      }
+
+      .p-tabmenuitem {
+        justify-content: flex-start;
+        margin-left: -3px;
+
+        .p-menuitem-link {
+          border-width: 0 0 0 3px;
+          flex-direction: row;
+          align-items: flex-start;
+          justify-items: flex-start;
+          border-radius: 0;
+          padding: 1.5rem;
+
+          .p-tab-text {
+            justify-items: left;
+            margin-left: 0.5rem;
+            align-self: flex-start;
+          }
+        }
+      }
+    }
+  }
+}
+// The page of a horizontal tab starts below the tab list with the layout gap, as the AngularJS engine does (tab.less,
+// .tab-container .tab-content): the first title of the page does not touch the line under the tabs
+.p-tabmenu-container.orientation-horizontal > .p-tabmenu {
+  margin-bottom: var(--awe-layout-gap);
+}
+
+// Horizontal tabs as the AWE 5 prototype (Aura): muted medium labels, the active label and a 2px underline in the primary
+// text, a line under the list. The tab is a button of the template of AweTabs, so it takes the font of the page
+.p-tabmenu-container.orientation-horizontal > .p-tabmenu .p-tabmenu-nav {
+  gap: var(--awe-space-4);
+  background: none;
+  border-width: 0;
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.p-tabmenu-container.orientation-horizontal > .p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link {
+  gap: var(--awe-space-2);
+  height: auto;
+  padding: var(--awe-space-3) var(--awe-space-2);
+  margin: 0 0 -1px;
+  font: inherit;
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-muted);
+  white-space: nowrap;
+  background: none;
+  border: 0;
+  border-bottom: var(--awe-border-width-strong) solid transparent;
+  border-radius: 0;
+  transition: color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.p-tabmenu-container.orientation-horizontal > .p-tabmenu .p-tabmenu-nav .p-tabmenuitem .p-menuitem-link:hover {
+  color: var(--awe-color-text-hover);
+}
+
+.p-tabmenu-container.orientation-horizontal > .p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-highlight .p-menuitem-link {
+  color: var(--awe-color-primary-text);
+  background: none;
+  border-bottom-color: var(--awe-color-primary-text);
+}
+
+// A tab that holds fields which failed the validation
+.p-tabmenu-container .p-tabmenu .p-tabmenu-nav .p-tabmenuitem.p-tab-invalid .p-menuitem-link {
+  color: var(--awe-color-danger-text);
+
+  &::after {
+    content: "!";
+    margin-left: 0.5rem;
+    font-weight: bold;
+  }
+}
+
+// A tab component that can be maximized: the button sits at the right end of the tab list. When it is maximized the
+// component is placed over the maximize target (position, top, left, width and height) like a window
+.p-tabmenu-container {
+  &.p-tabmenu-maximizable {
+    position: relative;
+
+    &.orientation-horizontal > .p-tabmenu {
+      padding-right: 3rem;
+    }
+  }
+
+  &.maximized {
+    z-index: 100;
+    margin: 0 !important;
+    background: var(--awe-color-surface);
+  }
+
+  > .maximize-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    cursor: pointer;
+    color: inherit;
+  }
+}
+
+@media (max-width: 768px) {
+  .p-tabmenu-container > .maximize-button {
+    display: none;
+  }
+}

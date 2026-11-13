@@ -29,7 +29,7 @@ and open the template in the editor.
   <tag source="center">
     <tag type="div" style="expand" expandible="vertical">
       <window label="SCREEN_TEXT_LINE_CHART" maximize="true" icon="line-chart" style="expand">
-        <chart id="ChrLinTst" label="SCREEN_TEXT_LINE_CHART" type="line" theme="dark-unica" initial-load="query" target-action="TstChrTwoSrc" zoom-type="xAxis" max="25">
+        <chart id="ChrLinTst" label="SCREEN_TEXT_LINE_CHART" type="line" initial-load="query" target-action="TstChrTwoSrc" zoom-type="xAxis" max="25">
           <chart-legend label="Leyenda" verticalAlign="middle" align="right" border-width="1" />
           <x-axis label="Fechas" type="datetime" />
           <y-axis label="Temperaturas (ºC)" />

@@ -10,7 +10,6 @@ import uiBootstrap from "angular-ui-bootstrap";
 import "angular-base64";
 
 import "jquery-ui";
-import "bootstrap";
 
 // Route methods
 import {states} from './data/routes';

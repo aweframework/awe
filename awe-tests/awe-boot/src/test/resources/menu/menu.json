@@ -93,62 +93,6 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-site",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-site",
-                  "parameters": {
-                    "target": "new-site",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-site",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-site",
-                  "parameters": {
-                    "target": "update-site",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-site",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-site",
-                  "parameters": {
-                    "target": "view-site",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
           "visible": true
         },
         {
@@ -167,62 +111,6 @@
                 "target": "modules",
                 "serverAction": "screen"
               }
-            }
-          ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-module",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-module",
-                  "parameters": {
-                    "target": "new-module",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-module",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-module",
-                  "parameters": {
-                    "target": "update-module",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-module",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-module",
-                  "parameters": {
-                    "target": "view-module",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
             }
           ],
           "visible": true
@@ -245,62 +133,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-user",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-user",
-                  "parameters": {
-                    "target": "new-user",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-user",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-user",
-                  "parameters": {
-                    "target": "update-user",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-user",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-user",
-                  "parameters": {
-                    "target": "view-user",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {
@@ -321,62 +154,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-profile",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-profile",
-                  "parameters": {
-                    "target": "new-profile",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-profile",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-profile",
-                  "parameters": {
-                    "target": "update-profile",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-profile",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-profile",
-                  "parameters": {
-                    "target": "view-profile",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {
@@ -397,62 +175,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-database",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-database",
-                  "parameters": {
-                    "target": "new-database",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-database",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-database",
-                  "parameters": {
-                    "target": "update-database",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-database",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-database",
-                  "parameters": {
-                    "target": "view-database",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {
@@ -473,62 +196,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-theme",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-theme",
-                  "parameters": {
-                    "target": "new-theme",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-theme",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-theme",
-                  "parameters": {
-                    "target": "update-theme",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "view-theme",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "view-theme",
-                  "parameters": {
-                    "target": "view-theme",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {
@@ -549,44 +217,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-email-server",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-email-server",
-                  "parameters": {
-                    "target": "new-email-server",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-email-server",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-email-server",
-                  "parameters": {
-                    "target": "update-email-server",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {
@@ -607,44 +238,7 @@
               }
             }
           ],
-          "options": [
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "new-queue",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "new-queue",
-                  "parameters": {
-                    "target": "new-queue",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            },
-            {
-              "separator": false,
-              "restricted": false,
-              "name": "update-queue",
-              "actions": [
-                {
-                  "type": "screen",
-                  "context": "screen/private/home",
-                  "target": "update-queue",
-                  "parameters": {
-                    "target": "update-queue",
-                    "serverAction": "screen"
-                  }
-                }
-              ],
-              "options": [],
-              "visible": false
-            }
-          ],
+          "options": [],
           "visible": true
         },
         {
@@ -1258,6 +852,27 @@
             },
             {
               "separator": false,
+              "text": "MENU_TEST_MAP",
+              "restricted": false,
+              "label": "MENU_TEST_MAP",
+              "name": "map-test",
+              "icon": "mdi:map",
+              "actions": [
+                {
+                  "type": "screen",
+                  "context": "screen/private/home",
+                  "target": "map-test",
+                  "parameters": {
+                    "target": "map-test",
+                    "serverAction": "screen"
+                  }
+                }
+              ],
+              "options": [],
+              "visible": true
+            },
+            {
+              "separator": false,
               "text": "MENU_GRID_CHART",
               "restricted": false,
               "label": "MENU_GRID_CHART",
@@ -1463,6 +1078,27 @@
               "target": "filemanager-test",
               "parameters": {
                 "target": "filemanager-test",
+                "serverAction": "screen"
+              }
+            }
+          ],
+          "options": [],
+          "visible": true
+        },
+        {
+          "separator": false,
+          "text": "MENU_TEST_FILE_VIEWER",
+          "restricted": false,
+          "label": "MENU_TEST_FILE_VIEWER",
+          "name": "file-viewer-test",
+          "icon": "file-text-o",
+          "actions": [
+            {
+              "type": "screen",
+              "context": "screen/private/home",
+              "target": "file-viewer-test",
+              "parameters": {
+                "target": "file-viewer-test",
                 "serverAction": "screen"
               }
             }

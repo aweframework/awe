@@ -1,15 +1,24 @@
 const path = require("path");
 const webpack = require("webpack");
+const zlib = require("zlib");
+const CompressionPlugin = require("compression-webpack-plugin");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const LessPluginAutoPrefix = require('less-plugin-autoprefix');
 const LodashModuleReplacementPlugin = require('lodash-webpack-plugin');
+const {LucideSpritePlugin} = require('../awe-design-tokens/icons/lucide-sprite.cjs');
 
 const dir = path.join(__dirname, "src", "main", "resources", "webpack");
 const styleDir = path.resolve(__dirname, "src", "main", "resources", "less");
+const tailwindDir = path.resolve(__dirname, "src", "main", "resources", "tailwind");
+// The Inter face of the AWE 5 type scale (#885), shared with the React engine
+const fontsDir = path.resolve(__dirname, "..", "awe-design-tokens", "fonts");
 const srcPath = path.resolve(__dirname, "src", "main", "resources", "js", "awe");
 const libPath = path.resolve(__dirname, "src", "main", "resources", "js", "lib");
+// The chart utilities of the React client (ECharts option builder, events, SVG render) are shared with this client
+const reactSourcePath = path.resolve(__dirname, "..", "awe-client-react", "src");
 
-const autoprefixerBrowsers = ['last 2 versions', '> 1%', 'opera 12.1', 'bb 10', 'android 4', 'IE 10'];
+// Modern browsers only: no Internet Explorer nor legacy mobile browsers
+const autoprefixerBrowsers = ['last 2 versions', '> 0.5%', 'not dead', 'not ie > 0', 'not op_mini all'];
 const validModes = new Set(["development", "production"]);
 
 const resolveMode = (env = {}, argv = {}) => {
@@ -62,21 +71,27 @@ module.exports = (env = {}, argv = {}) => {
       rules : [
         { test: require.resolve('jquery'), use: [{loader: 'expose-loader', options: {exposes: ['jQuery', '$']}}]},
         { test: /\.jsx?$/, exclude: /node_modules/, use: [{loader: 'babel-loader', options: { envName: mode }}]},
-        { test : /\.css$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader"]},
+        // The shared React sources written in TypeScript (#808): the Babel configuration of this module strips their types
+        { test: /\.ts$/, include: [ reactSourcePath ], use: [{loader: 'babel-loader', options: {
+            envName: mode, configFile: path.resolve(__dirname, ".babelrc"), babelrc: false }}]},
+        { test : /\.css$/, include : [ styleDir, fontsDir ], use : [MiniCssExtractPlugin.loader, "css-loader"]},
+        // Tailwind v4 (issue #755): postcss.config.js, bundled into the same css/styles.css after the LESS
+        { test : /\.css$/, include : [ tailwindDir ], use : [MiniCssExtractPlugin.loader, "css-loader", "postcss-loader"]},
         { test : /\.less$/, include : [ styleDir ], use : [MiniCssExtractPlugin.loader, "css-loader", {
             loader: "less-loader", options: { lessOptions: { plugins: [ new LessPluginAutoPrefix({browsers: autoprefixerBrowsers}) ] }, sourceMap: false }}]},
         { test : /\.(jpg|gif|png)$/, type: 'asset', parser: { dataUrlCondition: { maxSize: 100000 } }, generator: { filename: './images/[hash][ext][query]' }},
-        { test : /\.woff[2]*?(\?v=\d+\.\d+\.\d+)?$/, type: 'asset', parser: { dataUrlCondition: { maxSize: 100000 } }, generator: { filename: './fonts/[hash][ext][query]', dataUrl: content => `data:application/font-woff;base64,${content.toString('base64')}` }},
-        { test : /\.(ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/, type: 'asset/resource', generator: { filename: './fonts/[hash][ext][query]' }},
+        // Fonts are separate files (never inlined into styles.css): the browser downloads only the formats it uses
+        { test : /\.(woff2?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/, type: 'asset/resource', generator: { filename: './fonts/[hash][ext][query]' }},
       ]
     },
     resolve: {
-      extensions: [".js", ".css", ".less", "*"],
+      extensions: [".js", ".ts", ".css", ".less", "*"],
+      // The shared React sources import their packages (echarts, lodash) from this module, not from awe-client-react
+      modules: [path.resolve(__dirname, "node_modules"), "node_modules"],
       alias: {
+        "awe-client-react": reactSourcePath,
         "jquery": path.resolve(__dirname, "node_modules", "jquery", "dist", "jquery"),
         "bootstrap-tabdrop": path.resolve(libPath, "bootstrap-tabdrop", "src", "js", "bootstrap-tabdrop"),
-        "HighchartsLocale": path.resolve(libPath, "highcharts", "i18n", "highcharts-lang"),
-        "HighchartsThemes": path.resolve(libPath, "highcharts", "themes", "all"),
         "Tocify": path.resolve(libPath, "tocify", "jquery.tocify"),
         "PivotTable": path.resolve(libPath, "pivotTable", "pivotTable")
       },
@@ -87,10 +102,26 @@ module.exports = (env = {}, argv = {}) => {
       }),
       new LodashModuleReplacementPlugin,
       new webpack.ProvidePlugin({
-        "Highcharts": "highcharts/highstock",
-        "HighchartsLocale": "HighchartsLocale",
         "window.constructor": "constructor"
-      })
+      }),
+      // The AWE 5 icons (#885): every Lucide icon of the pinned lucide-static in one sprite, generated on each build
+      new LucideSpritePlugin({
+        lucideDir: path.resolve(__dirname, "node_modules", "lucide-static"),
+        filename: "icons/lucide-sprite.svg"
+      }),
+      // Production builds add brotli and gzip copies of the scripts, styles and SVG files: the AWE server sends them
+      // to the browsers that accept them, so they are downloaded compressed without compressing them on each request
+      // (#965)
+      ...(isProduction ? [
+        new CompressionPlugin({
+          test: /\.(js|css|svg)(\?.*)?$/, threshold: 1024, algorithm: "brotliCompress", filename: "[path][base].br",
+          compressionOptions: {params: {[zlib.constants.BROTLI_PARAM_QUALITY]: 11}}
+        }),
+        new CompressionPlugin({
+          test: /\.(js|css|svg)(\?.*)?$/, threshold: 1024, algorithm: "gzip", filename: "[path][base].gz",
+          compressionOptions: {level: 9}
+        })
+      ] : [])
     ]
   };
 };

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : private.xml
+    Description: Options after the sign-in. The profiles agent, supervisor and requester restrict the options they do not use
+                 (profile/*.xml); the supervisor-only screens are also protected by permissions
+-->
+<menu xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" screen="hd-shell" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/menu.xsd" context="screen/private/home" default-action="screen">
+  <option name="information" screen="info" invisible="true"/>
+  <option name="user-settings" screen="user-settings" invisible="true"/>
+  <!-- Agents and supervisors -->
+  <option name="staff-section" label="HD_MENU_STAFF" separator="true"/>
+  <option name="hd-dashboard" label="HD_MENU_DASHBOARD" screen="hd-dashboard" icon="lucide:layout-dashboard"/>
+  <option name="hd-queue" label="HD_MENU_QUEUE" screen="hd-queue" icon="lucide:inbox"/>
+  <option name="hd-new-ticket" label="HD_MENU_NEW_TICKET" screen="hd-new-ticket" icon="lucide:ticket-plus"/>
+  <option name="hd-assign" label="HD_MENU_ASSIGN" screen="hd-assign" icon="lucide:user-cog"/>
+  <option name="hd-kb-admin" label="HD_MENU_KB_ADMIN" screen="hd-kb-admin" icon="lucide:book-open"/>
+  <option name="hd-teams" label="HD_MENU_TEAMS" screen="hd-teams" icon="lucide:network"/>
+  <!-- Requesters: their own tickets only -->
+  <option name="customer-section" label="HD_MENU_CUSTOMER" separator="true"/>
+  <option name="hd-my-tickets" label="HD_MENU_MY_TICKETS" screen="hd-my-tickets" icon="lucide:ticket"/>
+</menu>

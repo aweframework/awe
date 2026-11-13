@@ -1,0 +1,39 @@
+/* Popover of a target message: its edge and its title carry the colour of the message type */
+.target-message {
+  max-width: calc(var(--awe-space-16) * 5);
+  border-left: var(--awe-space-1) solid var(--awe-color-info);
+}
+
+.target-message-success {
+  border-left-color: var(--awe-color-success);
+}
+
+.target-message-warning {
+  border-left-color: var(--awe-color-warning);
+}
+
+.target-message-danger {
+  border-left-color: var(--awe-color-danger);
+}
+
+.target-message-title {
+  margin-bottom: var(--awe-space-1);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-info-text);
+}
+
+.target-message-success .target-message-title {
+  color: var(--awe-color-success-text);
+}
+
+.target-message-warning .target-message-title {
+  color: var(--awe-color-warning-text);
+}
+
+.target-message-danger .target-message-title {
+  color: var(--awe-color-danger-text);
+}
+
+.target-message-content {
+  font-size: var(--awe-font-size-sm);
+}

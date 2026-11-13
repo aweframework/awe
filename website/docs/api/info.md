@@ -3,6 +3,12 @@ id: info
 title: Navigation Bar
 ---
 
+:::tip See it live
+
+Try the info components with live controls in the [component catalog](../components/messages-info.mdx#info): the real AWE component and the XML that produces it.
+
+:::
+
 The navigation bar is used to add visual elements with logic functions in the top zone of application. This part is displayed in all application screens.
 
 You can add `info` elements to show more info and `info-button` elements as buttons with actions. Also, you can put `info-criteria` elements inside info elements as criteria for show more info. 
@@ -20,25 +26,24 @@ The xml structure of navigation bar component is the following:
   <tag type="div" style="right clearfix">
     <tag type="ul" style="nav navbar-nav pull-right right-navbar-nav">
       <info id="[id]" icon="[icon]" title="[info-title]">
+        <info-criteria id="[id]" icon="[icon]" title="[info-criteria-title]" component="[component]" initial-load="[initial-load]" 
+          target-action="[target-action]" session="module" style="[style]" info-style="[info-style]">
+          <dependency/>
+        </info-criteria>
+        ... more info-criteria elements
+      </info>
       ... more info elements
-      <info id="[id]" icon="[icon]" title="[info-title]">
-      <info-criteria id="[id]" icon="[icon]" title="[info-criteria-title]" component="[component]" initial-load="[initial-load]" 
-        target-action="[target-action]" session="module" style="[style]" info-style="[info-style]">
-        <dependency/>
-      </info-criteria>
-      ... more info criteria elements              
-    </info>
-    <info-button id="[id]" icon="[icon]" title="[button-title]">
-      <button-action type="[action-type]" />
-      ... more button.action
-    </info-button>
-    ... more info-button
-   </tag>
- </tag>
+      <info-button id="[id]" icon="[icon]" title="[button-title]">
+        <button-action type="[action-type]" />
+        ... more button.action
+      </info-button>
+      ... more info-button
+    </tag>
+  </tag>
 </tag>
 ```
 
-## Nabvar structure
+## Navbar structure
 
 | Element                                    | Use        | Multiples instances | Description                                                                                                                         |
 |--------------------------------------------|------------|---------------------|-------------------------------------------------------------------------------------------------------------------------------------|
@@ -75,7 +80,7 @@ The xml structure of navigation bar component is the following:
 | `title`      | Optional | String | Static text show when over button  | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
 | `info-style` | Optional | String | Css style of info-button container |                                                                            |
 
-> **Note:** `info-butto`n element has other attributes as `button` element. You can see more info [here](button.md#button-attributes).
+> **Note:** `info-button` element has other attributes as `button` element. You can see more info [here](button.md#button-attributes).
 
 ### info-criteria attributes
 
@@ -95,6 +100,8 @@ The xml structure of navigation bar component is the following:
 | `image`      | Optional | String  | Relative or absolute of the image to use as avatar      |                                                                            |
 
 > **Note:** avatar element has the same attributes as `button` element. You can see more info [here](button.md#button-attributes).
+
+> **Note:** in the React engine, the avatar shows the `name` of its value when it has one (the label stays as its hint), and its `description` as a second line under it. The `connectedUser` query returns the profile of the user as `description`. Without an image, the avatar shows its `icon` or, without icon, the initials of its label (the first letter of its first and last words).
 
 
 ## Examples

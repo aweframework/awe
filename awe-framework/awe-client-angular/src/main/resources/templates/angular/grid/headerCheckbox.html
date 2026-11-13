@@ -1,5 +1,5 @@
 <div role="columnheader" class="no-animate ui-grid-header-checkbox text-center">
-  <label class="no-animate checkbox">
+  <label class="no-animate checkbox" data-testid="grid-header-checkbox" ng-attr-data-selected="{{!!grid.selection.selectAll}}">
     <input type="checkbox" class="no-animate px form-control" ng-model="grid.selection.selectAll" ng-change="grid.appScope.component.selectAllClick($event)"/>
     <span class="no-animate lbl"></span>
   </label>

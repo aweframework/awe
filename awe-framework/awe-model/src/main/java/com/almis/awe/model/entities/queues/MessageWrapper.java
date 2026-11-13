@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * MessageWrapper Class
  *
@@ -23,6 +25,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("message-wrapper")
 public class MessageWrapper implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -5436753008930958151L;
 
   // Wrapper parameter name

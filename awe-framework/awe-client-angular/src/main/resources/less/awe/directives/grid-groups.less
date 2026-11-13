@@ -1,0 +1,244 @@
+//
+// Row grouping of the grids (#833)
+// --------------------------------------------------
+// Group rows (a band on the subtle surface with the toggle, the label and the count of the group, and its aggregates),
+// subtotal rows closing each group and the Group by panel of the toolbar, as the design system prototype
+// (components.html#c-833). Tokens only: light and dark come from the token file
+
+// Levels with their own indentation (deeper levels keep the last one)
+@grid-group-levels: 6;
+
+// Toggle of a group: an icon button a little larger than its chevron
+@grid-group-toggle-size: calc(var(--awe-size-icon) + var(--awe-space-1-5));
+
+// The grouping controls are buttons of the toolbar row
+awe-grid-group-by.grid-group-by {
+  display: contents;
+}
+
+.grid {
+  .ui-grid-row.grid-group-row {
+    background-color: var(--awe-color-surface-subtle);
+    cursor: pointer;
+  }
+
+  .ui-grid-row.grid-group-row.ui-grid-row-hover {
+    background-color: var(--awe-color-surface-hover);
+  }
+
+  .grid-group-row .grid-group-label {
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-emphasis);
+  }
+
+  // The number of rows of the group follows its value after a space, in the muted text
+  .grid-group-row .grid-group-count {
+    margin-left: var(--awe-space-1-5);
+    color: var(--awe-color-text-muted);
+    font-variant-numeric: var(--awe-font-variant-numeric);
+  }
+
+  .ui-grid-row.grid-subtotal-row {
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-emphasis);
+  }
+
+  .grid-subtotal-row .grid-subtotal-label {
+    font-weight: var(--awe-font-weight-medium);
+    color: var(--awe-color-text-muted);
+  }
+
+  .grid-group-aggregate {
+    font-variant-numeric: var(--awe-font-variant-numeric);
+  }
+
+  // The label of a group runs over the empty cells at its right (no colspan in ui-grid)
+  .ui-grid-row .ui-grid-cell.grid-group-label-cell {
+    overflow: visible;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ui-grid-cell.grid-group-label-cell .ui-grid-cell-contents {
+    overflow: visible;
+    white-space: nowrap;
+    text-overflow: clip;
+  }
+
+  .grid-group-title {
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+// Each level is indented; the subtotal label lines up with the label of its group (after the toggle)
+.grid-group-level-indent(@level) when (@level <= @grid-group-levels) {
+  @offset: (@level - 1);
+
+  .grid .grid-group-level-@{level} .grid-group-title {
+    padding-left: calc(var(--awe-space-5) * @offset);
+  }
+
+  .grid .grid-subtotal-level-@{level} .grid-group-title {
+    padding-left: calc(var(--awe-space-5) * @offset + var(--awe-size-icon) + var(--awe-space-1-5) * 2);
+  }
+
+  .grid-group-level-indent(@level + 1);
+}
+
+.grid-group-level-indent(1);
+
+// Toggle of a group: a ghost icon button with the chevron, turned while the group is expanded
+.grid-group-toggle {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: @grid-group-toggle-size;
+  height: @grid-group-toggle-size;
+  margin-right: var(--awe-space-1-5);
+  padding: 0;
+  color: var(--awe-color-text-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-sm);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--awe-color-text);
+    background: var(--awe-color-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: calc(-1 * var(--awe-focus-ring-width));
+  }
+
+  .awe-icon {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+    transition: transform var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+  }
+
+  &[aria-expanded="true"] .awe-icon {
+    transform: rotate(90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-group-toggle .awe-icon {
+    transition: none;
+  }
+}
+
+// Group by panel: anchored to its button with fixed coordinates (gridGroupBy.js), as the Columns popover
+.grid-group-by-popover {
+  position: fixed;
+  z-index: var(--awe-z-modal);
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-1);
+  width: var(--awe-grid-columns-panel-width);
+  max-width: 95vw;
+  padding: var(--awe-overlay-padding);
+  overflow-y: auto;
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: thin solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+
+  .grid-group-by-title {
+    margin: 0 0 var(--awe-space-1);
+    font-size: var(--awe-font-size-sm);
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-text-emphasis);
+  }
+
+  .grid-group-by-none {
+    justify-content: flex-start;
+    min-height: var(--awe-size-control);
+    padding: 0 var(--awe-space-2);
+    color: var(--awe-color-text);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: var(--awe-radius-list-option);
+
+    &[aria-pressed="true"] {
+      font-weight: var(--awe-font-weight-semibold);
+      color: var(--awe-color-primary-text);
+    }
+
+    &:hover {
+      background: var(--awe-color-list-option-focus);
+    }
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: calc(-1 * var(--awe-focus-ring-width));
+    }
+  }
+
+  .grid-group-by-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .grid-group-by-option {
+    display: flex;
+    align-items: center;
+    gap: var(--awe-space-2);
+    min-height: var(--awe-size-control);
+    margin: 0;
+    padding: 0 var(--awe-space-2);
+    font-weight: var(--awe-font-weight-normal);
+    border-radius: var(--awe-radius-list-option);
+    cursor: pointer;
+
+    &:hover {
+      background: var(--awe-color-list-option-focus);
+    }
+  }
+
+  .grid-group-by-checkbox {
+    flex: none;
+    width: var(--awe-size-checkbox);
+    height: var(--awe-size-checkbox);
+    margin: 0;
+    accent-color: var(--awe-color-primary);
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: var(--awe-focus-ring-offset);
+    }
+  }
+
+  .grid-group-by-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Level of a checked column (its order in the grouping)
+  .grid-group-by-level {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    min-width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+    margin-left: auto;
+    font-size: var(--awe-font-size-sm);
+    font-weight: var(--awe-font-weight-semibold);
+    font-variant-numeric: var(--awe-font-variant-numeric);
+    // The digit is centred on its cap height, not on the line box of the text around it
+    line-height: 1;
+    text-box: trim-both cap alphabetic;
+    color: var(--awe-color-on-primary);
+    background: var(--awe-color-primary);
+    border-radius: var(--awe-radius-full);
+  }
+}

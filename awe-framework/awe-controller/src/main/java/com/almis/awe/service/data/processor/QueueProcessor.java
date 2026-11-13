@@ -316,7 +316,7 @@ public class QueueProcessor extends ServiceConfig {
 
     // Set message if defined
     String description = message.getString(response.getStatus().getDescription());
-    if (title != null) {
+    if (description != null) {
       serviceData.setMessage(description);
     }
   }

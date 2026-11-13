@@ -4,8 +4,8 @@
 package com.almis.awe.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.Data;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * SortColumn Class
@@ -39,7 +39,7 @@ public class SortColumn {
    * @param sortColumn Column to be sorted
    */
   public SortColumn(ObjectNode sortColumn) {
-    this.columnId = sortColumn.get("id").asText();
-    this.direction = sortColumn.get("direction").asText().toUpperCase();
+    this.columnId = sortColumn.get("id").asString("");
+    this.direction = sortColumn.get("direction").asString("").toUpperCase();
   }
 }

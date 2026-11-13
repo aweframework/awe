@@ -502,4 +502,13 @@ class DateUtilTest {
     LocalDate localDate = LocalDate.parse("14/02/2022", DATE_FORMAT_WEB);
     assertEquals(expectedDate, DateUtil.localDate2WebDate(localDate));
   }
+
+  /**
+   * Null dates are not converted to local time
+   */
+  @Test
+  void testAsLocalTimeNullDate() {
+    assertNull(DateUtil.asLocalTime(null, ZoneId.systemDefault()));
+    assertNull(DateUtil.asLocalTime(null));
+  }
 }

@@ -6,7 +6,6 @@ import com.almis.awe.model.util.data.ListUtil;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import lombok.EqualsAndHashCode;
@@ -15,7 +14,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,17 +38,43 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Dialog extends Component {
 
+  @Serial
   private static final long serialVersionUID = 1589720259893098192L;
   // Load all the data initially or not
   @XStreamAlias("on-close")
   @XStreamAsAttribute
   private String onClose;
 
+  // Run the initial load of the dialog components when the dialog is opened for the first time
+  @XStreamAlias("deferred")
+  @XStreamAsAttribute
+  private Boolean deferred;
+
   @Override
   public Dialog copy() {
     return this.toBuilder()
       .elementList(ListUtil.copyList(getElementList()))
       .build();
+  }
+
+  /**
+   * Returns if the data of the dialog components is loaded when the dialog is opened for the first time
+   *
+   * @return Dialog is deferred
+   */
+  @JsonGetter("deferred")
+  public Boolean getDeferred() {
+    return deferred;
+  }
+
+  /**
+   * Returns if the data of the components is deferred (helper for the server side, not a separate JSON property)
+   *
+   * @return Deferred
+   */
+  @JsonIgnore
+  public boolean isDeferred() {
+    return Boolean.TRUE.equals(deferred);
   }
 
   /**

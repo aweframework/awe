@@ -3,24 +3,29 @@ package com.almis.awe.test.integration.service;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.dao.UserDAOImpl;
 import com.almis.awe.factory.MailSenderFactory;
+import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.EmailService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.test.context.support.WithMockUser;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 
@@ -28,6 +33,8 @@ import static java.util.Collections.singletonList;
 import static org.mockito.Mockito.*;
 
 @Tag("integration")
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("Email service Tests")
 @WithMockUser(username = "test", password = "test")
 class EmailServiceTest extends AbstractSpringAppIntegrationTest {
@@ -51,6 +58,9 @@ class EmailServiceTest extends AbstractSpringAppIntegrationTest {
 
   @Autowired
   private UserDAOImpl userDAO;
+
+  @Autowired
+  private AweSession aweSession;
 
   @Mock
   private JavaMailSender mailSender;
@@ -108,6 +118,29 @@ class EmailServiceTest extends AbstractSpringAppIntegrationTest {
     // Build message
     emailService.sendEmail("notify-users", parameters);
 
+    verify(mailSender, times(1)).send(mimeMessage);
+  }
+
+  /**
+   * The email of the 'send email to active users' screen carries the subject and text written on it
+   *
+   * @throws Exception Test error
+   */
+  @Test
+  void sendActiveUsersMailWithTheSubjectAndTextOfTheScreen() throws Exception {
+    doReturn(mimeMessage).when(mailSender).createMimeMessage();
+    when(mailSenderFactory.getMailSender(any())).thenReturn(mailSender);
+
+    // Sender: the connected user (SesUsr)
+    aweSession.setParameter("user", "test");
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.put("EmlSub", "Maintenance window");
+    parameters.put("EmlTxt", "The application stops at 20:00");
+
+    emailService.sendEmail("EmlActUsr", parameters);
+
+    verify(mimeMessage).setSubject("Maintenance window");
+    verify(mimeMessage).setText(contains("The application stops at 20:00"), any());
     verify(mailSender, times(1)).send(mimeMessage);
   }
 }

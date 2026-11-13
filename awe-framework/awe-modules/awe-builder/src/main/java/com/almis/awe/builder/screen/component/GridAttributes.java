@@ -1,5 +1,6 @@
 package com.almis.awe.builder.screen.component;
 
+import com.almis.awe.builder.enumerates.ColumnsPanel;
 import com.almis.awe.builder.screen.base.AbstractAttributes;
 import com.almis.awe.builder.screen.grid.GridBuilder;
 import com.almis.awe.model.entities.screen.component.grid.AbstractGrid;
@@ -13,12 +14,21 @@ import lombok.experimental.Accessors;
 public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B> {
   private boolean checkMultiselect;
   private boolean editable;
+  private boolean moveRows;
   private boolean multiselect;
   private boolean paginationDisabled;
   private boolean rowNumbers = true;
   private boolean sendAll;
   private boolean sendOperations;
   private boolean showTotals;
+  private boolean showToolbar = true;
+  private boolean showColumnsButton = true;
+  private boolean showMaximizeButton = true;
+  private String toolbarLabels;
+  private ColumnsPanel columnsPanel;
+  private String groupBy;
+  private Boolean groupSelector;
+  private Boolean groupSubtotals;
   private boolean treeGrid;
   private boolean validateOnSave;
   private Integer initialLevel;
@@ -45,12 +55,17 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
     return (E) element
       .setCheckboxMultiselect(isCheckMultiselect())
       .setEditable(isEditable())
+      .setMoveRows(isMoveRows())
       .setMultiselect(isMultiselect())
       .setDisablePagination(isPaginationDisabled())
       .setRowNumbers(isRowNumbers())
       .setSendAll(isSendAll())
       .setMultioperation(isSendOperations())
       .setShowTotals(isShowTotals())
+      .setShowToolbar(isShowToolbar())
+      .setShowColumnsButton(isShowColumnsButton())
+      .setShowMaximizeButton(isShowMaximizeButton())
+      .setToolbarLabels(getToolbarLabels())
       .setTreegrid(isTreeGrid())
       .setValidateOnSave(isValidateOnSave())
       .setInitialLevel(getInitialLevel())
@@ -60,7 +75,11 @@ public class GridAttributes<B extends GridBuilder> extends AbstractAttributes<B>
       .setPagerValues(getPagerValues())
       .setTreeId(getTreeId())
       .setTreeLeaf(getTreeLeaf())
-      .setTreeParent(getTreeParent());
+      .setTreeParent(getTreeParent())
+      .setGroupBy(getGroupBy())
+      .setGroupSelector(getGroupSelector())
+      .setGroupSubtotals(getGroupSubtotals())
+      .setColumnsPanel(getColumnsPanel() == null ? null : getColumnsPanel().toString());
   }
 
   /**

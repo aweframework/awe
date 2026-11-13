@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -30,6 +31,7 @@ import java.util.List;
 @XStreamAlias("target")
 public class Target implements XMLNode, Copyable {
 
+  @Serial
   private static final long serialVersionUID = 2101818729705484693L;
 
   // Target Name
@@ -52,6 +54,16 @@ public class Target implements XMLNode, Copyable {
   @XStreamAsAttribute
   private Boolean isPublic;
 
+  // Target can only be launched from the server (never from a client request)
+  @XStreamAlias("server-only")
+  @XStreamAsAttribute
+  private Boolean serverOnly;
+
+  // Permissions required to launch the target from a client, separated by spaces (all of them are required)
+  @XStreamAlias("permission")
+  @XStreamAsAttribute
+  private String permission;
+
   // Target Query List
   @XStreamImplicit
   private List<MaintainQuery> queryList;
@@ -67,6 +79,15 @@ public class Target implements XMLNode, Copyable {
    */
   public boolean isPublic() {
     return isPublic != null && isPublic;
+  }
+
+  /**
+   * Returns if the target can only be launched from the server
+   *
+   * @return Is server only
+   */
+  public boolean isServerOnly() {
+    return serverOnly != null && serverOnly;
   }
 
   @JsonIgnore

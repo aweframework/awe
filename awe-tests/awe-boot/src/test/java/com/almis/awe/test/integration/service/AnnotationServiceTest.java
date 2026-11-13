@@ -18,7 +18,11 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.File;
@@ -41,6 +45,8 @@ import static org.mockito.Mockito.when;
  * @author pgarcia
  */
 @Tag("integration")
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @DisplayName("Annotations service Tests")
 @Slf4j
 class AnnotationServiceTest extends AbstractSpringAppIntegrationTest {

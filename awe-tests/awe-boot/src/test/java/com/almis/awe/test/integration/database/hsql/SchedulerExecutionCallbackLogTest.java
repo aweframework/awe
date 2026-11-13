@@ -1,5 +1,7 @@
 package com.almis.awe.test.integration.database.hsql;
 
+import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.model.util.web.MessageConverterUtil;
 import com.almis.awe.rest.dto.AweRestResponse;
 import com.almis.awe.rest.service.JWTTokenService;
 import com.almis.awe.scheduler.constant.TaskConstants;
@@ -13,8 +15,9 @@ import com.auth0.jwt.algorithms.Algorithm;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.TestRestTemplate;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -44,6 +47,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * {@code database}-mode {@code @TestPropertySource} never collides with the default-config
  * fixed-port context other {@code AbstractSpringFixedEnvironmentIT} tests share.
  */
+@AutoConfigureTestRestTemplate
 @Tag("integration")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = {
@@ -75,6 +79,11 @@ class SchedulerExecutionCallbackLogTest {
   private DataSource dataSource;
 
   private final TestRestTemplate restTemplate = new TestRestTemplate();
+
+  {
+    // AWE writes enum names (AWE 4 wire format); a default Jackson 3 client reads enums through toString()
+    MessageConverterUtil.withJsonMapper(restTemplate.getRestTemplate(), DataListUtil.getMapper());
+  }
 
   @Test
   void secureCallbackFromTheConfiguredCallbackUserIsAdmittedAndCapturesApplicationOriginRows() {

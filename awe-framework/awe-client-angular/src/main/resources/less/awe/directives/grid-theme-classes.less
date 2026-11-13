@@ -1,0 +1,88 @@
+// Theme classes for grids (see the grid API documentation):
+//  - grid-no-header: grid style class that hides the header row and keeps the width of the columns.
+//  - scale-seq-N, scale-pos-N, scale-neg-N: cell classes (assigned from the query with the `style` of the cell)
+//    that colour a cell in five intensity steps (1 lowest, 5 highest) with a sequential scale and with a diverging scale
+//    (positive and negative side). Every step sets its own background and text colour, so the text contrast keeps
+//    meeting WCAG AA (4.5:1) in every theme, light or dark.
+
+// The header keeps its cells (so the columns keep their width) but takes no height and shows nothing
+.grid.grid-no-header {
+  .ui-grid-header {
+    height: 0 !important;
+    min-height: 0;
+    border-width: 0;
+    overflow: hidden;
+    visibility: hidden;
+  }
+}
+
+// A coloured cell fills the whole cell, not only the text
+.grid .ui-grid-cell-contents[class*="scale-"] {
+  height: 100%;
+}
+
+// Sequential scale (low to high): blue
+.scale-seq-1 {
+  background-color: #eff6ff;
+  color: #1f2937;
+}
+.scale-seq-2 {
+  background-color: #bfdbfe;
+  color: #1f2937;
+}
+.scale-seq-3 {
+  background-color: #60a5fa;
+  color: #111827;
+}
+.scale-seq-4 {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+.scale-seq-5 {
+  background-color: #1e3a8a;
+  color: #ffffff;
+}
+
+// Diverging scale, positive side: green
+.scale-pos-1 {
+  background-color: #f0fdf4;
+  color: #14532d;
+}
+.scale-pos-2 {
+  background-color: #bbf7d0;
+  color: #14532d;
+}
+.scale-pos-3 {
+  background-color: #4ade80;
+  color: #052e16;
+}
+.scale-pos-4 {
+  background-color: #15803d;
+  color: #ffffff;
+}
+.scale-pos-5 {
+  background-color: #14532d;
+  color: #ffffff;
+}
+
+// Diverging scale, negative side: red
+.scale-neg-1 {
+  background-color: #fef2f2;
+  color: #7f1d1d;
+}
+.scale-neg-2 {
+  background-color: #fecaca;
+  color: #7f1d1d;
+}
+.scale-neg-3 {
+  background-color: #f87171;
+  color: #450a0a;
+}
+.scale-neg-4 {
+  background-color: #b91c1c;
+  color: #ffffff;
+}
+.scale-neg-5 {
+  background-color: #7f1d1d;
+  color: #ffffff;
+}

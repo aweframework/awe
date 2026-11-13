@@ -1,24 +1,27 @@
 package com.almis.awe.scheduler.log;
 
+import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.service.EncodeService;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import tools.jackson.databind.node.ObjectNode;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Golden/parity tests for {@link FileExecutionLogStore}, a pure extraction of the on-disk
- * execution log logic previously embedded in {@code TaskDAO}.
+ * Tests for {@link FileExecutionLogStore}: on-disk execution logs, read by task and execution id through the
+ * scheduler {@code get-execution-log} action, so no file path ever reaches the client.
  */
 class FileExecutionLogStoreTest {
 
@@ -26,48 +29,49 @@ class FileExecutionLogStoreTest {
   Path logDirectory;
 
   @Test
-  void locatorNodeEmitsTheEncodedAbsolutePathWithTheExistingNodeShape() throws Exception {
+  void locatorNodeEmitsTheExecutionKeyAndNoFilePath() throws Exception {
     FileExecutionLogStore store = new FileExecutionLogStore(logDirectory.toString());
-    Path expectedPath = logDirectory.resolve("execution_12-34.log");
 
     ObjectNode node = store.locatorNode(new ExecutionKey(12, 34));
 
-    assertEquals(EncodeService.encodeSymmetric(expectedPath.toString()), node.get("value").asText());
-    assertEquals("no-btn", node.get("style").asText());
-    assertEquals("SCHEDULER_SHOW_EXECUTION_LOG", node.get("title").asText());
-    assertEquals("file-text-o text-info", node.get("icon").asText());
-    assertEquals("", node.get("label").asText());
+    assertEquals("12-34", node.get("value").asString());
+    assertFalse(node.toString().contains(logDirectory.toString()));
+    assertFalse(node.toString().contains(EncodeService.encodeSymmetric(logDirectory.resolve("execution_12-34.log").toString())));
+    assertEquals("no-btn", node.get("style").asString());
+    assertEquals("SCHEDULER_SHOW_EXECUTION_LOG", node.get("title").asString());
+    assertEquals("file-text-o text-info", node.get("icon").asString());
+    assertEquals("", node.get("label").asString());
   }
 
   @Test
-  void locatorNodeUsesTheRequestedExecutionInThePath() throws Exception {
-    FileExecutionLogStore store = new FileExecutionLogStore(logDirectory.toString());
-    Path expectedPath = logDirectory.resolve("execution_1-2.log");
-
-    ObjectNode node = store.locatorNode(new ExecutionKey(1, 2));
-
-    assertEquals(EncodeService.encodeSymmetric(expectedPath.toString()), node.get("value").asText());
-  }
-
-  @Test
-  void applyViewerSelectionEmitsResetSelectAndFilterInOrder() {
+  void applyViewerSelectionPointsTheViewerAtTheSchedulerActionByTaskAndExecutionId() {
     FileExecutionLogStore store = new FileExecutionLogStore(logDirectory.toString());
     ServiceData serviceData = new ServiceData();
 
-    store.applyViewerSelection("encoded-path", new ExecutionKey(1, 1), serviceData);
+    store.applyViewerSelection("5-9", new ExecutionKey(5, 9), serviceData);
 
-    assertEquals(3, serviceData.getClientActionList().size());
-    assertEquals("reset", serviceData.getClientActionList().get(0).getType());
-    assertEquals("executionLogViewer", serviceData.getClientActionList().get(0).getTarget());
-    assertEquals("select", serviceData.getClientActionList().get(1).getType());
-    assertEquals("path", serviceData.getClientActionList().get(1).getTarget());
-    assertEquals("filter", serviceData.getClientActionList().get(2).getType());
-    assertEquals("executionLogViewer", serviceData.getClientActionList().get(2).getTarget());
+    List<ClientAction> actions = serviceData.getClientActionList();
+    assertEquals(5, actions.size());
+    assertEquals("reset", actions.get(0).getType());
+    assertEquals("executionLogViewer", actions.get(0).getTarget());
+    assertEquals("update-controller", actions.get(1).getType());
+    assertEquals("executionLogViewer", actions.get(1).getTarget());
+    assertEquals("serverAction", parameter(actions.get(1), "attribute"));
+    assertEquals("get-execution-log", parameter(actions.get(1), "value"));
+    assertEquals("select", actions.get(2).getType());
+    assertEquals("execution-log-task-id", actions.get(2).getTarget());
+    assertArrayEquals(new Object[]{5}, (Object[]) actions.get(2).getParameters().get("values"));
+    assertEquals("select", actions.get(3).getType());
+    assertEquals("execution-log-execution-id", actions.get(3).getTarget());
+    assertArrayEquals(new Object[]{9}, (Object[]) actions.get(3).getParameters().get("values"));
+    assertEquals("filter", actions.get(4).getType());
+    assertEquals("executionLogViewer", actions.get(4).getTarget());
+    assertTrue(actions.stream().noneMatch(action -> "path".equals(action.getTarget())));
   }
 
   @Test
   void readReturnsLinesFromOffsetMatchingTheCurrentFileServiceLoop() throws Exception {
-    Files.write(logDirectory.resolve("execution_5-9.log"), List.of("line0", "line1", "line2", "line3"), StandardCharsets.UTF_8);
+    Files.write(logDirectory.resolve("execution_5-9.log"), List.of("line0", "line1", "line2", "line3"));
     FileExecutionLogStore store = new FileExecutionLogStore(logDirectory.toString());
 
     ExecutionLogPage page = store.read(new ExecutionKey(5, 9), 2, null);
@@ -79,7 +83,7 @@ class FileExecutionLogStoreTest {
 
   @Test
   void readFromZeroOffsetReturnsEveryLine() throws Exception {
-    Files.write(logDirectory.resolve("execution_5-9.log"), List.of("a", "b"), StandardCharsets.UTF_8);
+    Files.write(logDirectory.resolve("execution_5-9.log"), List.of("a", "b"));
     FileExecutionLogStore store = new FileExecutionLogStore(logDirectory.toString());
 
     ExecutionLogPage page = store.read(new ExecutionKey(5, 9), 0, null);
@@ -118,5 +122,21 @@ class FileExecutionLogStoreTest {
 
     assertTrue(Files.exists(valid));
     assertFalse(Files.exists(orphan));
+  }
+
+  private static Object parameter(ClientAction action, String name) {
+    return action.getParameters().get(name);
+  }
+
+  @Test
+  void readErrorDoesNotEchoThePath(@TempDir Path directory) throws Exception {
+    // A directory with the name of the log file: reading it fails
+    Files.createDirectory(directory.resolve("execution_1-2.log"));
+    FileExecutionLogStore store = new FileExecutionLogStore(directory.toString());
+
+    AWException exception = assertThrows(AWException.class, () -> store.read(new ExecutionKey(1, 2), 0, null));
+
+    assertEquals("Error reading the log of task 1 and execution 2", exception.getMessage());
+    assertFalse(exception.getMessage().contains(directory.toString()));
   }
 }

@@ -12,7 +12,7 @@ aweApplication.directive('aweInputSelect',
         scope: {
           'criterionId': '@inputSelectId'
         },
-        link: function (scope, elem, attrs) {
+        link: function (scope, elem) {
           // Initialize criterion
           scope.initialized = new Selector(scope, scope.criterionId, elem).asSelect();
         }

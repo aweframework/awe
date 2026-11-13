@@ -59,7 +59,21 @@ describe("ServerData", function () {
 
     await $serverData.getScreenData("customer-list", "center");
 
-    expect($utilities.manageRestError).toHaveBeenCalledWith({status: 503, title: "Service unavailable", message: "Screen unavailable"});
+    expect($utilities.manageRestError).toHaveBeenCalledWith({status: 503, title: "Service unavailable", message: "Screen unavailable", body: undefined});
+    expect($actionController.addActionList).toHaveBeenCalledWith(errorActions, false, {address: {view: "base"}});
+  });
+
+  it("routes an unauthorized screen-data answer to the actions, with the body the expired session carries", async function () {
+    const errorActions = [{type: "session-expired"}];
+    jest.spyOn($serverData, "getFormValues").mockReturnValue({CrtStatus: "ACTIVE"});
+    jest.spyOn($connection, "getRawUrl").mockReturnValue("/awe");
+    jest.spyOn($connection, "post").mockReturnValue(Promise.reject({status: 401, data: "ERROR_MESSAGE_SESSION_EXPIRED"}));
+    jest.spyOn($utilities, "manageRestError").mockReturnValue(errorActions);
+    jest.spyOn($actionController, "addActionList");
+
+    await $serverData.getScreenData("customer-list", "center");
+
+    expect($utilities.manageRestError).toHaveBeenCalledWith({status: 401, title: undefined, message: undefined, body: "ERROR_MESSAGE_SESSION_EXPIRED"});
     expect($actionController.addActionList).toHaveBeenCalledWith(errorActions, false, {address: {view: "base"}});
   });
 
@@ -161,6 +175,55 @@ describe("ServerData", function () {
     expect(printComponent.getPrintData).toHaveBeenCalledWith("LANDSCAPE");
   });
 
+  it("leaves grid row detail instances out of the screen values and adds them only for an address of the instance", function () {
+    const marker = {instance: "GrdOrders-7", template: "GrdOrders", parameters: {"GrdProducts.row.id": 7}};
+    const instance = {
+      getData: jest.fn().mockReturnValue({"GrdOrders-7": "o1", "GrdOrders-7.data": {page: 2}, order: ["Order 1"]}),
+      getPrintData: jest.fn().mockReturnValue({"GrdOrders-7.data": {page: 2, visibleColumns: []}})
+    };
+    const stored = {
+      api: {center: {CrtStatus: {getData: () => ({CrtStatus: "ACTIVE"}), getPrintData: () => ({CrtStatus: "ACTIVE"})}, "GrdOrders-7": instance, "ButShow-7": {getData: () => ({buttonValue: "B"})}}},
+      controller: {center: {CrtStatus: {}, "GrdOrders-7": {rowDetailInstance: marker}, "ButShow-7": {rowDetailInstance: marker}}},
+      model: {}
+    };
+    jest.spyOn($storage, "get").mockImplementation(key => stored[key]);
+
+    expect($serverData.getFormValues()).toEqual({CrtStatus: "ACTIVE"});
+    expect($serverData.getFormValues({view: "center", component: "CrtStatus"})).toEqual({CrtStatus: "ACTIVE"});
+    expect($serverData.getFormValuesForPrinting()).toEqual({CrtStatus: "ACTIVE"});
+    const instanceValues = {CrtStatus: "ACTIVE", GrdOrders: "o1", "GrdOrders.data": {page: 2}, order: ["Order 1"], "GrdProducts.row.id": 7};
+    expect($serverData.getFormValues({view: "center", component: "ButShow-7"})).toEqual(instanceValues);
+    expect($serverData.getFormValues({component: "GrdOrders-7", row: "o1", column: "order"})).toEqual(instanceValues);
+    expect($serverData.getFormValuesForPrinting({view: "center", component: "GrdOrders-7"})).toEqual({
+      CrtStatus: "ACTIVE", "GrdOrders.data": {page: 2, visibleColumns: []}, "GrdProducts.row.id": 7
+    });
+    expect(instance.getPrintData).toHaveBeenCalledWith("PORTRAIT");
+  });
+
+  it("sends only the base view values when asked for one view", function () {
+    const stored = {
+      api: {base: {CrtStatus: {getData: () => ({CrtStatus: "ACTIVE"})}}, report: {CrtName: {getData: () => ({CrtName: "Old"})}}},
+      controller: {}, model: {}
+    };
+    jest.spyOn($storage, "get").mockImplementation(key => stored[key]);
+
+    expect($serverData.getFormValues(null, "base")).toEqual({CrtStatus: "ACTIVE"});
+    expect($serverData.getFormValues()).toEqual({CrtStatus: "ACTIVE", CrtName: "Old"});
+  });
+
+  it("retrieves the screen data with every value, flagging a fresh screen so the server keeps the criteria", async function () {
+    jest.spyOn($serverData, "getFormValues").mockReturnValue({Base: 1, Report: 2});
+    jest.spyOn($connection, "getRawUrl").mockReturnValue("/awe");
+    jest.spyOn($connection, "post").mockReturnValue(Promise.resolve({data: {template: "t"}}));
+
+    await $serverData.getScreenData("customer-list", "base", true);
+    expect($connection.post.mock.calls[0][1]).toMatchObject({Base: 1, Report: 2, freshScreen: true, template: true});
+
+    await $serverData.getScreenData("customer-list", "base");
+    expect($connection.post.mock.calls[1][1]).toHaveProperty("Report", 2);
+    expect($connection.post.mock.calls[1][1]).not.toHaveProperty("freshScreen");
+  });
+
   it("creates server actions and maintain actions with custom selector parameters", function () {
     jest.spyOn($storage, "get").mockReturnValue({center: {name: "report-screen"}});
     jest.spyOn($actionController, "addActionList").mockReturnValue("maintain-enqueued");
@@ -174,6 +237,32 @@ describe("ServerData", function () {
 
     expect($serverData.sendMaintain({type: "maintain", maintain: "SaveStatus"}, false, true)).toBe("maintain-enqueued");
     expect($actionController.addActionList).toHaveBeenCalledWith([{type: "server", async: false, silent: true, parameters: {[$settings.get("serverActionKey")]: "maintain", [$settings.get("targetActionKey")]: "SaveStatus"}}], true, {address: {}, context: ""});
+  });
+
+  it("sends with the login the colour mode chosen on the sign-in page, saved as the mode of the user", function () {
+    const action = {attr: jest.fn().mockImplementation(key => ({parameters: {serverAction: "login"}}[key]))};
+    jest.spyOn($control, "changeControllerAttribute");
+    jest.spyOn($connection, "sendMessage").mockReturnValue({});
+    sessionStorage.setItem("awe-login-mode-pending", "dark");
+
+    $serverData.launchServerAction(action, {username: "jdoe"});
+
+    expect($connection.sendMessage).toHaveBeenCalledWith({action, target: undefined,
+      values: {serverAction: "login", username: "jdoe", signinThemeMode: "dark"}});
+    sessionStorage.removeItem("awe-login-mode-pending");
+  });
+
+  it("sends with the login the language chosen on the sign-in page, saved as the language of the user", function () {
+    const action = {attr: jest.fn().mockImplementation(key => ({parameters: {serverAction: "login"}}[key]))};
+    jest.spyOn($control, "changeControllerAttribute");
+    jest.spyOn($connection, "sendMessage").mockReturnValue({});
+    sessionStorage.setItem("awe-login-language-pending", "es-ES");
+
+    $serverData.launchServerAction(action, {username: "jdoe"});
+
+    expect($connection.sendMessage).toHaveBeenCalledWith({action, target: undefined,
+      values: {serverAction: "login", username: "jdoe", signinLanguage: "es-ES"}});
+    sessionStorage.removeItem("awe-login-language-pending");
   });
 
   it("cancels an in-flight server action by rejecting the current request", function () {

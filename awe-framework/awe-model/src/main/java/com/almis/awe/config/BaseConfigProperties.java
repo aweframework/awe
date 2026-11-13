@@ -1,7 +1,11 @@
 package com.almis.awe.config;
 
+import com.almis.awe.model.type.MenuDescriptionType;
+import com.almis.awe.model.type.MenuFlyoutPlacementType;
 import com.almis.awe.model.type.MenuType;
+import com.almis.awe.model.type.WindowHeaderType;
 import com.almis.awe.model.type.XStreamDriverType;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -59,6 +63,34 @@ public class BaseConfigProperties {
   private String theme = "sky";
 
   /**
+   * Application theme primary colour: one of the AWE 5 palettes (emerald, green, teal, cyan, sky, blue, indigo, violet,
+   * purple, fuchsia, pink, rose, red, orange, amber, yellow, lime) or a hex colour (#RGB or #RRGGBB). It overrides the
+   * primary colour of the theme.
+   * Default value empty (the primary colour of the theme, else emerald)
+   */
+  private String themePrimary;
+
+  /**
+   * Application theme surface: one of the AWE 5 neutral palettes (slate, gray, zinc, neutral, stone), auto or a hex
+   * colour (#RGB or #RRGGBB). It overrides the surface of the theme.
+   * Default value empty (the surface of the theme, else auto)
+   */
+  private String themeSurface;
+
+  /**
+   * Application theme mode: light, dark or system (follows the operating system). It overrides the mode of the theme;
+   * the mode the user chooses overrides it.
+   * Default value empty (the mode of the theme, else system)
+   */
+  private String themeMode;
+
+  /**
+   * Application density: comfortable or compact. The density the user chooses overrides it.
+   * Default value comfortable
+   */
+  private String density = "comfortable";
+
+  /**
    * Application acronym (in lowercase).
    * Default value awe
    */
@@ -78,6 +110,7 @@ public class BaseConfigProperties {
   /**
    * Menu position layout type
    */
+  @Valid
   private MenuType menuType = MenuType.HORIZONTAL;
 
   /**
@@ -85,6 +118,27 @@ public class BaseConfigProperties {
    * Default value true
    */
   private boolean menuSearchEnabled = true;
+
+  /**
+   * How the description of a menu option is shown: tooltip (title attribute) or panel (description area at the
+   * bottom of the collapsed menu flyout).
+   * Default value tooltip
+   */
+  private MenuDescriptionType menuDescription = MenuDescriptionType.TOOLTIP;
+
+  /**
+   * Placement of the collapsed menu flyout: option (next to the option that opens it) or full-height (from the top
+   * of the menu to the bottom of the window).
+   * Default value option
+   */
+  private MenuFlyoutPlacementType menuFlyoutPlacement = MenuFlyoutPlacementType.OPTION;
+
+  /**
+   * What the header of the screens with the window template shows: breadcrumb (the menu breadcrumb) or none (no
+   * breadcrumb, only the buttons row). A screen overrides it with its window-header attribute.
+   * Default value breadcrumb
+   */
+  private WindowHeaderType windowHeader = WindowHeaderType.BREADCRUMB;
 
   /**
    * Application address parameter name.
@@ -143,14 +197,15 @@ public class BaseConfigProperties {
   private boolean logUserEnable = true;
 
   /**
-   * Highcharts export server url
-   * Default value <a href="https://export.highcharts.com">...</a>
+   * Url of the AWE chart server, which renders the charts of the server (ECharts model to SVG).
+   * Default value http://localhost:7801
    */
-  private String highchartsServerUrl = "https://export.highcharts.com";
+  private String chartServerUrl = "http://localhost:7801";
 
   /**
    * XStream driver
    */
+  @Valid
   private XStreamDriverType xstreamDriverType = XStreamDriverType.DOM;
 
   /**
@@ -164,42 +219,63 @@ public class BaseConfigProperties {
    * Application Xml files definitions.
    */
   @NestedConfigurationProperty
+  @Valid
   private Files files = new Files();
 
   /**
    * Application paths configuration.
    */
   @NestedConfigurationProperty
+  @Valid
   private Paths paths = new Paths();
 
   /**
    * Application parameters configuration.
    */
   @NestedConfigurationProperty
+  @Valid
   private Parameter parameter = new Parameter();
 
   /**
    * Jms engine configuration properties.
    */
   @NestedConfigurationProperty
+  @Valid
   private Jms jms = new Jms();
 
   /**
    * Screen names configuration.
    */
   @NestedConfigurationProperty
+  @Valid
   private Screen screen = new Screen();
 
   /**
    * AWE components configuration parameters.
    */
   @NestedConfigurationProperty
+  @Valid
   private Component component = new Component();
+
+  /**
+   * Map component configuration parameters.
+   */
+  @NestedConfigurationProperty
+  @Valid
+  private MapSettings map = new MapSettings();
+
+  /**
+   * Sign-in page branding: layout, logos, background image and texts.
+   */
+  @NestedConfigurationProperty
+  @Valid
+  private Login login = new Login();
 
   /**
    * Application AWE file manager parameters configuration.
    */
   @NestedConfigurationProperty
+  @Valid
   private Filemanager filemanager = new Filemanager();
 
   /**
@@ -242,6 +318,11 @@ public class BaseConfigProperties {
      * Default value Maintain.
      */
     private String maintain = "Maintain";
+    /**
+     * Xml file name of the permission catalog.
+     * Default value Permissions.
+     */
+    private String permissions = "Permissions";
     /**
      * Xml file name of components definition.
      * Default value Components.
@@ -406,19 +487,30 @@ public class BaseConfigProperties {
     private String iconTablet = images + FAVICON_ICON;
 
     /**
-     * Sign-in screen logo. Uses application.paths.images as parent path.
+     * Sign-in screen logo. Uses application.paths.images as parent path. Deprecated for the sign-in page: use
+     * awe.application.login.logo instead (this value is its fallback); in AngularJS it still styles the change
+     * password and two-factor screens.
      * Default value ../images/logo/logo-awe-nuevo.svg
      */
     private String imageStartupLogo = "../" + images + "logo/logo-awe-nuevo.svg";
 
     /**
      * Navigation bar logo. Uses application.paths.images as parent path.
-     * Default value ../images/logo/logo-awe-nuevo2.svg
+     * Default value ../images/logo/awe-logo-mark.svg
      */
-    private String imageNavbarLogo = "../" + images + "logo/logo-awe-nuevo2.svg";
+    private String imageNavbarLogo = "../" + images + "logo/awe-logo-mark.svg";
 
     /**
-     * Sign-in screen background image. Uses application.paths.images as parent path.
+     * Logo of the splash shown while the page loads: it fills up from bottom to top with its own colours, and its shape
+     * is used as a mask (an SVG or an image with transparency; it is fit in a 200 x 128 box). URL relative to the
+     * application root, such as images/logo/my-mark.svg. Not set: the built-in AWE mark.
+     */
+    private String imageSplashLogo;
+
+    /**
+     * Sign-in screen background image. Uses application.paths.images as parent path. Deprecated for the sign-in page:
+     * use awe.application.login.background instead (this value is its fallback); in AngularJS it still styles the
+     * change password and two-factor screens.
      * Default value ../images/background/signin-bg-1.jpg
      */
     private String imageStartupBackground = "../" + images + "background/signin-bg-1.jpg";
@@ -470,6 +562,110 @@ public class BaseConfigProperties {
   }
 
   /**
+   * Configuration properties of the sign-in page. Texts are a locale key or a literal; an empty text is not shown.
+   * Images are browser-resolvable URLs: relative to the application root, absolute or data URIs.
+   */
+  @Data
+  public static class Login {
+    /**
+     * Layout of the sign-in page: split (the form column next to the background panel), form-only (the form centred
+     * alone) or card (the form in a card over the full-screen background). Any other value is split.
+     * Default value split
+     */
+    private String layout = "split";
+
+    /**
+     * Logo of the sign-in page. When empty, awe.application.paths.image-startup-logo if changed, else the AWE logo.
+     * Default value empty
+     */
+    private String logo;
+
+    /**
+     * Logo of the sign-in page in dark mode.
+     * Default value empty (the logo)
+     */
+    private String logoDark;
+
+    /**
+     * Background image of the sign-in page: the panel of the split layout, the backdrop of the card layout. When
+     * empty, awe.application.paths.image-startup-background if changed, else the AWE brand panel.
+     * Default value empty
+     */
+    private String background;
+
+    /**
+     * Name of a canvas effect the application registers for the image panel of the sign-in page (the split panel and
+     * the card backdrop; the form-only layout has no background). AWE ships no effect: the application registers the
+     * effects it writes in its own bundle and selects one here. Empty means no effect, so the background image stays.
+     * Default value empty
+     */
+    private String backgroundEffect;
+
+    /**
+     * Title of the sign-in form.
+     * Default value SCREEN_TEXT_LOGIN_TITLE ("Welcome to AWE")
+     */
+    private String title = "SCREEN_TEXT_LOGIN_TITLE";
+
+    /**
+     * Subtitle of the sign-in form.
+     * Default value SCREEN_TEXT_LOGIN_SUBTITLE ("Enter your credentials to continue.")
+     */
+    private String subtitle = "SCREEN_TEXT_LOGIN_SUBTITLE";
+
+    /**
+     * Title of the caption over the background image.
+     * Default value SCREEN_TEXT_LOGIN_PANEL_TITLE ("AWE Framework")
+     */
+    private String panelTitle = "SCREEN_TEXT_LOGIN_PANEL_TITLE";
+
+    /**
+     * Text of the caption over the background image.
+     * Default value SCREEN_TEXT_LOGIN_PANEL_SUBTITLE ("Low coding complete functional web applications")
+     */
+    private String panelSubtitle = "SCREEN_TEXT_LOGIN_PANEL_SUBTITLE";
+
+    /**
+     * Footer text of the sign-in page, for instance the copyright.
+     * Default value empty
+     */
+    private String footerText;
+
+    /**
+     * Show "Powered by AWE" in the footer of the sign-in page.
+     * Default value true
+     */
+    private boolean poweredBy = true;
+
+    /**
+     * Show the language selector in the footer of the sign-in page, with the languages of
+     * awe.application.language-list.
+     * Default value true
+     */
+    private boolean languageSelector = true;
+
+    /**
+     * Show the light, dark and system colour mode selector in the footer of the sign-in page.
+     * Default value true
+     */
+    private boolean modeSelector = true;
+  }
+
+  /**
+   * Configuration properties of the map component
+   */
+  @Data
+  public static class MapSettings {
+    /**
+     * Url template of the map tiles, with the {z}, {x} and {y} placeholders. Mind the usage policy of the tile server:
+     * the default OpenStreetMap server is meant for light use, so use your own tile server for heavy traffic.
+     * Default value https://tile.openstreetmap.org/{z}/{x}/{y}.png
+     */
+    @NotNull
+    private String tileUrl = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+  }
+
+  /**
    * Configuration properties of awe components
    */
   @Data
@@ -478,6 +674,7 @@ public class BaseConfigProperties {
      * Component size
      * Default value md (Medium)
      */
+    @Valid
     private ComponentSize size = ComponentSize.MD;
     /**
      * Suffix of data parameter send from client
@@ -494,6 +691,25 @@ public class BaseConfigProperties {
      * Default value 8
      */
     private int gridPixelsPerCharacter = 8;
+    /**
+     * Loading indicator of the grids that do not define icon-loading: skeleton (placeholder rows with the grid columns on
+     * every load), skeleton-dim (placeholder rows on the first load, dimmed rows on a reload) or any other icon-loading
+     * value (spinner, dots...)
+     * Default value skeleton
+     */
+    private String gridIconLoading = "skeleton";
+    /**
+     * How the toolbar of the grids that do not define columns-panel shows their Columns: popover (anchored to the Columns
+     * button), dialog (a modal dialog) or side-panel (a panel anchored to the right edge of the screen)
+     * Default value popover
+     */
+    private String gridColumnsPanel = "popover";
+    /**
+     * Whether the end buttons of the grid toolbar (Group by, Saved searches, Columns and Maximize) show their label in the
+     * grids that do not define toolbar-labels. When false they show only their icon, with the label as tooltip
+     * Default value false
+     */
+    private boolean gridToolbarLabels = false;
     /**
      * Rows per page in criteria component (Set to 0 to avoid pagination)
      * Default value 100
@@ -532,6 +748,7 @@ public class BaseConfigProperties {
      * Default value 100MB
      */
     @DataSizeUnit(DataUnit.MEGABYTES)
+    @Valid
     private DataSize uploadMaxFileSize = DataSize.ofMegabytes(100);
     /**
      * Max elements per folder

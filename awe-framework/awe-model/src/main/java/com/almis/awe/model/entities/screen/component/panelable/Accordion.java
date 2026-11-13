@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +32,7 @@ import java.util.List;
 @XStreamAlias("accordion")
 public class Accordion extends Panelable {
 
+  @Serial
   private static final long serialVersionUID = -6613949823525768993L;
 
   // Value attribute

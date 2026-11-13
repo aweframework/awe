@@ -245,8 +245,9 @@ Add the client to `package.json`:
 }
 ```
 
-where `AWE-REACT-VERSION` is the `awe-react-client` version you want to use (these versions are not
-the same as the AWE Framework versions).
+where `AWE-REACT-VERSION` is the `awe-react-client` version of your AWE Framework version: since AWE 5 the
+package version is the framework version (AWE `5.0.0` uses `awe-react-client@5.0.0`). Applications that still use
+`awe-react-client` 2.x can follow the [React client upgrade guide](guides/react-client-upgrade.md).
 
 The React client keeps the same production-default contract, with a Webpack config split by
 environment: `webpack.config.js` holds the common configuration, `webpack.dev.js` the development

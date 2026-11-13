@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -25,6 +26,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class Answer implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -3977488792390703003L;
 
   // Client action list

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : unsaved-grid.xml
+    Description: An action blocked by check-records-saved because an editable grid has a row that is still being edited
+                 (#918). The three editable grids of the screen sit in three tabs of a side panel, so the blocked action
+                 has to open the tab that hides the grid, scroll the row being edited into view and mark the tab header
+                 while the grid has unsaved rows.
+                 The save button checks the three grids and only writes the result when all of them are saved, which
+                 tells the tests whether the action was blocked (empty) or ran (saved).
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="SCREEN_TITLE_UNSAVED_GRID">
+  <tag source="buttons">
+    <button id="ButUnsOpen" label="SCREEN_TITLE_UNSAVED_GRID" icon="list">
+      <button-action type="dialog" target="PnlUns"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_UNSAVED_GRID" icon="list" expandible="vertical">
+      <tag type="div" style="panel-body">
+        <criteria id="UnsResult" label="PARAMETER_STATUS" component="text" readonly="true" style="col-xs-12 col-sm-6"/>
+      </tag>
+    </window>
+
+    <side-panel id="PnlUns" label="SCREEN_TITLE_UNSAVED_GRID" max-width="40rem">
+      <tag type="div" style="panel-body" expandible="vertical">
+        <tab id="UnsTabs" initial-load="enum" target-action="UnsTabs">
+          <tabcontainer id="unsGeneral">
+            <tag type="div" style="panel-body">
+              <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+                <grid id="GrdUnsGeneral" style="expand" editable="true" send-operations="true" show-toolbar="false" max="10">
+                  <column label="PARAMETER_NAME" name="NamGeneral" align="left" charlength="20" component="text"/>
+                  <button id="ButUnsGeneralAdd" label="BUTTON_NEW" icon="plus-circle">
+                    <button-action type="add-row" target="GrdUnsGeneral" silent="true"/>
+                  </button>
+                </grid>
+              </tag>
+            </tag>
+          </tabcontainer>
+          <tabcontainer id="unsAccess">
+            <tag type="div" style="panel-body">
+              <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+                <grid id="GrdUnsAccess" style="expand" editable="true" send-operations="true" show-toolbar="false" max="10">
+                  <column label="PARAMETER_NAME" name="NamAccess" align="left" charlength="20" component="text"/>
+                  <button id="ButUnsAccessAdd" label="BUTTON_NEW" icon="plus-circle">
+                    <button-action type="add-row" target="GrdUnsAccess" silent="true"/>
+                  </button>
+                </grid>
+              </tag>
+            </tag>
+          </tabcontainer>
+          <tabcontainer id="unsSites">
+            <tag type="div" style="panel-body">
+              <tag type="div" style="col-xs-12 height-xl" expandible="vertical">
+                <grid id="GrdUnsSites" style="expand" editable="true" send-operations="true" show-toolbar="false" max="10">
+                  <column label="PARAMETER_NAME" name="NamSites" align="left" charlength="20" component="text"/>
+                  <button id="ButUnsSitesAdd" label="BUTTON_NEW" icon="plus-circle">
+                    <button-action type="add-row" target="GrdUnsSites" silent="true"/>
+                  </button>
+                </grid>
+              </tag>
+            </tag>
+          </tabcontainer>
+        </tab>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button id="ButUnsClose" label="BUTTON_CLOSE" icon="times">
+          <button-action type="close" target="PnlUns"/>
+        </button>
+        <!-- The row of the grid is saved with a client action: the floating button of the row is not part of the
+             flow of this screen -->
+        <button id="ButUnsSaveRow" label="BUTTON_SAVE_ROW" icon="check">
+          <button-action type="save-row" target="GrdUnsAccess"/>
+        </button>
+        <button id="ButUnsSave" label="BUTTON_SAVE_CHANGES" icon="save" style="btn-primary">
+          <button-action type="check-records-saved" target="GrdUnsGeneral"/>
+          <button-action type="check-records-saved" target="GrdUnsAccess"/>
+          <button-action type="check-records-saved" target="GrdUnsSites"/>
+          <button-action type="value" target="UnsResult" value="saved"/>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+</screen>

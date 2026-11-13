@@ -1,0 +1,46 @@
+{
+  "version.label": {
+    "message": "4.12.0",
+    "description": "The label for version 4.12.0"
+  },
+  "sidebar.docs.category.AWE framework": {
+    "message": "AWE framework",
+    "description": "The label for category AWE framework in sidebar docs"
+  },
+  "sidebar.docs.category.Security": {
+    "message": "Seguridad",
+    "description": "The label for category Security in sidebar docs"
+  },
+  "sidebar.docs.category.Getting Started": {
+    "message": "Primeros pasos",
+    "description": "The label for category Getting Started in sidebar docs"
+  },
+  "sidebar.docs.category.Configuration": {
+    "message": "Configuración",
+    "description": "The label for category Configuration in sidebar docs"
+  },
+  "sidebar.docs.category.Modules": {
+    "message": "Módulos",
+    "description": "The label for category Modules in sidebar docs"
+  },
+  "sidebar.docs.category.Guides": {
+    "message": "Guías",
+    "description": "The label for category Guides in sidebar docs"
+  },
+  "sidebar.docs.category.API Reference": {
+    "message": "Referencia de la API",
+    "description": "The label for category API Reference in sidebar docs"
+  },
+  "sidebar.screens.category.API Reference": {
+    "message": "Referencia de la API",
+    "description": "The label for category API Reference in sidebar screens"
+  },
+  "sidebar.schedule.category.Schedule Task": {
+    "message": "Tareas programadas",
+    "description": "The label for category Schedule Task in sidebar schedule"
+  },
+  "sidebar.training.category.Basic tutorials": {
+    "message": "Tutoriales básicos",
+    "description": "The label for category Basic tutorials in sidebar training"
+  }
+}

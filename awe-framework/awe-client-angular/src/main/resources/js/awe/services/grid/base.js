@@ -1,9 +1,15 @@
 import {aweApplication} from "../../awe";
 import "./commons";
+import "./groupingGrid";
+import "./columnFilters";
+import {getRowDetailColumn, initRowDetail, initRowDetailInstances} from "./rowDetail";
+import {getMoveRowsColumn} from "./rowDrag";
+import {getMultiselectColumn, selectAllClick} from "./multiselect";
 
 // Base grid service
 aweApplication.factory('GridBase',
   ['AweUtilities', 'Control', 'Component', 'GridEvents', 'GridCommons', '$translate', '$filter', '$log', 'uiGridConstants',
+    'Storage', 'ServerData', 'GridGrouping', 'GridColumnFilters',
     /**
      * Grid generic methods
      * @param {service} Utilities Utilities service
@@ -15,8 +21,12 @@ aweApplication.factory('GridBase',
      * @param {service} $log Log service
      * @param {service} Component Component service
      * @param {service} uiGridConstants Grid constants
+     * @param {service} Storage Storage service
+     * @param {service} ServerData Server data service
+     * @param {service} GridGrouping Row grouping
+     * @param {service} GridColumnFilters Column autofilter
      */
-    function (Utilities, Control, Component, GridEvents, GridCommons, $translate, $filter, $log, uiGridConstants) {
+    function (Utilities, Control, Component, GridEvents, GridCommons, $translate, $filter, $log, uiGridConstants, Storage, ServerData, GridGrouping, GridColumnFilters) {
 
       /**
        * Grid constructor
@@ -69,6 +79,14 @@ aweApplication.factory('GridBase',
           // Initialize common methods
           this.commons = new GridCommons(this.component);
 
+          // Row detail: an open detail changes the height of the content, so the scroll bars are checked again. With
+          // components, each open row has its own instance of them
+          if (component.controller.rowDetail) {
+            const instances = component.controller.rowDetail.component ?
+              initRowDetailInstances(component, Storage, ServerData.storeComponent) : null;
+            initRowDetail(component, () => Utilities.timeout(component.updateGridScrollBars), instances);
+          }
+
           /******************************************************************************
            * COMPONENT METHODS
            *****************************************************************************/
@@ -78,20 +96,26 @@ aweApplication.factory('GridBase',
            * @param {type} row
            */
           component.getRowNumber = function (row) {
+            // Grouped rows are numbered among the data rows they show (#833)
+            if (component.grouped) {
+              return component.getGroupedRowNumber(row);
+            }
             return grid.api.core.getVisibleRows().indexOf(row) + getFirstRecord();
+          };
+          /**
+           * Check whether the grid has no row limit (max="0", as in AWE 3, #944): every row in a single page, without
+           * page links, as with pagination disabled
+           * @returns {boolean} The grid shows every row
+           */
+          component.showsAllRows = function () {
+            return component.getMax() === 0;
           };
           /**
            * Select all rows
            * @param {type} event
            */
           component.selectAllClick = function (event) {
-            if (grid.api) {
-              if (!grid.api.selection.getSelectAllState()) {
-                grid.api.selection.clearSelectedRows(event);
-              } else {
-                grid.api.selection.selectAllRows(event);
-              }
-            }
+            selectAllClick(grid.api, event);
           };
 
           /**
@@ -130,6 +154,11 @@ aweApplication.factory('GridBase',
             };
             // Broadcast rows rendered
             grid.api.core.on.rowsRendered(grid.scope, () => onRowsRendered(grid));
+            // Wrapping cells: tooltip with the full text of the cut ones and keyboard access to them
+            if (component.wrapsText) {
+              component.initWrapCells();
+              grid.api.core.on.rowsRendered(grid.scope, () => Utilities.timeout(component.markCutCells));
+            }
 
             // Manage on cell select events
             grid.api.selection.on.rowSelectionChanged(grid.scope, onSelectRow);
@@ -145,6 +174,8 @@ aweApplication.factory('GridBase',
             grid.api.core.on.sortChanged(grid.scope, onSort);
             // Manage pagination
             grid.api.pagination.on.paginationChanged(grid.scope, onPagination);
+            // Row grouping (#833)
+            component.initGroupRows();
             // End initialization
             Utilities.timeout(function () {
               // Initialize grid layers
@@ -170,21 +201,7 @@ aweApplication.factory('GridBase',
           component.addInitialColumns = function () {
             // Add checkboxes
             if (component.controller.multiselect) {
-              let  checkboxes = {
-                width: 26,
-                label: "",
-                displayName: "",
-                name: "chkBox",
-                frozen: component.hasFrozen,
-                headerCellTemplate: "grid/headerCheckbox",
-                cellTemplate: "grid/cellCheckbox",
-                enableColumnResizing: false,
-                enableColumnMoving: false,
-                enableColumnMenu: false,
-                enableFiltering: false,
-                sortable: false
-              };
-              component.controller.columnModel.unshift(checkboxes);
+              component.controller.columnModel.unshift(getMultiselectColumn(component));
             }
             // Add row numbers first
             if (component.controller.rowNumbers) {
@@ -205,14 +222,22 @@ aweApplication.factory('GridBase',
               };
               component.controller.columnModel.unshift(rowNumbers);
             }
+            // Add the row detail toggles first
+            if (component.rowDetail) {
+              component.controller.columnModel.unshift(getRowDetailColumn(component));
+            }
+            // Add the grips to drag the rows first
+            if (component.controller.moveRows) {
+              component.controller.columnModel.unshift(getMoveRowsColumn(component));
+            }
           };
 
           /**
            * Update the model (specific)
            */
           component.updateModelSpecific = function () {
-            // Update model
-            component.scope.gridOptions.data = component.model.values;
+            // Update model (the display rows of the groups while the rows are grouped, #833)
+            component.scope.gridOptions.data = component.getDisplayValues();
             component.currentPage = component.model.page;
             // On rows rendered, publish
             return component.deferRowsRendered(deferred => {
@@ -363,11 +388,12 @@ aweApplication.factory('GridBase',
            * @returns {Object} Specific fields from component
            */
           component.getSpecificFields = function () {
-            // Retrieve specific query data
+            // Retrieve specific query data (and the column filters in effect, #912)
             return {
               max: component.controller.loadAll ? 0 : component.getMax(),
               page: component.currentPage,
-              sort: grid.sorting
+              sort: grid.sorting,
+              ...component.getColumnFiltersParameters()
             };
           };
           /**
@@ -391,7 +417,7 @@ aweApplication.factory('GridBase',
             let  rowIndex = component.model.values.length;
             if (row) {
               let  foundRowIndex = Utilities.getRowIndex(component.model.values, row, component.constants.ROW_IDENTIFIER);
-              if (foundRowIndex != -1) {
+              if (foundRowIndex !== -1) {
                 rowIndex = foundRowIndex;
               }
             }
@@ -561,7 +587,7 @@ aweApplication.factory('GridBase',
             paginationText += " " + records;
             paginationTextSmall = page + "/" + total;
             // Generate pagination sizes
-            if (component.controller.disablePagination) {
+            if (component.controller.disablePagination || component.showsAllRows()) {
               if (component.controller.buttonModel.length > 0) {
                 component.footerButtonStyle = "col-xs-12";
               } else {
@@ -796,7 +822,8 @@ aweApplication.factory('GridBase',
 
             // Update total pages
             if (component.controller.loadAll && grid.api) {
-              component.model.total = grid.api.pagination.getTotalPages();
+              // A single page while the rows are grouped (no pagination, #833)
+              component.model.total = grid.api.pagination.getTotalPages() || 1;
             } else {
               let  recordsPerPage = component.getMax();
               component.model.total = recordsPerPage === 0 ? 1 : Math.max(Math.ceil(component.model.records / recordsPerPage), 1);
@@ -895,16 +922,31 @@ aweApplication.factory('GridBase',
            * @param {type} data
            */
           component.api.updateModelValues = function (data) {
+            // The grid is known to be empty only once its data has arrived
+            component.loaded = true;
+            // New data closes the details of the rows
+            if ("values" in data && component.closeRowDetails) {
+              component.closeRowDetails();
+            }
             if (component.model) {
               _.assign(component.model, data);
               refreshModel();
             }
           };
 
+          // A grid without initial load has nothing to wait for, and one whose data came with the screen already has it
+          component.loaded = !component.controller.initialLoad || component.model.loaded === true;
+
           // Initialize common functions
           if (!this.commons.init()) {
             return false;
           }
+
+          // Row grouping (#833)
+          GridGrouping.attach(component);
+
+          // Column autofilter (#912)
+          GridColumnFilters.attach(component);
 
           /**********************************************************************/
           /* EVENTS                                                             */

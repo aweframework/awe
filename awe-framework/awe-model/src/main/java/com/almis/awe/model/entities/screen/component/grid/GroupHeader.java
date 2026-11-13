@@ -14,6 +14,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.List;
 
 /**
@@ -33,6 +34,7 @@ import java.util.List;
 @XStreamAlias("group-header")
 public class GroupHeader extends Element {
 
+  @Serial
   private static final long serialVersionUID = 5469384624049029571L;
 
   // Position of GROUP header in the grid
@@ -88,6 +90,16 @@ public class GroupHeader extends Element {
       return childColumnList.size();
     }
     return null;
+  }
+
+  /**
+   * Retrieves the names of the columns of the group, so clients compute the header from its members
+   *
+   * @return Column names
+   */
+  @JsonGetter("columnNames")
+  public List<String> getColumnNamesConverter() {
+    return this.getElementsByType(Column.class).stream().map(Column::getName).toList();
   }
 
   /**

@@ -13,8 +13,6 @@ global.$ = jquery;
 global.jQuery = jquery;
 global._ = lodash;
 window._ = lodash;
-global.Highcharts = global.Highcharts || {};
-global.HighchartsLocale = global.HighchartsLocale || {};
 window.constructor = window.constructor || global.constructor;
 
 require("angular/angular");

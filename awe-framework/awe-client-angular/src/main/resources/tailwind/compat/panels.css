@@ -1,0 +1,256 @@
+/*
+ * Panels: Bootstrap 3 panels.less, the pixel-admin panel overrides and layout helpers (utils.less), and the AWE rules on the same
+ * selectors (less/awe/directives/panel.less), written on Tailwind with @apply where it emits the same declarations (the spacing
+ * unit is 5px) and as plain declarations where it does not.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values.
+ * The heading and footer corners are 0 on purpose: Bootstrap wrote them as calc(var(--awe-radius) - 1), a length minus a unitless
+ * number, which is invalid at computed-value time, so they compute to 0 today. Written as 0, nothing changes (and no invalid calc stays).
+ * Where a shorthand and its longhands are both declared, both stay in the order that the cascade applies them.
+ * !important stays where the vendored rule has it: for !important the layer order inverts, so these layered rules beat an
+ * unlayered !important one whatever its specificity. See compatPanels.test.js, which pins the elements that mix them.
+ *
+ * This file must be imported before spacing.css: `panel-padding no-padding-t` is in screens, both are !important and the same
+ * specificity, so the later no-padding-t has to win the padding-top, as it does in the vendored LESS.
+ *
+ * Not here (they stay in LESS): the contextual colors that nothing uses (panel-primary|success|warning|danger, panel-dark), the
+ * colored accordions (panel-group-info|success...), the table and list-group rules that sit inside a panel, the selectors that
+ * depend on a theme class of the body, and the AWE panel, window and wizard directives (panel-awe, panel-sm|md|lg, maximized,
+ * wizard-panel...). See the compat guide.
+ */
+
+/* Panel */
+.panel {
+  background-color: var(--awe-color-panel);
+  border: var(--awe-border-width) solid transparent;
+  border-radius: var(--awe-radius);
+  border-color: var(--awe-color-grid-border);
+  margin-bottom: var(--awe-space-6);
+  box-shadow: none;
+  position: static;
+}
+
+.panel-heading {
+  padding: var(--awe-space-3) var(--awe-space-4);
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+  background: var(--awe-color-surface-subtle);
+  border-bottom: var(--awe-border-width-strong) solid var(--awe-color-border);
+  padding-bottom: var(--awe-space-2);
+  padding-left: var(--awe-space-5);
+  padding-right: var(--awe-space-5);
+  padding-top: var(--awe-space-3);
+  position: relative;
+}
+
+.panel-title {
+  @apply tw:mt-0 tw:mb-0;
+  color: var(--awe-color-text);
+  font-size: var(--awe-font-size-base);
+  line-height: var(--awe-space-5);
+}
+
+.panel-title > a,
+.panel-title > small,
+.panel-title > small > a {
+  color: inherit;
+}
+
+.panel-title-icon {
+  @apply tw:inline-block;
+  font-size: var(--awe-font-size-base);
+  margin-right: var(--awe-space-2);
+}
+
+.panel-body {
+  @apply tw:m-0 tw:p-4;
+  background: var(--awe-color-panel);
+}
+
+.panel-body::before,
+.panel-body::after {
+  content: " ";
+  display: table;
+}
+
+.panel-body::after {
+  clear: both;
+}
+
+.panel-body > li {
+  @apply tw:m-0 tw:p-0;
+  list-style: none;
+}
+
+.panel-footer {
+  padding: var(--awe-space-3) var(--awe-space-4);
+  background-color: var(--awe-color-surface-subtle);
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  background: var(--awe-color-surface);
+  border-top: var(--awe-border-width) solid var(--awe-color-border);
+  padding-left: var(--awe-space-5);
+  padding-right: var(--awe-space-5);
+}
+
+.panel .panel-footer::after {
+  content: "\00a0";
+}
+
+/* Phones: the footer buttons use the whole width */
+@media (max-width: 767px) {
+  .panel .panel-footer {
+    @apply tw:p-0!;
+    margin-left: calc(var(--awe-space-1-5) * -1);
+  }
+
+  .panel .panel-footer::after {
+    content: initial;
+  }
+}
+
+/* A panel without background and borders */
+.panel-transparent {
+  background: none !important;
+  border: none !important;
+}
+
+.panel-transparent .panel-heading,
+.panel-transparent .panel-body {
+  background: none !important;
+}
+
+.panel-transparent .panel-footer {
+  background: none !important;
+  border: none !important;
+}
+
+/* Default and info panels (the other contextual colors are used nowhere and stay in LESS) */
+.panel-default {
+  border-color: var(--awe-color-grid-border);
+  margin-bottom: var(--awe-space-6);
+  position: relative;
+  box-shadow: none;
+}
+
+.panel-default > .panel-heading {
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-panel-header);
+  border-color: var(--awe-color-border);
+}
+
+.panel-default > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: var(--awe-color-border);
+}
+
+.panel-default > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: var(--awe-color-border);
+}
+
+.panel-info {
+  border-color: var(--awe-color-info) !important;
+  border-radius: var(--awe-radius);
+  overflow: hidden;
+}
+
+.panel-info > .panel-heading {
+  color: var(--awe-color-on-primary);
+  background-color: var(--awe-color-info);
+  border-color: var(--awe-color-info);
+}
+
+.panel-info > .panel-heading + .panel-collapse > .panel-body {
+  border-top-color: var(--awe-color-info);
+}
+
+.panel-info > .panel-footer + .panel-collapse > .panel-body {
+  border-bottom-color: var(--awe-color-info);
+}
+
+.panel-info .panel-heading {
+  background: var(--awe-color-info);
+  border-color: var(--awe-color-info);
+  color: var(--awe-color-on-primary);
+  background-size: var(--awe-space-5) var(--awe-space-5);
+}
+
+.panel-info .panel-heading .panel-title {
+  color: var(--awe-color-on-primary);
+}
+
+/* Body and footer painted in the panel color */
+.panel-info.panel-body-colorful .panel-body {
+  background: var(--awe-color-info);
+  color: var(--awe-color-on-primary);
+}
+
+.panel-info.panel-body-colorful .panel-footer {
+  background: var(--awe-color-info);
+  border-color: var(--awe-color-info);
+  color: var(--awe-color-on-primary);
+}
+
+/* Accordion: the panels of a group (the colored accordions stay in LESS) */
+.panel-group {
+  margin-bottom: var(--awe-space-5);
+}
+
+.panel-group .panel {
+  @apply tw:mb-0;
+  border-radius: var(--awe-radius);
+}
+
+.panel-group .panel + .panel {
+  @apply tw:mt-1;
+}
+
+.panel-group .panel-heading {
+  border-bottom: 0;
+  @apply tw:p-0;
+}
+
+.panel-group .panel-heading + .panel-collapse > .panel-body {
+  border-top: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.panel-group .panel-footer {
+  border-top: 0;
+}
+
+.panel-group .panel-footer + .panel-collapse .panel-body {
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+/* pixel-admin layout helpers */
+.panel-padding {
+  @apply tw:p-4!;
+}
+
+.panel-padding-h {
+  @apply tw:pl-4! tw:pr-4!;
+}
+
+.panel-padding-r {
+  @apply tw:pr-3;
+}
+
+.panel-wide {
+  @apply tw:-ml-4! tw:-mr-4!;
+}
+
+.no-grid-gutter-h {
+  margin-left: calc(var(--awe-space-5) * -1) !important;
+  margin-right: calc(var(--awe-space-5) * -1) !important;
+}
+
+.form-group-margin {
+  @apply tw:mb-3!;
+}
+
+.tab-content-padding {
+  padding: var(--awe-space-4) 0 !important;
+}
+
+.rounded {
+  border-radius: var(--awe-radius-full) !important;
+}

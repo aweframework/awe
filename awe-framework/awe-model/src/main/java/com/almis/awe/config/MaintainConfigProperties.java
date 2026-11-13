@@ -1,5 +1,6 @@
 package com.almis.awe.config;
 
+import jakarta.validation.Valid;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
@@ -17,7 +18,15 @@ public class MaintainConfigProperties {
    * Multiple maintain configuration.
    */
   @NestedConfigurationProperty
+  @Valid
   private Multiple multiple = new Multiple();
+
+  /**
+   * Maintain transaction configuration.
+   */
+  @NestedConfigurationProperty
+  @Valid
+  private Transaction transaction = new Transaction();
 
   /**
    * Multiple maintain configuration properties
@@ -33,6 +42,21 @@ public class MaintainConfigProperties {
      * </ul>
      * Default value strict
      */
+    @Valid
     private MaintainValidationMode validationMode = MaintainValidationMode.STRICT;
+  }
+
+  /**
+   * Maintain transaction configuration properties
+   */
+  @Data
+  public static class Transaction {
+    /**
+     * Run each maintain inside a transaction of its DataSource. Nested maintains and retrieve-data steps on the same
+     * DataSource join it, and any failure or ERROR result rolls the whole maintain back. Disable it to keep the
+     * previous behavior: each maintain commits its own connection independently.
+     * Default value true
+     */
+    private boolean enabled = true;
   }
 }

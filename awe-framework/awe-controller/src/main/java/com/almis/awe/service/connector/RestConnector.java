@@ -7,9 +7,9 @@ import com.almis.awe.model.entities.services.ServiceRest;
 import com.almis.awe.model.entities.services.ServiceType;
 import com.almis.awe.model.rest.ServiceAuth;
 import com.almis.awe.model.rest.ServiceDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.web.client.RestClientException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.Optional;

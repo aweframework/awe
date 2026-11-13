@@ -10,7 +10,6 @@
         xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
         template="window" label="MENU_SCHEDULER_TASKS" help="HELP_SCREEN_SCHEDULER_TASKS">
   <tag source="center">
-    <criteria id="path" component="hidden"/>
     <criteria id="execution-log-task-id" component="hidden"/>
     <criteria id="execution-log-execution-id" component="hidden"/>
     <criteria id="content-type" component="hidden" value="text/plain"/>
@@ -66,7 +65,7 @@
           </tag>
         </tag>
       </tag>
-      <widget type="log-viewer" id="executionLogViewer" style="expand scrollable black-log" server-action="get-log-file">
+      <widget type="log-viewer" id="executionLogViewer" style="expand scrollable black-log" server-action="get-execution-log">
         <widget-parameter type="boolean" name="stickBottom" value="true"/>
         <dependency source-type="value" target-type="enable-autorefresh" value="5">
           <dependency-element id="execution-data" event="open"/>

@@ -8,8 +8,6 @@ import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.component.RequestDataHolder;
 import com.almis.awe.model.util.data.QueryUtil;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +18,9 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 /**
  * Real async-path regression for parameter propagation.
@@ -99,7 +99,7 @@ class AsyncParameterPropagationRegressionTest {
     // on the web thread, and throws on async threads (simulating expired request scope).
     BaseConfigProperties baseConfigProperties = new BaseConfigProperties();
     DatabaseConfigProperties databaseConfigProperties = new DatabaseConfigProperties();
-    queryUtil = new QueryUtil(baseConfigProperties, databaseConfigProperties, new ObjectMapper(), prototypeRequestBeanHolder);
+    queryUtil = new QueryUtil(baseConfigProperties, databaseConfigProperties, new JsonMapper(), prototypeRequestBeanHolder);
     queryUtil.setApplicationContext(applicationContext);
 
     // ContextAwarePoolExecutor with the AweMDCTaskDecorator applied
@@ -180,8 +180,8 @@ class AsyncParameterPropagationRegressionTest {
     executor.submitCompletable(() -> {
       // Read via QueryUtil.getParameters() — same path as getRequestParameterAsString
       ObjectNode params = queryUtil.getParameters();
-      childSeed.set(params.has("seed") ? params.get("seed").asText() : null);
-      childExistingParam.set(params.has("existingParam") ? params.get("existingParam").asText() : null);
+      childSeed.set(params.has("seed") ? params.get("seed").asString() : null);
+      childExistingParam.set(params.has("existingParam") ? params.get("existingParam").asString() : null);
       return null;
     }).get(10, TimeUnit.SECONDS);
 
@@ -213,8 +213,8 @@ class AsyncParameterPropagationRegressionTest {
       executor.submitCompletable(() -> {
         // Grandchild reads
         ObjectNode params = queryUtil.getParameters();
-        grandchildSeed.set(params.has("seed") ? params.get("seed").asText() : null);
-        grandchildExistingParam.set(params.has("existingParam") ? params.get("existingParam").asText() : null);
+        grandchildSeed.set(params.has("seed") ? params.get("seed").asString() : null);
+        grandchildExistingParam.set(params.has("existingParam") ? params.get("existingParam").asString() : null);
         return null;
       }).get(10, TimeUnit.SECONDS);
       return null;
@@ -251,9 +251,9 @@ class AsyncParameterPropagationRegressionTest {
     // WHEN
     executor.submitCompletable(() -> {
       ObjectNode params = queryUtil.getParameters();
-      childShared.set(params.has("shared") ? params.get("shared").asText() : null);
-      childLiveOnly.set(params.has("live-only") ? params.get("live-only").asText() : null);
-      childPropagatedOnly.set(params.has("propagated-only") ? params.get("propagated-only").asText() : null);
+      childShared.set(params.has("shared") ? params.get("shared").asString() : null);
+      childLiveOnly.set(params.has("live-only") ? params.get("live-only").asString() : null);
+      childPropagatedOnly.set(params.has("propagated-only") ? params.get("propagated-only").asString() : null);
       return null;
     }).get(10, TimeUnit.SECONDS);
 
@@ -281,7 +281,7 @@ class AsyncParameterPropagationRegressionTest {
     // WHEN
     executor.submitCompletable(() -> {
       ObjectNode params = queryUtil.getParameters();
-      childOrdinary.set(params.has("ordinary") ? params.get("ordinary").asText() : null);
+      childOrdinary.set(params.has("ordinary") ? params.get("ordinary").asString() : null);
       return null;
     }).get(10, TimeUnit.SECONDS);
 
@@ -341,8 +341,8 @@ class AsyncParameterPropagationRegressionTest {
       // ContextAwareCallable has re-installed the original RequestAttributes here.
       // Validate child sees the correct merged params (covered by existing test too).
       ObjectNode childParams = queryUtil.getParameters();
-      childSeed.set(childParams.has("seed") ? childParams.get("seed").asText() : null);
-      childShared.set(childParams.has("shared") ? childParams.get("shared").asText() : null);
+      childSeed.set(childParams.has("seed") ? childParams.get("seed").asString() : null);
+      childShared.set(childParams.has("shared") ? childParams.get("shared").asString() : null);
 
       // Submit grandchild FROM the child worker thread — this triggers the exact failure path:
       // the decorator runs on this child thread where live RequestAttributes are active,
@@ -350,9 +350,9 @@ class AsyncParameterPropagationRegressionTest {
       executor.submitCompletable(() -> {
         // ── GRANDCHILD THREAD ─────────────────────────────────────────────────
         ObjectNode grandchildParams = queryUtil.getParameters();
-        grandchildSeed.set(grandchildParams.has("seed") ? grandchildParams.get("seed").asText() : null);
-        grandchildShared.set(grandchildParams.has("shared") ? grandchildParams.get("shared").asText() : null);
-        grandchildExisting.set(grandchildParams.has("existingParam") ? grandchildParams.get("existingParam").asText() : null);
+        grandchildSeed.set(grandchildParams.has("seed") ? grandchildParams.get("seed").asString() : null);
+        grandchildShared.set(grandchildParams.has("shared") ? grandchildParams.get("shared").asString() : null);
+        grandchildExisting.set(grandchildParams.has("existingParam") ? grandchildParams.get("existingParam").asString() : null);
         return null;
       }).get(10, TimeUnit.SECONDS);
 
@@ -410,13 +410,13 @@ class AsyncParameterPropagationRegressionTest {
     // (Decorator takes two independent snapshot copies — overlay stays alive between them)
     CompletableFuture<Void> first = executor.submitCompletable(() -> {
       ObjectNode params = queryUtil.getParameters();
-      firstSiblingResult.set(params.has("shared-seed") ? params.get("shared-seed").asText() : null);
+      firstSiblingResult.set(params.has("shared-seed") ? params.get("shared-seed").asString() : null);
       return null;
     });
 
     CompletableFuture<Void> second = executor.submitCompletable(() -> {
       ObjectNode params = queryUtil.getParameters();
-      secondSiblingResult.set(params.has("shared-seed") ? params.get("shared-seed").asText() : null);
+      secondSiblingResult.set(params.has("shared-seed") ? params.get("shared-seed").asString() : null);
       return null;
     });
 
@@ -436,7 +436,7 @@ class AsyncParameterPropagationRegressionTest {
     AtomicReference<String> lateTaskResult = new AtomicReference<>();
     executor.submitCompletable(() -> {
       ObjectNode params = queryUtil.getParameters();
-      lateTaskResult.set(params.has("shared-seed") ? params.get("shared-seed").asText() : null);
+      lateTaskResult.set(params.has("shared-seed") ? params.get("shared-seed").asString() : null);
       return null;
     }).get(10, TimeUnit.SECONDS);
 
@@ -532,7 +532,7 @@ class AsyncParameterPropagationRegressionTest {
     AtomicReference<String> retryResult = new AtomicReference<>();
     executor.submitCompletable(() -> {
       ObjectNode params = queryUtil.getParameters();
-      retryResult.set(params.has("seed") ? params.get("seed").asText() : null);
+      retryResult.set(params.has("seed") ? params.get("seed").asString() : null);
       return null;
     }).get(10, TimeUnit.SECONDS);
 
@@ -580,7 +580,7 @@ class AsyncParameterPropagationRegressionTest {
     AtomicReference<String> siblingResult = new AtomicReference<>();
     executor.submitCompletable(() -> {
       ObjectNode params = queryUtil.getParameters();
-      siblingResult.set(params.has("seed") ? params.get("seed").asText() : null);
+      siblingResult.set(params.has("seed") ? params.get("seed").asString() : null);
       return null;
     }).get(10, TimeUnit.SECONDS);
 

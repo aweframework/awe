@@ -1,3 +1,39 @@
+// Docusaurus' default CSS minimizer (cssnano + clean-css level 2, restructureRules) merges rules with identical
+// declarations and moves them before the rules they override: the tone modifiers of the catalog (.awe-card-chip-success,
+// icon tones...) ended up BEFORE their base rule in the production build and lost the cascade. The plain minimizer keeps
+// the order of the sources. minification.js reads this variable when the webpack config is built, after this file loads,
+// so setting it here covers every build command (with or without --locale); an explicit value from the environment wins.
+process.env.USE_SIMPLE_CSS_MINIFIER ??= 'true';
+
+const versions = require('./versions.json');
+const {ensureGenerated} = require('./scripts/xsd-reference/generate');
+const {ensureGenerated: ensurePropertiesGenerated} = require('./scripts/properties-reference/generate');
+const {ensureGenerated: ensureRestGenerated} = require('./scripts/rest-reference/generate');
+const remarkContentRootLinks = require('./scripts/remark-content-root-links');
+
+// The "reference" docs instance below needs its folder for ANY docusaurus command (build, deploy, swizzle,
+// docs:version...), not only the npm scripts that regenerate it first (see the "pre" scripts in package.json).
+ensureGenerated();
+ensurePropertiesGenerated();
+ensureRestGenerated();
+
+// "current" (develop, 5.0) is always present. A maintenance-line entry (e.g. "4.x") is
+// only present in versions.json inside a CI checkout, after bin/website-maintenance-docs.sh
+// has injected it -- local/MR builds without that injection must still configure and build.
+const docVersions = {
+	current: {
+		label: 'Next (5.0)',
+	},
+};
+for (const version of versions) {
+	if (/^\d+\.x$/.test(version)) {
+		docVersions[version] = {
+			label: `${version} (maintenance)`,
+			banner: 'none',
+		};
+	}
+}
+
 module.exports = {
 	title: 'Awe framework',
 	tagline: 'Low coding complete functional web applications',
@@ -12,7 +48,43 @@ module.exports = {
 		mermaid: true,
 	},
 	themes: ['@docusaurus/theme-mermaid'],
+	plugins: [
+		// Real AWE React components inside the docs (see plugins/awe-live)
+		'./plugins/awe-live',
+		// The Choices page of the component catalog was split in two: its old address keeps working
+		[
+			'@docusaurus/plugin-client-redirects',
+			{
+				redirects: [
+					{ from: '/docs/components/criteria-choices', to: '/docs/components/criteria-selects' },
+				],
+			},
+		],
+		// Reference generated from the sources at build time (see scripts/xsd-reference). It is a docs
+		// instance of its own so that it is English only (it has no translations) and is kept out of the
+		// "docs:version" snapshots of the default instance.
+		[
+			'@docusaurus/plugin-content-docs',
+			{
+				id: 'reference',
+				path: 'reference',
+				routeBasePath: 'reference',
+				sidebarPath: require.resolve('./reference-sidebars.js'),
+			},
+		],
+	],
 	themeConfig: {
+		announcementBar: {
+			// The AWE 5 release announcement. src/theme/AnnouncementBar/Content renders it translated (<Translate>, es in
+			// i18n/es/code.json) with a link to the migration guide; this content is only the fallback text. Change the id
+			// with every new announcement so readers who closed the previous one see it again.
+			id: 'awe-5-release',
+			content: 'AWE 5 is out!',
+			// The theme writes both as inline styles: point them to the site tokens so the bar follows light and dark.
+			backgroundColor: 'var(--awe-panel-2)',
+			textColor: 'var(--awe-ink)',
+			isCloseable: true,
+		},
 		docs: {
 			sidebar: {
 				hideable: true,
@@ -39,6 +111,13 @@ module.exports = {
 				{
 					type: 'localeDropdown',
 					position: 'right',
+				},
+				{
+					type: 'docSidebar',
+					docsPluginId: 'reference',
+					sidebarId: 'reference',
+					position: 'left',
+					label: 'XSD reference',
 				},
 				{
 					type: 'doc',
@@ -74,6 +153,10 @@ module.exports = {
 						{
 							label: 'Introduction',
 							to: 'docs/',
+						},
+						{
+							label: 'Migration from v4 to v5',
+							to: 'docs/guides/v5-migration',
 						},
 						{
 							label: 'Migration from v3 to v4',
@@ -141,11 +224,25 @@ module.exports = {
 			{
 				docs: {
 					sidebarPath: require.resolve('./sidebars.js'),
-					// Please change this to your repo.
-					editUrl: 'https://gitlab.com/aweframework/awe/edit/master/website/',
+					// Per-version edit link: current -> develop, a maintenance line (e.g. "4.x")
+					// -> its own support/<version> branch, any other (frozen) version -> master.
+					editUrl: ({ version, docPath }) => {
+						if (version === 'current') {
+							return `https://gitlab.com/aweframework/awe/edit/develop/website/docs/${docPath}`;
+						}
+						if (/^\d+\.x$/.test(version)) {
+							return `https://gitlab.com/aweframework/awe/edit/support/${version}/website/docs/${docPath}`;
+						}
+						return `https://gitlab.com/aweframework/awe/edit/master/website/versioned_docs/version-${version}/${docPath}`;
+					},
+					// Relative .md links resolve against the page's own tree, which breaks between translated and
+					// untranslated (fallback) pages of the es locale: see the plugin for the detail.
+					beforeDefaultRemarkPlugins: [[remarkContentRootLinks, {siteDir: __dirname}]],
 					includeCurrentVersion: true,
 					showLastUpdateTime: true,
 					showLastUpdateAuthor: true,
+					lastVersion: 'current',
+					versions: docVersions,
 				},
 				blog: {
 					showReadingTime: true,

@@ -1,0 +1,123 @@
+import {Client} from "@stomp/stompjs";
+import type {IMessage} from "@stomp/stompjs";
+import {acceptAction, addActionsTop} from "../actions/actions";
+import {getContextPath, getCookie, translateLabel} from "../../utilities";
+import {MessageType} from "../actions/messages";
+import type {AppDispatch, AppThunk} from "../types";
+import type {ClientAction, Translate} from "./types";
+
+const {MESSAGE_WARNING} = MessageType;
+
+const onMessage = (response: IMessage, dispatch: AppDispatch): void => {
+  dispatch(addActionsTop(JSON.parse(response.body))); // Despachar la acción para manejar el mensaje
+};
+
+// Manejar la desconexión del WebSocket
+const handleWebSocketClose = (evn: CloseEvent, t: Translate, dispatch: AppDispatch, client: Client): void => {
+  switch (evn.code) {
+    case 1008:
+      if (client) {
+        console.warn("Session disconnected. Returning to signin screen", evn);
+        dispatch(addActionsTop([
+          {
+            type: "message",
+            async: true,
+            silent: true,
+            parameters: {
+              type: MESSAGE_WARNING,
+              title: translateLabel("ERROR_TITLE_SESSION_EXPIRED", t),
+              message: translateLabel("ERROR_MESSAGE_SESSION_EXPIRED", t)
+            }
+          },
+          {type: "screen", target: "/", force: true, parameters: {}},
+        ]));
+      }
+      break;
+    case 1001:
+      console.warn("Server disconnected, trying to reconnect", evn);
+      break;
+    case 1000:
+    case 1005:
+    case 1006:
+      // Normal and abnormal closures without a reason need no action: the client reconnects by itself
+      break;
+    default:
+      console.warn("WebSocket closed", evn);
+      break;
+  }
+};
+
+/**
+ * Connect to websocket
+ * @param {Action} action Action received
+ * @param {Object} t Translate function
+ */
+export const connectWebSocketAction = (action: ClientAction, t: Translate): AppThunk<Client> => {
+  return (dispatch, getState) => {
+    const {settings} = getState();
+
+    if (action) {
+      dispatch(acceptAction(action));
+    }
+
+    const {token} = (action.parameters || settings) as {token: string};
+
+    // Crear un nuevo cliente WebSocket
+    const client = new Client({
+      brokerURL: `${location.origin.replace("http", "ws")}${getContextPath()}/websocket`,
+      connectHeaders: {
+        'Authorization': token,
+        "X-XSRF-TOKEN": getCookie("XSRF-TOKEN")
+      } as Record<string, string>, // A missing cookie is sent as it is
+      reconnectDelay: 5000,
+      heartbeatIncoming: 4000,
+      heartbeatOutgoing: 4000,
+    });
+
+    // Configurar el comportamiento al conectar
+    client.onConnect = () => {
+      client.subscribe('/topic/broadcast', (m) => onMessage(m, dispatch));
+      client.subscribe(`/topic/${token}`, (m) => onMessage(m, dispatch));
+    };
+
+    // Configurar el comportamiento cuando el WebSocket se cierre
+    client.onWebSocketClose = (evn) => {
+      handleWebSocketClose(evn, t, dispatch, client);
+    };
+
+    client.onStompError = (evn) => {
+      console.error('WebSocket error', evn);
+    };
+
+    // Activar la conexión
+    client.activate();
+
+    // Devolver el cliente
+    return client;
+  };
+};
+
+/**
+ * Disconnect from websocket
+ * @param {Action} action Action received
+ * @param {Object} client Websocket client
+ */
+export const disconnectWebSocketAction = (
+  action: ClientAction,
+  client: Client | null | undefined
+): AppThunk<Client | null | undefined> => {
+  return (dispatch) => {
+    if (action) {
+      dispatch(acceptAction(action));
+    }
+
+    if (client) {
+      client.deactivate();
+      client = null;
+    }
+
+    // Devolver el cliente
+    return client;
+  };
+};
+

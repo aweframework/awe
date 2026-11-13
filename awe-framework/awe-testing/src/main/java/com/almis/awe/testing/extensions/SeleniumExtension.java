@@ -1,283 +1,171 @@
 package com.almis.awe.testing.extensions;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
+import com.almis.awe.testing.driver.BrowserDriverFactory;
+import com.almis.awe.testing.driver.BrowserSession;
+import com.almis.awe.testing.driver.SeleniumBrowserDriverFactory;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.recorder.SeleniumRecorderFactory;
-import com.almis.awe.testing.utilities.TextUtilities;
 import com.automation.remarks.video.recorder.IVideoRecorder;
 import com.automation.remarks.video.recorder.VideoRecorder;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.extension.*;
-import org.openqa.selenium.Capabilities;
-import org.openqa.selenium.Dimension;
-import org.openqa.selenium.Point;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.chrome.ChromeOptions;
-import org.openqa.selenium.edge.EdgeDriver;
-import org.openqa.selenium.edge.EdgeOptions;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxDriverLogLevel;
-import org.openqa.selenium.firefox.FirefoxOptions;
-import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.safari.SafariOptions;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.io.IOException;
 
 /**
- * Utilities suite for selenium testing
+ * Utilities suite for browser testing: opens the browser of the configured tool ({@code awe.test.tool}) for the test class,
+ * and collects the evidence of the tests
  */
 @Slf4j
-public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, AfterEachCallback, TestInstancePostProcessor {
+public class SeleniumExtension implements AfterAllCallback, BeforeEachCallback, AfterTestExecutionCallback,
+  AfterEachCallback, TestInstancePostProcessor {
 
   public static final String VIDEO_SCREEN_SIZE = "video.screen.size";
-  public static final String WD_HUB = "/wd/hub";
+  public static final String WD_HUB = SeleniumBrowserDriverFactory.WD_HUB;
   private final SeleniumModel seleniumModel = new SeleniumModel();
-  private WebDriver driver;
-  private WebDriverManager webDriverManager;
+  private BrowserSession session;
   private IVideoRecorder recorder;
+  private final FailureEvidence failureEvidence = new FailureEvidence();
 
   /**
-   * Clean driver after a test suite
+   * Close the browser after a test suite
    */
   @Override
   public void afterAll(ExtensionContext extensionContext) {
-    if (driver != null) {
-      log.info("Disposing web driver...");
-      driver.quit();
-      driver = null;
-      log.info("Web driver disposed");
-    }
-
-    if (webDriverManager != null) {
-      log.info("Disposing web driver manager...");
-      webDriverManager.quit();
-      log.info("Web driver manager disposed");
+    if (session != null) {
+      BrowserSession closing = session;
+      session = null;
+      closing.close();
     }
   }
 
   /**
-   * Initialize test driver
+   * Open the browser of the test run with the tool that is configured
    *
    * @param extensionContext Extension context
-   * @throws MalformedURLException Malformed URL
+   * @throws IOException If the address of a remote browser is not valid
    */
-  private void initializeDriver(ExtensionContext extensionContext) throws MalformedURLException {
-
-    // Setup window size
+  private void initializeBrowser(ExtensionContext extensionContext) throws IOException {
     AweTestConfigProperties properties = seleniumModel.getProperties();
-    String windowSize = "--window-size=" + properties.getBrowserWidth() + "," + properties.getBrowserHeight();
-    log.info("Selected browser is {}, window size: {}x{}", properties.getBrowser(), properties.getBrowserWidth(), properties.getBrowserHeight());
-    log.debug("{}", seleniumModel);
-
-    // Setup firefox options
-    FirefoxProfile firefoxProfile = new FirefoxProfile();
-    firefoxProfile.setPreference("network.proxy.no_proxies_on", "localhost, 127.0.0.1");
-    // Set profile to accept untrusted certificates
-    firefoxProfile.setAcceptUntrustedCertificates(true);
-
-    // Set profile to not assume certificate issuer is untrusted
-    firefoxProfile.setAssumeUntrustedCertificateIssuer(false);
-
-    //Set download location and file types
-    firefoxProfile.setPreference("browser.download.folderList",2);
-    firefoxProfile.setPreference("browser.download.manager.showWhenStarting", false);
-    firefoxProfile.setPreference("browser.helperApps.neverAsk.saveToDisk","text/csv,application/pdf,application/csv,application/vnd.ms-excel");
-    firefoxProfile.setPreference("browser.download.start_downloads_in_tmp_dir", true);
-
-    // Set to false so popup not displayed when download finished.
-    firefoxProfile.setPreference("browser.download.manager.showAlertOnComplete", false);
-    firefoxProfile.setPreference("browser.download.panel.shown", false);
-    firefoxProfile.setPreference("browser.download.useToolkitUI", true);
-
-    // Set this to true to disable the pdf opening
-    firefoxProfile.setPreference("pdfjs.disabled", true);
-
-    FirefoxOptions firefoxOptions = new FirefoxOptions()
-      .setProfile(firefoxProfile)
-      .addArguments(windowSize)
-      .setLogLevel(FirefoxDriverLogLevel.ERROR);
-
-    // Setup chrome options
-    ChromeOptions chromeOptions = new ChromeOptions()
-      .addArguments("start-maximized")
-      .addArguments("--no-sandbox")
-      .addArguments("--disable-dev-shm-usage")
-      .addArguments("--disable-gpu")
-      .addArguments("--remote-allow-origins=*")
-      .addArguments(windowSize);
-
-    // Setup edge options
-    EdgeOptions edgeOptions = new EdgeOptions();
-    edgeOptions.setCapability(CapabilityType.ACCEPT_INSECURE_CERTS, true);
-    Map<String, Object> map = new HashMap<>();
-    map.put("args", Arrays.asList("--no-sandbox", "--disable-dev-shm-usage", "--disable-gpu", "--whitelisted-ips=", "--allowed-origins='*'"));
-    edgeOptions.setCapability("ms:edgeOptions", map);
 
     // Set video folder property
     System.setProperty("video.folder", properties.getScreenshotPath());
     System.setProperty("video.file.extension", properties.getVideoFormat().getVideoExtension());
     System.setProperty(VIDEO_SCREEN_SIZE, String.format("%dx%d", properties.getBrowserWidth(), properties.getBrowserHeight()));
 
-    // Define browser web driver container
-    switch (properties.getBrowser()) {
-      case HEADLESS_FIREFOX:
-        firefoxOptions.addArguments("--headless");
-        driver = getFirefoxDriver(firefoxOptions);
-        break;
-      case HEADLESS_CHROME:
-        chromeOptions.addArguments("--headless=new");
-        driver = getChromeDriver(chromeOptions);
-        break;
-      case REMOTE_FIREFOX:
-        webDriverManager = WebDriverManager.firefoxdriver();
-        driver = getDockerDriver(webDriverManager, seleniumModel, extensionContext.getDisplayName(), firefoxOptions);
-        break;
-      case REMOTE_CHROME:
-        webDriverManager = WebDriverManager.chromedriver();
-        driver = getDockerDriver(webDriverManager, seleniumModel, extensionContext.getDisplayName(), chromeOptions);
-        break;
-      case SERVICE_FIREFOX:
-        driver = getRemoteDriver(seleniumModel, firefoxOptions, WD_HUB);
-        break;
-      case SERVICE_CHROME:
-        driver = getRemoteDriver(seleniumModel, chromeOptions, "");
-        break;
-      case SERVICE_EDGE:
-        driver = getRemoteDriver(seleniumModel, edgeOptions, WD_HUB);
-        break;
-      case SERVICE_OPERA:
-        chromeOptions.setBinary(new File("/path/to/opera"));
-        driver = getRemoteDriver(seleniumModel, chromeOptions, "");
-        break;
-      case SERVICE_SAFARI:
-        driver = getRemoteDriver(seleniumModel, new SafariOptions(), WD_HUB);
-        break;
-      case OPERA:
-        WebDriverManager.operadriver().setup();
-        // The Opera driver does not support w3c syntax, so we recommend using chromedriver to work with Opera
-        chromeOptions.setBinary(new File("/path/to/opera"));
-        driver = new ChromeDriver(chromeOptions);
-        break;
-      case EDGE:
-        WebDriverManager.edgedriver().setup();
-        driver = new EdgeDriver(edgeOptions);
-        break;
-      case IE:
-        WebDriverManager.iedriver().setup();
-        driver = new InternetExplorerDriver();
-        break;
-      case FIREFOX:
-        driver = getFirefoxDriver(firefoxOptions);
-        break;
-      case CHROME:
-      default:
-        driver = getChromeDriver(chromeOptions);
-        break;
-    }
-
-    // Set dimension if defined
-    driver.manage().window().setSize(new Dimension(
-      properties.getBrowserWidth(),
-      properties.getBrowserHeight()));
-
-    // Set selenium model
-    seleniumModel
-      .setDriver(driver)
-      .setWebDriverManager(webDriverManager);
+    session = createDriverFactory(properties).create(seleniumModel, extensionContext.getDisplayName());
+    session.onEvidence(failureEvidence::announceFile);
   }
 
-  private WebDriver getChromeDriver(ChromeOptions options) {
-    WebDriverManager.chromedriver().setup();
-    return new ChromeDriver(options);
-  }
-
-  private WebDriver getFirefoxDriver(FirefoxOptions options) {
-    WebDriverManager.chromedriver().setup();
-    return new FirefoxDriver(options);
-  }
-
-  private WebDriver getDockerDriver(WebDriverManager driverManager, SeleniumModel model, String name, Capabilities capabilities) {
-    final AweTestConfigProperties properties = model.getProperties();
-    driverManager
-      .browserInDocker().enableRecording().dockerRecordingOutput(Paths.get(properties.getScreenshotPath()))
-      .dockerRecordingPrefix(name + "-")
-      .capabilities(capabilities)
-      .dockerScreenResolution(properties.getBrowserWidth() + "x" + properties.getBrowserHeight() + "x24");
-    properties.setRemoteBrowser(true);
-    properties.setAllowedRecording(false);
-    return driverManager.create();
-  }
-
-  private RemoteWebDriver getRemoteDriver(SeleniumModel model, Capabilities capabilities, String browserHubPath) throws MalformedURLException {
-    final AweTestConfigProperties properties = model.getProperties();
-    System.setProperty("isDocker", properties.getRecorderUrl() == null ? "browser" : "browserRecorder");
-    URL url = new URL(String.format("http://%s:%d%s", properties.getBrowserHost(), properties.getBrowserPort(), browserHubPath));
-    log.info("{} URL is {}", properties.getBrowser(), url);
-    RemoteWebDriver webDriver = new RemoteWebDriver(url, capabilities, false);
-
-    Point position = new Point(0, 0);
-    Dimension dimension = new Dimension(properties.getBrowserWidth(), properties.getBrowserHeight());
-    webDriver.manage().window().setPosition(position);
-    webDriver.manage().window().setSize(dimension);
-    System.setProperty("ffmpeg.display", String.format("%s:%d+%d,%d", Optional.ofNullable(properties.getBrowserContainer())
-      .filter(StringUtils::isNotBlank)
-      .orElse(properties.getBrowserHost()), properties.getBrowserDisplay(), position.x, position.y));
-    System.setProperty("video.recorder.url", properties.getRecorderUrl());
-    properties.setRemoteBrowser(true);
-
-    return webDriver;
+  /**
+   * Get the factory of the tool that runs the tests ({@code awe.test.tool})
+   *
+   * @param properties Test properties
+   * @return Factory that opens the browser
+   */
+  protected BrowserDriverFactory createDriverFactory(AweTestConfigProperties properties) {
+    return BrowserDriverFactory.forTool(properties.getTool());
   }
 
   @Override
   public void beforeEach(ExtensionContext extensionContext) throws Exception {
 
-    // If driver has been initialized, return
-    if (driver == null) {
-      initializeDriver(extensionContext);
+    // If the browser has been opened, return
+    if (session == null) {
+      initializeBrowser(extensionContext);
     }
 
     // Set test title
     seleniumModel.setTestTitle(extensionContext.getDisplayName());
+    seleniumModel.setScreenshotTaken(false);
+
+    // The session delimits the evidence of each test (trace, video). It is evidence, never a test condition
+    try {
+      session.testStarted(testClass(extensionContext), seleniumModel.getTestTitle());
+    } catch (Exception exc) {
+      log.warn("The browser session could not be told that the test starts. The test goes on", exc);
+    }
 
     // Check recording
+    this.recorder = null;
     if (seleniumModel.getProperties().isAllowedRecording()) {
-      this.recorder = SeleniumRecorderFactory.getRecorder(VideoRecorder.conf().recorderType());
-      this.recorder.start();
+      startRecording();
     }
+  }
+
+  /**
+   * Start the video recording. Recording is evidence, never a test condition: a failure is logged and the test goes on
+   * without video (no recorder is kept, so the stop is skipped).
+   */
+  private void startRecording() {
+    try {
+      IVideoRecorder videoRecorder = createRecorder();
+      videoRecorder.start();
+      this.recorder = videoRecorder;
+    } catch (Exception exc) {
+      log.warn("Video recording could not be started. The test goes on without video", exc);
+    }
+  }
+
+  /**
+   * Create the video recorder of the test
+   *
+   * @return Video recorder
+   */
+  protected IVideoRecorder createRecorder() {
+    return SeleniumRecorderFactory.getRecorder(VideoRecorder.conf().recorderType());
+  }
+
+  /**
+   * Take the failure screenshot right after the test method, before the test class own @AfterEach methods
+   * (which run before {@link #afterEach}) can navigate away from the failing page.
+   */
+  @Override
+  public void afterTestExecution(ExtensionContext extensionContext) {
+    boolean testFailed = extensionContext.getExecutionException().isPresent();
+    String testClass = extensionContext.getParent().orElse(extensionContext).getDisplayName();
+
+    // Every failure leaves a screenshot, even when no assertWithScreenshot was involved
+    failureEvidence.captureScreenshotOnFailure(seleniumModel, testClass, testFailed);
   }
 
   @Override
   public void afterEach(ExtensionContext extensionContext) {
     boolean testFailed = extensionContext.getExecutionException().isPresent();
+    String testClass = extensionContext.getParent().orElse(extensionContext).getDisplayName();
 
-    if (seleniumModel.getProperties().isAllowedRecording()) {
-      log.debug("Storing video recording...");
-      String fileName = String.format("%s-%s-%s%s-%s",
-        extensionContext.getParent().orElse(extensionContext).getDisplayName(),
-        new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date()),
-        testFailed ? "[ERR0R]-" : "",
-        TextUtilities.sanitizeMessage(seleniumModel.getCurrentOption()),
-        TextUtilities.sanitizeMessage(seleniumModel.getTestTitle()));
-      File result = this.recorder.stopAndSave(fileName);
+    try {
+      if (session != null) {
+          session.testFinished(seleniumModel.getTestTitle(), failureEvidence.buildName(testClass, seleniumModel.getCurrentOption(),
+          seleniumModel.getTestTitle(), testFailed), testFailed);
+      }
+    } catch (Exception exc) {
+      log.warn("The browser session could not be told that the test ends. The test result is not affected", exc);
+    }
 
-      if (testFailed || "ALL".equalsIgnoreCase(seleniumModel.getProperties().getVideoSave().toString())) {
-        log.info("{}Video recording stored at {}", testFailed ? "Test failed. " : "", result.getAbsolutePath());
-      } else {
-        // Remove video file if test not failed
-        result.deleteOnExit();
+    IVideoRecorder videoRecorder = this.recorder;
+    this.recorder = null;
+    if (videoRecorder != null && seleniumModel.getProperties().isAllowedRecording()) {
+      try {
+        log.debug("Storing video recording...");
+        String fileName = failureEvidence.buildName(testClass, seleniumModel.getCurrentOption(),
+          seleniumModel.getTestTitle(), testFailed);
+        File result = videoRecorder.stopAndSave(fileName);
+        boolean keepAll = "ALL".equalsIgnoreCase(seleniumModel.getProperties().getVideoSave().toString());
+        failureEvidence.resolveVideo(result, testFailed, keepAll);
+      } catch (Exception exc) {
+        // Recording is evidence, never a test condition: it must not change the test result
+        log.warn("Video recording could not be stored. The test result is not affected", exc);
       }
     }
+  }
+
+  private String testClass(ExtensionContext extensionContext) {
+    // The qualified name of the class tells two classes with the same simple name apart (it names the video of the class)
+    return extensionContext.getTestClass().map(Class::getName)
+      .orElseGet(() -> extensionContext.getParent().orElse(extensionContext).getDisplayName());
   }
 
   @Override

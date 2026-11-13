@@ -1,0 +1,146 @@
+/* AWE 5 design tokens (#885), shared with the AngularJS client. The AWE theme of PrimeReact reads them too */
+@import "../../awe-design-tokens/tokens.css";
+/* Inter (#885): the font of the type scale, shared with the AngularJS client */
+@import "../../awe-design-tokens/fonts/inter.css";
+/* AWE 5 icons (#885): the Lucide icon rules shared with the AngularJS client */
+@import "../../awe-design-tokens/icons/awe-icon.css";
+
+:root {
+  --success-color:#689F38;
+  --info-color:#0288D1;
+  --warning-color:#FBC02D;
+  --danger-color:#D32F2F;
+  --help-color:#9C27B0;
+  --light-grey-color:#a6aaaf;
+  --dark-grey-color:#575f6a;
+
+  --animate-duration: 200ms;
+  --animate-delay: 0.0s;
+}
+
+/* The loading skeletons stay still when the user prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .p-skeleton::after {
+    animation: none;
+  }
+}
+
+/* Colour mode of the tokens (light-dark()): the system one unless the user chose light or dark (class on <html>).
+   The PrimeReact theme, loaded after this file, declares :root { color-scheme: light }: the system mode needs more
+   specificity, or it would always be light */
+:root:not(.light):not(.dark) {
+  color-scheme: light dark;
+}
+
+:root.light {
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
+html {
+  font-size: 13px;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  /* The base of the type scale; the html size stays as it is because the PrimeFlex spacing classes use rem */
+  font-family: var(--awe-font-family-base);
+  font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-base);
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-background);
+  width: 100%;
+  height: 100%;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+/* Panel body */
+.panel-body {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -1rem;
+  padding: 1rem;
+}
+
+/* A panel body that is not expandible keeps its lines at their natural height when it expands (they would spread over
+   it otherwise), and an expanding child (a grid) takes a full line. An expandible one is a flex column: the expandible
+   rules lay it out */
+.panel-body:not(.expandible-vertical):not(.expandible-horizontal) {
+  align-content: flex-start;
+}
+
+.panel-body:not(.expandible-vertical):not(.expandible-horizontal) > .expand {
+  flex: 1 1 100%;
+}
+
+/* Text colors */
+.text-primary { color: var(--awe-color-primary-text); }
+.text-default { color: var(--awe-color-text-muted); }
+.text-success { color: var(--success-color); }
+.text-info { color: var(--info-color); }
+.text-warning { color: var(--warning-color); }
+.text-danger { color: var(--danger-color); }
+.text-help { color: var(--help-color); }
+.text-secondary { color: var(--awe-color-text-muted); }
+.text-light-gray { color: var(--light-grey-color); }
+.text-dark-gray { color: var(--dark-grey-color); }
+
+/* Text styles */
+.text-underline { text-decoration: underline; }
+.text-uppercase { text-transform: uppercase; }
+
+/* The svg of an icon is decorative: its clicks go to the element that holds it, as the clicks on the glyph did. PrimeReact
+   takes a click as a click on a button only when the target or its parent is the button, so a click on the svg of the save
+   button of an edited row would select the row too */
+.awe-icon {
+  pointer-events: none;
+}
+
+/* Icons their context shows larger than the text: the svg takes the font size the context gives to the glyph */
+.grid-empty-icon > .awe-icon,
+.confirm-icon > .awe-icon,
+.animation-dot > .awe-icon {
+  width: 1em;
+  height: 1em;
+}
+
+/* The loading dots of the log viewer are solid, as the glyph was */
+.animation-dot > .awe-icon {
+  fill: currentColor;
+}
+
+/* Material icons default size */
+.material-icons {
+  font-size: 1rem;
+}
+
+/* Variable min-heights */
+.height-sm {
+  min-height: 150px !important;
+}
+
+.height-md {
+  min-height: 250px !important;
+}
+
+.height-lg {
+  min-height: 350px !important;
+}
+
+.height-xl {
+  min-height: 450px !important;
+}
+
+.height-200 {
+  min-height: 200px !important;
+}

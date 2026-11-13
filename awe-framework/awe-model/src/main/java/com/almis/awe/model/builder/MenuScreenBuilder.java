@@ -52,12 +52,38 @@ public class MenuScreenBuilder {
 
     // Add every option as button
     container.setElementList(menuOption.getOptions().stream()
-      .filter(option -> !option.isRestricted())
+      .filter(this::isAvailable)
       .map(this::generateOptionElement)
       .toList());
 
     // Retrieve screen with menuOption screen name
     return (Screen) screen.setId(menuOption.getScreen());
+  }
+
+  /**
+   * Check if an option can be shown: it is not restricted and, when it is a nested launcher, it has any option available
+   *
+   * @param option Option to check
+   * @return Option is available
+   */
+  private boolean isAvailable(Option option) {
+    if (option.isRestricted()) {
+      return false;
+    }
+    return !option.isMenuScreen() || option.getOptions().isEmpty() || option.getOptions().stream().anyMatch(this::hasAvailableLeaf);
+  }
+
+  /**
+   * Check if an option is not restricted and it is a leaf or has any available leaf below (through groups and launchers)
+   *
+   * @param option Option to check
+   * @return Option has something to show
+   */
+  private boolean hasAvailableLeaf(Option option) {
+    if (option.isRestricted() || option.isSeparator() || option.isInvisible()) {
+      return false;
+    }
+    return (option.getOptions().isEmpty() || option.getOptions().stream().anyMatch(this::hasAvailableLeaf));
   }
 
   /**
@@ -67,8 +93,8 @@ public class MenuScreenBuilder {
    * @return Generated element based on option
    */
   private Element generateOptionElement(Option option) {
-    if (option.getOptions().isEmpty()) {
-      // Generate button
+    if (option.getOptions().isEmpty() || option.isMenuScreen()) {
+      // Generate button (a nested launcher is a button which opens its own launcher)
       return generateOptionButton(option);
     } else {
       // Generate group
@@ -76,7 +102,33 @@ public class MenuScreenBuilder {
     }
   }
 
+  /**
+   * Get the card of an option: the button, or the button with its description as secondary line (if any)
+   *
+   * @param option Option to generate
+   * @return Button, or card with the button and the description
+   */
   private Element generateOptionButton(Option option) {
+    Element button = generateButton(option);
+    if (option.getDescription() == null || option.getDescription().isBlank()) {
+      return button;
+    }
+
+    // Generate card with the button and its description
+    Element card = new Tag()
+      .setType("div")
+      .setStyle("menu-screen-card")
+      .setId(option.getName() + "-card");
+    card.addElement(button);
+    card.addElement(new Tag()
+      .setType("p")
+      .setStyle("menu-screen-description")
+      .setLabel(option.getDescription())
+      .setId(option.getName() + "-description"));
+    return card;
+  }
+
+  private Element generateButton(Option option) {
     // Retrieve filled button
     return new Button()
       .setIcon(option.getIcon())
@@ -107,7 +159,7 @@ public class MenuScreenBuilder {
 
     // Generate options
     option.getOptions().stream()
-      .filter(child -> !child.isRestricted())
+      .filter(this::isAvailable)
       .forEach(child -> optionGroup.addElement(generateOptionButton(child)));
 
     // Retrieve filled option group

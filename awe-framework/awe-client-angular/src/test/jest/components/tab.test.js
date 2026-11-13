@@ -120,4 +120,59 @@ describe("components/tab.js", () => {
 
     expect(refs.$utilities.publishFromScope).toHaveBeenCalledWith("resize-action", {}, scope);
   });
+
+  it("marks the tab that holds invalid fields and clears the mark when they are fixed", () => {
+    const {element, controllerApi} = compileTab(createPanelModel("1"));
+    const tabs = () => [...element[0].querySelectorAll("li[data-testid='tab']")];
+
+    controllerApi.setInvalid("2", true);
+    refs.$rootScope.$digest();
+    expect(tabs().map(tab => tab.getAttribute("data-invalid"))).toEqual(["false", "true", "false"]);
+    expect(tabs()[1].classList.contains("tab-invalid")).toBe(true);
+
+    controllerApi.setInvalid("2", false);
+    refs.$rootScope.$digest();
+    expect(tabs().map(tab => tab.getAttribute("data-invalid"))).toEqual(["false", "false", "false"]);
+  });
+
+  describe("maximize test hooks (#799)", () => {
+    const hook = id => `[data-testid='${id}']`;
+    const compileMaximizable = (maximize = true) =>
+      compileTab(createPanelModel("1"), createPanelController("tabId", "tab", {maximize}));
+
+    it("renders the tab component and its maximize button as test hooks that follow the maximized state", () => {
+      const target = $("<div class='maximize-target'><div class='sibling'>other</div></div>").appendTo(document.body);
+      const {element} = compileMaximizable();
+      target.append(element);
+      target.find(".sibling")[0].getClientRects = () => [{}];
+      const container = element.is(hook("tabs")) ? element : element.find(hook("tabs")).first();
+      const button = () => element.find(hook("tab-maximize-button"));
+      jest.spyOn(refs.$utilities, "animateCSS").mockImplementation((node, size, time, end) => end());
+
+      expect(container.length).toBe(1);
+      expect(container.attr("data-testid-owner")).toBe("tabId");
+      expect(container.attr("data-maximized")).toBe("false");
+      expect(button().find("i use").attr("href")).toBe("icons/lucide-sprite.svg#expand");
+
+      button().trigger("click");
+      refs.$rootScope.$digest();
+      expect(container.attr("data-maximized")).toBe("true");
+      expect(container.hasClass("maximized")).toBe(true);
+      expect(target.find(".sibling").hasClass("minimized")).toBe(true);
+      expect(button().find("i use").attr("href")).toBe("icons/lucide-sprite.svg#shrink");
+
+      button().trigger("click");
+      refs.$rootScope.$digest();
+      expect(container.attr("data-maximized")).toBe("false");
+      expect(target.find(".sibling").hasClass("minimized")).toBe(false);
+      target.remove();
+    });
+
+    it("renders no maximize button when the tab is not maximizable", () => {
+      const {element} = compileMaximizable(false);
+
+      expect(element.find(hook("tab-maximize-button")).length).toBe(0);
+      expect(element.is(hook("tabs")) || element.find(hook("tabs")).length === 1).toBe(true);
+    });
+  });
 });

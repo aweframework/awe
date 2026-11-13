@@ -3,30 +3,36 @@ package com.almis.awe.model.util.data;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.DatabaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWEQueryException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.model.component.RequestDataHolder;
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.ColumnFilter;
+import com.almis.awe.model.dto.ColumnValues;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.QueryParameter;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.maintain.MaintainQuery;
+import com.almis.awe.model.entities.queries.OutputField;
 import com.almis.awe.model.entities.queries.Query;
+import com.almis.awe.model.entities.queries.SqlField;
 import com.almis.awe.model.entities.queries.Variable;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.type.ParameterType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.POJONode;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.POJONode;
 
-import java.io.IOException;
 import java.lang.reflect.Array;
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -40,8 +46,14 @@ import java.util.*;
 public class QueryUtil extends ServiceConfig {
 
   private static final String EMPTY_SQL_COLLECTION_LOG = "/* empty */";
+  private static final String MASKED_SQL_VALUE_LOG = "'********'";
   private static final char SQL_PLACEHOLDER = '?';
   private static final char SQL_LITERAL_DELIMITER = '\'';
+  private static final String ERROR_TITLE_GENERATING_FILTER = "ERROR_TITLE_GENERATING_FILTER";
+  // Aggregate and window functions: their fields cannot be compared in a WHERE
+  private static final Set<String> NOT_FILTERABLE_FUNCTIONS = Set.of("AVG", "CNT", "CNT_DISTINCT", "MAX", "MIN", "SUM",
+    "STRING_AGG", "LAG", "FIRST_VALUE", "LAST_VALUE", "ROW_NUMBER", "RANK");
+  private static final String ERROR_MESSAGE_GENERATING_FILTER = "ERROR_MESSAGE_GENERATING_FILTER";
 
   // Autowired services
   private final BaseConfigProperties baseConfigProperties;
@@ -77,6 +89,97 @@ public class QueryUtil extends ServiceConfig {
     }
 
     return sortList;
+  }
+
+  /**
+   * Generate the column filter list of the {@code columnFilters} request parameter
+   *
+   * @param columnFilters Column filters parameter
+   * @return Column filters, empty when there are none
+   * @throws AWEQueryException The column filters are not valid
+   */
+  public List<ColumnFilter> getColumnFilterList(JsonNode columnFilters) throws AWEQueryException {
+    try {
+      return ColumnFilter.fromJson(columnFilters);
+    } catch (IllegalArgumentException exc) {
+      throw new AWEQueryException(getLocale(ERROR_TITLE_GENERATING_FILTER),
+        getLocale(ERROR_MESSAGE_GENERATING_FILTER, exc.getMessage()), null, exc);
+    }
+  }
+
+  /**
+   * Resolve the fields of a column filter against the fields of the query, by their identifier (alias, else id).
+   * Only the printed fields can be filtered: a filter cannot probe values the query never sends to the client. Fields
+   * of an aggregate or window function cannot be filtered either: they cannot be compared in a WHERE.
+   *
+   * @param query        Query
+   * @param columnFilter Column filter
+   * @return Query fields of the column filter, in its order
+   * @throws AWEQueryException A field is not a field of the query, it is not printed or it is an aggregate
+   */
+  public List<SqlField> getColumnFilterFields(Query query, ColumnFilter columnFilter) throws AWEQueryException {
+    List<SqlField> queryFields = Optional.ofNullable(query.getSqlFieldList()).orElse(Collections.emptyList());
+    List<SqlField> fields = new ArrayList<>();
+    for (String fieldId : columnFilter.getFields()) {
+      SqlField field = queryFields.stream()
+        .filter(candidate -> fieldId.equals(candidate.getIdentifier()))
+        .findFirst()
+        .orElseThrow(() -> getColumnFilterException(query, "unknown field " + fieldId + " in column filter " + columnFilter.getId()));
+      if (field.isNoprint()) {
+        throw getColumnFilterException(query, "field " + fieldId + " of column filter " + columnFilter.getId() + " is not printed");
+      }
+      if (field.getFunction() != null && NOT_FILTERABLE_FUNCTIONS.contains(field.getFunction().toUpperCase(Locale.ROOT))) {
+        throw getColumnFilterException(query, "field " + fieldId + " of column filter " + columnFilter.getId()
+          + " is an aggregate or window function");
+      }
+      fields.add(field);
+    }
+    return fields;
+  }
+
+  /**
+   * Parse the {@code columnValues} request parameter of the column values action
+   *
+   * @param columnValues Column values parameter
+   * @return Column values
+   * @throws AWEQueryException The column values are not valid
+   */
+  public ColumnValues getColumnValues(JsonNode columnValues) throws AWEQueryException {
+    try {
+      return ColumnValues.fromJson(columnValues);
+    } catch (IllegalArgumentException exc) {
+      throw new AWEQueryException(getLocale(ERROR_TITLE_GENERATING_FILTER),
+        getLocale(ERROR_MESSAGE_GENERATING_FILTER, exc.getMessage()), null, exc);
+    }
+  }
+
+  /**
+   * Resolve the fields of the column values against the fields of the query, with the rules of the column filters, and
+   * check that the column is a printed field of the query (its value is the label of each value)
+   *
+   * @param query        Query
+   * @param columnValues Column values
+   * @return Query fields whose values are listed, in its order
+   * @throws AWEQueryException A field cannot be filtered, or the column is not a printed field of the query
+   */
+  public List<SqlField> getColumnValuesFields(Query query, ColumnValues columnValues) throws AWEQueryException {
+    List<SqlField> fields = getColumnFilterFields(query, columnValues.asColumnFilter());
+    List<OutputField> outputFields = new ArrayList<>(Optional.ofNullable(query.getSqlFieldList()).orElse(Collections.emptyList()));
+    outputFields.addAll(Optional.ofNullable(query.getComputedList()).orElse(Collections.emptyList()));
+    outputFields.addAll(Optional.ofNullable(query.getCompoundList()).orElse(Collections.emptyList()));
+    OutputField column = outputFields.stream()
+      .filter(candidate -> columnValues.getId().equals(candidate.getIdentifier()))
+      .findFirst()
+      .orElseThrow(() -> getColumnFilterException(query, "unknown column " + columnValues.getId() + " in column values"));
+    if (column.isNoprint()) {
+      throw getColumnFilterException(query, "column " + columnValues.getId() + " of column values is not printed");
+    }
+    return fields;
+  }
+
+  private AWEQueryException getColumnFilterException(Query query, String reason) {
+    return new AWEQueryException(getLocale(ERROR_TITLE_GENERATING_FILTER),
+      getLocale(ERROR_MESSAGE_GENERATING_FILTER, reason), query.getId(), null);
   }
 
   /**
@@ -182,7 +285,32 @@ public class QueryUtil extends ServiceConfig {
    * @throws AWException Error generating variables
    */
   public Map<String, QueryParameter> getVariableMap(Query query, ObjectNode parameters) throws AWException {
-    return getVariableMap(query.getVariableDefinitionList() == null ? new ArrayList<>() : query.getVariableDefinitionList(), parameters, null);
+    Map<String, QueryParameter> variableMap = getVariableMap(query.getVariableDefinitionList() == null ? new ArrayList<>() : query.getVariableDefinitionList(), parameters, null);
+
+    // Add column filters variable (validated when the query applies them)
+    JsonNode columnFiltersParameter = getColumnFiltersParameter(query, parameters);
+    if (columnFiltersParameter != null && !columnFiltersParameter.isNull()) {
+      variableMap.put(AweConstants.QUERY_COLUMN_FILTERS, new QueryParameter(columnFiltersParameter, true, ParameterType.OBJECT));
+    }
+    return variableMap;
+  }
+
+  /**
+   * Retrieve the grid column filters of a query. The column filters of the request apply only to the query the client
+   * launched (the request target action); any other query launched while serving the request (a private, service or
+   * restriction query) takes only the column filters its caller passes, not the ones copied from the request.
+   *
+   * @param query      Query
+   * @param parameters Parameters
+   * @return Column filters parameter, null when the query has none
+   */
+  public JsonNode getColumnFiltersParameter(Query query, ObjectNode parameters) {
+    String targetAction = Optional.ofNullable(getRequest()).map(AweRequest::getTargetAction).orElse(null);
+    if (query.getId() != null && query.getId().equals(targetAction)) {
+      return getRequestParameter(AweConstants.COMPONENT_COLUMN_FILTERS, parameters);
+    }
+    JsonNode columnFilters = parameters == null ? null : parameters.get(AweConstants.COMPONENT_COLUMN_FILTERS);
+    return columnFilters == null || columnFilters.equals(getRequestParameter(AweConstants.COMPONENT_COLUMN_FILTERS)) ? null : columnFilters;
   }
 
   /**
@@ -340,7 +468,7 @@ public class QueryUtil extends ServiceConfig {
    * @return Query parameter map
    */
   public <T> ObjectNode getParameters(T parametersBean) {
-    ObjectNode parameters = new ObjectMapper().convertValue(parametersBean, ObjectNode.class);
+    ObjectNode parameters = new JsonMapper().convertValue(parametersBean, ObjectNode.class);
     return getParameters(Optional.ofNullable(parameters).orElse(JsonNodeFactory.instance.objectNode()), null, null, null);
   }
 
@@ -514,14 +642,14 @@ public class QueryUtil extends ServiceConfig {
       case STRING_TO_LIST:
         // Retrieve string value as list
         ArrayNode valueList = nodeFactory.arrayNode();
-        Arrays.stream(StringUtils.split(stringValue, ","))
+        Arrays.stream(Optional.ofNullable(StringUtils.split(stringValue, ",")).orElse(new String[0]))
             .map(String::trim)
             .forEach(valueList::add);
 
         output = valueList;
         break;
       case STRING, STRINGB, STRINGL, STRINGR, STRING_ENCRYPT,
-           STRING_HASH_RIPEMD160, STRING_HASH_PBKDF_2_W_HMAC_SHA_1, STRING_HASH_SHA:
+           STRING_HASH_RIPEMD160, STRING_HASH_PASSWORD, STRING_HASH_PBKDF_2_W_HMAC_SHA_1, STRING_HASH_SHA:
       default:
         output = getStringParameter(parameter, stringValue);
         break;
@@ -535,8 +663,8 @@ public class QueryUtil extends ServiceConfig {
     JsonNode output = parameter;
     if (parameter == null) {
       output = generateNumberNode(variableId, stringParameter, type);
-    } else if (!parameter.isNumber() && !parameter.isArray() && parameter.isTextual()) {
-      output = generateNumberNode(variableId, parameter.asText(), type);
+    } else if (!parameter.isNumber() && !parameter.isArray() && parameter.isString()) {
+      output = generateNumberNode(variableId, parameter.asString(""), type);
     }
     return output;
   }
@@ -546,7 +674,7 @@ public class QueryUtil extends ServiceConfig {
     if (parameter == null && stringParameter != null) {
       try {
         output = mapper.reader().readTree(stringParameter);
-      } catch (IOException exc) {
+      } catch (JacksonException exc) {
         throw new AWException(getLocale("ERROR_MESSAGE_PARSING_OBJECT", stringParameter), exc);
       }
     }
@@ -617,7 +745,9 @@ public class QueryUtil extends ServiceConfig {
     } else if (variable.getValue() != null) {
       list = variable.getValue().contains(",");
     }
-    list = ParameterType.MULTIPLE_SEQUENCE.equals(ParameterType.valueOf(variable.getType())) || list;
+    // A STRING_TO_LIST variable is always a list, also when its value comes from the session or is a single value
+    ParameterType type = ParameterType.valueOf(variable.getType());
+    list = ParameterType.MULTIPLE_SEQUENCE.equals(type) || ParameterType.STRING_TO_LIST.equals(type) || list;
 
     return list;
   }
@@ -673,7 +803,7 @@ public class QueryUtil extends ServiceConfig {
       }
     }
 
-    if (value.isTextual() && value.asText().isEmpty()) {
+    if (value.isString() && value.asString("").isEmpty()) {
       return value;
     }
 
@@ -737,7 +867,7 @@ public class QueryUtil extends ServiceConfig {
    * @return Variable is empty
    */
   public boolean isEmptyVariable(JsonNode variable) {
-    return isNullVariable(variable) || variable.asText().isEmpty();
+    return isNullVariable(variable) || variable.asString("").isEmpty();
   }
 
   /**
@@ -772,7 +902,7 @@ public class QueryUtil extends ServiceConfig {
 
     // Check if call refers to a specific database
     if (parameters != null && parameters.get(AweConstants.QUERY_DATABASE) != null && parameters.get(AweConstants.QUERY_DATABASE).getValue() != null) {
-      alias = parameters.get(AweConstants.QUERY_DATABASE).getValue().asText();
+      alias = parameters.get(AweConstants.QUERY_DATABASE).getValue().asString("");
     }
 
     // Retrieve alias
@@ -792,23 +922,45 @@ public class QueryUtil extends ServiceConfig {
    * @return SQL statement
    */
   public String getFullSQL(String sql, List<Object> parameters) {
+    return getFullSQL(sql, parameters, Collections.emptySet());
+  }
+
+  /**
+   * Retrieve full sql statement as string to be logged, replacing every parameter placeholder with its
+   * formatted value and masking the sensitive values.
+   * <p>
+   * A binding or a string literal whose value is one of the masked values is rendered as {@code '********'},
+   * so password hashes and encrypted values never reach the logs. The statement executed is not changed.
+   *
+   * @param sql          SQL Statement
+   * @param parameters   Parameter list
+   * @param maskedValues Values to mask
+   * @return SQL statement
+   */
+  public String getFullSQL(String sql, List<Object> parameters, Collection<String> maskedValues) {
     if (sql == null) {
       return null;
     }
 
+    Collection<String> masked = maskedValues == null ? Collections.emptySet() : maskedValues;
     Iterator<Object> bindings = (parameters == null ? Collections.emptyList() : parameters).iterator();
     StringBuilder fullSql = new StringBuilder(sql.length());
-    boolean insideLiteral = false;
 
-    for (int index = 0; index < sql.length(); index++) {
+    int index = 0;
+    while (index < sql.length()) {
       char character = sql.charAt(index);
       if (character == SQL_LITERAL_DELIMITER) {
-        insideLiteral = !insideLiteral;
-        fullSql.append(character);
-      } else if (character == SQL_PLACEHOLDER && !insideLiteral && bindings.hasNext()) {
-        fullSql.append(formatParameter(bindings.next()));
+        int literalEnd = getLiteralEnd(sql, index);
+        String literal = sql.substring(index, literalEnd);
+        fullSql.append(isMaskedLiteral(literal, masked) ? MASKED_SQL_VALUE_LOG : literal);
+        index = literalEnd;
       } else {
-        fullSql.append(character);
+        if (character == SQL_PLACEHOLDER && bindings.hasNext()) {
+          fullSql.append(formatParameter(bindings.next(), masked));
+        } else {
+          fullSql.append(character);
+        }
+        index++;
       }
     }
 
@@ -816,12 +968,51 @@ public class QueryUtil extends ServiceConfig {
   }
 
   /**
+   * Retrieve the position after the end of the string literal starting at the given position. Doubled
+   * delimiters are escaped quotes inside the literal. An unterminated literal ends with the statement.
+   *
+   * @param sql   SQL statement
+   * @param start Position of the opening delimiter
+   * @return Position after the closing delimiter
+   */
+  private int getLiteralEnd(String sql, int start) {
+    int index = start + 1;
+    while (index < sql.length()) {
+      if (sql.charAt(index) == SQL_LITERAL_DELIMITER) {
+        if (index + 1 < sql.length() && sql.charAt(index + 1) == SQL_LITERAL_DELIMITER) {
+          index += 2;
+          continue;
+        }
+        return index + 1;
+      }
+      index++;
+    }
+    return sql.length();
+  }
+
+  /**
+   * Check whether a complete string literal holds a masked value
+   *
+   * @param literal      Literal with its delimiters
+   * @param maskedValues Values to mask
+   * @return Literal must be masked
+   */
+  private boolean isMaskedLiteral(String literal, Collection<String> maskedValues) {
+    if (maskedValues.isEmpty() || literal.length() < 2 || literal.charAt(literal.length() - 1) != SQL_LITERAL_DELIMITER) {
+      return false;
+    }
+    String value = literal.substring(1, literal.length() - 1).replace("''", "'");
+    return maskedValues.contains(value);
+  }
+
+  /**
    * Format log parameters
    *
-   * @param binding Binding to format
+   * @param binding      Binding to format
+   * @param maskedValues Values to mask
    * @return Formatted parameter
    */
-  private String formatParameter(Object binding) {
+  private String formatParameter(Object binding, Collection<String> maskedValues) {
     if (binding == null) {
       return "null";
     } else if (binding instanceof Collection<?> collectionBinding) {
@@ -829,13 +1020,14 @@ public class QueryUtil extends ServiceConfig {
         return EMPTY_SQL_COLLECTION_LOG;
       }
       return collectionBinding.stream()
-          .map(this::formatParameter)
+          .map(value -> formatParameter(value, maskedValues))
           .reduce((left, right) -> left + ", " + right)
           .orElse("");
     } else if (binding.getClass().isArray()) {
-      return formatArrayParameter(binding);
+      return formatArrayParameter(binding, maskedValues);
     } else if (binding instanceof String stringBinding) {
-      return MessageFormat.format("''{0}''", stringBinding.replace("'", "''"));
+      return maskedValues.contains(stringBinding) ? MASKED_SQL_VALUE_LOG
+          : MessageFormat.format("''{0}''", stringBinding.replace("'", "''"));
     } else if (binding instanceof Boolean booleanBinding) {
       return booleanBinding ? "TRUE" : "FALSE";
     } else if (binding instanceof LocalDate localDateBinding) {
@@ -848,13 +1040,13 @@ public class QueryUtil extends ServiceConfig {
     return binding.toString();
   }
 
-  private String formatArrayParameter(Object binding) {
+  private String formatArrayParameter(Object binding, Collection<String> maskedValues) {
     if (Array.getLength(binding) == 0) {
       return EMPTY_SQL_COLLECTION_LOG;
     }
     List<String> values = new ArrayList<>();
     for (int index = 0; index < Array.getLength(binding); index++) {
-      values.add(formatParameter(Array.get(binding, index)));
+      values.add(formatParameter(Array.get(binding, index), maskedValues));
     }
     return String.join(", ", values);
   }

@@ -2,6 +2,7 @@ package com.almis.awe.autoconfigure;
 
 import com.almis.awe.component.AweDatabaseContextHolder;
 import com.almis.awe.component.AweRoutingDataSource;
+import com.almis.awe.component.MaintainTransactionManagerProvider;
 import com.almis.awe.component.RoutingDatasourceInitializer;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.DatabaseConfigProperties;
@@ -20,15 +21,16 @@ import com.almis.awe.service.data.connector.query.SQLQueryConnector;
 import com.almis.awe.template.FixedOracleTemplates;
 import com.almis.awe.template.FixedPostgreSQLTemplates;
 import com.almis.awe.template.FixedSQLServerTemplates;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.sql.*;
 import com.querydsl.sql.types.ClobType;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.jdbc.autoconfigure.DataSourceProperties;
+import org.springframework.boot.sql.init.dependency.DependsOnDatabaseInitialization;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;
+import tools.jackson.databind.ObjectMapper;
 
 import javax.sql.DataSource;
 
@@ -38,6 +40,14 @@ import javax.sql.DataSource;
 @org.springframework.context.annotation.Configuration
 @ConditionalOnProperty(name = "awe.database.enabled", havingValue = "true", matchIfMissing = true)
 public class SQLConfig {
+
+  // SQL templates of each database type, built once: the configurations are prototypes and share them
+  private final SQLTemplates oracleTemplates = new FixedOracleTemplates();
+  private final SQLTemplates sqlserverTemplates = new FixedSQLServerTemplates();
+  private final SQLTemplates postgresqlTemplates = new FixedPostgreSQLTemplates();
+  private final SQLTemplates hsqldbTemplates = HSQLDBTemplates.builder().build();
+  private final SQLTemplates h2Templates = H2Templates.builder().build();
+  private final SQLTemplates mysqlTemplates = MySQLTemplates.builder().build();
 
   /**
    * Database context holder
@@ -52,6 +62,7 @@ public class SQLConfig {
   @Bean
   @ConditionalOnMissingBean
   @ConfigurationProperties("spring.datasource.hikari")
+  @DependsOnDatabaseInitialization
   public AweDatabaseContextHolder aweDatabaseContextHolder(AweElements elements, QueryService queryService, SessionService sessionService, DataSourceProperties dataSourceProperties, DatabaseConfigProperties databaseConfigProperties) {
     return new AweDatabaseContextHolder(elements, queryService, sessionService, dataSourceProperties, databaseConfigProperties);
   }
@@ -76,8 +87,20 @@ public class SQLConfig {
    */
   @Bean
   @ConditionalOnProperty(name = "awe.database.multidatabase-enable", havingValue = "true")
+  @DependsOnDatabaseInitialization
   public RoutingDatasourceInitializer routingDatasourceInitializer(DataSource dataSource) {
     return new RoutingDatasourceInitializer(dataSource);
+  }
+
+  /**
+   * Transaction managers used to delimit each maintain (one per DataSource)
+   *
+   * @return Maintain transaction manager provider bean
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public MaintainTransactionManagerProvider maintainTransactionManagerProvider() {
+    return new MaintainTransactionManagerProvider();
   }
 
   /**
@@ -88,7 +111,7 @@ public class SQLConfig {
   @Bean
   @Scope("prototype")
   public Configuration oracleDatabaseConfiguration() {
-    return getConfiguration(new FixedOracleTemplates());
+    return getConfiguration(oracleTemplates);
   }
 
   /**
@@ -99,7 +122,7 @@ public class SQLConfig {
   @Bean
   @Scope("prototype")
   public Configuration sqlserverDatabaseConfiguration() {
-    return getConfiguration(new FixedSQLServerTemplates());
+    return getConfiguration(sqlserverTemplates);
   }
 
 	/**
@@ -110,7 +133,7 @@ public class SQLConfig {
 	@Bean
 	@Scope("prototype")
 	public Configuration postgresqlDatabaseConfiguration() {
-		return getConfiguration(new FixedPostgreSQLTemplates());
+		return getConfiguration(postgresqlTemplates);
 	}
 
   /**
@@ -132,7 +155,7 @@ public class SQLConfig {
   @Bean
   @Scope("prototype")
   public Configuration hsqldbDatabaseConfiguration() {
-    return getConfiguration(HSQLDBTemplates.builder().build());
+    return getConfiguration(hsqldbTemplates);
   }
 
   /**
@@ -143,7 +166,7 @@ public class SQLConfig {
   @Bean
   @Scope("prototype")
   public Configuration h2DatabaseConfiguration() {
-    return getConfiguration(H2Templates.builder().build());
+    return getConfiguration(h2Templates);
   }
 
   /**
@@ -154,7 +177,7 @@ public class SQLConfig {
   @Bean
   @Scope("prototype")
   public Configuration mysqlDatabaseConfiguration() {
-    return getConfiguration(MySQLTemplates.builder().build());
+    return getConfiguration(mysqlTemplates);
   }
 
   /**
@@ -190,6 +213,7 @@ public class SQLConfig {
    */
   @Bean
   @ConditionalOnMissingBean
+  @DependsOnDatabaseInitialization
   public SQLQueryConnector sqlQueryConnector(AweDatabaseContextHolder contextHolder, QueryUtil queryUtil,
                                              DataSource dataSource, BaseConfigProperties baseConfigProperties,
                                              AweElements elements, NumericService numericService,

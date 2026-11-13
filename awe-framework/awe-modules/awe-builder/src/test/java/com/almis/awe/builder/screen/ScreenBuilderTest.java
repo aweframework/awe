@@ -181,6 +181,106 @@ class ScreenBuilderTest {
   }
 
   /**
+   * Build a single screen with a side panel (#843)
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addSidePanel() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder()
+        .setSource("center")
+        .setType("div")
+        .addSidePanel(new SidePanelBuilder()
+          .setPosition(SidePanelPosition.LEFT)
+          .setMaxWidth("30rem")
+          .setOnClose(OnClose.REJECT)
+          .setDeferred(true)
+          .setIcon("info")
+          .setLabel("PANEL_LABEL")
+          .setId("PnlDet")));
+
+    Screen screen = builder.build();
+    SidePanel sidePanel = (SidePanel) screen.getElementList().get(0).getElementList().get(0);
+    assertEquals("PnlDet", sidePanel.getId());
+    assertEquals("PANEL_LABEL", sidePanel.getLabel());
+    assertEquals("left", sidePanel.getPosition());
+    assertEquals("30rem", sidePanel.getMaxWidth());
+    assertEquals("info", sidePanel.getIcon());
+    assertTrue(OnClose.REJECT.equalsStr(sidePanel.getOnClose()));
+    assertTrue(sidePanel.isDeferred());
+  }
+
+  /**
+   * A side panel built without position is anchored to the right edge (#843)
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addSidePanelOnTheRightByDefault() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder().setSource("center").setType("div").addSidePanel(new SidePanelBuilder()));
+
+    SidePanel sidePanel = (SidePanel) builder.build().getElementList().get(0).getElementList().get(0);
+    assertEquals("right", sidePanel.getPosition());
+    assertFalse(sidePanel.isDeferred());
+  }
+
+  /**
+   * Build a single screen with a popover anchored to a button (#843)
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addPopover() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder()
+        .setSource("center")
+        .setType("div")
+        .addPopover(new PopoverBuilder()
+          .setAnchor("BtnInf")
+          .setPosition(PopoverPosition.RIGHT)
+          .setMaxWidth("20rem")
+          .setOnClose(OnClose.REJECT)
+          .setDeferred(true)
+          .setIcon("info")
+          .setLabel("POPOVER_LABEL")
+          .setId("PopInf")));
+
+    Screen screen = builder.build();
+    Popover popover = (Popover) screen.getElementList().get(0).getElementList().get(0);
+    assertEquals("PopInf", popover.getId());
+    assertEquals("POPOVER_LABEL", popover.getLabel());
+    assertEquals("BtnInf", popover.getAnchor());
+    assertEquals("right", popover.getPosition());
+    assertEquals("20rem", popover.getMaxWidth());
+    assertEquals("info", popover.getIcon());
+    assertTrue(OnClose.REJECT.equalsStr(popover.getOnClose()));
+    assertTrue(popover.isDeferred());
+  }
+
+  /**
+   * A popover built without position opens below its anchor (#843)
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addPopoverBelowTheAnchorByDefault() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder().setSource("center").setType("div")
+        .addPopover(new PopoverBuilder().setAnchor("BtnInf")));
+
+    Popover popover = (Popover) builder.build().getElementList().get(0).getElementList().get(0);
+    assertEquals("BtnInf", popover.getAnchor());
+    assertEquals("bottom", popover.getPosition());
+    assertFalse(popover.isDeferred());
+  }
+
+  /**
    * Build a single screen with an include
    *
    * @throws Exception exception
@@ -532,7 +632,6 @@ class ScreenBuilderTest {
           .setStacking(Stacking.PERCENT)
           .setInverted(true)
           .setMax(45)
-          .setTheme("chartTheme")
           .setVisible(false)
           .setSubtitle("SUBTITLE")
           .setChartType(ChartType.BUBBLE)
@@ -623,7 +722,6 @@ class ScreenBuilderTest {
     assertTrue(Stacking.PERCENT.equalsStr(chart.getStacking()));
     assertSame(true, chart.isInverted());
     assertSame(45, chart.getMax());
-    assertEquals("chartTheme", chart.getTheme());
     assertSame(false, chart.isVisible());
     assertEquals("SUBTITLE", chart.getSubTitle());
     assertEquals(chart.getType(), ChartType.BUBBLE.toString());
@@ -861,6 +959,7 @@ class ScreenBuilderTest {
           .setPagerValues("10,20,30")
           .setPaginationDisabled(true)
           .setRowNumbers(true)
+          .setMoveRows(true)
           .setSendAll(true)
           .setSendOperations(false)
           .setServerAction(ServerAction.DATA)
@@ -869,6 +968,11 @@ class ScreenBuilderTest {
           .setTreeId("treeId")
           .setLoadAll(true)
           .setShowTotals(true)
+          .setShowToolbar(false)
+          .setShowColumnsButton(false)
+          .setShowMaximizeButton(false)
+          .setToolbarLabels(true)
+          .setColumnsPanel(ColumnsPanel.SIDE_PANEL)
           .setTreeLeaf("treeLeaf")
           .addGroupHeader(new GroupHeaderBuilder()
             .setLabel("LABEL1")
@@ -918,6 +1022,7 @@ class ScreenBuilderTest {
     assertEquals("10,20,30", grid.getPagerValues());
     assertSame(true, grid.isDisablePagination());
     assertSame(true, grid.isRowNumbers());
+    assertSame(true, grid.isMoveRows());
     assertSame(true, grid.isSendAll());
     assertSame(false, grid.isMultioperation());
     assertEquals(ServerAction.DATA.toString(), grid.getServerAction());
@@ -926,6 +1031,11 @@ class ScreenBuilderTest {
     assertEquals("treeId", grid.getTreeId());
     assertSame(true, grid.isLoadAll());
     assertSame(true, grid.isShowTotals());
+    assertSame(false, grid.isShowToolbar());
+    assertSame(false, grid.isShowColumnsButton());
+    assertSame(false, grid.isShowMaximizeButton());
+    assertEquals("true", grid.getToolbarLabels());
+    assertEquals("side-panel", grid.getColumnsPanel());
     assertEquals("treeLeaf", grid.getTreeLeaf());
 
     assertEquals("LABEL1", header.getLabel());
@@ -949,6 +1059,18 @@ class ScreenBuilderTest {
     assertEquals(Printable.TRUE.toString(), column2.getPrintable());
     assertSame(true, column2.isShowFutureDates());
     assertSame(true, column2.isShowWeekends());
+  }
+
+  /**
+   * A grid builder sets the toolbar-labels list of the XML
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addGridWithToolbarLabelsList() throws Exception {
+    Grid grid = new GridBuilder().setToolbarLabels("saved-searches,columns").setId("grid1").build();
+
+    assertEquals("saved-searches,columns", grid.getToolbarLabels());
   }
 
   /**
@@ -1019,6 +1141,33 @@ class ScreenBuilderTest {
     assertEquals("tab1", tab.getId());
     assertEquals("LABEL", tabContainer.getLabel());
     assertEquals("div", tabContainer.getType());
+  }
+
+  /**
+   * Build a screen with a deferred dialog and a deferred tab container (#824)
+   *
+   * @throws Exception exception
+   */
+  @Test
+  void addDeferredDialogAndTabContainer() throws Exception {
+    ScreenBuilder builder = new ScreenBuilder()
+      .setId(UUID.randomUUID().toString())
+      .addTag(new TagBuilder()
+        .setSource("center")
+        .setType("div")
+        .addDialog(new DialogBuilder().setLabel("DIALOG_LABEL").setDeferred(true))
+        .addTab(new TabBuilder()
+          .setInitialLoad(InitialLoad.ENUMERATED)
+          .setId("tab1")
+          .addTabContainerList(new TabContainerBuilder().setLabel("LABEL").setDeferred(true))
+          .addTabContainerList(new TabContainerBuilder().setLabel("OTHER"))));
+
+    Screen screen = builder.build();
+    Dialog dialog = (Dialog) screen.getElementList().get(0).getElementList().get(0);
+    Tab tab = (Tab) screen.getElementList().get(0).getElementList().get(1);
+    assertTrue(dialog.isDeferred());
+    assertTrue(((TabContainer) tab.getElementList().get(0)).isDeferred());
+    assertFalse(((TabContainer) tab.getElementList().get(1)).isDeferred());
   }
 
   /**

@@ -1,0 +1,53 @@
+# Code owners (#762): who GitLab suggests as reviewers. Approval by a code owner is not required (the branch protection
+# "Require approval from code owners" stays off); the sections are optional (^) so turning it on later does not block merges
+# until the team decides. Syntax: https://docs.gitlab.com/user/project/codeowners/reference/
+# Every section lists the same owners today; split them per area when the team grows.
+
+# Default: anything not claimed by a section below
+* @pablo.garcia.almis @Limkin
+
+^[Framework model] @pablo.garcia.almis @Limkin
+/awe-framework/awe-model/
+
+^[Framework controller] @pablo.garcia.almis @Limkin
+/awe-framework/awe-controller/
+/awe-framework/awe-generic-screens/
+
+^[AngularJS client] @pablo.garcia.almis @Limkin
+/awe-framework/awe-client-angular/
+
+^[React client] @pablo.garcia.almis @Limkin
+/awe-framework/awe-client-react/
+
+^[Modules and starters] @pablo.garcia.almis @Limkin
+/awe-framework/awe-modules/
+/awe-framework/awe-starters/
+
+^[Testing support] @pablo.garcia.almis @Limkin
+/awe-framework/awe-testing/
+
+^[Integration and browser tests] @pablo.garcia.almis @Limkin
+/awe-tests/
+
+^[Samples and archetypes] @pablo.garcia.almis @Limkin
+/awe-samples/
+/awe-framework/awe-boot-angular-archetype/
+/awe-framework/awe-boot-react-archetype/
+
+^[Website and documentation] @pablo.garcia.almis @Limkin
+/website/
+/openspec/
+/CONTRIBUTING.md
+/README.md
+/CHANGELOG.md
+
+^[CI and build] @pablo.garcia.almis @Limkin
+/.gitlab-ci.yml
+/.gitlab/
+/.m2/
+/bin/
+/.editorconfig
+/renovate.json
+/pom.xml
+/awe-framework/pom.xml
+/awe-framework/awe-dependencies/

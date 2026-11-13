@@ -128,10 +128,10 @@ public class SessionAnnotation {
     Object arg = point.getArgs()[index];
 
     // Apply processors
-    if (annotation instanceof FromSession) {
-      Object modified = sessionProcessor.getFromSession((FromSession) annotation, arg.getClass());
+    if (annotation instanceof FromSession session) {
+      Object modified = sessionProcessor.getFromSession(session, arg.getClass());
 
-      if (((FromSession) annotation).overrideValue() && (modified != null || ((FromSession) annotation).onNullSessionValue() == FromSession.OnNullBehaviour.OVERRIDE)) {
+      if (session.overrideValue() && (modified != null || session.onNullSessionValue() == FromSession.OnNullBehaviour.OVERRIDE)) {
         arg = modified;
       }
     }
@@ -168,8 +168,8 @@ public class SessionAnnotation {
           Object arg = joinPoint.getArgs()[paramIndex];
 
           // Apply processors
-          if (annotation instanceof ToSession) {
-            sessionProcessor.setToSession((ToSession) annotation, arg);
+          if (annotation instanceof ToSession session) {
+            sessionProcessor.setToSession(session, arg);
           }
         }
       }

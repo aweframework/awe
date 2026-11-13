@@ -3,28 +3,17 @@
 // --------------------------------------------------
 .awe-theme {
 
-  // Define panel and button default
-  .panel-awe {
-    .pixel-panel(@panel-header-color, @panel-text-color, @panel-border-color);
-  }
-  .btn-default {
-    .pixel-button(@color: @secondary-color, @font-color: @secondary-text-color);
-  }
-
-  // Mixins
-  .awe-main-menu(@primary-menu-color, @menu-text-color);
-  .awe-grid(@secondary-color, @primary-color);
-  .awe-change-password-page(@primary-color);
-  .awe-breadcrumbs(light);
-  .awe-buttons(@secondary-color, @primary-color, @font-color: @secondary-text-color);
-  .awe-loading-bar(@loading-bar-color);
+  // Mixins (the main menu and the breadcrumb take the AWE 5 shell tokens in their own files, #885: .awe-main-menu and
+  // .awe-breadcrumbs stay defined for the products that call them). The windows, the buttons, the select fields and
+  // the file inputs take the AWE 5 tokens in their directive files (#885): .awe-buttons stays defined too. The grids
+  // take the AWE 5 grid tokens in directives/grid.less (#885): .awe-grid stays defined too. The dialogs and the loading
+  // bar take the AWE 5 overlay tokens in directives/modal.less and directives/overlay.less (#885): .awe-loading-bar
+  // stays defined too. The login pages take the AWE 5 login tokens in pages/signin.less (#885):
+  // .awe-change-password-page stays defined too
   .awe-theme-color(@primary-color);
   .awe-menu-color(@primary-menu-color);
   .table-color(@primary-color, @panel-background-color, @primary-text-color);
 
-  .modal-content {
-    background: @panel-background-color;
-  }
   .panel-footer {
     background: @secondary-background-color;
   }
@@ -38,9 +27,7 @@
   .ui-datepicker-theme(@primary-color);
 
   // Plugins
-  .select2-theme(@primary-color, @primary-text-color);
   .switcher-theme(@primary-color);
-  .pixel-file-input-theme(@primary-color);
   .bootstrap-datepicker-theme(@primary-color);
   .bootstrap-timepicker-theme(@primary-color);
   .datepaginator-theme(@primary-color);
@@ -150,7 +137,7 @@
     }
   }
   li.divider {
-    border-top: 1px solid !important;
+    border-top: var(--awe-border-width) solid !important;
     border-color: @text-color !important;
     margin-right: 15px;
     margin-left: 15px;
@@ -207,7 +194,7 @@
     }
   }
   li.divider {
-    border-top: 1px solid !important;
+    border-top: var(--awe-border-width) solid !important;
     border-color: @menu-color !important;
     margin-right: 15px;
     margin-left: 15px;
@@ -275,7 +262,7 @@
 .awe-breadcrumbs(@type) when (@type=dark) {
   .breadcrumb.breadcrumb-page {
     background-color: rgba(255, 255, 255, 0.5);
-    border-bottom: 1px solid rgba(0, 0, 0, .1);
+    border-bottom: var(--awe-border-width) solid rgba(0, 0, 0, .1);
     .box-shadow(0 1px 2px rgba(255, 255, 255, 0.2));
     .breadcrumb-label {
       //color: rgba(0, 0, 0, 0.5);
@@ -308,7 +295,7 @@
 .awe-breadcrumbs(@type) when (@type=light) {
   .breadcrumb.breadcrumb-page {
     background-color: rgba(0, 0, 0, 0.03);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: var(--awe-border-width) solid rgba(0, 0, 0, 0.1);
     .box-shadow(0 1px 2px rgba(255, 255, 255, 0.2));
     .breadcrumb-label {
       //color: rgba(0, 0, 0, 0.5);
@@ -340,7 +327,7 @@
 
 // Buttons theme
 //
-.awe-buttons(@default, @primary, @font-color: var(--secondary-text-color), @primary-font-color: var(--primary-text-color)) {
+.awe-buttons(@default, @primary, @font-color: var(--awe-color-on-secondary), @primary-font-color: var(--awe-color-on-primary)) {
   .btn-awe {
     .pixel-button(@color: @default, @gradient: 5%, @hover: 2%, @border: 4%, @font-color: @font-color);
   }
@@ -422,12 +409,12 @@
     .navbar-nav li + .navbar-nav li,
     .navbar-nav.nav + .navbar-nav.nav,
     .navbar-nav.nav + .navbar-nav .right {
-      border-top: 1px solid @navbar-end-color;
+      border-top: var(--awe-border-width) solid @navbar-end-color;
     }
 
     .dropdown.open > a {
-      border-top: 1px solid @navbar-end-color;
-      border-bottom: 1px solid @navbar-end-color;
+      border-top: var(--awe-border-width) solid @navbar-end-color;
+      border-bottom: var(--awe-border-width) solid @navbar-end-color;
       margin-top: -1px;
       background: @navbar-end-color;
     }
@@ -581,13 +568,13 @@
   #main-navbar #main-menu-toggle,
   &.right-to-left.main-menu-right #main-navbar #main-menu-toggle {
     border-left: none;
-    border-right: 1px solid @navbar-end-color;
+    border-right: var(--awe-border-width) solid @navbar-end-color;
     filter: brightness(92%);
   }
 
   &.right-to-left #main-navbar #main-menu-toggle,
   &.main-menu-right #main-navbar #main-menu-toggle {
-    border-left: 1px solid @navbar-end-color;
+    border-left: var(--awe-border-width) solid @navbar-end-color;
     border-right: none;
     filter: brightness(92%);
   }

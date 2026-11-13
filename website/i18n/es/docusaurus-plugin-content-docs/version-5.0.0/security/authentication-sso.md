@@ -1,0 +1,594 @@
+---
+id: authentication-sso
+title: Autenticación Single Sign On
+sidebar_label: Single sign-on
+---
+
+<img style={{ width: "40%", margin: "10% 30% 10% 30%" }}
+alt="Seguridad de AWE"
+src={require('@docusaurus/useBaseUrl').default('img/undraw_security-on_btwg.svg')}
+/>
+
+# Single sign on {#single-sign-on}
+En las aplicaciones AWE puedes usar el método de autenticación SSO. Esta funcionalidad permite a un usuario utilizar una única cuenta para acceder a distintas aplicaciones (nombre de usuario y contraseña).
+
+Para ejecutar el proveedor de identidad como única vía de inicio de sesión, consulta el [modo de seguridad IdP-first](idp-first.md) y, para la configuración paso a paso con Keycloak y Microsoft Entra ID, la [guía IdP-first](idp-first-keycloak-entra.md).
+
+## Azure EntraID {#azure-entraid}
+AWE proporciona integración con el servicio de autenticación oauth2 de Azure utilizando el nativo `spring-cloud-azure-starter-active-directory`. El uso del Spring Boot Starter para Microsoft Entra ID te permite conectar tu aplicación web a un tenant de Microsoft Entra y proteger tu servidor de recursos con Microsoft Entra ID. Utiliza el protocolo Oauth 2.0 para proteger aplicaciones web y servidores de recursos.
+
+<img style={{ width: "70%", margin: "30px 15% 0% 15%" }}
+alt="Azure Entra ID"
+src={require('@docusaurus/useBaseUrl').default('img/Azure_entraID.png')}
+/>
+
+Para habilitar el directorio activo oauth2 de Azure, tienes que añadir el starter spring-cloud-azure y configurar el tenantId de tu organización y el ID y el secreto de la aplicación.
+
+```xml title="Add dependency"
+    <dependency>
+      <groupId>com.azure.spring</groupId>
+      <artifactId>spring-cloud-azure-starter-active-directory</artifactId>
+    </dependency>
+```
+```properties title="Configure azure EntraID properties"
+# Enable related features.
+spring.cloud.azure.active-directory.enabled=true
+# Specifies your Active Directory ID:
+spring.cloud.azure.active-directory.profile.tenant-id={CONFIGURE YOUR TENANT ID}
+# Specifies your App Registration's Application ID:
+spring.cloud.azure.active-directory.credential.client-id={CONFIGURE YOUR CLIENT ID}
+# Specifies your App Registration's secret key:
+spring.cloud.azure.active-directory.credential.client-secret={CONFIGURE YOUR SECRET KEY}
+```
+
+:::info Puedes visitar [este enlace](https://learn.microsoft.com/en-us/azure/developer/java/spring-framework/spring-boot-starter-for-azure-active-directory-developer-guide?tabs=SpringCloudAzure4x) para más información. 
+:::
+
+Por defecto, si el usuario que inicia sesión en la aplicación con este método no existe en la base de datos, se aprovisionará registrándolo mediante un nuevo registro en la tabla de usuarios.
+Si no quieres este comportamiento, puedes desactivarlo poniendo a false la propiedad de configuración `awe.security.sso.auto-provision-user`.
+
+## Usuarios deshabilitados y bloqueados {#disabled-and-locked-users}
+
+AWE mantiene la última palabra sobre quién puede entrar en la aplicación. Si el usuario que el proveedor de identidad acaba de
+autenticar ya existe en AWE y está **deshabilitado** o **bloqueado**, el inicio de sesión SSO se rechaza: no se crea ninguna sesión de AWE,
+la autenticación se descarta y el usuario ve una página de error que explica que el usuario está deshabilitado o
+bloqueado en la aplicación. El proveedor no puede usarse para saltarse esos indicadores.
+
+- Los usuarios que todavía no existen en AWE siguen las reglas de aprovisionamiento automático anteriores.
+- La caducidad de la contraseña no se aplica a los inicios de sesión SSO, ya que no se usa la contraseña. Tampoco se comprueba la caducidad de la cuenta, porque AWE no tiene una columna de caducidad de cuenta.
+- Cada rechazo se registra como una advertencia con el nombre de usuario.
+
+## Desactivar el inicio de sesión local {#switching-off-local-login}
+
+Por defecto AWE mantiene activo su propio inicio de sesión con usuario y contraseña cuando el SSO está habilitado. Para que el
+proveedor de identidad sea la única vía de entrada, define:
+
+```properties
+awe.security.sso.enabled=true
+awe.security.sso.local-login=false
+```
+
+Con `awe.security.sso.local-login=false` (por defecto `true`) y el SSO habilitado:
+
+- La pantalla de acceso oculta el usuario, la contraseña y los controles de **Iniciar sesión** tanto en el cliente AngularJS como en el
+  de React, de modo que solo quedan los botones de SSO.
+- Los tres puntos de entrada de inicio de sesión rechazan a todo usuario que no sea un usuario de emergencia (más abajo):
+  `POST /action/login`, `POST /api/authenticate` y el inicio de sesión estándar por formulario de Spring. Comparten un único
+  gestor de autenticación que aplica la política. El bean `AuthenticationManager` compartido que usan los flujos internos (por ejemplo la
+  reautenticación) no se ve afectado, y con el SSO desactivado o `local-login=true` las peticiones de inicio de sesión llegan a los proveedores reales sin cambios.
+- Un usuario rechazado recibe **exactamente la misma respuesta que con una contraseña incorrecta** (mismo estado, título y mensaje), de modo que
+  el fallo no puede usarse para averiguar qué usuarios son de emergencia. Un rechazo sigue ejecutando la autenticación real
+  con una contraseña desechable, así que cuesta aproximadamente lo mismo que una contraseña incorrecta, nunca puede tener éxito y publica
+  el mismo evento de fallo de credenciales incorrectas para los oyentes de auditoría o bloqueo. El motivo real solo se escribe en el
+  log del servidor, como una línea `WARN` con el nombre de usuario (saneado, nunca la contraseña).
+
+El interruptor no tiene efecto cuando el SSO está desactivado, así que nunca puede dejar a todo el mundo fuera de una aplicación sin proveedor.
+Una aplicación puede sustituir la política declarando su propio bean `LocalLoginPolicy`.
+
+### Usuarios de emergencia (break-glass) {#break-glass-users}
+
+Si el proveedor de identidad está caído sigues necesitando una vía de entrada. Enumera los usuarios de AWE que pueden seguir iniciando sesión en local:
+
+```properties
+awe.security.sso.local-login=false
+awe.security.sso.break-glass-users=admin
+```
+
+- La lista está vacía por defecto: nadie puede iniciar sesión en local cuando el interruptor está desactivado.
+- Los nombres de usuario se recortan y se comparan **exactamente** (distingue mayúsculas y minúsculas). El nombre que se comprobó es el nombre que se
+  autentica. Varios nombres se separan con comas; los espacios y las entradas vacías se ignoran.
+- Un usuario de emergencia sigue pasando por las comprobaciones normales de cuenta: una cuenta bloqueada o caducada se rechaza.
+- Un usuario de emergencia abre la pantalla de acceso local en `/screen/public/signin-local` (por ejemplo
+  `https://my-app.example.com/screen/public/signin-local`) e inicia sesión con las credenciales locales normales. La pantalla está
+  siempre accesible y solo muestra el formulario de usuario y contraseña; mostrarla no concede nada, porque el servidor sigue
+  rechazando a todo el que no esté en la lista, con el mismo mensaje que una contraseña incorrecta.
+- Cada intento de inicio de sesión de emergencia se registra a nivel `WARN` con la etiqueta `[break-glass]` y el nombre de usuario, para que puedas
+  alertar sobre ello. Los rechazos también se registran a nivel `WARN`, sin la etiqueta.
+- Mantén la lista corta, usa contraseñas robustas y trata cada entrada `[break-glass]` del log como un evento que revisar.
+
+## Cierre de sesión por canal trasero {#back-channel-logout}
+
+Por defecto una sesión de AWE vive hasta que caduca o el usuario cierra sesión en AWE: terminar la sesión en el proveedor de
+identidad (un administrador cierra la sesión del usuario, el usuario se deshabilita o cierra sesión en otra aplicación)
+no llega a AWE. Con el [cierre de sesión por canal trasero de OpenID Connect](https://openid.net/specs/openid-connect-backchannel-1_0.html)
+el proveedor avisa directamente a AWE, de servidor a servidor, y AWE termina de inmediato las sesiones correspondientes.
+
+```properties
+awe.security.sso.enabled=true
+awe.security.sso.back-channel-logout.enabled=true
+```
+
+| Propiedad | Por defecto | Significado |
+| --- | --- | --- |
+| `awe.security.sso.back-channel-logout.enabled` | `false` | Registra el endpoint de cierre de sesión por canal trasero. Se ignora cuando el SSO está deshabilitado. |
+| `awe.security.sso.back-channel-logout.logout-uri` | vacío (`{baseUrl}/logout/connect/back-channel/{registrationId}`) | Dirección a la que AWE se llama a sí mismo para terminar cada sesión (ver más abajo). |
+| `awe.security.sso.back-channel-logout.connect-timeout` | `2s` | Tiempo de espera de conexión de esa llamada interna. |
+| `awe.security.sso.back-channel-logout.read-timeout` | `5s` | Tiempo de espera de lectura de esa llamada interna. |
+
+Cómo funciona:
+
+- En cada inicio de sesión SSO, AWE registra la sesión del proveedor (claim `sid`) y el usuario (claim `sub`) del token ID
+  junto con el id de la sesión de AWE, en un registro de sesiones OIDC.
+- El proveedor envía por POST un token de cierre de sesión firmado a `/logout/connect/back-channel/{registrationId}`, donde
+  `{registrationId}` es el registro de cliente de Spring (por ejemplo
+  `/logout/connect/back-channel/keycloak` para `spring.security.oauth2.client.registration.keycloak.*`). AWE valida
+  el token con las claves del proveedor (firma, emisor, audiencia y el evento de cierre de sesión por canal trasero) y responde
+  `400` cuando no es válido.
+- Por cada sesión de AWE de esa sesión del proveedor (o de ese usuario, cuando el token no lleva `sid`), AWE envía una
+  petición interna de cierre de sesión a `logout-uri` con la cookie de sesión. Ejecuta los mismos gestores de cierre de sesión que un cierre
+  de sesión del usuario: se borran los datos de la sesión de AWE, las pestañas del navegador de esa sesión reciben un mensaje de cierre de sesión por el
+  websocket y se liberan sus conexiones, y se invalida la sesión HTTP. La siguiente petición del navegador
+  va al flujo de inicio de sesión.
+- La llamada interna está acotada por `connect-timeout` y `read-timeout`, de modo que un `logout-uri` inaccesible no puede dejar colgada la
+  petición del proveedor. Una sesión cuya llamada falla o agota el tiempo se mantiene registrada y el proveedor recibe una respuesta de error.
+- El endpoint se excluye de la comprobación CSRF, ya que el proveedor no puede enviar un token CSRF.
+
+Configura el proveedor para que llame al endpoint:
+
+- **Keycloak:** en los ajustes del cliente, define **Backchannel logout URL** como
+  `https://{hostname}/logout/connect/back-channel/{registrationId}` y mantén **Backchannel logout session required**
+  activado, para que el token de cierre de sesión lleve el `sid` de la sesión.
+- **Microsoft Entra ID:** Entra ID solo admite el cierre de sesión por canal frontal, por lo que el cierre de sesión por canal trasero no puede usarse con él
+  directamente. Intermedia Entra ID a través de Keycloak para obtenerlo, o mantén un tiempo de espera de sesión corto.
+
+:::caution Cosas que comprobar antes de habilitarlo
+- **La petición interna de cierre de sesión debe llegar a este mismo nodo.** Por defecto va a la dirección que usó el proveedor
+  (`{baseUrl}`). Cuando esa dirección pública no es accesible desde el servidor (un proxy, un balanceador de carga o un cortafuegos
+  de por medio), define `logout-uri`, por ejemplo
+  `http://localhost:8080{basePath}/logout/connect/back-channel/{registrationId}`. Marcadores: `{baseUrl}`,
+  `{baseScheme}`, `{baseHost}`, `{basePort}`, `{basePath}` y `{registrationId}`.
+- **Nombre de la cookie de sesión.** La petición interna envía la cookie indicada por `session.cookie.name` (por defecto
+  `JSESSIONID`), la misma que AWE elimina al cerrar sesión. Mantenla igual al nombre real de la cookie de sesión.
+- **Tamaño del registro.** Una entrada sale del registro cuando el proveedor termina su sesión, y también cuando la
+  sesión HTTP caduca o se invalida (cierre de sesión del usuario, tiempo de espera) y cuando su id cambia al iniciar sesión: AWE registra un
+  `HttpSessionEventPublisher` y Spring Security escucha sus eventos de sesión. Si la aplicación sustituye ese
+  publicador o su almacén de sesiones no genera eventos de sesión HTTP, se conservan las entradas de las sesiones caducadas.
+- **Varios nodos.** El registro por defecto se mantiene en memoria y solo conoce las sesiones creadas en el nodo que
+  recibe el token de cierre de sesión. En un clúster, declara un bean `OidcSessionRegistry` compartido (AWE lo usará entonces) y asegúrate de que
+  la petición interna llegue al nodo que contiene la sesión, o de que las sesiones se compartan.
+- **Spring Session.** Si la aplicación almacena las sesiones con Spring Session y su serializador de cookies codifica el
+  id de sesión en Base64 (el valor por defecto de Spring Session), el id de sesión en bruto que envía la petición interna no se
+  reconoce. Desactiva la codificación Base64 del serializador de cookies, o declara un bean que extienda
+  `AweOidcBackChannelLogoutHandler` y sobrescriba `sessionCookieValue(String)` para codificar el id del mismo modo.
+:::
+
+## Mapeo de roles y sincronización de perfiles {#role-mapping-and-profile-synchronization}
+
+En cada inicio de sesión SSO, AWE mapea las autoridades concedidas procedentes del proveedor de identidad a un perfil, usando
+`awe.security.sso.filter-authority-prefix` para seleccionar y quitar el prefijo del claim de rol (ver arriba).
+
+### Claim de roles {#roles-claim}
+
+Los roles se leen de los claims del token ID indicados en `awe.security.sso.roles-claims`, en orden (por defecto
+`realm_access.roles`, los roles de realm de Keycloak). Un nombre con puntos recorre objetos anidados, salvo que el token tenga un claim con
+exactamente ese nombre (así funcionan los nombres de claim en forma de URI). Un claim puede contener una lista de roles o un único rol de texto.
+
+| Proveedor | Claim | Propiedad |
+| --- | --- | --- |
+| Keycloak, roles de realm | `realm_access.roles` | por defecto, no hay que definir nada |
+| Keycloak, roles de cliente | `resource_access.<client-id>.roles` | `awe.security.sso.roles-claims=resource_access.my-app.roles` |
+| Microsoft Entra ID, roles de aplicación | `roles` | `awe.security.sso.roles-claims=roles` |
+| Varias fuentes | todas, combinadas | `awe.security.sso.roles-claims=roles,realm_access.roles` |
+
+- Los claims deben estar en el **token ID**: en Keycloak, mantén activado **Add to ID token** en los mappers de roles; en Entra ID,
+  los roles de aplicación asignados al usuario se envían en el claim `roles` del token ID.
+- El claim `groups` de Entra ID contiene ids de objeto de grupo, no nombres; prefiere los roles de aplicación.
+- Solo se registran (a nivel `DEBUG`) los nombres de los claims y el número de roles, nunca los valores de los roles.
+- Una aplicación que declare su propio bean `realmRolesAuthoritiesConverter` conserva el control total y
+  `roles-claims` se ignora.
+
+### Varios roles: qué perfil gana {#several-roles-which-profile-wins}
+
+Todos los roles que llevan el prefijo se convierten en nombres de perfil (se elimina el prefijo; los roles iguales al prefijo se
+ignoran). Cuando queda más de uno, AWE usa:
+
+1. El **primer perfil de `awe.security.sso.profile-priority`** que envía el proveedor y que existe como perfil de
+   AWE. Los nombres se comparan sin distinguir mayúsculas y minúsculas.
+2. Cuando ninguno de la lista se envía y existe, o la lista está vacía (por defecto), el **primer nombre, por orden
+   alfabético, que exista como perfil de AWE**.
+
+Así el resultado nunca depende del orden en que el proveedor envía los roles, y un rol sin perfil nunca oculta a uno
+válido. Cuando ninguno existe como perfil, se toma el primer nombre por orden alfabético (y se trata entonces como un
+rol sin perfil, ver más abajo). Por ejemplo, con el prefijo `role_` y los roles `role_operator`, `role_manager` y
+`role_auditor`, donde `auditor` no es un perfil de AWE, el perfil es `manager`. Con la configuración siguiente, el
+perfil es `operator`.
+
+```yaml title="Elegir el perfil principal de los usuarios con varios roles"
+awe:
+  security:
+    sso:
+      profile-priority: administrator,operator,manager
+```
+
+| Propiedad | Por defecto | Significado |
+| --- | --- | --- |
+| `awe.security.sso.profile-priority` | vacía | Perfiles por orden de prioridad para elegir el perfil principal cuando el proveedor envía varios roles que corresponden a perfiles existentes. |
+
+### Varios roles: perfiles adicionales {#several-roles-additional-profiles}
+
+El perfil principal se elige exactamente como se describe arriba. Cuando viene de un rol del proveedor que existe como
+perfil, los demás roles del proveedor que existen como perfiles pasan a ser
+[perfiles adicionales](additional-profiles.md) del usuario. En el ejemplo anterior, el perfil principal es `manager` y
+`operator` es un perfil adicional; `auditor` se ignora.
+
+- Los perfiles adicionales sustituyen a los guardados para ese usuario (auditados en `HISAweOpeRol`), tanto para
+  usuarios existentes como para usuarios aprovisionados en ese inicio de sesión: el proveedor es la fuente de verdad de
+  los perfiles adicionales de un usuario SSO.
+- Los roles sin un perfil existente se ignoran.
+- Con un `UserDAO` propio cuyo `supportsAdditionalProfiles()` devuelve `false` (el valor por defecto), los perfiles
+  adicionales guardados para el usuario no se modifican.
+- Cuando ningún rol se mapea a un perfil existente (ningún rol, un rol desconocido, o el rol por defecto aplicado con
+  `overwrite-profile-with-default-role`), los perfiles adicionales no se modifican y el inicio de sesión sigue las
+  reglas siguientes.
+- En el primer inicio de sesión después de que el proveedor cambie el rol principal de un usuario, la sesión conserva
+  el perfil principal anterior, como hasta ahora: el perfil principal guardado se actualiza y se aplica desde el
+  siguiente inicio de sesión.
+
+### Sincronización con el perfil almacenado {#synchronization-with-the-stored-profile}
+
+- Si el proveedor envía un rol que coincide con el prefijo, y difiere del perfil almacenado del usuario, el
+  perfil se sincroniza (solo cuando el rol existe en la aplicación).
+- Si el proveedor no envía ningún rol (ninguna autoridad, ninguna coincide con el prefijo, o una autoridad igual al propio
+  prefijo), el comportamiento depende del usuario:
+  - Los **usuarios nuevos, aprovisionados automáticamente**, se crean siempre con `awe.application.default-role`.
+  - Los **usuarios existentes** conservan intacto su perfil actual de la base de datos, de modo que un perfil asignado manualmente en AWE
+    no se restablece silenciosamente en el siguiente inicio de sesión.
+
+Cuando se exige un rol (ver más abajo), ninguno de estos respaldos se aplica.
+
+```yaml title="Restore the default role on missing SSO roles"
+awe:
+  security:
+    sso:
+      overwrite-profile-with-default-role: true
+```
+
+:::caution Cambio de comportamiento desde la 4.12.9
+Antes de la 4.12.9, un usuario existente sin un rol SSO coincidente se degradaba siempre a
+`awe.application.default-role` en cada inicio de sesión, sobrescribiendo cualquier perfil asignado manualmente. Desde la 4.12.9 se
+mantiene por defecto el perfil existente. Establece `awe.security.sso.overwrite-profile-with-default-role=true` para restaurar
+el comportamiento anterior.
+:::
+
+### Exigir un rol (fallo cerrado) {#requiring-a-role-fail-closed}
+
+Cuando se exige un rol, un inicio de sesión SSO se **rechaza** si ningún rol enviado por el proveedor se mapea a un perfil
+de AWE existente: el usuario ve una página de error con un mensaje localizado ("Your identity provider account has no role allowed
+in this application..."), no se crea ninguna sesión de AWE, no se aprovisiona nada y no se usa `awe.application.default-role`.
+El rechazo se registra a nivel `WARN` con el nombre de usuario.
+
+- **Solo en IdP-first por defecto.** Un rol se exige por defecto solo cuando el inicio de sesión local está desactivado
+  (`awe.security.sso.local-login=false`). Con el inicio de sesión local activado (por defecto), se mantiene el comportamiento anterior salvo que
+  se establezca `awe.security.sso.require-role=true`. Un `require-role` explícito siempre prevalece.
+- **Los usuarios existentes también se rechazan.** Un usuario de AWE que ya existe se rechaza del mismo modo: el perfil almacenado
+  en AWE **no** se usa como respaldo cuando el proveedor no envía ningún rol que se mapee a un perfil.
+
+| `local-login` | `require-role` | Resultado cuando ningún rol se mapea |
+| --- | --- | --- |
+| `true` (por defecto) | sin definir (por defecto) | Comportamiento anterior: se mantiene el perfil almacenado, o el rol por defecto para los usuarios nuevos (ver arriba). |
+| `false` (IdP-first) | sin definir (por defecto) | **Rechazado.** |
+| cualquiera | `true` | Rechazado. |
+| cualquiera | `false` | Comportamiento anterior (aceptación explícita del respaldo del rol por defecto). |
+
+Un rol se "mapea" cuando, tras el prefijo y la regla anterior, el nombre resultante existe como perfil de AWE.
+
+## Keycloak {#keycloak}
+
+<img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
+    alt="Nuevo cliente de Keycloak 2"
+    src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-client-2.png')}
+/>
+
+Configura el cliente estableciendo la Root URL, los Web origins y la Admin URL con el nombre de host (https://\{hostname}).
+
+También puedes establecer la Home URL con la ruta /applications y las Valid Post logout redirect URIs con "https://\{hostname}/applications".
+
+Las Valid Redirect URIs deben establecerse a https://\{hostname}/auth/callback (también puedes establecer la menos segura https://\{hostname}/* con fines de pruebas/desarrollo, pero no se recomienda en producción).
+
+<img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
+    alt="Nuevo cliente de Keycloak 3"
+    src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-client-3.png')}
+/>
+
+Asegúrate de hacer clic en Save.
+
+Debería haber una pestaña llamada Credentials. Puedes copiar el Client Secret que usaremos en la configuración de nuestra aplicación.
+
+<img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
+    alt="Nuevo cliente de Keycloak 4"
+    src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-client-4.png')}
+/>
+
+Hay que añadir las siguientes propiedades de configuración para integrar una aplicación AWE con el servidor Keycloak
+
+```properties title="Configure keycloak oauth client properties"
+################################################
+# SSO login
+################################################
+# Enable AWE SSO
+awe.security.sso.enabled=true
+# Auto launch sso flow (skip native window sign in)
+awe.security.sso.auto-launch=true
+# Filter authority prefix (used to filtering granted authorities in post authentication process)
+awe.security.sso.filter-authority-prefix=role_
+# Enable generic SSO button in login screen
+awe.security.sso.enable-generic-sso-button=true
+
+# Provider issuer uri
+spring.security.oauth2.client.provider.keycloak.issuer-uri=[PROVIDER_URI]
+# Oauth provider name
+spring.security.oauth2.client.registration.keycloak.provider=keycloak
+# Authorization grant type for login
+spring.security.oauth2.client.registration.keycloak.authorization-grant-type=authorization_code
+# Client Id
+spring.security.oauth2.client.registration.keycloak.client-id=[CLIENT_ID]
+# Client Secret
+spring.security.oauth2.client.registration.keycloak.client-secret=[CLIENT_SECRET]
+# Scope request
+spring.security.oauth2.client.registration.keycloak.scope=openid
+# Redirect URI
+spring.security.oauth2.client.registration.keycloak.redirect-uri={baseUrl}/login/oauth2/code/keycloak
+```
+
+:::note
+Solo los registros `authorization_code` son opciones de login. Los registros con
+`authorization-grant-type=client_credentials`, como los que usan los servidores de correo y el remitente de correo por
+defecto con [autenticación OAuth2](../guides/default-screens.md#oauth2-authentication), nunca se ofrecen ni se eligen
+para el login.
+:::
+
+## SSO multiinquilino {#multi-tenant-sso}
+
+<img style={{ width: "70%", margin: "30px 15% 0% 15%" }}
+alt="Arquitectura multiinquilino"
+src={require('@docusaurus/useBaseUrl').default('img/multitenant-architecture.svg')}
+/>
+
+AWE Framework admite la autenticación SSO multiinquilino, lo que permite a distintas organizaciones o clientes usar la misma instancia de la aplicación con sus propias configuraciones OAuth2 independientes. Cada inquilino puede tener su propia configuración de proveedor de identidad mientras comparte el mismo código base de la aplicación.
+
+### Cómo funciona el multiinquilino {#how-multi-tenant-works}
+
+La funcionalidad multiinquilino de AWE usa **resolución de inquilino basada en subdominios**. Cuando un usuario accede a la aplicación a través de distintos subdominios, el sistema determina automáticamente qué configuración de inquilino usar:
+
+- `tenant1.yourdomain.com` → Usa la configuración de "tenant1"
+- `tenant2.yourdomain.com` → Usa la configuración de "tenant2"  
+- `yourdomain.com` → Usa la configuración del inquilino por defecto
+
+```mermaid
+graph LR
+    A[tenant1.app.com] --> B[Keycloak]
+    C[tenant2.app.com] --> D[Azure AD]
+    E[app.com] --> F[Google OAuth]
+    B --> G[App Autorizada]
+    D --> G
+    F --> G
+
+```
+### Configuración {#configuration}
+
+Para habilitar el SSO multiinquilino, necesitas configurar las siguientes propiedades:
+
+```properties title="Enable Multi-Tenant SSO"
+# Enable multi-tenant functionality
+awe.security.sso.multitenant.enabled=true
+
+# Set the default tenant (used when no specific tenant is detected)
+awe.security.sso.multitenant.default-tenant=public
+```
+
+### Configuración específica de cada inquilino {#tenant-specific-configuration}
+
+Cada inquilino requiere su propio registro OAuth2 y configuración de proveedor usando las propiedades estándar OAuth2 de Spring Security. La configuración sigue este patrón:
+
+```properties title="Multi-Tenant Configuration Pattern"
+# Provider configuration for a tenant
+spring.security.oauth2.client.provider.{tenant-name}.issuer-uri={PROVIDER_ISSUER_URI}
+spring.security.oauth2.client.provider.{tenant-name}.user-name-attribute=preferred_username
+
+# Registration configuration for a tenant
+spring.security.oauth2.client.registration.{tenant-name}.provider={tenant-name}
+spring.security.oauth2.client.registration.{tenant-name}.client-id={CLIENT_ID}
+spring.security.oauth2.client.registration.{tenant-name}.client-secret={CLIENT_SECRET}
+spring.security.oauth2.client.registration.{tenant-name}.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.{tenant-name}.scope=openid,profile,email
+spring.security.oauth2.client.registration.{tenant-name}.redirect-uri={baseUrl}/login/oauth2/code/{tenant-name}
+spring.security.oauth2.client.registration.{tenant-name}.client-name={CLIENT_DISPLAY_NAME}
+```
+
+### Ejemplo de configuración completa {#complete-example-configuration}
+
+Este es un ejemplo completo que muestra cómo configurar varios inquilinos:
+
+```properties title="Complete Multi-Tenant Example"
+################################################
+# Multi-Tenant SSO Configuration
+################################################
+# Enable SSO authentication
+awe.security.sso.enabled=true
+# Auto launch sso flow (skip native window sign in)
+awe.security.sso.auto-launch=true
+# Filter authority prefix (used to filtering granted authorities in post authentication process)
+awe.security.sso.filter-authority-prefix=role_
+
+
+# Enable multi-tenant functionality
+awe.security.sso.multitenant.enabled=true
+awe.security.sso.multitenant.default-tenant=public
+
+# Default tenant configuration (public.yourdomain.com or yourdomain.com)
+# Provider
+spring.security.oauth2.client.provider.public.issuer-uri=http://localhost:8081/realms/public
+
+# Registration
+spring.security.oauth2.client.registration.public.provider=public
+spring.security.oauth2.client.registration.public.client-id={awe-public-client}
+spring.security.oauth2.client.registration.public.client-secret={your-public-client-secret}
+spring.security.oauth2.client.registration.public.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.public.scope=openid,profile,email
+spring.security.oauth2.client.registration.public.redirect-uri={baseUrl}/login/oauth2/code/public
+spring.security.oauth2.client.registration.public.client-name=AWE Public
+
+# Company A tenant configuration (companyA.yourdomain.com)
+# Provider
+spring.security.oauth2.client.provider.companyA.issuer-uri=http://localhost:8081/realms/companyA
+
+# Registration
+spring.security.oauth2.client.registration.companyA.provider=companyA
+spring.security.oauth2.client.registration.companyA.client-id={awe-companyA-client}
+spring.security.oauth2.client.registration.companyA.client-secret={your-companyA-client-secret}
+spring.security.oauth2.client.registration.companyA.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.companyA.scope=openid,profile,email
+spring.security.oauth2.client.registration.companyA.redirect-uri={baseUrl}/login/oauth2/code/companyA
+spring.security.oauth2.client.registration.companyA.client-name=AWE Company A
+
+# Company B tenant configuration (companyB.yourdomain.com)
+# Provider
+spring.security.oauth2.client.provider.companyB.issuer-uri=http://localhost:8081/realms/companyB
+spring.security.oauth2.client.provider.companyB.user-name-attribute=preferred_username
+
+# Registration
+spring.security.oauth2.client.registration.companyB.provider=companyB
+spring.security.oauth2.client.registration.companyB.client-id={awe-companyB-client}
+spring.security.oauth2.client.registration.companyB.client-secret={your-companyB-client-secret}
+spring.security.oauth2.client.registration.companyB.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.companyB.scope=openid,profile,email
+spring.security.oauth2.client.registration.companyB.redirect-uri={baseUrl}/login/oauth2/code/companyB
+spring.security.oauth2.client.registration.companyB.client-name=AWE Company B
+```
+
+### Multiinquilino con distintos proveedores de identidad {#multi-tenant-with-different-identity-providers}
+
+También puedes configurar distintos inquilinos para que usen proveedores de identidad completamente diferentes:
+
+```properties title="Mixed Identity Providers Example"
+# Tenant using Keycloak
+spring.security.oauth2.client.provider.keycloak-tenant.issuer-uri=http://keycloak.example.com/realms/tenant1
+spring.security.oauth2.client.registration.keycloak-tenant.provider=keycloak-tenant
+spring.security.oauth2.client.registration.keycloak-tenant.client-id=keycloak-client
+spring.security.oauth2.client.registration.keycloak-tenant.client-secret=keycloak-secret
+spring.security.oauth2.client.registration.keycloak-tenant.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.keycloak-tenant.scope=openid,profile,email
+spring.security.oauth2.client.registration.keycloak-tenant.redirect-uri={baseUrl}/login/oauth2/code/keycloak-tenant
+
+# Tenant using Azure EntraID
+spring.security.oauth2.client.provider.azure-tenant.issuer-uri=https://login.microsoftonline.com/{tenant-id}/v2.0
+spring.security.oauth2.client.registration.azure-tenant.provider=azure-tenant
+spring.security.oauth2.client.registration.azure-tenant.client-id=azure-client-id
+spring.security.oauth2.client.registration.azure-tenant.client-secret=azure-client-secret
+spring.security.oauth2.client.registration.azure-tenant.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.azure-tenant.scope=openid,profile,email
+spring.security.oauth2.client.registration.azure-tenant.redirect-uri={baseUrl}/login/oauth2/code/azure-tenant
+
+# Tenant using Google
+spring.security.oauth2.client.provider.google-tenant.issuer-uri=https://accounts.google.com
+spring.security.oauth2.client.registration.google-tenant.provider=google-tenant
+spring.security.oauth2.client.registration.google-tenant.client-id=google-client-id
+spring.security.oauth2.client.registration.google-tenant.client-secret=google-client-secret
+spring.security.oauth2.client.registration.google-tenant.authorization-grant-type=authorization_code
+spring.security.oauth2.client.registration.google-tenant.scope=openid,profile,email
+spring.security.oauth2.client.registration.google-tenant.redirect-uri={baseUrl}/login/oauth2/code/google-tenant
+```
+
+### Configuración de DNS {#dns-configuration}
+
+Para que funcione la resolución de inquilino basada en subdominios, necesitas configurar tu DNS para que todos los subdominios apunten a tu aplicación:
+
+```bash title="DNS Configuration Example"
+# Main domain
+yourdomain.com        A    192.168.1.100
+
+# Wildcard subdomain (points all subdomains to the same server)
+*.yourdomain.com      A    192.168.1.100
+```
+
+### Ventajas del SSO multiinquilino {#benefits-of-multi-tenant-sso}
+
+- **Aislamiento**: Cada inquilino tiene su propia configuración de autenticación
+- **Flexibilidad**: Distintos inquilinos pueden usar distintos proveedores de identidad
+- **Escalabilidad**: Una única instancia de la aplicación atiende a varias organizaciones
+- **Mantenimiento**: Las actualizaciones centralizadas de la aplicación benefician a todos los inquilinos
+- **Seguridad**: Las configuraciones de los inquilinos están completamente separadas
+
+::::info
+La funcionalidad multiinquilino gestiona automáticamente la resolución del inquilino según el subdominio de la petición. Si un inquilino no está configurado, el sistema recurre a la configuración del inquilino por defecto.
+::::
+
+::::warning
+Asegúrate de configurar correctamente tu DNS y tus certificados SSL para admitir subdominios comodín cuando uses la funcionalidad multiinquilino.
+::::
+
+### Añadir proveedores de identidad {#add-identity-providers}
+Puedes integrar otros proveedores de identidad para usarlos en tu proceso de autenticación. En esta guía usamos Azure EntraID como ejemplo.
+
+<img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
+    alt="Nuevo cliente de Keycloak 5"
+    src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-provider.png')}
+/>
+
+En la página de detalle, rellena los datos como se indica a continuación:
+* Introduce el alias que prefieras. Habilita use discovery endpoint, si no está ya habilitado
+* Introduce la Discovery URL de Azure (copiada antes) en el Discovery endpoint
+
+<img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
+    alt="Nuevo cliente de Keycloak 6"
+    src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-provider-2.png')}
+/>
+
+* Introduce el Client ID. Es el ID de aplicación (cliente) copiado del registro de aplicación de Azure.
+* Introduce el Client Secret. Es el secreto de aplicación copiado del registro de aplicación de Azure
+
+<img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
+    alt="Nuevo cliente de Keycloak 7"
+    src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-provider-3.png')}
+/>
+
+### Mappers {#mappers}
+
+Al configurar roles/grupos, el proceso es algo más tedioso, ya que los claims usados para ello no son estándar. Cada proveedor usa un método distinto.
+
+Para recoger la información que nos envía el proveedor, tendremos que crear algunos mappers que recuperen la información y la traduzcan al entorno de keycloak.
+
+- Mappers de grupos
+
+Por defecto, Azure EntraID no muestra los grupos asociados a cada usuario. Para recuperar los grupos a los que pertenece un usuario, es necesario configurar Azure para que envíe un claim personalizado `groups` con el tipo de token ClientID.
+
+<img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
+    alt="Nuevo cliente de Keycloak 8"
+    src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-provider-azure.png')}
+/>
+
+Después, tienes que crear un nuevo mapper para el proveedor de identidad que mapee el objectId del grupo del usuario a un rol de keycloak.
+
+<img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
+    alt="Nuevo cliente de Keycloak 9"
+    src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-provider-azure-1.png')}
+/>
+
+- Mappers de roles de aplicación
+
+Para recuperar los roles de aplicación de una aplicación registrada en Azure EntraID, es necesario crear un `advanced claim custom role mapper` que mapee la clave *role* del claim con el nombre del rol de aplicación en Azure y con el rol de keycloak.
+
+<img style={{ width: "100%", margin: "30px 5% 5% 0%" }}
+    alt="Nuevo cliente de Keycloak 10"
+    src={require('@docusaurus/useBaseUrl').default('img/keycloak-add-provider-azure-2.png')}
+/>

@@ -29,7 +29,7 @@ A typical custom `logback-spring.xml` file would look something like this:
 <configuration>
     <!-- Includes -->
     <include resource="com/almis/awe/logging/awe-log.xml"/>
-    <include resource="com/almis/awe/scheduler/logging/scheduler-log.xml"/> <!-- Optional (Only if you user Scheduler module)>
+    <include resource="com/almis/awe/scheduler/logging/scheduler-log.xml"/> <!-- Optional (only if you use the Scheduler module) -->
     <!-- Loggers -->
     <logger name="org.springframework.web" level="DEBUG"/>
 </configuration>
@@ -55,7 +55,7 @@ More info about logging in Spring boot [here](https://docs.spring.io/spring-boot
   <!-- Properties -->
   <springProperty name="APPLICATION_NAME" scope="context" source="spring.application.name" defaultValue="awe-app"/>
   <springProperty name="APPLICATION_LOG_PATH" scope="context" source="awe.application.log.group" defaultValue="/application"/>
-  <property name="LOG_PATH" value="${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}}"/>
+  <property name="LOG_PATH" value="${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}"/>
   <property name="CONSOLE_LOG_PATTERN" value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-30.30logger{29}){cyan} %clr(:){faint} %clr(%X{execution}%X{user}%X{database}%X{currentScreen}){magenta}%m%n%wEx}"/>
   <property name="CONSOLE_LOG_CHARSET" value="${CONSOLE_LOG_CHARSET:-${file.encoding:-UTF-8}}"/>
   <property name="FILE_LOG_PATTERN" value="${FILE_LOG_PATTERN:-%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} ${PID:- } --- [%t] %-40.40logger{39} : %X{execution}%X{user}%X{database}%X{currentScreen}%m%n%wEx}"/>
@@ -332,7 +332,7 @@ The following items are output:
 - A `---` separator o distinguish the start of actual log messages.
 - Thread name: Enclosed in square brackets (maybe truncated for console output).
 - Logger name: This is usually the source class name (often abbreviated).
-- Log message fields [user][screen][database].
+- Log message fields `[user][screen][database]`.
 - The log message.
 
 You can customize the format using this property:
@@ -343,11 +343,34 @@ You can customize the format using this property:
 | `logging.pattern.file`    | `FILE_LOG_PATTERN`    | The log pattern to use in a file.               |
 
 ## Log File Output
-By default, if you use AWE logback configuration includes, the logs are writen in log files. The default output destination has as value `${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}}` and `LOG_PATH` is populated by logging spring boot property `logging.file.path`.
+By default, if you use AWE logback configuration includes, the logs are writen in log files. The default output destination has as value `${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}` and `LOG_PATH` is populated by logging spring boot property `logging.file.path`.
 
 | Spring Environment  | System Property | Comments                                                                                  |
 |---------------------|-----------------|-------------------------------------------------------------------------------------------|
-| `logging.file.path` | `LOG_PATH`       | If defined, it is used in the default log configuration to configure destination log path |
+| `logging.file.path` | `LOG_PATH`      | If defined, it is used in the default log configuration to configure destination log path |
+
+### Files the log viewer can read
+
+The log viewer of the `LogViw` screen reads the files through the `get-log-file` action. It only serves files under the
+log directories: the log manager path (`${logging.file.path}${awe.application.log.group}`, the folder the log list
+shows) and the folders declared as `LogDirectoryProvider` beans. Any other path, including one that leaves those
+folders with `..` segments or a symbolic link, is rejected with a generic file access error. The `/file/text` and
+`/file/stream` endpoints follow the same rule.
+
+The log list, the viewer and those endpoints require the `system.read` permission (the `getLogList` query and the
+`getLogFile` service declare it). The scheduler execution log viewer does not read files by path: it uses the
+`get-execution-log` action with the task and execution identifiers, which requires `scheduler.read`, in both execution
+log stores.
+
+An application that writes logs in another folder and wants to show them in the viewer declares that folder as a
+`LogDirectoryProvider` bean:
+
+```java
+@Bean
+public LogDirectoryProvider auditLogDirectory() {
+  return () -> Path.of("/var/log/my-app/audit");
+}
+```
 
 ## Log File Rotation
 By default, the log files are rotated when the file is 10 Mb, but you can tune the rotation policy using the next properties:

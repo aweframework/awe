@@ -137,7 +137,9 @@ aweApplication.directive('aweForm',
          */
         server: function (action) {
           // Launch server action with form values
-          ServerData.launchServerAction(action, ServerData.getFormValues(), false);
+          // The components of a grid row detail instance also send the values of their instance
+          // A menu action sends only the base view values: the report view belongs to the screen it leaves
+          ServerData.launchServerAction(action, ServerData.getFormValues(action.attr("callbackTarget"), action.attr("origin") === "menu" ? "base" : undefined), false);
         },
         /**
          * Retrieve parameters and send them to the server for printing actions (send images and text)
@@ -145,7 +147,7 @@ aweApplication.directive('aweForm',
          */
         serverPrint: function (action) {
           // Launch server action for printing
-          ServerData.launchServerAction(action, ServerData.getFormValuesForPrinting(), true);
+          ServerData.launchServerAction(action, ServerData.getFormValuesForPrinting(action.attr("callbackTarget")), true);
         },
         /**
          * Retrieve parameters and send them to the server for printing actions (send images and text)
@@ -157,7 +159,7 @@ aweApplication.directive('aweForm',
           let  target = action.attr("callbackTarget");
 
           // Store parameters
-          _.merge(parameters, action.attr("parameters"), ServerData.getFormValues());
+          _.merge(parameters, action.attr("parameters"), ServerData.getFormValues(target));
           let  targetAction = parameters[$settings.get("targetActionKey")];
 
           // Retrieve target specific attributes for the server call
@@ -187,7 +189,7 @@ aweApplication.directive('aweForm',
 
           // Copy the lines into the clipboard
           document.body.focus();
-          navigator.clipboard.writeText(Utilities.isEmpty(model.selected) ? "" : model.selected);
+          Utilities.copyToClipboard(Utilities.isEmpty(model.selected) ? "" : model.selected, "Copying criterion value");
 
           // Finish action
           $actionController.acceptAction(action);
@@ -209,6 +211,27 @@ aweApplication.directive('aweForm',
 
           // Publish model change
           Control.changeModelAttribute(address, model, true);
+
+          // Finish action
+          $actionController.acceptAction(action);
+        },
+        /**
+         * Set the initial model of a component loaded when its deferred dialog or tab was first opened
+         * @param {object} action Action received
+         */
+        initialModel: function (action) {
+          // Publish the initial model
+          Control.changeInitialModelFromAction(action.attr("callbackTarget"), _.cloneDeep(action.attr("parameters")));
+
+          // Finish action
+          $actionController.acceptAction(action);
+        },
+        /**
+         * The server could not load a deferred dialog or tab: it is marked as not loaded, so the next opening tries again
+         * @param {object} action Action received
+         */
+        deferredFailed: function (action) {
+          Control.changeControllerAttribute(action.attr("callbackTarget"), {deferredLoaded: false});
 
           // Finish action
           $actionController.acceptAction(action);

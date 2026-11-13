@@ -1,5 +1,18 @@
 import {aweApplication} from "../awe";
 
+/**
+ * Find the element of a component by its identifier (criterion-id attribute or id). The identifier is compared as a
+ * value, never written into a selector, so CSS special characters (a dot, a colon...) are safe.
+ * @param {Object} $parent Parent node to search in
+ * @param {string} id Component identifier
+ * @return {Object} Matching nodes
+ */
+export function findComponentElement($parent, id) {
+  return $parent.find("[criterion-id], [id]").filter(function () {
+    return this.getAttribute("criterion-id") === id || this.id === id;
+  });
+}
+
 // Validator service
 aweApplication.factory('Validator',
   ['Storage', 'AweUtilities', 'AweSettings', 'ValidationRules', '$log', '$window',
@@ -16,6 +29,9 @@ aweApplication.factory('Validator',
       // CONSTANTS
       const ERROR_CONTAINER = '.error-container';
       const FORM_GROUP = '.form-group';
+      const FOCUSABLE = "input:not([type='hidden']), textarea, select, button";
+      // Milliseconds to wait before focusing a control that was not displayed yet
+      const REVEAL_FOCUS_DELAY = 100;
 
       /**
        * Validate each view
@@ -54,6 +70,10 @@ aweApplication.factory('Validator',
          */
         validateComponent: function (component, errorList, baseNode) {
           let method = "validate";
+          // The content of a deferred dialog or tab which was never opened is not validated
+          if (Validator.isInPendingDeferredContainer(component)) {
+            return;
+          }
           // Get data for component
           if (method in component) {
             let validationData = component[method](baseNode, errorList.length > 0);
@@ -61,6 +81,28 @@ aweApplication.factory('Validator',
               errorList.push(validationData);
             }
           }
+        },
+        /**
+         * Check if a component is inside a deferred dialog or tab which was not opened yet (its content was never
+         * loaded, and the user may not even be able to open it)
+         * @param {Object} component Component api
+         * @return {boolean} The component is inside a pending deferred container
+         */
+        isInPendingDeferredContainer: function (component) {
+          const address = component.address;
+          if (!address) {
+            return false;
+          }
+          // The API of a component has no element: look for it by its identifier
+          const element = component.element || findComponentElement($(document), address.component);
+          if (!element || $(element).length === 0) {
+            return false;
+          }
+          const controllers = Storage.get("controller");
+          return _.some(controllers && controllers[address.view], function (controller, containerId) {
+            return containerId !== address.component && controller && controller.deferred && !controller.deferredLoaded
+              && $(document.getElementById(containerId)).find(element).length > 0;
+          });
         },
         /**
          * Retrieve the validation nodes
@@ -124,13 +166,15 @@ aweApplication.factory('Validator',
             $log.info("[VALIDATION] '" + error.id + "' - " + scope.validationMessage);
             scope.showValidation = true;
 
-            // Scroll to element
-            let scrollable = $window;
-            let scrollableNodes = $element.parentsUntil(".scrollable");
-            if (scrollableNodes.length > 0) {
-              scrollable = scrollableNodes[0];
+            // Focus and scroll to element
+            if (!Validator.revealElement($element)) {
+              let scrollable = $window;
+              let scrollableNodes = $element.parentsUntil(".scrollable");
+              if (scrollableNodes.length > 0) {
+                scrollable = scrollableNodes[0];
+              }
+              scrollable.scrollTo(targetPosition.left, targetPosition.top - target.height());
             }
-            scrollable.scrollTo(targetPosition.left, targetPosition.to - target.height());
 
             // Hide validation after timeout seconds (if not equals to 0)
             if ($settings.get("messageTimeout").validate > 0) {
@@ -139,6 +183,25 @@ aweApplication.factory('Validator',
               }, $settings.get("messageTimeout").validate);
             }
           });
+        },
+        /**
+         * Focus the control of a criterion and scroll it into view
+         * @param {Object} $element Criterion element (jQuery)
+         * @return {boolean} The element has been scrolled into view
+         */
+        revealElement: function ($element) {
+          let node = $element[0];
+          if (!node || typeof node.scrollIntoView !== "function") {
+            return false;
+          }
+          const control = $element.find(FOCUSABLE).first();
+          control.trigger("focus");
+          if (control.length > 0 && document.activeElement !== control[0]) {
+            // The tab, accordion item or step that holds the control may still be opening: focus it once it is displayed
+            $utilities.timeout(() => control.trigger("focus"), REVEAL_FOCUS_DELAY);
+          }
+          node.scrollIntoView({block: "center", behavior: "smooth"});
+          return true;
         },
         /**
          * Retrieve the validation nodes

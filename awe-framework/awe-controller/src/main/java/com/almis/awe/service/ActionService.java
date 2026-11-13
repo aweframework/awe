@@ -2,6 +2,8 @@ package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.ServiceConfig;
+import com.almis.awe.exception.AWEClientLaunchRefusedException;
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dto.CellData;
@@ -10,12 +12,18 @@ import com.almis.awe.model.entities.actions.Action;
 import com.almis.awe.model.entities.actions.Answer;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.actions.Parameter;
+import com.almis.awe.model.entities.services.Service;
 import com.almis.awe.model.type.AnswerType;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.almis.awe.security.authorization.TargetKind;
+import com.almis.awe.security.authorization.TargetLaunchAuthorizer;
+import com.almis.awe.service.observation.ExecutionObserver;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Manage application action calls
@@ -23,21 +31,40 @@ import java.util.*;
 @Slf4j
 public class ActionService extends ServiceConfig {
 
+  // Observer of the executions (metrics, traces...). Optional: without one the execution just runs
+  private ExecutionObserver executionObserver = ExecutionObserver.NONE;
+
+  /**
+   * Set the observer of the executions
+   *
+   * @param executionObserver Execution observer (optional, defined by the application when it needs one)
+   */
+  @Autowired(required = false)
+  public void setExecutionObserver(ExecutionObserver executionObserver) {
+    this.executionObserver = executionObserver == null ? ExecutionObserver.NONE : executionObserver;
+  }
+
   // Autowired services
   private final LauncherService launcherService;
   private final BaseConfigProperties baseConfigProperties;
+  private final TargetLaunchAuthorizer targetLaunchAuthorizer;
 
   private static final String SECURITY_MASK = "*****";
+  private static final String DEFAULT_ERROR = "DEFAULT_ERROR";
 
   /**
    * Autowired constructor
    *
-   * @param launcherService Launcher service
-   * @param baseConfigProperties Base configuration properties
+   * @param launcherService        Launcher service
+   * @param baseConfigProperties   Base configuration properties
+   * @param targetLaunchAuthorizer Authorizer of the services launched by a client
    */
-  public ActionService(LauncherService launcherService, BaseConfigProperties baseConfigProperties) {
+  public ActionService(LauncherService launcherService, BaseConfigProperties baseConfigProperties,
+                       TargetLaunchAuthorizer targetLaunchAuthorizer) {
     this.launcherService = launcherService;
     this.baseConfigProperties = baseConfigProperties;
+    this.targetLaunchAuthorizer = Objects.requireNonNull(targetLaunchAuthorizer,
+      "targetLaunchAuthorizer is required: pass the TargetLaunchAuthorizerChain bean");
   }
 
   /**
@@ -74,6 +101,11 @@ public class ActionService extends ServiceConfig {
         actionList = launchAction(action);
       } catch (AWException exc) {
         actionList = launchError(action, exc);
+        // A refused client launch is not an action error: whoever answers the request sends the actions with the status
+        // that HTTP defines for a refusal, so a proxy, a monitor and the browser network tab can see it
+        if (exc instanceof AWEUnauthorizedException unauthorized) {
+          throw new AWEClientLaunchRefusedException(unauthorized, actionList);
+        }
       }
     }
 
@@ -88,14 +120,33 @@ public class ActionService extends ServiceConfig {
    * @throws AWException Action error
    */
   public List<ClientAction> launchAction(Action action) throws AWException {
+    // The action returns client actions: the answer type of its service is what tells an error answer
+    AtomicReference<AnswerType> answerType = new AtomicReference<>();
+    return executionObserver.observe(ExecutionObserver.ExecutionType.ACTION, action.getId(), Map.of(),
+      () -> launchObservedAction(action, answerType), result -> answerType.get());
+  }
+
+  /**
+   * Launch the action once it is being observed
+   *
+   * @param action     Action to be launched
+   * @param answerType Receives the answer type of the service
+   * @return Client action list
+   * @throws AWException Action error
+   */
+  private List<ClientAction> launchObservedAction(Action action, AtomicReference<AnswerType> answerType) throws AWException {
     // Get service
     ServiceData serviceData;
 
     // Get service
     String serviceId = action.getCall().getService();
 
+    // Check the service, unless it is authorized by the query or maintain target it launches
+    authorizeService(serviceId);
+
     // Launch service
     serviceData = launcherService.callService(serviceId, null);
+    answerType.set(serviceData == null ? null : serviceData.getType());
 
     // Get answer and set it into output actions
     Answer answer = (serviceData == null) ? action.getAnswer(AnswerType.OK) : action.getAnswer(serviceData.getType());
@@ -117,6 +168,25 @@ public class ActionService extends ServiceConfig {
 
     // Set output actions
     return actionList;
+  }
+
+  /**
+   * Check that a client can launch the service of an action. A service authorized by its target is not checked: the
+   * query or maintain target it launches is
+   *
+   * @param serviceId Service identifier
+   * @throws AWException The authorizers refuse the service
+   */
+  private void authorizeService(String serviceId) throws AWException {
+    if (serviceId == null) {
+      return;
+    }
+    Service service = getElements().getService(serviceId);
+    if ((service == null || !service.isAuthorizedByTarget())
+      && !targetLaunchAuthorizer.authorize(serviceId, TargetKind.SERVICE)) {
+      throw new AWEUnauthorizedException(getLocale(AWEUnauthorizedException.TITLE_KEY),
+        getLocale(AWEUnauthorizedException.MESSAGE_KEY));
+    }
   }
 
   /**
@@ -144,8 +214,18 @@ public class ActionService extends ServiceConfig {
    */
   public List<ClientAction> launchError(Action action, AWException exception) {
     try {
-      // Get answer and set it into output actions
-      Answer answer = action.getAnswer(exception.getType());
+      // Get answer and set it into output actions. An authorization refusal is answered as the default error does, so
+      // the client reads the refusal and not the error message of the action
+      boolean defaultError = DEFAULT_ERROR.equals(action.getId());
+      Answer answer = exception instanceof AWEUnauthorizedException && !defaultError ? null
+        : action.getAnswer(exception.getType());
+      if (answer == null && !defaultError) {
+        // The action does not answer this error: answer it as the default error does, so the client gets the message
+        answer = getDefaultErrorAnswer(exception);
+      }
+      if (answer == null) {
+        return new ArrayList<>();
+      }
       List<ClientAction> actionList = answer.getResponseList();
       actionList = getClientActionVariables(actionList, getExceptionVariables(exception));
 
@@ -164,6 +244,21 @@ public class ActionService extends ServiceConfig {
   }
 
   /**
+   * Retrieve the answer of the default error action for an exception
+   *
+   * @param exception Exception with the error
+   * @return Default error answer, or null if there is none
+   */
+  private Answer getDefaultErrorAnswer(AWException exception) {
+    try {
+      return getAction(DEFAULT_ERROR).getAnswer(exception.getType());
+    } catch (AWException exc) {
+      log.error("Default error not found", exc);
+      return null;
+    }
+  }
+
+  /**
    * Launch default error action
    *
    * @param exception Exception with the error description
@@ -173,7 +268,7 @@ public class ActionService extends ServiceConfig {
     List<ClientAction> actionList = null;
     // Get default error action
     try {
-      actionList = launchError(getAction("DEFAULT_ERROR"), exception);
+      actionList = launchError(getAction(DEFAULT_ERROR), exception);
     } catch (AWException exc) {
       // No encontrado el error por defecto. ¡Error fatal!
       log.error("Default error not found", exc);
@@ -255,7 +350,7 @@ public class ActionService extends ServiceConfig {
       String password = getScalarParameterValueAsString(parameterList.get(baseConfigProperties.getParameter().getPassword()));
 
       // Remove nonsense values from parameter list
-      Iterator<String> fieldNames = parameterList.fieldNames();
+      Iterator<String> fieldNames = parameterList.propertyNames().iterator();
       while (fieldNames.hasNext()) {
         String key = fieldNames.next();
         String value = getParameterValueAsString(parameterList.get(key));
@@ -280,10 +375,10 @@ public class ActionService extends ServiceConfig {
       return null;
     } else if (parameter.isArray() || parameter.isObject()) {
       return parameter.toString();
-    } else if (parameter.isTextual()) {
+    } else if (parameter.isString()) {
       return parameter.toString();
     } else {
-      return parameter.asText();
+      return parameter.asString("");
     }
   }
 
@@ -297,7 +392,7 @@ public class ActionService extends ServiceConfig {
     if (parameter == null || parameter.isNull() || parameter.isArray() || parameter.isObject()) {
       return null;
     }
-    return parameter.asText();
+    return parameter.asString("");
   }
 
   /**

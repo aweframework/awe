@@ -1,0 +1,66 @@
+---
+id: file-viewer
+title: Visor de archivos
+sidebar_label: Visor de archivos
+description: Los visores de archivos y de PDF de AWE, en vivo. Muestra el texto de un archivo o un documento PDF junto a tus datos y copia el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {fileViewer, fileViewerExample} from '@site/src/components/AwePlayground/specs/file-viewer';
+
+Dos widgets muestran un archivo dentro de una pantalla: `file-viewer` muestra el texto de un archivo (un log de aplicación, un informe
+generado) y `pdf-viewer` muestra un documento PDF. Ambos son un elemento [`widget`](../api/widget.md) cuyo `type` elige el componente, y
+ambos piden su archivo al servidor. Debajo están los widgets reales del cliente React de AWE. Cambia el tipo, recorre el archivo y cambia
+los atributos: el XML de debajo se actualiza.
+
+<AwePlayground spec={fileViewer} />
+
+:::info El servidor está simulado
+Un visor envía los valores de la pantalla a su `target-action` y muestra la respuesta. Aquí esa petición se responde con un pequeño archivo
+estático de este sitio: un log de aplicación inventado y un PDF de una página. Los visores son los reales; lo único que falta es el
+servidor. El PDF lo dibuja el complemento de PDF de tu navegador, así que no se ve si el navegador no tiene ninguno.
+:::
+
+## Recetas {#recipes}
+
+### Seguir un log {#recipe-log}
+
+`autoload` lee el archivo al iniciar la pantalla, y `autorefresh` (en segundos) lo vuelve a leer cada cierto tiempo. El parámetro de widget
+`stickBottom` mantiene la vista al final del archivo mientras el lector está abajo, que es lo que necesita un log.
+
+<AweLive height="22rem" {...fileViewerExample('file-viewer', {parameters: {stickBottom: true}})} />
+
+```xml
+<widget id="serverLog" type="file-viewer" server-action="file" target-action="ServerLog"
+        autoload="true" style="expand scrollable">
+  <widget-parameter type="boolean" name="stickBottom" value="true" />
+</widget>
+```
+
+### Mostrar un documento {#recipe-pdf}
+
+`pdf-viewer` descarga el documento desde el `target-action` y lo incrusta. Dale espacio con `style="expand"`, para que llene el hueco de su
+contenedor.
+
+<AweLive height="26rem" {...fileViewerExample('pdf-viewer')} />
+
+```xml
+<widget id="manual" type="pdf-viewer" target-action="Manual" style="expand" />
+```
+
+## Imágenes y vídeos {#images-and-videos}
+
+Las imágenes y los vídeos tienen sus propios elementos: `image` (una `url` y un `title`), `video` (un `src`, con `controls`, `autoplay`, `loop` y
+un `poster`) y el widget `carousel`, que recorre imágenes, documentos PDF y vídeos. Consulta la [referencia XSD](/reference/screen#element-widget)
+y la [guía de widgets](../api/widget.md).
+
+## Eventos y acciones {#events-and-actions}
+
+Un visor no tiene eventos ni acciones propios: lee su archivo al iniciar la pantalla (`autoload`) y, con `autorefresh`, de nuevo cada pocos
+segundos. Sus atributos pueden cambiarlos las [dependencias](../api/dependencies.md) como los de cualquier otro componente.
+
+## Más {#more}
+
+* [Documentación completa de los widgets](../api/widget.md): los tipos incluidos, los parámetros y cómo registrar los tuyos.
+* [Referencia XSD del elemento `widget`](/reference/screen#element-widget).

@@ -12,6 +12,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Tag Class
  * Used to parse screen actions with XStream
@@ -28,6 +30,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("tag")
 public class Tag extends Element {
 
+  @Serial
   private static final long serialVersionUID = 9180792194108625980L;
 
   // Tag text
@@ -38,6 +41,11 @@ public class Tag extends Element {
   @XStreamAlias("source")
   @XStreamAsAttribute
   private String source;
+
+  // Icon shown before the label (a section title)
+  @XStreamAlias("icon")
+  @XStreamAsAttribute
+  private String icon;
 
   @Override
   public Tag copy() {

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import java.util.List;
 @XStreamAlias("queues")
 public class Queues implements XMLFile {
 
+  @Serial
   private static final long serialVersionUID = -1137206257271832250L;
 
   // Queue list

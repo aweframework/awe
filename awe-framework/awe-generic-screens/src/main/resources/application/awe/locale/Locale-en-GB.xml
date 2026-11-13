@@ -12,6 +12,7 @@
   <locale name="APP_CLIENT" value="Almis I.F."/>
   <locale name="APP_NAME" value="Almis Web Engine"/>
   <locale name="BUTTON_ACCEPT" value="Accept"/>
+  <locale name="BUTTON_ACCESS_ALLOW_SUBJECT" value="Allow to the chosen profile or user"/>
   <locale name="BUTTON_ACTIVATE" value="Activate"/>
   <locale name="BUTTON_ACTIVATE_BATCH" value="Activate selected tasks"/>
   <locale name="BUTTON_ADD" value="Add"/>
@@ -20,21 +21,47 @@
   <locale name="BUTTON_AUDIT" value="Audit"/>
   <locale name="BUTTON_BACK" value="Back"/>
   <locale name="BUTTON_CANCEL" value="Cancel"/>
+  <locale name="BUTTON_CAPTURE" value="Take photo"/>
   <locale name="BUTTON_CHOOSE" value="Choose"/>
   <locale name="BUTTON_CLEAR" value="Clear"/>
   <locale name="BUTTON_CLOSE" value="Close"/>
   <locale name="BUTTON_CONFIRM" value="Confirm"/>
   <locale name="BUTTON_COPY" value="Copy"/>
-  <locale name="BUTTON_CUSTOMIZE" value="Customize"/>
+  <locale name="BUTTON_CREATE_APP_PAR" value="Create parameter"/>
+  <locale name="BUTTON_CREATE_DATABASE" value="Create connection"/>
+  <locale name="BUTTON_CREATE_EMAIL_SERVER" value="Create mail server"/>
+  <locale name="BUTTON_CREATE_MODULE" value="Create module"/>
+  <locale name="BUTTON_CREATE_COPY" value="Create copy"/>
+  <locale name="BUTTON_CREATE_PROFILE" value="Create profile"/>
+  <locale name="BUTTON_CREATE_QUEUE" value="Create queue"/>
+  <locale name="BUTTON_CREATE_SEQUENCE" value="Create sequence"/>
+  <locale name="BUTTON_CREATE_SITE" value="Create site"/>
+  <locale name="BUTTON_CREATE_THEME" value="Create theme"/>
+  <locale name="BUTTON_CREATE_USER" value="Create user"/>
   <locale name="BUTTON_DARK_MODE" value="Dark mode"/>
   <locale name="BUTTON_DEACTIVATE" value="Deactivate"/>
   <locale name="BUTTON_DEACTIVATE_BATCH" value="Deactivate selected tasks"/>
   <locale name="BUTTON_DELETE" value="Delete"/>
+  <locale name="BUTTON_DONE" value="Done"/>
+  <locale name="BUTTON_DUPLICATE_EMAIL_SERVER" value="Duplicate mail server"/>
+  <locale name="BUTTON_DUPLICATE_MODULE" value="Duplicate module"/>
+  <locale name="BUTTON_DUPLICATE_PROFILE" value="Duplicate profile"/>
+  <locale name="BUTTON_DUPLICATE_QUEUE" value="Duplicate queue"/>
+  <locale name="BUTTON_DUPLICATE_SITE" value="Duplicate site"/>
   <locale name="BUTTON_EDIT" value="Edit"/>
+  <locale name="BUTTON_EDIT_DATABASE_SITES" value="Edit sites and modules"/>
+  <locale name="BUTTON_MORE_ACTIONS" value="More actions"/>
   <locale name="BUTTON_ENCRYPT" value="Encrypt"/>
   <locale name="BUTTON_EXPORT" value="Export"/>
   <locale name="BUTTON_FINISH" value="Finish"/>
   <locale name="BUTTON_HIDE_MENU" value="HIDE MENU"/>
+  <locale name="BUTTON_NEW_DATABASE" value="New connection"/>
+  <locale name="BUTTON_NEW_EMAIL_SERVER" value="New mail server"/>
+  <locale name="BUTTON_NEW_MODULE" value="New module"/>
+  <locale name="BUTTON_NEW_PROFILE" value="New profile"/>
+  <locale name="BUTTON_NEW_SITE" value="New site"/>
+  <locale name="BUTTON_NEW_THEME" value="New theme"/>
+  <locale name="BUTTON_TOGGLE_MENU" value="Toggle menu"/>
   <locale name="BUTTON_HOME" value="Home"/>
   <locale name="BUTTON_LIGHT_MODE" value="Light mode"/>
   <locale name="BUTTON_LOGIN" value="Login"/>
@@ -43,29 +70,41 @@
   <locale name="BUTTON_LOGOUT" value="Logout"/>
   <locale name="BUTTON_MODIFY" value="Modify"/>
   <locale name="BUTTON_NEW" value="New"/>
+  <locale name="BUTTON_NEW_QUEUE" value="New queue"/>
+  <locale name="BUTTON_NEW_APP_PAR" value="New parameter"/>
   <locale name="BUTTON_NEW_ROW_DOWN" value="1 row below selected"/>
   <locale name="BUTTON_NEW_ROW_UP" value="1 row above selected"/>
+  <locale name="BUTTON_NEW_SEQUENCE" value="New sequence"/>
+  <locale name="BUTTON_NEW_USER" value="New user"/>
   <locale name="BUTTON_NEXT" value="Next"/>
   <locale name="BUTTON_PREVIOUS" value="Previous"/>
   <locale name="BUTTON_PRINT" value="Print"/>
   <locale name="BUTTON_PRINT_SELECTED_TAB" value="Print selection"/>
+  <locale name="BUTTON_RELOAD" value="Reload page"/>
+  <locale name="BUTTON_RETRY" value="Retry"/>
   <locale name="BUTTON_REMOVE" value="Unrestrict"/>
   <locale name="BUTTON_REMOVE_FAVOURITE" value="Remove screen from favourites"/>
   <locale name="BUTTON_RESET" value="Reset"/>
   <locale name="BUTTON_RESET_2FA" value="Reset 2FA"/>
+  <locale name="BUTTON_RESTART_APPLICATION" value="Reload and go to start"/>
   <locale name="BUTTON_RESTRICT" value="Restrict access"/>
   <locale name="BUTTON_RUN" value="Start"/>
+  <locale name="BUTTON_SAVE_CHANGES" value="Save changes"/>
   <locale name="BUTTON_SAVE_MARKDOWN" value="Save markdown"/>
   <locale name="BUTTON_SAVE_ROW" value="Save row"/>
   <locale name="BUTTON_SAVE_TEXT" value="Save text"/>
   <locale name="BUTTON_SCREEN_HELP" value="Help"/>
   <locale name="BUTTON_SEARCH" value="Search"/>
+  <locale name="BUTTON_RELOADING" value="Reloading…"/>
   <locale name="BUTTON_SEND" value="Send"/>
   <locale name="BUTTON_UNBLOCK_BATCH_KO" value="Unblock batch as NOT valid"/>
   <locale name="BUTTON_UNBLOCK_BATCH_OK" value="Unblock batch as valid"/>
+  <locale name="BUTTON_UNLOCK" value="Unlock"/>
+  <locale name="BUTTON_UNLOCK_ACCOUNT" value="Unlock account"/>
   <locale name="BUTTON_UPDATE" value="Update"/>
   <locale name="BUTTON_VIEW" value="View"/>
   <locale name="BUTTON_VIEW_ERROR_MESSAGES" value="View error messages"/>
+  <locale name="BUTTON_VIEW_PERMISSIONS" value="View permissions"/>
   <locale name="COLUMN_ACR" value="Acronym"/>
   <locale name="COLUMN_ACT" value="Active"/>
   <locale name="COLUMN_ALS" value="Alias"/>
@@ -115,6 +154,9 @@
   <locale name="COLUMN_TYPE_QUEUE" value="Queue type"/>
   <locale name="COLUMN_USER" value="User"/>
   <locale name="COLUMN_VALUE" value="Value"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REMOVE_RULE" value="The rule is removed for its profile, user or every user, which may not be the chosen one. Do you agree?"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REVIEW_ALLOW_PARENT" value="The parent option is allowed to the profile or user of the rule, and with it the options under it that it denies today. Do you agree?"/>
+  <locale name="CONFIRM_MESSAGE_ACCESS_REVIEW_CLEAN" value="The rules without effect of every profile and user are removed. The access of nobody changes. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_DELETE" value="You will delete the selected records. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_EMPTY_DATA" value="Warning, criteria values are empty. Do you want to continue?"/>
   <locale name="CONFIRM_MESSAGE_EXPORT_DOC" value="You will generate a DOC file with the screen data. Do you agree?"/>
@@ -125,8 +167,10 @@
   <locale name="CONFIRM_MESSAGE_PRINT_FILE" value="You will print the screen data. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_RESET_2FA" value="You are going to reset the two-factor authentication on the selected users. Are you sure?"/>
   <locale name="CONFIRM_MESSAGE_SND_EML" value="You will send an email to all active users. Do you agree?"/>
+  <locale name="CONFIRM_MESSAGE_UNLOCK_USER" value="The user will be able to sign in again. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_UPDATE" value="You will store the data on the screen. Do you agree?"/>
   <locale name="CONFIRM_MESSAGE_UPDATED_DATA" value="Warning, changed data will be lost. Do you want to continue?"/>
+  <locale name="CONFIRM_TITLE_ACCESS_REVIEW_ALLOW_PARENT" value="Allow the parent option"/>
   <locale name="CONFIRM_TITLE_DELETE" value="Delete confirmation"/>
   <locale name="CONFIRM_TITLE_EMPTY_DATA" value="Empty data"/>
   <locale name="CONFIRM_TITLE_EXPORT_FILE" value="File generation confirmation"/>
@@ -135,6 +179,7 @@
   <locale name="CONFIRM_TITLE_PRINT_FILE" value="File print confirmation"/>
   <locale name="CONFIRM_TITLE_RESET_2FA" value="Two-factor authentication reset"/>
   <locale name="CONFIRM_TITLE_SND_EML" value="Email send confirmation"/>
+  <locale name="CONFIRM_TITLE_UNLOCK_USER" value="Unlock account"/>
   <locale name="CONFIRM_TITLE_UPDATE" value="Update confirmation"/>
   <locale name="CONFIRM_TITLE_UPDATED_DATA" value="Changed data"/>
   <locale name="CONNECTION_TYPE_FOLDER" value="Folder"/>
@@ -222,6 +267,12 @@
   <locale name="ENUM_EML_NO" value="Don´t send"/>
   <locale name="ENUM_EML_REP_ALL" value="Send audit always"/>
   <locale name="ENUM_EML_REP_ERR" value="Send audit if error"/>
+  <locale name="ENUM_EML_SRV_ATH_BASIC" value="User and password"/>
+  <locale name="ENUM_EML_SRV_ATH_NONE" value="None"/>
+  <locale name="ENUM_EML_SRV_ATH_OAUTH2" value="OAuth2"/>
+  <locale name="ENUM_EML_SRV_SEC_NONE" value="None"/>
+  <locale name="ENUM_EML_SRV_SEC_SSL" value="SSL/TLS"/>
+  <locale name="ENUM_EML_SRV_SEC_STARTTLS" value="STARTTLS"/>
   <locale name="ENUM_EML_TYP_GRP" value="Mail group"/>
   <locale name="ENUM_EML_TYP_USR" value="User"/>
   <locale name="ENUM_ENV_DES" value="Development"/>
@@ -327,6 +378,7 @@
   <locale name="ENUM_SCR_ATR_SUMMARYTYPE" value="Summary type"/>
   <locale name="ENUM_SCR_ATR_TARGETACTION" value="Target action"/>
   <locale name="ENUM_SCR_ATR_THOUSAND_SEPARATOR" value="Thousand separator"/>
+  <locale name="ENUM_SCR_ATR_DECIMAL_SEPARATOR" value="Decimal Separator"/>
   <locale name="ENUM_SCR_ATR_TIMEOUT" value="Time out"/>
   <locale name="ENUM_SCR_ATR_TOTALIZE" value="Totalize"/>
   <locale name="ENUM_SCR_ATR_TREEGRID" value="Tree grid"/>
@@ -336,6 +388,81 @@
   <locale name="ENUM_SCR_ATR_VARIABLE" value="Variable"/>
   <locale name="ENUM_SCR_ATR_VISIBLE" value="Visible"/>
   <locale name="ENUM_SCR_ATR_WIDTH" value="Width"/>
+  <locale name="ENUM_SCR_ATR_AGGREGATION_FIELD" value="Aggregation Field"/>
+  <locale name="ENUM_SCR_ATR_AGGREGATOR" value="Aggregator"/>
+  <locale name="ENUM_SCR_ATR_AREA_ROWS" value="Area Rows"/>
+  <locale name="ENUM_SCR_ATR_BROWSER_ACTION" value="Browser Action"/>
+  <locale name="ENUM_SCR_ATR_BUTTON_TYPE" value="Button Type"/>
+  <locale name="ENUM_SCR_ATR_CANCEL" value="Cancel"/>
+  <locale name="ENUM_SCR_ATR_COLS" value="Cols"/>
+  <locale name="ENUM_SCR_ATR_DATE_FORMAT" value="Date Format"/>
+  <locale name="ENUM_SCR_ATR_DATE_VIEW_MODE" value="Date View Mode"/>
+  <locale name="ENUM_SCR_ATR_DEFAULT_VALUE" value="Default Value"/>
+  <locale name="ENUM_SCR_ATR_DESTINATION" value="Destination"/>
+  <locale name="ENUM_SCR_ATR_EXPAND" value="Expand"/>
+  <locale name="ENUM_SCR_ATR_GROUP" value="Group"/>
+  <locale name="ENUM_SCR_ATR_HELP" value="Help"/>
+  <locale name="ENUM_SCR_ATR_HELP_IMAGE" value="Help Image"/>
+  <locale name="ENUM_SCR_ATR_LOAD_ALL" value="Load All"/>
+  <locale name="ENUM_SCR_ATR_PLACEHOLDER" value="Placeholder"/>
+  <locale name="ENUM_SCR_ATR_PROPERTY" value="Property"/>
+  <locale name="ENUM_SCR_ATR_RENDERER" value="Renderer"/>
+  <locale name="ENUM_SCR_ATR_ROWS" value="Rows"/>
+  <locale name="ENUM_SCR_ATR_SEND_ALL" value="Send All"/>
+  <locale name="ENUM_SCR_ATR_SHOW_FUTURE_DATES" value="Show Future Dates"/>
+  <locale name="ENUM_SCR_ATR_SHOW_SLIDER" value="Show Slider"/>
+  <locale name="ENUM_SCR_ATR_SHOW_TODAY_BUTTON" value="Show Today Button"/>
+  <locale name="ENUM_SCR_ATR_SHOW_WEEKENDS" value="Show Weekends"/>
+  <locale name="ENUM_SCR_ATR_SORT_METHOD" value="Sort Method"/>
+  <locale name="ENUM_SCR_ATR_TITLE" value="Title"/>
+  <locale name="ENUM_SCR_ATR_TOTAL_COLUMN_PLACEMENT" value="Total Column Placement"/>
+  <locale name="ENUM_SCR_ATR_TOTAL_ROW_PLACEMENT" value="Total Row Placement"/>
+  <locale name="ENUM_SCR_ATR_TREE_ID" value="Tree Id"/>
+  <locale name="ENUM_SCR_ATR_TREE_LEAF" value="Tree Leaf"/>
+  <locale name="ENUM_SCR_ATR_TREE_PARENT" value="Tree Parent"/>
+  <locale name="ENUM_SCR_ATR_TYPE" value="Type"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCESS_DENIED" value="Access denied"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_LOCKED" value="Account locked"/>
+  <locale name="ENUM_SECURITY_AUDIT_ACCOUNT_UNLOCKED" value="Account unlocked"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ACCOUNT_EXPIRED" value="Account expired"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ADMINISTRATOR" value="By an administrator"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_BAD_CREDENTIALS" value="Wrong user or password"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_CREDENTIALS_EXPIRED" value="Password expired"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_DISABLED" value="Account disabled"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ERROR" value="Error"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_EXPIRED" value="Session expired"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_EXPLICIT" value="Requested by the user"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_FORBIDDEN" value="Forbidden"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_INVALID_CODE" value="Wrong code"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_INVALID_TOKEN" value="Invalid token"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCAL_LOGIN_DISABLED" value="Local login disabled"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_LOCKED" value="Account locked"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_MAX_ATTEMPTS" value="Too many failed attempts"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PERMISSION" value="Missing permission"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER" value="Requested by the identity provider"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER_ERROR" value="Identity provider error"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_RESTRICTED" value="Restricted option"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_ROLE_NOT_MAPPED" value="Role not mapped"/>
+  <locale name="ENUM_SECURITY_AUDIT_CAUSE_TOKEN_EXPIRED" value="Token expired"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_REST" value="REST API"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_SSO" value="SSO"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_SYSTEM" value="System"/>
+  <locale name="ENUM_SECURITY_AUDIT_CHANNEL_WEB" value="Web"/>
+  <locale name="ENUM_SECURITY_AUDIT_FAILURE" value="Failure"/>
+  <locale name="ENUM_SECURITY_AUDIT_LOGIN" value="Login"/>
+  <locale name="ENUM_SECURITY_AUDIT_LOGOUT" value="Logout"/>
+  <locale name="ENUM_SECURITY_AUDIT_PASSWORD_CHANGE" value="Password change"/>
+  <locale name="ENUM_SECURITY_AUDIT_PASSWORD_RESET" value="Password reset"/>
+  <locale name="ENUM_SECURITY_AUDIT_SSO_PROFILE_SYNC" value="SSO profile synchronization"/>
+  <locale name="ENUM_SECURITY_AUDIT_SSO_PROVISIONING" value="SSO user provisioning"/>
+  <locale name="ENUM_SECURITY_AUDIT_SUCCESS" value="Success"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOKEN_ISSUED" value="REST token issued"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOKEN_REJECTED" value="REST token rejected"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_ENROLLMENT" value="Second factor enrollment"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_RESET" value="Second factor reset"/>
+  <locale name="ENUM_SECURITY_AUDIT_TOTP_VERIFICATION" value="Second factor check"/>
+  <locale name="ENUM_STATE_ACTIVE" value="Active"/>
+  <locale name="ENUM_STATE_INACTIVE" value="Inactive"/>
   <locale name="ENUM_STATUS_ERROR" value="Error"/>
   <locale name="ENUM_STATUS_INTERRUPTED" value="Interrupted"/>
   <locale name="ENUM_STATUS_OK" value="Ok"/>
@@ -345,9 +472,42 @@
   <locale name="ENUM_STATUS_WARNING" value="Warning"/>
   <locale name="ENUM_SUB_STL" value="Subtotal style"/>
   <locale name="ENUM_SUB_TIT_STL" value="Subtitle Style"/>
+  <locale name="ENUM_THEME_COLOR_CUSTOM" value="Custom"/>
+  <locale name="ENUM_THEME_MODE_DARK" value="Dark"/>
+  <locale name="ENUM_THEME_MODE_LIGHT" value="Light"/>
+  <locale name="ENUM_THEME_MODE_SYSTEM" value="System"/>
+  <locale name="ENUM_THEME_PRIMARY_AMBER" value="Amber"/>
+  <locale name="ENUM_THEME_PRIMARY_BLUE" value="Blue"/>
+  <locale name="ENUM_THEME_PRIMARY_CYAN" value="Cyan"/>
+  <locale name="ENUM_THEME_PRIMARY_EMERALD" value="Emerald"/>
+  <locale name="ENUM_THEME_PRIMARY_FUCHSIA" value="Fuchsia"/>
+  <locale name="ENUM_THEME_PRIMARY_GREEN" value="Green"/>
+  <locale name="ENUM_THEME_PRIMARY_INDIGO" value="Indigo"/>
+  <locale name="ENUM_THEME_PRIMARY_LIME" value="Lime"/>
+  <locale name="ENUM_THEME_PRIMARY_ORANGE" value="Orange"/>
+  <locale name="ENUM_THEME_PRIMARY_PINK" value="Pink"/>
+  <locale name="ENUM_THEME_PRIMARY_PURPLE" value="Purple"/>
+  <locale name="ENUM_THEME_PRIMARY_RED" value="Red"/>
+  <locale name="ENUM_THEME_PRIMARY_ROSE" value="Rose"/>
+  <locale name="ENUM_THEME_PRIMARY_SKY" value="Sky"/>
+  <locale name="ENUM_THEME_PRIMARY_TEAL" value="Teal"/>
+  <locale name="ENUM_THEME_PRIMARY_VIOLET" value="Violet"/>
+  <locale name="ENUM_THEME_PRIMARY_YELLOW" value="Yellow"/>
+  <locale name="ENUM_THEME_SURFACE_AUTO" value="Automatic"/>
+  <locale name="ENUM_THEME_SURFACE_GRAY" value="Grey"/>
+  <locale name="ENUM_THEME_SURFACE_NEUTRAL" value="Neutral"/>
+  <locale name="ENUM_THEME_SURFACE_SLATE" value="Slate"/>
+  <locale name="ENUM_THEME_SURFACE_STONE" value="Stone"/>
+  <locale name="ENUM_THEME_SURFACE_ZINC" value="Zinc"/>
   <locale name="ENUM_TIT_STL" value="Title style"/>
   <locale name="ENUM_TOP" value="TOPIC"/>
   <locale name="ENUM_TOT_STL" value="Total style"/>
+  <locale name="ENUM_USER_2FA_HEADER_ON" value="Two-factor on"/>
+  <locale name="ENUM_USER_2FA_OFF" value="Off"/>
+  <locale name="ENUM_USER_2FA_ON" value="On"/>
+  <locale name="ENUM_USER_STATE_ACTIVE" value="Active"/>
+  <locale name="ENUM_USER_STATE_INACTIVE" value="Inactive"/>
+  <locale name="ENUM_USER_STATE_LOCKED" value="Locked"/>
   <locale name="ENUM_WEB" value="Web"/>
   <locale name="ENUM_YES" value="Yes"/>
   <locale name="ENUM_ERROR_TYPOLOGY_AUTHENTICATION" value="Authentication"/>
@@ -366,13 +526,34 @@
   <locale name="ERROR_GENERATING_PIE_CHART" value="Error generating pie chart"/>
   <locale name="ERROR_LOG" value="Error log"/>
   <locale name="ERROR_MESSAGE_ACCESS_DENIED" value="Access to selected screen has been denied - {0}"/>
+  <locale name="ERROR_MESSAGE_ACCESS_NO_SUBJECT" value="Select a profile or a user to change its access"/>
   <locale name="ERROR_MESSAGE_ACTION_NOT_DEFINED" value="This action has not been defined"/>
+  <locale name="ERROR_MESSAGE_ACTION_NOT_PERMITTED" value="You do not have permission to perform this action. Contact your administrator if you need it."/>
   <locale name="ERROR_MESSAGE_ADDING_COMPOUND_FIELDS" value="There has been a problem adding compound fields for one query"/>
   <locale name="ERROR_MESSAGE_ADDING_COMPUTED_FIELDS" value="There has been a problem adding computed fields for one query"/>
   <locale name="ERROR_MESSAGE_ADDING_TOTALS" value="There was an error adding totalizers for the query {1} in line {0}"/>
   <locale name="ERROR_MESSAGE_AUTHENTICATE" value="There was a problem trying to authenticate the user"/>
   <locale name="ERROR_MESSAGE_AVATAR_TOO_LARGE" value="The selected image exceeds the maximum allowed avatar size of 2 MB"/>
+  <locale name="ERROR_TITLE_PASSWORD_HASH" value="Password hash"/>
+  <locale name="ERROR_MESSAGE_PASSWORD_ALGORITHM" value="The password algorithm is not valid"/>
+  <locale name="ERROR_TITLE_INVALID_GRID_LAYOUT" value="Invalid grid layout"/>
+  <locale name="ERROR_MESSAGE_INVALID_GRID_LAYOUT" value="The grid layout is not valid or you are not signed in, so it was not saved"/>
+  <locale name="ERROR_MESSAGE_GRID_LAYOUT_TOO_LARGE" value="The grid layout has too many columns to be saved"/>
+  <locale name="ERROR_TITLE_PREDEFINED_PROFILE" value="Predefined profile"/>
+  <locale name="ERROR_MESSAGE_PREDEFINED_PROFILE" value="The predefined profile {0} cannot be changed or deleted. Duplicate it and change the copy."/>
+  <locale name="ERROR_TITLE_DUPLICATE_PROFILE" value="Duplicate profile"/>
+  <locale name="ERROR_MESSAGE_DUPLICATE_PROFILE" value="Select the profile to duplicate"/>
+  <locale name="ERROR_TITLE_INVALID_SAVED_SEARCH" value="Invalid saved search"/>
+  <locale name="ERROR_MESSAGE_INVALID_SAVED_SEARCH" value="The saved search is not valid or you are not signed in, so it was not saved"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_TOO_LARGE" value="The search has too many values to be saved"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NOT_ALLOWED" value="You are not allowed to change the searches published for a profile"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NOT_FOUND" value="The saved search does not exist or is not yours"/>
+  <locale name="ERROR_MESSAGE_SAVED_SEARCH_NAME_EXISTS" value="There is already a saved search with this name"/>
   <locale name="ERROR_MESSAGE_BAD_INCLUDE_DEFINITION" value="The &apos;include&apos; tag inside {0} screen hasn`t found the following screen source: screen: {1}, source: {2}"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_DEPENDENCY" value="The &apos;&apos;row-detail&apos;&apos; of grid &apos;&apos;{0}&apos;&apos; in screen &apos;&apos;{1}&apos;&apos; contains a &apos;&apos;dependency&apos;&apos;, which is not supported inside a row detail"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_EDITABLE_GRID" value="The grid inside the &apos;&apos;row-detail&apos;&apos; of grid &apos;&apos;{0}&apos;&apos; in screen &apos;&apos;{1}&apos;&apos; must be read-only: remove its &apos;&apos;editable&apos;&apos; and &apos;&apos;send-operations&apos;&apos; attributes"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_NOT_A_GRID" value="The &apos;&apos;row-detail&apos;&apos; of grid &apos;&apos;{0}&apos;&apos; in screen &apos;&apos;{1}&apos;&apos; must contain a single &apos;&apos;grid&apos;&apos;, inline or through an &apos;&apos;include&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_ROW_DETAIL_TEMPLATE_AND_COMPONENTS" value="The &apos;&apos;row-detail&apos;&apos; of grid &apos;&apos;{0}&apos;&apos; in screen &apos;&apos;{1}&apos;&apos; has a template and components: use only one of them"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_REQUEST_DEFINITION_FORMAT" value="Bad request definition format for queue {0}"/>
   <locale name="ERROR_MESSAGE_BAD_QUEUE_RESPONSE_DEFINITION_FORMAT" value="Bad response definition format for queue {0}"/>
   <locale name="ERROR_MESSAGE_BLOCKED_PASSWORD" value="Password is blocked for user {0}. Contact your system administrator."/>
@@ -387,6 +568,7 @@
   <locale name="ERROR_MESSAGE_DEFAULT_SESSION_PARAMETERS" value="There has been a problem trying to generate the default session variables. Please try again."/>
   <locale name="ERROR_MESSAGE_DESTINATION_FAILED" value="There has been a problem trying to reach the queue target {0}"/>
   <locale name="ERROR_MESSAGE_DUPLICATED_IDENTIFIER" value="Found a duplicated identifier in screen. Identifier: &apos;&apos;{0}&apos;&apos;, Screen: &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_DEFERRED_CONTAINER_NOT_FOUND" value="The deferred container &apos;&apos;{0}&apos;&apos; has not been found in screen &apos;&apos;{1}&apos;&apos;"/>
   <locale name="ERROR_MESSAGE_DURING_EMAIL_SEND" value="There was a problem during the email generation and sending"/>
   <locale name="ERROR_MESSAGE_DURING_MAINTAIN" value="There was a problem calling a maintain process"/>
   <locale name="ERROR_MESSAGE_DURING_ROLLBACK" value="There was a problem doing the transaction rollback"/>
@@ -406,6 +588,7 @@
   <locale name="ERROR_MESSAGE_ERROR_CALLING_METHOD" value="There has been an error calling the method {1} in class {0}"/>
   <locale name="ERROR_MESSAGE_ERROR_INITIALIZING_INSTANCE" value="There has been a problem trying to initialize the instance of the class"/>
   <locale name="ERROR_MESSAGE_EXECUTING_SERVICE_QUERY" value="There has been a problem executing {0} query."/>
+  <locale name="ERROR_MESSAGE_EXPIRED_PASSWORD" value="Your password has expired. Set a new password to continue."/>
   <locale name="ERROR_MESSAGE_EXPORTING_FILE" value="There has been a problem exporting the file"/>
   <locale name="ERROR_MESSAGE_EXPRESSION_EVALUATION" value="Error trying to process expression:\n{0}"/>
   <locale name="ERROR_MESSAGE_FILE_ACCESS" value="There was a problem trying to open the file: {0}"/>
@@ -458,6 +641,8 @@
   <locale name="ERROR_MESSAGE_INVALID_DATASOURCE" value="The selected datasource doesn&apos;t exist: {0}"/>
   <locale name="ERROR_MESSAGE_INVALID_PASSWORD" value="Password is wrong for user {0}. Check caps."/>
   <locale name="ERROR_MESSAGE_INVALID_SESSION_TOKEN" value="An error has ocurred while trying to generate the session for the user {0}"/>
+  <locale name="ERROR_MESSAGE_INVALID_THEME_PRIMARY" value="The primary colour must be one of the palettes or, when it is custom, a #RGB or #RRGGBB hex colour"/>
+  <locale name="ERROR_MESSAGE_INVALID_THEME_SURFACE" value="The surface must be one of the palettes, automatic or, when it is custom, a #RGB or #RRGGBB hex colour"/>
   <locale name="ERROR_MESSAGE_INVALID_USER" value="Username -{0}- is wrong or inactive"/>
   <locale name="ERROR_MESSAGE_IO_EXCEPTION" value="There has been generated an IOException (Input/Output)"/>
   <locale name="ERROR_MESSAGE_JMS_TIMEOUT" value="Waiting timeout ({1} ms) for response on queue {0} has been exceeded"/>
@@ -471,8 +656,19 @@
   <locale name="ERROR_MESSAGE_LDAP_USER" value="The user -{0} not exist or is disabled in LDAP"/>
   <locale name="ERROR_MESSAGE_MAINTAIN_NOT_FOUND" value="Maintain operation -{0}- has not been defined"/>
   <locale name="ERROR_MESSAGE_MALFORMED_QUERY_LIST_FIELD" value="Malformed query, using a variable list in a field: {0}"/>
+  <locale name="ERROR_MESSAGE_NOT_FOUND" value="The requested resource does not exist or is no longer available"/>
+  <locale name="ERROR_MESSAGE_PASSWORD_CHANGE_NOT_ALLOWED" value="The password change is not available or has expired. Sign in again to change the password."/>
+  <locale name="ERROR_MESSAGE_PASSWORD_POLICY" value="The new password does not meet the password policy. Sign in again to set a new password."/>
+  <locale name="ERROR_MESSAGE_PASSWORD_REPEATED" value="The new password must be different from the expired one. Sign in again to set a new password."/>
+  <locale name="ERROR_MESSAGE_SSO_USER_DISABLED" value="Your user is disabled in the application. Contact your system administrator."/>
+  <locale name="ERROR_MESSAGE_SSO_USER_LOCKED" value="Your user is locked in the application. Contact your system administrator."/>
+  <locale name="ERROR_MESSAGE_SSO_NO_ROLE" value="Your identity provider account has no role allowed in this application. Contact your system administrator."/>
    <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_COUNT" value="SUBSTRING operation requires 2 or 3 operands (source, beginIndex) or (source, beginIndex, endIndex), but got {0}"/>
   <locale name="ERROR_MESSAGE_SUBSTRING_OPERAND_TYPE" value="SUBSTRING operand {0} must be an integer-compatible constant or variable, but got: {1}"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_CAST" value="Cast {2} of field {1} in query {0} is not supported"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_FUNCTION" value="Function {2} of field {1} in query {0} is not supported"/>
+  <locale name="ERROR_MESSAGE_SEPARATOR_WITHOUT_SEPARATED_FUNCTION" value="Field {1} in query {0} has a separator attribute, which only the functions that join values (STRING_AGG) accept"/>
+  <locale name="ERROR_MESSAGE_UNSUPPORTED_SEPARATOR" value="The separator {2} of field {1} in query {0} cannot contain an opening brace"/>
   <locale name="ERROR_MESSAGE_MENU_NOT_CLONEABLE" value="Current menu is not cloneable"/>
   <locale name="ERROR_MESSAGE_METHOD_NOT_DEFINED" value="The selected class has not been defined"/>
   <locale name="ERROR_MESSAGE_MULTIPLE_AUDIT_MAINTAIN" value="The maintain operation of single statement and multiple audit has failed. [{0}]"/>
@@ -567,6 +763,7 @@
   <locale name="ERROR_MESSAGE_WRONG_BANK_ACCOUNT" value="The account number {0} is not a valid bank account number"/>
   <locale name="ERROR_STARTING_APPLICATION" value="Error starting the application"/>
   <locale name="ERROR_TITLE_ACCESS_DENIED" value="Access denied"/>
+  <locale name="ERROR_TITLE_ACCESS_NO_SUBJECT" value="No profile or user selected"/>
   <locale name="ERROR_TITLE_ACTION_NOT_DEFINED" value="Action not defined"/>
   <locale name="ERROR_TITLE_ADDING_COMPOUND_FIELDS" value="Error adding compound fields"/>
   <locale name="ERROR_TITLE_ADDING_COMPUTED_FIELDS" value="Error adding computed fields"/>
@@ -574,6 +771,7 @@
   <locale name="ERROR_TITLE_AUTHENTICATE" value="Authenticate error"/>
   <locale name="ERROR_TITLE_AVATAR_TOO_LARGE" value="Avatar image too large"/>
   <locale name="ERROR_TITLE_BAD_INCLUDE_DEFINITION" value="Bad &apos;include&apos; definition"/>
+  <locale name="ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION" value="Bad &apos;row-detail&apos; definition"/>
   <locale name="ERROR_TITLE_BAD_QUEUE_DEFINITION_FORMAT" value="Bad queue definition format"/>
   <locale name="ERROR_TITLE_BBDD_AUTHENTICATE" value="Database authenticate error"/>
   <locale name="ERROR_TITLE_BLOCKED_PASSWORD" value="Blocked password"/>
@@ -595,6 +793,7 @@
   <locale name="ERROR_TITLE_ERROR_CALLING_METHOD" value="Error calling method"/>
   <locale name="ERROR_TITLE_ERROR_EXECUTING_SERVICE_QUERY" value="Error executing service query"/>
   <locale name="ERROR_TITLE_ERROR_INITIALIZING_INSTANCE" value="Error initializing instance"/>
+  <locale name="ERROR_TITLE_EXPIRED_PASSWORD" value="Password expired"/>
   <locale name="ERROR_TITLE_EXPORTING_FILE" value="Error exporting file"/>
   <locale name="ERROR_TITLE_EXPRESSION_EVALUATION" value="Expression evaluation error"/>
   <locale name="ERROR_TITLE_FILE_ACCESS" value="Error trying to open the file"/>
@@ -605,6 +804,195 @@
   <locale name="ERROR_TITLE_FILE_READING_ERROR" value="File access error"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD" value="File upload error"/>
   <locale name="ERROR_TITLE_FILE_UPLOAD_STATUS" value="Error checking the file upload"/>
+  <locale name="HELP_SCREEN_TITLE_DATABASE_ADMIN" value="Database connections of the application: connection, environment, credentials and the sites and modules that use each one."/>
+  <locale name="HELP_SCREEN_TITLE_EML_SRV_ADMIN" value="Mail servers of the application: alias, host, port, security, user, authentication and state."/>
+  <locale name="HELP_SCREEN_TITLE_PROFILE_ADMIN" value="Groups of users with their default theme, initial screen and file restriction."/>
+  <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT" value="Browse the security events recorded by the application: logins, logouts, account locks, password and second factor changes, denied accesses and REST tokens. Filter by date, event, result, channel, user or address; select an event and press View to see all its data"/>
+  <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="All the data recorded for a security event"/>
+  <locale name="HELP_SCREEN_TITLE_SIT_ADMIN" value="Sites of the application and the database each module uses on them."/>
+  <locale name="HELP_SCREEN_TITLE_THEME_ADMIN" value="Colour themes of the application: primary colour, surface and mode. Profiles and users choose one of the active themes."/>
+  <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Security audit"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Cause"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Channel"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_CORRELATION" value="Correlation identifier"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_DETAIL" value="Detail"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_EVENT" value="Event"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_ID" value="Identifier"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_IP" value="IP address"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_OUTCOME" value="Result"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_SESSION" value="Session (SHA-256)"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_TENANT" value="Tenant"/>
+  <locale name="PARAMETER_SECURITY_AUDIT_USER_AGENT" value="User agent"/>
+  <locale name="PERMISSION_GROUP_UNAVAILABLE" value="Unavailable permissions"/>
+  <locale name="PERMISSION_RESOURCE_ACCESS" value="Screen access"/>
+  <locale name="PERMISSION_RESOURCE_ALL" value="All resources"/>
+  <locale name="PERMISSION_RESOURCE_AUDIT" value="Security audit"/>
+  <locale name="PERMISSION_RESOURCE_DEFAULT" value="Default"/>
+  <locale name="PERMISSION_RESOURCE_PERMISSIONS" value="Permissions"/>
+  <locale name="PERMISSION_RESOURCE_PROFILES" value="Profiles"/>
+  <locale name="PERMISSION_RESOURCE_SELF" value="Own settings"/>
+  <locale name="PERMISSION_RESOURCE_SYSTEM" value="System"/>
+  <locale name="PERMISSION_RESOURCE_THEMES" value="Themes"/>
+  <locale name="PERMISSION_RESOURCE_USERS" value="Users"/>
+  <locale name="PERMISSION_UNAVAILABLE" value="{0} (not available in this version)"/>
+  <locale name="PERMISSION_USERS_RESET_2FA" value="Reset two-factor authentication"/>
+  <locale name="PERMISSION_USERS_UNLOCK" value="Unlock"/>
+  <locale name="PERMISSION_VERB_ALL" value="All"/>
+  <locale name="PERMISSION_VERB_CREATE" value="Create"/>
+  <locale name="PERMISSION_VERB_DELETE" value="Delete"/>
+  <locale name="PERMISSION_VERB_EXPORT" value="Export"/>
+  <locale name="PERMISSION_VERB_READ" value="Read"/>
+  <locale name="PERMISSION_VERB_UPDATE" value="Update"/>
+  <locale name="PERMISSION_VERB_WRITE" value="Write"/>
+  <locale name="SCREEN_TEXT_ADVANCED_FILTERS" value="Advanced filters"/>
+  <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_MESSAGE" value="Whether the advanced filters are open could not be saved"/>
+  <locale name="SCREEN_TEXT_ADVANCED_STATE_ERROR_TITLE" value="Advanced filters state not saved"/>
+  <locale name="SCREEN_TEXT_CLEAR_ALL_FILTERS" value="Clear all"/>
+  <locale name="SCREEN_TEXT_DATABASE_CONNECTION" value="Connection"/>
+  <locale name="SCREEN_TEXT_DATABASE_CREDENTIALS" value="Credentials"/>
+  <locale name="SCREEN_TEXT_DATABASE_DESCRIPTION" value="Description"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTERS" value="Connection state"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_DATABASE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_DATABASE_SEARCH" value="Alias, description, connection or user…"/>
+  <locale name="SCREEN_TEXT_DATABASE_SEARCH_LABEL" value="Search connections"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES" value="Sites and modules"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY" value="No sites or modules"/>
+  <locale name="SCREEN_TEXT_DATABASE_SITES_EMPTY_TEXT" value="No site or module uses this connection yet"/>
+  <locale name="SCREEN_TEXT_DELETE_SEARCH" value="Delete search"/>
+  <locale name="SCREEN_TEXT_DELETE_SEARCH_MESSAGE" value="The saved search will be deleted. Do you want to continue?"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_AUTHENTICATION" value="Authentication"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_CONNECTION" value="Connection"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTERS" value="Server state"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_SEARCH" value="Alias…"/>
+  <locale name="SCREEN_TEXT_EMAIL_SERVER_SEARCH_LABEL" value="Search mail servers"/>
+  <locale name="SCREEN_TEXT_FILTERED_BY" value="Filtered by"/>
+  <locale name="SCREEN_TEXT_HIDDEN_ADVANCED_FILTER" value="Hidden advanced filter"/>
+  <locale name="SCREEN_TEXT_HIDE_ADVANCED_FILTERS" value="Hide advanced filters"/>
+  <locale name="SCREEN_TEXT_MANAGE_SEARCHES" value="Manage searches…"/>
+  <locale name="SCREEN_TEXT_MANAGE_SEARCHES_TITLE" value="Manage searches"/>
+  <locale name="SCREEN_TEXT_MY_SEARCHES" value="My searches"/>
+  <locale name="SCREEN_TEXT_NO_SAVED_SEARCHES" value="No saved searches yet"/>
+  <locale name="SCREEN_TEXT_ONLY_ME" value="Only me"/>
+  <locale name="SCREEN_TEXT_PROFILE_DEFAULTS" value="Defaults and access"/>
+  <locale name="SCREEN_TEXT_PROFILE_DUPLICATE_NOTICE" value="Copy of the selected profile: enter its acronym and name. The copy gets the permissions of the profile and they can be changed; the profile file of a predefined profile is not copied."/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTERS" value="Profile state"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_PROFILE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_PROFILE_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_PROFILE_PREDEFINED_NOTICE" value="Predefined profile: it cannot be changed. Duplicate it and change the copy."/>
+  <locale name="SCREEN_TEXT_PROFILE_SEARCH" value="Name, acronym, theme or screen…"/>
+  <locale name="SCREEN_TEXT_PROFILE_SEARCH_LABEL" value="Search profiles"/>
+  <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE" value="Publish for a profile"/>
+  <locale name="SCREEN_TEXT_PUBLISH_FOR_PROFILE_HELP" value="The users of that profile find it under Shared with your profile. They can apply it, not change it."/>
+  <locale name="SCREEN_TEXT_QUEUE_CONNECTION" value="Connection"/>
+  <locale name="SCREEN_TEXT_QUEUE_DATA" value="Queue"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTERS" value="Queue state"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_QUEUE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_QUEUE_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_QUEUE_SEARCH" value="Alias…"/>
+  <locale name="SCREEN_TEXT_QUEUE_SEARCH_LABEL" value="Search queues"/>
+  <locale name="SCREEN_TEXT_REMOVE_FILTER" value="Remove filter"/>
+  <locale name="SCREEN_TEXT_REMOVE_VALUE" value="Remove {{label}}"/>
+  <locale name="SCREEN_TEXT_RENAME_SEARCH" value="Rename"/>
+  <locale name="SCREEN_TEXT_RESET_DEFAULTS" value="Reset to defaults"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCHES" value="Saved searches"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_APPLIED_DEFAULT" value="Default search applied"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_DEFAULT" value="Default"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_MESSAGE" value="The saved searches could not be updated. Try again later."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_ERROR_TITLE" value="Saved searches"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT" value="Keep the advanced criteria in use in the main filters"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_LAYOUT_HELP" value="Applying this search shows them with the essential criteria."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES" value="Save the values of the criteria"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_KEEP_VALUES_HELP" value="Unchecked, the search leaves the criteria empty: it only remembers which fields to show."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH" value="Open the screen with this search"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_OPEN_WITH_HELP" value="It becomes your default search: every time you open the screen, it loads with these values and filters."/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_PROFILE_DEFAULT" value="Profile default"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_SET_DEFAULT" value="Set as my default"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_SET_PROFILE_DEFAULT" value="Set as the profile default"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_UNSET_DEFAULT" value="Stop using as my default"/>
+  <locale name="SCREEN_TEXT_SAVED_SEARCH_UNSET_PROFILE_DEFAULT" value="Stop using as the profile default"/>
+  <locale name="SCREEN_TEXT_SAVE_CURRENT_SEARCH" value="Save current search…"/>
+  <locale name="SCREEN_TEXT_SAVE_SEARCH" value="Save search"/>
+  <locale name="SCREEN_TEXT_SAVE_SEARCH_SUBTITLE" value="Keeps the criteria of this window in effect, also the advanced ones."/>
+  <locale name="SCREEN_TEXT_SEARCH_ACTIONS" value="Actions"/>
+  <locale name="SCREEN_TEXT_SEARCH_FOR" value="For"/>
+  <locale name="SCREEN_TEXT_SEARCH_NAME" value="Name"/>
+  <locale name="SCREEN_TEXT_SEARCH_OWNER_ME" value="Me"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_ACTIVITY" value="Activity per day"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="Statistics"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="Events"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_FAILURES" value="Failures by cause"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CHANNELS" value="Events by channel"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_HOURS" value="Busiest hours"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_15M" value="Last 15 minutes"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_1H" value="Last hour"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_6H" value="Last 6 hours"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_24H" value="Last 24 hours"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_7D" value="Last 7 days"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_LAST_30D" value="Last 30 days"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_CUSTOM_RANGE" value="Custom range"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_SEARCH" value="Search user, IP address or detail"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_DATE_RANGE" value="Date range"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_OUTCOME_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_EVENTS" value="Events"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_FAILURES" value="Failures"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_USERS" value="Distinct users"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_LOCKS" value="Account locks"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_RANGE" value="In the selected range"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_KPI_RATE" value="Of the total"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TITLE" value="No events with these filters"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_EMPTY_TEXT" value="The date range, the search and the column filters apply at the same time. Try removing one of them."/>
+  <locale name="BUTTON_CLEAR_FILTERS" value="Clear filters"/>
+  <locale name="SCREEN_TEXT_SECURITY_AUDIT_REQUEST" value="Request"/>
+  <locale name="SCREEN_TEXT_SITE_FILTERS" value="Site state"/>
+  <locale name="SCREEN_TEXT_SITE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_SITE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_SITE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_SITE_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_SITE_MODULES" value="Modules and databases"/>
+  <locale name="SCREEN_TEXT_SITE_MODULES_EMPTY" value="No modules yet"/>
+  <locale name="SCREEN_TEXT_SITE_MODULES_EMPTY_TEXT" value="Add the database each module uses."/>
+  <locale name="SCREEN_TEXT_SITE_MODULES_ORDER" value="The order of the modules is the order in which AWE loads them when several modules share a database."/>
+  <locale name="SCREEN_TEXT_SITE_SEARCH" value="Name…"/>
+  <locale name="SCREEN_TEXT_SITE_SEARCH_LABEL" value="Search sites"/>
+  <locale name="SCREEN_TEXT_THEME_COLOURS" value="Colours and mode"/>
+  <locale name="SCREEN_TEXT_THEME_FILTERS" value="Theme state"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_THEME_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_THEME_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW" value="Preview"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_FIELD" value="Customer"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_LINK" value="View details"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_MODE" value="Mode of the preview"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_PLACEHOLDER" value="Type a name…"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_SAMPLE" value="Sample of the theme"/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_TEXT" value="This is how pages, fields and actions look with this theme. Nothing changes until you save it."/>
+  <locale name="SCREEN_TEXT_THEME_PREVIEW_TITLE" value="Monthly report"/>
+  <locale name="SCREEN_TEXT_THEME_SEARCH" value="Name, primary or surface…"/>
+  <locale name="SCREEN_TEXT_THEME_SEARCH_LABEL" value="Search themes"/>
+  <locale name="SCREEN_TITLE_DATABASE_ADMIN" value="Databases"/>
+  <locale name="SCREEN_TITLE_DATABASE_PANEL" value="Database connection"/>
+  <locale name="SCREEN_TITLE_EMAIL_SERVER_PANEL" value="Mail server"/>
+  <locale name="SCREEN_TITLE_EML_SRV_ADMIN" value="Mail servers"/>
+  <locale name="SCREEN_TITLE_PROFILE_ADMIN" value="Profiles"/>
+  <locale name="SCREEN_TITLE_PROFILE_PANEL" value="Profile"/>
+  <locale name="SCREEN_TITLE_SECURITY_AUDIT" value="Security audit"/>
+  <locale name="SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Security event"/>
+  <locale name="SCREEN_TITLE_SITE_PANEL" value="Site"/>
+  <locale name="SCREEN_TITLE_SIT_ADMIN" value="Sites"/>
+  <locale name="SCREEN_TITLE_THEME_ADMIN" value="Themes"/>
+  <locale name="SCREEN_TITLE_THEME_PANEL" value="Theme"/>
+  <locale name="UPLOADER_DROP_HINT" value="Drag a file here or choose one"/>
   <locale name="ERROR_TITLE_FILENAME_SIZE_LIMIT" value="You have exceeded the filename size"/>
   <locale name="ERROR_TITLE_FILLING_VARIABLE_LIST" value="Error filling variable list"/>
   <locale name="ERROR_TITLE_FORMAT_DATA" value="Error formatting data"/>
@@ -643,6 +1031,7 @@
   <locale name="ERROR_TITLE_INVALID_CREDENTIALS" value="Invalid credentials"/>
   <locale name="ERROR_TITLE_INVALID_PASSWORD" value="Wrong password"/>
   <locale name="ERROR_TITLE_INVALID_SESSION_TOKEN" value="Session is not valid"/>
+  <locale name="ERROR_TITLE_INVALID_THEME_COLOR" value="Invalid theme colour"/>
   <locale name="ERROR_TITLE_INVALID_USER" value="Wrong username"/>
   <locale name="ERROR_TITLE_IO_EXCEPTION" value="IOException Generated"/>
   <locale name="ERROR_TITLE_JMS_TIMEOUT" value="Queue timeout"/>
@@ -661,6 +1050,7 @@
   <locale name="ERROR_TITLE_NO_AUDIT_FIELDS" value="No audit fields defined"/>
   <locale name="ERROR_TITLE_NONEXISTENT_FILE" value="Nonexistent file"/>
   <locale name="ERROR_TITLE_NOT_DEFINED" value="Error: &apos;&apos;{0}&apos;&apos; has not been defined"/>
+  <locale name="ERROR_TITLE_NOT_FOUND" value="Resource not found"/>
   <locale name="ERROR_TITLE_OAUTH_NO_USERNAME_ATTR" value="Oauth2 error"/>
   <locale name="ERROR_TITLE_OPTION_NOT_DEFINED" value="Option not defined"/>
   <locale name="ERROR_TITLE_PARSE_EXCEPTION" value="ParseException Generated"/>
@@ -676,6 +1066,7 @@
   <locale name="ERROR_TITLE_PARSING_RESULTSET" value="Error parsing resultset"/>
   <locale name="ERROR_TITLE_PARSING_SERVICE_DATA" value="Error parsing service data"/>
   <locale name="ERROR_TITLE_PARSING_TEXT" value="Error parsing text"/>
+  <locale name="ERROR_TITLE_PASSWORD_CHANGE" value="Password change"/>
   <locale name="ERROR_TITLE_PATH_NOT_FOUND" value="Missing folder {0} or incorrect permission to access"/>
   <locale name="ERROR_TITLE_PRINTING_SCREEN" value="The document couldn&apos;t be printed"/>
   <locale name="ERROR_TITLE_QUEUE_CONNECTION_FAILED" value="Queue connection failed"/>
@@ -698,6 +1089,15 @@
   <locale name="ERROR_TITLE_SAVING_ITEM" value="Error saving file"/>
   <locale name="ERROR_TITLE_SESSION_CLOSED" value="Session closed"/>
   <locale name="ERROR_TITLE_SCREEN_GENERATION_ERROR" value="Screen generation error"/>
+  <locale name="ERROR_TITLE_SCREEN_CONFIGURATION_INVALID" value="Invalid screen configuration"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_UNKNOWN_COMPONENT" value="The component &apos;&apos;{0}&apos;&apos; does not exist in the screen &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_UNKNOWN_ATTRIBUTE" value="The attribute &apos;&apos;{0}&apos;&apos; cannot be configured"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_ATTRIBUTE_NOT_APPLICABLE" value="The attribute &apos;&apos;{0}&apos;&apos; does not apply to the component &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_BOOLEAN" value="The attribute &apos;&apos;{0}&apos;&apos; only accepts true or false, not &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_INTEGER" value="The attribute &apos;&apos;{0}&apos;&apos; only accepts whole numbers, not &apos;&apos;{1}&apos;&apos;"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_INVALID_ENUM" value="The attribute &apos;&apos;{0}&apos;&apos; does not accept &apos;&apos;{1}&apos;&apos;. Allowed values: {2}"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_VALUE_TOO_LONG" value="The value of the attribute &apos;&apos;{0}&apos;&apos; cannot be longer than {1} characters"/>
+  <locale name="ERROR_MESSAGE_SCREEN_CONFIGURATION_NO_ACCESS" value="You cannot personalize the screen &apos;&apos;{0}&apos;&apos;: you have no access to it"/>
   <locale name="ERROR_TITLE_SCREEN_NOT_DEFINED" value="Screen not defined"/>
   <locale name="ERROR_TITLE_SCREEN_OPTION_NOT_DEFINED" value="Screen option not defined"/>
   <locale name="ERROR_TITLE_SENDING_QUEUE_MESSAGE" value="Error sending message"/>
@@ -745,11 +1145,13 @@
   <locale name="HELP_CREATE_NEW_LOCAL_BUTTON" value="Create a new locale and store it in the locales xml files"/>
   <locale name="HELP_CRITERION" value="Criterion"/>
   <locale name="HELP_CRITERION_IDENTIFIER" value="Criterion identifier"/>
-  <locale name="HELP_CUSTOM_BUTTON" value="Allows to define specific colors to some parts of the selected theme to customize it"/>
   <locale name="HELP_DELETE_BUTTON" value="Remove the selected items in the grid"/>
   <locale name="HELP_DESCRIPTION" value="Description"/>
   <locale name="HELP_EDIT_BUTTON" value="Edit selected item"/>
   <locale name="HELP_EDITABLE" value="Editable"/>
+  <locale name="HELP_EML_SRV_OAUTH_REGISTRATION" value="Spring Security client registration that provides the access token: spring.security.oauth2.client.registration.REGISTRATION_ID with authorization-grant-type=client_credentials (for Microsoft 365, scope https://outlook.office365.com/.default)"/>
+  <locale name="HELP_EML_SRV_PORT" value="Leave empty to use the default port of the security mode: 25 (none), 587 (STARTTLS) or 465 (SSL/TLS)"/>
+  <locale name="HELP_EML_SRV_SECURITY" value="STARTTLS upgrades the connection to TLS (usually port 587). SSL/TLS connects with TLS from the start (usually port 465)"/>
   <locale name="HELP_GRID" value="Grid"/>
   <locale name="HELP_GRID_IDENTIFIER" value="Grid identifier"/>
   <locale name="HELP_HELP_BUTTON" value="Open a dialog with screen help"/>
@@ -761,6 +1163,11 @@
   <locale name="HELP_NEW_BUTTON" value="Go to a new screen to add a new item"/>
   <locale name="HELP_PRINT_ACTION_CRITERION" value="Select an action to do: Generate files, send files by e-mail or print files"/>
   <locale name="HELP_PRINT_BUTTON" value="Open a dialog with screen print options"/>
+  <locale name="HELP_PROFILE_PERMISSIONS" value="Permissions of the profile, grouped by resource. “All” gives every permission of a resource and “All resources” one action on every resource. Users get the changes the next time they sign in."/>
+  <locale name="HELP_ACCESS_COMPARE_BUTTON" value="Compare the access with another profile or another user, or simulate the user with another profile. Nothing is stored"/>
+  <locale name="HELP_ACCESS_COMPARE_STOP_BUTTON" value="Stop comparing and show only the access of the chosen profile or user"/>
+  <locale name="HELP_ACCESS_REVIEW_BUTTON" value="Review the rules of every profile and user that have no effect or do not make sense, and fix them"/>
+  <locale name="HELP_ACCESS_PREVIEW_BUTTON" value="Preview the menu that the chosen profile or user would see in the module, without signing in as them"/>
   <locale name="HELP_PRINT_DESTINATION_USERS_CRITERION" value="Select the users which you want to send the data to"/>
   <locale name="HELP_PRINT_FORMAT_CRITERION" value="Select the file formats which you want to retrieve the data"/>
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Select the format you want to apply to the numeric data"/>
@@ -772,12 +1179,15 @@
   <locale name="HELP_SCREEN_HELP" value="Dialogue with the definition of the window components and its help"/>
   <locale name="HELP_SCREEN_TEXT_PRINT_EMAIL" value="Dialog that allows you to generate files with the window information, print and/or send them by mail"/>
   <locale name="HELP_SCREEN_TITLE" value="Help Screen"/>
+  <locale name="HELP_SCREEN_TITLE_ACCESS_ADMIN" value="The effective access of a profile or a user to every option of the private menu, the layer that decides it, and the rules that change it."/>
   <locale name="HELP_SCREEN_TITLE_APP_INF" value="Application info"/>
   <locale name="HELP_SCREEN_TITLE_APP_PARAMETERS" value="Application parameters"/>
+  <locale name="HELP_SCREEN_TITLE_APP_PAR_ADMIN" value="Parameters of the application: the security, reporting and general settings it reads."/>
   <locale name="HELP_SCREEN_TITLE_AWEKEY" value="Manage application unique keys for sequences"/>
   <locale name="HELP_SCREEN_TITLE_BROADCAST" value="Send a broadcast message. If you let the &apos;User&apos; criterion empty, the message is sent to all connected users in the application"/>
   <locale name="HELP_SCREEN_TITLE_CAL" value="Calendar management"/>
   <locale name="HELP_SCREEN_TITLE_CAL_VIW" value="View calendar"/>
+  <locale name="HELP_SCREEN_TITLE_CHANGE_EXPIRED_PWD" value="Set a new password"/>
   <locale name="HELP_SCREEN_TITLE_CHD_PWD" value="Change password"/>
   <locale name="HELP_SCREEN_TITLE_COM" value="Commands management"/>
   <locale name="HELP_SCREEN_TITLE_COM_UPD" value="Update command"/>
@@ -791,6 +1201,8 @@
   <locale name="HELP_SCREEN_TITLE_EML_SRV_UPD" value="Update mail server"/>
   <locale name="HELP_SCREEN_TITLE_EML_USR" value="Notify active users"/>
   <locale name="HELP_SCREEN_TITLE_ENC" value="Encrypt manager"/>
+  <locale name="HELP_PARAMETER_PASSWORD_ALGORITHM" value="Algorithm of the password hash. The configured one (awe.security.password-encoder) is selected by default; RIPEMD-160 gives the AWE 4 hash"/>
+  <locale name="HELP_PARAMETER_PASSWORD_HASH" value="Hash of the text with the selected password algorithm, ready to insert into ope.l1_pas"/>
   <locale name="HELP_SCREEN_TITLE_ERROR" value="Error"/>
   <locale name="HELP_SCREEN_TITLE_GRP_EML" value="Email groups"/>
   <locale name="HELP_SCREEN_TITLE_GRP_EML_NEW" value="New email group"/>
@@ -805,6 +1217,7 @@
   <locale name="HELP_SCREEN_TITLE_MDL_UPD" value="Update module"/>
   <locale name="HELP_SCREEN_TITLE_MDL_VIW" value="View module"/>
   <locale name="HELP_SCREEN_TITLE_MENU_ACCESS" value="Menu access restrictions screen"/>
+  <locale name="HELP_SCREEN_TITLE_MOD_ADMIN" value="Modules of the application, who can enter each one and the database it uses in each site."/>
   <locale name="HELP_SCREEN_TITLE_OPT" value="System options management"/>
   <locale name="HELP_SCREEN_TITLE_OPT_UPD" value="Update system option"/>
   <locale name="HELP_SCREEN_TITLE_OPT_VIW" value="View system option"/>
@@ -815,6 +1228,7 @@
   <locale name="HELP_SCREEN_TITLE_QUE" value="Message queues"/>
   <locale name="HELP_SCREEN_TITLE_QUE_NEW" value="New message queue"/>
   <locale name="HELP_SCREEN_TITLE_QUE_UPD" value="Update message queue"/>
+  <locale name="HELP_SCREEN_TITLE_QUEUE_ADMIN" value="Message queues of the application: alias, destination, queue type, broker, connection and state."/>
   <locale name="HELP_SCREEN_TITLE_REP" value="Report assignation"/>
   <locale name="HELP_SCREEN_TITLE_REP_GEN" value="Generated report list"/>
   <locale name="HELP_SCREEN_TITLE_REP_GEN_VIW" value="View generated report"/>
@@ -822,6 +1236,7 @@
   <locale name="HELP_SCREEN_TITLE_SCR_CNF" value="Screen configuration"/>
   <locale name="HELP_SCREEN_TITLE_SECURITY_SCREEN" value="Manage secure access to the application screens"/>
   <locale name="HELP_SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
+  <locale name="HELP_SCREEN_TITLE_SEQUENCE_ADMIN" value="Sequences of the application: the value AWE hands out as the next identifier of each name."/>
   <locale name="HELP_SCREEN_TITLE_SIT"><![CDATA[Manage application sites. Here you can view, add, delete and modify all application sites.
 
 A site is defined as a *separated application node*, with it's own [databases](#databases) and [modules](#modules).]]></locale>
@@ -830,12 +1245,12 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="HELP_SCREEN_TITLE_SIT_VIW" value="Displays detailed site information"/>
   <locale name="HELP_SCREEN_TITLE_STL_CNF" value="Report style configuration screen. Here you can configure the reports aspects, like font color or grid background"/>
   <locale name="HELP_SCREEN_TITLE_THM" value="Manage application themes. Here you can view, add, delete and modify all available application themes"/>
-  <locale name="HELP_SCREEN_TITLE_THM_CUSTOM" value="In this screen you can define specific visual properties for each part of the screen defined in the selected theme"/>
   <locale name="HELP_SCREEN_TITLE_THM_NEW" value="Register new theme"/>
   <locale name="HELP_SCREEN_TITLE_THM_UPD" value="Update theme name"/>
   <locale name="HELP_SCREEN_TITLE_THM_VIW" value="Displays detailed theme information"/>
   <locale name="HELP_SCREEN_TITLE_TREE_TEST" value="This screen tests the usage of a non-sorted tree data loaded into a tree grid"/>
   <locale name="HELP_SCREEN_TITLE_UNIKEY" value="Manage application unique keys for sequences."/>
+  <locale name="HELP_SCREEN_TITLE_USER_ADMIN" value="Who can sign in, with which profile, and the state of their account."/>
   <locale name="HELP_SCREEN_TITLE_USR" value="Manage application users. Here you can view, add, delete and modify all application users"/>
   <locale name="HELP_SCREEN_TITLE_USR_NEW" value="Register new user"/>
   <locale name="HELP_SCREEN_TITLE_USR_UPD" value="Update user information"/>
@@ -846,10 +1261,10 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="HELP_TYPE" value="Type"/>
   <locale name="HELP_UPDATE_BUTTON" value="Go to a new screen with the selected item data in which you can update the item information"/>
   <locale name="HELP_VIEW_BUTTON" value="Go to a new screen with the selected item data, just to check it"/>
+  <locale name="HELP_VIEW_PERMISSIONS_BUTTON" value="Open Access control › Permissions with this user: the permissions of its saved profiles"/>
   <locale name="HOURS" value="{0}h"/>
   <locale name="INFO_MESSAGE_PARSING_NUMBER_NULL" value="Parameter {0} can&apos;&apos;t be parsed as number: &apos;&apos;{1}&apos;&apos; - Set as null"/>
   <locale name="INFO_TITLE_WEB_SERVICE_CALL" value="Information"/>
-  <locale name="LIGHT_THEME" value="Light theme"/>
   <locale name="MENU_ACT_USR" value="Notify active users"/>
   <locale name="MENU_APP_INF" value="About"/>
   <locale name="MENU_AUDITS" value="Audits"/>
@@ -871,6 +1286,9 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_REPORT_LIST" value="Report list"/>
   <locale name="MENU_REPORTS" value="Reports"/>
   <locale name="MENU_SEARCH_EMPTY" value="No options found"/>
+  <locale name="MENU_SEARCH_PLACEHOLDER" value="Find an option…"/>
+  <locale name="SIDEBAR_POWERED_BY" value="Powered by"/>
+  <locale name="SIDEBAR_POWERED_BRAND" value="AWE 5"/>
   <locale name="MENU_SEL_PRN" value="Select printer"/>
   <locale name="MENU_SETTINGS" value="Settings"/>
   <locale name="MENU_SQL_EXTRACTOR" value="SQL Extractor"/>
@@ -900,13 +1318,15 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MENU_TOOLS_PURGUES" value="Purgues"/>
   <locale name="MENU_TOOLS_SCR_CNF" value="Screen configuration"/>
   <locale name="MENU_TOOLS_SCREEN_ENCRYPT" value="Encrypt Util"/>
-  <locale name="MENU_TOOLS_SCREENS_ACCESS" value="Screen access"/>
-  <locale name="MENU_TOOLS_SECURITY" value="Security access"/>
+  <locale name="MENU_TOOLS_SCREENS_ACCESS" value="Access control"/>
+  <locale name="MENU_TOOLS_SCREENS_ACCESS_BY_MENU" value="Screen access by menu"/>
+  <locale name="MENU_TOOLS_SECURITY" value="Security"/>
   <locale name="MENU_TOOLS_SITES" value="Sites"/>
   <locale name="MENU_TOOLS_STL_CNF" value="Report style configuration"/>
   <locale name="MENU_TOOLS_THEMES" value="Themes"/>
   <locale name="MENU_TOOLS_UNIKEY" value="System codes"/>
   <locale name="MENU_TOOLS_USERS" value="Users"/>
+  <locale name="MENU_TOOLS_USER_ADMIN" value="User administration"/>
   <locale name="MENU_USER_HELP" value="User manual"/>
   <locale name="MILLISECONDS" value="{0}ms"/>
   <locale name="MINUTES" value="{0}m"/>
@@ -918,6 +1338,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="OK_MESSAGE_CLEARING_ALL_CACHE" value="All caches have been cleared sucessfully"/>
   <locale name="OK_MESSAGE_CLEARING_CACHE" value="-{0}-  cache has been cleared sucessfully"/>
   <locale name="OK_MESSAGE_EMAIL_OPERATION" value="An email has been sent"/>
+  <locale name="OK_MESSAGE_EXPIRED_PASSWORD_CHANGED" value="Password changed. Sign in with the new password."/>
   <locale name="OK_MESSAGE_GENERATING_DOCUMENT" value="Document has been successfully generated"/>
   <locale name="OK_MESSAGE_LAUNCHING_BATCH" value="Batch process has been launched successfully. You will be redirected to process status screen to watch process status."/>
   <locale name="OK_MESSAGE_LOCAL_UPDATED" value="The localee -{0}- has been updated sucessfully"/>
@@ -928,6 +1349,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="OK_MESSAGE_REMOVED_LOCAL" value="The localee -{0}- has been deleted sucessfully"/>
   <locale name="OK_TITLE_CLEARING_CACHE" value="Cache cleared"/>
   <locale name="OK_TITLE_EMAIL_OPERATION" value="Email sent successfully"/>
+  <locale name="OK_TITLE_EXPIRED_PASSWORD_CHANGED" value="Password changed"/>
   <locale name="OK_TITLE_GENERATING_DOCUMENT" value="Document generated successfully"/>
   <locale name="OK_TITLE_LAUNCHING_BATCH" value="Batch launched successfully"/>
   <locale name="OK_TITLE_MAINTAIN_OPERATION" value="Operation successful"/>
@@ -940,6 +1362,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_ACCESS_MODE" value="Access mode"/>
   <locale name="PARAMETER_ACRONYM" value="Acronym"/>
   <locale name="PARAMETER_ACTIVE" value="Active"/>
+  <locale name="PARAMETER_ADDITIONAL_PROFILES" value="Additional profiles"/>
   <locale name="PARAMETER_ALIAS" value="Alias"/>
   <locale name="PARAMETER_APPLICATION" value="Project"/>
   <locale name="PARAMETER_APPLICATION_ACRONIME" value="Acronym"/>
@@ -948,32 +1371,25 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_AUTH" value="Authentication"/>
   <locale name="PARAMETER_AVATAR" value="Avatar"/>
   <locale name="PARAMETER_AVERAGE_TIME" value="Average time"/>
-  <locale name="PARAMETER_BACKGROUND" value="Background"/>
-  <locale name="PARAMETER_BACKGROUND_COLOR" value="Background color"/>
   <locale name="PARAMETER_BALANCE" value="Balance"/>
   <locale name="PARAMETER_BATCH" value="Batch"/>
   <locale name="PARAMETER_BATDES" value="Source"/>
   <locale name="PARAMETER_BATNAM" value="Batch"/>
   <locale name="PARAMETER_BLOCKED" value="Blocked"/>
   <locale name="PARAMETER_BLOCKING" value="Blocking"/>
-  <locale name="PARAMETER_BORDER_COLOR" value="Border color"/>
-  <locale name="PARAMETER_BORDER_RADIUS" value="Border radius"/>
   <locale name="PARAMETER_BROKER" value="Broker"/>
   <locale name="PARAMETER_CALENDAR" value="Calendar"/>
   <locale name="PARAMETER_CAPTURE_DATE_END" value="Final capture date"/>
   <locale name="PARAMETER_CAPTURE_DATE_INI" value="Initial capture date"/>
   <locale name="PARAMETER_CATEGORY" value="Category"/>
   <locale name="PARAMETER_CHECK_EACH" value="Check each"/>
-  <locale name="PARAMETER_COLORS" value="Colors"/>
   <locale name="PARAMETER_COMMAND" value="Command"/>
   <locale name="PARAMETER_CONN_TYPE" value="Type of connection"/>
   <locale name="PARAMETER_CONNECTION" value="Connection"/>
   <locale name="PARAMETER_COUNTERPARTY" value="Counterparty"/>
   <locale name="PARAMETER_COUNTRY" value="Country"/>
   <locale name="PARAMETER_CREDIT" value="Credit"/>
-  <locale name="PARAMETER_CRITERIA" value="Criteria"/>
   <locale name="PARAMETER_CURRENCY" value="Currency"/>
-  <locale name="PARAMETER_DANGER_COLOR" value="Error color"/>
   <locale name="PARAMETER_DATE" value="Date"/>
   <locale name="PARAMETER_DATE_INF" value="Date &lt;="/>
   <locale name="PARAMETER_DATE_SUP" value="Date &gt;="/>
@@ -987,18 +1403,17 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_DESTINATION" value="Destination"/>
   <locale name="PARAMETER_DIALECT" value="Dialect"/>
   <locale name="PARAMETER_DIS" value="Automatically distribution"/>
-  <locale name="PARAMETER_DISABLED_BACKGROUND_COLOR" value="Disabled background color"/>
-  <locale name="PARAMETER_DISABLED_BORDER_COLOR" value="Disabled border color"/>
-  <locale name="PARAMETER_DISABLED_TEXT_COLOR" value="Disabled text color"/>
   <locale name="PARAMETER_DOUBLE" value="Double"/>
   <locale name="PARAMETER_DRIVER" value="Driver"/>
-  <locale name="PARAMETER_DROPDOWN_COLOR" value="Dropdown color"/>
   <locale name="PARAMETER_DST" value="Target"/>
   <locale name="PARAMETER_ELEMENT" value="Element"/>
   <locale name="PARAMETER_EMAIL" value="E-mail"/>
   <locale name="PARAMETER_EMAIL_DEST" value="Email target"/>
   <locale name="PARAMETER_EMAIL_DESTINATION" value="E-mail destination"/>
   <locale name="PARAMETER_EMAIL_SERVER" value="E-mail server"/>
+  <locale name="PARAMETER_EML_SRV_OAUTH_REGISTRATION" value="OAuth2 client registration"/>
+  <locale name="PARAMETER_EML_SRV_SECURITY" value="Security"/>
+  <locale name="PARAMETER_EML_SRV_SENDER" value="Sender mailbox"/>
   <locale name="PARAMETER_EML_SUBJECT" value="Subject"/>
   <locale name="PARAMETER_EML_TEXT" value="Content"/>
   <locale name="PARAMETER_ENCRYPT" value="Encrypted"/>
@@ -1015,14 +1430,12 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_FLOAT" value="Float"/>
   <locale name="PARAMETER_FREQUENCY" value="Frequency"/>
   <locale name="PARAMETER_FROM" value="From"/>
-  <locale name="PARAMETER_GRID" value="Grid"/>
-  <locale name="PARAMETER_HEADER_COLOR" value="Header color"/>
-  <locale name="PARAMETER_HEIGHT" value="Height"/>
+  <locale name="PARAMETER_FULL_NAME" value="Full name"/>
   <locale name="PARAMETER_HOUR_FIN" value="End time"/>
   <locale name="PARAMETER_HOUR_INI" value="Start time"/>
   <locale name="PARAMETER_HOURS" value="Hours"/>
   <locale name="PARAMETER_IDE" value="Identifier"/>
-  <locale name="PARAMETER_INFO_COLOR" value="Information color"/>
+  <locale name="PARAMETER_INITIAL_SCREEN" value="Initial screen"/>
   <locale name="PARAMETER_INT_PATH" value="Integration path"/>
   <locale name="PARAMETER_INTEGER" value="Integer"/>
   <locale name="PARAMETER_ISLEAF" value="Is leaf"/>
@@ -1033,12 +1446,10 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_LAUNCH_DEPENDENCIES_ERROR" value="Launch dependencies in case of error"/>
   <locale name="PARAMETER_LAUNCH_DEPENDENCIES_WARN" value="Launch dependencies in case of warning"/>
   <locale name="PARAMETER_LAUNCH_TYPE" value="Launch type"/>
-  <locale name="PARAMETER_LOADING_BAR_COLOR" value="Loading bar color"/>
   <locale name="PARAMETER_LOG" value="Log"/>
   <locale name="PARAMETER_LONG" value="Long"/>
   <locale name="PARAMETER_MAIN" value="Main"/>
   <locale name="PARAMETER_MAINTAIN" value="Maintain"/>
-  <locale name="PARAMETER_MENU" value="Menu"/>
   <locale name="PARAMETER_MESSAGE" value="Message"/>
   <locale name="PARAMETER_MINUTES" value="Minutes"/>
   <locale name="PARAMETER_MODULE" value="Module"/>
@@ -1056,7 +1467,6 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_MONTH_SEPTEMBER" value="September"/>
   <locale name="PARAMETER_MONTHS" value="Months"/>
   <locale name="PARAMETER_NAME" value="Name"/>
-  <locale name="PARAMETER_NAVBAR" value="Navigation bar"/>
   <locale name="PARAMETER_NEW_PASSWD" value="New password"/>
   <locale name="PARAMETER_NEXT_EXECUTION" value="Next execution"/>
   <locale name="PARAMETER_NOTIFY_TYPE" value="Type of notification"/>
@@ -1066,7 +1476,6 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_OPERATOR" value="Operator"/>
   <locale name="PARAMETER_OPTION" value="Option"/>
   <locale name="PARAMETER_ORDER" value="Order"/>
-  <locale name="PARAMETER_PANEL" value="Panel"/>
   <locale name="PARAMETER_PARAMETERS" value="Parameters"/>
   <locale name="PARAMETER_PARENT" value="Parent"/>
   <locale name="PARAMETER_PASSWD" value="Password"/>
@@ -1074,11 +1483,8 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_PASSWD_EXPIRE" value="Password expiration in days"/>
   <locale name="PARAMETER_PASSWD_MIN" value="Password lenght"/>
   <locale name="PARAMETER_PASSWD_NEW" value="New password"/>
+  <locale name="PARAMETER_PERMISSIONS" value="Permissions"/>
   <locale name="PARAMETER_PHRASEKEY" value="Phrase key"/>
-  <locale name="PARAMETER_PREVIEW_DARK" value="Dark theme preview"/>
-  <locale name="PARAMETER_PREVIEW_LIGHT" value="Light theme preview"/>
-  <locale name="PARAMETER_PRIMARY_COLOR" value="Primary color"/>
-  <locale name="PARAMETER_PRIMARY_FONT_SIZE" value="Primary font size"/>
   <locale name="PARAMETER_PRINT" value="Print"/>
   <locale name="PARAMETER_PRINTER" value="Printer"/>
   <locale name="PARAMETER_PRN_ACTION" value="Action"/>
@@ -1089,6 +1495,8 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_PROGRESS" value="Progress"/>
   <locale name="PARAMETER_PROPERTY" value="Property"/>
   <locale name="PARAMETER_PROPERTY_ENCRYPT" value="Encrypted property"/>
+  <locale name="PARAMETER_PASSWORD_ALGORITHM" value="Password algorithm"/>
+  <locale name="PARAMETER_PASSWORD_HASH" value="Password hash"/>
   <locale name="PARAMETER_PRVCMD" value="Previous command"/>
   <locale name="PARAMETER_PURGUE" value="Purgue"/>
   <locale name="PARAMETER_QUEUE_TYPE" value="Queue type"/>
@@ -1096,14 +1504,11 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_REPEAT_EACH" value="Repeat each"/>
   <locale name="PARAMETER_REPORT" value="Report"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientation"/>
-  <locale name="PARAMETER_REQUIRED_COLOR" value="Required parameter color"/>
   <locale name="PARAMETER_RESTRICTION" value="Restriction"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Retype password"/>
   <locale name="PARAMETER_SCREEN" value="Screen"/>
   <locale name="PARAMETER_SCRIPT" value="Script"/>
   <locale name="PARAMETER_SEARCH_AT" value="Search at"/>
-  <locale name="PARAMETER_SECONDARY_COLOR" value="Secondary color"/>
-  <locale name="PARAMETER_SECONDARY_FONT_SIZE" value="Secondary font size"/>
   <locale name="PARAMETER_SECONDS" value="Seconds"/>
   <locale name="PARAMETER_SELECT_ALL" value="All"/>
   <locale name="PARAMETER_SEND_STATUS" value="Send in case of"/>
@@ -1121,11 +1526,13 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_STORE_EXECUTION" value="Max. stored executions"/>
   <locale name="PARAMETER_STRING" value="String"/>
   <locale name="PARAMETER_STYLE" value="Style"/>
-  <locale name="PARAMETER_SUCCESS_COLOR" value="Success color"/>
   <locale name="PARAMETER_TEXT" value="Text"/>
-  <locale name="PARAMETER_TEXT_COLOR" value="Text color"/>
   <locale name="PARAMETER_THEME" value="Theme"/>
-  <locale name="PARAMETER_THEME_COLOR" value="Main theme color"/>
+  <locale name="PARAMETER_THEME_MODE" value="Mode"/>
+  <locale name="PARAMETER_THEME_PRIMARY" value="Primary"/>
+  <locale name="PARAMETER_THEME_PRIMARY_HEX" value="Custom primary"/>
+  <locale name="PARAMETER_THEME_SURFACE" value="Surface"/>
+  <locale name="PARAMETER_THEME_SURFACE_HEX" value="Custom surface"/>
   <locale name="PARAMETER_TIME" value="Time"/>
   <locale name="PARAMETER_TIMEOUT" value="Timeout"/>
   <locale name="PARAMETER_TITLE" value="Title"/>
@@ -1134,7 +1541,6 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_USER" value="User"/>
   <locale name="PARAMETER_VALUE" value="Value"/>
   <locale name="PARAMETER_VARIABLE" value="Variable"/>
-  <locale name="PARAMETER_WARNING_COLOR" value="Warning color"/>
   <locale name="PARAMETER_WEB_PRINTER" value="Web printer"/>
   <locale name="PARAMETER_WEEKDAY_FRIDAY" value="Friday"/>
   <locale name="PARAMETER_WEEKDAY_MONDAY" value="Monday"/>
@@ -1153,10 +1559,220 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_APPLICATION_HELP" value="Application help"/>
   <locale name="SCREEN_HELP" value="Screen help"/>
   <locale name="SCREEN_TEXT_2FA_SETTINGS" value="Second factor authentication settings"/>
+  <locale name="SCREEN_TEXT_ACCESS_ALLOW" value="Allow"/>
+  <locale name="SCREEN_TEXT_ACCESS_ALLOWED" value="Allowed"/>
+  <locale name="SCREEN_TEXT_ACCESS_CASCADE" value="Evaluation of the access rules"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_ACCESS" value="Access"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_AFTER" value="After the change"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_CHANGE" value="What changes"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_COMPARE" value="In the comparison"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_COMPARE_REASON" value="Why it changes"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_DECIDES_TODAY" value="Decides today"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_KEY" value="Identifier"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_LAYER" value="Layer"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_OPTION" value="Menu option"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_OWN_RULE" value="Own rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_REASON" value="Reason"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_RULE" value="Rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_TODAY" value="Today"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_VERDICT" value="Verdict"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_WARNING" value="Warning"/>
+  <locale name="SCREEN_TEXT_ACCESS_COLUMN_WHO" value="Who"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE" value="Compare"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_HELP" value="With a profile, the user keeps its own rules; with a user, its own profile and rules apply. Nothing is stored"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_SAME" value="Same"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_SEARCH" value="Search profile or user"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_STOP" value="Stop comparing"/>
+  <locale name="SCREEN_TEXT_ACCESS_COMPARE_WITH" value="Compare with"/>
+  <locale name="SCREEN_TEXT_ACCESS_DECIDES" value="Decides"/>
+  <locale name="SCREEN_TEXT_ACCESS_DENIED" value="Denied"/>
+  <locale name="SCREEN_TEXT_ACCESS_DENY" value="Deny"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_BASE_NONE" value="The base profile {0}.xml has no rule on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_BASE_RULE" value="Rule of the base profile {0}.xml on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_GLOBAL_NONE" value="No global rule on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_GLOBAL_RULE" value="Global rule on the option, for every user"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_INHERITED" value="Inherited from {0}: {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_MODULE_HIDDEN" value="Belongs to module {0}, not to the selected module {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_MODULE_VISIBLE" value="Visible in module {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NOT_INHERITED" value="No rule of a parent option decides the access"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NO_MODULE" value="No module selected"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_NO_PROFILE" value="The user has no profile"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_PROFILE_NONE" value="No rule of profile {0} on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_PROFILE_RULE" value="Rule of profile {0} on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_NONE" value="No rule of user {0} on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_NOT_APPLICABLE" value="Not applicable: the subject is a profile"/>
+  <locale name="SCREEN_TEXT_ACCESS_DETAIL_USER_RULE" value="Rule of user {0} on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_EMPTY_TEXT" value="Its access to every option of the private menu is shown here"/>
+  <locale name="SCREEN_TEXT_ACCESS_EMPTY_TITLE" value="Choose a profile or a user"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTERS" value="Access filters"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_ALLOWED" value="Allowed"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_DENIED" value="Denied"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_DIFFERENCES" value="Only differences"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_WARNINGS" value="Warnings"/>
+  <locale name="SCREEN_TEXT_ACCESS_FILTER_WITH_RULE" value="With rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_HINT" value="A user rule wins over the rule of its profile, and the profile rule over the global one. A rule on an option also applies to its children"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT" value="Preview of the change"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_GAINS" value="Gains {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_HINT" value="The menu of the connected users is refreshed when you confirm. Anyone with one of these screens open keeps it until they close it."/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEP" value="Users that keep some through their own rule: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEPS" value="Keeps {0} through their own rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_KEEPS_DENIED" value="Keeps {0} denied through their own rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_LOSES" value="Loses {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_MORE_OPTIONS" value="{0} and {1} more"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_MORE_USERS" value="{0} more users"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_NO_USERS" value="No user changes"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_NO_USERS_TEXT" value="The users of the subject whose access changes are listed here"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS" value="Options"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_ALLOW" value="Options that become allowed: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_DENY" value="Options that become denied: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_OPTIONS_REMOVE" value="Options that change their access: {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_ALLOW" value="Allow the selected options to {1} ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_DENY" value="Deny the selected options to {1} ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_TITLE_REMOVE" value="Remove the rule of {1} on the selected options ({0})"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS" value="Affected users"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_ALLOW" value="Users of {2} that gain some: {0} of {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_DENY" value="Users of {2} that lose some: {0} of {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_IMPACT_USERS_REMOVE" value="Users of {2} with a change: {0} of {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_MENU" value="Access to the menu options"/>
+  <locale name="SCREEN_TEXT_ACCESS_NO_RULES" value="No rules on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_NO_RULES_TEXT" value="Its access comes from the module, the base profile or its parent options"/>
+  <locale name="SCREEN_TEXT_ACCESS_OPTION_RULES" value="Every rule on the option"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSIONS" value="Effective permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ADDITIONAL_PROFILE" value="Additional profile"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_FILE" value="Profile file and assignments"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_KEY" value="Identifier"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_ORIGIN" value="Origin"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_PERMISSION" value="Permission"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_RESOURCE" value="Resource"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_STATE" value="State"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_COLUMN_WARNING" value="Warning"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_DOES_NOT_GRANT" value="Does not grant it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EMPTY_TEXT" value="Choose a user or a profile to see what it can do"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EMPTY_TITLE" value="No permissions to show"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_EXCLUDED" value="Excluded by {0} in its file {1} ({2})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTERS" value="Permission filters"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_DIFFERENCES" value="Only differences"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_GRANTED" value="Granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_NOT_GRANTED" value="Not granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_FILTER_WARNINGS" value="Warnings"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GRANTED" value="Granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GRANTS" value="Grants it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_GROUP" value="{0} · {1} · {2} of {3} granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_HINT" value="For each profile: (profile file − exclusions) + assignments. The permissions of every profile are added up, plus the ones granted always. An exclusion is not a denial. Changes apply at the next sign-in."/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_MAIN" value="(main)"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_MAIN_PROFILE" value="Main profile"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NEXT_LOGIN" value="Changes apply at the next sign-in: this is the configured state, not the one of the open sessions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NONE" value="No profile grants it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_NOT_GRANTED" value="Not granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_ALWAYS" value="Granted always"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_ASSIGNMENT" value="{0} · assignment {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_ORIGIN_FILE" value="{0} · file {1} ({2})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_PREDEFINED" value="predefined: it is duplicated to change it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_GRANTED" value="{0} has {1} · {2}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_HINT" value="One profile that grants it is enough: an exclusion only subtracts inside its own profile file"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_RESULT_NOT_GRANTED" value="{0} does not have {1} · {2}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SEARCH" value="Search permission or resource…"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SEARCH_LABEL" value="Search permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_COMPARE" value="Only {0}: {1} · Only {2}: {3} · Same in both: {4}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_DIFFERENCES" value="{0} differences of {1} permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_GRANTED" value="{0} of {1} permissions granted"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_PROFILES" value="Profiles:"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_SUMMARY_WARNINGS" value="{0} excluded in a profile file and granted another way"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WARNING_EXCLUDED" value="{0} excludes it in its file {1} ({2}); another origin grants it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ALWAYS" value="The catalog grants it to every authenticated user"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ASSIGNMENT_GRANTS" value="Assignment {0} grants it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_ASSIGNMENT_NOT_INCLUDED" value="No assignment includes it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_CATALOG" value="Permission catalog"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_EXCLUDES" value="File {0} excludes it ({1}): the file does not give it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_GRANTS" value="File {0} grants it ({1})"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_FILE_NOT_INCLUDED" value="File {0} does not include it"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_NO_ASSIGNMENTS" value="Without assignments"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_NO_FILE" value="Without profile file"/>
+  <locale name="SCREEN_TEXT_ACCESS_PERMISSION_WHY_PROFILES" value="What each profile gives"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW" value="Menu preview"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_ALL_MODULES" value="every module"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_COUNT" value="{0} visible options of {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_EMPTY_TEXT" value="The subject sees no option of the menu in this module"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_EMPTY_TITLE" value="No visible options"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN" value="Hidden options and their reason"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN_BY_PARENT" value="Its parent {0} is not shown"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_HIDDEN_TEXT" value="The options it cannot open are not shown, nor the ones under them"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_MENU" value="The menu"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_MODULE" value="module {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_PARENT_HIDDEN" value="{0} does not appear: its parent {1} is denied"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_TEXT" value="This is a preview of the menu: you do not sign in as {0} nor open their screens."/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_TITLE" value="Viewing as {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_BASE" value="Base profile {0}.xml"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_GLOBAL" value="Global rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_INHERITED" value="Inherited from {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_MODULE" value="Belongs to module {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_NONE" value="No rules: allowed by default"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_PROFILE" value="Rule of profile {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REASON_USER" value="Rule of user {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REMOVE_RULE" value="Remove rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_RESULT_ALLOWED" value="{0} can open {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_RESULT_DENIED" value="{0} cannot open {1}"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW" value="Review"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_ALLOW_PARENT" value="Allow {0} too"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_BUTTON" value="Review · {0} warnings"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_CLEAN" value="Remove the {0} rules without effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_CLEAN_RULES" value="Remove the rules without effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_EMPTY_TEXT" value="Every rule changes the access of its profile or user"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_EMPTY_TITLE" value="Nothing to review"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_OBSOLETE" value="Rules on options that no longer exist"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_PARENT_DENIED" value="Options allowed while their parent is denied"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_GROUP_REDUNDANT" value="Rules that do not change the result"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_HINT" value="The review covers all profiles and users, not only the one you are viewing. The rules of removed users also appear here."/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_NO_WARNINGS" value="No warnings: every rule has an effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_OPTION" value="The option {0} is not in the private menu of this application: the rule has no effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_PROFILE" value="The profile no longer exists: the rule has no effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_OBSOLETE_USER" value="The user no longer exists: the rule has no effect"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_PARENT_DENIED" value="{0} is denied ({1}), so {2} does not appear in the menu of {3} although it is allowed"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REDUNDANT_ALLOWED" value="Without this rule the result is the same: {0} can open {1} anyway"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REDUNDANT_DENIED" value="Without this rule the result is the same: {0} cannot open {1} anyway"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REMOVED_PROFILE" value="Profile #{0} (removed)"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_REMOVED_USER" value="User #{0} (removed)"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_SUMMARY" value="In {0} rules of {1} profiles and {2} users"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_TITLE" value="Access review"/>
+  <locale name="SCREEN_TEXT_ACCESS_REVIEW_WARNINGS" value="{0} warnings"/>
+  <locale name="SCREEN_TEXT_ACCESS_SEARCH" value="Search option…"/>
+  <locale name="SCREEN_TEXT_ACCESS_SEARCH_LABEL" value="Search options by label or identifier"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_BASE" value="Base profile"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_GLOBAL" value="Global rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_INHERITANCE" value="Inheritance"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_MODULE" value="Module"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_PROFILE" value="Profile rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_STEP_USER" value="User rule"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_PROFILE" value="profile {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT" value="Profile or user"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_TYPE" value="See the access of"/>
+  <locale name="SCREEN_TEXT_ACCESS_SUBJECT_USER" value="user {0}"/>
+  <locale name="SCREEN_TEXT_ACCESS_SWITCH_RULE" value="Switch the rule: Allow ↔ Deny"/>
+  <locale name="SCREEN_TEXT_ACCESS_PREVIEW_BUTTON" value="Preview"/>
+  <locale name="SCREEN_TEXT_ACCESS_TAB_MENU" value="Menu options"/>
+  <locale name="SCREEN_TEXT_ACCESS_TAB_PERMISSIONS" value="Permissions"/>
+  <locale name="SCREEN_TEXT_ACCESS_WARNING_PARENT_DENIED" value="Allowed, but its parent is denied: it cannot be reached from the menu"/>
+  <locale name="SCREEN_TEXT_ACCESS_WARNING_REDUNDANT" value="Redundant rule: removing it does not change the access"/>
+  <locale name="SCREEN_TEXT_ACCESS_WHO_GLOBAL" value="Every user"/>
+  <locale name="SCREEN_TEXT_ACCESS_WHY" value="Why?"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL" value="Add localee text"/>
   <locale name="SCREEN_TEXT_ADD_LOCAL_IDENTIFIER" value="Add a localee identifier"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTERS" value="Parameter state"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_APP_PAR_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_APP_PAR_IDENTITY" value="Parameter"/>
+  <locale name="SCREEN_TEXT_APP_PAR_RELOAD_HINT" value="Saving a parameter reloads it in the application."/>
+  <locale name="SCREEN_TEXT_APP_PAR_SEARCH" value="Name or description…"/>
+  <locale name="SCREEN_TEXT_APP_PAR_SEARCH_LABEL" value="Search parameters"/>
+  <locale name="SCREEN_TEXT_APP_PAR_VALUE" value="Value"/>
+  <locale name="SCREEN_TEXT_BREADCRUMB" value="Breadcrumb"/>
+  <locale name="SCREEN_TEXT_BREADCRUMB_EXPAND" value="Show hidden levels"/>
   <locale name="SCREEN_TEXT_CALENDAR" value="Calendar"/>
   <locale name="SCREEN_TEXT_CALENDAR_DATES" value="Added dates"/>
+  <locale name="SCREEN_TEXT_CHANGE_EXPIRED_PWD" value="Your password has expired. Set a new one to sign in."/>
   <locale name="SCREEN_TEXT_CHANGE_PWD" value="Change password"/>
   <locale name="SCREEN_TEXT_CONFIGURATION" value="Configuration"/>
   <locale name="SCREEN_TEXT_CRITERIA" value="Criteria"/>
@@ -1164,15 +1780,24 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_DATA" value="Data"/>
   <locale name="SCREEN_TEXT_DATE" value="System date"/>
   <locale name="SCREEN_TEXT_DBS" value="Database"/>
+  <locale name="SCREEN_TEXT_EML_SRV_KEEP_SECRET" value="Leave empty to keep the current value"/>
   <locale name="SCREEN_TEXT_ERROR_UNKNOWN" value="Unknown error"/>
   <locale name="SCREEN_TEXT_ERROR_TITLE" value="Oops something went wrong"/>
   <locale name="SCREEN_TEXT_ERROR_PREFIX" value="The process could not be completed:"/>
   <locale name="SCREEN_TEXT_FILTERS" value="Filters"/>
+  <locale name="SCREEN_TEXT_GRID_EMPTY_TEXT" value="There are no records to show. Try changing the search criteria."/>
+  <locale name="SCREEN_TEXT_GRID_EMPTY_TITLE" value="No records found"/>
   <locale name="SCREEN_TEXT_GRID_FIRST" value="First"/>
   <locale name="SCREEN_TEXT_GRID_LAST" value="Last"/>
   <locale name="SCREEN_TEXT_GRID_NEXT" value="Next"/>
   <locale name="SCREEN_TEXT_GRID_OF" value="of"/>
+  <locale name="SCREEN_TEXT_GRID_PAGE" value="Page"/>
   <locale name="SCREEN_TEXT_GRID_PREVIOUS" value="Previous"/>
+  <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_HIDE" value="Hide row details"/>
+  <locale name="SCREEN_TEXT_GRID_ROW_DETAIL_SHOW" value="Show row details"/>
+  <locale name="SCREEN_TEXT_GRID_SELECTED_ROW" value="{{count}} selected"/>
+  <locale name="SCREEN_TEXT_GRID_SELECTED_ROWS" value="{{count}} selected"/>
+  <locale name="SCREEN_TEXT_GRID_CLEAR_SELECTION" value="Clear selection"/>
   <locale name="SCREEN_TEXT_GRID_VIEW" value="View"/>
   <locale name="SCREEN_TEXT_IDENTIFIER_OR_TEXT" value="Identifier or text to search"/>
   <locale name="SCREEN_TEXT_INFO_CURRENCY" value="Reference currency: {0}"/>
@@ -1184,22 +1809,143 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_INFORMATION_MESSAGE_2" value="If you want to exit the application, press the logout button on the top right side of the screen."/>
   <locale name="SCREEN_TEXT_INFORMATION_TITLE" value="awe - Almis Web Engine"/>
   <locale name="SCREEN_TEXT_LOADING" value="Loading"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_UP" value="Up"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_DOWN" value="Down"/>
+  <locale name="SCREEN_TEXT_CARD_TREND_FLAT" value="No change"/>
+  <locale name="SCREEN_TEXT_CARD_TARGET_OF" value="of"/>
   <locale name="SCREEN_TEXT_MAXIMIZE" value="Maximize"/>
+  <locale name="GRID_COLUMNS_BUTTON" value="Columns"/>
+  <locale name="GRID_COLUMNS_TITLE" value="Grid columns"/>
+  <locale name="GRID_COLUMNS_VISIBLE" value="visible"/>
+  <locale name="GRID_COLUMNS_SHOW_ALL" value="Show all"/>
+  <locale name="GRID_COLUMNS_RESET" value="Restore default"/>
+  <locale name="GRID_COLUMNS_SAVE" value="Save"/>
+  <locale name="GRID_COLUMNS_SAVING" value="Saving…"/>
+  <locale name="GRID_COLUMNS_CLOSE" value="Close"/>
+  <locale name="GRID_COLUMNS_CANCEL" value="Cancel"/>
+  <locale name="GRID_COLUMNS_MOVE_UP" value="Move up"/>
+  <locale name="GRID_COLUMNS_MOVE_DOWN" value="Move down"/>
+  <locale name="GRID_COLUMNS_DRAG" value="Drag to reorder"/>
+  <locale name="GRID_ROW_DRAG" value="Drag to move the row. With the keyboard, select it and press Alt+Up, Alt+Down, Alt+Home or Alt+End"/>
+  <locale name="GRID_GROUP_BY" value="Group by"/>
+  <locale name="GRID_GROUP_NONE" value="No grouping"/>
+  <locale name="GRID_GROUP_EXPAND_ALL" value="Expand all groups"/>
+  <locale name="GRID_GROUP_COLLAPSE_ALL" value="Collapse all groups"/>
+  <locale name="GRID_GROUP_EXPAND" value="Expand group"/>
+  <locale name="GRID_GROUP_COLLAPSE" value="Collapse group"/>
+  <locale name="GRID_GROUP_EMPTY" value="(empty)"/>
+  <locale name="GRID_GROUP_SUBTOTAL" value="Subtotal"/>
+  <locale name="GRID_COLUMNS_ERROR_TITLE" value="Grid layout not saved"/>
+  <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="The grid layout could not be saved or removed"/>
+  <locale name="GRID_COLUMNS_SAVED" value="Saved"/>
+  <locale name="GRID_FILTER_BUTTON" value="Filter and sort {{label}}"/>
+  <locale name="GRID_FILTER_SORT_ASC_TEXT" value="Sort A to Z"/>
+  <locale name="GRID_FILTER_SORT_DESC_TEXT" value="Sort Z to A"/>
+  <locale name="GRID_FILTER_SORT_ASC_NUMBER" value="Sort smallest to largest"/>
+  <locale name="GRID_FILTER_SORT_DESC_NUMBER" value="Sort largest to smallest"/>
+  <locale name="GRID_FILTER_SORT_ASC_DATE" value="Sort oldest to newest"/>
+  <locale name="GRID_FILTER_SORT_DESC_DATE" value="Sort newest to oldest"/>
+  <locale name="GRID_FILTER_CLEAR" value="Clear filter from «{{label}}»"/>
+  <locale name="GRID_FILTER_TEXT_FILTERS" value="Text filters"/>
+  <locale name="GRID_FILTER_NUMBER_FILTERS" value="Number filters"/>
+  <locale name="GRID_FILTER_DATE_FILTERS" value="Date filters"/>
+  <locale name="GRID_FILTER_OPERATOR_EQ" value="Equals"/>
+  <locale name="GRID_FILTER_OPERATOR_NE" value="Does not equal"/>
+  <locale name="GRID_FILTER_OPERATOR_STARTS_WITH" value="Begins with"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_STARTS_WITH" value="Does not begin with"/>
+  <locale name="GRID_FILTER_OPERATOR_ENDS_WITH" value="Ends with"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_ENDS_WITH" value="Does not end with"/>
+  <locale name="GRID_FILTER_OPERATOR_CONTAINS" value="Contains"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_CONTAINS" value="Does not contain"/>
+  <locale name="GRID_FILTER_OPERATOR_GT" value="Is greater than"/>
+  <locale name="GRID_FILTER_OPERATOR_GE" value="Is greater than or equal to"/>
+  <locale name="GRID_FILTER_OPERATOR_LT" value="Is less than"/>
+  <locale name="GRID_FILTER_OPERATOR_LE" value="Is less than or equal to"/>
+  <locale name="GRID_FILTER_OPERATOR_BETWEEN" value="Between"/>
+  <locale name="GRID_FILTER_OPERATOR_EMPTY" value="Is empty"/>
+  <locale name="GRID_FILTER_OPERATOR_NOT_EMPTY" value="Is not empty"/>
+  <locale name="GRID_FILTER_OPERATOR_BEFORE" value="Before"/>
+  <locale name="GRID_FILTER_OPERATOR_ON_OR_BEFORE" value="On or before"/>
+  <locale name="GRID_FILTER_OPERATOR_AFTER" value="After"/>
+  <locale name="GRID_FILTER_OPERATOR_ON_OR_AFTER" value="On or after"/>
+  <locale name="GRID_FILTER_TODAY" value="Today"/>
+  <locale name="GRID_FILTER_YESTERDAY" value="Yesterday"/>
+  <locale name="GRID_FILTER_THIS_WEEK" value="This week"/>
+  <locale name="GRID_FILTER_LAST_MONTH" value="Last month"/>
+  <locale name="GRID_FILTER_THIS_YEAR" value="This year"/>
+  <locale name="GRID_FILTER_CUSTOM" value="Custom filter…"/>
+  <locale name="GRID_FILTER_CUSTOM_TITLE" value="Custom filter"/>
+  <locale name="GRID_FILTER_AND" value="And"/>
+  <locale name="GRID_FILTER_OR" value="Or"/>
+  <locale name="GRID_FILTER_UNION" value="Join of the conditions"/>
+  <locale name="GRID_FILTER_NO_CONDITION" value="(None)"/>
+  <locale name="GRID_FILTER_CONDITION_OPERATOR" value="Operator of condition {{number}}"/>
+  <locale name="GRID_FILTER_CONDITION_VALUE" value="Value of condition {{number}}"/>
+  <locale name="GRID_FILTER_CONDITION_TO" value="End value of condition {{number}}"/>
+  <locale name="GRID_FILTER_SEARCH" value="Search"/>
+  <locale name="GRID_FILTER_SELECT_ALL" value="(Select all)"/>
+  <locale name="GRID_FILTER_BLANKS" value="(Blanks)"/>
+  <locale name="GRID_FILTER_VALUES" value="Values of {{label}}"/>
+  <locale name="GRID_FILTER_LOADING" value="Loading values…"/>
+  <locale name="GRID_FILTER_NO_VALUES" value="No values"/>
+  <locale name="GRID_FILTER_MORE_VALUES" value="Only the first {{count}} values are shown: type to search for the others or use the filters of the column."/>
   <locale name="SCREEN_TEXT_MENU" value="Menu"/>
   <locale name="SCREEN_TEXT_MESSAGE_FROM" value="Message from {0}"/>
   <locale name="SCREEN_TEXT_MODULE" value="Module"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTERS" value="Module state"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_MODULE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_MODULE_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES" value="Profiles"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES_EMPTY" value="No profiles yet"/>
+  <locale name="SCREEN_TEXT_MODULE_PROFILES_EMPTY_TEXT" value="Add the profiles whose users can enter the module."/>
+  <locale name="SCREEN_TEXT_MODULE_SEARCH" value="Name…"/>
+  <locale name="SCREEN_TEXT_MODULE_SEARCH_LABEL" value="Search modules"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES" value="Sites"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_DATABASES" value="Sites and databases"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_EMPTY" value="No sites yet"/>
+  <locale name="SCREEN_TEXT_MODULE_SITES_EMPTY_TEXT" value="Add the database the module uses in each site."/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_ACCESS" value="Access"/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_GENERAL" value="General"/>
+  <locale name="SCREEN_TEXT_MODULE_TAB_SITES" value="Sites and databases"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS" value="Users"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS_EMPTY" value="No users yet"/>
+  <locale name="SCREEN_TEXT_MODULE_USERS_EMPTY_TEXT" value="Add the users that can enter the module besides the users of its profiles."/>
   <locale name="SCREEN_TEXT_NAVIGATION" value="Navigation"/>
   <locale name="SCREEN_TEXT_NEW_DATE" value="New date"/>
   <locale name="SCREEN_TEXT_PARAM_LIST" value="Parameter list"/>
   <locale name="SCREEN_TEXT_PASS" value="Password"/>
+  <locale name="SCREEN_TEXT_LOGIN_TITLE" value="Welcome to AWE"/>
+  <locale name="SCREEN_TEXT_LOGIN_SUBTITLE" value="Enter your credentials to continue."/>
+  <locale name="SCREEN_TEXT_LOGIN_PANEL_TITLE" value="AWE Framework"/>
+  <locale name="SCREEN_TEXT_LOGIN_PANEL_SUBTITLE" value="Low coding complete functional web applications"/>
+  <locale name="SCREEN_TEXT_SHARED_SEARCHES" value="Shared with your profile"/>
+  <locale name="SCREEN_TEXT_SHOW_PASSWORD" value="Show password"/>
+  <locale name="SCREEN_TEXT_HIDE_PASSWORD" value="Hide password"/>
+  <locale name="SCREEN_TEXT_CAPS_LOCK_ON" value="Caps Lock is on"/>
+  <locale name="SCREEN_TEXT_SHOW_RESULTS" value="Show results"/>
+  <locale name="SCREEN_TEXT_SIGNING_IN" value="Signing in…"/>
+  <locale name="SCREEN_TEXT_SIGN_IN_MICROSOFT" value="Sign in with Microsoft"/>
+  <locale name="SCREEN_TEXT_LOGIN_OR" value="or continue with"/>
+  <locale name="SCREEN_TEXT_POWERED_BY" value="Powered by"/>
   <locale name="SCREEN_TEXT_PRINT_EMAIL" value="Print/Mail properties configuration"/>
   <locale name="SCREEN_TEXT_PROFILES" value="Profiles"/>
   <locale name="SCREEN_TEXT_RESTRICTIONS" value="Restrictions"/>
   <locale name="SCREEN_TEXT_SECUENCE" value="Sequences"/>
   <locale name="SCREEN_TEXT_SEL_DAT" value="Select date"/>
   <locale name="SCREEN_TEXT_SEL_PRN" value="Printer selection"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTERS" value="Sequence state"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_IDENTITY" value="Sequence"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_SEARCH" value="Name…"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_SEARCH_LABEL" value="Search sequences"/>
+  <locale name="SCREEN_TEXT_SEQUENCE_VALUE_HINT" value="The last identifier AWE handed out for this name; it is added up on every new record."/>
   <locale name="SCREEN_TEXT_SELECT_FILE" value="Put file name without any extension"/>
   <locale name="SCREEN_TEXT_SELECTED" value="Selected"/>
+  <locale name="SCREEN_TEXT_SELECTED_VALUES_SHOW_ALL" value="+{{count}} selected values, show all"/>
   <locale name="SCREEN_TEXT_SERVERS" value="Servers"/>
   <locale name="SCREEN_TEXT_SETTINGS" value="Settings"/>
   <locale name="SCREEN_TEXT_SITE" value="Site"/>
@@ -1207,17 +1953,34 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TEXT_TOTP_CODE" value="Insert code here"/>
   <locale name="SCREEN_TEXT_USER" value="Username"/>
   <locale name="SCREEN_TEXT_USER_DATA" value="User data"/>
+  <locale name="SCREEN_TEXT_USER_IDENTITY" value="Identity"/>
+  <locale name="SCREEN_TEXT_USER_LOCKED_NOTICE" value="Account locked. The user cannot sign in until it is unlocked."/>
+  <locale name="SCREEN_TEXT_USER_SIGN_IN_SECURITY" value="Sign-in security"/>
   <locale name="SCREEN_TEXT_USERS" value="Users"/>
+  <locale name="SCREEN_TEXT_USER_ACCESS" value="Access"/>
+  <locale name="SCREEN_TEXT_USER_APPEARANCE_OUTPUT" value="Appearance and output"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_ALL" value="All"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_LOCKED" value="Locked"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_WITHOUT_2FA" value="Without 2FA"/>
+  <locale name="SCREEN_TEXT_USER_FILTER_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_USER_FILTERS" value="User state"/>
+  <locale name="SCREEN_TEXT_USER_SEARCH" value="User, name, email or profile…"/>
+  <locale name="SCREEN_TEXT_USER_SEARCH_LABEL" value="Search users"/>
+  <locale name="SCREEN_TEXT_USER_VIEW_PERMISSIONS_HELP" value="Shows the saved profiles: save the changes first"/>
   <locale name="SCREEN_TEXT_VERSION" value="Environment"/>
+  <locale name="SCREEN_TITLE_ACCESS_ADMIN" value="Access control"/>
   <locale name="SCREEN_TITLE_ACTIVATE_2FA" value="Activate second factor authentication"/>
   <locale name="SCREEN_TITLE_APP_INF" value="Application info"/>
   <locale name="SCREEN_TITLE_APP_PARAMETERS" value="Application parameters"/>
+  <locale name="SCREEN_TITLE_APP_PAR_ADMIN" value="Application parameters"/>
+  <locale name="SCREEN_TITLE_APP_PAR_PANEL" value="Application parameter"/>
   <locale name="SCREEN_TITLE_AWEKEY" value="Sequences"/>
   <locale name="SCREEN_TITLE_BATCH" value="Batch definition"/>
   <locale name="SCREEN_TITLE_BATCH_AUDIT" value="Batch audit management"/>
   <locale name="SCREEN_TITLE_BROADCAST" value="Broadcasting"/>
   <locale name="SCREEN_TITLE_CAL" value="Calendar management"/>
   <locale name="SCREEN_TITLE_CAL_VIW" value="View calendar"/>
+  <locale name="SCREEN_TITLE_CHANGE_EXPIRED_PWD" value="Expired password"/>
   <locale name="SCREEN_TITLE_CHD_PWD" value="Change password"/>
   <locale name="SCREEN_TITLE_CHECK_2FA" value="Two-factor authentication check"/>
   <locale name="SCREEN_TITLE_COM" value="Commands management"/>
@@ -1247,6 +2010,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_MDL_UPD" value="Update module"/>
   <locale name="SCREEN_TITLE_MDL_VIW" value="View module"/>
   <locale name="SCREEN_TITLE_MENU_ACCESS" value="Menu restrictions"/>
+  <locale name="SCREEN_TITLE_MODULE_PANEL" value="Module"/>
+  <locale name="SCREEN_TITLE_MOD_ADMIN" value="Modules"/>
   <locale name="SCREEN_TITLE_OPT" value="System options management"/>
   <locale name="SCREEN_TITLE_OPT_UPD" value="Update system option"/>
   <locale name="SCREEN_TITLE_OPT_VIW" value="View system option"/>
@@ -1262,6 +2027,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_QUE" value="Message queues"/>
   <locale name="SCREEN_TITLE_QUE_NEW" value="New message queue"/>
   <locale name="SCREEN_TITLE_QUE_UPD" value="Update message queue"/>
+  <locale name="SCREEN_TITLE_QUEUE_ADMIN" value="Message queues"/>
+  <locale name="SCREEN_TITLE_QUEUE_PANEL" value="Message queue"/>
   <locale name="SCREEN_TITLE_REP" value="Report assignation"/>
   <locale name="SCREEN_TITLE_REP_GEN" value="Generated report list"/>
   <locale name="SCREEN_TITLE_REP_GEN_VIW" value="View generated report"/>
@@ -1269,19 +2036,24 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SCREEN_TITLE_SCR_CNF" value="Screen configuration"/>
   <locale name="SCREEN_TITLE_SECURITY_SCREEN" value="Screen access"/>
   <locale name="SCREEN_TITLE_SESSION_CLOSED" value="Session Closed"/>
+  <locale name="SCREEN_TITLE_SETTINGS" value="User settings"/>
+  <locale name="SCREEN_HELP_SETTINGS" value="Your profile, your password and the second factor of your sign-in."/>
   <locale name="SCREEN_TITLE_SEL_PRN" value="Select web printer"/>
+  <locale name="SCREEN_TITLE_SEQUENCE_ADMIN" value="Sequences"/>
+  <locale name="SCREEN_TITLE_SEQUENCE_PANEL" value="Sequence"/>
   <locale name="SCREEN_TITLE_SIT" value="Sites management"/>
   <locale name="SCREEN_TITLE_SIT_NEW" value="New site"/>
   <locale name="SCREEN_TITLE_SIT_UPD" value="Update site"/>
   <locale name="SCREEN_TITLE_SIT_VIW" value="View site"/>
   <locale name="SCREEN_TITLE_STL_CNF" value="Report style configuration"/>
   <locale name="SCREEN_TITLE_THM" value="Theme management"/>
-  <locale name="SCREEN_TITLE_THM_CUSTOM" value="Customize theme"/>
   <locale name="SCREEN_TITLE_THM_NEW" value="New theme"/>
   <locale name="SCREEN_TITLE_THM_UPD" value="Update theme"/>
   <locale name="SCREEN_TITLE_THM_VIW" value="View theme"/>
   <locale name="SCREEN_TITLE_TREE_TEST" value="Tree test"/>
   <locale name="SCREEN_TITLE_UNIKEY" value="System codes"/>
+  <locale name="SCREEN_TITLE_USER_ADMIN" value="Users"/>
+  <locale name="SCREEN_TITLE_USER_PANEL" value="User"/>
   <locale name="SCREEN_TITLE_USR" value="User management"/>
   <locale name="SCREEN_TITLE_USR_NEW" value="New user"/>
   <locale name="SCREEN_TITLE_USR_UPD" value="Update user"/>
@@ -1291,10 +2063,6 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="SECURITY" value="SECURITY"/>
   <locale name="SELECT2_SEARCH_VALUE" value="Search value"/>
   <locale name="SELECT2_SELECT_VALUE" value="Select a value"/>
-  <locale name="TEXT_MESSAGE" value="Message"/>
-  <locale name="TEXT_PREVIEW" value="Preview"/>
-  <locale name="TEXT_TEST" value="Test"/>
-  <locale name="TEXT_TITLE" value="Title"/>
   <locale name="TIME_AGO" value="{0} ago"/>
   <locale name="VALIDATOR_MESSAGE_CHECK_AT_LEAST" value="Please check at least {value2} answers"/>
   <locale name="VALIDATOR_MESSAGE_DATE" value="Please enter a valid date"/>
@@ -1304,6 +2072,18 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="VALIDATOR_MESSAGE_EQUAL" value="Please enter the same value again"/>
   <locale name="VALIDATOR_MESSAGE_EQUAL_LENGTH" value="Please enter a value size equal to {value2} characters"/>
   <locale name="VALIDATOR_MESSAGE_GREATER_OR_EQUAL" value="Please enter a value higher or equal to {value2}"/>
+  <locale name="VALIDATOR_MESSAGE_DATE_RANGE" value="The end date cannot be before the start date"/>
+  <locale name="DATE_RANGE_FROM" value="From"/>
+  <locale name="DATE_RANGE_TO" value="To"/>
+  <locale name="DATE_RANGE_PRESET_TODAY" value="Today"/>
+  <locale name="DATE_RANGE_PRESET_1W" value="1 week"/>
+  <locale name="DATE_RANGE_PRESET_1M" value="1 month"/>
+  <locale name="DATE_RANGE_PRESET_3M" value="3 months"/>
+  <locale name="DATE_RANGE_PRESET_6M" value="6 months"/>
+  <locale name="DATE_RANGE_PRESET_YTD" value="Year to date"/>
+  <locale name="DATE_RANGE_PRESET_12M" value="12 months"/>
+  <locale name="DATE_RANGE_PRESET_3Y" value="3 years"/>
+  <locale name="DATE_RANGE_PRESET_ALL" value="All"/>
   <locale name="VALIDATOR_MESSAGE_GREATER_THAN" value="Please enter a value higher than {value2}"/>
   <locale name="VALIDATOR_MESSAGE_INTEGER" value="Please enter a valid integer number"/>
   <locale name="VALIDATOR_MESSAGE_LESS_OR_EQUAL" value="Please enter a value lower or equal to {value2}"/>
@@ -1319,16 +2099,96 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="VALIDATOR_MESSAGE_TEXT" value="Please enter a valid text. Numbers and white spaces are not allowed"/>
   <locale name="VALIDATOR_MESSAGE_TEXT_WHITESPACES" value="Please enter a valid text. Numbers are not allowed"/>
   <locale name="VALIDATOR_MESSAGE_TIME" value="Please enter a valid time, between 00:00:00 and 23:59:59"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_APP_PAR" value="There is already a parameter with this name. Please change it."/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_MODULE" value="There is already a module with this name. Please change it."/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_PROFILE" value="There is already a profile with this acronym. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_QUEUE" value="Queue exist yet"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_SEQUENCE" value="There is already a sequence with this name. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_SERVER" value="The name of mail server already exist"/>
+  <locale name="WARNING_MESSAGE_DUPLICATED_SITE" value="There is already a site with this name. Please change it."/>
   <locale name="WARNING_MESSAGE_DUPLICATED_USER" value="The new user name is already registered"/>
   <locale name="WARNING_MESSAGE_LOCAL_ALREADY_EXISTS" value="Warning! The localee -{0}- already exists and it will NOT be overwritten"/>
+  <locale name="WARNING_MESSAGE_UNAUTHORIZED_SCREEN_DATA" value="Some data of this screen is not shown because you are not authorized to see it"/>
+  <locale name="WARNING_TITLE_DUPLICATED_APP_PAR" value="Duplicated parameter"/>
+  <locale name="WARNING_TITLE_DUPLICATED_MODULE" value="Duplicated module"/>
+  <locale name="WARNING_TITLE_DUPLICATED_PROFILE" value="Duplicated profile"/>
   <locale name="WARNING_TITLE_DUPLICATED_QUEUE" value="Duplicated queue"/>
+  <locale name="WARNING_TITLE_DUPLICATED_SEQUENCE" value="Duplicated sequence"/>
   <locale name="WARNING_TITLE_DUPLICATED_SERVER" value="Duplicated server name"/>
+  <locale name="WARNING_TITLE_DUPLICATED_SITE" value="Duplicated site"/>
   <locale name="WARNING_TITLE_DUPLICATED_USER" value="Duplicated user name"/>
+  <locale name="WARNING_TITLE_UNAUTHORIZED_SCREEN_DATA" value="Restricted data"/>
   <locale name="WARNING_TITLE_WEB_SERVICE_CALL" value="Warning!"/>
   <locale name="WEEK" value="{0} week"/>
   <locale name="WEEKS" value="{0} weeks"/>
   <locale name="YEAR" value="{0} year"/>
   <locale name="YEARS" value="{0} years"/>
+  <locale name="HELP_SCREEN_TITLE_SCR_PER" value="Personalize a screen visually: click an element of the screen and change its attributes for everyone, a profile or a user"/>
+  <locale name="MENU_TOOLS_SCR_PER" value="Personalize screen"/>
+  <locale name="SCREEN_TITLE_SCR_PER" value="Personalize screen"/>
+  <locale name="SCR_PER_ADVANCED" value="Advanced"/>
+  <locale name="SCR_PER_APPLIES_TO" value="Applies to"/>
+  <locale name="SCR_PER_CHANGES" value="{0} change(s)"/>
+  <locale name="SCR_PER_DISCARD" value="Discard"/>
+  <locale name="SCR_PER_FOR" value="for"/>
+  <locale name="SCR_PER_HIDDEN" value="hidden"/>
+  <locale name="SCR_PER_INVALID" value="{0} invalid value(s)"/>
+  <locale name="SCR_PER_ORIGIN_DEFAULT" value="Inherited from the screen default"/>
+  <locale name="SCR_PER_ORIGIN_EVERYONE" value="Inherited from everyone"/>
+  <locale name="SCR_PER_ORIGIN_PERSONALIZED" value="Personalized for this scope"/>
+  <locale name="SCR_PER_ORIGIN_PROFILE" value="Inherited from the profile"/>
+  <locale name="SCR_PER_ORIGIN_USER" value="Personalized for the user"/>
+  <locale name="SCR_PER_PICK_SCREEN" value="Choose a screen to personalize"/>
+  <locale name="SCR_PER_PRECEDENCE" value="User beats profile, profile beats everyone"/>
+  <locale name="SCR_PER_RESET_ATTRIBUTE" value="Reset"/>
+  <locale name="SCR_PER_RESET_ELEMENT" value="Reset element"/>
+  <locale name="SCR_PER_SCOPE_EVERYONE" value="Everyone"/>
+  <locale name="SCR_PER_SCOPE_PROFILE" value="Profile"/>
+  <locale name="SCR_PER_SCOPE_USER" value="User"/>
+  <locale name="SCR_PER_VIEW_AS" value="View as"/>
+  <locale name="SCR_PER_VIEW_AS_EDITED" value="Edited scope"/>
+  <locale name="SCR_PER_NO_OPTION" value="This screen is not reachable from any menu option, so it cannot be shown here"/>
+  <locale name="SCR_PER_MODE" value="Mode"/>
+  <locale name="SCR_PER_MODE_EDIT" value="Edit"/>
+  <locale name="SCR_PER_MODE_OVERVIEW" value="Overview"/>
+  <locale name="SCR_PER_OVERVIEW_TITLE" value="{0} · {1} element(s) changed"/>
+  <locale name="SCR_PER_OVERVIEW_EMPTY" value="Nothing is personalized on this screen"/>
+  <locale name="SCR_PER_VALUE_VISIBLE" value="Visible"/>
+  <locale name="SCR_PER_VALUE_HIDDEN" value="Hidden"/>
+  <locale name="SCR_PER_VALUE_YES" value="Yes"/>
+  <locale name="SCR_PER_VALUE_NO" value="No"/>
+  <locale name="SCR_PER_PROBLEMS" value="{0} change(s) no longer work"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_ELEMENT" value="{0} is no longer on this screen ({1})"/>
+  <locale name="SCR_PER_PROBLEM_INVALID_ATTRIBUTE" value="{1} cannot be set on {0}"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_PROFILE" value="The profile of the {1} rule of {0} no longer exists"/>
+  <locale name="SCR_PER_PROBLEM_MISSING_USER" value="The user of the {1} rule of {0} no longer exists"/>
+  <locale name="SCR_PER_PROBLEM_DUPLICATE" value="{0} · {1} has {3} rules for {2}"/>
+  <locale name="SCR_PER_DELETE" value="Delete"/>
+  <locale name="SCR_PER_KEEP_ONE" value="Keep one:"/>
+  <locale name="SCR_PER_KEEP_VALUE" value="Keep {0}"/>
+  <locale name="SCR_PER_MODE_HISTORY" value="History"/>
+  <locale name="SCR_PER_HISTORY_EMPTY" value="No change has been recorded on this screen"/>
+  <locale name="SCR_PER_HISTORY_CREATED" value="Created: {0}"/>
+  <locale name="SCR_PER_HISTORY_DELETED" value="Deleted (was {0})"/>
+  <locale name="SCR_PER_UNDO" value="Undo"/>
+  <locale name="SCR_PER_CHANGED_LATER" value="Changed later"/>
+  <locale name="SCR_PER_HISTORY_UNRECORDED" value="Earlier value not recorded"/>
+  <locale name="SCR_PER_HISTORY_CHANGED_TO" value="Changed to: {0}"/>
+  <locale name="SCR_PER_EXPORT" value="Export"/>
+  <locale name="SCR_PER_IMPORT" value="Import"/>
+  <locale name="SCR_PER_IMPORT_FILE" value="File to import"/>
+  <locale name="SCR_PER_IMPORT_TITLE" value="Import rules"/>
+  <locale name="SCR_PER_IMPORT_DROP" value="Drop a .json file or"/>
+  <locale name="SCR_PER_IMPORT_CHOOSE" value="choose one"/>
+  <locale name="SCR_PER_IMPORT_HINT" value="A file exported from this screen. You will see what changes before anything is saved."/>
+  <locale name="SCR_PER_IMPORT_PREVIEW" value="Import: {0} to add, {1} to change"/>
+  <locale name="SCR_PER_IMPORT_SKIPPED" value="{0} rule(s) skipped"/>
+  <locale name="SCR_PER_IMPORT_SKIPPED_ITEM" value="{0} · {1}: {2} {3}"/>
+  <locale name="SCR_PER_IMPORT_REASON_PROFILE" value="profile not found:"/>
+  <locale name="SCR_PER_IMPORT_REASON_USER" value="user not found:"/>
+  <locale name="SCR_PER_IMPORT_REASON_ELEMENT" value="element not on this screen:"/>
+  <locale name="SCR_PER_IMPORT_APPLY" value="Apply import"/>
+  <locale name="SCR_PER_IMPORT_CANCEL" value="Cancel"/>
+  <locale name="SCR_PER_IMPORT_INVALID_FILE" value="The file is not an export of the personalization of a screen"/>
+  <locale name="SCR_PER_IMPORT_OTHER_SCREEN" value="The file is for the screen {0}, not for this one"/>
 </locales>

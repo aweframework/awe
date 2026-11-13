@@ -24,9 +24,10 @@ or
 | `context`       |   Optional   |  String   | Context where the target is                                  | View where the component is or screen context                         |
 | `server-action` |   Optional   |  String   | Server action call                                           | See [server action list](#server-actions)                             |
 | `target-action` |   Optional   |  String   | Target to call on the server                                 |                                                                       |
-| `silent`        |   Optional   |  Boolean  | Launch the action without showing the loading bar            |                                                                       |
+| `silent`        |   Optional   |  Boolean  | Launch the action without disabling the buttons nor showing the loading bar. The client actions of a grid (select, add, copy, move or delete rows, edit a row, change its page, sort or filters...) are silent by default: they are immediate. A server action keeps disabling them unless `silent="true"`, and its answer is silent when it is | Default value is `false` (`true` for the client actions of a grid) |
 | `async`         |   Optional   |  Boolean  | Launch the action in the [async stack](#async-stack)         |                                                                       |
 | `value`         |   Optional   |  String   | Value to set to the criterion in case action is "value" type |                                                                       |
+| `edit-permission` | Optional   |  String   | Only for the `dialog` type: permissions the user needs to edit in the dialog or side panel it opens. Without them the panel opens in view mode (read-only criteria). See [screen elements](../security/permissions.md#view-mode-of-a-panel-edit-permission) | Permission identifiers separated by spaces, all required. **Ex.** `users.update` |
 
 ## Client actions
 
@@ -57,7 +58,7 @@ Actions retrieved by the application to execute a generic action. These actions 
 | `value`                    | Set a value to a criterion                                                                                                                    |
 | `wait`                     | Wait an amount of milliseconds defined on `target` attribute                                                                                  |
 | `close-window`             | Tries to close the current browser window (sometimes it'll ask to the user)                                                                   |
-| `update-theme`             | Reload the theme stylesheet to retrieve theme changes without reloading the screen                                                            |
+| `update-theme`             | Apply the theme settings (mode, primary colour, surface, density) to the page again without reloading the screen                              |
 | `get-file`                 | Download a file from the server. The file to retrieve is identified by the `filename` parameter                                               |
 | `change-menu`              | Replace the current menu options with the options received on the `options` parameter                                                        |
 
@@ -121,7 +122,7 @@ Actions which works over components in the screen.
 | `validate`                       | Launch a validation on the criterion or criteria inside the `target` tag                                 | `tag`, `criteria`           |
 | `set-valid`                      | Set a criterion as valid, clearing its previous validation error                                         | `criteria`                  |
 | `set-invalid`                    | Set a criterion as invalid, showing the message defined on the `message` parameter                       | `criteria`                  |
-| `fill-suggest`                   | Fill the available and selected values of a suggest criterion with the `values` parameter                | `criteria`                  |
+| `fill-suggest`                   | **Deprecated**: use `fill` and `select`. Fill the available and selected values of a suggest criterion with the `values` parameter | `criteria`                  |
 | `update-controller`              | Update the controller attribute defined on the `attribute` parameter with the value received             | Any component               |
 | `dialog`                         | Opens a modal dialog                                                                                     | `dialog`                    |
 | `close`                          | Closes a dialog                                                                                          | `dialog`                    |
@@ -135,6 +136,11 @@ Actions which works over components in the screen.
 | `copy-row-top`                   | Copy the selected row at the top of the grid                                                             | `grid`                      |
 | `copy-row-up`                    | Copy the selected row over the selected row                                                              | `grid`                      |
 | `copy-row-down`                  | Copy the selected row below the selected row                                                             | `grid`                      |
+| `copy-rows`                      | Replace the rows of the grid with a copy of the rows of the grid named in `value` (without its deleted rows): each shown column takes the cells of the shown column of that grid in the same position, a select cell with the text of its option. The grid is not marked as changed (a read-only view of an editable grid) | `grid`                      |
+| `move-row-top`                   | Move the selected row to the top of the grid                                                             | `grid`                      |
+| `move-row-up`                    | Move the selected row one position up                                                                    | `grid`                      |
+| `move-row-down`                  | Move the selected row one position down                                                                  | `grid`                      |
+| `move-row-bottom`                | Move the selected row to the bottom of the grid                                                          | `grid`                      |
 | `delete-row`                     | Delete the selected row                                                                                  | `grid`                      | 
 | `save-row`                       | Save the selected row                                                                                    | `grid`                      |
 | `cancel-row`                     | Cancel the edition of the selected row                                                                   | `grid` (editable)           |
@@ -146,6 +152,7 @@ Actions which works over components in the screen.
 | `select-last-row`                | Selects the last row of the grid                                                                         | `grid`                      |
 | `select-all-rows`                | Select all rows of the grid                                                                              | `grid`                      |
 | `unselect-all-rows`              | Unselect all rows of the grid                                                                            | `grid`                      |
+| `show-context-menu`              | Open the context menu under the button that launches it (see [Context menu](context-menu.md#opening-the-menu)) | The button itself           |
 | `validate-selected-row`          | Launch a validation on the selected row of the grid                                                      | `grid`                      |
 | `copy-selected-rows-clipboard`   | Copy the selected rows on the grid to the clipboard                                                      | `grid`                      |
 | `show-columns`                   | Show the grid columns defined on the `columns` parameter                                                 | `grid`                      |
@@ -165,7 +172,8 @@ Actions which works over components in the screen.
 | `set-pivot-group-cols`           | Set the fields used as column groups, defined as a comma-separated list on the `cols` parameter          | `pivot`                     |
 | `clear-file`                     | Clear the uploaded file, resetting the uploader component                                                | `uploader`                  |
 | `taglist-data`                   | Load the content of a taglist with the HTML and component data received from the server                  | `taglist`                   |
-| `polyline`                       | Draw a polyline on a map with the points received on the `rows` parameter (`Lat` and `Lon` fields)       | `map`                       |
+| `initial-model`                  | Set the initial model of a component (rows, selected values, defaults) loaded when its [deferred dialog](dialog.md#deferred-loading) or [tab](tab-and-tabcontainer.md#deferred-loading) was first opened, as the screen load does. It is the answer of the `deferred-data` server action | `criteria`, `grid`, `chart` |
+| `polyline`                       | Draw a route on a [map](map.md#route) with the points received on the `rows` parameter (latitude and longitude columns of the map)| `map`                       |
 
 
 #### Component attributes
@@ -210,10 +218,20 @@ These actions are dispatched by the framework itself as part of the screen and c
 | `file-downloaded`  | Notify a downloader component that the file download has finished                             |
 | `locals-retrieved` | Store the translations retrieved from the server for a language                               |
 | `log-delta`        | Append new log lines to a log viewer component and scroll it down                             |
-| `after-add-row`    | Launched after a row has been added to a grid                                                 |
-| `after-delete-row` | Launched after a row has been deleted from a grid                                             |
-| `after-save-row`   | Launched after a row has been saved on an editable grid                                       |
-| `after-cancel-row` | Launched after the edition of a row has been cancelled on an editable grid                    |
+| `after-add-row` | Notification launched after a row has been added to a grid. Raises the `after-add-row` event of the grid, so its dependencies run. Does not change the selection |
+| `after-delete-row` | Notification launched after a row has been deleted from a grid. Raises the `after-delete-row` event of the grid. Does not change the selection |
+| `after-save-row` | Notification launched after a row has been saved on an editable grid. Raises the `after-save-row` event of the grid and unselects all its rows |
+| `after-cancel-row` | Notification launched after the edition of a row has been cancelled on an editable grid. Raises the `after-cancel-row` event of the grid and unselects all its rows |
+
+#### Grid `after-*` notifications {#grid-after-notifications}
+
+`after-add-row`, `after-delete-row`, `after-save-row` and `after-cancel-row` behave the same in the AngularJS and React engines. The grid launches them itself when the operation finishes, but a screen or a server response can also send them in the action list, and in both cases they run as follows:
+
+- They only notify: they do not add, delete, save or cancel any row.
+- Each one raises the event with its own name on the grid, so any dependency with `event="after-save-row"` (or the matching name) is checked.
+- `after-save-row` and `after-cancel-row` also unselect all the rows of the grid, which raises the `select-row` event.
+- `after-add-row` and `after-delete-row` keep the selection as it is.
+- The action is always accepted, so it never blocks the action queue.
 
 ## Server actions
  
@@ -225,6 +243,7 @@ These actions are dispatched by the framework itself as part of the screen and c
 | `data`                    | Get data from the server. Fills the `values` list of the criterion                                                                   | `targetAction`: Query identifier                                       |
 | `value`                   | Get a value from the server. Fills the `selected` list of the criterion. *In suggests, this action also fills the `values` list*     | `targetAction`: Query identifier                                       |
 | `update-model`            | Get values for some criteria. The query field alias **must** be the criterion id to match. Fills the `selected` list of the criteria | `targetAction`: Query identifier                                       |
+| `deferred-data`           | Run the initial load of the components of a [deferred dialog](dialog.md#deferred-loading) or [tab page](tab-and-tabcontainer.md#deferred-loading) and set their initial model. The clients launch it themselves on the first opening; it is not meant to be written in a screen | `targetAction`: Dialog or tabcontainer identifier                      |
 | `subscribe`               | Subscribe to a query data retrieval. The subscription stores the component request and broadcasts  data to the component address     | `targetAction`: Query identifier                                       |
 | `maintain`                | Launch a maintain process                                                                                                            | `targetAction`: Maintain target identifier                             |
 | `maintain-silent`         | Launch a maintain process without response message                                                                                   | `targetAction`: Maintain target identifier                             |
@@ -384,7 +403,7 @@ public ServiceData togglePanel() {
 |---------------------|---------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
 | `select`            | Fill a criterion selected values                              | `values` - Datalist with criteria value                                                                                 |
 | `fill`              | Fill a criterion list of available values                     | `rows` -  rows of datalist (at least must have `value` and `label` fields)                                              |
-| `fill-suggest`      | Fill the available and selected values of a suggest criterion | `values` - List of suggest values (with `value` and `label` fields)                                                     |
+| `fill-suggest`      | **Deprecated**: use `fill` and `select`. Fill the available and selected values of a suggest criterion | `values` - List of suggest values (with `value` and `label` fields)                                                     |
 | `update-controller` | Update an attribute of a component controller                 | `attribute` - Controller attribute to update, `value` - Value to set (or `datalist` - DataList whose first row `value` field is used) |
 
 **select**
@@ -410,7 +429,24 @@ ServiceData setCriteriaValue() {
 }
 ``` 
 
-**fill-suggest**
+**fill-suggest** (deprecated)
+
+`FillSuggestActionBuilder` is deprecated since 5.0.0. Send a `fill` action with the values and their labels, followed
+by a `select` action with the values to select:
+
+```java
+public ServiceData fillSuggestValues() {
+  DataList dataList = new DataList();
+  DataListUtil.addColumn(dataList, "value", List.of("TR001", "TR002"));
+  DataListUtil.addColumn(dataList, "label", List.of("Transaction 001", "Transaction 002"));
+  return new ServiceData()
+    .addClientAction(new FillActionBuilder("SuggestCriterion", dataList).build())
+    .addClientAction(new SelectActionBuilder("SuggestCriterion", "TR001", "TR002").build());
+}
+```
+
+When the suggest can resolve the labels through its `check-target` or `target-action`, the `select` action alone is
+enough. The deprecated builder still works:
 
 ```java
 public ServiceData fillSuggestValues() {
@@ -455,6 +491,10 @@ public ServiceData updateButtonLabel() {
 | `copy-row-top`    | Copy the selected row at the top of the grid                                          | `selectedRow` - Selected row identifier (optional)                                                                                                     |
 | `copy-row-up`     | Copy the selected row over the selected row                                           | `selectedRow` - Selected row identifier (optional)                                                                                                     |
 | `copy-row-down`   | Copy the selected row below the selected row                                          | `selectedRow` - Selected row identifier (optional)                                                                                                     |
+| `move-row-top`    | Move the selected row to the top of the grid                                          | `selectedRow` - Row identifier to move (optional, the selected row by default)                                                                         |
+| `move-row-up`     | Move the selected row one position up                                                 | `selectedRow` - Row identifier to move (optional, the selected row by default)                                                                         |
+| `move-row-down`   | Move the selected row one position down                                               | `selectedRow` - Row identifier to move (optional, the selected row by default)                                                                         |
+| `move-row-bottom` | Move the selected row to the bottom of the grid                                       | `selectedRow` - Row identifier to move (optional, the selected row by default)                                                                         |
 | `update-row`      | Update the selected row values                                                        | `row` - row values, `rowId` - id of row to be updated (if none given, selected one will be selected), `style` - CSS class to add to the row (optional) |
 | `delete-row`      | Delete the selected row                                                               |                                                                                                                                                        | 
 | `filter`          | Reload the grid data                                                                  |                                                                                                                                                        |

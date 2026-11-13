@@ -78,8 +78,8 @@ public class CryptoAnnotation {
           Object arg = proceedingJoinPoint.getArgs()[paramIndex];
 
           // Apply processors
-          if (annotation instanceof Crypto) {
-            arg = cryptoProcessor.processCrypto((Crypto) annotation, (String) arg);
+          if (annotation instanceof Crypto crypto) {
+            arg = cryptoProcessor.processCrypto(crypto, (String) arg);
           }
 
           // Save value

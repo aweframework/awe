@@ -6,6 +6,10 @@ sidebar_label: Maintain definition
 
 The maintain engine is used to do operations that don't return data. These operations are valid for updating data in the server. They **only return** the result of proccess, if operation has been **ok** or if there has been a **problem** while doing the operation.
 
+:::tip
+Every element and attribute of maintain targets is listed in the generated [XSD reference](/reference/maintain).
+:::
+
 There are several types of maintain operations: insert, update, delete and multiple operations. Also a maintain operation can call a service to do the job (send email, print a report, ...).
 
 You can put as many operations as you want inside a target. I.e. an insert operation followed by two update operations.
@@ -60,7 +64,7 @@ For easier development of maintain, not all elements are required.
 | [insert](#insert)               | Optional      | Yes                 | Is used to do insert operations in database                                                 |
 | [update](#update)               | Optional      | Yes                 | Is used to do update operations in database                                                 |
 | [delete](#delete)               | Optional      | Yes                 | Is used to do delete operations in database                                                 |
-| [multiple](#multiple)           | Optional      | Yes                 | Is used to do multiples operations (insert, delete or update) in database at **once **      |
+| [multiple](#multiple)           | Optional      | Yes                 | Is used to do multiples operations (insert, delete or update) in database at **once**      |
 | [commit](#commit)               | Optional      | Yes                 | Is used to do commit in database and store the changes                                      |
 | [serve](#service-maintain)      | Optional      | Yes                 | Is used to do operations with services (Java or Web services)                               |
 | [queue](#queue-maintain)                 | Optional      | Yes                 | Is used to do operations with queues                                                        |
@@ -81,8 +85,56 @@ Target element has the following attributes:
 |-----------|--------------|---------|--------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | name      | **Required** | String  | Maintain identifier                                                | **Note:**  The name name must be unique                                                                             |
 | public    | Optional     | Boolean | To set a query as launchable out of session (without being logged) | By default is `false`                                                                                               |                 
+| server-only | Optional   | Boolean | To refuse the target to any client request; only the server can launch it | By default is `false`. See [server-only targets](#server-only-targets) |
+| permission | Optional    | String  | Permissions of the catalog that a client needs to launch the target, separated by spaces (all of them are required) | **Note:** An unknown permission, or a permission on a `public` target, is a load error. See [permissions](#target-permissions) |
 | label     | Optional     | String  | Is used to set the output message after executing maintenance      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                          | 
 | exclusive | Optional     | Boolean | To restrict the concurrently execution  of target                  | set this attribute to `true` if you don't want the target to be executed concurrently (some users at the same time) |
+
+#### Permissions {#target-permissions}
+
+A target with `permission="users.delete"` is launched by a client only when the session user has the `users.delete`
+permission, besides the access by screen. Server launches (`launchPrivateMaintain`) and the targets included with
+`<include target="..."/>` are never checked. See [Permissions](../security/permissions.md).
+
+#### Server-only targets {#server-only-targets}
+
+A target marked with `server-only="true"` can only be launched by the server (a Java service, the scheduler...) through `MaintainService.launchPrivateMaintain`. Any request from a client is refused with the *access denied* error, **even when the user is signed in**: `/action/maintain` (also the silent and asynchronous variants), the file maintain endpoints, `/api/maintain`, `/api/maintain/async` and `/api/public/maintain`.
+
+```xml
+<target name="store2faSecret" server-only="true">
+  <update>...</update>
+</target>
+```
+
+Use it for every target that a client must never drive by itself, especially the ones that read the affected user (or any other security-relevant value) from a request parameter: the server sets the parameters it needs when it launches the target.
+
+| Attribute combination                    | Client request                                                                            | Server launch (`launchPrivateMaintain`) |
+|------------------------------------------|-------------------------------------------------------------------------------------------|-----------------------------------------|
+| neither `public` nor `server-only`       | Needs a signed-in session                                                                 | Allowed                                 |
+| `public="true"`                          | Allowed without a session                                                                 | Allowed                                 |
+| `server-only="true"`                     | **Refused**, even with a session                                                          | Allowed                                 |
+| `public="true"` and `server-only="true"` | **Refused**: `server-only` wins (it is never treated as public, and a warning is logged)  | Allowed                                 |
+
+A client target can still *include* a server-only target (`<include target="..."/>`) or call a Java service that launches it: the restriction applies to the request, not to the targets that the server runs on behalf of the client.
+
+##### Audit of the framework maintain targets {#maintain-targets-audit}
+
+A client target that is not `server-only` receives its parameters from the request. These are the main groups of the targets of the framework:
+
+| Group | Targets | Why |
+|-------|---------|-----|
+| User taken from the session | `updateUserData`, `ChdPwd`, `UsrUpdPwd`, `loginUser`, `logoutUser`, `MgrUsrLogIn`, `update2faStatus`, `clickFavourite`, `selectDarkMode`, `selectLightMode`, `selectComfortableDensity`, `selectCompactDensity`, `saveUserAvatar`, `upsertUserAvatar`, `saveGridLayout`, `resetGridLayout`, `read-notification`, `toggle-notifications`, `toggle-web-subscription`, `toggle-email-subscription` | The user screens use them. The affected user is read from the session (`session="user"`) or resolved by a Java service, never from the request. |
+| Public login flow | `login`, `logout`, `MgrUsrLogOut`, `ChdPwdExpired`, `ChdPwdPub`, `verify2faCode` | They run before the session exists. `ChdPwdPub` and `ChdPwdExpired` delegate to a service that checks the current password before it changes anything. |
+| Administration screens | `UsrNew`, `UsrUpd`, `UsrDel`, `UsrUnl`, `reset2fa`, `ModNew`, `ModUpd`, `ModDel`, `SitNew`, `SitUpd`, `SitDel`, `ProNew`, `ProUpd`, `ProDel`, `updateScreenRestriction`, `updateScreenRestrictionNew`, `updateMenuRestrictionTree`, `allowMenuOption`, `restrictMenuOption`, `removeRestriction`, `access-allow`, `access-deny`, `access-remove`, `access-remove-rule`, `access-switch-rule`, `access-review-remove`, `access-review-allow-parent`, `access-review-clean`, `updateScreenConfiguration`, `StlCnfMul`, `AweKeyMul`, `AweKeyNew`, `AweKeyUpd`, `AweKeyDel`, `AweAppParMul`, `AweAppParNew`, `AweAppParUpd`, `AweAppParDel`, `AppParSecUpd`, `ThmNew`, `ThmUpd`, `ThmDel`, `DbsNew`, `DbsUpd`, `DbsDel`, `OptUpd`, `new-subscription`, `update-subscription`, `delete-subscriptions` and the scheduler server, task and calendar targets | The administration screens work on other users and on the configuration, by id or name. |
+| Server-only | `store2faSecret`, `UpdPwdLck`, `UpdCntLog`, `ProvisionNewUser`, `UpdateOauthUserProfile`, `UsrRehashPwd`, `ChdPwdExpiredUpdate`, `UsrUpdPwdUpdate`, `ChdPwdPubUpdate`, `addUserSettings`, `updateUserMode`, `updateUserDensity`, `addToFavourites`, `removeFromFavourites`, `insertUserAvatar`, `updateUserAvatar`, `insertGridLayout`, `updateGridLayout`, `deleteGridLayout`, `new-restriction`, `update-restriction`, `delete-restriction`, `new-notification`, `notify-email-users`, `insert-user-subscription`, `update-user-subscription` and the scheduler bookkeeping targets (`insertFile`, `updateFile`, `deleteFile`, `startTask`, `endTask`, `updateTaskStatus`, `updateInterruptedTasks`, `updateExecutionTime`, `purgeExecutionLogs`, `insertExecutionLogLines`, `updateExecutionLogLines`, `purgeExecutionLogLines`, `purgeExecutionLogOrigin`) | Only Java launches them. Before AWE 5 a signed-in user could drive them against any user (for example, to store a 2FA secret or change the profile of another user). |
+
+The rest of the client targets (reports, e-mails, messages, queues, utilities of the screens) do not change the data of a user.
+
+:::info
+`server-only` and [screen access](../security/screen-access.md) are different checks. `server-only` refuses the target to every client request. Screen access lets a client launch a target only when the session user can open at least one menu option whose screen uses it, so the administration targets run only for the profiles that can open the administration screens. A target that no screen uses keeps the rules of the table above.
+:::
+
+An automated test (`MaintainDescriptorGuardTest`) fails the build when a target that Java launches is not `server-only`, or when a target that a client can launch reads a user from the request instead of the session without being in the audited list of administration and login targets.
 
 #### Table element
 
@@ -137,7 +189,7 @@ Field element in maintains has the following attributes:
 | sequence         | Optional     | String  | Name of sequence to insert from `AweKey table`                                                                                               | **Note:** Only apply in `insert` maintains.  It's mandatory to define a new variable without name to use it and assign it to the variable attribute |
 | auto-incremental | Optional     | Boolean | If field value is retrieve from identity/auto-incremental column type                                                                       | **Note:** Only apply in `insert` maintains.  It's mandatory to define a new variable without name to use it and assign it to the variable attribute |
 | key              | Optional     | Boolean | If field is a table key, this value must be set as `true`                                                                                    | **Note:** Only apply in `multiple` maintains                                                                                                        |
-| audit            | Optional     | Boolean | **ONLY** record this field on the audit table. **Note:** If this attribute is set to `true` this field will **NOT** be recorded on the table | Default value is `false`                                                                                                                            |
+| audit            | Optional     | Boolean | Where the field is recorded. `true`: **ONLY** on the audit table, the field is **NOT** written on the table. `false`: **ONLY** on the table, the field is **NOT** audited. Omitted: on both the table and the audit table | Default (omitted) is both |
 | optional         | Optional     | Boolean | Leave this field out of the operation when its variable has no value, instead of writing `null`                                              | Default value is `false`. See [optional fields](#optional-fields)                                                                                    |
 | variable         | Optional     | String  | Used to set the input field with one variable value                                                                                          |                                                                                                                                                     |
 | query            | Optional     | String  | Is the query identifier to do a subquery                                                                                                     | **Note:** The query id must exist                                                                                                                   |
@@ -206,7 +258,7 @@ The *operation* element allows to define operation between fields and will be re
   <constant value="[constant value]" />
   <field id="[field name]" table="[field table]" />
   ...
-</field>
+</operation>
 ```
 
 | Attribute | Use          | Type    | Description                    | Values                                                                                    |
@@ -239,7 +291,7 @@ Insert element in maintains has the following attributes:
 
 | Attribute  | Use       | Type    | Description                                                                                                                                                                              | Values                                                                         |
 |------------|-----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------|
-| multiple   | Optional  | Boolean | If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true`, `false` or `audit`                                                     |
+| multiple   | Optional  | String  | If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true` or `audit`. When omitted the operation runs once                                                     |
 | label      | Optional  | String  | Is used to set the output message after executing maintenance                                                                                                                            | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)     | 
 | audit      | Optional  | String  | The name of the audit table where audit values are going to be stored                                                                                                                    | **Note:** Audit table must exist                                               |
 | query      | Optional  | String  | Name of a query to retrieve data from an [INSERT INTO SELECT](#insert-into-select) statement                                                                                             | **Note:** If `audit` is also defined, AWE reuses the same source rowset for the base insert and the audit rows |
@@ -423,7 +475,7 @@ Update element in maintains has the following attributes:
 
 | Attribute  | Use       | Type     | Description                                                                                                                                                                              | Values                                                                     |
 |------------|-----------|----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| multiple   | Optional  | Boolean  | If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true`, `false` or `audit`                                                 |
+| multiple   | Optional  | String   | If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true` or `audit`. When omitted the operation runs once                                                 |
 | label      | Optional  | String   | Is used to set the output message after executing maintenance                                                                                                                            | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
 | audit      | Optional  | String   | The name of the audit table where audit values are going to be stored                                                                                                                    | **Note:** Audit table must exist                                           |
 | batch      | Optional  | Boolean  | Do the operation in batch chunks                                                                                                                                                         | Default value is `false`                                                   |
@@ -521,7 +573,7 @@ Delete element in maintains has the following attributes:
 
 | Attribute  | Use       | Type    | Description                                                                                                                                                                              | Values                                                                     |
 |------------|-----------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------|
-| multiple   | Optional  | Boolean | If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true`, `false` or `audit`                                                 |
+| multiple   | Optional  | String  | If `true` this operation will be launched as many times as defined list variable values are, if `audit` this operation will be audited as many times as defined list variable values are | `true` or `audit`. When omitted the operation runs once                                                 |
 | label      | Optional  | String  | Is used to set the output message after executing maintenance                                                                                                                            | **Note:** You can use [i18n](i18n-internationalization.md) files (locales) | 
 | audit      | Optional  | String  | The name of the audit table where audit values are going to be stored                                                                                                                    | **Note:** Audit table must exist                                           |
 | batch      | Optional  | Boolean | Do the operation in batch chunks                                                                                                                                                         | Default value is `false`                                                   |
@@ -625,8 +677,8 @@ Multiple element in maintains has the following attributes:
 ```
 
 ```xml
-<!-- AweKey Update Multiple -->
-<target name="AweKeyUpd">
+<!-- AweKey Update Multiple: the editable grid of the deprecated AweKey screen -->
+<target name="AweKeyMul">
   <multiple grid="GrdKeyLst">
     <table id="AweKey"/>
     <field id="KeyNam" variable="KeyNam" key="true"/>
@@ -650,7 +702,7 @@ Audits are managed automatically with AWE, but the audit tables must be created 
 
 ### **Commit**
 
-The tag `<commit/>` is used into maintain targets to force the **data stored** in the database. Usually, used between different maintenance operations to ensure that the data are correct before proceeding to the next step.
+The tag `<commit/>` is used into maintain targets to force the **data stored** in the database. Usually, used between different maintenance operations to ensure that the data are correct before proceeding to the next step. See [Transactions](#transactions) for how it works with the maintain transaction.
 
 #### **Commit example**
 
@@ -694,6 +746,90 @@ The tag `<commit/>` is used into maintain targets to force the **data stored** i
 </target>
 ```
 
+## Transactions
+
+Each maintain runs inside one database transaction of its datasource. When the maintain ends without error the
+transaction is committed; when a statement fails, or a step returns an `ERROR` result, the whole maintain is rolled
+back. This is controlled by `awe.maintain.transaction.enabled` (`true` by default, new in AWE 5).
+
+```properties
+# Default. Set to false to get the AWE 4 behavior described below
+awe.maintain.transaction.enabled=true
+```
+
+### What the transaction covers
+
+The transaction belongs to the datasource of the maintain: the default datasource, or the one selected with the
+database parameter when `awe.database.multidatabase-enable=true`. Everything that runs on that datasource while the
+maintain runs joins it (Spring `PROPAGATION_REQUIRED`):
+
+| Step of the maintain | With the transaction (default) |
+|---|---|
+| `insert`, `update`, `delete`, `multiple`, audits (`HIS*` tables), `include-target` | Same transaction. A failure rolls back every previous statement of the maintain. |
+| `retrieve-data` | Joins the transaction, so it **sees the rows written before it** by the same maintain. |
+| `serve` with a Java service that launches another maintain on the same datasource | The nested maintain **joins the outer one**: it is committed or rolled back with it. |
+| A step that returns a `ServiceData` of type `ERROR` without throwing | The maintain is rolled back and the error response is returned as it is. |
+| `<commit/>` | Commits the transaction **in the middle** of the maintain, as before: the work before it stays even if a later step fails. |
+| A maintain launched inside a Spring `@Transactional` method (or a `TransactionTemplate`) of the application on the same datasource | **Joins the application transaction**: it is committed or rolled back with it. |
+| A maintain on a different datasource | Runs in its own transaction of that datasource. |
+| `queue` (JMS) and `email` steps | Not transactional: a message or an email that was sent is not undone by a rollback. |
+| REST and microservice calls (`serve` with a REST or microservice service) | Not transactional: the remote side is not rolled back. |
+
+Points to keep in mind:
+
+- **A swallowed failure still rolls back.** If a Java service catches the exception of a nested maintain, or ignores
+  its `ERROR` result, and returns `OK`, the outer maintain fails at commit time with the generic maintain error and
+  everything is rolled back. Let the error propagate instead of hiding it.
+- **Inside an application transaction, a failing maintain only marks it for rollback.** Its rows are undone when the
+  application transaction ends, not before: until then the same transaction still sees them, and committing it fails
+  with Spring's `UnexpectedRollbackException`.
+- **`<commit/>` in a nested maintain commits the outer work too**, because both share the same connection.
+- Java code that calls the `launchMaintain` or `launchPrivateMaintain` overloads that take a maintain id and a
+  `DatabaseConnection` owns that connection: AWE does not open a transaction for it and keeps the AWE 4 behavior
+  (commit and release at the end, or nothing with `keepAliveConnection=true`). The `launchMaintain(Target, ...)`
+  overload opens the transaction when the `DatabaseConnection` has not acquired its connection yet.
+- **Joining needs the same `DataSource` object.** With `awe.database.multidatabase-enable=true`, a maintain without the
+  database parameter uses the routing datasource, and one with an explicit alias uses the pool of that alias. They do
+  not join each other even when both point to the same physical database.
+- **JMS listeners.** AWE's JMS listener container uses the Spring Boot transaction manager, so a maintain launched
+  from a queue listener joins the listener transaction (in AWE 4 it committed on its own).
+- **Broadcasts before the commit.** A notification broadcast (notifier) sent from a step of a long maintain can reach
+  the client before the maintain commits, so the client may not see the row yet.
+
+### Disabling it (AWE 4 behavior)
+
+With `awe.maintain.transaction.enabled=false` the maintains behave as in AWE 4:
+
+- Each maintain disables the auto-commit of its own connection, commits at the end and rolls back its own statements
+  on an exception.
+- `retrieve-data` and nested maintains launched from Java services use **other connections**: a nested maintain
+  commits on its own, so it stays committed when the outer maintain fails afterwards, and `retrieve-data` does not see
+  the uncommitted rows of the maintain.
+- A step that returns an `ERROR` result without an exception does not roll back: the maintain is committed.
+- A maintain launched inside an application transaction commits on its own connection.
+
+Disable it only if an application depends on these partial commits, for example a Java service that must keep the
+rows of a nested maintain even when the outer maintain fails. In that case, prefer moving that nested work to its own
+maintain launched after the outer one.
+
+### Connection lifecycle by connector
+
+Audit of how each connector gets and releases its connection (issue #781):
+
+| Connector | Connection | Commit and rollback |
+|---|---|---|
+| `SQLMaintainConnector` / `SQLMaintainBuilder` (`insert`, `update`, `delete`, `multiple`, audits, batches) | The connection of the maintain, passed by `MaintainService`. | None of its own: `MaintainService` (or the transaction) owns them. Errors propagate as `AWEQueryException`. |
+| `SQLQueryConnector` (`retrieve-data`, queries) | `DataSourceUtils.getConnection` on the datasource, released after the query. | None. Joins the maintain transaction when there is one; otherwise it is a separate connection. |
+| `ServiceMaintainConnector` → `JavaConnector`, `RestConnector`, `MicroserviceConnector` | No connection is passed to the service. Maintains launched by a Java service get the connection of the active transaction of their datasource, or a new one. | Java services: as the maintains they launch. REST and microservice: remote, not transactional. A Java service that returns `ERROR` without an exception rolls back only with the transaction enabled. |
+| `QueueMaintainConnector` / `QueueBuilder` | No JDBC connection (`JmsTemplate`). | Messages are sent at once; a rollback does not undo them. |
+| `EmailMaintainConnector` / `EmailService` | Its queries use `QueryService` (see `SQLQueryConnector`). | Emails are sent at once; a rollback does not undo them. |
+| `MaintainService.getNextSequenceValue` | The connection it receives (or a new one), always released at the end. | None. |
+
+Other findings of the audit: `DatabaseConnection.getConnection()` returns `null` when the datasource cannot give a
+connection (with the transaction enabled the maintain fails when the transaction begins instead); the auto-commit
+flag is not restored before releasing the connection in the AWE 4 path (Hikari restores it when the connection
+returns to the pool); and a rollback that fails hides the original error in both paths.
+
 ## Service maintain
 
 Are used to call services (Java or Web services) from maintain operation.
@@ -717,14 +853,14 @@ Serve element in maintains has the following attributes:
 
 | Attribute | Use          | Type    | Description                                                   | Values                                                                      |
 |-----------|--------------|---------|---------------------------------------------------------------|-----------------------------------------------------------------------------|
-| service   | **Required** | String  | Service indentifier                                           | **Note:** The service id must exist in `Services.xml` file                  |
+| service   | **Required** | String  | Service identifier                                           | **Note:** The service id must exist in `Services.xml` file                  |
 | label     | Optional     | String  | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
-#### **Service maintain examples**
+### **Service maintain examples**
 
 ```xml
 <!-- Serve example -->
-</target>
+<target name="[target_name]">
   <serve service="RelAllScrCfg" />
   <serve service="LoaScrCfgByDbs">
     <variable id="database" type="STRING" session="database"/>
@@ -763,10 +899,10 @@ Queue element in maintains has the following attributes:
 
 | Attribute | Use          | Type     | Description                                                   | Values                                                                      |
 |-----------|--------------|----------|---------------------------------------------------------------|-----------------------------------------------------------------------------|
-| name      | **Required** | String   | Queue indentifier                                             | **Note:** The queue id must exist in `Queues.xml` file                      |
+| name      | **Required** | String   | Queue identifier                                             | **Note:** The queue id must exist in `Queues.xml` file                      |
 | label     | Optional     | String   | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
-#### **Queue maintain examples**
+### **Queue maintain examples**
 
 ```xml
 <!-- Test queues -->
@@ -799,10 +935,10 @@ Email element in maintains has the following attributes:
 
 | Attribute | Use          | Type    | Description                                                   | Values                                                                      |
 |-----------|--------------|---------|---------------------------------------------------------------|-----------------------------------------------------------------------------|
-| id        | **Required** | String  | Email indentifier                                             | **Note:** The email id must exist in `Email.xml` file                       |
+| id        | **Required** | String  | Email identifier                                             | **Note:** The email id must exist in `Email.xml` file                       |
 | label     | Optional     | String  | Is used to set the output message after executing maintenance | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)  | 
 
-#### **Email maintain examples**
+### **Email maintain examples**
 
 ```xml
 <!-- Send reports by e-mail -->
@@ -831,7 +967,7 @@ Include target has the following attributes:
 |-----------|---------------|----------|--------------------|---------------------------------------------------------------|
 | name      | **Required**  | String   | Target identifier  | **Note:** The target name must exist in `Maintain.xml` file   |
 
-#### **Include target examples**
+### **Include target examples**
 
 ```xml
 <!-- Test insert -->
@@ -926,7 +1062,7 @@ stored as a parameter named as the column field alias.
 > **NOTE:** If you are using AWE sequences, you should consider to prioritize this way of 
 retrieving data for inserting it rather to `INSERT INTO SELECT` statements.
 
-#### **Retrieve data examples**
+### **Retrieve data examples**
 
 ```xml
 <target name="testRetrieveDataAndInsertAfter">

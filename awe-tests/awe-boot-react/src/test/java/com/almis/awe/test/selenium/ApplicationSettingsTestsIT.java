@@ -1,0 +1,320 @@
+package com.almis.awe.test.selenium;
+
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+
+/**
+ * Settings of the application: sequences and application parameters, one flow per screen. The flows of the two
+ * administration screens (sequence-admin and application-parameter-admin) create two records through the side panel,
+ * check that the quick filters show their counters and the records of their state, delete one record from the selection
+ * bar, edit the other from the pencil of its row and delete it from the row menu. Each flow opens its screen once,
+ * searches the words of its own records and deletes the ones a failed attempt left, in the screen it is on. The search
+ * and the counts of the quick filters (All, Active, Inactive, ignoring case, one count per option) are proven by
+ * ToolsAndSettingsActionsTest in awe-boot; the AngularJS application has no browser test of these screens. The themes
+ * have their own screen; the side-panel admin pattern itself is proven by UserAdminTestsIT.
+ */
+@Tag("ApplicationIntegrationIT")
+@TestMethodOrder(MethodOrderer.MethodName.class)
+class ApplicationSettingsTestsIT extends AbstractApplicationTests {
+
+  private static final String TOOLS = "tools";
+  private static final String SEQUENCES = "sequences";
+  private static final String PARAMETERS = "application-parameters";
+  private static final String EDIT_BUTTON = "EdtBtn";
+  private static final String ROW_MENU_BUTTON = "MorBtn";
+
+  // Sequences screen (sequence-admin). The name of a sequence holds 20 characters, so the words of the class are short
+  private static final String KEY_GRID = "GrdKeyAdm";
+  private static final String KEY_SEARCH = "CrtKeyTxt";
+  private static final String KEY_QUICK_FILTER = "CrtKeySta";
+  private static final String KEY_PANEL = "PnlKey";
+  private static final String KEY_PREFIX = "Seqadmtest";
+  private static final String COUNT_PREFIX = KEY_PREFIX + " cnt";
+  private static final String COUNT_ACTIVE_SEQUENCE = COUNT_PREFIX + " act";
+  private static final String COUNT_INACTIVE_SEQUENCE = COUNT_PREFIX + " ina";
+  private static final String SEQUENCE_VALUE = "7";
+  private static final String INACTIVE_SEQUENCE_VALUE = "8";
+  private static final String NEW_SEQUENCE_VALUE = "9";
+
+  // Application parameters screen (application-parameter-admin)
+  private static final String PAR_GRID = "GrdAppParAdm";
+  private static final String PAR_SEARCH = "CrtAppParTxt";
+  private static final String PAR_QUICK_FILTER = "CrtAppParSta";
+  private static final String PAR_PANEL = "PnlAppPar";
+  private static final String PAR_PREFIX = "Appparadmtest";
+  private static final String COUNT_PREFIX_PAR = PAR_PREFIX + " cnt";
+  private static final String COUNT_ACTIVE_PARAMETER = COUNT_PREFIX_PAR + " act";
+  private static final String COUNT_INACTIVE_PARAMETER = COUNT_PREFIX_PAR + " ina";
+  private static final String PARAMETER_VALUE = "1";
+  private static final String INACTIVE_PARAMETER_VALUE = "2";
+  private static final String NEW_PARAMETER_VALUE = "0";
+  private static final String GENERAL = "General";
+  private static final String SECURITY = "Security";
+  private static final String REPORTS = "Reports";
+  private static final String DESCRIPTION = "Value of a parameter of the tests";
+  private static final String NEW_DESCRIPTION = "Value of a parameter of the tests, updated";
+  private static final String NEW_COUNT_DESCRIPTION = "Appparadmtest parameter that counts as inactive";
+
+  /**
+   * Open a screen of the tools group, going through another one first: the client does not load again the screen that
+   * the previous test left open, with its search and its selected row
+   *
+   * @param option Option of the tools group
+   */
+  private void openToolsScreen(String option) {
+    gotoScreen(TOOLS, option.equals(SEQUENCES) ? PARAMETERS : SEQUENCES);
+    gotoScreen(TOOLS, option);
+  }
+
+  /**
+   * Open the sequences screen, search the words of the sequences of a test and delete the ones that a failed attempt of
+   * the test left: the grid keeps the search after every save and delete, so the test goes on in it
+   *
+   * @param search    Words of the sequences of the test
+   * @param leftovers Sequences of the test
+   */
+  private void openSequences(String search, String... leftovers) {
+    openToolsScreen(SEQUENCES);
+    searchGrid(KEY_SEARCH, search);
+    for (String name : leftovers) {
+      if (hasRowContentsGrid(KEY_GRID, name)) {
+        deleteSequenceFromTheRowMenu(name);
+      }
+    }
+  }
+
+  /**
+   * Open the side panel of a new sequence: no selected sequence, so the header shows the label of the panel, and it
+   * starts active
+   */
+  private void openNewSequencePanel() {
+    clickButton("ButNew");
+    checkSidePanelOpen(KEY_PANEL, "right", "520px");
+    checkSidePanelTitle(KEY_PANEL, "Sequence");
+    checkCheckboxRadio(true, "Act");
+  }
+
+  /**
+   * Create a sequence from the side panel of the open screen
+   *
+   * @param name   Name of the sequence
+   * @param value  Value of the sequence
+   * @param active Leave the Active switch on
+   */
+  private void createSequence(String name, String value, boolean active) {
+    openNewSequencePanel();
+    writeText("SeqNam", name);
+    writeText("KeyVal", value);
+    if (!active) {
+      clickCheckbox("Act");
+      checkCheckboxRadio(false, "Act");
+    }
+    clickButtonAndConfirm("ButPnlNew");
+    waitForLoadingBar();
+  }
+
+  /**
+   * Delete a sequence from the row menu of its row (the ellipsis selects only its row)
+   *
+   * @param name Name of the sequence
+   */
+  private void deleteSequenceFromTheRowMenu(String name) {
+    clickGridRowButton(KEY_GRID, name, ROW_MENU_BUTTON);
+    clickContextButton("CtxButDel");
+    acceptConfirm();
+    waitForLoadingBar();
+    checkRowGone(KEY_GRID, name);
+  }
+
+  /**
+   * The side panel creates two sequences and their rows show their name, their value and their state; the quick filters
+   * show their counters, refresh them after a delete and show the sequences of their state; the pencil of a row opens the panel in edit mode filled with
+   * its sequence (whose header shows the sequence and its state) and its row shows the value and the state saved from
+   * the panel; the selection bar deletes one and the row menu the other
+   */
+  @Test
+  void t011_addSearchEditAndDeleteSequences() {
+    setTestTitle("Add, search, edit and delete sequences from their screen");
+
+    // The words of this test are its own, so its counters do not depend on the sequences other tests may have left
+    openSequences(COUNT_PREFIX, COUNT_ACTIVE_SEQUENCE, COUNT_INACTIVE_SEQUENCE);
+    createSequence(COUNT_ACTIVE_SEQUENCE, SEQUENCE_VALUE, true);
+    checkRowContentsGrid(KEY_GRID, COUNT_ACTIVE_SEQUENCE, SEQUENCE_VALUE, "Active");
+    createSequence(COUNT_INACTIVE_SEQUENCE, INACTIVE_SEQUENCE_VALUE, false);
+    checkRowContentsGrid(KEY_GRID, COUNT_INACTIVE_SEQUENCE, INACTIVE_SEQUENCE_VALUE, "Inactive");
+
+    // The counts of the quick filters are proven by ToolsAndSettingsActionsTest: the browser checks they are shown
+    checkGridQuickFilterOption(KEY_QUICK_FILTER, "", "All 2");
+    checkGridQuickFilterOptionChosen(KEY_QUICK_FILTER, "");
+
+    // Each quick filter shows the sequences of its state, and All shows them all again
+    clickGridQuickFilterOption(KEY_QUICK_FILTER, "inactive");
+    checkGridQuickFilterOptionChosen(KEY_QUICK_FILTER, "inactive");
+    checkRowGone(KEY_GRID, COUNT_ACTIVE_SEQUENCE);
+    checkRowContentsGrid(KEY_GRID, COUNT_INACTIVE_SEQUENCE);
+    clickGridQuickFilterOption(KEY_QUICK_FILTER, "");
+    checkGridQuickFilterOptionChosen(KEY_QUICK_FILTER, "");
+    checkRowContentsGrid(KEY_GRID, COUNT_ACTIVE_SEQUENCE, COUNT_INACTIVE_SEQUENCE);
+
+    // The selection bar deletes the selected sequences
+    clickRowContents(KEY_GRID, COUNT_INACTIVE_SEQUENCE);
+    checkGridSelectionBar(KEY_GRID, "1 selected");
+    clickGridSelectionButton(KEY_GRID, "ButDel");
+    acceptConfirm();
+    waitForLoadingBar();
+    checkRowGone(KEY_GRID, COUNT_INACTIVE_SEQUENCE);
+    checkGridQuickFilterOption(KEY_QUICK_FILTER, "", "All 1");
+
+    clickGridRowButton(KEY_GRID, COUNT_ACTIVE_SEQUENCE, EDIT_BUTTON);
+    checkSidePanelTitle(KEY_PANEL, COUNT_ACTIVE_SEQUENCE);
+    checkSidePanelTag(KEY_PANEL, "Active");
+    checkCriterionContents("SeqNam", COUNT_ACTIVE_SEQUENCE);
+    checkCriterionContents("KeyVal", SEQUENCE_VALUE);
+    checkCheckboxRadio(true, "Act");
+
+    // The name of a sequence is its primary key and the panel shows it read-only when editing: only the value and the
+    // state change
+    writeText("KeyVal", NEW_SEQUENCE_VALUE);
+    clickCheckbox("Act");
+    checkCheckboxRadio(false, "Act");
+    clickButtonAndConfirm("ButPnlUpd");
+    waitForLoadingBar();
+    checkRowContentsGrid(KEY_GRID, COUNT_ACTIVE_SEQUENCE, NEW_SEQUENCE_VALUE, "Inactive");
+
+    deleteSequenceFromTheRowMenu(COUNT_ACTIVE_SEQUENCE);
+    checkGridQuickFilterOption(KEY_QUICK_FILTER, "", "All 0");
+  }
+
+  /**
+   * Open the application parameters screen, search the words of the parameters of a test and delete the ones that a
+   * failed attempt of the test left: the grid keeps the search after every save and delete, so the test goes on in it
+   *
+   * @param search    Words of the name or the description of the parameters of the test
+   * @param leftovers Parameters of the test
+   */
+  private void openParameters(String search, String... leftovers) {
+    openToolsScreen(PARAMETERS);
+    searchGrid(PAR_SEARCH, search);
+    for (String name : leftovers) {
+      if (hasRowContentsGrid(PAR_GRID, name)) {
+        deleteParameterFromTheRowMenu(name);
+      }
+    }
+  }
+
+  /**
+   * Open the side panel of a new parameter: no selected parameter, so the header shows the label of the panel, and it
+   * starts in the general category and active, the defaults of the table
+   */
+  private void openNewParameterPanel() {
+    clickButton("ButNew");
+    checkSidePanelOpen(PAR_PANEL, "right", "560px");
+    checkSidePanelTitle(PAR_PANEL, "Application parameter");
+    checkSelectContents("Cat", GENERAL);
+    checkCheckboxRadio(true, "Act");
+  }
+
+  /**
+   * Create an application parameter from the side panel of the open screen
+   *
+   * @param name        Name of the parameter
+   * @param value       Value of the parameter
+   * @param category    Category of the parameter: General, Security or Reports
+   * @param description Description of the parameter
+   * @param active      Leave the Active switch on
+   */
+  private void createParameter(String name, String value, String category, String description, boolean active) {
+    openNewParameterPanel();
+    writeText("ParNam", name);
+    selectContain("Cat", category);
+    writeText("ParVal", value);
+    writeText("Des", description);
+    if (!active) {
+      clickCheckbox("Act");
+      checkCheckboxRadio(false, "Act");
+    }
+    clickButtonAndConfirm("ButPnlNew");
+    waitForLoadingBar();
+  }
+
+  /**
+   * Delete a parameter from the row menu of its row
+   *
+   * @param name Name of the parameter
+   */
+  private void deleteParameterFromTheRowMenu(String name) {
+    clickGridRowButton(PAR_GRID, name, ROW_MENU_BUTTON);
+    clickContextButton("CtxButDel");
+    acceptConfirm();
+    waitForLoadingBar();
+    checkRowGone(PAR_GRID, name);
+  }
+
+  /**
+   * The side panel creates two application parameters and their rows show their name with the description under it,
+   * their value, their category and their state; the quick filters show their counters, refresh them after a delete
+   * and show the parameters of their state; the pencil of a row opens the panel in edit mode filled with its parameter (whose header shows the parameter
+   * and its state) and its row shows the value, the category and the state saved from the panel; the selection bar and
+   * the row menu delete one each
+   */
+  @Test
+  void t041_addSearchEditAndDeleteParameters() {
+    setTestTitle("Add, search, edit and delete application parameters from their screen");
+
+    // The words of this test are its own, so its counters do not depend on the parameters other tests may have left
+    openParameters(COUNT_PREFIX_PAR, COUNT_ACTIVE_PARAMETER, COUNT_INACTIVE_PARAMETER);
+    createParameter(COUNT_ACTIVE_PARAMETER, PARAMETER_VALUE, SECURITY, DESCRIPTION, true);
+    checkRowContentsGrid(PAR_GRID, COUNT_ACTIVE_PARAMETER, DESCRIPTION, PARAMETER_VALUE, SECURITY, "Active");
+    createParameter(COUNT_INACTIVE_PARAMETER, INACTIVE_PARAMETER_VALUE, REPORTS, NEW_COUNT_DESCRIPTION, false);
+    checkRowContentsGrid(PAR_GRID, COUNT_INACTIVE_PARAMETER, NEW_COUNT_DESCRIPTION, INACTIVE_PARAMETER_VALUE, REPORTS,
+      "Inactive");
+
+    // The counts of the quick filters are proven by ToolsAndSettingsActionsTest: the browser checks they are shown
+    checkGridQuickFilterOption(PAR_QUICK_FILTER, "", "All 2");
+    checkGridQuickFilterOptionChosen(PAR_QUICK_FILTER, "");
+
+    // Each quick filter shows the parameters of its state, and All shows them all again
+    clickGridQuickFilterOption(PAR_QUICK_FILTER, "active");
+    checkGridQuickFilterOptionChosen(PAR_QUICK_FILTER, "active");
+    checkRowGone(PAR_GRID, COUNT_INACTIVE_PARAMETER);
+    checkRowContentsGrid(PAR_GRID, COUNT_ACTIVE_PARAMETER);
+    clickGridQuickFilterOption(PAR_QUICK_FILTER, "");
+    checkGridQuickFilterOptionChosen(PAR_QUICK_FILTER, "");
+    checkRowContentsGrid(PAR_GRID, COUNT_ACTIVE_PARAMETER, COUNT_INACTIVE_PARAMETER);
+
+    // The selection bar deletes the selected parameters
+    clickRowContents(PAR_GRID, COUNT_INACTIVE_PARAMETER);
+    checkGridSelectionBar(PAR_GRID, "1 selected");
+    clickGridSelectionButton(PAR_GRID, "ButDel");
+    acceptConfirm();
+    waitForLoadingBar();
+    checkRowGone(PAR_GRID, COUNT_INACTIVE_PARAMETER);
+    checkGridQuickFilterOption(PAR_QUICK_FILTER, "", "All 1");
+
+    clickGridRowButton(PAR_GRID, COUNT_ACTIVE_PARAMETER, EDIT_BUTTON);
+    checkSidePanelTitle(PAR_PANEL, COUNT_ACTIVE_PARAMETER);
+    checkSidePanelTag(PAR_PANEL, "Active");
+    checkCriterionContents("ParNam", COUNT_ACTIVE_PARAMETER);
+    checkSelectContents("Cat", SECURITY);
+    checkCriterionContents("ParVal", PARAMETER_VALUE);
+    checkCriterionContents("Des", DESCRIPTION);
+    checkCheckboxRadio(true, "Act");
+
+    // The name of a parameter is the key the application reads and the panel shows it read-only when editing: the value,
+    // the category, the description and the state change
+    writeText("ParVal", NEW_PARAMETER_VALUE);
+    selectContain("Cat", GENERAL);
+    writeText("Des", NEW_DESCRIPTION);
+    clickCheckbox("Act");
+    checkCheckboxRadio(false, "Act");
+    clickButtonAndConfirm("ButPnlUpd");
+    waitForLoadingBar();
+    checkRowContentsGrid(PAR_GRID, COUNT_ACTIVE_PARAMETER, NEW_DESCRIPTION, NEW_PARAMETER_VALUE, GENERAL,
+      "Inactive");
+
+    deleteParameterFromTheRowMenu(COUNT_ACTIVE_PARAMETER);
+    checkGridQuickFilterOption(PAR_QUICK_FILTER, "", "All 0");
+  }
+}

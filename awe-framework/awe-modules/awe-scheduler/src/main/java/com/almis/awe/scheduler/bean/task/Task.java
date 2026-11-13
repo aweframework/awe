@@ -12,6 +12,7 @@ import lombok.experimental.Accessors;
 import org.quartz.JobDetail;
 import org.quartz.Trigger;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 
@@ -25,6 +26,7 @@ import java.util.List;
 @Accessors(chain = true)
 public class Task implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   // Task

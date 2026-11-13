@@ -2,8 +2,8 @@ import {aweApplication} from "../../awe";
 
 // Dependency plugin
 aweApplication.directive('uiDependency',
-  ['DependencyController', 'AweUtilities',
-    function (DependencyController, Utilities) {
+  ['DependencyController',
+    function (DependencyController) {
       return {
         restrict: 'A',
         link: function (scope, elem, attrs) {

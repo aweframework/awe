@@ -1,0 +1,1309 @@
+import {
+  checkModelIsEmpty,
+  checkModelIsUnchanged,
+  checkModelIsUpdated,
+  classNames, clickDropdown,
+  fixController,
+  fixModel,
+  fixDefaultModel,
+  fixSelectedModel,
+  getAddressType,
+  getCheckboxData,
+  getComponentData,
+  getComponentId,
+  getCriterionData,
+  getCriterionDataAsList,
+  getCriterionPrintData,
+  getDependencyComponentId,
+  getSelectedValues,
+  getSpecificAttributes,
+  getTabPrintData,
+  getTriggerId,
+  inspectComponentStructure,
+  parseRule,
+  parseValidationRules,
+  rebuildStructureNodes,
+} from "../../../src/utilities/components";
+import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
+import {getDataDependingOnList, getVisibleTextData} from "../../../src/utilities";
+import {registerChart, unregisterChart} from "../../../src/utilities/chartRegistry";
+
+describe('awe-react-client/test/js/utilities/componentsTest.jsx', () => {
+  const address = {component: "tutu", view: "lala"};
+  const getDataListActions = () => ([{
+    "type": "fill",
+    "parameters": {
+      "datalist": {
+        "total": 1,
+        "page": 1,
+        "records": 1,
+        "rows": [{"label": "test", "id": 1, "value": 1, "nom": "test"}]
+      }
+    }
+  }, {"type": "end-load", "parameters": {}}]);
+  let component;
+  let picklist1;
+  let picklist2;
+  let picklist3;
+  let abortController;
+  let grid;
+  let pivotTable;
+  let criterion;
+  let tab;
+  let props;
+  let numeric;
+  let time;
+  let checkbox;
+
+  beforeEach(function () {
+    abortController = {abort: jest.fn(), signal: {aborted: false}};
+    component = {
+      suggesting: false,
+      props: {
+        serverAction: "serverAction", targetAction: "targetAction", settings: DEFAULT_SETTINGS, strict: true,
+        keepModel: jest.fn(),
+        address: {},
+        addActionsTop: jest.fn(),
+      },
+      autocomplete: {
+        hide: jest.fn()
+      },
+      abortController: abortController
+    };
+    props = {
+      updateSettings: jest.fn(),
+      acceptAction: jest.fn(),
+      t: (v) => v,
+      settings: {}
+    };
+    grid = {
+      address: {component: "grid", view: "report"},
+      model: {
+        values: [
+          {id: 1, Col1: "Value11", Col2: "Value21", selected: true},
+          {id: 2, Col1: "Value12", Col2: "Value22", $row: {operation: "UPDATE"}}
+        ]
+      },
+      storedModel: {
+        values: [
+          {id: 1, Col1: "Value11", Col2: "Value21", selected: true},
+          {id: 2, Col1: "Value12", Col2: "Value22", $row: {operation: "UPDATE"}}
+        ]
+      },
+      attributes: {
+        id: "grid",
+        component: "grid",
+        columnModel: [{name: "Col1", label: "Col1", sendable: true}, {name: "Col2", label: "Col2"}]
+      }
+    };
+    pivotTable = {
+      address: {component: "pivotTable", view: "report"},
+      model: {values: [{"Col1": "Value1"}]},
+      storedModel: {values: [{"Col1": "Value1"}]},
+      attributes: {id: "pivotTable", component: "grid", checkEmpty: true}
+    };
+    criterion = {
+      address: {component: "criterion", view: "report"},
+      model: {values: [{"value": 1, label: "Value1", selected: true}]},
+      storedModel: {values: [{"value": 1, label: "Value1", selected: true}]},
+      attributes: {id: "criterion", component: "text", checkEmpty: true}
+    };
+    picklist1 = {
+      address: {component: "picklist1", view: "report"},
+      model: {values: [{"value": 1, label: "Value1", selected: true}]},
+      storedModel: {values: [{"value": 1, label: "Value1", selected: true}]},
+      attributes: {id: "picklist1", component: "picklist", checkEmpty: true}
+    };
+    picklist2 = {
+      address: {component: "picklist2", view: "report"},
+      model: {values: [{"value": 1, label: "Value1", selected: false}]},
+      storedModel: {values: [{"value": 1, label: "Value1"}]},
+      attributes: {id: "picklist2", component: "picklist", checkEmpty: true}
+    };
+    picklist3 = {
+      address: {component: "picklist3", view: "report"},
+      model: {values: [{"value": 1, label: "Value1", selected: true}, {"value": 2, label: "Value2", selected: true}, {"value": 3, label: "Value3"}, {"value": 4, label: "Value4", selected: true}]},
+      storedModel: {values: [{"value": 1, label: "Value1", selected: true}, {"value": 2, label: "Value2", selected: true}, {"value": 3, label: "Value3"}, {"value": 4, label: "Value4", selected: true}]},
+      attributes: {id: "picklist3", component: "picklist", checkEmpty: true}
+    };
+    numeric = {
+      address: {component: "numeric", view: "report"},
+      model: {values: [{"value": 11231, selected: true}]},
+      storedModel: {values: [{"value": 11231, selected: true}]},
+      attributes: {id: "numeric", component: "numeric", numberFormat: {vMin: '-999999', mDec: 1, aSign: '$', aSep: ',', pSign: 'p', aPad: true}, checkEmpty: true}
+    };
+    time = {
+      address: {component: "time", view: "report"},
+      model: {values: [{"value": "12:31:22", "label": "12:31:22", selected: true}]},
+      storedModel: {values: [{"value": "12:31:22", "label": "12:31:22", selected: true}]},
+      attributes: {id: "time", component: "time", checkEmpty: true}
+    };
+    checkbox = {
+      address: {component: "checkbox", view: "report"},
+      model: {values: [{"value": 1, selected: true}]},
+      storedModel: {values: [{"value": 2, selected: true}]},
+      attributes: {id: "checkbox", component: "checkbox"}
+    };
+    tab = {
+      address: {component: "tab", view: "report"},
+      model: {values: [{"value": 1, label: "Tab1", selected: false}, {"value": 2, label: "Tab2", selected: true}, {"value": 3, label: "Tab3", selected: false}]},
+      storedModel: {values: [{"value": 1, label: "Tab1", selected: false}, {"value": 2, label: "Tab2", selected: true}, {"value": 3, label: "Tab3", selected: false}]},
+      attributes: {id: "tab", component: "tab", checkEmpty: true}
+    };
+  });
+
+  it('should parse a rule from object', () => {
+    const rule = {required: true};
+    expect(parseRule(rule, address)).toEqual(rule);
+  });
+
+  it('should parse a rule from string', () => {
+    expect(parseRule("required", address)).toEqual({required: true});
+  });
+
+  it('should parse a rule from string as object', () => {
+    expect(parseRule("{min: 0, max: 100, step: 0.01, precision: 2, aSign:' £', pSign:'s', aPad:true}", address))
+      .toEqual({min: 0, max: 100, step: 0.01, precision: 2, aSign: ' £', pSign: 's', aPad: true});
+  });
+
+  it('should parse an invalid rule', () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    expect(parseRule("required {min: 0, max: 100, step: 0.01, precision: 2, aSign:' £', pSign:'s', aPad:true}", address))
+      .toEqual({});
+    expect(errorSpy).toHaveBeenCalled();
+  });
+
+  it('should parse a rule list from object', () => {
+    const rules = {min: 0, max: 100, step: 0.01, precision: 2, aSign: ' £', pSign: 's', aPad: true};
+    expect(parseValidationRules(rules, address)).toEqual(rules);
+  });
+
+  it('should parse a rule list from string', () => {
+    expect(parseValidationRules("required number", address)).toEqual({required: true, number: true});
+  });
+
+  it('should parse a rule list from string as object', () => {
+    expect(parseValidationRules("{min: 0, max: 100, step: 0.01, precision: 2, aSign:' £', pSign:'s', aPad:true}", address))
+      .toEqual({min: 0, max: 100, step: 0.01, precision: 2, aSign: ' £', pSign: 's', aPad: true});
+  });
+
+  it('should get grid data', () => {
+    let data = getComponentData(grid, props, false);
+    expect(data).toEqual({Col1: ["Value11"], "Col1.selected": "Value11", grid: [1], "grid.selected": 1, "grid.selectedRowAddress": {component: "grid", view: "report", row: 1}});
+  });
+
+  it('should get multioperation grid data', () => {
+    let data = getComponentData({...grid, attributes: {...grid.attributes, multioperation: true}}, props, false);
+    expect(data).toEqual({Col1: ["Value12"], "Col1.selected": "Value11", grid: [2], "grid-RowTyp":["UPDATE"], "Col1.editing": null, "grid.editing": null, "grid.selected": 1, "grid.selectedRowAddress": {component: "grid", view: "report", row: 1}});
+  });
+
+  it('should get grid data for printing', () => {
+    grid.attributes.sendAll = true;
+    let data = getComponentData(grid, props, true);
+    expect(data).toEqual({
+      Col1: ["Value11","Value12"],
+      "Col1.selected": "Value11",
+      "Col1.data": [{value: "Value11", label: "Value11"}, {value: "Value12", label: "Value12"}],
+      "grid.data": {
+        visibleColumns: [
+          {
+            name: 'Col1',
+            label: 'Col1',
+            type: undefined,
+            component: undefined,
+            width: undefined,
+            charlength: undefined,
+            align: undefined
+          },
+          {
+            name: 'Col2',
+            label: 'Col2',
+            type: undefined,
+            component: undefined,
+            width: undefined,
+            charlength: undefined,
+            align: undefined
+          }
+        ]
+      },
+      grid: [1, 2],
+      "grid.selected": 1,
+      "grid.selectedRowAddress": {component: "grid", view: "report", row: 1}
+    });
+  });
+
+  it('should send the image of a rendered chart when printing', () => {
+    const chart = {getImage: jest.fn(() => "<svg>chart</svg>")};
+    registerChart("chartPrint", chart);
+    const chartComponent = {
+      address: {component: "chartPrint", view: "report"},
+      model: {values: []},
+      attributes: {id: "chartPrint"}
+    };
+
+    const data = getComponentData(chartComponent, {...props, components: {chartPrint: chartComponent}}, true);
+    const plainData = getComponentData(chartComponent, props, false);
+    unregisterChart("chartPrint", chart);
+
+    expect(data).toEqual({chartPrint: {image: "<svg>chart</svg>"}});
+    expect(plainData).not.toHaveProperty("chartPrint.image");
+  });
+
+  it('should send the chart as a criterion when printing and it is not rendered', () => {
+    const chartComponent = {
+      address: {component: "chartHidden", view: "report"},
+      model: {values: []},
+      attributes: {id: "chartHidden"}
+    };
+
+    const data = getComponentData(chartComponent, props, true);
+
+    expect(data.chartHidden).toBeNull();
+  });
+
+  it('should get grid data from pivot table', () => {
+    let data = getComponentData(pivotTable, props, false);
+    //console.info(data);
+    expect(data).toEqual({pivotTable: []});
+  });
+
+  it('should get grid data for printing from pivot table', () => {
+    let data = getComponentData(pivotTable, props, true);
+    //console.info(data);
+    expect(data).toEqual({pivotTable: [], "pivotTable.data": {visibleColumns: []}});
+  });
+
+  /*it('should get form values for printing', () => {
+    let data = getFormValuesForPrinting({...props, components: {grid, pivotTable, numeric, checkbox, time}});
+    //console.info("LO QUE VALE:", data);
+    console.info("LO QUE DEBERIA VALER", {
+      Col1: ["Value11", "Value12"],
+      "Col1.data": [{value: "Value11", label: "Value11"}, {value: "Value12", label: "Value12"}],
+      "Col1.selected": "Value11",
+      "grid.data": {visibleColumns: [
+          {
+            name: 'Col1',
+            label: 'Col1',
+            type: undefined,
+            component: undefined,
+            width: undefined,
+            charlength: undefined,
+            align: undefined
+          },
+          {
+            name: 'Col2',
+            label: 'Col2',
+            type: undefined,
+            component: undefined,
+            width: undefined,
+            charlength: undefined,
+            align: undefined
+          }
+        ]},
+      grid: [1],
+      pivotTable: [],
+      "pivotTable.data": {visibleColumns: []},
+      numeric: 11231,
+      "numeric.data": { text: '$11,231.0' },
+      checkbox: 1,
+      "checkbox.data": { text: '1' },
+      time: '12:31:22',
+      "time.data": { text: '12:31:22' }
+    });
+    expect(data).toEqual({
+      Col1: ["Value11", "Value12"],
+      "Col1.data": [{value: "Value11", label: "Value11"}, {value: "Value12", label: "Value12"}],
+      "Col1.selected": "Value11",
+      "grid.data": {visibleColumns: [
+          {
+            name: 'Col1',
+            label: 'Col1',
+            type: undefined,
+            component: undefined,
+            width: undefined,
+            charlength: undefined,
+            align: undefined
+          },
+          {
+            name: 'Col2',
+            label: 'Col2',
+            type: undefined,
+            component: undefined,
+            width: undefined,
+            charlength: undefined,
+            align: undefined
+          }
+        ]},
+      grid: [1],
+      pivotTable: [],
+      "pivotTable.data": {visibleColumns: []},
+      numeric: 11231,
+      "numeric.data": { text: '$11,231.0' },
+      checkbox: 1,
+      "checkbox.data": { text: '1' },
+      time: '12:31:22',
+      "time.data": { text: '12:31:22' }
+    });
+  });
+
+  it('should get form values with duplicates', () => {
+    let data = getFormValues({...props, components: {grid, pivotTable, grid2: {...grid}}});
+    //console.info(data);
+    expect(data).toEqual({Col1: ["Value11"], "Col1.selected": "Value11", grid: [1], pivotTable: []});
+  });
+
+  it('should get form values for printing with duplicates', () => {
+    let data = getFormValuesForPrinting({...props, components: {grid, pivotTable, grid2: {...grid}, numeric, checkbox, time}});
+    console.info(data);
+    expect(data).toEqual({
+      Col1: ["Value11", "Value12"],
+      "Col1.data": [{value: "Value11", label: "Value11"}, {value: "Value12", label: "Value12"}],
+      "Col1.selected": "Value11",
+      "grid.data": {visibleColumns: [
+          {
+            name: 'Col1',
+            label: 'Col1',
+            type: undefined,
+            component: undefined,
+            width: undefined,
+            charlength: undefined,
+            align: undefined
+          },
+          {
+            name: 'Col2',
+            label: 'Col2',
+            type: undefined,
+            component: undefined,
+            width: undefined,
+            charlength: undefined,
+            align: undefined
+          }
+        ]},
+      grid: [1],
+      pivotTable: [],
+      "pivotTable.data": {visibleColumns: []},
+      numeric: 11231,
+      "numeric.data": { text: '$11,231.0' },
+      checkbox: 1,
+      "checkbox.data": { text: '1' },
+      time: '12:31:22',
+      "time.data": { text: '12:31:22' }
+    });
+  });
+
+  it('should get form values in empty components', () => {
+    let data = getFormValues({});
+    //console.info(data);
+    expect(data).toEqual({});
+  });*/
+
+  it('should get selected values for an empty criterion', () => {
+    let data = getSelectedValues({});
+    //console.info(data);
+    expect(data).toEqual([]);
+  });
+
+  it('should get criterion data', () => {
+    let data = getComponentData(criterion, props, false);
+    //console.info(data);
+    expect(data).toEqual({criterion: 1});
+  });
+
+  it('should get picklist data as list', () => {
+    let data = getComponentData(picklist1, props, false);
+    //console.info(data);
+    expect(data).toEqual({ picklist1: [ 1 ] });
+
+    data = getComponentData(picklist2, props, false);
+    //console.info(data);
+    expect(data).toEqual({ picklist2: [] });
+
+    data = getComponentData(picklist3, props, false);
+    //console.info(data);
+    expect(data).toEqual({ picklist3: [ 1, 2, 4 ] });
+  });
+
+  it('should get criterion data for printing', () => {
+    let data = getComponentData(criterion, props, true);
+    //console.info(data);
+    expect(data).toEqual({criterion: 1, "criterion.data": {text: "Value1"}});
+  });
+
+  it('should get criterion data for printing without label', () => {
+    let data = getComponentData({
+      ...criterion,
+      model: {values: [{value: "eepa", selected: true}, {value: null, selected: true}, {value: 1, selected: false}]}
+    }, props, true);
+    //console.info(data);
+    expect(data).toEqual({criterion: ["eepa", null], "criterion.data": {text: "eepa"}});
+  });
+
+  it('should get component data for other type', () => {
+    let data = getComponentData({attributes: {component: "other"}}, props, true);
+    //console.info(data);
+    expect(data).toEqual({});
+  });
+
+  it('should get component data with empty component', () => {
+    let data = getComponentData({}, props, true);
+    //console.info(data);
+    expect(data).toEqual({"undefined.data": {text: ""}});
+  });
+
+  it('should get tab data', () => {
+    let data = getComponentData(tab, props, false);
+    //console.info(data);
+    expect(data).toEqual({tab: 2});
+  });
+
+  it('should get tab data for printing', () => {
+    let data = getComponentData(tab, props, true);
+    //console.info(data);
+    expect(data).toEqual({tab: 2, "tab.data": {text: "Tab2", all:[{"value": 1, label: "Tab1", selected: false}, {"value": 2, label: "Tab2", selected: true}, {"value": 3, label: "Tab3", selected: false}]}});
+  });
+
+  it('should get tab data for printing without label', () => {
+    let data = getComponentData({
+      ...tab,
+      model: {values: [{value: "eepa", selected: true}, {value: null, selected: false}, {value: 1, selected: false}]}
+    }, props, true);
+    //console.info(data);
+    expect(data).toEqual({tab: "eepa", "tab.data": {text: "eepa", all:[{value: "eepa", selected: true}, {value: null, selected: false}, {value: 1, selected: false}]}});
+  });
+
+  it('should get tab data for empty tab', () => {
+    let data = getComponentData({
+      attributes: {component: "tab", id: "tab"}
+    }, props, true);
+    //console.info(data);
+    expect(data).toEqual({tab: null, "tab.data": {text: "", all: []}});
+  });
+
+  it('should check if model is empty (true)', () => {
+    expect(checkModelIsEmpty(props)).toEqual(true);
+  });
+
+  it('should check if model is empty (false)', () => {
+    expect(checkModelIsEmpty({
+      ...props,
+      components: { grid, pivotTable, numeric, criterion, tab, checkbox }
+    })).toEqual(false);
+  });
+
+  it('should check if model is updated (false)', () => {
+    expect(checkModelIsUpdated(props)).toEqual(false);
+  });
+
+  it('should check if model is updated (true)', () => {
+    expect(checkModelIsUpdated({
+      ...props,
+      components: { grid, pivotTable, numeric, criterion, tab, checkbox }
+    })).toEqual(true);
+  });
+
+  it('should check if model is unchanged (true)', () => {
+    expect(checkModelIsUnchanged(props)).toEqual(true);
+  });
+
+  it('should check if model is unchanged (false)', () => {
+    expect(checkModelIsUnchanged({
+      ...props,
+      components: { grid, pivotTable, numeric, criterion, tab, checkbox }
+    })).toEqual(false);
+  });
+
+  // Tests for getDataDependingOnList
+  it('should get data depending on list length - empty list', () => {
+    expect(getDataDependingOnList([])).toEqual(null);
+  });
+
+  it('should get data depending on list length - single item', () => {
+    expect(getDataDependingOnList([5])).toEqual(5);
+  });
+
+  it('should get data depending on list length - multiple items', () => {
+    expect(getDataDependingOnList([1, 2, 3])).toEqual([1, 2, 3]);
+  });
+
+  // Tests for classNames
+  it('should join class names from strings', () => {
+    expect(classNames('class1', 'class2')).toEqual('class1 class2');
+  });
+
+  it('should join class names from numbers', () => {
+    expect(classNames(1, 2)).toEqual('1 2');
+  });
+
+  it('should join class names from arrays', () => {
+    expect(classNames(['class1', 'class2'])).toEqual('class1 class2');
+  });
+
+  it('should join class names from objects', () => {
+    expect(classNames({ class1: true, class2: false, class3: true })).toEqual('class1 class3');
+  });
+
+  it('should join class names from mixed types', () => {
+    expect(classNames('class1', 2, ['class3', 'class4'], { class5: true, class6: false })).toEqual('class1 2 class3 class4 class5');
+  });
+
+  it('should handle empty or falsy values in classNames', () => {
+    expect(classNames('', null, undefined, false, 0)).toEqual('0');
+  });
+
+  // Tests for getAddressType
+  it('should identify cell address type', () => {
+    expect(getAddressType({ view: 'view1', component: 'comp1', column: 'col1', row: 'row1' })).toEqual('cell');
+  });
+
+  it('should identify column address type', () => {
+    expect(getAddressType({ view: 'view1', component: 'comp1', column: 'col1' })).toEqual('column');
+  });
+
+  it('should identify component address type', () => {
+    expect(getAddressType({ view: 'view1', component: 'comp1' })).toEqual('component');
+  });
+
+  it('should identify view address type', () => {
+    expect(getAddressType({ view: 'view1' })).toEqual('view');
+  });
+
+  it('should identify invalid address type', () => {
+    expect(getAddressType({})).toEqual('invalid');
+    expect(getAddressType(null)).toEqual('invalid');
+    expect(getAddressType('string')).toEqual('invalid');
+  });
+
+  // Tests for getComponentId
+  it('should get component id for cell address', () => {
+    expect(getComponentId({view: "report", component: 'comp1', row: 'row1', column: 'col1' })).toEqual('comp1-row1-col1');
+  });
+
+  it('should get component id for column address', () => {
+    expect(getComponentId({view: "report",  component: 'comp1', column: 'col1' })).toEqual('comp1-col1');
+  });
+
+  it('should get component id for component address', () => {
+    expect(getComponentId({view: "report",  component: 'comp1' })).toEqual('comp1');
+  });
+
+  it('should return null for invalid address', () => {
+    expect(getComponentId({})).toEqual(null);
+  });
+
+  // Tests for getDependencyComponentId
+  it('should get dependency component id with all parameters', () => {
+    expect(getDependencyComponentId(
+      {view: "report",  component: 'comp1' },
+      {view: "report",  column: 'col1', row: 'row1', index: 'idx1' }
+    )).toEqual('comp1-col1-row1-idx1');
+  });
+
+  it('should get dependency component id with some parameters', () => {
+    expect(getDependencyComponentId(
+      {view: "report",  component: 'comp1' },
+      {view: "report",  column: 'col1' }
+    )).toEqual('comp1-col1');
+  });
+
+  it('should get dependency component id with no parameters', () => {
+    expect(getDependencyComponentId(
+      {view: "report",  component: 'comp1' },
+      {}
+    )).toEqual('comp1');
+  });
+
+  // Tests for getTriggerId
+  it('should get trigger id with alias', () => {
+    const trigger = { id: 'trigger1', alias: 'aliasName' };
+    const dependency = { address: { view: 'view1' } };
+    expect(getTriggerId(trigger, dependency)).toEqual('aliasName');
+  });
+
+  it('should get trigger id without alias', () => {
+    const trigger = { id: 'trigger1', event: 'click' };
+    const dependency = { address: { view: 'view1' } };
+    expect(getTriggerId(trigger, dependency)).toEqual('trigger1-click');
+  });
+
+  it('should get trigger id with column', () => {
+    const trigger = { id: 'trigger1', column1: 'col1' };
+    const dependency = { address: { view: 'view1' } };
+    expect(getTriggerId(trigger, dependency)).toEqual('trigger1-col1');
+  });
+
+  it('should get trigger id with row', () => {
+    const trigger = { id: 'trigger1' };
+    const dependency = { address: { view: 'view1', row: 'row1' } };
+    expect(getTriggerId(trigger, dependency)).toEqual('trigger1');
+  });
+
+  // Tests for fixSelectedModel
+  it('should fix selected model with object', () => {
+    const selected = { value: 'test' };
+    expect(fixSelectedModel(selected)).toEqual(selected);
+  });
+
+  it('should fix selected model with string', () => {
+    expect(fixSelectedModel('test')).toEqual({ value: 'test' });
+  });
+
+  it('should fix selected model with number', () => {
+    expect(fixSelectedModel(123)).toEqual({ value: '123' });
+  });
+
+  // Tests for fixDefaultModel
+  describe('fixDefaultModel', () => {
+    it('selects the default values of a criterion that was loaded with another selection', () => {
+      const model = {selected: null, values: [{value: '1', selected: true}], defaultValues: [{value: 'xml', label: 'xml'}]};
+
+      const result = fixDefaultModel(model, model.defaultValues, false);
+
+      expect(result.values.filter(value => value.selected)).toEqual([{value: 'xml', label: 'xml', selected: true}]);
+    });
+
+    it('selects the default options of a criterion with a list of options', () => {
+      const model = {
+        selected: null,
+        values: [{value: 'a', selected: false}, {value: 'b', selected: true}, {value: 'c', selected: false}],
+        defaultValues: ['c']
+      };
+
+      const result = fixDefaultModel(model, model.defaultValues, false);
+
+      expect(result.values).toEqual([{value: 'a', selected: false}, {value: 'b', selected: false}, {value: 'c', selected: true}]);
+    });
+
+    it('keeps the selection the criterion was loaded with when the server sent no default values (a checked radio)', () => {
+      const model = {selected: null, values: [{value: 'Radio5', selected: true}], defaultValues: []};
+
+      expect(fixDefaultModel(model, [], false)).toEqual(model);
+    });
+
+    it('does not change the model of a grid or of a component without default values', () => {
+      const model = {selected: null, values: [{id: 1, selected: true}]};
+
+      expect(fixDefaultModel(model, [{value: 'x'}], true)).toEqual(model);
+      expect(fixDefaultModel(model, undefined, false)).toEqual(model);
+    });
+  });
+
+  // Tests for fixModel
+  it('should fix model for grid', () => {
+    const model = {
+      selected: [1, 2],
+      values: [
+        { id: '1', name: 'Item 1' },
+        { id: '2', name: 'Item 2' },
+        { id: '3', name: 'Item 3' }
+      ]
+    };
+
+    const result = fixModel(model, true);
+    expect(result.values[0].selected).toBe(true);
+    expect(result.values[1].selected).toBe(true);
+    expect(result.values[2].selected).toBe(false);
+  });
+
+  it('should fix model for non-grid', () => {
+    const model = {
+      selected: [{ value: '1' }, '2'],
+      values: [
+        { value: '1', label: 'Item 1' },
+        { value: '2', label: 'Item 2' },
+        { value: '3', label: 'Item 3' }
+      ]
+    };
+
+    const result = fixModel(model, false);
+    expect(result.values[0].selected).toBe(true);
+    expect(result.values[1].selected).toBe(true);
+    expect(result.values[2].selected).toBe(false);
+  });
+
+  it('should flatten a selected list returned as an array of arrays (ARRAY transform)', () => {
+    const model = {
+      selected: [['2', '3']],
+      values: [
+        { value: '0', label: 'Ok' },
+        { value: '2', label: 'Warning' },
+        { value: '3', label: 'Stopped' }
+      ]
+    };
+
+    const result = fixModel(model, false);
+    expect(result.values.map(value => value.selected)).toEqual([false, true, true]);
+  });
+
+  it('should keep the selected items of a nested array when the options list is empty', () => {
+    const model = {
+      selected: [['test']],
+      values: []
+    };
+
+    const result = fixModel(model, false);
+    expect(result.values).toEqual([{ value: 'test', selected: true }]);
+  });
+
+  it('should fix model with empty values but selected items', () => {
+    const model = {
+      selected: [{ value: '1', label: 'Item 1' }],
+      values: []
+    };
+
+    const result = fixModel(model, false);
+    expect(result.values.length).toBe(1);
+    expect(result.values[0]).toEqual({ value: '1', label: 'Item 1', selected: true });
+  });
+
+  // Tests for getSpecificAttributes
+  it('should get specific attributes with default values', () => {
+    const controller = { max: 10 };
+    const settings = { recordsPerPage: 20 };
+
+    expect(getSpecificAttributes(controller, false, settings)).toEqual({
+      max: 10,
+      rows: 10,
+      sort: [],
+      page: 1,
+      first: 0
+    });
+  });
+
+  it('should get specific attributes with loadAll', () => {
+    const controller = { max: 10, loadAll: true };
+    const settings = { recordsPerPage: 20 };
+
+    expect(getSpecificAttributes(controller, false, settings)).toEqual({
+      max: 0,
+      rows: 10,
+      sort: [],
+      page: 1,
+      first: 0
+    });
+  });
+
+  it('should get specific attributes with settings fallback', () => {
+    const controller = {};
+    const settings = { recordsPerPage: 20 };
+
+    expect(getSpecificAttributes(controller, false, settings)).toEqual({
+      max: 20,
+      rows: 20,
+      sort: [],
+      page: 1,
+      first: 0
+    });
+  });
+
+  // Tests for fixController
+  it('should fix controller for non-grid', () => {
+    const controller = {
+      numberFormat: "{ vMin: '-999999', mDec: 1 }",
+      size: 'medium'
+    };
+    const settings = {
+      numericOptions: { aSep: ',' },
+      defaultComponentSize: 'small'
+    };
+
+    const result = fixController(controller, false, settings);
+    expect(result.numberFormat).toEqual({ aSep: ',', vMin: '-999999', mDec: 1 });
+    expect(result.size).toEqual('medium');
+  });
+
+  // Tests for inspectComponentStructure
+  it('should inspect component structure', () => {
+    const element = {
+      id: 'parent',
+      elementType: 'Container',
+      elementList: [
+        { id: 'child1', elementType: 'Button' },
+        { id: 'child2', elementType: 'Input' }
+      ]
+    };
+
+    const result = inspectComponentStructure(element, [], {});
+    expect(Object.keys(result).length).toBe(3);
+    expect(result.parent).toEqual(['parent']);
+    expect(result.child1).toEqual(['parent', 'child1']);
+    expect(result.child2).toEqual(['parent', 'child2']);
+  });
+
+  it('should not register the dependency elements as components of the structure', () => {
+    const element = {
+      id: 'parent',
+      elementType: 'Container',
+      elementList: [
+        {
+          id: 'first',
+          elementType: 'Criteria',
+          elementList: [
+            { elementType: 'Dependency', elementList: [{ id: 'second', elementType: 'DependencyElement' }] }
+          ]
+        },
+        { id: 'tag', elementType: 'Tag', elementList: [{ id: 'second', elementType: 'Criteria' }] }
+      ]
+    };
+
+    const result = inspectComponentStructure(element, [], {});
+    expect(result.second).toEqual(['parent', 'tag', 'second']);
+  });
+
+  it('should handle Dialog in component structure', () => {
+    const element = {
+      id: 'parent',
+      elementType: 'Container',
+      elementList: [
+        { 
+          id: 'dialog', 
+          elementType: 'Dialog',
+          elementList: [
+            { id: 'dialogChild', elementType: 'Button' }
+          ]
+        }
+      ]
+    };
+
+    const result = inspectComponentStructure(element, ['context'], {});
+    expect(result.parent).toEqual(['context', 'parent']);
+    expect(result.dialog).toEqual(['dialog']);
+    expect(result.dialogChild).toEqual(['dialog', 'dialogChild']);
+  });
+
+  it('should handle TreeGrid in component structure', () => {
+    const element = {
+      id: 'grid',
+      elementType: 'Grid',
+      treegrid: true
+    };
+
+    const result = inspectComponentStructure(element, [], {});
+    expect(element.elementType).toEqual('TreeGrid');
+    expect(result.grid).toEqual(['grid']);
+  });
+
+  // Tests for getVisibleTextData
+  it('should get visible text data', () => {
+    const t = (text) => `Translated: ${text}`;
+    expect(getVisibleTextData('Hello', t)).toEqual('Translated: Hello');
+  });
+
+  // Tests for getCriterionPrintData
+  it('should get criterion print data for numeric', () => {
+    const criterion = {
+      attributes: {
+        id: 'numCriterion',
+        component: 'numeric',
+        numberFormat: { mDec: 2 }
+      }
+    };
+    const model = {
+      values: [
+        { value: 123.45, selected: true }
+      ]
+    };
+    const props = { t: (text) => text };
+
+    const result = getCriterionPrintData(criterion, model, props);
+    expect('numCriterion.data' in result).toBe(true);
+    expect('text' in result['numCriterion.data']).toBe(true);
+  });
+
+  it('should get criterion print data for time', () => {
+    const criterion = {
+      attributes: {
+        id: 'timeCriterion',
+        component: 'time'
+      }
+    };
+    const model = {
+      values: [
+        { value: '12:34:56', selected: true }
+      ]
+    };
+    const props = { t: (text) => text };
+
+    const result = getCriterionPrintData(criterion, model, props);
+    expect('timeCriterion.data' in result).toBe(true);
+    expect(result['timeCriterion.data'].text).toEqual('12:34:56');
+  });
+
+  it('should get criterion print data for default component', () => {
+    const criterion = {
+      attributes: {
+        id: 'defaultCriterion',
+        component: 'text'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', label: 'Label 1', selected: true },
+        { value: 'value2', label: 'Label 2', selected: true }
+      ]
+    };
+    const props = { t: (text) => `T: ${text}` };
+
+    const result = getCriterionPrintData(criterion, model, props);
+    expect('defaultCriterion.data' in result).toBe(true);
+    expect('text' in result['defaultCriterion.data']).toBe(true);
+  });
+
+  // Tests for getCheckboxData
+  it('should get checkbox data', () => {
+    const checkbox = {
+      attributes: {
+        id: 'checkboxId',
+        component: 'checkbox'
+      }
+    };
+    const model = {
+      values: [
+        { value: 1, selected: true }
+      ]
+    };
+
+    const result = getCheckboxData(checkbox, model, {}, false);
+    expect(result).toEqual({ checkboxId: 1 });
+  });
+
+  it('should get checkbox data with multiple selected values', () => {
+    const checkbox = {
+      attributes: {
+        id: 'checkboxId',
+        component: 'checkbox'
+      }
+    };
+    const model = {
+      values: [
+        { value: 1, selected: true },
+        { value: 2, selected: true }
+      ]
+    };
+
+    const result = getCheckboxData(checkbox, model, {}, false);
+    expect(result).toEqual({ checkboxId: [1, 2] });
+  });
+
+  it('should get checkbox data with no selected values', () => {
+    const checkbox = {
+      attributes: {
+        id: 'checkboxId',
+        component: 'checkbox'
+      }
+    };
+    const model = {
+      values: [
+        { value: 1, selected: false }
+      ]
+    };
+
+    const result = getCheckboxData(checkbox, model, {}, false);
+    expect(result).toEqual({ checkboxId: 0 });
+  });
+
+  // Tests for getCriterionData
+  it('should get criterion data', () => {
+    const criterion = {
+      attributes: {
+        id: 'criterionId',
+        component: 'text'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', selected: true }
+      ]
+    };
+
+    const result = getCriterionData(criterion, model, {}, false);
+    expect(result).toEqual({ criterionId: 'value1' });
+  });
+
+  it('should get criterion data with multiple selected values', () => {
+    const criterion = {
+      attributes: {
+        id: 'criterionId',
+        component: 'text'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', selected: true },
+        { value: 'value2', selected: true }
+      ]
+    };
+
+    const result = getCriterionData(criterion, model, {}, false);
+    expect(result).toEqual({ criterionId: ['value1', 'value2'] });
+  });
+
+  it('should get criterion data with no selected values', () => {
+    const criterion = {
+      attributes: {
+        id: 'criterionId',
+        component: 'text'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', selected: false }
+      ]
+    };
+
+    const result = getCriterionData(criterion, model, {}, false);
+    // Like the AngularJS client, an empty criterion is sent with a null value, never omitted
+    expect(result).toEqual({ criterionId: null });
+    expect(Object.keys(result)).toContain('criterionId');
+  });
+
+  it('should get criterion data with null value when the model has no values', () => {
+    const criterion = { attributes: { id: 'criterionId', component: 'text' } };
+
+    expect(getCriterionData(criterion, {}, {}, false)).toEqual({ criterionId: null });
+  });
+
+  // Tests for getCriterionDataAsList
+  it('should get criterion data as list', () => {
+    const criterion = {
+      attributes: {
+        id: 'criterionId',
+        component: 'picklist'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', selected: true },
+        { value: 'value2', selected: false },
+        { value: 'value3', selected: true }
+      ]
+    };
+
+    const result = getCriterionDataAsList(criterion, model, {}, false);
+    expect(result).toEqual({ criterionId: ['value1', 'value3'] });
+  });
+
+  it('should get criterion data as list with no selected values', () => {
+    const criterion = {
+      attributes: {
+        id: 'criterionId',
+        component: 'picklist'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'value1', selected: false },
+        { value: 'value2', selected: false }
+      ]
+    };
+
+    const result = getCriterionDataAsList(criterion, model, {}, false);
+    expect(result).toEqual({ criterionId: [] });
+  });
+
+  describe('date range criterion data', () => {
+    const dateRange = (values, extraAttributes = {}) => ({
+      address: {component: 'period', view: 'report'},
+      model: {values},
+      attributes: {id: 'period', component: 'date-range', ...extraAttributes}
+    });
+
+    it('sends the start and the end of the range as two parameters', () => {
+      const component = dateRange([
+        {value: '01/01/2026', selected: true}, {value: '31/01/2026', selected: true}
+      ]);
+
+      expect(getComponentData(component, {}, false)).toEqual({'period.from': '01/01/2026', 'period.to': '31/01/2026'});
+    });
+
+    it('sends null for an open end', () => {
+      const component = dateRange([{value: '', selected: true}, {value: '31/01/2026', selected: true}]);
+
+      expect(getComponentData(component, {}, false)).toEqual({'period.from': null, 'period.to': '31/01/2026'});
+    });
+
+    it('sends both parameters as null when the range is empty', () => {
+      expect(getComponentData(dateRange([]), {}, false)).toEqual({'period.from': null, 'period.to': null});
+    });
+
+    it('adds the text of the range when it is printed', () => {
+      const component = dateRange([
+        {value: '01/01/2026', selected: true}, {value: '31/01/2026', selected: true}
+      ]);
+
+      const data = getComponentData(component, {t: (text) => text}, true);
+
+      expect(data['period.data']).toEqual({text: '01/01/2026 - 31/01/2026'});
+    });
+
+    describe('model checks', () => {
+      const withRange = (values, storedValues) => ({
+        ...dateRange(values, {checkEmpty: true}),
+        storedModel: {values: storedValues}
+      });
+      const range = (from, to) => [{value: from, selected: true}, {value: to, selected: true}];
+      const check = (check, component) => check({components: {period: component}, settings: {}});
+
+      it('detects an empty range and a filled one', () => {
+        expect(check(checkModelIsEmpty, withRange(range("", ""), []))).toBe(true);
+        expect(check(checkModelIsEmpty, withRange(range("01/01/2026", ""), []))).toBe(false);
+      });
+
+      it('detects that the range changed from the stored one', () => {
+        const changed = withRange(range("01/01/2026", "31/01/2026"), range("01/01/2026", "28/02/2026"));
+        const same = withRange(range("01/01/2026", "31/01/2026"), range("01/01/2026", "31/01/2026"));
+
+        expect([check(checkModelIsUpdated, changed), check(checkModelIsUnchanged, changed)]).toEqual([true, false]);
+        expect([check(checkModelIsUpdated, same), check(checkModelIsUnchanged, same)]).toEqual([false, true]);
+      });
+
+      it('tells apart the same date used as start and as end', () => {
+        const swapped = withRange(range("01/01/2026", ""), range("", "01/01/2026"));
+
+        expect(check(checkModelIsUpdated, swapped)).toBe(true);
+      });
+    });
+
+    it('adds no separator to the printed text of a range with an open end', () => {
+      const component = dateRange([{value: '', selected: true}, {value: '31/01/2026', selected: true}]);
+
+      expect(getComponentData(component, {t: (text) => text}, true)['period.data']).toEqual({text: '31/01/2026'});
+    });
+  });
+
+  // Tests for clickDropdown
+  it('should handle click on dropdown', () => {
+    const dropdown = {
+      toggle: jest.fn()
+    };
+
+    const dropdownProps = {
+      address: { component: 'dropdown1', view: 'view1' },
+      addActionsTop: jest.fn(),
+      updateModelWithDependencies: jest.fn(),
+      dispatch: jest.fn(),
+      actions: [
+        { type: 'action1', parameters: {} },
+        { type: 'action2', parameters: {} }
+      ]
+    };
+
+    const event = { target: {} };
+
+    clickDropdown(event, dropdownProps, dropdown);
+
+    expect(dropdown.toggle).toHaveBeenCalledWith(event);
+    expect(dropdownProps.updateModelWithDependencies).toHaveBeenCalledWith(
+      dropdownProps.address, 
+      { event: 'click' }
+    );
+    expect(dropdownProps.addActionsTop).toHaveBeenCalledWith([
+      { ...dropdownProps.actions[0], address: dropdownProps.address },
+      { ...dropdownProps.actions[1], address: dropdownProps.address }
+    ]);
+  });
+
+  // Test for getTabPrintData
+  it('should get tab print data', () => {
+    const tab = {
+      attributes: {
+        id: 'tabId'
+      }
+    };
+    const model = {
+      values: [
+        { value: 'tab1', label: 'Tab 1', selected: true },
+        { value: 'tab2', label: 'Tab 2', selected: false }
+      ]
+    };
+    const props = {
+      t: (text) => `Translated: ${text}`
+    };
+
+    const result = getTabPrintData(tab, model, props);
+    expect('tabId.data' in result).toBe(true);
+    expect(result['tabId.data'].text).toBe('Translated: Tab Translated: 1');
+    expect('all' in result['tabId.data']).toBe(true);
+    expect(result['tabId.data'].all).toEqual(model.values);
+  }); //X
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
+  // Tests for rebuildStructureNodes (#909)
+  describe('rebuildStructureNodes', () => {
+    const controllers = {
+      Win: {id: "Win", elementType: "Window", label: "Window", icon: "fa-user", advancedOpen: true, screenId: "scr", elementList: ["ignored"]},
+      Crt: {id: "Crt", elementType: "Criteria", label: "Criterion", component: "text", style: "small"},
+      Grd: {
+        id: "Grd", elementType: "Grid", label: "Grid", treegrid: true, columnModel: [{name: "a"}], columnLayout: {}, showToolbar: true,
+        showColumnsButton: true, showMaximizeButton: true, toolbarLabels: ["columns"], options: [1], rowDetail: {}, screenId: "scr", dependencies: [{id: 1}]
+      },
+      Row: {id: "Row", label: "must not be used"}
+    };
+
+    it('gives a component node the attributes of its controller', () => {
+      const result = rebuildStructureNodes({id: "Crt", elementType: "Criteria", elementList: []}, controllers);
+
+      expect(result).toEqual({id: "Crt", elementType: "Criteria", label: "Criterion", component: "text", style: "small", elementList: []});
+    });
+
+    it('keeps the keys of the node over the ones of the controller', () => {
+      const result = rebuildStructureNodes({id: "Grd", elementType: "TreeGrid", treegrid: true, elementList: []}, controllers);
+
+      expect(result.elementType).toBe("TreeGrid");
+      expect(result.id).toBe("Grd");
+      expect(result.elementList).toEqual([]);
+      expect(result.label).toBe("Grid");
+      expect(result.dependencies).toEqual([{id: 1}]);
+    });
+
+    it('leaves out the keys that only the controller needs', () => {
+      const result = rebuildStructureNodes({id: "Grd", elementType: "Grid", elementList: []}, controllers);
+      const window = rebuildStructureNodes({id: "Win", elementType: "Window", elementList: []}, controllers);
+
+      ["columnModel", "columnLayout", "screenId", "showToolbar", "showColumnsButton", "showMaximizeButton", "toolbarLabels", "options",
+        "rowDetail"].forEach(key => expect(result).not.toHaveProperty(key));
+      expect(window).not.toHaveProperty("advancedOpen");
+      expect(window).not.toHaveProperty("screenId");
+      expect(window.elementList).toEqual([]);
+      expect(window.icon).toBe("fa-user");
+    });
+
+    it('rebuilds the children at any depth and leaves the plain nodes as they are', () => {
+      const tag = {elementType: "Tag", source: "center", type: "div", elementList: [
+        {id: "Win", elementType: "Window", elementList: [{id: "Crt", elementType: "Criteria", elementList: []}]}
+      ]};
+
+      const result = rebuildStructureNodes({elementType: "Screen", id: "scr", elementList: [tag]}, controllers);
+
+      expect(result.id).toBe("scr");
+      expect(result.elementList[0]).toMatchObject({elementType: "Tag", source: "center", type: "div"});
+      expect(result.elementList[0].elementList[0].label).toBe("Window");
+      expect(result.elementList[0].elementList[0].elementList[0].label).toBe("Criterion");
+    });
+
+    it('does not touch a node without a controller', () => {
+      const node = {id: "Other", elementType: "Criteria", elementList: []};
+
+      expect(rebuildStructureNodes(node, controllers)).toEqual(node);
+    });
+
+    it('does not touch the subtree of a tag list, as it has no controllers', () => {
+      const list = {id: "List", elementType: "TagList", elementList: [{id: "Row", elementType: "Tag", elementList: [{id: "Crt", elementType: "Criteria", label: "own"}]}]};
+
+      const result = rebuildStructureNodes({id: "Tag", elementType: "Tag", elementList: [list]}, controllers);
+
+      expect(result.elementList[0].elementList).toEqual(list.elementList);
+    });
+
+    it('does not change the structure it receives', () => {
+      const node = {id: "Win", elementType: "Window", elementList: [{id: "Crt", elementType: "Criteria"}]};
+      const copy = JSON.parse(JSON.stringify(node));
+
+      rebuildStructureNodes(node, controllers);
+
+      expect(node).toEqual(copy);
+    });
+  });
+});

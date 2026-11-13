@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Enumerated.xml
+    Created on : 11 de marzo de 2010, 11:03
+    Author     : Pablo GARCIA
+    Description:
+        Purpose of the document follows.
+-->
+
+<enumerated xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/enumerated.xsd">
+
+  <!-- MOVE ROWS TEST -->
+  <group id="MoveRowTst">
+    <option label="Step one" value="1" />
+    <option label="Step two" value="2" />
+    <option label="Step three" value="3" />
+    <option label="Step four" value="4" />
+    <option label="Step five" value="5" />
+  </group>
+
+  <!-- MATRIX TEST TYPE -->
+  <group id="EnuAweSelMat">
+    <option label="ENUM_MATRIX_STATIC" value="StaMat" />
+    <option label="ENUM_MATRIX_MULTISELECT" value="MusMat" />
+    <option label="ENUM_MATRIX_EDITABLE" value="EdiMat" />
+    <option label="ENUM_MATRIX_EDITABLE_MULTISELECT" value="EdiMusMat" />
+    <option label="ENUM_MATRIX_MULTIOPTION" value="MuoMat" />
+    <option label="ENUM_MATRIX_TREEGRID" value="TreMat" />
+    <option label="ENUM_MATRIX_TREEGRID_LOADNODE" value="TreLoaMat" />
+    <option label="ENUM_MATRIX_TREEGRID_EDITABLE" value="TreEdiMat" />
+    <option label="ENUM_MATRIX_TREEGRID_EDITABLE_LOADNODE" value="TreLoaEdiMat" />
+    <option label="ENUM_MATRIX_TOTALIZE" value="TotMat" />
+    <option label="ENUM_MATRIX_TOTALIZE_SERVICE" value="TotSrvMat" />
+    <option label="ENUM_MATRIX_GRID_DEPENDENCIES" value="DepMat" />
+  </group>
+
+  <!-- REVEAL INVALID FIELD TEST -->
+  <group id="RevTabs">
+    <option label="ENUM_REVEAL_FIRST" value="RevTabOne" />
+    <option label="ENUM_REVEAL_SECOND" value="RevTabTwo" />
+  </group>
+  <group id="RevSteps">
+    <option label="ENUM_REVEAL_FIRST" value="RevStepOne" />
+    <option label="ENUM_REVEAL_SECOND" value="RevStepTwo" />
+  </group>
+
+  <!-- UNSAVED GRID TEST TABS -->
+  <group id="UnsTabs">
+    <option label="ENUM_UNSAVED_GRID_GENERAL" value="unsGeneral" />
+    <option label="ENUM_UNSAVED_GRID_ACCESS" value="unsAccess" />
+    <option label="ENUM_UNSAVED_GRID_SITES" value="unsSites" />
+  </group>
+
+  <!-- WIZARD TEST STEPS -->
+  <group id="WizTst">
+    <option label="ENUM_STEP_1" value="WizardStep1" />
+    <option label="ENUM_STEP_2" value="WizardStep2" />
+    <option label="ENUM_STEP_3" value="WizardStep3" />
+    <option label="ENUM_STEP_4" value="WizardStep4" />
+  </group>
+
+  <!-- BUTTON CHECKBOX -->
+  <group id="ButtonCheckbox">
+    <option label="PARAMETER_CHECKBOX_1" value="ChkBoxVa21" />
+    <option label="PARAMETER_CHECKBOX_2" value="ChkBoxVa22" />
+    <option label="PARAMETER_CHECKBOX_3" value="ChkBoxVa23" />
+    <option label="PARAMETER_CHECKBOX_1" value="ChkBoxVa24" />
+    <option label="PARAMETER_CHECKBOX_1" value="ChkBoxVa25" />
+  </group>
+
+  <!-- BUTTON RADIO -->
+  <group id="ButtonRadio">
+    <option label="PARAMETER_RADIO_1" value="Radio1" />
+    <option label="PARAMETER_RADIO_2" value="Radio2" />
+    <option label="PARAMETER_RADIO_3" value="Radio3" />
+    <option label="PARAMETER_RADIO_1" value="Radio4" />
+    <option label="PARAMETER_RADIO_1" value="Radio5" />
+  </group>
+
+  <group id="VideoPdf">
+    <option label="VIDEO" value="VIDEO" />
+    <option label="PDF" value="PDF" />
+  </group>
+
+  <!-- CHART TEST WITH ADVANCED HIGHCHARTS OPTIONS: fixed rows for the charts, so that they always draw the same -->
+  <group id="ChrAdvAge">
+    <option label="20-24" value="20-24" />
+    <option label="25-29" value="25-29" />
+    <option label="30-34" value="30-34" />
+    <option label="35-39" value="35-39" />
+    <option label="40-44" value="40-44" />
+    <option label="45-49" value="45-49" />
+    <option label="50-54" value="50-54" />
+    <option label="55-59" value="55-59" />
+  </group>
+
+  <group id="ChrAdvMonth">
+    <option label="1" value="1" />
+    <option label="2" value="2" />
+    <option label="3" value="3" />
+    <option label="4" value="4" />
+    <option label="5" value="5" />
+    <option label="6" value="6" />
+    <option label="7" value="7" />
+    <option label="8" value="8" />
+    <option label="9" value="9" />
+    <option label="10" value="10" />
+    <option label="11" value="11" />
+    <option label="12" value="12" />
+  </group>
+
+  <group id="ChrAdvYear">
+    <option label="2018" value="2018" />
+    <option label="2019" value="2019" />
+    <option label="2020" value="2020" />
+    <option label="2021" value="2021" />
+    <option label="2022" value="2022" />
+    <option label="2023" value="2023" />
+    <option label="2024" value="2024" />
+    <option label="2025" value="2025" />
+  </group>
+
+  <group id="ChrAdvCategory">
+    <option label="Management" value="Management" />
+    <option label="Engineering" value="Engineering" />
+    <option label="Sales" value="Sales" />
+    <option label="Support" value="Support" />
+    <option label="Operations" value="Operations" />
+  </group>
+
+  <!-- OPTIONS OF THE RADIO AND BUTTON-RADIO COLUMNS OF THE GRID WITH RADIO COLUMNS (GrdRadioTst screen) -->
+  <group id="RadioChoiceTst">
+    <option label="COLUMN_RADIO_OPTION_A" value="A" />
+    <option label="COLUMN_RADIO_OPTION_B" value="B" />
+    <option label="COLUMN_RADIO_OPTION_C" value="C" />
+  </group>
+
+  <group id="RadioModeTst">
+    <option label="COLUMN_RADIO_MODE_LOW" value="1" />
+    <option label="COLUMN_RADIO_MODE_MID" value="2" />
+    <option label="COLUMN_RADIO_MODE_HIGH" value="3" />
+  </group>
+
+  <!-- Deferred load test (#824) -->
+  <group id="DeferredTabs">
+    <option label="ENUM_DEFERRED_FIRST" value="DefFirst" />
+    <option label="ENUM_DEFERRED_SECOND" value="DefSecond" />
+  </group>
+
+  <group id="DeferredHeavyTabs">
+    <option label="ENUM_DEFERRED_FIRST" value="HeaFirst" />
+    <option label="ENUM_DEFERRED_SECOND" value="HeaSecond" />
+  </group>
+
+  <!-- Advanced search test screen (#790): its two examples, and the status, country and segment of the customers -->
+  <group id="AdvSchExm">
+    <option label="ENUM_ADV_SCH_INLINE" value="AdvSchInl" />
+    <option label="ENUM_ADV_SCH_SIDE_PANEL" value="AdvSchPnl" />
+    <option label="ENUM_ADV_SCH_SQL" value="AdvSchSql" />
+  </group>
+
+  <group id="AdvSchSta">
+    <option label="ENUM_ADV_SCH_ACTIVE" value="1" />
+    <option label="ENUM_ADV_SCH_INACTIVE" value="0" />
+  </group>
+
+  <group id="AdvSchCtr">
+    <option label="ENUM_ADV_SCH_COUNTRY_ES" value="ES" />
+    <option label="ENUM_ADV_SCH_COUNTRY_FR" value="FR" />
+    <option label="ENUM_ADV_SCH_COUNTRY_DE" value="DE" />
+    <option label="ENUM_ADV_SCH_COUNTRY_IT" value="IT" />
+    <option label="ENUM_ADV_SCH_COUNTRY_PT" value="PT" />
+    <option label="ENUM_ADV_SCH_COUNTRY_GB" value="GB" />
+  </group>
+
+  <group id="AdvSchSeg">
+    <option label="ENUM_ADV_SCH_SEGMENT_RET" value="RET" />
+    <option label="ENUM_ADV_SCH_SEGMENT_WHO" value="WHO" />
+    <option label="ENUM_ADV_SCH_SEGMENT_PUB" value="PUB" />
+    <option label="ENUM_ADV_SCH_SEGMENT_ONL" value="ONL" />
+  </group>
+
+  <!-- Options in another order than the containers of the tab TabOrder (#906) -->
+  <group id="OrderedTabs">
+    <option label="ENUM_TAB_ORDER_FIRST" value="TabOrdFirst" />
+    <option label="ENUM_TAB_ORDER_THIRD" value="TabOrdThird" />
+    <option label="ENUM_TAB_ORDER_SECOND" value="TabOrdSecond" />
+  </group>
+
+</enumerated>

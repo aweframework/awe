@@ -1,0 +1,144 @@
+/*
+ * Progress bars: Bootstrap 3 progress-bars.less and the pixel-admin progress rules on the same selectors, as the compiled vendored CSS renders
+ * them: progress (the track), progress-bar and its colors (success, info, warning, danger), the striped bar (progress-striped,
+ * progress-bar-striped) and the animated stripes (active), with the progress-bar-stripes keyframes.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values.
+ * The motion follows the --awe-motion-duration-* tokens, which the token file sets to 0ms under prefers-reduced-motion: the width transition (0.6s
+ * ease before) and the stripes (2s linear infinite before) stop for people who ask for no motion, and the bar still shows its progress.
+ * There is no !important in this file.
+ *
+ * Not here (they stay in LESS; compatProgressBars.test.js names every one of them with example selectors): the progress bar in the controls of
+ * a panel heading, the dropzone preview, the AWE progress column and uploader (a flat rounded track with no stripes, unlayered, so it wins over
+ * these rules) and the selectors that depend on a theme class.
+ */
+
+@keyframes progress-bar-stripes {
+  from {
+    background-position: var(--awe-space-10) 0;
+  }
+
+  to {
+    background-position: 0 0;
+  }
+}
+
+.progress {
+  overflow: hidden;
+  height: var(--awe-space-5);
+  margin-bottom: var(--awe-space-5);
+  background-color: var(--awe-color-secondary);
+  border-radius: var(--awe-radius);
+  box-shadow: inset 0 var(--awe-border-width) var(--awe-space-0-5) color-mix(in srgb, var(--awe-color-text), transparent 90%);
+}
+
+.progress-bar {
+  float: left;
+  width: 0%;
+  height: 100%;
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-space-5);
+  color: var(--awe-color-on-primary);
+  text-align: center;
+  background-color: var(--awe-color-primary);
+  box-shadow: inset 0 calc(var(--awe-border-width) * -1) 0 color-mix(in srgb, var(--awe-color-text), transparent 85%);
+  transition: width calc(var(--awe-motion-duration-slow) * 2) ease;
+}
+
+.progress-striped .progress-bar,
+.progress-bar-striped {
+  background-image: linear-gradient(45deg, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 25%, transparent 25%, transparent 50%, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 50%, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 75%, transparent 75%, transparent);
+  background-size: var(--awe-space-10) var(--awe-space-10);
+}
+
+.progress.active .progress-bar,
+.progress-bar.active {
+  animation: progress-bar-stripes calc(var(--awe-motion-duration-slow) * 6.67) linear infinite;
+}
+
+.progress-bar-success {
+  background-color: var(--awe-color-success);
+}
+
+.progress-striped .progress-bar-success {
+  background-image: linear-gradient(45deg, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 25%, transparent 25%, transparent 50%, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 50%, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 75%, transparent 75%, transparent);
+}
+
+.progress-bar-info {
+  background-color: var(--awe-color-info);
+}
+
+.progress-striped .progress-bar-info {
+  background-image: linear-gradient(45deg, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 25%, transparent 25%, transparent 50%, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 50%, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 75%, transparent 75%, transparent);
+}
+
+.progress-bar-warning {
+  background-color: var(--awe-color-warning);
+}
+
+.progress-striped .progress-bar-warning {
+  background-image: linear-gradient(45deg, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 25%, transparent 25%, transparent 50%, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 50%, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 75%, transparent 75%, transparent);
+}
+
+.progress-bar-danger {
+  background-color: var(--awe-color-danger);
+}
+
+.progress-striped .progress-bar-danger {
+  background-image: linear-gradient(45deg, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 25%, transparent 25%, transparent 50%, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 50%, color-mix(in srgb, var(--awe-color-surface), transparent 85%) 75%, transparent 75%, transparent);
+}
+
+.progress {
+  background-color: color-mix(in srgb, var(--awe-color-text), transparent 94%);
+  height: var(--awe-space-3);
+}
+
+.progress-bar {
+  background: none;
+  border: var(--awe-border-width) solid;
+  box-shadow: none;
+}
+
+.progress .progress-bar.progress-bar-info {
+  background: var(--awe-color-info);
+  border-color: var(--awe-color-info);
+}
+
+.progress.progress-striped .progress-bar.progress-bar-info {
+  background-color: var(--awe-color-info);
+  background-image: linear-gradient(45deg, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 25%, transparent 25%, transparent 50%, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 50%, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 75%, transparent 75%, transparent);
+  background-size: var(--awe-space-3) var(--awe-space-3);
+}
+
+.progress .progress-bar.progress-bar-success {
+  background: var(--awe-color-success);
+  border-color: var(--awe-color-success);
+}
+
+.progress.progress-striped .progress-bar.progress-bar-success {
+  background-color: var(--awe-color-success);
+  background-image: linear-gradient(45deg, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 25%, transparent 25%, transparent 50%, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 50%, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 75%, transparent 75%, transparent);
+  background-size: var(--awe-space-3) var(--awe-space-3);
+}
+
+.progress .progress-bar.progress-bar-warning {
+  background: var(--awe-color-warning);
+  border-color: var(--awe-color-warning);
+}
+
+.progress.progress-striped .progress-bar.progress-bar-warning {
+  background-color: var(--awe-color-warning);
+  background-image: linear-gradient(45deg, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 25%, transparent 25%, transparent 50%, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 50%, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 75%, transparent 75%, transparent);
+  background-size: var(--awe-space-3) var(--awe-space-3);
+}
+
+.progress .progress-bar.progress-bar-danger {
+  background: var(--awe-color-danger);
+  border-color: var(--awe-color-danger);
+}
+
+.progress.progress-striped .progress-bar.progress-bar-danger {
+  background-color: var(--awe-color-danger);
+  background-image: linear-gradient(45deg, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 25%, transparent 25%, transparent 50%, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 50%, color-mix(in srgb, var(--awe-color-surface), transparent 90%) 75%, transparent 75%, transparent);
+  background-size: var(--awe-space-3) var(--awe-space-3);
+}

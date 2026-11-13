@@ -1,4 +1,5 @@
 import {DefaultSettings} from "../../../main/resources/js/awe/data/options";
+import {ClientActions} from "../../../main/resources/js/awe/data/actions";
 import "../../../main/resources/js/awe/app";
 import "../../../main/resources/webpack/locals-en-GB.config";
 import "../../../main/resources/webpack/locals-es-ES.config";
@@ -70,10 +71,28 @@ describe("Screen", () => {
     expect($utilities.getState).toHaveBeenCalledWith("/base/signin", false);
     expect($state.transitionTo).toHaveBeenCalledWith(
       "base.signin",
-      {screen: "signin"},
+      {screen: "signin", freshScreen: null},
       {reload: false, inherit: true, notify: true, location: true}
     );
     expect($actionController.acceptAction).toHaveBeenCalledWith(screenAction);
+  });
+
+  it("guides to the public screen that changes an expired password, and back to the sign in after the change", () => {
+    jest.spyOn($utilities, "sameUrl").mockReturnValue(false);
+    jest.spyOn($utilities, "getState").mockReturnValue({to: "base.screen", parameters: {}});
+    jest.spyOn($state, "transitionTo").mockReturnValue(undefined);
+
+    // The server answers a login with an expired password with this action (no token: there is no session)
+    const changeAction = action({context: "screen", parameters: {screen: "change-expired-password"}, target: undefined});
+    $screen.screen(changeAction);
+    expect($utilities.getState).toHaveBeenLastCalledWith("/screen/change-expired-password", false);
+    expect($actionController.acceptAction).toHaveBeenCalledWith(changeAction);
+
+    // After the password change the server sends the user back to the sign in screen
+    const signinAction = action({context: undefined, parameters: {connectionToken: "abc"}, target: "/"});
+    $screen.screen(signinAction);
+    expect($utilities.getState).toHaveBeenLastCalledWith("/", false);
+    expect($actionController.acceptAction).toHaveBeenCalledWith(signinAction);
   });
 
   it("reloads current screen only when same URL reload is enabled", () => {
@@ -98,7 +117,7 @@ describe("Screen", () => {
 
     expect($state.transitionTo).toHaveBeenCalledWith(
       $state.current,
-      {},
+      {freshScreen: null},
       expect.objectContaining({reload: false, inherit: true, notify: true, location: false})
     );
     expect($windowMock.history.back).toHaveBeenCalled();
@@ -251,6 +270,18 @@ describe("Screen", () => {
     expect($actionController.acceptAction).toHaveBeenCalledWith(themeAction);
   });
 
+  it("forgets the colour mode and the language chosen on the sign-in page once the login completed, as the server saved them", () => {
+    jest.spyOn($storage, "get").mockReturnValue({base: {}});
+    jest.spyOn($settings, "refreshAppearance").mockReturnValue(Promise.resolve());
+    sessionStorage.setItem("awe-login-mode-pending", "dark");
+    sessionStorage.setItem("awe-login-language-pending", "es-ES");
+
+    $screen.changeTheme(action({context: "base", parameters: {theme: "sky"}}));
+
+    expect(sessionStorage.getItem("awe-login-mode-pending")).toBeNull();
+    expect(sessionStorage.getItem("awe-login-language-pending")).toBeNull();
+  });
+
   it("changes language from action parameters when storage has no selected language", () => {
     jest.spyOn($storage, "get").mockReturnValue({base: {}});
     jest.spyOn($settings, "changeLanguage");
@@ -262,30 +293,43 @@ describe("Screen", () => {
     expect($actionController.acceptAction).toHaveBeenCalledWith(languageAction);
   });
 
-  it("toggles every class requested by targetAction on the selected element", () => {
+  it("toggles every class requested by targetAction on the selected element through the toggle-class action", () => {
     document.body.innerHTML = '<div id="toggle-target" class="base"></div>';
     jest.spyOn($settings, "get").mockImplementation((key) => key === "targetActionKey" ? "targetAction" : key);
     const cssAction = action({target: "#toggle-target", parameters: {targetAction: "active highlighted"}});
 
-    $screen.toggleClass(cssAction);
+    const toggle = $screen[ClientActions.screen["toggle-class"].method];
+
+    toggle(cssAction);
     expect($("#toggle-target").hasClass("active")).toBe(true);
     expect($("#toggle-target").hasClass("highlighted")).toBe(true);
 
-    $screen.toggleClass(cssAction);
+    toggle(cssAction);
     expect($("#toggle-target").hasClass("active")).toBe(false);
     expect($("#toggle-target").hasClass("highlighted")).toBe(false);
     expect($actionController.acceptAction).toHaveBeenCalledWith(cssAction);
   });
 
-  it("reloads theme variable stylesheets with a timestamp query string", () => {
-    document.head.innerHTML = '<link rel="stylesheet" id="themeVariables" href="/themes/vars.css?old=1">';
-    jest.spyOn(Date.prototype, "getTime").mockReturnValue(12345);
+  it("dispatches toggle-class, and every screen client action, to a method of the service", () => {
+    const missing = Object.entries(ClientActions.screen)
+      .filter(([, {method}]) => typeof $screen[method] !== "function")
+      .map(([name]) => name);
+
+    expect(ClientActions.screen["toggle-class"]).toEqual({method: "toggleClass"});
+    expect(missing).toEqual([]);
+  });
+
+  it("reads the theme appearance again from the server when a theme is updated, without touching the stylesheets", () => {
+    document.head.innerHTML = '<link rel="stylesheet" href="/css/styles.css">';
+    jest.spyOn($settings, "refreshAppearance").mockReturnValue(Promise.resolve());
     const themeAction = action();
 
     $screen.updateTheme(themeAction);
 
-    expect(document.querySelector("#themeVariables").getAttribute("href")).toBe("http://localhost/themes/vars.css?reload=12345");
+    expect($settings.refreshAppearance).toHaveBeenCalledTimes(1);
+    expect(document.querySelector("link").getAttribute("href")).toBe("/css/styles.css");
     expect($actionController.acceptAction).toHaveBeenCalledWith(themeAction);
+    document.head.innerHTML = "";
   });
 
   it("uses the action target when parameters do not provide screen or target", () => {
@@ -299,7 +343,7 @@ describe("Screen", () => {
     expect($utilities.getState).toHaveBeenCalledWith("/base/report", false);
     expect($state.transitionTo).toHaveBeenCalledWith(
       "base.report",
-      {screen: "report"},
+      {screen: "report", freshScreen: null},
       {reload: false, inherit: true, notify: true, location: true}
     );
     expect($actionController.acceptAction).toHaveBeenCalledWith(screenAction);
@@ -317,11 +361,31 @@ describe("Screen", () => {
     expect($utilities.getState).toHaveBeenCalledWith("/base/current", true);
     expect($state.transitionTo).toHaveBeenCalledWith(
       "base.current",
-      {screen: "current"},
+      {screen: "current", freshScreen: null},
       {reload: false, inherit: true, notify: true, location: true}
     );
     expect($screen.reload).not.toHaveBeenCalled();
     expect($actionController.acceptAction).toHaveBeenCalledWith(screenAction);
+  });
+
+  it("navigates with a fresh screen only when the action comes from the menu", () => {
+    jest.spyOn($utilities, "sameUrl").mockReturnValue(false);
+    jest.spyOn($utilities, "getState").mockReturnValue({to: "base.signin", parameters: {screen: "signin"}});
+    jest.spyOn($state, "transitionTo").mockReturnValue(undefined);
+
+    $screen.screen(action({parameters: {target: "signin"}, origin: "menu"}));
+    $screen.screen(action({parameters: {target: "signin"}}));
+
+    expect($state.transitionTo.mock.calls[0][1]).toEqual({screen: "signin", freshScreen: true});
+    expect($state.transitionTo.mock.calls[1][1]).toEqual({screen: "signin", freshScreen: null});
+  });
+
+  it("reloads the current screen fresh only when the action comes from the menu", () => {
+    jest.spyOn($state, "transitionTo").mockReturnValue(undefined);
+
+    $screen.reload(action({origin: "menu"}));
+
+    expect($state.transitionTo.mock.calls[0][1]).toEqual({freshScreen: true});
   });
 
   it("stores screen data without queueing action lists when no server actions are provided", () => {

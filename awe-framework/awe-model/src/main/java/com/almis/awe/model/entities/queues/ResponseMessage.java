@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * ResponseMessage Class
  * Response message XML Wrapper
@@ -22,6 +24,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("response-message")
 public class ResponseMessage extends JmsMessage {
 
+  @Serial
   private static final long serialVersionUID = 2837769427817615607L;
 
   // JmsMessage status

@@ -1,0 +1,62 @@
+package com.almis.awe.testing.database;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.testcontainers.utility.DockerImageName;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class TestDatabaseImagesTest {
+
+  @ParameterizedTest
+  @EnumSource(value = TestDatabase.class, names = {"MYSQL", "POSTGRESQL", "SQLSERVER", "ORACLE"})
+  void everyServerDatabaseImageIsPinnedByTagAndDigest(TestDatabase database) {
+    assertThat(TestDatabaseImages.imageFor(database))
+      .matches("[a-z0-9./_-]+:[A-Za-z0-9._-]+@sha256:[a-f0-9]{64}");
+  }
+
+  @ParameterizedTest
+  @EnumSource(value = TestDatabase.class, names = {"MYSQL", "POSTGRESQL", "SQLSERVER", "ORACLE"})
+  void testcontainersPullsThePinnedDigest(TestDatabase database) {
+    String image = TestDatabaseImages.imageFor(database);
+    String digest = image.substring(image.indexOf('@') + 1);
+
+    assertThat(DockerImageName.parse(image).asCanonicalNameString()).contains(digest);
+  }
+
+  @Test
+  void theSqlServerImageIsNotOnDockerHubSoTheHubPrefixNeverTouchesIt() {
+    // Testcontainers' hub image name prefix (the CI dependency proxy) only rewrites images without a registry
+    assertThat(DockerImageName.parse(TestDatabaseImages.imageFor(TestDatabase.SQLSERVER)).getRegistry())
+      .isEqualTo("mcr.microsoft.com");
+    assertThat(DockerImageName.parse(TestDatabaseImages.imageFor(TestDatabase.ORACLE)).getRegistry())
+      .as("Docker Hub images have no registry and go through the prefix").isEmpty();
+  }
+
+  @Test
+  void theKeycloakImageIsPinnedByTagAndDigestAndComesFromQuay() {
+    String image = TestDatabaseImages.keycloak();
+
+    assertThat(image).matches("quay\\.io/keycloak/keycloak:\\d+\\.\\d+\\.\\d+@sha256:[a-f0-9]{64}");
+    assertThat(DockerImageName.parse(image).getRegistry())
+      .as("Quay images have a registry, so the Docker Hub prefix never touches them").isEqualTo("quay.io");
+  }
+
+  @Test
+  void embeddedDatabasesHaveNoImage() {
+    assertThatThrownBy(() -> TestDatabaseImages.imageFor(TestDatabase.H2))
+      .isInstanceOf(IllegalArgumentException.class)
+      .hasMessageContaining("H2")
+      .hasMessageContaining("embedded");
+  }
+
+  @Test
+  void aMissingImageEntryNamesTheKeyAndTheFile() {
+    assertThatThrownBy(() -> TestDatabaseImages.lookup("unknown"))
+      .isInstanceOf(IllegalStateException.class)
+      .hasMessageContaining("awe.testing.image.unknown")
+      .hasMessageContaining("awe-testing-images.properties");
+  }
+}

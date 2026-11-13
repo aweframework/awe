@@ -1,0 +1,200 @@
+/* Select, multiple select and multiple suggest, as in the design system (components, "Select, multiselect and
+   autocomplete") and the chips of its prototype (.control--chips, .chip): both multiple fields draw the same chip */
+
+/* Chosen values of a multiple select or suggest: chips inside the field that wrap onto new lines, so every value is seen
+   and the field grows with them (the label of PrimeReact keeps them on one line and hides the rest) */
+.p-multiselect.p-multiselect-chip.p-inputwrapper-filled .p-multiselect-label-container > .p-multiselect-label,
+.p-autocomplete .p-autocomplete-multiple-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-1);
+  /* The height of the rest of the fields: the chips wrap and the field grows, but an empty or one-line field keeps
+     the control height of the design system instead of the padding of the theme */
+  min-height: var(--awe-size-control);
+  padding: var(--awe-space-1);
+  white-space: normal;
+}
+
+/* The clear button and the dropdown trigger of a multiple suggest sit over the right end of the field, so the text and
+   the chips keep their distance from them */
+.p-autocomplete .p-autocomplete-multiple-container {
+  padding-right: calc(var(--awe-space-8) * 2);
+}
+
+/* Clear button of a multiple suggest: left of its dropdown trigger and muted, as the clear icon of a select */
+.awe-suggest-clear {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: calc(var(--awe-space-8) + var(--awe-space-1));
+  display: grid;
+  place-items: center;
+  width: calc(var(--awe-size-icon-sm) + var(--awe-space-1));
+  height: calc(var(--awe-size-icon-sm) + var(--awe-space-1));
+  padding: 0;
+  color: var(--awe-color-field-icon);
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-xs);
+  transform: translateY(-50%);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--awe-color-text);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  .awe-icon {
+    display: block;
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+}
+
+/* The token of PrimeReact around the chip of a multiple suggest takes no room of its own */
+.p-autocomplete .p-autocomplete-multiple-container .p-autocomplete-token {
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  background: transparent;
+  border-radius: 0;
+}
+
+.p-autocomplete-token-label {
+  display: flex;
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* The input where the user types: one chip high, so a field with one line of chips keeps the control height */
+.p-autocomplete .p-autocomplete-multiple-container .p-autocomplete-input-token {
+  /* It shares the line of the chips it follows instead of dropping to a line of its own */
+  flex: 1 1 var(--awe-space-8);
+  min-width: 0;
+  height: calc(var(--awe-size-control) - var(--awe-space-2) - var(--awe-space-0-5));
+  padding: 0 0 0 var(--awe-space-1);
+}
+
+/* Chip: smaller than the field, on the secondary surface */
+.awe-select-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-1);
+  min-width: 0;
+  max-width: 100%;
+  height: calc(var(--awe-size-control) - var(--awe-space-2) - var(--awe-space-0-5));
+  padding: 0 var(--awe-space-1) 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-tight);
+  color: var(--awe-color-on-secondary);
+  background: var(--awe-color-secondary);
+  border-radius: var(--awe-radius-sm);
+  cursor: default;
+}
+
+/* Small field, and the editor of a grid cell (one line, at the small control height of the edited row) */
+.p-inputtext-sm .awe-select-chip,
+.p-datatable .p-datatable-tbody > tr.editing .awe-select-chip,
+.p-inputtext-sm .p-autocomplete-multiple-container .p-autocomplete-input-token,
+.p-datatable .p-datatable-tbody > tr.editing .p-autocomplete .p-autocomplete-multiple-container .p-autocomplete-input-token {
+  height: calc(var(--awe-size-control-sm) - var(--awe-space-2));
+}
+
+.p-datatable .p-datatable-tbody > tr.editing .p-multiselect.p-multiselect-chip .p-multiselect-label,
+.p-datatable .p-datatable-tbody > tr.editing .p-autocomplete .p-autocomplete-multiple-container {
+  flex-wrap: nowrap;
+  overflow: hidden;
+}
+
+/* A label longer than the field is cut with an ellipsis (its title shows the whole text) */
+.awe-select-chip-label {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Remove icon: the Lucide x in an 18px target (12px icon) at the comfortable density, as the prototype */
+.awe-select-chip-remove {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: calc(var(--awe-size-icon) + var(--awe-space-0-5));
+  height: calc(var(--awe-size-icon) + var(--awe-space-0-5));
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--awe-radius-xs);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover {
+    color: var(--awe-color-text-emphasis);
+    background: var(--awe-color-secondary-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  .awe-icon {
+    display: block;
+    width: calc(var(--awe-size-icon-sm) - var(--awe-space-0-5));
+    height: calc(var(--awe-size-icon-sm) - var(--awe-space-0-5));
+  }
+}
+
+/* Header of a group of options: small and muted, never selectable, with a separator from the group above it (as the
+   option groups of the AngularJS select and of the suggest) */
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item-group,
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item-group {
+  padding: var(--awe-space-2) var(--awe-space-2) var(--awe-space-1);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-list-option-group);
+  background: transparent;
+  text-transform: uppercase;
+  letter-spacing: var(--awe-letter-spacing-caps);
+  cursor: default;
+}
+
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item-group:not(:first-child),
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item-group:not(:first-child) {
+  margin-top: var(--awe-space-1);
+  border-top: var(--awe-border-width) solid var(--awe-color-border-subtle);
+}
+
+/* The options without group of a grouped list keep their place without header */
+.p-multiselect-panel .p-multiselect-items .p-multiselect-item-group:empty,
+.p-dropdown-panel .p-dropdown-items .p-dropdown-item-group:has(> .p-dropdown-item-group-label:empty) {
+  display: none;
+}
+
+/* A multiple suggest with display="summary" (#845) stays one line: its first token holds the chips that fit and the
+   counter of the rest, the other tokens are empty and the input keeps a little room to type */
+.p-autocomplete.awe-suggest-multiple-summary .p-autocomplete-multiple-container {
+  flex-wrap: nowrap;
+  overflow: hidden;
+
+  .p-autocomplete-token:first-child {
+    flex: 1 1 auto;
+  }
+
+  .p-autocomplete-token:not(:first-child) {
+    display: none;
+  }
+
+  .p-autocomplete-token-label {
+    flex: 1 1 auto;
+  }
+
+  .p-autocomplete-input-token {
+    flex: 0 0 var(--awe-space-8);
+  }
+}

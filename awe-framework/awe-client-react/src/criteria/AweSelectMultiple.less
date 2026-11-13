@@ -1,0 +1,111 @@
+// A select-multiple criterion stays one control high (#922): the chips that fit, then a "+K" counter that lists them all.
+// The chips and the counter look as the "+n" chip of a grid cell (awe-cell-chip)
+.awe-select-multiple .p-multiselect-label-container {
+  display: flex;
+  align-items: center;
+}
+
+.awe-select-multiple .p-multiselect-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-right: 0;
+  padding-left: var(--awe-space-2);
+  overflow: hidden;
+}
+
+// The clear icon (optional criteria) has its own space: it never covers the chips or the counter
+.awe-select-multiple-clearable .p-multiselect-label-container {
+  padding-right: calc(var(--awe-size-icon) + var(--awe-space-2));
+}
+
+.awe-select-multiple-chips {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  gap: var(--awe-space-1);
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+}
+
+// Chips of the values that do not fit: out of sight but measurable, so the row can tell when they fit again
+.awe-select-multiple-chip-measure {
+  position: absolute;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.awe-select-multiple-chips > .awe-cell-chip {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+.awe-select-multiple-chips > .awe-select-multiple-more {
+  flex: none;
+  cursor: pointer;
+  border: 0;
+}
+
+.awe-select-multiple-more:focus-visible {
+  outline: none;
+  box-shadow: var(--awe-shadow-field-focus);
+}
+
+.awe-select-multiple-panel {
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+}
+
+.awe-select-multiple-panel::before,
+.awe-select-multiple-panel::after {
+  display: none;
+}
+
+.awe-select-multiple-list {
+  max-width: 100%;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.awe-select-multiple-list li {
+  display: flex;
+  gap: var(--awe-space-3);
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--awe-space-1) 0;
+}
+
+.awe-select-multiple-list li > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.awe-select-multiple-list button {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--awe-size-icon-lg);
+  height: var(--awe-size-icon-lg);
+  padding: 0;
+  color: inherit;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-sm);
+}
+
+.awe-select-multiple-list button:hover {
+  background: var(--awe-color-surface-hover);
+}
+
+.awe-select-multiple-list button:focus-visible {
+  outline: none;
+  box-shadow: var(--awe-shadow-field-focus);
+}

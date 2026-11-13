@@ -6,9 +6,8 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.Flyway;
 import org.flywaydb.core.api.configuration.FluentConfiguration;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.flyway.FlywayMigrationStrategy;
+import org.springframework.boot.flyway.autoconfigure.FlywayMigrationStrategy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -37,7 +36,6 @@ public class FlywayMigrationConfig {
    * @param dataSource               Awe routing datasource
    * @param databaseConfigProperties Database config properties
    */
-  @Autowired
   public FlywayMigrationConfig(Flyway flyway, DataSource dataSource, DatabaseConfigProperties databaseConfigProperties) {
     this.flyway = flyway;
     this.dataSource = dataSource;
@@ -107,7 +105,6 @@ public class FlywayMigrationConfig {
             .baselineVersion(flyway.getConfiguration().getBaselineVersion())
             .baselineDescription(flyway.getConfiguration().getBaselineDescription())
             .cleanDisabled(flyway.getConfiguration().isCleanDisabled())
-            .cleanOnValidationError(flyway.getConfiguration().isCleanOnValidationError())
             .connectRetries(flyway.getConfiguration().getConnectRetries())
             .connectRetriesInterval(flyway.getConfiguration().getConnectRetriesInterval())
             .createSchemas(flyway.getConfiguration().isCreateSchemas())

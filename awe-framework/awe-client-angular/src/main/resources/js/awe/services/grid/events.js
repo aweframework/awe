@@ -1,17 +1,19 @@
 import {aweApplication} from "../../awe";
 import {ClientActions} from "../../data/actions";
+import {copyGridRows} from "./copyRows";
 
 // Grid events service
 aweApplication.factory('GridEvents',
-  ['ActionController', 'Control', '$translate',
+  ['ActionController', 'Control', '$translate', '$log',
     /**
      * Grid generic methods
      *
      * @param {service} $actionController Action controller service
      * @param {service} Control Awe control service
      * @param {service} $translate Translate service
+     * @param {service} $log Log service
      */
-    function ($actionController, Control, $translate) {
+    function ($actionController, Control, $translate, $log) {
       /**
        * Add a row
        * @param {Object} parameters Action parameters
@@ -37,6 +39,20 @@ aweApplication.factory('GridEvents',
 
         // Store event
         component.storeEvent('add-row');
+      }
+
+      /**
+       * Move the selected row (or the one of the selectedRow parameter)
+       * @param {Object} parameters Action parameters
+       * @param {Object} scope Scope
+       * @param {String} position Where to move the row: first, before, after or last
+       */
+      function moveRow(parameters, scope, position) {
+        let component = scope.component;
+        component.hideContextMenu();
+        if (component.moveRow(position, parameters.selectedRow)) {
+          component.storeEvent('move-row');
+        }
       }
 
       /*************************************************************************
@@ -87,7 +103,7 @@ aweApplication.factory('GridEvents',
          *
          * @param {object} component
          */
-        mapBaseActions: function (component) {
+        mapBaseActions: function () {
         },
         /**
          * Map tree actions
@@ -343,6 +359,28 @@ aweApplication.factory('GridEvents',
           addRow(parameters, scope, "first", scope.component.getSelectedRowData());
         },
         /**
+         * Replace the rows of the grid with a copy of the rows of the grid named in the value of the action (#793), as
+         * the fill of a query does: the grid is not marked as changed. Each shown column of the grid takes the cells of
+         * the shown column of that grid in the same position. Nothing changes when that grid is not on screen
+         *
+         * @param {object} parameters Action parameters
+         * @param {object} scope Scope
+         * @param {object} address Address of the grid
+         * @param {object} action Action, with the identifier of the grid to copy in its value
+         */
+        onCopyRows: function (parameters, scope, address, action) {
+          const component = scope.component;
+          const source = {view: component.address.view, component: action.attr("value")};
+          const sourceModel = Control.getAddressModel(source);
+          if (!sourceModel) {
+            return;
+          }
+          const sourceColumns = Control.getAddressController(source)?.columnModel;
+          const values = copyGridRows(sourceModel.values, sourceColumns, component.controller.columnModel,
+            label => $translate.instant(label), component.constants.ROW_IDENTIFIER);
+          Control.changeModelAttribute(component.address, {values, records: values.length, total: 1, page: 1}, true);
+        },
+        /**
          * Copy row before selected
          *
          * @param {object} parameters
@@ -361,6 +399,42 @@ aweApplication.factory('GridEvents',
           addRow(parameters, scope, "after", scope.component.getSelectedRowData());
         },
         /**
+         * Move the selected row to the top of the grid
+         *
+         * @param {object} parameters
+         * @param {object} scope
+         */
+        onMoveRowTop : function(parameters, scope) {
+          moveRow(parameters, scope, "first");
+        },
+        /**
+         * Move the selected row one position up
+         *
+         * @param {object} parameters
+         * @param {object} scope
+         */
+        onMoveRowBeforeSelected : function(parameters, scope) {
+          moveRow(parameters, scope, "before");
+        },
+        /**
+         * Move the selected row one position down
+         *
+         * @param {object} parameters
+         * @param {object} scope
+         */
+        onMoveRowAfterSelected : function(parameters, scope) {
+          moveRow(parameters, scope, "after");
+        },
+        /**
+         * Move the selected row to the bottom of the grid
+         *
+         * @param {object} parameters
+         * @param {object} scope
+         */
+        onMoveRowBottom : function(parameters, scope) {
+          moveRow(parameters, scope, "last");
+        },
+        /**
          * Copy selected rows to clipboard
          *
          * @param {object} parameters
@@ -374,10 +448,10 @@ aweApplication.factory('GridEvents',
           let  rowsPrintData = [];
           rowsPrintData.push([]);
 
-          // We get visible columns and filter rowNum and chkBox
+          // We get visible columns and filter rowNum, chkBox and the row detail toggle
           component.controller.columnModel
             .filter(c => !c.hidden)
-            .filter(c => ["rowNum", "chkBox", "RowIco"].indexOf(c.id) === -1)
+            .filter(c => ["rowNum", "chkBox", "RowIco", "rowDetailToggle"].indexOf(c.id) === -1)
             .map(c => ({id: c.id, label: c.label}))
             .forEach(c => {
               // We fill the first row with column's names
@@ -395,16 +469,19 @@ aweApplication.factory('GridEvents',
                   rowsPrintData.push([]);
                 }
                 rowsPrintData[index + 1].push(cellPrintData);
-              })
+              });
             });
 
           // We join all values of a row and separate them with tabs
           rowsPrintData.forEach((rowPrintData, index) => {
             rowsPrintData[index] = rowPrintData.join("\t");
-          })
+          });
 
           // Copy the lines into the clipboard
-          navigator.clipboard.writeText(rowsPrintData.join("\n"));
+          navigator.clipboard.writeText(rowsPrintData.join("\n"))
+            .catch(function (error) {
+              $log.error("[ERROR] Copying selected rows to the clipboard", error);
+            });
         },
         /**
          * Update row
@@ -449,6 +526,8 @@ aweApplication.factory('GridEvents',
           if (component.isEditing) {
             // Send grid message
             GridEvents.sendGridMessage(component, 'warning', 'GRID_CHECK_ALL_SAVED_TITLE', 'GRID_CHECK_ALL_SAVED_MESSAGE');
+            // Show the row being edited
+            component.revealEditingRow();
           }
         },
         /**

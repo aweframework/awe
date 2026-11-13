@@ -1,6 +1,7 @@
 package com.almis.awe.config;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
@@ -9,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 @ConfigurationProperties(prefix = "awe.security")
@@ -16,10 +18,21 @@ import java.util.List;
 @Data
 public class SecurityConfigProperties {
   /**
-   * Master key used in encryption process.
-   * Default value B1Le3s%25abc75TeBe05
+   * Master key of AWE 4 and earlier, used when {@code awe.security.master-key} was not configured. Applications
+   * upgraded from AWE 4 that never configured the master key keep their stored data encrypted with it, so they must
+   * set it explicitly to keep decrypting that data, and rotate it afterwards.
    */
-  private String masterKey = "B1Le3s%25abc75TeBe05";
+  public static final String LEGACY_MASTER_KEY = "B1Le3s%25abc75TeBe05";
+
+  /**
+   * Master key used to encrypt stored data (encrypted parameters and properties). Required: there is no default value.
+   * Applications upgraded from AWE 4 that never configured it must set the former default value (see the AWE 5
+   * migration guide) to keep decrypting their stored data, and rotate it afterwards.
+   */
+  @NotBlank(message = "awe.security.master-key is required: it encrypts stored data (encrypted parameters and "
+    + "properties). Applications upgraded from AWE 4 that never configured it must set the former default value "
+    + "(see the AWE 5 migration guide) to keep decrypting their stored data, then rotate it.")
+  private String masterKey;
   /**
    * Enable json encryption in between client-server
    */
@@ -61,9 +74,20 @@ public class SecurityConfigProperties {
   private int passwordMinLength = 4;
 
   /**
+   * Algorithm used to hash new user passwords: {@code bcrypt} or {@code ripemd160}.
+   * Stored hashes of every algorithm keep validating, and with {@code bcrypt} the legacy RIPEMD-160 hashes are rehashed
+   * on the next successful login. Set {@code ripemd160} only when the application's own XML descriptors or external
+   * systems compare the stored hash ({@code ope.l1_pas}) and cannot be adapted yet.
+   * Default value bcrypt
+   */
+  private PasswordEncoderType passwordEncoder = PasswordEncoderType.BCRYPT;
+
+
+  /**
    * Authentication mode
    * Default value BBDD (Database)
    */
+  @Valid
   private AuthType authMode = AuthType.BBDD;
 
   /**
@@ -90,6 +114,46 @@ public class SecurityConfigProperties {
   @Valid
   private Sso sso = new Sso();
 
+  @NestedConfigurationProperty
+  private Authorization authorization = new Authorization();
+
+  @NestedConfigurationProperty
+  private Permissions permissions = new Permissions();
+
+  /**
+   * Authorization of the maintain targets and queries launched by a client
+   */
+  @Data
+  public static class Authorization {
+    /**
+     * Check of the maintain targets and queries launched by a client: they can only be launched when the session user
+     * can open at least one menu option whose screen uses them. Public targets and targets that no screen uses are not
+     * checked, and the launches made by the server (not requested by a client) are never checked. off does not check,
+     * warn logs and audits the launches that are not authorized but allows them, and enforce refuses them.
+     * Default value enforce
+     */
+    private AuthorizationMode mode = AuthorizationMode.ENFORCE;
+  }
+
+  /**
+   * Permissions of the profiles
+   */
+  @Data
+  public static class Permissions {
+    /**
+     * Create at startup the predefined profiles Reader (RDR) and Contributor (CTB) when no profile with their acronym
+     * exists. Default value true
+     */
+    private boolean predefinedProfiles = true;
+    /**
+     * Require a permission for the private queries, maintain targets and services that declare none, when a client
+     * launches them: default.read for a query and default.write for a maintain target or a service. Public and
+     * server-only targets and the services authorized by their target are not affected. With true, the existing
+     * profiles need * (or default.*). Default value false
+     */
+    private boolean requireUndeclared = false;
+  }
+
   /**
    * SSO authentication configuration properties
    */
@@ -109,9 +173,40 @@ public class SecurityConfigProperties {
      */
     private boolean autoLaunch = false;
     /**
+     * Allow local (username and password) login when SSO is enabled. Set to {@code false} to make the identity
+     * provider the only way to sign in: the login screen hides the local form and the local login endpoints
+     * ({@code /action/login} and {@code /api/authenticate}) refuse every user except the ones listed in
+     * {@code awe.security.sso.break-glass-users}. It has no effect when SSO is disabled.
+     */
+    private boolean localLogin = true;
+    /**
+     * Emergency (break-glass) users that can still sign in with username and password while
+     * {@code awe.security.sso.local-login} is {@code false}, for example when the identity provider is down.
+     * Empty by default (nobody). Every use is logged at WARN level. Keep the list short and use strong passwords.
+     */
+    private List<String> breakGlassUsers = new ArrayList<>();
+    /**
      * Used to filtering granted authorities in post authentication process
      */
     private String filterAuthorityPrefix;
+    /**
+     * Claims of the ID token that carry the user's roles, read in order and joined. A dotted name walks nested
+     * objects unless the token has a claim with that exact name. Examples: {@code realm_access.roles} (Keycloak realm
+     * roles, the default), {@code resource_access.my-client.roles} (Keycloak client roles), {@code roles} (Microsoft
+     * Entra ID app roles). When several roles carry the prefix, the main profile follows
+     * {@code awe.security.sso.profile-priority}, else the first name in alphabetical order that exists as an AWE
+     * profile. Ignored when the application declares its own {@code realmRolesAuthoritiesConverter} bean.
+     */
+    private List<String> rolesClaims = new ArrayList<>(List.of("realm_access.roles"));
+    /**
+     * Require a role from the identity provider that maps to an existing AWE profile (fail closed). When required and
+     * no role maps, the SSO login is refused with an error page, for new and existing users alike, and the stored
+     * profile and {@code awe.application.default-role} are not used. Not set by default, which means required when
+     * {@code awe.security.sso.local-login} is {@code false} (IdP-first) and not required otherwise. Set it to
+     * {@code false} to opt in to the default role fallback in IdP-first, or to {@code true} to require a role in any
+     * SSO setup.
+     */
+    private Boolean requireRole;
     /**
      * When {@code false} (default), an existing user's profile is kept as-is and not overwritten
      * with the application default role ({@code awe.application.default-role}) when the SSO
@@ -120,10 +215,17 @@ public class SecurityConfigProperties {
      * previous behaviour, where the default role always overwrites the stored profile in that case.
      */
     private boolean overwriteProfileWithDefaultRole = false;
+    /**
+     * Profiles in order of priority to choose the main profile of a user when the identity provider sends several roles
+     * that map to existing AWE profiles: the main profile is the first profile of this list that the provider sends and
+     * that exists (compared without case). When none of them is in the list, or the list is empty (default), the main
+     * profile is the first one in alphabetical order that exists. The other roles that map to existing profiles are
+     * additional profiles of the user. It also applies to the profile claim of the REST API tokens.
+     */
+    private List<String> profilePriority = new ArrayList<>();
 		/**
 		 * The name of the attribute used to extract the username during the SSO authentication process.
 		 * This attribute is typically sourced from the claims provided by the OAuth2 or OIDC identity provider.
-		 * The default value is set to "preferred_username".
 		 */
 		private String userNameAttribute = "preferred_username";
 
@@ -139,6 +241,55 @@ public class SecurityConfigProperties {
 		 * Enable the Generic SSO button. Used in signin screen
 		 */
 		private boolean enableGenericSsoButton = false;
+
+    /**
+     * OIDC back-channel logout: lets the identity provider end AWE sessions
+     */
+    @NestedConfigurationProperty
+    @Valid
+    private BackChannelLogout backChannelLogout = new BackChannelLogout();
+
+		/**
+		 * Whether an SSO login needs a provider role that maps to an AWE profile: the value of
+		 * {@code awe.security.sso.require-role} when set, otherwise {@code true} only when local login is off (IdP-first)
+		 *
+		 * @return true if the login is refused when no provider role maps to an AWE profile
+		 */
+		public boolean isRoleRequired() {
+			return requireRole != null ? requireRole : !localLogin;
+		}
+	}
+
+	/**
+	 * OIDC back-channel logout configuration properties
+	 */
+	@Data
+	public static class BackChannelLogout {
+		/**
+		 * Enable OIDC back-channel logout when SSO is enabled. The identity provider calls
+		 * {@code /logout/connect/back-channel/{registrationId}} with a signed logout token and AWE ends the matching
+		 * sessions (web session and the AWE state kept for it, such as websocket connections). Off by default.
+		 */
+		private boolean enabled = false;
+		/**
+		 * Address AWE calls on itself to end each session named by a logout token, sending the session cookie. Placeholders
+		 * {@code {baseUrl}}, {@code {baseScheme}}, {@code {baseHost}}, {@code {basePort}}, {@code {basePath}} and
+		 * {@code {registrationId}} are resolved from the provider request. Empty by default, which uses
+		 * {@code {baseUrl}/logout/connect/back-channel/{registrationId}}. Set it when the public address is not reachable
+		 * from the server itself, for example
+		 * {@code http://localhost:8080{basePath}/logout/connect/back-channel/{registrationId}}.
+		 */
+		private String logoutUri;
+		/**
+		 * Connection timeout of the internal logout call made for each session named by a logout token. Keeps the
+		 * provider request from hanging when the logout address cannot be reached. Default 2 seconds.
+		 */
+		private Duration connectTimeout = Duration.ofSeconds(2);
+		/**
+		 * Read timeout of the internal logout call made for each session named by a logout token. A session whose call
+		 * times out is reported to the provider as not ended. Default 5 seconds.
+		 */
+		private Duration readTimeout = Duration.ofSeconds(5);
 	}
 
   /**

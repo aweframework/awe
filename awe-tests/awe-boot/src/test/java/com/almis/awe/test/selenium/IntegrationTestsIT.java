@@ -1,23 +1,63 @@
 package com.almis.awe.test.selenium;
 
-import com.almis.awe.testing.utilities.SeleniumUtilities;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * Integration tests of the framework screens. Every test starts logged in with the Test module selected and opens its own
+ * screen, so a failing test does not leave the next ones without a session or a screen. The test that stores a screen
+ * configuration removes it even when it fails. The HAVING query of a grid is proven by QueryTest.testDatabaseQueryHaving
+ * and the SQL extractor by ToolsAndSettingsActionsTest.sqlExtractorReturnsTheRowsAndTheColumnsOfTheSelect in awe-boot.
+ */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("ApplicationIntegrationIT")
-class IntegrationTestsIT extends SeleniumUtilities {
+class IntegrationTestsIT extends AbstractSessionTests {
+
+  private static final Logger LOG = LoggerFactory.getLogger(IntegrationTestsIT.class);
+  private static final String SCREEN_CONFIGURATION = "screen-configuration";
+  private static final String SETTINGS = "settings";
+  private static final String DATABASES = "databases";
+  private static final String DATABASES_SCREEN = "database-admin";
+  private static final String PRINT_BUTTON = "ButPrn";
+
+  /**
+   * The test stored the screen configuration of the databases screen and did not remove it yet
+   */
+  private boolean screenConfigurationStored = false;
+
+  IntegrationTestsIT() {
+    super(Session.TEST_MODULE);
+  }
+
+  /**
+   * Remove the screen configuration that a test stored and left, so a failing test does not hide the button of the
+   * databases screen for the next tests. It runs only after a test that failed before removing it (the flag is set before
+   * the step that may store it, so the row may not exist when that step failed): a cleanup that fails is logged and does not
+   * add a second failure to the one of the test.
+   */
+  @AfterEach
+  void removeStoredScreenConfiguration() {
+    if (screenConfigurationStored) {
+      try {
+        removeScreenConfiguration();
+      } catch (RuntimeException | AssertionError exc) {
+        LOG.warn("The screen configuration could not be removed after the test (it may not have been stored): {}", exc.getMessage());
+      }
+    }
+  }
 
   /**
    * Log into the application
    */
   @Test
+  @StartsFrom(Session.BLANK)
   void t000_loginTest() {
-    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
   }
 
   /**
@@ -25,11 +65,13 @@ class IntegrationTestsIT extends SeleniumUtilities {
    */
   @Test
   void t999_logoutTest() {
-    checkLogout(".slogan", "Almis Web Engine");
+    checkLogout();
   }
 
   /**
-   * Test screen configuration usage (hide ButPrn button on databases screen)
+   * Screen configuration in the editable grid: create a row that hides the print button of the databases screen, check
+   * that the button is hidden, edit the value of the row in the grid, then delete the row, check that it is gone and that
+   * the button is visible again
    */
   @Test
   void t010_screenConfigurationUsage() {
@@ -37,7 +79,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     setTestTitle("Test screen configuration usage");
 
     // Go to screen
-    gotoScreen("settings", "screen-configuration");
+    gotoScreen(SETTINGS, SCREEN_CONFIGURATION);
 
     // Click button
     clickButton("ButRst");
@@ -46,13 +88,13 @@ class IntegrationTestsIT extends SeleniumUtilities {
     clickButton("ButGrdAdd");
 
     // Select on selector
-    suggest("GrdScrCnf", "Scr",  "Dbs", "Dbs");
+    suggest("GrdScrCnf", "Scr",  DATABASES_SCREEN, DATABASES_SCREEN);
 
     // Select on selector
     suggest("GrdScrCnf", "IdeOpe",  "test", "test");
 
     // Select on selector
-    suggest("GrdScrCnf", "Nam",  "ButPrn", "ButPrn");
+    suggest("GrdScrCnf", "Nam",  PRINT_BUTTON, PRINT_BUTTON);
 
     // Select text
     suggest("GrdScrCnf", "Atr", "visible", "Visible");
@@ -69,68 +111,45 @@ class IntegrationTestsIT extends SeleniumUtilities {
     // Save row
     saveRow();
 
-    // Store and confirm
+    // Store and confirm (from here the configuration may be stored, so the cleanup after the test removes it)
+    screenConfigurationStored = true;
     clickButtonAndConfirm("ButCnf");
 
     // Go to databases screen
-    gotoScreen("tools", "databases");
+    gotoScreen("tools", DATABASES);
 
     // Wait for button
-    waitForButton("ButRst");
+    waitForButton("ButNew");
 
     // Verify that ButPrn button is not visible
-    checkNotVisible("#ButPrn");
+    checkButtonNotVisible(PRINT_BUTTON);
 
-    // Go to screen
-    gotoScreen("settings", "screen-configuration");
+    // The stored row lists the values of the new configuration
+    gotoScreen(SETTINGS, SCREEN_CONFIGURATION);
+    searchScreenConfiguration();
+    checkRowContents(DATABASES_SCREEN, "test", PRINT_BUTTON, "Visible", "false");
 
-    // Click button
-    clickButton("ButRst");
-
-    // Select on selector
-    suggest("CrtScr",  "Dbs", "Dbs");
-
-    // Select on selector
-    suggest("CrtUsr",  "test", "test");
-
-    // Select text
-    selectContain("CrtAct", "Yes");
-
-    // Search and wait
-    searchAndWait();
-
-    // Click on row
-    clickRowContents("Dbs");
-
-    // Click on delete button
-    clickButton("ButGrdDel");
-
-    // Store and confirm
+    // Edit the value of the row in the editable grid and store it
+    editRow(DATABASES_SCREEN);
+    writeText("GrdScrCnf", "Val", "true");
+    saveRow();
     clickButtonAndConfirm("ButCnf");
 
+    // The stored row lists the new value
+    searchScreenConfiguration();
+    checkRowContents(DATABASES_SCREEN, "test", PRINT_BUTTON, "Visible", "true");
+
+    // Remove the configuration: the row is gone and the button is visible again
+    removeScreenConfiguration();
+    // The same search that listed it (databases screen, test user) no longer finds it
+    searchScreenConfiguration();
+    checkRowNotContains(DATABASES_SCREEN);
+
     // Go to databases screen
-    gotoScreen("tools", "databases");
+    gotoScreen("tools", DATABASES);
 
     // Click button
-    waitForButton("ButPrn");
-  }
-
-  /**
-   * Select test module on select criterion
-   */
-  @Test
-  void t020_selectTestModule() {
-    // Title
-    setTestTitle("Select test module: Test to select test module");
-
-    // Select module
-    selectModule("Test");
-
-    // Wait for text
-    waitForText("mm-text", "Tests");
-
-    // Check text
-    checkVisible("[translate-multiple='MENU_TEST'");
+    waitForButton(PRINT_BUTTON);
   }
 
   /**
@@ -144,49 +163,23 @@ class IntegrationTestsIT extends SeleniumUtilities {
     // Go to screen
     gotoScreen("tools", "modules");
 
-    // Click on row
-    clickRowContents("Test");
-
-    // Click button
-    clickButton("ButUpd");
-
-    // Wait for button
-    waitForButton("ButCnf");
+    // Search the module and open it in the side panel with the pencil of its row
+    searchGrid("CrtModTxt", "Test");
+    clickGridRowButton("GrdModAdm", "Test", "EdtBtn");
 
     // Select text
     writeText("Ord", "0");
 
     // Store and confirm
-    clickButtonAndConfirm("ButCnf");
+    clickButtonAndConfirm("ButPnlUpd");
 
-    // Wait for button
-    waitForButton("ButRst");
+    checkLogout();
 
-    checkLogout(".slogan", "Almis Web Engine");
-
-    checkLogin("test", "test", "#ButUsrAct span.avatar-text", "Manager (test)");
+    checkLogin("test", "test", "Manager (test)");
 
     // Verify that ButPrn button is not visible
-    checkVisibleAndContains("li[option-name='test']", "Tests");
+    checkMenuOption("test", "Tests");
 
-  }
-
-  /**
-   * Grid test: Having query
-   */
-  @Test
-  void t040_gridTestHaving() {
-    // Title
-    setTestTitle("Grid test: Having query");
-
-    // Go to screen
-    gotoScreen("test", "matrix", "matrix-test-having");
-
-    // Search and wait
-      searchAndWait("ButGrdAccept");
-
-    // Check row contents
-    checkRowContents("Spain");
   }
 
   /**
@@ -201,28 +194,28 @@ class IntegrationTestsIT extends SeleniumUtilities {
     gotoScreen("test", "chart", "chart-test");
 
     // Check visible
-    checkVisible("[chart-id='ChrLinTst'] svg");
+    checkChartVisible("ChrLinTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrBarTst'] svg");
+    checkChartVisible("ChrBarTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrAreTst'] svg");
+    checkChartVisible("ChrAreTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrPieTst'] svg");
+    checkChartVisible("ChrPieTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrDonutTst'] svg");
+    checkChartVisible("ChrDonutTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrStockTst'] svg");
+    checkChartVisible("ChrStockTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrBarHorTst'] svg");
+    checkChartVisible("ChrBarHorTst");
 
     // Check visible
-    checkVisible("[chart-id='ChrSemiCircleTst'] svg");
+    checkChartVisible("ChrSemiCircleTst");
   }
 
   /**
@@ -237,13 +230,13 @@ class IntegrationTestsIT extends SeleniumUtilities {
     gotoScreen("test", "wizard-test");
 
     // Check visibility
-    checkVisibleAndContains("li.active > span.wizard-step-number", "1");
+    checkActiveWizardStep("1");
 
     // Check visibility
-    checkVisibleAndContains("[awe-tag-list='wizard-tag-list-1'] > span", "Manager (test)");
+    checkTagListContains("wizard-tag-list-1", "Manager (test)");
 
     // Check visibility
-    checkVisibleAndContains("[awe-tag-list='wizard-tag-list-2']   span", "MANAGER (TEST)");
+    checkTagListContains("wizard-tag-list-2", "MANAGER (TEST)");
 
     // Write text
     writeText("epa", "aaa");
@@ -255,7 +248,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     clickButton("FwStep2");
 
     // Check visibility and content
-    checkVisibleAndContains("li.active > span.wizard-step-number", "2");
+    checkActiveWizardStep("2");
 
     // Write text
     writeText("lala", "aaa");
@@ -270,7 +263,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     clickButton("FwStep3");
 
     // Check visibility and content
-    checkVisibleAndContains("li.active > span.wizard-step-number", "3");
+    checkActiveWizardStep("3");
 
     // Write text
     writeText("epa12", "aaa");
@@ -282,7 +275,7 @@ class IntegrationTestsIT extends SeleniumUtilities {
     clickButton("FwStep4");
 
     // Check visibility and content
-    checkVisibleAndContains("li.active > span.wizard-step-number", "4");
+    checkActiveWizardStep("4");
 
     // Write text
     writeText("epa121", "aaa");
@@ -295,24 +288,48 @@ class IntegrationTestsIT extends SeleniumUtilities {
   }
 
   /**
-   * SQL extractor engine test
+   * Reveal the first invalid field: the validation opens the tab, the accordion item or the wizard step that holds it,
+   * focuses it and marks the tabs and steps that hold fields with errors
    */
   @Test
-  void t070_sqlExtractorEngine() {
+  void t065_revealInvalidField() {
     // Title
-    setTestTitle("SQL extractor engine test");
+    setTestTitle("Reveal invalid field: Test to reveal the invalid fields of tabs, accordions and wizards");
 
     // Go to screen
-    gotoScreen("tools", "sqlExtractor");
+    gotoScreen("test", "reveal-invalid-test");
 
-    // Write text on criteria
-    writeText("selectCriteria", "select * from awekey");
+    // Wait for button
+    waitForButton("ButRevealValidate");
 
-    // Search and wait
-    searchAndWait();
+    // Validate with the three required fields empty: the second tab opens, its field is focused and the tab is marked
+    clickButton("ButRevealValidate");
+    waitForInputActionability("RevTabRequired");
+    checkCriterionFocused("RevTabRequired");
+    checkTabInvalid("RevTabs", true);
 
-    // Check visible
-    checkRowContents("OpeKey");
+    // The step of the wizard that holds an empty required field is marked too
+    checkWizardStepInvalid("RevWizard", true);
+
+    // Fill the field of the tab and validate again: the tab is not marked anymore and the accordion item opens
+    writeText("RevTabRequired", "tab");
+    clickButton("ButRevealValidate");
+    waitForInputActionability("RevAccRequired");
+    checkCriterionFocused("RevAccRequired");
+    checkTabInvalid("RevTabs", false);
+
+    // Fill the field of the accordion item and validate again: the second step of the wizard opens
+    writeText("RevAccRequired", "accordion");
+    clickButton("ButRevealValidate");
+    waitForInputActionability("RevStepRequired");
+    checkCriterionFocused("RevStepRequired");
+    checkWizardStepInvalid("RevWizard", true);
+
+    // Fill the last required field and validate: there is nothing left to reveal and nothing is marked
+    writeText("RevStepRequired", "step");
+    clickButton("ButRevealValidate");
+    checkTabInvalid("RevTabs", false);
+    checkWizardStepInvalid("RevWizard", false);
   }
 
   /**
@@ -326,17 +343,90 @@ class IntegrationTestsIT extends SeleniumUtilities {
     // Go to screen
     gotoScreen("test", "filemanager-test");
 
-    // Wait for iframe
-    waitForCssSelector("iframe");
+    // Check the content of the embedded application (its selector is not an AWE one)
+    checkTextInEmbeddedFrame("ol.breadcrumb a", "angular-filemanager");
+  }
 
-    // Switch driver
-    WebElement iframe = getDriver().findElement(By.cssSelector("iframe"));
-    getDriver().switchTo().frame(iframe);
+  /**
+   * File viewer test: the widget shows the text that the test endpoint answers with the created status
+   */
+  @Test
+  void t081_fileViewer() {
+    // Title
+    setTestTitle("File viewer test");
 
-    // Check visible
-    checkText("ol.breadcrumb a", "angular-filemanager");
+    // Go to screen
+    gotoScreen("test", "file-viewer-test");
 
-    // Return driver
-    getDriver().switchTo().defaultContent();
+    // The widget reads the file on load
+    checkFileViewerContains("FILE VIEWER TEST LINE 1");
+    checkFileViewerContains("FILE VIEWER TEST LINE 3");
+  }
+
+  /**
+   * Launcher pages: the cards show the description of the options, a launcher card opens another launcher (3 levels) and
+   * the breadcrumb follows the levels. The option without description renders as before (card without description line)
+   */
+  @Test
+  void t085_launcherPages() {
+    // Title
+    setTestTitle("Launcher pages with descriptions and nested launchers");
+
+    // First level: the card of the nested launcher shows its description, the plain option has none
+    gotoScreen("test", "launcher-menu");
+    checkLauncherCardDescription("launcher-sales", "Orders and sales reports");
+    checkButtonVisible("launcher-plain");
+    checkLauncherCardWithoutDescription("launcher-plain");
+
+    // Second level
+    clickButton("launcher-sales", true);
+    checkLauncherCardDescription("launcher-reports", "Monthly and yearly sales");
+    checkLauncherCardDescription("launcher-orders", "Look up the orders of a customer");
+    checkBreadcrumbContains("Launcher");
+
+    // Third level
+    clickButton("launcher-reports", true);
+    checkLauncherCardDescription("launcher-monthly", "Sales grouped by month");
+    checkButtonVisible("launcher-yearly");
+    checkLauncherCardWithoutDescription("launcher-yearly");
+    checkBreadcrumbContains("Sales");
+
+    // Open a screen from the last launcher
+    clickButton("launcher-monthly", true);
+    checkBreadcrumbContains("Reports");
+  }
+
+  /**
+   * Remove the screen configuration of the databases screen for the test user that t010 stores
+   */
+  private void removeScreenConfiguration() {
+    // Whatever happens next, the cleanup after the test must not try it again
+    screenConfigurationStored = false;
+
+    // Go to screen
+    gotoScreen(SETTINGS, SCREEN_CONFIGURATION);
+
+    // List the configuration of the databases screen
+    searchScreenConfiguration();
+
+    // Click on row
+    clickRowContents(DATABASES_SCREEN);
+
+    // Click on delete button
+    clickButton("ButGrdDel");
+
+    // Store and confirm
+    clickButtonAndConfirm("ButCnf");
+  }
+
+  /**
+   * List the active screen configurations of the databases screen for the test user in the screen configuration grid
+   */
+  private void searchScreenConfiguration() {
+    clickButton("ButRst");
+    suggest("CrtScr", DATABASES_SCREEN, DATABASES_SCREEN);
+    suggest("CrtUsr", "test", "test");
+    selectContain("CrtAct", "Yes");
+    searchAndWait();
   }
 }

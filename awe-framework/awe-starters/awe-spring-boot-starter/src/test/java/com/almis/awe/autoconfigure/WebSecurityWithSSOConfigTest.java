@@ -7,10 +7,10 @@ import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.XStreamSerializer;
+import com.almis.awe.security.handler.AweOauth2AuthenticationFailureHandler;
 import com.almis.awe.security.multitenant.MultiTenantFilter;
 import com.almis.awe.service.*;
 import com.almis.awe.session.AweSessionDetails;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
@@ -18,11 +18,20 @@ import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.cache.support.NoOpCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.convert.support.DefaultConversionService;
 import org.springframework.http.client.ClientHttpRequestFactory;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import static org.mockito.Mockito.mock;
 
@@ -45,6 +54,7 @@ class AuthenticationWithSSOConfigTest {
           MultiTenantOAuth2Config.class,
           ExtraConfig.class)
 			.withPropertyValues("awe.application.module-list=awe",
+					"awe.security.master-key=test-master-key",
 					"spring.cache.type=NONE",
 					"awe.database.enabled=false")
 			.withBean(NoOpCacheManager.class)
@@ -59,7 +69,7 @@ class AuthenticationWithSSOConfigTest {
 		@Bean public AweSessionDetails aweSessionDetails() { return mock(AweSessionDetails.class); }
 		@Bean public ErrorPageService errorPageService() { return mock(ErrorPageService.class); }
 		@Bean public MultiTenantFilter multiTenantFilter() { return mock(MultiTenantFilter.class); }
-		@Bean public ObjectMapper objectMapper() { return new ObjectMapper(); }
+		@Bean public ObjectMapper objectMapper() { return new JsonMapper(); }
 		@Bean public AccessService accessService() { return mock(AccessService.class); }
 		@Bean public XStreamSerializer xStreamSerializer() { return mock(XStreamSerializer.class); }
 		@Bean public TemplateService templateService() { return mock(TemplateService.class); }
@@ -80,6 +90,49 @@ class AuthenticationWithSSOConfigTest {
 					Assertions.assertThat(context).hasBean("authenticationConverter");
 					Assertions.assertThat(context).hasBean("authSuccessHandler");
 					Assertions.assertThat(context).hasBean("authFailureHandler");
+				});
+	}
+
+	@Test
+	void testSuccessHandlerUsesTheInjectedFailureHandlerBean() {
+		runner.withPropertyValues("awe.security.sso.enabled=true")
+				.run(context -> Assertions.assertThat(ReflectionTestUtils.getField(context.getBean("authSuccessHandler"), "failureHandler"))
+						.isSameAs(context.getBean("authFailureHandler")));
+	}
+
+	@Test
+	void testApplicationProvidedFailureHandlerIsHonoured() {
+		runner.withPropertyValues("awe.security.sso.enabled=true")
+				.withBean("customFailureHandler", AweOauth2AuthenticationFailureHandler.class, () -> new AweOauth2AuthenticationFailureHandler(null))
+				.run(context -> {
+					Assertions.assertThat(context).hasNotFailed();
+					Assertions.assertThat(context).doesNotHaveBean("authFailureHandler");
+					Assertions.assertThat(ReflectionTestUtils.getField(context.getBean("authSuccessHandler"), "failureHandler"))
+							.isSameAs(context.getBean("customFailureHandler"));
+				});
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void testRolesAreReadFromTheConfiguredClaims() {
+		runner.withPropertyValues("awe.security.sso.enabled=true", "awe.security.sso.roles-claims=roles,realm_access.roles")
+				.run(context -> {
+					Converter<Map<String, Object>, Collection<GrantedAuthority>> converter = context.getBean("realmRolesAuthoritiesConverter", Converter.class);
+					Map<String, Object> claims = Map.of("roles", List.of("role_manager"), "realm_access", Map.of("roles", List.of("role_operator")));
+					Assertions.assertThat(converter.convert(claims)).extracting(GrantedAuthority::getAuthority)
+							.containsExactly("role_manager", "role_operator");
+				});
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void testRolesAreReadFromKeycloakRealmRolesByDefault() {
+		runner.withPropertyValues("awe.security.sso.enabled=true")
+				.run(context -> {
+					Converter<Map<String, Object>, Collection<GrantedAuthority>> converter = context.getBean("realmRolesAuthoritiesConverter", Converter.class);
+					Map<String, Object> claims = Map.of("roles", List.of("role_manager"), "realm_access", Map.of("roles", List.of("role_operator")));
+					Assertions.assertThat(converter.convert(claims)).extracting(GrantedAuthority::getAuthority)
+							.containsExactly("role_operator");
 				});
 	}
 

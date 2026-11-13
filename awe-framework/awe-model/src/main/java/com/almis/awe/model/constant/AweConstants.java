@@ -49,6 +49,7 @@ public class AweConstants {
   // Parameters
   public static final String PARAMETER_VIEW = "view";
   public static final String PARAMETER_OPTION = "option";
+  public static final String PARAMETER_FRESH_SCREEN = "freshScreen";
   public static final String PARAMETER_ADDRESS = "address";
   public static final String PARAMETER_DESTINATION = "destination";
   public static final String PARAMETER_TARGET = "target";
@@ -74,8 +75,11 @@ public class AweConstants {
   public static final String TEMPLATE_EMPTY = "empty";
   public static final String TEMPLATE_CHILDREN = "children";
   public static final String TEMPLATE_TITLE = "title";
+  public static final String TEMPLATE_HEADER = "header";
   public static final String TEMPLATE_E = "e";
   public static final String TEMPLATE_BREADCRUMBS = "breadcrumbs";
+  public static final String TEMPLATE_LEVELS = "levels";
+  public static final String TEMPLATE_OPTION = PARAMETER_OPTION;
   public static final String TEMPLATE_LEVEL = "level";
   public static final String TEMPLATE_ICON = "icon";
   public static final String TEMPLATE_CONTENT = "content";
@@ -126,6 +130,8 @@ public class AweConstants {
   public static final String JSON_RESTRICTED = "restricted";
   public static final String JSON_ALL = "all";
   public static final String JSON_VISIBLE_COLUMNS = "visibleColumns";
+  // Columns that group the rows of a printed grid now (the grouping chosen at runtime, which may be none)
+  public static final String JSON_GROUP_BY = "groupBy";
 
   // Properties
   public static final String PROPERTY_SECURITY_MASTER_KEY = "awe.security.master.key";
@@ -135,12 +141,15 @@ public class AweConstants {
   public static final String COMPONENT_SORT = "sort";
   public static final String COMPONENT_PAGE = "page";
   public static final String COMPONENT_MAX = "max";
+  public static final String COMPONENT_COLUMN_FILTERS = "columnFilters";
+  public static final String COMPONENT_COLUMN_VALUES = "columnValues";
   public static final String COMPONENT_DATABASE = "__database__";
 
   // Query variables
   public static final String QUERY_SORT = "_sort_";
   public static final String QUERY_PAGE = "_page_";
   public static final String QUERY_MAX = "_max_";
+  public static final String QUERY_COLUMN_FILTERS = "_column_filters_";
   public static final String QUERY_DATABASE = "_database_";
   public static final String QUERY_LANGUAGE = "lang";
 
@@ -151,6 +160,8 @@ public class AweConstants {
   public static final String SESSION_USER = "user";
   public static final String SESSION_FULLNAME = "fullname";
   public static final String SESSION_THEME = "theme";
+  public static final String SESSION_THEME_MODE = "themeMode";
+  public static final String SESSION_DENSITY = "density";
   public static final String SESSION_LANGUAGE = "language";
   public static final String SESSION_INITIAL_SCREEN = "initialScreen";
   public static final String SESSION_LAST_SCREEN = "lastScreen";
@@ -163,6 +174,11 @@ public class AweConstants {
   public static final String SESSION_MODULE = "module";
   public static final String SESSION_PROFILE = "profile";
   public static final String SESSION_RESTRICTION = "restriction";
+  // Every profile of the user (main first) and every restriction file of those profiles, separated by commas
+  public static final String SESSION_PROFILES = "profiles";
+  public static final String SESSION_RESTRICTIONS = "restrictions";
+  // Restriction file of the user (only when the user has one): the last word over every profile
+  public static final String SESSION_USER_RESTRICTION = "userRestriction";
   public static final String SESSION_FAILURE = "sessionFailure";
   public static final String SESSION_CONNECTION_TOKEN = "token";
   public static final String SESSION_TOKEN = "sessionToken";
@@ -180,6 +196,7 @@ public class AweConstants {
   public static final String ACTION_LOCALS = "LOCALS";
   public static final String ACTION_DATA = "DATA";
   public static final String ACTION_ROWS = "ROWS";
+  public static final String ACTION_MORE_VALUES = "MORE_VALUES";
   public static final String ACTION_MENU_OPTIONS = "MENU_OPTIONS";
   public static final String ACTION_SCREEN_DATA = "SCREEN_DATA";
   public static final String ACTION_FILE_NAME = "FILE_NAME";
@@ -199,10 +216,19 @@ public class AweConstants {
   public static final String USER_DETAIL_QUERY = "userDetails";
   public static final String USER_DETAIL_EMAIL_QUERY = "userDetailsByEmail";
   public static final String USER_DETAIL_PROFILE_QUERY = "userDetailsByProfile";
+  public static final String USER_ADDITIONAL_PROFILES_QUERY = "userAdditionalProfiles";
+  public static final String PROFILE_PERMISSIONS_QUERY = "profilePermissions";
+  public static final String ALL_PROFILE_PERMISSIONS_QUERY = "allProfilePermissions";
+  public static final String PROFILE_RESTRICTIONS_QUERY = "profileRestrictions";
   public static final String CHECK_EXIST_PROFILE = "checkProfileExists";
   public static final String SCREEN_CONFIGURATION_QUERY = "getScreenConfiguration";
+  public static final String SCREEN_SUBJECT_CONFIGURATION_QUERY = "getScreenSubjectConfiguration";
+  public static final String SCREEN_CONFIGURATION_HISTORY_QUERY = "getScreenConfigurationHistoryRows";
+  public static final String SCREEN_SUBJECT_PROFILE_QUERY = "getScreenSubjectProfile";
   public static final String SCREEN_RESTRICTION_QUERY = "getScreenRestrictions";
   public static final String SCREEN_DATABASE_RESTRICTION_QUERY = "getOptionRestrictionFromDatabase";
+  public static final String SCREEN_DATABASE_RESTRICTION_BY_PROFILES_QUERY = "getOptionRestrictionFromDatabaseByProfiles";
+  public static final String PROFILES_RESTRICTION_QUERY = "getProfilesRestriction";
   public static final String APPLICATION_PARAMETERS_QUERY = "getApplicationParameters";
   public static final String RESTRICTIONS_PER_OPTION_QUERY = "restrictions-per-option";
   public static final String MENU_RESTRICTIONS = "menu-restrictions";

@@ -1,13 +1,335 @@
 /*******************************************************************************
  BUTTON DIRECTIVE
 *******************************************************************************/
+// The buttons of the AWE 5 design system over the Bootstrap 3 / pixel-admin markup (#885), as the React buttons: an AWE
+// button is outlined, a submit button (btn-primary) is filled with the primary, the Bootstrap default button is the
+// secondary one. pixel-admin forces its gradient on hover, focus and active with !important, so the backgrounds of
+// those states need it too
+
+.btn.btn-awe,
+.btn.btn-default {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--awe-gap-inline);
+  height: var(--awe-size-control);
+  padding: 0 var(--awe-button-padding-x);
+  font-size: var(--awe-button-font-size);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: 1;
+  text-shadow: none;
+  white-space: nowrap;
+  border-radius: var(--awe-radius-field);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    box-shadow var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+// Outlined (an AWE button)
+.btn.btn-awe {
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface);
+  background-image: none;
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-xs);
+}
+
+// The hover background is for the pointer only, as the prototype: a clicked button keeps the focus and must not stay lit.
+// pixel-admin lights .btn:focus and .btn.focused with an !important background, so the focus keeps the resting one
+// (before the hover and the active state, which still apply to a focused button); the focus ring marks the focus
+.btn.btn-awe:focus,
+.btn.btn-awe.focused {
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface) !important;
+  background-image: none !important;
+  border-color: var(--awe-color-field-border);
+}
+
+.btn.btn-awe:hover {
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface-subtle) !important;
+  background-image: none !important;
+  border-color: var(--awe-color-field-border-hover);
+}
+
+.btn.btn-awe:active,
+.btn.btn-awe.active {
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface-hover) !important;
+  background-image: none !important;
+  border-color: var(--awe-color-field-border-hover);
+  box-shadow: none;
+}
+
+// Default button (#927): an AWE button without any of the styles below (React: awe-button-default). Only this button is
+// drawn with the --awe-button-default-* tokens, so an application restyles the default buttons alone; every other style
+// keeps its own rules. :where() keeps the specificity of .btn.btn-awe, so these rules win over the outlined ones above
+// by order (same !important backgrounds) and any more specific rule of a component (menu-screen-button, grid toolbar)
+// still wins over them; the styled buttons never match them
+@awe-default-button: ~".btn.btn-awe:where(:not(.btn-primary, .btn-default, .btn-danger, .btn-success, .btn-warning, .btn-dark, .btn-ghost, .btn-tonal))";
+
+@{awe-default-button} {
+  color: var(--awe-button-default-color);
+  background: var(--awe-button-default-background);
+  border-color: var(--awe-button-default-border-color);
+  font-weight: var(--awe-button-default-font-weight);
+}
+
+@{awe-default-button}:focus,
+@{awe-default-button}.focused {
+  color: var(--awe-button-default-color);
+  background: var(--awe-button-default-background) !important;
+  border-color: var(--awe-button-default-border-color);
+}
+
+@{awe-default-button}:hover {
+  color: var(--awe-button-default-color-hover);
+  background: var(--awe-button-default-background-hover) !important;
+  border-color: var(--awe-button-default-border-color-hover);
+}
+
+@{awe-default-button}:active,
+@{awe-default-button}.active {
+  color: var(--awe-button-default-color-active);
+  background: var(--awe-button-default-background-active) !important;
+  border-color: var(--awe-button-default-border-color-active);
+}
+
+// Secondary (the Bootstrap default button)
+.btn.btn-default {
+  color: var(--awe-color-on-secondary);
+  background: var(--awe-color-secondary);
+  background-image: none;
+  border: var(--awe-border-width) solid var(--awe-color-secondary);
+  box-shadow: none;
+}
+
+.btn.btn-default:focus,
+.btn.btn-default.focused {
+  color: var(--awe-color-on-secondary);
+  background: var(--awe-color-secondary) !important;
+  background-image: none !important;
+  border-color: var(--awe-color-secondary);
+}
+
+.btn.btn-default:hover {
+  color: var(--awe-color-on-secondary);
+  background: var(--awe-color-secondary-hover) !important;
+  background-image: none !important;
+  border-color: var(--awe-color-secondary-hover);
+}
+
+.btn.btn-default:active,
+.btn.btn-default.active {
+  color: var(--awe-color-text-emphasis);
+  background: var(--awe-color-disabled-border) !important;
+  background-image: none !important;
+  border-color: var(--awe-color-disabled-border);
+  box-shadow: none;
+}
+
+// Filled buttons: primary (submit), danger, success, warning and dark
+.awe-filled-button(@background; @hover; @active; @text) {
+  color: @text;
+  background: @background;
+  background-image: none;
+  border-color: @background;
+
+  &:focus,
+  &.focused {
+    color: @text;
+    background: @background !important;
+    background-image: none !important;
+    border-color: @background;
+  }
+
+  &:hover {
+    color: @text;
+    background: @hover !important;
+    background-image: none !important;
+    border-color: @hover;
+  }
+
+  &:active,
+  &.active {
+    color: @text;
+    background: @active !important;
+    background-image: none !important;
+    border-color: @active;
+    box-shadow: none;
+  }
+}
+
+.btn.btn-awe.btn-primary {
+  .awe-filled-button(var(--awe-color-primary); var(--awe-color-primary-hover); var(--awe-color-primary-active);
+    var(--awe-color-on-primary));
+}
+
+.btn.btn-awe.btn-danger {
+  .awe-filled-button(var(--awe-color-danger); var(--awe-color-danger-hover); var(--awe-color-danger-hover);
+    var(--awe-color-on-danger));
+}
+
+.btn.btn-awe.btn-success {
+  .awe-filled-button(var(--awe-color-success); var(--awe-color-success-hover); var(--awe-color-success-hover);
+    var(--awe-color-on-success));
+}
+
+.btn.btn-awe.btn-warning {
+  .awe-filled-button(var(--awe-color-warning); var(--awe-color-warning-hover); var(--awe-color-warning-hover);
+    var(--awe-color-on-warning));
+}
+
+.btn.btn-awe.btn-dark {
+  .awe-filled-button(var(--awe-color-contrast); var(--awe-color-contrast); var(--awe-color-contrast);
+    var(--awe-color-on-contrast));
+}
+
+// Ghost (style btn-ghost, #793): no background nor border until the pointer is over it, the muted text, as the toolbar and
+// row actions of the design system
+.btn.btn-awe.btn-ghost {
+  color: var(--awe-color-text-muted);
+  background: transparent;
+  background-image: none;
+  border-color: transparent;
+  box-shadow: none;
+
+  &:focus,
+  &.focused {
+    color: var(--awe-color-text-muted);
+    background: transparent !important;
+    background-image: none !important;
+    border-color: transparent;
+  }
+
+  &:hover {
+    color: var(--awe-color-text-hover);
+    background: var(--awe-color-surface-hover) !important;
+    background-image: none !important;
+    border-color: transparent;
+  }
+
+  &:active,
+  &.active {
+    color: var(--awe-color-text-hover);
+    background: var(--awe-color-secondary-hover) !important;
+    background-image: none !important;
+    border-color: transparent;
+  }
+}
+
+// Tonal (style btn-tonal, #791): the soft primary tint, for an action that has to stand out next to the outlined ones
+// without being the primary action of the area
+.btn.btn-awe.btn-tonal {
+  color: var(--awe-color-on-primary-subtle);
+  background: var(--awe-color-primary-subtle);
+  background-image: none;
+  border-color: var(--awe-color-primary-subtle);
+  box-shadow: none;
+
+  &:focus,
+  &.focused {
+    color: var(--awe-color-on-primary-subtle);
+    background: var(--awe-color-primary-subtle) !important;
+    background-image: none !important;
+    border-color: var(--awe-color-primary-subtle);
+  }
+
+  &:hover,
+  &:active,
+  &.active {
+    color: var(--awe-color-on-primary-subtle);
+    background: var(--awe-color-primary-subtle) !important;
+    background-image: none !important;
+    border-color: var(--awe-color-on-primary-subtle);
+  }
+}
+
+// Icon only (style no-label, #793): a square button with the icon in the middle; the label is its tooltip and its
+// accessible name
+.btn.btn-awe.no-label {
+  width: var(--awe-size-control);
+  padding: 0;
+}
+
+.btn.btn-awe.no-label.btn-sm,
+.btn.btn-awe.no-label.btn-xs {
+  width: var(--awe-size-control-sm);
+}
+
+.btn.btn-awe.no-label.btn-lg {
+  width: var(--awe-size-control-lg);
+}
+
+// Focus ring (pixel-admin removes the outline of every button): the keyboard focus, and the focus AWE moves to a button
+// (the focused class of the criterion service)
+.btn.btn-awe:focus-visible,
+.btn.btn-awe.focused,
+.btn.btn-default:focus-visible,
+.btn.btn-default.focused {
+  box-shadow: 0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface),
+    0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-focus-ring);
+}
+
+// Disabled
+.btn.btn-awe[disabled],
+.btn.btn-awe.disabled,
+.btn.btn-default[disabled],
+.btn.btn-default.disabled {
+  cursor: not-allowed;
+  opacity: var(--awe-opacity-disabled);
+  box-shadow: none;
+}
+
+// Busy (#771): the button that launched actions still running after the threshold, as the login loading: the spinner
+// (it stops with prefers-reduced-motion, see awe-icon-spin) instead of its icon, or before its label, disabled but not
+// faded
+.btn-awe.is-loading,
+.btn-awe.is-loading[disabled] {
+  cursor: progress;
+  opacity: 1;
+}
+
+.btn-awe .button-busy {
+  display: inline-flex;
+  line-height: unset;
+}
+
+.btn-awe.is-loading > .button-icon:not(.button-busy) {
+  display: none;
+}
+
+// Sizes
+.btn.btn-awe.btn-sm,
+.btn.btn-default.btn-sm {
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-3);
+  font-size: var(--awe-button-font-size-sm);
+}
+
+.btn.btn-awe.btn-xs,
+.btn.btn-default.btn-xs {
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+}
+
+.btn.btn-awe.btn-lg,
+.btn.btn-default.btn-lg {
+  height: var(--awe-size-control-lg);
+  padding: 0 var(--awe-space-5);
+  font-size: var(--awe-button-font-size-lg);
+}
 
 .btn .button-icon {
+  display: inline-flex;
   line-height: unset;
 }
 
 .btn-group > .btn:first-child {
-  margin-left: 6px;
+  margin-left: var(--awe-space-1-5);
 }
 
 .btn-group > .criterion.btn:first-child {
@@ -16,6 +338,81 @@
 
 .btn-group > .btn-group > .btn {
   margin-left: 0;
+}
+
+// A screen button is the only button of its group (its context menu and loader follow it): Bootstrap would square the
+// corners of a first button that is not the last child
+.btn-group > button.btn.btn-awe:only-of-type:not(.dropdown-toggle) {
+  border-radius: var(--awe-radius-field);
+}
+
+// Button checkbox and button radio: a segmented control whose segments wrap instead of clipping, as in React. A button
+// radio criterion with options is the same control, one segment per option
+.btn-group:has(> .criterion.btn),
+// As wide as its options, as the segmented control of the React engine (#791), on its own line under the label. The mode
+// switch of the theme preview (#949) is the same control
+.criterion .btn-group.button-radio-group,
+.awe-theme-preview-mode .btn-group.button-radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  width: fit-content;
+  max-width: 100%;
+  gap: var(--awe-space-0-5);
+  padding: var(--awe-space-0-5);
+  background: var(--awe-segmented-track);
+  border: var(--awe-border-width) solid var(--awe-segmented-border);
+  border-radius: var(--awe-radius-md);
+}
+
+.btn-group > label.criterion.btn.btn-awe.validator,
+.criterion .btn-group.button-radio-group > label.btn.btn-awe,
+.awe-theme-preview-mode .btn-group.button-radio-group > label.btn.btn-awe {
+  flex: 1 0 auto;
+  float: none;
+  width: auto;
+  height: calc(var(--awe-size-control) - 2 * (var(--awe-space-0-5) + 1px));
+  margin: 0;
+  padding: 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-segmented-text);
+  background: transparent;
+  border: var(--awe-border-width) solid transparent;
+  border-radius: var(--awe-radius-sm);
+  box-shadow: none;
+}
+
+.btn-group > label.criterion.btn.btn-awe.validator:hover,
+.btn-group > label.criterion.btn.btn-awe.validator:focus,
+.criterion .btn-group.button-radio-group > label.btn.btn-awe:hover,
+.criterion .btn-group.button-radio-group > label.btn.btn-awe:focus,
+.awe-theme-preview-mode .btn-group.button-radio-group > label.btn.btn-awe:hover,
+.awe-theme-preview-mode .btn-group.button-radio-group > label.btn.btn-awe:focus {
+  color: var(--awe-segmented-hover-text);
+  background: transparent !important;
+  border-color: transparent;
+}
+
+.btn-group > label.criterion.btn.btn-awe.validator.active,
+.criterion .btn-group.button-radio-group > label.btn.btn-awe.active,
+.awe-theme-preview-mode .btn-group.button-radio-group > label.btn.btn-awe.active {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-segmented-selected-text);
+  background: var(--awe-segmented-selected) !important;
+  border-color: var(--awe-segmented-selected-border);
+  box-shadow: var(--awe-shadow-sm);
+}
+
+.btn-group > label.criterion.btn.btn-awe.validator:has(input:focus-visible),
+.criterion .btn-group.button-radio-group > label.btn.btn-awe:has(input:focus-visible),
+.awe-theme-preview-mode .btn-group.button-radio-group > label.btn.btn-awe:has(input:focus-visible) {
+  outline: var(--awe-focus-ring);
+  outline-offset: calc(-1 * var(--awe-focus-ring-width));
+}
+
+.btn-group:has(> .criterion.btn.has-error),
+.criterion.has-error .btn-group.button-radio-group {
+  border-color: var(--awe-color-field-border-invalid);
 }
 
 .no-btn {
@@ -28,23 +425,16 @@
   filter: brightness(0.75);
 }
 
-// Button Sizes (inside column)
-// --------------------------------------------------
-
+// Button Sizes (inside column): the heights of the fields next to them
 .column .btn-lg {
-  // line-height: ensure even-numbered height of button next to large input
-  .button-size(@padding-large-vertical - 2px; @padding-large-horizontal; @font-size-large; @line-height-large - 2px; @border-radius-large);
+  height: var(--awe-size-control-lg);
 }
 .column .btn-md {
-  // line-height: ensure proper height of button next to base input
-  .button-size(@padding-base-vertical - 2px; @padding-base-horizontal; @font-size-base; @line-height-base - 2px; @border-radius-base);
+  height: var(--awe-size-control);
 }
-.column .btn-sm {
-  // line-height: ensure proper height of button next to small input
-  .button-size(@padding-small-vertical - 2px; @padding-small-horizontal; @font-size-small; @line-height-small - 2px; @border-radius-small);
-}
+.column .btn-sm,
 .column .btn-xs {
-  .button-size(@padding-xs-vertical - 2px; @padding-xs-horizontal; @font-size-small; @line-height-small - 2px; @border-radius-small);
+  height: var(--awe-size-control-sm);
 }
 
 @media (max-width: @screen-small) {

@@ -1,19 +1,22 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import {DefaultSpin} from "../data/options";
 import {getIconTemplate} from "./component";
+import {iconTemplate} from "./icon";
 
 export const templateInputColor = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" ng-cloak>
-    <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    <label ng-attr-for="{{::controller.id}}" ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input-group colorpicker-element {{::validatorGroup}} focus-target">
       ${getIconTemplate("{{::iconClass}}")}
       <input type="text" class="form-control {{classes}}" ng-disabled="controller.readonly" ng-model="model.selected" ng-press-enter="submit($event)" autocomplete="off" ng-click="click($event)"
-             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}" ng-change="component.modelChange()"/>
-      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+             ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" placeholder="{{controller.placeholder| translateMultiple}}{{requiredMark()}}" ng-attr-aria-required="{{ariaRequired()}}" ng-change="component.modelChange()"
+             data-testid="${TestIds.criterionInput}"/>
+      <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span class="input-group-addon" colorpicker ng-model="model.selected" ng-change="component.modelChange()" ng-if="!controller.readonly"><i ng-class="{'transparent': !model.selected}" ng-style="{backgroundColor: model.selected}"></i></span>
       <span class="input-group-addon disabled" ng-if="controller.readonly"><i ng-class="{'transparent': !model.selected}" ng-style="{backgroundColor: model.selected}"></i></span>
     </div>
@@ -21,14 +24,14 @@ export const templateInputColor = `<div ng-show="controller.visible" class="crit
 </div>`;
 
 export const templateColumnColor = `<div ng-show="component.controller.visible" class="validator column-input criterion text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-cloak>
-  <span class="visible-value" ng-cloak><i class="fa fa-eyedropper" ng-if="component.visibleValue" ng-style="{color: component.visibleValue}"></i>
+  <span class="visible-value" ng-cloak>${iconTemplate("eyedropper", {attributes: 'ng-if="component.visibleValue" ng-style="{color: component.visibleValue}"'})}
     <span class="text-semibold text-xs text-uppercase">{{component.visibleValue}}</span>
   </span>
   <span class="edition">
     <div ng-class="::groupClass" ng-cloak>
       <div class="validator input-group colorpicker-element input-group-{{::size}} focus-target">
         <input type="text" class="form-control {{classes}} {{component.model.values[0].style}}" ng-disabled="component.controller.readonly" ng-model="component.model.selected" ng-focus="focus()" ng-press-enter="saveRow($event)"
-               ng-blur="blur()" ng-click="click($event)" placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-change="component.columnModelChange()"/>
+               ng-blur="blur()" ng-click="click($event)" placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-change="component.columnModelChange()" data-testid="${TestIds.criterionInput}"/>
         <span ng-if="!component.controller.readonly" class="input-group-addon" colorpicker ng-model="component.model.selected" ng-change="component.columnModelChange()" ><i ng-class="{'transparent': !component.model.selected}" ng-style="{backgroundColor: component.model.selected}"></i></span>
         <span ng-if="component.controller.readonly" class="input-group-addon disabled"><i ng-class="{'transparent': !component.model.selected}" ng-style="{backgroundColor: component.model.selected}"></i></span>
       </div>
@@ -37,6 +40,30 @@ export const templateColumnColor = `<div ng-show="component.controller.visible" 
   </span>
   <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
 </div>`;
+
+/**
+ * Submit the screen as Enter does in a criterion: click the closest visible submit button of the element, or the first
+ * visible one of the form
+ * @param {Object} element Element the submit starts from
+ */
+export function submitForm(element) {
+  // A window with an advanced block (#790) launches its own submit button, also from its side panel
+  const windowController = element.controller ? element.controller("aweWindow") : null;
+  if (windowController?.advancedBlock && windowController.submit()) {
+    return;
+  }
+
+  // Step 1: Retrieve closest submit button
+  let submitButton = element.closest(":submit:visible");
+  if (submitButton.length === 0) {
+    submitButton = $("form").first().find(":submit:visible");
+  }
+
+  // If submit button has been found, make click on it
+  if (submitButton.length > 0) {
+    $(submitButton[0]).scope().onClick();
+  }
+}
 
 // Criterion service
 aweApplication.factory('Criterion',
@@ -193,26 +220,7 @@ aweApplication.factory('Criterion',
           component.scope.submit = function (event) {
             // Cancel event propagation
             Utilities.stopPropagation(event, true);
-            // Search submit button
-            let form = $("form").first();
-            // Step 1: Retrieve closest submit button
-            let submitButton = component.element.closest(":submit:visible");
-            if (submitButton.length > 0) {
-              submitButton = $(submitButton[0]);
-            } else {
-              submitButton = form.find(":submit:visible");
-              if (submitButton.length > 0) {
-                submitButton = $(submitButton[0]);
-              } else {
-                submitButton = null;
-              }
-            }
-
-            // If submit button has been found, make click on it
-            if (submitButton) {
-              let submitScope = submitButton.scope();
-              submitScope.onClick();
-            }
+            submitForm(component.element);
           };
 
           /******************************************************************************
@@ -303,11 +311,23 @@ aweApplication.factory('Criterion',
           component.updateClasses = function () {
             component.scope.criterionClass = getCriterionClass();
             component.scope.classes = getClass();
+            reportValidity(false);
           };
 
           /******************************************************************************
            * PRIVATE METHODS
            *****************************************************************************/
+
+          /**
+           * Tell the containers (tabs, wizard steps, accordion items) when the criterion becomes invalid or valid
+           * @param {boolean} invalid Criterion is invalid
+           */
+          function reportValidity(invalid) {
+            if ((component.reportedInvalid === true) !== invalid) {
+              component.reportedInvalid = invalid;
+              component.scope.$emit("criterion-validity", {id: component.id, invalid: invalid});
+            }
+          }
 
           /**
            * Retrieve input classes (validation and input size)
@@ -414,6 +434,35 @@ aweApplication.factory('Criterion',
             }
           }
 
+          /**
+           * Check if the criterion draws its label row: a label, the help icon (it lives in the label), or a left label
+           * that keeps the column of the labels
+           * @returns {boolean} The label row is drawn
+           */
+          component.scope.hasLabelRow = function () {
+            const {label, help, leftLabel} = component.controller;
+            return !!(label || help || leftLabel);
+          };
+
+          /**
+           * Retrieve the asterisk that shows the required state in the placeholder of a required criterion without
+           * visible label (the label draws its own asterisk)
+           * @returns {string} Required mark
+           */
+          component.scope.requiredMark = function () {
+            const attributes = component.controller;
+            const hasLabel = !!attributes.label && String(attributes.style || "").indexOf("no-label") === -1;
+            return attributes.required && attributes.placeholder && !hasLabel ? " *" : "";
+          };
+
+          /**
+           * Retrieve the value of aria-required of the focusable element of the criterion
+           * @returns {string|undefined} "true" when the criterion is required, undefined (no attribute) otherwise
+           */
+          component.scope.ariaRequired = function () {
+            return component.controller.required ? "true" : undefined;
+          };
+
           // Initially update classes
           component.updateClasses();
           // Initially update icon class
@@ -497,6 +546,7 @@ aweApplication.factory('Criterion',
               if (validation !== null) {
                 // Add validation error class
                 component.scope.criterionClass += " has-error dark";
+                reportValidity(true);
                 if (!errorsDetected) {
                   // Select the tab of the element (if it's in a tab)
                   component.scope.$emit("select-current-tab");
@@ -508,6 +558,11 @@ aweApplication.factory('Criterion',
             }
             return validation;
           };
+
+          // Rendered inside a dialog or side panel opened in view mode: read-only for that opening
+          if ($(component.element).closest("[data-view-mode]").length > 0) {
+            Control.setViewMode(component.address, true);
+          }
 
           // Initialization well done
           return true;

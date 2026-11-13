@@ -1,0 +1,269 @@
+/*******************************************************************************
+ LOADING SKELETONS
+ Placeholders drawn while a screen or the rows of a grid load. Colors come from the
+ --awe-color-skeleton tokens, so every theme and mode paints them.
+*******************************************************************************/
+
+// The skeleton is a test hook from the start of the load, but its visuals show after a short delay (150 ms): a fast load
+// does not flash. The containers stay in place; the placeholders and their backgrounds fade in
+@skeleton-delay: 150ms;
+
+@keyframes awe-skeleton-appear {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes awe-skeleton-panel {
+  to {
+    background-color: var(--awe-color-panel);
+  }
+}
+
+@keyframes awe-skeleton-backdrop {
+  to {
+    background-color: var(--awe-color-background);
+  }
+}
+
+@keyframes awe-skeleton-hide {
+  to {
+    visibility: hidden;
+  }
+}
+
+// A label or a button of a component that is loading becomes a placeholder
+@keyframes awe-skeleton-dim {
+  from {
+    opacity: 1;
+  }
+}
+
+@keyframes awe-skeleton-mask {
+  to {
+    color: transparent;
+    background-color: var(--awe-color-skeleton);
+    border-color: transparent;
+    box-shadow: none;
+  }
+}
+
+.skeleton-delayed() {
+  opacity: 0;
+  animation: awe-skeleton-appear 0s linear @skeleton-delay forwards;
+}
+
+@keyframes awe-skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.skeleton-bar {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: var(--awe-radius-sm);
+  background: linear-gradient(90deg, var(--awe-color-skeleton) 25%, var(--awe-color-skeleton-highlight) 50%, var(--awe-color-skeleton) 75%);
+  background-size: 200% 100%;
+  opacity: 0;
+  animation: awe-skeleton-shimmer 1.4s ease-in-out infinite, awe-skeleton-appear 0s linear @skeleton-delay forwards;
+}
+
+// Loader with icon-loading="skeleton" (criteria, charts...): a block over the component
+.loader.skeleton-loader {
+  display: block;
+  &.ng-animate {
+    display: block !important;
+  }
+  .skeleton-block {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: var(--awe-space-2xs);
+    background-color: transparent;
+    animation: awe-skeleton-panel 0s linear @skeleton-delay forwards;
+  }
+  // Checkbox and radio: the box and the label
+  .skeleton-box {
+    display: flex;
+    align-items: center;
+    gap: var(--awe-space-xs);
+    background-color: transparent;
+    .skeleton-bar {
+      height: 14px;
+    }
+  }
+  .skeleton-check {
+    flex: none;
+    width: 14px;
+    &.skeleton-radio {
+      border-radius: 50%;
+    }
+  }
+  // Chart: the area of the chart with a hint of its type
+  .skeleton-chart {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-around;
+    gap: var(--awe-space-xs);
+    .skeleton-bar {
+      flex: 1 1 0;
+      height: 100%;
+    }
+  }
+  .skeleton-chart-bars .skeleton-bar {
+    align-self: flex-end;
+  }
+  .skeleton-chart-trend .skeleton-bar {
+    clip-path: polygon(0 80%, 20% 55%, 40% 65%, 60% 30%, 80% 45%, 100% 15%, 100% 100%, 0 100%);
+  }
+  .skeleton-chart-pie {
+    align-items: center;
+    justify-content: center;
+    .skeleton-bar {
+      flex: none;
+      width: auto;
+      height: 70%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+    }
+  }
+}
+
+// Label of the criterion and button that are loading: a placeholder as wide as the label (after the delay)
+.criterion.skeleton-pending {
+  label,
+  .lbl {
+    border-radius: var(--awe-radius-sm);
+    animation: awe-skeleton-mask 0s linear @skeleton-delay forwards;
+  }
+}
+.skeleton-pending button {
+  pointer-events: none;
+  animation: awe-skeleton-mask 0s linear @skeleton-delay forwards;
+}
+// The loader of a button is only the test hook: the button itself is the placeholder
+.loader.skeleton-hook {
+  background-color: transparent;
+  pointer-events: none;
+}
+
+// Reload of a grid that has rows (default loader): the rows stay, dimmed and not clickable, until the new data arrives
+.grid.grid-reloading .grid-container {
+  opacity: 0.5;
+  pointer-events: none;
+  animation: awe-skeleton-dim 150ms ease-out @skeleton-delay backwards;
+}
+.loader.grid-reload {
+  display: block;
+  background-color: transparent;
+  cursor: progress;
+}
+
+// Grid rows: one row per record of the page and one bar per visible column, below the header
+.grid-skeleton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 10;
+  .grid-skeleton-body {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    background-color: transparent;
+    animation: awe-skeleton-panel 0s linear @skeleton-delay forwards;
+  }
+  .grid-skeleton-row {
+    .skeleton-delayed();
+    display: flex;
+    align-items: center;
+    height: 27px;
+    border-bottom: var(--awe-border-width) solid var(--awe-color-grid-border);
+  }
+  .grid-skeleton-cell {
+    flex: none;
+    height: 100%;
+    padding: var(--awe-space-2) var(--awe-grid-cell-padding-x);
+    overflow: hidden;
+  }
+}
+
+// Screen: a title bar, a row of criteria and a grid over the view that is loading
+.screen-skeleton {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-md);
+  padding: var(--awe-space-md);
+  overflow: hidden;
+  background-color: transparent;
+  animation: awe-skeleton-backdrop 0s linear @skeleton-delay forwards;
+  > * {
+    .skeleton-delayed();
+  }
+  .screen-skeleton-title {
+    height: 28px;
+    width: 30%;
+  }
+  .screen-skeleton-criteria {
+    display: flex;
+    gap: var(--awe-space-md);
+    height: 34px;
+    .skeleton-bar {
+      flex: 1 1 0;
+    }
+  }
+  .screen-skeleton-grid {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+    border: var(--awe-border-width) solid var(--awe-color-grid-border);
+    border-radius: var(--awe-radius);
+    background-color: var(--awe-color-panel);
+  }
+  .screen-skeleton-grid-header {
+    height: 32px;
+    padding: 8px;
+    background-color: var(--awe-color-grid-header);
+  }
+  .screen-skeleton-grid-row {
+    height: 32px;
+    padding: 10px 8px;
+    border-top: var(--awe-border-width) solid var(--awe-color-grid-border);
+  }
+}
+
+// The previous screen of the view that is loading hides under the skeleton: content with a higher z-index (the signin
+// container, for instance) does not paint over it
+[ui-view][aria-busy="true"] {
+  animation: awe-skeleton-hide 0s linear @skeleton-delay forwards;
+}
+
+// No shimmer for reduced motion: the placeholders still show after the delay
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-bar {
+    animation: awe-skeleton-appear 0s linear @skeleton-delay forwards;
+  }
+}

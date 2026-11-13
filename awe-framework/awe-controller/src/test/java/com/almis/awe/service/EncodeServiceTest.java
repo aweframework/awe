@@ -1,18 +1,24 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.PasswordEncoderType;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.util.security.Crypto;
+import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.context.ApplicationContext;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -283,5 +289,42 @@ class EncodeServiceTest {
   @Test
   void base64DecodeAsByteArray() {
     assertEquals("test", new String(encodeService.base64DecodeAsByteArray("dGVzdA"), StandardCharsets.UTF_8));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void encodePasswordUsesTheApplicationPasswordEncoder() {
+    PasswordEncoder applicationEncoder = mock(PasswordEncoder.class);
+    when(applicationEncoder.encode("prueba")).thenReturn("{custom}hash");
+    ObjectProvider<PasswordEncoder> provider = mock(ObjectProvider.class);
+    when(provider.getIfAvailable()).thenReturn(applicationEncoder);
+    ApplicationContext context = mock(ApplicationContext.class);
+    when(context.getBeanProvider(PasswordEncoder.class)).thenReturn(provider);
+    encodeService.setApplicationContext(context);
+
+    assertEquals("{custom}hash", encodeService.encodePassword("prueba"));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void encodePasswordWithoutPasswordEncoderBeanUsesTheConfiguredAlgorithm() {
+    ObjectProvider<PasswordEncoder> provider = mock(ObjectProvider.class);
+    when(provider.getIfAvailable()).thenReturn(null);
+    ApplicationContext context = mock(ApplicationContext.class);
+    when(context.getBeanProvider(PasswordEncoder.class)).thenReturn(provider);
+    encodeService.setApplicationContext(context);
+    when(securityConfigProperties.getPasswordEncoder()).thenReturn(PasswordEncoderType.BCRYPT);
+
+    String hash = encodeService.encodePassword("prueba");
+
+    assertTrue(hash.startsWith("{bcrypt}"));
+    assertTrue(new AwePasswordEncoder(PasswordEncoderType.BCRYPT).matches("prueba", hash));
+  }
+
+  @Test
+  void encodePasswordWithoutContextUsesTheConfiguredAlgorithm() {
+    when(securityConfigProperties.getPasswordEncoder()).thenReturn(PasswordEncoderType.RIPEMD160);
+
+    assertEquals(EncodeService.encodeRipEmd160("prueba"), encodeService.encodePassword("prueba"));
   }
 }

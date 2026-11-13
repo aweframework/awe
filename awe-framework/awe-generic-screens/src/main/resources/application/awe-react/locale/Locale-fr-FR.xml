@@ -10,4 +10,12 @@
   <locale name="SCREEN_TEXT_INSERT_USER" value="Entrez votre nom d'utilisateur"/>
   <locale name="SCREEN_TEXT_INSERT_PASS" value="Entrez votre mot de passe"/>
   <locale name="PARAMETER_SELECT_LANGUAGE" value="Sélectionner une langue"/>
+  <locale name="BUTTON_SETTINGS" value="Paramètres"/>
+  <locale name="BUTTON_SHOW_NOTIFICATIONS" value="Afficher notifications"/>
+  <locale name="NO_NOTIFICATIONS" value="Pas de notifications"/>
+  <locale name="SCREEN_TEXT_REFRESH_SETTINGS" value="Paramètres d&apos;actualisation"/>
+  <locale name="SCREEN_TEXT_REFRESH_TIME" value="Actualiser le temps"/>
+  <locale name="SCREEN_TEXT_TIME_SECONDS" value="Temps en secondes"/>
+  <locale name="BUTTON_PAUSE" value="Pause"/>
+  <locale name="BUTTON_PLAY" value="Reprendre"/>
 </locales>

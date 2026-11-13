@@ -14,9 +14,6 @@ import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.service.report.SchedulerEmailReportService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +26,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.TriggerBuilder;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import javax.naming.NamingException;
 import java.util.ArrayList;
@@ -194,9 +194,9 @@ class SchedulerEmailReportServiceTest {
 
     schedulerEmailReportService.execute(task, execution);
 
-    assertEquals("Task Nightly Sync finished: ERROR", parameters.get(REPORT_TITLE).asText());
-    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asText().contains("Status: ERROR"));
-    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asText().contains("Status: ERROR"));
+    assertEquals("Task Nightly Sync finished: ERROR", parameters.get(REPORT_TITLE).asString());
+    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asString().contains("Status: ERROR"));
+    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asString().contains("Status: ERROR"));
   }
 
   @Test
@@ -210,7 +210,7 @@ class SchedulerEmailReportServiceTest {
 
     schedulerEmailReportService.execute(task, execution);
 
-    String html = parameters.get(REPORT_MESSAGE_HTML).asText();
+    String html = parameters.get(REPORT_MESSAGE_HTML).asString();
     assertFalse(html.contains("</span></li>)"),
       "The status list item must not emit a stray closing parenthesis");
   }
@@ -226,8 +226,8 @@ class SchedulerEmailReportServiceTest {
 
     schedulerEmailReportService.execute(task, execution);
 
-    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asText().contains("Desc:[] Detail:[]"));
-    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asText().contains("Desc:[] Detail:[]"));
+    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asString().contains("Desc:[] Detail:[]"));
+    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asString().contains("Desc:[] Detail:[]"));
   }
 
   @Test
@@ -243,8 +243,8 @@ class SchedulerEmailReportServiceTest {
 
     schedulerEmailReportService.execute(task, execution);
 
-    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asText().contains("Environment: production"));
-    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asText().contains("Environment: production"));
+    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asString().contains("Environment: production"));
+    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asString().contains("Environment: production"));
   }
 
   @Test
@@ -266,8 +266,8 @@ class SchedulerEmailReportServiceTest {
 
       schedulerEmailReportService.execute(task, execution);
 
-      assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asText().contains("Status: OK"));
-      assertFalse(parameters.get(REPORT_MESSAGE_TEXT).asText().contains("Status: custom-value"));
+      assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asString().contains("Status: OK"));
+      assertFalse(parameters.get(REPORT_MESSAGE_TEXT).asString().contains("Status: custom-value"));
       assertTrue(logAppender.list.stream()
         .anyMatch(event -> event.getFormattedMessage().contains("status")));
     } finally {
@@ -286,8 +286,8 @@ class SchedulerEmailReportServiceTest {
 
     schedulerEmailReportService.execute(task, execution);
 
-    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asText().contains("Value: ${foo}"));
-    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asText().contains("Value: ${foo}"));
+    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asString().contains("Value: ${foo}"));
+    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asString().contains("Value: ${foo}"));
   }
 
   @Test
@@ -303,8 +303,8 @@ class SchedulerEmailReportServiceTest {
 
     schedulerEmailReportService.execute(task, execution);
 
-    String html = parameters.get(REPORT_MESSAGE_HTML).asText();
-    String text = parameters.get(REPORT_MESSAGE_TEXT).asText();
+    String html = parameters.get(REPORT_MESSAGE_HTML).asString();
+    String text = parameters.get(REPORT_MESSAGE_TEXT).asString();
 
     // The substituted message paragraph must contain the escaped value, not the raw markup
     // (the pre-existing, unrelated fixed task-details block that echoes raw parameter values
@@ -334,8 +334,8 @@ class SchedulerEmailReportServiceTest {
 
     // Report is still produced (no NPE) and the status placeholder resolves to an empty string
     verify(maintainService, times(1)).launchPrivateMaintain(eq(REPORT_MAINTAIN_TARGET), any(ObjectNode.class));
-    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asText().contains("Status:[]"));
-    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asText().contains("Status:[]"));
+    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asString().contains("Status:[]"));
+    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asString().contains("Status:[]"));
   }
 
   @Test
@@ -359,8 +359,8 @@ class SchedulerEmailReportServiceTest {
       schedulerEmailReportService.execute(task, execution);
 
       // First value wins
-      assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asText().contains("Environment: first"));
-      assertFalse(parameters.get(REPORT_MESSAGE_TEXT).asText().contains("Environment: second"));
+      assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asString().contains("Environment: first"));
+      assertFalse(parameters.get(REPORT_MESSAGE_TEXT).asString().contains("Environment: second"));
 
       // Accurate WARN message that does NOT claim the collision is with a reserved metadata variable
       ILoggingEvent warning = logAppender.list.stream()
@@ -406,11 +406,11 @@ class SchedulerEmailReportServiceTest {
     // Passthrough: raw title/message used verbatim, and the no-placeholder path never NPEs
     // even when status and parameterList are null.
     verify(maintainService, times(1)).launchPrivateMaintain(eq(REPORT_MAINTAIN_TARGET), any(ObjectNode.class));
-    assertEquals(reportTitle, parameters.get(REPORT_TITLE).asText());
-    String html = parameters.get(REPORT_MESSAGE_HTML).asText();
+    assertEquals(reportTitle, parameters.get(REPORT_TITLE).asString());
+    String html = parameters.get(REPORT_MESSAGE_HTML).asString();
     assertTrue(html.contains("<title>" + reportTitle + "</title>"));
     assertTrue(html.contains("<p>" + reportMessage + "</p>"));
-    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asText().startsWith(reportTitle));
+    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asString().startsWith(reportTitle));
   }
 
   @Test
@@ -427,8 +427,8 @@ class SchedulerEmailReportServiceTest {
 
     schedulerEmailReportService.execute(task, execution);
 
-    String text = parameters.get(REPORT_MESSAGE_TEXT).asText();
-    String html = parameters.get(REPORT_MESSAGE_HTML).asText();
+    String text = parameters.get(REPORT_MESSAGE_TEXT).asString();
+    String html = parameters.get(REPORT_MESSAGE_HTML).asString();
 
     // A substituted value that itself looks like a placeholder must be emitted verbatim and
     // never re-scanned by a later substitution.
@@ -458,8 +458,8 @@ class SchedulerEmailReportServiceTest {
 
     // Report is still produced and the status placeholder resolves to an empty string.
     verify(maintainService, times(1)).launchPrivateMaintain(eq(REPORT_MAINTAIN_TARGET), any(ObjectNode.class));
-    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asText().contains("Status:[]"));
-    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asText().contains("Status:[]"));
+    assertTrue(parameters.get(REPORT_MESSAGE_TEXT).asString().contains("Status:[]"));
+    assertTrue(parameters.get(REPORT_MESSAGE_HTML).asString().contains("Status:[]"));
   }
 
   @Test
@@ -476,8 +476,8 @@ class SchedulerEmailReportServiceTest {
 
     schedulerEmailReportService.execute(task, execution);
 
-    String text = parameters.get(REPORT_MESSAGE_TEXT).asText();
-    String html = parameters.get(REPORT_MESSAGE_HTML).asText();
+    String text = parameters.get(REPORT_MESSAGE_TEXT).asString();
+    String html = parameters.get(REPORT_MESSAGE_HTML).asString();
 
     // A null parameter name must not leak into the catalog as a "${null}" token.
     assertTrue(text.contains("Environment: production"));
@@ -498,13 +498,13 @@ class SchedulerEmailReportServiceTest {
 
     schedulerEmailReportService.execute(task, execution);
 
-    assertEquals(reportTitle, parameters.get(REPORT_TITLE).asText());
+    assertEquals(reportTitle, parameters.get(REPORT_TITLE).asString());
 
-    String html = parameters.get(REPORT_MESSAGE_HTML).asText();
+    String html = parameters.get(REPORT_MESSAGE_HTML).asString();
     assertTrue(html.contains("<title>" + reportTitle + "</title>"));
     assertTrue(html.contains("<p>" + reportMessage + "</p>"));
 
-    String text = parameters.get(REPORT_MESSAGE_TEXT).asText();
+    String text = parameters.get(REPORT_MESSAGE_TEXT).asString();
     assertTrue(text.startsWith(reportTitle));
     assertTrue(text.contains(reportMessage + "\n\n"));
   }

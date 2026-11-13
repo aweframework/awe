@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +44,15 @@ public class DockerFFMpegWrapper {
     this.future = CompletableFuture.supplyAsync(() -> SystemUtils.runCommand(commands));
   }
 
+  /**
+   * Whether a recording was started and not stopped yet
+   *
+   * @return true when there is a recording to stop
+   */
+  public boolean isStarted() {
+    return this.future != null;
+  }
+
   public File stopFFmpegAndSave(String filename) {
     String killLog = killDockerFFmpeg();
     log.info("Process kill output: " + killLog);
@@ -57,12 +66,13 @@ public class DockerFFMpegWrapper {
       }
       log.info("Recording finished to: " + destFile.getAbsolutePath());
     });
+    this.future = null;
     return destFile;
   }
 
   private File getTempFile() {
     try {
-      return Files.createTempFile(Paths.get(VideoRecorder.conf().folder()), TEM_FILE_NAME, getVideoFormat()).toFile();
+      return Files.createTempFile(Path.of(VideoRecorder.conf().folder()), TEM_FILE_NAME, getVideoFormat()).toFile();
     } catch (Exception exc) {
       return getFileName(TEM_FILE_NAME + "-" + UUID.randomUUID());
     }
@@ -74,7 +84,7 @@ public class DockerFFMpegWrapper {
 
   private File getFileName(String filename) {
     String movieFolder = VideoRecorder.conf().folder();
-    return Paths.get(movieFolder, filename + getVideoFormat()).toFile();
+    return Path.of(movieFolder, filename + getVideoFormat()).toFile();
   }
 
   private String killDockerFFmpeg() {

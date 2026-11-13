@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Message Class
  *
@@ -30,6 +32,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("frame")
 public class Frame extends Component {
 
+  @Serial
   private static final long serialVersionUID = 2809318507420231428L;
   // Frame screen
   @XStreamAlias("screen")

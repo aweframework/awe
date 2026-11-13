@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.almis.awe</groupId>
+    <artifactId>awe-starter-parent</artifactId>
+    <version>5.0.0</version>
+    <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
+  </parent>
+
+  <artifactId>help-desk</artifactId>
+  <packaging>jar</packaging>
+  <name>AWE Sample: Beacon Desk, help desk (V${project.version})</name>
+
+  <properties>
+    <java.version>21</java.version>
+    <application.acronym>helpdesk</application.acronym>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <sonar.exclusions>src/**</sonar.exclusions>
+
+    <!-- Build properties -->
+    <project.build.frontend>${project.build.directory}/classes/static/</project.build.frontend>
+    <check.xml.directory>${project.basedir}/src/main/resources/application/</check.xml.directory>
+    <build.environment>development</build.environment>
+  </properties>
+
+  <dependencies>
+    <!-- AWE -->
+    <dependency>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- REST API: authenticated /api/data and /api/maintain with JWT, authorized by the same permissions -->
+    <dependency>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-rest-spring-boot-starter</artifactId>
+    </dependency>
+
+    <!-- Database: embedded HSQLDB file database, created and filled by Flyway -->
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-hsqldb</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-flyway</artifactId>
+    </dependency>
+
+    <!-- React client. This provided dependency exists ONLY for the reactor order: it makes Maven build the client
+         before this application. The application itself consumes the client through the npm dependency
+         "file:../../awe-framework/awe-client-react/dist", not through this artifact. -->
+    <dependency>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-client-react</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <!-- Descriptor tests (plain JUnit, no Spring context) -->
+    <dependency>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-testing</artifactId>
+      <scope>test</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>org.junit.vintage</groupId>
+          <artifactId>junit-vintage-engine</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+    <finalName>help-desk</finalName>
+    <plugins>
+
+      <!-- AWE static resources: schemas (XML validation), docs and print templates -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <id>unpack awe-generic-screens schemas</id>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.almis.awe</groupId>
+                  <artifactId>awe-generic-screens</artifactId>
+                  <version>${awe.version}</version>
+                  <outputDirectory>${project.build.directory}</outputDirectory>
+                  <includes>schemas/**,</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>generate-sources</phase>
+            <id>unpack awe-generic-screens docs</id>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.almis.awe</groupId>
+                  <artifactId>awe-generic-screens</artifactId>
+                  <version>${awe.version}</version>
+                  <outputDirectory>${project.build.frontend}</outputDirectory>
+                  <includes>docs/**</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+          <execution>
+            <phase>generate-sources</phase>
+            <id>unpack awe-generic-screens templates</id>
+            <goals>
+              <goal>unpack</goal>
+            </goals>
+            <configuration>
+              <artifactItems>
+                <artifactItem>
+                  <groupId>com.almis.awe</groupId>
+                  <artifactId>awe-generic-screens</artifactId>
+                  <version>${awe.version}</version>
+                  <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+                  <includes>templates/**</includes>
+                </artifactItem>
+              </artifactItems>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+
+      <!-- Spring boot -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>build-info</id>
+            <goals>
+              <goal>build-info</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>repackage</id>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Xml validation against the AWE schemas -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>xml-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>validate</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>validate</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <validationSets>
+            <validationSet>
+              <dir>${check.xml.directory}/helpdesk/</dir>
+              <validating>true</validating>
+            </validationSet>
+          </validationSets>
+          <catalogs>
+            <catalog>file:///${project.build.directory}/schemas/awe/catalog.xml</catalog>
+          </catalogs>
+        </configuration>
+      </plugin>
+
+      <!-- The npm build needs the client dist/ produced by the awe-client-react module. The enforcer rule does not
+           accept a path containing "..", so the normalized location is computed first from this module's location:
+           that step always runs and requires the module to stay at awe-samples/help-desk. The enforcer check itself
+           is skipped with skip.frontend, like the npm build it protects. -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>${build-helper-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>locate react client dist</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>regex-property</goal>
+            </goals>
+            <configuration>
+              <name>react.client.dist</name>
+              <value>${project.basedir}</value>
+              <regex>[/\\]awe-samples[/\\]help-desk$</regex>
+              <replacement>/awe-framework/awe-client-react/dist</replacement>
+              <failIfNoMatch>true</failIfNoMatch>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>3.6.3</version>
+        <executions>
+          <execution>
+            <id>require react client dist</id>
+            <phase>initialize</phase>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <skip>${skip.frontend}</skip>
+              <rules>
+                <requireFilesExist>
+                  <message>The React client is not built (awe-framework/awe-client-react/dist is missing): run the build from the repository root, or add -am (mvn -pl awe-samples/help-desk -am ...).</message>
+                  <files>
+                    <file>${react.client.dist}/package.json</file>
+                  </files>
+                </requireFilesExist>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Frontend generation: install node/npm, npm ci and "npm run build:${build.environment}" are inherited from awe-dependencies -->
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <executions>
+          <!-- Unit tests of the support chat conversation (Node test runner, no browser), so the build runs them -->
+          <execution>
+            <id>chat-tests</id>
+            <goals>
+              <goal>npm</goal>
+            </goals>
+            <phase>test</phase>
+            <configuration>
+              <arguments>test</arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Descriptor tests: plain JUnit, no Spring context, no browser -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <!-- A run that finds no test must fail: it means broken discovery, not a green build -->
+          <failIfNoTests>true</failIfNoTests>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>production</id>
+      <properties>
+        <build.environment>production</build.environment>
+      </properties>
+    </profile>
+  </profiles>
+
+</project>

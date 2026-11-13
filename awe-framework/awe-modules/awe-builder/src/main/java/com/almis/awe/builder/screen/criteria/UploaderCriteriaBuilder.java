@@ -39,4 +39,26 @@ public class UploaderCriteriaBuilder extends AbstractCriteriaBuilder<UploaderCri
     getUploaderAttributes().setDestination(folder);
     return this;
   }
+
+  /**
+   * Show a drop zone with image preview
+   *
+   * @param dropZone Show drop zone
+   * @return Builder
+   */
+  public UploaderCriteriaBuilder setDropZone(Boolean dropZone) {
+    getUploaderAttributes().setDropZone(dropZone);
+    return this;
+  }
+
+  /**
+   * Set camera capture mode (user or environment)
+   *
+   * @param capture Camera to use
+   * @return Builder
+   */
+  public UploaderCriteriaBuilder setCapture(String capture) {
+    getUploaderAttributes().setCapture(capture);
+    return this;
+  }
 }

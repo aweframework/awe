@@ -1,0 +1,179 @@
+// --------------------------------------------------
+// Plugins / Wizard
+//
+
+
+// Base styles
+//
+
+.pxajs .wizard-pane {
+  display: none;
+}
+
+.wizard-wrapper + .wizard-content.panel {
+  margin-top: -1px;
+}
+
+.wizard.freeze .wizard-steps > li {
+  cursor: default !important;
+}
+
+.modal-content > .wizard .wizard-wrapper {
+  border-left: none;
+  border-radius: 0;
+  border-right: none;
+  border-top: none;
+}
+
+
+// Wizard steps
+//
+
+// Wrapper
+.wizard-wrapper {
+  border: 1px solid var(--awe-color-border);
+  border-radius: @border-radius-base;
+  white-space: nowrap;
+  width: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+// Steps
+.wizard-steps {
+  cursor: default;
+  display: block !important;
+  float: left;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  white-space: nowrap;
+  .transition(left .3s);
+  .user-select-none();
+
+  & > li {
+    display: inline-block;
+    list-style: none;
+    margin: 0 0 0;
+    padding: 0 10px 0 ((@wizard-step-number-size + (@wizard-step-number-border-width * 2)) + (@wizard-step-number-margin * 2));
+    vertical-align: middle;
+
+    // Connector between the number of the previous step and the number of this one (#1236): one horizontal line at
+    // the center of the numbers, as in the React engine, instead of the vertical separator of the legacy look. The
+    // number of every step is centered in its step, so the line is a whole step wide
+    & + li:before {
+      background: transparent;
+      border-top: 1px solid var(--awe-color-border);
+      bottom: auto;
+      content: "";
+      height: 0;
+      // From the right edge of the previous number to the left edge of this one
+      left: calc(-50% + var(--awe-size-control-lg) / 2);
+      margin: 0;
+      position: absolute;
+      top: calc(var(--awe-space-3) + var(--awe-size-control-lg) / 2);
+      width: calc(100% - var(--awe-size-control-lg));
+      z-index: 0;
+    }
+  }
+
+  // Completed step
+  & > li.completed {
+    cursor: pointer;
+  }
+
+  // Active and completed steps
+  & > li.active,
+  & > li.completed {
+    .wizard-step-caption {
+      color: var(--awe-color-text-emphasis);
+    }
+
+    .wizard-step-description {
+      color: var(--awe-color-text-muted);
+    }
+
+    .wizard-step-number {
+      border-color: var(--awe-color-primary);
+      color: var(--awe-color-primary-text);
+    }
+  }
+
+  .wizard-step-number:after {
+    display: none;
+  }
+}
+
+.wizard-step-number,
+.wizard-steps > li.completed .wizard-step-number:after {
+  background: var(--awe-color-surface);
+  border-radius: var(--awe-radius-full);
+  display: block;
+  font-size: 14px;
+  line-height: @wizard-step-number-size;
+  position: absolute;
+  text-align: center;
+}
+
+// Step number
+.wizard-step-number {
+  border: @wizard-step-number-border-width solid var(--awe-color-border);
+  color: var(--awe-color-text-muted);
+  font-weight: 700;
+  height: @wizard-step-number-size + (@wizard-step-number-border-width * 2);
+  margin-left: -@wizard-step-number-margin - 30px;
+  margin-top: -((@wizard-step-number-size + (@wizard-step-number-border-width * 2)) / 2);
+  top: 50%;
+  width: @wizard-step-number-size + (@wizard-step-number-border-width * 2);
+}
+
+.wizard-steps > li.completed .wizard-step-number {
+  font-size: 0;
+}
+
+// Show icon
+.wizard-steps > li.completed .wizard-step-number:after {
+  content: '\f00c';
+  font-family: FontAwesome;
+  font-size: 13px;
+  font-weight: 400;
+  height: @wizard-step-number-size;
+  left: 0;
+  width: @wizard-step-number-size;
+  top: 0;
+}
+
+
+// Wizard captions and descriptions
+//
+
+.wizard-step-caption,
+.wizard-step-description {
+  color: var(--awe-color-text-muted);
+  display: inline-block;
+  line-height: 14px;
+  white-space: normal;
+}
+
+.wizard-step-caption {
+  // The room over the number is the one of the list item (#1236): the legacy 15px opened a hole under the circle
+  margin: 0;
+  vertical-align: middle;
+}
+
+.wizard-step-description {
+  display: block;
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 4px;
+  position: relative;
+}
+
+
+// Wizard content
+//
+
+.wizard-content {
+  padding: 20px;
+  .clearfix();
+}

@@ -171,6 +171,33 @@ awe.database.migration-modules=AWE,SCHEDULER,NOTIFIER
   </TabItem>
 </Tabs>
 
+# Testing against each database
+
+The AWE integration tests run every server database in a [Testcontainers](https://testcontainers.com) container, so the only
+requirement is a running Docker. HSQLDB and H2 run embedded. A Spring test class chooses its database with one annotation from
+`awe-testing`, and the module needs the JDBC driver of that database:
+
+```java
+@SpringBootTest
+@AweDatabaseTest(TestDatabase.POSTGRESQL)                    // HSQLDB, H2, MYSQL, POSTGRESQL, SQLSERVER, ORACLE
+class MyQueryIT { }
+
+@AweDatabaseTest(value = TestDatabase.MYSQL, flyway = true)  // Flyway instead of the schema and data scripts
+class MyFlywayIT { }
+```
+
+The container starts once per test run, and the annotation writes the `spring.datasource.*` connection (and the script or Flyway
+settings) for it. The images are pinned in one file, `awe-framework/awe-testing/src/main/resources/awe-testing-images.properties`.
+
+| Engine | Image | Notes |
+|---|---|---|
+| MySQL | `mysql` | |
+| PostgreSQL | `postgres` | |
+| SQL Server | `mcr.microsoft.com/mssql/server` | Needs `AWE_TESTING_SQLSERVER_ACCEPT_EULA=true` (or `-Dawe.testing.sqlserver.accept-eula=true`) to accept the Microsoft licence. The image is amd64-only. |
+| Oracle | `gvenzl/oracle-free` | Large image (about 6 GB): the first run spends most of its time pulling it. |
+
+To run the suites of a database from the AWE repository, see "Database integration tests" in `CONTRIBUTING.md`.
+
 # Flyway script layout
 
 Place vendor-specific scripts under:

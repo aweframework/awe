@@ -3,23 +3,25 @@ import "../plugins/uiTabdrop";
 import "../tabcontainer";
 import "../../services/panelable";
 import {getIconTemplate} from "../../services/component";
+import {iconMarkup} from "../../services/icon";
+import {TestIds} from "../../data/testIds";
 
 // Template
 const template =
-`<div class="tab-container tab-container-{{::size}} expand expandible-vertical" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing, 'expand': isExpandible || maximized}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-    <awe-context-menu ng-cloak></awe-context-menu>
+`<div data-testid="${TestIds.tabs}" ng-attr-data-testid-owner="{{::tabId}}" ng-attr-data-maximized="{{iconMaximized === true}}" class="tab-container tab-container-{{::size}} expand expandible-vertical" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing, 'expand': isExpandible || maximized}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+    <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
     <div class="{{::criterionClass}} expand expandible-vertical">
-      <ul class="nav nav-tabs" ui-tabdrop ng-class="{disabled:isDisabled()}">
-          <li ng-class="{'active':$parent.model.selected === tab.value}" ng-repeat="tab in model.values track by tab.value" ng-attr-id="tab-{{tab.value}}">
-          <a ng-click="clickTab(tab.value)">
+      <ul class="nav nav-tabs" ui-tabdrop ng-class="{disabled:isDisabled()}" data-testid="${TestIds.tabList}" ng-attr-data-disabled="{{!!isDisabled()}}">
+          <li ng-class="{'active':$parent.model.selected === tab.value, 'tab-invalid':invalidPanels[tab.value]}" ng-repeat="tab in model.values track by tab.value" ng-attr-id="tab-{{tab.value}}" data-testid="${TestIds.tab}" ng-attr-data-active="{{$parent.model.selected === tab.value}}" ng-attr-data-invalid="{{!!invalidPanels[tab.value]}}">
+          <a ng-click="clickTab(tab.value)" data-testid="${TestIds.tabLink}">
             ${getIconTemplate("panel-title-icon")}
-            <span translate-multiple="{{tab.label}}"></span>
+            <span translate-multiple="{{tab.label}}" data-testid="${TestIds.tabLabel}"></span>
           </a>
         </li>
         <li ng-if="::maximize" class="maximize-handler pull-right active">
           <a>
-            <button role="button" type="button" class="maximize-button" aria-hidden="true" ng-click="togglePanel()" title="{{togglePanelText| translate}}">
-              <i class="fa {{iconMaximized ? 'fa-compress' : 'fa-expand'}}"></i>
+            <button role="button" type="button" class="maximize-button" data-testid="${TestIds.tabMaximizeButton}" aria-hidden="true" ng-click="togglePanel()" title="{{togglePanelText| translate}}">
+              <i>${iconMarkup("compress", 'ng-if="iconMaximized"')}${iconMarkup("expand", 'ng-if="!iconMaximized"')}</i>
             </button>
           </a>
         </li>
@@ -66,12 +68,22 @@ aweApplication
       */
       $ctrl.isActive = (id) => component.isActive(id);
 
+      /**
+       * Mark a tab that holds invalid fields (or clear its mark)
+       * @param {string} id Tab identifier
+       * @param {boolean} invalid Tab holds invalid fields
+       */
+      $ctrl.setInvalid = (id, invalid) => {
+        $scope.invalidPanels[id] = invalid;
+      };
+
       /******************************************************************************
       * COMPONENT METHODS
       *****************************************************************************/
 
       // Controller variables
       component.scope.isExpandible = true;
+      $scope.invalidPanels = {};
       component.expandDirection = "vertical";
 
       /******************************************************************************

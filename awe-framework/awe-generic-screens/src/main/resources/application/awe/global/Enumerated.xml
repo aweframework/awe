@@ -140,6 +140,46 @@
     <option label="ENUM_ENV_PRO" value="Pro" />
   </group>
 
+  <!-- THEME MODE -->
+  <group id="ThmMde">
+    <option label="ENUM_THEME_MODE_LIGHT" value="light" />
+    <option label="ENUM_THEME_MODE_DARK" value="dark" />
+    <option label="ENUM_THEME_MODE_SYSTEM" value="system" />
+  </group>
+
+  <!-- THEME PRIMARY: the AWE 5 palettes in hue order, or custom for a hex -->
+  <group id="ThmPri">
+    <option label="ENUM_THEME_PRIMARY_RED" value="red" />
+    <option label="ENUM_THEME_PRIMARY_ORANGE" value="orange" />
+    <option label="ENUM_THEME_PRIMARY_AMBER" value="amber" />
+    <option label="ENUM_THEME_PRIMARY_YELLOW" value="yellow" />
+    <option label="ENUM_THEME_PRIMARY_LIME" value="lime" />
+    <option label="ENUM_THEME_PRIMARY_GREEN" value="green" />
+    <option label="ENUM_THEME_PRIMARY_EMERALD" value="emerald" />
+    <option label="ENUM_THEME_PRIMARY_TEAL" value="teal" />
+    <option label="ENUM_THEME_PRIMARY_CYAN" value="cyan" />
+    <option label="ENUM_THEME_PRIMARY_SKY" value="sky" />
+    <option label="ENUM_THEME_PRIMARY_BLUE" value="blue" />
+    <option label="ENUM_THEME_PRIMARY_INDIGO" value="indigo" />
+    <option label="ENUM_THEME_PRIMARY_VIOLET" value="violet" />
+    <option label="ENUM_THEME_PRIMARY_PURPLE" value="purple" />
+    <option label="ENUM_THEME_PRIMARY_FUCHSIA" value="fuchsia" />
+    <option label="ENUM_THEME_PRIMARY_PINK" value="pink" />
+    <option label="ENUM_THEME_PRIMARY_ROSE" value="rose" />
+    <option label="ENUM_THEME_COLOR_CUSTOM" value="custom" />
+  </group>
+
+  <!-- THEME SURFACE: auto, the AWE 5 neutral palettes, or custom for a hex -->
+  <group id="ThmSrf">
+    <option label="ENUM_THEME_SURFACE_AUTO" value="auto" />
+    <option label="ENUM_THEME_SURFACE_SLATE" value="slate" />
+    <option label="ENUM_THEME_SURFACE_GRAY" value="gray" />
+    <option label="ENUM_THEME_SURFACE_ZINC" value="zinc" />
+    <option label="ENUM_THEME_SURFACE_NEUTRAL" value="neutral" />
+    <option label="ENUM_THEME_SURFACE_STONE" value="stone" />
+    <option label="ENUM_THEME_COLOR_CUSTOM" value="custom" />
+  </group>
+
   <!-- RESTRICTION ACCESS MODE -->
   <group id="ResAccModSel">
     <option label="ENUM_REST_MODE_RESTRICTED" value="R" />
@@ -157,7 +197,6 @@
     <option label="ENUM_SCR_ATR_VARIABLE" value="variable" />
     <option label="ENUM_SCR_ATR_COMPONENT" value="componentType" />
     <option label="ENUM_SCR_ATR_INITLOAD" value="initialLoad" />
-    <option label="ENUM_SCR_ATR_FORMAT" value="format" />
     <option label="ENUM_SCR_ATR_NUMFORMAT" value="numberFormat" />
     <option label="ENUM_SCR_ATR_CAPITALIZE" value="capitalize" />
     <option label="ENUM_SCR_ATR_VISIBLE" value="visible" />
@@ -182,7 +221,6 @@
     <option label="ENUM_SCR_ATR_WIDTH" value="width" />
     <option label="ENUM_SCR_ATR_CHARLENGTH" value="charLength" />
     <option label="ENUM_SCR_ATR_ALIGN" value="align" />
-    <option label="ENUM_SCR_ATR_INPUTTYPE" value="inputType" />
     <option label="ENUM_SCR_ATR_SORTABLE" value="sortable" />
     <option label="ENUM_SCR_ATR_HIDDEN" value="hidden" />
     <option label="ENUM_SCR_ATR_SENDABLE" value="sendable" />
@@ -196,16 +234,48 @@
     <option label="ENUM_SCR_ATR_SHOWTOTALS" value="showTotals" />
     <option label="ENUM_SCR_ATR_AUTOREFRESH" value="autorefresh" />
     <option label="ENUM_SCR_ATR_RESTRICTED_VALUE" value="restrictedValueList" />
-    <option label="ENUM_SCR_ATR_SENDOPERATIONS" value="sendOperations" />
     <option label="ENUM_SCR_ATR_TREEGRID" value="treegrid" />
     <option label="ENUM_SCR_ATR_EDITABLE" value="editable" />
     <option label="ENUM_SCR_ATR_MULTISELECT" value="multiselect" />
-    <option label="ENUM_SCR_ATR_EXPANDCOLUMN" value="expandcolumn" />
+    <option label="ENUM_SCR_ATR_EXPANDCOLUMN" value="expandColumn" />
     <option label="ENUM_SCR_ATR_DISABLE_PAGINATION" value="disablePagination" />
     <option label="ENUM_SCR_ATR_PAGER_VALUES" value="pagerValues" />    
     <option label="ENUM_SCR_ATR_DECIMAL_NUMBERS" value="decimalNumbers" />
     <option label="ENUM_SCR_ATR_THOUSAND_SEPARATOR" value="thousandSeparator" />
     <option label="ENUM_SCR_ATR_DECIMAL_SEPARATOR" value="decimalSeparator" />     
+    <option label="ENUM_SCR_ATR_AGGREGATION_FIELD" value="aggregationField" />
+    <option label="ENUM_SCR_ATR_AGGREGATOR" value="aggregator" />
+    <option label="ENUM_SCR_ATR_AREA_ROWS" value="areaRows" />
+    <option label="ENUM_SCR_ATR_BROWSER_ACTION" value="browserAction" />
+    <option label="ENUM_SCR_ATR_BUTTON_TYPE" value="buttonType" />
+    <option label="ENUM_SCR_ATR_CANCEL" value="cancel" />
+    <option label="ENUM_SCR_ATR_COLS" value="cols" />
+    <option label="ENUM_SCR_ATR_DATE_FORMAT" value="dateFormat" />
+    <option label="ENUM_SCR_ATR_DATE_VIEW_MODE" value="dateViewMode" />
+    <option label="ENUM_SCR_ATR_DEFAULT_VALUE" value="defaultValue" />
+    <option label="ENUM_SCR_ATR_DESTINATION" value="destination" />
+    <option label="ENUM_SCR_ATR_EXPAND" value="expand" />
+    <option label="ENUM_SCR_ATR_GROUP" value="group" />
+    <option label="ENUM_SCR_ATR_HELP" value="help" />
+    <option label="ENUM_SCR_ATR_HELP_IMAGE" value="helpImage" />
+    <option label="ENUM_SCR_ATR_LOAD_ALL" value="loadAll" />
+    <option label="ENUM_SCR_ATR_PLACEHOLDER" value="placeholder" />
+    <option label="ENUM_SCR_ATR_PROPERTY" value="property" />
+    <option label="ENUM_SCR_ATR_RENDERER" value="renderer" />
+    <option label="ENUM_SCR_ATR_ROWS" value="rows" />
+    <option label="ENUM_SCR_ATR_SEND_ALL" value="sendAll" />
+    <option label="ENUM_SCR_ATR_SHOW_FUTURE_DATES" value="showFutureDates" />
+    <option label="ENUM_SCR_ATR_SHOW_SLIDER" value="showSlider" />
+    <option label="ENUM_SCR_ATR_SHOW_TODAY_BUTTON" value="showTodayButton" />
+    <option label="ENUM_SCR_ATR_SHOW_WEEKENDS" value="showWeekends" />
+    <option label="ENUM_SCR_ATR_SORT_METHOD" value="sortMethod" />
+    <option label="ENUM_SCR_ATR_TITLE" value="title" />
+    <option label="ENUM_SCR_ATR_TOTAL_COLUMN_PLACEMENT" value="totalColumnPlacement" />
+    <option label="ENUM_SCR_ATR_TOTAL_ROW_PLACEMENT" value="totalRowPlacement" />
+    <option label="ENUM_SCR_ATR_TREE_ID" value="treeId" />
+    <option label="ENUM_SCR_ATR_TREE_LEAF" value="treeLeaf" />
+    <option label="ENUM_SCR_ATR_TREE_PARENT" value="treeParent" />
+    <option label="ENUM_SCR_ATR_TYPE" value="type" />
   </group>
   <group id="StlTyp">
     <option value="TitStl" label="ENUM_TIT_STL" />
@@ -275,21 +345,101 @@
     <option label="ENUM_NO" value="0"/>
     <option label="ENUM_YES" value="1"/>
   </group>
+  <!-- State of a user account (UsrLst StaCod): label and tone of the users screen -->
+  <group id="user-state-label">
+    <option label="ENUM_USER_STATE_ACTIVE" value="active"/>
+    <option label="ENUM_USER_STATE_INACTIVE" value="inactive"/>
+    <option label="ENUM_USER_STATE_LOCKED" value="locked"/>
+  </group>
+  <group id="user-state-tone">
+    <option label="success" value="active"/>
+    <option label="neutral" value="inactive"/>
+    <option label="danger" value="locked"/>
+  </group>
+  <!-- Two-factor of a user account (UsrLst 2faCod): text of the users screen -->
+  <group id="user-2fa-label">
+    <option label="ENUM_USER_2FA_ON" value="on"/>
+    <option label="ENUM_USER_2FA_OFF" value="off"/>
+  </group>
+  <!-- Two-factor tag of the side panel header of the users screen (UsrLst 2faHdrCod): only when it is on -->
+  <group id="user-2fa-header">
+    <option label="ENUM_USER_2FA_HEADER_ON" value="on"/>
+  </group>
+  <!-- State of a record that is only active or inactive (ProLst, ThmLst, DbsLst StaCod): label and tone of the profiles, themes and databases screens -->
+  <group id="active-state-label">
+    <option label="ENUM_STATE_ACTIVE" value="active"/>
+    <option label="ENUM_STATE_INACTIVE" value="inactive"/>
+  </group>
+  <group id="active-state-tone">
+    <option label="success" value="active"/>
+    <option label="neutral" value="inactive"/>
+  </group>
+  <!-- Tone of the avatar of a user (user-admin), a profile (profile-admin), a theme (theme-admin) or a database connection (database-admin), by its identifier modulo 6 (UsrLst, ProLst, ThmLst, DbsLst) -->
+  <group id="user-avatar-tone">
+    <option label="primary" value="0"/>
+    <option label="info" value="1"/>
+    <option label="success" value="2"/>
+    <option label="warning" value="3"/>
+    <option label="danger" value="4"/>
+    <option label="neutral" value="5"/>
+  </group>
+  <!-- Authentication of a mail server (AweEmlSrv.Ath): 0 none, 1 user and password, 2 OAuth2 -->
   <group id="authenticated-icon">
     <option label="fa-unlock" value="0"/>
     <option label="fa-lock" value="1"/>
+    <option label="fa-key" value="2"/>
   </group>
   <group id="authenticated-style">
     <option label="text-light-gray" value="0"/>
     <option label="text-info" value="1"/>
+    <option label="text-info" value="2"/>
   </group>
   <group id="authenticated-label">
-    <option label="ENUM_NO" value="0"/>
-    <option label="ENUM_YES" value="1"/>
+    <option label="ENUM_EML_SRV_ATH_NONE" value="0"/>
+    <option label="ENUM_EML_SRV_ATH_BASIC" value="1"/>
+    <option label="ENUM_EML_SRV_ATH_OAUTH2" value="2"/>
+  </group>
+  <!-- Authentication of a mail server (EmlSrvLst AthTon): tone of its tag in the mail servers screen (email-server-admin) -->
+  <group id="authenticated-tone">
+    <option label="neutral" value="0"/>
+    <option label="info" value="1"/>
+    <option label="info" value="2"/>
+  </group>
+  <!-- Authentication type of a mail server (AweEmlSrv.Ath): select of the mail server screens -->
+  <group id="EnuEmlSrvAth">
+    <option label="ENUM_EML_SRV_ATH_NONE" value="0"/>
+    <option label="ENUM_EML_SRV_ATH_BASIC" value="1"/>
+    <option label="ENUM_EML_SRV_ATH_OAUTH2" value="2"/>
+  </group>
+  <!-- Security mode of a mail server (AweEmlSrv.SecMod): select of the mail server screens and its text in the grid
+       (EmlSrvLst SecTxt, a server without security mode is NONE) -->
+  <group id="EnuEmlSrvSecMod">
+    <option label="ENUM_EML_SRV_SEC_NONE" value="NONE"/>
+    <option label="ENUM_EML_SRV_SEC_STARTTLS" value="STARTTLS"/>
+    <option label="ENUM_EML_SRV_SEC_SSL" value="SSL"/>
   </group>
   <group id="user-settings">
     <option label="PROFILE" value="profile"/>
     <option label="SECURITY" value="security"/>
+  </group>
+
+  <!-- Tabs of the side panel of the modules screen (module-admin) -->
+  <group id="module-admin-tabs">
+    <option label="SCREEN_TEXT_MODULE_TAB_GENERAL" value="general"/>
+    <option label="SCREEN_TEXT_MODULE_TAB_ACCESS" value="access"/>
+    <option label="SCREEN_TEXT_MODULE_TAB_SITES" value="sites"/>
+  </group>
+
+  <!-- Access window (access-admin): its views of the subject, as tabs -->
+  <group id="access-views">
+    <option label="SCREEN_TEXT_ACCESS_TAB_MENU" value="menu"/>
+    <option label="SCREEN_TEXT_ACCESS_TAB_PERMISSIONS" value="permissions"/>
+  </group>
+
+  <!-- Access window (access-admin): subject of the window, the button group of the React engine -->
+  <group id="access-subject-types">
+    <option label="PARAMETER_PROFILE" value="profile"/>
+    <option label="PARAMETER_USER" value="user"/>
   </group>
 
   <group id="IsRestricted">
@@ -309,5 +459,118 @@
     <option label="ENUM_ERROR_TYPOLOGY_FILE_RESOURCE" value="FILE_RESOURCE" />
     <option label="ENUM_ERROR_TYPOLOGY_CONFIGURATION" value="CONFIGURATION" />
     <option label="ENUM_ERROR_TYPOLOGY_UNKNOWN" value="UNKNOWN" />
+  </group>
+
+  <!-- Security audit -->
+  <group id="SecAudEvtTyp">
+    <option label="ENUM_SECURITY_AUDIT_LOGIN" value="LOGIN"/>
+    <option label="ENUM_SECURITY_AUDIT_LOGOUT" value="LOGOUT"/>
+    <option label="ENUM_SECURITY_AUDIT_ACCOUNT_LOCKED" value="ACCOUNT_LOCKED"/>
+    <option label="ENUM_SECURITY_AUDIT_ACCOUNT_UNLOCKED" value="ACCOUNT_UNLOCKED"/>
+    <option label="ENUM_SECURITY_AUDIT_PASSWORD_CHANGE" value="PASSWORD_CHANGE"/>
+    <option label="ENUM_SECURITY_AUDIT_PASSWORD_RESET" value="PASSWORD_RESET"/>
+    <option label="ENUM_SECURITY_AUDIT_TOTP_ENROLLMENT" value="TOTP_ENROLLMENT"/>
+    <option label="ENUM_SECURITY_AUDIT_TOTP_VERIFICATION" value="TOTP_VERIFICATION"/>
+    <option label="ENUM_SECURITY_AUDIT_TOTP_RESET" value="TOTP_RESET"/>
+    <option label="ENUM_SECURITY_AUDIT_SSO_PROVISIONING" value="SSO_PROVISIONING"/>
+    <option label="ENUM_SECURITY_AUDIT_SSO_PROFILE_SYNC" value="SSO_PROFILE_SYNC"/>
+    <option label="ENUM_SECURITY_AUDIT_ACCESS_DENIED" value="ACCESS_DENIED"/>
+    <option label="ENUM_SECURITY_AUDIT_TOKEN_ISSUED" value="TOKEN_ISSUED"/>
+    <option label="ENUM_SECURITY_AUDIT_TOKEN_REJECTED" value="TOKEN_REJECTED"/>
+  </group>
+  <group id="SecAudEvtIco">
+    <option label="fa-sign-in" value="LOGIN"/>
+    <option label="fa-sign-out" value="LOGOUT"/>
+    <option label="fa-lock" value="ACCOUNT_LOCKED"/>
+    <option label="fa-unlock" value="ACCOUNT_UNLOCKED"/>
+    <option label="fa-key" value="PASSWORD_CHANGE"/>
+    <option label="fa-refresh" value="PASSWORD_RESET"/>
+    <option label="fa-mobile" value="TOTP_ENROLLMENT"/>
+    <option label="fa-shield" value="TOTP_VERIFICATION"/>
+    <option label="fa-eraser" value="TOTP_RESET"/>
+    <option label="fa-user-plus" value="SSO_PROVISIONING"/>
+    <option label="fa-exchange" value="SSO_PROFILE_SYNC"/>
+    <option label="fa-ban" value="ACCESS_DENIED"/>
+    <option label="fa-ticket" value="TOKEN_ISSUED"/>
+    <option label="fa-ticket" value="TOKEN_REJECTED"/>
+  </group>
+  <group id="SecAudEvtSty">
+    <option label="text-primary" value="LOGIN"/>
+    <option label="text-muted" value="LOGOUT"/>
+    <option label="text-danger" value="ACCOUNT_LOCKED"/>
+    <option label="text-success" value="ACCOUNT_UNLOCKED"/>
+    <option label="text-warning" value="PASSWORD_CHANGE"/>
+    <option label="text-warning" value="PASSWORD_RESET"/>
+    <option label="text-info" value="TOTP_ENROLLMENT"/>
+    <option label="text-info" value="TOTP_VERIFICATION"/>
+    <option label="text-warning" value="TOTP_RESET"/>
+    <option label="text-primary" value="SSO_PROVISIONING"/>
+    <option label="text-primary" value="SSO_PROFILE_SYNC"/>
+    <option label="text-danger" value="ACCESS_DENIED"/>
+    <option label="text-info" value="TOKEN_ISSUED"/>
+    <option label="text-danger" value="TOKEN_REJECTED"/>
+  </group>
+  <group id="SecAudRes">
+    <option label="ENUM_SECURITY_AUDIT_SUCCESS" value="SUCCESS"/>
+    <option label="ENUM_SECURITY_AUDIT_FAILURE" value="FAILURE"/>
+  </group>
+  <group id="SecAudResIco">
+    <option label="fa-check-circle" value="SUCCESS"/>
+    <option label="fa-times-circle" value="FAILURE"/>
+  </group>
+  <group id="SecAudResSty">
+    <option label="text-success" value="SUCCESS"/>
+    <option label="text-danger" value="FAILURE"/>
+  </group>
+  <group id="SecAudChn">
+    <option label="ENUM_SECURITY_AUDIT_CHANNEL_WEB" value="WEB"/>
+    <option label="ENUM_SECURITY_AUDIT_CHANNEL_SSO" value="SSO"/>
+    <option label="ENUM_SECURITY_AUDIT_CHANNEL_REST" value="REST"/>
+    <option label="ENUM_SECURITY_AUDIT_CHANNEL_SYSTEM" value="SYSTEM"/>
+  </group>
+  <group id="SecAudCau">
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_BAD_CREDENTIALS" value="BAD_CREDENTIALS"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_LOCKED" value="LOCKED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_DISABLED" value="DISABLED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_ACCOUNT_EXPIRED" value="ACCOUNT_EXPIRED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_CREDENTIALS_EXPIRED" value="CREDENTIALS_EXPIRED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_LOCAL_LOGIN_DISABLED" value="LOCAL_LOGIN_DISABLED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_ROLE_NOT_MAPPED" value="ROLE_NOT_MAPPED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER_ERROR" value="PROVIDER_ERROR"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_MAX_ATTEMPTS" value="MAX_ATTEMPTS"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_ADMINISTRATOR" value="ADMINISTRATOR"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_EXPLICIT" value="EXPLICIT"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_PROVIDER" value="PROVIDER"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_EXPIRED" value="EXPIRED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_INVALID_CODE" value="INVALID_CODE"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_INVALID_TOKEN" value="INVALID_TOKEN"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_TOKEN_EXPIRED" value="TOKEN_EXPIRED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_RESTRICTED" value="RESTRICTED"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_PERMISSION" value="PERMISSION"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_FORBIDDEN" value="FORBIDDEN"/>
+    <option label="ENUM_SECURITY_AUDIT_CAUSE_ERROR" value="ERROR"/>
+  </group>
+
+  <!-- Tabs of the security audit screen: the events and the statistics -->
+  <!-- Time range picker of the security audit screen: the presets and the custom range -->
+  <group id="SecAudRng">
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_15M" value="15m"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_1H" value="1h"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_6H" value="6h"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_24H" value="24h"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_7D" value="7d"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_LAST_30D" value="30d"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_CUSTOM_RANGE" value="cst"/>
+  </group>
+
+  <!-- Tone of an outcome of the security audit: the status tag of the result and the avatar of the event -->
+  <group id="SecAudResTon">
+    <option label="success" value="SUCCESS"/>
+    <option label="danger" value="FAILURE"/>
+  </group>
+
+  <group id="SecAudTabs">
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_EVENTS" value="TabSecAudEvt"/>
+    <option label="SCREEN_TEXT_SECURITY_AUDIT_CHARTS" value="TabSecAudSta"/>
   </group>
 </enumerated>

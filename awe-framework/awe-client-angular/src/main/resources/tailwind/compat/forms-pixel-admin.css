@@ -1,0 +1,229 @@
+/*
+ * Forms, pixel-admin and AWE overrides (legacy/pixel-admin/forms.less) of the Bootstrap rules in forms.css. The vendored
+ * build compiles them after the buttons, so this file is imported after buttons.css and button-groups.css: where a button rule and a form
+ * rule compete at the same specificity (.btn-primary and .form-control on border-top-color), the vendored cascade has the form rule last.
+ * Same conventions as forms.css: compiled values read as the --awe-* tokens LESS compiles them to since #885, no !important.
+ */
+
+.form-inline .form-control {
+  margin-bottom: var(--awe-space-3);
+}
+
+.form-inline .checkbox label,
+.form-inline .radio label {
+  margin-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .form-inline .form-control {
+    margin-bottom: 0;
+  }
+}
+
+.form-horizontal .checkbox,
+.form-horizontal .radio {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.form-horizontal .control-label {
+  padding-top: 0;
+  margin-bottom: var(--awe-space-1-5);
+}
+
+@media (min-width: 768px) {
+  .form-horizontal .control-label {
+    margin-bottom: 0;
+    padding-top: var(--awe-space-2);
+  }
+}
+
+.form-control {
+  border-top-color: var(--awe-color-border);
+  box-shadow: none;
+}
+
+.help-block {
+  margin-bottom: 0;
+}
+
+.form-group:before,
+.form-group:after {
+  content: " ";
+  display: table;
+}
+
+.form-group:after {
+  clear: both;
+}
+
+.form-group.has-error .checkbox .help-block,
+.form-group.has-error .radio .help-block,
+.form-group.has-error .checkbox + .help-block,
+.form-group.has-error .radio + .help-block {
+  position: relative;
+  top: var(--awe-space-1-5);
+}
+
+.form-group.has-error .checkbox .help-block:before,
+.form-group.has-error .radio .help-block:before,
+.form-group.has-error .checkbox + .help-block:before,
+.form-group.has-error .radio + .help-block:before,
+.form-group.has-error .checkbox .help-block:after,
+.form-group.has-error .radio .help-block:after,
+.form-group.has-error .checkbox + .help-block:after,
+.form-group.has-error .radio + .help-block:after {
+  display: none;
+}
+
+.checkbox label,
+.radio label {
+  display: block;
+  margin-bottom: 0;
+}
+
+.checkbox label:before,
+.radio label:before,
+.checkbox label:after,
+.radio label:after {
+  content: " ";
+  display: table;
+}
+
+.checkbox label:after,
+.radio label:after {
+  clear: both;
+}
+
+.form-control-feedback {
+  font-size: var(--awe-font-size-base);
+}
+
+.has-feedback .form-control {
+  padding-right: var(--awe-space-8);
+}
+
+.checkbox,
+.radio {
+  margin-top: 0;
+}
+
+.has-warning .help-block,
+.has-error .help-block,
+.has-success .help-block {
+  display: block;
+  border: var(--awe-border-width) solid;
+  padding: var(--awe-space-1-5) var(--awe-space-3);
+  border-radius: var(--awe-radius-xs);
+  margin-top: var(--awe-space-0-5);
+  position: relative;
+}
+
+.has-warning .help-block:before,
+.has-error .help-block:before,
+.has-success .help-block:before,
+.has-warning .help-block:after,
+.has-error .help-block:after,
+.has-success .help-block:after {
+  content: "";
+  position: absolute;
+  border-left: var(--awe-space-1-5) solid transparent;
+  border-right: var(--awe-space-1-5) solid transparent;
+}
+
+.has-warning .help-block:before,
+.has-error .help-block:before,
+.has-success .help-block:before {
+  border-bottom: solid;
+  border-width: var(--awe-space-2);
+  left: var(--awe-space-4);
+  top: calc(var(--awe-space-2) * -1);
+}
+
+.has-warning .help-block:after,
+.has-error .help-block:after,
+.has-success .help-block:after {
+  border-bottom: var(--awe-space-1-5) solid;
+  left: var(--awe-space-4);
+  top: calc(var(--awe-space-1-5) * -1);
+}
+
+.has-feedback:not(.form-group) {
+  position: relative;
+}
+
+.has-feedback:not(.form-group) .form-control-feedback {
+  top: 0;
+}
+
+.has-warning .help-block {
+  background: var(--awe-color-warning-subtle);
+  border-color: var(--awe-color-warning-border);
+  color: var(--awe-color-warning-text);
+  background-size: var(--awe-space-5) var(--awe-space-5);
+}
+
+.has-warning .help-block:before {
+  border-bottom-color: var(--awe-color-warning-border);
+}
+
+.has-warning .help-block:after {
+  border-bottom-color: var(--awe-color-warning-subtle);
+}
+
+.has-warning .form-control {
+  border-color: var(--awe-color-warning-border);
+  box-shadow: none;
+}
+
+.has-warning .form-control-feedback {
+  color: var(--awe-color-warning-border);
+}
+
+.has-error .help-block {
+  background: var(--awe-color-danger-subtle);
+  border-color: var(--awe-color-danger-border);
+  color: var(--awe-color-danger-text);
+  background-size: var(--awe-space-5) var(--awe-space-5);
+}
+
+.has-error .help-block:before {
+  border-bottom-color: var(--awe-color-danger-border);
+}
+
+.has-error .help-block:after {
+  border-bottom-color: var(--awe-color-danger-subtle);
+}
+
+.has-error .form-control {
+  border-color: var(--awe-color-danger-border);
+  box-shadow: none;
+}
+
+.has-error .form-control-feedback {
+  color: var(--awe-color-danger-border);
+}
+
+.has-success .help-block {
+  background: var(--awe-color-success-subtle);
+  border-color: var(--awe-color-success-border);
+  color: var(--awe-color-success-text);
+  background-size: var(--awe-space-5) var(--awe-space-5);
+}
+
+.has-success .help-block:before {
+  border-bottom-color: var(--awe-color-success-border);
+}
+
+.has-success .help-block:after {
+  border-bottom-color: var(--awe-color-success-subtle);
+}
+
+.has-success .form-control {
+  border-color: var(--awe-color-success-border);
+  box-shadow: none;
+}
+
+.has-success .form-control-feedback {
+  color: var(--awe-color-success-border);
+}

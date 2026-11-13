@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Verifies the open widget mechanism: a custom React widget (FullCalendar)
+  embedded through <widget type="event-calendar">. The "type" is a free string
+  resolved on the client against the widget registry (registerWidget), so no
+  schema enumeration or core change is required.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="MENU_TEST_EVENT_CALENDAR">
+    <tag source="center" type="div" expandible="vertical" style="expand">
+        <widget type="event-calendar" id="eventCalendar" style="expand"/>
+    </tag>
+</screen>

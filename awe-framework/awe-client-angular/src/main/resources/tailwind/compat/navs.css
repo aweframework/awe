@@ -1,0 +1,357 @@
+/*
+ * Navs: Bootstrap 3 navs.less, the pixel-admin rules on the same selectors and the AWE rules on the same class names, as the compiled vendored
+ * CSS renders them: nav (+ the clearfix, the links, the disabled and open states, the divider), nav-tabs, nav-pills, nav-stacked, nav-justified,
+ * nav-tabs-justified, the tab content and the tab panes, and the dropdown inside a tab.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values. Themed values read the --awe-* tokens, as LESS compiles them (#885). The only !important are the
+ * border widths of the stacked tabs, as pixel-admin writes them (no themed navbar link sets an !important border width any more).
+ *
+ * Not here (they stay in LESS; compatNavs.test.js names every one of them with example selectors): `.nav-tabs.nav-justified > li > a`, whose
+ * !important borders could meet the !important borders of the pagination (the cascade guard cannot prove they never nest), the navs of the navbar,
+ * the badges, labels and icons inside a tab, the tabs inside a panel heading, the AWE avatar menu entry and tab container, and the selectors
+ * that depend on a theme class or an element id.
+ */
+
+.nav {
+  margin-bottom: 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.nav:before,
+.nav:after {
+  content: " ";
+  display: table;
+}
+
+.nav:after {
+  clear: both;
+}
+
+.nav > li {
+  position: relative;
+  display: block;
+}
+
+.nav > li > a {
+  position: relative;
+  display: block;
+  padding: var(--awe-space-3) var(--awe-space-4);
+}
+
+.nav > li > a:hover,
+.nav > li > a:focus {
+  text-decoration: none;
+  background-color: color-mix(in srgb, var(--awe-color-text), var(--awe-color-background) 93.5%);
+}
+
+.nav > li.disabled > a {
+  color: color-mix(in srgb, var(--awe-color-text), var(--awe-color-background) 46.7%);
+}
+
+.nav > li.disabled > a:hover,
+.nav > li.disabled > a:focus {
+  color: color-mix(in srgb, var(--awe-color-text), var(--awe-color-background) 46.7%);
+  text-decoration: none;
+  background-color: transparent;
+  cursor: not-allowed;
+}
+
+.nav .open > a,
+.nav .open > a:hover,
+.nav .open > a:focus {
+  background-color: color-mix(in srgb, var(--awe-color-text), var(--awe-color-background) 93.5%);
+  border-color: var(--awe-color-primary);
+}
+
+.nav .nav-divider {
+  height: var(--awe-space-0-5);
+  margin: var(--awe-space-2) 0;
+  overflow: hidden;
+  background-color: var(--awe-color-border);
+}
+
+.nav > li > a > img {
+  max-width: none;
+}
+
+.nav-tabs {
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+.nav-tabs > li {
+  float: left;
+  margin-bottom: calc(var(--awe-space-0-5) * -1);
+}
+
+.nav-tabs > li > a {
+  margin-right: var(--awe-space-0-5);
+  line-height: 1.42857143;
+  border: var(--awe-border-width) solid transparent;
+  border-radius: var(--awe-radius) var(--awe-radius) 0 0;
+}
+
+.nav-tabs > li > a:hover {
+  border-color: color-mix(in srgb, var(--awe-color-text), var(--awe-color-background) 93.5%) color-mix(in srgb, var(--awe-color-text), var(--awe-color-background) 93.5%) var(--awe-color-border);
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover,
+.nav-tabs > li.active > a:focus {
+  color: var(--awe-color-primary);
+  background-color: var(--awe-color-primary);
+  border: var(--awe-border-width) solid var(--awe-color-primary);
+  border-bottom-color: transparent;
+  cursor: default;
+}
+
+.nav-tabs.nav-justified {
+  width: 100%;
+  border-bottom: 0;
+}
+
+.nav-tabs.nav-justified > li {
+  float: none;
+}
+
+.nav-tabs.nav-justified > .dropdown .dropdown-menu {
+  top: auto;
+  left: auto;
+}
+
+@media (min-width: 768px) {
+  .nav-tabs.nav-justified > li {
+    display: table-cell;
+    width: 1%;
+  }
+}
+
+.nav-tabs.nav-justified > .active > a,
+.nav-tabs.nav-justified > .active > a:hover,
+.nav-tabs.nav-justified > .active > a:focus {
+  border: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+@media (min-width: 768px) {
+  .nav-tabs.nav-justified > .active > a,
+  .nav-tabs.nav-justified > .active > a:hover,
+  .nav-tabs.nav-justified > .active > a:focus {
+    border-bottom-color: var(--awe-color-background);
+  }
+}
+
+.nav-pills > li {
+  float: left;
+}
+
+.nav-pills > li > a {
+  border-radius: var(--awe-radius);
+}
+
+.nav-pills > li + li {
+  margin-left: var(--awe-space-0-5);
+}
+
+.nav-pills > li.active > a,
+.nav-pills > li.active > a:hover,
+.nav-pills > li.active > a:focus {
+  color: color-mix(in srgb, var(--awe-color-text), var(--awe-color-background) 10%);
+  background-color: var(--awe-color-primary);
+}
+
+.nav-stacked > li {
+  float: none;
+}
+
+.nav-stacked > li + li {
+  margin-top: var(--awe-space-0-5);
+  margin-left: 0;
+}
+
+.nav-justified {
+  width: 100%;
+}
+
+.nav-justified > li {
+  float: none;
+}
+
+.nav-justified > li > a {
+  text-align: center;
+  margin-bottom: var(--awe-space-1-5);
+}
+
+.nav-justified > .dropdown .dropdown-menu {
+  top: auto;
+  left: auto;
+}
+
+@media (min-width: 768px) {
+  .nav-justified > li {
+    display: table-cell;
+    width: 1%;
+  }
+  .nav-justified > li > a {
+    margin-bottom: 0;
+  }
+}
+
+.nav-tabs-justified {
+  border-bottom: 0;
+}
+
+.nav-tabs-justified > li > a {
+  margin-right: 0;
+  border-radius: var(--awe-radius);
+}
+
+.nav-tabs-justified > .active > a,
+.nav-tabs-justified > .active > a:hover,
+.nav-tabs-justified > .active > a:focus {
+  border: var(--awe-border-width) solid var(--awe-color-border);
+}
+
+@media (min-width: 768px) {
+  .nav-tabs-justified > li > a {
+    border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+    border-radius: var(--awe-radius) var(--awe-radius) 0 0;
+  }
+  .nav-tabs-justified > .active > a,
+  .nav-tabs-justified > .active > a:hover,
+  .nav-tabs-justified > .active > a:focus {
+    border-bottom-color: var(--awe-color-background);
+  }
+}
+
+.tab-content > .tab-pane {
+  display: none;
+  visibility: hidden;
+}
+
+.tab-content > .active {
+  display: block;
+  visibility: visible;
+}
+
+.nav-tabs .dropdown-menu {
+  margin-top: calc(var(--awe-space-0-5) * -1);
+  border-top-right-radius: 0;
+  border-top-left-radius: 0;
+}
+
+.nav-tabs,
+.nav-pills {
+  position: relative;
+}
+
+.nav-pills.nav-justified > li > a {
+  margin: 0;
+}
+
+.nav-tabs {
+  border-bottom: var(--awe-border-width-strong) solid var(--awe-color-grid-border);
+}
+
+.nav-tabs > li > a {
+  background-color: color-mix(in srgb, var(--awe-color-secondary), var(--awe-color-panel) 50%);
+  border: 0;
+  border-bottom: var(--awe-border-width-strong) solid var(--awe-color-grid-border);
+  color: var(--awe-color-text);
+  margin: 0 var(--awe-space-1-5) calc(var(--awe-space-0-5) * -1) 0;
+  padding: var(--awe-space-2) var(--awe-space-5);
+}
+
+.nav-tabs > li > a:hover {
+  background-color: var(--awe-color-secondary);
+  border-bottom-color: var(--awe-color-primary);
+}
+
+.nav-tabs > li > a:active {
+  background-color: var(--awe-color-primary);
+  color: var(--awe-color-on-primary);
+  border-bottom-color: var(--awe-color-primary);
+}
+
+.nav-tabs > li.dropdown.open > a:focus {
+  border-bottom: var(--awe-border-width-strong) solid var(--awe-color-grid-border);
+}
+
+.nav-tabs li.active > a,
+.nav-tabs li.active > a:hover,
+.nav-tabs li.active > a:focus {
+  border: none;
+  color: var(--awe-color-on-primary);
+}
+
+.nav-tabs.nav-stacked > li > a {
+  margin: 0;
+  border-bottom-width: var(--awe-border-width) !important;
+}
+
+.nav-tabs.nav-stacked > li:last-child > a {
+  border-bottom-width: 0 !important;
+}
+
+.nav-tabs.nav-stacked > li:last-child.active > a {
+  border-bottom-width: var(--awe-border-width-strong) !important;
+  margin-bottom: calc(var(--awe-space-1) * -1);
+}
+
+.nav-tabs.nav-stacked > li:not(:first-child):not(:last-child) > a {
+  border-radius: 0;
+}
+
+.tab-content {
+  padding: var(--awe-space-4) 0;
+}
+
+.nav-pills > li > a {
+  color: var(--awe-color-text-muted);
+  background-color: color-mix(in srgb, var(--awe-color-text) 5%, transparent);
+  border-radius: var(--awe-radius);
+  padding: var(--awe-space-2) var(--awe-space-5);
+}
+
+.nav-pills > li > a:hover {
+  background-color: color-mix(in srgb, var(--awe-color-text) 6%, transparent);
+  color: var(--awe-color-text);
+}
+
+.nav-pills > li {
+  margin-left: 0;
+  margin-right: var(--awe-space-1-5);
+}
+
+.nav-pills > li + li {
+  margin-left: 0;
+}
+
+.nav-pills.nav-stacked > li {
+  margin: 0 0 var(--awe-space-1) 0;
+}
+
+.nav .dropdown > .dropdown-toggle .nav-icon {
+  font-size: var(--awe-font-size-xs);
+  display: inline-block;
+  margin-right: var(--awe-space-2);
+  vertical-align: baseline;
+}
+
+.nav-tabs,
+.nav-pills {
+  position: relative;
+}
+
+@media (min-width: 768px) {
+  .nav .dropdown > .dropdown-toggle .nav-icon {
+    margin-right: 0;
+  }
+}
+
+.tab-content {
+  padding: 0;
+}
+
+.tab-content > .active {
+  display: flex;
+}

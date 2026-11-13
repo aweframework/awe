@@ -12,6 +12,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * DependencyElement Class
  *
@@ -31,6 +33,7 @@ import lombok.experimental.SuperBuilder;
 @JsonIgnoreProperties({"visible", "dependencies", "contextMenu", "iconLoading"})
 public class DependencyElement extends Element {
 
+  @Serial
   private static final long serialVersionUID = 8299981147831992476L;
 
   // Dependency condition

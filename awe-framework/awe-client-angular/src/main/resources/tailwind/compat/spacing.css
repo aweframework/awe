@@ -1,0 +1,235 @@
+/*
+ * pixel-admin utility classes (utils.less) for spacing, borders, vertical alignment and type, plus the AWE height and
+ * side-padding helpers (less/awe), written on Tailwind with @apply where it emits the same declarations (the spacing
+ * unit is 5px), raw declarations where it does not (shorthands, `border-width`, `background`, selectors with descendants).
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values. The pixel-admin colors keep their literal hex (they are not --awe-* tokens).
+ * !important stays where the vendored rule has it: for !important the layer order inverts, so these layered rules beat
+ * an unlayered !important one whatever its specificity. See compatSpacing.test.js, which pins that no element mixes them.
+ *
+ * Not here: panel-padding* (panels.css, imported before this file) and the contextual text colors text-success|danger|warning|info (feedback slice).
+ */
+
+/* Padding */
+.no-padding {
+  @apply tw:p-0!;
+}
+
+.no-padding-hr {
+  @apply tw:pl-0! tw:pr-0!;
+}
+
+.no-padding-vr {
+  @apply tw:pt-0! tw:pb-0!;
+}
+
+.no-padding-t {
+  @apply tw:pt-0!;
+}
+
+.no-padding-b {
+  @apply tw:pb-0!;
+}
+
+.no-padding-left {
+  @apply tw:pl-0!;
+}
+
+.no-padding-right {
+  @apply tw:pr-0!;
+}
+
+.padding-sm {
+  padding: var(--awe-space-3) var(--awe-space-4) !important;
+}
+
+.padding-sm-hr {
+  @apply tw:pl-3! tw:pr-3!;
+}
+
+.padding-sm-vr {
+  @apply tw:pt-3! tw:pb-3!;
+}
+
+.padding-xs-hr {
+  @apply tw:pl-2! tw:pr-2!;
+}
+
+.padding-xs-vr {
+  @apply tw:pt-2! tw:pb-2!;
+}
+
+/* Margin */
+.no-margin {
+  @apply tw:m-0!;
+}
+
+.no-margin-hr {
+  @apply tw:ml-0! tw:mr-0!;
+}
+
+.no-margin-vr {
+  @apply tw:mt-0! tw:mb-0!;
+}
+
+.no-margin-t {
+  @apply tw:mt-0!;
+}
+
+.no-margin-b {
+  @apply tw:mb-0!;
+}
+
+/* Borders and background: border-width is raw because tw:border-0 also sets border-style */
+.no-border {
+  border-width: 0 !important;
+}
+
+.no-border-hr {
+  border-left-width: 0 !important;
+  border-right-width: 0 !important;
+}
+
+.no-border-vr {
+  border-top-width: 0 !important;
+  border-bottom-width: 0 !important;
+}
+
+.no-border-t {
+  border-top-width: 0 !important;
+}
+
+.no-border-b {
+  border-bottom-width: 0 !important;
+}
+
+/* pixel-admin keeps the sides that point at the text start/end out of right-to-left screens */
+body:not(.right-to-left) .no-border-r {
+  border-right-width: 0 !important;
+}
+
+body:not(.right-to-left) .no-border-l {
+  border-left-width: 0 !important;
+}
+
+.no-border-radius {
+  @apply tw:rounded-none!;
+}
+
+.no-bg {
+  background: none !important;
+}
+
+/* Vertical alignment (table cells inherit it) */
+.valign-top,
+.valign-top td,
+.valign-top th {
+  @apply tw:align-top!;
+}
+
+.valign-middle,
+.valign-middle td,
+.valign-middle th {
+  @apply tw:align-middle!;
+}
+
+.valign-bottom,
+.valign-bottom td,
+.valign-bottom th {
+  @apply tw:align-bottom!;
+}
+
+/* Minimum heights (AWE) */
+.height-sm {
+  @apply tw:min-h-30!;
+}
+
+.height-md {
+  @apply tw:min-h-50!;
+}
+
+.height-lg {
+  @apply tw:min-h-70!;
+}
+
+.height-200 {
+  @apply tw:min-h-40!;
+}
+
+/* Type: sizes (no !important), weights (!important), decoration */
+.text-xxs {
+  font-size: var(--awe-font-size-xs);
+}
+
+.text-xs {
+  font-size: var(--awe-font-size-xs);
+}
+
+.text-sm {
+  font-size: var(--awe-font-size-sm);
+}
+
+.text-bg {
+  font-size: var(--awe-font-size-lg);
+}
+
+.text-lg {
+  font-size: var(--awe-font-size-2xl);
+}
+
+.text-xlg {
+  font-size: var(--awe-font-size-3xl);
+}
+
+.text-slg {
+  font-size: calc(var(--awe-font-size-3xl) * 1.7);
+}
+
+.text-slim {
+  font-weight: 300 !important;
+}
+
+.text-normal {
+  @apply tw:font-normal!;
+}
+
+.text-semibold {
+  font-weight: 600 !important;
+}
+
+.text-bold {
+  @apply tw:font-bold!;
+}
+
+.text-underline {
+  text-decoration: underline;
+}
+
+/* Colors: the link inside keeps the color and darkens towards the primary background on hover, as in pixel-admin */
+.text-default,
+.text-default:hover,
+.text-default:active,
+.text-default:focus,
+.text-default a,
+.text-default a:focus {
+  color: var(--awe-color-text-muted);
+}
+
+.text-default a:hover,
+.text-default a:active {
+  color: color-mix(in srgb, var(--awe-color-text-muted), var(--awe-color-background) 85%);
+}
+
+.text-light-gray,
+.text-light-gray:hover,
+.text-light-gray:active,
+.text-light-gray:focus,
+.text-light-gray a,
+.text-light-gray a:focus {
+  color: var(--awe-color-border);
+}
+
+.text-light-gray a:hover,
+.text-light-gray a:active {
+  color: color-mix(in srgb, var(--awe-color-border), var(--awe-color-background) 85%);
+}

@@ -5,6 +5,8 @@
     Created on : 13 de Febrero de 2013
     Author     : Pablo VIDAL
     Description: Ventana de herramientas - Lista de Temas
+    DEPRECATED since AWE 5.0.0: replaced by the theme-admin screen (screen/themes/theme-admin.xml), which the
+    "themes" option of the default menu opens. This screen will be removed in the next minor release (5.1.0).
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_THM" help="HELP_SCREEN_TITLE_THM" keep-criteria="true">
   <tag source="hidden">
@@ -21,13 +23,6 @@
     <button label="BUTTON_VIEW" icon="eye" id="ButViw" help="HELP_VIEW_BUTTON">
       <button-action type="check-one-selected" target="GrdThmLst" />
       <button-action type="screen" target="view-theme" />
-      <dependency target-type="disable" initial="true">
-        <dependency-element id="GrdThmLst" condition="ne" value="1" />
-      </dependency>
-    </button>
-    <button label="BUTTON_CUSTOMIZE" icon="paint-brush" id="ButCus" help="HELP_CUSTOM_BUTTON">
-      <button-action type="check-one-selected" target="GrdThmLst" />
-      <button-action type="screen" target="customize-theme" />
       <dependency target-type="disable" initial="true">
         <dependency-element id="GrdThmLst" condition="ne" value="1" />
       </dependency>
@@ -82,6 +77,13 @@
         <column label="PARAMETER_THEME" name="Nam" sort-field="NamVal" align="center" charlength="20" />
         <column name="Act" sort-field="Act" hidden="true" />
         <column label="PARAMETER_ACTIVE" name="ActIco" sort-field="Act" align="center" component="icon" charlength="10" />
+        <column name="Pri" hidden="true" />
+        <column name="Srf" hidden="true" />
+        <column name="PriPal" hidden="true" />
+        <column name="PriHex" hidden="true" />
+        <column name="SrfPal" hidden="true" />
+        <column name="SrfHex" hidden="true" />
+        <column name="Mde" hidden="true" />
       </grid>
     </window>
   </tag>

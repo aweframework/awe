@@ -61,13 +61,13 @@ describe("Selector", function () {
         component.asSelect();
         break;
       case "selectMultiple":
-        component.asSelectMultiple();
+        component.asSelectMultiple(options.summary);
         break;
       case "suggest":
         component.asSuggest();
         break;
       case "suggestMultiple":
-        component.asSuggestMultiple();
+        component.asSuggestMultiple(options.initializable, options.summary);
         break;
       default:
         throw new Error(`Unknown selector mode: ${mode}`);
@@ -90,6 +90,30 @@ describe("Selector", function () {
     expect(emptyInitCallback).toHaveBeenCalledWith([]);
     expect(select.model.selected).toBeNull();
     expect(multi.component.getData()).toEqual({CrtMulti: ["A"]});
+  });
+
+  it.each([
+    ["a criteria select multiple", true, undefined, true],
+    ["a criteria select multiple with display chip", true, "chip", false],
+    ["a criteria select multiple with display summary", true, "summary", true],
+    ["a select multiple outside the criteria", undefined, undefined, false]
+  ])("asks for the one line summary only for %s", function (title, summary, display, expected) {
+    installSelectorSpies();
+    const multi = createSelector("selectMultiple", {summary, controller: {display}});
+
+    expect(!!multi.scope.aweSelectOptions.summary).toBe(expected);
+  });
+
+  it.each([
+    ["a criteria suggest multiple with display summary", true, "summary", true],
+    ["a criteria suggest multiple", true, undefined, false],
+    ["a criteria suggest multiple with display chip", true, "chip", false],
+    ["a suggest multiple outside the criteria with display summary", undefined, "summary", false]
+  ])("asks for the one line summary of %s only when display is summary (#845)", function (title, summary, display, expected) {
+    installSelectorSpies();
+    const multi = createSelector("suggestMultiple", {summary, controller: {display}});
+
+    expect(!!multi.scope.aweSelectOptions.summary).toBe(expected);
   });
 
   it("updates select state from plugin changes, listeners, and initialized fill/select calls", function () {
@@ -162,7 +186,28 @@ describe("Selector", function () {
     $rootScope.$broadcast("modelChanged", [suggest.component.address]);
 
     expect(suggest.controller.targetAction).toBe("checkTags");
-    expect(suggest.component.reload).toHaveBeenCalledTimes(1);
+    // The lookup launched when the suggest was created is still running: the start does not launch it again
+    expect($actionController.addActionList).toHaveBeenCalledTimes(1);
+    expect(suggest.component.reload).not.toHaveBeenCalled();
     expect(suggest.scope.initialized).toBe(false);
+  });
+
+  // A value set from outside (a dependency fills the suggest from the selected row of a grid) looks up its label in
+  // the background: once, and silent, so the buttons are not disabled nor the loading bar shown
+  it("looks up the label of a value set from outside once and silently", function () {
+    installSelectorSpies();
+    jest.spyOn($actionController, "addActionList").mockReturnValue("queued");
+    const suggest = createSelector("suggest", {id: "CrtThm", model: {values: [], selected: null, storedValues: []},
+      controller: {targetAction: "ThmSug", checkTarget: "ThmIni"}});
+    const lookup = {isAlive: () => true};
+    suggest.component.reload = jest.fn().mockName("reload").mockReturnValue(lookup);
+
+    // As Control.changeModelAttribute does: the api updates the model and then the model change is published
+    suggest.component.api.updateModelValues({selected: "7"});
+    $rootScope.$broadcast("modelChanged", {CrtThm: {selected: "7"}});
+
+    expect(suggest.component.reload).toHaveBeenCalledTimes(1);
+    expect(suggest.component.reload).toHaveBeenCalledWith(expect.objectContaining({silent: true}));
+    expect(suggest.controller.targetAction).toBe("ThmIni");
   });
 });

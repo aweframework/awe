@@ -5,6 +5,8 @@
     Created on : 13 de febrero de 2013
     Author     : Pablo VIDAL
     Description: Ventana de herramientas - Consulta de Tema
+    DEPRECATED since AWE 5.0.0: replaced by the theme-admin screen (screen/themes/theme-admin.xml), which the
+    "themes" option of the default menu opens. This screen will be removed in the next minor release (5.1.0).
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_THM_VIW" help="HELP_SCREEN_TITLE_THM_VIW">
   <tag source="buttons">
@@ -20,6 +22,20 @@
       <tag type="div" style="panel-body static">
         <criteria label="PARAMETER_THEME" id="Nam" component="text" variable="Nam" readonly="true" style="col-xs-12 col-sm-8 col-lg-3" />
         <criteria label="PARAMETER_ACTIVE" id="Act" component="select" initial-load="enum" target-action="Es1Es0" variable="Act" readonly="true" style="col-xs-12 col-sm-4 col-lg-2" />
+        <!-- Each colour is a palette of the select or, when it is custom, the hex of the colour picker -->
+        <criteria label="PARAMETER_THEME_PRIMARY" id="PriPal" component="select" initial-load="enum" target-action="ThmPri" variable="PriPal" readonly="true" style="col-xs-12 col-sm-6 col-lg-3" />
+        <criteria label="PARAMETER_THEME_PRIMARY_HEX" id="PriHex" component="color" variable="PriHex" readonly="true" style="col-xs-12 col-sm-6 col-lg-3">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="PriPal" condition="eq" value="custom" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_THEME_SURFACE" id="SrfPal" component="select" initial-load="enum" target-action="ThmSrf" variable="SrfPal" readonly="true" style="col-xs-12 col-sm-6 col-lg-3" />
+        <criteria label="PARAMETER_THEME_SURFACE_HEX" id="SrfHex" component="color" variable="SrfHex" readonly="true" style="col-xs-12 col-sm-6 col-lg-3">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="SrfPal" condition="eq" value="custom" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_THEME_MODE" id="Mde" component="select" initial-load="enum" target-action="ThmMde" variable="Mde" readonly="true" style="col-xs-12 col-sm-6 col-lg-2" />
       </tag>
     </window>
   </tag>

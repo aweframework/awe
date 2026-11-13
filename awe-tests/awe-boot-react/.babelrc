@@ -1,0 +1,35 @@
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {
+        "browsers": [
+          "> 1%",
+          "last 3 versions",
+          "ie 8"
+        ]
+      }
+    }],
+    "@babel/preset-react"
+  ],
+  "env": {
+    "development": {
+      "compact": false,
+      "plugins": [
+        ["istanbul", {
+          "exclude": [
+            "**/node_modules/"
+          ]
+        }]
+      ]
+    },
+    "production": {
+      "plugins": [
+        ["istanbul", {
+          "exclude": [
+            "**/node_modules/"
+          ]
+        }]
+      ]
+    }
+  }
+}

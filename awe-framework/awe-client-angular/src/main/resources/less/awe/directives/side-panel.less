@@ -1,0 +1,124 @@
+//
+// Side panel (#843): a Bootstrap modal anchored to the left or right edge of the screen. The header and the footer
+// (a child with style modal-footer) stay in view and the body scrolls between them.
+// --------------------------------------------------
+.modal.side-panel {
+  .modal-dialog {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    // Bootstrap pads the dialog 30px top and bottom from the sm breakpoint: the panel takes the whole height
+    padding: 0;
+  }
+
+  .modal-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
+    // An overlay with the modal shadow (#885), as the React side panel
+    background-color: var(--awe-color-overlay);
+    box-shadow: var(--awe-shadow-modal);
+  }
+
+  .modal-header {
+    flex: 0 0 auto;
+  }
+
+  // Identity header (#793): the selected row of the header grid, as the panel-identity of the design: a large avatar
+  // (the grid avatar, decorative), the title, a muted subtitle and the tags (the grid status tags)
+  .panel-identity {
+    display: flex;
+    align-items: center;
+    gap: var(--awe-space-3);
+    min-width: 0;
+  }
+
+  .panel-identity-avatar {
+    width: var(--awe-space-10);
+    height: var(--awe-space-10);
+    font-size: var(--awe-font-size-sm);
+  }
+
+  .panel-identity-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .panel-identity-title {
+    margin: 0;
+    font-size: var(--awe-font-size-dialog-title);
+    font-weight: var(--awe-font-weight-semibold);
+    line-height: var(--awe-line-height-snug);
+    letter-spacing: var(--awe-letter-spacing-tight);
+    color: var(--awe-color-text-emphasis);
+    overflow-wrap: anywhere;
+  }
+
+  .panel-identity-subtitle {
+    margin: var(--awe-space-0-5) 0 0;
+    font-size: var(--awe-font-size-sm);
+    color: var(--awe-color-text-muted);
+  }
+
+  .panel-identity-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--awe-space-1-5);
+    margin-top: var(--awe-space-1);
+  }
+
+  .side-panel-body {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  // The content keeps its height and the body scrolls: shrunk, the content overflowed its box and the sticky footer,
+  // placed after that box, left the last fields under it (#793)
+  .side-panel-body > * {
+    flex-shrink: 0;
+  }
+
+  .modal-footer {
+    position: sticky;
+    bottom: 0;
+    // Above the icons of the fields that scroll under it (a suggest or select arrow has z-index 1)
+    z-index: 2;
+    margin-top: auto;
+    // Opaque under the body that scrolls behind it, square at the edge of the screen
+    background-color: var(--awe-color-overlay);
+    border-radius: 0;
+  }
+
+  // Slide in from its edge instead of the Bootstrap drop from the top
+  &.fade .modal-dialog {
+    transition: transform var(--awe-motion-duration-slow) var(--awe-motion-easing-enter);
+  }
+
+  &.side-panel-right .modal-dialog {
+    right: 0;
+  }
+
+  &.side-panel-left .modal-dialog {
+    left: 0;
+  }
+
+  &.side-panel-right.fade .modal-dialog {
+    transform: translate3d(100%, 0, 0);
+  }
+
+  &.side-panel-left.fade .modal-dialog {
+    transform: translate3d(-100%, 0, 0);
+  }
+
+  &.fade.in .modal-dialog {
+    transform: translate3d(0, 0, 0);
+  }
+}

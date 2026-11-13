@@ -1,0 +1,87 @@
+import {useCallback, useRef, useState} from 'react';
+import {useDispatch} from 'react-redux';
+import {updateModelWithDependencies} from "../redux/thunks/components";
+import {initialSuggestAction, suggestAction} from "../redux/thunks/suggest";
+import {ANY_MODIFIERS, createKeyHandler} from "../utilities/keyboard";
+
+const useSuggest = (autocompleteRef, setSuggestions, value, setValue, props) => {
+  const dispatch = useDispatch();
+  const abortControllerRef = useRef(new AbortController());
+  const [suggesting, setSuggesting] = useState(false);
+  const { address, serverAction, targetAction, checkTarget, strict = true } = props;
+
+  const onChange = useCallback( (e) => {
+    // Update suggest
+    if (value?.value !== (e.value?.value || e.value)) {
+      setValue(e.value);
+    }
+
+    // Store the chosen option, whether it was chosen with a click or with the keyboard (Enter or Tab on the highlighted
+    // option): a chosen option is an object (a list of them in a multiple suggest), the text being typed is a string
+    if (e.value !== null && typeof e.value === "object") {
+      dispatch(updateModelWithDependencies(address, {
+        values: [e.value].flat().map(item => ({ ...item, selected: true }))
+      }));
+    }
+  }, [value]);
+
+  const onClear = useCallback(() => {
+      dispatch(updateModelWithDependencies(address, { values: [] }));
+  }, [value]);
+
+  // Space opens the options of an empty suggest. It is bound to the key code, whatever the modifiers
+  const onKeyPress = createKeyHandler([{
+    shortcut: {code: "Space", ...ANY_MODIFIERS},
+    when: (e) => e.target.value === "",
+    handler: () => autocompleteRef.current?.onDropdownClick?.()
+  }]);
+
+  const onSuggest = ({originalEvent, query}) => {
+    suggest(originalEvent, query);
+  };
+
+  /**
+   * Suggest a value
+   * @param {object} event Event
+   * @param {string} text Suggestion value
+   * @memberOf Components
+   */
+  const suggest = useCallback(async (event, text) => {
+    try {
+      // Cancel previous fetch
+      if (suggesting) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = new AbortController();
+      }
+
+      // Fetch server action
+      const {signal} = abortControllerRef.current;
+      setSuggesting(true);
+      setSuggestions(await dispatch(suggestAction(event, text, {address, serverAction, targetAction, strict, signal})));
+      setSuggesting(false);
+    } catch (error) {
+      // Ignore AbortError - it happens when a previous request is cancelled
+      if (error?.name !== 'AbortError') {
+        console.error('Error in suggest:', error);
+      }
+      setSuggesting(false);
+    }
+  }, [dispatch, suggesting, address, serverAction, targetAction, strict]);
+
+  /**
+   * Initial suggest
+   * @param {object} component Component
+   * @param {string} query   Suggestion text
+   * @memberOf Components
+   */
+  const initialSuggest = useCallback(async (query)  => {
+    await dispatch(initialSuggestAction(query, {address, serverAction, targetAction, checkTarget}));
+
+    // Hide autocomplete
+    autocompleteRef?.current?.hide?.();
+  }, [dispatch, address, serverAction, targetAction, checkTarget, autocompleteRef]);
+
+  return  { onChange, onClear, onKeyPress, onSuggest, suggest, initialSuggest };
+};
+
+export default useSuggest;

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="FIX_TITLE">
+  <tag source="center">
+    <window label="FIX_TITLE" icon="list">
+      <grid id="GrdQueue" initial-load="query" server-action="data" target-action="FixSel">
+        <column label="FIX_TITLE" name="Sub"/>
+        <column name="IdeTkt" hidden="true"/>
+        <button label="FIX_SAVE" id="ButReply">
+          <button-action type="server" server-action="maintain" target-action="FixReply"/>
+        </button>
+      </grid>
+    </window>
+  </tag>
+</screen>

@@ -1,0 +1,101 @@
+---
+id: tags-lists
+title: Etiquetas y listas
+sidebar_label: Etiquetas y listas
+description: La etiqueta, la lista de etiquetas y el texto de AWE, en vivo. Cambia los atributos de una etiqueta y mira el elemento real y el XML que lo produce.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {tag} from '@site/src/components/AwePlayground/specs/tag';
+
+Una `tag` es el bloque de construcción básico de una pantalla. Con un `type` genera un elemento HTML (`div`, `p`, `h3`...) que agrupa otros
+elementos, aplica clases CSS y muestra un texto o un icono. Una `tag-list` repite una etiqueta por cada fila de una consulta, y `<text>` escribe texto
+sin formato dentro de una etiqueta. Los elementos `header-tag` son las etiquetas de la cabecera de identidad de un [panel lateral](./side-panel-popover.mdx#side-panel).
+
+## Etiqueta {#tag}
+
+El texto de una etiqueta es su `label`, traducido con los locales de la aplicación. Los dos estilos de título de sección del sistema de diseño necesitan un
+tipo de encabezado (`h2` a `h6`) para que los lectores de pantalla anuncien la sección. El `icon` es decorativo y solo se dibuja en una etiqueta con `label`.
+
+<AwePlayground spec={tag} />
+
+## Recetas {#recipes}
+
+### Secciones de un formulario {#recipe-sections}
+
+`awe-form-section-title` titula una sección de un formulario con su icono y un separador sobre cada título salvo el primero. Mantén los títulos y los
+criterios del formulario como hermanos en el mismo contenedor.
+
+<AweLive
+  components={{
+    FullName: {attributes: {label: 'Nombre completo'}},
+    Password: {attributes: {label: 'Contraseña'}},
+  }}
+  nodes={[
+    {elementType: 'Tag', type: 'div', style: 'panel-body', elementList: [
+      {elementType: 'Tag', type: 'h3', style: 'awe-form-section-title', label: 'Identidad', icon: 'user'},
+      {elementType: 'Criteria', component: 'text', id: 'FullName'},
+      {elementType: 'Tag', type: 'h3', style: 'awe-form-section-title', label: 'Acceso y seguridad', icon: 'lucide:key-round'},
+      {elementType: 'Criteria', component: 'password', id: 'Password'},
+    ]},
+  ]}
+/>
+
+```xml
+<tag type="div" style="panel-body">
+  <tag type="h3" style="awe-form-section-title" label="Identidad" icon="user" />
+  <criteria id="FullName" component="text" label="Nombre completo" />
+  <tag type="h3" style="awe-form-section-title" label="Acceso y seguridad" icon="lucide:key-round" />
+  <criteria id="Password" component="password" label="Contraseña" />
+</tag>
+```
+
+### Texto escrito tal cual {#recipe-text}
+
+Una etiqueta con `label` escribe texto traducido. La forma `<text>` escribe el texto tal cual, sin buscarlo en los locales; se usa en lugar de la etiqueta
+`label`, nunca junto a ella.
+
+<AweLive
+  nodes={[
+    {elementType: 'Tag', type: 'p', value: 'Las facturas se envían el primer día de cada mes.'},
+  ]}
+/>
+
+```xml
+<tag type="p"><text>Las facturas se envían el primer día de cada mes.</text></tag>
+```
+
+### Una etiqueta por cada fila {#recipe-tag-list}
+
+Una `tag-list` toma las filas de su consulta y genera sus etiquetas hijas una vez por fila, sustituyendo `[columna]` por el valor de la fila. Su `type`
+es el elemento que las contiene: aquí un `ul` de `li`. Las filas vienen del servidor; la vista previa las rellena con un modelo fijo.
+
+<AweLive
+  components={{
+    CustomerList: {
+      model: {values: [{name: 'Ada Lovelace', plan: 'Pro'}, {name: 'Grace Hopper', plan: 'Equipo'}, {name: 'Alan Turing', plan: 'Gratuito'}]},
+    },
+  }}
+  nodes={[
+    {elementType: 'TagList', id: 'CustomerList', type: 'ul', elementList: [
+      {elementType: 'Tag', type: 'li', label: '[name] (plan [plan])'},
+    ]},
+  ]}
+/>
+
+```xml
+<tag-list id="CustomerList" type="ul" initial-load="query" target-action="CustomerQuery">
+  <tag type="li" label="[name] (plan [plan])" />
+</tag-list>
+```
+
+## Eventos y acciones {#events-and-actions}
+
+Una etiqueta no tiene evento ni acción propios. Una `tag-list` se recarga cuando pasa su periodo de `autorefresh` o cuando una acción carga su destino, y una
+[dependencia](../api/dependencies.md) puede mostrar u ocultar cualquier etiqueta.
+
+## Más {#more}
+
+* [Documentación completa de la etiqueta](../api/tags.md): fuentes, el diseño y los títulos de sección.
+* [Referencia XSD del elemento `tag`](/reference/screen#element-tag), del [elemento `tag-list`](/reference/screen#element-tag-list) y del [elemento `header-tag`](/reference/screen#element-header-tag).

@@ -3,11 +3,8 @@ import "bootstrap-timepicker";
 
 // Time plugin
 aweApplication.directive('uiTime',
-  ['AweUtilities',
-    /**
-     * @param {service} Utilities
-     */
-    function (Utilities) {
+  [
+    function () {
       //Init options
       let options = {
         icons: {

@@ -13,9 +13,6 @@ import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.EmailMessageType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.service.data.builder.XMLEmailBuilder;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Multipart;
@@ -27,6 +24,8 @@ import jakarta.mail.internet.MimeMultipart;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.File;
 import java.io.IOException;

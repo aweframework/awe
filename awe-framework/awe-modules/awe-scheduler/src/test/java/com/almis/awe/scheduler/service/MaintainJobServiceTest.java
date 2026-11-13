@@ -20,8 +20,6 @@ import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.scheduled.JobService;
 import com.almis.awe.scheduler.service.scheduled.MaintainJobService;
 import com.almis.awe.service.MaintainService;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
@@ -35,13 +33,14 @@ import org.quartz.JobDataMap;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-
-import org.slf4j.MDC;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.net.URI;
@@ -56,7 +55,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
 
@@ -311,7 +309,7 @@ class MaintainJobServiceTest {
     ArgumentCaptor<ObjectNode> paramsCaptor = ArgumentCaptor.forClass(ObjectNode.class);
     verify(maintainService, times(1)).launchPrivateMaintain(eq("maintainId"), paramsCaptor.capture());
     ObjectNode captured = paramsCaptor.getValue();
-    assertEquals("myDbValue", captured.get("database").asText());
+    assertEquals("myDbValue", captured.get("database").asString());
     // The launcher default parameter is still set
     assertNotNull(captured.get("launcher"));
   }

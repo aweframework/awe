@@ -26,7 +26,7 @@ And there you go!
 
 Client action builders help the developer in the task of sending specific client actions to the frontend. 
 
-####  **`screen` action builder**
+###  **`screen` action builder**
 
 This action makes the application to move to another screen.
 
@@ -38,7 +38,7 @@ serviceData.addClientAction(new ScreenActionBuilder("another-screen-option").bui
 
 This sample creates a client action which will try to navigate to the option defined as `another-screen-option`.
 
-####  **`redirect` action builder**
+###  **`redirect` action builder**
 
 This action makes the application to redirect to another URL.
 
@@ -50,7 +50,7 @@ serviceData.addClientAction(new RedirectActionBuilder("http://go.to.another.url"
 
 This sample creates a client action which will try to navigate to the URL `http://go.to.another.url`.
 
-####  **`redirect-screen` action builder**
+###  **`redirect-screen` action builder**
 
 This action makes the application to redirect a specific screen to another URL.
 
@@ -63,7 +63,7 @@ serviceData.addClientAction(new RedirectScreenActionBuilder("specific-screen", "
 This sample creates a client action which will try to navigate to the URL `http://go.to.another.url` if the
 current screen is `specific-screen` (useful for dynamic-generated screens).
 
-####  **`fill` action builder**
+###  **`fill` action builder**
 
 This action sends a list of data to a component:
 
@@ -77,7 +77,7 @@ serviceData.addClientAction(new FillActionBuilder("my-grid", dataList).build());
 
 This sample sends `dataList` to `"my-grid"` component.
 
-####  **`select` action builder**
+###  **`select` action builder**
 
 This action sends a list of selected values to a component.
 
@@ -97,9 +97,24 @@ serviceData.addClientAction(new SelectActionBuilder("my-select", value1, value2,
 
 This sample sends a list of selected values to `"my-select"` component.
 
-####  **`fill-suggest` action builder**
+###  **`fill-suggest` action builder (deprecated)** {#fill-suggest-action-builder}
 
 This action sends a list of selected values and labels to a suggest component.
+
+> **Deprecated since 5.0.0:** `FillSuggestActionBuilder` will be removed. Fill the suggest with the values and their
+> labels using a `fill` action, then select them with a `select` action:
+>
+> ```java
+> DataList dataList = new DataList();
+> DataListUtil.addColumn(dataList, "value", List.of("aaa", "bbb"));
+> DataListUtil.addColumn(dataList, "label", List.of("Label aaa", "Label bbb"));
+> serviceData
+>   .addClientAction(new FillActionBuilder("my-suggest", dataList).build())
+>   .addClientAction(new SelectActionBuilder("my-suggest", "aaa", "bbb").build());
+> ```
+>
+> When the suggest can resolve the labels through its `check-target` or `target-action`, the `select` action alone is
+> enough.
 
 Usage:
 
@@ -111,7 +126,7 @@ serviceData.addClientAction(new FillSuggestActionBuilder("my-suggest", values).b
 
 This sample sends a list of selected values and labels to `"my-suggest"` component.
 
-####  **`filter` action builder**
+###  **`filter` action builder**
 
 This action calls a component to reload itself:
 
@@ -123,7 +138,7 @@ serviceData.addClientAction(new FilterActionBuilder("my-grid").build());
 
 This sample tells `"my-grid"` component to reload its data.
 
-####  **`update-controller` action builder**
+###  **`update-controller` action builder**
 
 This action triggers a change of attribute inside a component:
 
@@ -136,7 +151,7 @@ serviceData.addClientAction(new UpdateControllerActionBuilder("my-select", "opti
 
 This sample changes the `optional` attribute on `"my-select"` component to `false`.
 
-####  **`message` action builder**
+###  **`message` action builder**
 
 This action allows sending a message to the user. Message type can be one of `OK`, `WARNING`, `ERROR` or `INFO`.
 
@@ -148,7 +163,7 @@ serviceData.addClientAction(new MessageActionBuilder(AnswerType.OK, "message tit
 
 This sample sends a message to the frontend.
 
-####  **`dialog` action builder**
+###  **`dialog` action builder**
 
 This action opens a modal window in the screen.
 
@@ -160,7 +175,7 @@ serviceData.addClientAction(new DialogActionBuilder("my-dialog").build());
 
 This sample opens the modal screen named `"my-dialog"`.
 
-####  **`confirm` action builder**
+###  **`confirm` action builder**
 
 This action opens a modal window with a button to confirm or cancel action.
 
@@ -180,7 +195,7 @@ serviceData.addClientAction(new ConfirmActionBuilder("message title", "message d
 
 Instead of using a defined `message` tag, this action uses the `title` and `description` parameter defined on it.
 
-####  **`get-file` action builder**
+###  **`get-file` action builder**
 
 This action asks a file to be downloaded.
 
@@ -222,13 +237,15 @@ This sample search for the `.selector` CSS selector, and removes the "class1", "
 
 ####  **`toggle-class` action builder**
 
-This action search for a CSS class in the screen and toggles it from the element.
+This action searches for a CSS selector in the screen and, if it finds it, toggles some CSS classes on the element: the classes the element has are removed and the classes it lacks are added.
 
 Usage:
 
 ```java
 serviceData.addClientAction(new ToggleCssClassActionBuilder(".selector", "class1", "class2", "class3").build());
 ```
+
+This sample searches for the `.selector` CSS selector, and toggles the "class1", "class2" and "class3" classes on the element if found.
 
 This sample search for the `.selector` CSS selector, and removes the "class1", "class2" and "class3" classes from the element if found.
 
@@ -344,6 +361,27 @@ You also can define the row you want to copy from:
 serviceData.addClientAction(new CopyRowActionBuilder(RowPosition.BOTTOM, "my-grid", "my-row").build());
 ```
 
+#### **`move-row` action builder**
+
+This action moves the selected row of a grid. The position tells where the row goes:
+
+- `TOP`: To the first line of the grid.
+- `BOTTOM`: To the last line of the grid (default).
+- `UP`: One position up.
+- `DOWN`: One position down.
+
+Usage:
+
+```java
+serviceData.addClientAction(new MoveRowActionBuilder(RowPosition.TOP, "my-grid").build());
+```
+
+You also can define the row you want to move:
+
+```java
+serviceData.addClientAction(new MoveRowActionBuilder(RowPosition.DOWN, "my-grid", "my-row").build());
+```
+
 #### **`update-row` action builder**
 
 This action updates the selected row.
@@ -367,7 +405,7 @@ serviceData.addClientAction(new UpdateRowActionBuilder("my-grid", rowData).build
 You also can define the row you want to update:
 
 ```java
-serviceData.addClientAction(new DeleteRowActionBuilder("my-grid", "my-row", rowData).build());
+serviceData.addClientAction(new UpdateRowActionBuilder("my-grid", "my-row", rowData).build());
 ```
 
 #### **`delete-row` action builder**
@@ -655,6 +693,8 @@ For each component designed in AWE you have a `builder` to define its behaviour:
 - `TagBuilder`: Builds a `<tag>` component.
 - `WindowBuilder`: Builds a `<window>` component.
 - `DialogBuilder`: Builds a `<dialog>` component.
+- `SidePanelBuilder`: Builds a `<side-panel>` component.
+- `PopoverBuilder`: Builds a `<popover>` component.
 - `IncludeBuilder`: Builds a `<include>` component.
 - `MenuContainerBuilder`: Builds a `<menu-container>` component.
 - `MessageBuilder`: Builds a `<message>` component.
@@ -724,6 +764,17 @@ And a builder for each column type:
 - `IconColumnBuilder`: Builds a column with `icon` component.
 - `ImageColumnBuilder`: Builds a column with `image` component.
 - `ProgressColumnBuilder`: Builds a column with `progress` component.
+
+Every column builder can declare the [column autofilter](api/grids.md#column-autofilter) with `setFilter` (the
+`filter` attribute, a `ColumnFilterType`: `VALUES`, `TEXT`, `NUMBER` or `DATE`) and `setFilterFields` (the
+`filter-fields` attribute, comma-separated field ids):
+
+```java
+new TextColumnBuilder()
+  .setName("Pro")
+  .setFilter(ColumnFilterType.TEXT)
+  .setFilterFields("IdePro,Nam");
+```
 
 ### **Chart builders**
 

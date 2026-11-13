@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>4.12.9</version>
+    <version>5.0.0</version>
     <relativePath>../awe-dependencies/pom.xml</relativePath>
   </parent>
 
@@ -17,22 +17,40 @@
 
   <properties>
     <!-- Application maven properties -->
-    <java.version>17</java.version>
+    <java.version>21</java.version>
     <phantomjsdriver.version>1.4.3</phantomjsdriver.version>
     <video-recorder-junit5.version>2.0</video-recorder-junit5.version>
-    <log4j-over-slf4j.version>1.7.36</log4j-over-slf4j.version>
     <sonar.exclusions>src/**</sonar.exclusions>
     <skip.delombok>false</skip.delombok>
+    <!-- API compatibility baseline: last published release whose public/protected API must stay
+         compatible. Products (e.g. FMB) compile and subclass against it. Bump it after each release
+         that is meant to become the new compatibility reference. Skip locally with -Djapicmp.skip=true. -->
+    <awe-testing.api-baseline.version>4.12.10</awe-testing.api-baseline.version>
+    <japicmp.skip>false</japicmp.skip>
   </properties>
 
   <dependencies>
+    <!-- Descriptor tests of the applications (XStream model of the XML descriptors). Provided: every application
+         that uses the descriptor test base already has the model on its classpath -->
+    <dependency>
+      <groupId>com.almis.awe</groupId>
+      <artifactId>awe-model</artifactId>
+      <version>${awe.version}</version>
+      <scope>provided</scope>
+    </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework.security</groupId>
-      <artifactId>spring-security-test</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security-test</artifactId>
+    </dependency>
+    <!-- Runs a browser test class in a test to check how its extensions are wired -->
+    <dependency>
+      <groupId>org.junit.platform</groupId>
+      <artifactId>junit-platform-launcher</artifactId>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -41,6 +59,10 @@
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-restclient</artifactId>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -61,6 +83,10 @@
       </exclusions>
     </dependency>
     <dependency>
+      <groupId>com.microsoft.playwright</groupId>
+      <artifactId>playwright</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.automation-remarks</groupId>
       <artifactId>video-recorder-junit5</artifactId>
       <version>${video-recorder-junit5.version}</version>
@@ -75,7 +101,39 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>log4j-over-slf4j</artifactId>
-      <version>${log4j-over-slf4j.version}</version>
+    </dependency>
+    <!-- Database containers for the integration tests (versions managed by the Spring Boot BOM).
+         They carry no JDBC driver: the consuming test module adds the driver of the database it tests. -->
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-junit-jupiter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-mysql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-postgresql</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-mssqlserver</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers-oracle-free</artifactId>
+    </dependency>
+    <!-- Drivers used only by the utility's own tests -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
@@ -83,8 +141,52 @@
     <plugins>
       <!-- Delombok plugin -->
       <plugin>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok-maven-plugin</artifactId>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+      </plugin>
+      <!-- API compatibility check against the last published release (see the baseline property) -->
+      <plugin>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
+        <version>${plugin-japicmp.version}</version>
+        <executions>
+          <execution>
+            <id>api-compatibility</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>cmp</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <oldVersion>
+            <dependency>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <version>${awe-testing.api-baseline.version}</version>
+              <type>jar</type>
+            </dependency>
+          </oldVersion>
+          <newVersion>
+            <file>
+              <path>${project.build.directory}/${project.build.finalName}.jar</path>
+            </file>
+          </newVersion>
+          <parameter>
+            <!-- Products subclass SeleniumUtilities, so protected members are part of the contract -->
+            <onlyModified>true</onlyModified>
+            <accessModifier>protected</accessModifier>
+            <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+            <breakBuildOnSourceIncompatibleModifications>true</breakBuildOnSourceIncompatibleModifications>
+            <breakBuildIfCausedByExclusion>false</breakBuildIfCausedByExclusion>
+            <includeSynthetic>false</includeSynthetic>
+            <!-- Third-party supertypes (Selenium, JUnit, Spring) are not on the comparison classpath;
+                 only the awe-testing classes themselves are compared -->
+            <ignoreMissingClasses>true</ignoreMissingClasses>
+            <skipPomModules>true</skipPomModules>
+          </parameter>
+          <skip>${japicmp.skip}</skip>
+        </configuration>
       </plugin>
     </plugins>
   </build>

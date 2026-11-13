@@ -1,0 +1,68 @@
+{
+  "chart" : {
+    "inverted" : false,
+    "type" : "pie"
+  },
+  "credits" : {
+    "enabled" : false
+  },
+  "drilldown" : {
+    "series" : [ {
+      "id" : "serie1_1",
+      "name" : "SubThemes",
+      "xValue" : "names",
+      "yValue" : "subserie1"
+    } ]
+  },
+  "legend" : {
+    "enabled" : true,
+    "floating" : false
+  },
+  "plotOptions" : {
+    "pie" : {
+      "allowPointSelect" : true,
+      "cursor" : "pointer",
+      "dataLabels" : {
+        "enabled" : true,
+        "format" : "<b>{point.name}</b>: {point.percentage:.1f} %"
+      },
+      "showInLegend" : true,
+      "size" : "75%",
+      "stacking" : false
+    }
+  },
+  "series" : [ {
+    "drilldown" : "serie1_1",
+    "id" : "serie1",
+    "keys" : [ "name", "y", "drilldown" ],
+    "name" : "Themes",
+    "xValue" : "names",
+    "yValue" : "serie1"
+  } ],
+  "stockChart" : false,
+  "title" : {
+    "text" : "Grafico 6"
+  },
+  "tooltip" : {
+    "enabled" : true,
+    "shared" : false,
+    "valueDecimals" : 2,
+    "valueSuffix" : " %"
+  },
+  "xAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Themes"
+    }
+  } ],
+  "yAxis" : [ {
+    "allowDecimals" : false,
+    "labels" : { },
+    "opposite" : false,
+    "title" : {
+      "text" : "Percent (%)"
+    }
+  } ]
+}

@@ -1,0 +1,1031 @@
+package com.almis.awe.model.entities.screen.component.chart.echarts;
+
+import com.almis.awe.model.entities.screen.component.chart.Chart;
+import com.almis.awe.model.entities.screen.component.chart.ChartAxis;
+import com.almis.awe.model.entities.screen.component.chart.ChartLegend;
+import com.almis.awe.model.entities.screen.component.chart.ChartParameter;
+import com.almis.awe.model.entities.screen.component.chart.ChartSerie;
+import com.almis.awe.model.entities.screen.component.chart.ChartTooltip;
+import org.junit.jupiter.api.Test;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.json.JsonMapper;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsTestSupport.echarts;
+import static com.almis.awe.model.entities.screen.component.chart.echarts.EChartsTestSupport.pathsOf;
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * Chart type, axis, series, legend, tooltip and parameter mappings of the ECharts model
+ */
+class EChartsModelBuilderTest {
+
+  private static Chart.ChartBuilder<?, ?> chart(String type) {
+    return Chart.builder().id("chart").type(type);
+  }
+
+  private static ChartSerie.ChartSerieBuilder<?, ?> serie(String id) {
+    return ChartSerie.builder().id(id).xValue("x").yValue("y");
+  }
+
+  private static ChartParameter parameter(String type, String name, String value, ChartParameter... children) {
+    return ChartParameter.builder().type(type).name(name).value(value).parameterList(List.of(children)).build();
+  }
+
+  // ------------------------------------------------------------------------------------------------------------
+  // Chart and series types
+  // ------------------------------------------------------------------------------------------------------------
+
+  @Test
+  void simpleChartTypesMapToTheEChartsSeriesTypes() {
+    assertThat(seriesOf("line")).containsExactly("line", null, null);
+    assertThat(seriesOf("spline")).containsExactly("line", "true", null);
+    assertThat(seriesOf("column")).containsExactly("bar", null, null);
+    assertThat(seriesOf("column_3d")).containsExactly("bar", null, null);
+    assertThat(seriesOf("area")).containsExactly("line", null, "area");
+    assertThat(seriesOf("areaspline")).containsExactly("line", "true", "area");
+    assertThat(seriesOf("scatter")).containsExactly("scatter", null, null);
+    assertThat(seriesOf("bubble")).containsExactly("scatter", null, null);
+  }
+
+  /**
+   * Resolve [type, smooth, area] of the only series of a chart of the given type
+   */
+  private static List<String> seriesOf(String chartType) {
+    JsonNode serie = echarts(chart(chartType).serieList(List.of(serie("s").build())).build()).at("/series/0");
+    List<String> result = new ArrayList<>();
+    result.add(serie.at("/type").asString());
+    result.add(serie.at("/smooth").isMissingNode() ? null : serie.at("/smooth").asString());
+    result.add(serie.at("/areaStyle").isMissingNode() ? null : "area");
+    return result;
+  }
+
+  @Test
+  void rangeAreasAreApproximatedAndReportedOnce() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("arearange").serieList(List.of(serie("s").build())).build();
+
+    JsonNode first = echarts(chart, reporter);
+    echarts(chart, reporter);
+
+    assertThat(first.at("/series/0/type").asString()).isEqualTo("line");
+    assertThat(first.at("/series/0/areaStyle").isObject()).isTrue();
+    assertThat(first.at("/series/0/awe/type").asString()).isEqualTo("arearange");
+    assertThat(messages).hasSize(1);
+    assertThat(messages.get(0)).contains("arearange");
+  }
+
+  @Test
+  void donutAndSemicircleDefaultsComeFromTheirType() {
+    JsonNode donut = echarts(chart("donut").serieList(List.of(serie("s").build())).build());
+    JsonNode semicircle = echarts(chart("semicircle").serieList(List.of(serie("s").build())).build());
+    JsonNode pie = echarts(chart("pie_3d").serieList(List.of(serie("s").build())).build());
+
+    assertThat(donut.at("/series/0/type").asString()).isEqualTo("pie");
+    assertThat(donut.at("/series/0/radius")).extracting(JsonNode::asString).containsExactly("50%", "75%");
+    assertThat(donut.at("/series/0/startAngle").isMissingNode()).isTrue();
+    assertThat(semicircle.at("/series/0/startAngle").asInt()).isEqualTo(180);
+    assertThat(semicircle.at("/series/0/endAngle").asInt()).isEqualTo(360);
+    assertThat(semicircle.at("/series/0/center")).extracting(JsonNode::asString).containsExactly("50%", "75%");
+    assertThat(pie.at("/series/0/type").asString()).isEqualTo("pie");
+    assertThat(pie.at("/series/0/radius").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void mixedChartDefaultsSeriesWithoutTypeToLine() {
+    JsonNode model = echarts(chart("mixed").serieList(List.of(
+      serie("a").type("column").build(), serie("b").build(), serie("c").type("scatter").build())).build());
+
+    assertThat(model.at("/series")).extracting(serie -> serie.at("/type").asString()).containsExactly("bar", "line", "scatter");
+  }
+
+  @Test
+  void barSeriesInvertTheWholeChart() {
+    JsonNode model = echarts(chart("mixed")
+      .xAxisList(List.of(ChartAxis.builder().label("X").type("category").build()))
+      .yAxisList(List.of(ChartAxis.builder().label("Y").build()))
+      .serieList(List.of(serie("a").type("bar").xAxis("0").yAxis("0").build()))
+      .build());
+
+    assertThat(model.at("/awe/inverted").asBoolean()).isTrue();
+    assertThat(model.at("/series/0/type").asString()).isEqualTo("bar");
+    assertThat(model.at("/xAxis/0/name").asString()).isEqualTo("Y");
+    assertThat(model.at("/yAxis/0/name").asString()).isEqualTo("X");
+    assertThat(model.at("/yAxis/0/type").asString()).isEqualTo("category");
+    assertThat(model.at("/series/0/xAxisIndex").asInt()).isZero();
+    assertThat(model.at("/series/0/yAxisIndex").asInt()).isZero();
+  }
+
+  @Test
+  void unknownSeriesTypeFallsBackToLineAndIsReportedOnce() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("mixed").serieList(List.of(serie("a").type("treemap").build())).build();
+
+    JsonNode model = echarts(chart, reporter);
+    echarts(chart, reporter);
+
+    assertThat(model.at("/series/0/type").asString()).isEqualTo("line");
+    assertThat(messages).hasSize(1);
+    assertThat(messages.get(0)).contains("treemap");
+  }
+
+  // ------------------------------------------------------------------------------------------------------------
+  // Stacking, zoom, data labels
+  // ------------------------------------------------------------------------------------------------------------
+
+  @Test
+  void stackingNormalSharesTheStackOnlyAmongStackableSeries() {
+    JsonNode model = echarts(chart("mixed").stacking("normal").serieList(List.of(
+      serie("a").type("column").build(), serie("b").type("area").build(), serie("c").type("scatter").build())).build());
+
+    assertThat(model.at("/series/0/stack").asString()).isEqualTo("stack");
+    assertThat(model.at("/series/1/stack").asString()).isEqualTo("stack");
+    assertThat(model.at("/series/2/stack").isMissingNode()).isTrue();
+    assertThat(model.at("/series/0/awe/stackPercent").isMissingNode()).isTrue();
+    assertThat(model.at("/awe/stacking").asString()).isEqualTo("normal");
+  }
+
+  @Test
+  void stackingPercentAddsTheHint() {
+    JsonNode model = echarts(chart("column").stacking("percent").serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/series/0/stack").asString()).isEqualTo("stack");
+    assertThat(model.at("/series/0/awe/stackPercent").asBoolean()).isTrue();
+  }
+
+  @Test
+  void zoomTypeSelectsTheZoomedAxes() {
+    assertThat(zoomOf("x")).containsExactly("inside:x");
+    assertThat(zoomOf("xAxis")).containsExactly("inside:x");
+    assertThat(zoomOf("y")).containsExactly("inside:y");
+    assertThat(zoomOf("yAxis")).containsExactly("inside:y");
+    assertThat(zoomOf("xy")).containsExactly("inside:x", "inside:y");
+    assertThat(zoomOf("all")).containsExactly("inside:x", "inside:y");
+    assertThat(zoomOf(null)).isEmpty();
+  }
+
+  private static List<String> zoomOf(String zoomType) {
+    JsonNode zoom = echarts(chart("line").zoomType(zoomType).serieList(List.of(serie("a").build())).build())
+      .at("/dataZoom");
+    List<String> result = new ArrayList<>();
+    for (JsonNode item : zoom) {
+      result.add(item.at("/type").asString() + ":" + (item.has("xAxisIndex") ? "x" : "y"));
+    }
+    return result;
+  }
+
+  @Test
+  void zoomOnAnInvertedChartTargetsTheSwappedAxis() {
+    JsonNode model = echarts(chart("column").inverted(true).zoomType("xAxis").serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/dataZoom/0/yAxisIndex").asInt()).isZero();
+    assertThat(model.at("/dataZoom/0/xAxisIndex").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void pieChartsDoNotZoom() {
+    assertThat(echarts(chart("pie").zoomType("xAxis").stockChart(true).serieList(List.of(serie("a").build())).build())
+      .at("/dataZoom").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void dataLabelsAreEnabledPerSeriesWithTheFormatAsHint() {
+    JsonNode model = echarts(chart("column").enableDataLabels(true).formatDataLabels("{y:.1f}").serieList(List.of(
+      serie("a").build(), serie("b").build())).build());
+
+    for (JsonNode serie : model.at("/series")) {
+      assertThat(serie.at("/label/show").asBoolean()).isTrue();
+      assertThat(serie.at("/awe/labelFormat").asString()).isEqualTo("{y:.1f}");
+    }
+  }
+
+  @Test
+  void seriesLevelValuesWinOverChartParameterDefaults() {
+    ChartParameter defaults = parameter("object", "plotOptions", null,
+      parameter("object", "series", null,
+        parameter("object", "dataLabels", null, parameter("boolean", "enabled", "true"),
+          parameter("string", "format", "{point.y:.2f}"))));
+    JsonNode model = echarts(chart("line").enableDataLabels(true).formatDataLabels("{y}").parameterList(List.of(defaults))
+      .serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/series/0/label/show").asBoolean()).isTrue();
+    assertThat(model.at("/series/0/awe/labelFormat").asString()).isEqualTo("{y}");
+  }
+
+  // ------------------------------------------------------------------------------------------------------------
+  // Axes
+  // ------------------------------------------------------------------------------------------------------------
+
+  @Test
+  void axisTypesFollowHighchartsTypes() {
+    assertThat(axisType("datetime")).isEqualTo("time");
+    assertThat(axisType("category")).isEqualTo("category");
+    assertThat(axisType("linear")).isEqualTo("value");
+    assertThat(axisType("logarithmic")).isEqualTo("log");
+    assertThat(axisType(null)).isEqualTo("value");
+  }
+
+  private static String axisType(String type) {
+    Chart chart = chart("line").xAxisList(List.of(ChartAxis.builder().type(type).build()))
+      .serieList(List.of(serie("a").build())).build();
+    return echarts(chart).at("/xAxis/0/type").asString();
+  }
+
+  @Test
+  void axisAttributesMapToTheirEChartsOptions() {
+    ChartAxis x = ChartAxis.builder().label("X").type("datetime").opposite(true).labelRotation(45f).tickInterval("5")
+      .labelFormat("{value:%Y}").build();
+    ChartAxis y = ChartAxis.builder().label("Y").allowDecimal(true).opposite(true).build();
+    JsonNode model = echarts(chart("line").xAxisList(List.of(x)).yAxisList(List.of(y))
+      .serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/xAxis/0/name").asString()).isEqualTo("X");
+    assertThat(model.at("/xAxis/0/position").asString()).isEqualTo("top");
+    assertThat(model.at("/xAxis/0/axisLabel/rotate").asInt()).isEqualTo(-45);
+    assertThat(model.at("/xAxis/0/interval").asInt()).isEqualTo(5);
+    assertThat(model.at("/xAxis/0/awe/labelFormat").asString()).isEqualTo("{value:%Y}");
+    assertThat(model.at("/xAxis/0/minInterval").isMissingNode()).isTrue();
+    assertThat(model.at("/yAxis/0/position").asString()).isEqualTo("right");
+    assertThat(model.at("/yAxis/0/minInterval").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void integerTicksApplyToValueAxesOnly() {
+    Chart chart = chart("line")
+      .xAxisList(List.of(ChartAxis.builder().type("category").build()))
+      .yAxisList(List.of(ChartAxis.builder().build(), ChartAxis.builder().allowDecimal(true).build()))
+      .serieList(List.of(serie("a").build())).build();
+    JsonNode model = echarts(chart);
+
+    assertThat(model.at("/xAxis/0/minInterval").isMissingNode()).isTrue();
+    assertThat(model.at("/yAxis/0/minInterval").asInt()).isEqualTo(1);
+    assertThat(model.at("/yAxis/1/minInterval").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void categoryTickIntervalSkipsLabels() {
+    Chart chart = chart("line").xAxisList(List.of(ChartAxis.builder().type("category").tickInterval("3").build()))
+      .serieList(List.of(serie("a").build())).build();
+
+    assertThat(echarts(chart).at("/xAxis/0/axisLabel/interval").asInt()).isEqualTo(2);
+  }
+
+  @Test
+  void cartesianChartsWithoutAxesGetDefaultValueAxes() {
+    JsonNode model = echarts(chart("line").serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/xAxis")).hasSize(1);
+    assertThat(model.at("/xAxis/0/type").asString()).isEqualTo("value");
+    assertThat(model.at("/yAxis")).hasSize(1);
+    assertThat(echarts(chart("pie").serieList(List.of(serie("a").build())).build()).has("xAxis")).isFalse();
+  }
+
+  @Test
+  void seriesAxisIndexesFollowTheirAxes() {
+    JsonNode model = echarts(chart("line").serieList(List.of(serie("a").xAxis("1").yAxis("2").build())).build());
+
+    assertThat(model.at("/series/0/xAxisIndex").asInt()).isEqualTo(1);
+    assertThat(model.at("/series/0/yAxisIndex").asInt()).isEqualTo(2);
+  }
+
+  // ------------------------------------------------------------------------------------------------------------
+  // Legend, tooltip, title
+  // ------------------------------------------------------------------------------------------------------------
+
+  @Test
+  void legendMapsLayoutAndAlignment() {
+    ChartLegend legend = ChartLegend.builder().enabled(true).layout("vertical").align("left").verticalAlign("top")
+      .floating(true).borderWidth(2).label("Title").build();
+    JsonNode model = echarts(chart("line").chartLegend(legend).serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/legend/show").asBoolean()).isTrue();
+    assertThat(model.at("/legend/orient").asString()).isEqualTo("vertical");
+    assertThat(model.at("/legend/left").asString()).isEqualTo("left");
+    assertThat(model.at("/legend/top").asString()).isEqualTo("top");
+    assertThat(model.at("/legend/borderWidth").asInt()).isEqualTo(2);
+    assertThat(model.at("/legend/awe/floating").asBoolean()).isTrue();
+    assertThat(model.at("/legend/awe/title").asString()).isEqualTo("Title");
+  }
+
+  @Test
+  void legendDefaultsMatchHighchartsWhenTheElementIsMissing() {
+    JsonNode line = echarts(chart("line").serieList(List.of(serie("a").build())).build());
+    JsonNode stock = echarts(chart("line").stockChart(true).serieList(List.of(serie("a").build())).build());
+    JsonNode pie = echarts(chart("pie").serieList(List.of(serie("a").build())).build());
+
+    assertThat(line.at("/legend/show").asBoolean()).isTrue();
+    assertThat(line.at("/legend/left").asString()).isEqualTo("center");
+    assertThat(line.at("/legend/top").asString()).isEqualTo("bottom");
+    assertThat(stock.at("/legend/show").asBoolean()).isFalse();
+    assertThat(pie.at("/legend/show").asBoolean()).isFalse();
+  }
+
+  @Test
+  void tooltipMapsTriggerPointerAndHints() {
+    ChartTooltip tooltip = ChartTooltip.builder().shared(true).crosshairs("all").numberDecimals(2).prefix("$")
+      .suffix("€").pointFormat("{point.y}").dateFormat("%Y").build();
+    JsonNode model = echarts(chart("line").chartTooltip(tooltip).serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/tooltip/show").asBoolean()).isTrue();
+    assertThat(model.at("/tooltip/trigger").asString()).isEqualTo("axis");
+    assertThat(model.at("/tooltip/axisPointer/type").asString()).isEqualTo("cross");
+    assertThat(model.at("/tooltip/awe/crosshairs").asString()).isEqualTo("all");
+    assertThat(model.at("/tooltip/awe/numberDecimals").asInt()).isEqualTo(2);
+    assertThat(model.at("/tooltip/awe/prefix").asString()).isEqualTo("$");
+    assertThat(model.at("/tooltip/awe/suffix").asString()).isEqualTo("€");
+    assertThat(model.at("/tooltip/awe/pointFormat").asString()).isEqualTo("{point.y}");
+    assertThat(model.at("/tooltip/awe/dateFormat").asString()).isEqualTo("%Y");
+  }
+
+  @Test
+  void disabledTooltipIsHiddenAndMissingTooltipIsItemTriggered() {
+    JsonNode disabled = echarts(chart("line").chartTooltip(ChartTooltip.builder().enabled(false).build())
+      .serieList(List.of(serie("a").build())).build());
+    JsonNode missing = echarts(chart("line").serieList(List.of(serie("a").build())).build());
+    JsonNode pieShared = echarts(chart("pie").chartTooltip(ChartTooltip.builder().shared(true).build())
+      .serieList(List.of(serie("a").build())).build());
+
+    assertThat(disabled.at("/tooltip/show").asBoolean()).isFalse();
+    assertThat(missing.at("/tooltip/show").asBoolean()).isTrue();
+    assertThat(missing.at("/tooltip/trigger").asString()).isEqualTo("item");
+    assertThat(pieShared.at("/tooltip/trigger").asString()).isEqualTo("item");
+  }
+
+  @Test
+  void titleIsCenteredLikeHighcharts() {
+    JsonNode model = echarts(chart("line").label("Title").subTitle("Sub").serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/title/text").asString()).isEqualTo("Title");
+    assertThat(model.at("/title/subtext").asString()).isEqualTo("Sub");
+    assertThat(model.at("/title/left").asString()).isEqualTo("center");
+    assertThat(echarts(chart("line").build()).at("/title").isMissingNode()).isTrue();
+  }
+
+  // ------------------------------------------------------------------------------------------------------------
+  // chart-parameter
+  // ------------------------------------------------------------------------------------------------------------
+
+  @Test
+  void unknownParametersAreIgnoredAndReportedOncePerPath() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    ChartParameter unknown = parameter("object", "plotOptions", null,
+      parameter("object", "area", null, parameter("float", "fillOpacity", "0.5")));
+    ChartParameter known = parameter("object", "plotOptions", null,
+      parameter("object", "pie", null, parameter("string", "size", "60%")));
+    Chart chart = chart("pie").parameterList(List.of(unknown, known)).serieList(List.of(serie("a").build())).build();
+
+    JsonNode first = echarts(chart, reporter);
+    JsonNode second = echarts(chart, reporter);
+
+    assertThat(first).isEqualTo(second);
+    assertThat(first.at("/series/0/radius").asString()).isEqualTo("60%");
+    assertThat(pathsOf(first, "fillOpacity")).isEmpty();
+    assertThat(messages).containsExactly("Highcharts chart-parameter 'plotOptions.area.fillOpacity' has no ECharts "
+      + "translation yet (scope: chart); it is ignored by the ECharts model");
+  }
+
+  @Test
+  void unknownParametersOfEachScopeAreReportedWithTheirScope() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("line")
+      .xAxisList(List.of(ChartAxis.builder().parameterList(List.of(parameter("integer", "gridLineZIndex", "0"))).build()))
+      .chartTooltip(ChartTooltip.builder().parameterList(List.of(parameter("string", "borderColor", "x"))).build())
+      .chartLegend(ChartLegend.builder().parameterList(List.of(parameter("string", "itemStyle", "x"))).build())
+      .serieList(List.of(serie("a").parameterList(List.of(parameter("integer", "zIndex", "3"))).build()))
+      .build();
+
+    echarts(chart, reporter);
+
+    assertThat(messages).hasSize(4)
+      .anyMatch(message -> message.contains("'gridLineZIndex'") && message.contains("scope: axis"))
+      .anyMatch(message -> message.contains("'borderColor'") && message.contains("scope: tooltip"))
+      .anyMatch(message -> message.contains("'itemStyle'") && message.contains("scope: legend"))
+      .anyMatch(message -> message.contains("'zIndex'") && message.contains("scope: series"));
+  }
+
+  @Test
+  void axisDateTimeLabelFormatsBecomeAHint() {
+    ChartParameter formats = parameter("object", "dateTimeLabelFormats", null,
+      parameter("string", "day", "%d/%m"), parameter("string", "month", "%m/%Y"));
+    JsonNode model = echarts(chart("line").xAxisList(List.of(ChartAxis.builder().type("datetime")
+      .parameterList(List.of(formats)).build())).serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/xAxis/0/awe/dateTimeLabelFormats/day").asString()).isEqualTo("%d/%m");
+    assertThat(model.at("/xAxis/0/awe/dateTimeLabelFormats/month").asString()).isEqualTo("%m/%Y");
+  }
+
+  @Test
+  void titleParametersMapToTitlePlacement() {
+    ChartParameter title = parameter("object", "title", null, parameter("string", "align", "right"),
+      parameter("string", "verticalAlign", "bottom"), parameter("integer", "y", "12"));
+    JsonNode model = echarts(chart("line").label("T").parameterList(List.of(title)).serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/title/text").asString()).isEqualTo("T");
+    assertThat(model.at("/title/left").asString()).isEqualTo("right");
+    assertThat(model.at("/title/top").asString()).isEqualTo("bottom");
+    assertThat(model.at("/title/awe/offsetY").asInt()).isEqualTo(12);
+  }
+
+  @Test
+  void pieSizeParametersAreCombinedIntoTheRadius() {
+    assertThat(radiusWith("size", "80%", null, null).asString()).isEqualTo("80%");
+    assertThat(radiusWith(null, null, "donut", null)).extracting(JsonNode::asString).containsExactly("50%", "75%");
+    assertThat(radiusWith("innerSize", "20%", "donut", null)).extracting(JsonNode::asString).containsExactly("15%", "75%");
+    assertThat(radiusWith("innerSize", "60", "donut", null)).extracting(JsonNode::asString).containsExactly("60", "75%");
+    assertThat(radiusWith("size", "50%", "donut", "innerSize")).extracting(JsonNode::asString)
+      .containsExactly("25%", "50%");
+  }
+
+  /**
+   * Radius of a pie built with a size parameter (name, value) and optionally a second innerSize of 50%
+   */
+  private static JsonNode radiusWith(String name, String value, String chartType, String second) {
+    List<ChartParameter> pieParameters = new ArrayList<>();
+    if (name != null) {
+      pieParameters.add(parameter("string", name, value));
+    }
+    if (second != null) {
+      pieParameters.add(parameter("string", second, "50%"));
+    }
+    ChartParameter plotOptions = parameter("object", "plotOptions", null, parameter("object", "pie", null,
+      pieParameters.toArray(new ChartParameter[0])));
+    JsonNode model = echarts(chart(chartType == null ? "pie" : chartType).parameterList(List.of(plotOptions))
+      .serieList(List.of(serie("a").build())).build());
+    return model.at("/series/0/radius");
+  }
+
+  @Test
+  void nonFinitePieSizesDoNotProduceAComputedRadius() {
+    JsonNode infiniteOuter = radiusOf("donut", parameter("string", "size", "Infinity%"),
+      parameter("string", "innerSize", "40%"));
+    JsonNode nanInner = radiusOf("donut", parameter("string", "innerSize", "NaN%"));
+
+    // The inner size cannot be made relative to the size, so it is sent as written
+    assertThat(infiniteOuter).extracting(JsonNode::asString).containsExactly("40%", "Infinity%");
+    assertThat(nanInner).extracting(JsonNode::asString).containsExactly("NaN%", "75%");
+  }
+
+  private static JsonNode radiusOf(String chartType, ChartParameter... pieParameters) {
+    ChartParameter plotOptions = parameter("object", "plotOptions", null,
+      parameter("object", "pie", null, pieParameters));
+    return echarts(chart(chartType).parameterList(List.of(plotOptions))
+      .serieList(List.of(serie("a").build())).build()).at("/series/0/radius");
+  }
+
+  @Test
+  void textShadowKeepsFunctionalColorsWithSpaces() {
+    JsonNode label = labelWithTextShadow("0px 1px 2px rgba(0, 0, 0, 0.5)");
+
+    assertThat(label.at("/textShadowOffsetX").asInt()).isZero();
+    assertThat(label.at("/textShadowOffsetY").asInt()).isEqualTo(1);
+    assertThat(label.at("/textShadowBlur").asInt()).isEqualTo(2);
+    assertThat(label.at("/textShadowColor").asString()).isEqualTo("rgba(0, 0, 0, 0.5)");
+  }
+
+  @Test
+  void textShadowWithoutBlurHasNoBlur() {
+    JsonNode label = labelWithTextShadow("1px 2px rgba(0, 0, 0, 0.5)");
+
+    assertThat(label.at("/textShadowOffsetX").asInt()).isEqualTo(1);
+    assertThat(label.at("/textShadowOffsetY").asInt()).isEqualTo(2);
+    assertThat(label.at("/textShadowBlur").asInt()).isZero();
+    assertThat(label.at("/textShadowColor").asString()).isEqualTo("rgba(0, 0, 0, 0.5)");
+  }
+
+  @Test
+  void textShadowKeywordsAndIncompleteShadowsAreDropped() {
+    for (String shadow : List.of("contrast", "none", "1px 2px", "1px 2px 3px", "black 1px 2px 3px")) {
+      JsonNode label = labelWithTextShadow(shadow);
+
+      assertThat(pathsOf(label, "textShadowColor")).as(shadow).isEmpty();
+      assertThat(pathsOf(label, "textShadowBlur")).as(shadow).isEmpty();
+    }
+  }
+
+  private static JsonNode labelWithTextShadow(String shadow) {
+    ChartParameter dataLabels = parameter("object", "dataLabels", null, parameter("boolean", "enabled", "true"),
+      parameter("object", "style", null, parameter("string", "textShadow", shadow)));
+    ChartParameter plotOptions = parameter("object", "plotOptions", null, parameter("object", "pie", null, dataLabels));
+    return echarts(chart("pie").parameterList(List.of(plotOptions)).serieList(List.of(serie("a").build())).build())
+      .at("/series/0/label");
+  }
+
+  @Test
+  void seriesKeysBecomeAHint() {
+    ChartParameter keys = parameter("array", "keys", null, parameter("string", "", "name"), parameter("string", "", "y"));
+    JsonNode model = echarts(chart("pie").serieList(List.of(serie("a").parameterList(List.of(keys)).build())).build());
+
+    assertThat(model.at("/series/0/awe/keys")).extracting(JsonNode::asString).containsExactly("name", "y");
+  }
+
+  @Test
+  void dataLabelParametersMapToTheSeriesLabel() {
+    ChartParameter dataLabels = parameter("object", "dataLabels", null, parameter("boolean", "enabled", "true"),
+      parameter("integer", "distance", "20"), parameter("string", "format", "{point.name}"));
+    ChartParameter plotOptions = parameter("object", "plotOptions", null, parameter("object", "pie", null, dataLabels));
+    JsonNode model = echarts(chart("pie").parameterList(List.of(plotOptions)).serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/series/0/label/show").asBoolean()).isTrue();
+    assertThat(model.at("/series/0/label/position").asString()).isEqualTo("outside");
+    assertThat(model.at("/series/0/labelLine/length").asInt()).isEqualTo(20);
+    assertThat(model.at("/series/0/awe/labelFormat").asString()).isEqualTo("{point.name}");
+  }
+
+  // ------------------------------------------------------------------------------------------------------------
+  // Series drilldown and hints
+  // ------------------------------------------------------------------------------------------------------------
+
+  @Test
+  void drilldownSeriesLeaveTheSeriesListAndCarryTheirOwnHints() {
+    JsonNode model = echarts(chart("pie").serieList(List.of(
+      serie("parent").drillDownSerie("child").build(),
+      serie("child").drillDown(true).zValue("z").build())).build());
+
+    assertThat(model.at("/series")).hasSize(1);
+    assertThat(model.at("/series/0/awe/drilldown").asString()).isEqualTo("child");
+    assertThat(model.at("/awe/drilldown/series")).hasSize(1);
+    assertThat(model.at("/awe/drilldown/series/0/id").asString()).isEqualTo("child");
+    assertThat(model.at("/awe/drilldown/series/0/awe/zValue").asString()).isEqualTo("z");
+  }
+
+  @Test
+  void chartWithoutDrilldownHasNoDrilldownHint() {
+    JsonNode model = echarts(chart("line").serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/awe/drilldown").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void everythingClientEvaluatedTravelsInsideAweHints() {
+    ChartAxis axis = ChartAxis.builder().labelFormat("{value} ºC").formatterFunction("formatCurrencyMagnitude").build();
+    ChartTooltip tooltip = ChartTooltip.builder().pointFormat("{point.y}").dateFormat("%Y").build();
+    Chart chart = chart("column").enableDataLabels(true).formatDataLabels("{y:.1f}").stockChart(true)
+      .xAxisList(List.of(axis)).chartTooltip(tooltip).serieList(List.of(serie("a").build())).build();
+    JsonNode model = echarts(chart);
+
+    for (String key : List.of("labelFormat", "formatter", "pointFormat", "dateFormat", "xValue", "yValue", "stock")) {
+      assertThat(pathsOf(model, key)).as(key).isNotEmpty().allMatch(path -> path.contains("/awe/"));
+    }
+    // Hints are always objects' children, never array items or values
+    assertThat(pathsOf(model, "awe")).isNotEmpty().noneMatch(path -> path.matches(".*/\\d+$"));
+    // The option can be serialized as plain JSON (no functions)
+    JsonNode serialized = new JsonMapper().valueToTree(chart.getEchartsModel());
+    assertThat(serialized.isObject()).isTrue();
+  }
+
+  @Test
+  void emptyHintsAreNotSent() {
+    JsonNode model = echarts(chart("line").chartLegend(ChartLegend.builder().enabled(true).build())
+      .chartTooltip(ChartTooltip.builder().build()).serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/legend").has("awe")).isFalse();
+    assertThat(model.at("/tooltip").has("awe")).isFalse();
+    assertThat(model.at("/series/0/awe/type").asString()).isEqualTo("line");
+    assertThat(model.at("/series/0/awe/zValue").isMissingNode()).isTrue();
+    assertThat(model.at("/series/0/awe/drilldown").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void chartWithoutTypeStillBuildsAModel() {
+    JsonNode model = echarts(Chart.builder().id("chart").label("T").serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/series/0/type").asString()).isEqualTo("line");
+    assertThat(model.at("/title/text").asString()).isEqualTo("T");
+  }
+
+  @Test
+  void echartsModelIsSerializedBesideTheChartModel() {
+    Chart chart = chart("line").serieList(List.of(serie("a").build())).build();
+    JsonNode json = new JsonMapper().valueToTree(chart.getEchartsModel());
+    JsonNode highcharts = new JsonMapper().valueToTree(chart.getChartModel());
+
+    assertThat(json.at("/series")).hasSize(1);
+    assertThat(highcharts.has("echartsModel")).isFalse();
+    assertThat(highcharts.at("/series/0/id").asString()).isEqualTo("a");
+  }
+
+  // ------------------------------------------------------------------------------------------------------------
+  // Advanced options of business screens: one test per group of rules
+  // ------------------------------------------------------------------------------------------------------------
+
+  private static ChartParameter value(String type, String name, String value) {
+    return parameter(type, name, value);
+  }
+
+  private static ChartParameter object(String name, ChartParameter... children) {
+    return parameter("object", name, null, children);
+  }
+
+  /**
+   * Model of a chart with one series of the given type that carries the parameters
+   */
+  private static JsonNode withSeriesParameters(String chartType, ChartParameter... parameters) {
+    return echarts(chart(chartType).serieList(List.of(serie("a").parameterList(List.of(parameters)).build())).build());
+  }
+
+  /**
+   * Model of a chart with one series whose chart carries the parameters
+   */
+  private static JsonNode withChartParameters(String chartType, ChartParameter... parameters) {
+    return echarts(chart(chartType).parameterList(List.of(parameters)).serieList(List.of(serie("a").build())).build());
+  }
+
+  private static JsonNode withPlotOptions(String chartType, String plotType, ChartParameter... parameters) {
+    return withChartParameters(chartType, object("plotOptions", object(plotType, parameters)));
+  }
+
+  @Test
+  void barGeometryMapsToTheBarOptionsAndTheRadiusHint() {
+    JsonNode serie = withSeriesParameters("column", value("string", "stack", "salary"),
+      value("string", "stacking", "normal"), value("float", "groupPadding", "0.1"), value("float", "pointPadding", "0.05"),
+      value("integer", "pointWidth", "12"), value("integer", "borderRadius", "20")).at("/series/0");
+    JsonNode percent = withSeriesParameters("column", value("string", "borderRadius", "30%")).at("/series/0");
+
+    assertThat(serie.at("/stack").asString()).isEqualTo("salary");
+    assertThat(serie.at("/barCategoryGap").asString()).isEqualTo("20%");
+    assertThat(serie.at("/barGap").asString()).isEqualTo("5%");
+    assertThat(serie.at("/barWidth").asInt()).isEqualTo(12);
+    assertThat(serie.at("/awe/borderRadius").asInt()).isEqualTo(20);
+    assertThat(percent.at("/awe/borderRadius").asString()).isEqualTo("30%");
+  }
+
+  @Test
+  void stackNamesOnlyGroupTheSeriesWhenStackingIsActive() {
+    ChartParameter salary = value("string", "stack", "salary");
+    ChartParameter other = value("string", "stack", "other");
+
+    // Highcharts ignores the stack of a series unless stacking is enabled: the columns stay side by side
+    JsonNode clustered = echarts(chart("column").serieList(List.of(
+      serie("a").parameterList(List.of(salary)).build(), serie("b").parameterList(List.of(other)).build())).build());
+    assertThat(clustered.at("/series/0").has("stack")).isFalse();
+    assertThat(clustered.at("/series/1").has("stack")).isFalse();
+
+    // With stacking, the name groups the series and the series without a name share the default group
+    JsonNode stacked = echarts(chart("column").stacking("normal").serieList(List.of(
+      serie("a").parameterList(List.of(salary)).build(), serie("b").parameterList(List.of(other)).build(),
+      serie("c").build(), serie("d").build())).build());
+    assertThat(stacked.at("/series/0/stack").asString()).isEqualTo("salary");
+    assertThat(stacked.at("/series/1/stack").asString()).isEqualTo("other");
+    assertThat(stacked.at("/series/2/stack").asString()).isEqualTo("stack");
+    assertThat(stacked.at("/series/3/stack").asString()).isEqualTo("stack");
+    assertThat(pathsOf(stacked.at("/series"), "stacking")).isEmpty();
+  }
+
+  @Test
+  void anyStackingOptionActivatesTheStackNames() {
+    ChartParameter salary = value("string", "stack", "salary");
+    ChartParameter ownStacking = value("string", "stacking", "normal");
+    ChartParameter seriesStacking = object("plotOptions", object("series", value("string", "stacking", "normal")));
+
+    assertThat(withSeriesParameters("column", salary, ownStacking).at("/series/0/stack").asString()).isEqualTo("salary");
+    assertThat(withPlotOptions("column", "column", value("string", "stacking", "percent"))
+      .at("/series/0/stack").asString()).isEqualTo("stack");
+    assertThat(echarts(chart("column").parameterList(List.of(seriesStacking)).serieList(List.of(
+      serie("a").parameterList(List.of(salary)).build())).build()).at("/series/0/stack").asString()).isEqualTo("salary");
+    assertThat(withSeriesParameters("column", salary).at("/series/0").has("stack")).isFalse();
+  }
+
+  @Test
+  void barGeometryOfAColumnPlotOptionAppliesToItsSeries() {
+    JsonNode model = withPlotOptions("column", "column", value("float", "pointPadding", "0.05"),
+      value("float", "groupPadding", "0.05"), value("string", "stacking", "normal"));
+
+    assertThat(model.at("/series/0/barGap").asString()).isEqualTo("5%");
+    assertThat(model.at("/series/0/barCategoryGap").asString()).isEqualTo("10%");
+    assertThat(model.at("/series/0/stack").asString()).isEqualTo("stack");
+    assertThat(model.at("/series/0/awe/stackPercent").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void lineAndAreaOptionsMapToTheLineAndAreaStyles() {
+    JsonNode serie = withSeriesParameters("area", value("integer", "lineWidth", "3"),
+      value("string", "dashStyle", "ShortDash"),
+      object("fillColor", object("linearGradient", value("integer", "x1", "0"), value("integer", "y1", "0"),
+          value("integer", "x2", "0"), value("integer", "y2", "1")),
+        parameter("array", "stops", null,
+          parameter("array", "", null, value("integer", "", "0"), value("string", "", "rgba(140,172,65,0.7)")),
+          parameter("array", "", null, value("integer", "", "1"), value("string", "", "rgba(140,172,65,0.05)")))))
+      .at("/series/0");
+
+    assertThat(serie.at("/lineStyle/width").asInt()).isEqualTo(3);
+    assertThat(serie.at("/lineStyle/type").asString()).isEqualTo("dashed");
+    assertThat(serie.at("/areaStyle/color/type").asString()).isEqualTo("linear");
+    assertThat(serie.at("/areaStyle/color/x").asInt()).isZero();
+    assertThat(serie.at("/areaStyle/color/y").asInt()).isZero();
+    assertThat(serie.at("/areaStyle/color/x2").asInt()).isZero();
+    assertThat(serie.at("/areaStyle/color/y2").asInt()).isEqualTo(1);
+    assertThat(serie.at("/areaStyle/color/colorStops/0/offset").asInt()).isZero();
+    assertThat(serie.at("/areaStyle/color/colorStops/0/color").asString()).isEqualTo("rgba(140,172,65,0.7)");
+    assertThat(serie.at("/areaStyle/color/colorStops/1/offset").asInt()).isEqualTo(1);
+    assertThat(serie.at("/areaStyle/color/colorStops/1/color").asString()).isEqualTo("rgba(140,172,65,0.05)");
+    assertThat(serie.at("/areaStyle/opacity").asInt()).isEqualTo(1);
+  }
+
+  @Test
+  void dashStylesMapToDashedOrDottedLines() {
+    assertThat(withSeriesParameters("line", value("string", "dashStyle", "Dot")).at("/series/0/lineStyle/type")
+      .asString()).isEqualTo("dotted");
+    assertThat(withSeriesParameters("line", value("string", "dashStyle", "LongDash")).at("/series/0/lineStyle/type")
+      .asString()).isEqualTo("dashed");
+    assertThat(withSeriesParameters("line", value("string", "dashStyle", "Solid")).at("/series/0/lineStyle/type")
+      .asString()).isEqualTo("solid");
+  }
+
+  @Test
+  void fillColorsOnlyApplyToAreas() {
+    ChartParameter fill = value("string", "fillColor", "#ff0000");
+
+    assertThat(withSeriesParameters("area", fill).at("/series/0/areaStyle/color").asString()).isEqualTo("#ff0000");
+    assertThat(withSeriesParameters("line", fill).at("/series/0").has("areaStyle")).isFalse();
+  }
+
+  @Test
+  void infiniteThresholdFillsFromTheStartOfTheAxis() {
+    JsonNode area = withPlotOptions("area", "area", value("string", "threshold", "-Infinity"));
+    JsonNode zero = withPlotOptions("area", "area", value("integer", "threshold", "0"));
+
+    assertThat(area.at("/series/0/areaStyle/origin").asString()).isEqualTo("start");
+    assertThat(zero.at("/series/0/areaStyle/origin").isMissingNode()).isTrue();
+  }
+
+  @Test
+  void otherThresholdsAreApproximatedAndReported() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("area").parameterList(List.of(object("plotOptions", object("area",
+      value("integer", "threshold", "50"))))).serieList(List.of(serie("a").build())).build();
+
+    JsonNode model = echarts(chart, reporter);
+
+    assertThat(model.at("/series/0/areaStyle/origin").isMissingNode()).isTrue();
+    assertThat(messages).hasSize(1);
+    assertThat(messages.get(0)).contains("threshold");
+  }
+
+  @Test
+  void markerOptionsMapToTheSymbol() {
+    JsonNode serie = withPlotOptions("area", "area", object("marker", value("string", "fillColor", "#FFFFFF"),
+      value("integer", "lineWidth", "2"), value("string", "lineColor", "#0088CC"), value("integer", "radius", "4")))
+      .at("/series/0");
+
+    assertThat(serie.at("/symbol").asString()).isEqualTo("circle");
+    assertThat(serie.at("/symbolSize").asInt()).isEqualTo(8);
+    assertThat(serie.at("/showSymbol").asBoolean()).isTrue();
+    // The fill is a hint: the client keeps the palette color for the line and the area, and gives the fill to the symbol
+    assertThat(serie.at("/awe/markerFill").asString()).isEqualTo("#FFFFFF");
+    assertThat(serie.at("/itemStyle").has("color")).isFalse();
+    assertThat(serie.at("/itemStyle/borderColor").asString()).isEqualTo("#0088CC");
+    assertThat(serie.at("/itemStyle/borderWidth").asInt()).isEqualTo(2);
+  }
+
+  @Test
+  void markerFillLeavesTheColorOfTheSeriesAlone() {
+    ChartParameter marker = object("marker", value("string", "fillColor", "#FFFFFF"));
+    JsonNode colored = echarts(chart("area").serieList(List.of(serie("a").color("#8cac41")
+      .parameterList(List.of(marker)).build())).build());
+    JsonNode palette = echarts(chart("area").serieList(List.of(serie("a").parameterList(List.of(marker)).build()))
+      .build());
+
+    assertThat(colored.at("/series/0/itemStyle/color").asString()).isEqualTo("#8cac41");
+    assertThat(colored.at("/series/0/awe/markerFill").asString()).isEqualTo("#FFFFFF");
+    assertThat(colored.at("/series/0").has("lineStyle")).isFalse();
+    assertThat(palette.at("/series/0/itemStyle").has("color")).isFalse();
+    assertThat(palette.at("/series/0/awe/markerFill").asString()).isEqualTo("#FFFFFF");
+  }
+
+  @Test
+  void plotOptionsDefaultsDoNotLeakBetweenSeriesOfDifferentTypes() {
+    ChartParameter defaults = object("plotOptions", object("series", value("integer", "borderRadius", "6"),
+      object("marker", value("boolean", "enabled", "false"), value("string", "fillColor", "#FFFFFF")),
+      value("boolean", "showInLegend", "false")));
+    Chart chart = chart("mixed").parameterList(List.of(defaults)).serieList(List.of(
+      serie("bars").type("column").build(), serie("line").type("line").build(),
+      serie("dots").type("scatter").build())).build();
+
+    JsonNode first = echarts(chart);
+    JsonNode second = echarts(chart);
+
+    assertThat(first).isEqualTo(second);
+    assertThat(first.at("/series/0/awe/borderRadius").asInt()).isEqualTo(6);
+    assertThat(first.at("/series/1/awe").has("borderRadius")).isFalse();
+    assertThat(first.at("/series/2/awe").has("borderRadius")).isFalse();
+    assertThat(first.at("/series/0").has("showSymbol")).isFalse();
+    assertThat(first.at("/series/1/showSymbol").asBoolean(true)).isFalse();
+    assertThat(first.at("/series/2").has("showSymbol")).isFalse();
+    assertThat(first.at("/series/2/itemStyle/opacity").asInt(-1)).isZero();
+    assertThat(first.at("/series/0/itemStyle").has("opacity")).isFalse();
+    for (int index = 0; index < 3; index++) {
+      assertThat(first.at("/series/" + index + "/awe/showInLegend").asBoolean(true)).isFalse();
+      assertThat(first.at("/series/" + index).has("marker")).isFalse();
+    }
+  }
+
+  @Test
+  void percentageBubbleSizesAreKeptAsText() {
+    JsonNode serie = withPlotOptions("bubble", "bubble", value("string", "maxSize", "20%"),
+      value("string", "minSize", "abc")).at("/series/0");
+
+    assertThat(serie.at("/awe/maxSize").asString()).isEqualTo("20%");
+    assertThat(serie.at("/awe").has("minSize")).isFalse();
+  }
+
+  @Test
+  void disabledMarkersHideTheSymbolsOfLinesAndScatters() {
+    ChartParameter disabled = object("marker", value("boolean", "enabled", "false"));
+    JsonNode line = withSeriesParameters("line", disabled).at("/series/0");
+    JsonNode scatter = withSeriesParameters("scatter", disabled).at("/series/0");
+
+    assertThat(line.at("/showSymbol").asBoolean(true)).isFalse();
+    assertThat(scatter.at("/itemStyle/opacity").asInt(-1)).isZero();
+    assertThat(scatter.has("showSymbol")).isFalse();
+  }
+
+  @Test
+  void disabledMarkersWinOverMarkerStyles() {
+    JsonNode line = withSeriesParameters("line", object("marker", value("boolean", "enabled", "false"),
+      value("integer", "radius", "4"))).at("/series/0");
+
+    assertThat(line.at("/showSymbol").asBoolean(true)).isFalse();
+  }
+
+  @Test
+  void interactionAndLegendOptionsMapToSeriesOptionsAndHints() {
+    JsonNode hidden = withSeriesParameters("scatter", value("boolean", "enableMouseTracking", "false"),
+      value("boolean", "showInLegend", "false"), value("string", "linkedTo", ":previous"),
+      value("integer", "legendIndex", "2")).at("/series/0");
+
+    assertThat(hidden.at("/silent").asBoolean()).isTrue();
+    assertThat(hidden.at("/tooltip/show").asBoolean(true)).isFalse();
+    assertThat(hidden.at("/awe/showInLegend").asBoolean(true)).isFalse();
+    assertThat(hidden.at("/awe/linkedTo").asString()).isEqualTo(":previous");
+    assertThat(hidden.at("/awe/legendIndex").asInt()).isEqualTo(2);
+    assertThat(withSeriesParameters("scatter").at("/series/0").has("silent")).isFalse();
+  }
+
+  @Test
+  void colorOptionsMapToThePaletteAndThePointColors() {
+    JsonNode model = withChartParameters("pie",
+      parameter("array", "colors", null, parameter("string", "", "#111111"), parameter("string", "", "#222222")),
+      object("plotOptions", object("series", value("boolean", "colorByPoint", "true"),
+        value("boolean", "allowPointSelect", "true"))));
+
+    assertThat(model.at("/color")).extracting(JsonNode::asString).containsExactly("#111111", "#222222");
+    assertThat(model.at("/series/0/colorBy").asString()).isEqualTo("data");
+    assertThat(model.at("/series/0/selectedMode").asString()).isEqualTo("single");
+    assertThat(withSeriesParameters("column", value("boolean", "colorByPoint", "false")).at("/series/0/colorBy")
+      .asString()).isEqualTo("series");
+    assertThat(withSeriesParameters("column", value("string", "color", "#abcdef")).at("/series/0/itemStyle/color")
+      .asString()).isEqualTo("#abcdef");
+    assertThat(withSeriesParameters("column", value("string", "borderColor", "#123456"))
+      .at("/series/0/itemStyle/borderColor").asString()).isEqualTo("#123456");
+  }
+
+  @Test
+  void pieDataLabelOptionsMapToTheLabelLineAndFontSize() {
+    JsonNode serie = withPlotOptions("pie", "pie", object("dataLabels",
+      value("string", "connectorColor", "rgba(128,128,128,0.7)"),
+      object("style", value("string", "fontSize", "70%")))).at("/series/0");
+    JsonNode pixels = withPlotOptions("pie", "pie", object("dataLabels", object("style",
+      value("string", "fontSize", "9px")))).at("/series/0");
+
+    assertThat(serie.at("/labelLine/lineStyle/color").asString()).isEqualTo("rgba(128,128,128,0.7)");
+    assertThat(serie.at("/label/fontSize").asInt()).isEqualTo(8);
+    assertThat(pixels.at("/label/fontSize").asInt()).isEqualTo(9);
+  }
+
+  @Test
+  void dataLabelOptionsOfASeriesMapToItsLabel() {
+    JsonNode serie = withSeriesParameters("column", object("dataLabels", value("boolean", "enabled", "true"),
+      value("string", "format", "{y:,.0f}€"), object("style", value("string", "fontSize", "11px"))))
+      .at("/series/0");
+
+    assertThat(serie.at("/label/show").asBoolean()).isTrue();
+    assertThat(serie.at("/label/fontSize").asInt()).isEqualTo(11);
+    assertThat(serie.at("/awe/labelFormat").asString()).isEqualTo("{y:,.0f}€");
+  }
+
+  @Test
+  void seriesParametersAreAvailableToTheFormatsAsUserOptions() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("column").serieList(List.of(serie("a").parameterList(List.of(
+      value("string", "fullname", "Average salary"), value("string", "stack", "salary"),
+      object("marker", value("boolean", "enabled", "false")))).build())).build();
+
+    JsonNode serie = echarts(chart, reporter).at("/series/0");
+
+    assertThat(serie.at("/awe/userOptions/fullname").asString()).isEqualTo("Average salary");
+    assertThat(serie.at("/awe/userOptions/stack").asString()).isEqualTo("salary");
+    assertThat(serie.at("/awe/userOptions/marker/enabled").asBoolean(true)).isFalse();
+    assertThat(messages).noneMatch(message -> message.contains("fullname"));
+    assertThat(withSeriesParameters("column").at("/series/0/awe").has("userOptions")).isFalse();
+  }
+
+  @Test
+  void seriesTooltipSuffixBecomesAHint() {
+    JsonNode serie = withSeriesParameters("line", object("tooltip", value("string", "valueSuffix", " €")))
+      .at("/series/0");
+
+    assertThat(serie.at("/awe/valueSuffix").asString()).isEqualTo(" €");
+  }
+
+  @Test
+  void tooltipFormatsAndStyleMapToHintsAndTextStyle() {
+    ChartTooltip tooltip = ChartTooltip.builder().parameterList(List.of(value("boolean", "useHTML", "true"),
+      value("string", "headerFormat", "<table>"), value("string", "pointFormat", "<tr>{y}</tr>"),
+      value("string", "footerFormat", "</table>"), object("style", value("string", "fontSize", "12px")))).build();
+    JsonNode model = echarts(chart("column").chartTooltip(tooltip).serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/tooltip/awe/useHTML").asBoolean()).isTrue();
+    assertThat(model.at("/tooltip/awe/headerFormat").asString()).isEqualTo("<table>");
+    assertThat(model.at("/tooltip/awe/pointFormat").asString()).isEqualTo("<tr>{y}</tr>");
+    assertThat(model.at("/tooltip/awe/footerFormat").asString()).isEqualTo("</table>");
+    assertThat(model.at("/tooltip/textStyle/fontSize").asInt()).isEqualTo(12);
+  }
+
+  @Test
+  void tooltipDistanceIsDroppedWithAWarning() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    ChartTooltip tooltip = ChartTooltip.builder().parameterList(List.of(value("integer", "distance", "30"))).build();
+
+    JsonNode model = echarts(chart("column").chartTooltip(tooltip).serieList(List.of(serie("a").build())).build(),
+      reporter);
+
+    assertThat(pathsOf(model.at("/tooltip"), "distance")).isEmpty();
+    assertThat(messages).hasSize(1);
+    assertThat(messages.get(0)).contains("distance");
+  }
+
+  @Test
+  void axisOptionsMapToGridLinesLabelFormatsAndTicks() {
+    ChartAxis axis = ChartAxis.builder().parameterList(List.of(value("string", "gridLineWidth", "0"),
+      object("labels", value("string", "format", "{value}k")), value("integer", "tickAmount", "5"))).build();
+    ChartAxis thin = ChartAxis.builder().parameterList(List.of(value("string", "gridLineWidth", "0.5"))).build();
+    JsonNode model = echarts(chart("line").yAxisList(List.of(axis, thin)).serieList(List.of(serie("a").build())).build());
+
+    assertThat(model.at("/yAxis/0/splitLine/show").asBoolean(true)).isFalse();
+    assertThat(model.at("/yAxis/0/awe/labelFormat").asString()).isEqualTo("{value}k");
+    assertThat(model.at("/yAxis/0/splitNumber").asInt()).isEqualTo(5);
+    assertThat(model.at("/yAxis/1/splitLine/show").asBoolean()).isTrue();
+    assertThat(model.at("/yAxis/1/splitLine/lineStyle/width").asDouble()).isEqualTo(0.5);
+  }
+
+  @Test
+  void alignedTicksAreApproximatedOnTheValueAxes() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("line").parameterList(List.of(object("chart", value("boolean", "alignTicks", "true"),
+        value("boolean", "alignThresholds", "true"))))
+      .xAxisList(List.of(ChartAxis.builder().type("datetime").build()))
+      .yAxisList(List.of(ChartAxis.builder().build(), ChartAxis.builder().opposite(true).build()))
+      .serieList(List.of(serie("a").build())).build();
+
+    JsonNode model = echarts(chart, reporter);
+
+    assertThat(model.at("/yAxis/0/alignTicks").asBoolean()).isTrue();
+    assertThat(model.at("/yAxis/1/alignTicks").asBoolean()).isTrue();
+    assertThat(model.at("/xAxis/0/alignTicks").isMissingNode()).isTrue();
+    assertThat(pathsOf(model, "alignTicks")).doesNotContain("/awe/alignTicks");
+    assertThat(model.at("/awe").has("alignTicks")).isFalse();
+    assertThat(messages).hasSize(1);
+    assertThat(messages.get(0)).contains("alignThresholds");
+  }
+
+  @Test
+  void bubbleSizesBecomeHints() {
+    JsonNode serie = withPlotOptions("bubble", "bubble", value("integer", "minSize", "10"),
+      value("integer", "maxSize", "40")).at("/series/0");
+
+    assertThat(serie.at("/awe/minSize").asInt()).isEqualTo(10);
+    assertThat(serie.at("/awe/maxSize").asInt()).isEqualTo(40);
+  }
+
+  @Test
+  void plainTitleParameterBecomesTheTitleText() {
+    JsonNode model = withChartParameters("line", value("string", "title", "Staff"));
+
+    assertThat(model.at("/title/text").asString()).isEqualTo("Staff");
+    assertThat(model.at("/title/left").asString()).isEqualTo("center");
+  }
+
+  @Test
+  void rootTickAmountIsDroppedWithoutWarning() {
+    List<String> messages = new ArrayList<>();
+    UnsupportedOptionReporter reporter = new UnsupportedOptionReporter(messages::add);
+    Chart chart = chart("line").parameterList(List.of(value("integer", "tickAmount", "5")))
+      .serieList(List.of(serie("a").build())).build();
+
+    JsonNode model = echarts(chart, reporter);
+
+    assertThat(pathsOf(model, "tickAmount")).isEmpty();
+    assertThat(pathsOf(model, "splitNumber")).isEmpty();
+    assertThat(messages).isEmpty();
+  }
+}

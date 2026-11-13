@@ -6,10 +6,10 @@ import com.almis.awe.model.entities.queries.Query;
 import com.almis.awe.model.entities.services.ServiceInputParameter;
 import com.almis.awe.model.entities.services.ServiceJava;
 import com.almis.awe.model.entities.services.ServiceType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.BeanFactoryAnnotationUtils;
 import org.springframework.web.context.support.GenericWebApplicationContext;
+import tools.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -8,6 +8,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.constant.AweConstants;
 import com.almis.awe.model.dao.AweElementsDao;
+import com.almis.awe.model.dto.GridColumnLayout;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.Element;
@@ -17,17 +18,24 @@ import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.Tag;
 import com.almis.awe.model.entities.screen.component.Component;
 import com.almis.awe.model.entities.screen.component.MenuContainer;
+import com.almis.awe.model.entities.screen.component.Window;
 import com.almis.awe.model.entities.screen.component.action.AbstractAction;
 import com.almis.awe.model.entities.screen.component.action.ButtonAction;
 import com.almis.awe.model.entities.screen.component.criteria.AbstractCriteria;
+import com.almis.awe.model.entities.screen.component.grid.AbstractGrid;
 import com.almis.awe.model.entities.screen.component.grid.Column;
 import com.almis.awe.model.entities.screen.component.grid.Grid;
+import com.almis.awe.model.entities.screen.component.grid.RowDetail;
 import com.almis.awe.model.entities.screen.data.*;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.almis.awe.security.authorization.ScreenElementAuthorizer;
+import com.almis.awe.service.GridLayoutService;
+import com.almis.awe.service.WindowStateService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.*;
 import java.util.concurrent.Future;
@@ -40,6 +48,10 @@ import static com.almis.awe.model.constant.AweConstants.NO_TAG;
 @Slf4j
 public class ScreenComponentGenerator extends ServiceConfig {
 
+  private static final String ERROR_MESSAGE_SCREEN_COMPONENT_MAP = "ERROR_MESSAGE_SCREEN_COMPONENT_MAP";
+  private static final String ERROR_TITLE_SCREEN_GENERATION_ERROR = "ERROR_TITLE_SCREEN_GENERATION_ERROR";
+  private static final String ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION = "ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION";
+
   // Autowired services
   private final AweRequest aweRequest;
   private final ScreenModelGenerator screenModelGenerator;
@@ -47,6 +59,11 @@ public class ScreenComponentGenerator extends ServiceConfig {
   private final AweElementsDao aweElementsDao;
   private final BaseConfigProperties baseConfigProperties;
   private final ScreenConfigurationGenerator screenConfigurationGenerator;
+  private final GridLayoutService gridLayoutService;
+  private final WindowStateService windowStateService;
+
+  // Removes the elements the user cannot use. Optional: without it the screen is generated as it is defined
+  private ScreenElementAuthorizer screenElementAuthorizer;
 
   /**
    * Autowired constructor
@@ -56,16 +73,32 @@ public class ScreenComponentGenerator extends ServiceConfig {
    * @param initialLoadDao               Initial load service
    * @param aweElementsDao               AWE Elements DAO
    * @param baseConfigProperties         Base configuration properties
+   * @param screenConfigurationGenerator Screen configuration generator
+   * @param gridLayoutService            Grid layout service
+   * @param windowStateService           Window state service
    */
   public ScreenComponentGenerator(AweRequest request, ScreenModelGenerator screenModelGenerator,
                                   InitialLoadDao initialLoadDao, AweElementsDao aweElementsDao,
-                                  BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator) {
+                                  BaseConfigProperties baseConfigProperties, ScreenConfigurationGenerator screenConfigurationGenerator,
+                                  GridLayoutService gridLayoutService, WindowStateService windowStateService) {
     this.aweRequest = request;
     this.screenModelGenerator = screenModelGenerator;
     this.initialLoadDao = initialLoadDao;
     this.aweElementsDao = aweElementsDao;
     this.baseConfigProperties = baseConfigProperties;
     this.screenConfigurationGenerator = screenConfigurationGenerator;
+    this.gridLayoutService = gridLayoutService;
+    this.windowStateService = windowStateService;
+  }
+
+  /**
+   * Set the authorizer of the screen elements
+   *
+   * @param screenElementAuthorizer Screen element authorizer
+   */
+  @Autowired(required = false)
+  public void setScreenElementAuthorizer(ScreenElementAuthorizer screenElementAuthorizer) {
+    this.screenElementAuthorizer = screenElementAuthorizer;
   }
 
   /**
@@ -78,11 +111,28 @@ public class ScreenComponentGenerator extends ServiceConfig {
    * @return Component map
    */
   public Map<String, ScreenComponent> generateComponentMap(Screen screen, ScreenData data, Menu menu, ObjectNode storedCriteria) {
+    return generateComponentMap(screen, data, menu, DefaultSearches.Resolution.none(storedCriteria));
+  }
+
+  /**
+   * Generate component map with the default searches of its windows (#915)
+   *
+   * @param screen          Screen object
+   * @param data            Screen data
+   * @param menu            Current menu
+   * @param defaultSearches Stored criteria with the values of the default searches, and the searches applied
+   * @return Component map
+   */
+  public Map<String, ScreenComponent> generateComponentMap(Screen screen, ScreenData data, Menu menu, DefaultSearches.Resolution defaultSearches) {
+    ObjectNode storedCriteria = defaultSearches.parameters();
     Map<String, ScreenComponent> componentMap = new LinkedHashMap<>();
     List<AweThreadInitialization> initializationList = new ArrayList<>();
+    applyGridData(defaultSearches);
 
     // Generate screen configuration
-    AweThreadInitialization screenConfigurationThread = screenModelGenerator.getScreenConfigurationThread();
+    Optional<ScreenSubject> subject = screenConfigurationGenerator.getSubject();
+    AweThreadInitialization screenConfigurationThread = subject.isPresent() ?
+      screenModelGenerator.getScreenSubjectConfigurationThread() : screenModelGenerator.getScreenConfigurationThread();
 
     // Generate screen target (if it exists)
     if (screen.getTarget() != null) {
@@ -98,22 +148,95 @@ public class ScreenComponentGenerator extends ServiceConfig {
       Future<ServiceData> configurationResult = initialLoadDao.launchInitialLoad(screenConfigurationThread);
 
       // Apply screen configuration
-      screenConfigurationGenerator.applyScreenConfiguration(configurationResult, screen);
+      screenConfigurationGenerator.applyScreenConfiguration(configurationResult, screen, subject);
+
+      // Remove the elements the user cannot use (the screen is the copy generated for this request)
+      if (screenElementAuthorizer != null) {
+        screenElementAuthorizer.apply(screen);
+      }
+
+      // Components inside deferred dialogs and tab pages do not load their data until they are opened
+      Set<Component> deferredComponents = DeferredComponents.getDeferredComponents(screen);
+
+      // Retrieve the grid layouts of the user (only when the screen has grids)
+      Map<String, GridColumnLayout> gridLayouts = screen.getElementsByType(AbstractGrid.class).isEmpty() ?
+        Collections.emptyMap() : gridLayoutService.getScreenLayouts(screen.getId());
 
       // Add component
       List<Component> components = screen.getElementsByType(Component.class);
       for (Component component : components) {
-        generateComponent(screen.getId(), component, initializationList, componentMap, storedCriteria, menu);
+        generateComponent(screen.getId(), component, initializationList, componentMap, storedCriteria, menu, gridLayouts, deferredComponents.contains(component), true);
       }
+
+      // Apply the advanced block states of the user (only when the screen has windows with an advanced block)
+      applyAdvancedStates(screen, componentMap);
+
+      // Tell each window the default search applied to it
+      applyDefaultSearches(componentMap, defaultSearches);
 
       // Launch all initial load actions and store the values
       screenModelGenerator.launchInitialLoadList(initializationList, componentMap, data);
     } catch (AWException error) {
       data.addError(error);
-      log.error("ERROR_MESSAGE_SCREEN_COMPONENT_MAP", error);
+      log.error(ERROR_MESSAGE_SCREEN_COMPONENT_MAP, error);
     } catch (Exception error) {
-      data.addError(new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"), error));
-      log.error("ERROR_MESSAGE_SCREEN_COMPONENT_MAP", error);
+      data.addError(new AWException(getLocale(ERROR_TITLE_SCREEN_GENERATION_ERROR), error));
+      log.error(ERROR_MESSAGE_SCREEN_COMPONENT_MAP, error);
+    }
+
+    return componentMap;
+  }
+
+  /**
+   * Generate the component map of a deferred container (dialog or tab page) when it is opened for the first time,
+   * running the initial load of its components. The initial load of the grid columns is not launched again, as it
+   * already ran with the screen.
+   *
+   * @param screen         Screen object
+   * @param container      Deferred container
+   * @param data           Screen data (receives the actions generated by the initial loads)
+   * @param menu           Current menu
+   * @param storedCriteria Stored criteria
+   * @param loaded         Identifiers of the components which already have data and must not be loaded
+   * @return Component map of the components loaded
+   */
+  public Map<String, ScreenComponent> generateDeferredComponentMap(Screen screen, Element container, ScreenData data, Menu menu, ObjectNode storedCriteria, Set<String> loaded) {
+    return generateDeferredComponentMap(screen, container, data, menu, DefaultSearches.Resolution.none(storedCriteria), loaded);
+  }
+
+  /**
+   * Generate the component map of a deferred container with the default searches of the windows of the screen (#915)
+   *
+   * @param screen          Screen object
+   * @param container       Deferred container
+   * @param data            Screen data (receives the actions generated by the initial loads)
+   * @param menu            Current menu
+   * @param defaultSearches Stored criteria with the values of the default searches, and the searches applied
+   * @param loaded          Identifiers of the components which already have data and must not be loaded
+   * @return Component map of the components loaded
+   */
+  public Map<String, ScreenComponent> generateDeferredComponentMap(Screen screen, Element container, ScreenData data, Menu menu, DefaultSearches.Resolution defaultSearches, Set<String> loaded) {
+    ObjectNode storedCriteria = defaultSearches.parameters();
+    Map<String, ScreenComponent> componentMap = new LinkedHashMap<>();
+    List<AweThreadInitialization> initializationList = new ArrayList<>();
+    applyGridData(defaultSearches);
+
+    try {
+      for (Component component : DeferredComponents.getComponentsToLoad(container)) {
+        if (!loaded.contains(component.getElementKey())) {
+          generateComponent(screen.getId(), component, initializationList, componentMap, storedCriteria, menu, Collections.emptyMap(), false, false);
+        }
+      }
+      applyDefaultSearches(componentMap, defaultSearches);
+
+      // Launch all initial load actions and store the values
+      screenModelGenerator.launchInitialLoadList(initializationList, componentMap, data);
+    } catch (AWException error) {
+      data.addError(error);
+      log.error(ERROR_MESSAGE_SCREEN_COMPONENT_MAP, error);
+    } catch (Exception error) {
+      data.addError(new AWException(getLocale(ERROR_TITLE_SCREEN_GENERATION_ERROR), error));
+      log.error(ERROR_MESSAGE_SCREEN_COMPONENT_MAP, error);
     }
 
     return componentMap;
@@ -128,9 +251,12 @@ public class ScreenComponentGenerator extends ServiceConfig {
    * @param componentMap       Component map
    * @param storedCriteria     Stored criteria
    * @param menu               Current menu
+   * @param gridLayouts        Grid layouts of the user by grid identifier
+   * @param deferred           The component data is not loaded now (it waits for its container to be opened)
+   * @param loadColumns        Launch the initial load of the grid columns
    * @throws AWException AWE exception
    */
-  private void generateComponent(String containerId, Component component, List<AweThreadInitialization> initializationList, Map<String, ScreenComponent> componentMap, ObjectNode storedCriteria, Menu menu) throws AWException {
+  private void generateComponent(String containerId, Component component, List<AweThreadInitialization> initializationList, Map<String, ScreenComponent> componentMap, ObjectNode storedCriteria, Menu menu, Map<String, GridColumnLayout> gridLayouts, boolean deferred, boolean loadColumns) throws AWException {
     if (!NO_TAG.equalsIgnoreCase(component.getComponentTag())) {
       // Generate component model
       ScreenComponent screenComponent = new ScreenComponent();
@@ -144,14 +270,14 @@ public class ScreenComponentGenerator extends ServiceConfig {
         screenModelGenerator.generateScreenCriterionModel((AbstractCriteria) screenComponent.getController(), screenComponent, storedCriteria);
       }
 
-      // Store initial load
-      if (component.getInitialLoad() != null) {
+      // Store initial load (deferred components wait until their container is opened)
+      if (component.getInitialLoad() != null && !deferred) {
         screenModelGenerator.addComponentTarget(initializationList, component);
       }
 
       // Generate grid
       if (component instanceof Grid) {
-        generateScreenGrid((Grid) screenComponent.getController(), screenComponent, initializationList);
+        generateGrid(containerId, screenComponent, initializationList, gridLayouts, loadColumns);
       }
 
       // Generate menu
@@ -163,10 +289,137 @@ public class ScreenComponentGenerator extends ServiceConfig {
       if (!componentMap.containsKey(component.getElementKey())) {
         componentMap.put(component.getElementKey(), screenComponent);
       } else {
-        throw new AWException(getLocale("ERROR_TITLE_SCREEN_GENERATION_ERROR"),
+        throw new AWException(getLocale(ERROR_TITLE_SCREEN_GENERATION_ERROR),
           getLocale("ERROR_MESSAGE_DUPLICATED_IDENTIFIER", component.getElementKey(), containerId));
       }
     }
+  }
+
+  /**
+   * Generate grid: its screen model and its column layout
+   *
+   * @param containerId        Container id
+   * @param screenComponent    Screen component of the grid
+   * @param initializationList Initialization list
+   * @param gridLayouts        Grid layouts of the user by grid identifier
+   * @param loadColumns        Launch the initial load of the grid columns
+   * @throws AWException AWE exception
+   */
+  private void generateGrid(String containerId, ScreenComponent screenComponent, List<AweThreadInitialization> initializationList, Map<String, GridColumnLayout> gridLayouts, boolean loadColumns) throws AWException {
+    Grid gridController = (Grid) screenComponent.getController();
+    generateScreenGrid(gridController, screenComponent, initializationList, loadColumns);
+    generateRowDetail(containerId, gridController);
+    if (gridLayouts == null) {
+      // Intended: the layout is stored per screen and grid (the save service checks the grid exists in the screen) and the grids of a generated tag list are in no screen, so a toolbar would offer a save that always fails
+      gridController.setShowToolbar(false);
+    } else {
+      gridController.setScreenId(containerId);
+      gridController.setColumnLayout(gridLayoutService.resolveLayout(gridController, gridLayouts));
+    }
+  }
+
+  /**
+   * Tell each window with an advanced block whether the user left the block open, when the user has a state stored for
+   * it. The states are read with one query per screen, and only for screens with such windows
+   *
+   * @param screen       Screen
+   * @param componentMap Component map of the screen
+   */
+  private void applyAdvancedStates(Screen screen, Map<String, ScreenComponent> componentMap) {
+    List<Window> windows = screen.getElementsByType(Window.class).stream().filter(Window::hasAdvancedBlock).toList();
+    if (windows.isEmpty()) {
+      return;
+    }
+
+    Map<String, Boolean> states = windowStateService.getScreenAdvancedStates(screen.getId());
+    for (Window window : windows) {
+      ScreenComponent screenComponent = componentMap.get(window.getElementKey());
+      if (screenComponent != null && states.containsKey(window.getElementKey())) {
+        ((Window) screenComponent.getController()).setAdvancedOpen(states.get(window.getElementKey()));
+      }
+    }
+  }
+
+  /**
+   * Tell each window (#915) and grid (#945) the default search applied to it. The criteria it filled select its values,
+   * but their default values (the ones Clear all goes back to) stay the ones of their definition
+   *
+   * @param componentMap    Component map
+   * @param defaultSearches Default searches applied
+   */
+  private void applyDefaultSearches(Map<String, ScreenComponent> componentMap, DefaultSearches.Resolution defaultSearches) {
+    defaultSearches.searches().forEach((windowId, search) -> {
+      ScreenComponent screenComponent = componentMap.get(windowId);
+      if (screenComponent != null && screenComponent.getController() instanceof Window window) {
+        window.setDefaultSearch(search);
+      }
+    });
+    defaultSearches.grids().forEach((gridId, search) -> {
+      ScreenComponent screenComponent = componentMap.get(gridId);
+      if (screenComponent != null && screenComponent.getController() instanceof AbstractGrid grid) {
+        grid.setDefaultSearch(search);
+      }
+    });
+    for (String criterionId : defaultSearches.criteria()) {
+      ScreenComponent screenComponent = componentMap.get(criterionId);
+      if (screenComponent != null && screenComponent.getController() instanceof AbstractCriteria criterion) {
+        screenComponent.getModel().setDefaultValues(screenModelGenerator.getDefinitionDefaultValues(criterion));
+      }
+    }
+  }
+
+  /**
+   * Write the sort and column filters of the default search of each grid (#945) in the data the request sends for it, so
+   * the initial load of the grid reads them. When the screen is generated the data is the one the default search wrote
+   * in the stored parameters; when a deferred container is opened it goes over the data the client sends for the grid
+   *
+   * @param defaultSearches Default searches applied
+   */
+  private void applyGridData(DefaultSearches.Resolution defaultSearches) {
+    for (String gridId : defaultSearches.grids().keySet()) {
+      String dataKey = gridId + getDataSuffix();
+      if (defaultSearches.parameters().get(dataKey) instanceof ObjectNode defaultData) {
+        ObjectNode data = aweRequest.getParameterList().get(dataKey) instanceof ObjectNode requestData ?
+          requestData.deepCopy() : JsonNodeFactory.instance.objectNode();
+        data.setAll(defaultData);
+        aweRequest.getParameterList().set(dataKey, data);
+      }
+    }
+  }
+
+  /**
+   * Retrieve the suffix of the data parameter of a component
+   *
+   * @return Data suffix ({@code .data})
+   */
+  public String getDataSuffix() {
+    return baseConfigProperties.getComponent().getDataSuffix();
+  }
+
+  /**
+   * Generate the component of a grid row detail: the template the clients use to create one instance per open row. It
+   * is generated as a screen component, but it is not one: it is not registered, does not load with the screen and has
+   * no column layout (which is stored by screen and grid)
+   *
+   * @param containerId Container id
+   * @param grid        Grid controller
+   * @throws AWException The row detail definition is not valid
+   */
+  private void generateRowDetail(String containerId, Grid grid) throws AWException {
+    RowDetail rowDetail = grid.getRowDetail();
+    if (rowDetail == null || !rowDetail.isComponentMode()) {
+      return;
+    }
+
+    RowDetail.DefinitionError error = rowDetail.getDefinitionError();
+    if (error != null) {
+      throw new AWException(getLocale(ERROR_TITLE_BAD_ROW_DETAIL_DEFINITION), getLocale(error.getMessage(), grid.getElementKey(), containerId));
+    }
+
+    Map<String, ScreenComponent> detailComponents = new LinkedHashMap<>();
+    Grid detailGrid = rowDetail.getDetailGrid();
+    generateComponent(containerId, detailGrid, Collections.emptyList(), detailComponents, JsonNodeFactory.instance.objectNode(), null, null, true, false);
+    rowDetail.setComponent(detailComponents.get(detailGrid.getElementKey()));
   }
 
   /**
@@ -199,7 +452,9 @@ public class ScreenComponentGenerator extends ServiceConfig {
       if (option.getActionList() == null) {
         String serverAction = option.getServerAction() != null ? option.getServerAction() : menu.getDefaultAction();
         String context = option.getScreenContext() != null ? option.getScreenContext() : menu.getScreenContext();
+        // Only "screen" is also a client action type, any other server action must be sent as a server action (#879)
         AbstractAction action = ButtonAction.builder()
+          .type("screen".equals(serverAction) ? null : "server")
           .serverAction(serverAction)
           .targetAction(option.getTargetAction())
           .screenContext(context)
@@ -217,8 +472,9 @@ public class ScreenComponentGenerator extends ServiceConfig {
    *
    * @param grid               Grid component
    * @param initializationList Initialization list
+   * @param loadColumns        Launch the initial load of the grid columns
    */
-  private void generateScreenGrid(Grid grid, ScreenComponent screenComponent, List<AweThreadInitialization> initializationList) {
+  private void generateScreenGrid(Grid grid, ScreenComponent screenComponent, List<AweThreadInitialization> initializationList, boolean loadColumns) {
     // If the component is a grid, store columns' initial load
     List<Column> columns = grid.getElementsByType(Column.class);
     List<ScreenColumn> columnList = new ArrayList<>();
@@ -269,7 +525,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
       columnList.add(columnComponent);
 
       // Initialize column data
-      if (column.getInitialLoad() != null) {
+      if (loadColumns && column.getInitialLoad() != null) {
         screenModelGenerator.addColumnTarget(initializationList, gridId, column);
       }
     }
@@ -302,7 +558,7 @@ public class ScreenComponentGenerator extends ServiceConfig {
     // Add component
     List<Component> components = new Tag().setElementList(templateElements).getElementsByType(Component.class);
     for (Component component : components) {
-      generateComponent(tagListId, component, Collections.emptyList(), taglistComponents, JsonNodeFactory.instance.objectNode(), null);
+      generateComponent(tagListId, component, Collections.emptyList(), taglistComponents, JsonNodeFactory.instance.objectNode(), null, null, false, true);
     }
 
     // Retrieve taglist components

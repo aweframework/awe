@@ -1,0 +1,150 @@
+---
+id: side-panel-popover
+title: Side panel and popover
+sidebar_label: Side panel and popover
+description: The AWE side panel and popover, live. Open them from a button, change their attributes and see the real components and the XML that produces them.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {sidePanel} from '@site/src/components/AwePlayground/specs/side-panel';
+import {popover} from '@site/src/components/AwePlayground/specs/popover';
+
+Both are [dialogs](./dialog.mdx) that do not cover the whole screen: a **side panel** is anchored to the left or right edge and keeps the
+screen in view, a **popover** opens next to the control it belongs to. They open and close like a dialog (a button with a `dialog`
+action, `close` and `close-cancel` actions) and close with their cross, Esc or a click outside. Press the buttons below: the playgrounds
+run those actions.
+
+:::note
+Both are drawn over the whole page, outside the preview, so they follow the colour mode of the site and not the one of the
+**Light / Dark** switch of the preview.
+:::
+
+## Side panel {#side-panel}
+
+Use it for content the user consults or edits next to the screen: filters, the detail of a row, settings. The header and the footer stay
+in view and the body scrolls between them.
+
+<AwePlayground spec={sidePanel} />
+
+With `header-grid` the header of a side panel shows the selected row of a grid (an avatar, a title, a subtitle and `header-tag` tags).
+That identity header needs a grid with a selected row and is not part of this playground: see
+[the identity header](../api/side-panel.md#identity-header).
+
+## Popover {#popover}
+
+Use it for short content linked to a control: a quick edit, a few options, a note. Its `anchor` is the id of that control (a button, a
+criterion, a grid...) and `position` the side where it opens. It follows the anchor while the page scrolls.
+
+<AwePlayground spec={popover} />
+
+## Recipes {#recipes}
+
+### Filters on the left {#recipe-filters}
+
+A side panel on the left edge, narrow, whose `on-close="reject"` makes the cross, Esc and a click outside behave as *Cancel*:
+the actions that were waiting for the panel are cancelled.
+
+<AweLive
+  components={{
+    OpenFilters: {attributes: {label: 'Filters', icon: 'lucide:filter'}, actions: [{type: 'dialog', target: 'FiltersPanel'}]},
+    FiltersPanel: {attributes: {label: 'Filters', position: 'left', maxWidth: '20rem', acceptOnClose: false}},
+    Search: {attributes: {label: 'Search', placeholder: 'Name or email'}},
+    OnlyActive: {attributes: {label: 'Only active customers', style: 'switch'}, model: {values: [{value: '1', label: 'Yes', selected: true}]}},
+    Reset: {attributes: {label: 'Reset'}, actions: [{type: 'close-cancel', target: 'FiltersPanel'}]},
+    Apply: {attributes: {label: 'Apply', style: 'btn-primary'}, actions: [{type: 'close', target: 'FiltersPanel'}]},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'OpenFilters'},
+    {elementType: 'SidePanel', id: 'FiltersPanel', elementList: [
+      {elementType: 'Tag', type: 'div', style: 'panel-body', elementList: [
+        {elementType: 'Criteria', component: 'text', id: 'Search'},
+        {elementType: 'Criteria', component: 'checkbox', id: 'OnlyActive'},
+      ]},
+      {elementType: 'Tag', type: 'div', style: 'modal-footer', elementList: [
+        {elementType: 'Button', id: 'Reset'}, {elementType: 'Button', id: 'Apply'},
+      ]},
+    ]},
+  ]}
+/>
+
+```xml
+<button id="OpenFilters" label="Filters" icon="lucide:filter">
+  <button-action type="dialog" target="FiltersPanel" />
+</button>
+
+<side-panel id="FiltersPanel" label="Filters" position="left" max-width="20rem" on-close="reject">
+  <tag type="div" style="panel-body">
+    <criteria id="Search" component="text" label="Search" placeholder="Name or email" />
+    <criteria id="OnlyActive" component="checkbox" label="Only active customers" style="switch" />
+  </tag>
+  <tag type="div" style="modal-footer">
+    <button id="Reset" label="Reset">
+      <button-action type="close-cancel" target="FiltersPanel" />
+    </button>
+    <button id="Apply" label="Apply" style="btn-primary">
+      <button-action type="close" target="FiltersPanel" />
+    </button>
+  </tag>
+</side-panel>
+```
+
+### Confirm over a control {#recipe-popover-confirm}
+
+A popover above its anchor. Opening it from the button that needs the decision keeps the question next to the action.
+
+<AweLive
+  components={{
+    Archive: {attributes: {label: 'Archive customer', icon: 'lucide:archive'}, actions: [{type: 'dialog', target: 'ArchivePopover'}]},
+    ArchivePopover: {attributes: {label: 'Archive this customer?', anchor: 'Archive', position: 'top', maxWidth: '16rem'}},
+    Keep: {attributes: {label: 'Keep'}, actions: [{type: 'close-cancel', target: 'ArchivePopover'}]},
+    Confirm: {attributes: {label: 'Archive', style: 'btn-danger'}, actions: [{type: 'close', target: 'ArchivePopover'}]},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'Archive'},
+    {elementType: 'Popover', id: 'ArchivePopover', elementList: [
+      {elementType: 'Tag', type: 'p', label: 'Its orders stay in the history.'},
+      {elementType: 'Tag', type: 'div', style: 'modal-footer', elementList: [
+        {elementType: 'Button', id: 'Keep'}, {elementType: 'Button', id: 'Confirm'},
+      ]},
+    ]},
+  ]}
+/>
+
+```xml
+<button id="Archive" label="Archive customer" icon="lucide:archive">
+  <button-action type="dialog" target="ArchivePopover" />
+</button>
+
+<popover id="ArchivePopover" label="Archive this customer?" anchor="Archive" position="top" max-width="16rem">
+  <tag type="p" label="Its orders stay in the history." />
+  <tag type="div" style="modal-footer">
+    <button id="Keep" label="Keep">
+      <button-action type="close-cancel" target="ArchivePopover" />
+    </button>
+    <button id="Confirm" label="Archive" style="btn-danger">
+      <button-action type="close" target="ArchivePopover" />
+    </button>
+  </tag>
+</popover>
+```
+
+## Events and actions {#events-and-actions}
+
+Both store the `open` and `close` events when they are opened and closed, so a [dependency](../api/dependencies.md) can react to them.
+They are opened and closed with [actions](../api/actions.md) of the buttons, the same ones as a dialog.
+
+| Action         | Description                                                                  |
+|----------------|------------------------------------------------------------------------------|
+| `dialog`       | Opens the side panel or popover named in `target`                            |
+| `close`        | Closes it and goes on with the actions that were waiting                     |
+| `close-cancel` | Closes it and cancels the actions that were waiting                          |
+
+With `on-close="reject"` the cross, Esc and a click outside act as `close-cancel`; by default (`accept`) they act as `close`. With
+`deferred="true"` the data of the components inside loads the first time it opens. While it is open the keyboard focus stays inside, and
+it goes back to the control that opened it when it closes.
+
+## More {#more}
+
+* Full documentation of [the side panel](../api/side-panel.md) and of [the popover](../api/popover.md).
+* XSD reference of the [`side-panel` element](/reference/screen#element-side-panel) and of the [`popover` element](/reference/screen#element-popover).

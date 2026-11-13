@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:appinfo>Fixture Base Schema</xs:appinfo>
+    <xs:documentation xml:lang="en">Shared types for the fixtures.</xs:documentation>
+  </xs:annotation>
+
+  <xs:simpleType name="booleanEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="true"/>
+      <xs:enumeration value="false"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="sizeEnum">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="xs"/>
+      <xs:enumeration value="sm"/>
+      <xs:enumeration value="md"/>
+      <xs:enumeration value="lg"/>
+      <xs:enumeration value="xl"/>
+      <xs:enumeration value="xxl"/>
+      <xs:enumeration value="xxxl"/>
+      <xs:enumeration value="huge"/>
+      <xs:enumeration value="giant"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="identifierType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="([0-9a-zA-Z_\-]+)"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="flexibleType">
+    <xs:union memberTypes="booleanEnum identifierType"/>
+  </xs:simpleType>
+
+  <xs:attributeGroup name="commonAttr">
+    <xs:attribute name="id" use="required" type="identifierType">
+      <xs:annotation>
+        <xs:documentation>
+          Unique identifier
+          of the element.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="visible" type="booleanEnum" default="true"/>
+  </xs:attributeGroup>
+
+  <xs:element name="note" type="noteType"/>
+
+  <xs:complexType name="noteType">
+    <xs:annotation>
+      <xs:documentation>A note with free text.</xs:documentation>
+    </xs:annotation>
+    <xs:simpleContent>
+      <xs:extension base="xs:string">
+        <xs:attributeGroup ref="commonAttr"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+</xs:schema>

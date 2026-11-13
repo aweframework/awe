@@ -1,0 +1,14 @@
+/*
+ * Print, map images (an AWE addition, not a Bootstrap rule): print.css serves `img { max-width: 100% !important }`, and a layered !important beats an
+ * unlayered one whatever the specificity. Leaflet (leaflet.css, #882) keeps its marker, shadow and tile images at `max-width: none !important` with
+ * unlayered rules, so printed they would take the width of their empty container and the map would vanish. The same !important in this layer, with
+ * the specificity of the Leaflet selectors, wins over the `img` one as it does on the vendored build.
+ */
+
+@media print {
+  .leaflet-container .leaflet-marker-pane img,
+  .leaflet-container .leaflet-shadow-pane img,
+  .leaflet-container .leaflet-tile-pane img {
+    max-width: none !important;
+  }
+}

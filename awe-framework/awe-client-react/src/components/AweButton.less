@@ -1,0 +1,105 @@
+// Default place of a button (the className of its container replaces it): the gap of the buttons, not a utility class
+.awe-button-spaced {
+  margin-right: var(--awe-button-gap);
+  margin-top: var(--awe-button-gap);
+}
+
+// The icon of a button is a box of exactly the icon size: as a block with line-height normal it wrapped the inline svg
+// and added about a pixel of line box above the 18px label, so a button with an icon was taller than one without
+.p-button .p-button-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Default buttons (a normal button without a btn-* style, #927): the look of the application default button, which an
+// application restyles with --awe-button-default-* without touching the other outlined buttons
+.p-button.awe-button-default,
+.p-button.awe-button-default:enabled:focus {
+  color: var(--awe-button-default-color);
+  background: var(--awe-button-default-background);
+  border-color: var(--awe-button-default-border-color);
+}
+
+.p-button.awe-button-default .p-button-label {
+  font-weight: var(--awe-button-default-font-weight);
+}
+
+.p-button.awe-button-default:enabled:hover {
+  color: var(--awe-button-default-color-hover);
+  background: var(--awe-button-default-background-hover);
+  border-color: var(--awe-button-default-border-color-hover);
+}
+
+.p-button.awe-button-default:enabled:active {
+  color: var(--awe-button-default-color-active);
+  background: var(--awe-button-default-background-active);
+  border-color: var(--awe-button-default-border-color-active);
+}
+
+// Ghost buttons (style btn-ghost, #793): no background nor border until the pointer is over them, the muted text, as the
+// toolbar and row actions of the design system and the AngularJS engine
+.p-button.btn-ghost {
+  color: var(--awe-color-text-muted);
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.p-button.btn-ghost:enabled:focus {
+  color: var(--awe-color-text-muted);
+  background: transparent;
+  border-color: transparent;
+}
+
+.p-button.btn-ghost:enabled:hover {
+  color: var(--awe-color-text-hover);
+  background: var(--awe-color-surface-hover);
+  border-color: transparent;
+}
+
+.p-button.btn-ghost:enabled:active {
+  color: var(--awe-color-text-hover);
+  background: var(--awe-color-secondary-hover);
+  border-color: transparent;
+}
+
+.p-button.btn-ghost:focus-visible {
+  box-shadow: 0 0 0 var(--awe-focus-ring-offset) var(--awe-color-surface),
+    0 0 0 calc(var(--awe-focus-ring-offset) + var(--awe-focus-ring-width)) var(--awe-color-focus-ring);
+}
+
+// Tonal buttons (style btn-tonal, #791): the soft primary tint, for an action that has to stand out next to the
+// outlined ones without being the primary action of the area
+.p-button.btn-tonal,
+.p-button.btn-tonal:enabled:focus {
+  color: var(--awe-color-on-primary-subtle);
+  background: var(--awe-color-primary-subtle);
+  border-color: var(--awe-color-primary-subtle);
+}
+
+.p-button.btn-tonal:enabled:hover,
+.p-button.btn-tonal:enabled:active {
+  color: var(--awe-color-on-primary-subtle);
+  background: var(--awe-color-primary-subtle);
+  border-color: var(--awe-color-on-primary-subtle);
+}
+
+// Icon-only buttons (style no-label, #793): a square with the icon in the middle; the label is the tooltip and the
+// accessible name
+.p-button.no-label {
+  justify-content: center;
+  width: var(--awe-size-control);
+  height: var(--awe-size-control);
+  padding: 0;
+}
+
+.p-button.no-label.p-button-sm {
+  width: var(--awe-size-control-sm);
+  height: var(--awe-size-control-sm);
+}
+
+.p-button.no-label.p-button-lg {
+  width: var(--awe-size-control-lg);
+  height: var(--awe-size-control-lg);
+}

@@ -1,16 +1,18 @@
 package com.almis.awe.model.entities.screen.component.grid;
 
 import com.almis.awe.model.constant.AweConstants;
+import com.almis.awe.model.dto.GridColumnLayout;
 import com.almis.awe.model.dto.SortColumn;
 import com.almis.awe.model.entities.Element;
+import com.almis.awe.model.entities.screen.component.GridDefaultSearch;
 import com.almis.awe.model.entities.screen.component.button.Button;
 import com.almis.awe.model.entities.screen.component.criteria.AbstractCriteria;
 import com.almis.awe.model.entities.screen.component.pivottable.PivotTable;
 import com.almis.awe.model.entities.screen.data.ScreenColumn;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.thoughtworks.xstream.annotations.XStreamAlias;
 import com.thoughtworks.xstream.annotations.XStreamAsAttribute;
 import com.thoughtworks.xstream.annotations.XStreamInclude;
@@ -21,11 +23,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.stringtemplate.v4.ST;
 import org.stringtemplate.v4.STGroup;
+import tools.jackson.databind.node.ObjectNode;
 
+import java.io.Serial;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 
@@ -43,9 +53,11 @@ import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @Accessors(chain = true)
-@XStreamInclude({Grid.class, PivotTable.class})
+@Slf4j
+@XStreamInclude({Grid.class, PivotTable.class, QuickFilter.class, GridSearch.class})
 public abstract class AbstractGrid extends AbstractCriteria {
 
+  @Serial
   private static final long serialVersionUID = 3775377158422655923L;
 
   // Send all data of the grid or only selected rows
@@ -88,6 +100,11 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean multiselect;
 
+  // The grid selects rows when they are clicked (true by default)
+  @XStreamAlias("selectable")
+  @XStreamAsAttribute
+  private Boolean selectable;
+
   // User can select more than one record
   @XStreamAlias("checkbox-multiselect")
   @XStreamAsAttribute
@@ -108,10 +125,33 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean rowNumbers;
 
+  // Allow moving rows by dragging them
+  @XStreamAlias("move-rows")
+  @XStreamAsAttribute
+  private Boolean moveRows;
+
   // Show calculated totals
   @XStreamAlias("show-totals")
   @XStreamAsAttribute
   private Boolean showTotals;
+
+  // Columns that group the rows, comma separated, one grouping level each (sent only when the grid sets it)
+  @XStreamAlias("group-by")
+  @XStreamAsAttribute
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String groupBy;
+
+  // Show the "Group by" control in the toolbar to change the grouping at runtime
+  @XStreamAlias("group-selector")
+  @XStreamAsAttribute
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Boolean groupSelector;
+
+  // Close each group with a subtotal row (the clients show it unless it is false)
+  @XStreamAlias("group-subtotals")
+  @XStreamAsAttribute
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private Boolean groupSubtotals;
 
   // Show calculated totals
   @XStreamAlias("enable-filters")
@@ -122,6 +162,59 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAlias("validate-on-save")
   @XStreamAsAttribute
   private Boolean validateOnSave;
+
+  // Show the grid toolbar (columns and maximize)
+  @XStreamAlias("show-toolbar")
+  @XStreamAsAttribute
+  private Boolean showToolbar;
+
+  // Show the Columns button of the toolbar. When hidden, the stored column layout of the user is ignored
+  @XStreamAlias("show-columns-button")
+  @XStreamAsAttribute
+  private Boolean showColumnsButton;
+
+  // Show the Maximize button of the toolbar
+  @XStreamAlias("show-maximize-button")
+  @XStreamAsAttribute
+  private Boolean showMaximizeButton;
+
+  // Which end buttons of the toolbar show their label: true (all), false (none) or a comma-separated list of
+  // GridToolbarButton names. Sent normalized by getToolbarLabelsConverter, only when the grid sets it
+  @XStreamAlias("toolbar-labels")
+  @XStreamAsAttribute
+  @JsonIgnore
+  private String toolbarLabels;
+
+  // How the toolbar shows the Columns: a popover, a modal dialog or a side panel (sent only when the grid sets it,
+  // so the clients fall back to the application default)
+  @XStreamAlias("columns-panel")
+  @XStreamAsAttribute
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  private String columnsPanel;
+
+  // Whether the toolbar offers the saved searches of the grid (#912): its column filters, sort, quick filter and search
+  @XStreamAlias("saved-searches")
+  @XStreamAsAttribute
+  private Boolean savedSearches;
+
+  // Default saved search applied to the grid before its initial load (#945): set at screen generation only when one was
+  // applied, so grids without one send nothing
+  @JsonProperty("defaultSearch")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @XStreamOmitField
+  private transient GridDefaultSearch defaultSearch;
+
+  // Identifier of the screen the grid was generated for: the key, with the grid id, of the layout of the user
+  @JsonProperty("screenId")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @XStreamOmitField
+  private transient String screenId;
+
+  // Column layout chosen by the current user (merged with the XML columns), sent next to the original column model
+  @JsonProperty("columnLayout")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  @XStreamOmitField
+  private transient GridColumnLayout columnLayout;
 
   // Column list of grid
   @JsonProperty("columnModel")
@@ -166,6 +259,26 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAlias("row-height")
   @XStreamAsAttribute
   private String rowHeight;
+
+  // Empty state icon
+  @XStreamAlias("empty-icon")
+  @XStreamAsAttribute
+  private String emptyIcon;
+
+  // Empty state title (locale)
+  @XStreamAlias("empty-title")
+  @XStreamAsAttribute
+  private String emptyTitle;
+
+  // Empty state text (locale)
+  @XStreamAlias("empty-text")
+  @XStreamAsAttribute
+  private String emptyText;
+
+  // Empty state action (identifier of a button of the grid)
+  @XStreamAlias("empty-action")
+  @XStreamAsAttribute
+  private String emptyAction;
 
   /**
    * Retrieve component tag
@@ -238,6 +351,131 @@ public abstract class AbstractGrid extends AbstractCriteria {
   }
 
   /**
+   * Check if the grid selects its rows (true unless selectable="false")
+   *
+   * @return Grid is selectable
+   */
+  @JsonGetter("selectable")
+  public boolean isSelectable() {
+    return selectable == null || selectable;
+  }
+
+  /**
+   * Check if the grid shows its toolbar
+   *
+   * @return Grid shows the toolbar
+   */
+  @JsonGetter("showToolbar")
+  public boolean isShowToolbar() {
+    return showToolbar == null || showToolbar;
+  }
+
+  /**
+   * Check if the grid toolbar shows the Columns button
+   *
+   * @return Grid shows the Columns button
+   */
+  @JsonGetter("showColumnsButton")
+  public boolean isShowColumnsButton() {
+    return showColumnsButton == null || showColumnsButton;
+  }
+
+  /**
+   * Check if the grid toolbar shows the Maximize button
+   *
+   * @return Grid shows the Maximize button
+   */
+  @JsonGetter("showMaximizeButton")
+  public boolean isShowMaximizeButton() {
+    return showMaximizeButton == null || showMaximizeButton;
+  }
+
+  /**
+   * Returns the end buttons of the toolbar that show their label, for JSON serialization, in toolbar order:
+   * every button for true, none for false, the known names of the list otherwise (unknown names are ignored)
+   *
+   * @return Button names, null (not sent) when the grid does not set toolbar-labels
+   */
+  @JsonGetter("toolbarLabels")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public List<String> getToolbarLabelsConverter() {
+    if (toolbarLabels == null) {
+      return null;
+    }
+    String value = toolbarLabels.trim();
+    if ("true".equalsIgnoreCase(value)) {
+      return Arrays.stream(GridToolbarButton.values()).map(GridToolbarButton::getButtonName).toList();
+    }
+    EnumSet<GridToolbarButton> buttons = EnumSet.noneOf(GridToolbarButton.class);
+    if (!"false".equalsIgnoreCase(value)) {
+      for (String name : value.split(",")) {
+        GridToolbarButton.fromName(name).ifPresentOrElse(buttons::add,
+          () -> log.warn("Unknown toolbar-labels button '{}' in grid '{}': ignored", name.trim(), getId()));
+      }
+    }
+    return buttons.stream().map(GridToolbarButton::getButtonName).toList();
+  }
+
+  /**
+   * Check if the grid applies and saves the column layout of the user: only when its toolbar shows the Columns button
+   *
+   * @return Column layout is enabled
+   */
+  @JsonIgnore
+  public boolean isColumnLayoutEnabled() {
+    return isShowToolbar() && isShowColumnsButton();
+  }
+
+  /**
+   * Returns if the grid offers saved searches in its toolbar
+   *
+   * @return Grid offers saved searches
+   */
+  @JsonIgnore
+  public boolean hasSavedSearches() {
+    return Boolean.TRUE.equals(savedSearches);
+  }
+
+  /**
+   * Whether the grid offers saved searches, for JSON serialization. Absent unless the grid opts in
+   *
+   * @return true or null
+   */
+  @JsonGetter("savedSearches")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public Boolean getSavedSearchesConverter() {
+    return hasSavedSearches() ? Boolean.TRUE : null;
+  }
+
+  /**
+   * Retrieve the columns a user can show, hide and reorder: the ones the XML does not hide, in XML order, with the
+   * key of their group header (null when they have none). The key is the position of the group header in the grid.
+   *
+   * @return Layout columns by name
+   */
+  @JsonIgnore
+  public Map<String, String> getLayoutColumns() {
+    Map<String, String> layoutColumns = new LinkedHashMap<>();
+    int groupIndex = 0;
+    for (Element element : getElementList()) {
+      if (element instanceof GroupHeader groupHeader) {
+        addLayoutColumns(layoutColumns, groupHeader.getElementList(), String.valueOf(groupIndex++));
+      } else {
+        addLayoutColumns(layoutColumns, List.of(element), null);
+      }
+    }
+    return layoutColumns;
+  }
+
+  private void addLayoutColumns(Map<String, String> layoutColumns, List<Element> elements, String group) {
+    for (Element element : elements) {
+      if (element instanceof Column column && !column.isHidden() && column.getName() != null) {
+        layoutColumns.put(column.getName(), group);
+      }
+    }
+  }
+
+  /**
    * Check if grid is multioperation
    *
    * @return Grid is multoperation
@@ -258,6 +496,16 @@ public abstract class AbstractGrid extends AbstractCriteria {
   }
 
   /**
+   * Check if the grid lets the user drag its rows to move them
+   *
+   * @return Grid allows moving rows
+   */
+  @JsonGetter("moveRows")
+  public boolean isMoveRows() {
+    return moveRows != null && moveRows;
+  }
+
+  /**
    * Check if grid show totals
    *
    * @return Grid show totals
@@ -265,6 +513,27 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @JsonGetter("showTotals")
   public boolean isShowTotals() {
     return showTotals != null && showTotals;
+  }
+
+  /**
+   * Check if the grid can group its rows: it has group-by columns or the group selector (ignored on tree grids)
+   *
+   * @return Grid groups its rows
+   */
+  @JsonIgnore
+  public boolean isGroupable() {
+    return !isTreegrid() && ((groupBy != null && !groupBy.isBlank()) || Boolean.TRUE.equals(groupSelector));
+  }
+
+  /**
+   * Check if the grid loads all its data: a grid that groups its rows always does
+   *
+   * @return Grid loads all the data
+   */
+  @Override
+  @JsonGetter("loadAll")
+  public boolean isLoadAll() {
+    return isGroupable() || super.isLoadAll();
   }
 
   /**
@@ -350,6 +619,86 @@ public abstract class AbstractGrid extends AbstractCriteria {
 
     // Return string parameter list
     return buttonModel;
+  }
+
+  /**
+   * Retrieve the row detail of the grid
+   *
+   * @return Row detail, null when the grid has none
+   */
+  @JsonIgnore
+  public RowDetail getRowDetail() {
+    return getChildrenByType(RowDetail.class).stream().findFirst().orElse(null);
+  }
+
+  /**
+   * Returns the row detail description for JSON serialization
+   *
+   * @return Row detail, empty (not sent) when the grid has none: its style (when set) and either its template or, when
+   * it has components, the component the clients create for each open row (when it has been generated)
+   */
+  @JsonGetter("rowDetail")
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public Map<String, Object> getRowDetailConverter() {
+    RowDetail rowDetail = getRowDetail();
+    if (rowDetail == null) {
+      return Collections.emptyMap();
+    }
+    Map<String, Object> description = new LinkedHashMap<>();
+    if (!rowDetail.isComponentMode()) {
+      description.put("template", rowDetail.getContent() == null ? "" : rowDetail.getContent());
+    }
+    if (rowDetail.getStyle() != null) {
+      description.put("style", rowDetail.getStyle());
+    }
+    if (rowDetail.getComponent() != null) {
+      description.put("component", rowDetail.getComponent());
+    }
+    return description;
+  }
+
+  /**
+   * Retrieve the quick filter of the grid
+   *
+   * @return Quick filter, null when the grid has none (only the first one is used)
+   */
+  @JsonIgnore
+  public QuickFilter getQuickFilter() {
+    return getChildrenByType(QuickFilter.class).stream().findFirst().orElse(null);
+  }
+
+  /**
+   * Returns the identifier of the quick filter for JSON serialization: the grid shows it in its toolbar
+   *
+   * @return Quick filter identifier, not sent when the grid has none
+   */
+  @JsonGetter("quickFilter")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getQuickFilterConverter() {
+    QuickFilter quickFilter = getQuickFilter();
+    return quickFilter == null ? null : quickFilter.getElementKey();
+  }
+
+  /**
+   * Retrieve the search of the grid
+   *
+   * @return Search, null when the grid has none (only the first one is used)
+   */
+  @JsonIgnore
+  public GridSearch getSearch() {
+    return getChildrenByType(GridSearch.class).stream().findFirst().orElse(null);
+  }
+
+  /**
+   * Returns the identifier of the search for JSON serialization: the grid shows it in its toolbar
+   *
+   * @return Search identifier, not sent when the grid has none
+   */
+  @JsonGetter("search")
+  @JsonInclude(JsonInclude.Include.NON_NULL)
+  public String getSearchConverter() {
+    GridSearch search = getSearch();
+    return search == null ? null : search.getElementKey();
   }
 
   /**

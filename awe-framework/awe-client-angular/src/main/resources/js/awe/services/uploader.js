@@ -1,37 +1,47 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import {ClientActions} from "../data/actions";
 import ngFileUpload from "ng-file-upload";
 import {getIconTemplate} from "./component";
+import {iconMarkup, iconTemplate} from "./icon";
 
 // Require file upload
 aweApplication.requires.push(ngFileUpload);
 
 export const uploaderInputTemplate = `<div ng-show="controller.visible" class="criterion uploader" ng-class="criterionClass" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
-    <label ng-attr-for="::controller.id" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    <label ng-attr-for="::controller.id" ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
-    <div class="validator input {{::validatorGroup}} focus-target">
+    <div class="validator input {{::validatorGroup}} focus-target" ng-class="{'upload-drop-zone': controller.dropZone, 'upload-drop-zone-enabled': dropZoneEnabled()}"
+         ngf-drop ngf-change="chooseFile($files)" ngf-drop-disabled="!dropZoneEnabled()" ngf-validate-fn="validate($file)"
+         ngf-drag-over-class="'upload-drop-zone-active'" ng-attr-data-testid="{{controller.dropZone ? '${TestIds.uploadDropZone}' : undefined}}">
+      <div class="upload-drop-hint" ng-if="controller.dropZone && !controller.readonly" translate-multiple="UPLOADER_DROP_HINT"></div>
       <div ng-show="component.uploading" class="uploading-{{::size}}">
         <div class="progress progress-striped active" ng-if="component.uploading">
           <div class="progress-bar" ng-style="{width: component.uploadProgress}"></div>
         </div>
       </div>
       <div ng-show="model.selected === null && !component.uploading" class="pixel-file-input {{classes}}"
-           ng-disabled="controller.readonly" ngf-select ngf-change="chooseFile($files)" ngf-validate-fn="validate($file)">
+           ng-disabled="controller.readonly" ngf-select ngf-change="chooseFile($files)" ngf-validate-fn="validate($file)"
+           data-testid="${TestIds.criterionInput}">
         ${getIconTemplate("{{::iconClass}}")}
         <span class="pfi-filename pfi-placeholder">{{controller.placeholder| translateMultiple}}</span>
         <div class="pfi-actions" ng-if="!controller.readonly">
           <button type="button" class="btn btn-awe btn-xs btn-primary pfi-choose" translate-multiple="BUTTON_CHOOSE" ng-focus="focus()" ng-blur="blur()"></button>
         </div>
       </div>
+      <button type="button" ng-if="captureMode() && model.selected === null && !component.uploading" class="btn btn-awe btn-xs btn-default pfi-capture"
+              ngf-select ngf-change="chooseFile($files)" ngf-accept="'image/*'" ngf-capture="captureMode()" ngf-validate-fn="validate($file)"
+              data-testid="${TestIds.uploadCapture}">${iconTemplate("camera")} <span translate-multiple="BUTTON_CAPTURE"></span></button>
+      <img class="upload-preview" ng-if="component.previewUrl" ng-src="{{component.previewUrl}}" ng-attr-alt="{{component.previewName}}" data-testid="${TestIds.uploadPreview}"/>
       <div ng-show="model.selected !== null && !component.uploading" class="pixel-file-input {{classes}}" ng-disabled="controller.readonly" >
         ${getIconTemplate("{{::iconClass}}")}
-        <span class="pfi-filename" ng-click="downloadFile($event)">{{component.visibleValue}}</span>
+        <span class="pfi-filename" ng-click="downloadFile($event)" data-testid="${TestIds.uploadFilename}">{{component.visibleValue}}</span>
         <div class="pfi-actions" ng-if="!controller.readonly">
-          <button type="button" ng-click="clearFile($event)" class="btn btn-awe btn-xs" ng-disabled="component.deleting" ng-focus="focus()" ng-blur="blur()"><i class="fa {{component.deleting ? 'fa-refresh fa-spin' : 'fa-times'}}"></i> <span translate-multiple="BUTTON_CLEAR"></span></button>
+          <button type="button" ng-click="clearFile($event)" class="btn btn-awe btn-xs" ng-disabled="component.deleting" ng-focus="focus()" ng-blur="blur()" data-testid="${TestIds.uploadClear}"><i>${iconMarkup("refresh fa-spin", 'ng-if="component.deleting"')}${iconMarkup("times", 'ng-if="!component.deleting"')}</i> <span translate-multiple="BUTTON_CLEAR"></span></button>
         </div>
       </div>
     </div>
@@ -46,22 +56,26 @@ export const uploaderColumnTemplate = `<div ng-show="component.controller.visibl
       </div>
     </div>
     <div ng-show="component.model.selected === null && !component.uploading" class="pixel-file-input {{classes}} no-animate"
-         ng-disabled="component.controller.readonly" ngf-select ngf-change="chooseFile($files)" ngf-validate-fn="validate($file)">
+         ng-disabled="component.controller.readonly" ngf-select ngf-change="chooseFile($files)" ngf-validate-fn="validate($file)" data-testid="${TestIds.criterionInput}">
       ${getIconTemplate("{{::iconClass}}")}
       <span class="pfi-filename pfi-placeholder">{{::component.controller.placeholder| translateMultiple}}</span>
       <div class="pfi-actions" ng-if="!component.controller.readonly">
-        <button type="button" class="btn btn-xs btn-primary pfi-choose" translate-multiple="BUTTON_CHOOSE" ng-focus="focus()" ng-blur="blur()"></button>
+        <button type="button" class="btn btn-awe btn-xs btn-primary pfi-choose" translate-multiple="BUTTON_CHOOSE" ng-focus="focus()" ng-blur="blur()"></button>
       </div>
     </div>
     <div ng-show="component.model.selected !== null && !component.uploading" class="pixel-file-input {{classes}} no-animate" ng-disabled="component.controller.readonly">
       ${getIconTemplate("{{::iconClass}}")}
-      <span class="pfi-filename" ng-click="downloadFile($event)">{{component.visibleValue}}</span>
+      <span class="pfi-filename" ng-click="downloadFile($event)" data-testid="${TestIds.uploadFilename}">{{component.visibleValue}}</span>
       <div class="pfi-actions" ng-if="!component.controller.readonly">
-        <button type="button" ng-click="clearFile($event)" class="btn btn-awe btn-xs" ng-disabled="component.deleting" ng-focus="focus()" ng-blur="blur()"><i class="fa {{component.deleting ? 'fa-refresh fa-spin' : 'fa-times'}}"></i> <span translate-multiple="BUTTON_CLEAR"></span></button>
+        <button type="button" ng-click="clearFile($event)" class="btn btn-awe btn-xs" ng-disabled="component.deleting" ng-focus="focus()" ng-blur="blur()" data-testid="${TestIds.uploadClear}"><i>${iconMarkup("refresh fa-spin", 'ng-if="component.deleting"')}${iconMarkup("times", 'ng-if="!component.deleting"')}</i> <span translate-multiple="BUTTON_CLEAR"></span></button>
       </div>
     </div>
   </div>
 </div>`;
+
+// Raster images that can be previewed safely (SVG is excluded because it can carry scripts)
+const PREVIEWABLE_IMAGES = /^image\/(png|jpe?g|gif|webp|bmp|avif)$/i;
+const CAPTURE_MODES = new Set(["user", "environment"]);
 
 // Uploader service
 aweApplication.factory('Uploader',
@@ -116,6 +130,52 @@ aweApplication.factory('Uploader',
           component.specialClass = "pixel-file-input-" + component.scope.size;
           component.updateClasses();
 
+          component.previewUrl = null;
+          component.previewName = null;
+
+          /**
+           * Check if the drop zone is available
+           * @return {boolean}
+           */
+          component.scope.dropZoneEnabled = function () {
+            return !!component.controller.dropZone && !component.controller.readonly && !component.uploading && !component.model.selected;
+          };
+
+          /**
+           * Retrieve the camera to use for capture (null when there is no capture)
+           * @return {string|null}
+           */
+          component.scope.captureMode = function () {
+            const capture = component.controller.capture;
+            return CAPTURE_MODES.has(capture) && !component.controller.readonly ? capture : null;
+          };
+
+          /**
+           * Show a preview of a raster image selected by the user (object URL, never markup)
+           * @param {File} file
+           */
+          component.setPreview = function (file) {
+            component.clearPreview();
+            if (file && PREVIEWABLE_IMAGES.test(file.type)) {
+              component.previewUrl = URL.createObjectURL(file);
+              component.previewName = file.name;
+            }
+          };
+
+          /**
+           * Remove the preview and release its object URL
+           */
+          component.clearPreview = function () {
+            if (component.previewUrl) {
+              URL.revokeObjectURL(component.previewUrl);
+            }
+            component.previewUrl = null;
+            component.previewName = null;
+          };
+
+          // Release the preview when the criterion is destroyed
+          component.scope.$on("$destroy", component.clearPreview);
+
           // Set uploader max size
           // Upload.setDefaults({ngfMaxSize:$settings.get("uploadMaxSize")})
 
@@ -147,6 +207,7 @@ aweApplication.factory('Uploader',
 
               // Send the file
               let file = files[0];
+              component.setPreview(file);
               let parameters = {
                 [$settings.get("uploadIdentifier")]: component.uploaderIdentifier,
                 [$settings.get("addressIdentifier")]: $utilities.stringifyJSON(component.address),
@@ -167,8 +228,13 @@ aweApplication.factory('Uploader',
                 },
                 // On error
                 function(e) {
-                  // Send error message
-                  const actions = $utilities.manageRestError({status: e.status, title: e.statusText, message: ""});
+                  // Send error message (for a 403, the plain text of the body travels in "body", to show it as it came)
+                  const actions = $utilities.manageRestError({
+                    status: e.status,
+                    title: e.statusText,
+                    message: "",
+                    body: typeof e.data === "string" ? e.data : undefined
+                  });
                   $actionController.addActionList(actions, false, {address: {view: "base"}});
                   component.onReset();
                 },
@@ -297,6 +363,7 @@ aweApplication.factory('Uploader',
             $utilities.timeout.cancel(updateTimer);
 
             // Reset status
+            component.clearPreview();
             component.deleting = false;
             component.uploading = false;
             component.model.name = null;

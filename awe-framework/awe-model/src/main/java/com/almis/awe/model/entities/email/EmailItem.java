@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * EmailItem Class
  * <p>
@@ -24,6 +26,7 @@ import lombok.experimental.SuperBuilder;
 @Accessors(chain = true)
 public class EmailItem extends EmailMessage implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = 4004314012149656221L;
 
   // Is a list of data or a single data

@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -30,6 +31,7 @@ import java.util.regex.Pattern;
 @XStreamAlias("tag-list")
 public class TagList extends Component {
 
+  @Serial
   private static final long serialVersionUID = 498908613159021940L;
   // PATTERNS
   @XStreamOmitField

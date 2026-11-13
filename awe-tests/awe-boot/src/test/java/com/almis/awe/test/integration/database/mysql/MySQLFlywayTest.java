@@ -1,20 +1,18 @@
 package com.almis.awe.test.integration.database.mysql;
 
-import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
+import com.almis.awe.test.integration.database.AbstractFlywayMigrationTest;
+import com.almis.awe.testing.database.AweDatabaseTest;
+import com.almis.awe.testing.database.TestDatabase;
 import org.junit.jupiter.api.Tag;
-import org.junit.jupiter.api.Test;
 import org.springframework.test.context.TestPropertySource;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-
 @Tag("Mysql-Flyway")
+@AweDatabaseTest(value = TestDatabase.MYSQL, flyway = true)
 @TestPropertySource(locations = {"classpath:mysql.properties", "classpath:test-flyway.properties"})
-class MySQLFlywayTest extends AbstractSpringAppIntegrationTest {
+class MySQLFlywayTest extends AbstractFlywayMigrationTest {
 
-  @Test
-  void testLoad() {
-    // This space remains empty
-    assertTrue(true);
+  @Override
+  protected String dialect() {
+    return "mysql";
   }
 }

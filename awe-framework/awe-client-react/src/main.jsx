@@ -1,0 +1,94 @@
+import React, {useEffect} from "react";
+import {PrimeReactProvider} from 'primereact/api';
+
+import ReactDOM from "react-dom/client";
+
+import 'primereact/resources/primereact.min.css';
+import 'primeicons/primeicons.css';
+import 'primeflex/primeflex.css';
+// The AWE theme of PrimeReact (#885): the build turns this Lara theme into the AWE one (PrimeReactThemePlugin)
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import 'primereact/divider';
+
+import './main.css';
+
+import i18n from "./i18n/i18n";
+
+import 'font-awesome/css/font-awesome.css';
+import 'animate.css/animate.css';
+import 'material-icons/iconfont/material-icons.css';
+import './assets/css/layout.css';
+import './assets/css/bootstrap-grid-compat.css';
+// The AWE 5 shell (#885): side menu, header and page of the home screens
+import './assets/css/shell.css';
+// The AWE 5 overlays (#885): dialogs and tooltips beyond the AWE theme of PrimeReact
+import './assets/css/overlays.css';
+
+// Pages
+import './assets/css/pages/signin.css';
+import './assets/css/pages/home.css';
+import './assets/css/pages/error-pages.css';
+import './assets/css/pages/sso-logout.css';
+
+import AweApp from './components/AweApp';
+import ErrorBoundary from "./components/ErrorBoundary";
+import {DEFAULT_SETTINGS, updateSettings} from "./redux/actions/settings";
+import {fetchJson, getContextPath} from "./utilities";
+import {Provider} from "react-redux";
+import {BrowserRouter, useNavigate} from "react-router";
+import { createStore } from "./redux/store";
+import { createNavigator } from "./redux/navigator";
+
+const navigator = createNavigator();
+const store = createStore({ navigator });
+
+const AppWithStore = (props) => {
+  const { settings } = props;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Thunks queue their navigations until the router is attached
+    navigator.attach(navigate);
+    store.dispatch(updateSettings(settings));
+  }, []);
+
+  return (
+    <Provider store={store}>
+      <AweApp/>
+    </Provider>
+  );
+};
+
+// Init application
+fetchJson("POST", "/settings", {}, DEFAULT_SETTINGS.cometUID)
+  .then((settings) => {
+    return i18n.init({
+      //debug: true,
+      backend: {
+        loadPath: `${getContextPath()}/locales/{{lng}}`
+      },
+      lng: settings.language,
+      fallbackLng: "en-GB",
+      // The texts of AWE use one namespace and a colon is part of a text ("00:00"): it is not a namespace separator
+      nsSeparator: false,
+
+      interpolation: {
+        escapeValue: false
+      }
+    }).then(() => {
+      // No ripple on the clicks: as the AWE 5 prototype, a pressed button only darkens its background
+      const value = {ripple: false};
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(
+        <ErrorBoundary scope="app">
+          <BrowserRouter basename={getContextPath()}>
+            <PrimeReactProvider value={value}>
+              <AppWithStore settings={settings}/>
+            </PrimeReactProvider>
+          </BrowserRouter>
+        </ErrorBoundary>);
+    });
+  })
+  .catch((reason) => console.error("Error initialising the application:", reason));
+
+

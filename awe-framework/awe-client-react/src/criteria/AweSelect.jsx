@@ -1,0 +1,59 @@
+import React, {useEffect} from "react";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
+import {Dropdown} from "primereact/dropdown";
+import {classNames} from "../utilities/components";
+import AweCriterion from "./AweCriterion";
+import {useSelect, selectItemTemplate} from "../hooks/useSelect";
+import {CriterionSkeleton} from "../components/AweSkeleton";
+import PropTypes from "prop-types";
+import {dropdownPassThrough, selectValueTemplate} from "../utilities/testPassThrough";
+import "./AweSelect.less";
+
+function AweSelect(props) {
+
+  const { id } = props;
+  const {t, ref, address, model, attributes, validationRules, options, groupProps, selected, onChange} =
+    useSelect({id, multiple: false});
+
+  const {required, readonly, optional, size, error} = attributes;
+  useEffect(() => {
+    if (optional === false && selected == null && model?.values?.length) {
+      onChange({ value: model.values[0].value });
+    }
+  }, [optional, selected, model?.values, onChange]);
+
+  // If the criterion is not registered yet, return skeleton
+  if (!address?.component) {
+    return <CriterionSkeleton attributes={attributes}/>;
+  }
+
+  const classes = classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+  return <AweCriterion address={address} attributes={attributes} validationRules={validationRules}>
+      <Dropdown
+      ref={ref}
+      id={id}
+      value={selected}
+      placeholder={criterionPlaceholder(attributes, validationRules, t, false)}
+      onChange={onChange}
+      required={required}
+      disabled={readonly}
+      className={classes}
+      invalid={error}
+      options={options}
+      {...groupProps}
+      itemTemplate={selectItemTemplate}
+      showClear={optional}
+      filter={(model?.values?.length ?? 0) > 5}
+      filterBy="label"
+      valueTemplate={selectValueTemplate}
+      pt={{...dropdownPassThrough(id), input: requiredAria(attributes, validationRules)}}
+    />
+  </AweCriterion>;
+}
+
+AweSelect.propTypes = {
+  id: PropTypes.string,
+  style: PropTypes.string
+};
+
+export default AweSelect;

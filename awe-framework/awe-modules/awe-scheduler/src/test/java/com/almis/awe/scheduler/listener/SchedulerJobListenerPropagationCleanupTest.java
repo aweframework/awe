@@ -4,8 +4,6 @@ import com.almis.awe.model.component.PrototypeRequestBeanHolder;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,12 +11,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.Job;
+import org.quartz.JobDataMap;
+import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.context.ApplicationEventPublisher;
+import tools.jackson.databind.node.JsonNodeFactory;
+import tools.jackson.databind.node.ObjectNode;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**
@@ -76,6 +79,22 @@ class SchedulerJobListenerPropagationCleanupTest {
   /** Returns a populated ObjectNode with a single key for use as a propagated overlay. */
   private ObjectNode overlayWith(String key, String value) {
     return JsonNodeFactory.instance.objectNode().put(key, value);
+  }
+
+  /**
+   * The started event is published once the execution is stored (JobService#startTask), not before the job body runs:
+   * the task screen reloads its executions when it receives it, and the new execution must already be there (#815).
+   */
+  @Test
+  void jobToBeExecuted_doesNotPublishTheStartedEvent() {
+    JobDetail jobDetail = mock(JobDetail.class);
+    lenient().when(jobDetail.getJobDataMap()).thenReturn(new JobDataMap());
+    lenient().when(context.getJobInstance()).thenReturn(mock(SchedulerJob.class));
+    lenient().when(context.getJobDetail()).thenReturn(jobDetail);
+
+    listener.jobToBeExecuted(context);
+
+    verifyNoInteractions(eventPublisher);
   }
 
   // ── Core regression tests ────────────────────────────────────────────────────
@@ -201,7 +220,7 @@ class SchedulerJobListenerPropagationCleanupTest {
     // Before cleanup: overlay must be readable
     ObjectNode snapshot = holder.getPendingPropagationSnapshot();
     assertNotNull(snapshot, "Overlay must be readable before jobWasExecuted (during-job window)");
-    assert snapshot.has("boundary-key") : "Overlay must contain 'boundary-key'";
+    assertTrue(snapshot.has("boundary-key"), "Overlay must contain 'boundary-key'");
 
     stubNonSchedulerJob();
 

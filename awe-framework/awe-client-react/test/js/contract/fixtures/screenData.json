@@ -1,0 +1,118 @@
+{
+  "actions": [
+    {
+      "async": true,
+      "parameters": {
+        "k": "v"
+      },
+      "target": "Grid",
+      "type": "fill"
+    },
+    {
+      "parameters": {
+        "type": "error"
+      },
+      "type": "message"
+    }
+  ],
+  "components": [
+    {
+      "controller": {
+        "component": "text",
+        "elementType": "Criteria",
+        "id": "Txt",
+        "label": "LBL",
+        "visible": true
+      },
+      "id": "Txt",
+      "model": {
+        "page": 1,
+        "records": 0,
+        "total": 0
+      }
+    },
+    {
+      "controller": {
+        "component": "select",
+        "elementType": "Criteria",
+        "id": "Sel",
+        "initialLoad": "query",
+        "targetAction": "QSel",
+        "visible": true
+      },
+      "id": "Sel",
+      "model": {
+        "page": 1,
+        "records": 0,
+        "total": 0
+      }
+    },
+    {
+      "controller": {
+        "columnModel": [
+          {
+            "component": "select",
+            "elementType": "Column",
+            "frozen": true,
+            "gridId": "Grid",
+            "id": "Col",
+            "initialLoad": "query",
+            "model": {
+              "defaultValues": [],
+              "page": 1,
+              "records": 0,
+              "selected": [],
+              "total": 0,
+              "values": []
+            },
+            "name": "Col",
+            "sortable": true,
+            "targetAction": "CQ",
+            "visible": true,
+            "width": "120"
+          }
+        ],
+        "component": "grid",
+        "elementType": "Grid",
+        "id": "Grid",
+        "initialLoad": "query",
+        "screenId": "gt",
+        "targetAction": "GQ",
+        "visible": true
+      },
+      "id": "Grid",
+      "model": {
+        "page": 1,
+        "records": 0,
+        "total": 0
+      }
+    },
+    {
+      "controller": {
+        "accept": true,
+        "acceptOnClose": true,
+        "elementType": "Dialog",
+        "id": "Dia",
+        "visible": true
+      },
+      "id": "Dia",
+      "model": {
+        "page": 1,
+        "records": 0,
+        "total": 0
+      }
+    }
+  ],
+  "messages": {},
+  "screen": {
+    "title": "T"
+  },
+  "screenProperties": {
+    "title": "T"
+  },
+  "structure": {
+    "elementType": "Screen",
+    "id": "gt",
+    "screenTemplate": "full"
+  }
+}

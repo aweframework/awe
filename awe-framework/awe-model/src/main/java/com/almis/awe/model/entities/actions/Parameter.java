@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * Parameter Class
  * Used to parse the file Actions.xml with XStream
@@ -27,6 +29,7 @@ import lombok.experimental.SuperBuilder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Parameter implements Copyable {
 
+  @Serial
   private static final long serialVersionUID = -2633008018819827229L;
 
   // Parameter name

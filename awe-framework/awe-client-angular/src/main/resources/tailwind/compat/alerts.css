@@ -1,0 +1,136 @@
+/*
+ * Alerts: Bootstrap 3 alerts.less and the pixel-admin alert rules on the same selectors, as the compiled vendored CSS renders them: alert, alert-link,
+ * alert-dismissable|dismissible with its close button, alert-success|info|warning|danger and the heading, rule and link inside them.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values.
+ * There is no !important in this file.
+ *
+ * Not here (they stay in LESS; compatAlerts.test.js names every one of them with example selectors): the AWE 5 message toast (alert alert-dark
+ * alert-awe, less/awe/controllers/message.less, which wins over these rules because it is unlayered) with its enter and leave animation, the
+ * dark and page alerts of pixel-admin and the demo theme.
+ */
+
+.alert {
+  padding: var(--awe-space-4);
+  margin-bottom: var(--awe-space-5);
+  border: var(--awe-border-width) solid transparent;
+  border-radius: var(--awe-radius);
+}
+
+.alert h4 {
+  margin-top: 0;
+  color: inherit;
+}
+
+.alert .alert-link {
+  font-weight: bold;
+}
+
+.alert > p,
+.alert > ul {
+  margin-bottom: 0;
+}
+
+.alert > p + p {
+  margin-top: var(--awe-space-1-5);
+}
+
+.alert-dismissable,
+.alert-dismissible {
+  padding-right: var(--awe-space-8);
+}
+
+.alert-dismissable .close,
+.alert-dismissible .close {
+  position: relative;
+  top: calc(var(--awe-space-0-5) * -1);
+  right: calc(var(--awe-space-5) * -1);
+}
+
+.alert-success {
+  background-color: var(--awe-color-success-subtle);
+  border-color: var(--awe-color-success-border);
+  color: var(--awe-color-success-text);
+}
+
+.alert-success hr {
+  border-top-color: var(--awe-color-success-border);
+}
+
+.alert-success .alert-link {
+  color: var(--awe-color-success-text);
+}
+
+.alert-info {
+  background-color: var(--awe-color-info-subtle);
+  border-color: var(--awe-color-info-border);
+  color: var(--awe-color-info-text);
+}
+
+.alert-info hr {
+  border-top-color: var(--awe-color-info-border);
+}
+
+.alert-info .alert-link {
+  color: var(--awe-color-info-text);
+}
+
+.alert-warning {
+  background-color: var(--awe-color-warning-subtle);
+  border-color: var(--awe-color-warning-border);
+  color: var(--awe-color-warning-text);
+}
+
+.alert-warning hr {
+  border-top-color: var(--awe-color-warning-border);
+}
+
+.alert-warning .alert-link {
+  color: var(--awe-color-warning-text);
+}
+
+.alert-danger {
+  background-color: var(--awe-color-danger-subtle);
+  border-color: var(--awe-color-danger-border);
+  color: var(--awe-color-danger-text);
+}
+
+.alert-danger hr {
+  border-top-color: var(--awe-color-danger-border);
+}
+
+.alert-danger .alert-link {
+  color: var(--awe-color-danger-text);
+}
+
+.alert {
+  background: var(--awe-color-warning-subtle);
+  border-color: var(--awe-color-warning-border);
+  color: var(--awe-color-warning-text);
+  background-size: var(--awe-space-5) var(--awe-space-5);
+}
+
+.alert .close {
+  top: 0;
+}
+
+.alert.alert-danger {
+  background: var(--awe-color-danger-subtle);
+  border-color: var(--awe-color-danger-border);
+  color: var(--awe-color-danger-text);
+  background-size: var(--awe-space-5) var(--awe-space-5);
+}
+
+.alert.alert-success {
+  background: var(--awe-color-success-subtle);
+  border-color: var(--awe-color-success-border);
+  color: var(--awe-color-success-text);
+  background-size: var(--awe-space-5) var(--awe-space-5);
+}
+
+.alert.alert-info {
+  background: var(--awe-color-info-subtle);
+  border-color: var(--awe-color-info-border);
+  color: var(--awe-color-info-text);
+  background-size: var(--awe-space-5) var(--awe-space-5);
+}

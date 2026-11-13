@@ -6,6 +6,10 @@ sidebar_label: Services Definition
 
 Service operations are designed to perform specific treatments and calculations out of the AWE utilities.
 
+:::tip
+Every element and attribute of services is listed in the generated [XSD reference](/reference/services).
+:::
+
 Currently there are two types of services declared in the AWE Engine: **Java Services** and **Web Services**
 
 :::info
@@ -61,6 +65,14 @@ Service element has the following attributes:
 |------------------------------|--------------|--------|-----------------------------------------------|-----------------------------------------------------------------------|
 | id                           | **Required** | String | Name of service                               | **Note:** The id must be unique                                       |
 | launch-phase                 | Optional     | String | Launch the service in some application points | `APPLICATION_START`, `APPLICATION_END`,  `CLIENT_START`, `CLIENT_END` |
+| permission                   | Optional     | String | Permissions of the catalog that a client action needs to call the service, separated by spaces (all of them are required) | **Note:** An unknown permission is a load error. See [permissions](#service-permissions) |
+| authorization                | Optional     | String | How a call from a client action is authorized | `target`: the service launches the query or the maintain target the client asks for, and that target is checked instead of the service. It cannot be combined with `permission` |
+
+#### Permissions {#service-permissions}
+
+A service with `permission="system.update"` is called by a client action only when the session user has the
+`system.update` permission. The server calls, the services of a query or a maintain of type `service` and the services
+of a `launch-phase` are never checked. See [Permissions](../security/permissions.md#services).
 
 ### Java element
 
@@ -79,7 +91,7 @@ Microservice element has the following attributes:
 | Attribute    | Use          | Type    | Description                          | Values                                                                                                 |
 |--------------|--------------|---------|--------------------------------------|--------------------------------------------------------------------------------------------------------|
 | name         | **Required** | String  | Name of web service                  | **Note:** Must be unique                                                                               |
-| method       | **Required** | String  | REST method.                         | **GET**: Send the parameters as part of the endpoint - POST**: Send the parameters in the request body |
+| method       | **Required** | String  | REST method.                         | **GET**: Send the parameters as part of the endpoint - **POST**: Send the parameters in the request body |
 | endpoint     | **Required** | String  | Path to REST call                    | Ej: /data/ServiceData or /maintain/ServiceMaintain                                                     |
 | wrapper      | Optional     | String  | Classname to wrap REST call response | Ej: com.almis.awe.test.bean.Postman                                                                    |
 | content-type | Optional     | String  | Way to send the parameters           | `URLENCODED` (default), `JSON`                                                                         |
@@ -127,7 +139,7 @@ Are services to execute `java` code. Its xml structure is:
 Service definition with parameters
 
 ```xml
-<!-- Store a session variable -->
+<!-- Insert and schedule a task -->
 <service id="insertSchedulerTask">
   <java classname="com.almis.awe.scheduler.controller.SchedulerController" method="insertSchedulerTask">
     <service-parameter name="IdeTsk" type="INTEGER" />
@@ -324,7 +336,45 @@ public class DummyService extends ServiceConfig {
 }
 ```
 
-**Example 4**: Load a stored datalist from one grid row
+#### Example 4: Know which grid cell called the service {#grid-cell-caller}
+
+When a component of a grid cell (a button, a select, a checkbox...) launches the service, that row is selected and the
+`[gridId].selectedRowAddress` parameter has the `view`, the `component` (the grid), the `row` (row id) and the `column`
+(column id) of the cell. Load it like Example 3 and use it, for instance, to change the style of that cell with an
+[update-cell](actions.md#grid-actions-from-java-services) action:
+
+```java
+@Service
+public class CellService extends ServiceConfig {
+  /**
+   * Colour the cell that called the service
+   * @param address Address of the cell: view, component, row and column
+   * @return Service data
+   */
+  public ServiceData colourCell(JsonNode address) {
+    ServiceData serviceData = new ServiceData();
+
+    // Style of the cell
+    ObjectNode values = JsonNodeFactory.instance.objectNode();
+    values.put("style", "updated");
+
+    // Address of the cell that made the call
+    ComponentAddress cellAddress = new ComponentAddress(getApplicationName(), null, address.get("view").asText(), null,
+      address.get("component").asText(), address.get("row").asText(), address.get("column").asText());
+
+    ClientAction updateCell = new ClientAction("update-cell");
+    updateCell.setAddress(cellAddress);
+    updateCell.setAsync("true");
+    updateCell.setSilent("true");
+    updateCell.addParameter("data", new CellData(values));
+    serviceData.addClientAction(updateCell);
+
+    return serviceData;
+  }
+}
+```
+
+**Example 5**: Load a stored datalist from one grid row
 
 Query definition
 
@@ -449,7 +499,7 @@ Microservices are connectors to REST-defined services. Its xml structure is:
     <service-parameter type="STRING" name="Ent" />
     <service-parameter type="STRING" name="Liq" />
     <service-parameter type="STRING" name="Crr" />
-  </web>
+  </microservice>
 </service>
 ```
 > **Note:** `microservice.name` attributes are optional. `name` attribute is used to allow overwrite microservice name and set auth configuration.
@@ -516,14 +566,14 @@ REST services are very useful to connect to REST API's. Their xml structure is:
 </service>
 ```
 
-* **Call to a local URL with GET method without parameters**
+* **Call to a local URL with GET method without parameters, to the complex test endpoint**
 ```xml
 <service id="testComplexRestGet">
   <rest method="GET" endpoint="http://localhost:18089/testapi/complex/QtyTst"/>
 </service>
 ```
 
-* **Call to a local URL with POST method without parameters**
+* **Call to a local URL with POST method without parameters, to the complex test endpoint**
 ```xml
 <service id="testComplexRestPost">
   <rest method="POST" endpoint="http://localhost:18089/testapi/complex/testInclude"/>
@@ -558,14 +608,14 @@ REST services are very useful to connect to REST API's. Their xml structure is:
 </service>
 ```
 
-* **Call to a external URL with GET method without parameters and a wrapper**
+* **Call to an external URL (`islandia` server) with GET method without parameters and a wrapper**
 ```xml
 <service id="testExternalRest">
   <rest server="islandia" method="GET" endpoint="/concerts" wrapper="com.almis.awe.test.bean.Concerts"/>
 </service>
 ```
 
-* **Call to a external URL with GET method without parameters and a wrapper**
+* **Call to an external URL (`postman` server) with GET method without parameters and a wrapper**
 ```xml
 <service id="testPostman">
   <rest server="postman" method="GET" endpoint="/gzip" wrapper="com.almis.awe.test.bean.Postman"/>

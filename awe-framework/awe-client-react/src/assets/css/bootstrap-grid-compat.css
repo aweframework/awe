@@ -1,0 +1,35 @@
+/*
+ * Bootstrap 3 container compatibility.
+ *
+ * AWE screen XML is written for the AngularJS client (Bootstrap 3), where criteria are floated
+ * "col-*" columns: plain wrapper divs are transparent to them and "row" starts a new line.
+ * The React client lays columns out with flexbox (column widths live in AweCriterion.less), so
+ * without these rules columns nested in wrapper divs or rows stack one above the other.
+ * Plain wrapper divs are only affected when they directly hold grid columns.
+ */
+
+/* Plain wrapper divs pass their columns to the parent flex row, like floats in Bootstrap 3 */
+:is(div:not([class]), div[class=""]):has(> [class*="col-xs-"], > [class*="col-sm-"], > [class*="col-md-"], > [class*="col-lg-"], > [class*="col-xl-"]) {
+  display: contents;
+}
+
+/* Vertical containers stack their children, so there a plain wrapper must be a row of its own */
+.expandible-vertical > :is(div:not([class]), div[class=""]):has(> [class*="col-xs-"], > [class*="col-sm-"], > [class*="col-md-"], > [class*="col-lg-"], > [class*="col-xl-"]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+/* A row starts a new full-width line where its columns flow */
+.row:not(.panel-body) {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 0 0 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Row children that are not columns keep a full line, as blocks do in Bootstrap 3 */
+.row:not(.panel-body) > :not([class*="col-"]) {
+  flex: 0 0 100%;
+}

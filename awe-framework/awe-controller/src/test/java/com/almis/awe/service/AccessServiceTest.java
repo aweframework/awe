@@ -1,6 +1,7 @@
 package com.almis.awe.service;
 
 import com.almis.awe.config.BaseConfigProperties;
+import com.almis.awe.config.PasswordEncoderType;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.TotpConfigProperties;
 import com.almis.awe.exception.AWException;
@@ -8,14 +9,20 @@ import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.component.AweUserDetails;
-import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.dto.CellData;
+import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.entities.menu.Menu;
+import com.almis.awe.model.security.audit.SecurityAuditCause;
+import com.almis.awe.model.security.audit.SecurityAuditChannel;
+import com.almis.awe.model.security.audit.SecurityAuditEventType;
+import com.almis.awe.model.security.audit.SecurityAuditOutcome;
 import com.almis.awe.model.type.SecondFactorStatusType;
+import com.almis.awe.security.audit.RecordingSecurityAudit;
+import com.almis.awe.security.authentication.SsoRoleNotMappedException;
+import com.almis.awe.security.authentication.encoder.AwePasswordEncoder;
 import com.almis.awe.service.user.AweUserDetailService;
 import com.almis.awe.session.AweSessionDetails;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,11 +30,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.ApplicationContext;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -38,6 +48,10 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -48,7 +62,10 @@ import java.util.UUID;
 
 import static com.almis.awe.model.constant.AweConstants.*;
 import static com.almis.awe.service.AccessService.PROVISIONING_NEW_USER;
+import static com.almis.awe.service.AccessService.UPDATE_OAUTH_ADDITIONAL_PROFILES;
 import static com.almis.awe.service.AccessService.UPDATE_OAUTH_ROLE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -120,6 +137,9 @@ class AccessServiceTest {
     lenient().when(securityContext.getAuthentication()).thenReturn(authentication);
     lenient().when(authentication.getPrincipal()).thenReturn(aweUserDetails);
     SecurityContextHolder.setContext(securityContext);
+    // The login reads the colour mode chosen on the sign-in page from the request
+    lenient().when(applicationContext.getBean(AweRequest.class)).thenReturn(aweRequest);
+    lenient().when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
     accessService.setApplicationContext(applicationContext);
   }
 
@@ -268,16 +288,16 @@ class AccessServiceTest {
         .setContext("public-context")
         .addParameter("connectionToken", "mock-uuid");
     when(aweSessionDetails.createLogoutRedirectAction()).thenReturn(mockLogoutAction);
-    
+
     // When
     ServiceData serviceData = accessService.logout();
-    
+
     // Then
     assertEquals(1, serviceData.getClientActionList().size());
-    
+
     // Verify the logout redirect action is called
     verify(aweSessionDetails, times(1)).createLogoutRedirectAction();
-    
+
     // Verify client actions are properly configured for SSO with auto-launch
     ClientAction clientAction = serviceData.getClientActionList().get(0);
     assertEquals("screen", clientAction.getType());
@@ -292,16 +312,16 @@ class AccessServiceTest {
         .setTarget("/")
         .addParameter("connectionToken", "mock-uuid");
     when(aweSessionDetails.createLogoutRedirectAction()).thenReturn(mockLogoutAction);
-    
+
     // When
     ServiceData serviceData = accessService.logout();
-    
+
     // Then
     assertEquals(1, serviceData.getClientActionList().size());
-    
+
     // Verify the logout redirect action is called
     verify(aweSessionDetails, times(1)).createLogoutRedirectAction();
-    
+
     // Verify client actions are properly configured for non-SSO
     ClientAction clientAction = serviceData.getClientActionList().get(0);
     assertEquals("screen", clientAction.getType());
@@ -328,6 +348,58 @@ class AccessServiceTest {
     when(encodeService.encryptRipEmd160WithPhraseKey("test", "4W3M42T3RK3Y%$ED")).thenReturn("encrypted-text");
     ServiceData serviceData = accessService.encryptText("test", "4W3M42T3RK3Y%$ED");
     assertEquals(1, serviceData.getDataList().getRows().size());
+  }
+
+  @Test
+  void hashPassword_returnsTheHashOfTheConfiguredEncoder() throws AWException {
+    when(encodeService.encodePassword("test")).thenReturn("{bcrypt}$2a$10$hash");
+    ServiceData serviceData = accessService.hashPassword("test", "");
+    assertEquals(1, serviceData.getDataList().getRows().size());
+    assertEquals("{bcrypt}$2a$10$hash", serviceData.getDataList().getRows().get(0).get("encoded").getStringValue());
+  }
+
+  @Test
+  void hashPassword_withoutText_returnsAnEmptyValue() throws AWException {
+    ServiceData serviceData = accessService.hashPassword("", "ripemd160");
+    assertEquals("", serviceData.getDataList().getRows().get(0).get("encoded").getStringValue());
+    verify(encodeService, never()).encodePassword(any());
+  }
+
+  @Test
+  void hashPassword_withTheLegacyAlgorithm_returnsTheAwe4Hash() throws AWException {
+    ServiceData serviceData = accessService.hashPassword("test", "ripemd160");
+    assertEquals("5e52fee47e6b070565f74372468cdc699de89107", serviceData.getDataList().getRows().get(0).get("encoded").getStringValue());
+    verify(encodeService, never()).encodePassword(any());
+  }
+
+  @Test
+  void hashPassword_withBcrypt_returnsAValidBcryptHash() throws AWException {
+    ServiceData serviceData = accessService.hashPassword("test", "BCRYPT");
+    String hash = serviceData.getDataList().getRows().get(0).get("encoded").getStringValue();
+    assertThat(hash).startsWith("{bcrypt}$2");
+    assertThat(new AwePasswordEncoder(PasswordEncoderType.BCRYPT).matches("test", hash)).isTrue();
+  }
+
+  @Test
+  void hashPassword_withAnUnknownAlgorithm_isRejected() {
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("locale");
+    assertThrows(AWException.class, () -> accessService.hashPassword("test", "md5"));
+    verify(encodeService, never()).encodePassword(any());
+  }
+
+  @Test
+  void passwordAlgorithms_listTheConfiguredAlgorithmFirst() {
+    when(securityConfigProperties.getPasswordEncoder()).thenReturn(PasswordEncoderType.RIPEMD160);
+    ServiceData serviceData = accessService.getPasswordAlgorithms();
+    assertThat(serviceData.getDataList().getRows())
+      .extracting(row -> row.get("value").getStringValue())
+      .containsExactly("ripemd160", "bcrypt");
+
+    when(securityConfigProperties.getPasswordEncoder()).thenReturn(PasswordEncoderType.BCRYPT);
+    assertThat(accessService.getPasswordAlgorithms().getDataList().getRows())
+      .extracting(row -> row.get("value").getStringValue())
+      .containsExactly("bcrypt", "ripemd160");
   }
 
   @Test
@@ -485,8 +557,8 @@ class AccessServiceTest {
     // Asserts - maintain launched with the default role for this user
     ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
     verify(maintainService, times(1)).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), parameters.capture());
-    assertEquals(DEFAULT_ROLE, parameters.getValue().get(PROFILE).asText());
-    assertEquals("foo@acme.com", parameters.getValue().get(USERNAME).asText());
+    assertEquals(DEFAULT_ROLE, parameters.getValue().get(PROFILE).asString());
+    assertEquals("foo@acme.com", parameters.getValue().get(USERNAME).asString());
     verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
     assertNotNull(initialUrl);
   }
@@ -550,7 +622,7 @@ class AccessServiceTest {
     // Asserts - new user provisioned with the profile coming from loadUserByRole
     ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
     verify(maintainService, times(1)).launchPrivateMaintain(eq(PROVISIONING_NEW_USER), parameters.capture());
-    assertEquals(DEFAULT_ROLE, parameters.getValue().get(PROFILE).asText());
+    assertEquals(DEFAULT_ROLE, parameters.getValue().get(PROFILE).asString());
     verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
     assertNotNull(initialUrl);
   }
@@ -597,6 +669,158 @@ class AccessServiceTest {
 
     // Then
     assertThrows(AWException.class, () -> accessService.onAuthenticationSuccess(oAuth2AuthenticationToken));
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_existingDisabledUser_isRejected() throws AWException {
+    // Given - user stored in AWE as disabled
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = getTokenWithRole("DUMMY");
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("OTHER"));
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setUsername("foo@acme.com").setProfileName("DUMMY").setEnabled(false));
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLanguage()).thenReturn("en-GB");
+    when(aweElements.getLocaleWithLanguage("ERROR_MESSAGE_SSO_USER_DISABLED", "en-GB")).thenReturn("disabled message");
+
+    // When
+    DisabledException exception = assertThrows(DisabledException.class, () -> accessService.onAuthenticationSuccess(oAuth2AuthenticationToken));
+
+    // Then - no AWE session, no profile update, localized message
+    assertEquals("disabled message", exception.getMessage());
+    verify(aweSessionDetails, never()).onLoginSuccess(any());
+    verify(maintainService, never()).launchPrivateMaintain(anyString(), any(ObjectNode.class));
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_existingLockedUser_isRejected() throws AWException {
+    // Given - user stored in AWE as locked
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = getTokenWithRole("DUMMY");
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("OTHER"));
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setUsername("foo@acme.com").setProfileName("DUMMY").setAccountNonLocked(false));
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLanguage()).thenReturn("en-GB");
+    when(aweElements.getLocaleWithLanguage("ERROR_MESSAGE_SSO_USER_LOCKED", "en-GB")).thenReturn("locked message");
+
+    // When
+    LockedException exception = assertThrows(LockedException.class, () -> accessService.onAuthenticationSuccess(oAuth2AuthenticationToken));
+
+    // Then
+    assertEquals("locked message", exception.getMessage());
+    verify(aweSessionDetails, never()).onLoginSuccess(any());
+    verify(maintainService, never()).launchPrivateMaintain(anyString(), any(ObjectNode.class));
+  }
+
+  @Test
+  void givenOauth2Info_onAuthenticationSuccess_existingUserWithExpiredPassword_stillLogsIn() throws AWException {
+    // Given - the password is not used on SSO, so credentials expiration must not block the login
+    OAuth2AuthenticationToken oAuth2AuthenticationToken = getTokenWithRole("DUMMY");
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setProfileName("DUMMY").setCredentialsNonExpired(false));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("DUMMY"));
+    when(menuService.getMenu()).thenReturn(mockMenu);
+
+    // When
+    String initialUrl = accessService.onAuthenticationSuccess(oAuth2AuthenticationToken);
+
+    // Then
+    assertNotNull(initialUrl);
+    verify(aweSessionDetails, times(1)).onLoginSuccess(any());
+  }
+
+  private static final String NO_ROLE_KEY = "ERROR_MESSAGE_SSO_NO_ROLE";
+  private static final String NO_ROLE_MESSAGE = "no role message";
+
+  private SecurityConfigProperties.Sso roleRequiredSso() {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    ssoConfig.setRequireRole(true);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    return ssoConfig;
+  }
+
+  private void stubNoRoleMessage() {
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLanguage()).thenReturn("en-GB");
+    when(aweElements.getLocaleWithLanguage(NO_ROLE_KEY, "en-GB")).thenReturn(NO_ROLE_MESSAGE);
+  }
+
+  private void assertRefusedWithoutRole(OAuth2AuthenticationToken token) throws AWException {
+    SsoRoleNotMappedException exception = assertThrows(SsoRoleNotMappedException.class, () -> accessService.onAuthenticationSuccess(token));
+    assertEquals(NO_ROLE_MESSAGE, exception.getMessage());
+    verify(aweSessionDetails, never()).onLoginSuccess(any());
+    verify(maintainService, never()).launchPrivateMaintain(anyString(), any(ObjectNode.class));
+  }
+
+  @Test
+  void roleRequired_existingUser_noRoleFromProvider_isRefused() throws AWException {
+    // Given - the stored profile is not used when a role is required
+    roleRequiredSso();
+    stubNoRoleMessage();
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.empty());
+
+    // Then
+    assertRefusedWithoutRole(getTokenWithRole("offline_access"));
+    verify(aweUserDetailService, never()).loadUserByUsername(anyString());
+  }
+
+  @Test
+  void roleRequired_roleWithoutAweProfile_isRefused() throws AWException {
+    // Given
+    roleRequiredSso();
+    stubNoRoleMessage();
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("unknown"));
+    when(aweUserDetailService.existRole("unknown")).thenReturn(false);
+
+    // Then
+    assertRefusedWithoutRole(getTokenWithRole("unknown"));
+    verify(aweUserDetailService, never()).loadUserByRole(any());
+  }
+
+  @Test
+  void roleRequired_mappedRole_logsIn() throws AWException {
+    // Given
+    roleRequiredSso();
+    Menu mockMenu = new Menu();
+    mockMenu.setScreenContext("dummy");
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("operator"));
+    when(aweUserDetailService.existRole("operator")).thenReturn(true);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setProfileName("operator"));
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(menuService.getMenu()).thenReturn(mockMenu);
+
+    // Then
+    assertNotNull(accessService.onAuthenticationSuccess(getTokenWithRole("operator")));
+    verify(aweSessionDetails, times(1)).onLoginSuccess(any());
+  }
+
+  @Test
+  void roleRequired_followsTheLocalLoginSwitchUnlessSet() {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    assertFalse(ssoConfig.isRoleRequired(), "Local login on (default): the default role fallback is kept");
+    ssoConfig.setLocalLogin(false);
+    assertTrue(ssoConfig.isRoleRequired(), "IdP-first (local login off): a mapped role is required");
+    ssoConfig.setRequireRole(false);
+    assertFalse(ssoConfig.isRoleRequired(), "Explicit opt-in to the default role fallback");
+    ssoConfig.setLocalLogin(true);
+    ssoConfig.setRequireRole(true);
+    assertTrue(ssoConfig.isRoleRequired(), "Explicit requirement with local login on");
+  }
+
+  private static OAuth2AuthenticationToken getTokenWithRole(String role) {
+    Map<String, Object> attributeMap = Map.of(PREFERRED_USERNAME, "foo@acme.com");
+    List<GrantedAuthority> grantedAuthorities = List.of(new OAuth2UserAuthority(attributeMap), new SimpleGrantedAuthority(role));
+    DefaultOAuth2User oAuth2User = new DefaultOAuth2User(grantedAuthorities, attributeMap, PREFERRED_USERNAME);
+    return new OAuth2AuthenticationToken(oAuth2User, grantedAuthorities, "clientRegId");
   }
 
 	@NotNull
@@ -693,5 +917,213 @@ class AccessServiceTest {
     verify(maintainService, never()).launchPrivateMaintain(eq(PROVISIONING_NEW_USER), any(ObjectNode.class));
     verify(aweSession, times(1)).setParameter(eq(SESSION_INITIAL_URL), any());
     assertNotNull(initialUrl);
+  }
+
+  @Test
+  void secondFactorChecksAreAudited() throws Exception {
+    RecordingSecurityAudit audit = new RecordingSecurityAudit();
+    accessService.setSecurityAuditService(audit.service());
+    aweUserDetails.setUsername("jdoe");
+    when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+    when(aweElements.getLocaleWithLanguage(anyString(), eq(null))).thenReturn("locale");
+    when(totpService.verify2faCode(anyString())).thenReturn(false);
+
+    assertThrows(AWException.class, () -> accessService.verify2faCode("000000"));
+
+    assertThat(audit.events()).extracting("type", "outcome", "cause", "username")
+      .containsExactly(tuple(SecurityAuditEventType.TOTP_VERIFICATION, SecurityAuditOutcome.FAILURE, SecurityAuditCause.INVALID_CODE, "jdoe"));
+  }
+
+  @Test
+  void ssoLoginsAndProfileSynchronizationAreAudited() throws AWException {
+    RecordingSecurityAudit audit = new RecordingSecurityAudit();
+    accessService.setSecurityAuditService(audit.service());
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setUsername("foo@acme.com").setProfileName("OLD"));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("NEW"));
+    when(aweUserDetailService.existRole("NEW")).thenReturn(true);
+    when(menuService.getMenu()).thenReturn(menu);
+
+    accessService.onAuthenticationSuccess(getTokenWithRole("NEW"));
+
+    assertThat(audit.events()).extracting("type", "outcome", "channel", "username", "detail").containsExactly(
+      tuple(SecurityAuditEventType.SSO_PROFILE_SYNC, SecurityAuditOutcome.SUCCESS, SecurityAuditChannel.SSO, "foo@acme.com", "OLD -> NEW"),
+      tuple(SecurityAuditEventType.LOGIN, SecurityAuditOutcome.SUCCESS, SecurityAuditChannel.SSO, "foo@acme.com", null));
+  }
+
+  @Test
+  void ssoLoginsRefusedByAweLeaveTheUserNameForTheFailureHandler() throws AWException {
+    RecordingSecurityAudit audit = new RecordingSecurityAudit();
+    accessService.setSecurityAuditService(audit.service());
+    MockHttpServletRequest request = new MockHttpServletRequest();
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(request));
+    try {
+      SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+      ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+      when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+      when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("OTHER"));
+      when(aweUserDetailService.loadUserByUsername(anyString())).thenReturn(new AweUserDetails().setUsername("foo@acme.com").setProfileName("DUMMY").setAccountNonLocked(false));
+      when(applicationContext.getBean(AweElements.class)).thenReturn(aweElements);
+      when(aweElements.getLanguage()).thenReturn("en-GB");
+
+      assertThrows(LockedException.class, () -> accessService.onAuthenticationSuccess(getTokenWithRole("DUMMY")));
+
+      assertThat(request.getAttribute(AccessService.SSO_REJECTED_USERNAME_ATTRIBUTE)).isEqualTo("foo@acme.com");
+      assertThat(audit.events()).as("the refusal is recorded by the failure handler").isEmpty();
+    } finally {
+      RequestContextHolder.resetRequestAttributes();
+    }
+  }
+
+  /**
+   * Single sign-on with several provider roles: the stubs of an existing user whose roles map to the main profile
+   * "auditor" and to two more profiles (ids 2 and 3)
+   */
+  private OAuth2AuthenticationToken stubExistingUserWithSeveralRoles(AweUserDetails dbUserDetails) throws AWException {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
+    OAuth2AuthenticationToken token = getTokenWithRole("auditor");
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername("foo@acme.com")).thenReturn(dbUserDetails);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("auditor"));
+    when(aweUserDetailService.existRole("auditor")).thenReturn(true);
+    lenient().when(aweUserDetailService.supportsAdditionalProfiles()).thenReturn(true);
+    lenient().when(aweUserDetailService.mapAdditionalProfileIds(token.getAuthorities(), "auditor"))
+      .thenReturn(List.of(2, 3));
+    when(menuService.getMenu()).thenReturn(menu);
+    return token;
+  }
+
+  @Test
+  void ssoLogin_storesTheOtherMappedProfilesAsAdditionalProfilesOfTheUser() throws AWException {
+    AweUserDetails dbUserDetails = new AweUserDetails().setUsername("foo@acme.com").setProfileName("auditor");
+    OAuth2AuthenticationToken token = stubExistingUserWithSeveralRoles(dbUserDetails);
+
+    accessService.onAuthenticationSuccess(token);
+
+    // The user is a session parameter, set only while the target runs; the profiles are the ids besides the main one
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    InOrder order = inOrder(aweSession, maintainService, aweUserDetailService, aweSessionDetails);
+    order.verify(aweSession).setParameter(AccessService.SSO_PROFILES_USER_SESSION_PARAMETER, "foo@acme.com");
+    order.verify(maintainService).launchPrivateMaintain(eq(UPDATE_OAUTH_ADDITIONAL_PROFILES), parameters.capture());
+    order.verify(aweSession).removeParameter(AccessService.SSO_PROFILES_USER_SESSION_PARAMETER);
+    order.verify(aweUserDetailService).refreshAdditionalProfiles(dbUserDetails);
+    order.verify(aweSessionDetails).onLoginSuccess(dbUserDetails);
+    assertThat(parameters.getValue().get("profiles").valueStream().map(JsonNode::asInt).toList()).containsExactly(2, 3);
+    assertThat(parameters.getValue().has(USERNAME)).isFalse();
+    verify(maintainService, never()).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), any(ObjectNode.class));
+  }
+
+  @Test
+  void ssoLogin_withoutOtherMappedProfiles_removesTheAdditionalProfilesOfTheUser() throws AWException {
+    AweUserDetails dbUserDetails = new AweUserDetails().setUsername("foo@acme.com").setProfileName("operator");
+    OAuth2AuthenticationToken token = stubExistingUserWithSeveralRoles(dbUserDetails);
+    when(aweUserDetailService.mapAdditionalProfileIds(token.getAuthorities(), "auditor")).thenReturn(List.of());
+
+    accessService.onAuthenticationSuccess(token);
+
+    // The provider is the source of truth: the main profile changes as today and the stored rows are replaced by none
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), any(ObjectNode.class));
+    verify(maintainService).launchPrivateMaintain(eq(UPDATE_OAUTH_ADDITIONAL_PROFILES), parameters.capture());
+    assertThat(parameters.getValue().get("profiles").isArray()).isTrue();
+    assertThat(parameters.getValue().get("profiles").isEmpty()).isTrue();
+  }
+
+  @Test
+  void ssoLogin_withAUserDAOWithoutAdditionalProfiles_leavesTheAdditionalProfilesUntouched() throws AWException {
+    AweUserDetails dbUserDetails = new AweUserDetails().setUsername("foo@acme.com").setProfileName("auditor");
+    OAuth2AuthenticationToken token = stubExistingUserWithSeveralRoles(dbUserDetails);
+    when(aweUserDetailService.supportsAdditionalProfiles()).thenReturn(false);
+
+    accessService.onAuthenticationSuccess(token);
+
+    verify(maintainService, never()).launchPrivateMaintain(eq(UPDATE_OAUTH_ADDITIONAL_PROFILES), any(ObjectNode.class));
+    verify(aweUserDetailService, never()).mapAdditionalProfileIds(any(), anyString());
+    verify(aweUserDetailService, never()).refreshAdditionalProfiles(any());
+    verify(aweSession, never()).setParameter(eq(AccessService.SSO_PROFILES_USER_SESSION_PARAMETER), any());
+    verify(aweSessionDetails).onLoginSuccess(dbUserDetails);
+  }
+
+  @Test
+  void ssoLogin_withARoleWithoutProfile_keepsTheAdditionalProfilesOfTheUser() throws AWException {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername(anyString()))
+      .thenReturn(new AweUserDetails().setProfileName("operator"));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("ghost"));
+    when(aweUserDetailService.existRole("ghost")).thenReturn(false);
+    when(menuService.getMenu()).thenReturn(menu);
+
+    accessService.onAuthenticationSuccess(getTokenWithRole("ghost"));
+
+    verify(maintainService, never()).launchPrivateMaintain(anyString(), any(ObjectNode.class));
+    verify(aweUserDetailService, never()).mapAdditionalProfileIds(any(), anyString());
+    verify(aweUserDetailService, never()).refreshAdditionalProfiles(any());
+  }
+
+  @Test
+  void ssoLogin_withoutRoleFromProvider_keepsTheAdditionalProfilesOfTheUser() throws AWException {
+    SecurityConfigProperties.Sso ssoConfig = new SecurityConfigProperties.Sso();
+    ssoConfig.setUserNameAttribute(PREFERRED_USERNAME);
+    ssoConfig.setOverwriteProfileWithDefaultRole(true);
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(ssoConfig);
+    when(aweUserDetailService.loadUserByUsername(anyString()))
+      .thenReturn(new AweUserDetails().setProfileName("manual"));
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.empty());
+    when(baseConfigProperties.getDefaultRole()).thenReturn("operator");
+    when(aweUserDetailService.existRole("operator")).thenReturn(true);
+    when(menuService.getMenu()).thenReturn(menu);
+
+    accessService.onAuthenticationSuccess(getTokenWithRole("offline_access"));
+
+    // The default role still overwrites the main profile, as today, but the additional profiles are not touched
+    verify(maintainService).launchPrivateMaintain(eq(UPDATE_OAUTH_ROLE), any(ObjectNode.class));
+    verify(maintainService, never()).launchPrivateMaintain(eq(UPDATE_OAUTH_ADDITIONAL_PROFILES), any(ObjectNode.class));
+    verify(aweUserDetailService, never()).refreshAdditionalProfiles(any());
+  }
+
+  @Test
+  void ssoLogin_provisionedUser_getsTheOtherMappedProfilesAsAdditionalProfiles() throws AWException {
+    OAuth2AuthenticationToken token = getTokenWithRole("auditor");
+    aweUserDetails.setUsername("foo@acme.com").setEmail("foo@acme.com").setProfile("AUD").setProfileName("auditor");
+    Menu menu = new Menu();
+    menu.setScreenContext("private");
+    when(applicationContext.getBean(AweSession.class)).thenReturn(aweSession);
+    when(securityConfigProperties.getSso()).thenReturn(new SecurityConfigProperties.Sso());
+    when(aweUserDetailService.loadUserByUsername(anyString())).thenThrow(UsernameNotFoundException.class);
+    when(aweUserDetailService.loadUserByRole(token)).thenReturn(aweUserDetails);
+    when(aweUserDetailService.mapGrantedAuthorityProfile(any())).thenReturn(Optional.of("auditor"));
+    when(aweUserDetailService.existRole("auditor")).thenReturn(true);
+    when(aweUserDetailService.supportsAdditionalProfiles()).thenReturn(true);
+    when(aweUserDetailService.mapAdditionalProfileIds(token.getAuthorities(), "auditor")).thenReturn(List.of(5));
+    when(baseConfigProperties.getLanguageDefault()).thenReturn("es-ES");
+    when(menuService.getMenu()).thenReturn(menu);
+
+    accessService.onAuthenticationSuccess(token);
+
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    InOrder order = inOrder(maintainService, aweUserDetailService, aweSessionDetails);
+    order.verify(maintainService).launchPrivateMaintain(eq(PROVISIONING_NEW_USER), any(ObjectNode.class));
+    order.verify(maintainService).launchPrivateMaintain(eq(UPDATE_OAUTH_ADDITIONAL_PROFILES), parameters.capture());
+    order.verify(aweUserDetailService).refreshAdditionalProfiles(aweUserDetails);
+    order.verify(aweSessionDetails).onLoginSuccess(aweUserDetails);
+    assertThat(parameters.getValue().get("profiles").valueStream().map(JsonNode::asInt).toList()).containsExactly(5);
+    verify(aweSession).setParameter(AccessService.SSO_PROFILES_USER_SESSION_PARAMETER, "foo@acme.com");
   }
 }

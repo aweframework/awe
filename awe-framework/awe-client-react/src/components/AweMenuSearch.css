@@ -1,0 +1,213 @@
+/*
+ * Menu option search (command palette), AWE 5 shell (#885)
+ * --------------------------------------------------
+ * The toggle looks like the search field of the side menu; the panel is an overlay with a field and a list of
+ * options. Tokens only, so it follows the mode, the density and the primary of the theme.
+ */
+
+.awe-menu-search-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  min-height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-field-padding-x);
+  font: inherit;
+  font-size: var(--awe-font-size-sm);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-field-placeholder);
+  cursor: pointer;
+  background: var(--awe-color-field);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-field);
+  transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    box-shadow var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.awe-menu-search-toggle .awe-icon,
+.awe-menu-search-toggle i {
+  flex: none;
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  color: var(--awe-color-field-icon);
+}
+
+/* The icon fills its box: inline, it would sit on the text baseline below the centre of the field */
+.awe-menu-search-toggle i > .awe-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.awe-menu-search-toggle:hover {
+  border-color: var(--awe-color-field-border-hover);
+}
+
+.awe-menu-search-toggle:focus-visible,
+.awe-menu-search.open .awe-menu-search-toggle {
+  border-color: var(--awe-color-field-border-focus);
+  outline: none;
+  box-shadow: var(--awe-shadow-field-focus);
+}
+
+.awe-menu-search-toggle-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Hint of the Ctrl K shortcut at the end of the vertical search field, as the search of the prototype */
+.awe-menu-search-kbd {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 0 var(--awe-space-1-5);
+  font-family: var(--awe-font-family-base);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-base);
+  color: var(--awe-color-text-muted);
+  white-space: nowrap;
+  background: var(--awe-color-surface-subtle);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-sm);
+  box-shadow: none;
+}
+
+.awe-menu-search-panel {
+  position: absolute;
+  z-index: var(--awe-z-dropdown);
+  width: var(--awe-menu-flyout-width);
+  max-width: 90vw;
+  padding: var(--awe-list-padding);
+  margin-top: var(--awe-space-1);
+  color: var(--awe-color-overlay-text);
+  background: var(--awe-color-overlay);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+}
+
+.awe-menu-search-input {
+  width: 100%;
+  min-height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-field-padding-x);
+  font: inherit;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-field-text);
+  background: var(--awe-color-field);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-field);
+}
+
+.awe-menu-search-input::placeholder {
+  color: var(--awe-color-field-placeholder);
+}
+
+.awe-menu-search-input:focus {
+  border-color: var(--awe-color-field-border-focus);
+  outline: none;
+  box-shadow: var(--awe-shadow-field-focus);
+}
+
+.awe-menu-search-results {
+  max-height: 60vh;
+  padding: 0;
+  margin: var(--awe-space-1) 0 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.awe-menu-search-results > li {
+  padding: 0;
+  margin: 0;
+}
+
+.awe-menu-search-result {
+  display: block;
+  width: 100%;
+  padding: var(--awe-list-option-padding);
+  margin-bottom: var(--awe-list-gap);
+  font: inherit;
+  color: var(--awe-color-list-option-text);
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-radius: var(--awe-radius-list-option);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+    color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+}
+
+.awe-menu-search-result.active,
+.awe-menu-search-result:hover,
+.awe-menu-search-result:focus {
+  color: var(--awe-color-list-option-text-focus);
+  outline: none;
+  background: var(--awe-color-list-option-focus);
+}
+
+.awe-menu-search-label {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.awe-menu-search-breadcrumb {
+  display: block;
+  overflow: hidden;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.awe-menu-search-empty {
+  padding: var(--awe-list-option-padding);
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+}
+
+/* Vertical menu: a full-width search field above the options */
+.awe-menu-search-vertical {
+  position: relative;
+  display: block;
+  margin-bottom: var(--awe-space-2);
+}
+
+.awe-menu-search-vertical .awe-menu-search-toggle {
+  justify-content: flex-start;
+  width: 100%;
+}
+
+.awe-menu-search-vertical .awe-menu-search-panel {
+  right: 0;
+  left: 0;
+  width: auto;
+}
+
+/* Horizontal menu: an icon toggle at the right end of the bar */
+.awe-menu-search-horizontal {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: var(--awe-z-dropdown);
+}
+
+.awe-menu-search-horizontal .awe-menu-search-toggle {
+  justify-content: center;
+}
+
+.awe-menu-search-horizontal .awe-menu-search-panel {
+  right: 0;
+}
+
+/* A touch screen has no keyboard to press the shortcut with */
+@media (hover: none) and (pointer: coarse) {
+  .awe-menu-search-kbd {
+    display: none;
+  }
+}

@@ -24,6 +24,9 @@ Insert into AweKey (KeyNam, KeyVal) values ('EmlSrvKey', 0);
 Insert into AweKey (KeyNam, KeyVal) values ('AppParKey', 39);
 Insert into AweKey (KeyNam, KeyVal) values ('JmsKey', 0);
 Insert into AweKey (KeyNam, KeyVal) values ('ScrCnfKey', 0);
+Insert into AweKey (KeyNam, KeyVal) values ('GrdCnfKey', 0);
+Insert into AweKey (KeyNam, KeyVal) values ('WinCnfKey', 0);
+Insert into AweKey (KeyNam, KeyVal) values ('SavSchKey', 0);
 Insert into AweKey (KeyNam, KeyVal) values ('ScrResKey', 0);
 Insert into AweKey (KeyNam, KeyVal) values ('MntTstKey', 1);
 
@@ -45,6 +48,26 @@ Insert into AweThm (IdeThm, Nam, Act) values ('13','dust','1');
 Insert into AweThm (IdeThm, Nam, Act) values ('14','white','1');
 Insert into AweThm (IdeThm, Nam, Act) values ('15','asphalt','1');
 Insert into AweThm (IdeThm, Nam, Act) values ('16','amazonia','1');
+-- Theme presets: primary colour, surface and mode of the classic themes
+UPDATE AweThm SET Pri = 'sky',     Srf = 'auto',  Mde = 'system' WHERE Nam = 'default';
+UPDATE AweThm SET Pri = 'teal',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'asphalt';
+UPDATE AweThm SET Pri = 'violet',  Srf = 'auto',  Mde = 'system' WHERE Nam = 'purple-hills';
+UPDATE AweThm SET Pri = '#948787', Srf = 'stone', Mde = 'system' WHERE Nam = 'dust';
+UPDATE AweThm SET Pri = 'cyan',    Srf = 'slate', Mde = 'system' WHERE Nam = 'frost';
+UPDATE AweThm SET Pri = 'lime',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'fresh';
+UPDATE AweThm SET Pri = 'cyan',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'silver';
+UPDATE AweThm SET Pri = 'emerald', Srf = 'auto',  Mde = 'system' WHERE Nam = 'clean';
+UPDATE AweThm SET Pri = 'cyan',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'white';
+UPDATE AweThm SET Pri = 'blue',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'adminflare';
+UPDATE AweThm SET Pri = 'red',     Srf = 'stone', Mde = 'system' WHERE Nam = 'orange';
+UPDATE AweThm SET Pri = 'red',     Srf = 'auto',  Mde = 'system' WHERE Nam = 'sunset';
+UPDATE AweThm SET Pri = 'cyan',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'grass';
+UPDATE AweThm SET Pri = 'blue',    Srf = 'auto',  Mde = 'system' WHERE Nam = 'sky';
+UPDATE AweThm SET Pri = 'sky',     Srf = 'auto',  Mde = 'system' WHERE Nam = 'eclipse';
+UPDATE AweThm SET Pri = 'yellow',  Srf = 'auto',  Mde = 'system' WHERE Nam = 'sunny';
+UPDATE AweThm SET Pri = 'blue',    Srf = 'slate', Mde = 'system' WHERE Nam = 'sea';
+UPDATE AweThm SET Pri = 'red',     Srf = 'auto',  Mde = 'system' WHERE Nam = 'ferrari';
+UPDATE AweThm SET Pri = '#948787', Srf = 'stone', Mde = 'system' WHERE Nam = 'amazonia';
 
 -- Insert Awe parameters
 truncate AweAppPar;
@@ -57,7 +80,7 @@ Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('6','DjrS
 Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('7','MinPwd','3','1','Minimal number of characters in the password','1');
 Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('8','PwdPat',null,'1','Password pattern to validate','1');
 Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('9','PwdMaxNumLog','3','1','Number of attempts to login','1');
-Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('10','PwdExp','30','1','Number of days in which the password will expire','1');
+Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('10','PwdExp','36500','1','Number of days in which the password will expire','1');
 Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('11','DjrFntVer','8','2','Select minimun font size for vertically oriented reports','1');
 Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('12','DjrFntHor','8','2','Select minimun font size for horizontally oriented reports','1');
 Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('13','DjrCrtNum','5','2','Set the number of criteria to PROMPT in one column','1');
@@ -89,11 +112,16 @@ Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('38','Par
 Insert into AweAppPar (IdeAweAppPar,ParNam,ParVal,Cat,Des,Act) values ('39','Param19',null,'2','Dummy parameter','1');
 
 -- Insert default profiles
+truncate AweProPer;
 truncate AwePro;
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('1','ADM','administrator','1',null,'administrator','1');
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('2','GNR','general','1',null,'general','1');
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('3','OPE','operator','1',null,'operator','1');
 Insert into AwePro (IdePro, Acr, Nam, IdeThm, ScrIni, Res, Act) values ('4','TST','test','1',null,'test','1');
+
+-- The administrator profile has every permission
+Insert into AweProPer (IdeAweProPer, IdePro, Per) values (1, 1, '*');
+Insert into AweKey (KeyNam, KeyVal) values ('ProPerKey', 1);
 
 -- Insert default user
 truncate ope;

@@ -46,9 +46,9 @@ public class AwePropagationCleanupFilter implements Filter {
       chain.doFilter(request, response);
     } finally {
       prototypeRequestBeanHolder.clearPendingPropagation();
-      if (log.isTraceEnabled() && request instanceof HttpServletRequest) {
+      if (log.isTraceEnabled() && request instanceof HttpServletRequest servletRequest) {
         log.trace("[FILTER] Cleared pending propagation overlay after request '{}'",
-            ((HttpServletRequest) request).getRequestURI());
+            servletRequest.getRequestURI());
       }
     }
   }

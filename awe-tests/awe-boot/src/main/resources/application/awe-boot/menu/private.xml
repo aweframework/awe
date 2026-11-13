@@ -12,47 +12,16 @@
   <option module="Inf" name="information-restricted" screen="info" invisible="true"/>
   <option module="Inf Changed" name="information-restricted-changed" screen="info" invisible="true"/>
   <option name="tools" label="MENU_TOOLS" icon="wrench">
-    <option name="sites" label="MENU_TOOLS_SITES" screen="Sit" icon="sitemap">
-      <option name="new-site" screen="SitNew" invisible="true"/>
-      <option name="update-site" screen="SitUpd" invisible="true"/>
-      <option name="view-site" screen="SitViw" invisible="true"/>
-    </option>
-    <option name="modules" label="MENU_TOOLS_MODULES" screen="Mod" icon="puzzle-piece">
-      <option name="new-module" screen="ModNew" invisible="true"/>
-      <option name="update-module" screen="ModUpd" invisible="true"/>
-      <option name="view-module" screen="ModViw" invisible="true"/>
-    </option>
-    <option name="users" label="MENU_TOOLS_USERS" screen="Usr" icon="user">
-      <option name="new-user" screen="UsrNew" invisible="true"/>
-      <option name="update-user" screen="UsrUpd" invisible="true"/>
-      <option name="view-user" screen="UsrViw" invisible="true"/>
-    </option>
-    <option name="profiles" label="MENU_TOOLS_PROFILES" screen="Prf" icon="group">
-      <option name="new-profile" screen="PrfNew" invisible="true"/>
-      <option name="update-profile" screen="PrfUpd" invisible="true"/>
-      <option name="view-profile" screen="PrfViw" invisible="true"/>
-    </option>
-    <option name="databases" label="MENU_TOOLS_DATABASE" screen="Dbs" icon="database">
-      <option name="new-database" screen="DbsNew" invisible="true"/>
-      <option name="update-database" screen="DbsUpd" invisible="true"/>
-      <option name="view-database" screen="DbsViw" invisible="true"/>
-    </option>
-    <option name="themes" label="MENU_TOOLS_THEMES" screen="Thm" icon="picture-o">
-      <option name="new-theme" screen="ThmNew" invisible="true"/>
-      <option name="update-theme" screen="ThmUpd" invisible="true"/>
-      <option name="view-theme" screen="ThmViw" invisible="true"/>
-      <option name="customize-theme" screen="customize-themes" invisible="true"/>
-    </option>
-    <option name="email-servers" label="MENU_TOOLS_AWE_EML_SRV" screen="EmlSrv" icon="envelope">
-      <option name="new-email-server" screen="EmlSrvNew" invisible="true"/>
-      <option name="update-email-server" screen="EmlSrvUpd" invisible="true"/>
-    </option>
-    <option name="queues" label="MENU_TOOLS_AWE_QUE" screen="Que" icon="exchange">
-      <option name="new-queue" screen="QueNew" invisible="true"/>
-      <option name="update-queue" screen="QueUpd" invisible="true"/>
-    </option>
-    <option name="sequences" label="MENU_TOOLS_AWEKEY" screen="AweKey" icon="key"/>
-    <option name="application-parameters" label="MENU_TOOLS_AWE_APPPAR" screen="AweAppPar" icon="cogs"/>
+    <option name="sites" label="MENU_TOOLS_SITES" screen="site-admin" icon="sitemap"/>
+    <option name="modules" label="MENU_TOOLS_MODULES" screen="module-admin" icon="puzzle-piece"/>
+    <option name="users" label="MENU_TOOLS_USERS" screen="user-admin" icon="user"/>
+    <option name="profiles" label="MENU_TOOLS_PROFILES" screen="profile-admin" icon="group"/>
+    <option name="databases" label="MENU_TOOLS_DATABASE" screen="database-admin" icon="database"/>
+    <option name="themes" label="MENU_TOOLS_THEMES" screen="theme-admin" icon="picture-o"/>
+    <option name="email-servers" label="MENU_TOOLS_AWE_EML_SRV" screen="email-server-admin" icon="envelope"/>
+    <option name="queues" label="MENU_TOOLS_AWE_QUE" screen="queue-admin" icon="exchange"/>
+    <option name="sequences" label="MENU_TOOLS_AWEKEY" screen="sequence-admin" icon="key"/>
+    <option name="application-parameters" label="MENU_TOOLS_AWE_APPPAR" screen="application-parameter-admin" icon="cogs"/>
     <option name="broadcast-messages" label="MENU_BROADCAST" screen="MsgUsr" icon="rss"/>
     <option name="log" label="MENU_LOG" screen="Log" icon="file-text">
       <option name="view-log" screen="LogViw" invisible="true"/>
@@ -61,18 +30,22 @@
   </option>
   <option name="settings" label="MENU_SETTINGS" icon="cog">
     <option name="security" label="MENU_TOOLS_SECURITY" icon="unlock-alt">
-      <option name="screen-access" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccRes" icon="eye-slash"/>
-      <option name="screen-access-upgraded" label="MENU_TOOLS_SCREENS_ACCESS" screen="screen-access" icon="eye-slash"/>
-      <option name="menu-access" label="MENU_TOOLS_MENU_ACCESS" screen="menu-access" icon="eye-slash"/>
+      <option name="screen-access" label="MENU_TOOLS_SCREENS_ACCESS" screen="access-admin" icon="eye-slash"/>
+      <option name="security-audit" label="MENU_TOOLS_SECURITY_AUDIT" screen="SecAud" icon="shield">
+        <option name="view-security-audit-event" screen="SecAudViw" invisible="true"/>
+      </option>
     </option>
     <option name="encrypt-tools" label="MENU_TOOLS_SCREEN_ENCRYPT" screen="ScrEncTxt" icon="lock"/>
     <option name="screen-configuration" label="MENU_TOOLS_SCR_CNF" screen="ScrCnf" icon="laptop"/>
+    <option name="screen-personalization" label="MENU_TOOLS_SCR_PER" screen="ScrPer" icon="pencil"/>
   </option>
   <option module="Test" name="test" label="MENU_TEST" icon="flask">
     <option name="criteria" label="MENU_TEST_CRITERIA" icon="object-group">
       <option name="criteria-test" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="keyboard-o"/>
       <option name="criteria-test-left" label="MENU_TEST_CRITERIA" screen="CrtTstLeft" icon="align-right"/>
+      <option name="criteria-date-range" label="MENU_TEST_DATE_RANGE" screen="CrtDatRng" icon="calendar"/>
       <option name="criteria-reset" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh"/>
+      <option name="criteria-uploader" label="MENU_TEST_CRITERIA_UPLOADER" screen="UplTst" icon="upload"/>
     </option>
     <option name="button-test" label="MENU_TEST_BUTTONS" screen="ButTst" icon="check"/>
     <option name="matrix" label="MENU_TEST_MATRIX" icon="table">
@@ -81,18 +54,40 @@
       <option name="matrix-test-suggest" label="MENU_TEST_MATRIX_SUGGEST" screen="MatEdiSelTst" icon="list-ul"/>
       <option name="matrix-test-having" label="MENU_TEST_MATRIX_HAVING" screen="having" icon="list-alt"/>
       <option name="matrix-test-load-all" label="MENU_TEST_MATRIX_LOAD_ALL" screen="MatLoadAll" icon="table"/>
+      <option name="matrix-test-sparkline" label="MENU_TEST_MATRIX_SPARKLINE" screen="GrdSparklineTst" icon="line-chart"/>
+      <option name="matrix-test-radio" label="MENU_TEST_MATRIX_RADIO" screen="GrdRadioTst" icon="dot-circle-o"/>
+      <option name="matrix-test-no-header" label="MENU_TEST_MATRIX_NO_HEADER" screen="GrdNoHeaderTst" icon="list"/>
+      <option name="matrix-test-scale" label="MENU_TEST_MATRIX_SCALE" screen="GrdScaleTst" icon="th"/>
+      <option name="matrix-test-layout" label="MENU_TEST_MATRIX_LAYOUT" screen="GrdLayoutTst" icon="columns"/>
+      <option name="matrix-test-pager" label="MENU_TEST_MATRIX_PAGER" screen="GrdPagerTst" icon="step-forward"/>
+      <option name="matrix-test-empty" label="MENU_TEST_MATRIX_EMPTY" screen="GrdEmptyTst" icon="inbox"/>
+      <option name="matrix-test-row-detail" label="MENU_TEST_MATRIX_ROW_DETAIL" screen="GrdRowDetailTst" icon="caret-square-o-down"/>
+      <option name="matrix-test-row-detail-components" label="MENU_TEST_MATRIX_ROW_DETAIL_COMPONENTS" screen="GrdRowDetailCmpTst" icon="list-alt"/>
+      <option name="matrix-test-wrap" label="MENU_TEST_MATRIX_WRAP" screen="GrdWrapTst" icon="align-left"/>
+      <option name="matrix-test-cells" label="MENU_TEST_MATRIX_CELLS" screen="GrdCellTst" icon="list"/>
+      <option name="matrix-test-quick-filter" label="MENU_TEST_MATRIX_QUICK_FILTER" screen="GrdQckFltTst" icon="filter"/>
+      <option name="matrix-test-groups" label="MENU_TEST_MATRIX_GROUPS" screen="GrdGrpTst" icon="object-group"/>
+      <option name="matrix-test-dialog-size" label="MENU_TEST_MATRIX_DIALOG_SIZE" screen="DlgSizeTst" icon="window-maximize"/>
+      <option name="matrix-test-side-panel" label="MENU_TEST_MATRIX_SIDE_PANEL" screen="SidePanelTst" icon="columns"/>
+      <option name="matrix-test-popover" label="MENU_TEST_MATRIX_POPOVER" screen="PopoverTst" icon="comment"/>
+      <option name="matrix-test-deferred" label="MENU_TEST_MATRIX_DEFERRED" screen="DeferredLoadTst" icon="hourglass-half"/>
+      <option name="matrix-test-deferred-heavy" label="MENU_TEST_MATRIX_DEFERRED_HEAVY" screen="DeferredHeavyTst" icon="hourglass-half"/>
       <option name="matrix-test-tree" label="MENU_TEST_MATRIX_TREE" screen="test-tree" icon="sitemap"/>
+      <option name="matrix-test-move-rows" label="MENU_TEST_MATRIX_MOVE_ROWS" screen="MoveRowsTst" icon="sort"/>
     </option>
+    <option name="matrix-test-advanced-search" label="MENU_TEST_MATRIX_ADVANCED_SEARCH" screen="AdvSchTst" icon="sliders"/>
     <option name="chart" label="MENU_TEST_CHARTS" icon="area-chart">
       <option name="chart-test" label="MENU_TEST_CHARTS" screen="ChrTst" icon="bar-chart-o"/>
       <option name="chart-series-test" label="MENU_TEST_CHART_DYNAMIC_SERIES" screen="ChrTstDynamicSeries"
               icon="line-chart"/>
+      <option name="map-test" label="MENU_TEST_MAP" screen="map" icon="mdi:map"/>
       <option name="grid-and-chart" label="MENU_GRID_CHART" screen="GrdChrPrn" icon="file-text-o"/>
       <option name="queue-test" label="MENU_TEST_QUEUES" screen="QueTst" icon="exchange"/>
     </option>
     <option name="layout" label="MENU_TEST_LAYOUT" icon="list-alt">
       <option name="layout-test" label="MENU_TEST_LAYOUT 1" screen="layout" icon="th-large"/>
       <option name="layout2-test" label="MENU_TEST_LAYOUT 2" screen="layout2" icon="th-large"/>
+      <option name="card-test" label="MENU_TEST_CARDS" screen="CardTst" icon="th-large"/>
     </option>
     <option name="button-menu" label="MENU_TEST_BUTTON_MENU" icon="th" menu-screen="true" screen="test-button-screen">
       <option name="button-option-0" label="MENU_TEST_CRITERIA" screen="CrtTst" icon="mdi:science"  />
@@ -120,15 +115,30 @@
         <option name="button-option-14" label="MENU_TEST_CRITERIA_RESET" screen="RstTst" icon="refresh" />
       </option>
     </option>
+    <option name="launcher-menu" label="MENU_TEST_LAUNCHER" description="MENU_TEST_LAUNCHER_DESCRIPTION" icon="th-large"
+            menu-screen="true" screen="test-launcher-screen">
+      <option name="launcher-sales" label="MENU_TEST_LAUNCHER_SALES" description="MENU_TEST_LAUNCHER_SALES_DESCRIPTION" icon="mdi:storefront"
+              menu-screen="true" screen="test-launcher-sales-screen">
+        <option name="launcher-reports" label="MENU_TEST_LAUNCHER_REPORTS" description="MENU_TEST_LAUNCHER_REPORTS_DESCRIPTION" icon="mdi:insights"
+                menu-screen="true" screen="test-launcher-reports-screen">
+          <option name="launcher-monthly" label="MENU_TEST_LAUNCHER_MONTHLY" description="MENU_TEST_LAUNCHER_MONTHLY_DESCRIPTION" screen="CrtTst" icon="mdi:calendar_month"/>
+          <option name="launcher-yearly" label="MENU_TEST_LAUNCHER_YEARLY" screen="CrtTstLeft" icon="mdi:calendar_today"/>
+        </option>
+        <option name="launcher-orders" label="MENU_TEST_LAUNCHER_ORDERS" description="MENU_TEST_LAUNCHER_ORDERS_DESCRIPTION" screen="CrtTst" icon="mdi:receipt_long"/>
+      </option>
+      <option name="launcher-plain" label="MENU_TEST_LAUNCHER_PLAIN" screen="RstTst" icon="refresh"/>
+    </option>
     <option name="dynamic-screen" label="MENU_TEST_DYNAMIC_SCREEN" icon="mdi:developer_board"
             dynamic-screen="true" dynamic-screen-service="dynamicScreen"/>
     <option name="dynamic-subscreen" label="MENU_TEST_DYNAMIC_SUB_SCREEN" invisible="true"
             dynamic-screen="true" dynamic-screen-service="dynamicSubScreen"/>
     <option name="wizard-test" label="MENU_TEST_WIZARD" screen="wizard" icon="magic"/>
     <option name="accordion-test" label="MENU_TEST_ACCORDIONS" screen="accordion" icon="bars" />
+    <option name="reveal-invalid-test" label="MENU_TEST_REVEAL_INVALID" screen="reveal-invalid" icon="exclamation-circle"/>
     <option name="screen-test" label="MENU_TOOLS_SCREENS_ACCESS" screen="ScrAccResTst" icon="eye-slash"/>
     <option name="pivot-test" label="MENU_TEST_PIVOT" screen="pivot-test" icon="table"/>
     <option name="filemanager-test" label="MENU_TEST_FILEMANAGER" screen="filemanager-test" icon="folder"/>
+    <option name="file-viewer-test" label="MENU_TEST_FILE_VIEWER" screen="file-viewer-test" icon="file-text-o"/>
     <option name="event-calendar-test" label="MENU_TEST_EVENT_CALENDAR" screen="event-calendar-test" icon="calendar"/>
   </option>
   <option name="scheduler-separator" separator="true"/>

@@ -1,0 +1,56 @@
+// The tree grid fills the room of its container, as the flat grid does (AweGrid.less), instead of keeping the size of its
+// header when the container has a fixed height and is not a flex column; with no height it keeps the minimum rows area
+.grid-container .p-treetable {
+  flex: 1 1 0;
+  min-height: var(--awe-grid-min-body-height);
+}
+
+.p-treetable {
+  .p-column-header-content {
+    justify-content: center;
+  }
+
+  // PrimeReact puts the class on the row of the empty message, as the flat grid does (AweGrid.less)
+  .p-treetable-tbody > tr.p-treetable-emptymessage > td {
+    border: 0;
+    padding: 0;
+  }
+
+  .p-treetable-scrollable-wrapper, .p-treetable-scrollable-view {
+    display: flex;
+    flex: 1 1;
+    flex-direction: column;
+  }
+
+  .p-treetable-scrollable-wrapper .p-treetable-scrollable-view .p-treetable-scrollable-body {
+    overflow-y: scroll;
+    flex: 1 1;
+    position: relative;
+
+    .p-treetable-scrollable-body-table {
+      position: absolute;
+    }
+  }
+
+  // The expand column: the toggle (indented by the level of the row, see AweTreeGrid) and the cell
+  .p-treetable-expander-column {
+    display: flex;
+    flex-flow: nowrap;
+    align-items: center;
+    gap: var(--awe-space-1-5);
+  }
+
+  .p-treetable-tbody > tr > td .p-treetable-toggler {
+    flex: none;
+    margin-right: 0;
+
+    .awe-icon {
+      width: var(--awe-size-icon-sm);
+      height: var(--awe-size-icon-sm);
+    }
+  }
+}
+
+.p-treetable-loading-overlay.p-component-overlay {
+  background-color: var(--awe-grid-loading-overlay);
+}

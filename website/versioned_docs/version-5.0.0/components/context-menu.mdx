@@ -1,0 +1,129 @@
+---
+id: context-menu
+title: Context menu
+sidebar_label: Context menu
+description: The AWE context menu, live. Right-click a button, change its options and see the real menu and the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {contextMenu} from '@site/src/components/AwePlayground/specs/context-menu';
+
+A context menu is a list of options that opens on a **right click** (or with the menu key of the keyboard) on the component that declares
+it. Its options are `context-button` elements, with the same attributes as a button and the same actions; a `context-separator` draws a line
+between groups and a `context-button` inside another one makes a submenu. Buttons, grids, tree grids, charts, tabs and wizards can declare one.
+Here the component is a button: right-click it, pick an option and the read-only field shows which one ran.
+
+<AwePlayground spec={contextMenu} />
+
+:::note
+The menu is drawn over the whole page, outside the preview, so it follows the colour mode of the site and not the one of the
+**Light / Dark** switch of the preview.
+:::
+
+## Recipes {#recipes}
+
+### Row actions menu {#recipe-actions-menu}
+
+A button with the `show-context-menu` action opens its own menu with a left click, just under itself: the usual "more actions" button. This is
+also how each row of a grid gets a button that opens the context menu of the grid.
+
+<AweLive
+  components={{
+    More: {
+      attributes: {label: 'More actions', icon: 'lucide:ellipsis', style: 'no-label', contextMenu: [{id: 'Rename'}, {id: 'Move'}, {id: 'Archive'}]},
+      actions: [{type: 'show-context-menu'}],
+    },
+    Rename: {attributes: {label: 'Rename', icon: 'lucide:pencil', actions: [{type: 'value', target: 'Chosen', value: 'Rename'}]}},
+    Move: {attributes: {label: 'Move to folder', icon: 'lucide:folder-input', actions: [{type: 'value', target: 'Chosen', value: 'Move to folder'}]}},
+    Archive: {attributes: {label: 'Archive', icon: 'lucide:archive', actions: [{type: 'value', target: 'Chosen', value: 'Archive'}]}},
+    Chosen: {attributes: {label: 'Last option chosen', readonly: true}},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'More'},
+    {elementType: 'Criteria', component: 'text', id: 'Chosen'},
+  ]}
+/>
+
+```xml
+<button id="More" label="More actions" icon="lucide:ellipsis" style="no-label">
+  <button-action type="show-context-menu" />
+  <context-button id="Rename" label="Rename" icon="lucide:pencil">
+    <button-action type="value" target="Chosen" value="Rename" />
+  </context-button>
+  <context-button id="Move" label="Move to folder" icon="lucide:folder-input">
+    <button-action type="value" target="Chosen" value="Move to folder" />
+  </context-button>
+  <context-button id="Archive" label="Archive" icon="lucide:archive">
+    <button-action type="value" target="Chosen" value="Archive" />
+  </context-button>
+</button>
+<criteria id="Chosen" component="text" label="Last option chosen" readonly="true" />
+```
+
+### Options that run any action {#recipe-actions}
+
+The actions of an option are the ones of any button. Here *Edit* opens a [dialog](./dialog.mdx) and *Delete* asks for a confirmation with
+a predefined [message](./messages-info.mdx): the confirm dialog is the real one, and *Accept* lets the actions that follow it go on.
+
+<AweLive
+  messages={{DeleteMsg: {title: 'Delete the customer?', message: 'The customer and its orders will be deleted.'}}}
+  components={{
+    Customer: {
+      attributes: {label: 'Right-click the customer', contextMenu: [{id: 'EditOpt'}, {id: 'Sep'}, {id: 'DeleteOpt'}]},
+    },
+    EditOpt: {attributes: {label: 'Edit', icon: 'lucide:pencil', actions: [{type: 'dialog', target: 'EditCustomer'}]}},
+    Sep: {attributes: {separator: true}},
+    DeleteOpt: {attributes: {label: 'Delete', icon: 'lucide:trash-2', actions: [{type: 'confirm', target: 'DeleteMsg', parameters: {target: 'DeleteMsg'}}]}},
+    EditCustomer: {attributes: {label: 'Edit customer', style: 'modal-sm'}},
+    CloseEdit: {attributes: {label: 'Close', style: 'btn-primary'}, actions: [{type: 'close', target: 'EditCustomer'}]},
+  }}
+  nodes={[
+    {elementType: 'Button', id: 'Customer'},
+    {elementType: 'Dialog', id: 'EditCustomer', elementList: [
+      {elementType: 'Tag', type: 'div', style: 'modal-body', label: 'Update the data of the customer and save the changes.'},
+      {elementType: 'Tag', type: 'div', style: 'modal-footer', elementList: [{elementType: 'Button', id: 'CloseEdit'}]},
+    ]},
+  ]}
+/>
+
+```xml
+<button id="Customer" label="Right-click the customer">
+  <context-button id="EditOpt" label="Edit" icon="lucide:pencil">
+    <button-action type="dialog" target="EditCustomer" />
+  </context-button>
+  <context-separator />
+  <context-button id="DeleteOpt" label="Delete" icon="lucide:trash-2">
+    <button-action type="confirm" target="DeleteMsg" />
+  </context-button>
+</button>
+
+<dialog id="EditCustomer" label="Edit customer" style="modal-sm">
+  <tag type="div" style="modal-body" label="Update the data of the customer and save the changes." />
+  <tag type="div" style="modal-footer">
+    <button id="CloseEdit" label="Close" style="btn-primary">
+      <button-action type="close" target="EditCustomer" />
+    </button>
+  </tag>
+</dialog>
+
+<message id="DeleteMsg" title="Delete the customer?" message="The customer and its orders will be deleted." />
+```
+
+## Events and actions {#events-and-actions}
+
+Choosing an option stores its `click` event, so a [dependency](../api/dependencies.md) can react to it. Its actions run in the context of the
+component that owns the menu.
+
+| Action              | Description                                                                                           |
+|---------------------|-------------------------------------------------------------------------------------------------------|
+| `show-context-menu` | Opens the context menu under the button that launches it (a button of a grid row opens the menu of its grid) |
+
+If none of the options is visible (for example, because of their dependencies) the menu does not open and the browser menu is shown instead.
+When a component sits inside another one that also declares a menu, the menu of the inner component wins. A right click on a row of a grid or
+tree grid selects the row before the menu opens.
+
+## More {#more}
+
+* [Full documentation of the context menu](../api/context-menu.md): where it can be declared, dependencies and permissions.
+* XSD reference of the [`context-button` element](/reference/screen#element-context-button) and of the [`context-separator` element](/reference/screen#element-context-separator).

@@ -97,6 +97,8 @@ grafana-data/
 # Logs
 ######################
 *.log
+# Sample log the file viewer of the component catalog serves
+!website/static/live/*.log
 
 ######################
 # Others
@@ -149,3 +151,12 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 # AI assistant skill symlinks (agentskills.io — source in /skills)
 /.claude/skills
 /.agents/skills
+
+# Playwright browsers installed by the CI job of the unit tests
+.playwright-browsers/
+
+# npm cache of the "Lint · Frontend" CI job
+/.npm-lint/
+
+# The private Maven repository of a checkout (bin/local-ci.sh and the CI jobs: -Dmaven.repo.local=.m2/repository)
+/.m2/repository/

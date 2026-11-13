@@ -2,60 +2,174 @@ package com.almis.awe.testing.utilities;
 
 import com.almis.awe.testing.config.AweTestConfigProperties;
 import com.almis.awe.testing.config.TestConfig;
+import com.almis.awe.testing.driver.BrowserDriver;
+import com.almis.awe.testing.driver.ElementNotFoundException;
+import com.almis.awe.testing.driver.ElementRef;
+import com.almis.awe.testing.driver.ElementReplacedException;
+import com.almis.awe.testing.driver.Key;
+import com.almis.awe.testing.driver.Locator;
+import com.almis.awe.testing.extensions.FailureEvidence;
 import com.almis.awe.testing.extensions.SeleniumExtension;
 import com.almis.awe.testing.model.SeleniumModel;
 import com.almis.awe.testing.selenium.IAweFrontEndInstructions;
 import com.almis.awe.testing.selenium.IAweInstructions;
 import com.almis.awe.testing.selenium.InstructionsFactory;
+import com.almis.awe.testing.selenium.TestAttributes;
+import com.almis.awe.testing.selenium.TestIds;
+import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.openqa.selenium.*;
-import org.openqa.selenium.interactions.Actions;
-import org.openqa.selenium.support.ui.ExpectedCondition;
-import org.openqa.selenium.support.ui.WebDriverWait;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.ConfigDataApplicationContextInitializer;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import javax.annotation.Nonnull;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
+import java.time.Clock;
+import java.time.Duration;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import static com.almis.awe.testing.constants.TestingConstants.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.openqa.selenium.support.ui.ExpectedConditions.*;
 
 /**
  * Utilities suite for selenium testing
  */
 @Slf4j
+// SpringExtension must be registered first: it injects the properties that SeleniumExtension needs in setSeleniumModel
 @ExtendWith({SpringExtension.class, SeleniumExtension.class})
 @ContextConfiguration(classes = TestConfig.class, initializers = ConfigDataApplicationContextInitializer.class)
 public class SeleniumUtilities implements IAweInstructions {
 
   // Constants
   private static final Integer RETRY_COUNT = 10;
+  private static final int STALE_RETRY_COUNT = 3;
+  // Turn of the mouse wheel that zooms a chart in (negative: up)
+  private static final int CHART_ZOOM_WHEEL = -600;
+  // How often, and for how long at most, the options of a list are looked at to see that they stopped changing
+  private static final Duration OPTIONS_SETTLE_INTERVAL = Duration.ofMillis(200);
+  private static final Duration OPTIONS_SETTLE_TIMEOUT = Duration.ofSeconds(3);
+  // How often, and for how long at most, the avatar of the logged user is looked at to see that its name is filled
+  private static final Duration LOGGED_USER_NAME_INTERVAL = Duration.ofMillis(100);
+  private static final Duration LOGGED_USER_NAME_TIMEOUT = Duration.ofSeconds(3);
+  private static final Duration MENU_CLICK_EFFECT_TIMEOUT = Duration.ofSeconds(5);
+  // How long the settings panel may take to close by itself after a module is chosen, before its button closes it
+  private static final Duration SETTINGS_PANEL_CLOSE_TIMEOUT = Duration.ofSeconds(1);
+  private static final int MENU_CLICK_RETRIES = 2;
+  // Where a dragged row lands on the row it is dropped on, as a share of its height
+  private static final double DROP_UPPER_HALF = 0.25;
+  private static final double DROP_LOWER_HALF = 0.75;
+  private static final int EDIT_ROW_ATTEMPTS = 3;
+  private static final Duration EDIT_ROW_WAIT = Duration.ofSeconds(2);
+  private static final int CLOSE_COLUMNS_ATTEMPTS = 3;
   private static final String TEXT_VALUE = " text: '";
+  // Property of a text field that holds its current text
+  private static final String VALUE_PROPERTY = "value";
+  // Tells whether the element that has the focus is inside the element that the selector (first argument) finds
+  private static final String FOCUS_INSIDE_SCRIPT = "var active = document.activeElement;"
+    + " return !!active && !!active.closest(arguments[0]);";
+  // Drops a file (name, media type and base64 content are the arguments after the drop zone) the way a browser does
+  private static final String DROP_FILE_SCRIPT = "var zone = arguments[0];"
+    + " var bytes = Uint8Array.from(atob(arguments[3]), function (c) { return c.charCodeAt(0); });"
+    + " var transfer = new DataTransfer();"
+    + " transfer.items.add(new File([bytes], arguments[1], {type: arguments[2]}));"
+    + " ['dragenter', 'dragover', 'drop'].forEach(function (type) {"
+    + " zone.dispatchEvent(new DragEvent(type, {bubbles: true, cancelable: true, dataTransfer: transfer})); });";
+  private static final String SPARKLINE_SUMMARY_SCRIPT = "return arguments[0].getAttribute('data-type') + '|' + "
+    + "Array.prototype.map.call(arguments[0].querySelectorAll('title'), function (title) { return title.textContent; }).join(',');";
+  private static final String SPARKLINE_FOCUS_SCRIPT = "return arguments[0].getAttribute('focusable') + '|' + "
+    + "arguments[0].querySelectorAll('[tabindex]').length;";
+  private static final int DIALOG_WIDTH_TOLERANCE = 2;
+  // Width of the element (first argument)
+  private static final String WIDTH_SCRIPT = "return arguments[0].getBoundingClientRect().width;";
+  // Distance from the left edge of a criterion where the click that leaves it lands: inside the gutter of its column,
+  // which is the criterion itself and not its control
+  private static final int CRITERION_EDGE_OFFSET = 2;
+  // Where a side panel (first argument) is: its gaps to the left and to the right edges of the viewport, its width and
+  // its maximum width (second argument, a css length that the browser resolves) capped by the width of the viewport
+  private static final String SIDE_PANEL_PLACEMENT_SCRIPT = "var panel = arguments[0], rect = panel.getBoundingClientRect();"
+    + " var viewport = document.documentElement.clientWidth, probe = document.createElement('div');"
+    + " probe.style.cssText = 'position:absolute;visibility:hidden;width:' + arguments[1];"
+    + " document.body.appendChild(probe); var maximum = Math.min(probe.offsetWidth, viewport); probe.remove();"
+    + " return rect.left + '|' + (viewport - rect.right) + '|' + panel.offsetWidth + '|' + maximum;";
+  private static final int SIDE_PANEL_TOLERANCE = 2;
+  // Edges of a popover (first argument) and of its anchor (second argument, a component id found as the clients find
+  // it: by the attribute that carries the id of a criterion, a grid, a tree grid or a window, or by the element id), as
+  // top|right|bottom|left of the popover and then of the anchor. Nothing when the anchor is not found
+  private static final String POPOVER_PLACEMENT_SCRIPT = "var id = arguments[1], value = CSS.escape(id), anchor = null;"
+    + " ['criterion-id', 'grid-id', 'tree-grid-id', 'window-id'].forEach(function (name) {"
+    + " anchor = anchor || document.querySelector('[' + name + '=\"' + value + '\"]'); });"
+    + " anchor = anchor || document.getElementById(id); if (!anchor) { return null; }"
+    + " return [arguments[0].getBoundingClientRect(), anchor.getBoundingClientRect()].map(function (rect) {"
+    + " return rect.top + '|' + rect.right + '|' + rect.bottom + '|' + rect.left; }).join('|');";
+  private static final List<String> POPOVER_POSITIONS = List.of("top", "right", "bottom", "left");
+  private static final List<String> CARD_CHIP_TONES = List.of("success", "warning", "danger", "info", "neutral");
+  // A popover opens on its side of the anchor, at most this gap away from it, and alongside it
+  private static final int POPOVER_MAX_GAP = 16;
+  private static final int POPOVER_TOLERANCE = 2;
+  private static final int GRID_TOP_TOLERANCE = 2;
+  // Box of an element as top|bottom|width
+  private static final String BOX_SCRIPT = "var rect = arguments[0].getBoundingClientRect();"
+    + " return rect.top + '|' + rect.bottom + '|' + rect.width;";
+  // The detail of a row starts at most this gap under the row, and is at least this part of the width of the row
+  private static final int ROW_DETAIL_MAX_GAP = 20;
+  private static final double ROW_DETAIL_MIN_WIDTH = 0.9;
+  // Edges of an element as top|bottom|left|right
+  private static final String EDGES_SCRIPT = "var rect = arguments[0].getBoundingClientRect();"
+    + " return rect.top + '|' + rect.bottom + '|' + rect.left + '|' + rect.right;";
+  // Bottom of the last element located by the css selector of the first argument, nothing when there is none
+  private static final String LAST_BOTTOM_SCRIPT = "var all = document.querySelectorAll(arguments[0]);"
+    + " return all.length ? all[all.length - 1].getBoundingClientRect().bottom : null;";
+  // Width of the content of an element, without its scroll bar
+  private static final String CLIENT_WIDTH_SCRIPT = "return arguments[0].clientWidth;";
+  // Pixels that a nested grid may go past the edges of the detail of its row (rounding of the boxes)
+  private static final int ROW_DETAIL_TOLERANCE = 1;
+  // Number of toggles of row details (located by the css selector of the first argument) that say that their detail is open
+  private static final String OPEN_ROW_DETAIL_TOGGLES_SCRIPT = "return Array.prototype.filter.call(document.querySelectorAll(arguments[0]),"
+    + " function (toggle) { return toggle.getAttribute('aria-expanded') === 'true'; }).length;";
+  // The page records every download it fetches when it starts, and its answer when it arrives: the name of the file, or
+  // "error" when the file does not arrive
+  private static final String RECORD_DOWNLOADS_SCRIPT = "if (!window.aweDownloads) {"
+    + " window.aweDownloads = {started: 0, files: []}; const pageFetch = window.fetch;"
+    + " window.fetch = function (url) { const answer = pageFetch.apply(this, arguments);"
+    + " if (String(url).indexOf('/file/download/') >= 0) { const downloads = window.aweDownloads; downloads.started++;"
+    + " answer.then(function (response) { downloads.files.push(response.ok ? response.headers.get('Filename') : 'error'); },"
+    + " function () { downloads.files.push('error'); }); }"
+    + " return answer; }; }"
+    + " window.aweDownloads.started = 0; window.aweDownloads.files = [];";
+  // Number of files downloaded once every download started has arrived, or -1 while one is on its way or did not arrive
+  private static final String DOWNLOADED_FILES_SCRIPT = "const downloads = window.aweDownloads || {started: 0, files: []};"
+    + " const arrived = downloads.files.length === downloads.started && downloads.files.indexOf('error') < 0;"
+    + " return String(arrived ? downloads.files.length : -1);";
+  private static final int GROUP_HEADER_TOLERANCE = 3;
+  private static final double MAXIMIZED_MIN_FILL = 0.9;
+  private static final By LOGIN_BUTTON = By.id("ButLogIn");
+  private static final By LOGIN_FORM_CONTROLS = By.cssSelector("#ButLogIn, [criterion-id='cod_usr'] input, [criterion-id='pwd_usr'] input");
+
+  private FailureEvidence failureEvidence = new FailureEvidence();
 
   @Autowired
   private AweTestConfigProperties properties;
   private SeleniumModel seleniumModel;
   private IAweFrontEndInstructions frontEndInstructions;
+  // Longest pause between two looks of a wait: each wait keeps its own interval, up to this one
+  private Duration maxPollInterval = BrowserPoll.DEFAULT_INTERVAL;
 
   /**
    * Get driver
    *
    * @return Get driver
+   * @throws UnsupportedOperationException When the tests run with a tool other than Selenium ({@code awe.test.tool})
+   * @deprecated Selenium specific: it exposes the Selenium driver and is only available when the tests run with the
+   * Selenium tool, so a step that uses it does not work with any other tool. Write the steps of your product with the neutral steps of this class, with a {@link Locator} and with
+   * {@link #getBrowser()}. It stays available through the whole 5.x line and is not removed before 6.0
    */
+  @Deprecated
   public WebDriver getDriver() {
     return this.seleniumModel.getDriver();
   }
@@ -86,46 +200,153 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Retrieve web element from selector
+   * Get the browser the steps go through. It is the way for a step of a product to query and act on the page without
+   * Selenium types: ask it with a {@link Locator} (for instance {@code getBrowser().exists(Locator.css("#id"))}) and
+   * build the locators from the identifiers and test hooks of AWE. It is a preview of the tool-neutral
+   * {@link BrowserDriver}, which has no compatibility promise yet: prefer the steps of this class when there is one
    *
-   * @param selector Selector
-   * @return Element found
+   * @return Tool-neutral browser
    */
-  private WebElement getElement(By selector) {
-    return seleniumModel.getDriver().findElement(selector);
+  protected final BrowserDriver getBrowser() {
+    return seleniumModel.getBrowser();
   }
 
   /**
-   * Retrieve web element from selector
+   * Convert a selector of the front end instructions to the neutral locator the browser works with
    *
    * @param selector Selector
-   * @return Element found
+   * @return Locator
    */
-  private List<WebElement> getElements(By selector) {
-    return seleniumModel.getDriver().findElements(selector);
+  private static Locator locator(By selector) {
+    return Locator.from(selector);
+  }
+
+  /**
+   * Condition: something matches the selector
+   */
+  private static BrowserCondition toBePresent(By selector) {
+    return BrowserCondition.present(locator(selector));
+  }
+
+  /**
+   * Condition: the selector matches a displayed element
+   */
+  private static BrowserCondition toBeVisible(By selector) {
+    return BrowserCondition.visible(locator(selector));
+  }
+
+  /**
+   * Condition: the selector matches no displayed element
+   */
+  private static BrowserCondition toBeInvisible(By selector) {
+    return BrowserCondition.invisible(locator(selector));
+  }
+
+  /**
+   * Condition: the selector matches a displayed and enabled element
+   */
+  private static BrowserCondition toBeClickable(By selector) {
+    return BrowserCondition.clickable(locator(selector));
+  }
+
+  /**
+   * Condition: the text of the selector contains a text
+   */
+  private static BrowserCondition toContainText(By selector, String text) {
+    return BrowserCondition.textContains(locator(selector), text);
+  }
+
+  /**
+   * Condition: the value of the selector contains a text
+   */
+  private static BrowserCondition toContainValue(By selector, String text) {
+    return BrowserCondition.valueContains(locator(selector), text);
+  }
+
+  /**
+   * Shorten the longest pause between two looks of a wait. The unit tests of the steps, which run over a mocked browser,
+   * use it so that a wait that is not met ends with its timeout instead of sleeping a whole interval
+   *
+   * @param maxPollInterval Longest pause between two looks
+   */
+  void setMaxPollInterval(Duration maxPollInterval) {
+    this.maxPollInterval = maxPollInterval;
+  }
+
+  /**
+   * Wait until a condition is met, looking at it every {@link BrowserPoll#DEFAULT_INTERVAL} at most
+   *
+   * @param condition Condition
+   * @param timeout   Maximum time to wait
+   * @throws BrowserPoll.PollTimeoutException If the condition is not met in time
+   */
+  private void poll(BrowserCondition condition, Duration timeout) {
+    poll(condition, timeout, BrowserPoll.DEFAULT_INTERVAL);
+  }
+
+  /**
+   * Wait until a condition is met
+   *
+   * @param condition Condition
+   * @param timeout   Maximum time to wait
+   * @param interval  Time between two looks (at most the longest pause of the waits)
+   * @throws BrowserPoll.PollTimeoutException If the condition is not met in time
+   */
+  private void poll(BrowserCondition condition, Duration timeout, Duration interval) {
+    Duration pause = interval.compareTo(maxPollInterval) < 0 ? interval : maxPollInterval;
+    BrowserPoll.until(getBrowser(), condition, timeout, pause, Clock.systemUTC(),
+      duration -> Thread.sleep(duration.toMillis()));
   }
 
   /**
    * Wait for screen load
    */
   private void waitForLoad() {
-    ExpectedCondition<Boolean> pageLoadCondition = driver1 -> ((JavascriptExecutor) Objects.requireNonNull(driver1)).executeScript("return document.readyState").equals("complete");
-    waitUntil(pageLoadCondition);
+    waitUntil(BrowserCondition.of("page to finish loading", BrowserDriver::isPageLoaded));
   }
 
   /**
-   * Wait until an expected condition
+   * Wait until a condition over the neutral browser is met, within the configured timeout
    *
-   * @param condition Expected condition
+   * @param condition Condition
    */
-  private void waitUntil(ExpectedCondition<?> condition) {
+  private void waitUntil(BrowserCondition condition) {
     try {
-      new WebDriverWait(seleniumModel.getDriver(), properties.getTimeout()).until(condition);
+      poll(condition, properties.getTimeout());
       // Assert true on condition
       assertTrue(true, condition.toString());
       log.debug(condition.toString());
     } catch (Exception exc) {
       assertWithScreenshot(condition.toString(), false, exc);
+    }
+  }
+
+  /**
+   * Wait until the options of the open list stop changing: two looks in a row (about 200 milliseconds apart) give the same
+   * non-empty options. A list that is filtered while the text is typed shows some options first and others after it, and an
+   * option that was found among the first is not where it was when the pointer arrives. It is a help, not a requirement:
+   * if the options keep changing, or there are none, the step goes on and the wait for the option it needs says what is
+   * wrong
+   *
+   * @param options Selector of the options
+   */
+  private void waitForTheOptionsToSettle(By options) {
+    Locator locator = locator(options);
+    AtomicReference<List<String>> previous = new AtomicReference<>();
+    BrowserCondition settled = BrowserCondition.of("options located by " + locator + " to stop changing", browser -> {
+      try {
+        List<String> current = browser.texts(locator);
+        return !current.isEmpty() && current.equals(previous.getAndSet(current));
+      } catch (ElementReplacedException exc) {
+        previous.set(null);
+        return false;
+      }
+    });
+    Duration timeout = properties.getTimeout().compareTo(OPTIONS_SETTLE_TIMEOUT) < 0 ? properties.getTimeout() : OPTIONS_SETTLE_TIMEOUT;
+    try {
+      poll(settled, timeout, OPTIONS_SETTLE_INTERVAL);
+    } catch (BrowserPoll.PollTimeoutException exc) {
+      log.debug("The options did not settle: {}", exc.getMessage());
     }
   }
 
@@ -138,31 +359,79 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void assertWithScreenshot(String message, boolean condition, Throwable... throwable) {
     if (!condition) {
-      File scrFile = ((TakesScreenshot) seleniumModel.getDriver()).getScreenshotAs(OutputType.FILE);
-      String messageSanitized = TextUtilities.sanitizeMessage(message);
-      String timestamp = new SimpleDateFormat("dd-MM-yyyy_hh-mm-ss").format(new Date());
-      String screenshotName = String.format("%s-%s-[ERROR]-%s-%s", getClass().getSimpleName(), timestamp, seleniumModel.getCurrentOption(), messageSanitized);
-      Path path = Paths.get(properties.getScreenshotPath(), screenshotName + ".png");
-      log.error(message, (Object) throwable);
-      log.error("Storing screenshot at: " + path);
-
-      // Now you can do whatever you need to do with it, for example copy somewhere
-      try {
-        Files.createDirectories(path.getParent());
-        FileUtils.copyFile(scrFile, path.toFile());
-      } catch (IOException ioExc) {
-        log.error("Error trying to store screenshot at: " + path, ioExc);
-      }
+      storeFailureEvidence(message, throwable);
     }
 
     // Assert false
     assertTrue(condition, message);
   }
 
+  /**
+   * Store the screenshot, the page source and the browser console of a failure. It is a help to diagnose the failure, so
+   * none of it can fail by itself or replace the failure that is being reported
+   *
+   * @param message   Assert message
+   * @param throwable Throwable list
+   */
+  private void storeFailureEvidence(String message, Throwable... throwable) {
+    try {
+      BrowserDriver browser = getBrowser();
+      if (browser == null) {
+        log.warn("There is no browser to take the evidence of the failed test from");
+        return;
+      }
+
+      Optional<byte[]> screenshot = takeScreenshot(browser);
+      String screenshotName = failureEvidence.buildName(getClass().getSimpleName(),
+        seleniumModel.getCurrentOption(), message, true);
+      Path path = Path.of(properties.getScreenshotPath(), screenshotName + ".png");
+      log.error(message, (Object) throwable);
+
+      screenshot.ifPresent(image -> {
+        log.error("Storing screenshot at: " + path);
+        try {
+          failureEvidence.storeScreenshot(seleniumModel, image, path);
+        } catch (IOException ioExc) {
+          log.error("Error trying to store screenshot at: " + path, ioExc);
+        }
+      });
+
+      // The DOM next to the screenshot helps diagnosing selector failures
+      try {
+        failureEvidence.storePageSource(path, browser.pageSource());
+      } catch (Exception exc) {
+        log.warn("Could not read the page source of the failed test", exc);
+      }
+
+      // A blank screen caused by a client crash can only be diagnosed with the browser console. Reading it empties it,
+      // so it is read once
+      try {
+        failureEvidence.storeConsoleEntries(path, browser.consoleEntries());
+      } catch (Exception exc) {
+        log.warn("Could not read the browser console of the failed test", exc);
+      }
+    } catch (Exception exc) {
+      log.warn("Could not store the evidence of the failed test", exc);
+    }
+  }
+
+  private Optional<byte[]> takeScreenshot(BrowserDriver browser) {
+    try {
+      Optional<byte[]> screenshot = browser.screenshot();
+      if (screenshot.isEmpty()) {
+        log.warn("The browser cannot take screenshots");
+      }
+      return screenshot;
+    } catch (Exception exc) {
+      log.warn("Could not take the screenshot of the failed test", exc);
+      return Optional.empty();
+    }
+  }
+
   private boolean isWritable(By selector) {
     try {
-      getElement(selector);
-      return true;
+      // A search box that exists but is hidden (selectors without search) cannot receive text
+      return getBrowser().isVisible(locator(selector));
     } catch (Exception exc) {
       return false;
     }
@@ -175,49 +444,23 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param diagnosticLabel Wait label used for diagnostics
    * @return Condition for element actionability
    */
-  private ExpectedCondition<Boolean> inputToBeActionable(By selector, String diagnosticLabel) {
-    return new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver driver) {
-        try {
-          WebElement element = Objects.requireNonNull(driver).findElement(selector);
-          return element.isDisplayed() && element.isEnabled();
-        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
-          return false;
-        }
-      }
-
-      @Override
-      public String toString() {
-        return diagnosticLabel + ": input is visible and enabled for selector " + selector;
-      }
-    };
+  private BrowserCondition inputToBeActionable(By selector, String diagnosticLabel) {
+    Locator input = locator(selector);
+    return BrowserCondition.of(diagnosticLabel + ": input is visible and enabled for selector " + input,
+      browser -> browser.isVisible(input) && browser.isEnabled(input));
   }
 
   /**
-   * Checks whether a located element is ready for Selenium click actions.
+   * Checks whether a located element is ready for click actions.
    *
    * @param selector Element selector
    * @param diagnosticLabel Wait label used for diagnostics
    * @return Condition for element clickability
    */
-  private ExpectedCondition<Boolean> elementToBeActionableForClick(By selector, String diagnosticLabel) {
-    return new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver driver) {
-        try {
-          WebElement element = elementToBeClickable(selector).apply(driver);
-          return element != null;
-        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
-          return false;
-        }
-      }
-
-      @Override
-      public String toString() {
-        return diagnosticLabel + ": element is clickable for selector " + selector;
-      }
-    };
+  private BrowserCondition elementToBeActionableForClick(By selector, String diagnosticLabel) {
+    Locator element = locator(selector);
+    return BrowserCondition.of(diagnosticLabel + ": element is clickable for selector " + element,
+      browser -> BrowserCondition.clickable(element).isMet(browser));
   }
 
   /**
@@ -228,37 +471,30 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param diagnosticLabel Wait label used for diagnostics
    * @return Condition for selector text readiness
    */
-  private ExpectedCondition<Boolean> selectorVisibleWithText(By selector, String expectedText, String diagnosticLabel) {
-    return new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver driver) {
+  private static BrowserCondition selectorVisibleWithText(By selector, String expectedText, String diagnosticLabel) {
+    Locator element = locator(selector);
+    return BrowserCondition.of(diagnosticLabel + ": selector " + element + " is visible with expected text: '" + expectedText + "'",
+      browser -> {
         try {
-          WebElement element = visibilityOfElementLocated(selector).apply(driver);
-          return element != null && element.getText().contains(expectedText);
-        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
+          return browser.isVisible(element) && browser.text(element).contains(expectedText);
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
           return false;
         }
-      }
-
-      @Override
-      public String toString() {
-        return diagnosticLabel + ": selector " + selector + " is visible with expected text: '" + expectedText + "'";
-      }
-    };
+      });
   }
 
   /**
    * Checks whether the matched selector has at least one visible control and every visible control is enabled.
    *
+   * @param browser  Browser
    * @param selector Control selector
    * @return Control readiness
    */
-  private boolean visibleControlReady(By selector) {
+  private static boolean visibleControlReady(BrowserDriver browser, By selector) {
     try {
-      List<WebElement> elements = getElements(selector);
       boolean visibleControlFound = false;
-      for (WebElement element : elements) {
-        if (element.isDisplayed()) {
+      for (ElementRef element : browser.elements(locator(selector))) {
+        if (element.isVisible()) {
           visibleControlFound = true;
           if (!element.isEnabled()) {
             return false;
@@ -266,7 +502,7 @@ public class SeleniumUtilities implements IAweInstructions {
         }
       }
       return visibleControlFound;
-    } catch (StaleElementReferenceException exc) {
+    } catch (ElementReplacedException exc) {
       return false;
     }
   }
@@ -275,23 +511,24 @@ public class SeleniumUtilities implements IAweInstructions {
    * Checks whether all visible shell controls from the provided selectors are enabled.
    * Selectors with no visible matches are treated as optional for the current shell.
    *
+   * @param browser Browser
    * @return Whether every visible shell control is actionable
    */
-  private boolean visibleShellControlsReady() {
+  private boolean visibleShellControlsReady(BrowserDriver browser) {
     try {
       for (By selector : frontEndInstructions.getRequiredPostLoginShellControls()) {
-        if (!visibleControlReady(selector)) {
+        if (!visibleControlReady(browser, selector)) {
           return false;
         }
       }
 
       for (By selector : frontEndInstructions.getOptionalPostLoginShellControls()) {
-        if (hasVisibleElement(selector) && !visibleControlReady(selector)) {
+        if (hasVisibleElement(browser, selector) && !visibleControlReady(browser, selector)) {
           return false;
         }
       }
       return true;
-    } catch (StaleElementReferenceException exc) {
+    } catch (ElementReplacedException exc) {
       return false;
     }
   }
@@ -299,13 +536,14 @@ public class SeleniumUtilities implements IAweInstructions {
   /**
    * Checks whether any visible element matched by the selector exists.
    *
+   * @param browser  Browser
    * @param selector Element selector
    * @return Whether a visible element exists
    */
-  private boolean hasVisibleElement(By selector) {
+  private static boolean hasVisibleElement(BrowserDriver browser, By selector) {
     try {
-      return getElements(selector).stream().anyMatch(WebElement::isDisplayed);
-    } catch (StaleElementReferenceException exc) {
+      return browser.elements(locator(selector)).stream().anyMatch(ElementRef::isVisible);
+    } catch (ElementReplacedException exc) {
       return true;
     }
   }
@@ -337,19 +575,11 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param expectedText   Expected result text
    * @return Condition for login-screen result readiness
    */
-  private ExpectedCondition<Boolean> loginFormResultReady(By resultSelector, String expectedText) {
-    return new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver driver) {
-        return hasVisibleElement(By.id("ButLogIn"))
-          && Boolean.TRUE.equals(selectorVisibleWithText(resultSelector, expectedText, "Login form result").apply(driver));
-      }
-
-      @Override
-      public String toString() {
-        return "Login form result: selector " + resultSelector + " is visible with expected text: '" + expectedText + "'";
-      }
-    };
+  private BrowserCondition loginFormResultReady(By resultSelector, String expectedText) {
+    BrowserCondition resultShown = selectorVisibleWithText(resultSelector, expectedText, "Login form result");
+    return BrowserCondition.of("Login form result: selector " + locator(resultSelector)
+        + " is visible with expected text: '" + expectedText + "'",
+      browser -> hasVisibleElement(browser, LOGIN_BUTTON) && resultShown.isMet(browser));
   }
 
   /**
@@ -369,27 +599,22 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param expectedText      Expected text inside the selector
    * @return Authenticated shell readiness condition
    */
-  private ExpectedCondition<Boolean> authenticatedShellReady(By postLoginSelector, String expectedText) {
-    return new ExpectedCondition<Boolean>() {
-      @Override
-      public Boolean apply(WebDriver driver) {
+  private BrowserCondition authenticatedShellReady(By postLoginSelector, String expectedText) {
+    BrowserCondition loadingBarGone = toBeInvisible(frontEndInstructions.getLoadingBar());
+    BrowserCondition postLoginShown = selectorVisibleWithText(postLoginSelector, expectedText, "Post-login selector readiness");
+    return BrowserCondition.of("Authenticated shell readiness: loading bar invisible, login form hidden, post-login selector "
+        + locator(postLoginSelector) + " contains text: '" + expectedText
+        + "', and visible frontend shell controls are actionable",
+      browser -> {
         try {
-          return Boolean.TRUE.equals(invisibilityOfElementLocated(frontEndInstructions.getLoadingBar()).apply(driver))
-            && !hasVisibleElement(By.cssSelector("#ButLogIn, [criterion-id='cod_usr'] input, [criterion-id='pwd_usr'] input"))
-            && Boolean.TRUE.equals(selectorVisibleWithText(postLoginSelector, expectedText, "Post-login selector readiness").apply(driver))
-            && visibleShellControlsReady();
-        } catch (org.openqa.selenium.NoSuchElementException | StaleElementReferenceException exc) {
+          return loadingBarGone.isMet(browser)
+            && !hasVisibleElement(browser, LOGIN_FORM_CONTROLS)
+            && postLoginShown.isMet(browser)
+            && visibleShellControlsReady(browser);
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
           return false;
         }
-      }
-
-      @Override
-      public String toString() {
-        return "Authenticated shell readiness: loading bar invisible, login form hidden, post-login selector "
-          + postLoginSelector + " contains text: '" + expectedText
-          + "', and visible frontend shell controls are actionable";
-      }
-    };
+      });
   }
 
   /**
@@ -399,11 +624,21 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param expectedText Expected text inside selector
    */
   private void waitForExpectedSelectorResult(String cssSelector, String expectedText) {
-    By resultSelector = By.cssSelector(cssSelector);
-    waitForLoadingBar();
-    waitUntil(or(loginFormResultReady(resultSelector, expectedText), authenticatedShellReady(resultSelector, expectedText)));
+    waitForExpectedSelectorResult(By.cssSelector(cssSelector), expectedText);
+  }
 
-    if (!hasVisibleElement(By.id("ButLogIn"))) {
+  /**
+   * Waits for the login result without over-constraining expected login-screen errors.
+   *
+   * @param resultSelector Selector to check
+   * @param expectedText   Expected text inside selector
+   */
+  private void waitForExpectedSelectorResult(By resultSelector, String expectedText) {
+    waitForLoadingBar();
+    waitUntil(BrowserCondition.anyOf(loginFormResultReady(resultSelector, expectedText),
+      authenticatedShellReady(resultSelector, expectedText)));
+
+    if (!hasVisibleElement(getBrowser(), LOGIN_BUTTON)) {
       waitForAuthenticatedShell(resultSelector, expectedText);
     }
   }
@@ -415,18 +650,37 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to type
    */
   private void sendKeys(By selector, CharSequence... text) {
-    String conditionMessage = "";
-    try {
-      WebElement element = getElement(selector);
-      new Actions(seleniumModel.getDriver())
-        .sendKeys(element, text)
-        .pause(200)
-        .perform();
+    sendKeys(locator(selector), text);
+  }
 
-      // Assert true on condition
-      assertTrue(true, conditionMessage);
+  /**
+   * Type keys on a criterion
+   *
+   * @param selector Criterion selector to type keys
+   * @param text     Text to type
+   */
+  private void sendKeys(Locator selector, CharSequence... text) {
+    try {
+      getBrowser().type(selector, text.length == 1 ? text[0] : String.join("", text));
     } catch (Exception exc) {
-      assertWithScreenshot("Sending keys to element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Sending keys to element: " + selector + "\n" + exc.getMessage(), false, exc);
+    }
+  }
+
+  /**
+   * Bring the search box of a suggest to the center of the viewport before typing in it. The suggestions panel is
+   * aligned when it opens (below the search box when there is room, above it otherwise) and a scroll after that leaves
+   * it misplaced until the next render of the client, which happens when the search box loses the focus on the press of
+   * the click on an option: the option moves from under the pointer and the click is lost.
+   *
+   * @param selector Search box selector
+   */
+  private void scrollToTheCenter(By selector) {
+    try {
+      getBrowser().scrollToCenter(locator(selector));
+    } catch (Exception exc) {
+      // Typing in it scrolls it into view
+      log.debug("Could not scroll the search box to the center", exc);
     }
   }
 
@@ -436,82 +690,54 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Criterion selector
    */
   private void clearText(By selector) {
-    String textToClear = getElement(selector).getAttribute("value");
-    if (!textToClear.isEmpty()) {
-      getElement(selector).clear();
-      getElement(selector).sendKeys(IntStream
-        .range(-1, textToClear.length())
-        .mapToObj(t -> Keys.BACK_SPACE)
-        .toArray(CharSequence[]::new));
-      waitForEmptyText(selector, textToClear);
+    String textToClear = getBrowser().attribute(locator(selector), "value");
+    if (textToClear != null && !textToClear.isEmpty()) {
+      getBrowser().clear(locator(selector));
+      waitForEmptyText(locator(selector), textToClear);
     }
   }
 
   /**
-   * Click on an element
+   * Move over an element once it is displayed
    *
    * @param selector Element selector
    */
   private void moveTo(By selector) {
-    moveTo(getElement(selector));
-  }
+    // Wait until element is displayed
+    waitUntil(toBeVisible(selector));
 
-  /**
-   * Move to an element
-   *
-   * @param element Element
-   */
-  private void moveTo(WebElement element) {
-    String conditionMessage = "";
-    // Wait until element is clickable
-    waitUntil(visibilityOf(element));
-
-    // Click on element
     try {
-      new Actions(seleniumModel.getDriver())
-        .moveToElement(element)
-        .pause(100)
-        .perform();
-
-      // Assert true on condition
-      assertTrue(true, conditionMessage);
+      getBrowser().hover(locator(selector));
     } catch (Exception exc) {
-      assertWithScreenshot("Moving over element: " + element.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Moving over element: " + selector + "\n" + exc.getMessage(), false, exc);
     }
   }
 
   /**
-   * Click on an element
+   * Click on an element. A client may replace the element between finding and clicking it (a list that is filtered
+   * while the text is typed), so a replaced element is looked up again before giving up. The driver reports it as
+   * replaced whether the browser says that it is stale (Chrome) or, when the action is already running, that its origin
+   * is not displayed (Firefox)
    *
    * @param selector Element selector
    */
   private void click(By selector) {
-    click(getElement(selector));
-  }
-
-  /**
-   * Click on an element
-   *
-   * @param element Element
-   */
-  private void click(WebElement element) {
-    String conditionMessage = "";
-    // Wait until element is clickable
-    waitUntil(elementToBeClickable(element));
-
-    // Click on element
-    try {
-      new Actions(seleniumModel.getDriver())
-        .moveToElement(element)
-        .click(element)
-        .pause(100)
-        .perform();
-
-      // Assert true on condition
-      assertTrue(true, conditionMessage);
-    } catch (Exception exc) {
-      assertWithScreenshot("Clicking on element: " + element.toString() + "\n" + exc.getMessage(), false, exc);
+    ElementReplacedException replacedException = null;
+    for (int attempt = 0; attempt < STALE_RETRY_COUNT; attempt++) {
+      // Wait until element is clickable (the selector is resolved again on every check)
+      waitUntil(toBeClickable(selector));
+      try {
+        getBrowser().click(locator(selector));
+        return;
+      } catch (ElementReplacedException exc) {
+        replacedException = exc;
+        log.debug("The element to click was replaced, looking for it again: {}", selector);
+      } catch (Exception exc) {
+        assertWithScreenshot("Clicking on element: " + selector + "\n" + exc.getMessage(), false, exc);
+        return;
+      }
     }
+    assertWithScreenshot("Clicking on element: " + selector + "\n" + replacedException.getMessage(), false, replacedException);
   }
 
   /**
@@ -520,33 +746,13 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Element selector
    */
   private void doubleClick(By selector) {
-    doubleClick(getElement(selector));
-  }
-
-  /**
-   * Double click on an element
-   *
-   * @param element Element
-   */
-  private void doubleClick(WebElement element) {
-    String conditionMessage = "";
     // Wait until element is clickable
-    waitUntil(elementToBeClickable(element));
+    waitUntil(toBeClickable(selector));
 
-    // Click on element
     try {
-      new Actions(seleniumModel.getDriver())
-        .moveToElement(element)
-        .click(element)
-        .pause(50)
-        .click(element)
-        .pause(100)
-        .perform();
-
-      // Assert true on condition
-      assertTrue(true, conditionMessage);
+      getBrowser().doubleClick(locator(selector));
     } catch (Exception exc) {
-      assertWithScreenshot("Clicking on element: " + element.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Clicking on element: " + selector + "\n" + exc.getMessage(), false, exc);
     }
   }
 
@@ -556,22 +762,19 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Element selector
    */
   private void contextMenu(By selector) {
-    String conditionMessage = "";
+    // A menu opened before may still be closing (its mask, its fade out): while it does, a menu that overflows the
+    // viewport keeps the page scrolled and the layout moves under the pointer when it is gone
+    // (every match counts, not only the first one; React has no mask nor ng-animate, so nothing matches and it passes)
+    waitUntil(BrowserCondition.noneVisible(locator(By.cssSelector(".component-mask"))));
+    waitUntil(BrowserCondition.noneVisible(locator(By.cssSelector("[data-testid='context-menu'].ng-animate"))));
 
     // Wait until element is clickable
-    waitUntil(elementToBeClickable(selector));
+    waitUntil(toBeClickable(selector));
 
-    // Click on element
     try {
-      WebElement element = getElement(selector);
-      new Actions(seleniumModel.getDriver())
-        .moveToElement(element)
-        .contextClick(element)
-        .pause(100)
-        .perform();
-      assertTrue(true, conditionMessage);
+      getBrowser().contextClick(locator(selector));
     } catch (Exception exc) {
-      assertWithScreenshot("Right clicking on element: " + selector.toString() + "\n" + exc.getMessage(), false, exc);
+      assertWithScreenshot("Right clicking on element: " + selector + "\n" + exc.getMessage(), false, exc);
     }
   }
 
@@ -586,18 +789,18 @@ public class SeleniumUtilities implements IAweInstructions {
     clickDateFromSelector(parentSelector);
 
     // Wait until datepicker is visible
-    checkVisible(frontEndInstructions.getDatepicker());
+    checkVisible(locator(frontEndInstructions.getDatepicker()));
 
     // Write text on date
     By activeSelector = frontEndInstructions.getActiveDatepicker();
     writeTextFromSelector(frontEndInstructions.getCriterionInput(parentSelector), dateValue, true, activeSelector);
 
     // Make click twice if datepicker is still visible
-    if (frontEndInstructions.datePickerRequiresManualClick() && !seleniumModel.getDriver().findElements(activeSelector).isEmpty()) {
+    if (frontEndInstructions.datePickerRequiresManualClick() && getBrowser().exists(locator(activeSelector))) {
         clickSelector(activeSelector);
     }
     // Wait for not visible
-    checkNotVisible(frontEndInstructions.getDatepicker());
+    checkNotVisible(locator(frontEndInstructions.getDatepicker()));
 
     // Wait for loading bar
     waitForLoadingBar();
@@ -615,13 +818,13 @@ public class SeleniumUtilities implements IAweInstructions {
     clickDateFromSelector(parentSelector);
 
     // Wait until datepicker is visible
-    waitUntil(visibilityOfElementLocated(frontEndInstructions.getDatepicker()));
+    waitUntil(toBeVisible(frontEndInstructions.getDatepicker()));
 
     // Click on selector
     click(frontEndInstructions.getCellFromDatepicker(type, search));
 
     // Wait for not visible
-    checkNotVisible(frontEndInstructions.getDatepicker());
+    checkNotVisible(locator(frontEndInstructions.getDatepicker()));
   }
 
   /**
@@ -631,7 +834,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void clickSelector(By selector) {
     // Wait for element visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(toBeVisible(selector));
 
     // Move mouse before clicking on selector
     moveMouse();
@@ -654,8 +857,8 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @return Condition for loader visibility
    */
-  private ExpectedCondition<Boolean> checkIfLoaderIsNotVisible() {
-    return invisibilityOfElementLocated(frontEndInstructions.getLoaderSelector());
+  private BrowserCondition checkIfLoaderIsNotVisible() {
+    return toBeInvisible(frontEndInstructions.getLoaderSelector());
   }
 
   /**
@@ -663,8 +866,8 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @return Condition for grid visibility
    */
-  private ExpectedCondition<Boolean> checkIfGridLoaderIsNotVisible() {
-    return invisibilityOfElementLocated(frontEndInstructions.getGridLoaderSelector());
+  private BrowserCondition checkIfGridLoaderIsNotVisible() {
+    return toBeInvisible(frontEndInstructions.getGridLoaderSelector());
   }
 
   /**
@@ -674,7 +877,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void clickRowFromSelector(By selector) {
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
+    waitUntil(BrowserCondition.allOf(toBeVisible(selector), checkIfGridLoaderIsNotVisible()));
 
     // Click button
     click(selector);
@@ -685,15 +888,15 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Row selector
    */
-  private void editRowFromSelector(By selector) {
+  private void editRowFromSelector(String gridId, By selector) {
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
+    waitUntil(BrowserCondition.allOf(toBeVisible(selector), checkIfGridLoaderIsNotVisible()));
 
     // Depending on behavior, do click or double click
     switch (frontEndInstructions.getRowEditBehavior()) {
       case DOUBLE_CLICK:
-        // Click button
-        doubleClick(selector);
+        // Double click, as many times as needed to start the edition of the row
+        doubleClickToEditRow(gridId, selector);
         break;
       case SINGLE_CLICK:
       default:
@@ -704,13 +907,90 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Double click on a cell to edit its row. The browser takes a double click for two clicks when they are separated by
+   * more than the double click interval, and on a loaded machine the second click of the action waits for the browser
+   * to draw the selection of the row caused by the first one: the row is selected, but never edited. So, when the client
+   * tells which row is being edited, the double click is repeated until the row of the cell is being edited. The client
+   * can reject the edition on purpose (the row being edited has errors), so after the last attempt the step goes on.
+   *
+   * @param gridId   Grid identifier (null for any grid)
+   * @param selector Cell selector
+   */
+  private void doubleClickToEditRow(String gridId, By selector) {
+    By rowOfCell = frontEndInstructions.getGridRowOfCell();
+    String rowId = rowOfCell == null ? null : getRowIdOfCell(selector, rowOfCell);
+    if (rowId == null) {
+      doubleClick(selector);
+      return;
+    }
+
+    for (int attempt = 1; attempt <= EDIT_ROW_ATTEMPTS; attempt++) {
+      // The cell has been replaced by its editor when the edition started after the last attempt
+      if (attempt > 1 && !getBrowser().exists(locator(selector))) {
+        return;
+      }
+      doubleClick(selector);
+      if (waitForRowEdition(gridId, rowId)) {
+        return;
+      }
+      log.warn("The row {} did not start being edited after the double click {} of {}", rowId, attempt, EDIT_ROW_ATTEMPTS);
+    }
+  }
+
+  /**
+   * Retrieve the identifier of the row that contains a cell
+   *
+   * @param selector  Cell selector
+   * @param rowOfCell Selector of the row, relative to the cell
+   * @return Row identifier, or null if the row cannot be identified
+   */
+  private String getRowIdOfCell(By selector, By rowOfCell) {
+    try {
+      return getBrowser().attribute(locator(selector), locator(rowOfCell), "row-id");
+    } catch (ElementNotFoundException | ElementReplacedException exc) {
+      log.debug("Could not identify the row of the cell", exc);
+      return null;
+    }
+  }
+
+  /**
+   * Wait for a row to be edited, or for the time that the client needs to start it
+   *
+   * @param gridId Grid identifier (null for any grid)
+   * @param rowId  Row identifier
+   * @return The row is being edited
+   */
+  private boolean waitForRowEdition(String gridId, String rowId) {
+    By editingRow = frontEndInstructions.getGridEditingRow(gridId, rowId);
+    if (editingRow == null) {
+      return true;
+    }
+    Duration timeout = properties.getTimeout().compareTo(EDIT_ROW_WAIT) < 0 ? properties.getTimeout() : EDIT_ROW_WAIT;
+    try {
+      poll(toBePresent(editingRow), timeout);
+      return true;
+    } catch (BrowserPoll.PollTimeoutException exc) {
+      return false;
+    }
+  }
+
+  /**
    * Click on row with a text
    *
    * @param gridId Grid to search in
    * @param search Text to search
    */
   private void clickRowContentsFromSelector(String gridId, String search) {
-    clickRowFromSelector(frontEndInstructions.findGridCell(gridId, search));
+    // Leave the row as it is when the client keeps it selected: selecting it again would unselect it. Wait for the grid
+    // to be loaded first, so a row of the previous result set is not taken as the selected one
+    By selected = frontEndInstructions.findGridSelectedRow(gridId, search);
+    if (selected != null) {
+      waitUntil(checkIfGridLoaderIsNotVisible());
+      if (getBrowser().exists(locator(selected))) {
+        return;
+      }
+    }
+    clickRowFromSelector(frontEndInstructions.findGridRowSelection(gridId, search));
   }
 
   /**
@@ -720,7 +1000,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search Text to search
    */
   private void editRowContentsFromSelector(String gridId, String search) {
-    editRowFromSelector(frontEndInstructions.findGridCell(gridId, search));
+    editRowFromSelector(gridId, frontEndInstructions.findGridCell(gridId, search));
   }
 
   /**
@@ -730,7 +1010,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void contextMenuFromSelector(By selector) {
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
+    waitUntil(BrowserCondition.allOf(toBeVisible(selector), checkIfGridLoaderIsNotVisible()));
 
     // Click button
     contextMenu(selector);
@@ -742,8 +1022,17 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param selector Selector to wait for
    */
   private void waitForSelector(By selector) {
+    waitForSelector(locator(selector));
+  }
+
+  /**
+   * Wait for selector to be clickable
+   *
+   * @param selector Selector to wait for
+   */
+  private void waitForSelector(Locator selector) {
     // Wait for element visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(BrowserCondition.visible(selector));
 
     // Move mouse again
     moveMouse();
@@ -753,23 +1042,16 @@ public class SeleniumUtilities implements IAweInstructions {
    * Move mouse to avoid help popovers
    */
   private void moveMouse() {
-    By popoverSelector = frontEndInstructions.getPopover();
     try {
+      Locator popover = locator(frontEndInstructions.getPopover());
       // Safecheck
       int safecheck = 0;
 
       // Move mouse while help is being displayed
-      List<WebElement> popovers = getElements(popoverSelector);
-      while (!popovers.isEmpty() && safecheck < RETRY_COUNT) {
-        new Actions(seleniumModel.getDriver())
-          .pause(100)
-          .moveToElement(popovers.get(0))
-          .moveByOffset(0, 30)
-          .pause(100)
-          .build()
-          .perform();
-
-        popovers = getElements(popoverSelector);
+      while (getBrowser().exists(popover) && safecheck < RETRY_COUNT) {
+        getBrowser().pause(Duration.ofMillis(100));
+        getBrowser().hover(popover);
+        getBrowser().moveMouseBy(0, 30);
         safecheck++;
       }
     } catch (Exception exc) {
@@ -779,17 +1061,18 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Move mouse out of criterion
+   * Take the focus out of a criterion with a click on its left edge, out of its control. A click above it would land on
+   * whatever the page shows there when the criterion has no label row (the step bar of a wizard, a tab, a button)
+   *
+   * @param criterionCss Criterion selector
    */
-  private void moveMouseOutOfCriterion() {
+  private void moveMouseOutOfCriterion(String criterionCss) {
     try {
-      // Move mouse out of criterion (up)
-      new Actions(seleniumModel.getDriver())
-        .moveByOffset(0, -30)
-        .click()
-        .pause(100)
-        .build()
-        .perform();
+      Locator criterion = Locator.css(criterionCss);
+      double width = ((Number) getBrowser().executeScriptOn(criterion, WIDTH_SCRIPT)).doubleValue();
+      getBrowser().hover(criterion);
+      getBrowser().moveMouseBy(CRITERION_EDGE_OFFSET - (int) (width / 2), 0);
+      getBrowser().clickAtPointer();
     } catch (Exception exc) {
       // Assert error moving mouse
       assertWithScreenshot("Moving mouse after criterion: " + exc.getMessage(), true);
@@ -809,13 +1092,13 @@ public class SeleniumUtilities implements IAweInstructions {
     writeTextFromSelector(selector, text, clearText);
 
     // Click on click selector
-    waitUntil(elementToBeClickable(clickSelector));
+    waitUntil(toBeClickable(clickSelector));
     clickSelector(clickSelector);
   }
 
   private void writeTextFromSelector(By selector, CharSequence text, boolean clearText) {
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Clear previous text
     if (clearText) {
@@ -836,10 +1119,10 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getCriterionInput(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Get selector text
-    return getElement(selector).getAttribute("value");
+    return getBrowser().attribute(locator(selector), "value");
   }
 
   /**
@@ -851,7 +1134,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getCheckbox(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click on checkbox
     click(selector);
@@ -867,16 +1150,16 @@ public class SeleniumUtilities implements IAweInstructions {
     By loaderSelector = frontEndInstructions.getSuggestLoader(parentSelector);
 
     // Wait for loader
-    waitUntil(invisibilityOfElementLocated(loaderSelector));
+    waitUntil(toBeInvisible(loaderSelector));
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Triple click selector
     click(selector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(frontEndInstructions.getSuggestDropdownList()));
+    waitUntil(toBePresent(frontEndInstructions.getSuggestDropdownList()));
   }
 
   /**
@@ -889,16 +1172,16 @@ public class SeleniumUtilities implements IAweInstructions {
     By loaderSelector = frontEndInstructions.getSelectLoader(parentSelector);
 
     // Wait for loader
-    waitUntil(invisibilityOfElementLocated(loaderSelector));
+    waitUntil(toBeInvisible(loaderSelector));
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click selector
     click(selector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(frontEndInstructions.getSelectDropdownList()));
+    waitUntil(toBePresent(frontEndInstructions.getSelectDropdownList()));
   }
 
   /**
@@ -959,7 +1242,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By suggestDropdownListInput = frontEndInstructions.getSuggest(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(suggestDropdownListInput));
+    waitUntil(toBePresent(suggestDropdownListInput));
 
     // Write text
     if (isWritable(frontEndInstructions.getSuggestInput(parentSelector))) {
@@ -991,7 +1274,7 @@ public class SeleniumUtilities implements IAweInstructions {
     suggestClick(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(suggestDropdownListInput));
+    waitUntil(toBePresent(suggestDropdownListInput));
 
     // Write username
     sendKeys(suggestDropdownListInput, search);
@@ -1000,7 +1283,7 @@ public class SeleniumUtilities implements IAweInstructions {
     waitForLoadingBar();
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click option
     click(selector);
@@ -1017,30 +1300,68 @@ public class SeleniumUtilities implements IAweInstructions {
     // Safecheck
     int safecheck = 0;
     By searchBox = frontEndInstructions.getSuggestMultipleInput(parentSelector);
+    boolean panelBased = frontEndInstructions.multipleChoiceUsesPanel();
 
     // Wait for element present
     waitUntil(checkIfLoaderIsNotVisible());
 
-    // Wait for element present
-    waitUntil(presenceOfElementLocated(searchBox));
+    // Wait for element present. A panel based multiple choice shows its search box only once the panel is open
+    if (!panelBased) {
+      waitUntil(toBePresent(searchBox));
+    }
+
+    // Open the panel when the search box lives inside it (a multiple select). A multiple suggest keeps its search box in
+    // the criterion, so nothing is opened and the panel steps below are skipped. The panel is opened before clearing,
+    // because a multiple select may only be cleared by unchecking the checked options of its panel
+    boolean openedPanel = panelBased && !getBrowser().exists(locator(searchBox));
+    if (openedPanel) {
+      selectClick(parentSelector);
+    }
+    waitUntil(toBePresent(searchBox));
 
     // Clear selector
     if (clear) {
       By clearSelector = frontEndInstructions.getSuggestMultipleChoiceClose(parentSelector);
-      while (!getElements(clearSelector).isEmpty() && safecheck < RETRY_COUNT) {
-        click(clearSelector);
+      boolean byKeyboard = frontEndInstructions.multipleChoiceClearsWithKeyboard();
+      if (byKeyboard && getBrowser().exists(locator(clearSelector))) {
+        click(searchBox);
+      }
+      // A backspace highlights the last value and the next one removes it: two keys per value
+      int retries = byKeyboard ? 2 * RETRY_COUNT : RETRY_COUNT;
+      while (getBrowser().exists(locator(clearSelector)) && safecheck < retries) {
+        if (byKeyboard) {
+          getBrowser().press(Key.BACK_SPACE);
+        } else {
+          click(clearSelector);
+        }
         safecheck++;
       }
     }
 
-    // Write search text
+    // Write search text (the panel keeps the text of the previous search)
+    if (openedPanel) {
+      clearText(searchBox);
+    }
+    if (!panelBased) {
+      scrollToTheCenter(searchBox);
+    }
     sendKeys(searchBox, search);
 
     // Wait for loading bar
     waitForLoadingBar();
 
+    // Let the filtered list settle: the option is chosen where it is when the pointer arrives
+    waitForTheOptionsToSettle(frontEndInstructions.getSelectOptions());
+
     // Select result on list
     suggestResult(label);
+
+    // The panel this step opened stays open after choosing: close it so it does not cover the next steps
+    if (openedPanel) {
+      getBrowser().press(Key.ESCAPE);
+      // The panel leaves with an exit animation: the next item must find it closed, or it would take it for an open one
+      waitUntil(toBeInvisible(searchBox));
+    }
   }
 
   /**
@@ -1050,10 +1371,25 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   private void saveRowFromSelector(By selector) {
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click option
     click(selector);
+  }
+
+  /**
+   * Give the page time to show the text that a check expects. A screen that is still appearing, or a value that an
+   * asynchronous action is still loading, is not a failure yet: the check that follows asserts what is shown, as it always
+   * did, and reports it (with evidence) if it is not the expected text
+   *
+   * @param condition Text that is expected
+   */
+  private void waitForExpectedText(BrowserCondition condition) {
+    try {
+      poll(condition, properties.getTimeout());
+    } catch (BrowserPoll.PollTimeoutException exc) {
+      log.debug("Not yet: {}", condition);
+    }
   }
 
   /**
@@ -1063,7 +1399,18 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkText(By selector, String text) {
-    String nodeText = getElement(selector).getText();
+    checkText(locator(selector), text);
+  }
+
+  /**
+   * Check text inside selector
+   *
+   * @param selector Selector to check
+   * @param text     Text to compare
+   */
+  private void checkText(Locator selector, String text) {
+    waitForExpectedText(BrowserCondition.textEquals(selector, text));
+    String nodeText = getBrowser().text(selector);
     String message = selector.toString() + TEXT_VALUE + nodeText + "' isn't equal to " + text;
 
     // Assert element is not located
@@ -1077,7 +1424,18 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkTextContains(By selector, String text) {
-    String nodeText = getElement(selector).getText();
+    checkTextContains(locator(selector), text);
+  }
+
+  /**
+   * Check if selector contains text
+   *
+   * @param selector Selector to check
+   * @param text     Text to compare
+   */
+  private void checkTextContains(Locator selector, String text) {
+    waitForExpectedText(BrowserCondition.textContains(selector, text));
+    String nodeText = getBrowser().text(selector);
     String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
 
     // Assert element is not located
@@ -1091,7 +1449,8 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkTextMultipleContains(By selector, String text) {
-    List<String> nodeValues = getElements(selector).stream().map(WebElement::getText).collect(Collectors.toList());
+    waitForExpectedText(BrowserCondition.anyTextContains(locator(selector), text));
+    List<String> nodeValues = getBrowser().texts(locator(selector));
     String message = selector.toString() + " list doesn't contain " + text;
 
     // Assert element is not located
@@ -1105,7 +1464,17 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkTextNotContains(By selector, String text) {
-    String nodeText = getElement(selector).getText();
+    checkTextNotContains(locator(selector), text);
+  }
+
+  /**
+   * Check if selector doesn't contain a text
+   *
+   * @param selector Selector to check
+   * @param text     Text to compare
+   */
+  private void checkTextNotContains(Locator selector, String text) {
+    String nodeText = getBrowser().text(selector);
     String message = selector.toString() + TEXT_VALUE + nodeText + "' contains " + text;
 
     // Assert element is not located
@@ -1119,11 +1488,23 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text     Text to compare
    */
   private void checkCriterionContains(By selector, String text) {
-    String nodeText = getElement(selector).getAttribute("value");
-    String message = selector.toString() + TEXT_VALUE + nodeText + "' doesn't contain " + text;
+    // An asynchronous action may still be changing the value, and the front end may repaint the input meanwhile (a
+    // stale or missing element is "not yet"): the check is the wait itself, so a repaint after it cannot fail it (#969)
+    Locator input = locator(selector);
+    try {
+      poll(BrowserCondition.valueContains(input, text), properties.getTimeout());
+      return;
+    } catch (Exception exc) {
+      log.debug("The value of {} does not contain '{}'", selector, text);
+    }
 
-    // Assert element is not located
-    assertWithScreenshot(message, nodeText.contains(text));
+    String nodeText;
+    try {
+      nodeText = getBrowser().attribute(input, "value");
+    } catch (ElementNotFoundException | ElementReplacedException exc) {
+      nodeText = null;
+    }
+    assertWithScreenshot(selector + TEXT_VALUE + nodeText + "' doesn't contain " + text, false);
   }
 
   // ===================================================================================================================
@@ -1150,32 +1531,121 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void gotoScreen(String... menuOptions) {
 
-    int optionNumber = 1;
-    for (String option : menuOptions) {
-      // Wait for text in selector
-      waitUntil(visibilityOfElementLocated(frontEndInstructions.getMenuOption(option)));
+    // The previous step may still have server tasks pending (a restore that loads its suggests): the client drops the
+    // actions that are waiting when an option is chosen, so the screen would not change
+    waitForLoadingBar();
 
-      switch (frontEndInstructions.getMenuBehavior()) {
-        case CLICK_ALL:
-          clickAllOptions(optionNumber, option, menuOptions);
-          break;
-        case CLICK_FIRST_AND_OPTION:
-          clickFirstAndOption(optionNumber, option, menuOptions);
-          break;
-        case CLICK_OPTION:
-        default:
-          clickOption(optionNumber, option, menuOptions);
-      }
-
-      seleniumModel.setCurrentOption(option);
-      optionNumber++;
+    for (int optionNumber = 1; optionNumber <= menuOptions.length; optionNumber++) {
+      chooseMenuOption(optionNumber, menuOptions);
+      seleniumModel.setCurrentOption(menuOptions[optionNumber - 1]);
     }
 
-    // Wait for element not visible
-    waitUntil(invisibilityOfElementLocated(frontEndInstructions.getMenuDropdown()));
+    // Wait for the click to take effect, clicking again when the browser ignored it
+    String lastOption = menuOptions[menuOptions.length - 1];
+    retryMenuClickWhenIgnored(menuOptions);
+    waitForMenuOption(lastOption);
 
     // Wait for loading bar
     waitForLoadingBar();
+  }
+
+  /**
+   * Make the gesture of the menu behavior on an option of a menu path (a click or a hover)
+   *
+   * @param optionNumber Number of the option in the path, from 1
+   * @param menuOptions  Menu path
+   */
+  private void chooseMenuOption(int optionNumber, String[] menuOptions) {
+    String option = menuOptions[optionNumber - 1];
+    // Wait for text in selector
+    waitUntil(toBeVisible(frontEndInstructions.getMenuOption(option)));
+
+    switch (frontEndInstructions.getMenuBehavior()) {
+      case CLICK_ALL:
+        clickAllOptions(optionNumber, option, menuOptions);
+        break;
+      case CLICK_FIRST_AND_OPTION:
+        clickFirstAndOption(optionNumber, option, menuOptions);
+        break;
+      case CLICK_OPTION:
+      default:
+        clickOption(optionNumber, option, menuOptions);
+    }
+  }
+
+  /**
+   * Wait until the click on a menu option has taken effect: the menu dropdown is closed or, in a client whose menu
+   * stays open, the screen of the option is the current one
+   *
+   * @param option Last option clicked
+   */
+  protected void waitForMenuOption(String option) {
+    waitUntil(menuOptionTookEffect(option));
+  }
+
+  /**
+   * Condition: the click on a menu option has taken effect (the screen of the option is the current one or, in a client
+   * that collapses its menu, the dropdown is closed)
+   */
+  private BrowserCondition menuOptionTookEffect(String option) {
+    By activeOption = frontEndInstructions.getMenuActiveOption(option);
+    return activeOption != null ? toBeVisible(activeOption) : toBeInvisible(frontEndInstructions.getMenuDropdown());
+  }
+
+  /**
+   * A browser may ignore a click on a menu option that it reports as done (the option gets the focus but the screen does
+   * not change). Give the click a short time to take effect and, if it did not, click the option again (at most
+   * {@value #MENU_CLICK_RETRIES} more times). A click that took effect is never repeated, and a click that never takes
+   * effect is reported by the wait that follows, as always.
+   * <p>
+   * A click that took effect late (the screen opened, but the dropdown closes after the short wait) must not fail the
+   * step: the retry waits for the option to be clickable or for the effect, whichever comes first. When the option is
+   * hidden (its parent collapsed), the parents are chosen again before the new click
+   *
+   * @param menuOptions Menu path clicked
+   */
+  private void retryMenuClickWhenIgnored(String[] menuOptions) {
+    String option = menuOptions[menuOptions.length - 1];
+    By optionSelector = frontEndInstructions.getMenuOption(option);
+    Duration timeout = properties.getTimeout().compareTo(MENU_CLICK_EFFECT_TIMEOUT) < 0 ? properties.getTimeout() : MENU_CLICK_EFFECT_TIMEOUT;
+    BrowserCondition tookEffect = menuOptionTookEffect(option);
+    for (int retry = 0; retry < MENU_CLICK_RETRIES; retry++) {
+      if (isMetWithin(tookEffect, timeout)) {
+        return;
+      }
+      if (!getBrowser().isVisible(locator(optionSelector))) {
+        // The effect may come right after the wait: opening the parents then would open the menu over the new screen
+        if (tookEffect.isMet(getBrowser())) {
+          return;
+        }
+        log.warn("The menu option '{}' is hidden after a click with no effect, opening its parents again", option);
+        for (int optionNumber = 1; optionNumber < menuOptions.length; optionNumber++) {
+          chooseMenuOption(optionNumber, menuOptions);
+        }
+      }
+      if (isMetWithin(BrowserCondition.anyOf(tookEffect, toBeClickable(optionSelector)), properties.getTimeout())
+        && tookEffect.isMet(getBrowser())) {
+        return;
+      }
+      log.warn("The click on the menu option '{}' had no effect after {} ms, clicking it again", option, timeout.toMillis());
+      click(optionSelector);
+    }
+  }
+
+  /**
+   * Wait for a condition, telling whether it was met instead of failing
+   *
+   * @param condition Condition
+   * @param timeout   Maximum time to wait
+   * @return true if the condition was met in time
+   */
+  private boolean isMetWithin(BrowserCondition condition, Duration timeout) {
+    try {
+      poll(condition, timeout);
+      return true;
+    } catch (BrowserPoll.PollTimeoutException exc) {
+      return false;
+    }
   }
 
   private void clickOption(int optionNumber, String option, String[] options) {
@@ -1198,9 +1668,9 @@ public class SeleniumUtilities implements IAweInstructions {
 
   private void clickAllOptions(int optionNumber, String option, String[] options) {
     // If it is not the last option, check if it is already opened
-    List<WebElement> openedChildren = getElements(frontEndInstructions.getMenuOpenedChildren(option));
+    boolean hasOpenedChildren = getBrowser().exists(locator(frontEndInstructions.getMenuOpenedChildren(option)));
 
-    if (optionNumber == options.length || openedChildren.isEmpty()) {
+    if (optionNumber == options.length || !hasOpenedChildren) {
       // Click on screen
       click(frontEndInstructions.getMenuOption(option));
     }
@@ -1210,9 +1680,10 @@ public class SeleniumUtilities implements IAweInstructions {
    * Wait for css selector
    *
    * @param cssSelector CSS Selector
+   * @return Locator of the selector
    */
-  protected By waitForCssSelector(String cssSelector) {
-    By selector = By.cssSelector(cssSelector);
+  protected Locator waitForCssLocator(String cssSelector) {
+    Locator selector = Locator.css(cssSelector);
 
     // Wait for selector
     waitForSelector(selector);
@@ -1222,10 +1693,23 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Wait for css selector
+   *
+   * @param cssSelector CSS Selector
+   * @return Selenium locator of the selector
+   * @deprecated It returns a Selenium type. Use {@link #waitForCssLocator(String)}, which returns a {@link Locator}.
+   * It stays available through the whole 5.x line and is not removed before 6.0
+   */
+  @Deprecated
+  protected By waitForCssSelector(String cssSelector) {
+    return waitForCssLocator(cssSelector).toBy();
+  }
+
+  /**
    * Wait for loading bar to hide
    */
   protected void waitForLoadingBar() {
-    waitUntil(invisibilityOfElementLocated(frontEndInstructions.getLoadingBar()));
+    waitUntil(toBeInvisible(frontEndInstructions.getLoadingBar()));
   }
 
   /**
@@ -1280,7 +1764,18 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.containsText(clazz, contains);
 
     // Wait for element visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(toBeVisible(selector));
+  }
+
+  /**
+   * Wait for text inside an element
+   *
+   * @param selector Locator of the element
+   * @param contains Text to check
+   */
+  protected void waitForText(Locator selector, String contains) {
+    // Wait for element visible
+    waitUntil(BrowserCondition.textContains(selector, contains));
   }
 
   /**
@@ -1288,10 +1783,23 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Selector
    * @param contains Text to check
+   * @deprecated Selenium specific. Use {@link #waitForText(Locator, String)}. It stays available through the whole 5.x
+   * line and is not removed before 6.0
    */
+  @Deprecated
   protected void waitForText(By selector, String contains) {
+    waitForText(locator(selector), contains);
+  }
+
+  /**
+   * Wait for text inside the value of an input
+   *
+   * @param selector Locator of the input
+   * @param contains Text to check
+   */
+  protected void waitForValue(Locator selector, String contains) {
     // Wait for element visible
-    waitUntil(textToBePresentInElementLocated(selector, contains));
+    waitUntil(BrowserCondition.valueContains(selector, contains));
   }
 
   /**
@@ -1299,10 +1807,23 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Selector
    * @param contains Text to check
+   * @deprecated Selenium specific. Use {@link #waitForValue(Locator, String)}. It stays available through the whole 5.x
+   * line and is not removed before 6.0
    */
+  @Deprecated
   protected void waitForValue(By selector, String contains) {
+    waitForValue(locator(selector), contains);
+  }
+
+  /**
+   * Wait for no text in the value of an input
+   *
+   * @param selector Locator of the input
+   * @param text     Text to check
+   */
+  protected void waitForEmptyText(Locator selector, String text) {
     // Wait for element visible
-    waitUntil(textToBePresentInElementValue(selector, contains));
+    waitUntil(BrowserCondition.not(BrowserCondition.valueContains(selector, text)));
   }
 
   /**
@@ -1310,10 +1831,12 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Selector
    * @param text     Text to check
+   * @deprecated Selenium specific. Use {@link #waitForEmptyText(Locator, String)}. It stays available through the whole
+   * 5.x line and is not removed before 6.0
    */
+  @Deprecated
   protected void waitForEmptyText(By selector, String text) {
-    // Wait for element visible
-    waitUntil(not(textToBePresentInElementValue(selector, text)));
+    waitForEmptyText(locator(selector), text);
   }
 
   /**
@@ -1322,10 +1845,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param time Milliseconds
    */
   protected void pause(Integer time) {
-    new Actions(seleniumModel.getDriver())
-      .pause(time)
-      .build()
-      .perform();
+    getBrowser().pause(Duration.ofMillis(time));
   }
 
   /**
@@ -1383,11 +1903,9 @@ public class SeleniumUtilities implements IAweInstructions {
       // Wait for context button
       waitForContextButton(contextButtonOption);
 
-      // Mouse over context button
-      new Actions(seleniumModel.getDriver())
-        .moveToElement(seleniumModel.getDriver().findElement(contextButtonSelector))
-        .build()
-        .perform();
+      // Mouse over context button. The pointer jumps: a pointer that travels from an option to its nested option
+      // (Firefox moves it step by step) crosses the options that lie between them and the menu closes the nested ones
+      getBrowser().hoverInstantly(locator(contextButtonSelector));
     }
 
     // Click on last option
@@ -1411,12 +1929,12 @@ public class SeleniumUtilities implements IAweInstructions {
     By tabSelector = frontEndInstructions.getTab(tabName, tabLabel);
 
     // If tab is visible, click on tab
-    if (getDriver().findElement(tabSelector).isDisplayed()) {
+    if (getBrowser().isVisible(locator(tabSelector))) {
       // Tab selector
       clickSelector(tabSelector);
 
       // Wait for tab active
-      waitUntil(visibilityOfElementLocated(frontEndInstructions.getTabActive(tabName, tabLabel)));
+      waitUntil(toBeVisible(frontEndInstructions.getTabActive(tabName, tabLabel)));
     } else {
       // If not visible, click on tab menu, wait for dropdown and click on dropdown option
       clickSelector(frontEndInstructions.getTabMenu(tabName));
@@ -1425,7 +1943,7 @@ public class SeleniumUtilities implements IAweInstructions {
       clickSelector(frontEndInstructions.getTabMenuDropdownOption(tabName, tabLabel));
 
       // Wait for dropdown not visible
-      waitUntil(invisibilityOfElementLocated(frontEndInstructions.getTabMenuDropdown(tabName)));
+      waitUntil(toBeInvisible(frontEndInstructions.getTabMenuDropdown(tabName)));
     }
   }
 
@@ -1439,6 +1957,141 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Open the user menu unless it is already open (its theme selector is shown), so a menu that is already open is not
+   * closed
+   */
+  private void openUserMenuIfClosed() {
+    if (!isVisibleNow(locator(By.cssSelector(frontEndInstructions.getCriterionCss("theme"))))) {
+      openUserMenu();
+    }
+  }
+
+  /**
+   * Open or close the user menu (the avatar of the logged user), where the theme, the color mode and the language are
+   */
+  protected void openUserMenu() {
+    clickSelector(frontEndInstructions.getLoggedUser());
+  }
+
+  /**
+   * Click an option of the user menu, which has to be open
+   *
+   * @param optionId Option identifier (dark-mode, light-mode)
+   */
+  protected void clickUserMenuOption(String optionId) {
+    clickSelector(frontEndInstructions.getUserMenuOption(optionId));
+  }
+
+  /**
+   * Choose the dark mode in the user menu, as a user does
+   */
+  protected void switchToDarkMode() {
+    openUserMenuIfClosed();
+    clickUserMenuOption("dark-mode");
+  }
+
+  /**
+   * Choose the light mode in the user menu, as a user does
+   */
+  protected void switchToLightMode() {
+    openUserMenuIfClosed();
+    clickUserMenuOption("light-mode");
+  }
+
+  /**
+   * Choose the light mode in the user menu when the menu offers it (the user is in the dark mode) and wait until the page
+   * is light, so a test starts in the light mode whatever mode the session starts in. Otherwise the mode is kept
+   */
+  protected void switchToLightModeIfDark() {
+    openUserMenuIfClosed();
+    if (isVisibleNow(locator(frontEndInstructions.getUserMenuOption("light-mode")))) {
+      clickUserMenuOption("light-mode");
+      checkColorMode("light");
+    }
+  }
+
+  /**
+   * Choose a theme in the user menu, as a user does
+   *
+   * @param themeName Theme name
+   */
+  protected void selectTheme(String themeName) {
+    openUserMenuIfClosed();
+    selectContain("theme", themeName);
+    waitForLoadingBar();
+  }
+
+  /**
+   * Check that a theme is applied to the page
+   *
+   * @param themeName Theme name
+   */
+  protected void checkThemeApplied(String themeName) {
+    waitUntil(BrowserCondition.present(locator(frontEndInstructions.getThemedPage(themeName))));
+  }
+
+  /**
+   * Check that the user chose the light mode or the dark mode (the page carries the mode that the user chose, which wins over the operating system)
+   *
+   * @param mode Color mode: dark or light
+   */
+  protected void checkColorMode(String mode) {
+    if (!"dark".equals(mode) && !"light".equals(mode)) {
+      throw new IllegalArgumentException("The color mode is dark or light, not " + mode);
+    }
+    waitUntil(BrowserCondition.present(locator(frontEndInstructions.getColorModePage(mode))));
+  }
+
+  /**
+   * Check the theme appearance on the page root, the same in both engines (#885): the {@code <html>} element carries the
+   * class of the mode (and not the other one) and the primary palette of the theme in {@code data-awe-primary}
+   *
+   * @param mode    Color mode: dark or light
+   * @param primary Primary palette (red, blue, sky...)
+   */
+  protected void checkThemeAppearance(String mode, String primary) {
+    if (!"dark".equals(mode) && !"light".equals(mode)) {
+      throw new IllegalArgumentException("The color mode is dark or light, not " + mode);
+    }
+    String otherMode = "dark".equals(mode) ? "light" : "dark";
+    waitUntil(BrowserCondition.present(locator(By.cssSelector(
+      String.format("html.%s:not(.%s)[data-awe-primary='%s']", mode, otherMode, primary)))));
+  }
+
+  /**
+   * Check the computed value of a CSS property of the first element that matches a selector (rgb(...) for the colors).
+   * The case and the spaces around the value are ignored
+   *
+   * @param cssSelector CSS selector of the element
+   * @param property    CSS property (background-color)
+   * @param value       Expected computed value (rgb(248, 250, 252))
+   */
+  protected void checkComputedStyle(String cssSelector, String property, String value) {
+    waitUntil(BrowserCondition.of("computed " + property + " of " + cssSelector + " to be " + value, browser -> {
+      Object computed = browser.executeScript(
+        "const element = document.querySelector(arguments[0]);"
+          + "return element ? getComputedStyle(element).getPropertyValue(arguments[1]).trim() : null;", cssSelector, property);
+      return computed != null && value.trim().equalsIgnoreCase(String.valueOf(computed).trim());
+    }));
+  }
+
+  /**
+   * Check the value a design token (a --awe-* CSS custom property) has on the page, which is the value the theme and
+   * the mode that are applied give it. The case and the spaces around the value are ignored
+   *
+   * @param token Design token name, as in the design tokens guide (--awe-color-primary)
+   * @param value Expected value (#1d89cf)
+   */
+  protected void checkDesignToken(String token, String value) {
+    if (token == null || !token.startsWith("--awe-")) {
+      throw new IllegalArgumentException("A design token starts with --awe-, not " + token);
+    }
+    waitUntil(BrowserCondition.of("design token " + token + " to be " + value, browser ->
+      value.trim().equalsIgnoreCase(String.valueOf(browser.executeScript(
+        "return getComputedStyle(document.body).getPropertyValue(arguments[0]).trim();", token)).trim())));
+  }
+
+  /**
    * Click on tree button
    *
    * @param gridId Grid id
@@ -1447,13 +2100,13 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void clickTreeButton(String gridId, String rowId) {
 
     // Wait until visible
-    waitUntil(visibilityOfElementLocated(frontEndInstructions.getTreeButton(gridId, rowId)));
+    waitUntil(toBeVisible(frontEndInstructions.getTreeButton(gridId, rowId)));
 
     // Click on tree button
     clickSelector(frontEndInstructions.getTreeButton(gridId, rowId));
 
     // Check loader is not visible
-    checkNotVisible(frontEndInstructions.getTreeButtonLoader());
+    checkNotVisible(locator(frontEndInstructions.getTreeButtonLoader()));
 
     // Pause to wait tree leaf to open
     pause(250);
@@ -1475,7 +2128,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void clickDate(String gridId, String columnId) {
-    clickDateFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
+    clickDateFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId));
   }
 
   /**
@@ -1508,7 +2161,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectDate(String gridId, String columnId, CharSequence dateValue) {
     // Select date with parent selector
-    selectDateFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), dateValue);
+    selectDateFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId), dateValue);
   }
 
   /**
@@ -1543,7 +2196,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectDay(String gridId, String columnId, @Nonnull Integer day) {
     // Select date with parent selector
-    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, null, columnId), DAY, day.toString());
+    selectFromDatepicker(frontEndInstructions.getEditingParentCss(gridId, columnId), DAY, day.toString());
   }
 
   /**
@@ -1598,7 +2251,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectMonth(String gridId, String columnId, String month) {
     // Select date with parent selector
-    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, null, columnId), MONTH, month);
+    selectFromDatepicker(frontEndInstructions.getEditingParentCss(gridId, columnId), MONTH, month);
   }
 
   /**
@@ -1633,7 +2286,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void selectYear(String gridId, String columnId, @Nonnull Integer year) {
     // Select date with parent selector
-    selectFromDatepicker(frontEndInstructions.getParentCss(gridId, null, columnId), YEAR, year.toString());
+    selectFromDatepicker(frontEndInstructions.getEditingParentCss(gridId, columnId), YEAR, year.toString());
   }
 
   /**
@@ -1656,6 +2309,22 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void clickCheckbox(String criterionName) {
     clickCheckboxFromSelector(frontEndInstructions.getCriterionCss(criterionName));
+  }
+
+  /**
+   * Click on an option of a group of buttons (a button checkbox or a button radio rendered as one group)
+   *
+   * @param criterionName Criterion (group) name
+   * @param optionId      Value of the option
+   */
+  protected void clickCheckboxOption(String criterionName, String optionId) {
+    By selector = frontEndInstructions.getCheckboxOption(criterionName, optionId);
+
+    // Wait for element present
+    waitUntil(toBePresent(selector));
+
+    // Click on the option
+    click(selector);
   }
 
   /**
@@ -1699,6 +2368,50 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Select the row with a text: click it only when it is not selected yet, then wait until it is selected. Unlike
+   * {@link #clickRowContents(String, String)} it never unselects a row, whatever the client does on a second click
+   *
+   * @param search Text to search
+   */
+  protected void selectRowContents(String search) {
+    selectRowContents(null, search);
+  }
+
+  /**
+   * Select the row of a grid with a text: click it only when it is not selected yet, then wait until it is selected.
+   * Unlike {@link #clickRowContents(String, String)} it never unselects a row, whatever the client does on a second
+   * click
+   *
+   * @param gridId Grid to search in
+   * @param search Text to search
+   */
+  protected void selectRowContents(String gridId, String search) {
+    By selected = frontEndInstructions.findSelectedGridRow(gridId, search);
+    if (selected == null) {
+      // The client cannot tell which row is selected: all that is left is the click
+      clickRowContentsFromSelector(gridId, search);
+      return;
+    }
+    // Wait for the grid to be loaded first, so a row of the previous result set is not taken as the selected one
+    waitUntil(checkIfGridLoaderIsNotVisible());
+    if (!getBrowser().exists(locator(selected))) {
+      clickRowFromSelector(frontEndInstructions.findGridRowSelection(gridId, search));
+      waitUntil(toBePresent(selected));
+    }
+  }
+
+  /**
+   * Click on a row with a text even if it is already selected, to toggle its selection: unlike
+   * {@link #clickRowContents(String, String)} it never leaves a selected row as it is
+   *
+   * @param gridId Grid to search in
+   * @param search Text to search
+   */
+  protected void toggleRowContents(String gridId, String search) {
+    clickRowFromSelector(frontEndInstructions.findGridRowSelection(gridId, search));
+  }
+
+  /**
    * Click on row with a text
    *
    * @param search Text to search
@@ -1725,7 +2438,50 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column identifier
    */
   protected void editRow(String gridId, String rowId, String columnId) {
-    editRowFromSelector(frontEndInstructions.getGridCell(gridId, rowId, columnId));
+    editRowFromSelector(gridId, frontEndInstructions.getGridCell(gridId, rowId, columnId));
+  }
+
+  /**
+   * Click the button of a grid cell
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void clickGridCellButton(String gridId, String rowId, String columnId) {
+    By button = frontEndInstructions.getGridCellButton(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(button), checkIfGridLoaderIsNotVisible()));
+    clickSelector(button);
+  }
+
+  /**
+   * Click the button of a column in the row of a grid that contains a text, as the user does with a row action (the
+   * edit button of a row): the button selects its row and runs its actions
+   *
+   * @param gridId   Grid identifier
+   * @param search   Text of the row
+   * @param columnId Column of the button
+   */
+  protected void clickGridRowButton(String gridId, String search, String columnId) {
+    By button = frontEndInstructions.findGridRowButton(gridId, search, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(button), checkIfGridLoaderIsNotVisible()));
+    clickSelector(button);
+  }
+
+  /**
+   * Check that a button shows only its icon (style no-label): it has no visible text and its accessible name (its
+   * aria-label) is the given one
+   *
+   * @param buttonName     Button identifier
+   * @param accessibleName Accessible name of the button (its label)
+   */
+  protected void checkButtonIconOnly(String buttonName, String accessibleName) {
+    Locator button = locator(frontEndInstructions.getButton(buttonName));
+    waitUntil(BrowserCondition.allOf(BrowserCondition.visible(button),
+      BrowserCondition.of("button " + buttonName + " to show only its icon, named '" + accessibleName + "'",
+        browser -> browser.exists(button) && !accessibleName.isEmpty()
+          && browser.text(button).replace('\u00A0', ' ').trim().isEmpty()
+          && accessibleName.equals(browser.attribute(button, "aria-label")))));
   }
 
   /**
@@ -1747,6 +2503,24 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void clickCell(String gridId, String rowId, String columnId) {
     clickRowFromSelector(frontEndInstructions.getGridCell(gridId, rowId, columnId));
+  }
+
+  /**
+   * Start recording the files that the page downloads (the downloads it fetches from the file service), forgetting the
+   * ones recorded before
+   */
+  protected void startRecordingDownloads() {
+    getBrowser().executeScript(RECORD_DOWNLOADS_SCRIPT);
+  }
+
+  /**
+   * Check the number of files downloaded since the recording started: every download started has arrived
+   *
+   * @param count Number of files downloaded
+   */
+  protected void checkFilesDownloaded(int count) {
+    waitUntil(BrowserCondition.of(count + " files downloaded", browser ->
+      String.valueOf(count).equals(String.valueOf(browser.executeScript(DOWNLOADED_FILES_SCRIPT)))));
   }
 
   /**
@@ -1781,17 +2555,82 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Right click on a button to open its context menu
+   *
+   * @param buttonId Button id
+   */
+  protected void contextMenuOnButton(String buttonId) {
+    waitForButton(buttonId);
+    contextMenu(frontEndInstructions.getButton(buttonId));
+  }
+
+  /**
+   * Right click on a criterion to open its context menu
+   *
+   * @param criterionId Criterion id
+   */
+  protected void contextMenuOnCriterion(String criterionId) {
+    contextMenu(By.cssSelector(frontEndInstructions.getCriterionCss(criterionId)));
+  }
+
+  /**
+   * Right click on the tab list of a tab criterion to open its context menu
+   *
+   * @param tabId Tab criterion id
+   */
+  protected void contextMenuOnTab(String tabId) {
+    waitForTab(tabId);
+    contextMenu(frontEndInstructions.getTab(tabId));
+  }
+
+  /**
+   * Right click on the active step of a wizard to open its context menu
+   *
+   * @param wizardId Wizard criterion id
+   */
+  protected void contextMenuOnWizard(String wizardId) {
+    contextMenu(frontEndInstructions.getActiveWizardStepOf(wizardId));
+  }
+
+  /**
    * Type keys on a criterion
    *
    * @param selector Criterion selector to type keys
    * @param text     Text to type
    */
-  protected void writeTextOnDriver(By selector, CharSequence... text) {
+  protected void writeTextOnDriver(Locator selector, CharSequence... text) {
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(BrowserCondition.present(selector));
 
     // Write text
-    getElement(selector).sendKeys(text);
+    getBrowser().sendKeys(selector, text);
+  }
+
+  /**
+   * Type keys on a criterion
+   *
+   * @param selector Criterion selector to type keys
+   * @param text     Text to type
+   * @deprecated Selenium specific. Use {@link #writeTextOnDriver(Locator, CharSequence...)}. It stays available through
+   * the whole 5.x line and is not removed before 6.0
+   */
+  @Deprecated
+  protected void writeTextOnDriver(By selector, CharSequence... text) {
+    writeTextOnDriver(locator(selector), text);
+  }
+
+  /**
+   * Write text on selector
+   *
+   * @param selector Locator of the element
+   * @param text     Text
+   */
+  protected void writeText(Locator selector, CharSequence text) {
+    // Wait for element present
+    waitUntil(BrowserCondition.present(selector));
+
+    // Write text
+    sendKeys(selector, text);
   }
 
   /**
@@ -1799,13 +2638,12 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Selector
    * @param text     Text
+   * @deprecated Selenium specific. Use {@link #writeText(Locator, CharSequence)}. It stays available through the whole
+   * 5.x line and is not removed before 6.0
    */
+  @Deprecated
   protected void writeText(By selector, CharSequence text) {
-    // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
-
-    // Write text
-    sendKeys(selector, text);
+    writeText(locator(selector), text);
   }
 
   /**
@@ -1827,9 +2665,9 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void writeText(String criterionName, CharSequence text, boolean clearText) {
     By criterionSelector = frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName));
-    waitUntil(visibilityOfElementLocated(criterionSelector));
+    waitUntil(toBeVisible(criterionSelector));
     writeTextFromSelector(criterionSelector, text, clearText);
-    moveMouseOutOfCriterion();
+    moveMouseOutOfCriterion(frontEndInstructions.getCriterionCss(criterionName));
   }
 
   /**
@@ -1869,7 +2707,9 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void writeText(String gridId, String rowId, String columnId, CharSequence text, boolean clearText) {
     // Write text on grid
-    By selector = frontEndInstructions.getCriterionInput(frontEndInstructions.getParentCss(gridId, rowId, columnId));
+    String parentCss = rowId == null ? frontEndInstructions.getEditingParentCss(gridId, columnId)
+      : frontEndInstructions.getParentCss(gridId, rowId, columnId);
+    By selector = frontEndInstructions.getCriterionInput(parentCss);
     writeTextFromSelector(selector, text, clearText, selector);
   }
 
@@ -1893,14 +2733,16 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
-   * Get selected row cell text
+   * Get the text of the editor of a cell of the row being edited (the selected one, in the clients that edit the row
+   * the user selects)
    *
    * @param gridId   Grid id
    * @param columnId Column id
    * @return Cell text
    */
   protected String getText(String gridId, String columnId) {
-    return getTextFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
+    // The text of a cell is read from its editor, so the row is the one being edited
+    return getTextFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId));
   }
 
   /**
@@ -1931,7 +2773,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void selectFirst(String gridId, String columnId) {
-    selectFirstFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
+    selectFirstFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId));
   }
 
   /**
@@ -1961,7 +2803,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param columnId Column id
    */
   protected void selectLast(String gridId, String columnId) {
-    selectLastFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId));
+    selectLastFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId));
   }
 
   /**
@@ -1993,7 +2835,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Label to search
    */
   protected void selectContain(String gridId, String columnId, String label) {
-    selectContainFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), label);
+    selectContainFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId), label);
   }
 
   /**
@@ -2019,7 +2861,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = By.cssSelector(parentSelector);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click on checkbox
     click(selector);
@@ -2035,7 +2877,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getSelectResult(match);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click option
     click(selector);
@@ -2050,7 +2892,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getSuggestResult(match);
 
     // Wait for element present
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Click option
     click(selector);
@@ -2076,7 +2918,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Label to search
    */
   protected void suggest(String gridId, String columnId, String search, String label) {
-    suggestFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), search, label);
+    suggestFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId), search, label);
   }
 
   /**
@@ -2110,7 +2952,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param search   Search string
    */
   protected void suggestLast(String gridId, String columnId, String search) {
-    suggestLastFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), search);
+    suggestLastFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId), search);
   }
 
   /**
@@ -2195,7 +3037,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param label    Text to find in label
    */
   protected void suggestMultiple(String gridId, String columnId, boolean clear, String search, String label) {
-    suggestMultipleFromSelector(frontEndInstructions.getParentCss(gridId, null, columnId), clear, search, label);
+    suggestMultipleFromSelector(frontEndInstructions.getEditingParentCss(gridId, columnId), clear, search, label);
   }
 
   /**
@@ -2258,19 +3100,17 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param vertical   Vertical scroll in pixels
    */
   protected void scrollGrid(String gridId, int horizontal, int vertical) {
-    JavascriptExecutor js = ((JavascriptExecutor) seleniumModel.getDriver());
-    WebElement grid = seleniumModel.getDriver().findElement(frontEndInstructions.getGridScrollZone(gridId));
-    js.executeScript("arguments[0].scrollTo(arguments[1], arguments[2]);", grid, horizontal, vertical);
+    getBrowser().scrollTo(locator(frontEndInstructions.getGridScrollZone(gridId)), horizontal, vertical);
   }
 
   /**
    * Show mouse
    */
   protected void showMouse() {
-    JavascriptExecutor js = ((JavascriptExecutor) seleniumModel.getDriver());
-    js.executeScript("let seleniumFollowerImg=document.createElement(\"span\");" +
+    getBrowser().executeScript("let seleniumFollowerImg=document.createElement(\"span\");" +
       "seleniumFollowerImg.setAttribute('id', 'selenium_mouse');" +
       "seleniumFollowerImg.setAttribute('style', 'position: absolute; z-index: 99999999999; pointer-events: none; transition: all .1s ease, text-shadow .1s linear; -moz-transition: all .01s linear, text-shadow .1s linear; color: white;-webkit-text-stroke-width: 2px;-webkit-text-stroke-color: #000;');" +
+      // Visual aid for recordings: the pointer icon is injected, it is not a locator and no test looks for it
       "seleniumFollowerImg.classList.add('fa', 'fa-mouse-pointer', 'fa-2x');" +
       "document.body.appendChild(seleniumFollowerImg);" +
       "document.addEventListener('mousemove', function(e) {" +
@@ -2311,28 +3151,73 @@ public class SeleniumUtilities implements IAweInstructions {
     clickButton("confirm-accept");
 
     // Wait for element not present
-    waitUntil(invisibilityOfElementLocated(By.id("confirm-accept")));
+    waitUntil(toBeInvisible(By.id("confirm-accept")));
   }
 
   /**
-   * Check a message box and close it
+   * Check a message box and close it.
+   *
+   * <p>The message has to be shown: if it never is, the step fails. Once it has been seen, it is allowed to leave on
+   * its own before or while it is clicked. The messages close themselves after a few seconds by design (the
+   * {@code messageTimeout} of each type, 2 seconds for the success ones), so on a slow runner a message can be gone by
+   * the time the test reaches it, and the click would wait for an element that does not exist any more until the
+   * timeout. A message that is gone is the normal end of a self-closing message, as a closed one is, so the step waits
+   * until the message is closed by the click or has left by itself, and then for the loading bar.</p>
    *
    * @param messageType Message type (success (default), info, warning, danger)
    */
   protected void checkAndCloseMessage(String messageType) {
     By messageSelector = frontEndInstructions.getMessage(messageType);
+    Locator message = locator(messageSelector);
 
-    // Wait for message selector
-    waitUntil(elementToBeClickable(messageSelector));
+    // Wait for message selector: it has to be shown at least once
+    waitUntil(toBeClickable(messageSelector));
 
-    // Click on message selector
-    click(messageSelector);
+    // Click on it, unless it left by itself or does while it is clicked (it is not waited for again)
+    waitUntil(BrowserCondition.of("message " + message + " to be closed or to close itself", browser -> {
+      if (!browser.exists(message)) {
+        return true;
+      }
+      try {
+        browser.click(message);
+        return true;
+      } catch (ElementReplacedException | ElementNotFoundException exc) {
+        log.debug("The message left while it was clicked, checking again: {}", messageSelector);
+        return false;
+      }
+    }));
 
     // Wait for element not present
-    waitUntil(invisibilityOfElementLocated(messageSelector));
+    waitUntil(toBeInvisible(messageSelector));
 
     // Wait for loading bar
     waitForLoadingBar();
+  }
+
+  /**
+   * Close the messages of a stack one by one. A screen that shows several messages (one per failed query) keeps its
+   * controls blocked until the user has closed all of them
+   *
+   * @param messageType Message type (success, info, warning, danger)
+   * @param count       Number of messages to close
+   */
+  protected void closeMessages(String messageType, int count) {
+    By messageSelector = frontEndInstructions.getMessage(messageType);
+
+    for (int closed = 0; closed < count; closed++) {
+      // Wait for a message to close
+      waitUntil(toBeClickable(messageSelector));
+      Locator messages = locator(messageSelector);
+      List<ElementRef> shown = getBrowser().elements(messages);
+      if (shown.isEmpty()) {
+        throw new ElementNotFoundException(messages, null);
+      }
+      ElementRef message = shown.get(0);
+
+      // Close it and wait for it to leave (the client may show the next message of the stack in its place)
+      click(messageSelector);
+      waitUntil(BrowserCondition.of("message " + messages + " to leave the page", browser -> !browser.elements(messages).contains(message)));
+    }
   }
 
   /**
@@ -2369,7 +3254,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkText(String cssSelector, String text) {
     // Check selector text
-    checkText(waitForCssSelector(cssSelector), text);
+    checkText(waitForCssLocator(cssSelector), text);
   }
 
   /**
@@ -2380,7 +3265,7 @@ public class SeleniumUtilities implements IAweInstructions {
    */
   protected void checkTextContains(String cssSelector, String text) {
     // Check selector text
-    checkTextContains(waitForCssSelector(cssSelector), text);
+    checkTextContains(waitForCssLocator(cssSelector), text);
   }
 
   /**
@@ -2390,7 +3275,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param text        Text to compare
    */
   protected void checkTextNotContains(String cssSelector, String text) {
-    checkTextNotContains(waitForCssSelector(cssSelector), text);
+    checkTextNotContains(waitForCssLocator(cssSelector), text);
   }
 
   /**
@@ -2413,11 +3298,36 @@ public class SeleniumUtilities implements IAweInstructions {
       By selector = frontEndInstructions.findGridCell(gridId, search);
 
       // Wait for element visible
-      waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
+      waitUntil(BrowserCondition.allOf(toBeVisible(selector), checkIfGridLoaderIsNotVisible()));
 
       // Check text
       checkTextContains(selector, search);
     }
+  }
+
+  /**
+   * Tell whether a grid shows a text, once it has loaded, without failing when it does not. A step that creates or deletes a
+   * record uses it to find out whether the record is already there, which is the state that a failed attempt of the same
+   * step leaves when the step is run again
+   *
+   * @param search Text to search for in the grid
+   * @return The grid shows the text
+   */
+  protected boolean hasRowContents(String search) {
+    return hasRowContentsGrid(null, search);
+  }
+
+  /**
+   * Tell whether a grid shows a text, once it has loaded, without failing when it does not
+   *
+   * @param gridId Grid Identifier
+   * @param search Text to search for in the grid
+   * @return The grid shows the text
+   */
+  protected boolean hasRowContentsGrid(String gridId, String search) {
+    // The rows of a search that is still loading are not there yet
+    waitUntil(checkIfGridLoaderIsNotVisible());
+    return hasVisibleElement(getBrowser(), frontEndInstructions.findGridCell(gridId, search));
   }
 
   /**
@@ -2432,7 +3342,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getGridCellText(gridId, rowId, columnId, search);
 
     // Wait for element visible
-    waitUntil(and(visibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible()));
+    waitUntil(BrowserCondition.allOf(toBeVisible(selector), checkIfGridLoaderIsNotVisible()));
 
     // Check text
     checkTextContains(selector, search);
@@ -2446,10 +3356,10 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void checkRowNotContains(String search) {
     By selector = frontEndInstructions.findGridCell(null, search);
 
-    ExpectedCondition<Boolean> condition = and(invisibilityOfElementLocated(selector), checkIfGridLoaderIsNotVisible());
+    BrowserCondition condition = BrowserCondition.allOf(toBeInvisible(selector), checkIfGridLoaderIsNotVisible());
 
     // Assert element is not located
-    assertWithScreenshot(condition.toString(), condition.apply(seleniumModel.getDriver()));
+    assertWithScreenshot(condition.toString(), condition.isMet(getBrowser()));
   }
 
   /**
@@ -2462,10 +3372,23 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName));
 
     // Wait for element visible
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
 
     // Check text
     checkCriterionContains(selector, search);
+  }
+
+  /**
+   * Assert that a criterion cannot be edited: its input is disabled because a dependency of the screen has switched it
+   * off. The AngularJS engine disables the input with ng-disabled and the React one with the disabled attribute, so the
+   * same step covers both
+   *
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionDisabled(String criterionName) {
+    Locator input = locator(frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName)));
+    waitUntil(BrowserCondition.of("criterion " + criterionName + " to be disabled",
+      browser -> browser.exists(input) && !browser.isEnabled(input)));
   }
 
   /**
@@ -2477,7 +3400,7 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void checkCheckboxRadio(boolean isChecked, String... criteriaNames) {
     // Wait for element visible
     Arrays.stream(criteriaNames)
-      .forEach(criterionName -> waitUntil(presenceOfElementLocated(frontEndInstructions.getCheckboxChecked(criterionName, isChecked))));
+      .forEach(criterionName -> waitUntil(toBePresent(frontEndInstructions.getCheckboxChecked(criterionName, isChecked))));
   }
 
   /**
@@ -2490,7 +3413,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getSelectChosen(criterionName);
 
     // Wait for element visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(toBeVisible(selector));
 
     // Check text
     checkTextContains(selector, search);
@@ -2506,9 +3429,9 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getSuggestChosen(criterionName);
 
     // Wait for element visible
-    waitUntil(and(
-      visibilityOfElementLocated(selector),
-      invisibilityOfElementLocated(frontEndInstructions.getSuggestLoader(frontEndInstructions.getCriterionCss(criterionName)))));
+    waitUntil(BrowserCondition.allOf(
+      toBeVisible(selector),
+      toBeInvisible(frontEndInstructions.getSuggestLoader(frontEndInstructions.getCriterionCss(criterionName)))));
 
     switch (frontEndInstructions.getSuggestBehavior()) {
       case TEXT:
@@ -2534,7 +3457,7 @@ public class SeleniumUtilities implements IAweInstructions {
     selectClick(frontEndInstructions.getCriterionCss(criterionName));
 
     // Assert element is not located
-    assertWithScreenshot("Number of elements doesn't match", number == getElements(frontEndInstructions.getSelectDropdownListElements()).size());
+    assertWithScreenshot("Number of elements doesn't match", number == getBrowser().count(locator(frontEndInstructions.getSelectDropdownListElements())));
   }
 
   /**
@@ -2547,7 +3470,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getSelectMultipleTextContainer(criterionName);
 
     // Wait for element visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(toBeVisible(selector));
 
     // Check text
     checkTextMultipleContains(selector, search);
@@ -2563,10 +3486,10 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Wait 1 second
     pause(1000);
-    List<WebElement> messages = getElements(messageSelector);
+    int messages = getBrowser().count(locator(messageSelector));
 
     // Check there are no messages of messageType
-    assertEquals(0, messages.size());
+    assertEquals(0, messages);
   }
 
   /**
@@ -2578,7 +3501,7 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = By.cssSelector(cssSelector);
 
     // Wait until visible
-    waitUntil(presenceOfElementLocated(selector));
+    waitUntil(toBePresent(selector));
   }
 
   /**
@@ -2587,7 +3510,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param cssSelector CSS selector
    */
   protected void checkVisible(String cssSelector) {
-    checkVisible(By.cssSelector(cssSelector));
+    checkVisible(Locator.css(cssSelector));
   }
 
   /**
@@ -2595,9 +3518,21 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector Selector
    */
-  protected void checkVisible(By selector) {
+  protected void checkVisible(Locator selector) {
     // Wait until visible
-    waitUntil(visibilityOfElementLocated(selector));
+    waitUntil(BrowserCondition.visible(selector));
+  }
+
+  /**
+   * Check element is visible
+   *
+   * @param selector Selector
+   * @deprecated Selenium specific. Use {@link #checkVisible(Locator)}. It stays available through the whole 5.x line and
+   * is not removed before 6.0
+   */
+  @Deprecated
+  protected void checkVisible(By selector) {
+    checkVisible(locator(selector));
   }
 
   /**
@@ -2620,7 +3555,7 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param cssSelector CSS selector
    */
   protected void checkNotVisible(String cssSelector) {
-    checkNotVisible(By.cssSelector(cssSelector));
+    checkNotVisible(Locator.css(cssSelector));
   }
 
   /**
@@ -2628,9 +3563,21 @@ public class SeleniumUtilities implements IAweInstructions {
    *
    * @param selector selector
    */
+  protected void checkNotVisible(Locator selector) {
+    // Wait until not visible
+    waitUntil(BrowserCondition.invisible(selector));
+  }
+
+  /**
+   * Check element is not visible
+   *
+   * @param selector selector
+   * @deprecated Selenium specific. Use {@link #checkNotVisible(Locator)}. It stays available through the whole 5.x line
+   * and is not removed before 6.0
+   */
+  @Deprecated
   protected void checkNotVisible(By selector) {
-    // Wait until visible
-    waitUntil(invisibilityOfElementLocated(selector));
+    checkNotVisible(locator(selector));
   }
 
   /**
@@ -2639,16 +3586,16 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param url Start url
    */
   protected void goToUrl(String url) {
-    assertNotNull(seleniumModel.getDriver());
+    assertNotNull(getBrowser());
     seleniumModel.setCurrentOption("login");
 
     log.info("Launching tests with '{}' browser: {}'", properties.getBrowser(), seleniumModel.getBaseUrl());
 
     // Set driver timeout
-    seleniumModel.getDriver().manage().timeouts().scriptTimeout(properties.getTimeout());
+    getBrowser().setScriptTimeout(properties.getTimeout());
 
     // Open page in different browsers
-    seleniumModel.getDriver().get(url);
+    getBrowser().open(url);
 
     // Show mouse if defined
     if (properties.isShowMouse()) {
@@ -2668,6 +3615,176 @@ public class SeleniumUtilities implements IAweInstructions {
    * @param checkText   Text to check inside selector
    */
   protected void checkLogin(String username, String password, String cssSelector, String checkText) {
+    // Fill the login form and submit it
+    submitLogin(username, password);
+
+    // Wait for login result or authenticated shell readiness
+    waitForExpectedSelectorResult(cssSelector, checkText);
+
+    // Assertion
+    checkText(cssSelector, checkText);
+  }
+
+  /**
+   * Make sure that the user is logged in: it does nothing when the application already shows that user, logs in when
+   * nobody is logged in, and logs the other user out first when another user is. It lets a test class start from
+   * whatever state the browser has (a new browser, or the page that an earlier test left), so a test does not depend on a
+   * login done by another one. A test that checks the login itself uses {@link #checkLogin(String, String, String)}.
+   *
+   * @param username Login of the user
+   * @param password Password
+   * @param userName Name that the application shows for the logged user (the whole name, not a part of it)
+   */
+  protected void ensureLoggedIn(String username, String password, String userName) {
+    String shown = shownLoggedUser();
+    if (userName.equals(shown)) {
+      return;
+    }
+    if (shown != null) {
+      logOut();
+    }
+    checkLogin(username, password, userName);
+  }
+
+  /**
+   * Make sure that nobody is logged in: it does nothing when no user is shown (the login screen, or a page that is not the
+   * application), and logs out when one is, with the logout of the application (it accepts the confirmation when the
+   * application asks for it). It lets a test class that checks the login start from the login screen whatever the browser
+   * showed before. A test that checks the logout itself uses {@link #checkLogout()}.
+   */
+  protected void ensureLoggedOut() {
+    if (shownLoggedUser() != null) {
+      logOut();
+    }
+  }
+
+  /**
+   * Log out with the logout that the application uses
+   */
+  private void logOut() {
+    if (frontEndInstructions.logoutNeedsConfirmation()) {
+      checkLogoutWithConfirmation();
+    } else {
+      checkLogout();
+    }
+  }
+
+  /**
+   * Read the name that the application shows for the logged user. It does not wait for the user to appear, but it waits a
+   * little for a name that is not filled yet (the avatar is drawn before its name)
+   *
+   * @return Name of the logged user, or null when none is shown or none could be read
+   */
+  private String shownLoggedUser() {
+    Locator loggedUser = locator(frontEndInstructions.getLoggedUser());
+    try {
+      if (!getBrowser().isVisible(loggedUser)) {
+        return null;
+      }
+      String shown = getBrowser().text(loggedUser).trim();
+      return shown.isEmpty() ? waitForLoggedUserName(loggedUser) : shown;
+    } catch (ElementNotFoundException | ElementReplacedException exc) {
+      // The page changed while it was read: there is no logged user to rely on
+      return null;
+    }
+  }
+
+  /**
+   * Wait, for a short time, until the avatar of the logged user shows a name
+   *
+   * @param loggedUser Locator of the logged user
+   * @return The name, or null when it did not arrive: the user is not recognised, neither as the expected one nor as another
+   */
+  private String waitForLoggedUserName(Locator loggedUser) {
+    AtomicReference<String> shown = new AtomicReference<>();
+    BrowserCondition named = BrowserCondition.of("the name of the logged user to be shown", browser -> {
+      try {
+        shown.set(browser.isVisible(loggedUser) ? browser.text(loggedUser).trim() : "");
+      } catch (ElementNotFoundException | ElementReplacedException exc) {
+        shown.set("");
+      }
+      return !shown.get().isEmpty();
+    });
+    Duration timeout = properties.getTimeout().compareTo(LOGGED_USER_NAME_TIMEOUT) < 0 ? properties.getTimeout() : LOGGED_USER_NAME_TIMEOUT;
+    try {
+      poll(named, timeout, LOGGED_USER_NAME_INTERVAL);
+      return shown.get();
+    } catch (BrowserPoll.PollTimeoutException exc) {
+      log.debug("The logged user showed no name: {}", exc.getMessage());
+      return null;
+    }
+  }
+
+  /**
+   * Log into the application and check the name of the logged user
+   *
+   * @param username Login of the user
+   * @param password Password
+   * @param userName Name that the application shows for the logged user
+   */
+  protected void checkLogin(String username, String password, String userName) {
+    By loggedUser = frontEndInstructions.getLoggedUser();
+
+    // Fill the login form and submit it
+    submitLogin(username, password);
+
+    // Wait for the authenticated shell
+    waitForExpectedSelectorResult(loggedUser, userName);
+
+    // Assertion
+    checkText(loggedUser, userName);
+  }
+
+  /**
+   * Try to log into the application with credentials that the application rejects, and check the message
+   *
+   * @param username    Login of the user
+   * @param password    Password
+   * @param messageType Type of the message that the application shows (success, info, warning, danger)
+   * @param title       Title of the message
+   * @param message     Text of the message
+   */
+  protected void checkLoginRejected(String username, String password, String messageType, String title, String message) {
+    By messageText = frontEndInstructions.getMessageText(messageType);
+
+    // Fill the login form and submit it
+    submitLogin(username, password);
+
+    // Wait for the message of the login screen
+    waitForExpectedSelectorResult(messageText, message);
+
+    // Assertions
+    checkText(messageText, message);
+    checkMessageTitle(messageType, title);
+  }
+
+  /**
+   * Check that a field of the login form holds the text that was typed in it
+   *
+   * @param criterionName Criterion of the field
+   * @param expected      Typed text
+   * @return The field holds the text, or it is not there any more
+   */
+  private boolean loginFieldHolds(String criterionName, String expected) {
+    Locator input = locator(frontEndInstructions.getCriterionInput(frontEndInstructions.getCriterionCss(criterionName)));
+    try {
+      return expected.equals(getBrowser().attribute(input, "value"));
+    } catch (ElementNotFoundException exc) {
+      // A field that is not there is not filled again: the login has moved on
+      return true;
+    } catch (ElementReplacedException exc) {
+      // The form was drawn again while it was read, and a new form comes back empty
+      return false;
+    }
+  }
+
+  /**
+   * Fill the login form and submit it
+   *
+   * @param username Login of the user
+   * @param password Password
+   */
+  private void submitLogin(String username, String password) {
     // Go to base URL
     goToUrl(seleniumModel.getBaseUrl());
 
@@ -2684,17 +3801,18 @@ public class SeleniumUtilities implements IAweInstructions {
     // Write password
     writeText("pwd_usr", password);
 
+    // A login form that is initialized again while it is being filled (right after a logout) loses what was typed
+    if (!loginFieldHolds("cod_usr", username) || !loginFieldHolds("pwd_usr", password)) {
+      log.warn("The login form was cleared while it was being filled, filling it again");
+      writeText("cod_usr", username);
+      writeText("pwd_usr", password);
+    }
+
     // Wait for login button to be clickable
     waitForButtonClickability("ButLogIn");
 
     // Click button
     clickButton("ButLogIn", true);
-
-    // Wait for login result or authenticated shell readiness
-    waitForExpectedSelectorResult(cssSelector, checkText);
-
-    // Assertion
-    checkText(cssSelector, checkText);
   }
 
   /**
@@ -2718,6 +3836,90 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Log out the application and check that the login screen is shown
+   */
+  protected void checkLogout() {
+    logout(false);
+  }
+
+  /**
+   * Log out of an application that asks for a confirmation first, and check that the login screen
+   * is shown
+   */
+  protected void checkLogoutWithConfirmation() {
+    logout(true);
+  }
+
+  /**
+   * Ask to log out, close the confirmation with the Escape key and check that the application stays logged in
+   */
+  protected void checkLogoutCancelledWithEscape() {
+    By confirmAccept = By.id("confirm-accept");
+
+    // Test title
+    setTestTitle("Logout cancelled: close the confirmation with the Escape key");
+
+    // Ask to log out
+    clickLogoutButton();
+    waitUntil(toBeVisible(confirmAccept));
+
+    // Pause 300 ms
+    pause(300);
+
+    // Close the confirmation with the Escape key
+    getBrowser().press(Key.ESCAPE);
+    waitUntil(toBeInvisible(confirmAccept));
+
+    // The logout did not run: the login screen is not shown
+    waitForLoadingBar();
+    waitUntil(toBeInvisible(frontEndInstructions.getLoginScreenMarker()));
+
+    // Close the user menu that holds the logout button, so the next step finds it closed
+    if (frontEndInstructions.getUserMenuButtonId() != null) {
+      getBrowser().press(Key.ESCAPE);
+      waitUntil(toBeInvisible(frontEndInstructions.getButton("ButLogOut")));
+    }
+  }
+
+  /**
+   * Log out the application and check that the login screen is shown
+   *
+   * @param confirm Accept the confirmation that the application asks for
+   */
+  private void logout(boolean confirm) {
+    By marker = frontEndInstructions.getLoginScreenMarker();
+
+    // Test title
+    setTestTitle("Logout test: Log out the application");
+
+    // Click on logout
+    clickLogoutButton();
+
+    // Accept the confirmation
+    if (confirm) {
+      acceptConfirm();
+    }
+
+    // Wait for the login screen
+    waitForSelector(marker);
+    checkText(marker, frontEndInstructions.getLoginScreenText());
+  }
+
+  /**
+   * Click on the logout button, opening the user menu first when the button is inside it
+   */
+  private void clickLogoutButton() {
+    // Wait for element not visible
+    waitForLoadingBar();
+
+    // Open the user menu when the logout button is inside it
+    Optional.ofNullable(frontEndInstructions.getUserMenuButtonId()).ifPresent(this::clickInfoButton);
+
+    // Click on logout
+    clickButton("ButLogOut", true);
+  }
+
+  /**
    * Select module in module list
    *
    * @param moduleName Module name
@@ -2731,6 +3933,47 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Wait for loading bar
     waitForLoadingBar();
+
+    // Close the settings panel with its own button, so it is not left over the toolbar of the next screen while it fades
+    // out. The button toggles the panel, and the AngularJS panel (a dropdown) may already be closed by the click on the
+    // module option, as Firefox does: a click then would open it again. Click it only when the panel is still open.
+    By module = frontEndInstructions.getCriterion("module");
+    Duration closeTimeout = properties.getTimeout().compareTo(SETTINGS_PANEL_CLOSE_TIMEOUT) < 0 ? properties.getTimeout() : SETTINGS_PANEL_CLOSE_TIMEOUT;
+    if (!isMetWithin(toBeInvisible(module), closeTimeout)) {
+      clickInfoButton("ButSetTog");
+    }
+    waitUntil(toBeInvisible(module));
+  }
+
+  /**
+   * Make sure that a module is selected: it does nothing when the menu of the module is already shown, and selects the
+   * module otherwise. It lets a test class choose the module it needs without depending on another test having done it.
+   * A test that checks the module selection itself uses {@link #selectModule(String)}.
+   *
+   * @param moduleName Module name
+   * @param menuOption Menu option that only the module shows
+   */
+  protected void ensureModule(String moduleName, String menuOption) {
+    Locator option = locator(frontEndInstructions.getMenuOptionItem(menuOption));
+    if (isVisibleNow(option)) {
+      return;
+    }
+    selectModule(moduleName);
+    checkVisible(option);
+  }
+
+  /**
+   * Check, without waiting, that an element is visible; an element that changes or goes away while it is read is not
+   *
+   * @param selector Locator of the element
+   * @return The element is visible
+   */
+  private boolean isVisibleNow(Locator selector) {
+    try {
+      return getBrowser().isVisible(selector);
+    } catch (ElementNotFoundException | ElementReplacedException exc) {
+      return false;
+    }
   }
 
   /**
@@ -2757,5 +4000,3782 @@ public class SeleniumUtilities implements IAweInstructions {
 
     // Accept message
     checkAndCloseMessage("info");
+  }
+  /*
+  =================================
+  SEMANTIC STEPS
+
+  Steps that tests can express without selectors or automation types: the front end instructions locate what they ask
+  for (see IAweFrontEndInstructions), so the same step runs on every client.
+  =================================
+  */
+
+  /**
+   * Check the title of a message
+   *
+   * @param messageType Message type (success, info, warning, danger)
+   * @param text        Expected title
+   */
+  protected void checkMessageTitle(String messageType, String text) {
+    By selector = frontEndInstructions.getMessageTitle(messageType);
+    waitForSelector(selector);
+    checkText(selector, text);
+  }
+
+  /**
+   * Check the text of a message
+   *
+   * @param messageType Message type (success, info, warning, danger)
+   * @param text        Expected text
+   */
+  protected void checkMessageText(String messageType, String text) {
+    By selector = frontEndInstructions.getMessageText(messageType);
+    waitForSelector(selector);
+    checkText(selector, text);
+  }
+
+  /**
+   * Check the popover of a target message shown over a component
+   *
+   * @param component Id of the component the message points at
+   * @param title     Expected title
+   * @param text      Expected text
+   */
+  protected void checkMessagePopover(String component, String title, String text) {
+    waitForSelector(frontEndInstructions.getMessagePopover(component));
+    checkText(frontEndInstructions.getMessagePopoverTitle(component), title);
+    checkText(frontEndInstructions.getMessagePopoverText(component), text);
+  }
+
+  /**
+   * Wait for the popover of a target message to hide (after the timeout of its type, or when it is dismissed)
+   *
+   * @param component Id of the component the message points at
+   */
+  protected void waitForMessagePopoverToHide(String component) {
+    waitUntil(toBeInvisible(frontEndInstructions.getMessagePopover(component)));
+  }
+
+  /**
+   * Dismiss the popover of a target message before its timeout, as a user does, and wait for it to hide
+   *
+   * @param component Id of the component the message points at
+   */
+  protected void dismissMessagePopover(String component) {
+    By mask = frontEndInstructions.getMessagePopoverMask();
+    if (mask != null) {
+      click(mask);
+    } else {
+      getBrowser().press(Key.ESCAPE);
+    }
+    waitForMessagePopoverToHide(component);
+  }
+
+  /**
+   * Check that an option of the application menu is visible and contains a text
+   *
+   * @param option Option name
+   * @param text   Text that the option contains
+   */
+  protected void checkMenuOption(String option, String text) {
+    By selector = frontEndInstructions.getMenuOptionItem(option);
+    checkVisible(locator(selector));
+    waitForText(locator(selector), text);
+  }
+
+  /**
+   * Check the description (secondary line) that a card of a launcher page shows
+   *
+   * @param option Option name of the card
+   * @param text   Expected description
+   */
+  protected void checkLauncherCardDescription(String option, String text) {
+    By selector = frontEndInstructions.getLauncherCardDescription(option);
+    waitForSelector(selector);
+    checkText(selector, text);
+  }
+
+  /**
+   * Check that a card of a launcher page has no description
+   *
+   * @param option Option name of the card
+   */
+  protected void checkLauncherCardWithoutDescription(String option) {
+    checkNotVisible(locator(frontEndInstructions.getLauncherCardDescription(option)));
+  }
+
+  /**
+   * Check that the breadcrumb of the page is visible and contains a text
+   *
+   * @param text Text that the breadcrumb contains
+   */
+  protected void checkBreadcrumbContains(String text) {
+    By selector = frontEndInstructions.getBreadcrumb();
+    checkVisible(locator(selector));
+    waitForText(locator(selector), text);
+  }
+
+  /**
+   * Check that the current page of the breadcrumb (its last level, marked as the current page) shows a text
+   *
+   * @param text Text of the current page
+   */
+  protected void checkBreadcrumbCurrentPage(String text) {
+    By selector = frontEndInstructions.getBreadcrumbCurrentPage();
+    waitForSelector(selector);
+    waitForText(locator(selector), text);
+  }
+
+  /**
+   * Click on a level of the breadcrumb that is a menu option, a group or a screen the user came from, and wait for the
+   * client to finish
+   *
+   * @param option Option name of the level
+   */
+  protected void clickBreadcrumbLevel(String option) {
+    // The page may still have server tasks pending (a suggest that loads late): the client drops an option launched
+    // while they run, as it does with the menu
+    waitForLoadingBar();
+    By selector = frontEndInstructions.getBreadcrumbLevel(option);
+    waitForSelector(selector);
+    clickSelector(selector);
+    waitForLoadingBar();
+  }
+
+  /**
+   * Check that a criterion is not in the page at all, neither shown nor hidden (for instance one in a tab page that is
+   * not shown)
+   *
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionNotPresent(String criterionName) {
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getCriterion(criterionName))));
+  }
+
+  /**
+   * Check the label of a criterion
+   *
+   * @param criterionName Criterion name
+   * @param text          Expected label
+   */
+  protected void checkCriterionLabel(String criterionName, String text) {
+    By selector = frontEndInstructions.getCriterionLabel(criterionName);
+    waitForSelector(selector);
+    checkText(selector, text);
+  }
+
+  /**
+   * Check the unit addon of a criterion
+   *
+   * @param criterionName Criterion name
+   * @param text          Expected unit
+   */
+  protected void checkCriterionUnit(String criterionName, String text) {
+    By selector = frontEndInstructions.getCriterionUnit(criterionName);
+    waitForSelector(selector);
+    checkText(selector, text);
+  }
+
+  /**
+   * Check that the screen shows validation errors
+   */
+  protected void checkValidationErrorVisible() {
+    checkVisible(locator(frontEndInstructions.getValidationError()));
+  }
+
+  /**
+   * Click on a day of the open datepicker that can be picked
+   */
+  protected void clickEnabledDatepickerDay() {
+    click(frontEndInstructions.getEnabledDatepickerDay());
+  }
+
+  /**
+   * Check the number of the active step of a wizard
+   *
+   * @param number Expected number of the step
+   */
+  protected void checkActiveWizardStep(String number) {
+    checkVisible(locator(frontEndInstructions.getActiveWizardStep(number)));
+  }
+
+  /**
+   * Check that a tag list contains a text
+   *
+   * @param tagListId Tag list identifier
+   * @param text      Text that the tag list contains
+   */
+  protected void checkTagListContains(String tagListId, String text) {
+    By selector = frontEndInstructions.getTagList(tagListId);
+    checkVisible(locator(selector));
+    checkTextContains(selector, text);
+  }
+
+  /**
+   * Check that a pivot table is drawn and displayed
+   *
+   * @param pivotTableId Pivot table identifier
+   */
+  protected void checkPivotTableVisible(String pivotTableId) {
+    checkVisible(locator(frontEndInstructions.getPivotTable(pivotTableId)));
+  }
+
+  /**
+   * Check that a chart is displayed
+   *
+   * @param chartId Chart identifier
+   */
+  protected void checkChartVisible(String chartId) {
+    checkVisible(locator(frontEndInstructions.getChart(chartId)));
+  }
+
+  /**
+   * Check that a map is displayed with its markers drawn (React client only)
+   *
+   * @param mapId Map identifier
+   */
+  protected void checkMapVisible(String mapId) {
+    checkVisible(locator(frontEndInstructions.getMap(mapId)));
+  }
+
+  /**
+   * Check how many markers a map shows (React client only)
+   *
+   * @param mapId Map identifier
+   * @param count Expected number of markers
+   */
+  protected void checkMapMarkerCount(String mapId, int count) {
+    Locator markers = locator(frontEndInstructions.getMapMarkers(mapId));
+    waitUntil(BrowserCondition.of("map " + mapId + " to show " + count + " markers",
+      browser -> browser.count(markers) == count));
+  }
+
+  /**
+   * Click on the marker of a row of a map (React client only)
+   *
+   * @param mapId Map identifier
+   * @param rowId Row identifier (the value of the marker)
+   */
+  protected void clickMapMarker(String mapId, String rowId) {
+    click(frontEndInstructions.getMapMarker(mapId, rowId));
+  }
+
+  /**
+   * Check that the marker of a row of a map is selected (React client only)
+   *
+   * @param mapId Map identifier
+   * @param rowId Row identifier (the value of the marker)
+   */
+  protected void checkMapMarkerSelected(String mapId, String rowId) {
+    checkVisible(locator(frontEndInstructions.getMapMarkerSelected(mapId, rowId)));
+  }
+
+  /**
+   * Check that a map draws a route (React client only)
+   *
+   * @param mapId Map identifier
+   */
+  protected void checkMapRouteVisible(String mapId) {
+    checkVisible(locator(frontEndInstructions.getMapRoute(mapId)));
+  }
+
+  /**
+   * Zoom a chart in with the mouse wheel over its center
+   *
+   * @param chartId Chart identifier
+   */
+  protected void zoomChart(String chartId) {
+    By selector = frontEndInstructions.getChart(chartId);
+    checkVisible(locator(selector));
+    try {
+      getBrowser().wheel(locator(selector), CHART_ZOOM_WHEEL);
+    } catch (Exception exc) {
+      assertWithScreenshot("Zooming the chart: " + chartId + "\n" + exc.getMessage(), false, exc);
+    }
+  }
+
+  /**
+   * Check that a chart is zoomed (it shows a part of its range)
+   *
+   * @param chartId Chart identifier
+   */
+  protected void checkChartZoomed(String chartId) {
+    checkVisible(locator(frontEndInstructions.getChartZoomed(chartId)));
+  }
+
+  /**
+   * Wait until the log viewer shows a text
+   *
+   * @param text Text that the log contains
+   */
+  protected void checkLogViewerContains(String text) {
+    By selector = frontEndInstructions.getLogViewer();
+    waitForText(locator(selector), text);
+    checkTextContains(selector, text);
+  }
+
+  /**
+   * Wait until the file viewer shows a text
+   *
+   * @param text Text that the file contains
+   */
+  protected void checkFileViewerContains(String text) {
+    By selector = frontEndInstructions.getFileViewer();
+    waitForText(locator(selector), text);
+    checkTextContains(selector, text);
+  }
+
+  /**
+   * Check a text inside the frame that embeds an external application. The frame is the only one of the screen, and the
+   * content is the one of the external application, so the selector of the element to read is supplied by the caller
+   *
+   * @param contentCssSelector CSS selector of the element to read, inside the embedded application
+   * @param text               Expected text
+   */
+  protected void checkTextInEmbeddedFrame(String contentCssSelector, String text) {
+    By frameSelector = frontEndInstructions.getEmbeddedFrame();
+
+    // Wait for the frame
+    waitForSelector(frameSelector);
+
+    // Check inside the frame, and return to the page afterwards
+    getBrowser().inFrame(locator(frameSelector), () -> checkText(contentCssSelector, text));
+  }
+
+  /**
+   * Invalidate the session of the user from another window, as if it had been closed on the server
+   */
+  protected void invalidateSession() {
+    getBrowser().executeScript("var winNew = window.open('" + getBaseUrl()
+      + "session/invalidate','_blank', 'width=1, height=1');setTimeout(function(){ winNew.close();}, 1000);");
+  }
+
+  /**
+   * Check that a button is displayed, whatever its state
+   *
+   * @param buttonId Button identifier
+   */
+  protected void checkButtonVisible(String buttonId) {
+    checkVisible(locator(frontEndInstructions.getAnyButton(buttonId)));
+  }
+
+  /**
+   * Check that a button is not displayed
+   *
+   * @param buttonId Button identifier
+   */
+  protected void checkButtonNotVisible(String buttonId) {
+    checkNotVisible(locator(frontEndInstructions.getAnyButton(buttonId)));
+  }
+
+  /**
+   * Check that a button has a style class (for instance one added by an add-class action)
+   *
+   * @param buttonId Button identifier
+   * @param cssClass Style class
+   */
+  protected void checkButtonHasClass(String buttonId, String cssClass) {
+    waitUntil(toBePresent(frontEndInstructions.getButtonWithClass(buttonId, cssClass)));
+  }
+
+  /**
+   * Check the text of a button, enabled or not
+   *
+   * @param buttonId Button identifier
+   * @param text     Expected text
+   */
+  protected void checkButtonText(String buttonId, String text) {
+    checkText(frontEndInstructions.getAnyButton(buttonId), text);
+  }
+
+  /**
+   * Check that a button is displayed and disabled
+   *
+   * @param buttonId Button identifier
+   */
+  protected void checkButtonDisabled(String buttonId) {
+    checkVisible(locator(frontEndInstructions.getDisabledButton(buttonId)));
+  }
+
+  /**
+   * Check that a grid exists in the screen, even if it is hidden
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridPresent(String gridId) {
+    waitUntil(toBePresent(frontEndInstructions.getGrid(gridId)));
+  }
+
+  /**
+   * Check that a grid is not displayed
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridNotVisible(String gridId) {
+    checkNotVisible(locator(frontEndInstructions.getGrid(gridId)));
+  }
+
+  /**
+   * Check that a grid is not in the page at all, neither shown nor hidden (for instance the nested grid of a row detail
+   * once the row closes or its grid reloads)
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridNotPresent(String gridId) {
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGrid(gridId))));
+  }
+
+  /**
+   * Check that the cells of a grid show text and nothing active: no script, frame, image, form or event handler, and no
+   * link to a script url. The grid has to show at least one cell
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridCellsHaveNoActiveContent(String gridId) {
+    waitUntil(BrowserCondition.allOf(toBePresent(frontEndInstructions.getGridCells(gridId)), checkIfGridLoaderIsNotVisible()));
+    By selector = frontEndInstructions.getGridCellsActiveContent(gridId);
+    assertWithScreenshot("The cells of the grid " + gridId + " have active content (" + selector + ")",
+      !toBePresent(selector).isMet(getBrowser()));
+  }
+
+  /**
+   * Check that the rows of a grid are in a given order, reading the values of one of its columns
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param expected Values of the column, in the order the rows are expected to be shown
+   */
+  protected void checkGridColumnOrder(String gridId, String columnId, String... expected) {
+    Locator cells = locator(frontEndInstructions.getGridColumnCells(gridId, columnId));
+    List<String> expectedValues = List.of(expected);
+    BrowserCondition inOrder = BrowserCondition.of("the column " + columnId + " of the grid " + gridId + " to show " + expectedValues,
+      browser -> {
+        try {
+          return browser.texts(cells).stream().map(String::trim).toList().equals(expectedValues);
+        } catch (ElementReplacedException exc) {
+          return false;
+        }
+      });
+    waitUntil(BrowserCondition.allOf(inOrder, checkIfGridLoaderIsNotVisible()));
+  }
+
+  /**
+   * Check that a row of a grid with move-rows shows the grip that drags it
+   *
+   * @param gridId    Grid identifier
+   * @param rowNumber Position of the row, starting at 1
+   */
+  protected void checkGridRowGripShown(String gridId, int rowNumber) {
+    waitUntil(BrowserCondition.visible(locator(frontEndInstructions.getGridRowGrip(gridId, rowNumber))));
+  }
+
+  /**
+   * Drag a row of a grid with move-rows by its grip and drop it on the upper half of another row, so it lands just above it
+   *
+   * @param gridId          Grid identifier
+   * @param rowNumber       Position of the row that is dragged, starting at 1
+   * @param targetRowNumber Position of the row it is dropped on, starting at 1
+   */
+  protected void dragGridRowBefore(String gridId, int rowNumber, int targetRowNumber) {
+    dragGridRow(gridId, rowNumber, targetRowNumber, DROP_UPPER_HALF);
+  }
+
+  /**
+   * Drag a row of a grid with move-rows by its grip and drop it on the lower half of another row, so it lands just below it
+   *
+   * @param gridId          Grid identifier
+   * @param rowNumber       Position of the row that is dragged, starting at 1
+   * @param targetRowNumber Position of the row it is dropped on, starting at 1
+   */
+  protected void dragGridRowAfter(String gridId, int rowNumber, int targetRowNumber) {
+    dragGridRow(gridId, rowNumber, targetRowNumber, DROP_LOWER_HALF);
+  }
+
+  private void dragGridRow(String gridId, int rowNumber, int targetRowNumber, double targetYRatio) {
+    Locator grip = locator(frontEndInstructions.getGridRowGrip(gridId, rowNumber));
+    Locator target = locator(frontEndInstructions.getGridRowFirstCell(gridId, targetRowNumber));
+    waitUntil(BrowserCondition.visible(grip));
+    getBrowser().dragAndDrop(grip, target, targetYRatio);
+    waitUntil(checkIfGridLoaderIsNotVisible());
+  }
+
+  /**
+   * Check that every row of a grid is selected (the checkbox of its header is checked)
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkAllRowsSelected(String gridId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridHeaderCheckboxSelected(gridId)));
+  }
+
+  /**
+   * Click on the area of a grid that shows its rows (outside any row)
+   *
+   * @param gridId Grid identifier
+   */
+  protected void clickGridViewport(String gridId) {
+    click(frontEndInstructions.getGridScrollZone(gridId));
+  }
+
+  /**
+   * Check the number of rows that a grid shows in each page
+   *
+   * @param size Expected page size
+   */
+  protected void checkGridPageSize(String size) {
+    By selector = frontEndInstructions.getGridPageSize();
+    waitForSelector(selector);
+    BrowserDriver browser = getBrowser();
+    Locator pageSize = locator(selector);
+
+    // A native selector shows all its options: the page size is the selected one. A control whose text repeats the
+    // page size (a dropdown holds a hidden selector too) exposes it as a value
+    String value = browser.attribute(pageSize, TestAttributes.VALUE);
+    String shown;
+    if (value != null && !value.isEmpty()) {
+      shown = value;
+    } else if ("select".equalsIgnoreCase(browser.tagName(pageSize))) {
+      shown = browser.selectedOptionText(pageSize);
+    } else {
+      shown = browser.text(pageSize);
+    }
+    assertWithScreenshot(selector + TEXT_VALUE + shown + "' isn't equal to " + size, shown.equals(size));
+  }
+
+  /**
+   * Check the text of the paginator of a grid that tells the range of rows shown and the total (for instance
+   * {@code View 1 - 10 of 25})
+   *
+   * @param text Expected text
+   */
+  protected void checkGridPaginationInfo(String text) {
+    checkText(frontEndInstructions.getGridPaginationInfo(), text);
+  }
+
+  /**
+   * Check that a grid has its paginator
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridPaginationPresent(String gridId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridPagination(gridId)));
+  }
+
+  /**
+   * Check that a grid has no paginator at all, neither shown nor hidden (for instance a grid with pagination disabled
+   * and without buttons)
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridPaginationNotPresent(String gridId) {
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridPagination(gridId))));
+  }
+
+  /**
+   * Go to the next page of a grid with its paginator and wait for the grid to load. The AngularJS client has a hook for
+   * it in its compact pager only
+   */
+  protected void clickGridNextPage() {
+    click(frontEndInstructions.getGridPageNext());
+    waitForLoadingGrid();
+  }
+
+  /**
+   * Go to a page of a grid typing it on the go to page input of its paginator, which shows the current page, and
+   * pressing Enter, and wait for the grid to load. In the AngularJS client the input is in the wide pager only, when the
+   * grid has more than one page
+   *
+   * @param page Page to go to (the first one is 1)
+   */
+  protected void goToGridPage(int page) {
+    Locator input = locator(frontEndInstructions.getGridGotoPage());
+    waitUntil(BrowserCondition.present(input));
+    getBrowser().clear(input);
+    writeText(input, String.valueOf(page));
+    getBrowser().press(input, Key.ENTER);
+    waitForLoadingGrid();
+  }
+
+  /**
+   * Check that an option of the radio of a cell of a grid (a radio or a button-radio column) is the chosen one
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param optionId Value of the option
+   */
+  protected void checkGridRadioChoice(String gridId, String rowId, String columnId, String optionId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridRadioChecked(gridId, rowId, columnId, optionId, true)));
+  }
+
+  /**
+   * Check that no option of the radio of a cell of a grid is chosen
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridRadioNoChoice(String gridId, String rowId, String columnId) {
+    waitUntil(BrowserCondition.allOf(
+      toBePresent(frontEndInstructions.getGridRadioInput(gridId, rowId, columnId)),
+      BrowserCondition.not(toBePresent(frontEndInstructions.getGridRadioChecked(gridId, rowId, columnId, null, true)))));
+  }
+
+  /**
+   * Choose an option of the radio of a cell of a grid (a radio or a button-radio column) with a click
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param optionId Value of the option
+   */
+  protected void selectGridRadioOption(String gridId, String rowId, String columnId, String optionId) {
+    By selector = frontEndInstructions.getGridRadioOption(gridId, rowId, columnId, optionId);
+    waitUntil(toBePresent(selector));
+    click(selector);
+  }
+
+  /**
+   * Move the choice of a grid cell to the next option with the right arrow key, from the chosen option of the cell
+   * (or from its first one when there is none). It works the same in a radio column and in a button-radio column
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void moveGridRadioChoiceNext(String gridId, String rowId, String columnId) {
+    pressKeyOnGridRadio(gridId, rowId, columnId, Key.ARROW_RIGHT);
+  }
+
+  /**
+   * Move the choice of a grid cell to the previous option with the left arrow key, from the chosen option of the cell
+   * (or from its first one when there is none). It works the same in a radio column and in a button-radio column
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void moveGridRadioChoicePrevious(String gridId, String rowId, String columnId) {
+    pressKeyOnGridRadio(gridId, rowId, columnId, Key.ARROW_LEFT);
+  }
+
+  /**
+   * Press a key on the radio of a cell of a grid: the chosen option (or the first one) gets the focus, as when the user
+   * tabs to it, and the key goes to it. A click would not do, because the input of a radio is hidden behind its own look
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param key      Key to press
+   */
+  private void pressKeyOnGridRadio(String gridId, String rowId, String columnId, Key key) {
+    By chosen = frontEndInstructions.getGridRadioChecked(gridId, rowId, columnId, null, true);
+    By selector = getBrowser().count(locator(chosen)) > 0 ? chosen : frontEndInstructions.getGridRadioInput(gridId, rowId, columnId);
+    waitUntil(toBePresent(selector));
+    getBrowser().executeScriptOn(locator(selector), "arguments[0].focus();");
+    getBrowser().press(key);
+  }
+
+  /**
+   * Check that a grid without rows shows its empty state with a title and a text
+   *
+   * @param title Text that the title contains
+   * @param text  Text that the text contains
+   */
+  protected void checkGridEmptyState(String title, String text) {
+    checkVisible(locator(frontEndInstructions.getGridEmpty()));
+    checkTextContains(frontEndInstructions.getGridEmptyTitle(), title);
+    checkTextContains(frontEndInstructions.getGridEmptyText(), text);
+  }
+
+  /**
+   * Check that no grid shows its empty state
+   */
+  protected void checkGridEmptyStateNotVisible() {
+    checkNotVisible(locator(frontEndInstructions.getGridEmpty()));
+  }
+
+  /**
+   * Click the button that the empty state of a grid offers
+   */
+  protected void clickGridEmptyAction() {
+    click(frontEndInstructions.getGridEmptyAction());
+  }
+
+  /**
+   * Click the toggle of the detail of a row of a grid, which opens the detail when it is closed and closes it when it is
+   * open
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void clickGridRowDetailToggle(String gridId, String rowId) {
+    click(frontEndInstructions.getGridRowDetailToggle(gridId, rowId));
+  }
+
+  /**
+   * Press Enter on the toggle of the detail of a row of a grid. The toggle gets the focus as when the user tabs to it: a
+   * click would toggle the detail too
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void pressEnterOnGridRowDetailToggle(String gridId, String rowId) {
+    focusGridRowDetailToggle(gridId, rowId);
+    getBrowser().press(Key.ENTER);
+  }
+
+  /**
+   * Press Space on the toggle of the detail of a row of a grid. The toggle gets the focus as when the user tabs to it: a
+   * click would toggle the detail too
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void pressSpaceOnGridRowDetailToggle(String gridId, String rowId) {
+    getBrowser().sendKeys(focusGridRowDetailToggle(gridId, rowId), " ");
+  }
+
+  /**
+   * Give the focus to the toggle of the detail of a row of a grid, without clicking it
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   * @return Toggle locator
+   */
+  private Locator focusGridRowDetailToggle(String gridId, String rowId) {
+    By toggle = frontEndInstructions.getGridRowDetailToggle(gridId, rowId);
+    waitUntil(toBeVisible(toggle));
+    getBrowser().executeScriptOn(locator(toggle), "arguments[0].focus();");
+    return locator(toggle);
+  }
+
+  /**
+   * Check that the detail of a row of a grid is open with a text, and that its toggle says so ({@code aria-expanded}) and
+   * points to it ({@code aria-controls} is the id of the detail)
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   * @param text   Text that the detail contains, with its line breaks
+   */
+  protected void checkGridRowDetailOpen(String gridId, String rowId, String text) {
+    Locator toggle = locator(frontEndInstructions.getGridRowDetailToggle(gridId, rowId));
+    Locator detail = locator(frontEndInstructions.getGridRowDetail(gridId, rowId));
+    waitUntil(BrowserCondition.allOf(toSayThatTheDetailIs(toggle, true), BrowserCondition.visible(detail),
+      BrowserCondition.textContains(detail, text)));
+    String controls = getBrowser().attribute(toggle, "aria-controls");
+    String detailId = getBrowser().attribute(detail, "id");
+    assertWithScreenshot("The toggle of the row " + rowId + " of " + gridId + " controls '" + controls + "', not its detail '" + detailId + "'",
+      controls != null && controls.equals(detailId));
+  }
+
+  /**
+   * Check the label that the toggle of the detail of a row of a grid gives to assistive technologies ({@code aria-label}),
+   * which tells whether it shows or hides the detail
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   * @param label  Expected label, in the language of the user
+   */
+  protected void checkGridRowDetailToggleLabel(String gridId, String rowId, String label) {
+    Locator toggle = locator(frontEndInstructions.getGridRowDetailToggle(gridId, rowId));
+    waitUntil(BrowserCondition.of("the toggle of the detail of the row " + rowId + " of " + gridId + " to be labelled '" + label + "'",
+      browser -> {
+        try {
+          return label.equals(browser.attribute(toggle, "aria-label"));
+        } catch (ElementReplacedException exc) {
+          return false;
+        }
+      }));
+  }
+
+  /**
+   * Check that the detail of a row of a grid is closed, and that its toggle says so ({@code aria-expanded})
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkGridRowDetailClosed(String gridId, String rowId) {
+    waitUntil(toSayThatTheDetailIs(locator(frontEndInstructions.getGridRowDetailToggle(gridId, rowId)), false));
+    checkNotVisible(locator(frontEndInstructions.getGridRowDetail(gridId, rowId)));
+  }
+
+  /**
+   * Check that no row of a grid has its detail open: no detail is shown and no toggle says that its detail is open
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkNoGridRowDetailOpen(String gridId) {
+    String toggles = locator(frontEndInstructions.getGridRowDetailToggle(gridId, null)).expression();
+    waitUntil(BrowserCondition.allOf(
+      BrowserCondition.noneVisible(locator(frontEndInstructions.getGridRowDetail(gridId, null))),
+      BrowserCondition.of("no toggle of the details of the rows of " + gridId + " to say that its detail is open", browser ->
+        browser.executeScript(OPEN_ROW_DETAIL_TOGGLES_SCRIPT, toggles) instanceof Number open && open.intValue() == 0)));
+  }
+
+  /**
+   * Condition: the toggle of the detail of a row is shown and says that the detail is open or closed
+   * ({@code aria-expanded}), which is what assistive technologies announce
+   *
+   * @param toggle Toggle locator
+   * @param isOpen True for an open detail, false for a closed one
+   * @return Condition
+   */
+  private static BrowserCondition toSayThatTheDetailIs(Locator toggle, boolean isOpen) {
+    String expanded = String.valueOf(isOpen);
+    return BrowserCondition.of("toggle located by " + toggle + " to have aria-expanded " + expanded, browser -> {
+      try {
+        return browser.isVisible(toggle) && expanded.equals(browser.attribute(toggle, "aria-expanded"));
+      } catch (ElementReplacedException exc) {
+        return false;
+      }
+    });
+  }
+
+  /**
+   * Check that the detail of a row of a grid has some style classes, as the {@code style} of the row detail of the grid
+   * assigns them
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param cssClass Style classes, separated by spaces
+   */
+  protected void checkGridRowDetailHasClass(String gridId, String rowId, String cssClass) {
+    waitUntil(toBeVisible(frontEndInstructions.getGridRowDetailWithClass(gridId, rowId, cssClass)));
+  }
+
+  /**
+   * Check the value that the browser computes for a style property of the detail of a row of a grid, which proves that
+   * the style rules of its classes reach the page
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param property Css property ({@code border-left-width})
+   * @param value    Expected computed value ({@code 4px})
+   */
+  protected void checkGridRowDetailComputedStyle(String gridId, String rowId, String property, String value) {
+    Locator detail = locator(frontEndInstructions.getGridRowDetail(gridId, rowId));
+    waitUntil(BrowserCondition.of("the " + property + " of the detail of the row " + rowId + " of " + gridId + " to be " + value,
+      browser -> browser.isVisible(detail) && value.equals(String.valueOf(
+        browser.executeScriptOn(detail, "return getComputedStyle(arguments[0]).getPropertyValue(arguments[1]);", property)))));
+  }
+
+  /**
+   * Check that the detail of a row of a grid starts right under its row (a few pixels at most) and is about as wide as
+   * the row (90% at least)
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkGridRowDetailUnderItsRow(String gridId, String rowId) {
+    By row = frontEndInstructions.getGridRow(gridId, rowId);
+    By detail = frontEndInstructions.getGridRowDetail(gridId, rowId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(row), toBeVisible(detail)));
+    String rowBox = String.valueOf(getBrowser().executeScriptOn(locator(row), BOX_SCRIPT));
+    String detailBox = String.valueOf(getBrowser().executeScriptOn(locator(detail), BOX_SCRIPT));
+    double[] rowEdges = parseBox(rowBox);
+    double[] detailEdges = parseBox(detailBox);
+    double gap = detailEdges[0] - rowEdges[1];
+    assertWithScreenshot("The detail of the row " + rowId + " of " + gridId + " (" + detailBox + ") is not under its row (" + rowBox
+        + "): top|bottom|width", gap >= -1 && gap <= ROW_DETAIL_MAX_GAP && detailEdges[2] >= rowEdges[2] * ROW_DETAIL_MIN_WIDTH);
+  }
+
+  /**
+   * Check that the detail of a row of a grid is about as wide as the visible part of the grid (90% at least), even when
+   * the columns of the grid are narrower
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkGridRowDetailAcrossGrid(String gridId, String rowId) {
+    By detail = frontEndInstructions.getGridRowDetail(gridId, rowId);
+    By visiblePart = frontEndInstructions.getGridScrollZone(gridId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(detail), toBeVisible(visiblePart)));
+    String detailBox = String.valueOf(getBrowser().executeScriptOn(locator(detail), BOX_SCRIPT));
+    Object visibleWidth = getBrowser().executeScriptOn(locator(visiblePart), CLIENT_WIDTH_SCRIPT);
+    double width = visibleWidth instanceof Number number ? number.doubleValue() : Double.NaN;
+    assertWithScreenshot("The detail of the row " + rowId + " of " + gridId + " (" + detailBox + ": top|bottom|width) is not as wide"
+      + " as the visible part of the grid (" + visibleWidth + ")", width > 0 && parseBox(detailBox)[2] >= width * ROW_DETAIL_MIN_WIDTH);
+  }
+
+  /**
+   * Check that the detail of a row of a grid shows a nested grid (a row detail with components)
+   *
+   * @param gridId       Grid identifier
+   * @param rowId        Row identifier
+   * @param nestedGridId Identifier of the nested grid, as the client renders it for the row ({@code GrdOrders-7})
+   */
+  protected void checkGridRowDetailHasNestedGrid(String gridId, String rowId, String nestedGridId) {
+    waitUntil(toBeVisible(frontEndInstructions.getGridRowDetailNestedGrid(gridId, rowId, nestedGridId)));
+  }
+
+  /**
+   * Check that the detail of a row of a grid holds the whole nested grid that it shows, down to its last row and across
+   * its width: the detail grows with the nested grid and does not cut it
+   *
+   * @param gridId       Grid identifier
+   * @param rowId        Row identifier
+   * @param nestedGridId Identifier of the nested grid, as the client renders it for the row ({@code GrdOrders-7})
+   */
+  protected void checkGridRowDetailHoldsNestedGrid(String gridId, String rowId, String nestedGridId) {
+    By detail = frontEndInstructions.getGridRowDetail(gridId, rowId);
+    By nested = frontEndInstructions.getGridRowDetailNestedGrid(gridId, rowId, nestedGridId);
+    By nestedRows = frontEndInstructions.getGridRow(nestedGridId, null);
+    waitUntil(BrowserCondition.allOf(toBeVisible(detail), toBeVisible(nested), toBePresent(nestedRows),
+      checkIfGridLoaderIsNotVisible()));
+    String detailBox = String.valueOf(getBrowser().executeScriptOn(locator(detail), EDGES_SCRIPT));
+    String nestedBox = String.valueOf(getBrowser().executeScriptOn(locator(nested), EDGES_SCRIPT));
+    Object lastRowBottom = getBrowser().executeScript(LAST_BOTTOM_SCRIPT, locator(nestedRows).expression());
+    double[] outer = parseNumbers(detailBox, 4);
+    double[] inner = parseNumbers(nestedBox, 4);
+    double lastBottom = lastRowBottom instanceof Number number ? number.doubleValue() : Double.NaN;
+    assertWithScreenshot("The detail of the row " + rowId + " of " + gridId + " (" + detailBox + ") does not hold the nested grid "
+        + nestedGridId + " (" + nestedBox + ") down to its last row (" + lastRowBottom + "): top|bottom|left|right",
+      inner[1] > inner[0] && inner[0] >= outer[0] - ROW_DETAIL_TOLERANCE && inner[1] <= outer[1] + ROW_DETAIL_TOLERANCE
+        && inner[2] >= outer[2] - ROW_DETAIL_TOLERANCE && inner[3] <= outer[3] + ROW_DETAIL_TOLERANCE
+        && lastBottom <= inner[1] + ROW_DETAIL_TOLERANCE);
+  }
+
+  /**
+   * Read the box of an element that {@link #BOX_SCRIPT} returns
+   *
+   * @param box Box as top|bottom|width
+   * @return Top, bottom and width (not numbers when the box is not valid)
+   */
+  private static double[] parseBox(String box) {
+    return parseNumbers(box, 3);
+  }
+
+  /**
+   * Read the numbers, separated by {@code |}, that a script returns
+   *
+   * @param numbers Numbers separated by {@code |}
+   * @param count   Number of values to read
+   * @return Values (not numbers when a value is missing or not valid)
+   */
+  private static double[] parseNumbers(String numbers, int count) {
+    String[] edges = numbers.split("\\|");
+    double[] values = new double[count];
+    Arrays.fill(values, Double.NaN);
+    for (int index = 0; index < Math.min(edges.length, values.length); index++) {
+      try {
+        values[index] = Double.parseDouble(edges[index]);
+      } catch (NumberFormatException exc) {
+        values[index] = Double.NaN;
+      }
+    }
+    return values;
+  }
+
+  /**
+   * Check that a row of a grid is shown and not selected
+   *
+   * @param gridId Grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkGridRowNotSelected(String gridId, String rowId) {
+    waitUntil(toBeVisible(frontEndInstructions.getGridRowSelected(gridId, rowId, false)));
+  }
+
+  /**
+   * Open the Columns dialog of the toolbar of a grid
+   *
+   * @param gridId Grid identifier
+   */
+  protected void openGridColumns(String gridId) {
+    click(frontEndInstructions.getGridColumnsButton(gridId));
+    waitUntil(toBeVisible(frontEndInstructions.getGridColumnsDialog(gridId)));
+  }
+
+  /**
+   * Check that the Columns of a grid are open as a popover anchored to the Columns button, as a modal dialog or as a
+   * side panel (grid attribute columns-panel)
+   *
+   * @param gridId Grid identifier
+   * @param panel  popover, dialog or side-panel
+   */
+  protected void checkGridColumnsPanel(String gridId, String panel) {
+    waitUntil(toBeVisible(frontEndInstructions.getGridColumnsPanel(gridId, panel)));
+  }
+
+  /**
+   * Close the Columns dialog of a grid
+   *
+   * @param gridId Grid identifier
+   */
+  protected void closeGridColumns(String gridId) {
+    // A reset or a save shows its outcome in the dialog when the server answers, and the centered dialog grows: a click
+    // on its way at that moment misses the Close button, so it is clicked again while the dialog and its button stay.
+    // Once the button is gone the click worked, and the dialog is only waited for
+    By dialog = frontEndInstructions.getGridColumnsDialog(gridId);
+    By close = frontEndInstructions.getGridColumnsClose(gridId);
+    Duration wait = properties.getTimeout().compareTo(EDIT_ROW_WAIT) < 0 ? properties.getTimeout() : EDIT_ROW_WAIT;
+    for (int attempt = 1; attempt <= CLOSE_COLUMNS_ATTEMPTS && getBrowser().exists(locator(close)); attempt++) {
+      if (attempt > 1) {
+        log.warn("The Columns dialog of {} is still open: click {} of {} on Close", gridId, attempt, CLOSE_COLUMNS_ATTEMPTS);
+      }
+      click(close);
+      try {
+        poll(BrowserCondition.not(toBePresent(dialog)), wait);
+        return;
+      } catch (BrowserPoll.PollTimeoutException exc) {
+        log.debug("The Columns dialog of {} did not close within {}", gridId, wait, exc);
+      }
+    }
+    waitUntil(BrowserCondition.not(toBePresent(dialog)));
+  }
+
+  /**
+   * Check the counter of the Columns dialog of a grid: how many columns are shown of the ones it lists
+   *
+   * @param gridId  Grid identifier
+   * @param visible Columns shown
+   * @param total   Columns listed
+   */
+  protected void checkGridColumnsCounter(String gridId, int visible, int total) {
+    waitUntil(toBePresent(frontEndInstructions.getGridColumnsCounter(gridId, String.valueOf(visible), String.valueOf(total))));
+  }
+
+  /**
+   * Check that the Columns dialog of a grid lists a column. The columns that the screen hides never appear in it
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridColumnsListed(String gridId, String columnId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridColumnsItem(gridId, columnId)));
+  }
+
+  /**
+   * Check that the Columns dialog of a grid does not list a column
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridColumnsNotListed(String gridId, String columnId) {
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridColumnsItem(gridId, columnId))));
+  }
+
+  /**
+   * Hide a column of a grid unchecking it in the Columns dialog (that has to be open)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void hideGridColumn(String gridId, String columnId) {
+    setGridColumnChecked(gridId, columnId, false);
+  }
+
+  /**
+   * Show a column of a grid checking it in the Columns dialog (that has to be open)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void showGridColumn(String gridId, String columnId) {
+    setGridColumnChecked(gridId, columnId, true);
+  }
+
+  private void setGridColumnChecked(String gridId, String columnId, boolean checked) {
+    By checkbox = frontEndInstructions.getGridColumnsCheckbox(gridId, columnId);
+    waitUntil(toBePresent(checkbox));
+    Object current = getBrowser().executeScriptOn(locator(checkbox), "return arguments[0].checked;");
+    if (!Boolean.valueOf(checked).equals(current)) {
+      click(checkbox);
+    }
+  }
+
+  /**
+   * Move a column of a grid one position up with its arrow in the Columns dialog (that has to be open)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void moveGridColumnUp(String gridId, String columnId) {
+    clickGridColumnArrow(gridId, columnId, frontEndInstructions.getGridColumnsMoveUp(gridId, columnId));
+  }
+
+  /**
+   * Move a column of a grid one position down with its arrow in the Columns dialog (that has to be open)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void moveGridColumnDown(String gridId, String columnId) {
+    clickGridColumnArrow(gridId, columnId, frontEndInstructions.getGridColumnsMoveDown(gridId, columnId));
+  }
+
+  // The arrows of a column only show on the row under the pointer (or with the focus), as a user sees them: the row
+  // is hovered before its arrow is clicked
+  private void clickGridColumnArrow(String gridId, String columnId, By arrow) {
+    By item = frontEndInstructions.getGridColumnsItem(gridId, columnId);
+    waitUntil(toBeVisible(item));
+    getBrowser().hover(locator(item));
+    click(arrow);
+  }
+
+  /**
+   * Check that a column cannot move up in the Columns dialog of a grid: it is the first one of its group header
+   * (or the first column without group), because a column never leaves its group
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridColumnCannotMoveUp(String gridId, String columnId) {
+    checkGridColumnArrowDisabled(frontEndInstructions.getGridColumnsMoveUp(gridId, columnId));
+  }
+
+  /**
+   * Check that a column cannot move down in the Columns dialog of a grid: it is the last one of its group header
+   * (or the last column without group), because a column never leaves its group
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridColumnCannotMoveDown(String gridId, String columnId) {
+    checkGridColumnArrowDisabled(frontEndInstructions.getGridColumnsMoveDown(gridId, columnId));
+  }
+
+  private void checkGridColumnArrowDisabled(By arrow) {
+    waitUntil(toBePresent(arrow));
+    Object disabled = getBrowser().executeScriptOn(locator(arrow), "return arguments[0].disabled === true;");
+    assertWithScreenshot("The arrow " + arrow + " is enabled", Boolean.TRUE.equals(disabled));
+  }
+
+  /**
+   * Show all the columns of a grid with the action of its Columns dialog
+   *
+   * @param gridId Grid identifier
+   * @deprecated The Columns no longer have a Show all action: check each hidden column instead with
+   * {@link #showGridColumn(String, String)}. It stays available through the whole 5.x line and is not removed before 6.0
+   */
+  @Deprecated
+  protected void clickGridColumnsShowAll(String gridId) {
+    click(frontEndInstructions.getGridColumnsShowAll(gridId));
+  }
+
+  /**
+   * Go back to the definition of the screen with the action of the Columns dialog of a grid, which also removes the layout
+   * that the user saved. It is silent (no message when it works): the step waits until the server answers, when the
+   * Columns are no longer {@code aria-busy}. A warning or an error of the server is still shown as a message
+   *
+   * @param gridId Grid identifier
+   */
+  protected void clickGridColumnsReset(String gridId) {
+    click(frontEndInstructions.getGridColumnsReset(gridId));
+    waitForGridColumnsCall(gridId);
+  }
+
+  /**
+   * Save the layout of a grid as the default of the user with the action of its Columns dialog. It is silent (no message
+   * when it works) and closes the Columns (popover, dialog or side panel) when the server answers that the layout was
+   * saved: the step waits until they are closed. When the layout is not saved the Columns stay open (a warning or an
+   * error of the server is still shown as a message) and the step fails
+   *
+   * @param gridId Grid identifier
+   */
+  protected void clickGridColumnsSave(String gridId) {
+    click(frontEndInstructions.getGridColumnsSave(gridId));
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridColumnsDialog(gridId))));
+  }
+
+  private void waitForGridColumnsCall(String gridId) {
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridColumnsBusy(gridId))));
+  }
+
+  /**
+   * Undo the changes made in the Columns dialog of a grid since it was opened (or since the last reset) with
+   * its Cancel action, which also closes it
+   *
+   * @param gridId Grid identifier
+   */
+  protected void clickGridColumnsCancel(String gridId) {
+    click(frontEndInstructions.getGridColumnsCancel(gridId));
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getGridColumnsDialog(gridId))));
+  }
+
+  /**
+   * Check the order of the visible columns of a grid, from left to right. The columns have to be shown
+   *
+   * @param gridId    Grid identifier
+   * @param columnIds Columns in the order they are expected
+   */
+  protected void checkGridColumnsLeftToRight(String gridId, String... columnIds) {
+    String script = "return arguments[0].getBoundingClientRect().left;";
+    double previous = Double.NEGATIVE_INFINITY;
+    for (String columnId : columnIds) {
+      By header = frontEndInstructions.getGridHeader(gridId, columnId);
+      waitUntil(toBeVisible(header));
+      Object measured = getBrowser().executeScriptOn(locator(header), script);
+      double left = measured instanceof Number number ? number.doubleValue() : Double.NaN;
+      assertWithScreenshot("The column " + columnId + " of the grid " + gridId + " is not after the previous one: " + left + " <= " + previous,
+        left > previous);
+      previous = left;
+    }
+  }
+
+  /**
+   * Check that a column of a grid is not shown
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridColumnNotShown(String gridId, String columnId) {
+    waitUntil(BrowserCondition.not(toBeVisible(frontEndInstructions.getGridHeader(gridId, columnId))));
+  }
+
+  /**
+   * Check that a group header of a grid spans exactly over its first and its last visible columns, so hiding any column of
+   * the group keeps the header aligned with the ones that are shown
+   *
+   * @param gridId        Grid identifier
+   * @param title         Title of the group header
+   * @param firstColumnId First visible column of the group
+   * @param lastColumnId  Last visible column of the group
+   */
+  protected void checkGridGroupHeaderOver(String gridId, String title, String firstColumnId, String lastColumnId) {
+    By group = frontEndInstructions.getGridGroupHeader(gridId, title);
+    By first = frontEndInstructions.getGridHeader(gridId, firstColumnId);
+    By last = frontEndInstructions.getGridHeader(gridId, lastColumnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(group), toBeVisible(first), toBeVisible(last)));
+    Object groupLeft = getBrowser().executeScriptOn(locator(group), "return arguments[0].getBoundingClientRect().left;");
+    Object groupRight = getBrowser().executeScriptOn(locator(group), "return arguments[0].getBoundingClientRect().right;");
+    Object firstLeft = getBrowser().executeScriptOn(locator(first), "return arguments[0].getBoundingClientRect().left;");
+    Object lastRight = getBrowser().executeScriptOn(locator(last), "return arguments[0].getBoundingClientRect().right;");
+    assertWithScreenshot("The group header " + title + " of the grid " + gridId + " does not span from " + firstColumnId + " to " + lastColumnId
+        + " (" + groupLeft + "-" + groupRight + " against " + firstLeft + "-" + lastRight + ")",
+      isNear(groupLeft, firstLeft) && isNear(groupRight, lastRight));
+  }
+
+  /**
+   * Check that a grid does not show a group header: none of its columns is shown
+   *
+   * @param gridId Grid identifier
+   * @param title  Title of the group header
+   */
+  protected void checkGridGroupHeaderNotShown(String gridId, String title) {
+    waitUntil(BrowserCondition.not(toBeVisible(frontEndInstructions.getGridGroupHeader(gridId, title))));
+  }
+
+  private boolean isNear(Object first, Object second) {
+    return first instanceof Number a && second instanceof Number b && Math.abs(a.doubleValue() - b.doubleValue()) <= GROUP_HEADER_TOLERANCE;
+  }
+
+  /**
+   * Maximize a grid with the button of its toolbar
+   *
+   * @param gridId Grid identifier
+   */
+  protected void maximizeGrid(String gridId) {
+    click(frontEndInstructions.getGridMaximizeButton(gridId));
+  }
+
+  /**
+   * Restore a maximized grid with the button of its toolbar
+   *
+   * @param gridId Grid identifier
+   */
+  protected void restoreGrid(String gridId) {
+    click(frontEndInstructions.getGridMaximizeButton(gridId));
+  }
+
+  /**
+   * Check that a grid fills the content area of the screen (its maximize target), like a maximized window: its toolbar says so,
+   * the grid takes the size of the content area and the page keeps something above it (the header of the application)
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridMaximized(String gridId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridToolbarMaximized(gridId, true)));
+    checkFillsMaximizeTarget("grid " + gridId, frontEndInstructions.getGrid(gridId));
+  }
+
+  /**
+   * Check that an element fills its maximize target (the content area) and leaves the header of the application above it
+   *
+   * @param description Description of the element for the failure message
+   * @param element     Element selector
+   */
+  private void checkFillsMaximizeTarget(String description, By element) {
+    waitUntil(toBeVisible(element));
+    // Smallest ratio between the sizes of the element and of its maximize target (0 when it has none)
+    Object fill = getBrowser().executeScriptOn(locator(element), "const target = arguments[0].closest('.maximize-target'); if (!target) { return 0; } "
+      + "const g = arguments[0].getBoundingClientRect(); const t = target.getBoundingClientRect(); "
+      + "return Math.min(g.width / t.width, t.width / g.width, g.height / t.height, t.height / g.height);");
+    Object top = getBrowser().executeScriptOn(locator(element), "return arguments[0].getBoundingClientRect().top;");
+    assertWithScreenshot("The " + description + " does not fill the content area (" + fill + " of its size) or covers the header (" + top + "px from the top)",
+      fill instanceof Number f && top instanceof Number t && f.doubleValue() >= MAXIMIZED_MIN_FILL && t.doubleValue() > 0);
+  }
+
+  /**
+   * Check that a grid does not fill the window
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridNotMaximized(String gridId) {
+    waitUntil(toBePresent(frontEndInstructions.getGridToolbarMaximized(gridId, false)));
+    checkNotFixed("grid " + gridId, frontEndInstructions.getGrid(gridId));
+  }
+
+  /**
+   * Wait until an element that was maximized is back in the layout of the page (it is no longer fixed over the content area)
+   *
+   * @param description Description of the element for the failure message
+   * @param element     Element selector
+   */
+  private void checkNotFixed(String description, By element) {
+    waitUntil(BrowserCondition.of("the " + description + " to stop being fixed over the content area",
+      browser -> !"fixed".equals(browser.executeScriptOn(locator(element), "return window.getComputedStyle(arguments[0]).position;"))));
+  }
+
+  /**
+   * Maximize a window with its Maximize button
+   *
+   * @param windowId Window identifier
+   */
+  protected void maximizeWindow(String windowId) {
+    click(frontEndInstructions.getWindowMaximizeButton(windowId));
+  }
+
+  /**
+   * Restore a maximized window with its Restore button
+   *
+   * @param windowId Window identifier
+   */
+  protected void restoreWindow(String windowId) {
+    click(frontEndInstructions.getWindowMaximizeButton(windowId));
+  }
+
+  /**
+   * Check that a window fills the content area of the screen (its maximize target) and keeps the header of the application above it
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkWindowMaximized(String windowId) {
+    waitUntil(toBePresent(frontEndInstructions.getWindow(windowId, true)));
+    checkFillsMaximizeTarget("window " + windowId, frontEndInstructions.getWindow(windowId, true));
+  }
+
+  /**
+   * Check that a window is not maximized
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkWindowNotMaximized(String windowId) {
+    waitUntil(toBePresent(frontEndInstructions.getWindow(windowId, false)));
+    checkNotFixed("window " + windowId, frontEndInstructions.getWindow(windowId, false));
+  }
+
+  /**
+   * Click the advanced filters toggle of a window (#790), in the row of its advanced block: it shows or hides the block
+   * below the row in an inline window, and opens the side panel of a side-panel window
+   *
+   * @param windowId Window identifier
+   */
+  protected void toggleAdvancedFilters(String windowId) {
+    click(frontEndInstructions.getWindowAdvancedToggle(windowId));
+  }
+
+  /**
+   * Check that the advanced block of an inline window is open: its advanced filters toggle says so ({@code aria-expanded})
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkAdvancedFiltersOpen(String windowId) {
+    waitUntil(toSayThatTheDetailIs(locator(frontEndInstructions.getWindowAdvancedToggle(windowId)), true));
+  }
+
+  /**
+   * Check that the advanced block of an inline window is closed: its advanced filters toggle says so ({@code aria-expanded})
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkAdvancedFiltersClosed(String windowId) {
+    waitUntil(toSayThatTheDetailIs(locator(frontEndInstructions.getWindowAdvancedToggle(windowId)), false));
+  }
+
+  /**
+   * Close the advanced block of an inline window when it is open, and leave it as it is when it is closed. The open state
+   * is remembered for the user (#790), so a test can start from a closed block whatever an earlier run left
+   *
+   * @param windowId Window identifier
+   */
+  protected void closeAdvancedFilters(String windowId) {
+    Locator toggle = locator(frontEndInstructions.getWindowAdvancedToggle(windowId));
+    waitUntil(BrowserCondition.anyOf(toSayThatTheDetailIs(toggle, true), toSayThatTheDetailIs(toggle, false)));
+    if (Boolean.parseBoolean(getBrowser().attribute(toggle, "aria-expanded"))) {
+      toggleAdvancedFilters(windowId);
+    }
+    checkAdvancedFiltersClosed(windowId);
+  }
+
+  /**
+   * Check the badge of the advanced filters toggle of a window: the number of advanced criteria whose value differs from
+   * their default. The badge is not shown when there is none
+   *
+   * @param windowId Window identifier
+   * @param count    Expected number (0 when the badge is not shown)
+   */
+  protected void checkAdvancedFiltersCount(String windowId, int count) {
+    waitUntil(toBeVisible(frontEndInstructions.getWindowAdvancedToggle(windowId)));
+    if (count == 0) {
+      checkNotVisible(locator(frontEndInstructions.getWindowAdvancedCount(windowId)));
+    } else {
+      checkText(frontEndInstructions.getWindowAdvancedCount(windowId), String.valueOf(count));
+    }
+  }
+
+  /**
+   * Check that a window has no advanced search: it shows no advanced filters toggle and no filters in effect, as a window
+   * without an advanced block
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkNoAdvancedFilters(String windowId) {
+    waitUntil(toBeVisible(frontEndInstructions.getWindow(windowId)));
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getWindowAdvancedToggle(windowId))));
+    waitUntil(BrowserCondition.not(toBePresent(frontEndInstructions.getWindowFilterChips(windowId))));
+  }
+
+  /**
+   * Check that the filters in effect of a window show the chip of a criterion, marked as a hidden advanced filter or not
+   *
+   * @param windowId    Window identifier
+   * @param criterionId Criterion identifier
+   * @param hidden      True when the chip must be marked as a hidden advanced filter
+   */
+  protected void checkFilterChip(String windowId, String criterionId, boolean hidden) {
+    checkVisible(locator(frontEndInstructions.getWindowFilterChip(windowId, criterionId, hidden)));
+  }
+
+  /**
+   * Check that the filters in effect of a window do not show the chip of a criterion
+   *
+   * @param windowId    Window identifier
+   * @param criterionId Criterion identifier
+   */
+  protected void checkNoFilterChip(String windowId, String criterionId) {
+    checkNotVisible(locator(frontEndInstructions.getWindowFilterChip(windowId, criterionId)));
+  }
+
+  /**
+   * Check that a window shows no filters in effect: every criterion has its default value
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkNoFilterChips(String windowId) {
+    checkNotVisible(locator(frontEndInstructions.getWindowFilterChips(windowId)));
+  }
+
+  /**
+   * Remove the chip of a criterion from the filters in effect of a window: the criterion goes back to its default
+   *
+   * @param windowId    Window identifier
+   * @param criterionId Criterion identifier
+   */
+  protected void removeFilterChip(String windowId, String criterionId) {
+    click(frontEndInstructions.getWindowFilterChipRemove(windowId, criterionId));
+  }
+
+  /**
+   * Click Clear all in the filters in effect of a window: every criterion of the window goes back to its default
+   *
+   * @param windowId Window identifier
+   */
+  protected void clearAllFilters(String windowId) {
+    click(frontEndInstructions.getWindowFilterClearAll(windowId));
+  }
+
+  /**
+   * Open the autofilter menu of a column of a grid (#912) from its funnel, and wait for its values
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void openGridColumnFilter(String gridId, String columnId) {
+    click(frontEndInstructions.getGridColumnFilter(gridId, columnId));
+    checkVisible(locator(frontEndInstructions.getGridColumnFilterMenu(gridId, columnId)));
+    waitUntil(toBeClickable(frontEndInstructions.getGridColumnFilterAccept(gridId)));
+  }
+
+  /**
+   * Check or uncheck a value of the open autofilter menu of a grid
+   *
+   * @param gridId Grid identifier
+   * @param value  Value (the code the column filters, not its label)
+   * @param check  True to check it, false to uncheck it
+   */
+  protected void checkGridColumnFilterValue(String gridId, String value, boolean check) {
+    click(frontEndInstructions.getGridColumnFilterValue(gridId, value, !check));
+    checkVisible(locator(frontEndInstructions.getGridColumnFilterValue(gridId, value, check)));
+  }
+
+  /**
+   * Accept the open autofilter menu of a column of a grid: the grid is filtered and the menu closes
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void acceptGridColumnFilter(String gridId, String columnId) {
+    click(frontEndInstructions.getGridColumnFilterAccept(gridId));
+    checkNotVisible(locator(frontEndInstructions.getGridColumnFilterMenu(gridId, columnId)));
+  }
+
+  /**
+   * Check that the funnel of a column of a grid shows whether the column is filtered
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param filtered True when the column must be filtered
+   */
+  protected void checkGridColumnFiltered(String gridId, String columnId, boolean filtered) {
+    checkVisible(locator(frontEndInstructions.getGridColumnFilter(gridId, columnId, filtered)));
+  }
+
+  /**
+   * Check the chip of a column in the column filters in effect of a grid: the label of the column and the summary of its
+   * filter
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param text     Text of the chip ("Status: Inactive")
+   */
+  protected void checkGridColumnFilterChip(String gridId, String columnId, String text) {
+    checkText(frontEndInstructions.getGridColumnFilterChip(gridId, columnId), text);
+  }
+
+  /**
+   * Check that a grid shows no column filters in effect
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkNoGridColumnFilterChips(String gridId) {
+    checkNotVisible(locator(frontEndInstructions.getGridColumnFilterChips(gridId)));
+  }
+
+  /**
+   * Remove the chip of a column from the column filters in effect of a grid: the grid is reloaded without its filter
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void removeGridColumnFilterChip(String gridId, String columnId) {
+    click(frontEndInstructions.getGridColumnFilterChipRemove(gridId, columnId));
+  }
+
+  /**
+   * Check that the side panel with the advanced criteria of a window is open
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkAdvancedFiltersPanelOpen(String windowId) {
+    checkVisible(locator(frontEndInstructions.getOpenWindowAdvancedPanel(windowId)));
+  }
+
+  /**
+   * Check that the side panel with the advanced criteria of a window is closed
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkAdvancedFiltersPanelClosed(String windowId) {
+    checkNotVisible(locator(frontEndInstructions.getOpenWindowAdvancedPanel(windowId)));
+  }
+
+  /**
+   * Click Reset to defaults in the side panel of a window: its advanced criteria go back to their defaults
+   *
+   * @param windowId Window identifier
+   */
+  protected void resetAdvancedFilters(String windowId) {
+    click(frontEndInstructions.getWindowAdvancedPanelButton(windowId, TestIds.WINDOW_ADVANCED_RESET));
+  }
+
+  /**
+   * Click Cancel in the side panel of a window: it closes and its advanced criteria get back the values they had when it
+   * opened
+   *
+   * @param windowId Window identifier
+   */
+  protected void cancelAdvancedFilters(String windowId) {
+    click(frontEndInstructions.getWindowAdvancedPanelButton(windowId, TestIds.WINDOW_ADVANCED_CANCEL));
+  }
+
+  /**
+   * Click Show results in the side panel of a window: it closes and the submit button of the window is launched, as Enter
+   * in a criterion does. It waits for the search to end
+   *
+   * @param windowId Window identifier
+   */
+  protected void applyAdvancedFilters(String windowId) {
+    click(frontEndInstructions.getWindowAdvancedPanelButton(windowId, TestIds.WINDOW_ADVANCED_APPLY));
+    waitForLoadingBar();
+  }
+
+  /**
+   * Get a part of the saved searches of a window that is found by its hook
+   *
+   * @param windowId Window identifier
+   * @param testId   Hook of the part
+   * @return Part selector
+   */
+  private By savedSearchesPart(String windowId, String testId) {
+    return frontEndInstructions.getWindowSavedSearchesPart(windowId, testId);
+  }
+
+  /**
+   * Open the menu of the saved searches of a window (#790, {@code saved-searches="true"}) and wait for its searches to
+   * load. A menu that is already open is left as it is. The steps of the saved searches of a window work on the saved
+   * searches of a grid too (#912): they take the grid identifier as window identifier
+   *
+   * @param windowId Window identifier (or grid identifier)
+   */
+  protected void openSavedSearches(String windowId) {
+    By button = savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES);
+    Locator toggle = locator(button);
+    waitUntil(BrowserCondition.anyOf(toSayThatTheDetailIs(toggle, true), toSayThatTheDetailIs(toggle, false)));
+    if (!Boolean.parseBoolean(getBrowser().attribute(toggle, "aria-expanded"))) {
+      click(button);
+    }
+    checkVisible(locator(frontEndInstructions.getWindowSavedSearchesMenu(windowId)));
+  }
+
+  /**
+   * Close the menu of the saved searches of a window when it is open
+   *
+   * @param windowId Window identifier
+   */
+  protected void closeSavedSearches(String windowId) {
+    By button = savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES);
+    Locator toggle = locator(button);
+    waitUntil(BrowserCondition.anyOf(toSayThatTheDetailIs(toggle, true), toSayThatTheDetailIs(toggle, false)));
+    if (Boolean.parseBoolean(getBrowser().attribute(toggle, "aria-expanded"))) {
+      click(button);
+    }
+    checkNotVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES_MENU)));
+  }
+
+  /**
+   * Apply a saved search of a window from its menu, by its name: every search criterion of the window goes back to its
+   * default, takes the values of the search, and the search of the window is launched. It waits for the search to end
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   */
+  protected void applySavedSearch(String windowId, String name) {
+    openSavedSearches(windowId);
+    click(frontEndInstructions.getWindowSavedSearchItem(windowId, name));
+    checkNotVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES_MENU)));
+    waitForLoadingBar();
+  }
+
+  /**
+   * Check that the menu of the saved searches of a window lists a search, among the searches of the user (My searches)
+   * or among the ones shared with its profile. The menu is opened when it is not, and left open
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @param own      True for a search of the user, false for a search shared with its profile
+   */
+  protected void checkSavedSearchListed(String windowId, String name, boolean own) {
+    openSavedSearches(windowId);
+    checkVisible(locator(frontEndInstructions.getWindowSavedSearchItem(windowId, name, own)));
+  }
+
+  /**
+   * Check that the menu of the saved searches of a window does not list a search. The menu is opened when it is not, and
+   * left open
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   */
+  protected void checkSavedSearchNotListed(String windowId, String name) {
+    openSavedSearches(windowId);
+    checkNotVisible(locator(frontEndInstructions.getWindowSavedSearchItem(windowId, name)));
+  }
+
+  /**
+   * Tell whether the menu of the saved searches of a window lists a search, so a test can remove what an earlier run
+   * left before it starts. The menu is opened when it is not, and left open
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @return The menu lists the search
+   */
+  protected boolean hasSavedSearch(String windowId, String name) {
+    openSavedSearches(windowId);
+    return isVisibleNow(locator(frontEndInstructions.getWindowSavedSearchItem(windowId, name)));
+  }
+
+  /**
+   * Check the text of the Saved searches button of a window: "Saved searches", or the name of the search applied while
+   * the criteria keep its values
+   *
+   * @param windowId Window identifier
+   * @param text     Expected text
+   */
+  protected void checkSavedSearchesText(String windowId, String text) {
+    Locator button = locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES));
+    waitUntil(BrowserCondition.allOf(BrowserCondition.visible(button),
+      BrowserCondition.of("Saved searches button of " + windowId + " to read '" + text + "'",
+        browser -> browser.exists(button) && text.equals(browser.text(button).replaceAll("\\s+", " ").trim()))));
+  }
+
+  /**
+   * Check that a window has no saved searches: it does not opt in ({@code saved-searches}), so it shows no Saved searches
+   * button
+   *
+   * @param windowId Window identifier
+   */
+  protected void checkNoSavedSearches(String windowId) {
+    waitUntil(toBeVisible(frontEndInstructions.getWindow(windowId)));
+    waitUntil(BrowserCondition.not(toBePresent(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCHES))));
+  }
+
+  /**
+   * Open the Save search dialog of a window from the menu of its saved searches
+   *
+   * @param windowId Window identifier
+   */
+  protected void openSaveSearch(String windowId) {
+    openSavedSearches(windowId);
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_SAVE));
+    checkVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_DIALOG)));
+  }
+
+  /**
+   * Close the Save search dialog of a window with its Cancel button, without saving
+   *
+   * @param windowId Window identifier
+   */
+  protected void cancelSaveSearch(String windowId) {
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_CANCEL));
+    checkNotVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_DIALOG)));
+  }
+
+  /**
+   * Save the current values of the search criteria of a window as a search of the user: Save current search, the name
+   * and Save. A search of the user with the same name gets the new values. It waits for the dialog to close
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   */
+  protected void saveCurrentSearch(String windowId, String name) {
+    saveCurrentSearch(windowId, name, null);
+  }
+
+  /**
+   * Save the current values of the search criteria of a window: Save current search, the name, the profile to publish it
+   * for (only a user who may publish has the select) and Save. It waits for the dialog to close
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @param profile  Text of the option of the profile to publish the search for (the name of the profile, or Only me),
+   *                 or null to keep Only me
+   */
+  protected void saveCurrentSearch(String windowId, String name, String profile) {
+    openSaveSearch(windowId);
+    Locator input = locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_NAME));
+    waitUntil(BrowserCondition.visible(input));
+    getBrowser().clear(input);
+    writeText(input, name);
+    if (profile != null) {
+      click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_PROFILE));
+      click(frontEndInstructions.getWindowSavedSearchProfileOption(windowId, profile));
+    }
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_ACCEPT));
+    checkNotVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_DIALOG)));
+    waitForLoadingBar();
+  }
+
+  /**
+   * Check whether the Save search dialog of a window lets the user publish the search for a profile: the profile select
+   * is shown only to a user who may publish. It opens the dialog and closes it with Cancel
+   *
+   * @param windowId   Window identifier
+   * @param canPublish True when the user may publish
+   */
+  protected void checkSaveSearchCanPublish(String windowId, boolean canPublish) {
+    openSaveSearch(windowId);
+    Locator profile = locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_PROFILE));
+    if (canPublish) {
+      checkVisible(profile);
+    } else {
+      checkNotVisible(profile);
+    }
+    cancelSaveSearch(windowId);
+  }
+
+  /**
+   * Open the Manage searches dialog of a window from the menu of its saved searches
+   *
+   * @param windowId Window identifier
+   */
+  protected void openManageSearches(String windowId) {
+    openSavedSearches(windowId);
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_MANAGE));
+    checkVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_MANAGE_DIALOG)));
+  }
+
+  /**
+   * Close the Manage searches dialog of a window with its Close button
+   *
+   * @param windowId Window identifier
+   */
+  protected void closeManageSearches(String windowId) {
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_MANAGE_CLOSE));
+    checkNotVisible(locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_MANAGE_DIALOG)));
+  }
+
+  /**
+   * Rename a saved search of a window in its Manage searches dialog, which it opens and closes: the rename button of its
+   * row, the new name and accept
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   * @param newName  New name
+   */
+  protected void renameSavedSearch(String windowId, String name, String newName) {
+    openManageSearches(windowId);
+    click(frontEndInstructions.getWindowSavedSearchRowButton(windowId, name, TestIds.WINDOW_SAVED_SEARCH_RENAME));
+    Locator input = locator(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_RENAME_INPUT));
+    waitUntil(BrowserCondition.visible(input));
+    getBrowser().clear(input);
+    writeText(input, newName);
+    click(savedSearchesPart(windowId, TestIds.WINDOW_SAVED_SEARCH_RENAME_ACCEPT));
+    checkVisible(locator(frontEndInstructions.getWindowSavedSearchRow(windowId, newName)));
+    closeManageSearches(windowId);
+  }
+
+  /**
+   * Delete a saved search of a window in its Manage searches dialog, which it opens and closes: the delete button of its
+   * row and the accept button of the confirmation
+   *
+   * @param windowId Window identifier
+   * @param name     Name of the search
+   */
+  protected void deleteSavedSearch(String windowId, String name) {
+    openManageSearches(windowId);
+    click(frontEndInstructions.getWindowSavedSearchRowButton(windowId, name, TestIds.WINDOW_SAVED_SEARCH_DELETE));
+    click(frontEndInstructions.getWindowSavedSearchDeleteConfirm(windowId));
+    checkNotVisible(locator(frontEndInstructions.getWindowSavedSearchRow(windowId, name)));
+    closeManageSearches(windowId);
+  }
+
+  /**
+   * Check whether the user may rename and delete a saved search of a window: its row in the Manage searches dialog has
+   * the rename and delete buttons or none. It opens the dialog and closes it
+   *
+   * @param windowId  Window identifier
+   * @param name      Name of the search
+   * @param canChange True when the user may rename and delete the search
+   */
+  protected void checkSavedSearchCanBeChanged(String windowId, String name, boolean canChange) {
+    openManageSearches(windowId);
+    checkVisible(locator(frontEndInstructions.getWindowSavedSearchRow(windowId, name)));
+    for (String button : List.of(TestIds.WINDOW_SAVED_SEARCH_RENAME, TestIds.WINDOW_SAVED_SEARCH_DELETE)) {
+      Locator action = locator(frontEndInstructions.getWindowSavedSearchRowButton(windowId, name, button));
+      if (canChange) {
+        checkVisible(action);
+      } else {
+        checkNotVisible(action);
+      }
+    }
+    closeManageSearches(windowId);
+  }
+
+  /**
+   * Check that a criterion is shown
+   *
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionVisible(String criterionName) {
+    checkVisible(locator(frontEndInstructions.getCriterion(criterionName)));
+  }
+
+  /**
+   * Check that a criterion is not shown (it may still be in the page, hidden)
+   *
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionNotVisible(String criterionName) {
+    checkNotVisible(locator(frontEndInstructions.getCriterion(criterionName)));
+  }
+
+  /**
+   * Get the vertical position of the advanced filters toggle of a window in the viewport, to check later that it has not
+   * moved (the advanced block opens below its row)
+   *
+   * @param windowId Window identifier
+   * @return Top of the toggle in pixels
+   */
+  protected double getAdvancedFiltersToggleTop(String windowId) {
+    return getBox(frontEndInstructions.getWindowAdvancedToggle(windowId))[0];
+  }
+
+  /**
+   * Check that the advanced filters toggle of a window is at a vertical position of the viewport, give or take a pixel
+   *
+   * @param windowId Window identifier
+   * @param top      Expected top of the toggle in pixels, as {@link #getAdvancedFiltersToggleTop(String)} returns it
+   */
+  protected void checkAdvancedFiltersToggleTop(String windowId, double top) {
+    double shown = getAdvancedFiltersToggleTop(windowId);
+    assertWithScreenshot("The advanced filters toggle of " + windowId + " has moved from " + top + "px to " + shown + "px",
+      Math.abs(shown - top) <= ROW_DETAIL_TOLERANCE);
+  }
+
+  /**
+   * Check that a criterion is shown below the advanced filters row of its window, as the advanced criteria of an inline
+   * window when they are shown
+   *
+   * @param windowId      Window identifier
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionBelowAdvancedFilters(String windowId, String criterionName) {
+    double[] toggle = getBox(frontEndInstructions.getWindowAdvancedToggle(windowId));
+    double[] criterion = getBox(frontEndInstructions.getCriterion(criterionName));
+    assertWithScreenshot("The criterion " + criterionName + " (top " + criterion[0] + "px) is not below the advanced filters toggle of "
+      + windowId + " (bottom " + toggle[1] + "px)", criterion[0] >= toggle[1] - ROW_DETAIL_TOLERANCE);
+  }
+
+  /**
+   * Check that a criterion is shown above the advanced filters row of its window, as its essential criteria
+   *
+   * @param windowId      Window identifier
+   * @param criterionName Criterion name
+   */
+  protected void checkCriterionAboveAdvancedFilters(String windowId, String criterionName) {
+    double[] toggle = getBox(frontEndInstructions.getWindowAdvancedToggle(windowId));
+    double[] criterion = getBox(frontEndInstructions.getCriterion(criterionName));
+    assertWithScreenshot("The criterion " + criterionName + " (bottom " + criterion[1] + "px) is not above the advanced filters toggle of "
+      + windowId + " (top " + toggle[0] + "px)", criterion[1] <= toggle[0] + ROW_DETAIL_TOLERANCE);
+  }
+
+  /**
+   * Get the box of a visible element in the viewport
+   *
+   * @param selector Element selector
+   * @return Top, bottom and width in pixels
+   */
+  private double[] getBox(By selector) {
+    waitUntil(toBeVisible(selector));
+    return parseBox(String.valueOf(getBrowser().executeScriptOn(locator(selector), BOX_SCRIPT)));
+  }
+
+  /**
+   * Maximize a tab component (tab list and content) with its Maximize button
+   *
+   * @param tabId Tab identifier
+   */
+  protected void maximizeTab(String tabId) {
+    click(frontEndInstructions.getTabMaximizeButton(tabId));
+  }
+
+  /**
+   * Restore a maximized tab component with its Restore button
+   *
+   * @param tabId Tab identifier
+   */
+  protected void restoreTab(String tabId) {
+    click(frontEndInstructions.getTabMaximizeButton(tabId));
+  }
+
+  /**
+   * Check that a tab component fills the content area of the screen (its maximize target) and keeps the header of the application above it
+   *
+   * @param tabId Tab identifier
+   */
+  protected void checkTabMaximized(String tabId) {
+    waitUntil(toBePresent(frontEndInstructions.getTabComponent(tabId, true)));
+    checkFillsMaximizeTarget("tab " + tabId, frontEndInstructions.getTabComponent(tabId, true));
+  }
+
+  /**
+   * Check that a tab component is not maximized
+   *
+   * @param tabId Tab identifier
+   */
+  protected void checkTabNotMaximized(String tabId) {
+    waitUntil(toBePresent(frontEndInstructions.getTabComponent(tabId, false)));
+    checkNotFixed("tab " + tabId, frontEndInstructions.getTabComponent(tabId, false));
+  }
+
+  /**
+   * Check that the header of a column of a grid is displayed
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridHeaderVisible(String gridId, String columnId) {
+    checkVisible(locator(frontEndInstructions.getGridHeader(gridId, columnId)));
+  }
+
+  /**
+   * Check that the header of a column of a grid is not displayed (a grid with the {@code grid-no-header} class)
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridHeaderNotVisible(String gridId, String columnId) {
+    checkNotVisible(locator(frontEndInstructions.getGridHeader(gridId, columnId)));
+  }
+
+  /**
+   * Check that the first row of a grid starts right under the top of the grid, so a grid without header
+   * (the {@code grid-no-header} class) leaves no empty space where the header was, give or take two pixels
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Identifier of the first row
+   * @param columnId Identifier of any column of that row
+   */
+  protected void checkGridFirstRowAtTop(String gridId, String rowId, String columnId) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(toBeVisible(cell));
+    String script = "return arguments[0].getBoundingClientRect().top;";
+    Object cellTop = getBrowser().executeScriptOn(locator(cell), script);
+    Object gridTop = getBrowser().executeScriptOn(locator(frontEndInstructions.getGrid(gridId)), script);
+    double gap = cellTop instanceof Number c && gridTop instanceof Number g ? c.doubleValue() - g.doubleValue() : Double.NaN;
+    Object measured = gap;
+    assertWithScreenshot("The first row of the grid " + gridId + " starts " + measured + "px under its top, not at it",
+      Math.abs(gap) <= GRID_TOP_TOLERANCE);
+  }
+
+  /**
+   * Check the sparkline that a sparkline column draws in a cell of a grid: the type of the drawing (line, bar or area)
+   * and the value of every point, which is its tooltip, in order
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param type     Expected type
+   * @param values   Expected values of the points, separated by commas
+   */
+  protected void checkGridSparkline(String gridId, String rowId, String columnId, String type, String values) {
+    By sparkline = frontEndInstructions.getGridSparkline(gridId, rowId, columnId);
+    waitUntil(toBePresent(sparkline));
+    Object shown = getBrowser().executeScriptOn(locator(sparkline), SPARKLINE_SUMMARY_SCRIPT);
+    assertWithScreenshot("The sparkline of " + gridId + "/" + rowId + "/" + columnId + " is '" + shown + "', not '" + type + "|" + values + "'",
+      (type + "|" + values).equals(shown));
+  }
+
+  /**
+   * Check that a cell of a grid has no sparkline because its value is not a valid series of numbers, while the cell is
+   * still shown
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridSparklineEmpty(String gridId, String rowId, String columnId) {
+    // The row can be drawn after the grid loads: an empty cell only proves something once the grid has finished loading
+    waitForLoadingGrid();
+    waitUntil(BrowserCondition.allOf(
+      toBePresent(frontEndInstructions.getGridCell(gridId, rowId, columnId)),
+      BrowserCondition.not(toBePresent(frontEndInstructions.getGridSparkline(gridId, rowId, columnId)))));
+  }
+
+  /**
+   * Check how many markers (dots of the lowest, highest and last points) the sparkline of a cell of a grid has
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param markers  Expected number of markers
+   */
+  protected void checkGridSparklineMarkers(String gridId, String rowId, String columnId, int markers) {
+    By sparkline = frontEndInstructions.getGridSparkline(gridId, rowId, columnId);
+    waitUntil(toBePresent(sparkline));
+    Object shown = getBrowser().executeScriptOn(locator(sparkline), "return arguments[0].querySelectorAll('circle').length;");
+    assertWithScreenshot("The sparkline of " + gridId + "/" + rowId + "/" + columnId + " has " + shown + " markers, not " + markers,
+      shown instanceof Number number && number.intValue() == markers);
+  }
+
+  /**
+   * Check that the sparkline of a cell of a grid does not take the keyboard focus (it is not focusable and nothing in it
+   * is a tab stop), so it does not get in the way of the keyboard navigation of the grid
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   */
+  protected void checkGridSparklineNotFocusable(String gridId, String rowId, String columnId) {
+    By sparkline = frontEndInstructions.getGridSparkline(gridId, rowId, columnId);
+    waitUntil(toBePresent(sparkline));
+    Object shown = getBrowser().executeScriptOn(locator(sparkline), SPARKLINE_FOCUS_SCRIPT);
+    assertWithScreenshot("The sparkline of " + gridId + "/" + rowId + "/" + columnId + " takes the focus: '" + shown + "'",
+      "false|0".equals(shown));
+  }
+
+  /**
+   * Check that a cell of a grid has a style class (for instance the {@code scale-seq-3} that a query assigns to colour it)
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param cssClass Style class
+   */
+  protected void checkCellHasClass(String gridId, String rowId, String columnId, String cssClass) {
+    waitUntil(toBePresent(frontEndInstructions.getGridCellWithClass(gridId, rowId, columnId, cssClass)));
+  }
+
+  /**
+   * Script that finds the text block of a cell of a grid that wraps over several lines (the cell or the text it holds)
+   */
+  private static final String WRAPPED_TEXT_OF_CELL = "const cell = arguments[0];"
+    + " const text = cell.matches('.p-cell-wrap, .cell-wrap') ? cell : (cell.querySelector('.p-cell-wrap, .cell-wrap') || cell);";
+
+  /**
+   * Read a number of a cell of a grid with a script that starts with the text block of the cell
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param script   Script that returns the number, once it has the text block in {@code text}
+   * @return Number
+   */
+  private double readWrappedCell(String gridId, String rowId, String columnId, String script) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
+    Object value = getBrowser().executeScriptOn(locator(cell), WRAPPED_TEXT_OF_CELL + script);
+    return value instanceof Number number ? number.doubleValue() : Double.NaN;
+  }
+
+  /**
+   * Check the number of lines that the text of a cell of a grid shows (a column that wraps, with or without a maximum)
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param lines    Expected number of lines
+   */
+  protected void checkGridCellLines(String gridId, String rowId, String columnId, int lines) {
+    double shown = readCellLines(gridId, rowId, columnId);
+    assertWithScreenshot("The cell " + columnId + " of the row " + rowId + " of the grid " + gridId + " shows " + shown
+      + " lines, not " + lines, shown == lines);
+  }
+
+  /**
+   * Check that the text of a cell of a grid wraps over at least some lines
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param lines    Minimum number of lines
+   */
+  protected void checkGridCellLinesAtLeast(String gridId, String rowId, String columnId, int lines) {
+    double shown = readCellLines(gridId, rowId, columnId);
+    assertWithScreenshot("The cell " + columnId + " of the row " + rowId + " of the grid " + gridId + " shows " + shown
+      + " lines, fewer than " + lines, shown >= lines);
+  }
+
+  private double readCellLines(String gridId, String rowId, String columnId) {
+    return readWrappedCell(gridId, rowId, columnId, " const style = getComputedStyle(text);"
+      + " return Math.round((text.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom))"
+      + " / parseFloat(style.lineHeight));");
+  }
+
+  /**
+   * Check that the text of a cell of a grid is shown whole, or that it is cut (a column with a maximum number of lines
+   * whose text is longer)
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param cut      The text is expected to be cut
+   */
+  protected void checkGridCellTextCut(String gridId, String rowId, String columnId, boolean cut) {
+    double hidden = readWrappedCell(gridId, rowId, columnId, " return text.scrollHeight - text.clientHeight;");
+    assertWithScreenshot("The text of the cell " + columnId + " of the row " + rowId + " of the grid " + gridId
+      + (cut ? " is not cut" : " is cut (" + hidden + "px hidden)"), (hidden > 1) == cut);
+  }
+
+  /**
+   * Check that the row of a grid is taller than another one
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row that is expected to be taller
+   * @param otherId  Other row
+   * @param columnId Identifier of any column
+   */
+  protected void checkGridRowTaller(String gridId, String rowId, String otherId, String columnId) {
+    String script = "return arguments[0].closest('[data-testid=\"grid-row\"]').getBoundingClientRect().height;";
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    By otherCell = frontEndInstructions.getGridCell(gridId, otherId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), toBeVisible(otherCell), checkIfGridLoaderIsNotVisible()));
+    Object height = getBrowser().executeScriptOn(locator(cell), script);
+    Object otherHeight = getBrowser().executeScriptOn(locator(otherCell), script);
+    assertWithScreenshot("The row " + rowId + " (" + height + "px) of the grid " + gridId + " is not taller than the row "
+      + otherId + " (" + otherHeight + "px)",
+      height instanceof Number h && otherHeight instanceof Number o && h.doubleValue() > o.doubleValue() + 1);
+  }
+
+  /**
+   * Check that the row of a grid is tall enough for all its cells: no cell of the row has text that overflows it
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Identifier of any column
+   */
+  protected void checkGridRowFitsItsCells(String gridId, String rowId, String columnId) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
+    Object overflow = getBrowser().executeScriptOn(locator(cell), "const row = arguments[0].closest('[data-testid=\"grid-row\"]');"
+      + " const bottom = row.getBoundingClientRect().bottom + 1;"
+      + " return Array.from(row.querySelectorAll('.p-cell-wrap, .cell-wrap, .awe-cell-lines, .awe-cell-chips'))"
+      + ".filter(e => e.getBoundingClientRect().bottom > bottom).length;");
+    assertWithScreenshot("The row " + rowId + " of the grid " + gridId + " is shorter than the text of " + overflow + " of its cells",
+      overflow instanceof Number n && n.intValue() == 0);
+  }
+
+  /**
+   * Check that the row of a grid is not cut: it is fully inside every element of the grid around it that clips its
+   * contents (an element whose vertical overflow is not visible), as the canvas of a grid whose rows grow
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Identifier of any column
+   */
+  protected void checkGridRowNotCut(String gridId, String rowId, String columnId) {
+    String cut = readGridCell(gridId, rowId, columnId, "const row = arguments[0].closest('[data-testid=\"grid-row\"]');"
+      + " const grid = row && row.closest('[grid-id], [tree-grid-id]'); if (!grid) { return null; }"
+      + " const box = row.getBoundingClientRect(); const cuts = [];"
+      + " for (let e = row.parentElement; e && e !== grid && grid.contains(e); e = e.parentElement) {"
+      + "   if (getComputedStyle(e).overflowY === 'visible') { continue; }"
+      + "   const clip = e.getBoundingClientRect();"
+      + "   if (box.bottom > clip.bottom + 1 || box.top < clip.top - 1) {"
+      + "     cuts.push(e.tagName + '.' + Array.from(e.classList).join('.') + ' (' + clip.top + '-' + clip.bottom + ')'); }"
+      + " }"
+      + " return cuts.join(', ');");
+    assertWithScreenshot("The row " + rowId + " of the grid " + gridId + " is cut by "
+      + (cut == null ? "a missing row" : cut), cut != null && cut.isEmpty());
+  }
+
+  /**
+   * Check that the whole value of a cell of a grid is exposed as the tooltip of its text (when the text is cut by the
+   * width of the column)
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param text     Text that the title contains
+   */
+  protected void checkGridCellTitle(String gridId, String rowId, String columnId, String text) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
+    Object title = getBrowser().executeScriptOn(locator(cell), "const e = arguments[0].matches('[title]') ? arguments[0]"
+      + " : arguments[0].querySelector('[title]'); return e ? e.getAttribute('title') : '';");
+    assertWithScreenshot("The title of the cell " + columnId + " of the row " + rowId + " of the grid " + gridId + " is '" + title
+      + "', it does not contain '" + text + "'", title instanceof String s && s.contains(text));
+  }
+
+  /**
+   * Check that the cut text of a cell of a grid shows its whole value in a tooltip on hover and on keyboard focus, and
+   * that the tooltip goes away when the pointer or the focus leaves
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param text     Text that the tooltip contains
+   */
+  protected void checkGridCellFullTextTooltip(String gridId, String rowId, String columnId, String text) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
+    String tooltip = "const t = document.querySelector('.grid-cell-tooltip'); return t ? t.textContent : '';";
+    String textOfCell = WRAPPED_TEXT_OF_CELL + " return text;";
+
+    // On hover
+    getBrowser().hover(locator(cell));
+    waitUntil(BrowserCondition.of("the tooltip of the cell " + columnId + " to show '" + text + "' on hover",
+      browser -> browser.executeScript(tooltip) instanceof String shown && shown.contains(text)));
+
+    // The pointer leaves
+    getBrowser().hover(locator(frontEndInstructions.getGridHeader(gridId, columnId)));
+    waitUntil(BrowserCondition.of("the tooltip to go away when the pointer leaves",
+      browser -> browser.executeScript(tooltip) instanceof String shown && shown.isEmpty()));
+
+    // On keyboard focus: the cut text is reachable with the keyboard
+    getBrowser().executeScriptOn(locator(cell), WRAPPED_TEXT_OF_CELL + " text.focus();");
+    waitUntil(BrowserCondition.of("the tooltip of the cell " + columnId + " to show '" + text + "' on focus",
+      browser -> browser.executeScript(tooltip) instanceof String shown && shown.contains(text)));
+    assertWithScreenshot("The cut text of the cell " + columnId + " is not reachable with the keyboard",
+      getBrowser().executeScriptOn(locator(cell), WRAPPED_TEXT_OF_CELL + " return text.tabIndex >= 0 && document.activeElement === text;")
+        instanceof Boolean reachable && reachable);
+
+    // The focus leaves
+    getBrowser().executeScriptOn(locator(cell), WRAPPED_TEXT_OF_CELL + " text.blur();");
+    waitUntil(BrowserCondition.of("the tooltip to go away when the focus leaves",
+      browser -> browser.executeScript(tooltip) instanceof String shown && shown.isEmpty()));
+  }
+
+  /**
+   * Read a text of a cell of a grid with a script that receives the cell as {@code arguments[0]}
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param script   Script that returns the text
+   * @return Text, or null if the script returns nothing
+   */
+  private String readGridCell(String gridId, String rowId, String columnId, String script) {
+    By cell = frontEndInstructions.getGridCell(gridId, rowId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible()));
+    return getBrowser().executeScriptOn(locator(cell), script) instanceof String text ? text : null;
+  }
+
+  /**
+   * Check the main value and the secondary line of a cell of a grid (a column with {@code secondary-field}): the
+   * secondary value is shown under the main one, or the cell shows only the main line
+   *
+   * @param gridId    Grid identifier
+   * @param rowId     Row identifier
+   * @param columnId  Column identifier
+   * @param main      Main value
+   * @param secondary Secondary value, or null when the cell shows only the main line
+   */
+  protected void checkGridCellSecondaryLine(String gridId, String rowId, String columnId, String main, String secondary) {
+    String shown = readGridCell(gridId, rowId, columnId, "const cell = arguments[0];"
+      + " const text = e => e.textContent.replace(/\\s+/g, ' ').trim();"
+      + " const main = cell.querySelector('.awe-cell-main'); const secondary = cell.querySelector('.awe-cell-secondary');"
+      + " return text(main || cell) + (secondary ? '\\n' + text(secondary) : '');");
+    String expected = main + (secondary == null ? "" : "\n" + secondary);
+    assertWithScreenshot("The cell " + columnId + " of the row " + rowId + " of the grid " + gridId + " shows '" + shown
+      + "', not '" + expected + "' (main and secondary line)", expected.equals(shown));
+  }
+
+  /**
+   * Check the status of a cell of a grid (a column with {@code status-field}): a dot of the tone and the text
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param text     Text of the status
+   * @param tone     Tone: success, warning, danger, info or neutral
+   */
+  protected void checkGridCellStatus(String gridId, String rowId, String columnId, String text, String tone) {
+    String shown = readGridCell(gridId, rowId, columnId, "const status = arguments[0].querySelector('.awe-cell-status');"
+      + " if (!status) { return ''; } const tone = status.getAttribute('data-tone');"
+      + " return tone + '\\n' + status.classList.contains('awe-cell-status-' + tone) + '\\n'"
+      + " + status.textContent.replace(/\\s+/g, ' ').trim();");
+    String expected = tone + "\ntrue\n" + text;
+    assertWithScreenshot("The cell " + columnId + " of the row " + rowId + " of the grid " + gridId + " shows the status '"
+      + shown + "', not '" + expected + "' (tone, tone class, text)", expected.equals(shown));
+  }
+
+  /**
+   * Check the chips of a cell of a grid (a column with {@code chips="true"}): the chips it shows, in order, and the
+   * "+n" chip that stands for the hidden ones, whose tooltip and accessible label list them
+   *
+   * @param gridId   Grid identifier
+   * @param rowId    Row identifier
+   * @param columnId Column identifier
+   * @param chips    Texts of the chips shown
+   * @param hidden   Texts of the hidden chips (empty when there is no "+n" chip)
+   */
+  protected void checkGridCellChips(String gridId, String rowId, String columnId, List<String> chips, List<String> hidden) {
+    String cellName = "The cell " + columnId + " of the row " + rowId + " of the grid " + gridId;
+    String shown = readGridCell(gridId, rowId, columnId, "const box = arguments[0].querySelector('.awe-cell-chips');"
+      + " return box ? Array.from(box.children).filter(c => !c.classList.contains('awe-cell-chip-more'))"
+      + ".map(c => c.textContent.trim()).join('\\n') : null;");
+    String expected = String.join("\n", chips);
+    assertWithScreenshot(cellName + " shows the chips '" + shown + "', not '" + expected + "'", expected.equals(shown));
+
+    String more = readGridCell(gridId, rowId, columnId, "const more = arguments[0].querySelector('.awe-cell-chip-more');"
+      + " return more ? [more.textContent.trim(), more.getAttribute('title') || '', more.getAttribute('aria-label') || ''].join('\\n') : '';");
+    if (hidden.isEmpty()) {
+      assertWithScreenshot(cellName + " shows the chip '" + more + "' for hidden chips, but none is hidden",
+        more == null || more.isEmpty());
+      return;
+    }
+    String[] parts = more == null ? new String[0] : more.split("\n", -1);
+    String list = String.join(",", hidden);
+    boolean matches = parts.length == 3 && parts[0].equals("+" + hidden.size())
+      && parts[1].replaceAll(",\\s*", ",").equals(list)
+      && parts[2].contains(String.valueOf(hidden.size())) && parts[2].replaceAll(",\\s*", ",").contains(list);
+    assertWithScreenshot(cellName + " shows the chip for hidden chips '" + more + "' (text, tooltip, label), not '+"
+      + hidden.size() + "' listing " + hidden, matches);
+  }
+
+  /**
+   * A row that a grouped grid shows, as {@link #GROUPED_ROWS_SCRIPT} reads it: a group row (level, path, expanded state
+   * and the label and count of its first cell), a subtotal row (level and path) or a data row (row identifier)
+   *
+   * @param type     group, subtotal or row
+   * @param level    Level of a group or subtotal row, from 1 (0 for a data row)
+   * @param path     Group path, or the row identifier of a data row
+   * @param expanded Expanded state of a group row: "true", "false" or "mismatch" when the row and its toggle disagree
+   * @param label    Label and count of a group row ("Europe 3")
+   */
+  private record GroupedRow(String type, int level, String path, String expanded, String label) {
+    private static GroupedRow parse(String line) {
+      String[] fields = line.split("\\|", -1);
+      if ("row".equals(fields[0])) {
+        return new GroupedRow("row", 0, fields[1], "", "");
+      }
+      return new GroupedRow(fields[0], Integer.parseInt(fields[1]), fields[2], fields.length > 3 ? fields[3] : "",
+        fields.length > 4 ? fields[4] : "");
+    }
+
+    private boolean isGroup() {
+      return "group".equals(type);
+    }
+
+    private boolean isGroupOfLevel(int groupLevel) {
+      return isGroup() && level == groupLevel;
+    }
+  }
+
+  /**
+   * Rows that a grouped grid shows, in order: group, subtotal and data rows. A row is listed once even when the grid
+   * renders it in more than one container (frozen columns)
+   */
+  private static final String GROUPED_ROWS_SCRIPT = "const grid = arguments[0]; const seen = new Set(); const lines = [];"
+    + " const text = e => e.textContent.replace(/\\s+/g, ' ').trim();"
+    + " grid.querySelectorAll('[data-testid=\"grid-row\"], [data-testid=\"grid-group-row\"], [data-testid=\"grid-subtotal-row\"]')"
+    + ".forEach(row => {"
+    + "   const type = row.getAttribute('data-testid'); const path = row.getAttribute('data-group-path');"
+    + "   const key = type + '|' + (type === 'grid-row' ? row.getAttribute('row-id') : path);"
+    + "   if (seen.has(key)) { return; } seen.add(key);"
+    + "   const level = row.getAttribute('data-group-level');"
+    + "   if (type === 'grid-row') { lines.push('row|' + row.getAttribute('row-id')); return; }"
+    + "   if (type === 'grid-subtotal-row') { lines.push('subtotal|' + level + '|' + path); return; }"
+    + "   const toggle = row.querySelector('[data-testid=\"grid-group-toggle\"]'); const expanded = row.getAttribute('data-expanded');"
+    + "   const state = toggle && toggle.getAttribute('aria-expanded') === expanded ? expanded : 'mismatch';"
+    + "   const label = toggle ? Array.from(toggle.parentElement.children).filter(e => e !== toggle).map(text).join(' ') : '';"
+    + "   lines.push(['group', level, path, state, label].join('|'));"
+    + " });"
+    + " return lines.join('\\n');";
+
+  /**
+   * Read the rows that a grouped grid shows
+   *
+   * @param browser Browser
+   * @param grid    Grid locator
+   * @return Rows, in order (none when the grid is not there)
+   */
+  private static List<GroupedRow> readGroupedRows(BrowserDriver browser, Locator grid) {
+    Object rows;
+    try {
+      rows = browser.executeScriptOn(grid, GROUPED_ROWS_SCRIPT);
+    } catch (ElementReplacedException | ElementNotFoundException exc) {
+      return List.of();
+    }
+    if (!(rows instanceof String lines) || lines.isEmpty()) {
+      return List.of();
+    }
+    return Arrays.stream(lines.split("\n")).map(GroupedRow::parse).toList();
+  }
+
+  /**
+   * Wait until the rows that a grouped grid shows meet a check
+   *
+   * @param gridId      Grid identifier
+   * @param description What is waited for
+   * @param check       Check of the rows
+   */
+  private void waitForGroupedRows(String gridId, String description, Predicate<List<GroupedRow>> check) {
+    Locator grid = locator(frontEndInstructions.getGrid(gridId));
+    waitUntil(BrowserCondition.allOf(checkIfGridLoaderIsNotVisible(),
+      BrowserCondition.of("the grid " + gridId + " to show " + description, browser -> check.test(readGroupedRows(browser, grid)))));
+  }
+
+  /**
+   * Find the group row of a path among the rows of a grouped grid
+   *
+   * @param rows Rows
+   * @param path Group path
+   * @return Position of the group row, or -1
+   */
+  private static int indexOfGroup(List<GroupedRow> rows, String path) {
+    for (int index = 0; index < rows.size(); index++) {
+      if (rows.get(index).isGroup() && rows.get(index).path().equals(path)) {
+        return index;
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * Check how many group rows of a level a grouped grid shows (the groups inside a collapsed group are not shown)
+   *
+   * @param gridId Grid identifier
+   * @param level  Level, from 1
+   * @param count  Group rows of the level
+   */
+  protected void checkGridGroupRowCount(String gridId, int level, int count) {
+    waitForGroupedRows(gridId, count + " group rows of level " + level,
+      rows -> rows.stream().filter(row -> row.isGroupOfLevel(level)).count() == count);
+  }
+
+  /**
+   * Check the order of the group rows of a level that a grouped grid shows, by their paths (the encoded values of their
+   * levels joined by "/", as {@code America/USA/New%20York})
+   *
+   * @param gridId Grid identifier
+   * @param level  Level, from 1
+   * @param paths  Paths of the group rows of the level, in the order they are shown
+   */
+  protected void checkGridGroupOrder(String gridId, int level, String... paths) {
+    List<String> expected = List.of(paths);
+    waitForGroupedRows(gridId, "the group rows " + expected + " of level " + level + " in this order",
+      rows -> rows.stream().filter(row -> row.isGroupOfLevel(level)).map(GroupedRow::path).toList().equals(expected));
+  }
+
+  /**
+   * Check the label of a group row of a grouped grid: the value of the group and the number of its data rows
+   * ("Europe 11")
+   *
+   * @param gridId Grid identifier
+   * @param path   Group path
+   * @param label  Value of the group, as it is shown
+   * @param count  Data rows of the group
+   */
+  protected void checkGridGroupLabel(String gridId, String path, String label, int count) {
+    String expected = label + " " + count;
+    waitForGroupedRows(gridId, "the group " + path + " labelled '" + expected + "'", rows -> {
+      int index = indexOfGroup(rows, path);
+      return index >= 0 && rows.get(index).label().equals(expected);
+    });
+  }
+
+  /**
+   * Check that a group of a grouped grid is expanded: its row and its toggle say so and its content follows it
+   *
+   * @param gridId Grid identifier
+   * @param path   Group path
+   */
+  protected void checkGridGroupExpanded(String gridId, String path) {
+    waitForGroupedRows(gridId, "the group " + path + " expanded, with its content under it", rows -> {
+      int index = indexOfGroup(rows, path);
+      if (index < 0 || index + 1 >= rows.size() || !"true".equals(rows.get(index).expanded())) {
+        return false;
+      }
+      GroupedRow next = rows.get(index + 1);
+      return "row".equals(next.type()) || (next.isGroup() && next.level() > rows.get(index).level());
+    });
+  }
+
+  /**
+   * Check that a group of a grouped grid is collapsed: its row and its toggle say so and neither its groups, its data
+   * rows nor its subtotal are shown
+   *
+   * @param gridId Grid identifier
+   * @param path   Group path
+   */
+  protected void checkGridGroupCollapsed(String gridId, String path) {
+    waitForGroupedRows(gridId, "the group " + path + " collapsed, without its content", rows -> {
+      int index = indexOfGroup(rows, path);
+      if (index < 0 || !"false".equals(rows.get(index).expanded())) {
+        return false;
+      }
+      int level = rows.get(index).level();
+      if (index + 1 >= rows.size()) {
+        return true;
+      }
+      GroupedRow next = rows.get(index + 1);
+      return (next.isGroup() && next.level() <= level) || ("subtotal".equals(next.type()) && next.level() < level);
+    });
+  }
+
+  /**
+   * Check that a grid shows its data rows without grouping: no group or subtotal row
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridNotGrouped(String gridId) {
+    waitForGroupedRows(gridId, "its data rows without group or subtotal rows",
+      rows -> !rows.isEmpty() && rows.stream().allMatch(row -> "row".equals(row.type())));
+  }
+
+  /**
+   * Check the text of a cell of a group row of a grouped grid: the aggregate of the group in a column with summary
+   * type, or the label and count of the group in the first visible column
+   *
+   * @param gridId   Grid identifier
+   * @param path     Group path
+   * @param columnId Column identifier
+   * @param text     Text of the cell
+   */
+  protected void checkGridGroupCell(String gridId, String path, String columnId, String text) {
+    By cell = frontEndInstructions.getGridGroupCell(gridId, path, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible(), BrowserCondition.textEquals(locator(cell), text)));
+  }
+
+  /**
+   * Check the text of a cell of the subtotal row of a group of a grouped grid: the aggregate of the group in a column
+   * with summary type, or "Subtotal" and the label of the group in the first visible column
+   *
+   * @param gridId   Grid identifier
+   * @param path     Group path
+   * @param columnId Column identifier
+   * @param text     Text of the cell
+   */
+  protected void checkGridSubtotalCell(String gridId, String path, String columnId, String text) {
+    By cell = frontEndInstructions.getGridSubtotalCell(gridId, path, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(cell), checkIfGridLoaderIsNotVisible(), BrowserCondition.textEquals(locator(cell), text)));
+  }
+
+  /**
+   * Expand or collapse a group of a grouped grid with its toggle
+   *
+   * @param gridId Grid identifier
+   * @param path   Group path
+   */
+  protected void toggleGridGroup(String gridId, String path) {
+    click(frontEndInstructions.getGridGroupToggle(gridId, path));
+  }
+
+  /**
+   * Expand every group of a grouped grid with the Expand all button of its toolbar
+   *
+   * @param gridId Grid identifier
+   */
+  protected void expandAllGridGroups(String gridId) {
+    click(frontEndInstructions.getGridGroupExpandAll(gridId));
+  }
+
+  /**
+   * Collapse every group of a grouped grid with the Collapse all button of its toolbar
+   *
+   * @param gridId Grid identifier
+   */
+  protected void collapseAllGridGroups(String gridId) {
+    click(frontEndInstructions.getGridGroupCollapseAll(gridId));
+  }
+
+  /**
+   * Group the rows of a grid by some columns with the Group by panel of its toolbar (grid with group-selector): No
+   * grouping, then each column in order, one level each, and the panel is closed. Without columns the grid shows its
+   * rows without grouping
+   *
+   * @param gridId  Grid identifier
+   * @param columns Group-by columns, in the order of their levels
+   */
+  protected void groupGridBy(String gridId, String... columns) {
+    By button = frontEndInstructions.getGridGroupByButton(gridId);
+    By panel = frontEndInstructions.getGridGroupByPanel(gridId);
+    click(button);
+    waitUntil(toBeVisible(panel));
+    click(frontEndInstructions.getGridGroupNone(gridId));
+    for (String column : columns) {
+      click(frontEndInstructions.getGridGroupOption(gridId, column));
+    }
+    click(button);
+    waitUntil(BrowserCondition.not(toBePresent(panel)));
+  }
+
+  // Footer cell of a column of a grid: AngularJS marks it with the column, React has it in the position of its header
+  private static final String FOOTER_CELL_SCRIPT = "const grid = arguments[0]; const column = arguments[1];"
+    + " const text = e => e.textContent.replace(/\\s+/g, ' ').trim();"
+    + " const footer = Array.from(grid.querySelectorAll('.ui-grid-footer [column-id]')).find(e => e.getAttribute('column-id') === column);"
+    + " if (footer) { return text(footer); }"
+    + " const header = Array.from(grid.querySelectorAll('thead [data-testid=\"grid-header-cell\"]')).find(e => e.getAttribute('column-id') === column);"
+    + " const cell = header && header.closest('th'); const row = grid.querySelector('tfoot tr');"
+    + " if (!cell || !row) { return null; }"
+    + " const footerCell = row.children[Array.from(cell.parentElement.children).indexOf(cell)];"
+    + " return footerCell ? text(footerCell) : null;";
+
+  /**
+   * Check the total of a column in the footer of a grid with {@code show-totals}
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param text     Text of the total
+   */
+  protected void checkGridFooterTotal(String gridId, String columnId, String text) {
+    Locator grid = locator(frontEndInstructions.getGrid(gridId));
+    waitUntil(BrowserCondition.allOf(checkIfGridLoaderIsNotVisible(), BrowserCondition.of("the footer of the grid " + gridId
+      + " to show '" + text + "' in the column " + columnId, browser -> {
+      try {
+        return text.equals(browser.executeScriptOn(grid, FOOTER_CELL_SCRIPT, columnId));
+      } catch (ElementReplacedException | ElementNotFoundException exc) {
+        return false;
+      }
+    })));
+  }
+
+  /**
+   * Start watching the calls of the page to the server (requests of the scripts of the page to its own origin), to check
+   * later with {@link #checkNoServerCalls()} that a client-side action did not reach the server
+   */
+  protected void watchServerCalls() {
+    getBrowser().executeScript("performance.setResourceTimingBufferSize(10000); performance.clearResourceTimings(); return null;");
+  }
+
+  /**
+   * Check that the page made no call to the server since {@link #watchServerCalls()}
+   */
+  protected void checkNoServerCalls() {
+    Object calls = getBrowser().executeScript("return performance.getEntriesByType('resource')"
+      + ".filter(e => (e.initiatorType === 'fetch' || e.initiatorType === 'xmlhttprequest') && e.name.startsWith(location.origin))"
+      + ".map(e => e.name).join('\\n');");
+    assertWithScreenshot("The page called the server: " + calls, calls == null || "".equals(calls));
+  }
+
+  /**
+   * Check that a row of a grid is selected
+   *
+   * @param gridId Grid identifier
+   * @param search Text of the row
+   */
+  protected void checkRowSelected(String gridId, String search) {
+    waitUntil(toBePresent(frontEndInstructions.findSelectedGridRow(gridId, search)));
+  }
+
+  /**
+   * Sort a client-side grid with a click on the header of a column and measure how long it takes to render its rows:
+   * from the click to the last change of the rows, with the layout of each change included
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @return Milliseconds
+   */
+  protected double measureGridSortRender(String gridId, String columnId) {
+    By header = frontEndInstructions.getGridHeader(gridId, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(header), checkIfGridLoaderIsNotVisible()));
+
+    // The time starts with the click event and ends with the last change of the rows, once the page is quiet for 250 ms.
+    // The click is a real one on the header, as the one of a user: the sort of some clients listens to an element inside it
+    getBrowser().executeScriptOn(locator(header), "const root = document.querySelector('[grid-id=\"' + arguments[1] + '\"]');"
+      + " const state = window.__gridRender = {done: false, ms: 0, start: null, quiet: null};"
+      + " document.addEventListener('click', function () { state.start = performance.now(); }, {capture: true, once: true});"
+      + " new MutationObserver(function (changes, observer) {"
+      + "   if (state.start === null) { return; }"
+      + "   void root.offsetHeight; state.ms = performance.now() - state.start;"
+      + "   clearTimeout(state.quiet);"
+      + "   state.quiet = setTimeout(function () { observer.disconnect(); state.done = true; }, 250);"
+      + " }).observe(root, {childList: true, subtree: true, attributes: true, characterData: true});", gridId);
+    click(header);
+    waitUntil(BrowserCondition.of("the grid " + gridId + " to render the sort",
+      browser -> browser.executeScript("return window.__gridRender.done;") instanceof Boolean done && done));
+    Object ms = getBrowser().executeScript("return window.__gridRender.ms;");
+    return ms instanceof Number number ? number.doubleValue() : Double.NaN;
+  }
+
+  /**
+   * Check that the icon that a column of a grid shows is displayed
+   *
+   * @param gridId   Grid identifier
+   * @param columnId Column identifier
+   * @param icon     Name of the icon, without the prefix of the icon library (for instance {@code plus})
+   */
+  protected void checkGridIconVisible(String gridId, String columnId, String icon) {
+    checkVisible(locator(frontEndInstructions.getGridIcon(gridId, columnId, icon)));
+  }
+
+  /**
+   * Check that a column of a grid shows a success icon
+   *
+   * @param columnId Column identifier
+   */
+  protected void checkColumnSuccessIcon(String columnId) {
+    checkVisible(locator(frontEndInstructions.getColumnSuccessIcon(columnId)));
+  }
+
+  /**
+   * Check that a row of a tree grid is displayed
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkTreeRowVisible(String gridId, String rowId) {
+    checkVisible(locator(frontEndInstructions.getTreeRow(gridId, rowId)));
+  }
+
+  /**
+   * Check that a row of a tree grid is not displayed
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkTreeRowNotVisible(String gridId, String rowId) {
+    checkNotVisible(locator(frontEndInstructions.getTreeRow(gridId, rowId)));
+  }
+
+  /**
+   * Check that a row of a tree grid is displayed as deleted
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkTreeRowDeleted(String gridId, String rowId) {
+    checkVisible(locator(frontEndInstructions.getDeletedTreeRow(gridId, rowId)));
+  }
+
+  /**
+   * Check that the icon to expand or collapse a row of a tree grid is displayed
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkTreeIconVisible(String gridId, String rowId) {
+    checkVisible(locator(frontEndInstructions.getTreeRowIcon(gridId, rowId)));
+  }
+
+  /**
+   * Check that the icon to expand or collapse a row of a tree grid is not displayed
+   *
+   * @param gridId Tree grid identifier
+   * @param rowId  Row identifier
+   */
+  protected void checkTreeIconNotVisible(String gridId, String rowId) {
+    checkNotVisible(locator(frontEndInstructions.getTreeRowIcon(gridId, rowId)));
+  }
+
+  /**
+   * Close the open context menu without choosing an option
+   */
+  protected void closeContextMenu() {
+    By mask = frontEndInstructions.getContextMenuMask();
+    if (mask != null) {
+      click(mask);
+    } else {
+      getBrowser().press(Key.ESCAPE);
+    }
+  }
+
+  /**
+   * Check that no context menu is displayed
+   */
+  protected void checkContextMenuNotVisible() {
+    checkNotVisible(locator(frontEndInstructions.getContextMenu()));
+  }
+
+  /**
+   * Close a modal dialog with the close icon of its header, as a user dismissing it without using its buttons
+   *
+   * @param dialogId Dialog identifier
+   */
+  protected void closeDialog(String dialogId) {
+    click(frontEndInstructions.getDialogClose(dialogId));
+  }
+
+  /**
+   * Check that a modal dialog has been closed
+   *
+   * @param dialogId Dialog identifier
+   */
+  protected void checkDialogClosed(String dialogId) {
+    checkNotVisible(locator(frontEndInstructions.getOpenDialog(dialogId)));
+  }
+
+  /**
+   * Drag the handle of a side of the closest resizable around an element, along the axis of that side
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle: top, right, bottom or left
+   * @param offset    Pixels to drag: positive to the right or down, negative to the left or up
+   */
+  protected void dragResizable(String elementId, String direction, int offset) {
+    boolean horizontal = "right".equals(direction) || "left".equals(direction);
+    dragBy(frontEndInstructions.getResizableHandle(elementId, direction), horizontal ? offset : 0, horizontal ? 0 : offset);
+  }
+
+  /**
+   * Get the box of the closest resizable around an element
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle of the resizable: top, right, bottom or left
+   * @return Left, top, width and height in pixels
+   */
+  protected double[] getResizableBounds(String elementId, String direction) {
+    return getBounds(frontEndInstructions.getResizable(elementId, direction));
+  }
+
+  /**
+   * Get the box of the element next to the closest resizable around an element, on the side of its handle: the one that
+   * gives or takes the size when the handle is dragged
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle of the resizable: top, right, bottom or left
+   * @return Left, top, width and height in pixels
+   */
+  protected double[] getResizableNeighbourBounds(String elementId, String direction) {
+    return getBounds(frontEndInstructions.getResizableNeighbour(elementId, direction, true));
+  }
+
+  /**
+   * Get the box of the element next to the closest resizable around an element, on the side opposite to its handle
+   *
+   * @param elementId Identifier of an element inside the resizable
+   * @param direction Side of the handle of the resizable: top, right, bottom or left
+   * @return Left, top, width and height in pixels
+   */
+  protected double[] getResizableOppositeNeighbourBounds(String elementId, String direction) {
+    return getBounds(frontEndInstructions.getResizableNeighbour(elementId, direction, false));
+  }
+
+  /**
+   * Drag an element: press on its center, move the pointer by an offset and release it
+   */
+  private void dragBy(By selector, int dx, int dy) {
+    waitUntil(toBeVisible(selector));
+    getBrowser().drag(locator(selector), dx, dy);
+  }
+
+  /**
+   * Get the box of an element in the viewport, as left, top, width and height in pixels
+   */
+  private double[] getBounds(By selector) {
+    waitUntil(toBeVisible(selector));
+    String box = String.valueOf(getBrowser().executeScriptOn(locator(selector), "var rect = arguments[0].getBoundingClientRect();"
+      + " return rect.left + '|' + rect.top + '|' + rect.width + '|' + rect.height;"));
+    return parseNumbers(box, 4);
+  }
+
+  /**
+   * Check the width of an open dialog, give or take two pixels. It is the layout width, so the transition that opens the
+   * dialog (it grows from a smaller scale) does not change it
+   *
+   * @param dialogId Dialog identifier
+   * @param width    Expected width in pixels
+   */
+  protected void checkDialogWidth(String dialogId, int width) {
+    By selector = frontEndInstructions.getDialogPanel(dialogId);
+    waitUntil(toBeVisible(selector));
+    Object measured = getBrowser().executeScriptOn(locator(selector), "return arguments[0].offsetWidth;");
+    double shown = measured instanceof Number number ? number.doubleValue() : Double.NaN;
+    assertWithScreenshot("The width of the dialog " + dialogId + " is " + measured + "px, not " + width + "px",
+      Math.abs(shown - width) <= DIALOG_WIDTH_TOLERANCE);
+  }
+
+  /**
+   * Close a side panel with the close button of its header
+   *
+   * @param panelId Side panel identifier
+   */
+  protected void closeSidePanel(String panelId) {
+    click(frontEndInstructions.getSidePanelClose(panelId));
+  }
+
+  /**
+   * Close an open side panel pressing Esc, and check that it has been closed
+   *
+   * @param panelId Side panel identifier
+   */
+  protected void closeSidePanelWithEscape(String panelId) {
+    waitUntil(toBeVisible(frontEndInstructions.getOpenSidePanel(panelId)));
+    getBrowser().press(Key.ESCAPE);
+    checkSidePanelClosed(panelId);
+  }
+
+  /**
+   * Check that a side panel has been closed
+   *
+   * @param panelId Side panel identifier
+   */
+  protected void checkSidePanelClosed(String panelId) {
+    checkNotVisible(locator(frontEndInstructions.getOpenSidePanel(panelId)));
+  }
+
+  /**
+   * Check that a side panel is open against an edge of the screen and as wide as its maximum width (or the screen, when
+   * the screen is narrower), give or take two pixels. The browser resolves the maximum width, so a length in rem does
+   * not depend on the font size of the theme. It waits for the panel to finish sliding in
+   *
+   * @param panelId  Side panel identifier
+   * @param position Edge of the screen: left or right
+   * @param maxWidth Maximum width of the side panel (a css length, as in its max-width attribute)
+   */
+  protected void checkSidePanelOpen(String panelId, String position, String maxWidth) {
+    boolean left = "left".equals(position);
+    if (!left && !"right".equals(position)) {
+      throw new IllegalArgumentException("The position of a side panel is left or right, not " + position);
+    }
+    By selector = frontEndInstructions.getSidePanelPanel(panelId);
+    waitUntil(toBeVisible(selector));
+    waitUntil(BrowserCondition.of("the side panel " + panelId + " to be open on the " + position + " edge, " + maxWidth + " wide",
+      browser -> isSidePanelPlaced(browser.executeScriptOn(locator(selector), SIDE_PANEL_PLACEMENT_SCRIPT, maxWidth), left)));
+  }
+
+  private static boolean isSidePanelPlaced(Object placement, boolean left) {
+    if (!(placement instanceof String text)) {
+      return false;
+    }
+    String[] values = text.split("\\|");
+    try {
+      double gap = Double.parseDouble(values[left ? 0 : 1]);
+      double width = Double.parseDouble(values[2]);
+      double maximum = Double.parseDouble(values[3]);
+      return Math.abs(gap) <= SIDE_PANEL_TOLERANCE && Math.abs(width - maximum) <= SIDE_PANEL_TOLERANCE;
+    } catch (NumberFormatException | ArrayIndexOutOfBoundsException exc) {
+      return false;
+    }
+  }
+
+  /**
+   * Check the title of the header of a side panel (spaces collapsed): its label, or the title of its identity header
+   * while one row of its header grid is selected
+   *
+   * @param panelId Side panel identifier
+   * @param text    Title
+   */
+  protected void checkSidePanelTitle(String panelId, String text) {
+    checkSidePanelText(locator(frontEndInstructions.getSidePanelTitle(panelId)), "title", panelId, text);
+  }
+
+  /**
+   * Check the subtitle of the identity header of a side panel (spaces collapsed)
+   *
+   * @param panelId Side panel identifier
+   * @param text    Subtitle
+   */
+  protected void checkSidePanelSubtitle(String panelId, String text) {
+    checkSidePanelText(locator(frontEndInstructions.getSidePanelSubtitle(panelId)), "subtitle", panelId, text);
+  }
+
+  /**
+   * Check that the identity header of a side panel shows a tag with a text (spaces collapsed): one of its tags reads it
+   *
+   * @param panelId Side panel identifier
+   * @param text    Text of the tag
+   */
+  protected void checkSidePanelTag(String panelId, String text) {
+    Locator tags = locator(frontEndInstructions.getSidePanelTags(panelId));
+    waitUntil(BrowserCondition.allOf(BrowserCondition.visible(tags),
+      BrowserCondition.of("the side panel " + panelId + " to show the tag '" + text + "'", browser -> {
+        try {
+          return browser.texts(tags).stream().map(SeleniumUtilities::collapseSpaces).anyMatch(text::equals);
+        } catch (ElementReplacedException exc) {
+          return false;
+        }
+      })));
+  }
+
+  private void checkSidePanelText(Locator part, String name, String panelId, String text) {
+    waitUntil(BrowserCondition.allOf(BrowserCondition.visible(part),
+      BrowserCondition.of("the " + name + " of the side panel " + panelId + " to read '" + text + "'",
+        browser -> browser.exists(part) && text.equals(collapseSpaces(browser.text(part))))));
+  }
+
+  private static String collapseSpaces(String text) {
+    return text == null ? "" : text.replaceAll("\\s+", " ").trim();
+  }
+
+  /**
+   * Press Tab several times on an open side panel and check that the focus never leaves it: after the last field it goes
+   * back to the first one
+   *
+   * @param panelId Side panel identifier
+   * @param presses Times to press Tab (more than the fields of the panel to go round it)
+   */
+  protected void checkSidePanelKeepsTheFocus(String panelId, int presses) {
+    String panelCss = frontEndInstructions.getSidePanelCss(panelId);
+    checkFocusInside(panelCss, "the side panel " + panelId);
+    for (int press = 1; press <= presses; press++) {
+      getBrowser().press(Key.TAB);
+      checkFocusInside(panelCss, "the side panel " + panelId + " after " + press + " Tab");
+    }
+  }
+
+  /**
+   * Close a popover anchored to a control with the close button of its header
+   *
+   * @param popoverId Popover identifier
+   */
+  protected void closePopover(String popoverId) {
+    click(frontEndInstructions.getPopoverClose(popoverId));
+  }
+
+  /**
+   * Close an open popover pressing Esc, and check that it has been closed
+   *
+   * @param popoverId Popover identifier
+   */
+  protected void closePopoverWithEscape(String popoverId) {
+    waitUntil(toBeVisible(frontEndInstructions.getOpenPopover(popoverId)));
+    getBrowser().press(Key.ESCAPE);
+    checkPopoverClosed(popoverId);
+  }
+
+  /**
+   * Check that a popover anchored to a control has been closed
+   *
+   * @param popoverId Popover identifier
+   */
+  protected void checkPopoverClosed(String popoverId) {
+    checkNotVisible(locator(frontEndInstructions.getOpenPopover(popoverId)));
+  }
+
+  /**
+   * Check that a popover is open next to its anchor: on its side of the anchor (top, right, bottom or left), at most 16
+   * pixels away from it and alongside it (they overlap on the other axis)
+   *
+   * @param popoverId Popover identifier
+   * @param anchorId  Identifier of the control the popover is anchored to (its anchor attribute)
+   * @param position  Side of the anchor: top, right, bottom or left (its position attribute)
+   */
+  protected void checkPopoverOpen(String popoverId, String anchorId, String position) {
+    int side = POPOVER_POSITIONS.indexOf(position);
+    if (side < 0) {
+      throw new IllegalArgumentException("The position of a popover is top, right, bottom or left, not " + position);
+    }
+    By selector = frontEndInstructions.getOpenPopover(popoverId);
+    waitUntil(toBeVisible(selector));
+    waitUntil(BrowserCondition.of("the popover " + popoverId + " to be open at the " + position + " of " + anchorId,
+      browser -> isPopoverPlaced(browser.executeScriptOn(locator(selector), POPOVER_PLACEMENT_SCRIPT, anchorId), side)));
+  }
+
+  private static boolean isPopoverPlaced(Object placement, int side) {
+    if (!(placement instanceof String text)) {
+      return false;
+    }
+    try {
+      double[] edges = Arrays.stream(text.split("\\|")).mapToDouble(Double::parseDouble).toArray();
+      // Edges: 0 top, 1 right, 2 bottom, 3 left of the popover and 4 to 7 of the anchor
+      double gap = switch (side) {
+        case 0 -> edges[4] - edges[2];
+        case 1 -> edges[3] - edges[5];
+        case 2 -> edges[0] - edges[6];
+        default -> edges[7] - edges[1];
+      };
+      boolean vertical = side % 2 == 0;
+      boolean alongside = vertical
+        ? edges[3] < edges[5] && edges[1] > edges[7]
+        : edges[0] < edges[6] && edges[2] > edges[4];
+      return gap >= -POPOVER_TOLERANCE && gap <= POPOVER_MAX_GAP && alongside;
+    } catch (NumberFormatException | ArrayIndexOutOfBoundsException exc) {
+      return false;
+    }
+  }
+
+  /**
+   * Press Tab several times on an open popover and check that the focus never leaves it: after the last field it goes
+   * back to the first one
+   *
+   * @param popoverId Popover identifier
+   * @param presses   Times to press Tab (more than the fields of the popover to go round it)
+   */
+  protected void checkPopoverKeepsTheFocus(String popoverId, int presses) {
+    String popoverCss = frontEndInstructions.getPopoverCss(popoverId);
+    checkFocusInside(popoverCss, "the popover " + popoverId);
+    for (int press = 1; press <= presses; press++) {
+      getBrowser().press(Key.TAB);
+      checkFocusInside(popoverCss, "the popover " + popoverId + " after " + press + " Tab");
+    }
+  }
+
+  /**
+   * Check the value of a card: its number and its unit, as the user reads them. The spaces between them do not count,
+   * because the number and the unit are separate elements and each tool reads the space between them its own way
+   *
+   * @param cardId       Card identifier
+   * @param expectedText Expected value, for instance {@code 412,600 €}
+   */
+  protected void checkCardValue(String cardId, String expectedText) {
+    Locator value = locator(frontEndInstructions.getCardValue(cardId));
+    String expected = withoutSpaces(expectedText);
+    waitUntil(BrowserCondition.of("the value of the card " + cardId + " to be '" + expectedText + "'", browser -> {
+      try {
+        return browser.isVisible(value) && expected.equals(withoutSpaces(browser.text(value)));
+      } catch (ElementNotFoundException | ElementReplacedException exc) {
+        return false;
+      }
+    }));
+  }
+
+  /**
+   * Check the trend delta of a card: its text (the number and its unit, for instance {@code +12.5%} or {@code −0.18 pt}
+   * with the minus sign U+2212), its direction and its tone
+   *
+   * @param cardId       Card identifier
+   * @param expectedText Expected text of the delta
+   * @param trend        Expected direction: up, down or flat
+   * @param tone         Expected tone: success, warning, danger, info or neutral
+   */
+  protected void checkCardDelta(String cardId, String expectedText, String trend, String tone) {
+    Locator delta = locator(frontEndInstructions.getCardDelta(cardId));
+    Locator text = locator(frontEndInstructions.getCardDeltaText(cardId));
+    waitUntil(BrowserCondition.of("the delta of the card " + cardId + " to be '" + expectedText + "', " + trend + " and " + tone,
+      browser -> {
+        try {
+          return browser.isVisible(delta) && expectedText.equals(browser.text(text).strip())
+            && trend.equals(browser.attribute(delta, "data-trend")) && tone.equals(browser.attribute(delta, "data-tone"));
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
+          return false;
+        }
+      }));
+  }
+
+  /**
+   * Check the status chip of a card: its text and its tone
+   *
+   * @param cardId       Card identifier
+   * @param expectedText Expected text of the chip, as the user reads it
+   * @param tone         Expected tone: success, warning, danger, info or neutral
+   */
+  protected void checkCardChip(String cardId, String expectedText, String tone) {
+    Locator chip = locator(frontEndInstructions.getCardChip(cardId));
+    waitUntil(BrowserCondition.of("the chip of the card " + cardId + " to be '" + expectedText + "' and " + tone,
+      browser -> {
+        try {
+          return browser.isVisible(chip) && expectedText.equals(browser.text(chip).strip())
+            && tone.equals(browser.attribute(chip, "data-tone"));
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
+          return false;
+        }
+      }));
+  }
+
+  /**
+   * Check that the status chip of a card changes when a button is clicked (for instance a button that reloads the
+   * card): after the click the chip shows another text, with one of the tones of a chip
+   *
+   * @param cardId   Card identifier
+   * @param buttonId Button that changes the chip
+   */
+  protected void checkCardChipChangesOnClick(String cardId, String buttonId) {
+    Locator chip = locator(frontEndInstructions.getCardChip(cardId));
+    checkVisible(chip);
+    String previous = getBrowser().text(chip).strip();
+    clickButton(buttonId);
+    waitUntil(BrowserCondition.of("the chip of the card " + cardId + " to change from '" + previous + "' after clicking " + buttonId,
+      browser -> {
+        try {
+          return browser.isVisible(chip) && !previous.equals(browser.text(chip).strip())
+            && CARD_CHIP_TONES.contains(browser.attribute(chip, "data-tone"));
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
+          return false;
+        }
+      }));
+  }
+
+  /**
+   * Check the progress of a card towards its target: the percent its progress bar announces ({@code aria-valuenow})
+   *
+   * @param cardId  Card identifier
+   * @param percent Expected percent (0 to 100)
+   */
+  protected void checkCardProgress(String cardId, int percent) {
+    Locator progress = locator(frontEndInstructions.getCardProgress(cardId));
+    String expected = String.valueOf(percent);
+    waitUntil(BrowserCondition.of("the progress of the card " + cardId + " to be " + percent + " %", browser -> {
+      try {
+        return browser.isVisible(progress) && expected.equals(browser.attribute(progress, "aria-valuenow"));
+      } catch (ElementNotFoundException | ElementReplacedException exc) {
+        return false;
+      }
+    }));
+  }
+
+  /**
+   * Check that a component (a criterion, a grid or a chart) is shown in the body of a card
+   *
+   * @param cardId      Card identifier
+   * @param componentId Component identifier
+   */
+  protected void checkCardBodyComponent(String cardId, String componentId) {
+    checkVisible(locator(frontEndInstructions.getCardBodyComponent(cardId, componentId)));
+  }
+
+  private static String withoutSpaces(String text) {
+    return text == null ? "" : text.replaceAll("[\\s\\u00A0\\u202F]", "");
+  }
+
+  /**
+   * Check that a button has the keyboard focus, for instance the one that opened a dialog once the dialog is closed
+   *
+   * @param buttonId Button identifier
+   */
+  protected void checkButtonFocused(String buttonId) {
+    checkFocusInside(frontEndInstructions.getButtonCss(buttonId), "button " + buttonId);
+  }
+
+  private void checkFocusInside(String css, String description) {
+    waitUntil(BrowserCondition.of("focus to be on " + description,
+      browser -> Boolean.TRUE.equals(browser.executeScript(FOCUS_INSIDE_SCRIPT, css))));
+  }
+
+  /**
+   * Open the list of suggestions of a criterion
+   *
+   * @param criterionName Criterion name
+   */
+  protected void openSuggest(String criterionName) {
+    click(frontEndInstructions.getSuggestChoice(frontEndInstructions.getCriterionCss(criterionName)));
+  }
+
+  /**
+   * Write text in the search box of the open suggest list of a criterion
+   *
+   * @param criterionName Criterion name
+   * @param text          Text to search
+   */
+  protected void writeSuggestSearch(String criterionName, CharSequence text) {
+    writeText(locator(frontEndInstructions.getSuggestInput(frontEndInstructions.getCriterionCss(criterionName))), text);
+  }
+
+  /**
+   * Check the number of results that the open select or suggest list shows
+   *
+   * @param expected Expected number of results
+   */
+  protected void checkSuggestResultCount(int expected) {
+    if (expected > 0) {
+      checkVisible(locator(frontEndInstructions.getSelectOption(expected)));
+    }
+    checkNotVisible(locator(frontEndInstructions.getSelectOption(expected + 1)));
+  }
+
+  /**
+   * Suggest an element after a first search that is replaced by a second one while the first is still loading
+   *
+   * @param criterionName Criterion name
+   * @param search1       First search
+   * @param search2       Second search
+   * @param match         Label of the result to pick
+   * @param pause         Milliseconds to wait between the searches
+   */
+  protected void suggestReplacingSearch(String criterionName, String search1, String search2, String match, Integer pause) {
+    openSuggest(criterionName);
+    delayedSearch(frontEndInstructions.getSuggestInput(frontEndInstructions.getCriterionCss(criterionName)),
+      search1, search2, match, pause);
+  }
+
+  /**
+   * Suggest an element of a multiple suggest after a first search that is replaced by a second one while the first is
+   * still loading
+   *
+   * @param criterionName Criterion name
+   * @param search1       First search
+   * @param search2       Second search
+   * @param match         Label of the result to pick
+   * @param pause         Milliseconds to wait between the searches
+   */
+  protected void suggestMultipleReplacingSearch(String criterionName, String search1, String search2, String match, Integer pause) {
+    delayedSearch(frontEndInstructions.getSuggestMultipleInput(frontEndInstructions.getCriterionCss(criterionName)),
+      search1, search2, match, pause);
+  }
+
+  /**
+   * Search, wait, search again and pick a result
+   *
+   * @param searchBox Search box
+   * @param search1   First search
+   * @param search2   Second search
+   * @param match     Label of the result to pick
+   * @param pause     Milliseconds to wait between the searches
+   */
+  private void delayedSearch(By searchBox, String search1, String search2, String match, Integer pause) {
+    // Write text
+    waitUntil(toBePresent(searchBox));
+    scrollToTheCenter(searchBox);
+    writeText(locator(searchBox), search1);
+
+    // Pause
+    pause(pause);
+
+    // Clear text
+    clearText(searchBox);
+
+    // Write select
+    writeTextOnDriver(locator(searchBox), search2);
+
+    // Click selector
+    selectResult(match);
+  }
+
+  /**
+   * Check that a tab criterion marks a tab as holding fields that failed the validation, or that it marks none
+   *
+   * @param tabId   Tab criterion identifier
+   * @param invalid Expected state: true when a tab is marked invalid, false when none is
+   */
+  protected void checkTabInvalid(String tabId, boolean invalid) {
+    checkMarkedInvalid(frontEndInstructions.getInvalidTab(tabId), invalid);
+  }
+
+  /**
+   * Check that a tab criterion shows a tab as the active one
+   *
+   * @param tabId    Tab criterion identifier
+   * @param tabLabel Tab label
+   */
+  protected void checkTabActive(String tabId, String tabLabel) {
+    waitUntil(toBeVisible(frontEndInstructions.getTabActive(tabId, tabLabel)));
+  }
+
+  /**
+   * Check that a wizard marks a step as holding fields that failed the validation, or that it marks none
+   *
+   * @param wizardId Wizard criterion identifier
+   * @param invalid  Expected state: true when a step is marked invalid, false when none is
+   */
+  protected void checkWizardStepInvalid(String wizardId, boolean invalid) {
+    checkMarkedInvalid(frontEndInstructions.getInvalidWizardStep(wizardId), invalid);
+  }
+
+  private void checkMarkedInvalid(By marked, boolean invalid) {
+    BrowserCondition isMarked = BrowserCondition.present(locator(marked));
+    waitUntil(invalid ? isMarked : BrowserCondition.not(isMarked));
+  }
+
+  /**
+   * Check that the focus is on a criterion (the keyboard focus is on the control of the criterion)
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void checkCriterionFocused(String criterionName) {
+    String criterionCss = frontEndInstructions.getCriterionCss(criterionName);
+    waitUntil(BrowserCondition.of("focus to be on criterion " + criterionName,
+      browser -> Boolean.TRUE.equals(browser.executeScript(FOCUS_INSIDE_SCRIPT, criterionCss))));
+  }
+
+  /**
+   * Check the dates of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @param from          Expected start date (empty when there is none)
+   * @param to            Expected end date (empty when there is none)
+   */
+  protected void checkDateRange(String criterionName, String from, String to) {
+    Locator fromInput = locator(frontEndInstructions.getDateRangeFrom(criterionName));
+    Locator toInput = locator(frontEndInstructions.getDateRangeTo(criterionName));
+    waitUntil(BrowserCondition.of("date range " + criterionName + " to be " + from + " - " + to,
+      browser -> from.equals(valueOf(browser, fromInput)) && to.equals(valueOf(browser, toInput))));
+  }
+
+  private static String valueOf(BrowserDriver browser, Locator input) {
+    String value = browser.attribute(input, "value");
+    return value == null ? "" : value;
+  }
+
+  /**
+   * Check that a date range criterion cannot be edited: its two dates are disabled
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void checkDateRangeDisabled(String criterionName) {
+    Locator fromInput = locator(frontEndInstructions.getDateRangeFrom(criterionName));
+    Locator toInput = locator(frontEndInstructions.getDateRangeTo(criterionName));
+    waitUntil(BrowserCondition.of("date range " + criterionName + " to be disabled",
+      browser -> browser.exists(fromInput) && !browser.isEnabled(fromInput) && browser.exists(toInput) && !browser.isEnabled(toInput)));
+  }
+
+  /**
+   * Check how many quick presets a date range criterion offers
+   *
+   * @param criterionName Criterion identifier
+   * @param count         Expected number of presets
+   */
+  protected void checkDateRangePresetCount(String criterionName, int count) {
+    Locator presets = locator(frontEndInstructions.getDateRangePresets(criterionName));
+    waitUntil(BrowserCondition.of("date range " + criterionName + " to offer " + count + " presets",
+      browser -> browser.count(presets) == count));
+  }
+
+  /**
+   * Click on a quick preset of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   * @param presetCode    Preset code, such as 1M
+   */
+  protected void clickDateRangePreset(String criterionName, String presetCode) {
+    clickSelector(frontEndInstructions.getDateRangePreset(criterionName, presetCode));
+  }
+
+  /**
+   * Check that a quick preset of a date range criterion is the active one (the dates are the ones it set)
+   *
+   * @param criterionName Criterion identifier
+   * @param presetCode    Preset code, such as 1M
+   */
+  protected void checkDateRangePresetActive(String criterionName, String presetCode) {
+    checkVisible(locator(frontEndInstructions.getDateRangePresetActive(criterionName, presetCode)));
+  }
+
+  /**
+   * Check the text of an option of the quick filter of a grid: its label and its count, such as {@code Locked 3}. It
+   * waits for the counts to load. While the grid has selected rows its selection bar covers the quick filter, so the
+   * selection is cleared first, as the user does to read the counts
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
+   * @param text          Label and count of the option, separated by a space
+   */
+  protected void checkGridQuickFilterOption(String criterionName, String value, String text) {
+    Locator option = locator(frontEndInstructions.getGridQuickFilterOption(criterionName, value));
+    clearGridSelectionOver(locator(frontEndInstructions.getGridQuickFilter(criterionName)), option);
+    waitUntil(BrowserCondition.of("quick filter " + criterionName + " option '" + value + "' to read '" + text + "'",
+      browser -> browser.exists(option) && text.equals(browser.text(option).replaceAll("\\s+", " ").trim())));
+  }
+
+  /**
+   * Choose an option of the quick filter of a grid, which filters the grid, and wait for the grid to load. A selection
+   * bar over the quick filter is cleared first, as the user does
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
+   */
+  protected void clickGridQuickFilterOption(String criterionName, String value) {
+    clearGridSelectionOver(locator(frontEndInstructions.getGridQuickFilter(criterionName)),
+      locator(frontEndInstructions.getGridQuickFilterOption(criterionName, value)));
+    clickSelector(frontEndInstructions.getGridQuickFilterOption(criterionName, value));
+    waitForLoadingGrid();
+  }
+
+  /**
+   * Check that an option of the quick filter of a grid is the chosen one
+   *
+   * @param criterionName Quick filter identifier
+   * @param value         Value of the option (empty for the option that leaves the grid unfiltered)
+   */
+  protected void checkGridQuickFilterOptionChosen(String criterionName, String value) {
+    waitUntil(toBePresent(frontEndInstructions.getGridQuickFilterOptionChosen(criterionName, value)));
+  }
+
+  /**
+   * Search a text in the search of a grid: replace its text and press Enter, which filters the grid at once, and wait
+   * for the grid to load
+   *
+   * @param criterionName Search identifier
+   * @param text          Text to search
+   */
+  protected void searchGrid(String criterionName, String text) {
+    Locator input = typeInGridSearch(criterionName, text);
+    getBrowser().press(input, Key.ENTER);
+    waitForLoadingGrid();
+  }
+
+  /**
+   * Type a text in the search of a grid, replacing its text, as the user does: the grid is filtered after the pause of
+   * the search, so wait for its rows (for instance with {@link #checkRowGone(String, String)})
+   *
+   * @param criterionName Search identifier
+   * @param text          Text to type
+   */
+  protected void typeGridSearch(String criterionName, String text) {
+    typeInGridSearch(criterionName, text);
+  }
+
+  /**
+   * Empty the search of a grid with its clear button, which filters the grid at once, and wait for the grid to load
+   *
+   * @param criterionName Search identifier
+   */
+  protected void clearGridSearch(String criterionName) {
+    clickSelector(frontEndInstructions.getGridSearchClear(criterionName));
+    waitForLoadingGrid();
+  }
+
+  /**
+   * Replace the text of the search of a grid with a typed one
+   *
+   * @param criterionName Search identifier
+   * @param text          Text to type
+   * @return Text box of the search
+   */
+  private Locator typeInGridSearch(String criterionName, String text) {
+    Locator input = locator(frontEndInstructions.getGridSearchInput(criterionName));
+    clearGridSelectionOver(locator(frontEndInstructions.getGridSearch(criterionName)), input);
+    waitUntil(BrowserCondition.visible(input));
+    getBrowser().clear(input);
+    writeText(input, text);
+    // Emptying the search filters the grid after its pause, so the text may be typed while the grid reloads: the search
+    // must hold all of it, or the grid is filtered with less
+    waitUntil(BrowserCondition.of("search " + criterionName + " to hold the typed text '" + text + "'",
+      browser -> text.equals(browser.attribute(input, VALUE_PROPERTY))));
+    return input;
+  }
+
+  /**
+   * While a grid has selected rows its selection bar covers the toolbar of the grid (its search and its quick filter are
+   * hidden): clear the selection with the clear button of the bar, as the user does to search or filter again
+   *
+   * @param toolbarItem Element of the toolbar whose owner attribute is its grid (the search, the quick filter)
+   * @param input       Element of that item the step needs visible
+   */
+  private void clearGridSelectionOver(Locator toolbarItem, Locator input) {
+    waitUntil(BrowserCondition.anyOf(BrowserCondition.visible(input), BrowserCondition.present(toolbarItem)));
+    String gridId = getBrowser().isVisible(input) ? null : getBrowser().attribute(toolbarItem, TestAttributes.OWNER);
+    if (gridId == null || gridId.isEmpty()) {
+      return;
+    }
+    Locator clear = locator(frontEndInstructions.getGridSelectionClear(gridId));
+    waitUntil(BrowserCondition.anyOf(BrowserCondition.visible(input), BrowserCondition.visible(clear)));
+    if (!getBrowser().isVisible(input)) {
+      clickSelector(frontEndInstructions.getGridSelectionClear(gridId));
+    }
+  }
+
+  /**
+   * Check that the selection bar of a grid is shown with a text, the number of selected rows ("2 selected")
+   *
+   * @param gridId Grid identifier
+   * @param text   Text of the bar
+   */
+  protected void checkGridSelectionBar(String gridId, String text) {
+    Locator count = locator(frontEndInstructions.getGridSelectionCount(gridId));
+    waitUntil(BrowserCondition.allOf(BrowserCondition.visible(count),
+      BrowserCondition.of("selection bar of " + gridId + " to read '" + text + "'",
+        browser -> browser.exists(count) && text.equals(browser.text(count).replaceAll("\\s+", " ").trim()))));
+  }
+
+  /**
+   * Check that a grid does not show its selection bar: it has no selected rows
+   *
+   * @param gridId Grid identifier
+   */
+  protected void checkGridSelectionBarNotVisible(String gridId) {
+    checkNotVisible(frontEndInstructions.getGridSelectionBar(gridId));
+  }
+
+  /**
+   * Click a selection button (selection="true") in the selection bar of a grid, as the user does: it runs the actions
+   * of the button (a confirmation, if any, stays open)
+   *
+   * @param gridId     Grid identifier
+   * @param buttonName Button identifier
+   */
+  protected void clickGridSelectionButton(String gridId, String buttonName) {
+    click(frontEndInstructions.getGridSelectionButton(gridId, buttonName));
+    moveMouse();
+  }
+
+  /**
+   * Wait until a grid does not show a text any more, once it has loaded: a filter of the grid has taken the row out
+   *
+   * @param gridId Grid identifier
+   * @param search Text of the row
+   */
+  protected void checkRowGone(String gridId, String search) {
+    waitUntil(BrowserCondition.allOf(toBeInvisible(frontEndInstructions.findGridCell(gridId, search)),
+      checkIfGridLoaderIsNotVisible()));
+  }
+
+  /**
+   * Type the start date of a date range criterion and press Enter on it, which submits the screen
+   *
+   * @param criterionName Criterion identifier
+   * @param date          Start date, in the format of the criterion
+   */
+  protected void submitDateRangeFrom(String criterionName, String date) {
+    submitDate(locator(frontEndInstructions.getDateRangeFrom(criterionName)), date);
+  }
+
+  /**
+   * Type the end date of a date range criterion and press Enter on it, which submits the screen
+   *
+   * @param criterionName Criterion identifier
+   * @param date          End date, in the format of the criterion
+   */
+  protected void submitDateRangeTo(String criterionName, String date) {
+    submitDate(locator(frontEndInstructions.getDateRangeTo(criterionName)), date);
+  }
+
+  /**
+   * Replace the date of an input with a typed one and press Enter on it, without leaving the input first
+   *
+   * @param input Date input
+   * @param date  Date to type
+   */
+  private void submitDate(Locator input, String date) {
+    waitUntil(BrowserCondition.visible(input));
+    getBrowser().clear(input);
+    writeText(input, date);
+    getBrowser().press(input, Key.ENTER);
+  }
+
+  /**
+   * Clear the start date of a date range criterion
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void clearDateRangeFrom(String criterionName) {
+    By fromInput = frontEndInstructions.getDateRangeFrom(criterionName);
+    waitUntil(toBeVisible(fromInput));
+    clearText(fromInput);
+    moveMouseOutOfCriterion(frontEndInstructions.getCriterionCss(criterionName));
+  }
+
+  /**
+   * Drop a file on the drop zone of an uploader criterion, as a user does when dragging it from the desktop
+   *
+   * @param criterionName Criterion identifier
+   * @param fileName      Name of the file
+   * @param mimeType      Media type of the file, such as image/png
+   * @param base64Content Content of the file, base64 encoded
+   */
+  protected void dropFile(String criterionName, String fileName, String mimeType, String base64Content) {
+    Locator dropZone = locator(frontEndInstructions.getUploaderDropZone(criterionName));
+    waitUntil(BrowserCondition.visible(dropZone));
+    getBrowser().executeScriptOn(dropZone, DROP_FILE_SCRIPT, fileName, mimeType, base64Content);
+  }
+
+  /**
+   * Check that an uploader criterion offers the button that opens the camera, or that it does not
+   *
+   * @param criterionName Criterion identifier
+   * @param shown         Expected state: true when the camera button is displayed, false when it is not
+   */
+  protected void checkUploadCaptureButton(String criterionName, boolean shown) {
+    Locator capture = locator(frontEndInstructions.getUploaderCapture(criterionName));
+    waitUntil(shown ? BrowserCondition.visible(capture) : BrowserCondition.invisible(capture));
+  }
+
+  /**
+   * Choose a file with the camera input of an uploader criterion (the input that captures an image). Only the React
+   * client renders that input: AngularJS creates it when the camera button is clicked
+   *
+   * @param criterionName Criterion identifier
+   * @param filePath      Path of the file that the camera returns
+   */
+  protected void chooseCapturedFile(String criterionName, String filePath) {
+    Locator captureInput = locator(frontEndInstructions.getUploaderCaptureInput(criterionName));
+    waitUntil(BrowserCondition.present(captureInput));
+    getBrowser().sendKeys(captureInput, filePath);
+  }
+
+  /**
+   * Check the name of the file that an uploader criterion holds
+   *
+   * @param criterionName Criterion identifier
+   * @param fileName      Expected name of the file (it may be part of what the criterion shows)
+   */
+  protected void checkUploadedFile(String criterionName, String fileName) {
+    Locator filename = locator(frontEndInstructions.getUploaderFilename(criterionName));
+    waitUntil(BrowserCondition.of("uploader " + criterionName + " to hold the file " + fileName,
+      browser -> browser.exists(filename) && (String.valueOf(browser.text(filename)).contains(fileName)
+        || valueOf(browser, filename).contains(fileName))));
+  }
+
+  /**
+   * Check that an uploader criterion holds no file
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void checkNoUploadedFile(String criterionName) {
+    Locator filename = locator(frontEndInstructions.getUploaderFilename(criterionName));
+    waitUntil(BrowserCondition.of("uploader " + criterionName + " to hold no file",
+      browser -> !browser.exists(filename) || (String.valueOf(browser.text(filename)).isBlank()
+        && valueOf(browser, filename).isBlank())));
+  }
+
+  /**
+   * Check that an uploader criterion shows the preview of the image that it holds (a blob address)
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void checkUploadPreview(String criterionName) {
+    Locator preview = locator(frontEndInstructions.getUploaderPreview(criterionName));
+    waitUntil(BrowserCondition.of("uploader " + criterionName + " to show an image preview",
+      browser -> browser.isVisible(preview) && String.valueOf(browser.attribute(preview, "src")).startsWith("blob:")));
+  }
+
+  /**
+   * Check that an uploader criterion shows no image preview
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void checkNoUploadPreview(String criterionName) {
+    checkNotVisible(locator(frontEndInstructions.getUploaderPreview(criterionName)));
+  }
+
+  /**
+   * Click on the button that clears the file of an uploader criterion
+   *
+   * @param criterionName Criterion identifier
+   */
+  protected void clearUpload(String criterionName) {
+    clickSelector(frontEndInstructions.getUploaderClear(criterionName));
   }
 }

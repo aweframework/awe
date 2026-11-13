@@ -1,6 +1,7 @@
 import {aweApplication} from "../../awe";
 import "angular-bootstrap-colorpicker";
 import {templateColumnColor} from "../../services/criterion";
+import {keepColorPickerInViewport} from "../../services/colorPicker";
 
 // Add requirements
 aweApplication.requires.push("colorpicker.module");
@@ -23,6 +24,7 @@ aweApplication.directive('aweColumnColor', [
 
           // Update visible value on generation
           component.updateVisibleValue();
+          keepColorPickerInViewport(scope);
         }
       }
     };

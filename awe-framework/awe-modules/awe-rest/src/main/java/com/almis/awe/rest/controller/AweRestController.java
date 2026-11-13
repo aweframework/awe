@@ -1,5 +1,6 @@
 package com.almis.awe.rest.controller;
 
+import com.almis.awe.exception.AWEUnauthorizedException;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dto.ServiceData;
@@ -12,7 +13,6 @@ import com.almis.awe.rest.service.JWTTokenService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,13 +26,13 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.util.Assert;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.Map;
 import java.util.Optional;
@@ -65,7 +65,6 @@ public class AweRestController {
    * @param jwtTokenService JWT Token service
    * @param modelMapper     the model mapper
    */
-  @Autowired
   public AweRestController(QueryService queryService, MaintainService maintainService, AweRequest request,
                            JWTTokenService jwtTokenService, ModelMapper modelMapper, ObjectMapper objectMapper) {
     this.queryService = queryService;
@@ -91,7 +90,7 @@ public class AweRestController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Success. Authorized OK", content = @Content(schema = @Schema(implementation = LoginResponse.class))),
     @ApiResponse(responseCode = "400", description = "Bad request"),
-    @ApiResponse(responseCode = "401", description = "Unauthorized. User not found or invalid credentials"),
+    @ApiResponse(responseCode = "401", description = "Unauthorized. User not found, invalid credentials or expired password (code PASSWORD_EXPIRED: the password has to be changed in the web application)", content = @Content(schema = @Schema(implementation = AweRestResponse.class))),
     @ApiResponse(responseCode = "500", description = "Internal error")})
   public ResponseEntity<LoginResponse> authenticate(@Valid @RequestBody LoginRequest loginRequest, HttpServletResponse httpServletResponse) {
     Assert.notNull(loginRequest.getUsername());
@@ -131,7 +130,7 @@ public class AweRestController {
   public ResponseEntity<AweRestResponse> launchQuery(@Parameter(description = "Query ID", required = true) @PathVariable String queryId,
                                                      @Parameter(description = "Query parameters") @RequestBody(required = false) RequestParameter parameters) throws AWException {
     setParameters(Optional.ofNullable(parameters).map(RequestParameter::getParameters).orElse(null));
-    AweRestResponse aweRestResponse = convertServiceDataToDto(queryService.launchPrivateQuery(queryId));
+    AweRestResponse aweRestResponse = convertServiceDataToDto(queryService.launchQuery(queryId));
     // Clear context
     SecurityContextHolder.clearContext();
     return ResponseEntity.ok(aweRestResponse);
@@ -193,7 +192,7 @@ public class AweRestController {
    * @throws AWException the AWE exception
    */
   @PostMapping({"/maintain/async/{maintainId}"})
-  @Tag(name = "Protected API", description = "Protected admin interface to launch AWE services asynchronously")
+  @Tag(name = "Protected API", description = "Protected admin interface to launch AWE services")
   @Operation(summary = "Maintain service.", description = "Launch a maintain given maintain id and parameters, and launch a callback function on maintain end",
     security = @SecurityRequirement(name = "bearerAuth"),
     tags = "Protected API")
@@ -245,6 +244,24 @@ public class AweRestController {
     AweRestResponse aweRestResponse = new AweRestResponse();
     aweRestResponse.setType(AnswerType.ERROR);
     aweRestResponse.setTitle(AWE_REST);
+    aweRestResponse.setMessage(exc.getMessage());
+    return aweRestResponse;
+  }
+
+  /**
+   * Handle a launch refused by the authorization: the generic refusal title and message, which never name the target
+   *
+   * @param exc Exception to handle
+   * @return Response error
+   */
+  @ExceptionHandler(AWEUnauthorizedException.class)
+  @ResponseStatus(HttpStatus.FORBIDDEN)
+  public AweRestResponse handleUnauthorizedException(AWEUnauthorizedException exc) {
+    log.warn(AWE_REST + exc);
+    // Retrieve exception
+    AweRestResponse aweRestResponse = new AweRestResponse();
+    aweRestResponse.setType(AnswerType.ERROR);
+    aweRestResponse.setTitle(exc.getTitle());
     aweRestResponse.setMessage(exc.getMessage());
     return aweRestResponse;
   }

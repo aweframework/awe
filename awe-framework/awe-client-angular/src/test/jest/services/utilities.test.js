@@ -107,8 +107,9 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/utilities.js',
   });
 
   it('should manage a rest error', function () {
+    // An expired session answers its own client action, with the end-load of its loading bar
     const actions1 = $utilities.manageRestError({status: 401, title: "", message: ""});
-    expect(actions1.length).toEqual(2);
+    expect(actions1.length).toEqual(1);
 
     const actions2 = $utilities.manageRestError({status: 403, title: "", message: ""}, "tutu");
     expect(actions2.length).toEqual(2);
@@ -117,12 +118,165 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/utilities.js',
     expect(actions3.length).toEqual(2);
 
     const actions4 = $utilities.manageRestError({status: 401, title: "", message: ""}, "tutu");
-    expect(actions4.length).toEqual(3);
+    expect(actions4.length).toEqual(2);
 
     const actions5 = $utilities.manageRestError({status: 413, title: "", message: ""});
     expect(actions5.length).toEqual(1);
 
     const actions6 = $utilities.manageRestError({status: 504, title: "", message: ""}, "tutu");
     expect(actions6.length).toEqual(2);
+  });
+
+  it('answers an unauthorized request with the end-load of its target and the session expired client action, and with no message built from the body', function () {
+    expect($utilities.manageRestError({status: 401, title: "", message: ""}, {view: "base", component: "dialog"}))
+      .toEqual([
+        {type: 'end-load', address: {view: "base", component: "dialog"}},
+        {type: 'session-expired'}
+      ]);
+    expect($utilities.manageRestError({status: 401, title: "", message: ""}))
+      .toEqual([{type: 'session-expired'}]);
+  });
+
+  it('keeps the title and the message of a structured forbidden answer, and shows the refusal message of an empty one', function () {
+    const structured = $utilities.manageRestError({status: 403, title: "ERROR_TITLE_TOKEN_EXPIRED", message: "Login again"}, "tutu");
+    expect(structured).toEqual([
+      {type: 'end-load', address: "tutu"},
+      {type: 'message', parameters: {type: "error", title: "ERROR_TITLE_TOKEN_EXPIRED", message: "Login again"}}
+    ]);
+
+    const empty = $utilities.manageRestError({status: 403, title: "", message: ""});
+    expect(empty).toEqual([
+      {type: 'message', parameters: {type: "error", title: "ERROR_TITLE_ACCESS_DENIED", message: "ERROR_MESSAGE_ACTION_NOT_PERMITTED"}}
+    ]);
+  });
+
+  it('shows the text of a plain text forbidden answer under the access denied title', function () {
+    const plain = $utilities.manageRestError({status: 403, title: "", message: "", body: "Forbidden by the proxy"}, "tutu");
+    expect(plain).toEqual([
+      {type: 'end-load', address: "tutu"},
+      {type: 'message', parameters: {type: "error", title: "ERROR_TITLE_ACCESS_DENIED", message: "Forbidden by the proxy"}}
+    ]);
+  });
+
+  it('drops the body of a forbidden answer which looks like markup, and shows the access denied keys', function () {
+    // A proxy or a gateway answering with an HTML page is never printed in the message: the answers with no
+    // readable text at all run the refusal message the server sends
+    const markup = $utilities.manageRestError({status: 403, title: "", message: "", body: "  <html><body><h1>Error 403</h1></body></html>"}, "tutu");
+    expect(markup).toEqual([
+      {type: 'end-load', address: "tutu"},
+      {type: 'message', parameters: {type: "error", title: "ERROR_TITLE_ACCESS_DENIED", message: "ERROR_MESSAGE_ACTION_NOT_PERMITTED"}}
+    ]);
+  });
+
+  it('reports a forbidden answer with no readable text with the access denied keys', function () {
+    // A refusal with no body at all keeps the end-load of its target and shows the refusal message the server sends
+    const bodyless = $utilities.manageRestError({status: 403, title: undefined, message: undefined, body: undefined}, "tutu");
+    expect(bodyless).toEqual([
+      {type: 'end-load', address: "tutu"},
+      {type: 'message', parameters: {type: "error", title: "ERROR_TITLE_ACCESS_DENIED", message: "ERROR_MESSAGE_ACTION_NOT_PERMITTED"}}
+    ]);
+  });
+
+  it('reports a missing resource with the not found keys, and never as a lost connection', function () {
+    const notFound = $utilities.manageRestError({status: 404, title: "", message: ""}, "tutu");
+    expect(notFound).toEqual([
+      {type: 'end-load', address: "tutu"},
+      {type: 'message', parameters: {type: "error", title: "ERROR_TITLE_NOT_FOUND", message: "ERROR_MESSAGE_NOT_FOUND"}}
+    ]);
+  });
+
+  it('keeps the connection lost message for the failures it does not name', function () {
+    // Disconnected and the unnamed statuses answer the connection lost message as they did (PRESERVE)
+    expect($utilities.manageRestError({status: -1, title: "", message: ""}, "tutu")).toEqual([
+      {type: 'end-load', address: "tutu"},
+      {type: 'message', parameters: {type: "error", title: "ERROR_TITLE_CONNECTION_LOST", message: "ERROR_MESSAGE_CONNECTION_LOST"}}
+    ]);
+    expect($utilities.manageRestError({status: 503, title: "", message: ""})).toEqual([
+      {type: 'message', parameters: {type: "error", title: "ERROR_TITLE_CONNECTION_LOST", message: "ERROR_MESSAGE_CONNECTION_LOST"}}
+    ]);
+  });
+
+  describe('copyToClipboard', function () {
+    let $log, writeText;
+    beforeEach(function () {
+      $log = $injector.get('$log');
+      jest.spyOn($log, 'error').mockImplementation(() => {});
+      writeText = jest.fn();
+      Object.defineProperty(navigator, 'clipboard', {value: {writeText}, configurable: true});
+    });
+
+    it('should copy the text and log nothing when the clipboard accepts it', async function () {
+      writeText.mockResolvedValue(undefined);
+      await $utilities.copyToClipboard("some text", "Copying test value");
+      expect(writeText).toHaveBeenCalledWith("some text");
+      expect($log.error).not.toHaveBeenCalled();
+    });
+
+    it('should log the failure with its context instead of leaving the promise rejected', async function () {
+      const error = new Error("denied");
+      writeText.mockRejectedValue(error);
+      await expect($utilities.copyToClipboard("some text", "Copying test value")).resolves.toBeUndefined();
+      expect($log.error).toHaveBeenCalledWith("[ERROR] Copying test value to the clipboard", error);
+    });
+
+    it('should log and resolve when the clipboard API is not available (non-secure context)', async function () {
+      Object.defineProperty(navigator, 'clipboard', {value: undefined, configurable: true});
+      await expect($utilities.copyToClipboard("some text", "Copying test value")).resolves.toBeUndefined();
+      expect($log.error).toHaveBeenCalledWith("[ERROR] Copying test value to the clipboard", expect.any(Error));
+    });
+  });
+
+  describe('behaviour pinned before the lint cleanup', function () {
+    it('should remove every child node of a node', function () {
+      const node = document.createElement("div");
+      node.appendChild(document.createElement("span"));
+      node.appendChild(document.createTextNode("text"));
+      node.appendChild(document.createComment("comment"));
+      node.appendChild(document.createElement("b"));
+
+      $utilities.removeChildren(node);
+
+      expect(node.childNodes.length).toBe(0);
+      expect(node.firstChild).toBeNull();
+    });
+
+    it('should leave an empty node empty', function () {
+      const node = document.createElement("div");
+      $utilities.removeChildren(node);
+      expect(node.childNodes.length).toBe(0);
+    });
+
+    it('should url encode spaces, percent signs, dashes, slashes and reserved characters', function () {
+      expect($utilities.urlEncode("a b")).toBe("a+b");
+      expect($utilities.urlEncode("100%")).toBe("100%25");
+      expect($utilities.urlEncode("a-b_c.d")).toBe("a-b_c.d");
+      expect($utilities.urlEncode("a/b")).toBe("a%2Fb");
+      expect($utilities.urlEncode("it's (1)*~!")).toBe("it%27s+%281%29%2a%7e%21");
+    });
+
+    it('should url decode what it encodes and the plus sign as a space', function () {
+      expect($utilities.urlDecode("a+b")).toBe("a b");
+      expect($utilities.urlDecode("100%25")).toBe("100%");
+      expect($utilities.urlDecode("a%2Fb")).toBe("a/b");
+      expect($utilities.urlDecode("it%27s+%281%29%2A%7E%21")).toBe("it's (1)*~!");
+      ["a b", "100%", "a-b/c d", "it's (1)*~!", "ñ é-/%"].forEach(function (value) {
+        expect($utilities.urlDecode($utilities.urlEncode(value))).toBe(value);
+      });
+    });
+
+    it('should tell numbers from other types', function () {
+      expect($utilities.isNumber(12)).toBe(true);
+      expect($utilities.isNumber(-3.5)).toBe(true);
+      expect($utilities.isNumber("12")).toBe(true);
+      expect($utilities.isNumber("-12")).toBe(true);
+      expect($utilities.isNumber("1.5")).toBe(true);
+      // The string pattern is not anchored, so any string matches it (empty matches too)
+      expect($utilities.isNumber("abc")).toBe(true);
+      expect($utilities.isNumber("")).toBe(true);
+      expect($utilities.isNumber(true)).toBe(false);
+      expect($utilities.isNumber(null)).toBe(false);
+      expect($utilities.isNumber(undefined)).toBe(false);
+      expect($utilities.isNumber({})).toBe(false);
+    });
   });
 });

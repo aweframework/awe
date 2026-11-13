@@ -1,23 +1,26 @@
 import {aweApplication} from "../awe";
+import {TestIds} from "../data/testIds";
 import {getIconTemplate} from "./component";
 import "../directives/plugins/uiNumeric";
 import "../directives/plugins/uiSlider";
+import {iconTemplate} from "./icon";
 
 // Numeric template
 export const templateNumeric =
 `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
-  <awe-context-menu ng-cloak></awe-context-menu>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <div ng-class="::groupClass" title="{{controller.title| translateMultiple}}" ng-cloak>
-    <label ng-attr-for="{{::controller.id}}" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
-      <i ng-if="::controller.help" class="help-target fa fa-fw fa-question-circle"></i>
+    <label ng-attr-for="{{::controller.id}}" ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
       {{controller.label| translateMultiple}}
     </label>
     <div class="validator input  {{::validatorGroup}} focus-target" ng-class="{'input-group': controller.unit}">
       ${getIconTemplate("{{::iconClass}}")}
       <input ui-numeric="aweNumericOptions" class="form-control text-right {{classes}}" autocomplete="off" ng-click="click($event)"
              ng-attr-id="{{::controller.id}}" ng-attr-name="{{::controller.id}}" ng-disabled="controller.readonly" ng-press-enter="submit($event)"
-             placeholder="{{controller.placeholder| translateMultiple}}" ng-focus="focus()" ng-blur="blur()"/>
-      <awe-loader class="loader" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+             placeholder="{{controller.placeholder| translateMultiple}}{{requiredMark()}}" ng-attr-aria-required="{{ariaRequired()}}" ng-focus="focus()" ng-blur="blur()"
+             data-testid="${TestIds.criterionInput}"/>
+      <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
       <span ng-if="controller.unit" class="input-group-addon unit" translate-multiple="{{controller.unit}}" ng-cloak></span>
     </div>
   </div>
@@ -31,7 +34,7 @@ export const templateNumericColumn =
   <div class="edition input input-group-{{::size}} focus-target" title="{{component.model.values[0].title| translateMultiple}}">
     <input ui-numeric="aweNumericOptions" class="form-control text-right col-xs-12 {{classes}} {{component.model.values[0].style}}" autocomplete="off"
            ng-disabled="component.controller.readonly" ng-focus="focus()" ng-blur="blur()"
-           placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-click="click($event)" ng-press-enter="saveRow($event)"/>
+           placeholder="{{::component.controller.placeholder| translateMultiple}}" ng-click="click($event)" ng-press-enter="saveRow($event)" data-testid="${TestIds.criterionInput}"/>
     ${getIconTemplate("{{::iconClass}}")}
   </div>
   <awe-loader class="loader no-animate" ng-if="component.controller.loading" icon-loader="{{::iconLoader}}" ng-cloak/>

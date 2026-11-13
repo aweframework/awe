@@ -1,11 +1,8 @@
 //
 // Menu option search (command palette)
 // --------------------------------------------------
-// Colours mirror the menu option styling (see .navigation-colors in mixins.less)
-// so the search toggle, input and results match the rest of the menu, including
-// the same hover feedback.
-
-@awe-menu-search-width: 260px;
+// AWE 5 shell (#885): the toggle is a menu row (an icon button in the horizontal bar), the panel an overlay with a
+// field for the query and list options for the results
 
 // The custom element is the positioning context for the search panel
 awe-menu {
@@ -13,76 +10,110 @@ awe-menu {
   display: block;
 }
 
+// The icon of the search is as big as its box and fills it: inline, the glyph sat 2px under the center of the field and
+// did not line up with the text of the placeholder
+.awe-menu-search-toggle i,
+.awe-menu-search-toggle .awe-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  line-height: 1;
+}
+
+.awe-menu-search-toggle i > svg.awe-icon {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .awe-menu-search {
   &-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--awe-nav-item-gap);
+    min-height: var(--awe-menu-item-height);
+    padding: var(--awe-nav-item-padding);
+    line-height: 1;
+    color: var(--awe-menu-item-icon);
+    cursor: pointer;
     background: transparent;
     border: 0;
-    cursor: pointer;
-    padding: 6px 12px;
-    line-height: 1;
-    // !important + icon inherit to win over the theme's menu-button colouring,
-    // matching how .navigation-colors styles the option links.
-    color: @menu-text-color !important;
+    border-radius: var(--awe-menu-item-radius);
+    transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+      color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
 
     i {
-      color: inherit !important;
+      color: inherit;
     }
 
     &:hover,
     &:focus {
-      color: color-mix(in srgb, @menu-text-color, @secondary-menu-color 80%) !important;
+      color: var(--awe-color-text-hover);
+      background: var(--awe-menu-item-hover-background);
+    }
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: calc(var(--awe-focus-ring-width) * -1);
     }
   }
 
   &-panel {
     position: absolute;
-    z-index: @zindex-main-menu + 20;
-    width: @awe-menu-search-width;
+    z-index: var(--awe-z-dropdown);
+    width: var(--awe-header-search-width);
     max-width: 90vw;
-    background-color: @primary-menu-color;
-    box-shadow: 0 2px 2px rgba(0, 0, 0, .05), 0 1px 0 rgba(0, 0, 0, .05);
+    padding: var(--awe-list-padding);
+    color: var(--awe-color-overlay-text);
+    background: var(--awe-color-overlay);
+    border: var(--awe-border-width) solid var(--awe-color-overlay-border);
+    border-radius: var(--awe-radius-lg);
+    box-shadow: var(--awe-shadow-overlay);
   }
 
   .awe-menu-search-input {
     width: 100%;
-    color: @menu-text-color;
-    // Darken the panel colour instead of using @secondary-menu-color (which is
-    // near-white on some themes and washes out the light text). This keeps a
-    // legible field on any theme, matching the menu text contrast.
-    background-color: rgba(0, 0, 0, 0.18);
-    border: 0;
-    border-bottom: 1px solid color-mix(in srgb, @menu-text-color, transparent 65%);
-    border-radius: 0;
+    height: var(--awe-size-control);
+    padding: 0 var(--awe-space-3);
+    color: var(--awe-color-field-text);
+    background: var(--awe-color-field);
+    border: var(--awe-border-width) solid var(--awe-color-field-border);
+    border-radius: var(--awe-radius-field);
     box-shadow: none;
 
     &::placeholder {
-      color: color-mix(in srgb, @menu-text-color, transparent 45%);
+      color: var(--awe-color-text-muted);
     }
 
     &:focus {
-      color: @menu-text-color;
-      background-color: rgba(0, 0, 0, 0.25);
-      box-shadow: none;
+      color: var(--awe-color-field-text);
+      border-color: var(--awe-color-field-border-focus);
+      box-shadow: var(--awe-shadow-field-focus);
       outline: none;
     }
   }
 
   &-results {
     list-style: none;
-    margin: 0;
-    padding: 4px 0;
+    margin: var(--awe-list-padding) 0 0;
+    padding: 0;
     max-height: 60vh;
     overflow-y: auto;
 
     > li {
-      padding: 6px 12px;
+      padding: var(--awe-nav-item-padding);
+      color: var(--awe-color-list-option-text);
       cursor: pointer;
-      color: @menu-text-color;
+      border-radius: var(--awe-radius-list-option);
 
       &.active,
       &:hover {
-        background-color: color-mix(in srgb, @secondary-menu-color, transparent 90%);
-        color: color-mix(in srgb, @menu-text-color, @secondary-menu-color 80%);
+        color: var(--awe-color-list-option-text-focus);
+        background: var(--awe-color-list-option-focus);
       }
     }
   }
@@ -94,23 +125,93 @@ awe-menu {
 
   &-breadcrumb {
     display: block;
-    font-size: 85%;
+    font-size: var(--awe-font-size-xs);
     white-space: nowrap;
-    color: inherit;
-    .opacity(0.65);
+    color: var(--awe-color-text-muted);
   }
 
   &-empty {
-    padding: 8px 12px;
-    font-size: 90%;
-    color: @menu-text-color;
-    .opacity(0.65);
+    padding: var(--awe-nav-item-padding);
+    font-size: var(--awe-font-size-sm);
+    color: var(--awe-color-text-muted);
   }
 }
 
-// Vertical menu: search bar shown above the options
+// Vertical menu: a full-width search field above the options, with the invitation and the Ctrl K hint, as the React
+// engine and the search of the prototype
 .awe-menu-search-vertical {
   display: block;
+  margin-bottom: var(--awe-list-gap);
+
+  .awe-menu-search-toggle {
+    justify-content: flex-start;
+    width: 100%;
+    min-height: var(--awe-size-control-sm);
+    padding: 0 var(--awe-field-padding-x);
+    gap: var(--awe-space-2);
+    font-size: var(--awe-font-size-sm);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-field-placeholder);
+    background: var(--awe-color-field);
+    border: var(--awe-border-width) solid var(--awe-color-field-border);
+    border-radius: var(--awe-radius-field);
+    box-shadow: var(--awe-shadow-field);
+    transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+      box-shadow var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+    i {
+      flex: none;
+      color: var(--awe-color-field-icon);
+    }
+
+    &:hover,
+    &:focus {
+      color: var(--awe-color-field-placeholder);
+      background: var(--awe-color-field);
+      border-color: var(--awe-color-field-border-hover);
+    }
+
+    &:focus-visible {
+      border-color: var(--awe-color-field-border-focus);
+      outline: none;
+      box-shadow: var(--awe-shadow-field-focus);
+    }
+  }
+
+  &.open .awe-menu-search-toggle {
+    border-color: var(--awe-color-field-border-focus);
+    box-shadow: var(--awe-shadow-field-focus);
+  }
+
+  .awe-menu-search-toggle-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Hint of the Ctrl K shortcut at the end of the field
+  .awe-menu-search-kbd {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    margin-left: auto;
+    padding: 0 var(--awe-space-1-5);
+    font-family: var(--awe-font-family-base);
+    font-size: var(--awe-font-size-xs);
+    font-weight: var(--awe-font-weight-medium);
+    line-height: var(--awe-line-height-base);
+    color: var(--awe-color-text-muted);
+    white-space: nowrap;
+    background: var(--awe-color-surface-subtle);
+    border: var(--awe-border-width) solid var(--awe-color-border);
+    border-radius: var(--awe-radius-sm);
+    box-shadow: none;
+
+    // A touch screen has no keyboard to press the shortcut with
+    @media (hover: none) and (pointer: coarse) {
+      display: none;
+    }
+  }
 
   .awe-menu-search-panel {
     left: 0;
@@ -119,14 +220,89 @@ awe-menu {
   }
 }
 
-// Horizontal menu: search shown at the right end of the bar
+// Horizontal menu: search shown at the right end of the bar, aligned with the options
 .awe-menu-search-horizontal {
   position: absolute;
-  top: 0;
-  right: 0;
-  z-index: @zindex-main-menu + 20;
+  top: var(--awe-space-1);
+  right: var(--awe-page-padding);
+  z-index: var(--awe-z-dropdown);
 
   .awe-menu-search-panel {
+    top: calc(100% + var(--awe-space-1));
     right: 0;
+  }
+}
+
+// A phone has no room for the search in the bar: the options are still reachable through the menu
+@media (max-width: @screen-xs-max) {
+  .awe-menu-search-horizontal {
+    display: none;
+  }
+}
+
+// In the bar the search is the same field as the one of the vertical menu (#1236): the icon, the invitation and the
+// Ctrl K hint, with a width that fits the bar
+.awe-menu-search-horizontal .awe-menu-search-toggle {
+  justify-content: flex-start;
+  // Narrower than the search of the vertical menu and as high as an option of the bar: the height of an option of the
+  // horizontal menu is the minimum height of a small control (menu-horizontal.less)
+  width: calc(var(--awe-header-search-width) * 0.6);
+  max-width: 40vw;
+  height: var(--awe-size-control-sm);
+  min-height: var(--awe-size-control-sm);
+  gap: var(--awe-space-2);
+  padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-field-placeholder);
+  background: var(--awe-color-field);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-field);
+
+  i {
+    flex: none;
+    color: var(--awe-color-field-icon);
+  }
+
+  &:hover,
+  &:focus {
+    color: var(--awe-color-field-placeholder);
+    background: var(--awe-color-field);
+    border-color: var(--awe-color-field-border-hover);
+  }
+
+  &:focus-visible {
+    border-color: var(--awe-color-field-border-focus);
+    outline: none;
+    box-shadow: var(--awe-shadow-field-focus);
+  }
+}
+
+.awe-menu-search-horizontal .awe-menu-search-toggle-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.awe-menu-search-horizontal .awe-menu-search-kbd {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+  padding: 0 var(--awe-space-1-5);
+  font-family: var(--awe-font-family-base);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-base);
+  color: var(--awe-color-text-muted);
+  white-space: nowrap;
+  background: var(--awe-color-surface-subtle);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-sm);
+  box-shadow: none;
+
+  @media (hover: none) and (pointer: coarse) {
+    display: none;
   }
 }

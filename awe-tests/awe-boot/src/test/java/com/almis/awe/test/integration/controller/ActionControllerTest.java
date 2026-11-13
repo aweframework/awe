@@ -5,9 +5,6 @@ import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.test.integration.AbstractSpringFixedEnvironmentIT;
 import com.almis.awe.test.integration.util.TestUtil;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.Matcher;
 import org.junit.jupiter.api.*;
@@ -17,6 +14,10 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,12 +26,12 @@ import java.util.Map;
 
 import static com.almis.awe.test.integration.util.TestUtil.assertResultJson;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -134,7 +135,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testLaunchScreenDataAction() throws Exception {
-      String expected = "{\"components\":[{\"id\":\"cod_usr\",\"controller\":{\"autoload\":false,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"text\",\"contextMenu\":[],\"dependencies\":[],\"elementList\":[],\"elementType\":\"Criteria\",\"icon\":\"user signin-form-icon\",\"id\":\"cod_usr\",\"loadAll\":false,\"optional\":false,\"placeholder\":\"SCREEN_TEXT_USER\",\"printable\":true,\"readonly\":false,\"required\":true,\"size\":\"lg\",\"strict\":true,\"style\":\"no-label\",\"validation\":\"required\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"pwd_usr\",\"controller\":{\"autoload\":false,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"password\",\"contextMenu\":[],\"dependencies\":[],\"elementList\":[],\"elementType\":\"Criteria\",\"icon\":\"key signin-form-icon\",\"id\":\"pwd_usr\",\"loadAll\":false,\"optional\":false,\"placeholder\":\"SCREEN_TEXT_PASS\",\"printable\":true,\"readonly\":false,\"required\":true,\"size\":\"lg\",\"strict\":true,\"style\":\"no-label\",\"validation\":\"required\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"ButLogIn\",\"controller\":{\"actions\":[{\"elementType\":\"ButtonAction\",\"type\":\"validate\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":null,\"targetAction\":null,\"reload\":false}},{\"elementType\":\"ButtonAction\",\"type\":\"server\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":\"login\",\"targetAction\":null,\"reload\":false}}],\"autoload\":false,\"buttonType\":\"submit\",\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[],\"elementList\":[{\"elementType\":\"ButtonAction\",\"type\":\"validate\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":null,\"targetAction\":null,\"reload\":false}},{\"elementType\":\"ButtonAction\",\"type\":\"server\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":\"login\",\"targetAction\":null,\"reload\":false}}],\"elementType\":\"Button\",\"icon\":\"sign-in\",\"id\":\"ButLogIn\",\"label\":\"BUTTON_LOGIN\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"strict\":true,\"style\":\"no-class btn btn-awe btn-primary signin-btn bg-primary\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"ButLogInAzure\",\"controller\":{\"actions\":[{\"elementType\":\"ButtonAction\",\"type\":\"server\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":\"login-azure\",\"targetAction\":null,\"reload\":false}}],\"autoload\":false,\"buttonType\":\"button\",\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[{\"elementType\":\"Dependency\",\"type\":\"or\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}],\"actions\":[]}],\"elementList\":[{\"elementType\":\"Dependency\",\"type\":\"or\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}],\"actions\":[]},{\"elementType\":\"ButtonAction\",\"type\":\"server\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":\"login-azure\",\"targetAction\":null,\"reload\":false}}],\"elementType\":\"Button\",\"id\":\"ButLogInAzure\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"strict\":true,\"style\":\"no-class sign-in-azure-btn-light\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"azure-enabled\",\"controller\":{\"autoload\":false,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"text\",\"contextMenu\":[],\"dependencies\":[],\"elementList\":[],\"elementType\":\"Criteria\",\"id\":\"azure-enabled\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"strict\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}}],\"messages\":{},\"screenProperties\":{\"name\":\"signin\",\"title\":\"SCREEN_TITLE_LOGIN\",\"option\":null},\"template\":\"<div class=\\\"fullScreen\\\"><div id=\\\"page-signin-bg\\\" class=\\\"fullScreen\\\"><div class=\\\"overlay-image fullScreen\\\"></div><div class=\\\"overlay fullScreen\\\"></div></div><div class=\\\"awe-signin signin-container\\\"><div class=\\\"signin-info\\\"><h1><span><span translate>APP_CLIENT</span></span></h1><div class=\\\"slogan\\\"><span translate>APP_NAME</span></div></div><div class=\\\"signin-form\\\"><div class=\\\"signin-text\\\"><span><span translate>SCREEN_TITLE_LOGIN</span></span></div><awe-input-text input-text-id=\\\"cod_usr\\\"></awe-input-text><awe-input-password input-password-id=\\\"pwd_usr\\\"></awe-input-password><div class=\\\"signin-with\\\"><div class=\\\"form-actions\\\"><awe-button button-id=\\\"ButLogIn\\\"></awe-button><awe-button button-id=\\\"ButLogInAzure\\\"></awe-button></div></div></div></div><div class=\\\"demo-credentials-info\\\"><h4 class=\\\"header-credentials-info\\\"><span translate>AWE demo site credentials</span></h4><p><span translate>User: test</span></p><p><span translate>Password: test</span></p></div></div>\\r\\n<div></div>\\r\\n<div class=\\\"hidden\\\"><awe-input-text input-text-id=\\\"azure-enabled\\\"></awe-input-text></div>\",\"actions\":[],\"screen\":{\"name\":\"signin\",\"title\":\"SCREEN_TITLE_LOGIN\",\"option\":null}}";
+      String expected = "{\"components\":[{\"id\":\"cod_usr\",\"controller\":{\"autoload\":false,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"text\",\"contextMenu\":[],\"dependencies\":[{\"elementType\":\"Dependency\",\"type\":\"and\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"actions\":[],\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}]}],\"elementList\":[{\"elementType\":\"Dependency\",\"type\":\"and\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"actions\":[],\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}]}],\"elementType\":\"Criteria\",\"icon\":\"user signin-form-icon\",\"id\":\"cod_usr\",\"label\":\"SCREEN_TEXT_USER\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":true,\"size\":\"lg\",\"strict\":true,\"validation\":\"required\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"pwd_usr\",\"controller\":{\"autoload\":false,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"password\",\"contextMenu\":[],\"dependencies\":[{\"elementType\":\"Dependency\",\"type\":\"and\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"actions\":[],\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}]}],\"elementList\":[{\"elementType\":\"Dependency\",\"type\":\"and\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"actions\":[],\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}]}],\"elementType\":\"Criteria\",\"icon\":\"lock signin-form-icon\",\"id\":\"pwd_usr\",\"label\":\"SCREEN_TEXT_PASS\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":true,\"size\":\"lg\",\"strict\":true,\"validation\":\"required\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"ButLogIn\",\"controller\":{\"actions\":[{\"elementType\":\"ButtonAction\",\"type\":\"validate\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":null,\"targetAction\":null,\"reload\":false}},{\"elementType\":\"ButtonAction\",\"type\":\"server\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":\"login\",\"targetAction\":null,\"reload\":false}}],\"autoload\":false,\"buttonType\":\"submit\",\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[{\"elementType\":\"Dependency\",\"type\":\"and\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"actions\":[],\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}]}],\"elementList\":[{\"elementType\":\"Dependency\",\"type\":\"and\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"actions\":[],\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"local-login\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-master-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"true\",\"checkChanges\":true}]},{\"elementType\":\"ButtonAction\",\"type\":\"validate\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":null,\"targetAction\":null,\"reload\":false}},{\"elementType\":\"ButtonAction\",\"type\":\"server\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":\"login\",\"targetAction\":null,\"reload\":false}}],\"elementType\":\"Button\",\"id\":\"ButLogIn\",\"label\":\"BUTTON_LOGIN\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"strict\":true,\"style\":\"no-class btn btn-awe btn-primary signin-btn bg-primary\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"ButLogInAzure\",\"controller\":{\"actions\":[{\"elementType\":\"ButtonAction\",\"type\":\"server\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":\"login-azure\",\"targetAction\":null,\"reload\":false}}],\"autoload\":false,\"buttonType\":\"button\",\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[{\"elementType\":\"Dependency\",\"type\":\"or\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"actions\":[],\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}]}],\"elementList\":[{\"elementType\":\"Dependency\",\"type\":\"or\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"actions\":[],\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"azure-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}]},{\"elementType\":\"ButtonAction\",\"type\":\"server\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":\"login-azure\",\"targetAction\":null,\"reload\":false}}],\"elementType\":\"Button\",\"id\":\"ButLogInAzure\",\"label\":\"SCREEN_TEXT_SIGN_IN_MICROSOFT\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"strict\":true,\"style\":\"no-class signin-microsoft\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"ButLogInSSO\",\"controller\":{\"actions\":[{\"elementType\":\"ButtonAction\",\"type\":\"server\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":\"login-sso\",\"targetAction\":null,\"reload\":false}}],\"autoload\":false,\"buttonType\":\"button\",\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"contextMenu\":[],\"dependencies\":[{\"elementType\":\"Dependency\",\"type\":\"or\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"sso-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"actions\":[],\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"sso-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}]}],\"elementList\":[{\"elementType\":\"Dependency\",\"type\":\"or\",\"elementList\":[{\"elementType\":\"DependencyElement\",\"id\":\"sso-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}],\"initial\":true,\"invert\":false,\"target\":\"hide\",\"silent\":false,\"async\":false,\"actions\":[],\"elements\":[{\"elementType\":\"DependencyElement\",\"id\":\"sso-enabled\",\"elementList\":[],\"condition\":\"eq\",\"value\":\"false\",\"checkChanges\":true},{\"elementType\":\"DependencyElement\",\"id\":\"sso-enabled\",\"elementList\":[],\"condition\":\"is empty\",\"checkChanges\":true}]},{\"elementType\":\"ButtonAction\",\"type\":\"server\",\"elementList\":[],\"silent\":false,\"async\":false,\"reload\":false,\"parameters\":{\"target\":null,\"value\":null,\"label\":null,\"serverAction\":\"login-sso\",\"targetAction\":null,\"reload\":false}}],\"elementType\":\"Button\",\"icon\":\"lucide:key-round\",\"id\":\"ButLogInSSO\",\"label\":\"BUTTON_LOGIN_SSO\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"strict\":true,\"style\":\"no-class btn btn-awe signin-btn sign-in-sso-btn\",\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"azure-enabled\",\"controller\":{\"autoload\":false,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"text\",\"contextMenu\":[],\"dependencies\":[],\"elementList\":[],\"elementType\":\"Criteria\",\"id\":\"azure-enabled\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"strict\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"sso-enabled\",\"controller\":{\"autoload\":false,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"text\",\"contextMenu\":[],\"dependencies\":[],\"elementList\":[],\"elementType\":\"Criteria\",\"id\":\"sso-enabled\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"strict\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"local-login\",\"controller\":{\"autoload\":false,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"text\",\"contextMenu\":[],\"dependencies\":[],\"elementList\":[],\"elementType\":\"Criteria\",\"id\":\"local-login\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"strict\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}},{\"id\":\"sso-master-enabled\",\"controller\":{\"autoload\":false,\"checkEmpty\":false,\"checkInitial\":true,\"checked\":false,\"component\":\"text\",\"contextMenu\":[],\"dependencies\":[],\"elementList\":[],\"elementType\":\"Criteria\",\"id\":\"sso-master-enabled\",\"loadAll\":false,\"optional\":false,\"printable\":true,\"readonly\":false,\"required\":false,\"strict\":true,\"visible\":true},\"model\":{\"selected\":[],\"defaultValues\":[],\"values\":[],\"page\":1,\"total\":0,\"records\":0}}],\"messages\":{},\"screenProperties\":{\"name\":\"signin\",\"title\":\"SCREEN_TITLE_LOGIN\",\"option\":null},\"template\":\"<div class=\\\"fullScreen\\\"><div id=\\\"page-signin-bg\\\" class=\\\"fullScreen\\\"><div class=\\\"overlay-image fullScreen\\\"></div><div class=\\\"overlay fullScreen\\\"></div></div><div class=\\\"awe-signin signin-container\\\"><div class=\\\"signin-info\\\"><h1><span><span translate>APP_CLIENT</span></span></h1><div class=\\\"slogan\\\"><span translate>APP_NAME</span></div></div><div class=\\\"signin-form\\\"><div class=\\\"signin-text\\\"><span><span translate>SCREEN_TITLE_LOGIN</span></span></div><awe-input-text input-text-id=\\\"cod_usr\\\"></awe-input-text><awe-input-password input-password-id=\\\"pwd_usr\\\"></awe-input-password><div class=\\\"signin-with\\\"><div class=\\\"form-actions\\\"><awe-button button-id=\\\"ButLogIn\\\"></awe-button><awe-button button-id=\\\"ButLogInAzure\\\"></awe-button><awe-button button-id=\\\"ButLogInSSO\\\"></awe-button></div></div></div></div></div>\\n<div></div>\\n<div class=\\\"hidden\\\"><awe-input-text input-text-id=\\\"azure-enabled\\\"></awe-input-text><awe-input-text input-text-id=\\\"sso-enabled\\\"></awe-input-text><awe-input-text input-text-id=\\\"local-login\\\"></awe-input-text><awe-input-text input-text-id=\\\"sso-master-enabled\\\"></awe-input-text></div>\",\"actions\":[],\"screen\":{\"name\":\"signin\",\"title\":\"SCREEN_TITLE_LOGIN\",\"option\":null}}";
       MvcResult mvcResult = mockMvc.perform(post("/screen-data")
           .with(csrf())
           .contentType(MediaType.APPLICATION_JSON)
@@ -150,13 +151,13 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       assertEquals(0, screenData.get("actions").size());
       assertEquals(0, screenData.get("messages").size());
       ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
-      assertEquals(7, screenDataComponents.size());
-      assertEquals("signin", screenData.get("screen").get("name").textValue());
+      assertEquals(9, screenDataComponents.size());
+      assertEquals("signin", screenData.get("screen").get("name").stringValue());
 
       // Test all keys
       for (JsonNode element : screenDataComponents) {
         ObjectNode component = (ObjectNode) element;
-        String key = component.get("id").asText();
+        String key = component.get("id").asString();
         logger.debug(key + ": " + component.get("model").get("selected").toString());
       }
 
@@ -172,15 +173,14 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testLaunchScreenDataActionError() throws Exception {
-      String expected = "{\"components\":[],\"messages\":{},\"template\":\"<div class=\\\"page-404 fullScreen\\\"><div class=\\\"header\\\"><a class=\\\"logo\\\"></a></div><div class=\\\"error-code\\\"></div><div class=\\\"error-text\\\"><span class=\\\"oops\\\"><span translate>404</span></span><span class=\\\"hr\\\"></span><span class=\\\"solve\\\"><span translate>404-DESCRIPTION</span></span></div></div>\\n<div></div>\\n<div class=\\\"hidden\\\"></div>\",\"actions\":[],\"screen\":{}}";
+      // Without a session an option that cannot be resolved is an expired session, not a missing screen (#935)
       MvcResult mvcResult = mockMvc.perform(post("/screen-data/pantalla-inexistente")
           .with(csrf())
           .contentType(MediaType.APPLICATION_JSON)
           .content("{\"view\":\"base\"}")
           .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andDo(print())
-        .andExpect(content().json(expected))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.title").value("Session expired"))
         .andReturn();
       String result = mvcResult.getResponse().getContentAsString();
       logger.debug(result);
@@ -211,10 +211,10 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
       ArrayNode resultList = (ArrayNode) objectMapper.readTree(result);
 
       ObjectNode endLoad = (ObjectNode) resultList.get(0);
-      assertEquals("end-load", endLoad.get("type").textValue());
+      assertEquals("end-load", endLoad.get("type").stringValue());
 
       ObjectNode localsRetrievedActionES = (ObjectNode) resultList.get(1);
-      assertEquals("locals-retrieved", localsRetrievedActionES.get("type").textValue());
+      assertEquals("locals-retrieved", localsRetrievedActionES.get("type").stringValue());
       ObjectNode localsRetrievedParametersES = (ObjectNode) localsRetrievedActionES.get("parameters");
       assertEquals(2, localsRetrievedParametersES.size());
       ObjectNode translationsES = (ObjectNode) localsRetrievedParametersES.get("translations");
@@ -229,7 +229,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
         .andReturn();
 
       ObjectNode localsRetrievedActionEN = (ObjectNode) resultList.get(1);
-      assertEquals("locals-retrieved", localsRetrievedActionEN.get("type").textValue());
+      assertEquals("locals-retrieved", localsRetrievedActionEN.get("type").stringValue());
       ObjectNode localsRetrievedParametersEN = (ObjectNode) localsRetrievedActionEN.get("parameters");
       assertEquals(2, localsRetrievedParametersEN.size());
       ObjectNode translationsEN = (ObjectNode) localsRetrievedParametersEN.get("translations");
@@ -244,7 +244,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
         .andReturn();
 
       ObjectNode localsRetrievedActionFR = (ObjectNode) resultList.get(1);
-      assertEquals("locals-retrieved", localsRetrievedActionFR.get("type").textValue());
+      assertEquals("locals-retrieved", localsRetrievedActionFR.get("type").stringValue());
       ObjectNode localsRetrievedParametersFR = (ObjectNode) localsRetrievedActionFR.get("parameters");
       assertEquals(2, localsRetrievedParametersFR.size());
       ObjectNode translationsFR = (ObjectNode) localsRetrievedParametersFR.get("translations");
@@ -359,7 +359,7 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     private void restrictOption(ObjectNode option, String optionName, boolean restrict) {
       String searchFor = optionName;
-      if (option.has("name") && optionName.equalsIgnoreCase(option.get("name").textValue()) ||
+      if (option.has("name") && optionName.equalsIgnoreCase(option.get("name").stringValue()) ||
         "*".equalsIgnoreCase(optionName)) {
         option.put("restricted", restrict);
         searchFor = "*";
@@ -471,21 +471,31 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     private void addRestriction(String operation, String screen, String component, String attribute, String value) throws Exception {
       String maintainName = "updateScreenConfiguration";
-      String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"" + operation + "\",\"rowsAffected\":1}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
-      MvcResult mvcResult = mockMvc.perform(post("/action/maintain/" + maintainName)
+      String expected = "[{\"type\":\"end-load\"},{\"type\":\"message\",\"parameters\":{\"message\":\"The selected maintain operation has been successfully performed\",\"result_details\":[{\"operationType\":\"" + operation + "\",\"rowsAffected\":1},{\"operationType\":\"AUDIT\",\"rowsAffected\":1}],\"title\":\"Operation successful\",\"type\":\"ok\"}}]";
+      MvcResult mvcResult = saveRestriction(operation, screen, component, attribute, value)
+        .andExpect(content().json(expected))
+        .andReturn();
+      String result = mvcResult.getResponse().getContentAsString();
+      logger.debug(result);
+      assertResultJson(maintainName, result, 2, new MaintainResultDetails[]{
+        new MaintainResultDetails(MaintainType.valueOf(operation), 1L),
+        new MaintainResultDetails(MaintainType.AUDIT, 1L)
+      });
+    }
+
+    /**
+     * Send a screen configuration row to the maintain of the editor
+     *
+     * @throws Exception Test error
+     */
+    private ResultActions saveRestriction(String operation, String screen, String component, String attribute, String value) throws Exception {
+      return mockMvc.perform(post("/action/maintain/updateScreenConfiguration")
                       .session(session)
                       .with(csrf())
                       .contentType(MediaType.APPLICATION_JSON)
                       .content("{\"module\":\"Test\",\"language\":\"en-GB\",\"RefreshTime\":null,\"site\":\"Madrid\",\"database\":\"awemadora01\",\"theme\":\"sunset\",\"SetAutoload\":\"0\",\"GrdScrCnf\":1,\"GrdScrCnf.data\":{\"max\":30,\"page\":1,\"sort\":[]},\"IdeAweScrCnf\":[\"\"],\"IdeAweScrCnf.selected\":null,\"Scr\":[\"" + screen + "\"],\"Scr.selected\":null,\"IdeOpe\":[\"\"],\"IdeOpe.selected\":null,\"IdePro\":[\"\"],\"IdePro.selected\":null,\"Nam\":[\"" + component + "\"],\"Nam.selected\":null,\"Atr\":[\"" + attribute + "\"],\"Atr.selected\":null,\"Val\":[\"" + value + "\"],\"Val.selected\":null,\"Act\":[\"1\"],\"Act.selected\":null,\"GrdScrCnf-id\":[\"new-row-1\"],\"GrdScrCnf-RowTyp\":[\"" + operation + "\"],\"PrnScr\":\"ScrCnf\",\"CrtScr\":null,\"UsrPrn\":null,\"ActPrn\":\"2\",\"FmtPrn\":\"PDF\",\"CrtAct\":null,\"CrtUsr\":null,\"DblFmtPrn\":\"0\",\"TypPrn\":\"1\",\"CrtPro\":null,\"max\":30}")
                       .accept(MediaType.APPLICATION_JSON))
-        .andExpect(status().isOk())
-        .andExpect(content().json(expected))
-        .andReturn();
-      String result = mvcResult.getResponse().getContentAsString();
-      logger.debug(result);
-      assertResultJson(maintainName, result, 1, new MaintainResultDetails[]{
-        new MaintainResultDetails(MaintainType.valueOf(operation), 1L)
-      });
+        .andExpect(status().isOk());
     }
 
 
@@ -655,8 +665,9 @@ class ActionControllerTest extends AbstractSpringFixedEnvironmentIT {
      */
     @Test
     void testAttributeNotForComponent() throws Exception {
-      // Add restriction
-      addRestriction("INSERT", "CrtTstLeft", "Txt", "editable", "true");
+      // The editor refuses an attribute the component does not have
+      saveRestriction("INSERT", "CrtTstLeft", "Txt", "editable", "true")
+        .andExpect(jsonPath("$[?(@.type == 'message')].parameters.type", hasItem("error")));
 
       // Check screen
       checkAttributeComponentDoesntExist("Txt", "editable");

@@ -1,0 +1,58 @@
+/*
+ * Print: Bootstrap 3 print.less (the h5bp print styles) as the compiled vendored CSS renders it, inside @media print: links that show their address
+ * and are underlined, abbreviations that show their title, table headers that repeat, rows and images that do not break across pages, orphans and widows,
+ * the headings that stay with their text, and the navbar that is hidden.
+ *
+ * The rules that print black on white (an !important color or background) or a fixed grey or black border are not here: there is no token for "black on paper" that stays
+ * the same in the dark mode (the semantic text and border colors turn light there), and a layered !important would win over the unlayered !important rules of
+ * the AWE print styles and of the plugins. They stay in LESS (compatPrint.test.js names them).
+ */
+
+@media print {
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  a[href]:after {
+    content: " (" attr(href) ")";
+  }
+
+  abbr[title]:after {
+    content: " (" attr(title) ")";
+  }
+
+  a[href^="#"]:after,
+  a[href^="javascript:"]:after {
+    content: "";
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+
+  img {
+    max-width: 100% !important;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+
+  .navbar {
+    display: none;
+  }
+}

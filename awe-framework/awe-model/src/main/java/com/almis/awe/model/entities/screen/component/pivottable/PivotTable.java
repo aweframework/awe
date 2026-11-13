@@ -11,6 +11,8 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.SuperBuilder;
 
+import java.io.Serial;
+
 /**
  * PivotTable Class
  *
@@ -28,6 +30,7 @@ import lombok.experimental.SuperBuilder;
 @XStreamAlias("pivot-table")
 public class PivotTable extends AbstractGrid {
 
+  @Serial
   private static final long serialVersionUID = 8283520541161175828L;
 
   // Total column placement

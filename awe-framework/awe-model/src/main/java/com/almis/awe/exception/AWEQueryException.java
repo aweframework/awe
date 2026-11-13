@@ -4,6 +4,8 @@ import com.almis.awe.model.type.AnswerType;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.io.Serial;
+
 /*
  * File Imports
  */
@@ -18,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class AWEQueryException extends AWException {
 
+  @Serial
   private static final long serialVersionUID = -764683322805477265L;
   // Exception query
   private final String query;

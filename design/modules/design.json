@@ -1,0 +1,34 @@
+{
+  "title": "Modules window (AWE 5)",
+  "brief": "Rediseño de la ventana de módulos de AWE 5 (Mod, ModNew, ModUpd, ModViw): la lista de módulos y, para cada uno, quién puede entrar (perfiles y usuarios, con el tema de cada usuario) y qué base de datos usa en cada site. Tres alternativas sobre dónde se editan esas tres rejillas. Sistema de diseño: design/system.md; lenguaje visual de design/sites.",
+  "artboards": [
+    {
+      "file": "01-panel-apilado.html",
+      "title": "01 · Panel ancho con las tres secciones apiladas — descartada",
+      "tradeoff": "El patrón exacto de Sites, sin piezas nuevas; descartada porque el panel se alarga y los sites quedan al fondo cuando hay muchos perfiles o usuarios. Es el plan B si las pestañas no funcionan en el side panel.",
+      "width": 1440,
+      "height": 2450
+    },
+    {
+      "file": "02-panel-pestanas.html",
+      "title": "02 · Panel ancho con pestañas General / Acceso / Sites y BBDD — elegida",
+      "tradeoff": "Cada pestaña cabe en el panel y Acceso agrupa perfiles y usuarios; sin tema (nunca se aplicaba) y con Sites y BBDD editable. Medida en los dos motores: funciona sin tocar el engine; el salto a la pestaña con una fila sin guardar queda como mejora.",
+      "width": 1440,
+      "height": 3240
+    },
+    {
+      "file": "03-pagina-detalle.html",
+      "title": "03 · Lista y página de detalle del módulo — descartada",
+      "tradeoff": "La mejor superficie para las rejillas, pero rompe el patrón de ventana única con panel lateral y necesita una barra de guardado que el framework no tiene.",
+      "width": 1440,
+      "height": 2370
+    },
+    {
+      "file": "04-acceso-picklist.html",
+      "title": "04 · Variante de la 02 con list pickers en Acceso — descartada por ahora",
+      "tradeoff": "Elegir de una lista es lo natural para dar acceso, pero picklist solo existe en React y no se va a implementar en AngularJS de momento; una pantalla genérica tiene que funcionar en los dos motores.",
+      "width": 1440,
+      "height": 1500
+    }
+  ]
+}

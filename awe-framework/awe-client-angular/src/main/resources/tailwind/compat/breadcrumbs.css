@@ -1,0 +1,125 @@
+/*
+ * Breadcrumbs: Bootstrap 3 breadcrumbs.less and the pixel-admin breadcrumb rules on the same selectors, as the compiled vendored CSS renders them:
+ * breadcrumb, its items and separator, the active item, and the page breadcrumb and its label that the shell writes.
+ *
+ * Colors, sizes, radii and shadows are --awe-* semantic tokens, chosen by meaning (skills/awe-ui), so these classes follow the AWE 5 design system and may differ from the compiled Bootstrap values.
+ * There is no !important in this file.
+ *
+ * Not here (they stay in LESS; compatBreadcrumbs.test.js names every one of them with example selectors): the breadcrumb bar of the AWE 5 shell
+ * (less/awe/breadcrumbs.less restyles the levels, the separator and the label, unlayered, so it wins over these rules and is written once) and
+ * the dark and unpadded breadcrumbs of pixel-admin, which nothing writes.
+ */
+
+.breadcrumb {
+  padding: var(--awe-space-2) var(--awe-space-4);
+  margin-bottom: var(--awe-space-5);
+  list-style: none;
+  background-color: var(--awe-color-secondary);
+  border-radius: var(--awe-radius);
+}
+
+.breadcrumb > li {
+  display: inline-block;
+}
+
+.breadcrumb > li + li:before {
+  content: "/\00a0";
+  padding: 0 var(--awe-space-1-5);
+  color: var(--awe-color-border);
+}
+
+.breadcrumb > .active {
+  color: var(--awe-color-text-muted);
+}
+
+.breadcrumb {
+  background: none;
+  margin-bottom: var(--awe-space-5);
+  position: relative;
+}
+
+.breadcrumb li + li:before {
+  color: var(--awe-color-border);
+  content: "\f054";
+  font-family: FontAwesome;
+  font-size: var(--awe-font-size-xs);
+  display: inline-block;
+  line-height: var(--awe-space-2);
+  top: calc(var(--awe-border-width) * -1);
+  left: calc(var(--awe-border-width) * -1);
+  position: relative;
+  padding: 0;
+  height: var(--awe-space-2);
+  width: var(--awe-space-4);
+  text-align: center;
+}
+
+.breadcrumb li,
+.breadcrumb li a {
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-space-5);
+  height: var(--awe-space-5);
+}
+
+.breadcrumb li:hover,
+.breadcrumb li a:hover {
+  color: var(--awe-color-text);
+}
+
+.breadcrumb li.active {
+  padding-left: var(--awe-space-4);
+  position: relative;
+}
+
+.breadcrumb li.active:before {
+  position: absolute;
+  top: 50%;
+  margin-top: calc(var(--awe-space-1) * -1);
+  left: 0;
+}
+
+.breadcrumb li.active,
+.breadcrumb li.active a {
+  color: var(--awe-color-text);
+  text-decoration: none;
+}
+
+.breadcrumb.breadcrumb-page {
+  border-radius: 0;
+  margin-left: calc(var(--awe-space-5) * -1);
+  margin-right: calc(var(--awe-space-5) * -1);
+  margin-top: calc(var(--awe-space-5) * -1);
+  padding-left: var(--awe-space-5);
+  padding-right: var(--awe-space-5);
+}
+
+.breadcrumb-label {
+  float: left;
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-space-5);
+  height: var(--awe-space-5);
+  padding-right: var(--awe-space-4);
+  margin: var(--awe-border-width) 0 calc(var(--awe-border-width) * -1) 0;
+}
+
+.breadcrumb.breadcrumb-page {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-1-5);
+  min-height: var(--awe-size-control);
+  margin: 0;
+  padding: 0;
+  font-size: var(--awe-font-size-sm);
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+@media (max-width: 767px) {
+  .breadcrumb {
+    margin-bottom: 0;
+  }
+}

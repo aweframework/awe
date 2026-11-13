@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : Permissions.xml
+    Description: Permission catalog of the awe-developer module
+-->
+
+<permissions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/permissions.xsd">
+  <!-- Literals of the application languages and path of the developer tools -->
+  <resource id="developer" label="PERMISSION_RESOURCE_DEVELOPER" verbs="read,update" />
+</permissions>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Document   : fleet-home.xml
+    Description: Public landing page (no sign-in): services, coverage and figures, with the tracking, quote and sign-in actions
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="full" label="FLT_HOME_TITLE">
+  <tag source="center">
+    <tag type="div" id="flt-landing" style="flt-landing">
+      <tag type="header" style="flt-topbar">
+        <tag type="div" style="flt-brand">
+          <tag type="span" style="flt-brand-name" label="FLT_BRAND"/>
+        </tag>
+        <tag type="nav" style="flt-topbar-actions">
+          <tag type="div" style="awe-preferences"/>
+          <button label="FLT_HOME_TRACK" icon="lucide:search" id="ButTopTrack" style="btn-ghost">
+            <button-action type="screen" target="/screen/fleet-track"/>
+          </button>
+          <button label="FLT_HOME_QUOTE" icon="lucide:file-text" id="ButTopQuote" style="btn-ghost">
+            <button-action type="screen" target="/screen/fleet-quote"/>
+          </button>
+          <button label="FLT_HOME_SIGN_IN" icon="lucide:log-in" id="ButTopLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+        </tag>
+      </tag>
+      <tag type="section" style="flt-band">
+        <image id="ImgBand" url="/images/photos/fleet-truck-road-1200.webp" alternate-url="" style="flt-band-photo"/>
+        <tag type="div" style="flt-band-copy">
+          <tag type="p" style="flt-eyebrow" label="FLT_HOME_EYEBROW"/>
+          <tag type="h1" label="FLT_HOME_HEADLINE"/>
+          <tag type="p" style="flt-lead" label="FLT_HOME_LEAD"/>
+          <tag type="div" style="flt-hero-actions">
+            <button label="FLT_HOME_TRACK" icon="lucide:search" id="ButHeroTrack" style="btn-primary btn-lg">
+              <button-action type="screen" target="/screen/fleet-track"/>
+            </button>
+            <button label="FLT_HOME_QUOTE" icon="lucide:file-text" id="ButHeroQuote" style="btn-lg">
+              <button-action type="screen" target="/screen/fleet-quote"/>
+            </button>
+          </tag>
+          <tag type="p" style="flt-band-caption" label="FLT_PHOTO_ROAD" icon="lucide:route"/>
+        </tag>
+      </tag>
+      <tag type="section" style="flt-strip">
+        <tag type="div" style="flt-strip-row">
+          <tag type="div" style="flt-stat">
+            <tag type="strong" label="FLT_STAT_1_VALUE"/>
+            <tag type="span" label="FLT_STAT_1_LABEL"/>
+          </tag>
+          <tag type="div" style="flt-stat">
+            <tag type="strong" label="FLT_STAT_2_VALUE"/>
+            <tag type="span" label="FLT_STAT_2_LABEL"/>
+          </tag>
+          <tag type="div" style="flt-stat">
+            <tag type="strong" label="FLT_STAT_3_VALUE"/>
+            <tag type="span" label="FLT_STAT_3_LABEL"/>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="section" style="flt-section flt-demo">
+        <tag type="h2" style="flt-card-title" label="FLT_DEMO_TITLE" icon="lucide:key-round"/>
+        <tag type="p" style="flt-section-lead" label="FLT_DEMO_LEAD"/>
+        <tag type="div" style="flt-demo-table">
+          <tag type="div" style="flt-demo-row flt-demo-head">
+            <tag type="span" label="FLT_DEMO_COL_USER"/>
+            <tag type="span" label="FLT_DEMO_COL_PASS"/>
+            <tag type="span" label="FLT_DEMO_COL_ROLE"/>
+          </tag>
+          <tag type="div" style="flt-demo-row">
+            <tag type="strong" style="flt-demo-user" label="FLT_DEMO_U1_USER"/>
+            <tag type="span" style="flt-demo-pass" label="FLT_DEMO_U1_PASS"/>
+            <tag type="span" style="flt-demo-role" label="FLT_DEMO_U1_ROLE"/>
+          </tag>
+          <tag type="div" style="flt-demo-row">
+            <tag type="strong" style="flt-demo-user" label="FLT_DEMO_U2_USER"/>
+            <tag type="span" style="flt-demo-pass" label="FLT_DEMO_U2_PASS"/>
+            <tag type="span" style="flt-demo-role" label="FLT_DEMO_U2_ROLE"/>
+          </tag>
+          <tag type="div" style="flt-demo-row">
+            <tag type="strong" style="flt-demo-user" label="FLT_DEMO_U3_USER"/>
+            <tag type="span" style="flt-demo-pass" label="FLT_DEMO_U3_PASS"/>
+            <tag type="span" style="flt-demo-role" label="FLT_DEMO_U3_ROLE"/>
+          </tag>
+          <tag type="div" style="flt-demo-row">
+            <tag type="strong" style="flt-demo-user" label="FLT_DEMO_U4_USER"/>
+            <tag type="span" style="flt-demo-pass" label="FLT_DEMO_U4_PASS"/>
+            <tag type="span" style="flt-demo-role" label="FLT_DEMO_U4_ROLE"/>
+          </tag>
+          <tag type="div" style="flt-demo-row">
+            <tag type="strong" style="flt-demo-user" label="FLT_DEMO_U5_USER"/>
+            <tag type="span" style="flt-demo-pass" label="FLT_DEMO_U5_PASS"/>
+            <tag type="span" style="flt-demo-role" label="FLT_DEMO_U5_ROLE"/>
+          </tag>
+          <tag type="div" style="flt-demo-row">
+            <tag type="strong" style="flt-demo-user" label="FLT_DEMO_ADM_USER"/>
+            <tag type="span" style="flt-demo-pass" label="FLT_DEMO_ADM_PASS"/>
+            <tag type="span" style="flt-demo-role" label="FLT_DEMO_ADMIN_ROLE"/>
+          </tag>
+        </tag>
+        <tag type="p" style="flt-demo-public" label="FLT_DEMO_PUBLIC"/>
+        <tag type="div" style="flt-demo-actions">
+          <button label="FLT_HOME_SIGN_IN" icon="lucide:log-in" id="ButDemoLogin" style="btn-primary">
+            <button-action type="screen" target="/screen/signin"/>
+          </button>
+          <tag type="p" style="flt-demo-note" label="FLT_DEMO_NOTE"/>
+        </tag>
+      </tag>
+      <tag type="section" style="flt-section flt-gallery-section">
+        <tag type="h2" label="FLT_GALLERY_TITLE"/>
+        <tag type="p" style="flt-section-lead" label="FLT_GALLERY_LEAD"/>
+        <tag type="div" style="flt-gallery">
+          <tag type="figure" style="flt-gallery-item">
+            <image id="ImgGalHighway" url="/images/photos/fleet-trucks-highway-600.webp" alternate-url="" style="flt-photo"/>
+            <tag type="figcaption" label="FLT_PHOTO_HIGHWAY"/>
+          </tag>
+          <tag type="figure" style="flt-gallery-item">
+            <image id="ImgGalWarehouse" url="/images/photos/fleet-warehouse-600.webp" alternate-url="" style="flt-photo"/>
+            <tag type="figcaption" label="FLT_PHOTO_WAREHOUSE"/>
+          </tag>
+          <tag type="figure" style="flt-gallery-item flt-route-card">
+            <tag type="div" style="flt-route"/>
+            <tag type="figcaption" label="FLT_GALLERY_ROUTE_TEXT"/>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="section" style="flt-section">
+        <tag type="h2" label="FLT_SERVICES_TITLE"/>
+        <tag type="div" style="flt-cards">
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_SVC_ROAD" icon="lucide:truck"/>
+            <tag type="p" label="FLT_SVC_ROAD_TEXT"/>
+          </tag>
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_SVC_EXPRESS" icon="lucide:zap"/>
+            <tag type="p" label="FLT_SVC_EXPRESS_TEXT"/>
+          </tag>
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_SVC_WAREHOUSE" icon="lucide:warehouse"/>
+            <tag type="p" label="FLT_SVC_WAREHOUSE_TEXT"/>
+          </tag>
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_SVC_COLD" icon="lucide:snowflake"/>
+            <tag type="p" label="FLT_SVC_COLD_TEXT"/>
+          </tag>
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_SVC_LAST_MILE" icon="lucide:map-pinned"/>
+            <tag type="p" label="FLT_SVC_LAST_MILE_TEXT"/>
+          </tag>
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_SVC_TRACKING" icon="lucide:radar"/>
+            <tag type="p" label="FLT_SVC_TRACKING_TEXT"/>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="section" style="flt-section flt-section-alt">
+        <tag type="h2" label="FLT_COVERAGE_TITLE"/>
+        <tag type="div" style="flt-cards">
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_HUB_NORTH" icon="lucide:map-pin"/>
+            <tag type="p" label="FLT_HUB_NORTH_TEXT"/>
+          </tag>
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_HUB_SOUTH" icon="lucide:map-pin"/>
+            <tag type="p" label="FLT_HUB_SOUTH_TEXT"/>
+          </tag>
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_HUB_EAST" icon="lucide:map-pin"/>
+            <tag type="p" label="FLT_HUB_EAST_TEXT"/>
+          </tag>
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_HUB_WEST" icon="lucide:map-pin"/>
+            <tag type="p" label="FLT_HUB_WEST_TEXT"/>
+          </tag>
+          <tag type="article" style="flt-card">
+            <tag type="h3" style="flt-card-title" label="FLT_HUB_CENTRAL" icon="lucide:map-pin"/>
+            <tag type="p" label="FLT_HUB_CENTRAL_TEXT"/>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="footer" style="flt-footer">
+        <tag type="p" label="FLT_FOOTER"/>
+      </tag>
+    </tag>
+  </tag>
+</screen>

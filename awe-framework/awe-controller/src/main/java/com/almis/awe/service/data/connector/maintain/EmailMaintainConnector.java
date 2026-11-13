@@ -6,7 +6,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.maintain.MaintainQuery;
 import com.almis.awe.model.entities.queries.DatabaseConnection;
 import com.almis.awe.service.EmailService;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import tools.jackson.databind.node.ObjectNode;
 
 /**
  * Created by dfuentes on 28/04/2017.

@@ -1,0 +1,387 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "docker:pinDigests"
+  ],
+  "semanticCommits": "enabled",
+  "semanticCommitScope": "deps",
+  "minimumReleaseAge": "14 days",
+  "internalChecksFilter": "strict",
+  "baseBranchPatterns": [
+    "develop",
+    "support/4.x"
+  ],
+  "timezone": "Europe/Madrid",
+  "dependencyDashboard": true,
+  "dependencyDashboardTitle": "Dependency Dashboard",
+  "dependencyDashboardLabels": [
+    "update-dependencies"
+  ],
+  "labels": [
+    "update-dependencies"
+  ],
+  "prConcurrentLimit": 8,
+  "prHourlyLimit": 0,
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": [
+      "update-dependencies",
+      "security"
+    ]
+  },
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": [
+      "* 22-23 * * 5"
+    ]
+  },
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/bower_components/**",
+    "**/vendor/**",
+    "**/examples/**",
+    "**/__tests__/**",
+    "**/test/**",
+    "**/tests/**",
+    "**/__fixtures__/**",
+    "**/archetype-resources/**"
+  ],
+  "packageRules": [
+    {
+      "description": "Major updates wait 30 days since their release instead of the general 14 (top-level minimumReleaseAge): let other projects find the bad releases first. internalChecksFilter strict proposes the newest version that is old enough, not the newest one. Security fixes do not wait (Renovate bypasses minimumReleaseAge for vulnerability alerts).",
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "minimumReleaseAge": "30 days"
+    },
+    {
+      "description": "Container images never move to a new major version by themselves: a new Java (eclipse-temurin 21 to 25) or tool major is a manual decision. Digests, patch and minor updates of the same images are still proposed, so the security rebuilds of the images keep coming.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Digest, pin and lock-file maintenance updates carry no release date (Renovate 42 treats a missing date as not old enough), so they do not wait.",
+      "matchUpdateTypes": [
+        "digest",
+        "pin",
+        "pinDigest",
+        "lockFileMaintenance"
+      ],
+      "minimumReleaseAge": null
+    },
+    {
+      "description": "Some image registries (for example ghcr.io and mcr.microsoft.com) give no release date for a tag; Renovate 42 would then never find it old enough. For images, a tag without a date is proposed as before, and a tag with a date still waits.",
+      "matchDatasources": [
+        "docker"
+      ],
+      "minimumReleaseAgeBehaviour": "timestamp-optional"
+    },
+    {
+      "description": "The root package.json is an unused leftover; ignorePaths cannot target it without matching every package.json, so it is disabled here.",
+      "matchFileNames": [
+        "package.json"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "The React test application (awe-tests/awe-boot-react) depends on the built React client (file:../../awe-framework/awe-client-react/dist), so Renovate cannot regenerate its package-lock.json without building the client (artifact update failure, !926). Its own npm dependencies are updated by hand, together with the React client ones; the client itself stays under Renovate.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "awe-tests/awe-boot-react/package.json"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "Reactor artifacts are versioned by the release tooling, never by the bot.",
+      "matchPackageNames": [
+        "com.almis.awe:**"
+      ],
+      "enabled": false
+    },
+    {
+      "description": "The Highcharts licence covers versions up to 7; never propose 8 or later. Note: this rule does not stop vulnerability-alert merge requests (Renovate forces the fixed version over packageRules), and the fix for GHSA-8j65-4pcq-xq95 needs 9: those merge requests are closed by hand, which makes Renovate ignore that major. Accepted risk: AWE 5 replaces Highcharts with ECharts (#775).",
+      "matchPackageNames": [
+        "highcharts"
+      ],
+      "allowedVersions": "<8"
+    },
+    {
+      "description": "PrimeReact 11 changed its licence: the React client stays on PrimeReact 10. Only primereact is affected; primeicons and primeflex are not held back. Vulnerability alerts still bypass this rule: a security merge request that needs 11 is closed by hand.",
+      "matchPackageNames": [
+        "primereact"
+      ],
+      "allowedVersions": "<11"
+    },
+    {
+      "description": "angular-ui-grid stays on 4.12.0: 4.12.1 and later change the package entry point, and the AngularJS client imports and Jest suites break (#769, closed !969). Lift this rule when the grids leave ui-grid (#776). Vulnerability alerts still bypass it.",
+      "matchPackageNames": [
+        "angular-ui-grid"
+      ],
+      "allowedVersions": "<=4.12.0"
+    },
+    {
+      "description": "AngularJS stays on 1.5: 1.6 removes $http success/error and changes the route hash prefix, and 1.7 drops pre-assigned bindings before $onInit, so 1.8 breaks the AngularJS client (closed !985). The client is being replaced in AWE 5; vulnerability alerts still bypass this rule.",
+      "matchPackageNames": [
+        "angular",
+        "angular-animate",
+        "angular-aria",
+        "angular-cookies",
+        "angular-messages",
+        "angular-mocks",
+        "angular-resource",
+        "angular-route",
+        "angular-sanitize",
+        "angular-touch"
+      ],
+      "allowedVersions": "<1.6.0"
+    },
+    {
+      "description": "The website stays on webpack 5.104.1: webpack 5.111.1 rejects the ProgressPlugin options that Docusaurus 3.8.1 passes, so Build · Website fails (closed !984). Lift this when Docusaurus supports a newer webpack.",
+      "matchFileNames": [
+        "website/package.json"
+      ],
+      "matchPackageNames": [
+        "webpack"
+      ],
+      "allowedVersions": "<=5.104.1"
+    },
+    {
+      "description": "Major updates of the legacy AngularJS client and its test applications wait for approval on the Dependency Dashboard; the client is being replaced in AWE 5. The React client has its own rule below. Vulnerability alerts bypass this rule (Renovate forces the fixed version): a security fix that needs a new major of a legacy library (Bootstrap 4, jQuery 3, Highcharts 9, marked 4 on support/4.x) would break the client, so its merge request is closed by hand, which makes Renovate ignore that major. Accepted risk until AWE 5 replaces them (#755 Bootstrap, #772 jQuery-based components, #775 Highcharts).",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "awe-framework/awe-client-angular/**",
+        "awe-framework/awe-modules/awe-tools/**",
+        "awe-tests/awe-boot/package.json",
+        "awe-tests/awe-scheduler-boot/package.json"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Major updates of the React client wait for approval on the Dependency Dashboard: they need code changes, and with one Renovate run a week and at most 8 open merge requests they would take the slots of the patch and minor updates (Spring included). Vulnerability alerts bypass this rule.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "awe-framework/awe-client-react/package.json"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Maintenance line: patch, pin, digest and security fixes only. Security fixes that need a new major version are proposed anyway (vulnerability alerts bypass packageRules) and are closed by hand when they would break the line.",
+      "matchBaseBranches": [
+        "support/4.x"
+      ],
+      "matchUpdateTypes": [
+        "major",
+        "minor",
+        "lockFileMaintenance"
+      ],
+      "enabled": false
+    },
+    {
+      "groupName": "maven plugins",
+      "description": "Maven build plugins.",
+      "matchManagers": [
+        "maven"
+      ],
+      "matchDepTypes": [
+        "build"
+      ]
+    },
+    {
+      "groupName": "spring platform",
+      "description": "Spring Boot and its Spring Cloud release train move together in one merge request, ahead of the other updates (prPriority): the whole AWE backend depends on them. Every Boot minor needs a new Cloud train (2025.1.x for Boot 4.0 and 4.1, 2026.0.x for 4.2), and Renovate sees a new train as a major because of its calendar versions, so the group keeps a single branch (separateMajorMinor) and the waiting time of a minor for both.",
+      "matchPackageNames": [
+        "org.springframework.boot:**",
+        "org.springframework.cloud:**"
+      ],
+      "separateMajorMinor": false,
+      "minimumReleaseAge": "14 days",
+      "prPriority": 10
+    },
+    {
+      "description": "Spring Boot never moves to a new major by itself: Boot 5 (and its Cloud train) is a manual migration with many impacts. Vulnerability alerts still bypass this rule.",
+      "matchPackageNames": [
+        "org.springframework.boot:**"
+      ],
+      "allowedVersions": "<5.0.0"
+    },
+    {
+      "groupName": "selenium",
+      "description": "Selenium and the driver manager used by the browser tests.",
+      "matchPackageNames": [
+        "org.seleniumhq.selenium:**",
+        "io.github.bonigarcia:webdrivermanager"
+      ]
+    },
+    {
+      "groupName": "babel",
+      "matchPackageNames": [
+        "/^@babel\\//",
+        "babel-jest",
+        "babel-loader"
+      ]
+    },
+    {
+      "groupName": "jest",
+      "matchPackageNames": [
+        "jest",
+        "/^jest-/",
+        "/^@jest\\//"
+      ]
+    },
+    {
+      "groupName": "docusaurus",
+      "matchPackageNames": [
+        "@docusaurus/**"
+      ]
+    },
+    {
+      "groupName": "ci images",
+      "description": "Images and services referenced in .gitlab-ci.yml.",
+      "matchManagers": [
+        "gitlabci"
+      ]
+    },
+    {
+      "groupName": "docker compose images",
+      "description": "Local tooling stack (observability) described by the docker-compose file under awe-tests.",
+      "matchManagers": [
+        "docker-compose"
+      ]
+    },
+    {
+      "groupName": "test database images",
+      "description": "Database images used by the Testcontainers integration tests.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchFileNames": [
+        "awe-framework/awe-testing/src/main/resources/awe-testing-images.properties"
+      ]
+    },
+    {
+      "description": "SQL Server tags look like 2022-CU27-ubuntu-22.04: stay on the 2022 line and follow its cumulative updates.",
+      "matchPackageNames": [
+        "mcr.microsoft.com/mssql/server"
+      ],
+      "matchFileNames": [
+        "awe-framework/awe-testing/src/main/resources/awe-testing-images.properties"
+      ],
+      "versioning": "regex:^(?<major>\\d+)-CU(?<minor>\\d+)-(?<compatibility>ubuntu-\\d+\\.\\d+)$",
+      "allowedVersions": "/^2022-CU\\d+-ubuntu-22\\.04$/"
+    },
+    {
+      "description": "Patch releases of direct Maven and npm dependencies merge by themselves on develop once the merge-request pipeline passes; everything else (digests, pins, CI images, Dockerfile, compose files, lock-file maintenance) waits for a human. Patches wait the general 14 days since their release like every other update.",
+      "matchBaseBranches": [
+        "develop"
+      ],
+      "matchManagers": [
+        "maven",
+        "npm"
+      ],
+      "matchUpdateTypes": [
+        "patch"
+      ],
+      "automerge": true,
+      "automergeType": "pr",
+      "platformAutomerge": true,
+      "gitLabIgnoreApprovals": true
+    },
+    {
+      "description": "Node releases: odd majors are unstable and are skipped. The Node of the build (awe-dependencies) and the one of the development container use the same datasource, package name and versioning, so this rule groups both in one merge request.",
+      "matchDatasources": [
+        "node-version"
+      ],
+      "versioning": "node",
+      "groupName": "node toolchain"
+    },
+    {
+      "description": "npm version of the frontend-maven-plugin travels with Node.",
+      "matchManagers": [
+        "custom.regex"
+      ],
+      "matchPackageNames": [
+        "npm"
+      ],
+      "groupName": "node toolchain"
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^awe-framework/awe-dependencies/pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<node\\.version>v(?<currentValue>\\d+\\.\\d+\\.\\d+)</node\\.version>"
+      ],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "node-version",
+      "versioningTemplate": "node"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^awe-framework/awe-dependencies/pom\\.xml$/"
+      ],
+      "matchStrings": [
+        "<npm\\.version>(?<currentValue>\\d+\\.\\d+\\.\\d+)</npm\\.version>"
+      ],
+      "depNameTemplate": "npm",
+      "datasourceTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.gitlab-ci\\.yml$/"
+      ],
+      "matchStrings": [
+        "org\\.cyclonedx:cyclonedx-maven-plugin:(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "org.cyclonedx:cyclonedx-maven-plugin",
+      "datasourceTemplate": "maven"
+    },
+    {
+      "description": "Container images of the integration-test databases (awe-testing-images.properties), pinned as name:tag@sha256:digest.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^awe-framework/awe-testing/src/main/resources/awe-testing-images\\.properties$/"
+      ],
+      "matchStrings": [
+        "awe\\.testing\\.image\\.[a-z]+=(?<depName>[^:\\s@]+):(?<currentValue>[^@\\s]+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker"
+    },
+    {
+      "description": "Reads the Node version pinned in the development container with the same datasource, package name (node) and versioning as the node.version of the build, so the node toolchain group updates both files together.",
+      "customType": "regex",
+      "managerFilePatterns": [
+        "/^\\.devcontainer/devcontainer\\.json$/"
+      ],
+      "matchStrings": [
+        "features/node:[^\"]*\"\\s*:\\s*\\{[^}]*\"version\":\\s*\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\""
+      ],
+      "depNameTemplate": "node",
+      "datasourceTemplate": "node-version",
+      "versioningTemplate": "node"
+    }
+  ]
+}

@@ -5,7 +5,7 @@
 
   <groupId>com.almis.awe</groupId>
   <artifactId>awe-parent</artifactId>
-  <version>4.12.9</version>
+  <version>5.0.0</version>
   <packaging>pom</packaging>
 
   <name>AWE (V${project.version})</name>
@@ -14,7 +14,7 @@
 
   <properties>
     <!-- Project versions -->
-    <revision>4.12.9</revision>
+    <revision>5.0.0</revision>
     <java.debug>false</java.debug>
 
     <!-- Application properties -->
@@ -30,10 +30,14 @@
     <!-- Jacoco configuration -->
     <jacoco.base.reports>target</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
-    <jacoco.joined.coverage.path>${project.basedir}/../../awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
+    <!-- Anchored to the reactor root, not to ${project.basedir}: Sonar reads it in every module, whatever its depth -->
+    <jacoco.joined.coverage.path>${maven.multiModuleProjectDirectory}/awe-tests/awe-boot/target/coverage-reports</jacoco.joined.coverage.path>
+    <!-- The aggregate coverage report (profile generate-coverage-report) is only built where Sonar reads it: awe-tests/awe-boot
+         sets it to false -->
+    <jacoco.aggregate.skip>true</jacoco.aggregate.skip>
 
     <!-- Sonar configuration -->
-    <plugin-sonar.version>4.0.0.4121</plugin-sonar.version>
+    <plugin-sonar.version>5.8.0.7211</plugin-sonar.version>
     <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
     <sonar.links.homepage>https://gitlab.com/aweframework/awe</sonar.links.homepage>
     <sonar.links.ci>https://gitlab.com/aweframework/awe/pipelines</sonar.links.ci>
@@ -50,29 +54,42 @@
     <!-- Binary web fonts are not source; excluding them silences the
          "Invalid character encountered ... for encoding UTF-8" analysis warnings. -->
     <sonar.exclusions>**/fonts/**</sonar.exclusions>
+    <!-- The JavaScript/TypeScript analysis reads a tsconfig without `strict` (see its comments): with the strict build
+         tsconfig every JSDoc type is non-nullable and the null checks of the JavaScript code are reported as bugs -->
+    <sonar.typescript.tsconfigPaths>awe-framework/awe-client-react/tsconfig.sonar.json</sonar.typescript.tsconfigPaths>
+    <!-- Framework-agnostic modules mirrored in both web clients. The AngularJS copy is left out of the duplication
+         analysis; a Jest parity test in awe-client-angular keeps it identical to the React copy.
+         grid/layoutRules.js is the AngularJS adaptation of the React gridLayout.js and differs from it on purpose: it also
+         manages the columns hidden by the user layout (ui-grid keeps them in its column model) and resolves the group
+         headers against the whole column model, so it has no parity test. -->
+    <sonar.cpd.exclusions>**/js/awe/data/menuSearch.js,**/js/awe/services/chart/sparkline.js,**/js/awe/services/grid/layoutRules.js</sonar.cpd.exclusions>
 
     <!-- plugin versions -->
     <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
     <maven-project-info-reports-plugin.version>2.7</maven-project-info-reports-plugin.version>
-    <central-publishing-maven-plugin.version>0.8.0</central-publishing-maven-plugin.version>
-    <build-helper-maven-plugin.version>3.4.0</build-helper-maven-plugin.version>
-    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-    <maven-source-plugin.version>2.4</maven-source-plugin.version>
-    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-    <maven-javadoc-plugin.version>3.5.0</maven-javadoc-plugin.version>
+    <central-publishing-maven-plugin.version>0.12.0</central-publishing-maven-plugin.version>
+    <build-helper-maven-plugin.version>3.6.2</build-helper-maven-plugin.version>
+    <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
+    <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
+    <maven-deploy-plugin.version>3.2.0</maven-deploy-plugin.version>
+    <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
     <plugin-resources.version>3.3.1</plugin-resources.version>
     <plugin-archetype.version>3.1.1</plugin-archetype.version>
-    <plugin-site.version>3.5.1</plugin-site.version>
-    <plugin-info-reports.version>2.9</plugin-info-reports.version>
-    <plugin-dependency.version>3.6.0</plugin-dependency.version>
-    <plugin-jacoco.version>0.8.13</plugin-jacoco.version>
-    <gitflow-maven-plugin.version>1.13.0</gitflow-maven-plugin.version>
+    <plugin-site.version>3.22.0</plugin-site.version>
+    <plugin-info-reports.version>3.9.0</plugin-info-reports.version>
+    <plugin-dependency.version>3.11.0</plugin-dependency.version>
+    <plugin-jacoco.version>0.8.15</plugin-jacoco.version>
+    <plugin-spotless.version>3.10.4</plugin-spotless.version>
+    <gitflow-maven-plugin.version>1.21.0</gitflow-maven-plugin.version>
 
     <!-- Build environment -->
     <build.environment>production</build.environment>
 
     <!-- Skip stages -->
     <skip.javadoc>true</skip.javadoc>
+
+    <!-- Spotless: ref the check compares against (empty = every file); the CI job sets the merge base of the MR -->
+    <spotless.ratchetFrom></spotless.ratchetFrom>
   </properties>
 
   <modules>
@@ -113,9 +130,34 @@
         <artifactId>sonar-maven-plugin</artifactId>
         <version>${plugin-sonar.version}</version>
       </plugin>
+      <!-- Spotless: hygiene checks, run on demand (mvn spotless:check / spotless:apply), not bound to the build -->
+      <plugin>
+        <groupId>com.diffplug.spotless</groupId>
+        <artifactId>spotless-maven-plugin</artifactId>
+      </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
+        <!-- Spotless (#762): hygiene only (unused imports, trailing whitespace, final newline, import order), never a
+             reformat. No execution is bound to the lifecycle, so the normal build is untouched and the check runs only
+             when invoked. With spotless.ratchetFrom set only the files changed since that ref are checked. -->
+        <plugin>
+          <groupId>com.diffplug.spotless</groupId>
+          <artifactId>spotless-maven-plugin</artifactId>
+          <version>${plugin-spotless.version}</version>
+          <configuration>
+            <ratchetFrom>${spotless.ratchetFrom}</ratchetFrom>
+            <java>
+              <removeUnusedImports/>
+              <!-- Current layout: everything else, then javax and java, then static imports (blank line between groups) -->
+              <importOrder>
+                <order>,javax|java,\#</order>
+              </importOrder>
+              <trimTrailingWhitespace/>
+              <endWithNewline/>
+            </java>
+          </configuration>
+        </plugin>
         <!-- Maven source plugin -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -208,6 +250,7 @@
                   <goal>report-aggregate</goal>
                 </goals>
                 <configuration>
+                  <skip>${jacoco.aggregate.skip}</skip>
                   <outputDirectory>${jacoco.reportPaths}</outputDirectory>
                 </configuration>
               </execution>
@@ -231,6 +274,17 @@
       </properties>
       <build>
         <plugins>
+          <!-- Central requires -sources and -javadoc jars. The super POM of Maven 3.10 no longer has the release-profile that
+               attached them on -DperformRelease=true, so bind the attach-sources and attach-javadocs executions of
+               pluginManagement here. -->
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+          </plugin>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-gpg-plugin</artifactId>
@@ -265,9 +319,13 @@
             <version>${central-publishing-maven-plugin.version}</version>
             <extensions>true</extensions>
             <configuration>
-              <publishingServerId>central</publishingServerId>
+              <publishingServerId>sonatype-central</publishingServerId>
               <autoPublish>true</autoPublish>
               <waitMaxTime>3600</waitMaxTime>
+              <!-- The React engine is published to npm (awe-react-client), not as a Maven artifact -->
+              <excludeArtifacts>
+                <excludeArtifact>awe-client-react</excludeArtifact>
+              </excludeArtifacts>
             </configuration>
           </plugin>
         </plugins>
@@ -310,8 +368,9 @@
   </developers>
 
   <distributionManagement>
+    <!-- Not "central": Maven 3.10+ scopes that id's credentials to repo.maven.apache.org and would not send them here -->
     <snapshotRepository>
-      <id>central</id>
+      <id>sonatype-central</id>
       <url>https://central.sonatype.com/repository/maven-snapshots/</url>
     </snapshotRepository>
   </distributionManagement>

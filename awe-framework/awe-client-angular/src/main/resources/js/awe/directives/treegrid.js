@@ -1,11 +1,19 @@
 import {aweApplication} from "../awe";
 import {DefaultGridOptions, DefaultSpin} from "../data/options";
-import "../services/grid/tree";
+import {iconTemplate} from "../services/icon";
+import {getExpandColumn, TREE_ROW_TEMPLATE} from "../services/grid/tree";
+import {getGridRowHeight, getTreeIndent} from "../services/grid/density";
+import "./gridSkeleton";
+import "./gridToolbar";
+import "./gridColumnFilter";
+import "./gridColumnFilterChips";
+import {getSelectionButtons} from "./gridSelectionBar";
+import {initEmptyState} from "./gridEmptyState";
 
 // Treegrid directive
 aweApplication.directive('aweTreeGrid',
-  ['ServerData', 'GridTree', 'AweSettings',
-    function (serverData, GridTree, $settings) {
+  ['ServerData', 'GridTree', 'AweSettings', 'AweUtilities',
+    function (serverData, GridTree, $settings, $utilities) {
       // Retrieve default $settings
 
       // Set default options
@@ -60,16 +68,20 @@ aweApplication.directive('aweTreeGrid',
                 component.controller.treeId = component.controller.treeId || "id";
                 component.controller.treeParent = component.controller.treeParent || "parent";
                 component.controller.treeLeaf = component.controller.treeLeaf || "isLeaf";
+                // Column with the tree icons (no tree row header column)
+                component.expandColumn = getExpandColumn(component.controller);
 
                 // Update grid styles
                 component.gridStyle = "grid-" + scope.size + " " + (component.controller.style || "");
                 component.gridButtonClass = "btn btn-" + scope.size;
+                // Buttons of the selection bar (selection="true"): out of the footer
+                component.selectionButtons = getSelectionButtons(component.controller);
                 component.enableSorting = false;
 
                 // Fix column model
                 component.fixColumnModel(true);
                 scope.gridOptions = _.assign({}, options, {
-                  columnDefs: component.controller.columnModel,
+                  columnDefs: component.initColumnLayout(),
                   data: [],
                   enableRowSelection: true,
                   enableFullRowSelection: true,
@@ -83,19 +95,24 @@ aweApplication.directive('aweTreeGrid',
                   useExternalPagination: !component.controller.loadAll,
                   fastWatch: true,
                   flatEntityAccess: true,
-                  rowTemplate: "grid/row",
+                  rowTemplate: TREE_ROW_TEMPLATE,
+                  // The tree icons are inside the cells of the expand column
+                  showTreeRowHeader: false,
                   paginationTemplate: "grid/pagination",
-                  rowHeight: 27,
+                  // The row height of the screen, or the one of the density (followed by the grid commons)
+                  rowHeight: getGridRowHeight(component.controller),
+                  // Indent of each level
+                  treeIndent: getTreeIndent(),
                   enableMinHeightCheck: false,
                   //headerHeight: 28,
                   node: elem,
                   virtualizationThreshold: 50,
                   showColumnFooter: component.controller.showTotals,
                   icons: {
-                    menu: '<i class="fa fa-bars"/>',
-                    filter: '<i class="fa fa-filter"/>',
-                    sortAscending: '<i class="fa fa-sort-alpha-asc"/>',
-                    sortDescending: '<i class="fa fa-sort-alpha-desc"/>',
+                    menu: iconTemplate("bars"),
+                    filter: iconTemplate("filter"),
+                    sortAscending: iconTemplate("sort-alpha-asc"),
+                    sortDescending: iconTemplate("sort-alpha-desc"),
                     expand: "fa-" + (component.controller.iconExpand || 'plus-square'),
                     collapse: "fa-" + (component.controller.iconCollapse || 'minus-square'),
                     leaf: "fa-" + (component.controller.iconLeaf || 'dot-circle-o'),
@@ -107,6 +124,8 @@ aweApplication.directive('aweTreeGrid',
                     component.initGrid();
                   }
                 });
+                // Empty state (tree without rows)
+                initEmptyState(scope, component, $utilities);
               } else {
                 scope.gridOptions = {data: []};
               }

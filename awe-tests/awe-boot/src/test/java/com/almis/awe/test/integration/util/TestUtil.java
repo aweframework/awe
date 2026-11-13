@@ -2,12 +2,12 @@ package com.almis.awe.test.integration.util;
 
 import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.util.data.DataListUtil;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +30,7 @@ public class TestUtil {
   public static void assertResultJson(String maintainName, String result, int expectedOperationNumber, MaintainResultDetails[] expectedOperations) throws Exception {
     ArrayNode resultList = (ArrayNode) DataListUtil.getMapper().readTree(result);
     ObjectNode messageAction = (ObjectNode) resultList.get(1);
-    assertEquals("message", messageAction.get("type").textValue());
+    assertEquals("message", messageAction.get("type").stringValue());
     ObjectNode messageParameters = (ObjectNode) messageAction.get("parameters");
     assertEquals(4, messageParameters.size());
     ArrayNode resultDetails = (ArrayNode) messageParameters.get("result_details");
@@ -41,7 +41,7 @@ public class TestUtil {
         ObjectNode operationDetails = (ObjectNode) resultDetails.get(i);
         MaintainResultDetails expected = expectedOperations[i];
 
-        assertEquals(expected.getOperationType().name(), operationDetails.get("operationType").asText());
+        assertEquals(expected.getOperationType().name(), operationDetails.get("operationType").asString());
         assertTrue(expected.getRowsAffected() <= operationDetails.get("rowsAffected").asLong());
       }
     }

@@ -1,0 +1,66 @@
+---
+id: file-viewer
+title: File viewer
+sidebar_label: File viewer
+description: The AWE file and PDF viewers, live. Show the text of a file or a PDF document next to your data and copy the XML that produces it.
+---
+
+import AweLive from '@site/src/components/AweLive';
+import AwePlayground from '@site/src/components/AwePlayground';
+import {fileViewer, fileViewerExample} from '@site/src/components/AwePlayground/specs/file-viewer';
+
+Two widgets show a file inside a screen: `file-viewer` shows the text of a file (an application log, a generated report) and
+`pdf-viewer` shows a PDF document. Both are a [`widget`](../api/widget.md) element whose `type` picks the component, and both ask
+the server for their file. Below are the real widgets of the AWE React client. Switch the type, scroll the file and change the
+attributes: the XML below follows.
+
+<AwePlayground spec={fileViewer} />
+
+:::info The server is simulated
+A viewer posts the values of the screen to its `target-action` and shows the answer. Here the request is answered with a small
+static file of this site: an invented application log and a one-page PDF. The viewers are the real ones; the only thing missing is the
+server. The PDF is drawn by the PDF plugin of your browser, so it does not show where the browser has none.
+:::
+
+## Recipes {#recipes}
+
+### Follow a log {#recipe-log}
+
+`autoload` reads the file when the screen starts, and `autorefresh` (in seconds) reads it again from time to time. The widget parameter
+`stickBottom` keeps the view at the end of the file while the reader is at the bottom, which is what a log needs.
+
+<AweLive height="22rem" {...fileViewerExample('file-viewer', {parameters: {stickBottom: true}})} />
+
+```xml
+<widget id="serverLog" type="file-viewer" server-action="file" target-action="ServerLog"
+        autoload="true" style="expand scrollable">
+  <widget-parameter type="boolean" name="stickBottom" value="true" />
+</widget>
+```
+
+### Show a document {#recipe-pdf}
+
+`pdf-viewer` fetches the document from the `target-action` and embeds it. Give it room with `style="expand"`, so it fills the space of its
+container.
+
+<AweLive height="26rem" {...fileViewerExample('pdf-viewer')} />
+
+```xml
+<widget id="manual" type="pdf-viewer" target-action="Manual" style="expand" />
+```
+
+## Images and videos {#images-and-videos}
+
+Pictures and videos have their own elements: `image` (an `url` and a `title`), `video` (a `src`, with `controls`, `autoplay`, `loop` and a
+`poster`) and the `carousel` widget, which cycles through images, PDF documents and videos. See the [XSD reference](/reference/screen#element-widget)
+and the [widget guide](../api/widget.md).
+
+## Events and actions {#events-and-actions}
+
+A viewer has no event or action of its own: it reads its file when the screen starts (`autoload`) and, with `autorefresh`, again every few
+seconds. Its attributes can be changed by [dependencies](../api/dependencies.md) like those of any other component.
+
+## More {#more}
+
+* [Full documentation of widgets](../api/widget.md): the built-in types, the parameters and how to register your own.
+* [XSD reference of the `widget` element](/reference/screen#element-widget).

@@ -26,7 +26,7 @@ aweApplication.directive('aweLink',
         link: function (scope) {
           scope.trustSrc = function (src) {
             return $sce.trustAsUrl(src);
-          }
+          };
 
           // Init as component
           let  component = new Component(scope, scope.linkId);
