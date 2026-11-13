@@ -8,10 +8,12 @@ import org.junit.jupiter.api.TestMethodOrder;
 /**
  * Settings of the application: sequences and application parameters, one flow per screen. The flows of the two
  * administration screens (sequence-admin and application-parameter-admin) create two records through the side panel,
- * check the search and the quick filters (no query test runs them), delete one record from the selection bar, edit the
- * other from the pencil of its row and delete it from the row menu. Each flow opens its screen once, searches the words
- * of its own records and deletes the ones a failed attempt left, in the screen it is on. The themes have their own screen;
- * the side-panel admin pattern itself is proven by UserAdminTestsIT.
+ * check that the quick filters show their counters and the records of their state, delete one record from the selection
+ * bar, edit the other from the pencil of its row and delete it from the row menu. Each flow opens its screen once,
+ * searches the words of its own records and deletes the ones a failed attempt left, in the screen it is on. The search
+ * and the counts of the quick filters (All, Active, Inactive, ignoring case, one count per option) are proven by
+ * ToolsAndSettingsActionsTest in awe-boot; the AngularJS application has no browser test of these screens. The themes
+ * have their own screen; the side-panel admin pattern itself is proven by UserAdminTestsIT.
  */
 @Tag("ApplicationIntegrationIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -54,24 +56,6 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
   private static final String DESCRIPTION = "Value of a parameter of the tests";
   private static final String NEW_DESCRIPTION = "Value of a parameter of the tests, updated";
   private static final String NEW_COUNT_DESCRIPTION = "Appparadmtest parameter that counts as inactive";
-
-  /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    // The application asks for a confirmation before logging out
-    checkLogoutWithConfirmation();
-  }
 
   /**
    * Open a screen of the tools group, going through another one first: the client does not load again the screen that
@@ -145,9 +129,8 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
   }
 
   /**
-   * The side panel creates two sequences and their rows show their name, their value and their state; the search of the
-   * grid finds a sequence by its name ignoring case and the quick filters count the sequences of the search (All,
-   * Active, Inactive) and show the ones of their state; the pencil of a row opens the panel in edit mode filled with
+   * The side panel creates two sequences and their rows show their name, their value and their state; the quick filters
+   * show their counters, refresh them after a delete and show the sequences of their state; the pencil of a row opens the panel in edit mode filled with
    * its sequence (whose header shows the sequence and its state) and its row shows the value and the state saved from
    * the panel; the selection bar deletes one and the row menu the other
    */
@@ -162,20 +145,11 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
     createSequence(COUNT_INACTIVE_SEQUENCE, INACTIVE_SEQUENCE_VALUE, false);
     checkRowContentsGrid(KEY_GRID, COUNT_INACTIVE_SEQUENCE, INACTIVE_SEQUENCE_VALUE, "Inactive");
 
+    // The counts of the quick filters are proven by ToolsAndSettingsActionsTest: the browser checks they are shown
     checkGridQuickFilterOption(KEY_QUICK_FILTER, "", "All 2");
-    checkGridQuickFilterOption(KEY_QUICK_FILTER, "active", "Active 1");
-    checkGridQuickFilterOption(KEY_QUICK_FILTER, "inactive", "Inactive 1");
     checkGridQuickFilterOptionChosen(KEY_QUICK_FILTER, "");
 
-    // The search finds a sequence by its name, ignoring case, hides the other one and the counts follow it
-    typeGridSearch(KEY_SEARCH, COUNT_INACTIVE_SEQUENCE.toLowerCase());
-    checkRowGone(KEY_GRID, COUNT_ACTIVE_SEQUENCE);
-    checkRowContentsGrid(KEY_GRID, COUNT_INACTIVE_SEQUENCE);
-    checkGridQuickFilterOption(KEY_QUICK_FILTER, "", "All 1");
-    checkGridQuickFilterOption(KEY_QUICK_FILTER, "active", "Active 0");
-
     // Each quick filter shows the sequences of its state, and All shows them all again
-    searchGrid(KEY_SEARCH, COUNT_PREFIX);
     clickGridQuickFilterOption(KEY_QUICK_FILTER, "inactive");
     checkGridQuickFilterOptionChosen(KEY_QUICK_FILTER, "inactive");
     checkRowGone(KEY_GRID, COUNT_ACTIVE_SEQUENCE);
@@ -208,8 +182,6 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
     clickButtonAndConfirm("ButPnlUpd");
     waitForLoadingBar();
     checkRowContentsGrid(KEY_GRID, COUNT_ACTIVE_SEQUENCE, NEW_SEQUENCE_VALUE, "Inactive");
-    checkGridQuickFilterOption(KEY_QUICK_FILTER, "active", "Active 0");
-    checkGridQuickFilterOption(KEY_QUICK_FILTER, "inactive", "Inactive 1");
 
     deleteSequenceFromTheRowMenu(COUNT_ACTIVE_SEQUENCE);
     checkGridQuickFilterOption(KEY_QUICK_FILTER, "", "All 0");
@@ -282,9 +254,8 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
 
   /**
    * The side panel creates two application parameters and their rows show their name with the description under it,
-   * their value, their category and their state; the search of the grid finds a parameter by its description ignoring
-   * case and the quick filters count the parameters of the search (All, Active, Inactive) and show the ones of their
-   * state; the pencil of a row opens the panel in edit mode filled with its parameter (whose header shows the parameter
+   * their value, their category and their state; the quick filters show their counters, refresh them after a delete
+   * and show the parameters of their state; the pencil of a row opens the panel in edit mode filled with its parameter (whose header shows the parameter
    * and its state) and its row shows the value, the category and the state saved from the panel; the selection bar and
    * the row menu delete one each
    */
@@ -300,20 +271,11 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
     checkRowContentsGrid(PAR_GRID, COUNT_INACTIVE_PARAMETER, NEW_COUNT_DESCRIPTION, INACTIVE_PARAMETER_VALUE, REPORTS,
       "Inactive");
 
+    // The counts of the quick filters are proven by ToolsAndSettingsActionsTest: the browser checks they are shown
     checkGridQuickFilterOption(PAR_QUICK_FILTER, "", "All 2");
-    checkGridQuickFilterOption(PAR_QUICK_FILTER, "active", "Active 1");
-    checkGridQuickFilterOption(PAR_QUICK_FILTER, "inactive", "Inactive 1");
     checkGridQuickFilterOptionChosen(PAR_QUICK_FILTER, "");
 
-    // The search reads the description too: it finds one parameter by the words of its description, ignoring case
-    typeGridSearch(PAR_SEARCH, NEW_COUNT_DESCRIPTION.toLowerCase());
-    checkRowGone(PAR_GRID, COUNT_ACTIVE_PARAMETER);
-    checkRowContentsGrid(PAR_GRID, COUNT_INACTIVE_PARAMETER);
-    checkGridQuickFilterOption(PAR_QUICK_FILTER, "", "All 1");
-    checkGridQuickFilterOption(PAR_QUICK_FILTER, "inactive", "Inactive 1");
-
     // Each quick filter shows the parameters of its state, and All shows them all again
-    searchGrid(PAR_SEARCH, COUNT_PREFIX_PAR);
     clickGridQuickFilterOption(PAR_QUICK_FILTER, "active");
     checkGridQuickFilterOptionChosen(PAR_QUICK_FILTER, "active");
     checkRowGone(PAR_GRID, COUNT_INACTIVE_PARAMETER);
@@ -351,8 +313,6 @@ class ApplicationSettingsTestsIT extends AbstractApplicationTests {
     waitForLoadingBar();
     checkRowContentsGrid(PAR_GRID, COUNT_ACTIVE_PARAMETER, NEW_DESCRIPTION, NEW_PARAMETER_VALUE, GENERAL,
       "Inactive");
-    checkGridQuickFilterOption(PAR_QUICK_FILTER, "active", "Active 0");
-    checkGridQuickFilterOption(PAR_QUICK_FILTER, "inactive", "Inactive 1");
 
     deleteParameterFromTheRowMenu(COUNT_ACTIVE_PARAMETER);
     checkGridQuickFilterOption(PAR_QUICK_FILTER, "", "All 0");

@@ -7,8 +7,11 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 /**
  * Regression tests of the test screens. Every test starts logged in with the Test module selected and opens its own screen,
- * so a failing test does not leave the next ones without a session or a screen. The wrong login test logs out and in again:
- * when it fails in between, the next test logs in again through the session setup.
+ * so a failing test does not leave the next ones without a session or a screen. The login and logout flow itself is proven
+ * by IntegrationTestsIT, so this class has no login or logout test of its own.
+ * <p>
+ * The backend rules of the keep criteria (t007), wrong login (t009) and sort by a component column (t010) tests are not
+ * specific to this engine: their flows run only in the React application ({@code awe-boot-react} RegressionTestsIT).
  * <p>
  * The former t003_suggestStrict was removed: the security audit screen is redesigned without the non-strict user suggest
  * criterion it drove, and no other screen of the test application reachable through the menu declares a suggest criterion
@@ -20,23 +23,6 @@ class RegressionTestsIT extends AbstractSessionTests {
 
   RegressionTestsIT() {
     super(Session.TEST_MODULE);
-  }
-
-  /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager (test)");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogout();
   }
 
   /**
@@ -152,46 +138,6 @@ class RegressionTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Keep criteria test
-   */
-  @Test
-  void t007_keepCriteria() {
-    // Title
-    setTestTitle("Keep criteria test");
-
-    // Go to screen (the log screen keeps its criteria and navigates to the view screen of a log file)
-    gotoScreen("tools", "log");
-
-    // Wait for button
-    waitForButton("ButRst");
-
-    // Write on criterion
-    writeText("CrtFil", "SCHEDULER.log");
-
-    // Search and wait
-    searchAndWait();
-
-    // Check grid values
-    clickRowContents("SCHEDULER.log");
-
-    // Click button
-    clickButton("ButViw", true);
-
-    // Wait until the view screen has loaded its content, so the Back click is not lost while it is still loading
-    waitForLoadingBar();
-    waitForButton("ButBck");
-
-    // Click button
-    clickButton("ButBck", true);
-
-    // Wait for button
-    waitForButton("ButRst");
-
-    // Check criterion value
-    checkCriterionContents("CrtFil", "SCHEDULER.log");
-  }
-
-  /**
    * Delayed suggest
    */
   @Test
@@ -216,49 +162,6 @@ class RegressionTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Wrong login
-   */
-  @Test
-  void t009_wrongLogin() {
-    // Title
-    setTestTitle("Wrong login");
-
-    // Do logout
-    checkLogout();
-
-    // Check wrong login
-    checkLoginRejected("test", "lala", "warning", "Invalid credentials",
-      "The credentials entered for the user -test- are not valid");
-
-    // Check wrong login
-    checkLoginRejected("tutu", "lala", "warning", "Wrong username", "Username -tutu- is wrong or inactive");
-
-    // Do right login
-    checkLogin("test", "test", "Manager (test)");
-  }
-
-  /**
-   * Sort a grid using a component column
-   */
-  @Test
-  void t010_sortComponentColumn() {
-    // Title
-    setTestTitle("Sort a grid using a component column");
-
-    // Go to screen: the address column of the security audit events is a text view component
-    gotoScreen("settings", "security", "security-audit");
-
-    // Wait for button (the reset button lives in the closed range picker)
-    waitForButton("ButRel");
-
-    // Sort by a component field
-    sortGrid("GrdSecAud", "IpAdrTxt");
-
-    // Expect not to have an error message
-    checkMessageMissing("danger");
-  }
-
-  /**
    * Sort a grid using a component column
    */
   @Test
@@ -275,28 +178,15 @@ class RegressionTestsIT extends AbstractSessionTests {
     // Click on suggest
     openSuggest("IdeThm");
 
-    // Pause
-    pause(1000);
-
-    // Write text
+    // Write the search one letter at a time, waiting for each search to finish before the next one
     writeSuggestSearch("IdeThm", "a");
-
-    // Pause
-    pause(1000);
-
-    // Write text
+    waitForLoadingBar();
     writeSuggestSearch("IdeThm", "s");
-
-    // Pause
-    pause(1000);
-
-    // Write text
+    waitForLoadingBar();
     writeSuggestSearch("IdeThm", "p");
+    waitForLoadingBar();
 
-    // Pause
-    pause(1000);
-
-    // Check there's only one result
+    // Check there's only one result: the check waits until the list of the last search replaces the earlier ones
     checkSuggestResultCount(1);
 
     // Click selector

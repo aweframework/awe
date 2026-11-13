@@ -13,7 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Integration tests of the framework screens. Every test starts logged in with the Test module selected and opens its own
  * screen, so a failing test does not leave the next ones without a session or a screen. The test that stores a screen
- * configuration removes it even when it fails.
+ * configuration removes it even when it fails. The HAVING query of a grid is proven by QueryTest.testDatabaseQueryHaving
+ * and the SQL extractor by ToolsAndSettingsActionsTest.sqlExtractorReturnsTheRowsAndTheColumnsOfTheSelect in awe-boot.
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("ApplicationIntegrationIT")
@@ -71,7 +72,9 @@ class IntegrationTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Test screen configuration usage (hide ButPrn button on databases screen)
+   * Screen configuration in the editable grid: create a row that hides the print button of the databases screen, check
+   * that the button is hidden, edit the value of the row in the grid, then delete the row, check that it is gone and that
+   * the button is visible again
    */
   @Test
   void t010_screenConfigurationUsage() {
@@ -124,30 +127,32 @@ class IntegrationTestsIT extends AbstractSessionTests {
     // Verify that ButPrn button is not visible
     checkButtonNotVisible(PRINT_BUTTON);
 
-    // Remove the configuration and verify that the button is visible again
+    // The stored row lists the values of the new configuration
+    gotoScreen(SETTINGS, SCREEN_CONFIGURATION);
+    searchScreenConfiguration();
+    checkRowContents(DATABASES_SCREEN, "test", PRINT_BUTTON, "Visible", "false");
+
+    // Edit the value of the row in the editable grid and store it
+    editRow(DATABASES_SCREEN);
+    writeText("GrdScrCnf", "Val", "true");
+    saveRow();
+    clickButtonAndConfirm("ButCnf");
+
+    // The stored row lists the new value
+    searchScreenConfiguration();
+    checkRowContents(DATABASES_SCREEN, "test", PRINT_BUTTON, "Visible", "true");
+
+    // Remove the configuration: the row is gone and the button is visible again
     removeScreenConfiguration();
+    // The same search that listed it (databases screen, test user) no longer finds it
+    searchScreenConfiguration();
+    checkRowNotContains(DATABASES_SCREEN);
 
     // Go to databases screen
     gotoScreen("tools", DATABASES);
 
     // Click button
     waitForButton(PRINT_BUTTON);
-  }
-
-  /**
-   * Select test module on select criterion
-   */
-  @Test
-  @StartsFrom(Session.LOGGED_IN)
-  void t020_selectTestModule() {
-    // Title
-    setTestTitle("Select test module: Test to select test module");
-
-    // Select module
-    selectModule("Test");
-
-    // Check the menu of the module
-    checkMenuOption("test", "Tests");
   }
 
   /**
@@ -178,24 +183,6 @@ class IntegrationTestsIT extends AbstractSessionTests {
     // Verify that ButPrn button is not visible
     checkMenuOption("test", "Tests");
 
-  }
-
-  /**
-   * Grid test: Having query
-   */
-  @Test
-  void t040_gridTestHaving() {
-    // Title
-    setTestTitle("Grid test: Having query");
-
-    // Go to screen
-    gotoScreen("test", "matrix", "matrix-test-having");
-
-    // Search and wait
-      searchAndWait("ButGrdAccept");
-
-    // Check row contents
-    checkRowContents("Spain");
   }
 
   /**
@@ -459,27 +446,6 @@ class IntegrationTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * SQL extractor engine test
-   */
-  @Test
-  void t070_sqlExtractorEngine() {
-    // Title
-    setTestTitle("SQL extractor engine test");
-
-    // Go to screen
-    gotoScreen("tools", "sqlExtractor");
-
-    // Write text on criteria
-    writeText("selectCriteria", "select * from awekey");
-
-    // Search and wait
-    searchAndWait();
-
-    // Check visible
-    checkRowContents("OpeKey");
-  }
-
-  /**
    * File Manager test
    */
   @Test
@@ -577,20 +543,8 @@ class IntegrationTestsIT extends AbstractSessionTests {
     // Go to screen
     gotoScreen(SETTINGS, SCREEN_CONFIGURATION);
 
-    // Click button
-    clickButton("ButRst");
-
-    // Select on selector
-    suggest("CrtScr",  DATABASES_SCREEN, DATABASES_SCREEN);
-
-    // Select on selector
-    suggest("CrtUsr",  "test", "test");
-
-    // Select text
-    selectContain("CrtAct", "Yes");
-
-    // Search and wait
-    searchAndWait();
+    // List the configuration of the databases screen
+    searchScreenConfiguration();
 
     // Click on row
     clickRowContents(DATABASES_SCREEN);
@@ -600,5 +554,16 @@ class IntegrationTestsIT extends AbstractSessionTests {
 
     // Store and confirm
     clickButtonAndConfirm("ButCnf");
+  }
+
+  /**
+   * List the active screen configurations of the databases screen for the test user in the screen configuration grid
+   */
+  private void searchScreenConfiguration() {
+    clickButton("ButRst");
+    suggest("CrtScr", DATABASES_SCREEN, DATABASES_SCREEN);
+    suggest("CrtUsr", "test", "test");
+    selectContain("CrtAct", "Yes");
+    searchAndWait();
   }
 }

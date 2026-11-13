@@ -29,23 +29,6 @@ class DependencyTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogoutWithConfirmation();
-  }
-
-  /**
    * Conditions contains and not contains: case insensitive, and an empty value does not contain the text
    */
   @Test

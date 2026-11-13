@@ -122,6 +122,22 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/windowAdvanc
       expect(panel().length).toBe(0);
     });
 
+    // Replaces the browser check of AdvancedSearchTestsIT#t060_windowWithoutAdvancedCriteriaIsUnchanged: typing in a
+    // criterion of a window without advanced block draws no toggle and no filters in effect
+    it("keeps drawing no toggle and no filters in effect when a criterion changes", () => {
+      const element = compileWindow({advancedMode: undefined, advancedCriteria: undefined, searchCriteria: undefined},
+        `${ESSENTIAL}</div>`);
+
+      models.user.selected = "Ana";
+      digest();
+
+      expect(toggle(element).length).toBe(0);
+      expect(badge(element).length).toBe(0);
+      expect(chipsGroup(element).length).toBe(0);
+      expect(chips(element).length).toBe(0);
+      expect(element.find(".window-advanced-row").length).toBe(0);
+    });
+
     it("launches the first submit button of the form with Enter, as before", () => {
       const element = compileWindow({advancedMode: undefined, advancedCriteria: undefined, searchCriteria: undefined},
         `${ESSENTIAL}</div>`);

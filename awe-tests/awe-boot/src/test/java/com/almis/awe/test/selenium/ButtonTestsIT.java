@@ -17,23 +17,6 @@ class ButtonTestsIT extends AbstractSessionTests {
   }
 
   /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager (test)");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogout();
-  }
-
-  /**
    * Test buttons: dependencies
    */
   @Test

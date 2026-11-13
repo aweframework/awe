@@ -6,9 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * Manual tasks of the scheduler: create, update and delete. The class creates and deletes its own task and does not need
- * any other record or class. The tests of the task are an ordered sequence on one record, and each one opens its own
- * screen.
+ * Manual tasks of the scheduler, one flow on the task screens: create a task with the wizard (the editable grid of
+ * parameters), update it in the tabs of the update screen (the same grid) and delete it. The class creates and deletes its
+ * own task and does not need any other record or class; its tests are an ordered sequence on that record, and each one
+ * opens its own screen. The stored configuration, parameters and report are proven by {@code SchedulerTaskMaintainTest}.
  */
 @Tag("SchedulerIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -18,67 +19,20 @@ class SchedulerManualTaskTestsIT extends AbstractSchedulerTests {
   private static final String TASK_UPDATED = "Manual task updated";
 
   /**
-   * Log into the application
+   * Generate a new manual task with the wizard and update its parameters
    */
   @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    // The application asks for a confirmation before logging out
-    checkLogoutWithConfirmation();
-  }
-
-  /**
-   * Generate a new manual task
-   */
-  @Test
-  void t001_newManualTask() {
+  void t001_newAndUpdateManualTask() {
     // Title
-    setTestTitle("Generate a new manual task");
+    setTestTitle("Generate a new manual task and update its parameters");
 
     createManualTask(TASK, "Manual task description", "45");
 
-
-    // Check element
-
-    verifyNew(TASK_CRITERION, TASK);
-  }
-
-  /**
-   * Update the manual task
-   */
-  @Test
-  void t021_updateManualTask() {
-    // Title
-    setTestTitle("Update the manual task");
-
-    // Go to the task to update
+    // Go to the task to update: the search finds the new task
     update(TASK_CRITERION, TASK, TASK_CHECK_BUTTON, SCHEDULER, TASK_LIST_SCREEN);
 
     // UPDATE TASK DATA
     changeTaskData(TASK_UPDATED, "Manual task description updated");
-
-    // Insert text
-    writeText("NumStoExe", "60");
-
-    // Insert text
-    writeText("TimOutExe", "120");
-
-    // Check
-    clickCheckbox("LchDepWrn");
-
-    // Check
-    clickCheckbox("LchDepErr");
-
-    // Check
-    clickCheckbox("LchSetWrn");
 
     // Click on tab
     clickTab(TASK_FORM_SCREEN, "Parameters");
@@ -93,26 +47,6 @@ class SchedulerManualTaskTestsIT extends AbstractSchedulerTests {
 
     // Save row
     saveRow(PARAMETERS_GRID);
-
-    // Click on tab
-    clickTab(TASK_FORM_SCREEN, "Report");
-
-    // UPDATE REPORT
-
-    // Suggest on selector
-    selectContain("RepTyp", "E-mail");
-
-    // Suggest on selector
-    suggestMultiple("RepSndSta", "Ok", "Ok");
-
-    // Suggest on selector
-    suggestMultiple("RepEmaDst", "test", "test");
-
-    // Insert text
-    writeText("RepTit", "Test email title");
-
-    // Insert text
-    writeText("RepMsg", "Test email message");
 
     // Store and confirm
     clickButtonAndConfirm(CONFIRM_BUTTON);

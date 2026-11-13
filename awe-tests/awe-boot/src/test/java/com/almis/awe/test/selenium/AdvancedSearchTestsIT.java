@@ -8,22 +8,22 @@ import org.junit.jupiter.api.TestMethodOrder;
 /**
  * Advanced search of a window (#790) on a list of customers: the essential criteria first, then the advanced block, shown
  * inline below its Advanced filters row or in a side panel (a tab each), the counter of the advanced criteria in use, the
- * filters in effect with their chips, the search of each example in its own grid, a window without advanced block, and the
- * open state of the inline block, which is remembered for the user. Every test opens its screen with the inline block
- * closed, so each one can run on its own.
+ * filters in effect with their chips, the search of the side panel in its own grid, and the open state of the inline block,
+ * which is remembered for the user. One flow per window (the inline block, the side panel) and one for the open state that
+ * is remembered: every test opens its screen with the inline block closed, so each one can run on its own.
  *
- * <p>The inline window keeps saved searches (saved-searches="true"): the test user saves, applies, renames and deletes its
- * own searches and, as it may publish (it reaches the profiles option), publishes one for the Test profile. A user of that
- * profile, which the class creates (Test reaches the test menu but not the tools, so it may not publish), applies it but
- * cannot change it. Every test removes what it saves, and what an earlier run left, so the class can run again.</p>
+ * <p>Proven in a lower layer, not here: the customers each search returns ({@code AdvancedSearchCustomersTest}), a window
+ * without advanced block or without saved searches (Jest {@code windowAdvancedSearch.test.js},
+ * {@code windowSavedSearches.test.js}), and the saved searches of the inline window: the server rules in
+ * {@code SavedSearchMaintainTest}, the client rules in {@code windowSavedSearches.test.js}. The saved searches flow runs in
+ * the React application only ({@code awe-boot-react} AdvancedSearchTestsIT).</p>
  */
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @Tag("RegressionWebsocketPrintIT")
-class AdvancedSearchTestsIT extends AbstractCrudTests {
+class AdvancedSearchTestsIT extends AbstractSessionTests {
 
   private static final String INLINE_WINDOW = "WinAdvInl";
   private static final String PANEL_WINDOW = "WinAdvPnl";
-  private static final String INLINE_GRID = "GrdAdvInl";
   private static final String PANEL_GRID = "GrdAdvPnl";
   private static final String NAME = "AdvInlNam";
   private static final String STATUS = "AdvInlSta";
@@ -35,55 +35,23 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
   private static final String PANEL_NAME = "AdvPnlNam";
   private static final String PANEL_COUNTRY = "AdvPnlCtr";
   private static final String PANEL_PRIORITY = "AdvPnlPri";
-  private static final String INLINE_NAME_COLUMN = "InlNam";
-  private static final String INLINE_COUNTRY_COLUMN = "InlCtr";
-  private static final String INLINE_SEGMENT_COLUMN = "InlSeg";
-  private static final String INLINE_PRIORITY_COLUMN = "InlPri";
   private static final String PANEL_NAME_COLUMN = "PnlNam";
   private static final String PANEL_COUNTRY_COLUMN = "PnlCtr";
   private static final String SPAIN = "Spain";
   private static final String FRANCE = "France";
   private static final String RETAIL = "Retail";
-  private static final String YES = "Yes";
-  private static final String SAVED_SEARCHES = "Saved searches";
-  private static final String OWN_SEARCH = "Active retail";
-  private static final String RENAMED_SEARCH = "Active retail customers";
-  private static final String SHARED_SEARCH = "Priority customers";
-  // Profile that the shared search is published for (the name of its option) and its user, which the class creates
-  private static final String PROFILE_ACRONYM = "TST";
-  private static final String PROFILE_NAME = "Test";
-  private static final String PROFILE_USER = "savsch";
-  private static final String PROFILE_USER_PASSWORD = "savsch";
-  private static final String PROFILE_USER_NAME = "Saved";
-  private static final String PROFILE_USER_SHOWN = "Saved (savsch)";
 
   AdvancedSearchTestsIT() {
     super(Session.TEST_MODULE);
   }
 
   /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager (test)");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogout();
-  }
-
-  /**
    * Open the advanced search test screen from another one, so it is rendered again: choosing the screen that is shown
-   * keeps it as it is (expanded advanced criteria, values). The inline block starts as the user left it (#790)
+   * keeps it as it is (expanded advanced criteria, values). The other screen is the buttons test screen, an option of the
+   * first level of the test menu without a grid. The inline block starts as the user left it (#790)
    */
   private void showAdvancedSearchScreen() {
-    gotoScreen("test", "matrix", "matrix-test-side-panel");
+    gotoScreen("test", "button-test");
     gotoScreen("test", "matrix-test-advanced-search");
     checkCriterionVisible(NAME);
   }
@@ -98,11 +66,15 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
 
   /**
    * Inline window: the essential criteria come first, then the Advanced filters row, and the toggle opens the advanced
-   * block below the row, which does not move
+   * block below the row, which does not move. The badge counts the advanced criteria whose value differs from their
+   * default (the country with a default value counts only when it changes, a flag counts on its own), and the chips show
+   * every filter in effect, the hidden advanced ones marked. Removing a chip restores the criterion to its default, also a
+   * marked one, without opening the block, and Clear all restores them all. A dependency of an advanced criterion fires
+   * while it is hidden, and the validation of a hidden advanced criterion that fails reveals it
    */
   @Test
-  void t010_inlineToggleShowsAndHidesTheAdvancedCriteria() {
-    setTestTitle("Advanced search: the inline toggle shows and hides the advanced criteria below its row");
+  void t010_inlineBlockTogglesCountsChipsDependenciesAndValidation() {
+    setTestTitle("Advanced search: the inline block, its badge and chips, a hidden dependency and a hidden validation");
     openAdvancedSearchScreen();
 
     // Collapsed: only the essential criteria, above the row, and the default country is not a filter in use
@@ -137,26 +109,15 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
     checkCriterionNotVisible(PRIORITY);
     checkCriterionVisible(NAME);
     checkAdvancedFiltersToggleTop(INLINE_WINDOW, toggleTop);
-  }
-
-  /**
-   * The badge counts the advanced criteria whose value differs from their default (the country with a default value counts
-   * only when it changes, a flag counts on its own), and the chips show every filter in effect, the hidden advanced ones
-   * marked. Removing a chip restores the criterion to its default, and Clear all restores them all
-   */
-  @Test
-  void t020_badgeAndChipsFollowTheCriteriaThatDifferFromTheirDefault() {
-    setTestTitle("Advanced search: badge, chips, remove a chip and clear all");
-    openAdvancedSearchScreen();
-    toggleAdvancedFilters(INLINE_WINDOW);
 
     // The default value of a select is not a filter
+    toggleAdvancedFilters(INLINE_WINDOW);
     checkSelectContents(COUNTRY, SPAIN);
     checkAdvancedFiltersCount(INLINE_WINDOW, 0);
     checkNoFilterChips(INLINE_WINDOW);
 
     // A segment, a flag and a changed country
-    selectContain(SEGMENT, "Retail");
+    selectContain(SEGMENT, RETAIL);
     checkAdvancedFiltersCount(INLINE_WINDOW, 1);
     clickCheckbox(PRIORITY);
     checkAdvancedFiltersCount(INLINE_WINDOW, 2);
@@ -177,12 +138,16 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
     checkFilterChip(INLINE_WINDOW, NAME, false);
     checkAdvancedFiltersCount(INLINE_WINDOW, 2);
 
-    // Hidden advanced filters in effect stay in view, marked
+    // Hidden advanced filters in effect stay in view, marked, and a marked chip clears its filter without opening the block
     toggleAdvancedFilters(INLINE_WINDOW);
     checkCriterionNotVisible(SEGMENT);
     checkFilterChip(INLINE_WINDOW, SEGMENT, true);
     checkFilterChip(INLINE_WINDOW, PRIORITY, true);
     checkFilterChip(INLINE_WINDOW, NAME, false);
+    removeFilterChip(INLINE_WINDOW, SEGMENT);
+    checkNoFilterChip(INLINE_WINDOW, SEGMENT);
+    checkAdvancedFiltersCount(INLINE_WINDOW, 1);
+    checkCriterionNotVisible(SEGMENT);
 
     // Clear all restores every criterion of the window
     clearAllFilters(INLINE_WINDOW);
@@ -192,99 +157,40 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
     checkSelectContents(COUNTRY, SPAIN);
     checkCheckboxRadio(false, PRIORITY);
     checkCriterionContents(NAME, "");
-  }
 
-  /**
-   * A dependency of an advanced criterion fires while it is hidden: inactive customers are never priority, so choosing the
-   * Inactive status clears the hidden priority flag and its chip
-   */
-  @Test
-  void t030_dependencyOfAHiddenAdvancedCriterionStillFires() {
-    setTestTitle("Advanced search: the dependency of a hidden advanced criterion fires");
-    openAdvancedSearchScreen();
-    toggleAdvancedFilters(INLINE_WINDOW);
+    // A dependency fires while its criterion is hidden: inactive customers are never priority, so choosing the Inactive
+    // status clears the hidden priority flag and its chip
     clickCheckbox(PRIORITY);
     toggleAdvancedFilters(INLINE_WINDOW);
     checkFilterChip(INLINE_WINDOW, PRIORITY, true);
     checkAdvancedFiltersCount(INLINE_WINDOW, 1);
-
     selectContain(STATUS, "Inactive");
     checkFilterChip(INLINE_WINDOW, STATUS, false);
     checkNoFilterChip(INLINE_WINDOW, PRIORITY);
     checkAdvancedFiltersCount(INLINE_WINDOW, 0);
-
     toggleAdvancedFilters(INLINE_WINDOW);
     checkCheckboxRadio(false, PRIORITY);
     clearAllFilters(INLINE_WINDOW);
     checkNoFilterChips(INLINE_WINDOW);
-  }
 
-  /**
-   * The validation of a hidden advanced criterion that fails reveals it, so its error can be seen
-   */
-  @Test
-  void t040_validationRevealsAHiddenAdvancedCriterion() {
-    setTestTitle("Advanced search: a validation error reveals the hidden advanced criterion");
-    openAdvancedSearchScreen();
-    toggleAdvancedFilters(INLINE_WINDOW);
+    // A validation error reveals the hidden advanced criterion
     writeText(AMOUNT, "2000000");
     toggleAdvancedFilters(INLINE_WINDOW);
     checkCriterionNotVisible(AMOUNT);
-
     clickButton("ButAdvInlSch");
     checkCriterionVisible(AMOUNT);
     checkValidationErrorVisible();
   }
 
   /**
-   * The search of the inline window fills its grid with the customers that pass every filter, the default country
-   * included, also while the advanced block is hidden, and a column per criterion shows why each one is there
-   */
-  @Test
-  void t045_inlineSearchFiltersItsGridByTheAdvancedCriteria() {
-    setTestTitle("Advanced search: the inline search filters its grid by the advanced criteria");
-    openAdvancedSearchScreen();
-    toggleAdvancedFilters(INLINE_WINDOW);
-
-    // Retail customers of the default country, searched with the advanced block hidden
-    selectContain(SEGMENT, RETAIL);
-    toggleAdvancedFilters(INLINE_WINDOW);
-    checkFilterChip(INLINE_WINDOW, SEGMENT, true);
-    clickButton("ButAdvInlSch");
-    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, "Atlas Logistics", "Harbor Logistics", "Iris Labs", "Delta Logistics",
-      "Ember Labs");
-    checkGridColumnOrder(INLINE_GRID, INLINE_COUNTRY_COLUMN, SPAIN, SPAIN, SPAIN, SPAIN, SPAIN);
-    checkGridColumnOrder(INLINE_GRID, INLINE_SEGMENT_COLUMN, RETAIL, RETAIL, RETAIL, RETAIL, RETAIL);
-
-    // An essential criterion narrows them down
-    selectContain(STATUS, "Active");
-    clickButton("ButAdvInlSch");
-    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, "Atlas Logistics", "Iris Labs", "Ember Labs");
-
-    // Priority customers of the default country
-    clearAllFilters(INLINE_WINDOW);
-    checkNoFilterChips(INLINE_WINDOW);
-    toggleAdvancedFilters(INLINE_WINDOW);
-    clickCheckbox(PRIORITY);
-    clickButton("ButAdvInlSch");
-    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, "Atlas Logistics", "Boreal Retail", "Cobalt Textiles", "Ember Labs");
-    checkGridColumnOrder(INLINE_GRID, INLINE_COUNTRY_COLUMN, SPAIN, SPAIN, SPAIN, SPAIN);
-    checkGridColumnOrder(INLINE_GRID, INLINE_PRIORITY_COLUMN, YES, YES, YES, YES);
-
-    // A minimum amount instead of the flag
-    clickCheckbox(PRIORITY);
-    writeText(AMOUNT, "8000");
-    clickButton("ButAdvInlSch");
-    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, "Ember Labs", "Krypton Pharma", "Ember Retail", "Krypton Media");
-  }
-
-  /**
    * Side-panel window: Advanced filters opens the advanced criteria in a side panel. Cancel gives them back the values they had
-   * when it opened, Reset to defaults restores their defaults, and Show results closes it and fills its own grid
+   * when it opened, Reset to defaults restores their defaults, and Show results closes it and fills its own grid. The side
+   * panel is not remembered (#790): it is closed when the screen is opened again, and the inline block of the other window
+   * keeps its own state
    */
   @Test
-  void t050_sidePanelCancelResetAndShowResults() {
-    setTestTitle("Advanced search: side panel with Cancel, Reset to defaults and Show results");
+  void t020_sidePanelCancelResetShowResultsAndIsNotRemembered() {
+    setTestTitle("Advanced search: side panel with Cancel, Reset to defaults and Show results, closed when opened again");
     openAdvancedSearchScreen();
     clickTab("AdvSchTab", "ENUM_ADV_SCH_SIDE_PANEL");
     checkCriterionVisible(PANEL_NAME);
@@ -320,55 +226,27 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
     checkAdvancedFiltersCount(PANEL_WINDOW, 2);
     checkFilterChip(PANEL_WINDOW, PANEL_COUNTRY, true);
     checkFilterChip(PANEL_WINDOW, PANEL_PRIORITY, true);
+
+    // Opened and cancelled, the panel is closed when the screen is opened again
+    toggleAdvancedFilters(PANEL_WINDOW);
+    checkAdvancedFiltersPanelOpen(PANEL_WINDOW);
+    cancelAdvancedFilters(PANEL_WINDOW);
+    checkAdvancedFiltersPanelClosed(PANEL_WINDOW);
+    showAdvancedSearchScreen();
+    checkAdvancedFiltersClosed(INLINE_WINDOW);
+    clickTab("AdvSchTab", "ENUM_ADV_SCH_SIDE_PANEL");
+    checkCriterionVisible(PANEL_NAME);
+    checkCriterionNotVisible(PANEL_COUNTRY);
+    checkAdvancedFiltersPanelClosed(PANEL_WINDOW);
   }
 
   /**
-   * A window without advanced block (the criteria test screen) shows no toggle and no filters in effect, even with a
-   * value that differs from its default
+   * The inline block is remembered for the user (#790): left open, it is open when the screen is opened again and after
+   * logging out and in again; left closed, it is closed when the screen is opened again, so the user is left as it was
    */
   @Test
-  void t060_windowWithoutAdvancedCriteriaIsUnchanged() {
-    setTestTitle("Advanced search: a window without advanced criteria is unchanged");
-    gotoScreen("test", "criteria", "criteria-test");
-
-    checkNoAdvancedFilters("Criteria");
-    writeText("Txt", "Ana");
-    checkNoAdvancedFilters("Criteria");
-  }
-
-  /**
-   * The advanced block of the inline window (#790, first on the users screen, now deprecated): an advanced filter in effect
-   * stays in view as a marked chip while the block is hidden, and removing that chip clears it without opening the block
-   */
-  @Test
-  void t070_hiddenAdvancedFilterIsClearedFromItsMarkedChip() {
-    setTestTitle("Advanced search: a hidden advanced filter is cleared from its marked chip");
-    openAdvancedSearchScreen();
-    checkCriterionNotVisible(SEGMENT);
-    checkAdvancedFiltersCount(INLINE_WINDOW, 0);
-
-    toggleAdvancedFilters(INLINE_WINDOW);
-    selectContain(SEGMENT, RETAIL);
-    checkAdvancedFiltersCount(INLINE_WINDOW, 1);
-    checkFilterChip(INLINE_WINDOW, SEGMENT, false);
-
-    // Hidden, it stays in view as a marked chip, which clears it
-    toggleAdvancedFilters(INLINE_WINDOW);
-    checkCriterionNotVisible(SEGMENT);
-    checkFilterChip(INLINE_WINDOW, SEGMENT, true);
-    removeFilterChip(INLINE_WINDOW, SEGMENT);
-    checkAdvancedFiltersCount(INLINE_WINDOW, 0);
-    checkNoFilterChips(INLINE_WINDOW);
-    checkCriterionNotVisible(SEGMENT);
-  }
-
-  /**
-   * The inline block is remembered for the user (#790): it is open when the screen is opened again after leaving it open,
-   * and closed after closing it
-   */
-  @Test
-  void t080_inlineBlockIsRememberedWhenTheScreenIsOpenedAgain() {
-    setTestTitle("Advanced search: the inline block is opened again as the user left it");
+  void t030_inlineBlockIsRememberedWhenTheScreenIsOpenedAgainAndAfterLoggingOutAndIn() {
+    setTestTitle("Advanced search: the inline block is opened again as the user left it, also after logging out and in");
     openAdvancedSearchScreen();
     checkCriterionNotVisible(COUNTRY);
 
@@ -380,26 +258,6 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
     checkCriterionVisible(COUNTRY);
     checkCriterionBelowAdvancedFilters(INLINE_WINDOW, COUNTRY);
 
-    // Left closed
-    toggleAdvancedFilters(INLINE_WINDOW);
-    checkAdvancedFiltersClosed(INLINE_WINDOW);
-    showAdvancedSearchScreen();
-    checkAdvancedFiltersClosed(INLINE_WINDOW);
-    checkCriterionNotVisible(COUNTRY);
-  }
-
-  /**
-   * The inline block is remembered across sessions (#790): left open, it is open after logging out and in again. It is
-   * closed at the end, so the user is left as it was
-   */
-  @Test
-  void t085_inlineBlockIsRememberedAfterLoggingOutAndIn() {
-    setTestTitle("Advanced search: the inline block is remembered after logging out and in again");
-    openAdvancedSearchScreen();
-    toggleAdvancedFilters(INLINE_WINDOW);
-    showAdvancedSearchScreen();
-    checkAdvancedFiltersOpen(INLINE_WINDOW);
-
     // A new session
     ensureLoggedOut();
     checkLogin("test", "test", "Manager (test)");
@@ -408,198 +266,11 @@ class AdvancedSearchTestsIT extends AbstractCrudTests {
     checkAdvancedFiltersOpen(INLINE_WINDOW);
     checkCriterionVisible(COUNTRY);
 
-    // Back as it was
+    // Left closed
     toggleAdvancedFilters(INLINE_WINDOW);
     checkAdvancedFiltersClosed(INLINE_WINDOW);
     showAdvancedSearchScreen();
     checkAdvancedFiltersClosed(INLINE_WINDOW);
-  }
-
-  /**
-   * The side panel is not remembered (#790): it is closed when the screen is opened again, and the inline block of the
-   * other window keeps its own state
-   */
-  @Test
-  void t090_sidePanelIsNotRemembered() {
-    setTestTitle("Advanced search: the side panel always starts closed");
-    openAdvancedSearchScreen();
-    clickTab("AdvSchTab", "ENUM_ADV_SCH_SIDE_PANEL");
-    toggleAdvancedFilters(PANEL_WINDOW);
-    checkAdvancedFiltersPanelOpen(PANEL_WINDOW);
-    cancelAdvancedFilters(PANEL_WINDOW);
-    checkAdvancedFiltersPanelClosed(PANEL_WINDOW);
-
-    showAdvancedSearchScreen();
-    checkAdvancedFiltersClosed(INLINE_WINDOW);
-    clickTab("AdvSchTab", "ENUM_ADV_SCH_SIDE_PANEL");
-    checkCriterionVisible(PANEL_NAME);
-    checkCriterionNotVisible(PANEL_COUNTRY);
-    checkAdvancedFiltersPanelClosed(PANEL_WINDOW);
-  }
-
-  /**
-   * Delete the saved searches of the inline window that an earlier run left, and close the menu
-   *
-   * @param names Names of the searches
-   */
-  private void deleteLeftSavedSearches(String... names) {
-    for (String name : names) {
-      if (hasSavedSearch(INLINE_WINDOW, name)) {
-        closeSavedSearches(INLINE_WINDOW);
-        deleteSavedSearch(INLINE_WINDOW, name);
-      }
-    }
-    closeSavedSearches(INLINE_WINDOW);
-  }
-
-  /**
-   * Own searches (#790): the values of the search criteria, advanced ones included, are saved with a name, which the
-   * button shows while they do not change. Applying the search brings them back and launches the search, and the search
-   * can be renamed and deleted
-   */
-  @Test
-  void t100_ownSearchIsSavedAppliedRenamedAndDeleted() {
-    setTestTitle("Saved searches: save, apply, rename and delete an own search");
-    openAdvancedSearchScreen();
-    deleteLeftSavedSearches(OWN_SEARCH, RENAMED_SEARCH);
-    checkSavedSearchesText(INLINE_WINDOW, SAVED_SEARCHES);
-
-    // Active retail customers of the default country
-    selectContain(STATUS, "Active");
-    toggleAdvancedFilters(INLINE_WINDOW);
-    selectContain(SEGMENT, RETAIL);
-    saveCurrentSearch(INLINE_WINDOW, OWN_SEARCH);
-    checkSavedSearchesText(INLINE_WINDOW, OWN_SEARCH);
-    checkSavedSearchListed(INLINE_WINDOW, OWN_SEARCH, true);
-    closeSavedSearches(INLINE_WINDOW);
-
-    // Cleared, the button names no search and the grid lists every customer of the default country
-    clearAllFilters(INLINE_WINDOW);
-    checkNoFilterChips(INLINE_WINDOW);
-    checkSavedSearchesText(INLINE_WINDOW, SAVED_SEARCHES);
-    toggleAdvancedFilters(INLINE_WINDOW);
-    clickButton("ButAdvInlSch");
-    checkNoFilterChips(INLINE_WINDOW);
-
-    // Applied: its values and the search are back, the advanced ones hidden
-    applySavedSearch(INLINE_WINDOW, OWN_SEARCH);
-    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, "Atlas Logistics", "Iris Labs", "Ember Labs");
-    checkGridColumnOrder(INLINE_GRID, INLINE_SEGMENT_COLUMN, RETAIL, RETAIL, RETAIL);
-    checkFilterChip(INLINE_WINDOW, STATUS, false);
-    checkFilterChip(INLINE_WINDOW, SEGMENT, true);
-    checkAdvancedFiltersCount(INLINE_WINDOW, 1);
-    checkSavedSearchesText(INLINE_WINDOW, OWN_SEARCH);
-
-    // Renamed, the button follows it
-    renameSavedSearch(INLINE_WINDOW, OWN_SEARCH, RENAMED_SEARCH);
-    checkSavedSearchesText(INLINE_WINDOW, RENAMED_SEARCH);
-    checkSavedSearchListed(INLINE_WINDOW, RENAMED_SEARCH, true);
-    checkSavedSearchNotListed(INLINE_WINDOW, OWN_SEARCH);
-    closeSavedSearches(INLINE_WINDOW);
-
-    // Deleted
-    deleteSavedSearch(INLINE_WINDOW, RENAMED_SEARCH);
-    checkSavedSearchesText(INLINE_WINDOW, SAVED_SEARCHES);
-    checkSavedSearchNotListed(INLINE_WINDOW, RENAMED_SEARCH);
-    closeSavedSearches(INLINE_WINDOW);
-    clearAllFilters(INLINE_WINDOW);
-  }
-
-  /**
-   * A window opts in to saved searches (#790): the side-panel window, which does not, has no Saved searches button
-   */
-  @Test
-  void t110_windowWithoutSavedSearchesHasNoSavedSearchesButton() {
-    setTestTitle("Saved searches: a window that does not opt in has no Saved searches button");
-    openAdvancedSearchScreen();
-    clickTab("AdvSchTab", "ENUM_ADV_SCH_SIDE_PANEL");
-    checkCriterionVisible(PANEL_NAME);
-    checkNoSavedSearches(PANEL_WINDOW);
-  }
-
-  /**
-   * The test user may publish (#790): it reaches the profiles option, so the Save search dialog offers the profiles, and it
-   * publishes a search for the Test profile, which it lists as shared and may change
-   */
-  @Test
-  void t120_publisherPublishesASearchForAProfile() {
-    setTestTitle("Saved searches: publish a search for a profile");
-    openAdvancedSearchScreen();
-    deleteLeftSavedSearches(SHARED_SEARCH);
-    checkSaveSearchCanPublish(INLINE_WINDOW, true);
-    publishSharedSearch();
-    checkSavedSearchListed(INLINE_WINDOW, SHARED_SEARCH, false);
-    closeSavedSearches(INLINE_WINDOW);
-    checkSavedSearchCanBeChanged(INLINE_WINDOW, SHARED_SEARCH, true);
-    clearAllFilters(INLINE_WINDOW);
-  }
-
-  /**
-   * A user of the profile (#790) finds the published search shared with its profile and applies it, but it cannot rename
-   * or delete it, and it may not publish. The test user creates that user and publishes the search first, unless they are
-   * there (a rerun comes after the test that deletes them)
-   */
-  @Test
-  void t130_userOfTheProfileAppliesTheSharedSearch() {
-    setTestTitle("Saved searches: a user of the profile applies the shared search but cannot change it");
-    createProfileUser();
-    openAdvancedSearchScreen();
-    if (!hasSavedSearch(INLINE_WINDOW, SHARED_SEARCH)) {
-      closeSavedSearches(INLINE_WINDOW);
-      publishSharedSearch();
-      clearAllFilters(INLINE_WINDOW);
-    }
-    closeSavedSearches(INLINE_WINDOW);
-
-    // The user of the profile, in the Test module
-    ensureLoggedIn(PROFILE_USER, PROFILE_USER_PASSWORD, PROFILE_USER_SHOWN);
-    ensureModule("Test", "test");
-    openAdvancedSearchScreen();
-    checkSavedSearchListed(INLINE_WINDOW, SHARED_SEARCH, false);
-    closeSavedSearches(INLINE_WINDOW);
-
-    applySavedSearch(INLINE_WINDOW, SHARED_SEARCH);
-    checkGridColumnOrder(INLINE_GRID, INLINE_NAME_COLUMN, "Atlas Logistics", "Boreal Retail", "Cobalt Textiles", "Ember Labs");
-    checkFilterChip(INLINE_WINDOW, PRIORITY, true);
-    checkSavedSearchesText(INLINE_WINDOW, SHARED_SEARCH);
-
-    checkSavedSearchCanBeChanged(INLINE_WINDOW, SHARED_SEARCH, false);
-    checkSaveSearchCanPublish(INLINE_WINDOW, false);
-    clearAllFilters(INLINE_WINDOW);
-  }
-
-  /**
-   * Publish the shared search for the Test profile: the priority customers of the default country. The advanced block is
-   * left open
-   */
-  private void publishSharedSearch() {
-    toggleAdvancedFilters(INLINE_WINDOW);
-    clickCheckbox(PRIORITY);
-    saveCurrentSearch(INLINE_WINDOW, SHARED_SEARCH, PROFILE_NAME);
-  }
-
-  /**
-   * The publisher deletes the published search (#790), and the user of the profile is deleted
-   */
-  @Test
-  void t140_publisherDeletesThePublishedSearch() {
-    setTestTitle("Saved searches: the publisher deletes the published search");
-    openAdvancedSearchScreen();
-    if (hasSavedSearch(INLINE_WINDOW, SHARED_SEARCH)) {
-      closeSavedSearches(INLINE_WINDOW);
-      deleteSavedSearch(INLINE_WINDOW, SHARED_SEARCH);
-    }
-    checkSavedSearchNotListed(INLINE_WINDOW, SHARED_SEARCH);
-    closeSavedSearches(INLINE_WINDOW);
-
-    // The user of the profile, if it is still there
-    verifyUserDeleted(PROFILE_USER);
-  }
-
-  /**
-   * Create the user of the Test profile from the side panel of the users screen, unless an earlier run left it
-   */
-  private void createProfileUser() {
-    createUser(PROFILE_USER, PROFILE_USER_NAME, "savsch@almis.com", PROFILE_ACRONYM, PROFILE_USER_PASSWORD);
+    checkCriterionNotVisible(COUNTRY);
   }
 }

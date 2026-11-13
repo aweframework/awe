@@ -12,6 +12,8 @@ import org.junit.jupiter.api.TestMethodOrder;
  * the scheduler running: a test that stops it restarts it as its last step, and when the test fails in between, the cleanup
  * after the test restarts it (a restart works whatever state the scheduler is in), so a failure here does not leave the
  * next classes without a scheduler. The scheduler tasks that were cleared are loaded again from the database by the restart.
+ * The status and the jobs that each button leaves are proven by {@code SchedulerManagementTest}; the flow runs in this
+ * engine only.
  */
 @Tag("SchedulerIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -36,50 +38,24 @@ class SchedulerManagementTestsIT extends AbstractSchedulerTests {
   }
 
   /**
-   * Log into the application
+   * Press the four management buttons on one opening of the screen: clear the scheduler and stop it, restart it, stop it
+   * and start it. Each button ends with its success message
    */
   @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    // The application asks for a confirmation before logging out
-    checkLogoutWithConfirmation();
-  }
-
-  /**
-   * Clear the scheduler and stop it, and restart it
-   */
-  @Test
-  void t001_clearAndStopAndRestartScheduler() {
+  void t001_manageScheduler() {
     // Title
-    setTestTitle("Clear and stop the scheduler, and restart it");
+    setTestTitle("Clear and stop the scheduler, restart it, stop it and start it");
 
+    // Go to management screen
+    openScreen(SCHEDULER, MANAGEMENT_SCREEN);
+    waitForLoadingBar();
+
+    // From here on a failure leaves the scheduler restarted by the cleanup after the test
     schedulerStopped = true;
-    pressManagementButton("clearAndStopScheduler");
-
-    pressManagementButton("restartScheduler");
-    schedulerStopped = false;
-  }
-
-  /**
-   * Stop the scheduler and start it
-   */
-  @Test
-  void t002_stopAndStartScheduler() {
-    // Title
-    setTestTitle("Stop the scheduler and start it");
-
-    schedulerStopped = true;
-    pressManagementButton("stopScheduler");
-
-    pressManagementButton("startScheduler");
+    pressButton("clearAndStopScheduler");
+    pressButton("restartScheduler");
+    pressButton("stopScheduler");
+    pressButton("startScheduler");
     schedulerStopped = false;
   }
 
@@ -95,6 +71,15 @@ class SchedulerManagementTestsIT extends AbstractSchedulerTests {
     // Wait for loading bar
     waitForLoadingBar();
 
+    pressButton(button);
+  }
+
+  /**
+   * Press a button of the management screen that is already open and wait for its success message
+   *
+   * @param button Button of the screen
+   */
+  private void pressButton(String button) {
     // Click button
     clickButton(button);
 

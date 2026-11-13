@@ -6,9 +6,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * Calendars of the scheduler: create, update (with dates), deactivate, activate and delete. The class creates and deletes
- * its own calendar and does not need any other record or class. The tests of the calendar are an ordered sequence on one
- * record, and each one opens its own screen.
+ * Calendars of the scheduler, one flow on its screens: create a calendar and update it with dates (the editable grid of
+ * dates), deactivate and activate it (each button replaces the other one), and delete it. The class creates and deletes its
+ * own calendar and does not need any other record or class; its tests are an ordered sequence on that record, and each one
+ * opens its own screen. The stored data, dates and states are proven by {@code SchedulerCalendarMaintainTest}.
  */
 @Tag("SchedulerIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -18,47 +19,16 @@ class SchedulerCalendarTestsIT extends AbstractSchedulerTests {
   private static final String CALENDAR_UPDATED = "Holidays calendar updated";
 
   /**
-   * Log into the application
+   * Generate a new scheduler calendar and update it with two dates
    */
   @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager (test)");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogout();
-  }
-
-  /**
-   * Generate a new scheduler calendar
-   */
-  @Test
-  void t001_newSchedulerCalendar() {
+  void t001_newAndUpdateSchedulerCalendar() {
     // Title
-    setTestTitle("Generate a new scheduler calendar");
+    setTestTitle("Generate a new scheduler calendar and update it with dates");
 
     createCalendar(CALENDAR, "Holidays calendar description");
 
-
-    // Check element
-
-    verifyNew(CALENDAR_CRITERION, CALENDAR);
-  }
-
-  /**
-   * Update a scheduler calendar
-   */
-  @Test
-  void t002_updateSchedulerCalendar() {
-    // Title
-    setTestTitle("Update a scheduler calendar");
-
-    // Go to the calendar to update
+    // Go to the calendar to update: the search finds the new calendar
     update(CALENDAR_CRITERION, CALENDAR, CONFIRM_BUTTON, SCHEDULER, CALENDARS_SCREEN);
 
     // Insert text
@@ -66,9 +36,6 @@ class SchedulerCalendarTestsIT extends AbstractSchedulerTests {
 
     // Insert text
     writeText(DESCRIPTION, "Holidays calendar description updated");
-
-    // Suggest on selector
-    suggest("Act", "Yes", "Yes");
 
     // Add dates
     clickButton("ButDatAdd");
@@ -99,12 +66,13 @@ class SchedulerCalendarTestsIT extends AbstractSchedulerTests {
   }
 
   /**
-   * Deactivate a calendar
+   * Deactivate the calendar and activate it again: each button toggles the state of the selected calendar and is
+   * replaced by the other one
    */
   @Test
-  void t003_deactivateCalendar() {
+  void t003_deactivateAndActivateCalendar() {
     // Title
-    setTestTitle("Deactivate calendar");
+    setTestTitle("Deactivate and activate calendar");
 
     // Select the calendar
     selectRow(CALENDAR, SCHEDULER, CALENDARS_SCREEN);
@@ -115,20 +83,8 @@ class SchedulerCalendarTestsIT extends AbstractSchedulerTests {
     // Check success execution
     checkButtonNotVisible("ButDea");
     checkButtonVisible("ButAct");
-  }
 
-  /**
-   * Activate a calendar
-   */
-  @Test
-  void t004_activateCalendar() {
-    // Title
-    setTestTitle("Activate calendar");
-
-    // Select the calendar
-    selectRow(CALENDAR, SCHEDULER, CALENDARS_SCREEN);
-
-    // Activate it
+    // Activate it again
     clickButton("ButAct", true);
 
     // Check success execution

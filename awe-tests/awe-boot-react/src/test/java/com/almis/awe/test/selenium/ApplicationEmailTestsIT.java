@@ -6,31 +6,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 /**
- * The log viewer: open a log file from the log screen and read its contents. The mail servers screen
+ * The log viewer: open a log file from the log screen and read its contents. The log list and the content the viewer
+ * returns are proven by ToolsAndSettingsActionsTest.logListFindsTheFileByItsNameAndTheViewerReturnsItsContent in
+ * awe-boot; this flow, kept in the React application only, proves the screen opens the viewer of the selected row and
+ * goes back. The mail servers screen
  * (email-server-admin) is an instance of the side-panel admin pattern proven by UserAdminTestsIT: its queries and
  * maintains are proven by EmailServerListQueryTest and EmailServerAdminScreenTest in awe-boot.
  */
 @Tag("ApplicationIntegrationIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
 class ApplicationEmailTestsIT extends AbstractApplicationTests {
-
-  /**
-   * Log into the application
-   */
-  @Test
-  @StartsFrom(Session.BLANK)
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   */
-  @Test
-  void t999_logoutTest() {
-    // The application asks for a confirmation before logging out
-    checkLogoutWithConfirmation();
-  }
 
   /**
    * View a log file

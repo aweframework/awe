@@ -1,95 +1,31 @@
 package com.almis.awe.test.selenium;
 
-import com.almis.awe.testing.utilities.SeleniumUtilities;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
+
+/**
+ * Print dialog of the test screens: every test starts logged in with the Test module selected (session setup of
+ * {@link AbstractSessionTests}), opens its screen and generates its print. The class has no login, logout or module
+ * selection test of its own: {@code IntegrationTestsIT.t000_loginTest} and {@code IntegrationTestsIT.t999_logoutTest} prove
+ * the login and the logout, and {@code RegressionTestsIT.t001_selectTestModule} proves the module selection.
+ * <p>
+ * Only what the browser alone sees is printed here: one flow of the print dialog ({@code matrix-test}, all tabs) and the
+ * chart screen, whose SVG the client draws. The files each print generates, for every screen and tab option, are proven by
+ * {@code PrintScreenActionTest} (awe-boot), which replaced the print tests of the user list, profile list, matrix selected
+ * tab, grid and chart and layout 2 screens.
+ */
 @Tag("RegressionWebsocketPrintIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
-class PrintTestsIT extends SeleniumUtilities {
+class PrintTestsIT extends AbstractSessionTests {
 
-  /**
-   * Log into the application
-   */
-  @Test
-  void t000_loginTest() {
-    checkLogin("test", "test", "Manager");
-  }
-
-  /**
-   * Log out from the application
-   *
-   * @
-   */
-  @Test
-  void t999_logoutTest() {
-    checkLogoutWithConfirmation();
-  }
-
-  /**
-   * Select test module on select criterion
-   *
-   * @ Error on test
-   */
-  @Test
-  void t001_selectTestModule() {
-    // Title
-    setTestTitle("Select test module: Test to select test module");
-
-    // Select module
-    selectModule("Test");
-
-    // Check the menu of the module
-    checkMenuOption("test", "Tests");
-  }
-
-  /**
-   * Print user list
-   *
-   * @ Error on test
-   */
-  @Test
-  void t010_printUserList() {
-    // Title
-    setTestTitle("Print user list");
-
-    // Print screen
-    verifyPrintScreen(false, "tools", "users");
-  }
-
-  /**
-   * Print profile list
-   *
-   * @ Error on test
-   */
-  @Test
-  void t020_printProfilesList() {
-    // Title
-    setTestTitle("Print profiles list");
-
-    // Print screen
-    verifyPrintScreen(false, "tools", "profiles");
-  }
-
-  /**
-   * Print matrix selected tab
-   *
-   * @ Error on test
-   */
-  @Test
-  void t030_printMatrixSelectedTab() {
-    // Title
-    setTestTitle("Print matrix selected tab");
-
-    // Print screen
-    verifyPrintScreen(false, "test", "matrix", "matrix-test");
+  PrintTestsIT() {
+    super(Session.TEST_MODULE);
   }
 
   /**
    * Print matrix all tabs
-   *
-   * @ Error on test
    */
   @Test
   void t040_printMatrixAllTabs() {
@@ -101,9 +37,7 @@ class PrintTestsIT extends SeleniumUtilities {
   }
 
   /**
-   * Print chart screen
-   *
-   * @ Error on test
+   * Print chart screen. The grid of the grid and chart screen then shows the page size of its max attribute in its pager
    */
   @Test
   void t050_printChartScreen() {
@@ -112,37 +46,11 @@ class PrintTestsIT extends SeleniumUtilities {
 
     // Print screen
     verifyPrintScreen(false, "test", "chart", "chart-test");
-  }
-
-  /**
-   * Print chart and grid screen
-   *
-   * @ Error on test
-   */
-  @Test
-  void t060_printChartAndGrid() {
-    // Title
-    setTestTitle("Print chart and grid");
-
-    // Print screen
-    verifyPrintScreen(false, "test", "chart", "grid-and-chart");
 
     // Check for pager values selector
+    gotoScreen("test", "chart", "grid-and-chart");
+    waitForLoadingBar();
     checkGridPageSize("25");
-  }
-
-  /**
-   * Print chart and grid screen
-   *
-   * @ Error on test
-   */
-  @Test
-  void t070_printLayout2() {
-    // Title
-    setTestTitle("Print layout 2");
-
-    // Print screen
-    verifyPrintScreen(false, "test", "layout", "layout2-test");
   }
 
   /**
@@ -155,22 +63,14 @@ class PrintTestsIT extends SeleniumUtilities {
     // Go to matrix test
     gotoScreen(menuOptions);
 
-    // Wait for button
+    // Wait until the screen has loaded its data, so the print button is not clicked while the screen is still loading
+    waitForLoadingBar();
     waitForButton("ButPrn");
-
-    // Wait for button (again)
-    waitForButton("ButPrn");
-
-    // Wait 1 second
-    pause(1000);
 
     // Click print button
     clickButton("ButPrn");
 
-    // Wait 1 second
-    pause(1000);
-
-    // Wait for button
+    // Wait for the print dialog: its accept button is shown once the dialog is open
     waitForButton("ButDiaVal");
 
     // Select

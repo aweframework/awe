@@ -29,7 +29,6 @@ abstract class AbstractSchedulerTests extends AbstractSessionTests {
   static final String RESET_BUTTON = "ButRst";
   static final String PARAMETERS_GRID = "ParameterList";
   static final String EDITED_PARAMETER = "secondsToWait";
-  static final String BROADCAST = "Broadcast";
 
   protected AbstractSchedulerTests() {
     super(Session.LOGGED_IN);
@@ -217,26 +216,8 @@ abstract class AbstractSchedulerTests extends AbstractSessionTests {
   }
 
   /**
-   * Change task launch type
-   *
-   * @param number Repeat number
-   * @param type   Repeat type
-   */
-  void changeTaskLaunch(Integer number, String type) {
-    clickTab(TASK_FORM_SCREEN, "Launch");
-
-    // Insert text
-    writeText("RptNum", number.toString());
-
-    // Suggest on selector
-    selectContain("RptTyp", type);
-
-    // Calculate fire times
-    clickButton("ButUpdateFireTimes", true);
-  }
-
-  /**
-   * Create a manual task that runs the maintain that waits some seconds
+   * Create a manual task that runs the maintain that waits some seconds, with the steps of the wizard that only the browser
+   * shows (the editable grid of parameters); the other fields and the report are stored as the maintain tests prove
    *
    * @param name        Task name
    * @param description Task description
@@ -254,15 +235,6 @@ abstract class AbstractSchedulerTests extends AbstractSessionTests {
 
     // Suggest on selector
     suggest("maintain", "waitSomeSeconds", "waitSomeSeconds");
-
-    // Check
-    clickCheckbox("LchDepWrn");
-
-    // Check
-    clickCheckbox("LchDepErr");
-
-    // Check
-    clickCheckbox("LchSetWrn");
 
     // Click on next step
     clickButton("FwStep1");
@@ -291,20 +263,6 @@ abstract class AbstractSchedulerTests extends AbstractSessionTests {
     // Click on next step
     clickButton("FwStep4");
 
-    // FILL REPORT
-
-    // Suggest on selector
-    selectContain("RepTyp", BROADCAST);
-
-    // Suggest on selector
-    suggestMultipleList("RepSndSta", "Warning", "Error");
-
-    // Suggest on selector
-    suggestMultiple("RepUsrDst", "test", "test");
-
-    // Insert text
-    writeText("RepMsg", "Test broadcast message");
-
     // Store and confirm
     clickButtonAndConfirm("Finish");
   }
@@ -330,5 +288,33 @@ abstract class AbstractSchedulerTests extends AbstractSessionTests {
 
     // Store and confirm
     clickButtonAndConfirm(CONFIRM_BUTTON);
+  }
+
+  /**
+   * Run every cleanup step even when an earlier one fails, so a failed step does not leave the records of the next ones
+   * behind for the next run; the first failure is thrown at the end as it was (a failed check stays a failure, not an
+   * error), with the others as suppressed
+   *
+   * @param steps Cleanup steps
+   */
+  void cleanUp(Runnable... steps) {
+    Throwable failure = null;
+    for (Runnable step : steps) {
+      try {
+        step.run();
+      } catch (RuntimeException | AssertionError exc) {
+        if (failure == null) {
+          failure = exc;
+        } else {
+          failure.addSuppressed(exc);
+        }
+      }
+    }
+    if (failure instanceof AssertionError assertion) {
+      throw assertion;
+    }
+    if (failure != null) {
+      throw (RuntimeException) failure;
+    }
   }
 }
