@@ -254,7 +254,13 @@ identificador `Period` envía `Period.from` y `Period.to`, y una query los lee c
 ```
 
 El atributo **[value](#general-attributes)** es una lista de las dos fechas por defecto separadas por una coma
-(`value="01/01/2026,31/01/2026"`); una primera fecha vacía (`value=",31/01/2026"`) deja abierto el inicio.
+(`value="01/01/2026,31/01/2026"`); una primera fecha vacía (`value=",31/01/2026"`) deja abierto el inicio. También
+acepta uno de los códigos de preajuste de abajo (`value="YTD"`): el servidor lo convierte en sus dos fechas a partir de
+la fecha del servidor, y el criterio se abre con ese preajuste marcado como activo. Restablecer y restaurar vuelven a ese
+rango.
+
+Una carga inicial de valor (`initial-load="value"`) rellena el rango con la columna `value` de las dos primeras filas de
+su destino: la primera fila es la fecha de inicio y la segunda la fecha de fin.
 
 El atributo **[presets](#specific-attributes)** define los preajustes rápidos. Cada código se muestra como un botón que
 rellena ambas fechas a partir de la fecha actual, y el preajuste activo se desactiva en cuanto se edita una de las fechas:

@@ -108,6 +108,20 @@ describe('awe-framework/awe-client-angular/src/test/jest/components/dateRange.js
     expect(presets(element).eq(0).attr("data-active")).toBe("false");
   });
 
+  it('marks the default preset as active while the dates are the ones it sets', function () {
+    const today = dayjs().format("DD/MM/YYYY");
+    const element = render([today, today], {presets: "1M, TODAY", value: "TODAY"});
+
+    expect(presets(element).eq(1).attr("data-active")).toBe("true");
+    expect(presets(element).eq(0).attr("data-active")).toBe("false");
+
+    $control.getAddressModel(ADDRESS).selected = [FROM, TO];
+    element.isolateScope().component.onSelectedChanged();
+    $rootScope.$digest();
+
+    expect(presets(element).eq(1).attr("data-active")).toBe("false");
+  });
+
   it('disables the inputs and the presets when it is readonly', function () {
     const element = render([], {presets: "TODAY", readonly: true});
 

@@ -167,7 +167,9 @@ aweApplication.factory('DateRange',
           Validator.initController(component.controller, component.address);
           component.controller.validationRules = {...component.controller.validationRules, dateRange: true};
 
-          let applied = null;
+          // Before any click, the default preset (value="YTD", resolved into dates by the server) is the one applied
+          const defaultCode = String(component.controller.value || "").toUpperCase();
+          let applied = {code: defaultCode, ...resolvePreset(defaultCode)};
           scope.range = readRange(component.model.selected);
           scope.presets = parsePresets(component.controller.presets)
             .filter(code => resolvePreset(code) !== null)
@@ -223,7 +225,7 @@ aweApplication.factory('DateRange',
            * @returns {boolean} Preset is active
            */
           scope.isPresetActive = function (code) {
-            return applied !== null && applied.code === code && applied.from === scope.range.from && applied.to === scope.range.to;
+            return applied.code === code && applied.from === scope.range.from && applied.to === scope.range.to;
           };
 
           /**

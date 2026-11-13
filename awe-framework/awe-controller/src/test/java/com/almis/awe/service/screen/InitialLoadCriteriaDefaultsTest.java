@@ -12,6 +12,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.menu.Menu;
 import com.almis.awe.model.entities.screen.Screen;
 import com.almis.awe.model.entities.screen.data.AweThreadInitialization;
+import com.almis.awe.model.entities.screen.data.ComponentModel;
 import com.almis.awe.model.entities.screen.data.ScreenData;
 import com.almis.awe.service.GridLayoutService;
 import com.almis.awe.service.WindowStateService;
@@ -26,10 +27,14 @@ import org.springframework.context.ApplicationContext;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -81,6 +86,7 @@ class InitialLoadCriteriaDefaultsTest {
       + "<criteria id=\"CrtNam\" component=\"text\"/>"
       + "<criteria id=\"CrtSeg\" component=\"picklist\" value=\"R\"/>"
       + "<criteria id=\"CrtEnd\" component=\"date-range\" value=\"01/02/2026\"/>"
+      + "<criteria id=\"CrtYtd\" component=\"date-range\" value=\"YTD\"/>"
       + "</window></tag></screen>");
     screen.setId("Scr");
     return screen;
@@ -106,6 +112,8 @@ class InitialLoadCriteriaDefaultsTest {
     assertThat(grid.get("CrtSeg")).as("A picklist goes as a list").isEqualTo(mapper.readTree("[\"R\"]"));
     assertThat(grid.get("CrtEnd.from").asString()).isEqualTo("01/02/2026");
     assertThat(grid.get("CrtEnd.to").isNull()).as("An open end goes as null").isTrue();
+    assertThat(List.of(grid.get("CrtYtd.from").asString(), grid.get("CrtYtd.to").asString())).as("A preset default goes as its dates")
+      .isEqualTo(DateRangePreset.resolve("YTD", LocalDate.now()).orElseThrow());
     assertThat(grid.has("CrtNam")).as("A criterion without a default stays absent").isFalse();
     assertThat(request.getParameterList().has("CrtCtr")).as("The request parameters are not changed").isFalse();
   }
@@ -134,6 +142,31 @@ class InitialLoadCriteriaDefaultsTest {
     ObjectNode grid = initialLoadOfGrid();
     assertThat(grid.get("CrtPrd.from").asString()).isEqualTo("05/05/2026");
     assertThat(grid.get("CrtPrd.to").isNull()).isTrue();
+  }
+
+  @Test
+  @DisplayName("A date range with a value initial load keeps both rows as start and end (#966)")
+  void dateRangeValueInitialLoadKeepsBothDates() throws Exception {
+    String from = "01/01/2026";
+    String to = "12/09/2026";
+    DataList range = new DataList();
+    range.addRow(Map.of("value", new CellData(from)));
+    range.addRow(Map.of("value", new CellData(to)));
+    when(initialLoadDao.launchInitialLoad(argThat(load -> load != null && "CrtLoad".equals(load.getComponentId()))))
+      .thenReturn(CompletableFuture.completedFuture(new ServiceData().addVariable(AweConstants.ACTION_DATA, new CellData(range))));
+    XStream xstream = new XStream(new DomDriver());
+    xstream.allowTypesByWildcard(new String[]{"com.almis.awe.**"});
+    xstream.processAnnotations(Screen.class);
+    Screen screen = (Screen) xstream.fromXML("<screen template=\"window\"><tag source=\"center\"><window id=\"WinCrt\">"
+      + "<criteria id=\"CrtLoad\" component=\"date-range\" initial-load=\"value\" target-action=\"PeriodYearToDate\"/>"
+      + "</window></tag></screen>");
+    screen.setId("Scr");
+
+    ComponentModel model = generator.generateComponentMap(screen, new ScreenData(), new Menu(),
+      DefaultSearches.Resolution.none(request.getParametersSafe())).get("CrtLoad").getModel();
+
+    assertThat(model.getSelected()).extracting(CellData::getStringValue).containsExactly(from, to);
+    assertThat(model.getDefaultValues()).extracting(CellData::getStringValue).containsExactly(from, to);
   }
 
   @Test

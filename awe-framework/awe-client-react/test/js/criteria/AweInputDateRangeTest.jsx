@@ -116,6 +116,19 @@ describe('awe-react-client/test/js/criteria/AweInputDateRangeTest.jsx', () => {
     expect(presetButton("YTD").getAttribute("data-active")).toBe("false");
   });
 
+  it('marks the default preset as active while the dates are the ones it sets', () => {
+    const {store} = renderWithProviders(<AweInputDateRange id="period"/>,
+      {preloadedState: stateWith(range("01/01/2026", "12/10/2026"), {presets: "1M,YTD", value: "YTD"})});
+    expect(presetButton("YTD").getAttribute("data-active")).toBe("true");
+    expect(presetButton("1M").getAttribute("data-active")).toBe("false");
+
+    act(() => {
+      store.dispatch(updateModelWithDependencies(address, {values: range("02/01/2026", "12/10/2026")}));
+    });
+
+    expect(presetButton("YTD").getAttribute("data-active")).toBe("false");
+  });
+
   it('clears the active preset when a date is edited', () => {
     const {store} = renderWithProviders(<AweInputDateRange id="period"/>, {preloadedState: stateWith([], {presets: "1M"})});
     fireEvent.click(presetButton("1M"));

@@ -56,8 +56,10 @@ function AweInputDateRange(props) {
     update(range.from, range.to);
   }, [update]);
 
-  // A preset stays active only while the dates are the ones it set, so editing a date (or resetting) clears it
-  const isActive = (code) => applied?.code === code && applied.from === from && applied.to === to;
+  // A preset stays active only while the dates are the ones it set, so editing a date clears it.
+  // Before any click, the default preset (value="YTD", resolved into dates by the server) is the one applied
+  const current = applied ?? {code: String(attributes.value || "").toUpperCase(), ...resolvePreset(attributes.value)};
+  const isActive = (code) => current.code === code && current.from === from && current.to === to;
 
   const classes = classNames({[`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error});
   // Enter in any of the two inputs submits the screen
