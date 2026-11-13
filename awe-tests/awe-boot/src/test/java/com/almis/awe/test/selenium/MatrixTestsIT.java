@@ -1,6 +1,5 @@
 package com.almis.awe.test.selenium;
 
-import com.almis.awe.testing.annotations.Quarantine;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -440,7 +439,6 @@ class MatrixTestsIT extends AbstractSessionTests {
    * shown, closes with Esc, its buttons or its close button and gives the focus back to the button that opened it
    */
   @Test
-  @Quarantine(issue = "#976", reason = "After an Esc close the opening button can stay busy and the panel does not open again")
   void t061_sidePanelEdgeWidthFocusAndClose() {
     // Title
     setTestTitle("Side panel: edge, width, focus and close");

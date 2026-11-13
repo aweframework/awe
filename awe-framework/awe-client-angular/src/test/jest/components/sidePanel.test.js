@@ -99,6 +99,27 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/sidePanel.te
       expect($actionController.finishAction).toHaveBeenCalledWith("open", false);
     });
 
+    // #976: Esc gives the focus back to the opening button before the delayed end of the close, so it can be clicked
+    // again while the panel still counts as open
+    it("opens again when it is reopened before its close ends, and finishes the action of each opening", () => {
+      const pending = [];
+      const element = compile("awe-side-panel", {accept: false, acceptOnClose: false, openAction: "first"});
+      refs.$utilities.timeout.mockImplementation(callback => pending.push(callback));
+      changeController(element, {opened: true});
+      element.isolateScope().component.closeDialog();
+
+      element.isolateScope().component.controller.openAction = "second";
+      changeController(element, {opened: true});
+      pending.splice(0).forEach(callback => callback());
+
+      expect($actionController.finishAction).toHaveBeenCalledTimes(1);
+      expect($actionController.finishAction).toHaveBeenCalledWith("first", false);
+      expect($actionController.removeStack).toHaveBeenCalledTimes(1);
+      expect($actionController.addStack).toHaveBeenCalledTimes(2);
+      expect(refs.$utilities.publishDelayedFromScope.mock.calls.map(call => call[1])).toEqual([true, false, true]);
+      expect(element.isolateScope().component.isOpened).toBe(true);
+    });
+
     describe("focus", () => {
       let opener;
 
