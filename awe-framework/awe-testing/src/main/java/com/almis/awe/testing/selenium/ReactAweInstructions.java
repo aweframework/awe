@@ -144,6 +144,11 @@ public class ReactAweInstructions implements IAweFrontEndInstructions {
     return By.xpath(String.format("%s//*[@role='row']//*[@role='cell']//text()[contains(.,'%s')]/..", getGridXpath(gridId), search));
   }
 
+  public By findSelectedGridRow(String gridId, String search) {
+    // shortcut: the text is not escaped, as in findGridCell; a text with a single quote breaks the selector
+    return By.xpath(String.format("%s//*[@role='row' and contains(@class,'p-highlight')]//*[@role='cell']//text()[contains(.,'%s')]/..", getGridXpath(gridId), search));
+  }
+
   public RowEditBehavior getRowEditBehavior() {
     return RowEditBehavior.DOUBLE_CLICK;
   }

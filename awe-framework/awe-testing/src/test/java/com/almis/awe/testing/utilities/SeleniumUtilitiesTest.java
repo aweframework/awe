@@ -16,6 +16,7 @@ import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Interactive;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -35,7 +36,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -122,6 +125,50 @@ class SeleniumUtilitiesTest {
     long elapsedMillis = Duration.ofNanos(System.nanoTime() - startedAt).toMillis();
 
     assertThat(elapsedMillis).isLessThan(200L);
+  }
+
+  @Test
+  void shouldNotClickARowThatIsAlreadySelectedWhenSelectingIt() {
+    // The row to click is never shown: the step must not try to click it (a second click would unselect it)
+    WebElement selected = repaintedInput();
+    when(driver.findElements(selectedRow())).thenReturn(List.of(selected));
+
+    assertThatCode(() -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "selectRowContents", "Grd", "abc"))
+      .doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldClickARowThatIsNotSelectedAndWaitUntilItIsSelected() {
+    WebDriver interactive = mock(WebDriver.class, withSettings().extraInterfaces(TakesScreenshot.class, Interactive.class));
+    when(((TakesScreenshot) interactive).getScreenshotAs(OutputType.FILE)).thenReturn(tempDir.resolve("row.png").toFile());
+    when(interactive.findElements(any(By.class))).thenReturn(Collections.emptyList());
+    when(interactive.findElement(any(By.class))).thenThrow(new NoSuchElementException("missing element"));
+    WebElement row = repaintedInput();
+    when(row.isEnabled()).thenReturn(true);
+    when(interactive.findElement(argThat(rowCell()::equals))).thenReturn(row);
+    ((SeleniumModel) ReflectionTestUtils.getField(seleniumUtilities, "seleniumModel")).setDriver(interactive);
+
+    // The row is clicked but never becomes selected: the step must fail waiting for it
+    assertThrows(AssertionFailedError.class,
+      () -> ReflectionTestUtils.invokeMethod(seleniumUtilities, "selectRowContents", "Grd", "abc"));
+
+    verify((Interactive) interactive, atLeast(1)).perform(any());
+  }
+
+  @Test
+  void shouldFindTheSelectedRowWithTheClassOfEachEngine() {
+    assertThat(new AngularAweInstructions().findSelectedGridRow("Grd", "abc").toString()).contains("ui-grid-row-selected");
+    assertThat(new ReactAweInstructions().findSelectedGridRow("Grd", "abc").toString()).contains("p-highlight");
+  }
+
+  private By selectedRow() {
+    return ((IAweFrontEndInstructions) ReflectionTestUtils.getField(seleniumUtilities, "frontEndInstructions"))
+      .findSelectedGridRow("Grd", "abc");
+  }
+
+  private By rowCell() {
+    return ((IAweFrontEndInstructions) ReflectionTestUtils.getField(seleniumUtilities, "frontEndInstructions"))
+      .findGridCell("Grd", "abc");
   }
 
   @Test

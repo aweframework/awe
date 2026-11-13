@@ -611,6 +611,15 @@ To click on a row with a defined text, call the `clickRowContents` method:
 clickRowContents("GrdEdi", "asphalt");
 ```
 
+If the row must end up selected, call `selectRowContents`: it clicks the row only when it is not selected yet, so it never unselects a row that was already selected (`clickRowContents` always clicks):
+ - **gridId** - Grid identifier (optional)
+ - **text** - Text to match
+
+```java
+// Select the row, whatever its previous state
+selectRowContents("GrdEdi", "asphalt");
+```
+
 Or if you want to click on a specific cell, you can call the `clickCell` method:
  - **gridId** - Grid identifier
  - **rowId** - Row identifier
