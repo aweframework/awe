@@ -1393,6 +1393,36 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldNotClickARowThatIsAlreadySelectedWhenSelectingIt() {
+    use(new ReactAweInstructions());
+    // The element to click is never shown: the step must not try to click it
+    show(instructions.findSelectedGridRow("Grd", "abc"), "abc");
+
+    assertThatCode(() -> utilities.selectRowContents("Grd", "abc")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldNotClickASelectedRowOfAClientThatTogglesTheSelectionWhenSelectingIt() {
+    // AngularJS: clickRowContents would click the row again and unselect it
+    assertThat(instructions.findGridSelectedRow("Grd", "abc")).isNull();
+    show(instructions.findSelectedGridRow("Grd", "abc"), "abc");
+
+    assertThatCode(() -> utilities.selectRowContents("Grd", "abc")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldClickARowThatIsNotSelectedAndWaitUntilItIsSelected() {
+    use(new ReactAweInstructions());
+    properties.setTimeout(Duration.ofMillis(200));
+    // The row is clicked but never becomes selected: the step must fail waiting for it
+    show(instructions.findGridRowSelection("Grd", "abc"), "abc");
+
+    assertThrows(AssertionFailedError.class, () -> utilities.selectRowContents("Grd", "abc"));
+
+    verify((Interactive) driver, atLeast(1)).perform(any());
+  }
+
+  @Test
   void shouldCheckThatATabAndAWizardStepAreMarkedInvalidOrNot() {
     assertThatCode(() -> {
       utilities.checkTabInvalid("Tabs", false);

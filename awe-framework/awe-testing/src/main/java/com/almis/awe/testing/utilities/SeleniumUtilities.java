@@ -2368,6 +2368,39 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Select the row with a text: click it only when it is not selected yet, then wait until it is selected. Unlike
+   * {@link #clickRowContents(String, String)} it never unselects a row, whatever the client does on a second click
+   *
+   * @param search Text to search
+   */
+  protected void selectRowContents(String search) {
+    selectRowContents(null, search);
+  }
+
+  /**
+   * Select the row of a grid with a text: click it only when it is not selected yet, then wait until it is selected.
+   * Unlike {@link #clickRowContents(String, String)} it never unselects a row, whatever the client does on a second
+   * click
+   *
+   * @param gridId Grid to search in
+   * @param search Text to search
+   */
+  protected void selectRowContents(String gridId, String search) {
+    By selected = frontEndInstructions.findSelectedGridRow(gridId, search);
+    if (selected == null) {
+      // The client cannot tell which row is selected: all that is left is the click
+      clickRowContentsFromSelector(gridId, search);
+      return;
+    }
+    // Wait for the grid to be loaded first, so a row of the previous result set is not taken as the selected one
+    waitUntil(checkIfGridLoaderIsNotVisible());
+    if (!getBrowser().exists(locator(selected))) {
+      clickRowFromSelector(frontEndInstructions.findGridRowSelection(gridId, search));
+      waitUntil(toBePresent(selected));
+    }
+  }
+
+  /**
    * Click on a row with a text even if it is already selected, to toggle its selection: unlike
    * {@link #clickRowContents(String, String)} it never leaves a selected row as it is
    *
