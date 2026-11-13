@@ -342,6 +342,15 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   By findGridCell(String gridId, String search);
 
   /**
+   * Find a cell containing a text in a selected row
+   *
+   * @param gridId Grid identifier
+   * @param search Text to search
+   * @return Grid cell selector of a selected row
+   */
+  By findSelectedGridRow(String gridId, String search);
+
+  /**
    * Get row edit behavior
    * @return Row edit behavior
    */

@@ -1713,6 +1713,33 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Select the row with a text: click it only when it is not selected yet, then wait until it is selected. Unlike
+   * {@link #clickRowContents(String, String)} it never unselects a row
+   *
+   * @param search Text to search
+   */
+  protected void selectRowContents(String search) {
+    selectRowContents(null, search);
+  }
+
+  /**
+   * Select the row of a grid with a text: click it only when it is not selected yet, then wait until it is selected.
+   * Unlike {@link #clickRowContents(String, String)} it never unselects a row
+   *
+   * @param gridId Grid to search in
+   * @param search Text to search
+   */
+  protected void selectRowContents(String gridId, String search) {
+    By selected = frontEndInstructions.findSelectedGridRow(gridId, search);
+    // Wait for the grid to be loaded first, so a row of the previous result set is not taken as the selected one
+    waitUntil(checkIfGridLoaderIsNotVisible());
+    if (getElements(selected).isEmpty()) {
+      clickRowContentsFromSelector(gridId, search);
+      waitUntil(presenceOfElementLocated(selected));
+    }
+  }
+
+  /**
    * Click on row with a text
    *
    * @param search Text to search

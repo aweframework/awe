@@ -130,6 +130,11 @@ public class AngularAweInstructions implements IAweFrontEndInstructions {
     return By.xpath(String.format("%s//*[contains(@class,'ui-grid-row')]//*[contains(@class,'ui-grid-cell-contents')]//text()[contains(.,'%s')]/..", getGridXpath(gridId), search));
   }
 
+  public By findSelectedGridRow(String gridId, String search) {
+    // shortcut: the text is not escaped, as in findGridCell; a text with a single quote breaks the selector
+    return By.xpath(String.format("%s//*[contains(@class,'ui-grid-row-selected')]//*[contains(@class,'ui-grid-cell-contents')]//text()[contains(.,'%s')]/..", getGridXpath(gridId), search));
+  }
+
   public RowEditBehavior getRowEditBehavior() {
     return RowEditBehavior.SINGLE_CLICK;
   }
