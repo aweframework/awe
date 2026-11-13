@@ -589,6 +589,8 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `clickRowContents(String search)` | Selecciona la fila que contiene un texto |
 | `clickRowContents(String gridId, String search)` | Igual en un grid dado. Una fila que ya está seleccionada sigue seleccionada |
 | `toggleRowContents(String gridId, String search)` | Hace clic en una fila aunque ya esté seleccionada, para alternar su selección |
+| `selectRowContents(String search)` | Selecciona la fila que contiene un texto solo si aún no está seleccionada, y espera a que lo esté |
+| `selectRowContents(String gridId, String search)` | Igual en un grid dado. Nunca deselecciona una fila, en ningún motor |
 | `editRow(String search)` | Inicia la edición de la fila que contiene un texto |
 | `editRow(String gridId, String search)` | Igual en un grid dado |
 | `editRow(String gridId, String rowId, String columnId)` | Inicia la edición de una fila haciendo clic en una de sus celdas |
@@ -2002,6 +2004,14 @@ Para hacer clic en una fila con un texto definido, llama al método `clickRowCon
 ```java
 // Click on grid
 clickRowContents("GrdEdi", "asphalt");
+```
+
+Cuando el test no sabe si la fila ya está seleccionada, llama al método `selectRowContents`. Hace clic en la fila
+solo si aún no está seleccionada y espera a que lo esté, así que nunca deselecciona una fila:
+
+```java
+// Select the row, whatever its current state
+selectRowContents("GrdEdi", "asphalt");
 ```
 
 O si quieres hacer clic en una celda concreta, puedes llamar al método `clickCell`:

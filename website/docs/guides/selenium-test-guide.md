@@ -590,6 +590,8 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `clickRowContents(String search)` | Selects the row that contains a text |
 | `clickRowContents(String gridId, String search)` | Same in a given grid. A row that is already selected stays selected |
 | `toggleRowContents(String gridId, String search)` | Clicks a row even if it is already selected, to toggle its selection |
+| `selectRowContents(String search)` | Selects the row that contains a text only when it is not selected yet, and waits until it is selected |
+| `selectRowContents(String gridId, String search)` | Same in a given grid. It never unselects a row, in any engine |
 | `editRow(String search)` | Starts the edition of the row that contains a text |
 | `editRow(String gridId, String search)` | Same in a given grid |
 | `editRow(String gridId, String rowId, String columnId)` | Starts the edition of a row by clicking one of its cells |
@@ -2002,6 +2004,14 @@ To click on a row with a defined text, call the `clickRowContents` method:
 ```java
 // Click on grid
 clickRowContents("GrdEdi", "asphalt");
+```
+
+When the test does not know whether the row is already selected, call the `selectRowContents` method instead. It
+clicks the row only when it is not selected yet and waits until it is selected, so it never unselects a row:
+
+```java
+// Select the row, whatever its current state
+selectRowContents("GrdEdi", "asphalt");
 ```
 
 Or if you want to click on a specific cell, you can call the `clickCell` method:
