@@ -528,8 +528,18 @@
     {
       "name": "awe.application.paths.image-navbar-logo",
       "type": "java.lang.String",
-      "description": "Navigation bar logo. Uses application.paths.images as parent path. Default value ../images/logo/awe-logo-mark.svg",
+      "description": "Navigation bar logo of the home screens. Uses application.paths.images as parent path. A logo other than the AWE mark is shown alone, without the AWE wordmark. It follows the same resolution rules as awe.application.paths.image-startup-logo. Default value ../images/logo/awe-logo-mark.svg",
       "defaultValue": "../images/logo/awe-logo-mark.svg"
+    },
+    {
+      "name": "awe.application.paths.image-navbar-logo-collapsed",
+      "type": "java.lang.String",
+      "description": "Navigation bar logo of the collapsed navigation bar (the rail of the home screens). Uses application.paths.images as parent path. It is fitted in the rail, and the navigation bar logo is used instead when it is not set. Not set: the built-in AWE brand, or the navigation bar logo."
+    },
+    {
+      "name": "awe.application.paths.image-splash-logo",
+      "type": "java.lang.String",
+      "description": "Logo of the splash shown while the page loads, which fills up with its own colours; an SVG or image with transparency (URL relative to the application root). Not set: the built-in AWE mark."
     },
     {
       "name": "awe.application.paths.image-startup-background",

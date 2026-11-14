@@ -1,7 +1,10 @@
 /*
  * Brand slot of the home screens (#885): the AWE logo in two layers of the same artwork, the mark with its own colours
- * and the wordmark as a mask filled with the emphasis text colour, so it reads in light and dark mode. An application
- * shows its own logo by giving this element another background (and no ::after).
+ * and the wordmark as a mask filled with the emphasis text colour, so it reads in light and dark mode. The logo of the
+ * application (awe.application.paths.image-navbar-logo) arrives as --awe-navbar-logo from the page template, as in the
+ * AngularJS engine: a logo other than the AWE mark also sets --awe-navbar-wordmark to none and --awe-navbar-logo-size to
+ * contain, so it is shown whole and alone. The collapsed rail takes the rail logo
+ * (awe.application.paths.image-navbar-logo-collapsed) as --awe-navbar-logo-rail, and the navigation bar logo without it.
  */
 #page-home h1.application-logo {
   position: relative;
@@ -9,21 +12,25 @@
   height: var(--awe-header-logo-height);
   aspect-ratio: 1160.2 / 360;
   margin: 0;
-  background: url("../../images/logos/awe-logo-mark.svg") no-repeat left center / auto 100%;
+  background: var(--awe-navbar-logo, url("../../images/logos/awe-logo-mark.svg")) no-repeat left center / var(--awe-navbar-logo-size, auto 100%);
 }
 
 #page-home h1.application-logo::after {
   position: absolute;
   inset: 0;
+  display: var(--awe-navbar-wordmark, block);
   content: "";
   background-color: var(--awe-color-text-emphasis);
   mask: url("../../images/logos/awe-logo-wordmark.svg") no-repeat left center / auto 100%;
 }
 
-/* Collapsed rail: the mark alone (the left part of the artwork) */
+/* Collapsed rail: the mark alone (the left part of the artwork), or the logo of the rail of the application, centred in
+   the rail as the icons of the menu */
 @media (min-width: 1025px) {
   #page-home .layout-static-inactive h1.application-logo {
     aspect-ratio: 580 / 360;
+    background-image: var(--awe-navbar-logo-rail, var(--awe-navbar-logo, url("../../images/logos/awe-logo-mark.svg")));
+    background-position: center;
   }
 
   #page-home .layout-static-inactive h1.application-logo::after {

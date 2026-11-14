@@ -495,10 +495,19 @@ public class BaseConfigProperties {
     private String imageStartupLogo = "../" + images + "logo/logo-awe-nuevo.svg";
 
     /**
-     * Navigation bar logo. Uses application.paths.images as parent path.
+     * Navigation bar logo of the home screens. Uses application.paths.images as parent path. A logo other than the AWE
+     * mark is shown alone, without the AWE wordmark. It follows the same resolution rules as
+     * awe.application.paths.image-startup-logo.
      * Default value ../images/logo/awe-logo-mark.svg
      */
     private String imageNavbarLogo = "../" + images + "logo/awe-logo-mark.svg";
+
+    /**
+     * Navigation bar logo of the collapsed navigation bar (the rail of the home screens). Uses
+     * application.paths.images as parent path. It is fitted in the rail, and the navigation bar logo is used instead
+     * when it is not set. Not set: the built-in AWE brand, or the navigation bar logo.
+     */
+    private String imageNavbarLogoCollapsed;
 
     /**
      * Logo of the splash shown while the page loads: it fills up from bottom to top with its own colours, and its shape
