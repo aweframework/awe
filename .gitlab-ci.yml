@@ -13,7 +13,7 @@ include:
 # request and feature branches, and on develop pushes, where merges often come in a row and only the newest commit matters.
 # A job that publishes, deploys or must see every commit (secret detection) sets interruptible: false and always finishes;
 # a job whose needs were cancelled does not start. Never cancelled: scheduled pipelines (the weekly develop pipeline runs
-# the Selenium suites, the nightly one the Firefox Playwright suites), develop pipelines started from Run pipeline, the API or
+# the full pipeline, the nightly one the Firefox Playwright suites), develop pipelines started from Run pipeline, the API or
 # a trigger, and the other protected branches (master, support/*), where every commit keeps its full pipeline.
 workflow:
   auto_cancel:
@@ -154,8 +154,6 @@ stages:
   if: '$CI_MERGE_REQUEST_IID'
 .if-tag: &if-tag
   if: '$CI_COMMIT_TAG'
-.if-develop-schedule: &if-develop-schedule   # a pipeline schedule on develop (see .rules-selenium)
-  if: '$RENOVATE_RUN != "true" && $FIREFOX_NIGHTLY != "true" && $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_REF_NAME == "develop"'
 # The "Nightly Firefox" pipeline schedule of develop (CI/CD > Schedules, a project setting: it must set the variable
 # FIREFOX_NIGHTLY=true). Only the Firefox Playwright suites, their browser cache job and "Build · Maven" select it
 .if-firefox-nightly: &if-firefox-nightly
@@ -284,13 +282,11 @@ stages:
 #     (the ones with Chromium in their name), and only those of the engine whose code changed: a change limited to the
 #     React client skips the AngularJS suites and one limited to the AngularJS client skips the React suites. The Firefox
 #     suites run on master and in the "Nightly Firefox" schedule of develop only (never on a develop push);
-#   - Selenium (the jobs named "Selenium · <engine> · <Chrome|Firefox> · <suite>") is the reference tool and runs less often: master, support/*, and the
-#     pipelines of a pipeline schedule on develop: the "Weekly Check" schedule (CI/CD > Schedules, a project setting, not a
-#     file of the repository). The "Renovate" schedule sets RENOVATE_RUN=true and runs only the Renovate job.
+#   - Selenium (the jobs named "Selenium · <engine> · <Chrome|Firefox> · <suite>") runs on support/* only: develop and master (including
+#     the "Weekly Check" schedule of develop) run the Playwright suites alone. The "Renovate" schedule sets RENOVATE_RUN=true and runs only the Renovate job.
 # The "Nightly Firefox" schedule (CI/CD > Schedules, on develop, with the variable FIREFOX_NIGHTLY=true) runs only "Build · Maven",
 # "Build · Firefox cache" and the Firefox Playwright suites: no Sonar, no package, no deploy. Without that schedule the
 # Firefox suites run on master only.
-# A pipeline where both tools run (master, the weekly schedule on develop) gates "Analysis · Sonar" with both.
 .rules-playwright: &rules-playwright   # "Build · Chromium cache": any code change, for Unit · Java and the suites of both engines
   - <<: *if-mr-code
   - <<: *if-develop
@@ -308,10 +304,8 @@ stages:
 .rules-playwright-firefox: &rules-playwright-firefox
   - <<: *if-firefox-nightly
   - <<: *if-master
-.rules-selenium: &rules-selenium
-  - <<: *if-master
+.rules-selenium: &rules-selenium   # support/* only: develop and master are gated by the Playwright suites alone
   - <<: *if-support
-  - <<: *if-develop-schedule
 
 ##############################
 # Lint stage
@@ -1746,8 +1740,7 @@ Analysis · Sonar:
     - job: Unit · React
       optional: true
     # The browser suites: Playwright runs on merge requests (Chromium only), develop and master (Firefox on master only: on develop
-    # in the "Nightly Firefox" schedule, which does not run this job); Selenium on master, support/* and the pipeline schedule of
-    # develop. Each pipeline runs at least one tool (the Playwright jobs of an engine also depend on the changed paths: a merge
+    # in the "Nightly Firefox" schedule, which does not run this job); Selenium on support/* only. Each pipeline runs at least one tool (the Playwright jobs of an engine also depend on the changed paths: a merge
     # request with code changes runs the suites of at least one engine), so every job is optional; whichever job runs gates Sonar
     # (and the release jobs). Keep it so: .rules-playwright-angularjs, .rules-playwright-react and .rules-selenium together must
     # cover every pipeline that runs this job, or Sonar and the releases go ahead with no browser suite. Their IT coverage

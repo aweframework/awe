@@ -1178,15 +1178,12 @@ en los artefactos del job como la evidencia de los jobs de Selenium; el grabador
 (`awe.test.allowed-recording=false`), ya que Playwright graba la propia página.
 
 - **Cuándo se ejecutan.** Automáticamente en cada merge request con cambios de código, en `develop` y en `master`; las merge requests ejecutan solo los jobs de Chromium (los que llevan Chromium en el nombre) del motor cuyo código cambió (un cambio limitado al cliente React omite los jobs de AngularJS, y uno limitado al cliente AngularJS omite los de React). Los de Firefox (`E2E · <motor> · Firefox · <suite>`) y `Build · Firefox cache` se ejecutan en `master` y, en `develop`, solo en la planificación del pipeline "Nightly Firefox" (CI/CD > Schedules, con la variable `FIREFOX_NIGHTLY=true`), cuyo pipeline no ejecuta nada más salvo `Build · Maven`. No se ejecutan en
-  `support/*`, porque `support/4.x` no tiene adaptador de Playwright. Los jobs de Selenium (`Selenium · <motor> · Chrome · <suite>` y `Selenium · <motor> · Firefox · <suite>`) se ejecutan en `master`, en `support/*` y en la planificación semanal del pipeline "Weekly Check" en `develop`, no en merge
-  requests ni en pushes ordinarios.
+  `support/*`, porque `support/4.x` no tiene adaptador de Playwright. Los jobs de Selenium (`Selenium · <motor> · Chrome · <suite>` y `Selenium · <motor> · Firefox · <suite>`) se ejecutan solo en `support/*`, nunca en merge
+  requests, `develop` ni `master`.
 - **Bloquean el pipeline.** Un job de Playwright que falla hace fallar el pipeline, detiene `Analysis · Sonar` y los jobs de publicación, e
   impide que Renovate haga automerge, exactamente igual que un job de Selenium. Tienen la misma [reejecución por prueba](#a-failed-test-is-rerun-alone)
   y el mismo reintento de job (#766), y lo mismo para Firefox que para Chromium. Sus archivos jacoco tienen un nombre distinto por job
   (`jacoco-${TEST_NAME}-it.exec`), de modo que la cobertura de ambas herramientas se conserva cuando se ejecutaron ambas.
-- **Cómo comparar.** En `master` y en el pipeline planificado semanal se ejecutan ambas herramientas. Abre el job de Playwright y el job de Selenium
-  de la misma suite y lee el resumen de failsafe (`Tests run: ...`) y la línea `Playwright ...` que el job de Playwright
-  imprime al final de su log, con su estado y el tiempo desde que empezó el job.
 
 Chromium se inicia con `--disable-dev-shm-usage` (la memoria compartida de un contenedor es demasiado pequeña para él) y, cuando el
 sandbox no puede funcionar, sin su sandbox (`--no-sandbox`): ese es el caso cuando se ejecuta headless, cuando el proceso se ejecuta como
