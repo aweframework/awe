@@ -17,7 +17,7 @@
     <link rel="shortcut icon" th:href="${faviconIcon}"/>
     <link rel="apple-touch-icon" th:href="${tabletIcon}"/>
   </head>
-  <body>
+  <body th:with="navbarLogoUrl=${navbarLogo == null or #strings.contains(navbarLogo, '://') or #strings.startsWith(navbarLogo, '/') ? navbarLogo : '/' + navbarLogo}, navbarRailLogoUrl=${navbarRailLogo == null or #strings.contains(navbarRailLogo, '://') or #strings.startsWith(navbarRailLogo, '/') ? navbarRailLogo : '/' + navbarRailLogo}, navbarBrandStyle=${navbarLogoUrl} ? |--awe-navbar-logo: url('${navbarLogoUrl}'); --awe-navbar-wordmark: none; --awe-navbar-logo-size: contain;| : '', navbarRailStyle=${navbarRailLogoUrl} ? |--awe-navbar-logo-rail: url('${navbarRailLogoUrl}'); --awe-navbar-logo-size: contain;| : ''" th:style="${navbarBrandStyle + navbarRailStyle}">
     <div id="root" class="expand expandible-vertical">
       <div id="splash" role="status" aria-busy="true">
         <div id="splashBackground"></div>

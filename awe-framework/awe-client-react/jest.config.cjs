@@ -45,6 +45,7 @@ module.exports = {
     '**/packaging/designTokensTest.{js,jsx}',
     '**/packaging/websiteLiveRadioGroupTest.{js,jsx}',
     '**/styles/borderWidthsTest.{js,jsx}',
+    '**/styles/homeLogoTest.{js,jsx}',
     '**/styles/primeReactThemeTest.{js,jsx}',
     '**/packaging/thymeleafPluginTest.{js,jsx}',
     '**/packaging/lucideSpriteTest.{js,jsx}',

@@ -60,6 +60,54 @@ class StaticResourcesControllerTest {
     assertThat(result.getModelAndView().getModel()).containsEntry("splashLogo", null);
   }
 
+  @Test
+  void indexTakesTheNavbarLogoOfTheApplication() throws Exception {
+    baseConfigProperties.getPaths().setImageNavbarLogo("images/logo/acme.svg");
+
+    var result = mockMvc.perform(get("/")).andReturn();
+
+    assertThat(result.getModelAndView()).isNotNull();
+    assertThat(result.getModelAndView().getModel()).containsEntry("navbarLogo", "images/logo/acme.svg");
+  }
+
+  @Test
+  void theAweMarkNavbarLogoKeepsTheBuiltInBrand() throws Exception {
+    baseConfigProperties.getPaths().setImageNavbarLogo("../images/logo/awe-logo-mark.svg");
+
+    var result = mockMvc.perform(get("/")).andReturn();
+
+    assertThat(result.getModelAndView()).isNotNull();
+    assertThat(result.getModelAndView().getModel()).containsEntry("navbarLogo", null);
+  }
+
+  @Test
+  void indexTakesTheCollapsedNavbarLogoOfTheApplication() throws Exception {
+    baseConfigProperties.getPaths().setImageNavbarLogoCollapsed("images/logo/acme-mark.svg");
+
+    var result = mockMvc.perform(get("/")).andReturn();
+
+    assertThat(result.getModelAndView()).isNotNull();
+    assertThat(result.getModelAndView().getModel()).containsEntry("navbarRailLogo", "images/logo/acme-mark.svg");
+  }
+
+  @Test
+  void anUnsetCollapsedNavbarLogoFitsTheNavbarLogoInTheRail() throws Exception {
+    var result = mockMvc.perform(get("/")).andReturn();
+
+    assertThat(result.getModelAndView()).isNotNull();
+    assertThat(result.getModelAndView().getModel()).containsEntry("navbarRailLogo", null);
+  }
+
+  @Test
+  void anEmptyNavbarLogoKeepsTheBuiltInBrand() throws Exception {
+    baseConfigProperties.getPaths().setImageNavbarLogo(" ");
+
+    var result = mockMvc.perform(get("/")).andReturn();
+
+    assertThat(result.getModelAndView()).isNotNull();
+    assertThat(result.getModelAndView().getModel()).containsEntry("navbarLogo", null);
+  }
+
   @ParameterizedTest
   @CsvSource(value = {"light,light", "dark,dark", "system,NULL", "'',NULL"}, nullValues = "NULL")
   void indexTakesTheLightOrDarkModeOfTheApplicationForTheSplash(String themeMode, String expected) throws Exception {
