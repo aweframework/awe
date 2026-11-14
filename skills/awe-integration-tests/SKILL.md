@@ -11,12 +11,12 @@ metadata:
 
 Use when running or debugging AWE's integration tests locally (Spring/JUnit DB-backed tests, or the browser suites), and when writing or changing a browser or Spring test. Commands mirror `.gitlab-ci.yml` so a local pass predicts CI. The **Test Policy** section of `AGENTS.md` decides whether a test belongs in these layers at all; read it first.
 
-The browser suites run with **Playwright by default** (`-Dawe.test.tool=playwright`): those are the jobs of every merge request (`E2E · <engine> · Chromium · <suite>`, `.playwright-testing` in `.gitlab-ci.yml`). Selenium (`awe.test.tool=selenium`, the property default) only runs on `master`, `support/*` and the `develop` schedule (`.rules-selenium`): use it only to reproduce one of those jobs, or for remote/service browsers, which Playwright does not support.
+The browser suites run with **Playwright by default** (`-Dawe.test.tool=playwright`): those are the jobs of every merge request (`E2E · <engine> · Chromium · <suite>`, `.playwright-testing` in `.gitlab-ci.yml`). Selenium (`awe.test.tool=selenium`, the property default) only runs on `support/*` (`.rules-selenium`): use it only to reproduce one of those jobs, or for remote/service browsers, which Playwright does not support.
 
 ## Hard Rules
 
 - Browser ITs are ordered and stateful (`t000`→`t999`); run the whole suite tag, never a single method.
-- Run them with Playwright, as the merge request pipeline does: `-Dawe.test.tool=playwright -Dawe.test.allowed-recording=false`. Do not run Selenium unless you reproduce a `master`/`support/*`/schedule job.
+- Run them with Playwright, as the merge request pipeline does: `-Dawe.test.tool=playwright -Dawe.test.allowed-recording=false`. Do not run Selenium unless you reproduce a `support/*` job.
 - `verify` on awe-boot starts its own app (`spring-boot:start`, port 8080) and stops it after — free 8080 first, or move the run to a free port (see Execution Steps); do not leave a manual `spring-boot:run` instance up.
 - **Selenium only, Linux / WSL:** prefix `xvfb-run -a` when there is no X11 `DISPLAY`: the FFmpeg video recorder (forced by `video.properties` `recorder.type=FFMPEG`, `video.mode=ALL`) queries AWT `getScreenSize` and throws `HeadlessException` without a display. CI has a virtual display.
 - **Selenium only, Windows:** no `xvfb-run` — the desktop session is a real display, so no `HeadlessException`. Instead `ffmpeg` must be on the `PATH` (`WindowsFFmpegRecorder` shells out to `ffmpeg gdigrab`), run the command on a single line (`\` is bash-only), and do NOT pass `-Djava.awt.headless=true`. To skip recording entirely (no ffmpeg needed), unset `video.mode` / disable recording in `video.properties`.
@@ -69,7 +69,7 @@ mvn -f awe-tests/awe-boot/pom.xml verify \
 - React test application: `-f awe-tests/awe-boot-react/pom.xml` with the same options.
 - Failure evidence: screenshot, page source, console and the Playwright trace of the failed test.
 
-### Browser ITs with Selenium (only to reproduce master, support/* or schedule jobs)
+### Browser ITs with Selenium (only to reproduce support/* jobs)
 ```bash
 xvfb-run -a mvn -f awe-tests/awe-boot/pom.xml verify \
   -Dskip.junit=true -Dskip.selenium=false -DgenerateIntegrationReport=true \

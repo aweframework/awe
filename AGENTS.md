@@ -41,7 +41,7 @@ mvn test -pl awe-framework/awe-client-angular
 
 For AWE's Spring integration (DB-backed) tests and browser suites, follow the
 `awe-integration-tests` skill (`skills/awe-integration-tests/SKILL.md`). The browser suites run with Playwright, as in the
-merge request pipeline (Selenium only runs on master, support/* and the develop schedule):
+merge request pipeline (Selenium only runs on support/*):
 
 ```bash
 # Browser suite with Playwright (no display needed)

@@ -1178,15 +1178,12 @@ in the artifacts of the job like the evidence of the Selenium jobs; the screen r
 (`awe.test.allowed-recording=false`), since Playwright records the page itself.
 
 - **When they run.** Automatically on every merge request with code changes, on `develop` and on `master`; merge requests run only the Chromium jobs (the ones with Chromium in their name) of the engine whose code changed (a change limited to the React client skips the AngularJS jobs, one limited to the AngularJS client skips the React jobs). The Firefox jobs (`E2E · <engine> · Firefox · <suite>`) and `Build · Firefox cache` run on `master` and, on `develop`, only in the "Nightly Firefox" pipeline schedule (CI/CD > Schedules, with the variable `FIREFOX_NIGHTLY=true`), whose pipeline runs nothing else but `Build · Maven`. They do not run on
-  `support/*`, because `support/4.x` has no Playwright adapter. The Selenium jobs (`Selenium · <engine> · Chrome · <suite>` and `Selenium · <engine> · Firefox · <suite>`) run on `master`, on `support/*` and in the weekly "Weekly Check" pipeline schedule on `develop`, not on merge
-  requests or ordinary pushes.
+  `support/*`, because `support/4.x` has no Playwright adapter. The Selenium jobs (`Selenium · <engine> · Chrome · <suite>` and `Selenium · <engine> · Firefox · <suite>`) run on `support/*` only, never on merge
+  requests, `develop` or `master`.
 - **They gate the pipeline.** A failing Playwright job fails the pipeline, stops `Analysis · Sonar` and the release jobs, and
   prevents Renovate from automerging, exactly like a Selenium job. They have the same [per-test rerun](#a-failed-test-is-rerun-alone)
   and the same job retry (#766), and the same for Firefox as for Chromium. Their jacoco files have a different name per job
   (`jacoco-${TEST_NAME}-it.exec`), so the coverage of both tools is kept when both ran.
-- **How to compare.** On `master` and in the weekly scheduled pipeline both tools run. Open the Playwright job and the Selenium job
-  of the same suite and read the failsafe summary (`Tests run: ...`) and the `Playwright ...` line that the Playwright job
-  prints at the end of its log, with its status and the time since the job started.
 
 Chromium is started with `--disable-dev-shm-usage` (the shared memory of a container is too small for it) and, when the
 sandbox cannot work, without its sandbox (`--no-sandbox`): that is the case when it runs headless, when the process runs as
