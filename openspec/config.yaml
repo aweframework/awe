@@ -5,7 +5,7 @@ project: awe
 context: |
   Tech stack: Java 17 + Spring Boot multi-module Maven repo with AngularJS frontend packages and a Docusaurus website.
   Architecture: AWE uses XML descriptors under src/main/resources/application/{acronym}/{global,screen,locale,menu,profile} wired to Spring services.
-  Testing: JUnit 5 + Mockito + AssertJ, Spring integration suites, Selenium integration flows, Jest, Karma/Jasmine, and JaCoCo coverage.
+  Testing: JUnit 5 + Mockito + AssertJ, Spring integration suites, Selenium integration flows, Jest, and JaCoCo coverage.
   Style: Follow com.almis.awe Java conventions, Lombok + SLF4J usage, no wildcard imports, and AngularJS array DI.
 
 strict_tdd: true
@@ -47,12 +47,11 @@ testing:
       available: true
       tools:
         - Jest (awe-client-angular)
-        - Karma + Jasmine (awe-tools)
   quality:
     linter:
       available: true
       command: ""
-      notes: ESLint is installed in awe-client-angular and awe-tools, but no dedicated lint script is configured.
+      notes: ESLint is installed in awe-client-angular.
     type_checker:
       available: false
       command: ""
