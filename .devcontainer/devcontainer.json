@@ -12,7 +12,7 @@
       "mavenVersion": "3.10.0"
     },
     // The same Node version as the frontend-maven-plugin (node.version in awe-framework/awe-dependencies/pom.xml)
-    "ghcr.io/devcontainers/features/node:2.1.1": {
+    "ghcr.io/devcontainers/features/node:2.1.2": {
       "version": "24.21.0"
     },
     // Testcontainers and the Selenium docker browsers need a Docker daemon
