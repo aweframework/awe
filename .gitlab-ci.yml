@@ -498,18 +498,99 @@ secret_detection:
     - when: never
 
 # Runs on every merge request that touches code or the website, and on every branch pipeline.
+# Blocking: the analyzer always ends with exit code 0 and the template allows the job to fail, so by itself the job is green
+# whatever it finds. The script below fails the job when the report holds a finding, and the report is uploaded either way
+# (artifacts: when: always) so the finding still reaches the merge request widget and the vulnerability report.
+# It scans the commits of the push or of the merge request, not the history: run a pipeline with the variable
+# SECRET_DETECTION_HISTORIC_SCAN=true to scan every commit of every branch.
+# A false positive is silenced where it is, with a "gitleaks:allow" comment at the end of its line, or for a whole path or
+# rule in .gitlab/secret-detection-ruleset.toml: both are changes a reviewer sees. Dismissing it in GitLab does not unblock.
 Security · Secrets:
   extends: secret_detection
   stage: lint
   tags: [ light ]
   needs: [ ]
   timeout: 15m
+  allow_failure: false
+  script:
+    - /analyzer run
+    # Checked with grep, not jq: the secret analyzer image (Alpine) has no jq. Every finding of the report, and nothing
+    # else in it, carries this category.
+    - |
+      if [ ! -s gl-secret-detection-report.json ]; then
+        echo "gl-secret-detection-report.json is missing or empty: the scan gave no result"
+        exit 1
+      fi
+      if grep -q '"category"[[:space:]]*:[[:space:]]*"secret_detection"' gl-secret-detection-report.json; then
+        echo "Secrets found in the scanned commits, in these files (the values are not printed):"
+        grep -o '"file"[[:space:]]*:[[:space:]]*"[^"]*"' gl-secret-detection-report.json | sort -u
+        echo "Revoke the secret first: it is already in a public repository. Then remove it from the commits and push again."
+        exit 1
+      fi
+  artifacts:
+    when: always
   # Never auto-cancelled, on any ref (see workflow): on develop a newer pipeline does not scan the commits of an older one;
   # on a merge request the cost is this short job finishing in a superseded pipeline
   interruptible: false
   rules:
     - <<: *if-mr-code
     - <<: *if-mr-website
+    - <<: *if-branches
+
+# The npm dependencies of the React client, the reference client of AWE 5 (Security · Dependencies only scans Maven).
+# Blocking: fails on any high or critical advisory, of a runtime or a build dependency, that is not accepted with a
+# reason in .gitlab/dependency-scanning-accepted.txt (by its GHSA id; a change that needs a code owner's approval).
+# npm audit asks the npm registry about the exact versions of package-lock.json: no install, no script runs. An advisory
+# published today fails the next pipeline of every branch, and of the merge requests that touch the React client, until
+# the dependency is updated (Renovate proposes it) or accepted. The AngularJS client is not checked yet: its old
+# dependencies have known advisories that need larger changes.
+Security · npm · React:
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.2@sha256:eb2c64096c6a5be655b6e32405a47a1f9680360a2366e4da77d0c62f9042271a
+  stage: lint
+  tags: [ light ]
+  needs: [ ]
+  cache: { }
+  timeout: 5m
+  interruptible: false
+  script:
+    # npm audit exits with 1 when it finds any advisory: the decision is taken below from its report
+    - (cd awe-framework/awe-client-react && npm audit --package-lock-only --json > "$CI_PROJECT_DIR/npm-audit-react.json") || true
+    - |
+      node - <<'EOF'
+      const fs = require('fs');
+      const report = JSON.parse(fs.readFileSync('npm-audit-react.json', 'utf8'));
+      if (report.error || !report.vulnerabilities) {
+        console.log('npm audit gave no result:', JSON.stringify(report.error || report).slice(0, 500));
+        process.exit(1);
+      }
+      const accepted = new Set(fs.readFileSync('.gitlab/dependency-scanning-accepted.txt', 'utf8').split('\n')
+        .map(line => line.replace(/#.*/, '').trim()).filter(Boolean));
+      const blocking = new Map();
+      for (const vulnerability of Object.values(report.vulnerabilities)) {
+        for (const advisory of vulnerability.via) {
+          if (typeof advisory !== 'object' || !['high', 'critical'].includes(advisory.severity)) continue;
+          const id = String(advisory.url || advisory.source).split('/').pop();
+          if (!accepted.has(id)) blocking.set(id, `${advisory.severity} | ${advisory.name} ${advisory.range} | ${id} | ${advisory.title}`);
+        }
+      }
+      if (blocking.size) {
+        console.log('High or critical advisories in the npm dependencies of the React client:');
+        [...blocking.values()].sort().forEach(line => console.log(line));
+        console.log('Update the dependency, or accept the advisory with a reason in .gitlab/dependency-scanning-accepted.txt');
+        process.exit(1);
+      }
+      console.log('No high or critical advisory outside .gitlab/dependency-scanning-accepted.txt', JSON.stringify(report.metadata.vulnerabilities));
+      EOF
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - npm-audit-react.json
+  rules:
+    - <<: *if-mr-frontend-react
+    - if: '$CI_MERGE_REQUEST_IID'
+      changes:
+        - .gitlab/dependency-scanning-accepted.txt
     - <<: *if-branches
 
 ##############################
@@ -1688,11 +1769,41 @@ gemnasium-maven-dependency_scanning:
   rules:
     - when: never
 
+# Blocking, like "Security · Secrets": the analyzer ends with exit code 0 whatever it finds, so the script below fails the
+# job when the report holds a high or critical vulnerability. The report is uploaded either way (artifacts: when: always).
+# The advisory database changes without the code changing: a vulnerability published today fails the next pipeline of every
+# branch until the dependency is updated (Renovate proposes the fix) or the vulnerability is accepted, with a reason, in
+# .gitlab/dependency-scanning-accepted.txt, a change that needs a code owner's approval (.gitlab/CODEOWNERS). Medium and
+# lower severities only reach the vulnerability report. The gemnasium-maven image has jq.
 Security · Dependencies:
   extends: gemnasium-maven-dependency_scanning
   tags: [ medium ]
   stage: test
   timeout: 15m
+  allow_failure: false
+  script:
+    - /analyzer run
+    - |
+      if [ ! -s gl-dependency-scanning-report.json ]; then
+        echo "gl-dependency-scanning-report.json is missing or empty: the scan gave no result"
+        exit 1
+      fi
+      ACCEPTED=$(sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' .gitlab/dependency-scanning-accepted.txt | jq -R . | jq -sc .)
+      BLOCKING=$(jq -r --argjson accepted "$ACCEPTED" '
+        [ .vulnerabilities[]
+          | select(.severity == "High" or .severity == "Critical")
+          | select(([.identifiers[].name] - $accepted) == [.identifiers[].name])
+          | "\(.severity) | \(.location.dependency.package.name) \(.location.dependency.version) | \([.identifiers[].name] | join(", ")) | \(.name // .message // "")"
+        ] | unique | .[]' gl-dependency-scanning-report.json)
+      if [ -n "$BLOCKING" ]; then
+        echo "High or critical vulnerabilities in the Maven dependencies:"
+        echo "$BLOCKING"
+        echo "Update the dependency, or accept the vulnerability with a reason in .gitlab/dependency-scanning-accepted.txt"
+        exit 1
+      fi
+      echo "No high or critical vulnerability outside .gitlab/dependency-scanning-accepted.txt"
+  artifacts:
+    when: always
   rules:
     - <<: *if-mr-code
     - <<: *if-branches
