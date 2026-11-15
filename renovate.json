@@ -13,11 +13,13 @@
     "support/4.x"
   ],
   "timezone": "Europe/Madrid",
-  "dependencyDashboard": true,
-  "dependencyDashboardTitle": "Dependency Dashboard",
-  "dependencyDashboardLabels": [
-    "update-dependencies"
-  ],
+  "dependencyDashboard": {
+    "enabled": true,
+    "title": "Dependency Dashboard",
+    "labels": [
+      "update-dependencies"
+    ]
+  },
   "labels": [
     "update-dependencies"
   ],
@@ -182,6 +184,37 @@
         "major"
       ],
       "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Major updates of Maven dependencies and plugins wait for approval on the Dependency Dashboard: they usually need code or build changes (GraalVM 25, ModelMapper 3, Logstash encoder 9), and with one Renovate run a week and at most 8 open merge requests they would take the slots of the patch and minor updates. The Spring Cloud train is left out: Renovate sees the train of every Boot minor as a major (calendar versions), and the spring platform group must not wait for approval. Vulnerability alerts bypass this rule.",
+      "matchManagers": [
+        "maven"
+      ],
+      "matchUpdateTypes": [
+        "major"
+      ],
+      "matchPackageNames": [
+        "!org.springframework.cloud:**"
+      ],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "The React test application installs the dependencies of the React client from its own lock file (file: dependency on the built client), and Renovate cannot build the client to refresh it. After each update of the client package.json this script refreshes that lock with a stub of the built package, so applicationDependenciesTest passes and the patch merge requests can merge by themselves. It runs per update (executionMode update): in branch mode Renovate only runs the tasks of the first upgrade of the branch, and a dependency of both clients (lodash, leaflet, echarts) starts with the AngularJS package.json. The command must be allowed in RENOVATE_ALLOWED_COMMANDS (Renovate job in .gitlab-ci.yml).",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchFileNames": [
+        "awe-framework/awe-client-react/package.json"
+      ],
+      "postUpgradeTasks": {
+        "commands": [
+          "node awe-framework/awe-client-react/scripts/sync-test-app-lock.cjs"
+        ],
+        "fileFilters": [
+          "awe-tests/awe-boot-react/package-lock.json"
+        ],
+        "executionMode": "update"
+      }
     },
     {
       "description": "Maintenance line: patch, pin, digest and security fixes only. Security fixes that need a new major version are proposed anyway (vulnerability alerts bypass packageRules) and are closed by hand when they would break the line.",

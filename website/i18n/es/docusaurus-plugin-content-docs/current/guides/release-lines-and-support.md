@@ -399,7 +399,14 @@ demás casos. Una incidencia «Dependency Dashboard» lista las actualizaciones 
 actualizaciones mayores del cliente AngularJS heredado (`awe-client-angular`, `awe-tools` y las aplicaciones de
 `awe-tests`) solo se abren después de que alguien las marque allí, ya que ese cliente se sustituye en AWE 5. Las
 actualizaciones mayores del cliente React (`awe-client-react`) también esperan esa aprobación: necesitan cambios de
-código y, con una ejecución por semana, ocuparían los huecos de los parches y las versiones menores. PrimeReact se
+código y, con una ejecución por semana, ocuparían los huecos de los parches y las versiones menores. Las
+actualizaciones mayores de las dependencias y los plugins de Maven esperan la misma aprobación (suelen necesitar
+cambios de código o de build), salvo el tren de Spring Cloud, que viaja con la plataforma Spring. La aplicación de
+pruebas React (`awe-tests/awe-boot-react`) instala las dependencias del cliente React desde su propio fichero de lock,
+que Renovate no puede regenerar sin compilar el cliente: tras cada actualización del `package.json` del cliente,
+Renovate ejecuta `awe-framework/awe-client-react/scripts/sync-test-app-lock.cjs` para refrescar ese lock en la misma
+merge request, de modo que los parches del cliente se siguen fusionando solos. Un Renovate autoalojado solo ejecuta los
+comandos que lista `RENOVATE_ALLOWED_COMMANDS` (el job `Renovate` de `.gitlab-ci.yml`). PrimeReact se
 queda en la versión 10, porque la 11 cambió de licencia (primeicons y primeflex no están afectados). Las
 alertas de seguridad proceden de la base de datos OSV y cubren solo las dependencias directas.
 

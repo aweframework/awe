@@ -475,7 +475,8 @@ Lint · Markdown:
         - website/**/*.md
         - website/.markdownlint-cli2.jsonc
 
-# Validates renovate.json (repository config, strict) on merge requests that change it.
+# Validates renovate.json (repository config, strict) on merge requests that change it, or that change this file: a new
+# Renovate image can deprecate options of renovate.json, and --strict fails on a configuration that needs migration.
 Lint · Renovate config:
   extends: .renovate-image
   tags: [ light ]
@@ -488,6 +489,7 @@ Lint · Renovate config:
     - if: '$CI_MERGE_REQUEST_IID'
       changes:
         - renovate.json
+        - .gitlab-ci.yml
 
 # The template job keeps its exact name, which is the only way to modify it, but it is switched off: "Security · Secrets"
 # below extends it and carries the settings, so the pipeline shows a readable job title.
@@ -559,7 +561,7 @@ Security · Secrets:
 
 .renovate-image:
   image:
-    name: ghcr.io/renovatebot/renovate:44@sha256:52454eae0bdcb51ddfecc39035e0fc2d97172751124049144e89d44343f6ae81   # major pin + digest; Renovate updates its own pin
+    name: ghcr.io/renovatebot/renovate:44@sha256:7dba1a3b916a2cf302ba0df458ddcc8fcbac3c92d0fe9882ac13ba0363de656b   # major pin + digest; Renovate updates its own pin
     entrypoint: [""]
 
 # Runs from the "Renovate" pipeline schedule only (variable RENOVATE_RUN=true); configuration lives
@@ -579,6 +581,8 @@ Renovate:
     RENOVATE_REQUIRE_CONFIG: required
     RENOVATE_BASE_DIR: $CI_PROJECT_DIR/renovate
     RENOVATE_REPOSITORY_CACHE: enabled
+    # Commands that the postUpgradeTasks of renovate.json may run (regular expressions, JSON array)
+    RENOVATE_ALLOWED_COMMANDS: '["^node awe-framework/awe-client-react/scripts/sync-test-app-lock\\.cjs$"]'
     LOG_LEVEL: info
     FORCE_COLOR: "3"
   # RENOVATE_TOKEN (masked, protected project access token) and the optional

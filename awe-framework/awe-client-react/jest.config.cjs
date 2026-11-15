@@ -40,6 +40,8 @@ module.exports = {
     '**/packaging/sonarTsconfigTest.{js,jsx}',
     '**/packaging/dependenciesTest.{js,jsx}',
     '**/packaging/applicationDependenciesTest.{js,jsx}',
+    '**/packaging/syncTestAppLockTest.{js,jsx}',
+    '**/packaging/renovateLockSyncTest.{js,jsx}',
     '**/packaging/helpTemplatesTest.{js,jsx}',
     '**/packaging/textUtilitiesTest.{js,jsx}',
     '**/packaging/designTokensTest.{js,jsx}',
