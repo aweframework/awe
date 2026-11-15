@@ -69,7 +69,7 @@ default:
 # If the project goes back to the instance runners, remove these tags: an instance runner never takes a job whose tags it
 # does not have.
 
-image: maven:3.10.0-eclipse-temurin-21@sha256:9673eef9ed503146591667ffb92eaaa22f1b8899ed60d9df0df4da3f3a1214a6
+image: maven:3.10.0-eclipse-temurin-21@sha256:851ccd76d49d5646915645e5fb51e9b00ef53ad3dc68b0e9a2a9846b9c56bde3
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version -Dskip.lint=true"
@@ -1241,7 +1241,7 @@ Docs · Javadoc check:
 
 # Browser testing extension
 .browser-testing:
-  image: maven:3.10.0-eclipse-temurin-21@sha256:9673eef9ed503146591667ffb92eaaa22f1b8899ed60d9df0df4da3f3a1214a6
+  image: maven:3.10.0-eclipse-temurin-21@sha256:851ccd76d49d5646915645e5fb51e9b00ef53ad3dc68b0e9a2a9846b9c56bde3
   stage: integration test
   # The browser suites (Selenium and Playwright alike) block the pipeline, and therefore Renovate's
   # automerge and the release jobs that need Sonar. A flaky test is handled by the tests, not by the job (#766):
