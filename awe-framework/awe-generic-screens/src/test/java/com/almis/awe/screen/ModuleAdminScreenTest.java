@@ -1,5 +1,6 @@
 package com.almis.awe.screen;
 
+import com.almis.awe.schemas.ScreenSchema;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -8,10 +9,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.SchemaFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -77,11 +76,9 @@ class ModuleAdminScreenTest {
   @Test
   @DisplayName("The screen is valid against the screen schema")
   void screenIsValid() throws Exception {
-    File schema = Paths.get(getClass().getResource("/schemas/awe/screen.xsd").toURI()).toFile();
     File screen = Paths.get(getClass().getResource("/" + AWE + SCREEN).toURI()).toFile();
 
-    assertThatCode(() -> SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(schema).newValidator()
-      .validate(new StreamSource(screen))).doesNotThrowAnyException();
+    assertThatCode(() -> ScreenSchema.validator().validate(new StreamSource(screen))).doesNotThrowAnyException();
   }
 
   @Test
