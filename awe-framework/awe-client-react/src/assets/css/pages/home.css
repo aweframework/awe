@@ -24,13 +24,13 @@
   mask: url("../../images/logos/awe-logo-wordmark.svg") no-repeat left center / auto 100%;
 }
 
-/* Collapsed rail: the mark alone (the left part of the artwork), or the logo of the rail of the application, centred in
-   the rail as the icons of the menu */
+/* Collapsed rail: the mark alone (the left part of the artwork, so it stays on the left), or the logo of the rail of the
+   application, centred in the rail as the icons of the menu (--awe-navbar-logo-position from the page template) */
 @media (min-width: 1025px) {
   #page-home .layout-static-inactive h1.application-logo {
     aspect-ratio: 580 / 360;
     background-image: var(--awe-navbar-logo-rail, var(--awe-navbar-logo, url("../../images/logos/awe-logo-mark.svg")));
-    background-position: center;
+    background-position: var(--awe-navbar-logo-position, left center);
   }
 
   #page-home .layout-static-inactive h1.application-logo::after {

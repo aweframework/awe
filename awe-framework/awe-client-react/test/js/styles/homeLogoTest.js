@@ -29,10 +29,14 @@ describe('navigation bar logo', () => {
       'background-image: var(--awe-navbar-logo-rail, var(--awe-navbar-logo, url("../../images/logos/awe-logo-mark.svg")));');
   });
 
-  it('the logo of the collapsed rail is centred in the rail', () => {
+  // The AWE mark is the left part of an artwork as wide as the whole lockup: centred, the rail cuts it in half
+  it('the rail keeps the AWE mark on the left and centres the logo of the application', () => {
     const railRule = read(HOME_CSS).match(/#page-home \.layout-static-inactive h1\.application-logo \{[^}]*\}/);
     expect(railRule).not.toBeNull();
-    expect(railRule[0]).toContain('background-position: center;');
+    expect(railRule[0]).toContain('background-position: var(--awe-navbar-logo-position, left center);');
+    const template = read(TEMPLATE);
+    expect(template).toContain('--awe-navbar-wordmark: none; --awe-navbar-logo-size: contain; --awe-navbar-logo-position: center;');
+    expect(template).toContain('--awe-navbar-logo-size: contain; --awe-navbar-logo-position: center;|');
   });
 
   it('the template publishes the logo of the application and the logo of the rail', () => {
