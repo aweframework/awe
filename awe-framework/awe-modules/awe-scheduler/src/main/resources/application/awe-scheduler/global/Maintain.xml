@@ -489,6 +489,13 @@
     </serve>
   </target>
 
+  <!-- Stop the deferred executions of the selected task -->
+  <target name="StpTsk" permission="scheduler.execute">
+    <serve service="stopTask">
+      <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected" />
+    </serve>
+  </target>
+
   <target name="LchTsk" permission="scheduler.execute">
     <serve service="executeTaskNow">
       <variable id="taskIde" type="INTEGER" name="IdeTsk.selected"/>
@@ -579,6 +586,16 @@
     <serve service="deleteSchedulerTask">
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk"/>
     </serve>
+
+    <delete>
+      <table id="AweSchExeExt"/>
+      <where>
+        <and>
+          <filter left-field="IdeTsk" condition="in" right-variable="IdeTsk"/>
+        </and>
+      </where>
+      <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
+    </delete>
 
     <delete>
       <table id="AweSchExe"/>
@@ -821,6 +838,15 @@
 
   <!-- Start a task -->
   <target name="startTask" server-only="true">
+    <!-- Execution ids are reused after a purge: a stale deferred row would make the new execution look deferred -->
+    <delete>
+      <table id="AweSchExeExt" />
+      <where>
+        <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+        <filter condition="not exists" query="getExecutionOfDeferredExecution"/>
+      </where>
+      <variable id="taskId" type="INTEGER" name="taskId" />
+    </delete>
     <insert>
       <table id="AweSchExe" />
       <field id="IdeTsk" variable="taskId"/>
@@ -845,6 +871,15 @@
 
   <!-- Delete execution logs -->
   <target name="purgeExecutionLogs" server-only="true">
+    <delete>
+      <table id="AweSchExeExt" />
+      <where>
+        <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+        <filter left-field="ExeTsk" condition="in" right-variable="executions"/>
+      </where>
+      <variable id="taskId" type="INTEGER" name="taskId" />
+      <variable id="executions" type="INTEGER" name="executionId" />
+    </delete>
     <delete>
       <table id="AweSchExe" />
       <where>
@@ -917,6 +952,8 @@
     </update>
   </target>
 
+  <!-- Interrupt the executions left running by a stopped node, except the deferred ones: they wait for their
+       completion or their due date (AweSchExeExt) -->
   <target name="updateInterruptedTasks" server-only="true">
     <update>
       <table id="AweSchExe" />
@@ -925,10 +962,47 @@
       <where>
         <and>
           <filter left-field="Sta" condition="eq" right-variable="status"/>
+          <filter condition="not exists" query="getDeferredExecutionState"/>
         </and>
       </where>
       <variable id="status" type="INTEGER" value="4" />
     </update>
+  </target>
+
+  <!-- Close a running execution: one atomic update, only the caller that updates 1 row owns the end -->
+  <target name="closeRunningExecution" server-only="true">
+    <update>
+      <table id="AweSchExe" />
+      <field id="Sta" variable="newStatus"/>
+      <where>
+        <and>
+          <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+          <filter left-field="ExeTsk" condition="eq" right-variable="taskExecution"/>
+          <filter left-field="Sta" condition="eq" right-variable="status"/>
+        </and>
+      </where>
+      <variable id="taskId" type="INTEGER" name="taskId" />
+      <variable id="taskExecution" type="INTEGER" name="taskExecution" />
+      <variable id="newStatus" type="INTEGER" name="newStatus" />
+      <variable id="status" type="INTEGER" value="4" />
+    </update>
+  </target>
+
+  <!-- Register an execution that was accepted and finishes later -->
+  <target name="insertDeferredExecution" server-only="true">
+    <insert>
+      <table id="AweSchExeExt" />
+      <field id="IdeTsk" variable="taskId"/>
+      <field id="ExeTsk" variable="taskExecution"/>
+      <field id="ExtRef" variable="externalReference"/>
+      <field id="DfrDat" variable="acceptedDate"/>
+      <field id="DueDat" variable="dueDate"/>
+      <variable id="taskId" type="INTEGER" name="taskId" />
+      <variable id="taskExecution" type="INTEGER" name="taskExecution" />
+      <variable id="externalReference" type="STRING" name="externalReference" />
+      <variable id="acceptedDate" type="TIMESTAMP" name="acceptedDate" />
+      <variable id="dueDate" type="TIMESTAMP" name="dueDate" />
+    </insert>
   </target>
 
   <target name="stopScheduler" permission="scheduler.execute">

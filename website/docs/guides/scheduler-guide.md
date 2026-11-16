@@ -49,6 +49,10 @@ awe.scheduler.remote-scheduler-url=http://localhost:8090/scheduler/api/v1
 
 > **Note:** The remote scheduler base URL must target the scheduler instance API (default: `/scheduler/api/v1`).
 
+:::warning Breaking change: the scheduler API now requires authentication
+The scheduler instance now answers `/scheduler/api/**` only to requests with an AWE bearer token, and the scheduler instance needs the [AWE REST starter](../rest-module.md) to validate it. The main AWE instance must therefore log in with a user of the scheduler instance, configured in `awe.scheduler.remote-scheduler-user` and `awe.scheduler.remote-scheduler-password`. See [Scheduler API security](../scheduler-module.md#scheduler-api-security).
+:::
+
 
 * **[Tasks](#tasks)**
 * **[Servers](#servers)**
@@ -77,6 +81,115 @@ A command task runs the value entered in the **Command** field as a shell comman
 - **Remote execution over SSH**: when **Run on remote server** is checked, a **Remote server** must be selected. The command is executed on that host through an SSH exec channel, and both its standard output and standard error are captured into the task execution log.
 
 Remote command execution requires the selected server to use the `ssh` connection type. Authentication is done with the server user together with either a password, a private key (optionally passphrase-protected), or both. See **[Servers](#servers)** for how to configure them, and the **[Configuration guide](../scheduler-module.md#ssh-remote-command-execution)** for the SSH host-key verification options.
+
+### Deferred executions
+
+A maintain task can finish later. This is for work that another system completes after the maintain returns, and that you do not want to hold a scheduler thread for. The maintain answers that it accepted the work, the execution stays **running** without holding any thread, and the other system (or your own code) completes the execution when the work ends.
+
+1. The scheduler launches the maintain, which starts the work in the other system and answers **deferred**.
+2. The scheduler releases its thread. The execution stays **running** and its dependencies are not launched.
+3. When the work ends, whoever finished it completes the execution with its final status (see [Completing the execution](#completing-the-execution)).
+4. The task dependencies are launched with the usual rules (`Launch dependencies in case of warning` / `in case of error`).
+
+#### The deferred answer
+
+A maintain answers deferred when its last step is a service that returns `SchedulerDeferred.accepted(externalReference, description)`:
+
+```java
+public ServiceData startExternalWork(Integer taskId, Integer executionId) {
+  // Start the work and hand the execution key to the system that will complete it
+  String reference = externalSystem.start(taskId, executionId);
+  return SchedulerDeferred.accepted(reference, "Waiting for the external system");
+}
+```
+
+```xml
+<!-- Services.xml -->
+<service id="startExternalWork">
+  <java classname="com.example.ExternalWorkService" method="startExternalWork">
+    <service-parameter name="taskId" type="INTEGER"/>
+    <service-parameter name="executionId" type="INTEGER"/>
+  </java>
+</service>
+
+<!-- Maintain.xml -->
+<target name="startExternalWork">
+  <serve service="startExternalWork">
+    <variable id="taskId" type="INTEGER" name="taskId"/>
+    <variable id="executionId" type="INTEGER" name="executionId"/>
+  </serve>
+</target>
+```
+
+Then create a maintain task that executes the `startExternalWork` maintain.
+
+- The deferred answer must be the answer of the **last step** of the maintain.
+- It works the same when the scheduler runs as an [external application](#remote-scheduler-setup): the answer travels back to the scheduler instance with the answer of the maintain call.
+- `externalReference` is an optional reference of the work in the other system, stored with the execution. It is cut to 256 characters.
+- `description` is optional. It is shown as the description of the execution while it waits, and it is cut to 2000 characters.
+
+#### The execution key
+
+The scheduler gives every maintain two reserved parameters: `taskId` and `executionId`. Declare variables with those names in the maintain target, as in the example above, to receive them. They identify the execution, so the maintain must hand them to whoever will complete it. They take priority over a task parameter with the same name.
+
+#### While the execution waits
+
+- The execution is stored as **running** with the description of the deferred answer.
+- The task dependencies are not launched and the task is shown as running in the tasks screen.
+- No scheduler thread is held.
+
+#### Completing the execution
+
+The system that finishes the work calls the scheduler API (on the scheduler instance when you use a [remote scheduler](#remote-scheduler-setup)):
+
+```text
+POST /scheduler/api/v1/tasks/{taskId}/executions/{executionId}/complete
+```
+
+The request needs an AWE bearer token, like the rest of `/scheduler/api/**` (see [Scheduler API security](../scheduler-module.md#scheduler-api-security)). The body is a JSON object:
+
+| Field         | Description                                                                                    |       Required       |
+|---------------|:-----------------------------------------------------------------------------------------------|:--------------------:|
+| `status`      | Final status: `OK`, `WARNING`, `ERROR`, `STOPPED`, `INTERRUPTED` or `INFO` (case insensitive)  |     **Required**     |
+| `description` | Description of the execution, 2000 characters at most                                          |       Optional       |
+| `outputs`     | Object with text values. It is accepted and not used yet                                       |       Optional       |
+
+```bash
+curl -X POST "https://scheduler.example.com/scheduler/api/v1/tasks/12/executions/340/complete" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"status": "OK", "description": "Calculation finished"}'
+```
+
+| Response | Meaning                                                                                                              |
+|:--------:|:---------------------------------------------------------------------------------------------------------------------|
+|   200    | The execution was completed. The body is `{"taskId": 12, "executionId": 340, "status": "JOB_OK"}`                    |
+|   400    | The `status` is missing or is not one of the allowed values, or the `description` is longer than 2000 characters      |
+|   401    | The request has no valid bearer token                                                                                |
+|   404    | The execution does not exist                                                                                         |
+|   409    | The execution cannot be completed. The body is `{"type": "...", "currentStatus": "JOB_OK"}`, with one of the types below |
+
+| 409 `type`               | Meaning                                                                                                           |
+|--------------------------|:------------------------------------------------------------------------------------------------------------------|
+| `execution-not-running`  | The execution was already completed, interrupted by its deadline or stopped. `currentStatus` is the status it has |
+| `execution-not-deferred` | The execution is not registered as deferred, so it cannot be completed from outside. With `currentStatus` `JOB_RUNNING` the maintain may not have answered yet: retry shortly if you expect it to be deferred |
+
+A `409` with `execution-not-running` is final: the execution is already closed and repeating the call will not change it, so do not retry it.
+
+The status decides what happens to the dependencies, with the usual rules: they are launched after `OK`, after `WARNING` only with `Launch dependencies in case of warning`, after `ERROR` only with `Launch dependencies in case of error`, and never after `STOPPED`, `INTERRUPTED` or `INFO`. The scheduler closes the execution once, writes its end, sends the task report and launches the dependencies; any other completion of the same execution does nothing.
+
+Code that runs in the same application as the scheduler can complete the execution without the API, with the `SchedulerExecutionCompletionService` bean:
+
+```java
+CompletionResult result = completionService.complete(taskId, executionId, TaskStatus.JOB_OK,
+  "Calculation finished", null);
+// result.outcome(): CLOSED, NOT_RUNNING, NOT_DEFERRED or UNKNOWN
+```
+
+#### Deadline, stop and restart
+
+- **Deadline**: an execution that is not completed within the task **Timeout**, or within `awe.scheduler.deferred.default-timeout` (24 hours by default) when the task has none, counted from the start of the execution, ends as **interrupted** with the timeout message and its dependencies are not launched. The scheduler checks the deadlines every `awe.scheduler.deferred.timeout-check-interval` (60 seconds by default), so the execution can end after its deadline by up to that interval. A completion that arrives later gets a `409`. See the **[Configuration guide](../scheduler-module.md#deferred-executions)**.
+- **Stop**: the **Stop** button of the tasks screen ends the waiting executions of the selected task as **stopped**, without launching dependencies.
+- **Restart and cluster**: the state of a waiting execution is stored in the database, so it survives a restart. At startup the scheduler interrupts the executions that a stopped node left running, except the ones that are waiting to be completed. Every node checks the deadlines and any node can receive the completion, but only the first call that closes an execution ends it.
 
 ### Task execution database
 

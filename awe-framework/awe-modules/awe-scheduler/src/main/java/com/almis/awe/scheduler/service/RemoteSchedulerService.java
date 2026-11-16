@@ -91,6 +91,17 @@ public class RemoteSchedulerService extends ServiceConfig {
   }
 
   /**
+   * Stop the deferred executions of the selected task
+   *
+   * @param taskId Task identifier
+   * @return ServiceData
+   * @throws AWException Error stopping the executions
+   */
+  public ServiceData stopTask(Integer taskId) throws AWException {
+    return remote ? remoteScheduler.stopTask(taskId) : schedulerService.stopTask(taskId);
+  }
+
+  /**
    * Resume the selected task
    * Requires QUARTZ
    *

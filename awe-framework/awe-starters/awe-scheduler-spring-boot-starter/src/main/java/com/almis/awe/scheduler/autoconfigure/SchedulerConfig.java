@@ -25,8 +25,10 @@ import com.almis.awe.scheduler.listener.SchedulerEventListener;
 import com.almis.awe.scheduler.listener.SchedulerJobListener;
 import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
+import com.almis.awe.scheduler.service.DeferredExecutionWatcher;
 import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.scheduler.service.RemoteSchedulerService;
+import com.almis.awe.scheduler.service.SchedulerExecutionCompletionService;
 import com.almis.awe.scheduler.service.SchedulerService;
 import com.almis.awe.scheduler.service.ServerConnectionService;
 import com.almis.awe.scheduler.service.TaskService;
@@ -128,8 +130,37 @@ public class SchedulerConfig {
    * @return Scheduler service
    */
   @Bean
-  public SchedulerService schedulerService(TaskDAO taskDAO, SchedulerDAO schedulerDAO, CalendarDAO calendarDAO) {
-    return new SchedulerService(taskDAO, schedulerDAO, calendarDAO, schedulerConfigProperties.isRemoteEnabled(), schedulerConfigProperties.isSchedulerInstance());
+  public SchedulerService schedulerService(TaskDAO taskDAO, SchedulerDAO schedulerDAO, CalendarDAO calendarDAO,
+                                           SchedulerExecutionCompletionService completionService) {
+    return new SchedulerService(taskDAO, schedulerDAO, calendarDAO, completionService,
+      schedulerConfigProperties.isRemoteEnabled(), schedulerConfigProperties.isSchedulerInstance());
+  }
+
+  /**
+   * Define the service that completes the deferred executions
+   *
+   * @return Completion service
+   */
+  // The two execution log stores are alternatives of awe.scheduler.execution-log-store: only one bean exists
+  @SuppressWarnings("java:S9352")
+  @Bean
+  public SchedulerExecutionCompletionService schedulerExecutionCompletionService(
+    TaskDAO taskDAO, ExecutionService executionService, ExecutionLogStore executionLogStore,
+    ApplicationEventPublisher eventPublisher) {
+    return new SchedulerExecutionCompletionService(taskDAO, executionService, executionLogStore, eventPublisher,
+      schedulerConfigProperties.getDeferred().getDefaultTimeout());
+  }
+
+  /**
+   * Define the periodic check that interrupts the deferred executions past their due date
+   *
+   * @return Deferred execution watcher
+   */
+  @Bean(initMethod = "start", destroyMethod = "stop")
+  public DeferredExecutionWatcher deferredExecutionWatcher(TaskDAO taskDAO,
+                                                           SchedulerExecutionCompletionService completionService) {
+    return new DeferredExecutionWatcher(taskDAO, completionService,
+      schedulerConfigProperties.getDeferred().getTimeoutCheckInterval());
   }
 
   /**
@@ -177,7 +208,8 @@ public class SchedulerConfig {
   public MaintainJobService maintainJobService(ExecutionService executionService, MaintainService maintainService,
                                                QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher,
                                                ObjectMapper mapper, ExecutionLogStore executionLogStore, RestTemplate restTemplate) {
-    return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, mapper,
+    MaintainJobService service = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO,
+      eventPublisher, mapper,
       executionLogStore,
       schedulerConfigProperties.getTaskTimeout(),
       schedulerConfigProperties.isSchedulerInstance(),
@@ -186,6 +218,8 @@ public class SchedulerConfig {
       schedulerConfigProperties.getRemoteCallbackUser(),
       schedulerConfigProperties.getRemoteCallbackPassword(),
       restTemplate);
+    service.setDeferredDefaultTimeout(schedulerConfigProperties.getDeferred().getDefaultTimeout());
+    return service;
   }
 
   /**

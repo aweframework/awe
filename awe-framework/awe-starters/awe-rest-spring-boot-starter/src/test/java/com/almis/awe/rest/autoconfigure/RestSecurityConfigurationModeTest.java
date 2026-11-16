@@ -4,10 +4,12 @@ import com.almis.awe.autoconfigure.LocalLoginConfig;
 import com.almis.awe.config.BaseConfigProperties;
 import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.model.component.AweUserDetails;
+import com.almis.awe.rest.security.BearerSecurity;
 import com.almis.awe.rest.security.JWTAuthenticationFilter;
 import com.almis.awe.rest.security.JWTAuthorizationFilter;
 import com.almis.awe.security.authorization.PublicQueryMaintainAuthorization;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.security.autoconfigure.SecurityAutoConfiguration;
 import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
@@ -20,13 +22,17 @@ import org.springframework.boot.webmvc.autoconfigure.WebMvcAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -187,10 +193,83 @@ class RestSecurityConfigurationModeTest {
       });
   }
 
+  @Test
+  void shouldLetAnotherChainAcceptTheLocalJwtBearerThroughTheSharedBearerSecurity() {
+    contextRunner
+      .withUserConfiguration(SharedBearerChainConfig.class)
+      .withPropertyValues("awe.application.module-list[0]=awe")
+      .run(context -> {
+        MockMvc mockMvc = buildMockMvc(context);
+        String bearer = mockMvc.perform(post("/api/authenticate")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("{\"username\":\"demo\",\"password\":\"demo\"}"))
+          .andReturn().getResponse().getHeader("Authorization");
+
+        assertThat(context.getBean(FilterChainProxy.class).getFilters("/other/secured"))
+          .noneMatch(JWTAuthenticationFilter.class::isInstance);
+        mockMvc.perform(get("/other/secured")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/other/secured").header("Authorization", bearer)).andExpect(status().isOk());
+        mockMvc.perform(get("/other/open/x")).andExpect(status().isOk());
+        mockMvc.perform(get("/other/open/x").header("Authorization", bearer)).andExpect(status().isOk());
+      });
+  }
+
+  @Test
+  void shouldLetAnotherChainRequireAnOauth2BearerThroughTheSharedBearerSecurity() {
+    contextRunner
+      .withUserConfiguration(SharedBearerChainConfig.class)
+      .withPropertyValues(
+        "awe.application.module-list[0]=awe",
+        "awe.rest.api.auth.mode=oauth2-resource-server",
+        "awe.rest.api.oauth2-resource-server.jwt.jwk-set-uri=https://issuer.example.com/jwks",
+        "awe.rest.api.oauth2-resource-server.jwt.audiences[0]=api://awe-rest"
+      )
+      .run(context -> {
+        MockMvc mockMvc = buildMockMvc(context);
+
+        mockMvc.perform(get("/other/secured")).andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/other/secured").header("Authorization", "Bearer not-a-jwt"))
+          .andExpect(status().isUnauthorized());
+        mockMvc.perform(get("/other/open/x")).andExpect(status().isOk());
+      });
+  }
+
   private MockMvc buildMockMvc(org.springframework.boot.test.context.assertj.AssertableWebApplicationContext context) {
     return MockMvcBuilders.webAppContextSetup((WebApplicationContext) context.getSourceApplicationContext())
       .addFilters(context.getBean(FilterChainProxy.class))
       .build();
+  }
+
+  @Configuration(proxyBeanMethods = false)
+  static class SharedBearerChainConfig {
+
+    @Bean
+    @Order(98)
+    SecurityFilterChain otherChain(HttpSecurity http,
+                                   @Qualifier("restBearerSecurity") BearerSecurity restBearerSecurity)
+      throws Exception {
+      http.securityMatcher("/other/**")
+        .authorizeHttpRequests(requests -> requests
+          .requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/other/open/**")).permitAll()
+          .anyRequest().authenticated())
+        .csrf(csrf -> csrf.disable());
+      restBearerSecurity.apply(http);
+      return http.build();
+    }
+
+    @RestController
+    @RequestMapping("/other")
+    static class OtherController {
+      @GetMapping("/secured")
+      String secured() {
+        return "ok";
+      }
+
+      @GetMapping("/open/x")
+      String open() {
+        return "ok";
+      }
+    }
   }
 
   @Configuration(proxyBeanMethods = false)

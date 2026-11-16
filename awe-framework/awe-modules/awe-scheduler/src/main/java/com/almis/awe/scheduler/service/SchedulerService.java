@@ -36,6 +36,7 @@ public class SchedulerService extends ServiceConfig {
   private final TaskDAO taskDAO;
   private final SchedulerDAO schedulerDAO;
   private final CalendarDAO calendarDAO;
+  private final SchedulerExecutionCompletionService completionService;
   private final boolean isRemoteEnabled;
   private final boolean isSchedulerInstance;
 
@@ -43,10 +44,12 @@ public class SchedulerService extends ServiceConfig {
    * Constructor
    */
   public SchedulerService(TaskDAO taskDAO, SchedulerDAO schedulerDAO, CalendarDAO calendarDAO,
-                          boolean isRemoteEnabled, boolean isSchedulerInstance) {
+                          SchedulerExecutionCompletionService completionService, boolean isRemoteEnabled,
+                          boolean isSchedulerInstance) {
     this.taskDAO = taskDAO;
     this.schedulerDAO = schedulerDAO;
     this.calendarDAO = calendarDAO;
+    this.completionService = completionService;
     this.isRemoteEnabled = isRemoteEnabled;
     this.isSchedulerInstance = isSchedulerInstance;
   }
@@ -251,6 +254,18 @@ public class SchedulerService extends ServiceConfig {
     } catch (Exception exc) {
       throw new AWException(getLocale(ERROR_TITLE_SCHEDULER_PAUSE_TASK), getLocale(ERROR_MESSAGE_SCHEDULER_PAUSE_TASK), exc);
     }
+  }
+
+  /**
+   * Stop the deferred executions of the selected task (a task without any does nothing)
+   *
+   * @param taskId Task identifier
+   * @return ServiceData
+   * @throws AWException Error stopping the executions
+   */
+  public ServiceData stopTask(Integer taskId) throws AWException {
+    completionService.stopTask(taskId);
+    return new ServiceData();
   }
 
   /**

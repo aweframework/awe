@@ -1197,6 +1197,13 @@
     </serve>
   </target>
 
+  <target name="deferredTestLaunch">
+    <serve service="deferredTestLaunch">
+      <variable id="taskId" type="INTEGER" name="taskId"/>
+      <variable id="executionId" type="INTEGER" name="executionId"/>
+    </serve>
+  </target>
+
   <target name="insertClobData">
     <insert>
       <table id="DummyClobTestTable"/>

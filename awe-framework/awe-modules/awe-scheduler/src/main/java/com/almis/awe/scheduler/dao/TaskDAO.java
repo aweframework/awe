@@ -4,10 +4,12 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.QueryUtil;
+import com.almis.awe.scheduler.bean.task.DeferredExecution;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.constant.ParameterConstants;
+import com.almis.awe.scheduler.dao.task.DeferredExecutionRepository;
 import com.almis.awe.scheduler.dao.task.TaskExecutionPresenter;
 import com.almis.awe.scheduler.dao.task.TaskExecutionRepository;
 import com.almis.awe.scheduler.dao.task.TaskImmediateLauncher;
@@ -58,6 +60,7 @@ public class TaskDAO extends ServiceConfig {
 
   private final TaskRepository taskRepository;
   private final TaskExecutionRepository executionRepository;
+  private final DeferredExecutionRepository deferredRepository;
   private final TaskScheduling taskScheduling;
   private final TaskListPresenter taskListPresenter;
   private final TaskExecutionPresenter executionPresenter;
@@ -83,6 +86,7 @@ public class TaskDAO extends ServiceConfig {
       serverDAO, this);
     this.executionRepository = new TaskExecutionRepository(queryService, maintainService, queryUtil,
       executionLogStore, storedExecutions);
+    this.deferredRepository = new DeferredExecutionRepository(queryService, maintainService, queryUtil);
     this.taskScheduling = new TaskScheduling(scheduler, fileChecker, taskRepository, executionRepository, this);
     this.taskListPresenter = new TaskListPresenter(scheduler, queryService, queryUtil, taskScheduling, this);
     this.executionPresenter = new TaskExecutionPresenter(queryService, queryUtil, executionLogStore,
@@ -193,6 +197,54 @@ public class TaskDAO extends ServiceConfig {
    */
   public ServiceData updateInterruptedTasks() throws AWException {
     return executionRepository.updateInterruptedTasks();
+  }
+
+  /**
+   * Close a running execution: only the call that updates it owns the end of the execution
+   *
+   * @param taskId      Task id
+   * @param executionId Execution id
+   * @param status      Final status
+   * @return True when this call closed the running execution
+   */
+  public boolean closeRunningExecution(Integer taskId, Integer executionId, TaskStatus status) throws AWException {
+    return executionRepository.closeRunningExecution(taskId, executionId, status);
+  }
+
+  /**
+   * Register an execution that was accepted and finishes later
+   *
+   * @param taskId            Task id
+   * @param executionId       Execution id
+   * @param externalReference Opaque reference of the work in the external system (null when there is none)
+   * @param acceptedDate      Date the execution was accepted
+   * @param dueDate           Date from which the execution is overdue
+   */
+  public void insertDeferredExecution(Integer taskId, Integer executionId, String externalReference,
+                                      Instant acceptedDate, Instant dueDate) throws AWException {
+    deferredRepository.insert(taskId, executionId, externalReference, acceptedDate, dueDate);
+  }
+
+  /**
+   * Find the deferred state of an execution, whether it is still running or not
+   *
+   * @param taskId      Task id
+   * @param executionId Execution id
+   * @return Deferred state, or null when the execution was never deferred
+   */
+  public DeferredExecution getDeferredExecution(Integer taskId, Integer executionId) throws AWException {
+    return deferredRepository.find(taskId, executionId);
+  }
+
+  /**
+   * Get the deferred executions that are still running
+   *
+   * @param taskId    Task id to filter by, or null for every task
+   * @param dueBefore Only the executions whose due date is before this date, or null for all
+   * @return Running deferred executions
+   */
+  public List<DeferredExecution> getRunningDeferredExecutions(Integer taskId, Instant dueBefore) throws AWException {
+    return deferredRepository.findRunning(taskId, dueBefore);
   }
 
   /**

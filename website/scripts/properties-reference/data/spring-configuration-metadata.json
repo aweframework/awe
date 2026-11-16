@@ -1352,6 +1352,18 @@
       "defaultValue": "10s"
     },
     {
+      "name": "awe.scheduler.deferred.default-timeout",
+      "type": "java.time.Duration",
+      "description": "Time a deferred execution may stay running when its task has no timeout; after it the execution is interrupted Default value 24h",
+      "defaultValue": "24h"
+    },
+    {
+      "name": "awe.scheduler.deferred.timeout-check-interval",
+      "type": "java.time.Duration",
+      "description": "Interval between the checks for deferred executions past their due date Default value 60s",
+      "defaultValue": "60s"
+    },
+    {
       "name": "awe.scheduler.execution-log-batch-size",
       "type": "java.lang.Integer",
       "description": "Database-mode dirty-slot count that triggers an eager flush, and the maximum number of queued events drained per writer poll cycle. Default value 200",
@@ -1433,9 +1445,19 @@
       "defaultValue": false
     },
     {
+      "name": "awe.scheduler.remote-scheduler-password",
+      "type": "java.lang.String",
+      "description": "Password to log in at the remote scheduler instance"
+    },
+    {
       "name": "awe.scheduler.remote-scheduler-url",
       "type": "java.net.URI",
       "description": "URL to call to remote scheduler instance"
+    },
+    {
+      "name": "awe.scheduler.remote-scheduler-user",
+      "type": "java.lang.String",
+      "description": "User to log in at the remote scheduler instance. When empty, calls are sent without credentials"
     },
     {
       "name": "awe.scheduler.report-email-from-value",

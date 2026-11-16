@@ -17,7 +17,7 @@ import tools.jackson.databind.node.StringNode;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -34,15 +34,17 @@ class SchedulerServiceTest {
   @Mock
   private CalendarDAO calendarDAO;
   @Mock
+  private SchedulerExecutionCompletionService completionService;
+  @Mock
   private ApplicationContext context;
   @Mock
   private AweRequest request;
 
   @BeforeEach
   void initService() {
-    schedulerService = new SchedulerService(taskDAO, schedulerDAO, calendarDAO, false, false);
+    schedulerService = new SchedulerService(taskDAO, schedulerDAO, calendarDAO, completionService, false, false);
     schedulerService.setApplicationContext(context);
-    doReturn(request).when(context).getBean(AweRequest.class);
+    lenient().doReturn(request).when(context).getBean(AweRequest.class);
   }
 
   @Test
@@ -87,5 +89,12 @@ class SchedulerServiceTest {
 
     assertTrue(actual.getVariableMap().isEmpty());
     verifyNoInteractions(taskDAO);
+  }
+
+  @Test
+  void stopTaskClosesTheDeferredExecutionsOfTheTask() throws Exception {
+    schedulerService.stopTask(4);
+
+    verify(completionService).stopTask(4);
   }
 }

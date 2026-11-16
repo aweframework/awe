@@ -20,6 +20,7 @@ import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.scheduler.util.SchedulerDeferred;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
@@ -31,6 +32,7 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.lang.Thread.sleep;
 
@@ -61,6 +63,8 @@ public class DummyService extends ServiceConfig {
   // Autowired services
   private final QueryService queryService;
   private final Random random = new Random();
+  // Execution keys (task, execution) that the deferred test task received
+  private final List<int[]> deferredLaunches = new CopyOnWriteArrayList<>();
 
   /**
    * Autowired constructor
@@ -567,6 +571,27 @@ public class DummyService extends ServiceConfig {
       throw new AWException("Interrupted thread exception", exc);
     }
     return new ServiceData();
+  }
+
+  /**
+   * Answer a scheduler task as accepted, finishes later, and record the execution key it received
+   *
+   * @param taskId      Task identifier
+   * @param executionId Execution identifier
+   * @return Deferred answer
+   */
+  public ServiceData deferredTestLaunch(Integer taskId, Integer executionId) {
+    deferredLaunches.add(new int[]{taskId, executionId});
+    return SchedulerDeferred.accepted("external-ref-1", "Waiting for the external system");
+  }
+
+  /**
+   * Execution keys {task, execution} received by the deferred test task, in order
+   *
+   * @return Execution keys
+   */
+  public List<int[]> getDeferredLaunches() {
+    return deferredLaunches;
   }
 
   /**

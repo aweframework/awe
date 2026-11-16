@@ -81,3 +81,45 @@ awe.scheduler.ssh-connect-timeout=30s
 ```
 
 > **Note:** For production use prefer `STRICT` with a pre-provisioned `known_hosts`, or the default `ACCEPT_ON_FIRST_USE`. Avoid `ACCEPT_ALL` outside development.
+
+## Deferred executions
+
+A maintain task can answer that it accepted the work and finishes later (see the **[Scheduler guide](guides/scheduler-guide.md#deferred-executions)**). The deadline of those executions is configured with the following properties:
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| `awe.scheduler.deferred.default-timeout` | Time a deferred execution may stay running when its task has no timeout. After it the execution is interrupted | `24h` |
+| `awe.scheduler.deferred.timeout-check-interval` | Interval between the checks for deferred executions past their deadline | `60s` |
+
+A duration without a unit is read in the unit of its default (hours for the first property, seconds for the second).
+
+```properties
+awe.scheduler.deferred.default-timeout=12h
+awe.scheduler.deferred.timeout-check-interval=30s
+```
+
+## Scheduler API security
+
+The scheduler API (`/scheduler/api/**`) requires the AWE bearer token, validated as the [REST API](rest-module.md) validates it (`local-jwt` or `oauth2-resource-server`, according to `awe.rest.api.auth.mode`). Every route of the API needs it, including the one that completes a deferred execution.
+
+The validation is done by the [AWE REST starter](rest-module.md). The scheduler does not depend on it, so the application that hosts the scheduler API has to include it. Without it no request can authenticate: every request is answered with `401` and a warning is written in the log at startup.
+
+:::warning Breaking change for applications that use an external scheduler
+Before, `/scheduler/api/**` was open. An application with the embedded scheduler is not affected, because it does not call that API. An application with `awe.scheduler.remote-enabled=true` now has to authenticate against the scheduler instance, and the scheduler instance has to include the AWE REST starter. Configure a user of the scheduler instance in the main application, or its calls to the scheduler will be answered with `401`:
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| `awe.scheduler.remote-scheduler-user` | User of the scheduler instance. The main application logs in with it at `/api/authenticate` of the scheduler instance (the `awe.scheduler.remote-scheduler-url` without its `/scheduler/api/v1` ending) and sends the token it gets. The token is reused until 30 seconds before it expires. When empty, the calls are sent without credentials and a warning is written in the log | empty |
+| `awe.scheduler.remote-scheduler-password` | Password of that user | empty |
+
+```properties
+awe.scheduler.remote-enabled=true
+awe.scheduler.remote-scheduler-url=https://scheduler.example.com/scheduler/api/v1
+awe.scheduler.remote-scheduler-user=scheduler-client
+awe.scheduler.remote-scheduler-password=ENC(yourEncryptedPassword)
+```
+:::
+
+:::note Limitation: the OAuth2 resource-server mode of the scheduler instance
+When the scheduler instance uses `awe.rest.api.auth.mode=oauth2-resource-server`, its `/api/authenticate` endpoint is disabled, so the login of the main application cannot get a token and its calls are refused. The scheduler API accepts the tokens of the identity provider, but the remote scheduler client does not obtain them: use the `local-jwt` mode in the scheduler instance when it is called by another AWE application.
+:::

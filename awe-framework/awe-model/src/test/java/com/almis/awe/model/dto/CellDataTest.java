@@ -10,11 +10,14 @@ import tools.jackson.databind.node.JsonNodeFactory;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.math.BigDecimal;
+import java.sql.Clob;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * CellData DTO tests
@@ -368,5 +371,16 @@ class CellDataTest {
       calls++;
       return text;
     }
+  }
+
+  @Test
+  void aClobIsStoredAsItsText() throws Exception {
+    Clob clob = mock(Clob.class);
+    when(clob.length()).thenReturn(11L);
+    when(clob.getSubString(1, 11)).thenReturn("a long text");
+    CellData cell = new CellData(clob);
+
+    assertEquals(CellDataType.STRING, cell.getType());
+    assertEquals("a long text", cell.getValue());
   }
 }

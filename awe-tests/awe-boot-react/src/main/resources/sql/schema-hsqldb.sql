@@ -596,6 +596,16 @@ CREATE TABLE IF NOT EXISTS AweSchExe
     Des VARCHAR(2000)
 );
 
+CREATE TABLE IF NOT EXISTS AweSchExeExt
+(
+    IdeTsk INTEGER      not NULL,
+    ExeTsk INTEGER      not NULL,
+    ExtRef VARCHAR(256),
+    DfrDat TIMESTAMP(3) not NULL,
+    DueDat TIMESTAMP(3) not NULL,
+    CONSTRAINT PK_AWESCHEXEEXT PRIMARY KEY (IdeTsk, ExeTsk)
+);
+
 --------------------------------------------------------
 --  DDL for Table AweSchSrv
 --  Scheduler servers

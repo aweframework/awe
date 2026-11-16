@@ -22,6 +22,8 @@ public class QueryConstants {
   public static final String SCHEDULER_AVERAGE_TIME_QUERY = "getTaskAverageTime";
   public static final String SCHEDULER_LAST_TASK_EXECUTION = "getLastExecution";
   public static final String SCHEDULER_TASK_EXECUTION = "getTaskExecution";
+  public static final String SCHEDULER_DEFERRED_EXECUTION = "getDeferredExecution";
+  public static final String SCHEDULER_RUNNING_DEFERRED = "getRunningDeferredExecutions";
   public static final String SCHEDULER_CALENDAR_LIST_QUERY = "javaSchCalLst";
   public static final String SCHEDULER_FILE_MODIFICATIONS_QUERY = "SchFil";
   public static final String SCHEDULER_GET_TASKS_WITH_CALENDARS = "tasksUsingCalendars";
