@@ -831,6 +831,10 @@
     </serve>
   </target>
 
+  <target name="deferredTestLaunch">
+    <serve service="deferredTestLaunch"/>
+  </target>
+
   <target name="updateCell">
     <serve service="updateCell"/>
   </target>

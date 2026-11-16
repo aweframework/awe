@@ -324,6 +324,75 @@
     <variable id="taskExecution" type="INTEGER" name="taskExecution"/>
   </query>
 
+  <!-- Deferred state of one execution (null when the execution was not deferred) -->
+  <query id="getDeferredExecution">
+    <table id="AweSchExeExt" alias="Ext"/>
+    <field id="IdeTsk" alias="taskId" table="Ext"/>
+    <field id="ExeTsk" alias="executionId" table="Ext"/>
+    <field id="ExtRef" alias="externalReference" table="Ext"/>
+    <field id="DfrDat" alias="acceptedDate" table="Ext"/>
+    <field id="DueDat" alias="dueDate" table="Ext"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" left-table="Ext" condition="eq" right-variable="taskId"/>
+        <filter left-field="ExeTsk" left-table="Ext" condition="eq" right-variable="taskExecution"/>
+      </and>
+    </where>
+    <variable id="taskId" type="INTEGER" name="taskId"/>
+    <variable id="taskExecution" type="INTEGER" name="taskExecution"/>
+  </query>
+
+  <!-- Deferred executions that are still running, optionally of one task and optionally past a due date -->
+  <query id="getRunningDeferredExecutions">
+    <table id="AweSchExeExt" alias="Ext"/>
+    <field id="IdeTsk" alias="taskId" table="Ext"/>
+    <field id="ExeTsk" alias="executionId" table="Ext"/>
+    <field id="ExtRef" alias="externalReference" table="Ext"/>
+    <field id="DfrDat" alias="acceptedDate" table="Ext"/>
+    <field id="DueDat" alias="dueDate" table="Ext"/>
+    <join type="INNER">
+      <table id="AweSchExe" alias="Exe"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Ext" condition="eq" right-field="IdeTsk" right-table="Exe"/>
+        <filter left-field="ExeTsk" left-table="Ext" condition="eq" right-field="ExeTsk" right-table="Exe"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Sta" left-table="Exe" condition="eq" right-variable="status"/>
+        <filter left-field="IdeTsk" left-table="Ext" condition="eq" right-variable="taskId" optional="true"/>
+        <filter left-field="DueDat" left-table="Ext" condition="lt" right-variable="limitDate" optional="true"/>
+      </and>
+    </where>
+    <variable id="taskId" type="INTEGER" name="taskId"/>
+    <variable id="limitDate" type="TIMESTAMP" name="limitDate"/>
+    <variable id="status" type="INTEGER" value="4"/>
+  </query>
+
+  <!-- Subquery of the start of an execution: the outer AweSchExeExt row has an execution -->
+  <query id="getExecutionOfDeferredExecution">
+    <table id="AweSchExe" alias="Exe"/>
+    <field id="IdeTsk" alias="taskId" table="Exe"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="IdeTsk" right-table="AweSchExeExt"/>
+        <filter left-field="ExeTsk" left-table="Exe" condition="eq" right-field="ExeTsk" right-table="AweSchExeExt"/>
+      </and>
+    </where>
+  </query>
+
+  <!-- Subquery of the startup interruption: the execution of the outer AweSchExe was deferred -->
+  <query id="getDeferredExecutionState">
+    <table id="AweSchExeExt" alias="Ext"/>
+    <field id="IdeTsk" alias="taskId" table="Ext"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" left-table="Ext" condition="eq" right-field="IdeTsk" right-table="AweSchExe"/>
+        <filter left-field="ExeTsk" left-table="Ext" condition="eq" right-field="ExeTsk" right-table="AweSchExe"/>
+      </and>
+    </where>
+  </query>
+
   <!-- Scalar subquery: retrieve the task name for a given taskId.
        Used by getTaskExecution as a null-tolerant SELECT field (SQLBuilder.getFieldExpression
        renders field.query as a scalar subquery inheriting the outer parameters). Returns NULL

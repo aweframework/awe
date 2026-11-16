@@ -27,11 +27,13 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY;
+import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_RUNNING_DEFERRED;
 import static com.almis.awe.scheduler.constant.TaskConstants.TASK_AVERAGE_TIME;
 import static com.almis.awe.scheduler.constant.TaskConstants.TASK_IDE_LIST;
 import static com.almis.awe.scheduler.constant.TaskConstants.TASK_LAUNCH_TYPE_LIST;
@@ -84,10 +86,11 @@ public class TaskListPresenter {
     ObjectNode parameters = queryUtil.getParameters(queryUtil.getParameters(taskListCriteria), null, "1", "0");
     ServiceData serviceData = queryService.launchPrivateQuery(SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY,
       parameters);
+    Set<Integer> withDeferredExecution = getTasksWithDeferredExecution();
     DataList filtered = new DataList();
     for (Map<String, CellData> row : serviceData.getDataList().getRows()) {
       // Add other parameters from the scheduler to the datalist
-      filtered.addRow(addSchedulerParameters(row));
+      filtered.addRow(addSchedulerParameters(row, withDeferredExecution));
     }
 
     return serviceData.setDataList(filtered);
@@ -140,13 +143,32 @@ public class TaskListPresenter {
   }
 
   /**
+   * Get the tasks with a deferred execution still running: they run without a scheduler thread, so Quartz does
+   * not know them. One query for the whole list
+   *
+   * @return Task identifiers
+   * @throws AWException Error retrieving the executions
+   */
+  private Set<Integer> getTasksWithDeferredExecution() throws AWException {
+    ServiceData waiting = queryService.launchPrivateQuery(SCHEDULER_RUNNING_DEFERRED,
+      queryUtil.getParameters(null, "1", "0"));
+    Set<Integer> taskIds = new HashSet<>();
+    for (Map<String, CellData> row : waiting.getDataList().getRows()) {
+      taskIds.add(row.get("taskId").getIntegerValue());
+    }
+    return taskIds;
+  }
+
+  /**
    * Add parameters from the scheduler to the task list
    *
-   * @param row Parameters row
+   * @param row                   Parameters row
+   * @param withDeferredExecution Tasks with a deferred execution still running
    * @return Parameters row
    * @throws AWException Error adding scheduler parameters
    */
-  private Map<String, CellData> addSchedulerParameters(Map<String, CellData> row) throws AWException {
+  private Map<String, CellData> addSchedulerParameters(Map<String, CellData> row, Set<Integer> withDeferredExecution)
+    throws AWException {
     // Get trigger identifier
     Integer ide = row.get(TASK_IDE_LIST).getIntegerValue();
     String group = TaskUtil.getGroupForLaunchType(Integer.valueOf(row.get(TASK_LAUNCH_TYPE_LIST).getStringValue()));
@@ -171,7 +193,7 @@ public class TaskListPresenter {
         }
         // get the job associated to the trigger
         JobDetail job = scheduler.getJobDetail(trigger.getJobKey());
-        row.put(TASK_STATUS, new CellData(taskScheduling.isJobRunning(job)
+        row.put(TASK_STATUS, new CellData(withDeferredExecution.contains(ide) || taskScheduling.isJobRunning(job)
           ? TaskStatus.JOB_RUNNING.getValue()
           : TaskStatus.JOB_OK.getValue()));
 
@@ -182,7 +204,9 @@ public class TaskListPresenter {
       } else {
         // Initialize job status to OK if it's not currently running on the
         // scheduler
-        row.put(TASK_STATUS, new CellData(TaskStatus.JOB_OK.getValue()));
+        row.put(TASK_STATUS, new CellData(withDeferredExecution.contains(ide)
+          ? TaskStatus.JOB_RUNNING.getValue()
+          : TaskStatus.JOB_OK.getValue()));
 
         // If the trigger does not exist, try to load last execution from the
         // database

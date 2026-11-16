@@ -17,6 +17,7 @@ public class JobConstants {
   public static final String TASK_JOB_AVERAGE_TIME = "taskAverageTime";
   public static final String TASK_JOB_TIMEOUT = "taskTimeout";
   public static final String TASK_ID = "taskId";
+  public static final String EXECUTION_ID = "executionId";
   public static final String TASK_GROUP = "taskGroup";
   public static final String TASK_VISIBLE = "taskVisible";
   public static final String TASK_LAUNCHER = "taskLauncher";

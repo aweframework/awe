@@ -682,6 +682,16 @@ CREATE TABLE "AWESCHEXE"
     "DES"   VARCHAR2(2000 BYTE)
 );
 
+CREATE TABLE "AWESCHEXEEXT"
+(
+    "IDETSK" NUMBER(*, 0)       NOT NULL,
+    "EXETSK" NUMBER(*, 0)       NOT NULL,
+    "EXTREF" VARCHAR2(256 BYTE),
+    "DFRDAT" timestamp          NOT NULL,
+    "DUEDAT" timestamp          NOT NULL,
+    CONSTRAINT "PK_AWESCHEXEEXT" PRIMARY KEY ("IDETSK", "EXETSK")
+);
+
 --------------------------------------------------------
 --  DDL for Table AweSchExeLog
 --  Bounded task execution log window

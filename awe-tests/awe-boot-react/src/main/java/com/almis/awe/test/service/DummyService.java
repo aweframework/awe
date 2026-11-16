@@ -19,6 +19,7 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.scheduler.util.SchedulerDeferred;
 import com.almis.awe.service.EmailService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.data.builder.DataListBuilder;
@@ -497,6 +498,15 @@ public class DummyService extends ServiceConfig {
       throw new AWException("Interrupted thread exception", exc);
     }
     return new ServiceData();
+  }
+
+  /**
+   * Answer a scheduler task as accepted, finishes later
+   *
+   * @return Deferred answer
+   */
+  public ServiceData deferredTestLaunch() {
+    return SchedulerDeferred.accepted("external-ref-1", "Waiting for the external system");
   }
 
   /**

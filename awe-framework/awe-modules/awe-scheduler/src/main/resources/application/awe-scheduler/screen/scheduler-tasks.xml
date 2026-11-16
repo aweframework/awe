@@ -66,7 +66,7 @@
       <button-action type="filter" target="GrdTskLst" silent="true"/>
       <dependency target-type="show" initial="true">
         <dependency-element id="GrdTskLst" condition="eq" value="1" />
-        <dependency-element id="GrdTskLst" column="Sta" attribute="selectedRowValue" condition="eq" value="R" />
+        <dependency-element id="GrdTskLst" column="Sta" attribute="selectedRowValue" condition="eq" value="4" />
       </dependency>
     </button>
     <button label="BUTTON_ACTIVATE" icon="check" id="ButAct" help="HELP_ACTIVATE_BUTTON">

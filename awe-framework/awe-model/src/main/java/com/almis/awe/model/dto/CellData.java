@@ -21,6 +21,8 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Clob;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -372,6 +374,9 @@ public class CellData implements Comparable<CellData>, Copyable {
       setValue(DateUtil.localDate2WebDate(date), DateUtil.asUtilDate(date), DATE);
     } else if (value instanceof JsonNode) {
       setValue(value, JSON);
+    } else if (value instanceof Clob clob) {
+      // A live LOB locator can neither be sent as JSON nor read once the connection is released: keep its text
+      setValue(readClob(clob));
     } else if (value instanceof CellData cell) {
       copyCell(cell);
     } else {
@@ -402,6 +407,14 @@ public class CellData implements Comparable<CellData>, Copyable {
       setValue(date);
     } else {
       setValue(value, STRING);
+    }
+  }
+
+  private String readClob(Clob clob) {
+    try {
+      return clob.getSubString(1, (int) clob.length());
+    } catch (SQLException exc) {
+      throw new IllegalStateException("Error reading a CLOB value", exc);
     }
   }
 

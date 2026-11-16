@@ -119,6 +119,14 @@ public class SchedulerConfigProperties {
    * URL to call to remote scheduler instance
    */
   private URI remoteSchedulerUrl;
+  /**
+   * User to log in at the remote scheduler instance. When empty, calls are sent without credentials
+   */
+  private String remoteSchedulerUser;
+  /**
+   * Password to log in at the remote scheduler instance
+   */
+  private String remoteSchedulerPassword;
 
   /**
    * Flag which indicates if instance is a separate scheduler instance
@@ -141,6 +149,12 @@ public class SchedulerConfigProperties {
    * Remote password
    */
   private String remoteCallbackPassword;
+
+  /**
+   * Deferred executions: the ones that answered accepted and finish later
+   */
+  @Valid
+  private Deferred deferred = new Deferred();
 
   /**
    * Application-side kill switch for tagging an admitted remote-maintain callback with the
@@ -178,4 +192,23 @@ public class SchedulerConfigProperties {
    */
   @DurationUnit(ChronoUnit.SECONDS)
   private Duration connectionTestTimeout = Duration.ofSeconds(10);
+
+  /**
+   * Deferred executions properties
+   */
+  @Data
+  public static class Deferred {
+    /**
+     * Time a deferred execution may stay running when its task has no timeout; after it the execution is interrupted
+     * Default value 24h
+     */
+    @DurationUnit(ChronoUnit.HOURS)
+    private Duration defaultTimeout = Duration.ofHours(24);
+    /**
+     * Interval between the checks for deferred executions past their due date
+     * Default value 60s
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration timeoutCheckInterval = Duration.ofSeconds(60);
+  }
 }

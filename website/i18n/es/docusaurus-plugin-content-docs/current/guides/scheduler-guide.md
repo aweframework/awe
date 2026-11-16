@@ -49,6 +49,10 @@ awe.scheduler.remote-scheduler-url=http://localhost:8090/scheduler/api/v1
 
 > **Nota:** La URL base del planificador remoto debe apuntar a la API de la instancia del planificador (por defecto: `/scheduler/api/v1`).
 
+:::warning Cambio incompatible: la API del planificador ahora exige autenticación
+La instancia del planificador ahora solo responde a `/scheduler/api/**` a las peticiones con un token bearer de AWE, y la instancia del planificador necesita el [starter de AWE REST](../rest-module.md) para validarlo. Por tanto, la instancia principal de AWE debe iniciar sesión con un usuario de la instancia del planificador, configurado en `awe.scheduler.remote-scheduler-user` y `awe.scheduler.remote-scheduler-password`. Consulta [Seguridad de la API del planificador](../scheduler-module.md#scheduler-api-security).
+:::
+
 
 * **[Tareas](#tasks)**
 * **[Servidores](#servers)**
@@ -77,6 +81,115 @@ Una tarea de comando ejecuta el valor introducido en el campo **Command** como u
 - **Ejecución remota mediante SSH**: cuando **Run on remote server** está marcado, hay que seleccionar un **Remote server**. El comando se ejecuta en ese host a través de un canal de ejecución SSH, y tanto su salida estándar como su salida de error se capturan en el registro de ejecución de la tarea.
 
 La ejecución remota de comandos requiere que el servidor seleccionado use el tipo de conexión `ssh`. La autenticación se realiza con el usuario del servidor junto con una contraseña, una clave privada (opcionalmente protegida con frase de contraseña), o ambas. Consulta **[Servidores](#servers)** para ver cómo configurarlos, y la **[guía de configuración](../scheduler-module.md#ssh-remote-command-execution)** para las opciones de verificación de claves de host SSH.
+
+### Ejecuciones diferidas {#deferred-executions}
+
+Una tarea maintain puede finalizar más tarde. Sirve para trabajo que otro sistema completa después de que el maintain devuelva su respuesta, y para el que no conviene mantener ocupado un hilo del planificador. El maintain responde que ha aceptado el trabajo, la ejecución queda **en ejecución** sin retener ningún hilo, y el otro sistema (o tu propio código) completa la ejecución cuando el trabajo termina.
+
+1. El planificador lanza el maintain, que inicia el trabajo en el otro sistema y responde **diferido**.
+2. El planificador libera su hilo. La ejecución sigue **en ejecución** y no se lanzan sus dependencias.
+3. Cuando el trabajo termina, quien lo ha terminado completa la ejecución con su estado final (consulta [Completar la ejecución](#completing-the-execution)).
+4. Las dependencias de la tarea se lanzan con las reglas habituales (`Launch dependencies in case of warning` / `in case of error`).
+
+#### La respuesta diferida {#the-deferred-answer}
+
+Un maintain responde diferido cuando su último paso es un servicio que devuelve `SchedulerDeferred.accepted(externalReference, description)`:
+
+```java
+public ServiceData startExternalWork(Integer taskId, Integer executionId) {
+  // Start the work and hand the execution key to the system that will complete it
+  String reference = externalSystem.start(taskId, executionId);
+  return SchedulerDeferred.accepted(reference, "Waiting for the external system");
+}
+```
+
+```xml
+<!-- Services.xml -->
+<service id="startExternalWork">
+  <java classname="com.example.ExternalWorkService" method="startExternalWork">
+    <service-parameter name="taskId" type="INTEGER"/>
+    <service-parameter name="executionId" type="INTEGER"/>
+  </java>
+</service>
+
+<!-- Maintain.xml -->
+<target name="startExternalWork">
+  <serve service="startExternalWork">
+    <variable id="taskId" type="INTEGER" name="taskId"/>
+    <variable id="executionId" type="INTEGER" name="executionId"/>
+  </serve>
+</target>
+```
+
+Después crea una tarea maintain que ejecute el maintain `startExternalWork`.
+
+- La respuesta diferida debe ser la respuesta del **último paso** del maintain.
+- Funciona igual cuando el planificador se ejecuta como [aplicación externa](#remote-scheduler-setup): la respuesta vuelve a la instancia del planificador con la respuesta de la llamada al maintain.
+- `externalReference` es una referencia opcional del trabajo en el otro sistema, que se guarda con la ejecución. Se recorta a 256 caracteres.
+- `description` es opcional. Se muestra como descripción de la ejecución mientras espera, y se recorta a 2000 caracteres.
+
+#### La clave de la ejecución {#the-execution-key}
+
+El planificador da a cada maintain dos parámetros reservados: `taskId` y `executionId`. Declara variables con esos nombres en el target del maintain, como en el ejemplo anterior, para recibirlos. Identifican la ejecución, así que el maintain debe entregarlos a quien vaya a completarla. Tienen prioridad sobre un parámetro de la tarea con el mismo nombre.
+
+#### Mientras la ejecución espera {#while-the-execution-waits}
+
+- La ejecución se guarda como **en ejecución** con la descripción de la respuesta diferida.
+- No se lanzan las dependencias de la tarea y la tarea se muestra como en ejecución en la pantalla de tareas.
+- No se retiene ningún hilo del planificador.
+
+#### Completar la ejecución {#completing-the-execution}
+
+El sistema que termina el trabajo llama a la API del planificador (a la instancia del planificador cuando usas un [planificador remoto](#remote-scheduler-setup)):
+
+```text
+POST /scheduler/api/v1/tasks/{taskId}/executions/{executionId}/complete
+```
+
+La petición necesita un token bearer de AWE, como el resto de `/scheduler/api/**` (consulta [Seguridad de la API del planificador](../scheduler-module.md#scheduler-api-security)). El cuerpo es un objeto JSON:
+
+| Campo         | Descripción                                                                                           |      Obligatorio     |
+|---------------|:------------------------------------------------------------------------------------------------------|:--------------------:|
+| `status`      | Estado final: `OK`, `WARNING`, `ERROR`, `STOPPED`, `INTERRUPTED` o `INFO` (sin distinguir mayúsculas) |   **Obligatorio**    |
+| `description` | Descripción de la ejecución, 2000 caracteres como máximo                                              |       Opcional       |
+| `outputs`     | Objeto con valores de texto. Se acepta y todavía no se usa                                            |       Opcional       |
+
+```bash
+curl -X POST "https://scheduler.example.com/scheduler/api/v1/tasks/12/executions/340/complete" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"status": "OK", "description": "Calculation finished"}'
+```
+
+| Respuesta | Significado                                                                                                                  |
+|:---------:|:-----------------------------------------------------------------------------------------------------------------------------|
+|    200    | La ejecución se ha completado. El cuerpo es `{"taskId": 12, "executionId": 340, "status": "JOB_OK"}`                         |
+|    400    | Falta el `status` o no es uno de los valores permitidos, o la `description` supera los 2000 caracteres                       |
+|    401    | La petición no tiene un token bearer válido                                                                                  |
+|    404    | La ejecución no existe                                                                                                       |
+|    409    | La ejecución no se puede completar. El cuerpo es `{"type": "...", "currentStatus": "JOB_OK"}`, con uno de los tipos siguientes |
+
+| `type` del 409           | Significado                                                                                                              |
+|--------------------------|:-------------------------------------------------------------------------------------------------------------------------|
+| `execution-not-running`  | La ejecución ya se completó, se interrumpió por su plazo o se detuvo. `currentStatus` es el estado que tiene             |
+| `execution-not-deferred` | La ejecución no está registrada como diferida, así que no se puede completar desde fuera. Con `currentStatus` `JOB_RUNNING` puede que el maintain aún no haya respondido: reintenta en breve si esperas que sea diferida |
+
+Un `409` con `execution-not-running` es definitivo: la ejecución ya está cerrada y repetir la llamada no la cambiará, así que no lo reintentes.
+
+El estado decide qué ocurre con las dependencias, con las reglas habituales: se lanzan tras `OK`, tras `WARNING` solo con `Launch dependencies in case of warning`, tras `ERROR` solo con `Launch dependencies in case of error`, y nunca tras `STOPPED`, `INTERRUPTED` o `INFO`. El planificador cierra la ejecución una sola vez, escribe su fin, envía el informe de la tarea y lanza las dependencias; cualquier otra finalización de la misma ejecución no hace nada.
+
+El código que se ejecuta en la misma aplicación que el planificador puede completar la ejecución sin la API, con el bean `SchedulerExecutionCompletionService`:
+
+```java
+CompletionResult result = completionService.complete(taskId, executionId, TaskStatus.JOB_OK,
+  "Calculation finished", null);
+// result.outcome(): CLOSED, NOT_RUNNING, NOT_DEFERRED or UNKNOWN
+```
+
+#### Plazo, parada y reinicio {#deadline-stop-and-restart}
+
+- **Plazo**: una ejecución que no se completa dentro del **Timeout** de la tarea, o dentro de `awe.scheduler.deferred.default-timeout` (24 horas por defecto) cuando la tarea no tiene ninguno, contado desde el inicio de la ejecución, termina como **interrumpida** con el mensaje de timeout y no se lanzan sus dependencias. El planificador comprueba los plazos cada `awe.scheduler.deferred.timeout-check-interval` (60 segundos por defecto), así que la ejecución puede terminar después de su plazo hasta ese intervalo. Una finalización que llegue más tarde recibe un `409`. Consulta la **[guía de configuración](../scheduler-module.md#deferred-executions)**.
+- **Parada**: el botón **Stop** de la pantalla de tareas termina las ejecuciones en espera de la tarea seleccionada como **detenidas**, sin lanzar dependencias.
+- **Reinicio y clúster**: el estado de una ejecución en espera se guarda en la base de datos, así que sobrevive a un reinicio. Al arrancar, el planificador interrumpe las ejecuciones que un nodo detenido dejó en marcha, salvo las que esperan a ser completadas. Todos los nodos comprueban los plazos y cualquier nodo puede recibir la finalización, pero solo la primera llamada que cierra una ejecución la termina.
 
 ### Base de datos de ejecución de la tarea {#task-execution-database}
 

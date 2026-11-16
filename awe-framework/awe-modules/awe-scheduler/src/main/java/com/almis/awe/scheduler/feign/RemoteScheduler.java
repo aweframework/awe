@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@FeignClient(name = "remote-scheduler", url = "${awe.scheduler.remote-scheduler-url:http://localhost:8000/scheduler/api/v1}")
+@FeignClient(name = "remote-scheduler", url = "${awe.scheduler.remote-scheduler-url:http://localhost:8000/scheduler/api/v1}",
+  configuration = RemoteSchedulerClientConfiguration.class)
 public interface RemoteScheduler {
 
   @PostMapping("/tasks")
@@ -34,6 +35,15 @@ public interface RemoteScheduler {
    */
   @PostMapping("/task/{taskId}/pause")
   ServiceData pauseTask(@PathVariable int taskId);
+
+  /**
+   * Stop the deferred executions of the selected task
+   *
+   * @param taskId Task identifier
+   * @return Service Data
+   */
+  @PostMapping("/task/{taskId}/stop")
+  ServiceData stopTask(@PathVariable int taskId);
 
   /**
    * Resume the selected task

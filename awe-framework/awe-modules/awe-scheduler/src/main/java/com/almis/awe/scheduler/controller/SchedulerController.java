@@ -4,25 +4,99 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
+import com.almis.awe.scheduler.enums.TaskStatus;
+import com.almis.awe.scheduler.service.CompletionResult;
+import com.almis.awe.scheduler.service.SchedulerExecutionCompletionService;
 import com.almis.awe.scheduler.service.SchedulerService;
+import com.almis.awe.scheduler.util.SchedulerDeferred;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TreeSet;
 
 @RestController
 @RequestMapping("/scheduler/api/v1")
 public class SchedulerController {
 
+  private static final Map<String, TaskStatus> COMPLETION_STATUSES = Map.of(
+    "OK", TaskStatus.JOB_OK,
+    "WARNING", TaskStatus.JOB_WARNING,
+    "ERROR", TaskStatus.JOB_ERROR,
+    "STOPPED", TaskStatus.JOB_STOPPED,
+    "INTERRUPTED", TaskStatus.JOB_INTERRUPTED,
+    "INFO", TaskStatus.JOB_INFO);
+
   private final SchedulerService schedulerService;
+  private final SchedulerExecutionCompletionService completionService;
 
   /**
    * Constructor
    *
-   * @param schedulerService Scheduler service
+   * @param schedulerService  Scheduler service
+   * @param completionService Service that completes the deferred executions
    */
-  public SchedulerController(SchedulerService schedulerService) {
+  public SchedulerController(SchedulerService schedulerService,
+                             SchedulerExecutionCompletionService completionService) {
     this.schedulerService = schedulerService;
+    this.completionService = completionService;
+  }
+
+  /**
+   * Body of the completion of a deferred execution
+   *
+   * @param status      OK, WARNING, ERROR, STOPPED, INTERRUPTED or INFO (required, case insensitive)
+   * @param description Description of the execution (optional, 2000 characters at most)
+   * @param outputs     Output values (optional, accepted and ignored for now)
+   */
+  public record CompletionRequest(String status, String description, Map<String, String> outputs) {
+  }
+
+  /**
+   * Complete a deferred execution
+   *
+   * A running execution that is not registered as deferred yet answers {@code execution-not-deferred} with
+   * {@code currentStatus} {@code JOB_RUNNING}; a client that expects the execution to be deferred should retry
+   * shortly.
+   *
+   * @param taskId      Task identifier
+   * @param executionId Execution identifier
+   * @param request     Completion body
+   * @return 200 with the applied status; 409 when the execution is not running or was never deferred; 404 when it
+   * does not exist; 400 when the body is not valid
+   * @throws AWException Error closing the execution
+   */
+  @PostMapping("/tasks/{taskId}/executions/{executionId}/complete")
+  ResponseEntity<Map<String, Object>> completeExecution(@PathVariable int taskId, @PathVariable int executionId,
+                                                        @RequestBody CompletionRequest request) throws AWException {
+    TaskStatus status = request.status() == null ? null
+      : COMPLETION_STATUSES.get(request.status().trim().toUpperCase(Locale.ROOT));
+    if (status == null) {
+      return invalid("status must be one of " + new TreeSet<>(COMPLETION_STATUSES.keySet()));
+    }
+    if (request.description() != null && request.description().length() > SchedulerDeferred.MAX_DESCRIPTION_LENGTH) {
+      return invalid("description must have " + SchedulerDeferred.MAX_DESCRIPTION_LENGTH + " characters at most");
+    }
+
+    CompletionResult result = completionService.complete(taskId, executionId, status, request.description(),
+      request.outputs());
+    return switch (result.outcome()) {
+      case CLOSED -> ResponseEntity.ok(Map.of("taskId", taskId, "executionId", executionId,
+        "status", result.currentStatus().name()));
+      case NOT_RUNNING -> conflict("execution-not-running", result);
+      case NOT_DEFERRED -> conflict("execution-not-deferred", result);
+      case UNKNOWN -> ResponseEntity.notFound().build();
+    };
+  }
+
+  private ResponseEntity<Map<String, Object>> invalid(String detail) {
+    return ResponseEntity.badRequest().body(Map.of("type", "invalid-request", "detail", detail));
+  }
+
+  private ResponseEntity<Map<String, Object>> conflict(String type, CompletionResult result) {
+    return ResponseEntity.status(409).body(Map.of("type", type, "currentStatus", result.currentStatus().name()));
   }
 
   /**
@@ -70,6 +144,18 @@ public class SchedulerController {
   @PostMapping("/task/{taskId}/pause")
   ServiceData pauseTask(@PathVariable int taskId) throws AWException {
     return schedulerService.pauseTask(taskId);
+  }
+
+  /**
+   * Stop the deferred executions of the selected task
+   *
+   * @param taskId Task identifier
+   * @return ServiceData
+   * @throws AWException Error stopping the executions
+   */
+  @PostMapping("/task/{taskId}/stop")
+  ServiceData stopTask(@PathVariable int taskId) throws AWException {
+    return schedulerService.stopTask(taskId);
   }
 
   /**

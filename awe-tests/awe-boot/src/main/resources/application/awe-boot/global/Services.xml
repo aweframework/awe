@@ -478,6 +478,13 @@
     </java>
   </service>
 
+  <service id="deferredTestLaunch">
+    <java classname="com.almis.awe.service.DummyService" method="deferredTestLaunch">
+      <service-parameter name="taskId" type="INTEGER"/>
+      <service-parameter name="executionId" type="INTEGER"/>
+    </java>
+  </service>
+
   <service id="testLaunchServiceOnEndApplication" launch-phase="APPLICATION_END">
     <java classname="com.almis.awe.service.DummyService" method="doNothing"/>
   </service>

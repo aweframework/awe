@@ -21,4 +21,6 @@ public class MaintainConstants {
   public static final String GET_ALL_EXECUTIONS = "getAllExecutions";
   public static final String UPDATE_INTERRUPTED_TASKS = "updateInterruptedTasks";
   public static final String TASK_UPDATE_STATUS = "updateTaskStatus";
+  public static final String CLOSE_RUNNING_EXECUTION = "closeRunningExecution";
+  public static final String INSERT_DEFERRED_EXECUTION = "insertDeferredExecution";
 }

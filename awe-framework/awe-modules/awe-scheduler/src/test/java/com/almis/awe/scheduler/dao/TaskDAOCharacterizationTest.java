@@ -366,6 +366,7 @@ class TaskDAOCharacterizationTest {
     dataList.addRow(taskListRow(3, "1", 0));
     given(queryService.launchPrivateQuery(SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY, queryParameters))
       .willReturn(new ServiceData().setDataList(dataList));
+    givenNoDeferredExecution();
 
     // Task 1: scheduled, normal and running
     Date nextFireTime = Date.from(LocalDateTime.of(2026, 3, 4, 5, 6, 7, 890_000_000).atZone(ZoneId.systemDefault()).toInstant());
@@ -407,6 +408,7 @@ class TaskDAOCharacterizationTest {
     dataList.addRow(taskListRow(1, "1", 1500));
     given(queryService.launchPrivateQuery(SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY, parameters))
       .willReturn(new ServiceData().setDataList(dataList));
+    givenNoDeferredExecution();
     SchedulerException cause = new SchedulerException("boom");
     given(scheduler.checkExists(any(TriggerKey.class))).willThrow(cause);
 
@@ -415,6 +417,12 @@ class TaskDAOCharacterizationTest {
     assertEquals("Error adding scheduler parameters to the task datalist: {}", exception.getTitle());
     assertEquals(new TriggerKey("1", SCHEDULED_GROUP).toString(), exception.getMessage());
     assertSame(cause, exception.getCause());
+  }
+
+  private void givenNoDeferredExecution() throws Exception {
+    given(queryUtil.getParameters(null, "1", "0")).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryService.launchPrivateQuery(eq("getRunningDeferredExecutions"), any(ObjectNode.class)))
+      .willReturn(new ServiceData().setDataList(new DataList()));
   }
 
   // ---------------------------------------------------------------------------------------------

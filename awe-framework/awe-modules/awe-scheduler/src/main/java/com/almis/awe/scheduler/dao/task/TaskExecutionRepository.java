@@ -1,6 +1,7 @@
 package com.almis.awe.scheduler.dao.task;
 
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
@@ -29,6 +30,7 @@ import static com.almis.awe.scheduler.constant.JobConstants.TASK_GROUP;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_ID;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_JOB_EXECUTION;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_LAUNCHER;
+import static com.almis.awe.scheduler.constant.MaintainConstants.CLOSE_RUNNING_EXECUTION;
 import static com.almis.awe.scheduler.constant.MaintainConstants.GET_ALL_EXECUTIONS;
 import static com.almis.awe.scheduler.constant.MaintainConstants.GET_ALL_EXECUTIONS_WITH_DATES;
 import static com.almis.awe.scheduler.constant.MaintainConstants.PURGE_EXECUTION_LOGS;
@@ -268,6 +270,26 @@ public class TaskExecutionRepository {
     parameters.put(TASK_JOB_EXECUTION, executionId);
 
     return getTaskExecution(SCHEDULER_TASK_EXECUTION, parameters);
+  }
+
+  /**
+   * Close a running execution. Only the caller that updates exactly one row owns the end of the execution
+   *
+   * @param taskId      Task id
+   * @param executionId Execution id
+   * @param status      Final status
+   * @return True when this call closed a running execution
+   * @throws AWException Error closing the execution
+   */
+  public boolean closeRunningExecution(Integer taskId, Integer executionId, TaskStatus status) throws AWException {
+    ObjectNode parameters = queryUtil.getParameters();
+    parameters.put(TASK_ID, taskId);
+    parameters.put(TASK_JOB_EXECUTION, executionId);
+    parameters.put("newStatus", status.getValue());
+    ServiceData serviceData = maintainService.launchPrivateMaintain(CLOSE_RUNNING_EXECUTION, parameters);
+    return serviceData.getResultDetails().stream()
+      .mapToLong(MaintainResultDetails::getRowsAffected)
+      .sum() == 1L;
   }
 
   /**

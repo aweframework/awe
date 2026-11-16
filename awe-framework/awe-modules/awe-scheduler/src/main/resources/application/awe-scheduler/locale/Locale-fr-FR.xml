@@ -70,6 +70,7 @@
   <locale name="ENUM_TITLE_STATUS_INTERRUPTED" value="La tâche a été interrompue"/>
   <locale name="ENUM_TITLE_STATUS_OK" value="La tâche est terminée avec succès"/>
   <locale name="ENUM_TITLE_STATUS_RUNNING" value="La tâche est en cours d&apos;exécution dès maintenant"/>
+  <locale name="ENUM_TITLE_STATUS_STOPPED" value="La tâche a été arrêtée par l&apos;utilisateur"/>
   <locale name="ENUM_TITLE_STATUS_WARNING" value="La tâche est terminée avec des avertissements"/>
   <locale name="ERROR_MESSAGE_SCHEDULER_PAUSE_TASK" value="Tâche problème pause"/>
   <locale name="ERROR_MESSAGE_SCHEDULER_RESUME_TASK" value="Problème pour reprendre la tâche."/>
@@ -131,6 +132,7 @@
   <locale name="SCHEDULER_BATCH_LAUNCH_MESSAGE" value="Le lot a été exécutée correctement"/>
   <locale name="SCHEDULER_BATCH_LAUNCH_TITLE" value="Lot exécuté"/>
   <locale name="SCHEDULER_ERROR_MESSAGE_TIMEOUT" value="Cette tâche a été annulée parce qu&apos;il a dépassé le temps imparti ({0})"/>
+  <locale name="SCHEDULER_MESSAGE_STOPPED_BY_USER" value="Arrêtée par l&apos;utilisateur"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED" value="L&apos;exécution s&apos;est terminée avec le résultat {0} après {1}. {2}"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY" value="L&apos;exécution s&apos;est terminée de manière anormale après {0} - consultez la grille d&apos;exécution pour le statut final."/>
   <locale name="SCHEDULER_EXECUTION_LOG_DROPPED" value="... {0} lignes perdues (file saturée) ..."/>

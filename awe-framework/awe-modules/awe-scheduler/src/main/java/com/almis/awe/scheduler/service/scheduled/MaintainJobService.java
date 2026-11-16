@@ -14,6 +14,7 @@ import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.log.ExecutionKey;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.ExecutionService;
+import com.almis.awe.scheduler.util.SchedulerDeferred;
 import com.almis.awe.service.MaintainService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
@@ -34,6 +35,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+import static com.almis.awe.scheduler.constant.JobConstants.EXECUTION_ID;
+import static com.almis.awe.scheduler.constant.JobConstants.TASK_ID;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_LAUNCHER;
 
 /**
@@ -126,6 +129,13 @@ public class MaintainJobService extends JobService {
       // Set default parameters
       parameters.put("launcher", (String) dataMap.get(TASK_LAUNCHER));
 
+      // Reserved parameters: the execution key, so the maintain can complete the execution later (they win over a
+      // task parameter of the same name)
+      if (execution.getTaskId() != null && execution.getExecutionId() != null) {
+        parameters.put(TASK_ID, execution.getTaskId());
+        parameters.put(EXECUTION_ID, execution.getExecutionId());
+      }
+
       try {
         if (isSchedulerInstance) {
           jobResult = launchRemoteMaintainRest(task.getAction(), parameters, execution);
@@ -142,9 +152,14 @@ public class MaintainJobService extends JobService {
 
       return CompletableFuture.completedFuture(jobResult);
     } finally {
-      // Log completion summary and end logging
-      logExecutionSummary(execution, jobResult);
-      endLogging(execution);
+      if (SchedulerDeferred.isDeferred(jobResult)) {
+        // The execution keeps running: its log is completed when the execution is closed
+        releaseLogging();
+      } else {
+        // Log completion summary and end logging
+        logExecutionSummary(execution, jobResult);
+        endLogging(execution);
+      }
     }
   }
 

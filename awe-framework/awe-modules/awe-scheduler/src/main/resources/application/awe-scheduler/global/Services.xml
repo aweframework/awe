@@ -29,6 +29,11 @@
       <service-parameter name="IdeTsk" type="INTEGER"/>
     </java>
   </service>
+  <service id="stopTask">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="stopTask">
+      <service-parameter name="IdeTsk" type="INTEGER"/>
+    </java>
+  </service>
   <service id="resumeTask">
     <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="resumeTask">
       <service-parameter name="IdeTsk" type="INTEGER"/>
