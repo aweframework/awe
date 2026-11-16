@@ -155,6 +155,8 @@
   <locale name="SCREEN_TEXT_EXECUTION" value="Ejecución"/>
   <locale name="SCREEN_TEXT_EXECUTION_DETAILS" value="Detalles de la ejecución"/>
   <locale name="SCREEN_TEXT_LAUNCH_PARAMETERS" value="Parámetros de lanzamiento"/>
+  <locale name="SCHEDULER_TASK_DEPENDENCY_CYCLE_TITLE" value="Dependencia circular"/>
+  <locale name="SCHEDULER_TASK_DEPENDENCY_CYCLE_MESSAGE" value="Las dependencias de esta tarea harían que se lanzase a sí misma, directamente o a través de otras tareas. Elimine la dependencia que cierra el bucle."/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_TITLE" value="Error de configuración de parámetros"/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE" value="La propiedad {0} no está definida en la instancia del planificador, por lo que la tarea no se puede lanzar. Defina la propiedad o indique una existente."/>
   <locale name="SCREEN_TEXT_EXECUTION_TIME" value="Tiempo de ejecución"/>
@@ -174,4 +176,14 @@
   <locale name="TITLE_SCHEDULER_DELETE_CALENDAR_WITH_ASSOCIATED_TASKS" value="Este calendario está asociado a una o varias tareas"/>
   <locale name="TITLE_SCHEDULER_NEW_TASK" value="Nueva tarea añadida correctamente"/>
   <locale name="WARNING_MESSAGE_TASK_DEPENDENCY_ERROR" value="Esta tarea ha sido marcada con advertencia porque la tarea dependiente #{0} ha devuelto un error en la ejecución #{1}"/>
+  <locale name="MENU_SCHEDULER_RUNS" value="Ejecuciones de flujo"/>
+  <locale name="HELP_SCREEN_SCHEDULER_RUNS" value="En esta pantalla puede consultar las ejecuciones de flujo del planificador: su estado, sus ejecuciones y las tareas omitidas"/>
+  <locale name="SCREEN_TEXT_FLOW_RUNS" value="Ejecuciones de flujo"/>
+  <locale name="SCREEN_TEXT_RUN_EXECUTIONS" value="Ejecuciones del flujo"/>
+  <locale name="SCREEN_TEXT_RUN_SKIPPED" value="Tareas omitidas"/>
+  <locale name="PARAMETER_ROOT_TASK" value="Tarea raíz"/>
+  <locale name="PARAMETER_ROOT_EXECUTION" value="Ejecución raíz"/>
+  <locale name="PARAMETER_ENDED_AT" value="Hora fin"/>
+  <locale name="BUTTON_OPEN_RUN" value="Abrir flujo"/>
+  <locale name="HELP_OPEN_RUN_BUTTON" value="Abrir la ejecución de flujo de la ejecución seleccionada"/>
 </locales>

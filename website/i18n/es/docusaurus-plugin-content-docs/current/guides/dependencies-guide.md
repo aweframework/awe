@@ -44,3 +44,40 @@ La diferencia entre ellas es simplemente que una es bloqueante y la otra no.
 <img alt="Ejemplo de flujo de trabajo" src={require('@docusaurus/useBaseUrl').default('img/Dependency-tasks.png')} />
 
 Esta imagen muestra un ejemplo de cómo crear un flujo de trabajo mediante la concatenación de dependencias del planificador.
+
+## Ejecuciones de flujo y fan-in {#flow-runs-and-fan-in}
+
+Una tarea lanzada por su planificación, de forma manual o por un fichero inicia una **ejecución de flujo**. La ejecución de
+flujo agrupa esa ejecución y todas las dependencias lanzadas a partir de ella, directamente o a través de otras
+dependencias: estas tareas forman el **ámbito** de la ejecución de flujo.
+
+Una tarea con varios padres (**fan-in**) se lanza una sola vez, no una vez por padre. La tarea hija espera a que hayan
+terminado todos los padres que están en el ámbito de la ejecución de flujo, y solo se lanza si cada uno cumplió su
+condición: terminó correctamente, o con advertencia o error cuando el padre lanza sus dependencias en advertencia o en
+error. Si algún padre no cumplió su condición, la hija se **omite**, y la omisión se propaga: las hijas de una tarea
+omitida también se omiten.
+
+La ejecución de flujo termina cuando no queda ninguna tarea en espera ni en ejecución. Su estado es el peor de sus
+ejecuciones: **error** (error, detenida o interrumpida), después **advertencia** (advertencia o alguna tarea omitida) y,
+por último, **correcto**.
+
+### Parámetros de una dependencia {#parameters-of-a-dependency}
+
+Cada parámetro de una dependencia toma el primer valor que se encuentre en este orden:
+
+1. el valor por defecto de la tarea;
+2. el valor propagado por el padre que completa la unión (el que termina el último);
+3. el parámetro de la ejecución de flujo con el mismo nombre. Los parámetros de la ejecución de flujo solo se aplican a
+   los parámetros `VARIABLE`: la tarea hija define qué parámetros acepta.
+
+### Dependencias circulares {#circular-dependencies}
+
+Se rechaza guardar una tarea cuyas dependencias harían que se lance a sí misma, directamente o a través de otras tareas, con
+el mensaje **Dependencia circular**. Elimina la dependencia que cierra el ciclo.
+
+### Pantalla de ejecuciones de flujo {#flow-runs-screen}
+
+La opción **Ejecuciones de flujo** del menú del planificador lista las ejecuciones de flujo, de la más reciente a la más
+antigua, con su estado, tarea raíz, ejecución raíz, quién la lanzó y las horas de inicio y fin. Al seleccionar una se
+muestran sus ejecuciones y las tareas omitidas. En el gestor de tareas, selecciona una ejecución y pulsa **Abrir flujo** para
+ir directamente a su ejecución de flujo.

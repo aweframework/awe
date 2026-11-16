@@ -77,6 +77,13 @@
       <service-parameter name="IdeTsk" type="INTEGER"/>
     </java>
   </service>
+  <!-- Reject the dependencies a task is saved with when they close a cycle -->
+  <service id="validateTaskDependencies">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="validateTaskDependencies">
+      <service-parameter name="IdeTsk" type="INTEGER"/>
+      <service-parameter name="children" type="INTEGER" list="true"/>
+    </java>
+  </service>
   <service id="deleteSchedulerTask">
     <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="deleteSchedulerTask">
       <service-parameter name="IdeTsk" type="INTEGER" list="true"/>

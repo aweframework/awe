@@ -11,6 +11,7 @@ abstract class AbstractSchedulerTests extends AbstractSessionTests {
 
   static final String SCHEDULER = "scheduler";
   static final String TASK_LIST_SCREEN = "scheduler-tasks";
+  static final String RUNS_SCREEN = "scheduler-runs";
   static final String CALENDARS_SCREEN = "scheduler-calendars";
   static final String SERVERS_SCREEN = "scheduler-servers";
   static final String MANAGEMENT_SCREEN = "scheduler-management";

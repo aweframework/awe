@@ -794,8 +794,40 @@ CREATE TABLE AweSchExe
     ExeTim INT,
     Sta    INT      not NULL,
     LchBy VARCHAR(200),
-    Des VARCHAR(2000)
+    Des VARCHAR(2000),
+    IdeRun VARCHAR(36)
 );
+
+CREATE TABLE AweSchRun
+(
+    IdeRun VARCHAR(36) NOT NULL,
+    IdeTskRoo INT NOT NULL,
+    ExeTskRoo INT NOT NULL,
+    LchBy VARCHAR(200),
+    IniDat DATETIME NOT NULL,
+    EndDat DATETIME,
+    Sta INT NOT NULL,
+    PRIMARY KEY (IdeRun)
+);
+
+CREATE TABLE AweSchRunPar
+(
+    IdeRun VARCHAR(36) NOT NULL,
+    Nam VARCHAR(40) NOT NULL,
+    Val VARCHAR(400),
+    PRIMARY KEY (IdeRun, Nam)
+);
+
+CREATE TABLE AweSchRunTsk
+(
+    IdeRun VARCHAR(36) NOT NULL,
+    IdeTsk INT NOT NULL,
+    Sta VARCHAR(10) NOT NULL,
+    ExeTsk INT,
+    UpdDat DATETIME NOT NULL,
+    PRIMARY KEY (IdeRun, IdeTsk)
+);
+
 
 CREATE TABLE AweSchExeExt
 (
@@ -1209,6 +1241,7 @@ ALTER TABLE AweSchCal
 ALTER TABLE AweSchCalDat
     ADD CONSTRAINT UN_AweSchCalDat UNIQUE (Ide);
 CREATE INDEX AweSchExeI1 ON AweSchExe (IdeTsk, GrpTsk, ExeTsk, IniDat);
+CREATE INDEX AweSchExeI2 ON AweSchExe (IdeRun);
 CREATE INDEX AweSchExeLogI1 ON AweSchExeLog (IdeTsk, ExeTsk, LogDat);
 ALTER TABLE AweSchExeLog
     ADD CONSTRAINT UN_AweSchExeLog UNIQUE (IdeTsk, ExeTsk, Src, Sec, Slt);

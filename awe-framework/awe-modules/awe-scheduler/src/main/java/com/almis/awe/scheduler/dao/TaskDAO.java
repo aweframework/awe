@@ -6,10 +6,12 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.task.DeferredExecution;
 import com.almis.awe.scheduler.bean.task.Task;
+import com.almis.awe.scheduler.bean.task.TaskDependency;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.constant.ParameterConstants;
 import com.almis.awe.scheduler.dao.task.DeferredExecutionRepository;
+import com.almis.awe.scheduler.dao.task.FlowRunRepository;
 import com.almis.awe.scheduler.dao.task.TaskExecutionPresenter;
 import com.almis.awe.scheduler.dao.task.TaskExecutionRepository;
 import com.almis.awe.scheduler.dao.task.TaskImmediateLauncher;
@@ -31,8 +33,10 @@ import org.springframework.scheduling.annotation.Async;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,6 +63,7 @@ import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 public class TaskDAO extends ServiceConfig {
 
   private final TaskRepository taskRepository;
+  private final FlowRunRepository flowRunRepository;
   private final TaskExecutionRepository executionRepository;
   private final DeferredExecutionRepository deferredRepository;
   private final TaskScheduling taskScheduling;
@@ -84,8 +89,9 @@ public class TaskDAO extends ServiceConfig {
                  CalendarDAO calendarDAO, ServerDAO serverDAO, FileChecker fileChecker, ExecutionLogStore executionLogStore) {
     this.taskRepository = new TaskRepository(scheduler, queryService, maintainService, queryUtil, calendarDAO,
       serverDAO, this);
+    this.flowRunRepository = new FlowRunRepository(queryService, maintainService, queryUtil);
     this.executionRepository = new TaskExecutionRepository(queryService, maintainService, queryUtil,
-      executionLogStore, storedExecutions);
+      executionLogStore, storedExecutions, flowRunRepository);
     this.deferredRepository = new DeferredExecutionRepository(queryService, maintainService, queryUtil);
     this.taskScheduling = new TaskScheduling(scheduler, fileChecker, taskRepository, executionRepository, this);
     this.taskListPresenter = new TaskListPresenter(scheduler, queryService, queryUtil, taskScheduling, this);
@@ -93,7 +99,7 @@ public class TaskDAO extends ServiceConfig {
       executionRepository, this);
     this.parameterOverrides = new TaskParameterOverrides(this::getProperty);
     this.immediateLauncher = new TaskImmediateLauncher(taskRepository, executionRepository, parameterOverrides,
-      this);
+      this, flowRunRepository);
   }
 
   /**
@@ -628,6 +634,20 @@ public class TaskDAO extends ServiceConfig {
    */
   public Integer getAverageTime(Integer taskId) throws AWException {
     return executionRepository.getAverageTime(taskId);
+  }
+
+  /**
+   * Children of every task, from the stored dependencies
+   *
+   * @return Children by task identifier
+   * @throws AWException Error reading the dependencies
+   */
+  public Map<Integer, List<Integer>> getChildrenByTask() throws AWException {
+    Map<Integer, List<Integer>> children = new HashMap<>();
+    for (TaskDependency dependency : flowRunRepository.getDependencies()) {
+      children.computeIfAbsent(dependency.getParentId(), key -> new ArrayList<>()).add(dependency.getTaskId());
+    }
+    return children;
   }
 
   /**

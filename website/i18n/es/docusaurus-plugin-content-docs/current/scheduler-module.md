@@ -55,6 +55,12 @@ awe.application.module-list = APP, ..., awe-scheduler, ..., awe
 awe.database.migration-modules=AWE,...,SCHEDULER,...
 ```
 
+## Ejecuciones de flujo {#flow-runs}
+
+Toda tarea lanzada por su planificación, de forma manual o por un fichero inicia una ejecución de flujo que agrupa las ejecuciones de sus dependencias, con un estado final y parámetros opcionales. Una tarea con varios padres se lanza una sola vez, cuando han terminado todos sus padres de la ejecución de flujo. La pantalla **Ejecuciones de flujo** (`scheduler-runs`, permiso `scheduler.read`) lista las ejecuciones con sus ejecuciones y tareas omitidas. Consulta **[Dependencias entre tareas](guides/dependencies-guide.md#flow-runs-and-fan-in)**.
+
+Si usas `flyway`, las tablas de las ejecuciones de flujo (`AweSchRun`, `AweSchRunPar`, `AweSchRunTsk` y la columna `IdeRun` de `AweSchExe`) se incluyen en el módulo de migración `SCHEDULER`, versión `1.0.9`.
+
 ## Ejecución remota de comandos por SSH {#ssh-remote-command-execution}
 
 Las tareas de comando pueden ejecutarse en un host remoto mediante SSH (consulta la **[guía del planificador](guides/scheduler-guide.md#command-execution-local-and-remote)**). Los clientes SSH usados para la ejecución remota y para la comprobación de archivos por SFTP se configuran con las siguientes propiedades:

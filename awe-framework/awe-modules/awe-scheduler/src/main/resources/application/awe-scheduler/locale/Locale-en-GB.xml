@@ -158,6 +158,8 @@
   <locale name="SCREEN_TEXT_EXECUTION" value="Execution"/>
   <locale name="SCREEN_TEXT_EXECUTION_DETAILS" value="Execution details"/>
   <locale name="SCREEN_TEXT_LAUNCH_PARAMETERS" value="Launch parameters"/>
+  <locale name="SCHEDULER_TASK_DEPENDENCY_CYCLE_TITLE" value="Circular dependency"/>
+  <locale name="SCHEDULER_TASK_DEPENDENCY_CYCLE_MESSAGE" value="The dependencies of this task would make it launch itself, directly or through other tasks. Remove the dependency that closes the loop."/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_TITLE" value="Parameter configuration error"/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE" value="The property {0} is not defined on the scheduler instance, so the task cannot be launched. Set the property or supply an existing one."/>
   <locale name="SCREEN_TEXT_EXECUTION_TIME" value="Execution time"/>
@@ -177,4 +179,14 @@
   <locale name="TITLE_SCHEDULER_DELETE_CALENDAR_WITH_ASSOCIATED_TASKS" value="There are some task associated to the calendar."/>
   <locale name="TITLE_SCHEDULER_NEW_TASK" value="Task added correctly"/>
   <locale name="WARNING_MESSAGE_TASK_DEPENDENCY_ERROR" value="This task has been marked as warning because the dependent task #{0}  has returned an error on the execution #{1}"/>
+  <locale name="MENU_SCHEDULER_RUNS" value="Flow runs"/>
+  <locale name="HELP_SCREEN_SCHEDULER_RUNS" value="In this screen you can follow the flow runs of the scheduler: their status, executions and skipped tasks"/>
+  <locale name="SCREEN_TEXT_FLOW_RUNS" value="Flow runs"/>
+  <locale name="SCREEN_TEXT_RUN_EXECUTIONS" value="Run executions"/>
+  <locale name="SCREEN_TEXT_RUN_SKIPPED" value="Skipped tasks"/>
+  <locale name="PARAMETER_ROOT_TASK" value="Root task"/>
+  <locale name="PARAMETER_ROOT_EXECUTION" value="Root execution"/>
+  <locale name="PARAMETER_ENDED_AT" value="Ended at"/>
+  <locale name="BUTTON_OPEN_RUN" value="Open run"/>
+  <locale name="HELP_OPEN_RUN_BUTTON" value="Open the flow run of the selected execution"/>
 </locales>

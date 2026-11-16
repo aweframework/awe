@@ -158,6 +158,8 @@
   <locale name="SCREEN_TEXT_EXECUTION" value="L&apos;exécution"/>
   <locale name="SCREEN_TEXT_EXECUTION_DETAILS" value="Les détails de l&apos;exécution"/>
   <locale name="SCREEN_TEXT_LAUNCH_PARAMETERS" value="Paramètres de lancement"/>
+  <locale name="SCHEDULER_TASK_DEPENDENCY_CYCLE_TITLE" value="Dépendance circulaire"/>
+  <locale name="SCHEDULER_TASK_DEPENDENCY_CYCLE_MESSAGE" value="Les dépendances de cette tâche la feraient se lancer elle-même, directement ou via d'autres tâches. Supprimez la dépendance qui ferme la boucle."/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_TITLE" value="Erreur de configuration des paramètres"/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE" value="La propriété {0} n'est pas définie sur l'instance du planificateur, la tâche ne peut donc pas être lancée. Définissez la propriété ou indiquez-en une existante."/>
   <locale name="SCREEN_TEXT_EXECUTION_TIME" value="Temps d&apos;exécution"/>
@@ -177,4 +179,14 @@
   <locale name="TITLE_SCHEDULER_DELETE_CALENDAR_WITH_ASSOCIATED_TASKS" value="Ce calendrier est associé à une ou plusieurs tâches"/>
   <locale name="TITLE_SCHEDULER_NEW_TASK" value="Nouvelle tâche ajouté avec succès"/>
   <locale name="WARNING_MESSAGE_TASK_DEPENDENCY_ERROR" value="Cette tâche a été marqué comme avertissement, car la tâche dépendante #{0} a retourné une erreur à l&apos;exécution #{1}"/>
+  <locale name="MENU_SCHEDULER_RUNS" value="Exécutions de flux"/>
+  <locale name="HELP_SCREEN_SCHEDULER_RUNS" value="Dans cet écran, vous pouvez consulter les exécutions de flux du planificateur : leur statut, leurs exécutions et les tâches ignorées"/>
+  <locale name="SCREEN_TEXT_FLOW_RUNS" value="Exécutions de flux"/>
+  <locale name="SCREEN_TEXT_RUN_EXECUTIONS" value="Exécutions du flux"/>
+  <locale name="SCREEN_TEXT_RUN_SKIPPED" value="Tâches ignorées"/>
+  <locale name="PARAMETER_ROOT_TASK" value="Tâche racine"/>
+  <locale name="PARAMETER_ROOT_EXECUTION" value="Exécution racine"/>
+  <locale name="PARAMETER_ENDED_AT" value="Terminé à"/>
+  <locale name="BUTTON_OPEN_RUN" value="Ouvrir le flux"/>
+  <locale name="HELP_OPEN_RUN_BUTTON" value="Ouvrir l'exécution de flux de l'exécution sélectionnée"/>
 </locales>

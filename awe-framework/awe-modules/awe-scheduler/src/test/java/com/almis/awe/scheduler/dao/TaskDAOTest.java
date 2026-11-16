@@ -1,9 +1,11 @@
 package com.almis.awe.scheduler.dao;
 
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.type.MaintainType;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
 import com.almis.awe.scheduler.bean.task.Task;
@@ -265,112 +267,6 @@ class TaskDAOTest {
 
     assertNotNull(execution);
     assertEquals("MyTaskName", execution.getName());
-  }
-
-  /**
-   * Check task finish ok
-   */
-  @Test
-  void checkTaskFinishOk() throws Exception {
-    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-    DataList taskDataList = getTaskDataList(true);
-    Task task = mockTask();
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(
-      new ServiceData().setDataList(taskDataList));
-    TaskExecution parentExecution = new TaskExecution().setTaskId(2).setExecutionId(11).setStatus(TaskStatus.JOB_OK.getValue());
-    TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(12).setStatus(TaskStatus.JOB_OK.getValue()).setParentExecution(parentExecution);
-
-    // Finish task
-    taskDAO.onFinishTask(task, execution);
-
-    // Assert
-    assertSame(TaskStatus.JOB_OK.getValue(), parentExecution.getStatus());
-  }
-
-  /**
-   * Check task finish error
-   */
-  @Test
-  void checkTaskFinishError() throws Exception {
-    doReturn(aweElements).when(context).getBean(any(Class.class));
-    given(aweElements.getLocaleWithLanguage(anyString(), eq(null), any(Object[].class))).willReturn("LOCALE");
-    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
-
-    DataList taskDataList = getTaskDataList(true);
-    Task task = mockTask();
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(
-      new ServiceData().setDataList(taskDataList));
-    TaskExecution parentExecution = new TaskExecution().setTaskId(2).setExecutionId(11).setStatus(TaskStatus.JOB_OK.getValue());
-    TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(12).setStatus(TaskStatus.JOB_ERROR.getValue()).setParentExecution(parentExecution);
-
-    // Finish task
-    taskDAO.onFinishTask(task, execution);
-
-    // Assert
-    assertSame(TaskStatus.JOB_WARNING.getValue(), parentExecution.getStatus());
-  }
-
-  /**
-   * Check task finish error
-   */
-  @Test
-  void checkTaskFinishErrorParentOk() throws Exception {
-    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-    DataList taskDataList = getTaskDataList(false);
-    Task task = mockTask(false);
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(
-      new ServiceData().setDataList(taskDataList));
-
-    TaskExecution parentExecution = new TaskExecution().setTaskId(2).setExecutionId(11).setStatus(TaskStatus.JOB_OK.getValue());
-    TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(12).setStatus(TaskStatus.JOB_ERROR.getValue()).setParentExecution(parentExecution);
-
-    // Finish task
-    taskDAO.onFinishTask(task, execution);
-
-    // Assert
-    assertSame(TaskStatus.JOB_OK.getValue(), parentExecution.getStatus());
-  }
-
-  /**
-   * Check task finish error
-   */
-  @Test
-  void checkTaskFinishWarning() throws Exception {
-    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-    DataList taskDataList = getTaskDataList(true);
-    Task task = mockTask();
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(
-      new ServiceData().setDataList(taskDataList));
-    TaskExecution parentExecution = new TaskExecution().setTaskId(2).setExecutionId(11).setStatus(TaskStatus.JOB_OK.getValue());
-    TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(12).setStatus(TaskStatus.JOB_WARNING.getValue()).setParentExecution(parentExecution);
-
-    // Finish task
-    taskDAO.onFinishTask(task, execution);
-
-    // Assert
-    assertSame(TaskStatus.JOB_OK.getValue(), parentExecution.getStatus());
-  }
-
-  /**
-   * Check task finish error
-   */
-  @Test
-  void checkTaskFinishInterrupted() throws Exception {
-    given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
-    DataList taskDataList = getTaskDataList(true);
-    Task task = mockTask();
-    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(
-      new ServiceData().setDataList(taskDataList));
-
-    TaskExecution parentExecution = new TaskExecution().setTaskId(2).setExecutionId(11).setStatus(TaskStatus.JOB_OK.getValue());
-    TaskExecution execution = new TaskExecution().setTaskId(1).setExecutionId(12).setStatus(TaskStatus.JOB_INTERRUPTED.getValue()).setParentExecution(parentExecution);
-
-    // Finish task
-    taskDAO.onFinishTask(task, execution);
-
-    // Assert
-    assertSame(TaskStatus.JOB_OK.getValue(), parentExecution.getStatus());
   }
 
   /**
@@ -703,7 +599,7 @@ class TaskDAOTest {
       .setLaunchDependenciesOnWarning(true)
       .setParameterList(List.of(parentParam))
       .setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(5).setParentId(2)));
-    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue());
+    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue()).setRunId("r");
 
     // Child (task 5) declares two VARIABLE parameters: 'date' (parent supplies it) and 'region' (parent does not)
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
@@ -712,6 +608,7 @@ class TaskDAOTest {
       .willReturn(new ServiceData().setDataList(getVariableParameterDataList()));
 
     // Capture the child task that would be scheduled
+    givenFlowRun(2, new TaskDependency().setTaskId(5).setParentId(2), new TaskDependency().setTaskId(9).setParentId(5));
     TaskDAO spyDao = spy(taskDAO);
     doNothing().when(spyDao).addTaskToScheduler(any(Task.class));
     ArgumentCaptor<Task> childCaptor = ArgumentCaptor.forClass(Task.class);
@@ -739,13 +636,14 @@ class TaskDAOTest {
       .setLaunchDependenciesOnWarning(true)
       .setParameterList(Collections.emptyList())
       .setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(5).setParentId(2)));
-    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue());
+    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue()).setRunId("r");
 
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(getTaskDataList(true)));
     given(queryService.launchPrivateQuery(eq(SCHEDULER_TASK_PARAMETERS_QUERY), any(ObjectNode.class)))
       .willReturn(new ServiceData().setDataList(getVariableParameterDataList()));
 
+    givenFlowRun(2, new TaskDependency().setTaskId(5).setParentId(2), new TaskDependency().setTaskId(9).setParentId(5));
     TaskDAO spyDao = spy(taskDAO);
     doNothing().when(spyDao).addTaskToScheduler(any(Task.class));
     ArgumentCaptor<Task> childCaptor = ArgumentCaptor.forClass(Task.class);
@@ -771,13 +669,14 @@ class TaskDAOTest {
       .setLaunchDependenciesOnWarning(true)
       .setParameterList(List.of(parentParam))
       .setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(5).setParentId(2)));
-    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue());
+    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue()).setRunId("r");
 
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(getTaskDataList(true)));
     given(queryService.launchPrivateQuery(eq(SCHEDULER_TASK_PARAMETERS_QUERY), any(ObjectNode.class)))
       .willReturn(new ServiceData().setDataList(getVariableParameterDataList()));
 
+    givenFlowRun(2, new TaskDependency().setTaskId(5).setParentId(2), new TaskDependency().setTaskId(9).setParentId(5));
     TaskDAO spyDao = spy(taskDAO);
     doNothing().when(spyDao).addTaskToScheduler(any(Task.class));
     ArgumentCaptor<Task> childCaptor = ArgumentCaptor.forClass(Task.class);
@@ -803,13 +702,14 @@ class TaskDAOTest {
       .setLaunchDependenciesOnWarning(true)
       .setParameterList(List.of(parentParam))
       .setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(5).setParentId(2)));
-    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue());
+    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue()).setRunId("r");
 
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(getTaskDataList(true)));
     given(queryService.launchPrivateQuery(eq(SCHEDULER_TASK_PARAMETERS_QUERY), any(ObjectNode.class)))
       .willReturn(new ServiceData().setDataList(getVariableParameterDataList()));
 
+    givenFlowRun(2, new TaskDependency().setTaskId(5).setParentId(2), new TaskDependency().setTaskId(9).setParentId(5));
     TaskDAO spyDao = spy(taskDAO);
     doNothing().when(spyDao).addTaskToScheduler(any(Task.class));
     ArgumentCaptor<Task> captor = ArgumentCaptor.forClass(Task.class);
@@ -821,8 +721,8 @@ class TaskDAOTest {
     assertEquals("2026-07-06", findParameter(child, "date").getValue());
 
     // Hop 2: the mutated child finishes and launches its own dependency (grandchild)
-    child.setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(9).setParentId(5)));
-    TaskExecution childExecution = new TaskExecution().setTaskId(5).setExecutionId(21).setStatus(TaskStatus.JOB_OK.getValue());
+    child.setTaskId(5);
+    TaskExecution childExecution = new TaskExecution().setTaskId(5).setExecutionId(21).setStatus(TaskStatus.JOB_OK.getValue()).setRunId("r");
     spyDao.onFinishTask(child, childExecution);
 
     // The grandchild inherits the value accumulated through the child
@@ -846,7 +746,7 @@ class TaskDAOTest {
       .setLaunchDependenciesOnWarning(true)
       .setParameterList(List.of(parentParam))
       .setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(5).setParentId(2)));
-    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue());
+    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue()).setRunId("r");
 
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(getTaskDataList(true)));
@@ -857,6 +757,7 @@ class TaskDAOTest {
     doReturn(aweElements).when(context).getBean(AweElements.class);
     given(aweElements.getProperty("some.property.key")).willReturn("2026-07-06");
 
+    givenFlowRun(2, new TaskDependency().setTaskId(5).setParentId(2), new TaskDependency().setTaskId(9).setParentId(5));
     TaskDAO spyDao = spy(taskDAO);
     doNothing().when(spyDao).addTaskToScheduler(any(Task.class));
     ArgumentCaptor<Task> childCaptor = ArgumentCaptor.forClass(Task.class);
@@ -883,13 +784,14 @@ class TaskDAOTest {
       .setLaunchDependenciesOnWarning(true)
       .setParameterList(List.of(parentParam))
       .setDependencyList(Collections.singletonList(new TaskDependency().setTaskId(5).setParentId(2)));
-    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue());
+    TaskExecution execution = new TaskExecution().setTaskId(2).setExecutionId(20).setStatus(TaskStatus.JOB_OK.getValue()).setRunId("r");
 
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(getTaskDataList(true)));
     given(queryService.launchPrivateQuery(eq(SCHEDULER_TASK_PARAMETERS_QUERY), any(ObjectNode.class)))
       .willReturn(new ServiceData().setDataList(getNonVariableParameterDataList()));
 
+    givenFlowRun(2, new TaskDependency().setTaskId(5).setParentId(2), new TaskDependency().setTaskId(9).setParentId(5));
     TaskDAO spyDao = spy(taskDAO);
     doNothing().when(spyDao).addTaskToScheduler(any(Task.class));
     ArgumentCaptor<Task> childCaptor = ArgumentCaptor.forClass(Task.class);
@@ -900,6 +802,28 @@ class TaskDAOTest {
     verify(spyDao).addTaskToScheduler(childCaptor.capture());
     Task child = childCaptor.getValue();
     assertEquals("test", findParameter(child, "database").getValue());
+  }
+
+  /**
+   * Stub the flow run of the tests that finish a task: run "r" rooted at the given task with the given dependencies,
+   * no join rows, no parameters and guarded updates that always win.
+   */
+  private void givenFlowRun(int root, TaskDependency... dependencies) throws Exception {
+    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryService.launchPrivateQuery(eq("flowRunTasks"), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
+    given(queryService.launchPrivateQuery(eq("flowRunExecutions"), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
+    given(queryService.launchPrivateQuery(eq("flowRunParameters"), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
+    DataList rootList = new DataList();
+    rootList.addRow(new HashMap<>(Map.of("rootTaskId", new CellData(root))));
+    given(queryService.launchPrivateQuery(eq("flowRun"), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(rootList));
+    DataList dependencyList = new DataList();
+    for (TaskDependency dependency : dependencies) {
+      dependencyList.addRow(new HashMap<>(Map.of("taskId", new CellData(dependency.getTaskId()),
+        "parentId", new CellData(dependency.getParentId()))));
+    }
+    given(queryService.launchPrivateQuery(eq("allTaskDependencies"), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(dependencyList));
+    given(maintainService.launchPrivateMaintain(anyString(), any(ObjectNode.class)))
+      .willReturn(new ServiceData().addResultDetails(new MaintainResultDetails(MaintainType.UPDATE, 1L)));
   }
 
   /**

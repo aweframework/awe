@@ -44,3 +44,36 @@ The difference between them is just that one is blocking whereas the other is no
 <img alt="Workflow example" src={require('@docusaurus/useBaseUrl').default('img/Dependency-tasks.png')} />
 
 This image shows an example on how to create a workflow using the scheduler dependencies concatenation.
+
+## Flow runs and fan-in
+
+A task that is launched by its schedule, by hand or by a file starts a **flow run**. The run groups that execution and every
+dependency launched from it, directly or through other dependencies: these tasks are the **scope** of the run.
+
+A task with several parents (**fan-in**) is launched once, not once per parent. The child waits until every parent that is in
+the scope of the run has ended, and it is launched only if each one met its condition: it ended successfully, or with a
+warning or an error when the parent launches its dependencies on warning or on error. If any parent did not meet its
+condition, the child is **skipped**, and the skip propagates: the children of a skipped task are skipped in turn.
+
+The run ends when no task is waiting or running. Its status is the worst of its executions: **error** (error, stopped or
+interrupted), then **warning** (warning, or any skipped task), then **ok**.
+
+### Parameters of a dependency
+
+Each parameter of a dependency takes the first value found in this order:
+
+1. the default value of the task;
+2. the value propagated by the parent that completes the join (the one that ends last);
+3. the run parameter with the same name. Run parameters apply only to `VARIABLE` parameters: the child defines which
+   parameters it accepts.
+
+### Circular dependencies
+
+Saving a task whose dependencies would make it launch itself, directly or through other tasks, is rejected with a
+**Circular dependency** message. Remove the dependency that closes the loop.
+
+### Flow runs screen
+
+The **Flow runs** option of the scheduler menu lists the runs, newest first, with their status, root task, root execution,
+who launched it, and start and end times. Selecting a run shows its executions and the tasks that were skipped. In the task
+manager, select an execution and press **Open run** to go straight to its run.

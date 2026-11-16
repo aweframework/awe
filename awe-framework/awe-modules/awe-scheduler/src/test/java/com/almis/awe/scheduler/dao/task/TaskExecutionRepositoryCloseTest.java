@@ -41,12 +41,14 @@ class TaskExecutionRepositoryCloseTest {
   private QueryUtil queryUtil;
   @Mock
   private ExecutionLogStore executionLogStore;
+  @Mock
+  private FlowRunRepository flowRuns;
 
   private TaskExecutionRepository repository;
 
   @BeforeEach
   void setUp() {
-    repository = new TaskExecutionRepository(queryService, maintainService, queryUtil, executionLogStore, 10);
+    repository = new TaskExecutionRepository(queryService, maintainService, queryUtil, executionLogStore, 10, flowRuns);
     given(queryUtil.getParameters()).willAnswer(invocation -> JsonNodeFactory.instance.objectNode());
   }
 

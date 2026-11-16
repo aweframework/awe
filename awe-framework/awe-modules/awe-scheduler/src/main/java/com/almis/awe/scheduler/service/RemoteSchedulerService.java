@@ -232,6 +232,18 @@ public class RemoteSchedulerService extends ServiceConfig {
   }
 
   /**
+   * Reject the dependencies a task is saved with when they close a cycle. It reads the stored dependencies, so it
+   * runs on this instance whether the scheduler is remote or not.
+   *
+   * @param taskId   Task identifier
+   * @param children Tasks launched when the task ends
+   * @throws AWException The dependencies close a cycle
+   */
+  public void validateTaskDependencies(Integer taskId, List<?> children) throws AWException {
+    schedulerService.validateTaskDependencies(taskId, children);
+  }
+
+  /**
    * Delete a task from scheduler
    * Requires QUARTZ
    *

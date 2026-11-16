@@ -21,6 +21,7 @@ public class TaskExecution implements Serializable {
   private Integer status;
   private String launchedBy;
   private String description;
+  private String runId;
   private TaskExecution parentExecution;
 
   public String getKey() {

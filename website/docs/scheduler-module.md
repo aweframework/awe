@@ -55,6 +55,12 @@ awe.application.module-list = APP, ..., awe-scheduler, ..., awe
 awe.database.migration-modules=AWE,...,SCHEDULER,...
 ```
 
+## Flow runs
+
+Every task launched by its schedule, by hand or by a file starts a flow run that groups the executions of its dependencies, with a final status and optional run parameters. A task with several parents is launched once, when all its parents in the run have ended. The **Flow runs** screen (`scheduler-runs`, permission `scheduler.read`) lists the runs with their executions and skipped tasks. See **[Dependencies between tasks](guides/dependencies-guide.md#flow-runs-and-fan-in)**.
+
+If you use `flyway`, the tables of the flow runs (`AweSchRun`, `AweSchRunPar`, `AweSchRunTsk` and the `IdeRun` column of `AweSchExe`) come with the `SCHEDULER` migration module, version `1.0.9`.
+
 ## SSH remote command execution
 
 Command tasks can run on a remote host over SSH (see the **[Scheduler guide](guides/scheduler-guide.md#command-execution-local-and-remote)**). The SSH clients used for remote execution and for SFTP file checking are configured with the following properties:

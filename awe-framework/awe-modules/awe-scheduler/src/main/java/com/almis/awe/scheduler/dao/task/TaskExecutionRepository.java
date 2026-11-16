@@ -24,6 +24,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_GROUP;
@@ -54,6 +55,7 @@ public class TaskExecutionRepository {
   private final QueryUtil queryUtil;
   private final ExecutionLogStore executionLogStore;
   private final int defaultStoredExecutions;
+  private final FlowRunRepository flowRuns;
 
   /**
    * Constructor
@@ -63,14 +65,17 @@ public class TaskExecutionRepository {
    * @param queryUtil               Query utilities
    * @param executionLogStore       Execution log store
    * @param defaultStoredExecutions Executions kept when the task does not define its own value
+   * @param flowRuns                Flow run repository
    */
   public TaskExecutionRepository(QueryService queryService, MaintainService maintainService, QueryUtil queryUtil,
-                                 ExecutionLogStore executionLogStore, int defaultStoredExecutions) {
+                                 ExecutionLogStore executionLogStore, int defaultStoredExecutions,
+                                 FlowRunRepository flowRuns) {
     this.queryService = queryService;
     this.maintainService = maintainService;
     this.queryUtil = queryUtil;
     this.executionLogStore = executionLogStore;
     this.defaultStoredExecutions = defaultStoredExecutions;
+    this.flowRuns = flowRuns;
   }
 
   /**
@@ -81,7 +86,12 @@ public class TaskExecutionRepository {
    * @throws AWException Error starting the task
    */
   public TaskExecution startTask(Task task) throws AWException {
+    // A dependency inherits the run of its parent. Any other launch starts its own run; the id is kept out of the
+    // task because scheduled tasks reuse the same instance on every firing
+    boolean root = task.getRunId() == null;
+    String runId = root ? UUID.randomUUID().toString() : task.getRunId();
     ObjectNode parameters = queryUtil.getParameters();
+    parameters.put("runId", runId);
     parameters.put(TASK_ID, task.getTaskId());
     parameters.put(TASK_GROUP, task.getGroup());
     parameters.put(TASK_LAUNCHER, task.getLauncher());
@@ -96,6 +106,12 @@ public class TaskExecutionRepository {
     // Set parent execution if defined
     if (execution != null) {
       execution.setParentExecution(task.getParentExecution());
+      execution.setRunId(runId);
+      if (root) {
+        flowRuns.createRun(runId, task, execution);
+      } else {
+        flowRuns.markStarted(runId, task.getTaskId(), execution.getExecutionId());
+      }
     }
 
     return execution;
