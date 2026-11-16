@@ -61,6 +61,20 @@ class MaintainXmlTest {
   }
 
   @Test
+  void updateSchedulerTaskChecksTheDependenciesForCyclesBeforeChangingAnything() throws IOException {
+    String xml = readDescriptor();
+
+    int start = xml.indexOf("<target name=\"UpdateSchedulerTask\"");
+    int end = xml.indexOf("</target>", start);
+    assertTrue(start >= 0, "UpdateSchedulerTask target must exist");
+    String target = xml.substring(start, end);
+
+    int validation = target.indexOf("<serve service=\"validateTaskDependencies\">");
+    assertTrue(validation >= 0, "UpdateSchedulerTask must validate the dependencies");
+    assertTrue(validation < target.indexOf("<update"), "the validation must run before the first update");
+  }
+
+  @Test
   void loadExecutionScreenLocatorVariableIsRenamedToTheStoreNeutralName() throws IOException {
     String xml = readDescriptor();
 

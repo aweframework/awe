@@ -112,6 +112,7 @@
     <field id="IniDat" alias="ExeLstTim"/>
     <field id="ExeTim" alias="ExeTim"/>
     <field id="LchBy" alias="LchBy"/>
+    <field id="IdeRun" alias="ExeRun"/>
     <compound alias="ExeLchIco">
       <computed format="[TypLch]" alias="icon" translate="LchTxtIco"/>
       <computed format="[TypLch]" alias="style" translate="LchTxtSty"/>
@@ -143,6 +144,7 @@
     <field id="ExeLchIco"/>
     <field id="ExeStaIco"/>
     <field id="ExePrg"/>
+    <field id="ExeRun"/>
     <field id="LchBy" alias="ExeLchBy"/>
     <field id="ExecutionLogPath"/>
     <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
@@ -286,6 +288,7 @@
     <field id="ExeTim" alias="executionTime" table="Exe"/>
     <field id="Sta" alias="status" table="Exe"/>
     <field id="LchBy" alias="launchedBy" table="Exe"/>
+    <field id="IdeRun" alias="runId" table="Exe"/>
     <field id="Des" alias="description" table="Exe"/>
     <where>
       <and>
@@ -313,6 +316,7 @@
     <field id="ExeTim" alias="executionTime" table="Exe"/>
     <field id="Sta" alias="status" table="Exe"/>
     <field id="LchBy" alias="launchedBy" table="Exe"/>
+    <field id="IdeRun" alias="runId" table="Exe"/>
     <field id="Des" alias="description" table="Exe"/>
     <where>
       <and>
@@ -1108,6 +1112,157 @@
       </and>
     </where>
     <variable id="suggest" type="STRINGB" name="suggest" />
+  </query>
+
+  <!-- Flow runs: run data -->
+  <query id="flowRun">
+    <table id="AweSchRun"/>
+    <field id="IdeTskRoo" alias="rootTaskId"/>
+    <where>
+      <and>
+        <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+      </and>
+    </where>
+    <variable id="runId" type="STRING" name="runId"/>
+  </query>
+
+  <!-- Flow runs: run list for the run screen (a run id selected in the execution grid narrows it to that run) -->
+  <query id="getFlowRunList" permission="scheduler.read">
+    <table id="AweSchRun" alias="Run"/>
+    <field id="IdeRun" alias="id" table="Run"/>
+    <field id="IdeRun" alias="IdeRun" table="Run"/>
+    <field id="Nam" alias="RunTsk" table="Tsk"/>
+    <field id="ExeTskRoo" alias="RunExe" table="Run"/>
+    <field id="LchBy" alias="RunLchBy" table="Run"/>
+    <field id="IniDat" alias="RunIni" table="Run" transform="TIMESTAMP"/>
+    <field id="EndDat" alias="RunEnd" table="Run" transform="TIMESTAMP"/>
+    <field id="Sta" alias="Sta" table="Run"/>
+    <compound alias="RunStaIco">
+      <computed format="[Sta]" alias="icon" translate="StaIco"/>
+      <computed format="[Sta]" alias="style" translate="StaSty"/>
+      <computed format="[Sta]" alias="value" />
+      <computed format="[Sta]" alias="label" translate="StaTyp"/>
+    </compound>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Tsk"/>
+      <and>
+        <filter left-field="IdeTskRoo" left-table="Run" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeRun" left-table="Run" condition="eq" right-variable="runId" optional="true"/>
+      </and>
+    </where>
+    <order-by field="IniDat" table="Run" type="DESC"/>
+    <variable id="runId" type="STRING" name="ExeRun.selected" optional="true"/>
+  </query>
+
+  <!-- Flow runs: executions of the selected run -->
+  <query id="getFlowRunExecutionList" permission="scheduler.read">
+    <table id="AweSchExe" alias="Exe"/>
+    <field id="IdeTsk" alias="RxTskId" table="Exe"/>
+    <field id="Nam" alias="RxTsk" table="Tsk"/>
+    <field id="ExeTsk" alias="RxExe" table="Exe"/>
+    <computed alias="id" format="[RxTskId]-[RxExe]"/>
+    <field id="IniDat" alias="RxIni" table="Exe" transform="TIMESTAMP"/>
+    <field id="EndDat" alias="RxEnd" table="Exe" transform="TIMESTAMP"/>
+    <field id="Sta" alias="Sta" table="Exe"/>
+    <compound alias="RxStaIco">
+      <computed format="[Sta]" alias="icon" translate="StaIco"/>
+      <computed format="[Sta]" alias="style" translate="StaSty"/>
+      <computed format="[Sta]" alias="value" />
+      <computed format="[Sta]" alias="label" translate="StaTyp"/>
+    </compound>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Tsk"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeRun" left-table="Exe" condition="eq" right-variable="runId"/>
+      </and>
+    </where>
+    <order-by field="IniDat" table="Exe" type="ASC"/>
+    <variable id="runId" type="STRING" name="IdeRun.selected"/>
+  </query>
+
+  <!-- Flow runs: tasks of the selected run skipped because a parent did not meet its condition -->
+  <query id="getFlowRunSkippedList" permission="scheduler.read">
+    <table id="AweSchRunTsk" alias="Rtk"/>
+    <field id="IdeTsk" alias="id" table="Rtk"/>
+    <field id="IdeTsk" alias="RsTskId" table="Rtk"/>
+    <field id="Nam" alias="RsTsk" table="Tsk"/>
+    <field id="UpdDat" alias="RsEnd" table="Rtk" transform="TIMESTAMP"/>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Tsk"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Rtk" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeRun" left-table="Rtk" condition="eq" right-variable="runId"/>
+        <filter left-field="Sta" left-table="Rtk" condition="eq">
+          <right-operand>
+            <constant value="SKIPPED" type="STRING"/>
+          </right-operand>
+        </filter>
+      </and>
+    </where>
+    <order-by field="UpdDat" table="Rtk" type="ASC"/>
+    <variable id="runId" type="STRING" name="IdeRun.selected"/>
+  </query>
+
+  <!-- Flow runs: run parameters -->
+  <query id="flowRunParameters">
+    <table id="AweSchRunPar"/>
+    <field id="Nam" alias="name"/>
+    <field id="Val" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+      </and>
+    </where>
+    <variable id="runId" type="STRING" name="runId"/>
+  </query>
+
+  <!-- Flow runs: join state of the tasks of a run -->
+  <query id="flowRunTasks">
+    <table id="AweSchRunTsk"/>
+    <field id="IdeTsk" alias="taskId"/>
+    <field id="Sta" alias="status"/>
+    <field id="ExeTsk" alias="executionId"/>
+    <where>
+      <and>
+        <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+      </and>
+    </where>
+    <variable id="runId" type="STRING" name="runId"/>
+  </query>
+
+  <!-- Flow runs: executions of a run -->
+  <query id="flowRunExecutions">
+    <table id="AweSchExe"/>
+    <field id="IdeTsk" alias="taskId"/>
+    <field id="ExeTsk" alias="executionId"/>
+    <field id="Sta" alias="status"/>
+    <where>
+      <and>
+        <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+      </and>
+    </where>
+    <variable id="runId" type="STRING" name="runId"/>
+  </query>
+
+  <!-- Flow runs: every task dependency (child and parent), to build the flow graph -->
+  <query id="allTaskDependencies">
+    <table id="AweSchTskDpn"/>
+    <field id="IdeTsk" alias="taskId"/>
+    <field id="IdePrn" alias="parentId"/>
+    <order-by field="DpnOrd" type="ASC"/>
   </query>
 
 </queries>

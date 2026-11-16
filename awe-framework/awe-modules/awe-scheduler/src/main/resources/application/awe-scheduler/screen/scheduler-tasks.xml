@@ -35,6 +35,14 @@
         <dependency-element id="GrdTskLst" condition="ne" value="1" />
       </dependency>
     </button>
+    <!-- Opens the flow run of the selected execution -->
+    <button label="BUTTON_OPEN_RUN" icon="sitemap" id="ButOpnRun" help="HELP_OPEN_RUN_BUTTON">
+      <button-action type="check-one-selected" target="GrdExeLst" />
+      <button-action type="screen" target="scheduler-runs" />
+      <dependency target-type="disable" initial="true">
+        <dependency-element id="GrdExeLst" condition="ne" value="1" />
+      </dependency>
+    </button>
     <button label="BUTTON_DELETE" icon="trash" id="ButDel" help="HELP_DELETE_BUTTON">
       <button-action type="check-some-selected" target="GrdTskLst" />
       <button-action type="confirm" target="DelMsg" />
@@ -140,6 +148,7 @@
       </window>
       <window id="ExecutionsWindow" style="expand hidden" label="SCREEN_TEXT_EXECUTIONS" icon="gears" expandible="vertical">
         <grid id="GrdExeLst" style="expand" server-action="data" target-action="getTaskExecutionListFixed" pagination-disabled="true" row-numbers="false">
+          <column name="ExeRun" hidden="true" />
           <column label="#" name="ExeTsk" sortable="false" align="center" charlength="6" />
           <column label="PARAMETER_TYPE" name="ExeLchIco" sortable="false" component="icon" align="center" charlength="8" />
           <column label="PARAMETER_LAUNCHED_BY" name="ExeLchBy" sortable="false" align="center" charlength="12" />

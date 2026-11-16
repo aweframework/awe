@@ -5,20 +5,30 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskDependency;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
+import com.almis.awe.scheduler.dao.task.FlowRules.ExecutionRow;
+import com.almis.awe.scheduler.dao.task.FlowRules.JoinRow;
+import com.almis.awe.scheduler.dao.task.FlowRules.Outcome;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.enums.TriggerType;
 import com.almis.awe.scheduler.factory.TriggerFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 
 /**
  * Immediate task launches: manual launches with operator supplied values, dependency launches propagating the
- * parent parameter values, and the end-of-task handling that updates the parent status and launches dependencies.
+ * parent parameter values, and the end-of-task handling of a flow run: a child with several parents is launched
+ * once, when all its parents inside the run have ended and met their condition, and skipped when one of them failed.
  */
 @Slf4j
 public class TaskImmediateLauncher {
@@ -30,6 +40,7 @@ public class TaskImmediateLauncher {
   private final TaskExecutionRepository executionRepository;
   private final TaskParameterOverrides parameterOverrides;
   private final ServiceConfig serviceConfig;
+  private final FlowRunRepository flowRuns;
 
   /**
    * Constructor
@@ -38,13 +49,16 @@ public class TaskImmediateLauncher {
    * @param executionRepository Task execution repository
    * @param parameterOverrides  Task parameter override rules
    * @param serviceConfig       Service configuration giving access to locales
+   * @param flowRuns            Flow run repository
    */
   public TaskImmediateLauncher(TaskRepository taskRepository, TaskExecutionRepository executionRepository,
-                               TaskParameterOverrides parameterOverrides, ServiceConfig serviceConfig) {
+                               TaskParameterOverrides parameterOverrides, ServiceConfig serviceConfig,
+                               FlowRunRepository flowRuns) {
     this.taskRepository = taskRepository;
     this.executionRepository = executionRepository;
     this.parameterOverrides = parameterOverrides;
     this.serviceConfig = serviceConfig;
+    this.flowRuns = flowRuns;
   }
 
   /**
@@ -102,21 +116,199 @@ public class TaskImmediateLauncher {
   }
 
   /**
-   * On finish task event: update the parent status and launch the dependencies when the task configuration
-   * allows it for the execution status
+   * On finish task event: evaluate the join of each child of the task inside its flow run (launch it, skip it or keep
+   * it waiting), warn the parents of a failed task when they are configured so, and end the run when nothing is left
+   * to do
    *
    * @param task      Finished task
    * @param execution Task execution
    * @param submitter Scheduling entry point for the dependencies
-   * @throws AWException Error updating the parent or launching the dependencies
+   * @throws AWException Error updating the run or launching the dependencies
    */
   public void onFinishTask(Task task, TaskExecution execution, TaskSubmitter submitter) throws AWException {
-    // Update parent status if failed
-    updateParentStatus(execution);
+    String runId = execution.getRunId();
+    Integer root = runId == null ? null : flowRuns.getRootTaskId(runId);
+    if (root == null) {
+      log.warn("[SCHEDULER][FLOW] Execution {} of task {} has no flow run: its dependencies are not evaluated",
+        execution.getExecutionId(), execution.getTaskId());
+      return;
+    }
 
-    // Check if the dependencies have to be executed
-    if (checkDependencyExecution(task, execution)) {
-      executeDependencies(task, execution, submitter);
+    FlowContext flow = new FlowContext(runId, flowGraph(root), task, execution, submitter);
+    for (Integer child : flow.graph.children(task.getTaskId())) {
+      evaluate(flow, child);
+    }
+    warnParents(flow);
+    finishRun(flow);
+  }
+
+  /**
+   * Decide the join of a child: skip it when an ended parent failed its condition, launch it when every parent
+   * ended and met it, otherwise leave it waiting. Only the caller whose guarded update changes the row acts.
+   *
+   * @param flow  Run being evaluated
+   * @param child Child task
+   */
+  private void evaluate(FlowContext flow, Integer child) throws AWException {
+    if (!flow.graph.scope().contains(child)) {
+      return;
+    }
+    List<JoinRow> joins = flowRuns.getJoins(flow.runId);
+    flowRuns.register(flow.runId, child, joins);
+    joins = flowRuns.getJoins(flow.runId);
+    List<Outcome> outcomes = new ArrayList<>();
+    for (Integer parent : flow.graph.parents(child)) {
+      outcomes.add(outcome(flow, parent, joins));
+    }
+
+    switch (FlowRules.decide(outcomes)) {
+      case SKIP -> {
+        if (flowRuns.transition(flow.runId, child, FlowRules.WAITING, FlowRules.SKIPPED)) {
+          log.info("[SCHEDULER][FLOW] Task #{} skipped in run {}", child, flow.runId);
+          for (Integer grandchild : flow.graph.children(child)) {
+            evaluate(flow, grandchild);
+          }
+        }
+      }
+      case LAUNCH -> {
+        if (flowRuns.transition(flow.runId, child, FlowRules.WAITING, FlowRules.LAUNCHED)) {
+          // Propagate the parent parameter values (#724): the child decides which of its VARIABLE parameters apply.
+          // The run parameters are applied on top by the launch.
+          launchDependency(child, flow.execution, parameterOverrides.propagatedValues(flow.task), flow.submitter);
+        }
+      }
+      default -> log.debug("[SCHEDULER][FLOW] Task #{} waits for its parents in run {}", child, flow.runId);
+    }
+  }
+
+  /**
+   * Situation of a parent of the run: the finished execution is the one just received, any other parent is read
+   * from the run
+   */
+  private Outcome outcome(FlowContext flow, Integer parent, List<JoinRow> joins) throws AWException {
+    boolean skipped = joins.stream()
+      .anyMatch(join -> join.taskId().equals(parent) && FlowRules.SKIPPED.equals(join.status()));
+    Integer status = executionOf(flow, parent).map(ExecutionRow::status).orElse(null);
+    boolean ended = status != null && status != TaskStatus.JOB_OK.getValue()
+      && status != TaskStatus.JOB_RUNNING.getValue() && status != TaskStatus.JOB_QUEUED.getValue();
+    Task parentTask = ended ? flow.taskOf(parent) : null;
+    return FlowRules.parentOutcome(status, skipped,
+      parentTask != null && parentTask.isLaunchDependenciesOnWarning(),
+      parentTask != null && parentTask.isLaunchDependenciesOnError());
+  }
+
+  /**
+   * Latest execution of a task in the run, the finished one when it is the task that just ended
+   */
+  private Optional<ExecutionRow> executionOf(FlowContext flow, Integer taskId) throws AWException {
+    if (taskId.equals(flow.execution.getTaskId())) {
+      return Optional.of(new ExecutionRow(taskId, flow.execution.getExecutionId(), flow.execution.getStatus()));
+    }
+    return flowRuns.getExecutions(flow.runId).stream()
+      .filter(execution -> execution.taskId().equals(taskId))
+      .max(Comparator.comparing(ExecutionRow::executionId));
+  }
+
+  /**
+   * Set every parent of a failed task to warning when the parent is configured so
+   */
+  private void warnParents(FlowContext flow) throws AWException {
+    TaskExecution execution = flow.execution;
+    if (execution.getStatus() == null || TaskStatus.JOB_ERROR.getValue() != execution.getStatus()) {
+      return;
+    }
+    try {
+      for (Integer parent : flow.graph.parents(execution.getTaskId())) {
+        Optional<ExecutionRow> parentExecution = executionOf(flow, parent);
+        if (parentExecution.isPresent() && flow.taskOf(parent).isSetTaskOnWarningIfDependencyError()) {
+          executionRepository.changeStatus(new TaskExecution().setTaskId(parent)
+              .setExecutionId(parentExecution.get().executionId()).setRunId(flow.runId), TaskStatus.JOB_WARNING,
+            serviceConfig.getLocale(WARNING_MESSAGE_TASK_DEPENDENCY_ERROR,
+              execution.getTaskId().toString(), execution.getExecutionId().toString()));
+        }
+      }
+    } catch (Exception exc) {
+      throw new AWException("Error setting task status", exc);
+    }
+  }
+
+  /**
+   * End the run when nothing is pending, with the worst status of its executions
+   */
+  private void finishRun(FlowContext flow) throws AWException {
+    List<JoinRow> joins = flowRuns.getJoins(flow.runId);
+    Map<Integer, ExecutionRow> executions = new HashMap<>();
+    for (ExecutionRow row : flowRuns.getExecutions(flow.runId)) {
+      executions.merge(row.taskId(), row, (a, b) -> a.executionId() >= b.executionId() ? a : b);
+    }
+    // The execution that just ended may not be in the read yet when the database lags behind the event
+    executions.put(flow.execution.getTaskId(), new ExecutionRow(flow.execution.getTaskId(),
+      flow.execution.getExecutionId(), flow.execution.getStatus()));
+
+    if (!FlowRules.isPending(joins, executions.values())) {
+      TaskStatus status = FlowRules.runStatus(executions.values().stream().map(ExecutionRow::status).toList(),
+        joins.stream().anyMatch(join -> FlowRules.SKIPPED.equals(join.status())));
+      if (flowRuns.endRun(flow.runId, status)) {
+        log.info("[SCHEDULER][FLOW] Run {} ended with status {}", flow.runId, status);
+      }
+    }
+  }
+
+  /**
+   * Dependency graph reachable from the run root
+   */
+  private FlowGraph flowGraph(Integer root) throws AWException {
+    Map<Integer, List<Integer>> children = new LinkedHashMap<>();
+    Map<Integer, List<Integer>> parents = new LinkedHashMap<>();
+    for (TaskDependency dependency : flowRuns.getDependencies()) {
+      children.computeIfAbsent(dependency.getParentId(), key -> new ArrayList<>()).add(dependency.getTaskId());
+      parents.computeIfAbsent(dependency.getTaskId(), key -> new ArrayList<>()).add(dependency.getParentId());
+    }
+    return new FlowGraph(FlowRules.scope(root, children), children, parents);
+  }
+
+  /**
+   * Dependency graph of a run: the tasks inside it and the children and parents of each task
+   */
+  private record FlowGraph(Set<Integer> scope, Map<Integer, List<Integer>> childrenByTask,
+                           Map<Integer, List<Integer>> parentsByTask) {
+
+    List<Integer> children(Integer taskId) {
+      return childrenByTask.getOrDefault(taskId, List.of());
+    }
+
+    List<Integer> parents(Integer taskId) {
+      return parentsByTask.getOrDefault(taskId, List.of()).stream().filter(scope::contains).toList();
+    }
+  }
+
+  /**
+   * State of the evaluation of one finished execution: the run, its graph and the tasks loaded so far
+   */
+  private final class FlowContext {
+    private final String runId;
+    private final FlowGraph graph;
+    private final Task task;
+    private final TaskExecution execution;
+    private final TaskSubmitter submitter;
+    private final Map<Integer, Task> tasks = new HashMap<>();
+
+    private FlowContext(String runId, FlowGraph graph, Task task, TaskExecution execution, TaskSubmitter submitter) {
+      this.runId = runId;
+      this.graph = graph;
+      this.task = task;
+      this.execution = execution;
+      this.submitter = submitter;
+      this.tasks.put(task.getTaskId(), task);
+    }
+
+    private Task taskOf(Integer taskId) throws AWException {
+      Task loaded = tasks.get(taskId);
+      if (loaded == null) {
+        loaded = taskRepository.loadTask(taskId);
+        tasks.put(taskId, loaded);
+      }
+      return loaded;
     }
   }
 
@@ -140,6 +332,17 @@ public class TaskImmediateLauncher {
 
       // Override variable parameters with the operator supplied values
       parameterOverrides.apply(task, variables, parameterOverrides.overridableSources(triggerType));
+      if (TriggerType.DEPENDENCY.equals(triggerType)) {
+        // A dependency belongs to the run of its parent, whose parameters have the last word
+        if (parent != null && parent.getRunId() != null) {
+          task.setRunId(parent.getRunId());
+          parameterOverrides.apply(task, flowRuns.getParameters(parent.getRunId()),
+            parameterOverrides.overridableSources(triggerType));
+        }
+      } else {
+        // The operator values of a manual launch become the parameters of its run
+        task.setRunParameters(variables);
+      }
 
       JobDataMap dataMap = new JobDataMap();
       dataMap.put(TASK, task);

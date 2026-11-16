@@ -10,6 +10,7 @@ import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.dao.CalendarDAO;
 import com.almis.awe.scheduler.dao.SchedulerDAO;
 import com.almis.awe.scheduler.dao.TaskDAO;
+import com.almis.awe.scheduler.util.DependencyCycles;
 import lombok.extern.slf4j.Slf4j;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -17,6 +18,7 @@ import tools.jackson.databind.node.ObjectNode;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author pgarcia
@@ -26,6 +28,9 @@ public class SchedulerService extends ServiceConfig {
 
   private static final String SCHEDULER_PROPERTY_NOT_FOUND_TITLE = "SCHEDULER_PROPERTY_NOT_FOUND_TITLE";
   private static final String SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE = "SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE";
+
+  private static final String TASK_DEPENDENCY_CYCLE_TITLE = "SCHEDULER_TASK_DEPENDENCY_CYCLE_TITLE";
+  private static final String TASK_DEPENDENCY_CYCLE_MESSAGE = "SCHEDULER_TASK_DEPENDENCY_CYCLE_MESSAGE";
 
   // Locales
   private static final String ERROR_MESSAGE_SCHEDULER_PAUSE_TASK = "ERROR_MESSAGE_SCHEDULER_PAUSE_TASK";
@@ -234,6 +239,27 @@ public class SchedulerService extends ServiceConfig {
       .setType(AnswerType.ERROR)
       .setTitle(getLocale(SCHEDULER_PROPERTY_NOT_FOUND_TITLE))
       .setMessage(getLocale(SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE, String.join(", ", unresolved)));
+  }
+
+  /**
+   * Reject the dependencies a task is saved with when they close a cycle: a task that depends on itself, directly or
+   * through other tasks, would never finish its flow
+   *
+   * @param taskId   Task identifier
+   * @param children Tasks launched when the task ends
+   * @throws AWException The dependencies close a cycle
+   */
+  public void validateTaskDependencies(Integer taskId, List<?> children) throws AWException {
+    // The client may send the ids as numbers or as text
+    List<Integer> saved = children == null ? List.of() : children.stream()
+      .filter(Objects::nonNull)
+      .map(String::valueOf)
+      .filter(id -> !id.isBlank())
+      .map(Integer::valueOf)
+      .toList();
+    if (DependencyCycles.closesCycle(taskId, saved, taskDAO.getChildrenByTask())) {
+      throw new AWException(getLocale(TASK_DEPENDENCY_CYCLE_TITLE), getLocale(TASK_DEPENDENCY_CYCLE_MESSAGE));
+    }
   }
 
   /**

@@ -14,7 +14,7 @@ import java.util.Calendar;
  * the class creates its own prerequisites (a calendar and a manual task, with names that no other class uses) at the start
  * and deletes them at the end. It does not need any other class, but "run now" needs the scheduler to be running, the state
  * in which the application starts. The other launch types and the stored launch, dependencies and states are proven by
- * {@code SchedulerTaskMaintainTest}.
+ * {@code SchedulerTaskMaintainTest}. The run that the launch creates is opened in the flow run screen.
  */
 @Tag("SchedulerIT")
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -158,10 +158,30 @@ class SchedulerScheduledTaskTestsIT extends AbstractSchedulerTests {
   }
 
   /**
+   * Open the flow run that the run-now launch created: the run lists with its root task and its final status, and selecting
+   * it lists its executions. It runs before the dependencies are added, which rename the task. The stored run, its joins
+   * and its queries are proven by {@code SchedulerFlowRunTest}
+   */
+  @Test
+  void t039_openFlowRun() {
+    // Title
+    setTestTitle("Open the flow run of the execution");
+
+    // The run of the task is listed with a success status
+    openScreen(SCHEDULER, RUNS_SCREEN);
+    checkRowContentsGrid("GrdRunLst", TASK);
+    checkColumnSuccessIcon("RunStaIco");
+
+    // Select it: its execution is listed
+    clickRowContents("GrdRunLst", TASK);
+    checkRowContentsGrid("GrdRunExe", TASK);
+  }
+
+  /**
    * Add a dependency to the scheduled task in the update screen
    */
   @Test
-  void t039_updateScheduledTaskDependencies() {
+  void t040_updateScheduledTaskDependencies() {
     // Title
     setTestTitle("Update the scheduled task dependencies");
 

@@ -1,5 +1,7 @@
 package com.almis.awe.scheduler.service;
 
+import com.almis.awe.exception.AWException;
+import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.dao.CalendarDAO;
@@ -15,6 +17,10 @@ import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.IntNode;
 import tools.jackson.databind.node.StringNode;
 
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.lenient;
@@ -39,12 +45,15 @@ class SchedulerServiceTest {
   private ApplicationContext context;
   @Mock
   private AweRequest request;
+  @Mock
+  private AweElements aweElements;
 
   @BeforeEach
   void initService() {
     schedulerService = new SchedulerService(taskDAO, schedulerDAO, calendarDAO, completionService, false, false);
     schedulerService.setApplicationContext(context);
     lenient().doReturn(request).when(context).getBean(AweRequest.class);
+    lenient().doReturn(aweElements).when(context).getBean(AweElements.class);
   }
 
   @Test
@@ -89,6 +98,30 @@ class SchedulerServiceTest {
 
     assertTrue(actual.getVariableMap().isEmpty());
     verifyNoInteractions(taskDAO);
+  }
+
+  @Test
+  void savingDependenciesThatCloseACycleIsRejected() throws Exception {
+    given(taskDAO.getChildrenByTask()).willReturn(Map.of(3, List.of(1)));
+
+    assertThrows(AWException.class, () -> schedulerService.validateTaskDependencies(1, List.of(3)));
+  }
+
+  @Test
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  void dependenciesSentAsTextByTheClientAreChecked() throws Exception {
+    given(taskDAO.getChildrenByTask()).willReturn(Map.of(3, List.of(1)));
+    // The AngularJS client sends the suggested task ids as text inside the integer list
+    List children = List.of("3", "");
+
+    assertThrows(AWException.class, () -> schedulerService.validateTaskDependencies(1, children));
+  }
+
+  @Test
+  void savingDependenciesWithoutACycleIsAccepted() throws Exception {
+    given(taskDAO.getChildrenByTask()).willReturn(Map.of(3, List.of(4)));
+
+    schedulerService.validateTaskDependencies(1, List.of(3));
   }
 
   @Test

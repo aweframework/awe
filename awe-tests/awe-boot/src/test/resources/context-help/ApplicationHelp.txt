@@ -348,6 +348,12 @@
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_OPEN_RUN"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_OPEN_RUN_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
       <span class="text-bold text-uppercase" translate-multiple="BUTTON_DELETE"></span>
       <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
     </h6><p class=" no-margin text-justify" translate-multiple="HELP_DELETE_BUTTON"></p>
@@ -709,6 +715,169 @@
             <span class="text-bold text-uppercase" translate-multiple="BUTTON_LAUNCH"></span>
             <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
           </h6><p class=" no-margin text-justify" translate-multiple="HELP_LAUNCH_VARIABLES_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><h2 id="MENU_SCHEDULER_RUNS" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#network"></use></svg></i>
+    {{'MENU_SCHEDULER_RUNS'| translateMultiple}}
+  </h2>
+  <hr class="help-header-separator"/>
+  <div class="help-snippet">
+    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_RUNS"></p>
+  </div>
+  <div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCREEN_HELP"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_HELP_BUTTON"></p>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-primary text-semibold text-sm">
+      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
+      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_FLOW_RUNS"></span>
+      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+    </h6>
+    <div class="panel-body no-padding-vr">
+      <div class="table-light panel panel-success panel-sm">
+        <div class="panel-heading">
+          <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
+          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th translate-multiple="HELP_NAME"></th>
+              <th translate-multiple="HELP_DESCRIPTION"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><strong translate-multiple="PARAMETER_STATUS"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ROOT_TASK"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ROOT_EXECUTION"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_LAUNCHED_BY"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_STARTED_AT"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ENDED_AT"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-primary text-semibold text-sm">
+      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
+      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_RUN_EXECUTIONS"></span>
+      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+    </h6>
+    <div class="panel-body no-padding-vr">
+      <div class="table-light panel panel-success panel-sm">
+        <div class="panel-heading">
+          <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
+          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th translate-multiple="HELP_NAME"></th>
+              <th translate-multiple="HELP_DESCRIPTION"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><strong translate-multiple="PARAMETER_TASK"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="#"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_STATUS"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_STARTED_AT"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ENDED_AT"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-primary text-semibold text-sm">
+      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
+      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_RUN_SKIPPED"></span>
+      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+    </h6>
+    <div class="panel-body no-padding-vr">
+      <div class="table-light panel panel-success panel-sm">
+        <div class="panel-heading">
+          <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
+          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th translate-multiple="HELP_NAME"></th>
+              <th translate-multiple="HELP_DESCRIPTION"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><strong translate-multiple="PARAMETER_TASK"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ENDED_AT"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
+        <span class="panel-title" translate-multiple="SCREEN_HELP"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_HELP"></p>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
         </div>
       </div>
     </div>

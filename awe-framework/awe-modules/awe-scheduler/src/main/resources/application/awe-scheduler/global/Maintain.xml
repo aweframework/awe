@@ -297,6 +297,12 @@
 
   <!-- Update scheduled task -->
   <target name="UpdateSchedulerTask" permission="scheduler.update">
+    <!-- A new task cannot close a cycle (nothing depends on it yet), so only the update checks it -->
+    <serve service="validateTaskDependencies">
+      <variable id="IdeTsk" type="INTEGER" name="Ide" />
+      <variable id="children" type="INTEGER" name="DepTskIde" />
+    </serve>
+
     <update audit="HISAweSchTsk">
       <table id="AweSchTsk" />
       <field id="Nam" variable="Nam" />
@@ -858,9 +864,11 @@
       <constant id="IniDat" type="SYSTEM_TIMESTAMP"/>
       <constant id="Sta" value="4" type="INTEGER"/>
       <field id="LchBy"  variable="launchedBy"/>
+      <field id="IdeRun" variable="runId"/>
       <variable id="taskId" type="INTEGER" name="taskId" />
       <variable id="taskGroup" type="STRING" name="taskGroup" />
       <variable id="launchedBy" type="STRING" name="taskLauncher" />
+      <variable id="runId" type="STRING" name="runId" />
     </insert>
     <commit/>
     <serve service="purgeExecutionLogs">
@@ -1168,6 +1176,104 @@
     <serve service="checkServerConnection">
       <variable id="serverId" type="INTEGER" name="Ide.selected"/>
     </serve>
+  </target>
+
+  <!-- Flow runs: create a run -->
+  <target name="insertFlowRun" server-only="true">
+    <insert>
+      <table id="AweSchRun" />
+      <field id="IdeRun" variable="runId"/>
+      <field id="IdeTskRoo" variable="taskId"/>
+      <field id="ExeTskRoo" variable="taskExecution"/>
+      <field id="LchBy" variable="launchedBy"/>
+      <constant id="IniDat" type="SYSTEM_TIMESTAMP"/>
+      <constant id="Sta" value="4" type="INTEGER"/>
+      <variable id="runId" type="STRING" name="runId" />
+      <variable id="taskId" type="INTEGER" name="taskId" />
+      <variable id="taskExecution" type="INTEGER" name="taskExecution" />
+      <variable id="launchedBy" type="STRING" name="taskLauncher" />
+    </insert>
+  </target>
+
+  <!-- Flow runs: store a run parameter -->
+  <target name="insertFlowRunParameter" server-only="true">
+    <insert>
+      <table id="AweSchRunPar" />
+      <field id="IdeRun" variable="runId"/>
+      <field id="Nam" variable="name"/>
+      <field id="Val" variable="value"/>
+      <variable id="runId" type="STRING" name="runId" />
+      <variable id="name" type="STRING" name="name" />
+      <variable id="value" type="STRING" name="value" />
+    </insert>
+  </target>
+
+  <!-- Flow runs: register a task of the run as waiting for its parents -->
+  <target name="insertFlowRunTask" server-only="true">
+    <insert>
+      <table id="AweSchRunTsk" />
+      <field id="IdeRun" variable="runId"/>
+      <field id="IdeTsk" variable="taskId"/>
+      <constant id="Sta" value="WAITING" type="STRING"/>
+      <constant id="UpdDat" type="SYSTEM_TIMESTAMP"/>
+      <variable id="runId" type="STRING" name="runId" />
+      <variable id="taskId" type="INTEGER" name="taskId" />
+    </insert>
+  </target>
+
+  <!-- Flow runs: guarded change of the state of a task of the run (rows affected tell who won) -->
+  <target name="transitionFlowRunTask" server-only="true">
+    <update>
+      <table id="AweSchRunTsk" />
+      <field id="Sta" variable="toStatus"/>
+      <constant id="UpdDat" type="SYSTEM_TIMESTAMP"/>
+      <where>
+        <and>
+          <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+          <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+          <filter left-field="Sta" condition="eq" right-variable="fromStatus"/>
+        </and>
+      </where>
+      <variable id="runId" type="STRING" name="runId" />
+      <variable id="taskId" type="INTEGER" name="taskId" />
+      <variable id="fromStatus" type="STRING" name="fromStatus" />
+      <variable id="toStatus" type="STRING" name="toStatus" />
+    </update>
+  </target>
+
+  <!-- Flow runs: a launched task of the run has started its execution -->
+  <target name="startFlowRunTask" server-only="true">
+    <update>
+      <table id="AweSchRunTsk" />
+      <field id="ExeTsk" variable="taskExecution"/>
+      <constant id="UpdDat" type="SYSTEM_TIMESTAMP"/>
+      <where>
+        <and>
+          <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+          <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+        </and>
+      </where>
+      <variable id="runId" type="STRING" name="runId" />
+      <variable id="taskId" type="INTEGER" name="taskId" />
+      <variable id="taskExecution" type="INTEGER" name="taskExecution" />
+    </update>
+  </target>
+
+  <!-- Flow runs: end a run once (only the first caller changes the row) -->
+  <target name="endFlowRun" server-only="true">
+    <update>
+      <table id="AweSchRun" />
+      <constant id="EndDat" type="SYSTEM_TIMESTAMP"/>
+      <field id="Sta" variable="status"/>
+      <where>
+        <and>
+          <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+          <filter left-field="EndDat" condition="is null"/>
+        </and>
+      </where>
+      <variable id="runId" type="STRING" name="runId" />
+      <variable id="status" type="INTEGER" name="status" />
+    </update>
   </target>
 
 </maintain>
