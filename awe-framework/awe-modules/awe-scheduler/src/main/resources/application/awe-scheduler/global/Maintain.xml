@@ -857,10 +857,7 @@
       <table id="AweSchExe" />
       <field id="IdeTsk" variable="taskId"/>
       <field id="GrpTsk" variable="taskGroup"/>
-      <operation id="ExeTsk" operator="ADD">
-        <field query="getMaxTaskExecution"/>
-        <constant value="1" type="INTEGER"/>
-      </operation>
+      <field id="ExeTsk" variable="taskExecution"/>
       <constant id="IniDat" type="SYSTEM_TIMESTAMP"/>
       <constant id="Sta" value="4" type="INTEGER"/>
       <field id="LchBy"  variable="launchedBy"/>
@@ -869,6 +866,7 @@
       <variable id="taskGroup" type="STRING" name="taskGroup" />
       <variable id="launchedBy" type="STRING" name="taskLauncher" />
       <variable id="runId" type="STRING" name="runId" />
+      <variable id="taskExecution" type="INTEGER" name="taskExecution" />
     </insert>
     <commit/>
     <serve service="purgeExecutionLogs">

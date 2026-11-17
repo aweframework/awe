@@ -1046,7 +1046,7 @@
 
   <query id="getMaxTaskExecution">
     <table id="AweSchExe"/>
-    <operation operator="COALESCE">
+    <operation operator="COALESCE" alias="maxExecution">
       <field id="ExeTsk" function="MAX"/>
       <constant value="0" type="INTEGER"/>
     </operation>
