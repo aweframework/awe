@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import {DEFAULT_SETTINGS, updateSettings} from "../../../src/redux/actions/settings";
 import {renderWithProviders} from "../test-utils";
 import MessageContainer from "../../../src/containers/MessageContainer";
@@ -137,6 +137,47 @@ describe('awe-react-client/test/js/containers/MessageContainerTest.jsx', () => {
 
       expect(document.querySelector('.p-dialog-header-close')).toBeNull();
     });
+
+    // Issue 987: the server converts Markdown locales into html, which the confirm renders as markup
+    it('renders the html of a Markdown title and message as markup', async () => {
+      renderWithProviders(<MessageContainer/>, {preloadedState: {...preloadedState, messages: {showing: [], confirm: {
+        title: '<h3>OPERACION REPETIDA</h3>\n',
+        message: '<p><strong>Ya existe una operación. ¿Desea continuar?</strong></p>\n',
+        action
+      }}}});
+
+      const title = await screen.findByRole('heading', {level: 3, name: 'OPERACION REPETIDA'});
+      expect(title.closest('.awe-confirm-dialog')).not.toBeNull();
+      const message = screen.getByText('Ya existe una operación. ¿Desea continuar?');
+      expect(message.tagName).toBe('STRONG');
+      expect(document.querySelector('.awe-confirm-dialog').textContent).not.toContain('<strong>');
+    });
+
+    it('drops the tags of the message html that are not allowed', async () => {
+      renderWithProviders(<MessageContainer/>, {preloadedState: {...preloadedState, messages: {showing: [], confirm: {
+        title: 'Confirm title', message: '<p>Sure?<img src="x" onerror="alert(1)"></p>', action
+      }}}});
+
+      await screen.findByText('Sure?');
+      expect(document.querySelector('.awe-confirm-dialog img')).toBeNull();
+    });
+  });
+
+  // Issue 987: notifications carry the same translated locales as the confirm
+  it('shows the html of a Markdown notification as markup', async () => {
+    renderWithProviders(<MessageContainer/>, {preloadedState: {...preloadedState, messages: {showing: [{
+      severity: 'warn', summary: '<h3>Warning</h3>\n', detail: '<p><strong>Check the data</strong></p>\n',
+      sticky: false, life: 4000, id: 1, closable: true
+    }]}}});
+
+    await waitFor(() => expect(mockShow).toHaveBeenCalledTimes(1));
+    const [[shownMessage]] = mockShow.mock.calls[0];
+    expect(shownMessage.id).toBe(1);
+    render(<div data-testid="toast-message">{shownMessage.summary}{shownMessage.detail}</div>);
+    const toast = screen.getByTestId('toast-message');
+    expect(toast.querySelector('h3').textContent).toBe('Warning');
+    expect(toast.querySelector('p > strong').textContent).toBe('Check the data');
+    expect(toast.textContent).not.toContain('<h3>');
   });
 });
 

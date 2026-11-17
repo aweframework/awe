@@ -11,6 +11,7 @@ import {Button} from "primereact/button";
 import {useTranslation} from "react-i18next";
 import {Toast} from "primereact/toast";
 import {getIconCode, getIconNode, translateLabel} from "../utilities";
+import {renderMessageText} from "../utilities/sanitizeHtml";
 import {TestIds, testHook} from "../utilities/testIds";
 import {toastPassThrough} from "../utilities/testPassThrough";
 import AweTargetMessage from "../components/AweTargetMessage";
@@ -72,7 +73,12 @@ function MessageContainer() {
     if (toastRef.current && messages.showing && messages.showing.length > 0) {
       const newMessages = messages.showing.filter(msg => !msg.show);
       if (newMessages.length > 0) {
-        toastRef.current.show(newMessages);
+        // The texts are rendered as html (Markdown locales arrive as html); the store keeps the original strings
+        toastRef.current.show(newMessages.map(msg => ({
+          ...msg,
+          summary: renderMessageText(msg.summary),
+          detail: renderMessageText(msg.detail)
+        })));
         dispatch(showMessagesAction(newMessages));
       }
     }
@@ -87,11 +93,11 @@ function MessageContainer() {
   return <>
     <Toast ref={toastRef} onClick={onClick} onRemove={onRemove} position={settings.messagePosition} pt={toastPassThrough()}/>
     <AweTargetMessage popover={popover}/>
-    <Dialog visible={visible} header={translateLabel(title, t)} footer={confirmFooter()} focusOnShow={false}
+    <Dialog visible={visible} header={renderMessageText(translateLabel(title, t))} footer={confirmFooter()} focusOnShow={false}
             modal={true} closable={false} closeOnEscape={false} onHide={onCancel} className="awe-confirm-dialog"
             pt={{root: testHook(TestIds.confirmDialog)}}>
       {getIconNode("pi-exclamation-triangle", {className: "confirm-icon"})}
-      <span>{translateLabel(message, t)}</span>
+      <span>{renderMessageText(translateLabel(message, t))}</span>
     </Dialog>
   </>;
 }

@@ -5,6 +5,7 @@ import {OverlayPanel} from "primereact/overlaypanel";
 import {acceptAction} from "../redux/actions/actions";
 import {removePopover} from "../redux/actions/messages";
 import {findMessageTarget} from "../utilities/messageTarget";
+import {renderMessageText} from "../utilities/sanitizeHtml";
 import {TestIds, testHook} from "../utilities/testIds";
 import {alertType, popoverPassThrough} from "../utilities/testPassThrough";
 
@@ -71,8 +72,8 @@ function AweTargetMessage({popover}) {
   return <OverlayPanel ref={panelRef} dismissable onHide={onHide}
                        className={`target-message target-message-${alertType(severity)}`}
                        pt={popoverPassThrough(severity, address?.component)}>
-    {summary && <div className="target-message-title" {...testHook(TestIds.popoverTitle)}>{summary}</div>}
-    <div className="target-message-content" {...testHook(TestIds.popoverContent)}>{detail}</div>
+    {summary && <div className="target-message-title" {...testHook(TestIds.popoverTitle)}>{renderMessageText(summary)}</div>}
+    <div className="target-message-content" {...testHook(TestIds.popoverContent)}>{renderMessageText(detail)}</div>
   </OverlayPanel>;
 }
 
