@@ -40,7 +40,6 @@ import static com.almis.awe.scheduler.constant.MaintainConstants.TASK_START;
 import static com.almis.awe.scheduler.constant.MaintainConstants.TASK_UPDATE_STATUS;
 import static com.almis.awe.scheduler.constant.MaintainConstants.UPDATE_INTERRUPTED_TASKS;
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_AVERAGE_TIME_QUERY;
-import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_LAST_TASK_EXECUTION;
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_TASK_EXECUTION;
 
 /**
@@ -95,13 +94,16 @@ public class TaskExecutionRepository {
     parameters.put(TASK_ID, task.getTaskId());
     parameters.put(TASK_GROUP, task.getGroup());
     parameters.put(TASK_LAUNCHER, task.getLauncher());
+    // Read before the insert: MySQL rejects an INSERT ... VALUES with a subquery on its own table (#991)
+    int executionId = nextExecutionId(task.getTaskId());
+    parameters.put(TASK_JOB_EXECUTION, executionId);
     parameters.put("executions", task.getStoredExecutions() != null
       ? task.getStoredExecutions()
       : defaultStoredExecutions);
     maintainService.launchPrivateMaintain(TASK_START, parameters);
 
-    // Retrieve task execution
-    TaskExecution execution = getLastExecution(task, task.getTrigger().getKey().getGroup());
+    // Read it back by its id: on MySQL two starts in the same second tie on the latest start date
+    TaskExecution execution = getTaskExecution(task.getTaskId(), executionId);
 
     // Set parent execution if defined
     if (execution != null) {
@@ -115,6 +117,21 @@ public class TaskExecutionRepository {
     }
 
     return execution;
+  }
+
+  /**
+   * Next execution identifier of a task: the highest one plus one
+   *
+   * @param taskId Task identifier
+   * @return Next execution identifier
+   * @throws AWException Error reading the executions
+   */
+  private int nextExecutionId(Integer taskId) throws AWException {
+    ObjectNode parameters = queryUtil.getParameters();
+    parameters.put(TASK_ID, taskId);
+    CellData max = DataListUtil.getCellData(
+      queryService.launchPrivateQuery("getMaxTaskExecution", parameters).getDataList(), 0, "maxExecution");
+    return (max == null || max.getIntegerValue() == null ? 0 : max.getIntegerValue()) + 1;
   }
 
   /**
@@ -332,23 +349,6 @@ public class TaskExecutionRepository {
    */
   private Instant asInstant(CellData cell) {
     return LegacyDateConverter.asInstant(cell.getDateValue());
-  }
-
-  /**
-   * Get last execution from Database
-   *
-   * @param task      Task
-   * @param taskGroup Task group
-   * @return Task execution
-   * @throws AWException Error retrieving last task execution from database
-   */
-  private TaskExecution getLastExecution(Task task, String taskGroup) throws AWException {
-    // Set context from the query
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    parameters.put(TASK_ID, task.getTaskId());
-    parameters.put(TASK_GROUP, taskGroup);
-
-    return getTaskExecution(SCHEDULER_LAST_TASK_EXECUTION, parameters);
   }
 
   /**

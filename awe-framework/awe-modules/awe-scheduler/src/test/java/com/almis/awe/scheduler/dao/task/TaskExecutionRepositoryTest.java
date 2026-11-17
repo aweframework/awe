@@ -94,6 +94,34 @@ class TaskExecutionRepositoryTest {
     verify(flowRuns, never()).createRun(any(), any(), any());
   }
 
+  @Test
+  void theExecutionIdIsReadBeforeTheInsertSoTheInsertHasNoSubqueryOnItsOwnTable() throws Exception {
+    // MySQL rejects an INSERT ... VALUES with a subquery on the target table (#991)
+    Map<String, CellData> max = new HashMap<>();
+    max.put("maxExecution", new CellData(6));
+    DataList maxList = new DataList();
+    maxList.addRow(max);
+    given(queryService.launchPrivateQuery(eq("getMaxTaskExecution"), any(ObjectNode.class)))
+      .willReturn(new ServiceData().setDataList(maxList));
+
+    repository.startTask(task(3));
+
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService).launchPrivateMaintain(eq("startTask"), parameters.capture());
+    assertEquals(7, parameters.getValue().get("taskExecution").asInt());
+  }
+
+  @Test
+  void theStartedExecutionIsReadBackByTheIdItWasInsertedWith() throws Exception {
+    // MySQL stores the start date in seconds: two starts in the same second tie on the latest date (#991)
+    repository.startTask(task(3));
+
+    ArgumentCaptor<ObjectNode> parameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(queryService).launchPrivateQuery(eq("getTaskExecution"), parameters.capture());
+    assertEquals(1, parameters.getValue().get("taskExecution").asInt());
+    verify(queryService, never()).launchPrivateQuery(eq("getLastExecution"), any(ObjectNode.class));
+  }
+
   private Task task(int taskId) {
     Task task = new Task().setTaskId(taskId);
     task.setTrigger(TriggerBuilder.newTrigger().withIdentity("1", "TEST_GROUP").build());

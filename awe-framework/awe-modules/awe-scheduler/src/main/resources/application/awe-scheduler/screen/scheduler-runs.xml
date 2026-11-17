@@ -12,7 +12,9 @@
     </button>
   </tag>
   <tag source="center">
-    <tag type="div" style="expand" expandible="horizontal">
+    <!-- The run list on top and, below it, the executions and the skipped tasks of the selected run: three windows
+         side by side leave the dates out of view -->
+    <tag type="div" style="expand" expandible="vertical">
       <window style="expand" maximize="true" label="SCREEN_TEXT_FLOW_RUNS" icon="sitemap" expandible="vertical">
         <grid id="GrdRunLst" style="expand" server-action="data" target-action="getFlowRunList" initial-load="query" row-numbers="false">
           <column name="IdeRun" hidden="true" />
@@ -36,21 +38,23 @@
           </dependency>
         </grid>
       </window>
-      <window id="RunExecutionsWindow" style="expand hidden" label="SCREEN_TEXT_RUN_EXECUTIONS" icon="gears" expandible="vertical">
-        <grid id="GrdRunExe" style="expand" server-action="data" target-action="getFlowRunExecutionList" pagination-disabled="true" row-numbers="false">
-          <column label="PARAMETER_TASK" name="RxTsk" sortable="false" align="left" charlength="20" />
-          <column label="#" name="RxExe" sortable="false" align="center" charlength="6" />
-          <column label="PARAMETER_STATUS" name="RxStaIco" sortable="false" component="icon" align="center" charlength="8" />
-          <column label="PARAMETER_STARTED_AT" name="RxIni" sortable="false" align="center" charlength="16" />
-          <column label="PARAMETER_ENDED_AT" name="RxEnd" sortable="false" align="center" charlength="16" />
-        </grid>
-      </window>
-      <window id="RunSkippedWindow" style="expand hidden" label="SCREEN_TEXT_RUN_SKIPPED" icon="ban" expandible="vertical">
-        <grid id="GrdRunSkp" style="expand" server-action="data" target-action="getFlowRunSkippedList" pagination-disabled="true" row-numbers="false">
-          <column label="PARAMETER_TASK" name="RsTsk" sortable="false" align="left" charlength="20" />
-          <column label="PARAMETER_ENDED_AT" name="RsEnd" sortable="false" align="center" charlength="16" />
-        </grid>
-      </window>
+      <tag type="div" style="expand" expandible="horizontal">
+        <window id="RunExecutionsWindow" style="expand-2x hidden" label="SCREEN_TEXT_RUN_EXECUTIONS" icon="gears" expandible="vertical">
+          <grid id="GrdRunExe" style="expand" server-action="data" target-action="getFlowRunExecutionList" pagination-disabled="true" row-numbers="false">
+            <column label="PARAMETER_TASK" name="RxTsk" sortable="false" align="left" charlength="20" />
+            <column label="#" name="RxExe" sortable="false" align="center" charlength="6" />
+            <column label="PARAMETER_STATUS" name="RxStaIco" sortable="false" component="icon" align="center" charlength="8" />
+            <column label="PARAMETER_STARTED_AT" name="RxIni" sortable="false" align="center" charlength="16" />
+            <column label="PARAMETER_ENDED_AT" name="RxEnd" sortable="false" align="center" charlength="16" />
+          </grid>
+        </window>
+        <window id="RunSkippedWindow" style="expand hidden" label="SCREEN_TEXT_RUN_SKIPPED" icon="ban" expandible="vertical">
+          <grid id="GrdRunSkp" style="expand" server-action="data" target-action="getFlowRunSkippedList" pagination-disabled="true" row-numbers="false">
+            <column label="PARAMETER_TASK" name="RsTsk" sortable="false" align="left" charlength="20" />
+            <column label="PARAMETER_ENDED_AT" name="RsEnd" sortable="false" align="center" charlength="16" />
+          </grid>
+        </window>
+      </tag>
     </tag>
   </tag>
   <tag source="modal">
