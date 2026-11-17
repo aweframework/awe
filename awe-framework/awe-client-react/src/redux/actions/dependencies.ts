@@ -505,6 +505,9 @@ function getTriggers(element: TriggerElement, component: DependencyComponent, fo
 }
 
 // Attributes that depend on the whole grid model (row set or selection), so any model update may change them.
+// "selectedRowValue" and "selectedRow" read the edited or selected row: they are compared by the identity of that
+// row (see SELECTED_ROW_ATTRIBUTES), not by the version of the model, so saving the row or selecting it again does
+// not launch them (issue #990).
 // "currentRowValue" is not one of them: it is the value of a single cell, and its value is already compared
 // on every check; launching it on any other model update would validate untouched cells again
 // (e.g. the unique check of a key column each time another column of the same row is edited).
@@ -522,6 +525,10 @@ const MODEL_CONTEXT_ATTRIBUTES = new Set([
   "prevRow",
   "nextRow"
 ]);
+
+// Attributes that read the edited row or, without it, the selected one: their value is compared on every check, so
+// only a change of the row they read has to launch them again
+const SELECTED_ROW_ATTRIBUTES = new Set(["selectedRowValue", "selectedRow"]);
 
 /**
  * Check if a trigger reads the default value of a grid (the number of selected rows)
@@ -557,6 +564,18 @@ function getTriggerModelContext(trigger: Trigger, state: RootState): ModelContex
 
   if (!MODEL_CONTEXT_ATTRIBUTES.has(trigger.attribute)) {
     return null;
+  }
+
+  // The selected row is the same while the same rows are edited and selected, whatever else changes in the model
+  if (SELECTED_ROW_ATTRIBUTES.has(trigger.attribute)) {
+    const gridId = getGridIdentifier(component.attributes);
+    const rows = component.model?.values || [];
+    const editingRow = rows[getEditingRowIndex(rows)];
+    return {
+      componentId,
+      attribute: trigger.attribute,
+      selection: [editingRow ? editingRow[gridId] : null, ...rows.filter(row => row.selected).map(row => row[gridId])]
+    };
   }
 
   const modelVersion = component?.model?.modelVersion ?? 0;
