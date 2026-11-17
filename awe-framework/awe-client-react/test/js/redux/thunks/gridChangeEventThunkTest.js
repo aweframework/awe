@@ -4,7 +4,7 @@ import {DEFAULT_SETTINGS} from '../../../../src/redux/actions/settings';
 import {ADD_ACTIONS_TOP} from '../../../../src/redux/actions/actions';
 import {updateModelWithDependencies, updateViewComponentsWithDependencies} from '../../../../src/redux/thunks/components';
 import {fillAction} from '../../../../src/redux/thunks/form';
-import {selectRowGridAction, updateCellGridAction} from '../../../../src/redux/thunks/grid';
+import {saveRowGridAction, selectButtonRow, selectRowGridAction, updateCellGridAction} from '../../../../src/redux/thunks/grid';
 import {getComponent} from '../../../../src/utilities';
 import {getAllComponents} from '../../../../src/redux/selectors/componentSelectors';
 
@@ -236,5 +236,101 @@ describe('awe-react-client/test/js/redux/thunks/gridChangeEventThunkTest.js afte
       values: [{id: '1', Scr: 'users', selected: true}, {id: 'new-1', Scr: ''}]
     }));
     expect(readonly()).toBe(true);
+  });
+});
+
+/**
+ * Issue #990: a column dependency that reads the selected row (attribute "selectedRowValue") and launches a server
+ * action was launched again by every update of the grid model (the save of the row, the selection of the row of the
+ * server action), although neither the selected row nor its values had changed
+ */
+describe('awe-react-client/test/js/redux/thunks/gridChangeEventThunkTest.js selectedRowValue server action (#990)', () => {
+  const grid = {view: 'report', component: 'OpeLst'};
+  const newRow = 'new-row-0';
+  let recorded;
+  let pending;
+  let store;
+
+  const controls = () => recorded
+    .filter(({type}) => type === ADD_ACTIONS_TOP)
+    .flatMap(({actions}) => actions)
+    .filter(action => action.type === 'server' && action.parameters?.targetAction === 'BilCtlPrxNew');
+
+  // The action runner starts every launched server action, which selects the row of its address before it sends the
+  // request (thunks/server.ts); the request itself never answers here
+  const startServerActions = () => {
+    const started = pending;
+    pending = [];
+    started.forEach(action => store.dispatch(selectButtonRow(action.address)));
+  };
+
+  beforeEach(() => {
+    recorded = [];
+    pending = [];
+    const recorder = () => (next) => (action) => {
+      recorded.push(action);
+      if (action.type === ADD_ACTIONS_TOP) {
+        pending.push(...action.actions.filter(item => item.parameters?.targetAction === 'BilCtlPrxNew'));
+      }
+      return next(action);
+    };
+    store = configureStore({
+      reducer: createRootReducer(),
+      preloadedState: {settings: {...DEFAULT_SETTINGS, activeDependencies: true}},
+      middleware: (getDefaultMiddleware) => getDefaultMiddleware({immutableCheck: false, serializableCheck: false}).concat(recorder)
+    });
+    store.dispatch(updateViewComponentsWithDependencies('report', {
+      OpeLst: {
+        address: grid,
+        context: {view: 'report', source: ['report', 'OpeLst']},
+        attributes: {
+          component: 'grid', editable: true, validateOnSave: false, loading: false,
+          columnModel: [{name: 'id'}, {name: 'CurOrg'}, {
+            name: 'SptOrg',
+            dependencies: [{
+              type: 'and',
+              elements: [
+                {id: 'OpeLst', column1: 'CurOrg', attribute1: 'selectedRowValue'},
+                {id: 'OpeLst', column1: 'SptOrg', attribute1: 'selectedRowValue'}
+              ],
+              actions: [{type: 'server', parameters: {serverAction: 'control', targetAction: 'BilCtlPrxNew'}}],
+              initial: false
+            }]
+          }]
+        },
+        model: {values: [{id: '1', CurOrg: 'USD', SptOrg: 1}]}
+      }
+    }));
+    // The user adds a row and starts editing it
+    store.dispatch(updateModelWithDependencies(grid, {
+      event: 'after-add-row',
+      values: [
+        {id: '1', CurOrg: 'USD', SptOrg: 1, selected: false},
+        {id: newRow, CurOrg: null, SptOrg: null, selected: true, $row: {editing: true, operation: 'INSERT'}}
+      ]
+    }));
+    startServerActions();
+    recorded = [];
+  });
+
+  const editCell = (column, data) => {
+    store.dispatch(updateCellGridAction({type: 'update-cell', address: {...grid, row: newRow, column}, parameters: {data}}));
+    startServerActions();
+  };
+
+  it('launches the server action once for the edit of the price, not again when the row is saved', () => {
+    editCell('CurOrg', 'EUR');
+    editCell('SptOrg', 5);
+
+    expect(controls()).toHaveLength(1);
+
+    // The save of the row neither moves the selection nor changes the values of the selected row
+    store.dispatch(saveRowGridAction({type: 'save-row', address: grid}));
+
+    expect(controls()).toHaveLength(1);
+
+    startServerActions();
+
+    expect(controls()).toHaveLength(1);
   });
 });
