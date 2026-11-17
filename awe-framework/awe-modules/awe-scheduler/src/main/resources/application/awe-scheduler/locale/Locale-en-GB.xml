@@ -133,6 +133,8 @@
   <locale name="SCHEDULER_BATCH_LAUNCH_TITLE" value="Batch launched"/>
   <locale name="SCHEDULER_ERROR_MESSAGE_TIMEOUT" value="This task has been cancelled because it has exceeded the time limit established ({0})"/>
   <locale name="SCHEDULER_MESSAGE_STOPPED_BY_USER" value="Stopped by the user"/>
+  <locale name="SCHEDULER_STOP_UNAVAILABLE_TITLE" value="Task not stopped"/>
+  <locale name="SCHEDULER_STOP_UNAVAILABLE_MESSAGE" value="The task is still starting and could not be stopped, try again in a moment"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED" value="Execution body finished with result {0} after {1}. {2}"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY" value="Execution body finished abnormally after {0} - see the execution grid for the final status."/>
   <locale name="SCHEDULER_EXECUTION_LOG_DROPPED" value="... {0} lines dropped (queue saturated) ..."/>

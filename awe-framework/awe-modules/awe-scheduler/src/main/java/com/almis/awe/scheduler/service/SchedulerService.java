@@ -12,6 +12,7 @@ import com.almis.awe.scheduler.dao.SchedulerDAO;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.util.DependencyCycles;
 import lombok.extern.slf4j.Slf4j;
+import org.quartz.SchedulerException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
@@ -37,6 +38,8 @@ public class SchedulerService extends ServiceConfig {
   private static final String ERROR_TITLE_SCHEDULER_PAUSE_TASK = "ERROR_TITLE_SCHEDULER_PAUSE_TASK";
   private static final String ERROR_MESSAGE_SCHEDULER_RESUME_TASK = "ERROR_MESSAGE_SCHEDULER_RESUME_TASK";
   private static final String ERROR_TITLE_SCHEDULER_RESUME_TASK = "ERROR_TITLE_SCHEDULER_RESUME_TASK";
+  private static final String STOP_UNAVAILABLE_TITLE = "SCHEDULER_STOP_UNAVAILABLE_TITLE";
+  private static final String STOP_UNAVAILABLE_MESSAGE = "SCHEDULER_STOP_UNAVAILABLE_MESSAGE";
   // Autowired services
   private final TaskDAO taskDAO;
   private final SchedulerDAO schedulerDAO;
@@ -283,15 +286,24 @@ public class SchedulerService extends ServiceConfig {
   }
 
   /**
-   * Stop the deferred executions of the selected task (a task without any does nothing)
+   * Stop the running jobs and the deferred executions of the selected task (a task without any does nothing)
    *
    * @param taskId Task identifier
-   * @return ServiceData
+   * @return ServiceData, a warning when a running job could not be stopped
    * @throws AWException Error stopping the executions
    */
   public ServiceData stopTask(Integer taskId) throws AWException {
     completionService.stopTask(taskId);
-    return new ServiceData();
+    boolean stopped;
+    try {
+      stopped = schedulerDAO.stopRunningJobs(taskId);
+    } catch (SchedulerException exc) {
+      throw new AWException("Error stopping the running jobs of task " + taskId, exc);
+    }
+    return stopped ? new ServiceData() : new ServiceData()
+      .setType(AnswerType.WARNING)
+      .setTitle(getLocale(STOP_UNAVAILABLE_TITLE))
+      .setMessage(getLocale(STOP_UNAVAILABLE_MESSAGE));
   }
 
   /**

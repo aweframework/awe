@@ -54,6 +54,7 @@ public abstract class JobService extends ServiceConfig {
   private Duration deferredDefaultTimeout = Duration.ofHours(24);
 
   // Locales
+  private static final String SCHEDULER_MESSAGE_STOPPED_BY_USER = "SCHEDULER_MESSAGE_STOPPED_BY_USER";
   private static final String SCHEDULER_ERROR_MESSAGE_TIMEOUT = "SCHEDULER_ERROR_MESSAGE_TIMEOUT";
   private static final String SCHEDULER_EXECUTION_LOG_COMPLETED = "SCHEDULER_EXECUTION_LOG_COMPLETED";
   private static final String SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY = "SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY";
@@ -249,8 +250,13 @@ public abstract class JobService extends ServiceConfig {
         job.getExecution().setDescription(serviceData.getMessage());
       }
     } catch (CancellationException | InterruptedException exc) {
-      job.getTask().setStatus(TaskStatus.JOB_INTERRUPTED);
-      job.getExecution().setDescription(getLocale(SCHEDULER_ERROR_MESSAGE_TIMEOUT, TimeUtil.formatTime(getTimeout(job.getTask()) * 1000, false)));
+      if (job.isStopped()) {
+        job.getTask().setStatus(TaskStatus.JOB_STOPPED);
+        job.getExecution().setDescription(getLocale(SCHEDULER_MESSAGE_STOPPED_BY_USER));
+      } else {
+        job.getTask().setStatus(TaskStatus.JOB_INTERRUPTED);
+        job.getExecution().setDescription(getLocale(SCHEDULER_ERROR_MESSAGE_TIMEOUT, TimeUtil.formatTime(getTimeout(job.getTask()) * 1000, false)));
+      }
       // A timeout cancels the process, not this thread: restore the flag only for a real interruption
       if (exc instanceof InterruptedException) {
         Thread.currentThread().interrupt();

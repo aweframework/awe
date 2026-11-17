@@ -4,6 +4,7 @@ import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
 import com.almis.awe.model.component.AweRequest;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.scheduler.dao.CalendarDAO;
 import com.almis.awe.scheduler.dao.SchedulerDAO;
 import com.almis.awe.scheduler.dao.TaskDAO;
@@ -20,6 +21,7 @@ import tools.jackson.databind.node.StringNode;
 import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -129,5 +131,24 @@ class SchedulerServiceTest {
     schedulerService.stopTask(4);
 
     verify(completionService).stopTask(4);
+  }
+
+  @Test
+  void stopTaskStopsTheRunningJobOfTheTask() throws Exception {
+    given(schedulerDAO.stopRunningJobs(4)).willReturn(true);
+
+    ServiceData result = schedulerService.stopTask(4);
+
+    verify(schedulerDAO).stopRunningJobs(4);
+    assertEquals(AnswerType.OK, result.getType());
+  }
+
+  @Test
+  void stopTaskWarnsWhenTheRunningJobCannotBeStopped() throws Exception {
+    given(schedulerDAO.stopRunningJobs(4)).willReturn(false);
+
+    ServiceData result = schedulerService.stopTask(4);
+
+    assertEquals(AnswerType.WARNING, result.getType());
   }
 }
