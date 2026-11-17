@@ -6,6 +6,7 @@ import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.DateUtil;
+import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
 import com.almis.awe.scheduler.listener.SchedulerJobListener;
 import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
 import com.almis.awe.scheduler.service.TaskService;
@@ -501,4 +502,22 @@ public class SchedulerDAO extends ServiceConfig {
     }
   }
 
+  /**
+   * Stop the running jobs of a task on this node
+   *
+   * @param taskId Task identifier
+   * @return false when a running job of the task could not be stopped
+   * @throws SchedulerException Error reading the executing jobs
+   */
+  public boolean stopRunningJobs(Integer taskId) throws SchedulerException {
+    boolean allStopped = true;
+    for (JobExecutionContext executing : scheduler.getCurrentlyExecutingJobs()) {
+      if (executing.getJobInstance() instanceof SchedulerJob job && job.getTask() != null
+        && taskId.equals(job.getTask().getTaskId())) {
+        allStopped &= job.stop();
+        log.info("[SCHEDULER] Stop requested by the user for task {}", taskId);
+      }
+    }
+    return allStopped;
+  }
 }

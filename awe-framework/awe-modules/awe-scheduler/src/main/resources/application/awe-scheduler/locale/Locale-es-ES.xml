@@ -130,6 +130,8 @@
   <locale name="SCHEDULER_BATCH_LAUNCH_TITLE" value="Batch ejecutado"/>
   <locale name="SCHEDULER_ERROR_MESSAGE_TIMEOUT" value="Esta tarea ha sido cancelada debido a que se ha excedido el límite de tiempo establecido ({0})"/>
   <locale name="SCHEDULER_MESSAGE_STOPPED_BY_USER" value="Detenida por el usuario"/>
+  <locale name="SCHEDULER_STOP_UNAVAILABLE_TITLE" value="Tarea no detenida"/>
+  <locale name="SCHEDULER_STOP_UNAVAILABLE_MESSAGE" value="La tarea aún se está iniciando y no se ha podido detener, inténtelo de nuevo en un momento"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED" value="La ejecución ha finalizado con resultado {0} tras {1}. {2}"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY" value="La ejecución ha finalizado de forma anómala tras {0} - consulte la parrilla de ejecuciones para conocer el estado final."/>
   <locale name="SCHEDULER_EXECUTION_LOG_DROPPED" value="... {0} líneas perdidas (cola saturada) ..."/>

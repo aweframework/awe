@@ -113,6 +113,25 @@ class JobServiceTest {
   }
 
   @Test
+  void launchBatchClosesAJobStoppedByTheUserAsStopped() throws Exception {
+    TestJobService jobService = service();
+    Task task = new Task().setTaskId(8);
+    TaskExecution execution = new TaskExecution().setTaskId(8).setExecutionId(2);
+    SchedulerJob job = mock(SchedulerJob.class);
+    doReturn(task).when(job).getTask();
+    doReturn(execution).when(job).getExecution();
+    doReturn(true).when(job).isStopped();
+    @SuppressWarnings("unchecked")
+    Future<ServiceData> process = mock(Future.class);
+    doThrow(new CancellationException("stopped")).when(process).get();
+
+    jobService.launchBatch(job, process);
+
+    assertEquals(TaskStatus.JOB_STOPPED, task.getStatus());
+    verify(taskDAO).endTask(task, execution);
+  }
+
+  @Test
   void launchBatchRestoresTheInterruptFlagWhenTheWorkerThreadIsInterrupted() throws Exception {
     TestJobService jobService = service();
     Task task = new Task().setTaskId(8);
