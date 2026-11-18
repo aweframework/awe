@@ -166,6 +166,34 @@ class MaintainXmlTest {
   }
 
   @Test
+  void theTraceOfADeferredExecutionIsUpdatedByItsExecutionKey() throws IOException {
+    String completion = target(readDescriptor(), "updateDeferredCompletion");
+    String cancellation = target(readDescriptor(), "updateDeferredCancellation");
+
+    for (String target : new String[]{completion, cancellation}) {
+      assertTrue(target.contains("<table id=\"AweSchExeExt\" />"));
+      assertTrue(target.contains("<filter left-field=\"IdeTsk\" condition=\"eq\" right-variable=\"taskId\"/>"));
+      assertTrue(target.contains("<filter left-field=\"ExeTsk\" condition=\"eq\" right-variable=\"taskExecution\"/>"));
+    }
+    assertTrue(completion.contains("<field id=\"CmpDat\" variable=\"completionDate\"/>"));
+    assertTrue(completion.contains("<field id=\"CmpSrc\" variable=\"completionSource\"/>"));
+    assertTrue(cancellation.contains("<field id=\"CncSta\" variable=\"cancellationStatus\"/>"));
+    assertTrue(cancellation.contains("<field id=\"CncErr\" variable=\"cancellationError\"/>"));
+  }
+
+  @Test
+  void theTaskStoresItsCancellationMaintain() throws IOException {
+    String xml = readDescriptor();
+    for (String name : new String[]{"NewSchedulerTask", "UpdateSchedulerTask"}) {
+      int start = xml.indexOf("<target name=\"" + name + "\"");
+      assertTrue(start >= 0, name + " target must exist");
+      String target = xml.substring(start, xml.indexOf("</target>", start));
+      assertTrue(target.contains("<field id=\"CncMnt\" variable=\"CncMnt\" />"), name);
+      assertTrue(target.contains("<variable id=\"CncMnt\" type=\"STRING\" name=\"CncMnt\" />"), name);
+    }
+  }
+
+  @Test
   void startupInterruptionSkipsTheDeferredExecutions() throws IOException {
     String target = target(readDescriptor(), "updateInterruptedTasks");
 

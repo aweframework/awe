@@ -115,7 +115,7 @@ public class MaintainJobService extends JobService {
       log.info("[{}] Maintain job started: {}", task.getTrigger().getKey().toString(), task.getAction());
 
       // Initialize query parameters (no per-task datasource routing - see #685)
-      ObjectNode parameters = getQueryUtil().getParameters(null, "1", "0");
+      ObjectNode parameters = newParameters();
 
       // Insert task parameters
       for (TaskParameter taskParameter : task.getParameterList()) {
@@ -137,11 +137,7 @@ public class MaintainJobService extends JobService {
       }
 
       try {
-        if (isSchedulerInstance) {
-          jobResult = launchRemoteMaintainRest(task.getAction(), parameters, execution);
-        } else {
-          jobResult = getMaintainService().launchPrivateMaintain(task.getAction(), parameters);
-        }
+        jobResult = launchMaintain(task.getAction(), parameters, execution);
       } catch (AWException exc) {
         log.error("Error launching maintain job", exc);
         jobResult = new ServiceData()
@@ -161,6 +157,31 @@ public class MaintainJobService extends JobService {
         endLogging(execution);
       }
     }
+  }
+
+  /**
+   * Build the parameters of a maintain launched by the scheduler
+   *
+   * @return Empty parameters (no per-task datasource routing - see #685)
+   */
+  public ObjectNode newParameters() {
+    return getQueryUtil().getParameters(null, "1", "0");
+  }
+
+  /**
+   * Launch a maintain where the maintain tasks run: on this application, or on the AWE application when this is a
+   * remote scheduler instance
+   *
+   * @param maintain   Maintain identifier
+   * @param parameters Maintain parameters
+   * @param execution  Execution the maintain is launched on behalf of
+   * @return Answer of the maintain
+   * @throws AWException Error launching the maintain
+   */
+  public ServiceData launchMaintain(String maintain, ObjectNode parameters, TaskExecution execution)
+    throws AWException {
+    return isSchedulerInstance ? launchRemoteMaintainRest(maintain, parameters, execution)
+      : getMaintainService().launchPrivateMaintain(maintain, parameters);
   }
 
   /**

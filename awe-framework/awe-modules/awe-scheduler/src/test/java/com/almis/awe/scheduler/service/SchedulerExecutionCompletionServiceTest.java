@@ -5,7 +5,9 @@ import com.almis.awe.scheduler.bean.event.SchedulerTaskFinishedEvent;
 import com.almis.awe.scheduler.bean.task.DeferredExecution;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
+import com.almis.awe.scheduler.bean.task.TaskParameter;
 import com.almis.awe.scheduler.dao.TaskDAO;
+import com.almis.awe.scheduler.enums.CompletionSource;
 import com.almis.awe.scheduler.enums.ExecutionLogOrigin;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.log.ExecutionKey;
@@ -22,12 +24,15 @@ import org.mockito.quality.Strictness;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -35,6 +40,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -51,6 +57,8 @@ class SchedulerExecutionCompletionServiceTest {
   private ExecutionLogStore executionLogStore;
   @Mock
   private ApplicationEventPublisher eventPublisher;
+  @Mock
+  private DeferredCancellationNotifier cancellationNotifier;
 
   private SchedulerExecutionCompletionService service;
   private final Task task = new Task().setTaskId(1).setExecutionTimeout(60);
@@ -61,7 +69,7 @@ class SchedulerExecutionCompletionServiceTest {
   @BeforeEach
   void setUp() throws Exception {
     service = spy(new SchedulerExecutionCompletionService(taskDAO, executionService, executionLogStore,
-      eventPublisher, Duration.ofHours(24)));
+      eventPublisher, cancellationNotifier, Duration.ofHours(24)));
     when(taskDAO.getTaskExecution(1, 2)).thenReturn(running);
     when(taskDAO.getDeferredExecution(1, 2)).thenReturn(new DeferredExecution().setTaskId(1).setExecutionId(2));
     when(taskDAO.closeRunningExecution(eq(1), eq(2), any())).thenReturn(true);
@@ -79,6 +87,65 @@ class SchedulerExecutionCompletionServiceTest {
     assertThat(running.getDescription()).isEqualTo("partial");
     verify(taskDAO).closeRunningExecution(1, 2, TaskStatus.JOB_WARNING);
     verify(taskDAO).endTask(task, running);
+  }
+
+  @Test
+  void theClosingCallStoresWhoCompletedTheExecution() throws Exception {
+    service.complete(1, 2, TaskStatus.JOB_OK, "done", null);
+    service.complete(1, 2, TaskStatus.JOB_INTERRUPTED, "late", null, CompletionSource.DEADLINE);
+
+    verify(taskDAO).recordDeferredCompletion(eq(1), eq(2), eq(CompletionSource.API), any());
+    verify(taskDAO).recordDeferredCompletion(eq(1), eq(2), eq(CompletionSource.DEADLINE), any());
+  }
+
+  @Test
+  void aStopOrADeadlineNotifiesTheCancellationOnceAndTheApiDoesNot() throws Exception {
+    DeferredExecution deferred = new DeferredExecution().setTaskId(1).setExecutionId(2).setExternalReference("ref");
+    when(taskDAO.getDeferredExecution(1, 2)).thenReturn(deferred);
+
+    service.complete(1, 2, TaskStatus.JOB_STOPPED, "x", null, CompletionSource.API);
+    verifyNoInteractions(cancellationNotifier);
+
+    service.complete(1, 2, TaskStatus.JOB_INTERRUPTED, "x", null, CompletionSource.DEADLINE);
+    service.complete(1, 2, TaskStatus.JOB_STOPPED, "x", null, CompletionSource.USER);
+    verify(cancellationNotifier, times(2)).notifyCancellation(task, deferred);
+  }
+
+  @Test
+  void aCallThatDoesNotCloseTheExecutionDoesNotNotify() throws Exception {
+    when(taskDAO.closeRunningExecution(eq(1), eq(2), any())).thenReturn(false);
+
+    service.complete(1, 2, TaskStatus.JOB_INTERRUPTED, "x", null, CompletionSource.DEADLINE);
+
+    verifyNoInteractions(cancellationNotifier);
+  }
+
+  @Test
+  void aFailingTraceStillPublishesTheEvent() throws Exception {
+    doThrow(new AWException("trace failed")).when(taskDAO).recordDeferredCompletion(any(), any(), any(), any());
+
+    assertThat(service.complete(1, 2, TaskStatus.JOB_OK, "x", null).outcome()).isEqualTo(Outcome.CLOSED);
+
+    verify(eventPublisher).publishEvent(any(SchedulerTaskFinishedEvent.class));
+  }
+
+  @Test
+  void theOutputsBecomeValueParametersOfTheTaskTheDependenciesReceive() throws Exception {
+    task.setParameterList(new ArrayList<>(List.of(
+      new TaskParameter().setName("file").setSource("2").setValue("app.file"),
+      new TaskParameter().setName("kept").setSource("0").setValue("same"))));
+    Map<String, String> outputs = new HashMap<>();
+    outputs.put("file", "result.csv");
+    outputs.put("rows", "42");
+    outputs.put("empty", null);
+
+    service.complete(1, 2, TaskStatus.JOB_OK, "done", outputs);
+
+    ArgumentCaptor<SchedulerTaskFinishedEvent> event = ArgumentCaptor.forClass(SchedulerTaskFinishedEvent.class);
+    verify(eventPublisher).publishEvent(event.capture());
+    assertThat(event.getValue().getTask().getParameterList())
+      .extracting(TaskParameter::getName, TaskParameter::getSource, TaskParameter::getValue)
+      .containsExactlyInAnyOrder(tuple("file", "0", "result.csv"), tuple("kept", "0", "same"), tuple("rows", "0", "42"));
   }
 
   @Test
@@ -178,6 +245,7 @@ class SchedulerExecutionCompletionServiceTest {
     assertThat(result.outcome()).isEqualTo(Outcome.NOT_RUNNING);
     assertThat(result.currentStatus()).isEqualTo(TaskStatus.JOB_INTERRUPTED);
     verify(taskDAO, never()).endTask(any(), any());
+    verify(taskDAO, never()).recordDeferredCompletion(any(), any(), any(), any());
     verifyNoInteractions(eventPublisher, executionLogStore, executionService);
   }
 
@@ -209,7 +277,7 @@ class SchedulerExecutionCompletionServiceTest {
 
     assertThat(service.stopTask(1)).isEqualTo(1);
 
-    verify(service).complete(1, 2, TaskStatus.JOB_STOPPED, "stopped by user", null);
-    verify(service).complete(1, 3, TaskStatus.JOB_STOPPED, "stopped by user", null);
+    verify(service).complete(1, 2, TaskStatus.JOB_STOPPED, "stopped by user", null, CompletionSource.USER);
+    verify(service).complete(1, 3, TaskStatus.JOB_STOPPED, "stopped by user", null, CompletionSource.USER);
   }
 }

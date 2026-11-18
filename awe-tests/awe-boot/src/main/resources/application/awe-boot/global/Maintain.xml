@@ -1197,6 +1197,14 @@
     </serve>
   </target>
 
+  <target name="deferredTestCancel">
+    <serve service="deferredTestCancel">
+      <variable id="taskId" type="INTEGER" name="taskId"/>
+      <variable id="executionId" type="INTEGER" name="executionId"/>
+      <variable id="externalReference" type="STRING" name="externalReference"/>
+    </serve>
+  </target>
+
   <target name="deferredTestLaunch">
     <serve service="deferredTestLaunch">
       <variable id="taskId" type="INTEGER" name="taskId"/>

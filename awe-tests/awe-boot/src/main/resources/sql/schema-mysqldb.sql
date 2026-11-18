@@ -404,6 +404,10 @@ CREATE TABLE IF NOT EXISTS AweSchExeExt
     ExtRef VARCHAR(256),
     DfrDat DATETIME(3) not NULL,
     DueDat DATETIME(3) not NULL,
+    CmpDat DATETIME(3),
+    CmpSrc VARCHAR(10),
+    CncSta VARCHAR(10),
+    CncErr VARCHAR(2000),
     CONSTRAINT PK_AWESCHEXEEXT PRIMARY KEY (IdeTsk, ExeTsk)
 );
 
@@ -468,6 +472,7 @@ CREATE TABLE IF NOT EXISTS AweSchTsk
     Act       INTEGER DEFAULT 1 not NULL,
     RepUsrDst VARCHAR(250),
     RepMntId  VARCHAR(200),
+    CncMnt    VARCHAR(200),
     CmdExePth VARCHAR(200),
     db        VARCHAR(200),
     site      VARCHAR(200)
@@ -600,6 +605,7 @@ CREATE TABLE IF NOT EXISTS HisAweSchTsk
     Act       INTEGER,
     RepUsrDst VARCHAR(250),
     RepMntId  VARCHAR(200),
+    CncMnt    VARCHAR(200),
     CmdExePth VARCHAR(200),
     db        VARCHAR(200),
     site      VARCHAR(200)

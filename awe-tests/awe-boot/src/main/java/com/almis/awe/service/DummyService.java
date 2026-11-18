@@ -65,6 +65,8 @@ public class DummyService extends ServiceConfig {
   private final Random random = new Random();
   // Execution keys (task, execution) that the deferred test task received
   private final List<int[]> deferredLaunches = new CopyOnWriteArrayList<>();
+  // Cancellation notices (task, execution, external reference) that the deferred test task received
+  private final List<String> deferredCancellations = new CopyOnWriteArrayList<>();
 
   /**
    * Autowired constructor
@@ -583,6 +585,28 @@ public class DummyService extends ServiceConfig {
   public ServiceData deferredTestLaunch(Integer taskId, Integer executionId) {
     deferredLaunches.add(new int[]{taskId, executionId});
     return SchedulerDeferred.accepted("external-ref-1", "Waiting for the external system");
+  }
+
+  /**
+   * Record the cancellation notice of a deferred execution
+   *
+   * @param taskId            Task identifier
+   * @param executionId       Execution identifier
+   * @param externalReference Reference of the work in the external system
+   * @return Empty answer
+   */
+  public ServiceData deferredTestCancel(Integer taskId, Integer executionId, String externalReference) {
+    deferredCancellations.add(taskId + "-" + executionId + "-" + externalReference);
+    return new ServiceData();
+  }
+
+  /**
+   * Cancellation notices "task-execution-reference" received by the deferred test task, in order
+   *
+   * @return Cancellation notices
+   */
+  public List<String> getDeferredCancellations() {
+    return deferredCancellations;
   }
 
   /**

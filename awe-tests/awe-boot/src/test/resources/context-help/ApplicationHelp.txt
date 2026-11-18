@@ -654,6 +654,12 @@
         </div><div class="help-snippet padding-sm-vr no-padding-t">
         </div><div class="help-snippet padding-sm-vr no-padding-t">
         </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_DEFERRED_EXECUTION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-default text-semibold text-sm">
             <i class="fa fa-youtube-play fa-fw"></i>
             <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>

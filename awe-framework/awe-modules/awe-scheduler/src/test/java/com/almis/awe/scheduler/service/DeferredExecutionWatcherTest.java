@@ -3,6 +3,7 @@ package com.almis.awe.scheduler.service;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.scheduler.bean.task.DeferredExecution;
 import com.almis.awe.scheduler.dao.TaskDAO;
+import com.almis.awe.scheduler.enums.CompletionSource;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,8 +46,10 @@ class DeferredExecutionWatcherTest {
 
     watcher.sweep();
 
-    verify(completionService).complete(1, 2, TaskStatus.JOB_INTERRUPTED, null, null);
-    verify(completionService).complete(3, 4, TaskStatus.JOB_INTERRUPTED, null, null);
+    verify(completionService).complete(1, 2, TaskStatus.JOB_INTERRUPTED, null, null,
+      CompletionSource.DEADLINE);
+    verify(completionService).complete(3, 4, TaskStatus.JOB_INTERRUPTED, null, null,
+      CompletionSource.DEADLINE);
   }
 
   @Test
@@ -65,11 +68,13 @@ class DeferredExecutionWatcherTest {
   void aFailingExecutionDoesNotStopTheOthers() throws Exception {
     given(taskDAO.getRunningDeferredExecutions(isNull(), any(Instant.class)))
       .willReturn(List.of(overdue(1, 2), overdue(3, 4)));
-    given(completionService.complete(1, 2, TaskStatus.JOB_INTERRUPTED, null, null)).willThrow(new AWException("boom"));
+    given(completionService.complete(1, 2, TaskStatus.JOB_INTERRUPTED, null, null,
+      CompletionSource.DEADLINE)).willThrow(new AWException("boom"));
 
     watcher.sweep();
 
-    verify(completionService).complete(3, 4, TaskStatus.JOB_INTERRUPTED, null, null);
+    verify(completionService).complete(3, 4, TaskStatus.JOB_INTERRUPTED, null, null,
+      CompletionSource.DEADLINE);
   }
 
   @Test

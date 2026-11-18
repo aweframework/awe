@@ -152,7 +152,7 @@ The request needs an AWE bearer token, like the rest of `/scheduler/api/**` (see
 |---------------|:-----------------------------------------------------------------------------------------------|:--------------------:|
 | `status`      | Final status: `OK`, `WARNING`, `ERROR`, `STOPPED`, `INTERRUPTED` or `INFO` (case insensitive)  |     **Required**     |
 | `description` | Description of the execution, 2000 characters at most                                          |       Optional       |
-| `outputs`     | Object with text values. It is accepted and not used yet                                       |       Optional       |
+| `outputs`     | Object with text values for the dependencies (see [Outputs](#outputs))                         |       Optional       |
 
 ```bash
 curl -X POST "https://scheduler.example.com/scheduler/api/v1/tasks/12/executions/340/complete" \
@@ -185,11 +185,39 @@ CompletionResult result = completionService.complete(taskId, executionId, TaskSt
 // result.outcome(): CLOSED, NOT_RUNNING, NOT_DEFERRED or UNKNOWN
 ```
 
+#### Outputs
+
+The `outputs` of the completion reach the dependencies launched when the execution closes, as the other values of the parent task do: each dependency takes the value of every output whose name matches one of its **variable** parameters. An output replaces a parameter of the closed task with the same name, and an output without a name or a value is ignored.
+
+```bash
+curl -X POST "https://scheduler.example.com/scheduler/api/v1/tasks/12/executions/340/complete" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"status": "OK", "outputs": {"resultFile": "/data/out/340.csv"}}'
+```
+
+A dependency with a variable parameter `resultFile` runs with `/data/out/340.csv`.
+
 #### Deadline, stop and restart
 
 - **Deadline**: an execution that is not completed within the task **Timeout**, or within `awe.scheduler.deferred.default-timeout` (24 hours by default) when the task has none, counted from the start of the execution, ends as **interrupted** with the timeout message and its dependencies are not launched. The scheduler checks the deadlines every `awe.scheduler.deferred.timeout-check-interval` (60 seconds by default), so the execution can end after its deadline by up to that interval. A completion that arrives later gets a `409`. See the **[Configuration guide](../scheduler-module.md#deferred-executions)**.
 - **Stop**: the **Stop** button of the tasks screen ends the waiting executions of the selected task as **stopped**, without launching dependencies.
 - **Restart and cluster**: the state of a waiting execution is stored in the database, so it survives a restart. At startup the scheduler interrupts the executions that a stopped node left running, except the ones that are waiting to be completed. Every node checks the deadlines and any node can receive the completion, but only the first call that closes an execution ends it.
+
+#### Cancellation notice
+
+When a user stops a deferred execution or its deadline passes, the other system may still be working on it. Fill **Cancellation maintain** in the task (maintain tasks only) to tell it: the call that closes the execution launches that maintain once, where the task maintain runs (on the AWE application for an [external scheduler](#remote-scheduler-setup)), with these parameters:
+
+| Parameter           | Value                                              |
+|---------------------|:---------------------------------------------------|
+| `taskId`            | Task identifier                                    |
+| `executionId`       | Execution identifier                               |
+| `externalReference` | The `externalReference` of the deferred answer     |
+
+A completion through the API or the `SchedulerExecutionCompletionService` does not send it: the other system closed the execution itself. The notice never reopens or blocks the execution: when the maintain fails or answers an error, the execution stays closed and the failure is stored in its trace.
+
+#### Trace and counters
+
+Every deferred execution keeps, after it closes, who closed it and when (`API`, `DEADLINE` or `USER`) and the outcome of its cancellation notice (`SENT`, or `FAILED` with the error message). The execution details of the tasks screen show the reference, the deadline and this trace. The scheduler dashboard shows four counters: deferred executions running, completed by the other system, interrupted by the deadline and stopped by a user.
 
 ### Task execution database
 

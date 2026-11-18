@@ -6,6 +6,7 @@ import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.task.DeferredExecution;
+import com.almis.awe.scheduler.enums.CompletionSource;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,6 +69,19 @@ class DeferredExecutionRepositoryTest {
     assertThat(parameters.get("externalReference").asText()).isEqualTo("job-77");
     assertThat(parameters.get("acceptedDate").asText()).startsWith("13/11/2026");
     assertThat(parameters.get("dueDate").asText()).startsWith("13/11/2026");
+  }
+
+  @Test
+  void completeStoresTheSourceAndTheDateOfTheClose() throws AWException {
+    repository.complete(3, 7, CompletionSource.DEADLINE, NOW);
+
+    ArgumentCaptor<ObjectNode> captor = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService).launchPrivateMaintain(eq("updateDeferredCompletion"), captor.capture());
+    ObjectNode parameters = captor.getValue();
+    assertThat(parameters.get("taskId").asInt()).isEqualTo(3);
+    assertThat(parameters.get("taskExecution").asInt()).isEqualTo(7);
+    assertThat(parameters.get("completionSource").asText()).isEqualTo("DEADLINE");
+    assertThat(parameters.get("completionDate").asText()).startsWith("13/11/2026");
   }
 
   @Test

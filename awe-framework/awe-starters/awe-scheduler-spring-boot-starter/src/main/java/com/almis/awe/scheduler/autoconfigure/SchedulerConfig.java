@@ -25,6 +25,7 @@ import com.almis.awe.scheduler.listener.SchedulerEventListener;
 import com.almis.awe.scheduler.listener.SchedulerJobListener;
 import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
+import com.almis.awe.scheduler.service.DeferredCancellationNotifier;
 import com.almis.awe.scheduler.service.DeferredExecutionWatcher;
 import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.scheduler.service.RemoteSchedulerService;
@@ -146,9 +147,20 @@ public class SchedulerConfig {
   @Bean
   public SchedulerExecutionCompletionService schedulerExecutionCompletionService(
     TaskDAO taskDAO, ExecutionService executionService, ExecutionLogStore executionLogStore,
-    ApplicationEventPublisher eventPublisher) {
+    ApplicationEventPublisher eventPublisher, DeferredCancellationNotifier cancellationNotifier) {
     return new SchedulerExecutionCompletionService(taskDAO, executionService, executionLogStore, eventPublisher,
-      schedulerConfigProperties.getDeferred().getDefaultTimeout());
+      cancellationNotifier, schedulerConfigProperties.getDeferred().getDefaultTimeout());
+  }
+
+  /**
+   * Define the notice to the external system of a cancelled deferred execution
+   *
+   * @return Cancellation notifier
+   */
+  @Bean
+  public DeferredCancellationNotifier deferredCancellationNotifier(TaskDAO taskDAO,
+                                                                   MaintainJobService maintainJobService) {
+    return new DeferredCancellationNotifier(taskDAO, maintainJobService);
   }
 
   /**

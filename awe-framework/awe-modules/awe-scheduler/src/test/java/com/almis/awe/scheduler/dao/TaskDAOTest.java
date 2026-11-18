@@ -58,6 +58,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class TaskDAOTest {
 
+  private static final String DEFERRED_EXECUTION_QUERY = "getDeferredExecution";
+
   private TaskDAO taskDAO;
 
   @Mock
@@ -322,13 +324,14 @@ class TaskDAOTest {
     row.put("status", new CellData(TaskStatus.JOB_INTERRUPTED.getValue()));
     dataList.addRow(row);
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(dataList));
+    given(queryService.launchPrivateQuery(eq(DEFERRED_EXECUTION_QUERY), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
     given(queryService.findLabel(anyString(), anyString())).willReturn("Label");
 
     // Finish task
     ServiceData serviceData = taskDAO.loadExecutionScreen("lala", address);
 
     // Assert
-    assertEquals(18, serviceData.getClientActionList().size());
+    assertEquals(19, serviceData.getClientActionList().size());
   }
 
   /**
@@ -370,13 +373,14 @@ class TaskDAOTest {
     row.put("executionTime", new CellData(1231));
     dataList.addRow(row);
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(dataList));
+    given(queryService.launchPrivateQuery(eq(DEFERRED_EXECUTION_QUERY), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
     given(queryService.findLabel(anyString(), anyString())).willReturn("Label");
 
     // Finish task
     ServiceData serviceData = taskDAO.reloadExecutionScreen(1, 1);
 
     // Assert
-    assertEquals(13, serviceData.getClientActionList().size());
+    assertEquals(14, serviceData.getClientActionList().size());
   }
 
   /**
@@ -427,6 +431,7 @@ class TaskDAOTest {
     given(aweElements.getLocaleWithLanguage(anyString(), eq(null))).willReturn("LOCALE");
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(reloadExecutionScreenFixture()));
+    given(queryService.launchPrivateQuery(eq(DEFERRED_EXECUTION_QUERY), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
     given(queryService.findLabel(anyString(), anyString())).willReturn("Label");
     ExecutionLogStore mockStore = mock(ExecutionLogStore.class);
     TaskDAO taskDaoWithMockStore = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, mockStore);
@@ -465,6 +470,7 @@ class TaskDAOTest {
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(reloadExecutionScreenFixture()));
+    given(queryService.launchPrivateQuery(eq(DEFERRED_EXECUTION_QUERY), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(new DataList()));
     given(queryService.findLabel(anyString(), anyString())).willReturn("Label");
     ObjectNode address = JsonNodeFactory.instance.objectNode();
     address.put("row", "1" + TASK_SEPARATOR + "1");

@@ -62,6 +62,15 @@
               <tag type="div" style="text-xs text-uppercase text-light-gray" label="SCREEN_TEXT_MORE_INFORMATION"/>
               <criteria id="execution-information" style="text-xs text-bold no-label no-margin" component="text-view"/>
             </tag>
+            <tag type="div" style="stat-cell col-xs-8 padding-sm no-padding-hr">
+              <!-- Deferred executions only: reference, deadline, who closed it and the cancellation notice -->
+              <criteria id="execution-deferred" label="SCREEN_TEXT_DEFERRED_EXECUTION" style="text-xs text-bold no-margin"
+                        component="text-view">
+                <dependency target-type="show" initial="true">
+                  <dependency-element id="execution-deferred" condition="is not empty"/>
+                </dependency>
+              </criteria>
+            </tag>
           </tag>
         </tag>
       </tag>

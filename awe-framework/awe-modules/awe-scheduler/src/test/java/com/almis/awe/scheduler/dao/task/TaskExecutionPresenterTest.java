@@ -7,6 +7,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.TimeUtil;
+import com.almis.awe.scheduler.bean.task.DeferredExecution;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.log.ExecutionKey;
@@ -68,12 +69,15 @@ class TaskExecutionPresenterTest {
   @Mock
   private ServiceConfig serviceConfig;
 
+  @Mock
+  private DeferredExecutionRepository deferredRepository;
+
   private TaskExecutionPresenter presenter;
 
   @BeforeEach
   void initPresenter() {
     presenter = new TaskExecutionPresenter(queryService, queryUtil, executionLogStore, executionRepository,
-      serviceConfig, Clock.fixed(NOW, ZoneOffset.UTC));
+      deferredRepository, serviceConfig, Clock.fixed(NOW, ZoneOffset.UTC));
   }
 
   @Test
@@ -145,6 +149,38 @@ class TaskExecutionPresenterTest {
 
     assertEquals("04/03/2026 05:06:07.000", selectedValue(serviceData, "execution-start-time"));
     assertEquals("", selectedValue(serviceData, "execution-end-time"));
+  }
+
+  @Test
+  void aDeferredExecutionShowsItsReferenceDeadlineAndTrace() throws Exception {
+    Date start = Date.from(LocalDateTime.of(2026, 3, 4, 5, 6, 7).atZone(ZoneId.systemDefault()).toInstant());
+    Date due = Date.from(LocalDateTime.of(2026, 3, 5, 5, 6, 7).atZone(ZoneId.systemDefault()).toInstant());
+    given(executionRepository.getTaskExecution(1, 2)).willReturn(execution(start, start));
+    given(queryService.findLabel(anyString(), any())).willReturn("Label");
+    given(deferredRepository.find(1, 2)).willReturn(new DeferredExecution().setTaskId(1).setExecutionId(2)
+      .setExternalReference("job-77").setDueDate(due).setCompletionDate(start).setCompletionSource("USER")
+      .setCancellationStatus("FAILED").setCancellationError("unknown job"));
+    given(serviceConfig.getLocale(anyString())).willAnswer(invocation -> invocation.getArgument(0));
+    given(serviceConfig.getLocale(anyString(), any(String[].class))).willAnswer(invocation ->
+      invocation.getArgument(0) + String.join(",", (String[]) invocation.getRawArguments()[1]));
+
+    ServiceData serviceData = presenter.reloadExecutionScreen(1, 2);
+
+    assertEquals("SCHEDULER_DEFERRED_TRACEjob-77,05/03/2026 05:06:07.000"
+        + " · SCHEDULER_DEFERRED_CLOSEDSCHEDULER_DEFERRED_SOURCE_USER,04/03/2026 05:06:07.000"
+        + " · SCHEDULER_DEFERRED_NOTICE_FAILEDunknown job",
+      selectedValue(serviceData, "execution-deferred"));
+  }
+
+  @Test
+  void anExecutionThatWasNeverDeferredShowsNoTrace() throws Exception {
+    Date start = Date.from(LocalDateTime.of(2026, 3, 4, 5, 6, 7).atZone(ZoneId.systemDefault()).toInstant());
+    given(executionRepository.getTaskExecution(1, 2)).willReturn(execution(start, start));
+    given(queryService.findLabel(anyString(), any())).willReturn("Label");
+
+    ServiceData serviceData = presenter.reloadExecutionScreen(1, 2);
+
+    assertEquals("", selectedValue(serviceData, "execution-deferred"));
   }
 
   private TaskExecution execution(Date start, Date end) {

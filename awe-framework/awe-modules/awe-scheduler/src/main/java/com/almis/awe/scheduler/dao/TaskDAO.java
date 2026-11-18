@@ -19,6 +19,7 @@ import com.almis.awe.scheduler.dao.task.TaskListPresenter;
 import com.almis.awe.scheduler.dao.task.TaskParameterOverrides;
 import com.almis.awe.scheduler.dao.task.TaskRepository;
 import com.almis.awe.scheduler.dao.task.TaskScheduling;
+import com.almis.awe.scheduler.enums.CompletionSource;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.filechecker.FileChecker;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
@@ -96,7 +97,7 @@ public class TaskDAO extends ServiceConfig {
     this.taskScheduling = new TaskScheduling(scheduler, fileChecker, taskRepository, executionRepository, this);
     this.taskListPresenter = new TaskListPresenter(scheduler, queryService, queryUtil, taskScheduling, this);
     this.executionPresenter = new TaskExecutionPresenter(queryService, queryUtil, executionLogStore,
-      executionRepository, this);
+      executionRepository, deferredRepository, this);
     this.parameterOverrides = new TaskParameterOverrides(this::getProperty);
     this.immediateLauncher = new TaskImmediateLauncher(taskRepository, executionRepository, parameterOverrides,
       this, flowRunRepository);
@@ -229,6 +230,32 @@ public class TaskDAO extends ServiceConfig {
   public void insertDeferredExecution(Integer taskId, Integer executionId, String externalReference,
                                       Instant acceptedDate, Instant dueDate) throws AWException {
     deferredRepository.insert(taskId, executionId, externalReference, acceptedDate, dueDate);
+  }
+
+  /**
+   * Store who closed a deferred execution and when
+   *
+   * @param taskId         Task id
+   * @param executionId    Execution id
+   * @param source         Who closed the execution
+   * @param completionDate Date the execution was closed
+   */
+  public void recordDeferredCompletion(Integer taskId, Integer executionId, CompletionSource source,
+                                       Instant completionDate) throws AWException {
+    deferredRepository.complete(taskId, executionId, source, completionDate);
+  }
+
+  /**
+   * Store the outcome of the cancellation notice of a deferred execution
+   *
+   * @param taskId      Task id
+   * @param executionId Execution id
+   * @param status      Outcome of the notice
+   * @param error       Error of a failed notice, or null
+   */
+  public void recordCancellationNotice(Integer taskId, Integer executionId, String status, String error)
+    throws AWException {
+    deferredRepository.cancellationNotice(taskId, executionId, status, error);
   }
 
   /**

@@ -336,6 +336,10 @@
     <field id="ExtRef" alias="externalReference" table="Ext"/>
     <field id="DfrDat" alias="acceptedDate" table="Ext"/>
     <field id="DueDat" alias="dueDate" table="Ext"/>
+    <field id="CmpDat" alias="completionDate" table="Ext"/>
+    <field id="CmpSrc" alias="completionSource" table="Ext"/>
+    <field id="CncSta" alias="cancellationStatus" table="Ext"/>
+    <field id="CncErr" alias="cancellationError" table="Ext"/>
     <where>
       <and>
         <filter left-field="IdeTsk" left-table="Ext" condition="eq" right-variable="taskId"/>
@@ -371,6 +375,42 @@
     <variable id="taskId" type="INTEGER" name="taskId"/>
     <variable id="limitDate" type="TIMESTAMP" name="limitDate"/>
     <variable id="status" type="INTEGER" value="4"/>
+  </query>
+
+  <!-- Counters of the deferred executions (dashboard cards): running, and closed by the API, the deadline or a user -->
+  <query id="SchDfrRun" permission="scheduler.read">
+    <table query="getRunningDeferredExecutions" alias="t"/>
+    <field id="taskId" table="t" alias="value" function="CNT"/>
+  </query>
+
+  <!-- Completed by the external system -->
+  <query id="SchDfrApi" permission="scheduler.read">
+    <table id="AweSchExeExt"/>
+    <field id="IdeTsk" alias="value" function="CNT"/>
+    <where>
+      <filter left-field="CmpSrc" condition="eq" right-variable="source"/>
+    </where>
+    <variable id="source" type="STRING" value="API"/>
+  </query>
+
+  <!-- Interrupted by the deadline -->
+  <query id="SchDfrDln" permission="scheduler.read">
+    <table id="AweSchExeExt"/>
+    <field id="IdeTsk" alias="value" function="CNT"/>
+    <where>
+      <filter left-field="CmpSrc" condition="eq" right-variable="source"/>
+    </where>
+    <variable id="source" type="STRING" value="DEADLINE"/>
+  </query>
+
+  <!-- Stopped by a user -->
+  <query id="SchDfrUsr" permission="scheduler.read">
+    <table id="AweSchExeExt"/>
+    <field id="IdeTsk" alias="value" function="CNT"/>
+    <where>
+      <filter left-field="CmpSrc" condition="eq" right-variable="source"/>
+    </where>
+    <variable id="source" type="STRING" value="USER"/>
   </query>
 
   <!-- Subquery of the start of an execution: the outer AweSchExeExt row has an execution -->
@@ -515,6 +555,7 @@
     <field id="RepSndSta" alias="reportSendStatus" table="Tsk" transform="LIST" pattern="," />
 
     <field id="RepMntId" alias="reportMaintainId" table="Tsk" />
+    <field id="CncMnt" alias="cancellationMaintain" table="Tsk" />
 
     <!-- SCREEN FIELDS -->
     <field id="Ide" alias="Ide" table="Tsk"/>
@@ -569,6 +610,7 @@
     <field id="RepSndSta" alias="RepSndSta" table="Tsk" transform="ARRAY" pattern="," />
 
     <field id="RepMntId" alias="RepMntId" table="Tsk" />
+    <field id="CncMnt" alias="CncMnt" table="Tsk" />
 
     <join type="LEFT">
       <table id="AweSchTskLch" alias="Lch"/>
