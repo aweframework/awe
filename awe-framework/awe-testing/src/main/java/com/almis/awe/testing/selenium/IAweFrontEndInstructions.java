@@ -1342,6 +1342,15 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   }
 
   /**
+   * Retrieve the nodes of the flow graph of the scheduler
+   *
+   * @return Flow graph node selector
+   */
+  default By getFlowGraphNode() {
+    return By.cssSelector(TestIds.css(TestIds.FLOW_GRAPH_NODE));
+  }
+
+  /**
    * Get the element that holds the text of the file viewer
    *
    * @return File viewer selector

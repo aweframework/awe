@@ -151,6 +151,7 @@ describe("test id vocabulary", () => {
       columnIcon: "column-icon",
       logViewer: "log-viewer",
       fileViewer: "file-viewer",
+      flowGraphNode: "flow-graph-node",
       dialog: "dialog",
       dialogClose: "dialog-close",
       sidePanel: "side-panel",

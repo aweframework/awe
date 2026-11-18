@@ -12,8 +12,8 @@
     </button>
   </tag>
   <tag source="center">
-    <!-- The run list on top and, below it, the executions and the skipped tasks of the selected run: three windows
-         side by side leave the dates out of view -->
+    <!-- The run list on top and, below it, the flow graph, the executions and the skipped tasks of the selected run:
+         three windows side by side leave the dates out of view -->
     <tag type="div" style="expand" expandible="vertical">
       <window style="expand" maximize="true" label="SCREEN_TEXT_FLOW_RUNS" icon="sitemap" expandible="vertical">
         <grid id="GrdRunLst" style="expand" server-action="data" target-action="getFlowRunList" initial-load="query" row-numbers="false">
@@ -28,6 +28,8 @@
             <dependency-element id="GrdRunLst" condition="eq" value="1" />
             <dependency-action type="remove-class" target="[window-id='RunExecutionsWindow']" target-action="hidden" async="true" silent="true"/>
             <dependency-action type="remove-class" target="[window-id='RunSkippedWindow']" target-action="hidden" async="true" silent="true"/>
+            <dependency-action type="remove-class" target="[window-id='RunGraphWindow']" target-action="hidden" async="true" silent="true"/>
+            <dependency-action type="filter" target="IdeTsk" async="true" silent="true"/>
             <dependency-action type="filter" target="GrdRunExe" async="true" silent="true"/>
             <dependency-action type="filter" target="GrdRunSkp" async="true" silent="true"/>
           </dependency>
@@ -35,8 +37,15 @@
             <dependency-element id="GrdRunLst" condition="ne" value="1" />
             <dependency-action type="add-class" target="[window-id='RunExecutionsWindow']" target-action="hidden" async="true" silent="true"/>
             <dependency-action type="add-class" target="[window-id='RunSkippedWindow']" target-action="hidden" async="true" silent="true"/>
+            <dependency-action type="add-class" target="[window-id='RunGraphWindow']" target-action="hidden" async="true" silent="true"/>
           </dependency>
         </grid>
+      </window>
+      <!-- Flow graph of the selected run with the state of each task -->
+      <window id="RunGraphWindow" style="hidden" label="SCREEN_TEXT_FLOW_GRAPH" icon="code-fork" expandible="vertical">
+        <widget type="flow-graph" id="IdeTsk" server-action="data" target-action="getFlowGraph">
+          <widget-parameter type="string" name="target" value="update-scheduler-task"/>
+        </widget>
       </window>
       <tag type="div" style="expand" expandible="horizontal">
         <window id="RunExecutionsWindow" style="expand-2x hidden" label="SCREEN_TEXT_RUN_EXECUTIONS" icon="gears" expandible="vertical">

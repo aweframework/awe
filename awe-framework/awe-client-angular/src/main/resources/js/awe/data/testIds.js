@@ -181,6 +181,8 @@ export const TestIds = Object.freeze({
   logViewer: "log-viewer",
   // File viewer: the element that holds the text of the file
   fileViewer: "file-viewer",
+  // Flow graph of the scheduler: each task node
+  flowGraphNode: "flow-graph-node",
   // Modal dialogs: the dialog (owner: dialog id) with its close button, and the confirm dialog with its buttons
   dialog: "dialog",
   dialogClose: "dialog-close",

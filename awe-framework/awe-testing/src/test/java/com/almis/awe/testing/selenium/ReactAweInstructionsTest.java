@@ -432,6 +432,7 @@ class ReactAweInstructionsTest {
       "By.cssSelector: [data-testid='dialog'][data-testid-owner='PrnOpt'] [data-testid='dialog-close']");
     assertThat(instructions.getLogViewer()).hasToString("By.cssSelector: [data-testid='log-viewer']");
     assertThat(instructions.getFileViewer()).hasToString("By.cssSelector: [data-testid='file-viewer']");
+    assertThat(instructions.getFlowGraphNode()).hasToString("By.cssSelector: [data-testid='flow-graph-node']");
     assertThat(instructions.getSelectOption(1)).hasToString(
       "By.xpath: (//*[@data-testid='select-dropdown']//*[@data-testid='select-option'])[1]");
   }

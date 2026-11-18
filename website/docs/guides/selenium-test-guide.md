@@ -830,6 +830,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkMapRouteVisible(String mapId)` | Checks that a map draws a route (React client only) |
 | `checkLogViewerContains(String text)` | Waits until the log viewer shows a text |
 | `checkFileViewerContains(String text)` | Waits until the file viewer shows a text |
+| `checkFlowGraphContains(String task)` | Waits until a node of the scheduler flow graph shows a task |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Checks a text inside the frame that embeds an external application. The selector belongs to that application, so it is the one literal you may pass |
 
 ### Downloads

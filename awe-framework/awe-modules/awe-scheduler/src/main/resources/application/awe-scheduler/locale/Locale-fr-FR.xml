@@ -191,4 +191,16 @@
   <locale name="PARAMETER_ENDED_AT" value="Terminé à"/>
   <locale name="BUTTON_OPEN_RUN" value="Ouvrir le flux"/>
   <locale name="HELP_OPEN_RUN_BUTTON" value="Ouvrir l'exécution de flux de l'exécution sélectionnée"/>
+  <locale name="MENU_SCHEDULER_FLOW_GRAPH" value="Graphe de flux"/>
+  <locale name="HELP_SCREEN_SCHEDULER_FLOW_GRAPH" value="Dans cet écran, vous pouvez voir comment les tâches d'un flux dépendent les unes des autres : le flux de la tâche sélectionnée, ou tous les flux. Cliquez sur une tâche pour l'ouvrir"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH" value="Graphe de flux"/>
+  <locale name="BUTTON_FLOW_GRAPH" value="Graphe de flux"/>
+  <locale name="HELP_FLOW_GRAPH_BUTTON" value="Afficher le flux de la tâche sélectionnée, ou tous les flux si aucune tâche n'est sélectionnée"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_EMPTY" value="Il n'y a pas de dépendances entre tâches à dessiner"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_WAITING" value="En attente"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_SKIPPED" value="Ignorée"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_NOT_REACHED" value="Non atteinte"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ON_WARNING" value="Si avertissement"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ON_ERROR" value="Si erreur"/>
 </locales>

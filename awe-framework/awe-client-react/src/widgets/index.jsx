@@ -6,6 +6,7 @@ import AweHelpViewer from "./AweHelpViewer";
 import AwePdfViewer from "./AwePdfViewer";
 import AweCarousel from "./AweCarousel";
 import AweScreenPersonalizer from "./AweScreenPersonalizer";
+import AweFlowGraph from "./AweFlowGraph";
 
 const Widget = {};
 
@@ -36,6 +37,7 @@ registerWidget("help-viewer", AweHelpViewer);
 registerWidget("pdf-viewer", AwePdfViewer);
 registerWidget("carousel", AweCarousel);
 registerWidget("screen-personalizer", AweScreenPersonalizer);
+registerWidget("flow-graph", AweFlowGraph);
 
 export default (node, index) => {
   if (node.type in Widget) {

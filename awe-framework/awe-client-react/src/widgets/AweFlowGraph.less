@@ -1,0 +1,189 @@
+// Flow graph of the scheduler (#992): tasks as nodes, dependencies as curved edges, run state as a tone
+.flow-graph {
+  overflow: auto;
+  padding: var(--awe-space-2);
+  background: var(--awe-color-surface-subtle);
+  border: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  border-radius: var(--awe-radius-md);
+}
+
+.flow-graph-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--awe-space-8);
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-sm);
+}
+
+.flow-graph-canvas {
+  position: relative;
+}
+
+.flow-graph-edges {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.flow-graph-edge {
+  fill: none;
+  stroke: var(--awe-color-border);
+  stroke-width: var(--awe-border-width-strong);
+
+  &.is-warning {
+    stroke: var(--awe-color-warning);
+  }
+
+  &.is-error {
+    stroke: var(--awe-color-danger);
+  }
+}
+
+.flow-graph-arrow {
+  fill: var(--awe-color-border);
+
+  &.is-warning {
+    fill: var(--awe-color-warning);
+  }
+
+  &.is-error {
+    fill: var(--awe-color-danger);
+  }
+}
+
+.flow-graph-condition {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0 var(--awe-space-1);
+  border-radius: var(--awe-radius-full);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  white-space: nowrap;
+
+  &.is-warning {
+    color: var(--awe-color-warning-text);
+    background: var(--awe-color-warning-subtle);
+  }
+
+  &.is-error {
+    color: var(--awe-color-danger-text);
+    background: var(--awe-color-danger-subtle);
+  }
+}
+
+.flow-graph-node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-1-5) var(--awe-space-2);
+  text-align: left;
+  font: inherit;
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-left-width: var(--awe-space-1);
+  border-radius: var(--awe-radius-md);
+  box-shadow: var(--awe-shadow-sm);
+  cursor: pointer;
+  transition: background var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover {
+    background: var(--awe-color-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  &[aria-pressed="true"] {
+    border-color: var(--awe-color-primary);
+  }
+
+  &.is-inactive .flow-graph-node-name {
+    color: var(--awe-color-text-muted);
+    text-decoration: line-through;
+  }
+
+  &.is-ok {
+    border-left-color: var(--awe-color-success-text);
+  }
+
+  &.is-warning {
+    border-left-color: var(--awe-color-warning);
+  }
+
+  &.is-error,
+  &.is-stopped {
+    border-left-color: var(--awe-color-danger);
+  }
+
+  &.is-running,
+  &.is-interrupted {
+    border-left-color: var(--awe-color-info-text);
+  }
+
+  &.is-waiting,
+  &.is-skipped,
+  &.is-not-reached {
+    border-style: dashed;
+    border-left-style: solid;
+    border-left-color: var(--awe-color-border);
+  }
+
+  &.is-skipped,
+  &.is-not-reached {
+    background: var(--awe-color-surface-subtle);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.flow-graph-node-icon {
+  flex: none;
+  color: var(--awe-color-text-muted);
+}
+
+.flow-graph-node-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.flow-graph-node-name {
+  overflow: hidden;
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-graph-node-state {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-1);
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+
+  .is-ok & {
+    color: var(--awe-color-success-text);
+  }
+
+  .is-warning & {
+    color: var(--awe-color-warning-text);
+  }
+
+  .is-error &,
+  .is-stopped & {
+    color: var(--awe-color-danger-text);
+  }
+
+  .is-running &,
+  .is-interrupted & {
+    color: var(--awe-color-info-text);
+  }
+}

@@ -105,6 +105,7 @@ import "./treegrid";
 import "./pivotTable";
 import "./chart";
 import "./geoMap";
+import "./flowGraph";
 
 import "./plugins/uiToc";
 

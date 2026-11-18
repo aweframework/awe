@@ -190,6 +190,8 @@ export const TestIds = Object.freeze({
   logViewer: "log-viewer",
   // File viewer: the element that holds the text of the file
   fileViewer: "file-viewer",
+  // Flow graph of the scheduler: each task node
+  flowGraphNode: "flow-graph-node",
   // Info dropdowns (the element that carries the id), its toggle and menu, and info buttons
   infoDropdown: "info-dropdown",
   infoDropdownToggle: "info-dropdown-toggle",

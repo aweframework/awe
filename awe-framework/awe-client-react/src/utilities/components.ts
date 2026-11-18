@@ -596,6 +596,10 @@ export function getComponentData(
   if (chartImage !== undefined) {
     return {[(component.address as ComponentAddress).component as string]: {image: chartImage}};
   }
+  if (attributes.type === "flow-graph") {
+    // The node clicked in a flow graph is sent like the selected row of a grid (the task grid sends IdeTsk.selected)
+    return {[`${attributes.id}.selected`]: getDataDependingOnList(getSelectedValues(component[model] as OptionsModel)) ?? null};
+  }
   switch (attributes.component || "") {
     case COMPONENT_GRID:
       // A component of the grid type has the attributes and the model of a grid

@@ -307,6 +307,14 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldWaitForTheFlowGraphToShowTheTask() {
+    show(instructions.getFlowGraphNode(), "Extract data");
+
+    assertThatCode(() -> utilities.checkFlowGraphContains("Extract data")).doesNotThrowAnyException();
+    assertThrows(AssertionFailedError.class, () -> utilities.checkFlowGraphContains("Archive"));
+  }
+
+  @Test
   void shouldWaitForTheFileViewerToShowTheText() {
     show(instructions.getFileViewer(), "FILE VIEWER TEST LINE 1");
 
