@@ -61,6 +61,7 @@
   <locale name="ENUM_LAUNCH_FILE" value="Par fichier"/>
   <locale name="ENUM_LAUNCH_MANUAL" value="Manuelle"/>
   <locale name="ENUM_LAUNCH_SCHEDULED" value="Programmés"/>
+  <locale name="ENUM_LAUNCH_WEBHOOK" value="Webhook"/>
   <locale name="ENUM_TASK_STEP_CONFIG" value="Configuration"/>
   <locale name="ENUM_TASK_STEP_DEPENDENCIES" value="Dépendances"/>
   <locale name="ENUM_TASK_STEP_LAUNCH" value="Lancement"/>
@@ -178,6 +179,21 @@
   <locale name="SCHEDULER_TASK_DEPENDENCY_CYCLE_MESSAGE" value="Les dépendances de cette tâche la feraient se lancer elle-même, directement ou via d'autres tâches. Supprimez la dépendance qui ferme la boucle."/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_TITLE" value="Erreur de configuration des paramètres"/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE" value="La propriété {0} n'est pas définie sur l'instance du planificateur, la tâche ne peut donc pas être lancée. Définissez la propriété ou indiquez-en une existante."/>
+  <locale name="SCHEDULER_WEBHOOK_KEY" value="Clé du hook"/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_HELP" value="Dernière partie de l'URL du webhook. Lettres minuscules, chiffres et tirets, jusqu'à 64 caractères. Chaque tâche a besoin de sa propre clé."/>
+  <locale name="SCHEDULER_WEBHOOK_ACTIVE" value="Hook actif"/>
+  <locale name="SCHEDULER_WEBHOOK_SECRET" value="Propriété du secret"/>
+  <locale name="SCHEDULER_WEBHOOK_SECRET_HELP" value="Nom de la propriété de l'application qui contient le secret de signature (whsec_...). Le secret n'est jamais enregistré ni affiché ici. Plusieurs secrets séparés par des espaces ou des virgules sont acceptés, pour le renouveler."/>
+  <locale name="SCHEDULER_WEBHOOK_TYPE" value="Type d'événement"/>
+  <locale name="SCHEDULER_WEBHOOK_TYPE_HELP" value="Facultatif. Seuls les webhooks de ce type lancent la tâche ; les autres sont ignorés. Laissez vide pour accepter tout type."/>
+  <locale name="SCHEDULER_WEBHOOK_URL" value="URL du webhook"/>
+  <locale name="SCHEDULER_WEBHOOK_URL_HELP" value="Adresse à laquelle l'émetteur envoie les webhooks signés. Copiez-la dans l'émetteur."/>
+  <locale name="SCHEDULER_WEBHOOK_POINTER" value="Pointeur JSON"/>
+  <locale name="SCHEDULER_WEBHOOK_POINTER_HELP" value="Pointeur dans les données du webhook, par exemple /date. Seuls les paramètres VARIABLE avec pointeur reçoivent des valeurs du webhook."/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_INVALID_TITLE" value="Webhook non valide"/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_INVALID_MESSAGE" value="La clé du hook doit comporter de 1 à 64 caractères : lettres minuscules, chiffres et tirets."/>
+  <locale name="SCHEDULER_WEBHOOK_SECRET_REQUIRED_MESSAGE" value="Indiquez le nom de la propriété qui contient le secret du webhook."/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_DUPLICATED_MESSAGE" value="La clé de hook {0} appartient déjà à une autre tâche. Choisissez une clé différente."/>
   <locale name="SCREEN_TEXT_EXECUTION_TIME" value="Temps d&apos;exécution"/>
   <locale name="SCREEN_TEXT_EXECUTIONS" value="Exécutions"/>
   <locale name="SCREEN_TEXT_LAUNCHED_BY" value="Lancé par"/>

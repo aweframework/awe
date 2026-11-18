@@ -22,6 +22,27 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 public class SchedulerSecurityConfig extends ServiceConfig {
 
   /**
+   * Security filter chain of the webhooks that launch tasks.
+   *
+   * <p>It matches only the webhook path and lets every request through: the signature of the message is the
+   * authentication, checked by the controller over the raw body. No other path of the scheduler api is opened.
+   *
+   * @param httpSecurity Http security
+   * @return security filter chain
+   * @throws Exception exception
+   */
+  @Bean(name = "aweSchedulerWebhookSecurityFilterChain")
+  @Order(97)
+  public SecurityFilterChain webhookFilterChain(HttpSecurity httpSecurity) throws Exception {
+    httpSecurity.securityMatcher("/scheduler/api/v1/webhooks/**")
+        .authorizeHttpRequests(httpRequest -> httpRequest.anyRequest().permitAll())
+        .csrf(AbstractHttpConfigurer::disable) // NOSONAR java:S4502 stateless, the signature authenticates
+        .sessionManagement(sessionManagement ->
+            sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+    return httpSecurity.build();
+  }
+
+  /**
    * Awe Scheduler http security filter chain.
    *
    * <p>Every request needs the same bearer token as the REST api, provided by the <code>restBearerSecurity</code>

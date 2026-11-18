@@ -47,7 +47,7 @@ Esta imagen muestra un ejemplo de cómo crear un flujo de trabajo mediante la co
 
 ## Ejecuciones de flujo y fan-in {#flow-runs-and-fan-in}
 
-Una tarea lanzada por su planificación, de forma manual o por un fichero inicia una **ejecución de flujo**. La ejecución de
+Una tarea lanzada por su planificación, de forma manual, por un fichero o por un webhook inicia una **ejecución de flujo**. La ejecución de
 flujo agrupa esa ejecución y todas las dependencias lanzadas a partir de ella, directamente o a través de otras
 dependencias: estas tareas forman el **ámbito** de la ejecución de flujo.
 
@@ -68,7 +68,9 @@ Cada parámetro de una dependencia toma el primer valor que se encuentre en este
 1. el valor por defecto de la tarea;
 2. el valor propagado por el padre que completa la unión (el que termina el último);
 3. el parámetro de la ejecución de flujo con el mismo nombre. Los parámetros de la ejecución de flujo solo se aplican a
-   los parámetros `VARIABLE`: la tarea hija define qué parámetros acepta.
+   los parámetros `VARIABLE`: la tarea hija define qué parámetros acepta. Los parámetros de la ejecución de flujo de un
+   [webhook](scheduler-guide.md#4-webhook) son los valores mapeados desde sus datos, de modo que llegan a todos los pasos
+   del flujo.
 
 ### Dependencias circulares {#circular-dependencies}
 

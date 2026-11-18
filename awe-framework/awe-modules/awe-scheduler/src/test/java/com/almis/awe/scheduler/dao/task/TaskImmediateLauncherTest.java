@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobExecutionContext;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +26,7 @@ import java.util.Map;
 
 import static com.almis.awe.scheduler.constant.TaskConstants.DEPENDENCY_GROUP;
 import static com.almis.awe.scheduler.constant.TaskConstants.MANUAL_GROUP;
+import static com.almis.awe.scheduler.constant.TaskConstants.WEBHOOK_GROUP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -82,6 +84,27 @@ class TaskImmediateLauncherTest {
     assertEquals("OPERATOR", launched.getParameterList().get(0).getValue());
     assertEquals(Map.of("mode", "OPERATOR"), launched.getRunParameters());
     assertNull(launched.getRunId());
+  }
+
+  @Test
+  void launchWebhookMapsTheDataToTheMappedVariablesOnly() throws Exception {
+    given(taskRepository.loadTask(5)).willReturn(task(5,
+      parameter("mode", ParameterConstants.VALUE, "smoke"),
+      parameter("date", ParameterConstants.VARIABLE, "STORED").setPointer("/date"),
+      parameter("entity", ParameterConstants.VARIABLE, "STORED")));
+
+    launcher.launchWebhook(5, "market-data",
+      JsonMapper.builder().build().readTree("{\"date\":\"2026-11-12\",\"entity\":\"0049\",\"mode\":\"x\"}"),
+      submitter);
+
+    Task launched = submitted.get(0);
+    assertEquals("webhook:market-data", launched.getLauncher());
+    assertEquals(WEBHOOK_GROUP, launched.getTrigger().getKey().getGroup());
+    assertEquals("smoke", launched.getParameterList().get(0).getValue());
+    assertEquals("2026-11-12", launched.getParameterList().get(1).getValue());
+    assertEquals("STORED", launched.getParameterList().get(2).getValue());
+    // The mapped values become the parameters of the run, so they reach every step of the flow (AWE-8)
+    assertEquals(Map.of("date", "2026-11-12"), launched.getRunParameters());
   }
 
   @Test

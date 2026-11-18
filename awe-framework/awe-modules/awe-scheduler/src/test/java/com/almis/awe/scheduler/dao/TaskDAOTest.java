@@ -230,6 +230,22 @@ class TaskDAOTest {
   }
 
   /**
+   * Resume webhook task test: like a manual task, it has no trigger to resume
+   */
+  @Test
+  void resumeWebhookTask() throws Exception {
+    Task task = new Task();
+    task.setLaunchType(TaskLaunchType.WEBHOOK.getValue());
+    task.setTaskId(1);
+    task.setGroup("WEBHOOK_TASK");
+    task.setTrigger(TriggerBuilder.newTrigger().build());
+
+    taskDAO.resumeTask(task);
+
+    verify(scheduler, times(0)).scheduleJob(eq(null), any(Trigger.class));
+  }
+
+  /**
    * Get task execution from trigger
    */
   @Test

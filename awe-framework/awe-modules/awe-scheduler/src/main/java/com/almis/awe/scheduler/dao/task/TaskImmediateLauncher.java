@@ -11,8 +11,10 @@ import com.almis.awe.scheduler.dao.task.FlowRules.Outcome;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.enums.TriggerType;
 import com.almis.awe.scheduler.factory.TriggerFactory;
+import com.almis.awe.scheduler.webhook.WebhookParameterMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
+import tools.jackson.databind.JsonNode;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -22,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK;
 
@@ -73,10 +76,29 @@ public class TaskImmediateLauncher {
   public void launchNow(Integer taskId, String user, Map<String, String> variables, TaskSubmitter submitter)
     throws AWException {
     // Creates a task that is executed at the moment it is added to the scheduler
-    launch(taskId, TriggerType.MANUAL, user, null, variables, submitter);
+    launch(taskId, TriggerType.MANUAL, user, null, task -> variables, submitter);
 
     // Log launched task
     log.info("Task launched manually: {}", taskId);
+  }
+
+  /**
+   * Launch a task because a webhook arrived. The data of the webhook gives the values of the variable parameters that
+   * have a JSON pointer; the other parameters keep their stored values.
+   *
+   * @param taskId    Task identifier
+   * @param hookKey   Key of the hook that received the webhook
+   * @param data      Data of the webhook
+   * @param submitter Scheduling entry point
+   * @throws AWException Error executing the task
+   */
+  public void launchWebhook(Integer taskId, String hookKey, JsonNode data, TaskSubmitter submitter)
+    throws AWException {
+    launch(taskId, TriggerType.WEBHOOK, "webhook:" + hookKey, null,
+      task -> WebhookParameterMapper.variables(task.getParameterList(), data), submitter);
+
+    // Log launched task
+    log.info("[SCHEDULER][WEBHOOK {}] Task {} launched", hookKey, taskId);
   }
 
   /**
@@ -93,7 +115,8 @@ public class TaskImmediateLauncher {
   public void launchDependency(Integer taskId, TaskExecution parentExecution, Map<String, String> variables,
                                TaskSubmitter submitter) throws AWException {
     // Creates a task that is executed at the moment it is added to the scheduler
-    launch(taskId, TriggerType.DEPENDENCY, "#" + parentExecution.getTaskId(), parentExecution, variables, submitter);
+    launch(taskId, TriggerType.DEPENDENCY, "#" + parentExecution.getTaskId(), parentExecution,
+      task -> variables, submitter);
 
     // Log launched task
     log.info("Task #{} launched as dependency from task #{}", taskId, parentExecution.getTaskId());
@@ -319,19 +342,20 @@ public class TaskImmediateLauncher {
    * @param triggerType Trigger type
    * @param launcher    Task launcher
    * @param parent      Parent execution
-   * @param variables   Operator supplied values for variable parameters (null when not applicable)
+   * @param variables   Supplies, from the loaded task, the values for its parameters (null values when not applicable)
    * @param submitter   Scheduling entry point
    * @throws AWException Error executing immediate task
    */
   private void launch(Integer taskId, TriggerType triggerType, String launcher, TaskExecution parent,
-                      Map<String, String> variables, TaskSubmitter submitter) throws AWException {
+                      Function<Task, Map<String, String>> variables, TaskSubmitter submitter) throws AWException {
     try {
       Task task = taskRepository.loadTask(taskId);
       task.setLauncher(launcher);
       task.setParentExecution(parent);
 
       // Override variable parameters with the operator supplied values
-      parameterOverrides.apply(task, variables, parameterOverrides.overridableSources(triggerType));
+      Map<String, String> values = variables.apply(task);
+      parameterOverrides.apply(task, values, parameterOverrides.overridableSources(triggerType));
       if (TriggerType.DEPENDENCY.equals(triggerType)) {
         // A dependency belongs to the run of its parent, whose parameters have the last word
         if (parent != null && parent.getRunId() != null) {
@@ -340,8 +364,8 @@ public class TaskImmediateLauncher {
             parameterOverrides.overridableSources(triggerType));
         }
       } else {
-        // The operator values of a manual launch become the parameters of its run
-        task.setRunParameters(variables);
+        // The values of a manual or webhook launch become the parameters of its run
+        task.setRunParameters(values);
       }
 
       JobDataMap dataMap = new JobDataMap();

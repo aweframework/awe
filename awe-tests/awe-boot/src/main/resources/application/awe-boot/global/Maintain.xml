@@ -1212,6 +1212,13 @@
     </serve>
   </target>
 
+  <target name="webhookTestLaunch">
+    <serve service="webhookTestLaunch">
+      <variable id="day" type="STRING" name="day"/>
+      <variable id="entity" type="STRING" name="entity"/>
+    </serve>
+  </target>
+
   <target name="insertClobData">
     <insert>
       <table id="DummyClobTestTable"/>

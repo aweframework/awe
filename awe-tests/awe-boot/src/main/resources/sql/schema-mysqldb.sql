@@ -411,6 +411,37 @@ CREATE TABLE IF NOT EXISTS AweSchExeExt
     CONSTRAINT PK_AWESCHEXEEXT PRIMARY KEY (IdeTsk, ExeTsk)
 );
 
+CREATE TABLE IF NOT EXISTS AweSchTskHok
+(
+    IdeTsk INTEGER          not NULL,
+    HokKey VARCHAR(64)   not NULL,
+    Act    INTEGER          not NULL,
+    SecPrp VARCHAR(200)  not NULL,
+    TypFlt VARCHAR(200),
+    CONSTRAINT PK_AWESCHTSKHOK PRIMARY KEY (IdeTsk),
+    CONSTRAINT UK_AWESCHTSKHOK UNIQUE (HokKey)
+);
+
+CREATE TABLE IF NOT EXISTS AweSchHokMsg
+(
+    Src    VARCHAR(64)   not NULL,
+    MsgId  VARCHAR(256)  not NULL,
+    RcvDat DATETIME(3)          not NULL,
+    Typ    VARCHAR(200),
+    Pay    MEDIUMTEXT         not NULL,
+    Sta    VARCHAR(10)   not NULL,
+    Att    INTEGER          not NULL,
+    NxtDat DATETIME(3)          not NULL,
+    PrcDat DATETIME(3),
+    Err    VARCHAR(2000),
+    IdeTsk INTEGER,
+    ExeTsk INTEGER,
+    IdeRun VARCHAR(36),
+    CONSTRAINT PK_AWESCHHOKMSG PRIMARY KEY (Src, MsgId)
+);
+
+CREATE INDEX AweSchHokMsgI1 ON AweSchHokMsg (Sta, NxtDat);
+
 -- ------------------------------------------------------
 --  DDL for Table AweSchExeLog
 --  Bounded task execution log window
@@ -531,7 +562,8 @@ CREATE TABLE IF NOT EXISTS AweSchTskPar
     Nam    VARCHAR(40) NOT NULL,
     Val    VARCHAR(400),
     Src    INTEGER NOT NULL,
-    Typ    VARCHAR(100) NOT NULL
+    Typ    VARCHAR(100) NOT NULL,
+    WhkPtr VARCHAR(250)
 );
 
 --------------------------------------------------------

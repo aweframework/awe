@@ -61,6 +61,7 @@
   <locale name="ENUM_LAUNCH_FILE" value="File"/>
   <locale name="ENUM_LAUNCH_MANUAL" value="Manual"/>
   <locale name="ENUM_LAUNCH_SCHEDULED" value="Scheduled"/>
+  <locale name="ENUM_LAUNCH_WEBHOOK" value="Webhook"/>
   <locale name="ENUM_TASK_STEP_CONFIG" value="Configuration"/>
   <locale name="ENUM_TASK_STEP_DEPENDENCIES" value="Dependencies"/>
   <locale name="ENUM_TASK_STEP_LAUNCH" value="Launch"/>
@@ -178,6 +179,21 @@
   <locale name="SCHEDULER_TASK_DEPENDENCY_CYCLE_MESSAGE" value="The dependencies of this task would make it launch itself, directly or through other tasks. Remove the dependency that closes the loop."/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_TITLE" value="Parameter configuration error"/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE" value="The property {0} is not defined on the scheduler instance, so the task cannot be launched. Set the property or supply an existing one."/>
+  <locale name="SCHEDULER_WEBHOOK_KEY" value="Hook key"/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_HELP" value="Last part of the webhook URL. Lowercase letters, digits and hyphens, up to 64 characters. Each task needs its own key."/>
+  <locale name="SCHEDULER_WEBHOOK_ACTIVE" value="Hook active"/>
+  <locale name="SCHEDULER_WEBHOOK_SECRET" value="Secret property"/>
+  <locale name="SCHEDULER_WEBHOOK_SECRET_HELP" value="Name of the application property that holds the signing secret (whsec_...). The secret itself is never stored or shown here. Several secrets separated by spaces or commas are accepted, to rotate it."/>
+  <locale name="SCHEDULER_WEBHOOK_TYPE" value="Event type"/>
+  <locale name="SCHEDULER_WEBHOOK_TYPE_HELP" value="Optional. Only webhooks of this type launch the task; the others are ignored. Leave it empty to accept any type."/>
+  <locale name="SCHEDULER_WEBHOOK_URL" value="Webhook URL"/>
+  <locale name="SCHEDULER_WEBHOOK_URL_HELP" value="Address the sender posts the signed webhooks to. Copy it into the sender."/>
+  <locale name="SCHEDULER_WEBHOOK_POINTER" value="JSON pointer"/>
+  <locale name="SCHEDULER_WEBHOOK_POINTER_HELP" value="Pointer inside the data of the webhook, for example /date. Only VARIABLE parameters with a pointer receive webhook values."/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_INVALID_TITLE" value="Webhook not valid"/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_INVALID_MESSAGE" value="The hook key must have 1 to 64 characters: lowercase letters, digits and hyphens."/>
+  <locale name="SCHEDULER_WEBHOOK_SECRET_REQUIRED_MESSAGE" value="Enter the name of the property that holds the secret of the webhook."/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_DUPLICATED_MESSAGE" value="The hook key {0} already belongs to another task. Choose a different key."/>
   <locale name="SCREEN_TEXT_EXECUTION_TIME" value="Execution time"/>
   <locale name="SCREEN_TEXT_EXECUTIONS" value="Executions"/>
   <locale name="SCREEN_TEXT_LAUNCHED_BY" value="Launched by"/>

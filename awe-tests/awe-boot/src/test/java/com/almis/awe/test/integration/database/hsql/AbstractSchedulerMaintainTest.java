@@ -235,7 +235,7 @@ abstract class AbstractSchedulerMaintainTest extends AbstractSpringAppIntegratio
     return list;
   }
 
-  private JsonNode perform(String type, String name, ObjectNode parameters) throws Exception {
+  protected JsonNode perform(String type, String name, ObjectNode parameters) throws Exception {
     String response = mockMvc.perform(post("/action/" + type + "/" + name)
         .with(csrf())
         .content(objectMapper.writeValueAsString(parameters))

@@ -1429,7 +1429,8 @@ Selenium · AngularJS · Chrome · Scheduler:
 #   keep their browser flow in the React jobs only; the AngularJS jobs run the flows of its own client.
 #   RegressionWebsocketPrintIT: RegressionTestsIT, WebsocketTestsIT, PrintTestsIT, AdvancedSearchTestsIT (port 6311 / 6315)
 #   SchedulerIT: SchedulerCalendarTestsIT, SchedulerManualTaskTestsIT, SchedulerScheduledTaskTestsIT,
-#                SchedulerFileTaskTestsIT, SchedulerManagementTestsIT and SchedulerDeferredTaskTestsIT (React only)
+#                SchedulerFileTaskTestsIT, SchedulerWebhookTaskTestsIT, SchedulerManagementTestsIT and
+#                SchedulerDeferredTaskTestsIT (React only)
 #                (port 6312 / 6316)
 # List .react-testing LAST in "extends": variables are merged and the last template that sets one wins, so another order
 # would bring back the AngularJS test application. It sets no rules: the Selenium jobs take .rules-selenium from
@@ -1470,7 +1471,7 @@ Selenium · React · Firefox · Regression:
 Selenium · React · Firefox · Scheduler:
   extends: .selenium-react-firefox
   variables:
-    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT,SchedulerDeferredTaskTestsIT
+    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerWebhookTaskTestsIT,SchedulerManagementTestsIT,SchedulerDeferredTaskTestsIT
     TEST_PORT: "6312"
     TEST_NAME: react-firefox-scheduler
 
@@ -1505,7 +1506,7 @@ Selenium · React · Chrome · Regression:
 Selenium · React · Chrome · Scheduler:
   extends: .selenium-react-chrome
   variables:
-    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT,SchedulerDeferredTaskTestsIT
+    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerWebhookTaskTestsIT,SchedulerManagementTestsIT,SchedulerDeferredTaskTestsIT
     TEST_PORT: "6316"
     TEST_NAME: react-chrome-scheduler
 
@@ -1654,7 +1655,7 @@ E2E · React · Chromium · Regression:
 E2E · React · Chromium · Scheduler:
   extends: .playwright-react-chromium
   variables:
-    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT,SchedulerDeferredTaskTestsIT
+    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerWebhookTaskTestsIT,SchedulerManagementTestsIT,SchedulerDeferredTaskTestsIT
     TEST_PORT: "6328"
     TEST_NAME: playwright-react-chromium-scheduler
 
@@ -1690,7 +1691,7 @@ E2E · React · Firefox · Regression:
 E2E · React · Firefox · Scheduler:
   extends: .playwright-react-firefox
   variables:
-    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT,SchedulerDeferredTaskTestsIT
+    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerWebhookTaskTestsIT,SchedulerManagementTestsIT,SchedulerDeferredTaskTestsIT
     TEST_PORT: "6332"
     TEST_NAME: playwright-react-firefox-scheduler
 

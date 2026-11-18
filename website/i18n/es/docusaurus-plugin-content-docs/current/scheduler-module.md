@@ -58,7 +58,7 @@ awe.database.migration-modules=AWE,...,SCHEDULER,...
 
 ## Ejecuciones de flujo {#flow-runs}
 
-Toda tarea lanzada por su planificación, de forma manual o por un fichero inicia una ejecución de flujo que agrupa las ejecuciones de sus dependencias, con un estado final y parámetros opcionales. Una tarea con varios padres se lanza una sola vez, cuando han terminado todos sus padres de la ejecución de flujo. La pantalla **Ejecuciones de flujo** (`scheduler-runs`, permiso `scheduler.read`) lista las ejecuciones con su grafo de flujo, sus ejecuciones y sus tareas omitidas. Consulta **[Dependencias entre tareas](guides/dependencies-guide.md#flow-runs-and-fan-in)**.
+Toda tarea lanzada por su planificación, de forma manual, por un fichero o por un webhook inicia una ejecución de flujo que agrupa las ejecuciones de sus dependencias, con un estado final y parámetros opcionales. Una tarea con varios padres se lanza una sola vez, cuando han terminado todos sus padres de la ejecución de flujo. La pantalla **Ejecuciones de flujo** (`scheduler-runs`, permiso `scheduler.read`) lista las ejecuciones con su grafo de flujo, sus ejecuciones y sus tareas omitidas. Consulta **[Dependencias entre tareas](guides/dependencies-guide.md#flow-runs-and-fan-in)**.
 
 El botón **Grafo de flujo** de la pantalla de tareas abre `scheduler-flow-graph`: las dependencias de la tarea
 seleccionada, o de todos los flujos si no hay ninguna seleccionada, dibujadas como un grafo de izquierda a derecha. Cada
@@ -67,6 +67,42 @@ nodo muestra la tarea, su tipo de lanzamiento y si está activa; cada arista mue
 en curso, en espera, omitida o no alcanzada. Al pulsar un nodo se abre la tarea. Los dos motores dibujan el grafo.
 
 Si usas `flyway`, las tablas de las ejecuciones de flujo (`AweSchRun`, `AweSchRunPar`, `AweSchRunTsk` y la columna `IdeRun` de `AweSchExe`) se incluyen en el módulo de migración `SCHEDULER`, versión `1.0.9`.
+
+## Lanzamiento por webhook {#webhook-launch}
+
+Una tarea con el tipo de lanzamiento **Webhook** se lanza cuando un `POST` firmado llega a la URL de su hook (consulta la **[guía del planificador](guides/scheduler-guide.md#4-webhook)**). Los webhooks se reciben, se almacenan y se responden de inmediato, y se procesan fuera de la petición. Se configuran con las siguientes propiedades:
+
+| Propiedad | Descripción | Valor por defecto |
+|-----------|-------------|-------------------|
+| `awe.scheduler.webhooks.max-body-size` | Tamaño máximo del cuerpo de un webhook. Uno mayor se responde con `413` | `256KB` |
+| `awe.scheduler.webhooks.tolerance` | Diferencia máxima entre el `webhook-timestamp` de un webhook y la hora actual. Un webhook fuera de ella se responde con `401` | `5m` |
+| `awe.scheduler.webhooks.inbox-retention` | Tiempo que los webhooks procesados, ignorados y fallidos definitivamente permanecen en la bandeja antes de purgarse | `30d` |
+| `awe.scheduler.webhooks.process-interval` | Intervalo entre las comprobaciones de la bandeja para buscar webhooks que lanzar | `10s` |
+
+Una duración sin unidad se lee en la unidad de su valor por defecto (minutos para `tolerance`, días para `inbox-retention`, segundos para `process-interval`).
+
+```properties
+awe.scheduler.webhooks.max-body-size=256KB
+awe.scheduler.webhooks.tolerance=5m
+awe.scheduler.webhooks.inbox-retention=30d
+awe.scheduler.webhooks.process-interval=10s
+```
+
+### Seguridad {#security}
+
+La ruta de los webhooks (`/scheduler/api/v1/webhooks/**`) no necesita token bearer: tiene su propia cadena de seguridad y **la firma es la autenticación**. Una petición solo se acepta cuando su firma de [Standard Webhooks](https://www.standardwebhooks.com/) es válida para el secreto del hook y su marca de tiempo está dentro de la tolerancia. El resto de la API del planificador sigue exigiendo el token bearer (consulta [Seguridad de la API del planificador](#scheduler-api-security)).
+
+El secreto nunca se guarda en la base de datos ni se muestra en pantalla: el hook contiene el **nombre de una propiedad de la aplicación** y la propiedad contiene el secreto. Puede contener varios secretos separados por espacios o comas, y se acepta un webhook firmado con cualquiera de ellos, de modo que un secreto se puede rotar sin interrupción: añade el nuevo, cambia el emisor y después elimina el antiguo.
+
+```properties
+fit.webhook.secret=whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=
+# Durante una rotación se aceptan ambos secretos
+fit.webhook.secret=whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8= whsec_BAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=
+```
+
+### Migración {#migration}
+
+Si usas `flyway`, las tablas del lanzamiento por webhook (`AweSchTskHok`, `AweSchHokMsg` y la columna `WhkPtr` de `AweSchTskPar`) se incluyen en el módulo de migración `SCHEDULER`, versión `1.0.10`.
 
 ## Ejecución remota de comandos por SSH {#ssh-remote-command-execution}
 
