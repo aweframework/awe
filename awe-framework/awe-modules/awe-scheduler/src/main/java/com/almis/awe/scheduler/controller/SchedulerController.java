@@ -49,7 +49,7 @@ public class SchedulerController {
    *
    * @param status      OK, WARNING, ERROR, STOPPED, INTERRUPTED or INFO (required, case insensitive)
    * @param description Description of the execution (optional, 2000 characters at most)
-   * @param outputs     Output values (optional, accepted and ignored for now)
+   * @param outputs     Output values (optional), received as parameters by the dependent tasks
    */
   public record CompletionRequest(String status, String description, Map<String, String> outputs) {
   }

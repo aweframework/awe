@@ -2,6 +2,7 @@ package com.almis.awe.scheduler.service;
 
 import com.almis.awe.scheduler.bean.task.DeferredExecution;
 import com.almis.awe.scheduler.dao.TaskDAO;
+import com.almis.awe.scheduler.enums.CompletionSource;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import lombok.extern.slf4j.Slf4j;
 
@@ -74,7 +75,7 @@ public class DeferredExecutionWatcher {
   private void interrupt(DeferredExecution overdue) {
     try {
       completionService.complete(overdue.getTaskId(), overdue.getExecutionId(), TaskStatus.JOB_INTERRUPTED, null,
-        null);
+        null, CompletionSource.DEADLINE);
     } catch (Exception exc) {
       log.error("[SCHEDULER] Error interrupting execution {}-{}", overdue.getTaskId(), overdue.getExecutionId(), exc);
     }

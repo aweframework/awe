@@ -105,6 +105,17 @@
         </tag>
       </tag>
     </window>
+    <!-- Deferred executions: still running, and closed by the external system, the deadline or a user -->
+    <tag type="div" style="awe-card-grid awe-card-compact">
+      <card id="CrdSchDfrRun" title="SCREEN_TEXT_DEFERRED_RUNNING" icon="lucide:hourglass" icon-tone="info"
+            initial-load="query" target-action="SchDfrRun"/>
+      <card id="CrdSchDfrApi" title="SCREEN_TEXT_DEFERRED_COMPLETED" icon="check" icon-tone="success"
+            initial-load="query" target-action="SchDfrApi"/>
+      <card id="CrdSchDfrDln" title="SCREEN_TEXT_DEFERRED_DEADLINE" icon="lucide:alarm-clock" icon-tone="warning"
+            initial-load="query" target-action="SchDfrDln"/>
+      <card id="CrdSchDfrUsr" title="SCREEN_TEXT_DEFERRED_STOPPED" icon="stop" icon-tone="neutral"
+            initial-load="query" target-action="SchDfrUsr"/>
+    </tag>
     <tag type="div" style="expand" expandible="horizontal">
       <window style="expand" maximize="true" label="SCREEN_TEXT_TASKS" icon="list" expandible="vertical">
         <grid id="GrdTskLst" style="expand" server-action="data" target-action="getSchedulerTaskList" initial-load="query" row-numbers="false">

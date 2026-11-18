@@ -152,7 +152,7 @@ La petición necesita un token bearer de AWE, como el resto de `/scheduler/api/*
 |---------------|:------------------------------------------------------------------------------------------------------|:--------------------:|
 | `status`      | Estado final: `OK`, `WARNING`, `ERROR`, `STOPPED`, `INTERRUPTED` o `INFO` (sin distinguir mayúsculas) |   **Obligatorio**    |
 | `description` | Descripción de la ejecución, 2000 caracteres como máximo                                              |       Opcional       |
-| `outputs`     | Objeto con valores de texto. Se acepta y todavía no se usa                                            |       Opcional       |
+| `outputs`     | Objeto con valores de texto para las dependencias (consulta [Salidas](#outputs))                      |       Opcional       |
 
 ```bash
 curl -X POST "https://scheduler.example.com/scheduler/api/v1/tasks/12/executions/340/complete" \
@@ -185,11 +185,39 @@ CompletionResult result = completionService.complete(taskId, executionId, TaskSt
 // result.outcome(): CLOSED, NOT_RUNNING, NOT_DEFERRED or UNKNOWN
 ```
 
+#### Salidas {#outputs}
+
+Los `outputs` de la finalización llegan a las dependencias que se lanzan cuando se cierra la ejecución, igual que los demás valores de la tarea padre: cada dependencia toma el valor de cada salida cuyo nombre coincide con uno de sus parámetros **variables**. Una salida sustituye a un parámetro de la tarea cerrada con el mismo nombre, y una salida sin nombre o sin valor se ignora.
+
+```bash
+curl -X POST "https://scheduler.example.com/scheduler/api/v1/tasks/12/executions/340/complete" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"status": "OK", "outputs": {"resultFile": "/data/out/340.csv"}}'
+```
+
+Una dependencia con un parámetro variable `resultFile` se ejecuta con `/data/out/340.csv`.
+
 #### Plazo, parada y reinicio {#deadline-stop-and-restart}
 
 - **Plazo**: una ejecución que no se completa dentro del **Timeout** de la tarea, o dentro de `awe.scheduler.deferred.default-timeout` (24 horas por defecto) cuando la tarea no tiene ninguno, contado desde el inicio de la ejecución, termina como **interrumpida** con el mensaje de timeout y no se lanzan sus dependencias. El planificador comprueba los plazos cada `awe.scheduler.deferred.timeout-check-interval` (60 segundos por defecto), así que la ejecución puede terminar después de su plazo hasta ese intervalo. Una finalización que llegue más tarde recibe un `409`. Consulta la **[guía de configuración](../scheduler-module.md#deferred-executions)**.
 - **Parada**: el botón **Stop** de la pantalla de tareas termina las ejecuciones en espera de la tarea seleccionada como **detenidas**, sin lanzar dependencias.
 - **Reinicio y clúster**: el estado de una ejecución en espera se guarda en la base de datos, así que sobrevive a un reinicio. Al arrancar, el planificador interrumpe las ejecuciones que un nodo detenido dejó en marcha, salvo las que esperan a ser completadas. Todos los nodos comprueban los plazos y cualquier nodo puede recibir la finalización, pero solo la primera llamada que cierra una ejecución la termina.
+
+#### Aviso de cancelación {#cancellation-notice}
+
+Cuando un usuario detiene una ejecución diferida o se supera su plazo, el otro sistema puede seguir trabajando en ella. Rellena **Mantenimiento de cancelación** en la tarea (solo en tareas de mantenimiento) para avisarle: la llamada que cierra la ejecución lanza ese mantenimiento una sola vez, donde se ejecuta el mantenimiento de la tarea (en la aplicación AWE con un [planificador externo](#remote-scheduler-setup)), con estos parámetros:
+
+| Parámetro           | Valor                                                  |
+|---------------------|:-------------------------------------------------------|
+| `taskId`            | Identificador de la tarea                              |
+| `executionId`       | Identificador de la ejecución                          |
+| `externalReference` | El `externalReference` de la respuesta diferida        |
+
+Una finalización por la API o por `SchedulerExecutionCompletionService` no lo envía: el otro sistema cerró la ejecución. El aviso nunca reabre ni bloquea la ejecución: si el mantenimiento falla o responde un error, la ejecución sigue cerrada y el fallo se guarda en su traza.
+
+#### Traza y contadores {#trace-and-counters}
+
+Cada ejecución diferida guarda, tras cerrarse, quién la cerró y cuándo (`API`, `DEADLINE` o `USER`) y el resultado de su aviso de cancelación (`SENT`, o `FAILED` con el mensaje de error). El detalle de ejecución de la pantalla de tareas muestra la referencia, el plazo y esta traza. El panel del planificador muestra cuatro contadores: ejecuciones diferidas en curso, completadas por el otro sistema, interrumpidas por el plazo y detenidas por un usuario.
 
 ### Base de datos de ejecución de la tarea {#task-execution-database}
 

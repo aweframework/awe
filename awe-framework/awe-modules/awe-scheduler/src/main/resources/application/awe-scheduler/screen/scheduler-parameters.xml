@@ -55,6 +55,17 @@
                              target="ParameterList"/>
         </dependency>
       </criteria>
+      <criteria label="SCHEDULER_PARAMETER_CANCELLATION_MAINTAIN" id="CncMnt" component="suggest" server-action="data"
+                target-action="getPublicMaintainList" style="col-xs-6 col-sm-3"
+                help="SCHEDULER_PARAMETER_CANCELLATION_MAINTAIN_HELP">
+        <dependency initial="true" target-type="hide">
+          <dependency-element id="TypExe" condition="eq" value="0"/>
+        </dependency>
+        <dependency initial="true">
+          <dependency-element id="TypExe" condition="eq" value="0"/>
+          <dependency-action type="reset" target="CncMnt"/>
+        </dependency>
+      </criteria>
       <criteria label="PARAMETER_COMMAND" id="command" component="text" style="col-xs-6 col-sm-3">
         <dependency initial="true" target-type="set-required">
           <dependency-element id="TypExe" condition="eq" value="0"/>

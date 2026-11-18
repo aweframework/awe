@@ -23,4 +23,6 @@ public class MaintainConstants {
   public static final String TASK_UPDATE_STATUS = "updateTaskStatus";
   public static final String CLOSE_RUNNING_EXECUTION = "closeRunningExecution";
   public static final String INSERT_DEFERRED_EXECUTION = "insertDeferredExecution";
+  public static final String UPDATE_DEFERRED_COMPLETION = "updateDeferredCompletion";
+  public static final String UPDATE_DEFERRED_CANCELLATION = "updateDeferredCancellation";
 }

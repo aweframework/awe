@@ -6,6 +6,7 @@ import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.DateUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.task.DeferredExecution;
+import com.almis.awe.scheduler.enums.CompletionSource;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import tools.jackson.databind.node.ObjectNode;
@@ -17,6 +18,8 @@ import java.util.List;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_ID;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_JOB_EXECUTION;
 import static com.almis.awe.scheduler.constant.MaintainConstants.INSERT_DEFERRED_EXECUTION;
+import static com.almis.awe.scheduler.constant.MaintainConstants.UPDATE_DEFERRED_CANCELLATION;
+import static com.almis.awe.scheduler.constant.MaintainConstants.UPDATE_DEFERRED_COMPLETION;
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_DEFERRED_EXECUTION;
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_RUNNING_DEFERRED;
 
@@ -62,6 +65,44 @@ public class DeferredExecutionRepository {
     parameters.put("acceptedDate", asTimestamp(acceptedDate));
     parameters.put("dueDate", asTimestamp(dueDate));
     maintainService.launchPrivateMaintain(INSERT_DEFERRED_EXECUTION, parameters);
+  }
+
+  /**
+   * Store who closed a deferred execution and when
+   *
+   * @param taskId         Task id
+   * @param executionId    Execution id
+   * @param source         Who closed the execution
+   * @param completionDate Date the execution was closed
+   * @throws AWException Error storing the trace
+   */
+  public void complete(Integer taskId, Integer executionId, CompletionSource source, Instant completionDate)
+    throws AWException {
+    ObjectNode parameters = queryUtil.getParameters();
+    parameters.put(TASK_ID, taskId);
+    parameters.put(TASK_JOB_EXECUTION, executionId);
+    parameters.put("completionSource", source.name());
+    parameters.put("completionDate", asTimestamp(completionDate));
+    maintainService.launchPrivateMaintain(UPDATE_DEFERRED_COMPLETION, parameters);
+  }
+
+  /**
+   * Store the outcome of the cancellation notice of a deferred execution
+   *
+   * @param taskId      Task id
+   * @param executionId Execution id
+   * @param status      Outcome of the notice
+   * @param error       Error of a failed notice, or null
+   * @throws AWException Error storing the outcome
+   */
+  public void cancellationNotice(Integer taskId, Integer executionId, String status, String error)
+    throws AWException {
+    ObjectNode parameters = queryUtil.getParameters();
+    parameters.put(TASK_ID, taskId);
+    parameters.put(TASK_JOB_EXECUTION, executionId);
+    parameters.put("cancellationStatus", status);
+    parameters.put("cancellationError", error);
+    maintainService.launchPrivateMaintain(UPDATE_DEFERRED_CANCELLATION, parameters);
   }
 
   /**

@@ -17,4 +17,8 @@ public class DeferredExecution implements Serializable {
   private String externalReference;
   private Date acceptedDate;
   private Date dueDate;
+  private Date completionDate;
+  private String completionSource;
+  private String cancellationStatus;
+  private String cancellationError;
 }

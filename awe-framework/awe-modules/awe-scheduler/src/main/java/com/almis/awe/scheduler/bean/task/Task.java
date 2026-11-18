@@ -39,6 +39,8 @@ public class Task implements Serializable {
   // Execution
   private Integer storedExecutions;
   private Integer executionTimeout;
+  // Maintain notified when a deferred execution is stopped or passes its deadline (optional)
+  private String cancellationMaintain;
   private Integer executionType;
   private Integer serverId;
   private String commandPath;

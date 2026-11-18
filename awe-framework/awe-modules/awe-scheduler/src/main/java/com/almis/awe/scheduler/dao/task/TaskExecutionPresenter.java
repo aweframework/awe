@@ -14,6 +14,7 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.data.TimeUtil;
 import com.almis.awe.model.util.data.date.DateTimeFormatting;
 import com.almis.awe.model.util.data.date.LegacyDateConverter;
+import com.almis.awe.scheduler.bean.task.DeferredExecution;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.log.ExecutionKey;
@@ -26,7 +27,9 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 import static com.almis.awe.model.constant.AweConstants.JSON_ICON_PARAMETER;
@@ -54,6 +57,7 @@ public class TaskExecutionPresenter {
   private final QueryUtil queryUtil;
   private final ExecutionLogStore executionLogStore;
   private final TaskExecutionRepository executionRepository;
+  private final DeferredExecutionRepository deferredRepository;
   private final ServiceConfig serviceConfig;
   private final Clock clock;
 
@@ -64,22 +68,27 @@ public class TaskExecutionPresenter {
    * @param queryUtil           Query utilities
    * @param executionLogStore   Execution log store
    * @param executionRepository Task execution repository
+   * @param deferredRepository  Deferred execution repository
    * @param serviceConfig       Service configuration giving access to locales
    */
   public TaskExecutionPresenter(QueryService queryService, QueryUtil queryUtil, ExecutionLogStore executionLogStore,
-                                TaskExecutionRepository executionRepository, ServiceConfig serviceConfig) {
-    this(queryService, queryUtil, executionLogStore, executionRepository, serviceConfig, Clock.systemDefaultZone());
+                                TaskExecutionRepository executionRepository,
+                                DeferredExecutionRepository deferredRepository, ServiceConfig serviceConfig) {
+    this(queryService, queryUtil, executionLogStore, executionRepository, deferredRepository, serviceConfig,
+      Clock.systemDefaultZone());
   }
 
   /**
    * Constructor with an explicit clock for the progress and elapsed time computations
    */
   TaskExecutionPresenter(QueryService queryService, QueryUtil queryUtil, ExecutionLogStore executionLogStore,
-                         TaskExecutionRepository executionRepository, ServiceConfig serviceConfig, Clock clock) {
+                         TaskExecutionRepository executionRepository,
+                         DeferredExecutionRepository deferredRepository, ServiceConfig serviceConfig, Clock clock) {
     this.queryService = queryService;
     this.queryUtil = queryUtil;
     this.executionLogStore = executionLogStore;
     this.executionRepository = executionRepository;
+    this.deferredRepository = deferredRepository;
     this.serviceConfig = serviceConfig;
     this.clock = clock;
   }
@@ -283,6 +292,8 @@ public class TaskExecutionPresenter {
     addSilentAction(serviceData, new SelectActionBuilder("execution-end-time", endTime));
     addSilentAction(serviceData, new SelectActionBuilder("execution-time", executionTime));
     addSilentAction(serviceData, new SelectActionBuilder("execution-information", taskExecution.getDescription()));
+    addSilentAction(serviceData, new SelectActionBuilder("execution-deferred",
+      deferredTrace(deferredRepository.find(taskExecution.getTaskId(), taskExecution.getExecutionId()))));
     addSilentAction(serviceData, new SelectActionBuilder("execution-title",
       serviceConfig.getLocale(queryService.findLabel("StaTit", status))));
     addSilentAction(serviceData, new SelectActionBuilder("execution-launched-by",
@@ -300,6 +311,38 @@ public class TaskExecutionPresenter {
       queryService.findLabel("StaIco", status)));
     addSilentAction(serviceData, new AddCssClassActionBuilder("[criterion-id='execution-launched-by'] .text-icon",
       queryService.findLabel("LchTxtSty", group)));
+  }
+
+  /**
+   * Text of the deferred state of an execution: reference and deadline, who closed it and the cancellation notice
+   *
+   * @param deferred Deferred state, or null when the execution was never deferred
+   * @return Trace text, empty when the execution was never deferred
+   */
+  private String deferredTrace(DeferredExecution deferred) {
+    if (deferred == null) {
+      return "";
+    }
+    List<String> parts = new ArrayList<>();
+    parts.add(serviceConfig.getLocale("SCHEDULER_DEFERRED_TRACE",
+      deferred.getExternalReference() == null ? "-" : deferred.getExternalReference(),
+      orDash(deferred.getDueDate())));
+    if (deferred.getCompletionSource() != null) {
+      parts.add(serviceConfig.getLocale("SCHEDULER_DEFERRED_CLOSED",
+        serviceConfig.getLocale("SCHEDULER_DEFERRED_SOURCE_" + deferred.getCompletionSource()),
+        orDash(deferred.getCompletionDate())));
+    }
+    if ("SENT".equals(deferred.getCancellationStatus())) {
+      parts.add(serviceConfig.getLocale("SCHEDULER_DEFERRED_NOTICE_SENT"));
+    } else if ("FAILED".equals(deferred.getCancellationStatus())) {
+      parts.add(serviceConfig.getLocale("SCHEDULER_DEFERRED_NOTICE_FAILED",
+        deferred.getCancellationError() == null ? "-" : deferred.getCancellationError()));
+    }
+    return String.join(" · ", parts);
+  }
+
+  private String orDash(Date date) {
+    return date == null ? "-" : formatTimestamp(date);
   }
 
   /**

@@ -135,6 +135,20 @@
   <locale name="SCHEDULER_MESSAGE_STOPPED_BY_USER" value="Stopped by the user"/>
   <locale name="SCHEDULER_STOP_UNAVAILABLE_TITLE" value="Task not stopped"/>
   <locale name="SCHEDULER_STOP_UNAVAILABLE_MESSAGE" value="The task is still starting and could not be stopped, try again in a moment"/>
+  <locale name="SCHEDULER_PARAMETER_CANCELLATION_MAINTAIN" value="Cancellation maintain"/>
+  <locale name="SCHEDULER_PARAMETER_CANCELLATION_MAINTAIN_HELP" value="Maintain called with taskId, executionId and externalReference when a deferred execution is stopped or passes its deadline"/>
+  <locale name="SCREEN_TEXT_DEFERRED_EXECUTION" value="Deferred execution"/>
+  <locale name="SCREEN_TEXT_DEFERRED_RUNNING" value="Deferred running"/>
+  <locale name="SCREEN_TEXT_DEFERRED_COMPLETED" value="Deferred completed"/>
+  <locale name="SCREEN_TEXT_DEFERRED_DEADLINE" value="Deferred past deadline"/>
+  <locale name="SCREEN_TEXT_DEFERRED_STOPPED" value="Deferred stopped"/>
+  <locale name="SCHEDULER_DEFERRED_TRACE" value="Reference {0}, deadline {1}"/>
+  <locale name="SCHEDULER_DEFERRED_CLOSED" value="closed by {0} at {1}"/>
+  <locale name="SCHEDULER_DEFERRED_SOURCE_API" value="the external system"/>
+  <locale name="SCHEDULER_DEFERRED_SOURCE_DEADLINE" value="the deadline"/>
+  <locale name="SCHEDULER_DEFERRED_SOURCE_USER" value="a user"/>
+  <locale name="SCHEDULER_DEFERRED_NOTICE_SENT" value="cancellation notice sent"/>
+  <locale name="SCHEDULER_DEFERRED_NOTICE_FAILED" value="cancellation notice failed: {0}"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED" value="Execution body finished with result {0} after {1}. {2}"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY" value="Execution body finished abnormally after {0} - see the execution grid for the final status."/>
   <locale name="SCHEDULER_EXECUTION_LOG_DROPPED" value="... {0} lines dropped (queue saturated) ..."/>

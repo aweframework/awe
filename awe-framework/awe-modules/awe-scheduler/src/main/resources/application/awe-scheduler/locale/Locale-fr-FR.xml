@@ -135,6 +135,20 @@
   <locale name="SCHEDULER_MESSAGE_STOPPED_BY_USER" value="Arrêtée par l&apos;utilisateur"/>
   <locale name="SCHEDULER_STOP_UNAVAILABLE_TITLE" value="Tâche non arrêtée"/>
   <locale name="SCHEDULER_STOP_UNAVAILABLE_MESSAGE" value="La tâche est encore en cours de démarrage et n&apos;a pas pu être arrêtée, réessayez dans un instant"/>
+  <locale name="SCHEDULER_PARAMETER_CANCELLATION_MAINTAIN" value="Maintenance d'annulation"/>
+  <locale name="SCHEDULER_PARAMETER_CANCELLATION_MAINTAIN_HELP" value="Maintenance appelée avec taskId, executionId et externalReference quand une exécution différée est arrêtée ou dépasse son délai"/>
+  <locale name="SCREEN_TEXT_DEFERRED_EXECUTION" value="Exécution différée"/>
+  <locale name="SCREEN_TEXT_DEFERRED_RUNNING" value="Différées en cours"/>
+  <locale name="SCREEN_TEXT_DEFERRED_COMPLETED" value="Différées terminées"/>
+  <locale name="SCREEN_TEXT_DEFERRED_DEADLINE" value="Différées hors délai"/>
+  <locale name="SCREEN_TEXT_DEFERRED_STOPPED" value="Différées arrêtées"/>
+  <locale name="SCHEDULER_DEFERRED_TRACE" value="Référence {0}, délai {1}"/>
+  <locale name="SCHEDULER_DEFERRED_CLOSED" value="fermée par {0} le {1}"/>
+  <locale name="SCHEDULER_DEFERRED_SOURCE_API" value="le système externe"/>
+  <locale name="SCHEDULER_DEFERRED_SOURCE_DEADLINE" value="le délai"/>
+  <locale name="SCHEDULER_DEFERRED_SOURCE_USER" value="un utilisateur"/>
+  <locale name="SCHEDULER_DEFERRED_NOTICE_SENT" value="avis d'annulation envoyé"/>
+  <locale name="SCHEDULER_DEFERRED_NOTICE_FAILED" value="avis d'annulation échoué : {0}"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED" value="L&apos;exécution s&apos;est terminée avec le résultat {0} après {1}. {2}"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY" value="L&apos;exécution s&apos;est terminée de manière anormale après {0} - consultez la grille d&apos;exécution pour le statut final."/>
   <locale name="SCHEDULER_EXECUTION_LOG_DROPPED" value="... {0} lignes perdues (file saturée) ..."/>

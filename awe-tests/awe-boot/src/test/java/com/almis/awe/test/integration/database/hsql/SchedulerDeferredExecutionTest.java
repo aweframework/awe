@@ -96,6 +96,9 @@ class SchedulerDeferredExecutionTest extends AbstractSchedulerMaintainTest {
 
       assertThat(execution(taskId)).containsEntry("STA", WARNING);
       assertThat(execution(taskId)).containsEntry("DES", "Partial result");
+      Map<String, Object> trace = single("SELECT CmpSrc, CmpDat, CncSta FROM AweSchExeExt WHERE IdeTsk = ?", taskId);
+      assertThat(trace).containsEntry("CMPSRC", "API").containsEntry("CNCSTA", null);
+      assertThat(trace.get("CMPDAT")).isNotNull();
       await(() -> count("SELECT COUNT(*) FROM AweSchExe WHERE IdeTsk = ?", dependentId) == 1,
         "the dependent task to be launched");
 
@@ -143,14 +146,24 @@ class SchedulerDeferredExecutionTest extends AbstractSchedulerMaintainTest {
   }
 
   @Test
-  void stoppingATaskClosesItsDeferredExecutionAsStopped() throws Exception {
-    int taskId = create(deferredTask(unique("Deferred stop")));
+  void stoppingATaskClosesItsDeferredExecutionAsStoppedAndNotifiesTheCancellationOnce() throws Exception {
+    int taskId = create(deferredTask(unique("Deferred stop")).put("CncMnt", "deferredTestCancel"));
     try {
       launch(taskId);
+      assertThat(counter("SchDfrRun")).isPositive();
 
+      maintain("StpTsk", params().put("IdeTsk.selected", taskId));
       maintain("StpTsk", params().put("IdeTsk.selected", taskId));
 
       assertThat(executionStatus(taskId)).isEqualTo(STOPPED);
+      assertThat(dummyService.getDeferredCancellations()).containsOnlyOnce(taskId + "-1-external-ref-1");
+      Map<String, Object> trace = single("SELECT CmpSrc, CncSta, CncErr FROM AweSchExeExt WHERE IdeTsk = ?", taskId);
+      assertThat(trace).containsEntry("CMPSRC", "USER").containsEntry("CNCSTA", "SENT");
+      assertThat((String) trace.get("CNCERR")).isNullOrEmpty();
+      // The dashboard counters read the trace
+      assertThat(counter("SchDfrUsr")).isPositive();
+      assertThat(counter("SchDfrApi")).isNotNegative();
+      assertThat(counter("SchDfrDln")).isNotNegative();
     } finally {
       deleteTasks(taskId);
       forget(taskId);
@@ -223,6 +236,10 @@ class SchedulerDeferredExecutionTest extends AbstractSchedulerMaintainTest {
       deleteTasks(taskId);
       forget(taskId);
     }
+  }
+
+  private int counter(String query) throws Exception {
+    return rows(query, params()).get(0).get("value").asInt();
   }
 
   private boolean jobsIdle() {
