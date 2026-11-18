@@ -279,6 +279,7 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getPivotTable("Pvt")).hasToString("By.cssSelector: #Pvt table.pvtTable");
     assertThat(instructions.getLogViewer()).hasToString("By.cssSelector: [data-testid='log-viewer']");
     assertThat(instructions.getFileViewer()).hasToString("By.cssSelector: [data-testid='file-viewer']");
+    assertThat(instructions.getFlowGraphNode()).hasToString("By.cssSelector: [data-testid='flow-graph-node']");
     assertThat(instructions.getEmbeddedFrame()).hasToString("By.cssSelector: iframe");
     assertThat(instructions.getOpenDialog("PrnOpt")).hasToString(
       "By.cssSelector: [data-testid='dialog'][data-testid-owner='PrnOpt'][data-open='true']");

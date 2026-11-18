@@ -29,6 +29,7 @@ Para activar este módulo, sigue estos pasos:
   <option name="scheduler-tasks" label="MENU_SCHEDULER_TASKS" screen="scheduler-tasks" icon="tasks">
     <option name="new-scheduler-task" screen="new-scheduler-task" invisible="true" />
     <option name="update-scheduler-task" screen="update-scheduler-task" invisible="true" />
+    <option name="scheduler-flow-graph" screen="scheduler-flow-graph" invisible="true" />
   </option>
   <option name="scheduler-servers" label="MENU_SCHEDULER_SERVERS" screen="scheduler-server" icon="server">
     <option name="new-scheduler-server" screen="new-scheduler-server" invisible="true" />
@@ -57,7 +58,13 @@ awe.database.migration-modules=AWE,...,SCHEDULER,...
 
 ## Ejecuciones de flujo {#flow-runs}
 
-Toda tarea lanzada por su planificación, de forma manual o por un fichero inicia una ejecución de flujo que agrupa las ejecuciones de sus dependencias, con un estado final y parámetros opcionales. Una tarea con varios padres se lanza una sola vez, cuando han terminado todos sus padres de la ejecución de flujo. La pantalla **Ejecuciones de flujo** (`scheduler-runs`, permiso `scheduler.read`) lista las ejecuciones con sus ejecuciones y tareas omitidas. Consulta **[Dependencias entre tareas](guides/dependencies-guide.md#flow-runs-and-fan-in)**.
+Toda tarea lanzada por su planificación, de forma manual o por un fichero inicia una ejecución de flujo que agrupa las ejecuciones de sus dependencias, con un estado final y parámetros opcionales. Una tarea con varios padres se lanza una sola vez, cuando han terminado todos sus padres de la ejecución de flujo. La pantalla **Ejecuciones de flujo** (`scheduler-runs`, permiso `scheduler.read`) lista las ejecuciones con su grafo de flujo, sus ejecuciones y sus tareas omitidas. Consulta **[Dependencias entre tareas](guides/dependencies-guide.md#flow-runs-and-fan-in)**.
+
+El botón **Grafo de flujo** de la pantalla de tareas abre `scheduler-flow-graph`: las dependencias de la tarea
+seleccionada, o de todos los flujos si no hay ninguna seleccionada, dibujadas como un grafo de izquierda a derecha. Cada
+nodo muestra la tarea, su tipo de lanzamiento y si está activa; cada arista muestra cuándo lanza el padre a sus hijos
+(siempre con OK, también con aviso o con error). En una ejecución, cada nodo muestra su estado: terminada con su estado,
+en curso, en espera, omitida o no alcanzada. Al pulsar un nodo se abre la tarea. Los dos motores dibujan el grafo.
 
 Si usas `flyway`, las tablas de las ejecuciones de flujo (`AweSchRun`, `AweSchRunPar`, `AweSchRunTsk` y la columna `IdeRun` de `AweSchExe`) se incluyen en el módulo de migración `SCHEDULER`, versión `1.0.9`.
 

@@ -13,12 +13,15 @@ import com.almis.awe.test.integration.AbstractSpringAppIntegrationTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import tools.jackson.databind.node.ObjectNode;
 
+import javax.sql.DataSource;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,6 +41,9 @@ class SchedulerFlowRunTest extends AbstractSpringAppIntegrationTest {
 
   @Autowired
   private QueryUtil queryUtil;
+
+  @Autowired
+  private DataSource dataSource;
 
   @Test
   void guardedUpdatesChangeTheRowOnlyForTheFirstCaller() throws Exception {
@@ -82,5 +88,57 @@ class SchedulerFlowRunTest extends AbstractSpringAppIntegrationTest {
     assertThat(executions.getRows()).isEmpty();
     assertThat(skipped.getRows()).hasSize(1);
     assertThat(skipped.getRows().get(0).get("RsTskId").getIntegerValue()).isEqualTo(7);
+  }
+
+  @Test
+  void flowGraphQueryMarksTheRootAndTheStateOfEachTaskOfTheRun() throws Exception {
+    // Diamond 9901 -> 9902, 9901 -> 9903, 9902 -> 9904, 9903 -> 9904 where 9903 ends in error and 9904 is skipped
+    JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+    FlowRunRepository runs = new FlowRunRepository(queryService, maintainService, queryUtil);
+    String runId = UUID.randomUUID().toString();
+    try {
+      for (int task = 9901; task <= 9904; task++) {
+        jdbc.update("INSERT INTO AweSchTsk (Ide, Nam, TypExe, CmdExe, TypLch) VALUES (?, ?, 0, 'cmd', 0)", task,
+          "Graph " + task);
+      }
+      jdbc.update("INSERT INTO AweSchTskDpn (IdeTsk, IdePrn) "
+        + "VALUES (9902, 9901), (9903, 9901), (9904, 9902), (9904, 9903)");
+      runs.createRun(runId, new Task().setTaskId(9901).setLauncher("test"), new TaskExecution().setExecutionId(1));
+      for (int[] execution : new int[][]{{9901, 0}, {9902, 0}, {9903, 1}}) {
+        jdbc.update("INSERT INTO AweSchExe (IdeTsk, GrpTsk, ExeTsk, IniDat, Sta, IdeRun) "
+          + "VALUES (?, 'g', 1, CURRENT_TIMESTAMP, ?, ?)", execution[0], execution[1], runId);
+      }
+      runs.register(runId, 9904, List.of());
+      runs.transition(runId, 9904, "WAITING", "SKIPPED");
+
+      ObjectNode byRun = queryUtil.getParameters(null, "1", "0");
+      byRun.put("IdeRun.selected", runId);
+      ObjectNode byTask = queryUtil.getParameters(null, "1", "0");
+      byTask.put("IdeTsk.selected", 9902);
+
+      Map<String, String> run = graphRows(byRun);
+      Map<String, String> definition = graphRows(byTask);
+
+      assertThat(run).containsEntry("9901-", "root=" + runId + " task= run= exe=0")
+        .containsEntry("9903-9901", "root= task= run= exe=1")
+        .containsEntry("9904-9902", "root= task= run=SKIPPED exe=")
+        .containsEntry("9904-9903", "root= task= run=SKIPPED exe=");
+      assertThat(definition).containsEntry("9902-9901", "root= task=9902 run= exe=")
+        .containsEntry("9901-", "root= task= run= exe=");
+    } finally {
+      jdbc.update("DELETE FROM AweSchRunTsk WHERE IdeRun = ?", runId);
+      jdbc.update("DELETE FROM AweSchRun WHERE IdeRun = ?", runId);
+      jdbc.update("DELETE FROM AweSchExe WHERE IdeTsk BETWEEN 9901 AND 9904");
+      jdbc.update("DELETE FROM AweSchTskDpn WHERE IdeTsk BETWEEN 9901 AND 9904");
+      jdbc.update("DELETE FROM AweSchTsk WHERE Ide BETWEEN 9901 AND 9904");
+    }
+  }
+
+  private Map<String, String> graphRows(ObjectNode parameters) throws Exception {
+    return queryService.launchPrivateQuery("getFlowGraph", parameters).getDataList().getRows().stream()
+      .filter(row -> row.get("taskId").getIntegerValue() >= 9901 && row.get("taskId").getIntegerValue() <= 9904)
+      .collect(Collectors.toMap(row -> row.get("taskId").getStringValue() + "-" + row.get("parentId").getStringValue(),
+        row -> "root=" + row.get("rootRun").getStringValue() + " task=" + row.get("rootTask").getStringValue()
+          + " run=" + row.get("runStatus").getStringValue() + " exe=" + row.get("executionStatus").getStringValue()));
   }
 }

@@ -1265,4 +1265,61 @@
     <order-by field="DpnOrd" type="ASC"/>
   </query>
 
+  <!-- Flow graph: one row per task and parent. The selected task or run marks the root of the graph, the run gives each
+       task its join state and the status of its execution -->
+  <query id="getFlowGraph" permission="scheduler.read">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Ide" alias="taskId" table="Tsk"/>
+    <field id="IdePrn" alias="parentId" table="Dpn"/>
+    <computed alias="id" format="[taskId]-[parentId]"/>
+    <field id="Nam" alias="name" table="Tsk"/>
+    <field id="TypLch" alias="TypLch" table="Tsk"/>
+    <computed format="[TypLch]" alias="launchIcon" translate="LchIco"/>
+    <computed format="[TypLch]" alias="launchLabel" translate="LchTyp"/>
+    <field id="Act" alias="active" table="Tsk"/>
+    <field id="LchDepWrn" alias="onWarning" table="Tsk"/>
+    <field id="LchDepErr" alias="onError" table="Tsk"/>
+    <field id="Ide" alias="rootTask" table="Roo"/>
+    <field id="IdeRun" alias="rootRun" table="Run"/>
+    <field id="Sta" alias="runStatus" table="Rtk"/>
+    <field id="Sta" alias="executionStatus" table="Exe"/>
+    <join type="LEFT">
+      <table id="AweSchTskDpn" alias="Dpn"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Dpn" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Roo"/>
+      <and>
+        <filter left-field="Ide" left-table="Roo" condition="eq" right-field="Ide" right-table="Tsk"/>
+        <filter left-field="Ide" left-table="Roo" condition="eq" right-variable="rootTask"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchRun" alias="Run"/>
+      <and>
+        <filter left-field="IdeTskRoo" left-table="Run" condition="eq" right-field="Ide" right-table="Tsk"/>
+        <filter left-field="IdeRun" left-table="Run" condition="eq" right-variable="runId"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchRunTsk" alias="Rtk"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Rtk" condition="eq" right-field="Ide" right-table="Tsk"/>
+        <filter left-field="IdeRun" left-table="Rtk" condition="eq" right-variable="runId"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExe" alias="Exe"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="Ide" right-table="Tsk"/>
+        <filter left-field="IdeRun" left-table="Exe" condition="eq" right-variable="runId"/>
+      </and>
+    </join>
+    <order-by field="Ide" table="Tsk" type="ASC"/>
+    <variable id="rootTask" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+    <variable id="runId" type="STRING" name="IdeRun.selected" optional="true"/>
+  </query>
+
 </queries>

@@ -188,4 +188,16 @@
   <locale name="PARAMETER_ENDED_AT" value="Hora fin"/>
   <locale name="BUTTON_OPEN_RUN" value="Abrir flujo"/>
   <locale name="HELP_OPEN_RUN_BUTTON" value="Abrir la ejecución de flujo de la ejecución seleccionada"/>
+  <locale name="MENU_SCHEDULER_FLOW_GRAPH" value="Grafo de flujo"/>
+  <locale name="HELP_SCREEN_SCHEDULER_FLOW_GRAPH" value="En esta pantalla puedes ver cómo dependen entre sí las tareas de un flujo: el flujo de la tarea seleccionada, o todos los flujos. Pulsa una tarea para abrirla"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH" value="Grafo de flujo"/>
+  <locale name="BUTTON_FLOW_GRAPH" value="Grafo de flujo"/>
+  <locale name="HELP_FLOW_GRAPH_BUTTON" value="Mostrar el flujo de la tarea seleccionada, o todos los flujos si no hay ninguna seleccionada"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_EMPTY" value="No hay dependencias entre tareas que dibujar"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_WAITING" value="En espera"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_SKIPPED" value="Omitida"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_NOT_REACHED" value="No alcanzada"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_INACTIVE" value="Inactiva"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ON_WARNING" value="Con aviso"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ON_ERROR" value="Con error"/>
 </locales>

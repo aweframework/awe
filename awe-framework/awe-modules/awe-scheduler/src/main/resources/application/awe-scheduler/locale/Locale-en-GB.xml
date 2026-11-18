@@ -191,4 +191,16 @@
   <locale name="PARAMETER_ENDED_AT" value="Ended at"/>
   <locale name="BUTTON_OPEN_RUN" value="Open run"/>
   <locale name="HELP_OPEN_RUN_BUTTON" value="Open the flow run of the selected execution"/>
+  <locale name="MENU_SCHEDULER_FLOW_GRAPH" value="Flow graph"/>
+  <locale name="HELP_SCREEN_SCHEDULER_FLOW_GRAPH" value="In this screen you can see how the tasks of a flow depend on each other: the flow of the selected task, or every flow. Click a task to open it"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH" value="Flow graph"/>
+  <locale name="BUTTON_FLOW_GRAPH" value="Flow graph"/>
+  <locale name="HELP_FLOW_GRAPH_BUTTON" value="Show the flow of the selected task, or every flow when no task is selected"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_EMPTY" value="There are no task dependencies to draw"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_WAITING" value="Waiting"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_SKIPPED" value="Skipped"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_NOT_REACHED" value="Not reached"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ON_WARNING" value="On warning"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ON_ERROR" value="On error"/>
 </locales>

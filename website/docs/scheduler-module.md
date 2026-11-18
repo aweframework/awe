@@ -29,6 +29,7 @@ To activate this module, follow this steps:
   <option name="scheduler-tasks" label="MENU_SCHEDULER_TASKS" screen="scheduler-tasks" icon="tasks">
     <option name="new-scheduler-task" screen="new-scheduler-task" invisible="true" />
     <option name="update-scheduler-task" screen="update-scheduler-task" invisible="true" />
+    <option name="scheduler-flow-graph" screen="scheduler-flow-graph" invisible="true" />
   </option>
   <option name="scheduler-servers" label="MENU_SCHEDULER_SERVERS" screen="scheduler-server" icon="server">
     <option name="new-scheduler-server" screen="new-scheduler-server" invisible="true" />
@@ -57,7 +58,13 @@ awe.database.migration-modules=AWE,...,SCHEDULER,...
 
 ## Flow runs
 
-Every task launched by its schedule, by hand or by a file starts a flow run that groups the executions of its dependencies, with a final status and optional run parameters. A task with several parents is launched once, when all its parents in the run have ended. The **Flow runs** screen (`scheduler-runs`, permission `scheduler.read`) lists the runs with their executions and skipped tasks. See **[Dependencies between tasks](guides/dependencies-guide.md#flow-runs-and-fan-in)**.
+Every task launched by its schedule, by hand or by a file starts a flow run that groups the executions of its dependencies, with a final status and optional run parameters. A task with several parents is launched once, when all its parents in the run have ended. The **Flow runs** screen (`scheduler-runs`, permission `scheduler.read`) lists the runs with their flow graph, executions and skipped tasks. See **[Dependencies between tasks](guides/dependencies-guide.md#flow-runs-and-fan-in)**.
+
+The **Flow graph** button of the task screen opens `scheduler-flow-graph`: the dependencies of the selected task, or of
+every flow when no task is selected, drawn as a graph from left to right. Each node shows the task, its launch type and
+whether it is active; each edge shows when the parent launches its children (always on OK, also on warning or on error).
+In a run, each node shows its state: ended with its status, running, waiting, skipped or not reached. Clicking a node
+opens the task. Both engines draw the graph.
 
 If you use `flyway`, the tables of the flow runs (`AweSchRun`, `AweSchRunPar`, `AweSchRunTsk` and the `IdeRun` column of `AweSchExe`) come with the `SCHEDULER` migration module, version `1.0.9`.
 

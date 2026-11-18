@@ -324,6 +324,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getChartZoomed", () -> i.getChartZoomed("Chr"));
     catalog.put("getPivotTable", () -> i.getPivotTable("Pvt"));
     catalog.put("getLogViewer", i::getLogViewer);
+    catalog.put("getFlowGraphNode", i::getFlowGraphNode);
     catalog.put("getFileViewer", i::getFileViewer);
     catalog.put("getEmbeddedFrame", i::getEmbeddedFrame);
     catalog.put("getOpenDialog", () -> i.getOpenDialog("Dia"));

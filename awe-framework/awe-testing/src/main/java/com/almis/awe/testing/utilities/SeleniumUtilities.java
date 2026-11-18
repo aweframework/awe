@@ -4315,6 +4315,17 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Wait until the flow graph of the scheduler shows a task
+   *
+   * @param task Name of the task that a node of the graph shows
+   */
+  protected void checkFlowGraphContains(String task) {
+    By selector = frontEndInstructions.getFlowGraphNode();
+    waitForText(locator(selector), task);
+    checkTextContains(selector, task);
+  }
+
+  /**
    * Wait until the file viewer shows a text
    *
    * @param text Text that the file contains

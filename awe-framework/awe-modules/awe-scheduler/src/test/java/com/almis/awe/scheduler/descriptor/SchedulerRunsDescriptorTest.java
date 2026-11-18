@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * Structural checks on the flow run screen ({@code scheduler-runs}), its queries, the run link of the execution grid
- * and its locales (#978).
+ * and its locales (#978), and the flow graph of the flows and runs (#992).
  */
 class SchedulerRunsDescriptorTest {
 
@@ -77,6 +77,21 @@ class SchedulerRunsDescriptorTest {
     assertTrue(xml.contains("<button-action type=\"screen\" target=\"scheduler-runs\" />"));
   }
 
+  @Test
+  void flowGraphOfTheTasksAndOfTheSelectedRunOpensTheClickedTask() throws IOException {
+    String widget = "<widget type=\"flow-graph\" id=\"IdeTsk\" server-action=\"data\" target-action=\"getFlowGraph\"";
+    String openTask = "<widget-parameter type=\"string\" name=\"target\" value=\"update-scheduler-task\"/>";
+    String graph = read("screen/scheduler-flow-graph.xml");
+    String runs = read("screen/scheduler-runs.xml");
+
+    assertTrue(graph.contains(widget + " initial-load=\"query\" style=\"expand\">") && graph.contains(openTask));
+    assertTrue(runs.contains(widget + ">") && runs.contains(openTask));
+    assertTrue(runs.contains("<dependency-action type=\"filter\" target=\"IdeTsk\" async=\"true\" silent=\"true\"/>"));
+    assertTrue(read("screen/scheduler-tasks.xml")
+      .contains("<button-action type=\"screen\" target=\"scheduler-flow-graph\" />"));
+    assertTrue(query("getFlowGraph").contains("permission=\"scheduler.read\""));
+  }
+
   @ParameterizedTest
   @ValueSource(strings = {"en-GB", "es-ES", "fr-FR"})
   void everyLocaleCarriesTheFlowRunKeys(String locale) throws IOException {
@@ -84,7 +99,11 @@ class SchedulerRunsDescriptorTest {
 
     for (String key : new String[]{"MENU_SCHEDULER_RUNS", "HELP_SCREEN_SCHEDULER_RUNS", "SCREEN_TEXT_FLOW_RUNS",
       "SCREEN_TEXT_RUN_EXECUTIONS", "SCREEN_TEXT_RUN_SKIPPED", "PARAMETER_ROOT_TASK", "PARAMETER_ROOT_EXECUTION",
-      "PARAMETER_ENDED_AT", "BUTTON_OPEN_RUN", "HELP_OPEN_RUN_BUTTON"}) {
+      "PARAMETER_ENDED_AT", "BUTTON_OPEN_RUN", "HELP_OPEN_RUN_BUTTON", "MENU_SCHEDULER_FLOW_GRAPH",
+      "HELP_SCREEN_SCHEDULER_FLOW_GRAPH", "SCREEN_TEXT_FLOW_GRAPH", "BUTTON_FLOW_GRAPH", "HELP_FLOW_GRAPH_BUTTON",
+      "SCREEN_TEXT_FLOW_GRAPH_EMPTY", "SCREEN_TEXT_FLOW_GRAPH_WAITING", "SCREEN_TEXT_FLOW_GRAPH_SKIPPED",
+      "SCREEN_TEXT_FLOW_GRAPH_NOT_REACHED", "SCREEN_TEXT_FLOW_GRAPH_INACTIVE", "SCREEN_TEXT_FLOW_GRAPH_ON_WARNING",
+      "SCREEN_TEXT_FLOW_GRAPH_ON_ERROR"}) {
       assertTrue(xml.contains("<locale name=\"" + key + "\""), locale + " is missing " + key);
     }
   }

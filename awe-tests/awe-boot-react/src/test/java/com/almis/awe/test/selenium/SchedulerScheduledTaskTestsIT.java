@@ -159,7 +159,7 @@ class SchedulerScheduledTaskTestsIT extends AbstractSchedulerTests {
 
   /**
    * Open the flow run that the run-now launch created: the run lists with its root task and its final status, and selecting
-   * it lists its executions. It runs before the dependencies are added, which rename the task. The stored run, its joins
+   * it lists its executions and draws its flow graph. It runs before the dependencies are added, which rename the task. The stored run, its joins
    * and its queries are proven by {@code SchedulerFlowRunTest}
    */
   @Test
@@ -172,9 +172,10 @@ class SchedulerScheduledTaskTestsIT extends AbstractSchedulerTests {
     checkRowContentsGrid("GrdRunLst", TASK);
     checkColumnSuccessIcon("RunStaIco");
 
-    // Select it: its execution is listed
+    // Select it: its execution is listed and the flow graph of the run draws its root task (#992)
     clickRowContents("GrdRunLst", TASK);
     checkRowContentsGrid("GrdRunExe", TASK);
+    checkFlowGraphContains(TASK);
   }
 
   /**

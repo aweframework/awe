@@ -43,6 +43,10 @@
         <dependency-element id="GrdExeLst" condition="ne" value="1" />
       </dependency>
     </button>
+    <!-- Opens the flow graph of the selected task, or every flow when no task is selected -->
+    <button label="BUTTON_FLOW_GRAPH" icon="code-fork" id="ButFlwGrp" help="HELP_FLOW_GRAPH_BUTTON">
+      <button-action type="screen" target="scheduler-flow-graph" />
+    </button>
     <button label="BUTTON_DELETE" icon="trash" id="ButDel" help="HELP_DELETE_BUTTON">
       <button-action type="check-some-selected" target="GrdTskLst" />
       <button-action type="confirm" target="DelMsg" />
