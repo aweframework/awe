@@ -344,7 +344,7 @@ Cuando una tarea tiene uno o más parámetros `Variable`, al lanzarla desde la l
 
 En este paso configuraremos el tipo de lanzamiento de la tarea.
 
-Podemos elegir entre tres opciones diferentes:
+Podemos elegir entre cuatro opciones diferentes:
 
 ##### 1. Manual {#1-manual}
 
@@ -378,6 +378,81 @@ carpeta local o compartida, `ftp` se conecta mediante FTP y `ssh` se conecta med
 > **Nota:** Las credenciales de conexión no se configuran aquí. Tanto los servidores `ftp` como `ssh`
 > se autentican con las credenciales almacenadas en el propio [servidor](#servers), las mismas que se usan para
 > la ejecución remota de comandos, por lo que todas las tareas que apunten al mismo servidor las comparten.
+
+##### 4. Webhook {#4-webhook}
+
+La tarea se lanza cuando otro sistema le envía un webhook firmado. Una tarea webhook no tiene planificación propia: cada webhook válido la lanza una vez, de inmediato, igual que un lanzamiento manual.
+
+El hook de la tarea se define con estos campos:
+
+| Elemento             | Definición                                                                                                                                                        |     Uso      |
+|----------------------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------:|
+| Clave del hook       | Última parte de la URL. Letras minúsculas, dígitos y guiones, de 1 a 64 caracteres. Otra tarea no puede usarla: una clave repetida se rechaza al guardar          | **Requerido** |
+| Hook activo          | Un hook que no está activo se responde con `409` y no lanza nada                                                                                                  | **Requerido** |
+| Propiedad del secreto | Nombre de la propiedad de la aplicación que contiene el secreto de firma. El secreto en sí nunca se guarda ni se muestra                                         | **Requerido** |
+| Tipo de evento       | Solo los webhooks de este `type` lanzan la tarea, el resto se almacenan y se ignoran. Vacío acepta cualquier tipo                                                 |   Opcional   |
+
+El formulario muestra la **URL del webhook** de la clave, lista para copiar en el emisor:
+
+```text
+https://<host>/<context-path>/scheduler/api/v1/webhooks/triggers/<hookKey>
+```
+
+###### La petición {#the-request}
+
+La petición sigue [Standard Webhooks](https://www.standardwebhooks.com/): un `POST` con cuerpo JSON y las cabeceras `webhook-id` (identificador único del mensaje), `webhook-timestamp` (segundos Unix) y `webhook-signature`.
+
+```json
+{
+  "type": "fit.market-data.loaded",
+  "timestamp": "2026-11-13T06:00:02Z",
+  "data": { "date": "2026-11-12", "entity": "0049" }
+}
+```
+
+El cuerpo debe ser un objeto JSON con un objeto `data` y un `type` opcional. La firma es `v1,` seguido del base64 del HMAC-SHA256 de `{webhook-id}.{webhook-timestamp}.{body}` (los bytes exactos del cuerpo), con el secreto sin su prefijo `whsec_` decodificado de base64 como clave:
+
+```python
+import base64, hashlib, hmac
+key = base64.b64decode("whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=".removeprefix("whsec_"))
+signed = f"{msg_id}.{timestamp}.{body}".encode()
+signature = "v1," + base64.b64encode(hmac.new(key, signed, hashlib.sha256).digest()).decode()
+```
+
+Para probar un emisor, este vector da la firma esperada (con la comprobación de la marca de tiempo desactivada o con el reloj fijado):
+
+| Dato | Valor |
+|------|-------|
+| Secreto | `whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=` |
+| `webhook-id` | `0193f2a4-6c1e-7b3a-9d2e-5f8a1c4e7b20` |
+| `webhook-timestamp` | `1763029530` |
+| Cuerpo | `{"type":"job.finished","timestamp":"2025-11-13T10:25:30Z","data":{"jobId":"0193f2a0-1111-7aaa-8bbb-000000000001","status":"COMPLETED"}}` |
+| `webhook-signature` | `v1,A4hcS6QMtMJGUshESWRCI0SK2l7hfSW/LXYbcYD8Ef0=` |
+
+###### Las respuestas {#the-responses}
+
+| Respuesta | Cuándo |
+|-----------|--------|
+| `202 {"messageId": "<webhook-id>"}` | Aceptado, también cuando el `webhook-id` ya se había recibido. La tarea se lanza después, fuera de la petición |
+| `400` | El cuerpo no es un objeto JSON con un objeto `data` |
+| `401` | La firma o la marca de tiempo no son válidas, o la propiedad del secreto no tiene valor |
+| `404` | Clave de hook desconocida |
+| `409` | El hook o su tarea no están activos |
+| `413` | El cuerpo es mayor que `awe.scheduler.webhooks.max-body-size` |
+
+**Deduplicación.** Un webhook se identifica por su clave de hook y su `webhook-id`. Un webhook que ya se había recibido se responde de nuevo con `202` y no lanza la tarea por segunda vez, de modo que un emisor puede reintentar con seguridad.
+
+**Procesamiento.** El webhook se almacena en una bandeja y se responde de inmediato. Un procesador lanza la tarea desde la bandeja cada `awe.scheduler.webhooks.process-interval`. Si el lanzamiento falla se reintenta tras una espera creciente, hasta 3 intentos en total, y después el webhook queda fallido con su error. Los webhooks procesados, ignorados y fallidos se purgan pasado `awe.scheduler.webhooks.inbox-retention`. La ejecución muestra `webhook:<hookKey>` como quien la lanzó. Si la tarea ya está en ejecución, el webhook lanza otra ejecución, igual que un lanzamiento manual. Mientras el scheduler está parado, los webhooks esperan en la bandeja y se lanzan cuando vuelve a arrancar.
+
+###### Punteros de parámetros {#parameter-pointers}
+
+El paso **Parámetros** de una tarea webhook tiene una columna **Puntero JSON**. Un puntero (por ejemplo `/date`) indica qué valor del `data` del webhook pasa al parámetro:
+
+- Solo los parámetros `VARIABLE` con puntero reciben valores del webhook: los punteros son una lista blanca y nada más del webhook llega a la tarea.
+- Un puntero que no está en el webhook deja el valor almacenado del parámetro.
+- Los valores mapeados pasan a ser los **parámetros de la ejecución de flujo**, de modo que llegan a todos los pasos del flujo que inicia la tarea (consulta [Ejecuciones de flujo y fan-in](dependencies-guide.md#flow-runs-and-fan-in)).
+
+Las propiedades, la rotación del secreto y la migración están en la **[guía de configuración](../scheduler-module.md#webhook-launch)**.
 
 #### 4. Dependencias de la tarea {#4-task-dependencies}
 

@@ -167,6 +167,13 @@
   -->
   <!-- Insert scheduled task -->
   <target name="NewSchedulerTask" permission="scheduler.update">
+    <!-- A WEBHOOK task needs a valid hook key that no other task uses -->
+    <serve service="validateWebhookHook">
+      <variable id="launchType" type="INTEGER" name="TypLch" />
+      <variable id="hookKey" type="STRING" name="HokKey" optional="true"/>
+      <variable id="secretProperty" type="STRING" name="HokSec" optional="true"/>
+    </serve>
+
     <insert audit="HISAweSchTsk">
       <table id="AweSchTsk" />
       <field id="Ide" sequence="SchTskKey" variable="IdeTsk" />
@@ -274,12 +281,14 @@
       <field id="Src" variable="Src" />
       <field id="Typ" variable="Typ" />
       <field id="Val" variable="Val" />
+      <field id="WhkPtr" variable="WhkPtr" />
       <variable id="IdePar" type="INTEGER" name="IdePar"/>
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
       <variable id="Nam" type="STRING" name="ParNam" />
       <variable id="Src" type="INTEGER" name="ParSrc" />
       <variable id="Typ" type="STRING" name="ParTyp" />
       <variable id="Val" type="STRING" name="ParVal" />
+      <variable id="WhkPtr" type="STRING" name="ParPtr" optional="true" />
     </insert>
 
     <insert multiple="true">
@@ -292,6 +301,15 @@
 
     <commit/>
 
+    <serve service="saveWebhookHook">
+      <variable id="taskId" type="INTEGER" name="IdeTsk" />
+      <variable id="launchType" type="INTEGER" name="TypLch" />
+      <variable id="hookKey" type="STRING" name="HokKey" optional="true"/>
+      <variable id="active" type="INTEGER" name="HokAct" optional="true"/>
+      <variable id="secretProperty" type="STRING" name="HokSec" optional="true"/>
+      <variable id="typeFilter" type="STRING" name="HokTyp" optional="true"/>
+    </serve>
+
     <serve service="insertSchedulerTask">
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
     </serve>
@@ -303,6 +321,12 @@
     <serve service="validateTaskDependencies">
       <variable id="IdeTsk" type="INTEGER" name="Ide" />
       <variable id="children" type="INTEGER" name="DepTskIde" />
+    </serve>
+    <serve service="validateWebhookHook">
+      <variable id="taskId" type="INTEGER" name="Ide" />
+      <variable id="launchType" type="INTEGER" name="TypLch" />
+      <variable id="hookKey" type="STRING" name="HokKey" optional="true"/>
+      <variable id="secretProperty" type="STRING" name="HokSec" optional="true"/>
     </serve>
 
     <update audit="HISAweSchTsk">
@@ -427,12 +451,14 @@
       <field id="Src" variable="Src" />
       <field id="Typ" variable="Typ" />
       <field id="Val" variable="Val" />
+      <field id="WhkPtr" variable="WhkPtr" />
       <variable id="IdePar" type="INTEGER" name="IdePar" />
       <variable id="IdeTsk" type="INTEGER" name="Ide" />
       <variable id="Nam" type="STRING" name="ParNam" />
       <variable id="Src" type="INTEGER" name="ParSrc" />
       <variable id="Typ" type="STRING" name="ParTyp" />
       <variable id="Val" type="STRING" name="ParVal" />
+      <variable id="WhkPtr" type="STRING" name="ParPtr" optional="true" />
     </insert>
 
     <delete>
@@ -454,6 +480,15 @@
     </insert>
 
     <commit/>
+
+    <serve service="saveWebhookHook">
+      <variable id="taskId" type="INTEGER" name="Ide" />
+      <variable id="launchType" type="INTEGER" name="TypLch" />
+      <variable id="hookKey" type="STRING" name="HokKey" optional="true"/>
+      <variable id="active" type="INTEGER" name="HokAct" optional="true"/>
+      <variable id="secretProperty" type="STRING" name="HokSec" optional="true"/>
+      <variable id="typeFilter" type="STRING" name="HokTyp" optional="true"/>
+    </serve>
 
     <serve service="updateSchedulerTask">
       <variable id="IdeTsk" type="INTEGER" name="Ide" />
@@ -596,6 +631,16 @@
     <serve service="deleteSchedulerTask">
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk"/>
     </serve>
+
+    <delete>
+      <table id="AweSchTskHok"/>
+      <where>
+        <and>
+          <filter left-field="IdeTsk" condition="in" right-variable="IdeTsk"/>
+        </and>
+      </where>
+      <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
+    </delete>
 
     <delete>
       <table id="AweSchExeExt"/>
@@ -1013,6 +1058,146 @@
       <variable id="acceptedDate" type="TIMESTAMP" name="acceptedDate" />
       <variable id="dueDate" type="TIMESTAMP" name="dueDate" />
     </insert>
+  </target>
+
+  <!-- Store a received webhook in the inbox, to be processed outside the request -->
+  <target name="insertWebhookMessage" server-only="true">
+    <insert>
+      <table id="AweSchHokMsg" />
+      <field id="Src" variable="hookKey"/>
+      <field id="MsgId" variable="messageId"/>
+      <field id="RcvDat" variable="receivedDate"/>
+      <field id="Typ" variable="type"/>
+      <field id="Pay" variable="payload"/>
+      <constant id="Sta" value="RECEIVED" type="STRING"/>
+      <constant id="Att" value="0" type="INTEGER"/>
+      <field id="NxtDat" variable="receivedDate"/>
+      <variable id="hookKey" type="STRING" name="hookKey" />
+      <variable id="messageId" type="STRING" name="messageId" />
+      <variable id="receivedDate" type="TIMESTAMP" name="receivedDate" />
+      <variable id="type" type="STRING" name="type" />
+      <variable id="payload" type="STRING" name="payload" />
+    </insert>
+  </target>
+
+  <!-- Hook of a webhook task (the row follows the launch type of the task, see saveWebhookHook) -->
+  <target name="insertWebhookHook" server-only="true">
+    <insert>
+      <table id="AweSchTskHok" />
+      <field id="IdeTsk" variable="taskId"/>
+      <field id="HokKey" variable="hookKey"/>
+      <field id="Act" variable="active"/>
+      <field id="SecPrp" variable="secretProperty"/>
+      <field id="TypFlt" variable="typeFilter"/>
+      <variable id="taskId" type="INTEGER" name="taskId" />
+      <variable id="hookKey" type="STRING" name="hookKey" />
+      <variable id="active" type="INTEGER" name="active" />
+      <variable id="secretProperty" type="STRING" name="secretProperty" />
+      <variable id="typeFilter" type="STRING" name="typeFilter" />
+    </insert>
+  </target>
+
+  <target name="deleteWebhookHook" server-only="true">
+    <delete>
+      <table id="AweSchTskHok"/>
+      <where>
+        <and>
+          <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+        </and>
+      </where>
+      <variable id="taskId" type="INTEGER" name="taskId" />
+    </delete>
+  </target>
+
+  <!-- Claim a webhook of the inbox: one atomic update, only the caller that updates 1 row owns this attempt -->
+  <target name="claimWebhookMessage" server-only="true">
+    <update>
+      <table id="AweSchHokMsg" />
+      <field id="Att" variable="newAttempts"/>
+      <field id="NxtDat" variable="leaseDate"/>
+      <where>
+        <and>
+          <filter left-field="Src" condition="eq" right-variable="hookKey"/>
+          <filter left-field="MsgId" condition="eq" right-variable="messageId"/>
+          <filter left-field="Att" condition="eq" right-variable="attempts"/>
+          <or>
+            <filter left-field="Sta" condition="eq" right-variable="received"/>
+            <filter left-field="Sta" condition="eq" right-variable="failed"/>
+          </or>
+        </and>
+      </where>
+      <variable id="hookKey" type="STRING" name="hookKey" />
+      <variable id="messageId" type="STRING" name="messageId" />
+      <variable id="attempts" type="INTEGER" name="attempts" />
+      <variable id="newAttempts" type="INTEGER" name="newAttempts" />
+      <variable id="leaseDate" type="TIMESTAMP" name="leaseDate" />
+      <variable id="received" type="STRING" value="RECEIVED" />
+      <variable id="failed" type="STRING" value="FAILED" />
+    </update>
+  </target>
+
+  <!-- End the processing of a webhook of the inbox: processed (it launched the task) or ignored -->
+  <target name="finishWebhookMessage" server-only="true">
+    <update>
+      <table id="AweSchHokMsg" />
+      <field id="Sta" variable="status"/>
+      <field id="PrcDat" variable="processedDate"/>
+      <field id="Err" variable="error"/>
+      <field id="IdeTsk" variable="taskId"/>
+      <where>
+        <and>
+          <filter left-field="Src" condition="eq" right-variable="hookKey"/>
+          <filter left-field="MsgId" condition="eq" right-variable="messageId"/>
+        </and>
+      </where>
+      <variable id="hookKey" type="STRING" name="hookKey" />
+      <variable id="messageId" type="STRING" name="messageId" />
+      <variable id="status" type="STRING" name="status" />
+      <variable id="processedDate" type="TIMESTAMP" name="processedDate" />
+      <variable id="error" type="STRING" name="error" />
+      <variable id="taskId" type="INTEGER" name="taskId" />
+    </update>
+  </target>
+
+  <!-- A webhook of the inbox failed: it is tried again from its next date, until it runs out of attempts -->
+  <target name="failWebhookMessage" server-only="true">
+    <update>
+      <table id="AweSchHokMsg" />
+      <constant id="Sta" value="FAILED" type="STRING"/>
+      <field id="Err" variable="error"/>
+      <field id="NxtDat" variable="nextDate"/>
+      <where>
+        <and>
+          <filter left-field="Src" condition="eq" right-variable="hookKey"/>
+          <filter left-field="MsgId" condition="eq" right-variable="messageId"/>
+        </and>
+      </where>
+      <variable id="hookKey" type="STRING" name="hookKey" />
+      <variable id="messageId" type="STRING" name="messageId" />
+      <variable id="error" type="STRING" name="error" />
+      <variable id="nextDate" type="TIMESTAMP" name="nextDate" />
+    </update>
+  </target>
+
+  <!-- Purge the webhooks of the inbox that are over and were received before a date -->
+  <target name="purgeWebhookMessages" server-only="true">
+    <delete>
+      <table id="AweSchHokMsg" />
+      <where>
+        <and>
+          <or>
+            <filter left-field="Sta" condition="eq" right-variable="processed"/>
+            <filter left-field="Sta" condition="eq" right-variable="ignored"/>
+            <filter left-field="Sta" condition="eq" right-variable="failed"/>
+          </or>
+          <filter left-field="RcvDat" condition="lt" right-variable="limitDate"/>
+        </and>
+      </where>
+      <variable id="processed" type="STRING" value="PROCESSED" />
+      <variable id="ignored" type="STRING" value="IGNORED" />
+      <variable id="failed" type="STRING" value="FAILED" />
+      <variable id="limitDate" type="TIMESTAMP" name="limitDate" />
+    </delete>
   </target>
 
   <!-- Trace of the close of a deferred execution: when and who (API, DEADLINE or USER) -->

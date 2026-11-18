@@ -31,6 +31,7 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.springframework.scheduling.annotation.Async;
+import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Instant;
@@ -470,6 +471,18 @@ public class TaskDAO extends ServiceConfig {
 
     // Return ok service data
     return new ServiceData();
+  }
+
+  /**
+   * Launch a task because a webhook arrived; the data gives the values of its mapped variable parameters
+   *
+   * @param taskId  Task identifier
+   * @param hookKey Key of the hook that received the webhook
+   * @param data    Data of the webhook
+   * @throws AWException Error executing the task
+   */
+  public void launchWebhook(Integer taskId, String hookKey, JsonNode data) throws AWException {
+    immediateLauncher.launchWebhook(taskId, hookKey, data, this::addTaskToScheduler);
   }
 
   /**

@@ -58,7 +58,7 @@ awe.database.migration-modules=AWE,...,SCHEDULER,...
 
 ## Flow runs
 
-Every task launched by its schedule, by hand or by a file starts a flow run that groups the executions of its dependencies, with a final status and optional run parameters. A task with several parents is launched once, when all its parents in the run have ended. The **Flow runs** screen (`scheduler-runs`, permission `scheduler.read`) lists the runs with their flow graph, executions and skipped tasks. See **[Dependencies between tasks](guides/dependencies-guide.md#flow-runs-and-fan-in)**.
+Every task launched by its schedule, by hand, by a file or by a webhook starts a flow run that groups the executions of its dependencies, with a final status and optional run parameters. A task with several parents is launched once, when all its parents in the run have ended. The **Flow runs** screen (`scheduler-runs`, permission `scheduler.read`) lists the runs with their flow graph, executions and skipped tasks. See **[Dependencies between tasks](guides/dependencies-guide.md#flow-runs-and-fan-in)**.
 
 The **Flow graph** button of the task screen opens `scheduler-flow-graph`: the dependencies of the selected task, or of
 every flow when no task is selected, drawn as a graph from left to right. Each node shows the task, its launch type and
@@ -67,6 +67,42 @@ In a run, each node shows its state: ended with its status, running, waiting, sk
 opens the task. Both engines draw the graph.
 
 If you use `flyway`, the tables of the flow runs (`AweSchRun`, `AweSchRunPar`, `AweSchRunTsk` and the `IdeRun` column of `AweSchExe`) come with the `SCHEDULER` migration module, version `1.0.9`.
+
+## Webhook launch
+
+A task with the **Webhook** launch type is launched when a signed `POST` reaches its hook URL (see the **[Scheduler guide](guides/scheduler-guide.md#4-webhook)**). The webhooks are received, stored and answered at once, and processed outside the request. They are configured with the following properties:
+
+| Property | Description | Default |
+|----------|-------------|---------|
+| `awe.scheduler.webhooks.max-body-size` | Maximum size of the body of a webhook. A bigger one is answered with `413` | `256KB` |
+| `awe.scheduler.webhooks.tolerance` | Maximum difference between the `webhook-timestamp` of a webhook and the current time. A webhook outside it is answered with `401` | `5m` |
+| `awe.scheduler.webhooks.inbox-retention` | Time the processed, ignored and definitively failed webhooks stay in the inbox before they are purged | `30d` |
+| `awe.scheduler.webhooks.process-interval` | Interval between the checks of the inbox for webhooks to launch | `10s` |
+
+A duration without a unit is read in the unit of its default (minutes for `tolerance`, days for `inbox-retention`, seconds for `process-interval`).
+
+```properties
+awe.scheduler.webhooks.max-body-size=256KB
+awe.scheduler.webhooks.tolerance=5m
+awe.scheduler.webhooks.inbox-retention=30d
+awe.scheduler.webhooks.process-interval=10s
+```
+
+### Security
+
+The webhook path (`/scheduler/api/v1/webhooks/**`) needs no bearer token: it has its own security chain, and **the signature is the authentication**. A request is accepted only when its [Standard Webhooks](https://www.standardwebhooks.com/) signature is valid for the secret of the hook and its timestamp is within the tolerance. The rest of the scheduler API keeps requiring the bearer token (see [Scheduler API security](#scheduler-api-security)).
+
+The secret is never stored in the database or shown on a screen: the hook holds the **name of an application property**, and the property holds the secret. It may hold several secrets separated by spaces or commas, and a webhook signed with any of them is accepted, so a secret can be rotated without downtime: add the new one, change the sender, then remove the old one.
+
+```properties
+fit.webhook.secret=whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=
+# During a rotation both secrets are accepted
+fit.webhook.secret=whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8= whsec_BAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=
+```
+
+### Migration
+
+If you use `flyway`, the tables of the webhook launch (`AweSchTskHok`, `AweSchHokMsg` and the `WhkPtr` column of `AweSchTskPar`) come with the `SCHEDULER` migration module, version `1.0.10`.
 
 ## SSH remote command execution
 

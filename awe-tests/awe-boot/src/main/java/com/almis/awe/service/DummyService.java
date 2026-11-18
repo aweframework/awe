@@ -65,6 +65,7 @@ public class DummyService extends ServiceConfig {
   private final Random random = new Random();
   // Execution keys (task, execution) that the deferred test task received
   private final List<int[]> deferredLaunches = new CopyOnWriteArrayList<>();
+  private final List<Map<String, String>> webhookLaunches = new CopyOnWriteArrayList<>();
   // Cancellation notices (task, execution, external reference) that the deferred test task received
   private final List<String> deferredCancellations = new CopyOnWriteArrayList<>();
 
@@ -588,6 +589,18 @@ public class DummyService extends ServiceConfig {
   }
 
   /**
+   * Record the values that a webhook task received
+   *
+   * @param day    Value mapped from the webhook data
+   * @param entity Value of a parameter that the webhook data does not map
+   * @return Service data
+   */
+  public ServiceData webhookTestLaunch(String day, String entity) {
+    webhookLaunches.add(Map.of("day", String.valueOf(day), "entity", String.valueOf(entity)));
+    return new ServiceData();
+  }
+
+  /**
    * Record the cancellation notice of a deferred execution
    *
    * @param taskId            Task identifier
@@ -598,6 +611,15 @@ public class DummyService extends ServiceConfig {
   public ServiceData deferredTestCancel(Integer taskId, Integer executionId, String externalReference) {
     deferredCancellations.add(taskId + "-" + executionId + "-" + externalReference);
     return new ServiceData();
+  }
+
+  /**
+   * Values received by the webhook test task, in order
+   *
+   * @return Values of each launch
+   */
+  public List<Map<String, String>> getWebhookLaunches() {
+    return webhookLaunches;
   }
 
   /**

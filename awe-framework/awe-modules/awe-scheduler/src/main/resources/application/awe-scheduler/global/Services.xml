@@ -84,6 +84,30 @@
       <service-parameter name="children" type="INTEGER" list="true"/>
     </java>
   </service>
+  <!-- Hook of a webhook task: validation before the save, row after it, full URL of the endpoint -->
+  <service id="validateWebhookHook">
+    <java classname="com.almis.awe.scheduler.webhook.WebhookHookService" method="validateWebhookHook">
+      <service-parameter name="taskId" type="INTEGER"/>
+      <service-parameter name="launchType" type="INTEGER"/>
+      <service-parameter name="hookKey" type="STRING"/>
+      <service-parameter name="secretProperty" type="STRING"/>
+    </java>
+  </service>
+  <service id="saveWebhookHook">
+    <java classname="com.almis.awe.scheduler.webhook.WebhookHookService" method="saveWebhookHook">
+      <service-parameter name="taskId" type="INTEGER"/>
+      <service-parameter name="launchType" type="INTEGER"/>
+      <service-parameter name="hookKey" type="STRING"/>
+      <service-parameter name="active" type="INTEGER"/>
+      <service-parameter name="secretProperty" type="STRING"/>
+      <service-parameter name="typeFilter" type="STRING"/>
+    </java>
+  </service>
+  <service id="getWebhookUrl">
+    <java classname="com.almis.awe.scheduler.webhook.WebhookHookService" method="getWebhookUrl">
+      <service-parameter name="hookKey" type="STRING"/>
+    </java>
+  </service>
   <service id="deleteSchedulerTask">
     <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="deleteSchedulerTask">
       <service-parameter name="IdeTsk" type="INTEGER" list="true"/>

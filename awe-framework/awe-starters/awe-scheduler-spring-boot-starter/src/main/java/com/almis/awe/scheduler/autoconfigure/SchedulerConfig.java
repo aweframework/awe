@@ -5,6 +5,7 @@ import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.web.MessageConverterUtil;
 import com.almis.awe.scheduler.autoconfigure.config.SchedulerConfigProperties;
+import com.almis.awe.scheduler.controller.WebhookController;
 import com.almis.awe.scheduler.dao.*;
 import com.almis.awe.scheduler.executor.CommandExecutorResolver;
 import com.almis.awe.scheduler.executor.CommandStreamLogger;
@@ -36,11 +37,16 @@ import com.almis.awe.scheduler.service.TaskService;
 import com.almis.awe.scheduler.service.report.*;
 import com.almis.awe.scheduler.service.scheduled.CommandJobService;
 import com.almis.awe.scheduler.service.scheduled.MaintainJobService;
+import com.almis.awe.scheduler.webhook.WebhookHookService;
+import com.almis.awe.scheduler.webhook.WebhookInboxRepository;
+import com.almis.awe.scheduler.webhook.WebhookProcessor;
+import com.almis.awe.scheduler.webhook.WebhookSignatureVerifier;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import org.apache.commons.net.ftp.FTPClient;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -48,11 +54,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.web.client.RestTemplate;
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.List;
 
 /**
@@ -161,6 +169,71 @@ public class SchedulerConfig {
   public DeferredCancellationNotifier deferredCancellationNotifier(TaskDAO taskDAO,
                                                                    MaintainJobService maintainJobService) {
     return new DeferredCancellationNotifier(taskDAO, maintainJobService);
+  }
+
+  /**
+   * Define the persistence of the webhook hooks and of their inbox
+   *
+   * @return Webhook inbox repository
+   */
+  @Bean
+  public WebhookInboxRepository webhookInboxRepository(QueryService queryService, MaintainService maintainService,
+                                                       QueryUtil queryUtil) {
+    return new WebhookInboxRepository(queryService, maintainService, queryUtil);
+  }
+
+  /**
+   * Define the services of the hook that the task form defines
+   *
+   * @return Webhook hook service
+   */
+  @Bean
+  public WebhookHookService webhookHookService(WebhookInboxRepository repository) {
+    return new WebhookHookService(repository);
+  }
+
+  /**
+   * Define the verification of the signature of the webhooks
+   *
+   * @return Webhook signature verifier
+   */
+  @Bean
+  public WebhookSignatureVerifier webhookSignatureVerifier() {
+    return new WebhookSignatureVerifier(Clock.systemUTC(), schedulerConfigProperties.getWebhooks().getTolerance());
+  }
+
+  /**
+   * Define the endpoint that receives the webhooks that launch tasks
+   *
+   * @return Webhook controller
+   */
+  @Bean
+  public WebhookController webhookController(WebhookInboxRepository repository, WebhookSignatureVerifier verifier,
+                                             Environment environment, ApplicationEventPublisher eventPublisher) {
+    return new WebhookController(repository, verifier, environment, eventPublisher,
+      schedulerConfigProperties.getWebhooks().getMaxBodySize().toBytes());
+  }
+
+  /**
+   * Define the processor that launches the tasks of the webhooks of the inbox. A node that only talks to a remote
+   * scheduler instance does not launch anything: the scheduler instance processes the shared inbox.
+   *
+   * @return Webhook processor
+   */
+  @Bean(initMethod = "start", destroyMethod = "stop")
+  public WebhookProcessor webhookProcessor(WebhookInboxRepository repository, TaskDAO taskDAO, Scheduler scheduler) {
+    boolean launches = !schedulerConfigProperties.isRemoteEnabled() || schedulerConfigProperties.isSchedulerInstance();
+    return new WebhookProcessor(repository, taskDAO, schedulerConfigProperties.getWebhooks().getProcessInterval(),
+      schedulerConfigProperties.getWebhooks().getInboxRetention(), () -> launches && isRunning(scheduler),
+      Clock.systemUTC());
+  }
+
+  private static boolean isRunning(Scheduler scheduler) {
+    try {
+      return scheduler.isStarted() && !scheduler.isInStandbyMode() && !scheduler.isShutdown();
+    } catch (SchedulerException exc) {
+      return false;
+    }
   }
 
   /**

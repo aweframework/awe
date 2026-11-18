@@ -47,7 +47,7 @@ This image shows an example on how to create a workflow using the scheduler depe
 
 ## Flow runs and fan-in
 
-A task that is launched by its schedule, by hand or by a file starts a **flow run**. The run groups that execution and every
+A task that is launched by its schedule, by hand, by a file or by a webhook starts a **flow run**. The run groups that execution and every
 dependency launched from it, directly or through other dependencies: these tasks are the **scope** of the run.
 
 A task with several parents (**fan-in**) is launched once, not once per parent. The child waits until every parent that is in
@@ -65,7 +65,8 @@ Each parameter of a dependency takes the first value found in this order:
 1. the default value of the task;
 2. the value propagated by the parent that completes the join (the one that ends last);
 3. the run parameter with the same name. Run parameters apply only to `VARIABLE` parameters: the child defines which
-   parameters it accepts.
+   parameters it accepts. The run parameters of a [webhook](scheduler-guide.md#4-webhook) are the values mapped from its data,
+   so they reach every step of the flow.
 
 ### Circular dependencies
 

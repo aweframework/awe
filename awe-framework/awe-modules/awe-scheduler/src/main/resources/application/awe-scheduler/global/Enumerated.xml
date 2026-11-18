@@ -71,42 +71,49 @@
     <option label="ENUM_LAUNCH_MANUAL" value="0"/>
     <option label="ENUM_LAUNCH_SCHEDULED" value="1"/>
     <option label="ENUM_LAUNCH_FILE" value="2"/>
+    <option label="ENUM_LAUNCH_WEBHOOK" value="4"/>
   </group>
   <group id="LchIco">
     <option label="fa-hand-paper-o" value="0"/>
     <option label="fa-calendar" value="1"/>
     <option label="fa-file" value="2"/>
     <option label="fa-mail-forward" value="3"/>
+    <option label="fa-bolt" value="4"/>
   </group>
   <group id="LchSty">
     <option label="text-danger" value="0"/>
     <option label="text-info" value="1"/>
     <option label="text-success" value="2"/>
     <option label="text-mail-forward" value="3"/>
+    <option label="text-warning" value="4"/>
   </group>
   <group id="LchTxtTyp">
     <option label="ENUM_LAUNCH_MANUAL" value="MANUAL_TASK"/>
     <option label="ENUM_LAUNCH_SCHEDULED" value="SCHEDULED_TASK"/>
     <option label="ENUM_LAUNCH_FILE" value="FILE_TRACKING_TASK"/>
     <option label="ENUM_LAUNCH_DEPENDENCY" value="DEPENDANT_TASK"/>
+    <option label="ENUM_LAUNCH_WEBHOOK" value="WEBHOOK_TASK"/>
   </group>
   <group id="LchTxtIco">
     <option label="fa-hand-paper-o" value="MANUAL_TASK"/>
     <option label="fa-calendar" value="SCHEDULED_TASK"/>
     <option label="fa-file" value="FILE_TRACKING_TASK"/>
     <option label="fa-mail-forward" value="DEPENDANT_TASK"/>
+    <option label="fa-bolt" value="WEBHOOK_TASK"/>
   </group>
   <group id="LchTxtIcoNam">
     <option label="user" value="MANUAL_TASK"/>
     <option label="calendar" value="SCHEDULED_TASK"/>
     <option label="file" value="FILE_TRACKING_TASK"/>
     <option label="mail-forward" value="DEPENDANT_TASK"/>
+    <option label="webhook" value="WEBHOOK_TASK"/>
   </group>
   <group id="LchTxtSty">
     <option label="text-danger" value="MANUAL_TASK"/>
     <option label="text-info" value="SCHEDULED_TASK"/>
     <option label="text-success" value="FILE_TRACKING_TASK"/>
     <option label="text-light-gray" value="DEPENDANT_TASK"/>
+    <option label="text-warning" value="WEBHOOK_TASK"/>
   </group>
   <group id="ActIco">
     <option label="fa-times" value="0"/>

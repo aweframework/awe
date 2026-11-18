@@ -377,6 +377,69 @@
     <variable id="status" type="INTEGER" value="4"/>
   </query>
 
+  <!-- Hook of a webhook task by its key, with the active flag of its task -->
+  <query id="getWebhookHook">
+    <table id="AweSchTskHok" alias="Hok"/>
+    <field id="IdeTsk" alias="taskId" table="Hok"/>
+    <field id="HokKey" alias="hookKey" table="Hok"/>
+    <field id="Act" alias="active" table="Hok"/>
+    <field id="SecPrp" alias="secretProperty" table="Hok"/>
+    <field id="TypFlt" alias="typeFilter" table="Hok"/>
+    <field id="Act" alias="taskActive" table="Tsk"/>
+    <join type="INNER">
+      <table id="AweSchTsk" alias="Tsk"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Hok" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="HokKey" left-table="Hok" condition="eq" right-variable="hookKey"/>
+      </and>
+    </where>
+    <variable id="hookKey" type="STRING" name="hookKey"/>
+  </query>
+
+  <!-- A webhook of the inbox by its source (hook key) and message id: it exists when the query has a row -->
+  <query id="getWebhookMessage">
+    <table id="AweSchHokMsg"/>
+    <field id="Src" alias="hookKey"/>
+    <field id="MsgId" alias="messageId"/>
+    <where>
+      <and>
+        <filter left-field="Src" condition="eq" right-variable="hookKey"/>
+        <filter left-field="MsgId" condition="eq" right-variable="messageId"/>
+      </and>
+    </where>
+    <variable id="hookKey" type="STRING" name="hookKey"/>
+    <variable id="messageId" type="STRING" name="messageId"/>
+  </query>
+
+  <!-- Webhooks of the inbox that are due: received or failed, not tried too many times, and whose next attempt has come -->
+  <query id="getDueWebhookMessages">
+    <table id="AweSchHokMsg"/>
+    <field id="Src" alias="hookKey"/>
+    <field id="MsgId" alias="messageId"/>
+    <field id="Typ" alias="type"/>
+    <field id="Pay" alias="payload"/>
+    <field id="Att" alias="attempts"/>
+    <where>
+      <and>
+        <or>
+          <filter left-field="Sta" condition="eq" right-variable="received"/>
+          <filter left-field="Sta" condition="eq" right-variable="failed"/>
+        </or>
+        <filter left-field="Att" condition="lt" right-variable="maxAttempts"/>
+        <filter left-field="NxtDat" condition="le" right-variable="now"/>
+      </and>
+    </where>
+    <order-by field="RcvDat" type="ASC"/>
+    <variable id="received" type="STRING" value="RECEIVED"/>
+    <variable id="failed" type="STRING" value="FAILED"/>
+    <variable id="maxAttempts" type="INTEGER" name="maxAttempts"/>
+    <variable id="now" type="TIMESTAMP" name="now"/>
+  </query>
+
   <!-- Counters of the deferred executions (dashboard cards): running, and closed by the API, the deadline or a user -->
   <query id="SchDfrRun" permission="scheduler.read">
     <table query="getRunningDeferredExecutions" alias="t"/>
@@ -612,6 +675,18 @@
     <field id="RepMntId" alias="RepMntId" table="Tsk" />
     <field id="CncMnt" alias="CncMnt" table="Tsk" />
 
+    <!--Webhook hook (launch type 4)-->
+    <field id="HokKey" alias="HokKey" table="Hok"/>
+    <field id="Act" alias="HokAct" table="Hok" transform="NUMBER" pattern="#"/>
+    <field id="SecPrp" alias="HokSec" table="Hok"/>
+    <field id="TypFlt" alias="HokTyp" table="Hok"/>
+
+    <join type="LEFT">
+      <table id="AweSchTskHok" alias="Hok"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="IdeTsk" right-table="Hok" />
+      </and>
+    </join>
     <join type="LEFT">
       <table id="AweSchTskLch" alias="Lch"/>
       <and>
@@ -631,6 +706,12 @@
     </where>
     <variable id="Tsk" type="INTEGER" name="taskId" optional="true"/>
     <variable id="Tsk" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+  </query>
+
+  <!-- Full URL of the endpoint of a webhook key, built on the address of the request -->
+  <query id="webhookUrl" permission="scheduler.read" service="getWebhookUrl" cacheable="false">
+    <field id="value" alias="value"/>
+    <variable id="hookKey" type="STRING" name="HokKey" optional="true"/>
   </query>
 
   <!-- Scheduler dependency list -->
@@ -673,6 +754,8 @@
     <field id="Typ" alias="type"/>
     <field id="Val" alias="ParVal"/>
     <field id="Val" alias="value"/>
+    <field id="WhkPtr" alias="ParPtr"/>
+    <field id="WhkPtr" alias="pointer"/>
     <where>
       <and>
         <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>

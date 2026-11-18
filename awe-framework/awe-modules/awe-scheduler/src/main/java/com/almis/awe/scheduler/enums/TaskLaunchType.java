@@ -7,7 +7,8 @@ public enum TaskLaunchType {
   MANUAL(0),
   SCHEDULED(1),
   FILE_TRACKING(2),
-  DEPENDENCY(3);
+  DEPENDENCY(3),
+  WEBHOOK(4);
 
   private Integer value;
 

@@ -344,7 +344,7 @@ When a task has one or more `Variable` parameters, launching it from the task li
 
 In this step we will configure the launch type for the task.
 
-We can choose from three different options:
+We can choose from four different options:
 
 ##### 1. Manual ####
 
@@ -378,6 +378,81 @@ folder, `ftp` connects over FTP, and `ssh` connects over SFTP.
 > **Note:** The connection credentials are not configured here. Both `ftp` and `ssh` servers
 > authenticate with the credentials stored on the [server](#servers) itself, the same ones used for
 > remote command execution, so every task pointing at the same server shares them.
+
+##### 4. Webhook ####
+
+The task is launched when another system sends a signed webhook to it. A webhook task has no schedule of its own: each valid webhook launches it once, immediately, as a manual launch does.
+
+The hook of the task is defined with these fields:
+
+| Element         | Definition                                                                                                                                             |     Use      |
+|-----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:------------:|
+| Hook key        | Last part of the URL. Lowercase letters, digits and hyphens, 1 to 64 characters. Another task cannot use it: a repeated key is rejected when saving | **Required** |
+| Hook active     | A hook that is not active is answered with `409` and launches nothing                                                                                  | **Required** |
+| Secret property | Name of the application property that holds the signing secret. The secret itself is never stored or shown                                             | **Required** |
+| Event type      | Only webhooks of this `type` launch the task, the others are stored and ignored. Empty accepts any type                                                |   Optional   |
+
+The form shows the **Webhook URL** of the key, ready to copy into the sender:
+
+```text
+https://<host>/<context-path>/scheduler/api/v1/webhooks/triggers/<hookKey>
+```
+
+###### The request ######
+
+The request follows [Standard Webhooks](https://www.standardwebhooks.com/): a `POST` with a JSON body and the headers `webhook-id` (unique id of the message), `webhook-timestamp` (Unix seconds) and `webhook-signature`.
+
+```json
+{
+  "type": "fit.market-data.loaded",
+  "timestamp": "2026-11-13T06:00:02Z",
+  "data": { "date": "2026-11-12", "entity": "0049" }
+}
+```
+
+The body must be a JSON object with a `data` object and an optional `type`. The signature is `v1,` followed by the base64 of the HMAC-SHA256 of `{webhook-id}.{webhook-timestamp}.{body}` (the exact bytes of the body), keyed with the secret without its `whsec_` prefix, decoded from base64:
+
+```python
+import base64, hashlib, hmac
+key = base64.b64decode("whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=".removeprefix("whsec_"))
+signed = f"{msg_id}.{timestamp}.{body}".encode()
+signature = "v1," + base64.b64encode(hmac.new(key, signed, hashlib.sha256).digest()).decode()
+```
+
+To test a sender, this vector gives the expected signature (with the timestamp check disabled or the clock fixed):
+
+| Data | Value |
+|------|-------|
+| Secret | `whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=` |
+| `webhook-id` | `0193f2a4-6c1e-7b3a-9d2e-5f8a1c4e7b20` |
+| `webhook-timestamp` | `1763029530` |
+| Body | `{"type":"job.finished","timestamp":"2025-11-13T10:25:30Z","data":{"jobId":"0193f2a0-1111-7aaa-8bbb-000000000001","status":"COMPLETED"}}` |
+| `webhook-signature` | `v1,A4hcS6QMtMJGUshESWRCI0SK2l7hfSW/LXYbcYD8Ef0=` |
+
+###### The responses ######
+
+| Response | When |
+|----------|------|
+| `202 {"messageId": "<webhook-id>"}` | Accepted, also when the `webhook-id` was already received. The task is launched later, outside the request |
+| `400` | The body is not a JSON object with a `data` object |
+| `401` | The signature or the timestamp are not valid, or the secret property has no value |
+| `404` | Unknown hook key |
+| `409` | The hook or its task are not active |
+| `413` | The body is bigger than `awe.scheduler.webhooks.max-body-size` |
+
+**Deduplication.** A webhook is identified by its hook key and its `webhook-id`. A webhook that was already received is answered with `202` again and does not launch the task a second time, so a sender can retry safely.
+
+**Processing.** The webhook is stored in an inbox and answered at once. A processor launches the task from the inbox every `awe.scheduler.webhooks.process-interval`. If the launch fails it is tried again after a growing wait, up to 3 attempts in total, and then the webhook stays failed with its error. Processed, ignored and failed webhooks are purged after `awe.scheduler.webhooks.inbox-retention`. The execution shows `webhook:<hookKey>` as who launched it. If the task is already running, the webhook launches another execution, as a manual launch does. While the scheduler is stopped the webhooks wait in the inbox, and they are launched when it starts again.
+
+###### Parameter pointers ######
+
+The **Parameters** step of a webhook task has a **JSON pointer** column. A pointer (for example `/date`) says which value of the `data` of the webhook goes into the parameter:
+
+- Only `VARIABLE` parameters with a pointer receive webhook values: the pointers are an allow list, and nothing else of the webhook reaches the task.
+- A pointer that is not in the webhook leaves the stored value of the parameter.
+- The mapped values become the **parameters of the run**, so they reach every step of the flow that the task starts (see [Flow runs and fan-in](dependencies-guide.md#flow-runs-and-fan-in)).
+
+The properties, the secret rotation and the migration are in the **[Configuration guide](../scheduler-module.md#webhook-launch)**.
 
 #### 4. Task dependencies ###
 

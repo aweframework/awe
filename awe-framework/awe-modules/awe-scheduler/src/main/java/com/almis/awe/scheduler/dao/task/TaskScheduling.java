@@ -115,7 +115,7 @@ public class TaskScheduling {
       task.setGroup(TaskUtil.getGroupForLaunchType(task.getLaunchType()));
 
       // Add task to scheduler if not manual
-      if (task.getLaunchType() != 0) {
+      if (!TaskUtil.isLaunchedOnDemand(task.getLaunchType())) {
         addTaskToScheduler(task);
       }
 
@@ -189,7 +189,7 @@ public class TaskScheduling {
    * @throws AWException Error resuming task
    */
   public ServiceData resumeTask(Task task) throws AWException {
-    if (task.getLaunchType() != 0) {
+    if (!TaskUtil.isLaunchedOnDemand(task.getLaunchType())) {
       scheduleTask(task);
     }
     return new ServiceData();

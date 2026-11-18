@@ -1532,6 +1532,30 @@
       "defaultValue": true
     },
     {
+      "name": "awe.scheduler.webhooks.inbox-retention",
+      "type": "java.time.Duration",
+      "description": "Time the processed, ignored and definitively failed webhooks stay in the inbox Default value 30d",
+      "defaultValue": "30d"
+    },
+    {
+      "name": "awe.scheduler.webhooks.max-body-size",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Maximum size of the body of a webhook; a bigger one is answered with 413 Default value 256KB",
+      "defaultValue": "256KB"
+    },
+    {
+      "name": "awe.scheduler.webhooks.process-interval",
+      "type": "java.time.Duration",
+      "description": "Interval between the checks of the inbox for webhooks to launch Default value 10s",
+      "defaultValue": "10s"
+    },
+    {
+      "name": "awe.scheduler.webhooks.tolerance",
+      "type": "java.time.Duration",
+      "description": "Maximum difference between the timestamp of a webhook and the current time Default value 5m",
+      "defaultValue": "5m"
+    },
+    {
       "name": "awe.security.allowed-origin-patterns",
       "type": "java.lang.String[]",
       "description": "List with allowed origin paths separate by commas. Default value *;",
