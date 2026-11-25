@@ -225,19 +225,49 @@
   color: var(--awe-color-text);
 }
 
-/* Switch (checkbox with style="switch", #793): the handle of the design system switch, raised, and on the primary
-   colour when checked; the theme gives the track, its size, hover and focus ring */
-.field .field-checkbox .p-inputswitch .p-inputswitch-slider:before {
+/* Switch (checkbox with style="switch", #793, and the other switches of the engine, class awe-switch): off, a visible
+   track and a raised handle in light and dark; on, the primary track with the on-primary handle. The theme gives its
+   size, hover and focus ring */
+.field .field-checkbox .p-inputswitch .p-inputswitch-slider,
+.p-inputswitch.awe-switch .p-inputswitch-slider {
+  background: var(--awe-color-border);
+}
+
+.field .field-checkbox .p-inputswitch .p-inputswitch-slider:before,
+.p-inputswitch.awe-switch .p-inputswitch-slider:before {
+  background: var(--awe-color-surface);
   box-shadow: var(--awe-shadow-sm);
 }
 
-.field .field-checkbox .p-inputswitch.p-highlight .p-inputswitch-slider:before {
+.field .field-checkbox .p-inputswitch.p-highlight .p-inputswitch-slider,
+.p-inputswitch.awe-switch.p-highlight .p-inputswitch-slider {
+  background: var(--awe-color-primary);
+}
+
+.field .field-checkbox .p-inputswitch.p-highlight .p-inputswitch-slider:before,
+.p-inputswitch.awe-switch.p-highlight .p-inputswitch-slider:before {
   background: var(--awe-color-on-primary);
+}
+
+/* switch-end (#993): the label (with its help) at the start of the row and the switch at its end, one setting per row,
+   as the AngularJS engine draws it */
+.field.switch-end .field-checkbox {
+  flex: 1 1 auto;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.field.switch-end .field-checkbox > label {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .field .field-checkbox .p-inputswitch .p-inputswitch-slider,
-  .field .field-checkbox .p-inputswitch .p-inputswitch-slider:before {
+  .field .field-checkbox .p-inputswitch .p-inputswitch-slider:before,
+  .p-inputswitch.awe-switch .p-inputswitch-slider,
+  .p-inputswitch.awe-switch .p-inputswitch-slider:before {
     transition: none;
   }
 }
@@ -265,6 +295,13 @@
   background: transparent;
   border: var(--awe-border-width) solid transparent;
   border-radius: var(--awe-radius-sm);
+}
+
+/* The icon of an option and its label, apart as in any button (#993) */
+.p-selectbutton .awe-option-content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-1-5);
 }
 
 .field .p-selectbutton.p-buttonset .p-button:not(.p-disabled):not(.p-highlight):hover {

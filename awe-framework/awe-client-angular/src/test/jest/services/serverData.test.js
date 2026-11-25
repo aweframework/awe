@@ -49,6 +49,22 @@ describe("ServerData", function () {
     expect($storage.put).toHaveBeenCalledWith("screenData-center", screenData.data);
   });
 
+  it("keeps the values of the criteria with keep-on-reload in the tab and sends them again on a reload (#993)", async function () {
+    window.sessionStorage.clear();
+    const screenData = {data: {template: "<section/>", components: [
+      {id: "IdeTsk.selected", controller: {component: "hidden", keepOnReload: true}, model: {selected: [9013]}}]}};
+    jest.spyOn($serverData, "getFormValues").mockReturnValue({});
+    jest.spyOn($connection, "getRawUrl").mockReturnValue("/awe");
+    jest.spyOn($connection, "post").mockReturnValue(Promise.resolve(screenData));
+
+    await $serverData.getScreenData("scheduler-task", "base");
+    await $serverData.getScreenData("scheduler-task", "base");
+
+    expect($connection.post.mock.calls[0][1]).not.toHaveProperty("IdeTsk.selected");
+    expect($connection.post.mock.calls[1][1]["IdeTsk.selected"]).toBe(9013);
+    window.sessionStorage.clear();
+  });
+
   it("routes failed screen-data responses through the REST error action list for the base view", async function () {
     const errorActions = [{type: "message", parameters: {message: "Screen unavailable"}}];
     jest.spyOn($serverData, "getFormValues").mockReturnValue({CrtStatus: "ACTIVE"});

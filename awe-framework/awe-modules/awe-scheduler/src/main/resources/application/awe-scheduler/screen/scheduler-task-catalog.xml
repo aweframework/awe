@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : scheduler-task-catalog.xml
+    Description: Task catalog of the Scheduler (#993): every task with what it runs, when it is launched and how its
+                 last executions went. One grid (getTaskCatalog, the service filters, sorts and pages it) with its own
+                 search (name, description or what the task runs) and three quick filters in its toolbar: the launch (a
+                 dropdown), the active state with its counts (getTaskCatalogActiveCounts, a segmented control) and the
+                 last status (a dropdown). Its columns: the last status (a pill with its relative start under it), the
+                 task (a link to the task, with its description under it and as title), «When» (a summary in plain words
+                 in up to two lines with its detail), the history (a status strip of the last 20 saved executions), the
+                 next execution (not sortable: it mixes fire times with «when X ends» texts and sorting it would ask the
+                 scheduler for every task), the average time and the active state (a pill). A row menu (right click)
+                 opens the task (as its link does), runs, edits or duplicates (the task editor, in the mode its action sets in
+                 TskEdtMod), activates, deactivates and deletes the task with the existing actions of the task manager screen. The engine has no editable switch
+                 cell bound to a maintain, so the active state is a pill and the row menu switches it.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="MENU_SCHEDULER_TASK_CATALOG" help="HELP_SCREEN_SCHEDULER_TASK_CATALOG">
+  <tag source="hidden">
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE_TASK" />
+    <!-- Mode of the task editor (new, edit or copy): each action that opens it sets it first -->
+    <criteria id="TskEdtMod" component="hidden" />
+    <!-- Tasks of one server: the link «1 tarea →» of the configuration screen selects the server row (IdeSrv.selected)
+         and opens this screen, whose catalog keeps only the tasks that use it (getTaskCatalog reads CrtTskSrv) -->
+    <criteria id="CrtTskSrv" component="hidden" variable="IdeSrv.selected" />
+    <!-- Tasks of one calendar: the same, from the link of the calendars of the configuration screen (IdeCal.selected) -->
+    <criteria id="CrtTskCal" component="hidden" variable="IdeCal.selected" />
+  </tag>
+
+  <tag source="buttons">
+    <!-- What the screen shows, a muted line centred with the header buttons (the screen header has no subtitle) -->
+    <tag type="div" style="awe-header-status">
+      <tag type="span" style="text-muted" label="SCREEN_TEXT_TASK_CATALOG_SUBTITLE" />
+    </tag>
+    <!-- Shown while the catalog keeps the tasks of one server: drops that filter -->
+    <button label="BUTTON_TASK_CATALOG_CLEAR_SERVER" icon="lucide:filter-x" id="ButTskSrvClr" style="btn-ghost">
+      <button-action type="value" target="CrtTskSrv" value="" />
+      <button-action type="filter" target="GrdTskLst" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="CrtTskSrv" condition="is not empty" />
+      </dependency>
+    </button>
+    <!-- Shown while the catalog keeps the tasks of one calendar: drops that filter -->
+    <button label="BUTTON_TASK_CATALOG_CLEAR_CALENDAR" icon="lucide:filter-x" id="ButTskCalClr" style="btn-ghost">
+      <button-action type="value" target="CrtTskCal" value="" />
+      <button-action type="filter" target="GrdTskLst" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="CrtTskCal" condition="is not empty" />
+      </dependency>
+    </button>
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <button label="BUTTON_NEW_TASK" icon="plus-circle" id="ButNewTsk" help="HELP_NEW_TASK_BUTTON" style="btn-primary"
+            permission="scheduler.update">
+      <button-action type="value" target="TskEdtMod" value="new" />
+      <button-action type="screen" target="scheduler-task-editor" />
+    </button>
+  </tag>
+
+  <tag source="center">
+    <window label="SCREEN_TEXT_TASKS" icon="list" style="expand" maximize="true">
+      <!-- The grid is GrdTskLst, as the one of the task manager screen, so the launch dialog reloads it after a launch -->
+      <grid id="GrdTskLst" style="expand" server-action="data" target-action="getTaskCatalog" initial-load="query"
+            max="50" row-numbers="false" pager-values="25, 50, 100, 200" show-maximize-button="false">
+        <search id="CrtTskSch" placeholder="SCREEN_TEXT_TASK_CATALOG_SEARCH" label="SCREEN_TEXT_TASK_CATALOG_SEARCH" />
+        <quick-filter id="CrtTskLch" initial-load="query" target-action="getTaskCatalogLaunchTypes" label="PARAMETER_TASK_LAUNCH"
+                      value="" display="dropdown" />
+        <quick-filter id="CrtTskAct" initial-load="query" target-action="getTaskCatalogActiveCounts" label="PARAMETER_TASK_ACTIVE"
+                      value="" />
+        <quick-filter id="CrtTskSta" initial-load="query" target-action="getTaskCatalogLastStatuses" label="PARAMETER_TASK_LAST_STATUS"
+                      value="" display="dropdown" />
+        <!-- Values of the row read by the actions: the task (IdeTsk.selected), its active state and whether its launch
+             asks for the values of its parameters -->
+        <column name="IdeTsk" hidden="true" />
+        <column name="Act" hidden="true" />
+        <column name="TskVar" hidden="true" />
+        <column name="TskStaIcn" hidden="true" />
+        <column name="TskStaTon" hidden="true" />
+        <column name="TskStaSub" hidden="true" />
+        <column name="Des" hidden="true" />
+        <column name="TskWhnIcn" hidden="true" />
+        <column name="TskWhnSub" hidden="true" />
+        <column name="TskNxtSub" hidden="true" />
+        <column name="TskActIcn" hidden="true" />
+        <column name="TskActTon" hidden="true" />
+        <!-- No horizontal scroll at 1600 px, «⋯» column included: narrow fixed columns and the task takes the free
+             width, never less than its min-width (a narrower grid scrolls instead of squeezing it). «When» and the next
+             execution wrap in up to two lines. The sortable columns send the field the service sorts them by -->
+        <column label="PARAMETER_TASK_LAST_STATUS" name="TskStaTxt" sort-field="TskLstDat" sortable="true" align="left"
+                charlength="16" status-field="TskStaTon" icon-field="TskStaIcn" secondary-field="TskStaSub" />
+        <!-- The task opens the task screen: the link selects its row, whose task (IdeTsk.selected) the screen reads.
+             Its description goes in one line under it -->
+        <column label="PARAMETER_TASK" name="TskNam" sort-field="Nam" sortable="true" component="link" align="left"
+                charlength="22" width="*" min-width="184" secondary-field="Des" title="BUTTON_ACTIVITY_OPEN_TASK">
+          <button-action type="screen" target="scheduler-task" />
+        </column>
+        <column label="PARAMETER_TASK_WHEN" name="TskWhnTxt" sort-field="TskKnd" sortable="true" align="left" charlength="22"
+                max-lines="2" icon-field="TskWhnIcn" secondary-field="TskWhnSub" />
+        <column label="PARAMETER_TASK_HISTORY" name="TskHis" sortable="false" component="status-strip" align="left"
+                charlength="19" />
+        <column label="PARAMETER_NEXT_EXECUTION" name="TskNxtTxt" sortable="false" align="left"
+                charlength="15" max-lines="2" secondary-field="TskNxtSub" />
+        <column label="PARAMETER_TASK_AVERAGE" name="TskAvg" sort-field="TskAvgMs" sortable="true" align="right" charlength="8" />
+        <column label="PARAMETER_TASK_ACTIVE" name="TskActTxt" sort-field="Act" sortable="true" align="left" charlength="10"
+                status-field="TskActTon" icon-field="TskActIcn" />
+        <!-- «⋯» (More actions): the row menu of the right click, opened under the button for its row (the button
+             selects its row first, so the menu shows the same options with the same rules) -->
+        <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+                align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="show-context-menu" />
+        </column>
+
+        <!-- Row menu (right click). View details opens the task screen, as the link of the task. Run… opens the launch
+             dialog with the parameters of the row task (any value can be changed for this execution); a task without
+             parameters has nothing to ask, so Run now launches it at once -->
+        <context-button id="CtxTskDet" label="BUTTON_TASK_VIEW_DETAIL" icon="file-text-o">
+          <button-action type="screen" target="scheduler-task" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdTskLst" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-separator />
+        <context-button id="CtxTskRun" label="BUTTON_TASK_RUN_NOW" icon="play" permission="scheduler.execute">
+          <button-action type="server" server-action="maintain" target-action="LchTsk" />
+          <button-action type="filter" target="GrdTskLst" silent="true" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="GrdTskLst" attribute="selectedRows" condition="eq" value="1" />
+            <dependency-element id="GrdTskLst" column="TskVar" attribute="selectedRowValue" condition="ne" value="1" />
+            <dependency-element id="GrdTskLst" event="select-row" optional="true" />
+          </dependency>
+        </context-button>
+        <context-button id="CtxTskRunVar" label="BUTTON_TASK_RUN" icon="play" permission="scheduler.execute">
+          <button-action type="filter" target="GrdTskVar" />
+          <button-action type="dialog" target="task-variables" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="GrdTskLst" attribute="selectedRows" condition="eq" value="1" />
+            <dependency-element id="GrdTskLst" column="TskVar" attribute="selectedRowValue" condition="eq" value="1" />
+            <dependency-element id="GrdTskLst" event="select-row" optional="true" />
+          </dependency>
+        </context-button>
+        <!-- Edit and Duplicate open the task editor with the row task: as it is, or as a new task copied from it -->
+        <context-button id="CtxTskEdt" label="BUTTON_EDIT" icon="edit" permission="scheduler.update">
+          <button-action type="value" target="TskEdtMod" value="edit" />
+          <button-action type="screen" target="scheduler-task-editor" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdTskLst" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-button id="CtxTskDup" label="BUTTON_TASK_DUPLICATE" icon="lucide:copy" permission="scheduler.update">
+          <button-action type="value" target="TskEdtMod" value="copy" />
+          <button-action type="screen" target="scheduler-task-editor" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdTskLst" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-button id="CtxTskAct" label="BUTTON_ACTIVATE" icon="lucide:power" permission="scheduler.update">
+          <button-action type="server" server-action="maintain" target-action="ActSchTsk" />
+          <button-action type="filter" target="GrdTskLst" silent="true" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="GrdTskLst" attribute="selectedRows" condition="eq" value="1" />
+            <dependency-element id="GrdTskLst" column="Act" attribute="selectedRowValue" condition="ne" value="1" />
+            <dependency-element id="GrdTskLst" event="select-row" optional="true" />
+          </dependency>
+        </context-button>
+        <context-button id="CtxTskDea" label="BUTTON_DEACTIVATE" icon="lucide:power-off" permission="scheduler.update">
+          <button-action type="server" server-action="maintain" target-action="DeaSchTsk" />
+          <button-action type="filter" target="GrdTskLst" silent="true" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="GrdTskLst" attribute="selectedRows" condition="eq" value="1" />
+            <dependency-element id="GrdTskLst" column="Act" attribute="selectedRowValue" condition="eq" value="1" />
+            <dependency-element id="GrdTskLst" event="select-row" optional="true" />
+          </dependency>
+        </context-button>
+        <context-separator />
+        <context-button id="CtxTskDel" label="BUTTON_TASK_DELETE" icon="trash" permission="scheduler.update">
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain" target-action="DeleteSchedulerTask" />
+          <button-action type="filter" target="GrdTskLst" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdTskLst" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+      </grid>
+    </window>
+  </tag>
+
+  <tag source="modal">
+    <include target-screen="screen-help" target-source="center" />
+    <include target-screen="scheduler-launch-variables" target-source="center" />
+  </tag>
+</screen>

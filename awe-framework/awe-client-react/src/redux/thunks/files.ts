@@ -4,6 +4,9 @@ import {getFormValues} from "../selectors/form";
 import type {AppThunk} from "../types";
 import type {ClientAction} from "./types";
 import {runRefusal} from "./refusal";
+import {addActionsTop} from "../actions/actions";
+import type {ActionItem} from "../actions/actions";
+import type {ComponentAddress} from "../../contract";
 
 /** Setter of a state that holds a text: it receives a function from the previous text to the next one */
 type SetText = (update: (previous: string) => string) => void;
@@ -24,31 +27,47 @@ function updateLog (actions: ClientAction[] = [], setLogText: SetText, setOffset
     .flat();
 
   if (newLines.length !== 0) {
-    setLogText(prevLogText => (isEmpty((prevLogText || "").trim()) ? " " : prevLogText + "\n") + newLines.join("\n"));
+    // A blank text (nothing read yet) is not a line: the first lines start the log, with nothing before them
+    setLogText(prevLogText => (isEmpty((prevLogText || "").trim()) ? "" : prevLogText + "\n") + newLines.join("\n"));
     setOffset(prev => prev + newLines.length);
   }
 }
 
 /**
- * Call for log delta
+ * Call for log delta. The lines of the answer go to the viewer; the other actions of the answer run on the viewer, as
+ * AngularJS runs every action of an answer (the server turns the autorefresh of the viewer off when the execution of
+ * the log has ended)
+ * @param {string} serverAction Server action
+ * @param {string} targetAction Target action
+ * @param {number} offset Line to read from
+ * @param setLogText Update log text
+ * @param setOffset Define offset
+ * @param {object} [address] Address of the viewer, where the other actions of the answer run
  */
 export function fetchLogAction (
   serverAction: string,
   targetAction: string,
   offset: number = 0,
   setLogText: SetText,
-  setOffset: SetOffset
-): AppThunk {
+  setOffset: SetOffset,
+  address?: ComponentAddress
+): AppThunk<Promise<void>> {
+  // The read ends when its answer is applied: the viewer starts no other read meanwhile
   return (dispatch, getState) => {
     const {settings} = getState();
-    fetchAction(serverAction, targetAction, {...getFormValues(getState()), offset}, settings.token)
+    return fetchAction(serverAction, targetAction, {...getFormValues(getState()), offset}, settings.token)
       .then((a) => {
         // The refusal of the server (an expired session, denied access) answers with its own actions (the panel on
         // a 401) instead of the log (#935, S6); any other answer that failed keeps failing here, as it always did
         if (runRefusal(a, dispatch)) {
           return;
         }
-        updateLog(a as ClientAction[], setLogText, setOffset);
+        const actions = a as ClientAction[];
+        updateLog(actions, setLogText, setOffset);
+        const others = actions.filter(action => action?.type !== "log-delta");
+        if (others.length > 0) {
+          dispatch(addActionsTop(others.map(action => ({...(address ? {address} : {}), ...action})) as ActionItem[]));
+        }
       })
       .catch((reason) => console.error("Error reading log file:", reason));
   };

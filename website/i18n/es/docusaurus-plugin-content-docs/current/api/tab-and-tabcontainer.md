@@ -26,6 +26,9 @@ Una **pestaña** es un componente muy útil para dividir los componentes de la p
 ```
 
 La lista de pestañas se rellena con los campos `value` y `label` de la consulta o enumerado lanzado con `[target-action]`.
+Una fila con un campo `icon` (una [opción de enumerado](enumerate-definition.md#option-element) con `icon`, o un campo de
+consulta con ese alias) dibuja ese icono antes de la etiqueta de su pestaña, en los dos motores (#993); una pestaña sin
+él no tiene icono.
 
 ## Estructura de pestañas {#tab-structure}
 

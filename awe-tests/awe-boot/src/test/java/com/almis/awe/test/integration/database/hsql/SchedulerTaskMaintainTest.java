@@ -11,18 +11,17 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Maintains of the scheduler task screens (new, update, activate, deactivate and delete a manual, scheduled or file
- * task), checked through the queries that the task screens load and the jobs that the management screen shows. Each test
- * creates its own records and deletes them. The scheduled launches start in {@link #FUTURE_DATE}, so no task runs.
- * <p>
- * Replaces the browser flows {@code SchedulerManualTaskTestsIT} (t001, t021, t901), {@code SchedulerScheduledTaskTestsIT}
- * (t003, t031, t036, t037, t039, t901) and {@code SchedulerFileTaskTestsIT} (t002, t051, t901): the wizard and the task
- * list only send these maintains and show these queries.
+ * Maintains of a scheduler task (new and update from the task editor, activate, deactivate and delete a manual,
+ * scheduled or file task), checked through the stored task data, the task list and the jobs configured in the
+ * scheduler. The calendar and the server of a task are created and deleted with the targets of the configuration
+ * screen. Each test creates its own records and deletes them. The scheduled launches start in {@link #FUTURE_DATE}, so
+ * no task runs.
  */
 @Tag("integration")
 class SchedulerTaskMaintainTest extends AbstractSchedulerMaintainTest {
 
   private static final String NO_NEXT_EXECUTION = "-";
+  private static final String UPDATE_TARGET = "UpdateSchedulerTaskEditor";
 
   @Test
   void newManualTaskStoresItsConfigurationParametersAndReport() throws Exception {
@@ -77,7 +76,7 @@ class SchedulerTaskMaintainTest extends AbstractSchedulerMaintainTest {
       parameters.set("RepEmaDst", strings("test"));
       parameters.set("RepUsrDst", strings());
       parameters.set("ParVal", strings("33"));
-      maintain("UpdateSchedulerTask", parameters);
+      maintain(UPDATE_TARGET, parameters);
 
       assertThat(taskListRow(taskId).orElseThrow().get("Nam").asString()).isEqualTo(name + " updated");
       JsonNode task = taskData(taskId);
@@ -115,7 +114,7 @@ class SchedulerTaskMaintainTest extends AbstractSchedulerMaintainTest {
       assertThat(task.get("IniDat").asString()).isEqualTo(FUTURE_DATE);
 
       // Every some hours
-      maintain("UpdateSchedulerTask", scheduledTask(name + " hours", 6).put("Ide", taskId));
+      maintain(UPDATE_TARGET, scheduledTask(name + " hours", 6).put("Ide", taskId));
       task = taskData(taskId);
       assertThat(task.get("Nam").asString()).isEqualTo(name + " hours");
       assertThat(task.get("RptTyp").asString()).isEqualTo("2");
@@ -123,7 +122,7 @@ class SchedulerTaskMaintainTest extends AbstractSchedulerMaintainTest {
       assertThat(taskListRow(taskId).orElseThrow().get("NxtTim").asString()).startsWith(FUTURE_DATE);
 
       // Once, on a date and time
-      maintain("UpdateSchedulerTask", scheduledTask(name + " once", 1).put("Ide", taskId)
+      maintain(UPDATE_TARGET, scheduledTask(name + " once", 1).put("Ide", taskId)
         .put("RptTyp", 6).put("schExeDate", "02/01/2099").put("schExeTime", "23:59:59"));
       task = taskData(taskId);
       assertThat(task.get("RptTyp").asString()).isEqualTo("6");
@@ -131,22 +130,33 @@ class SchedulerTaskMaintainTest extends AbstractSchedulerMaintainTest {
       assertThat(task.get("schExeTime").asString()).isEqualTo("23:59:59");
       assertThat(taskListRow(taskId).orElseThrow().get("NxtTim").asString()).isEqualTo("02/01/2099 23:59:59");
 
-      // Custom, on a calendar
-      ObjectNode custom = scheduledTask(name + " custom", 1).put("Ide", taskId).put("RptTyp", 7).put("IdeCal", calendarId);
+      // Custom, on a calendar and in a date range, without a preset (SchPre): the editor stores what it sends
+      ObjectNode custom = scheduledTask(name + " custom", 1).put("Ide", taskId).put("RptTyp", 7).put("IdeCal", calendarId)
+        .put("EndDat", "31/12/2100");
       custom.set("years", strings("2099", "2100"));
       custom.set("months", strings("10", "11"));
       custom.set("days", strings("1", "2"));
       custom.set("hours", strings("0", "1"));
       custom.set("minutes", strings("0"));
       custom.set("seconds", strings("0"));
-      maintain("UpdateSchedulerTask", custom);
+      maintain(UPDATE_TARGET, custom);
       task = taskData(taskId);
       assertThat(task.get("RptTyp").asString()).isEqualTo("7");
       assertThat(task.get("IdeCal").asInt()).isEqualTo(calendarId);
       assertThat(strings(task.get("years"))).containsExactly("2099", "2100");
       assertThat(strings(task.get("months"))).containsExactly("10", "11");
+      assertThat(strings(task.get("days"))).containsExactly("1", "2");
       assertThat(strings(task.get("hours"))).containsExactly("0", "1");
+      assertThat(task.get("IniDat").asString()).isEqualTo(FUTURE_DATE);
+      assertThat(task.get("EndDat").asString()).isEqualTo("31/12/2100");
       assertThat(taskListRow(taskId).orElseThrow().get("NxtTim").asString()).isEqualTo("01/10/2099 00:00:00");
+      // The editor reopens it with the same calendar and range
+      JsonNode screen = rows("getTaskEditor", params().put("TskEdtMod", "edit").put("IdeTsk.selected", taskId)).get(0);
+      assertThat(screen.get("RptTyp").asString()).isEqualTo("7");
+      assertThat(screen.get("IdeCal").asInt()).isEqualTo(calendarId);
+      assertThat(screen.get("IniDat").asString()).isEqualTo(FUTURE_DATE);
+      assertThat(screen.get("EndDat").asString()).isEqualTo("31/12/2100");
+      assertThat(strings(screen.get("years"))).containsExactly("2099", "2100");
       assertThat(configuredJobs()).contains(String.valueOf(taskId));
     } finally {
       // The calendar is removed even when the task could not be created or removed
@@ -155,29 +165,30 @@ class SchedulerTaskMaintainTest extends AbstractSchedulerMaintainTest {
           deleteTasks(taskId);
         }
       } finally {
-        maintain("DeleteSchedulerCalendar", params().set("Ide", ints(calendarId)));
+        maintain("DeleteConfigurationCalendar", params().<ObjectNode>set("IdeCal", ints(calendarId))
+          .put("IdeCal.selected", calendarId));
       }
     }
   }
 
   @Test
-  void updateTaskStoresItsDependencies() throws Exception {
-    String prerequisiteName = unique("Prerequisite task");
-    int prerequisiteId = createTask(manualTask(prerequisiteName));
+  void aTaskSavedWithAParentIsListedAsADependencyOfThatParent() throws Exception {
+    int parentId = createTask(manualTask(unique("Parent task")));
     String name = unique("Dependent task");
     int taskId = createTask(scheduledTask(name, 6));
     try {
       ObjectNode parameters = scheduledTask(name, 6).put("Ide", taskId);
-      parameters.set("DepTskIde", ints(prerequisiteId));
-      maintain("UpdateSchedulerTask", parameters);
+      parameters.set("TskPrn", ints(parentId));
+      maintain(UPDATE_TARGET, parameters);
 
-      List<JsonNode> dependencies = rows("taskDependencies", params().put("IdeTsk.selected", taskId));
+      // The tasks that run after the parent, as the scheduler and the REST API read them
+      List<JsonNode> dependencies = rows("taskDependencies", params().put("IdeTsk.selected", parentId));
       assertThat(dependencies).hasSize(1);
-      assertThat(dependencies.get(0).get("taskId").asInt()).isEqualTo(prerequisiteId);
-      assertThat(dependencies.get(0).get("Nam").asString()).isEqualTo(prerequisiteName);
+      assertThat(dependencies.get(0).get("taskId").asInt()).isEqualTo(taskId);
+      assertThat(dependencies.get(0).get("Nam").asString()).isEqualTo(name);
     } finally {
       deleteTasks(taskId);
-      deleteTasks(prerequisiteId);
+      deleteTasks(parentId);
     }
   }
 
@@ -204,8 +215,8 @@ class SchedulerTaskMaintainTest extends AbstractSchedulerMaintainTest {
     String serverName = unique("Folder server");
     maintain("NewSchedulerServer", params().put("Nom", serverName).put("Pro", "folder").put("Hst", "127.0.0.1")
       .put("Prt", 21212).put("Act", 1));
-    int serverId = find(rows("SchSrvLst", params().put("CrtSrv", serverName)), "Nom", serverName).orElseThrow()
-      .get("Ide").asInt();
+    int serverId = find(rows("getConfigurationServers", params().put("CrtSrvSch", serverName)), "Nom", serverName)
+      .orElseThrow().get("IdeSrv").asInt();
     Integer taskId = null;
     try {
       String name = unique("File task");
@@ -229,7 +240,8 @@ class SchedulerTaskMaintainTest extends AbstractSchedulerMaintainTest {
       if (taskId != null) {
         deleteTasks(taskId);
       }
-      maintain("DeleteSchedulerServer", params().set("Ide", ints(serverId)));
+      maintain("DeleteConfigurationServer", params().<ObjectNode>set("IdeSrv", ints(serverId))
+        .put("IdeSrv.selected", serverId));
     }
   }
 
@@ -247,13 +259,17 @@ class SchedulerTaskMaintainTest extends AbstractSchedulerMaintainTest {
   }
 
   /**
-   * Create an active calendar without dates for the custom launch
+   * Create an active calendar without dates for the custom launch, as «Nuevo calendario» of the configuration screen
    */
   private int createLaunchCalendar(String name) throws Exception {
-    ObjectNode parameters = params().put("Nom", name).put("Des", name).put("Act", 1);
-    parameters.set("GrdDatLst-RowTyp", strings());
-    maintain("NewSchedulerCalendar", parameters);
-    return find(rows("SchCalLst", params()), "Nom", name).orElseThrow().get("Ide").asInt();
+    ObjectNode parameters = params().<ObjectNode>set("IdeCal", ints()).put("CalPnlNom", name).put("CalPnlDes", name)
+      .put("CalPnlAct", 1);
+    for (String column : List.of("GrdDatLst-RowTyp", "IdeDat", "Dat", "Nam")) {
+      parameters.set(column, strings());
+    }
+    maintain("NewConfigurationCalendar", parameters);
+    return find(rows("getConfigurationCalendars", params().put("CrtCalSch", name)), "Nom", name).orElseThrow()
+      .get("IdeCal").asInt();
   }
 
   private List<String> strings(JsonNode list) {

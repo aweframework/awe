@@ -199,8 +199,8 @@ A service with `authorization="target"` cannot declare a `permission`: that is a
 
 ## Screen elements {#screen-elements}
 
-With `enforce`, AWE removes from a screen the buttons, context buttons and button columns (`component="button"`) that
-launch a query, a maintain target or a service the user cannot launch. The server decides it when it sends the screen,
+With `enforce`, AWE removes from a screen the buttons, context buttons, button columns (`component="button"`) and link
+columns with actions (`component="link"` with a `button-action`) that launch a query, a maintain target or a service the user cannot launch. The server decides it when it sends the screen,
 for each user, so both engines get the screen without those elements. With `warn` and `off` the screen is not changed.
 
 ### How AWE hides screen elements {#how-awe-hides-screen-elements}
@@ -208,7 +208,7 @@ for each user, so both engines get the screen without those elements. With `warn
 | Question | Answer |
 | --- | --- |
 | When are elements hidden? | Only with `enforce`. With `warn` the user sees every element and a launch without permission runs: it is only logged and [audited](#audit). With `off` nothing is checked. |
-| Which elements? | Buttons, context buttons and button columns of the grids. |
+| Which elements? | Buttons, context buttons, button columns and link columns with actions of the grids. A link column without actions only opens its URL and is never removed. |
 | When is a button removed? | When one of its actions launches a query, a maintain target or a service whose permission the user does not have. |
 | And a target that declares no permission? | It requires nothing, so it never removes a button, unless [`require-undeclared`](#require-undeclared) is on: then a query requires `default.read` and a maintain target or a service `default.write`. Public and server-only targets never require anything. |
 | What if the button launches nothing? | A button that only opens a panel, such as *New* or *Duplicate*, has no target to derive from: it declares its own [`permission`](#the-permission-attribute-of-an-element), which replaces the derived decision. |

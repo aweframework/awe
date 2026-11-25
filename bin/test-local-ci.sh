@@ -141,19 +141,21 @@ maven_parity "Lint · Spotless" step_spotless
 
 # The browser suites are the CI jobs of the suite templates, split as CI splits them
 run node "$TOOL" suites "$CI_FILE" playwright-react chromium
-if [ "$(printf '%s\n' "$OUT" | grep -c 'playwright-react-chromium-')" -eq 4 ] && printf '%s' "$OUT" | grep -q 'SchedulerCalendarTestsIT'; then
+if [ "$(printf '%s\n' "$OUT" | grep -c 'playwright-react-chromium-')" -eq 4 ] && printf '%s' "$OUT" | grep -q 'SchedulerTestsIT' \
+  && ! printf '%s' "$OUT" | grep -q 'SchedulerCalendarTestsIT'; then
   pass "suites: the React Chromium suites come from the CI file (4 jobs, classes)"
 else
   fail "suites: React Chromium suites" "$OUT"
 fi
 run node "$TOOL" suites "$CI_FILE" playwright-angular chromium
-if printf '%s\n' "$OUT" | grep -q "^SchedulerIT	-	6320	playwright-chromium-scheduler	E2E · AngularJS · Chromium · Scheduler$"; then
+if printf '%s\n' "$OUT" | grep -q "^RegressionWebsocketPrintIT	-	6319	playwright-chromium-regression-websocket-print	E2E · AngularJS · Chromium · Regression$" \
+  && ! printf '%s' "$OUT" | grep -q "SchedulerIT"; then
   pass "suites: tag, port, name and CI job of an AngularJS suite"
 else
   fail "suites: AngularJS suite" "$OUT"
 fi
 run node "$TOOL" suites "$CI_FILE" playwright-angular firefox
-if [ "$(printf '%s\n' "$OUT" | grep -c 'playwright-firefox-')" -eq 4 ]; then
+if [ "$(printf '%s\n' "$OUT" | grep -c 'playwright-firefox-')" -eq 3 ]; then
   pass "suites: the Firefox suites are found (for --browsers firefox)"
 else
   fail "suites: AngularJS Firefox suites" "$OUT"

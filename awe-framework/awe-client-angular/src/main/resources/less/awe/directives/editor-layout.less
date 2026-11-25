@@ -1,0 +1,281 @@
+// Editor layout (#993): the styles of the tags of a long form split in sections, as the task editor of the scheduler.
+//   awe-editor           the whole editor (a div with style="expand"): a column with the body and the footer
+//   awe-editor-body      the part that scrolls (a div with style="expand scrollable")
+//   awe-editor-layout    three columns in the body: the section navigation, the sections and a summary
+//   awe-editor-nav       the section navigation (a nav tag with buttons, in the order of the sections), sticky at the top
+//                        of the body; the button of the section in sight is marked (awe-editor-nav-current, sectionSpy)
+//   awe-editor-nav-title the title of the navigation (a span)
+//   awe-editor-sections  the sections, one card each, one under the other
+//   awe-editor-summary   the summary (an aside tag with a card), sticky at the top of the body
+//   awe-editor-footer    the footer under the body, always visible: a muted text (a span) and the buttons at the right
+//   awe-editor-help      a muted help line under a field or a choice
+//   awe-editor-group     a group of fields shown or hidden together (a div with a row of columns inside a form row)
+// On narrow screens the three columns become one: the navigation goes in a row above the sections and the summary
+// under them. Same classes as the React engine (EditorLayout.less)
+.awe-editor {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.awe-editor-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: var(--awe-space-4);
+}
+
+// The header, the columns and the sections keep their own height: the body scrolls instead of squeezing them (the
+// editor wins over the flex of an expandible child or a card)
+.awe-editor .awe-editor-body > *,
+.awe-editor .awe-editor-sections > * {
+  flex: none;
+}
+
+.awe-editor-layout {
+  display: grid;
+  grid-template-columns: calc(var(--awe-space-16) * 2.5) minmax(0, 1fr) calc(var(--awe-space-16) * 3.75);
+  gap: var(--awe-space-4);
+  align-items: start;
+  margin-top: var(--awe-space-4);
+}
+
+.awe-editor-nav,
+.awe-editor-summary {
+  position: sticky;
+  top: 0;
+  min-width: 0;
+}
+
+.awe-editor-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-0-5);
+
+  // The section buttons: one per line, as wide as the navigation, their text on the left
+  > .btn,
+  > button,
+  > .awe-button-spaced {
+    justify-content: flex-start;
+    width: 100%;
+    margin: 0;
+    text-align: left;
+  }
+}
+
+// The button of the section in sight (the section spy marks it with aria-current="location", which the engines keep
+// when they draw the button again): the look of the current option of the side menu, its accent bar on the left
+.awe-editor .awe-editor-nav [aria-current="location"] {
+  position: relative;
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-menu-item-active-text);
+  background: var(--awe-menu-item-active-background);
+}
+
+.awe-editor .awe-editor-nav [aria-current="location"]::before {
+  position: absolute;
+  top: var(--awe-space-1-5);
+  bottom: var(--awe-space-1-5);
+  left: 0;
+  width: var(--awe-space-0-5);
+  content: "";
+  background: var(--awe-menu-guide-active);
+  border-radius: var(--awe-radius-full);
+}
+
+.awe-editor-nav-title {
+  margin: 0 0 var(--awe-space-1);
+  padding: 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  letter-spacing: var(--awe-letter-spacing-caps);
+  color: var(--awe-color-text-muted);
+  text-transform: uppercase;
+}
+
+.awe-editor-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-4);
+  min-width: 0;
+}
+
+.awe-editor-footer {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--awe-space-2) var(--awe-space-3);
+  padding: var(--awe-space-3) var(--awe-space-4);
+  background: var(--awe-color-surface);
+  border-top: var(--awe-border-width) solid var(--awe-color-border);
+
+  // The text takes the free width on the left, the buttons stay on the right
+  > .text-muted {
+    flex: 1 1 20rem;
+    min-width: 0;
+    font-size: var(--awe-font-size-sm);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-muted);
+  }
+
+  > .btn,
+  > button,
+  > .awe-button-spaced {
+    margin: 0;
+  }
+}
+
+// The narrowest grid columns of a shared form (col-lg-1: a number, a date or a time of a full width screen) keep room
+// for their value inside a section card
+.awe-editor-sections .col-lg-1 {
+  min-width: calc(var(--awe-space-16) * 2);
+}
+
+// A group of fields of a form row shown or hidden together (a div around a row of columns): as wide as the row, and its
+// row without the gutter of a nested row, so its fields line up with the fields beside the group
+.awe-editor-group {
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+
+  > .row {
+    margin-right: 0;
+    margin-left: 0;
+  }
+}
+
+.awe-editor-help {
+  margin: var(--awe-space-1) 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text-muted);
+}
+
+// Fields of the editor laid out by hand (#993, T37). A criterion inside one of these takes style="awe-editor-part": the
+// tag around it is the column of the row
+//   awe-editor-stack     a column with a field and its help line under it (a p with style="awe-editor-help")
+//   awe-editor-join      a column with two fields drawn as one (a date and its time): side by side, the border between
+//                        them shared, the label of the second one only for screen readers
+//   awe-editor-box       a bordered group of fields with its title (a form section title), as a fieldset
+//   awe-editor-actions   a row of buttons at the right
+//   awe-editor-inline    a button and its note beside it (a p with style="awe-editor-help"), centred on the button; the
+//                        note goes under the button when the row is too narrow
+.awe-editor-stack {
+  display: flex;
+  flex-direction: column;
+
+  > .awe-editor-help {
+    margin-top: var(--awe-space-2);
+  }
+}
+
+.awe-editor-stack,
+.awe-editor-join {
+  > .awe-editor-part {
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+.awe-editor-join {
+  display: flex;
+  align-self: flex-start;
+  align-items: flex-end;
+
+  > .awe-editor-part:first-child {
+    flex-grow: 3;
+  }
+
+  > .awe-editor-part:not(:first-child) {
+    flex-grow: 2;
+    margin-left: calc(var(--awe-border-width) * -1);
+
+    label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+
+  > .awe-editor-part:first-child :is(.p-inputtext, .form-control) {
+    border-start-end-radius: 0;
+    border-end-end-radius: 0;
+  }
+
+  > .awe-editor-part:not(:first-child) :is(.p-inputtext, .form-control) {
+    border-start-start-radius: 0;
+    border-end-start-radius: 0;
+  }
+
+  :is(.p-inputtext, .form-control):is(:hover, :focus) {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.awe-editor-box {
+  height: 100%;
+  margin-bottom: var(--awe-space-3);
+  padding: var(--awe-space-4);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-lg);
+
+  > .row {
+    margin-right: 0;
+    margin-left: 0;
+  }
+}
+
+.awe-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--awe-space-2);
+  margin-bottom: var(--awe-space-3);
+}
+
+.awe-editor-inline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2) var(--awe-space-3);
+  margin-bottom: var(--awe-space-3);
+
+  > .awe-editor-help {
+    flex: 1 1 auto;
+    min-width: 0;
+    margin: 0;
+  }
+}
+
+@media (max-width: 75rem) {
+  .awe-editor-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .awe-editor-nav,
+  .awe-editor-summary {
+    position: static;
+  }
+
+  .awe-editor-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    > .btn,
+    > button,
+    > .awe-button-spaced {
+      width: auto;
+    }
+  }
+}

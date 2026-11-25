@@ -21,7 +21,8 @@ describe("grid toolbar", () => {
 
   const column = (name, extra = {}) => ({name, id: name, label: name.toUpperCase(), field: name, ...extra});
 
-  const compileGrid = (controllerOverrides = {}, parentScope = null) => {
+  // Other components of the screen (by id, with their controller and model), such as the quick filters of the grid
+  const compileGrid = (controllerOverrides = {}, parentScope = null, components = {}) => {
     const controller = {
       id: "Grid",
       visible: true,
@@ -46,8 +47,9 @@ describe("grid toolbar", () => {
     jest.spyOn(refs.$storage, "get").mockReturnValue({base: {}});
     jest.spyOn(refs.$control, "checkComponent").mockReturnValue(true);
     jest.spyOn(refs.$control, "checkOnlyComponent").mockReturnValue(true);
-    jest.spyOn(refs.$control, "getAddressModel").mockReturnValue(model);
-    jest.spyOn(refs.$control, "getAddressController").mockReturnValue(controller);
+    const other = address => components[(address || {}).component];
+    jest.spyOn(refs.$control, "getAddressModel").mockImplementation(address => (other(address) || {model}).model);
+    jest.spyOn(refs.$control, "getAddressController").mockImplementation(address => (other(address) || {controller}).controller);
     jest.spyOn(refs.$utilities, "timeout").mockImplementation(callback => callback());
     refs.$utilities.timeout.cancel = jest.fn();
     const element = refs.$compile("<awe-grid grid-id='Grid'></awe-grid>")(parentScope || refs.$rootScope.$new());
@@ -74,6 +76,36 @@ describe("grid toolbar", () => {
     expect(parts.slice(0, 3)).toEqual(["grid-quick-filter", "grid-columns-button", "grid-maximize-button"]);
     expect(toolbar.find(hook("grid-quick-filter")).attr("data-testid-owner")).toBe("Grid");
     expect(compileGrid().element.find(hook("grid-quick-filter")).length).toBe(0);
+  });
+
+  it("shows every quick filter of the grid in its order, and a second one sends its value and filters the grid", () => {
+    const quickFilter = (id, values) => ({
+      controller: {id, component: "quick-filter", initialLoad: "query", serverAction: "data", targetAction: `${id}Lst`,
+        visible: true, contextMenu: [], dependencies: []},
+      model: {selected: "", defaultValues: [""], values, page: 1, records: values.length, total: 1}
+    });
+    const components = {
+      CrtSta: quickFilter("CrtSta", [{value: "", label: "All", count: 3}, {value: "LCK", label: "Locked", count: 1}]),
+      CrtOri: quickFilter("CrtOri", [{value: "", label: "Any origin"}, {value: "manual", label: "Manual"},
+        {value: "file", label: "File"}])
+    };
+    const addActionList = jest.spyOn(actionController, "addActionList").mockImplementation(() => undefined);
+    const toolbar = compileGrid({quickFilter: "CrtSta", quickFilters: ["CrtSta", "CrtOri"]}, null, components)
+      .element.find(hook("grid-toolbar"));
+
+    const parts = toolbar.find(PARTS).map((index, child) => child.getAttribute("data-testid")).get();
+    expect(parts.slice(0, 4)).toEqual(["grid-quick-filter", "grid-quick-filter", "grid-columns-button", "grid-maximize-button"]);
+    const groups = toolbar.find(hook("grid-quick-filter"));
+    expect(groups.map((index, group) => group.getAttribute("criterion-id")).get()).toEqual(["CrtSta", "CrtOri"]);
+    expect(groups.map((index, group) => $(group).find(hook("grid-quick-filter-option")).length).get()).toEqual([2, 3]);
+
+    groups.eq(1).find("input[type=radio]").eq(1).click();
+    refs.$rootScope.$digest();
+
+    expect(components.CrtOri.model.selected).toBe("manual");
+    expect(components.CrtSta.model.selected).toBe("");
+    const filters = addActionList.mock.calls.flatMap(([actions]) => actions).filter(action => action.type === "filter");
+    expect(filters).toEqual([{type: "filter", target: "Grid"}]);
   });
 
   it("shows the toolbar with only its quick filters when the grid opts out of the toolbar", () => {

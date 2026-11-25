@@ -89,8 +89,10 @@
   .modal-footer {
     position: sticky;
     bottom: 0;
-    // Above the icons of the fields that scroll under it (a suggest or select arrow has z-index 1)
-    z-index: 2;
+    // Above everything that scrolls under it (field icons, sticky grid headers, the log viewer), still inside the
+    // stacking context of the panel; a soft shadow tells the footer apart from the content behind it
+    z-index: var(--awe-z-header);
+    box-shadow: 0 calc(var(--awe-space-1) * -1) var(--awe-space-2) calc(var(--awe-space-1) * -1) var(--awe-color-shadow);
     margin-top: auto;
     // Opaque under the body that scrolls behind it, square at the edge of the screen
     background-color: var(--awe-color-overlay);

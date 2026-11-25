@@ -2,6 +2,7 @@ import {
   addEventListenerTimeout,
 } from "../utilities";
 import {changeClasses} from "../utilities/classChanges";
+import {scrollToElement} from "../utilities/reveal";
 import i18n from "../i18n/i18n";
 import {acceptAction} from "../redux/actions/actions";
 import {useLocation} from "react-router";
@@ -120,6 +121,16 @@ const useScreenService = () => {
   const toggleClass = (action) => changeClass(action, "toggle");
 
   /**
+   * Scroll an element of the screen (its id is the target of the action) into view and give it the focus: the section
+   * navigation of a long form (#993)
+   * @param {Action} action Action received
+   */
+  const scrollTo = (action) => {
+    scrollToElement(action.target);
+    dispatch(acceptAction(action));
+  };
+
+  /**
    * Print the current screen
    * @param {Action} action Action received
    */
@@ -186,6 +197,7 @@ const useScreenService = () => {
     "add-class": addClass,
     "remove-class": removeClass,
     "toggle-class": toggleClass,
+    "scroll-to": scrollTo,
     "print": screenPrint,
     "resize": resize,
     "close-window": closeWindow,

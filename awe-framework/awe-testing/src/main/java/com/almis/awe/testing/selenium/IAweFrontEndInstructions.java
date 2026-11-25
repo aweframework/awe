@@ -218,6 +218,35 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
   By getTabActive(String tabId, String tabLabel);
 
   /**
+   * Get the tab of a tab criterion whose label starts with a text, for a label that carries a count or a state
+   * («Servers 3», «Engine · Running»)
+   *
+   * @param tabId      Tab identifier
+   * @param labelStart Start of the tab label
+   * @return Tab label selector (the first matching tab)
+   */
+  default By getTabStartingWith(String tabId, String labelStart) {
+    return By.xpath("(//*[@criterion-id=" + XpathLiterals.of(tabId) + "]" + tabLabelStartingWith(labelStart) + ")[1]");
+  }
+
+  /**
+   * Get the tab of a tab criterion whose label starts with a text when it is the active one
+   *
+   * @param tabId      Tab identifier
+   * @param labelStart Start of the tab label
+   * @return Active tab label selector (the first matching tab)
+   */
+  default By getTabActiveStartingWith(String tabId, String labelStart) {
+    return By.xpath("(//*[@criterion-id=" + XpathLiterals.of(tabId) + "]//*[" + TestIds.xpath(TestIds.TAB) + " and "
+      + TestAttributes.xpath(TestAttributes.ACTIVE, true) + "]" + tabLabelStartingWith(labelStart) + ")[1]");
+  }
+
+  private static String tabLabelStartingWith(String labelStart) {
+    return "//*[" + TestIds.xpath(TestIds.TAB_LABEL) + " and starts-with(normalize-space(.)," + XpathLiterals.of(labelStart)
+      + ")]";
+  }
+
+  /**
    * Get tab menu
    *
    * @param tabId Tab identifier
@@ -388,6 +417,23 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
     return By.xpath("(" + grid + "//*[" + TestIds.xpath(TestIds.GRID_ROW) + "][.//*[" + TestIds.xpath(TestIds.GRID_CELL)
       + " and contains(normalize-space(.)," + XpathLiterals.of(search) + ")]]//*[" + TestIds.xpath(TestIds.GRID_CELL)
       + " and @column-id=" + XpathLiterals.of(columnId) + "]//button)[1]");
+  }
+
+  /**
+   * Find the link of a column in the row of a grid that contains a text (a link column with actions, as the flow run of
+   * an execution)
+   *
+   * @param gridId   Grid identifier (null for any grid)
+   * @param search   Text of the row
+   * @param columnId Column of the link
+   * @return Link selector (the first matching row)
+   */
+  default By findGridRowLink(String gridId, String search, String columnId) {
+    String grid = Optional.ofNullable(gridId)
+      .map(id -> "//*[@grid-id=" + XpathLiterals.of(id) + " or @tree-grid-id=" + XpathLiterals.of(id) + "]").orElse("");
+    return By.xpath("(" + grid + "//*[" + TestIds.xpath(TestIds.GRID_ROW) + "][.//*[" + TestIds.xpath(TestIds.GRID_CELL)
+      + " and contains(normalize-space(.)," + XpathLiterals.of(search) + ")]]//*[" + TestIds.xpath(TestIds.GRID_CELL)
+      + " and @column-id=" + XpathLiterals.of(columnId) + "]//a)[1]");
   }
 
   /**
@@ -1348,6 +1394,19 @@ public interface IAweFrontEndInstructions extends IAweInstructions {
    */
   default By getFlowGraphNode() {
     return By.cssSelector(TestIds.css(TestIds.FLOW_GRAPH_NODE));
+  }
+
+  /**
+   * Retrieve one of the nodes of the flow graphs of the page that show a text, by its position among them. A page may
+   * hold several graphs and hide all but one (the views of a flow run), so the step looks for the visible one
+   *
+   * @param text     Text that the node shows
+   * @param position Position of the node among the nodes that show the text (from 1)
+   * @return Flow graph node selector
+   */
+  default By getFlowGraphNode(String text, int position) {
+    return By.xpath("(//*[" + TestIds.xpath(TestIds.FLOW_GRAPH_NODE) + " and contains(normalize-space(.),"
+      + XpathLiterals.of(text) + ")])[" + position + "]");
   }
 
   /**

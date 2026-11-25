@@ -46,3 +46,86 @@
   padding-top: var(--awe-space-5);
   border-top: var(--awe-border-width) solid var(--awe-color-border-subtle);
 }
+
+// The icon of a status pill tag (awe-cell-status with an icon, in a header status or a legend) takes the place of its
+// dot, as the icon of a status cell: small, spaced from the text and vertically centred with it (#993)
+.awe-cell-status .tag-icon {
+  display: inline-flex;
+  margin-inline-end: var(--awe-space-1-5);
+  vertical-align: middle;
+
+  .awe-icon {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+}
+
+// Header status (#993): a tag with style="awe-header-status" in the buttons of a window, next to the header buttons
+// (the engine of the scheduler Activity screen). A status pill (awe-cell-status tags with an icon, one shown at a time)
+// over a muted line (a text-view with style="no-label"), both right aligned. Same class as the AngularJS engine
+// (header-status.less).
+.awe-header-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: center;
+  gap: var(--awe-space-0-5);
+  margin-right: var(--awe-space-2);
+  // The buttons next to it are spaced from the top (awe-button-spaced): the same space centres it on their line
+  margin-top: var(--awe-button-gap);
+
+  // A static line (a span tag with style="text-muted", the description of a catalog): muted text, vertically centred
+  // with the buttons and right aligned (it wraps instead of pushing the buttons out)
+  > .text-muted {
+    display: block;
+    font-size: var(--awe-font-size-sm);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-muted);
+    text-align: right;
+  }
+
+  // The line is plain muted text: no field spacing (the PrimeFlex padding of the criterion group is important)
+  .field {
+    margin: 0;
+    padding: 0;
+  }
+
+  .field > div {
+    padding: 0 !important;
+  }
+
+  .text-view {
+    font-size: var(--awe-font-size-xs);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-muted);
+    white-space: nowrap;
+  }
+}
+
+// Action bar (#993): a style of a div tag, <tag type="div" style="awe-action-bar">, for a row of a page with its text on
+// the left (a span tag) and its actions on the right (the last children, buttons), vertically centred on one line, so
+// the actions end on the right edge of the page as its header actions do. It wraps on narrow screens. Same class as the
+// AngularJS engine (action-bar.less)
+.awe-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-2) var(--awe-space-3);
+
+  // The text: a muted line, as the description of a catalog in the header (awe-header-status). It takes the free
+  // width and wraps inside it, so a long text goes in two lines next to the actions instead of pushing them below
+  > .text-muted {
+    flex: 1 1 20rem;
+    min-width: 0;
+    font-size: var(--awe-font-size-sm);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-muted);
+  }
+
+  // The buttons carry their own top and side spacing (awe-button-spaced): the bar spaces and centres them
+  > .awe-button-spaced,
+  > button {
+    margin: 0;
+  }
+}

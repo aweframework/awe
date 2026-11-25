@@ -18,6 +18,33 @@ describe("awe-react-client/test/js/columns/ColumnProgressBarTest.jsx", () => {
     expect(container.querySelector(".awe-data-bar")).toBeNull();
   });
 
+  it("shows the secondary field of the row under the bar, and only the bar when the row has no secondary value", () => {
+    const {container} = renderBar({secondaryField: "time"}, {value: 40}, {time: {value: 75, label: "1m 15s"}});
+    const lines = container.querySelector(".awe-cell-lines.awe-cell-progress");
+    expect(lines.children[0].className).toContain("p-progressbar");
+    expect(lines.children[1].className).toBe("awe-cell-secondary");
+    expect(lines.children[1].textContent).toBe("1m 15s");
+
+    cleanup();
+    const {container: empty} = renderBar({secondaryField: "time"}, {value: 40}, {time: ""});
+    expect(empty.querySelector(".awe-cell-lines")).toBeNull();
+    expect(empty.querySelector(".p-progressbar")).not.toBeNull();
+  });
+
+  it("draws no bar for a cell without value (an ended execution keeps only its secondary line), and a bar for a real 0", () => {
+    const {container} = renderBar({secondaryField: "time"}, {value: ""}, {time: {value: 75, label: "1m 15s"}});
+    expect(container.querySelector(".p-progressbar")).toBeNull();
+    expect(container.querySelector(".awe-cell-secondary").textContent).toBe("1m 15s");
+
+    [null, undefined].forEach(value => {
+      cleanup();
+      expect(renderBar({}, {value}).container.querySelector(".p-progressbar")).toBeNull();
+    });
+
+    cleanup();
+    expect(renderBar({}, {value: 0}).container.querySelector(".p-progressbar")).not.toBeNull();
+  });
+
   it("keeps the PrimeReact progress bar when the attributes are empty", () => {
     const {container} = renderBar({barSecondField: "", barStackFields: "", barLeafOnly: false}, {value: 40});
     expect(container.querySelector(".p-progressbar")).not.toBeNull();

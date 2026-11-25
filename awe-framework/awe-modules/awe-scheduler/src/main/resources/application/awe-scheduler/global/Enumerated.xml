@@ -67,6 +67,64 @@
     <option label="text-light-gray" value="5"/>
     <option label="text-info" value="6"/>
   </group>
+  <!-- Status of the executions of the activity screen (#993): static icons (a running execution does not spin) and
+       the status of a running execution waiting for the confirmation of a deferred answer ("deferred", set by the
+       service). They also carry the info status (7), which the old groups lack. The other screens keep StaIco, StaSty
+       and StaTyp -->
+  <group id="ActStaIco">
+    <option label="fa-check" value="0"/>
+    <option label="fa-times" value="1"/>
+    <option label="fa-exclamation-triangle" value="2"/>
+    <option label="fa-pause" value="3"/>
+    <option label="lucide:circle-play" value="4"/>
+    <option label="lucide:list-ordered" value="5"/>
+    <option label="fa-chain-broken" value="6"/>
+    <option label="fa-info-circle" value="7"/>
+    <option label="lucide:hourglass" value="deferred"/>
+    <option label="lucide:skip-forward" value="skipped"/>
+    <option label="lucide:circle-dashed" value="pending"/>
+  </group>
+  <group id="ActStaSty">
+    <option label="text-success" value="0"/>
+    <option label="text-danger" value="1"/>
+    <option label="text-warning" value="2"/>
+    <option label="text-danger" value="3"/>
+    <option label="text-info" value="4"/>
+    <option label="text-light-gray" value="5"/>
+    <option label="text-info" value="6"/>
+    <option label="text-info" value="7"/>
+    <option label="text-warning" value="deferred"/>
+    <option label="text-light-gray" value="skipped"/>
+    <option label="text-light-gray" value="pending"/>
+  </group>
+  <!-- Tone of the status pill of the activity (status-field of the grid): the waiting status is pending (warning tone
+       with a dashed border). The skipped option is a task that its flow run did not launch (the runs view) -->
+  <group id="ActStaTon">
+    <option label="success" value="0"/>
+    <option label="danger" value="1"/>
+    <option label="warning" value="2"/>
+    <option label="danger" value="3"/>
+    <option label="info" value="4"/>
+    <option label="neutral" value="5"/>
+    <option label="warning" value="6"/>
+    <option label="info" value="7"/>
+    <option label="pending" value="deferred"/>
+    <option label="neutral" value="skipped"/>
+    <option label="neutral" value="pending"/>
+  </group>
+  <group id="ActStaTyp">
+    <option label="ENUM_STATUS_OK" value="0"/>
+    <option label="ENUM_STATUS_ERROR" value="1"/>
+    <option label="ENUM_STATUS_WARNING" value="2"/>
+    <option label="ENUM_STATUS_STOPPED" value="3"/>
+    <option label="ENUM_STATUS_RUNNING" value="4"/>
+    <option label="ENUM_STATUS_QUEUED" value="5"/>
+    <option label="ENUM_STATUS_INTERRUPTED" value="6"/>
+    <option label="ENUM_STATUS_INFO" value="7"/>
+    <option label="SCREEN_TEXT_ACTIVITY_WAITING" value="deferred"/>
+    <option label="SCREEN_TEXT_ACTIVITY_SKIPPED" value="skipped"/>
+    <option label="SCREEN_TEXT_FLOW_RUN_PENDING" value="pending"/>
+  </group>
   <group id="LchTyp">
     <option label="ENUM_LAUNCH_MANUAL" value="0"/>
     <option label="ENUM_LAUNCH_SCHEDULED" value="1"/>
@@ -94,6 +152,40 @@
     <option label="ENUM_LAUNCH_DEPENDENCY" value="DEPENDANT_TASK"/>
     <option label="ENUM_LAUNCH_WEBHOOK" value="WEBHOOK_TASK"/>
   </group>
+  <!-- Origin codes of the executions (activity screen filter, ExecutionOrigin) -->
+  <group id="ExeOri">
+    <option label="ENUM_LAUNCH_SCHEDULED" value="scheduled"/>
+    <option label="ENUM_LAUNCH_MANUAL" value="manual"/>
+    <option label="ENUM_LAUNCH_FILE" value="file"/>
+    <option label="ENUM_LAUNCH_DEPENDENCY" value="dependency"/>
+    <option label="ENUM_LAUNCH_WEBHOOK" value="webhook"/>
+  </group>
+  <!-- Options of the origin quick filter of the activity grid: every origin (empty value) or one of ExeOri -->
+  <group id="ActOri">
+    <option label="BUTTON_ACTIVITY_ORIGIN_ALL" value=""/>
+    <option label="ENUM_LAUNCH_SCHEDULED" value="scheduled"/>
+    <option label="ENUM_LAUNCH_MANUAL" value="manual"/>
+    <option label="ENUM_LAUNCH_FILE" value="file"/>
+    <option label="ENUM_LAUNCH_DEPENDENCY" value="dependency"/>
+    <option label="ENUM_LAUNCH_WEBHOOK" value="webhook"/>
+  </group>
+  <!-- Options of the state quick filter of the runs view (the codes of the state quick filter of the executions, without
+       counts: the runs view lists runs, the counts count executions) -->
+  <group id="ActRunSta">
+    <option label="SCREEN_TEXT_ACTIVITY_ALL" value=""/>
+    <option label="ENUM_STATUS_RUNNING" value="running"/>
+    <option label="SCREEN_TEXT_ACTIVITY_WAITING" value="waiting"/>
+    <option label="ENUM_STATUS_QUEUED" value="queued"/>
+    <option label="ENUM_STATUS_ERROR" value="error"/>
+    <option label="ENUM_STATUS_OK" value="ok"/>
+  </group>
+  <!-- Options of the start quick filter of the activity grid: any date (empty value) or the last hours (CrtExeWin) -->
+  <group id="ActWin">
+    <option label="BUTTON_ACTIVITY_DATES_ALL" value=""/>
+    <option label="BUTTON_ACTIVITY_DATES_24H" value="24"/>
+    <option label="BUTTON_ACTIVITY_DATES_7D" value="168"/>
+    <option label="BUTTON_ACTIVITY_DATES_30D" value="720"/>
+  </group>
   <group id="LchTxtIco">
     <option label="fa-hand-paper-o" value="MANUAL_TASK"/>
     <option label="fa-calendar" value="SCHEDULED_TASK"/>
@@ -115,6 +207,26 @@
     <option label="text-light-gray" value="DEPENDANT_TASK"/>
     <option label="text-warning" value="WEBHOOK_TASK"/>
   </group>
+  <!-- Options of the launch and last status quick filters of the task catalog: every task (empty value), or the codes of
+       TaskLaunchKind and TaskLastStatus -->
+  <group id="TskCatLch">
+    <option label="SCREEN_TEXT_TASK_CATALOG_ALL" value=""/>
+    <option label="ENUM_LAUNCH_MANUAL" value="manual"/>
+    <option label="ENUM_LAUNCH_SCHEDULED" value="scheduled"/>
+    <option label="ENUM_LAUNCH_FILE" value="file"/>
+    <option label="ENUM_LAUNCH_DEPENDENCY" value="dependency"/>
+    <option label="ENUM_LAUNCH_WEBHOOK" value="webhook"/>
+  </group>
+  <group id="TskCatSta">
+    <option label="SCREEN_TEXT_TASK_CATALOG_ALL" value=""/>
+    <option label="ENUM_STATUS_OK" value="ok"/>
+    <option label="ENUM_STATUS_WARNING" value="warning"/>
+    <option label="ENUM_STATUS_ERROR" value="error"/>
+    <option label="ENUM_STATUS_RUNNING" value="running"/>
+    <option label="SCREEN_TEXT_ACTIVITY_WAITING" value="waiting"/>
+    <option label="ENUM_STATUS_QUEUED" value="queued"/>
+    <option label="SCREEN_TEXT_TASK_CATALOG_NO_EXECUTIONS" value="none"/>
+  </group>
   <group id="ActIco">
     <option label="fa-times" value="0"/>
     <option label="fa-check" value="1"/>
@@ -123,24 +235,66 @@
     <option label="text-danger" value="0"/>
     <option label="text-success" value="1"/>
   </group>
-  <group id="SchedulerTaskSteps">
-    <option label="ENUM_TASK_STEP_CONFIG" value="Configuration"/>
-    <option label="ENUM_TASK_STEP_PARAMS" value="Parameters"/>
-    <option label="ENUM_TASK_STEP_LAUNCH" value="Launch"/>
-    <option label="ENUM_TASK_STEP_DEPENDENCIES" value="Dependencies"/>
-    <option label="ENUM_TASK_STEP_REPORT" value="Report"/>
+  <!-- Tabs of the task screen -->
+  <group id="TskPagTab">
+    <option label="SCREEN_TEXT_TASK_PAGE_TAB_SUMMARY" value="TskPagSum" icon="lucide:layout-dashboard"/>
+    <option label="SCREEN_TEXT_TASK_PAGE_TAB_HISTORY" value="TskPagHis" icon="lucide:history"/>
+    <option label="SCREEN_TEXT_TASK_PAGE_TAB_DEPENDENCIES" value="TskPagDep" icon="lucide:workflow"/>
+    <option label="SCREEN_TEXT_TASK_PAGE_TAB_CONFIGURATION" value="TskPagCfg" icon="lucide:settings"/>
   </group>
-  <group id="SchedulerServSteps">
-    <option label="ENUM_TASK_STEP_CONFIG" value="Configuration"/>
+  <!-- Views of the flow run page (#993): the graph, the timeline and the list of the run, the options of its view switch
+       (a segmented control of text only, the same in both engines) -->
+  <group id="RunPagVw">
+    <option label="SCREEN_TEXT_FLOW_RUN_VIEW_GRAPH" value="RunPagGph"/>
+    <option label="SCREEN_TEXT_FLOW_RUN_VIEW_TIMELINE" value="RunPagTml"/>
+    <option label="SCREEN_TEXT_FLOW_RUN_VIEW_LIST" value="RunPagLst"/>
   </group>
-  <group id="ExeTyp">
-    <option label="ENUM_EXECUTE_MAINTAIN" value="1"/>
-    <option label="ENUM_EXECUTE_COMMAND" value="0"/>
+  <!-- «When» of the task editor: the launch types and «After other tasks», saved as a manual task with its parents
+       (value 3, the old dependency launch type) -->
+  <!-- Task editor (#993): the presets of the «Repetition» of a scheduled task (they fill the stored fields, see
+       TaskSchedulePreset), the days of the week of a weekly one (as the editor numbers them) and the day of a monthly one -->
+  <group id="TskEdtPre">
+    <option label="ENUM_TASK_EDITOR_PRESET_MIN" value="MIN"/>
+    <option label="ENUM_TASK_EDITOR_PRESET_HOU" value="HOU"/>
+    <option label="ENUM_TASK_EDITOR_PRESET_DAY" value="DAY"/>
+    <option label="ENUM_TASK_EDITOR_PRESET_WRK" value="WRK"/>
+    <option label="ENUM_TASK_EDITOR_PRESET_WEK" value="WEK"/>
+    <option label="ENUM_TASK_EDITOR_PRESET_MON" value="MON"/>
+    <option label="ENUM_TASK_EDITOR_PRESET_ONC" value="ONC"/>
+    <option label="ENUM_TASK_EDITOR_PRESET_CUS" value="CUS"/>
   </group>
-  <group id="conType">
-    <option label="CONNECTION_TYPE_FTP" value="ftp"/>
-    <option label="CONNECTION_TYPE_FOLDER" value="folder"/>
-    <option label="CONNECTION_TYPE_SSH" value="ssh"/>
+  <group id="TskEdtMdy">
+    <option label="1" value="1"/>
+    <option label="2" value="2"/>
+    <option label="3" value="3"/>
+    <option label="4" value="4"/>
+    <option label="5" value="5"/>
+    <option label="6" value="6"/>
+    <option label="7" value="7"/>
+    <option label="8" value="8"/>
+    <option label="9" value="9"/>
+    <option label="10" value="10"/>
+    <option label="11" value="11"/>
+    <option label="12" value="12"/>
+    <option label="13" value="13"/>
+    <option label="14" value="14"/>
+    <option label="15" value="15"/>
+    <option label="16" value="16"/>
+    <option label="17" value="17"/>
+    <option label="18" value="18"/>
+    <option label="19" value="19"/>
+    <option label="20" value="20"/>
+    <option label="21" value="21"/>
+    <option label="22" value="22"/>
+    <option label="23" value="23"/>
+    <option label="24" value="24"/>
+    <option label="25" value="25"/>
+    <option label="26" value="26"/>
+    <option label="27" value="27"/>
+    <option label="28" value="28"/>
+    <option label="29" value="29"/>
+    <option label="30" value="30"/>
+    <option label="31" value="31"/>
   </group>
   <group id="RptTyp">
     <option label="ENUM_REPEAT_SECONDS" value="0"/>
@@ -162,6 +316,18 @@
     <option label="PARAMETER_VALUE" value="0"/>
     <option label="PARAMETER_VARIABLE" value="1"/>
     <option label="PARAMETER_PROPERTY" value="2"/>
+  </group>
+  <!-- Icon and tone of the source of a parameter in the manual launch dialog (taskVariableParameters): a value, a
+       variable (info, the one other launches can change too) or a property key -->
+  <group id="SchParSrcIcn">
+    <option label="lucide:equal" value="0"/>
+    <option label="lucide:parentheses" value="1"/>
+    <option label="lucide:key-round" value="2"/>
+  </group>
+  <group id="SchParSrcTon">
+    <option label="neutral" value="0"/>
+    <option label="info" value="1"/>
+    <option label="neutral" value="2"/>
   </group>
   <group id="SchParTyp">
     <option label="PARAMETER_STRING" value="STRING"/>
@@ -340,10 +506,77 @@
     <option label="PARAMETER_WEEKDAY_SUNDAY" value="0"/>
   </group>
 
-  <!-- SCHEDULER INFO PANEL TABS -->
-  <group id="scheduleTaskTabs">
-    <option label="TAB_SCHEDULER_EXECUTING_TASKS" value="executingTasks" />
-    <option label="TAB_SCHEDULER_CONFIGURED_TASKS" value="configuredTasks" />
+  <!-- Configuration screen, servers (#993): the active state of a server as a pill (text, tone, icon), the last
+       connection test of the session as a pill (its state: ok, error or none) and the style of the host cell (a host
+       in the monospaced face, the application server of a folder muted) -->
+  <group id="CfgSrvActTxt">
+    <option label="SCREEN_TEXT_SCHEDULER_SERVER_ACTIVE" value="1"/>
+    <option label="SCREEN_TEXT_SCHEDULER_SERVER_INACTIVE" value="0"/>
+  </group>
+  <group id="CfgSrvActTon">
+    <option label="success" value="1"/>
+    <option label="neutral" value="0"/>
+  </group>
+  <group id="CfgSrvActIcn">
+    <option label="lucide:power" value="1"/>
+    <option label="lucide:power-off" value="0"/>
+  </group>
+  <group id="CfgSrvTstTon">
+    <option label="success" value="ok"/>
+    <option label="danger" value="error"/>
+    <option label="neutral" value="none"/>
+  </group>
+  <group id="CfgSrvTstIcn">
+    <option label="lucide:circle-check" value="ok"/>
+    <option label="lucide:circle-x" value="error"/>
+    <option label="lucide:minus" value="none"/>
+  </group>
+  <group id="CfgSrvHstSty">
+    <option label="awe-grid-mono" value="0"/>
+    <option label="text-muted" value="1"/>
+  </group>
+
+  <!-- Configuration screen, engine (#993): the status of the engine card as the tone of its chip (running, paused,
+       paused without schedules, stopped, unavailable), the kind of a schedule (scheduled or file) as its label and its
+       icon, and the state of its trigger as a pill (text, tone, icon) -->
+  <group id="CfgEngStaTon">
+    <option label="success" value="running"/>
+    <option label="warning" value="paused"/>
+    <option label="warning" value="paused-empty"/>
+    <option label="neutral" value="stopped"/>
+    <option label="neutral" value="unavailable"/>
+  </group>
+  <group id="CfgEngTrgKndTxt">
+    <option label="SCREEN_TEXT_SCHEDULER_ENGINE_KIND_SCHEDULED" value="scheduled"/>
+    <option label="SCREEN_TEXT_SCHEDULER_ENGINE_KIND_FILE" value="file"/>
+  </group>
+  <group id="CfgEngTrgKndIcn">
+    <option label="lucide:clock" value="scheduled"/>
+    <option label="lucide:file" value="file"/>
+  </group>
+  <group id="CfgEngTrgStaTxt">
+    <option label="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_NORMAL" value="normal"/>
+    <option label="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_PAUSED" value="paused"/>
+    <option label="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_BLOCKED" value="blocked"/>
+    <option label="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_ERROR" value="error"/>
+    <option label="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_COMPLETE" value="complete"/>
+    <option label="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_NONE" value="none"/>
+  </group>
+  <group id="CfgEngTrgStaTon">
+    <option label="success" value="normal"/>
+    <option label="warning" value="paused"/>
+    <option label="info" value="blocked"/>
+    <option label="danger" value="error"/>
+    <option label="neutral" value="complete"/>
+    <option label="neutral" value="none"/>
+  </group>
+  <group id="CfgEngTrgStaIcn">
+    <option label="lucide:circle-check" value="normal"/>
+    <option label="lucide:circle-pause" value="paused"/>
+    <option label="lucide:circle-play" value="blocked"/>
+    <option label="lucide:circle-x" value="error"/>
+    <option label="lucide:circle-stop" value="complete"/>
+    <option label="lucide:minus" value="none"/>
   </group>
 
 </enumerated>

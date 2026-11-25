@@ -8,33 +8,33 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Structural checks on the Webhook launch type of the task form: its fields, the pointer column, the hook URL, the
+ * Structural checks on the Webhook launch type of the task editor: its fields, the pointer column, the hook URL, the
  * maintains that save the hook, the query that loads it and the locales (#979).
  */
 class WebhookTaskFormDescriptorTest {
 
   private static final String BASE = "application/awe-scheduler/";
+  private static final String EDITOR = "screen/scheduler-task-editor.xml";
 
   @Test
-  void theWebhookTypeShowsItsContainerAndHidesTheScheduledAndFileOnes() throws IOException {
-    String type = element(read("screen/scheduler-parameters.xml"), "<criteria label=\"PARAMETER_LAUNCH_TYPE\"", "</criteria>");
-    String webhook = type.substring(type.indexOf("condition=\"eq\" value=\"4\""));
+  void theWebhookViewShowsItsContainerAndTheOtherViewsHideIt() throws IOException {
+    String xml = read(EDITOR);
 
-    assertTrue(webhook.contains("add-class\" async=\"true\" target-action=\"hidden\" target=\"#scheduled-time\""));
-    assertTrue(webhook.contains("add-class\" async=\"true\" target-action=\"hidden\" target=\"#file-launcher\""));
-    assertTrue(webhook.contains("remove-class\" async=\"true\" target-action=\"hidden\" target=\"#webhook-launcher\""));
-    // The other types hide the webhook container
-    assertEquals(4, type.split("add-class\" async=\"true\" target-action=\"hidden\" target=\"#webhook-launcher\"").length);
+    String view = "\n        <dependency-element id=\"SchVw\" condition=\"in\" value=\"WHK\" />";
+    String container = "\" async=\"true\" target-action=\"hidden\" target=\"#TskEdtWhk\" />";
+    String show = element(xml, "<dependency initial=\"true\">" + view, "</dependency>");
+    assertTrue(show.contains("<dependency-action type=\"remove-class" + container));
+    String hide = element(xml, "<dependency initial=\"true\" invert=\"true\">" + view, "</dependency>");
+    assertTrue(hide.contains("<dependency-action type=\"add-class" + container));
   }
 
   @Test
   void theHookKeyAndTheSecretPropertyAreRequiredOnlyForAWebhookTask() throws IOException {
-    String xml = read("screen/scheduler-parameters.xml");
+    String xml = read(EDITOR);
 
     for (String id : new String[]{"HokKey", "HokSec"}) {
       String criteria = element(xml, "id=\"" + id + "\"", "</criteria>");
@@ -46,33 +46,23 @@ class WebhookTaskFormDescriptorTest {
   }
 
   @Test
-  void theRepeatFieldsAreNotRequiredForAWebhookTask() throws IOException {
-    String xml = read("screen/scheduler-parameters.xml");
-
-    assertTrue(element(xml, "<criteria label=\"PARAMETER_REPEAT_EACH\"", "<criteria component=\"select\" id=\"RptTyp\"")
-      .contains("<dependency-element id=\"TypLch\" condition=\"ne\" value=\"4\"/>"));
-    assertTrue(element(xml, "<criteria component=\"select\" id=\"RptTyp\"", "<!-- seconds dependencies -->")
-      .contains("<dependency-element id=\"TypLch\" condition=\"ne\" value=\"4\"/>"));
-  }
-
-  @Test
   void theParametersGridHasAPointerColumnShownOnlyForAWebhookTask() throws IOException {
-    String column = element(read("screen/scheduler-parameters.xml"), "name=\"ParPtr\"", "</column>");
+    String column = element(read(EDITOR), "name=\"ParPtr\"", "</column>");
 
     assertTrue(column.contains("target-type=\"show-column\""));
-    assertTrue(column.contains("<dependency-element id=\"TypLch\" condition=\"eq\" value=\"4\"/>"));
+    assertTrue(column.contains("<dependency-element id=\"TypLch\" condition=\"eq\" value=\"4\" />"));
     assertTrue(column.contains("help=\"SCHEDULER_WEBHOOK_POINTER_HELP\""));
   }
 
   @Test
   void theFormShowsTheFullUrlOfTheKeyInAReadOnlyField() throws IOException {
-    String url = element(read("screen/scheduler-parameters.xml"), "id=\"HokUrl\"", "</criteria>");
+    String url = element(read(EDITOR), "id=\"HokUrl\"", "</criteria>");
 
     assertTrue(url.contains("readonly=\"true\""));
     assertTrue(url.contains("target-action=\"webhookUrl\""));
     // A text input takes the value of the query; the data action only fills lists, and React leaves a text empty with it
     assertTrue(url.contains("server-action=\"value\""));
-    assertTrue(url.contains("<dependency-element id=\"HokKey\"/>"));
+    assertTrue(url.contains("<dependency-element id=\"HokKey\" />"));
     String query = query("webhookUrl");
     assertTrue(query.contains("service=\"getWebhookUrl\""));
     assertTrue(query.contains("name=\"HokKey\""));
@@ -83,13 +73,31 @@ class WebhookTaskFormDescriptorTest {
   void bothTaskMaintainsValidateTheHookBeforeAndSaveItAfterTheCommit() throws IOException {
     String xml = read("global/Maintain.xml");
 
-    for (String target : new String[]{"NewSchedulerTask", "UpdateSchedulerTask"}) {
+    for (String target : new String[]{"NewSchedulerTaskEditor", "UpdateSchedulerTaskEditor"}) {
       String body = element(xml, "<target name=\"" + target + "\"", "</target>");
       int validate = body.indexOf("<serve service=\"validateWebhookHook\">");
       int firstWrite = body.indexOf(body.contains("<insert audit=\"HISAweSchTsk\">") ? "<insert audit=\"HISAweSchTsk\">"
         : "<update audit=\"HISAweSchTsk\">");
       assertTrue(validate >= 0 && validate < firstWrite, target + " validates before writing");
       assertTrue(body.indexOf("<serve service=\"saveWebhookHook\">") > body.indexOf("<commit/>"), target + " saves after the commit");
+    }
+  }
+
+  /**
+   * A remote scheduler reads the task (and its hook) with its own connection: the hook is committed before the
+   * scheduler is told, else that read waits for the transaction of the maintain, which waits for the scheduler
+   */
+  @Test
+  void bothTaskMaintainsCommitTheHookBeforeTellingTheScheduler() throws IOException {
+    String xml = read("global/Maintain.xml");
+    String[][] targets = {{"NewSchedulerTaskEditor", "insertSchedulerTask"}, {"UpdateSchedulerTaskEditor", "refreshSchedulerTask"}};
+
+    for (String[] target : targets) {
+      String body = element(xml, "<target name=\"" + target[0] + "\"", "</target>");
+      int save = body.indexOf("<serve service=\"saveWebhookHook\">");
+      int scheduler = body.indexOf("<serve service=\"" + target[1] + "\">");
+      int commit = body.indexOf("<commit/>", save);
+      assertTrue(save >= 0 && commit > save && commit < scheduler, target[0] + " commits the hook before " + target[1]);
     }
   }
 

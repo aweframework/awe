@@ -18,6 +18,7 @@ public enum Component {
   PASSWORD("password"),
   PROGRESS("progress"),
   SPARKLINE("sparkline"),
+  STATUS_STRIP("status-strip"),
   ICON("icon"),
   IMAGE("image"),
   RADIO("radio"),

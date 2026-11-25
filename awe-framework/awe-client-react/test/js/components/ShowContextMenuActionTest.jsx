@@ -1,5 +1,5 @@
 import React from "react";
-import { act, cleanup } from "@testing-library/react";
+import { act, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { DEFAULT_SETTINGS } from "../../../src/redux/actions/settings";
 import { ACCEPT_ACTION } from "../../../src/redux/actions/actions";
 import { showContextMenuAction } from "../../../src/redux/thunks/contextMenu";
@@ -110,6 +110,49 @@ describe("awe-react-client/test/js/components/ShowContextMenuActionTest.jsx", ()
       expect(accepted(dispatched)).toBe(1);
     });
 
+    it.each([
+      ["sits in the window header", 1024, true],
+      ["would overflow the right edge of the viewport", 400, false]
+    ])("aligns the right edge of its menu to the right edge of the button when the button %s",
+      async (_, viewportWidth, inHeader) => {
+        // The menu is 250 px wide: left aligned it would start at 200 px, right aligned it ends at 260 px
+        const widthSpy = jest.spyOn(HTMLElement.prototype, "offsetWidth", "get")
+          .mockImplementation(function () { return this.classList?.contains("p-contextmenu") ? 250 : 0; });
+        const innerWidth = window.innerWidth;
+        window.innerWidth = viewportWidth;
+        try {
+          const button = <AweButton id="but" />;
+          const { store } = renderWithProviders(inHeader ? <div className="window-buttons">{button}</div> : button, {
+            preloadedState: buttonState()
+          });
+
+          await run(store, { component: "but", view });
+
+          const menu = document.querySelector(".p-contextmenu");
+          expect(menu.style.left).toBe("10px");
+          expect(menu.style.top).toBe("130px");
+        } finally {
+          window.innerWidth = innerWidth;
+          widthSpy.mockRestore();
+        }
+      });
+
+    it("gives the focus back to the button when its menu closes with Escape", async () => {
+      const { store } = renderWithProviders(<AweButton id="but" />, {
+        preloadedState: buttonState()
+      });
+      const button = document.querySelector("button");
+
+      await run(store, { component: "but", view });
+      const list = document.querySelector(".p-contextmenu [role=menubar]");
+      await act(async () => {
+        list.focus();
+        list.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true }));
+      });
+
+      expect(document.activeElement).toBe(button);
+    });
+
     it("opens nothing when none of its options is visible, and still finishes", async () => {
       const state = buttonState();
       state.components.OptAdd = hiddenOption();
@@ -171,6 +214,34 @@ describe("awe-react-client/test/js/components/ShowContextMenuActionTest.jsx", ()
       expect(store.getState().components.grid.model.selected).toEqual([2]);
       expect(document.querySelector(".p-contextmenu")).not.toBeNull();
       expect(accepted(dispatched)).toBe(1);
+    });
+
+    it("works from the keyboard: Enter on the row button opens the menu with the focus in it, and Escape closes it, " +
+      "keeps the row selected and gives the focus back to the button", async () => {
+      const state = gridState();
+      state.components.grid.attributes.columnModel.push({
+        name: "btn", label: "btn", component: "button", hidden: false, actions: [{ type: "show-context-menu" }]
+      });
+      state.components.grid.model.values = [{ id: 1, test: "one", btn: "x" }, { id: 2, test: "two", btn: "y" }];
+      const { store } = renderWithProviders(<AweGrid id="grid" />, { preloadedState: state });
+      const button = document.querySelectorAll("tbody button")[1];
+      button.focus();
+      const bodyFocus = jest.spyOn(document.body, "focus");
+      const queued = () => (store.getState().actions.sync || []).flat().map(action => action.type);
+
+      // Enter on the button is the button's: the grid does not take it as the save of a row (that moves the focus away)
+      fireEvent.keyDown(button, { key: "Enter", code: "Enter" });
+      expect(bodyFocus).not.toHaveBeenCalled();
+      expect(document.activeElement).toBe(button);
+
+      await run(store, { component: "grid", view, row: 2, column: "btn" });
+      await waitFor(() => expect(document.querySelector(".p-contextmenu")?.contains(document.activeElement)).toBe(true));
+
+      // The keys of the menu stay in it: Escape closes the menu and does not clear the selection of the grid
+      fireEvent.keyDown(document.activeElement, { key: "Escape", code: "Escape" });
+      expect(queued()).not.toContain("unselect-all-rows");
+      expect(store.getState().components.grid.model.selected).toEqual([2]);
+      expect(document.activeElement).toBe(document.querySelectorAll("tbody button")[1]);
     });
 
     it("opens the menu even when no option is visible yet: the options depend on the selected row", async () => {

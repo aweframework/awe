@@ -213,6 +213,8 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getTab", () -> i.getTab("Tab"));
     catalog.put("getTab(label)", () -> i.getTab("Tab", LABEL));
     catalog.put("getTabActive", () -> i.getTabActive("Tab", LABEL));
+    catalog.put("getTabStartingWith", () -> i.getTabStartingWith("Tab", LABEL));
+    catalog.put("getTabActiveStartingWith", () -> i.getTabActiveStartingWith("Tab", LABEL));
     catalog.put("getTabMenu", () -> i.getTabMenu("Tab"));
     catalog.put("getTabMenuDropdown", () -> i.getTabMenuDropdown("Tab"));
     catalog.put("getTabMenuDropdownOption", () -> i.getTabMenuDropdownOption("Tab", LABEL));
@@ -234,6 +236,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getGridCellText(selected)", () -> i.getGridCellText(GRID, null, COLUMN, TEXT));
     catalog.put("getGridCellButton", () -> i.getGridCellButton(GRID, ROW, COLUMN));
     catalog.put("findGridRowButton", () -> i.findGridRowButton(GRID, TEXT, COLUMN));
+    catalog.put("findGridRowLink", () -> i.findGridRowLink(GRID, TEXT, COLUMN));
     catalog.put("findGridCell(grid)", () -> i.findGridCell(GRID, TEXT));
     catalog.put("findGridCell(any grid)", () -> i.findGridCell(null, TEXT));
     catalog.put("findGridRowSelection(grid)", () -> i.findGridRowSelection(GRID, TEXT));
@@ -325,6 +328,7 @@ public abstract class AbstractFrontEndSelectorGuardTest {
     catalog.put("getPivotTable", () -> i.getPivotTable("Pvt"));
     catalog.put("getLogViewer", i::getLogViewer);
     catalog.put("getFlowGraphNode", i::getFlowGraphNode);
+    catalog.put("getFlowGraphNode(text)", () -> i.getFlowGraphNode(TEXT, 1));
     catalog.put("getFileViewer", i::getFileViewer);
     catalog.put("getEmbeddedFrame", i::getEmbeddedFrame);
     catalog.put("getOpenDialog", () -> i.getOpenDialog("Dia"));

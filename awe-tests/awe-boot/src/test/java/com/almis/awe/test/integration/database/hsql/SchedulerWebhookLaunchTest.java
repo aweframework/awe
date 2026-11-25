@@ -63,7 +63,7 @@ class SchedulerWebhookLaunchTest extends AbstractSchedulerMaintainTest {
   }
 
   /**
-   * Parameters of a webhook task as the task form sends them: the hook fields and a pointer on one parameter
+   * Parameters of a webhook task as the task editor sends them: the hook fields and a pointer on one parameter
    */
   private ObjectNode webhookTask(String name, String key) {
     ObjectNode parameters = manualTask(name).put("CmdExe", "webhookTestLaunch").put("TypLch", 4)
@@ -109,7 +109,7 @@ class SchedulerWebhookLaunchTest extends AbstractSchedulerMaintainTest {
 
   @Test
   void theTaskFormSavesUpdatesAndDropsTheHookAndLoadsItBack() throws Exception {
-    // New: the hook row and the pointer are stored, and the update form loads them with the URL of the key
+    // New: the hook row and the pointer are stored, and the task data loads them with the URL of the key
     assertThat(single("SELECT HokKey, Act, SecPrp, TypFlt FROM AweSchTskHok WHERE IdeTsk = ?", taskId))
       .containsEntry("HOKKEY", hookKey).containsEntry("ACT", 1).containsEntry("SECPRP", SECRET_PROPERTY)
       .containsEntry("TYPFLT", "loaded");
@@ -122,13 +122,13 @@ class SchedulerWebhookLaunchTest extends AbstractSchedulerMaintainTest {
       .endsWith("/scheduler/api/v1/webhooks/triggers/" + hookKey);
 
     // Update: the same row changes, it is not duplicated, and keeping its own key is allowed
-    maintain("UpdateSchedulerTask", webhookTask(unique("Webhook launch"), hookKey + "-b").put("Ide", taskId)
+    maintain("UpdateSchedulerTaskEditor", webhookTask(unique("Webhook launch"), hookKey + "-b").put("Ide", taskId)
       .put("HokAct", 0).put("HokTyp", ""));
     assertThat(single("SELECT HokKey, Act FROM AweSchTskHok WHERE IdeTsk = ?", taskId))
       .containsEntry("HOKKEY", hookKey + "-b").containsEntry("ACT", 0);
 
     // A task that stops being a webhook task loses its hook
-    maintain("UpdateSchedulerTask", manualTask(unique("Webhook launch")).put("Ide", taskId));
+    maintain("UpdateSchedulerTaskEditor", manualTask(unique("Webhook launch")).put("Ide", taskId));
     assertThat(count("SELECT COUNT(*) FROM AweSchTskHok WHERE IdeTsk = ?", taskId)).isZero();
   }
 
@@ -137,7 +137,7 @@ class SchedulerWebhookLaunchTest extends AbstractSchedulerMaintainTest {
     String name = unique("Webhook duplicate");
 
     for (String key : new String[]{hookKey, "Not A Key"}) {
-      JsonNode actions = perform("maintain", "NewSchedulerTask", webhookTask(name, key));
+      JsonNode actions = perform("maintain", "NewSchedulerTaskEditor", webhookTask(name, key));
       assertThat(actions.toString()).contains("\"type\":\"error\"");
     }
     assertThat(count("SELECT COUNT(*) FROM AweSchTsk WHERE Nam = ?", name)).isZero();

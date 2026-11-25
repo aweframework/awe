@@ -384,6 +384,24 @@
   <locale name="COLUMN_SPARKLINE_MARKS" value="Marks"/>
   <locale name="SCREEN_TITLE_GRID_SPARKLINE" value="Sparkline columns"/>
   <locale name="MENU_TEST_MATRIX_SPARKLINE" value="Sparkline column"/>
+  <locale name="MENU_TEST_MATRIX_LINK" value="Colonne de lien"/>
+  <locale name="SCREEN_TITLE_GRID_LINK" value="Colonnes de lien"/>
+  <locale name="SCREEN_TITLE_GRID_LINK_DETAIL" value="Détail de l&apos;exécution"/>
+  <locale name="COLUMN_LINK_TST_RUN" value="Exécution"/>
+  <locale name="COLUMN_LINK_TST_TASK" value="Tâche"/>
+  <locale name="COLUMN_LINK_TST_STATUS" value="État"/>
+  <locale name="COLUMN_LINK_TST_DOC" value="Documentation"/>
+  <locale name="COLUMN_LINK_TST_RUN_TITLE" value="Ouvrir le détail de l'exécution"/>
+  <locale name="COLUMN_LINK_TST_TASK_TITLE" value="Relancer la tâche"/>
+  <locale name="LINK_TST_DOCUMENTATION" value="Documentation de la grille"/>
+  <locale name="COLUMN_LINK_TST_HISTORY" value="Historique"/>
+  <locale name="LINK_TST_HISTORY_OK" value="OK"/>
+  <locale name="LINK_TST_HISTORY_INFO" value="Information"/>
+  <locale name="LINK_TST_HISTORY_WARNING" value="Avertissement"/>
+  <locale name="LINK_TST_HISTORY_ERROR" value="Erreur"/>
+  <locale name="LINK_TST_HISTORY_SKIPPED" value="Ignorée"/>
+  <locale name="CONFIRM_TITLE_LINK_RERUN" value="Relancer la tâche"/>
+  <locale name="CONFIRM_MESSAGE_LINK_RERUN" value="Voulez-vous relancer la tâche de cette exécution ?"/>
   <locale name="MENU_TEST_MATRIX_SIDE_PANEL" value="Panneaux latéraux"/>
   <locale name="SCREEN_TITLE_SIDE_PANEL" value="Panneaux latéraux"/>
   <locale name="BUTTON_SIDE_PANEL_RIGHT" value="Panneau droit"/>

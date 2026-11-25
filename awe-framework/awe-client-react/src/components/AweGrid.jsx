@@ -341,14 +341,14 @@ function AweGrid(props) {
       {
         visibleColumns
           .map((col, index) => {
-            const { name, sortField, align, charlength = null, width = null } = col;
+            const { name, sortField, align, charlength = null, width = null, minWidth = null } = col;
             return <Column
               key={name}
               columnKey={name}
               field={sortField || name}
               sortField={sortField || name}
               body={rowData => isDisplayRow(rowData) ? grouping.renderCell(rowData, name) : cellTemplate(rowData, name, hasFrozen)}
-              style={{ ...getWidthStyle(charlength, width) }}
+              style={{ ...getWidthStyle(charlength, width, null, minWidth) }}
               {...frozenProps(hasFrozen && !!col.frozen, leadingFrozen + index,
                 `p-cell-editing ${name}${!hasFrozen && getColumnWrap(col).wrap ? " p-cell-wrapping" : ""}`,
                 { textAlign: align, justifyContent: align })}

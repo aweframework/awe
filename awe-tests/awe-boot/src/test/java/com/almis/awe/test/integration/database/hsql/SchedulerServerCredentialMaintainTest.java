@@ -16,7 +16,6 @@ import tools.jackson.databind.node.ObjectNode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,8 +25,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * <p>
  * Proves:
  * <ul>
- *   <li>{@code SchSrv} (edit-form preload) exposes {@code SshUsr} but never {@code SshPwd}/{@code SshKey}
- *   (secrets are never sent back to the client).</li>
  *   <li>{@code UpdSchSrv} is PRESERVE-WHEN-BLANK <b>per field</b>: {@code SshPwd} is gated by
  *   {@code FlgSshPwdUpd} and {@code SshKey} by {@code FlgSshKeyUpd}, so updating only one secret
  *   (leaving the other blank) never wipes the untouched secret.</li>
@@ -35,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *   correctly via the {@code STRING_ENCRYPT}/{@code DECRYPT} transform pair, and is server-only: a client request
  *   for it is refused.</li>
  * </ul>
+ * The side panel that loads a server without its secrets is proved by {@code SchedulerConfigurationQueriesTest}.
  */
 @Slf4j
 @Tag("integration")
@@ -75,10 +73,10 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
   }
 
   private int findServerIdByName(String name) throws Exception {
-    String result = performRequest("data", "SchSrvLst", "\"CrtSrv\":\"" + name + "\"");
+    String result = performRequest("data", "getConfigurationServers", "\"CrtSrvSch\":\"" + name + "\"");
     ArrayNode rows = dataRows(result);
     assertEquals(1, rows.size(), "Expected exactly one server named " + name);
-    return rows.get(0).get("Ide").asInt();
+    return rows.get(0).get("IdeSrv").asInt();
   }
 
   @Test
@@ -92,17 +90,7 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
 
     int serverId = findServerIdByName(name);
 
-    // 2. SchSrv (edit preload) must expose SshUsr but never the secret fields
-    String schSrvResult = performRequest("data", "SchSrv", "\"Ide.selected\":" + serverId);
-    ArrayNode schSrvRows = dataRows(schSrvResult);
-    assertEquals(1, schSrvRows.size());
-    ObjectNode schSrvRow = (ObjectNode) schSrvRows.get(0);
-    assertEquals("admin", schSrvRow.get("SshUsr").asString());
-    assertNull(schSrvRow.get("SshPwd"), "SchSrv must never expose SshPwd to the edit form");
-    assertNull(schSrvRow.get("SshKey"), "SchSrv must never expose SshKey to the edit form");
-    assertNull(schSrvRow.get("SshKeyPass"), "SchSrv must never expose SshKeyPass to the edit form");
-
-    // 3. serverData (executor read path) decrypts the secrets in memory
+    // 2. serverData (executor read path) decrypts the secrets in memory
     Server serverData = serverDAO.findServer(serverId);
     assertEquals("initialSecret", serverData.getPassword());
     assertEquals("initialKey", serverData.getKey());
@@ -115,7 +103,7 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
         .doesNotContain("initialKey")
         .doesNotContain("initialPass");
 
-    // 4. Update with blank secrets (all flags 0) -- SshUsr changes, secrets are preserved
+    // 3. Update with blank secrets (all flags 0) -- SshUsr changes, secrets are preserved
     String preserveVars = "\"IdeSrv\":" + serverId + ",\"Nom\":\"" + name + "\",\"Pro\":\"ssh\",\"Hst\":\"10.0.0.1\","
         + "\"Prt\":22,\"Act\":1,\"SshUsr\":\"admin2\",\"SshPwd\":\"\",\"SshKey\":\"\",\"SshKeyPass\":\"\","
         + "\"FlgSshPwdUpd\":0,\"FlgSshKeyUpd\":0,\"FlgSshKeyPassUpd\":0";
@@ -129,11 +117,9 @@ class SchedulerServerCredentialMaintainTest extends AbstractSpringAppIntegration
     assertEquals("initialPass", afterPreserve.getKeyPassphrase(),
         "Blank submit (FlgSshKeyPassUpd=0) must preserve the previously-stored key passphrase");
 
-    String afterPreserveSchSrv = performRequest("data", "SchSrv", "\"Ide.selected\":" + serverId);
-    assertEquals("admin2", dataRows(afterPreserveSchSrv).get(0).get("SshUsr").asString(),
-        "SshUsr must update normally regardless of the secret flags");
+    assertEquals("admin2", afterPreserve.getUser(), "SshUsr must update normally regardless of the secret flags");
 
-    // 5. Update with new secrets (all flags 1) -- secrets are re-encrypted and overwritten
+    // 4. Update with new secrets (all flags 1) -- secrets are re-encrypted and overwritten
     String overwriteVars = "\"IdeSrv\":" + serverId + ",\"Nom\":\"" + name + "\",\"Pro\":\"ssh\",\"Hst\":\"10.0.0.1\","
         + "\"Prt\":22,\"Act\":1,\"SshUsr\":\"admin2\",\"SshPwd\":\"newSecret\",\"SshKey\":\"newKey\",\"SshKeyPass\":\"newPass\","
         + "\"FlgSshPwdUpd\":1,\"FlgSshKeyUpd\":1,\"FlgSshKeyPassUpd\":1";

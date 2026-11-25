@@ -90,6 +90,9 @@ function AweGridContainer(props) {
   const selecting = hasBar && count > 0;
   const editing = (model.values || []).some(row => row.$row?.editing);
   const withToolbar = hasGridToolbar(attributes);
+  // A grid hidden by a dependency hides its whole container (toolbar, filter chips and table), so another grid of the
+  // same window can take its space instead of sharing it with an empty box
+  const hidden = attributes.visible === false;
 
   // Clear the selection (the clear button of the selection bar, Esc): the focus goes back to the grid once it is cleared
   const focusPending = useRef(false);
@@ -129,7 +132,11 @@ function AweGridContainer(props) {
     {shortcut: {key: "Escape", ...ANY_MODIFIERS}, handler: onEscape},
     {
       shortcut: {key: "Enter", ...ANY_MODIFIERS},
-      handler: () => {
+      handler: (e) => {
+        // Enter on a button or a link of a cell (the «⋯» row button, a link column) activates it: it is not the save of a row
+        if (e?.target?.closest?.("button, a")) {
+          return;
+        }
         document.body.focus();
         setTimeout(() => onKeySaveRow && onKeySaveRow(), 100);
       }
@@ -141,8 +148,8 @@ function AweGridContainer(props) {
   }, [onContextMenuProp]);
 
   return (
-    <div className={classNames("grid-container", "expand", "expandible-vertical", {"grid-reloading": reloading, "grid-row-height": rowHeightPx > 0}, className)} ref={containerRef} style={containerStyle}
-      aria-busy={loading ? "true" : undefined}
+    <div className={classNames("grid-container", "expand", "expandible-vertical", {"grid-reloading": reloading, "grid-row-height": rowHeightPx > 0, hidden}, className)} ref={containerRef} style={containerStyle}
+      aria-busy={loading ? "true" : undefined} hidden={hidden || undefined}
       {...(id ? {[TestAttributes.maximized]: String(iconMaximized)} : {})}>
       {id && <AweGridToolbar id={id} maximized={iconMaximized} iconMaximized={iconMaximized} onToggleMaximize={toggleMaximized}
         selecting={selecting} selectionBar={withToolbar ? <AweGridSelectionBar id={id} onClear={clearSelection} /> : null} />}

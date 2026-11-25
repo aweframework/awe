@@ -10,36 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * The scheduler screens show the deferred executions: the counters of the dashboard and the trace in the execution
- * details
+ * The query of a deferred execution reads its trace
  */
 class SchedulerDeferredScreensTest {
 
   private static final String BASE = "application/awe-scheduler/";
-
-  @Test
-  void theDashboardCountsTheDeferredExecutionsByOutcome() throws IOException {
-    String dashboard = read("screen/scheduler-dashboard.xml");
-    String queries = read("global/Queries.xml");
-
-    for (String counter : new String[]{"SchDfrRun", "SchDfrApi", "SchDfrDln", "SchDfrUsr"}) {
-      assertTrue(dashboard.contains("initial-load=\"query\" target-action=\"" + counter + "\""), counter);
-      assertTrue(queries.contains("<query id=\"" + counter + "\" permission=\"scheduler.read\">"), counter);
-    }
-    assertTrue(query(queries, "SchDfrRun").contains("<table query=\"getRunningDeferredExecutions\""));
-    assertTrue(query(queries, "SchDfrApi").contains("value=\"API\""));
-    assertTrue(query(queries, "SchDfrDln").contains("value=\"DEADLINE\""));
-    assertTrue(query(queries, "SchDfrUsr").contains("value=\"USER\""));
-  }
-
-  @Test
-  void theExecutionDetailsShowTheDeferredTraceOnlyWhenThereIsOne() throws IOException {
-    String screen = read("screen/scheduler-execution-data.xml");
-    int start = screen.indexOf("<criteria id=\"execution-deferred\"");
-    assertTrue(start >= 0, "execution-deferred criterion");
-    String criterion = screen.substring(start, screen.indexOf("</criteria>", start));
-    assertTrue(criterion.contains("<dependency-element id=\"execution-deferred\" condition=\"is not empty\"/>"));
-  }
 
   @Test
   void theDeferredQueryReadsTheTrace() throws IOException {

@@ -8,6 +8,7 @@ import { updateModelWithDependencies } from "../redux/thunks/components";
 import { addActionsTop } from "../redux/actions/actions";
 import { translateLabel } from "../utilities";
 import { TestIds, testHook } from "../utilities/testIds";
+import AweGridQuickFilterMenu, { isMenuQuickFilter } from "./AweGridQuickFilterMenu";
 
 /**
  * Value of an option as text: an empty value (null or undefined) is the empty text
@@ -27,7 +28,8 @@ const hasCount = (option) => option.count !== null && option.count !== undefined
  * Quick filters of a grid: a segmented control (one radio per option, "Label N") at the start of the grid toolbar. It is
  * a criterion of the screen whose options come from its initial load (value, label, count and tone): its value is sent
  * with the requests of the grid, choosing an option filters the grid, and every filter of the grid reloads the options
- * (see the filter action), so the counts stay current.
+ * (see the filter action), so the counts stay current. With display="dropdown" or display="date-range" it is a menu
+ * button instead (AweGridQuickFilterMenu).
  * @category Components
  * @subcategory Grid
  */
@@ -49,6 +51,11 @@ function AweGridQuickFilter({ id, grid }) {
 
   if (!address || attributes.visible === false) {
     return null;
+  }
+
+  // A dropdown or a date range quick filter is a menu button
+  if (isMenuQuickFilter(attributes.display)) {
+    return <AweGridQuickFilterMenu id={id} grid={grid} />;
   }
 
   const name = `${address.view}-${address.component}`;

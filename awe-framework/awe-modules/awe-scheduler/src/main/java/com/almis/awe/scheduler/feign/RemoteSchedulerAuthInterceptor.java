@@ -2,6 +2,8 @@ package com.almis.awe.scheduler.feign;
 
 import com.almis.awe.rest.dto.LoginRequest;
 import com.almis.awe.rest.dto.LoginResponse;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import lombok.extern.slf4j.Slf4j;
@@ -14,12 +16,14 @@ import org.springframework.web.client.RestClientException;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Date;
 
 /**
  * Adds the bearer token of the remote scheduler instance to the calls of {@link RemoteScheduler}.
  *
  * <p>The token comes from {@code POST /api/authenticate} on the instance and is reused until it is about to
- * expire. When the login gives no expiration the token is not cached and every call logs in again.
+ * expire: the expiration of the login answer, else the {@code exp} claim of the token. When neither gives one the
+ * token is not cached and every call logs in again.
  */
 @Slf4j
 public class RemoteSchedulerAuthInterceptor implements RequestInterceptor {
@@ -88,13 +92,32 @@ public class RemoteSchedulerAuthInterceptor implements RequestInterceptor {
     return token;
   }
 
+  /**
+   * Expiration of the token: the one of the login answer, else the {@code exp} claim of the token (the login filter
+   * of the instance answers without it). The claim is only read to know when to log in again, never trusted
+   *
+   * @param response Login answer
+   * @return Expiration, or null when unknown (the token is not cached)
+   */
+  private static Instant expiration(LoginResponse response) {
+    if (response.getExpiresAt() != null) {
+      return response.getExpiresAt().toInstant();
+    }
+    try {
+      Date claim = response.getToken() == null ? null : JWT.decode(response.getToken()).getExpiresAt();
+      return claim == null ? null : claim.toInstant();
+    } catch (JWTDecodeException exception) {
+      return null;
+    }
+  }
+
   private void login() {
     try {
       LoginResponse response = restClient.post().uri(loginUrl)
         .body(new LoginRequest().setUsername(user).setPassword(password))
         .retrieve().body(LoginResponse.class);
       token = response == null ? null : response.getToken();
-      expiresAt = response == null || response.getExpiresAt() == null ? null : response.getExpiresAt().toInstant();
+      expiresAt = response == null ? null : expiration(response);
     } catch (RestClientException exception) {
       token = null;
       // The cause is not chained: its message may echo the request

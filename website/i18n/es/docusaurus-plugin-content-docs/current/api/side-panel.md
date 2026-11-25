@@ -89,7 +89,7 @@ cabecera sigue a la fila seleccionada mientras el panel lateral está abierto.
 | Atributo de `header-tag` | Uso             | Descripción                                                                                                |
 |--------------------------|-----------------|------------------------------------------------------------------------------------------------------------|
 | field                    | **Obligatorio** | Campo de la fila seleccionada con el texto de la etiqueta. Una etiqueta con el valor vacío no se muestra    |
-| tone-field               | Opcional        | Campo con el tono de la etiqueta: `success`, `warning`, `danger`, `info` o `neutral` (por defecto)          |
+| tone-field               | Opcional        | Campo con el tono de la etiqueta: `success`, `warning`, `danger`, `info`, `pending` o `neutral` (por defecto) |
 | icon-field               | Opcional        | Campo con el icono de la etiqueta. Con él la etiqueta es plana: el icono ocupa el lugar del punto           |
 
 El avatar y las etiquetas se ven como el avatar y las etiquetas de estado de las [celdas del grid](grids.md). El avatar es

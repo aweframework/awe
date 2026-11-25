@@ -67,6 +67,15 @@ export const TestIds = Object.freeze({
   // Quick filters of the grid toolbar (the owner is the grid) and each of their options ("option-id")
   gridQuickFilter: "grid-quick-filter",
   gridQuickFilterOption: "grid-quick-filter-option",
+  // A quick filter shown as a menu button (display="dropdown" or "date-range"; the owner is the grid): its button, its menu
+  // (the options are grid-quick-filter-option), the «Custom range…» entry of a date range, and its range panel with
+  // the Clear and Apply buttons (the dates are date-range-from and date-range-to)
+  gridQuickFilterToggle: "grid-quick-filter-toggle",
+  gridQuickFilterMenu: "grid-quick-filter-menu",
+  gridQuickFilterCustom: "grid-quick-filter-custom",
+  gridQuickFilterRange: "grid-quick-filter-range",
+  gridQuickFilterRangeClear: "grid-quick-filter-range-clear",
+  gridQuickFilterRangeApply: "grid-quick-filter-range-apply",
   // Search of the grid toolbar (the owner is the grid) and its clear button
   gridSearch: "grid-search",
   gridSearchClear: "grid-search-clear",
@@ -264,13 +273,14 @@ export const TestIds = Object.freeze({
   mapMarker: "map-marker",
   mapRoute: "map-route",
   // Cards (owner: card id): the card, its value, its delta badge, its target progress (bar or gauge), its sparkline
-  // and its status chip
+  // its status chip and the maximize button of a maximizable card (#993)
   card: "card",
   cardValue: "card-value",
   cardDelta: "card-delta",
   cardProgress: "card-progress",
   cardSparkline: "card-sparkline",
-  cardChip: "card-chip"
+  cardChip: "card-chip",
+  cardMaximizeButton: "card-maximize-button"
 });
 
 /**

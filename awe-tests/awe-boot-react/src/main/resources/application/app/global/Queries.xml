@@ -2471,10 +2471,28 @@
     <where>
       <and>
         <filter left-field="Act" condition="eq" right-variable="state" optional="true"/>
+        <filter left-field="Nam" condition="eq" right-variable="name" optional="true"/>
       </and>
     </where>
     <order-by field="Nam" type="ASC"/>
     <variable id="state" type="INTEGER" name="CrtQckFltSta" optional="true"/>
+    <variable id="name" type="STRINGN" name="CrtQckFltNam" optional="true"/>
+  </query>
+
+  <!-- Options of the dropdown quick filter of the GrdQckFltTst screen: every theme (empty value) or one of them by name -->
+  <query id="QckFltTstNam" distinct="true">
+    <table id="AweThm"/>
+    <constant value="1" type="INTEGER" alias="pos"/>
+    <constant value="" alias="value"/>
+    <constant value="QUICK_FILTER_ALL" alias="label"/>
+    <union type="ALL" query="QckFltTstNamThm"/>
+    <order-by field="pos" type="ASC"/>
+  </query>
+  <query id="QckFltTstNamThm">
+    <table id="AweThm"/>
+    <constant value="2" type="INTEGER" alias="pos"/>
+    <field id="Nam" alias="value"/>
+    <field id="Nam" alias="label"/>
   </query>
 
   <!-- Options of the quick filter of the GrdQckFltTst screen: all the themes, the active ones and the inactive ones
@@ -3545,6 +3563,23 @@
     <field id="bar" alias="bar"/>
     <field id="area" alias="area"/>
     <field id="marks" alias="marks"/>
+  </query>
+
+  <!-- Flow runs of the link column grid (GrdLinkTst screen): the run and the documentation links show a label -->
+  <query id="LinkTst" service="linkTstFlowRuns">
+    <field id="runId" alias="runId"/>
+    <field id="task" alias="task"/>
+    <field id="status" alias="status"/>
+    <field id="docUrl" alias="docUrl"/>
+    <field id="history" alias="history"/>
+    <compound alias="run">
+      <computed alias="value" format="[runId]"/>
+      <computed alias="label" format="#[runId]"/>
+    </compound>
+    <compound alias="doc">
+      <computed alias="value" format="[docUrl]"/>
+      <computed alias="label" format="LINK_TST_DOCUMENTATION"/>
+    </compound>
   </query>
 
   <!-- Deferred load test (#824): every query counts its calls -->

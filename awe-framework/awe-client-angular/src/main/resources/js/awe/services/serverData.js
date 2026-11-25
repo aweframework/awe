@@ -2,6 +2,7 @@ import {aweApplication} from "../awe";
 import _ from "lodash";
 import {getRowDetailInstanceData} from "./grid/rowDetail";
 import {loginLanguageParameters, loginModeParameters} from "awe-client-react/utilities/signin";
+import {getTabStorage, storeKeptParameters, withKeptParameters} from "awe-client-react/utilities/keptParameters";
 
 // Server data service
 aweApplication.factory('ServerData',
@@ -35,7 +36,10 @@ aweApplication.factory('ServerData',
             view
           };
           let screenToRetrieve = "initial screen";
+          // The values the screen keeps on reload go when the request lacks them (#993)
+          const storage = getTabStorage();
           if (screen !== null) {
+            parameters = withKeptParameters(storage, screen, parameters);
             parameters[$settings.get("optionKey")] = screen;
             screenToRetrieve = screen;
           }
@@ -44,6 +48,9 @@ aweApplication.factory('ServerData',
           // Send ajax post
           return Connection.post(ServerData.getScreenDataUrl(screen), {...parameters, template: true}, "application/json")
               .then(screenData => {
+                if (screen !== null) {
+                  storeKeptParameters(storage, screen, screenData.data?.components);
+                }
                 Storage.put("screenData-" + view, screenData.data);
                 return screenData.data.template;
               })

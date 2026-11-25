@@ -177,7 +177,8 @@
   flex: none;
   width: var(--awe-switch-width);
   height: var(--awe-switch-height);
-  background: var(--awe-color-field-border);
+  // Off: a visible track and a raised handle in light and dark
+  background: var(--awe-color-border);
   border-radius: var(--awe-radius-full);
   transition: background-color var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
 }
@@ -189,7 +190,7 @@
   width: var(--awe-switch-handle-size);
   height: var(--awe-switch-handle-size);
   content: "";
-  background: var(--awe-color-surface-raised);
+  background: var(--awe-color-surface);
   border-radius: var(--awe-radius-full);
   box-shadow: var(--awe-shadow-sm);
   transition: translate var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
@@ -236,6 +237,21 @@
 .criterion .form-group .checkbox.switch:has(> input:disabled) {
   color: var(--awe-color-disabled-text);
   cursor: not-allowed;
+}
+
+// switch-end (#993): the label (with its help) at the start of the row and the switch at its end, one setting per row,
+// as the React engine draws it
+.criterion.switch-end .checkbox.switch {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.criterion.switch-end .checkbox.switch > .lbl {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -2,7 +2,8 @@
 
 <!--
     Document   : GrdQckFltTst.xml
-    Description: Grid with quick filters in its toolbar (All, Active and Inactive themes with their counts) and a
+    Description: Grid with quick filters in its toolbar (All, Active and Inactive themes with their counts, and the theme
+                 name as a dropdown quick filter, «Name: All») and a
                  selection bar (#793): with selected rows, Unselect and Delete (the danger one, which only unselects the
                  rows after its confirmation) are shown between the toolbar and the header; Reload stays in the footer
 -->
@@ -14,6 +15,8 @@
     <window style="expand" label="SCREEN_TITLE_GRID_QUICK_FILTER" expandible="vertical">
       <grid id="GrdQckFltTst" style="expand" initial-load="query" server-action="data" target-action="QckFltTstThm" max="30" multiselect="true">
         <quick-filter id="CrtQckFltSta" initial-load="query" target-action="QckFltTstSta" value=""/>
+        <quick-filter id="CrtQckFltNam" initial-load="query" target-action="QckFltTstNam" value="" display="dropdown"
+                      label="PARAMETER_NAME"/>
         <column label="PARAMETER_ID" name="id" sort-field="id" align="center" charlength="8"/>
         <column label="PARAMETER_NAME" name="name" sort-field="name" align="left" charlength="30"/>
         <column label="COLUMN_QUICK_FILTER_STATE" name="state" sort-field="state" align="left" charlength="12"/>

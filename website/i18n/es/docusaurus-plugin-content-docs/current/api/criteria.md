@@ -80,6 +80,7 @@ Los valores **seleccionados** pueden ser completados de varias maneras. Esta es 
 | help                | Opcional        | String  | Texto de ayuda para el criterio                                                                     | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)                                                                                                                                                                                                                                              |
 | help-image      | Opcional        | String  | Imagen de ayuda para el criterio                                                                    | Esta **debe** ser una ruta de imagen                                                                                                                                                                                                                                                                                    |
 | left-label   | Opcional        | Entero  | Pon la etiqueta a la izquierda **y** dale un tamaño en caracteres                               | El valor por defecto está vacío (la etiqueta está arriba en lugar de izquierda). Si está definido, el valor debe ser un número de caracteres para la etiqueta. La etiqueta se muestra a la izquierda desde el punto de corte `sm` (576 px) y arriba por debajo de él. Su ancho es el número de caracteres por los píxeles por carácter del tamaño del criterio (7 px en `sm`, 8 px en `md` y 10 px en `lg`) en ambos motores                                                                                                                                                           |
+| keep-on-reload | Opcional      | Booleano | La pestaña del navegador guarda el valor que recibe el criterio al generarse la pantalla, y la petición de la pantalla lo vuelve a enviar cuando la pantalla se abre sin un valor para él | Recargar el navegador no envía valores, así que una pantalla de detalle que lee el registro que muestra de la pantalla anterior (un criterio oculto con `variable`) lo pierde: con `keep-on-reload="true"` vuelve a abrir el mismo registro. Gana el valor que envía la pantalla de la que viene el usuario. El valor se guarda por pestaña (`sessionStorage`) y por opción de pantalla, en ambos motores. El valor por defecto es `false` |
 
 Los atributos `help` y `help-image` muestran un tooltip cuando el usuario se detiene sobre la etiqueta del criterio (junto
 a ella aparece un icono de ayuda). Ambos motores lo muestran en todos los criterios, incluidos los checkbox, los radio,
@@ -336,6 +337,27 @@ Muestra una lista y permite al usuario seleccionar algunos elementos.
 
 <img alt="Multiselección" src={require('@docusaurus/useBaseUrl').default('img/Multiselect.png')} />
 
+#### Opciones con descripción y opciones que no se pueden elegir {#options-with-a-description-and-options-that-cannot-be-chosen}
+
+Las filas de la consulta de un `select` o de un `select-multiple` pueden traer dos campos opcionales, en los dos motores:
+
+| Campo         | Efecto                                                                                                         |
+|---------------|----------------------------------------------------------------------------------------------------------------|
+| `description` | Una línea atenuada bajo el nombre de la opción (una clave de locale o un texto), por ejemplo por qué no se puede elegir |
+| `disabled`    | `true` o `1`: la opción aparece en la lista pero no se puede elegir (se marca como deshabilitada para las tecnologías de asistencia). Un valor ya elegido se puede quitar |
+
+Las filas sin ellos se muestran como siempre. Con el campo `group` (ver el [criterio sugerido](#suggest-criterion)) las
+opciones también se pueden agrupar. Por ejemplo, el selector de tareas padre del editor de tareas del planificador
+responde:
+
+```json
+[
+  {"value": 13, "label": "Conciliación bancaria", "group": "SCREEN_TEXT_TASK_EDITOR_GROUP_CHOSEN", "description": "OK o aviso"},
+  {"value": 16, "label": "Envío de remesas SEPA", "group": "SCREEN_TEXT_TASK_EDITOR_GROUP_BLOCKED", "disabled": true,
+   "description": "Lanza en OK · Dependencia circular: ya se lanza después de esta tarea"}
+]
+```
+
 ### Múltiples criterios de sugerencia {#multiple-suggest-criterion}
 
 Permite al usuario buscar algunos valores escribiendo algunos caracteres de los valores buscar.
@@ -378,6 +400,14 @@ interruptor (`role="switch"`) con su estado y se deshabilita mientras el criteri
 <criteria label="PARAMETER_ACTIVE" id="Sta" component="checkbox" value="1" style="col-xs-12 col-sm-6 switch" />
 ```
 
+Añada `switch-end` para una lista de ajustes, uno por fila: la etiqueta (con su icono de ayuda) al principio de la fila y
+el interruptor al final, en los dos motores. Úselo con `no-label` y una columna de todo el ancho:
+
+```xml
+<criteria label="PARAMETER_LAUNCH_DEPENDENCIES_WARN" id="LchDepWrn" component="checkbox"
+          style="col-xs-12 no-label switch switch-end" help="HELP_TASK_EDITOR_LAUNCH_ON_WARNING" />
+```
+
 ### Criterio del botón de radio {#radio-button-criterion}
 
 Muestra un botón de radio. Es una monoselección. Envía el atributo **[value](#general-attributes)** del elemento seleccionado entre todos los botones de radio con el mismo atributo **[grupo](#specific-attributes)**.
@@ -410,6 +440,42 @@ grupo de botones unidos, uno por opción, en ambos motores: envía el valor de l
 Su `label` se muestra encima de los botones, como la etiqueta de cualquier otro criterio, para que quede alineado con
 los criterios de su fila. Sin opciones, cada criterio de radio de botones es un botón de su propio `value`, y los criterios con el mismo `group`
 forman el grupo, como los botones de radio anteriores (así los dibuja el motor AngularJS).
+
+#### Tarjetas de opción {#choice-cards}
+
+Con opciones y `style="awe-choice-cards"` (se puede combinar con las clases de columna, p. ej.
+`style="col-xs-12 awe-choice-cards"`), ambos motores dibujan las opciones como tarjetas en lugar de botones unidos: cada
+tarjeta muestra el `icon`, la `label` (en negrita) y la `description` (línea atenuada) de su opción, con una marca en su
+esquina superior derecha, y la tarjeta elegida tiene el borde primario y el fondo primario suave. Las tarjetas se
+reparten el ancho del criterio en tantas columnas como quepan y pasan a otra línea. Envía el mismo valor que los botones
+unidos y mantiene la etiqueta encima.
+
+Es un grupo de opciones (`role="radiogroup"`, con la etiqueta del criterio como nombre) cuyas tarjetas son opciones con
+su descripción como descripción accesible: solo la tarjeta elegida está en el orden de tabulación, las flechas mueven la
+elección y las tarjetas se deshabilitan mientras el criterio es de solo lectura.
+
+El icono y la descripción salen de la fila de cada opción: una opción de enumerado tiene `icon` pero no descripción, así
+que cargue las opciones de una consulta cuyas filas traigan `value`, `label`, `icon` y `description` (las etiquetas y las
+descripciones pueden ser claves de idioma):
+
+```xml
+<criteria id="TskWhn" label="SCREEN_TEXT_TASK_EDITOR_WHEN" component="button-radio" style="col-xs-12 awe-choice-cards"
+          initial-load="query" target-action="getTaskEditorWhenOptions" value="0"/>
+```
+
+#### Chips {#chips}
+
+Con opciones y `style="awe-chips"`, ambos motores dibujan las opciones como píldoras que pasan de línea (de la altura de
+un control, totalmente redondeadas) en lugar de botones unidos, para elegir entre varias opciones cortas (los
+preajustes de una repetición): la píldora elegida tiene el fondo primario y una marca delante de su etiqueta. Envía el
+mismo valor y mantiene la etiqueta encima. Es un grupo de opciones con el nombre de la etiqueta del criterio: solo la
+píldora elegida está en el orden de tabulación, las flechas mueven la elección y las píldoras se desactivan mientras el
+criterio es de solo lectura. El `title` de una opción (si su fila lo trae) es su nombre accesible y su tooltip.
+
+```xml
+<criteria id="SchPre" label="SCREEN_TEXT_TASK_EDITOR_REPETITION" component="button-radio" style="col-xs-12 awe-chips"
+          initial-load="enum" target-action="TskEdtPre" value="DAY"/>
+```
 
 ### Criterios de color {#color-criterion}
 
@@ -498,12 +564,24 @@ El atributo `display` elige cómo muestra sus valores un `select-multiple` o un 
 |-------|---------|----------------|
 | `summary` | Una línea: los chips que caben y el contador `+N` descrito arriba | `select-multiple` |
 | `chip` | Cada valor como un chip con su propio icono de quitar; el campo crece con los valores | `suggest-multiple` |
+| `toggles` | Cada opción como una píldora conmutable, pulsada para las elegidas, en lugar de una lista (solo `select-multiple`) | — |
 
 ```xml
 <!-- Todos los valores elegidos a la vista, aunque el campo crezca -->
 <criteria component="select-multiple" id="user" display="chip" .../>
 <!-- Un suggest que se mantiene en una línea, para una barra de filtros -->
 <criteria component="suggest-multiple" id="portfolio" display="summary" .../>
+```
+
+`display="toggles"` conviene para pocas opciones cortas, como los días de la semana («L M X J V S D»): cada píldora es un
+botón conmutable (`aria-pressed`) en el orden de tabulación, que se pulsa con un clic, Espacio o Intro, en un grupo con
+el nombre de la etiqueta del criterio. Sus valores son las opciones pulsadas, en el orden de las opciones. Cargue las
+opciones de una consulta cuyas filas traigan un `title` (el nombre completo, «lunes») además de `value` y `label`: el
+título es el nombre accesible y el tooltip de la píldora.
+
+```xml
+<criteria component="select-multiple" id="SchWkd" label="PARAMETER_TASK_EDITOR_WEEK_DAYS" display="toggles"
+          initial-load="query" target-action="getTaskEditorWeekDayOptions" optional="true"/>
 ```
 
 ### Ejemplo de criterio de color {#color-criterion-sample}

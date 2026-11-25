@@ -65,7 +65,8 @@ export default function useCheckboxRadio(id) {
     const { size } = attributes || {};
     const iconTemplate = getIconCode(icon);
     const labelTemplate = label ? <span>{translateLabel(label, t)}</span> : null;
-    return <span className={classNames({ [`text-${size}`]: size, [`p-inputtext-${size}`]: size }, style)}>
+    // awe-option-content: the icon and the label of the option, with the gap of an icon and its text
+    return <span className={classNames("awe-option-content", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size }, style)}>
       {iconTemplate}
       {labelTemplate}
     </span>;

@@ -4,40 +4,31 @@ title: Dependencias entre tareas
 sidebar_label: Dependencias entre tareas
 ---
 
-Otra potente característica del módulo Planificador es la posibilidad de añadir dependencias a una tarea. Las dependencias son tareas que se lanzarán justo después de que termine la tarea padre. Estas dependencias también pueden contener otras dependencias, creando un flujo de trabajo.
-
-## Tipos {#types}
-Hay dos tipos principales de dependencias.
-
-### Dependencias síncronas {#synchronous-dependencies}
-
-Las dependencias síncronas se ejecutan, como su nombre indica, de forma síncrona, en un orden configurable.
-
-Las dependencias síncronas se crean estableciendo la opción Blocking=Yes.
-
-Establecer bloqueante a `yes` significa que, en caso de que alguna de las dependencias termine con un error, cancelará toda la pila de ejecución síncrona.
-
-Para gestionar la pila existe el criterio Order, que se utiliza para establecer el orden en el que se van a ejecutar las dependencias síncronas.
-
-### Dependencias asíncronas {#asynchronous-dependencies}
-
-Las dependencias asíncronas se ejecutan en bloque y su orden de ejecución no se puede configurar.
-
-Como las dependencias se ejecutan en bloque, no se bloquean entre sí.
+Una tarea puede ejecutarse después de otras tareas: sus **padres**. Cuando un padre termina, el planificador lanza las
+tareas que se ejecutan después de él (sus **dependencias**, o hijas), y esas tareas pueden tener sus propias
+dependencias, creando un flujo de trabajo.
 
 ## Configuración de dependencias {#dependencies-configuration}
 
-La pantalla de configuración de dependencias permite crear dos tipos de dependencias, síncronas y asíncronas.
+Las dependencias de una tarea se eligen **en la hija**, en la sección **Cuándo** del
+[editor de tareas](../scheduler-module.md#task-editor) (`scheduler-task-editor`):
 
-La diferencia entre ellas es simplemente que una es bloqueante y la otra no.
+1. Abre la tarea en el editor (**Editar** en el [catálogo de tareas](../scheduler-module.md#tasks-catalog) o en la
+   [ficha de tarea](../scheduler-module.md#task-screen), o **Cambiar de qué depende** en su pestaña
+   **Dependencias**).
+2. En **Cuándo**, elige **Después de otras tareas** y selecciona sus padres. La lista agrupa las tareas en *Elegidas*,
+   *Disponibles* y *No se pueden elegir* (las tareas que ya se ejecutan después de ella, que cerrarían un ciclo).
+3. Guarda. La tarea se guarda con lanzamiento `Manual` y sus padres, y se ejecuta cuando estos terminan.
 
-**Para añadir una tarea como dependencia, su tipo de lanzamiento debe estar establecido en `Manual`.**
+| Ajuste | Dónde se configura | Significado |
+|--------|--------------------|-------------|
+| Padres | **Cuándo** › **Después de otras tareas** de la hija | Las tareas tras las que se ejecuta. Con varios padres espera a todos (ver [fan-in](#flow-runs-and-fan-in)) |
+| Condición | **Comportamiento** del **padre** | Cuándo lanza el padre a sus hijas: siempre si termina OK, también con aviso, también con error. Es la misma para todas las hijas de ese padre, así que la hija la muestra en solo lectura, con un enlace al padre |
+| Marcar el padre como aviso | **Comportamiento** del **padre** | El padre termina con aviso cuando una de sus dependencias termina con error |
 
-| Elemento      | Definición    | Uso   |
-| ------------- |:-------------:| -----:|
-| Task          | La tarea que va a ejecutar la dependencia    | **Obligatorio** |
-| Blocking      | Se utiliza para definir si la dependencia va a ser síncrona o asíncrona, y si puede cancelar la pila de ejecución de dependencias síncronas | **Obligatorio** |
-| Order         | Orden de ejecución de la dependencia síncrona, solo necesario si la opción `Blocking` está establecida en `Yes`; en caso contrario estará deshabilitado |  **Obligatorio** |
+La sección **Dependencias** del editor y la pestaña **Dependencias** de la ficha de tarea muestran, en solo
+lectura, las tareas que se ejecutan después de ella. Salir de **Después de otras tareas** con padres elegidos pide antes
+una confirmación, porque los borra.
 
 ## Flujos de trabajo {#workflows}
 
@@ -77,9 +68,11 @@ Cada parámetro de una dependencia toma el primer valor que se encuentre en este
 Se rechaza guardar una tarea cuyas dependencias harían que se lance a sí misma, directamente o a través de otras tareas, con
 el mensaje **Dependencia circular**. Elimina la dependencia que cierra el ciclo.
 
-### Pantalla de ejecuciones de flujo {#flow-runs-screen}
+### Página del flujo {#flow-run-page}
 
-La opción **Ejecuciones de flujo** del menú del planificador lista las ejecuciones de flujo, de la más reciente a la más
-antigua, con su estado, tarea raíz, ejecución raíz, quién la lanzó y las horas de inicio y fin. Al seleccionar una se
-muestran sus ejecuciones y las tareas omitidas. En el gestor de tareas, selecciona una ejecución y pulsa **Abrir flujo** para
-ir directamente a su ejecución de flujo.
+Todo enlace a una ejecución de flujo abre la [página del flujo](../scheduler-module.md#flow-run-page)
+(`scheduler-flow-run`): la columna de flujo y el panel lateral de la [pantalla de actividad](../scheduler-module.md#activity-screen)
+(también su vista **Agrupar por flujo**, que lista las ejecuciones de flujo de la más reciente a la más antigua), y el
+historial y la última ejecución de la [ficha de tarea](../scheduler-module.md#task-screen). La página muestra el estado final del
+flujo y por qué, quién lo lanzó, su inicio, su duración y sus parámetros, y sus tareas como grafo, cronograma o lista,
+con las omitidas; una tarea abre el detalle de su ejecución.

@@ -1,5 +1,7 @@
 package com.almis.awe.scheduler.feign;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import feign.RequestTemplate;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
@@ -105,6 +107,19 @@ class RemoteSchedulerAuthInterceptorTest {
 
     assertThat(call(interceptor)).isEqualTo("Bearer t2");
     assertThat(server.getRequestCount()).isEqualTo(2);
+  }
+
+  @Test
+  void cachesTheTokenUntilTheExpirationOfItsJwtWhenTheLoginGivesNone() {
+    String jwt = JWT.create().withExpiresAt(NOW.plusSeconds(3600)).sign(Algorithm.HMAC256("key"));
+    server.enqueue(login(jwt, null));
+    RemoteSchedulerAuthInterceptor interceptor = interceptor("sched", "s3cret");
+
+    call(interceptor);
+    now.set(NOW.plusSeconds(1800));
+
+    assertThat(call(interceptor)).isEqualTo("Bearer " + jwt);
+    assertThat(server.getRequestCount()).isEqualTo(1);
   }
 
   @Test

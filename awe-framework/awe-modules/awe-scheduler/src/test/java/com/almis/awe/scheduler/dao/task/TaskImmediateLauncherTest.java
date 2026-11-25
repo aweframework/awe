@@ -300,11 +300,13 @@ class TaskImmediateLauncherTest {
   }
 
   @Test
-  void unresolvedPropertiesTakeTheOperatorValuesIntoAccount() throws Exception {
+  void unresolvedPropertiesCheckTheStoredKeyAndAChangedKeyIsReported() throws Exception {
+    // A manual launch keeps the key of a property: the stored one is resolved, the changed one is refused
     given(taskRepository.loadTask(5))
       .willReturn(task(5, parameter("region", ParameterConstants.PROPERTY, "stored.key")));
 
-    assertEquals(List.of("operator.key"), launcher.findUnresolvedProperties(5, Map.of("region", "operator.key")));
+    assertEquals(List.of("stored.key"), launcher.findUnresolvedProperties(5, Map.of("region", "operator.key")));
+    assertEquals(List.of("region"), launcher.findChangedPropertyKeys(5, Map.of("region", "operator.key")));
   }
 
   private void givenRun(int root, TaskDependency... dependencies) throws AWException {

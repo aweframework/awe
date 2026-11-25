@@ -315,8 +315,10 @@ const keepInputFocus = (event: { preventDefault: () => void }): void => event.pr
  * @param {string} owner Id of the component that owns the overlay
  * @returns {function} pt function
  */
-const optionPassThrough = (owner: string) => ({ context }: OptionOptions): TestHook => testHook(TestIds.selectOption, {
-  owner, selected: context?.selected, disabled: context?.disabled
+// A disabled option tells assistive technologies it cannot be chosen (PrimeReact only marks it with data-p-disabled)
+const optionPassThrough = (owner: string) => ({ context }: OptionOptions): TestHook => ({
+  ...testHook(TestIds.selectOption, { owner, selected: context?.selected, disabled: context?.disabled }),
+  ...(context?.disabled ? { "aria-disabled": "true" } : {})
 });
 
 /**

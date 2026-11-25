@@ -315,6 +315,26 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldClickTheFirstVisibleNodeOfTheFlowGraphsThatShowsTheText() {
+    // The same task in a hidden view of the page first, then in the visible one
+    WebElement hidden = show(instructions.getFlowGraphNode("Extract data", 1), "Extract data");
+    when(hidden.isDisplayed()).thenReturn(false);
+    show(instructions.getFlowGraphNode("Extract data", 2), "Extract data");
+    List<Object> clicks = new ArrayList<>();
+    doAnswer(invocation -> {
+      clicks.add(invocation.getArgument(0));
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.clickFlowGraphNode("Extract data")).doesNotThrowAnyException();
+    assertThat(clicks).isNotEmpty();
+    assertThrows(AssertionFailedError.class, () -> utilities.clickFlowGraphNode("Archive"));
+    when(driver.findElements(argThat(Locator.from(instructions.getFlowGraphNode("Extract data", 2)).toBy()::equals)))
+      .thenReturn(Collections.emptyList());
+    assertThrows(AssertionFailedError.class, () -> utilities.clickFlowGraphNode("Extract data"));
+  }
+
+  @Test
   void shouldWaitForTheFileViewerToShowTheText() {
     show(instructions.getFileViewer(), "FILE VIEWER TEST LINE 1");
 
@@ -1461,6 +1481,28 @@ class SeleniumUtilitiesSemanticStepsTest {
   }
 
   @Test
+  void shouldClickTheTabWhoseLabelStartsWithATextAndWaitUntilItIsTheActiveOne() {
+    // A label that carries a count: «Servers 3»
+    show(instructions.getTab("CfgTab"), "");
+    show(instructions.getTabStartingWith("CfgTab", "Servers"), "Servers 3");
+    List<Object> clicks = new ArrayList<>();
+    doAnswer(invocation -> {
+      clicks.add(invocation.getArgument(0));
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    // The tab does not become the active one
+    assertThrows(AssertionFailedError.class, () -> utilities.clickTabStartingWith("CfgTab", "Servers"));
+    assertThat(clicks).isNotEmpty();
+
+    show(instructions.getTabActiveStartingWith("CfgTab", "Servers"), "Servers 3");
+
+    assertThatCode(() -> utilities.clickTabStartingWith("CfgTab", "Servers")).doesNotThrowAnyException();
+    // No tab starts with the text
+    assertThrows(AssertionFailedError.class, () -> utilities.clickTabStartingWith("CfgTab", "Calendars"));
+  }
+
+  @Test
   void shouldCheckThatTheFocusIsOnACriterion() {
     JavascriptExecutor executor = (JavascriptExecutor) driver;
     when(executor.executeScript(anyString(), any(Object[].class))).thenReturn(false, true);
@@ -1547,6 +1589,21 @@ class SeleniumUtilitiesSemanticStepsTest {
     assertThat(clicks).isNotEmpty();
     assertThrows(AssertionFailedError.class, () -> utilities.clickGridRowButton("GrdUsr", "qfilter locked", "EdtBtn"));
     assertThrows(AssertionFailedError.class, () -> utilities.clickGridRowButton("GrdUsr", "qfilter inactive", "MorBtn"));
+  }
+
+  @Test
+  void shouldClickTheLinkOfAColumnInTheRowThatContainsAText() {
+    show(instructions.findGridRowLink("GrdExeAct", "Scheduled task", "ExeRun"), "#12");
+    List<Object> clicks = new ArrayList<>();
+    doAnswer(invocation -> {
+      clicks.add(invocation.getArgument(0));
+      return null;
+    }).when((Interactive) driver).perform(any());
+
+    assertThatCode(() -> utilities.clickGridRowLink("GrdExeAct", "Scheduled task", "ExeRun")).doesNotThrowAnyException();
+    assertThat(clicks).isNotEmpty();
+    assertThrows(AssertionFailedError.class, () -> utilities.clickGridRowLink("GrdExeAct", "Other task", "ExeRun"));
+    assertThrows(AssertionFailedError.class, () -> utilities.clickGridRowLink("GrdExeAct", "Scheduled task", "TskNam"));
   }
 
   @Test

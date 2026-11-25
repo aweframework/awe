@@ -76,6 +76,11 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private Integer charLength;
 
+  // Minimum WIDTH in pixels of the column that shares the free space (width="*")
+  @XStreamAlias("min-width")
+  @XStreamAsAttribute
+  private Integer minWidth;
+
   // Column ALIGN
   @XStreamAlias("align")
   @XStreamAsAttribute
@@ -101,7 +106,7 @@ public class Column extends AbstractCriteria {
   @XStreamAsAttribute
   private Boolean sendable;
 
-  // Permissions required to show a button column, separated by spaces (all of them are required). It replaces the
+  // Permissions required to show a button column (or a link column with actions), separated by spaces (all of them are required). It replaces the
   // decision derived from the targets its actions launch. Read by the server only
   @JsonIgnore
   @XStreamAlias("permission")

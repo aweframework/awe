@@ -384,6 +384,24 @@
   <locale name="COLUMN_SPARKLINE_MARKS" value="Marks"/>
   <locale name="SCREEN_TITLE_GRID_SPARKLINE" value="Sparkline columns"/>
   <locale name="MENU_TEST_MATRIX_SPARKLINE" value="Sparkline column"/>
+  <locale name="MENU_TEST_MATRIX_LINK" value="Columna de enlace"/>
+  <locale name="SCREEN_TITLE_GRID_LINK" value="Columnas de enlace"/>
+  <locale name="SCREEN_TITLE_GRID_LINK_DETAIL" value="Detalle de la ejecución"/>
+  <locale name="COLUMN_LINK_TST_RUN" value="Ejecución"/>
+  <locale name="COLUMN_LINK_TST_TASK" value="Tarea"/>
+  <locale name="COLUMN_LINK_TST_STATUS" value="Estado"/>
+  <locale name="COLUMN_LINK_TST_DOC" value="Documentación"/>
+  <locale name="COLUMN_LINK_TST_RUN_TITLE" value="Abrir el detalle de la ejecución"/>
+  <locale name="COLUMN_LINK_TST_TASK_TITLE" value="Relanzar la tarea"/>
+  <locale name="LINK_TST_DOCUMENTATION" value="Documentación del grid"/>
+  <locale name="COLUMN_LINK_TST_HISTORY" value="Historial"/>
+  <locale name="LINK_TST_HISTORY_OK" value="OK"/>
+  <locale name="LINK_TST_HISTORY_INFO" value="Información"/>
+  <locale name="LINK_TST_HISTORY_WARNING" value="Aviso"/>
+  <locale name="LINK_TST_HISTORY_ERROR" value="Error"/>
+  <locale name="LINK_TST_HISTORY_SKIPPED" value="Omitida"/>
+  <locale name="CONFIRM_TITLE_LINK_RERUN" value="Relanzar tarea"/>
+  <locale name="CONFIRM_MESSAGE_LINK_RERUN" value="¿Quiere relanzar la tarea de esta ejecución?"/>
   <locale name="MENU_TEST_MATRIX_SIDE_PANEL" value="Paneles laterales"/>
   <locale name="SCREEN_TITLE_SIDE_PANEL" value="Paneles laterales"/>
   <locale name="BUTTON_SIDE_PANEL_RIGHT" value="Panel derecho"/>

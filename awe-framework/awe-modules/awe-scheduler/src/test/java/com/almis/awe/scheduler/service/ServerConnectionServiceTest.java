@@ -1,9 +1,13 @@
 package com.almis.awe.scheduler.service;
 
+import com.almis.awe.exception.AWException;
 import com.almis.awe.model.component.AweElements;
+import com.almis.awe.model.component.AweSession;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.scheduler.bean.file.Server;
+import com.almis.awe.scheduler.bean.file.ServerTestResult;
 import com.almis.awe.scheduler.dao.ServerDAO;
 import com.almis.awe.scheduler.enums.SshHostKeyPolicy;
 import org.apache.commons.net.ftp.FTPClient;
@@ -26,13 +30,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
@@ -82,6 +93,9 @@ class ServerConnectionServiceTest {
   private static KeyPair hostKey;
   private static String clientPrivateKeyPem;
 
+  private static final LocalDateTime TESTED_AT = LocalDateTime.of(2026, 11, 24, 10, 44);
+
+  private final AweSession session = new AweSession();
   private SshServer sshServer;
   private int port;
 
@@ -332,13 +346,50 @@ class ServerConnectionServiceTest {
    */
   @Test
   void blankSecretsWithServerIdFallBackToStoredCredentials() throws Exception {
-    when(serverDAO.findServer(7)).thenReturn(new Server().setServerId(7).setPassword(TEST_PASSWORD));
+    when(serverDAO.findServer(7)).thenReturn(sshServer(7, TEST_PASSWORD));
     ServerConnectionService service = service(SshHostKeyPolicy.ACCEPT_ALL);
 
     ServiceData result = service.checkServerConnection("ssh", "127.0.0.1", port, TEST_USER, "", null, null, 7);
 
     assertSuccess(result);
     verify(serverDAO).findServer(7);
+  }
+
+  /**
+   * Update screen: the stored secrets only go to the stored connection. When the form changes the host, the port, the
+   * user or the connection type of the server, a blank secret is not replaced by the stored one, so a saved password is
+   * never sent to a host typed by the caller: the test runs without it and its authentication fails
+   */
+  @Test
+  void storedSecretsAreNotSentWhenTheFormChangesTheConnection() throws Exception {
+    ServerConnectionService service = service(SshHostKeyPolicy.ACCEPT_ALL);
+    List<Server> changed = List.of(
+      sshServer(7, TEST_PASSWORD).setHost("localhost"),
+      sshServer(7, TEST_PASSWORD).setPort(port + 1),
+      sshServer(7, TEST_PASSWORD).setUser("another-user"),
+      sshServer(7, TEST_PASSWORD).setTypeOfConnection("ftp"));
+
+    for (Server stored : changed) {
+      when(serverDAO.findServer(7)).thenReturn(stored);
+
+      assertFailure(service.checkServerConnection("ssh", "127.0.0.1", port, TEST_USER, "", null, null, 7),
+        "SCHEDULER_SERVER_TEST_AUTHENTICATION_ERROR");
+    }
+  }
+
+  /**
+   * Configuration screen: the test of the form values follows the same rule, the stored secrets only go to the stored
+   * host
+   */
+  @Test
+  void theConfigurationTestDoesNotSendStoredSecretsToAnotherHost() throws Exception {
+    when(serverDAO.findServer(7)).thenReturn(sshServer(7, TEST_PASSWORD).setHost("localhost"));
+    ServerConnectionService service = timedService();
+
+    ServiceData result = service.testServerConnection("ssh", "127.0.0.1", port, TEST_USER, null, null, null, 7);
+
+    assertEquals(AnswerType.ERROR, result.getType());
+    assertEquals("SCHEDULER_SERVER_TEST_AUTHENTICATION_ERROR", result.getMessage());
   }
 
   /**
@@ -388,6 +439,168 @@ class ServerConnectionServiceTest {
     ServiceData result = service.checkServerConnection("ssh", "127.0.0.1", port, TEST_USER, TEST_PASSWORD, null, null, 7);
 
     assertSuccess(result);
+  }
+
+  /**
+   * Configuration screen: the test of a saved server tells how long it took and where it connected, and the result is
+   * the last test of that server in the session
+   */
+  @Test
+  void aSavedServerTestTellsItsTimeAndTargetAndIsTheLastTestOfTheServerInTheSession() throws Exception {
+    when(serverDAO.findServer(7)).thenReturn(sshServer(7, TEST_PASSWORD));
+    ServerConnectionService service = timedService();
+
+    ServiceData result = service.testServerConnection(null, null, null, null, null, null, null, 7);
+
+    assertEquals(AnswerType.OK, result.getType());
+    assertEquals("SCHEDULER_SERVER_TEST_OK_TITLE[SCREEN_TEXT_SCHEDULER_SERVER_TEST_SECONDS[0, 42]]", result.getTitle());
+    assertEquals(TEST_USER + "@127.0.0.1:" + port, result.getMessage());
+    assertEquals(Map.of(7, ServerTestResult.success(420, TESTED_AT)), sessionResults());
+  }
+
+  /**
+   * Configuration screen: a failed test gives the generic reason of its locale, never the text of the exception, and is
+   * the last test of the server in the session with that reason
+   */
+  @Test
+  void aFailedTestGivesItsGenericReasonAndIsKeptWithIt() throws Exception {
+    when(serverDAO.findServer(7)).thenReturn(sshServer(7, "wrong-password"));
+    ServerConnectionService service = timedService();
+
+    ServiceData result = service.testServerConnection(null, null, null, null, null, null, null, 7);
+
+    assertEquals(AnswerType.ERROR, result.getType());
+    assertEquals("SCHEDULER_SERVER_TEST_KO_TITLE", result.getTitle());
+    assertEquals("SCHEDULER_SERVER_TEST_AUTHENTICATION_ERROR", result.getMessage());
+    assertEquals(Map.of(7, ServerTestResult.failure("AUTHENTICATION_ERROR", 420, TESTED_AT)), sessionResults());
+  }
+
+  /**
+   * Configuration screen: the form values are tested without saving them, so they are not the last test of the saved
+   * server
+   */
+  @Test
+  void theTestOfTheFormValuesIsNotKeptAsTheTestOfTheSavedServer() throws Exception {
+    when(serverDAO.findServer(7)).thenReturn(sshServer(7, TEST_PASSWORD));
+    ServerConnectionService service = timedService();
+
+    ServiceData result = service.testServerConnection("ssh", "127.0.0.1", port, TEST_USER, null, null, null, 7);
+
+    assertEquals(AnswerType.OK, result.getType());
+    assertEquals(Map.of(), sessionResults());
+  }
+
+  /**
+   * Configuration screen, «Probar todos»: every active server that has a connection is tested (a folder has none) and
+   * each result is the last test of its server in the session
+   */
+  @Test
+  void testingEveryServerTestsTheActiveOnesWithAConnectionAndKeepsEachResult() throws Exception {
+    when(serverDAO.findActiveServerIds()).thenReturn(List.of(7, 8, 9));
+    when(serverDAO.findServer(7)).thenReturn(sshServer(7, TEST_PASSWORD));
+    when(serverDAO.findServer(8)).thenReturn(new Server().setServerId(8).setTypeOfConnection("folder"));
+    when(serverDAO.findServer(9)).thenReturn(sshServer(9, "wrong-password"));
+    ServerConnectionService service = timedService();
+
+    ServiceData result = service.testAllServerConnections();
+
+    assertEquals(AnswerType.OK, result.getType());
+    assertEquals("SCHEDULER_SERVER_TEST_ALL_MESSAGE[2, 1, 1]", result.getMessage());
+    assertEquals(Map.of(7, ServerTestResult.success(420, TESTED_AT),
+      9, ServerTestResult.failure("AUTHENTICATION_ERROR", 420, TESTED_AT)), sessionResults());
+  }
+
+  /**
+   * Configuration screen, «Probar todos»: a server that cannot be read or whose test breaks is that server's failure
+   * with a generic reason, and the others are still tested
+   */
+  @Test
+  void testingEveryServerIsolatesTheFailureOfEachServer() throws Exception {
+    when(serverDAO.findActiveServerIds()).thenReturn(List.of(7, 8, 9));
+    when(serverDAO.findServer(7)).thenThrow(new AWException("Error", "stored server cannot be read"));
+    when(serverDAO.findServer(8)).thenReturn(new Server() {
+      @Override
+      public int getPort() {
+        throw new NullPointerException("blank port");
+      }
+    }.setServerId(8).setTypeOfConnection("ssh").setHost("127.0.0.1"));
+    when(serverDAO.findServer(9)).thenReturn(sshServer(9, TEST_PASSWORD));
+    ServerConnectionService service = timedService();
+
+    ServiceData result = service.testAllServerConnections();
+
+    assertEquals(AnswerType.OK, result.getType());
+    assertEquals("SCHEDULER_SERVER_TEST_ALL_MESSAGE[3, 1, 2]", result.getMessage());
+    assertEquals(Map.of(7, "UNEXPECTED_ERROR", 8, "UNEXPECTED_ERROR", 9, "OK"), outcomes(sessionResults()));
+  }
+
+  /**
+   * Configuration screen, «Probar todos»: once the time of the whole test has passed, no other server is tested and
+   * the answer tells how many were left untested
+   */
+  @Test
+  void testingEveryServerStopsAtItsDeadlineAndTellsWhichWereNotTested() throws Exception {
+    when(serverDAO.findActiveServerIds()).thenReturn(List.of(7, 8, 9));
+    when(serverDAO.findServer(7)).thenReturn(sshServer(7, TEST_PASSWORD));
+    when(serverDAO.findServer(8)).thenReturn(sshServer(8, TEST_PASSWORD));
+    // Every reading of the ticker is 40 s later than the one before: the second server starts after 60 s
+    long[] ticks = {0};
+    ServerConnectionService service = new ServerConnectionService(serverDAO, ftpClient, SshHostKeyPolicy.ACCEPT_ALL,
+      tempDir.resolve("deadline/known_hosts"), CONNECT_TIMEOUT,
+      Clock.fixed(TESTED_AT.atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault()),
+      () -> (ticks[0]++) * 40_000_000_000L, Duration.ofSeconds(60));
+    mockLocales(service);
+    mockSession();
+
+    ServiceData result = service.testAllServerConnections();
+
+    assertEquals(AnswerType.OK, result.getType());
+    assertEquals("SCHEDULER_SERVER_TEST_ALL_MESSAGE_PARTIAL[1, 1, 0, 2]", result.getMessage());
+    assertEquals(Map.of(7, "OK"), outcomes(sessionResults()));
+    verify(serverDAO, never()).findServer(9);
+  }
+
+  private static Map<Integer, String> outcomes(Map<Integer, ServerTestResult> results) {
+    Map<Integer, String> outcomes = new java.util.HashMap<>();
+    results.forEach((id, result) -> outcomes.put(id, result.ok() ? "OK" : result.reason()));
+    return outcomes;
+  }
+
+  private Server sshServer(int id, String password) {
+    return new Server().setServerId(id).setTypeOfConnection("ssh").setHost("127.0.0.1").setPort(port)
+      .setUser(TEST_USER).setPassword(password);
+  }
+
+  /**
+   * Service whose tests last 0,42 s and end at {@link #TESTED_AT}, in a session of its own
+   */
+  private ServerConnectionService timedService() {
+    long[] ticks = {0};
+    ServerConnectionService service = new ServerConnectionService(serverDAO, ftpClient, SshHostKeyPolicy.ACCEPT_ALL,
+      tempDir.resolve("timed/known_hosts"), CONNECT_TIMEOUT,
+      Clock.fixed(TESTED_AT.atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault()),
+      () -> {
+        long tick = ticks[0];
+        ticks[0] = tick == 0 ? 420_000_000L : 0;
+        return tick;
+      });
+    mockLocales(service);
+    mockSession();
+    return service;
+  }
+
+  /**
+   * Session of the service and locales that show their parameters
+   */
+  private void mockSession() {
+    doReturn(session).when(context).getBean(AweSession.class);
+    doAnswer(invocation -> invocation.getArgument(0) + Arrays.toString(
+      Arrays.copyOfRange(invocation.getArguments(), 2, invocation.getArguments().length)))
+      .when(aweElements).getLocaleWithLanguage(anyString(), anyString(), any(Object[].class));
+  }
+
+  private Map<Integer, ServerTestResult> sessionResults() {
+    return new ServerTestResultStore(() -> session).getResults();
   }
 
   private void assertSuccess(ServiceData result) {

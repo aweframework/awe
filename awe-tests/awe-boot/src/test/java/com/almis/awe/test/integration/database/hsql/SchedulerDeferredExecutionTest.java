@@ -60,8 +60,8 @@ class SchedulerDeferredExecutionTest extends AbstractSchedulerMaintainTest {
 
   @Test
   void aDeferredAnswerKeepsTheExecutionRunningWithItsExternalStateAndLaunchesNoDependent() throws Exception {
-    int dependentId = create(manualTask(unique("Deferred dependent")));
-    int taskId = create(deferredTask(unique("Deferred launch")).set("DepTskIde", ints(dependentId)));
+    int taskId = create(deferredTask(unique("Deferred launch")));
+    int dependentId = create(dependentOf(taskId));
     try {
       launch(taskId);
 
@@ -83,8 +83,8 @@ class SchedulerDeferredExecutionTest extends AbstractSchedulerMaintainTest {
 
   @Test
   void theCompletionApiClosesTheExecutionOnceAndLaunchesTheDependentTask() throws Exception {
-    int dependentId = create(manualTask(unique("Deferred dependent")));
-    int taskId = create(deferredTask(unique("Deferred complete")).set("DepTskIde", ints(dependentId)));
+    int taskId = create(deferredTask(unique("Deferred complete")));
+    int dependentId = create(dependentOf(taskId));
     int plainId = create(manualTask(unique("Deferred plain")));
     try {
       launch(taskId);
@@ -150,7 +150,8 @@ class SchedulerDeferredExecutionTest extends AbstractSchedulerMaintainTest {
     int taskId = create(deferredTask(unique("Deferred stop")).put("CncMnt", "deferredTestCancel"));
     try {
       launch(taskId);
-      assertThat(counter("SchDfrRun")).isPositive();
+      // The activity counter of the executions waiting for their confirmation
+      assertThat(counter("getActivityWaitingCount")).isPositive();
 
       maintain("StpTsk", params().put("IdeTsk.selected", taskId));
       maintain("StpTsk", params().put("IdeTsk.selected", taskId));
@@ -160,10 +161,6 @@ class SchedulerDeferredExecutionTest extends AbstractSchedulerMaintainTest {
       Map<String, Object> trace = single("SELECT CmpSrc, CncSta, CncErr FROM AweSchExeExt WHERE IdeTsk = ?", taskId);
       assertThat(trace).containsEntry("CMPSRC", "USER").containsEntry("CNCSTA", "SENT");
       assertThat((String) trace.get("CNCERR")).isNullOrEmpty();
-      // The dashboard counters read the trace
-      assertThat(counter("SchDfrUsr")).isPositive();
-      assertThat(counter("SchDfrApi")).isNotNegative();
-      assertThat(counter("SchDfrDln")).isNotNegative();
     } finally {
       deleteTasks(taskId);
       forget(taskId);
@@ -199,6 +196,15 @@ class SchedulerDeferredExecutionTest extends AbstractSchedulerMaintainTest {
     parameters.set("ParSrc", ints());
     parameters.set("ParTyp", strings());
     parameters.set("ParVal", strings());
+    return parameters;
+  }
+
+  /**
+   * Parameters of a manual task that runs after a parent (TskPrn)
+   */
+  private ObjectNode dependentOf(int parentId) {
+    ObjectNode parameters = manualTask(unique("Deferred dependent"));
+    parameters.set("TskPrn", ints(parentId));
     return parameters;
   }
 

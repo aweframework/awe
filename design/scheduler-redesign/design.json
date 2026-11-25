@@ -1,0 +1,49 @@
+{
+  "title": "Scheduler redesign (AWE 5)",
+  "brief": "Rediseño de las ventanas del planificador (gestión, tareas, flow runs, servidores, calendarios) en tres áreas: Actividad, Tareas y Configuración, más un grafo de flujo. Ambos engines, menús nuevos, sin cambios en el modelo de datos. Sistema de diseño: design/system.md; lenguaje visual de design/modules.",
+  "feature": "odd/tasks/scheduler-ux-redesign.md",
+  "artboards": [
+    {
+      "file": "01-actividad.html",
+      "title": "01 · Actividad: contadores-filtro, lista unificada de ejecuciones y flujos, panel lateral con log",
+      "tradeoff": "La rejilla plana es la vista por defecto y la agrupación por flujo es un interruptor: todas las columnas a la vista y los flujos a un clic, en lugar de verlos siempre plegados.",
+      "width": 1440,
+      "height": 5505
+    },
+    {
+      "file": "02-tareas-y-ficha.html",
+      "title": "02 · Tareas: catálogo con historial en barras y ficha de la tarea",
+      "tradeoff": "El catálogo cabe en una pantalla a 1440 y la ficha sustituye al grid-debajo-de-grid; a cambio, las columnas Cuándo y Tarea ocupan 2-3 líneas y la descripción se corta.",
+      "width": 1440,
+      "height": 4212
+    },
+    {
+      "file": "03-editor-dependencias-en-padre.html",
+      "title": "03 · Editor único con dependencias editadas desde el padre («Al terminar esta tarea, lanzar»), como hoy — descartada",
+      "tradeoff": "Sin cambios de servicios ni de permisos: coincide con cómo se guarda hoy; a cambio, hay que pensar desde la tarea padre y explicar la regla de que la hija sea Manual.",
+      "width": 1440,
+      "height": 7820
+    },
+    {
+      "file": "04-editor-dependencias-en-hija.html",
+      "title": "04 · Editor único con dependencias editadas desde la hija («Después de otras tareas») — elegida",
+      "tradeoff": "Se piensa desde la tarea que se edita y la unión de padres se ve clara, pero las condiciones siguen en los padres (solo lectura con enlace) y guardar reescribe filas de otras tareas.",
+      "width": 1440,
+      "height": 5089
+    },
+    {
+      "file": "05-flow-run-grafo.html",
+      "title": "05 · Ejecución de un flujo: grafo, cronograma y lista accesible",
+      "tradeoff": "La unión, los saltos y la espera diferida se ven de un vistazo; el panel lateral de 640 px tapa la mitad derecha del grafo, que se desplaza para mostrar el nodo elegido.",
+      "width": 1440,
+      "height": 5320
+    },
+    {
+      "file": "06-configuracion.html",
+      "title": "06 · Configuración: pestañas Servidores, Calendarios y Motor",
+      "tradeoff": "Tres pantallas poco usadas pasan a una con pestañas y panel lateral; el resultado de la prueba de conexión solo vale en la sesión porque no se guarda (sin cambio de modelo).",
+      "width": 1440,
+      "height": 7772
+    }
+  ]
+}

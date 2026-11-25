@@ -27,19 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * away from SSH) must disappear from the NORMAL active-SSH option list, but must still be
  * returned when it is the currently bound {@code IdeSrvExe} — otherwise editing a task whose
  * server was later deactivated would silently blank the selection on save.
- * <p>
- * NOTE: this test deliberately does NOT create {@code AweSchTsk} rows via
- * {@code NewSchedulerTask}/{@code UpdateSchedulerTask}. Those maintain targets commit for
- * real against the shared file-based HSQLDB test database (see
- * {@code MaintainService#manageMaintainQueries}), and the {@code AweKey} keygen seed for
- * {@code SchTskKey} in {@code testdata-hsqldb.sql} makes the FIRST generated task id come out
- * as {@code 2} — which collides with the pre-seeded {@code AweSchExe} "orphaned task"
- * fixture used by {@code SchedulerQueriesTest} (gitlab #685 regression) and, worse, gets its
- * execution-history rows deleted outright by {@code UpdateSchedulerTask}'s execution-log
- * purge step. That collision is a pre-existing test-fixture limitation, out of scope for this
- * slice; the {@code Rmt}/{@code IdeSrvExe} task-screen wiring itself is verified by design
- * review and by the {@code taskData}/task-maintain wiring already covered by the full
- * scheduler module test suite.
  */
 @Slf4j
 @Tag("integration")
@@ -67,10 +54,10 @@ class SchedulerRemoteServerSelectorTest extends AbstractSpringAppIntegrationTest
   }
 
   private int findServerIdByName(String name) throws Exception {
-    String result = performRequest("data", "SchSrvLst", "\"CrtSrv\":\"" + name + "\"");
+    String result = performRequest("data", "getConfigurationServers", "\"CrtSrvSch\":\"" + name + "\"");
     ArrayNode rows = dataRows(result);
     assertEquals(1, rows.size(), "Expected exactly one server named " + name);
-    return rows.get(0).get("Ide").asInt();
+    return rows.get(0).get("IdeSrv").asInt();
   }
 
   private boolean containsServerId(ArrayNode rows, int serverId) {

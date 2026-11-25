@@ -62,7 +62,7 @@ describe('Icon equivalence table (#885)', () => {
 
   it('maps every icon written in the React components to a Lucide icon or lists it as a fallback', () => {
     const icons = reactHardCodedIcons();
-    expect(icons).toEqual(expect.arrayContaining(['pi-question-circle', 'pi-times', 'refresh', 'circle']));
+    expect(icons).toEqual(expect.arrayContaining(['pi-question-circle', 'pi-times', 'pi-refresh', 'circle']));
     expect(unresolved(icons)).toEqual([]);
   });
 

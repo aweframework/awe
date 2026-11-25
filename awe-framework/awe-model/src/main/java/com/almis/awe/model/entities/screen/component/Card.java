@@ -128,6 +128,11 @@ public class Card extends Component {
   @XStreamAsAttribute
   private String footer;
 
+  // A button in the header maximizes the card over its maximize target, like a window (#993). Sent only when set
+  @XStreamAlias("maximize")
+  @XStreamAsAttribute
+  private Boolean maximize;
+
   @Override
   public Card copy() {
     return this.toBuilder()

@@ -60,6 +60,9 @@
       <option name="matrix-test-having" label="MENU_TEST_MATRIX_HAVING" screen="having" icon="list-alt"/>
       <option name="matrix-test-load-all" label="MENU_TEST_MATRIX_LOAD_ALL" screen="MatLoadAll" icon="table"/>
       <option name="matrix-test-sparkline" label="MENU_TEST_MATRIX_SPARKLINE" screen="GrdSparklineTst" icon="line-chart"/>
+      <option name="matrix-test-link" label="MENU_TEST_MATRIX_LINK" screen="GrdLinkTst" icon="lucide:link">
+        <option name="matrix-test-link-detail" screen="GrdLinkTstDet" invisible="true"/>
+      </option>
       <option name="matrix-test-radio" label="MENU_TEST_MATRIX_RADIO" screen="GrdRadioTst" icon="dot-circle-o"/>
       <option name="matrix-test-no-header" label="MENU_TEST_MATRIX_NO_HEADER" screen="GrdNoHeaderTst" icon="list"/>
       <option name="matrix-test-scale" label="MENU_TEST_MATRIX_SCALE" screen="GrdScaleTst" icon="th"/>
@@ -156,21 +159,14 @@
   </option>
   <option name="automation-section" label="MENU_SECTION_AUTOMATION" separator="true"/>
   <option name="scheduler" label="MENU_SCHEDULER" icon="clock-o">
-    <option name="scheduler-management" label="MENU_SCHEDULER_MANAGEMENT" screen="scheduler-management" icon="cogs"/>
-    <option name="scheduler-tasks" label="MENU_SCHEDULER_TASKS" screen="scheduler-tasks" icon="tasks">
-      <option name="new-scheduler-task" screen="new-scheduler-task" invisible="true" />
-      <option name="update-scheduler-task" screen="update-scheduler-task" invisible="true" />
-      <option name="scheduler-flow-graph" screen="scheduler-flow-graph" invisible="true" />
+    <option name="scheduler-activity" label="MENU_SCHEDULER_ACTIVITY" screen="scheduler-activity" icon="lucide:activity">
+      <option name="scheduler-flow-run" screen="scheduler-flow-run" invisible="true" />
     </option>
-    <option name="scheduler-runs" label="MENU_SCHEDULER_RUNS" screen="scheduler-runs" icon="sitemap"/>
-    <option name="scheduler-servers" label="MENU_SCHEDULER_SERVERS" screen="scheduler-server" icon="server">
-      <option name="new-scheduler-server" screen="new-scheduler-server" invisible="true" />
-      <option name="update-scheduler-server" screen="update-scheduler-server" invisible="true" />
+    <option name="scheduler-task-catalog" label="MENU_SCHEDULER_TASK_CATALOG" screen="scheduler-task-catalog" icon="lucide:list-checks">
+      <option name="scheduler-task" screen="scheduler-task" invisible="true" />
+      <option name="scheduler-task-editor" screen="scheduler-task-editor" invisible="true" />
     </option>
-    <option name="scheduler-calendars" label="MENU_SCHEDULER_CALENDARS" screen="scheduler-calendars" icon="calendar">
-      <option name="new-scheduler-calendar" screen="new-scheduler-calendar" invisible="true" />
-      <option name="update-scheduler-calendar" screen="update-scheduler-calendar" invisible="true" />
-    </option>
+    <option name="scheduler-configuration" label="MENU_SCHEDULER_CONFIGURATION" screen="scheduler-configuration" icon="lucide:settings"/>
   </option>
   <option name="user-settings" screen="user-settings" invisible="true"/>
   <option name="notifier" label="MENU_NOTIFIER" icon="flash">

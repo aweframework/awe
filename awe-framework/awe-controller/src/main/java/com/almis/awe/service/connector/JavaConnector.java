@@ -83,18 +83,32 @@ public class JavaConnector extends AbstractServiceConnector {
       // Call the method
       outData = (ServiceData) serviceMethod.invoke(serviceInstance, paramsToInvoke);
     } catch (IllegalAccessException exc) {
-      throw new AWException(getLocale("ERROR_TITLE_ERROR_CALLING_METHOD"), exc);
+      throw unexpectedError(classNameReceived, methodReceived, exc);
     } catch (InvocationTargetException exc) {
       if (exc.getTargetException() instanceof AWException) {
         throw (AWException) exc.getTargetException();
       } else {
-        Throwable primaryException = exc.getTargetException();
-        throw new AWException(getLocale("ERROR_TITLE_ERROR_CALLING_METHOD"), primaryException.getMessage(), primaryException);
+        throw unexpectedError(classNameReceived, methodReceived, exc.getTargetException());
       }
     }
 
     // Return service output
     return outData;
+  }
+
+  /**
+   * Error of a service method that failed with an unexpected exception (not an AWException written for the user): the
+   * user reads a generic message, never the text of the exception, and the exception is logged with its stack trace
+   *
+   * @param className  Service class
+   * @param methodName Service method
+   * @param exception  Unexpected exception
+   * @return Error with the generic message
+   */
+  private AWException unexpectedError(String className, String methodName, Throwable exception) {
+    log.error("[Java Service]: Unexpected error calling method {} of class {}", methodName, className, exception);
+    return new AWException(getLocale("ERROR_TITLE_UNEXPECTED_ERROR"), getLocale("ERROR_MESSAGE_UNEXPECTED_ERROR"),
+      exception);
   }
 
   /**

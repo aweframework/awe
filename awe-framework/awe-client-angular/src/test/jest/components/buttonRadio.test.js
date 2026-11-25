@@ -141,6 +141,119 @@ describe("button-radio criterion", () => {
     });
   });
 
+  describe("as choice cards (style awe-choice-cards)", () => {
+    const address = {view: "base", component: "when"};
+
+    it("draws one card per option with its title and description and chooses it by click and by the arrow keys", () => {
+      $control.setAddressController(address, {
+        component: "button-radio", contextMenu: [], dependencies: [], id: "when", label: "When", initialLoad: "query",
+        targetAction: "options", optional: false, readonly: false, required: false, size: "md",
+        style: "col-xs-12 awe-choice-cards", visible: true, validation: ""
+      });
+      $control.setAddressModel(address, {
+        defaultValues: [], page: 1, records: 3, selected: ["0"], total: 1,
+        values: [{value: "0", label: "Manual", icon: "lucide:hand", description: "Only by hand"},
+          {value: "1", label: "Scheduled", icon: "lucide:clock", description: "At fixed days and times"},
+          {value: "2", label: "On a file"}]
+      });
+      const element = compile(["when"]);
+      const group = element.querySelector("[criterion-id='when'] [role=radiogroup]");
+      const cards = Array.from(group.querySelectorAll("label.awe-choice"));
+      const checked = () => cards.filter(card => card.classList.contains("awe-choice-checked"))
+        .map(card => card.getAttribute("option-id"));
+      const input = value => group.querySelector(`input[value='${value}']`);
+
+      expect(group.getAttribute("aria-label")).toBe("When");
+      expect(group.querySelectorAll(".btn").length).toBe(0);
+      expect(cards.map(card => card.querySelector(".awe-choice-title").textContent.trim()))
+        .toEqual(["Manual", "Scheduled", "On a file"]);
+      const description = card => card.querySelector(".awe-choice-description");
+      expect(cards.map(card => description(card) ? description(card).textContent.trim() : null))
+        .toEqual(["Only by hand", "At fixed days and times", null]);
+      expect(input("1").getAttribute("aria-describedby"))
+        .toBe(description(cards[1]).getAttribute("id"));
+      expect(checked()).toEqual(["0"]);
+
+      input("2").click();
+      $rootScope.$digest();
+      expect(String($control.getAddressModel(address).selected)).toBe("2");
+      expect(checked()).toEqual(["2"]);
+
+      input("2").dispatchEvent(new window.KeyboardEvent("keydown", {key: "ArrowRight", bubbles: true}));
+      $rootScope.$digest();
+      expect(String($control.getAddressModel(address).selected)).toBe("0");
+      expect(checked()).toEqual(["0"]);
+    });
+  });
+
+  describe("as chips (style awe-chips) and as toggles (select-multiple display toggles, #993 T37)", () => {
+    it("draws one pill per option, the chosen one with a tick, chosen by click and by the arrow keys", () => {
+      const address = {view: "base", component: "preset"};
+      $control.setAddressController(address, {
+        component: "button-radio", contextMenu: [], dependencies: [], id: "preset", label: "Repetition", initialLoad: "enum",
+        targetAction: "presets", optional: false, readonly: false, required: false, size: "md",
+        style: "col-xs-12 awe-chips", visible: true, validation: ""
+      });
+      $control.setAddressModel(address, {
+        defaultValues: [], page: 1, records: 3, selected: ["WRK"], total: 1,
+        values: [{value: "DAY", label: "Daily"}, {value: "WRK", label: "Workdays"}, {value: "WEK", label: "Weekly"}]
+      });
+      const element = compile(["preset"]);
+      const group = element.querySelector("[criterion-id='preset'] [role=radiogroup]");
+      const chips = Array.from(group.querySelectorAll("label.awe-chip"));
+      const checked = () => chips.filter(chip => chip.classList.contains("awe-chip-checked")).map(chip => chip.getAttribute("option-id"));
+      const ticks = () => chips.map(chip => chip.querySelector(".awe-chip-tick") !== null);
+      const input = value => group.querySelector(`input[value='${value}']`);
+
+      expect(group.getAttribute("aria-label")).toBe("Repetition");
+      expect(chips.map(chip => chip.querySelector(".awe-chip-label").textContent.trim())).toEqual(["Daily", "Workdays", "Weekly"]);
+      expect(checked()).toEqual(["WRK"]);
+      expect(ticks()).toEqual([false, true, false]);
+
+      input("WEK").click();
+      $rootScope.$digest();
+      expect(String($control.getAddressModel(address).selected)).toBe("WEK");
+      expect(ticks()).toEqual([false, false, true]);
+
+      input("WEK").dispatchEvent(new window.KeyboardEvent("keydown", {key: "ArrowRight", bubbles: true}));
+      $rootScope.$digest();
+      expect(String($control.getAddressModel(address).selected)).toBe("DAY");
+    });
+
+    it("draws a select multiple of display toggles as toggle pills named by their title, pressed and released", () => {
+      const address = {view: "base", component: "days"};
+      $control.setAddressController(address, {
+        component: "select-multiple", contextMenu: [], dependencies: [], id: "days", label: "Days", initialLoad: "query",
+        targetAction: "days", optional: true, readonly: false, required: false, size: "md", style: "col-xs-12",
+        display: "toggles", visible: true, validation: ""
+      });
+      $control.setAddressModel(address, {
+        defaultValues: [], page: 1, records: 3, selected: ["1", "0"], total: 1,
+        values: [{value: "1", label: "M", title: "Monday"}, {value: "2", label: "T", title: "Tuesday"},
+          {value: "0", label: "S", title: "Sunday"}]
+      });
+      const container = $compile(`<div><awe-input-select-multiple input-select-multiple-id="days"></awe-input-select-multiple></div>`)($rootScope);
+      $rootScope.$digest();
+      const group = container[0].querySelector("[criterion-id='days'] [role=group]");
+      const inputs = Array.from(group.querySelectorAll("input[type=checkbox]"));
+      const pressed = () => Array.from(group.querySelectorAll("label.awe-chip.awe-chip-checked")).map(chip => chip.getAttribute("option-id"));
+
+      expect(group.getAttribute("aria-label")).toBe("Days");
+      expect(container[0].querySelector("[ui-select2]")).toBeNull();
+      expect(inputs.map(input => input.getAttribute("aria-label"))).toEqual(["Monday", "Tuesday", "Sunday"]);
+      expect(pressed()).toEqual(["1", "0"]);
+
+      inputs[1].click();
+      $rootScope.$digest();
+      expect($control.getAddressModel(address).selected).toEqual(["1", "2", "0"]);
+
+      inputs[0].click();
+      $rootScope.$digest();
+      expect($control.getAddressModel(address).selected).toEqual(["2", "0"]);
+      expect(pressed()).toEqual(["2", "0"]);
+    });
+  });
+
   describe("without options", () => {
     // The model the server sends for <criteria component="button-radio" group="RadBoxGrp2" value="Radio1">: its own
     // value as its only value, labelled with its id

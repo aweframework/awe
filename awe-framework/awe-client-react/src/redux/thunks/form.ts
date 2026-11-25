@@ -179,7 +179,7 @@ export function filterAction(action: ClientAction): AppThunk {
       // The component that is filtered has its view and its name
       const filterAction = generateServerAction(values, serverAction, targetAction, address as Address, action.async, action.silent, settings);
 
-      // Send action list (with the reload of the quick filter of a grid)
+      // Send action list (with the reload of the quick filters of a grid)
       dispatch(addActionsTop([filterAction, ...getQuickFilterReload(components, address, attributes, formValues, settings)]));
     }
 
@@ -189,14 +189,14 @@ export function filterAction(action: ClientAction): AppThunk {
 }
 
 /**
- * The reload of the quick filter of a grid that is filtered: a silent async server action, so the options and their
- * counts follow the data (after a maintain, a search or another option chosen)
+ * The reload of the quick filters of a grid that is filtered: a silent async server action for each one, so their
+ * options and counts follow the data (after a maintain, a search or another option chosen)
  * @param {object} components Components of the screen
  * @param {object} address Address of the filtered component
  * @param {object} attributes Attributes of the filtered component
  * @param {object} values Values of the screen sent with the filter
  * @param {object} settings Settings
- * @returns {object[]} The reload of the quick filter, none when the component has no quick filter
+ * @returns {object[]} The reloads of the quick filters, none when the component has no quick filter
  */
 function getQuickFilterReload(
   components: Record<string, ComponentState>,
@@ -205,15 +205,20 @@ function getQuickFilterReload(
   values: Record<string, unknown>,
   settings: { serverActionKey: string; targetActionKey: string }
 ): ReturnType<typeof generateServerAction>[] {
-  const quickFilterAddress = { view: address.view, component: attributes.quickFilter as string };
-  const quickFilter = attributes.quickFilter ? getComponent(components, quickFilterAddress) : undefined;
-  if (!quickFilter) {
-    return [];
-  }
-  const quickFilterAttributes = quickFilter.attributes as Record<string, unknown>;
-  const serverAction = (quickFilterAttributes[settings.serverActionKey] || "data") as string;
-  const targetAction = quickFilterAttributes[settings.targetActionKey] as string;
-  return [generateServerAction(values, serverAction, targetAction, quickFilterAddress as Address, true, true, settings)];
+  // Every quick-filter of the grid (quickFilters), or its only one (quickFilter)
+  const ids = Array.isArray(attributes.quickFilters) ? attributes.quickFilters as string[]
+    : [attributes.quickFilter as string].filter(Boolean);
+  return ids.flatMap(id => {
+    const quickFilterAddress = { view: address.view, component: id };
+    const quickFilter = getComponent(components, quickFilterAddress);
+    if (!quickFilter) {
+      return [];
+    }
+    const quickFilterAttributes = quickFilter.attributes as Record<string, unknown>;
+    const serverAction = (quickFilterAttributes[settings.serverActionKey] || "data") as string;
+    const targetAction = quickFilterAttributes[settings.targetActionKey] as string;
+    return [generateServerAction(values, serverAction, targetAction, quickFilterAddress as Address, true, true, settings)];
+  });
 }
 
 export function fillAction(action: ClientAction): AppThunk {
@@ -292,8 +297,9 @@ export function updateControllerAction(action: ClientAction): AppThunk {
     const parameters = action.parameters as UpdateControllerParameters;
     const values = [...((parameters.datalist || {}).rows || [{}])];
 
-    // Change controller
-    dispatch(updateAttributes(address, { [parameters.attribute as string]: parameters.value || values[0].value }));
+    // Change controller: an explicit value is kept even when it is falsy (an autorefresh of 0 stops it), as AngularJS does
+    const hasValue = Object.prototype.hasOwnProperty.call(parameters, "value");
+    dispatch(updateAttributes(address, { [parameters.attribute as string]: hasValue ? parameters.value : values[0].value }));
 
     // Finish action
     dispatch(acceptAction(action));

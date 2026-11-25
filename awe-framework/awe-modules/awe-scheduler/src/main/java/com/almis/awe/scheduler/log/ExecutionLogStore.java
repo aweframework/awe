@@ -78,7 +78,7 @@ public interface ExecutionLogStore {
     logNode.put(JSON_VALUE_PARAMETER, key.mdcKey());
     logNode.put(JSON_STYLE_PARAMETER, "no-btn");
     logNode.put(JSON_TITLE_PARAMETER, "SCHEDULER_SHOW_EXECUTION_LOG");
-    logNode.put(JSON_ICON_PARAMETER, "file-text-o text-info");
+    logNode.put(JSON_ICON_PARAMETER, "file-text-o");
     logNode.put(JSON_LABEL_PARAMETER, "");
     return logNode;
   }

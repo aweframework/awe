@@ -168,7 +168,8 @@ public class CalendarDAO extends ServiceConfig {
 
 
   /**
-   * Reschedule task with the new calendar id
+   * Reschedule task with the new calendar id. A task without trigger in the scheduler (inactive, or launched on demand)
+   * has nothing to reschedule: its next trigger is built with the calendar of its launch
    *
    * @param task       Task to reschedule
    * @param calendarId Calendar identifier
@@ -179,6 +180,10 @@ public class CalendarDAO extends ServiceConfig {
       task.setGroup(TaskUtil.getGroupForLaunchType(task.getLaunchType()));
       TriggerKey triggerKey = new TriggerKey(task.getTaskId().toString(), task.getGroup());
       Trigger trigger = scheduler.getTrigger(triggerKey);
+      if (trigger == null) {
+        log.debug("[SCHEDULER][CALENDARS] Task {} has no trigger to reschedule", task.getTaskId());
+        return;
+      }
       TriggerBuilder<? extends Trigger> triggerBuilder = trigger.getTriggerBuilder();
 
       // Create new trigger from old trigger builder

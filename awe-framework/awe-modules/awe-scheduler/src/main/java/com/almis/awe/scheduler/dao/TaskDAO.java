@@ -1,21 +1,32 @@
 package com.almis.awe.scheduler.dao;
 
+import com.almis.awe.config.AuthorizationMode;
+import com.almis.awe.config.SecurityConfigProperties;
 import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.task.DeferredExecution;
+import com.almis.awe.scheduler.bean.task.ExecutionListCriteria;
 import com.almis.awe.scheduler.bean.task.Task;
+import com.almis.awe.scheduler.bean.task.TaskCatalogCriteria;
 import com.almis.awe.scheduler.bean.task.TaskDependency;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import com.almis.awe.scheduler.constant.ParameterConstants;
 import com.almis.awe.scheduler.dao.task.DeferredExecutionRepository;
+import com.almis.awe.scheduler.dao.task.FlowRunPresenter;
 import com.almis.awe.scheduler.dao.task.FlowRunRepository;
+import com.almis.awe.scheduler.dao.task.SchedulerConfigurationPresenter;
+import com.almis.awe.scheduler.dao.task.SchedulerEnginePresenter;
+import com.almis.awe.scheduler.dao.task.TaskCatalogPresenter;
+import com.almis.awe.scheduler.dao.task.TaskEditorPresenter;
 import com.almis.awe.scheduler.dao.task.TaskExecutionPresenter;
 import com.almis.awe.scheduler.dao.task.TaskExecutionRepository;
+import com.almis.awe.scheduler.dao.task.TaskFlowGraphPresenter;
 import com.almis.awe.scheduler.dao.task.TaskImmediateLauncher;
 import com.almis.awe.scheduler.dao.task.TaskListPresenter;
+import com.almis.awe.scheduler.dao.task.TaskPagePresenter;
 import com.almis.awe.scheduler.dao.task.TaskParameterOverrides;
 import com.almis.awe.scheduler.dao.task.TaskRepository;
 import com.almis.awe.scheduler.dao.task.TaskScheduling;
@@ -23,6 +34,10 @@ import com.almis.awe.scheduler.enums.CompletionSource;
 import com.almis.awe.scheduler.enums.TaskStatus;
 import com.almis.awe.scheduler.filechecker.FileChecker;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
+import com.almis.awe.scheduler.service.ServerTestResultStore;
+import com.almis.awe.scheduler.util.TaskSchedulePreview;
+import com.almis.awe.security.authorization.PermissionTargetAuthorizer;
+import com.almis.awe.security.authorization.TargetKind;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +49,9 @@ import org.springframework.scheduling.annotation.Async;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.node.ObjectNode;
 
+import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -55,6 +72,12 @@ import static com.almis.awe.scheduler.constant.JobConstants.TASK;
  *   <li>{@link TaskExecutionRepository}: execution persistence and purge</li>
  *   <li>{@link TaskScheduling}: Quartz jobs and triggers</li>
  *   <li>{@link TaskListPresenter}: task list and maintain variables screens</li>
+ *   <li>{@link TaskCatalogPresenter}: task catalog (tasks screen)</li>
+ *   <li>{@link TaskPagePresenter}: task screen</li>
+ *   <li>{@link TaskFlowGraphPresenter}: one-level flow graph of the task screen</li>
+ *   <li>{@link FlowRunPresenter}: summary and graph of one flow run (flow run page)</li>
+ *   <li>{@link TaskEditorPresenter}: parents and copy of a task in the task editor</li>
+ *   <li>{@link SchedulerConfigurationPresenter}: servers and calendars of the configuration screen</li>
  *   <li>{@link TaskExecutionPresenter}: execution list, execution screen and progress widgets</li>
  *   <li>{@link TaskImmediateLauncher} and {@link TaskParameterOverrides}: immediate launches, parameter
  *   overrides and dependencies</li>
@@ -70,7 +93,14 @@ public class TaskDAO extends ServiceConfig {
   private final DeferredExecutionRepository deferredRepository;
   private final TaskScheduling taskScheduling;
   private final TaskListPresenter taskListPresenter;
+  private final TaskCatalogPresenter taskCatalogPresenter;
   private final TaskExecutionPresenter executionPresenter;
+  private final TaskPagePresenter taskPagePresenter;
+  private final TaskFlowGraphPresenter taskFlowGraphPresenter;
+  private final FlowRunPresenter flowRunPresenter;
+  private final TaskEditorPresenter taskEditorPresenter;
+  private final SchedulerConfigurationPresenter configurationPresenter;
+  private final SchedulerEnginePresenter enginePresenter;
   private final TaskParameterOverrides parameterOverrides;
   private final TaskImmediateLauncher immediateLauncher;
 
@@ -97,8 +127,22 @@ public class TaskDAO extends ServiceConfig {
     this.deferredRepository = new DeferredExecutionRepository(queryService, maintainService, queryUtil);
     this.taskScheduling = new TaskScheduling(scheduler, fileChecker, taskRepository, executionRepository, this);
     this.taskListPresenter = new TaskListPresenter(scheduler, queryService, queryUtil, taskScheduling, this);
+    this.taskCatalogPresenter = new TaskCatalogPresenter(queryService, queryUtil, flowRunRepository,
+      taskListPresenter, this, Clock.systemDefaultZone());
     this.executionPresenter = new TaskExecutionPresenter(queryService, queryUtil, executionLogStore,
       executionRepository, deferredRepository, this);
+    this.taskPagePresenter = new TaskPagePresenter(queryService, queryUtil, taskCatalogPresenter, executionPresenter,
+      this, this::canLaunchQuery);
+    this.taskFlowGraphPresenter = new TaskFlowGraphPresenter(queryService, queryUtil, taskCatalogPresenter, this,
+      Clock.systemDefaultZone());
+    this.flowRunPresenter = new FlowRunPresenter(queryService, queryUtil, flowRunRepository, executionPresenter,
+      deferredRepository, this, Clock.systemDefaultZone());
+    this.taskEditorPresenter = new TaskEditorPresenter(queryService, queryUtil, flowRunRepository, taskCatalogPresenter,
+      this);
+    this.configurationPresenter = new SchedulerConfigurationPresenter(queryService, queryUtil, this,
+      Clock.systemDefaultZone());
+    this.enginePresenter = new SchedulerEnginePresenter(queryService, queryUtil, this, Clock.systemDefaultZone(),
+      () -> deferredRepository.findRunning(null, null));
     this.parameterOverrides = new TaskParameterOverrides(this::getProperty);
     this.immediateLauncher = new TaskImmediateLauncher(taskRepository, executionRepository, parameterOverrides,
       this, flowRunRepository);
@@ -332,6 +376,17 @@ public class TaskDAO extends ServiceConfig {
   }
 
   /**
+   * Refresh an edited task in the scheduler with its stored launch, without purging its executions, their logs nor
+   * the files it has seen (see {@link TaskScheduling#refreshTask(Integer)})
+   *
+   * @param taskId Task identifier
+   * @throws AWException Error refreshing the task
+   */
+  public void refreshTask(Integer taskId) throws AWException {
+    taskScheduling.refreshTask(taskId);
+  }
+
+  /**
    * Delete a task from scheduler
    *
    * @param ideTsk Task identifier list
@@ -380,23 +435,458 @@ public class TaskDAO extends ServiceConfig {
   }
 
   /**
-   * Retrieve progress node
+   * Retrieve a page of the executions of all tasks, newest first, with the decoration of the task execution list
    *
-   * @param percentage Percentage
-   * @return Progress node
+   * @param criteria Filters and page
+   * @return Execution list page
+   * @throws AWException Error retrieving the executions
    */
-  public ObjectNode getProgressNode(long percentage) {
-    return executionPresenter.getProgressNode(percentage);
+  public ServiceData getExecutionList(ExecutionListCriteria criteria) throws AWException {
+    return executionPresenter.getExecutionList(criteria);
   }
 
   /**
-   * Generate status icon
+   * Retrieve a page of the executions of all tasks grouped by flow run: the runs and the executions without run as the
+   * top-level rows, the executions of each run as its children
    *
-   * @param execution Execution
-   * @return Status icon
+   * @param criteria Filters and page of the top-level rows
+   * @return Page of runs with their executions
+   * @throws AWException Error retrieving the executions
    */
-  public ObjectNode getStatusIcon(TaskExecution execution) {
-    return executionPresenter.getStatusIcon(execution);
+  public ServiceData getRunList(ExecutionListCriteria criteria) throws AWException {
+    return executionPresenter.getRunList(criteria);
+  }
+
+  /**
+   * Validate the filters and the page of the execution list of all tasks
+   *
+   * @param criteria Filters and page
+   * @throws AWException A value is not valid
+   */
+  public void validateExecutionListCriteria(ExecutionListCriteria criteria) throws AWException {
+    executionPresenter.validate(criteria);
+  }
+
+  /**
+   * Retrieve a page of the task catalog (tasks screen)
+   *
+   * @param criteria Filters, sort and page
+   * @return Page of tasks
+   * @throws AWException A value is not valid (InvalidExecutionFilterException) or the tasks cannot be read
+   */
+  public ServiceData getTaskCatalog(TaskCatalogCriteria criteria) throws AWException {
+    return taskCatalogPresenter.getCatalog(criteria);
+  }
+
+  /**
+   * Retrieve the options of the active filter of the task catalog with their counts
+   *
+   * @param criteria Filters of the catalog (search, launch and last status)
+   * @return One row per option: value, label, count and tone
+   * @throws AWException A value is not valid (InvalidExecutionFilterException) or the tasks cannot be read
+   */
+  public ServiceData getTaskCatalogActiveCounts(TaskCatalogCriteria criteria) throws AWException {
+    return taskCatalogPresenter.getActiveCounts(criteria);
+  }
+
+  /**
+   * Retrieve the tabs of the configuration screen with the count of servers and calendars and the state of the engine
+   *
+   * @param engineStatus Locale key of the state of the engine, null when the engine cannot be read
+   * @return One row per tab: value, label and icon
+   * @throws AWException The servers or the calendars cannot be read
+   */
+  public ServiceData getConfigurationTabs(String engineStatus) throws AWException {
+    return configurationPresenter.getTabs(engineStatus);
+  }
+
+  /**
+   * Retrieve the servers of the configuration screen with their connection and the tasks that use them
+   *
+   * @param search Text contained in the name or in the host
+   * @param active 1 active servers, 0 inactive servers; every server when blank
+   * @return Servers sorted by name
+   * @throws AWException The active filter is not valid (InvalidExecutionFilterException) or the servers cannot be read
+   */
+  public ServiceData getConfigurationServers(String search, String active) throws AWException {
+    return configurationPresenter.getServers(search, active,
+      new ServerTestResultStore(this::getSession).getResults());
+  }
+
+  /**
+   * Server for the side panel of the configuration screen, without its secrets: its connection, whether each secret is
+   * saved, and the select actions that fill the panel; a new server without one
+   *
+   * @param serverId Server, null for a new server
+   * @return One row and one select action per field of the panel
+   * @throws AWException The server no longer exists or cannot be read
+   */
+  public ServiceData loadConfigurationServer(Integer serverId) throws AWException {
+    return configurationPresenter.loadServer(serverId);
+  }
+
+  /**
+   * Calendar for the side panel of the configuration screen: the values of its criteria and how many dates it has, or a
+   * new calendar
+   *
+   * @param calendarId Calendar, null for a new calendar
+   * @return One silent select action per criterion of the panel
+   * @throws AWException The calendar no longer exists or cannot be read
+   */
+  public ServiceData loadConfigurationCalendar(Integer calendarId) throws AWException {
+    return configurationPresenter.loadCalendar(calendarId);
+  }
+
+  /**
+   * Dates of the calendar side panel of the configuration screen, in order, each one with its weekday
+   *
+   * @param calendarId Calendar, null for a new calendar
+   * @return One row per date
+   * @throws AWException The dates cannot be read
+   */
+  public ServiceData getConfigurationCalendarPanelDates(Integer calendarId) throws AWException {
+    return configurationPresenter.getCalendarDates(calendarId);
+  }
+
+  /**
+   * «En uso por» of the server side panel of the configuration screen: the tasks that use the server, sorted by name,
+   * with their launch and their last status
+   *
+   * @param serverId Server, null for a new server
+   * @return One row per task
+   * @throws AWException The tasks cannot be read
+   */
+  public ServiceData getConfigurationServerTasks(Integer serverId) throws AWException {
+    return configurationPresenter.getServerTasks(serverId, taskCatalogPresenter::getSummaries);
+  }
+
+  /**
+   * Choice cards of the connection type of the server side panel of the configuration screen
+   *
+   * @return One row per type: value, label, icon and description
+   */
+  public ServiceData getConfigurationServerTypes() {
+    return configurationPresenter.getServerTypes();
+  }
+
+  /**
+   * Refuse to delete a server that a task uses
+   *
+   * @param serverIds Servers to delete
+   * @throws AWException A server is used by a task (the message names the tasks), or the tasks cannot be read
+   */
+  public void validateServersNotInUse(List<?> serverIds) throws AWException {
+    configurationPresenter.validateServersNotInUse(serverIds);
+  }
+
+  /**
+   * Retrieve the options of the active filter of the servers of the configuration screen with their counts
+   *
+   * @param search Text contained in the name or in the host
+   * @return One row per option: value, label, count and tone
+   * @throws AWException The servers cannot be read
+   */
+  public ServiceData getConfigurationServerActiveCounts(String search) throws AWException {
+    return configurationPresenter.getServerActiveCounts(search);
+  }
+
+  /**
+   * Retrieve the calendars of the configuration screen with their dates, their next date and the tasks that use them
+   *
+   * @param search Text contained in the name
+   * @param active 1 active calendars, 0 inactive calendars; every calendar when blank
+   * @return Calendars sorted by name
+   * @throws AWException The active filter is not valid (InvalidExecutionFilterException) or the calendars cannot be
+   *                     read
+   */
+  public ServiceData getConfigurationCalendars(String search, String active) throws AWException {
+    return configurationPresenter.getCalendars(search, active);
+  }
+
+  /**
+   * Retrieve the options of the active filter of the calendars of the configuration screen with their counts
+   *
+   * @param search Text contained in the name
+   * @return One row per option: value, label, count and tone
+   * @throws AWException The calendars cannot be read
+   */
+  public ServiceData getConfigurationCalendarActiveCounts(String search) throws AWException {
+    return configurationPresenter.getCalendarActiveCounts(search);
+  }
+
+  /**
+   * Before deleting a calendar of the configuration screen: the tasks that use it and the next days they would run on
+   * without it
+   *
+   * @param calendarId Calendar to delete
+   * @return One row per task, sorted by name
+   * @throws AWException The tasks or the calendars cannot be read
+   */
+  public ServiceData getConfigurationCalendarDeleteCheck(Integer calendarId) throws AWException {
+    return configurationPresenter.getCalendarDeleteCheck(calendarId);
+  }
+
+  /**
+   * «Motor» tab of the configuration screen: the card of the engine
+   *
+   * @param engine   Engine, null when the scheduler cannot be read
+   * @param triggers Schedules of the engine
+   * @return One row
+   * @throws AWException The executions waiting for a confirmation or the tasks cannot be read
+   */
+  public ServiceData getConfigurationEngine(SchedulerEnginePresenter.Engine engine,
+                                            List<SchedulerEnginePresenter.EngineTrigger> triggers) throws AWException {
+    return enginePresenter.getEngine(engine, triggers);
+  }
+
+  /**
+   * «Motor» tab of the configuration screen: the schedules of the engine, filtered by their state
+   *
+   * @param triggers Schedules of the engine
+   * @param filter   paused or error; every schedule when blank
+   * @return One row per schedule, the next one to fire first
+   * @throws AWException The filter is not valid or the tasks cannot be read
+   */
+  public ServiceData getConfigurationEngineTriggers(List<SchedulerEnginePresenter.EngineTrigger> triggers,
+                                                    String filter) throws AWException {
+    return enginePresenter.getTriggers(triggers, filter);
+  }
+
+  /**
+   * «Motor» tab of the configuration screen: the options of the state filter of the schedules with their counts
+   *
+   * @param triggers Schedules of the engine
+   * @return One row per option
+   */
+  public ServiceData getConfigurationEngineTriggerCounts(List<SchedulerEnginePresenter.EngineTrigger> triggers) {
+    return enginePresenter.getTriggerCounts(triggers);
+  }
+
+  /**
+   * Validate the state filter of the schedules of the engine
+   *
+   * @param filter paused or error; every schedule when blank
+   * @throws AWException The filter is not valid
+   */
+  public void validateConfigurationEngineFilter(String filter) throws AWException {
+    enginePresenter.validateFilter(filter);
+  }
+
+  /**
+   * Retrieve what the task screen shows of a task: its header, the summary of its saved executions, its last execution
+   * and its configuration
+   *
+   * @param taskId Task identifier
+   * @return One row, none when the task does not exist
+   * @throws AWException The task cannot be read
+   */
+  public ServiceData getTaskPage(Integer taskId) throws AWException {
+    return taskPagePresenter.getPage(taskId);
+  }
+
+  /**
+   * Retrieve the one-level flow graph of the task screen: the rows of the flow graph, the tasks of the level with when
+   * they last ran and, the scheduled ones, their next execution
+   *
+   * @param taskId Task identifier
+   * @return Rows of the graph
+   * @throws AWException The graph or the tasks cannot be read
+   */
+  public ServiceData getTaskFlowGraph(Integer taskId) throws AWException {
+    return taskFlowGraphPresenter.getGraph(taskId);
+  }
+
+  /**
+   * Retrieve the summary of a flow run (flow run page): its status with the rule written out and the task it points
+   * to, who launched it, its dates, its root and its tasks by state
+   *
+   * @param runId Flow run identifier
+   * @return One row, none when the run does not exist
+   * @throws AWException The run cannot be read
+   */
+  public ServiceData getFlowRunSummary(String runId) throws AWException {
+    return flowRunPresenter.getSummary(runId);
+  }
+
+  /**
+   * Retrieve the graph of a flow run (flow run page): one row per task of the run and parent, each task with its last
+   * execution in the run and each edge with its state
+   *
+   * @param runId Flow run identifier
+   * @return Rows of the graph, none when the run does not exist
+   * @throws AWException The run cannot be read
+   */
+  public ServiceData getFlowRunGraph(String runId) throws AWException {
+    return flowRunPresenter.getGraph(runId);
+  }
+
+  /**
+   * Retrieve the tasks a task can run after, for the parents picker of the task editor
+   *
+   * @param taskId     Task edited, null for a new task
+   * @param copyTaskId Task duplicated by a new task, whose parents are the chosen ones
+   * @return One row per task
+   * @throws AWException The tasks cannot be read
+   * @see TaskEditorPresenter#getParents(Integer, Integer)
+   */
+  public ServiceData getTaskEditorParents(Integer taskId, Integer copyTaskId) throws AWException {
+    return taskEditorPresenter.getParents(taskId, copyTaskId);
+  }
+
+  /**
+   * Retrieve the data of a task to duplicate it in the task editor
+   *
+   * @param taskId Task to duplicate
+   * @return One row, none when the task does not exist
+   * @throws AWException The task cannot be read
+   * @see TaskEditorPresenter#getCopy(Integer)
+   */
+  public ServiceData getTaskEditorCopy(Integer taskId) throws AWException {
+    return taskEditorPresenter.getCopy(taskId);
+  }
+
+  /**
+   * Retrieve the data of the task editor screen for a mode (new, edit or copy)
+   *
+   * @param mode   Mode of the editor
+   * @param taskId Task of the screen that opened the editor
+   * @return One row
+   * @throws AWException The task cannot be read
+   * @see TaskEditorPresenter#getEditor(String, Integer)
+   */
+  public ServiceData getTaskEditor(String mode, Integer taskId) throws AWException {
+    return taskEditorPresenter.getEditor(mode, taskId);
+  }
+
+  /**
+   * Retrieve the options of the parents picker of the task editor
+   *
+   * @param mode   Mode of the editor
+   * @param taskId Task of the screen that opened the editor
+   * @return One row per task
+   * @throws AWException The tasks cannot be read
+   * @see TaskEditorPresenter#getEditorParents(String, Integer)
+   */
+  public ServiceData getTaskEditorParentOptions(String mode, Integer taskId) throws AWException {
+    return taskEditorPresenter.getEditorParents(mode, taskId);
+  }
+
+  /**
+   * Retrieve the parameters of the task of the task editor
+   *
+   * @param mode   Mode of the editor
+   * @param taskId Task of the screen that opened the editor
+   * @return The parameters
+   * @throws AWException The parameters cannot be read
+   * @see TaskEditorPresenter#getEditorParameters(String, Integer)
+   */
+  public ServiceData getTaskEditorParameters(String mode, Integer taskId) throws AWException {
+    return taskEditorPresenter.getEditorParameters(mode, taskId);
+  }
+
+  /**
+   * Retrieve one side of the one-level graph of the task editor
+   *
+   * @param mode    Mode of the editor
+   * @param taskId  Task of the screen that opened the editor
+   * @param parents Parents chosen in the editor
+   * @param side    Side of the graph: parents or children
+   * @return Rows of the graph
+   * @throws AWException The tasks cannot be read
+   * @see TaskEditorPresenter#getEditorGraph(String, Integer, List, String)
+   */
+  public ServiceData getTaskEditorGraph(String mode, Integer taskId, List<Integer> parents, String side)
+    throws AWException {
+    return taskEditorPresenter.getEditorGraph(mode, taskId, parents, side);
+  }
+
+  /**
+   * Options of a choice of the task editor drawn as cards
+   *
+   * @param group Choice: when or execution
+   * @return One row per option
+   * @see TaskEditorPresenter#getEditorOptions(String)
+   */
+  public ServiceData getTaskEditorOptions(String group) {
+    return taskEditorPresenter.getEditorOptions(group);
+  }
+
+  /**
+   * Live preview of the «When» of a scheduled task in the task editor
+   *
+   * @param input What the preview is built from
+   * @return Row of the preview card
+   * @see TaskEditorPresenter#schedulePreview(TaskSchedulePreview.Input, LocalDateTime)
+   */
+  public ServiceData getTaskEditorSchedule(TaskSchedulePreview.Input input) {
+    return taskEditorPresenter.schedulePreview(input, LocalDateTime.now());
+  }
+
+  /**
+   * Answer of a save of the task editor: its message and the saved task as the task of the screen
+   *
+   * @param taskId Task saved
+   * @return Message and select action
+   * @see TaskEditorPresenter#saved(Integer)
+   */
+  public ServiceData getTaskEditorSaved(Integer taskId) {
+    return taskEditorPresenter.saved(taskId);
+  }
+
+  /**
+   * Replace the parents of a task (the dependency rows where it is the child) with these ones
+   *
+   * @param taskId  Task that runs after the parents
+   * @param parents Parents, each once
+   * @throws AWException Error writing the dependencies
+   */
+  public void saveTaskParents(Integer taskId, List<Integer> parents) throws AWException {
+    flowRunRepository.replaceParents(taskId, parents);
+  }
+
+  /**
+   * Validate the filters, the sort and the page of the task catalog
+   *
+   * @param criteria Filters, sort and page
+   * @throws AWException A value is not valid (InvalidExecutionFilterException)
+   */
+  public void validateTaskCatalogCriteria(TaskCatalogCriteria criteria) throws AWException {
+    taskCatalogPresenter.validate(criteria);
+  }
+
+  /**
+   * Retrieve the options of the state quick filter of the activity screen with their counts
+   *
+   * @param criteria Filters of the execution list (search, origin and start)
+   * @return One row per option: value, label, count and tone
+   * @throws AWException A value is not valid or the executions cannot be counted
+   */
+  public ServiceData getExecutionStateCounts(ExecutionListCriteria criteria) throws AWException {
+    return executionPresenter.getExecutionStateCounts(criteria);
+  }
+
+  /**
+   * Retrieve the execution counters of the activity screen: running, waiting for confirmation, queued and errors in
+   * the last 24 hours
+   *
+   * @return One row with the counters
+   * @throws AWException Error counting the executions
+   */
+  public ServiceData getExecutionCounters() throws AWException {
+    return executionPresenter.getExecutionCounters();
+  }
+
+  /**
+   * Retrieve the execution counters of the activity screen for the tasks whose name contains a text. The screen and
+   * the API count every task ({@link #getExecutionCounters()}, the same queries without the name filter); this scope
+   * lets a test on a shared database count exactly the executions of its own tasks
+   *
+   * @param taskName Text contained in the task name, case insensitive; every task when null or blank
+   * @return One row with the counters
+   * @throws AWException Error counting the executions
+   */
+  public ServiceData getExecutionCounters(String taskName) throws AWException {
+    return executionPresenter.getExecutionCounters(taskName);
   }
 
   /**
@@ -525,6 +1015,32 @@ public class TaskDAO extends ServiceConfig {
   }
 
   /**
+   * Parameters of the task whose operator supplied value is not a value of their type. An empty list means every
+   * supplied value can be used.
+   *
+   * @param taskId    Task identifier
+   * @param variables Operator supplied values (parameter name -&gt; value); null for none
+   * @return Names of the parameters with a value that is not valid, in parameter order
+   * @throws AWException Error loading the task
+   */
+  public List<String> findInvalidParameterValues(Integer taskId, Map<String, String> variables) throws AWException {
+    return immediateLauncher.findInvalidValues(taskId, variables);
+  }
+
+  /**
+   * Property parameters of the task whose operator supplied value changes their key: a launch cannot change it. An
+   * empty list means no key changes.
+   *
+   * @param taskId    Task identifier
+   * @param variables Operator supplied values (parameter name -&gt; value); null for none
+   * @return Names of the property parameters whose key would change, in parameter order
+   * @throws AWException Error loading the task
+   */
+  public List<String> findChangedPropertyKeys(Integer taskId, Map<String, String> variables) throws AWException {
+    return immediateLauncher.findChangedPropertyKeys(taskId, variables);
+  }
+
+  /**
    * Execute the task as dependency, without propagating any parent parameter value.
    *
    * @param taskId          Task identifier
@@ -604,6 +1120,19 @@ public class TaskDAO extends ServiceConfig {
   }
 
   /**
+   * Load execution screen parameters of the execution of the button address, else of the button value, else of the
+   * selected row
+   *
+   * @param path            Execution log locator of the button value ({@code "{taskId}-{executionId}"})
+   * @param address         Button address
+   * @param selectedLocator Execution log locator of the selected row
+   * @return ServiceData
+   */
+  public ServiceData loadExecutionScreen(String path, ObjectNode address, String selectedLocator) throws AWException {
+    return executionPresenter.loadExecutionScreen(path, address, selectedLocator);
+  }
+
+  /**
    * Retrieve the execution log window from a line offset (get-execution-log action), in both store modes.
    *
    * @param taskId        Task identifier
@@ -617,6 +1146,34 @@ public class TaskDAO extends ServiceConfig {
    */
   public ServiceData getExecutionLog(Integer taskId, Integer executionId, Integer offset, String clientVersion) throws AWException {
     return executionPresenter.getExecutionLog(taskId, executionId, offset, clientVersion);
+  }
+
+  /**
+   * Progress of an execution as the fields of a card
+   *
+   * @param taskId      Task identifier
+   * @param executionId Execution identifier
+   * @return Service data
+   * @throws AWException Error reading the execution
+   * @see TaskExecutionPresenter#getExecutionProgress(Integer, Integer)
+   */
+  public ServiceData getExecutionProgress(Integer taskId, Integer executionId) throws AWException {
+    return executionPresenter.getExecutionProgress(taskId, executionId);
+  }
+
+  /**
+   * Launch parameters of an execution: the ones stored with its flow run, operator values and resolved parameters of
+   * the root task
+   *
+   * @param runId Flow run identifier of the execution
+   * @return Service data with one row per parameter, none without run
+   * @throws AWException Error reading the run parameters
+   * @see FlowRunRepository#getLaunchParameters(String)
+   */
+  public ServiceData getExecutionParameters(String runId) throws AWException {
+    return executionPresenter.getExecutionParameters(runId == null || runId.isBlank()
+      ? Map.of()
+      : flowRunRepository.getLaunchParameters(runId));
   }
 
   /**
@@ -688,6 +1245,24 @@ public class TaskDAO extends ServiceConfig {
       children.computeIfAbsent(dependency.getParentId(), key -> new ArrayList<>()).add(dependency.getTaskId());
     }
     return children;
+  }
+
+  /**
+   * Check if the session user holds the permission of a query, as the launches of the clients are checked: when the
+   * authorization is not enforced every query can be launched. Without the security beans (outside the application)
+   * nothing is granted
+   *
+   * @param queryId Query identifier
+   * @return The user may read what the query reads
+   */
+  private boolean canLaunchQuery(String queryId) {
+    try {
+      return getBean(SecurityConfigProperties.class).getAuthorization().getMode() != AuthorizationMode.ENFORCE
+        || getBean(PermissionTargetAuthorizer.class).canLaunch(queryId, TargetKind.QUERY);
+    } catch (RuntimeException exc) {
+      log.warn("The permission of the query {} cannot be checked: it is not granted", queryId, exc);
+      return false;
+    }
   }
 
   /**

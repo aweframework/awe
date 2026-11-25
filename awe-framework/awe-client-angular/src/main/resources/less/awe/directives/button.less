@@ -263,6 +263,19 @@
   width: var(--awe-size-control-lg);
 }
 
+// Button that opens a menu (style has-menu): a small chevron after its label, in the colour of the label
+.btn.btn-awe .awe-button-menu-chevron {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  margin-left: var(--awe-space-1-5);
+
+  svg {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+}
+
 // Focus ring (pixel-admin removes the outline of every button): the keyboard focus, and the focus AWE moves to a button
 // (the focused class of the criterion service)
 .btn.btn-awe:focus-visible,

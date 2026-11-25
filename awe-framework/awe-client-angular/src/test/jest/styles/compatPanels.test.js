@@ -203,10 +203,9 @@ describe("awe-framework/awe-client-angular/src/test/jest/styles/compatPanels", (
 
     // Elements that carry one of these classes and a class with an unlayered !important rule on an overlapping property, checked by hand.
     // Both sides are !important, so the layered compat rule wins; each pair resolves to the same computed value as the vendored cascade
-    const REVIEWED = [
-      // border: none !important already computes a 0 width (style none), as no-border does; written on the panel and on its footer
-      "panel-transparent .no-border border-width [no-border]"
-    ];
+    // No reviewed conflict: no source writes panel-transparent and no-border together since the scheduler launch
+    // variables dropped them (#993)
+    const REVIEWED = [];
 
     it("has no element in the framework that carries one of these classes and a class whose unlayered !important rule sets another value", () => {
       const {important, candidates, conflicts} = importantConflicts(vendored, compat, CLASSES, selectorsOf, normalize);

@@ -38,6 +38,7 @@ export interface AbstractCriteria extends Component {
     formule?: string;
     group?: string;
     inputType?: string;
+    keepOnReload?: boolean;
     leftLabel?: number;
     message?: string;
     numberFormat?: string;
@@ -88,6 +89,7 @@ export interface AbstractGrid extends AbstractCriteria {
     multiselect?: boolean;
     pagerValues?: number[];
     quickFilter?: string;
+    quickFilters?: string[];
     rowDetail?: { [index: string]: any };
     rowHeight?: string;
     rowNumbers?: boolean;
@@ -96,11 +98,13 @@ export interface AbstractGrid extends AbstractCriteria {
     search?: string;
     selectable?: boolean;
     sendAll?: boolean;
+    sendWhenHidden?: boolean;
     showColumnsButton?: boolean;
     showMaximizeButton?: boolean;
     showToolbar?: boolean;
     showTotals?: boolean;
     sortList?: SortColumn[];
+    toolbarCriteria?: string[];
     toolbarLabels?: string[];
     totalize?: string;
     treegrid?: boolean;
@@ -163,6 +167,7 @@ export interface Card extends Component {
     footer?: string;
     goodTrend?: string;
     iconTone?: string;
+    maximize?: boolean;
     numberDecimals?: number;
     progressStyle?: string;
     sparkline?: string;
@@ -273,6 +278,7 @@ export interface Column extends AbstractCriteria {
     iconField?: string;
     maxChips?: number;
     maxLines?: number;
+    minWidth?: number;
     movable?: boolean;
     pagebreak?: boolean;
     position?: string;
@@ -465,6 +471,9 @@ export interface GridDefaultSearch {
 }
 
 export interface GridSearch extends AbstractCriteria {
+}
+
+export interface GridToolbarCriteria extends AbstractCriteria {
 }
 
 export interface GroupHeader extends Element {

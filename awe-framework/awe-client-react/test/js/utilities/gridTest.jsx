@@ -111,6 +111,11 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
     expect(getWidthStyle(null, "*")).toEqual(fill);
   });
 
+  it('keeps a column with width "*" at least as wide as its min-width, so the grid scrolls instead of squeezing it (#993)', () => {
+    expect(getWidthStyle(22, "*", null, 200)).toEqual({width: "100%", maxWidth: "0", overflow: "hidden", minWidth: "200px"});
+    expect(getWidthStyle(22, 120, null, 200)).toEqual({flex: '0 0 208px', width: "208px", minWidth: "208px"});
+  });
+
   it('keeps the width of a column with charlength and no width', () => {
     expect(getWidthStyle(26, null)).toEqual({flex: '0 0 240px', width: "240px", minWidth: "240px"});
   });
@@ -194,6 +199,24 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
     };
     const data = getGridData(grid, model, {}, false);
     expect(data.tags).toEqual([["a", "b"]]);
+  });
+
+  describe('send-when-hidden', () => {
+    const hiddenGrid = (sendWhenHidden) => ({
+      address: {component: "GrdRun", view: "base"},
+      attributes: {id: "GrdRun", visible: false, sendWhenHidden, columnModel: [{name: "IdeTsk", sendable: true}]}
+    });
+    const model = {values: [{id: "1-2", IdeTsk: 1, selected: true}]};
+
+    it('a hidden grid with sendWhenHidden false sends none of its values', () => {
+      expect(getGridData(hiddenGrid(false), model, {}, false)).toEqual({});
+    });
+
+    it('a hidden grid sends its values by default', () => {
+      const data = getGridData(hiddenGrid(undefined), model, {}, false);
+      expect(data["IdeTsk.selected"]).toBe(1);
+      expect(data["GrdRun.selected"]).toBe("1-2");
+    });
   });
 
   describe('moveRowInValues', () => {

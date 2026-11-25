@@ -1,0 +1,150 @@
+/* Choice cards (#993): a button-radio criterion with options and style="awe-choice-cards". One card per option with
+   its icon, its label and its description, a tick at the top right; the chosen card has the primary border and the
+   primary subtle background. Shared by both engines (the AngularJS engine imports this file): the React card is a
+   button with role radio, the AngularJS card a label around a visually hidden native radio */
+.awe-choice-cards-group {
+  display: grid;
+  /* As many columns of at least 15rem (3.75 × --awe-space-16) as fit: three in a section card of a wide screen, then two
+     and one; escaped so LESS leaves the CSS min() alone */
+  grid-template-columns: repeat(auto-fill, minmax(~"min(100%, calc(var(--awe-space-16) * 3.75))", 1fr));
+  gap: var(--awe-space-3);
+  width: 100%;
+}
+
+.awe-choice-cards-group .awe-choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--awe-space-1);
+  margin: 0;
+  padding: var(--awe-space-3) var(--awe-space-8) var(--awe-space-3) var(--awe-space-3);
+  font: inherit;
+  font-weight: var(--awe-font-weight-normal);
+  color: var(--awe-color-text);
+  text-align: left;
+  cursor: pointer;
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-lg);
+  transition: border-color var(--awe-motion-duration-base) var(--awe-motion-easing-standard),
+    background-color var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+}
+
+.awe-choice-cards-group .awe-choice:hover {
+  border-color: var(--awe-color-field-border-hover);
+}
+
+.awe-choice-cards-group .awe-choice:focus-visible,
+.awe-choice-cards-group .awe-choice:has(.awe-choice-input:focus-visible) {
+  outline: var(--awe-focus-ring);
+  outline-offset: var(--awe-focus-ring-offset);
+}
+
+/* The native radio of an AngularJS card: kept for the semantics and the keys, not drawn */
+.awe-choice-cards-group .awe-choice-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.awe-choice-cards-group .awe-choice-head {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-semibold);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text-emphasis);
+}
+
+.awe-choice-cards-group .awe-choice-icon {
+  display: inline-flex;
+  flex: none;
+  color: var(--awe-color-text-muted);
+}
+
+.awe-choice-cards-group .awe-choice-description {
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text-muted);
+}
+
+.awe-choice-cards-group .awe-choice-tick {
+  position: absolute;
+  top: var(--awe-space-3);
+  right: var(--awe-space-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--awe-size-checkbox);
+  height: var(--awe-size-checkbox);
+  line-height: 0;
+  color: var(--awe-color-on-primary);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-full);
+}
+
+/* The check: the icon element of the engine (an i or a span around the svg) centred in the circle, without the gap an
+   icon keeps before a text */
+.awe-choice-cards-group .awe-choice-tick > * {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--awe-size-icon-sm);
+  height: var(--awe-size-icon-sm);
+  margin: 0;
+  padding: 0;
+  visibility: hidden;
+}
+
+.awe-choice-cards-group .awe-choice-tick svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
+.awe-choice-cards-group .awe-choice.awe-choice-checked {
+  background: var(--awe-color-primary-subtle);
+  border-color: var(--awe-color-primary);
+  box-shadow: inset 0 0 0 var(--awe-border-width) var(--awe-color-primary);
+}
+
+.awe-choice-cards-group .awe-choice.awe-choice-checked .awe-choice-icon {
+  color: var(--awe-color-primary-text);
+}
+
+.awe-choice-cards-group .awe-choice.awe-choice-checked .awe-choice-description {
+  color: var(--awe-color-on-primary-subtle);
+}
+
+.awe-choice-cards-group .awe-choice.awe-choice-checked .awe-choice-tick {
+  background: var(--awe-color-primary);
+  border-color: var(--awe-color-primary);
+}
+
+.awe-choice-cards-group .awe-choice.awe-choice-checked .awe-choice-tick > * {
+  visibility: visible;
+}
+
+/* Read-only: the disabled colours, no hover */
+.awe-choice-cards-group .awe-choice.disabled,
+.awe-choice-cards-group .awe-choice[aria-disabled="true"] {
+  cursor: not-allowed;
+  color: var(--awe-color-disabled-text);
+  background: var(--awe-color-disabled);
+  border-color: var(--awe-color-disabled-border);
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awe-choice-cards-group .awe-choice {
+    transition: none;
+  }
+}

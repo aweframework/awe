@@ -29,6 +29,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Class used for testing queries through CalendarDAO class
@@ -156,6 +158,30 @@ class CalendarDAOTest {
 
     // Check that controller are active
     assertEquals(new ServiceData().setTitle("LOCALE").setMessage("LOCALE"), calendarDAO.checkTriggersContainsCalendar());
+  }
+
+  /**
+   * A task that uses the calendar but has no trigger in Quartz (inactive, or launched on demand) has nothing to
+   * reschedule: deleting or deactivating the calendar skips it and goes on (#993, «Borrar y quitarlo de la tarea»)
+   */
+  @Test
+  void aTaskWithoutTriggerIsSkippedWhenTheCalendarIsDeletedOrDeactivated() throws Exception {
+    given(queryUtil.getParameters()).willReturn(JsonNodeFactory.instance.objectNode());
+    DataList dataList = new DataList();
+    Map<String, CellData> row = new HashMap<>();
+    row.put("taskId", new CellData(7));
+    row.put("launchType", new CellData(0));
+    row.put("calendarId", new CellData(1));
+    dataList.addRow(row);
+    given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class)))
+      .willReturn(new ServiceData().setDataList(dataList));
+    given(scheduler.getTrigger(any())).willReturn(null);
+
+    calendarDAO.deactivateCalendars(List.of(1));
+    calendarDAO.deleteSchedulerCalendar(List.of(1));
+
+    verify(scheduler, never()).rescheduleJob(any(), any());
+    verify(scheduler).deleteCalendar("1");
   }
 
   /**

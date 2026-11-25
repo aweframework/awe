@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdLinkTst.xml
+    Description: Grid with link columns (#993): a link without actions opens the address of the cell in a new tab (the
+                 documentation); a link with a screen action selects its row and opens the GrdLinkTstDet screen, which
+                 shows the run and the task it receives; a link with a confirm and a maintain action asks before relaunching
+                 the task and answers with the task of the row, without leaving the screen; a status strip column
+                 draws the last ten executions of every run
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_LINK">
+  <tag source="hidden">
+    <message id="RerunMsg" title="CONFIRM_TITLE_LINK_RERUN" message="CONFIRM_MESSAGE_LINK_RERUN"/>
+  </tag>
+  <tag source="center">
+    <window style="expand" label="SCREEN_TITLE_GRID_LINK" expandible="vertical">
+      <grid id="GrdLinkTst" style="expand" initial-load="query" server-action="data" target-action="LinkTst" max="30">
+        <column label="COLUMN_LINK_TST_RUN" name="run" title="COLUMN_LINK_TST_RUN_TITLE" component="link" align="left" charlength="10">
+          <button-action type="screen" target="matrix-test-link-detail"/>
+        </column>
+        <column label="COLUMN_LINK_TST_TASK" name="task" title="COLUMN_LINK_TST_TASK_TITLE" component="link" align="left" charlength="25">
+          <button-action type="confirm" target="RerunMsg"/>
+          <button-action type="server" server-action="maintain" target-action="LinkTstRerun"/>
+        </column>
+        <column label="COLUMN_LINK_TST_STATUS" name="status" align="left" charlength="12"/>
+        <column label="COLUMN_LINK_TST_DOC" name="doc" component="link" align="left" charlength="18"/>
+        <column label="COLUMN_LINK_TST_HISTORY" name="history" component="status-strip" align="left" charlength="14"/>
+      </grid>
+    </window>
+  </tag>
+</screen>

@@ -495,6 +495,26 @@ describe('awe-react-client/test/js/components/AweButtonTest.jsx styles', () => {
     });
   });
 
+  describe('menu buttons (style="has-menu")', () => {
+    it('draws a trailing chevron after the label and tells that the button opens a menu', () => {
+      const button = renderStyled({ label: 'Scheduler', icon: 'lucide:cpu', style: 'has-menu' });
+
+      const chevron = button.querySelector('.awe-button-menu-chevron');
+      expect(chevron).not.toBeNull();
+      expect(chevron.getAttribute('aria-hidden')).toBe('true');
+      expect(button.querySelector('.p-button-label').compareDocumentPosition(chevron) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(button.getAttribute('aria-haspopup')).toBe('menu');
+      expect(button.querySelector('.p-button-label').textContent).toBe('Scheduler');
+    });
+
+    it('draws no chevron on a button without the style', () => {
+      const button = renderStyled({ label: 'Print' });
+
+      expect(button.querySelector('.awe-button-menu-chevron')).toBeNull();
+      expect(button.hasAttribute('aria-haspopup')).toBe(false);
+    });
+  });
+
   describe('with child elements (a type="div" button, as the notification rows)', () => {
     const children = [
       { elementType: 'Tag', type: 'div', style: 'notification-title', label: 'Late shipments' },

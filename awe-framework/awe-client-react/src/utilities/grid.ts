@@ -54,6 +54,10 @@ export interface GridAttributes {
   multioperation?: boolean;
   showTotals?: boolean;
   columnModel?: GridColumn[];
+  /** Hidden by a dependency (false) */
+  visible?: boolean;
+  /** Send the values of the grid while it is hidden (default true) */
+  sendWhenHidden?: boolean;
   [key: string]: unknown;
 }
 
@@ -589,11 +593,15 @@ export function getRowNumberWidthStyle(first: number = 0, rows: number = 0): Par
  * minimum width keeps the column at its width: the table of a grid (automatic layout) would squeeze it to fit, and the
  * grid scrolls instead, as the prototype. A column with width "*" takes the rest of the width (whatever its charlength,
  * as in the AngularJS engine) and shrinks below its content (its text ends in an ellipsis), so the other columns stay
- * in view
+ * in view. Its min-width (pixels) is the width it keeps when the other columns take the width of the grid, which then
+ * scrolls (#993)
+ * @param minWidth Minimum width in pixels of a column with width "*" (ignored in the other columns)
  */
-export function getWidthStyle(charLength: number | null = null, width: number | string | null = null, fixedWidth: string | null = null): Partial<WidthStyle> {
+export function getWidthStyle(charLength: number | null = null, width: number | string | null = null, fixedWidth: string | null = null,
+  minWidth: number | null = null): Partial<WidthStyle> {
   if (width === FILL_WIDTH) {
-    return {width: "100%", maxWidth: "0", overflow: "hidden"};
+    const fill: Partial<WidthStyle> = {width: "100%", maxWidth: "0", overflow: "hidden"};
+    return isNumber(minWidth) && minWidth > 0 ? {...fill, minWidth: `${minWidth}px`} : fill;
   }
   let calculatedWidth: string;
   if (isNumber(charLength) || isNumber(width)) {
@@ -796,6 +804,10 @@ export function getGridData(
   forPrinting?: boolean
 ): Record<string, unknown> {
   const {attributes, address} = grid;
+  // A hidden grid that does not send its values while hidden (send-when-hidden="false") sends none of them
+  if (attributes.sendWhenHidden === false && attributes.visible === false) {
+    return {};
+  }
   const {values} = model;
   const {sendAll, editable, multioperation, columnModel, id} = attributes;
   const selected = values.filter((value) => value.selected);

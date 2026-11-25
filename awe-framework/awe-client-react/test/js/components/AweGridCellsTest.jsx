@@ -55,7 +55,8 @@ describe("awe-react-client/test/js/components/AweGridCellsTest.jsx", () => {
   });
 
   describe("status", () => {
-    it.each(["success", "warning", "danger", "info", "neutral"])("shows the %s tone as a dot and the text", (tone) => {
+    // pending (#993): the warning tone with a dashed border, for a state that waits (a deferred execution)
+    it.each(["success", "warning", "danger", "info", "neutral", "pending"])("shows the %s tone as a dot and the text", (tone) => {
       expect(cellHtml({ statusField: "tone" }, { value: "State" }, { tone }))
         .toBe(`<span class="awe-cell-status awe-cell-status-${tone}" data-tone="${tone}" title="State">State</span>`);
     });
@@ -275,6 +276,15 @@ describe("awe-react-client/test/js/components/AweGridCellsTest.jsx", () => {
         .toBe('<div class="awe-cell-lines"><span class="awe-cell-main">'
           + `<span class="awe-cell-status awe-cell-status-success awe-cell-status-plain" data-tone="success" title="On">${ICON}On</span></span>`
           + '<span class="awe-cell-secondary">2026</span></div>');
+    });
+
+    it("cuts the main line of a column with max-lines and keeps its full text for the tooltip (#993)", () => {
+      const { container } = render(<div>{Columns({ address, iconField: "icn", secondaryField: "sub", maxLines: 2 },
+        { value: "After Import statements and Update positions" }, {}, false, { icn: "lucide:shield-check", sub: "if it ends OK" })}</div>);
+      const main = container.querySelector(".awe-cell-main");
+      expect(main.getAttribute("data-full-text")).toBe("After Import statements and Update positions");
+      expect(main.tabIndex).toBe(0);
+      expect(container.querySelector(".awe-cell-secondary").textContent).toBe("if it ends OK");
     });
 
     it("renders the value as text and the icon as decorative", () => {

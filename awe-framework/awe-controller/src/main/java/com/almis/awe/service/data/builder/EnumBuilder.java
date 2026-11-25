@@ -153,6 +153,11 @@ public class EnumBuilder extends ServiceConfig {
       data.put(JSON_VALUE_PARAMETER, option.getValue());
     }
 
+    // The icon of the option, only when it has one: an option without icon keeps its keys
+    if (option.getIcon() != null) {
+      data.put(JSON_ICON_PARAMETER, option.getIcon());
+    }
+
     return data;
   }
 
@@ -171,6 +176,9 @@ public class EnumBuilder extends ServiceConfig {
       row.put(JSON_ID_PARAMETER, new CellData(rowIndex));
       row.put(JSON_LABEL_PARAMETER, new CellData(option.getLabel()));
       row.put(JSON_VALUE_PARAMETER,  new CellData(option.getValue()));
+      if (option.getIcon() != null) {
+        row.put(JSON_ICON_PARAMETER, new CellData(option.getIcon()));
+      }
     }
     return row;
   }

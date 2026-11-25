@@ -8,9 +8,14 @@ import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.http.codec.json.JacksonJsonDecoder;
+import org.springframework.http.codec.json.JacksonJsonEncoder;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.net.URI;
 import java.util.HashMap;
@@ -44,6 +49,7 @@ public class ReportJobService {
    * @param isRemoteSecureEnabled  Remote is secured enabled
    * @param remoteUser             Remote user
    * @param remotePassword         Remote password
+   * @param mapper                 AWE JSON mapper, used to write the request and read the answer of the application
    */
 
   public ReportJobService(SchedulerReportService schedulerReportService,
@@ -51,14 +57,34 @@ public class ReportJobService {
                           URI remoteUrl,
                           boolean isRemoteSecureEnabled,
                           String remoteUser,
-                          String remotePassword) {
+                          String remotePassword,
+                          ObjectMapper mapper) {
     this.schedulerReportService = schedulerReportService;
     this.isSchedulerInstance = isSchedulerInstance;
     this.remoteUrl = remoteUrl;
     this.isRemoteSecureEnabled = isRemoteSecureEnabled;
     this.remoteUser = remoteUser;
     this.remotePassword = remotePassword;
-    this.webClient = Optional.ofNullable(remoteUrl).map(URI::toString).map(WebClient::create).orElse(null);
+    this.webClient = Optional.ofNullable(remoteUrl)
+      .map(url -> WebClient.builder().baseUrl(url.toString()).exchangeStrategies(exchangeStrategies(mapper)).build())
+      .orElse(null);
+  }
+
+  /**
+   * Codecs of the remote report client: JSON is written and read with the AWE mapper, so enums travel by name
+   * as the application writes them
+   *
+   * @param mapper AWE JSON mapper
+   * @return Exchange strategies
+   */
+  static ExchangeStrategies exchangeStrategies(ObjectMapper mapper) {
+    JsonMapper jsonMapper = (JsonMapper) mapper;
+    return ExchangeStrategies.builder()
+      .codecs(codecs -> {
+        codecs.defaultCodecs().jacksonJsonDecoder(new JacksonJsonDecoder(jsonMapper));
+        codecs.defaultCodecs().jacksonJsonEncoder(new JacksonJsonEncoder(jsonMapper));
+      })
+      .build();
   }
 
   public void execute(Task task, TaskExecution execution) {

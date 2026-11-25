@@ -39,6 +39,7 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
   ...
   <search ... />
   <quick-filter ... />
+  <toolbar-criteria ... > ... </toolbar-criteria>
 </grid>
 ```
 ## Grid structure
@@ -78,6 +79,7 @@ To define a **grid** or a **treegrid** in AWE you must follow the next structure
 | show-toolbar        | Optional     | Boolean | Shows the [toolbar](#toolbar) of the grid, with the Columns dialog and the Maximize button                                | Default value is `true`. Set `false` to opt out (the [quick filters](#quick-filters) of the grid are still shown) |
 | show-columns-button | Optional     | Boolean | Shows the Columns button of the [toolbar](#toolbar). When it is hidden, the column layout stored by the user is ignored (neither applied nor saved) | Default value is `true`. `show-toolbar="false"` hides it too |
 | show-maximize-button | Optional    | Boolean | Shows the Maximize button of the [toolbar](#toolbar)                                                                      | Default value is `true`. `show-toolbar="false"` hides it too |
+| send-when-hidden | Optional    | Boolean | Sends the values of the grid (its columns, their selected values, its selected rows) with the requests of the screen while the grid is hidden by a `show`/`hide` [dependency](dependencies.md) on the grid. With `false` a hidden grid sends none of them, so two grids of a screen that are shown one at a time can use the same column names (the visible one is the one the targets read; the column names of a grid are unique in the grid). Both engines | Default value is `true` |
 | toolbar-labels      | Optional     | String  | Which end buttons of the [toolbar](#toolbar) show their label: `true` (all), `false` (none, only the icon with the label as tooltip) or a comma-separated list of `group-by`, `saved-searches`, `columns` and `maximize`. See [labels of the toolbar buttons](#toolbar-labels) | Default: [`grid-toolbar-labels`](../properties.md#awe.application.component.grid-toolbar-labels) (`false`, icon only) |
 | columns-panel       | Optional     | String  | How the [toolbar](#toolbar) shows the Columns: a popover anchored to the Columns button, a modal dialog or a [side panel](side-panel.md) anchored to the right edge | `popover`, `dialog` or `side-panel`. Default: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`popover`) |
 | move-rows           | Optional     | Boolean | Adds a leading column with a grip to [move the rows by dragging them](#drag-and-drop). Not available in tree grids         | Default value is `false` |
@@ -259,7 +261,8 @@ a `<quick-filter>` inside the grid. It works in **both client engines**.
 | target-action | **Required** | String | Query or enumerated that returns the options                                                         |        |
 | server-action | Optional     | String | Server action that reloads the options                                                               | Default value is `data` |
 | value         | Optional     | String | Option chosen when the screen is opened                                                              | Default: empty, the option with an empty value (*All*) |
-| label         | Optional     | String | Accessible name of the group of buttons, read by screen readers. It is not shown                     | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default value is `SCREEN_TEXT_FILTERS` |
+| label         | Optional     | String | Name of the quick filter. The segmented control only reads it (screen readers); a `dropdown` shows it before the chosen option (*Origin: All*) and a `date-range` only reads it | **Note:** You can use [i18n](i18n-internationalization.md) files (locales). Default value is `SCREEN_TEXT_FILTERS` |
+| display       | Optional     | String | How the toolbar shows it: a [segmented control](#quick-filters), a [dropdown button](#dropdown-and-date-range-quick-filters) or a [date range button](#dropdown-and-date-range-quick-filters) | `segmented` (default), `dropdown` or `date-range` |
 
 **Options.** The target returns one row per option, in the order they are shown:
 
@@ -328,7 +331,110 @@ of *All* leaves the grid unfiltered:
   control.
 - The toolbar shows the quick filters also when the grid sets `show-toolbar="false"`: only the row grouping controls and
   the Columns and Maximize buttons are hidden.
-- Declare at most one per grid; only the first one is used.
+- A grid can declare several quick filters: the toolbar shows them in the order of the XML, each one its own group of
+  buttons. Each one is a criterion with its own `id`, options and optional counts; all of them are sent with the grid,
+  choosing an option in any of them filters the grid, and every filter of the grid reloads all of them, so the counts of
+  one follow the others. Give each one a `label`, so screen readers tell the groups apart. A grid with one quick filter
+  works as before.
+- The first quick filter is the main one: the [saved searches](#saved-searches), the default search and the context of
+  the [selection bar](#selection-bar) read only that one.
+- For fixed options without counts, point the target to a query that reads an enumerated
+  (`<query id="..." enumerated="...">` with the fields `value` and `label`).
+
+#### Dropdown and date range quick filters
+
+Several segmented controls soon fill the toolbar. A quick filter with `display="dropdown"` is a compact button instead,
+**Label: chosen option** with a chevron (*Origin: All*), and `display="date-range"` is a date button with the current
+range (*Any date*, *Last 24 h*... or *01/11/2026 – 02/11/2026*). Both work in **both client engines**.
+
+```xml
+<grid id="GrdExeAct" initial-load="query" server-action="data" target-action="getActivityExecutionList">
+  <search id="CrtExeTsk" placeholder="SCREEN_TEXT_ACTIVITY_SEARCH"/>
+  <quick-filter id="CrtExeQck" initial-load="query" target-action="getActivityStateCounts" label="PARAMETER_STATUS" value=""/>
+  <quick-filter id="CrtExeOri" initial-load="query" target-action="getActivityOrigins" label="PARAMETER_ACTIVITY_ORIGIN" value=""
+                display="dropdown"/>
+  <quick-filter id="CrtExeWin" initial-load="query" target-action="getActivityWindows" label="PARAMETER_STARTED_AT" value=""
+                display="date-range"/>
+  ...
+</grid>
+```
+
+**Dropdown.** The button opens a menu with the options (and their counts, with their tones); the chosen one is checked.
+Choosing an option filters the grid exactly as the segmented control does: the same options, the same value sent with
+the grid, the same reload of the counts. It is a menu button: <kbd>Enter</kbd>, <kbd>Space</kbd> or the arrow keys open
+it on the chosen option, the arrows, <kbd>Home</kbd> and <kbd>End</kbd> move, <kbd>Escape</kbd> closes it and gives the
+focus back to the button, and a click out of it closes it.
+
+**Date range.** The options are the predefined ranges, with values that the query of the grid understands (for instance
+the last hours `24`, `168`, `720`) and an empty value for *any date*. The menu lists them and **Custom range…**, which
+shows two dates (*From* and *To*, the date picker of the engine) with **Clear** and **Apply**. The quick filter sends:
+
+| Parameter  | Value |
+|------------|-------|
+| `<id>`      | The chosen preset; `null` while a custom range is set |
+| `<id>.from` | First day of the custom range (`dd/MM/yyyy`); `null` without a custom range or without a start |
+| `<id>.to`   | Last day of the custom range (`dd/MM/yyyy`); `null` without a custom range or without an end |
+
+The two dates are named as the ones of the [date range criterion](criteria.md#date-range-criterion). Choosing a preset
+clears the custom range, **Apply** sets the range (with no preset), and **Clear** goes back to the option with an empty
+value. The end of the range cannot be before its start, but validate both parameters on the server too: the query or
+the service of the grid reads them as any other parameter.
+
+```xml
+<query id="getActivityExecutionList" service="getActivityExecutionList">
+  ...
+  <variable id="withinHours" type="INTEGER" name="CrtExeWin"/>
+  <variable id="startFrom" type="STRINGN" name="CrtExeWin.from"/>
+  <variable id="startTo" type="STRINGN" name="CrtExeWin.to"/>
+</query>
+```
+
+### Toolbar criteria
+
+A grid can show criteria of its own in its [toolbar](#toolbar): a control of the view of the grid that is not a filter of
+its rows, such as a switch that shows the rows grouped in another grid. Declare a `<toolbar-criteria>` inside the grid.
+It works in **both client engines**.
+
+```xml
+<grid id="GrdExeAct" server-action="data" target-action="getActivityExecutionList" initial-load="query">
+  <search id="CrtExeTsk" placeholder="SCREEN_TEXT_ACTIVITY_SEARCH"/>
+  <quick-filter id="CrtExeQck" initial-load="query" target-action="getActivityStateCounts" value=""/>
+  <toolbar-criteria id="ActGrpFlw" component="checkbox" label="PARAMETER_ACTIVITY_GROUP_BY_FLOW" style="switch no-label">
+    <dependency>
+      <dependency-element id="ActGrpFlw" condition="eq" value="1"/>
+      <dependency-action type="filter" target="GrdExeRun"/>
+    </dependency>
+  </toolbar-criteria>
+  ...
+</grid>
+```
+
+A `<toolbar-criteria>` is a [criterion](criteria.md) of any component (`checkbox` with `style="switch no-label"`,
+`select`...) with its attributes and its content: its value, its initial load, its dependencies and its context menu.
+It works as any criterion of the screen: its value is sent with the requests of the screen as a variable named like its
+`id` and its dependencies run when it changes. Only its place changes:
+
+- The toolbar shows it at the end, just before the *Columns* button (before *Maximize* when the grid hides *Columns*),
+  after the search, the quick filters and the Saved searches, in the order of the XML.
+- The toolbar is shown for it also when the grid sets `show-toolbar="false"`, and a hidden grid hides it with its
+  toolbar.
+- Its `id` is unique in the screen, as any criterion. When two grids that replace each other show the same control (a
+  list and its tree view), each grid declares its own toolbar criterion and keeps it in sync with dependencies that read
+  one switch each, so a change never comes back to the switch it came from: the copy is turned on when the first switch
+  is turned on, and turning the copy off resets the first switch (the value of a switch that is off is empty, and an
+  empty value is not copied):
+
+```xml
+<toolbar-criteria id="ActGrpFlwRun" component="checkbox" label="PARAMETER_ACTIVITY_GROUP_BY_FLOW" style="switch no-label">
+  <dependency source-type="launcher" target-type="input" target-action="value">
+    <dependency-element id="ActGrpFlw" condition="eq" value="1" alias="value"/>
+  </dependency>
+  <dependency>
+    <dependency-element id="ActGrpFlwRun" condition="ne" value="1"/>
+    <dependency-action type="reset" target="ActGrpFlw" silent="true"/>
+  </dependency>
+</toolbar-criteria>
+```
 
 ### Column autofilter
 
@@ -716,7 +822,8 @@ each country, inline and through an include) in the matrix test menu.
 | hidden     | Optional     | Boolean | Column is **not** visible on screen. It can still be printed, see [printing columns](#printing-columns)                           | Default value is `false`                                                         |
 | printable  | Optional     | String  | Whether the column is included in the printed report. See [printing columns](#printing-columns)                                   | `true` (default) or `false`                                                      |
 | align      | Optional     | String  | Column is **not** visible                                                                                                         | `left`, `center` or `right`                                                      |
-| width      | Optional     | Integer | Column width in pixels or percent.                                                                                                | Ex.: `width = "10"` or `width = "20%"` **Note:** You can use '*' value for auto: the column takes the rest of the width of the grid (its `charlength` is ignored). |
+| width      | Optional     | Integer | Column width in pixels or percent.                                                                                                | Ex.: `width = "10"` or `width = "20%"` **Note:** You can use '*' value for auto: the column takes the rest of the width of the grid (its `charlength` is ignored), never less than its `min-width`. |
+| min-width  | Optional     | Integer | Minimum width in pixels of the column with `width="*"`, in both engines: when the other columns take the width of the grid, it keeps this width and the grid scrolls horizontally instead of squeezing it. Ignored in the other columns | Ex.: `min-width="200"`. Without it the column can shrink to nothing |
 | sortable   | Optional     | Boolean | Field is sortable (if not treegrid)                                                                                               | Default value is `true`                                                          |
 | movable    | Optional     | Boolean | Allows to move column position in the grid                                                                                        | Default value is `true`                                                          |
 | sendable   | Optional     | Boolean | Column data must be sent to the server                                                                                            | Default value is `true`                                                          |
@@ -724,7 +831,7 @@ each country, inline and through an include) in the matrix test menu.
 | label      | Optional     | String  | Column label                                                                                                                      | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)       |
 | style      | Optional     | String  | Column css class                                                                                                                  | Css class to apply to the column                                                 |
 | component  | Optional     | String  | Column type (if editable)                                                                                                         | See [components](criteria.md#components)                                         |
-| permission | Optional     | String  | Permissions the user needs to see a column of component `button`. It replaces what is derived from the targets of its actions. See [screen elements](../security/permissions.md#screen-elements) | Permission identifiers separated by spaces, all required |
+| permission | Optional     | String  | Permissions the user needs to see a column of component `button`, or of component `link` with `button-action`. It replaces what is derived from the targets of its actions. See [screen elements](../security/permissions.md#screen-elements) | Permission identifiers separated by spaces, all required |
 | max        | Optional     | Integer | Max number of records to retrieve when the column is initialized with target-action                                               | Default value is `30`                                                            |
 | visibility | Optional     | Boolean | Initial visibility of the column component                                                                                        | Default value is `true`                                                          |
 | frozen     | Optional     | Boolean | Keep the column fixed out of the horizontal scroll. **WARNING**: Don't use this attribute if header has more than one line height. In the React engine the frozen columns move to the left, and a grid with frozen columns keeps its single-line rows (`wrap` and `max-lines` are ignored); a grouped header or a tree grid does not freeze columns in React yet | Default value is `false`                                                         |
@@ -733,7 +840,7 @@ each country, inline and through an include) in the matrix test menu.
 | secondary-field  | Optional | String  | Row field shown under the main value, smaller and muted. See [secondary line, status and chips](#secondary-line-status-and-chips) | Name of another field of the row                                       |
 | export-secondary | Optional | Boolean | The spreadsheet exports (XLSX, CSV) add a column with the secondary field right after this one. Documents print it under the value, see [what a grid prints](../guides/print-guide.md#what-a-printed-grid-shows) | Default value is `false`                                                         |
 | secondary-label  | Optional | String  | Title of the exported secondary column                                                                                          | Default: the label of the column. **Note:** You can use [i18n](i18n-internationalization.md) files (locales) |
-| status-field     | Optional | String  | Row field with the tone of a status: the value shows as a dot of the tone plus the text                                         | `success`, `warning`, `danger`, `info`, `neutral`                                |
+| status-field     | Optional | String  | Row field with the tone of a status: the value shows as a dot of the tone plus the text                                         | `success`, `warning`, `danger`, `info`, `neutral`, `pending`                     |
 | chips            | Optional | Boolean | The value is a list shown as chips                                                                                              | Default value is `false`                                                         |
 | chip-separator   | Optional | String  | Separator of the items of a `chips` column                                                                                      | Default value is `,`                                                             |
 | max-chips        | Optional | Integer | Number of chips shown; the rest collapse into a "+n" chip                                                                       | A number greater than `0`                                                        |
@@ -808,14 +915,17 @@ A standard cell can show more than its value without HTML in the data: a seconda
 | `secondary-field`  | `secondaryField`  |                 | Name of another field of the row, shown under the main value, smaller and muted. Empty: only the main line    |
 | `export-secondary` | `exportSecondary` | `false`         | The spreadsheet exports (XLSX, CSV) add a column with the secondary field right after the main one. PDF and the other documents print the secondary line under the value, in the same cell, whatever this attribute says |
 | `secondary-label`  | `secondaryLabel`  | the column label | Title (i18n key) of the exported secondary column                                                            |
-| `status-field`     | `statusField`     |                 | Name of a field of the row with the tone: `success`, `warning`, `danger`, `info` or `neutral`. The tone is trimmed and lower-cased; an unknown or empty tone is `neutral` |
+| `status-field`     | `statusField`     |                 | Name of a field of the row with the tone: `success`, `warning`, `danger`, `info`, `neutral` or `pending` (the info tone with a dashed border, for a state that waits, as an execution waiting for a confirmation). The tone is trimmed and lower-cased; an unknown or empty tone is `neutral` |
 | `chips`            | `chips`           | `false`         | The value is split by `chip-separator`, each item is trimmed, the empty ones are dropped and each one shows as a chip |
 | `chip-separator`   | `chipSeparator`   | `,`             | Separator of the items of a `chips` column                                                                   |
 | `max-chips`        | `maxChips`        |                 | Show the first `N` chips and a "+n" chip whose tooltip and accessible label list the hidden items             |
 
 - `chips` and `status-field` are exclusive: with `chips="true"` the status is ignored. `secondary-field` combines with
   plain text and with a status.
-- Columns with a `component` ignore the three features.
+- Columns with a `component` ignore the three features, except `secondary-field` in a `component="progress"` column:
+  the bar shows on top and the secondary text under it (for example a duration bar with the elapsed time), and in a
+  `component="link"` column: the secondary text goes in one line under the link, cut with an ellipsis and with its whole
+  text as tooltip (for example the description of a task under its name).
 - The tone of a status is never shown by colour alone: the dot always goes with the text.
 - A status longer than its column ends in an ellipsis, and its tooltip (`title`) shows the whole text.
 - Values are always rendered as **text, never as HTML**: a value like `<b>bold</b>` shows literally.
@@ -942,7 +1052,14 @@ colour.
 
 A column can show an icon of the row before its value, as the two-factor column of the users screen. The icon is read
 from a field of the row (`lucide:shield-check`, `fa-check`... as any icon of the screens). With `status-field` the icon
-takes the place of the dot, so the status is a plain tag; a row without icon shows the tag with its text only.
+takes the place of the dot and the status is a pill: fully rounded, with a border of its tone (dashed for `pending`), in
+both engines. A row without icon shows the pill with its text only. With `secondary-field` a line goes under the pill, as
+the due time of a waiting execution in the scheduler Activity screen:
+
+```xml
+<column label="PARAMETER_STATUS" name="ExeStaTxt" charlength="18" status-field="ExeStaTon" icon-field="ExeStaIcn"
+        secondary-field="ExeDueLbl"/>
+```
 
 ```xml
 <column label="PARAMETER_2FA" name="2faTxt" sort-field="2fa" charlength="12" status-field="2faTon" icon-field="2faIcn"/>
@@ -956,6 +1073,8 @@ takes the place of the dot, so the status is a plain tag; a row without icon sho
 
 - It combines with `status-field`, `secondary-field` and `avatar-field`; columns with `chips="true"` or a `component`
   ignore it.
+- In a column with `wrap` or `max-lines` the text wraps with its icon. With `secondary-field` and `max-lines`, the main
+  line wraps up to `max-lines` lines and ends in an ellipsis, with its whole text on hover and on focus.
 - The icon is decorative (`aria-hidden`): the value of the cell is its accessible text, so give every row a text (for
   example `On` and `Off`), not only an icon.
 - Sorting, filtering, print and export use the main value only.
@@ -1051,7 +1170,8 @@ Keep in mind:
 | button           | Component which allows the user to click a button which launches a set of `button-action`                   |
 | progress         | Progress column component. Useful for showing a progress bar in a column. See [progress](#progress-column-component) |
 | sparkline        | Sparkline column component: a small line, bar or area chart of a series of numbers. See [sparkline column component](#sparkline-column-component) |
-| link             | HTML Link component. Opens an URL in a new page                                                             |
+| status-strip     | Status strip column component: one bar per status (for example the last executions of a task), with its label and title as the tooltip. See [status strip column component](#status-strip-column-component) |
+| link             | Link column component: opens the URL of the cell in a new page, or launches the `button-action` of the column. See [link column component](#link-column-component) |
 
 
 ### Specific row style
@@ -1211,7 +1331,8 @@ A button column is a component which allows to launch a set of `button-action` d
 
 The `label`, `title`, `icon` and `style` can be attributes of the column (the same for every row) or come in the data of
 the cell (they override the ones of the column). The `btn-*` styles and `no-label` of the [button styles](button.md#button-styles)
-apply to the buttons of the column too (`btn-ghost` for row actions).
+apply to the buttons of the column too (`btn-ghost` for row actions). A `no-btn` style of the cell (a button without
+background) is drawn as `btn-ghost` in both engines.
 
 - **The button acts on its row.** A click on the button of a row selects that row, and only it, before its actions
   run, so the dependencies on the selected row (a side panel filled with the row, for example) and the parameters the
@@ -1235,6 +1356,39 @@ Row actions as in the AWE 5 design system, a pencil that edits the row and an el
 <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
         align="center" charlength="4" sortable="false" sendable="false">
   <button-action type="show-context-menu" />
+</column>
+```
+
+#### Link column component
+
+A link column shows the cell as a link. Its `label` (the one of the cell, else its value) is the text of the link and
+its `title` the tooltip, as in a [button column](#button-column-component): the `title` of the cell, else the `title`
+attribute of the column, with or without `button-action`; without any title the link has no tooltip. Both the label and
+the title can come in the data of the cell.
+
+- **Without `button-action`**, the value of the cell is a URL that opens in a new page (`target="_blank"`). The link
+  warns of it: a small external-link icon follows its text, and screen readers announce "(opens in a new tab)"
+  (locale `LINK_OPENS_IN_NEW_TAB`). A link with `button-action` has neither.
+- **With `button-action`**, the link launches them as a [button column](#button-column-component) does: a click or the
+  Enter key selects the row of the link, and only it, and then runs the actions, so the parameters they send are the
+  values of that row. The link has no URL. The `permission` attribute and the authorization of the actions apply to it
+  as to a button column.
+
+Both client engines draw it. A link that opens the screen of the flow of each row:
+
+```xml
+<column name="ExeRun" label="PARAMETER_ACTIVITY_FLOW_RUN" component="link" title="BUTTON_OPEN_RUN">
+  <button-action type="screen" target="scheduler-flow-run" />
+</column>
+```
+
+With `secondary-field` the link shows a field of its row in one line under it (see
+[secondary line, status and chips](#secondary-line-status-and-chips)). A link to each task with its description, in the
+column that takes the rest of the width and never narrower than 200 pixels:
+
+```xml
+<column name="TskNam" label="PARAMETER_TASK" component="link" width="*" min-width="200" secondary-field="Des">
+  <button-action type="screen" target="scheduler-task" />
 </column>
 ```
 
@@ -1333,6 +1487,10 @@ The progress component is very useful to show the status of a job, or a task.
 | title     | Text to show when you move the mouse over the button. You can use [i18n](i18n-internationalization.md) files (locales) |
 | style     | CSS class to format the contents                                                                                       |
 
+A cell without value (empty, as the scheduler sends it for an execution that has ended) draws no bar, in both engines:
+with a `secondary-field` only its secondary line is left. In the React engine a value of `0` is a bar at 0 %; the
+AngularJS engine draws no bar for `0` either.
+
 ##### Progress bar options
 
 By default a `progress` column draws the PrimeReact progress bar of the table above. With any of the attributes below it
@@ -1417,6 +1575,46 @@ How the series is drawn:
   get in the way of the keyboard navigation of the grid.
 * The legacy jQuery sparkline plugin of the AngularJS client has been removed; applications that used its CSS classes
   (`jqstooltip`, `stats-sparklines`) must provide their own.
+
+#### Status strip column component
+
+A status strip draws an ordered list of statuses inside the cell, one bar per status, so a history per row (the last
+executions of a task, the checks of a record) can be read at a glance. The value of the cell is a **JSON array of
+items** `{"tone": "...", "label": "...", "title": "..."}` in display order (`title` is optional). The query can return it as text or as an already parsed list.
+The column has no attributes of its own.
+
+```xml
+<column label="HISTORY" name="history" component="status-strip" charlength="14"/>
+```
+
+```json
+[{"tone": "success", "label": "OK", "title": "#4805 · 17/11/2026 06:05 · 58 s"},
+ {"tone": "warning", "label": "Warning", "title": "#4806 · 17/11/2026 07:05 · 1 min 40 s"},
+ {"tone": "danger", "label": "Error"}]
+```
+
+| Item key | Description                                                                                         | Values                                                        |
+|----------|-----------------------------------------------------------------------------------------------------|---------------------------------------------------------------|
+| tone     | Tone of the status: the colour of its bar. Any other or a missing tone is drawn as `neutral`        | `success`, `warning`, `danger`, `info` or `neutral`           |
+| label    | Text of the status: the start of the tooltip of its bar and the word counted in the accessible text. Required | Any non-empty text (translate it in the query or the service) |
+| title    | Optional detail that tells apart the bars of the same status (for example the number, date and duration of an execution): shown in the tooltip on a second line, under the label, not counted in the accessible text. Any other value is ignored | Any non-empty text |
+
+How the strip is drawn:
+
+* Both client engines draw the same strip with the `--awe-status-strip-<tone>` component tokens (the mid shade of the
+  palette in light mode, the status colour in dark mode; the neutral tone uses the muted text colour).
+* **Not by colour only**: all bars have the same height, as in status pages, and are coloured with the
+  `--awe-status-strip-*` tokens; the label of each bar is its tooltip and the strip reads the counts per label.
+* **Tooltip**: hover a bar to see its label and, on a second line, its title when it has one (`OK` over `#4805 · 17/11/2026 06:05 · 58 s`).
+  It is the tooltip of each engine (PrimeReact `Tooltip` in React, the grid cell tooltip in AngularJS), not the native
+  `title` of the browser, and shows after 500 ms, half of the usual help delay; once it is visible, moving to another
+  bar updates it at once.
+* **Accessibility**: the strip is one image whose accessible name counts the statuses per label, in the order each label
+  first appears, for example `3 OK, 1 Warning, 1 Error`. It is not focusable, so it does not get in the way of the
+  keyboard navigation of the grid.
+* **Empty or invalid value**: the cell is left empty, with no error. That is the case of an empty value, `[]`, a text
+  that is not JSON, a value that is not a list, and a list with any item that is not an object with a non-empty `label`.
+* The cell is a display component: it is not editable.
 
 ## Group header structure
 

@@ -310,6 +310,21 @@ describe("Screen", () => {
     expect($actionController.acceptAction).toHaveBeenCalledWith(cssAction);
   });
 
+  it("scrolls the element of the target into view and gives it the focus through the scroll-to action", () => {
+    document.body.innerHTML = '<section id="SecWhen"></section>';
+    const section = document.getElementById("SecWhen");
+    section.scrollIntoView = jest.fn();
+    const scrollAction = action({target: "SecWhen"});
+
+    $screen[ClientActions.screen["scroll-to"].method](scrollAction);
+
+    expect(section.scrollIntoView).toHaveBeenCalledWith(expect.objectContaining({block: "start"}));
+    // The focus moves to the section (without a second scroll), so the keyboard goes on from there
+    expect(document.activeElement).toBe(section);
+    expect(section.getAttribute("tabindex")).toBe("-1");
+    expect($actionController.acceptAction).toHaveBeenCalledWith(scrollAction);
+  });
+
   it("dispatches toggle-class, and every screen client action, to a method of the service", () => {
     const missing = Object.entries(ClientActions.screen)
       .filter(([, {method}]) => typeof $screen[method] !== "function")

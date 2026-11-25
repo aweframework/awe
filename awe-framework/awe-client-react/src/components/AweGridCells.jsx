@@ -1,13 +1,14 @@
 import React from "react";
-import {extractCellModel} from "../utilities/grid";
+import {extractCellModel, getColumnWrap} from "../utilities/grid";
 import {getFirstDefinedAndNotNullValue} from "../utilities/general";
 import {getInitials} from "../utilities/initials";
 import {getSwatchColor} from "../utilities/color";
 import {getIconNode} from "../utilities";
 
-// Tones of a status cell and of an avatar (any other tone is shown as neutral)
-export const STATUS_TONES = ["success", "warning", "danger", "info", "neutral"];
-export const AVATAR_TONES = ["primary", ...STATUS_TONES];
+// Tones of a status cell and of an avatar (any other tone is shown as neutral). Pending is the warning tone with a dashed
+// border, for a state that waits (#993); avatars have no pending tone
+export const STATUS_TONES = ["success", "warning", "danger", "info", "neutral", "pending"];
+export const AVATAR_TONES = ["primary", "success", "warning", "danger", "info", "neutral"];
 const DEFAULT_CHIP_SEPARATOR = ",";
 
 /**
@@ -185,7 +186,24 @@ function textContents(value, column, row, renderText) {
     return main ?? renderText(value);
   }
   return <div className="awe-cell-lines">
-    <span className="awe-cell-main">{main ?? value}</span>
+    {mainLine(main ?? value, value, column)}
     <span className="awe-cell-secondary">{secondary}</span>
   </div>;
+}
+
+/**
+ * Main line of a cell with a secondary line. In a column with max-lines it wraps up to that number of lines and ends
+ * in an ellipsis, with its full text on hover and on keyboard focus (the tooltip of the clamped cells of the grid)
+ * @param {React.ReactNode} contents Contents of the main line
+ * @param {string} value Main text of the cell
+ * @param {Object} column Column definition
+ * @return {React.ReactElement} Main line
+ */
+function mainLine(contents, value, column) {
+  const {maxLines} = getColumnWrap(column);
+  if (maxLines === null) {
+    return <span className="awe-cell-main">{contents}</span>;
+  }
+  return <span className="awe-cell-main p-cell-clamp" style={{"--cell-max-lines": maxLines}} tabIndex={0}
+    data-full-text={value}>{contents}</span>;
 }

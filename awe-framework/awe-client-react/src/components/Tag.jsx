@@ -9,6 +9,7 @@ import SigninPage, {useSigninPart} from "./SigninPage";
 import {Preferences, PREFERENCES_STYLE} from "./Preferences";
 import PropTypes from "prop-types";
 import "./Tag.less";
+import "./EditorLayout.less";
 
 function Tag(props) {
   const {type, id, style, label, expand, elementList, value, icon} = props;

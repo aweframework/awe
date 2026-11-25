@@ -4,40 +4,29 @@ title: Dependencies between tasks
 sidebar_label: Dependencies between tasks
 ---
 
-Another powerful feature of the Scheduler module is the possibility of adding dependencies to a task. The dependencies are tasks that will be launched just after the parent task finishes. These dependencies can also contain other dependencies, creating a workflow.
-
-## Types
-There are two main types of dependencies.
-
-### Synchronous dependencies
-
-The synchronous dependencies are, as their name suggest, executed in a synchronous way, in a configurable order.
-
-The synchronous dependencies are created by setting the Blocking=Yes option.
-
-Setting blocking to `yes` means that, in case that any of the dependencies ends with an error, it will cancel the entire synchronous execution stack.
-
-To manage the stack, there is the Order criterion, which is used to set the order in which the synchronous dependencies are going to be executed. 
-
-### Asynchronous dependencies
-
-The asynchronous dependencies are executed in bulk and their execution order can't be configured.
-
-As the dependencies are executed in bulk, they are not going to block each other
+A task can run after other tasks: its **parents**. When a parent ends, the scheduler launches the tasks that run after
+it (its **dependencies**, or children), and those tasks can have dependencies of their own, creating a workflow.
 
 ## Dependencies configuration
 
-The dependency configuration screen allows to create two type of dependencies, synchronous and asynchronous.
+The dependencies of a task are chosen **in the child**, in the **When** section of the
+[task editor](../scheduler-module.md#task-editor) (`scheduler-task-editor`):
 
-The difference between them is just that one is blocking whereas the other is not.
+1. Open the task in the editor (**Edit** in the [Tasks catalog](../scheduler-module.md#tasks-catalog) or in the
+   [task screen](../scheduler-module.md#task-screen), or **Change what it depends on** in its **Dependencies** tab).
+2. In **When**, choose **After other tasks** and pick its parents. The list groups the tasks in *Chosen*, *Available*
+   and *Cannot be chosen* (the tasks that already run after it, which would close a loop).
+3. Save. The task is stored as a `Manual` launch with its parents, and it runs when they end.
 
-**In order to add a task as a dependency, its launch type must be set to `Manual`.**
+| Setting | Where it is set | Meaning |
+|---------|-----------------|---------|
+| Parents | **When** › **After other tasks** of the child | The tasks it runs after. With several parents it waits for all of them (see [fan-in](#flow-runs-and-fan-in)) |
+| Condition | **Behaviour** of the **parent** | When the parent launches its children: always on OK, also on warning, also on error. It is the same for every child of that parent, so the child shows it read only, with a link to the parent |
+| Mark the parent as warning | **Behaviour** of the **parent** | The parent ends as warning when one of its dependencies ends with an error |
 
-| Element       | Definition    | Use   |
-| ------------- |:-------------:| -----:|
-| Task          | The task the dependency is going to execute    | **Required** |
-| Blocking      | Used to define if the dependency is going to be synchronous or asynchronous, and if it can cancel the synchronous dependencies execution stack | **Required** |
-| Order         | Synchronous dependency execution order, only needed if the `Blocking` option is set to `Yes`, otherwise it will be disabled |  **Required** |
+The **Dependencies** section of the editor and the **Dependencies** tab of the task screen show, read only, the tasks
+that run after it. Leaving **After other tasks** with parents chosen asks for a confirmation first, because it clears
+them.
 
 ## Workflows
 
@@ -73,8 +62,11 @@ Each parameter of a dependency takes the first value found in this order:
 Saving a task whose dependencies would make it launch itself, directly or through other tasks, is rejected with a
 **Circular dependency** message. Remove the dependency that closes the loop.
 
-### Flow runs screen
+### Flow run page
 
-The **Flow runs** option of the scheduler menu lists the runs, newest first, with their status, root task, root execution,
-who launched it, and start and end times. Selecting a run shows its executions and the tasks that were skipped. In the task
-manager, select an execution and press **Open run** to go straight to its run.
+Every flow run link opens the [flow run page](../scheduler-module.md#flow-run-page) (`scheduler-flow-run`): the flow
+run column and the side panel of the [Activity screen](../scheduler-module.md#activity-screen) (also its **Group by
+flow** view, which lists the runs newest first), and the history and the last execution of the
+[task screen](../scheduler-module.md#task-screen). The page shows the final status of the run and why, who launched it,
+its start, duration and parameters, and its tasks as a graph, a timeline or a list, with the skipped ones; a task opens
+the detail of its execution.

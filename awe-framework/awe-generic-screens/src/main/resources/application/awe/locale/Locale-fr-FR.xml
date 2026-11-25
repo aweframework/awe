@@ -754,6 +754,7 @@
   <locale name="ERROR_MESSAGE_UNDEFINED_CACHE" value="Ce n&apos;est pas defini le type de cache -{0}-"/>
   <locale name="ERROR_MESSAGE_UNDEFINED_DATASOURCE" value="Le source des données `{0}` n&apos;a pas été défini"/>
   <locale name="ERROR_MESSAGE_UNDEFINED_SESSION" value="La séance avec le jeton &apos;{0}&apos; n&apos;existe pas ou n&apos;a pas été défini"/>
+  <locale name="ERROR_MESSAGE_UNEXPECTED_ERROR" value="Une erreur inattendue s'est produite. Réessayez et, si le problème persiste, contactez votre administrateur."/>
   <locale name="ERROR_MESSAGE_UNIQUE_CRITERIA" value="La valeur selectionee existe deja dans la base de donnees"/>
   <locale name="ERROR_MESSAGE_UPDATE_WRK_DIR2" value="Le chemin n&apos;est pas correct"/>
   <locale name="ERROR_MESSAGE_VARIABLE_DEFINITION" value="Probleme dans la définition de la variable {0}."/>
@@ -811,6 +812,9 @@
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Toutes les données enregistrées pour un événement de sécurité"/>
   <locale name="HELP_SCREEN_TITLE_SIT_ADMIN" value="Les sites de l'application et la base de données que chaque module y utilise."/>
   <locale name="HELP_SCREEN_TITLE_THEME_ADMIN" value="Thèmes de couleur de l&apos;application : couleur primaire, surface et mode. Les profils et les utilisateurs choisissent l&apos;un des thèmes actifs."/>
+  <locale name="LOG_VIEWER_FILTER_MATCHES" value="Afficher uniquement les correspondances"/>
+  <locale name="LOG_VIEWER_FOLLOW" value="Suivre la fin"/>
+  <locale name="LOG_VIEWER_SEARCH" value="Rechercher"/>
   <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Audit de sécurité"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Cause"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Canal"/>
@@ -1113,6 +1117,7 @@
   <locale name="ERROR_TITLE_TOO_MANY_REQUESTS" value="Erreur: trop de demandes"/>
   <locale name="ERROR_TITLE_UNDEFINED_CACHE" value="Cache type non defini"/>
   <locale name="ERROR_TITLE_UNDEFINED_SESSION" value="Séance undefined"/>
+  <locale name="ERROR_TITLE_UNEXPECTED_ERROR" value="L&apos;opération n&apos;a pas pu être effectuée"/>
   <locale name="ERROR_TITLE_VALIDATION" value="Erreur dans la validation"/>
   <locale name="ERROR_TITLE_VARIABLE_DEFINITION" value="Erreur dans la définition des variables"/>
   <locale name="ERROR_TITLE_VIEWING_PDF_FILE" value="Erreur lors du chargement du fichier PDF"/>
@@ -1265,6 +1270,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="HOURS" value="{0}h"/>
   <locale name="INFO_MESSAGE_PARSING_NUMBER_NULL" value="Le paramètre {0} ne peut pas être analysée comme nombre: &apos;&apos;{1}&apos;&apos; - Défini comme null"/>
   <locale name="INFO_TITLE_WEB_SERVICE_CALL" value="Informatión"/>
+  <locale name="LINK_OPENS_IN_NEW_TAB" value="(s'ouvre dans un nouvel onglet)"/>
   <locale name="MENU_ACT_USR" value="Notifier les utilisateurs actives"/>
   <locale name="MENU_APP_INF" value="A porpos de"/>
   <locale name="MENU_AUDITS" value="Audits"/>
@@ -1332,6 +1338,13 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="MINUTES" value="{0}m"/>
   <locale name="MONTH" value="{0} mois"/>
   <locale name="MONTHS" value="{0} mois"/>
+  <locale name="MONTH_VIEW_EXCLUDED" value="exclu"/>
+  <locale name="MONTH_VIEW_LEGEND" value="Barré : ne s’exécute pas"/>
+  <locale name="MONTH_VIEW_MONTH_DATES" value="{0} : {1} dates"/>
+  <locale name="MONTH_VIEW_NEXT" value="Mois suivant"/>
+  <locale name="MONTH_VIEW_PREVIOUS" value="Mois précédent"/>
+  <locale name="MONTH_VIEW_STRIP" value="Dates par mois"/>
+  <locale name="MONTH_VIEW_UNSAVED" value="non enregistré"/>
   <locale name="MSG_PASSWD_NEW" value="Après avoir entré le appuyez sur le bouton de confirmation de mot de passe"/>
   <locale name="NO_SUBSCRIPTIONS" value="Il n&amp;#39;y a aucun abonnement actif aux notifications"/>
   <locale name="NOTIFICATIONS" value="NOTIFICATIONS"/>
@@ -2075,6 +2088,8 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="VALIDATOR_MESSAGE_DATE_RANGE" value="La date de fin ne peut pas être antérieure à la date de début"/>
   <locale name="DATE_RANGE_FROM" value="Du"/>
   <locale name="DATE_RANGE_TO" value="Au"/>
+  <locale name="DATE_RANGE_CUSTOM" value="Plage personnalisée…"/>
+  <locale name="DATE_RANGE_APPLY" value="Appliquer"/>
   <locale name="DATE_RANGE_PRESET_TODAY" value="Aujourd'hui"/>
   <locale name="DATE_RANGE_PRESET_1W" value="1 semaine"/>
   <locale name="DATE_RANGE_PRESET_1M" value="1 mois"/>

@@ -1,0 +1,1154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : scheduler-configuration.xml
+    Description: Configuration of the Scheduler (#993, S9, mock-up 06): one screen with three tabs, the external servers,
+                 the holiday calendars and the engine that launches the tasks. The tabs come from getConfigurationTabs
+                 («Servidores 4», «Calendarios 3», «Motor · En marcha»): their values are the ids of their containers.
+                 The tab is part of the route: another screen opens this one on a tab by sending CfgTab (CfgSrv, CfgCal
+                 or CfgEng), as the users screen opens the access screen on a view (the schema has no keep-on-reload for
+                 a tab, so a reload of the browser opens the first tab).
+                 Servers: one grid (getConfigurationServers, the service searches and filters it) with its search (name
+                 or host), the active quick filter with its counts and the Maximize button in its toolbar. «Nuevo
+                 servidor» and «Probar todos» (tests every active server and keeps each result in the session) are
+                 buttons of the screen header, as «Nuevo usuario» in the users screen, shown only on the servers tab.
+                 Its columns: the name, the host (monospaced, the application server of a folder muted), the port, the
+                 connection type (icon, type and what the server is used for), the active state (a pill: the engine has no
+                 editable switch cell bound to a maintain, so the row menu switches it, as in the task catalog), «En uso
+                 por» (a link to the task catalog with the tasks of the server, the first task under it) and the last
+                 connection test of the session (a pill, never stored).
+                 A row menu (right click and «⋯») tests the stored server, activates it, deactivates it (with a
+                 confirmation) and deletes it (disabled while a task uses it; the server refuses it too). The row
+                 actions live only in that menu: the grid has no buttons, so selecting a row draws no selection bar
+                 (the rows do not move) and the grid has no bottom bar.
+                 Only the server of the row is sent (Ide and IdeSrv, as the server actions read it): the other values of
+                 the row never reach a form of the screen.
+                 Server side panel (PnlSrv, mock-up 06 artboard 1B): «Nuevo servidor» (header), «Editar» (first entry of
+                 the row menu) and the name of a server open it. Its criteria are named as the parameters of the existing
+                 server targets (NewSchedulerServer, UpdSchSrv, TstSchSrvCnx); the server id is never a criterion: those
+                 targets and the loader read the selected row of the grid (IdeSrv, IdeSrv.selected), and «Nuevo servidor»
+                 unselects the rows first, so no id reaches a new server, its test nor its loader. The loader
+                 (loadConfigurationServer) fills the panel with the server, or with a new one (active SSH on port 22):
+                 never its secrets, only whether each one is saved: the field of a saved secret is empty and
+                 read-only, with a placeholder that tells it is saved. «Cambiar» and «Reemplazar…», in a column beside
+                 it and aligned with its input, make it editable (a blank one keeps the secret: its FlgSsh*Upd flag is 1 only when something is typed) and «Quitar» removes the saved key with its passphrase (FlgSshKeyDel).
+                 «En uso por» lists the tasks of the server (getConfigurationServerTasks), each one a link to its task
+                 page. Saving refreshes the grid and the counts of the tabs.
+                 Calendars (mock-up 06 artboards 2A and 2B): one grid (getConfigurationCalendars, the service searches
+                 the name and filters it) with its search, the active quick filter with its counts and the Maximize
+                 button. Its columns: the name, the description, the dates (how many, the next one under it), the
+                 active state (a pill) and «En uso por» (a link to the task catalog with the tasks of the calendar, the
+                 first task under it). The row menu (right click and «⋯») activates the calendar, deactivates it (with a
+                 confirmation: its tasks run on its dates too) and deletes it: a calendar no task uses asks a simple
+                 confirmation; one in use opens the delete dialog (DlgCalDel) with its tasks, when each one runs and
+                 the days it would run on without it, and «Borrar y quitarlo de la tarea». The row actions read the
+                 calendar of the selected row (IdeCal, its only column sent). A column name is unique in a screen, so
+                 the calendar columns have names of their own (CalNom, CalAct...) and the row menu uses the
+                 configuration targets of the calendars, which read IdeCal (the old ones read Ide, a column of the
+                 servers grid).
+                 Calendar side panel (PnlCal, mock-up 06 artboard 2A): «Nuevo calendario» (header, only on the calendars
+                 tab), «Editar» (first entry of the row menu) and the name of a calendar open it. Its criteria have names
+                 of their own (CalPnlNom, CalPnlDes, CalPnlAct: the servers panel has Nom and Act); the calendar id is
+                 never a criterion: the loader (loadConfigurationCalendar) and UpdConfigurationCalendar read the selected
+                 row (IdeCal.selected), and «Nuevo calendario» unselects the rows first. The dates are an editable grid
+                 (GrdDatLst) that sends its changed rows when the calendar is saved, with «Añadir fecha», «Quitar» on each
+                 row and «Importar fichero» (an .ics or .csv file: the importer adds its dates as new rows), and the month
+                 view of its rows, the ones not saved yet included. The day of a date added or changed in the grid follows
+                 its date (getConfigurationCalendarDateWeekday updates the row). «En uso por» lists the tasks of the calendar with the days
+                 they will not run on (as text: the task page reads IdeTsk.selected, a column of the server panel).
+                 Saving reloads the calendar in the engine and reschedules its tasks with it or without it, as its
+                 Activo switch says (the same as the row menu), and refreshes the grid and the counts of the tabs.
+                 «Borrar calendario…» is the delete flow of the row menu.
+                 Engine (mock-up 06 artboards 3A and 3B): the card «Motor del planificador» (getConfigurationEngineCard:
+                 its status as the chip and the icon, the sentence that tells it, its facts as tiles and its technical
+                 details folded) full width. Its actions are the «Acciones» menu of the header, next to the refresh
+                 button (both only on this tab): each one asks a confirmation and is enabled by the status of the
+                 engine (EngSta, a hidden criterion: running, paused, paused-empty, stopped, unavailable): «Pausar…»
+                 while it runs, «Reanudar» while it is paused, «Reiniciar…» always, «Detener y vaciar…» while it runs or
+                 is paused. «Detener y vaciar…» opens its own dialog (DlgEngClr): it is reset before it opens and its
+                 button is enabled by the «Entiendo…» checkbox.
+                 After an action, and with the refresh button of the header, the card, the status,
+                 the deferred note, the schedules and the label of the tab are read again. The note of the executions
+                 waiting for a confirmation (EngDfrCnt) links to Actividad. The schedules grid (getConfigurationEngineTriggers)
+                 filters by the state of the trigger with its counts; its task opens the task page, which reads
+                 IdeTsk.selected: the servers panel has an IdeTsk column too, so both grids send their values only while
+                 they are shown (send-when-hidden="false" and a show dependency on the tab).
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="MENU_SCHEDULER_CONFIGURATION" help="HELP_SCREEN_SCHEDULER_CONFIGURATION">
+  <tag source="hidden">
+    <message id="SrvDeaMsg" title="CONFIRM_TITLE_SCHEDULER_SERVER_DEACTIVATE" message="CONFIRM_MESSAGE_SCHEDULER_SERVER_DEACTIVATE" />
+    <message id="SrvDelMsg" title="CONFIRM_TITLE_SCHEDULER_SERVER_DELETE" message="CONFIRM_MESSAGE_SCHEDULER_SERVER_DELETE" />
+    <message id="CalDeaMsg" title="CONFIRM_TITLE_SCHEDULER_CALENDAR_DEACTIVATE" message="CONFIRM_MESSAGE_SCHEDULER_CALENDAR_DEACTIVATE" />
+    <message id="CalDelMsg" title="CONFIRM_TITLE_SCHEDULER_CALENDAR_DELETE" message="CONFIRM_MESSAGE_SCHEDULER_CALENDAR_DELETE" />
+    <!-- Mode of the server side panel (new or edit): each action that opens it sets it first. A new server has no tasks,
+         so «En uso por» is hidden -->
+    <criteria id="SrvPnlMod" component="hidden" value="new">
+      <dependency initial="true">
+        <dependency-element id="SrvPnlMod" condition="eq" value="edit" />
+        <dependency-action type="remove-class" target="#SrvUse" target-action="hidden" silent="true" />
+      </dependency>
+      <dependency initial="true" invert="true">
+        <dependency-element id="SrvPnlMod" condition="eq" value="edit" />
+        <dependency-action type="add-class" target="#SrvUse" target-action="hidden" silent="true" />
+      </dependency>
+    </criteria>
+    <message id="EngPauMsg" title="CONFIRM_TITLE_SCHEDULER_ENGINE_PAUSE" message="CONFIRM_MESSAGE_SCHEDULER_ENGINE_PAUSE" />
+    <message id="EngResMsg" title="CONFIRM_TITLE_SCHEDULER_ENGINE_RESUME" message="CONFIRM_MESSAGE_SCHEDULER_ENGINE_RESUME" />
+    <message id="EngRstMsg" title="CONFIRM_TITLE_SCHEDULER_ENGINE_RESTART" message="CONFIRM_MESSAGE_SCHEDULER_ENGINE_RESTART" />
+    <!-- Status code of the engine (running, paused, paused-empty, stopped or unavailable): it enables the entries of the
+         «Acciones» menu of the engine. An action reads it again (update-model of getConfigurationEngine, whose fields
+         are named as these criteria) -->
+    <criteria id="EngSta" component="hidden" initial-load="value" target-action="getConfigurationEngineStatus" />
+    <!-- Executions waiting for a confirmation: the line of the note and «Ver en Actividad» (EngDfrBar, above the
+         schedules grid) is shown only when there is one -->
+    <criteria id="EngDfrCnt" component="hidden" initial-load="value" target-action="getConfigurationEngineDeferredCount">
+      <dependency initial="true">
+        <dependency-element id="EngDfrCnt" condition="gt" value="0" />
+        <dependency-action type="remove-class" target="#EngDfrBar" target-action="hidden" silent="true" />
+      </dependency>
+      <dependency initial="true" invert="true">
+        <dependency-element id="EngDfrCnt" condition="gt" value="0" />
+        <dependency-action type="add-class" target="#EngDfrBar" target-action="hidden" silent="true" />
+      </dependency>
+    </criteria>
+    <!-- Mode of the calendar side panel (new or edit), as SrvPnlMod: a new calendar has no tasks -->
+    <criteria id="CalPnlMod" component="hidden" value="new">
+      <dependency initial="true">
+        <dependency-element id="CalPnlMod" condition="eq" value="edit" />
+        <dependency-action type="remove-class" target="#CalUse" target-action="hidden" silent="true" />
+      </dependency>
+      <dependency initial="true" invert="true">
+        <dependency-element id="CalPnlMod" condition="eq" value="edit" />
+        <dependency-action type="add-class" target="#CalUse" target-action="hidden" silent="true" />
+      </dependency>
+    </criteria>
+  </tag>
+
+  <tag source="buttons">
+    <!-- What the screen holds, a muted line centred with the header buttons (the screen header has no subtitle) -->
+    <tag type="div" style="awe-header-status">
+      <tag type="span" style="text-muted" label="SCREEN_TEXT_SCHEDULER_CONFIGURATION_SUBTITLE" />
+    </tag>
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <!-- «Probar todos»: tests every active server and keeps each result in the session, then the last test column of
+         the grid shows them. Only on the servers tab -->
+    <button id="ButSrvTstAll" label="BUTTON_SCHEDULER_SERVER_TEST_ALL" icon="lucide:plug" permission="scheduler.update">
+      <button-action type="server" server-action="maintain" target-action="TstAllSchSrvCnx" />
+      <button-action type="filter" target="GrdSrv" silent="true" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="CfgTab" condition="eq" value="CfgSrv" />
+      </dependency>
+    </button>
+    <!-- «Nuevo servidor», where the users screen puts «Nuevo usuario»: no selected row, so the panel shows its label and
+         nothing carries the id of a server. Only on the servers tab -->
+    <button id="ButSrvNew" label="BUTTON_SCHEDULER_SERVER_NEW" icon="lucide:plus" style="btn-primary" permission="scheduler.update">
+      <button-action type="unselect-all-rows" target="GrdSrv" />
+      <button-action type="value" target="SrvPnlMod" value="new" />
+      <button-action type="server" server-action="maintain-silent" target-action="loadConfigurationServer" silent="true" />
+      <button-action type="filter" target="GrdSrvUse" silent="true" />
+      <button-action type="dialog" target="PnlSrv" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="CfgTab" condition="eq" value="CfgSrv" />
+      </dependency>
+    </button>
+    <!-- Refresh of the engine tab, an icon button (its label is its accessible name): the card, its status, the deferred
+         note, the schedules and the label of the tab. Only on the engine tab -->
+    <button id="ButEngRef" label="BUTTON_SCHEDULER_ENGINE_REFRESH" icon="refresh" style="no-label">
+      <button-action type="filter" target="CrdEng" silent="true" />
+      <button-action type="server" server-action="update-model" target-action="getConfigurationEngine" silent="true" />
+      <button-action type="filter" target="CrdEngDfr" silent="true" />
+      <button-action type="filter" target="CrdEngTrg" silent="true" />
+      <button-action type="filter" target="GrdEngTrg" silent="true" />
+      <button-action type="filter" target="CfgTab" silent="true" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="CfgTab" condition="eq" value="CfgEng" />
+      </dependency>
+    </button>
+    <!-- «Acciones» of the engine, a menu next to the refresh (only on the engine tab; Actividad only shows the status of
+         the engine). Each entry asks a confirmation, runs the engine maintain and reads the tab again (as the refresh),
+         and is enabled by the status of the engine (EngSta). «Detener y vaciar…»: its own dialog is the confirmation;
+         the dialog keeps its values between openings, so it is reset before it opens (only its checkbox lives there).
+         Its menu opens aligned to its right edge, as every menu of a header button, and its chevron (has-menu) tells
+         that it opens a menu -->
+    <button id="ButEng" label="BUTTON_SCHEDULER_ENGINE_ACTIONS" icon="lucide:cpu"
+            style="has-menu" permission="scheduler.execute">
+      <button-action type="show-context-menu" />
+      <context-button id="CtxEngPau" label="BUTTON_SCHEDULER_ENGINE_PAUSE" icon="lucide:pause" permission="scheduler.execute">
+        <button-action type="confirm" target="EngPauMsg" />
+        <button-action type="server" server-action="maintain" target-action="stopScheduler" />
+        <button-action type="filter" target="CrdEng" silent="true" />
+        <button-action type="server" server-action="update-model" target-action="getConfigurationEngine" silent="true" />
+        <button-action type="filter" target="CrdEngDfr" silent="true" />
+        <button-action type="filter" target="CrdEngTrg" silent="true" />
+        <button-action type="filter" target="GrdEngTrg" silent="true" />
+        <button-action type="filter" target="CfgTab" silent="true" />
+        <dependency source-type="none" target-type="disable" initial="true">
+          <dependency-element id="EngSta" condition="ne" value="running" />
+        </dependency>
+      </context-button>
+      <context-button id="CtxEngRes" label="BUTTON_SCHEDULER_ENGINE_RESUME" icon="lucide:play" permission="scheduler.execute">
+        <button-action type="confirm" target="EngResMsg" />
+        <button-action type="server" server-action="maintain" target-action="startScheduler" />
+        <button-action type="filter" target="CrdEng" silent="true" />
+        <button-action type="server" server-action="update-model" target-action="getConfigurationEngine" silent="true" />
+        <button-action type="filter" target="CrdEngDfr" silent="true" />
+        <button-action type="filter" target="CrdEngTrg" silent="true" />
+        <button-action type="filter" target="GrdEngTrg" silent="true" />
+        <button-action type="filter" target="CfgTab" silent="true" />
+        <dependency source-type="none" target-type="disable" initial="true">
+          <dependency-element id="EngSta" condition="ne" value="paused" />
+          <dependency-element id="EngSta" condition="ne" value="paused-empty" />
+        </dependency>
+      </context-button>
+      <context-button id="CtxEngRst" label="BUTTON_SCHEDULER_ENGINE_RESTART" icon="lucide:rotate-cw" permission="scheduler.execute">
+        <button-action type="confirm" target="EngRstMsg" />
+        <button-action type="server" server-action="maintain" target-action="restartScheduler" />
+        <button-action type="filter" target="CrdEng" silent="true" />
+        <button-action type="server" server-action="update-model" target-action="getConfigurationEngine" silent="true" />
+        <button-action type="filter" target="CrdEngDfr" silent="true" />
+        <button-action type="filter" target="CrdEngTrg" silent="true" />
+        <button-action type="filter" target="GrdEngTrg" silent="true" />
+        <button-action type="filter" target="CfgTab" silent="true" />
+      </context-button>
+      <context-separator />
+      <context-button id="CtxEngClr" label="BUTTON_SCHEDULER_ENGINE_CLEAR" icon="lucide:power" permission="scheduler.execute">
+        <button-action type="reset" target="DlgEngClr" silent="true" />
+        <button-action type="filter" target="CrdEngClrDfr" silent="true" />
+        <button-action type="dialog" target="DlgEngClr" />
+        <dependency source-type="none" target-type="disable" initial="true">
+          <dependency-element id="EngSta" condition="ne" value="running" />
+          <dependency-element id="EngSta" condition="ne" value="paused" />
+        </dependency>
+      </context-button>
+      <dependency target-type="show" initial="true">
+        <dependency-element id="CfgTab" condition="eq" value="CfgEng" />
+      </dependency>
+    </button>
+    <!-- «Nuevo calendario»: no selected row, so the panel shows its label, its dates grid is empty and nothing carries
+         the id of a calendar. Only on the calendars tab -->
+    <button id="ButCalNew" label="BUTTON_SCHEDULER_CALENDAR_NEW" icon="lucide:plus" style="btn-primary" permission="scheduler.update">
+      <button-action type="unselect-all-rows" target="GrdCal" />
+      <button-action type="value" target="CalPnlMod" value="new" />
+      <button-action type="server" server-action="maintain-silent" target-action="loadConfigurationCalendar" silent="true" />
+      <button-action type="filter" target="GrdDatLst" silent="true" />
+      <button-action type="filter" target="GrdCalUse" silent="true" />
+      <button-action type="dialog" target="PnlCal" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="CfgTab" condition="eq" value="CfgCal" />
+      </dependency>
+    </button>
+  </tag>
+
+  <tag source="center">
+    <tab id="CfgTab" initial-load="query" target-action="getConfigurationTabs" variable="CfgTab" style="expand">
+
+      <!-- Servers: the external servers, who uses them and their last connection test of this session -->
+      <tabcontainer id="CfgSrv" style="expand" expandible="vertical">
+        <!-- In a grid of cards as the engine cards: in React a grid of cards insets its cards, so the cards of every tab
+             keep the same width and edges in both engines -->
+        <tag type="div" style="awe-card-grid expand">
+          <card id="CrdSrvLst" style="expand">
+            <grid id="GrdSrv" style="expand" server-action="data" target-action="getConfigurationServers" initial-load="query"
+                  pagination-disabled="true" row-numbers="false" show-maximize-button="true"
+                  empty-title="SCREEN_TEXT_SCHEDULER_SERVER_EMPTY" empty-text="SCREEN_TEXT_SCHEDULER_SERVER_EMPTY_TEXT"
+                  empty-icon="lucide:server">
+              <search id="CrtSrvSch" placeholder="SCREEN_TEXT_SCHEDULER_SERVER_SEARCH" label="SCREEN_TEXT_SCHEDULER_SERVER_SEARCH" />
+              <quick-filter id="CrtSrvAct" initial-load="query" target-action="getConfigurationServerActiveCounts"
+                            label="PARAMETER_ACTIVE" value="" />
+              <!-- The server, as the server actions read it: Ide (ActSchSrv), Ide.selected (DeaSchSrv), IdeSrv
+                   (DeleteConfigurationServer) and IdeSrv.selected (TstSchSrvCnxSel, and the task catalog of the link) -->
+              <column name="Ide" hidden="true" />
+              <column name="IdeSrv" hidden="true" />
+              <!-- Values of the row read by the cells and the row menu, never sent -->
+              <column name="Act" hidden="true" sendable="false" />
+              <column name="SrvTypIcn" hidden="true" sendable="false" />
+              <column name="SrvTypSub" hidden="true" sendable="false" />
+              <column name="SrvActTon" hidden="true" sendable="false" />
+              <column name="SrvActIcn" hidden="true" sendable="false" />
+              <column name="SrvUseCnt" hidden="true" sendable="false" />
+              <column name="SrvUseSub" hidden="true" sendable="false" />
+              <!-- Subtitle of the header of the side panel -->
+              <column name="SrvPnlSub" hidden="true" sendable="false" />
+              <column name="SrvTstTon" hidden="true" sendable="false" />
+              <column name="SrvTstIcn" hidden="true" sendable="false" />
+              <column name="SrvTstSub" hidden="true" sendable="false" />
+
+              <!-- The name opens the server in its side panel, as «Editar» -->
+              <!-- Widths: the columns fit a 1600 px window without a horizontal scroll; the cells with a line under their
+                   text wrap it instead of widening their column -->
+              <column label="PARAMETER_NAME" name="Nom" sortable="true" component="link" align="left" charlength="15"
+                      title="BUTTON_EDIT" sendable="false">
+                <button-action type="value" target="SrvPnlMod" value="edit" />
+                <button-action type="server" server-action="maintain-silent" target-action="loadConfigurationServer" silent="true" />
+                <button-action type="filter" target="GrdSrvUse" silent="true" />
+                <button-action type="dialog" target="PnlSrv" />
+              </column>
+              <column label="PARAMETER_SCHEDULER_SERVER_COLUMN" name="SrvHstTxt" sort-field="SrvHst" sortable="true" align="left" charlength="22"
+                      width="*" min-width="150" sendable="false" />
+              <column label="PARAMETER_SERVER_PORT" name="SrvPrt" sortable="false" align="right" charlength="5" sendable="false" />
+              <column label="PARAMETER_CONN_TYPE" name="SrvTypTxt" sortable="true" align="left" charlength="24" wrap="true"
+                      icon-field="SrvTypIcn" secondary-field="SrvTypSub" sendable="false" />
+              <column label="PARAMETER_ACTIVE" name="SrvActTxt" sort-field="Act" sortable="true" align="left" charlength="9"
+                      status-field="SrvActTon" icon-field="SrvActIcn" sendable="false" />
+              <!-- The tasks of the server: the link selects its row and opens the task catalog, which keeps the server of
+                   the selected row (IdeSrv.selected) as its filter. A selected calendar would filter it too: the calendar
+                   rows are unselected first. The first task by name goes under it -->
+              <column label="PARAMETER_SCHEDULER_USED_BY" name="SrvUseTxt" sortable="false" component="link" align="left"
+                      charlength="16" wrap="true" secondary-field="SrvUseSub" title="BUTTON_SCHEDULER_SERVER_VIEW_TASKS" sendable="false">
+                <button-action type="unselect-all-rows" target="GrdCal" />
+                <button-action type="screen" target="scheduler-task-catalog" />
+              </column>
+              <column label="PARAMETER_SCHEDULER_LAST_TEST" name="SrvTstTxt" sortable="false" align="left" charlength="16" wrap="true"
+                      status-field="SrvTstTon" icon-field="SrvTstIcn" secondary-field="SrvTstSub" sendable="false" />
+              <!-- «⋯» (More actions): the row menu of the right click, opened under the button for its row -->
+              <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+                      align="center" charlength="4" sortable="false" sendable="false">
+                <button-action type="show-context-menu" />
+              </column>
+
+              <!-- Row menu. Edit: the server of the row in the side panel -->
+              <context-button id="CtxSrvEdt" label="BUTTON_EDIT" icon="lucide:pencil">
+                <button-action type="value" target="SrvPnlMod" value="edit" />
+                <button-action type="server" server-action="maintain-silent" target-action="loadConfigurationServer" silent="true" />
+                <button-action type="filter" target="GrdSrvUse" silent="true" />
+                <button-action type="dialog" target="PnlSrv" />
+                <dependency target-type="enable" initial="true">
+                  <dependency-element id="GrdSrv" attribute="selectedRows" condition="eq" value="1" />
+                </dependency>
+              </context-button>
+
+              <!-- Test: the stored server, the result stays in the session and in its row -->
+              <context-button id="CtxSrvTst" label="BUTTON_TEST_CONNECTION" icon="lucide:plug" permission="scheduler.update">
+                <button-action type="server" server-action="maintain" target-action="TstSchSrvCnxSel" />
+                <button-action type="filter" target="GrdSrv" silent="true" />
+                <dependency target-type="enable" initial="true">
+                  <dependency-element id="GrdSrv" attribute="selectedRows" condition="eq" value="1" />
+                </dependency>
+              </context-button>
+              <context-button id="CtxSrvAct" label="BUTTON_ACTIVATE" icon="lucide:power" permission="scheduler.update">
+                <button-action type="server" server-action="maintain" target-action="ActSchSrv" />
+                <button-action type="filter" target="GrdSrv" silent="true" />
+                <dependency target-type="show" initial="true">
+                  <dependency-element id="GrdSrv" attribute="selectedRows" condition="eq" value="1" />
+                  <dependency-element id="GrdSrv" column="Act" attribute="selectedRowValue" condition="ne" value="1" />
+                  <dependency-element id="GrdSrv" event="select-row" optional="true" />
+                </dependency>
+              </context-button>
+              <!-- Deactivate: its tasks cannot run their remote commands nor check their files, so it asks first -->
+              <context-button id="CtxSrvDea" label="BUTTON_SCHEDULER_SERVER_DEACTIVATE" icon="lucide:ban" permission="scheduler.update">
+                <button-action type="confirm" target="SrvDeaMsg" />
+                <button-action type="server" server-action="maintain" target-action="DeaSchSrv" />
+                <button-action type="filter" target="GrdSrv" silent="true" />
+                <dependency target-type="show" initial="true">
+                  <dependency-element id="GrdSrv" attribute="selectedRows" condition="eq" value="1" />
+                  <dependency-element id="GrdSrv" column="Act" attribute="selectedRowValue" condition="eq" value="1" />
+                  <dependency-element id="GrdSrv" event="select-row" optional="true" />
+                </dependency>
+              </context-button>
+              <context-separator />
+              <!-- Delete: disabled while a task uses the server (its help tells why); the server refuses it too and names
+                   the tasks -->
+              <context-button id="CtxSrvDel" label="BUTTON_DELETE" icon="trash" permission="scheduler.update"
+                              help="HELP_SCHEDULER_SERVER_DELETE_IN_USE">
+                <button-action type="confirm" target="SrvDelMsg" />
+                <button-action type="server" server-action="maintain" target-action="DeleteConfigurationServer" />
+                <button-action type="filter" target="GrdSrv" />
+                <dependency target-type="enable" initial="true">
+                  <dependency-element id="GrdSrv" attribute="selectedRows" condition="eq" value="1" />
+                  <dependency-element id="GrdSrv" column="SrvUseCnt" attribute="selectedRowValue" condition="eq" value="0" />
+                  <dependency-element id="GrdSrv" event="select-row" optional="true" />
+                </dependency>
+              </context-button>
+            </grid>
+            <!-- The last test is the one of this session: it is not stored. In a column, as the notes of the other
+                 scheduler screens, so it keeps the row gap of a form under the grid -->
+            <tag type="div" style="col-xs-12">
+              <card id="CrdSrvNot" style="card-note" icon="lucide:info" icon-tone="neutral"
+                    description="SCREEN_TEXT_SCHEDULER_SERVER_TEST_NOTE" />
+            </tag>
+          </card>
+        </tag>
+      </tabcontainer>
+
+      <!-- Calendars: the holiday calendars, their dates and who uses them -->
+      <tabcontainer id="CfgCal" style="expand" expandible="vertical">
+        <tag type="div" id="CfgCalBdy" style="expand" expandible="vertical">
+          <!-- In a grid of cards as the servers and the engine cards, so all of them keep the same width and edges -->
+          <tag type="div" style="awe-card-grid expand">
+            <card id="CrdCalLst" style="expand">
+              <grid id="GrdCal" style="expand" server-action="data" target-action="getConfigurationCalendars" initial-load="query"
+                    pagination-disabled="true" row-numbers="false" show-maximize-button="true"
+                    empty-title="SCREEN_TEXT_SCHEDULER_CALENDAR_EMPTY" empty-text="SCREEN_TEXT_SCHEDULER_CALENDAR_EMPTY_TEXT"
+                    empty-icon="lucide:calendar">
+                <search id="CrtCalSch" placeholder="SCREEN_TEXT_SCHEDULER_CALENDAR_SEARCH" label="SCREEN_TEXT_SCHEDULER_CALENDAR_SEARCH" />
+                <quick-filter id="CrtCalAct" initial-load="query" target-action="getConfigurationCalendarActiveCounts"
+                              label="PARAMETER_ACTIVE" value="" />
+                <!-- The calendar, as the calendar actions read it (IdeCal), and the task catalog of the link (IdeCal.selected) -->
+                <column name="IdeCal" hidden="true" />
+                <!-- Values of the row read by the cells and the row menu, never sent -->
+                <column name="CalAct" hidden="true" sendable="false" />
+                <column name="CalActTon" hidden="true" sendable="false" />
+                <column name="CalActIcn" hidden="true" sendable="false" />
+                <column name="CalDatSub" hidden="true" sendable="false" />
+                <column name="CalUseCnt" hidden="true" sendable="false" />
+                <column name="CalUseSub" hidden="true" sendable="false" />
+                <!-- Header of the side panel: its icon and «Calendario · lo usa 1 tarea» -->
+                <column name="CalPnlIcn" hidden="true" sendable="false" />
+                <column name="CalPnlSub" hidden="true" sendable="false" />
+
+                <!-- The name opens the calendar in its side panel, as «Editar» -->
+                <column label="PARAMETER_NAME" name="CalNom" sortable="true" component="link" align="left" charlength="20"
+                        title="BUTTON_EDIT" sendable="false">
+                  <button-action type="value" target="CalPnlMod" value="edit" />
+                  <button-action type="server" server-action="maintain-silent" target-action="loadConfigurationCalendar" silent="true" />
+                  <button-action type="filter" target="GrdDatLst" silent="true" />
+                  <button-action type="filter" target="GrdCalUse" silent="true" />
+                  <button-action type="dialog" target="PnlCal" />
+                </column>
+                <column label="PARAMETER_DESCRIPTION" name="Des" sortable="false" align="left" charlength="30" width="*"
+                        min-width="200" sendable="false" />
+                <!-- How many dates and the next one from today («próxima 06/12», «desde 01/01/2027») -->
+                <column label="PARAMETER_SCHEDULER_CALENDAR_DATES" name="CalDatCnt" sortable="true" align="left" charlength="14"
+                        secondary-field="CalDatSub" sendable="false" />
+                <column label="PARAMETER_ACTIVE" name="CalActTxt" sort-field="CalAct" sortable="true" align="left" charlength="10"
+                        status-field="CalActTon" icon-field="CalActIcn" sendable="false" />
+                <!-- The tasks of the calendar: the link selects its row and opens the task catalog, which keeps the calendar
+                     of the selected row (IdeCal.selected) as its filter. A selected server would filter it too: the server
+                     rows are unselected first. The first task by name goes under it -->
+                <column label="PARAMETER_SCHEDULER_USED_BY" name="CalUseTxt" sortable="false" component="link" align="left"
+                        charlength="20" secondary-field="CalUseSub" title="BUTTON_SCHEDULER_SERVER_VIEW_TASKS" sendable="false">
+                  <button-action type="unselect-all-rows" target="GrdSrv" />
+                  <button-action type="screen" target="scheduler-task-catalog" />
+                </column>
+                <!-- «⋯» (More actions): the row menu of the right click, opened under the button for its row -->
+                <column name="CalMorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+                        align="center" charlength="4" sortable="false" sendable="false">
+                  <button-action type="show-context-menu" />
+                </column>
+
+                <!-- Row menu. Edit: the calendar of the row in the side panel -->
+                <context-button id="CtxCalEdt" label="BUTTON_EDIT" icon="lucide:pencil">
+                  <button-action type="value" target="CalPnlMod" value="edit" />
+                  <button-action type="server" server-action="maintain-silent" target-action="loadConfigurationCalendar" silent="true" />
+                  <button-action type="filter" target="GrdDatLst" silent="true" />
+                  <button-action type="filter" target="GrdCalUse" silent="true" />
+                  <button-action type="dialog" target="PnlCal" />
+                  <dependency target-type="enable" initial="true">
+                    <dependency-element id="GrdCal" attribute="selectedRows" condition="eq" value="1" />
+                  </dependency>
+                </context-button>
+                <!-- Activate and deactivate: the tasks that use the calendar are rescheduled with it or without it -->
+                <context-button id="CtxCalAct" label="BUTTON_ACTIVATE" icon="lucide:power" permission="scheduler.update">
+                  <button-action type="server" server-action="maintain" target-action="ActConfigurationCalendar" />
+                  <button-action type="filter" target="GrdCal" silent="true" />
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="GrdCal" attribute="selectedRows" condition="eq" value="1" />
+                    <dependency-element id="GrdCal" column="CalAct" attribute="selectedRowValue" condition="ne" value="1" />
+                    <dependency-element id="GrdCal" event="select-row" optional="true" />
+                  </dependency>
+                </context-button>
+                <!-- Deactivate: its tasks run on its dates too, so it asks first -->
+                <context-button id="CtxCalDea" label="BUTTON_SCHEDULER_SERVER_DEACTIVATE" icon="lucide:ban" permission="scheduler.update">
+                  <button-action type="confirm" target="CalDeaMsg" />
+                  <button-action type="server" server-action="maintain" target-action="DeaConfigurationCalendar" />
+                  <button-action type="filter" target="GrdCal" silent="true" />
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="GrdCal" attribute="selectedRows" condition="eq" value="1" />
+                    <dependency-element id="GrdCal" column="CalAct" attribute="selectedRowValue" condition="eq" value="1" />
+                    <dependency-element id="GrdCal" event="select-row" optional="true" />
+                  </dependency>
+                </context-button>
+                <context-separator />
+                <!-- Delete a calendar no task uses: a simple confirmation -->
+                <context-button id="CtxCalDel" label="BUTTON_SCHEDULER_CALENDAR_DELETE" icon="trash" permission="scheduler.update">
+                  <button-action type="confirm" target="CalDelMsg" />
+                  <button-action type="server" server-action="maintain" target-action="DeleteConfigurationCalendar" />
+                  <button-action type="filter" target="GrdCal" />
+                  <button-action type="filter" target="CfgTab" silent="true" />
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="GrdCal" attribute="selectedRows" condition="eq" value="1" />
+                    <dependency-element id="GrdCal" column="CalUseCnt" attribute="selectedRowValue" condition="eq" value="0" />
+                    <dependency-element id="GrdCal" event="select-row" optional="true" />
+                  </dependency>
+                </context-button>
+                <!-- Delete a calendar in use: the dialog tells its tasks and the days they would run on without it -->
+                <context-button id="CtxCalDelUse" label="BUTTON_SCHEDULER_CALENDAR_DELETE" icon="trash" permission="scheduler.update">
+                  <button-action type="filter" target="CrdCalDel" silent="true" />
+                  <button-action type="filter" target="GrdCalDel" silent="true" />
+                  <button-action type="dialog" target="DlgCalDel" />
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="GrdCal" attribute="selectedRows" condition="eq" value="1" />
+                    <dependency-element id="GrdCal" column="CalUseCnt" attribute="selectedRowValue" condition="gt" value="0" />
+                    <dependency-element id="GrdCal" event="select-row" optional="true" />
+                  </dependency>
+                </context-button>
+              </grid>
+              <!-- What a calendar does, in a column as the note of the servers -->
+              <tag type="div" style="col-xs-12">
+                <card id="CrdCalNot" style="card-note" icon="lucide:info" icon-tone="neutral"
+                      description="SCREEN_TEXT_SCHEDULER_CALENDAR_NOTE" />
+              </tag>
+            </card>
+          </tag>
+        </tag>
+      </tabcontainer>
+
+      <!-- Engine: the card of the engine and the schedules it holds, each one full width (its actions are the «Acciones»
+           menu of the header). The tab fits the window without a vertical scroll: the engine card keeps its natural
+           height and the schedules card takes the rest, its grid the free height of the card -->
+      <tabcontainer id="CfgEng" style="expand" expandible="vertical">
+        <tag type="div" id="CfgEngBdy" style="expand" expandible="vertical">
+          <!-- «Motor del planificador»: the status once, by its chip with its text (never the colour alone), the sentence
+               that tells it, the last start error as its footer, its facts as short tiles and «Detalles técnicos»
+               folded. At its natural height, in a grid of cards so the gap between cards keeps it apart from the
+               schedules card under it -->
+          <tag type="div" style="awe-card-grid">
+            <card id="CrdEng" title="SCREEN_TEXT_SCHEDULER_ENGINE_TITLE" initial-load="query"
+                  server-action="data" target-action="getConfigurationEngineCard" />
+          </tag>
+
+          <!-- «Programadas en el motor · N»: the triggers of the scheduled and file tracking tasks, filtered by their state
+               with its counts, the next one to fire first. Shown and sent only on this tab (the servers panel has an
+               IdeTsk column too). It takes the rest of the tab, its grid the free height of the card. In a grid of cards
+               as the engine card: in React a grid of cards insets its cards (aligned with the windows), so both cards
+               share the container to keep the same width and their edges aligned in both engines -->
+          <tag type="div" style="awe-card-grid expand">
+            <!-- The card maximizes (button of its header), not its grid: the grid fills the body of the card, maximized
+                 or not -->
+            <card id="CrdEngTrg" style="expand" title="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES" initial-load="query"
+                  server-action="data" target-action="getConfigurationEngineSchedulesTitle" maximize="true">
+              <!-- An execution waits for a confirmation: one line above the grid, the note and «Ver en Actividad» beside it
+                   (the runs in progress are followed in Actividad). Shown only when there is one (EngDfrCnt). The note
+                   takes the width of its text and the button goes at the end of the line (its box takes the free room,
+                   aligned to the right), so they keep apart; on a narrow line the button goes under the note -->
+              <tag type="div" id="EngDfrBar" style="col-xs-12 awe-editor-inline hidden">
+                <card id="CrdEngDfr" style="card-note" icon="lucide:activity" icon-tone="info"
+                      initial-load="query" server-action="data" target-action="getConfigurationEngineDeferred" />
+                <tag type="div" id="EngDfrAct" style="awe-editor-help text-right">
+                  <button id="ButEngDfrAct" label="BUTTON_SCHEDULER_ENGINE_VIEW_ACTIVITY" icon="lucide:arrow-right" style="btn-link">
+                    <button-action type="screen" target="scheduler-activity" />
+                  </button>
+                </tag>
+              </tag>
+              <grid id="GrdEngTrg" style="expand" server-action="data" target-action="getConfigurationEngineTriggers"
+                    initial-load="query" pagination-disabled="true" row-numbers="false" show-maximize-button="false"
+                    send-when-hidden="false" empty-title="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES_EMPTY"
+                    empty-text="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES_EMPTY_TEXT" empty-icon="lucide:calendar-clock">
+                <quick-filter id="CrtEngTrg" initial-load="query" target-action="getConfigurationEngineTriggerCounts"
+                              label="SCREEN_TEXT_SCHEDULER_ENGINE_TRIGGER_STATE" value="" />
+                <!-- The task of the row, read by the task page (IdeTsk.selected) -->
+                <column name="IdeTsk" hidden="true" />
+                <!-- Values of the row read by the cells, never sent -->
+                <column name="TrgTskRun" hidden="true" sendable="false" />
+                <column name="TrgKndIcn" hidden="true" sendable="false" />
+                <column name="TrgWhnTxt" hidden="true" sendable="false" />
+                <column name="TrgCalExc" hidden="true" sendable="false" />
+                <column name="TrgNxtFirIn" hidden="true" sendable="false" />
+                <column name="TrgStaTon" hidden="true" sendable="false" />
+                <column name="TrgStaIcn" hidden="true" sendable="false" />
+                <!-- The task opens its task page; what it runs goes under it -->
+                <column label="PARAMETER_TASK" name="TrgTskNam" component="link" align="left" charlength="24" width="*"
+                        min-width="180" wrap="true" secondary-field="TrgTskRun" title="BUTTON_ACTIVITY_OPEN_TASK"
+                        sortable="false" sendable="false">
+                  <button-action type="screen" target="scheduler-task" />
+                </column>
+                <!-- Scheduled or file, with its «When» under it -->
+                <column label="PARAMETER_SCHEDULER_ENGINE_TRIGGER" name="TrgKndLbl" align="left" charlength="22" wrap="true"
+                        icon-field="TrgKndIcn" secondary-field="TrgWhnTxt" sortable="false" sendable="false" />
+                <!-- Its calendar and the next days it excludes, or «Sin calendario» -->
+                <column label="PARAMETER_CALENDAR" name="TrgCalNam" align="left" charlength="18" wrap="true"
+                        secondary-field="TrgCalExc" sortable="false" sendable="false" />
+                <column label="PARAMETER_SCHEDULER_ENGINE_PREVIOUS" name="TrgPrvFir" align="left" charlength="13"
+                        sortable="false" sendable="false" />
+                <!-- The next fire time with «dentro de …» under it -->
+                <column label="PARAMETER_SCHEDULER_ENGINE_NEXT" name="TrgNxtFir" align="left" charlength="17"
+                        secondary-field="TrgNxtFirIn" sortable="false" sendable="false" />
+                <column label="SCREEN_TEXT_SCHEDULER_ENGINE_TRIGGER_STATE" name="TrgStaLbl" align="left" charlength="14"
+                        status-field="TrgStaTon" icon-field="TrgStaIcn" sortable="false" sendable="false" />
+                <dependency target-type="show" initial="true">
+                  <dependency-element id="CfgTab" condition="eq" value="CfgEng" />
+                </dependency>
+              </grid>
+              <!-- Why a task is not listed and the other states of a trigger as their pills, on one line under the grid:
+                   the note as the notes of the servers and the calendars, the legend with the gap of an inline row. Each
+                   state is a pill as the «Estado del trigger» cells: its icon in place of the dot (awe-cell-status-plain) -->
+              <tag type="div" style="col-xs-12 awe-editor-inline">
+                <card id="CrdEngTrgNot" style="card-note awe-editor-help" icon="lucide:info" icon-tone="neutral"
+                      description="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES_NOTE" />
+                <tag type="div" id="EngTrgLeg" style="awe-editor-inline awe-editor-help">
+                  <tag type="span" label="SCREEN_TEXT_SCHEDULER_ENGINE_LEGEND" />
+                  <tag type="span" style="awe-cell-status awe-cell-status-warning awe-cell-status-plain" icon="lucide:circle-pause"
+                       label="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_PAUSED" />
+                  <tag type="span" style="awe-cell-status awe-cell-status-info awe-cell-status-plain" icon="lucide:circle-play"
+                       label="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_BLOCKED" />
+                  <tag type="span" style="awe-cell-status awe-cell-status-danger awe-cell-status-plain" icon="lucide:circle-x"
+                       label="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_ERROR" />
+                  <tag type="span" style="awe-cell-status awe-cell-status-neutral awe-cell-status-plain" icon="lucide:circle-stop"
+                       label="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_COMPLETE" />
+                </tag>
+              </tag>
+            </card>
+          </tag>
+        </tag>
+      </tabcontainer>
+    </tab>
+
+    <!-- Server side panel, new and edit (640 px): the header shows the selected server (its type as the avatar, its name
+         and «Servidor externo · SSH · lo usa 1 tarea»), or its label for a new server -->
+    <side-panel id="PnlSrv" label="SCREEN_TEXT_SCHEDULER_SERVER_NEW" icon="lucide:server" max-width="40rem"
+                header-grid="GrdSrv" header-title-field="Nom" header-subtitle-field="SrvPnlSub"
+                header-avatar-field="Nom" header-avatar-icon-field="SrvTypIcn">
+      <tag type="div" style="panel-body" id="PnlSrvBdy">
+        <!-- Connection -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_SCHEDULER_SERVER_CONNECTION" icon="lucide:plug" />
+        <!-- The connection type as choice cards. A folder has no host, port nor credentials; only SSH has a private key -->
+        <criteria label="PARAMETER_CONN_TYPE" component="button-radio" id="Pro" style="col-xs-12 awe-choice-cards"
+                  initial-load="query" target-action="getConfigurationServerTypes" validation="required">
+          <dependency initial="true">
+            <dependency-element id="Pro" condition="eq" value="folder" />
+            <dependency-action type="add-class" target="#SrvPrtBox,#SrvAut" target-action="hidden" silent="true" />
+          </dependency>
+          <dependency initial="true" invert="true">
+            <dependency-element id="Pro" condition="eq" value="folder" />
+            <dependency-action type="remove-class" target="#SrvPrtBox,#SrvAut" target-action="hidden" silent="true" />
+          </dependency>
+          <dependency initial="true">
+            <dependency-element id="Pro" condition="eq" value="ssh" />
+            <dependency-action type="remove-class" target="#SrvKeyBox,#SrvKpwBox" target-action="hidden" silent="true" />
+          </dependency>
+          <dependency initial="true" invert="true">
+            <dependency-element id="Pro" condition="eq" value="ssh" />
+            <dependency-action type="add-class" target="#SrvKeyBox,#SrvKpwBox" target-action="hidden" silent="true" />
+          </dependency>
+        </criteria>
+        <!-- Name, port and active on one row; the port is wide enough for its help on one line -->
+        <criteria label="PARAMETER_NAME" component="text" id="Nom" style="col-xs-12 col-sm-5" validation="required" />
+        <!-- The port of the type: a new server takes the default port of its type, and so does a server that leaves the
+             folder type (its port is 0) -->
+        <tag type="div" id="SrvPrtBox" style="col-xs-6 col-sm-4 awe-editor-stack">
+          <criteria label="PARAMETER_SERVER_PORT" component="text" id="Prt" style="awe-editor-part" validation="required integer">
+            <dependency source-type="value" target-type="input" value="22">
+              <dependency-element id="Pro" condition="eq" value="ssh" />
+              <dependency-element id="SrvPnlMod" condition="eq" value="new" />
+            </dependency>
+            <dependency source-type="value" target-type="input" value="21">
+              <dependency-element id="Pro" condition="eq" value="ftp" />
+              <dependency-element id="SrvPnlMod" condition="eq" value="new" />
+            </dependency>
+            <dependency source-type="value" target-type="input" value="22">
+              <dependency-element id="Pro" condition="eq" value="ssh" />
+              <dependency-element id="Prt" condition="eq" value="0" />
+            </dependency>
+            <dependency source-type="value" target-type="input" value="21">
+              <dependency-element id="Pro" condition="eq" value="ftp" />
+              <dependency-element id="Prt" condition="eq" value="0" />
+            </dependency>
+            <dependency source-type="value" target-type="input" value="0">
+              <dependency-element id="Pro" condition="eq" value="folder" />
+            </dependency>
+          </criteria>
+          <tag type="p" style="awe-editor-help" label="SCREEN_TEXT_SCHEDULER_SERVER_PORT_HELP" />
+        </tag>
+        <criteria label="PARAMETER_ACTIVE" component="checkbox" id="Act" value="1" style="col-xs-6 col-sm-3 switch switch-end" />
+        <!-- A folder is in the application server: localhost, as the old server screens store it -->
+        <criteria label="PARAMETER_SCHEDULER_SERVER_HOST" component="text" id="Hst" style="col-xs-12" validation="required">
+          <dependency source-type="value" target-type="input" value="localhost">
+            <dependency-element id="Pro" condition="eq" value="folder" />
+          </dependency>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="Pro" condition="ne" value="folder" />
+          </dependency>
+        </criteria>
+
+        <!-- Authentication (SSH and FTP). A saved secret is never sent back: its field stays, empty and read-only while
+             its SrvPwdSav, SrvKeySav or SrvKpwSav is 1, with a placeholder that tells it is saved, and «Cambiar» or
+             «Reemplazar…» beside it (shown only while it is saved) make it editable (its flag to 0). Each FlgSsh*Upd flag
+             is 1 only while its field is not empty (a condition on the field, never a formule that copies the secret
+             into an expression: a multi-line key or a quote would break it), so a blank field keeps the saved secret
+             (UpdSchSrv).
+             Layout of a secret: a full-width flex line (awe-editor-join with no awe-editor-part inside, so its input
+             keeps its rounded corners) holding the column of the field and the column of its buttons. The line aligns
+             its columns at the bottom and both columns have the same padding, so the buttons line up with the input,
+             not with its label, one column gap apart -->
+        <tag type="div" id="SrvAut" style="awe-editor-group">
+          <tag type="div" style="row">
+            <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_SCHEDULER_SERVER_AUTHENTICATION" icon="lucide:key-round" />
+            <tag type="div" style="col-xs-12">
+              <tag type="p" style="awe-editor-help" label="SCREEN_TEXT_SCHEDULER_SERVER_AUTHENTICATION_HELP" />
+            </tag>
+            <!-- The user on a row of its own, so the password starts a new line -->
+            <tag type="div" style="row">
+              <criteria label="PARAMETER_USER" component="text" id="SshUsr" style="col-xs-12 col-sm-6" icon="lucide:user">
+                <dependency target-type="set-required" initial="true">
+                  <dependency-element id="Pro" condition="eq" value="ssh" />
+                </dependency>
+              </criteria>
+            </tag>
+            <!-- Password, below the user, with «Cambiar» beside it -->
+            <tag type="div" id="SrvPwdBox" style="awe-editor-join">
+              <criteria label="PARAMETER_PASSWD" component="password" id="SshPwd" style="col-xs-8 col-sm-6" value="">
+                <dependency target-type="set-readonly" initial="true">
+                  <dependency-element id="SrvPwdSav" condition="eq" value="1" />
+                </dependency>
+                <dependency source-type="value" target-type="attribute" target-action="placeholder"
+                            value="SCREEN_TEXT_SCHEDULER_SERVER_SECRET_PLACEHOLDER" initial="true">
+                  <dependency-element id="SrvPwdSav" condition="eq" value="1" />
+                </dependency>
+                <dependency source-type="value" target-type="attribute" target-action="placeholder" value="" initial="true" invert="true">
+                  <dependency-element id="SrvPwdSav" condition="eq" value="1" />
+                </dependency>
+              </criteria>
+              <tag type="div" style="col-xs-4 col-sm-6">
+                <button id="ButSrvPwdChg" label="BUTTON_SCHEDULER_SERVER_CHANGE" icon="lucide:pencil">
+                  <button-action type="value" target="SrvPwdSav" value="0" />
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="SrvPwdSav" condition="eq" value="1" />
+                  </dependency>
+                </button>
+              </tag>
+            </tag>
+            <!-- Private key (SSH): «Reemplazar…» makes the field editable, «Quitar» removes the saved key and its
+                 passphrase. Its help goes under it, in its own column -->
+            <tag type="div" id="SrvKeyBox" style="row">
+              <tag type="div" style="awe-editor-join">
+                <criteria label="SCHEDULER_SERVER_KEY" component="textarea" id="SshKey" style="col-xs-8" value="">
+                  <dependency target-type="set-readonly" initial="true">
+                    <dependency-element id="SrvKeySav" condition="eq" value="1" />
+                  </dependency>
+                  <dependency source-type="value" target-type="attribute" target-action="placeholder"
+                              value="SCREEN_TEXT_SCHEDULER_SERVER_KEY_PLACEHOLDER" initial="true">
+                    <dependency-element id="SrvKeySav" condition="eq" value="1" />
+                  </dependency>
+                  <dependency source-type="value" target-type="attribute" target-action="placeholder" value="" initial="true" invert="true">
+                    <dependency-element id="SrvKeySav" condition="eq" value="1" />
+                  </dependency>
+                </criteria>
+                <tag type="div" style="col-xs-4">
+                  <button id="ButSrvKeyChg" label="BUTTON_SCHEDULER_SERVER_REPLACE" icon="lucide:replace">
+                    <button-action type="value" target="SrvKeySav" value="0" />
+                    <dependency target-type="show" initial="true">
+                      <dependency-element id="SrvKeySav" condition="eq" value="1" />
+                    </dependency>
+                  </button>
+                  <button id="ButSrvKeyDel" label="BUTTON_SCHEDULER_SERVER_REMOVE_KEY" icon="trash" style="btn-danger">
+                    <button-action type="value" target="FlgSshKeyDel" value="1" />
+                    <button-action type="value" target="SrvKeySav" value="0" />
+                    <button-action type="value" target="SrvKpwSav" value="0" />
+                    <dependency target-type="show" initial="true">
+                      <dependency-element id="SrvKeySav" condition="eq" value="1" />
+                    </dependency>
+                  </button>
+                </tag>
+              </tag>
+              <tag type="div" style="col-xs-12">
+                <tag type="p" style="awe-editor-help" label="SCREEN_TEXT_SCHEDULER_SERVER_KEY_HELP" />
+              </tag>
+            </tag>
+            <tag type="div" id="SrvKpwBox" style="awe-editor-join">
+              <criteria label="SCHEDULER_SERVER_KEY_PASS" component="password" id="SshKeyPass" style="col-xs-8 col-sm-6" value="">
+                <dependency target-type="set-readonly" initial="true">
+                  <dependency-element id="SrvKpwSav" condition="eq" value="1" />
+                </dependency>
+                <dependency source-type="value" target-type="attribute" target-action="placeholder"
+                            value="SCREEN_TEXT_SCHEDULER_SERVER_SECRET_PLACEHOLDER" initial="true">
+                  <dependency-element id="SrvKpwSav" condition="eq" value="1" />
+                </dependency>
+                <dependency source-type="value" target-type="attribute" target-action="placeholder" value="" initial="true" invert="true">
+                  <dependency-element id="SrvKpwSav" condition="eq" value="1" />
+                </dependency>
+              </criteria>
+              <tag type="div" style="col-xs-4 col-sm-6">
+                <button id="ButSrvKpwChg" label="BUTTON_SCHEDULER_SERVER_CHANGE" icon="lucide:pencil">
+                  <button-action type="value" target="SrvKpwSav" value="0" />
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="SrvKpwSav" condition="eq" value="1" />
+                  </dependency>
+                </button>
+              </tag>
+            </tag>
+            <!-- Whether each secret is saved (the loader fills them; each one makes its field read-only and shows its
+                 buttons) and the flags of UpdSchSrv -->
+            <criteria id="SrvPwdSav" component="hidden" value="0" />
+            <criteria id="SrvKeySav" component="hidden" value="0" />
+            <criteria id="SrvKpwSav" component="hidden" value="0" />
+            <criteria id="FlgSshKeyDel" component="hidden" value="0" />
+            <criteria id="FlgSshPwdUpd" component="hidden" value="0">
+              <dependency source-type="value" target-type="input" value="1" initial="true">
+                <dependency-element id="SshPwd" condition="is not empty" />
+              </dependency>
+              <dependency source-type="value" target-type="input" value="0" initial="true">
+                <dependency-element id="SshPwd" condition="is empty" />
+              </dependency>
+            </criteria>
+            <criteria id="FlgSshKeyUpd" component="hidden" value="0">
+              <dependency source-type="value" target-type="input" value="1" initial="true">
+                <dependency-element id="SshKey" condition="is not empty" />
+              </dependency>
+              <dependency source-type="value" target-type="input" value="0" initial="true">
+                <dependency-element id="SshKey" condition="is empty" />
+              </dependency>
+            </criteria>
+            <criteria id="FlgSshKeyPassUpd" component="hidden" value="0">
+              <dependency source-type="value" target-type="input" value="1" initial="true">
+                <dependency-element id="SshKeyPass" condition="is not empty" />
+              </dependency>
+              <dependency source-type="value" target-type="input" value="0" initial="true">
+                <dependency-element id="SshKeyPass" condition="is empty" />
+              </dependency>
+            </criteria>
+          </tag>
+        </tag>
+
+        <!-- Test the values of the form without saving them (TstSchSrvCnx): an edited server sends its id (the selected
+             row), so its blank secrets are the saved ones only while the form keeps its connection. The note goes beside
+             the button, centred on it. Its result is the message of the action (the engine has no inline notice fed by
+             a maintain) -->
+        <tag type="div" style="col-xs-12 awe-editor-inline">
+          <button id="ButSrvPnlTst" label="BUTTON_TEST_CONNECTION" icon="lucide:plug" permission="scheduler.update">
+            <button-action type="validate" target="PnlSrvBdy" />
+            <button-action type="server" server-action="maintain" target-action="TstSchSrvCnx" />
+          </button>
+          <tag type="p" style="awe-editor-help" label="SCREEN_TEXT_SCHEDULER_SERVER_TEST_HELP" />
+        </tag>
+
+        <!-- In use by: the tasks of the server, each one a link to its task page. The note about changing the host goes
+             under the title: a grid keeps a minimum height for its rows (engine), which would leave a gap between a
+             short list and a note under it -->
+        <tag type="div" id="SrvUse" style="awe-editor-group hidden">
+          <tag type="div" style="row">
+            <tag type="h3" style="col-xs-12 awe-form-section-title" label="PARAMETER_SCHEDULER_USED_BY" icon="lucide:list-checks" />
+            <tag type="div" style="col-xs-12">
+              <tag type="p" style="awe-editor-help" label="SCREEN_TEXT_SCHEDULER_SERVER_USED_BY_HELP" />
+            </tag>
+            <tag type="div" style="col-xs-12" expandible="vertical">
+              <!-- Its values are sent only while it is shown, on the servers tab: the schedules grid of the engine tab
+                   has an IdeTsk column too -->
+              <grid id="GrdSrvUse" style="expand" show-toolbar="false" server-action="data"
+                    target-action="getConfigurationServerTasks" pagination-disabled="true" row-numbers="false"
+                    send-when-hidden="false">
+                <!-- The task page reads the task of the selected row (IdeTsk.selected) -->
+                <column name="IdeTsk" hidden="true" />
+                <column name="TskUseSub" hidden="true" sendable="false" />
+                <column name="TskStaIcn" hidden="true" sendable="false" />
+                <column name="TskStaTon" hidden="true" sendable="false" />
+                <column label="PARAMETER_TASK" name="TskNam" component="link" align="left" charlength="30" width="*"
+                        secondary-field="TskUseSub" title="BUTTON_ACTIVITY_OPEN_TASK" sortable="false" sendable="false">
+                  <button-action type="close" target="PnlSrv" />
+                  <button-action type="screen" target="scheduler-task" />
+                </column>
+                <column label="PARAMETER_TASK_LAST_STATUS" name="TskStaTxt" align="left" charlength="16"
+                        status-field="TskStaTon" icon-field="TskStaIcn" sortable="false" sendable="false" />
+                <dependency target-type="show" initial="true">
+                  <dependency-element id="GrdSrvUse" attribute="totalValues" condition="gt" value="0" />
+                  <dependency-element id="CfgTab" condition="eq" value="CfgSrv" />
+                </dependency>
+              </grid>
+            </tag>
+            <tag type="div" style="col-xs-12">
+              <card id="CrdSrvUseEmp" style="card-note" icon="lucide:list-checks" icon-tone="neutral"
+                    title="SCREEN_TEXT_SCHEDULER_SERVER_NO_TASKS">
+                <dependency target-type="show" initial="true">
+                  <dependency-element id="GrdSrvUse" attribute="totalValues" condition="eq" value="0" />
+                </dependency>
+              </card>
+            </tag>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button id="ButSrvPnlCnl" label="BUTTON_CANCEL" icon="lucide:x">
+          <button-action type="close-cancel" target="PnlSrv" />
+        </button>
+        <button id="ButSrvPnlNew" label="BUTTON_SCHEDULER_SERVER_SAVE" icon="lucide:check" style="btn-primary" permission="scheduler.update">
+          <button-action type="validate" target="PnlSrvBdy" />
+          <button-action type="server" server-action="maintain" target-action="NewSchedulerServer" />
+          <button-action type="close" target="PnlSrv" />
+          <button-action type="filter" target="GrdSrv" />
+          <button-action type="filter" target="CfgTab" silent="true" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="SrvPnlMod" condition="eq" value="new" />
+          </dependency>
+        </button>
+        <!-- UpdSchSrv reads the server of the selected row (IdeSrv): the one of the header -->
+        <button id="ButSrvPnlUpd" label="BUTTON_SCHEDULER_SERVER_SAVE" icon="lucide:check" style="btn-primary" permission="scheduler.update">
+          <button-action type="check-one-selected" target="GrdSrv" />
+          <button-action type="validate" target="PnlSrvBdy" />
+          <button-action type="server" server-action="maintain" target-action="UpdSchSrv" />
+          <button-action type="close" target="PnlSrv" />
+          <button-action type="filter" target="GrdSrv" />
+          <button-action type="filter" target="CfgTab" silent="true" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="SrvPnlMod" condition="eq" value="edit" />
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+
+    <!-- Calendar side panel, new and edit (mock-up 06 artboard 2A): the header shows the selected calendar (its name and
+         «Calendario · lo usa 1 tarea»), or its label for a new calendar. Wider than the servers panel (54rem, 864 px):
+         the dates toolbar (the uploader shows the chosen file), the grid and the month view need the room -->
+    <side-panel id="PnlCal" label="SCREEN_TEXT_SCHEDULER_CALENDAR_NEW" icon="lucide:calendar-x" max-width="54rem"
+                header-grid="GrdCal" header-title-field="CalNom" header-subtitle-field="CalPnlSub"
+                header-avatar-field="CalNom" header-avatar-icon-field="CalPnlIcn">
+      <tag type="div" style="panel-body" id="PnlCalBdy">
+        <!-- Name and active on one row, the description under them -->
+        <criteria label="PARAMETER_NAME" component="text" id="CalPnlNom" style="col-xs-12 col-sm-8" validation="required" />
+        <criteria label="PARAMETER_ACTIVE" component="checkbox" id="CalPnlAct" value="1" style="col-xs-12 col-sm-4 switch switch-end" />
+        <criteria label="PARAMETER_DESCRIPTION" component="text" id="CalPnlDes" style="col-xs-12" />
+
+        <!-- Days it does not run on: how many dates are saved (the loader tells it), «Importar fichero» and «Añadir
+             fecha» on one line, aligned at the bottom, the uploader wide enough to show the chosen file («import.csv
+             (73 B)») and «Añadir fecha» on one line; the dates grid and the month view of its rows under them -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_SCHEDULER_CALENDAR_DATES_SECTION" icon="lucide:calendar-x" />
+        <tag type="div" style="awe-editor-join">
+          <criteria label="PARAMETER_SCHEDULER_CALENDAR_DATES" component="text-view" id="CalPnlCnt" style="col-xs-12 col-sm-2" />
+          <!-- An .ics or .csv file: the importer reads it (and deletes it) and adds its dates as new rows of the grid,
+               not saved until the calendar is saved -->
+          <criteria label="BUTTON_SCHEDULER_CALENDAR_IMPORT" component="uploader" id="CalDatImp" style="col-xs-8 col-sm-7"
+                    help="HELP_SCHEDULER_CALENDAR_IMPORT">
+            <dependency>
+              <dependency-element id="CalDatImp" condition="is not empty" />
+              <dependency-action type="server" server-action="maintain" target-action="ImportConfigurationCalendarDates" />
+            </dependency>
+          </criteria>
+          <tag type="div" style="col-xs-4 col-sm-3">
+            <button id="ButCalDatAdd" label="BUTTON_SCHEDULER_CALENDAR_ADD_DATE" icon="lucide:plus" style="white-space-nowrap">
+              <button-action type="add-row" target="GrdDatLst" silent="true" />
+            </button>
+          </tag>
+        </tag>
+        <!-- The dates grid takes the whole width of the panel (Fecha, Día, Nombre and «Quitar» with no horizontal scroll) and
+             about six rows; the month view and its strip of months go under it, also full width. The engine adds a filler
+             (its padding) and the row edit column (80 px, frozen at the right): Fecha 112 px (dd/MM/yyyy), Día 56 px,
+             «Quitar» 40 px (its icon button) and Nombre the rest, down to 96 px before the grid scrolls -->
+        <tag type="div" style="col-xs-12">
+          <grid id="GrdDatLst" style="height-lg" editable="true" send-operations="true" show-toolbar="false" server-action="data"
+                target-action="getConfigurationCalendarPanelDates" pagination-disabled="true" row-numbers="false"
+                empty-title="SCREEN_TEXT_SCHEDULER_CALENDAR_DATES_EMPTY" empty-text="SCREEN_TEXT_SCHEDULER_CALENDAR_DATES_EMPTY_TEXT"
+                empty-icon="lucide:calendar">
+            <column name="IdeDat" hidden="true" />
+            <!-- A date added («Añadir fecha») or changed in the editor gets its day from the server: the answer updates the
+                 row being edited (the edited row is the selected one, its id is the grid id «id») -->
+            <column label="COLUMN_DAT" name="Dat" type="date" component="date" align="left" charlength="12" validation="required"
+                    sortable="false">
+              <dependency source-type="query" target-type="none" server-action="maintain-silent"
+                          target-action="getConfigurationCalendarDateWeekday" silent="true">
+                <dependency-element id="GrdDatLst" column="Dat" attribute="selectedRowValue" alias="CalDatWekDat" />
+                <dependency-element id="GrdDatLst" column="id" attribute="selectedRowValue" alias="CalDatWekRow" />
+              </dependency>
+            </column>
+            <!-- The weekday of the date, narrow (a saved date or an imported one: the loader and the importer fill it; an
+                 added or changed one: the dependency of Dat) -->
+            <column label="PARAMETER_SCHEDULER_CALENDAR_WEEKDAY" name="DatWek" align="left" charlength="3" sortable="false"
+                    sendable="false" />
+            <!-- The name is required: a date of a calendar is stored with its name -->
+            <column label="PARAMETER_NAME" name="Nam" component="text" align="left" charlength="16" width="*" min-width="96"
+                    validation="required" sortable="false" />
+            <!-- «Quitar»: the row is removed now and deleted when the calendar is saved -->
+            <column name="DatDel" component="button" icon="trash" title="BUTTON_SCHEDULER_CALENDAR_REMOVE_DATE" style="btn-ghost no-label"
+                    align="center" charlength="1" sortable="false" sendable="false">
+              <button-action type="delete-row" target="GrdDatLst" silent="true" />
+            </column>
+          </grid>
+        </tag>
+        <tag type="div" style="col-xs-12">
+          <widget type="month-view" id="CalMth">
+            <widget-parameter type="string" name="grid" value="GrdDatLst" />
+            <widget-parameter type="string" name="dateColumn" value="Dat" />
+            <widget-parameter type="string" name="nameColumn" value="Nam" />
+            <widget-parameter type="string" name="legend" value="MONTH_VIEW_LEGEND" />
+          </widget>
+        </tag>
+
+        <!-- In use by: the tasks of the calendar, each one with when it runs and the days of the calendar it will not run
+             on. The note goes under the title: a grid keeps a minimum height for its rows (engine), which would leave a
+             gap between a short list and a note under it -->
+        <tag type="div" id="CalUse" style="awe-editor-group hidden">
+          <tag type="div" style="row">
+            <tag type="h3" style="col-xs-12 awe-form-section-title" label="PARAMETER_SCHEDULER_USED_BY" icon="lucide:list-checks" />
+            <tag type="div" style="col-xs-12">
+              <tag type="p" style="awe-editor-help" label="SCREEN_TEXT_SCHEDULER_CALENDAR_SAVE_NOTE" />
+            </tag>
+            <tag type="div" style="col-xs-12" expandible="vertical">
+              <grid id="GrdCalUse" style="expand" show-toolbar="false" server-action="data"
+                    target-action="getConfigurationCalendarPanelTasks" pagination-disabled="true" row-numbers="false">
+                <column name="CalTskSub" hidden="true" sendable="false" />
+                <column name="CalTskSkpTon" hidden="true" sendable="false" />
+                <column name="CalTskSkpIcn" hidden="true" sendable="false" />
+                <column label="PARAMETER_TASK" name="CalTskNam" align="left" charlength="24" width="*" min-width="160"
+                        secondary-field="CalTskSub" sortable="false" sendable="false" />
+                <column label="PARAMETER_SCHEDULER_CALENDAR_SKIPPED_DAYS" name="CalTskSkp" align="left" charlength="28" wrap="true"
+                        status-field="CalTskSkpTon" icon-field="CalTskSkpIcn" sortable="false" sendable="false" />
+                <dependency target-type="show" initial="true">
+                  <dependency-element id="GrdCalUse" attribute="totalValues" condition="gt" value="0" />
+                </dependency>
+              </grid>
+            </tag>
+            <tag type="div" style="col-xs-12">
+              <card id="CrdCalUseEmp" style="card-note" icon="lucide:list-checks" icon-tone="neutral"
+                    title="SCREEN_TEXT_SCHEDULER_CALENDAR_NO_TASKS">
+                <dependency target-type="show" initial="true">
+                  <dependency-element id="GrdCalUse" attribute="totalValues" condition="eq" value="0" />
+                </dependency>
+              </card>
+            </tag>
+          </tag>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <!-- «Borrar calendario…», at the start of the footer: the delete flow of the row menu, a simple confirmation for
+             a calendar no task uses, the delete dialog with its tasks for one in use (the panel closes first). pull-left
+             floats it in AngularJS; the footer of a React side panel is a flex row, where mr-auto (PrimeFlex) pushes the
+             other buttons to its end -->
+        <tag type="div" style="pull-left mr-auto">
+          <button id="ButCalPnlDel" label="BUTTON_SCHEDULER_CALENDAR_DELETE_PANEL" icon="trash" style="btn-danger" permission="scheduler.update">
+            <button-action type="confirm" target="CalDelMsg" />
+            <button-action type="server" server-action="maintain" target-action="DeleteConfigurationCalendar" />
+            <button-action type="close" target="PnlCal" />
+            <button-action type="filter" target="GrdCal" />
+            <button-action type="filter" target="CfgTab" silent="true" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="CalPnlMod" condition="eq" value="edit" />
+              <dependency-element id="GrdCal" column="CalUseCnt" attribute="selectedRowValue" condition="eq" value="0" />
+            </dependency>
+          </button>
+          <button id="ButCalPnlDelUse" label="BUTTON_SCHEDULER_CALENDAR_DELETE_PANEL" icon="trash" style="btn-danger" permission="scheduler.update">
+            <button-action type="close" target="PnlCal" />
+            <button-action type="filter" target="CrdCalDel" silent="true" />
+            <button-action type="filter" target="GrdCalDel" silent="true" />
+            <button-action type="dialog" target="DlgCalDel" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="CalPnlMod" condition="eq" value="edit" />
+              <dependency-element id="GrdCal" column="CalUseCnt" attribute="selectedRowValue" condition="gt" value="0" />
+            </dependency>
+          </button>
+        </tag>
+        <button id="ButCalPnlCnl" label="BUTTON_CANCEL" icon="lucide:x">
+          <button-action type="close-cancel" target="PnlCal" />
+        </button>
+        <button id="ButCalPnlNew" label="BUTTON_SCHEDULER_SERVER_SAVE" icon="lucide:check" style="btn-primary" permission="scheduler.update">
+          <button-action type="validate" target="PnlCalBdy" />
+          <button-action type="server" server-action="maintain" target-action="NewConfigurationCalendar" />
+          <button-action type="close" target="PnlCal" />
+          <button-action type="filter" target="GrdCal" />
+          <button-action type="filter" target="CfgTab" silent="true" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="CalPnlMod" condition="eq" value="new" />
+          </dependency>
+        </button>
+        <!-- UpdConfigurationCalendar reads the calendar of the selected row (IdeCal.selected): the one of the header -->
+        <button id="ButCalPnlUpd" label="BUTTON_SCHEDULER_SERVER_SAVE" icon="lucide:check" style="btn-primary" permission="scheduler.update">
+          <button-action type="check-one-selected" target="GrdCal" />
+          <button-action type="validate" target="PnlCalBdy" />
+          <button-action type="server" server-action="maintain" target-action="UpdConfigurationCalendar" />
+          <button-action type="close" target="PnlCal" />
+          <button-action type="filter" target="GrdCal" />
+          <button-action type="filter" target="CfgTab" silent="true" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="CalPnlMod" condition="eq" value="edit" />
+          </dependency>
+        </button>
+      </tag>
+    </side-panel>
+  </tag>
+
+  <tag source="modal">
+    <include target-screen="screen-help" target-source="center" />
+
+    <!-- Delete a calendar in use (mock-up 06 artboard 2B): «¿Borrar «Festivos ES 2026»?» with how many tasks use it, the
+         tasks with when each one runs and the days it would run on without the calendar (the calendar of the selected
+         row, IdeCal), what to do instead, and «Borrar y quitarlo de la tarea» -->
+    <dialog id="DlgCalDel" modal="true" label="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_DIALOG">
+      <tag type="div" style="col-xs-12">
+        <card id="CrdCalDel" style="card-note" icon="lucide:triangle-alert" icon-tone="warning" server-action="data"
+              target-action="getConfigurationCalendarDeleteSummary" />
+      </tag>
+      <tag type="div" style="col-xs-12">
+        <grid id="GrdCalDel" show-toolbar="false" server-action="data" target-action="getConfigurationCalendarDeleteCheck"
+              pagination-disabled="true" row-numbers="false">
+          <column name="CalDelSub" hidden="true" sendable="false" />
+          <column label="PARAMETER_TASK" name="CalDelTsk" align="left" charlength="40" width="*" secondary-field="CalDelSub"
+                  sortable="false" sendable="false" />
+        </grid>
+      </tag>
+      <tag type="div" style="col-xs-12">
+        <card id="CrdCalDelHnt" style="card-note" icon="lucide:info" icon-tone="neutral"
+              description="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_HINT" />
+      </tag>
+      <tag type="div" style="modal-footer">
+        <button id="ButCalDelCnl" label="BUTTON_CANCEL" icon="lucide:x">
+          <button-action type="close-cancel" target="DlgCalDel" />
+        </button>
+        <button id="ButCalDelCnf" label="BUTTON_SCHEDULER_CALENDAR_DELETE_IN_USE" icon="trash" style="btn-danger"
+                permission="scheduler.update">
+          <button-action type="server" server-action="maintain" target-action="DeleteConfigurationCalendar" />
+          <button-action type="close" target="DlgCalDel" />
+          <button-action type="filter" target="GrdCal" />
+          <button-action type="filter" target="CfgTab" silent="true" />
+        </button>
+      </tag>
+    </dialog>
+
+    <!-- «Detener y vaciar…» (mock-up 06 artboard 3B): what stops, what is not lost, the execution waiting for a
+         confirmation (with its link to Actividad) and «Entiendo…», which enables «Detener y vaciar». The opener resets
+         the dialog before it opens, so the checkbox starts unticked; the button is disabled while the checkbox is not 1
+         (React leaves it empty after a reset, not 0) -->
+    <dialog id="DlgEngClr" modal="true" icon="lucide:power" label="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_DIALOG">
+      <tag type="div" style="col-xs-12">
+        <tag type="p" label="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_INTRO" />
+      </tag>
+      <tag type="div" style="col-xs-12">
+        <tag type="h3" style="awe-form-section-title" label="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_STOPS" icon="lucide:circle-stop" />
+        <tag type="ul">
+          <tag type="li" label="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_STOPS_SCHEDULES" />
+          <tag type="li" label="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_STOPS_RUNNING" />
+        </tag>
+      </tag>
+      <tag type="div" style="col-xs-12">
+        <tag type="h3" style="awe-form-section-title" label="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_KEEPS" icon="lucide:shield-check" />
+        <tag type="ul">
+          <tag type="li" label="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_KEEPS_DATA" />
+          <tag type="li" label="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_KEEPS_MISSED" />
+        </tag>
+      </tag>
+      <tag type="div" style="col-xs-12">
+        <card id="CrdEngClrDfr" style="card-note" icon="lucide:triangle-alert" icon-tone="warning" server-action="data"
+              target-action="getConfigurationEngineDeferred">
+          <dependency target-type="show" initial="true">
+            <dependency-element id="EngDfrCnt" condition="gt" value="0" />
+          </dependency>
+        </card>
+        <button id="ButEngClrAct" label="BUTTON_SCHEDULER_ENGINE_VIEW_ACTIVITY" icon="lucide:arrow-right" style="btn-link">
+          <button-action type="close-cancel" target="DlgEngClr" />
+          <button-action type="screen" target="scheduler-activity" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="EngDfrCnt" condition="gt" value="0" />
+          </dependency>
+        </button>
+      </tag>
+      <criteria id="EngClrAck" component="checkbox" label="PARAMETER_SCHEDULER_ENGINE_CLEAR_ACK" style="col-xs-12" />
+      <tag type="div" style="modal-footer">
+        <button id="ButEngClrCnl" label="BUTTON_CANCEL" icon="lucide:x">
+          <button-action type="close-cancel" target="DlgEngClr" />
+        </button>
+        <button id="ButEngClrCnf" label="BUTTON_SCHEDULER_ENGINE_CLEAR_CONFIRM" icon="lucide:power" style="btn-danger"
+                permission="scheduler.execute">
+          <button-action type="server" server-action="maintain" target-action="clearAndStop" />
+          <button-action type="close" target="DlgEngClr" />
+          <button-action type="filter" target="CrdEng" silent="true" />
+          <button-action type="server" server-action="update-model" target-action="getConfigurationEngine" silent="true" />
+          <button-action type="filter" target="CrdEngDfr" silent="true" />
+          <button-action type="filter" target="CrdEngTrg" silent="true" />
+          <button-action type="filter" target="GrdEngTrg" silent="true" />
+          <button-action type="filter" target="CfgTab" silent="true" />
+          <dependency target-type="disable" initial="true">
+            <dependency-element id="EngClrAck" condition="ne" value="1" />
+          </dependency>
+        </button>
+      </tag>
+    </dialog>
+  </tag>
+</screen>

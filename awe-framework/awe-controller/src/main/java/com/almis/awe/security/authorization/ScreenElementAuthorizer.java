@@ -26,7 +26,8 @@ import java.util.Set;
  * Removes from a screen the elements the session user cannot use, when {@code awe.security.authorization.mode} is
  * {@code enforce}: {@code off} and {@code warn} leave the screen as it is.
  *
- * <p>A button, a context button or a column of component button is removed when one of its button actions launches a
+ * <p>A button, a context button, a column of component button or a column of component link with button actions (the
+ * link launches them) is removed when one of its button actions launches a
  * maintain target, a query or a service whose permission the user does not hold. The {@code server-action} of the
  * action names the action called; its service is the target launched, unless the service is authorized by its
  * target, which is then the {@code target-action} (a maintain target or a query, whichever exists). A target that
@@ -49,6 +50,7 @@ import java.util.Set;
 public class ScreenElementAuthorizer extends ServiceConfig {
 
   private static final String BUTTON_COMPONENT = "button";
+  private static final String LINK_COMPONENT = "link";
   private static final String DIALOG_ACTION = "dialog";
 
   private final SecurityConfigProperties securityConfigProperties;
@@ -174,10 +176,19 @@ public class ScreenElementAuthorizer extends ServiceConfig {
     return switch (element) {
       case Button button -> isAllowed(button, button.getPermission());
       case ContextButton button -> isAllowed(button, button.getPermission());
-      case Column column when BUTTON_COMPONENT.equals(column.getComponentType()) ->
-        isAllowed(column, column.getPermission());
+      case Column column when launchesActions(column) -> isAllowed(column, column.getPermission());
       default -> true;
     };
+  }
+
+  /**
+   * Whether a column launches button actions: a button column, or a link column with button actions (without them the
+   * link only opens its URL)
+   */
+  private boolean launchesActions(Column column) {
+    String component = column.getComponentType();
+    return BUTTON_COMPONENT.equals(component)
+      || LINK_COMPONENT.equals(component) && !column.getChildrenByType(ButtonAction.class).isEmpty();
   }
 
   /**

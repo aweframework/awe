@@ -40,6 +40,7 @@ import {ComponentType, getFirstDefinedAndNotNullValue} from "../../utilities/gen
 import {clearClassChanges} from "../../utilities/classChanges";
 import {pickThemeAppearance} from "../../utilities/themeAppearance";
 import {clearPendingLoginChoices} from "../../utilities/signin";
+import {getTabStorage, storeKeptParameters, withKeptParameters} from "../../utilities/keptParameters";
 import {navigationActions} from "../actions/navigation";
 import type {AppThunk, MenuOption} from "../types";
 import type {ClientAction, Translate} from "./types";
@@ -178,14 +179,17 @@ export const loadScreen = (view: string, option: string, t: Translate, fresh = f
     ViewRegistry.updateView(view, { loading: true });
 
     // An error answer has no structure, but the message and the status of the error. The request has always sent an
-    // empty object where the view goes
+    // empty object where the view goes. The values the screen keeps on reload go when the request lacks them (#993)
+    const storage = getTabStorage();
     const response = await fetchScreen<ScreenResponse>(
-      option, {} as unknown as string, token, { ...getFormValues(state), ...(fresh ? { freshScreen: true } : {}), ...parameters }
+      option, {} as unknown as string, token,
+      withKeptParameters(storage, option, { ...getFormValues(state), ...(fresh ? { freshScreen: true } : {}), ...parameters })
     ) as ScreenResponse & Partial<FetchError>;
     if (!response.structure) {
       manageScreenError(option, response);
       return;
     }
+    storeKeptParameters(storage, option, response.components);
 
     const componentStructure = inspectComponentStructure(response.structure, [], {});
 

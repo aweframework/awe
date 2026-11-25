@@ -61,16 +61,16 @@ class MaintainXmlTest {
   }
 
   @Test
-  void updateSchedulerTaskChecksTheDependenciesForCyclesBeforeChangingAnything() throws IOException {
+  void theEditorUpdateChecksTheParentsForCyclesBeforeChangingAnything() throws IOException {
     String xml = readDescriptor();
 
-    int start = xml.indexOf("<target name=\"UpdateSchedulerTask\"");
+    int start = xml.indexOf("<target name=\"UpdateSchedulerTaskEditor\"");
     int end = xml.indexOf("</target>", start);
-    assertTrue(start >= 0, "UpdateSchedulerTask target must exist");
+    assertTrue(start >= 0, "UpdateSchedulerTaskEditor target must exist");
     String target = xml.substring(start, end);
 
-    int validation = target.indexOf("<serve service=\"validateTaskDependencies\">");
-    assertTrue(validation >= 0, "UpdateSchedulerTask must validate the dependencies");
+    int validation = target.indexOf("<serve service=\"validateTaskParents\">");
+    assertTrue(validation >= 0, "UpdateSchedulerTaskEditor must validate the parents");
     assertTrue(validation < target.indexOf("<update"), "the validation must run before the first update");
   }
 
@@ -184,7 +184,7 @@ class MaintainXmlTest {
   @Test
   void theTaskStoresItsCancellationMaintain() throws IOException {
     String xml = readDescriptor();
-    for (String name : new String[]{"NewSchedulerTask", "UpdateSchedulerTask"}) {
+    for (String name : new String[]{"NewSchedulerTaskEditor", "UpdateSchedulerTaskEditor"}) {
       int start = xml.indexOf("<target name=\"" + name + "\"");
       assertTrue(start >= 0, name + " target must exist");
       String target = xml.substring(start, xml.indexOf("</target>", start));
