@@ -17,22 +17,17 @@ import "../components/AweButton.less";
 
 const {BUTTON_RESET, BUTTON_NORMAL} = ButtonTypes;
 
-function ColumnButton(props) {
-  const {data, attrs, address, style, disabled, icon, actions, buttonType = BUTTON_NORMAL, title: columnTitle} = props;
-  const {style: cellStyle, label, icon: cellIcon, title: cellTitle} = data;
-  const {visible = true, readonly: cellReadonly, disabled: cellDisabled} = attrs;
-  // A btn-* style of the column gives the look of its buttons (btn-ghost for the row actions)
-  const classes = classNames('p-button-sm', 'p-1', getButtonVariant(classNames(style, cellStyle), ""), style, cellStyle, {"hidden": !visible});
+/**
+ * Launcher of the actions of a column cell (button and link columns): the cell acts on its row, so the row is selected
+ * (only it) before the actions run, as their dependencies and the parameters they send read the selected row
+ * @param {object} address Cell address
+ * @param {Array} actions Actions of the column
+ * @param {string} buttonType Button type (a reset button without actions restores)
+ * @returns {function} Launcher of the actions
+ */
+export function useColumnActions(address, actions = [], buttonType = BUTTON_NORMAL) {
   const dispatch = useDispatch();
-  const { t} = useTranslation();
-  const buttonRef = useContextMenuAnchor(address);
-  // The title of the cell, else the one of the column, is the tooltip; a cell without label shows only its icon and the
-  // tooltip is its accessible name too
-  const tooltip = translateLabel(getFirstDefinedValue(cellTitle, columnTitle), t) || undefined;
-
-  const onClick = useCallback(() => {
-    // The button acts on its row: it is selected (only it) before the actions run, as their dependencies and the
-    // parameters they send read the selected row
+  return useCallback(() => {
     dispatch(selectButtonRow(address));
 
     // Change click event
@@ -45,6 +40,21 @@ function ColumnButton(props) {
       dispatch(addActionsTop([{type: "restore", address: {...address}}]));
     }
   }, []);
+}
+
+function ColumnButton(props) {
+  const {data, attrs, address, style, disabled, icon, actions, buttonType = BUTTON_NORMAL, title: columnTitle} = props;
+  const {style: cellStyle, label, icon: cellIcon, title: cellTitle} = data;
+  const {visible = true, readonly: cellReadonly, disabled: cellDisabled} = attrs;
+  // A btn-* style of the column gives the look of its buttons (btn-ghost for the row actions)
+  const classes = classNames('p-button-sm', 'p-1', getButtonVariant(classNames(style, cellStyle), ""), style, cellStyle, {"hidden": !visible});
+  const { t} = useTranslation();
+  const buttonRef = useContextMenuAnchor(address);
+  // The title of the cell, else the one of the column, is the tooltip; a cell without label shows only its icon and the
+  // tooltip is its accessible name too
+  const tooltip = translateLabel(getFirstDefinedValue(cellTitle, columnTitle), t) || undefined;
+
+  const onClick = useColumnActions(address, actions, buttonType);
 
   return <Button
     ref={buttonRef}

@@ -10,6 +10,8 @@ import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskDependency;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
+import com.almis.awe.scheduler.bean.task.TaskParameter;
+import com.almis.awe.scheduler.constant.ParameterConstants;
 import com.almis.awe.scheduler.dao.task.FlowRules.ExecutionRow;
 import com.almis.awe.scheduler.dao.task.FlowRules.JoinRow;
 import com.almis.awe.scheduler.enums.TaskStatus;
@@ -21,6 +23,9 @@ import tools.jackson.databind.node.ObjectNode;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_ID;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_JOB_EXECUTION;
@@ -33,7 +38,20 @@ import static com.almis.awe.scheduler.constant.JobConstants.TASK_LAUNCHER;
 @Slf4j
 public class FlowRunRepository {
 
+  /**
+   * Prefix of the run parameters that only record a resolved parameter of the root task (to show the parameters of
+   * the launch): the dependencies of the run do not receive them. Task parameter names cannot start with it (the task
+   * screen validates it)
+   */
+  public static final String RESOLVED_PARAMETER_PREFIX = "=";
   private static final String RUN_ID = "runId";
+  private static final String INSERT_FLOW_RUN_PARAMETER = "insertFlowRunParameter";
+  /**
+   * Longest parameter name of a run (AweSchRunPar.Nam)
+   */
+  private static final int PARAMETER_NAME_LENGTH = 40;
+  private static final Set<String> RESOLVED_SOURCES = Set.of(String.valueOf(ParameterConstants.VALUE),
+    String.valueOf(ParameterConstants.VARIABLE));
 
   private final QueryService queryService;
   private final MaintainService maintainService;
@@ -53,10 +71,13 @@ public class FlowRunRepository {
   }
 
   /**
-   * Create the run of a root execution, with the parameters of its launch
+   * Create the run of a root execution, with the parameters of its launch: the operator values as they are (the
+   * dependencies of the run receive them), then the other VALUE and VARIABLE parameters of the root task with their
+   * resolved value and the {@link #RESOLVED_PARAMETER_PREFIX} (only shown). A PROPERTY parameter is stored only when
+   * the operator typed it: its resolved value is configuration, never written to the run
    *
    * @param runId     Run identifier
-   * @param task      Root task (its run parameters are stored)
+   * @param task      Root task (its run parameters and its parameters are stored)
    * @param execution Root execution
    * @throws AWException Error storing the run
    */
@@ -68,15 +89,30 @@ public class FlowRunRepository {
     parameters.put(TASK_LAUNCHER, task.getLauncher());
     maintainService.launchPrivateMaintain("insertFlowRun", parameters);
 
-    if (task.getRunParameters() != null) {
-      for (Map.Entry<String, String> entry : task.getRunParameters().entrySet()) {
-        ObjectNode parameter = queryUtil.getParameters();
-        parameter.put(RUN_ID, runId);
-        parameter.put("name", entry.getKey());
-        parameter.put("value", entry.getValue());
-        maintainService.launchPrivateMaintain("insertFlowRunParameter", parameter);
-      }
+    Map<String, String> operator = task.getRunParameters() == null ? Map.of() : task.getRunParameters();
+    for (Map.Entry<String, String> entry : operator.entrySet()) {
+      insertParameter(runId, entry.getKey(), entry.getValue());
     }
+    for (TaskParameter parameter : Optional.ofNullable(task.getParameterList()).orElse(List.of())) {
+      String name = parameter.getName();
+      if (name == null || operator.containsKey(name) || !RESOLVED_SOURCES.contains(parameter.getSource())) {
+        continue;
+      }
+      if (RESOLVED_PARAMETER_PREFIX.length() + name.length() > PARAMETER_NAME_LENGTH) {
+        log.debug("[SCHEDULER][FLOW] Parameter {} of task {} has no room for the resolved prefix: not stored", name,
+          task.getTaskId());
+        continue;
+      }
+      insertParameter(runId, RESOLVED_PARAMETER_PREFIX + name, parameter.getValue());
+    }
+  }
+
+  private void insertParameter(String runId, String name, String value) throws AWException {
+    ObjectNode parameter = queryUtil.getParameters();
+    parameter.put(RUN_ID, runId);
+    parameter.put("name", name);
+    parameter.put("value", value);
+    maintainService.launchPrivateMaintain(INSERT_FLOW_RUN_PARAMETER, parameter);
   }
 
   /**
@@ -92,13 +128,43 @@ public class FlowRunRepository {
   }
 
   /**
-   * Parameters of the run
+   * Parameters of the run that its dependencies receive: the operator values, never the resolved parameters of the
+   * root task
    *
    * @param runId Run identifier
    * @return Values by parameter name
    * @throws AWException Error reading the parameters
    */
   public Map<String, String> getParameters(String runId) throws AWException {
+    Map<String, String> values = new LinkedHashMap<>();
+    readParameters(runId).forEach((name, value) -> {
+      if (!name.startsWith(RESOLVED_PARAMETER_PREFIX)) {
+        values.put(name, value);
+      }
+    });
+    return values;
+  }
+
+  /**
+   * Parameters of the launch of the run, to show them: the operator values and the resolved parameters of the root
+   * task without their prefix, the operator value first when both have the same name
+   *
+   * @param runId Run identifier
+   * @return Values by parameter name, sorted by name
+   * @throws AWException Error reading the parameters
+   */
+  public Map<String, String> getLaunchParameters(String runId) throws AWException {
+    Map<String, String> stored = readParameters(runId);
+    Map<String, String> values = new TreeMap<>(getParameters(runId));
+    stored.forEach((name, value) -> {
+      if (name.startsWith(RESOLVED_PARAMETER_PREFIX)) {
+        values.putIfAbsent(name.substring(RESOLVED_PARAMETER_PREFIX.length()), value);
+      }
+    });
+    return values;
+  }
+
+  private Map<String, String> readParameters(String runId) throws AWException {
     DataList dataList = query("flowRunParameters", runId);
     Map<String, String> values = new LinkedHashMap<>();
     for (int row = 0; row < dataList.getRows().size(); row++) {
@@ -138,8 +204,31 @@ public class FlowRunRepository {
    */
   public List<TaskDependency> getDependencies() throws AWException {
     ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
+    // In the order of the query: the sort of a request (the columns of a grid) is not a field of the dependencies
+    parameters.putArray("sort");
     return DataListUtil.asBeanList(queryService.launchPrivateQuery("allTaskDependencies", parameters).getDataList(),
       TaskDependency.class);
+  }
+
+  /**
+   * Replace the parents of a task (the dependency rows where it is the child) with these ones: the rows of the other
+   * tasks are kept. DpnOrd is left empty, as the old maintains leave it: it orders the children of a parent in its
+   * flows, not the parents of a task
+   *
+   * @param taskId  Task that runs after the parents
+   * @param parents Parents, each once
+   * @throws AWException Error writing the dependencies
+   */
+  public void replaceParents(Integer taskId, List<Integer> parents) throws AWException {
+    ObjectNode task = queryUtil.getParameters();
+    task.put(TASK_ID, taskId);
+    maintainService.launchPrivateMaintain("deleteTaskParents", task);
+    for (Integer parent : parents) {
+      ObjectNode row = queryUtil.getParameters();
+      row.put(TASK_ID, taskId);
+      row.put("parentId", parent);
+      maintainService.launchPrivateMaintain("insertTaskParent", row);
+    }
   }
 
   /**

@@ -139,6 +139,38 @@ public class TaskImmediateLauncher {
   }
 
   /**
+   * Parameters of the task whose operator supplied value is not a value of their type (see
+   * {@link TaskParameterOverrides#invalidValues(Task, Map)}). An empty list means every supplied value can be used.
+   *
+   * @param taskId    Task identifier
+   * @param variables Operator supplied values (parameter name -&gt; value); null for none
+   * @return Names of the parameters with a value that is not valid, in parameter order
+   * @throws AWException Error loading the task
+   */
+  public List<String> findInvalidValues(Integer taskId, Map<String, String> variables) throws AWException {
+    if (variables == null || variables.isEmpty()) {
+      return List.of();
+    }
+    return parameterOverrides.invalidValues(taskRepository.loadTask(taskId), variables);
+  }
+
+  /**
+   * Property parameters of the task whose operator supplied value changes their key (see
+   * {@link TaskParameterOverrides#changedPropertyKeys(Task, Map)}). An empty list means no key changes.
+   *
+   * @param taskId    Task identifier
+   * @param variables Operator supplied values (parameter name -&gt; value); null for none
+   * @return Names of the property parameters whose key would change, in parameter order
+   * @throws AWException Error loading the task
+   */
+  public List<String> findChangedPropertyKeys(Integer taskId, Map<String, String> variables) throws AWException {
+    if (variables == null || variables.isEmpty()) {
+      return List.of();
+    }
+    return parameterOverrides.changedPropertyKeys(taskRepository.loadTask(taskId), variables);
+  }
+
+  /**
    * On finish task event: evaluate the join of each child of the task inside its flow run (launch it, skip it or keep
    * it waiting), warn the parents of a failed task when they are configured so, and end the run when nothing is left
    * to do

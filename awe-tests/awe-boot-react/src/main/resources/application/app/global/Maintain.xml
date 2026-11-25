@@ -569,6 +569,12 @@
       <variable type="STRING" id="message" value="message"/>
     </serve>
   </target>
+  <!-- Relaunch of a flow run from the link column of the GrdLinkTst screen: answers OK with the task of the selected row -->
+  <target name="LinkTstRerun">
+    <serve service="returnMaintainOkMessageParam">
+      <variable type="STRING" id="message" name="task.selected"/>
+    </serve>
+  </target>
   <target name="SndRep">
     <send-email id="SndRep"/>
   </target>

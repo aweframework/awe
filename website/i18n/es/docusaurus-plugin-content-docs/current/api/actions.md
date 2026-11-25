@@ -115,6 +115,7 @@ Acciones que funcionan sobre componentes en la pantalla.
 | `add-class`                      | Agrega la clase css definida en `target-action` a la etiqueta con el selector definido en `target`       | `tag`                       |
 | `remove-class`                   | Elimina las clases definidas en `target-action` a la etiqueta con el selector definido en `target`       | `tag`                       |
 | `toggle-class`                   | Alternar la clase o clases css definidas en `target-action` en la etiqueta con el selector definido en `target` | `tag`                       |
+| `scroll-to`                      | Desplazar el elemento cuyo id es `target` (una tarjeta, un tag con id) a la parte de arriba de su contenedor con scroll y darle el foco, para que el teclado siga desde él: la navegación por secciones de un formulario largo. Sin animación cuando el usuario pide movimiento reducido | `card`, `tag`               |
 | `reset`                          | Vaciar un valor de criterio                                                                              | `criteria`, `grid`, `chart` |
 | `restore`                        | Restaurar a los valores iniciales un criterio                                                            | `criteria`, `grid`, `chart` |
 | `start-load`                     | Establece un componente como *cargando*                                                                  | `criteria`, `grid`, `chart` |
@@ -467,6 +468,9 @@ public ServiceData updateButtonLabel() {
     .addClientAction(new UpdateControllerActionBuilder("ButPrn", "label", "BUTTON_PRINT_ALL").build());
 }
 ```
+
+Al actualizar el atributo `autorefresh` también se arranca (un periodo en segundos) o se para (`0`) la recarga
+automática del componente, en los dos motores. Un valor explícito se respeta aunque sea `0` o `false`.
 
 ### Acciones de grids desde servicios de java {#grid-actions-from-java-services}
 

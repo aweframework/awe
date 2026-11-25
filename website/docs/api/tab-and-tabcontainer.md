@@ -25,7 +25,9 @@ A **tab** is a very useful screen component to separate the screen components in
 </tab>
 ```
 
-The tab list is filled with the `value` and `label` fields of the query/enum launched with `[target-action]`.
+The tab list is filled with the `value` and `label` fields of the query/enum launched with `[target-action]`. A row with
+an `icon` field (an [enumerated option](enumerate-definition.md#option-element) with `icon`, or a query field with that
+alias) draws that icon before the label of its tab, in both engines (#993); a tab without it has no icon.
 
 ## Tab structure
 

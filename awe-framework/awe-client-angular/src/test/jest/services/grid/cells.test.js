@@ -92,6 +92,32 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/cells.js 
       expect(column.cellTemplate).not.toContain("cell-wrap");
     });
 
+    it("shows the secondary field under the bar of a progress column, and is ignored by other components", () => {
+      const {column, component} = fix([{id: "time", component: "progress", secondaryField: "elapsed"}]);
+
+      expect(column.cellTemplate).toContain("cell-rich");
+      expect(column.cellTemplate).toMatch(/<div class="awe-cell-lines awe-cell-progress"><awe-column-progress [^>]*\/><span class="awe-cell-secondary"/);
+      expect(component.getCellSecondary({elapsed: {value: 75, label: "1m 15s"}}, column)).toBe("1m 15s");
+      expect(component.wrapsText).toBe(true);
+      expect(fix([{id: "name", component: "text", secondaryField: "elapsed"}]).column.cellTemplate).not.toContain("awe-cell-");
+    });
+
+    it("shows the secondary field in a line under the link of a link column (#993)", () => {
+      const {column, component} = fix([{id: "task", component: "link", secondaryField: "description"}]);
+
+      expect(column.cellTemplate).toContain("cell-rich");
+      expect(column.cellTemplate).toMatch(/<div class="awe-cell-lines awe-cell-link"><awe-column-link [^>]*\/><span class="awe-cell-secondary"/);
+      expect(component.getCellSecondary({description: "Imports the bank statements"}, column)).toBe("Imports the bank statements");
+      expect(fix([{id: "task", component: "link"}]).column.cellTemplate).not.toContain("awe-cell-");
+    });
+
+    it("keeps the min-width of the column that shares the free space, and only of that one (#993)", () => {
+      expect(fix([{id: "task", width: "*", minWidth: 200}]).column.minWidth).toBe(200);
+      const {column} = fix([{id: "when", charlength: 20, minWidth: 400}]);
+      expect(column.width).toBe((20 + 4) * 7);
+      expect(column.minWidth).toBe(column.width);
+    });
+
     it("combines with a wrapping column with a maximum of lines", () => {
       const {column} = fix([{id: "name", secondaryField: "email", maxLines: 2}]);
 
@@ -102,7 +128,8 @@ describe('awe-framework/awe-client-angular/src/test/jest/services/grid/cells.js 
   });
 
   describe("status", () => {
-    it.each(["success", "warning", "danger", "info", "neutral"])("shows the main value as a %s status", (tone) => {
+    // pending (#993): the warning tone with a dashed border, for a state that waits (a deferred execution)
+    it.each(["success", "warning", "danger", "info", "neutral", "pending"])("shows the main value as a %s status", (tone) => {
       const {element} = render([{id: "state", statusField: "tone"}], {state: "Active", tone});
 
       const status = element.querySelector(".awe-cell-status");

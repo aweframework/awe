@@ -214,8 +214,10 @@ function generateBreadcrumbs(optionList, breadcrumbs, props) {
       const { name, label, options, actions, menuScreen } = option;
       let translated = translateLabel(label || currentOption.title, t);
       // A level goes back to the menu as its option does: a group opens the menu at it, an option launches. A menu
-      // screen is a leaf of the menu even with options (they open from its cards), so it launches
-      const group = !menuScreen && options.length > 0;
+      // screen is a leaf of the menu even with options (they open from its cards), and so is an option with actions
+      // whose options are all hidden (the detail screens it opens, #993): both launch, as the menu shows them as leaves
+      const hasShownOptions = options.some(child => child.visible && !child.restricted);
+      const group = !menuScreen && options.length > 0 && (hasShownOptions || !actions?.length);
       let newBreadcrumbs = [...breadcrumbs, { label: translated, name: name, group, actions }];
       if (name === currentOption.option) {
         return newBreadcrumbs;

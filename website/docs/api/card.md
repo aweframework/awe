@@ -27,8 +27,9 @@ engines (AngularJS and React) support it.
       icon-tone="[success|warning|danger|info|neutral]" value="[value]" unit="[unit]" number-decimals="[decimals]"
       delta="[delta]" delta-unit="[delta-unit]" trend="[up|down|flat]" good-trend="[up|down]"
       tone="[success|warning|danger|info|neutral]" caption="[caption]" target="[target]"
-      description="[description]" footer="[footer]" style="[card-style]"
+      description="[description]" footer="[footer]" style="[card-style]" maximize="[true|false]"
       initial-load="query" target-action="[query-identifier]" autorefresh="[seconds]">
+  [optional header actions: <tag type="div" style="awe-card-header-actions">criteria or buttons</tag>]
   [optional body: any component, for instance a chart or a grid]
 </card>
 ```
@@ -39,6 +40,7 @@ engines (AngularJS and React) support it.
 |--------------------------|--------------|---------------------|-----------------------------------------------------------------|
 | [card](#card-attributes) | **Required** | No                  | Global node of the card. Defines the card attributes            |
 | Any component            | Optional     | Yes                 | Body of the card, shown below the value                         |
+| [header actions](#header-actions) | Optional | No           | A child with the `awe-card-header-actions` style, shown at the right of the header |
 | [dependency](dependencies.md) | Optional | Yes                | Dependencies of the card, as in any component                   |
 
 ## Anatomy
@@ -47,11 +49,16 @@ From top to bottom, a card shows only the parts that have a value:
 
 | Part        | Content                                                                                                     |
 |-------------|-------------------------------------------------------------------------------------------------------------|
-| Header      | `title` and `subtitle` on the left. On the right, the status `chip` followed by the `icon` tile or, when there is no icon, the delta |
+| Header      | `title` and `subtitle` on the left. On the right, the [header actions](#header-actions), the status `chip` followed by the `icon` tile or, when there is no icon, the delta, and the [maximize](#maximize) button |
+| Pills       | The `pills` field: a row of pills with facts (see [pills and status strip](#pills-and-status-strip))        |
 | Value       | `value` in big figures, followed by its `unit`                                                              |
+| Stack       | The `stack` field: a stacked bar of the parts of a whole (see [stacked bar](#stacked-bar))                  |
+| Strip       | The `strip` field: a status strip as wide as the card (see [pills and status strip](#pills-and-status-strip)) |
+| Tiles       | The `tiles` field under its `tilesLabel`: a grid of small boxes (see [tiles and details](#tiles-and-details)) |
 | Body        | The children of the card (a chart, a grid, buttons...)                                                      |
 | Progress    | A bar with the value against the `target`, and its text (`82 % of 500,000 €`)                               |
 | Description | The `description` paragraph                                                                                 |
+| Details     | The `details` note folded under its `detailsLabel` (see [tiles and details](#tiles-and-details))            |
 | Footer      | The `footer` text on the left. On the right, the delta (when there is an icon) followed by the `caption`    |
 
 - With `icon`, the delta goes to the footer; without it, the delta goes to the header.
@@ -85,6 +92,7 @@ From top to bottom, a card shows only the parts that have a value:
 | description     | Optional     | String  | Paragraph below the value and the body                                                                              | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                 |
 | footer          | Optional     | String  | Muted text at the bottom left of the card                                                                           | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                 |
 | style           | Optional     | String  | Style of the card (css classes)                                                                                     | CSS classes separated by space (`' '`)                                                     |
+| maximize        | Optional     | Boolean | Shows a button at the end of the header that maximizes the card over the screen and restores it. See [maximize](#maximize) | `true`, `false` (default)                                                        |
 | initial-load    | Optional     | String  | How the card gets its data when the screen is built. With `query` the first row of the target query fills the card  | `query`                                                                                    |
 | target-action   | Optional     | String  | Query (or service) that fills the card                                                                              |                                                                                            |
 | server-action   | Optional     | String  | Server action used to refresh the card data                                                                         | `data`                                                                                     |
@@ -99,11 +107,12 @@ From top to bottom, a card shows only the parts that have a value:
 The attributes of the card are static values. When the card has a query (`initial-load="query"` and `target-action`),
 the first row of the query fills it: each field is named as the attribute in camelCase (`title`, `subtitle`, `chip`,
 `chipTone`, `icon`, `iconTone`, `value`, `unit`, `numberDecimals`, `delta`, `deltaUnit`, `trend`, `goodTrend`, `tone`, `caption`,
-`target`, `description`, `footer`).
+`target`, `description`, `footer`), plus the fields that only a query gives (`pills`, `strip`, `stack`, `tiles`, `tilesLabel`, `details`, `detailsLabel`).
 
 - A field of the row wins over the attribute when it is present and not empty; otherwise the attribute is used. So the
   XML can hold the fixed parts (`icon`, `unit`, `caption`) and the query only the figures.
-- The title is `title`, else `label`.
+- The title is `title`, else `label`. A `title` that is a JSON array of `{"text", "strong"}` segments is a sentence whose
+  strong segments are bold (see [tiles and details](#tiles-and-details)).
 - The texts (`title`, `subtitle`, `chip`, `caption`, `description`, `footer`) can be locale keys or plain text.
 
 > **Note:** The tone of the change comes in the `tone` field. The `style` field keeps holding the CSS classes of the
@@ -162,6 +171,71 @@ Then `good-trend` maps the trend to the tone:
 - The progress is `round(value / target * 100)` %. The bar is clamped between 0 and 100 %, the text shows the real
   percent. The bar takes the colour of `icon-tone` (the primary colour by default).
 
+## Pills and status strip
+
+Two fields that only the query gives (no attribute of the XML), in both engines:
+
+- **Pills** (`pills`): the facts of what the card describes, as a row of pills under its header. A JSON array (text or
+  parsed) of `{"label", "icon", "code"}` items: `label` is a text or a locale key, `icon` an [icon](icons.md) (optional)
+  and `code` a name the application runs (a maintain, a command), shown after the label in the monospace font
+  (optional). An item without `label` nor `code`, or a value that is not an array, shows nothing.
+- **Status strip** (`strip`): the [status strip](grids.md) of the `status-strip` column (a JSON array of
+  `{"tone", "label", "title"}` items, in display order) as wide as the card, with taller bars that share its width.
+  The tooltip of each bar and the accessible text of the strip are the ones of the column.
+
+```xml
+<card id="CrdTskHis" title="SCREEN_TEXT_TASK_PAGE_LAST_EXECUTIONS" initial-load="query" target-action="getTaskPageHistoryCount">
+  <tag type="div" style="awe-card-actions">
+    <button label="BUTTON_TASK_PAGE_VIEW_HISTORY" icon="lucide:history" id="ButTskHisAll" style="btn-link"/>
+  </tag>
+</card>
+```
+
+```json
+{"subtitle": "17 OK, 2 Warning, 1 Error",
+ "strip": "[{\"tone\":\"success\",\"label\":\"OK\"},{\"tone\":\"warning\",\"label\":\"Warning\"}]",
+ "pills": "[{\"label\":\"#13\"},{\"label\":\"Maintain\",\"icon\":\"lucide:database\",\"code\":\"BankReconciliation\"}]"}
+```
+
+## Tiles and details
+
+Fields that only the query gives (no attribute of the XML), in both engines, for a card that shows the result of a form
+computed live (#993: the schedule of a task and its next runs):
+
+- **Rich title** (`title`): a JSON array (text or parsed) of `{"text", "strong"}` segments draws the title as one
+  sentence whose `strong` segments are bold. The texts are shown as they come (already translated by the server); a
+  title that is not such an array is a plain text or a locale key, as always.
+- **Tiles** (`tiles`, `tilesLabel`): a JSON array (text or parsed) of `{"label", "value", "hint"}` items drawn as an
+  ordered list of small boxes in a grid, as many columns as fit (five in a section card of a wide screen, fewer on a
+  narrow one): `label` on top, `value` in bold and `hint` as a muted line (optional). An item without `label` is left
+  out. `tilesLabel` is the label above the list, which names it (`aria-labelledby`).
+- **Details** (`details`, `detailsLabel`): a note folded under its label (a `details` element: its `summary` is
+  `detailsLabel`, or the note itself without it), closed at first. Texts or locale keys.
+
+```json
+{"title": "[{\"text\":\"Runs \"},{\"text\":\"from Monday to Friday at 22:30\",\"strong\":true},{\"text\":\".\"}]",
+ "tilesLabel": "Next 5 runs",
+ "tiles": "[{\"label\":\"Tue 17/11\",\"value\":\"22:30\",\"hint\":\"today\"},{\"label\":\"Mon 23/11\",\"value\":\"22:30\",\"hint\":\"skips Sat and Sun\"}]",
+ "description": "First holiday it skips: Tue 08/12/2026 (Holidays ES)",
+ "detailsLabel": "View details", "details": "Days of the week: Mon, Tue, Wed, Thu and Fri · Hours: 22 · Minutes: 30"}
+```
+
+## Stacked bar
+
+The `stack` field (only a query gives it, in both engines) draws a thin bar under the value split in segments, each
+one as wide as its share of the whole: the executions of a task by status, the orders by state... It is a JSON array
+(text or parsed) of `{"tone", "label", "value"}` items, in display order: `tone` is the colour of the segment (the
+colours of the [status strip](grids.md): `success`, `warning`, `danger`, `info`, `neutral`, the default for an unknown
+tone), `label` a text or a locale key and `value` its count. The items without a positive number are left out, and a
+value that is not an array draws nothing. The bar is one image whose accessible text lists the counts (`17 OK,
+2 Warning, 1 Error`), also the tooltip of each segment; show the same counts as the legend of the bar in the
+`description`.
+
+```json
+{"value": 85, "unit": "%", "description": "17 OK, 2 Warning, 1 Error · of 20 saved executions",
+ "stack": "[{\"tone\":\"success\",\"label\":\"OK\",\"value\":17},{\"tone\":\"warning\",\"label\":\"Warning\",\"value\":2},{\"tone\":\"danger\",\"label\":\"Error\",\"value\":1}]"}
+```
+
 ## Sparkline and gauge
 
 A card can draw small charts of its own, without a `chart` in its body:
@@ -198,6 +272,61 @@ A card with a chart or a grid in its body needs more room: the `awe-card-wide` s
 grid (`<card id="CrdSales" style="awe-card-wide">`). On narrow screens the grid has a single column and the wide card
 takes the whole row like the others.
 
+A card can also be the panel of a grid that fills a tab page or a screen, instead of a window with an empty title bar:
+give the card and the grid the `expand` style. The expanded card takes the free height of its container and the grid
+fills the rest of the card body, down to its pager, in both engines (#993). Add `show-maximize-button="true"` to the
+grid to keep its maximize button.
+
+```xml
+<tabcontainer id="TskPagHis" style="expand" expandible="vertical">
+  <card id="CrdTskExeLst" style="expand">
+    <grid id="GrdTskExe" style="expand" show-maximize-button="true" ...>...</grid>
+  </card>
+</tabcontainer>
+```
+
+## Card actions
+
+The buttons of a card go in its body. Put them in a container with the `awe-card-actions` class, as the last child of
+the card, to keep them in a row at the bottom of the card: the cards of a row of the [card grid](#card-grid) have the
+same height, so their actions sit on the same line whatever the content above them.
+
+```xml
+<card id="CrdTskHis" title="SCREEN_TEXT_TASK_PAGE_LAST_EXECUTIONS" initial-load="query" target-action="getTaskPageHistoryCount">
+  <tag type="div" style="awe-card-actions">
+    <button label="BUTTON_TASK_PAGE_VIEW_HISTORY" icon="lucide:history" id="ButTskHisAll" style="btn-link"/>
+  </tag>
+</card>
+```
+
+## Header actions
+
+The criteria and buttons that act on the whole card (a view switch, a refresh button) go at the right of its header,
+next to the title: put them in a `div` tag with the `awe-card-header-actions` class as a child of the card. That child
+is shown in the header, after the free space and centred with the title, instead of the body; the other children stay
+in the body. A card with header actions always shows its header, even without a title.
+
+```xml
+<card id="CrdRunVw" title="SCREEN_TEXT_FLOW_RUN_VIEWS" style="expand" maximize="true">
+  <tag type="div" style="awe-card-header-actions">
+    <criteria id="RunPagVw" label="SCREEN_TEXT_FLOW_RUN_VIEWS" component="button-radio" initial-load="enum"
+              target-action="RunPagVw" value="RunPagGph" style="no-label"/>
+  </tag>
+  <widget type="flow-graph" id="RunGph" style="expand" ...>...</widget>
+</card>
+```
+
+## Maximize
+
+With `maximize="true"` the card shows a maximize button at the end of its header, as a window does. It grows the card
+over the screen (its maximize target) with the same animation as a window, hides the rest of the screen and gives the
+free height to its body, and a second click restores it. The button tells what it does next (*Maximize* or *Restore*)
+as its title and its accessible name, and is pressed (`aria-pressed`) while the card is maximized. Without the attribute
+the card has no button, as before. Both client engines support it.
+
+Give the card the `expand` style to fill the free height of the screen, and its children the `expand` style to fill the
+body (see [card grid](#card-grid)).
+
 ## Note card
 
 A card can also hold an explanation instead of a metric: the `card-note` style draws it as a soft band in the tone of
@@ -207,6 +336,18 @@ Use it for hints and summaries inside side panels and dialogs; it can be filled 
 
 ```xml
 <card id="CrdAccHnt" style="card-note" icon="lucide:info" icon-tone="info" description="SCREEN_TEXT_ACCESS_HINT" />
+```
+
+## Preview card
+
+The `card-preview` style draws the result of a form computed live (a schedule in words and its next runs): a neutral
+surface (`--awe-color-surface-subtle`) with a subtle border and no shadow, the `icon` on the left of the title in the
+primary text colour, the title as a sentence in the medium size (its strong segments bold) and the rest of the card
+(tiles, description, details) under them at its full width. Same look in both engines, in light and dark mode.
+
+```xml
+<card id="CrdTskEdtSch" style="card-preview" icon="lucide:repeat" initial-load="query" server-action="data"
+      target-action="getTaskEditorSchedule"/>
 ```
 
 ## Refresh

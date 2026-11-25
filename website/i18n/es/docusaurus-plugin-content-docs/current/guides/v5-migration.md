@@ -138,6 +138,7 @@ Cada fila indica qué notará, qué debe hacer y dónde leer más. «MR» es una
 | Pantallas de acceso (ambos clientes) | La opción `screen-access` (*Control de acceso*, en *Seguridad*) del menú por defecto (y de los arquetipos) abre la nueva pantalla `access-admin`: el acceso efectivo de un perfil o un usuario a cada opción del menú privado con la capa que lo decide, permitir y denegar por opción o en bloque con vista previa, el panel *¿Por qué?*, comparar, revisar y ver como. Las pantallas anteriores `ScrAccRes`, `menu-access` y `screen-access` están deprecadas y se eliminarán en la 5.1.0. Las reglas son las mismas filas de `AweScrRes` y los mismos ficheros `profile/*.xml`, y se cambian con los mismos maintains auditados de restricciones, así que no se migra ningún dato. La nueva pantalla no importa ni exporta reglas: apuntan a las opciones de cada `private.xml`. | Apunte sus propias opciones de menú de `ScrAccRes`, `menu-access` o `screen-access` a `access-admin` antes de la 5.1.0. Si sobrescribe `ScrAccRes` (o las otras dos pantallas), lleve la personalización a su propia copia de `access-admin` o elimínela. El acceso que debe distribuirse con la aplicación va en los ficheros de restricciones base `profile/*.xml`. Los tests de navegador que abren la opción *Control de acceso* esperan la nueva pantalla. | [Control de acceso](default-screens.md#screen-access) (issue #791) |
 | Shell de AWE 5 (ambos clientes) | Las pantallas home verticales muestran un pie bajo el menú lateral ("Powered by AWE 5" y un botón que pliega el menú) y el botón de menú de la cabecera tiene el icono `panel-left`. El menú plegado oculta la búsqueda de opciones y abre las opciones de una opción de primer nivel como un flyout al pasar el puntero. En React, una opción separadora sin etiqueta se dibuja como una línea en el menú vertical (antes se ocultaba), el menú de usuario muestra el `name` del valor de `connectedUser` en lugar de su etiqueta ("Manager" en lugar de "Manager (test)") con el perfil debajo, los botones outlined son neutros (usaban el color primario) y los criterios de selección tienen la misma altura que los de texto. La consulta `connectedUser` devuelve un campo nuevo `description` con el nombre del perfil. | Nada en los descriptores. Los tests de navegador de aplicaciones React que comprueban el usuario conectado con `checkLogin`/`ensureLoggedIn` deben esperar el nombre sin el código de usuario. Las aplicaciones con su propia copia de `home-sidebar.xml` o `home_vertical.xml` pueden añadir el pie como describe la guía de layout. | [Menú lateral](../design-system/layout-and-shell.md#side-menu), [Avatar](../api/info.md#avatar-attributes) (issue #900) |
 | Compresión HTTP | El starter de AWE aporta ahora los valores por defecto de la compresión: `server.compression.enabled=true`, `min-response-size=256`, una lista `mime-types` con `text/javascript` e `image/svg+xml`, y `spring.web.resources.chain.enabled`/`compressed=true`. Los builds de producción del cliente AngularJS y del arquetipo React escriben copias `.br` y `.gz` de los scripts, estilos y ficheros SVG, y el servidor las envía a los navegadores que las aceptan. Con la lista de los arquetipos de AWE 4 los bundles JavaScript se enviaban sin comprimir (Spring Boot sirve los `.js` como `text/javascript`): en la aplicación React de pruebas la primera carga baja de 4,3 MB de scripts a 0,89 MB. | Quite `server.compression.*` y `spring.web.resources.chain.compressed` de su `application.properties` para usar los valores por defecto, o añada `text/javascript` e `image/svg+xml` a su propia lista. Para servir ficheros precomprimidos en una aplicación React, añada `compression-webpack-plugin` y las dos entradas `CompressionPlugin` del `webpack.prod.js` del arquetipo. Ponga `server.compression.enabled=false` si un proxy comprime las respuestas. | Issue #965 |
+| Pantallas del planificador (#993, ambos clientes) | Las pantallas antiguas del planificador ya no existen: una opción de menú, un perfil, una restricción, una acción o una prueba de navegador que nombra `scheduler-tasks`, `scheduler-management`, `scheduler-runs`, `scheduler-servers`, `scheduler-calendars` o sus pantallas `new-`/`update-` apunta a una pantalla que ya no existe. El menú del planificador ofrece **Actividad**, **Tareas** y **Configuración**. También se eliminan las consultas, los mantenimientos, los servicios y los grupos de enumerados que solo usaban las pantallas antiguas. | Sustituya las opciones antiguas de sus menús por las nuevas y actualice los perfiles y restricciones que las nombran. Cambie sus acciones propias a los targets nuevos (la API REST del planificador no cambia). Las tareas semanales se lanzan ahora el día configurado. | [Rediseño del planificador](#scheduler-redesign), [Módulo Scheduler](../scheduler-module.md) |
 
 ### jsoup en el sanitizador de parámetros de entrada {#jsoup-in-the-input-parameter-sanitizer}
 
@@ -1373,6 +1374,52 @@ las clases compiladas, por lo que incluye los getters y setters que genera Lombo
 
 </details>
 
+### Rediseño del planificador (#993) {#scheduler-redesign}
+
+El módulo planificador tiene pantallas nuevas en los dos clientes, y **se han eliminado las pantallas antiguas del
+planificador y sus opciones de menú**. Las tablas, las tareas, sus ejecuciones y los permisos (`scheduler.read`,
+`scheduler.update`, `scheduler.execute`) no cambian.
+
+**Qué hacer**
+
+1. Sustituya las opciones del planificador de sus menús (`private.xml`, `public.xml`) por las nuevas, como en la página
+   [Módulo Scheduler](../scheduler-module.md).
+2. Actualice los perfiles, las restricciones y las filas de acceso a pantallas que nombran una opción o pantalla
+   antigua: ahora nombran las nuevas de la tabla siguiente.
+3. Actualice sus propias acciones, enlaces y pruebas de navegador que abren una pantalla antigua.
+
+| Opción de menú antigua (pantalla) | Opción nueva | Cómo llegar a lo mismo |
+|---|---|---|
+| `scheduler-management` | `scheduler-configuration` | Pestaña **Motor** (`CfgTab` = `CfgEng`); también el menú del motor de **Actividad** |
+| `scheduler-tasks` | `scheduler-task-catalog` | **Tareas**; cada tarea abre su ficha, `scheduler-task` |
+| `new-scheduler-task`, `update-scheduler-task` | `scheduler-task-editor` | **Nueva tarea**, **Editar** o **Duplicar** (`TskEdtMod` = `new`, `edit` o `copy`) |
+| `scheduler-runs`, `scheduler-flow-graph` | `scheduler-flow-run` | Un enlace de flujo de **Actividad** (su vista **Agrupar por flujo** lista las ejecuciones de flujo) o de la ficha de la tarea; las dependencias de una tarea son la pestaña **Dependencias** de su ficha |
+| `scheduler-servers` (`scheduler-server`), `new-scheduler-server`, `update-scheduler-server` | `scheduler-configuration` | Pestaña **Servidores** (`CfgSrv`), con un panel lateral para crear y editar |
+| `scheduler-calendars`, `new-scheduler-calendar`, `update-scheduler-calendar` | `scheduler-configuration` | Pestaña **Calendarios** (`CfgCal`), con un panel lateral para crear y editar |
+| `scheduler-dashboard`, `scheduler-dialog`, `scheduler-execution-data` (sin opción de menú) | `scheduler-activity` | **Actividad** y el panel lateral de una ejecución |
+
+Las nuevas opciones invisibles son `scheduler-flow-run` (bajo **Actividad**), `scheduler-task` y `scheduler-task-editor`
+(bajo **Tareas**).
+
+También se eliminan los targets que solo usaban las pantallas antiguas. Una acción, una pantalla o una prueba propia que
+nombra uno de ellos falla:
+
+| Tipo | Identificadores eliminados |
+|---|---|
+| Consultas | `SchTskSug`, `SchTskSugAct`, `getTaskExecutionListFixed`, `SchDfrRun`, `SchDfrApi`, `SchDfrDln`, `SchDfrUsr`, `SchSrvLst`, `SchSrv`, `SchCalLst`, `chkTrgCntCal`, `nextExecutions`, `getFlowRunList`, `getFlowRunExecutionList`, `getFlowRunSkippedList` |
+| Mantenimientos | `NewSchedulerTask`, `UpdateSchedulerTask`, `DeleteSchedulerServer`, `NewSchedulerCalendar`, `DeleteSchedulerCalendar`, `UpdSchCal`, `DeaSchCal`, `ActSchCal`, `NewSchedulerCalendarDate`, `DeleteSchedulerCalendarDate`, `ChkSchSrvCnx`, `ChkSchSrvCnxSel` |
+| Servicios | `nextExecutions`, `validateTaskDependencies`, `updateSchedulerTask`, `updateSchedulerCalendar`, `checkServerConnection`, `checkTriggerContainsCalendar` |
+| Grupos de enumerados | `SchedulerTaskSteps`, `scheduleTaskTabs`, `SchedulerServSteps`, `ExeTyp`, `conType`, `TskEdtWkd` |
+
+El editor de tareas guarda con `NewSchedulerTaskEditor` y `UpdateSchedulerTaskEditor`, y la pantalla **Configuración**
+gestiona los servidores y los calendarios (consulte la página [Módulo Scheduler](../scheduler-module.md)). Se mantienen
+los targets que usa el código Java y la API REST del planificador (`/scheduler/api/v1/**`, ver
+[Seguridad de la API del planificador](../scheduler-module.md#scheduler-api-security)): un cliente que llama al
+planificador a través de su API no se ve afectado.
+
+Las tareas semanales se lanzan ahora el día configurado (se lanzaban un día antes); consulte las
+[Notas de actualización](../scheduler-module.md#upgrade-notes) del módulo planificador.
+
 ## Previsto para AWE 5.1 {#planned-for-awe-51}
 
 Las pantallas que AWE 5.0 sustituye por las nuevas pantallas de administración están obsoletas y **se eliminarán en la
@@ -1452,6 +1499,8 @@ Copie esta lista a la incidencia de su actualización y márquela a medida que a
 - [ ] Las opciones de menú propias que abren las pantallas deprecadas `ScrAccRes`, `menu-access` o `screen-access` apuntan a `access-admin`
 - [ ] Se quitaron `server.compression.*` y `spring.web.resources.chain.compressed` de `application.properties` (o la lista propia incluye `text/javascript` e `image/svg+xml`), y el `webpack.prod.js` de React tiene las entradas `CompressionPlugin` del arquetipo
 - [ ] The `splitChunks` of the React `webpack.dev.js` and `webpack.prod.js` have no global `name: "main"` and the `commons` cache group uses `chunks: 'initial'`, as the archetype does
+- [ ] Las opciones de menú, perfiles, restricciones y pruebas de navegador propias ya no nombran las pantallas antiguas del planificador (`scheduler-tasks`, `scheduler-management`, `scheduler-runs`, `scheduler-servers`, `scheduler-calendars`...)
+- [ ] Las acciones, pantallas y pruebas propias ya no lanzan los targets eliminados del planificador (`NewSchedulerTask`, `UpdateSchedulerTask`, `SchSrvLst`...; consulte [Rediseño del planificador](#scheduler-redesign))
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

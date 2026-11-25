@@ -65,6 +65,12 @@ describe("test id vocabulary", () => {
       gridToolbar: "grid-toolbar",
       gridQuickFilter: "grid-quick-filter",
       gridQuickFilterOption: "grid-quick-filter-option",
+      gridQuickFilterToggle: "grid-quick-filter-toggle",
+      gridQuickFilterMenu: "grid-quick-filter-menu",
+      gridQuickFilterCustom: "grid-quick-filter-custom",
+      gridQuickFilterRange: "grid-quick-filter-range",
+      gridQuickFilterRangeClear: "grid-quick-filter-range-clear",
+      gridQuickFilterRangeApply: "grid-quick-filter-range-apply",
       gridSearch: "grid-search",
       gridSearchClear: "grid-search-clear",
       gridColumnFilter: "grid-column-filter",
@@ -215,7 +221,8 @@ describe("test id vocabulary", () => {
       cardDelta: "card-delta",
       cardProgress: "card-progress",
       cardSparkline: "card-sparkline",
-      cardChip: "card-chip"
+      cardChip: "card-chip",
+      cardMaximizeButton: "card-maximize-button"
     });
     Object.keys(TestIds).map(name => TestIds[name]).forEach(value => expect(value).toMatch(/^[a-z]+(-[a-z]+)*$/));
   });

@@ -217,3 +217,31 @@ export function focusComponent(id: string, {attempts = DEFAULT_ATTEMPTS, delay =
   criterion.scrollIntoView?.({block: "center", behavior: "smooth"});
   return true;
 }
+
+/**
+ * Scroll an element of the screen (a section, a card...) into view, at the top of its scroll container, and give it
+ * the focus without a second scroll, so the keyboard goes on from it (the scroll-to action, #993). An element that is
+ * not focusable gets tabindex -1. The scroll is instant when the user asks for reduced motion. An element that is not
+ * rendered yet (a panel just opened, a screen being built) is looked up again a few times.
+ * @param {string} id Element identifier
+ * @param {object} options Options
+ * @param {number} options.attempts Number of retries
+ * @param {number} options.delay Milliseconds between retries
+ * @return {boolean} The element was found at the first try
+ */
+export function scrollToElement(id: string, {attempts = DEFAULT_ATTEMPTS, delay = DEFAULT_DELAY}: FocusOptions = {}): boolean {
+  const element = id ? document.getElementById(id) : null;
+  if (!element) {
+    if (id && attempts > 1) {
+      setTimeout(() => scrollToElement(id, {attempts: attempts - 1, delay}), delay);
+    }
+    return false;
+  }
+  const reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  element.scrollIntoView?.({block: "start", behavior: reduced ? "auto" : "smooth"});
+  if (!element.hasAttribute("tabindex") && element.tabIndex < 0) {
+    element.setAttribute("tabindex", "-1");
+  }
+  element.focus({preventScroll: true});
+  return true;
+}

@@ -43,9 +43,8 @@ class AdministrationTargetPermissionsTest extends AbstractSpringAppIntegrationTe
     area("access", "screen-access", "screen-configuration");
     area("audit", "security-audit", "view-security-audit-event");
     area("themes", "themes");
-    area("scheduler", "scheduler-management", "scheduler-tasks", "new-scheduler-task", "update-scheduler-task",
-      "scheduler-servers", "new-scheduler-server", "update-scheduler-server", "scheduler-calendars",
-      "new-scheduler-calendar", "update-scheduler-calendar");
+    area("scheduler", "scheduler-activity", "scheduler-flow-run", "scheduler-task-catalog", "scheduler-task",
+      "scheduler-task-editor", "scheduler-configuration");
     area("subscriptions", "subscriptions", "new-subscription", "update-subscription");
     area("developer", "path-manager", "local-manager");
     area("sql-extractor", "sqlExtractor");

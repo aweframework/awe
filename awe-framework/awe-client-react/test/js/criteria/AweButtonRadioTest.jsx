@@ -122,4 +122,87 @@ describe('awe-react-client/test/js/criteria/AweButtonRadioTest.jsx', () => {
     });
   });
 
+  describe("as choice cards (style awe-choice-cards)", () => {
+    const options = [
+      {label: 'PARAMETER_MANUAL', value: '0', icon: 'lucide:hand', description: 'PARAMETER_MANUAL_HELP', selected: true},
+      {label: 'PARAMETER_SCHEDULED', value: '1', icon: 'lucide:clock', description: 'At fixed days and times'},
+      {label: 'PARAMETER_FILE', value: '2'}
+    ];
+    const state = {
+      settings: DEFAULT_SETTINGS,
+      components: {
+        when: {
+          address: {component: 'when', view: 'report'},
+          model: {values: options},
+          attributes: {readonly: false, label: "PARAMETER_WHEN", initialLoad: "query", style: "col-xs-12 awe-choice-cards"},
+          validationRules: {required: false},
+          specificAttributes: {sort: []}
+        }
+      }
+    };
+    const selectedOf = (store) => store.getState().components.when.model.values.filter(item => item.selected).map(item => item.value);
+
+    beforeAll(() => {
+      i18n.addResources("en-GB", "translation", {PARAMETER_WHEN: "When", PARAMETER_MANUAL: "Manual",
+        PARAMETER_MANUAL_HELP: "Only by hand", PARAMETER_SCHEDULED: "Scheduled", PARAMETER_FILE: "On a file"});
+    });
+
+    it('is a radio group of cards with their title and description, chosen by click and by the arrow keys', async () => {
+      const {store} = renderWithProviders(<AweButtonRadio id="when"/>, {preloadedState: state});
+
+      const group = await screen.findByRole("radiogroup", {name: "When"});
+      const radios = screen.getAllByRole("radio");
+      expect(group).toBeInTheDocument();
+      expect(radios.map(radio => radio.getAttribute("aria-checked"))).toEqual(["true", "false", "false"]);
+      expect(screen.getByRole("radio", {name: "Scheduled"})).toHaveAccessibleDescription("At fixed days and times");
+      expect(screen.getByRole("radio", {name: "Manual"})).toHaveAccessibleDescription("Only by hand");
+      // Only the chosen card is in the tab order, as in a group of radios
+      expect(radios.map(radio => radio.tabIndex)).toEqual([0, -1, -1]);
+
+      fireEvent.click(screen.getByRole("radio", {name: "On a file"}));
+      expect(selectedOf(store)).toEqual(['2']);
+
+      fireEvent.keyDown(screen.getByRole("radio", {name: "On a file"}), {key: "ArrowRight"});
+      expect(selectedOf(store)).toEqual(['0']);
+      expect(screen.getByRole("radio", {name: "Manual"})).toHaveFocus();
+      expect(screen.getByRole("radio", {name: "Manual"})).toHaveAttribute("aria-checked", "true");
+
+      fireEvent.keyDown(screen.getByRole("radio", {name: "Manual"}), {key: "ArrowUp"});
+      expect(selectedOf(store)).toEqual(['2']);
+    });
+  });
+
+  describe("as chips (style awe-chips)", () => {
+    const state = {
+      settings: DEFAULT_SETTINGS,
+      components: {
+        preset: {
+          address: {component: 'preset', view: 'report'},
+          model: {values: [{label: 'Daily', value: 'DAY'}, {label: 'Workdays', value: 'WRK', selected: true},
+            {label: 'Weekly', value: 'WEK'}]},
+          attributes: {readonly: false, label: "Repetition", initialLoad: "enum", style: "col-xs-12 awe-chips"},
+          validationRules: {required: false},
+          specificAttributes: {sort: []}
+        }
+      }
+    };
+    const selectedOf = (store) => store.getState().components.preset.model.values.filter(item => item.selected).map(item => item.value);
+
+    it('is a radio group of pills, chosen by click and by the arrow keys, the chosen one in the tab order', async () => {
+      const {store} = renderWithProviders(<AweButtonRadio id="preset"/>, {preloadedState: state});
+
+      expect(await screen.findByRole("radiogroup", {name: "Repetition"})).toBeInTheDocument();
+      const radios = screen.getAllByRole("radio");
+      expect(radios.map(radio => radio.getAttribute("aria-checked"))).toEqual(["false", "true", "false"]);
+      expect(radios.map(radio => radio.tabIndex)).toEqual([-1, 0, -1]);
+
+      fireEvent.click(screen.getByRole("radio", {name: "Weekly"}));
+      expect(selectedOf(store)).toEqual(['WEK']);
+
+      fireEvent.keyDown(screen.getByRole("radio", {name: "Weekly"}), {key: "ArrowRight"});
+      expect(selectedOf(store)).toEqual(['DAY']);
+      expect(screen.getByRole("radio", {name: "Daily"})).toHaveFocus();
+    });
+  });
+
 });

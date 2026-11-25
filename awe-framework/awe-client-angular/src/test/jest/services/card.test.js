@@ -266,4 +266,32 @@ describe("awe-framework/awe-client-angular/src/test/jest/services/card.test.js",
       expect(build({}).chip).toBeNull();
     });
   });
+  describe("rich title, tiles and details (#993, T37)", () => {
+    it("splits a title of segments, keeps the tiles with a label and the details with their label", () => {
+      const card = build({}, {
+        title: JSON.stringify([{text: "Runs "}, {text: "daily", strong: true}, {text: ""}, {text: "."}]),
+        tilesLabel: "Next 5 runs", details: "Hours 22", detailsLabel: "How it is saved",
+        tiles: JSON.stringify([{label: "Tue 17/11", value: "22:30", hint: "today"}, {label: "Wed 18/11", value: "22:30"},
+          {value: "no label"}, "text"])
+      });
+
+      expect(card.titleSegments).toEqual([{text: "Runs ", strong: false}, {text: "daily", strong: true},
+        {text: ".", strong: false}]);
+      expect(card.title).toBe("Runs daily.");
+      expect(card.tiles).toEqual([{label: "Tue 17/11", value: "22:30", hint: "today"},
+        {label: "Wed 18/11", value: "22:30", hint: null}]);
+      expect(card.tilesLabel).toBe("t(Next 5 runs)");
+      expect(card.details).toBe("t(Hours 22)");
+      expect(card.detailsLabel).toBe("t(How it is saved)");
+    });
+
+    it("keeps a plain title translated and has no tiles nor details without them", () => {
+      const card = build({}, {title: "[not a list", tiles: "[]"});
+
+      expect(card.titleSegments).toBeNull();
+      expect(card.title).toBe("t([not a list)");
+      expect(card.tiles).toEqual([]);
+      expect(card.details).toBeNull();
+    });
+  });
 });

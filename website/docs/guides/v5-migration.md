@@ -138,6 +138,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Access screens (both clients) | The `screen-access` option (*Access control*, under *Security*) of the default menu (and of the archetypes) opens the new `access-admin` screen: the effective access of a profile or a user to every option of the private menu with the layer that decides it, allow and deny per option or in bulk with a preview, the *Why?* panel, compare, review and view as. The previous screens `ScrAccRes`, `menu-access` and `screen-access` are deprecated and will be removed in 5.1.0. The rules are the same `AweScrRes` rows and `profile/*.xml` files, changed through the same audited restriction maintains, so no data is migrated. The new screen has no import or export of rules: they point at the options of each `private.xml`. | Point your own menu options from `ScrAccRes`, `menu-access` or `screen-access` to `access-admin` before 5.1.0. If you override `ScrAccRes` (or the other two screens), move the customization to your own copy of `access-admin` or drop it. Access that must ship with the application goes in the base restriction files `profile/*.xml`. Browser tests that open the *Access control* option expect the new screen. | [Access control](default-screens.md#screen-access) (issue #791) |
 | AWE 5 shell (both clients) | The vertical home screens show a footer under the side menu ("Powered by AWE 5" and a button that collapses the menu) and the menu button of the header has the `panel-left` icon. The collapsed menu hides the option search and opens the options of a first level option as a flyout when the pointer is on it. In React, a separator option without label is drawn as a line in the vertical menu (it was hidden), the user menu shows the `name` of the `connectedUser` value instead of its label ("Manager" instead of "Manager (test)") with the profile below it, outlined buttons are neutral (they used the primary colour) and select criteria are as high as text criteria. The `connectedUser` query returns a new `description` field with the profile name. | Nothing for the descriptors. Browser tests of React applications that check the logged user with `checkLogin`/`ensureLoggedIn` must expect the name without the user code. Applications with their own copy of `home-sidebar.xml` or `home_vertical.xml` can add the footer as described in the layout guide. | [Side menu](../design-system/layout-and-shell.md#side-menu), [Avatar](../api/info.md#avatar-attributes) (issue #900) |
 | HTTP compression | The AWE starter now provides the compression defaults: `server.compression.enabled=true`, `min-response-size=256`, a `mime-types` list with `text/javascript` and `image/svg+xml`, and `spring.web.resources.chain.enabled`/`compressed=true`. The production builds of the AngularJS client and of the React archetype write `.br` and `.gz` copies of the scripts, styles and SVG files, and the server sends them to the browsers that accept them. With the AWE 4 archetype list the JavaScript bundles were sent uncompressed (Spring Boot serves `.js` as `text/javascript`): in the React test application the first load drops from 4.3 MB of scripts to 0.89 MB. | Remove `server.compression.*` and `spring.web.resources.chain.compressed` from your `application.properties` to take the defaults, or add `text/javascript` and `image/svg+xml` to your own list. To serve precompressed files in a React application, add `compression-webpack-plugin` and the two `CompressionPlugin` entries of the archetype `webpack.prod.js`. Set `server.compression.enabled=false` if a proxy compresses the responses. | Issue #965 |
+| Scheduler screens (#993, both clients) | The old scheduler screens are gone: a menu option, a profile, a restriction, an action or a browser test that names `scheduler-tasks`, `scheduler-management`, `scheduler-runs`, `scheduler-servers`, `scheduler-calendars` or their `new-`/`update-` screens points to a screen that no longer exists. The scheduler menu offers **Activity**, **Tasks** and **Configuration**. The queries, maintains, services and enumerated groups that only the old screens used are removed too. | Replace the old options in your menus with the new ones and update the profiles and restrictions that name them. Point your own actions to the new targets (the scheduler REST API does not change). Weekly tasks now fire on the configured day. | [Scheduler redesign](#scheduler-redesign), [Scheduler module](../scheduler-module.md) |
 
 ### jsoup in the input parameter sanitizer
 
@@ -1331,6 +1332,52 @@ compiled classes, so it includes the getters and setters that Lombok generates.
 
 </details>
 
+### Scheduler redesign (#993) {#scheduler-redesign}
+
+The scheduler module has new screens in both clients, and **the old scheduler screens and their menu options were
+removed**. The tables, the tasks, their executions and the permissions (`scheduler.read`, `scheduler.update`,
+`scheduler.execute`) do not change.
+
+**What to do**
+
+1. Replace the scheduler options of your menus (`private.xml`, `public.xml`) with the new ones, as in the
+   [Scheduler module](../scheduler-module.md) page.
+2. Update the profiles, restrictions and screen access rows that name an old option or screen: they now name the new
+   ones in the table below.
+3. Update your own actions, links and browser tests that open an old screen.
+
+| Old menu option (screen) | New option | How to reach the same thing |
+|---|---|---|
+| `scheduler-management` | `scheduler-configuration` | **Engine** tab (`CfgTab` = `CfgEng`); the engine menu of **Activity** too |
+| `scheduler-tasks` | `scheduler-task-catalog` | **Tasks**; each task opens its task page, `scheduler-task` |
+| `new-scheduler-task`, `update-scheduler-task` | `scheduler-task-editor` | **New task**, **Edit** or **Duplicate** (`TskEdtMod` = `new`, `edit` or `copy`) |
+| `scheduler-runs`, `scheduler-flow-graph` | `scheduler-flow-run` | A flow run link of **Activity** (its **Group by flow** view lists the runs) or of the task page; the dependencies of one task are the **Dependencies** tab of its task page |
+| `scheduler-servers` (`scheduler-server`), `new-scheduler-server`, `update-scheduler-server` | `scheduler-configuration` | **Servers** tab (`CfgSrv`), with a side panel to create and edit |
+| `scheduler-calendars`, `new-scheduler-calendar`, `update-scheduler-calendar` | `scheduler-configuration` | **Calendars** tab (`CfgCal`), with a side panel to create and edit |
+| `scheduler-dashboard`, `scheduler-dialog`, `scheduler-execution-data` (no menu option) | `scheduler-activity` | **Activity** and the side panel of an execution |
+
+The new invisible options are `scheduler-flow-run` (under **Activity**), `scheduler-task` and `scheduler-task-editor`
+(under **Tasks**).
+
+The targets that only the old screens used are removed as well. An action, a screen or a test of your own that names
+one of them fails:
+
+| Kind | Removed ids |
+|---|---|
+| Queries | `SchTskSug`, `SchTskSugAct`, `getTaskExecutionListFixed`, `SchDfrRun`, `SchDfrApi`, `SchDfrDln`, `SchDfrUsr`, `SchSrvLst`, `SchSrv`, `SchCalLst`, `chkTrgCntCal`, `nextExecutions`, `getFlowRunList`, `getFlowRunExecutionList`, `getFlowRunSkippedList` |
+| Maintains | `NewSchedulerTask`, `UpdateSchedulerTask`, `DeleteSchedulerServer`, `NewSchedulerCalendar`, `DeleteSchedulerCalendar`, `UpdSchCal`, `DeaSchCal`, `ActSchCal`, `NewSchedulerCalendarDate`, `DeleteSchedulerCalendarDate`, `ChkSchSrvCnx`, `ChkSchSrvCnxSel` |
+| Services | `nextExecutions`, `validateTaskDependencies`, `updateSchedulerTask`, `updateSchedulerCalendar`, `checkServerConnection`, `checkTriggerContainsCalendar` |
+| Enumerated groups | `SchedulerTaskSteps`, `scheduleTaskTabs`, `SchedulerServSteps`, `ExeTyp`, `conType`, `TskEdtWkd` |
+
+The task editor saves with `NewSchedulerTaskEditor` and `UpdateSchedulerTaskEditor`, and the **Configuration** screen
+manages servers and calendars (see the [Scheduler module](../scheduler-module.md)). The targets that Java code uses
+and the scheduler REST API (`/scheduler/api/v1/**`, see
+[Scheduler API security](../scheduler-module.md#scheduler-api-security)) stay: a client that calls the scheduler
+through its API is not affected.
+
+Weekly tasks now fire on the configured day (they fired one day earlier); see the
+[Upgrade notes](../scheduler-module.md#upgrade-notes) of the scheduler module.
+
 ## Planned for AWE 5.1
 
 The screens that AWE 5.0 replaces with the new administration screens are deprecated and **will be removed in 5.1.0**.
@@ -1409,6 +1456,8 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Own menu options that open the deprecated `ScrAccRes`, `menu-access` or `screen-access` screens point to `access-admin`
 - [ ] `server.compression.*` and `spring.web.resources.chain.compressed` were removed from `application.properties` (or the own list has `text/javascript` and `image/svg+xml`), and the React `webpack.prod.js` has the `CompressionPlugin` entries of the archetype
 - [ ] The `splitChunks` of the React `webpack.dev.js` and `webpack.prod.js` have no global `name: "main"` and the `commons` cache group uses `chunks: 'initial'`, as the archetype does
+- [ ] Own menu options, profiles, restrictions and browser tests no longer name the old scheduler screens (`scheduler-tasks`, `scheduler-management`, `scheduler-runs`, `scheduler-servers`, `scheduler-calendars`...)
+- [ ] Own actions, screens and tests no longer launch the removed scheduler targets (`NewSchedulerTask`, `UpdateSchedulerTask`, `SchSrvLst`...; see [Scheduler redesign](#scheduler-redesign))
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

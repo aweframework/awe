@@ -132,4 +132,16 @@ describe('awe-react-client/test/js/components/AweMenuExpandRequestTest.jsx (#938
     expect(levels.map(level => [level.name, level.group])).toEqual([['sales', true], ['reports', false], ['monthly', false]]);
     expect(levels[1].actions).toEqual([{type: 'screen', target: 'reports'}]);
   });
+
+  it('makes an option whose options are all hidden a level that launches it, as the menu shows it as a leaf (#993)', () => {
+    const detail = {...option('task', [], [{type: 'screen', target: 'task'}]), visible: false};
+    MenuRegistry.setOptions([option('scheduler', [option('catalog', [detail], [{type: 'screen', target: 'catalog'}])])]);
+    ViewRegistry.setView('report', {option: 'task', title: 'Task'});
+
+    renderMenu();
+
+    const levels = MenuRegistry.getBreadcrumbs().items;
+    expect(levels.map(level => [level.name, level.group])).toEqual([['scheduler', true], ['catalog', false], ['task', false]]);
+    expect(levels[1].actions).toEqual([{type: 'screen', target: 'catalog'}]);
+  });
 });

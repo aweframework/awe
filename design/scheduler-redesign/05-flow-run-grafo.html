@@ -1,0 +1,2485 @@
+<!doctype html>
+<html lang="es" data-awe-primary="emerald" data-awe-surface="slate" data-awe-density="comfortable">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planificador · Flujo #4812 · grafo y cronograma</title>
+<style>
+/* ==== AWE 5 tokens, embedded verbatim from awe-framework/awe-design-tokens/tokens.css ==== */
+/*
+ * AWE 5 design tokens: the single token file of both engines (#885). See website/docs/design-system/tokens-reference.md
+ *
+ * Token architecture:
+ *   Tier 1  primitive palettes      --awe-palette-<color>-50..950
+ *           configurable palettes   --awe-primary-50..950 / --awe-surface-0..950, selected on <html> with
+ *                                   data-awe-primary="<color>" and data-awe-surface="<neutral>"
+ *   Tier 2  semantic tokens         --awe-color-* (existing AWE vocabulary + Aura semantics), typography, spacing,
+ *                                   radius, elevation, focus, motion, density
+ *   Tier 3  component tokens        --awe-<component>-<property>, only where a component needs them
+ *
+ * Colour mode: every mode-dependent colour is written once as light-dark(<light>, <dark>), resolved with the
+ * color-scheme of the element that reads the token. The engines set the mode on <html>; until then light-dark()
+ * resolves the light value.
+ *
+ * Density: comfortable by default; <html data-awe-density="compact"> for 13px and tighter paddings.
+ *
+ * Transition: each engine still declares its current token names (AngularJS less/awe/tokens.less, React main.css)
+ * after this file, so they keep following the active theme until the engine adopts the AWE 5 values.
+ *
+ * The values are those of the design system prototype (website/static/design-system/prototype/tokens.css), checked
+ * by the token tests of both engines. Reference values: Aura preset of @primeuix/themes 2.0.3 (MIT, PrimeTek).
+ */
+
+/* ==========================================================================
+   Tier 1 - Primitive palettes (Aura values, @primeuix/themes 2.0.3, MIT)
+   Never used directly by components: they feed the configurable palettes.
+   ========================================================================== */
+:root {
+  --awe-palette-emerald-50: #ecfdf5;
+  --awe-palette-emerald-100: #d1fae5;
+  --awe-palette-emerald-200: #a7f3d0;
+  --awe-palette-emerald-300: #6ee7b7;
+  --awe-palette-emerald-400: #34d399;
+  --awe-palette-emerald-500: #10b981;
+  --awe-palette-emerald-600: #059669;
+  --awe-palette-emerald-700: #047857;
+  --awe-palette-emerald-800: #065f46;
+  --awe-palette-emerald-900: #064e3b;
+  --awe-palette-emerald-950: #022c22;
+
+  --awe-palette-green-50: #f0fdf4;
+  --awe-palette-green-100: #dcfce7;
+  --awe-palette-green-200: #bbf7d0;
+  --awe-palette-green-300: #86efac;
+  --awe-palette-green-400: #4ade80;
+  --awe-palette-green-500: #22c55e;
+  --awe-palette-green-600: #16a34a;
+  --awe-palette-green-700: #15803d;
+  --awe-palette-green-800: #166534;
+  --awe-palette-green-900: #14532d;
+  --awe-palette-green-950: #052e16;
+
+  --awe-palette-lime-50: #f7fee7;
+  --awe-palette-lime-100: #ecfccb;
+  --awe-palette-lime-200: #d9f99d;
+  --awe-palette-lime-300: #bef264;
+  --awe-palette-lime-400: #a3e635;
+  --awe-palette-lime-500: #84cc16;
+  --awe-palette-lime-600: #65a30d;
+  --awe-palette-lime-700: #4d7c0f;
+  --awe-palette-lime-800: #3f6212;
+  --awe-palette-lime-900: #365314;
+  --awe-palette-lime-950: #1a2e05;
+
+  --awe-palette-red-50: #fef2f2;
+  --awe-palette-red-100: #fee2e2;
+  --awe-palette-red-200: #fecaca;
+  --awe-palette-red-300: #fca5a5;
+  --awe-palette-red-400: #f87171;
+  --awe-palette-red-500: #ef4444;
+  --awe-palette-red-600: #dc2626;
+  --awe-palette-red-700: #b91c1c;
+  --awe-palette-red-800: #991b1b;
+  --awe-palette-red-900: #7f1d1d;
+  --awe-palette-red-950: #450a0a;
+
+  --awe-palette-orange-50: #fff7ed;
+  --awe-palette-orange-100: #ffedd5;
+  --awe-palette-orange-200: #fed7aa;
+  --awe-palette-orange-300: #fdba74;
+  --awe-palette-orange-400: #fb923c;
+  --awe-palette-orange-500: #f97316;
+  --awe-palette-orange-600: #ea580c;
+  --awe-palette-orange-700: #c2410c;
+  --awe-palette-orange-800: #9a3412;
+  --awe-palette-orange-900: #7c2d12;
+  --awe-palette-orange-950: #431407;
+
+  --awe-palette-amber-50: #fffbeb;
+  --awe-palette-amber-100: #fef3c7;
+  --awe-palette-amber-200: #fde68a;
+  --awe-palette-amber-300: #fcd34d;
+  --awe-palette-amber-400: #fbbf24;
+  --awe-palette-amber-500: #f59e0b;
+  --awe-palette-amber-600: #d97706;
+  --awe-palette-amber-700: #b45309;
+  --awe-palette-amber-800: #92400e;
+  --awe-palette-amber-900: #78350f;
+  --awe-palette-amber-950: #451a03;
+
+  --awe-palette-yellow-50: #fefce8;
+  --awe-palette-yellow-100: #fef9c3;
+  --awe-palette-yellow-200: #fef08a;
+  --awe-palette-yellow-300: #fde047;
+  --awe-palette-yellow-400: #facc15;
+  --awe-palette-yellow-500: #eab308;
+  --awe-palette-yellow-600: #ca8a04;
+  --awe-palette-yellow-700: #a16207;
+  --awe-palette-yellow-800: #854d0e;
+  --awe-palette-yellow-900: #713f12;
+  --awe-palette-yellow-950: #422006;
+
+  --awe-palette-teal-50: #f0fdfa;
+  --awe-palette-teal-100: #ccfbf1;
+  --awe-palette-teal-200: #99f6e4;
+  --awe-palette-teal-300: #5eead4;
+  --awe-palette-teal-400: #2dd4bf;
+  --awe-palette-teal-500: #14b8a6;
+  --awe-palette-teal-600: #0d9488;
+  --awe-palette-teal-700: #0f766e;
+  --awe-palette-teal-800: #115e59;
+  --awe-palette-teal-900: #134e4a;
+  --awe-palette-teal-950: #042f2e;
+
+  --awe-palette-cyan-50: #ecfeff;
+  --awe-palette-cyan-100: #cffafe;
+  --awe-palette-cyan-200: #a5f3fc;
+  --awe-palette-cyan-300: #67e8f9;
+  --awe-palette-cyan-400: #22d3ee;
+  --awe-palette-cyan-500: #06b6d4;
+  --awe-palette-cyan-600: #0891b2;
+  --awe-palette-cyan-700: #0e7490;
+  --awe-palette-cyan-800: #155e75;
+  --awe-palette-cyan-900: #164e63;
+  --awe-palette-cyan-950: #083344;
+
+  --awe-palette-sky-50: #f0f9ff;
+  --awe-palette-sky-100: #e0f2fe;
+  --awe-palette-sky-200: #bae6fd;
+  --awe-palette-sky-300: #7dd3fc;
+  --awe-palette-sky-400: #38bdf8;
+  --awe-palette-sky-500: #0ea5e9;
+  --awe-palette-sky-600: #0284c7;
+  --awe-palette-sky-700: #0369a1;
+  --awe-palette-sky-800: #075985;
+  --awe-palette-sky-900: #0c4a6e;
+  --awe-palette-sky-950: #082f49;
+
+  --awe-palette-blue-50: #eff6ff;
+  --awe-palette-blue-100: #dbeafe;
+  --awe-palette-blue-200: #bfdbfe;
+  --awe-palette-blue-300: #93c5fd;
+  --awe-palette-blue-400: #60a5fa;
+  --awe-palette-blue-500: #3b82f6;
+  --awe-palette-blue-600: #2563eb;
+  --awe-palette-blue-700: #1d4ed8;
+  --awe-palette-blue-800: #1e40af;
+  --awe-palette-blue-900: #1e3a8a;
+  --awe-palette-blue-950: #172554;
+
+  --awe-palette-indigo-50: #eef2ff;
+  --awe-palette-indigo-100: #e0e7ff;
+  --awe-palette-indigo-200: #c7d2fe;
+  --awe-palette-indigo-300: #a5b4fc;
+  --awe-palette-indigo-400: #818cf8;
+  --awe-palette-indigo-500: #6366f1;
+  --awe-palette-indigo-600: #4f46e5;
+  --awe-palette-indigo-700: #4338ca;
+  --awe-palette-indigo-800: #3730a3;
+  --awe-palette-indigo-900: #312e81;
+  --awe-palette-indigo-950: #1e1b4b;
+
+  --awe-palette-violet-50: #f5f3ff;
+  --awe-palette-violet-100: #ede9fe;
+  --awe-palette-violet-200: #ddd6fe;
+  --awe-palette-violet-300: #c4b5fd;
+  --awe-palette-violet-400: #a78bfa;
+  --awe-palette-violet-500: #8b5cf6;
+  --awe-palette-violet-600: #7c3aed;
+  --awe-palette-violet-700: #6d28d9;
+  --awe-palette-violet-800: #5b21b6;
+  --awe-palette-violet-900: #4c1d95;
+  --awe-palette-violet-950: #2e1065;
+
+  --awe-palette-purple-50: #faf5ff;
+  --awe-palette-purple-100: #f3e8ff;
+  --awe-palette-purple-200: #e9d5ff;
+  --awe-palette-purple-300: #d8b4fe;
+  --awe-palette-purple-400: #c084fc;
+  --awe-palette-purple-500: #a855f7;
+  --awe-palette-purple-600: #9333ea;
+  --awe-palette-purple-700: #7e22ce;
+  --awe-palette-purple-800: #6b21a8;
+  --awe-palette-purple-900: #581c87;
+  --awe-palette-purple-950: #3b0764;
+
+  --awe-palette-fuchsia-50: #fdf4ff;
+  --awe-palette-fuchsia-100: #fae8ff;
+  --awe-palette-fuchsia-200: #f5d0fe;
+  --awe-palette-fuchsia-300: #f0abfc;
+  --awe-palette-fuchsia-400: #e879f9;
+  --awe-palette-fuchsia-500: #d946ef;
+  --awe-palette-fuchsia-600: #c026d3;
+  --awe-palette-fuchsia-700: #a21caf;
+  --awe-palette-fuchsia-800: #86198f;
+  --awe-palette-fuchsia-900: #701a75;
+  --awe-palette-fuchsia-950: #4a044e;
+
+  --awe-palette-pink-50: #fdf2f8;
+  --awe-palette-pink-100: #fce7f3;
+  --awe-palette-pink-200: #fbcfe8;
+  --awe-palette-pink-300: #f9a8d4;
+  --awe-palette-pink-400: #f472b6;
+  --awe-palette-pink-500: #ec4899;
+  --awe-palette-pink-600: #db2777;
+  --awe-palette-pink-700: #be185d;
+  --awe-palette-pink-800: #9d174d;
+  --awe-palette-pink-900: #831843;
+  --awe-palette-pink-950: #500724;
+
+  --awe-palette-rose-50: #fff1f2;
+  --awe-palette-rose-100: #ffe4e6;
+  --awe-palette-rose-200: #fecdd3;
+  --awe-palette-rose-300: #fda4af;
+  --awe-palette-rose-400: #fb7185;
+  --awe-palette-rose-500: #f43f5e;
+  --awe-palette-rose-600: #e11d48;
+  --awe-palette-rose-700: #be123c;
+  --awe-palette-rose-800: #9f1239;
+  --awe-palette-rose-900: #881337;
+  --awe-palette-rose-950: #4c0519;
+
+  --awe-palette-slate-50: #f8fafc;
+  --awe-palette-slate-100: #f1f5f9;
+  --awe-palette-slate-200: #e2e8f0;
+  --awe-palette-slate-300: #cbd5e1;
+  --awe-palette-slate-400: #94a3b8;
+  --awe-palette-slate-500: #64748b;
+  --awe-palette-slate-600: #475569;
+  --awe-palette-slate-700: #334155;
+  --awe-palette-slate-800: #1e293b;
+  --awe-palette-slate-900: #0f172a;
+  --awe-palette-slate-950: #020617;
+
+  --awe-palette-gray-50: #f9fafb;
+  --awe-palette-gray-100: #f3f4f6;
+  --awe-palette-gray-200: #e5e7eb;
+  --awe-palette-gray-300: #d1d5db;
+  --awe-palette-gray-400: #9ca3af;
+  --awe-palette-gray-500: #6b7280;
+  --awe-palette-gray-600: #4b5563;
+  --awe-palette-gray-700: #374151;
+  --awe-palette-gray-800: #1f2937;
+  --awe-palette-gray-900: #111827;
+  --awe-palette-gray-950: #030712;
+
+  --awe-palette-zinc-50: #fafafa;
+  --awe-palette-zinc-100: #f4f4f5;
+  --awe-palette-zinc-200: #e4e4e7;
+  --awe-palette-zinc-300: #d4d4d8;
+  --awe-palette-zinc-400: #a1a1aa;
+  --awe-palette-zinc-500: #71717a;
+  --awe-palette-zinc-600: #52525b;
+  --awe-palette-zinc-700: #3f3f46;
+  --awe-palette-zinc-800: #27272a;
+  --awe-palette-zinc-900: #18181b;
+  --awe-palette-zinc-950: #09090b;
+
+  --awe-palette-neutral-50: #fafafa;
+  --awe-palette-neutral-100: #f5f5f5;
+  --awe-palette-neutral-200: #e5e5e5;
+  --awe-palette-neutral-300: #d4d4d4;
+  --awe-palette-neutral-400: #a3a3a3;
+  --awe-palette-neutral-500: #737373;
+  --awe-palette-neutral-600: #525252;
+  --awe-palette-neutral-700: #404040;
+  --awe-palette-neutral-800: #262626;
+  --awe-palette-neutral-900: #171717;
+  --awe-palette-neutral-950: #0a0a0a;
+
+  --awe-palette-stone-50: #fafaf9;
+  --awe-palette-stone-100: #f5f5f4;
+  --awe-palette-stone-200: #e7e5e4;
+  --awe-palette-stone-300: #d6d3d1;
+  --awe-palette-stone-400: #a8a29e;
+  --awe-palette-stone-500: #78716c;
+  --awe-palette-stone-600: #57534e;
+  --awe-palette-stone-700: #44403c;
+  --awe-palette-stone-800: #292524;
+  --awe-palette-stone-900: #1c1917;
+  --awe-palette-stone-950: #0c0a09;
+}
+
+/* ==========================================================================
+   Configurable palettes - primary
+   <html data-awe-primary="<color>">; emerald when the attribute is not set (Aura default).
+   --awe-primary-fill*: the shades used for filled primary surfaces in the light mode, chosen per palette so the
+   label on them reaches WCAG AA (Aura uses primary.500 + white, below 4.5:1 for most palettes).
+   ========================================================================== */
+:root,
+:root[data-awe-primary="emerald"] {
+  --awe-primary-50: var(--awe-palette-emerald-50);
+  --awe-primary-100: var(--awe-palette-emerald-100);
+  --awe-primary-200: var(--awe-palette-emerald-200);
+  --awe-primary-300: var(--awe-palette-emerald-300);
+  --awe-primary-400: var(--awe-palette-emerald-400);
+  --awe-primary-500: var(--awe-palette-emerald-500);
+  --awe-primary-600: var(--awe-palette-emerald-600);
+  --awe-primary-700: var(--awe-palette-emerald-700);
+  --awe-primary-800: var(--awe-palette-emerald-800);
+  --awe-primary-900: var(--awe-palette-emerald-900);
+  --awe-primary-950: var(--awe-palette-emerald-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="green"] {
+  --awe-primary-50: var(--awe-palette-green-50);
+  --awe-primary-100: var(--awe-palette-green-100);
+  --awe-primary-200: var(--awe-palette-green-200);
+  --awe-primary-300: var(--awe-palette-green-300);
+  --awe-primary-400: var(--awe-palette-green-400);
+  --awe-primary-500: var(--awe-palette-green-500);
+  --awe-primary-600: var(--awe-palette-green-600);
+  --awe-primary-700: var(--awe-palette-green-700);
+  --awe-primary-800: var(--awe-palette-green-800);
+  --awe-primary-900: var(--awe-palette-green-900);
+  --awe-primary-950: var(--awe-palette-green-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="lime"] {
+  --awe-primary-50: var(--awe-palette-lime-50);
+  --awe-primary-100: var(--awe-palette-lime-100);
+  --awe-primary-200: var(--awe-palette-lime-200);
+  --awe-primary-300: var(--awe-palette-lime-300);
+  --awe-primary-400: var(--awe-palette-lime-400);
+  --awe-primary-500: var(--awe-palette-lime-500);
+  --awe-primary-600: var(--awe-palette-lime-600);
+  --awe-primary-700: var(--awe-palette-lime-700);
+  --awe-primary-800: var(--awe-palette-lime-800);
+  --awe-primary-900: var(--awe-palette-lime-900);
+  --awe-primary-950: var(--awe-palette-lime-950);
+  --awe-primary-fill: var(--awe-primary-500);
+  --awe-primary-fill-hover: var(--awe-primary-400);
+  --awe-primary-fill-active: var(--awe-primary-600);
+  --awe-primary-on-fill: var(--awe-primary-950);
+}
+
+:root[data-awe-primary="red"] {
+  --awe-primary-50: var(--awe-palette-red-50);
+  --awe-primary-100: var(--awe-palette-red-100);
+  --awe-primary-200: var(--awe-palette-red-200);
+  --awe-primary-300: var(--awe-palette-red-300);
+  --awe-primary-400: var(--awe-palette-red-400);
+  --awe-primary-500: var(--awe-palette-red-500);
+  --awe-primary-600: var(--awe-palette-red-600);
+  --awe-primary-700: var(--awe-palette-red-700);
+  --awe-primary-800: var(--awe-palette-red-800);
+  --awe-primary-900: var(--awe-palette-red-900);
+  --awe-primary-950: var(--awe-palette-red-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="orange"] {
+  --awe-primary-50: var(--awe-palette-orange-50);
+  --awe-primary-100: var(--awe-palette-orange-100);
+  --awe-primary-200: var(--awe-palette-orange-200);
+  --awe-primary-300: var(--awe-palette-orange-300);
+  --awe-primary-400: var(--awe-palette-orange-400);
+  --awe-primary-500: var(--awe-palette-orange-500);
+  --awe-primary-600: var(--awe-palette-orange-600);
+  --awe-primary-700: var(--awe-palette-orange-700);
+  --awe-primary-800: var(--awe-palette-orange-800);
+  --awe-primary-900: var(--awe-palette-orange-900);
+  --awe-primary-950: var(--awe-palette-orange-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="amber"] {
+  --awe-primary-50: var(--awe-palette-amber-50);
+  --awe-primary-100: var(--awe-palette-amber-100);
+  --awe-primary-200: var(--awe-palette-amber-200);
+  --awe-primary-300: var(--awe-palette-amber-300);
+  --awe-primary-400: var(--awe-palette-amber-400);
+  --awe-primary-500: var(--awe-palette-amber-500);
+  --awe-primary-600: var(--awe-palette-amber-600);
+  --awe-primary-700: var(--awe-palette-amber-700);
+  --awe-primary-800: var(--awe-palette-amber-800);
+  --awe-primary-900: var(--awe-palette-amber-900);
+  --awe-primary-950: var(--awe-palette-amber-950);
+  --awe-primary-fill: var(--awe-primary-500);
+  --awe-primary-fill-hover: var(--awe-primary-400);
+  --awe-primary-fill-active: var(--awe-primary-600);
+  --awe-primary-on-fill: var(--awe-primary-950);
+}
+
+:root[data-awe-primary="yellow"] {
+  --awe-primary-50: var(--awe-palette-yellow-50);
+  --awe-primary-100: var(--awe-palette-yellow-100);
+  --awe-primary-200: var(--awe-palette-yellow-200);
+  --awe-primary-300: var(--awe-palette-yellow-300);
+  --awe-primary-400: var(--awe-palette-yellow-400);
+  --awe-primary-500: var(--awe-palette-yellow-500);
+  --awe-primary-600: var(--awe-palette-yellow-600);
+  --awe-primary-700: var(--awe-palette-yellow-700);
+  --awe-primary-800: var(--awe-palette-yellow-800);
+  --awe-primary-900: var(--awe-palette-yellow-900);
+  --awe-primary-950: var(--awe-palette-yellow-950);
+  --awe-primary-fill: var(--awe-primary-500);
+  --awe-primary-fill-hover: var(--awe-primary-400);
+  --awe-primary-fill-active: var(--awe-primary-600);
+  --awe-primary-on-fill: var(--awe-primary-950);
+}
+
+:root[data-awe-primary="teal"] {
+  --awe-primary-50: var(--awe-palette-teal-50);
+  --awe-primary-100: var(--awe-palette-teal-100);
+  --awe-primary-200: var(--awe-palette-teal-200);
+  --awe-primary-300: var(--awe-palette-teal-300);
+  --awe-primary-400: var(--awe-palette-teal-400);
+  --awe-primary-500: var(--awe-palette-teal-500);
+  --awe-primary-600: var(--awe-palette-teal-600);
+  --awe-primary-700: var(--awe-palette-teal-700);
+  --awe-primary-800: var(--awe-palette-teal-800);
+  --awe-primary-900: var(--awe-palette-teal-900);
+  --awe-primary-950: var(--awe-palette-teal-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="cyan"] {
+  --awe-primary-50: var(--awe-palette-cyan-50);
+  --awe-primary-100: var(--awe-palette-cyan-100);
+  --awe-primary-200: var(--awe-palette-cyan-200);
+  --awe-primary-300: var(--awe-palette-cyan-300);
+  --awe-primary-400: var(--awe-palette-cyan-400);
+  --awe-primary-500: var(--awe-palette-cyan-500);
+  --awe-primary-600: var(--awe-palette-cyan-600);
+  --awe-primary-700: var(--awe-palette-cyan-700);
+  --awe-primary-800: var(--awe-palette-cyan-800);
+  --awe-primary-900: var(--awe-palette-cyan-900);
+  --awe-primary-950: var(--awe-palette-cyan-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="sky"] {
+  --awe-primary-50: var(--awe-palette-sky-50);
+  --awe-primary-100: var(--awe-palette-sky-100);
+  --awe-primary-200: var(--awe-palette-sky-200);
+  --awe-primary-300: var(--awe-palette-sky-300);
+  --awe-primary-400: var(--awe-palette-sky-400);
+  --awe-primary-500: var(--awe-palette-sky-500);
+  --awe-primary-600: var(--awe-palette-sky-600);
+  --awe-primary-700: var(--awe-palette-sky-700);
+  --awe-primary-800: var(--awe-palette-sky-800);
+  --awe-primary-900: var(--awe-palette-sky-900);
+  --awe-primary-950: var(--awe-palette-sky-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="blue"] {
+  --awe-primary-50: var(--awe-palette-blue-50);
+  --awe-primary-100: var(--awe-palette-blue-100);
+  --awe-primary-200: var(--awe-palette-blue-200);
+  --awe-primary-300: var(--awe-palette-blue-300);
+  --awe-primary-400: var(--awe-palette-blue-400);
+  --awe-primary-500: var(--awe-palette-blue-500);
+  --awe-primary-600: var(--awe-palette-blue-600);
+  --awe-primary-700: var(--awe-palette-blue-700);
+  --awe-primary-800: var(--awe-palette-blue-800);
+  --awe-primary-900: var(--awe-palette-blue-900);
+  --awe-primary-950: var(--awe-palette-blue-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="indigo"] {
+  --awe-primary-50: var(--awe-palette-indigo-50);
+  --awe-primary-100: var(--awe-palette-indigo-100);
+  --awe-primary-200: var(--awe-palette-indigo-200);
+  --awe-primary-300: var(--awe-palette-indigo-300);
+  --awe-primary-400: var(--awe-palette-indigo-400);
+  --awe-primary-500: var(--awe-palette-indigo-500);
+  --awe-primary-600: var(--awe-palette-indigo-600);
+  --awe-primary-700: var(--awe-palette-indigo-700);
+  --awe-primary-800: var(--awe-palette-indigo-800);
+  --awe-primary-900: var(--awe-palette-indigo-900);
+  --awe-primary-950: var(--awe-palette-indigo-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="violet"] {
+  --awe-primary-50: var(--awe-palette-violet-50);
+  --awe-primary-100: var(--awe-palette-violet-100);
+  --awe-primary-200: var(--awe-palette-violet-200);
+  --awe-primary-300: var(--awe-palette-violet-300);
+  --awe-primary-400: var(--awe-palette-violet-400);
+  --awe-primary-500: var(--awe-palette-violet-500);
+  --awe-primary-600: var(--awe-palette-violet-600);
+  --awe-primary-700: var(--awe-palette-violet-700);
+  --awe-primary-800: var(--awe-palette-violet-800);
+  --awe-primary-900: var(--awe-palette-violet-900);
+  --awe-primary-950: var(--awe-palette-violet-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="purple"] {
+  --awe-primary-50: var(--awe-palette-purple-50);
+  --awe-primary-100: var(--awe-palette-purple-100);
+  --awe-primary-200: var(--awe-palette-purple-200);
+  --awe-primary-300: var(--awe-palette-purple-300);
+  --awe-primary-400: var(--awe-palette-purple-400);
+  --awe-primary-500: var(--awe-palette-purple-500);
+  --awe-primary-600: var(--awe-palette-purple-600);
+  --awe-primary-700: var(--awe-palette-purple-700);
+  --awe-primary-800: var(--awe-palette-purple-800);
+  --awe-primary-900: var(--awe-palette-purple-900);
+  --awe-primary-950: var(--awe-palette-purple-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="fuchsia"] {
+  --awe-primary-50: var(--awe-palette-fuchsia-50);
+  --awe-primary-100: var(--awe-palette-fuchsia-100);
+  --awe-primary-200: var(--awe-palette-fuchsia-200);
+  --awe-primary-300: var(--awe-palette-fuchsia-300);
+  --awe-primary-400: var(--awe-palette-fuchsia-400);
+  --awe-primary-500: var(--awe-palette-fuchsia-500);
+  --awe-primary-600: var(--awe-palette-fuchsia-600);
+  --awe-primary-700: var(--awe-palette-fuchsia-700);
+  --awe-primary-800: var(--awe-palette-fuchsia-800);
+  --awe-primary-900: var(--awe-palette-fuchsia-900);
+  --awe-primary-950: var(--awe-palette-fuchsia-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="pink"] {
+  --awe-primary-50: var(--awe-palette-pink-50);
+  --awe-primary-100: var(--awe-palette-pink-100);
+  --awe-primary-200: var(--awe-palette-pink-200);
+  --awe-primary-300: var(--awe-palette-pink-300);
+  --awe-primary-400: var(--awe-palette-pink-400);
+  --awe-primary-500: var(--awe-palette-pink-500);
+  --awe-primary-600: var(--awe-palette-pink-600);
+  --awe-primary-700: var(--awe-palette-pink-700);
+  --awe-primary-800: var(--awe-palette-pink-800);
+  --awe-primary-900: var(--awe-palette-pink-900);
+  --awe-primary-950: var(--awe-palette-pink-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="rose"] {
+  --awe-primary-50: var(--awe-palette-rose-50);
+  --awe-primary-100: var(--awe-palette-rose-100);
+  --awe-primary-200: var(--awe-palette-rose-200);
+  --awe-primary-300: var(--awe-palette-rose-300);
+  --awe-primary-400: var(--awe-palette-rose-400);
+  --awe-primary-500: var(--awe-palette-rose-500);
+  --awe-primary-600: var(--awe-palette-rose-600);
+  --awe-primary-700: var(--awe-palette-rose-700);
+  --awe-primary-800: var(--awe-palette-rose-800);
+  --awe-primary-900: var(--awe-palette-rose-900);
+  --awe-primary-950: var(--awe-palette-rose-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+/* ==========================================================================
+   Configurable palettes - surface
+   <html data-awe-surface="<neutral>">; when the attribute is not set: slate in light, zinc in dark (Aura).
+   ========================================================================== */
+:root {
+  --awe-surface-0: #ffffff;
+  --awe-surface-50: light-dark(var(--awe-palette-slate-50), var(--awe-palette-zinc-50));
+  --awe-surface-100: light-dark(var(--awe-palette-slate-100), var(--awe-palette-zinc-100));
+  --awe-surface-200: light-dark(var(--awe-palette-slate-200), var(--awe-palette-zinc-200));
+  --awe-surface-300: light-dark(var(--awe-palette-slate-300), var(--awe-palette-zinc-300));
+  --awe-surface-400: light-dark(var(--awe-palette-slate-400), var(--awe-palette-zinc-400));
+  --awe-surface-500: light-dark(var(--awe-palette-slate-500), var(--awe-palette-zinc-500));
+  --awe-surface-600: light-dark(var(--awe-palette-slate-600), var(--awe-palette-zinc-600));
+  --awe-surface-700: light-dark(var(--awe-palette-slate-700), var(--awe-palette-zinc-700));
+  --awe-surface-800: light-dark(var(--awe-palette-slate-800), var(--awe-palette-zinc-800));
+  --awe-surface-900: light-dark(var(--awe-palette-slate-900), var(--awe-palette-zinc-900));
+  --awe-surface-950: light-dark(var(--awe-palette-slate-950), var(--awe-palette-zinc-950));
+}
+
+:root[data-awe-surface="slate"] {
+  --awe-surface-50: var(--awe-palette-slate-50);
+  --awe-surface-100: var(--awe-palette-slate-100);
+  --awe-surface-200: var(--awe-palette-slate-200);
+  --awe-surface-300: var(--awe-palette-slate-300);
+  --awe-surface-400: var(--awe-palette-slate-400);
+  --awe-surface-500: var(--awe-palette-slate-500);
+  --awe-surface-600: var(--awe-palette-slate-600);
+  --awe-surface-700: var(--awe-palette-slate-700);
+  --awe-surface-800: var(--awe-palette-slate-800);
+  --awe-surface-900: var(--awe-palette-slate-900);
+  --awe-surface-950: var(--awe-palette-slate-950);
+}
+
+:root[data-awe-surface="gray"] {
+  --awe-surface-50: var(--awe-palette-gray-50);
+  --awe-surface-100: var(--awe-palette-gray-100);
+  --awe-surface-200: var(--awe-palette-gray-200);
+  --awe-surface-300: var(--awe-palette-gray-300);
+  --awe-surface-400: var(--awe-palette-gray-400);
+  --awe-surface-500: var(--awe-palette-gray-500);
+  --awe-surface-600: var(--awe-palette-gray-600);
+  --awe-surface-700: var(--awe-palette-gray-700);
+  --awe-surface-800: var(--awe-palette-gray-800);
+  --awe-surface-900: var(--awe-palette-gray-900);
+  --awe-surface-950: var(--awe-palette-gray-950);
+}
+
+:root[data-awe-surface="zinc"] {
+  --awe-surface-50: var(--awe-palette-zinc-50);
+  --awe-surface-100: var(--awe-palette-zinc-100);
+  --awe-surface-200: var(--awe-palette-zinc-200);
+  --awe-surface-300: var(--awe-palette-zinc-300);
+  --awe-surface-400: var(--awe-palette-zinc-400);
+  --awe-surface-500: var(--awe-palette-zinc-500);
+  --awe-surface-600: var(--awe-palette-zinc-600);
+  --awe-surface-700: var(--awe-palette-zinc-700);
+  --awe-surface-800: var(--awe-palette-zinc-800);
+  --awe-surface-900: var(--awe-palette-zinc-900);
+  --awe-surface-950: var(--awe-palette-zinc-950);
+}
+
+:root[data-awe-surface="neutral"] {
+  --awe-surface-50: var(--awe-palette-neutral-50);
+  --awe-surface-100: var(--awe-palette-neutral-100);
+  --awe-surface-200: var(--awe-palette-neutral-200);
+  --awe-surface-300: var(--awe-palette-neutral-300);
+  --awe-surface-400: var(--awe-palette-neutral-400);
+  --awe-surface-500: var(--awe-palette-neutral-500);
+  --awe-surface-600: var(--awe-palette-neutral-600);
+  --awe-surface-700: var(--awe-palette-neutral-700);
+  --awe-surface-800: var(--awe-palette-neutral-800);
+  --awe-surface-900: var(--awe-palette-neutral-900);
+  --awe-surface-950: var(--awe-palette-neutral-950);
+}
+
+:root[data-awe-surface="stone"] {
+  --awe-surface-50: var(--awe-palette-stone-50);
+  --awe-surface-100: var(--awe-palette-stone-100);
+  --awe-surface-200: var(--awe-palette-stone-200);
+  --awe-surface-300: var(--awe-palette-stone-300);
+  --awe-surface-400: var(--awe-palette-stone-400);
+  --awe-surface-500: var(--awe-palette-stone-500);
+  --awe-surface-600: var(--awe-palette-stone-600);
+  --awe-surface-700: var(--awe-palette-stone-700);
+  --awe-surface-800: var(--awe-palette-stone-800);
+  --awe-surface-900: var(--awe-palette-stone-900);
+  --awe-surface-950: var(--awe-palette-stone-950);
+}
+
+/* ==========================================================================
+   Tier 2 - Semantic colours: light-dark(<light>, <dark>)
+   Keeps the existing --awe-color-* vocabulary of the AngularJS tokens.less and adds the Aura semantics.
+   ========================================================================== */
+:root {
+  /* Brand ---------------------------------------------------------------- */
+  --awe-color-primary: light-dark(var(--awe-primary-fill), var(--awe-primary-400));
+  --awe-color-primary-hover: light-dark(var(--awe-primary-fill-hover), var(--awe-primary-300));
+  --awe-color-primary-active: light-dark(var(--awe-primary-fill-active), var(--awe-primary-200));
+  --awe-color-on-primary: light-dark(var(--awe-primary-on-fill), var(--awe-surface-900));
+  /* Primary used as text or as a thin line on the page (links, active tab, focus ring) */
+  --awe-color-primary-text: light-dark(var(--awe-primary-700), var(--awe-primary-400));
+  --awe-color-primary-subtle: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-500), transparent 84%));
+  --awe-color-on-primary-subtle: light-dark(var(--awe-primary-700), var(--awe-primary-300));
+  --awe-color-theme: var(--awe-color-primary);
+  --awe-color-secondary: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-secondary-hover: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-on-secondary: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+
+  /* Text ----------------------------------------------------------------- */
+  --awe-color-text: light-dark(var(--awe-surface-700), var(--awe-surface-0));
+  --awe-color-text-emphasis: light-dark(var(--awe-surface-900), var(--awe-surface-0));
+  --awe-color-text-muted: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-text-hover: light-dark(var(--awe-surface-800), var(--awe-surface-0));
+  --awe-color-text-muted-hover: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+
+  /* Page and content ----------------------------------------------------- */
+  --awe-color-background: light-dark(var(--awe-surface-50), var(--awe-surface-950));
+  --awe-color-surface: light-dark(var(--awe-surface-0), var(--awe-surface-900));
+  --awe-color-surface-hover: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-surface-subtle: light-dark(var(--awe-surface-50), color-mix(in srgb, var(--awe-surface-800), transparent 50%));
+  /* An element raised over a secondary track (checked segment, switch handle) */
+  --awe-color-surface-raised: light-dark(var(--awe-surface-0), var(--awe-surface-600));
+  --awe-color-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-border-subtle: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-shadow: light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.45));
+  --awe-color-shadow-soft: light-dark(rgb(18 18 23 / 0.05), rgb(0 0 0 / 0.3));
+  --awe-color-content: var(--awe-color-surface);
+  --awe-color-content-hover: var(--awe-color-surface-hover);
+  --awe-color-content-border: var(--awe-color-border);
+  --awe-color-mask: light-dark(rgb(0 0 0 / 0.4), rgb(0 0 0 / 0.6));
+
+  /* Highlight (selected option, selected row, active menu option) -------- */
+  --awe-color-highlight: light-dark(var(--awe-primary-50), color-mix(in srgb, var(--awe-primary-400), transparent 84%));
+  --awe-color-highlight-focus: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-400), transparent 76%));
+  --awe-color-on-highlight: light-dark(var(--awe-primary-700), rgb(255 255 255 / 0.87));
+  --awe-color-on-highlight-focus: light-dark(var(--awe-primary-800), rgb(255 255 255 / 0.87));
+
+  /* Main menu, navbar, panels and grids (existing AWE vocabulary) -------- */
+  --awe-color-menu: var(--awe-color-surface);
+  --awe-color-menu-accent: var(--awe-color-highlight);
+  --awe-color-menu-text: var(--awe-color-text);
+  --awe-color-navbar: var(--awe-color-surface);
+  --awe-color-navbar-accent: var(--awe-color-surface-hover);
+  --awe-color-navbar-text: var(--awe-color-text);
+  --awe-color-navbar-dropdown: var(--awe-color-overlay);
+  --awe-color-panel: var(--awe-color-surface);
+  --awe-color-panel-header: var(--awe-color-surface);
+  --awe-color-panel-border: var(--awe-color-border);
+  --awe-color-panel-text: var(--awe-color-text);
+  /* Opaque, as the header and the footer of a grid stay over its rows when they scroll: in dark mode the subtle surface
+     (half transparent) laid over the rows (the surface) */
+  --awe-color-grid-header: light-dark(var(--awe-surface-50), color-mix(in srgb, var(--awe-surface-800), var(--awe-surface-900)));
+  --awe-color-grid-border: var(--awe-color-border);
+  --awe-color-skeleton: light-dark(var(--awe-surface-200), var(--awe-surface-800));
+  --awe-color-skeleton-highlight: light-dark(var(--awe-surface-100), var(--awe-surface-700));
+
+  /* Overlays (select panels, popovers, menus, dialogs) ------------------- */
+  --awe-color-overlay: light-dark(var(--awe-surface-0), var(--awe-surface-900));
+  --awe-color-overlay-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-overlay-text: var(--awe-color-text);
+  --awe-color-tooltip: light-dark(var(--awe-surface-800), var(--awe-surface-700));
+  --awe-color-on-tooltip: var(--awe-surface-0);
+
+  /* Form fields ---------------------------------------------------------- */
+  --awe-color-field: light-dark(var(--awe-surface-0), color-mix(in srgb, var(--awe-surface-900), var(--awe-surface-800)));
+  --awe-color-field-filled: light-dark(var(--awe-surface-50), var(--awe-surface-800));
+  --awe-color-field-border: light-dark(var(--awe-surface-300), var(--awe-surface-600));
+  --awe-color-field-border-hover: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-field-border-focus: var(--awe-color-primary);
+  --awe-color-field-border-invalid: light-dark(var(--awe-palette-red-500), var(--awe-palette-red-300));
+  --awe-color-field-text: light-dark(var(--awe-surface-700), var(--awe-surface-0));
+  --awe-color-field-placeholder: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-field-placeholder-invalid: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-field-icon: var(--awe-surface-400);
+  --awe-color-field-label: var(--awe-color-text-emphasis);
+  --awe-color-field-help: var(--awe-color-text-muted);
+  --awe-color-field-focus-halo: color-mix(in srgb, var(--awe-color-primary), transparent 80%);
+  --awe-color-field-invalid-halo: color-mix(in srgb, var(--awe-color-danger), transparent 82%);
+
+  /* List options (select, autocomplete, menus) --------------------------- */
+  --awe-color-list-option-focus: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-list-option-selected: var(--awe-color-highlight);
+  --awe-color-list-option-selected-focus: var(--awe-color-highlight-focus);
+  --awe-color-list-option-text: var(--awe-color-text);
+  --awe-color-list-option-text-focus: var(--awe-color-text-hover);
+  --awe-color-list-option-text-selected: var(--awe-color-on-highlight);
+  --awe-color-list-option-icon: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-list-option-group: var(--awe-color-text-muted);
+
+  /* Navigation items (side menu, breadcrumb, tabs, user menu) ------------ */
+  --awe-color-nav-item-focus: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-nav-item-active: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-nav-item-text: var(--awe-color-text);
+  --awe-color-nav-item-text-active: var(--awe-color-text-hover);
+  --awe-color-nav-item-icon: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-nav-item-icon-active: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-nav-submenu-label: var(--awe-color-text-muted);
+
+  /* States --------------------------------------------------------------- */
+  --awe-color-disabled: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-disabled-border: light-dark(var(--awe-surface-300), var(--awe-surface-600));
+  --awe-color-disabled-text: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-required: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-loading-bar: var(--awe-color-primary);
+
+  /* Status: solid (buttons, badges), subtle (tags, messages), text, border */
+  --awe-color-danger: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-danger-hover: light-dark(var(--awe-palette-red-700), var(--awe-palette-red-300));
+  --awe-color-on-danger: light-dark(#ffffff, var(--awe-palette-red-950));
+  --awe-color-danger-subtle: light-dark(var(--awe-palette-red-100), color-mix(in srgb, var(--awe-palette-red-500), transparent 84%));
+  --awe-color-danger-text: light-dark(var(--awe-palette-red-700), var(--awe-palette-red-300));
+  --awe-color-danger-border: light-dark(var(--awe-palette-red-200), color-mix(in srgb, var(--awe-palette-red-700), transparent 64%));
+
+  --awe-color-success: light-dark(var(--awe-palette-green-700), var(--awe-palette-green-400));
+  --awe-color-success-hover: light-dark(var(--awe-palette-green-800), var(--awe-palette-green-300));
+  --awe-color-on-success: light-dark(#ffffff, var(--awe-palette-green-950));
+  --awe-color-success-subtle: light-dark(var(--awe-palette-green-100), color-mix(in srgb, var(--awe-palette-green-500), transparent 84%));
+  --awe-color-success-text: light-dark(var(--awe-palette-green-700), var(--awe-palette-green-300));
+  --awe-color-success-border: light-dark(var(--awe-palette-green-200), color-mix(in srgb, var(--awe-palette-green-700), transparent 64%));
+
+  --awe-color-warning: light-dark(var(--awe-palette-orange-700), var(--awe-palette-orange-400));
+  --awe-color-warning-hover: light-dark(var(--awe-palette-orange-800), var(--awe-palette-orange-300));
+  --awe-color-on-warning: light-dark(#ffffff, var(--awe-palette-orange-950));
+  --awe-color-warning-subtle: light-dark(var(--awe-palette-orange-100), color-mix(in srgb, var(--awe-palette-orange-500), transparent 84%));
+  --awe-color-warning-text: light-dark(var(--awe-palette-orange-700), var(--awe-palette-orange-300));
+  --awe-color-warning-border: light-dark(var(--awe-palette-orange-200), color-mix(in srgb, var(--awe-palette-orange-700), transparent 64%));
+
+  --awe-color-info: light-dark(var(--awe-palette-sky-700), var(--awe-palette-sky-400));
+  --awe-color-info-hover: light-dark(var(--awe-palette-sky-800), var(--awe-palette-sky-300));
+  --awe-color-on-info: light-dark(#ffffff, var(--awe-palette-sky-950));
+  --awe-color-info-subtle: light-dark(var(--awe-palette-sky-100), color-mix(in srgb, var(--awe-palette-sky-500), transparent 84%));
+  --awe-color-info-text: light-dark(var(--awe-palette-sky-700), var(--awe-palette-sky-300));
+  --awe-color-info-border: light-dark(var(--awe-palette-sky-200), color-mix(in srgb, var(--awe-palette-sky-700), transparent 64%));
+
+  --awe-color-neutral-subtle: var(--awe-color-secondary);
+  --awe-color-neutral-text: var(--awe-color-on-secondary);
+  --awe-color-contrast: light-dark(var(--awe-surface-950), var(--awe-surface-0));
+  --awe-color-on-contrast: light-dark(var(--awe-surface-0), var(--awe-surface-950));
+}
+
+/* ==========================================================================
+   Tier 2 - Data visualisation colours (colour scale cells, data bars, sparklines, map)
+   The scale has 5 steps derived from the primary; --awe-color-on-scale-<n> is the text on each step.
+   ========================================================================== */
+:root {
+  --awe-color-scale-1: light-dark(var(--awe-primary-50), color-mix(in srgb, var(--awe-primary-400) 12%, var(--awe-surface-900)));
+  --awe-color-scale-2: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-400) 22%, var(--awe-surface-900)));
+  --awe-color-scale-3: light-dark(var(--awe-primary-200), color-mix(in srgb, var(--awe-primary-400) 34%, var(--awe-surface-900)));
+  --awe-color-scale-4: light-dark(var(--awe-primary-300), color-mix(in srgb, var(--awe-primary-400) 48%, var(--awe-surface-900)));
+  --awe-color-scale-5: var(--awe-color-primary);
+  --awe-color-on-scale-1: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-2: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-3: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-4: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-5: var(--awe-color-on-primary);
+
+  --awe-color-data-bar: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-400) 35%, transparent));
+  --awe-color-data-bar-negative: light-dark(var(--awe-palette-red-100), color-mix(in srgb, var(--awe-palette-red-400) 35%, transparent));
+  --awe-color-chart-line: var(--awe-color-primary-text);
+  --awe-color-chart-area: color-mix(in srgb, var(--awe-color-primary-text) 18%, transparent);
+  --awe-color-chart-negative: var(--awe-color-danger);
+  --awe-color-chart-axis: var(--awe-color-border);
+  /* Categorical series palette of the charts: 8 distinguishable hues, the 600 shade in light and the 400 in dark (at
+     least 3:1 against --awe-color-surface); the first one follows the primary colour. */
+  --awe-color-chart-series-1: light-dark(var(--awe-primary-600), var(--awe-primary-400));
+  --awe-color-chart-series-2: light-dark(var(--awe-palette-orange-600), var(--awe-palette-orange-400));
+  --awe-color-chart-series-3: light-dark(var(--awe-palette-sky-600), var(--awe-palette-sky-400));
+  --awe-color-chart-series-4: light-dark(var(--awe-palette-fuchsia-600), var(--awe-palette-fuchsia-400));
+  --awe-color-chart-series-5: light-dark(var(--awe-palette-lime-600), var(--awe-palette-lime-400));
+  --awe-color-chart-series-6: light-dark(var(--awe-palette-indigo-600), var(--awe-palette-indigo-400));
+  --awe-color-chart-series-7: light-dark(var(--awe-palette-rose-600), var(--awe-palette-rose-400));
+  --awe-color-chart-series-8: light-dark(var(--awe-palette-teal-600), var(--awe-palette-teal-400));
+
+  --awe-color-map-water: light-dark(var(--awe-palette-sky-100), color-mix(in srgb, var(--awe-palette-sky-500) 16%, var(--awe-surface-950)));
+  --awe-color-map-land: light-dark(var(--awe-surface-50), var(--awe-surface-900));
+  --awe-color-map-park: light-dark(var(--awe-palette-green-100), color-mix(in srgb, var(--awe-palette-green-500) 14%, var(--awe-surface-900)));
+  --awe-color-map-road: light-dark(var(--awe-surface-0), var(--awe-surface-700));
+  --awe-color-map-road-casing: light-dark(var(--awe-surface-300), var(--awe-surface-800));
+  --awe-color-map-border: light-dark(var(--awe-surface-400), var(--awe-surface-600));
+  --awe-color-map-label: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+}
+
+/* ==========================================================================
+   Tier 2 - Typography
+   ========================================================================== */
+:root {
+  --awe-font-family-base: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --awe-font-family-monospace: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  /* Type scale (comfortable) */
+  --awe-font-size-xs: 12px;
+  --awe-font-size-sm: 13px;
+  --awe-font-size-base: 14px;
+  --awe-font-size-md: 16px;
+  --awe-font-size-lg: 18px;
+  --awe-font-size-xl: 20px;
+  --awe-font-size-2xl: 24px;
+  --awe-font-size-3xl: 30px;
+  --awe-font-size-small: var(--awe-font-size-sm);
+
+  /* Roles */
+  --awe-font-size-page-title: var(--awe-font-size-2xl);
+  --awe-font-size-section-title: var(--awe-font-size-md);
+  --awe-font-size-dialog-title: var(--awe-font-size-lg);
+  /* Display title of standalone pages (login, errors) */
+  --awe-font-size-display: var(--awe-font-size-3xl);
+  --awe-font-size-label: var(--awe-font-size-sm);
+  --awe-font-size-caption: var(--awe-font-size-xs);
+
+  --awe-font-weight-normal: 400;
+  --awe-font-weight-medium: 500;
+  --awe-font-weight-semibold: 600;
+  --awe-font-weight-bold: 700;
+
+  --awe-line-height-tight: 1.25;
+  --awe-line-height-snug: 1.375;
+  --awe-line-height-base: 1.5;
+
+  --awe-letter-spacing-tight: -0.011em;
+  --awe-letter-spacing-display: -0.022em;
+  --awe-letter-spacing-caps: 0.06em;
+
+  /* Inter features: contextual alternates and the disambiguated capital I; tabular figures for numeric cells */
+  --awe-font-feature-base: 'cv05', 'calt';
+  --awe-font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Tier 2 - Spacing (4px grid), radius, elevation, focus, motion, layers
+   ========================================================================== */
+:root {
+  /* Numeric scale: --awe-space-<n> = n x 4px */
+  --awe-space-0: 0;
+  --awe-space-0-5: 2px;
+  --awe-space-1: 4px;
+  --awe-space-1-5: 6px;
+  --awe-space-2: 8px;
+  --awe-space-3: 12px;
+  --awe-space-4: 16px;
+  --awe-space-5: 20px;
+  --awe-space-6: 24px;
+  --awe-space-8: 32px;
+  --awe-space-10: 40px;
+  --awe-space-12: 48px;
+  --awe-space-16: 64px;
+  /* Existing t-shirt names, now on the 4px grid */
+  --awe-space-2xs: var(--awe-space-0-5);
+  --awe-space-xs: var(--awe-space-1);
+  --awe-space-sm: var(--awe-space-2);
+  --awe-space-md: var(--awe-space-3);
+  --awe-space-lg: var(--awe-space-4);
+  --awe-space-xl: var(--awe-space-6);
+  --awe-space-2xl: var(--awe-space-8);
+
+  /* Radius (Aura scale) */
+  --awe-radius-none: 0;
+  --awe-radius-xs: 2px;
+  --awe-radius-sm: 4px;
+  --awe-radius-md: 6px;
+  --awe-radius-lg: 8px;
+  --awe-radius-xl: 12px;
+  --awe-radius-full: 9999px;
+  --awe-radius: var(--awe-radius-md);
+  --awe-radius-field: var(--awe-radius-md);
+  --awe-radius-content: var(--awe-radius-md);
+  --awe-radius-card: var(--awe-radius-xl);
+  --awe-radius-overlay: var(--awe-radius-md);
+  --awe-radius-modal: var(--awe-radius-xl);
+  --awe-radius-list-option: var(--awe-radius-sm);
+
+  /* Elevation (Aura shadows) */
+  --awe-shadow-xs: 0 1px 2px 0 var(--awe-color-shadow-soft);
+  --awe-shadow-sm: 0 1px 3px 0 var(--awe-color-shadow), 0 1px 2px -1px var(--awe-color-shadow);
+  --awe-shadow-md: 0 4px 6px -1px var(--awe-color-shadow), 0 2px 4px -2px var(--awe-color-shadow);
+  --awe-shadow-lg: 0 20px 25px -5px var(--awe-color-shadow), 0 8px 10px -6px var(--awe-color-shadow);
+  --awe-shadow-field: var(--awe-shadow-xs);
+  --awe-shadow-card: var(--awe-shadow-xs);
+  --awe-shadow-overlay: var(--awe-shadow-md);
+  --awe-shadow-modal: var(--awe-shadow-lg);
+
+  /* Focus ring (keyboard focus); form fields show the focus border plus a soft halo */
+  --awe-color-focus-ring: var(--awe-color-primary-text);
+  --awe-focus-ring-width: 2px;
+  --awe-focus-ring-style: solid;
+  --awe-focus-ring-offset: 2px;
+  --awe-focus-ring: var(--awe-focus-ring-width) var(--awe-focus-ring-style) var(--awe-color-focus-ring);
+  --awe-shadow-field-focus: 0 0 0 3px var(--awe-color-field-focus-halo);
+  --awe-shadow-field-invalid: 0 0 0 3px var(--awe-color-field-invalid-halo);
+
+  /* Motion */
+  --awe-motion-duration-fast: 120ms;
+  --awe-motion-duration-base: 200ms;
+  --awe-motion-duration-slow: 300ms;
+  --awe-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --awe-motion-easing-enter: cubic-bezier(0, 0, 0.2, 1);
+  --awe-motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* Expand / collapse of disclosure content (menu levels, accordions): a short ease-out */
+  --awe-motion-duration-expand: 240ms;
+  --awe-motion-easing-expand: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Layers */
+  --awe-z-header: 100;
+  --awe-z-menu: 110;
+  --awe-z-dropdown: 1000;
+  --awe-z-modal: 1100;
+  --awe-z-toast: 1200;
+  --awe-z-tooltip: 1300;
+
+  --awe-opacity-disabled: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --awe-motion-duration-fast: 0ms;
+    --awe-motion-duration-base: 0ms;
+    --awe-motion-duration-slow: 0ms;
+    --awe-motion-duration-expand: 0ms;
+  }
+}
+
+/* ==========================================================================
+   Tier 2 - Density: comfortable (default) and compact
+   ========================================================================== */
+:root {
+  --awe-size-control: 36px;
+  --awe-size-control-sm: 30px;
+  --awe-size-control-lg: 44px;
+  --awe-size-icon: 16px;
+  --awe-size-icon-sm: 14px;
+  --awe-size-icon-lg: 20px;
+  --awe-size-checkbox: 18px;
+  --awe-size-header-height: 60px;
+  --awe-size-menu-width: 264px;
+
+  --awe-field-padding-x: 12px;
+  --awe-field-padding-y: 8px;
+  --awe-button-padding-x: 14px;
+  --awe-gap-label: 6px;
+  --awe-gap-inline: 8px;
+  --awe-gap-form-row: 18px;
+  --awe-gap-form-column: 20px;
+
+  --awe-content-padding: 20px;
+  --awe-layout-gap: 20px;
+  --awe-page-padding: 28px;
+
+  --awe-border-width: 1px;
+  --awe-border-width-strong: 2px;
+
+  --awe-grid-container-sm: 742px;
+  --awe-grid-container-md: 962px;
+  --awe-grid-container-lg: 1162px;
+
+  --awe-list-padding: 4px;
+  --awe-list-gap: 2px;
+  --awe-list-option-padding: 8px 12px;
+  --awe-nav-item-padding: 8px 12px;
+  --awe-nav-item-gap: 10px;
+  --awe-overlay-padding: 12px;
+  --awe-modal-padding: 20px;
+}
+
+:root[data-awe-density="compact"] {
+  --awe-font-size-xs: 11px;
+  --awe-font-size-sm: 12px;
+  --awe-font-size-base: 13px;
+  --awe-font-size-md: 15px;
+  --awe-font-size-page-title: var(--awe-font-size-xl);
+  --awe-font-size-display: var(--awe-font-size-2xl);
+
+  --awe-size-control: 30px;
+  --awe-size-control-sm: 26px;
+  --awe-size-control-lg: 36px;
+  --awe-size-icon: 14px;
+  --awe-size-icon-sm: 12px;
+  --awe-size-icon-lg: 18px;
+  --awe-size-checkbox: 16px;
+  --awe-size-header-height: 52px;
+  --awe-size-menu-width: 240px;
+
+  --awe-field-padding-x: 9px;
+  --awe-field-padding-y: 5px;
+  --awe-button-padding-x: 10px;
+  --awe-gap-label: 4px;
+  --awe-gap-inline: 6px;
+  --awe-gap-form-row: 12px;
+  --awe-gap-form-column: 14px;
+
+  --awe-content-padding: 14px;
+  --awe-layout-gap: 12px;
+  --awe-page-padding: 16px;
+
+  --awe-list-option-padding: 6px 10px;
+  --awe-nav-item-padding: 6px 10px;
+  --awe-nav-item-gap: 8px;
+  --awe-overlay-padding: 10px;
+  --awe-modal-padding: 16px;
+}
+
+/* ==========================================================================
+   Tier 3 - Component tokens (only where a component needs its own knobs)
+   ========================================================================== */
+:root {
+  /* Button */
+  --awe-button-font-size: var(--awe-font-size-base);
+  --awe-button-font-size-sm: var(--awe-font-size-sm);
+  --awe-button-font-size-lg: var(--awe-font-size-md);
+  --awe-button-gap: var(--awe-gap-inline);
+
+  /* Default button (a normal button without a btn-* style): outlined; an application restyles it with these */
+  --awe-button-default-background: var(--awe-color-surface);
+  --awe-button-default-border-color: var(--awe-color-field-border);
+  --awe-button-default-color: var(--awe-color-text);
+  --awe-button-default-font-weight: var(--awe-font-weight-medium);
+  --awe-button-default-background-hover: var(--awe-color-surface-subtle);
+  --awe-button-default-border-color-hover: var(--awe-color-field-border-hover);
+  --awe-button-default-color-hover: var(--awe-color-text);
+  --awe-button-default-background-active: var(--awe-color-surface-hover);
+  --awe-button-default-border-color-active: var(--awe-color-field-border-hover);
+  --awe-button-default-color-active: var(--awe-color-text);
+  /* Field label */
+  --awe-label-font-weight: var(--awe-font-weight-medium);
+  --awe-label-text-transform: none;
+  --awe-label-letter-spacing: normal;
+
+  --awe-card-title-font-size: var(--awe-font-size-base);
+  --awe-card-title-text-transform: uppercase;
+  --awe-card-title-letter-spacing: var(--awe-letter-spacing-caps);
+  /* Grid: least width of the search of the toolbar; it grows to show its whole placeholder */
+  --awe-grid-search-width: 32ch;
+  /* Grid: size of an icon drawn in the avatar of a cell (avatar-icon-field) */
+  --awe-grid-avatar-icon-size: var(--awe-size-icon-sm);
+  /* Side panel: size of an icon drawn in the avatar of the identity header (header-avatar-icon-field) */
+  --awe-panel-avatar-icon-size: var(--awe-size-icon);
+
+  /* Read-only value (style awe-readout on a criterion): a muted small label over the value; awe-readout-block also
+     boxes the value, for long texts such as a detail, a hash or a user agent */
+  --awe-readout-label-color: var(--awe-color-text-muted);
+  --awe-readout-label-font-size: var(--awe-font-size-xs);
+  --awe-readout-label-font-weight: var(--awe-font-weight-normal);
+  --awe-readout-value-color: var(--awe-color-text);
+  --awe-readout-value-font-size: var(--awe-font-size-base);
+  --awe-readout-block-background: var(--awe-color-surface-subtle);
+  --awe-readout-block-border: var(--awe-color-border);
+  --awe-readout-block-radius: var(--awe-radius-lg);
+  --awe-readout-block-padding: var(--awe-space-3);
+
+  /* Cards: inner padding, space between the parts and size of the icon tile (awe-card-compact lowers them) */
+  --awe-card-padding: var(--awe-content-padding);
+  --awe-card-gap: var(--awe-space-3);
+  --awe-card-icon-size: var(--awe-size-control);
+
+  /* Cards: the inset that aligns a grid of cards with the windows of the same screen */
+  --awe-card-grid-inset: calc(var(--awe-border-width) + var(--awe-space-1-5));
+  /* Space between a grid of cards and the block under it: the window brings the inset as its own margin */
+  --awe-card-grid-gap-after: calc(var(--awe-layout-gap) - var(--awe-card-grid-inset));
+
+  /* Grid */
+  --awe-grid-header-background: var(--awe-color-grid-header);
+  --awe-grid-header-text: var(--awe-color-text-muted);
+  --awe-grid-header-font-size: var(--awe-font-size-sm);
+  --awe-grid-header-font-weight: var(--awe-font-weight-semibold);
+  --awe-grid-header-text-transform: none;
+  --awe-grid-header-letter-spacing: normal;
+  --awe-grid-border: var(--awe-color-grid-border);
+  --awe-grid-row-background: var(--awe-color-surface);
+  --awe-grid-row-hover-background: var(--awe-color-surface-subtle);
+  --awe-grid-row-selected-background: var(--awe-color-highlight);
+  --awe-grid-row-selected-text: var(--awe-color-text);
+  /* Veil over the rows while the grid loads: the surface at half opacity, in light and dark mode */
+  --awe-grid-loading-overlay: color-mix(in srgb, var(--awe-color-surface) 50%, transparent);
+  --awe-grid-cell-padding-y: 11px;
+  --awe-grid-cell-padding-x: 14px;
+  /* Primary line on the left of the edited row and of an open row detail */
+  --awe-grid-row-marker-width: 3px;
+  /* Primary line that shows where a dragged row lands in a grid with move-rows */
+  --awe-grid-drop-indicator-width: var(--awe-focus-ring-width);
+  /* Minimum height of the rows area: the header and about three rows, for a grid whose container gives it no height */
+  --awe-grid-min-body-height: 12rem;
+  /* Width of the Columns of the grid toolbar (popover, dialog and side panel): px, the root font size differs by engine */
+  --awe-grid-columns-panel-width: 432px;
+
+  /* Side menu */
+  --awe-menu-width: var(--awe-size-menu-width);
+  --awe-menu-width-collapsed: 68px;
+  --awe-menu-background: var(--awe-color-menu);
+  --awe-menu-border: var(--awe-color-border);
+  --awe-menu-item-text: var(--awe-color-nav-item-text);
+  --awe-menu-item-icon: var(--awe-color-nav-item-icon);
+  --awe-menu-item-hover-background: var(--awe-color-nav-item-focus);
+  --awe-menu-item-active-background: var(--awe-color-menu-accent);
+  --awe-menu-item-active-text: var(--awe-color-on-highlight);
+  --awe-menu-item-active-icon: var(--awe-color-primary-text);
+  --awe-menu-item-radius: var(--awe-radius-md);
+  --awe-menu-section-label: var(--awe-color-nav-submenu-label);
+  --awe-menu-item-height: 36px;
+  --awe-menu-item-sub-text: var(--awe-color-text-muted);
+  /* Nested levels: indentation of each level and x position of its guide line (under the parent icon / text) */
+  --awe-menu-indent: 30px;
+  --awe-menu-indent-l3: 22px;
+  --awe-menu-guide-l2: 20px;
+  --awe-menu-guide-l3: 14px;
+  --awe-menu-guide-l3-flyout: 16px;
+  --awe-menu-guide: var(--awe-color-border);
+  --awe-menu-guide-active: var(--awe-color-primary-text);
+  --awe-menu-flyout-width: 264px;
+  --awe-menu-description-font-size: var(--awe-font-size-xs);
+  --awe-menu-description-color: var(--awe-color-text-muted);
+  --awe-menu-description-padding: var(--awe-space-2) var(--awe-space-3);
+  --awe-menu-description-border: var(--awe-border-width) solid var(--awe-color-border);
+
+  /* Header and brand slot */
+  --awe-header-height: var(--awe-size-header-height);
+  --awe-header-background: color-mix(in srgb, var(--awe-color-navbar), transparent 15%);
+  --awe-header-border: var(--awe-color-border);
+  /* The header blurs the content that scrolls under it (it is slightly translucent) */
+  --awe-header-backdrop-filter: saturate(1.4) blur(10px);
+  --awe-header-search-width: 380px;
+  --awe-header-logo-height: 34px;
+
+  /* Overlays: the mask under a dialog and the toasts (slightly translucent in the dark mode) blur what they cover */
+  --awe-mask-backdrop-filter: blur(2px);
+  --awe-toast-backdrop-filter: blur(8px);
+
+  /* Segmented control (button radio, button-bar grid column, theme switches): Aura toggle button values with a
+     bordered selected segment so the selection reads in both modes */
+  --awe-segmented-track: light-dark(var(--awe-surface-100), var(--awe-surface-950));
+  --awe-segmented-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-segmented-text: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+  --awe-segmented-hover-text: var(--awe-color-text-emphasis);
+  --awe-segmented-selected: light-dark(var(--awe-surface-0), var(--awe-surface-700));
+  --awe-segmented-selected-border: var(--awe-surface-500);
+  --awe-segmented-selected-text: light-dark(var(--awe-surface-900), var(--awe-surface-0));
+
+  /* Choice controls: the check mark and the radio dot inside --awe-size-checkbox, and the switch track and handle */
+  --awe-checkbox-icon-size: 12px;
+  --awe-radio-dot-size: 8px;
+  --awe-switch-width: 36px;
+  --awe-switch-height: 20px;
+  --awe-switch-handle-size: 16px;
+
+  /* Calendar of a date criterion: the day of a date picker and the gap between the days of its grid. A table separates
+     its cells by their padding, so each side of a cell takes half of the gap */
+  --awe-datepicker-day-size: var(--awe-space-8);
+  --awe-datepicker-cell-gap: var(--awe-space-0-5);
+}
+
+:root[data-awe-density="compact"] {
+  --awe-grid-cell-padding-y: 6px;
+  --awe-grid-cell-padding-x: 10px;
+  --awe-menu-width-collapsed: 60px;
+  --awe-menu-item-height: 30px;
+  --awe-menu-indent: 26px;
+  --awe-menu-indent-l3: 18px;
+  --awe-menu-guide-l2: 17px;
+  --awe-menu-guide-l3: 11px;
+  --awe-menu-guide-l3-flyout: 13px;
+  --awe-menu-flyout-width: 240px;
+  --awe-header-search-width: 320px;
+  --awe-header-logo-height: 30px;
+  --awe-datepicker-day-size: 28px;
+}
+
+/* ==========================================================================
+   Tier 3 - Login page
+   The image panel shows --awe-login-image (a url() the product sets) over the default AWE brand panel; the caption
+   sits on a dark scrim so its text keeps AA contrast over any image, in light and dark mode.
+   ========================================================================== */
+:root {
+  --awe-login-main-min: 440px;
+  --awe-login-form-width: 420px;
+  --awe-login-padding-y: var(--awe-space-10);
+  --awe-login-padding-x: var(--awe-space-12);
+  --awe-login-logo-height: 40px;
+  --awe-login-background: var(--awe-color-surface);
+  --awe-login-image: none;
+  --awe-login-scrim: linear-gradient(to top,
+    color-mix(in srgb, var(--awe-palette-slate-950) 86%, transparent) 0%,
+    color-mix(in srgb, var(--awe-palette-slate-950) 62%, transparent) 22%,
+    color-mix(in srgb, var(--awe-palette-slate-950) 0%, transparent) 50%);
+  --awe-login-caption-text: #ffffff;
+  --awe-login-caption-muted: color-mix(in srgb, #ffffff 88%, transparent);
+  --awe-login-gradient:
+    radial-gradient(110% 70% at 88% 8%, light-dark(var(--awe-primary-300), var(--awe-primary-600)) 0%, transparent 58%),
+    radial-gradient(90% 60% at 8% 92%, light-dark(var(--awe-primary-800), var(--awe-primary-950)) 0%, transparent 62%),
+    linear-gradient(160deg, light-dark(var(--awe-primary-700), var(--awe-primary-900)) 0%,
+      light-dark(var(--awe-primary-500), var(--awe-primary-700)) 100%);
+
+  /* Default panel: the AWE brand logo over a dark surface lit by the primary, in both modes */
+  --awe-login-brand-background:
+    radial-gradient(75% 55% at 88% 6%, color-mix(in srgb, var(--awe-primary-500) 42%, transparent) 0%, transparent 70%),
+    radial-gradient(70% 50% at 0% 100%, color-mix(in srgb, var(--awe-primary-700) 45%, transparent) 0%, transparent 72%),
+    linear-gradient(160deg, var(--awe-surface-900) 0%, var(--awe-surface-950) 100%);
+  --awe-login-brand-logo-width: 340px;
+
+  /* Card layout: the form in a card over the full-screen background, under a light veil of the image */
+  --awe-login-card-width: 480px;
+  --awe-login-card-padding: var(--awe-space-10);
+  --awe-login-card-background: var(--awe-color-surface);
+  --awe-login-card-radius: var(--awe-radius-modal);
+  --awe-login-card-shadow: var(--awe-shadow-modal);
+  --awe-login-backdrop-veil: color-mix(in srgb, var(--awe-palette-slate-950) 35%, transparent);
+
+  /* "Sign in with Microsoft" button: the official Microsoft logo and text on a button of the application style */
+  --awe-login-microsoft-background: var(--awe-color-surface);
+  --awe-login-microsoft-border: var(--awe-color-border);
+  --awe-login-microsoft-text: var(--awe-color-text-emphasis);
+  --awe-login-microsoft-font-family: var(--awe-font-family-base);
+  --awe-login-microsoft-font-size: var(--awe-font-size-md);
+  --awe-login-microsoft-height: var(--awe-size-control-lg);
+  --awe-login-microsoft-padding: var(--awe-space-3);
+  --awe-login-microsoft-radius: var(--awe-radius-field);
+
+}
+
+:root[data-awe-density="compact"] {
+  --awe-login-form-width: 380px;
+  --awe-login-padding-y: var(--awe-space-8);
+  --awe-login-padding-x: var(--awe-space-8);
+  --awe-login-logo-height: 34px;
+  --awe-login-brand-logo-width: 280px;
+  --awe-login-card-width: 420px;
+  --awe-login-card-padding: var(--awe-space-8);
+}
+
+/* Compact grid of cards (style awe-card-compact on the container): tighter padding, gaps and icon tile, for a row of
+   summary figures above a grid */
+.awe-card-compact {
+  --awe-card-padding: var(--awe-space-4);
+  --awe-card-gap: var(--awe-space-2);
+  --awe-card-icon-size: var(--awe-size-control-sm);
+}
+
+/* ==== Artboard (shell copied from design/modules/02-panel-pestanas.html via 01-actividad.html) ==== */
+* { box-sizing: border-box; }
+:root { color-scheme: light dark; }
+:root.light { color-scheme: light; }
+:root.dark { color-scheme: dark; }
+body { margin: 0; background: var(--awe-color-background); color: var(--awe-color-text);
+  font-family: var(--awe-font-family-base); font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-base); font-feature-settings: var(--awe-font-feature-base); }
+button { font: inherit; }
+a { color: var(--awe-color-primary-text); }
+a:focus-visible, button:focus-visible, summary:focus-visible, [tabindex]:focus-visible { outline: var(--awe-focus-ring);
+  outline-offset: var(--awe-focus-ring-offset); }
+/* 1440 px = 22.5 × space-16 */
+.board { width: calc(var(--awe-space-16) * 22.5); margin: 0 auto; position: relative; padding-bottom: var(--awe-space-10); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.icon { width: var(--awe-size-icon); height: var(--awe-size-icon); flex: none; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.icon--sm { width: var(--awe-size-icon-sm); height: var(--awe-size-icon-sm); }
+.icon--lg { width: var(--awe-size-icon-lg); height: var(--awe-size-icon-lg); }
+.demo-tools { position: sticky; top: 0; z-index: var(--awe-z-toast); display: flex; gap: var(--awe-gap-inline);
+  align-items: center; padding: var(--awe-space-2) var(--awe-space-4); background: var(--awe-color-surface);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.demo-tools .spacer { flex: 1; }
+.demo-tools .note { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.segmented { display: inline-flex; padding: var(--awe-space-0-5); gap: var(--awe-space-0-5);
+  border-radius: var(--awe-radius-field); background: var(--awe-segmented-track);
+  border: var(--awe-border-width) solid var(--awe-segmented-border); }
+.segmented button { display: inline-flex; align-items: center; gap: var(--awe-space-1-5); border: var(--awe-border-width) solid transparent;
+  background: transparent; color: var(--awe-segmented-text); border-radius: var(--awe-radius-sm); padding: var(--awe-space-1) var(--awe-space-3);
+  font-size: var(--awe-font-size-sm); cursor: pointer; }
+.segmented button:hover { color: var(--awe-segmented-hover-text); }
+.segmented button[aria-pressed="true"] { background: var(--awe-segmented-selected);
+  border-color: var(--awe-segmented-selected-border); color: var(--awe-segmented-selected-text);
+  font-weight: var(--awe-font-weight-semibold); }
+
+/* Annotation: outside the app frame, dashed */
+.annotation { margin: var(--awe-space-6) var(--awe-space-6) 0; padding: var(--awe-space-5) var(--awe-space-6);
+  border: var(--awe-border-width-strong) dashed var(--awe-color-warning-border); border-radius: var(--awe-radius-lg);
+  background: var(--awe-color-warning-subtle); color: var(--awe-color-text); font-size: var(--awe-font-size-sm); }
+.annotation h2 { margin: 0 0 var(--awe-space-3); font-size: var(--awe-font-size-md); display: flex; gap: var(--awe-space-2);
+  align-items: center; color: var(--awe-color-warning-text); }
+.annotation .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--awe-space-6); }
+.annotation h3 { margin: 0 0 var(--awe-space-2); font-size: var(--awe-font-size-sm); text-transform: uppercase;
+  letter-spacing: var(--awe-letter-spacing-caps); color: var(--awe-color-text-muted); }
+.annotation ul, .annotation ol { margin: 0; padding-left: var(--awe-space-5); display: flex; flex-direction: column; gap: var(--awe-space-1-5); }
+.annotation code { font-family: var(--awe-font-family-monospace); font-size: var(--awe-font-size-xs);
+  background: var(--awe-color-surface); border-radius: var(--awe-radius-xs); padding: 0 var(--awe-space-1); }
+
+/* Shell */
+.shell { display: flex; min-height: 100%; background: var(--awe-color-background); }
+.menu { width: var(--awe-menu-width); flex: none; background: var(--awe-menu-background);
+  border-right: var(--awe-border-width) solid var(--awe-menu-border); display: flex; flex-direction: column;
+  padding: var(--awe-space-3); gap: var(--awe-space-1); }
+.brand { display: flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-3) var(--awe-space-2);
+  font-weight: var(--awe-font-weight-semibold); }
+.brand-mark { width: var(--awe-space-8); height: var(--awe-space-8); border-radius: var(--awe-radius-md);
+  background: var(--awe-color-primary); color: var(--awe-color-on-primary); display: grid; place-items: center;
+  font-size: var(--awe-font-size-sm); letter-spacing: var(--awe-letter-spacing-tight); }
+.brand small { display: block; font-weight: var(--awe-font-weight-normal); font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted); }
+.menu-search { display: flex; align-items: center; gap: var(--awe-space-2); height: var(--awe-size-control);
+  padding: 0 var(--awe-space-3); margin: var(--awe-space-2) 0 var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-field-border); border-radius: var(--awe-radius-field);
+  color: var(--awe-color-field-placeholder); font-size: var(--awe-font-size-sm); }
+.menu-search kbd { margin-left: auto; font-family: var(--awe-font-family-base); font-size: var(--awe-font-size-xs);
+  border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-sm);
+  padding: 0 var(--awe-space-1); color: var(--awe-color-text-muted); }
+.menu-section { font-size: var(--awe-font-size-xs); text-transform: uppercase;
+  letter-spacing: var(--awe-letter-spacing-caps); color: var(--awe-menu-section-label);
+  padding: var(--awe-space-3) var(--awe-space-3) var(--awe-space-1); }
+.menu-item { display: flex; align-items: center; gap: var(--awe-nav-item-gap); height: var(--awe-menu-item-height);
+  padding: var(--awe-nav-item-padding); border-radius: var(--awe-menu-item-radius); color: var(--awe-menu-item-text);
+  font-size: var(--awe-font-size-base); text-decoration: none; }
+.menu-item:hover { background: var(--awe-menu-item-hover-background); }
+.menu-item .icon { color: var(--awe-menu-item-icon); }
+.menu-item[aria-current="page"] { background: var(--awe-menu-item-active-background);
+  color: var(--awe-menu-item-active-text); font-weight: var(--awe-font-weight-medium); }
+.menu-item[aria-current="page"] .icon { color: var(--awe-menu-item-active-icon); }
+.menu-item .count-badge { margin-left: auto; font-size: var(--awe-font-size-xs); border-radius: var(--awe-radius-full);
+  padding: 0 var(--awe-space-1-5); background: var(--awe-color-info-subtle); color: var(--awe-color-info-text); }
+.menu-foot { margin-top: auto; border-top: var(--awe-border-width) solid var(--awe-color-border);
+  padding-top: var(--awe-space-3); font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.app-header { height: var(--awe-header-height); display: flex; align-items: center; gap: var(--awe-space-3);
+  padding: 0 var(--awe-content-padding); background: var(--awe-header-background);
+  backdrop-filter: var(--awe-header-backdrop-filter); border-bottom: var(--awe-border-width) solid var(--awe-header-border); }
+.app-header .spacer { flex: 1; }
+.crumbs { display: flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-4) var(--awe-page-padding) 0;
+  font-size: var(--awe-font-size-sm); color: var(--awe-color-text-muted); }
+.crumbs a { color: var(--awe-color-text-muted); }
+.crumbs strong { color: var(--awe-color-text); font-weight: var(--awe-font-weight-medium); }
+.page { padding: var(--awe-space-4) var(--awe-page-padding) var(--awe-page-padding); display: flex;
+  flex-direction: column; gap: var(--awe-layout-gap); }
+.page-head { display: flex; align-items: flex-start; gap: var(--awe-space-4); }
+.page-head h1 { margin: 0; font-size: var(--awe-font-size-page-title); letter-spacing: var(--awe-letter-spacing-tight);
+  display: flex; align-items: center; gap: var(--awe-space-3); }
+.page-head .actions { margin-left: auto; display: flex; align-items: center; gap: var(--awe-gap-inline); }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--awe-button-gap);
+  height: var(--awe-size-control); padding: 0 var(--awe-button-padding-x); border-radius: var(--awe-radius-field);
+  border: var(--awe-border-width) solid var(--awe-button-default-border-color); background: var(--awe-button-default-background);
+  color: var(--awe-button-default-color); font-weight: var(--awe-button-default-font-weight); font-size: var(--awe-font-size-sm);
+  cursor: pointer; white-space: nowrap; text-decoration: none; }
+.btn:hover { background: var(--awe-button-default-background-hover); border-color: var(--awe-button-default-border-color-hover); }
+.btn--primary { background: var(--awe-color-primary); color: var(--awe-color-on-primary); border-color: var(--awe-color-primary); }
+.btn--primary:hover { background: var(--awe-color-primary-hover); border-color: var(--awe-color-primary-hover); }
+.btn--danger-outline { color: var(--awe-color-danger-text); border-color: var(--awe-color-danger-border); }
+.btn--ghost { background: transparent; border-color: transparent; color: var(--awe-color-text-muted);
+  width: var(--awe-size-control); padding: 0; }
+.btn--ghost:hover { background: var(--awe-color-surface-hover); border-color: transparent; color: var(--awe-color-text); }
+.btn--sm { height: var(--awe-size-control-sm); font-size: var(--awe-font-size-xs); }
+.btn--sm:not(.btn--ghost) { padding: 0 var(--awe-space-3); }
+.btn--ghost.btn--sm { width: var(--awe-size-control-sm); }
+.btn--link { border-color: transparent; background: transparent; color: var(--awe-color-primary-text);
+  padding: 0 var(--awe-space-1); height: auto; }
+.btn--link:hover { background: transparent; border-color: transparent; text-decoration: underline; }
+.btn[aria-disabled="true"] { opacity: var(--awe-opacity-disabled); cursor: not-allowed; }
+
+/* Cards */
+.card { background: var(--awe-color-surface); border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card); box-shadow: var(--awe-shadow-card); display: flex; flex-direction: column; min-width: 0; }
+.card-head { display: flex; align-items: center; gap: var(--awe-space-3); padding: var(--awe-space-3) var(--awe-space-5);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); flex-wrap: wrap; }
+.card-head h2 { margin: 0; font-size: var(--awe-font-size-section-title); }
+.card-head .spacer { flex: 1; }
+.card-body { padding: var(--awe-space-4) var(--awe-space-5); }
+.zoom { display: inline-flex; align-items: center; gap: var(--awe-space-0-5); }
+.zoom .pct { min-width: calc(var(--awe-space-10) + var(--awe-space-2)); text-align: center; font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted); font-variant-numeric: var(--awe-font-variant-numeric); }
+.vsep { width: var(--awe-border-width); align-self: stretch; background: var(--awe-color-border); margin: 0 var(--awe-space-1); }
+
+/* Text helpers */
+.mono { font-family: var(--awe-font-family-monospace); font-size: var(--awe-font-size-xs); }
+.muted { color: var(--awe-color-text-muted); }
+.tabnum { font-variant-numeric: var(--awe-font-variant-numeric); }
+.avatar { width: var(--awe-space-8); height: var(--awe-space-8); border-radius: var(--awe-radius-full);
+  display: grid; place-items: center; font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-semibold);
+  background: var(--awe-color-primary-subtle); color: var(--awe-color-on-primary-subtle); flex: none; }
+.who { display: inline-flex; align-items: center; gap: var(--awe-space-1-5); }
+.who .avatar { width: var(--awe-space-6); height: var(--awe-space-6); background: var(--awe-color-neutral-subtle); color: var(--awe-color-neutral-text); }
+
+/* Status tag: icon + label, never colour alone */
+.tag { display: inline-flex; align-items: center; gap: var(--awe-space-1-5); padding: var(--awe-space-0-5) var(--awe-space-2);
+  border-radius: var(--awe-radius-full); font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-medium);
+  border: var(--awe-border-width) solid; white-space: nowrap; letter-spacing: normal; }
+.tag--success { background: var(--awe-color-success-subtle); color: var(--awe-color-success-text); border-color: var(--awe-color-success-border); }
+.tag--warning { background: var(--awe-color-warning-subtle); color: var(--awe-color-warning-text); border-color: var(--awe-color-warning-border); }
+.tag--danger { background: var(--awe-color-danger-subtle); color: var(--awe-color-danger-text); border-color: var(--awe-color-danger-border); }
+.tag--info { background: var(--awe-color-info-subtle); color: var(--awe-color-info-text); border-color: var(--awe-color-info-border); }
+.tag--neutral { background: var(--awe-color-neutral-subtle); color: var(--awe-color-neutral-text); border-color: var(--awe-color-border); }
+.tag--deferred { background: var(--awe-color-surface); color: var(--awe-color-info-text); border-color: var(--awe-color-info-border); border-style: dashed; }
+.tag--skipped { background: transparent; color: var(--awe-color-neutral-text); border-color: var(--awe-color-border); border-style: dashed; }
+.tag--pending { background: var(--awe-color-surface); color: var(--awe-color-text-muted); border-color: var(--awe-color-border); border-style: dotted; }
+.tag--lg { font-size: var(--awe-font-size-sm); padding: var(--awe-space-1) var(--awe-space-3); }
+.spin { animation: spin 1.2s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Run header (new: run summary) */
+.run-meta { display: flex; flex-wrap: wrap; gap: var(--awe-space-2) var(--awe-space-6); margin-top: var(--awe-space-2);
+  font-size: var(--awe-font-size-sm); color: var(--awe-color-text-muted); }
+.run-meta b { color: var(--awe-color-text); font-weight: var(--awe-font-weight-medium); }
+.run-meta > span { display: inline-flex; align-items: center; gap: var(--awe-space-1-5); }
+.rule { display: flex; gap: var(--awe-space-3); align-items: flex-start; padding: var(--awe-space-3) var(--awe-space-4);
+  border-radius: var(--awe-radius-lg); border: var(--awe-border-width) solid var(--awe-color-border); background: var(--awe-color-surface);
+  font-size: var(--awe-font-size-sm); }
+.rule .icon { margin-top: var(--awe-space-0-5); }
+.rule p { margin: 0; }
+.rule .small { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); margin-top: var(--awe-space-0-5); }
+.rule--info { border-color: var(--awe-color-info-border); background: var(--awe-color-info-subtle); }
+.rule--danger { border-color: var(--awe-color-danger-border); background: var(--awe-color-danger-subtle); }
+.rule--info > .icon { color: var(--awe-color-info-text); }
+.rule--danger > .icon { color: var(--awe-color-danger-text); }
+details.params { border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-lg); background: var(--awe-color-surface); }
+details.params summary { display: flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-2) var(--awe-space-4);
+  cursor: pointer; font-size: var(--awe-font-size-sm); font-weight: var(--awe-font-weight-medium); list-style: none; border-radius: var(--awe-radius-lg); }
+details.params summary::-webkit-details-marker { display: none; }
+details.params summary .chev { transition: transform var(--awe-motion-duration-fast) var(--awe-motion-easing-standard); }
+details.params[open] summary .chev { transform: rotate(90deg); }
+details.params summary .aside { margin-left: auto; font-weight: var(--awe-font-weight-normal); font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+details.params .body { padding: 0 var(--awe-space-4) var(--awe-space-3); }
+
+/* Mini table, pills */
+.mini { width: 100%; border-collapse: collapse; font-size: var(--awe-font-size-sm); }
+.mini th { text-align: left; font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-semibold); color: var(--awe-grid-header-text);
+  background: var(--awe-grid-header-background); padding: var(--awe-space-2) var(--awe-space-3); }
+.mini td { padding: var(--awe-space-2) var(--awe-space-3); border-top: var(--awe-border-width) solid var(--awe-color-border-subtle); }
+.pill { display: inline-flex; align-items: center; gap: var(--awe-space-1); padding: 0 var(--awe-space-2);
+  border-radius: var(--awe-radius-full); font-size: var(--awe-font-size-xs); background: var(--awe-color-surface-hover); color: var(--awe-color-text); white-space: nowrap; }
+
+/* ==== flow-graph (new component, both engines) ==== */
+.canvas { position: relative; border-radius: var(--awe-radius-lg); border: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  background-color: var(--awe-color-surface-subtle);
+  background-image: radial-gradient(var(--awe-color-border) var(--awe-border-width), transparent var(--awe-border-width));
+  background-size: var(--awe-space-5) var(--awe-space-5); overflow: hidden; }
+.canvas svg.graph { display: block; width: 100%; height: auto; }
+.canvas .corner { position: absolute; right: var(--awe-space-3); bottom: var(--awe-space-3); font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted);
+  background: var(--awe-color-surface); border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-md); padding: var(--awe-space-1) var(--awe-space-2); }
+/* Node = card: status icon + label, task name, duration/progress */
+.g-node { cursor: pointer; }
+.g-node:focus { outline: none; }
+.g-node .bg { fill: var(--awe-color-surface); stroke: var(--awe-color-border); stroke-width: 1.5; }
+.g-node:hover .bg { fill: var(--awe-color-surface-hover); }
+.g-node .ring { fill: none; stroke: transparent; stroke-width: 2; }
+.g-node:focus-visible .ring { stroke: var(--awe-color-focus-ring); }
+.g-node[aria-pressed="true"] .bg { stroke: var(--awe-color-primary); stroke-width: 2.5; fill: var(--awe-color-highlight); }
+.g-node .acc { fill: var(--awe-color-border); }
+.g-node .ic { fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.n-st { font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-semibold); }
+.n-id { font-size: var(--awe-font-size-xs); font-family: var(--awe-font-family-monospace); fill: var(--awe-color-text-muted); }
+.n-name { font-size: var(--awe-font-size-sm); font-weight: var(--awe-font-weight-semibold); fill: var(--awe-color-text-emphasis); }
+.n-meta { font-size: var(--awe-font-size-xs); fill: var(--awe-color-text-muted); font-variant-numeric: var(--awe-font-variant-numeric); }
+.n-track { fill: var(--awe-color-surface-hover); }
+.n-fill { fill: var(--awe-color-info); }
+.t-ok .bg { stroke: var(--awe-color-success-border); } .t-ok .acc { fill: var(--awe-color-success); } .t-ok .ic { stroke: var(--awe-color-success-text); } .t-ok .n-st { fill: var(--awe-color-success-text); }
+.t-warn .bg { stroke: var(--awe-color-warning-border); } .t-warn .acc { fill: var(--awe-color-warning); } .t-warn .ic { stroke: var(--awe-color-warning-text); } .t-warn .n-st { fill: var(--awe-color-warning-text); }
+.t-err .bg { stroke: var(--awe-color-danger-border); } .t-err .acc { fill: var(--awe-color-danger); } .t-err .ic { stroke: var(--awe-color-danger-text); } .t-err .n-st { fill: var(--awe-color-danger-text); }
+.t-wait .bg { stroke: var(--awe-color-info-border); stroke-dasharray: 6 4; } .t-wait .acc { fill: var(--awe-color-info); } .t-wait .ic { stroke: var(--awe-color-info-text); } .t-wait .n-st { fill: var(--awe-color-info-text); }
+.t-skip .bg { stroke: var(--awe-color-text-muted); stroke-dasharray: 5 4; fill: var(--awe-color-surface-subtle); } .t-skip .acc { fill: transparent; }
+.t-skip .ic { stroke: var(--awe-color-neutral-text); } .t-skip .n-st { fill: var(--awe-color-neutral-text); } .t-skip .n-name { fill: var(--awe-color-text-muted); font-weight: var(--awe-font-weight-medium); }
+/* Deferred node: the dashed border marches only when motion is allowed */
+@media (prefers-reduced-motion: no-preference) {
+  .t-wait .bg { animation: march 1.4s linear infinite; }
+  .t-wait .n-fill { animation: breathe 2.4s var(--awe-motion-easing-standard) infinite; }
+}
+@keyframes march { to { stroke-dashoffset: -20; } }
+@keyframes breathe { 50% { opacity: 0.55; } }
+/* Badges under or over a node (fan-in join, deferred) */
+.g-badge rect { fill: var(--awe-color-surface); stroke: var(--awe-color-border); stroke-width: 1; }
+.g-badge text { font-size: var(--awe-font-size-xs); fill: var(--awe-color-text); }
+.g-badge .ic { fill: none; stroke: var(--awe-color-text-muted); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.g-badge--wait rect { stroke: var(--awe-color-info-border); stroke-dasharray: 4 3; } .g-badge--wait .ic { stroke: var(--awe-color-info-text); } .g-badge--wait text { fill: var(--awe-color-info-text); }
+.g-badge--skip rect { fill: var(--awe-color-surface-subtle); stroke-dasharray: 4 3; } .g-badge--skip text { fill: var(--awe-color-text-muted); }
+/* Edges labelled with their condition (parent flags) */
+.edge { fill: none; stroke: var(--awe-color-text-muted); stroke-width: 1.5; }
+.edge--join { stroke: var(--awe-color-text-emphasis); stroke-width: 2.5; }
+.edge--skip { stroke: var(--awe-color-text-muted); stroke-dasharray: 4 4; opacity: 0.7; }
+.edge--cut { stroke: var(--awe-color-danger); stroke-dasharray: 4 4; }
+.arrow { fill: var(--awe-color-text-muted); } .arrow--strong { fill: var(--awe-color-text-emphasis); } .arrow--skip { fill: var(--awe-color-text-muted); opacity: 0.7; }
+.join-dot { fill: var(--awe-color-surface); stroke: var(--awe-color-text-emphasis); stroke-width: 2; }
+.elabel rect { fill: var(--awe-color-surface); stroke: var(--awe-color-border); stroke-width: 1; }
+.elabel text { font-size: var(--awe-font-size-xs); fill: var(--awe-color-text); text-anchor: middle; }
+.elabel--join rect { stroke: var(--awe-color-text-emphasis); }
+.elabel--cut rect { fill: var(--awe-color-danger-subtle); stroke: var(--awe-color-danger-border); } .elabel--cut text { fill: var(--awe-color-danger-text); }
+.cut-mark circle { fill: var(--awe-color-surface); stroke: var(--awe-color-danger); stroke-width: 2; }
+.cut-mark .ic { fill: none; stroke: var(--awe-color-danger-text); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+/* Legend */
+.legend { display: flex; flex-wrap: wrap; gap: var(--awe-space-2); margin: 0; padding: 0; list-style: none; align-items: center; }
+.legend .lg-title { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); margin-right: var(--awe-space-1); }
+.legend .edge-key { display: inline-flex; align-items: center; gap: var(--awe-space-1-5); font-size: var(--awe-font-size-xs); color: var(--awe-color-text); }
+.legend .edge-key i { display: inline-block; width: var(--awe-space-6); border-top: var(--awe-border-width-strong) solid var(--awe-color-text-emphasis); }
+.legend .edge-key i.thin { border-top: var(--awe-border-width) solid var(--awe-color-text-muted); }
+.legend .edge-key i.dash { border-top: var(--awe-border-width) dashed var(--awe-color-text-muted); }
+.graph-foot { display: flex; align-items: center; gap: var(--awe-space-3); padding: var(--awe-space-3) var(--awe-space-5);
+  border-top: var(--awe-border-width) solid var(--awe-color-border); flex-wrap: wrap; }
+
+/* Gantt ("Cronograma") */
+.gantt { display: grid; grid-template-columns: calc(var(--awe-space-16) * 4.5) minmax(0, 1fr); font-size: var(--awe-font-size-sm); }
+.gantt .axis-l, .gantt .row-l { padding: 0 var(--awe-space-4) 0 0; display: flex; flex-direction: column; justify-content: center; gap: var(--awe-space-0-5); }
+.gantt .row-l b { font-weight: var(--awe-font-weight-medium); color: var(--awe-color-text-emphasis); }
+.gantt .row-l, .gantt .track { height: calc(var(--awe-size-control-lg) + var(--awe-space-3)); border-top: var(--awe-border-width) solid var(--awe-color-border-subtle); }
+.gantt .overlay { position: absolute; left: 0; right: 0; top: 0; pointer-events: none;
+  height: calc(var(--awe-space-8) + (var(--awe-size-control-lg) + var(--awe-space-3)) * 5); }
+.gantt .overlay .now { top: 0; }
+.gantt .brk { position: absolute; top: var(--awe-space-1); transform: translateX(-50%); font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.gkey { display: inline-flex; align-items: center; gap: var(--awe-space-1-5); font-size: var(--awe-font-size-xs); }
+.gkey i { display: inline-block; width: var(--awe-space-6); height: var(--awe-space-3); border-radius: var(--awe-radius-xs); border: var(--awe-border-width) solid; }
+.gantt .axis { position: relative; height: var(--awe-space-8); }
+.gantt .tick { position: absolute; bottom: var(--awe-space-1); transform: translateX(-50%); font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); font-variant-numeric: var(--awe-font-variant-numeric); }
+.gantt .track { position: relative; }
+.gantt .grid-lines { position: absolute; inset: 0; pointer-events: none; }
+.gantt .gl { position: absolute; top: 0; bottom: 0; border-left: var(--awe-border-width) dashed var(--awe-color-border-subtle); }
+.gantt .break { position: absolute; top: 0; bottom: 0; width: 3%; background: repeating-linear-gradient(135deg, var(--awe-color-border-subtle) 0 var(--awe-space-0-5), transparent var(--awe-space-0-5) var(--awe-space-2)); }
+.gbar { position: absolute; top: 50%; transform: translateY(-50%); height: var(--awe-space-6); border-radius: var(--awe-radius-sm);
+  display: flex; align-items: center; gap: var(--awe-space-1); padding: 0 var(--awe-space-1-5); font-size: var(--awe-font-size-xs); white-space: nowrap;
+  border: var(--awe-border-width) solid; overflow: visible; }
+.gbar .icon { width: var(--awe-size-icon-sm); height: var(--awe-size-icon-sm); }
+.gbar--ok { background: var(--awe-color-success-subtle); border-color: var(--awe-color-success-border); color: var(--awe-color-success-text); }
+.gbar--warn { background: var(--awe-color-warning-subtle); border-color: var(--awe-color-warning-border); color: var(--awe-color-warning-text); }
+.gbar--run { background: var(--awe-color-info-subtle); border-color: var(--awe-color-info-border); color: var(--awe-color-info-text); }
+.gbar--wait { background: var(--awe-color-surface); border-color: var(--awe-color-info-border); border-style: dashed; color: var(--awe-color-info-text); border-right: 0; border-radius: var(--awe-radius-sm) 0 0 var(--awe-radius-sm); }
+.gbar--open { background: linear-gradient(90deg, var(--awe-color-info-subtle), transparent); border: var(--awe-border-width) dashed var(--awe-color-info-border); border-left: 0; border-radius: 0; }
+.gbar--join { background: repeating-linear-gradient(135deg, var(--awe-color-border) 0 var(--awe-space-0-5), transparent var(--awe-space-0-5) var(--awe-space-2));
+  border-color: var(--awe-color-border); color: var(--awe-color-text); }
+.gbar .out { position: absolute; left: calc(100% + var(--awe-space-2)); color: var(--awe-color-text-muted); }
+.gbar .out b { color: var(--awe-color-text); font-weight: var(--awe-font-weight-medium); }
+.now { position: absolute; top: calc(var(--awe-space-8) * -1); bottom: 0; border-left: var(--awe-border-width-strong) solid var(--awe-color-primary); z-index: 1; }
+.now span { position: absolute; top: 0; left: var(--awe-space-1); font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-primary-text); background: var(--awe-color-surface); padding: 0 var(--awe-space-1); white-space: nowrap; }
+.due { position: absolute; top: 0; bottom: 0; border-left: var(--awe-border-width-strong) dashed var(--awe-color-info); }
+.due span { position: absolute; bottom: var(--awe-space-0-5); right: var(--awe-space-1); font-size: var(--awe-font-size-xs); color: var(--awe-color-info-text); white-space: nowrap; }
+
+/* Accessible list (tree) */
+.tree, .tree ol { list-style: none; margin: 0; padding: 0; }
+.tree ol { margin-left: var(--awe-space-4); padding-left: var(--awe-space-3); border-left: var(--awe-border-width) solid var(--awe-color-border); }
+.tree li { margin: var(--awe-space-2) 0; }
+.tree .item { display: flex; flex-direction: column; gap: var(--awe-space-1); padding: var(--awe-space-2) var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-lg); background: var(--awe-color-surface); }
+.tree .item b { font-weight: var(--awe-font-weight-semibold); color: var(--awe-color-text-emphasis); }
+.tree .item .line { display: flex; align-items: center; gap: var(--awe-space-2); flex-wrap: wrap; font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.tree .cond { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.tree .item--skip { border-style: dashed; background: var(--awe-color-surface-subtle); }
+.phone { width: calc(var(--awe-space-16) * 6.1); border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-xl);
+  background: var(--awe-color-background); overflow: hidden; box-shadow: var(--awe-shadow-md); }
+.phone .ph-head { padding: var(--awe-space-3) var(--awe-space-4); background: var(--awe-header-background); border-bottom: var(--awe-border-width) solid var(--awe-color-border);
+  display: flex; flex-direction: column; gap: var(--awe-space-1-5); }
+.phone .ph-head h4 { margin: 0; font-size: var(--awe-font-size-lg); display: flex; align-items: center; gap: var(--awe-space-2); }
+.phone .ph-body { padding: var(--awe-space-3) var(--awe-space-4); }
+.side-by { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--awe-space-8); align-items: start; }
+.explain { display: flex; flex-direction: column; gap: var(--awe-space-4); font-size: var(--awe-font-size-sm); max-width: 72ch; }
+.explain h4 { margin: 0 0 var(--awe-space-1); font-size: var(--awe-font-size-section-title); }
+.explain ul { margin: 0; padding-left: var(--awe-space-5); display: flex; flex-direction: column; gap: var(--awe-space-1-5); }
+
+/* ==== Side panel (#843), log viewer: same as 01-actividad ==== */
+.panel { position: absolute; top: 0; right: 0; bottom: 0; width: calc(var(--awe-space-16) * 10); background: var(--awe-color-surface);
+  border-left: var(--awe-border-width) solid var(--awe-color-border); box-shadow: var(--awe-shadow-lg);
+  z-index: var(--awe-z-modal); display: flex; flex-direction: column; }
+.panel-head { display: flex; align-items: flex-start; gap: var(--awe-space-3); padding: var(--awe-space-5);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.panel-head .titles { min-width: 0; flex: 1; }
+.panel-head h2 { margin: 0; font-size: var(--awe-font-size-dialog-title); display: flex; align-items: center; gap: var(--awe-space-2); flex-wrap: wrap; }
+.panel-head .sub { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); margin-top: var(--awe-space-0-5); }
+.panel-head .links { display: flex; gap: var(--awe-space-3); margin-top: var(--awe-space-2); }
+.panel-body { padding: var(--awe-space-5); overflow: auto; flex: 1; display: flex; flex-direction: column; gap: var(--awe-space-5); }
+.panel-foot { padding: var(--awe-space-4) var(--awe-space-5); border-top: var(--awe-border-width) solid var(--awe-color-border);
+  display: flex; align-items: center; gap: var(--awe-gap-inline); }
+.panel-foot .left { margin-right: auto; font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.st-avatar { width: var(--awe-size-control); height: var(--awe-size-control); border-radius: var(--awe-radius-lg); display: grid; place-items: center; flex: none; }
+.ic--warning { background: var(--awe-color-warning-subtle); color: var(--awe-color-warning-text); }
+.section-title { display: flex; align-items: center; gap: var(--awe-space-2); margin: 0 0 var(--awe-space-2);
+  font-size: var(--awe-font-size-label); font-weight: var(--awe-font-weight-semibold); color: var(--awe-color-text); }
+.section-title .aside { margin-left: auto; font-weight: var(--awe-font-weight-normal); color: var(--awe-color-text-muted); font-size: var(--awe-font-size-xs); }
+.readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--awe-space-3) var(--awe-space-5); }
+.readout { display: flex; flex-direction: column; gap: var(--awe-space-0-5); min-width: 0; }
+.readout .k { color: var(--awe-readout-label-color); font-size: var(--awe-readout-label-font-size); font-weight: var(--awe-readout-label-font-weight); }
+.readout .v { color: var(--awe-readout-value-color); font-size: var(--awe-readout-value-font-size); }
+.readout--wide { grid-column: span 3; }
+.readout-block { background: var(--awe-readout-block-background); border: var(--awe-readout-block-border); border-radius: var(--awe-readout-block-radius);
+  padding: var(--awe-readout-block-padding); }
+.flags { display: flex; flex-wrap: wrap; gap: var(--awe-space-2); }
+.log { border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-lg); overflow: hidden; }
+.log-bar { display: flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-1-5) var(--awe-space-2) var(--awe-space-1-5) var(--awe-space-3);
+  background: var(--awe-color-surface-subtle); border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle); font-size: var(--awe-font-size-xs); }
+.log-bar .spacer { flex: 1; }
+.log pre { margin: 0; padding: var(--awe-space-3); font-family: var(--awe-font-family-monospace); font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-line-height-base); background: var(--awe-color-surface); color: var(--awe-color-text); overflow: auto; white-space: pre; }
+.log .ln { color: var(--awe-color-text-muted); user-select: none; }
+.log .lv-info { color: var(--awe-color-info-text); font-weight: var(--awe-font-weight-semibold); }
+.log .lv-warn { color: var(--awe-color-warning-text); font-weight: var(--awe-font-weight-semibold); }
+.log .hl-warn { background: var(--awe-color-warning-subtle); display: inline-block; width: 100%; }
+
+/* States and captions */
+.state { position: relative; padding-bottom: var(--awe-space-4); }
+.state-label { display: flex; align-items: baseline; gap: var(--awe-space-3); margin: var(--awe-space-8) var(--awe-space-6) var(--awe-space-3); flex-wrap: wrap; }
+.state-label h3 { margin: 0; font-size: var(--awe-font-size-md); }
+.state-label p { margin: 0; font-size: var(--awe-font-size-sm); color: var(--awe-color-text-muted); }
+.state-label .letter { display: grid; place-items: center; min-width: var(--awe-space-6); height: var(--awe-space-6); padding: 0 var(--awe-space-1);
+  border-radius: var(--awe-radius-full); background: var(--awe-color-primary-subtle); color: var(--awe-color-on-primary-subtle);
+  font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-bold); align-self: center; }
+.frame { position: relative; overflow: hidden; border-top: var(--awe-border-width) solid var(--awe-color-border);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.frame--pad { padding: var(--awe-space-6); background: var(--awe-color-background); }
+.cap { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); margin: 0 0 var(--awe-space-2); display: flex; gap: var(--awe-space-2); align-items: center; }
+.cap b { color: var(--awe-color-text); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-error" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-stopped" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" rx="1"/></symbol>
+    <symbol id="i-run" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></symbol>
+    <symbol id="i-queued" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-interrupted" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+    <symbol id="i-wait" viewBox="0 0 24 24"><path d="M5 22h14M5 2h14M17 22v-4.17a2 2 0 0 0-.59-1.42L12 12l-4.41 4.41A2 2 0 0 0 7 17.83V22M7 2v4.17a2 2 0 0 0 .59 1.42L12 12l4.41-4.41A2 2 0 0 0 17 6.17V2"/></symbol>
+    <symbol id="i-skip" viewBox="0 0 24 24"><path d="m5 4 10 8-10 8V4Z"/><path d="M19 5v14"/></symbol>
+    <symbol id="i-pending" viewBox="0 0 24 24"><path d="M10.1 2.18a10 10 0 0 1 3.8 0M13.9 21.82a10 10 0 0 1-3.8 0M17.61 3.72a10 10 0 0 1 2.69 2.7M2.18 13.9a10 10 0 0 1 0-3.8M20.28 17.61a10 10 0 0 1-2.7 2.69M21.82 10.1a10 10 0 0 1 0 3.8M3.72 6.39a10 10 0 0 1 2.7-2.69M6.39 20.28a10 10 0 0 1-2.69-2.7"/></symbol>
+    <symbol id="i-merge" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 0 0 9 9"/></symbol>
+    <symbol id="i-cut" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88M14.47 14.48 20 20M8.12 8.12 12 12"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M12 18v-6M9 15l3 3 3-3"/></symbol>
+    <symbol id="i-log" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4M16 13H8M16 17H8M10 9H8"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m6 3 14 9-14 9V3z"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+    <symbol id="i-tasks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a7.9 7.9 0 0 0 .1-3l2-1.5-2-3.4-2.3 1a8 8 0 0 0-2.6-1.5L14 2h-4l-.5 2.6a8 8 0 0 0-2.6 1.5l-2.3-1-2 3.4L4.6 12a7.9 7.9 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a8 8 0 0 0 2.6 1.5L10 22h4l.5-2.6a8 8 0 0 0 2.6-1.5l2.3 1 2-3.4Z"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10 12 3l9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></symbol>
+    <symbol id="i-bank" viewBox="0 0 24 24"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M2 10l10-7 10 7Z"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M7 7h10v10M7 17 17 7"/></symbol>
+    <symbol id="i-flow" viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect x="13" y="13" width="8" height="8" rx="2"/></symbol>
+    <symbol id="i-gantt" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16M7 7h7M10 12h8M8 17h5"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M3 12h.01M3 18h.01M3 6h.01M8 12h13M8 18h13M8 6h13"/></symbol>
+    <symbol id="i-zoom-in" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M11 8v6M8 11h6"/></symbol>
+    <symbol id="i-zoom-out" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35M8 11h6"/></symbol>
+    <symbol id="i-fit" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="14" height="14" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></symbol>
+    <symbol id="i-square" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+    <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16"/></symbol>
+    <symbol id="i-root" viewBox="0 0 24 24"><circle cx="12" cy="5" r="3"/><path d="M12 8v4M6 16v-2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/><circle cx="6" cy="19" r="3"/><circle cx="18" cy="19" r="3"/></symbol>
+    <!-- Edge arrowheads: one marker per tone, marker content cannot inherit from the path -->
+    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow" d="M0 0 10 5 0 10z"/></marker>
+    <marker id="arr-strong" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path class="arrow arrow--strong" d="M0 0 10 5 0 10z"/></marker>
+    <marker id="arr-skip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="arrow arrow--skip" d="M0 0 10 5 0 10z"/></marker>
+  </defs>
+</svg>
+
+<main class="board" aria-label="Planificador · Ejecución de un flujo">
+<div class="demo-tools">
+  <span class="note">AWE 5 · Planificador · 05 Ejecución de un flujo: grafo y cronograma · ambos motores (AngularJS y React)</span>
+  <div class="spacer"></div>
+  <div class="segmented" role="group" aria-label="Modo de color">
+    <button data-mode="light" aria-pressed="false" onclick="setMode('light')">Claro</button>
+    <button data-mode="dark" aria-pressed="false" onclick="setMode('dark')">Oscuro</button>
+  </div>
+  <div class="segmented" role="group" aria-label="Densidad">
+    <button data-density="comfortable" aria-pressed="true" onclick="setDensity('comfortable')">Cómoda</button>
+    <button data-density="compact" aria-pressed="false" onclick="setDensity('compact')">Compacta</button>
+  </div>
+</div>
+
+<aside class="annotation" aria-label="Notas de diseño">
+  <h2><svg class="icon" aria-hidden="true"><use href="#i-note"/></svg>Notas de diseño · Página de ejecución de un flujo y componente «flow-graph»</h2>
+  <div class="cols">
+    <div>
+      <h3>Decisiones</h3>
+      <ol>
+        <li>Responde a «¿qué ha pasado en este flujo, por qué y qué falta?». Arriba, el estado final con la regla escrita; debajo, el grafo de izquierda a derecha.</li>
+        <li>Cada arista lleva la condición que sale de las opciones del padre: «OK», «OK o Aviso» (lanzar en aviso), y se añade «Error» si lanza dependencias en error. «Tratar aviso como error» convierte el Aviso del padre en Error antes de evaluarla.</li>
+        <li>En una unión, la arista del padre que la cerró se dibuja más gruesa y el nodo dice «Unido por …»: ese padre es el que le pasa los parámetros.</li>
+        <li>Omitida y Esperando confirmación usan borde discontinuo; Pendiente, punteado. El estado nunca va solo en color: icono y texto en nodo, leyenda, cronograma y lista.</li>
+        <li>El panel lateral es el de Actividad, sin máscara: el grafo se desplaza para dejar el nodo elegido a la vista.</li>
+        <li>«Cronograma» usa un eje partido para que 10 minutos de ejecución y 4 horas de espera diferida quepan en la misma fila.</li>
+      </ol>
+    </div>
+    <div>
+      <h3>Sin cambio de modelo de datos (S4)</h3>
+      <ul>
+        <li>Flujo: <code>AweSchRun</code> (<code>IdeTskRoo</code>, <code>ExeTskRoo</code>, <code>LchBy</code>, <code>IniDat</code>, <code>EndDat</code>, <code>Sta</code>); parámetros: <code>AweSchRunPar</code> (<code>Nam</code>, <code>Val</code>).</li>
+        <li>Nodos: <code>AweSchRunTsk</code> (<code>Sta</code> WAITING / LAUNCHED / SKIPPED, <code>ExeTsk</code>, <code>UpdDat</code>) y su <code>AweSchExe</code> (estado, inicio, fin, duración). Pendiente = sin fila o en WAITING; Omitida = SKIPPED.</li>
+        <li>«Unido por» se deriva: el padre cuya ejecución terminó justo antes del paso a LAUNCHED (<code>UpdDat</code>). La espera en la unión = fin del primer padre → <code>UpdDat</code>.</li>
+        <li>Diferida = <code>RUNNING</code> + <code>AweSchExeExt</code> (<code>DfrDat</code>, <code>DueDat</code>); vence con el timeout de la tarea o 24 h.</li>
+        <li>Aristas y condiciones: dependencias de la tarea y sus opciones (lanzar en aviso, en error, tratar aviso como error).</li>
+        <li>El n.º «#4812» es una etiqueta de pantalla: <code>IdeRun</code> es un UUID; se muestra corto o como alias.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Componentes nuevos en los dos motores (S1)</h3>
+      <ul>
+        <li><b>flow-graph</b> (directiva AngularJS y componente React con la misma API): entrada nodos + aristas; reutiliza el widget <b>&lt;widget type="flow-graph"&gt;</b> de #992 (ambos motores, layout propio por columnas en flowGraph.js, sin dependencias); para esta pantalla hay que añadirle: clic en un nodo que abre el detalle de la ejecución, estado diferido con vencimiento, marca «unido por» y las vistas cronograma y lista; dibujo en SVG con los tokens <code>--awe-color-*</code> de estado; zoom, ajustar, nodo elegido y teclado.</li>
+        <li>Se reutiliza en la pestaña Dependencias de la ficha de tarea (sin estados) y en el editor (aristas editables).</li>
+        <li><b>Cronograma</b>: filas por tarea, barras por estado, espera en la unión, barra abierta diferida, eje partido, línea «Ahora».</li>
+        <li><b>Resumen del flujo</b>: estado final + regla explicada.</li>
+        <li>Tokens nuevos propuestos (componente, apuntan a semánticos): <code>--awe-flow-graph-edge-width</code> (border-width), <code>--awe-flow-graph-edge-join-width</code> (border-width-strong), <code>--awe-flow-graph-node-radius</code> (radius-lg).</li>
+        <li>Se reutilizan: panel lateral (#843), visor de log, etiqueta de estado, segmentado, tarjeta.</li>
+      </ul>
+    </div>
+  </div>
+</aside>
+
+<!-- ============================ STATE 1 ============================ -->
+<section class="state" aria-labelledby="st-1">
+  <div class="state-label"><span class="letter">1</span><h3 id="st-1">Flujo #4812 en curso · hoy 17/11/2026 10:42 · vista «Grafo»</h3><p>Se llega desde Actividad («Ver flujo #4812») o desde el historial de una tarea.</p></div>
+  <div class="frame">
+<div class="shell">
+  <aside class="menu" aria-label="Menú principal">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-search"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <div class="menu-section">General</div>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg>Inicio</a>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Cuentas bancarias</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-activity"/></svg>Actividad<span class="count-badge" aria-label="4 en curso">4</span></a>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-tasks"/></svg>Tareas</a>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg>Configuración</a>
+    <div class="menu-foot"><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn--ghost" aria-label="Mostrar u ocultar el menú"><svg class="icon" aria-hidden="true"><use href="#i-panel"/></svg></button>
+      <div class="spacer"></div>
+      <button class="btn btn--ghost" aria-label="Menú de usuario pvidal"><span class="avatar">PV</span></button>
+    </header>
+    <nav class="crumbs" aria-label="Migas de pan"><a href="#">Inicio</a><span aria-hidden="true">/</span><a href="#">Planificador</a><span aria-hidden="true">/</span><a href="#">Actividad</a><span aria-hidden="true">/</span><strong>Flujo #4812</strong></nav>
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <h1>Flujo #4812 <span class="tag tag--info tag--lg"><svg class="icon icon--sm spin" aria-hidden="true"><use href="#i-run"/></svg>En curso</span></h1>
+          <div class="run-meta">
+            <span><svg class="icon icon--sm" aria-hidden="true"><use href="#i-file"/></svg>Lanzado por <b>Fichero</b> · <span class="mono">sftp-bancos:/in/n43/*.n43</span></span>
+            <span><svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar"/></svg>Inicio <b class="tabnum">17/11/2026 08:05:00</b></span>
+            <span><svg class="icon icon--sm" aria-hidden="true"><use href="#i-queued"/></svg>Duración <b class="tabnum">2 h 37 min</b> y sigue</span>
+            <span><svg class="icon icon--sm" aria-hidden="true"><use href="#i-root"/></svg>Tarea raíz <a href="#">12 · Importar extractos bancarios</a> · ejecución <span class="mono">1092</span></span>
+            <span class="who"><span class="avatar" aria-hidden="true">S</span>scheduler</span>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn" href="#"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-activity"/></svg>Ver en Actividad</a>
+          <button class="btn" aria-disabled="true" aria-describedby="rl-1"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-rotate"/></svg>Relanzar flujo</button>
+          <span id="rl-1" class="sr-only">Se activa cuando el flujo termine</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--awe-layout-gap);align-items:start">
+        <div class="rule rule--info" role="note">
+          <svg class="icon" aria-hidden="true"><use href="#i-info"/></svg>
+          <div><p><b>En curso:</b> 4 de 5 tareas terminadas. Envío de remesas SEPA espera la confirmación del banco hasta las 12:15.</p>
+          <p class="small">Estado final: <b>Error</b> si alguna tarea termina en Error, Detenida o Interrumpida; si no, <b>Aviso</b> si alguna termina en Aviso o se salta; si no, <b>OK</b>. Ahora mismo apunta a <b>Aviso</b>: Conciliación bancaria terminó en Aviso.</p></div>
+        </div>
+        <details class="params" open>
+          <summary><svg class="icon icon--sm chev" aria-hidden="true"><use href="#i-right"/></svg>Parámetros del flujo <span class="pill">3</span><span class="aside">Los reciben sus dependencias</span></summary>
+          <div class="body">
+            <table class="mini">
+              <thead><tr><th>Nombre</th><th>Valor</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">fechaValor</td><td class="tabnum">16/11/2026</td></tr>
+                <tr><td class="mono">cuentaContable</td><td class="mono">572000</td></tr>
+                <tr><td class="mono">toleranciaDias</td><td class="tabnum">2</td></tr>
+              </tbody>
+            </table>
+            <p class="muted" style="margin:var(--awe-space-2) 0 0;font-size:var(--awe-font-size-xs)">En la unión, Informe diario de tesorería recibió los parámetros de Conciliación bancaria, el padre que cerró la espera.</p>
+          </div>
+        </details>
+      </div>
+
+      <section class="card" aria-labelledby="g1-title">
+        <div class="card-head">
+          <h2 id="g1-title" class="sr-only">Dependencias del flujo #4812</h2>
+          <div class="segmented" role="group" aria-label="Vista" data-view>
+            <button aria-pressed="true"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-flow"/></svg>Grafo</button>
+            <button aria-pressed="false"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-gantt"/></svg>Cronograma</button>
+          </div>
+          <span class="vsep" aria-hidden="true"></span>
+          <div class="zoom" role="group" aria-label="Zoom">
+            <button class="btn btn--ghost btn--sm" aria-label="Alejar"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-zoom-out"/></svg></button>
+            <span class="pct" aria-live="polite">100 %</span>
+            <button class="btn btn--ghost btn--sm" aria-label="Acercar"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-zoom-in"/></svg></button>
+            <button class="btn btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-fit"/></svg>Ajustar</button>
+          </div>
+          <span class="spacer"></span>
+          <span class="muted" style="font-size:var(--awe-font-size-xs)">Actualizado 10:42:05 · automático cada 5 s</span>
+          <a class="btn btn--sm" href="#st-4"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-list"/></svg>Ver como lista</a>
+        </div>
+        <div class="card-body">
+          <div class="canvas">
+<svg class="graph" viewBox="0 0 1080 344" role="group" aria-label="Grafo del flujo #4812: 5 tareas de izquierda a derecha" aria-describedby="tree-4812">
+  <!-- edges -->
+  <g aria-hidden="true">
+    <path class="edge" d="M206 182C254 182 254 88 300 88" marker-end="url(#arr)"/>
+    <path class="edge" d="M206 182C254 182 254 276 300 276" marker-end="url(#arr)"/>
+    <path class="edge edge--join" d="M492 88C540 88 540 182 586 182" marker-end="url(#arr-strong)"/>
+    <path class="edge" d="M492 276C540 276 540 182 586 182" marker-end="url(#arr)"/>
+    <path class="edge" d="M778 182H872" marker-end="url(#arr)"/>
+    <g class="elabel"><rect x="218" y="124" width="72" height="22" rx="11"/><text x="254" y="139">OK o Aviso</text></g>
+    <g class="elabel"><rect x="218" y="218" width="72" height="22" rx="11"/><text x="254" y="233">OK o Aviso</text></g>
+    <g class="elabel elabel--join"><rect x="504" y="124" width="72" height="22" rx="11"/><text x="540" y="139">OK o Aviso</text></g>
+    <g class="elabel"><rect x="523" y="218" width="34" height="22" rx="11"/><text x="540" y="233">OK</text></g>
+    <g class="elabel"><rect x="809" y="171" width="34" height="22" rx="11"/><text x="826" y="186">OK</text></g>
+  </g>
+  <!-- badges -->
+  <g class="g-badge" transform="translate(16 100)" aria-hidden="true"><rect width="150" height="22" rx="11"/><use class="ic" href="#i-root" x="8" y="3" width="16" height="16"/><text x="30" y="15">Tarea raíz · Fichero</text></g>
+  <g class="g-badge" transform="translate(588 242)" aria-hidden="true"><rect width="236" height="22" rx="11"/><use class="ic" href="#i-merge" x="8" y="3" width="16" height="16"/><text x="30" y="15">Unido por Conciliación bancaria</text></g>
+  <g class="g-badge g-badge--wait" transform="translate(874 100)" aria-hidden="true"><rect width="172" height="22" rx="11"/><use class="ic" href="#i-wait" x="8" y="3" width="16" height="16"/><text x="30" y="15">Diferida · API del banco</text></g>
+  <!-- nodes -->
+  <g class="g-node t-ok" role="button" tabindex="0" aria-pressed="false" transform="translate(16 130)" aria-label="Importar extractos bancarios, tarea raíz. OK. Ejecución 1092. 1 min 12 s, de 08:05:00 a 08:06:12.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-ok" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">OK</text><text class="n-id" x="176" y="25" text-anchor="end">1092</text>
+    <text class="n-name" x="14" y="50">Importar extractos</text><text class="n-name" x="14" y="67">bancarios</text>
+    <text class="n-meta" x="14" y="91">1 min 12 s · 08:05 – 08:06</text>
+  </g>
+  <g class="g-node t-warn" role="button" tabindex="0" aria-pressed="false" transform="translate(302 36)" aria-label="Conciliación bancaria. Aviso. Ejecución 640. 3 min 40 s, de 08:06:12 a 08:09:52. Lanza dependencias en aviso.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-warn" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">Aviso</text><text class="n-id" x="176" y="25" text-anchor="end">640</text>
+    <text class="n-name" x="14" y="50">Conciliación bancaria</text>
+    <text class="n-meta" x="14" y="67">3 sin contrapartida</text>
+    <text class="n-meta" x="14" y="91">3 min 40 s · 08:06 – 08:09</text>
+  </g>
+  <g class="g-node t-ok" role="button" tabindex="0" aria-pressed="false" transform="translate(302 224)" aria-label="Actualizar posiciones de tesorería. OK. Ejecución 875. 2 min 5 s, de 08:06:12 a 08:08:17.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-ok" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">OK</text><text class="n-id" x="176" y="25" text-anchor="end">875</text>
+    <text class="n-name" x="14" y="50">Actualizar posiciones</text><text class="n-name" x="14" y="67">de tesorería</text>
+    <text class="n-meta" x="14" y="91">2 min 05 s · 08:06 – 08:08</text>
+  </g>
+  <g class="g-node t-ok" role="button" tabindex="0" aria-pressed="false" transform="translate(588 130)" aria-label="Informe diario de tesorería, unión de Conciliación bancaria y Actualizar posiciones. OK. Ejecución 512. Esperó 1 min 35 s a Conciliación bancaria, que cerró la unión y aportó los parámetros. 48 s, de 08:09:52 a 08:10:40.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-ok" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">OK</text><text class="n-id" x="176" y="25" text-anchor="end">512</text>
+    <text class="n-name" x="14" y="50">Informe diario de</text><text class="n-name" x="14" y="67">tesorería</text>
+    <text class="n-meta" x="14" y="91">48 s · esperó 1 min 35 s</text>
+  </g>
+  <g class="g-node t-wait" role="button" tabindex="0" aria-pressed="false" transform="translate(874 130)" aria-label="Envío de remesas SEPA. Esperando confirmación: estado guardado En ejecución, diferida a las 08:15:00. Vence a las 12:15, quedan 1 h 33 min. Ejecución 415.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-wait" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">Esperando confirmación</text>
+    <text class="n-name" x="14" y="50">Envío de remesas SEPA</text>
+    <text class="n-meta" x="14" y="67">Vence 12:15 · 1 h 33 min</text>
+    <rect class="n-track" x="14" y="76" width="162" height="4" rx="2"/><rect class="n-fill" x="14" y="76" width="99" height="4" rx="2"/>
+    <text class="n-meta" x="14" y="96">Ejec. 415 · diferida 08:15</text>
+  </g>
+</svg>
+            <span class="corner">Disposición automática · izquierda a derecha</span>
+          </div>
+        </div>
+        <div class="graph-foot">
+          <ul class="legend" aria-label="Leyenda de estados">
+            <li class="lg-title">Estados</li>
+            <li><span class="tag tag--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ok"/></svg>OK</span></li>
+            <li><span class="tag tag--warning"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-warn"/></svg>Aviso</span></li>
+            <li><span class="tag tag--danger"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-error"/></svg>Error</span></li>
+            <li><span class="tag tag--info"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-run"/></svg>En ejecución</span></li>
+            <li><span class="tag tag--deferred"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-wait"/></svg>Esperando confirmación</span></li>
+            <li><span class="tag tag--neutral"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-queued"/></svg>En cola</span></li>
+            <li><span class="tag tag--skipped"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-skip"/></svg>Omitida</span></li>
+            <li><span class="tag tag--danger"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-stopped"/></svg>Detenida</span></li>
+            <li><span class="tag tag--danger"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-interrupted"/></svg>Interrumpida</span></li>
+            <li><span class="tag tag--info"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-info"/></svg>Información</span></li>
+            <li><span class="tag tag--pending"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-pending"/></svg>Pendiente</span></li>
+          </ul>
+          <ul class="legend" aria-label="Leyenda de aristas" style="margin-left:auto">
+            <li class="lg-title">Aristas</li>
+            <li class="edge-key"><i class="thin" aria-hidden="true"></i>Condición del padre</li>
+            <li class="edge-key"><i aria-hidden="true"></i>Cerró la unión</li>
+            <li class="edge-key"><i class="dash" aria-hidden="true"></i>No se cumple</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+  </div>
+</section>
+
+<!-- ============================ STATE 1b ============================ -->
+<section class="state" aria-labelledby="st-1b">
+  <div class="state-label"><span class="letter">1b</span><h3 id="st-1b">Clic en el nodo «Conciliación bancaria»: panel lateral de la ejecución</h3><p>El mismo panel de 640 px que Actividad. Sin máscara: el grafo sigue visible y el nodo queda marcado.</p></div>
+  <div class="frame" style="height:1010px">
+<div class="shell" style="height:100%">
+  <aside class="menu" aria-label="Menú principal">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-search"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <div class="menu-section">General</div>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg>Inicio</a>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Cuentas bancarias</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-activity"/></svg>Actividad<span class="count-badge" aria-label="4 en curso">4</span></a>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-tasks"/></svg>Tareas</a>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg>Configuración</a>
+    <div class="menu-foot"><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn--ghost" aria-label="Mostrar u ocultar el menú"><svg class="icon" aria-hidden="true"><use href="#i-panel"/></svg></button>
+      <div class="spacer"></div>
+      <button class="btn btn--ghost" aria-label="Menú de usuario pvidal"><span class="avatar">PV</span></button>
+    </header>
+    <nav class="crumbs" aria-label="Migas de pan"><a href="#">Inicio</a><span aria-hidden="true">/</span><a href="#">Planificador</a><span aria-hidden="true">/</span><a href="#">Actividad</a><span aria-hidden="true">/</span><strong>Flujo #4812</strong></nav>
+    <div class="page">
+      <div class="page-head">
+        <div><h1>Flujo #4812 <span class="tag tag--info tag--lg"><svg class="icon icon--sm spin" aria-hidden="true"><use href="#i-run"/></svg>En curso</span></h1>
+          <div class="run-meta"><span><svg class="icon icon--sm" aria-hidden="true"><use href="#i-file"/></svg>Lanzado por <b>Fichero</b></span><span>Inicio <b class="tabnum">17/11/2026 08:05:00</b></span></div></div>
+      </div>
+      <section class="card" aria-label="Grafo del flujo #4812 con un nodo elegido">
+        <div class="card-head">
+          <div class="segmented" role="group" aria-label="Vista" data-view>
+            <button aria-pressed="true"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-flow"/></svg>Grafo</button>
+            <button aria-pressed="false"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-gantt"/></svg>Cronograma</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="canvas">
+<svg class="graph" viewBox="96 0 1080 344" style="width:calc(var(--awe-space-16) * 16.875)" role="group" aria-label="Grafo del flujo #4812, desplazado para mostrar Conciliación bancaria">
+  <g aria-hidden="true">
+    <path class="edge" d="M206 182C254 182 254 88 300 88" marker-end="url(#arr)"/>
+    <path class="edge" d="M206 182C254 182 254 276 300 276" marker-end="url(#arr)"/>
+    <path class="edge edge--join" d="M492 88C540 88 540 182 586 182" marker-end="url(#arr-strong)"/>
+    <path class="edge" d="M492 276C540 276 540 182 586 182" marker-end="url(#arr)"/>
+    <path class="edge" d="M778 182H872" marker-end="url(#arr)"/>
+    <g class="elabel"><rect x="218" y="124" width="72" height="22" rx="11"/><text x="254" y="139">OK o Aviso</text></g>
+    <g class="elabel"><rect x="218" y="218" width="72" height="22" rx="11"/><text x="254" y="233">OK o Aviso</text></g>
+    <g class="elabel elabel--join"><rect x="504" y="124" width="72" height="22" rx="11"/><text x="540" y="139">OK o Aviso</text></g>
+    <g class="elabel"><rect x="523" y="218" width="34" height="22" rx="11"/><text x="540" y="233">OK</text></g>
+  </g>
+  <g class="g-node t-ok" role="button" tabindex="0" aria-pressed="false" transform="translate(16 130)" aria-label="Importar extractos bancarios. OK. Ejecución 1092.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-ok" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">OK</text><text class="n-id" x="176" y="25" text-anchor="end">1092</text>
+    <text class="n-name" x="14" y="50">Importar extractos</text><text class="n-name" x="14" y="67">bancarios</text>
+    <text class="n-meta" x="14" y="91">1 min 12 s · 08:05 – 08:06</text>
+  </g>
+  <g class="g-node t-warn" role="button" tabindex="0" aria-pressed="true" transform="translate(302 36)" aria-label="Conciliación bancaria. Aviso. Ejecución 640. Elegida: su detalle está en el panel lateral.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-warn" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">Aviso</text><text class="n-id" x="176" y="25" text-anchor="end">640</text>
+    <text class="n-name" x="14" y="50">Conciliación bancaria</text>
+    <text class="n-meta" x="14" y="67">3 sin contrapartida</text>
+    <text class="n-meta" x="14" y="91">3 min 40 s · 08:06 – 08:09</text>
+  </g>
+  <g class="g-node t-ok" role="button" tabindex="0" aria-pressed="false" transform="translate(302 224)" aria-label="Actualizar posiciones de tesorería. OK. Ejecución 875.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-ok" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">OK</text><text class="n-id" x="176" y="25" text-anchor="end">875</text>
+    <text class="n-name" x="14" y="50">Actualizar posiciones</text><text class="n-name" x="14" y="67">de tesorería</text>
+    <text class="n-meta" x="14" y="91">2 min 05 s · 08:06 – 08:08</text>
+  </g>
+  <g class="g-node t-ok" role="button" tabindex="0" aria-pressed="false" transform="translate(588 130)" aria-label="Informe diario de tesorería. OK. Ejecución 512.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-ok" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">OK</text>
+    <text class="n-name" x="14" y="50">Informe diario de</text><text class="n-name" x="14" y="67">tesorería</text>
+  </g>
+</svg>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+  <div class="panel" role="dialog" aria-labelledby="panel-1b-title">
+    <div class="panel-head">
+      <span class="st-avatar ic--warning"><svg class="icon icon--lg" aria-hidden="true"><use href="#i-warn"/></svg></span>
+      <div class="titles">
+        <h2 id="panel-1b-title">Conciliación bancaria <span class="tag tag--warning"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-warn"/></svg>Aviso</span></h2>
+        <div class="sub">Ejecución <span class="mono">640</span> · tarea 13 · Maintain <span class="mono">BankReconciliation</span> · flujo #4812</div>
+        <div class="links"><a class="btn btn--link" href="#"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ext"/></svg>Abrir tarea</a><a class="btn btn--link" href="#"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-activity"/></svg>Historial de la tarea</a></div>
+      </div>
+      <button class="btn btn--ghost" aria-label="Cerrar el panel"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
+    </div>
+    <div class="panel-body">
+      <div class="readouts">
+        <div class="readout"><span class="k">Inicio</span><span class="v tabnum">17/11/2026 08:06:12</span></div>
+        <div class="readout"><span class="k">Fin</span><span class="v tabnum">17/11/2026 08:09:52</span></div>
+        <div class="readout"><span class="k">Duración</span><span class="v">3 min 40 s <span class="muted">· media 3 min 31 s</span></span></div>
+        <div class="readout"><span class="k">Origen</span><span class="v">Dependencia</span></div>
+        <div class="readout"><span class="k">Lanzada por</span><span class="v"><span class="who"><span class="avatar" aria-hidden="true">S</span>scheduler</span></span></div>
+        <div class="readout"><span class="k">Tras</span><span class="v">Importar extractos · <span class="mono">1092</span> OK</span></div>
+        <div class="readout"><span class="k">Timeout de la tarea</span><span class="v">15 min</span></div>
+        <div class="readout"><span class="k">Ejecuciones guardadas</span><span class="v">10</span></div>
+        <div class="readout"><span class="k">Informe</span><span class="v">Email</span></div>
+        <div class="readout readout--wide"><span class="k">Descripción</span><span class="v readout-block">Conciliación con avisos: 1.281 de 1.284 movimientos casados; 3 sin contrapartida en ES76 2100 **** 4821 y diferencia de 12,40 EUR en Banco Sabadell.</span></div>
+      </div>
+      <div>
+        <h3 class="section-title">Qué lanza al terminar<span class="aside">Opciones de la tarea</span></h3>
+        <div class="flags">
+          <span class="pill"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ok"/></svg>Lanzar dependencias en aviso: Sí</span>
+          <span class="pill"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-x"/></svg>Lanzar dependencias en error: No</span>
+          <span class="pill"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-x"/></svg>Tratar aviso como error: No</span>
+        </div>
+        <p class="muted" style="margin:var(--awe-space-2) 0 0;font-size:var(--awe-font-size-xs)">Por eso su arista dice «OK o Aviso»: terminó en Aviso, lanzó Informe diario de tesorería y cerró la unión a las 08:09:52.</p>
+      </div>
+      <div>
+        <h3 class="section-title">Parámetros resueltos<span class="aside">Reservados: <span class="mono">taskId</span> 13 · <span class="mono">executionId</span> 640</span></h3>
+        <table class="mini">
+          <thead><tr><th>Nombre</th><th>Origen</th><th>Valor</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">fechaValor</td><td><span class="pill">Variable</span> <span class="mono muted">FECHA_HABIL_ANTERIOR</span></td><td class="tabnum">16/11/2026</td></tr>
+            <tr><td class="mono">cuentaContable</td><td><span class="pill">Propiedad</span> <span class="mono muted">tesoreria.cuenta.bancos</span></td><td class="mono">572000</td></tr>
+            <tr><td class="mono">toleranciaDias</td><td><span class="pill">Valor</span></td><td class="tabnum">2</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h3 class="section-title">Log</h3>
+        <div class="log">
+          <div class="log-bar">
+            <span class="muted">Completo · 10 líneas · terminó 08:09:52</span>
+            <span class="spacer"></span>
+            <button class="btn btn--ghost btn--sm" aria-label="Copiar el log"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-copy"/></svg></button>
+            <button class="btn btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-download"/></svg>Descargar</button>
+          </div>
+<pre tabindex="0" aria-label="Log de la ejecución 640"><span class="ln"> 1 </span>08:06:12.118 <span class="lv-info">INFO </span> Conciliación bancaria iniciada · fecha valor 16/11/2026
+<span class="ln"> 2 </span>08:06:12.402 <span class="lv-info">INFO </span> Extractos cargados: 4 cuentas, 1.284 movimientos
+<span class="ln"> 3 </span>08:06:21.977 <span class="lv-info">INFO </span> Reglas: importe + referencia; importe + fecha ±2 días
+<span class="ln"> 4 </span>08:06:55.330 <span class="lv-info">INFO </span> Casados automáticamente: 1.198 movimientos (93,3 %)
+<span class="hl-warn"><span class="ln"> 5 </span>08:07:28.006 <span class="lv-warn">WARN </span> ES76 2100 **** 4821: 3 movimientos sin contrapartida</span>
+<span class="hl-warn"><span class="ln"> 6 </span>08:07:38.640 <span class="lv-warn">WARN </span> Diferencia de 12,40 EUR en el saldo final de Banco Sabadell</span>
+<span class="ln"> 7 </span>08:07:41.203 <span class="lv-info">INFO </span> Casación por aproximación: 83 movimientos pendientes
+<span class="ln"> 8 </span>08:09:47.517 <span class="lv-info">INFO </span> Casados por aproximación: 83 de 83
+<span class="ln"> 9 </span>08:09:51.880 <span class="lv-info">INFO </span> Informe por email enviado a 2 destinatarios
+<span class="hl-warn"><span class="ln">10 </span>08:09:52.004 <span class="lv-warn">WARN </span> Terminada con avisos: 1.281 de 1.284 casados</span></pre>
+        </div>
+      </div>
+    </div>
+    <div class="panel-foot">
+      <span class="left">Terminada · el log ya no cambia</span>
+      <button class="btn"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-rotate"/></svg>Relanzar</button>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- ============================ STATE 2 ============================ -->
+<section class="state" aria-labelledby="st-2">
+  <div class="state-label"><span class="letter">2</span><h3 id="st-2">Flujo #4807 terminado en Error · 10/11/2026</h3><p>Conciliación bancaria terminó en Error; Informe diario y Envío de remesas SEPA se saltan.</p></div>
+  <div class="frame">
+<div class="shell">
+  <aside class="menu" aria-label="Menú principal">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-search"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <div class="menu-section">General</div>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg>Inicio</a>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-bank"/></svg>Cuentas bancarias</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-activity"/></svg>Actividad</a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-tasks"/></svg>Tareas</a>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg>Configuración</a>
+    <div class="menu-foot"><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn--ghost" aria-label="Mostrar u ocultar el menú"><svg class="icon" aria-hidden="true"><use href="#i-panel"/></svg></button>
+      <div class="spacer"></div>
+      <button class="btn btn--ghost" aria-label="Menú de usuario mgarcia"><span class="avatar">MG</span></button>
+    </header>
+    <nav class="crumbs" aria-label="Migas de pan"><a href="#">Inicio</a><span aria-hidden="true">/</span><a href="#">Planificador</a><span aria-hidden="true">/</span><a href="#">Tareas</a><span aria-hidden="true">/</span><a href="#">Conciliación bancaria</a><span aria-hidden="true">/</span><strong>Flujo #4807</strong></nav>
+    <div class="page">
+      <div class="page-head">
+        <div>
+          <h1>Flujo #4807 <span class="tag tag--danger tag--lg"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-error"/></svg>Error</span></h1>
+          <div class="run-meta">
+            <span><svg class="icon icon--sm" aria-hidden="true"><use href="#i-file"/></svg>Lanzado por <b>Fichero</b> · <span class="mono">sftp-bancos:/in/n43/*.n43</span></span>
+            <span><svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar"/></svg>Inicio <b class="tabnum">10/11/2026 08:05:00</b> · fin <b class="tabnum">08:08:09</b></span>
+            <span><svg class="icon icon--sm" aria-hidden="true"><use href="#i-queued"/></svg>Duración <b class="tabnum">3 min 09 s</b></span>
+            <span><svg class="icon icon--sm" aria-hidden="true"><use href="#i-root"/></svg>Tarea raíz <a href="#">12 · Importar extractos bancarios</a> · ejecución <span class="mono">226</span></span>
+          </div>
+        </div>
+        <div class="actions">
+          <a class="btn" href="#"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-activity"/></svg>Ver en Actividad</a>
+          <button class="btn btn--primary"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-rotate"/></svg>Relanzar flujo</button>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--awe-layout-gap);align-items:start">
+        <div class="rule rule--danger" role="note">
+          <svg class="icon" aria-hidden="true"><use href="#i-error"/></svg>
+          <div><p><b>Error</b> porque 1 tarea terminó en error; 2 tareas omitidas.</p>
+          <p class="small">Regla: Error si alguna tarea termina en Error, Detenida o Interrumpida; si no, Aviso si alguna termina en Aviso o se salta; si no, OK.</p>
+          <p class="small"><a href="#">Ver el error de Conciliación bancaria (ejecución 209)</a></p></div>
+        </div>
+        <details class="params">
+          <summary><svg class="icon icon--sm chev" aria-hidden="true"><use href="#i-right"/></svg>Parámetros del flujo <span class="pill">3</span><span class="aside">Plegado · clic para ver</span></summary>
+        </details>
+      </div>
+      <section class="card" aria-label="Dependencias del flujo #4807">
+        <div class="card-head">
+          <div class="segmented" role="group" aria-label="Vista" data-view>
+            <button aria-pressed="true"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-flow"/></svg>Grafo</button>
+            <button aria-pressed="false"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-gantt"/></svg>Cronograma</button>
+          </div>
+          <span class="vsep" aria-hidden="true"></span>
+          <div class="zoom" role="group" aria-label="Zoom">
+            <button class="btn btn--ghost btn--sm" aria-label="Alejar"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-zoom-out"/></svg></button>
+            <span class="pct">100 %</span>
+            <button class="btn btn--ghost btn--sm" aria-label="Acercar"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-zoom-in"/></svg></button>
+            <button class="btn btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-fit"/></svg>Ajustar</button>
+          </div>
+          <span class="spacer"></span>
+          <a class="btn btn--sm" href="#st-4"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-list"/></svg>Ver como lista</a>
+        </div>
+        <div class="card-body">
+          <div class="canvas">
+<svg class="graph" viewBox="0 0 1080 344" role="group" aria-label="Grafo del flujo #4807: Conciliación bancaria en Error corta la unión; 2 tareas omitidas">
+  <g aria-hidden="true">
+    <path class="edge" d="M206 182C254 182 254 88 300 88" marker-end="url(#arr)"/>
+    <path class="edge" d="M206 182C254 182 254 276 300 276" marker-end="url(#arr)"/>
+    <path class="edge edge--cut" d="M492 88C540 88 540 182 586 182" marker-end="url(#arr-skip)"/>
+    <path class="edge" d="M492 276C540 276 540 182 586 182" marker-end="url(#arr)"/>
+    <path class="edge edge--skip" d="M778 182H872" marker-end="url(#arr-skip)"/>
+    <g class="elabel"><rect x="218" y="124" width="72" height="22" rx="11"/><text x="254" y="139">OK o Aviso</text></g>
+    <g class="elabel"><rect x="218" y="218" width="72" height="22" rx="11"/><text x="254" y="233">OK o Aviso</text></g>
+    <g class="cut-mark"><circle cx="520" cy="103" r="11"/><use class="ic" href="#i-cut" x="513" y="96" width="14" height="14"/></g>
+    <g class="elabel elabel--cut"><rect x="488" y="148" width="104" height="22" rx="11"/><text x="540" y="163">No se cumple</text></g>
+    <g class="elabel"><rect x="523" y="218" width="34" height="22" rx="11"/><text x="540" y="233">OK</text></g>
+    <g class="elabel" opacity="0.7"><rect x="809" y="171" width="34" height="22" rx="11"/><text x="826" y="186">OK</text></g>
+  </g>
+  <g class="g-badge" transform="translate(16 100)" aria-hidden="true"><rect width="150" height="22" rx="11"/><use class="ic" href="#i-root" x="8" y="3" width="16" height="16"/><text x="30" y="15">Tarea raíz · Fichero</text></g>
+  <g class="g-badge g-badge--skip" transform="translate(588 242)" aria-hidden="true"><rect width="230" height="40" rx="10"/><use class="ic" href="#i-skip" x="8" y="5" width="16" height="16"/><text x="30" y="17">Omitida: Conciliación bancaria</text><text x="30" y="33">terminó en error</text></g>
+  <g class="g-badge g-badge--skip" transform="translate(874 242)" aria-hidden="true"><rect width="190" height="40" rx="10"/><use class="ic" href="#i-skip" x="8" y="5" width="16" height="16"/><text x="30" y="17">Omitida: Informe diario</text><text x="30" y="33">de tesorería se saltó</text></g>
+  <g class="g-node t-ok" role="button" tabindex="0" aria-pressed="false" transform="translate(16 130)" aria-label="Importar extractos bancarios, tarea raíz. OK. Ejecución 226. 1 min 9 s.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-ok" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">OK</text><text class="n-id" x="176" y="25" text-anchor="end">226</text>
+    <text class="n-name" x="14" y="50">Importar extractos</text><text class="n-name" x="14" y="67">bancarios</text>
+    <text class="n-meta" x="14" y="91">1 min 09 s · 08:05 – 08:06</text>
+  </g>
+  <g class="g-node t-err" role="button" tabindex="0" aria-pressed="false" transform="translate(302 36)" aria-label="Conciliación bancaria. Error. Ejecución 209. 1 min 2 s. No lanza dependencias en error: Informe diario de tesorería se salta.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-error" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">Error</text><text class="n-id" x="176" y="25" text-anchor="end">209</text>
+    <text class="n-name" x="14" y="50">Conciliación bancaria</text>
+    <text class="n-meta" x="14" y="67">Saldo inicial no cuadra</text>
+    <text class="n-meta" x="14" y="91">1 min 02 s · 08:06 – 08:07</text>
+  </g>
+  <g class="g-node t-ok" role="button" tabindex="0" aria-pressed="false" transform="translate(302 224)" aria-label="Actualizar posiciones de tesorería. OK. Ejecución 207. 2 min.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/><rect class="acc" y="12" width="4" height="80" rx="2"/>
+    <use class="ic" href="#i-ok" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">OK</text><text class="n-id" x="176" y="25" text-anchor="end">207</text>
+    <text class="n-name" x="14" y="50">Actualizar posiciones</text><text class="n-name" x="14" y="67">de tesorería</text>
+    <text class="n-meta" x="14" y="91">2 min 00 s · 08:06 – 08:08</text>
+  </g>
+  <g class="g-node t-skip" role="button" tabindex="0" aria-pressed="false" transform="translate(588 130)" aria-label="Informe diario de tesorería. Omitida: Conciliación bancaria terminó en error. Sin ejecución.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/>
+    <use class="ic" href="#i-skip" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">Omitida</text>
+    <text class="n-name" x="14" y="50">Informe diario de</text><text class="n-name" x="14" y="67">tesorería</text>
+    <text class="n-meta" x="14" y="91">Sin ejecución</text>
+  </g>
+  <g class="g-node t-skip" role="button" tabindex="0" aria-pressed="false" transform="translate(874 130)" aria-label="Envío de remesas SEPA. Omitida: Informe diario de tesorería se saltó. Sin ejecución.">
+    <rect class="ring" x="-5" y="-5" width="200" height="114" rx="14"/><rect class="bg" width="190" height="104" rx="10"/>
+    <use class="ic" href="#i-skip" x="14" y="12" width="16" height="16"/><text class="n-st" x="36" y="25">Omitida</text>
+    <text class="n-name" x="14" y="50">Envío de remesas SEPA</text>
+    <text class="n-meta" x="14" y="91">Sin ejecución</text>
+  </g>
+</svg>
+          </div>
+        </div>
+        <div class="graph-foot">
+          <span class="tag tag--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ok"/></svg>2 OK</span>
+          <span class="tag tag--danger"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-error"/></svg>1 Error</span>
+          <span class="tag tag--skipped"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-skip"/></svg>2 Omitidas</span>
+          <span class="muted" style="font-size:var(--awe-font-size-xs);margin-left:auto">Actualizar posiciones terminó OK, pero la unión necesita también a Conciliación bancaria: sin ella, Informe diario no se lanza.</span>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+  </div>
+</section>
+
+<!-- ============================ STATE 3 ============================ -->
+<section class="state" aria-labelledby="st-3">
+  <div class="state-label"><span class="letter">3</span><h3 id="st-3">Flujo #4812 · vista «Cronograma»</h3><p>Una fila por tarea, barras sobre el tiempo: la espera en la unión y la barra abierta de la ejecución diferida.</p></div>
+  <div class="frame frame--pad">
+    <p class="cap"><b>3</b> Mismo encabezado, reglas y parámetros que el estado 1; solo cambia la tarjeta. Hoy 10:42.</p>
+    <section class="card" aria-labelledby="g3-title">
+      <div class="card-head">
+        <h2 id="g3-title" class="sr-only">Cronograma del flujo #4812</h2>
+        <div class="segmented" role="group" aria-label="Vista" data-view>
+          <button aria-pressed="false"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-flow"/></svg>Grafo</button>
+          <button aria-pressed="true"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-gantt"/></svg>Cronograma</button>
+        </div>
+        <span class="vsep" aria-hidden="true"></span>
+        <div class="zoom" role="group" aria-label="Escala de tiempo">
+          <button class="btn btn--ghost btn--sm" aria-label="Alejar"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-zoom-out"/></svg></button>
+          <span class="pct">2 min</span>
+          <button class="btn btn--ghost btn--sm" aria-label="Acercar"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-zoom-in"/></svg></button>
+          <button class="btn btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-fit"/></svg>Ajustar</button>
+        </div>
+        <span class="muted" style="font-size:var(--awe-font-size-xs)">Eje partido: de 08:05 a 08:16 cada 2 min; después, comprimido por horas</span>
+        <span class="spacer"></span>
+        <a class="btn btn--sm" href="#st-4"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-list"/></svg>Ver como lista</a>
+      </div>
+      <div class="card-body">
+        <div class="gantt" role="table" aria-label="Cronograma del flujo #4812, una fila por tarea">
+          <div class="axis-l" role="columnheader"><span class="muted" style="font-size:var(--awe-font-size-xs)">Tarea</span></div>
+          <div class="axis" role="columnheader" aria-label="Tiempo, 17/11/2026">
+            <div class="overlay" aria-hidden="true">
+              <span class="gl" style="left:0%"></span><span class="gl" style="left:10.91%"></span><span class="gl" style="left:21.82%"></span><span class="gl" style="left:32.73%"></span><span class="gl" style="left:43.64%"></span><span class="gl" style="left:54.55%"></span>
+              <span class="break" style="left:60%"></span>
+              <span class="gl" style="left:69.41%"></span><span class="gl" style="left:78.15%"></span><span class="gl" style="left:86.89%"></span><span class="gl" style="left:95.63%"></span>
+              <span class="due" style="left:97.81%"><span>Vence 12:15</span></span>
+              <span class="now" style="left:84.27%"><span>Ahora 10:42</span></span>
+            </div>
+            <span class="tick" style="left:1.6%">08:05</span><span class="tick" style="left:10.91%">08:07</span><span class="tick" style="left:21.82%">08:09</span><span class="tick" style="left:32.73%">08:11</span><span class="tick" style="left:43.64%">08:13</span><span class="tick" style="left:54.55%">08:15</span>
+            <span class="brk" style="left:61.5%">≈</span>
+            <span class="tick" style="left:69.41%">09:00</span><span class="tick" style="left:78.15%">10:00</span><span class="tick" style="left:95.63%">12:00</span>
+          </div>
+
+          <div class="row-l" role="rowheader"><b>Importar extractos bancarios</b><span><span class="tag tag--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ok"/></svg>OK</span> <span class="mono muted">1092</span></span></div>
+          <div class="track" role="cell"><span class="gbar gbar--ok" style="left:0%;width:6.55%" aria-label="De 08:05:00 a 08:06:12, 1 min 12 s"><span class="out"><b>1 min 12 s</b> · 08:05:00 – 08:06:12</span></span></div>
+
+          <div class="row-l" role="rowheader"><b>Conciliación bancaria</b><span><span class="tag tag--warning"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-warn"/></svg>Aviso</span> <span class="mono muted">640</span></span></div>
+          <div class="track" role="cell"><span class="gbar gbar--warn" style="left:6.55%;width:20%" aria-label="De 08:06:12 a 08:09:52, 3 min 40 s"><svg class="icon" aria-hidden="true"><use href="#i-warn"/></svg>3 min 40 s<span class="out">cierra la unión a las <b>08:09:52</b></span></span></div>
+
+          <div class="row-l" role="rowheader"><b>Actualizar posiciones de tesorería</b><span><span class="tag tag--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ok"/></svg>OK</span> <span class="mono muted">875</span></span></div>
+          <div class="track" role="cell"><span class="gbar gbar--ok" style="left:6.55%;width:11.36%" aria-label="De 08:06:12 a 08:08:17, 2 min 5 s"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>2 min 05 s<span class="out">llega primero a la unión</span></span></div>
+
+          <div class="row-l" role="rowheader"><b>Informe diario de tesorería</b><span><span class="tag tag--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ok"/></svg>OK</span> <span class="mono muted">512</span></span></div>
+          <div class="track" role="cell">
+            <span class="gbar gbar--join" style="left:17.91%;width:8.64%" aria-label="Espera en la unión de 08:08:17 a 08:09:52, 1 min 35 s"><svg class="icon" aria-hidden="true"><use href="#i-merge"/></svg>1 min 35 s</span>
+            <span class="gbar gbar--ok" style="left:26.55%;width:4.36%" aria-label="De 08:09:52 a 08:10:40, 48 s">48 s<span class="out"><b>Unido por Conciliación bancaria</b> · esperó 1 min 35 s</span></span>
+          </div>
+
+          <div class="row-l" role="rowheader"><b>Envío de remesas SEPA</b><span><span class="tag tag--deferred"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-wait"/></svg>Esperando confirmación</span> <span class="mono muted">415</span></span></div>
+          <div class="track" role="cell">
+            <span class="gbar gbar--run" style="left:30.91%;width:23.64%" aria-label="En ejecución de 08:10:40 a 08:15:00, 4 min 20 s"><svg class="icon" aria-hidden="true"><use href="#i-run"/></svg>Envía la remesa · 4 min 20 s</span>
+            <span class="gbar gbar--wait" style="left:54.55%;width:29.72%" aria-label="Esperando confirmación desde 08:15:00, 2 h 27 min hasta ahora"><svg class="icon" aria-hidden="true"><use href="#i-wait"/></svg>Esperando confirmación · 2 h 27 min</span>
+            <span class="gbar gbar--open" style="left:84.27%;width:13.54%" aria-label="Sigue abierta hasta que el banco confirme o venza a las 12:15"></span>
+          </div>
+        </div>
+      </div>
+      <div class="graph-foot">
+        <span class="gkey"><i style="background:var(--awe-color-success-subtle);border-color:var(--awe-color-success-border)" aria-hidden="true"></i>Ejecución (color e icono de su estado)</span>
+        <span class="gkey"><i class="gbar--join" style="position:static" aria-hidden="true"></i>Espera en la unión</span>
+        <span class="gkey"><i style="border-style:dashed;border-color:var(--awe-color-info-border)" aria-hidden="true"></i>Esperando confirmación</span>
+        <span class="gkey"><i style="border-style:dashed;border-color:var(--awe-color-info-border);background:linear-gradient(90deg,var(--awe-color-info-subtle),transparent)" aria-hidden="true"></i>Abierta hasta confirmar o vencer</span>
+        <span class="muted" style="font-size:var(--awe-font-size-xs);margin-left:auto">Clic en una barra: el mismo panel lateral que en el grafo</span>
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- ============================ STATE 4 ============================ -->
+<section class="state" aria-labelledby="st-4">
+  <div class="state-label"><span class="letter">4</span><h3 id="st-4">Alternativa accesible: el flujo como lista ordenada</h3><p>Para lectores de pantalla y pantallas estrechas; el grafo enlaza a ella con <span class="mono">aria-describedby</span>.</p></div>
+  <div class="frame frame--pad">
+    <div class="side-by">
+      <div>
+        <p class="cap"><b>4</b> Ancho 390 px · el mismo flujo #4812 a las 10:42</p>
+        <div class="phone">
+          <div class="ph-head">
+            <h4>Flujo #4812 <span class="tag tag--info"><svg class="icon icon--sm spin" aria-hidden="true"><use href="#i-run"/></svg>En curso</span></h4>
+            <span class="muted" style="font-size:var(--awe-font-size-xs)">Fichero · 17/11/2026 08:05 · 4 de 5 terminadas · apunta a Aviso</span>
+            <div class="segmented" role="group" aria-label="Vista" data-view>
+              <button aria-pressed="true"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-list"/></svg>Lista</button>
+              <button aria-pressed="false"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-flow"/></svg>Grafo</button>
+              <button aria-pressed="false"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-gantt"/></svg>Cronograma</button>
+            </div>
+          </div>
+          <div class="ph-body">
+            <ol class="tree" id="tree-4812" aria-label="Flujo #4812 como lista, en orden de dependencias">
+              <li>
+                <a class="item" href="#" style="text-decoration:none;color:inherit">
+                  <span class="line"><span class="tag tag--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ok"/></svg>OK</span><span class="tabnum">1 min 12 s</span>·<span class="mono">1092</span></span>
+                  <b>Importar extractos bancarios</b>
+                  <span class="cond">Tarea raíz · lanzada por Fichero</span>
+                </a>
+                <ol>
+                  <li>
+                    <a class="item" href="#" style="text-decoration:none;color:inherit">
+                      <span class="line"><span class="tag tag--warning"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-warn"/></svg>Aviso</span><span class="tabnum">3 min 40 s</span>·<span class="mono">640</span></span>
+                      <b>Conciliación bancaria</b>
+                      <span class="cond">Tras Importar extractos si termina OK o Aviso</span>
+                    </a>
+                    <ol>
+                      <li>
+                        <a class="item" href="#" style="text-decoration:none;color:inherit">
+                          <span class="line"><span class="tag tag--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ok"/></svg>OK</span><span class="tabnum">48 s</span>·<span class="mono">512</span></span>
+                          <b>Informe diario de tesorería</b>
+                          <span class="cond"><svg class="icon icon--sm" aria-hidden="true" style="vertical-align:middle"><use href="#i-merge"/></svg> Unión de 2 tareas · unido por Conciliación bancaria a las 08:09:52 tras esperar 1 min 35 s</span>
+                        </a>
+                        <ol>
+                          <li>
+                            <a class="item" href="#" style="text-decoration:none;color:inherit">
+                              <span class="line"><span class="tag tag--deferred"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-wait"/></svg>Esperando confirmación</span><span class="mono">415</span></span>
+                              <b>Envío de remesas SEPA</b>
+                              <span class="cond">Tras Informe diario si termina OK · vence 12:15, quedan 1 h 33 min</span>
+                            </a>
+                          </li>
+                        </ol>
+                      </li>
+                    </ol>
+                  </li>
+                  <li>
+                    <a class="item" href="#" style="text-decoration:none;color:inherit">
+                      <span class="line"><span class="tag tag--success"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ok"/></svg>OK</span><span class="tabnum">2 min 05 s</span>·<span class="mono">875</span></span>
+                      <b>Actualizar posiciones de tesorería</b>
+                      <span class="cond">Tras Importar extractos si termina OK o Aviso</span>
+                    </a>
+                    <ol>
+                      <li><a class="item item--skip" href="#tree-4812" style="text-decoration:none;color:inherit"><span class="cond"><svg class="icon icon--sm" aria-hidden="true" style="vertical-align:middle"><use href="#i-merge"/></svg> También alimenta a <b>Informe diario de tesorería</b> (arriba) si termina OK</span></a></li>
+                    </ol>
+                  </li>
+                </ol>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </div>
+      <div class="explain">
+        <div>
+          <h4>Cómo se lee</h4>
+          <ul>
+            <li>Lista ordenada anidada (<span class="mono">ol</span>) que sigue las dependencias desde la tarea raíz. Cada elemento dice estado (icono y texto), duración, n.º de ejecución, nombre y la condición de su arista.</li>
+            <li>Una unión aparece una sola vez, bajo el padre que la cerró; bajo el otro padre queda una referencia «También alimenta a…». Así nada se repite al leerlo.</li>
+            <li>Cada elemento es un enlace que abre el mismo panel lateral que el nodo del grafo.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Teclado y lectores de pantalla</h4>
+          <ul>
+            <li>El grafo es un grupo de botones (<span class="mono">role="button"</span>, <span class="mono">aria-pressed</span>) con una etiqueta completa por nodo; enlaza a esta lista con <span class="mono">aria-describedby</span>.</li>
+            <li>Tab recorre los nodos en el orden de esta lista; Intro o Espacio abre el panel; Esc lo cierra y devuelve el foco al nodo.</li>
+            <li>Solo los cambios de estado se anuncian (<span class="mono">aria-live="polite"</span>): «Envío de remesas SEPA: OK». Las cuentas atrás no se anuncian.</li>
+          </ul>
+        </div>
+        <div>
+          <h4>Pantallas estrechas</h4>
+          <ul>
+            <li>Por debajo de 1024 px la página abre en «Lista»; «Grafo» y «Cronograma» siguen disponibles con desplazamiento horizontal.</li>
+            <li>El panel lateral ocupa todo el ancho, como en el resto de AWE.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+  function sync(attr, value) {
+    document.querySelectorAll('[data-' + attr + ']').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset[attr] === value));
+    });
+  }
+  function setMode(mode) {
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+    document.documentElement.classList.toggle('light', mode === 'light');
+    sync('mode', mode);
+  }
+  function setDensity(density) {
+    document.documentElement.setAttribute('data-awe-density', density);
+    sync('density', density);
+  }
+  /* Graph nodes: click or Enter/Space selects the node (it opens the side panel, state 1b) */
+  document.querySelectorAll('.g-node').forEach(function (n) {
+    function pick() {
+      n.closest('svg').querySelectorAll('.g-node').forEach(function (o) { o.setAttribute('aria-pressed', 'false'); });
+      n.setAttribute('aria-pressed', 'true');
+    }
+    n.addEventListener('click', pick);
+    n.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } });
+  });
+  /* View toggles (Grafo / Cronograma) and switches */
+  document.querySelectorAll('.segmented[data-view]').forEach(function (g) {
+    g.querySelectorAll('button').forEach(function (b) {
+      b.addEventListener('click', function () {
+        g.querySelectorAll('button').forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      });
+    });
+  });
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { setMode('dark'); }
+  else { setMode('light'); }
+  sync('density', 'comfortable');
+</script>
+</body>
+</html>

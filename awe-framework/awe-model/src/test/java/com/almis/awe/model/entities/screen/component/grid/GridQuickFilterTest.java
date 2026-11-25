@@ -75,6 +75,19 @@ class GridQuickFilterTest {
   }
 
   @Test
+  @DisplayName("The display of a quick filter (dropdown, date-range) is read from the XML and sent to the clients, and none by default")
+  void quickFilterDisplayIsParsedAndSent() {
+    QuickFilter dropdown = parse(USERS_GRID.replace("<quick-filter ", "<quick-filter display=\"dropdown\" ")).getQuickFilter();
+    QuickFilter dateRange = parse(USERS_GRID.replace("<quick-filter ", "<quick-filter display=\"date-range\" ")).getQuickFilter();
+
+    assertEquals("dropdown", dropdown.getDisplay());
+    assertEquals("dropdown", new ObjectMapper().valueToTree(dropdown).get("display").asString());
+    assertEquals("date-range", new ObjectMapper().valueToTree(dateRange).get("display").asString());
+    assertEquals("date-range", ((QuickFilter) dateRange.copy()).getDisplay());
+    assertFalse(new ObjectMapper().valueToTree(parse(USERS_GRID).getQuickFilter()).has("display"));
+  }
+
+  @Test
   @DisplayName("The quick filter renders nothing where it is declared: the grid shows it in its toolbar")
   void quickFilterHasNoTemplate() {
     QuickFilter quickFilter = parse(USERS_GRID).getQuickFilter();
@@ -84,13 +97,28 @@ class GridQuickFilterTest {
   }
 
   @Test
-  @DisplayName("Only the first quick-filter of a grid is used, and a copy of the grid keeps it")
-  void firstQuickFilterIsUsedAndCopied() {
+  @DisplayName("A grid with one quick-filter sends it as before, and as the only one of its quick filters")
+  void oneQuickFilterIsSentAsBefore() {
+    JsonNode json = new ObjectMapper().valueToTree(parse(USERS_GRID));
+
+    assertEquals("CrtUsrSta", json.get("quickFilter").asString());
+    assertEquals(List.of("CrtUsrSta"), json.get("quickFilters").valueStream().map(JsonNode::asString).toList());
+    assertFalse(new ObjectMapper().valueToTree(parse("<grid id=\"Grd\"/>")).has("quickFilters"));
+  }
+
+  @Test
+  @DisplayName("Every quick-filter of a grid is used in the order of the XML, the first one is still its quick filter, and a copy keeps them")
+  void everyQuickFilterIsUsedInOrderAndCopied() {
     Grid grid = parse(USERS_GRID.replace("<column ", "<quick-filter id=\"CrtOther\" initial-load=\"enum\" target-action=\"Es1Es0\"/><column "));
 
+    assertEquals(List.of("CrtUsrSta", "CrtOther"), grid.getQuickFilters().stream().map(QuickFilter::getId).toList());
     assertEquals("CrtUsrSta", grid.getQuickFilter().getId());
-    assertEquals("CrtUsrSta", grid.copy().getQuickFilter().getId());
+    JsonNode json = new ObjectMapper().valueToTree(grid);
+    assertEquals("CrtUsrSta", json.get("quickFilter").asString());
+    assertEquals(List.of("CrtUsrSta", "CrtOther"), json.get("quickFilters").valueStream().map(JsonNode::asString).toList());
+    assertEquals(List.of("CrtUsrSta", "CrtOther"), grid.copy().getQuickFilters().stream().map(QuickFilter::getId).toList());
     assertEquals("UsrStaCnt", ((QuickFilter) grid.getQuickFilter().copy()).getTargetAction());
     assertNull(parse("<grid id=\"Grd\"/>").getQuickFilter());
+    assertEquals(List.of(), parse("<grid id=\"Grd\"/>").getQuickFilters());
   }
 }

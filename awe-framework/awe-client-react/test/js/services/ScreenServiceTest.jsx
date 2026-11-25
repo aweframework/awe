@@ -54,7 +54,24 @@ describe('awe-react-client/test/js/services/ScreenServiceTest.jsx', function () 
 
   // Get all screen actions
   it('should get all screen actions', async function() {
-    expect(Object.keys(actions).length).toBe(17);
+    expect(Object.keys(actions).length).toBe(18);
+  });
+
+  it('scrolls the element of the target into view, gives it the focus and accepts the scroll-to action', () => {
+    const section = document.createElement('section');
+    section.id = 'SecWhen';
+    document.body.appendChild(section);
+    section.scrollIntoView = jest.fn();
+    const action = {id: 's1', type: 'scroll-to', target: 'SecWhen', parameters: {}};
+
+    actions['scroll-to'](action, props);
+
+    expect(section.scrollIntoView).toHaveBeenCalledWith(expect.objectContaining({block: 'start'}));
+    // The focus moves to the section (without a second scroll), so the keyboard goes on from there
+    expect(document.activeElement).toBe(section);
+    expect(section.getAttribute('tabindex')).toBe('-1');
+    expect(dispatchSpy).toHaveBeenCalledWith(expect.objectContaining({type: 'ACCEPT_ACTION', payload: action}));
+    section.remove();
   });
 
   it('registers the print action under the contract name and no longer as screen-print', () => {

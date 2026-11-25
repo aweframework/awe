@@ -67,6 +67,15 @@
   <xs:complexType name="optionType">
     <xs:attribute name="label" use="required" type="xs:string"/>
     <xs:attribute name="value" use="required" type="xs:string"/>
+    <xs:attribute name="icon" use="optional" type="xs:string">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">
+          Icon of the option, shown next to its label by the components that draw their options with an icon (the
+          tabs of a tab component loaded from the enumerated). Same values as the icon of a button ("history",
+          "lucide:history"...)
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:complexType>
 
 </xs:schema>

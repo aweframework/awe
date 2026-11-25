@@ -5,329 +5,16 @@
     {{'MENU_SCHEDULER'| translateMultiple}}
   </h1>
   <hr class="help-header-separator"/>
-  <h2 id="MENU_SCHEDULER_MANAGEMENT" class="help-snippet help-header text-primary">
-    <i role="icon" class="help-icon text-primary"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#cog"></use></svg></i>
-    {{'MENU_SCHEDULER_MANAGEMENT'| translateMultiple}}
+  <h2 id="MENU_SCHEDULER_ACTIVITY" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#activity"></use></svg></i>
+    {{'MENU_SCHEDULER_ACTIVITY'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
   <div class="help-snippet">
-    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_TASKS"></p>
+    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_ACTIVITY"></p>
   </div>
   <div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_RUN"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_STOP"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLEAR_AND_STOP"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_RESTART"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_INSTANCE_ID"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_NAME"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_VERSION"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_REMOTE"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_JOBSTORE_CLASS"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_JOBSTORE_CLUSTERED"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_JOBSTORE_PERSISTENT"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_NUMBER_JOBS_EXECUTED"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_RUNNING_SINCE"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_THREADPOOL_CLASS"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_THREADPOOL_SIZE"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="COLUMN_SCHEDULER_STATUS"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-light-gray text-semibold text-sm">
-      <span class="text-bold text-uppercase text-underline" translate-multiple="TAB_SCHEDULER_EXECUTING_TASKS"></span>
-    </h6>
-  </div>
-  <div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-primary text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_TASKS"></span>
-      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
-    </h6>
-    <div class="panel-body no-padding-vr">
-      <div class="table-light panel panel-success panel-sm">
-        <div class="panel-heading">
-          <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
-          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
-        </div>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th translate-multiple="HELP_NAME"></th>
-              <th translate-multiple="HELP_DESCRIPTION"></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_FIRE_ID"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_TRIGGER_KEY"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_CALENDAR"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_EXECUTION_TIME"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_SCHEDULED_EXECUTION_TIME"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_NEXT_EXECUTION_TIME"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_STATUS"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <hr/><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-light-gray text-semibold text-sm">
-      <span class="text-bold text-uppercase text-underline" translate-multiple="TAB_SCHEDULER_CONFIGURED_TASKS"></span>
-    </h6>
-  </div>
-  <div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-primary text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_TASKS"></span>
-      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
-    </h6>
-    <div class="panel-body no-padding-vr">
-      <div class="table-light panel panel-success panel-sm">
-        <div class="panel-heading">
-          <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
-          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
-        </div>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th translate-multiple="HELP_NAME"></th>
-              <th translate-multiple="HELP_DESCRIPTION"></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_FIRE_ID"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_TRIGGER_KEY"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_CALENDAR"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_PREVIOUS_EXECUTION_TIME"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="COLUMN_SCHEDULER_TASK_NEXT_EXECUTION_TIME"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-  <hr/><div class="padding-sm-vr no-padding-t">
-    <div class="panel panel-info">
-      <div class="panel-heading">
-        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
-        <span class="panel-title" translate-multiple="SCREEN_TEXT_PRINT_EMAIL"></span>
-      </div>
-      <div class="panel-body">
-        <div class="help-snippet">
-          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_TEXT_PRINT_EMAIL"></p>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-light-gray text-semibold text-sm">
-            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_GENERAL"></span>
-          </h6>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_ACTION"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ACTION_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_TYPE"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_SELECTION_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DBL_FORMAT"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_NUMERIC_FORMAT_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_FORMAT"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_FORMAT_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="ENUM_EML_DST_USR"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_DESTINATION_USERS_CRITERION"></p>
-        </div>
-        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-light-gray text-semibold text-sm">
-            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_ADVANCE"></span>
-          </h6>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_REPORT_ORIENTATION"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ORIENTATION_CRITERION"></p>
-        </div>
-        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-default text-semibold text-sm">
-            <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
-            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CANCEL_PRINT_BUTTON"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-default text-semibold text-sm">
-            <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACCEPT"></span>
-            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACCEPT_PRINT_BUTTON"></p>
-        </div>
-      </div>
-    </div>
-  </div><div class="padding-sm-vr no-padding-t">
-    <div class="panel panel-info">
-      <div class="panel-heading">
-        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
-        <span class="panel-title" translate-multiple="SCREEN_HELP"></span>
-      </div>
-      <div class="panel-body">
-        <div class="help-snippet">
-          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_HELP"></p>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-default text-semibold text-sm">
-            <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
-            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
-        </div>
-      </div>
-    </div>
-  </div><h2 id="MENU_SCHEDULER_TASKS" class="help-snippet help-header text-primary">
-    <i role="icon" class="help-icon text-primary"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#list-checks"></use></svg></i>
-    {{'MENU_SCHEDULER_TASKS'| translateMultiple}}
-  </h2>
-  <hr class="help-header-separator"/>
-  <div class="help-snippet">
-    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_TASKS"></p>
-  </div>
-  <div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
       <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCREEN_HELP"></span>
@@ -336,103 +23,13 @@
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_PRINT"></span>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACTIVITY_RELOAD"></span>
       <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_PRINT_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_UPDATE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_UPDATE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_OPEN_RUN"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_OPEN_RUN_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_FLOW_GRAPH"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_FLOW_GRAPH_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_DELETE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_DELETE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_RUN"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_RUN_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_RUN"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_LAUNCH_VARIABLES_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_STOP"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_LAUNCH_STOP_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACTIVATE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACTIVATE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_DEACTIVATE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_DEACTIVATE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_NEW"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_NEW_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_TASK"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_LAUNCH"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_ACTIVE"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_RESET"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_RESET_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SEARCH"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_SEARCH_BUTTON"></p>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACTIVITY_RELOAD_BUTTON"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-primary text-semibold text-sm">
       <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_TASKS"></span>
+      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_EXECUTIONS"></span>
       <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
     </h6>
     <div class="panel-body no-padding-vr">
@@ -451,11 +48,7 @@
           </thead>
           <tbody>
           <tr>
-            <td><strong translate-multiple="#"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="PARAMETER_TYPE"></strong></td>
+            <td><strong translate-multiple="PARAMETER_STATUS"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
@@ -463,19 +56,23 @@
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="PARAMETER_LAST_EXECUTION"></strong></td>
+            <td><strong translate-multiple="PARAMETER_ACTIVITY_FLOW_RUN"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="PARAMETER_NEXT_EXECUTION"></strong></td>
+            <td><strong translate-multiple="PARAMETER_ACTIVITY_ORIGIN"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="PARAMETER_AVERAGE_TIME"></strong></td>
+            <td><strong translate-multiple="PARAMETER_LAUNCHED_BY"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="PARAMETER_ACTIVE"></strong></td>
+            <td><strong translate-multiple="PARAMETER_STARTED_AT"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ACTIVITY_DURATION"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr>
@@ -505,11 +102,19 @@
           </thead>
           <tbody>
           <tr>
-            <td><strong translate-multiple="#"></strong></td>
+            <td><strong translate-multiple="PARAMETER_STATUS"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="PARAMETER_TYPE"></strong></td>
+            <td><strong translate-multiple="PARAMETER_TASK"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ACTIVITY_FLOW_RUN"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_ACTIVITY_ORIGIN"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
@@ -521,15 +126,7 @@
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="EXECUTION_TIME"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="PARAMETER_PROGRESS"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="PARAMETER_STATUS"></strong></td>
+            <td><strong translate-multiple="PARAMETER_ACTIVITY_DURATION"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr>
@@ -541,146 +138,87 @@
     <div class="panel panel-info">
       <div class="panel-heading">
         <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
-        <span class="panel-title" translate-multiple="SCREEN_TEXT_PRINT_EMAIL"></span>
-      </div>
-      <div class="panel-body">
-        <div class="help-snippet">
-          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_TEXT_PRINT_EMAIL"></p>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-light-gray text-semibold text-sm">
-            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_GENERAL"></span>
-          </h6>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_ACTION"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ACTION_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_TYPE"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_SELECTION_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DBL_FORMAT"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_NUMERIC_FORMAT_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_FORMAT"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_FORMAT_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="ENUM_EML_DST_USR"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_DESTINATION_USERS_CRITERION"></p>
-        </div>
-        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-light-gray text-semibold text-sm">
-            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_ADVANCE"></span>
-          </h6>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_REPORT_ORIENTATION"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ORIENTATION_CRITERION"></p>
-        </div>
-        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-default text-semibold text-sm">
-            <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
-            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CANCEL_PRINT_BUTTON"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-default text-semibold text-sm">
-            <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACCEPT"></span>
-            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACCEPT_PRINT_BUTTON"></p>
-        </div>
-      </div>
-    </div>
-  </div><div class="padding-sm-vr no-padding-t">
-    <div class="panel panel-info">
-      <div class="panel-heading">
-        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
-        <span class="panel-title" translate-multiple="SCREEN_HELP"></span>
-      </div>
-      <div class="panel-body">
-        <div class="help-snippet">
-          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_HELP"></p>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-default text-semibold text-sm">
-            <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
-            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
-        </div>
-      </div>
-    </div>
-  </div><div class="padding-sm-vr no-padding-t">
-    <div class="panel panel-info">
-      <div class="panel-heading">
-        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
-        <span class="panel-title" translate-multiple=""></span>
-      </div>
-      <div class="panel-body">
-        <div class="help-snippet">
-          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_EXECUTION_DATA"></p>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_DEFERRED_EXECUTION"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-default text-semibold text-sm">
-            <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
-            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
-        </div>
-      </div>
-    </div>
-  </div><div class="padding-sm-vr no-padding-t">
-    <div class="panel panel-info">
-      <div class="panel-heading">
-        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
-        <span class="panel-title" translate-multiple="SCREEN_TEXT_LAUNCH_PARAMETERS"></span>
+        <span class="panel-title" translate-multiple="SCREEN_TEXT_EXECUTION_DETAILS"></span>
       </div>
       <div class="panel-body">
         <div class="help-snippet">
         </div>
         <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACTIVITY_OPEN_TASK"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_OPEN_RUN"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_ACTIVITY_DUE_AT"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_STATUS"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_TASK"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_EXECUTION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_ACTIVITY_FLOW_RUN"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_LAUNCHED_BY"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_START_TIME"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_END_TIME"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_EXECUTION_TIME"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DESCRIPTION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-primary text-semibold text-sm">
             <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_LAUNCH_PARAMETERS"></span>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_EXECUTION_DETAILS"></span>
             <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
           </h6>
           <div class="panel-body no-padding-vr">
@@ -703,10 +241,6 @@
                   <td translate-multiple=""></td>
                   <td></td>
                 </tr><tr>
-                  <td><strong translate-multiple="PARAMETER_SOURCE"></strong></td>
-                  <td translate-multiple=""></td>
-                  <td></td>
-                </tr><tr>
                   <td><strong translate-multiple="PARAMETER_VALUE"></strong></td>
                   <td translate-multiple=""></td>
                   <td></td>
@@ -718,86 +252,79 @@
         </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-default text-semibold text-sm">
             <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
             <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
         </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-default text-semibold text-sm">
             <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_LAUNCH"></span>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACTIVITY_RELAUNCH"></span>
             <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_LAUNCH_VARIABLES_BUTTON"></p>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACTIVITY_RELAUNCH_BUTTON"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACTIVITY_STOP"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_LAUNCH_STOP_BUTTON"></p>
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_SCHEDULER_RUNS" class="help-snippet help-header text-primary">
-    <i role="icon" class="help-icon text-primary"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#network"></use></svg></i>
-    {{'MENU_SCHEDULER_RUNS'| translateMultiple}}
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
+        <span class="panel-title" translate-multiple="SCREEN_HELP"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_HELP"></p>
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><h2 id="MENU_SCHEDULER_TASK_CATALOG" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#list-checks"></use></svg></i>
+    {{'MENU_SCHEDULER_TASK_CATALOG'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
   <div class="help-snippet">
-    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_RUNS"></p>
+    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_TASK_CATALOG"></p>
   </div>
   <div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_TASK_CATALOG_CLEAR_SERVER"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_TASK_CATALOG_CLEAR_CALENDAR"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
       <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCREEN_HELP"></span>
       <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
     </h6><p class=" no-margin text-justify" translate-multiple="HELP_HELP_BUTTON"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-primary text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_FLOW_RUNS"></span>
-      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
-    </h6>
-    <div class="panel-body no-padding-vr">
-      <div class="table-light panel panel-success panel-sm">
-        <div class="panel-heading">
-          <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
-          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
-        </div>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th translate-multiple="HELP_NAME"></th>
-              <th translate-multiple="HELP_DESCRIPTION"></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td><strong translate-multiple="PARAMETER_STATUS"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="PARAMETER_ROOT_TASK"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="PARAMETER_ROOT_EXECUTION"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="PARAMETER_LAUNCHED_BY"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="PARAMETER_STARTED_AT"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr><tr>
-            <td><strong translate-multiple="PARAMETER_ENDED_AT"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_NEW_TASK"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6><p class=" no-margin text-justify" translate-multiple="HELP_NEW_TASK_BUTTON"></p>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-primary text-semibold text-sm">
       <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_RUN_EXECUTIONS"></span>
+      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_TASKS"></span>
       <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
     </h6>
     <div class="panel-body no-padding-vr">
@@ -816,57 +343,31 @@
           </thead>
           <tbody>
           <tr>
+            <td><strong translate-multiple="PARAMETER_TASK_LAST_STATUS"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
             <td><strong translate-multiple="PARAMETER_TASK"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="#"></strong></td>
+            <td><strong translate-multiple="PARAMETER_TASK_WHEN"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="PARAMETER_STATUS"></strong></td>
+            <td><strong translate-multiple="PARAMETER_TASK_HISTORY"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="PARAMETER_STARTED_AT"></strong></td>
+            <td><strong translate-multiple="PARAMETER_NEXT_EXECUTION"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="PARAMETER_ENDED_AT"></strong></td>
-            <td translate-multiple=""></td>
-            <td></td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-primary text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_RUN_SKIPPED"></span>
-      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
-    </h6>
-    <div class="panel-body no-padding-vr">
-      <div class="table-light panel panel-success panel-sm">
-        <div class="panel-heading">
-          <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
-          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
-        </div>
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th translate-multiple="HELP_NAME"></th>
-              <th translate-multiple="HELP_DESCRIPTION"></th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td><strong translate-multiple="PARAMETER_TASK"></strong></td>
+            <td><strong translate-multiple="PARAMETER_TASK_AVERAGE"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="PARAMETER_ENDED_AT"></strong></td>
+            <td><strong translate-multiple="PARAMETER_TASK_ACTIVE"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr>
@@ -893,13 +394,81 @@
         </div>
       </div>
     </div>
-  </div><h2 id="MENU_SCHEDULER_SERVERS" class="help-snippet help-header text-primary">
-    <i role="icon" class="help-icon text-primary"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#server"></use></svg></i>
-    {{'MENU_SCHEDULER_SERVERS'| translateMultiple}}
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
+        <span class="panel-title" translate-multiple="SCREEN_TEXT_TASK_RUN_DIALOG"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-primary text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_TASK_RUN_DIALOG"></span>
+            <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+          </h6>
+          <div class="panel-body no-padding-vr">
+            <div class="table-light panel panel-success panel-sm">
+              <div class="panel-heading">
+                <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
+                <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+              </div>
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th translate-multiple="HELP_NAME"></th>
+                    <th translate-multiple="HELP_DESCRIPTION"></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td><strong translate-multiple="PARAMETER_TASK_RUN_PARAMETER"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr><tr>
+                  <td><strong translate-multiple="PARAMETER_TASK_RUN_ORIGIN"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr><tr>
+                  <td><strong translate-multiple="PARAMETER_VALUE"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_TASK_RUN_RESET"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_TASK_RUN_LAUNCH"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6><p class=" no-margin text-justify" translate-multiple="HELP_LAUNCH_VARIABLES_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><h2 id="MENU_SCHEDULER_CONFIGURATION" class="help-snippet help-header text-primary">
+    <i role="icon" class="help-icon text-primary"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#settings"></use></svg></i>
+    {{'MENU_SCHEDULER_CONFIGURATION'| translateMultiple}}
   </h2>
   <hr class="help-header-separator"/>
   <div class="help-snippet">
-    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_SERVERS"></p>
+    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_CONFIGURATION"></p>
   </div>
   <div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
@@ -910,73 +479,42 @@
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_PRINT"></span>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_SERVER_TEST_ALL"></span>
       <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_PRINT_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_UPDATE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_UPDATE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_TEST_CONNECTION"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_TEST_CONNECTION_SELECTED"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_DELETE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_DELETE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACTIVATE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACTIVATE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_DEACTIVATE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_DEACTIVATE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_NEW"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_NEW_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NAME"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_ACTIVE"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
     </h6>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_RESET"></span>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_SERVER_NEW"></span>
       <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_RESET_BUTTON"></p>
+    </h6>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-default text-semibold text-sm">
       <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SEARCH"></span>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_ENGINE_REFRESH"></span>
       <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_SEARCH_BUTTON"></p>
+    </h6>
   </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_ENGINE_ACTIONS"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_CALENDAR_NEW"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-light-gray text-semibold text-sm">
+      <span class="text-bold text-uppercase text-underline" translate-multiple="Servers 0"></span>
+    </h6>
+  </div>
+  <div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-primary text-semibold text-sm">
       <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_SERVERS"></span>
+      <span class="text-bold text-uppercase" translate-multiple="Servers 0"></span>
       <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
     </h6>
     <div class="panel-body no-padding-vr">
@@ -999,7 +537,11 @@
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
-            <td><strong translate-multiple="PARAMETER_SERVER"></strong></td>
+            <td><strong translate-multiple="PARAMETER_SCHEDULER_SERVER_COLUMN"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_SERVER_PORT"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
@@ -1010,187 +552,29 @@
             <td><strong translate-multiple="PARAMETER_ACTIVE"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_SCHEDULER_USED_BY"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_SCHEDULER_LAST_TEST"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
           </tr>
           </tbody>
         </table>
       </div>
     </div>
-  </div><div class="padding-sm-vr no-padding-t">
-    <div class="panel panel-info">
-      <div class="panel-heading">
-        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
-        <span class="panel-title" translate-multiple="SCREEN_TEXT_PRINT_EMAIL"></span>
-      </div>
-      <div class="panel-body">
-        <div class="help-snippet">
-          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_TEXT_PRINT_EMAIL"></p>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-light-gray text-semibold text-sm">
-            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_GENERAL"></span>
-          </h6>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_ACTION"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ACTION_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_TYPE"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_SELECTION_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DBL_FORMAT"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_NUMERIC_FORMAT_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_FORMAT"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_FORMAT_CRITERION"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="ENUM_EML_DST_USR"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_DESTINATION_USERS_CRITERION"></p>
-        </div>
-        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-light-gray text-semibold text-sm">
-            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_ADVANCE"></span>
-          </h6>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-success text-semibold text-sm">
-            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_REPORT_ORIENTATION"></span>
-            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-          </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ORIENTATION_CRITERION"></p>
-        </div>
-        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-default text-semibold text-sm">
-            <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
-            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CANCEL_PRINT_BUTTON"></p>
-        </div><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-default text-semibold text-sm">
-            <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACCEPT"></span>
-            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACCEPT_PRINT_BUTTON"></p>
-        </div>
-      </div>
-    </div>
-  </div><div class="padding-sm-vr no-padding-t">
-    <div class="panel panel-info">
-      <div class="panel-heading">
-        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
-        <span class="panel-title" translate-multiple="SCREEN_HELP"></span>
-      </div>
-      <div class="panel-body">
-        <div class="help-snippet">
-          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_HELP"></p>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-default text-semibold text-sm">
-            <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
-            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
-        </div>
-      </div>
-    </div>
-  </div><h2 id="MENU_SCHEDULER_CALENDARS" class="help-snippet help-header text-primary">
-    <i role="icon" class="help-icon text-primary"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#calendar"></use></svg></i>
-    {{'MENU_SCHEDULER_CALENDARS'| translateMultiple}}
-  </h2>
-  <hr class="help-header-separator"/>
-  <div class="help-snippet">
-    <p class="note note-warning text-justify" translate-multiple="HELP_SCREEN_SCHEDULER_CALENDAR"></p>
+  </div>
+  <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-light-gray text-semibold text-sm">
+      <span class="text-bold text-uppercase text-underline" translate-multiple="Calendars 0"></span>
+    </h6>
   </div>
   <div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCREEN_HELP"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_HELP_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_PRINT"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_PRINT_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_UPDATE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_UPDATE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_DELETE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_DELETE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACTIVATE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACTIVATE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_DEACTIVATE"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_DEACTIVATE_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_NEW"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_NEW_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NAME"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-success text-semibold text-sm">
-      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="PARAMETER_ACTIVE"></span>
-      <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
-    </h6>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_RESET"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_RESET_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
-    <h6 class="text-default text-semibold text-sm">
-      <i class="fa fa-youtube-play fa-fw"></i>
-      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SEARCH"></span>
-      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-    </h6><p class=" no-margin text-justify" translate-multiple="HELP_SEARCH_BUTTON"></p>
-  </div><div class="help-snippet padding-sm-vr no-padding-t">
     <h6 class="text-primary text-semibold text-sm">
       <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
-      <span class="text-bold text-uppercase" translate-multiple="MENU_TOOLS_CALENDARS"></span>
+      <span class="text-bold text-uppercase" translate-multiple="Calendars 0"></span>
       <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
     </h6>
     <div class="panel-body no-padding-vr">
@@ -1217,7 +601,15 @@
             <td translate-multiple=""></td>
             <td></td>
           </tr><tr>
+            <td><strong translate-multiple="PARAMETER_SCHEDULER_CALENDAR_DATES"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
             <td><strong translate-multiple="PARAMETER_ACTIVE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_SCHEDULER_USED_BY"></strong></td>
             <td translate-multiple=""></td>
             <td></td>
           </tr>
@@ -1225,82 +617,365 @@
         </table>
       </div>
     </div>
-  </div><div class="padding-sm-vr no-padding-t">
+  </div>
+  <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-light-gray text-semibold text-sm">
+      <span class="text-bold text-uppercase text-underline" translate-multiple="Engine · Running"></span>
+    </h6>
+  </div>
+  <div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-default text-semibold text-sm">
+      <i class="fa fa-youtube-play fa-fw"></i>
+      <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_ENGINE_VIEW_ACTIVITY"></span>
+      <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+    </h6>
+  </div><div class="help-snippet padding-sm-vr no-padding-t">
+    <h6 class="text-primary text-semibold text-sm">
+      <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
+      <span class="text-bold text-uppercase" translate-multiple="Engine · Running"></span>
+      <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+    </h6>
+    <div class="panel-body no-padding-vr">
+      <div class="table-light panel panel-success panel-sm">
+        <div class="panel-heading">
+          <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
+          <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+        </div>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th translate-multiple="HELP_NAME"></th>
+              <th translate-multiple="HELP_DESCRIPTION"></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><strong translate-multiple="PARAMETER_TASK"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_SCHEDULER_ENGINE_TRIGGER"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_CALENDAR"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_SCHEDULER_ENGINE_PREVIOUS"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="PARAMETER_SCHEDULER_ENGINE_NEXT"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr><tr>
+            <td><strong translate-multiple="SCREEN_TEXT_SCHEDULER_ENGINE_TRIGGER_STATE"></strong></td>
+            <td translate-multiple=""></td>
+            <td></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <hr/><div class="padding-sm-vr no-padding-t">
     <div class="panel panel-info">
       <div class="panel-heading">
         <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
-        <span class="panel-title" translate-multiple="SCREEN_TEXT_PRINT_EMAIL"></span>
+        <span class="panel-title" translate-multiple="SCREEN_TEXT_SCHEDULER_SERVER_NEW"></span>
       </div>
       <div class="panel-body">
         <div class="help-snippet">
-          <p class="note note-info text-justify" translate-multiple="HELP_SCREEN_TEXT_PRINT_EMAIL"></p>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-light-gray text-semibold text-sm">
-            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_GENERAL"></span>
-          </h6>
         </div>
         <div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-success text-semibold text-sm">
             <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_ACTION"></span>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_CONN_TYPE"></span>
             <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
           </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ACTION_CRITERION"></p>
         </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-success text-semibold text-sm">
             <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_TYPE"></span>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NAME"></span>
             <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
           </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_SELECTION_CRITERION"></p>
         </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-success text-semibold text-sm">
             <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DBL_FORMAT"></span>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SERVER_PORT"></span>
             <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
           </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_NUMERIC_FORMAT_CRITERION"></p>
         </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-success text-semibold text-sm">
             <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PRN_FORMAT"></span>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_ACTIVE"></span>
             <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
           </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_FORMAT_CRITERION"></p>
         </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-success text-semibold text-sm">
             <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="ENUM_EML_DST_USR"></span>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SCHEDULER_SERVER_HOST"></span>
             <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
           </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_DESTINATION_USERS_CRITERION"></p>
-        </div>
-        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
-          <h6 class="text-light-gray text-semibold text-sm">
-            <span class="text-bold text-uppercase text-underline" translate-multiple="PRINT_TAB_ADVANCE"></span>
-          </h6>
-        </div>
-        <div class="help-snippet padding-sm-vr no-padding-t">
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-success text-semibold text-sm">
             <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
-            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_REPORT_ORIENTATION"></span>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_USER"></span>
             <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
           </h6>
-          <p class=" no-margin text-justify" translate-multiple="HELP_PRINT_ORIENTATION_CRITERION"></p>
-        </div>
-        <hr/><div class="help-snippet padding-sm-vr no-padding-t">
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_PASSWD"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_SERVER_CHANGE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCHEDULER_SERVER_KEY"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_SERVER_REPLACE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_SERVER_REMOVE_KEY"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCHEDULER_SERVER_KEY_PASS"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_SERVER_CHANGE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_TEST_CONNECTION"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-primary text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_SCHEDULER_SERVER_NEW"></span>
+            <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+          </h6>
+          <div class="panel-body no-padding-vr">
+            <div class="table-light panel panel-success panel-sm">
+              <div class="panel-heading">
+                <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
+                <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+              </div>
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th translate-multiple="HELP_NAME"></th>
+                    <th translate-multiple="HELP_DESCRIPTION"></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td><strong translate-multiple="PARAMETER_TASK"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr><tr>
+                  <td><strong translate-multiple="PARAMETER_TASK_LAST_STATUS"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-default text-semibold text-sm">
             <i class="fa fa-youtube-play fa-fw"></i>
             <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
             <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_CANCEL_PRINT_BUTTON"></p>
+          </h6>
         </div><div class="help-snippet padding-sm-vr no-padding-t">
           <h6 class="text-default text-semibold text-sm">
             <i class="fa fa-youtube-play fa-fw"></i>
-            <span class="text-bold text-uppercase" translate-multiple="BUTTON_ACCEPT"></span>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_SERVER_SAVE"></span>
             <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
-          </h6><p class=" no-margin text-justify" translate-multiple="HELP_ACCEPT_PRINT_BUTTON"></p>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_SERVER_SAVE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div>
+      </div>
+    </div>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
+        <span class="panel-title" translate-multiple="SCREEN_TEXT_SCHEDULER_CALENDAR_NEW"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_NAME"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_ACTIVE"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_DESCRIPTION"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SCHEDULER_CALENDAR_DATES"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_CALENDAR_IMPORT"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+          <p class=" no-margin text-justify" translate-multiple="HELP_SCHEDULER_CALENDAR_IMPORT"></p>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_CALENDAR_ADD_DATE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-primary text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_SCHEDULER_CALENDAR_NEW"></span>
+            <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+          </h6>
+          <div class="panel-body no-padding-vr">
+            <div class="table-light panel panel-success panel-sm">
+              <div class="panel-heading">
+                <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
+                <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+              </div>
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th translate-multiple="HELP_NAME"></th>
+                    <th translate-multiple="HELP_DESCRIPTION"></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td><strong translate-multiple="COLUMN_DAT"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr><tr>
+                  <td><strong translate-multiple="PARAMETER_SCHEDULER_CALENDAR_WEEKDAY"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr><tr>
+                  <td><strong translate-multiple="PARAMETER_NAME"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-primary text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_SCHEDULER_CALENDAR_NEW"></span>
+            <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+          </h6>
+          <div class="panel-body no-padding-vr">
+            <div class="table-light panel panel-success panel-sm">
+              <div class="panel-heading">
+                <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
+                <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+              </div>
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th translate-multiple="HELP_NAME"></th>
+                    <th translate-multiple="HELP_DESCRIPTION"></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td><strong translate-multiple="PARAMETER_TASK"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr><tr>
+                  <td><strong translate-multiple="PARAMETER_SCHEDULER_CALENDAR_SKIPPED_DAYS"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_CALENDAR_DELETE_PANEL"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_CALENDAR_DELETE_PANEL"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_SERVER_SAVE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_SERVER_SAVE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
         </div>
       </div>
     </div>
@@ -1320,6 +995,96 @@
             <span class="text-bold text-uppercase" translate-multiple="BUTTON_CLOSE"></span>
             <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
           </h6><p class=" no-margin text-justify" translate-multiple="HELP_CLOSE_HELP_BUTTON"></p>
+        </div>
+      </div>
+    </div>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
+        <span class="panel-title" translate-multiple="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_DIALOG"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-primary text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#table"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_DIALOG"></span>
+            <span translate-multiple="HELP_GRID" class="text-xxs text-uppercase"></span>
+          </h6>
+          <div class="panel-body no-padding-vr">
+            <div class="table-light panel panel-success panel-sm">
+              <div class="panel-heading">
+                <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#columns-2"></use></svg></i>
+                <span class="panel-title" translate-multiple="HELP_COLUMNS"></span>
+              </div>
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th translate-multiple="HELP_NAME"></th>
+                    <th translate-multiple="HELP_DESCRIPTION"></th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                <tr>
+                  <td><strong translate-multiple="PARAMETER_TASK"></strong></td>
+                  <td translate-multiple=""></td>
+                  <td></td>
+                </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_CALENDAR_DELETE_IN_USE"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div>
+      </div>
+    </div>
+  </div><div class="padding-sm-vr no-padding-t">
+    <div class="panel panel-info">
+      <div class="panel-heading">
+        <i class="panel-title-icon"><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#layout-list"></use></svg></i>
+        <span class="panel-title" translate-multiple="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_DIALOG"></span>
+      </div>
+      <div class="panel-body">
+        <div class="help-snippet">
+        </div>
+        <div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_ENGINE_VIEW_ACTIVITY"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-success text-semibold text-sm">
+            <i><svg class="awe-icon" aria-hidden="true" focusable="false"><use href="icons/lucide-sprite.svg#square-pen"></use></svg></i>
+            <span class="text-bold text-uppercase" translate-multiple="PARAMETER_SCHEDULER_ENGINE_CLEAR_ACK"></span>
+            <span translate-multiple="HELP_CRITERION" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_CANCEL"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
+        </div><div class="help-snippet padding-sm-vr no-padding-t">
+          <h6 class="text-default text-semibold text-sm">
+            <i class="fa fa-youtube-play fa-fw"></i>
+            <span class="text-bold text-uppercase" translate-multiple="BUTTON_SCHEDULER_ENGINE_CLEAR_CONFIRM"></span>
+            <span translate-multiple="HELP_BUTTON" class="text-xxs text-uppercase"></span>
+          </h6>
         </div>
       </div>
     </div>

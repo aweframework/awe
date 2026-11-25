@@ -26,6 +26,7 @@ import ColumnPassword from "./ColumnPassword";
 import ColumnStaticPassword from "./ColumnStaticPassword";
 import ColumnProgress from "./ColumnProgress";
 import ColumnSparkline from "./ColumnSparkline";
+import ColumnStatusStrip from "./ColumnStatusStrip";
 import ColumnLink from "./ColumnLink";
 
 import "./Columns.less";
@@ -46,6 +47,7 @@ export const Static = {
   "password": ColumnStaticPassword,
   "progress": ColumnProgress,
   "sparkline": ColumnSparkline,
+  "status-strip": ColumnStatusStrip,
   "link": ColumnLink
 };
 

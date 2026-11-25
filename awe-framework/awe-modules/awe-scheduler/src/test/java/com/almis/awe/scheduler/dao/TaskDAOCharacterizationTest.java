@@ -527,7 +527,7 @@ class TaskDAOCharacterizationTest {
   }
 
   // ---------------------------------------------------------------------------------------------
-  // getProgress / getElapsedTime / getProgressNode / getStatusIcon
+  // getProgress / getElapsedTime
   // ---------------------------------------------------------------------------------------------
 
   /**
@@ -573,42 +573,6 @@ class TaskDAOCharacterizationTest {
   void getElapsedTimeAndProgressRejectNullDates() {
     assertThrows(NullPointerException.class, () -> taskDAO.getElapsedTime((Date) null));
     assertThrows(NullPointerException.class, () -> taskDAO.getProgress((Date) null, 10L));
-  }
-
-  /**
-   * Percentages up to 100 are shown as is; above 100 the bar is full and flagged as danger.
-   */
-  @Test
-  void getProgressNodeCapsAtOneHundred() {
-    assertEquals("{\"value\":100,\"label\":\"100%\"}", taskDAO.getProgressNode(100L).toString());
-    assertEquals("{\"value\":0,\"label\":\"0%\"}", taskDAO.getProgressNode(0L).toString());
-    assertEquals("{\"value\":100,\"style\":\"progress-bar-danger\",\"label\":\"\"}", taskDAO.getProgressNode(101L).toString());
-  }
-
-  /**
-   * The status icon holds the status value plus its label, icon and style enumerations.
-   */
-  @Test
-  void getStatusIconLooksUpTheStatusEnumerations() throws Exception {
-    given(queryService.findLabel("StaTyp", "4")).willReturn("Running");
-    given(queryService.findLabel("StaIco", "4")).willReturn("fa-spin");
-    given(queryService.findLabel("StaSty", "4")).willReturn("text-info");
-
-    ObjectNode icon = taskDAO.getStatusIcon(new TaskExecution().setStatus(4));
-
-    assertEquals("{\"value\":4,\"label\":\"Running\",\"icon\":\"fa-spin\",\"style\":\"text-info\"}", icon.toString());
-  }
-
-  /**
-   * A failing enumeration lookup is logged and leaves only the status value.
-   */
-  @Test
-  void getStatusIconKeepsOnlyTheValueWhenTheLookupFails() throws Exception {
-    given(queryService.findLabel("StaTyp", "4")).willThrow(new AWException("missing"));
-
-    ObjectNode icon = taskDAO.getStatusIcon(new TaskExecution().setStatus(4));
-
-    assertEquals("{\"value\":4}", icon.toString());
   }
 
   // ---------------------------------------------------------------------------------------------

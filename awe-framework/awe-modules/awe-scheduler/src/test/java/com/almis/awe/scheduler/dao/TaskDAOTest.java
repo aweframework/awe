@@ -405,6 +405,7 @@ class TaskDAOTest {
    */
   @Test
   void getExecutionLogReturnsLogContentWithReplaceFalseWhenTheWindowIsIntact() throws Exception {
+    givenARunningExecution();
     ExecutionLogStore mockStore = mock(ExecutionLogStore.class);
     given(mockStore.read(new ExecutionKey(1, 2), 0, "v0")).willReturn(new ExecutionLogPage(List.of("a", "b"), false, 2L, 0L, "v1"));
     TaskDAO taskDaoWithMockStore = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, mockStore);
@@ -425,6 +426,7 @@ class TaskDAOTest {
    */
   @Test
   void getExecutionLogReturnsLogContentWithReplaceTrueWhenTheStoreRequestsAReplace() throws Exception {
+    givenARunningExecution();
     ExecutionLogStore mockStore = mock(ExecutionLogStore.class);
     given(mockStore.read(new ExecutionKey(1, 2), 5, "stale-version")).willReturn(new ExecutionLogPage(List.of("a", "b", "c"), true, 20L, 10L, "v2"));
     TaskDAO taskDaoWithMockStore = new TaskDAO(scheduler, 5, queryService, maintainService, queryUtil, calendarDAO, serverDAO, fileChecker, mockStore);
@@ -435,6 +437,18 @@ class TaskDAOTest {
     assertEquals(List.of("a", "b", "c"), serviceData.getVariable("LOG_CONTENT").getValue());
     assertEquals(true, serviceData.getVariable("LOG_CONTENT_REPLACE").getValue());
     assertEquals("v2", serviceData.getVariable("LOG_CONTENT_VERSION").getValue());
+  }
+
+  /**
+   * The log of a running execution is followed: its status is read before the lines (get-execution-log)
+   */
+  private void givenARunningExecution() throws Exception {
+    given(queryUtil.getParameters(null, "1", "0")).willReturn(JsonNodeFactory.instance.objectNode());
+    DataList execution = new DataList();
+    Map<String, CellData> row = new HashMap<>();
+    row.put("status", new CellData(TaskStatus.JOB_RUNNING.getValue()));
+    execution.addRow(row);
+    given(queryService.launchPrivateQuery(eq("getTaskExecution"), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(execution));
   }
 
   /**
@@ -864,12 +878,12 @@ class TaskDAOTest {
   }
 
   /**
-   * A manual launch may override every parameter source, so an operator can adjust a task without
-   * re-declaring its parameters. On a PROPERTY parameter the supplied value is the property key,
-   * which is resolved at execution time.
+   * A manual launch may override the VALUE and VARIABLE parameters, so an operator can adjust a task
+   * without re-declaring its parameters. A PROPERTY parameter keeps its key (a launch that changes it
+   * is refused before it gets here).
    */
   @Test
-  void manualLaunchOverridesEveryParameterSource() throws Exception {
+  void manualLaunchOverridesValuesAndVariablesAndKeepsThePropertyKey() throws Exception {
     given(queryUtil.getParameters(any(), any(), any())).willReturn(JsonNodeFactory.instance.objectNode());
     given(queryService.launchPrivateQuery(anyString(), any(ObjectNode.class))).willReturn(new ServiceData().setDataList(getTaskDataList(true)));
     given(queryService.launchPrivateQuery(eq(SCHEDULER_TASK_PARAMETERS_QUERY), any(ObjectNode.class)))
@@ -890,7 +904,7 @@ class TaskDAOTest {
     Task launched = captor.getValue();
     assertEquals("OPERATOR_MODE", findParameter(launched, "mode").getValue());
     assertEquals("2026-12-31", findParameter(launched, "date").getValue());
-    assertEquals("OPERATOR_REGION", findParameter(launched, "region").getValue());
+    assertEquals("my.region", findParameter(launched, "region").getValue());
   }
 
   /**
@@ -923,32 +937,19 @@ class TaskDAOTest {
   }
 
   /**
-   * An operator supplied property key that does not resolve is reported, so the launch can be
-   * refused before the task is scheduled.
+   * The stored property key is the one checked, whatever key the operator supplies (a changed key is
+   * refused on its own, findChangedPropertyKeys).
    */
   @Test
-  void findUnresolvedPropertiesReportsTheSuppliedKeyWhenItDoesNotResolve() throws Exception {
+  void findUnresolvedPropertiesChecksTheStoredKeyWhenAnotherIsSupplied() throws Exception {
     givenTaskWithMixedSourceParameters();
-    given(aweElements.getProperty("missing.key")).willReturn(null);
-
-    Map<String, String> operatorValues = new HashMap<>();
-    operatorValues.put("region", "missing.key");
-
-    assertEquals(List.of("missing.key"), taskDAO.findUnresolvedProperties(5, operatorValues));
-  }
-
-  /**
-   * A property key that resolves is not reported.
-   */
-  @Test
-  void findUnresolvedPropertiesIsEmptyWhenTheSuppliedKeyResolves() throws Exception {
-    givenTaskWithMixedSourceParameters();
-    given(aweElements.getProperty("present.key")).willReturn("EU");
+    given(aweElements.getProperty("my.region")).willReturn(null);
 
     Map<String, String> operatorValues = new HashMap<>();
     operatorValues.put("region", "present.key");
 
-    assertTrue(taskDAO.findUnresolvedProperties(5, operatorValues).isEmpty());
+    assertEquals(List.of("my.region"), taskDAO.findUnresolvedProperties(5, operatorValues));
+    assertEquals(List.of("region"), taskDAO.findChangedPropertyKeys(5, operatorValues));
   }
 
   /**

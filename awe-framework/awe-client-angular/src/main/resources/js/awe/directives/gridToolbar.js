@@ -14,6 +14,18 @@ const MARGIN = 8;
 // Time to wait for the click which follows a mouse down on the Columns button (it would open the popover again)
 const CLICK_TIMEOUT = 1000;
 
+/**
+ * Quick filters of a grid, in their order: every quick-filter of the grid (quickFilters), or its only one (quickFilter)
+ * @param {Object} controller Grid controller
+ * @returns {string[]} Identifiers of the quick filters
+ */
+export const getQuickFilterIds = controller => {
+  if (Array.isArray(controller.quickFilters)) {
+    return controller.quickFilters;
+  }
+  return controller.quickFilter ? [controller.quickFilter] : [];
+};
+
 // The Columns as a popover or a dialog in the toolbar. The class is static: one set by ng-class is animated, so it would
 // only be there on the next animation frame, after the popover is placed
 const columnsRootTemplate = (panel, attributes = "") => `<div ng-if="columnsOpen && columnsPanel === '${panel}'" class="grid-columns-${panel}" role="dialog" aria-label="{{'GRID_COLUMNS_TITLE' | translateMultiple}}"${attributes} data-testid="${TestIds.gridColumnsDialog}" ng-attr-data-testid-owner="{{component.address.component}}" data-type="${panel}" ng-attr-aria-busy="{{component.layoutBusy ? 'true' : undefined}}">
@@ -44,7 +56,7 @@ export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${T
   <div class="grid-toolbar-band">
   <div class="grid-toolbar-main">
   <awe-grid-search ng-if="component.controller.search" search-id="{{::component.controller.search}}" grid-id="{{::component.address.component}}"></awe-grid-search>
-  <awe-grid-quick-filter ng-if="component.controller.quickFilter" quick-filter-id="{{::component.controller.quickFilter}}" grid-id="{{::component.address.component}}"></awe-grid-quick-filter>
+  <awe-grid-quick-filter ng-repeat="quickFilterId in ::quickFilterIds track by $index" quick-filter-id="{{::quickFilterId}}" grid-id="{{::component.address.component}}"></awe-grid-quick-filter>
   <awe-grid-group-by ng-if="::component.groupingConfigured && component.controller.showToolbar !== false" class="grid-group-by"></awe-grid-group-by>
   <span ng-if="component.controller.savedSearches || (${SHOW_COLUMNS}) || (${SHOW_MAXIMIZE})" class="grid-toolbar-spacer" aria-hidden="true"></span>
   ${getSavedSearchesTemplate("btn-awe btn-default grid-toolbar-button", "toolbarLabels['saved-searches']")}
@@ -52,6 +64,7 @@ export const GRID_TOOLBAR_TEMPLATE = `<div class="grid-toolbar" data-testid="${T
   </div>
   <awe-grid-selection-bar ng-if="::component.selectionButtons.length"></awe-grid-selection-bar>
   </div>
+  <div class="grid-toolbar-criteria" ng-show="::toolbarCriteriaIds.length"></div>
   <button ng-if="${SHOW_COLUMNS}" type="button" class="btn-awe btn-default grid-toolbar-button grid-columns-button" ng-class="{'grid-toolbar-button-icon': !toolbarLabels.columns}" data-testid="${TestIds.gridColumnsButton}" title="{{(toolbarLabels.columns ? 'GRID_COLUMNS_TITLE' : 'GRID_COLUMNS_BUTTON') | translateMultiple}}" ng-attr-aria-label="{{toolbarLabels.columns ? undefined : ('GRID_COLUMNS_BUTTON' | translateMultiple)}}" aria-haspopup="dialog" ng-attr-aria-expanded="{{columnsOpen === true}}" ng-click="openColumns()">
     ${iconTemplate("columns")}
     <span ng-if="toolbarLabels.columns" class="button-text" translate-multiple="GRID_COLUMNS_BUTTON"></span>
@@ -115,6 +128,32 @@ const COLUMN_ITEM_TEMPLATE = `${iconTemplate("bars", {tag: "span", classes: "gri
 <button type="button" class="btn-link grid-column-move" data-testid="${TestIds.gridColumnUp}" title="{{'GRID_COLUMNS_MOVE_UP' | translateMultiple}}" aria-label="{{'GRID_COLUMNS_MOVE_UP' | translateMultiple}}" ng-disabled="column.first" ng-click="component.moveColumn(column.name, -1)">${iconTemplate("arrow-up")}</button>
 <button type="button" class="btn-link grid-column-move" data-testid="${TestIds.gridColumnDown}" title="{{'GRID_COLUMNS_MOVE_DOWN' | translateMultiple}}" aria-label="{{'GRID_COLUMNS_MOVE_DOWN' | translateMultiple}}" ng-disabled="column.last" ng-click="component.moveColumn(column.name, 1)">${iconTemplate("arrow-down")}</button>`;
 
+// Component of a criterion: its directive is awe-input-<component> (the tag of the criteria of the screen)
+const CRITERION_COMPONENT = /^[a-z][a-z-]*$/;
+// Identifier of a criterion of the screen
+const CRITERION_ID = /^[\w.-]+$/;
+
+/**
+ * Toolbar criteria of a grid (toolbar-criteria), in their order
+ * @param {Object} controller Grid controller
+ * @returns {string[]} Identifiers of the toolbar criteria
+ */
+export const getToolbarCriteriaIds = controller => Array.isArray(controller.toolbarCriteria) ? controller.toolbarCriteria : [];
+
+/**
+ * Markup of a toolbar criterion: the directive of its component, as the criteria of the screen
+ * @param {string} id Criterion identifier
+ * @param {Object} controller Criterion controller
+ * @returns {string|null} Markup, null when the criterion is not registered or its component is unknown
+ */
+export const toolbarCriterionMarkup = (id, controller) => {
+  const component = controller && controller.component;
+  if (!CRITERION_COMPONENT.test(component || "") || !CRITERION_ID.test(id || "")) {
+    return null;
+  }
+  return `<awe-input-${component} input-${component}-id="${id}"></awe-input-${component}>`;
+};
+
 /**
  * Whether each end button of the toolbar shows its text
  * @param {string[]|null|undefined} gridLabels Buttons of the grid which show their text (toolbarLabels of the controller)
@@ -171,6 +210,18 @@ aweApplication.directive('aweGridToolbar',
           // in toolbarLabels the buttons that do; when it does not set it, the application default (gridToolbarLabels
           // setting) applies to all of them. The Group by of the grouping controls reads it too
           scope.toolbarLabels = getToolbarLabels((component.controller || {}).toolbarLabels, $settings.get("gridToolbarLabels"));
+          // The quick filters of the grid, in their order: every quick-filter (quickFilters), or its only one (quickFilter)
+          scope.quickFilterIds = getQuickFilterIds(component.controller || {});
+          // The toolbar criteria of the grid (toolbar-criteria), at the end, before the Columns button: each one is the
+          // directive of its component, as anywhere else in the screen
+          scope.toolbarCriteriaIds = getToolbarCriteriaIds(component.controller || {});
+          const criteriaHost = element.find(".grid-toolbar-criteria");
+          scope.toolbarCriteriaIds.forEach(id => {
+            const markup = toolbarCriterionMarkup(id, Control.getAddressController({...component.address, component: id}));
+            if (markup) {
+              criteriaHost.append($compile(markup)(scope));
+            }
+          });
 
           // The Saved searches menu of a grid that opts in
           if ((component.controller || {}).savedSearches) {

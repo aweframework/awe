@@ -11,6 +11,7 @@ import AweGridSavedSearches from "./AweGridSavedSearches";
 import { TestIds, testHook } from "../utilities/testIds";
 import { getIconNode } from "../utilities";
 import { getGroupingState } from "../utilities/gridGrouping";
+import { CriteriaList } from "../criteria/AweCriteria";
 
 /**
  * Toolbar of a grid: the search, the quick filters and the row grouping controls (#833) of the grid first, then a spacer,
@@ -23,7 +24,8 @@ import { getGroupingState } from "../utilities/gridGrouping";
  * saved-searches, columns, maximize) or, when the grid does not set it, the application gridToolbarLabels setting asks
  * for their labels. The selection bar of the grid shares the band of the search, the quick filters, the grouping and the
  * Saved searches menu (one cell, so the band keeps its height): while rows are selected it covers them and the Columns
- * and Maximize buttons stay at the end.
+ * and Maximize buttons stay at the end. The toolbar criteria of the grid (toolbar-criteria: criteria of any component,
+ * such as a switch) go out of the band, at the end, just before the Columns button.
  * @category Components
  * @subcategory Grid
  */
@@ -36,7 +38,9 @@ function AweGridToolbar({ id, maximized, iconMaximized, onToggleMaximize, select
   // setting) says when the grid does not set it
   const defaultLabels = useSelector(state => state.settings?.gridToolbarLabels);
 
-  const { quickFilter, search, savedSearches } = attributes;
+  const { search, savedSearches } = attributes;
+  const quickFilters = getQuickFilters(attributes);
+  const toolbarCriteria = getToolbarCriteria(attributes);
   const { showColumns, showMaximize, showGrouping } = getToolbarContents(attributes);
   if (!hasGridToolbar(attributes) || !address) {
     return null;
@@ -60,7 +64,7 @@ function AweGridToolbar({ id, maximized, iconMaximized, onToggleMaximize, select
       {/* Covered (hidden, out of the tab order) by the selection bar while rows are selected */}
       <div className={selecting ? "grid-toolbar-main is-covered" : "grid-toolbar-main"} inert={selecting || undefined}>
         {search && <AweGridSearch id={search} grid={address.component} />}
-        {quickFilter && <AweGridQuickFilter id={quickFilter} grid={address.component} />}
+        {quickFilters.map(quickFilter => <AweGridQuickFilter key={quickFilter} id={quickFilter} grid={address.component} />)}
         {/* Row grouping (#833): Expand all, Collapse all and Group by */}
         {showGrouping && <AweGridGroupBy address={address} attributes={attributes} labels={showLabel("group-by")} />}
         {/* The search, the quick filters and the grouping go at the start, the Saved searches, Columns and Maximize buttons at the end */}
@@ -69,6 +73,9 @@ function AweGridToolbar({ id, maximized, iconMaximized, onToggleMaximize, select
       </div>
       {selectionBar}
     </div>
+    {toolbarCriteria.length > 0 && <div className="grid-toolbar-criteria">
+      {toolbarCriteria.map(criterion => <AweGridToolbarCriterion key={criterion} id={criterion} />)}
+    </div>}
     {showColumns && <button ref={columnsButton} type="button" className={buttonClass(columnsLabels)}
       title={t("GRID_COLUMNS_TITLE")} aria-label={columnsLabel} aria-haspopup="dialog" aria-expanded={columnsOpen} onClick={openColumns}
       {...testHook(TestIds.gridColumnsButton)}>
@@ -95,6 +102,32 @@ AweGridToolbar.propTypes = {
 };
 
 /**
+ * A toolbar criterion of a grid: the criterion of its component (a checkbox switch, a select...), with its value and
+ * dependencies as anywhere else; only its place is the toolbar
+ * @param {object} props Properties
+ * @param {string} props.id Criterion identifier
+ * @returns {JSX.Element|null} Criterion, nothing until it is registered or when its component is unknown
+ */
+function AweGridToolbarCriterion({ id }) {
+  const { attributes = {} } = useComponentState(id);
+  const criterion = CriteriaList[attributes.component];
+  return criterion ? React.createElement(criterion, { id }) : null;
+}
+
+AweGridToolbarCriterion.propTypes = {
+  id: PropTypes.string
+};
+
+/**
+ * Toolbar criteria of a grid, in their order
+ * @param {object} attributes Grid attributes
+ * @returns {string[]} Identifiers of the toolbar criteria
+ */
+export function getToolbarCriteria(attributes = {}) {
+  return Array.isArray(attributes.toolbarCriteria) ? attributes.toolbarCriteria : [];
+}
+
+/**
  * What the toolbar of a grid shows besides its search, quick filters and saved searches: show-toolbar="false" hides the
  * grouping controls and the Columns and Maximize buttons
  * @param {object} attributes Grid attributes
@@ -111,15 +144,28 @@ function getToolbarContents(attributes) {
 }
 
 /**
+ * Quick filters of a grid, in their order: every quick-filter of the grid (quickFilters), or its only one (quickFilter)
+ * @param {object} attributes Grid attributes
+ * @returns {string[]} Identifiers of the quick filters
+ */
+export function getQuickFilters(attributes = {}) {
+  if (Array.isArray(attributes.quickFilters)) {
+    return attributes.quickFilters;
+  }
+  return attributes.quickFilter ? [attributes.quickFilter] : [];
+}
+
+/**
  * Check if a grid shows its toolbar: a grid that is explicitly hidden hides its toolbar too, and a toolbar with nothing
  * to show is not rendered (the selection bar of the grid then covers its column headers)
  * @param {object} attributes Grid attributes
  * @returns {boolean} The toolbar is shown
  */
 export function hasGridToolbar(attributes = {}) {
-  const { quickFilter, search, savedSearches } = attributes;
+  const { search, savedSearches } = attributes;
   const { showColumns, showMaximize, showGrouping } = getToolbarContents(attributes);
-  return Boolean(search || quickFilter || savedSearches || showGrouping || showColumns || showMaximize) &&
+  return Boolean(search || getQuickFilters(attributes).length || getToolbarCriteria(attributes).length || savedSearches ||
+      showGrouping || showColumns || showMaximize) &&
     attributes.visible !== false;
 }
 

@@ -79,6 +79,15 @@ export const TestIds = Object.freeze({
   // Quick filters of the grid toolbar (the owner is the grid) and each of their options ("option-id")
   gridQuickFilter: "grid-quick-filter",
   gridQuickFilterOption: "grid-quick-filter-option",
+  // A quick filter shown as a menu button (display="dropdown" or "date-range"; the owner is the grid): its button, its menu
+  // (the options are grid-quick-filter-option), the «Custom range…» entry of a date range, and its range panel with
+  // the Clear and Apply buttons (the dates are date-range-from and date-range-to)
+  gridQuickFilterToggle: "grid-quick-filter-toggle",
+  gridQuickFilterMenu: "grid-quick-filter-menu",
+  gridQuickFilterCustom: "grid-quick-filter-custom",
+  gridQuickFilterRange: "grid-quick-filter-range",
+  gridQuickFilterRangeClear: "grid-quick-filter-range-clear",
+  gridQuickFilterRangeApply: "grid-quick-filter-range-apply",
   // Search of the grid toolbar (the owner is the grid) and its clear button
   gridSearch: "grid-search",
   gridSearchClear: "grid-search-clear",
@@ -287,6 +296,8 @@ export const TestIds = Object.freeze({
   cardProgress: "card-progress",
   cardSparkline: "card-sparkline",
   cardChip: "card-chip",
+  // Maximize button of a maximizable card (#993)
+  cardMaximizeButton: "card-maximize-button",
   // Loaders: component loaders ("loader"; grids use "grid-loader") and the spinner shown while a view is loading
   loader: "loader",
   loadingSpinner: "loading-spinner"

@@ -102,6 +102,22 @@ public class SchedulerConfig {
   }
 
   /**
+   * Client of the maintains of the application (remote scheduler): the rest template bean, whichever starter declares
+   * it, with its own converters on the AWE mapper and without XML. The application writes enum names (the AWE wire
+   * format), while a plain Jackson 3 rest template reads enums through {@code toString()}. The bean is not changed
+   *
+   * @param restTemplate Rest template bean (its request factory, error handler and URI handler are kept)
+   * @param mapper       AWE JSON mapper
+   * @return client of the maintains of the application
+   */
+  static RestTemplate maintainClient(RestTemplate restTemplate, ObjectMapper mapper) {
+    RestTemplate client = new RestTemplate(restTemplate.getRequestFactory());
+    client.setErrorHandler(restTemplate.getErrorHandler());
+    client.setUriTemplateHandler(restTemplate.getUriTemplateHandler());
+    return MessageConverterUtil.withJsonMapper(MessageConverterUtil.withoutXmlConverters(client), mapper);
+  }
+
+  /**
    * Define Runtime
    *
    * @return Runtime
@@ -302,7 +318,7 @@ public class SchedulerConfig {
       schedulerConfigProperties.isRemoteCallbackSecureEnabled(),
       schedulerConfigProperties.getRemoteCallbackUser(),
       schedulerConfigProperties.getRemoteCallbackPassword(),
-      restTemplate);
+      maintainClient(restTemplate, mapper));
     service.setDeferredDefaultTimeout(schedulerConfigProperties.getDeferred().getDefaultTimeout());
     return service;
   }
@@ -331,16 +347,18 @@ public class SchedulerConfig {
    * Report job service
    *
    * @param schedulerReportService Scheduler report service
+   * @param mapper                 AWE JSON mapper, used to read the answer of the application
    * @return Report job service
    */
   @Bean
-  public ReportJobService reportJobService(SchedulerReportService schedulerReportService) {
+  public ReportJobService reportJobService(SchedulerReportService schedulerReportService, ObjectMapper mapper) {
     return new ReportJobService(schedulerReportService,
       schedulerConfigProperties.isSchedulerInstance(),
       schedulerConfigProperties.getRemoteCallbackUrl(),
       schedulerConfigProperties.isRemoteCallbackSecureEnabled(),
       schedulerConfigProperties.getRemoteCallbackUser(),
-      schedulerConfigProperties.getRemoteCallbackPassword());
+      schedulerConfigProperties.getRemoteCallbackPassword(),
+      mapper);
   }
 
   /*

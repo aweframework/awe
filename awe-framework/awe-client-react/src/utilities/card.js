@@ -186,3 +186,111 @@ export function cardSparklineType(type) {
 export function cardProgressStyle(style) {
   return style === GAUGE ? GAUGE : BAR;
 }
+
+const pillText = value => (isEmptyField(value) ? null : String(value));
+
+/**
+ * Pills of the card (#993): the facts shown under its heading, each one a label, an optional icon and an optional code
+ * (a name the application runs, shown in the monospace font)
+ * @param {*} value Field value: a JSON array (text or parsed) of {label, icon?, code?}
+ * @return {{label: string|null, icon: string|null, code: string|null}[]} The pills with a label or a code, in order; an
+ * empty list for anything else
+ */
+export function cardPills(value) {
+  let items = value;
+  if (typeof value === "string") {
+    try {
+      items = JSON.parse(value);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items
+    .filter(item => item !== null && typeof item === "object" && !Array.isArray(item))
+    .map(item => ({label: pillText(item.label), icon: pillText(item.icon), code: pillText(item.code)}))
+    .filter(item => item.label !== null || item.code !== null);
+}
+
+/**
+ * Stacked bar of the card (#993): the parts of a whole (the executions by status), each one a segment as wide as its
+ * share, in the colour of its tone. The same rule as the AngularJS engine (services/card.js)
+ * @param {*} value Field value: a JSON array (text or parsed) of {tone, label, value}
+ * @return {{tone: string, label: string|null, value: number}[]} The segments with a positive value, in order (an unknown
+ * tone is neutral); an empty list for anything else
+ */
+export function cardStack(value) {
+  let items = value;
+  if (typeof value === "string") {
+    try {
+      items = JSON.parse(value);
+    } catch {
+      return [];
+    }
+  }
+  if (!Array.isArray(items)) {
+    return [];
+  }
+  return items
+    .filter(item => item !== null && typeof item === "object" && !Array.isArray(item))
+    .map(item => ({
+      tone: CARD_TONES.includes(item.tone) ? item.tone : DEFAULT_CHIP_TONE,
+      label: pillText(item.label),
+      value: cardNumber(item.value)
+    }))
+    .filter(item => item.value !== null && item.value > 0);
+}
+
+/**
+ * Parsed JSON array of a field: the array itself, the array of a JSON text, null for anything else
+ * @param {*} value Field value
+ * @return {Array|null} The array
+ */
+const jsonArray = (value) => {
+  let items = value;
+  if (typeof value === "string") {
+    if (!value.trim().startsWith("[")) {
+      return null;
+    }
+    try {
+      items = JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+  return Array.isArray(items) ? items : null;
+};
+
+/**
+ * Segments of a rich text field (#993, T37): a JSON array (text or parsed) of {text, strong?}, the strong ones drawn
+ * bold (a sentence whose key parts stand out). The same rule as the AngularJS engine (services/card.js)
+ * @param {*} value Field value
+ * @return {{text: string, strong: boolean}[]|null} The segments with a text, in order; null when the value is not a
+ * list of segments (a plain text stays as it is)
+ */
+export function cardSegments(value) {
+  const items = jsonArray(value);
+  if (!items) {
+    return null;
+  }
+  const segments = items
+    .filter(item => item !== null && typeof item === "object" && !Array.isArray(item) && !isEmptyField(item.text))
+    .map(item => ({text: String(item.text), strong: item.strong === true || item.strong === "true"}));
+  return segments.length > 0 ? segments : null;
+}
+
+/**
+ * Tiles of the card (#993, T37): small boxes in a grid under the heading (the next runs of a schedule), each one a label
+ * on top, a bold value and an optional muted hint. The same rule as the AngularJS engine (services/card.js)
+ * @param {*} value Field value: a JSON array (text or parsed) of {label, value, hint?}
+ * @return {{label: string, value: string|null, hint: string|null}[]} The tiles with a label, in order; an empty list
+ * for anything else
+ */
+export function cardTiles(value) {
+  return (jsonArray(value) || [])
+    .filter(item => item !== null && typeof item === "object" && !Array.isArray(item))
+    .map(item => ({label: pillText(item.label), value: pillText(item.value), hint: pillText(item.hint)}))
+    .filter(item => item.label !== null);
+}

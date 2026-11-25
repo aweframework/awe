@@ -119,6 +119,17 @@ function isSparklineSeries(component: string | undefined, data: unknown): boolea
 }
 
 /**
+ * Checks if the cell of a status strip column is an already parsed list of statuses: a list of {tone, label} objects is
+ * the value of the cell, not a list of options
+ * @param {string} component Column component
+ * @param {*} data Cell data
+ * @return {boolean} The cell is a list of statuses
+ */
+function isStatusStripList(component: string | undefined, data: unknown): boolean {
+  return component === ComponentType.COMPONENT_STATUS_STRIP && Array.isArray(data);
+}
+
+/**
  * Get component
  * @param node
  * @param index
@@ -221,7 +232,8 @@ export const Columns = (node: ColumnElement, data: unknown = {}, attrs: Record<s
   row?: Record<string, unknown>): React.ReactElement => {
   const {component} = node;
   const isMultiple = isMultipleComponent(component);
-  const fixedData = isMultiple ? data : extractCellModel(isSparklineSeries(component, data) ? {value: data} : data);
+  const isListValue = isSparklineSeries(component, data) || isStatusStripList(component, data);
+  const fixedData = isMultiple ? data : extractCellModel(isListValue ? {value: data} : data);
   if (editing && typeof editors()[component as string] !== "undefined") {
     return React.createElement(editors()[component as string], {
       ...node,
@@ -235,8 +247,9 @@ export const Columns = (node: ColumnElement, data: unknown = {}, attrs: Record<s
       key: getComponentId(node.address),
       data: fixedData,
       attrs,
-      // The progress bar reads other fields of the row for its second value and its segments (#831)
-      ...(component === "progress" ? {row} : {})
+      // The progress bar reads other fields of the row for its second value and its segments (#831), and the progress and
+      // the link columns their secondary line (#993)
+      ...(component === "progress" || component === "link" ? {row} : {})
     });
   }
   if (Array.isArray(fixedData)) {

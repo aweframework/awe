@@ -177,8 +177,9 @@ describe("AngularJS overlays and feedback over Bootstrap 3 (#885)", () => {
       expect(style(".modal.side-panel .modal-footer")).toMatchObject({
         "background-color": "var(--awe-color-overlay)",
         "border-radius": "0",
-        // Above the icons of the fields that scroll under it (a suggest or select arrow has z-index 1) (#793)
-        "z-index": "2"
+        // Above everything that scrolls under it, inside the stacking context of the panel: the icons of the fields (a
+        // suggest or select arrow has z-index 1, #793), the sticky grid headers and the log viewer (#993)
+        "z-index": "var(--awe-z-header)"
       });
       expect(style(".awe-popover")).toMatchObject({
         "background-color": "var(--awe-color-overlay)",

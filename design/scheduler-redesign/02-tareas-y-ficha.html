@@ -1,0 +1,2325 @@
+<!doctype html>
+<html lang="es" data-awe-primary="emerald" data-awe-surface="slate" data-awe-density="comfortable">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planificador · Tareas y ficha de tarea</title>
+<style>
+/* ==== AWE 5 tokens, embedded from awe-framework/awe-design-tokens/tokens.css (#885) ==== */
+/*
+ * AWE 5 design tokens: the single token file of both engines (#885). See website/docs/design-system/tokens-reference.md
+ *
+ * Token architecture:
+ *   Tier 1  primitive palettes      --awe-palette-<color>-50..950
+ *           configurable palettes   --awe-primary-50..950 / --awe-surface-0..950, selected on <html> with
+ *                                   data-awe-primary="<color>" and data-awe-surface="<neutral>"
+ *   Tier 2  semantic tokens         --awe-color-* (existing AWE vocabulary + Aura semantics), typography, spacing,
+ *                                   radius, elevation, focus, motion, density
+ *   Tier 3  component tokens        --awe-<component>-<property>, only where a component needs them
+ *
+ * Colour mode: every mode-dependent colour is written once as light-dark(<light>, <dark>), resolved with the
+ * color-scheme of the element that reads the token. The engines set the mode on <html>; until then light-dark()
+ * resolves the light value.
+ *
+ * Density: comfortable by default; <html data-awe-density="compact"> for 13px and tighter paddings.
+ *
+ * Transition: each engine still declares its current token names (AngularJS less/awe/tokens.less, React main.css)
+ * after this file, so they keep following the active theme until the engine adopts the AWE 5 values.
+ *
+ * The values are those of the design system prototype (website/static/design-system/prototype/tokens.css), checked
+ * by the token tests of both engines. Reference values: Aura preset of @primeuix/themes 2.0.3 (MIT, PrimeTek).
+ */
+
+/* ==========================================================================
+   Tier 1 - Primitive palettes (Aura values, @primeuix/themes 2.0.3, MIT)
+   Never used directly by components: they feed the configurable palettes.
+   ========================================================================== */
+:root {
+  --awe-palette-emerald-50: #ecfdf5;
+  --awe-palette-emerald-100: #d1fae5;
+  --awe-palette-emerald-200: #a7f3d0;
+  --awe-palette-emerald-300: #6ee7b7;
+  --awe-palette-emerald-400: #34d399;
+  --awe-palette-emerald-500: #10b981;
+  --awe-palette-emerald-600: #059669;
+  --awe-palette-emerald-700: #047857;
+  --awe-palette-emerald-800: #065f46;
+  --awe-palette-emerald-900: #064e3b;
+  --awe-palette-emerald-950: #022c22;
+
+  --awe-palette-green-50: #f0fdf4;
+  --awe-palette-green-100: #dcfce7;
+  --awe-palette-green-200: #bbf7d0;
+  --awe-palette-green-300: #86efac;
+  --awe-palette-green-400: #4ade80;
+  --awe-palette-green-500: #22c55e;
+  --awe-palette-green-600: #16a34a;
+  --awe-palette-green-700: #15803d;
+  --awe-palette-green-800: #166534;
+  --awe-palette-green-900: #14532d;
+  --awe-palette-green-950: #052e16;
+
+  --awe-palette-lime-50: #f7fee7;
+  --awe-palette-lime-100: #ecfccb;
+  --awe-palette-lime-200: #d9f99d;
+  --awe-palette-lime-300: #bef264;
+  --awe-palette-lime-400: #a3e635;
+  --awe-palette-lime-500: #84cc16;
+  --awe-palette-lime-600: #65a30d;
+  --awe-palette-lime-700: #4d7c0f;
+  --awe-palette-lime-800: #3f6212;
+  --awe-palette-lime-900: #365314;
+  --awe-palette-lime-950: #1a2e05;
+
+  --awe-palette-red-50: #fef2f2;
+  --awe-palette-red-100: #fee2e2;
+  --awe-palette-red-200: #fecaca;
+  --awe-palette-red-300: #fca5a5;
+  --awe-palette-red-400: #f87171;
+  --awe-palette-red-500: #ef4444;
+  --awe-palette-red-600: #dc2626;
+  --awe-palette-red-700: #b91c1c;
+  --awe-palette-red-800: #991b1b;
+  --awe-palette-red-900: #7f1d1d;
+  --awe-palette-red-950: #450a0a;
+
+  --awe-palette-orange-50: #fff7ed;
+  --awe-palette-orange-100: #ffedd5;
+  --awe-palette-orange-200: #fed7aa;
+  --awe-palette-orange-300: #fdba74;
+  --awe-palette-orange-400: #fb923c;
+  --awe-palette-orange-500: #f97316;
+  --awe-palette-orange-600: #ea580c;
+  --awe-palette-orange-700: #c2410c;
+  --awe-palette-orange-800: #9a3412;
+  --awe-palette-orange-900: #7c2d12;
+  --awe-palette-orange-950: #431407;
+
+  --awe-palette-amber-50: #fffbeb;
+  --awe-palette-amber-100: #fef3c7;
+  --awe-palette-amber-200: #fde68a;
+  --awe-palette-amber-300: #fcd34d;
+  --awe-palette-amber-400: #fbbf24;
+  --awe-palette-amber-500: #f59e0b;
+  --awe-palette-amber-600: #d97706;
+  --awe-palette-amber-700: #b45309;
+  --awe-palette-amber-800: #92400e;
+  --awe-palette-amber-900: #78350f;
+  --awe-palette-amber-950: #451a03;
+
+  --awe-palette-yellow-50: #fefce8;
+  --awe-palette-yellow-100: #fef9c3;
+  --awe-palette-yellow-200: #fef08a;
+  --awe-palette-yellow-300: #fde047;
+  --awe-palette-yellow-400: #facc15;
+  --awe-palette-yellow-500: #eab308;
+  --awe-palette-yellow-600: #ca8a04;
+  --awe-palette-yellow-700: #a16207;
+  --awe-palette-yellow-800: #854d0e;
+  --awe-palette-yellow-900: #713f12;
+  --awe-palette-yellow-950: #422006;
+
+  --awe-palette-teal-50: #f0fdfa;
+  --awe-palette-teal-100: #ccfbf1;
+  --awe-palette-teal-200: #99f6e4;
+  --awe-palette-teal-300: #5eead4;
+  --awe-palette-teal-400: #2dd4bf;
+  --awe-palette-teal-500: #14b8a6;
+  --awe-palette-teal-600: #0d9488;
+  --awe-palette-teal-700: #0f766e;
+  --awe-palette-teal-800: #115e59;
+  --awe-palette-teal-900: #134e4a;
+  --awe-palette-teal-950: #042f2e;
+
+  --awe-palette-cyan-50: #ecfeff;
+  --awe-palette-cyan-100: #cffafe;
+  --awe-palette-cyan-200: #a5f3fc;
+  --awe-palette-cyan-300: #67e8f9;
+  --awe-palette-cyan-400: #22d3ee;
+  --awe-palette-cyan-500: #06b6d4;
+  --awe-palette-cyan-600: #0891b2;
+  --awe-palette-cyan-700: #0e7490;
+  --awe-palette-cyan-800: #155e75;
+  --awe-palette-cyan-900: #164e63;
+  --awe-palette-cyan-950: #083344;
+
+  --awe-palette-sky-50: #f0f9ff;
+  --awe-palette-sky-100: #e0f2fe;
+  --awe-palette-sky-200: #bae6fd;
+  --awe-palette-sky-300: #7dd3fc;
+  --awe-palette-sky-400: #38bdf8;
+  --awe-palette-sky-500: #0ea5e9;
+  --awe-palette-sky-600: #0284c7;
+  --awe-palette-sky-700: #0369a1;
+  --awe-palette-sky-800: #075985;
+  --awe-palette-sky-900: #0c4a6e;
+  --awe-palette-sky-950: #082f49;
+
+  --awe-palette-blue-50: #eff6ff;
+  --awe-palette-blue-100: #dbeafe;
+  --awe-palette-blue-200: #bfdbfe;
+  --awe-palette-blue-300: #93c5fd;
+  --awe-palette-blue-400: #60a5fa;
+  --awe-palette-blue-500: #3b82f6;
+  --awe-palette-blue-600: #2563eb;
+  --awe-palette-blue-700: #1d4ed8;
+  --awe-palette-blue-800: #1e40af;
+  --awe-palette-blue-900: #1e3a8a;
+  --awe-palette-blue-950: #172554;
+
+  --awe-palette-indigo-50: #eef2ff;
+  --awe-palette-indigo-100: #e0e7ff;
+  --awe-palette-indigo-200: #c7d2fe;
+  --awe-palette-indigo-300: #a5b4fc;
+  --awe-palette-indigo-400: #818cf8;
+  --awe-palette-indigo-500: #6366f1;
+  --awe-palette-indigo-600: #4f46e5;
+  --awe-palette-indigo-700: #4338ca;
+  --awe-palette-indigo-800: #3730a3;
+  --awe-palette-indigo-900: #312e81;
+  --awe-palette-indigo-950: #1e1b4b;
+
+  --awe-palette-violet-50: #f5f3ff;
+  --awe-palette-violet-100: #ede9fe;
+  --awe-palette-violet-200: #ddd6fe;
+  --awe-palette-violet-300: #c4b5fd;
+  --awe-palette-violet-400: #a78bfa;
+  --awe-palette-violet-500: #8b5cf6;
+  --awe-palette-violet-600: #7c3aed;
+  --awe-palette-violet-700: #6d28d9;
+  --awe-palette-violet-800: #5b21b6;
+  --awe-palette-violet-900: #4c1d95;
+  --awe-palette-violet-950: #2e1065;
+
+  --awe-palette-purple-50: #faf5ff;
+  --awe-palette-purple-100: #f3e8ff;
+  --awe-palette-purple-200: #e9d5ff;
+  --awe-palette-purple-300: #d8b4fe;
+  --awe-palette-purple-400: #c084fc;
+  --awe-palette-purple-500: #a855f7;
+  --awe-palette-purple-600: #9333ea;
+  --awe-palette-purple-700: #7e22ce;
+  --awe-palette-purple-800: #6b21a8;
+  --awe-palette-purple-900: #581c87;
+  --awe-palette-purple-950: #3b0764;
+
+  --awe-palette-fuchsia-50: #fdf4ff;
+  --awe-palette-fuchsia-100: #fae8ff;
+  --awe-palette-fuchsia-200: #f5d0fe;
+  --awe-palette-fuchsia-300: #f0abfc;
+  --awe-palette-fuchsia-400: #e879f9;
+  --awe-palette-fuchsia-500: #d946ef;
+  --awe-palette-fuchsia-600: #c026d3;
+  --awe-palette-fuchsia-700: #a21caf;
+  --awe-palette-fuchsia-800: #86198f;
+  --awe-palette-fuchsia-900: #701a75;
+  --awe-palette-fuchsia-950: #4a044e;
+
+  --awe-palette-pink-50: #fdf2f8;
+  --awe-palette-pink-100: #fce7f3;
+  --awe-palette-pink-200: #fbcfe8;
+  --awe-palette-pink-300: #f9a8d4;
+  --awe-palette-pink-400: #f472b6;
+  --awe-palette-pink-500: #ec4899;
+  --awe-palette-pink-600: #db2777;
+  --awe-palette-pink-700: #be185d;
+  --awe-palette-pink-800: #9d174d;
+  --awe-palette-pink-900: #831843;
+  --awe-palette-pink-950: #500724;
+
+  --awe-palette-rose-50: #fff1f2;
+  --awe-palette-rose-100: #ffe4e6;
+  --awe-palette-rose-200: #fecdd3;
+  --awe-palette-rose-300: #fda4af;
+  --awe-palette-rose-400: #fb7185;
+  --awe-palette-rose-500: #f43f5e;
+  --awe-palette-rose-600: #e11d48;
+  --awe-palette-rose-700: #be123c;
+  --awe-palette-rose-800: #9f1239;
+  --awe-palette-rose-900: #881337;
+  --awe-palette-rose-950: #4c0519;
+
+  --awe-palette-slate-50: #f8fafc;
+  --awe-palette-slate-100: #f1f5f9;
+  --awe-palette-slate-200: #e2e8f0;
+  --awe-palette-slate-300: #cbd5e1;
+  --awe-palette-slate-400: #94a3b8;
+  --awe-palette-slate-500: #64748b;
+  --awe-palette-slate-600: #475569;
+  --awe-palette-slate-700: #334155;
+  --awe-palette-slate-800: #1e293b;
+  --awe-palette-slate-900: #0f172a;
+  --awe-palette-slate-950: #020617;
+
+  --awe-palette-gray-50: #f9fafb;
+  --awe-palette-gray-100: #f3f4f6;
+  --awe-palette-gray-200: #e5e7eb;
+  --awe-palette-gray-300: #d1d5db;
+  --awe-palette-gray-400: #9ca3af;
+  --awe-palette-gray-500: #6b7280;
+  --awe-palette-gray-600: #4b5563;
+  --awe-palette-gray-700: #374151;
+  --awe-palette-gray-800: #1f2937;
+  --awe-palette-gray-900: #111827;
+  --awe-palette-gray-950: #030712;
+
+  --awe-palette-zinc-50: #fafafa;
+  --awe-palette-zinc-100: #f4f4f5;
+  --awe-palette-zinc-200: #e4e4e7;
+  --awe-palette-zinc-300: #d4d4d8;
+  --awe-palette-zinc-400: #a1a1aa;
+  --awe-palette-zinc-500: #71717a;
+  --awe-palette-zinc-600: #52525b;
+  --awe-palette-zinc-700: #3f3f46;
+  --awe-palette-zinc-800: #27272a;
+  --awe-palette-zinc-900: #18181b;
+  --awe-palette-zinc-950: #09090b;
+
+  --awe-palette-neutral-50: #fafafa;
+  --awe-palette-neutral-100: #f5f5f5;
+  --awe-palette-neutral-200: #e5e5e5;
+  --awe-palette-neutral-300: #d4d4d4;
+  --awe-palette-neutral-400: #a3a3a3;
+  --awe-palette-neutral-500: #737373;
+  --awe-palette-neutral-600: #525252;
+  --awe-palette-neutral-700: #404040;
+  --awe-palette-neutral-800: #262626;
+  --awe-palette-neutral-900: #171717;
+  --awe-palette-neutral-950: #0a0a0a;
+
+  --awe-palette-stone-50: #fafaf9;
+  --awe-palette-stone-100: #f5f5f4;
+  --awe-palette-stone-200: #e7e5e4;
+  --awe-palette-stone-300: #d6d3d1;
+  --awe-palette-stone-400: #a8a29e;
+  --awe-palette-stone-500: #78716c;
+  --awe-palette-stone-600: #57534e;
+  --awe-palette-stone-700: #44403c;
+  --awe-palette-stone-800: #292524;
+  --awe-palette-stone-900: #1c1917;
+  --awe-palette-stone-950: #0c0a09;
+}
+
+/* ==========================================================================
+   Configurable palettes - primary
+   <html data-awe-primary="<color>">; emerald when the attribute is not set (Aura default).
+   --awe-primary-fill*: the shades used for filled primary surfaces in the light mode, chosen per palette so the
+   label on them reaches WCAG AA (Aura uses primary.500 + white, below 4.5:1 for most palettes).
+   ========================================================================== */
+:root,
+:root[data-awe-primary="emerald"] {
+  --awe-primary-50: var(--awe-palette-emerald-50);
+  --awe-primary-100: var(--awe-palette-emerald-100);
+  --awe-primary-200: var(--awe-palette-emerald-200);
+  --awe-primary-300: var(--awe-palette-emerald-300);
+  --awe-primary-400: var(--awe-palette-emerald-400);
+  --awe-primary-500: var(--awe-palette-emerald-500);
+  --awe-primary-600: var(--awe-palette-emerald-600);
+  --awe-primary-700: var(--awe-palette-emerald-700);
+  --awe-primary-800: var(--awe-palette-emerald-800);
+  --awe-primary-900: var(--awe-palette-emerald-900);
+  --awe-primary-950: var(--awe-palette-emerald-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="green"] {
+  --awe-primary-50: var(--awe-palette-green-50);
+  --awe-primary-100: var(--awe-palette-green-100);
+  --awe-primary-200: var(--awe-palette-green-200);
+  --awe-primary-300: var(--awe-palette-green-300);
+  --awe-primary-400: var(--awe-palette-green-400);
+  --awe-primary-500: var(--awe-palette-green-500);
+  --awe-primary-600: var(--awe-palette-green-600);
+  --awe-primary-700: var(--awe-palette-green-700);
+  --awe-primary-800: var(--awe-palette-green-800);
+  --awe-primary-900: var(--awe-palette-green-900);
+  --awe-primary-950: var(--awe-palette-green-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="lime"] {
+  --awe-primary-50: var(--awe-palette-lime-50);
+  --awe-primary-100: var(--awe-palette-lime-100);
+  --awe-primary-200: var(--awe-palette-lime-200);
+  --awe-primary-300: var(--awe-palette-lime-300);
+  --awe-primary-400: var(--awe-palette-lime-400);
+  --awe-primary-500: var(--awe-palette-lime-500);
+  --awe-primary-600: var(--awe-palette-lime-600);
+  --awe-primary-700: var(--awe-palette-lime-700);
+  --awe-primary-800: var(--awe-palette-lime-800);
+  --awe-primary-900: var(--awe-palette-lime-900);
+  --awe-primary-950: var(--awe-palette-lime-950);
+  --awe-primary-fill: var(--awe-primary-500);
+  --awe-primary-fill-hover: var(--awe-primary-400);
+  --awe-primary-fill-active: var(--awe-primary-600);
+  --awe-primary-on-fill: var(--awe-primary-950);
+}
+
+:root[data-awe-primary="red"] {
+  --awe-primary-50: var(--awe-palette-red-50);
+  --awe-primary-100: var(--awe-palette-red-100);
+  --awe-primary-200: var(--awe-palette-red-200);
+  --awe-primary-300: var(--awe-palette-red-300);
+  --awe-primary-400: var(--awe-palette-red-400);
+  --awe-primary-500: var(--awe-palette-red-500);
+  --awe-primary-600: var(--awe-palette-red-600);
+  --awe-primary-700: var(--awe-palette-red-700);
+  --awe-primary-800: var(--awe-palette-red-800);
+  --awe-primary-900: var(--awe-palette-red-900);
+  --awe-primary-950: var(--awe-palette-red-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="orange"] {
+  --awe-primary-50: var(--awe-palette-orange-50);
+  --awe-primary-100: var(--awe-palette-orange-100);
+  --awe-primary-200: var(--awe-palette-orange-200);
+  --awe-primary-300: var(--awe-palette-orange-300);
+  --awe-primary-400: var(--awe-palette-orange-400);
+  --awe-primary-500: var(--awe-palette-orange-500);
+  --awe-primary-600: var(--awe-palette-orange-600);
+  --awe-primary-700: var(--awe-palette-orange-700);
+  --awe-primary-800: var(--awe-palette-orange-800);
+  --awe-primary-900: var(--awe-palette-orange-900);
+  --awe-primary-950: var(--awe-palette-orange-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="amber"] {
+  --awe-primary-50: var(--awe-palette-amber-50);
+  --awe-primary-100: var(--awe-palette-amber-100);
+  --awe-primary-200: var(--awe-palette-amber-200);
+  --awe-primary-300: var(--awe-palette-amber-300);
+  --awe-primary-400: var(--awe-palette-amber-400);
+  --awe-primary-500: var(--awe-palette-amber-500);
+  --awe-primary-600: var(--awe-palette-amber-600);
+  --awe-primary-700: var(--awe-palette-amber-700);
+  --awe-primary-800: var(--awe-palette-amber-800);
+  --awe-primary-900: var(--awe-palette-amber-900);
+  --awe-primary-950: var(--awe-palette-amber-950);
+  --awe-primary-fill: var(--awe-primary-500);
+  --awe-primary-fill-hover: var(--awe-primary-400);
+  --awe-primary-fill-active: var(--awe-primary-600);
+  --awe-primary-on-fill: var(--awe-primary-950);
+}
+
+:root[data-awe-primary="yellow"] {
+  --awe-primary-50: var(--awe-palette-yellow-50);
+  --awe-primary-100: var(--awe-palette-yellow-100);
+  --awe-primary-200: var(--awe-palette-yellow-200);
+  --awe-primary-300: var(--awe-palette-yellow-300);
+  --awe-primary-400: var(--awe-palette-yellow-400);
+  --awe-primary-500: var(--awe-palette-yellow-500);
+  --awe-primary-600: var(--awe-palette-yellow-600);
+  --awe-primary-700: var(--awe-palette-yellow-700);
+  --awe-primary-800: var(--awe-palette-yellow-800);
+  --awe-primary-900: var(--awe-palette-yellow-900);
+  --awe-primary-950: var(--awe-palette-yellow-950);
+  --awe-primary-fill: var(--awe-primary-500);
+  --awe-primary-fill-hover: var(--awe-primary-400);
+  --awe-primary-fill-active: var(--awe-primary-600);
+  --awe-primary-on-fill: var(--awe-primary-950);
+}
+
+:root[data-awe-primary="teal"] {
+  --awe-primary-50: var(--awe-palette-teal-50);
+  --awe-primary-100: var(--awe-palette-teal-100);
+  --awe-primary-200: var(--awe-palette-teal-200);
+  --awe-primary-300: var(--awe-palette-teal-300);
+  --awe-primary-400: var(--awe-palette-teal-400);
+  --awe-primary-500: var(--awe-palette-teal-500);
+  --awe-primary-600: var(--awe-palette-teal-600);
+  --awe-primary-700: var(--awe-palette-teal-700);
+  --awe-primary-800: var(--awe-palette-teal-800);
+  --awe-primary-900: var(--awe-palette-teal-900);
+  --awe-primary-950: var(--awe-palette-teal-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="cyan"] {
+  --awe-primary-50: var(--awe-palette-cyan-50);
+  --awe-primary-100: var(--awe-palette-cyan-100);
+  --awe-primary-200: var(--awe-palette-cyan-200);
+  --awe-primary-300: var(--awe-palette-cyan-300);
+  --awe-primary-400: var(--awe-palette-cyan-400);
+  --awe-primary-500: var(--awe-palette-cyan-500);
+  --awe-primary-600: var(--awe-palette-cyan-600);
+  --awe-primary-700: var(--awe-palette-cyan-700);
+  --awe-primary-800: var(--awe-palette-cyan-800);
+  --awe-primary-900: var(--awe-palette-cyan-900);
+  --awe-primary-950: var(--awe-palette-cyan-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="sky"] {
+  --awe-primary-50: var(--awe-palette-sky-50);
+  --awe-primary-100: var(--awe-palette-sky-100);
+  --awe-primary-200: var(--awe-palette-sky-200);
+  --awe-primary-300: var(--awe-palette-sky-300);
+  --awe-primary-400: var(--awe-palette-sky-400);
+  --awe-primary-500: var(--awe-palette-sky-500);
+  --awe-primary-600: var(--awe-palette-sky-600);
+  --awe-primary-700: var(--awe-palette-sky-700);
+  --awe-primary-800: var(--awe-palette-sky-800);
+  --awe-primary-900: var(--awe-palette-sky-900);
+  --awe-primary-950: var(--awe-palette-sky-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-fill-active: var(--awe-primary-900);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="blue"] {
+  --awe-primary-50: var(--awe-palette-blue-50);
+  --awe-primary-100: var(--awe-palette-blue-100);
+  --awe-primary-200: var(--awe-palette-blue-200);
+  --awe-primary-300: var(--awe-palette-blue-300);
+  --awe-primary-400: var(--awe-palette-blue-400);
+  --awe-primary-500: var(--awe-palette-blue-500);
+  --awe-primary-600: var(--awe-palette-blue-600);
+  --awe-primary-700: var(--awe-palette-blue-700);
+  --awe-primary-800: var(--awe-palette-blue-800);
+  --awe-primary-900: var(--awe-palette-blue-900);
+  --awe-primary-950: var(--awe-palette-blue-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="indigo"] {
+  --awe-primary-50: var(--awe-palette-indigo-50);
+  --awe-primary-100: var(--awe-palette-indigo-100);
+  --awe-primary-200: var(--awe-palette-indigo-200);
+  --awe-primary-300: var(--awe-palette-indigo-300);
+  --awe-primary-400: var(--awe-palette-indigo-400);
+  --awe-primary-500: var(--awe-palette-indigo-500);
+  --awe-primary-600: var(--awe-palette-indigo-600);
+  --awe-primary-700: var(--awe-palette-indigo-700);
+  --awe-primary-800: var(--awe-palette-indigo-800);
+  --awe-primary-900: var(--awe-palette-indigo-900);
+  --awe-primary-950: var(--awe-palette-indigo-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="violet"] {
+  --awe-primary-50: var(--awe-palette-violet-50);
+  --awe-primary-100: var(--awe-palette-violet-100);
+  --awe-primary-200: var(--awe-palette-violet-200);
+  --awe-primary-300: var(--awe-palette-violet-300);
+  --awe-primary-400: var(--awe-palette-violet-400);
+  --awe-primary-500: var(--awe-palette-violet-500);
+  --awe-primary-600: var(--awe-palette-violet-600);
+  --awe-primary-700: var(--awe-palette-violet-700);
+  --awe-primary-800: var(--awe-palette-violet-800);
+  --awe-primary-900: var(--awe-palette-violet-900);
+  --awe-primary-950: var(--awe-palette-violet-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="purple"] {
+  --awe-primary-50: var(--awe-palette-purple-50);
+  --awe-primary-100: var(--awe-palette-purple-100);
+  --awe-primary-200: var(--awe-palette-purple-200);
+  --awe-primary-300: var(--awe-palette-purple-300);
+  --awe-primary-400: var(--awe-palette-purple-400);
+  --awe-primary-500: var(--awe-palette-purple-500);
+  --awe-primary-600: var(--awe-palette-purple-600);
+  --awe-primary-700: var(--awe-palette-purple-700);
+  --awe-primary-800: var(--awe-palette-purple-800);
+  --awe-primary-900: var(--awe-palette-purple-900);
+  --awe-primary-950: var(--awe-palette-purple-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="fuchsia"] {
+  --awe-primary-50: var(--awe-palette-fuchsia-50);
+  --awe-primary-100: var(--awe-palette-fuchsia-100);
+  --awe-primary-200: var(--awe-palette-fuchsia-200);
+  --awe-primary-300: var(--awe-palette-fuchsia-300);
+  --awe-primary-400: var(--awe-palette-fuchsia-400);
+  --awe-primary-500: var(--awe-palette-fuchsia-500);
+  --awe-primary-600: var(--awe-palette-fuchsia-600);
+  --awe-primary-700: var(--awe-palette-fuchsia-700);
+  --awe-primary-800: var(--awe-palette-fuchsia-800);
+  --awe-primary-900: var(--awe-palette-fuchsia-900);
+  --awe-primary-950: var(--awe-palette-fuchsia-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="pink"] {
+  --awe-primary-50: var(--awe-palette-pink-50);
+  --awe-primary-100: var(--awe-palette-pink-100);
+  --awe-primary-200: var(--awe-palette-pink-200);
+  --awe-primary-300: var(--awe-palette-pink-300);
+  --awe-primary-400: var(--awe-palette-pink-400);
+  --awe-primary-500: var(--awe-palette-pink-500);
+  --awe-primary-600: var(--awe-palette-pink-600);
+  --awe-primary-700: var(--awe-palette-pink-700);
+  --awe-primary-800: var(--awe-palette-pink-800);
+  --awe-primary-900: var(--awe-palette-pink-900);
+  --awe-primary-950: var(--awe-palette-pink-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+:root[data-awe-primary="rose"] {
+  --awe-primary-50: var(--awe-palette-rose-50);
+  --awe-primary-100: var(--awe-palette-rose-100);
+  --awe-primary-200: var(--awe-palette-rose-200);
+  --awe-primary-300: var(--awe-palette-rose-300);
+  --awe-primary-400: var(--awe-palette-rose-400);
+  --awe-primary-500: var(--awe-palette-rose-500);
+  --awe-primary-600: var(--awe-palette-rose-600);
+  --awe-primary-700: var(--awe-palette-rose-700);
+  --awe-primary-800: var(--awe-palette-rose-800);
+  --awe-primary-900: var(--awe-palette-rose-900);
+  --awe-primary-950: var(--awe-palette-rose-950);
+  --awe-primary-fill: var(--awe-primary-600);
+  --awe-primary-fill-hover: var(--awe-primary-700);
+  --awe-primary-fill-active: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+
+/* ==========================================================================
+   Configurable palettes - surface
+   <html data-awe-surface="<neutral>">; when the attribute is not set: slate in light, zinc in dark (Aura).
+   ========================================================================== */
+:root {
+  --awe-surface-0: #ffffff;
+  --awe-surface-50: light-dark(var(--awe-palette-slate-50), var(--awe-palette-zinc-50));
+  --awe-surface-100: light-dark(var(--awe-palette-slate-100), var(--awe-palette-zinc-100));
+  --awe-surface-200: light-dark(var(--awe-palette-slate-200), var(--awe-palette-zinc-200));
+  --awe-surface-300: light-dark(var(--awe-palette-slate-300), var(--awe-palette-zinc-300));
+  --awe-surface-400: light-dark(var(--awe-palette-slate-400), var(--awe-palette-zinc-400));
+  --awe-surface-500: light-dark(var(--awe-palette-slate-500), var(--awe-palette-zinc-500));
+  --awe-surface-600: light-dark(var(--awe-palette-slate-600), var(--awe-palette-zinc-600));
+  --awe-surface-700: light-dark(var(--awe-palette-slate-700), var(--awe-palette-zinc-700));
+  --awe-surface-800: light-dark(var(--awe-palette-slate-800), var(--awe-palette-zinc-800));
+  --awe-surface-900: light-dark(var(--awe-palette-slate-900), var(--awe-palette-zinc-900));
+  --awe-surface-950: light-dark(var(--awe-palette-slate-950), var(--awe-palette-zinc-950));
+}
+
+:root[data-awe-surface="slate"] {
+  --awe-surface-50: var(--awe-palette-slate-50);
+  --awe-surface-100: var(--awe-palette-slate-100);
+  --awe-surface-200: var(--awe-palette-slate-200);
+  --awe-surface-300: var(--awe-palette-slate-300);
+  --awe-surface-400: var(--awe-palette-slate-400);
+  --awe-surface-500: var(--awe-palette-slate-500);
+  --awe-surface-600: var(--awe-palette-slate-600);
+  --awe-surface-700: var(--awe-palette-slate-700);
+  --awe-surface-800: var(--awe-palette-slate-800);
+  --awe-surface-900: var(--awe-palette-slate-900);
+  --awe-surface-950: var(--awe-palette-slate-950);
+}
+
+:root[data-awe-surface="gray"] {
+  --awe-surface-50: var(--awe-palette-gray-50);
+  --awe-surface-100: var(--awe-palette-gray-100);
+  --awe-surface-200: var(--awe-palette-gray-200);
+  --awe-surface-300: var(--awe-palette-gray-300);
+  --awe-surface-400: var(--awe-palette-gray-400);
+  --awe-surface-500: var(--awe-palette-gray-500);
+  --awe-surface-600: var(--awe-palette-gray-600);
+  --awe-surface-700: var(--awe-palette-gray-700);
+  --awe-surface-800: var(--awe-palette-gray-800);
+  --awe-surface-900: var(--awe-palette-gray-900);
+  --awe-surface-950: var(--awe-palette-gray-950);
+}
+
+:root[data-awe-surface="zinc"] {
+  --awe-surface-50: var(--awe-palette-zinc-50);
+  --awe-surface-100: var(--awe-palette-zinc-100);
+  --awe-surface-200: var(--awe-palette-zinc-200);
+  --awe-surface-300: var(--awe-palette-zinc-300);
+  --awe-surface-400: var(--awe-palette-zinc-400);
+  --awe-surface-500: var(--awe-palette-zinc-500);
+  --awe-surface-600: var(--awe-palette-zinc-600);
+  --awe-surface-700: var(--awe-palette-zinc-700);
+  --awe-surface-800: var(--awe-palette-zinc-800);
+  --awe-surface-900: var(--awe-palette-zinc-900);
+  --awe-surface-950: var(--awe-palette-zinc-950);
+}
+
+:root[data-awe-surface="neutral"] {
+  --awe-surface-50: var(--awe-palette-neutral-50);
+  --awe-surface-100: var(--awe-palette-neutral-100);
+  --awe-surface-200: var(--awe-palette-neutral-200);
+  --awe-surface-300: var(--awe-palette-neutral-300);
+  --awe-surface-400: var(--awe-palette-neutral-400);
+  --awe-surface-500: var(--awe-palette-neutral-500);
+  --awe-surface-600: var(--awe-palette-neutral-600);
+  --awe-surface-700: var(--awe-palette-neutral-700);
+  --awe-surface-800: var(--awe-palette-neutral-800);
+  --awe-surface-900: var(--awe-palette-neutral-900);
+  --awe-surface-950: var(--awe-palette-neutral-950);
+}
+
+:root[data-awe-surface="stone"] {
+  --awe-surface-50: var(--awe-palette-stone-50);
+  --awe-surface-100: var(--awe-palette-stone-100);
+  --awe-surface-200: var(--awe-palette-stone-200);
+  --awe-surface-300: var(--awe-palette-stone-300);
+  --awe-surface-400: var(--awe-palette-stone-400);
+  --awe-surface-500: var(--awe-palette-stone-500);
+  --awe-surface-600: var(--awe-palette-stone-600);
+  --awe-surface-700: var(--awe-palette-stone-700);
+  --awe-surface-800: var(--awe-palette-stone-800);
+  --awe-surface-900: var(--awe-palette-stone-900);
+  --awe-surface-950: var(--awe-palette-stone-950);
+}
+
+/* ==========================================================================
+   Tier 2 - Semantic colours: light-dark(<light>, <dark>)
+   Keeps the existing --awe-color-* vocabulary of the AngularJS tokens.less and adds the Aura semantics.
+   ========================================================================== */
+:root {
+  /* Brand ---------------------------------------------------------------- */
+  --awe-color-primary: light-dark(var(--awe-primary-fill), var(--awe-primary-400));
+  --awe-color-primary-hover: light-dark(var(--awe-primary-fill-hover), var(--awe-primary-300));
+  --awe-color-primary-active: light-dark(var(--awe-primary-fill-active), var(--awe-primary-200));
+  --awe-color-on-primary: light-dark(var(--awe-primary-on-fill), var(--awe-surface-900));
+  /* Primary used as text or as a thin line on the page (links, active tab, focus ring) */
+  --awe-color-primary-text: light-dark(var(--awe-primary-700), var(--awe-primary-400));
+  --awe-color-primary-subtle: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-500), transparent 84%));
+  --awe-color-on-primary-subtle: light-dark(var(--awe-primary-700), var(--awe-primary-300));
+  --awe-color-theme: var(--awe-color-primary);
+  --awe-color-secondary: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-secondary-hover: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-on-secondary: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+
+  /* Text ----------------------------------------------------------------- */
+  --awe-color-text: light-dark(var(--awe-surface-700), var(--awe-surface-0));
+  --awe-color-text-emphasis: light-dark(var(--awe-surface-900), var(--awe-surface-0));
+  --awe-color-text-muted: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-text-hover: light-dark(var(--awe-surface-800), var(--awe-surface-0));
+  --awe-color-text-muted-hover: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+
+  /* Page and content ----------------------------------------------------- */
+  --awe-color-background: light-dark(var(--awe-surface-50), var(--awe-surface-950));
+  --awe-color-surface: light-dark(var(--awe-surface-0), var(--awe-surface-900));
+  --awe-color-surface-hover: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-surface-subtle: light-dark(var(--awe-surface-50), color-mix(in srgb, var(--awe-surface-800), transparent 50%));
+  /* An element raised over a secondary track (checked segment, switch handle) */
+  --awe-color-surface-raised: light-dark(var(--awe-surface-0), var(--awe-surface-600));
+  --awe-color-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-border-subtle: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-shadow: light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.45));
+  --awe-color-shadow-soft: light-dark(rgb(18 18 23 / 0.05), rgb(0 0 0 / 0.3));
+  --awe-color-content: var(--awe-color-surface);
+  --awe-color-content-hover: var(--awe-color-surface-hover);
+  --awe-color-content-border: var(--awe-color-border);
+  --awe-color-mask: light-dark(rgb(0 0 0 / 0.4), rgb(0 0 0 / 0.6));
+
+  /* Highlight (selected option, selected row, active menu option) -------- */
+  --awe-color-highlight: light-dark(var(--awe-primary-50), color-mix(in srgb, var(--awe-primary-400), transparent 84%));
+  --awe-color-highlight-focus: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-400), transparent 76%));
+  --awe-color-on-highlight: light-dark(var(--awe-primary-700), rgb(255 255 255 / 0.87));
+  --awe-color-on-highlight-focus: light-dark(var(--awe-primary-800), rgb(255 255 255 / 0.87));
+
+  /* Main menu, navbar, panels and grids (existing AWE vocabulary) -------- */
+  --awe-color-menu: var(--awe-color-surface);
+  --awe-color-menu-accent: var(--awe-color-highlight);
+  --awe-color-menu-text: var(--awe-color-text);
+  --awe-color-navbar: var(--awe-color-surface);
+  --awe-color-navbar-accent: var(--awe-color-surface-hover);
+  --awe-color-navbar-text: var(--awe-color-text);
+  --awe-color-navbar-dropdown: var(--awe-color-overlay);
+  --awe-color-panel: var(--awe-color-surface);
+  --awe-color-panel-header: var(--awe-color-surface);
+  --awe-color-panel-border: var(--awe-color-border);
+  --awe-color-panel-text: var(--awe-color-text);
+  /* Opaque, as the header and the footer of a grid stay over its rows when they scroll: in dark mode the subtle surface
+     (half transparent) laid over the rows (the surface) */
+  --awe-color-grid-header: light-dark(var(--awe-surface-50), color-mix(in srgb, var(--awe-surface-800), var(--awe-surface-900)));
+  --awe-color-grid-border: var(--awe-color-border);
+  --awe-color-skeleton: light-dark(var(--awe-surface-200), var(--awe-surface-800));
+  --awe-color-skeleton-highlight: light-dark(var(--awe-surface-100), var(--awe-surface-700));
+
+  /* Overlays (select panels, popovers, menus, dialogs) ------------------- */
+  --awe-color-overlay: light-dark(var(--awe-surface-0), var(--awe-surface-900));
+  --awe-color-overlay-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-overlay-text: var(--awe-color-text);
+  --awe-color-tooltip: light-dark(var(--awe-surface-800), var(--awe-surface-700));
+  --awe-color-on-tooltip: var(--awe-surface-0);
+
+  /* Form fields ---------------------------------------------------------- */
+  --awe-color-field: light-dark(var(--awe-surface-0), color-mix(in srgb, var(--awe-surface-900), var(--awe-surface-800)));
+  --awe-color-field-filled: light-dark(var(--awe-surface-50), var(--awe-surface-800));
+  --awe-color-field-border: light-dark(var(--awe-surface-300), var(--awe-surface-600));
+  --awe-color-field-border-hover: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-field-border-focus: var(--awe-color-primary);
+  --awe-color-field-border-invalid: light-dark(var(--awe-palette-red-500), var(--awe-palette-red-300));
+  --awe-color-field-text: light-dark(var(--awe-surface-700), var(--awe-surface-0));
+  --awe-color-field-placeholder: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-field-placeholder-invalid: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-field-icon: var(--awe-surface-400);
+  --awe-color-field-label: var(--awe-color-text-emphasis);
+  --awe-color-field-help: var(--awe-color-text-muted);
+  --awe-color-field-focus-halo: color-mix(in srgb, var(--awe-color-primary), transparent 80%);
+  --awe-color-field-invalid-halo: color-mix(in srgb, var(--awe-color-danger), transparent 82%);
+
+  /* List options (select, autocomplete, menus) --------------------------- */
+  --awe-color-list-option-focus: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-list-option-selected: var(--awe-color-highlight);
+  --awe-color-list-option-selected-focus: var(--awe-color-highlight-focus);
+  --awe-color-list-option-text: var(--awe-color-text);
+  --awe-color-list-option-text-focus: var(--awe-color-text-hover);
+  --awe-color-list-option-text-selected: var(--awe-color-on-highlight);
+  --awe-color-list-option-icon: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-list-option-group: var(--awe-color-text-muted);
+
+  /* Navigation items (side menu, breadcrumb, tabs, user menu) ------------ */
+  --awe-color-nav-item-focus: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-nav-item-active: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-nav-item-text: var(--awe-color-text);
+  --awe-color-nav-item-text-active: var(--awe-color-text-hover);
+  --awe-color-nav-item-icon: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-nav-item-icon-active: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-nav-submenu-label: var(--awe-color-text-muted);
+
+  /* States --------------------------------------------------------------- */
+  --awe-color-disabled: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-disabled-border: light-dark(var(--awe-surface-300), var(--awe-surface-600));
+  --awe-color-disabled-text: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-required: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-loading-bar: var(--awe-color-primary);
+
+  /* Status: solid (buttons, badges), subtle (tags, messages), text, border */
+  --awe-color-danger: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-danger-hover: light-dark(var(--awe-palette-red-700), var(--awe-palette-red-300));
+  --awe-color-on-danger: light-dark(#ffffff, var(--awe-palette-red-950));
+  --awe-color-danger-subtle: light-dark(var(--awe-palette-red-100), color-mix(in srgb, var(--awe-palette-red-500), transparent 84%));
+  --awe-color-danger-text: light-dark(var(--awe-palette-red-700), var(--awe-palette-red-300));
+  --awe-color-danger-border: light-dark(var(--awe-palette-red-200), color-mix(in srgb, var(--awe-palette-red-700), transparent 64%));
+
+  --awe-color-success: light-dark(var(--awe-palette-green-700), var(--awe-palette-green-400));
+  --awe-color-success-hover: light-dark(var(--awe-palette-green-800), var(--awe-palette-green-300));
+  --awe-color-on-success: light-dark(#ffffff, var(--awe-palette-green-950));
+  --awe-color-success-subtle: light-dark(var(--awe-palette-green-100), color-mix(in srgb, var(--awe-palette-green-500), transparent 84%));
+  --awe-color-success-text: light-dark(var(--awe-palette-green-700), var(--awe-palette-green-300));
+  --awe-color-success-border: light-dark(var(--awe-palette-green-200), color-mix(in srgb, var(--awe-palette-green-700), transparent 64%));
+
+  --awe-color-warning: light-dark(var(--awe-palette-orange-700), var(--awe-palette-orange-400));
+  --awe-color-warning-hover: light-dark(var(--awe-palette-orange-800), var(--awe-palette-orange-300));
+  --awe-color-on-warning: light-dark(#ffffff, var(--awe-palette-orange-950));
+  --awe-color-warning-subtle: light-dark(var(--awe-palette-orange-100), color-mix(in srgb, var(--awe-palette-orange-500), transparent 84%));
+  --awe-color-warning-text: light-dark(var(--awe-palette-orange-700), var(--awe-palette-orange-300));
+  --awe-color-warning-border: light-dark(var(--awe-palette-orange-200), color-mix(in srgb, var(--awe-palette-orange-700), transparent 64%));
+
+  --awe-color-info: light-dark(var(--awe-palette-sky-700), var(--awe-palette-sky-400));
+  --awe-color-info-hover: light-dark(var(--awe-palette-sky-800), var(--awe-palette-sky-300));
+  --awe-color-on-info: light-dark(#ffffff, var(--awe-palette-sky-950));
+  --awe-color-info-subtle: light-dark(var(--awe-palette-sky-100), color-mix(in srgb, var(--awe-palette-sky-500), transparent 84%));
+  --awe-color-info-text: light-dark(var(--awe-palette-sky-700), var(--awe-palette-sky-300));
+  --awe-color-info-border: light-dark(var(--awe-palette-sky-200), color-mix(in srgb, var(--awe-palette-sky-700), transparent 64%));
+
+  --awe-color-neutral-subtle: var(--awe-color-secondary);
+  --awe-color-neutral-text: var(--awe-color-on-secondary);
+  --awe-color-contrast: light-dark(var(--awe-surface-950), var(--awe-surface-0));
+  --awe-color-on-contrast: light-dark(var(--awe-surface-0), var(--awe-surface-950));
+}
+
+/* ==========================================================================
+   Tier 2 - Data visualisation colours (colour scale cells, data bars, sparklines, map)
+   The scale has 5 steps derived from the primary; --awe-color-on-scale-<n> is the text on each step.
+   ========================================================================== */
+:root {
+  --awe-color-scale-1: light-dark(var(--awe-primary-50), color-mix(in srgb, var(--awe-primary-400) 12%, var(--awe-surface-900)));
+  --awe-color-scale-2: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-400) 22%, var(--awe-surface-900)));
+  --awe-color-scale-3: light-dark(var(--awe-primary-200), color-mix(in srgb, var(--awe-primary-400) 34%, var(--awe-surface-900)));
+  --awe-color-scale-4: light-dark(var(--awe-primary-300), color-mix(in srgb, var(--awe-primary-400) 48%, var(--awe-surface-900)));
+  --awe-color-scale-5: var(--awe-color-primary);
+  --awe-color-on-scale-1: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-2: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-3: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-4: var(--awe-color-text-emphasis);
+  --awe-color-on-scale-5: var(--awe-color-on-primary);
+
+  --awe-color-data-bar: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-400) 35%, transparent));
+  --awe-color-data-bar-negative: light-dark(var(--awe-palette-red-100), color-mix(in srgb, var(--awe-palette-red-400) 35%, transparent));
+  --awe-color-chart-line: var(--awe-color-primary-text);
+  --awe-color-chart-area: color-mix(in srgb, var(--awe-color-primary-text) 18%, transparent);
+  --awe-color-chart-negative: var(--awe-color-danger);
+  --awe-color-chart-axis: var(--awe-color-border);
+  /* Categorical series palette of the charts: 8 distinguishable hues, the 600 shade in light and the 400 in dark (at
+     least 3:1 against --awe-color-surface); the first one follows the primary colour. */
+  --awe-color-chart-series-1: light-dark(var(--awe-primary-600), var(--awe-primary-400));
+  --awe-color-chart-series-2: light-dark(var(--awe-palette-orange-600), var(--awe-palette-orange-400));
+  --awe-color-chart-series-3: light-dark(var(--awe-palette-sky-600), var(--awe-palette-sky-400));
+  --awe-color-chart-series-4: light-dark(var(--awe-palette-fuchsia-600), var(--awe-palette-fuchsia-400));
+  --awe-color-chart-series-5: light-dark(var(--awe-palette-lime-600), var(--awe-palette-lime-400));
+  --awe-color-chart-series-6: light-dark(var(--awe-palette-indigo-600), var(--awe-palette-indigo-400));
+  --awe-color-chart-series-7: light-dark(var(--awe-palette-rose-600), var(--awe-palette-rose-400));
+  --awe-color-chart-series-8: light-dark(var(--awe-palette-teal-600), var(--awe-palette-teal-400));
+
+  --awe-color-map-water: light-dark(var(--awe-palette-sky-100), color-mix(in srgb, var(--awe-palette-sky-500) 16%, var(--awe-surface-950)));
+  --awe-color-map-land: light-dark(var(--awe-surface-50), var(--awe-surface-900));
+  --awe-color-map-park: light-dark(var(--awe-palette-green-100), color-mix(in srgb, var(--awe-palette-green-500) 14%, var(--awe-surface-900)));
+  --awe-color-map-road: light-dark(var(--awe-surface-0), var(--awe-surface-700));
+  --awe-color-map-road-casing: light-dark(var(--awe-surface-300), var(--awe-surface-800));
+  --awe-color-map-border: light-dark(var(--awe-surface-400), var(--awe-surface-600));
+  --awe-color-map-label: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+}
+
+/* ==========================================================================
+   Tier 2 - Typography
+   ========================================================================== */
+:root {
+  --awe-font-family-base: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --awe-font-family-monospace: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+
+  /* Type scale (comfortable) */
+  --awe-font-size-xs: 12px;
+  --awe-font-size-sm: 13px;
+  --awe-font-size-base: 14px;
+  --awe-font-size-md: 16px;
+  --awe-font-size-lg: 18px;
+  --awe-font-size-xl: 20px;
+  --awe-font-size-2xl: 24px;
+  --awe-font-size-3xl: 30px;
+  --awe-font-size-small: var(--awe-font-size-sm);
+
+  /* Roles */
+  --awe-font-size-page-title: var(--awe-font-size-2xl);
+  --awe-font-size-section-title: var(--awe-font-size-md);
+  --awe-font-size-dialog-title: var(--awe-font-size-lg);
+  /* Display title of standalone pages (login, errors) */
+  --awe-font-size-display: var(--awe-font-size-3xl);
+  --awe-font-size-label: var(--awe-font-size-sm);
+  --awe-font-size-caption: var(--awe-font-size-xs);
+
+  --awe-font-weight-normal: 400;
+  --awe-font-weight-medium: 500;
+  --awe-font-weight-semibold: 600;
+  --awe-font-weight-bold: 700;
+
+  --awe-line-height-tight: 1.25;
+  --awe-line-height-snug: 1.375;
+  --awe-line-height-base: 1.5;
+
+  --awe-letter-spacing-tight: -0.011em;
+  --awe-letter-spacing-display: -0.022em;
+  --awe-letter-spacing-caps: 0.06em;
+
+  /* Inter features: contextual alternates and the disambiguated capital I; tabular figures for numeric cells */
+  --awe-font-feature-base: 'cv05', 'calt';
+  --awe-font-variant-numeric: tabular-nums;
+}
+
+/* ==========================================================================
+   Tier 2 - Spacing (4px grid), radius, elevation, focus, motion, layers
+   ========================================================================== */
+:root {
+  /* Numeric scale: --awe-space-<n> = n x 4px */
+  --awe-space-0: 0;
+  --awe-space-0-5: 2px;
+  --awe-space-1: 4px;
+  --awe-space-1-5: 6px;
+  --awe-space-2: 8px;
+  --awe-space-3: 12px;
+  --awe-space-4: 16px;
+  --awe-space-5: 20px;
+  --awe-space-6: 24px;
+  --awe-space-8: 32px;
+  --awe-space-10: 40px;
+  --awe-space-12: 48px;
+  --awe-space-16: 64px;
+  /* Existing t-shirt names, now on the 4px grid */
+  --awe-space-2xs: var(--awe-space-0-5);
+  --awe-space-xs: var(--awe-space-1);
+  --awe-space-sm: var(--awe-space-2);
+  --awe-space-md: var(--awe-space-3);
+  --awe-space-lg: var(--awe-space-4);
+  --awe-space-xl: var(--awe-space-6);
+  --awe-space-2xl: var(--awe-space-8);
+
+  /* Radius (Aura scale) */
+  --awe-radius-none: 0;
+  --awe-radius-xs: 2px;
+  --awe-radius-sm: 4px;
+  --awe-radius-md: 6px;
+  --awe-radius-lg: 8px;
+  --awe-radius-xl: 12px;
+  --awe-radius-full: 9999px;
+  --awe-radius: var(--awe-radius-md);
+  --awe-radius-field: var(--awe-radius-md);
+  --awe-radius-content: var(--awe-radius-md);
+  --awe-radius-card: var(--awe-radius-xl);
+  --awe-radius-overlay: var(--awe-radius-md);
+  --awe-radius-modal: var(--awe-radius-xl);
+  --awe-radius-list-option: var(--awe-radius-sm);
+
+  /* Elevation (Aura shadows) */
+  --awe-shadow-xs: 0 1px 2px 0 var(--awe-color-shadow-soft);
+  --awe-shadow-sm: 0 1px 3px 0 var(--awe-color-shadow), 0 1px 2px -1px var(--awe-color-shadow);
+  --awe-shadow-md: 0 4px 6px -1px var(--awe-color-shadow), 0 2px 4px -2px var(--awe-color-shadow);
+  --awe-shadow-lg: 0 20px 25px -5px var(--awe-color-shadow), 0 8px 10px -6px var(--awe-color-shadow);
+  --awe-shadow-field: var(--awe-shadow-xs);
+  --awe-shadow-card: var(--awe-shadow-xs);
+  --awe-shadow-overlay: var(--awe-shadow-md);
+  --awe-shadow-modal: var(--awe-shadow-lg);
+
+  /* Focus ring (keyboard focus); form fields show the focus border plus a soft halo */
+  --awe-color-focus-ring: var(--awe-color-primary-text);
+  --awe-focus-ring-width: 2px;
+  --awe-focus-ring-style: solid;
+  --awe-focus-ring-offset: 2px;
+  --awe-focus-ring: var(--awe-focus-ring-width) var(--awe-focus-ring-style) var(--awe-color-focus-ring);
+  --awe-shadow-field-focus: 0 0 0 3px var(--awe-color-field-focus-halo);
+  --awe-shadow-field-invalid: 0 0 0 3px var(--awe-color-field-invalid-halo);
+
+  /* Motion */
+  --awe-motion-duration-fast: 120ms;
+  --awe-motion-duration-base: 200ms;
+  --awe-motion-duration-slow: 300ms;
+  --awe-motion-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --awe-motion-easing-enter: cubic-bezier(0, 0, 0.2, 1);
+  --awe-motion-easing-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* Expand / collapse of disclosure content (menu levels, accordions): a short ease-out */
+  --awe-motion-duration-expand: 240ms;
+  --awe-motion-easing-expand: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Layers */
+  --awe-z-header: 100;
+  --awe-z-menu: 110;
+  --awe-z-dropdown: 1000;
+  --awe-z-modal: 1100;
+  --awe-z-toast: 1200;
+  --awe-z-tooltip: 1300;
+
+  --awe-opacity-disabled: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --awe-motion-duration-fast: 0ms;
+    --awe-motion-duration-base: 0ms;
+    --awe-motion-duration-slow: 0ms;
+    --awe-motion-duration-expand: 0ms;
+  }
+}
+
+/* ==========================================================================
+   Tier 2 - Density: comfortable (default) and compact
+   ========================================================================== */
+:root {
+  --awe-size-control: 36px;
+  --awe-size-control-sm: 30px;
+  --awe-size-control-lg: 44px;
+  --awe-size-icon: 16px;
+  --awe-size-icon-sm: 14px;
+  --awe-size-icon-lg: 20px;
+  --awe-size-checkbox: 18px;
+  --awe-size-header-height: 60px;
+  --awe-size-menu-width: 264px;
+
+  --awe-field-padding-x: 12px;
+  --awe-field-padding-y: 8px;
+  --awe-button-padding-x: 14px;
+  --awe-gap-label: 6px;
+  --awe-gap-inline: 8px;
+  --awe-gap-form-row: 18px;
+  --awe-gap-form-column: 20px;
+
+  --awe-content-padding: 20px;
+  --awe-layout-gap: 20px;
+  --awe-page-padding: 28px;
+
+  --awe-border-width: 1px;
+  --awe-border-width-strong: 2px;
+
+  --awe-grid-container-sm: 742px;
+  --awe-grid-container-md: 962px;
+  --awe-grid-container-lg: 1162px;
+
+  --awe-list-padding: 4px;
+  --awe-list-gap: 2px;
+  --awe-list-option-padding: 8px 12px;
+  --awe-nav-item-padding: 8px 12px;
+  --awe-nav-item-gap: 10px;
+  --awe-overlay-padding: 12px;
+  --awe-modal-padding: 20px;
+}
+
+:root[data-awe-density="compact"] {
+  --awe-font-size-xs: 11px;
+  --awe-font-size-sm: 12px;
+  --awe-font-size-base: 13px;
+  --awe-font-size-md: 15px;
+  --awe-font-size-page-title: var(--awe-font-size-xl);
+  --awe-font-size-display: var(--awe-font-size-2xl);
+
+  --awe-size-control: 30px;
+  --awe-size-control-sm: 26px;
+  --awe-size-control-lg: 36px;
+  --awe-size-icon: 14px;
+  --awe-size-icon-sm: 12px;
+  --awe-size-icon-lg: 18px;
+  --awe-size-checkbox: 16px;
+  --awe-size-header-height: 52px;
+  --awe-size-menu-width: 240px;
+
+  --awe-field-padding-x: 9px;
+  --awe-field-padding-y: 5px;
+  --awe-button-padding-x: 10px;
+  --awe-gap-label: 4px;
+  --awe-gap-inline: 6px;
+  --awe-gap-form-row: 12px;
+  --awe-gap-form-column: 14px;
+
+  --awe-content-padding: 14px;
+  --awe-layout-gap: 12px;
+  --awe-page-padding: 16px;
+
+  --awe-list-option-padding: 6px 10px;
+  --awe-nav-item-padding: 6px 10px;
+  --awe-nav-item-gap: 8px;
+  --awe-overlay-padding: 10px;
+  --awe-modal-padding: 16px;
+}
+
+/* ==========================================================================
+   Tier 3 - Component tokens (only where a component needs its own knobs)
+   ========================================================================== */
+:root {
+  /* Button */
+  --awe-button-font-size: var(--awe-font-size-base);
+  --awe-button-font-size-sm: var(--awe-font-size-sm);
+  --awe-button-font-size-lg: var(--awe-font-size-md);
+  --awe-button-gap: var(--awe-gap-inline);
+
+  /* Default button (a normal button without a btn-* style): outlined; an application restyles it with these */
+  --awe-button-default-background: var(--awe-color-surface);
+  --awe-button-default-border-color: var(--awe-color-field-border);
+  --awe-button-default-color: var(--awe-color-text);
+  --awe-button-default-font-weight: var(--awe-font-weight-medium);
+  --awe-button-default-background-hover: var(--awe-color-surface-subtle);
+  --awe-button-default-border-color-hover: var(--awe-color-field-border-hover);
+  --awe-button-default-color-hover: var(--awe-color-text);
+  --awe-button-default-background-active: var(--awe-color-surface-hover);
+  --awe-button-default-border-color-active: var(--awe-color-field-border-hover);
+  --awe-button-default-color-active: var(--awe-color-text);
+  /* Field label */
+  --awe-label-font-weight: var(--awe-font-weight-medium);
+  --awe-label-text-transform: none;
+  --awe-label-letter-spacing: normal;
+
+  --awe-card-title-font-size: var(--awe-font-size-base);
+  --awe-card-title-text-transform: uppercase;
+  --awe-card-title-letter-spacing: var(--awe-letter-spacing-caps);
+  /* Grid: least width of the search of the toolbar; it grows to show its whole placeholder */
+  --awe-grid-search-width: 32ch;
+  /* Grid: size of an icon drawn in the avatar of a cell (avatar-icon-field) */
+  --awe-grid-avatar-icon-size: var(--awe-size-icon-sm);
+  /* Side panel: size of an icon drawn in the avatar of the identity header (header-avatar-icon-field) */
+  --awe-panel-avatar-icon-size: var(--awe-size-icon);
+
+  /* Read-only value (style awe-readout on a criterion): a muted small label over the value; awe-readout-block also
+     boxes the value, for long texts such as a detail, a hash or a user agent */
+  --awe-readout-label-color: var(--awe-color-text-muted);
+  --awe-readout-label-font-size: var(--awe-font-size-xs);
+  --awe-readout-label-font-weight: var(--awe-font-weight-normal);
+  --awe-readout-value-color: var(--awe-color-text);
+  --awe-readout-value-font-size: var(--awe-font-size-base);
+  --awe-readout-block-background: var(--awe-color-surface-subtle);
+  --awe-readout-block-border: var(--awe-color-border);
+  --awe-readout-block-radius: var(--awe-radius-lg);
+  --awe-readout-block-padding: var(--awe-space-3);
+
+  /* Cards: inner padding, space between the parts and size of the icon tile (awe-card-compact lowers them) */
+  --awe-card-padding: var(--awe-content-padding);
+  --awe-card-gap: var(--awe-space-3);
+  --awe-card-icon-size: var(--awe-size-control);
+
+  /* Cards: the inset that aligns a grid of cards with the windows of the same screen */
+  --awe-card-grid-inset: calc(var(--awe-border-width) + var(--awe-space-1-5));
+  /* Space between a grid of cards and the block under it: the window brings the inset as its own margin */
+  --awe-card-grid-gap-after: calc(var(--awe-layout-gap) - var(--awe-card-grid-inset));
+
+  /* Grid */
+  --awe-grid-header-background: var(--awe-color-grid-header);
+  --awe-grid-header-text: var(--awe-color-text-muted);
+  --awe-grid-header-font-size: var(--awe-font-size-sm);
+  --awe-grid-header-font-weight: var(--awe-font-weight-semibold);
+  --awe-grid-header-text-transform: none;
+  --awe-grid-header-letter-spacing: normal;
+  --awe-grid-border: var(--awe-color-grid-border);
+  --awe-grid-row-background: var(--awe-color-surface);
+  --awe-grid-row-hover-background: var(--awe-color-surface-subtle);
+  --awe-grid-row-selected-background: var(--awe-color-highlight);
+  --awe-grid-row-selected-text: var(--awe-color-text);
+  /* Veil over the rows while the grid loads: the surface at half opacity, in light and dark mode */
+  --awe-grid-loading-overlay: color-mix(in srgb, var(--awe-color-surface) 50%, transparent);
+  --awe-grid-cell-padding-y: 11px;
+  --awe-grid-cell-padding-x: 14px;
+  /* Primary line on the left of the edited row and of an open row detail */
+  --awe-grid-row-marker-width: 3px;
+  /* Primary line that shows where a dragged row lands in a grid with move-rows */
+  --awe-grid-drop-indicator-width: var(--awe-focus-ring-width);
+  /* Minimum height of the rows area: the header and about three rows, for a grid whose container gives it no height */
+  --awe-grid-min-body-height: 12rem;
+  /* Width of the Columns of the grid toolbar (popover, dialog and side panel): px, the root font size differs by engine */
+  --awe-grid-columns-panel-width: 432px;
+
+  /* Side menu */
+  --awe-menu-width: var(--awe-size-menu-width);
+  --awe-menu-width-collapsed: 68px;
+  --awe-menu-background: var(--awe-color-menu);
+  --awe-menu-border: var(--awe-color-border);
+  --awe-menu-item-text: var(--awe-color-nav-item-text);
+  --awe-menu-item-icon: var(--awe-color-nav-item-icon);
+  --awe-menu-item-hover-background: var(--awe-color-nav-item-focus);
+  --awe-menu-item-active-background: var(--awe-color-menu-accent);
+  --awe-menu-item-active-text: var(--awe-color-on-highlight);
+  --awe-menu-item-active-icon: var(--awe-color-primary-text);
+  --awe-menu-item-radius: var(--awe-radius-md);
+  --awe-menu-section-label: var(--awe-color-nav-submenu-label);
+  --awe-menu-item-height: 36px;
+  --awe-menu-item-sub-text: var(--awe-color-text-muted);
+  /* Nested levels: indentation of each level and x position of its guide line (under the parent icon / text) */
+  --awe-menu-indent: 30px;
+  --awe-menu-indent-l3: 22px;
+  --awe-menu-guide-l2: 20px;
+  --awe-menu-guide-l3: 14px;
+  --awe-menu-guide-l3-flyout: 16px;
+  --awe-menu-guide: var(--awe-color-border);
+  --awe-menu-guide-active: var(--awe-color-primary-text);
+  --awe-menu-flyout-width: 264px;
+  --awe-menu-description-font-size: var(--awe-font-size-xs);
+  --awe-menu-description-color: var(--awe-color-text-muted);
+  --awe-menu-description-padding: var(--awe-space-2) var(--awe-space-3);
+  --awe-menu-description-border: var(--awe-border-width) solid var(--awe-color-border);
+
+  /* Header and brand slot */
+  --awe-header-height: var(--awe-size-header-height);
+  --awe-header-background: color-mix(in srgb, var(--awe-color-navbar), transparent 15%);
+  --awe-header-border: var(--awe-color-border);
+  /* The header blurs the content that scrolls under it (it is slightly translucent) */
+  --awe-header-backdrop-filter: saturate(1.4) blur(10px);
+  --awe-header-search-width: 380px;
+  --awe-header-logo-height: 34px;
+
+  /* Overlays: the mask under a dialog and the toasts (slightly translucent in the dark mode) blur what they cover */
+  --awe-mask-backdrop-filter: blur(2px);
+  --awe-toast-backdrop-filter: blur(8px);
+
+  /* Segmented control (button radio, button-bar grid column, theme switches): Aura toggle button values with a
+     bordered selected segment so the selection reads in both modes */
+  --awe-segmented-track: light-dark(var(--awe-surface-100), var(--awe-surface-950));
+  --awe-segmented-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-segmented-text: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+  --awe-segmented-hover-text: var(--awe-color-text-emphasis);
+  --awe-segmented-selected: light-dark(var(--awe-surface-0), var(--awe-surface-700));
+  --awe-segmented-selected-border: var(--awe-surface-500);
+  --awe-segmented-selected-text: light-dark(var(--awe-surface-900), var(--awe-surface-0));
+
+  /* Choice controls: the check mark and the radio dot inside --awe-size-checkbox, and the switch track and handle */
+  --awe-checkbox-icon-size: 12px;
+  --awe-radio-dot-size: 8px;
+  --awe-switch-width: 36px;
+  --awe-switch-height: 20px;
+  --awe-switch-handle-size: 16px;
+
+  /* Calendar of a date criterion: the day of a date picker and the gap between the days of its grid. A table separates
+     its cells by their padding, so each side of a cell takes half of the gap */
+  --awe-datepicker-day-size: var(--awe-space-8);
+  --awe-datepicker-cell-gap: var(--awe-space-0-5);
+}
+
+:root[data-awe-density="compact"] {
+  --awe-grid-cell-padding-y: 6px;
+  --awe-grid-cell-padding-x: 10px;
+  --awe-menu-width-collapsed: 60px;
+  --awe-menu-item-height: 30px;
+  --awe-menu-indent: 26px;
+  --awe-menu-indent-l3: 18px;
+  --awe-menu-guide-l2: 17px;
+  --awe-menu-guide-l3: 11px;
+  --awe-menu-guide-l3-flyout: 13px;
+  --awe-menu-flyout-width: 240px;
+  --awe-header-search-width: 320px;
+  --awe-header-logo-height: 30px;
+  --awe-datepicker-day-size: 28px;
+}
+
+/* ==========================================================================
+   Tier 3 - Login page
+   The image panel shows --awe-login-image (a url() the product sets) over the default AWE brand panel; the caption
+   sits on a dark scrim so its text keeps AA contrast over any image, in light and dark mode.
+   ========================================================================== */
+:root {
+  --awe-login-main-min: 440px;
+  --awe-login-form-width: 420px;
+  --awe-login-padding-y: var(--awe-space-10);
+  --awe-login-padding-x: var(--awe-space-12);
+  --awe-login-logo-height: 40px;
+  --awe-login-background: var(--awe-color-surface);
+  --awe-login-image: none;
+  --awe-login-scrim: linear-gradient(to top,
+    color-mix(in srgb, var(--awe-palette-slate-950) 86%, transparent) 0%,
+    color-mix(in srgb, var(--awe-palette-slate-950) 62%, transparent) 22%,
+    color-mix(in srgb, var(--awe-palette-slate-950) 0%, transparent) 50%);
+  --awe-login-caption-text: #ffffff;
+  --awe-login-caption-muted: color-mix(in srgb, #ffffff 88%, transparent);
+  --awe-login-gradient:
+    radial-gradient(110% 70% at 88% 8%, light-dark(var(--awe-primary-300), var(--awe-primary-600)) 0%, transparent 58%),
+    radial-gradient(90% 60% at 8% 92%, light-dark(var(--awe-primary-800), var(--awe-primary-950)) 0%, transparent 62%),
+    linear-gradient(160deg, light-dark(var(--awe-primary-700), var(--awe-primary-900)) 0%,
+      light-dark(var(--awe-primary-500), var(--awe-primary-700)) 100%);
+
+  /* Default panel: the AWE brand logo over a dark surface lit by the primary, in both modes */
+  --awe-login-brand-background:
+    radial-gradient(75% 55% at 88% 6%, color-mix(in srgb, var(--awe-primary-500) 42%, transparent) 0%, transparent 70%),
+    radial-gradient(70% 50% at 0% 100%, color-mix(in srgb, var(--awe-primary-700) 45%, transparent) 0%, transparent 72%),
+    linear-gradient(160deg, var(--awe-surface-900) 0%, var(--awe-surface-950) 100%);
+  --awe-login-brand-logo-width: 340px;
+
+  /* Card layout: the form in a card over the full-screen background, under a light veil of the image */
+  --awe-login-card-width: 480px;
+  --awe-login-card-padding: var(--awe-space-10);
+  --awe-login-card-background: var(--awe-color-surface);
+  --awe-login-card-radius: var(--awe-radius-modal);
+  --awe-login-card-shadow: var(--awe-shadow-modal);
+  --awe-login-backdrop-veil: color-mix(in srgb, var(--awe-palette-slate-950) 35%, transparent);
+
+  /* "Sign in with Microsoft" button: the official Microsoft logo and text on a button of the application style */
+  --awe-login-microsoft-background: var(--awe-color-surface);
+  --awe-login-microsoft-border: var(--awe-color-border);
+  --awe-login-microsoft-text: var(--awe-color-text-emphasis);
+  --awe-login-microsoft-font-family: var(--awe-font-family-base);
+  --awe-login-microsoft-font-size: var(--awe-font-size-md);
+  --awe-login-microsoft-height: var(--awe-size-control-lg);
+  --awe-login-microsoft-padding: var(--awe-space-3);
+  --awe-login-microsoft-radius: var(--awe-radius-field);
+
+}
+
+:root[data-awe-density="compact"] {
+  --awe-login-form-width: 380px;
+  --awe-login-padding-y: var(--awe-space-8);
+  --awe-login-padding-x: var(--awe-space-8);
+  --awe-login-logo-height: 34px;
+  --awe-login-brand-logo-width: 280px;
+  --awe-login-card-width: 420px;
+  --awe-login-card-padding: var(--awe-space-8);
+}
+
+/* Compact grid of cards (style awe-card-compact on the container): tighter padding, gaps and icon tile, for a row of
+   summary figures above a grid */
+.awe-card-compact {
+  --awe-card-padding: var(--awe-space-4);
+  --awe-card-gap: var(--awe-space-2);
+  --awe-card-icon-size: var(--awe-size-control-sm);
+}
+
+/* ==== AWE 5 shell, copied from design/modules/02-panel-pestanas.html ==== */
+* { box-sizing: border-box; }
+/* Colour mode of the tokens (light-dark()): the user's choice as a class on <html>, as in
+   awe-framework/awe-client-react/src/main.css */
+:root { color-scheme: light dark; }
+:root.light { color-scheme: light; }
+:root.dark { color-scheme: dark; }
+body { margin: 0; background: var(--awe-color-background); color: var(--awe-color-text);
+  font-family: var(--awe-font-family-base); font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-base); font-feature-settings: var(--awe-font-feature-base); }
+button { font: inherit; }
+.board { width: 1440px; margin: 0 auto; position: relative; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.icon { width: var(--awe-size-icon); height: var(--awe-size-icon); flex: none; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.icon--sm { width: var(--awe-size-icon-sm); height: var(--awe-size-icon-sm); }
+.icon--lg { width: var(--awe-size-icon-lg); height: var(--awe-size-icon-lg); }
+
+/* Board toolbar: modes and densities */
+.demo-tools { position: sticky; top: 0; z-index: var(--awe-z-toast); display: flex; gap: var(--awe-gap-inline);
+  align-items: center; padding: var(--awe-space-2) var(--awe-space-4); background: var(--awe-color-surface);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.demo-tools .spacer { flex: 1; }
+.demo-tools .note { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+
+/* Shell */
+.shell { display: flex; min-height: 900px; background: var(--awe-color-background); }
+.menu { width: var(--awe-menu-width); flex: none; background: var(--awe-menu-background);
+  border-right: var(--awe-border-width) solid var(--awe-menu-border); display: flex; flex-direction: column;
+  padding: var(--awe-space-3); gap: var(--awe-space-1); }
+.brand { display: flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-3) var(--awe-space-2);
+  font-weight: var(--awe-font-weight-semibold); }
+.brand-mark { width: var(--awe-space-8); height: var(--awe-space-8); border-radius: var(--awe-radius-md);
+  background: var(--awe-color-primary); color: var(--awe-color-on-primary); display: grid; place-items: center;
+  font-size: var(--awe-font-size-sm); letter-spacing: var(--awe-letter-spacing-tight); }
+.brand small { display: block; font-weight: var(--awe-font-weight-normal); font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted); }
+.menu-search { display: flex; align-items: center; gap: var(--awe-space-2); height: var(--awe-size-control);
+  padding: 0 var(--awe-space-3); margin: var(--awe-space-2) 0 var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-field-border); border-radius: var(--awe-radius-field);
+  color: var(--awe-color-field-placeholder); font-size: var(--awe-font-size-sm); }
+.menu-search kbd { margin-left: auto; font-family: var(--awe-font-family-base); font-size: var(--awe-font-size-xs);
+  border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-sm);
+  padding: 0 var(--awe-space-1); color: var(--awe-color-text-muted); }
+.menu-section { font-size: var(--awe-font-size-xs); text-transform: uppercase;
+  letter-spacing: var(--awe-letter-spacing-caps); color: var(--awe-menu-section-label);
+  padding: var(--awe-space-3) var(--awe-space-3) var(--awe-space-1); }
+.menu-item { display: flex; align-items: center; gap: var(--awe-nav-item-gap); height: var(--awe-menu-item-height);
+  padding: var(--awe-nav-item-padding); border-radius: var(--awe-menu-item-radius); color: var(--awe-menu-item-text);
+  font-size: var(--awe-font-size-base); text-decoration: none; }
+.menu-item .icon { color: var(--awe-menu-item-icon); }
+.menu-item[aria-current="page"] { background: var(--awe-menu-item-active-background);
+  color: var(--awe-menu-item-active-text); font-weight: var(--awe-font-weight-medium); }
+.menu-item[aria-current="page"] .icon { color: var(--awe-menu-item-active-icon); }
+.menu-foot { margin-top: auto; border-top: var(--awe-border-width) solid var(--awe-color-border);
+  padding-top: var(--awe-space-3); display: flex; align-items: center; gap: var(--awe-space-2);
+  font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.app-header { height: var(--awe-header-height); display: flex; align-items: center; gap: var(--awe-space-3);
+  padding: 0 var(--awe-content-padding); background: var(--awe-header-background);
+  backdrop-filter: var(--awe-header-backdrop-filter); border-bottom: var(--awe-border-width) solid var(--awe-header-border);
+  position: sticky; top: 0; z-index: var(--awe-z-header); }
+.app-header .spacer { flex: 1; }
+.crumbs { display: flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-4) var(--awe-page-padding) 0;
+  font-size: var(--awe-font-size-sm); color: var(--awe-color-text-muted); }
+.crumbs a { color: inherit; text-decoration: none; }
+.crumbs strong { color: var(--awe-color-text); font-weight: var(--awe-font-weight-medium); }
+.page { padding: var(--awe-space-4) var(--awe-page-padding) var(--awe-page-padding); display: flex;
+  flex-direction: column; gap: var(--awe-layout-gap); }
+.page-head { display: flex; align-items: flex-start; gap: var(--awe-space-4); }
+.page-head h1 { margin: 0; font-size: var(--awe-font-size-page-title); letter-spacing: var(--awe-letter-spacing-tight); }
+.page-head p { margin: var(--awe-space-1) 0 0; color: var(--awe-color-text-muted); font-size: var(--awe-font-size-sm); }
+.page-head .actions { margin-left: auto; display: flex; align-items: center; gap: var(--awe-gap-inline); }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--awe-gap-inline);
+  height: var(--awe-size-control); padding: 0 var(--awe-button-padding-x); border-radius: var(--awe-radius-field);
+  border: var(--awe-border-width) solid var(--awe-color-border); background: var(--awe-color-surface);
+  color: var(--awe-color-text); font-weight: var(--awe-font-weight-medium); font-size: var(--awe-font-size-sm);
+  cursor: pointer; white-space: nowrap; }
+.btn:hover { background: var(--awe-color-surface-hover); }
+.btn:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); }
+.btn--primary { background: var(--awe-color-primary); color: var(--awe-color-on-primary);
+  border-color: var(--awe-color-primary); }
+.btn--primary:hover { background: var(--awe-color-primary-hover); }
+.btn--danger { background: var(--awe-color-danger); color: var(--awe-color-on-danger);
+  border-color: var(--awe-color-danger); }
+.btn--ghost { background: transparent; border-color: transparent; color: var(--awe-color-text-muted);
+  width: var(--awe-size-control); padding: 0; }
+.btn--ghost:hover { background: var(--awe-color-surface-hover); color: var(--awe-color-text); }
+.btn--sm { height: var(--awe-size-control-sm); padding: 0 var(--awe-space-3); font-size: var(--awe-font-size-xs); }
+.btn--link { border-color: transparent; background: transparent; color: var(--awe-color-primary-text);
+  padding: 0 var(--awe-space-1); height: auto; }
+.btn--link:hover { background: transparent; text-decoration: underline; }
+
+/* Cards */
+.card { background: var(--awe-color-surface); border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card); box-shadow: var(--awe-shadow-card); display: flex;
+  flex-direction: column; min-width: 0; }
+.card-head { display: flex; align-items: center; gap: var(--awe-space-3); padding: var(--awe-space-4) var(--awe-space-5);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.card-head h2 { margin: 0; font-size: var(--awe-font-size-section-title); }
+.card-head .count { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted);
+  background: var(--awe-color-secondary); border-radius: var(--awe-radius-full); padding: 0 var(--awe-space-2); }
+.card-head .actions { margin-left: auto; display: flex; gap: var(--awe-gap-inline); align-items: center; }
+.card-body { padding: var(--awe-space-4) var(--awe-space-5); }
+.card-body--flush { padding: 0; }
+.card-foot { padding: var(--awe-space-3) var(--awe-space-5); border-top: var(--awe-border-width) solid var(--awe-color-border);
+  display: flex; align-items: center; gap: var(--awe-space-3); color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-xs); }
+.card-foot .actions { margin-left: auto; display: flex; gap: var(--awe-gap-inline); }
+
+/* Grid toolbar and grid */
+.grid-toolbar { display: flex; align-items: center; gap: var(--awe-gap-inline); padding: var(--awe-space-3) var(--awe-space-5);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle); flex-wrap: wrap; }
+.search { display: flex; align-items: center; gap: var(--awe-space-2); height: var(--awe-size-control);
+  min-width: 260px; padding: 0 var(--awe-space-3); border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field); background: var(--awe-color-field); color: var(--awe-color-field-text);
+  font-size: var(--awe-font-size-sm); }
+.search span { color: var(--awe-color-field-placeholder); }
+.grid-toolbar .spacer { flex: 1; }
+.segmented { display: inline-flex; padding: var(--awe-space-0-5); gap: var(--awe-space-0-5);
+  border-radius: var(--awe-radius-field); background: var(--awe-segmented-track);
+  border: var(--awe-border-width) solid var(--awe-segmented-border); }
+.segmented button { border: var(--awe-border-width) solid transparent; background: transparent;
+  color: var(--awe-segmented-text); border-radius: var(--awe-radius-sm); padding: var(--awe-space-1) var(--awe-space-3);
+  font-size: var(--awe-font-size-sm); cursor: pointer; display: inline-flex; align-items: center; gap: var(--awe-space-1-5); }
+.segmented button[aria-pressed="true"] { background: var(--awe-segmented-selected);
+  border-color: var(--awe-segmented-selected-border); color: var(--awe-segmented-selected-text);
+  font-weight: var(--awe-font-weight-semibold); }
+.segmented .n { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+table.grid { width: 100%; border-collapse: collapse; }
+table.grid th { text-align: left; background: var(--awe-grid-header-background); color: var(--awe-grid-header-text);
+  font-size: var(--awe-grid-header-font-size); font-weight: var(--awe-grid-header-font-weight);
+  text-transform: uppercase; letter-spacing: var(--awe-letter-spacing-caps); white-space: nowrap;
+  padding: var(--awe-grid-cell-padding-y) var(--awe-grid-cell-padding-x);
+  border-bottom: var(--awe-border-width) solid var(--awe-grid-border); position: sticky; top: 0; }
+table.grid td { padding: var(--awe-grid-cell-padding-y) var(--awe-grid-cell-padding-x);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle); vertical-align: middle; }
+table.grid tbody tr:hover { background: var(--awe-color-surface-subtle); }
+table.grid tr[aria-selected="true"] { background: var(--awe-color-highlight); }
+table.grid td.num { text-align: center; font-variant-numeric: var(--awe-font-variant-numeric); }
+table.grid td.actions { text-align: right; white-space: nowrap; }
+.cell-strong { font-weight: var(--awe-font-weight-medium); color: var(--awe-color-text-emphasis); }
+.cell-sub { display: block; font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.cell-main { display: flex; align-items: center; gap: var(--awe-space-3); }
+.avatar { width: var(--awe-space-8); height: var(--awe-space-8); border-radius: var(--awe-radius-full);
+  display: grid; place-items: center; font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-semibold);
+  background: var(--awe-color-primary-subtle); color: var(--awe-color-on-primary-subtle); flex: none; }
+.tag { display: inline-flex; align-items: center; gap: var(--awe-space-1-5); padding: var(--awe-space-0-5) var(--awe-space-2);
+  border-radius: var(--awe-radius-full); font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium); border: var(--awe-border-width) solid; white-space: nowrap; }
+.tag .dot { width: var(--awe-space-1-5); height: var(--awe-space-1-5); border-radius: var(--awe-radius-full);
+  background: currentColor; }
+.tag--success { background: var(--awe-color-success-subtle); color: var(--awe-color-success-text);
+  border-color: var(--awe-color-success-border); }
+.tag--neutral { background: var(--awe-color-neutral-subtle); color: var(--awe-color-neutral-text);
+  border-color: var(--awe-color-border); }
+.tag--info { background: var(--awe-color-info-subtle); color: var(--awe-color-info-text);
+  border-color: var(--awe-color-info-border); }
+.chip-dashed { border: var(--awe-border-width) dashed var(--awe-color-border); border-radius: var(--awe-radius-full);
+  padding: var(--awe-space-0-5) var(--awe-space-2); font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted); display: inline-flex; gap: var(--awe-space-1); align-items: center; }
+
+/* Criteria */
+.form-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(232px, 1fr)); gap: var(--awe-gap-form-row) var(--awe-gap-form-column); }
+.field { display: flex; flex-direction: column; gap: var(--awe-gap-label); min-width: 0; }
+.field label { font-size: var(--awe-font-size-label); font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-field-label); }
+.field .req { color: var(--awe-color-required); }
+.field input, .field select { height: var(--awe-size-control); padding: var(--awe-field-padding-y) var(--awe-field-padding-x);
+  border-radius: var(--awe-radius-field); border: var(--awe-border-width) solid var(--awe-color-field-border);
+  background: var(--awe-color-field); color: var(--awe-color-field-text); font: inherit;
+  font-size: var(--awe-font-size-base); }
+.field input:focus-visible, .field select:focus-visible { outline: none;
+  border-color: var(--awe-color-field-border-focus); box-shadow: var(--awe-shadow-field-focus); }
+.field .help { font-size: var(--awe-font-size-xs); color: var(--awe-color-field-help); }
+.field--inline { flex-direction: row; align-items: center; gap: var(--awe-space-2); }
+.field--inline label { font-size: var(--awe-font-size-base); color: var(--awe-color-text); }
+.switch { width: var(--awe-switch-width); height: var(--awe-switch-height); border-radius: var(--awe-radius-full);
+  background: var(--awe-color-primary); position: relative; flex: none; }
+.switch::after { content: ""; position: absolute; top: 2px; right: 2px; width: var(--awe-switch-handle-size);
+  height: var(--awe-switch-handle-size); border-radius: var(--awe-radius-full); background: var(--awe-color-surface); }
+.switch[aria-checked="false"] { background: var(--awe-color-disabled); }
+.switch[aria-checked="false"]::after { right: auto; left: 2px; }
+.form-section { display: flex; align-items: center; gap: var(--awe-space-2); margin: var(--awe-space-5) 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-label); text-transform: uppercase; letter-spacing: var(--awe-letter-spacing-caps);
+  color: var(--awe-color-text-muted); }
+.form-section::after { content: ""; flex: 1; height: var(--awe-border-width); background: var(--awe-color-border); }
+.form-section:first-child { margin-top: 0; }
+
+/* Side panel */
+.panel-mask { position: absolute; inset: 0; background: var(--awe-color-mask);
+  backdrop-filter: var(--awe-mask-backdrop-filter); z-index: var(--awe-z-modal); }
+.panel { position: absolute; top: 0; right: 0; bottom: 0; width: 40rem; background: var(--awe-color-surface);
+  border-left: var(--awe-border-width) solid var(--awe-color-border); box-shadow: var(--awe-shadow-lg);
+  z-index: var(--awe-z-modal); display: flex; flex-direction: column; }
+/* 640px, not rem: the root font size is 10px in AngularJS and 13px in React (measured) */
+.panel--wide { width: 640px; }
+.panel-head { display: flex; align-items: flex-start; gap: var(--awe-space-3); padding: var(--awe-space-5);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.panel-head .titles { min-width: 0; }
+.panel-head h2 { margin: 0; font-size: var(--awe-font-size-dialog-title); }
+.panel-head .sub { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); margin-top: var(--awe-space-0-5); }
+.panel-head .close { margin-left: auto; }
+.panel-body { padding: var(--awe-space-5); overflow: auto; flex: 1; }
+.panel-foot { padding: var(--awe-space-4) var(--awe-space-5); border-top: var(--awe-border-width) solid var(--awe-color-border);
+  display: flex; justify-content: flex-end; gap: var(--awe-gap-inline); }
+
+/* Dialog over the panel */
+.dialog-mask { position: absolute; inset: 0; background: var(--awe-color-mask);
+  backdrop-filter: var(--awe-mask-backdrop-filter); z-index: calc(var(--awe-z-modal) + 1); }
+.dialog { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60rem;
+  background: var(--awe-color-surface); border-radius: var(--awe-radius-modal); box-shadow: var(--awe-shadow-modal);
+  border: var(--awe-border-width) solid var(--awe-color-border); z-index: calc(var(--awe-z-modal) + 2);
+  display: flex; flex-direction: column; max-height: 38rem; }
+.dialog-head { display: flex; align-items: center; gap: var(--awe-space-3); padding: var(--awe-modal-padding);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.dialog-head h2 { margin: 0; font-size: var(--awe-font-size-dialog-title); }
+.dialog-head .sub { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.dialog-head .close { margin-left: auto; }
+.dialog-body { padding: var(--awe-modal-padding); overflow: auto; }
+.dialog-foot { padding: var(--awe-space-4) var(--awe-modal-padding); border-top: var(--awe-border-width) solid var(--awe-color-border);
+  display: flex; gap: var(--awe-gap-inline); justify-content: flex-end; }
+.dialog-foot .left { margin-right: auto; display: flex; gap: var(--awe-gap-inline); }
+
+/* Editable grid */
+table.editable td { padding: var(--awe-space-2) var(--awe-grid-cell-padding-x); }
+table.editable tr.editing { background: var(--awe-color-highlight); box-shadow: inset var(--awe-grid-row-marker-width) 0 0 var(--awe-color-primary); }
+table.editable tr.editing td:first-child { padding-left: calc(var(--awe-grid-cell-padding-x) + var(--awe-space-1)); }
+.cell-select { display: flex; align-items: center; justify-content: space-between; gap: var(--awe-space-2);
+  height: var(--awe-size-control-sm); padding: 0 var(--awe-space-2) 0 var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-field-border); border-radius: var(--awe-radius-field);
+  background: var(--awe-color-field); font-size: var(--awe-font-size-sm); color: var(--awe-color-field-text); }
+.cell-select .icon { color: var(--awe-color-field-icon); }
+.cell-input { height: var(--awe-size-control-sm); width: 100%; padding: 0 var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-field-border); border-radius: var(--awe-radius-field);
+  background: var(--awe-color-field); font-size: var(--awe-font-size-sm); color: var(--awe-color-field-text); }
+.grip { color: var(--awe-color-text-muted); cursor: grab; }
+.row-actions { display: flex; gap: var(--awe-space-0-5); justify-content: flex-end; }
+.readonly-list { border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-lg);
+  overflow: hidden; }
+.readonly-list table { width: 100%; border-collapse: collapse; }
+.readonly-list th { text-align: left; font-size: var(--awe-font-size-xs); text-transform: uppercase;
+  letter-spacing: var(--awe-letter-spacing-caps); color: var(--awe-color-text-muted);
+  background: var(--awe-grid-header-background); padding: var(--awe-space-2) var(--awe-space-3); }
+.readonly-list td { padding: var(--awe-space-2) var(--awe-space-3); font-size: var(--awe-font-size-sm);
+  border-top: var(--awe-border-width) solid var(--awe-color-border-subtle); }
+.empty { display: flex; flex-direction: column; align-items: center; gap: var(--awe-space-2);
+  padding: var(--awe-space-8) var(--awe-space-4); text-align: center; }
+.empty .ring { width: var(--awe-space-12); height: var(--awe-space-12); border-radius: var(--awe-radius-full);
+  background: var(--awe-color-primary-subtle); color: var(--awe-color-primary-text); display: grid; place-items: center; }
+.empty strong { font-size: var(--awe-font-size-md); }
+.empty p { margin: 0; font-size: var(--awe-font-size-sm); color: var(--awe-color-text-muted); max-width: 34ch; }
+
+/* States and captions */
+.state { position: relative; padding-bottom: var(--awe-space-6); }
+.state-label { display: flex; align-items: baseline; gap: var(--awe-space-3); margin: var(--awe-space-6) 0 var(--awe-space-3); }
+.state-label h3 { margin: 0; font-size: var(--awe-font-size-md); }
+.state-label p { margin: 0; font-size: var(--awe-font-size-sm); color: var(--awe-color-text-muted); }
+.state-label .letter { display: grid; place-items: center; width: var(--awe-space-6); height: var(--awe-space-6);
+  border-radius: var(--awe-radius-full); background: var(--awe-color-primary-subtle);
+  color: var(--awe-color-on-primary-subtle); font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-bold); }
+.frame { position: relative; overflow: hidden; border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card); }
+.split { display: grid; grid-template-columns: 30rem minmax(0, 1fr); gap: var(--awe-layout-gap); align-items: start; }
+.note-bar { display: flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-3) var(--awe-space-2);
+  font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+
+
+.badge { display: inline-flex; align-items: center; gap: var(--awe-space-1); border-radius: var(--awe-radius-full);
+  padding: var(--awe-space-0-5) var(--awe-space-2); font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold); border: var(--awe-border-width) solid; white-space: nowrap; }
+.badge--chosen { background: var(--awe-color-success-subtle); color: var(--awe-color-success-text);
+  border-color: var(--awe-color-success-border); }
+.badge--dropped { background: var(--awe-color-neutral-subtle); color: var(--awe-color-neutral-text);
+  border-color: var(--awe-color-border); }
+.findings { background: var(--awe-color-surface); border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card); box-shadow: var(--awe-shadow-card); padding: var(--awe-space-5);
+  margin-top: var(--awe-space-6); }
+.findings h3 { margin: 0 0 var(--awe-space-3); font-size: var(--awe-font-size-section-title); }
+.findings ol { margin: 0; padding-left: var(--awe-space-5); display: flex; flex-direction: column; gap: var(--awe-space-2); }
+.findings li { font-size: var(--awe-font-size-sm); color: var(--awe-color-text); }
+.findings li strong { color: var(--awe-color-text-emphasis); }
+.findings li code { font-family: var(--awe-font-family-monospace); font-size: var(--awe-font-size-xs);
+  background: var(--awe-color-surface-hover); border-radius: var(--awe-radius-xs); padding: 0 var(--awe-space-1); }
+.col-count { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.grid-head-bar { display: flex; align-items: center; gap: var(--awe-gap-inline); padding: var(--awe-space-3) 0; }
+.grid-head-bar .spacer { flex: 1; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+
+
+/* ==== Modules window ==== */
+.tag--warning { background: var(--awe-color-warning-subtle); color: var(--awe-color-warning-text);
+  border-color: var(--awe-color-warning-border); }
+.tag--danger { background: var(--awe-color-danger-subtle); color: var(--awe-color-danger-text);
+  border-color: var(--awe-color-danger-border); }
+.mono { font-family: var(--awe-font-family-monospace); font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted); white-space: nowrap; }
+.summary { display: flex; flex-wrap: wrap; gap: var(--awe-space-1); }
+.pill { display: inline-flex; align-items: center; gap: var(--awe-space-1); padding: var(--awe-space-0-5) var(--awe-space-2);
+  border-radius: var(--awe-radius-full); font-size: var(--awe-font-size-xs); background: var(--awe-color-surface-hover);
+  color: var(--awe-color-text); white-space: nowrap; }
+.pill .icon { color: var(--awe-color-text-muted); }
+.muted { color: var(--awe-color-text-muted); }
+
+/* Tabs inside the side panel */
+.tabs { display: flex; gap: var(--awe-space-1); padding: 0 var(--awe-space-5);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.tab { display: inline-flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-3) var(--awe-space-3);
+  border: 0; background: transparent; color: var(--awe-color-text-muted); font-weight: var(--awe-font-weight-medium);
+  font-size: var(--awe-font-size-sm); cursor: pointer; position: relative; }
+.tab:hover { color: var(--awe-color-text); }
+.tab:focus-visible { outline: var(--awe-focus-ring); outline-offset: calc(var(--awe-focus-ring-offset) * -1); }
+.tab[aria-selected="true"] { color: var(--awe-color-primary-text); }
+.tab[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: calc(var(--awe-border-width) * -1);
+  height: var(--awe-space-0-5); background: var(--awe-color-primary); border-radius: var(--awe-radius-full); }
+.tab .n { font-size: var(--awe-font-size-xs); background: var(--awe-color-surface-hover); color: var(--awe-color-text-muted);
+  border-radius: var(--awe-radius-full); padding: 0 var(--awe-space-1-5); }
+.tab .err { width: var(--awe-space-1-5); height: var(--awe-space-1-5); border-radius: var(--awe-radius-full);
+  background: var(--awe-color-danger); }
+
+/* Sub grids inside a section */
+.subgrid { border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-lg);
+  overflow: hidden; }
+.subgrid .grid-head-bar { padding: var(--awe-space-2) var(--awe-space-3); background: var(--awe-color-surface-subtle);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle); }
+.subgrid .grid-head-bar strong { font-size: var(--awe-font-size-sm); }
+.subgrid table.grid th { position: static; }
+.hint { display: flex; gap: var(--awe-space-2); align-items: flex-start; padding: var(--awe-space-3);
+  border-radius: var(--awe-radius-lg); background: var(--awe-color-info-subtle); color: var(--awe-color-info-text);
+  border: var(--awe-border-width) solid var(--awe-color-info-border); font-size: var(--awe-font-size-sm); }
+.hint .icon { margin-top: var(--awe-space-0-5); }
+.stack { display: flex; flex-direction: column; gap: var(--awe-space-4); }
+.field input[aria-invalid="true"] { border-color: var(--awe-color-field-border-invalid); box-shadow: var(--awe-shadow-field-invalid); }
+.field .error { font-size: var(--awe-font-size-xs); color: var(--awe-color-danger-text); }
+.cell-select.invalid { border-color: var(--awe-color-field-border-invalid); }
+
+/* Detail page (direction 03) */
+.detail-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--awe-layout-gap); }
+.save-bar { position: sticky; bottom: 0; display: flex; align-items: center; gap: var(--awe-space-3);
+  padding: var(--awe-space-3) var(--awe-page-padding); background: var(--awe-color-surface);
+  border-top: var(--awe-border-width) solid var(--awe-color-border); box-shadow: var(--awe-shadow-md); }
+.save-bar .spacer { flex: 1; }
+.dirty { width: var(--awe-space-2); height: var(--awe-space-2); border-radius: var(--awe-radius-full);
+  background: var(--awe-color-warning); }
+
+/* ==== Scheduler · Tareas ==== */
+.states { padding: 0 var(--awe-space-6) var(--awe-space-8); }
+.annot { margin: var(--awe-space-6) var(--awe-space-6) 0; padding: var(--awe-space-4) var(--awe-space-5);
+  border: var(--awe-border-width-strong) dashed var(--awe-color-border); border-radius: var(--awe-radius-lg);
+  background: var(--awe-color-surface-subtle); font-size: var(--awe-font-size-sm); }
+.annot h2 { margin: 0 0 var(--awe-space-3); font-size: var(--awe-font-size-section-title); }
+.annot h3 { margin: 0 0 var(--awe-space-2); font-size: var(--awe-font-size-sm); color: var(--awe-color-text-emphasis); }
+.annot-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--awe-space-6); }
+.annot ul { margin: 0; padding-left: var(--awe-space-4); display: flex; flex-direction: column; gap: var(--awe-space-1-5);
+  color: var(--awe-color-text); line-height: var(--awe-line-height-snug); }
+.frame > .shell { min-height: 100%; }
+.menu-badge { margin-left: auto; min-width: var(--awe-space-5); height: var(--awe-space-5); display: grid; place-items: center;
+  border-radius: var(--awe-radius-full); background: var(--awe-color-info-subtle); color: var(--awe-color-info-text);
+  font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-semibold); }
+.crumbs a:hover { color: var(--awe-color-text); text-decoration: underline; }
+.crumbs a:focus-visible, a:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); border-radius: var(--awe-radius-xs); }
+a { color: var(--awe-color-primary-text); }
+.tag .icon { width: var(--awe-size-icon-sm); height: var(--awe-size-icon-sm); }
+.st { gap: var(--awe-space-1); }
+.spin { animation: spin 1.2s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.rel { position: relative; display: inline-flex; }
+.inline-ic { display: inline-flex; gap: var(--awe-space-2); align-items: flex-start; }
+.inline-ic > .icon { margin-top: var(--awe-space-0-5); color: var(--awe-color-info-text); }
+
+/* Toolbar selects */
+.tb-select { height: var(--awe-size-control); min-width: 10rem; color: var(--awe-color-text-muted); cursor: pointer; }
+.tb-select b { color: var(--awe-color-field-text); font-weight: var(--awe-font-weight-medium); margin-right: auto; }
+.tb-select:focus-visible { outline: none; border-color: var(--awe-color-field-border-focus); box-shadow: var(--awe-shadow-field-focus); }
+
+/* Catalog grid */
+table.catalog { table-layout: fixed; }
+table.catalog td { font-size: var(--awe-font-size-sm); }
+table.catalog th { white-space: normal; vertical-align: bottom; }
+table.catalog td.actions { padding-left: 0; padding-right: var(--awe-space-2); }
+table.catalog th.num, table.catalog td.num { text-align: right; }
+table.catalog tbody tr { cursor: pointer; }
+table.catalog tbody tr.is-hover { background: var(--awe-color-surface-subtle); box-shadow: inset var(--awe-grid-row-marker-width) 0 0 var(--awe-color-primary); }
+.row-link { color: inherit; text-decoration: none; }
+.row-link:hover .cell-strong { text-decoration: underline; }
+.clamp { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.when { display: inline-flex; gap: var(--awe-space-2); align-items: flex-start; }
+.when > .icon { margin-top: var(--awe-space-0-5); color: var(--awe-color-text-muted); }
+.when-main { display: block; color: var(--awe-color-text); }
+.legend { margin-left: auto; display: inline-flex; gap: var(--awe-space-2); align-items: center; }
+
+/* Status history bars (new component) */
+.hist { display: flex; align-items: flex-end; gap: var(--awe-space-0-5); height: var(--awe-space-6); margin-bottom: var(--awe-space-1); }
+.hist--lg { height: var(--awe-space-12); gap: var(--awe-space-1); margin: var(--awe-space-3) 0 var(--awe-space-1); }
+.hb { position: relative; display: block; flex: 1 1 0; max-width: var(--awe-space-2); height: 100%;
+  border-radius: var(--awe-radius-xs); background: var(--awe-color-danger); }
+.hist--lg .hb { max-width: none; }
+.hb--ok { height: 50%; background: var(--awe-color-success); }
+.hb--info { height: 50%; background: var(--awe-color-info); }
+.hb--warn { height: 78%; background: var(--awe-color-warning); }
+.hb--err { background: var(--awe-color-danger); }
+.hb--int { background: repeating-linear-gradient(135deg, var(--awe-color-danger) 0 var(--awe-space-0-5), var(--awe-color-danger-subtle) var(--awe-space-0-5) var(--awe-space-1)); }
+.hb--stop { background: var(--awe-color-text-muted); }
+.hb--skip { background: transparent; border: var(--awe-border-width) dashed var(--awe-color-text-muted); }
+.hb--run, .hb--queue { background: var(--awe-color-info-subtle); border: var(--awe-border-width-strong) solid var(--awe-color-info); }
+.hb:hover { filter: brightness(1.1); }
+.hb:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-space-0-5); }
+.hb:hover::after, .hb:focus-visible::after, .hb.is-tip::after { content: attr(data-tip); position: absolute;
+  bottom: calc(100% + var(--awe-space-2)); left: 50%; transform: translateX(-50%); z-index: var(--awe-z-tooltip);
+  white-space: pre; padding: var(--awe-space-1) var(--awe-space-2); border-radius: var(--awe-radius-sm);
+  background: var(--awe-color-tooltip); color: var(--awe-color-on-tooltip); font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-line-height-snug); box-shadow: var(--awe-shadow-overlay); pointer-events: none; }
+
+/* Switch as a real control */
+button.switch { border: 0; padding: 0; cursor: pointer; }
+button.switch:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); }
+
+/* Row and header menus (dropdown menu) */
+.menu-pop { position: absolute; top: calc(100% + var(--awe-space-1)); right: 0; width: 13rem; z-index: var(--awe-z-dropdown);
+  padding: var(--awe-space-1); background: var(--awe-color-overlay); color: var(--awe-color-overlay-text);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border); border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay); text-align: left; }
+.menu-pop button { display: flex; width: 100%; align-items: center; gap: var(--awe-space-2); border: 0; background: transparent;
+  padding: var(--awe-space-2) var(--awe-space-3); border-radius: var(--awe-radius-list-option); font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text); cursor: pointer; }
+.menu-pop button .icon { color: var(--awe-color-list-option-icon); }
+.menu-pop button:hover, .menu-pop button:focus-visible { background: var(--awe-color-list-option-focus); outline: none; }
+.menu-pop button.danger, .menu-pop button.danger .icon { color: var(--awe-color-danger-text); }
+.menu-pop hr { border: 0; border-top: var(--awe-border-width) solid var(--awe-color-border-subtle); margin: var(--awe-space-1) 0; }
+
+/* Task page */
+.task-head .title-row { display: flex; align-items: center; gap: var(--awe-space-3); }
+.meta { margin-top: var(--awe-space-3); }
+.page-tabs { padding: 0 var(--awe-space-5); }
+.tab-body { display: flex; flex-direction: column; gap: var(--awe-layout-gap); padding-top: var(--awe-space-5); }
+.kpis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--awe-layout-gap); }
+.kpi, .sub-card { border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-lg);
+  padding: var(--awe-space-4); display: flex; flex-direction: column; gap: var(--awe-space-2); min-width: 0; }
+.kpi-title { margin: 0; font-size: var(--awe-font-size-xs); text-transform: uppercase; letter-spacing: var(--awe-letter-spacing-caps);
+  color: var(--awe-color-text-muted); font-weight: var(--awe-font-weight-semibold); }
+.kpi-value { font-size: var(--awe-font-size-3xl); font-weight: var(--awe-font-weight-semibold); color: var(--awe-color-text-emphasis);
+  letter-spacing: var(--awe-letter-spacing-display); font-variant-numeric: var(--awe-font-variant-numeric); line-height: var(--awe-line-height-tight); }
+.kpi-unit { font-size: var(--awe-font-size-sm); font-weight: var(--awe-font-weight-normal); color: var(--awe-color-text-muted);
+  margin-left: var(--awe-space-2); letter-spacing: normal; }
+.kpi-row { display: flex; align-items: flex-end; gap: var(--awe-space-4); }
+.kpi-legend { display: flex; flex-wrap: wrap; gap: var(--awe-space-1) var(--awe-space-3); font-size: var(--awe-font-size-xs); color: var(--awe-color-text); }
+.kpi-legend > span { display: inline-flex; align-items: center; gap: var(--awe-space-1); }
+.stackbar { display: flex; gap: var(--awe-space-0-5); height: var(--awe-space-2); border-radius: var(--awe-radius-full); overflow: hidden; }
+.seg--ok { background: var(--awe-color-success); }
+.seg--warn { background: var(--awe-color-warning); }
+.seg--err { background: var(--awe-color-danger); }
+.spark { flex: 1; height: var(--awe-space-12); min-width: 0; overflow: visible; }
+.spark-line { fill: none; stroke: var(--awe-color-chart-line); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.spark-area { fill: var(--awe-color-chart-area); }
+.spark-dot { fill: var(--awe-color-warning); }
+.next-dep { display: flex; gap: var(--awe-space-3); align-items: flex-start; }
+.next-dep > .icon { color: var(--awe-color-primary-text); margin-top: var(--awe-space-0-5); }
+.next-dep strong { display: block; color: var(--awe-color-text-emphasis); }
+.next-dep .cell-sub { margin-top: var(--awe-space-1); font-size: var(--awe-font-size-sm); }
+.sum-grid { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--awe-layout-gap); align-items: start; }
+.sub-head { display: flex; align-items: center; gap: var(--awe-space-3); }
+.sub-head h2 { margin: 0; font-size: var(--awe-font-size-section-title); }
+.sub-head .muted { font-size: var(--awe-font-size-xs); }
+.sub-head .btn--link { margin-left: auto; display: inline-flex; }
+.sub-head .tag { margin-left: auto; }
+.axis { display: flex; justify-content: space-between; font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.hint--warning { background: var(--awe-color-warning-subtle); color: var(--awe-color-warning-text); border-color: var(--awe-color-warning-border); }
+.readouts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--awe-space-3); margin: var(--awe-space-1) 0 0; }
+.readouts dt { font-size: var(--awe-readout-label-font-size); color: var(--awe-readout-label-color); }
+.readouts dd { margin: 0; font-size: var(--awe-font-size-sm); color: var(--awe-readout-value-color); font-variant-numeric: var(--awe-font-variant-numeric); }
+.sub-foot { display: flex; justify-content: flex-end; }
+.mono.strong { color: var(--awe-color-text-emphasis); font-weight: var(--awe-font-weight-medium); }
+
+/* Dependencies mini graph (new component, shared with the flow graph) */
+.graph { position: relative; height: calc(var(--awe-space-10) * 9); border: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  border-radius: var(--awe-radius-lg); background: var(--awe-color-surface-subtle); }
+.g-edges { position: absolute; inset: 0; width: 100%; height: 100%; }
+.g-edge { fill: none; stroke: var(--awe-color-text-muted); stroke-width: 2; vector-effect: non-scaling-stroke; }
+.g-edge--faint { stroke: var(--awe-color-border); stroke-dasharray: 6 4; }
+.g-arrow { fill: var(--awe-color-text-muted); }
+.g-arrow--faint { fill: var(--awe-color-border); }
+.g-col-label { position: absolute; top: var(--awe-space-3); font-size: var(--awe-font-size-xs); text-transform: uppercase;
+  letter-spacing: var(--awe-letter-spacing-caps); color: var(--awe-color-text-muted); font-weight: var(--awe-font-weight-semibold); }
+.g-node { position: absolute; transform: translateY(-50%); display: flex; flex-direction: column; gap: var(--awe-space-1); padding: var(--awe-space-2) var(--awe-space-3);
+  border-radius: var(--awe-radius-lg); background: var(--awe-color-surface); border: var(--awe-border-width) solid var(--awe-color-border);
+  box-shadow: var(--awe-shadow-card); font-size: var(--awe-font-size-sm); }
+.g-node strong { color: var(--awe-color-text-emphasis); font-weight: var(--awe-font-weight-semibold); }
+.g-node--self { border: var(--awe-border-width-strong) solid var(--awe-color-primary); box-shadow: var(--awe-shadow-md); }
+.g-node--ghost { background: transparent; box-shadow: none; border-style: dashed; }
+.g-node--ghost strong { color: var(--awe-color-text); font-weight: var(--awe-font-weight-medium); }
+.g-kind { display: inline-flex; align-items: center; gap: var(--awe-space-1); font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.g-st { display: flex; align-items: center; gap: var(--awe-space-2); font-size: var(--awe-font-size-xs); }
+.g-label { position: absolute; transform: translate(-50%, -50%); display: inline-flex; align-items: center; text-align: left; line-height: var(--awe-line-height-snug); gap: var(--awe-space-1);
+  padding: var(--awe-space-1) var(--awe-space-2); border-radius: var(--awe-radius-md); white-space: nowrap;
+  background: var(--awe-color-surface); border: var(--awe-border-width) solid var(--awe-color-border);
+  font-size: var(--awe-font-size-xs); color: var(--awe-color-text); }
+.g-label .icon { color: var(--awe-color-success-text); }
+.g-label--faint { color: var(--awe-color-text-muted); border-style: dashed; transform: translate(-50%, -50%); }
+.dep-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--awe-layout-gap); }
+.dep-note { display: flex; gap: var(--awe-space-3); align-items: flex-start; font-size: var(--awe-font-size-sm); }
+.dep-note > .icon { color: var(--awe-color-primary-text); margin-top: var(--awe-space-0-5); }
+.dep-note .cell-sub { font-size: var(--awe-font-size-sm); margin-top: var(--awe-space-0-5); }
+.menu-pop--right { right: 0; }
+
+/* Launch dialog */
+.dialog--launch { width: 46rem; top: 48%; }
+.params td { vertical-align: top; }
+.params .cell-input { font-family: var(--awe-font-family-base); }
+.params .cell-input:focus-visible { outline: none; border-color: var(--awe-color-field-border-focus); box-shadow: var(--awe-shadow-field-focus); }
+.params .cell-sub { margin-top: var(--awe-space-1); }
+.dialog--launch .hint { margin-top: var(--awe-space-4); }
+.dialog-foot .btn--link { display: inline-flex; }
+
+</style>
+</head>
+<body>
+<main class="board" aria-label="Planificador · Tareas">
+<div class="demo-tools">
+  <span class="note">AWE 5 · Planificador · 02 Tareas y ficha de tarea · datos de ejemplo: tesorería, hoy martes 17/11/2026 10:22</span>
+  <div class="spacer"></div>
+  <div class="segmented" role="group" aria-label="Modo de color">
+    <button data-mode="light" aria-pressed="false" onclick="setMode('light')">Claro</button>
+    <button data-mode="dark" aria-pressed="false" onclick="setMode('dark')">Oscuro</button>
+  </div>
+  <div class="segmented" role="group" aria-label="Densidad">
+    <button data-density="comfortable" aria-pressed="true" onclick="setDensity('comfortable')">Cómoda</button>
+    <button data-density="compact" aria-pressed="false" onclick="setDensity('compact')">Compacta</button>
+  </div>
+</div>
+<aside class="annot" aria-labelledby="annot-title">
+  <h2 id="annot-title">Nota de diseño · Tareas (no forma parte de la pantalla)</h2>
+  <div class="annot-cols">
+    <div><h3>Decisiones</h3><ul>
+      <li><strong>Catálogo = qué, cuándo y cómo le va.</strong> «Cuándo» es un resumen en lenguaje natural que se deriva del tipo de lanzamiento (Manual, Programada, Fichero), el calendario, el servidor de ficheros y las dependencias; no hay campo nuevo.</li>
+      <li><strong>Historial:</strong> las 20 últimas ejecuciones guardadas (límite «ejecuciones guardadas» de cada tarea). Cada barra es un enlace con tooltip y etiqueta accesible; la altura distingue OK (baja) de lo que requiere atención (alta) y el texto de debajo lo resume. Las «omitidas» salen del flujo, no hay ejecución.</li>
+      <li><strong>Estado = icono + texto</strong> siempre; nunca solo color.</li>
+    </ul></div>
+    <div><h3>Ficha de tarea</h3><ul>
+      <li>Un clic en la fila abre la ficha (ruta propia, se puede enlazar). Pestañas Resumen, Historial, Dependencias y Configuración (resumen de solo lectura con «Editar»).</li>
+      <li><strong>Ejecutar</strong> abre siempre el diálogo si la tarea tiene parámetros variables; en lanzamiento manual se puede cambiar cualquier parámetro (Valor, Variable, Propiedad).</li>
+      <li>Diferida = En ejecución esperando a la API, con límite (tiempo máximo de la tarea o 24 h). «Ver log» abre el mismo panel lateral (640 px) que Actividad.</li>
+    </ul></div>
+    <div><h3>Componentes nuevos (AngularJS y React)</h3><ul>
+      <li><span class="mono">status-history</span>: barras de estado con tooltip y navegación con flechas (un tabstop por celda).</li>
+      <li><span class="mono">status-tag</span> con icono por estado (OK, Aviso, Error, Detenida, En ejecución, En cola, Interrumpida, Información, Omitida).</li>
+      <li>Mini grafo de dependencias: el mismo componente que el grafo del flujo (03/05), en modo 1 nivel.</li>
+      <li>Sparkline en tarjeta, columna de resumen «Cuándo». Reutiliza menú de fila, switch, diálogo y panel lateral existentes.</li>
+    </ul></div>
+  </div>
+</aside>
+<div class="states">
+<section class="state" aria-labelledby="st-1">
+  <div class="state-label"><span class="letter">1</span><h3 id="st-1">Catálogo de tareas</h3><p>Las 7 tareas con su último estado, cuándo se lanzan y las 20 últimas ejecuciones. Tooltip abierto en la barra del flujo #4807; menú de fila abierto en Actualizar posiciones de tesorería.</p></div>
+  <div class="frame" style="height:1060px">
+<div class="shell">
+  <aside class="menu" aria-label="Menú principal">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z"/></svg>Inicio</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Actividad<span class="menu-badge" aria-label="1 ejecución en curso">1</span></a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Tareas</a>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a7.9 7.9 0 0 0 .1-3l2-1.5-2-3.4-2.3 1a8 8 0 0 0-2.6-1.5L14 2h-4l-.5 2.6a8 8 0 0 0-2.6 1.5l-2.3-1-2 3.4L4.6 12a7.9 7.9 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a8 8 0 0 0 2.6 1.5L10 22h4l.5-2.6a8 8 0 0 0 2.6-1.5l2.3 1 2-3.4Z"/></svg>Configuración</a>
+    <div class="menu-foot"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn--ghost" aria-label="Mostrar u ocultar el menú"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg></button>
+      <div class="spacer"></div>
+      <button class="btn btn--ghost" aria-label="Menú de usuario"><span class="avatar">PV</span></button>
+    </header>
+    <nav class="crumbs" aria-label="Migas de pan">Planificador<span>/</span><strong>Tareas</strong></nav>
+    <div class="page">
+      <div class="page-head">
+        <div><h1>Tareas</h1><p>Qué se ejecuta, cuándo y cómo ha ido. Pulsa una tarea para abrir su ficha.</p></div>
+        <div class="actions">
+          <button class="btn btn--ghost" aria-label="Ayuda"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
+          <button class="btn btn--primary"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>Nueva tarea</button>
+        </div>
+      </div>
+      <section class="card" aria-label="Catálogo de tareas">
+        <div class="grid-toolbar">
+          <div class="search" style="min-width:15rem"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Buscar tarea o qué ejecuta</span></div>
+          <div class="cell-select tb-select" role="button" tabindex="0" aria-haspopup="listbox">Lanzamiento: <b>Todos</b><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="segmented" role="group" aria-label="Activa">
+            <button aria-pressed="true">Todas <span class="n">7</span></button>
+            <button aria-pressed="false">Activas <span class="n">7</span></button>
+            <button aria-pressed="false">Inactivas <span class="n">0</span></button>
+          </div>
+          <div class="cell-select tb-select" role="button" tabindex="0" aria-haspopup="listbox">Último estado: <b>Todos</b><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></div>
+          <div class="spacer"></div>
+          <button class="btn btn--ghost btn--sm" aria-label="Elegir columnas"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg></button>
+          <button class="btn btn--ghost btn--sm" aria-label="Exportar"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4 20h16"/></svg></button>
+        </div>
+        <table class="grid catalog">
+          <caption class="sr-only">7 tareas del planificador</caption>
+          <thead><tr>
+            <th style="width:8.5rem">Último estado</th><th>Tarea</th><th style="width:14.5rem">Cuándo</th>
+            <th style="width:10rem">Historial (20)</th><th style="width:9.5rem">Próxima ejecución</th>
+            <th style="width:5.5rem" class="num">Media</th><th style="width:5rem">Activa</th>
+            <th style="width:3rem"><span class="sr-only">Acciones</span></th></tr></thead>
+          <tbody>
+<tr>
+  <td><span class="tag tag--success st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>OK</span><span class="cell-sub">Hoy 08:05</span></td>
+  <td><a class="row-link" href="#tarea-13"><span class="cell-strong">Importar extractos bancarios</span></a><span class="cell-sub clamp">Descarga los extractos Norma 43 de los bancos y los carga en tesorería</span></td>
+  <td><span class="when"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg><span><span class="when-main">Al llegar un fichero en sftp-bancos:/in/n43</span><span class="cell-sub">*.n43 · revisa cada 5 min</span></span></span></td>
+  <td><div class="hist" role="group" aria-label="Últimas 20 ejecuciones, de la más antigua a la más reciente"><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 212, OK, 21/10/2026 08:05, 1 min 11 s, flujo 4793" data-tip="OK · 21/10/2026 08:05 · 1m 11s&#10;Ejecución 212 · flujo #4793"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 213, OK, 22/10/2026 08:05, 1 min 9 s, flujo 4794" data-tip="OK · 22/10/2026 08:05 · 1m 09s&#10;Ejecución 213 · flujo #4794"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 214, OK, 23/10/2026 08:05, 1 min 10 s, flujo 4795" data-tip="OK · 23/10/2026 08:05 · 1m 10s&#10;Ejecución 214 · flujo #4795"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 215, OK, 26/10/2026 08:05, 1 min 12 s, flujo 4796" data-tip="OK · 26/10/2026 08:05 · 1m 12s&#10;Ejecución 215 · flujo #4796"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 216, OK, 27/10/2026 08:05, 1 min 6 s, flujo 4797" data-tip="OK · 27/10/2026 08:05 · 1m 06s&#10;Ejecución 216 · flujo #4797"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 217, OK, 28/10/2026 08:05, 1 min 8 s, flujo 4798" data-tip="OK · 28/10/2026 08:05 · 1m 08s&#10;Ejecución 217 · flujo #4798"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 218, OK, 29/10/2026 08:05, 1 min 11 s, flujo 4799" data-tip="OK · 29/10/2026 08:05 · 1m 11s&#10;Ejecución 218 · flujo #4799"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 219, OK, 30/10/2026 08:05, 1 min 9 s, flujo 4800" data-tip="OK · 30/10/2026 08:05 · 1m 09s&#10;Ejecución 219 · flujo #4800"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 220, OK, 02/11/2026 08:05, 1 min 10 s, flujo 4801" data-tip="OK · 02/11/2026 08:05 · 1m 10s&#10;Ejecución 220 · flujo #4801"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 221, OK, 03/11/2026 08:05, 1 min 7 s, flujo 4802" data-tip="OK · 03/11/2026 08:05 · 1m 07s&#10;Ejecución 221 · flujo #4802"></a><a href="#" class="hb hb--warn" tabindex="-1" aria-label="Ejecución 222, Aviso, 04/11/2026 08:05, 1 min 35 s, flujo 4803" data-tip="Aviso · 04/11/2026 08:05 · 1m 35s&#10;Ejecución 222 · flujo #4803"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 223, OK, 05/11/2026 08:05, 1 min 13 s, flujo 4804" data-tip="OK · 05/11/2026 08:05 · 1m 13s&#10;Ejecución 223 · flujo #4804"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 224, OK, 06/11/2026 08:05, 1 min 10 s, flujo 4805" data-tip="OK · 06/11/2026 08:05 · 1m 10s&#10;Ejecución 224 · flujo #4805"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 225, OK, 09/11/2026 08:05, 1 min 8 s, flujo 4806" data-tip="OK · 09/11/2026 08:05 · 1m 08s&#10;Ejecución 225 · flujo #4806"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 226, OK, 10/11/2026 08:05, 1 min 9 s, flujo 4807" data-tip="OK · 10/11/2026 08:05 · 1m 09s&#10;Ejecución 226 · flujo #4807"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 227, OK, 11/11/2026 08:05, 1 min 14 s, flujo 4808" data-tip="OK · 11/11/2026 08:05 · 1m 14s&#10;Ejecución 227 · flujo #4808"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 228, OK, 12/11/2026 08:05, 1 min 11 s, flujo 4809" data-tip="OK · 12/11/2026 08:05 · 1m 11s&#10;Ejecución 228 · flujo #4809"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 229, OK, 13/11/2026 08:05, 1 min 6 s, flujo 4810" data-tip="OK · 13/11/2026 08:05 · 1m 06s&#10;Ejecución 229 · flujo #4810"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 230, OK, 16/11/2026 08:05, 1 min 10 s, flujo 4811" data-tip="OK · 16/11/2026 08:05 · 1m 10s&#10;Ejecución 230 · flujo #4811"></a><a href="#" class="hb hb--ok" tabindex="0" aria-label="Ejecución 231, OK, 17/11/2026 08:05, 1 min 12 s, flujo 4812" data-tip="OK · 17/11/2026 08:05 · 1m 12s&#10;Ejecución 231 · flujo #4812"></a></div><span class="cell-sub">19 OK · 1 aviso</span></td>
+  <td><span class="cell-strong">Hoy 10:25</span><span class="cell-sub">comprobación del SFTP</span></td>
+  <td class="num">1m 11s</td>
+  <td><button class="switch" role="switch" aria-checked="true" aria-label="Activa: Importar extractos bancarios"></button></td>
+  <td class="actions"><div class="rel"><button class="btn btn--ghost btn--sm" aria-haspopup="menu" aria-expanded="false" aria-label="Más acciones de Importar extractos bancarios"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></div></td>
+</tr>
+<tr class="is-hover">
+  <td><span class="tag tag--warning st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Aviso</span><span class="cell-sub">Hoy 08:06</span></td>
+  <td><a class="row-link" href="#tarea-13"><span class="cell-strong">Conciliación bancaria</span></a><span class="cell-sub clamp">Casa los movimientos bancarios con los apuntes contables del día</span></td>
+  <td><span class="when"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg><span><span class="when-main">Después de Importar extractos bancarios</span><span class="cell-sub">si termina en OK o Aviso</span></span></span></td>
+  <td><div class="hist" role="group" aria-label="Últimas 20 ejecuciones, de la más antigua a la más reciente"><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 195, OK, 21/10/2026 08:06, 2 min 56 s, flujo 4793" data-tip="OK · 21/10/2026 08:06 · 2m 56s&#10;Ejecución 195 · flujo #4793"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 196, OK, 22/10/2026 08:06, 2 min 59 s, flujo 4794" data-tip="OK · 22/10/2026 08:06 · 2m 59s&#10;Ejecución 196 · flujo #4794"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 197, OK, 23/10/2026 08:06, 3 min 8 s, flujo 4795" data-tip="OK · 23/10/2026 08:06 · 3m 08s&#10;Ejecución 197 · flujo #4795"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 198, OK, 26/10/2026 08:06, 3 min 2 s, flujo 4796" data-tip="OK · 26/10/2026 08:06 · 3m 02s&#10;Ejecución 198 · flujo #4796"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 199, OK, 27/10/2026 08:06, 3 min 10 s, flujo 4797" data-tip="OK · 27/10/2026 08:06 · 3m 10s&#10;Ejecución 199 · flujo #4797"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 200, OK, 28/10/2026 08:06, 3 min 27 s, flujo 4798" data-tip="OK · 28/10/2026 08:06 · 3m 27s&#10;Ejecución 200 · flujo #4798"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 201, OK, 29/10/2026 08:06, 3 min 14 s, flujo 4799" data-tip="OK · 29/10/2026 08:06 · 3m 14s&#10;Ejecución 201 · flujo #4799"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 202, OK, 30/10/2026 08:06, 3 min 5 s, flujo 4800" data-tip="OK · 30/10/2026 08:06 · 3m 05s&#10;Ejecución 202 · flujo #4800"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 203, OK, 02/11/2026 08:06, 3 min 19 s, flujo 4801" data-tip="OK · 02/11/2026 08:06 · 3m 19s&#10;Ejecución 203 · flujo #4801"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 204, OK, 03/11/2026 08:06, 3 min 23 s, flujo 4802" data-tip="OK · 03/11/2026 08:06 · 3m 23s&#10;Ejecución 204 · flujo #4802"></a><a href="#" class="hb hb--warn" tabindex="-1" aria-label="Ejecución 205, Aviso, 04/11/2026 08:06, 4 min 0 s, flujo 4803" data-tip="Aviso · 04/11/2026 08:06 · 4m 00s&#10;Ejecución 205 · flujo #4803"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 206, OK, 05/11/2026 08:06, 3 min 8 s, flujo 4804" data-tip="OK · 05/11/2026 08:06 · 3m 08s&#10;Ejecución 206 · flujo #4804"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 207, OK, 06/11/2026 08:06, 3 min 16 s, flujo 4805" data-tip="OK · 06/11/2026 08:06 · 3m 16s&#10;Ejecución 207 · flujo #4805"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 208, OK, 09/11/2026 08:06, 3 min 21 s, flujo 4806" data-tip="OK · 09/11/2026 08:06 · 3m 21s&#10;Ejecución 208 · flujo #4806"></a><a href="#" class="hb hb--err is-tip" tabindex="-1" aria-label="Ejecución 209, Error, 10/11/2026 08:06, 1 min 2 s, flujo 4807" data-tip="Error · 10/11/2026 08:06 · 1m 02s&#10;Ejecución 209 · flujo #4807"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 210, OK, 11/11/2026 08:06, 3 min 32 s, flujo 4808" data-tip="OK · 11/11/2026 08:06 · 3m 32s&#10;Ejecución 210 · flujo #4808"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 211, OK, 12/11/2026 08:06, 3 min 10 s, flujo 4809" data-tip="OK · 12/11/2026 08:06 · 3m 10s&#10;Ejecución 211 · flujo #4809"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 212, OK, 13/11/2026 08:06, 3 min 25 s, flujo 4810" data-tip="OK · 13/11/2026 08:06 · 3m 25s&#10;Ejecución 212 · flujo #4810"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 213, OK, 16/11/2026 08:06, 3 min 18 s, flujo 4811" data-tip="OK · 16/11/2026 08:06 · 3m 18s&#10;Ejecución 213 · flujo #4811"></a><a href="#" class="hb hb--warn" tabindex="0" aria-label="Ejecución 214, Aviso, 17/11/2026 08:06, 3 min 40 s, flujo 4812" data-tip="Aviso · 17/11/2026 08:06 · 3m 40s&#10;Ejecución 214 · flujo #4812"></a></div><span class="cell-sub">17 OK · 2 avisos · 1 error</span></td>
+  <td><span class="cell-strong">Próximo fichero</span><span class="cell-sub">al terminar Importar extractos</span></td>
+  <td class="num">3m 11s</td>
+  <td><button class="switch" role="switch" aria-checked="true" aria-label="Activa: Conciliación bancaria"></button></td>
+  <td class="actions"><div class="rel"><button class="btn btn--ghost btn--sm" aria-haspopup="menu" aria-expanded="false" aria-label="Más acciones de Conciliación bancaria"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></div></td>
+</tr>
+<tr>
+  <td><span class="tag tag--success st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>OK</span><span class="cell-sub">Hoy 08:06</span></td>
+  <td><a class="row-link" href="#tarea-13"><span class="cell-strong">Actualizar posiciones de tesorería</span></a><span class="cell-sub clamp">Recalcula el saldo previsto de cada cuenta con los extractos importados</span></td>
+  <td><span class="when"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg><span><span class="when-main">Después de Importar extractos bancarios</span><span class="cell-sub">si termina en OK o Aviso</span></span></span></td>
+  <td><div class="hist" role="group" aria-label="Últimas 20 ejecuciones, de la más antigua a la más reciente"><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 193, OK, 21/10/2026 08:06, 2 min 1 s, flujo 4793" data-tip="OK · 21/10/2026 08:06 · 2m 01s&#10;Ejecución 193 · flujo #4793"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 194, OK, 22/10/2026 08:06, 2 min 0 s, flujo 4794" data-tip="OK · 22/10/2026 08:06 · 2m 00s&#10;Ejecución 194 · flujo #4794"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 195, OK, 23/10/2026 08:06, 2 min 2 s, flujo 4795" data-tip="OK · 23/10/2026 08:06 · 2m 02s&#10;Ejecución 195 · flujo #4795"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 196, OK, 26/10/2026 08:06, 1 min 58 s, flujo 4796" data-tip="OK · 26/10/2026 08:06 · 1m 58s&#10;Ejecución 196 · flujo #4796"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 197, OK, 27/10/2026 08:06, 1 min 59 s, flujo 4797" data-tip="OK · 27/10/2026 08:06 · 1m 59s&#10;Ejecución 197 · flujo #4797"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 198, OK, 28/10/2026 08:06, 2 min 1 s, flujo 4798" data-tip="OK · 28/10/2026 08:06 · 2m 01s&#10;Ejecución 198 · flujo #4798"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 199, OK, 29/10/2026 08:06, 2 min 3 s, flujo 4799" data-tip="OK · 29/10/2026 08:06 · 2m 03s&#10;Ejecución 199 · flujo #4799"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 200, OK, 30/10/2026 08:06, 2 min 0 s, flujo 4800" data-tip="OK · 30/10/2026 08:06 · 2m 00s&#10;Ejecución 200 · flujo #4800"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 201, OK, 02/11/2026 08:06, 1 min 58 s, flujo 4801" data-tip="OK · 02/11/2026 08:06 · 1m 58s&#10;Ejecución 201 · flujo #4801"></a><a href="#" class="hb hb--info" tabindex="-1" aria-label="Ejecución 202, Información, 03/11/2026 08:06, 2 min 11 s, flujo 4802" data-tip="Información · 03/11/2026 08:06 · 2m 11s&#10;Ejecución 202 · flujo #4802"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 203, OK, 04/11/2026 08:06, 1 min 59 s, flujo 4803" data-tip="OK · 04/11/2026 08:06 · 1m 59s&#10;Ejecución 203 · flujo #4803"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 204, OK, 05/11/2026 08:06, 2 min 6 s, flujo 4804" data-tip="OK · 05/11/2026 08:06 · 2m 06s&#10;Ejecución 204 · flujo #4804"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 205, OK, 06/11/2026 08:06, 2 min 2 s, flujo 4805" data-tip="OK · 06/11/2026 08:06 · 2m 02s&#10;Ejecución 205 · flujo #4805"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 206, OK, 09/11/2026 08:06, 1 min 57 s, flujo 4806" data-tip="OK · 09/11/2026 08:06 · 1m 57s&#10;Ejecución 206 · flujo #4806"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 207, OK, 10/11/2026 08:06, 2 min 0 s, flujo 4807" data-tip="OK · 10/11/2026 08:06 · 2m 00s&#10;Ejecución 207 · flujo #4807"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 208, OK, 11/11/2026 08:06, 2 min 4 s, flujo 4808" data-tip="OK · 11/11/2026 08:06 · 2m 04s&#10;Ejecución 208 · flujo #4808"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 209, OK, 12/11/2026 08:06, 1 min 59 s, flujo 4809" data-tip="OK · 12/11/2026 08:06 · 1m 59s&#10;Ejecución 209 · flujo #4809"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 210, OK, 13/11/2026 08:06, 2 min 1 s, flujo 4810" data-tip="OK · 13/11/2026 08:06 · 2m 01s&#10;Ejecución 210 · flujo #4810"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 211, OK, 16/11/2026 08:06, 1 min 58 s, flujo 4811" data-tip="OK · 16/11/2026 08:06 · 1m 58s&#10;Ejecución 211 · flujo #4811"></a><a href="#" class="hb hb--ok" tabindex="0" aria-label="Ejecución 212, OK, 17/11/2026 08:06, 2 min 5 s, flujo 4812" data-tip="OK · 17/11/2026 08:06 · 2m 05s&#10;Ejecución 212 · flujo #4812"></a></div><span class="cell-sub">19 OK · 1 información</span></td>
+  <td><span class="cell-strong">Próximo fichero</span><span class="cell-sub">al terminar Importar extractos</span></td>
+  <td class="num">2m 01s</td>
+  <td><button class="switch" role="switch" aria-checked="true" aria-label="Activa: Actualizar posiciones de tesorería"></button></td>
+  <td class="actions"><div class="rel"><button class="btn btn--ghost btn--sm" aria-haspopup="menu" aria-expanded="true" aria-label="Más acciones de Actualizar posiciones de tesorería"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button><div class="menu-pop" role="menu" aria-label="Acciones de Actualizar posiciones de tesorería">
+  <button role="menuitem"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z"/></svg>Ejecutar…</button>
+  <button role="menuitem"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Editar</button>
+  <button role="menuitem"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Duplicar</button>
+  <button role="menuitem"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>Desactivar</button>
+  <hr>
+  <button role="menuitem" class="danger"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Borrar…</button>
+</div></div></td>
+</tr>
+<tr>
+  <td><span class="tag tag--success st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>OK</span><span class="cell-sub">Hoy 08:10</span></td>
+  <td><a class="row-link" href="#tarea-13"><span class="cell-strong">Informe diario de tesorería</span></a><span class="cell-sub clamp">Genera el PDF de posición de tesorería para dirección financiera</span></td>
+  <td><span class="when"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg><span><span class="when-main">Después de Conciliación bancaria y Actualizar posiciones de tesorería</span><span class="cell-sub">cuando terminan las dos</span></span></span></td>
+  <td><div class="hist" role="group" aria-label="Últimas 20 ejecuciones, de la más antigua a la más reciente"><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 189, OK, 21/10/2026 08:10, 50 s, flujo 4793" data-tip="OK · 21/10/2026 08:10 · 50s&#10;Ejecución 189 · flujo #4793"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 190, OK, 22/10/2026 08:10, 49 s, flujo 4794" data-tip="OK · 22/10/2026 08:10 · 49s&#10;Ejecución 190 · flujo #4794"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 191, OK, 23/10/2026 08:10, 51 s, flujo 4795" data-tip="OK · 23/10/2026 08:10 · 51s&#10;Ejecución 191 · flujo #4795"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 192, OK, 26/10/2026 08:10, 52 s, flujo 4796" data-tip="OK · 26/10/2026 08:10 · 52s&#10;Ejecución 192 · flujo #4796"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 193, OK, 27/10/2026 08:10, 50 s, flujo 4797" data-tip="OK · 27/10/2026 08:10 · 50s&#10;Ejecución 193 · flujo #4797"></a><a href="#" class="hb hb--err" tabindex="-1" aria-label="Ejecución 194, Error, 28/10/2026 08:10, 14 s, flujo 4798" data-tip="Error · 28/10/2026 08:10 · 14s&#10;Ejecución 194 · flujo #4798"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 195, OK, 29/10/2026 08:10, 49 s, flujo 4799" data-tip="OK · 29/10/2026 08:10 · 49s&#10;Ejecución 195 · flujo #4799"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 196, OK, 30/10/2026 08:10, 51 s, flujo 4800" data-tip="OK · 30/10/2026 08:10 · 51s&#10;Ejecución 196 · flujo #4800"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 197, OK, 02/11/2026 08:10, 50 s, flujo 4801" data-tip="OK · 02/11/2026 08:10 · 50s&#10;Ejecución 197 · flujo #4801"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 198, OK, 03/11/2026 08:10, 52 s, flujo 4802" data-tip="OK · 03/11/2026 08:10 · 52s&#10;Ejecución 198 · flujo #4802"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 199, OK, 04/11/2026 08:10, 55 s, flujo 4803" data-tip="OK · 04/11/2026 08:10 · 55s&#10;Ejecución 199 · flujo #4803"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 200, OK, 05/11/2026 08:10, 49 s, flujo 4804" data-tip="OK · 05/11/2026 08:10 · 49s&#10;Ejecución 200 · flujo #4804"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 201, OK, 06/11/2026 08:10, 50 s, flujo 4805" data-tip="OK · 06/11/2026 08:10 · 50s&#10;Ejecución 201 · flujo #4805"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 202, OK, 09/11/2026 08:10, 51 s, flujo 4806" data-tip="OK · 09/11/2026 08:10 · 51s&#10;Ejecución 202 · flujo #4806"></a><a href="#" class="hb hb--skip" tabindex="-1" aria-label="Omitida en el flujo 4807 del 10/11/2026, sin ejecución" data-tip="Omitida · 10/11/2026&#10;Flujo #4807: Conciliación bancaria terminó en Error"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 204, OK, 11/11/2026 08:10, 53 s, flujo 4808" data-tip="OK · 11/11/2026 08:10 · 53s&#10;Ejecución 204 · flujo #4808"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 205, OK, 12/11/2026 08:10, 49 s, flujo 4809" data-tip="OK · 12/11/2026 08:10 · 49s&#10;Ejecución 205 · flujo #4809"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 206, OK, 13/11/2026 08:10, 50 s, flujo 4810" data-tip="OK · 13/11/2026 08:10 · 50s&#10;Ejecución 206 · flujo #4810"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 207, OK, 16/11/2026 08:10, 52 s, flujo 4811" data-tip="OK · 16/11/2026 08:10 · 52s&#10;Ejecución 207 · flujo #4811"></a><a href="#" class="hb hb--ok" tabindex="0" aria-label="Ejecución 208, OK, 17/11/2026 08:10, 48 s, flujo 4812" data-tip="OK · 17/11/2026 08:10 · 48s&#10;Ejecución 208 · flujo #4812"></a></div><span class="cell-sub">18 OK · 1 error · 1 omitida</span></td>
+  <td><span class="cell-strong">Próximo fichero</span><span class="cell-sub">tras sus dos tareas previas</span></td>
+  <td class="num">49s</td>
+  <td><button class="switch" role="switch" aria-checked="true" aria-label="Activa: Informe diario de tesorería"></button></td>
+  <td class="actions"><div class="rel"><button class="btn btn--ghost btn--sm" aria-haspopup="menu" aria-expanded="false" aria-label="Más acciones de Informe diario de tesorería"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></div></td>
+</tr>
+<tr>
+  <td><span class="tag tag--info st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>En ejecución</span><span class="cell-sub">Esperando confirmación</span></td>
+  <td><a class="row-link" href="#tarea-13"><span class="cell-strong">Envío de remesas SEPA</span></a><span class="cell-sub clamp">Envía las transferencias del día y espera la confirmación del banco</span></td>
+  <td><span class="when"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg><span><span class="when-main">Después de Informe diario de tesorería</span><span class="cell-sub">diferida: la confirma la API del banco</span></span></span></td>
+  <td><div class="hist" role="group" aria-label="Últimas 20 ejecuciones, de la más antigua a la más reciente"><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 186, OK, 21/10/2026 08:11, 1 h 39 min, flujo 4793" data-tip="OK · 21/10/2026 08:11 · 1h 39m&#10;Ejecución 186 · flujo #4793"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 187, OK, 22/10/2026 08:11, 1 h 40 min, flujo 4794" data-tip="OK · 22/10/2026 08:11 · 1h 40m&#10;Ejecución 187 · flujo #4794"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 188, OK, 23/10/2026 08:11, 1 h 36 min, flujo 4795" data-tip="OK · 23/10/2026 08:11 · 1h 36m&#10;Ejecución 188 · flujo #4795"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 189, OK, 26/10/2026 08:11, 1 h 37 min, flujo 4796" data-tip="OK · 26/10/2026 08:11 · 1h 37m&#10;Ejecución 189 · flujo #4796"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 190, OK, 27/10/2026 08:11, 1 h 42 min, flujo 4797" data-tip="OK · 27/10/2026 08:11 · 1h 42m&#10;Ejecución 190 · flujo #4797"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 191, OK, 28/10/2026 08:11, 1 h 32 min, flujo 4798" data-tip="OK · 28/10/2026 08:11 · 1h 32m&#10;Ejecución 191 · flujo #4798"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 192, OK, 29/10/2026 08:11, 1 h 41 min, flujo 4799" data-tip="OK · 29/10/2026 08:11 · 1h 41m&#10;Ejecución 192 · flujo #4799"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 193, OK, 30/10/2026 08:11, 1 h 39 min, flujo 4800" data-tip="OK · 30/10/2026 08:11 · 1h 39m&#10;Ejecución 193 · flujo #4800"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 194, OK, 02/11/2026 08:11, 1 h 34 min, flujo 4801" data-tip="OK · 02/11/2026 08:11 · 1h 34m&#10;Ejecución 194 · flujo #4801"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 195, OK, 03/11/2026 08:11, 1 h 44 min, flujo 4802" data-tip="OK · 03/11/2026 08:11 · 1h 44m&#10;Ejecución 195 · flujo #4802"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 196, OK, 04/11/2026 08:11, 1 h 35 min, flujo 4803" data-tip="OK · 04/11/2026 08:11 · 1h 35m&#10;Ejecución 196 · flujo #4803"></a><a href="#" class="hb hb--stop" tabindex="-1" aria-label="Ejecución 197, Detenida, 05/11/2026 08:11, 4 h 0 min, flujo 4804" data-tip="Detenida · 05/11/2026 08:11 · 4h 00m&#10;Ejecución 197 · flujo #4804"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 198, OK, 06/11/2026 08:11, 1 h 40 min, flujo 4805" data-tip="OK · 06/11/2026 08:11 · 1h 40m&#10;Ejecución 198 · flujo #4805"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 199, OK, 09/11/2026 08:11, 1 h 38 min, flujo 4806" data-tip="OK · 09/11/2026 08:11 · 1h 38m&#10;Ejecución 199 · flujo #4806"></a><a href="#" class="hb hb--skip" tabindex="-1" aria-label="Omitida en el flujo 4807 del 10/11/2026, sin ejecución" data-tip="Omitida · 10/11/2026&#10;Flujo #4807: Conciliación bancaria terminó en Error"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 201, OK, 11/11/2026 08:11, 1 h 46 min, flujo 4808" data-tip="OK · 11/11/2026 08:11 · 1h 46m&#10;Ejecución 201 · flujo #4808"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 202, OK, 12/11/2026 08:11, 1 h 31 min, flujo 4809" data-tip="OK · 12/11/2026 08:11 · 1h 31m&#10;Ejecución 202 · flujo #4809"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 203, OK, 13/11/2026 08:11, 1 h 41 min, flujo 4810" data-tip="OK · 13/11/2026 08:11 · 1h 41m&#10;Ejecución 203 · flujo #4810"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 204, OK, 16/11/2026 08:11, 1 h 37 min, flujo 4811" data-tip="OK · 16/11/2026 08:11 · 1h 37m&#10;Ejecución 204 · flujo #4811"></a><a href="#" class="hb hb--run" tabindex="0" aria-label="Ejecución 205, en ejecución desde el 17/11/2026 08:11, esperando confirmación, límite 12:15" data-tip="En ejecución · 17/11/2026 08:11&#10;Esperando confirmación del banco · límite 12:15"></a></div><span class="cell-sub">17 OK · 1 detenida · 1 omitida · 1 en curso</span></td>
+  <td><span class="inline-ic"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4"/><path d="M12 14l3-3"/><circle cx="12" cy="14" r="8"/></svg><span><span class="cell-strong">En curso</span><span class="cell-sub">límite 12:15 · máx. 4 h</span></span></span></td>
+  <td class="num">1h 46m</td>
+  <td><button class="switch" role="switch" aria-checked="true" aria-label="Activa: Envío de remesas SEPA"></button></td>
+  <td class="actions"><div class="rel"><button class="btn btn--ghost btn--sm" aria-haspopup="menu" aria-expanded="false" aria-label="Más acciones de Envío de remesas SEPA"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></div></td>
+</tr>
+<tr>
+  <td><span class="tag tag--success st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>OK</span><span class="cell-sub">Ayer 22:30</span></td>
+  <td><a class="row-link" href="#tarea-13"><span class="cell-strong">Cierre contable diario</span></a><span class="cell-sub clamp">Cierra el día contable y bloquea los asientos del periodo</span></td>
+  <td><span class="when"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg><span><span class="when-main">Días laborables a las 22:30</span><span class="cell-sub">Festivos ES 2026</span></span></span></td>
+  <td><div class="hist" role="group" aria-label="Últimas 20 ejecuciones, de la más antigua a la más reciente"><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 393, OK, 20/10/2026 22:30, 6 min 39 s" data-tip="OK · 20/10/2026 22:30 · 6m 39s&#10;Ejecución 393"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 394, OK, 21/10/2026 22:30, 6 min 32 s" data-tip="OK · 21/10/2026 22:30 · 6m 32s&#10;Ejecución 394"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 395, OK, 22/10/2026 22:30, 6 min 37 s" data-tip="OK · 22/10/2026 22:30 · 6m 37s&#10;Ejecución 395"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 396, OK, 23/10/2026 22:30, 6 min 44 s" data-tip="OK · 23/10/2026 22:30 · 6m 44s&#10;Ejecución 396"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 397, OK, 26/10/2026 22:30, 6 min 29 s" data-tip="OK · 26/10/2026 22:30 · 6m 29s&#10;Ejecución 397"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 398, OK, 27/10/2026 22:30, 6 min 40 s" data-tip="OK · 27/10/2026 22:30 · 6m 40s&#10;Ejecución 398"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 399, OK, 28/10/2026 22:30, 6 min 41 s" data-tip="OK · 28/10/2026 22:30 · 6m 41s&#10;Ejecución 399"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 400, OK, 29/10/2026 22:30, 6 min 33 s" data-tip="OK · 29/10/2026 22:30 · 6m 33s&#10;Ejecución 400"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 401, OK, 30/10/2026 22:30, 6 min 36 s" data-tip="OK · 30/10/2026 22:30 · 6m 36s&#10;Ejecución 401"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 402, OK, 02/11/2026 22:30, 6 min 47 s" data-tip="OK · 02/11/2026 22:30 · 6m 47s&#10;Ejecución 402"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 403, OK, 03/11/2026 22:30, 6 min 42 s" data-tip="OK · 03/11/2026 22:30 · 6m 42s&#10;Ejecución 403"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 404, OK, 04/11/2026 22:30, 6 min 38 s" data-tip="OK · 04/11/2026 22:30 · 6m 38s&#10;Ejecución 404"></a><a href="#" class="hb hb--err" tabindex="-1" aria-label="Ejecución 405, Error, 05/11/2026 22:30, 1 min 15 s" data-tip="Error · 05/11/2026 22:30 · 1m 15s&#10;Ejecución 405"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 406, OK, 06/11/2026 22:30, 6 min 31 s" data-tip="OK · 06/11/2026 22:30 · 6m 31s&#10;Ejecución 406"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 407, OK, 09/11/2026 22:30, 6 min 45 s" data-tip="OK · 09/11/2026 22:30 · 6m 45s&#10;Ejecución 407"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 408, OK, 10/11/2026 22:30, 6 min 39 s" data-tip="OK · 10/11/2026 22:30 · 6m 39s&#10;Ejecución 408"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 409, OK, 11/11/2026 22:30, 6 min 28 s" data-tip="OK · 11/11/2026 22:30 · 6m 28s&#10;Ejecución 409"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 410, OK, 12/11/2026 22:30, 6 min 50 s" data-tip="OK · 12/11/2026 22:30 · 6m 50s&#10;Ejecución 410"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 411, OK, 13/11/2026 22:30, 6 min 35 s" data-tip="OK · 13/11/2026 22:30 · 6m 35s&#10;Ejecución 411"></a><a href="#" class="hb hb--ok" tabindex="0" aria-label="Ejecución 412, OK, 16/11/2026 22:30, 6 min 42 s" data-tip="OK · 16/11/2026 22:30 · 6m 42s&#10;Ejecución 412"></a></div><span class="cell-sub">19 OK · 1 error</span></td>
+  <td><span class="cell-strong">Hoy 22:30</span><span class="cell-sub">martes 17/11/2026</span></td>
+  <td class="num">6m 22s</td>
+  <td><button class="switch" role="switch" aria-checked="true" aria-label="Activa: Cierre contable diario"></button></td>
+  <td class="actions"><div class="rel"><button class="btn btn--ghost btn--sm" aria-haspopup="menu" aria-expanded="false" aria-label="Más acciones de Cierre contable diario"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></div></td>
+</tr>
+<tr>
+  <td><span class="tag tag--success st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>OK</span><span class="cell-sub">Hoy 03:00</span></td>
+  <td><a class="row-link" href="#tarea-13"><span class="cell-strong">Purga de logs</span></a><span class="cell-sub clamp">Borra los logs de ejecución de más de 90 días</span></td>
+  <td><span class="when"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span><span class="when-main">Todos los días a las 03:00</span><span class="cell-sub">programada</span></span></span></td>
+  <td><div class="hist" role="group" aria-label="Últimas 20 ejecuciones, de la más antigua a la más reciente"><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 671, OK, 29/10/2026 03:00, 34 s" data-tip="OK · 29/10/2026 03:00 · 34s&#10;Ejecución 671"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 672, OK, 30/10/2026 03:00, 35 s" data-tip="OK · 30/10/2026 03:00 · 35s&#10;Ejecución 672"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 673, OK, 31/10/2026 03:00, 34 s" data-tip="OK · 31/10/2026 03:00 · 34s&#10;Ejecución 673"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 674, OK, 01/11/2026 03:00, 33 s" data-tip="OK · 01/11/2026 03:00 · 33s&#10;Ejecución 674"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 675, OK, 02/11/2026 03:00, 35 s" data-tip="OK · 02/11/2026 03:00 · 35s&#10;Ejecución 675"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 676, OK, 03/11/2026 03:00, 36 s" data-tip="OK · 03/11/2026 03:00 · 36s&#10;Ejecución 676"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 677, OK, 04/11/2026 03:00, 34 s" data-tip="OK · 04/11/2026 03:00 · 34s&#10;Ejecución 677"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 678, OK, 05/11/2026 03:00, 33 s" data-tip="OK · 05/11/2026 03:00 · 33s&#10;Ejecución 678"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 679, OK, 06/11/2026 03:00, 35 s" data-tip="OK · 06/11/2026 03:00 · 35s&#10;Ejecución 679"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 680, OK, 07/11/2026 03:00, 34 s" data-tip="OK · 07/11/2026 03:00 · 34s&#10;Ejecución 680"></a><a href="#" class="hb hb--int" tabindex="-1" aria-label="Ejecución 681, Interrumpida, 08/11/2026 03:00, 12 s" data-tip="Interrumpida · 08/11/2026 03:00 · 12s&#10;Ejecución 681"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 682, OK, 09/11/2026 03:00, 36 s" data-tip="OK · 09/11/2026 03:00 · 36s&#10;Ejecución 682"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 683, OK, 10/11/2026 03:00, 33 s" data-tip="OK · 10/11/2026 03:00 · 33s&#10;Ejecución 683"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 684, OK, 11/11/2026 03:00, 35 s" data-tip="OK · 11/11/2026 03:00 · 35s&#10;Ejecución 684"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 685, OK, 12/11/2026 03:00, 32 s" data-tip="OK · 12/11/2026 03:00 · 32s&#10;Ejecución 685"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 686, OK, 13/11/2026 03:00, 34 s" data-tip="OK · 13/11/2026 03:00 · 34s&#10;Ejecución 686"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 687, OK, 14/11/2026 03:00, 35 s" data-tip="OK · 14/11/2026 03:00 · 35s&#10;Ejecución 687"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 688, OK, 15/11/2026 03:00, 36 s" data-tip="OK · 15/11/2026 03:00 · 36s&#10;Ejecución 688"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 689, OK, 16/11/2026 03:00, 33 s" data-tip="OK · 16/11/2026 03:00 · 33s&#10;Ejecución 689"></a><a href="#" class="hb hb--ok" tabindex="0" aria-label="Ejecución 690, OK, 17/11/2026 03:00, 34 s" data-tip="OK · 17/11/2026 03:00 · 34s&#10;Ejecución 690"></a></div><span class="cell-sub">19 OK · 1 interrumpida</span></td>
+  <td><span class="cell-strong">Mañana 03:00</span><span class="cell-sub">miércoles 18/11/2026</span></td>
+  <td class="num">33s</td>
+  <td><button class="switch" role="switch" aria-checked="true" aria-label="Activa: Purga de logs"></button></td>
+  <td class="actions"><div class="rel"><button class="btn btn--ghost btn--sm" aria-haspopup="menu" aria-expanded="false" aria-label="Más acciones de Purga de logs"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></div></td>
+</tr>
+          </tbody>
+        </table>
+        <div class="card-foot"><span>Mostrando 1–7 de 7</span><span class="legend"><span class="tag tag--success st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>OK</span><span class="tag tag--warning st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Aviso</span><span class="tag tag--danger st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>Error</span><span class="tag tag--neutral st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 4 10 8-10 8Z"/><path d="M19 5v14"/></svg>Omitida</span><span>Barra baja = OK · alta = requiere atención</span></span></div>
+      </section>
+    </div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="state" aria-labelledby="st-2">
+  <div class="state-label"><span class="letter">2</span><h3 id="st-2">Ficha de tarea · Resumen</h3><p>Se llega pulsando la fila de Conciliación bancaria. Cabecera con estado, acciones y datos clave; pestaña Resumen.</p></div>
+  <div class="frame" id="tarea-13" style="height:840px">
+<div class="shell">
+  <aside class="menu" aria-label="Menú principal">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z"/></svg>Inicio</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Actividad<span class="menu-badge" aria-label="1 ejecución en curso">1</span></a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Tareas</a>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a7.9 7.9 0 0 0 .1-3l2-1.5-2-3.4-2.3 1a8 8 0 0 0-2.6-1.5L14 2h-4l-.5 2.6a8 8 0 0 0-2.6 1.5l-2.3-1-2 3.4L4.6 12a7.9 7.9 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a8 8 0 0 0 2.6 1.5L10 22h4l.5-2.6a8 8 0 0 0 2.6-1.5l2.3 1 2-3.4Z"/></svg>Configuración</a>
+    <div class="menu-foot"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn--ghost" aria-label="Mostrar u ocultar el menú"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg></button>
+      <div class="spacer"></div>
+      <button class="btn btn--ghost" aria-label="Menú de usuario"><span class="avatar">PV</span></button>
+    </header>
+    <nav class="crumbs" aria-label="Migas de pan"><a href="#">Tareas</a><span>/</span><strong>Conciliación bancaria</strong></nav>
+    <div class="page">
+      <div class="page-head task-head">
+        <div>
+          <div class="title-row"><h1>Conciliación bancaria</h1><span class="tag tag--warning st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Última: Aviso</span></div>
+          <p>Casa los movimientos bancarios con los apuntes contables del día</p>
+          <div class="summary meta">
+            <span class="pill">#13</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>Maintain · <span class="mono">BankReconciliation</span></span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>Manual · después de Importar extractos bancarios</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>Guarda 50 ejecuciones</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4"/><path d="M12 14l3-3"/><circle cx="12" cy="14" r="8"/></svg>Tiempo máximo 30 min</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Informe por email</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn--primary" aria-haspopup="dialog"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z"/></svg>Ejecutar…</button>
+          <button class="btn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Editar</button>
+          <div class="rel"><button class="btn btn--ghost" aria-haspopup="menu" aria-expanded="false" aria-label="Más acciones"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></div>
+        </div>
+      </div>
+      <section class="card">
+        <div class="tabs page-tabs" role="tablist" aria-label="Secciones de la tarea"><button class="tab" role="tab" aria-selected="true" tabindex="0">Resumen</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Historial<span class="n">50</span></button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Dependencias<span class="n">3</span></button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Configuración</button></div>
+        <div class="card-body tab-body" role="tabpanel" aria-label="Resumen">
+          <div class="kpis">
+            <section class="kpi" aria-labelledby="k1">
+              <h2 id="k1" class="kpi-title">Tasa de éxito · 30 días</h2>
+              <div class="kpi-value">85 %<span class="kpi-unit">en OK</span></div>
+              <div class="stackbar" role="img" aria-label="20 ejecuciones: 17 OK, 2 avisos, 1 error">
+                <span class="seg seg--ok" style="flex:17"></span><span class="seg seg--warn" style="flex:2"></span><span class="seg seg--err" style="flex:1"></span></div>
+              <div class="kpi-legend"><span><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>17 OK</span><span><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>2 avisos</span><span><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>1 error</span><span class="muted">de 20</span></div>
+            </section>
+            <section class="kpi" aria-labelledby="k2">
+              <h2 id="k2" class="kpi-title">Duración media</h2>
+              <div class="kpi-row"><div class="kpi-value">3m 11s</div><svg class="spark" viewBox="0 0 240 48" preserveAspectRatio="none" role="img" aria-label="Duración de las últimas 20 ejecuciones: entre 1 y 4 minutos, la última 3 min 40 s"><path class="spark-area" d="M0,48 L0.0,15.5 L12.6,15.0 L25.3,13.3 L37.9,14.4 L50.5,12.9 L63.2,9.8 L75.8,12.2 L88.4,13.8 L101.1,11.3 L113.7,10.5 L126.3,3.7 L138.9,13.3 L151.6,11.8 L164.2,10.9 L176.8,36.6 L189.5,8.9 L202.1,12.9 L214.7,10.2 L227.4,11.4 L240.0,7.4 L240,48 Z"/><polyline class="spark-line" points="0.0,15.5 12.6,15.0 25.3,13.3 37.9,14.4 50.5,12.9 63.2,9.8 75.8,12.2 88.4,13.8 101.1,11.3 113.7,10.5 126.3,3.7 138.9,13.3 151.6,11.8 164.2,10.9 176.8,36.6 189.5,8.9 202.1,12.9 214.7,10.2 227.4,11.4 240.0,7.4"/><circle class="spark-dot" cx="240.0" cy="7.4" r="3"/></svg></div>
+              <div class="kpi-legend"><span><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></svg>+9 % frente a los 30 días anteriores</span><span class="muted">máximo permitido 30 min</span></div>
+            </section>
+            <section class="kpi" aria-labelledby="k3">
+              <h2 id="k3" class="kpi-title">Próximas ejecuciones</h2>
+              <div class="next-dep"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg><div><strong>Se lanza al terminar Importar extractos bancarios</strong>
+                <span class="cell-sub">Si termina en OK o Aviso. El SFTP se revisa cada 5 min: próxima comprobación hoy a las 10:25.</span></div></div>
+            </section>
+          </div>
+          <div class="sum-grid">
+            <section class="sub-card" aria-labelledby="last20">
+              <div class="sub-head"><h2 id="last20">Últimas ejecuciones</h2><span class="muted">17 OK · 2 avisos · 1 error</span>
+                <button class="btn btn--link btn--sm">Ver historial</button></div>
+              <div class="hist hist--lg" role="group" aria-label="Últimas 20 ejecuciones, de la más antigua a la más reciente"><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 195, OK, 21/10/2026 08:06, 2 min 56 s, flujo 4793" data-tip="OK · 21/10/2026 08:06 · 2m 56s&#10;Ejecución 195 · flujo #4793"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 196, OK, 22/10/2026 08:06, 2 min 59 s, flujo 4794" data-tip="OK · 22/10/2026 08:06 · 2m 59s&#10;Ejecución 196 · flujo #4794"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 197, OK, 23/10/2026 08:06, 3 min 8 s, flujo 4795" data-tip="OK · 23/10/2026 08:06 · 3m 08s&#10;Ejecución 197 · flujo #4795"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 198, OK, 26/10/2026 08:06, 3 min 2 s, flujo 4796" data-tip="OK · 26/10/2026 08:06 · 3m 02s&#10;Ejecución 198 · flujo #4796"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 199, OK, 27/10/2026 08:06, 3 min 10 s, flujo 4797" data-tip="OK · 27/10/2026 08:06 · 3m 10s&#10;Ejecución 199 · flujo #4797"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 200, OK, 28/10/2026 08:06, 3 min 27 s, flujo 4798" data-tip="OK · 28/10/2026 08:06 · 3m 27s&#10;Ejecución 200 · flujo #4798"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 201, OK, 29/10/2026 08:06, 3 min 14 s, flujo 4799" data-tip="OK · 29/10/2026 08:06 · 3m 14s&#10;Ejecución 201 · flujo #4799"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 202, OK, 30/10/2026 08:06, 3 min 5 s, flujo 4800" data-tip="OK · 30/10/2026 08:06 · 3m 05s&#10;Ejecución 202 · flujo #4800"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 203, OK, 02/11/2026 08:06, 3 min 19 s, flujo 4801" data-tip="OK · 02/11/2026 08:06 · 3m 19s&#10;Ejecución 203 · flujo #4801"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 204, OK, 03/11/2026 08:06, 3 min 23 s, flujo 4802" data-tip="OK · 03/11/2026 08:06 · 3m 23s&#10;Ejecución 204 · flujo #4802"></a><a href="#" class="hb hb--warn" tabindex="-1" aria-label="Ejecución 205, Aviso, 04/11/2026 08:06, 4 min 0 s, flujo 4803" data-tip="Aviso · 04/11/2026 08:06 · 4m 00s&#10;Ejecución 205 · flujo #4803"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 206, OK, 05/11/2026 08:06, 3 min 8 s, flujo 4804" data-tip="OK · 05/11/2026 08:06 · 3m 08s&#10;Ejecución 206 · flujo #4804"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 207, OK, 06/11/2026 08:06, 3 min 16 s, flujo 4805" data-tip="OK · 06/11/2026 08:06 · 3m 16s&#10;Ejecución 207 · flujo #4805"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 208, OK, 09/11/2026 08:06, 3 min 21 s, flujo 4806" data-tip="OK · 09/11/2026 08:06 · 3m 21s&#10;Ejecución 208 · flujo #4806"></a><a href="#" class="hb hb--err" tabindex="-1" aria-label="Ejecución 209, Error, 10/11/2026 08:06, 1 min 2 s, flujo 4807" data-tip="Error · 10/11/2026 08:06 · 1m 02s&#10;Ejecución 209 · flujo #4807"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 210, OK, 11/11/2026 08:06, 3 min 32 s, flujo 4808" data-tip="OK · 11/11/2026 08:06 · 3m 32s&#10;Ejecución 210 · flujo #4808"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 211, OK, 12/11/2026 08:06, 3 min 10 s, flujo 4809" data-tip="OK · 12/11/2026 08:06 · 3m 10s&#10;Ejecución 211 · flujo #4809"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 212, OK, 13/11/2026 08:06, 3 min 25 s, flujo 4810" data-tip="OK · 13/11/2026 08:06 · 3m 25s&#10;Ejecución 212 · flujo #4810"></a><a href="#" class="hb hb--ok" tabindex="-1" aria-label="Ejecución 213, OK, 16/11/2026 08:06, 3 min 18 s, flujo 4811" data-tip="OK · 16/11/2026 08:06 · 3m 18s&#10;Ejecución 213 · flujo #4811"></a><a href="#" class="hb hb--warn" tabindex="0" aria-label="Ejecución 214, Aviso, 17/11/2026 08:06, 3 min 40 s, flujo 4812" data-tip="Aviso · 17/11/2026 08:06 · 3m 40s&#10;Ejecución 214 · flujo #4812"></a></div>
+              <div class="axis"><span>21/10</span><span>03/11</span><span>Hoy</span></div>
+            </section>
+            <section class="sub-card" aria-labelledby="lastrun">
+              <div class="sub-head"><h2 id="lastrun">Última ejecución</h2><span class="tag tag--warning st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Aviso</span></div>
+              <div class="hint hint--warning"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg><span>3 movimientos sin conciliar en la cuenta Santander ···4821 (importe total 1.284,50 €).</span></div>
+              <dl class="readouts">
+                <div><dt>Ejecución</dt><dd>214</dd></div>
+                <div><dt>Flujo</dt><dd><a href="#">#4812</a></dd></div>
+                <div><dt>Origen</dt><dd>Dependencia</dd></div>
+                <div><dt>Lanzada por</dt><dd>scheduler</dd></div>
+                <div><dt>Inicio</dt><dd>17/11/2026 08:06</dd></div>
+                <div><dt>Duración</dt><dd>3m 40s</dd></div>
+              </dl>
+              <div class="sub-foot"><button class="btn btn--sm"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 12h-5"/><path d="M15 8h-5"/><path d="M19 17V5a2 2 0 0 0-2-2H4"/><path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3"/></svg>Ver log</button></div>
+            </section>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="state" aria-labelledby="st-3">
+  <div class="state-label"><span class="letter">3</span><h3 id="st-3">Ficha de tarea · Dependencias</h3><p>Mini grafo de un nivel: quién la lanza, esta tarea y a quién lanza, con la condición de cada arista. Menú «Más acciones» abierto.</p></div>
+  <div class="frame" style="height:870px">
+<div class="shell">
+  <aside class="menu" aria-label="Menú principal">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z"/></svg>Inicio</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Actividad<span class="menu-badge" aria-label="1 ejecución en curso">1</span></a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Tareas</a>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a7.9 7.9 0 0 0 .1-3l2-1.5-2-3.4-2.3 1a8 8 0 0 0-2.6-1.5L14 2h-4l-.5 2.6a8 8 0 0 0-2.6 1.5l-2.3-1-2 3.4L4.6 12a7.9 7.9 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a8 8 0 0 0 2.6 1.5L10 22h4l.5-2.6a8 8 0 0 0 2.6-1.5l2.3 1 2-3.4Z"/></svg>Configuración</a>
+    <div class="menu-foot"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn--ghost" aria-label="Mostrar u ocultar el menú"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg></button>
+      <div class="spacer"></div>
+      <button class="btn btn--ghost" aria-label="Menú de usuario"><span class="avatar">PV</span></button>
+    </header>
+    <nav class="crumbs" aria-label="Migas de pan"><a href="#">Tareas</a><span>/</span><strong>Conciliación bancaria</strong></nav>
+    <div class="page">
+      <div class="page-head task-head">
+        <div>
+          <div class="title-row"><h1>Conciliación bancaria</h1><span class="tag tag--warning st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Última: Aviso</span></div>
+          <p>Casa los movimientos bancarios con los apuntes contables del día</p>
+          <div class="summary meta">
+            <span class="pill">#13</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>Maintain · <span class="mono">BankReconciliation</span></span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>Manual · después de Importar extractos bancarios</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>Guarda 50 ejecuciones</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4"/><path d="M12 14l3-3"/><circle cx="12" cy="14" r="8"/></svg>Tiempo máximo 30 min</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Informe por email</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn--primary" aria-haspopup="dialog"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z"/></svg>Ejecutar…</button>
+          <button class="btn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Editar</button>
+          <div class="rel"><button class="btn btn--ghost" aria-haspopup="menu" aria-expanded="true" aria-label="Más acciones"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button><div class="menu-pop menu-pop--right" role="menu" aria-label="Más acciones de Conciliación bancaria">
+  <button role="menuitem"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>Duplicar</button>
+  <button role="menuitem"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v10"/><path d="M18.4 6.6a9 9 0 1 1-12.77.04"/></svg>Desactivar</button>
+  <hr>
+  <button role="menuitem" class="danger"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>Borrar…</button>
+</div></div>
+        </div>
+      </div>
+      <section class="card">
+        <div class="tabs page-tabs" role="tablist" aria-label="Secciones de la tarea"><button class="tab" role="tab" aria-selected="false" tabindex="-1">Resumen</button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Historial<span class="n">50</span></button><button class="tab" role="tab" aria-selected="true" tabindex="0">Dependencias<span class="n">3</span></button><button class="tab" role="tab" aria-selected="false" tabindex="-1">Configuración</button></div>
+        <div class="card-body tab-body" role="tabpanel" aria-label="Dependencias">
+          <div class="sub-head"><h2>Cómo encaja en el flujo</h2><span class="muted">Solo lectura: las condiciones salen de la tarea que lanza.</span>
+            <button class="btn btn--link btn--sm"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Cambiar de qué depende</button></div>
+          <div class="graph" role="group" aria-label="Dependencias de Conciliación bancaria">
+  <svg class="g-edges" viewBox="0 0 1000 360" preserveAspectRatio="none" aria-hidden="true">
+    <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="g-arrow" d="M0 0 10 5 0 10Z"/></marker>
+      <marker id="arr-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="g-arrow g-arrow--faint" d="M0 0 10 5 0 10Z"/></marker></defs>
+    <path class="g-edge g-edge--faint" marker-end="url(#arr-f)" d="M220,200 C310,200 310,75 398,75"/>
+    <path class="g-edge" marker-end="url(#arr)" d="M220,200 L398,200"/>
+    <path class="g-edge" marker-end="url(#arr)" d="M600,200 C690,200 690,150 778,150"/>
+    <path class="g-edge g-edge--faint" marker-end="url(#arr-f)" d="M600,75 C690,75 690,150 778,150"/>
+    <path class="g-edge g-edge--faint" marker-end="url(#arr-f)" d="M880,198 L880,268"/>
+  </svg>
+  <div class="g-col-label" style="left:2%">Se lanza después de</div>
+  <div class="g-col-label" style="left:39%">Esta tarea</div>
+  <div class="g-col-label" style="left:76%">Lanza después</div>
+  <div role="list">
+  <div class="g-node g-node--parent" role="listitem" aria-label="Tarea previa: Importar extractos bancarios, última OK" style="left:2.0%;top:55.55555555555556%;width:20.0%"><span class="g-kind"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M12 18v-6"/><path d="m9 15 3 3 3-3"/></svg>Fichero · #12</span><strong>Importar extractos bancarios</strong><span class="g-st"><span class="tag tag--success st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>OK</span><span class="muted">hoy 08:05</span></span></div>
+  <div class="g-node g-node--ghost" role="listitem" aria-label="Tarea hermana: Actualizar posiciones de tesorería" style="left:40.0%;top:20.833333333333332%;width:20.0%"><span class="g-kind">Hermana · #14</span><strong>Actualizar posiciones de tesorería</strong></div>
+  <div class="g-node g-node--self" role="listitem" aria-label="Esta tarea: Conciliación bancaria, última Aviso" style="left:40.0%;top:55.55555555555556%;width:20.0%"><span class="g-kind"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>Maintain · #13</span><strong>Conciliación bancaria</strong><span class="g-st"><span class="tag tag--warning st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Aviso</span><span class="muted">hoy 08:06</span></span></div>
+  <div class="g-node g-node--child" role="listitem" aria-label="Tarea siguiente: Informe diario de tesorería, espera también a Actualizar posiciones de tesorería" style="left:78.0%;top:41.666666666666664%;width:20.0%"><span class="g-kind"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m4 17 6-6-6-6"/><path d="M12 19h8"/></svg>Comando en batch-01 · #15</span><strong>Informe diario de tesorería</strong><span class="g-st"><span class="tag tag--success st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>OK</span><span class="muted">espera a 2 tareas</span></span></div>
+  <div class="g-node g-node--ghost" role="listitem" aria-label="Después: Envío de remesas SEPA" style="left:78.0%;top:83.33333333333333%;width:20.0%"><span class="g-kind"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 22h14"/><path d="M5 2h14"/><path d="M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22"/><path d="M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2"/></svg>Después · #16</span><strong>Envío de remesas SEPA</strong></div>
+  </div>
+  <span class="g-label " style="left:30.9%;top:55.55555555555556%"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span>si termina en<br>OK / Aviso</span></span>
+  <span class="g-label " style="left:69.0%;top:48.888888888888886%"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg><span>si termina en<br>OK / Aviso</span></span>
+  <span class="g-label g-label--faint" style="left:69.0%;top:31.11111111111111%">también espera</span>
+</div>
+          <div class="dep-notes">
+            <div class="dep-note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg><div><strong>Entra</strong><span class="cell-sub">Importar extractos bancarios la lanza si termina en OK o Aviso («lanzar dependencias en aviso»: sí · «en error»: no).</span></div></div>
+            <div class="dep-note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21s-4-3-4-9 4-9 4-9"/><path d="M16 3s4 3 4 9-4 9-4 9"/></svg><div><strong>Hereda</strong><span class="cell-sub">Los parámetros variables <span class="mono">fichero</span> y <span class="mono">fechaValor</span> llegan con el valor de la tarea previa.</span></div></div>
+            <div class="dep-note"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 4 10 8-10 8Z"/><path d="M19 5v14"/></svg><div><strong>Si falla</strong><span class="cell-sub">Con Error no lanza nada: Informe diario y Envío de remesas se omiten, como en el flujo <a href="#">#4807</a>.</span></div></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="state" aria-labelledby="st-4">
+  <div class="state-label"><span class="letter">4</span><h3 id="st-4">Diálogo Ejecutar</h3><p>Conciliación bancaria tiene parámetros variables, así que Ejecutar siempre abre este diálogo. Editando fechaValor.</p></div>
+  <div class="frame" style="height:680px">
+<div class="shell" aria-hidden="true" inert>
+  <aside class="menu" aria-label="Menú principal">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z"/></svg>Inicio</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Actividad<span class="menu-badge" aria-label="1 ejecución en curso">1</span></a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></svg>Tareas</a>
+    <a class="menu-item" href="#"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a7.9 7.9 0 0 0 .1-3l2-1.5-2-3.4-2.3 1a8 8 0 0 0-2.6-1.5L14 2h-4l-.5 2.6a8 8 0 0 0-2.6 1.5l-2.3-1-2 3.4L4.6 12a7.9 7.9 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a8 8 0 0 0 2.6 1.5L10 22h4l.5-2.6a8 8 0 0 0 2.6-1.5l2.3 1 2-3.4Z"/></svg>Configuración</a>
+    <div class="menu-foot"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn--ghost" aria-label="Mostrar u ocultar el menú"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg></button>
+      <div class="spacer"></div>
+      <button class="btn btn--ghost" aria-label="Menú de usuario"><span class="avatar">PV</span></button>
+    </header>
+    <nav class="crumbs" aria-label="Migas de pan"><a href="#">Tareas</a><span>/</span><strong>Conciliación bancaria</strong></nav>
+    <div class="page">
+      <div class="page-head task-head">
+        <div>
+          <div class="title-row"><h1>Conciliación bancaria</h1><span class="tag tag--warning st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>Última: Aviso</span></div>
+          <p>Casa los movimientos bancarios con los apuntes contables del día</p>
+          <div class="summary meta">
+            <span class="pill">#13</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>Maintain · <span class="mono">BankReconciliation</span></span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 10 5 5-5 5"/><path d="M4 4v7a4 4 0 0 0 4 4h12"/></svg>Manual · después de Importar extractos bancarios</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/></svg>Guarda 50 ejecuciones</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 2h4"/><path d="M12 14l3-3"/><circle cx="12" cy="14" r="8"/></svg>Tiempo máximo 30 min</span>
+            <span class="pill"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>Informe por email</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn btn--primary" aria-haspopup="dialog"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z"/></svg>Ejecutar…</button>
+          <button class="btn"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>Editar</button>
+          <div class="rel"><button class="btn btn--ghost" aria-haspopup="menu" aria-expanded="false" aria-label="Más acciones"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="dialog-mask"></div>
+<div class="dialog dialog--launch" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-sub">
+  <div class="dialog-head">
+    <div><h2 id="dlg-title">Ejecutar Conciliación bancaria</h2><div class="sub" id="dlg-sub">Lanzamiento manual. Los valores solo se usan en esta ejecución; la tarea no cambia.</div></div>
+    <button class="btn btn--ghost close" aria-label="Cerrar"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  </div>
+  <div class="dialog-body">
+    <table class="grid editable params">
+      <caption class="sr-only">Parámetros de la ejecución</caption>
+      <thead><tr><th style="width:12rem">Parámetro</th><th style="width:9rem">Origen</th><th>Valor</th></tr></thead>
+      <tbody>
+<tr><td><span class="mono strong">fichero</span><span class="cell-sub">Texto</span></td>
+  <td><span class="tag tag--info st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21s-4-3-4-9 4-9 4-9"/><path d="M16 3s4 3 4 9-4 9-4 9"/></svg>Variable</span></td>
+  <td><label class="sr-only" for="p-fichero">Valor de fichero</label><input id="p-fichero" class="cell-input" value="N43_20261117_0805.n43"><span class="cell-sub">Lo envía Importar extractos bancarios cuando la lanza.</span></td></tr>
+<tr class="editing"><td><span class="mono strong">fechaValor</span><span class="cell-sub">Fecha</span></td>
+  <td><span class="tag tag--info st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 21s-4-3-4-9 4-9 4-9"/><path d="M16 3s4 3 4 9-4 9-4 9"/></svg>Variable</span></td>
+  <td><label class="sr-only" for="p-fechaValor">Valor de fechaValor</label><input id="p-fechaValor" class="cell-input" value="17/11/2026"></td></tr>
+<tr><td><span class="mono strong">cuenta</span><span class="cell-sub">Texto</span></td>
+  <td><span class="tag tag--neutral st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"/><path d="M4 17h16"/></svg>Valor</span></td>
+  <td><label class="sr-only" for="p-cuenta">Valor de cuenta</label><input id="p-cuenta" class="cell-input" value="TODAS"></td></tr>
+<tr><td><span class="mono strong">tolerancia</span><span class="cell-sub">Decimal</span></td>
+  <td><span class="tag tag--neutral st"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/><path d="m21 2-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></svg>Propiedad</span></td>
+  <td><label class="sr-only" for="p-tolerancia">Valor de tolerancia</label><input id="p-tolerancia" class="cell-input" value="0,01"><span class="cell-sub">De la propiedad treasury.reconciliation.tolerance</span></td></tr>
+      </tbody>
+    </table>
+    <div class="hint"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg><span>Se registrará con origen <strong>Manual</strong>, lanzada por <strong>pvidal</strong>. Al lanzar a mano puedes cambiar cualquier parámetro; los lanzamientos automáticos solo cambian los de origen Variable.</span></div>
+  </div>
+  <div class="dialog-foot">
+    <div class="left"><button class="btn btn--link btn--sm"><svg class="icon icon--sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Restablecer valores</button></div>
+    <button class="btn">Cancelar</button>
+    <button class="btn btn--primary"><svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 3 14 9-14 9Z"/></svg>Ejecutar</button>
+  </div>
+</div>
+  </div>
+</section>
+</div>
+</main>
+
+<script>
+  function sync(attr, value) {
+    document.querySelectorAll('[data-' + attr + ']').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset[attr] === value));
+    });
+  }
+  function setMode(mode) {
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+    document.documentElement.classList.toggle('light', mode === 'light');
+    sync('mode', mode);
+  }
+  function setDensity(density) {
+    document.documentElement.setAttribute('data-awe-density', density);
+    sync('density', density);
+  }
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { setMode('dark'); }
+  else { setMode('light'); }
+  sync('density', 'comfortable');
+  /* Mock-up only: links do not navigate, switches toggle */
+  document.querySelectorAll('a[href="#"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+  document.querySelectorAll('button.switch').forEach(function (s) {
+    s.addEventListener('click', function () { s.setAttribute('aria-checked', String(s.getAttribute('aria-checked') !== 'true')); });
+  });
+</script>
+</body>
+</html>

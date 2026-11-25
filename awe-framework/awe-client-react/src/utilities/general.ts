@@ -34,6 +34,7 @@ export const ComponentType = {
   COMPONENT_VIDEO: 'video',
   COMPONENT_PROGRESS: 'progress',
   COMPONENT_SPARKLINE: 'sparkline',
+  COMPONENT_STATUS_STRIP: 'status-strip',
   COMPONENT_DIALOG: 'dialog',
   COMPONENT_ACCORDION: 'accordion',
   COMPONENT_WIZARD: 'wizard',

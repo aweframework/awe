@@ -179,6 +179,155 @@ class PermissionEnforcedTest extends ScreenAccessSupport {
     }
   }
 
+  @Test
+  @DisplayName("The activity queries of the scheduler require scheduler.read, and its internal rows query no client")
+  void schedulerActivityQueriesRequireSchedulerRead() throws Exception {
+    for (String query : List.of("getActivityExecutionList", "getActivityCounters")) {
+      assertRefused(action("data/" + query, signedIn(List.of())), query);
+      assertThat(action("data/" + query, signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"))))
+        .as(query).doesNotContain(REFUSED);
+    }
+    assertRefused(action("data/getActivityExecutionRows", signedIn(List.of())), "getActivityExecutionRows");
+    assertRefused(action("data/getActivityExecutionRows",
+      signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"))), "getActivityExecutionRows");
+  }
+
+  @Test
+  @DisplayName("The flow run page queries of the scheduler require scheduler.read, and its internal queries no client")
+  void schedulerFlowRunQueriesRequireSchedulerRead() throws Exception {
+    for (String query : List.of("getFlowRunSummary", "getFlowRunGraph", "getFlowRunParameters")) {
+      assertRefused(action("data/" + query, signedIn(List.of())), query);
+      assertThat(action("data/" + query, signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"))))
+        .as(query).doesNotContain(REFUSED);
+    }
+    for (String query : List.of("getFlowRunHeaderRow", "getFlowRunGraphTasks")) {
+      assertRefused(action("data/" + query, signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"))),
+        query);
+    }
+  }
+
+  @Test
+  @DisplayName("The engine queries of the scheduler configuration screen require scheduler.read, and its internal tasks query no client")
+  void schedulerConfigurationEngineQueriesRequireSchedulerRead() throws Exception {
+    for (String query : List.of("getConfigurationEngine", "getConfigurationEngineTriggers",
+      "getConfigurationEngineTriggerCounts")) {
+      assertRefused(action("data/" + query, signedIn(List.of())), query);
+      assertThat(action("data/" + query, signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"))))
+        .as(query).doesNotContain(REFUSED);
+    }
+    assertRefused(action("data/getConfigurationEngineTasks",
+      signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"))), "getConfigurationEngineTasks");
+  }
+
+  @Test
+  @DisplayName("The server side panel of the scheduler configuration screen reads with scheduler.read, and its internal "
+    + "server query has no client")
+  void schedulerConfigurationServerPanelReadsWithSchedulerRead() throws Exception {
+    Authentication reader = signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"));
+    for (String query : List.of("getConfigurationServerTasks", "getConfigurationServerTypes")) {
+      assertRefused(action("data/" + query, signedIn(List.of())), query);
+      assertThat(action("data/" + query, reader)).as(query).doesNotContain(REFUSED);
+    }
+    ObjectNode newServer = objectMapper.createObjectNode();
+    assertRefused(maintain("loadConfigurationServer", newServer, signedIn(List.of())), "loadConfigurationServer");
+    assertThat(maintain("loadConfigurationServer", newServer, reader)).doesNotContain(REFUSED);
+    assertRefused(action("data/getConfigurationServer", reader), "getConfigurationServer");
+  }
+
+  @Test
+  @DisplayName("The task catalog and task screen queries of the scheduler require scheduler.read, and their internal queries no client")
+  void schedulerTaskCatalogQueriesRequireSchedulerRead() throws Exception {
+    for (String query : List.of("getTaskCatalog", "getTaskCatalogActiveCounts", "getTaskCatalogLaunchTypes",
+      "getTaskCatalogLastStatuses", "getTaskPage", "getTaskPageHeader", "getTaskPageSuccess", "getTaskPageAverage",
+      "getTaskPageNext", "getTaskPageHistoryCount", "getTaskPageLast", "getTaskFlowGraph")) {
+      assertRefused(action("data/" + query, signedIn(List.of())), query);
+      assertThat(action("data/" + query, signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"))))
+        .as(query).doesNotContain(REFUSED);
+    }
+    for (String query : List.of("getTaskCatalogRows", "getTaskCatalogHistory", "getTasksWithParameters",
+      "getTaskPageTask", "getTaskPageTaskRestricted", "getTaskPageExecutions")) {
+      assertRefused(action("data/" + query, signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"))),
+        query);
+    }
+  }
+
+  @Test
+  @DisplayName("The manual launch with values requires scheduler.execute, and its dialog reads with scheduler.read")
+  void schedulerManualLaunchWithValuesRequiresSchedulerExecute() throws Exception {
+    // Editing the task is not launching it: scheduler.update does not let a user launch with other values
+    Authentication editor = signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read", "PERM_scheduler.update"));
+    for (String target : List.of("VldTskPar", "LchTskVar")) {
+      assertRefused(maintain(target, objectMapper.createObjectNode().put("IdeTsk.selected", 0), editor), target);
+    }
+    for (String query : List.of("taskVariableParameters", "getTaskLaunchNote")) {
+      assertRefused(action("data/" + query, signedIn(List.of())), query);
+      assertThat(action("data/" + query, signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"))))
+        .as(query).doesNotContain(REFUSED);
+    }
+  }
+
+  @Test
+  @DisplayName("The task editor saves and copies with scheduler.update, reads its parents with scheduler.read, and its "
+    + "parent rows have no client")
+  void schedulerTaskEditorSavesWithSchedulerUpdateAndReadsWithSchedulerRead() throws Exception {
+    Authentication reader = signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read"));
+    Authentication editor = signedIn(AuthorityUtils.createAuthorityList("PERM_scheduler.read", "PERM_scheduler.update"));
+    for (String target : List.of("NewSchedulerTaskEditor", "UpdateSchedulerTaskEditor")) {
+      assertRefused(maintain(target, objectMapper.createObjectNode().put("Ide", 0), reader), target);
+    }
+    for (String target : List.of("deleteTaskParents", "insertTaskParent")) {
+      assertRefused(maintain(target, objectMapper.createObjectNode().put("taskId", 0), editor), target);
+    }
+    assertRefused(action("data/getTaskEditorParents", signedIn(List.of())), "getTaskEditorParents");
+    assertThat(action("data/getTaskEditorParents", reader)).doesNotContain(REFUSED);
+    // The copy carries where the task runs, its files and who gets its report: copying a task is editing it
+    assertRefused(action("data/getTaskEditorCopy", reader), "getTaskEditorCopy");
+    assertThat(action("data/getTaskEditorCopy", editor)).doesNotContain(REFUSED);
+  }
+
+  @Test
+  @DisplayName("The task screen shows where a task runs and who gets its report only to the users with scheduler.update")
+  void theTaskScreenShowsWhereATaskRunsAndItsReportRecipientsOnlyWithSchedulerUpdate() throws Exception {
+    int task = 9301;
+    try {
+      jdbcTemplate.update("INSERT INTO AweSchSrv (Ide, Nom, Pro, Hst, Prt, Act) VALUES (?, 'probe-srv', 'ssh', 'host', "
+        + "'22', 1)", task);
+      jdbcTemplate.update("INSERT INTO AweSchTsk (Ide, Nam, TypExe, CmdExe, CmdExePth, IdeSrvExe, TypLch, Act, RepTyp, "
+        + "RepEmaDst, RepMntId) VALUES (?, 'Permission probe', 0, 'probe.sh', '/opt/probe/bin', ?, 0, 1, 1, "
+        + "'ops@probe.example', 'probe-report')", task, task);
+      String body = "{\"max\":30,\"IdeTsk.selected\":" + task + "}";
+
+      Map<String, Object> reader = taskPage(body, AuthorityUtils.createAuthorityList("PERM_scheduler.read"));
+      Map<String, Object> updater = taskPage(body, AuthorityUtils.createAuthorityList("PERM_scheduler.read",
+        "PERM_scheduler.update"));
+
+      assertThat(reader.get("TskCfgWhr")).isEqualTo("—");
+      assertThat(String.valueOf(reader.get("TskCfgRpt"))).doesNotContain("ops@probe.example", "probe-report");
+      assertThat(reader.toString()).doesNotContain("/opt/probe/bin", "probe-srv", "ops@probe.example", "probe-report");
+      // What it runs is shown to every reader, as the catalog does
+      assertThat(String.valueOf(reader.get("TskCfgRun"))).endsWith("probe.sh");
+      assertThat(String.valueOf(updater.get("TskCfgWhr"))).contains("probe-srv").endsWith("/opt/probe/bin");
+      assertThat(String.valueOf(updater.get("TskCfgRpt"))).contains("ops@probe.example", "probe-report");
+    } finally {
+      jdbcTemplate.update("DELETE FROM AweSchTsk WHERE Ide = ?", task);
+      jdbcTemplate.update("DELETE FROM AweSchSrv WHERE Ide = ?", task);
+    }
+  }
+
+  private Map<String, Object> taskPage(String body, Collection<GrantedAuthority> authorities) throws Exception {
+    String response = mockMvc.perform(post("/action/data/getTaskPage")
+        .with(csrf())
+        .with(authentication(signedIn(authorities)))
+        .session(session("administrator"))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(body)
+        .accept(MediaType.APPLICATION_JSON))
+      .andReturn().getResponse().getContentAsString();
+    List<Map<String, Object>> rows = JsonPath.read(response, "$[?(@.type == 'fill')].parameters.datalist.rows[0]");
+    assertThat(rows).as(response).hasSize(1);
+    return rows.get(0);
+  }
+
   private String action(String path, Authentication user) throws Exception {
     return mockMvc.perform(post("/action/" + path)
         .with(csrf())

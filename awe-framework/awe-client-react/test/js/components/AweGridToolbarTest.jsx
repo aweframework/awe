@@ -157,6 +157,25 @@ describe("awe-react-client/test/js/components/AweGridToolbarTest.jsx", () => {
     expect(byHook("grid-quick-filter-option", toolbar).length).toBe(2);
   });
 
+  it("shows every quick filter of the grid, in its order, before Columns and Maximize", () => {
+    const state = withQuickFilter({ quickFilters: ["CrtSta", "CrtOri"] });
+    state.components.CrtOri = {
+      address: { component: "CrtOri", view: "report" },
+      model: { values: [{ value: "", label: "Any origin", selected: true }, { value: "manual", label: "Manual" },
+        { value: "file", label: "File" }] },
+      attributes: { id: "CrtOri", component: "quick-filter", visible: true },
+      specificAttributes: {}
+    };
+    renderWithProviders(<AweGrid id="grid" />, { preloadedState: state });
+
+    const toolbar = document.querySelector(hook("grid-toolbar"));
+    expect(toolbarParts(toolbar).slice(0, 4)).toEqual(["grid-quick-filter", "grid-quick-filter", "grid-columns-button",
+      "grid-maximize-button"]);
+    const groups = Array.from(byHook("grid-quick-filter", toolbar));
+    expect(groups.map(group => group.getAttribute("criterion-id"))).toEqual(["CrtSta", "CrtOri"]);
+    expect(groups.map(group => byHook("grid-quick-filter-option", group).length)).toEqual([2, 3]);
+  });
+
   it("shows the toolbar with only its quick filters when the grid opts out of the toolbar", () => {
     renderWithProviders(<AweGrid id="grid" />, { preloadedState: withQuickFilter({ showToolbar: false }) });
 

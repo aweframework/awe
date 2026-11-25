@@ -479,4 +479,122 @@ describe("awe-framework/awe-client-angular/src/test/jest/components/card.test.js
       expect(getChip().attr("data-tone")).toBe("danger");
     });
   });
+
+  describe("pills and status strip (#993)", () => {
+    it("shows the pills of the row under the heading, a code in a code element, and skips the items without text", () => {
+      compile({title: "Bank reconciliation"}, [{pills: JSON.stringify([
+        {label: "#13"}, {label: "Maintain", code: "BankReconciliation", icon: "lucide:database"},
+        {icon: "lucide:mail"}, "plain", {label: "Keeps 50 executions"}])}]);
+      const pills = getCard().find("ul.awe-card-pills > li.awe-card-pill");
+
+      expect(getCard().find("header.awe-card-header + ul.awe-card-pills").length).toBe(1);
+      expect(pills.length).toBe(3);
+      expect(pills.eq(0).text().trim()).toBe("#13");
+      expect(pills.eq(1).find(".awe-card-pill-label").text()).toBe("Maintain");
+      expect(pills.eq(1).find("code.awe-card-pill-code").text()).toBe("BankReconciliation");
+      expect(pills.eq(1).find(".awe-card-pill-icon svg").length).toBe(1);
+      expect(pills.eq(2).find("code").length).toBe(0);
+    });
+
+    it("renders no pills list without valid pills", () => {
+      compile({title: "Task"}, [{pills: "not json"}]);
+
+      expect(getCard().find(".awe-card-pills").length).toBe(0);
+    });
+
+    it("draws the status strip of the row as one image that counts its statuses", () => {
+      compile({title: "Last executions"}, [{strip: JSON.stringify([
+        {tone: "success", label: "OK"}, {tone: "danger", label: "Error"}, {tone: "success", label: "OK"}])}]);
+      const strip = getCard().find(".awe-card-strip .awe-status-strip");
+
+      expect(strip.attr("role")).toBe("img");
+      expect(strip.attr("aria-label")).toBe("2 OK, 1 Error");
+      expect(strip.find(".awe-status-strip-item").length).toBe(3);
+    });
+
+    it("draws the stack of the row as one image with a segment per positive part", () => {
+      compile({title: "Success rate", value: "50", unit: "%"}, [{stack: JSON.stringify([
+        {tone: "success", label: "OK", value: 3}, {tone: "unknown", label: "Stopped", value: "1"},
+        {tone: "danger", label: "Error", value: 0}, "plain"])}]);
+      const stack = getCard().find(".awe-card-value + .awe-card-stack");
+      const segments = stack.find(".awe-card-stack-segment");
+
+      expect(stack.attr("role")).toBe("img");
+      expect(stack.attr("aria-label")).toBe("3 OK, 1 Stopped");
+      expect(segments.length).toBe(2);
+      expect(segments.toArray().map(segment => [segment.dataset.tone, segment.title])).toEqual([["success", "3 OK"], ["neutral", "1 Stopped"]]);
+    });
+  });
+
+  describe("maximize and header actions (#993, T52e)", () => {
+    let $timeout;
+    beforeEach(() => {
+      inject(["$timeout", (_$timeout_) => {
+        $timeout = _$timeout_;
+      }]);
+    });
+
+    const maximizeButton = () => getCard().find(hook(TestIds.cardMaximizeButton));
+    const click = () => {
+      maximizeButton()[0].click();
+      refs.$rootScope.$digest();
+      $timeout.flush();
+      refs.$rootScope.$digest();
+    };
+
+    it("maximizes and restores a maximizable card with the button at the end of its header", () => {
+      compile({title: "Run", maximize: true});
+      // The screen container the card grows over
+      $("<div class='maximize-target'></div>").appendTo(document.body).append(getCard());
+
+      expect(getCard().find(".awe-card-header").children().last()[0]).toBe(maximizeButton()[0]);
+      expect(maximizeButton().attr("aria-label")).toBe("SCREEN_TEXT_MAXIMIZE");
+      expect(maximizeButton().attr("aria-pressed")).toBe("false");
+      expect(getCard().attr(TestAttributes.maximized)).toBe("false");
+
+      click();
+      expect(getCard().attr(TestAttributes.maximized)).toBe("true");
+      expect(maximizeButton().attr("aria-label")).toBe("SCREEN_TEXT_RESTORE");
+      expect(maximizeButton().attr("aria-pressed")).toBe("true");
+
+      click();
+      expect(getCard().attr(TestAttributes.maximized)).toBe("false");
+      expect(maximizeButton().attr("aria-label")).toBe("SCREEN_TEXT_MAXIMIZE");
+    });
+
+    it.each([[undefined], [false], ["false"]])("has no maximize button nor maximized state with the maximize attribute %s", maximize => {
+      compile({title: "Sales", value: 3, maximize});
+
+      expect(maximizeButton().length).toBe(0);
+      expect(getCard().attr(TestAttributes.maximized)).toBeUndefined();
+    });
+
+    it("shows a child with the header actions style at the right of its header and the other children in the body", () => {
+      compile({title: "Run", maximize: "true"}, [],
+        "<div id='CrdAct' class='awe-card-header-actions'><span id='CrdSwt'>Switch</span></div><p id='CrdChd'>Child</p>");
+      const header = getCard().find(".awe-card-header");
+
+      expect(header.children().toArray().map(child => child.id || child.className.split(" ")[0]))
+        .toEqual(["awe-card-heading", "CrdAct", "maximize-button"]);
+      expect(header.find("#CrdSwt").text()).toBe("Switch");
+      expect(getCard().find(".awe-card-body").children().toArray().map(child => child.id)).toEqual(["CrdChd"]);
+    });
+
+    it("takes a child with the header actions style among other styles to the header, before the chip and the maximize button", () => {
+      compile({title: "Run", chip: "Active", maximize: true}, [],
+        "<div id='CrdAct' class='foo awe-card-header-actions bar'></div><p id='CrdChd'>Child</p>");
+      const header = getCard().find(".awe-card-header");
+
+      expect(header.children().toArray().map(child => child.id || child.dataset.testid || child.className.split(" ")[0]))
+        .toEqual(["awe-card-heading", "CrdAct", TestIds.cardChip, TestIds.cardMaximizeButton]);
+      expect(getCard().find(".awe-card-body").children().toArray().map(child => child.id)).toEqual(["CrdChd"]);
+    });
+
+    it("shows a header for its actions alone, without a body when it has no other child", () => {
+      compile({}, [], "<div id='CrdAct' class='awe-card-header-actions'></div>");
+
+      expect(getCard().find(".awe-card-header > #CrdAct").length).toBe(1);
+      expect(getCard().find(".awe-card-body").length).toBe(0);
+    });
+  });
 });

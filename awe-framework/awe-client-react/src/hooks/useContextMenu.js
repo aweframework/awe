@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useId, useMemo, useRef } from "react";
 import { ContextMenu } from "primereact/contextmenu";
 import { useDispatch } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -41,6 +41,26 @@ export function mapContextMenu(contextMenu, props) {
 }
 
 /**
+ * Align a menu opened under a button to the right edge of the button when the button sits in the window header (its
+ * buttons are on the right of the page) or when the menu, aligned to the left edge of the button, would overflow the
+ * right edge of the viewport. Otherwise it keeps the left edge of the button. It never starts before the left edge of
+ * the page
+ * @param {HTMLElement} menu Menu element, already placed under the button
+ * @param {Element} anchor Button the menu hangs from
+ */
+export function alignMenuToAnchor(menu, anchor) {
+  if (!menu || !anchor?.getBoundingClientRect) {
+    return;
+  }
+  const rect = anchor.getBoundingClientRect();
+  const width = menu.offsetWidth;
+  const inHeader = Boolean(anchor.closest?.(".window-buttons"));
+  if (inHeader || rect.left + width > window.innerWidth) {
+    menu.style.left = `${Math.max(rect.right - width, 0) + window.scrollX}px`;
+  }
+}
+
+/**
  * Context menu of a component: the options it declares with context-button open on right click
  * @param {object} params {address: owner address of the actions, contextMenu: options declared by the component,
  * openWithoutVisibleOptions: open the menu whenever the component declares options}
@@ -55,6 +75,8 @@ export function useContextMenu({ address, contextMenu, openWithoutVisibleOptions
   const dispatch = useDispatch();
   const optionAttributes = useContextMenuAttributes(contextMenu);
   const cmRef = useRef(null);
+  // Button the menu was opened under (show-context-menu action), aligned once the menu is placed
+  const anchorRef = useRef(null);
 
   const addActionsTop = useCallback((actions) => dispatch(addActionsTopAction(actions)), [dispatch]);
   const raiseEvent = useCallback((addr, event) => dispatch(updateThunk(addr, { event })), [dispatch]);
@@ -73,6 +95,7 @@ export function useContextMenu({ address, contextMenu, openWithoutVisibleOptions
     // Nested components (a criterion in a tab) open only the menu of the closest one
     event.preventDefault?.();
     event.stopPropagation?.();
+    anchorRef.current = null;
     cmRef.current?.show(event);
   }, [canOpen]);
 
@@ -85,6 +108,7 @@ export function useContextMenu({ address, contextMenu, openWithoutVisibleOptions
       return false;
     }
     const rect = anchor.getBoundingClientRect();
+    anchorRef.current = anchor;
     cmRef.current.show({
       pageX: rect.left + window.scrollX - 1,
       pageY: rect.bottom + window.scrollY - 1,
@@ -98,9 +122,44 @@ export function useContextMenu({ address, contextMenu, openWithoutVisibleOptions
     () => registerContextMenu({ view, component }, { show: showUnder, canOpen: () => canOpenRef.current }),
     [view, component, showUnder]);
 
+  // PrimeReact places the menu on enter, then runs these options: the menu of a button is aligned to it there. The
+  // transition hands no node and the ref of the ContextMenu is not attached yet, so the menu is found by its id
+  const menuId = useId();
+  const transitionOptions = useMemo(() => ({
+    onEnter: () => alignMenuToAnchor(document.getElementById(menuId), anchorRef.current),
+    // A menu opened under a button (also from the keyboard) takes the focus, so its keys work: PrimeReact focuses it on
+    // show, before it is rendered when the show comes from an action
+    onEntered: () => {
+      const menu = document.getElementById(menuId);
+      if (anchorRef.current && menu && !menu.contains(document.activeElement)) {
+        menu.querySelector("[role=menubar], ul")?.focus();
+      }
+    }
+  }), [menuId]);
+
+  // The keys of the menu stay in it: the component under it (a grid saves or cancels a row with Enter and Escape and
+  // clears its selection with Escape) never receives them
+  const passThrough = useMemo(() => {
+    const pt = contextMenuPassThrough();
+    return {...pt, root: {...pt.root, onKeyDown: (event) => event.stopPropagation()}};
+  }, []);
+
+  // A menu opened under a button gives the focus back to the button when it closes with the focus inside it (Escape,
+  // an option chosen with the keyboard), so the keyboard user goes on from the button; an action of the option that
+  // opens a dialog or a screen takes the focus afterwards
+  const onHide = useCallback(() => {
+    const anchor = anchorRef.current;
+    const menu = document.getElementById(menuId);
+    const active = document.activeElement;
+    if (anchor?.isConnected && (!active || active === document.body || menu?.contains(active))) {
+      anchor.focus?.();
+    }
+  }, [menuId]);
+
   const contextMenuTemplate = useCallback(() => items.length > 0
-    ? <ContextMenu model={items} ref={cmRef} breakpoint="767px" pt={contextMenuPassThrough()} />
-    : null, [items]);
+    ? <ContextMenu id={menuId} model={items} ref={cmRef} breakpoint="767px" pt={passThrough}
+      transitionOptions={transitionOptions} onHide={onHide} />
+    : null, [items, menuId, transitionOptions, onHide, passThrough]);
 
   return { onContextMenu, contextMenuTemplate };
 }

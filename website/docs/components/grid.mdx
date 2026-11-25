@@ -81,8 +81,13 @@ The `component` of a `column` chooses how a cell looks. The playground above use
 * `progress`: a data bar behind the number, scaled with `bar-min` and `bar-max`.
 * `sparkline`: a small chart of a series of numbers (`sparkline-type` is `line`, `bar` or `area`).
 
+`status-strip` draws an ordered list of statuses (a JSON array of `{"tone", "label", "title"}` items) as bars, for
+example the last executions of a task ([status strip column component](../api/grids.md#status-strip-column-component)).
+
 Others are `numeric`, `select`, `checkbox`, `date`, `icon`, `image`, `link`, `color` and `button`. The
-[XSD reference of the `column` element](/reference/screen#element-column) lists them with their attributes.
+[XSD reference of the `column` element](/reference/screen#element-column) lists them with their attributes. A `link`
+cell opens its URL in a new page or, when the column has `button-action`, launches them on its row as a `button` column
+does ([link column component](../api/grids.md#link-column-component)).
 
 ## Events and actions {#events-and-actions}
 

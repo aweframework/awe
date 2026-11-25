@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : GrdLinkTstDet.xml
+    Description: Detail of a flow run, opened by the link column with a screen action of the GrdLinkTst screen: its
+                 criteria show the run and the task of the row whose link was activated
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window" label="SCREEN_TITLE_GRID_LINK_DETAIL">
+  <tag source="buttons">
+    <button button-type="button" label="BUTTON_BACK" icon="arrow-circle-left" id="ButBck">
+      <button-action type="back"/>
+    </button>
+  </tag>
+  <tag source="center">
+    <window label="SCREEN_TITLE_GRID_LINK_DETAIL" icon="info-circle">
+      <tag type="div" style="panel-body">
+        <criteria label="COLUMN_LINK_TST_RUN" id="CrtLinkRun" variable="run" component="text" readonly="true" style="col-xs-12 col-sm-4 col-lg-2"/>
+        <criteria label="COLUMN_LINK_TST_TASK" id="CrtLinkTsk" variable="task" component="text" readonly="true" style="col-xs-12 col-sm-8 col-lg-4"/>
+      </tag>
+    </window>
+  </tag>
+</screen>

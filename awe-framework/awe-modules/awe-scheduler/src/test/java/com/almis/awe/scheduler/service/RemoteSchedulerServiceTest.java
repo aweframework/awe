@@ -3,6 +3,8 @@ package com.almis.awe.scheduler.service;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.type.AnswerType;
+import com.almis.awe.scheduler.bean.task.ExecutionListCriteria;
+import com.almis.awe.scheduler.bean.task.TaskCatalogCriteria;
 import com.almis.awe.scheduler.bean.task.TaskVariable;
 import com.almis.awe.scheduler.feign.RemoteScheduler;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -226,5 +229,223 @@ class RemoteSchedulerServiceTest {
 
     assertEquals(1, result.size());
     assertEquals("new", result.get("dup"));
+  }
+
+  /**
+   * The execution list of all tasks is read from the remote scheduler when it is remote, and locally otherwise.
+   */
+  @Test
+  void executionListFollowsTheRemoteFlag() throws AWException {
+    ExecutionListCriteria criteria = new ExecutionListCriteria().setTaskName("nightly");
+    SchedulerService local = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    ServiceData remoteData = new ServiceData();
+    ServiceData localData = new ServiceData();
+    when(remoteScheduler.getExecutionList(criteria)).thenReturn(remoteData);
+    when(local.getExecutionList(criteria)).thenReturn(localData);
+
+    assertSame(remoteData, service(local, remoteScheduler, true).getExecutionList(criteria));
+    assertSame(localData, service(local, remoteScheduler, false).getExecutionList(criteria));
+  }
+
+  /**
+   * The activity counters are read from the remote scheduler when it is remote, and locally otherwise.
+   */
+  @Test
+  void activityCountersFollowTheRemoteFlag() throws AWException {
+    SchedulerService local = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    ServiceData remoteData = new ServiceData();
+    ServiceData localData = new ServiceData();
+    when(remoteScheduler.getActivityCounters()).thenReturn(remoteData);
+    when(local.getActivityCounters()).thenReturn(localData);
+
+    assertSame(remoteData, service(local, remoteScheduler, true).getActivityCounters());
+    assertSame(localData, service(local, remoteScheduler, false).getActivityCounters());
+  }
+
+  /**
+   * The counts of the state quick filter are read from the remote scheduler when it is remote, after validating the
+   * filters on this instance, and locally otherwise.
+   */
+  @Test
+  void stateCountsFollowTheRemoteFlagAndValidateTheFiltersBeforeCallingTheRemoteScheduler() throws AWException {
+    ExecutionListCriteria criteria = new ExecutionListCriteria().setTaskName("nightly");
+    SchedulerService local = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    ServiceData remoteData = new ServiceData();
+    ServiceData localData = new ServiceData();
+    when(remoteScheduler.getExecutionStateCounts(criteria)).thenReturn(remoteData);
+    when(local.getExecutionStateCounts(criteria)).thenReturn(localData);
+
+    assertSame(remoteData, service(local, remoteScheduler, true).getExecutionStateCounts(criteria));
+    assertSame(localData, service(local, remoteScheduler, false).getExecutionStateCounts(criteria));
+    verify(local).validateExecutionListCriteria(criteria);
+
+    ExecutionListCriteria invalid = new ExecutionListCriteria().setState("api");
+    org.mockito.Mockito.doThrow(new com.almis.awe.scheduler.exception.InvalidExecutionFilterException("t", "m"))
+      .when(local).validateExecutionListCriteria(invalid);
+    assertThrows(com.almis.awe.scheduler.exception.InvalidExecutionFilterException.class,
+      () -> service(local, remoteScheduler, true).getExecutionStateCounts(invalid));
+    verify(remoteScheduler, org.mockito.Mockito.never()).getExecutionStateCounts(invalid);
+  }
+
+  /**
+   * With a remote scheduler, the filters are validated on this instance first: an invalid value never reaches the
+   * remote scheduler and raises the AWE validation error.
+   */
+  @Test
+  void remoteExecutionListValidatesTheFiltersBeforeCallingTheRemoteScheduler() throws AWException {
+    ExecutionListCriteria criteria = new ExecutionListCriteria().setOrigins(List.of("api"));
+    SchedulerService local = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    org.mockito.Mockito.doThrow(new com.almis.awe.scheduler.exception.InvalidExecutionFilterException("t", "m"))
+      .when(local).validateExecutionListCriteria(criteria);
+
+    assertThrows(com.almis.awe.scheduler.exception.InvalidExecutionFilterException.class,
+      () -> service(local, remoteScheduler, true).getExecutionList(criteria));
+    org.mockito.Mockito.verifyNoInteractions(remoteScheduler);
+  }
+
+  /**
+   * The executions grouped by flow run are read from the remote scheduler when it is remote (its filters validated
+   * here first), and locally otherwise.
+   */
+  @Test
+  void runListFollowsTheRemoteFlagAndValidatesTheFiltersBeforeCallingTheRemoteScheduler() throws AWException {
+    ExecutionListCriteria criteria = new ExecutionListCriteria().setTaskName("nightly");
+    SchedulerService local = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    ServiceData remoteData = new ServiceData();
+    ServiceData localData = new ServiceData();
+    when(remoteScheduler.getRunList(criteria)).thenReturn(remoteData);
+    when(local.getRunList(criteria)).thenReturn(localData);
+
+    assertSame(remoteData, service(local, remoteScheduler, true).getRunList(criteria));
+    assertSame(localData, service(local, remoteScheduler, false).getRunList(criteria));
+    verify(local).validateExecutionListCriteria(criteria);
+
+    ExecutionListCriteria invalid = new ExecutionListCriteria().setMax(501);
+    org.mockito.Mockito.doThrow(new com.almis.awe.scheduler.exception.InvalidExecutionFilterException("t", "m"))
+      .when(local).validateExecutionListCriteria(invalid);
+    assertThrows(com.almis.awe.scheduler.exception.InvalidExecutionFilterException.class,
+      () -> service(local, remoteScheduler, true).getRunList(invalid));
+    verify(remoteScheduler, org.mockito.Mockito.never()).getRunList(invalid);
+  }
+  /**
+   * The summary and the graph of a flow run are read from the remote scheduler when it is remote, and locally
+   * otherwise; without run there is nothing to read
+   */
+  @Test
+  void flowRunPageFollowsTheRemoteFlagAndReadsNothingWithoutRun() throws AWException {
+    SchedulerService local = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    String runId = "0f8fad5b-d9cb-469f-a165-70867728950e";
+    ServiceData remoteSummary = new ServiceData();
+    ServiceData localSummary = new ServiceData();
+    ServiceData remoteGraph = new ServiceData();
+    ServiceData localGraph = new ServiceData();
+    when(remoteScheduler.getFlowRunSummary(runId)).thenReturn(remoteSummary);
+    when(local.getFlowRunSummary(runId)).thenReturn(localSummary);
+    when(remoteScheduler.getFlowRunGraph(runId)).thenReturn(remoteGraph);
+    when(local.getFlowRunGraph(runId)).thenReturn(localGraph);
+
+    assertSame(remoteSummary, service(local, remoteScheduler, true).getFlowRunSummary(runId));
+    assertSame(localSummary, service(local, remoteScheduler, false).getFlowRunSummary(runId));
+    assertSame(remoteGraph, service(local, remoteScheduler, true).getFlowRunGraph(runId));
+    assertSame(localGraph, service(local, remoteScheduler, false).getFlowRunGraph(runId));
+    assertTrue(service(local, remoteScheduler, true).getFlowRunGraph(null).getDataList().getRows().isEmpty());
+    assertTrue(service(local, remoteScheduler, true).getFlowRunSummary(" ").getDataList().getRows().isEmpty());
+    verify(remoteScheduler, org.mockito.Mockito.never()).getFlowRunGraph(null);
+  }
+
+  /**
+   * A flow run id that is not the shape of the ids of AweSchRun (a UUID) is not a run: it never reaches the URL of the
+   * remote scheduler nor the local one, and there is nothing to read
+   */
+  @Test
+  void aFlowRunIdThatIsNotAUuidReadsNothingAndNeverReachesTheRemoteScheduler() throws AWException {
+    SchedulerService local = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+
+    for (String invalid : List.of("run-1", "../tasks", "0f8fad5b-d9cb-469f-a165-70867728950e/graph")) {
+      assertTrue(service(local, remoteScheduler, true).getFlowRunSummary(invalid).getDataList().getRows().isEmpty());
+      assertTrue(service(local, remoteScheduler, true).getFlowRunGraph(invalid).getDataList().getRows().isEmpty());
+      assertTrue(service(local, remoteScheduler, false).getFlowRunGraph(invalid).getDataList().getRows().isEmpty());
+    }
+    org.mockito.Mockito.verifyNoInteractions(remoteScheduler, local);
+  }
+
+  /**
+   * The task catalog and the counts of its active filter are read from the remote scheduler when it is remote, after
+   * validating the filters on this instance (an invalid value never reaches it), and locally otherwise.
+   */
+  @Test
+  void taskCatalogFollowsTheRemoteFlagAndValidatesTheFiltersBeforeCallingTheRemoteScheduler() throws AWException {
+    TaskCatalogCriteria criteria = new TaskCatalogCriteria().setSearch("nightly");
+    SchedulerService local = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    ServiceData remoteData = new ServiceData();
+    ServiceData localData = new ServiceData();
+    ServiceData remoteCounts = new ServiceData();
+    ServiceData localCounts = new ServiceData();
+    when(remoteScheduler.getTaskCatalog(criteria)).thenReturn(remoteData);
+    when(local.getTaskCatalog(criteria)).thenReturn(localData);
+    when(remoteScheduler.getTaskCatalogActiveCounts(criteria)).thenReturn(remoteCounts);
+    when(local.getTaskCatalogActiveCounts(criteria)).thenReturn(localCounts);
+
+    assertSame(remoteData, service(local, remoteScheduler, true).getTaskCatalog(criteria));
+    assertSame(localData, service(local, remoteScheduler, false).getTaskCatalog(criteria));
+    assertSame(remoteCounts, service(local, remoteScheduler, true).getTaskCatalogActiveCounts(criteria));
+    assertSame(localCounts, service(local, remoteScheduler, false).getTaskCatalogActiveCounts(criteria));
+    verify(local, org.mockito.Mockito.times(2)).validateTaskCatalogCriteria(criteria);
+
+    TaskCatalogCriteria invalid = new TaskCatalogCriteria().setLaunchType("api");
+    org.mockito.Mockito.doThrow(new com.almis.awe.scheduler.exception.InvalidExecutionFilterException("t", "m"))
+      .when(local).validateTaskCatalogCriteria(invalid);
+    assertThrows(com.almis.awe.scheduler.exception.InvalidExecutionFilterException.class,
+      () -> service(local, remoteScheduler, true).getTaskCatalog(invalid));
+    verify(remoteScheduler, org.mockito.Mockito.never()).getTaskCatalog(invalid);
+  }
+
+  /**
+   * A task saved from the task editor is refreshed (without purging its executions) in the remote scheduler when it is
+   * remote, and locally otherwise
+   */
+  @Test
+  void theEditedTaskIsRefreshedInTheSchedulerThatFollowsTheRemoteFlag() throws AWException {
+    SchedulerService local = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+
+    service(local, remoteScheduler, true).refreshSchedulerTask(5);
+    service(local, remoteScheduler, false).refreshSchedulerTask(6);
+
+    verify(remoteScheduler).refreshTask(5);
+    verify(local).refreshSchedulerTask(6);
+    verify(local, org.mockito.Mockito.never()).updateSchedulerTask(any());
+  }
+
+  /**
+   * Saving a calendar from the side panel of the configuration screen reloads it in the engine and then reschedules the
+   * tasks that use it with it (active) or without it (inactive), as the row menu does, in the scheduler that follows
+   * the remote flag
+   */
+  @Test
+  void aCalendarSavedFromThePanelIsReloadedAndItsTasksRescheduledWithItOrWithoutIt() throws AWException {
+    SchedulerService local = mock(SchedulerService.class);
+    RemoteScheduler remoteScheduler = mock(RemoteScheduler.class);
+    org.mockito.InOrder order = org.mockito.Mockito.inOrder(local, remoteScheduler);
+
+    service(local, remoteScheduler, false).updateConfigurationCalendar(5, 1);
+    service(local, remoteScheduler, false).updateConfigurationCalendar(6, 0);
+    service(local, remoteScheduler, true).updateConfigurationCalendar(7, 0);
+
+    order.verify(local).updateSchedulerCalendar(5);
+    order.verify(local).activateCalendar(List.of(5));
+    order.verify(local).updateSchedulerCalendar(6);
+    order.verify(local).deactivateCalendar(List.of(6));
+    order.verify(remoteScheduler).updateCalendar(7);
+    order.verify(remoteScheduler).deactivateCalendar(List.of(7));
+    verify(local, org.mockito.Mockito.never()).deactivateCalendar(List.of(5));
   }
 }

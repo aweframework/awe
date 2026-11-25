@@ -102,6 +102,22 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
     const hasSecondary = (column) => !("component" in column) && !!column.secondaryField;
 
     /**
+     * Check whether a progress column shows a secondary line under its bar
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Progress column with a secondary line
+     */
+    const hasProgressSecondary = (column) => column.component === "progress" && !!column.secondaryField;
+
+    /**
+     * Check whether a link column shows a secondary line under its link (#993)
+     *
+     * @param {object} column Column model
+     * @returns {boolean} Link column with a secondary line
+     */
+    const hasLinkSecondary = (column) => column.component === "link" && !!column.secondaryField;
+
+    /**
      * Check whether a column without component shows its value as a status (ignored in a column of chips)
      *
      * @param {object} column Column model
@@ -184,7 +200,8 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
      * @param {object} column Column model
      * @returns {boolean} Cells of the column grow
      */
-    const growsCell = (column) => hasSecondary(column) || hasChips(column) || hasAvatar(column) || hasSwatch(column);
+    const growsCell = (column) => hasSecondary(column) || hasProgressSecondary(column) || hasLinkSecondary(column) || hasChips(column) || hasAvatar(column) ||
+      hasSwatch(column);
 
     /**
      * Contents of the cell of a column with a secondary line, a status, chips, an avatar, a swatch or an icon. The values are always
@@ -1038,6 +1055,11 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
          * @returns {Object} Data from grid
          */
         component.getData = function () {
+          // A hidden grid that does not send its values while hidden (send-when-hidden="false") sends none of them
+          if (component.controller.sendWhenHidden === false && component.controller.visible === false) {
+            return {};
+          }
+
           // Initialize data
           let  data = {};
 
@@ -1849,12 +1871,59 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
         };
 
         /**
+         * Text that wraps over several lines, secondary line, status and chips: the cell template of a plain column
+         *
+         * @param {object} column Column model
+         */
+        const fixTextCellTemplate = function (column) {
+          if (!("component" in column) && column.cellTemplate === "grid/cell") {
+            const wrapping = component.wrapsText ? getColumnWrap(column) : {wrap: false, maxLines: null};
+            const richTemplate = getRichCellTemplate(column, wrapping);
+            if (richTemplate !== null) {
+              column.cellTemplate = richTemplate;
+            } else if (wrapping.wrap) {
+              column.cellTemplate = getWrapCellTemplate(wrapping);
+            }
+          }
+        };
+
+        /**
+         * Cell and footer templates of a column with a component
+         *
+         * @param {object} column Column model
+         */
+        const fixComponentCellTemplates = function (column) {
+          column.enableFiltering = false;
+          const cellComponent = "<awe-column-" + column.component +
+            " cell-address='{\"hash\":\"{{row.uid}}\", \"view\":\"" + component.address.view + "\", \"component\":\"" + component.address.component + "\", \"row\":\"{{row.entity." +
+            component.constants.ROW_IDENTIFIER + "}}\", \"column\":\"{{col.name}}\"}'/>";
+          // A progress column with a secondary field shows its text under the bar, and a link column under the link in one
+          // line cut with an ellipsis (#993): the secondary line of the rich cells
+          const secondary = CELL_COMPONENT + ".getCellSecondary(row.entity, col.colDef)";
+          const linesClass = hasProgressSecondary(column) ? "awe-cell-progress" : "awe-cell-link";
+          const withSecondary = hasProgressSecondary(column) || hasLinkSecondary(column);
+          const cellContents = withSecondary ? "<div class=\"awe-cell-lines " + linesClass + "\">" + cellComponent +
+            "<span class=\"awe-cell-secondary\" ng-if=\"" + secondary + "\" ng-bind=\"" + secondary + "\"" +
+            (hasLinkSecondary(column) ? " title=\"{{" + secondary + "}}\"" : "") + "></span></div>" : cellComponent;
+          column.cellTemplate = "<div class=\"ui-grid-cell-contents component" + (withSecondary ? " cell-rich" : "") +
+            "\" title=\"TOOLTIP\" column-id=\"{{col.name}}\" data-testid=\"grid-cell\">" + cellContents + "</div>";
+          column.footerCellTemplate = column.summaryType ? "<div class=\"ui-grid-cell-contents ui-grid-cell-footer\" title=\"TOOLTIP\" column-id=\"{{col.name}}\"><awe-column-" +
+            column.component + " cell-address='{\"hash\":\"footer-{{grid.appScope.model.page}}\", \"view\":\"" + component.address.view + "\", \"component\":\"" +
+            component.address.component + "\", \"row\":\"footer\", \"column\":\"{{col.name}}\"}'/></div>" : column.footerCellTemplate;
+        };
+
+        /**
          * Fix retrieved column model to fit jquery grid colmodel
          *
          * @param {object} column Column model
          */
         component.fixColumn = function (column) {
           column.width = getColumnWidth(column, component.scope.charSize);
+          // The min-width (pixels) only applies to the column that shares the free space (#993): another column keeps
+          // its width
+          if (column.width !== "*" && Number(column.minWidth) > Number(column.width)) {
+            column.minWidth = column.width;
+          }
 
           // Store initial width
           column.initialWidth = column.width;
@@ -1894,27 +1963,13 @@ aweApplication.factory('GridCommons', ['GridComponents', 'GridEditable', 'GridMu
           column.filterHeaderTemplate = column.filterHeaderTemplate || "grid/headerFilter";
 
           // Text that wraps over several lines, secondary line, status and chips
-          if (!("component" in column) && column.cellTemplate === "grid/cell") {
-            const wrapping = component.wrapsText ? getColumnWrap(column) : {wrap: false, maxLines: null};
-            const richTemplate = getRichCellTemplate(column, wrapping);
-            if (richTemplate !== null) {
-              column.cellTemplate = richTemplate;
-            } else if (wrapping.wrap) {
-              column.cellTemplate = getWrapCellTemplate(wrapping);
-            }
-          }
+          fixTextCellTemplate(column);
 
           column.sortingAlgorithm = component.sortingAlgorithm;
 
           // Calculate fields with components
           if ("component" in column) {
-            column.enableFiltering = false;
-            column.cellTemplate = "<div class=\"ui-grid-cell-contents component\" title=\"TOOLTIP\" column-id=\"{{col.name}}\" data-testid=\"grid-cell\"><awe-column-" + column.component +
-              " cell-address='{\"hash\":\"{{row.uid}}\", \"view\":\"" + component.address.view + "\", \"component\":\"" + component.address.component + "\", \"row\":\"{{row.entity." +
-              component.constants.ROW_IDENTIFIER + "}}\", \"column\":\"{{col.name}}\"}'/></div>";
-            column.footerCellTemplate = column.summaryType ? "<div class=\"ui-grid-cell-contents ui-grid-cell-footer\" title=\"TOOLTIP\" column-id=\"{{col.name}}\"><awe-column-" +
-              column.component + " cell-address='{\"hash\":\"footer-{{grid.appScope.model.page}}\", \"view\":\"" + component.address.view + "\", \"component\":\"" +
-              component.address.component + "\", \"row\":\"footer\", \"column\":\"{{col.name}}\"}'/></div>" : column.footerCellTemplate;
+            fixComponentCellTemplates(column);
           }
 
           // Remove dependencies and add them to the grid

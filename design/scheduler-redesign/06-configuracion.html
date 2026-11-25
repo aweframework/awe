@@ -1,0 +1,1586 @@
+<!doctype html>
+<html lang="es" data-awe-primary="emerald" data-awe-surface="slate" data-awe-density="comfortable">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Planificador · Configuración (servidores, calendarios y motor)</title>
+<style>
+/* ==== AWE 5 tokens: only the ones this artboard reads, copied from awe-framework/awe-design-tokens/tokens.css ==== */
+:root {
+  --awe-palette-emerald-50: #ecfdf5;
+  --awe-palette-emerald-100: #d1fae5;
+  --awe-palette-emerald-300: #6ee7b7;
+  --awe-palette-emerald-400: #34d399;
+  --awe-palette-emerald-500: #10b981;
+  --awe-palette-emerald-600: #059669;
+  --awe-palette-emerald-700: #047857;
+  --awe-palette-emerald-800: #065f46;
+  --awe-palette-emerald-950: #022c22;
+  --awe-palette-green-50: #f0fdf4;
+  --awe-palette-green-100: #dcfce7;
+  --awe-palette-green-200: #bbf7d0;
+  --awe-palette-green-300: #86efac;
+  --awe-palette-green-400: #4ade80;
+  --awe-palette-green-500: #22c55e;
+  --awe-palette-green-600: #16a34a;
+  --awe-palette-green-700: #15803d;
+  --awe-palette-green-800: #166534;
+  --awe-palette-green-950: #052e16;
+  --awe-palette-lime-50: #f7fee7;
+  --awe-palette-lime-100: #ecfccb;
+  --awe-palette-lime-300: #bef264;
+  --awe-palette-lime-400: #a3e635;
+  --awe-palette-lime-500: #84cc16;
+  --awe-palette-lime-600: #65a30d;
+  --awe-palette-lime-700: #4d7c0f;
+  --awe-palette-lime-800: #3f6212;
+  --awe-palette-lime-950: #1a2e05;
+  --awe-palette-red-50: #fef2f2;
+  --awe-palette-red-100: #fee2e2;
+  --awe-palette-red-200: #fecaca;
+  --awe-palette-red-300: #fca5a5;
+  --awe-palette-red-400: #f87171;
+  --awe-palette-red-500: #ef4444;
+  --awe-palette-red-600: #dc2626;
+  --awe-palette-red-700: #b91c1c;
+  --awe-palette-red-800: #991b1b;
+  --awe-palette-red-950: #450a0a;
+  --awe-palette-orange-50: #fff7ed;
+  --awe-palette-orange-100: #ffedd5;
+  --awe-palette-orange-200: #fed7aa;
+  --awe-palette-orange-300: #fdba74;
+  --awe-palette-orange-400: #fb923c;
+  --awe-palette-orange-500: #f97316;
+  --awe-palette-orange-600: #ea580c;
+  --awe-palette-orange-700: #c2410c;
+  --awe-palette-orange-800: #9a3412;
+  --awe-palette-orange-950: #431407;
+  --awe-palette-amber-50: #fffbeb;
+  --awe-palette-amber-100: #fef3c7;
+  --awe-palette-amber-300: #fcd34d;
+  --awe-palette-amber-400: #fbbf24;
+  --awe-palette-amber-500: #f59e0b;
+  --awe-palette-amber-600: #d97706;
+  --awe-palette-amber-700: #b45309;
+  --awe-palette-amber-800: #92400e;
+  --awe-palette-amber-950: #451a03;
+  --awe-palette-yellow-50: #fefce8;
+  --awe-palette-yellow-100: #fef9c3;
+  --awe-palette-yellow-300: #fde047;
+  --awe-palette-yellow-400: #facc15;
+  --awe-palette-yellow-500: #eab308;
+  --awe-palette-yellow-600: #ca8a04;
+  --awe-palette-yellow-700: #a16207;
+  --awe-palette-yellow-800: #854d0e;
+  --awe-palette-yellow-950: #422006;
+  --awe-palette-teal-50: #f0fdfa;
+  --awe-palette-teal-100: #ccfbf1;
+  --awe-palette-teal-300: #5eead4;
+  --awe-palette-teal-400: #2dd4bf;
+  --awe-palette-teal-500: #14b8a6;
+  --awe-palette-teal-600: #0d9488;
+  --awe-palette-teal-700: #0f766e;
+  --awe-palette-teal-800: #115e59;
+  --awe-palette-teal-950: #042f2e;
+  --awe-palette-cyan-50: #ecfeff;
+  --awe-palette-cyan-100: #cffafe;
+  --awe-palette-cyan-300: #67e8f9;
+  --awe-palette-cyan-400: #22d3ee;
+  --awe-palette-cyan-500: #06b6d4;
+  --awe-palette-cyan-600: #0891b2;
+  --awe-palette-cyan-700: #0e7490;
+  --awe-palette-cyan-800: #155e75;
+  --awe-palette-cyan-950: #083344;
+  --awe-palette-sky-50: #f0f9ff;
+  --awe-palette-sky-100: #e0f2fe;
+  --awe-palette-sky-200: #bae6fd;
+  --awe-palette-sky-300: #7dd3fc;
+  --awe-palette-sky-400: #38bdf8;
+  --awe-palette-sky-500: #0ea5e9;
+  --awe-palette-sky-600: #0284c7;
+  --awe-palette-sky-700: #0369a1;
+  --awe-palette-sky-800: #075985;
+  --awe-palette-sky-950: #082f49;
+  --awe-palette-blue-50: #eff6ff;
+  --awe-palette-blue-100: #dbeafe;
+  --awe-palette-blue-300: #93c5fd;
+  --awe-palette-blue-400: #60a5fa;
+  --awe-palette-blue-500: #3b82f6;
+  --awe-palette-blue-600: #2563eb;
+  --awe-palette-blue-700: #1d4ed8;
+  --awe-palette-blue-800: #1e40af;
+  --awe-palette-blue-950: #172554;
+  --awe-palette-indigo-50: #eef2ff;
+  --awe-palette-indigo-100: #e0e7ff;
+  --awe-palette-indigo-300: #a5b4fc;
+  --awe-palette-indigo-400: #818cf8;
+  --awe-palette-indigo-500: #6366f1;
+  --awe-palette-indigo-600: #4f46e5;
+  --awe-palette-indigo-700: #4338ca;
+  --awe-palette-indigo-800: #3730a3;
+  --awe-palette-indigo-950: #1e1b4b;
+  --awe-palette-violet-50: #f5f3ff;
+  --awe-palette-violet-100: #ede9fe;
+  --awe-palette-violet-300: #c4b5fd;
+  --awe-palette-violet-400: #a78bfa;
+  --awe-palette-violet-500: #8b5cf6;
+  --awe-palette-violet-600: #7c3aed;
+  --awe-palette-violet-700: #6d28d9;
+  --awe-palette-violet-800: #5b21b6;
+  --awe-palette-violet-950: #2e1065;
+  --awe-palette-purple-50: #faf5ff;
+  --awe-palette-purple-100: #f3e8ff;
+  --awe-palette-purple-300: #d8b4fe;
+  --awe-palette-purple-400: #c084fc;
+  --awe-palette-purple-500: #a855f7;
+  --awe-palette-purple-600: #9333ea;
+  --awe-palette-purple-700: #7e22ce;
+  --awe-palette-purple-800: #6b21a8;
+  --awe-palette-purple-950: #3b0764;
+  --awe-palette-fuchsia-50: #fdf4ff;
+  --awe-palette-fuchsia-100: #fae8ff;
+  --awe-palette-fuchsia-300: #f0abfc;
+  --awe-palette-fuchsia-400: #e879f9;
+  --awe-palette-fuchsia-500: #d946ef;
+  --awe-palette-fuchsia-600: #c026d3;
+  --awe-palette-fuchsia-700: #a21caf;
+  --awe-palette-fuchsia-800: #86198f;
+  --awe-palette-fuchsia-950: #4a044e;
+  --awe-palette-pink-50: #fdf2f8;
+  --awe-palette-pink-100: #fce7f3;
+  --awe-palette-pink-300: #f9a8d4;
+  --awe-palette-pink-400: #f472b6;
+  --awe-palette-pink-500: #ec4899;
+  --awe-palette-pink-600: #db2777;
+  --awe-palette-pink-700: #be185d;
+  --awe-palette-pink-800: #9d174d;
+  --awe-palette-pink-950: #500724;
+  --awe-palette-rose-50: #fff1f2;
+  --awe-palette-rose-100: #ffe4e6;
+  --awe-palette-rose-300: #fda4af;
+  --awe-palette-rose-400: #fb7185;
+  --awe-palette-rose-500: #f43f5e;
+  --awe-palette-rose-600: #e11d48;
+  --awe-palette-rose-700: #be123c;
+  --awe-palette-rose-800: #9f1239;
+  --awe-palette-rose-950: #4c0519;
+  --awe-palette-slate-50: #f8fafc;
+  --awe-palette-slate-100: #f1f5f9;
+  --awe-palette-slate-200: #e2e8f0;
+  --awe-palette-slate-300: #cbd5e1;
+  --awe-palette-slate-400: #94a3b8;
+  --awe-palette-slate-500: #64748b;
+  --awe-palette-slate-600: #475569;
+  --awe-palette-slate-700: #334155;
+  --awe-palette-slate-800: #1e293b;
+  --awe-palette-slate-900: #0f172a;
+  --awe-palette-slate-950: #020617;
+  --awe-palette-gray-50: #f9fafb;
+  --awe-palette-gray-100: #f3f4f6;
+  --awe-palette-gray-200: #e5e7eb;
+  --awe-palette-gray-300: #d1d5db;
+  --awe-palette-gray-400: #9ca3af;
+  --awe-palette-gray-500: #6b7280;
+  --awe-palette-gray-600: #4b5563;
+  --awe-palette-gray-700: #374151;
+  --awe-palette-gray-800: #1f2937;
+  --awe-palette-gray-900: #111827;
+  --awe-palette-gray-950: #030712;
+  --awe-palette-zinc-50: #fafafa;
+  --awe-palette-zinc-100: #f4f4f5;
+  --awe-palette-zinc-200: #e4e4e7;
+  --awe-palette-zinc-300: #d4d4d8;
+  --awe-palette-zinc-400: #a1a1aa;
+  --awe-palette-zinc-500: #71717a;
+  --awe-palette-zinc-600: #52525b;
+  --awe-palette-zinc-700: #3f3f46;
+  --awe-palette-zinc-800: #27272a;
+  --awe-palette-zinc-900: #18181b;
+  --awe-palette-zinc-950: #09090b;
+  --awe-palette-neutral-50: #fafafa;
+  --awe-palette-neutral-100: #f5f5f5;
+  --awe-palette-neutral-200: #e5e5e5;
+  --awe-palette-neutral-300: #d4d4d4;
+  --awe-palette-neutral-400: #a3a3a3;
+  --awe-palette-neutral-500: #737373;
+  --awe-palette-neutral-600: #525252;
+  --awe-palette-neutral-700: #404040;
+  --awe-palette-neutral-800: #262626;
+  --awe-palette-neutral-900: #171717;
+  --awe-palette-neutral-950: #0a0a0a;
+  --awe-palette-stone-50: #fafaf9;
+  --awe-palette-stone-100: #f5f5f4;
+  --awe-palette-stone-200: #e7e5e4;
+  --awe-palette-stone-300: #d6d3d1;
+  --awe-palette-stone-400: #a8a29e;
+  --awe-palette-stone-500: #78716c;
+  --awe-palette-stone-600: #57534e;
+  --awe-palette-stone-700: #44403c;
+  --awe-palette-stone-800: #292524;
+  --awe-palette-stone-900: #1c1917;
+  --awe-palette-stone-950: #0c0a09;
+}
+:root,
+:root[data-awe-primary="emerald"] {
+  --awe-primary-50: var(--awe-palette-emerald-50);
+  --awe-primary-100: var(--awe-palette-emerald-100);
+  --awe-primary-300: var(--awe-palette-emerald-300);
+  --awe-primary-400: var(--awe-palette-emerald-400);
+  --awe-primary-500: var(--awe-palette-emerald-500);
+  --awe-primary-600: var(--awe-palette-emerald-600);
+  --awe-primary-700: var(--awe-palette-emerald-700);
+  --awe-primary-800: var(--awe-palette-emerald-800);
+  --awe-primary-950: var(--awe-palette-emerald-950);
+  --awe-primary-fill: var(--awe-primary-700);
+  --awe-primary-fill-hover: var(--awe-primary-800);
+  --awe-primary-on-fill: #ffffff;
+}
+:root {
+  --awe-surface-0: #ffffff;
+  --awe-surface-50: light-dark(var(--awe-palette-slate-50), var(--awe-palette-zinc-50));
+  --awe-surface-100: light-dark(var(--awe-palette-slate-100), var(--awe-palette-zinc-100));
+  --awe-surface-200: light-dark(var(--awe-palette-slate-200), var(--awe-palette-zinc-200));
+  --awe-surface-300: light-dark(var(--awe-palette-slate-300), var(--awe-palette-zinc-300));
+  --awe-surface-400: light-dark(var(--awe-palette-slate-400), var(--awe-palette-zinc-400));
+  --awe-surface-500: light-dark(var(--awe-palette-slate-500), var(--awe-palette-zinc-500));
+  --awe-surface-600: light-dark(var(--awe-palette-slate-600), var(--awe-palette-zinc-600));
+  --awe-surface-700: light-dark(var(--awe-palette-slate-700), var(--awe-palette-zinc-700));
+  --awe-surface-800: light-dark(var(--awe-palette-slate-800), var(--awe-palette-zinc-800));
+  --awe-surface-900: light-dark(var(--awe-palette-slate-900), var(--awe-palette-zinc-900));
+  --awe-surface-950: light-dark(var(--awe-palette-slate-950), var(--awe-palette-zinc-950));
+}
+:root[data-awe-surface="slate"] {
+  --awe-surface-50: var(--awe-palette-slate-50);
+  --awe-surface-100: var(--awe-palette-slate-100);
+  --awe-surface-200: var(--awe-palette-slate-200);
+  --awe-surface-300: var(--awe-palette-slate-300);
+  --awe-surface-400: var(--awe-palette-slate-400);
+  --awe-surface-500: var(--awe-palette-slate-500);
+  --awe-surface-600: var(--awe-palette-slate-600);
+  --awe-surface-700: var(--awe-palette-slate-700);
+  --awe-surface-800: var(--awe-palette-slate-800);
+  --awe-surface-900: var(--awe-palette-slate-900);
+  --awe-surface-950: var(--awe-palette-slate-950);
+}
+:root {
+  --awe-color-primary: light-dark(var(--awe-primary-fill), var(--awe-primary-400));
+  --awe-color-primary-hover: light-dark(var(--awe-primary-fill-hover), var(--awe-primary-300));
+  --awe-color-on-primary: light-dark(var(--awe-primary-on-fill), var(--awe-surface-900));
+  --awe-color-primary-text: light-dark(var(--awe-primary-700), var(--awe-primary-400));
+  --awe-color-primary-subtle: light-dark(var(--awe-primary-100), color-mix(in srgb, var(--awe-primary-500), transparent 84%));
+  --awe-color-on-primary-subtle: light-dark(var(--awe-primary-700), var(--awe-primary-300));
+  --awe-color-secondary: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-on-secondary: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+  --awe-color-text: light-dark(var(--awe-surface-700), var(--awe-surface-0));
+  --awe-color-text-emphasis: light-dark(var(--awe-surface-900), var(--awe-surface-0));
+  --awe-color-text-muted: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-background: light-dark(var(--awe-surface-50), var(--awe-surface-950));
+  --awe-color-surface: light-dark(var(--awe-surface-0), var(--awe-surface-900));
+  --awe-color-surface-hover: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-surface-subtle: light-dark(var(--awe-surface-50), color-mix(in srgb, var(--awe-surface-800), transparent 50%));
+  --awe-color-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-border-subtle: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-shadow: light-dark(rgb(0 0 0 / 0.1), rgb(0 0 0 / 0.45));
+  --awe-color-shadow-soft: light-dark(rgb(18 18 23 / 0.05), rgb(0 0 0 / 0.3));
+  --awe-color-mask: light-dark(rgb(0 0 0 / 0.4), rgb(0 0 0 / 0.6));
+  --awe-color-highlight: light-dark(var(--awe-primary-50), color-mix(in srgb, var(--awe-primary-400), transparent 84%));
+  --awe-color-on-highlight: light-dark(var(--awe-primary-700), rgb(255 255 255 / 0.87));
+  --awe-color-menu: var(--awe-color-surface);
+  --awe-color-menu-accent: var(--awe-color-highlight);
+  --awe-color-navbar: var(--awe-color-surface);
+  --awe-color-grid-header: light-dark(var(--awe-surface-50), color-mix(in srgb, var(--awe-surface-800), var(--awe-surface-900)));
+  --awe-color-grid-border: var(--awe-color-border);
+  --awe-color-overlay: light-dark(var(--awe-surface-0), var(--awe-surface-900));
+  --awe-color-overlay-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-overlay-text: var(--awe-color-text);
+  --awe-color-field: light-dark(var(--awe-surface-0), color-mix(in srgb, var(--awe-surface-900), var(--awe-surface-800)));
+  --awe-color-field-border: light-dark(var(--awe-surface-300), var(--awe-surface-600));
+  --awe-color-field-border-focus: var(--awe-color-primary);
+  --awe-color-field-text: light-dark(var(--awe-surface-700), var(--awe-surface-0));
+  --awe-color-field-placeholder: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-field-icon: var(--awe-surface-400);
+  --awe-color-field-label: var(--awe-color-text-emphasis);
+  --awe-color-field-help: var(--awe-color-text-muted);
+  --awe-color-field-focus-halo: color-mix(in srgb, var(--awe-color-primary), transparent 80%);
+  --awe-color-list-option-focus: light-dark(var(--awe-surface-100), var(--awe-surface-800));
+  --awe-color-list-option-icon: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-nav-item-text: var(--awe-color-text);
+  --awe-color-nav-item-icon: light-dark(var(--awe-surface-400), var(--awe-surface-500));
+  --awe-color-nav-submenu-label: var(--awe-color-text-muted);
+  --awe-color-disabled: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-color-disabled-text: light-dark(var(--awe-surface-500), var(--awe-surface-400));
+  --awe-color-required: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-danger: light-dark(var(--awe-palette-red-600), var(--awe-palette-red-400));
+  --awe-color-on-danger: light-dark(#ffffff, var(--awe-palette-red-950));
+  --awe-color-danger-subtle: light-dark(var(--awe-palette-red-100), color-mix(in srgb, var(--awe-palette-red-500), transparent 84%));
+  --awe-color-danger-text: light-dark(var(--awe-palette-red-700), var(--awe-palette-red-300));
+  --awe-color-danger-border: light-dark(var(--awe-palette-red-200), color-mix(in srgb, var(--awe-palette-red-700), transparent 64%));
+  --awe-color-success-subtle: light-dark(var(--awe-palette-green-100), color-mix(in srgb, var(--awe-palette-green-500), transparent 84%));
+  --awe-color-success-text: light-dark(var(--awe-palette-green-700), var(--awe-palette-green-300));
+  --awe-color-success-border: light-dark(var(--awe-palette-green-200), color-mix(in srgb, var(--awe-palette-green-700), transparent 64%));
+  --awe-color-warning-subtle: light-dark(var(--awe-palette-orange-100), color-mix(in srgb, var(--awe-palette-orange-500), transparent 84%));
+  --awe-color-warning-text: light-dark(var(--awe-palette-orange-700), var(--awe-palette-orange-300));
+  --awe-color-warning-border: light-dark(var(--awe-palette-orange-200), color-mix(in srgb, var(--awe-palette-orange-700), transparent 64%));
+  --awe-color-info-subtle: light-dark(var(--awe-palette-sky-100), color-mix(in srgb, var(--awe-palette-sky-500), transparent 84%));
+  --awe-color-info-text: light-dark(var(--awe-palette-sky-700), var(--awe-palette-sky-300));
+  --awe-color-info-border: light-dark(var(--awe-palette-sky-200), color-mix(in srgb, var(--awe-palette-sky-700), transparent 64%));
+  --awe-color-neutral-subtle: var(--awe-color-secondary);
+  --awe-color-neutral-text: var(--awe-color-on-secondary);
+}
+:root {
+  --awe-font-family-base: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --awe-font-family-monospace: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, Consolas, monospace;
+  --awe-font-size-xs: 12px;
+  --awe-font-size-sm: 13px;
+  --awe-font-size-base: 14px;
+  --awe-font-size-md: 16px;
+  --awe-font-size-lg: 18px;
+  --awe-font-size-xl: 20px;
+  --awe-font-size-2xl: 24px;
+  --awe-font-size-page-title: var(--awe-font-size-2xl);
+  --awe-font-size-section-title: var(--awe-font-size-md);
+  --awe-font-size-dialog-title: var(--awe-font-size-lg);
+  --awe-font-size-label: var(--awe-font-size-sm);
+  --awe-font-weight-normal: 400;
+  --awe-font-weight-medium: 500;
+  --awe-font-weight-semibold: 600;
+  --awe-font-weight-bold: 700;
+  --awe-line-height-snug: 1.375;
+  --awe-line-height-base: 1.5;
+  --awe-letter-spacing-tight: -0.011em;
+  --awe-letter-spacing-caps: 0.06em;
+  --awe-font-feature-base: 'cv05', 'calt';
+  --awe-font-variant-numeric: tabular-nums;
+}
+:root {
+  --awe-space-0-5: 2px;
+  --awe-space-1: 4px;
+  --awe-space-1-5: 6px;
+  --awe-space-2: 8px;
+  --awe-space-3: 12px;
+  --awe-space-4: 16px;
+  --awe-space-5: 20px;
+  --awe-space-6: 24px;
+  --awe-space-8: 32px;
+  --awe-space-10: 40px;
+  --awe-radius-xs: 2px;
+  --awe-radius-sm: 4px;
+  --awe-radius-md: 6px;
+  --awe-radius-lg: 8px;
+  --awe-radius-xl: 12px;
+  --awe-radius-full: 9999px;
+  --awe-radius-field: var(--awe-radius-md);
+  --awe-radius-card: var(--awe-radius-xl);
+  --awe-radius-overlay: var(--awe-radius-md);
+  --awe-radius-modal: var(--awe-radius-xl);
+  --awe-radius-list-option: var(--awe-radius-sm);
+  --awe-shadow-xs: 0 1px 2px 0 var(--awe-color-shadow-soft);
+  --awe-shadow-md: 0 4px 6px -1px var(--awe-color-shadow), 0 2px 4px -2px var(--awe-color-shadow);
+  --awe-shadow-lg: 0 20px 25px -5px var(--awe-color-shadow), 0 8px 10px -6px var(--awe-color-shadow);
+  --awe-shadow-card: var(--awe-shadow-xs);
+  --awe-shadow-overlay: var(--awe-shadow-md);
+  --awe-shadow-modal: var(--awe-shadow-lg);
+  --awe-color-focus-ring: var(--awe-color-primary-text);
+  --awe-focus-ring-width: 2px;
+  --awe-focus-ring-style: solid;
+  --awe-focus-ring-offset: 2px;
+  --awe-focus-ring: var(--awe-focus-ring-width) var(--awe-focus-ring-style) var(--awe-color-focus-ring);
+  --awe-shadow-field-focus: 0 0 0 3px var(--awe-color-field-focus-halo);
+  --awe-z-dropdown: 1000;
+  --awe-z-modal: 1100;
+  --awe-z-toast: 1200;
+}
+:root {
+  --awe-size-control: 36px;
+  --awe-size-control-sm: 30px;
+  --awe-size-icon: 16px;
+  --awe-size-icon-sm: 14px;
+  --awe-size-icon-lg: 20px;
+  --awe-size-checkbox: 18px;
+  --awe-size-header-height: 60px;
+  --awe-size-menu-width: 264px;
+  --awe-field-padding-x: 12px;
+  --awe-field-padding-y: 8px;
+  --awe-button-padding-x: 14px;
+  --awe-gap-label: 6px;
+  --awe-gap-inline: 8px;
+  --awe-gap-form-row: 18px;
+  --awe-gap-form-column: 20px;
+  --awe-content-padding: 20px;
+  --awe-layout-gap: 20px;
+  --awe-page-padding: 28px;
+  --awe-border-width: 1px;
+  --awe-border-width-strong: 2px;
+  --awe-nav-item-padding: 8px 12px;
+  --awe-nav-item-gap: 10px;
+  --awe-modal-padding: 20px;
+}
+:root[data-awe-density="compact"] {
+  --awe-font-size-xs: 11px;
+  --awe-font-size-sm: 12px;
+  --awe-font-size-base: 13px;
+  --awe-font-size-md: 15px;
+  --awe-font-size-page-title: var(--awe-font-size-xl);
+  --awe-size-control: 30px;
+  --awe-size-control-sm: 26px;
+  --awe-size-icon: 14px;
+  --awe-size-icon-sm: 12px;
+  --awe-size-icon-lg: 18px;
+  --awe-size-checkbox: 16px;
+  --awe-size-header-height: 52px;
+  --awe-size-menu-width: 240px;
+  --awe-field-padding-x: 9px;
+  --awe-field-padding-y: 5px;
+  --awe-button-padding-x: 10px;
+  --awe-gap-label: 4px;
+  --awe-gap-inline: 6px;
+  --awe-gap-form-row: 12px;
+  --awe-gap-form-column: 14px;
+  --awe-content-padding: 14px;
+  --awe-layout-gap: 12px;
+  --awe-page-padding: 16px;
+  --awe-nav-item-padding: 6px 10px;
+  --awe-nav-item-gap: 8px;
+  --awe-modal-padding: 16px;
+}
+:root {
+  --awe-readout-label-color: var(--awe-color-text-muted);
+  --awe-readout-label-font-size: var(--awe-font-size-xs);
+  --awe-readout-value-color: var(--awe-color-text);
+  --awe-grid-header-background: var(--awe-color-grid-header);
+  --awe-grid-header-text: var(--awe-color-text-muted);
+  --awe-grid-header-font-size: var(--awe-font-size-sm);
+  --awe-grid-header-font-weight: var(--awe-font-weight-semibold);
+  --awe-grid-border: var(--awe-color-grid-border);
+  --awe-grid-cell-padding-y: 11px;
+  --awe-grid-cell-padding-x: 14px;
+  --awe-grid-row-marker-width: 3px;
+  --awe-menu-width: var(--awe-size-menu-width);
+  --awe-menu-background: var(--awe-color-menu);
+  --awe-menu-border: var(--awe-color-border);
+  --awe-menu-item-text: var(--awe-color-nav-item-text);
+  --awe-menu-item-icon: var(--awe-color-nav-item-icon);
+  --awe-menu-item-active-background: var(--awe-color-menu-accent);
+  --awe-menu-item-active-text: var(--awe-color-on-highlight);
+  --awe-menu-item-active-icon: var(--awe-color-primary-text);
+  --awe-menu-item-radius: var(--awe-radius-md);
+  --awe-menu-section-label: var(--awe-color-nav-submenu-label);
+  --awe-menu-item-height: 36px;
+  --awe-header-height: var(--awe-size-header-height);
+  --awe-header-background: color-mix(in srgb, var(--awe-color-navbar), transparent 15%);
+  --awe-header-border: var(--awe-color-border);
+  --awe-header-backdrop-filter: saturate(1.4) blur(10px);
+  --awe-mask-backdrop-filter: blur(2px);
+  --awe-segmented-track: light-dark(var(--awe-surface-100), var(--awe-surface-950));
+  --awe-segmented-border: light-dark(var(--awe-surface-200), var(--awe-surface-700));
+  --awe-segmented-text: light-dark(var(--awe-surface-600), var(--awe-surface-300));
+  --awe-segmented-selected: light-dark(var(--awe-surface-0), var(--awe-surface-700));
+  --awe-segmented-selected-border: var(--awe-surface-500);
+  --awe-segmented-selected-text: light-dark(var(--awe-surface-900), var(--awe-surface-0));
+  --awe-switch-width: 36px;
+  --awe-switch-height: 20px;
+  --awe-switch-handle-size: 16px;
+}
+:root[data-awe-density="compact"] {
+  --awe-grid-cell-padding-y: 6px;
+  --awe-grid-cell-padding-x: 10px;
+  --awe-menu-item-height: 30px;
+}
+
+/* ==== AWE 5 shell, copied from design/scheduler-redesign/02-tareas-y-ficha.html ==== */
+* { box-sizing: border-box; }
+:root { color-scheme: light dark; }
+:root.light { color-scheme: light; }
+:root.dark { color-scheme: dark; }
+body { margin: 0; background: var(--awe-color-background); color: var(--awe-color-text);
+  font-family: var(--awe-font-family-base); font-size: var(--awe-font-size-base);
+  line-height: var(--awe-line-height-base); font-feature-settings: var(--awe-font-feature-base); }
+button { font: inherit; }
+.board { width: 1440px; margin: 0 auto; position: relative; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.icon { width: var(--awe-size-icon); height: var(--awe-size-icon); flex: none; stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.icon--sm { width: var(--awe-size-icon-sm); height: var(--awe-size-icon-sm); }
+.icon--lg { width: var(--awe-size-icon-lg); height: var(--awe-size-icon-lg); }
+a { color: var(--awe-color-primary-text); }
+a:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); border-radius: var(--awe-radius-xs); }
+.muted { color: var(--awe-color-text-muted); }
+.mono { font-family: var(--awe-font-family-monospace); font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); white-space: nowrap; }
+.mono.strong { color: var(--awe-color-text-emphasis); }
+
+/* Board toolbar (outside the app) */
+.demo-tools { position: sticky; top: 0; z-index: var(--awe-z-toast); display: flex; gap: var(--awe-gap-inline);
+  align-items: center; padding: var(--awe-space-2) var(--awe-space-4); background: var(--awe-color-surface);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.demo-tools .spacer { flex: 1; }
+.demo-tools .note { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+
+/* Shell */
+.shell { display: flex; min-height: 100%; background: var(--awe-color-background); }
+.menu { width: var(--awe-menu-width); flex: none; background: var(--awe-menu-background);
+  border-right: var(--awe-border-width) solid var(--awe-menu-border); display: flex; flex-direction: column;
+  padding: var(--awe-space-3); gap: var(--awe-space-1); }
+.brand { display: flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-3) var(--awe-space-2);
+  font-weight: var(--awe-font-weight-semibold); }
+.brand-mark { width: var(--awe-space-8); height: var(--awe-space-8); border-radius: var(--awe-radius-md);
+  background: var(--awe-color-primary); color: var(--awe-color-on-primary); display: grid; place-items: center;
+  font-size: var(--awe-font-size-sm); letter-spacing: var(--awe-letter-spacing-tight); }
+.brand small { display: block; font-weight: var(--awe-font-weight-normal); font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted); }
+.menu-search { display: flex; align-items: center; gap: var(--awe-space-2); height: var(--awe-size-control);
+  padding: 0 var(--awe-space-3); margin: var(--awe-space-2) 0 var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-field-border); border-radius: var(--awe-radius-field);
+  color: var(--awe-color-field-placeholder); font-size: var(--awe-font-size-sm); }
+.menu-search kbd { margin-left: auto; font-family: var(--awe-font-family-base); font-size: var(--awe-font-size-xs);
+  border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-sm);
+  padding: 0 var(--awe-space-1); color: var(--awe-color-text-muted); }
+.menu-section { font-size: var(--awe-font-size-xs); text-transform: uppercase;
+  letter-spacing: var(--awe-letter-spacing-caps); color: var(--awe-menu-section-label);
+  padding: var(--awe-space-3) var(--awe-space-3) var(--awe-space-1); }
+.menu-item { display: flex; align-items: center; gap: var(--awe-nav-item-gap); height: var(--awe-menu-item-height);
+  padding: var(--awe-nav-item-padding); border-radius: var(--awe-menu-item-radius); color: var(--awe-menu-item-text);
+  font-size: var(--awe-font-size-base); text-decoration: none; }
+.menu-item .icon { color: var(--awe-menu-item-icon); }
+.menu-item[aria-current="page"] { background: var(--awe-menu-item-active-background);
+  color: var(--awe-menu-item-active-text); font-weight: var(--awe-font-weight-medium); }
+.menu-item[aria-current="page"] .icon { color: var(--awe-menu-item-active-icon); }
+.menu-badge { margin-left: auto; min-width: var(--awe-space-5); height: var(--awe-space-5); display: grid; place-items: center;
+  border-radius: var(--awe-radius-full); background: var(--awe-color-info-subtle); color: var(--awe-color-info-text);
+  font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-semibold); }
+.menu-foot { margin-top: auto; border-top: var(--awe-border-width) solid var(--awe-color-border);
+  padding-top: var(--awe-space-3); display: flex; align-items: center; gap: var(--awe-space-2);
+  font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.app-header { height: var(--awe-header-height); display: flex; align-items: center; gap: var(--awe-space-3);
+  padding: 0 var(--awe-content-padding); background: var(--awe-header-background);
+  backdrop-filter: var(--awe-header-backdrop-filter); border-bottom: var(--awe-border-width) solid var(--awe-header-border); }
+.app-header .spacer { flex: 1; }
+.crumbs { display: flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-4) var(--awe-page-padding) 0;
+  font-size: var(--awe-font-size-sm); color: var(--awe-color-text-muted); }
+.crumbs strong { color: var(--awe-color-text); font-weight: var(--awe-font-weight-medium); }
+.page { padding: var(--awe-space-4) var(--awe-page-padding) var(--awe-page-padding); display: flex;
+  flex-direction: column; gap: var(--awe-layout-gap); }
+.page-head { display: flex; align-items: flex-start; gap: var(--awe-space-4); }
+.page-head h1 { margin: 0; font-size: var(--awe-font-size-page-title); letter-spacing: var(--awe-letter-spacing-tight); }
+.page-head p { margin: var(--awe-space-1) 0 0; color: var(--awe-color-text-muted); font-size: var(--awe-font-size-sm); }
+.page-head .actions { margin-left: auto; display: flex; align-items: center; gap: var(--awe-gap-inline); }
+.avatar { width: var(--awe-space-8); height: var(--awe-space-8); border-radius: var(--awe-radius-full);
+  display: grid; place-items: center; font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-semibold);
+  background: var(--awe-color-primary-subtle); color: var(--awe-color-on-primary-subtle); flex: none; }
+
+/* Buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--awe-gap-inline);
+  height: var(--awe-size-control); padding: 0 var(--awe-button-padding-x); border-radius: var(--awe-radius-field);
+  border: var(--awe-border-width) solid var(--awe-color-border); background: var(--awe-color-surface);
+  color: var(--awe-color-text); font-weight: var(--awe-font-weight-medium); font-size: var(--awe-font-size-sm);
+  cursor: pointer; white-space: nowrap; text-decoration: none; }
+.btn:hover { background: var(--awe-color-surface-hover); }
+.btn:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); }
+.btn[disabled], .btn[aria-disabled="true"] { color: var(--awe-color-disabled-text); background: var(--awe-color-disabled);
+  border-color: var(--awe-color-border-subtle); cursor: not-allowed; }
+.btn--primary { background: var(--awe-color-primary); color: var(--awe-color-on-primary); border-color: var(--awe-color-primary); }
+.btn--primary:hover { background: var(--awe-color-primary-hover); }
+.btn--danger { background: var(--awe-color-danger); color: var(--awe-color-on-danger); border-color: var(--awe-color-danger); }
+.btn--danger-outline { color: var(--awe-color-danger-text); border-color: var(--awe-color-danger-border); }
+.btn--ghost { background: transparent; border-color: transparent; color: var(--awe-color-text-muted);
+  width: var(--awe-size-control); padding: 0; }
+.btn--ghost:hover { background: var(--awe-color-surface-hover); color: var(--awe-color-text); }
+.btn--sm { height: var(--awe-size-control-sm); padding: 0 var(--awe-space-3); font-size: var(--awe-font-size-xs); }
+.btn--ghost.btn--sm { width: var(--awe-size-control-sm); padding: 0; }
+
+/* Cards */
+.card { background: var(--awe-color-surface); border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-card); box-shadow: var(--awe-shadow-card); display: flex; flex-direction: column; min-width: 0; }
+.card-head { display: flex; align-items: center; gap: var(--awe-space-3); padding: var(--awe-space-4) var(--awe-space-5);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.card-head h2 { margin: 0; font-size: var(--awe-font-size-section-title); }
+.card-head .count { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted);
+  background: var(--awe-color-secondary); border-radius: var(--awe-radius-full); padding: 0 var(--awe-space-2); }
+.card-head .actions { margin-left: auto; display: flex; gap: var(--awe-gap-inline); align-items: center; }
+.card-body { padding: var(--awe-space-4) var(--awe-space-5); }
+.card-foot { padding: var(--awe-space-3) var(--awe-space-5); border-top: var(--awe-border-width) solid var(--awe-color-border);
+  display: flex; align-items: center; gap: var(--awe-space-3); color: var(--awe-color-text-muted); font-size: var(--awe-font-size-xs); }
+
+/* Grid toolbar and grid */
+.grid-toolbar { display: flex; align-items: center; gap: var(--awe-gap-inline); padding: var(--awe-space-3) var(--awe-space-5);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle); flex-wrap: wrap; }
+.grid-toolbar .spacer { flex: 1; }
+.search { display: flex; align-items: center; gap: var(--awe-space-2); height: var(--awe-size-control);
+  min-width: 15rem; padding: 0 var(--awe-space-3); border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field); background: var(--awe-color-field); color: var(--awe-color-field-text);
+  font-size: var(--awe-font-size-sm); }
+.search span { color: var(--awe-color-field-placeholder); }
+.segmented { display: inline-flex; padding: var(--awe-space-0-5); gap: var(--awe-space-0-5);
+  border-radius: var(--awe-radius-field); background: var(--awe-segmented-track);
+  border: var(--awe-border-width) solid var(--awe-segmented-border); }
+.segmented button { border: var(--awe-border-width) solid transparent; background: transparent;
+  color: var(--awe-segmented-text); border-radius: var(--awe-radius-sm); padding: var(--awe-space-1) var(--awe-space-3);
+  font-size: var(--awe-font-size-sm); cursor: pointer; display: inline-flex; align-items: center; gap: var(--awe-space-1-5); }
+.segmented button:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); }
+.segmented button[aria-pressed="true"] { background: var(--awe-segmented-selected);
+  border-color: var(--awe-segmented-selected-border); color: var(--awe-segmented-selected-text);
+  font-weight: var(--awe-font-weight-semibold); }
+.segmented .n { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+table.grid { width: 100%; border-collapse: collapse; }
+table.grid th { text-align: left; background: var(--awe-grid-header-background); color: var(--awe-grid-header-text);
+  font-size: var(--awe-grid-header-font-size); font-weight: var(--awe-grid-header-font-weight);
+  text-transform: uppercase; letter-spacing: var(--awe-letter-spacing-caps); white-space: nowrap;
+  padding: var(--awe-grid-cell-padding-y) var(--awe-grid-cell-padding-x);
+  border-bottom: var(--awe-border-width) solid var(--awe-grid-border); }
+table.grid td { padding: var(--awe-grid-cell-padding-y) var(--awe-grid-cell-padding-x); font-size: var(--awe-font-size-sm);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle); vertical-align: middle; }
+table.grid tbody tr:hover { background: var(--awe-color-surface-subtle); }
+table.grid tr[aria-selected="true"] { background: var(--awe-color-highlight);
+  box-shadow: inset var(--awe-grid-row-marker-width) 0 0 var(--awe-color-primary); }
+table.grid td.actions { text-align: right; white-space: nowrap; width: 3rem; padding-left: 0; padding-right: var(--awe-space-2); }
+table.grid .cell-strong { white-space: nowrap; }
+table.grid--tight th { letter-spacing: normal; }
+table.grid--tight td, table.grid--tight th { padding-left: var(--awe-space-3); padding-right: var(--awe-space-3); }
+table.grid td.num, table.grid th.num { text-align: right; font-variant-numeric: var(--awe-font-variant-numeric); }
+.cell-strong { font-weight: var(--awe-font-weight-medium); color: var(--awe-color-text-emphasis); }
+.cell-sub { display: block; font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+
+/* Status tag: icon + label, never colour alone */
+.tag { display: inline-flex; align-items: center; gap: var(--awe-space-1); padding: var(--awe-space-0-5) var(--awe-space-2);
+  border-radius: var(--awe-radius-full); font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium); border: var(--awe-border-width) solid; white-space: nowrap; }
+.tag .icon { width: var(--awe-size-icon-sm); height: var(--awe-size-icon-sm); }
+.tag--success { background: var(--awe-color-success-subtle); color: var(--awe-color-success-text); border-color: var(--awe-color-success-border); }
+.tag--warning { background: var(--awe-color-warning-subtle); color: var(--awe-color-warning-text); border-color: var(--awe-color-warning-border); }
+.tag--danger { background: var(--awe-color-danger-subtle); color: var(--awe-color-danger-text); border-color: var(--awe-color-danger-border); }
+.tag--info { background: var(--awe-color-info-subtle); color: var(--awe-color-info-text); border-color: var(--awe-color-info-border); }
+.tag--neutral { background: var(--awe-color-neutral-subtle); color: var(--awe-color-neutral-text); border-color: var(--awe-color-border); }
+.tag--lg { font-size: var(--awe-font-size-sm); padding: var(--awe-space-1) var(--awe-space-3); }
+.tag--lg .icon { width: var(--awe-size-icon); height: var(--awe-size-icon); }
+
+/* Switch */
+.switch { width: var(--awe-switch-width); height: var(--awe-switch-height); border-radius: var(--awe-radius-full);
+  background: var(--awe-color-primary); position: relative; flex: none; border: 0; padding: 0; cursor: pointer; display: inline-block; vertical-align: middle; }
+.switch::after { content: ""; position: absolute; top: var(--awe-space-0-5); right: var(--awe-space-0-5); width: var(--awe-switch-handle-size);
+  height: var(--awe-switch-handle-size); border-radius: var(--awe-radius-full); background: var(--awe-color-surface); }
+.switch[aria-checked="false"] { background: var(--awe-color-disabled); }
+.switch[aria-checked="false"]::after { right: auto; left: var(--awe-space-0-5); }
+.switch:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); }
+.sw { display: inline-flex; align-items: center; gap: var(--awe-space-2); font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+
+/* Row menu (dropdown) */
+.rel { position: relative; display: inline-flex; }
+.menu-pop { position: absolute; top: calc(100% + var(--awe-space-1)); right: 0; width: 19rem; z-index: var(--awe-z-dropdown);
+  padding: var(--awe-space-1); background: var(--awe-color-overlay); color: var(--awe-color-overlay-text);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border); border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay); text-align: left; white-space: normal; }
+.menu-pop button { display: flex; width: 100%; align-items: flex-start; gap: var(--awe-space-2); border: 0; background: transparent;
+  padding: var(--awe-space-2) var(--awe-space-3); border-radius: var(--awe-radius-list-option); font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text); cursor: pointer; text-align: left; }
+.menu-pop button .icon { color: var(--awe-color-list-option-icon); margin-top: var(--awe-space-0-5); }
+.menu-pop button small { display: block; font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.menu-pop button:hover, .menu-pop button:focus-visible, .menu-pop button.focus { background: var(--awe-color-list-option-focus); outline: none; }
+.menu-pop button.danger, .menu-pop button.danger > .icon { color: var(--awe-color-danger-text); }
+.menu-pop button[aria-disabled="true"], .menu-pop button[aria-disabled="true"] .icon { color: var(--awe-color-disabled-text); cursor: not-allowed; }
+.menu-pop button[aria-disabled="true"] small { color: var(--awe-color-text-muted); }
+.menu-pop hr { border: 0; border-top: var(--awe-border-width) solid var(--awe-color-border-subtle); margin: var(--awe-space-1) 0; }
+
+/* Page tabs */
+.tabs { display: flex; gap: var(--awe-space-1); padding: 0 var(--awe-space-5); border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.tab { display: inline-flex; align-items: center; gap: var(--awe-space-2); padding: var(--awe-space-3);
+  border: 0; background: transparent; color: var(--awe-color-text-muted); font-weight: var(--awe-font-weight-medium);
+  font-size: var(--awe-font-size-sm); cursor: pointer; position: relative; }
+.tab:hover { color: var(--awe-color-text); }
+.tab:focus-visible { outline: var(--awe-focus-ring); outline-offset: calc(var(--awe-focus-ring-offset) * -1); }
+.tab[aria-selected="true"] { color: var(--awe-color-primary-text); }
+.tab[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: calc(var(--awe-border-width) * -1);
+  height: var(--awe-space-0-5); background: var(--awe-color-primary); border-radius: var(--awe-radius-full); }
+.tab .n { font-size: var(--awe-font-size-xs); background: var(--awe-color-surface-hover); color: var(--awe-color-text-muted);
+  border-radius: var(--awe-radius-full); padding: 0 var(--awe-space-1-5); }
+.tab-panel { display: flex; flex-direction: column; gap: var(--awe-layout-gap); }
+
+/* Criteria */
+.form-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--awe-gap-form-row) var(--awe-gap-form-column); }
+.form-row--3 { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr); }
+.span-2 { grid-column: span 2; }
+.field { display: flex; flex-direction: column; gap: var(--awe-gap-label); min-width: 0; }
+.field > label, .field > .label { font-size: var(--awe-font-size-label); font-weight: var(--awe-font-weight-medium); color: var(--awe-color-field-label); }
+.field .req { color: var(--awe-color-required); }
+.input { display: flex; align-items: center; gap: var(--awe-space-2); min-height: var(--awe-size-control);
+  padding: var(--awe-field-padding-y) var(--awe-field-padding-x); border-radius: var(--awe-radius-field);
+  border: var(--awe-border-width) solid var(--awe-color-field-border); background: var(--awe-color-field);
+  color: var(--awe-color-field-text); font: inherit; font-size: var(--awe-font-size-base); width: 100%; }
+input.input:focus-visible, .input:focus-within { outline: none; border-color: var(--awe-color-field-border-focus); box-shadow: var(--awe-shadow-field-focus); }
+.input .icon { color: var(--awe-color-field-icon); }
+.input .end { margin-left: auto; display: inline-flex; gap: var(--awe-space-1); }
+.input--masked { letter-spacing: var(--awe-letter-spacing-caps); }
+.input--readonly { background: var(--awe-color-surface-subtle); }
+.field .help { font-size: var(--awe-font-size-xs); color: var(--awe-color-field-help); }
+.form-section { display: flex; align-items: center; gap: var(--awe-space-2); margin: var(--awe-space-5) 0 var(--awe-space-3);
+  font-size: var(--awe-font-size-label); text-transform: uppercase; letter-spacing: var(--awe-letter-spacing-caps); color: var(--awe-color-text-muted); }
+.form-section::after { content: ""; flex: 1; height: var(--awe-border-width); background: var(--awe-color-border); }
+.form-section:first-child { margin-top: 0; }
+
+/* Selectable cards for exclusive choices (approved in 04) */
+.choices { display: grid; gap: var(--awe-space-3); grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.choice { position: relative; display: flex; flex-direction: column; gap: var(--awe-space-1); text-align: left;
+  padding: var(--awe-space-3) var(--awe-space-4); border-radius: var(--awe-radius-lg); cursor: pointer;
+  border: var(--awe-border-width) solid var(--awe-color-field-border); background: var(--awe-color-surface); }
+.choice:hover { border-color: var(--awe-color-text-muted); }
+.choice:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); }
+.choice .head { display: flex; align-items: center; gap: var(--awe-space-2); font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis); font-size: var(--awe-font-size-sm); }
+.choice .head .icon { color: var(--awe-color-text-muted); }
+.choice .desc { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); line-height: var(--awe-line-height-snug); }
+.choice .radio { margin-left: auto; width: var(--awe-size-icon); height: var(--awe-size-icon); border-radius: var(--awe-radius-full);
+  border: var(--awe-border-width-strong) solid var(--awe-color-field-border); flex: none; }
+.choice[aria-checked="true"] { border-color: var(--awe-color-primary); background: var(--awe-color-highlight);
+  box-shadow: inset 0 0 0 var(--awe-border-width) var(--awe-color-primary); }
+.choice[aria-checked="true"] .head .icon { color: var(--awe-color-primary-text); }
+.choice[aria-checked="true"] .radio { border-color: var(--awe-color-primary);
+  background: radial-gradient(circle, var(--awe-color-primary) 0 40%, transparent 45%); }
+
+/* Messages */
+.hint { display: flex; gap: var(--awe-space-2); align-items: flex-start; padding: var(--awe-space-3);
+  border-radius: var(--awe-radius-lg); background: var(--awe-color-info-subtle); color: var(--awe-color-info-text);
+  border: var(--awe-border-width) solid var(--awe-color-info-border); font-size: var(--awe-font-size-sm); }
+.hint > .icon { margin-top: var(--awe-space-0-5); }
+.hint--success { background: var(--awe-color-success-subtle); color: var(--awe-color-success-text); border-color: var(--awe-color-success-border); }
+.hint--warning { background: var(--awe-color-warning-subtle); color: var(--awe-color-warning-text); border-color: var(--awe-color-warning-border); }
+.hint--danger { background: var(--awe-color-danger-subtle); color: var(--awe-color-danger-text); border-color: var(--awe-color-danger-border); }
+.hint .grow { flex: 1; min-width: 0; }
+.hint strong { display: block; }
+.hint a { color: inherit; font-weight: var(--awe-font-weight-semibold); }
+
+/* Side panel (640 px, not rem: the root font size is 10px in AngularJS and 13px in React) */
+.panel-mask { position: absolute; inset: 0; background: var(--awe-color-mask); backdrop-filter: var(--awe-mask-backdrop-filter); z-index: var(--awe-z-modal); }
+.panel { position: absolute; top: 0; right: 0; bottom: 0; width: 640px; background: var(--awe-color-surface);
+  border-left: var(--awe-border-width) solid var(--awe-color-border); box-shadow: var(--awe-shadow-lg);
+  z-index: var(--awe-z-modal); display: flex; flex-direction: column; }
+.panel-head { display: flex; align-items: flex-start; gap: var(--awe-space-3); padding: var(--awe-space-5);
+  border-bottom: var(--awe-border-width) solid var(--awe-color-border); }
+.panel-head h2 { margin: 0; font-size: var(--awe-font-size-dialog-title); }
+.panel-head .sub { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); margin-top: var(--awe-space-0-5); }
+.panel-head .close { margin-left: auto; }
+.panel-body { padding: var(--awe-space-5); overflow: auto; flex: 1; }
+.panel-foot { padding: var(--awe-space-4) var(--awe-space-5); border-top: var(--awe-border-width) solid var(--awe-color-border);
+  display: flex; align-items: center; justify-content: flex-end; gap: var(--awe-gap-inline); }
+.panel-foot .left { margin-right: auto; display: flex; gap: var(--awe-gap-inline); align-items: center; font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+
+/* Dialog */
+.dialog-mask { position: absolute; inset: 0; background: var(--awe-color-mask); backdrop-filter: var(--awe-mask-backdrop-filter); z-index: calc(var(--awe-z-modal) + 1); }
+.dialog { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 34rem;
+  background: var(--awe-color-surface); border-radius: var(--awe-radius-modal); box-shadow: var(--awe-shadow-modal);
+  border: var(--awe-border-width) solid var(--awe-color-border); z-index: calc(var(--awe-z-modal) + 2); display: flex; flex-direction: column; }
+.dialog-head { display: flex; align-items: flex-start; gap: var(--awe-space-3); padding: var(--awe-modal-padding); }
+.dialog-head h2 { margin: 0; font-size: var(--awe-font-size-dialog-title); }
+.dialog-head p { margin: var(--awe-space-1) 0 0; font-size: var(--awe-font-size-sm); color: var(--awe-color-text-muted); }
+.dialog-body { padding: 0 var(--awe-modal-padding) var(--awe-modal-padding); display: flex; flex-direction: column; gap: var(--awe-space-3); font-size: var(--awe-font-size-sm); }
+.dialog-body ul { margin: 0; padding-left: var(--awe-space-5); display: flex; flex-direction: column; gap: var(--awe-space-1-5); }
+.dialog-foot { padding: var(--awe-space-4) var(--awe-modal-padding); border-top: var(--awe-border-width) solid var(--awe-color-border);
+  display: flex; gap: var(--awe-gap-inline); justify-content: flex-end; }
+.st-avatar { width: var(--awe-space-10); height: var(--awe-space-10); border-radius: var(--awe-radius-full); display: grid; place-items: center; flex: none; }
+.ic--danger { background: var(--awe-color-danger-subtle); color: var(--awe-color-danger-text); }
+.ic--warning { background: var(--awe-color-warning-subtle); color: var(--awe-color-warning-text); }
+.confirm-check { display: flex; gap: var(--awe-space-2); align-items: flex-start; }
+.check { width: var(--awe-size-checkbox); height: var(--awe-size-checkbox); border-radius: var(--awe-radius-xs); flex: none;
+  border: var(--awe-border-width-strong) solid var(--awe-color-field-border); background: var(--awe-color-field); margin-top: var(--awe-space-0-5); cursor: pointer; }
+.check:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); }
+.check[aria-checked="true"] { border-color: var(--awe-color-primary);
+  background: radial-gradient(circle, var(--awe-color-on-primary) 0 22%, var(--awe-color-primary) 26%); }
+
+/* States, frames and annotation (outside the app) */
+.states { padding: 0 var(--awe-space-6) var(--awe-space-8); }
+.state { position: relative; padding-bottom: var(--awe-space-6); }
+.state-label { display: flex; align-items: baseline; gap: var(--awe-space-3); margin: var(--awe-space-6) 0 var(--awe-space-3); }
+.state-label h3 { margin: 0; font-size: var(--awe-font-size-md); white-space: nowrap; }
+.state-label p { margin: 0; font-size: var(--awe-font-size-sm); color: var(--awe-color-text-muted); }
+.state-label .letter { display: grid; place-items: center; min-width: var(--awe-space-6); height: var(--awe-space-6); padding: 0 var(--awe-space-1);
+  border-radius: var(--awe-radius-full); background: var(--awe-color-primary-subtle); flex: none;
+  color: var(--awe-color-on-primary-subtle); font-size: var(--awe-font-size-xs); font-weight: var(--awe-font-weight-bold); }
+.frame { position: relative; overflow: hidden; border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-card); }
+.annot { margin: var(--awe-space-6) var(--awe-space-6) 0; padding: var(--awe-space-4) var(--awe-space-5);
+  border: var(--awe-border-width-strong) dashed var(--awe-color-border); border-radius: var(--awe-radius-lg);
+  background: var(--awe-color-surface-subtle); font-size: var(--awe-font-size-sm); }
+.annot h2 { margin: 0 0 var(--awe-space-3); font-size: var(--awe-font-size-section-title); }
+.annot h3 { margin: 0 0 var(--awe-space-2); font-size: var(--awe-font-size-sm); color: var(--awe-color-text-emphasis); }
+.annot-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--awe-space-6); }
+.annot ul { margin: 0; padding-left: var(--awe-space-4); display: flex; flex-direction: column; gap: var(--awe-space-1-5); line-height: var(--awe-line-height-snug); }
+.annot code { font-family: var(--awe-font-family-monospace); font-size: var(--awe-font-size-xs);
+  background: var(--awe-color-surface-hover); border-radius: var(--awe-radius-xs); padding: 0 var(--awe-space-1); }
+
+/* ==== Configuración ==== */
+/* In-cell link (extended column component="link": navigates inside the application) */
+.cell-link { display: inline-flex; align-items: center; gap: var(--awe-space-1); font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-primary-text); text-decoration: none; }
+.cell-link:hover { text-decoration: underline; }
+.cell-link .icon { width: var(--awe-size-icon-sm); height: var(--awe-size-icon-sm); }
+.none { color: var(--awe-color-text-muted); }
+.kind { display: inline-flex; align-items: center; gap: var(--awe-space-1-5); }
+.kind .icon { color: var(--awe-color-text-muted); width: var(--awe-size-icon-sm); height: var(--awe-size-icon-sm); }
+.tool-note { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+
+/* Connection test result, inline under the button */
+.test-row { display: flex; align-items: center; gap: var(--awe-space-3); margin-top: var(--awe-space-4); }
+.test-result { margin-top: var(--awe-space-3); }
+.used-list { margin: 0; padding: 0; list-style: none; border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-lg); }
+.used-list li { display: flex; align-items: center; gap: var(--awe-space-3); padding: var(--awe-space-2) var(--awe-space-3);
+  font-size: var(--awe-font-size-sm); }
+.used-list li + li { border-top: var(--awe-border-width) solid var(--awe-color-border-subtle); }
+.used-list .grow { flex: 1; min-width: 0; }
+.secret-saved { display: inline-flex; align-items: center; gap: var(--awe-space-1); font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted); }
+
+/* Calendar editor: dates list + month view */
+.cal-editor { display: flex; flex-direction: column; gap: var(--awe-space-4); }
+.cal-editor > .cal-side { order: -1; }
+.month { display: grid; grid-template-columns: minmax(0, 1fr) 14rem; column-gap: var(--awe-space-5); align-items: start; }
+.month > .month-head, .month > table, .month > .month-legend { grid-column: 1; }
+.month > .year-strip { grid-column: 2; grid-row: 1 / span 3; margin-top: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.dates { border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-lg); overflow: hidden; }
+.dates-bar { display: flex; align-items: center; gap: var(--awe-gap-inline); padding: var(--awe-space-2) var(--awe-space-3);
+  background: var(--awe-color-surface-subtle); border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle); }
+.dates-bar strong { font-size: var(--awe-font-size-sm); }
+.dates-bar .spacer { flex: 1; }
+.dates table.grid td { padding-top: var(--awe-space-1-5); padding-bottom: var(--awe-space-1-5); }
+.dates tr.editing { background: var(--awe-color-highlight); box-shadow: inset var(--awe-grid-row-marker-width) 0 0 var(--awe-color-primary); }
+.dates tr.is-month td:first-child .cell-strong { color: var(--awe-color-primary-text); }
+.cell-input { height: var(--awe-size-control-sm); width: 100%; padding: 0 var(--awe-space-2); display: flex; align-items: center; gap: var(--awe-space-1);
+  border: var(--awe-border-width) solid var(--awe-color-field-border); border-radius: var(--awe-radius-field);
+  background: var(--awe-color-field); font-size: var(--awe-font-size-sm); color: var(--awe-color-field-text); }
+.cell-input.focus { border-color: var(--awe-color-field-border-focus); box-shadow: var(--awe-shadow-field-focus); }
+.cell-input .ph { color: var(--awe-color-field-placeholder); }
+.cell-input .icon { margin-left: auto; color: var(--awe-color-field-icon); width: var(--awe-size-icon-sm); height: var(--awe-size-icon-sm); }
+.month { border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-lg); padding: var(--awe-space-3); }
+.month-head { display: flex; align-items: center; gap: var(--awe-space-1); margin-bottom: var(--awe-space-2); }
+.month-head strong { flex: 1; text-align: center; font-size: var(--awe-font-size-sm); }
+.month table { width: 100%; border-collapse: separate; border-spacing: var(--awe-space-0-5); table-layout: fixed; }
+.month th { font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); font-weight: var(--awe-font-weight-medium); padding: var(--awe-space-1) 0; }
+.month td { text-align: center; font-size: var(--awe-font-size-xs); height: var(--awe-space-8); border-radius: var(--awe-radius-sm);
+  font-variant-numeric: var(--awe-font-variant-numeric); color: var(--awe-color-text); }
+.month td.we { color: var(--awe-color-text-muted); }
+.month td.out { position: relative; background: var(--awe-color-danger-subtle); color: var(--awe-color-danger-text);
+  font-weight: var(--awe-font-weight-bold); box-shadow: inset 0 0 0 var(--awe-border-width) var(--awe-color-danger-border);
+  text-decoration: line-through; }
+.month td.today { box-shadow: inset 0 0 0 var(--awe-border-width-strong) var(--awe-color-primary); font-weight: var(--awe-font-weight-semibold); }
+.month-legend { display: flex; flex-direction: column; gap: var(--awe-space-1); margin-top: var(--awe-space-2); font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.month-legend span { display: inline-flex; align-items: center; gap: var(--awe-space-1-5); }
+.sw-out { width: var(--awe-space-3); height: var(--awe-space-3); border-radius: var(--awe-radius-xs); background: var(--awe-color-danger-subtle);
+  box-shadow: inset 0 0 0 var(--awe-border-width) var(--awe-color-danger-border); }
+.sw-today { width: var(--awe-space-3); height: var(--awe-space-3); border-radius: var(--awe-radius-xs);
+  box-shadow: inset 0 0 0 var(--awe-border-width-strong) var(--awe-color-primary); }
+.year-strip { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--awe-space-1); margin-top: var(--awe-space-3); }
+.year-strip button { border: var(--awe-border-width) solid var(--awe-color-border); background: var(--awe-color-surface); border-radius: var(--awe-radius-sm);
+  font-size: var(--awe-font-size-xs); padding: var(--awe-space-1) 0; color: var(--awe-color-text); cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+.year-strip button b { font-size: var(--awe-font-size-xs); color: var(--awe-color-danger-text); font-weight: var(--awe-font-weight-semibold); }
+.year-strip button[aria-pressed="true"] { border-color: var(--awe-color-primary); background: var(--awe-color-highlight); }
+.year-strip button:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); }
+
+/* Engine status card */
+.engine-card { display: grid; grid-template-columns: minmax(0, 1fr) 21rem; }
+.engine-main { padding: var(--awe-space-5); display: flex; flex-direction: column; gap: var(--awe-space-4); }
+.engine-title { display: flex; align-items: center; gap: var(--awe-space-3); }
+.engine-title h2 { margin: 0; font-size: var(--awe-font-size-section-title); }
+.engine-sentence { margin: 0; font-size: var(--awe-font-size-md); line-height: var(--awe-line-height-snug); color: var(--awe-color-text); max-width: 60ch; }
+.engine-sentence strong { color: var(--awe-color-text-emphasis); }
+.facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--awe-space-4); margin: 0; }
+.facts div { min-width: 0; }
+.facts dt { font-size: var(--awe-readout-label-font-size); color: var(--awe-readout-label-color); }
+.facts dd { margin: var(--awe-space-0-5) 0 0; font-size: var(--awe-font-size-sm); color: var(--awe-readout-value-color); font-variant-numeric: var(--awe-font-variant-numeric); }
+.facts dd .cell-sub { margin-top: var(--awe-space-0-5); }
+.meter { display: flex; gap: var(--awe-space-0-5); margin-top: var(--awe-space-1-5); }
+.meter i { flex: 1; height: var(--awe-space-2); border-radius: var(--awe-radius-xs); background: var(--awe-color-secondary); }
+.meter i.on { background: var(--awe-color-primary); }
+.engine-actions { border-left: var(--awe-border-width) solid var(--awe-color-border); padding: var(--awe-space-5);
+  display: flex; flex-direction: column; gap: var(--awe-space-2); background: var(--awe-color-surface-subtle);
+  border-radius: 0 var(--awe-radius-card) var(--awe-radius-card) 0; }
+.engine-actions h3 { margin: 0 0 var(--awe-space-1); font-size: var(--awe-font-size-xs); text-transform: uppercase;
+  letter-spacing: var(--awe-letter-spacing-caps); color: var(--awe-color-text-muted); }
+.eng-btn { display: flex; align-items: flex-start; gap: var(--awe-space-3); text-align: left; padding: var(--awe-space-2) var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border); border-radius: var(--awe-radius-field); background: var(--awe-color-surface);
+  color: var(--awe-color-text); cursor: pointer; font-size: var(--awe-font-size-sm); font-weight: var(--awe-font-weight-medium); }
+.eng-btn small { display: block; font-weight: var(--awe-font-weight-normal); font-size: var(--awe-font-size-xs); color: var(--awe-color-text-muted); }
+.eng-btn .icon { margin-top: var(--awe-space-0-5); color: var(--awe-color-text-muted); }
+.eng-btn:hover { background: var(--awe-color-surface-hover); }
+.eng-btn:focus-visible { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); }
+.eng-btn[aria-disabled="true"] { background: var(--awe-color-disabled); color: var(--awe-color-disabled-text); cursor: not-allowed; }
+.eng-btn[aria-disabled="true"] .icon { color: var(--awe-color-disabled-text); }
+.eng-btn--danger, .eng-btn--danger .icon { color: var(--awe-color-danger-text); border-color: var(--awe-color-danger-border); }
+.eng-btn.is-pressed { outline: var(--awe-focus-ring); outline-offset: var(--awe-focus-ring-offset); }
+.variants { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--awe-layout-gap); }
+.variant { border: var(--awe-border-width) dashed var(--awe-color-border); border-radius: var(--awe-radius-lg); padding: var(--awe-space-3) var(--awe-space-4);
+  display: flex; flex-direction: column; gap: var(--awe-space-2); font-size: var(--awe-font-size-sm); background: var(--awe-color-surface); }
+.variant p { margin: 0; color: var(--awe-color-text); }
+.variant .cell-sub { font-size: var(--awe-font-size-xs); }
+.split-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--awe-space-6); align-items: start; }
+.cap { margin: 0 0 var(--awe-space-2); font-size: var(--awe-font-size-sm); color: var(--awe-color-text-muted); }
+.cap b { color: var(--awe-color-text-emphasis); }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-ok" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+    <symbol id="i-error" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6M9 9l6 6"/></symbol>
+    <symbol id="i-warn" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4M12 17h.01"/></symbol>
+    <symbol id="i-stopped" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6" rx="1"/></symbol>
+    <symbol id="i-run" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.22-8.56"/></symbol>
+    <symbol id="i-paused" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M10 15V9M14 15V9"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+    <symbol id="i-key" viewBox="0 0 24 24"><path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4M21 2l-9.6 9.6"/><circle cx="7.5" cy="15.5" r="5.5"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><path d="M12 22v-5M9 8V2M15 8V2M18 8v5a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V8Z"/></symbol>
+    <symbol id="i-server" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><path d="M6 6h.01M6 18h.01"/></symbol>
+    <symbol id="i-terminal" viewBox="0 0 24 24"><path d="m4 17 6-6-6-6M12 19h8"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></symbol>
+    <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="i-calendar-x" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18M10 14l4 4M14 14l-4 4"/></symbol>
+    <symbol id="i-cpu" viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="m6 3 14 9-14 9V3z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/></symbol>
+    <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 2v10M18.4 6.6a9 9 0 1 1-12.77.04"/></symbol>
+    <symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></symbol>
+    <symbol id="i-tasks" viewBox="0 0 24 24"><path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a7.9 7.9 0 0 0 .1-3l2-1.5-2-3.4-2.3 1a8 8 0 0 0-2.6-1.5L14 2h-4l-.5 2.6a8 8 0 0 0-2.6 1.5l-2.3-1-2 3.4L4.6 12a7.9 7.9 0 0 0 0 3l-2 1.5 2 3.4 2.3-1a8 8 0 0 0 2.6 1.5L10 22h4l.5-2.6a8 8 0 0 0 2.6-1.5l2.3 1 2-3.4Z"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10 12 3l9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1Z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></symbol>
+    <symbol id="i-add" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+    <symbol id="i-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m4.9 4.9 14.2 14.2"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+    <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M7 7h10v10M7 17 17 7"/></symbol>
+    <symbol id="i-columns" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></symbol>
+    <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="M10.7 5.1A10.7 10.7 0 0 1 22 12a13 13 0 0 1-1.7 2.7M14.1 14.2a3 3 0 0 1-4.2-4.2M17.5 17.5A10.7 10.7 0 0 1 2 12a13.2 13.2 0 0 1 4.4-5.4M2 2l20 20"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/></symbol>
+    <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14a9 3 0 0 0 18 0V5M3 12a9 3 0 0 0 18 0"/></symbol>
+    <symbol id="i-note" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></symbol>
+  </defs>
+</svg>
+<main class="board" aria-label="Planificador · Configuración">
+<div class="demo-tools">
+  <span class="note">AWE 5 · Planificador · 06 Configuración · datos de ejemplo: tesorería, hoy martes 17/11/2026 10:45</span>
+  <div class="spacer"></div>
+  <div class="segmented" role="group" aria-label="Modo de color">
+    <button data-mode="light" aria-pressed="false" onclick="setMode('light')">Claro</button>
+    <button data-mode="dark" aria-pressed="false" onclick="setMode('dark')">Oscuro</button>
+  </div>
+  <div class="segmented" role="group" aria-label="Densidad">
+    <button data-density="comfortable" aria-pressed="true" onclick="setDensity('comfortable')">Cómoda</button>
+    <button data-density="compact" aria-pressed="false" onclick="setDensity('compact')">Compacta</button>
+  </div>
+</div>
+<aside class="annot" aria-labelledby="annot-title">
+  <h2 id="annot-title">Nota de diseño · Configuración (no forma parte de la pantalla)</h2>
+  <div class="annot-cols">
+    <div><h3>Decisiones</h3><ul>
+      <li><strong>Una sola opción de menú, tres pestañas</strong> (Servidores, Calendarios, Motor). Sustituye a <code>scheduler-server</code>, <code>scheduler-calendars</code> y <code>scheduler-management</code>, que se mantienen pero salen del menú (S2). La pestaña es parte de la ruta, se puede enlazar.</li>
+      <li><strong>Crear y editar en el panel lateral (640 px)</strong>, sin salir de la lista: desaparecen las pantallas <code>new-/update-scheduler-server</code> y <code>-calendar</code>.</li>
+      <li><strong>«En uso por»</strong> es una cuenta derivada (tareas que usan el servidor o el calendario) con enlace en la celda a Tareas filtrado. Borrar un servidor en uso queda desactivado con el motivo; borrar un calendario en uso avisa como hoy (<code>chkTrgCntCal</code>) y dice la consecuencia real: <code>deleteSchedulerCalendar</code> reprograma esas tareas sin calendario.</li>
+      <li><strong>Motor como resumen legible</strong>: una frase y cuatro datos en lugar de 12 campos de solo lectura; los datos técnicos (clases de Quartz) quedan en «Detalles técnicos». Las ejecuciones en curso no se repiten aquí: enlace a Actividad.</li>
+      <li>Estado siempre con icono + texto. «En ejecución» usa icono fijo, sin animación (L6).</li>
+    </ul></div>
+    <div><h3>Qué hay hoy en el modelo y los servicios (S4)</h3><ul>
+      <li><strong>Servidor</strong>: Nombre, Servidor (host), Puerto, Tipo de conexión (enumerado <code>conType</code>: FTP, Carpeta, SSH; el SFTP va por SSH), Activo, Usuario, Contraseña, Clave privada, Contraseña de la clave. Los secretos nunca se devuelven a la pantalla: «Guardada · Cambiar».</li>
+      <li><strong>Probar conexión</strong>: maintain <code>ChkSchSrvCnx</code> con los valores del formulario, sin guardar. El resultado de la columna «Prueba de conexión» no se guarda: es el de esta sesión («Sin probar» al entrar) y «Probar todos» lo rellena.</li>
+      <li><strong>Calendario</strong>: Nombre, Descripción, Activo y lista de fechas con nombre (mismas filas que el grid <code>GrdDatLst</code>). «Importar» solo añade filas a esa lista (fichero .ics o .csv), sin modelo nuevo.</li>
+      <li><strong>Motor</strong>: <code>getSchedulerMetadata</code> (instancia, versión, almacén, persistente, clúster, hilos, en marcha desde, trabajos ejecutados, estado), <code>getConfiguredJobs</code> (trigger, calendario, anterior, próxima) y <code>currentlyExecutingJobs</code> (solo para contar hilos en uso). Pausar = <code>stopScheduler</code> (standby), Reanudar = <code>startScheduler</code>, Reiniciar = <code>restartScheduler</code>, Detener y vaciar = <code>clearAndStop</code>.</li>
+      <li>Estado del motor: Started and running → En marcha, Standby → Pausado, Stopped → Detenido. Estado del trigger: estados de Quartz (Normal, Pausado, Bloqueado, Error, Completado).</li>
+    </ul></div>
+    <div><h3>Componentes en los dos motores (S1)</h3><ul>
+      <li><strong>Pestañas de página</strong>: existentes (<code>tab</code>) en AngularJS y React; contador por pestaña como texto del título.</li>
+      <li><strong>Panel lateral</strong> (640 px) para crear y editar: existe en los dos motores; se reutiliza el de Actividad y Tareas.</li>
+      <li><strong>Columna enlace</strong>: ampliar <code>component="link"</code> (L7): con <code>button-action</code> navega a otra pantalla con el valor de la fila como filtro; sin acciones mantiene el <code>href</code> de hoy. Falta en AngularJS; en React solo abre URL externas.</li>
+      <li><strong>Tarjetas seleccionables</strong> (radio en tarjeta, aprobadas en 04) para el tipo de conexión.</li>
+      <li><strong>NUEVO: vista de mes</strong> de solo lectura que marca los días excluidos (sobre el calendario del criterio fecha existente) y tira de meses con recuento. <strong>NUEVO: tarjeta de estado</strong> del motor (resumen + acciones con confirmación), compuesta con tarjeta, tag y diálogo existentes.</li>
+    </ul></div>
+  </div>
+</aside>
+<div class="states">
+<section class="state" aria-labelledby="st-1a">
+  <div class="state-label"><span class="letter">1A</span><h3 id="st-1a">Servidores</h3><p>Los 4 servidores externos con cuántas tareas los usan y la última prueba de conexión de esta sesión. Menú de fila abierto en batch-01: «Borrar» está desactivado y explica por qué.</p></div>
+  <div class="frame" style="height:860px">
+<div class="shell">
+  <aside class="menu" aria-label="Menú principal">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-search"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg>Inicio</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-activity"/></svg>Actividad<span class="menu-badge" aria-label="1 ejecución en curso">1</span></a>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-tasks"/></svg>Tareas</a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg>Configuración</a>
+    <div class="menu-foot"><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn--ghost" aria-label="Mostrar u ocultar el menú"><svg class="icon" aria-hidden="true"><use href="#i-columns"/></svg></button>
+      <div class="spacer"></div>
+      <button class="btn btn--ghost" aria-label="Menú de usuario"><span class="avatar">PV</span></button>
+    </header>
+    <nav class="crumbs" aria-label="Migas de pan">Planificador<span aria-hidden="true">/</span><strong>Configuración</strong></nav>
+    <div class="page">
+      <div class="page-head">
+        <div><h1>Configuración</h1><p>Servidores externos, calendarios de festivos y el motor que lanza las tareas.</p></div>
+        <div class="actions"><button class="btn btn--ghost" aria-label="Ayuda"><svg class="icon" aria-hidden="true"><use href="#i-help"/></svg></button></div>
+      </div>
+      <section class="card" aria-label="Configuración del planificador">
+        <div class="tabs" role="tablist" aria-label="Secciones de configuración">
+          <button class="tab" role="tab" aria-selected="true" aria-controls="tp-srv"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-server"/></svg>Servidores<span class="n">4</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar"/></svg>Calendarios<span class="n">3</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-cpu"/></svg>Motor<span class="tag tag--success"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>En marcha</span></button>
+        </div>
+        <div id="tp-srv" role="tabpanel" aria-label="Servidores">
+        <div class="grid-toolbar">
+          <div class="search"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-search"/></svg><span>Buscar servidor o host</span></div>
+          <div class="segmented" role="group" aria-label="Activo">
+            <button aria-pressed="true">Todos <span class="n">4</span></button>
+            <button aria-pressed="false">Activos <span class="n">3</span></button>
+            <button aria-pressed="false">Inactivos <span class="n">1</span></button>
+          </div>
+          <div class="spacer"></div>
+          <button class="btn btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-plug"/></svg>Probar todos</button>
+          <button class="btn btn--ghost btn--sm" aria-label="Elegir columnas"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-columns"/></svg></button>
+          <button class="btn btn--primary"><svg class="icon" aria-hidden="true"><use href="#i-plus"/></svg>Nuevo servidor</button>
+        </div>
+        <table class="grid grid--tight">
+          <caption class="sr-only">4 servidores externos</caption>
+          <thead><tr><th>Nombre</th><th>Servidor (host)</th><th class="num">Puerto</th><th>Tipo de conexión</th><th>Activo</th><th>En uso por</th><th>Última prueba</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="cell-strong">sftp-bancos</span></td>
+              <td><span class="mono strong">sftp.bancos.tesoreria.local</span></td>
+              <td class="num">22</td>
+              <td><span class="kind"><svg class="icon" aria-hidden="true"><use href="#i-terminal"/></svg>SSH</span><span class="cell-sub">Ficheros por SFTP</span></td>
+              <td><button class="switch" role="switch" aria-checked="true" aria-label="sftp-bancos activo"></button></td>
+              <td><a class="cell-link" href="#" aria-label="1 tarea usa sftp-bancos: ver en Tareas">1 tarea<svg class="icon" aria-hidden="true"><use href="#i-right"/></svg></a><span class="cell-sub">Importar extractos bancarios</span></td>
+              <td><span class="tag tag--success"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>OK · 0,42 s</span><span class="cell-sub">Hoy 10:44</span></td>
+              <td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Acciones de sftp-bancos" aria-haspopup="menu"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-more"/></svg></button></td>
+            </tr>
+            <tr aria-selected="true">
+              <td><span class="cell-strong">batch-01</span></td>
+              <td><span class="mono strong">batch-01.tesoreria.local</span></td>
+              <td class="num">22</td>
+              <td><span class="kind"><svg class="icon" aria-hidden="true"><use href="#i-terminal"/></svg>SSH</span><span class="cell-sub">Comandos remotos</span></td>
+              <td><button class="switch" role="switch" aria-checked="true" aria-label="batch-01 activo"></button></td>
+              <td><a class="cell-link" href="#" aria-label="1 tarea usa batch-01: ver en Tareas">1 tarea<svg class="icon" aria-hidden="true"><use href="#i-right"/></svg></a><span class="cell-sub">Informe diario de tesorería</span></td>
+              <td><span class="tag tag--success"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>OK · 0,18 s</span><span class="cell-sub">Hoy 10:44</span></td>
+              <td class="actions"><span class="rel"><button class="btn btn--ghost btn--sm" aria-label="Acciones de batch-01" aria-haspopup="menu" aria-expanded="true" aria-controls="menu-batch"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-more"/></svg></button>
+                <div class="menu-pop" id="menu-batch" role="menu" aria-label="Acciones de batch-01">
+                  <button role="menuitem" class="focus"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-edit"/></svg><span>Editar</span></button>
+                  <button role="menuitem"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-plug"/></svg><span>Probar conexión<small>Con los datos guardados</small></span></button>
+                  <button role="menuitem"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-ban"/></svg><span>Desactivar…<small>Pide confirmación: Informe diario de tesorería no podrá ejecutar su comando remoto</small></span></button>
+                  <hr>
+                  <button role="menuitem" aria-disabled="true" aria-describedby="why-batch"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg><span>Borrar<small id="why-batch">No se puede borrar: lo usa 1 tarea (Informe diario de tesorería). Cambia antes el servidor de esa tarea.</small></span></button>
+                </div></span></td>
+            </tr>
+            <tr>
+              <td><span class="cell-strong">ftp-remesas</span></td>
+              <td><span class="mono strong">ftp.remesas.tesoreria.local</span></td>
+              <td class="num">21</td>
+              <td><span class="kind"><svg class="icon" aria-hidden="true"><use href="#i-upload"/></svg>FTP</span><span class="cell-sub">Ficheros por FTP</span></td>
+              <td><span class="sw"><button class="switch" role="switch" aria-checked="false" aria-label="ftp-remesas activo"></button>Inactivo</span></td>
+              <td><span class="none">Ninguna tarea</span></td>
+              <td><span class="tag tag--danger"><svg class="icon" aria-hidden="true"><use href="#i-error"/></svg>Error</span><span class="cell-sub">Hoy 10:43 · tiempo de espera agotado</span></td>
+              <td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Acciones de ftp-remesas" aria-haspopup="menu"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-more"/></svg></button></td>
+            </tr>
+            <tr>
+              <td><span class="cell-strong">carpeta-entrada</span></td>
+              <td><span class="none">Servidor de la aplicación</span></td>
+              <td class="num"><span class="none" aria-label="No aplica">—</span></td>
+              <td><span class="kind"><svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg>Carpeta</span><span class="cell-sub">Carpeta local</span></td>
+              <td><button class="switch" role="switch" aria-checked="true" aria-label="carpeta-entrada activo"></button></td>
+              <td><span class="none">Ninguna tarea</span></td>
+              <td><span class="tag tag--neutral"><svg class="icon" aria-hidden="true"><use href="#i-minus"/></svg>Sin probar</span></td>
+              <td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Acciones de carpeta-entrada" aria-haspopup="menu"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-more"/></svg></button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="card-foot"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-info"/></svg><span>La prueba de conexión no se guarda: muestra la última de esta sesión. «Probar todos» prueba los servidores activos.</span></div>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="state" aria-labelledby="st-1b">
+  <div class="state-label"><span class="letter">1B</span><h3 id="st-1b">Editar servidor «sftp-bancos»</h3><p>Panel lateral de 640 px sobre la lista. Los secretos guardados no se muestran: se pueden cambiar o quitar. «Probar conexión» usa los valores del formulario sin guardarlos y deja el resultado debajo.</p></div>
+  <div class="frame" style="height:1340px">
+<div class="shell" aria-hidden="true" inert>
+  <aside class="menu">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm"><use href="#i-search"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-home"/></svg>Inicio</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-activity"/></svg>Actividad<span class="menu-badge">1</span></a>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-tasks"/></svg>Tareas</a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon"><use href="#i-settings"/></svg>Configuración</a>
+    <div class="menu-foot"><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header"><div class="spacer"></div><span class="avatar">PV</span></header>
+    <nav class="crumbs">Planificador<span>/</span><strong>Configuración</strong></nav>
+    <div class="page">
+      <div class="page-head"><div><h1>Configuración</h1><p>Servidores externos, calendarios de festivos y el motor que lanza las tareas.</p></div></div>
+      <section class="card">
+        <div class="tabs"><span class="tab" aria-selected="true">Servidores<span class="n">4</span></span><span class="tab">Calendarios<span class="n">3</span></span><span class="tab">Motor</span></div>
+        <table class="grid">
+          <thead><tr><th>Nombre</th><th>Servidor (host)</th><th class="num">Puerto</th><th>Tipo de conexión</th><th>Activo</th><th>En uso por</th></tr></thead>
+          <tbody>
+            <tr aria-selected="true"><td class="cell-strong">sftp-bancos</td><td class="mono">sftp.bancos.tesoreria.local</td><td class="num">22</td><td>SSH</td><td>Sí</td><td>1 tarea</td></tr>
+            <tr><td class="cell-strong">batch-01</td><td class="mono">batch-01.tesoreria.local</td><td class="num">22</td><td>SSH</td><td>Sí</td><td>1 tarea</td></tr>
+            <tr><td class="cell-strong">ftp-remesas</td><td class="mono">ftp.remesas.tesoreria.local</td><td class="num">21</td><td>FTP</td><td>No</td><td>Ninguna tarea</td></tr>
+            <tr><td class="cell-strong">carpeta-entrada</td><td>Servidor de la aplicación</td><td class="num">—</td><td>Carpeta</td><td>Sí</td><td>Ninguna tarea</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="panel-mask"></div>
+<div class="panel" role="dialog" aria-modal="true" aria-labelledby="srv-title">
+  <div class="panel-head">
+    <span class="avatar"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-server"/></svg></span>
+    <div><h2 id="srv-title">sftp-bancos</h2><div class="sub">Servidor externo · SSH · lo usa 1 tarea</div></div>
+    <button class="btn btn--ghost close" aria-label="Cerrar"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="panel-body">
+    <div class="form-section">Conexión</div>
+    <div class="field">
+      <span class="label" id="lbl-type">Tipo de conexión <span class="req" aria-hidden="true">*</span></span>
+      <div class="choices" role="radiogroup" aria-labelledby="lbl-type">
+        <button type="button" class="choice" role="radio" aria-checked="true"><span class="head"><svg class="icon" aria-hidden="true"><use href="#i-terminal"/></svg>SSH<span class="radio"></span></span><span class="desc">Comandos remotos y ficheros por SFTP.</span></button>
+        <button type="button" class="choice" role="radio" aria-checked="false" tabindex="-1"><span class="head"><svg class="icon" aria-hidden="true"><use href="#i-upload"/></svg>FTP<span class="radio"></span></span><span class="desc">Ficheros por FTP; admite acceso anónimo.</span></button>
+        <button type="button" class="choice" role="radio" aria-checked="false" tabindex="-1"><span class="head"><svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg>Carpeta<span class="radio"></span></span><span class="desc">Una carpeta del servidor de la aplicación; sin host ni puerto.</span></button>
+      </div>
+    </div>
+    <div class="form-row form-row--3" style="margin-top:var(--awe-gap-form-row)">
+      <div class="field"><label for="srv-nom">Nombre <span class="req" aria-hidden="true">*</span></label><input class="input" id="srv-nom" value="sftp-bancos" required></div>
+      <div class="field"><label for="srv-prt">Puerto <span class="req" aria-hidden="true">*</span></label><input class="input" id="srv-prt" value="22" inputmode="numeric" required><span class="help">22 por defecto en SSH</span></div>
+      <div class="field"><span class="label" id="lbl-act">Activo</span><span class="sw" style="min-height:var(--awe-size-control)"><button class="switch" role="switch" aria-checked="true" aria-labelledby="lbl-act"></button>Sí</span></div>
+      <div class="field" style="grid-column:1 / -1"><label for="srv-hst">Servidor (host) <span class="req" aria-hidden="true">*</span></label><input class="input" id="srv-hst" value="sftp.bancos.tesoreria.local" required></div>
+    </div>
+
+    <div class="form-section">Autenticación</div>
+    <p class="cap">Con SSH el usuario es obligatorio. Puedes entrar con contraseña, con clave privada o con las dos.</p>
+    <div class="form-row">
+      <div class="field"><label for="srv-usr">Usuario <span class="req" aria-hidden="true">*</span></label>
+        <div class="input"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-user"/></svg><input id="srv-usr" value="tesoreria-n43" style="all:unset;flex:1" required></div></div>
+      <div class="field"><span class="label" id="lbl-pwd">Contraseña</span>
+        <div class="input input--readonly" aria-labelledby="lbl-pwd"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-lock"/></svg><span class="input--masked" aria-hidden="true">••••••••</span><span class="sr-only">Guardada, no se muestra</span><span class="end"><button class="btn btn--sm">Cambiar</button></span></div></div>
+      <div class="field span-2"><span class="label" id="lbl-key">Clave privada</span>
+        <div class="input input--readonly" aria-labelledby="lbl-key"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-key"/></svg><span><span class="input--masked" aria-hidden="true">••••••••••••</span><span class="secret-saved">&nbsp;Clave guardada, no se muestra</span></span><span class="end"><button class="btn btn--sm">Reemplazar…</button><button class="btn btn--sm btn--danger-outline">Quitar</button></span></div>
+        <span class="help">Pega la clave nueva o carga el fichero; al guardar sustituye a la actual.</span></div>
+      <div class="field"><span class="label" id="lbl-kpw">Contraseña de la clave privada</span>
+        <div class="input input--readonly" aria-labelledby="lbl-kpw"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-lock"/></svg><span class="input--masked" aria-hidden="true">••••••••</span><span class="sr-only">Guardada, no se muestra</span><span class="end"><button class="btn btn--sm">Cambiar</button></span></div></div>
+    </div>
+
+    <div class="test-row">
+      <button class="btn"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-plug"/></svg>Probar conexión</button>
+      <span class="tool-note">Prueba los valores del formulario sin guardarlos.</span>
+    </div>
+    <div class="hint hint--success test-result" role="status"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg><span class="grow"><strong>Conexión correcta en 0,42 s</strong>Hoy 10:44 · tesoreria-n43@sftp.bancos.tesoreria.local:22 con las credenciales guardadas.</span></div>
+
+    <div class="form-section">En uso por</div>
+    <ul class="used-list">
+      <li><svg class="icon icon--sm muted" aria-hidden="true"><use href="#i-file"/></svg>
+        <span class="grow"><a class="cell-link" href="#">Importar extractos bancarios</a><span class="cell-sub">Al llegar un fichero en /in/n43/*.n43 · revisa cada 5 min · próxima revisión 10:50</span></span>
+        <span class="tag tag--success"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>OK hoy 08:05</span></li>
+    </ul>
+    <p class="cap" style="margin-top:var(--awe-space-2)">Si cambias el host o las credenciales, la próxima revisión de ficheros ya usará los datos nuevos.</p>
+  </div>
+  <div class="panel-foot">
+    <button class="btn">Cancelar</button>
+    <button class="btn btn--primary">Guardar</button>
+  </div>
+</div>
+  </div>
+</section>
+<section class="state" aria-labelledby="st-2a">
+  <div class="state-label"><span class="letter">2A</span><h3 id="st-2a">Calendarios · editar «Festivos ES 2026»</h3><p>Lista de fechas con su nombre, añadir una fecha (fila en edición), importar, y una vista de mes que marca los días que no se ejecuta. Debajo, a qué tarea afecta.</p></div>
+  <div class="frame" style="height:1500px">
+<div class="shell" aria-hidden="true" inert>
+  <aside class="menu">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm"><use href="#i-search"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-home"/></svg>Inicio</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-activity"/></svg>Actividad<span class="menu-badge">1</span></a>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-tasks"/></svg>Tareas</a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon"><use href="#i-settings"/></svg>Configuración</a>
+    <div class="menu-foot"><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header"><div class="spacer"></div><span class="avatar">PV</span></header>
+    <nav class="crumbs">Planificador<span>/</span><strong>Configuración</strong></nav>
+    <div class="page">
+      <div class="page-head"><div><h1>Configuración</h1><p>Servidores externos, calendarios de festivos y el motor que lanza las tareas.</p></div></div>
+      <section class="card">
+        <div class="tabs"><span class="tab">Servidores<span class="n">4</span></span><span class="tab" aria-selected="true">Calendarios<span class="n">3</span></span><span class="tab">Motor</span></div>
+        <div class="grid-toolbar"><div class="search"><svg class="icon icon--sm"><use href="#i-search"/></svg><span>Buscar calendario</span></div><div class="spacer"></div><span class="btn btn--primary"><svg class="icon"><use href="#i-plus"/></svg>Nuevo calendario</span></div>
+        <table class="grid">
+          <thead><tr><th>Nombre</th><th>Descripción</th><th>Fechas</th><th>Activo</th><th>En uso por</th></tr></thead>
+          <tbody>
+            <tr aria-selected="true"><td class="cell-strong">Festivos ES 2026</td><td>Festivos nacionales de España</td><td>10 · próxima 06/12</td><td>Sí</td><td>1 tarea</td></tr>
+            <tr><td class="cell-strong">Cierre TARGET2 2026</td><td>Días sin liquidación en TARGET2</td><td>6 · próxima 25/12</td><td>Sí</td><td>Ninguna tarea</td></tr>
+            <tr><td class="cell-strong">Festivos ES 2027</td><td>Preparado para el año que viene</td><td>10 · desde 01/01/2027</td><td>No</td><td>Ninguna tarea</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="panel-mask"></div>
+<div class="panel" role="dialog" aria-modal="true" aria-labelledby="cal-title">
+  <div class="panel-head">
+    <span class="avatar"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar-x"/></svg></span>
+    <div><h2 id="cal-title">Festivos ES 2026</h2><div class="sub">Calendario · 10 fechas guardadas · lo usa 1 tarea</div></div>
+    <button class="btn btn--ghost close" aria-label="Cerrar"><svg class="icon" aria-hidden="true"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="panel-body">
+    <div class="form-row form-row--3">
+      <div class="field" style="grid-column:span 2"><label for="cal-nom">Nombre <span class="req" aria-hidden="true">*</span></label><input class="input" id="cal-nom" value="Festivos ES 2026" required></div>
+      <div class="field"><span class="label" id="lbl-cact">Activo</span><span class="sw" style="min-height:var(--awe-size-control)"><button class="switch" role="switch" aria-checked="true" aria-labelledby="lbl-cact"></button>Sí</span></div>
+      <div class="field" style="grid-column:1 / -1"><label for="cal-des">Descripción</label><input class="input" id="cal-des" value="Festivos nacionales de España: el cierre contable no se ejecuta estos días"></div>
+    </div>
+
+    <div class="form-section">Días en los que no se ejecuta</div>
+    <div class="cal-editor">
+      <div class="dates">
+        <div class="dates-bar"><strong>11 fechas</strong><span class="tool-note">· 1 sin guardar</span><span class="spacer"></span>
+          <button class="btn btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-upload"/></svg>Importar…</button>
+          <button class="btn btn--sm"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-add"/></svg>Añadir fecha</button></div>
+        <table class="grid">
+          <caption class="sr-only">Fechas excluidas de Festivos ES 2026</caption>
+          <thead><tr><th style="width:8.5rem">Fecha</th><th>Nombre</th><th><span class="sr-only">Acciones</span></th></tr></thead>
+          <tbody>
+            <tr><td><span class="cell-strong">01/01</span> <span class="muted">jue</span></td><td>Año Nuevo</td><td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Quitar Año Nuevo"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg></button></td></tr>
+            <tr><td><span class="cell-strong">06/01</span> <span class="muted">mar</span></td><td>Epifanía del Señor</td><td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Quitar Epifanía del Señor"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg></button></td></tr>
+            <tr><td><span class="cell-strong">03/04</span> <span class="muted">vie</span></td><td>Viernes Santo</td><td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Quitar Viernes Santo"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg></button></td></tr>
+            <tr><td><span class="cell-strong">01/05</span> <span class="muted">vie</span></td><td>Fiesta del Trabajo</td><td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Quitar Fiesta del Trabajo"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg></button></td></tr>
+            <tr><td><span class="cell-strong">15/08</span> <span class="muted">sáb</span></td><td>Asunción de la Virgen</td><td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Quitar Asunción de la Virgen"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg></button></td></tr>
+            <tr><td><span class="cell-strong">12/10</span> <span class="muted">lun</span></td><td>Fiesta Nacional de España</td><td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Quitar Fiesta Nacional de España"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg></button></td></tr>
+            <tr><td><span class="cell-strong">01/11</span> <span class="muted">dom</span></td><td>Todos los Santos</td><td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Quitar Todos los Santos"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg></button></td></tr>
+            <tr class="is-month"><td><span class="cell-strong">06/12</span> <span class="muted">dom</span></td><td>Día de la Constitución</td><td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Quitar Día de la Constitución"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg></button></td></tr>
+            <tr class="is-month"><td><span class="cell-strong">08/12</span> <span class="muted">mar</span></td><td>Inmaculada Concepción</td><td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Quitar Inmaculada Concepción"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg></button></td></tr>
+            <tr class="editing"><td><label class="sr-only" for="new-date">Fecha nueva</label><span class="cell-input focus" id="new-date" role="textbox" tabindex="0">24/12/2026<svg class="icon" aria-hidden="true"><use href="#i-calendar"/></svg></span></td>
+              <td><span class="cell-input" role="textbox" tabindex="0" aria-label="Nombre de la fecha nueva">Nochebuena</span></td>
+              <td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Descartar la fecha nueva"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-x"/></svg></button></td></tr>
+            <tr class="is-month"><td><span class="cell-strong">25/12</span> <span class="muted">vie</span></td><td>Navidad</td><td class="actions"><button class="btn btn--ghost btn--sm" aria-label="Quitar Navidad"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg></button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="cal-side">
+        <div class="month" role="group" aria-labelledby="m-title">
+          <div class="month-head"><button class="btn btn--ghost btn--sm" aria-label="Mes anterior"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-left"/></svg></button><strong id="m-title">Diciembre 2026</strong><button class="btn btn--ghost btn--sm" aria-label="Mes siguiente"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-right"/></svg></button></div>
+          <table>
+            <thead><tr><th abbr="lunes">L</th><th abbr="martes">M</th><th abbr="miércoles">X</th><th abbr="jueves">J</th><th abbr="viernes">V</th><th abbr="sábado">S</th><th abbr="domingo">D</th></tr></thead>
+            <tbody>
+              <tr><td></td><td>1</td><td>2</td><td>3</td><td>4</td><td class="we">5</td><td class="we out" aria-label="6, excluido: Día de la Constitución">6</td></tr>
+              <tr><td>7</td><td class="out" aria-label="8, excluido: Inmaculada Concepción">8</td><td>9</td><td>10</td><td>11</td><td class="we">12</td><td class="we">13</td></tr>
+              <tr><td>14</td><td>15</td><td>16</td><td>17</td><td>18</td><td class="we">19</td><td class="we">20</td></tr>
+              <tr><td>21</td><td>22</td><td>23</td><td class="out" aria-label="24, excluido: Nochebuena (sin guardar)">24</td><td class="out" aria-label="25, excluido: Navidad">25</td><td class="we">26</td><td class="we">27</td></tr>
+              <tr><td>28</td><td>29</td><td>30</td><td>31</td><td></td><td></td><td></td></tr>
+            </tbody>
+          </table>
+          <div class="month-legend"><span><i class="sw-out" aria-hidden="true"></i>Tachado: no se ejecuta</span></div>
+          <div class="year-strip" role="group" aria-label="Fechas por mes">
+            <button aria-pressed="false">Ene<b>2</b></button><button aria-pressed="false">Feb<span class="muted">0</span></button><button aria-pressed="false">Mar<span class="muted">0</span></button><button aria-pressed="false">Abr<b>1</b></button><button aria-pressed="false">May<b>1</b></button><button aria-pressed="false">Jun<span class="muted">0</span></button>
+            <button aria-pressed="false">Jul<span class="muted">0</span></button><button aria-pressed="false">Ago<b>1</b></button><button aria-pressed="false">Sep<span class="muted">0</span></button><button aria-pressed="false">Oct<b>1</b></button><button aria-pressed="false">Nov<b>1</b></button><button aria-pressed="true">Dic<b>4</b></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">En uso por</div>
+    <ul class="used-list">
+      <li><svg class="icon icon--sm muted" aria-hidden="true"><use href="#i-clock"/></svg>
+        <span class="grow"><a class="cell-link" href="#">Cierre contable diario</a><span class="cell-sub">Programada · días laborables a las 22:30 · próxima hoy 22:30</span></span>
+        <span class="tag tag--info"><svg class="icon" aria-hidden="true"><use href="#i-calendar-x"/></svg>No se ejecutará 08/12, 24/12 y 25/12</span></li>
+    </ul>
+    <p class="cap" style="margin-top:var(--awe-space-2)">El 06/12 cae en domingo: la tarea ya no se ejecuta ese día. Al guardar, el motor vuelve a cargar el calendario.</p>
+  </div>
+  <div class="panel-foot">
+    <span class="left"><button class="btn btn--danger-outline"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg>Borrar calendario…</button></span>
+    <button class="btn">Cancelar</button>
+    <button class="btn btn--primary">Guardar</button>
+  </div>
+</div>
+  </div>
+</section>
+<section class="state" aria-labelledby="st-2b">
+  <div class="state-label"><span class="letter">2B</span><h3 id="st-2b">Calendarios · aviso antes de borrar uno en uso</h3><p>La lista con «En uso por» enlazado. Al borrar «Festivos ES 2026», la misma comprobación de hoy avisa y explica qué pasará con la tarea.</p></div>
+  <div class="frame" style="height:640px">
+<div class="shell" aria-hidden="true" inert>
+  <aside class="menu">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm"><use href="#i-search"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-home"/></svg>Inicio</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-activity"/></svg>Actividad<span class="menu-badge">1</span></a>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-tasks"/></svg>Tareas</a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon"><use href="#i-settings"/></svg>Configuración</a>
+    <div class="menu-foot"><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header"><div class="spacer"></div><span class="avatar">PV</span></header>
+    <nav class="crumbs">Planificador<span>/</span><strong>Configuración</strong></nav>
+    <div class="page">
+      <div class="page-head"><div><h1>Configuración</h1><p>Servidores externos, calendarios de festivos y el motor que lanza las tareas.</p></div></div>
+      <section class="card">
+        <div class="tabs"><span class="tab"><svg class="icon icon--sm"><use href="#i-server"/></svg>Servidores<span class="n">4</span></span><span class="tab" aria-selected="true"><svg class="icon icon--sm"><use href="#i-calendar"/></svg>Calendarios<span class="n">3</span></span><span class="tab"><svg class="icon icon--sm"><use href="#i-cpu"/></svg>Motor<span class="tag tag--success"><svg class="icon"><use href="#i-ok"/></svg>En marcha</span></span></div>
+        <div class="grid-toolbar">
+          <div class="search"><svg class="icon icon--sm"><use href="#i-search"/></svg><span>Buscar calendario</span></div>
+          <div class="segmented"><button aria-pressed="true">Todos <span class="n">3</span></button><button aria-pressed="false">Activos <span class="n">2</span></button><button aria-pressed="false">Inactivos <span class="n">1</span></button></div>
+          <div class="spacer"></div>
+          <span class="btn btn--primary"><svg class="icon"><use href="#i-plus"/></svg>Nuevo calendario</span>
+        </div>
+        <table class="grid">
+          <thead><tr><th>Nombre</th><th>Descripción</th><th>Fechas</th><th>Activo</th><th>En uso por</th><th></th></tr></thead>
+          <tbody>
+            <tr aria-selected="true"><td><span class="cell-strong">Festivos ES 2026</span></td><td>Festivos nacionales de España: el cierre contable no se ejecuta estos días</td><td>10<span class="cell-sub">próxima 06/12</span></td><td><span class="switch" aria-checked="true"></span></td><td><span class="cell-link">1 tarea<svg class="icon"><use href="#i-right"/></svg></span><span class="cell-sub">Cierre contable diario</span></td><td class="actions"><span class="btn btn--ghost btn--sm"><svg class="icon icon--sm"><use href="#i-more"/></svg></span></td></tr>
+            <tr><td><span class="cell-strong">Cierre TARGET2 2026</span></td><td>Días sin liquidación en TARGET2 (BCE)</td><td>6<span class="cell-sub">próxima 25/12</span></td><td><span class="switch" aria-checked="true"></span></td><td><span class="none">Ninguna tarea</span></td><td class="actions"><span class="btn btn--ghost btn--sm"><svg class="icon icon--sm"><use href="#i-more"/></svg></span></td></tr>
+            <tr><td><span class="cell-strong">Festivos ES 2027</span></td><td>Preparado para el año que viene</td><td>10<span class="cell-sub">desde 01/01/2027</span></td><td><span class="sw"><span class="switch" aria-checked="false"></span>Inactivo</span></td><td><span class="none">Ninguna tarea</span></td><td class="actions"><span class="btn btn--ghost btn--sm"><svg class="icon icon--sm"><use href="#i-more"/></svg></span></td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="dialog-mask"></div>
+<div class="dialog" role="alertdialog" aria-modal="true" aria-labelledby="dlg-cal-title" aria-describedby="dlg-cal-desc">
+  <div class="dialog-head"><span class="st-avatar ic--warning"><svg class="icon icon--lg" aria-hidden="true"><use href="#i-warn"/></svg></span>
+    <div><h2 id="dlg-cal-title">¿Borrar «Festivos ES 2026»?</h2><p id="dlg-cal-desc">Este calendario lo usa 1 tarea programada. Si lo borras, se queda sin calendario y se ejecutará también los festivos.</p></div></div>
+  <div class="dialog-body">
+    <ul class="used-list">
+      <li><svg class="icon icon--sm muted" aria-hidden="true"><use href="#i-clock"/></svg><span class="grow"><a class="cell-link" href="#">Cierre contable diario</a><span class="cell-sub">Días laborables a las 22:30 · se ejecutaría el 08/12 y el 25/12</span></span></li>
+    </ul>
+    <div class="hint"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg><span>Si solo quieres cambiar las fechas, edítalo; si la tarea debe usar otro calendario, cámbialo antes en su ficha.</span></div>
+  </div>
+  <div class="dialog-foot"><button class="btn">Cancelar</button><button class="btn btn--danger"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-trash"/></svg>Borrar y quitarlo de la tarea</button></div>
+</div>
+  </div>
+</section>
+<section class="state" aria-labelledby="st-3a">
+  <div class="state-label"><span class="letter">3A</span><h3 id="st-3a">Motor</h3><p>Estado del motor como resumen legible, acciones con su efecto explicado y lo que tiene programado. Las ejecuciones en curso se ven en Actividad (enlace), no aquí.</p></div>
+  <div class="frame" style="height:1520px">
+<div class="shell">
+  <aside class="menu" aria-label="Menú principal">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-search"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-home"/></svg>Inicio</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-activity"/></svg>Actividad<span class="menu-badge" aria-label="1 ejecución en curso">1</span></a>
+    <a class="menu-item" href="#"><svg class="icon" aria-hidden="true"><use href="#i-tasks"/></svg>Tareas</a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon" aria-hidden="true"><use href="#i-settings"/></svg>Configuración</a>
+    <div class="menu-foot"><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header">
+      <button class="btn btn--ghost" aria-label="Mostrar u ocultar el menú"><svg class="icon" aria-hidden="true"><use href="#i-columns"/></svg></button>
+      <div class="spacer"></div>
+      <button class="btn btn--ghost" aria-label="Menú de usuario"><span class="avatar">PV</span></button>
+    </header>
+    <nav class="crumbs" aria-label="Migas de pan">Planificador<span aria-hidden="true">/</span><strong>Configuración</strong></nav>
+    <div class="page">
+      <div class="page-head">
+        <div><h1>Configuración</h1><p>Servidores externos, calendarios de festivos y el motor que lanza las tareas.</p></div>
+        <div class="actions"><button class="btn btn--ghost" aria-label="Ayuda"><svg class="icon" aria-hidden="true"><use href="#i-help"/></svg></button></div>
+      </div>
+      <div class="card" style="box-shadow:none">
+        <div class="tabs" role="tablist" aria-label="Secciones de configuración">
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-server"/></svg>Servidores<span class="n">4</span></button>
+          <button class="tab" role="tab" aria-selected="false" tabindex="-1"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-calendar"/></svg>Calendarios<span class="n">3</span></button>
+          <button class="tab" role="tab" aria-selected="true" aria-controls="tp-eng"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-cpu"/></svg>Motor<span class="tag tag--success"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>En marcha</span></button>
+        </div>
+      </div>
+      <div id="tp-eng" role="tabpanel" aria-label="Motor" class="tab-panel">
+        <section class="card engine-card" aria-labelledby="eng-title">
+          <div class="engine-main">
+            <div class="engine-title"><span class="tag tag--success tag--lg"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>En marcha</span><h2 id="eng-title">Motor del planificador</h2></div>
+            <p class="engine-sentence">El motor <strong>quartz-tesoreria-01</strong> está en marcha desde hace <strong>6 d 4 h</strong> y lanza las tareas a su hora. Tiene <strong>4 programaciones</strong> y ahora mismo no ocupa ningún hilo (<strong>0 de 10</strong>).</p>
+            <dl class="facts">
+              <div><dt>Instancia</dt><dd><span class="mono strong">quartz-tesoreria-01</span><span class="cell-sub">En este servidor (no remoto)</span></dd></div>
+              <div><dt>Versión</dt><dd>Quartz 2.5.2</dd></div>
+              <div><dt>Almacén de trabajos</dt><dd>En memoria<span class="cell-sub">Sin clúster · al arrancar carga las tareas activas de la base de datos</span></dd></div>
+              <div><dt>Hilos en uso</dt><dd>0 de 10<div class="meter" role="meter" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0" aria-label="Hilos en uso"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></dd></div>
+              <div><dt>En marcha desde</dt><dd>11/11/2026 06:45<span class="cell-sub">hace 6 d 4 h</span></dd></div>
+              <div><dt>Trabajos ejecutados</dt><dd>1.284<span class="cell-sub">desde el arranque</span></dd></div>
+            </dl>
+            <details><summary class="tool-note" style="cursor:pointer">Detalles técnicos (para soporte)</summary><p class="tool-note">Almacén <span class="mono">org.quartz.simpl.RAMJobStore</span> · hilos <span class="mono">org.quartz.simpl.SimpleThreadPool</span> · persistente: no · clúster: no · remoto: no</p></details>
+          </div>
+          <div class="engine-actions" role="group" aria-labelledby="eng-act">
+            <h3 id="eng-act">Acciones · todas piden confirmación</h3>
+            <button class="eng-btn"><svg class="icon" aria-hidden="true"><use href="#i-pause"/></svg><span>Pausar…<small>Interrumpe lo que se esté ejecutando y no lanza nada nuevo.</small></span></button>
+            <button class="eng-btn" aria-disabled="true"><svg class="icon" aria-hidden="true"><use href="#i-play"/></svg><span>Reanudar<small>Ya está en marcha.</small></span></button>
+            <button class="eng-btn"><svg class="icon" aria-hidden="true"><use href="#i-rotate"/></svg><span>Reiniciar…<small>Para y vuelve a cargar calendarios y tareas activas.</small></span></button>
+            <button class="eng-btn eng-btn--danger"><svg class="icon" aria-hidden="true"><use href="#i-power"/></svg><span>Detener y vaciar…<small>Quita todas las programaciones del motor.</small></span></button>
+          </div>
+        </section>
+
+        <div class="hint"><svg class="icon" aria-hidden="true"><use href="#i-activity"/></svg><span class="grow">Las ejecuciones en curso se siguen en Actividad: ahora hay 1 esperando confirmación (Envío de remesas SEPA, límite 12:15).</span><a href="#">Ver en Actividad<svg class="icon icon--sm" aria-hidden="true" style="vertical-align:middle"><use href="#i-right"/></svg></a></div>
+
+        <section class="card" aria-labelledby="sched-title">
+          <div class="card-head"><h2 id="sched-title">Programadas en el motor</h2><span class="count">4</span>
+            <div class="actions"><div class="segmented" role="group" aria-label="Estado del trigger"><button aria-pressed="true">Todas <span class="n">4</span></button><button aria-pressed="false">Pausadas <span class="n">0</span></button><button aria-pressed="false">Con error <span class="n">0</span></button></div>
+              <button class="btn btn--ghost btn--sm" aria-label="Actualizar"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-rotate"/></svg></button></div></div>
+          <table class="grid">
+            <caption class="sr-only">4 programaciones cargadas en el motor</caption>
+            <thead><tr><th>Tarea</th><th>Trigger</th><th>Calendario</th><th>Anterior</th><th>Próxima ejecución</th><th>Estado del trigger</th></tr></thead>
+            <tbody>
+              <tr><td><a class="cell-link" href="#">Cierre contable diario</a><span class="cell-sub">Maintain DailyAccountingClose</span></td>
+                <td><span class="kind"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>Programada</span><span class="cell-sub">Laborables a las 22:30</span></td>
+                <td><a class="cell-link" href="#">Festivos ES 2026</a><span class="cell-sub">excluye 08/12 y 25/12</span></td>
+                <td>Ayer 22:30</td><td><span class="cell-strong">Hoy 22:30</span><span class="cell-sub">dentro de 11 h 45 min</span></td>
+                <td><span class="tag tag--success"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>Normal</span></td></tr>
+              <tr><td><a class="cell-link" href="#">Importar extractos bancarios</a><span class="cell-sub">Maintain ImportBankStatements</span></td>
+                <td><span class="kind"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>Fichero</span><span class="cell-sub">Revisa sftp-bancos cada 5 min</span></td>
+                <td><span class="none">Sin calendario</span></td>
+                <td>Hoy 10:45</td><td><span class="cell-strong">Hoy 10:50</span><span class="cell-sub">dentro de 5 min</span></td>
+                <td><span class="tag tag--success"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>Normal</span></td></tr>
+              <tr><td><a class="cell-link" href="#">Envío de remesas SEPA</a><span class="cell-sub">Límite de la ejecución que espera confirmación</span></td>
+                <td><span class="kind"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>Tiempo máximo</span><span class="cell-sub">4 h desde las 08:15</span></td>
+                <td><span class="none">Sin calendario</span></td>
+                <td><span class="none">—</span></td><td><span class="cell-strong">Hoy 12:15</span><span class="cell-sub">si no llega antes la confirmación</span></td>
+                <td><span class="tag tag--success"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>Normal</span></td></tr>
+              <tr><td><a class="cell-link" href="#">Purga de logs</a><span class="cell-sub">Comando purge-logs.sh</span></td>
+                <td><span class="kind"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>Programada</span><span class="cell-sub">Todos los días a las 03:00</span></td>
+                <td><span class="none">Sin calendario</span></td>
+                <td>Hoy 03:00</td><td><span class="cell-strong">Mañana 03:00</span><span class="cell-sub">dentro de 16 h 15 min</span></td>
+                <td><span class="tag tag--success"><svg class="icon" aria-hidden="true"><use href="#i-ok"/></svg>Normal</span></td></tr>
+            </tbody>
+          </table>
+          <div class="card-foot"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-info"/></svg><span>Las tareas manuales y las que dependen de otras no aparecen: no tienen programación propia. Otros estados del trigger: <span class="tag tag--warning"><svg class="icon" aria-hidden="true"><use href="#i-paused"/></svg>Pausado</span> <span class="tag tag--info"><svg class="icon" aria-hidden="true"><use href="#i-run"/></svg>Bloqueado</span> <span class="tag tag--danger"><svg class="icon" aria-hidden="true"><use href="#i-error"/></svg>Error</span> <span class="tag tag--neutral"><svg class="icon" aria-hidden="true"><use href="#i-stopped"/></svg>Completado</span></span></div>
+        </section>
+
+        <div>
+          <p class="cap"><b>Otros estados de la tarjeta del motor</b> · el botón principal cambia con el estado</p>
+          <div class="variants">
+            <div class="variant"><span class="tag tag--warning tag--lg" style="align-self:flex-start"><svg class="icon" aria-hidden="true"><use href="#i-paused"/></svg>Pausado</span><p>No lanza ninguna tarea. Conserva las 4 programaciones: lo que tocaba mientras estaba pausado no se recupera.</p><span class="cell-sub">Acción principal: Reanudar (vuelve a cargar calendarios y tareas activas).</span></div>
+            <div class="variant"><span class="tag tag--warning tag--lg" style="align-self:flex-start"><svg class="icon" aria-hidden="true"><use href="#i-paused"/></svg>Pausado · sin programaciones</span><p>Tras «Detener y vaciar»: el motor no tiene nada programado.</p><span class="cell-sub">Acción principal: Reanudar o Reiniciar para cargar las tareas activas de nuevo.</span></div>
+            <div class="variant"><span class="tag tag--neutral tag--lg" style="align-self:flex-start"><svg class="icon" aria-hidden="true"><use href="#i-stopped"/></svg>Detenido</span><p>El motor no ha arrancado (por ejemplo, falló al iniciar la aplicación). Nada se ejecuta.</p><span class="cell-sub">Acción principal: Reiniciar. Si vuelve a fallar, el error se muestra aquí.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+  </div>
+</section>
+<section class="state" aria-labelledby="st-3b">
+  <div class="state-label"><span class="letter">3B</span><h3 id="st-3b">Motor · confirmar «Detener y vaciar»</h3><p>La acción más destructiva explica en lenguaje llano qué deja de pasar, qué no se pierde y cómo volver atrás; pide marcar que se entiende antes de habilitar el botón.</p></div>
+  <div class="frame" style="height:720px">
+<div class="shell" aria-hidden="true" inert>
+  <aside class="menu">
+    <div class="brand"><span class="brand-mark">AW</span><span>Almis Web<small>Tesorería · back office</small></span></div>
+    <div class="menu-search"><svg class="icon icon--sm"><use href="#i-search"/></svg><span>Buscar opción</span><kbd>Ctrl K</kbd></div>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-home"/></svg>Inicio</a>
+    <div class="menu-section">Planificador</div>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-activity"/></svg>Actividad<span class="menu-badge">1</span></a>
+    <a class="menu-item" href="#"><svg class="icon"><use href="#i-tasks"/></svg>Tareas</a>
+    <a class="menu-item" href="#" aria-current="page"><svg class="icon"><use href="#i-settings"/></svg>Configuración</a>
+    <div class="menu-foot"><span>Powered by <strong>AWE</strong> 5</span></div>
+  </aside>
+  <div class="main">
+    <header class="app-header"><div class="spacer"></div><span class="avatar">PV</span></header>
+    <nav class="crumbs">Planificador<span>/</span><strong>Configuración</strong></nav>
+    <div class="page">
+      <div class="page-head"><div><h1>Configuración</h1><p>Servidores externos, calendarios de festivos y el motor que lanza las tareas.</p></div></div>
+      <div class="card" style="box-shadow:none"><div class="tabs"><span class="tab">Servidores<span class="n">4</span></span><span class="tab">Calendarios<span class="n">3</span></span><span class="tab" aria-selected="true">Motor<span class="tag tag--success"><svg class="icon"><use href="#i-ok"/></svg>En marcha</span></span></div></div>
+      <section class="card engine-card">
+        <div class="engine-main">
+          <div class="engine-title"><span class="tag tag--success tag--lg"><svg class="icon"><use href="#i-ok"/></svg>En marcha</span><h2>Motor del planificador</h2></div>
+          <p class="engine-sentence">El motor <strong>quartz-tesoreria-01</strong> está en marcha desde hace <strong>6 d 4 h</strong> y lanza las tareas a su hora. Tiene <strong>4 programaciones</strong> y ahora mismo no ocupa ningún hilo (<strong>0 de 10</strong>).</p>
+        </div>
+        <div class="engine-actions">
+          <span class="eng-btn"><svg class="icon"><use href="#i-pause"/></svg><span>Pausar…</span></span>
+          <span class="eng-btn" aria-disabled="true"><svg class="icon"><use href="#i-play"/></svg><span>Reanudar</span></span>
+          <span class="eng-btn"><svg class="icon"><use href="#i-rotate"/></svg><span>Reiniciar…</span></span>
+          <span class="eng-btn eng-btn--danger is-pressed"><svg class="icon"><use href="#i-power"/></svg><span>Detener y vaciar…</span></span>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="dialog-mask"></div>
+<div class="dialog" style="width:38rem" role="alertdialog" aria-modal="true" aria-labelledby="dlg-eng-title" aria-describedby="dlg-eng-desc">
+  <div class="dialog-head"><span class="st-avatar ic--danger"><svg class="icon icon--lg" aria-hidden="true"><use href="#i-power"/></svg></span>
+    <div><h2 id="dlg-eng-title">¿Detener el motor y vaciar sus programaciones?</h2><p id="dlg-eng-desc">No se lanzará ninguna tarea, ni programada ni por fichero, hasta que reanudes o reinicies el motor.</p></div></div>
+  <div class="dialog-body">
+    <div>
+      <strong>Qué deja de pasar</strong>
+      <ul>
+        <li>Cierre contable diario de hoy a las 22:30 y Purga de logs de mañana a las 03:00.</li>
+        <li>La revisión de extractos en sftp-bancos cada 5 min (próxima 10:50).</li>
+        <li>Lo que se esté ejecutando en un hilo se interrumpe y queda como <span class="tag tag--danger"><svg class="icon" aria-hidden="true"><use href="#i-ban"/></svg>Interrumpida</span>. Ahora no hay ninguna.</li>
+      </ul>
+    </div>
+    <div>
+      <strong>Qué no se pierde</strong>
+      <ul>
+        <li>Las tareas, los calendarios y los servidores siguen guardados. «Reanudar» o «Reiniciar» vuelve a cargar las tareas activas.</li>
+        <li>Lo que tocaba mientras estaba detenido no se recupera.</li>
+      </ul>
+    </div>
+    <div class="hint hint--warning"><svg class="icon" aria-hidden="true"><use href="#i-warn"/></svg><span class="grow">Envío de remesas SEPA espera la confirmación del banco (límite 12:15). Revísala antes en <a href="#">Actividad</a>.</span></div>
+    <label class="confirm-check"><span class="check" role="checkbox" aria-checked="false" tabindex="0" aria-labelledby="chk-eng"></span><span id="chk-eng">Entiendo que no se ejecutará ninguna tarea hasta que reanude el motor.</span></label>
+  </div>
+  <div class="dialog-foot"><button class="btn">Cancelar</button><button class="btn" id="btn-clear" aria-disabled="true"><svg class="icon icon--sm" aria-hidden="true"><use href="#i-power"/></svg>Detener y vaciar</button></div>
+</div>
+  </div>
+</section>
+</div>
+</main>
+
+<script>
+  function sync(attr, value) {
+    document.querySelectorAll('[data-' + attr + ']').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset[attr] === value));
+    });
+  }
+  function setMode(mode) {
+    document.documentElement.classList.toggle('dark', mode === 'dark');
+    document.documentElement.classList.toggle('light', mode === 'light');
+    sync('mode', mode);
+  }
+  function setDensity(density) {
+    document.documentElement.setAttribute('data-awe-density', density);
+    sync('density', density);
+  }
+  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { setMode('dark'); }
+  else { setMode('light'); }
+  sync('density', 'comfortable');
+  /* Mock-up only: links do not navigate, switches and selectable cards toggle */
+  document.querySelectorAll('a[href="#"]').forEach(function (a) { a.addEventListener('click', function (e) { e.preventDefault(); }); });
+  document.querySelectorAll('button.switch').forEach(function (s) {
+    s.addEventListener('click', function () { s.setAttribute('aria-checked', String(s.getAttribute('aria-checked') !== 'true')); });
+  });
+  document.querySelectorAll('.check').forEach(function (c) {
+    function flip() {
+      var on = c.getAttribute('aria-checked') !== 'true';
+      c.setAttribute('aria-checked', String(on));
+      var b = document.getElementById('btn-clear');
+      if (b) { b.classList.toggle('btn--danger', on); if (on) { b.removeAttribute('aria-disabled'); } else { b.setAttribute('aria-disabled', 'true'); } }
+    }
+    c.addEventListener('click', flip);
+    c.addEventListener('keydown', function (e) { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); flip(); } });
+  });
+  document.querySelectorAll('[role="radiogroup"]').forEach(function (g) {
+    g.querySelectorAll('[role="radio"]').forEach(function (r) {
+      r.addEventListener('click', function () {
+        g.querySelectorAll('[role="radio"]').forEach(function (o) { o.setAttribute('aria-checked', String(o === r)); });
+      });
+    });
+  });
+</script>
+</body>
+</html>

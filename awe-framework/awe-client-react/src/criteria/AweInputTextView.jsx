@@ -37,7 +37,7 @@ function AweInputTextView(props) {
 
   return (
     <AweCriterion address={address} attributes={attributes} validationRules={validationRules}
-      groupClass="flex p-2" generateIcon={false} generateUnit={false}>
+      groupClass="flex gap-2 p-2" generateIcon={false} generateUnit={false}>
       {iconNode}
       <button className={classes} tabIndex={0} onClick={onClick} onKeyDown={onKeyDown}
         {...testHook(TestIds.criterionInput)}>{getVisibleTextData(textToShow, t)}</button>

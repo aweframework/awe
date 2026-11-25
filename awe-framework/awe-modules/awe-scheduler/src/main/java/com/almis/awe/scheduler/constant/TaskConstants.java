@@ -77,6 +77,5 @@ public class TaskConstants {
   public static final String TASK_EXECUTION_ID = "ExeTsk";
   public static final String TASK_EXECUTION_TIME = "ExeTim";
   public static final String TASK_EXECUTION_PROGRESS = "ExePrg";
-  public static final String TASK_EXECUTION_ICON = "ExeStaIco";
   public static final String TASK_EXECUTION_LOG_PATH = "ExecutionLogPath";
 }

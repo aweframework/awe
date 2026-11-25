@@ -22,7 +22,9 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,6 +41,7 @@ import static com.almis.awe.scheduler.constant.MaintainConstants.TASK_END;
 import static com.almis.awe.scheduler.constant.MaintainConstants.TASK_START;
 import static com.almis.awe.scheduler.constant.MaintainConstants.TASK_UPDATE_STATUS;
 import static com.almis.awe.scheduler.constant.MaintainConstants.UPDATE_INTERRUPTED_TASKS;
+import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_AVERAGE_TIMES_QUERY;
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_AVERAGE_TIME_QUERY;
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_TASK_EXECUTION;
 
@@ -339,6 +342,33 @@ public class TaskExecutionRepository {
     ServiceData serviceData = queryService.launchPrivateQuery(SCHEDULER_AVERAGE_TIME_QUERY, parameters);
     CellData cellData = DataListUtil.getCellData(serviceData.getDataList(), 0, "averageTime");
     return cellData == null || cellData.isEmpty() ? 0 : cellData.getIntegerValue();
+  }
+
+  /**
+   * Get the average execution time of some tasks with a successful execution, with one query restricted to them
+   *
+   * @param taskIds Task identifiers
+   * @return Average execution time in milliseconds by task id; empty without tasks
+   * @throws AWException Error retrieving the average times
+   */
+  public Map<Integer, Long> getAverageTimes(Set<Integer> taskIds) throws AWException {
+    if (taskIds.isEmpty()) {
+      return Map.of();
+    }
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
+    // Not the sort of the request: it names the columns of the screen grid, not fields of this query
+    parameters.putArray("sort");
+    ArrayNode taskIdList = parameters.putArray("taskIds");
+    taskIds.forEach(taskIdList::add);
+    ServiceData serviceData = queryService.launchPrivateQuery(SCHEDULER_AVERAGE_TIMES_QUERY, parameters);
+    Map<Integer, Long> averages = new HashMap<>();
+    for (Map<String, CellData> row : serviceData.getDataList().getRows()) {
+      CellData average = row.get("averageTime");
+      if (average != null && !average.isEmpty()) {
+        averages.put(row.get("taskId").getIntegerValue(), average.getIntegerValue().longValue());
+      }
+    }
+    return averages;
   }
 
   /**

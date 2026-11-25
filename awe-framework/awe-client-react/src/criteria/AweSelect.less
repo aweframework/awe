@@ -198,3 +198,19 @@
     flex: 0 0 var(--awe-space-8);
   }
 }
+
+/* Option with a description (#993): the name and, under it, a muted line (its condition, why it cannot be chosen). A
+   disabled option keeps its text readable with the muted tone of a disabled item of the theme */
+.awe-select-option {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-0-5);
+  min-width: 0;
+}
+
+.awe-select-option-description {
+  font-size: var(--awe-font-size-xs);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-text-muted);
+  white-space: normal;
+}

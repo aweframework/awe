@@ -66,11 +66,12 @@ initialSuggestAction("1");
 suggestAction(null, "ab", {targetAction: 3});
 
 // Files
-assertType<Equal<ReturnType<typeof fetchLogAction>, AppThunk>>();
+assertType<Equal<ReturnType<typeof fetchLogAction>, AppThunk<Promise<void>>>>();
 assertType<Equal<ReturnType<typeof fetchPdfAction>, AppThunk>>();
 assertType<Equal<ReturnType<typeof fetchHelpAction>, AppThunk>>();
 assertType<Equal<ReturnType<typeof fetchFileContentAction>, AppThunk<Promise<false | void>>>>();
 fetchLogAction("data", "Log", 0, () => undefined, () => undefined);
+fetchLogAction("data", "Log", 0, () => undefined, () => undefined, {view: "report", component: "log"});
 fetchHelpAction(() => undefined);
 fetchHelpAction(() => undefined, "application-help");
 // @ts-expect-error the setter of the text is a function

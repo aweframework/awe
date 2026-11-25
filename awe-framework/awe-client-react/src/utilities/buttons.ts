@@ -13,7 +13,9 @@ const BUTTON_VARIANTS: Record<string, string> = {
   "btn-warning": "p-button-warning",
   "btn-dark": "p-button-contrast",
   "btn-ghost": "p-button-text",
-  "btn-tonal": "p-button-outlined"
+  "btn-tonal": "p-button-outlined",
+  // A button without background in AngularJS (.no-btn, as the log button of the scheduler execution lists)
+  "no-btn": "p-button-text"
 };
 
 /**
@@ -50,4 +52,14 @@ export function hasButtonStyle(style: unknown): boolean {
  */
 export function isIconOnly(style: unknown): boolean {
   return classesOf(style).includes("no-label");
+}
+
+/**
+ * Check if a button opens a menu (style has-menu, as the header buttons whose action is show-context-menu): it shows a
+ * trailing chevron and tells assistive technologies that it opens a menu
+ * @param style Style of the button
+ * @returns The button opens a menu
+ */
+export function hasMenu(style: unknown): boolean {
+  return classesOf(style).includes("has-menu");
 }

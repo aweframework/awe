@@ -97,7 +97,7 @@ class DatabaseExecutionLogStoreTest {
     assertEquals("12-34", node.get("value").asString());
     assertEquals("no-btn", node.get("style").asString());
     assertEquals("SCHEDULER_SHOW_EXECUTION_LOG", node.get("title").asString());
-    assertEquals("file-text-o text-info", node.get("icon").asString());
+    assertEquals("file-text-o", node.get("icon").asString());
   }
 
   @Test

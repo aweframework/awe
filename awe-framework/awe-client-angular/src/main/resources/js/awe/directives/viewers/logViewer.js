@@ -40,6 +40,9 @@ aweApplication.directive('aweLogViewer',
           let contentLayer = $element.find(".content");
           let positionLayer = $element.find(".visible-text");
           let lastScrollCheck = -1;
+          // A read sent and not answered yet, and whether its answer comes from before a reset (it is dropped)
+          let reading = false;
+          let dropNextAnswer = false;
           if (component.controller.parameters) {
             stickBottom = "stickBottom" in component.controller.parameters ? component.controller.parameters["stickBottom"] : stickBottom;
           }
@@ -76,6 +79,10 @@ aweApplication.directive('aweLogViewer',
             lastScrollCheck = -1;
             lastWindowVersion = null;
 
+            // The answer of a read sent before the reset would append the lines of the previous content
+            dropNextAnswer = reading;
+            reading = false;
+
             // Print text
             printTextAtScrollPosition();
           };
@@ -95,6 +102,7 @@ aweApplication.directive('aweLogViewer',
             values.r = Math.random();
             values.offset = allContent.length;
             values.version = lastWindowVersion;
+            reading = true;
 
             // Generate server action
             let serverAction = serverData.getServerAction(this.address, values, isAsync, isSilent);
@@ -104,6 +112,17 @@ aweApplication.directive('aweLogViewer',
           };
 
 
+          // The autorefresh reads once per period: when it is enabled (a side panel opens) the log is read at once
+          const toggleAutorefresh = component.api?.toggleAutorefresh;
+          if (toggleAutorefresh) {
+            component.api.toggleAutorefresh = function (value, enable) {
+              toggleAutorefresh.call(this, value, enable);
+              if (enable && value && !reading) {
+                component.reload({silent: true, async: true});
+              }
+            };
+          }
+
           // On action reset
           $scope.$on('/action/reset', function (event, action) {
             $actionController.resolveAction(action, {scope: $scope, service: component, method: "onReset"});
@@ -111,6 +130,12 @@ aweApplication.directive('aweLogViewer',
 
           // On log delta, print log and scroll down
           $scope.$on('/action/log-delta', function (event, action) {
+            if (dropNextAnswer) {
+              dropNextAnswer = false;
+              $actionController.acceptAction(action);
+              return;
+            }
+            reading = false;
             let parameters = action.attr("parameters");
             let currentContent = parameters?.log || [];
             let replace = !!parameters?.replace;

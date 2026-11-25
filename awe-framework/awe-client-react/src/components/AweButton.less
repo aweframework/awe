@@ -12,6 +12,19 @@
   justify-content: center;
 }
 
+// Button that opens a menu (style has-menu): a small chevron after its label, in the colour of the label
+.p-button .awe-button-menu-chevron {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  margin-left: var(--awe-space-1-5);
+
+  svg {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+}
+
 // Default buttons (a normal button without a btn-* style, #927): the look of the application default button, which an
 // application restyles with --awe-button-default-* without touching the other outlined buttons
 .p-button.awe-button-default,
@@ -83,6 +96,12 @@
   color: var(--awe-color-on-primary-subtle);
   background: var(--awe-color-primary-subtle);
   border-color: var(--awe-color-on-primary-subtle);
+}
+
+// Buttons of the screens with a label (size md, the default of the screen buttons): at least the height of the controls, as the icon-only buttons below (their
+// padding and line box left them a pixel shorter, so a labelled button beside an icon-only one did not line up)
+.p-button.awe-button.p-button-md:not(.no-label) {
+  min-height: var(--awe-size-control);
 }
 
 // Icon-only buttons (style no-label, #793): a square with the icon in the middle; the label is the tooltip and the

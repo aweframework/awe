@@ -11,6 +11,7 @@ import {selectSettings} from "../redux/selectors/stateSelectors";
 import {makeGetComponent} from "../redux/selectors/componentSelectors";
 import {applyThemeAppearance} from "../utilities/themeAppearance";
 import {refreshThemeAppearanceAction} from "../redux/thunks/screen";
+import {installSectionSpy} from "../utilities/sectionSpy";
 
 // Mode selector of the info buttons (criterion of the session variable themeMode): undefined while it is not mounted
 const getModeSelector = makeGetComponent();
@@ -47,6 +48,8 @@ function AweApp() {
 
   const settings = useSelector(selectSettings);
   useThemeAppearance(settings);
+  // The section navigation of the editors (awe-editor styles) marks the section in sight while their body scrolls
+  useEffect(() => installSectionSpy(document), []);
 
   return (
     <>

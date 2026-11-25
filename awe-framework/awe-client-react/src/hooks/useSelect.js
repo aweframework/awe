@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useComponentState } from "./useComponentState";
@@ -22,11 +22,27 @@ const getItemText = (name, groupLabel) => groupLabel && name.startsWith(groupLab
   : name;
 
 /**
- * Template of an option in the list of a select
- * @param {object} option Option
- * @returns {string} Text of the option
+ * Whether an option cannot be chosen: its row brings a true disabled field (true, 1 or "true")
+ * @param {*} disabled Disabled field of the row
+ * @returns {boolean} The option cannot be chosen
  */
-export const selectItemTemplate = (option) => option.itemText ?? option.name;
+const isDisabled = (disabled) => disabled === true || disabled === 1 || disabled === "1" || disabled === "true";
+
+/**
+ * Template of an option in the list of a select: its text and, when its row brings a description, the description in
+ * a muted line under it (#993)
+ * @param {object} option Option
+ * @returns {string|React.ReactNode} Text of the option
+ */
+export const selectItemTemplate = (option) => {
+  const text = option.itemText ?? option.name;
+  if (!option.description) {
+    return text;
+  }
+  return React.createElement("span", {className: "awe-select-option"},
+    React.createElement("span", {className: "awe-select-option-text"}, text),
+    React.createElement("span", {className: "awe-select-option-description"}, option.description));
+};
 
 /**
  * Hook común para selects (simple y múltiple)
@@ -62,13 +78,17 @@ export function useSelect({ id, model: propModel, address: propAddress, attribut
   // The values with a group (a locale key) are listed under its header, as in the AngularJS select: PrimeReact
   // reads the groups from "label" and "items". The option keeps no "group", which PrimeReact would take for a header
   const { options, grouped } = useMemo(() => {
-    const toOption = ({ group, ...v }, groupLabel) => {
+    // A row may bring a description (a line under the option, translated) and a disabled field (the option cannot be
+    // chosen, but a chosen one can still be removed): both are optional (#993)
+    const toOption = ({ group, description, disabled, ...v }, groupLabel) => {
       const name = translateLabel(v.label, t);
       return {
         ...(!multiple ? { ...v, label: name } : {}),
         name,
         itemText: getItemText(name, groupLabel),
-        code: v.value
+        code: v.value,
+        ...(description ? { description: translateLabel(description, t) } : {}),
+        ...(isDisabled(disabled) ? { disabled: true } : {})
       };
     };
     const values = model?.values || [];
@@ -80,7 +100,10 @@ export function useSelect({ id, model: propModel, address: propAddress, attribut
       }
       : { options: values.map(item => toOption(item)), grouped: false };
   }, [model?.values, multiple, t]);
-  const groupProps = grouped ? { optionGroupLabel: "label", optionGroupChildren: "items" } : {};
+  const groupProps = {
+    ...(grouped ? { optionGroupLabel: "label", optionGroupChildren: "items" } : {}),
+    optionDisabled: "disabled"
+  };
 
   // --- Valor seleccionado ---
   const getSelectedValue = (values, multiple, t) => {

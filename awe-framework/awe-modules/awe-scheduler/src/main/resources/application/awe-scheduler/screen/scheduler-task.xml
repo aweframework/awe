@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : scheduler-task.xml
+    Description: Task screen of the Scheduler («ficha», #993): what a task does, how it goes and how it fits in its flow.
+                 Opened from the task catalog and from every task link of the activity screen with the task as
+                 IdeTsk.selected. The task stays in the hidden criteria IdeTsk.selected (the variable of the existing
+                 actions: run, the launch dialog, edit, activate, deactivate), IdeTsk (delete) and CrtExeTskIde (the
+                 history of the task). No grid of the screen has an IdeTsk column, so no other component sends them.
+                 IdeTsk.selected is kept on reload (keep-on-reload): the browser tab keeps the task and a reload of the
+                 browser opens it again. The header card shows the name, the last status, the description and the facts
+                 of the task as pills (getTaskPageHeader), with Back to the catalog, Edit (the task editor, scheduler-task-editor, in edit mode), Run (the launch dialog when the
+                 task has parameters) and, at the right, a three dots menu to activate, deactivate, duplicate (the task editor in copy
+                 mode) or delete it. «Change what it depends on» opens the editor on its «When» (TskEdtSec). Four
+                 tabs: Summary (the success rate and the average time over the saved executions, the next execution,
+                 the strip of the last executions as wide as its card and the last execution with its log, sized to fit
+                 a 1600 x 900 screen without scroll), History (the executions of the task as the activity screen lists them, with
+                 the same side panel), Dependencies (the one-level flow graph: the tasks it runs after, the task and the
+                 tasks it launches, each of them a link to its own task screen) and Configuration (a read-only summary with Edit). getTaskPage fills the criteria of
+                 the screen (its target), the cards read their fields through their own queries. They all load with the
+                 screen, in its request, and the service computes the page once per request: they share it (no card
+                 may be in a deferred tab or dialog).
+                 The side panel of an execution is the one of the activity screen bound to the history grid of this
+                 screen (PnlTskExe on GrdTskExe): its dependencies read the selected row of one grid, so it cannot be
+                 shared between the two screens without a second copy.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="MENU_SCHEDULER_TASK" help="HELP_SCREEN_SCHEDULER_TASK" target="getTaskPage">
+  <tag source="hidden">
+    <message id="DelMsg" title="CONFIRM_TITLE_DELETE" message="CONFIRM_MESSAGE_DELETE_TASK" />
+    <message id="ExeStpMsg" title="CONFIRM_TITLE_ACTIVITY_STOP" message="CONFIRM_MESSAGE_ACTIVITY_STOP" />
+    <!-- The task of the screen, as the existing actions read it. The browser tab keeps it, so a reload opens the same task -->
+    <criteria id="IdeTsk.selected" component="hidden" variable="IdeTsk.selected" keep-on-reload="true" />
+    <criteria id="IdeTsk" component="hidden" variable="IdeTsk.selected" />
+    <criteria id="CrtExeTskIde" component="hidden" variable="IdeTsk.selected" />
+    <!-- Active task (1) and launch that asks for the values of the parameters (1), from getTaskPage -->
+    <criteria id="TskAct" component="hidden" />
+    <criteria id="TskVar" component="hidden" />
+    <!-- Mode of the task editor (edit or copy) and the section it opens on (when): each action that opens it sets them -->
+    <criteria id="TskEdtMod" component="hidden" />
+    <criteria id="TskEdtSec" component="hidden" />
+  </tag>
+
+  <tag source="buttons">
+    <!-- Back to the task catalog: the first action of the header, its label tells where it goes (the breadcrumb does too) -->
+    <button label="BUTTON_TASK_PAGE_BACK" icon="lucide:arrow-left" id="ButTskBck" style="btn-ghost">
+      <button-action type="screen" target="scheduler-task-catalog" />
+    </button>
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <button label="BUTTON_EDIT" icon="edit" id="ButTskEdt" permission="scheduler.update">
+      <button-action type="value" target="TskEdtMod" value="edit" />
+      <button-action type="screen" target="scheduler-task-editor" />
+    </button>
+    <!-- Run: a task with parameters always opens the launch dialog (Run…), where any value can be changed for this
+         execution; a task without parameters has nothing to ask, so Run now launches it at once -->
+    <button label="BUTTON_TASK_RUN_NOW" icon="play" id="ButTskRun" style="btn-primary" permission="scheduler.execute">
+      <button-action type="server" server-action="maintain" target-action="LchTsk" />
+      <button-action type="server" server-action="update-model" target-action="getTaskPage" silent="true" />
+      <button-action type="filter" target="GrdTskExe" silent="true" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="TskVar" condition="ne" value="1" />
+      </dependency>
+    </button>
+    <button label="BUTTON_TASK_RUN" icon="play" id="ButTskRunVar" style="btn-primary" permission="scheduler.execute">
+      <button-action type="filter" target="GrdTskVar" />
+      <button-action type="dialog" target="task-variables" />
+      <dependency target-type="show" initial="true">
+        <dependency-element id="TskVar" condition="eq" value="1" />
+      </dependency>
+    </button>
+    <!-- More (the three dots at the right of the actions, its label is its accessible name): activate or deactivate the
+         task, delete it (then back to the catalog) -->
+    <button label="BUTTON_TASK_PAGE_MORE" icon="lucide:ellipsis" id="ButTskMor" style="btn-ghost no-label" permission="scheduler.update">
+      <button-action type="show-context-menu" />
+      <context-button id="CtxTskAct" label="BUTTON_ACTIVATE" icon="lucide:power">
+        <button-action type="server" server-action="maintain" target-action="ActSchTsk" />
+        <button-action type="server" server-action="update-model" target-action="getTaskPage" silent="true" />
+        <button-action type="filter" target="CrdTskPag" silent="true" />
+        <button-action type="filter" target="CrdTskNxt" silent="true" />
+        <dependency source-type="none" target-type="disable" initial="true">
+          <dependency-element id="TskAct" condition="eq" value="1" />
+        </dependency>
+      </context-button>
+      <context-button id="CtxTskDea" label="BUTTON_DEACTIVATE" icon="lucide:power-off">
+        <button-action type="server" server-action="maintain" target-action="DeaSchTsk" />
+        <button-action type="server" server-action="update-model" target-action="getTaskPage" silent="true" />
+        <button-action type="filter" target="CrdTskPag" silent="true" />
+        <button-action type="filter" target="CrdTskNxt" silent="true" />
+        <dependency source-type="none" target-type="disable" initial="true">
+          <dependency-element id="TskAct" condition="ne" value="1" />
+        </dependency>
+      </context-button>
+      <!-- Duplicate: the task editor with a new task copied from this one -->
+      <context-button id="CtxTskDup" label="BUTTON_TASK_DUPLICATE" icon="lucide:copy">
+        <button-action type="value" target="TskEdtMod" value="copy" />
+        <button-action type="screen" target="scheduler-task-editor" />
+      </context-button>
+      <context-separator />
+      <context-button id="CtxTskDel" label="BUTTON_TASK_DELETE" icon="trash">
+        <button-action type="confirm" target="DelMsg" />
+        <button-action type="server" server-action="maintain" target-action="DeleteSchedulerTask" />
+        <button-action type="screen" target="scheduler-task-catalog" />
+      </context-button>
+    </button>
+  </tag>
+
+  <tag source="center">
+    <!-- Header: the name, the last status, the description and the facts of the task as pills -->
+    <card id="CrdTskPag" initial-load="query" target-action="getTaskPageHeader" />
+
+    <tab id="TskPagTab" initial-load="enum" target-action="TskPagTab" style="expand">
+      <!-- The history button of the summary opens the history tab -->
+      <dependency source-type="value" value="TskPagHis" target-type="input" target-action="value">
+        <dependency-element id="ButTskHisAll" event="click" />
+      </dependency>
+
+      <!-- Summary: the figures over the saved executions, the last ones and the last execution -->
+      <tabcontainer id="TskPagSum">
+        <tag type="div" style="panel-body">
+          <tag type="div" style="col-xs-12 awe-card-grid">
+            <!-- No icon tile, as the mock-up: the title line keeps the cards low enough for the summary to fit without
+                 scroll. The success rate shows the saved executions by status as a stacked bar, with the count of each
+                 status under it; the average, the durations of the saved executions as an area (the default sparkline)
+                 in the tone the icon gave it -->
+            <card id="CrdTskOk" title="SCREEN_TEXT_TASK_PAGE_SUCCESS" initial-load="query" target-action="getTaskPageSuccess" />
+            <card id="CrdTskAvg" title="SCREEN_TEXT_TASK_PAGE_AVERAGE" icon-tone="info"
+                  initial-load="query" target-action="getTaskPageAverage" />
+            <card id="CrdTskNxt" title="SCREEN_TEXT_TASK_PAGE_NEXT" initial-load="query" target-action="getTaskPageNext" />
+          </tag>
+          <tag type="div" style="col-xs-12 awe-card-grid">
+            <!-- Last executions: the count of each status under the title and the strip of the last 20 saved ones as wide
+                 as the card; View history opens the history tab. The actions of the two cards sit at their bottom, on
+                 the same line (awe-card-actions) -->
+            <card id="CrdTskHis" title="SCREEN_TEXT_TASK_PAGE_LAST_EXECUTIONS"
+                  initial-load="query" target-action="getTaskPageHistoryCount">
+              <tag type="div" style="awe-card-actions">
+                <button label="BUTTON_TASK_PAGE_VIEW_HISTORY" icon="lucide:history" id="ButTskHisAll" style="btn-link" />
+              </tag>
+            </card>
+            <!-- Last execution: the newest row of the history, wide so its facts fit in one row; View log and the flow
+                 select it first -->
+            <card id="CrdTskLst" title="SCREEN_TEXT_TASK_PAGE_LAST_EXECUTION" style="awe-card-wide" initial-load="query"
+                  target-action="getTaskPageLast">
+              <!-- The facts in a plain block: a row directly in the body of a card would take its whole height -->
+              <tag type="div">
+                <tag type="div" style="row">
+                  <criteria label="PARAMETER_DESCRIPTION" component="text-view" id="TskLstDes" style="col-xs-12 awe-readout" />
+                  <criteria label="SCREEN_TEXT_EXECUTION" component="text-view" id="TskLstExe" style="col-xs-4 col-lg-1 awe-readout" />
+                  <criteria label="PARAMETER_ACTIVITY_FLOW_RUN" component="text-view" id="TskLstRun" style="col-xs-4 col-lg-3 awe-readout" />
+                  <criteria label="PARAMETER_ACTIVITY_ORIGIN" component="text-view" id="TskLstOri" style="col-xs-4 col-lg-2 awe-readout" />
+                  <criteria label="SCREEN_TEXT_LAUNCHED_BY" component="text-view" id="TskLstBy" style="col-xs-4 col-lg-2 awe-readout" />
+                  <criteria label="SCREEN_TEXT_START_TIME" component="text-view" id="TskLstIni" style="col-xs-4 col-lg-2 awe-readout" />
+                  <criteria label="PARAMETER_ACTIVITY_DURATION" component="text-view" id="TskLstDur" style="col-xs-4 col-lg-2 awe-readout" />
+                </tag>
+              </tag>
+              <tag type="div" style="awe-card-actions">
+                <button label="BUTTON_TASK_PAGE_VIEW_LOG" icon="file-text-o" id="ButTskLstLog">
+                  <button-action type="select-first-row" target="GrdTskExe" silent="true" />
+                  <button-action type="server" server-action="maintain-silent" target-action="loadActivityExecution" silent="true" async="true" />
+                  <button-action type="reset" target="executionLogViewer" silent="true" />
+                  <button-action type="filter" target="executionLogViewer" silent="true" />
+                  <button-action type="filter" target="CrdExePrg" silent="true" />
+                  <button-action type="filter" target="GrdExePar" silent="true" />
+                  <button-action type="dialog" target="PnlTskExe" />
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="TskLstHas" condition="eq" value="1" />
+                  </dependency>
+                </button>
+                <button label="BUTTON_OPEN_RUN" icon="sitemap" id="ButTskLstRun" style="btn-link">
+                  <button-action type="select-first-row" target="GrdTskExe" silent="true" />
+                  <button-action type="screen" target="scheduler-flow-run" />
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="TskLstRun" condition="ne" value="—" />
+                    <dependency-element id="TskLstHas" condition="eq" value="1" />
+                  </dependency>
+                </button>
+              </tag>
+              <criteria id="TskLstHas" component="hidden" />
+            </card>
+          </tag>
+        </tag>
+      </tabcontainer>
+
+      <!-- History: the executions of the task, as the activity screen lists them, newest first. The grid sits in an expanded
+           card instead of a window (no empty title bar) and fills it down to its pager; it keeps its maximize button -->
+      <tabcontainer id="TskPagHis" style="expand" expandible="vertical">
+        <card id="CrdTskExeLst" style="expand">
+          <grid id="GrdTskExe" style="expand" server-action="data" target-action="getActivityExecutionList" initial-load="query"
+                max="25" row-numbers="false" pager-values="25, 50, 100, 200" show-maximize-button="true">
+            <quick-filter id="CrtExeQck" initial-load="query" target-action="getActivityStateCounts" label="PARAMETER_STATUS" value="" />
+            <quick-filter id="CrtExeOri" initial-load="query" target-action="getActivityOrigins" label="PARAMETER_ACTIVITY_ORIGIN" value=""
+                          display="dropdown" />
+            <quick-filter id="CrtExeWin" initial-load="query" target-action="getActivityWindows" label="PARAMETER_STARTED_AT" value=""
+                          display="date-range" />
+            <column name="TskNam" hidden="true" />
+            <column name="Sta" hidden="true" />
+            <column name="ExeDfr" hidden="true" />
+            <column name="ExeDes" hidden="true" />
+            <column name="ExeDueTim" hidden="true" />
+            <column name="ExeRunLbl" hidden="true" />
+            <column name="ExeStaIcn" hidden="true" />
+            <column name="ExeStaTon" hidden="true" />
+            <column name="ExeDueLbl" hidden="true" />
+            <column name="ExeOriIcn" hidden="true" />
+            <column name="ExeOriTon" hidden="true" />
+            <column label="PARAMETER_STATUS" name="ExeStaTxt" sort-field="Sta" sortable="true" align="left" charlength="18"
+                    status-field="ExeStaTon" icon-field="ExeStaIcn" secondary-field="ExeDueLbl" />
+            <!-- Every row is an execution of the task: the execution number instead of the task -->
+            <column label="SCREEN_TEXT_EXECUTION" name="ExeTsk" sort-field="ExeLstTim" sortable="true" align="left" charlength="10" />
+            <column label="PARAMETER_ACTIVITY_FLOW_RUN" name="ExeRun" sortable="false" component="link" align="left" charlength="8"
+                    title="BUTTON_OPEN_RUN">
+              <button-action type="screen" target="scheduler-flow-run" />
+            </column>
+            <column label="PARAMETER_ACTIVITY_ORIGIN" name="ExeOriTxt" sort-field="TypLch" sortable="true" align="left" charlength="12"
+                    status-field="ExeOriTon" icon-field="ExeOriIcn" />
+            <column label="PARAMETER_LAUNCHED_BY" name="ExeLchBy" sortable="true" align="left" charlength="12" width="*" />
+            <column label="PARAMETER_STARTED_AT" name="ExeLstTim" sortable="true" align="center" charlength="16" />
+            <column name="ExeTim" hidden="true" />
+            <column label="PARAMETER_ACTIVITY_DURATION" name="ExePrg" sort-field="ExeEla" sortable="true" component="progress" align="center"
+                    charlength="12" secondary-field="ExeTim" />
+            <column name="ExecutionLogPath" sortable="false" component="button" align="center" style="btn-ghost" charlength="4">
+              <button-action type="server" server-action="maintain-silent" target-action="loadExecutionScreen" silent="true" async="true" />
+              <button-action type="filter" target="CrdExePrg" silent="true" />
+              <button-action type="filter" target="GrdExePar" silent="true" />
+              <button-action type="dialog" target="PnlTskExe" />
+            </column>
+            <!-- «⋯» (More actions): the row menu of the right click, opened under the button for its row (the button
+                 selects its row first, so the menu shows the same options with the same rules) -->
+            <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+                    align="center" charlength="4" sortable="false" sendable="false">
+              <button-action type="show-context-menu" />
+            </column>
+            <context-button id="CtxExeDet" label="BUTTON_ACTIVITY_VIEW_DETAILS" icon="file-text-o">
+              <button-action type="server" server-action="maintain-silent" target-action="loadActivityExecution" silent="true" async="true" />
+              <button-action type="reset" target="executionLogViewer" silent="true" />
+              <button-action type="filter" target="executionLogViewer" silent="true" />
+              <button-action type="filter" target="CrdExePrg" silent="true" />
+              <button-action type="filter" target="GrdExePar" silent="true" />
+              <button-action type="dialog" target="PnlTskExe" />
+              <dependency target-type="enable" initial="true">
+                <dependency-element id="GrdTskExe" attribute="selectedRows" condition="eq" value="1" />
+              </dependency>
+            </context-button>
+          </grid>
+        </card>
+      </tabcontainer>
+
+      <!-- Dependencies: the one-level graph of the task, read only (the conditions are set in the task it runs after).
+           A task it runs after or launches opens its own task screen: the node gives its task to IdeTsk.selected (kept
+           on reload) and opens this screen again -->
+      <tabcontainer id="TskPagDep" style="expand" expandible="vertical">
+        <!-- The text on the left and the change button on the right, on one line, its right edge on the one of the graph -->
+        <tag type="div" style="panel-body awe-action-bar">
+          <tag type="span" style="text-muted" label="SCREEN_TEXT_TASK_PAGE_DEPENDENCIES_TEXT" />
+          <button label="BUTTON_TASK_PAGE_CHANGE_DEPENDENCIES" icon="edit" id="ButTskDep" style="btn-link"
+                  permission="scheduler.update">
+            <button-action type="value" target="TskEdtMod" value="edit" />
+            <button-action type="value" target="TskEdtSec" value="when" />
+            <button-action type="screen" target="scheduler-task-editor" />
+          </button>
+        </tag>
+        <tag type="div" style="panel-body expand" expandible="vertical">
+          <widget type="flow-graph" id="TskDpnGph" server-action="data" target-action="getTaskFlowGraph" initial-load="query" style="expand">
+            <widget-parameter type="string" name="mode" value="task" />
+            <widget-parameter type="string" name="target" value="scheduler-task" />
+            <widget-parameter type="string" name="criterion" value="IdeTsk.selected" />
+          </widget>
+        </tag>
+      </tabcontainer>
+
+      <!-- Configuration: a read-only summary of the task, Edit opens the task editor -->
+      <tabcontainer id="TskPagCfg" style="expand" expandible="vertical">
+        <tag type="div" style="panel-body expand scrollable">
+          <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_TASK_PAGE_EXECUTION" icon="lucide:play" />
+          <criteria label="SCREEN_TEXT_TASK_PAGE_RUNS" component="text-view" id="TskCfgRun" style="col-xs-12 col-sm-6 awe-readout" />
+          <criteria label="SCREEN_TEXT_TASK_PAGE_WHERE" component="text-view" id="TskCfgWhr" style="col-xs-12 col-sm-6 awe-readout" />
+          <criteria label="PARAMETER_STORE_EXECUTION" component="text-view" id="TskCfgSto" style="col-xs-12 col-sm-6 awe-readout" />
+          <criteria label="PARAMETER_TIMEOUT" component="text-view" id="TskCfgTim" style="col-xs-12 col-sm-6 awe-readout" />
+          <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_TASK_PAGE_LAUNCH" icon="lucide:calendar-clock" />
+          <criteria label="PARAMETER_TASK_WHEN" component="text-view" id="TskCfgWhn" style="col-xs-12 col-sm-6 awe-readout" />
+          <criteria label="SCREEN_TEXT_FLOW_GRAPH_PARENTS" component="text-view" id="TskCfgPrn" style="col-xs-12 col-sm-6 awe-readout" />
+          <criteria label="SCREEN_TEXT_TASK_PAGE_LAUNCHES" component="text-view" id="TskCfgChl" style="col-xs-12 col-sm-6 awe-readout" />
+          <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_TASK_PAGE_PARAMETERS" icon="lucide:sliders-horizontal" />
+          <tag type="div" style="col-xs-12">
+            <grid id="GrdTskPar" style="height-sm" show-toolbar="false" server-action="data" target-action="taskParameters"
+                  initial-load="query" pagination-disabled="true" row-numbers="false" selectable="false"
+                  empty-title="SCREEN_TEXT_ACTIVITY_NO_PARAMETERS" empty-text="SCREEN_TEXT_ACTIVITY_NO_PARAMETERS_TEXT">
+              <column label="PARAMETER_NAME" name="ParNam" sortable="false" align="left" charlength="20" />
+              <column label="PARAMETER_SOURCE" name="ParSrcLbl" sortable="false" align="left" charlength="14" />
+              <column label="PARAMETER_TYPE" name="ParTyp" sortable="false" align="left" charlength="12" />
+              <column label="PARAMETER_VALUE" name="ParVal" sortable="false" align="left" charlength="30" width="*" />
+            </grid>
+          </tag>
+          <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_TASK_PAGE_REPORT_TITLE" icon="lucide:mail" />
+          <criteria label="SCREEN_TEXT_TASK_PAGE_REPORT_TITLE" component="text-view" id="TskCfgRpt" style="col-xs-12 awe-readout" />
+          <tag type="div" style="col-xs-12">
+            <button label="BUTTON_EDIT" icon="edit" id="ButTskCfgEdt" permission="scheduler.update">
+              <button-action type="value" target="TskEdtMod" value="edit" />
+              <button-action type="screen" target="scheduler-task-editor" />
+            </button>
+          </tag>
+        </tag>
+      </tabcontainer>
+    </tab>
+
+    <!-- Detail of the selected execution of the history: the side panel of the activity screen bound to GrdTskExe. The
+         log viewer reads the task of the screen and the execution of the selected row -->
+    <side-panel id="PnlTskExe" label="SCREEN_TEXT_EXECUTION_DETAILS" icon="file-text-o" max-width="60vw"
+                header-grid="GrdTskExe" header-title-field="TskNam" header-subtitle-field="ExeLstTim">
+      <header-tag field="ExeStaTxt" tone-field="ExeStaTon" icon-field="ExeStaIcn" />
+      <tag type="div" style="panel-body">
+        <tag type="div" style="col-xs-12">
+          <button label="BUTTON_OPEN_RUN" icon="sitemap" id="ButTskOpnRun">
+            <button-action type="close" target="PnlTskExe" />
+            <button-action type="screen" target="scheduler-flow-run" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdTskExe" column="ExeRun" attribute="selectedRowValue" condition="ne" value="" />
+            </dependency>
+          </button>
+        </tag>
+        <tag type="div" style="col-xs-12">
+          <card id="CrdExePrg" initial-load="query" server-action="data" target-action="getActivityExecutionProgress">
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdTskExe" column="ExeDfr" attribute="selectedRowValue" condition="ne" value="1" />
+            </dependency>
+          </card>
+        </tag>
+        <tag type="div" style="col-xs-12">
+          <card id="CrdExeWai" style="card-note" icon="lucide:hourglass" icon-tone="info"
+                title="SCREEN_TEXT_ACTIVITY_WAITING" description="SCREEN_TEXT_ACTIVITY_WAITING_TEXT">
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdTskExe" column="ExeDfr" attribute="selectedRowValue" condition="eq" value="1" />
+            </dependency>
+          </card>
+        </tag>
+        <criteria label="PARAMETER_ACTIVITY_DUE_AT" component="text-view" id="ViwExeDue" style="col-xs-12 col-sm-4 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTskExe" column="ExeDueTim" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdTskExe" event="select-row" optional="true" />
+          </dependency>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="GrdTskExe" column="ExeDfr" attribute="selectedRowValue" condition="eq" value="1" />
+          </dependency>
+        </criteria>
+        <criteria label="PARAMETER_STATUS" component="text-view" id="execution-title" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_TASK" component="text-view" id="task-id" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_EXECUTION" component="text-view" id="execution-id" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="PARAMETER_ACTIVITY_FLOW_RUN" component="text-view" id="ViwExeRun" style="col-xs-12 col-sm-4 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTskExe" column="ExeRunLbl" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdTskExe" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="SCREEN_TEXT_LAUNCHED_BY" component="text-view" id="execution-launched-by" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_START_TIME" component="text-view" id="execution-start-time" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_END_TIME" component="text-view" id="execution-end-time" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_EXECUTION_TIME" component="text-view" id="execution-time" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="PARAMETER_DESCRIPTION" component="text-view" id="execution-information" style="col-xs-12 awe-readout awe-readout-block" />
+
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACTIVITY_PARAMETERS" icon="lucide:sliders-horizontal" />
+        <tag type="div" style="col-xs-12" expandible="vertical">
+          <grid id="GrdExePar" style="expand height-sm" show-toolbar="false" server-action="data" target-action="getActivityExecutionParameters"
+                pagination-disabled="true" row-numbers="false">
+            <column label="PARAMETER_NAME" name="ParNam" sortable="false" align="left" charlength="20" />
+            <column label="PARAMETER_VALUE" name="ParVal" sortable="false" align="left" charlength="30" width="*" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdExePar" attribute="totalValues" condition="gt" value="0" />
+            </dependency>
+          </grid>
+        </tag>
+        <tag type="div" style="col-xs-12">
+          <card id="CrdExeParEmp" style="card-note" icon="lucide:sliders-horizontal" icon-tone="neutral"
+                title="SCREEN_TEXT_ACTIVITY_NO_PARAMETERS" description="SCREEN_TEXT_ACTIVITY_NO_PARAMETERS_TEXT">
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdExePar" attribute="totalValues" condition="eq" value="0" />
+            </dependency>
+          </card>
+        </tag>
+
+        <!-- Live log of the execution: the task of the screen and the execution of the selected row -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACTIVITY_LOG" icon="file-text-o" />
+        <criteria id="execution-log-task-id" component="hidden" variable="IdeTsk.selected" />
+        <criteria id="execution-log-execution-id" component="hidden">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTskExe" column="ExeTsk" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdTskExe" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <!-- Status of the execution of the log: only a running (or waiting) or queued execution is followed -->
+        <criteria id="execution-log-status" component="hidden">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdTskExe" column="Sta" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdTskExe" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <tag type="div" style="col-xs-12 height-lg" expandible="vertical">
+          <!-- The filter of the panel reads the log once; a running or queued execution is followed every 5 seconds
+               while the panel is open (the viewer reads at once when the autorefresh is enabled) -->
+          <widget type="log-viewer" id="executionLogViewer" style="expand scrollable" server-action="get-execution-log">
+            <widget-parameter type="boolean" name="stickBottom" value="true" />
+            <dependency source-type="value" target-type="enable-autorefresh" value="5">
+              <dependency-element id="PnlTskExe" event="open" />
+              <dependency-element id="execution-log-status" condition="in" value="4,5" />
+            </dependency>
+            <dependency target-type="disable-autorefresh">
+              <dependency-element id="PnlTskExe" event="close" />
+            </dependency>
+          </widget>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <tag type="div" style="pull-right">
+          <button label="BUTTON_CLOSE" icon="close" id="ButTskExeCls" help="HELP_CLOSE_HELP_BUTTON">
+            <button-action type="close" target="PnlTskExe" />
+          </button>
+          <!-- Stop: the stop of the activity screen, for a running execution (also one waiting for a confirmation) -->
+          <button label="BUTTON_ACTIVITY_STOP" icon="stop" id="ButTskExeStp" style="btn-danger" help="HELP_LAUNCH_STOP_BUTTON">
+            <button-action type="confirm" target="ExeStpMsg" />
+            <button-action type="server" server-action="maintain" target-action="StpTsk" />
+            <button-action type="close" target="PnlTskExe" />
+            <button-action type="filter" target="GrdTskExe" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdTskExe" condition="eq" value="1" />
+              <dependency-element id="GrdTskExe" column="Sta" attribute="selectedRowValue" condition="eq" value="4" />
+            </dependency>
+          </button>
+        </tag>
+      </tag>
+    </side-panel>
+  </tag>
+
+  <tag source="modal">
+    <include target-screen="screen-help" target-source="center" />
+    <include target-screen="scheduler-launch-variables" target-source="center" />
+  </tag>
+</screen>

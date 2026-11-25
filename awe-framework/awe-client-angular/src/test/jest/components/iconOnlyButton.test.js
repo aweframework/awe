@@ -70,6 +70,17 @@ describe("icon-only buttons", () => {
     expect(button.attr("title")).toBe("");
   });
 
+  it("draws a trailing chevron after the label of a has-menu button and tells that it opens a menu", () => {
+    const button = compileButton("ButEng", {label: "Scheduler", icon: "lucide:cpu", style: "has-menu"});
+
+    const chevron = button.find(".awe-button-menu-chevron");
+    expect(chevron.length).toBe(1);
+    expect(chevron.attr("aria-hidden")).toBe("true");
+    expect(button.children().last()[0]).toBe(chevron[0]);
+    expect(button.attr("aria-haspopup")).toBe("menu");
+    expect(compileButton("ButPrn", {label: "Print"}).find(".awe-button-menu-chevron").length).toBe(0);
+  });
+
   describe("button of a grid cell", () => {
     const address = {component: "GrdUsr", view: "report", row: "2", column: "EdtBtn"};
     let cellModel, cellController, gridComponent, calls;

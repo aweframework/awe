@@ -5,7 +5,7 @@ import {TestIds} from "../data/testIds";
 
 const template =
 `<li ng-show="controller.visible || controller.separator" class="context-option {{controller.opened ? 'open' : ''}}" data-testid="${TestIds.contextMenuOption}" ng-class="::{'divider': controller.separator, 'dropdown-submenu': controller.hasChildren}" ui-dependency="dependencies" ng-cloak>
-  <a ng-if="::!controller.separator" ng-disabled="isDisabled()" title="{{controller.label| translateMultiple}}" name="{{::controller.id}}" class="{{::controller.style}}" data-testid="${TestIds.contextMenuLink}" ng-attr-data-disabled="{{!!isDisabled()}}"
+  <a ng-if="::!controller.separator" role="menuitem" tabindex="-1" ng-disabled="isDisabled()" title="{{controller.label| translateMultiple}}" name="{{::controller.id}}" class="{{::controller.style}}" data-testid="${TestIds.contextMenuLink}" ng-attr-data-disabled="{{!!isDisabled()}}"
      ng-click="onClick()">
      ${getIconTemplate("nav-icon")}
     <span ng-if="::controller.label" class="context-option-text" translate-multiple="{{::controller.label}}"></span>

@@ -177,6 +177,19 @@ describe("grid quick filter", () => {
     expect(checked(element)).toEqual([false, true]);
   });
 
+  it("stays a segmented control by default and with display=\"segmented\": no menu button", () => {
+    const segmented = mount("", OPTIONS, {display: "segmented"});
+    expect(segmented.find(hook("grid-quick-filter")).attr("role")).toBe("radiogroup");
+    expect(radios(segmented).length).toBe(4);
+    expect(segmented.find(hook("grid-quick-filter-toggle")).length).toBe(0);
+    $(document.body).empty();
+
+    const plain = mount();
+    expect(plain.find(hook("grid-quick-filter")).attr("role")).toBe("radiogroup");
+    expect(radios(plain).length).toBe(4);
+    expect(plain.find(hook("grid-quick-filter-toggle")).length).toBe(0);
+  });
+
   it("names the group with its label when it has one", () => {
     const element = mount("", OPTIONS, {label: "SCREEN_TEXT_USER"});
 

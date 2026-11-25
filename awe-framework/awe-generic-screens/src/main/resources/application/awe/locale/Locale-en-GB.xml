@@ -754,6 +754,7 @@
   <locale name="ERROR_MESSAGE_UNDEFINED_CACHE" value="Cache type -{0}- has not been defined"/>
   <locale name="ERROR_MESSAGE_UNDEFINED_DATASOURCE" value="The selected datasource `{0}` has not been defined"/>
   <locale name="ERROR_MESSAGE_UNDEFINED_SESSION" value="Session with token &apos;{0}&apos; doesn&apos;t exists or has been deleted"/>
+  <locale name="ERROR_MESSAGE_UNEXPECTED_ERROR" value="An unexpected error has occurred. Please try again and, if the problem persists, contact your administrator."/>
   <locale name="ERROR_MESSAGE_UNIQUE_CRITERIA" value="The selected value is already in the database"/>
   <locale name="ERROR_MESSAGE_UPDATE_WRK_DIR2" value="The path is not correct"/>
   <locale name="ERROR_MESSAGE_VARIABLE_DEFINITION" value="There was a problem with variable {0} definition"/>
@@ -811,6 +812,9 @@
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="All the data recorded for a security event"/>
   <locale name="HELP_SCREEN_TITLE_SIT_ADMIN" value="Sites of the application and the database each module uses on them."/>
   <locale name="HELP_SCREEN_TITLE_THEME_ADMIN" value="Colour themes of the application: primary colour, surface and mode. Profiles and users choose one of the active themes."/>
+  <locale name="LOG_VIEWER_FILTER_MATCHES" value="Show only matches"/>
+  <locale name="LOG_VIEWER_FOLLOW" value="Follow the end"/>
+  <locale name="LOG_VIEWER_SEARCH" value="Search"/>
   <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Security audit"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Cause"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Channel"/>
@@ -1113,6 +1117,7 @@
   <locale name="ERROR_TITLE_TOO_MANY_REQUESTS" value="Error: too many requests"/>
   <locale name="ERROR_TITLE_UNDEFINED_CACHE" value="Undefined cache type"/>
   <locale name="ERROR_TITLE_UNDEFINED_SESSION" value="Undefined session"/>
+  <locale name="ERROR_TITLE_UNEXPECTED_ERROR" value="The operation could not be completed"/>
   <locale name="ERROR_TITLE_VALIDATION" value="Error during validation"/>
   <locale name="ERROR_TITLE_VARIABLE_DEFINITION" value="Error in variable definition"/>
   <locale name="ERROR_TITLE_VIEWING_PDF_FILE" value="Error loading PDF file"/>
@@ -1265,6 +1270,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="HOURS" value="{0}h"/>
   <locale name="INFO_MESSAGE_PARSING_NUMBER_NULL" value="Parameter {0} can&apos;&apos;t be parsed as number: &apos;&apos;{1}&apos;&apos; - Set as null"/>
   <locale name="INFO_TITLE_WEB_SERVICE_CALL" value="Information"/>
+  <locale name="LINK_OPENS_IN_NEW_TAB" value="(opens in a new tab)"/>
   <locale name="MENU_ACT_USR" value="Notify active users"/>
   <locale name="MENU_APP_INF" value="About"/>
   <locale name="MENU_AUDITS" value="Audits"/>
@@ -1332,6 +1338,13 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MINUTES" value="{0}m"/>
   <locale name="MONTH" value="{0} month"/>
   <locale name="MONTHS" value="{0} months"/>
+  <locale name="MONTH_VIEW_EXCLUDED" value="excluded"/>
+  <locale name="MONTH_VIEW_LEGEND" value="Struck through: does not run"/>
+  <locale name="MONTH_VIEW_MONTH_DATES" value="{0}: {1} dates"/>
+  <locale name="MONTH_VIEW_NEXT" value="Next month"/>
+  <locale name="MONTH_VIEW_PREVIOUS" value="Previous month"/>
+  <locale name="MONTH_VIEW_STRIP" value="Dates per month"/>
+  <locale name="MONTH_VIEW_UNSAVED" value="not saved"/>
   <locale name="MSG_PASSWD_NEW" value="After entering the password press confirm button"/>
   <locale name="NO_SUBSCRIPTIONS" value="There are no active subscriptions to notifications"/>
   <locale name="NOTIFICATIONS" value="NOTIFICATIONS"/>
@@ -2075,6 +2088,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="VALIDATOR_MESSAGE_DATE_RANGE" value="The end date cannot be before the start date"/>
   <locale name="DATE_RANGE_FROM" value="From"/>
   <locale name="DATE_RANGE_TO" value="To"/>
+  <locale name="DATE_RANGE_CUSTOM" value="Custom range…"/>
+  <locale name="DATE_RANGE_APPLY" value="Apply"/>
   <locale name="DATE_RANGE_PRESET_TODAY" value="Today"/>
   <locale name="DATE_RANGE_PRESET_1W" value="1 week"/>
   <locale name="DATE_RANGE_PRESET_1M" value="1 month"/>

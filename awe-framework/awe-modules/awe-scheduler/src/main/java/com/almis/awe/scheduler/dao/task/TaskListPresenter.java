@@ -18,6 +18,7 @@ import com.almis.awe.scheduler.util.TaskUtil;
 import com.almis.awe.service.QueryService;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerKey;
 import tools.jackson.databind.node.ObjectNode;
@@ -30,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY;
@@ -160,6 +162,36 @@ public class TaskListPresenter {
   }
 
   /**
+   * Next fire time of a task in the scheduler: the next fire time of its trigger while its state is normal (not paused,
+   * blocked, completed nor in error)
+   *
+   * @param taskId     Task identifier
+   * @param launchType Launch type of the task
+   * @return Next fire time, empty when the task has no trigger or its trigger does not fire
+   * @throws AWException Error reading the scheduler
+   */
+  public Optional<Instant> getNextFireTime(Integer taskId, Integer launchType) throws AWException {
+    TriggerKey triggerKey = new TriggerKey(taskId.toString(), TaskUtil.getGroupForLaunchType(launchType));
+    try {
+      return taskScheduling.triggerExists(triggerKey)
+        ? getNextFireTime(scheduler.getTrigger(triggerKey), triggerKey)
+        : Optional.empty();
+    } catch (SchedulerException exc) {
+      throw new AWException("Error reading the next fire time of the task", triggerKey.toString(), exc);
+    }
+  }
+
+  /**
+   * Next fire time of a trigger while its state is normal
+   */
+  private Optional<Instant> getNextFireTime(Trigger trigger, TriggerKey triggerKey) throws SchedulerException {
+    if (trigger == null || scheduler.getTriggerState(triggerKey) != Trigger.TriggerState.NORMAL) {
+      return Optional.empty();
+    }
+    return Optional.ofNullable(LegacyDateConverter.asInstant(trigger.getNextFireTime()));
+  }
+
+  /**
    * Add parameters from the scheduler to the task list
    *
    * @param row                   Parameters row
@@ -180,17 +212,9 @@ public class TaskListPresenter {
 
         Trigger trigger = scheduler.getTrigger(triggerKey);
 
-        // get next execution time
-        Instant nextTime = null;
+        // Next execution time, when the trigger state is normal
+        Instant nextTime = getNextFireTime(trigger, triggerKey).orElse(null);
 
-        // Get trigger current state from scheduler
-        Trigger.TriggerState triggerState = scheduler.getTriggerState(triggerKey);
-
-        // If the trigger state is normal the set previous and next execution
-        // times.
-        if (triggerState == Trigger.TriggerState.NORMAL) {
-          nextTime = LegacyDateConverter.asInstant(trigger.getNextFireTime());
-        }
         // get the job associated to the trigger
         JobDetail job = scheduler.getJobDetail(trigger.getJobKey());
         row.put(TASK_STATUS, new CellData(withDeferredExecution.contains(ide) || taskScheduling.isJobRunning(job)

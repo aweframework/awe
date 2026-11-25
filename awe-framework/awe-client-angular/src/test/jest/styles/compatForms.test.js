@@ -58,6 +58,8 @@ const LEFT_OUT = [
   reason: "the AWE grid and tree grid cells draw their own checkbox and radio columns (sizes grid-sm|md|lg): the rules belong to the grid component"},
   {names: ["btn", "column-button-radio"], examples: [".grid .ui-grid-cell .ui-grid-cell-contents.component .column-button-radio.has-error > label.btn"],
     reason: "a radio rendered as a button group inside a grid cell: it stays with the grid and the button family"},
+  {names: ["grid-toolbar", "grid-toolbar-criteria"], examples: [".grid-toolbar .grid-toolbar-criteria .criterion .form-group .checkbox"],
+    reason: "the toolbar criteria of a grid (toolbar-criteria, #993) at the height of the toolbar buttons: the rules belong to the grid toolbar"},
   {names: ["button-radio-group"], examples: [".criterion.has-error .btn-group.button-radio-group"],
     reason: "the button group of an AWE criterion radio (#791): the criterion owns the layout of its group, and the button family serves the .btn-group inside it"},
   {names: ["panel-heading-controls", "panel-dark"], examples: [".panel-heading-controls > .form-control", ".panel-dark .panel-heading-controls > .form-control"],
@@ -69,6 +71,10 @@ const LEFT_OUT = [
     reason: "the one-line summary of a select-multiple (#922): chips that fit plus a +K counter, sized from the control height of the form group"},
   {names: ["editableform", "editable"], examples: [".editableform .form-control", ".form-horizontal .editable"],
     reason: "the x-editable plugin form: it resizes the control and its inline layout stays with the plugin styles"},
+  {names: ["switch-end"], examples: [".criterion.switch-end .checkbox.switch", ".criterion.switch-end .checkbox.switch > .lbl"],
+    reason: "a switch criterion with its label at the start of the row and the switch at its end (#993): the criterion owns the layout of its switch"},
+  {names: ["awe-editor-join", "awe-editor-part", "p-inputtext"], examples: [".awe-editor-join > .awe-editor-part:first-child :is(.p-inputtext, .form-control)"],
+    reason: "two fields of an editor drawn as one (a date and its time, #993): the shared border and corners of their controls belong to the editor layout, shared with the React engine"},
   {names: ["pixel-file-input"], examples: [".criterion.has-error .pixel-file-input"],
     reason: "the pixel-admin file input has its own border, with an !important error color: it stays with the criterion"}
 ];

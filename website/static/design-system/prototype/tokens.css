@@ -1146,14 +1146,21 @@
   --awe-button-default-background-active: var(--awe-color-surface-hover);
   --awe-button-default-border-color-active: var(--awe-color-field-border-hover);
   --awe-button-default-color-active: var(--awe-color-text);
+  /* Status strip column (#993): bars of status pages, a graphic fill, not text: the mid shade in light (the semantic
+     tones are text shades there and look too dark as bars), the semantic tone in dark */
+  --awe-status-strip-success: light-dark(var(--awe-palette-green-500), var(--awe-color-success));
+  --awe-status-strip-info: light-dark(var(--awe-palette-sky-500), var(--awe-color-info));
+  --awe-status-strip-warning: light-dark(var(--awe-palette-orange-500), var(--awe-color-warning));
+  --awe-status-strip-danger: light-dark(var(--awe-palette-red-500), var(--awe-color-danger));
+  --awe-status-strip-neutral: var(--awe-color-text-muted);
   /* Field label */
   --awe-label-font-weight: var(--awe-font-weight-medium);
   --awe-label-text-transform: none;
   --awe-label-letter-spacing: normal;
 
   --awe-card-title-font-size: var(--awe-font-size-base);
-  --awe-card-title-text-transform: uppercase;
-  --awe-card-title-letter-spacing: var(--awe-letter-spacing-caps);
+  --awe-card-title-text-transform: none;
+  --awe-card-title-letter-spacing: normal;
   /* Grid: least width of the search of the toolbar; it grows to show its whole placeholder */
   --awe-grid-search-width: 32ch;
   /* Grid: size of an icon drawn in the avatar of a cell (avatar-icon-field) */

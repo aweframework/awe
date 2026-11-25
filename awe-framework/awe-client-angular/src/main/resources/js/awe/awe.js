@@ -13,6 +13,7 @@ import "jquery-ui";
 
 // Route methods
 import {states} from './data/routes';
+import {installSectionSpy} from "awe-client-react/utilities/sectionSpy";
 
 // Fix for jquery special events
 function fixSpecialEvents(events) {
@@ -61,7 +62,9 @@ export const aweApplication = angular.module("aweApplication", [
   $translate.useSanitizeValueStrategy(null);
 }])
 // Init settings and preload templates
-.run(["AweSettings", $settings => $settings.init().then(() => $settings.preloadTemplates())]);
+.run(["AweSettings", $settings => $settings.init().then(() => $settings.preloadTemplates())])
+// The section navigation of the editors (awe-editor styles) marks the section in sight while their body scrolls
+.run(() => installSectionSpy(document));
 
 // Export jquery
 export const jQuery = $;

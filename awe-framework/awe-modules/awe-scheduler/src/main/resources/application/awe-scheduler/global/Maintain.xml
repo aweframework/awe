@@ -43,21 +43,24 @@
     </insert>
   </target>
 
-  <!--Delete server-->
-  <target name="DeleteSchedulerServer" permission="scheduler.update">
-    <delete multiple="true">
+  <!-- Delete a server from the configuration screen: a server used by a task is refused before anything is deleted -->
+  <target name="DeleteConfigurationServer" permission="scheduler.update">
+    <serve service="validateServersNotInUse">
+      <variable id="serverIds" type="INTEGER" name="IdeSrv"/>
+    </serve>
+    <delete>
       <table id="AweSchSrv" />
-      <field id="Ide" variable="Ide"/>
       <where>
         <and>
-          <filter left-field="Ide" condition="in" right-variable="Ide"/>
+          <filter left-field="Ide" condition="eq" right-variable="Ide"/>
         </and>
       </where>
-      <variable id="Ide" type="INTEGER" name="Ide" />
+      <variable id="Ide" type="INTEGER" name="IdeSrv" />
     </delete>
   </target>
 
-  <!--Update server-->
+  <!--Update server. Each secret is only written when its flag is 1 (a blank secret keeps the saved one); FlgSshKeyDel 1
+      removes the saved private key and its passphrase («Quitar»), before a new key or passphrase is written-->
   <target name="UpdSchSrv" permission="scheduler.update">
     <update>
       <table id="AweSchSrv" />
@@ -79,6 +82,23 @@
       <variable id="Prt" type="INTEGER" name="Prt" />
       <variable id="Act" type="INTEGER" name="Act" />
       <variable id="SshUsr" type="STRING" name="SshUsr"/>
+    </update>
+    <update>
+      <table id="AweSchSrv"/>
+      <constant id="SshKey" value="NULL" type="NULL"/>
+      <constant id="SshKeyPass" value="NULL" type="NULL"/>
+      <where>
+        <and>
+          <filter left-field="Ide" condition="eq" right-variable="Ide"/>
+          <filter condition="eq" right-variable="FlgSshKeyDel">
+            <left-operand>
+              <constant value="1" type="INTEGER" cast="INTEGER"/>
+            </left-operand>
+          </filter>
+        </and>
+      </where>
+      <variable id="Ide" type="INTEGER" name="IdeSrv"/>
+      <variable id="FlgSshKeyDel" type="INTEGER" name="FlgSshKeyDel"/>
     </update>
     <update>
       <table id="AweSchSrv"/>
@@ -165,8 +185,16 @@
   <!--
   SCHEDULER TASK
   -->
-  <!-- Insert scheduled task -->
-  <target name="NewSchedulerTask" permission="scheduler.update">
+  <!--
+  TASK EDITOR: the single editor of a task (new, edit and duplicate). The task runs after the parents chosen in it
+  (TskPrn): its own dependency rows (IdeTsk = task) are replaced, the rows of the other tasks are kept, and DpnOrd is
+  left empty (it orders the children of a parent in its flows). The update refreshes the task in the scheduler without
+  purging its executions. The parents are not reloaded in the scheduler: a finished task reads the tasks that run after
+  it from the database, not from its trigger.
+  «After other tasks» is a Manual launch (TypLch 0) with parents
+  -->
+  <!-- Insert a task from the editor -->
+  <target name="NewSchedulerTaskEditor" permission="scheduler.update">
     <!-- A WEBHOOK task needs a valid hook key that no other task uses -->
     <serve service="validateWebhookHook">
       <variable id="launchType" type="INTEGER" name="TypLch" />
@@ -291,13 +319,17 @@
       <variable id="WhkPtr" type="STRING" name="ParPtr" optional="true" />
     </insert>
 
-    <insert multiple="true">
-      <table id="AweSchTskDpn"/>
-      <field id="IdeTsk" variable="Ide" key="true"/>
-      <field id="IdePrn" variable="IdeTsk" key="true"/>
-      <variable id="Ide" type="INTEGER" name="DepTskIde" />
-      <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
-    </insert>
+    <!-- A scheduled task with a preset of its «Repetition» (not «Custom»): its launch row stores the fields of the preset
+         (TaskSchedulePreset) instead of the ones the screen sends -->
+    <serve service="applyTaskEditorSchedule">
+      <variable id="taskId" type="INTEGER" name="IdeTsk" />
+    </serve>
+
+    <!-- The parents the task runs after: the rows where it is the child -->
+    <serve service="saveTaskParents">
+      <variable id="taskId" type="INTEGER" name="IdeTsk" />
+      <variable id="parents" type="INTEGER" name="TskPrn" optional="true"/>
+    </serve>
 
     <commit/>
 
@@ -310,17 +342,25 @@
       <variable id="typeFilter" type="STRING" name="HokTyp" optional="true"/>
     </serve>
 
+    <!-- The hook is committed before the scheduler reads the task: a remote scheduler reads it with its own connection -->
+    <commit/>
+
     <serve service="insertSchedulerTask">
       <variable id="IdeTsk" type="INTEGER" name="IdeTsk" />
     </serve>
+
+    <!-- The answer: the saved task becomes the task of the screen, so the task screen opened next shows the new task -->
+    <serve service="getTaskEditorSaved">
+      <variable id="taskId" type="INTEGER" name="IdeTsk" />
+    </serve>
   </target>
 
-  <!-- Update scheduled task -->
-  <target name="UpdateSchedulerTask" permission="scheduler.update">
-    <!-- A new task cannot close a cycle (nothing depends on it yet), so only the update checks it -->
-    <serve service="validateTaskDependencies">
-      <variable id="IdeTsk" type="INTEGER" name="Ide" />
-      <variable id="children" type="INTEGER" name="DepTskIde" />
+  <!-- Update a task from the editor -->
+  <target name="UpdateSchedulerTaskEditor" permission="scheduler.update">
+    <!-- A parent that is the task or already runs after it would close a cycle: checked before changing anything -->
+    <serve service="validateTaskParents">
+      <variable id="taskId" type="INTEGER" name="Ide" />
+      <variable id="parents" type="INTEGER" name="TskPrn" optional="true"/>
     </serve>
     <serve service="validateWebhookHook">
       <variable id="taskId" type="INTEGER" name="Ide" />
@@ -461,23 +501,17 @@
       <variable id="WhkPtr" type="STRING" name="ParPtr" optional="true" />
     </insert>
 
-    <delete>
-      <table id="AweSchTskDpn"/>
-      <where>
-        <and>
-          <filter left-field="IdePrn" condition="eq" right-variable="IdePrn"/>
-        </and>
-      </where>
-      <variable id="IdePrn" type="INTEGER" name="Ide" />
-    </delete>
+    <!-- A scheduled task with a preset of its «Repetition» (not «Custom»): its launch row stores the fields of the preset
+         (TaskSchedulePreset) instead of the ones the screen sends -->
+    <serve service="applyTaskEditorSchedule">
+      <variable id="taskId" type="INTEGER" name="Ide" />
+    </serve>
 
-    <insert multiple="true">
-      <table id="AweSchTskDpn"/>
-      <field id="IdeTsk" variable="IdeTsk" key="true"/>
-      <field id="IdePrn" variable="IdePrn" key="true"/>
-      <variable id="IdePrn" type="INTEGER" name="Ide" />
-      <variable id="IdeTsk" type="INTEGER" name="DepTskIde" />
-    </insert>
+    <!-- The parents the task runs after replace only its own rows (where it is the child) -->
+    <serve service="saveTaskParents">
+      <variable id="taskId" type="INTEGER" name="Ide" />
+      <variable id="parents" type="INTEGER" name="TskPrn" optional="true"/>
+    </serve>
 
     <commit/>
 
@@ -490,10 +524,88 @@
       <variable id="typeFilter" type="STRING" name="HokTyp" optional="true"/>
     </serve>
 
-    <serve service="updateSchedulerTask">
+    <!-- The hook is committed before the scheduler reads the task: a remote scheduler reads it with its own connection -->
+    <commit/>
+
+    <!-- The task takes its new launch in the scheduler, keeping its executions, their logs and the files it has seen -->
+    <serve service="refreshSchedulerTask">
       <variable id="IdeTsk" type="INTEGER" name="Ide" />
     </serve>
 
+    <!-- The answer: the saved task stays the task of the screen, for the task screen opened next -->
+    <serve service="getTaskEditorSaved">
+      <variable id="taskId" type="INTEGER" name="Ide" />
+    </serve>
+  </target>
+
+  <!-- Task editor: the stored fields of the preset of the «Repetition» of a task (applyTaskEditorSchedule) -->
+  <target name="updateTaskEditorSchedule" server-only="true">
+    <update>
+      <table id="AweSchTskLch" />
+      <field id="RptNum" variable="RptNum" />
+      <field id="RptTyp" variable="RptTyp" />
+      <field id="WeekDays" variable="WeekDays" />
+      <field id="ExeYrs" variable="ExeYrs" />
+      <field id="ExeMth" variable="ExeMth" />
+      <field id="ExeWek" variable="ExeWek" />
+      <field id="ExeDay" variable="ExeDay" />
+      <field id="ExeHrs" variable="ExeHrs" />
+      <field id="ExeMin" variable="ExeMin" />
+      <field id="ExeSec" variable="ExeSec" />
+      <field id="ExeDte" variable="ExeDte" />
+      <field id="ExeTim" variable="ExeTim" />
+      <where>
+        <and>
+          <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
+        </and>
+      </where>
+      <variable id="IdeTsk" type="INTEGER" name="taskId" />
+      <variable id="RptNum" type="INTEGER" name="RptNum" />
+      <variable id="RptTyp" type="INTEGER" name="RptTyp" />
+      <variable id="ExeYrs" type="LIST_TO_STRING" name="years" />
+      <variable id="ExeMth" type="LIST_TO_STRING" name="months" />
+      <variable id="ExeWek" type="LIST_TO_STRING" name="weeks" />
+      <variable id="WeekDays" type="LIST_TO_STRING" name="weekDays" />
+      <variable id="ExeDay" type="LIST_TO_STRING" name="days" />
+      <variable id="ExeHrs" type="LIST_TO_STRING" name="hours" />
+      <variable id="ExeMin" type="LIST_TO_STRING" name="minutes" />
+      <variable id="ExeSec" type="LIST_TO_STRING" name="seconds" />
+      <variable id="ExeDte" type="DATE" name="schExeDate" />
+      <variable id="ExeTim" type="STRING" name="schExeTime" />
+    </update>
+  </target>
+
+  <!-- Task editor: the stored fields of the preset of the «Repetition» selected in their criteria (nothing is saved) -->
+  <target name="SyncTaskEditorSchedule" permission="scheduler.read">
+    <serve service="getTaskEditorScheduleFields"/>
+  </target>
+
+  <!-- Task editor: back from the custom repetition to the preset it matches, selected with its fields (nothing is saved) -->
+  <target name="BackToTaskEditorSchedulePreset" permission="scheduler.read">
+    <serve service="getTaskEditorScheduleMatchFields"/>
+  </target>
+
+  <!-- Parents of a task (the rows where it is the child): delete them and insert one (DpnOrd empty) -->
+  <target name="deleteTaskParents" server-only="true">
+    <delete>
+      <table id="AweSchTskDpn"/>
+      <where>
+        <and>
+          <filter left-field="IdeTsk" condition="eq" right-variable="taskId"/>
+        </and>
+      </where>
+      <variable id="taskId" type="INTEGER" name="taskId" />
+    </delete>
+  </target>
+
+  <target name="insertTaskParent" server-only="true">
+    <insert>
+      <table id="AweSchTskDpn"/>
+      <field id="IdeTsk" variable="taskId"/>
+      <field id="IdePrn" variable="parentId"/>
+      <variable id="taskId" type="INTEGER" name="taskId" />
+      <variable id="parentId" type="INTEGER" name="parentId" />
+    </insert>
   </target>
 
   <!--Deactivate Scheduler Task-->
@@ -666,61 +778,51 @@
   <!--
   SCHEDULER CALENDAR
   -->
-  <!-- Insert Scheduler Calendar -->
-  <target name="NewSchedulerCalendar" permission="scheduler.update">
-    <insert audit="HISAweSchCal">
+  <!-- Configuration screen, Calendars tab: the row menu activates, deactivates and deletes the calendar of the selected
+       row of the calendars grid (IdeCal). Ide is a column of the servers grid of that screen, and a column name is
+       unique in a screen: these targets read the calendar column -->
+  <target name="ActConfigurationCalendar" permission="scheduler.update">
+    <update>
       <table id="AweSchCal" />
-      <field id="Ide" sequence="SchTskCal" variable="IdeCal"/>
-      <field id="Nom" variable="Nom" />
-      <field id="Des" variable="Des" />
       <field id="Act" variable="Act" />
-      <variable id="IdeCal" type="INTEGER" name="IdeCal" />
-      <variable id="Nom" type="STRING" name="Nom" />
-      <variable id="Des" type="STRING" name="Des" />
-      <variable id="Act" type="INTEGER" name="Act" />
-    </insert>
-    <multiple grid="GrdDatLst">
-      <table id="AweSchCalDat" />
-      <field id="Ide" variable="Ide" sequence="SchTskCalDat" key="true" />
-      <field id="IdeCal" variable="IdeCal" />
-      <field id="Nom" variable="Nom" />
-      <field id="Dat" variable="Dat" />
-      <variable id="Ide" type="INTEGER" name="IdeDat" />
-      <variable id="IdeCal" type="INTEGER" name="IdeCal" />
-      <variable id="Nom" type="STRING" name="Nam" />
-      <variable id="Dat" type="DATE" name="Dat" />
-    </multiple>
+      <where>
+        <and>
+          <filter left-field="Ide" condition="eq" right-variable="Ide"/>
+        </and>
+      </where>
+      <variable id="Ide" type="INTEGER" name="IdeCal" />
+      <variable id="Act" type="STRING" value="1"/>
+    </update>
     <commit/>
-    <serve service="insertSchedulerCalendar">
-      <variable id="calendarIde" type="INTEGER" name="IdeCal" />
+    <serve service="activateSchedulerCalendar">
+      <variable id="calendarIde" type="INTEGER" name="IdeCal"/>
     </serve>
   </target>
 
-  <!-- Delete Scheduler Calendar -->
-  <target name="DeleteSchedulerCalendar" permission="scheduler.update">
-    <serve service="deleteSchedulerCalendar">
-      <variable id="calendarIde" type="INTEGER" name="Ide" />
+  <!-- Deactivate: the tasks that use it are rescheduled without it first -->
+  <target name="DeaConfigurationCalendar" permission="scheduler.update">
+    <serve service="deactivateSchedulerCalendar">
+      <variable id="calendarIde" type="INTEGER" name="IdeCal"/>
     </serve>
-    <delete multiple="true">
-      <table id="AweSchCalDat" />
-      <field id="IdeCal" variable="Ide"/>
-      <where>
-        <and>
-          <filter left-field="IdeCal" condition="in" right-variable="Ide"/>
-        </and>
-      </where>
-      <variable id="Ide" type="INTEGER" name="Ide" />
-    </delete>
-    <delete multiple="true">
+    <update>
       <table id="AweSchCal" />
-      <field id="Ide" variable="Ide"/>
+      <field id="Act" variable="Act" />
       <where>
         <and>
-          <filter left-field="Ide" condition="in" right-variable="Ide"/>
+          <filter left-field="Ide" condition="eq" right-variable="Ide"/>
         </and>
       </where>
-      <variable id="Ide" type="INTEGER" name="Ide" />
-    </delete>
+      <variable id="Ide" type="INTEGER" name="IdeCal" />
+      <variable id="Act" type="STRING" value="0"/>
+    </update>
+  </target>
+
+  <!-- Delete («Borrar y quitarlo de la tarea» when a task uses it): the tasks that use it are rescheduled without it,
+       then its dates and the calendar are deleted and their launches keep no calendar -->
+  <target name="DeleteConfigurationCalendar" permission="scheduler.update">
+    <serve service="deleteSchedulerCalendar">
+      <variable id="calendarIde" type="INTEGER" name="IdeCal" />
+    </serve>
     <update audit="HISAweSchTskLch">
       <table id="AweSchTskLch"/>
       <constant id="IdeCal" value="NULL" type="NULL"/>
@@ -729,12 +831,73 @@
           <filter left-field="IdeCal" condition="eq" right-variable="IdeCal"/>
         </and>
       </where>
-      <variable id="IdeCal" type="INTEGER" name="Ide" />
+      <variable id="IdeCal" type="INTEGER" name="IdeCal" />
     </update>
+    <delete>
+      <table id="AweSchCalDat" />
+      <where>
+        <and>
+          <filter left-field="IdeCal" condition="eq" right-variable="IdeCal"/>
+        </and>
+      </where>
+      <variable id="IdeCal" type="INTEGER" name="IdeCal" />
+    </delete>
+    <delete>
+      <table id="AweSchCal" />
+      <where>
+        <and>
+          <filter left-field="Ide" condition="eq" right-variable="IdeCal"/>
+        </and>
+      </where>
+      <variable id="IdeCal" type="INTEGER" name="IdeCal" />
+    </delete>
   </target>
 
-  <!-- Update Scheduler Calendar -->
-  <target name="UpdSchCal" permission="scheduler.update">
+  <!-- Configuration screen, calendar side panel (mock-up 06 artboard 2A): the panel has criteria of its own (CalPnlNom,
+       CalPnlDes, CalPnlAct: the servers tab has Nom and Act) and the dates grid GrdDatLst sends its changed rows.
+       Fill the panel with the selected calendar (IdeCal.selected), or with a new one when no row is selected («Nuevo
+       calendario» unselects the rows first). Reads only -->
+  <target name="loadConfigurationCalendar" permission="scheduler.read">
+    <serve service="loadConfigurationCalendar">
+      <variable id="calendarId" type="INTEGER" name="IdeCal.selected"/>
+    </serve>
+  </target>
+
+  <!-- «Nuevo calendario» saved: the calendar with the new rows of its dates grid, then added to the engine. Its id comes
+       from the sequence (CalPnlNewIde is never sent by the screen) -->
+  <target name="NewConfigurationCalendar" permission="scheduler.update">
+    <insert audit="HISAweSchCal">
+      <table id="AweSchCal" />
+      <field id="Ide" sequence="SchTskCal" variable="CalIde"/>
+      <field id="Nom" variable="Nom" />
+      <field id="Des" variable="Des" />
+      <field id="Act" variable="Act" />
+      <variable id="CalIde" type="INTEGER" name="CalPnlNewIde" />
+      <variable id="Nom" type="STRING" name="CalPnlNom" />
+      <variable id="Des" type="STRING" name="CalPnlDes" />
+      <variable id="Act" type="INTEGER" name="CalPnlAct" />
+    </insert>
+    <multiple grid="GrdDatLst">
+      <table id="AweSchCalDat" />
+      <field id="Ide" variable="Ide" sequence="SchTskCalDat" key="true" />
+      <field id="IdeCal" variable="CalIde" />
+      <field id="Nom" variable="Nom" />
+      <field id="Dat" variable="Dat" />
+      <variable id="Ide" type="INTEGER" name="IdeDat" />
+      <variable id="CalIde" type="INTEGER" name="CalPnlNewIde" />
+      <variable id="Nom" type="STRING" name="Nam" />
+      <variable id="Dat" type="DATE" name="Dat" />
+    </multiple>
+    <commit/>
+    <serve service="insertSchedulerCalendar">
+      <variable id="calendarIde" type="INTEGER" name="CalPnlNewIde" />
+    </serve>
+  </target>
+
+  <!-- An edited calendar saved (the calendar of the selected row, IdeCal.selected): its fields and the changed rows of
+       its dates grid (new, changed and removed dates), then the engine reloads it and reschedules its tasks with it or
+       without it, as its Activo switch says (the same as activating or deactivating it from the row menu) -->
+  <target name="UpdConfigurationCalendar" permission="scheduler.update">
     <update>
       <table id="AweSchCal" />
       <field id="Nom" variable="Nom" />
@@ -745,10 +908,10 @@
           <filter left-field="Ide" condition="eq" right-variable="CalIde"/>
         </and>
       </where>
-      <variable id="CalIde" type="INTEGER" name="CalIde" />
-      <variable id="Nom" type="STRING" name="Nom" />
-      <variable id="Des" type="STRING" name="Des" />
-      <variable id="Act" type="INTEGER" name="Act" />
+      <variable id="CalIde" type="INTEGER" name="IdeCal.selected" />
+      <variable id="Nom" type="STRING" name="CalPnlNom" />
+      <variable id="Des" type="STRING" name="CalPnlDes" />
+      <variable id="Act" type="INTEGER" name="CalPnlAct" />
     </update>
     <multiple grid="GrdDatLst">
       <table id="AweSchCalDat" />
@@ -757,92 +920,17 @@
       <field id="Nom" variable="Nom" />
       <field id="Dat" variable="Dat" />
       <variable id="Ide" type="INTEGER" name="IdeDat" />
-      <variable id="CalIde" type="INTEGER" name="CalIde" />
+      <variable id="CalIde" type="INTEGER" name="IdeCal.selected" />
       <variable id="Nom" type="STRING" name="Nam" />
       <variable id="Dat" type="DATE" name="Dat" />
     </multiple>
     <commit/>
-    <serve service="updateSchedulerCalendar">
-      <variable id="calendarIde" type="INTEGER" name="CalIde" />
+    <serve service="updateConfigurationCalendar">
+      <variable id="calendarId" type="INTEGER" name="IdeCal.selected" />
+      <variable id="active" type="INTEGER" name="CalPnlAct" />
     </serve>
   </target>
 
-  <!--Deactivate-->
-  <!--Deactivate Scheduler Calendar-->
-  <target name="DeaSchCal" permission="scheduler.update">
-    <serve service="deactivateSchedulerCalendar">
-      <variable id="calendarIde" type="INTEGER" name="Ide"/>
-    </serve>
-    <update>
-      <table id="AweSchCal" />
-      <field id="Act" variable="Act" />
-      <where>
-        <and>
-          <filter left-field="Ide" condition="in" right-variable="Ide"/>
-        </and>
-      </where>
-      <variable id="Ide" type="INTEGER" name="Ide" />
-      <variable id="Act" type="STRING" value="0"/>
-    </update>
-  </target>
-
-  <!--Activate Scheduler Calendar-->
-  <target name="ActSchCal" permission="scheduler.update">
-    <update>
-      <table id="AweSchCal" />
-      <field id="Act" variable="Act" />
-      <where>
-        <and>
-          <filter left-field="Ide" condition="in" right-variable="Ide"/>
-        </and>
-      </where>
-      <variable id="Ide" type="INTEGER" name="Ide" />
-      <variable id="Act" type="STRING" value="1"/>
-    </update>
-    <commit/>
-    <serve service="activateSchedulerCalendar">
-      <variable id="calendarIde" type="INTEGER" name="Ide"/>
-    </serve>
-  </target>
-
-  <!--
-  SCHEDULER CALENDAR DATE
-  -->
-  <!-- Insert Scheduler Date -->
-  <target name="NewSchedulerCalendarDate">
-    <insert audit="HISAweSchCalDat">
-      <table id="AweSchCalDat" />
-      <field id="Ide" sequence="SchTskCalDat" variable="IdeDat"/>
-      <field id="IdeCal" variable="IdeCal" />
-      <field id="Nom" variable="Nom" />
-      <field id="Dat" variable="Dat" />
-      <variable id="IdeDat" type="INTEGER" name="IdeDat" />
-      <variable id="IdeCal" type="INTEGER" name="CalIde" />
-      <variable id="Nom" type="STRING" name="CrtCalNom" />
-      <variable id="Dat" type="DATE" name="CrtCalDat" />
-    </insert>
-    <commit/>
-    <serve service="updateSchedulerCalendar">
-      <variable id="calendarIde" type="INTEGER" name="CalIde" />
-    </serve>
-  </target>
-
-  <!-- Delete Scheduler Calendar -->
-  <target name="DeleteSchedulerCalendarDate">
-    <delete multiple="true">
-      <table id="AweSchCalDat" />
-      <field id="Ide" variable="Ide"/>
-      <where>
-        <and>
-          <filter left-field="Ide" condition="eq" right-variable="Ide"/>
-        </and>
-      </where>
-      <variable id="Ide" type="STRING" name="IdeDat" />
-    </delete>
-    <serve service="updateSchedulerCalendar">
-      <variable id="calendarIde" type="INTEGER" name="Ide" />
-    </serve>
-  </target>
   <!--
   SCHEDULER CALENDAR
   -->
@@ -1262,6 +1350,39 @@
     <serve service="loadExecutionScreen">
       <variable id="executionLogLocator" type="STRING" name="buttonValue"/>
       <variable id="address" type="OBJECT" name="buttonAddress"/>
+      <!-- A client that sends no button value nor address (React cell buttons) selects the row of the cell first -->
+      <variable id="selectedExecutionLogLocator" type="STRING" name="ExecutionLogPath.selected"/>
+    </serve>
+  </target>
+
+  <!-- Activity screen: show the executions grouped by flow run with the filters of the executions toolbar -->
+  <target name="switchActivityToRuns" permission="scheduler.read">
+    <serve service="switchActivityView">
+      <variable id="view" type="STRING" value="run"/>
+      <variable id="search" type="STRING" name="CrtExeTsk"/>
+      <variable id="state" type="STRING" name="CrtExeQck"/>
+      <variable id="origin" type="STRING" name="CrtExeOri"/>
+      <variable id="window" type="STRING" name="CrtExeWin"/>
+    </serve>
+  </target>
+
+  <!-- Activity screen: show the executions with the filters of the runs toolbar -->
+  <target name="switchActivityToExecutions" permission="scheduler.read">
+    <serve service="switchActivityView">
+      <variable id="view" type="STRING" value="exe"/>
+      <variable id="search" type="STRING" name="CrtRunTsk"/>
+      <variable id="state" type="STRING" name="CrtRunQck"/>
+      <variable id="origin" type="STRING" name="CrtRunOri"/>
+      <variable id="window" type="STRING" name="CrtRunWin"/>
+    </serve>
+  </target>
+
+  <!-- Detail of the selected execution of the activity grid (its row menu): the execution criteria of the side panel;
+       the screen points the log viewer at the row -->
+  <target name="loadActivityExecution" permission="scheduler.read">
+    <serve service="reloadExecutionScreen">
+      <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+      <variable id="executionId" type="INTEGER" name="ExeTsk.selected"/>
     </serve>
   </target>
 
@@ -1376,12 +1497,11 @@
     </serve>
   </target>
 
-  <!-- Test a server connection with the current form values of the new/update
-       server screens. Runs no query or maintain: nothing is persisted. IdeSrv is
-       only present on the update screen, where blank secrets mean "keep the
-       stored value" and are resolved against the stored server. -->
-  <target name="ChkSchSrvCnx" permission="scheduler.update">
-    <serve service="checkServerConnection">
+  <!-- Configuration screen: test the connection with the values of the server side panel, without saving them nor
+       keeping the result. IdeSrv is present when the server exists: blank secrets keep the stored ones while the form
+       keeps its type, host, port and user -->
+  <target name="TstSchSrvCnx" permission="scheduler.update">
+    <serve service="testServerConnection">
       <variable id="type" type="STRING" name="Pro"/>
       <variable id="host" type="STRING" name="Hst"/>
       <variable id="port" type="INTEGER" name="Prt"/>
@@ -1393,14 +1513,44 @@
     </serve>
   </target>
 
-  <!-- Test the connection of the server selected on the servers list screen.
-       The grid carries no port or credentials, so only the selected row id is
-       sent and the service loads the whole stored record. Runs no query or
-       maintain: nothing is persisted. -->
-  <target name="ChkSchSrvCnxSel" permission="scheduler.update">
-    <serve service="checkServerConnection">
-      <variable id="serverId" type="INTEGER" name="Ide.selected"/>
+  <!-- Configuration screen: test the stored server of the selected row and keep the result as its last test in the
+       session -->
+  <target name="TstSchSrvCnxSel" permission="scheduler.update">
+    <serve service="testServerConnection">
+      <variable id="serverId" type="INTEGER" name="IdeSrv.selected"/>
     </serve>
+  </target>
+
+  <!-- Configuration screen, «Importar…» of the calendar side panel: read the dates of the .ics or .csv file of the
+       uploader CalDatImp for the dates grid, without saving them (they are saved with the calendar). The answer carries
+       the dates (Dat dd/MM/yyyy, Nam) and a message with the lines that cannot be read -->
+  <target name="ImportConfigurationCalendarDates" permission="scheduler.update">
+    <serve service="importConfigurationCalendarDates">
+      <variable id="file" type="STRING" name="CalDatImp"/>
+    </serve>
+  </target>
+
+  <!-- Configuration screen, «Día» of the dates grid of the calendar side panel: the weekday of the date of the row being
+       edited (a date added with «Añadir fecha» or changed in the editor), as an update of that row. Reads only -->
+  <target name="getConfigurationCalendarDateWeekday" permission="scheduler.read">
+    <serve service="getConfigurationCalendarDateWeekday">
+      <variable id="date" type="STRING" name="CalDatWekDat"/>
+      <variable id="row" type="STRING" name="CalDatWekRow"/>
+    </serve>
+  </target>
+
+  <!-- Configuration screen, server side panel: fill the panel with the selected server (IdeSrv.selected of the servers
+       grid), never with its secrets (only whether each one is saved), or with a new server when no row is selected
+       («Nuevo servidor» unselects the rows first). Reads only -->
+  <target name="loadConfigurationServer" permission="scheduler.read">
+    <serve service="loadConfigurationServer">
+      <variable id="serverId" type="INTEGER" name="IdeSrv.selected"/>
+    </serve>
+  </target>
+
+  <!-- Configuration screen, «Probar todos»: test every active server and keep each result in the session -->
+  <target name="TstAllSchSrvCnx" permission="scheduler.update">
+    <serve service="testAllServerConnections"/>
   </target>
 
   <!-- Flow runs: create a run -->

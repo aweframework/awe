@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,5 +39,27 @@ class DependencyCyclesTest {
   @Test
   void existingCyclesElsewhereDoNotLoopForever() {
     assertFalse(DependencyCycles.closesCycle(9, List.of(7), Map.of(7, List.of(8), 8, List.of(7))));
+  }
+
+  @Test
+  void aParentThatIsTheTaskOrAlreadyRunsAfterItClosesACycle() {
+    assertTrue(DependencyCycles.closesCycleFromParents(1, List.of(3), CHILDREN));
+    assertTrue(DependencyCycles.closesCycleFromParents(1, List.of(9, 4), CHILDREN));
+    assertTrue(DependencyCycles.closesCycleFromParents(2, List.of(2), CHILDREN));
+  }
+
+  @Test
+  void parentsThatDoNotRunAfterTheTaskDoNotCloseACycle() {
+    assertFalse(DependencyCycles.closesCycleFromParents(2, List.of(1, 4), CHILDREN));
+    assertFalse(DependencyCycles.closesCycleFromParents(3, List.of(), CHILDREN));
+    // A new task has no identifier and nothing runs after it yet
+    assertFalse(DependencyCycles.closesCycleFromParents(null, List.of(1, 2), CHILDREN));
+  }
+
+  @Test
+  void theDescendantsOfATaskAreTheTasksThatRunAfterItDirectlyOrThroughOthers() {
+    assertEquals(Set.of(2, 3, 4), DependencyCycles.descendants(1, CHILDREN));
+    assertEquals(Set.of(), DependencyCycles.descendants(3, CHILDREN));
+    assertEquals(Set.of(7, 8), DependencyCycles.descendants(7, Map.of(7, List.of(8), 8, List.of(7))));
   }
 }

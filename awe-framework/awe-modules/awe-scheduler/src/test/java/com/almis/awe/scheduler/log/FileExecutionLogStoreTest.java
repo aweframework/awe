@@ -39,7 +39,7 @@ class FileExecutionLogStoreTest {
     assertFalse(node.toString().contains(EncodeService.encodeSymmetric(logDirectory.resolve("execution_12-34.log").toString())));
     assertEquals("no-btn", node.get("style").asString());
     assertEquals("SCHEDULER_SHOW_EXECUTION_LOG", node.get("title").asString());
-    assertEquals("file-text-o text-info", node.get("icon").asString());
+    assertEquals("file-text-o", node.get("icon").asString());
     assertEquals("", node.get("label").asString());
   }
 

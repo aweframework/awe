@@ -135,6 +135,17 @@ describe("components/tab.js", () => {
     expect(tabs().map(tab => tab.getAttribute("data-invalid"))).toEqual(["false", "false", "false"]);
   });
 
+  it("draws the icon of each option in its own tab and no icon in a tab whose option has none (#993)", () => {
+    const model = createPanelModel("1");
+    model.values[0].icon = "lucide:layout-dashboard";
+    model.values[1].icon = "lucide:settings";
+    const {element} = compileTab(model);
+    const tabIcons = [...element[0].querySelectorAll("li[data-testid='tab']")]
+      .map(tab => tab.querySelector("a use")?.getAttribute("href") || null);
+
+    expect(tabIcons).toEqual(["icons/lucide-sprite.svg#layout-dashboard", "icons/lucide-sprite.svg#settings", null]);
+  });
+
   describe("maximize test hooks (#799)", () => {
     const hook = id => `[data-testid='${id}']`;
     const compileMaximizable = (maximize = true) =>

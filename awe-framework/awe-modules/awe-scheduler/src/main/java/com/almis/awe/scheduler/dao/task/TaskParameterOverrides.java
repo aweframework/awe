@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 /**
  * Rules for overriding task parameter values at launch time: which parameter sources a launch may override, how
@@ -23,9 +24,13 @@ public class TaskParameterOverrides {
    */
   public static final Set<String> VARIABLE_SOURCES = Set.of(String.valueOf(ParameterConstants.VARIABLE));
 
+  /**
+   * Sources overridable by a manual launch: the values and the variables. A property keeps its key: the launch that
+   * changes it is rejected ({@link #changedPropertyKeys(Task, Map)}), so its configured value is never swapped for the
+   * value of another key
+   */
   private static final Set<String> MANUAL_SOURCES = Set.of(String.valueOf(ParameterConstants.VALUE),
-    String.valueOf(ParameterConstants.VARIABLE),
-    String.valueOf(ParameterConstants.PROPERTY));
+    String.valueOf(ParameterConstants.VARIABLE));
   private static final String PROPERTY_SOURCE = String.valueOf(ParameterConstants.PROPERTY);
 
   private final UnaryOperator<String> propertyResolver;
@@ -41,8 +46,8 @@ public class TaskParameterOverrides {
 
   /**
    * Parameter sources a launch of the given type may override. An operator launching by hand may
-   * adjust any parameter, whatever its source; every other trigger type, dependency propagation
-   * included, may only override VARIABLE parameters.
+   * adjust the VALUE and VARIABLE parameters (a PROPERTY keeps its key); every other trigger type,
+   * dependency propagation included, may only override VARIABLE parameters.
    *
    * @param triggerType Trigger type of the launch
    * @return Overridable parameter sources
@@ -52,9 +57,8 @@ public class TaskParameterOverrides {
   }
 
   /**
-   * Apply the supplied values to the task parameters whose source is overridable.
-   * On a {@link ParameterConstants#PROPERTY} parameter the supplied value is the property key,
-   * resolved at execution time.
+   * Apply the supplied values to the task parameters whose source is overridable. A value of a type that is not text
+   * goes without its surrounding blanks (as it is validated, {@link #invalidValues(Task, Map)}).
    *
    * @param task               Task holding the parameter list to update
    * @param variables          Supplied values (parameter name -&gt; value); null or empty is a no-op
@@ -67,7 +71,7 @@ public class TaskParameterOverrides {
 
     for (TaskParameter parameter : task.getParameterList()) {
       if (overridableSources.contains(parameter.getSource()) && variables.containsKey(parameter.getName())) {
-        parameter.setValue(variables.get(parameter.getName()));
+        parameter.setValue(ParameterValues.normalize(parameter.getType(), variables.get(parameter.getName())));
       }
     }
   }
@@ -89,6 +93,60 @@ public class TaskParameterOverrides {
       .filter(key -> key == null || key.isBlank() || propertyResolver.apply(key) == null)
       .map(key -> key == null ? "" : key)
       .toList();
+  }
+
+  /**
+   * Names of the parameters whose supplied value is not a value of their type, in parameter order. Only a value that
+   * changes the stored one is checked (a launch keeps working with what the task already had), and never on a
+   * {@link ParameterConstants#PROPERTY} parameter, whose value is a property key ({@link #changedPropertyKeys(Task, Map)}
+   * and {@link #unresolvedProperties(Task)} check it). A value of a type that is not text is checked without its
+   * surrounding blanks; a blank value is only valid for the text types (STRING, OBJECT): every other type needs a value.
+   *
+   * @param task      Task holding the stored parameters; null when it does not exist (nothing is checked: the launch
+   *                  answers that the task does not exist)
+   * @param variables Supplied values (parameter name -&gt; value); null or empty for none
+   * @return Names of the parameters with a value that is not valid for their type
+   */
+  public List<String> invalidValues(Task task, Map<String, String> variables) {
+    return suppliedParameters(task, variables)
+      .filter(parameter -> !PROPERTY_SOURCE.equals(parameter.getSource()))
+      .filter(parameter -> {
+        String value = ParameterValues.normalize(parameter.getType(), variables.get(parameter.getName()));
+        return !textOf(parameter.getValue()).equals(textOf(value)) && !ParameterValues.isValid(parameter.getType(), value);
+      })
+      .map(TaskParameter::getName)
+      .toList();
+  }
+
+  /**
+   * Names of the {@link ParameterConstants#PROPERTY} parameters whose supplied value is not their key (blanks around it
+   * aside), in parameter order: a launch cannot change the key of a property, it would read another configured value.
+   *
+   * @param task      Task holding the stored parameters; null when it does not exist (nothing is checked)
+   * @param variables Supplied values (parameter name -&gt; value); null or empty for none
+   * @return Names of the property parameters whose key would change
+   */
+  public List<String> changedPropertyKeys(Task task, Map<String, String> variables) {
+    return suppliedParameters(task, variables)
+      .filter(parameter -> PROPERTY_SOURCE.equals(parameter.getSource()))
+      .filter(parameter -> !textOf(parameter.getValue()).strip().equals(textOf(variables.get(parameter.getName())).strip()))
+      .map(TaskParameter::getName)
+      .toList();
+  }
+
+  /**
+   * Parameters of the task with a supplied value, none without a task, parameters or values
+   */
+  private static Stream<TaskParameter> suppliedParameters(Task task, Map<String, String> variables) {
+    if (task == null || variables == null || variables.isEmpty() || task.getParameterList() == null) {
+      return Stream.empty();
+    }
+    return task.getParameterList().stream()
+      .filter(parameter -> parameter.getName() != null && variables.containsKey(parameter.getName()));
+  }
+
+  private static String textOf(String value) {
+    return value == null ? "" : value;
   }
 
   /**

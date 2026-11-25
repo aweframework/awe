@@ -1,0 +1,848 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : scheduler-task-editor.xml
+    Description: Task editor of the Scheduler (#993, S8): one screen for a new task, the edition of a task and its copy
+                 (it replaces the five step wizard and the tabbed editor, removed in phase 7). The callers send the mode
+                 (TskEdtMod: new, edit or copy), the task (IdeTsk.selected) and, to open it on a section, TskEdtSec
+                 (when: «Cuándo»). The mode and the task are kept on reload (keep-on-reload), so a reload of the browser
+                 opens the same task in the same mode. getTaskEditor fills the screen (its target): the task with its
+                 parents (edit), its copy («name (copy)», inactive, with the parents of the original and without the
+                 tasks it launches nor its webhook hook) or nothing (new), its «When» (TskWhn) and its mode.
+                 Layout: the header card (title of the mode, the task and its active state), the sections in cards
+                 (what it runs, parameters, when, dependencies, behaviour and notifications) with a section navigation
+                 on the left (buttons that scroll to their card) and a live summary on the right, all in a body that
+                 scrolls above a footer that stays visible (Cancel and Save, whose validation focuses the first field in
+                 error). The navigation marks the section in sight while the body scrolls (section spy of the engines).
+                 The execution type and «When» are choice cards (their options with icon and description come from
+                 getTaskEditorExecutionOptions and getTaskEditorWhenOptions). A scheduled task chooses a preset of its
+                 «Repetition» (SchPre, chips), each one with only its fields (the days as toggles, the time with its
+                 seconds); the presets only fill the stored fields of the task (TaskSchedulePreset): a change selects them
+                 in «Custom» (SyncTaskEditorSchedule, which also makes the repetition weekly when its days change), the
+                 save stores them again (applyTaskEditorSchedule), «Custom» offers to go back to the preset its fields
+                 match (SchMat, BackToTaskEditorSchedulePreset), and a preview card shows the repetition in a sentence
+                 with its key parts bold, its next five runs as tiles, the first holiday it skips and how it is saved
+                 (getTaskEditorSchedule). SchVw tells which fields of «When» show; it is set with value actions, so the
+                 fields that read it follow it at once.
+                 «When» chooses manual, scheduled, file, after other tasks or webhook. «After other tasks» is saved as a
+                 manual task (TypLch 0) with the parents chosen in TskPrn (the rows where the task is the child); the
+                 condition of each parent is its own (its behaviour switches) and is shown read-only in the graph of the
+                 chosen parents, whose nodes open the task screen of each parent. Leaving «After other tasks» with
+                 parents chosen asks first (DlgTskPrnClr): changing clears them, keeping goes back to «After other
+                 tasks» (also when the dialog is closed). Dependencies shows the tasks that run after this one, as
+                 saved, read-only. After a save the task screen of the saved task opens (the save answers with the task
+                 as IdeTsk.selected, a new one for a new task or a copy); Cancel goes back where the user came from.
+                 No grid of the screen has an IdeTsk column: the task travels only in IdeTsk.selected.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="MENU_SCHEDULER_TASK_EDITOR" help="HELP_SCREEN_SCHEDULER_TASK_EDITOR" target="getTaskEditor">
+  <tag source="hidden">
+    <!-- The task and the mode of the editor, kept on reload. The save answers with the saved task here -->
+    <criteria id="IdeTsk.selected" component="hidden" variable="IdeTsk.selected" keep-on-reload="true" />
+    <criteria id="TskEdtMod" component="hidden" variable="TskEdtMod" keep-on-reload="true" />
+    <!-- Section to open the editor on: when («Change what it depends on» of the task screen) -->
+    <criteria id="TskEdtSec" component="hidden" variable="TskEdtSec">
+      <dependency initial="true">
+        <dependency-element id="TskEdtSec" condition="eq" value="when" />
+        <dependency-action type="scroll-to" target="SecTskWhn" />
+      </dependency>
+    </criteria>
+    <!-- The task edited (UpdateSchedulerTaskEditor), empty for a new task and a copy -->
+    <criteria id="Ide" component="hidden" />
+    <!-- The launch type saved: the «When» chosen (TskWhn sets it), «After other tasks» (3) is a manual task -->
+    <criteria id="TypLch" component="hidden" />
+    <!-- What «When» shows: the preset of the «Repetition» of a scheduled task (MIN, HOU, DAY, WRK, WEK, MON, ONC, CUS), the
+         fields of a file task (FIL), of a webhook task (WHK) or none (NON). The fields of «When» show by it. It comes with
+         the task (getTaskEditor), so the groups shown by class (range, days, preview) are in sight when the editor opens -->
+    <criteria id="SchVw" component="hidden">
+      <!-- Set with actions (not computed in place), so the fields that show by it follow it at once -->
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="eq" value="1" />
+        <dependency-element id="SchPre" condition="eq" value="MIN" />
+        <dependency-action type="value" target="SchVw" value="MIN" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="eq" value="1" />
+        <dependency-element id="SchPre" condition="eq" value="HOU" />
+        <dependency-action type="value" target="SchVw" value="HOU" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="eq" value="1" />
+        <dependency-element id="SchPre" condition="eq" value="DAY" />
+        <dependency-action type="value" target="SchVw" value="DAY" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="eq" value="1" />
+        <dependency-element id="SchPre" condition="eq" value="WRK" />
+        <dependency-action type="value" target="SchVw" value="WRK" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="eq" value="1" />
+        <dependency-element id="SchPre" condition="eq" value="WEK" />
+        <dependency-action type="value" target="SchVw" value="WEK" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="eq" value="1" />
+        <dependency-element id="SchPre" condition="eq" value="MON" />
+        <dependency-action type="value" target="SchVw" value="MON" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="eq" value="1" />
+        <dependency-element id="SchPre" condition="eq" value="ONC" />
+        <dependency-action type="value" target="SchVw" value="ONC" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="eq" value="1" />
+        <dependency-element id="SchPre" condition="eq" value="CUS" />
+        <dependency-action type="value" target="SchVw" value="CUS" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="eq" value="2" />
+        <dependency-action type="value" target="SchVw" value="FIL" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="eq" value="4" />
+        <dependency-action type="value" target="SchVw" value="WHK" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TskWhn" condition="in" value="0,3" />
+        <dependency-action type="value" target="SchVw" value="NON" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="SchVw" condition="in" value="CUS" />
+        <dependency-action type="remove-class" async="true" target-action="hidden" target="#SchCus" />
+      </dependency>
+      <dependency initial="true" invert="true">
+        <dependency-element id="SchVw" condition="in" value="CUS" />
+        <dependency-action type="add-class" async="true" target-action="hidden" target="#SchCus" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="SchVw" condition="in" value="DAY,WRK,WEK" />
+        <dependency-action type="remove-class" async="true" target-action="hidden" target="#SchDays" />
+      </dependency>
+      <dependency initial="true" invert="true">
+        <dependency-element id="SchVw" condition="in" value="DAY,WRK,WEK" />
+        <dependency-action type="add-class" async="true" target-action="hidden" target="#SchDays" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="SchVw" condition="in" value="FIL" />
+        <dependency-action type="remove-class" async="true" target-action="hidden" target="#TskEdtFil" />
+      </dependency>
+      <dependency initial="true" invert="true">
+        <dependency-element id="SchVw" condition="in" value="FIL" />
+        <dependency-action type="add-class" async="true" target-action="hidden" target="#TskEdtFil" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="SchVw" condition="in" value="WHK" />
+        <dependency-action type="remove-class" async="true" target-action="hidden" target="#TskEdtWhk" />
+      </dependency>
+      <dependency initial="true" invert="true">
+        <dependency-element id="SchVw" condition="in" value="WHK" />
+        <dependency-action type="add-class" async="true" target-action="hidden" target="#TskEdtWhk" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="SchVw" condition="in" value="MIN,HOU,DAY,WRK,WEK,MON,CUS,FIL" />
+        <dependency-action type="remove-class" async="true" target-action="hidden" target="#SchRng" />
+      </dependency>
+      <dependency initial="true" invert="true">
+        <dependency-element id="SchVw" condition="in" value="MIN,HOU,DAY,WRK,WEK,MON,CUS,FIL" />
+        <dependency-action type="add-class" async="true" target-action="hidden" target="#SchRng" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="SchVw" condition="in" value="MIN,HOU,DAY,WRK,WEK,MON,ONC,CUS" />
+        <dependency-action type="remove-class" async="true" target-action="hidden" target="#SchPrv" />
+      </dependency>
+      <dependency initial="true" invert="true">
+        <dependency-element id="SchVw" condition="in" value="MIN,HOU,DAY,WRK,WEK,MON,ONC,CUS" />
+        <dependency-action type="add-class" async="true" target-action="hidden" target="#SchPrv" />
+      </dependency>
+    </criteria>
+    <!-- The preset the day toggles were filled for (daily, workdays or weekly): it tells a change of preset from a change
+         of days, which makes the repetition weekly (SyncTaskEditorSchedule) -->
+    <criteria id="SchWkdPre" component="hidden" />
+    <!-- The preset the custom repetition matches, empty when none does: «Custom» offers to go back to it (ButSchBck) -->
+    <criteria id="SchMat" component="hidden">
+      <dependency source-type="query" target-type="input" initial="true" server-action="value"
+                  target-action="getTaskEditorScheduleMatch" type="or">
+        <dependency-element id="SchVw" condition="eq" value="CUS" />
+        <dependency-element id="RptNum" condition="ne" value="__" />
+        <dependency-element id="RptTyp" condition="ne" value="__" />
+        <dependency-element id="years" condition="ne" value="__" />
+        <dependency-element id="months" condition="ne" value="__" />
+        <dependency-element id="weeks" condition="ne" value="__" />
+        <dependency-element id="weekDays" condition="ne" value="__" />
+        <dependency-element id="days" condition="ne" value="__" />
+        <dependency-element id="hours" condition="ne" value="__" />
+        <dependency-element id="minutes" condition="ne" value="__" />
+        <dependency-element id="seconds" condition="ne" value="__" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="SchVw" condition="eq" value="CUS" />
+        <dependency-element id="SchMat" condition="is not empty" />
+        <dependency-action type="remove-class" async="true" target-action="hidden" target="#SchBck" />
+      </dependency>
+      <dependency initial="true" type="or">
+        <dependency-element id="SchVw" condition="ne" value="CUS" />
+        <dependency-element id="SchMat" condition="is empty" />
+        <dependency-action type="add-class" async="true" target-action="hidden" target="#SchBck" />
+      </dependency>
+    </criteria>
+    <!-- A change of the preset of a scheduled task or of its fields selects the stored fields it writes (RptTyp, RptNum,
+         the lists, the date and the time), so «Custom» shows the same repetition. The server answers nothing for «Custom»
+         or another launch type, and applies the preset again when the task is saved (applyTaskEditorSchedule) -->
+    <criteria id="SchSyn" component="hidden">
+      <dependency type="or">
+        <dependency-element id="SchVw" />
+        <dependency-element id="SchEvy" condition="ne" value="__" />
+        <dependency-element id="SchTim" condition="ne" value="__" />
+        <dependency-element id="SchWkd" condition="ne" value="__" />
+        <dependency-element id="SchMdy" condition="ne" value="__" />
+        <dependency-action type="server" server-action="maintain-silent" target-action="SyncTaskEditorSchedule" silent="true" />
+      </dependency>
+    </criteria>
+  </tag>
+
+  <tag source="buttons">
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+  </tag>
+
+  <tag source="center">
+    <!-- The body scrolls (a long form), the footer stays visible under it -->
+    <tag type="div" style="expand awe-editor" expandible="vertical">
+      <tag type="div" style="expand scrollable awe-editor-body" expandible="vertical">
+        <!-- Header: the title of the mode («New task», «Edit task #N», «Duplicate task»), the task and its active state -->
+        <card id="CrdTskEdt" initial-load="query" target-action="getTaskEditorHeader" />
+
+        <tag type="div" style="awe-editor-layout">
+          <!-- Sections: each button scrolls to its card -->
+          <tag type="nav" id="TskEdtNav" style="awe-editor-nav">
+            <tag type="span" style="awe-editor-nav-title" label="SCREEN_TEXT_TASK_EDITOR_SECTIONS" />
+            <button id="NavTskWht" label="SCREEN_TEXT_TASK_EDITOR_SEC_WHAT" icon="lucide:play" style="btn-ghost">
+              <button-action type="scroll-to" target="SecTskWht" />
+            </button>
+            <button id="NavTskPar" label="SCREEN_TEXT_TASK_EDITOR_SEC_PARAMETERS" icon="lucide:sliders-horizontal" style="btn-ghost">
+              <button-action type="scroll-to" target="SecTskPar" />
+            </button>
+            <button id="NavTskWhn" label="SCREEN_TEXT_TASK_EDITOR_SEC_WHEN" icon="lucide:calendar-clock" style="btn-ghost">
+              <button-action type="scroll-to" target="SecTskWhn" />
+            </button>
+            <button id="NavTskDep" label="SCREEN_TEXT_TASK_EDITOR_SEC_DEPENDENCIES" icon="lucide:workflow" style="btn-ghost">
+              <button-action type="scroll-to" target="SecTskDep" />
+            </button>
+            <button id="NavTskBeh" label="SCREEN_TEXT_TASK_EDITOR_SEC_BEHAVIOUR" icon="lucide:shield-check" style="btn-ghost">
+              <button-action type="scroll-to" target="SecTskBeh" />
+            </button>
+            <button id="NavTskNot" label="SCREEN_TEXT_TASK_EDITOR_SEC_NOTIFICATIONS" icon="lucide:bell" style="btn-ghost">
+              <button-action type="scroll-to" target="SecTskNot" />
+            </button>
+          </tag>
+
+          <tag type="div" style="awe-editor-sections">
+            <!-- 1. What it runs: name, description and the execution of the old task screens -->
+            <card id="SecTskWht" title="SCREEN_TEXT_TASK_EDITOR_SEC_WHAT" subtitle="SCREEN_TEXT_TASK_EDITOR_SEC_WHAT_SUB">
+              <tag type="div" style="row">
+                <criteria label="PARAMETER_NAME" component="text" id="Nam" style="col-xs-12 col-lg-6" validation="{required: true, maxlength: 40}" />
+                <criteria label="PARAMETER_DESCRIPTION" component="text" id="Des" style="col-xs-12 col-lg-6" />
+                <!-- The execution type as choice cards, with what each one runs -->
+                <criteria label="PARAMETER_EXECUTE" component="button-radio" id="TypExe" style="col-xs-12 awe-choice-cards"
+                          initial-load="query" target-action="getTaskEditorExecutionOptions" validation="required">
+                  <!-- A maintain: how a deferred answer works -->
+                  <dependency initial="true">
+                    <dependency-element id="TypExe" condition="eq" value="1" />
+                    <dependency-action type="remove-class" async="true" target-action="hidden" target="#TskEdtDfr" />
+                  </dependency>
+                  <dependency initial="true" invert="true">
+                    <dependency-element id="TypExe" condition="eq" value="1" />
+                    <dependency-action type="add-class" async="true" target-action="hidden" target="#TskEdtDfr" />
+                  </dependency>
+                </criteria>
+                <include target-screen="scheduler-task-fields" target-source="Execution" />
+                <tag type="div" id="TskEdtDfr" style="col-xs-12 hidden">
+                  <tag type="p" style="awe-editor-help" label="SCREEN_TEXT_TASK_EDITOR_DEFERRED_HELP" />
+                </tag>
+              </tag>
+            </card>
+
+            <!-- 2. Parameters: the ones of the task (edit), of the original without identifiers (copy) or none (new). The grid
+                 is tall enough to show its empty state without scrolling -->
+            <card id="SecTskPar" title="SCREEN_TEXT_TASK_EDITOR_SEC_PARAMETERS" subtitle="SCREEN_TEXT_TASK_EDITOR_SEC_PARAMETERS_SUB">
+              <grid id="ParameterList" style="height-lg" editable="true" send-all="true" target-action="getTaskEditorParameters"
+                    server-action="data" initial-load="query" pagination-disabled="true" row-numbers="false"
+                    empty-title="SCREEN_TEXT_ACTIVITY_NO_PARAMETERS" empty-text="SCREEN_TEXT_TASK_EDITOR_NO_PARAMETERS_TEXT">
+                <column name="IdePar" hidden="true" />
+                <!-- A name cannot start with "=": the flow runs keep that prefix for the resolved parameters of a launch -->
+                <column label="PARAMETER_NAME" name="ParNam" align="left" component="text"
+                        validation="{required: true, pattern: {value: '^[^=]', message: 'VALIDATOR_MESSAGE_SCHEDULER_PARAMETER_NAME'}}"
+                        charlength="24" sortable="false" />
+                <column label="PARAMETER_SOURCE" name="ParSrc" align="left" component="select" validation="required"
+                        initial-load="enum" target-action="SchParSrc" charlength="14" sortable="false" />
+                <column label="PARAMETER_TYPE" name="ParTyp" align="left" component="select" validation="required"
+                        initial-load="enum" target-action="SchParTyp" charlength="14" sortable="false" />
+                <column label="PARAMETER_VALUE" name="ParVal" align="left" component="text" charlength="24" width="*" sortable="false" />
+                <!-- Only a webhook task maps values of the webhook onto its parameters -->
+                <column label="SCHEDULER_WEBHOOK_POINTER" name="ParPtr" align="left" component="text" charlength="16"
+                        sortable="false" help="SCHEDULER_WEBHOOK_POINTER_HELP">
+                  <dependency target-type="show-column" initial="true">
+                    <dependency-element id="TypLch" condition="eq" value="4" />
+                  </dependency>
+                </column>
+                <button id="ButAddParameter" label="BUTTON_TASK_EDITOR_ADD_PARAMETER" icon="plus">
+                  <button-action type="add-row" target="ParameterList" />
+                </button>
+                <button id="ButDelParameter" label="BUTTON_DELETE" icon="trash">
+                  <button-action type="delete-row" target="ParameterList" />
+                </button>
+              </grid>
+            </card>
+
+            <!-- 3. When: what launches the task -->
+            <card id="SecTskWhn" title="SCREEN_TEXT_TASK_EDITOR_SEC_WHEN" subtitle="SCREEN_TEXT_TASK_EDITOR_SEC_WHEN_SUB">
+              <tag type="div" style="row">
+                <criteria label="SCREEN_TEXT_TASK_EDITOR_WHEN" component="button-radio" id="TskWhn" style="col-xs-12 awe-choice-cards"
+                          initial-load="query" target-action="getTaskEditorWhenOptions" validation="required" value="0">
+                  <!-- Choice cards: each option with its icon and what it does. The launch type it saves («After other
+                       tasks» is a manual task), set with an action so the fields of the launch type follow it at once,
+                       and, for «After other tasks», its parents -->
+                  <dependency initial="true">
+                    <dependency-element id="TskWhn" condition="eq" value="0" />
+                    <dependency-action type="value" target="TypLch" value="0" />
+                    <dependency-action type="add-class" async="true" target-action="hidden" target="#TskEdtAft" />
+                  </dependency>
+                  <dependency initial="true">
+                    <dependency-element id="TskWhn" condition="eq" value="1" />
+                    <dependency-action type="value" target="TypLch" value="1" />
+                    <dependency-action type="add-class" async="true" target-action="hidden" target="#TskEdtAft" />
+                  </dependency>
+                  <dependency initial="true">
+                    <dependency-element id="TskWhn" condition="eq" value="2" />
+                    <dependency-action type="value" target="TypLch" value="2" />
+                    <dependency-action type="add-class" async="true" target-action="hidden" target="#TskEdtAft" />
+                  </dependency>
+                  <dependency initial="true">
+                    <dependency-element id="TskWhn" condition="eq" value="3" />
+                    <dependency-action type="value" target="TypLch" value="0" />
+                    <dependency-action type="remove-class" async="true" target-action="hidden" target="#TskEdtAft" />
+                  </dependency>
+                  <dependency initial="true">
+                    <dependency-element id="TskWhn" condition="eq" value="4" />
+                    <dependency-action type="value" target="TypLch" value="4" />
+                    <dependency-action type="add-class" async="true" target-action="hidden" target="#TskEdtAft" />
+                  </dependency>
+                  <!-- Leaving «After other tasks» with parents chosen asks first -->
+                  <dependency>
+                    <dependency-element id="TskWhn" condition="ne" value="3" />
+                    <dependency-element id="TskPrn" condition="is not empty" check-changes="false" />
+                    <dependency-action type="dialog" target="DlgTskPrnClr" />
+                  </dependency>
+                  <!-- The dialog closed without changing (Escape, its close button): back to «After other tasks» -->
+                  <dependency>
+                    <dependency-element id="DlgTskPrnClr" event="close" />
+                    <dependency-element id="TskWhn" condition="ne" value="3" check-changes="false" />
+                    <dependency-element id="TskPrn" condition="is not empty" check-changes="false" />
+                    <dependency-action type="value" target="TskWhn" value="3" />
+                  </dependency>
+                </criteria>
+              </tag>
+              <!-- Scheduled: the «Repetition» presets as chips, each one with only its fields; they are only a way of
+                   filling the stored fields of the task (TaskSchedulePreset): «Custom» shows those fields, grouped in
+                   «Which days» and «At what time», and the task opens on the preset its fields match. A file task: how
+                   often it checks its folder, and where. Both: the calendar and the range. A webhook task: its hook -->
+              <tag type="div" style="row awe-editor-launch">
+                <criteria label="SCREEN_TEXT_TASK_EDITOR_REPETITION" component="button-radio" id="SchPre" style="col-xs-12 awe-chips"
+                          initial-load="enum" target-action="TskEdtPre" value="DAY">
+                  <!-- On «Scheduled» (not on SchVw, which is computed from this criterion) -->
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="TskWhn" condition="eq" value="1" />
+                  </dependency>
+                </criteria>
+                <!-- Every N minutes or hours: one number with its unit -->
+                <criteria label="PARAMETER_REPEAT_EACH" component="numeric" id="SchEvy" style="col-xs-6 col-sm-4 col-lg-3"
+                          unit="SCREEN_TEXT_TASK_EDITOR_UNIT_MINUTES">
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="MIN,HOU" />
+                  </dependency>
+                  <dependency target-type="set-required" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="MIN,HOU" />
+                  </dependency>
+                  <dependency initial="true" source-type="label" target-type="unit" label="SCREEN_TEXT_TASK_EDITOR_UNIT_MINUTES">
+                    <dependency-element id="SchVw" condition="eq" value="MIN" />
+                  </dependency>
+                  <dependency initial="true" source-type="label" target-type="unit" label="SCREEN_TEXT_TASK_EDITOR_UNIT_HOURS">
+                    <dependency-element id="SchVw" condition="eq" value="HOU" />
+                  </dependency>
+                </criteria>
+                <!-- Daily, workdays and weekly: the days as toggles (L M X J V S D, each one named by its full name); the
+                     ones of daily and workdays are filled by the server, and changing them makes the repetition weekly
+                     (SyncTaskEditorSchedule, with the preset the days were filled for in SchWkdPre) -->
+                <tag type="div" id="SchDays" style="col-xs-12 col-sm-8 col-lg-4 awe-editor-stack hidden">
+                  <criteria label="PARAMETER_TASK_EDITOR_WEEK_DAYS" component="select-multiple" id="SchWkd" style="awe-editor-part"
+                            display="toggles" initial-load="query" target-action="getTaskEditorWeekDayOptions" optional="true">
+                    <dependency target-type="set-required" initial="true">
+                      <dependency-element id="SchVw" condition="in" value="WEK" />
+                    </dependency>
+                  </criteria>
+                  <tag type="p" style="awe-editor-help" label="SCREEN_TEXT_TASK_EDITOR_DAYS_HELP" />
+                </tag>
+                <criteria label="PARAMETER_TASK_EDITOR_MONTH_DAY" component="select" id="SchMdy" style="col-xs-6 col-sm-3 col-lg-1"
+                          initial-load="enum" target-action="TskEdtMdy" optional="true" help="HELP_TASK_EDITOR_MONTH_DAY">
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="MON" />
+                  </dependency>
+                  <dependency target-type="set-required" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="MON" />
+                  </dependency>
+                </criteria>
+                <!-- The time of a preset, with its seconds (the stored seconds; 00 for a new time) -->
+                <criteria label="PARAMETER_TASK_EDITOR_TIME" component="time" id="SchTim" style="col-xs-6 col-sm-4 col-lg-2"
+                          time-format="HH:mm:ss" icon="lucide:clock">
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="DAY,WRK,WEK,MON" />
+                  </dependency>
+                  <dependency target-type="set-required" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="DAY,WRK,WEK,MON" />
+                  </dependency>
+                </criteria>
+                <criteria label="PARAMETER_TASK_EDITOR_DATE" component="date" id="schExeDate" show-future-dates="true"
+                          style="col-xs-6 col-sm-4 col-lg-2" icon="lucide:calendar">
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="ONC" />
+                  </dependency>
+                  <dependency target-type="set-required" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="ONC" />
+                  </dependency>
+                </criteria>
+                <criteria label="PARAMETER_TASK_EDITOR_TIME" component="time" id="schExeTime" style="col-xs-6 col-sm-4 col-lg-2"
+                          time-format="HH:mm:ss" icon="lucide:clock">
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="ONC" />
+                  </dependency>
+                  <dependency target-type="set-required" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="ONC" />
+                  </dependency>
+                </criteria>
+
+                <!-- Custom: back to the preset its fields match (SchMat), what the selectors mean, and the selectors
+                     grouped in «Which days» and «At what time» -->
+                <tag type="div" id="SchCus" style="awe-editor-group hidden">
+                  <tag type="div" style="row">
+                    <tag type="div" id="SchBck" style="col-xs-12 awe-editor-actions hidden">
+                      <button id="ButSchBck" label="SCREEN_TEXT_TASK_EDITOR_BACK_TO_DAY" icon="lucide:arrow-left" style="btn-sm">
+                        <button-action type="server" server-action="maintain-silent" target-action="BackToTaskEditorSchedulePreset" silent="true" />
+                        <dependency initial="true" source-type="label" target-type="label" label="SCREEN_TEXT_TASK_EDITOR_BACK_TO_MIN">
+                          <dependency-element id="SchMat" condition="eq" value="MIN" />
+                        </dependency>
+                        <dependency initial="true" source-type="label" target-type="label" label="SCREEN_TEXT_TASK_EDITOR_BACK_TO_HOU">
+                          <dependency-element id="SchMat" condition="eq" value="HOU" />
+                        </dependency>
+                        <dependency initial="true" source-type="label" target-type="label" label="SCREEN_TEXT_TASK_EDITOR_BACK_TO_DAY">
+                          <dependency-element id="SchMat" condition="eq" value="DAY" />
+                        </dependency>
+                        <dependency initial="true" source-type="label" target-type="label" label="SCREEN_TEXT_TASK_EDITOR_BACK_TO_WRK">
+                          <dependency-element id="SchMat" condition="eq" value="WRK" />
+                        </dependency>
+                        <dependency initial="true" source-type="label" target-type="label" label="SCREEN_TEXT_TASK_EDITOR_BACK_TO_WEK">
+                          <dependency-element id="SchMat" condition="eq" value="WEK" />
+                        </dependency>
+                        <dependency initial="true" source-type="label" target-type="label" label="SCREEN_TEXT_TASK_EDITOR_BACK_TO_MON">
+                          <dependency-element id="SchMat" condition="eq" value="MON" />
+                        </dependency>
+                        <dependency initial="true" source-type="label" target-type="label" label="SCREEN_TEXT_TASK_EDITOR_BACK_TO_ONC">
+                          <dependency-element id="SchMat" condition="eq" value="ONC" />
+                        </dependency>
+                      </button>
+                    </tag>
+                    <tag type="div" style="col-xs-12">
+                      <card id="CrdTskEdtCus" style="card-note" icon="lucide:info" icon-tone="neutral"
+                            description="SCREEN_TEXT_TASK_EDITOR_CUSTOM_HELP" />
+                    </tag>
+                    <!-- Custom: which days (the two groups one under the other: side by side their selectors would not
+                         show their values in the width of a section card) -->
+                    <tag type="div" style="col-xs-12">
+                      <tag type="div" id="SchCusDay" style="awe-editor-box">
+                        <tag type="h4" style="awe-form-section-title" label="SCREEN_TEXT_TASK_EDITOR_CUSTOM_DAYS" icon="lucide:calendar" />
+                        <tag type="div" style="row">
+                          <criteria label="PARAMETER_YEARS" component="select-multiple" id="years" style="col-xs-12 col-sm-6 col-lg-4"
+                                    initial-load="query" target-action="yearSelectService" optional="true" max="0" />
+                          <criteria label="PARAMETER_MONTHS" component="select-multiple" id="months" style="col-xs-12 col-sm-6 col-lg-4"
+                                    initial-load="enum" target-action="monthSelect" optional="true" />
+                          <criteria label="PARAMETER_WEEKS" component="select-multiple" id="weeks" style="col-xs-12 col-sm-6 col-lg-4"
+                                    initial-load="enum" target-action="weekSelect" optional="true" />
+                          <criteria label="PARAMETER_DAYS_OF_WEEK" component="select-multiple" id="weekDays" style="col-xs-12 col-sm-6 col-lg-6"
+                                    initial-load="enum" target-action="weekDaySelect" optional="true" />
+                          <criteria label="PARAMETER_DAYS" component="select-multiple" id="days" style="col-xs-12 col-lg-6"
+                                    initial-load="enum" target-action="daySelect" optional="true" max="0" />
+                        </tag>
+                      </tag>
+                    </tag>
+                    <!-- Custom: at what time -->
+                    <tag type="div" style="col-xs-12">
+                      <tag type="div" id="SchCusTim" style="awe-editor-box">
+                        <tag type="h4" style="awe-form-section-title" label="SCREEN_TEXT_TASK_EDITOR_CUSTOM_TIME" icon="lucide:clock" />
+                        <tag type="div" style="row">
+                          <criteria label="PARAMETER_HOURS" component="select-multiple" id="hours" style="col-xs-12 col-sm-4"
+                                    initial-load="enum" target-action="hourSelect" optional="true" />
+                          <criteria label="PARAMETER_MINUTES" component="select-multiple" id="minutes" style="col-xs-12 col-sm-4"
+                                    initial-load="enum" target-action="timeSelect" optional="true" max="0" />
+                          <criteria label="PARAMETER_SECONDS" component="select-multiple" id="seconds" style="col-xs-12 col-sm-4"
+                                    initial-load="enum" target-action="timeSelect" optional="true" max="0" />
+                          <tag type="div" style="col-xs-12">
+                            <tag type="p" style="awe-editor-help" label="SCREEN_TEXT_TASK_EDITOR_CUSTOM_TIME_HELP" />
+                          </tag>
+                        </tag>
+                      </tag>
+                    </tag>
+                  </tag>
+                </tag>
+
+                <!-- Custom (the stored repetition of the old launch types) and a file task (how often it checks its
+                     folder) -->
+                <criteria label="PARAMETER_REPEAT_EACH" component="numeric" id="RptNum" style="col-xs-6 col-sm-3 col-lg-1">
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="CUS,FIL" />
+                  </dependency>
+                  <dependency target-type="set-required" initial="true">
+                    <dependency-element id="SchVw" condition="eq" value="FIL" />
+                  </dependency>
+                  <dependency initial="true" source-type="label" target-type="label" label="PARAMETER_CHECK_EACH">
+                    <dependency-element id="SchVw" condition="eq" value="FIL" />
+                  </dependency>
+                  <dependency initial="true" source-type="label" target-type="label" label="PARAMETER_REPEAT_EACH">
+                    <dependency-element id="SchVw" condition="eq" value="CUS" />
+                  </dependency>
+                  <dependency target-type="set-readonly" initial="true">
+                    <dependency-element id="RptTyp" condition="in" value="6,7" />
+                  </dependency>
+                </criteria>
+                <criteria label="PARAMETER_TASK_EDITOR_UNIT" component="select" id="RptTyp" style="col-xs-6 col-sm-4 col-lg-3"
+                          initial-load="enum" target-action="RptTyp" optional="true">
+                  <!-- A file task checks its folder every some seconds, minutes or hours: a repetition of the other launch
+                       types becomes every some minutes -->
+                  <dependency initial="true">
+                    <dependency-element id="TskWhn" condition="eq" value="2" />
+                    <dependency-element id="RptTyp" condition="in" value="3,4,5,6,7" check-changes="false" />
+                    <dependency-action type="value" target="RptTyp" value="1" />
+                  </dependency>
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="CUS,FIL" />
+                  </dependency>
+                  <dependency target-type="set-required" initial="true">
+                    <dependency-element id="SchVw" condition="in" value="CUS,FIL" />
+                  </dependency>
+                </criteria>
+
+                <!-- A file task: where it looks for its files -->
+                <tag type="div" id="TskEdtFil" style="awe-editor-group hidden">
+                  <tag type="div" style="row">
+                    <criteria label="PARAMETER_SEARCH_AT" component="suggest" server-action="data" target-action="SchSrvSug"
+                              id="LchSrv" style="col-xs-12 col-sm-6 col-lg-3">
+                      <dependency initial="true" target-type="set-required">
+                        <dependency-element id="TypLch" condition="eq" value="2" />
+                      </dependency>
+                    </criteria>
+                    <criteria label="PARAMETER_FILE_PATH" component="text" id="LchPth" style="col-xs-12 col-sm-6 col-lg-6">
+                      <dependency initial="true" target-type="set-required">
+                        <dependency-element id="TypLch" condition="eq" value="2" />
+                      </dependency>
+                    </criteria>
+                    <criteria label="PARAMETER_FILE_PATTERN" component="text" id="LchPat" style="col-xs-12 col-sm-6 col-lg-3">
+                      <dependency initial="true" target-type="set-required">
+                        <dependency-element id="TypLch" condition="eq" value="2" />
+                      </dependency>
+                    </criteria>
+                  </tag>
+                </tag>
+
+                <!-- A webhook task: its hook (the fields of the old task screens) -->
+                <tag type="div" id="TskEdtWhk" style="awe-editor-group hidden">
+                  <tag type="div" style="row">
+                    <criteria label="SCHEDULER_WEBHOOK_KEY" component="text" id="HokKey" style="col-xs-12 col-sm-6 col-lg-4"
+                              help="SCHEDULER_WEBHOOK_KEY_HELP">
+                      <dependency initial="true" target-type="set-required">
+                        <dependency-element id="TypLch" condition="eq" value="4" />
+                      </dependency>
+                    </criteria>
+                    <criteria label="SCHEDULER_WEBHOOK_ACTIVE" component="select" id="HokAct" style="col-xs-12 col-sm-6 col-lg-2"
+                              initial-load="enum" target-action="Es1Es0" validation="required" value="1" />
+                    <criteria label="SCHEDULER_WEBHOOK_SECRET" component="text" id="HokSec" style="col-xs-12 col-sm-6 col-lg-3"
+                              help="SCHEDULER_WEBHOOK_SECRET_HELP">
+                      <dependency initial="true" target-type="set-required">
+                        <dependency-element id="TypLch" condition="eq" value="4" />
+                      </dependency>
+                    </criteria>
+                    <criteria label="SCHEDULER_WEBHOOK_TYPE" component="text" id="HokTyp" style="col-xs-12 col-sm-6 col-lg-3"
+                              help="SCHEDULER_WEBHOOK_TYPE_HELP" />
+                    <criteria label="SCHEDULER_WEBHOOK_URL" component="text" id="HokUrl" style="col-xs-12" readonly="true"
+                              help="SCHEDULER_WEBHOOK_URL_HELP">
+                      <dependency source-type="query" target-type="input" initial="true" server-action="value"
+                                  target-action="webhookUrl">
+                        <dependency-element id="HokKey" />
+                      </dependency>
+                    </criteria>
+                  </tag>
+                </tag>
+
+                <!-- Scheduled (but once) and file: the calendar of holidays and the range of dates. The range is optional
+                     (no start, no end): each bound is a date and its time, which waits for its date (read only while the
+                     date is empty, and emptied with it). The dates and times take the narrowest column of a section,
+                     whose width fits their value (editor layout), so they flow after the calendar -->
+                <tag type="div" id="SchRng" style="awe-editor-group hidden">
+                  <tag type="div" style="row">
+                    <tag type="div" style="col-xs-12 col-sm-6 col-lg-4 awe-editor-stack">
+                      <criteria label="PARAMETER_CALENDAR" component="suggest" server-action="data" target-action="SchCalSug"
+                                id="IdeCal" style="awe-editor-part" optional="true" icon="lucide:calendar" />
+                      <tag type="p" style="awe-editor-help" label="HELP_TASK_EDITOR_CALENDAR" />
+                    </tag>
+                    <criteria label="PARAMETER_TASK_EDITOR_FROM" component="date" id="IniDat" style="col-xs-6 col-sm-4 col-lg-2" icon="lucide:calendar">
+                      <dependency>
+                        <dependency-element id="IniDat" condition="is empty" />
+                        <dependency-action type="value" target="IniTim" value="" />
+                      </dependency>
+                    </criteria>
+                    <criteria label="PARAMETER_TASK_EDITOR_FROM_TIME" component="time" id="IniTim" style="col-xs-6 col-sm-4 col-lg-2"
+                              time-format="HH:mm:ss" icon="lucide:clock">
+                      <dependency target-type="set-readonly" initial="true">
+                        <dependency-element id="IniDat" condition="is empty" />
+                      </dependency>
+                    </criteria>
+                    <criteria label="PARAMETER_TASK_EDITOR_TO" component="date" id="EndDat" show-future-dates="true"
+                              placeholder="SCREEN_TEXT_TASK_EDITOR_NO_END" style="col-xs-6 col-sm-4 col-lg-2"
+                              validation="{ge:{criterion:'IniDat',type:'date'}}" icon="lucide:calendar">
+                      <dependency>
+                        <dependency-element id="EndDat" condition="is empty" />
+                        <dependency-action type="value" target="EndTim" value="" />
+                      </dependency>
+                    </criteria>
+                    <criteria label="PARAMETER_TASK_EDITOR_TO_TIME" component="time" id="EndTim" style="col-xs-6 col-sm-4 col-lg-2"
+                              time-format="HH:mm:ss" icon="lucide:clock">
+                      <dependency target-type="set-readonly" initial="true">
+                        <dependency-element id="EndDat" condition="is empty" />
+                      </dependency>
+                    </criteria>
+                  </tag>
+                </tag>
+
+                <!-- Scheduled: the repetition in a sentence with its key parts bold, its next five runs as tiles, the first
+                     holiday it skips and how it is saved, computed on the server from the same fields as they change
+                     (getTaskEditorSchedule) -->
+                <tag type="div" id="SchPrv" style="col-xs-12 hidden">
+                  <card id="CrdTskEdtSch" style="card-preview" icon="lucide:repeat" initial-load="query"
+                        server-action="data" target-action="getTaskEditorSchedule">
+                    <!-- Also when the editor opens: its first load comes before the fields of the task are on the screen -->
+                    <dependency type="or" initial="true">
+                      <dependency-element id="SchVw" />
+                      <dependency-element id="SchEvy" condition="ne" value="__" />
+                      <dependency-element id="SchTim" condition="ne" value="__" />
+                      <dependency-element id="SchWkd" condition="ne" value="__" />
+                      <dependency-element id="SchMdy" condition="ne" value="__" />
+                      <dependency-element id="schExeDate" condition="ne" value="__" />
+                      <dependency-element id="schExeTime" condition="ne" value="__" />
+                      <dependency-element id="IdeCal" condition="ne" value="__" />
+                      <dependency-element id="IniDat" condition="ne" value="__" />
+                      <dependency-element id="IniTim" condition="ne" value="__" />
+                      <dependency-element id="EndDat" condition="ne" value="__" />
+                      <dependency-element id="EndTim" condition="ne" value="__" />
+                      <dependency-element id="RptNum" condition="ne" value="__" />
+                      <dependency-element id="RptTyp" condition="ne" value="__" />
+                      <dependency-element id="years" condition="ne" value="__" />
+                      <dependency-element id="months" condition="ne" value="__" />
+                      <dependency-element id="weeks" condition="ne" value="__" />
+                      <dependency-element id="weekDays" condition="ne" value="__" />
+                      <dependency-element id="days" condition="ne" value="__" />
+                      <dependency-element id="hours" condition="ne" value="__" />
+                      <dependency-element id="minutes" condition="ne" value="__" />
+                      <dependency-element id="seconds" condition="ne" value="__" />
+                      <dependency-action type="filter" target="CrdTskEdtSch" silent="true" />
+                    </dependency>
+                  </card>
+                </tag>
+              </tag>
+              <!-- After other tasks: the parents, the note of the join and the condition of each parent -->
+              <tag type="div" id="TskEdtAft" style="row hidden">
+                <criteria label="PARAMETER_TASK_EDITOR_PARENTS" component="select-multiple" id="TskPrn" style="col-xs-12"
+                          initial-load="query" target-action="getTaskEditorParentOptions" display="chip" optional="true"
+                          placeholder="SCREEN_TEXT_TASK_EDITOR_PARENTS_PLACEHOLDER" help="HELP_TASK_EDITOR_PARENTS">
+                  <dependency target-type="set-required" initial="true">
+                    <dependency-element id="TskWhn" condition="eq" value="3" />
+                  </dependency>
+                  <!-- The graph draws the parents chosen, saved or not -->
+                  <dependency initial="true" type="or">
+                    <dependency-element id="TskPrn" condition="is empty" />
+                    <dependency-element id="TskPrn" condition="is not empty" />
+                    <dependency-action type="filter" target="TskEdtPrnGph" silent="true" />
+                  </dependency>
+                </criteria>
+                <tag type="div" style="col-xs-12">
+                  <card id="CrdTskEdtJon" style="card-note" icon="lucide:info" icon-tone="info"
+                        title="SCREEN_TEXT_TASK_EDITOR_JOIN" description="SCREEN_TEXT_TASK_EDITOR_JOIN_TEXT" />
+                </tag>
+                <tag type="div" style="col-xs-12">
+                  <tag type="h4" style="awe-form-section-title" label="SCREEN_TEXT_TASK_EDITOR_CONDITION" icon="lucide:lock" />
+                  <tag type="p" style="text-muted awe-editor-help" label="SCREEN_TEXT_TASK_EDITOR_CONDITION_TEXT" />
+                  <!-- The parents chosen joining into the task, each edge with the condition of its parent; a parent
+                       opens its own task screen -->
+                  <widget type="flow-graph" id="TskEdtPrnGph" server-action="data" target-action="getTaskEditorParentGraph">
+                    <widget-parameter type="string" name="mode" value="task" />
+                    <widget-parameter type="string" name="target" value="scheduler-task" />
+                    <widget-parameter type="string" name="criterion" value="IdeTsk.selected" />
+                    <widget-parameter type="string" name="side" value="parents" />
+                  </widget>
+                </tag>
+              </tag>
+            </card>
+
+            <!-- 4. Dependencies: the tasks that run after this one, as saved, read-only (each one chooses this task in
+                 its own «When»); a task opens its task screen -->
+            <card id="SecTskDep" title="SCREEN_TEXT_TASK_EDITOR_SEC_DEPENDENCIES" subtitle="SCREEN_TEXT_TASK_EDITOR_SEC_DEPENDENCIES_SUB">
+              <widget type="flow-graph" id="TskEdtChlGph" server-action="data" target-action="getTaskEditorChildGraph" initial-load="query">
+                <widget-parameter type="string" name="mode" value="task" />
+                <widget-parameter type="string" name="target" value="scheduler-task" />
+                <widget-parameter type="string" name="criterion" value="IdeTsk.selected" />
+                    <widget-parameter type="string" name="side" value="children" />
+              </widget>
+              <tag type="p" style="text-muted awe-editor-help" label="SCREEN_TEXT_TASK_EDITOR_DEPENDENCIES_TEXT" />
+            </card>
+
+            <!-- 5. Behaviour: limits and what happens with the tasks that run after this one -->
+            <card id="SecTskBeh" title="SCREEN_TEXT_TASK_EDITOR_SEC_BEHAVIOUR" subtitle="SCREEN_TEXT_TASK_EDITOR_SEC_BEHAVIOUR_SUB">
+              <tag type="div" style="row">
+                <!-- Sized to their value: a number of seconds and a number of executions -->
+                <criteria label="PARAMETER_TIMEOUT" component="numeric" id="TimOutExe" style="col-xs-12 col-sm-4 col-lg-3"
+                          unit="SCREEN_TEXT_TASK_EDITOR_SECONDS" help="HELP_TASK_EDITOR_TIMEOUT" />
+                <criteria label="PARAMETER_TASK_EDITOR_STORED_EXECUTIONS" component="numeric" id="NumStoExe" style="col-xs-12 col-sm-4 col-lg-3"
+                          property="sch.max.stored.executions" help="HELP_TASK_EDITOR_STORED_EXECUTIONS" />
+                <!-- Switches, one per row: the label (with its help) on the left and the switch at the right -->
+                <criteria label="SCREEN_TEXT_TASK_EDITOR_ACTIVE_FIELD" component="checkbox" id="Act" value="1"
+                          style="col-xs-12 no-label switch switch-end" />
+                <criteria label="PARAMETER_LAUNCH_DEPENDENCIES_WARN" component="checkbox" id="LchDepWrn"
+                          style="col-xs-12 no-label switch switch-end" help="HELP_TASK_EDITOR_LAUNCH_ON_WARNING" />
+                <criteria label="PARAMETER_LAUNCH_DEPENDENCIES_ERROR" component="checkbox" id="LchDepErr"
+                          style="col-xs-12 no-label switch switch-end" help="HELP_TASK_EDITOR_LAUNCH_ON_ERROR" />
+                <criteria label="PARAMETER_SET_WARNING_ERROR" component="checkbox" id="LchSetWrn"
+                          style="col-xs-12 no-label switch switch-end" help="HELP_TASK_EDITOR_WARNING_ON_DEPENDENCY_ERROR" />
+              </tag>
+            </card>
+
+            <!-- 6. Notifications: the report of the old task screens -->
+            <card id="SecTskNot" title="SCREEN_TEXT_TASK_EDITOR_SEC_NOTIFICATIONS" subtitle="SCREEN_TEXT_TASK_EDITOR_SEC_NOTIFICATIONS_SUB">
+              <tag type="div" style="row">
+                <include target-screen="scheduler-parameters" target-source="Report" />
+              </tag>
+            </card>
+          </tag>
+
+          <!-- Live summary: the values of the form as they change -->
+          <tag type="aside" style="awe-editor-summary">
+            <card id="CrdTskEdtSum" title="SCREEN_TEXT_TASK_EDITOR_SUMMARY" subtitle="SCREEN_TEXT_TASK_EDITOR_SUMMARY_SUB">
+              <tag type="div" style="row">
+                <criteria label="PARAMETER_NAME" component="text-view" id="SumTskNam" style="col-xs-12 awe-readout">
+                  <dependency source-type="launcher" initial="true" target-type="input" target-action="v">
+                    <dependency-element id="Nam" alias="v" />
+                  </dependency>
+                </criteria>
+                <criteria label="SCREEN_TEXT_TASK_EDITOR_SUMMARY_RUNS" component="text-view" id="SumTskExe" style="col-xs-12 awe-readout">
+                  <dependency source-type="launcher" initial="true" target-type="input" target-action="v">
+                    <dependency-element id="TypExe" attribute="text" alias="v" />
+                  </dependency>
+                </criteria>
+                <criteria label="PARAMETER_COMMAND" component="text-view" id="SumTskCmd" style="col-xs-12 awe-readout">
+                  <dependency source-type="launcher" initial="true" target-type="input" target-action="v">
+                    <dependency-element id="CmdExe" alias="v" />
+                  </dependency>
+                </criteria>
+                <criteria label="SCREEN_TEXT_TASK_EDITOR_SEC_WHEN" component="text-view" id="SumTskWhn" style="col-xs-12 awe-readout">
+                  <dependency source-type="launcher" initial="true" target-type="input" target-action="v">
+                    <dependency-element id="TskWhn" attribute="text" alias="v" />
+                  </dependency>
+                </criteria>
+                <criteria label="SCREEN_TEXT_TASK_EDITOR_SUMMARY_AFTER" component="text-view" id="SumTskPrn" style="col-xs-12 awe-readout">
+                  <!-- Every parent chosen, separated by commas: a text view shows one value -->
+                  <dependency source-type="formule" initial="true" target-type="input" formule="#[v]#.split(',').join(', ')">
+                    <dependency-element id="TskPrn" attribute="text" alias="v" />
+                  </dependency>
+                  <dependency target-type="show" initial="true">
+                    <dependency-element id="TskWhn" condition="eq" value="3" />
+                  </dependency>
+                </criteria>
+                <criteria label="SCREEN_TEXT_TASK_EDITOR_SUMMARY_TIMEOUT" component="text-view" id="SumTskTim" style="col-xs-6 awe-readout">
+                  <dependency source-type="launcher" initial="true" target-type="input" target-action="v">
+                    <dependency-element id="TimOutExe" alias="v" />
+                  </dependency>
+                </criteria>
+                <criteria label="SCREEN_TEXT_TASK_EDITOR_SUMMARY_KEEPS" component="text-view" id="SumTskSto" style="col-xs-6 awe-readout">
+                  <dependency source-type="launcher" initial="true" target-type="input" target-action="v">
+                    <dependency-element id="NumStoExe" alias="v" />
+                  </dependency>
+                </criteria>
+                <criteria label="SCREEN_TEXT_TASK_EDITOR_SUMMARY_NOTIFIES" component="text-view" id="SumTskRep" style="col-xs-12 awe-readout">
+                  <dependency source-type="launcher" initial="true" target-type="input" target-action="v">
+                    <dependency-element id="RepTyp" attribute="text" alias="v" />
+                  </dependency>
+                </criteria>
+              </tag>
+            </card>
+          </tag>
+        </tag>
+      </tag>
+
+      <!-- Footer, always visible: Cancel goes back where the user came from, Save validates the form (the engine focuses
+           the first field in error), saves the task in its mode and opens its task screen -->
+      <tag type="div" style="awe-editor-footer">
+        <tag type="span" style="text-muted" label="SCREEN_TEXT_TASK_EDITOR_FOOTER" />
+        <button id="ButTskEdtCan" label="BUTTON_CANCEL" icon="lucide:x">
+          <button-action type="back" />
+        </button>
+        <button id="ButTskEdtNew" label="BUTTON_TASK_EDITOR_SAVE" icon="lucide:check" style="btn-primary" permission="scheduler.update">
+          <button-action type="validate" />
+          <button-action type="server" server-action="maintain" target-action="NewSchedulerTaskEditor" />
+          <button-action type="screen" target="scheduler-task" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="TskEdtMod" condition="ne" value="edit" />
+          </dependency>
+        </button>
+        <button id="ButTskEdtUpd" label="BUTTON_TASK_EDITOR_SAVE" icon="lucide:check" style="btn-primary" permission="scheduler.update">
+          <button-action type="validate" />
+          <button-action type="server" server-action="maintain" target-action="UpdateSchedulerTaskEditor" />
+          <button-action type="screen" target="scheduler-task" />
+          <dependency target-type="show" initial="true">
+            <dependency-element id="TskEdtMod" condition="eq" value="edit" />
+          </dependency>
+        </button>
+      </tag>
+    </tag>
+
+    <!-- Leaving «After other tasks» with parents chosen: changing clears the parents, keeping goes back to it -->
+    <dialog id="DlgTskPrnClr" modal="true" style="modal-md" label="SCREEN_TEXT_TASK_EDITOR_CLEAR_TITLE" icon="lucide:triangle-alert">
+      <tag type="div" style="col-xs-12">
+        <tag type="p" label="SCREEN_TEXT_TASK_EDITOR_CLEAR_TEXT" />
+      </tag>
+      <criteria label="PARAMETER_TASK_EDITOR_PARENTS" component="text-view" id="TskPrnClrLst" style="col-xs-12 awe-readout">
+        <!-- Every parent chosen, separated by commas: a text view shows one value -->
+        <dependency source-type="formule" initial="true" target-type="input" formule="#[v]#.split(',').join(', ')">
+          <dependency-element id="TskPrn" attribute="text" alias="v" />
+        </dependency>
+      </criteria>
+      <tag type="div" style="col-xs-12">
+        <card id="CrdTskPrnClr" style="card-note" icon="lucide:info" icon-tone="info"
+              description="SCREEN_TEXT_TASK_EDITOR_CLEAR_NOTE" />
+      </tag>
+      <tag type="div" style="modal-footer">
+        <tag type="div" style="pull-right">
+          <button id="ButTskPrnKep" label="BUTTON_TASK_EDITOR_KEEP_PARENTS">
+            <button-action type="value" target="TskWhn" value="3" />
+            <button-action type="close" target="DlgTskPrnClr" />
+          </button>
+          <button id="ButTskPrnClr" label="BUTTON_TASK_EDITOR_CLEAR_PARENTS" style="btn-primary">
+            <button-action type="reset" target="TskPrn" />
+            <button-action type="close" target="DlgTskPrnClr" />
+          </button>
+        </tag>
+      </tag>
+    </dialog>
+  </tag>
+
+  <tag source="modal">
+    <include target-screen="screen-help" target-source="center" />
+  </tag>
+</screen>

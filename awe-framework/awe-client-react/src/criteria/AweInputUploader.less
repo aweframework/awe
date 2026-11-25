@@ -15,6 +15,27 @@
   border-bottom-left-radius: 0;
 }
 
+/* Buttons of the uploader field (choose, clear, capture): the control height of the density, as the text fields and the
+   buttons beside the criterion. With the padding of a button and the line box of its label they were a few pixels
+   taller, and the input group stretched the file name field to them. The sm and lg sizes follow the size of the field */
+.field .p-fileupload-choose.p-button,
+.field .p-button.upload-button {
+  box-sizing: border-box;
+  height: var(--awe-size-control);
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.field .p-inputtext-sm .p-fileupload-choose.p-button,
+.field .p-button.upload-button.p-inputtext-sm {
+  height: var(--awe-size-control-sm);
+}
+
+.field .p-inputtext-lg .p-fileupload-choose.p-button,
+.field .p-button.upload-button.p-inputtext-lg {
+  height: var(--awe-size-control-lg);
+}
+
 // Drop zone: dashed border, highlighted while a file is dragged over it
 .upload-drop-zone {
   display: flex;

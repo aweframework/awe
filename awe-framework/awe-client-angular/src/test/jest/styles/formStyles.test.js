@@ -129,14 +129,14 @@ describe("AngularJS criteria, buttons, windows and tabs over Bootstrap 3 (#885)"
       expect(style(track)).toMatchObject({
         "width": "var(--awe-switch-width)",
         "height": "var(--awe-switch-height)",
-        "background": "var(--awe-color-field-border)",
+        "background": "var(--awe-color-border)",
         "border-radius": "var(--awe-radius-full)"
       });
       expect(style(`${track}::after`)).toMatchObject({
         "top": "calc((var(--awe-switch-height) - var(--awe-switch-handle-size)) / 2)",
         "width": "var(--awe-switch-handle-size)",
         "height": "var(--awe-switch-handle-size)",
-        "background": "var(--awe-color-surface-raised)",
+        "background": "var(--awe-color-surface)",
         "box-shadow": "var(--awe-shadow-sm)"
       });
       expect(style(".checkbox.switch:hover > input:not(:disabled) + .switch__track"))

@@ -94,7 +94,7 @@ where `{acronym}` is the module identifier (e.g. `awe`, `awe-scheduler`). Inside
 | Folder | Purpose | Key Files |
 |--------|---------|-----------|
 | `global/` | App-wide definitions | `Queries.xml`, `Maintain.xml`, `Services.xml`, `Actions.xml`, `Email.xml`, `Enumerated.xml`, `Queues.xml` |
-| `screen/` | Screen definitions | One `.xml` file per screen (e.g. `scheduler-tasks.xml`) |
+| `screen/` | Screen definitions | One `.xml` file per screen (e.g. `scheduler-task-catalog.xml`) |
 | `locale/` | Internationalization | `Locale-{lang}.xml` files with `<local>` entries |
 | `menu/` | Navigation menus | `public.xml`, `private.xml` with `<option>` trees |
 | `profile/` | Access profiles | `profile.xml` defining `<profile>` restrictions |
@@ -111,8 +111,8 @@ awe-framework/awe-modules/awe-scheduler/
       Maintain.xml
       Services.xml
     screen/
-      scheduler-tasks.xml
-      new-scheduler-task.xml
+      scheduler-task-catalog.xml
+      scheduler-task-editor.xml
 ```
 
 ## XML Descriptor System
@@ -147,71 +147,79 @@ interactions. Each screen file lives in the `screen/` folder.
 | `<criteria>` | Input filter (text, select, suggest, date, etc.) | `<window>` or `<tag>` |
 | `<grid>` | Data table bound to a query | `<window>` |
 | `<column>` | Column definition in a grid | `<grid>` |
+| `<search>` / `<quick-filter>` | Search box and quick filters in the grid toolbar | `<grid>` |
+| `<context-button>` | Row menu option (right click or a `show-context-menu` column) | `<grid>` |
 | `<button>` | Action trigger with `<button-action>` chain | `<tag>` or `<window>` |
 | `<message>` | Confirmation dialog definition | `<tag source="hidden">` |
 | `<dependency>` | Dynamic UI behavior (show/hide/enable/disable/filter) | Any element |
 
-**Example** — Task list screen with filters, grid, and toolbar buttons
-(from `awe-scheduler/screen/scheduler-tasks.xml`):
+**Example** — Task catalog with a toolbar search, quick filters, a link column and a row menu
+(trimmed from `awe-scheduler/screen/scheduler-task-catalog.xml`):
 
 ```xml
-<screen template="window" label="MENU_SCHEDULER_TASKS"
-        help="HELP_SCREEN_SCHEDULER_TASKS">
-  <!-- Hidden: confirmation messages -->
+<screen template="window" label="MENU_SCHEDULER_TASK_CATALOG"
+        help="HELP_SCREEN_SCHEDULER_TASK_CATALOG">
+  <!-- Hidden: confirmation messages and values sent to other screens -->
   <tag source="hidden">
     <message id="DelMsg" title="CONFIRM_TITLE_DELETE"
              message="CONFIRM_MESSAGE_DELETE_TASK" />
+    <criteria id="TskEdtMod" component="hidden" />
   </tag>
 
-  <!-- Toolbar buttons -->
+  <!-- Header buttons -->
   <tag source="buttons">
-    <button label="BUTTON_NEW" icon="plus-circle" id="ButNew">
-      <button-action type="screen" target="new-scheduler-task" />
-    </button>
-    <button label="BUTTON_DELETE" icon="trash" id="ButDel">
-      <button-action type="check-some-selected" target="GrdTskLst" />
-      <button-action type="confirm" target="DelMsg" />
-      <button-action type="server" server-action="maintain"
-                     target-action="DeleteSchedulerTask" />
-      <button-action type="filter" target="GrdTskLst" />
-      <dependency target-type="disable" initial="true">
-        <dependency-element id="GrdTskLst" condition="lt" value="1" />
-      </dependency>
+    <button label="BUTTON_NEW_TASK" icon="plus-circle" id="ButNewTsk"
+            style="btn-primary" permission="scheduler.update">
+      <button-action type="value" target="TskEdtMod" value="new" />
+      <button-action type="screen" target="scheduler-task-editor" />
     </button>
   </tag>
 
   <!-- Main content -->
   <tag source="center">
-    <!-- Filter criteria -->
-    <window label="SCREEN_TEXT_FILTERS" icon="filter" style="static criteria">
-      <tag id="FilterArea" type="div" style="panel-body static">
-        <criteria label="PARAMETER_TASK" component="suggest" id="CrtTsk"
-                  server-action="data" target-action="launchSchedulerTaskSuggest"
-                  style="col-xs-12 col-sm-6 col-lg-4" />
-        <criteria label="PARAMETER_ACTIVE" component="select" id="CrtAct"
-                  initial-load="enum" target-action="Es1Es0"
-                  style="col-xs-12 col-sm-2 col-lg-2" optional="true" />
-      </tag>
-      <tag type="div" style="panel-footer">
-        <tag type="div" style="pull-right">
-          <button button-type="submit" label="BUTTON_SEARCH" icon="search"
-                  id="ButSch">
-            <button-action type="filter" target="GrdTskLst" />
-          </button>
-        </tag>
-      </tag>
-    </window>
+    <window label="SCREEN_TEXT_TASKS" icon="list" style="expand" maximize="true">
+      <grid id="GrdTskLst" style="expand" server-action="data"
+            target-action="getTaskCatalog" initial-load="query" max="50">
+        <!-- Toolbar: search and quick filters reload the grid -->
+        <search id="CrtTskSch" placeholder="SCREEN_TEXT_TASK_CATALOG_SEARCH"
+                label="SCREEN_TEXT_TASK_CATALOG_SEARCH" />
+        <quick-filter id="CrtTskAct" initial-load="query"
+                      target-action="getTaskCatalogActiveCounts"
+                      label="PARAMETER_TASK_ACTIVE" value="" />
 
-    <!-- Data grid -->
-    <window label="SCREEN_TEXT_TASKS" icon="list" style="expand">
-      <grid id="GrdTskLst" server-action="data"
-            target-action="getSchedulerTaskList" initial-load="query"
-            style="expand">
-        <column label="#" name="IdeTsk" align="center" charlength="6" />
-        <column label="PARAMETER_TASK" name="Nam" align="left"
-                charlength="20" />
-        <column label="PARAMETER_ACTIVE" name="ActIco" component="icon"
-                align="center" charlength="8" />
+        <column name="IdeTsk" hidden="true" />
+        <column name="Act" hidden="true" />
+        <!-- Link column: opens the task page with the row selected -->
+        <column label="PARAMETER_TASK" name="TskNam" component="link"
+                width="*" min-width="184" secondary-field="Des">
+          <button-action type="screen" target="scheduler-task" />
+        </column>
+        <column label="PARAMETER_TASK_HISTORY" name="TskHis"
+                component="status-strip" sortable="false" />
+        <!-- Row menu button -->
+        <column name="MorBtn" component="button" icon="lucide:ellipsis"
+                title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+                sortable="false" sendable="false">
+          <button-action type="show-context-menu" />
+        </column>
+
+        <!-- Row menu: each option acts on the selected row -->
+        <context-button id="CtxTskEdt" label="BUTTON_EDIT" icon="edit"
+                        permission="scheduler.update">
+          <button-action type="value" target="TskEdtMod" value="edit" />
+          <button-action type="screen" target="scheduler-task-editor" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdTskLst" attribute="selectedRows"
+                                condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <context-button id="CtxTskDel" label="BUTTON_TASK_DELETE" icon="trash"
+                        permission="scheduler.update">
+          <button-action type="confirm" target="DelMsg" />
+          <button-action type="server" server-action="maintain"
+                         target-action="DeleteSchedulerTask" />
+          <button-action type="filter" target="GrdTskLst" />
+        </context-button>
       </grid>
     </window>
   </tag>
@@ -231,6 +239,8 @@ interactions. Each screen file lives in the `screen/` folder.
 | `check-one-selected` | Require exactly one grid row selected | `target` = grid id |
 | `check-some-selected` | Require at least one grid row selected | `target` = grid id |
 | `reset` | Reset form fields | `target` = container id |
+| `value` | Set the value of a criterion before the next action | `target` = criterion id, `value` |
+| `show-context-menu` | Open the row menu (`<context-button>`) of the cell's row | — |
 
 **Criteria component types**:
 
@@ -990,7 +1000,7 @@ Dependencies let UI elements react to other elements' state changes.
 
 | Entity | Convention | Examples |
 |--------|-----------|----------|
-| Screen file | lowercase-kebab | `customer-list.xml`, `scheduler-tasks.xml` |
+| Screen file | lowercase-kebab | `customer-list.xml`, `scheduler-task-catalog.xml` |
 | Query id | PascalCase or camelCase | `CstLst`, `getApplicationParameters` |
 | Maintain target | PascalCase | `CstNew`, `CstUpd`, `CstDel`, `UsrNew` |
 | Service id | PascalCase or camelCase | `SysDat`, `storeSessionString` |

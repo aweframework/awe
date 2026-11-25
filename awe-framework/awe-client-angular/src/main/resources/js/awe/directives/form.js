@@ -271,6 +271,16 @@ aweApplication.directive('aweForm',
           const attributes = {[parameters.attribute]: hasExplicitValue ? parameters.value : fallbackValue};
           Control.changeControllerAttribute(address, attributes);
 
+          // The autorefresh runs on a timer: it is started or stopped too (a log viewer stops following an execution that
+          // has ended), as the React engine does when the attribute changes
+          if (parameters.attribute === "autorefresh") {
+            const api = Control.getAddressApi(address);
+            const period = attributes.autorefresh;
+            if (api && typeof api.toggleAutorefresh === "function") {
+              api.toggleAutorefresh(period, Boolean(period));
+            }
+          }
+
           // Finish action
           $actionController.acceptAction(action);
         },

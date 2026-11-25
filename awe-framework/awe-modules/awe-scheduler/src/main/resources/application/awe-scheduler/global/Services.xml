@@ -12,16 +12,195 @@
     </java>
   </service>
 
-  <service id="nextExecutions">
-    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="computeNextFireTimes">
-      <service-parameter name="fireTimes" type="INTEGER"/>
-    </java>
-  </service>
-
   <service id="getTaskExecutionList">
     <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getTaskExecutionList">
       <service-parameter type="INTEGER" name="taskId"/>
     </java>
+  </service>
+
+  <!-- Activity screen: page of the executions of all tasks. The ExecutionListCriteria bean is bound from the
+       variables of the getActivityExecutionList query by their ids -->
+  <service id="getActivityExecutionList" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getExecutionList">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.scheduler.bean.task.ExecutionListCriteria" name="criteria"/>
+    </java>
+  </service>
+
+  <!-- Activity screen: page of the executions of all tasks grouped by flow run (the runs and the executions without run
+       are the top-level rows, the executions of each run its children). Bound like getActivityExecutionList -->
+  <service id="getActivityRunList" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getRunList">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.scheduler.bean.task.ExecutionListCriteria" name="criteria"/>
+    </java>
+  </service>
+
+  <!-- Activity screen: switch of the view (executions or executions grouped by flow run). It gives the filters of the
+       toolbar that is left to the toolbar of the view that is shown (select client actions, no data) -->
+  <service id="switchActivityView" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="switchActivityView">
+      <service-parameter type="STRING" name="view"/>
+      <service-parameter type="STRING" name="search"/>
+      <service-parameter type="STRING" name="state"/>
+      <service-parameter type="STRING" name="origin"/>
+      <service-parameter type="STRING" name="window"/>
+    </java>
+  </service>
+
+  <!-- Activity screen: options of the state quick filter with their counts -->
+  <service id="getActivityStateCounts" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getExecutionStateCounts">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.scheduler.bean.task.ExecutionListCriteria" name="criteria"/>
+    </java>
+  </service>
+
+  <!-- Task screen: what it shows of a task (its header, the summary of its saved executions, its last execution and its
+       configuration), one row -->
+  <service id="getTaskPage" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskPage">
+      <service-parameter type="INTEGER" name="taskId"/>
+    </java>
+  </service>
+
+  <!-- Task screen: the one-level flow graph of the task (Dependencies tab), the getFlowGraph rows with when the tasks
+       of the level last ran and their next execution -->
+  <service id="getTaskFlowGraph" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskFlowGraph">
+      <service-parameter type="INTEGER" name="taskId"/>
+    </java>
+  </service>
+
+  <!-- Flow run page: summary and graph of one flow run (remote-capable, as the activity services) -->
+  <service id="getFlowRunSummary" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getFlowRunSummary">
+      <service-parameter type="STRING" name="runId"/>
+    </java>
+  </service>
+
+  <service id="getFlowRunGraph" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getFlowRunGraph">
+      <service-parameter type="STRING" name="runId"/>
+    </java>
+  </service>
+
+  <!-- Task catalog (tasks screen): a page of the tasks and the counts of its active filter. The TaskCatalogCriteria bean
+       is bound from the variables of the getTaskCatalog and getTaskCatalogActiveCounts queries by their ids -->
+  <service id="getTaskCatalog" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getTaskCatalog">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.scheduler.bean.task.TaskCatalogCriteria" name="criteria"/>
+    </java>
+  </service>
+  <service id="getTaskCatalogActiveCounts" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getTaskCatalogActiveCounts">
+      <service-parameter type="OBJECT" bean-class="com.almis.awe.scheduler.bean.task.TaskCatalogCriteria" name="criteria"/>
+    </java>
+  </service>
+
+  <!-- Configuration screen. The tabs go through the remote scheduler service, as the Motor tab shows the state of the
+       engine, which may be the remote scheduler; the servers (without their secrets) and the calendars with the tasks that use them, and the counts of their active
+       filters, read the database only, so they never go to the remote scheduler -->
+  <service id="getConfigurationTabs" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getConfigurationTabs"/>
+  </service>
+  <service id="getConfigurationServers" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getConfigurationServers">
+      <service-parameter type="STRING" name="search"/>
+      <service-parameter type="STRING" name="active"/>
+    </java>
+  </service>
+  <!-- Configuration screen, server side panel: the server without its secrets (only whether each one is saved) as the
+       values of the panel, the tasks that use it and the choice cards of the connection type -->
+  <service id="loadConfigurationServer" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="loadConfigurationServer">
+      <service-parameter type="INTEGER" name="serverId"/>
+    </java>
+  </service>
+  <service id="getConfigurationServerTasks" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getConfigurationServerTasks">
+      <service-parameter type="INTEGER" name="serverId"/>
+    </java>
+  </service>
+  <service id="getConfigurationServerTypes" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getConfigurationServerTypes"/>
+  </service>
+  <service id="getConfigurationServerActiveCounts" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getConfigurationServerActiveCounts">
+      <service-parameter type="STRING" name="search"/>
+    </java>
+  </service>
+  <service id="getConfigurationCalendars" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getConfigurationCalendars">
+      <service-parameter type="STRING" name="search"/>
+      <service-parameter type="STRING" name="active"/>
+    </java>
+  </service>
+  <!-- Configuration screen: before deleting a calendar, the tasks that use it and the days they would run on without it -->
+  <service id="getConfigurationCalendarDeleteCheck" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getConfigurationCalendarDeleteCheck">
+      <service-parameter type="INTEGER" name="calendarId"/>
+    </java>
+  </service>
+  <!-- Configuration screen, calendar side panel: the calendar as the values of the panel, and its dates with their weekday -->
+  <service id="loadConfigurationCalendar" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="loadConfigurationCalendar">
+      <service-parameter type="INTEGER" name="calendarId"/>
+    </java>
+  </service>
+  <service id="getConfigurationCalendarPanelDates" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getConfigurationCalendarPanelDates">
+      <service-parameter type="INTEGER" name="calendarId"/>
+    </java>
+  </service>
+  <!-- Configuration screen, calendar side panel saved: reload the calendar in the engine (also a remote one) and
+       reschedule its tasks with it or without it, as its active state says -->
+  <service id="updateConfigurationCalendar" permission="scheduler.update">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="updateConfigurationCalendar">
+      <service-parameter type="INTEGER" name="calendarId"/>
+      <service-parameter type="INTEGER" name="active"/>
+    </java>
+  </service>
+  <!-- Configuration screen, «Importar…»: the dates of an .ics or a .csv file staged by the uploader, not saved -->
+  <service id="importConfigurationCalendarDates" permission="scheduler.update">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="importConfigurationCalendarDates">
+      <service-parameter type="STRING" name="file"/>
+    </java>
+  </service>
+  <!-- Configuration screen, «Día» of a date added or changed in the dates grid of the calendar side panel -->
+  <service id="getConfigurationCalendarDateWeekday" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getConfigurationCalendarDateWeekday">
+      <service-parameter type="STRING" name="date"/>
+      <service-parameter type="STRING" name="row"/>
+    </java>
+  </service>
+  <service id="getConfigurationCalendarActiveCounts" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getConfigurationCalendarActiveCounts">
+      <service-parameter type="STRING" name="search"/>
+    </java>
+  </service>
+
+  <!-- Configuration screen, Motor tab: the card of the engine, its schedules and the counts of their state filter (the
+       engine is read where it runs, also a remote one) -->
+  <service id="getConfigurationEngine" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getConfigurationEngine"/>
+  </service>
+  <service id="getConfigurationEngineTriggers" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getConfigurationEngineTriggers">
+      <service-parameter name="filter" type="STRING"/>
+    </java>
+  </service>
+  <service id="getConfigurationEngineTriggerCounts" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getConfigurationEngineTriggerCounts"/>
+  </service>
+
+  <!-- Configuration screen: a server used by a task cannot be deleted (the refusal names its tasks) -->
+  <service id="validateServersNotInUse" permission="scheduler.update">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="validateServersNotInUse">
+      <service-parameter type="INTEGER" name="serverIds" list="true"/>
+    </java>
+  </service>
+
+  <!-- Activity screen: counters of the executions and the fire times of the next 24 hours -->
+  <service id="getActivityCounters" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getActivityCounters"/>
   </service>
 
   <service id="pauseTask">
@@ -57,6 +236,13 @@
     </java>
   </service>
 
+  <!-- Note of the manual launch dialog, with the user of the session -->
+  <service id="getTaskLaunchNote" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskLaunchNote">
+      <service-parameter type="STRING" name="user"/>
+    </java>
+  </service>
+
   <!-- Validate the task parameters before a manual launch, on the instance that resolves them.
        Same bean-class + list="true" binding as executeTaskNowVariables, so the modal grid rows
        reach RemoteSchedulerService.validateTaskParameters(Integer, List<TaskVariable>). -->
@@ -72,16 +258,94 @@
       <service-parameter name="IdeTsk" type="INTEGER"/>
     </java>
   </service>
-  <service id="updateSchedulerTask">
-    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="updateSchedulerTask">
+  <!-- Task editor: the parents of a task are saved from the task (the rows where it is the child), checked for cycles
+       from the parents; after the save the task is refreshed in the scheduler without purging its executions (its
+       parents are not touched: the tasks that run after a task are read from the database when it ends). The copy of a
+       task carries where it runs, its files and who gets its report: it needs the permission of the editors -->
+  <service id="validateTaskParents">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="validateTaskParents">
+      <service-parameter name="taskId" type="INTEGER"/>
+      <service-parameter name="parents" type="INTEGER" list="true"/>
+    </java>
+  </service>
+  <service id="saveTaskParents">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="saveTaskParents">
+      <service-parameter name="taskId" type="INTEGER"/>
+      <service-parameter name="parents" type="INTEGER" list="true"/>
+    </java>
+  </service>
+  <service id="refreshSchedulerTask">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="refreshSchedulerTask">
       <service-parameter name="IdeTsk" type="INTEGER"/>
     </java>
   </service>
-  <!-- Reject the dependencies a task is saved with when they close a cycle -->
-  <service id="validateTaskDependencies">
-    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="validateTaskDependencies">
-      <service-parameter name="IdeTsk" type="INTEGER"/>
-      <service-parameter name="children" type="INTEGER" list="true"/>
+  <service id="getTaskEditorParents" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskEditorParents">
+      <service-parameter type="INTEGER" name="taskId"/>
+      <service-parameter type="INTEGER" name="copyTaskId"/>
+    </java>
+  </service>
+  <service id="getTaskEditorCopy" permission="scheduler.update">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskEditorCopy">
+      <service-parameter type="INTEGER" name="taskId"/>
+    </java>
+  </service>
+  <!-- Task editor screen (#993): its data for a mode, the options of its parents picker, the parameters of its task, the
+       two sides of its one-level graph and the answer of a save -->
+  <service id="getTaskEditor" permission="scheduler.update">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskEditor">
+      <service-parameter type="STRING" name="mode"/>
+      <service-parameter type="INTEGER" name="taskId"/>
+    </java>
+  </service>
+  <service id="getTaskEditorParentOptions" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskEditorParentOptions">
+      <service-parameter type="STRING" name="mode"/>
+      <service-parameter type="INTEGER" name="taskId"/>
+    </java>
+  </service>
+  <service id="getTaskEditorParameters" permission="scheduler.update">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskEditorParameters">
+      <service-parameter type="STRING" name="mode"/>
+      <service-parameter type="INTEGER" name="taskId"/>
+    </java>
+  </service>
+  <service id="getTaskEditorGraph" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskEditorGraph">
+      <service-parameter type="STRING" name="mode"/>
+      <service-parameter type="INTEGER" name="taskId"/>
+      <service-parameter type="INTEGER" name="parents" list="true"/>
+      <service-parameter type="STRING" name="side"/>
+    </java>
+  </service>
+  <!-- Task editor (#993, T36): the options of its choice cards, the live preview of a scheduled task (its next runs and
+       its repetition in a sentence), the stored fields of a preset before a save and in the screen («Custom» shows them) -->
+  <service id="getTaskEditorOptions" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskEditorOptions">
+      <service-parameter type="STRING" name="group"/>
+    </java>
+  </service>
+  <service id="getTaskEditorSchedule" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getTaskEditorSchedule"/>
+  </service>
+  <service id="applyTaskEditorSchedule" permission="scheduler.update">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="applyTaskEditorSchedule">
+      <service-parameter type="INTEGER" name="taskId"/>
+    </java>
+  </service>
+  <service id="getTaskEditorScheduleFields" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getTaskEditorScheduleFields"/>
+  </service>
+  <!-- Task editor (#993, T37): the preset a custom repetition matches, and going back to it -->
+  <service id="getTaskEditorScheduleMatch" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getTaskEditorScheduleMatch"/>
+  </service>
+  <service id="getTaskEditorScheduleMatchFields" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="getTaskEditorScheduleMatchFields"/>
+  </service>
+  <service id="getTaskEditorSaved">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getTaskEditorSaved">
+      <service-parameter type="INTEGER" name="taskId"/>
     </java>
   </service>
   <!-- Hook of a webhook task: validation before the save, row after it, full URL of the endpoint -->
@@ -136,20 +400,8 @@
     </java>
   </service>
 
-  <service id="updateSchedulerCalendar">
-    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="updateSchedulerCalendar">
-      <service-parameter name="calendarIde" type="INTEGER"/>
-    </java>
-  </service>
-
   <service id="deleteSchedulerCalendar">
     <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="deleteSchedulerCalendar">
-      <service-parameter name="calendarIde" type="INTEGER" list="true"/>
-    </java>
-  </service>
-
-  <service id="checkTriggerContainsCalendar">
-    <java classname="com.almis.awe.scheduler.service.RemoteSchedulerService" method="checkCalendarExist">
       <service-parameter name="calendarIde" type="INTEGER" list="true"/>
     </java>
   </service>
@@ -220,6 +472,7 @@
     <java classname="com.almis.awe.scheduler.service.SchedulerService" method="loadExecutionScreen">
       <service-parameter name="executionLogLocator" type="STRING"/>
       <service-parameter name="address" type="JSON" />
+      <service-parameter name="selectedExecutionLogLocator" type="STRING"/>
     </java>
   </service>
 
@@ -227,6 +480,21 @@
     <java classname="com.almis.awe.scheduler.service.SchedulerService" method="reloadExecutionScreen">
       <service-parameter name="taskId" type="INTEGER"/>
       <service-parameter name="executionId" type="INTEGER" />
+    </java>
+  </service>
+
+  <!-- Activity screen: progress of the selected execution, as the fields of the card of its side panel -->
+  <service id="getActivityExecutionProgress" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getExecutionProgress">
+      <service-parameter name="taskId" type="INTEGER"/>
+      <service-parameter name="executionId" type="INTEGER"/>
+    </java>
+  </service>
+
+  <!-- Activity screen: launch parameters of the selected execution (the ones stored with its flow run) -->
+  <service id="getActivityExecutionParameters" permission="scheduler.read">
+    <java classname="com.almis.awe.scheduler.service.SchedulerService" method="getExecutionParameters">
+      <service-parameter name="runId" type="STRING"/>
     </java>
   </service>
 
@@ -254,12 +522,11 @@
     </java>
   </service>
 
-  <!-- Test a server connection with the values currently typed in the new/update
-       server screens, without persisting anything. Blank secrets on the update
-       screen mean "keep the stored value", so the service falls back to the stored
-       (decrypted) secret when serverId is present. -->
-  <service id="checkServerConnection">
-    <java classname="com.almis.awe.scheduler.service.ServerConnectionService" method="checkServerConnection">
+  <!-- Configuration screen: test a server connection and tell how long it took and where it connected, or the generic
+       reason of the failure. With only serverId the stored server is tested and the result is kept as its last test in
+       the session of the user (never in the database); the form values are tested without keeping anything -->
+  <service id="testServerConnection" permission="scheduler.update">
+    <java classname="com.almis.awe.scheduler.service.ServerConnectionService" method="testServerConnection">
       <service-parameter name="type" type="STRING"/>
       <service-parameter name="host" type="STRING"/>
       <service-parameter name="port" type="INTEGER"/>
@@ -269,6 +536,11 @@
       <service-parameter name="keyPassphrase" type="STRING"/>
       <service-parameter name="serverId" type="INTEGER"/>
     </java>
+  </service>
+
+  <!-- Configuration screen, «Probar todos»: test every active server and keep each result in the session -->
+  <service id="testAllServerConnections" permission="scheduler.update">
+    <java classname="com.almis.awe.scheduler.service.ServerConnectionService" method="testAllServerConnections"/>
   </service>
 
 </services>

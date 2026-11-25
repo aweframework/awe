@@ -83,6 +83,41 @@ popup in the AWE list style.
 - **Never clips.** Segments wrap; in a cell narrower than 300px they become a two-column grid at full width.
 - Give it enough width in examples and forms: a four-option control spans two criteria columns.
 
+### Choice cards (button radio)
+
+- For a choice whose options need a word of explanation (how a task is launched, what it runs): one card per option
+  with an icon, a semibold title and a muted description, and a round tick at the top right (`style="awe-choice-cards"`
+  of a button radio, see [Criteria](../api/criteria.md)).
+- Chosen card: primary border (an inset ring doubles it), `--awe-color-primary-subtle` background, primary icon,
+  `--awe-color-on-primary-subtle` description and a filled primary tick. Hover darkens the border
+  (`--awe-color-field-border-hover`); focus shows the focus ring on the card.
+- Cards fill the width in as many columns as fit (at least three times `--awe-space-16` each) and wrap; keep three to
+  five options. A radio group: arrow keys move the choice, only the chosen card is a tab stop.
+
+### Chips and toggles
+
+- For a choice among several short options (the presets of a repetition): one pill per option, wrapping
+  (`style="awe-chips"` of a button radio). For a few short options of a multiple choice (the days of the week): one
+  toggle pill per option (`display="toggles"` of a select multiple). See [Criteria](../api/criteria.md).
+- Pill: `--awe-size-control-sm` high, at least `--awe-size-control` wide, `--awe-radius-full`, `--awe-color-field`
+  background and `--awe-color-field-border` border; hover darkens the border (`--awe-color-field-border-hover`).
+- Chosen or pressed: `--awe-color-primary` background and border, `--awe-color-on-primary` medium text; a radio pill adds
+  a tick before its label. Focus shows the focus ring on the pill; disabled pills use `--awe-color-disabled`.
+- A radio group (arrow keys move the choice, only the chosen pill is a tab stop) or a group of toggle buttons
+  (`aria-pressed`, every pill a tab stop). A short label («M») takes the full name as its accessible name (the `title`
+  of the option).
+
+### Preview card and tiles
+
+- The result of a form computed live (a schedule and its next runs): `style="card-preview"` of a card, a
+  `--awe-color-surface-subtle` surface with a `--awe-color-border-subtle` border and no shadow, the icon on the left in
+  `--awe-color-primary-text`, the title as a sentence in `--awe-font-size-md` with its key parts semibold. See
+  [Card](../api/card.md#tiles-and-details).
+- Tiles: a labelled ordered list of `--awe-color-surface` boxes with a `--awe-color-border-subtle` border and
+  `--awe-radius-sm`, as many columns as fit (five on a wide section, fewer on a narrow one); a label, the value semibold
+  in tabular figures and a muted hint.
+- Details: a folded note (`details`) whose summary reads as a link (`--awe-color-primary-text`) with the focus ring.
+
 ### Checkbox, radio and switch
 
 - Checkbox `--awe-size-checkbox`, `--awe-radius-sm`; supports indeterminate.
@@ -100,13 +135,13 @@ Read-only uploaders show the file and disable the actions.
 | Part | Rule |
 |------|------|
 | Card | The grid lives in a card; title and count in the card header. |
-| Toolbar | Search in results, Filters (with count), spacer, Saved searches (#912), Columns, Export (split button). |
+| Toolbar | Search in results, quick filters (a segmented control with counts, or a compact dropdown button «Label: option»; dates as a date range button with presets and a custom range), Filters (with count), spacer, Saved searches (#912), Columns, Export (split button). |
 | Active filters | A "Filtered by" row under the toolbar: one removable dashed chip per filtered column ("Profile: Operator, Viewer", three labels then "+N"), plus "Clear all" (#912). |
 | Header | `--awe-grid-header-*`, sortable columns show an arrow; the sorted one in the primary. Sticky. A column with an autofilter shows a funnel: outlined without a filter, filled with one (#912). |
 | Rows | Cell padding `--awe-grid-cell-padding-*`, hover background, no zebra. |
 | Selection | Checkbox column; selected rows use the highlight background. While rows are selected, a selection bar takes the band of the toolbar, with its same height, so rows never move: clear button (`x`, also Esc), the count, a chip with the context of the selection (active quick filter, search text) and the bulk actions; Columns and Maximize stay at the right. A grid without toolbar draws the bar over the column header, leaving the select-all checkbox. Clearing returns the focus to the search, or to the select-all checkbox. |
 | Numbers | Right-aligned, tabular, negatives in the danger colour with a minus sign. |
-| Status | Tags with a dot (`tag--success`, `--warning`, `--danger`, `--info`). |
+| Status | Tags with a dot (`tag--success`, `--warning`, `--danger`, `--info`). With an icon the status is a pill: fully rounded, with a border of its tone (`--awe-color-<tone>-border`); the pending tone (a state that waits) is the warning tone with a dashed border (#993). |
 | Inline edit | The edited row gets a primary outline, fields inside the cells (small controls), Save and Cancel in the actions column. |
 | Row actions | Ghost icon buttons at the end of the row, or a menu button (#801). |
 | Pager | "Showing 1–10 of 1,284", page size (select), pages with first/previous/next/last, "Go to page" (#826, #874). |
@@ -156,6 +191,7 @@ AWE 5 and are redesigned; **Planned** items are proposals.
 | Multi-line cells with tooltip | #825 | Done | Up to N lines per column, then ellipsis; the full text in a tooltip. |
 | Radio and button-bar columns | #838 | Done | One column holds a set of options; arrow keys change the value. Use the segmented control style. |
 | Sparkline column | #855 | Done | Line, bars or area per row; negatives in danger; min, max and last marks. |
+| Status strip column | #993 | Done | One mark per status in its tone token; bars of one height in the `--awe-status-strip-*` tokens, the label is the tooltip and the strip is one image named with the counts per label. |
 | Expandable row detail | #835 | Done | A chevron opens a detail area under the row (fields or a nested grid), marked with a primary left border. |
 | Move rows | #842 | Done | Toolbar actions: top, up, down, bottom on the selected rows. |
 | Data bars in cells | #831 | Done | A light bar behind the number; negatives grow to the left in the danger tone. The number stays readable. A second value draws two thin rounded bars, the value on top; stacked segments use the data scale. |

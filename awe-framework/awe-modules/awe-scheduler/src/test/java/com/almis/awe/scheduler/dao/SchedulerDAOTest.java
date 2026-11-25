@@ -73,12 +73,21 @@ class SchedulerDAOTest {
     return Clock.fixed(Instant.ofEpochMilli(time), ZoneOffset.UTC);
   }
 
+  private org.springframework.context.ApplicationContext context;
+
   @BeforeEach
   void setUp() throws Exception {
     schedulerDAO = new SchedulerDAO(scheduler, true, calendarDAO, taskService, schedulerTriggerListener, schedulerJobListener);
     lenient().when(scheduler.getListenerManager()).thenReturn(listenerManager);
     lenient().when(listenerManager.getTriggerListeners()).thenReturn(Collections.emptyList());
     lenient().when(listenerManager.getJobListeners()).thenReturn(Collections.emptyList());
+    // The messages of start, shutdown and stop are localized: the locale key stands for its text
+    context = org.mockito.Mockito.mock(org.springframework.context.ApplicationContext.class);
+    com.almis.awe.model.component.AweElements elements = org.mockito.Mockito.mock(com.almis.awe.model.component.AweElements.class);
+    lenient().when(context.getBean(com.almis.awe.model.component.AweElements.class)).thenReturn(elements);
+    lenient().when(elements.getLocaleWithLanguage(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any()))
+      .thenAnswer(call -> call.getArgument(0));
+    schedulerDAO.setApplicationContext(context);
   }
 
   /**
@@ -265,6 +274,7 @@ class SchedulerDAOTest {
     SchedulerDAO guardedSchedulerDAO = new SchedulerDAO(scheduler, true, calendarDAO, taskService,
       schedulerTriggerListener, schedulerJobListener,
       new SchedulerDAO.StartupHardeningConfig(fixedClock(startupTime), 1_000L));
+    guardedSchedulerDAO.setApplicationContext(context);
     Date originalStart = new Date(startupTime + 500L);
     Trigger trigger = TriggerBuilder.newTrigger()
       .withIdentity("1", "SCHEDULED_TASK")
