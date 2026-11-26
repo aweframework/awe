@@ -249,7 +249,7 @@
               <skip>${skip.frontend}</skip>
               <rules>
                 <requireFilesExist>
-                  <message>The React client is not built (awe-framework/awe-client-react/dist is missing): run the build from the repository root, or add -am (mvn -pl awe-samples/fleet-logistics -am ...).</message>
+                  <message>The React client is not built (awe-framework/awe-client-react/dist is missing): run the build from the repository root, or add -am (mvn -Psamples -pl awe-samples/fleet-logistics -am ...).</message>
                   <files>
                     <file>${react.client.dist}/package.json</file>
                   </files>

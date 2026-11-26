@@ -182,7 +182,6 @@ stages:
   - awe-framework/awe-boot-angular-archetype/**/*
   - awe-framework/awe-boot-react-archetype/**/*
   - awe-tests/**/*
-  - awe-samples/**/*
 .paths-frontend: &paths-frontend
   - .gitlab-ci.yml
   - awe-framework/awe-client-angular/**/*
@@ -207,7 +206,6 @@ stages:
   - awe-framework/awe-boot-react-archetype/**/*
   - awe-framework/awe-client-react/**/*
   - awe-tests/**/*
-  - awe-samples/**/*
 .paths-angular-it: &paths-angular-it   # .paths-code without the React client: keep the awe-framework directories in step
   - .gitlab-ci.yml
   - pom.xml
@@ -224,7 +222,6 @@ stages:
   - awe-framework/awe-starters/**/*
   - awe-framework/awe-testing/**/*
   - awe-tests/**/*
-  - awe-samples/**/*
 .paths-website: &paths-website
   - .gitlab-ci.yml
   - website/**/*
@@ -245,7 +242,6 @@ stages:
   - .m2/**/*
   - awe-framework/**/*
   - awe-tests/**/*
-  - awe-samples/**/*
 .if-mr-code: &if-mr-code
   if: '$CI_MERGE_REQUEST_IID'
   changes: *paths-code
@@ -698,14 +694,19 @@ Build · Maven:
     - mvn $MAVEN_CLI_OPTS -DskipTests org.cyclonedx:cyclonedx-maven-plugin:2.9.3:makeAggregateBom -DoutputFormat=json -DoutputName=awe-sbom
     - version=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
     - echo "PROJECT_VERSION=$version" >> build.env
-  # Keep the cache small: drop the awe-boot fat jar (~250MB per version) and stale AWE snapshots
-  # before the cache is archived. Otherwise it grows on every release until the runner runs out of disk.
+  # Keep the cache and the artifacts small: drop the awe-boot fat jars (~250MB per version) and every other AWE
+  # version (snapshots and releases) before the cache and the artifacts are archived. Otherwise the cache keeps the
+  # previous release on master and the artifacts outgrow the GitLab size limit (413 Request Entity Too Large).
+  # Version directories start with a digit, so the artifact directories of com/almis/awe/clients/ are kept.
   after_script:
     - version=$(sed -n 's/^PROJECT_VERSION=//p' build.env 2>/dev/null)
     - rm -rf .m2/repository/com/almis/awe/awe-boot .m2/repository/com/almis/awe/awe-boot-react
+    # The samples are no longer built (profile "samples"): drop what older builds left in the cache, current version too
+    - rm -rf .m2/repository/com/almis/awe/awe-samples .m2/repository/com/almis/awe/vet-clinic
+      .m2/repository/com/almis/awe/fleet-logistics .m2/repository/com/almis/awe/help-desk
     - >-
       if [ -n "$version" ]; then
-      find .m2/repository/com/almis/awe -mindepth 2 -maxdepth 2 -type d -name '*-SNAPSHOT' ! -name "$version"
+      find .m2/repository/com/almis/awe -mindepth 2 -maxdepth 3 -type d -name '[0-9]*' ! -name "$version"
       -exec rm -rf {} +; fi
   artifacts:
     reports:
@@ -1922,8 +1923,8 @@ Analysis · Sonar:
     - if [ -z "$CI_MERGE_REQUEST_IID" ]; then SONAR_BRANCH_OPTS="-Dsonar.branch.name=$CI_COMMIT_REF_NAME"; fi
     # Dependency scanning is done by GitLab's gemnasium job and the CycloneDX SBOM, not by the
     # (unused) OWASP dependency-check Maven plugin, so its flag is not passed here.
-    # The samples and the archetypes are left out of the reactor: their main sources are excluded from the analysis
-    # (sonar.exclusions=src/** in their poms); only the few tests of the samples stop being reported.
+    # The archetypes are left out of the reactor: their main sources are excluded from the analysis
+    # (sonar.exclusions=src/** in their poms). The samples are not in the default reactor (profile "samples").
     # The classes come from "Unit · Java" (every module but awe-boot) and "Database · HSQL" (awe-boot): Maven runs up to
     # test-compile without compiling, then aggregates the coverage. A pipeline without those jobs (a change limited to a
     # web client) compiles the reactor here, as before.
@@ -1937,7 +1938,6 @@ Analysis · Sonar:
         SONAR_BUILD="verify $SKIP_TESTS -Darchetype.test.skip=true"
       fi
     - mvn $MAVEN_CLI_OPTS $SONAR_BUILD sonar:sonar -Dskip.frontend=true -DgenerateCoverageReport=true
-      -pl '!awe-samples,!awe-samples/vet-clinic,!awe-samples/fleet-logistics,!awe-samples/help-desk'
       -pl '!awe-framework/awe-boot-angular-archetype,!awe-framework/awe-boot-react-archetype' $SONAR_OPTS $SONAR_BRANCH_OPTS
     - cat awe-tests/awe-boot/target/coverage-reports/index.html | grep -o 'Total[^%]*%' | sed -e 's/Total/Jacoco-Test-Coverage:/g'
   artifacts:

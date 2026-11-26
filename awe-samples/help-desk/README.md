@@ -62,7 +62,7 @@ Run from the repository root:
 
 ```bash
 # Build the application and the framework modules it needs (first time; skip the tests to save time)
-mvn -pl awe-samples/help-desk -am install -DskipTests
+mvn -Psamples -pl awe-samples/help-desk -am install -DskipTests
 
 # Run it from Maven ...
 mvn -f awe-samples/help-desk/pom.xml spring-boot:run
@@ -72,7 +72,7 @@ java -jar awe-samples/help-desk/target/help-desk.jar
 ```
 
 Open <http://localhost:18103>. Add `-Dskip.frontend=true` to build or test the descriptors without the frontend
-(`mvn test -pl awe-samples/help-desk -Dskip.frontend=true`).
+(`mvn -Psamples test -pl awe-samples/help-desk -Dskip.frontend=true`).
 
 ### What the first start creates
 
@@ -282,7 +282,7 @@ permission and that the agent profile does not grant it.
 
 ### Tests
 
-24 Java tests plus 21 Node tests (`mvn test -pl awe-samples/help-desk -Dskip.frontend=true` runs the Java ones; `npm test`
+24 Java tests plus 21 Node tests (`mvn -Psamples test -pl awe-samples/help-desk -Dskip.frontend=true` runs the Java ones; `npm test`
 in the module runs the Node ones, which also run in the test phase of the build; needs Node):
 
 - `HelpDeskDescriptorTest` (11) extends `AbstractApplicationDescriptorTest` of `awe-testing`: plain JUnit, no Spring context

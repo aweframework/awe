@@ -103,12 +103,14 @@ Sustituya `help-desk` por `vet-clinic` o `fleet-logistics` y abra `http://localh
 
 | Necesidad | Comando |
 |-----------|---------|
-| Primera compilación (necesita el cliente React en `awe-framework/awe-client-react/dist`) | `mvn -pl awe-samples/help-desk -am install -DskipTests` |
-| Jar ejecutable | `mvn package && java -jar awe-samples/help-desk/target/help-desk.jar` |
-| Solo los tests de descriptores | `mvn test -pl awe-samples/help-desk -Dskip.frontend=true` |
+| Primera compilación (necesita el cliente React en `awe-framework/awe-client-react/dist`) | `mvn -Psamples -pl awe-samples/help-desk -am install -DskipTests` |
+| Jar ejecutable | `mvn -Psamples -pl awe-samples/help-desk package && java -jar awe-samples/help-desk/target/help-desk.jar` |
+| Solo los tests de descriptores | `mvn -Psamples test -pl awe-samples/help-desk -Dskip.frontend=true` |
 | Empezar de nuevo con datos de demostración limpios | Borre la carpeta `target/db` |
 
-`-Dskip.frontend=true` omite la compilación del cliente, de modo que los tests de descriptores se ejecutan sin Node.
+Los ejemplos no forman parte de la compilación por defecto ni del pipeline de CI: desde la raíz del repositorio, añada
+el perfil `samples` (`-Psamples`) para compilarlos. `-Dskip.frontend=true` omite la compilación del cliente, de modo que
+los tests de descriptores se ejecutan sin Node.
 
 ## El patrón que comparten {#the-pattern-they-share}
 
