@@ -2,7 +2,8 @@ import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import React from "react";
 import {renderWithProviders} from "../test-utils";
 import AweSelectMultiple from "../../../src/criteria/AweSelectMultiple";
-import {act, cleanup, fireEvent, screen, waitFor} from "@testing-library/react";
+import {act, cleanup, fireEvent, render, screen, waitFor} from "@testing-library/react";
+import {getIconNode} from "../../../src/utilities";
 import i18n from "../i18nForTests";
 
 const hook = (testId) => `[data-testid='${testId}']`;
@@ -361,5 +362,34 @@ describe('awe-react-client/test/js/criteria/AweSelectMultipleTest.jsx (display t
     fireEvent.keyDown(screen.getByRole("button", {name: "Monday"}), {key: " "});
     expect(selectedOf(store)).toEqual(['2', '0']);
     expect(screen.getByRole("button", {name: "Monday"})).toHaveAttribute("aria-pressed", "false");
+  });
+});
+
+describe('awe-react-client/test/js/criteria/AweSelectMultipleTest.jsx (clear icon)', () => {
+
+  // The clear icon is the Lucide x of the suggest (#997), and keeps the keyboard access and the label of PrimeReact
+  const expectLucideClearIcon = (clearIcon) => {
+    const lucideX = render(getIconNode("lucide:x", {"aria-hidden": "true"})).container.innerHTML;
+    expect(clearIcon).not.toBeNull();
+    expect(clearIcon.innerHTML).toBe(lucideX);
+    expect(clearIcon.getAttribute("tabindex")).toBe("0");
+    expect(clearIcon.getAttribute("aria-label")).toBeTruthy();
+  };
+
+  it('clears an optional multiple select with the Lucide x', () => {
+    const {container} = renderWithProviders(<AweSelectMultiple id="select-multiple"/>, {preloadedState: {
+      settings: DEFAULT_SETTINGS,
+      components: {
+        "select-multiple": {
+          address: {component: "select-multiple", view: "report"},
+          attributes: {placeholder: "placeholder", readonly: false, optional: true},
+          validationRules: {required: false},
+          specificAttributes: {sort: []},
+          model: {values: [{label: "test", value: "test", selected: true}, {label: "tutu", value: "tutu"}]}
+        }
+      }
+    }});
+
+    expectLucideClearIcon(container.querySelector(".p-multiselect-clear-icon"));
   });
 });

@@ -2,7 +2,8 @@ import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import React from "react";
 import {renderWithProviders} from "../test-utils";
 import AweSelect from "../../../src/criteria/AweSelect";
-import {cleanup, fireEvent, screen} from "@testing-library/react";
+import {cleanup, fireEvent, render, screen} from "@testing-library/react";
+import {getIconNode} from "../../../src/utilities";
 
 describe('awe-react-client/test/js/criteria/AweSelectTest.jsx', () => {
 
@@ -60,4 +61,23 @@ describe('awe-react-client/test/js/criteria/AweSelectTest.jsx', () => {
     expect(rows).toEqual(['#', 'Everything', '# Users', 'Read', 'Update', '# Profiles', 'Read']);
   });
 
+
+  // The clear icon is the Lucide x of the suggest (#997), and keeps the keyboard access and the label of PrimeReact
+  const expectLucideClearIcon = (clearIcon) => {
+    const lucideX = render(getIconNode("lucide:x", {"aria-hidden": "true"})).container.innerHTML;
+    expect(clearIcon).not.toBeNull();
+    expect(clearIcon.innerHTML).toBe(lucideX);
+    expect(clearIcon.getAttribute("tabindex")).toBe("0");
+    expect(clearIcon.getAttribute("aria-label")).toBeTruthy();
+  };
+
+  it('clears an optional select with the Lucide x', () => {
+    const {container} = renderWithProviders(<AweSelect id="select"/>, {preloadedState: {
+      ...preloadedState,
+      components: {select: {...preloadedState.components.select,
+        attributes: {...preloadedState.components.select.attributes, optional: true}}}
+    }});
+
+    expectLucideClearIcon(container.querySelector(".p-dropdown-clear-icon"));
+  });
 });

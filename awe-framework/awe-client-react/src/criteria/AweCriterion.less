@@ -458,4 +458,19 @@
   &:hover {
     color: var(--awe-color-text);
   }
+
+  // It is reached with Tab: the focus ring of the rest of the controls
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+    border-radius: var(--awe-radius-xs);
+  }
+
+  // The Lucide x (#997), as the clear button of a suggest: it fills the box of the icon
+  i,
+  .awe-icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
 }

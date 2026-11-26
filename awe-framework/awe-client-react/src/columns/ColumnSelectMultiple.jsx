@@ -4,7 +4,7 @@ import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
 import {multiSelectPassThrough} from "../utilities/testPassThrough";
-import {useSelect, selectItemTemplate} from "../hooks/useSelect";
+import {useSelect, selectItemTemplate, selectClearIcon} from "../hooks/useSelect";
 import {compareEqualValues, getFirstDefinedValue} from "../utilities/general";
 import {selectChipTemplate} from "../criteria/AweSelectChip";
 
@@ -51,6 +51,7 @@ function ColumnSelectMultiple(props) {
       showSelectAll={!grouped}
       onChange={onChange}
       showClear={optional}
+      clearIcon={selectClearIcon}
       className={classes}
       display="chip"
       selectedItemTemplate={selectChipTemplate(disabled, removeValue, editorPlaceholder)}

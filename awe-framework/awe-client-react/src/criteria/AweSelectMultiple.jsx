@@ -8,7 +8,7 @@ import AweChips from "./AweChips";
 import {useDispatch} from "react-redux";
 import {translateLabel} from "../utilities";
 import {updateModelWithDependencies} from "../redux/thunks/components";
-import {useSelect, selectItemTemplate} from "../hooks/useSelect";
+import {useSelect, selectItemTemplate, selectClearIcon} from "../hooks/useSelect";
 import PropTypes from "prop-types";
 import {multiSelectPassThrough} from "../utilities/testPassThrough";
 import {selectChipTemplate} from "./AweSelectChip";
@@ -79,6 +79,7 @@ function AweSelectMultiple(props) {
         dataKey="code"
         showSelectAll={!grouped}
         showClear={optional}
+        clearIcon={selectClearIcon}
         pt={{...multiSelectPassThrough(id), input: requiredAria(attributes, validationRules)}}
       />
     </AweCriterion>;

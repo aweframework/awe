@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { useComponentState } from "./useComponentState";
 import { updateModelWithDependencies } from "../redux/thunks/components";
-import { translateLabel } from "../utilities";
+import { getIconNode, translateLabel } from "../utilities";
 import useComponent from "./useComponent";
 import { groupSuggestions } from "../utilities/suggest";
 
@@ -43,6 +43,15 @@ export const selectItemTemplate = (option) => {
     React.createElement("span", {className: "awe-select-option-text"}, text),
     React.createElement("span", {className: "awe-select-option-description"}, option.description));
 };
+
+/**
+ * Clear icon of a select and a multiple select (#997): the Lucide x of the suggest clear button instead of the icon of
+ * PrimeReact. Its holder keeps the props PrimeReact gives the icon (class, keyboard access, localized label, handlers)
+ * @param {{iconProps: object}} options Options PrimeReact passes to a clear icon given as a function
+ * @returns {React.ReactNode} Clear icon
+ */
+export const selectClearIcon = ({iconProps}) =>
+  React.createElement("span", iconProps, getIconNode("lucide:x", {"aria-hidden": "true"}));
 
 /**
  * Hook común para selects (simple y múltiple)
