@@ -422,10 +422,16 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
         expect(sent.freshScreen).toBe(true);
       });
 
+      it('groups the values of the base view on a fresh screen, so the server gives them to the new screen (#998)', async () => {
+        const sent = await load(true);
+        expect(sent.baseView).toEqual({ Menu: 'm' });
+      });
+
       it('sends every value without the fresh flag otherwise', async () => {
         const sent = await load();
         expect(sent.Name).toBe('leaked');
         expect(sent).not.toHaveProperty('freshScreen');
+        expect(sent).not.toHaveProperty('baseView');
       });
     });
 

@@ -228,16 +228,19 @@ describe("ServerData", function () {
   });
 
   it("retrieves the screen data with every value, flagging a fresh screen so the server keeps the criteria", async function () {
-    jest.spyOn($serverData, "getFormValues").mockReturnValue({Base: 1, Report: 2});
+    jest.spyOn($serverData, "getFormValues").mockImplementation((address, onlyView) => onlyView === "base" ? {Base: 1} : {Base: 1, Report: 2});
     jest.spyOn($connection, "getRawUrl").mockReturnValue("/awe");
     jest.spyOn($connection, "post").mockReturnValue(Promise.resolve({data: {template: "t"}}));
 
     await $serverData.getScreenData("customer-list", "base", true);
     expect($connection.post.mock.calls[0][1]).toMatchObject({Base: 1, Report: 2, freshScreen: true, template: true});
+    // The values of the main frame go grouped, so the server gives them to the new screen (#998)
+    expect($connection.post.mock.calls[0][1].baseView).toEqual({Base: 1});
 
     await $serverData.getScreenData("customer-list", "base");
     expect($connection.post.mock.calls[1][1]).toHaveProperty("Report", 2);
     expect($connection.post.mock.calls[1][1]).not.toHaveProperty("freshScreen");
+    expect($connection.post.mock.calls[1][1]).not.toHaveProperty("baseView");
   });
 
   it("creates server actions and maintain actions with custom selector parameters", function () {
