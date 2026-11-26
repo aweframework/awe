@@ -47,7 +47,8 @@ default:
 # A runner takes a job only if it has every tag the job asks for, and untagged jobs only if it runs untagged jobs.
 # - light: the merge request checks, Lint · Frontend, Lint · Spanish docs, Lint · Markdown, Lint · Renovate config,
 #   Security · Secrets, Build · Chromium/Firefox cache, the release API jobs, and the jobs without a build that only download,
-#   copy or push: Deploy · Staging/Production (git + kustomize), pages (cp/mv) and container_scanning (no dind service).
+#   copy or push: Deploy · Staging/Production (git + kustomize, then kubectl waits for the rollout), pages (cp/mv) and
+#   container_scanning (no dind service).
 # - medium: Lint · Spotless, Unit · AngularJS and Unit · React (Jest, jsdom, no real browser; jest.config limits the
 #   workers in CI), the dependency scan, Renovate, Docs · Javadoc check, Package · React jar, Deploy · Maven snapshot
 #   and the database jobs on an embedded database (Database · H2, H2 · Flyway, HSQL · Flyway: no container, no dind service). They passed on the slow medium runner in times close to the big runners.
@@ -2235,12 +2236,16 @@ Deploy · npm:
 #   staging    -> https://staging.aweframework.com  and https://react-staging.aweframework.com
 #   production -> https://demo.aweframework.com     and https://react-demo.aweframework.com
 # Both images are set by the digest that "Package · Docker images" pushed and signed (PACKAGE_DIGEST, PACKAGE_REACT_DIGEST).
+# After the push the job waits for Flux to apply the commit and for both rollouts to finish, and fails otherwise (#1000):
+# the old pods keep serving while the new ones crashloop (maxUnavailable 0), so a green push alone proves nothing. It
+# reaches the cluster through the GitLab agent of this project (.gitlab/agents/gke, context KUBE_CONTEXT).
 .k8s_deploy:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:1.0.2@sha256:84cc4bcdb88e75b591c79730b2ea89ae60c6d4dcc5f03049a04cf1e1072c2e43
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:1.0.3@sha256:5d602ba1e49bbf556afdecf26b6fece876b282f76e528262205b8f7a79427eb0
   tags: [ light ]
   cache: { }
   interruptible: false
-  timeout: 15m
+  # Flux (FLUX_TIMEOUT_SECONDS) plus the rollouts (ROLLOUT_TIMEOUT, both at once) plus the clone and the logs
+  timeout: 30m
   needs:
     - job: Build · Maven
     - job: Analysis · Sonar
@@ -2249,6 +2254,13 @@ Deploy · npm:
   stage: deploy
   variables:
     GIT_STRATEGY: none
+    KUBE_CONTEXT: aweframework/awe:gke
+    # The GitRepository of Flux polls awe-gke-config every minute and the Kustomization applies a new revision at once
+    FLUX_TIMEOUT_SECONDS: 600
+    # The first start of a version runs the Flyway migrations, which takes a few minutes. Kubernetes also stops a rollout
+    # that makes no progress for progressDeadlineSeconds (600 s by default), whichever comes first.
+    ROLLOUT_TIMEOUT: 15m
+    K8S_APPS: awe-boot awe-react
     AWE_BOOT_IMAGE: registry.gitlab.com/aweframework/awe/awe-boot
     AWE_REACT_IMAGE: registry.gitlab.com/aweframework/awe/awe-boot-react
     # Image of the former awe-react repository, still referenced by the awe-react manifests until the first deploy from here.
@@ -2287,6 +2299,73 @@ Deploy · npm:
       )
     - git commit . -m "Updated awe-boot and awe-react kubernetes deployments ${CI_ENVIRONMENT_SLUG}"
     - git push origin master
+    - DEPLOYED_REVISION=$(git rev-parse HEAD)
+    - kubectl config use-context "$KUBE_CONTEXT"
+    # Wait until Flux has applied this commit or a later one: another deploy may push to awe-gke-config meanwhile.
+    # A failed apply of this commit (Ready False) stops at once with the message of Flux.
+    - |
+      echo "Waiting for Flux to apply awe-gke-config $DEPLOYED_REVISION"
+      deadline=$(( $(date +%s) + FLUX_TIMEOUT_SECONDS ))
+      while :; do
+        status=$(kubectl -n flux-system get kustomization flux-system -o json) || status='{}'
+        applied=$(echo "$status" | jq -r '.status.lastAppliedRevision // ""' | sed 's/.*://')
+        attempted=$(echo "$status" | jq -r '.status.lastAttemptedRevision // ""' | sed 's/.*://')
+        ready=$(echo "$status" | jq -r '.status.conditions[]? | select(.type == "Ready") | "\(.status) \(.message)"')
+        if [ -n "$applied" ]; then
+          git cat-file -e "$applied^{commit}" 2>/dev/null || git fetch -q origin master || true
+          if git merge-base --is-ancestor "$DEPLOYED_REVISION" "$applied" 2>/dev/null; then
+            echo "Flux applied $applied"
+            break
+          fi
+        fi
+        if [ "$attempted" = "$DEPLOYED_REVISION" ] && [ "${ready%% *}" = "False" ]; then
+          echo "Flux failed to apply $DEPLOYED_REVISION: ${ready#* }"
+          exit 1
+        fi
+        if [ "$(date +%s)" -ge "$deadline" ]; then
+          echo "Flux did not apply $DEPLOYED_REVISION within ${FLUX_TIMEOUT_SECONDS}s (applied: ${applied:-none}, Ready: $ready)"
+          exit 1
+        fi
+        sleep 10
+      done
+    # Both rollouts at once. A deployment that does not finish fails the job with its pods, and the events and last log
+    # lines (of the crashed container too) of every pod that is not ready: the pods of the new version.
+    - |
+      rollouts=""
+      for app in $K8S_APPS; do
+        kubectl -n "$CI_ENVIRONMENT_SLUG" rollout status "deployment/$app" --timeout="$ROLLOUT_TIMEOUT" > "/tmp/$app.rollout" 2>&1 &
+        rollouts="$rollouts $app:$!"
+      done
+      failed=""
+      for rollout in $rollouts; do
+        app=${rollout%%:*}
+        if wait "${rollout#*:}"; then
+          echo "$app: $(tail -n 1 "/tmp/$app.rollout")"
+        else
+          failed="$failed $app"
+          echo "$app did not finish its rollout:"
+          cat "/tmp/$app.rollout"
+        fi
+      done
+      for app in $failed; do
+        echo "===== $app"
+        kubectl -n "$CI_ENVIRONMENT_SLUG" get pods -l "app=$app" -o wide || true
+        pods=$(kubectl -n "$CI_ENVIRONMENT_SLUG" get pods -l "app=$app" -o json | jq -r '.items[]
+          | select((.status.containerStatuses // []) | (length == 0) or any(.ready | not)) | .metadata.name') || true
+        for pod in $pods; do
+          echo "===== $pod events"
+          kubectl -n "$CI_ENVIRONMENT_SLUG" get events --field-selector "involvedObject.name=$pod" \
+            --sort-by=.lastTimestamp | tail -n 15 || true
+          echo "===== $pod logs of the previous container (after a restart)"
+          kubectl -n "$CI_ENVIRONMENT_SLUG" logs "$pod" --all-containers --previous --tail=80 || true
+          echo "===== $pod logs"
+          kubectl -n "$CI_ENVIRONMENT_SLUG" logs "$pod" --all-containers --tail=80 || true
+        done
+      done
+      if [ -n "$failed" ]; then
+        echo "Deployment to $CI_ENVIRONMENT_SLUG failed:$failed"
+        exit 1
+      fi
 
 Deploy · Staging:
   extends: .k8s_deploy
