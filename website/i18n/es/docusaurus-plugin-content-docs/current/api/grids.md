@@ -814,7 +814,8 @@ escribe el detalle bajo cada fila impresa:
   los valores de la fila como `<id del grid padre>.row.<columna>`, como hace la pantalla, e imprime sus filas como tabla.
   Imprime como columnas simples las columnas que el grid anidado imprimiría (`printable`, columnas ocultas y de botón como
   en cualquier grid), hasta su `max` filas por detalle (100 cuando no declara ninguno). Piense en el coste: un grid de 500
-  filas ejecuta 500 consultas.
+  filas ejecuta 500 consultas, por lo que un grid paginado en el servidor con un detalle anidado imprime como máximo 500
+  filas (véase el [límite de impresión](../guides/print-guide.md#print-limit)).
 - Un detalle hecho con un `include` no se imprime (el servidor no lo resuelve) y el grid se imprime sin él.
 - Solo un nivel: un grid anidado no puede tener un detalle propio.
 - Un grid que imprime su detalle no agrupa sus filas (la agrupación se ignora en los grids con `row-detail`).

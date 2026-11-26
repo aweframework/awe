@@ -301,6 +301,8 @@
   <locale name="ENUM_PRN_FMT_EUR" value="European"/>
   <locale name="ENUM_PRN_FMT_EUR_NO_THOU" value="European (no thousand)"/>
   <locale name="ENUM_PRN_FMT_PDF" value="PDF"/>
+  <locale name="ENUM_PRN_ROW_ALL" value="All rows"/>
+  <locale name="ENUM_PRN_ROW_PAGE" value="Current page"/>
   <locale name="ENUM_PRN_FMT_RTF" value="RTF"/>
   <locale name="ENUM_PRN_FMT_TEXT" value="TEXT"/>
   <locale name="ENUM_PRN_FMT_XLS" value="EXCEL"/>
@@ -1177,6 +1179,7 @@
   <locale name="HELP_PRINT_FORMAT_CRITERION" value="Select the file formats which you want to retrieve the data"/>
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Select the format you want to apply to the numeric data"/>
   <locale name="HELP_PRINT_ORIENTATION_CRITERION" value="Force the report orientation"/>
+  <locale name="HELP_PRINT_ROWS_CRITERION" value="Rows of the grids that page on the server: every row of the search, sorted and filtered as on screen (up to a limit), or only the current page"/>
   <locale name="HELP_PRINT_SELECTION_CRITERION" value="Select what you want to print: All tabs in the screen or only the selected one"/>
   <locale name="HELP_RESET_2FA_BUTTON" value="Reset the two-factor authentication on the selected users"/>
   <locale name="HELP_RESET_BUTTON" value="Clear all criteria values"/>
@@ -1517,6 +1520,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_REPEAT_EACH" value="Repeat each"/>
   <locale name="PARAMETER_REPORT" value="Report"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientation"/>
+  <locale name="PARAMETER_PRN_ROWS" value="Rows to print"/>
   <locale name="PARAMETER_RESTRICTION" value="Restriction"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Retype password"/>
   <locale name="PARAMETER_SCREEN" value="Screen"/>
@@ -1847,6 +1851,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="GRID_GROUP_EXPAND" value="Expand group"/>
   <locale name="GRID_GROUP_COLLAPSE" value="Collapse group"/>
   <locale name="GRID_GROUP_EMPTY" value="(empty)"/>
+  <locale name="PRINT_ROWS_LIMIT_NOTICE" value="Only the first {0} rows of {1} were printed: filter the search to print the rest"/>
   <locale name="GRID_GROUP_SUBTOTAL" value="Subtotal"/>
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Grid layout not saved"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="The grid layout could not be saved or removed"/>

@@ -304,6 +304,8 @@
   <locale name="ENUM_PRN_FMT_EUR" value="Europeo"/>
   <locale name="ENUM_PRN_FMT_EUR_NO_THOU" value="Europeo (sin miles)"/>
   <locale name="ENUM_PRN_FMT_PDF" value="PDF"/>
+  <locale name="ENUM_PRN_ROW_ALL" value="Todas las filas"/>
+  <locale name="ENUM_PRN_ROW_PAGE" value="Página actual"/>
   <locale name="ENUM_PRN_FMT_RTF" value="RTF"/>
   <locale name="ENUM_PRN_FMT_TEXT" value="TEXTO"/>
   <locale name="ENUM_PRN_FMT_XLS" value="EXCEL"/>
@@ -1180,6 +1182,7 @@
   <locale name="HELP_PRINT_FORMAT_CRITERION" value="Seleccione los formatos de archivo en los que desea recuperar los datos"/>
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Seleccione el formato que desea aplicar a los datos numéricos"/>
   <locale name="HELP_PRINT_ORIENTATION_CRITERION" value="Forzar la orientación del informe"/>
+  <locale name="HELP_PRINT_ROWS_CRITERION" value="Filas de las tablas que paginan en el servidor: todas las filas de la búsqueda, ordenadas y filtradas como en pantalla (hasta un límite), o solo la página actual"/>
   <locale name="HELP_PRINT_SELECTION_CRITERION" value="Seleccione lo que desea imprimir: Todas las pestañas en la pantalla o sólo la seleccionada"/>
   <locale name="HELP_RESET_2FA_BUTTON" value="Restablecer la autenticación de dos factores en los usuarios seleccionados"/>
   <locale name="HELP_RESET_BUTTON" value="Borrar los datos de los criterios"/>
@@ -1520,6 +1523,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_REPEAT_EACH" value="Repetir cada"/>
   <locale name="PARAMETER_REPORT" value="Informe"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientación"/>
+  <locale name="PARAMETER_PRN_ROWS" value="Filas a imprimir"/>
   <locale name="PARAMETER_RESTRICTION" value="Restricción"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Repita contraseña"/>
   <locale name="PARAMETER_SCREEN" value="Pantalla"/>
@@ -1850,6 +1854,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="GRID_GROUP_EXPAND" value="Expandir grupo"/>
   <locale name="GRID_GROUP_COLLAPSE" value="Contraer grupo"/>
   <locale name="GRID_GROUP_EMPTY" value="(vacío)"/>
+  <locale name="PRINT_ROWS_LIMIT_NOTICE" value="Solo se han impreso las primeras {0} filas de {1}: filtra la búsqueda para imprimir el resto"/>
   <locale name="GRID_GROUP_SUBTOTAL" value="Subtotal"/>
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Disposición del grid no guardada"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="No se ha podido guardar ni eliminar la disposición del grid"/>

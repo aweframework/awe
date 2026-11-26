@@ -160,6 +160,9 @@ Este es un ejemplo con un diálogo definido dentro de una etiqueta modal en una 
 
 Este ejemplo muestra una pantalla de diálogo incluida en la sección modal de una ventana.
 
+El diálogo de impresión genérico `PrnOpt` también pregunta qué filas imprimen los grids que paginan en el servidor
+(*Todas las filas* o *Página actual*), véase [filas a imprimir](../guides/print-guide.md#rows-to-print).
+
 <img alt="Diálogo de impresión" src={require('@docusaurus/useBaseUrl').default('img/DialogImagePrint.png')} />
 
 ```xml

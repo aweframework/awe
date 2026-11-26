@@ -4,6 +4,7 @@ import com.almis.awe.config.ServiceConfig;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.FileData;
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.type.PrintActionType;
 import com.almis.awe.service.report.ReportGenerator;
 import lombok.extern.slf4j.Slf4j;
@@ -60,10 +61,18 @@ public class ReportService extends ServiceConfig {
     ReportGenerator.GeneratedScreenReportContext reportContext = reportGenerator.generateScreenReportContext(menuService.getScreen(screenName));
 
     // Launch the print action
+    ServiceData result;
     if (PrintActionType.valueOf(printAction) == PrintActionType.MAIL) {
-      return maintainService.launchMaintain("SndRep", reportContext.parameters());
+      result = maintainService.launchMaintain("SndRep", reportContext.parameters());
+    } else {
+      result = reportGenerator.downloadScreenReportFiles(reportContext.reportFiles());
     }
-    return reportGenerator.downloadScreenReportFiles(reportContext.reportFiles());
+
+    // Tell the user when some grid was cut at the print limit, instead of the success message
+    if (reportContext.printLimitNotice() != null) {
+      result.setType(AnswerType.INFO).setMessage(reportContext.printLimitNotice());
+    }
+    return result;
   }
 
   /**

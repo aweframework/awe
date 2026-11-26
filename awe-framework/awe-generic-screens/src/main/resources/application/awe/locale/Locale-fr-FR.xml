@@ -301,6 +301,8 @@
   <locale name="ENUM_PRN_FMT_EUR" value="Européen"/>
   <locale name="ENUM_PRN_FMT_EUR_NO_THOU" value="Européen (sans des milliers)"/>
   <locale name="ENUM_PRN_FMT_PDF" value="PDF"/>
+  <locale name="ENUM_PRN_ROW_ALL" value="Toutes les lignes"/>
+  <locale name="ENUM_PRN_ROW_PAGE" value="Page courante"/>
   <locale name="ENUM_PRN_FMT_RTF" value="RTF"/>
   <locale name="ENUM_PRN_FMT_TEXT" value="TEXTE"/>
   <locale name="ENUM_PRN_FMT_XLS" value="EXCEL"/>
@@ -1177,6 +1179,7 @@
   <locale name="HELP_PRINT_FORMAT_CRITERION" value="Sélectionnez les formats de fichier dont vous souhaitez récupérer les données"/>
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Sélectionnez le type de format que vous souhaitez appliquer aux données numériques"/>
   <locale name="HELP_PRINT_ORIENTATION_CRITERION" value="Forcer l&apos;orientation du rapport"/>
+  <locale name="HELP_PRINT_ROWS_CRITERION" value="Lignes des tableaux paginés par le serveur : toutes les lignes de la recherche, triées et filtrées comme à l&apos;écran (jusqu&apos;à une limite), ou seulement la page courante"/>
   <locale name="HELP_PRINT_SELECTION_CRITERION" value="Sélectionnez ce que vous voulez imprimer: Tous les onglets dans l&apos;écran ou seulement celui sélectionné"/>
   <locale name="HELP_RESET_2FA_BUTTON" value="Réinitialiser l&amp;#39;authentification à deux facteurs sur les utilisateurs sélectionnés"/>
   <locale name="HELP_RESET_BUTTON" value="Effacer toutes les valeurs des critères"/>
@@ -1517,6 +1520,7 @@ Un site est défini comme un *séparé nœud d'application*, avec ses propres [b
   <locale name="PARAMETER_REPEAT_EACH" value="Répétez chaque"/>
   <locale name="PARAMETER_REPORT" value="Information"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientation"/>
+  <locale name="PARAMETER_PRN_ROWS" value="Lignes à imprimer"/>
   <locale name="PARAMETER_RESTRICTION" value="Restriction"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Repeter mot de passe"/>
   <locale name="PARAMETER_SCREEN" value="Écran"/>
@@ -1847,6 +1851,7 @@ Ouvrez votre application d'authentification à deux facteurs et scannez le code 
   <locale name="GRID_GROUP_EXPAND" value="Développer le groupe"/>
   <locale name="GRID_GROUP_COLLAPSE" value="Réduire le groupe"/>
   <locale name="GRID_GROUP_EMPTY" value="(vide)"/>
+  <locale name="PRINT_ROWS_LIMIT_NOTICE" value="Seules les {0} premières lignes de {1} ont été imprimées : filtrez la recherche pour imprimer le reste"/>
   <locale name="GRID_GROUP_SUBTOTAL" value="Sous-total"/>
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Disposition non enregistrée"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="La disposition de la grille n&apos;a pas pu être enregistrée ni supprimée"/>

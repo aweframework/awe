@@ -77,6 +77,8 @@ public class ReportDesigner extends ServiceConfig {
   private static final String ACTION_COLUMN_COMPONENT = "button";
   // Rows of a nested row detail grid when it declares no max: each printed row runs one query, so it is always limited
   private static final int MAX_DETAIL_ROWS = 100;
+  // Rows a print of a server-paged grid with a nested row detail reads at most: each printed row runs one more query
+  private static final int MAX_PRINT_ROWS_WITH_DETAIL_GRID = 500;
 
   // Autowired services
   private final QueryService queryService;
@@ -119,6 +121,21 @@ public class ReportDesigner extends ServiceConfig {
    * @throws AWException Error designing report
    */
   public PrintBean getPrintDesign(List<Element> reportStructure, ObjectNode parameters, boolean includeSpreadsheetOnlyColumns) throws AWException {
+    return designReport(reportStructure, parameters, includeSpreadsheetOnlyColumns).printBean();
+  }
+
+  /**
+   * Design the report for a given output profile, with the grids whose rows were cut at the print limit
+   * (`grid-print-max-rows`), so the caller can tell the user: the report itself shows no notice
+   *
+   * @param reportStructure               Report structure
+   * @param parameters                    Screen parameters
+   * @param includeSpreadsheetOnlyColumns Include columns declared as `printable="excel"`
+   * @return Report design
+   * @throws AWException Error designing report
+   */
+  public ReportDesign designReport(List<Element> reportStructure, ObjectNode parameters, boolean includeSpreadsheetOnlyColumns) throws AWException {
+    List<PrintCut> printCuts = new ArrayList<>();
     Layout layout = new Layout("report-layout", LayoutType.MULTIPAGE);
     PrintBean printBean = new PrintBean()
       .setDetail(layout);
@@ -133,7 +150,7 @@ public class ReportDesigner extends ServiceConfig {
       if (element instanceof Screen screen) {
         getElementDesign(printBean, screen);
       } else if (element instanceof Grid grid) {
-        getElementDesign(printBean, grid, parameters, includeSpreadsheetOnlyColumns);
+        getGridDesign(printBean, grid, parameters, includeSpreadsheetOnlyColumns).ifPresent(printCuts::add);
       } else if (element instanceof Chart chart) {
         getElementDesign(printBean, chart, parameters);
       } else if (element instanceof Criteria criteria) {
@@ -150,7 +167,44 @@ public class ReportDesigner extends ServiceConfig {
     }
 
     // Retrieve print bean generated
-    return printBean;
+    return new ReportDesign(printBean, List.copyOf(printCuts));
+  }
+
+  /**
+   * Design a grid of the report
+   *
+   * @param printBean                     Print bean
+   * @param grid                          Grid
+   * @param parameters                    Screen parameters
+   * @param includeSpreadsheetOnlyColumns Include columns declared as `printable="excel"`
+   * @return The cut of the grid when its rows were cut at the print limit
+   * @throws AWException Error designing the grid
+   */
+  private Optional<PrintCut> getGridDesign(PrintBean printBean, Grid grid, ObjectNode parameters,
+                                           boolean includeSpreadsheetOnlyColumns) throws AWException {
+    int printedRows = getElementDesign(printBean, grid, parameters, includeSpreadsheetOnlyColumns);
+    if (printedRows == 0) {
+      return Optional.empty();
+    }
+    return Optional.of(new PrintCut(grid.getLabel() == null ? grid.getId() : getLocale(grid.getLabel()), printedRows));
+  }
+
+  /**
+   * Design of a report
+   *
+   * @param printBean Print bean designed
+   * @param printCuts Grids whose rows were cut at the print limit, empty when every row of the search is printed
+   */
+  public record ReportDesign(PrintBean printBean, List<PrintCut> printCuts) {
+  }
+
+  /**
+   * Grid whose rows were cut at the print limit
+   *
+   * @param grid Grid label (its id when it has none)
+   * @param rows Rows printed: the first ones of the search
+   */
+  public record PrintCut(String grid, int rows) {
   }
 
   /**
@@ -393,8 +447,9 @@ public class ReportDesigner extends ServiceConfig {
    * @param printBean  Print bean
    * @param element    Element
    * @param parameters Parameters
+   * @return Rows printed when the rows of the search were cut at the print limit, 0 otherwise
    */
-  private void getElementDesign(PrintBean printBean, Grid element, ObjectNode parameters, boolean includeSpreadsheetOnlyColumns) throws AWException {
+  private int getElementDesign(PrintBean printBean, Grid element, ObjectNode parameters, boolean includeSpreadsheetOnlyColumns) throws AWException {
     Layout layout = (Layout) printBean.getDetail();
     Layout gridLayout = new Layout("grid-layout", LayoutType.VERTICAL);
     layout.addElement(gridLayout);
@@ -424,12 +479,13 @@ public class ReportDesigner extends ServiceConfig {
       calculateGridOrientationAndFont(gridElement, printBean);
 
       // Add data to grid
-      setGridData(element, gridElement, fields, parameters, context);
+      int printedRows = setGridData(element, gridElement, fields, parameters, context);
 
       // Add grid to layout
       gridLayout.addElement(gridElement)
         .getStyle()
         .setTopPadding(TOP_PADDING);
+      return printedRows;
     } catch (Exception exc) {
       throw new AWException("Error trying to read visible columns from screen", exc);
     }
@@ -488,22 +544,68 @@ public class ReportDesigner extends ServiceConfig {
   }
 
   /**
-   * Lift the grid pagination (sort, page size and current page) and its column filters from the grid data node to the
-   * parameters root, so the relaunched query returns the same rows the user is looking at.
-   * Values the client did not send are left untouched so the query keeps its own defaults.
+   * Lift the grid sort and column filters from the grid data node to the parameters root, so the relaunched query
+   * returns the search the user is looking at, and set the rows to read from the rows to print of the print dialog:
+   * every row (the default) or the current page (`PAGE`, its page size and current page from the grid data node).
+   * Every row, or a current page without a page size or with one of 0 or above the print limit (`grid-print-max-rows`),
+   * reads the first page with one row above the limit, so a search bigger than the limit is detected without loading it
    *
    * @param grid       Grid element
    * @param parameters Parameters
+   * @param context    Grid print context
+   * @return Rows the print shows at most, 0 when it has no limit
    */
-  private void addGridPaginationData(Grid grid, ObjectNode parameters) {
+  private int addGridPaginationData(Grid grid, ObjectNode parameters, GridPrintContext context) {
+    // Each grid of the screen queries with its own search: what a grid does not send is removed, so it never queries
+    // with the search of the grid printed before it
     JsonNode gridData = parameters.get(grid.getId() + baseConfigProperties.getComponent().getDataSuffix());
-    for (String key : List.of(AweConstants.COMPONENT_SORT, AweConstants.COMPONENT_MAX, AweConstants.COMPONENT_PAGE,
-      AweConstants.COMPONENT_COLUMN_FILTERS)) {
-      JsonNode value = gridData == null ? null : gridData.get(key);
-      if (value != null && !value.isNull()) {
-        parameters.set(key, value);
-      }
+    for (String key : List.of(AweConstants.COMPONENT_SORT, AweConstants.COMPONENT_COLUMN_FILTERS)) {
+      setOrRemove(parameters, key, gridData == null ? null : gridData.get(key));
     }
+
+    int limit = getPrintRowLimit(context);
+    JsonNode rows = parameters.get(AweConstants.PRINT_ROWS);
+    boolean currentPage = rows != null && AweConstants.PRINT_ROWS_PAGE.equals(rows.asString(""));
+    long max = currentPage && gridData != null && gridData.hasNonNull(AweConstants.COMPONENT_MAX)
+      ? gridData.get(AweConstants.COMPONENT_MAX).asLong(0L) : 0L;
+    if (max > 0 && (limit == 0 || max <= limit)) {
+      parameters.put(AweConstants.COMPONENT_MAX, max);
+      setOrRemove(parameters, AweConstants.COMPONENT_PAGE, gridData.get(AweConstants.COMPONENT_PAGE));
+      return 0;
+    }
+    parameters.put(AweConstants.COMPONENT_MAX, limit == 0 ? 0L : limit + 1L);
+    parameters.put(AweConstants.COMPONENT_PAGE, 1);
+    return limit;
+  }
+
+  /**
+   * Set a parameter from a value, or remove it when there is no value
+   *
+   * @param parameters Parameters
+   * @param key        Parameter name
+   * @param value      Value, null or a null node to remove the parameter
+   */
+  private static void setOrRemove(ObjectNode parameters, String key, JsonNode value) {
+    if (value == null || value.isNull()) {
+      parameters.remove(key);
+    } else {
+      parameters.set(key, value);
+    }
+  }
+
+  /**
+   * Retrieve the rows a print of a server-paged grid shows at most: the print limit (`grid-print-max-rows`, 0 for no
+   * limit), lowered for a grid with a nested row detail, as each printed row runs one more query
+   *
+   * @param context Grid print context
+   * @return Rows to print at most, 0 when there is no limit
+   */
+  private int getPrintRowLimit(GridPrintContext context) {
+    int limit = Math.max(0, baseConfigProperties.getComponent().getGridPrintMaxRows());
+    if (context.rowDetail() != null && context.rowDetail().isGrid()) {
+      return limit == 0 ? MAX_PRINT_ROWS_WITH_DETAIL_GRID : Math.min(limit, MAX_PRINT_ROWS_WITH_DETAIL_GRID);
+    }
+    return limit;
   }
 
   /**
@@ -727,17 +829,21 @@ public class ReportDesigner extends ServiceConfig {
    * @param grid       Grid element
    * @param reportGrid Report grid
    * @param parameters Parameters
+   * @return Rows printed when the rows of the search were cut at the print limit, 0 otherwise
    */
-  private void setGridData(Grid grid, ReportGrid reportGrid, List<String> fields, ObjectNode parameters, GridPrintContext context) throws AWException {
+  private int setGridData(Grid grid, ReportGrid reportGrid, List<String> fields, ObjectNode parameters, GridPrintContext context) throws AWException {
     // Retrieve columns
     reportGrid.setFields(fields);
 
+    int cutAt = 0;
     if (grid.isLoadAll() || grid.isEditable() || grid.isMultioperation()) {
       // Get data from parameters
       reportGrid.setData(getGridDataParameters(grid, reportGrid, fields, parameters, context));
     } else {
       // Get data from query
-      reportGrid.setData(getGridDataQuery(grid, reportGrid, fields, parameters, context));
+      QueryRows queryRows = getGridDataQuery(grid, reportGrid, fields, parameters, context);
+      reportGrid.setData(queryRows.data());
+      cutAt = queryRows.cutAt();
     }
 
     // Row detail: its own hidden field, with the detail of each data row (the totals have none)
@@ -753,6 +859,7 @@ public class ReportDesigner extends ServiceConfig {
         reportGrid.setRowDetailGrid(context.rowDetail().nestedTemplate());
       }
     }
+    return cutAt;
   }
 
   /**
@@ -992,17 +1099,24 @@ public class ReportDesigner extends ServiceConfig {
    * @param reportGrid Report grid
    * @param fields     Fields
    * @param parameters Parameter
-   * @return report data
+   * @return report data, and the rows printed when the search was cut at the print limit
    */
-  private List<List<Object>> getGridDataQuery(Grid grid, ReportGrid reportGrid, List<String> fields, ObjectNode parameters, GridPrintContext context) throws AWException {
+  private QueryRows getGridDataQuery(Grid grid, ReportGrid reportGrid, List<String> fields, ObjectNode parameters, GridPrintContext context) throws AWException {
     List<List<Object>> data = new ArrayList<>();
     boolean firstRow = true;
 
-    // Set sort, page size and current page from the grid
-    addGridPaginationData(grid, parameters);
+    // Set sort, column filters and the rows to read from the grid and the print dialog
+    int limit = addGridPaginationData(grid, parameters, context);
 
     // Launch query and get data
     DataList queryData = queryService.launchPrivateQuery(grid.getTargetAction(), parameters).getDataList();
+    List<Map<String, CellData>> rows = queryData.getRows();
+    int cutAt = 0;
+    if (limit > 0 && rows.size() > limit) {
+      log.warn("Print of grid '{}': the search has more rows than the print limit, only the first {} are printed", grid.getId(), limit);
+      rows = rows.subList(0, limit);
+      cutAt = limit;
+    }
 
     // Add _style_ to fields if it exists
     if (!queryData.getRows().isEmpty()) {
@@ -1013,7 +1127,7 @@ public class ReportDesigner extends ServiceConfig {
     }
 
     // Retrieve data from parameters
-    for (Map<String, CellData> row : queryData.getRows()) {
+    for (Map<String, CellData> row : rows) {
       List<Object> rowData = new ArrayList<>();
       data.add(rowData);
       if (context.rowDetail() != null) {
@@ -1033,7 +1147,16 @@ public class ReportDesigner extends ServiceConfig {
 
     // A groupable grid always loads all its rows, so a grid loaded by query is never grouped
     context.printer().apply(fields, data);
-    return data;
+    return new QueryRows(data, cutAt);
+  }
+
+  /**
+   * Rows of a grid read from its query
+   *
+   * @param data  Report data
+   * @param cutAt Rows printed when the search was cut at the print limit, 0 when every row of the search is printed
+   */
+  private record QueryRows(List<List<Object>> data, int cutAt) {
   }
 
   /**

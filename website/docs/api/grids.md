@@ -790,7 +790,9 @@ writes the detail under each printed row:
 - **Nested grid:** the server runs the query (`target-action`) of the nested grid **once per printed row**, with the
   values of the row as `<parent grid id>.row.<column>`, as the screen does, and prints its rows as a table. It prints the
   columns the nested grid would print (`printable`, hidden and button columns as in any grid) as plain columns, up to its
-  `max` rows per detail (100 when it declares none). Think of the cost: a grid of 500 rows runs 500 queries.
+  `max` rows per detail (100 when it declares none). Think of the cost: a grid of 500 rows runs 500 queries, so a
+  server-paged grid with a nested detail prints 500 rows at most (see the
+  [print limit](../guides/print-guide.md#print-limit)).
 - A detail made with an `include` is not printed (the server does not resolve it) and the grid prints without it.
 - One level only: a nested grid cannot have a detail of its own.
 - A grid that prints its detail does not group its rows (grouping is ignored on grids with `row-detail`).
