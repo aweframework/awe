@@ -71,6 +71,7 @@ class SchedulerTestsIT extends AbstractSessionTests {
     editRow(PARAMETERS_GRID, "secondsToWait");
     writeText(PARAMETERS_GRID, "ParVal", "2");
     saveRow(PARAMETERS_GRID);
+    checkCellContents(PARAMETERS_GRID, "1", "ParVal", "2");
 
     // Save: the editor opens the task page of the new task, which runs it from the dialog of its parameters
     clickButton("ButTskEdtNew", true);

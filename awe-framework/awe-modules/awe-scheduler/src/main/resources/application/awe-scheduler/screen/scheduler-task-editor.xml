@@ -280,7 +280,10 @@
                         initial-load="enum" target-action="SchParSrc" charlength="14" sortable="false" />
                 <column label="PARAMETER_TYPE" name="ParTyp" align="left" component="select" validation="required"
                         initial-load="enum" target-action="SchParTyp" charlength="14" sortable="false" />
-                <column label="PARAMETER_VALUE" name="ParVal" align="left" component="text" charlength="24" width="*" sortable="false" />
+                <!-- The value keeps a width of its own: in a narrow card the other columns would squeeze it under the pinned
+                     actions, where it could be neither seen nor edited -->
+                <column label="PARAMETER_VALUE" name="ParVal" align="left" component="text" charlength="24" width="*" min-width="160"
+                        sortable="false" />
                 <!-- Only a webhook task maps values of the webhook onto its parameters -->
                 <column label="SCHEDULER_WEBHOOK_POINTER" name="ParPtr" align="left" component="text" charlength="16"
                         sortable="false" help="SCHEDULER_WEBHOOK_POINTER_HELP">
