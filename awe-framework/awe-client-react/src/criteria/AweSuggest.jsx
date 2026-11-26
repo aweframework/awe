@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {criterionPlaceholder, requiredAria} from "../utilities/labels";
+import {getIconNode} from "../utilities";
+import {TestIds, testHook} from "../utilities/testIds";
 import { AutoComplete } from "primereact/autocomplete";
 import { classNames } from "../utilities/components";
 import "./AweSuggest.less";
@@ -49,7 +51,12 @@ function AweSuggest(props) {
   }, [value, attributes]);
 
   const {required, readonly, timeout, size, error, virtualScroll, openPanelOnMount } = attributes || {};
-  const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error });
+  // A field with a value offers a button that empties it, so a new search starts without deleting the text. A required
+  // one too: the validation warns if it is saved empty (#996)
+  const hasValue = value?.value !== undefined && value?.value !== null && value?.value !== "";
+  const clearable = !readonly && hasValue;
+  const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error,
+    "awe-suggest-clearable": clearable });
   const isLargeList = suggestions.length > 100;
   const enableVirtualScroll = virtualScroll !== false;
 
@@ -100,6 +107,12 @@ function AweSuggest(props) {
           element.setAttribute('aria-label', label);
           tooltipRef.current?.show(e);
       }
+  };
+
+  // The button disappears once the value is empty: the focus goes back to the field, not to the page
+  const clearValue = () => {
+    onClear();
+    autocompleteRef.current?.getInput?.()?.focus();
   };
 
   const handleMouseLeave = (e) => {
@@ -162,6 +175,10 @@ function AweSuggest(props) {
         itemTemplate={itemTemplate}
         pt={autoCompletePassThrough(id)}
       />
+      {clearable && <button type="button" className="awe-suggest-clear" aria-label={t("BUTTON_CLEAR")}
+        onClick={clearValue} {...testHook(TestIds.selectClear)}>
+        {getIconNode("lucide:x", {"aria-hidden": "true"})}
+      </button>}
     </AweCriterion>
   );
 }

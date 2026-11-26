@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from "react";
-import {criterionPlaceholder, isCriterionRequired, requiredAria} from "../utilities/labels";
+import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {AutoComplete} from "primereact/autocomplete";
 import {classNames} from "../utilities/components";
 import {getIconNode} from "../utilities";
@@ -52,8 +52,9 @@ function AweSuggestMultiple(props) {
   const classes = classNames("", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, "p-invalid": error,
     "awe-suggest-multiple-summary": summary });
   const chosen = value.map(item => ({ ...item, label: getSuggestionLabel(item) }));
-  // A field that can be left empty (it is not required) offers one button that empties every chosen value
-  const clearable = !readonly && !isCriterionRequired(attributes, validationRules) && chosen.length > 0;
+  // A field with chosen values offers one button that empties all of them. A required one too: the validation warns if
+  // it is saved empty (#996)
+  const clearable = !readonly && chosen.length > 0;
 
   // A value can be chosen only once: the server answers a new object for the same option every time, so PrimeReact
   // compares two different elements and the same value would be stored twice (and sent twice to the server)

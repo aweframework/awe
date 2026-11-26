@@ -314,7 +314,8 @@ describe('awe-react-client/test/js/criteria/AweSuggestMultipleTest.jsx', () => {
       expect(store.getState().components["suggest-multiple"].model.values.filter(item => item.selected)).toEqual([]);
     });
 
-    it('does not offer the clear button of a required suggest', () => {
+    // A required suggest can be emptied too, to start a new search: the validation warns if it is saved empty (#996)
+    it('offers the clear button of a required suggest', () => {
       const requiredState = {
         ...preloadedState,
         components: {
@@ -326,6 +327,21 @@ describe('awe-react-client/test/js/criteria/AweSuggestMultipleTest.jsx', () => {
         }
       };
       renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {preloadedState: requiredState});
+
+      expect(document.querySelector("[data-testid='select-clear']")).not.toBeNull();
+    });
+
+    it('does not offer the clear button of a read-only suggest', () => {
+      const readonlyState = {
+        ...preloadedState,
+        components: {
+          "suggest-multiple": {
+            ...preloadedState.components["suggest-multiple"],
+            attributes: {placeholder: "placeholder", readonly: true}
+          }
+        }
+      };
+      renderWithProviders(<AweSuggestMultiple id="suggest-multiple"/>, {preloadedState: readonlyState});
 
       expect(document.querySelector("[data-testid='select-clear']")).toBeNull();
     });
