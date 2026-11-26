@@ -6,6 +6,7 @@ import com.almis.ade.api.bean.component.Layout;
 import com.almis.ade.api.bean.component.grid.ReportColumn;
 import com.almis.ade.api.bean.component.grid.ReportGrid;
 import com.almis.ade.api.bean.component.grid.ReportHeader;
+import com.almis.ade.api.bean.input.DataBean;
 import com.almis.ade.api.bean.input.PrintBean;
 import com.almis.ade.api.enumerate.ColumnType;
 import com.almis.ade.api.enumerate.HorizontalTextAlignment;
@@ -19,6 +20,9 @@ import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.PrintColumnData;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.Element;
+import com.almis.awe.model.entities.screen.component.grid.Column;
+import com.almis.awe.model.entities.screen.component.grid.Grid;
+import com.almis.awe.model.entities.screen.component.grid.RowDetail;
 import com.almis.awe.service.QueryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -165,7 +169,7 @@ class ReportDesignTest {
   }
 
   @Test
-  void getPrintDesignWithPaginatedQueryGridLiftsGridPaginationToTheQuery() throws Exception {
+  void getPrintDesignOfTheCurrentPageLiftsGridPaginationToTheQuery() throws Exception {
     when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
@@ -181,6 +185,7 @@ class ReportDesignTest {
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.set("gridId.data", gridData);
+    parameters.put("RowPrn", "PAGE");
 
     List<Element> reportElementList = Collections.singletonList(
       new GridBuilder()
@@ -234,18 +239,19 @@ class ReportDesignTest {
   }
 
   @Test
-  void getPrintDesignWithQueryGridWithoutClientPaginationLeavesQueryDefaults() throws Exception {
+  void getPrintDesignOfTheCurrentPageWithoutClientPaginationIsCapped() throws Exception {
     when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
       .thenReturn(new ServiceData().setDataList(new DataList()));
 
-    // No max/page/sort sent by the client: nothing must be forced (a null max would disable pagination)
+    // The current page of a grid that sends no page size reads the first page up to the cap, never every row
     ObjectNode gridData = JsonNodeFactory.instance.objectNode();
     gridData.set("visibleColumns", JsonNodeFactory.instance.arrayNode());
 
     ObjectNode parameters = JsonNodeFactory.instance.objectNode();
     parameters.set("gridId.data", gridData);
+    parameters.put("RowPrn", "PAGE");
 
     List<Element> reportElementList = Collections.singletonList(
       new GridBuilder()
@@ -260,8 +266,8 @@ class ReportDesignTest {
     ArgumentCaptor<ObjectNode> queryParameters = ArgumentCaptor.forClass(ObjectNode.class);
     verify(queryService).launchPrivateQuery(eq("gridQuery"), queryParameters.capture());
     ObjectNode rootParameters = queryParameters.getValue();
-    assertFalse(rootParameters.has("max"), "max must not be forced when the client did not send it");
-    assertFalse(rootParameters.has("page"), "page must not be forced when the client did not send it");
+    assertEquals(10001, rootParameters.get("max").asInt());
+    assertEquals(1, rootParameters.get("page").asInt());
     assertFalse(rootParameters.has("sort"), "sort must not be forced when the client did not send it");
   }
 
@@ -643,6 +649,223 @@ class ReportDesignTest {
     assertEquals(progressField, progress.getField());
     assertEquals("Progress", progress.getLabel());
     assertEquals(ColumnType.DOUBLE, progress.getType());
+  }
+
+  @Test
+  void getPrintDesignOfAllRowsQueriesTheFirstPageUpToTheCapWithTheGridSortAndFilters() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(new DataList()));
+
+    // All rows is the default choice: the page the user is on does not limit the print, the cap does (#994)
+    ObjectNode parameters = paginatedGridParameters(0, 1);
+
+    reportDesigner.getPrintDesign(List.of(paginatedGrid()), parameters);
+
+    ObjectNode rootParameters = capturedQueryParameters();
+    assertEquals(10001, rootParameters.get("max").asInt(), "all rows asks for one row above the cap to detect a cut");
+    assertEquals(1, rootParameters.get("page").asInt());
+    assertEquals("name", rootParameters.get("sort").get(0).get("id").asString());
+    assertEquals("Ann", rootParameters.get("columnFilters").get(0).get("values").get(0).asString());
+  }
+
+  @Test
+  void getPrintDesignOfTheCurrentPageAboveTheCapQueriesTheFirstPageUpToTheCap() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(new DataList()));
+
+    // A grid whose page size is above the cap cannot bypass the cap
+    ObjectNode parameters = paginatedGridParameters(20000, 3).put("RowPrn", "PAGE");
+
+    reportDesigner.getPrintDesign(List.of(paginatedGrid()), parameters);
+
+    ObjectNode rootParameters = capturedQueryParameters();
+    assertEquals(10001, rootParameters.get("max").asInt());
+    assertEquals(1, rootParameters.get("page").asInt());
+  }
+
+  @Test
+  void designReportOfAllRowsAboveTheCapPrintsTheFirstRowsAndReportsTheCut() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class)))
+      .thenReturn(List.of(new PrintColumnData().setName("name").setLabel("name")));
+    BaseConfigProperties.Component component = new BaseConfigProperties.Component();
+    component.setGridPrintMaxRows(2);
+    when(baseConfigProperties.getComponent()).thenReturn(component);
+    DataList dataList = new DataList();
+    for (String name : List.of("Ann", "Bob", "Cid")) {
+      dataList.addRow(new HashMap<>(Map.of("name", new CellData(name))));
+    }
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(dataList));
+
+    ReportDesigner.ReportDesign design = reportDesigner.designReport(List.of(paginatedGrid()), paginatedGridParameters(10, 1), false);
+
+    assertEquals(3, capturedQueryParameters().get("max").asInt());
+    assertEquals(List.of(new ReportDesigner.PrintCut("gridId", 2)), design.printCuts());
+    List<?> gridLayout = ((Layout) ((Layout) design.printBean().getDetail()).getElements().get(0)).getElements();
+    assertEquals(1, gridLayout.size());
+    ReportGrid reportGrid = (ReportGrid) gridLayout.get(0);
+    assertEquals(2, reportGrid.getData().size());
+    assertEquals("Ann", ((DataBean) reportGrid.getData().get(0).get(0)).getSingleValue("value"));
+    assertEquals("Bob", ((DataBean) reportGrid.getData().get(1).get(0)).getSingleValue("value"));
+  }
+
+  @Test
+  void getPrintDesignOfAllRowsWithinTheCapPrintsNoNotice() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class)))
+      .thenReturn(List.of(new PrintColumnData().setName("name").setLabel("name")));
+    BaseConfigProperties.Component component = new BaseConfigProperties.Component();
+    component.setGridPrintMaxRows(2);
+    when(baseConfigProperties.getComponent()).thenReturn(component);
+    DataList dataList = new DataList();
+    for (String name : List.of("Ann", "Bob")) {
+      dataList.addRow(new HashMap<>(Map.of("name", new CellData(name))));
+    }
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(dataList));
+
+    ReportDesigner.ReportDesign design = reportDesigner.designReport(List.of(paginatedGrid()), paginatedGridParameters(10, 1), false);
+
+    assertEquals(List.of(), design.printCuts());
+    List<?> gridLayout = ((Layout) ((Layout) design.printBean().getDetail()).getElements().get(0)).getElements();
+    assertEquals(1, gridLayout.size());
+    assertEquals(2, ((ReportGrid) gridLayout.get(0)).getData().size());
+  }
+
+  @Test
+  void getPrintDesignOfAllRowsWithTheCapDisabledQueriesEveryRow() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    BaseConfigProperties.Component component = new BaseConfigProperties.Component();
+    component.setGridPrintMaxRows(0);
+    when(baseConfigProperties.getComponent()).thenReturn(component);
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(new DataList()));
+
+    reportDesigner.getPrintDesign(List.of(paginatedGrid()), paginatedGridParameters(10, 3));
+
+    ObjectNode rootParameters = capturedQueryParameters();
+    assertEquals(0, rootParameters.get("max").asInt());
+    assertEquals(1, rootParameters.get("page").asInt());
+  }
+
+  @Test
+  void getPrintDesignOfAllRowsOfAGridWithANestedRowDetailIsCappedAt500Rows() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(new DataList()));
+
+    // Each printed row runs the query of its nested grid
+    doReturn("ITEM").when(reportDesigner).getLocale(anyString());
+    Grid nested = new GridBuilder().setId("GrdLines").build();
+    nested.setTargetAction("QryLines");
+    nested.addElement(new TextColumnBuilder().setName("item").build());
+    nested.getElementsByType(Column.class).forEach(column -> column.setComponentType(null));
+    Grid grid = paginatedGrid();
+    grid.addElement(new RowDetail().setPrint(true).addElement(nested));
+
+    reportDesigner.getPrintDesign(List.of(grid), paginatedGridParameters(10, 1));
+
+    assertEquals(501, capturedQueryParameters().get("max").asInt());
+  }
+
+  @Test
+  void getPrintDesignOfTheCurrentPageWithoutPagingIsCapped() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(new DataList()));
+
+    // A page size of 0 (a grid that does not page) is every row
+    reportDesigner.getPrintDesign(List.of(paginatedGrid()), paginatedGridParameters(0, 2).put("RowPrn", "PAGE"));
+
+    ObjectNode rootParameters = capturedQueryParameters();
+    assertEquals(10001, rootParameters.get("max").asInt());
+    assertEquals(1, rootParameters.get("page").asInt());
+  }
+
+  @Test
+  void getPrintDesignOfTwoGridsQueriesEachOneWithItsOwnSearch() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
+    List<ObjectNode> sent = new ArrayList<>();
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class))).thenAnswer(invocation -> {
+      sent.add(((ObjectNode) invocation.getArgument(1)).deepCopy());
+      return new ServiceData().setDataList(new DataList());
+    });
+    ObjectNode parameters = paginatedGridParameters(10, 3).put("RowPrn", "PAGE");
+    ObjectNode otherGridData = JsonNodeFactory.instance.objectNode();
+    otherGridData.set("visibleColumns", JsonNodeFactory.instance.arrayNode());
+    otherGridData.put("max", 20);
+    parameters.set("otherGrid.data", otherGridData);
+    Grid otherGrid = new GridBuilder()
+      .setId("otherGrid")
+      .setTargetAction("gridQuery")
+      .addColumn(new TextColumnBuilder().setName("name"))
+      .build();
+
+    reportDesigner.getPrintDesign(List.of(paginatedGrid(), otherGrid), parameters);
+
+    assertEquals(2, sent.size());
+    assertTrue(sent.get(0).has("columnFilters"));
+    assertEquals(3, sent.get(0).get("page").asInt());
+    assertEquals(20, sent.get(1).get("max").asInt());
+    assertFalse(sent.get(1).has("columnFilters"), "a grid without filters must not query with the filters of another grid");
+    assertFalse(sent.get(1).has("sort"), "a grid without sort must not query with the sort of another grid");
+    assertFalse(sent.get(1).has("page"), "a grid without page must not query with the page of another grid");
+  }
+
+  @Test
+  void getPrintDesignOfAGridWithANestedRowDetailKeeps500RowsWhenTheCapIsDisabled() throws Exception {
+    when(mapper.convertValue(visibleColumnsNode(), any(TypeReference.class))).thenReturn(Collections.emptyList());
+    BaseConfigProperties.Component component = new BaseConfigProperties.Component();
+    component.setGridPrintMaxRows(0);
+    when(baseConfigProperties.getComponent()).thenReturn(component);
+    when(queryService.launchPrivateQuery(eq("gridQuery"), any(ObjectNode.class)))
+      .thenReturn(new ServiceData().setDataList(new DataList()));
+    doReturn("ITEM").when(reportDesigner).getLocale(anyString());
+    Grid nested = new GridBuilder().setId("GrdLines").build();
+    nested.setTargetAction("QryLines");
+    nested.addElement(new TextColumnBuilder().setName("item").build());
+    nested.getElementsByType(Column.class).forEach(column -> column.setComponentType(null));
+    Grid grid = paginatedGrid();
+    grid.addElement(new RowDetail().setPrint(true).addElement(nested));
+
+    reportDesigner.getPrintDesign(List.of(grid), paginatedGridParameters(0, 1));
+
+    assertEquals(501, capturedQueryParameters().get("max").asInt());
+  }
+
+  private static Grid paginatedGrid() throws Exception {
+    return new GridBuilder()
+      .setId("gridId")
+      .setTargetAction("gridQuery")
+      .addColumn(new TextColumnBuilder().setName("name"))
+      .build();
+  }
+
+  private static ObjectNode paginatedGridParameters(int max, int page) {
+    ObjectNode gridData = JsonNodeFactory.instance.objectNode();
+    gridData.set("visibleColumns", JsonNodeFactory.instance.arrayNode());
+    gridData.put("max", max);
+    gridData.put("page", page);
+    gridData.set("sort", JsonNodeFactory.instance.arrayNode()
+      .add(JsonNodeFactory.instance.objectNode().put("id", "name").put("direction", "asc")));
+    gridData.set("columnFilters", JsonNodeFactory.instance.arrayNode()
+      .add(JsonNodeFactory.instance.objectNode().put("id", "name").put("type", "values")
+        .set("values", JsonNodeFactory.instance.arrayNode().add("Ann"))));
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    parameters.set("gridId.data", gridData);
+    return parameters;
+  }
+
+  private ObjectNode capturedQueryParameters() throws Exception {
+    ArgumentCaptor<ObjectNode> queryParameters = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(queryService).launchPrivateQuery(eq("gridQuery"), queryParameters.capture());
+    return queryParameters.getValue();
   }
 
   /**

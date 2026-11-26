@@ -374,6 +374,35 @@ describe('awe-react-client/test/js/utilities/gridTest.jsx', () => {
       expect(getGridData(notSendable, model, {}, false)).not.toHaveProperty('choice');
     });
   });
+  describe('getGridPrintData search (#994)', () => {
+    const printData = (specificAttributes) =>
+      getGridPrintData({attributes: {id: 'Grd', columnModel: []}, specificAttributes}, {values: []}, {})['Grd.data'];
+
+    it('should send the page size, the current page, the sort and the column filters of the grid', () => {
+      const sort = [{id: 'name', direction: 'desc'}];
+      const columnFilters = [{id: 'name', type: 'values', values: ['Ann']}];
+
+      const data = printData({max: 100, page: 3, sort, columnFilters, rows: 100, first: 200});
+
+      expect(data).toMatchObject({max: 100, page: 3, sort, columnFilters});
+      expect(data).not.toHaveProperty('rows');
+      expect(data).not.toHaveProperty('first');
+    });
+
+    it('should send no column filters when the grid has none', () => {
+      const data = printData({max: 0, page: 1, sort: [], columnFilters: []});
+
+      expect(data).toMatchObject({max: 0, page: 1, sort: []});
+      expect(data).not.toHaveProperty('columnFilters');
+    });
+
+    it('should send no search when the grid has no specific attributes', () => {
+      const data = printData(undefined);
+
+      expect(Object.keys(data)).toEqual(['visibleColumns']);
+    });
+  });
+
   describe('getGridPrintData visible columns', () => {
     const printColumns = (columns) => {
       const grid = {attributes: {id: 'Grd', columnModel: columns}};

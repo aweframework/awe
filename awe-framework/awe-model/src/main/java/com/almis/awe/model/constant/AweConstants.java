@@ -275,6 +275,8 @@ public class AweConstants {
   public static final String PRINT_FORMATS = "FmtPrn";
   public static final String PRINT_DESTINATION_USERS = "UsrPrn";
   public static final String PRINT_ORIENTATION = "reportOrientation";
+  public static final String PRINT_ROWS = "RowPrn";
+  public static final String PRINT_ROWS_PAGE = "PAGE";
   public static final Float SVG_SCALE = 0.67f;
   public static final Float SVG_SCALE_LANDSCAPE = 0.30f;
 

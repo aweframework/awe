@@ -56,23 +56,51 @@ En resumen, el título impreso se controla con las mismas etiquetas que se usan 
 
 ## Configurar los datos de impresión {#configure-printing-data}
 
-Desde AWE 3.2, el motor de impresión utiliza los datos que están disponibles actualmente en el cliente y los envía al motor de impresión.
+Las filas que imprime un grid dependen de dónde pagina sus filas:
 
-Esto es importante cuando un grid usa paginación en el servidor (`load-all="false"`). En ese caso, el cliente solo tiene las filas cargadas actualmente en la página, por lo que el documento impreso solo incluirá esos datos.
+- **Los grids que paginan en el cliente** (`load-all="true"`), **los grids editables** y **los grids multioperación**
+  imprimen las filas que tiene el cliente, tal como están en pantalla.
+- **Los grids que paginan en el servidor** (sin `load-all`, no editables y no multioperación) vuelven a lanzar su consulta
+  en el servidor al imprimir la pantalla, con el orden y los filtros de columna del grid, de modo que el informe muestra
+  el orden y el filtro de la pantalla.
 
-Si necesitas imprimir el conjunto de resultados completo, la opción más sencilla es usar paginación local:
+### Filas a imprimir {#rows-to-print}
 
-```xml
-load-all="true"
+El diálogo de impresión (`PrnOpt`) tiene un criterio **Filas a imprimir** (`RowPrn`) que se aplica a todos los grids de
+la pantalla que paginan en el servidor:
+
+| Valor | Etiqueta | Imprime |
+|-------|----------|---------|
+| `ALL` (por defecto) | Todas las filas | Todas las filas de la búsqueda, ordenadas y filtradas como en pantalla, hasta el límite de impresión |
+| `PAGE` | Página actual | La página que muestra el grid (su tamaño de página y su número de página) |
+
+Un grid sin tamaño de página (`max` 0), o con una página mayor que el límite, se imprime como *Todas las filas*.
+
+### Límite de impresión {#print-limit}
+
+Imprimir una búsqueda completa puede leer muchas filas, por lo que el servidor lee como máximo
+`awe.application.component.grid-print-max-rows` filas (10000 por defecto) de cada grid. Cuando la búsqueda tiene más
+filas, el informe se genera igualmente con las primeras y, tras imprimir, el usuario recibe este mensaje informativo en
+lugar del mensaje de éxito (el informe no muestra ningún aviso):
+
+```text
+Solo se imprimieron las primeras 10000 filas de Themes: filtra la búsqueda para imprimir el resto
 ```
 
-Esto hace que todas las filas estén disponibles en el cliente, de modo que el motor de impresión pueda incluir el conjunto de datos completo.
+El mensaje nombra el grid por su etiqueta (por su id cuando no tiene), una vez por cada grid recortado. Un envío por
+correo muestra el mismo mensaje. Cuando no se recorta ningún grid, el usuario recibe el mensaje de éxito habitual.
+
+Un grid cuyo [detalle de fila es un grid anidado que se imprime](../api/grids.md#printing-the-detail) imprime como
+máximo 500 filas, ya que cada fila ejecuta una consulta, también cuando la propiedad vale `0`. Ponga la propiedad a `0`
+para imprimir todas las filas de los demás grids sin límite:
+
+```properties
+awe.application.component.grid-print-max-rows=0
+```
 
 :::warning
-Este enfoque puede causar graves problemas de rendimiento si la consulta devuelve un gran número de filas.
+Sin límite, imprimir una búsqueda grande carga todas las filas en la memoria del servidor.
 :::
-
-Si necesitas mantener la paginación en el servidor y aun así imprimir el conjunto de datos completo, debes implementar un flujo de impresión específico del proyecto que recargue los datos necesarios antes de generar el documento. Ese escenario depende de la aplicación y queda fuera del alcance de esta guía genérica.
 
 ## Elegir qué columnas del grid se imprimen {#choose-which-grid-columns-are-printed}
 

@@ -71,6 +71,16 @@ export interface GridComponent {
   attributes: GridAttributes;
   address?: ComponentAddress;
   model: GridModel;
+  specificAttributes?: GridSearch;
+}
+
+/** The search a grid shows: its page size, current page, sort and column filters */
+interface GridSearch {
+  max?: number;
+  page?: number;
+  sort?: unknown[];
+  columnFilters?: unknown[];
+  [key: string]: unknown;
 }
 
 /** Properties of a component that prints its data: the translator */
@@ -887,10 +897,31 @@ export function getGridPrintData(
       }), {}),
     [`${id}.data`]: {
       visibleColumns: visibleColumns.map(column => getVisibleColumnData(column, t)),
+      // The search on screen, so a grid that pages on the server prints its rows (#994)
+      ...getSearchPrintData(grid.specificAttributes),
       // The columns that group the rows now (the user may have changed the grouping of the screen definition)
       ...getGroupByPrintData(attributes as Record<string, unknown>),
       ...(showTotals ? {footer: getFooterData(visibleColumns, values)} : {})
     }
+  };
+}
+
+/**
+ * Retrieve the search a grid shows, as the AngularJS engine sends it to print: its page size and current page (the
+ * server reads them when the user prints the current page), its sort and its column filters, when it has any
+ * @param {object} search Specific attributes of the grid
+ * @returns {object} The search, or nothing
+ */
+function getSearchPrintData(search?: GridSearch): Partial<GridSearch> {
+  if (!search) {
+    return {};
+  }
+  const {max, page, sort, columnFilters} = search;
+  return {
+    ...(max === undefined ? {} : {max}),
+    ...(page === undefined ? {} : {page}),
+    ...(sort === undefined ? {} : {sort}),
+    ...(columnFilters && columnFilters.length > 0 ? {columnFilters} : {})
   };
 }
 

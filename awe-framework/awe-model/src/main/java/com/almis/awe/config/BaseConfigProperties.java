@@ -696,6 +696,13 @@ public class BaseConfigProperties {
      */
     private int gridRowsPerPage = 30;
     /**
+     * Rows a print of a server-paged grid reads at most: printing every row of a search, or a page larger than this,
+     * prints the first rows with a notice in the report. A grid with a nested row detail prints 500 rows at most, as each
+     * row runs one query, also when this is 0 (Set to 0 to print every row of the other grids, with no limit)
+     * Default value 10000
+     */
+    private int gridPrintMaxRows = 10000;
+    /**
      * Pixels per char in grids
      * Default value 8
      */

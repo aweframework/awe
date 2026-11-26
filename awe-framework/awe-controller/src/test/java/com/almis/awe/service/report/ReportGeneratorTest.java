@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -65,7 +66,7 @@ class ReportGeneratorTest {
     when(baseConfigProperties.getComponent()).thenReturn(new BaseConfigProperties.Component());
     when(baseConfigProperties.getPaths()).thenReturn(new BaseConfigProperties.Paths());
     when(screen.getReportStructure(any(), any(), any(), any())).thenReturn(reportStructure);
-    when(designer.getPrintDesign(any(), any(), anyBoolean())).thenReturn(new PrintBean());
+    when(designer.designReport(any(), any(), anyBoolean())).thenReturn(new ReportDesigner.ReportDesign(new PrintBean(), List.of()));
 
     doReturn(parameters).when(reportGenerator).getMutableRequestParameters();
     doReturn("Screen title").when(reportGenerator).getLocale(any());
@@ -82,8 +83,8 @@ class ReportGeneratorTest {
     ReportGenerator.GeneratedScreenReportContext context = reportGenerator.generateScreenReportContext(screen);
 
     assertEquals(3, context.reportFiles().size());
-    verify(designer, times(1)).getPrintDesign(reportStructure, parameters, false);
-    verify(designer, never()).getPrintDesign(any(), any(), eq(true));
+    verify(designer, times(1)).designReport(reportStructure, parameters, false);
+    verify(designer, never()).designReport(any(), any(), eq(true));
   }
 
   @Test
@@ -94,8 +95,8 @@ class ReportGeneratorTest {
     ReportGenerator.GeneratedScreenReportContext context = reportGenerator.generateScreenReportContext(screen);
 
     assertEquals(4, context.reportFiles().size());
-    verify(designer, times(1)).getPrintDesign(reportStructure, parameters, false);
-    verify(designer, times(1)).getPrintDesign(reportStructure, parameters, true);
+    verify(designer, times(1)).designReport(reportStructure, parameters, false);
+    verify(designer, times(1)).designReport(reportStructure, parameters, true);
   }
 
   @Test
@@ -105,8 +106,32 @@ class ReportGeneratorTest {
 
     reportGenerator.generateScreenReportContext(screen);
 
-    verify(designer, times(1)).getPrintDesign(reportStructure, parameters, false);
-    verify(designer, never()).getPrintDesign(any(), any(), eq(true));
+    verify(designer, times(1)).designReport(reportStructure, parameters, false);
+    verify(designer, never()).designReport(any(), any(), eq(true));
+  }
+
+  @Test
+  void generateScreenReportContextReportsAGridCutAtThePrintLimitOnceAcrossProfiles() throws Exception {
+    parameters.set(AweConstants.PRINT_FORMATS, JsonNodeFactory.instance.arrayNode().add("PDF").add("XLSX"));
+    when(designer.needsSpreadsheetDesign(reportStructure, parameters)).thenReturn(true);
+    List<ReportDesigner.PrintCut> cuts = List.of(new ReportDesigner.PrintCut("Themes", 100));
+    when(designer.designReport(reportStructure, parameters, false)).thenReturn(new ReportDesigner.ReportDesign(new PrintBean(), cuts));
+    when(designer.designReport(reportStructure, parameters, true)).thenReturn(new ReportDesigner.ReportDesign(new PrintBean(), cuts));
+    doReturn("Only the first 100 rows of Themes were printed").when(reportGenerator).getLocale("PRINT_ROWS_LIMIT_NOTICE", "100", "Themes");
+
+    ReportGenerator.GeneratedScreenReportContext context = reportGenerator.generateScreenReportContext(screen);
+
+    assertEquals(2, context.reportFiles().size());
+    assertEquals("Only the first 100 rows of Themes were printed", context.printLimitNotice());
+  }
+
+  @Test
+  void generateScreenReportContextWithoutCutHasNoPrintLimitNotice() throws Exception {
+    parameters.set(AweConstants.PRINT_FORMATS, JsonNodeFactory.instance.arrayNode().add("PDF"));
+
+    ReportGenerator.GeneratedScreenReportContext context = reportGenerator.generateScreenReportContext(screen);
+
+    assertNull(context.printLimitNotice());
   }
 
   @Test

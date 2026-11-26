@@ -56,23 +56,51 @@ In short, the printed title is controlled by the same labels used in the screen 
 
 ## Configure printing data
 
-Since AWE 3.2, the printing engine uses the data that is currently available in the client and sends it to the printing engine.
+Which rows a grid prints depends on where the grid pages its rows:
 
-This is important when a grid uses server-side pagination (`load-all="false"`). In that case, the client only has the rows currently loaded in the page, so the printed document will only include that data.
+- **Grids that page on the client** (`load-all="true"`), **editable grids** and **multioperation grids** print the rows the
+  client holds, as they are on screen.
+- **Grids that page on the server** (no `load-all`, not editable, not multioperation) run their query again on the
+  server when the screen is printed, with the sort and the column filters of the grid, so the report shows the order and
+  the filter of the screen.
 
-If you need to print the complete result set, the simplest option is to use local pagination:
+### Rows to print {#rows-to-print}
 
-```xml
-load-all="true"
+The print dialog (`PrnOpt`) has a **Rows to print** criterion (`RowPrn`) that applies to every grid of the screen that
+pages on the server:
+
+| Value | Label | Prints |
+|-------|-------|--------|
+| `ALL` (default) | All rows | Every row of the search, sorted and filtered as on screen, up to the print limit |
+| `PAGE` | Current page | The page the grid shows (its page size and page number) |
+
+A grid without a page size (`max` 0), or with a page larger than the limit, prints as *All rows*.
+
+### Print limit {#print-limit}
+
+Printing a whole search can read many rows, so the server reads at most
+`awe.application.component.grid-print-max-rows` rows (10000 by default) for each grid. When the search has more rows, the
+report is still generated with the first ones, and after printing the user gets this information message instead of the
+success message (the report itself shows no notice):
+
+```text
+Only the first 10000 rows of Themes were printed: filter the search to print the rest
 ```
 
-This makes all rows available in the client, so the printing engine can include the full dataset.
+The message names the grid by its label (its id when it has none), once for each grid that was cut. A send by e-mail
+shows the same message. When no grid was cut, the user gets the usual success message.
+
+A grid whose [row detail is a printed nested grid](../api/grids.md#printing-the-detail) prints 500 rows at most, as each
+row runs one query, also when the property is `0`. Set the property to `0` to print every row of the other grids with no
+limit:
+
+```properties
+awe.application.component.grid-print-max-rows=0
+```
 
 :::warning
-This approach can cause serious performance problems if the query returns a large number of rows.
+Without a limit, printing a large search loads every row in the server memory.
 :::
-
-If you need to keep server-side pagination and still print the full dataset, you should implement a project-specific printing flow that reloads the required data before generating the document. That scenario depends on the application and is outside the scope of this generic guide.
 
 ## Choose which grid columns are printed
 

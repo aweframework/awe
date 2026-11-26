@@ -31,10 +31,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Generate the component controllers of the screen
@@ -86,7 +88,17 @@ public class ReportGenerator extends ServiceConfig {
       .orElse(OTHER_FORMAT);
   }
 
-  public record GeneratedScreenReportContext(List<FileData> reportFiles, ObjectNode parameters) {
+  /**
+   * Files and parameters of a generated screen report
+   *
+   * @param reportFiles      Generated files
+   * @param parameters       Report parameters
+   * @param printLimitNotice Message for the user when some grid was cut at the print limit, null otherwise
+   */
+  public record GeneratedScreenReportContext(List<FileData> reportFiles, ObjectNode parameters, String printLimitNotice) {
+    public GeneratedScreenReportContext(List<FileData> reportFiles, ObjectNode parameters) {
+      this(reportFiles, parameters, null);
+    }
   }
 
   /**
@@ -134,12 +146,15 @@ public class ReportGenerator extends ServiceConfig {
     // Generate the requested formats, sharing the report design between formats with the same profile
     String basePath = StringUtil.getAbsolutePath(baseConfigProperties.getPaths().getReports(), baseConfigProperties.getPaths().getBase());
     Map<Boolean, TemplateExporterBuilder> buildersByProfile = new HashMap<>();
+    Map<String, Integer> printCuts = new LinkedHashMap<>();
     List<FileData> reportFiles = new ArrayList<>();
     for (String format : printFormats) {
       boolean spreadsheetProfile = spreadsheetDesignRequired && ReportDesigner.isSpreadsheetFormat(format);
       TemplateExporterBuilder builderService = buildersByProfile.get(spreadsheetProfile);
       if (builderService == null) {
-        builderService = buildReport(designer.getPrintDesign(reportStructure, parameters, spreadsheetProfile), fileName);
+        ReportDesigner.ReportDesign design = designer.designReport(reportStructure, parameters, spreadsheetProfile);
+        design.printCuts().forEach(cut -> printCuts.putIfAbsent(cut.grid(), cut.rows()));
+        builderService = buildReport(design.printBean(), fileName);
         buildersByProfile.put(spreadsheetProfile, builderService);
       }
       TemplateExporterBuilder formatBuilder = builderService;
@@ -148,7 +163,23 @@ public class ReportGenerator extends ServiceConfig {
     }
 
     mergePropagatedRequestParameters(parameters);
-    return new GeneratedScreenReportContext(reportFiles, parameters.deepCopy());
+    return new GeneratedScreenReportContext(reportFiles, parameters.deepCopy(), getPrintLimitNotice(printCuts));
+  }
+
+  /**
+   * Message for the user when some grid was cut at the print limit: each grid once, though it is designed for every
+   * output profile
+   *
+   * @param printCuts Rows printed by grid label
+   * @return Message, null when no grid was cut
+   */
+  private String getPrintLimitNotice(Map<String, Integer> printCuts) {
+    if (printCuts.isEmpty()) {
+      return null;
+    }
+    return printCuts.entrySet().stream()
+      .map(cut -> getLocale("PRINT_ROWS_LIMIT_NOTICE", String.valueOf(cut.getValue()), cut.getKey()))
+      .collect(Collectors.joining(" "));
   }
 
   /**

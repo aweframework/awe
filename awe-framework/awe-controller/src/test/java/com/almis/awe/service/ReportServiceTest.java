@@ -3,6 +3,7 @@ package com.almis.awe.service;
 import com.almis.awe.exception.AWException;
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.entities.actions.ClientAction;
+import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.service.report.ReportGenerator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -58,6 +59,39 @@ class ReportServiceTest {
     verify(reportGenerator, times(1)).downloadScreenReportFiles(reportContext.reportFiles());
     verifyNoInteractions(maintainService);
     assertEquals(2, serviceData.getClientActionList().size());
+    assertEquals(AnswerType.OK, serviceData.getType());
+    assertEquals("", serviceData.getMessage());
+  }
+
+  @Test
+  void printScreenCutAtThePrintLimitDownloadsTheFilesWithAnInfoMessage() throws Exception {
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    ReportGenerator.GeneratedScreenReportContext reportContext =
+      new ReportGenerator.GeneratedScreenReportContext(Arrays.asList(), parameters, "Only the first 100 rows of Themes were printed");
+    when(reportGenerator.generateScreenReportContext(any())).thenReturn(reportContext);
+    when(reportGenerator.downloadScreenReportFiles(anyList())).thenReturn(new ServiceData().setClientActionList(Arrays.asList(new ClientAction(), new ClientAction())));
+
+    ServiceData serviceData = reportService.printScreen("screen", "CREATE");
+
+    assertEquals(2, serviceData.getClientActionList().size());
+    assertEquals(AnswerType.INFO, serviceData.getType());
+    assertEquals("Only the first 100 rows of Themes were printed", serviceData.getMessage());
+  }
+
+  @Test
+  void printScreenMailCutAtThePrintLimitSendsTheFilesWithAnInfoMessage() throws Exception {
+    ObjectNode parameters = JsonNodeFactory.instance.objectNode();
+    ReportGenerator.GeneratedScreenReportContext reportContext =
+      new ReportGenerator.GeneratedScreenReportContext(Arrays.asList(), parameters, "Only the first 100 rows of Themes were printed");
+    when(reportGenerator.generateScreenReportContext(any())).thenReturn(reportContext);
+    when(maintainService.launchMaintain("SndRep", parameters)).thenReturn(new ServiceData().setTitle("Mail sent").setMessage("Mail sent"));
+
+    ServiceData serviceData = reportService.printScreen("screen", "MAIL");
+
+    verify(maintainService).launchMaintain("SndRep", parameters);
+    assertEquals(AnswerType.INFO, serviceData.getType());
+    assertEquals("Mail sent", serviceData.getTitle());
+    assertEquals("Only the first 100 rows of Themes were printed", serviceData.getMessage());
   }
 
   @Test

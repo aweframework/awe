@@ -3340,7 +3340,8 @@ public class QueryTest extends AbstractSpringAppIntegrationTest {
     assertEquals(0, screenData.get("actions").size());
     assertEquals(0, screenData.get("messages").size());
     ArrayNode screenDataComponents = (ArrayNode) screenData.get("components");
-    assertEquals(27, screenDataComponents.size());
+    // The print dialog (PrnOpt) included in the screen has the rows to print criterion (#994)
+    assertEquals(28, screenDataComponents.size());
     assertEquals("GrdChrPrn", screenData.get("screen").get("name").stringValue());
     assertEquals("grid-and-chart", screenData.get("screen").get("option").stringValue());
 
