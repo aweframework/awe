@@ -342,4 +342,67 @@ describe('awe-react-client/test/js/criteria/AweSuggestTest.jsx', () => {
         expect(() => fireEvent.mouseLeave(item)).not.toThrow();
     });
     });
+
+  // A suggest with a value offers a button that empties it, so a new search starts without deleting the text (#996)
+  describe('clear button', () => {
+    const CLEAR = "[data-testid='select-clear']";
+    const withSuggest = (changes) => ({
+      ...baseState,
+      components: {suggest: {...baseState.components.suggest, ...changes}}
+    });
+
+    it('is offered by a suggest with a value and has a localized label', async () => {
+      await act(async () => {
+        renderWithProviders(<AweSuggest id="suggest"/>, {preloadedState: baseState});
+      });
+
+      const clear = document.querySelector(CLEAR);
+      expect(clear).not.toBeNull();
+      expect(clear.tagName).toBe("BUTTON");
+      expect(clear.getAttribute("type")).toBe("button");
+      expect(clear.getAttribute("aria-label")).toBe("BUTTON_CLEAR");
+    });
+
+    it('is not offered by a suggest without a value', async () => {
+      await act(async () => {
+        renderWithProviders(<AweSuggest id="suggest"/>,
+          {preloadedState: withSuggest({model: {values: [{label: 'test', value: 'test'}]}})});
+      });
+
+      expect(document.querySelector(CLEAR)).toBeNull();
+    });
+
+    it('is offered by a required suggest with a value', async () => {
+      await act(async () => {
+        renderWithProviders(<AweSuggest id="suggest"/>,
+          {preloadedState: withSuggest({validationRules: {required: true}})});
+      });
+
+      expect(document.querySelector(CLEAR)).not.toBeNull();
+    });
+
+    it('is not offered by a read-only suggest', async () => {
+      await act(async () => {
+        renderWithProviders(<AweSuggest id="suggest"/>,
+          {preloadedState: withSuggest({attributes: {placeholder: "placeholder", readonly: true}})});
+      });
+
+      expect(document.querySelector(CLEAR)).toBeNull();
+    });
+
+    it('empties the value of the suggest and gives the focus back to its field', async () => {
+      let store;
+      await act(async () => {
+        ({store} = renderWithProviders(<AweSuggest id="suggest"/>, {preloadedState: baseState}));
+      });
+
+      await act(async () => { fireEvent.click(document.querySelector(CLEAR)); });
+
+      const input = document.querySelector("#suggest input[aria-autocomplete]");
+      expect(store.getState().components.suggest.model.values.filter(item => item.selected)).toEqual([]);
+      expect(input.value).toBe("");
+      expect(document.activeElement).toBe(input);
+      expect(document.querySelector(CLEAR)).toBeNull();
+    });
+  });
 });
