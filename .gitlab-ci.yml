@@ -76,8 +76,6 @@ variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version -Dskip.lint=true"
   MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.color=false -Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
   MAVEN_REPO_PATH: ".m2/repository"
-  SAST_PULL_ANALYZER_IMAGES: "0"
-  SAST_RUN_ANALYZER_TIMEOUT: 30m
   # sonar.scm.use.blame.algorithm=GIT_FILES_BLAME: blame with JGit in one pass instead of one native `git blame` process
   # per file. The native processes hung the job on mac-awe when the image was amd64 under Rosetta (Java stopped reading
   # their output). The images are multi-arch now and run natively on arm64, but JGit stays: it is a single pass anyway.
