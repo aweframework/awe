@@ -3386,10 +3386,8 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void checkRowNotContains(String search) {
     By selector = frontEndInstructions.findGridCell(null, search);
 
-    BrowserCondition condition = BrowserCondition.allOf(toBeInvisible(selector), checkIfGridLoaderIsNotVisible());
-
-    // Assert element is not located
-    assertWithScreenshot(condition.toString(), condition.isMet(getBrowser()));
+    // Wait for the grid to load without the element: a single look fails while the grid is loading
+    waitUntil(BrowserCondition.allOf(toBeInvisible(selector), checkIfGridLoaderIsNotVisible()));
   }
 
   /**
