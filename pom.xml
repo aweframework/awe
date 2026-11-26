@@ -94,7 +94,6 @@
 
   <modules>
     <module>awe-framework</module>
-    <module>awe-samples</module>
     <module>awe-tests</module>
   </modules>
 
@@ -227,6 +226,15 @@
   </build>
 
   <profiles>
+    <!-- Sample applications: demos and reference only, never published. They stay out of the default build (and of CI,
+         where their executable jars made the build artifacts too large); build them with -Psamples.
+         versions:set still updates their versions, because it also reads the modules declared in profiles. -->
+    <profile>
+      <id>samples</id>
+      <modules>
+        <module>awe-samples</module>
+      </modules>
+    </profile>
     <!-- Coverage report profile -->
     <profile>
       <id>generate-coverage-report</id>

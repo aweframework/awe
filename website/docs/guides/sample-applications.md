@@ -101,12 +101,14 @@ Replace `help-desk` with `vet-clinic` or `fleet-logistics`, then open `http://lo
 
 | Need | Command |
 |------|---------|
-| First build (needs the React client in `awe-framework/awe-client-react/dist`) | `mvn -pl awe-samples/help-desk -am install -DskipTests` |
-| Runnable jar | `mvn package && java -jar awe-samples/help-desk/target/help-desk.jar` |
-| Descriptor tests only | `mvn test -pl awe-samples/help-desk -Dskip.frontend=true` |
+| First build (needs the React client in `awe-framework/awe-client-react/dist`) | `mvn -Psamples -pl awe-samples/help-desk -am install -DskipTests` |
+| Runnable jar | `mvn -Psamples -pl awe-samples/help-desk package && java -jar awe-samples/help-desk/target/help-desk.jar` |
+| Descriptor tests only | `mvn -Psamples test -pl awe-samples/help-desk -Dskip.frontend=true` |
 | Start again with fresh demo data | Delete the `target/db` folder |
 
-`-Dskip.frontend=true` skips the client build, so the descriptor tests run without Node.
+The samples are not part of the default build nor of the CI pipeline: from the repository root, add the `samples`
+profile (`-Psamples`) to build them. `-Dskip.frontend=true` skips the client build, so the descriptor tests run
+without Node.
 
 ## The pattern they share
 

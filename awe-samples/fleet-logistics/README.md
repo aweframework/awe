@@ -66,7 +66,7 @@ Run from the repository root:
 
 ```bash
 # Build the application and the framework modules it needs (first time; skip the tests to save time)
-mvn -pl awe-samples/fleet-logistics -am install -DskipTests
+mvn -Psamples -pl awe-samples/fleet-logistics -am install -DskipTests
 
 # Run it from Maven ...
 mvn -f awe-samples/fleet-logistics/pom.xml spring-boot:run
@@ -76,7 +76,7 @@ java -jar awe-samples/fleet-logistics/target/fleet-logistics.jar
 ```
 
 Open <http://localhost:18102>. Add `-Dskip.frontend=true` to build or test the descriptors without the frontend
-(`mvn test -pl awe-samples/fleet-logistics -Dskip.frontend=true`).
+(`mvn -Psamples test -pl awe-samples/fleet-logistics -Dskip.frontend=true`).
 
 ### What the first start creates
 
@@ -236,7 +236,7 @@ same query. The customer profile also restricts the dispatcher screens, and the 
 
 ### Tests
 
-15 tests, no Spring context and no browser (`mvn test -pl awe-samples/fleet-logistics -Dskip.frontend=true`):
+15 tests, no Spring context and no browser (`mvn -Psamples test -pl awe-samples/fleet-logistics -Dskip.frontend=true`):
 
 - `FleetLogisticsDescriptorTest` (8) extends `AbstractApplicationDescriptorTest` of `awe-testing`. It checks that every
   XML parses into its AWE model, that every locale key exists in the three languages, that every target a screen
