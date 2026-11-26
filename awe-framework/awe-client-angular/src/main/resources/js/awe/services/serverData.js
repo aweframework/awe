@@ -31,7 +31,8 @@ aweApplication.factory('ServerData',
         getScreenData: function (screen, view, fresh = false, extra = {}) {
           let parameters = {
             ...ServerData.getFormValues(),
-            ...(fresh ? {freshScreen: true} : {}),
+            // The values of the main frame go grouped, so the server gives them to the fresh screen (#998)
+            ...(fresh ? {freshScreen: true, baseView: ServerData.getFormValues(null, "base")} : {}),
             ...extra,
             view
           };

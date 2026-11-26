@@ -157,7 +157,8 @@ export function buildComponentsById(
 }
 
 // A fresh screen (opened from a menu option) is flagged so the server keeps the criteria of the screen it leaves but
-// does not give its values to the new screen; extra parameters go with the request (the personalizer "view as")
+// does not give its values to the new screen, only the ones of the base view (menu and header), which go grouped
+// (#998); extra parameters go with the request (the personalizer "view as")
 export const loadScreen = (view: string, option: string, t: Translate, fresh = false, parameters: Record<string, unknown> = {}): AppThunk<Promise<void>> => async (dispatch, getState) => {
   try {
     const state = getState();
@@ -183,7 +184,7 @@ export const loadScreen = (view: string, option: string, t: Translate, fresh = f
     const storage = getTabStorage();
     const response = await fetchScreen<ScreenResponse>(
       option, {} as unknown as string, token,
-      withKeptParameters(storage, option, { ...getFormValues(state), ...(fresh ? { freshScreen: true } : {}), ...parameters })
+      withKeptParameters(storage, option, { ...getFormValues(state), ...(fresh ? { freshScreen: true, baseView: getFormValues(state, false, undefined, null, "base") } : {}), ...parameters })
     ) as ScreenResponse & Partial<FetchError>;
     if (!response.structure) {
       manageScreenError(option, response);
