@@ -30,8 +30,20 @@ Un botón abre un menú contextual con la acción de cliente `show-context-menu`
 
 - El botón de una fila de *grid* selecciona su fila (solo ella, como hace todo [botón de una fila](grids.md#button-column-component)) y abre el menú contextual del *grid* justo debajo del botón.
 - Cualquier otro botón abre su propio menú contextual (los elementos `context-button` declarados dentro del botón), justo debajo de sí mismo.
+- El menú empieza en el borde izquierdo del botón. Termina en el borde derecho del botón cuando el botón está en la cabecera de la ventana (sus botones están a la derecha de la página) o cuando el menú se saldría por el borde derecho de la ventana, así nunca queda desplazado de su botón.
 - Cuando no hay nada que abrir la acción solo termina y las siguientes acciones continúan. Para un botón fuera de un *grid* significa que no declara opciones o que ninguna es visible. Un *grid* abre su menú siempre que declare opciones, aunque ninguna sea visible en ese momento, porque sus dependencias se resuelven después de seleccionar la fila; solo un *grid* que no declara opciones no tiene nada que abrir (y entonces tampoco se selecciona la fila).
 - La acción funciona en los dos motores de cliente (AngularJS y React) y se permite en cualquier botón. No indiques `target`: la acción siempre actúa sobre el botón que la lanza.
+- El menú se maneja con el teclado: Intro o Espacio sobre el botón lo abre con el foco en su primera opción, las flechas se mueven entre las opciones, Intro o Espacio elige una y Escape lo cierra. Cuando se cierra con el foco dentro (Escape o una opción elegida) el foco vuelve al botón, así quien usa el teclado sigue desde allí.
+
+Un botón de fila que solo abre el menú suele ser la última columna, estrecha, del *grid*: un botón fantasma solo con icono
+llamado «Más acciones» (`BUTTON_MORE_ACTIONS`), como hacen las pantallas de administración y los *grids* del planificador:
+
+```xml
+<column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+        align="center" charlength="4" sortable="false" sendable="false">
+  <button-action type="show-context-menu" />
+</column>
+```
 
 <img alt="Menú contextual de grid" src={require('@docusaurus/useBaseUrl').default('img/GridContextMenu.png')} />
 

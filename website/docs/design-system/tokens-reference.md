@@ -483,6 +483,16 @@ own literals.
 | `--awe-button-default-border-color-active` | `var(--awe-color-field-border-hover)` | = light |
 | `--awe-button-default-color-active` | `var(--awe-color-text)` | = light |
 
+**Status strip column** (#993: bars of status pages, the mid shade in light, the semantic tone in dark)
+
+| Token | Light | Dark |
+|---|---|---|
+| `--awe-status-strip-success` | `var(--awe-palette-green-500)` | `var(--awe-color-success)` |
+| `--awe-status-strip-info` | `var(--awe-palette-sky-500)` | `var(--awe-color-info)` |
+| `--awe-status-strip-warning` | `var(--awe-palette-orange-500)` | `var(--awe-color-warning)` |
+| `--awe-status-strip-danger` | `var(--awe-palette-red-500)` | `var(--awe-color-danger)` |
+| `--awe-status-strip-neutral` | `var(--awe-color-text-muted)` | = light |
+
 **Grid, side menu, header, overlays, segmented control**
 
 | Token | Light | Dark |
@@ -799,8 +809,8 @@ Component tokens of the cards, the read-only values and the avatars of grids and
 | Token | Default | Use |
 |---|---|---|
 | `--awe-card-title-font-size` | `--awe-font-size-base` | Size of the title of a card |
-| `--awe-card-title-text-transform` | `uppercase` | Case of the title of a card |
-| `--awe-card-title-letter-spacing` | `--awe-letter-spacing-caps` | Letter spacing of the title of a card |
+| `--awe-card-title-text-transform` | `none` | Case of the title of a card: sentence case, as the labels and the grid headers |
+| `--awe-card-title-letter-spacing` | `normal` | Letter spacing of the title of a card |
 | `--awe-grid-avatar-icon-size` | `--awe-size-icon-sm` | Size of an icon drawn in the avatar of a grid cell (`avatar-icon-field`) |
 | `--awe-readout-label-color` | `--awe-color-text-muted` | Label of a read-only value (`awe-readout`) |
 | `--awe-readout-label-font-size` | `--awe-font-size-xs` | Size of the label of a read-only value |

@@ -122,4 +122,15 @@ class CardTest {
     assertThat(json.get("chipTone").asString()).isEqualTo("warning");
     assertThat(mapper.valueToTree(new Card()).has("chip")).isFalse();
   }
+
+  @Test
+  void maximizeIsReadFromTheXmlAndSentOnlyWhenTheCardSetsIt() {
+    Card card = parse("<card id=\"Crd\" maximize=\"true\"/>");
+
+    assertThat(card.getMaximize()).isTrue();
+    assertThat(mapper.valueToTree(card).get("maximize").asBoolean()).isTrue();
+    // A card without the attribute sends nothing: the existing cards stay as they are
+    assertThat(parse("<card id=\"Crd\"/>").getMaximize()).isNull();
+    assertThat(mapper.valueToTree(new Card()).has("maximize")).isFalse();
+  }
 }

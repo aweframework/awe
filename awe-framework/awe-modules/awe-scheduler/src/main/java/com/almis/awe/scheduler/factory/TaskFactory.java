@@ -28,6 +28,8 @@ public class TaskFactory {
         return new FileTaskBuilder(task, file).setScheduler(scheduler);
       case DEPENDENCY:
         return new DependantTaskBuilder(task).setScheduler(scheduler);
+      case WEBHOOK:
+        return new WebhookTaskBuilder(task).setScheduler(scheduler);
       case MANUAL:
       default:
         return new ManualTaskBuilder(task).setScheduler(scheduler);

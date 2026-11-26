@@ -21,4 +21,15 @@ public class MaintainConstants {
   public static final String GET_ALL_EXECUTIONS = "getAllExecutions";
   public static final String UPDATE_INTERRUPTED_TASKS = "updateInterruptedTasks";
   public static final String TASK_UPDATE_STATUS = "updateTaskStatus";
+  public static final String CLOSE_RUNNING_EXECUTION = "closeRunningExecution";
+  public static final String INSERT_DEFERRED_EXECUTION = "insertDeferredExecution";
+  public static final String INSERT_WEBHOOK_HOOK = "insertWebhookHook";
+  public static final String DELETE_WEBHOOK_HOOK = "deleteWebhookHook";
+  public static final String INSERT_WEBHOOK_MESSAGE = "insertWebhookMessage";
+  public static final String CLAIM_WEBHOOK_MESSAGE = "claimWebhookMessage";
+  public static final String FINISH_WEBHOOK_MESSAGE = "finishWebhookMessage";
+  public static final String FAIL_WEBHOOK_MESSAGE = "failWebhookMessage";
+  public static final String PURGE_WEBHOOK_MESSAGES = "purgeWebhookMessages";
+  public static final String UPDATE_DEFERRED_COMPLETION = "updateDeferredCompletion";
+  public static final String UPDATE_DEFERRED_CANCELLATION = "updateDeferredCancellation";
 }

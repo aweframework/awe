@@ -315,13 +315,13 @@ function AweTreeGrid(props) {
       {
         visibleColumns
           .map(col => {
-            const { name, sortField, align, charlength = null, width = null } = col;
+            const { name, sortField, align, charlength = null, width = null, minWidth = null } = col;
             return <Column
               key={name}
               field={sortField || name}
               body={rowData => cellTemplate(rowData, name)}
               bodyClassName={getColumnWrap(col).wrap ? "p-cell-editing p-cell-wrapping" : "p-cell-editing"}
-              bodyStyle={{ ...getWidthStyle(charlength, width), textAlign: align }}
+              bodyStyle={{ ...getWidthStyle(charlength, width, null, minWidth), textAlign: align }}
               pt={bodyCellPassThrough(name)}
             />;
           })

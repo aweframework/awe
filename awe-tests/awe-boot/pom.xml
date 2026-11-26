@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>5.0.0</version>
+    <version>5.0.1</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -746,7 +746,7 @@
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>mssql-jdbc</artifactId>
-          <version>13.6.1.jre11</version>
+          <version>13.6.2.jre11</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -775,7 +775,7 @@
         <dependency>
           <groupId>com.microsoft.sqlserver</groupId>
           <artifactId>mssql-jdbc</artifactId>
-          <version>13.6.1.jre11</version>
+          <version>13.6.2.jre11</version>
           <scope>test</scope>
         </dependency>
       </dependencies>

@@ -277,6 +277,9 @@ public final class TestIds {
   // File viewer: the element that holds the text of the file
   public static final String FILE_VIEWER = "file-viewer";
 
+  // Flow graph of the scheduler: each task node
+  public static final String FLOW_GRAPH_NODE = "flow-graph-node";
+
   // React only: error panel shown by an error boundary when a part of the application failed to render (the
   // instance is identified by "data-scope"), with its title, the message of the error, the component stack and buttons
   public static final String ERROR_BOUNDARY = "error-boundary";

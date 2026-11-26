@@ -48,10 +48,15 @@ De arriba abajo, una card muestra solo las partes que tienen valor:
 | Parte       | Contenido                                                                                                      |
 |-------------|----------------------------------------------------------------------------------------------------------------|
 | Cabecera    | `title` y `subtitle` a la izquierda. A la derecha, el `chip` de estado seguido del recuadro del `icon` o, si no hay icono, la variación      |
+| Píldoras    | El campo `pills`: una fila de píldoras con datos (consulte [píldoras y tira de estados](#pills-and-status-strip)) |
 | Valor       | `value` en cifras grandes, seguido de su `unit`                                                                |
+| Barra apilada | El campo `stack`: una barra apilada de las partes de un todo (consulte [barra apilada](#stacked-bar))        |
+| Tira        | El campo `strip`: una tira de estados a lo ancho de la card (consulte [píldoras y tira de estados](#pills-and-status-strip)) |
+| Recuadros   | El campo `tiles` bajo su `tilesLabel`: una rejilla de recuadros pequeños (consulte [recuadros y detalles](#tiles-and-details)) |
 | Cuerpo      | Los hijos de la card (un gráfico, una rejilla, botones...)                                                     |
 | Progreso    | Una barra con el valor frente al `target`, y su texto (`82 % de 500.000 €`)                                    |
 | Descripción | El párrafo de `description`                                                                                    |
+| Detalles    | La nota de `details` plegada bajo su `detailsLabel` (consulte [recuadros y detalles](#tiles-and-details))       |
 | Pie         | El texto de `footer` a la izquierda. A la derecha, la variación (si hay icono) seguida del `caption`           |
 
 - Con `icon`, la variación va al pie; sin él, la variación va a la cabecera.
@@ -99,7 +104,9 @@ De arriba abajo, una card muestra solo las partes que tienen valor:
 Los atributos de la card son valores fijos. Cuando la card tiene una consulta (`initial-load="query"` y
 `target-action`), la primera fila de la consulta la rellena: cada campo se llama como el atributo en camelCase
 (`title`, `subtitle`, `chip`, `chipTone`, `icon`, `iconTone`, `value`, `unit`, `numberDecimals`, `delta`, `deltaUnit`, `trend`,
-`goodTrend`, `tone`, `caption`, `target`, `description`, `footer`).
+`goodTrend`, `tone`, `caption`, `target`, `description`, `footer`), más los campos que solo da una consulta (`pills`,
+`strip`, `stack`, `tiles`, `tilesLabel`, `details`, `detailsLabel`). Un `title` que es un array JSON de segmentos
+`{"text", "strong"}` es una frase cuyos segmentos `strong` van en negrita (consulte [recuadros y detalles](#tiles-and-details)).
 
 - Un campo de la fila prevalece sobre el atributo cuando está presente y no está vacío; si no, se usa el atributo. Así
   el XML puede contener las partes fijas (`icon`, `unit`, `caption`) y la consulta solo las cifras.
@@ -163,6 +170,73 @@ Después `good-trend` convierte la tendencia en el tono:
 - El progreso es `round(value / target * 100)` %. La barra se limita entre 0 y 100 %, el texto muestra el porcentaje
   real. La barra toma el color de `icon-tone` (el color primario por defecto).
 
+## Píldoras y tira de estados {#pills-and-status-strip}
+
+Dos campos que solo da la consulta (ningún atributo del XML), en ambos motores:
+
+- **Píldoras** (`pills`): los datos de lo que describe la card, como una fila de píldoras bajo su cabecera. Un array JSON
+  (texto o ya leído) de elementos `{"label", "icon", "code"}`: `label` es un texto o una clave de locale, `icon` un
+  [icono](icons.md) (opcional) y `code` un nombre que ejecuta la aplicación (un mantenimiento, un comando), que se
+  muestra tras la etiqueta en la fuente monoespaciada (opcional). Un elemento sin `label` ni `code`, o un valor que no es
+  un array, no muestra nada.
+- **Tira de estados** (`strip`): la [tira de estados](grids.md) de la columna `status-strip` (un array JSON de elementos
+  `{"tone", "label", "title"}`, en orden de visualización) a lo ancho de la card, con barras más altas que se reparten su
+  ancho. El tooltip de cada barra y el texto accesible de la tira son los de la columna.
+
+```xml
+<card id="CrdTskHis" title="SCREEN_TEXT_TASK_PAGE_LAST_EXECUTIONS" initial-load="query" target-action="getTaskPageHistoryCount">
+  <tag type="div" style="awe-card-actions">
+    <button label="BUTTON_TASK_PAGE_VIEW_HISTORY" icon="lucide:history" id="ButTskHisAll" style="btn-link"/>
+  </tag>
+</card>
+```
+
+```json
+{"subtitle": "17 OK, 2 Warning, 1 Error",
+ "strip": "[{\"tone\":\"success\",\"label\":\"OK\"},{\"tone\":\"warning\",\"label\":\"Warning\"}]",
+ "pills": "[{\"label\":\"#13\"},{\"label\":\"Maintain\",\"icon\":\"lucide:database\",\"code\":\"BankReconciliation\"}]"}
+```
+
+## Recuadros y detalles {#tiles-and-details}
+
+Campos que solo da la consulta (ningún atributo del XML), en ambos motores, para una card que muestra el resultado de un
+formulario calculado en vivo (#993: la programación de una tarea y sus próximas ejecuciones):
+
+- **Título enriquecido** (`title`): un array JSON (texto o ya interpretado) de segmentos `{"text", "strong"}` dibuja el
+  título como una frase cuyos segmentos `strong` van en negrita. Los textos se muestran tal cual llegan (ya traducidos
+  por el servidor); un título que no es un array así es un texto o una clave de idioma, como siempre.
+- **Recuadros** (`tiles`, `tilesLabel`): un array JSON (texto o ya interpretado) de elementos `{"label", "value", "hint"}`
+  dibujado como una lista ordenada de recuadros pequeños en una rejilla, tantas columnas como quepan (cinco en una card
+  de sección de una pantalla ancha, menos en una estrecha): `label` arriba, `value` en negrita y `hint` como línea
+  atenuada (opcional). Un elemento sin `label` se omite. `tilesLabel` es la etiqueta encima de la lista, que le da nombre
+  (`aria-labelledby`).
+- **Detalles** (`details`, `detailsLabel`): una nota plegada bajo su etiqueta (un elemento `details`: su `summary` es
+  `detailsLabel`, o la propia nota sin ella), cerrada al principio. Textos o claves de idioma.
+
+```json
+{"title": "[{\"text\":\"Se ejecuta \"},{\"text\":\"de lunes a viernes a las 22:30\",\"strong\":true},{\"text\":\".\"}]",
+ "tilesLabel": "Próximas 5 ejecuciones",
+ "tiles": "[{\"label\":\"mar 17/11\",\"value\":\"22:30\",\"hint\":\"hoy\"},{\"label\":\"lun 23/11\",\"value\":\"22:30\",\"hint\":\"salta sáb y dom\"}]",
+ "description": "Primer festivo que se salta: mar 08/12/2026 (Festivos ES)",
+ "detailsLabel": "Ver detalles", "details": "Días de la semana: lun, mar, mié, jue y vie · Horas: 22 · Minutos: 30"}
+```
+
+## Barra apilada {#stacked-bar}
+
+El campo `stack` (solo lo da una consulta, en ambos motores) dibuja una barra fina bajo el valor dividida en segmentos,
+cada uno tan ancho como su parte del total: las ejecuciones de una tarea por estado, los pedidos por situación... Es un
+array JSON (texto o ya leído) de elementos `{"tone", "label", "value"}`, en orden de visualización: `tone` es el color
+del segmento (los colores de la [tira de estados](grids.md): `success`, `warning`, `danger`, `info`, `neutral`, el de un
+tono desconocido), `label` un texto o una clave de locale y `value` su número. Los elementos sin un número positivo se
+omiten, y un valor que no es un array no dibuja nada. La barra es una imagen cuyo texto accesible enumera los números
+(`17 OK, 2 Aviso, 1 Error`), también el tooltip de cada segmento; muestre los mismos números como leyenda de la barra en
+la `description`.
+
+```json
+{"value": 85, "unit": "%", "description": "17 OK, 2 Aviso, 1 Error · de 20 ejecuciones guardadas",
+ "stack": "[{\"tone\":\"success\",\"label\":\"OK\",\"value\":17},{\"tone\":\"warning\",\"label\":\"Aviso\",\"value\":2},{\"tone\":\"danger\",\"label\":\"Error\",\"value\":1}]"}
+```
+
 ## Sparkline y gauge {#sparkline-and-gauge}
 
 Una card puede dibujar gráficos pequeños propios, sin un `chart` en su cuerpo:
@@ -199,6 +273,61 @@ Una card con un gráfico o un grid en su cuerpo necesita más espacio: el estilo
 columnas de la rejilla (`<card id="CrdSales" style="awe-card-wide">`). En pantallas estrechas la rejilla tiene una sola
 columna y la card ancha ocupa la fila entera como las demás.
 
+Una card también puede ser el panel de un grid que ocupa una página de pestaña o una pantalla, en lugar de una ventana
+con la barra de título vacía: da a la card y al grid el estilo `expand`. La card expandida ocupa el alto libre de su
+contenedor y el grid llena el resto del cuerpo de la card, hasta su paginador, en los dos motores (#993). Añade
+`show-maximize-button="true"` al grid para mantener su botón de maximizar.
+
+```xml
+<tabcontainer id="TskPagHis" style="expand" expandible="vertical">
+  <card id="CrdTskExeLst" style="expand">
+    <grid id="GrdTskExe" style="expand" show-maximize-button="true" ...>...</grid>
+  </card>
+</tabcontainer>
+```
+
+## Acciones de la card {#card-actions}
+
+Los botones de una card van en su cuerpo. Póngalos en un contenedor con la clase `awe-card-actions`, como último hijo de
+la card, para mantenerlos en una fila al pie de la card: las cards de una fila de la [rejilla de cards](#card-grid)
+tienen la misma altura, así que sus acciones quedan en la misma línea sea cual sea el contenido de encima.
+
+```xml
+<card id="CrdTskHis" title="SCREEN_TEXT_TASK_PAGE_LAST_EXECUTIONS" initial-load="query" target-action="getTaskPageHistoryCount">
+  <tag type="div" style="awe-card-actions">
+    <button label="BUTTON_TASK_PAGE_VIEW_HISTORY" icon="lucide:history" id="ButTskHisAll" style="btn-link"/>
+  </tag>
+</card>
+```
+
+## Acciones de la cabecera {#header-actions}
+
+Los criterios y botones que actúan sobre toda la card (un cambio de vista, un botón de refresco) van a la derecha de su
+cabecera, junto al título: póngalos en una etiqueta `div` con la clase `awe-card-header-actions` como hija de la card.
+Ese hijo se muestra en la cabecera, tras el espacio libre y centrado con el título, en lugar de en el cuerpo; los demás
+hijos se quedan en el cuerpo. Una card con acciones de cabecera siempre muestra su cabecera, incluso sin título.
+
+```xml
+<card id="CrdRunVw" title="SCREEN_TEXT_FLOW_RUN_VIEWS" style="expand" maximize="true">
+  <tag type="div" style="awe-card-header-actions">
+    <criteria id="RunPagVw" label="SCREEN_TEXT_FLOW_RUN_VIEWS" component="button-radio" initial-load="enum"
+              target-action="RunPagVw" value="RunPagGph" style="no-label"/>
+  </tag>
+  <widget type="flow-graph" id="RunGph" style="expand" ...>...</widget>
+</card>
+```
+
+## Maximizar {#maximize}
+
+Con `maximize="true"` la card muestra un botón de maximizar al final de su cabecera, como hace una ventana. Agranda la
+card sobre la pantalla (su destino de maximizado) con la misma animación que una ventana, oculta el resto de la pantalla
+y da la altura libre a su cuerpo, y un segundo clic la restaura. El botón indica lo que hace a continuación
+(*Maximizar* o *Restaurar*) como su título y su nombre accesible, y está pulsado (`aria-pressed`) mientras la card está
+maximizada. Sin el atributo la card no tiene botón, como antes. Los dos motores de cliente lo admiten.
+
+Dé a la card el estilo `expand` para llenar la altura libre de la pantalla, y a sus hijos el estilo `expand` para
+llenar el cuerpo (consulte [rejilla de cards](#card-grid)).
+
 ## Card de nota {#note-card}
 
 Una card también puede contener una explicación en lugar de una métrica: el estilo `card-note` la dibuja como una banda
@@ -209,6 +338,19 @@ desde una consulta como cualquier card.
 
 ```xml
 <card id="CrdAccHnt" style="card-note" icon="lucide:info" icon-tone="info" description="SCREEN_TEXT_ACCESS_HINT" />
+```
+
+## Card de vista previa {#preview-card}
+
+El estilo `card-preview` dibuja el resultado de un formulario calculado en vivo (una programación en palabras y sus
+próximas ejecuciones): una superficie neutra (`--awe-color-surface-subtle`) con un borde sutil y sin sombra, el `icon` a
+la izquierda del título en el color de texto primario, el título como una frase en tamaño medio (sus segmentos `strong`
+en negrita) y el resto de la card (recuadros, descripción, detalles) debajo, a todo su ancho. Igual en ambos motores, en
+modo claro y oscuro.
+
+```xml
+<card id="CrdTskEdtSch" style="card-preview" icon="lucide:repeat" initial-load="query" server-action="data"
+      target-action="getTaskEditorSchedule"/>
 ```
 
 ## Refresco {#refresh}

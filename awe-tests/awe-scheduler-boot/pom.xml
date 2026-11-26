@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-starter-parent</artifactId>
-    <version>5.0.0</version>
+    <version>5.0.1</version>
     <relativePath>../../awe-framework/awe-starters/awe-starter-parent</relativePath>
   </parent>
 
@@ -26,7 +26,6 @@
 
     <jacoco.base.reports>${project.basedir}/../awe-scheduler-boot/target</jacoco.base.reports>
     <jacoco.reportPaths>${jacoco.base.reports}/coverage-reports</jacoco.reportPaths>
-    <jacoco.joined.coverage.path>${jacoco.reportPaths}</jacoco.joined.coverage.path>
     <aggregated.reportPaths>${jacoco.base.reports}/aggregated-reports</aggregated.reportPaths>
     <sonar.exclusions>src/**</sonar.exclusions>
     <sonar.junit.reportPaths>${project.build.directory}/surefire-reports</sonar.junit.reportPaths>

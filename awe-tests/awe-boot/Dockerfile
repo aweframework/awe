@@ -1,5 +1,5 @@
 ﻿# Use an official eclipse-temurin runtime as a parent image
-FROM eclipse-temurin:21-jre-alpine@sha256:ac05c3c42b7c2f1a52c9bd52f01041fa1958231b15ebeae7420429cbc5baf474
+FROM eclipse-temurin:21-jre-alpine@sha256:5d7689f47d670aca766b9503a70bccc2d73b4eb9221ae8f714ae958313c4ce70
 
 # Add fonts package
 RUN apk add --no-cache fontconfig ttf-dejavu && fc-cache -f

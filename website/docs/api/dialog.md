@@ -159,6 +159,9 @@ This is an example with a dialog defined inside a modal tag in a screen. First o
 
 This example shows a dialog screen included in modal section of a window.
 
+The generic print dialog `PrnOpt` also asks which rows the grids that page on the server print (*All rows* or
+*Current page*), see [rows to print](../guides/print-guide.md#rows-to-print).
+
 <img alt="DialogImagePrint" src={require('@docusaurus/useBaseUrl').default('img/DialogImagePrint.png')} />
 
 ```xml

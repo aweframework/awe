@@ -10,6 +10,7 @@ import com.almis.awe.rest.autoconfigure.config.RestAuthenticationMode;
 import com.almis.awe.rest.autoconfigure.security.AweRestAudienceValidator;
 import com.almis.awe.rest.autoconfigure.security.AweRestJwtAuthenticationConverter;
 import com.almis.awe.rest.autoconfigure.security.AweRestJwtValidationFactory;
+import com.almis.awe.rest.security.BearerSecurity;
 import com.almis.awe.rest.security.JWTAuthenticationEntryPoint;
 import com.almis.awe.rest.security.JWTAuthenticationFilter;
 import com.almis.awe.rest.security.JWTAuthorizationFilter;
@@ -138,13 +139,39 @@ public class RestSecurityConfiguration extends ServiceConfig {
       .getIfAvailable(SecurityAuditService::disabled);
     JWTAuthenticationFilter authenticationFilter = new JWTAuthenticationFilter(localLoginAuthenticationManager, objectMapper, getBean(JWTTokenService.class), getApplicationContext().getBeanProvider(AweElements.class).getIfAvailable());
     authenticationFilter.setSecurityAuditService(securityAuditService);
+    httpSecurity.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    configureLocalJwtAuthorization(httpSecurity);
+  }
+
+  private void configureLocalJwtAuthorization(HttpSecurity httpSecurity) {
+    SecurityAuditService securityAuditService = getApplicationContext().getBeanProvider(SecurityAuditService.class)
+      .getIfAvailable(SecurityAuditService::disabled);
     JWTAuthorizationFilter authorizationFilter = new JWTAuthorizationFilter(authenticationManager, userDetailsService, getBean(JWTTokenService.class));
     authorizationFilter.setSecurityAuditService(securityAuditService);
-    httpSecurity.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
     httpSecurity.addFilterBefore(authorizationFilter, UsernamePasswordAuthenticationFilter.class);
   }
 
-  private void configureOauth2Mode(HttpSecurity httpSecurity) throws Exception {
+  /**
+   * Bearer authentication of the REST api (local JWT or OAuth2 resource server, by <code>awe.rest.auth.mode</code>),
+   * for another security filter chain that has to accept the same bearer: it validates the token and answers
+   * 401 JSON when the request is not authenticated. It adds no login endpoint.
+   *
+   * @return Bearer security
+   */
+  @Bean(name = "restBearerSecurity")
+  BearerSecurity restBearerSecurity() {
+    return httpSecurity -> {
+      httpSecurity.exceptionHandling(exceptionHandlingConfig ->
+        exceptionHandlingConfig.authenticationEntryPoint(new JWTAuthenticationEntryPoint(objectMapper)));
+      if (isOauth2ResourceServerMode()) {
+        configureOauth2Mode(httpSecurity);
+      } else {
+        configureLocalJwtAuthorization(httpSecurity);
+      }
+    };
+  }
+
+  private void configureOauth2Mode(HttpSecurity httpSecurity) {
     JwtDecoder jwtDecoder = buildJwtDecoder(restConfigProperties.getOauth2ResourceServer().getJwt());
     // The roles of the token are mapped as the single sign-on maps them, and the profiles get the permissions of the
     // local login, read on every request

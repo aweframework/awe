@@ -16,6 +16,7 @@ import type {GridComponent, GridModel} from "./grid";
 import {getChartImage, getPrintOrientation} from "./chartRegistry";
 import type {OrientationComponents} from "./chartRegistry";
 import {isRowDetailComponent} from "./gridRowDetail";
+import {getRunSelectedValues} from "./flowGraph";
 
 /** Translator of a text */
 type Translate = (key: string) => string;
@@ -52,6 +53,8 @@ interface CriterionComponent {
 /** A model that only has options */
 interface OptionsModel {
   values?: ModelOption[];
+  // Custom range of a date range quick filter: its start and its end (dd/mm/yyyy)
+  range?: unknown[];
 }
 
 /** A component as the form utilities read it */
@@ -173,6 +176,8 @@ const {
   COMPONENT_SUGGEST_MULTIPLE,
   COMPONENT_OTHER
 } = ComponentType;
+// Quick filter of a grid: a date range one (display="date-range") sends its custom range too
+const COMPONENT_QUICK_FILTER = "quick-filter";
 const {ADDRESS_CELL, ADDRESS_COLUMN, ADDRESS_COMPONENT, ADDRESS_VIEW, ADDRESS_INVALID} = ComponentAddressType;
 
 /**
@@ -493,6 +498,27 @@ export function getDateRangeData(criterion: CriterionComponent, model: OptionsMo
 }
 
 /**
+ * Retrieve the data of a date range quick filter of a grid (display="date-range"): its preset (the chosen option, null
+ * while a custom range is set) as its own value, and its custom range as two parameters ("id.from" and "id.to", null when
+ * empty), as the date range criterion sends them
+ * @param {Object} criterion Quick filter data
+ * @param {Object} model Quick filter model
+ * @param {Object} props Properties
+ * @param {boolean} forPrinting Data is for printing
+ * @returns {object} model data
+ * @memberOf Components
+ */
+export function getQuickFilterDateRangeData(criterion: CriterionComponent, model: OptionsModel | undefined, props: FormProps, forPrinting?: boolean): Record<string, unknown> {
+  const {attributes = {}} = criterion;
+  const [from, to] = asArray(model?.range) as string[];
+  return {
+    ...getCriterionData(criterion, model, props, forPrinting),
+    [`${attributes.id}${DATE_RANGE_FROM_SUFFIX}`]: from || null,
+    [`${attributes.id}${DATE_RANGE_TO_SUFFIX}`]: to || null
+  };
+}
+
+/**
  * Retrieve the criterion print data
  * @param {object} criterion Criterion data
  * @param {object} model Criterion model
@@ -596,6 +622,17 @@ export function getComponentData(
   if (chartImage !== undefined) {
     return {[(component.address as ComponentAddress).component as string]: {image: chartImage}};
   }
+  if (attributes.type === "flow-graph") {
+    // The node clicked in a flow graph is sent like the selected row of a grid (the task grid sends IdeTsk.selected).
+    // The run mode keeps its node in selectedNode, as a selection would replace its rows, and also sends every column of
+    // the row of the node as <column>.selected (IdeTsk.selected, ExeTsk.selected)
+    const graphModel = component[model] as OptionsModel & {values?: Record<string, unknown>[]; selectedNode?: string | null};
+    if ((attributes.parameters as {mode?: string} | undefined)?.mode === "run") {
+      const node = graphModel?.selectedNode ?? null;
+      return {...getRunSelectedValues(graphModel?.values, node), [`${attributes.id}.selected`]: node};
+    }
+    return {[`${attributes.id}.selected`]: getDataDependingOnList(getSelectedValues(graphModel)) ?? null};
+  }
   switch (attributes.component || "") {
     case COMPONENT_GRID:
       // A component of the grid type has the attributes and the model of a grid
@@ -612,6 +649,9 @@ export function getComponentData(
       return getCheckboxData(component, component[model], props, forPrinting);
     case COMPONENT_OTHER:
       return {};
+    case COMPONENT_QUICK_FILTER:
+      return attributes.display === "date-range" ? getQuickFilterDateRangeData(component, component[model], props, forPrinting)
+        : getCriterionData(component, component[model], props, forPrinting);
     default:
       return getCriterionData(component, component[model], props, forPrinting);
   }

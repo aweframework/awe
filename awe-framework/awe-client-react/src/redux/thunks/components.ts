@@ -118,7 +118,7 @@ export function updateViewComponentsWithDependencies(view: string, data: Record<
     dispatch({ ...updateViewComponents(view, data), settings } satisfies WithSettings<ComponentsAction>);
 
     // Dispatch calculate dependencies
-    initializeDependencies(view, getState(), dispatch);
+    initializeDependencies(view, getState(), dispatch, getState);
   };
 }
 
@@ -129,7 +129,7 @@ export function updateMultipleComponentsWithDependencies(componentList: Componen
     dispatch({ ...updateMultipleComponents(componentList), settings } satisfies WithSettings<ComponentsAction>);
 
     // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
+    checkDependencies(getState(), dispatch, undefined, getState);
   };
 }
 
@@ -140,7 +140,7 @@ export function updateMultipleModelsWithDependencies(data: ComponentUpdate[]): A
     dispatch({ ...updateMultipleModels(data), settings } satisfies WithSettings<ComponentsAction>);
 
     // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
+    checkDependencies(getState(), dispatch, undefined, getState);
   };
 }
 
@@ -160,7 +160,7 @@ export function updateModelWithDependencies(address: ComponentAddress, data: Eve
     }
 
     // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
+    checkDependencies(getState(), dispatch, undefined, getState);
 
     // Clear runtime event to prevent re-triggering
     if (event) {
@@ -182,7 +182,7 @@ export function raiseEventOnDependencies(address: ComponentAddress, event: strin
     dispatch(setRuntimeEvent(address, event));
     try {
       // The component that raises an event is on screen, so its address has its view and its name
-      checkDependencies(getState(), dispatch, { address: address as Address, event });
+      checkDependencies(getState(), dispatch, { address: address as Address, event }, getState);
     } finally {
       dispatch(clearRuntimeEvent());
     }
@@ -203,13 +203,13 @@ export function updateAttributesWithDependencies(address: ComponentAddress, data
     dispatch({ ...updateAttributes(address, attributes), settings } satisfies WithSettings<ComponentsAction>);
 
     if (!event) {
-      checkDependencies(getState(), dispatch);
+      checkDependencies(getState(), dispatch, undefined, getState);
       return;
     }
 
     dispatch(setRuntimeEvent(address, event));
     try {
-      checkDependencies(getState(), dispatch);
+      checkDependencies(getState(), dispatch, undefined, getState);
     } finally {
       // The event must not stay raised for later checks, even when a dependency throws
       dispatch(clearRuntimeEvent());
@@ -227,7 +227,7 @@ export function restoreModelWithDependencies(address: ComponentAddress, data?: C
     dispatch(setRuntimeEvent(address, "change"));
 
     // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
+    checkDependencies(getState(), dispatch, undefined, getState);
 
     // Clear runtime event
     dispatch(clearRuntimeEvent());
@@ -245,7 +245,7 @@ export function restoreMultipleModelWithDependencies(componentList: ComponentUpd
     forgetInputDependencies(componentList as Parameters<typeof forgetInputDependencies>[0]);
 
     // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
+    checkDependencies(getState(), dispatch, undefined, getState);
   };
 }
 
@@ -259,7 +259,7 @@ export function resetModelWithDependencies(address: ComponentAddress, data?: Com
     dispatch(setRuntimeEvent(address, "change"));
 
     // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
+    checkDependencies(getState(), dispatch, undefined, getState);
 
     // Clear runtime event
     dispatch(clearRuntimeEvent());
@@ -273,7 +273,7 @@ export function resetMultipleModelWithDependencies(componentList: ComponentUpdat
     dispatch({ ...resetMultipleModel(componentList), settings } satisfies WithSettings<ComponentsAction>);
 
     // Dispatch calculate dependencies
-    checkDependencies(getState(), dispatch);
+    checkDependencies(getState(), dispatch, undefined, getState);
   };
 }
 

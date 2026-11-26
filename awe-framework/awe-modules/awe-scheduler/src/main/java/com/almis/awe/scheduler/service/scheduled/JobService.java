@@ -16,14 +16,17 @@ import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
 import com.almis.awe.scheduler.log.ExecutionKey;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.ExecutionService;
+import com.almis.awe.scheduler.util.SchedulerDeferred;
 import com.almis.awe.service.MaintainService;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
 import org.slf4j.MDC;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 
@@ -46,8 +49,12 @@ public abstract class JobService extends ServiceConfig {
   private final ApplicationEventPublisher eventPublisher;
   private final ExecutionLogStore executionLogStore;
   private final Duration defaultTimeout;
+  // Timeout of a deferred execution whose task has none (awe.scheduler.deferred.default-timeout)
+  @Setter
+  private Duration deferredDefaultTimeout = Duration.ofHours(24);
 
   // Locales
+  private static final String SCHEDULER_MESSAGE_STOPPED_BY_USER = "SCHEDULER_MESSAGE_STOPPED_BY_USER";
   private static final String SCHEDULER_ERROR_MESSAGE_TIMEOUT = "SCHEDULER_ERROR_MESSAGE_TIMEOUT";
   private static final String SCHEDULER_EXECUTION_LOG_COMPLETED = "SCHEDULER_EXECUTION_LOG_COMPLETED";
   private static final String SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY = "SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY";
@@ -96,6 +103,15 @@ public abstract class JobService extends ServiceConfig {
   }
 
   /**
+   * Clear the MDC discriminator of the execution log without signalling completion
+   */
+  void releaseLogging() {
+    MDC.remove(TaskConstants.EXECUTION);
+    MDC.remove(TaskConstants.LOG_BY_TASK_EXECUTION);
+    MDC.remove(TaskConstants.EXECUTION_LOG_ORIGIN);
+  }
+
+  /**
    * End logging execution: clear the MDC discriminator first, so the completion signal itself is
    * never captured by either store, then signal completion to the active execution log store
    * exactly once (a no-op for {@code FileExecutionLogStore}). Skips the completion signal when the
@@ -104,9 +120,7 @@ public abstract class JobService extends ServiceConfig {
    * @param execution Execution that finished
    */
   void endLogging(TaskExecution execution) {
-    MDC.remove(TaskConstants.EXECUTION);
-    MDC.remove(TaskConstants.LOG_BY_TASK_EXECUTION);
-    MDC.remove(TaskConstants.EXECUTION_LOG_ORIGIN);
+    releaseLogging();
     if (execution.getTaskId() == null || execution.getExecutionId() == null) {
       return;
     }
@@ -202,6 +216,7 @@ public abstract class JobService extends ServiceConfig {
   public ServiceData launchBatch(SchedulerJob job, Future<ServiceData> process) throws AWException {
     ServiceData serviceData = new ServiceData();
     TaskStatus status;
+    boolean deferred = false;
 
     // Start task timeout
     startTimeoutThread(job.getExecution(), getTimeout(job.getTask()), process);
@@ -211,26 +226,37 @@ public abstract class JobService extends ServiceConfig {
       // Launch process
       serviceData = process.get();
 
-      // Initialize job status
-      switch (serviceData.getType()) {
-        case WARNING:
-          status = TaskStatus.JOB_WARNING;
-          break;
-        case ERROR:
-          status = TaskStatus.JOB_ERROR;
-          break;
-        case INFO:
-          status = TaskStatus.JOB_INFO;
-          break;
-        default:
-          status = TaskStatus.JOB_OK;
-      }
+      if (SchedulerDeferred.isDeferred(serviceData)) {
+        // Accepted: the execution stays running until it is completed (or its due date passes)
+        deferExecution(job, serviceData);
+        deferred = true;
+      } else {
+        // Initialize job status
+        switch (serviceData.getType()) {
+          case WARNING:
+            status = TaskStatus.JOB_WARNING;
+            break;
+          case ERROR:
+            status = TaskStatus.JOB_ERROR;
+            break;
+          case INFO:
+            status = TaskStatus.JOB_INFO;
+            break;
+          default:
+            status = TaskStatus.JOB_OK;
+        }
 
-      job.getTask().setStatus(status);
-      job.getExecution().setDescription(serviceData.getMessage());
+        job.getTask().setStatus(status);
+        job.getExecution().setDescription(serviceData.getMessage());
+      }
     } catch (CancellationException | InterruptedException exc) {
-      job.getTask().setStatus(TaskStatus.JOB_INTERRUPTED);
-      job.getExecution().setDescription(getLocale(SCHEDULER_ERROR_MESSAGE_TIMEOUT, TimeUtil.formatTime(getTimeout(job.getTask()) * 1000, false)));
+      if (job.isStopped()) {
+        job.getTask().setStatus(TaskStatus.JOB_STOPPED);
+        job.getExecution().setDescription(getLocale(SCHEDULER_MESSAGE_STOPPED_BY_USER));
+      } else {
+        job.getTask().setStatus(TaskStatus.JOB_INTERRUPTED);
+        job.getExecution().setDescription(getLocale(SCHEDULER_ERROR_MESSAGE_TIMEOUT, TimeUtil.formatTime(getTimeout(job.getTask()) * 1000, false)));
+      }
       // A timeout cancels the process, not this thread: restore the flag only for a real interruption
       if (exc instanceof InterruptedException) {
         Thread.currentThread().interrupt();
@@ -245,12 +271,33 @@ public abstract class JobService extends ServiceConfig {
       // Interrupt timer
       executionService.interruptExecutionJobs(job.getExecution());
 
-      // End task
-      job.setExecution(taskDAO.endTask(job.getTask(), job.getExecution()));
+      if (!deferred) {
+        // End task
+        job.setExecution(taskDAO.endTask(job.getTask(), job.getExecution()));
 
-      // Send report
-      executionService.startReportJob(job.getTask(), job.getExecution());
+        // Send report
+        executionService.startReportJob(job.getTask(), job.getExecution());
+      }
     }
     return serviceData;
+  }
+
+  /**
+   * Keep the execution running after a deferred answer: store its reference and due date, and its description
+   *
+   * @param job    Job
+   * @param answer Deferred answer
+   * @throws AWException Error storing the deferred state
+   */
+  private void deferExecution(SchedulerJob job, ServiceData answer) throws AWException {
+    Task task = job.getTask();
+    TaskExecution execution = job.getExecution();
+    Instant start = execution.getInitialDate() == null ? Instant.now() : execution.getInitialDate().toInstant();
+    long timeout = task.getExecutionTimeout() != null ? task.getExecutionTimeout()
+      : deferredDefaultTimeout.getSeconds();
+    taskDAO.insertDeferredExecution(task.getTaskId(), execution.getExecutionId(),
+      SchedulerDeferred.externalReference(answer), Instant.now(), start.plusSeconds(timeout));
+    taskDAO.changeStatus(task, execution, TaskStatus.JOB_RUNNING, SchedulerDeferred.description(answer));
+    log.info("[SCHEDULER] Execution {} accepted, it finishes later", execution.getKey());
   }
 }

@@ -213,8 +213,8 @@ Scheduler AWE module logback configuration provided for import
 
 ## Log de ejecución del scheduler {#scheduler-execution-log}
 
-Cada ejecución de una tarea del scheduler tiene su propio log, que puede abrir desde la pantalla de gestión de tareas
-con el botón **Show execution log**. El lugar donde se almacena ese log lo controla
+Cada ejecución de una tarea del scheduler tiene su propio log, que puede abrir desde el panel lateral de la ejecución
+(la pantalla **Actividad**, el historial de una tarea y la página del flujo), donde sigue la ejecución en directo. El lugar donde se almacena ese log lo controla
 [awe.scheduler.execution-log-store](properties.md#awe.scheduler.execution-log-store):
 
 - **`file`** (por defecto) — cada ejecución escribe su log en un archivo dentro de
@@ -272,7 +272,9 @@ Cuando el scheduler se ejecuta como una instancia independiente
 tarea de mantenimiento se ejecuta realmente en la **aplicación**, no en el scheduler. Con el almacenamiento `database`
 activo en ambas instancias, las trazas producidas por la tarea en la aplicación se capturan en el
 mismo log de ejecución, de modo que el visor muestra un único log ordenado en el tiempo de toda la ejecución — las
-líneas del propio scheduler y la salida real de la tarea, en vivo mientras se ejecuta.
+líneas del propio scheduler y la salida real de la tarea, en vivo mientras se ejecuta. El visor lee el almacenamiento
+de la propia aplicación, así que cuando la aplicación usa un scheduler remoto con el almacenamiento `file` registra un
+`WARN` al arrancar.
 
 Además, cada ejecución termina con una **línea de resumen** que indica cómo finalizó y cuánto
 tardó. Para el estado final y definitivo de una ejecución (incluidos los tiempos de espera agotados y las cancelaciones),

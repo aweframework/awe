@@ -7,109 +7,57 @@
 <!--$Id$-->
 
 <locales xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/locale.xsd">
-  <locale name="BUTTON_CLEAR_AND_STOP" value="Nettoyer et arrêter"/>
   <locale name="BUTTON_RESTART" value="Redémarrer"/>
   <locale name="BUTTON_LAUNCH" value="Lancer"/>
   <locale name="BUTTON_STOP" value="Arrêter"/>
   <locale name="BUTTON_TEST_CONNECTION" value="Tester la connexion"/>
-  <locale name="COLUMN_DATE" value="Date"/>
-  <locale name="COLUMN_SCHEDULER_INSTANCE_ID" value="Id d&apos;instance du planificateur"/>
-  <locale name="COLUMN_SCHEDULER_JOBSTORE_CLASS" value="Classe du jobstore"/>
-  <locale name="COLUMN_SCHEDULER_JOBSTORE_CLUSTERED" value="Cluster jobstore"/>
-  <locale name="COLUMN_SCHEDULER_JOBSTORE_PERSISTENT" value="Jobstore persistant"/>
-  <locale name="COLUMN_SCHEDULER_NAME" value="Nom"/>
-  <locale name="COLUMN_SCHEDULER_NUMBER_JOBS_EXECUTED" value="Nombr du travaux exécutés"/>
-  <locale name="COLUMN_SCHEDULER_REMOTE" value="Distance"/>
-  <locale name="COLUMN_SCHEDULER_RUNNING_SINCE" value="En cours d&apos;exécution depuis"/>
-  <locale name="COLUMN_SCHEDULER_STATUS" value="Statut du planificateur"/>
-  <locale name="COLUMN_SCHEDULER_TASK_CALENDAR" value="Calendrier"/>
   <locale name="COLUMN_SCHEDULER_TASK_END_TIME" value="Heure fin tâche"/>
-  <locale name="COLUMN_SCHEDULER_TASK_EXECUTION_TIME" value="Temps d&apos;exécution"/>
   <locale name="COLUMN_SCHEDULER_TASK_FINAL_EXECUTION_TIME" value="Dernier exécution du tâche"/>
-  <locale name="COLUMN_SCHEDULER_TASK_FIRE_ID" value="Id tâche"/>
-  <locale name="COLUMN_SCHEDULER_TASK_NEXT_EXECUTION_TIME" value="Prochaine exécution"/>
-  <locale name="COLUMN_SCHEDULER_TASK_PREVIOUS_EXECUTION_TIME" value="Dernière exécution"/>
-  <locale name="COLUMN_SCHEDULER_TASK_SCHEDULED_EXECUTION_TIME" value="Temps d&apos;exécution planifiée"/>
   <locale name="COLUMN_SCHEDULER_TASK_START_TIME" value="Heure début tâche"/>
-  <locale name="COLUMN_SCHEDULER_TASK_STATUS" value="État"/>
-  <locale name="COLUMN_SCHEDULER_TASK_TRIGGER_KEY" value="Id lanceur"/>
-  <locale name="COLUMN_SCHEDULER_THREADPOOL_CLASS" value="Classe du threadpool"/>
-  <locale name="COLUMN_SCHEDULER_THREADPOOL_SIZE" value="Taille du threadpool"/>
-  <locale name="COLUMN_SCHEDULER_VERSION" value="Version"/>
   <locale name="COLUMN_SUBTASK" value="Subtache"/>
-  <locale name="COLUMN_TIME" value="Heure"/>
   <locale name="CONFIRM_MESSAGE_ACTIVATE_BATCH" value="Taches selectionnees vont etre activees. Etes-vous d&apos;accord?"/>
-  <locale name="CONFIRM_MESSAGE_ACTIVATE_TASK" value="Vous allez activer les tâches sélectionnées. Êtes-vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_BATCH_REPORT" value="Rapport va etre genere selctionnant dans les criteres. Etes-vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_DEACTIVATE_BATCH" value="Taches selectionnees vont etre desactivees.Etes-vous d&apos;accord?"/>
-  <locale name="CONFIRM_MESSAGE_DEACTIVATE_TASK" value="Vous allez désactiver les tâches sélectionnées. Êtes-vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_DELETE_TASK" value="Il va supprimer le planificateur de tâche sélectionnée et dépendances qui en contiennent . Etes vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_TASK_LAUNCH" value="Tache selectionnee va etre lancee. Etes-vous d&apos;accord?"/>
-  <locale name="CONFIRM_MESSAGE_TRIGGER_WITH_CALENDAR_EXIST" value="Calendriers sélectionnés sont associés à une ou plusieurs tâches. Êtes-vous sûr de vouloir continuer?"/>
   <locale name="CONFIRM_MESSAGE_UNBLOCK_BATCH_KO" value="Les batchs selectionnes sont marques comme non valides pour etre debloqués. Etes-vous d&apos;accord?"/>
   <locale name="CONFIRM_MESSAGE_UNBLOCK_BATCH_OK" value="Les batchs selectionnes sont marques comme valides pour etre debloqués. Etes-vous d&apos;accord?"/>
-  <locale name="CONFIRM_MESSAGE_UPDATE_TASK" value="Vous allez stocker les données sur l&apos;écran , si les changements de type tâche de lancement de manuel à tout autre type , il seront retirés de toutes les dépendances Etes vous d&apos;accord?"/>
   <locale name="CONFIRM_TITLE_ACTIVATE_BATCH" value="Confirmation d&apos;activatión de taches"/>
-  <locale name="CONFIRM_TITLE_ACTIVATE_TASK" value="Confirmation d&apos;activatión de taches"/>
   <locale name="CONFIRM_TITLE_BATCH_REPORT" value="Confirmation de generatión de rapport"/>
   <locale name="CONFIRM_TITLE_DEACTIVATE_BATCH" value="Confirmation de desactivation des taches"/>
-  <locale name="CONFIRM_TITLE_DEACTIVATE_TASK" value="Confirmation de desactivation des taches"/>
   <locale name="CONFIRM_TITLE_TASK_LAUNCH" value="Confirmation de lancement des taches"/>
-  <locale name="CONFIRM_TITLE_TRIGGER_WITH_CALENDAR_EXIST" value="La confirmation de calendrier associé à une ou plusieurs tâches."/>
   <locale name="CONFIRM_TITLE_UNBLOCK_BATCH" value="Confirmation de deblocage de batch"/>
   <locale name="ENUM_LAUNCH_DEPENDENCY" value="Dépendance"/>
   <locale name="ENUM_LAUNCH_FILE" value="Par fichier"/>
   <locale name="ENUM_LAUNCH_MANUAL" value="Manuelle"/>
   <locale name="ENUM_LAUNCH_SCHEDULED" value="Programmés"/>
-  <locale name="ENUM_TASK_STEP_CONFIG" value="Configuration"/>
-  <locale name="ENUM_TASK_STEP_DEPENDENCIES" value="Dépendances"/>
-  <locale name="ENUM_TASK_STEP_LAUNCH" value="Lancement"/>
-  <locale name="ENUM_TASK_STEP_PARAMS" value="Paramètres"/>
-  <locale name="ENUM_TASK_STEP_REPORT" value="Rapport"/>
+  <locale name="ENUM_LAUNCH_WEBHOOK" value="Webhook"/>
   <locale name="ENUM_TITLE_STATUS_ERROR" value="La tâche est terminée avec erreur"/>
   <locale name="ENUM_TITLE_STATUS_INTERRUPTED" value="La tâche a été interrompue"/>
   <locale name="ENUM_TITLE_STATUS_OK" value="La tâche est terminée avec succès"/>
   <locale name="ENUM_TITLE_STATUS_RUNNING" value="La tâche est en cours d&apos;exécution dès maintenant"/>
+  <locale name="ENUM_TITLE_STATUS_QUEUED" value="La tâche est en file d&apos;attente, en attendant son tour"/>
+  <locale name="ENUM_TITLE_STATUS_STOPPED" value="La tâche a été arrêtée par l&apos;utilisateur"/>
   <locale name="ENUM_TITLE_STATUS_WARNING" value="La tâche est terminée avec des avertissements"/>
   <locale name="ERROR_MESSAGE_SCHEDULER_PAUSE_TASK" value="Tâche problème pause"/>
   <locale name="ERROR_MESSAGE_SCHEDULER_RESUME_TASK" value="Problème pour reprendre la tâche."/>
   <locale name="ERROR_MESSAGE_TRIGGER_MISFIRED" value="L&apos;élément déclencheur de cette tâche a été mise à feu accidentelle"/>
   <locale name="ERROR_TITLE_SCHEDULER_PAUSE_TASK" value="La tâche n&apos;a pas pu être mis en pause."/>
   <locale name="ERROR_TITLE_SCHEDULER_RESUME_TASK" value="La tâche n&apos;a pas pu être repris."/>
-  <locale name="HELP_ACTIVATE_BUTTON" value="Permet à l&apos;élément sélectionné"/>
-  <locale name="HELP_DEACTIVATE_BUTTON" value="Désactive l&apos;élément sélectionné"/>
   <locale name="HELP_LAUNCH_STOP_BUTTON" value="Interruption de l&apos;élément sélectionné"/>
-  <locale name="HELP_TEST_CONNECTION_BUTTON" value="Teste la connexion avec les valeurs actuelles du formulaire, sans les enregistrer"/>
-  <locale name="HELP_TEST_CONNECTION_SELECTED" value="Teste la connectivité du serveur sélectionné"/>
   <locale name="HELP_LAUNCH_VARIABLES_BUTTON" value="Définit les paramètres variables et lance la tâche sélectionnée"/>
-  <locale name="HELP_RUN_BUTTON" value="Exécute l&apos;élément sélectionné"/>
-  <locale name="HELP_SCREEN_EXECUTION_DATA" value="Cette dialogue indique les données de l&apos;exécution selectionèe de la tâche"/>
-  <locale name="HELP_SCREEN_NEW_SCHEDULER_CALENDAR" value="Dans cet écran, vous pouvez définir la configuration d&apos;un nouveau calendrier"/>
-  <locale name="HELP_SCREEN_NEW_SCHEDULER_SERVER" value="Dans cet écran, vous pouvez définir les paramètres d&apos;un nouveau serveur"/>
-  <locale name="HELP_SCREEN_NEW_SCHEDULER_TASK" value="Dans cet écran, vous pouvez définir la configuration d&apos;une tâche planifiée"/>
-  <locale name="HELP_SCREEN_SCHEDULER_CALENDAR" value="L&apos;écran d&apos;édition de l&apos;agenda"/>
-  <locale name="HELP_SCREEN_SCHEDULER_SERVERS" value="Ici, vous pouvez ajouter ou supprimer des nouvelles configurations de serveur"/>
   <locale name="HELP_SCREEN_SCHEDULER_TASKS" value="Dans cet écran, vous pouvez ajouter ou supprimer des nouvelles tâches du planificateur"/>
-  <locale name="HELP_SCREEN_UPDATE_SCHEDULER_CALENDAR" value="Dans cet écran, vous pouvez mettre à jour la configuration d&apos;un calendrier"/>
-  <locale name="HELP_SCREEN_UPDATE_SCHEDULER_SERVER" value="Dans cet écran, vous pouvez mettre à jour la configuration d&apos;un serveur"/>
-  <locale name="HELP_SCREEN_UPDATE_SCHEDULER_TASK" value="Dans cet écran, vous pouvez mettre à jour la configuration d&apos;une tâche planifiée"/>
-  <locale name="MENU_NEW_SCHEDULER_CALENDAR" value="Nouveau calendrier"/>
-  <locale name="MENU_NEW_SCHEDULER_SERVER" value="Nouveau serveur"/>
-  <locale name="MENU_NEW_SCHEDULER_TASK" value="Nouvelle tâche planifiée"/>
   <locale name="MENU_SCHEDULER" value="Planificateur"/>
-  <locale name="MENU_SCHEDULER_CALENDARS" value="Calendriers"/>
   <locale name="MENU_SCHEDULER_EDIT_CALENDAR" value="Modifier calendrier"/>
-  <locale name="MENU_SCHEDULER_MANAGEMENT" value="Gestion du planificateur"/>
-  <locale name="MENU_SCHEDULER_SERVERS" value="Serveurs externes"/>
   <locale name="MENU_SCHEDULER_TASKS" value="Gestionnaire des tâches"/>
   <locale name="MENU_TASKS_BATCH" value="Definition des taches du batch"/>
   <locale name="MENU_TASKS_BATCH_AUDIT" value="Audit de tache du batch"/>
   <locale name="MENU_TASKS_PROCESS_AUDIT" value="Audit de processus"/>
-  <locale name="MENU_UPDATE_SCHEDULER_CALENDAR" value="Mise à jour du calendrier"/>
-  <locale name="MENU_UPDATE_SCHEDULER_SERVER" value="Mise à jour de serveur"/>
-  <locale name="MENU_UPDATE_SCHEDULER_TASK" value="Mise à jour de tâches du planificateur"/>
   <locale name="MESSAGE_SCHEDULER_DELETE_CALENDAR" value="Vous êtes sûr que vous voulez supprimer ce calendrier ?"/>
   <locale name="MESSAGE_SCHEDULER_DELETE_CALENDAR_WITH_ASSOCIATED_TASKS" value="Il y a des tâches associées à ce calendrier .\nVous êtes sûr que vous voulez supprimer le calendrier ?\n.Si Élimine le calendrier , il a également été retiré des tâches associées."/>
+  <locale name="MESSAGE_SCHEDULER_SHUTDOWN" value="Le planificateur a été arrêté correctement"/>
+  <locale name="MESSAGE_SCHEDULER_STARTED" value="Le planificateur a été démarré"/>
+  <locale name="MESSAGE_SCHEDULER_STOPPED" value="Le planificateur a été stoppé correctement"/>
   <locale name="MESSAGE_SCHEDULER_NEW_TASK" value="La tâche a été ajouté avec succès"/>
   <locale name="PARAMETER_FIRST_WEEK" value="Première semaine"/>
   <locale name="PARAMETER_FOURTH_WEEK" value="Quatrième semaine"/>
@@ -131,17 +79,28 @@
   <locale name="SCHEDULER_BATCH_LAUNCH_MESSAGE" value="Le lot a été exécutée correctement"/>
   <locale name="SCHEDULER_BATCH_LAUNCH_TITLE" value="Lot exécuté"/>
   <locale name="SCHEDULER_ERROR_MESSAGE_TIMEOUT" value="Cette tâche a été annulée parce qu&apos;il a dépassé le temps imparti ({0})"/>
+  <locale name="SCHEDULER_MESSAGE_STOPPED_BY_USER" value="Arrêtée par l&apos;utilisateur"/>
+  <locale name="SCHEDULER_STOP_UNAVAILABLE_TITLE" value="Tâche non arrêtée"/>
+  <locale name="SCHEDULER_STOP_UNAVAILABLE_MESSAGE" value="La tâche est encore en cours de démarrage et n&apos;a pas pu être arrêtée, réessayez dans un instant"/>
+  <locale name="SCHEDULER_PARAMETER_CANCELLATION_MAINTAIN" value="Maintenance d'annulation"/>
+  <locale name="SCHEDULER_PARAMETER_CANCELLATION_MAINTAIN_HELP" value="Utilisée seulement si la maintenance répond en différé : elle est prévenue si l’exécution est arrêtée ou dépasse son délai (le timeout de la tâche ou, à défaut, awe.scheduler.deferred.default-timeout)."/>
+  <locale name="SCHEDULER_DEFERRED_TRACE" value="Référence {0}, délai {1}"/>
+  <locale name="SCHEDULER_DEFERRED_CLOSED" value="fermée par {0} le {1}"/>
+  <locale name="SCHEDULER_DEFERRED_SOURCE_API" value="le système externe"/>
+  <locale name="SCHEDULER_DEFERRED_SOURCE_DEADLINE" value="le délai"/>
+  <locale name="SCHEDULER_DEFERRED_SOURCE_USER" value="un utilisateur"/>
+  <locale name="SCHEDULER_DEFERRED_NOTICE_SENT" value="avis d'annulation envoyé"/>
+  <locale name="SCHEDULER_DEFERRED_NOTICE_FAILED" value="avis d'annulation échoué : {0}"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED" value="L&apos;exécution s&apos;est terminée avec le résultat {0} après {1}. {2}"/>
   <locale name="SCHEDULER_EXECUTION_LOG_COMPLETED_ABNORMALLY" value="L&apos;exécution s&apos;est terminée de manière anormale après {0} - consultez la grille d&apos;exécution pour le statut final."/>
+  <locale name="SCHEDULER_INVALID_FILTER_TITLE" value="Filtre non valide"/>
+  <locale name="SCHEDULER_INVALID_FILTER_MESSAGE" value="La valeur {1} du filtre {0} n&apos;est pas valide"/>
   <locale name="SCHEDULER_EXECUTION_LOG_DROPPED" value="... {0} lignes perdues (file saturée) ..."/>
   <locale name="SCHEDULER_EXECUTION_LOG_TRUNCATED" value="... {0} lignes omises (total {1}) ..."/>
-  <locale name="SCHEDULER_NEXT_EXECUTIONS" value="Prochaines exécutions"/>
   <locale name="SCHEDULER_REMOTE_EXECUTION" value="Exécuter sur un serveur distant"/>
   <locale name="SCHEDULER_REMOTE_SERVER" value="Serveur distant"/>
   <locale name="SCHEDULER_SERVER_KEY" value="Clé privée"/>
   <locale name="SCHEDULER_SERVER_KEY_PASS" value="Phrase secrète de la clé privée"/>
-  <locale name="SCHEDULER_SERVER_PASSWORD" value="Mot de passe du serveur"/>
-  <locale name="SCHEDULER_SERVER_USER" value="Utilisateur du serveur"/>
   <locale name="SCHEDULER_SERVER_TEST_KO_TITLE" value="Échec du test de connexion"/>
   <locale name="SCHEDULER_SERVER_TEST_CONNECTION_ERROR" value="Impossible de se connecter au serveur : hôte inaccessible, connexion refusée ou délai dépassé"/>
   <locale name="SCHEDULER_SERVER_TEST_AUTHENTICATION_ERROR" value="Le serveur a rejeté les identifiants fournis"/>
@@ -151,17 +110,43 @@
   <locale name="SCHEDULER_SERVER_TEST_FOLDER_MESSAGE" value="Les serveurs de type dossier sont accédés comme chemin local de l&apos;hôte du planificateur à l&apos;exécution de chaque tâche, il n&apos;y a donc aucune connexion à tester"/>
   <locale name="SCHEDULER_SERVER_TEST_SERVER_NOT_FOUND" value="Le serveur sélectionné n&apos;existe plus"/>
   <locale name="SCHEDULER_SERVER_TEST_UNSUPPORTED_TYPE" value="Aucun test de connexion n&apos;est disponible pour ce type de connexion"/>
+  <locale name="SCHEDULER_SERVER_TEST_OK_TITLE" value="Connexion réussie en {0}"/>
+  <locale name="SCHEDULER_SERVER_TEST_ALL_TITLE" value="Test des serveurs actifs"/>
+  <locale name="SCHEDULER_SERVER_TEST_ALL_MESSAGE" value="{0} serveurs testés : {1} réussis et {2} en erreur"/>
+  <locale name="SCHEDULER_SERVER_IN_USE_TITLE" value="Impossible de supprimer le serveur"/>
+  <locale name="SCHEDULER_SERVER_IN_USE_ONE" value="Impossible de supprimer : 1 tâche l’utilise ({0}). Changez d’abord le serveur de cette tâche."/>
+  <locale name="SCHEDULER_SERVER_IN_USE_MANY" value="Impossible de supprimer : {0} tâches l’utilisent ({1}). Changez d’abord le serveur de ces tâches."/>
+  <locale name="SCHEDULER_SERVER_TEST_ALL_MESSAGE_PARTIAL" value="{0} serveurs testés : {1} réussis et {2} en erreur. {3} non testés : le temps du test est écoulé"/>
+  <locale name="SCHEDULER_SERVER_TEST_UNEXPECTED_ERROR" value="La connexion n’a pas pu être testée"/>
+  <locale name="SCHEDULER_INVALID_IDENTIFIER_TITLE" value="Identifiant non valide"/>
+  <locale name="SCHEDULER_INVALID_IDENTIFIER_MESSAGE" value="L’un des identifiants sélectionnés n’est pas valide"/>
   <locale name="SCHEDULER_SHOW_EXECUTION_LOG" value="Afficher journal d&apos;exécution"/>
   <locale name="SCREEN_TEXT_END_TIME" value="Heure de fin"/>
   <locale name="SCREEN_TEXT_EXECUTION" value="L&apos;exécution"/>
   <locale name="SCREEN_TEXT_EXECUTION_DETAILS" value="Les détails de l&apos;exécution"/>
   <locale name="SCREEN_TEXT_LAUNCH_PARAMETERS" value="Paramètres de lancement"/>
+  <locale name="SCHEDULER_TASK_DEPENDENCY_CYCLE_TITLE" value="Dépendance circulaire"/>
+  <locale name="SCHEDULER_TASK_DEPENDENCY_CYCLE_MESSAGE" value="Les dépendances de cette tâche la feraient se lancer elle-même, directement ou via d'autres tâches. Supprimez la dépendance qui ferme la boucle."/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_TITLE" value="Erreur de configuration des paramètres"/>
   <locale name="SCHEDULER_PROPERTY_NOT_FOUND_MESSAGE" value="La propriété {0} n'est pas définie sur l'instance du planificateur, la tâche ne peut donc pas être lancée. Définissez la propriété ou indiquez-en une existante."/>
+  <locale name="SCHEDULER_WEBHOOK_KEY" value="Clé du hook"/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_HELP" value="Dernière partie de l'URL du webhook. Lettres minuscules, chiffres et tirets, jusqu'à 64 caractères. Chaque tâche a besoin de sa propre clé."/>
+  <locale name="SCHEDULER_WEBHOOK_ACTIVE" value="Hook actif"/>
+  <locale name="SCHEDULER_WEBHOOK_SECRET" value="Propriété du secret"/>
+  <locale name="SCHEDULER_WEBHOOK_SECRET_HELP" value="Nom de la propriété de l'application qui contient le secret de signature (whsec_...). Le secret n'est jamais enregistré ni affiché ici. Plusieurs secrets séparés par des espaces ou des virgules sont acceptés, pour le renouveler."/>
+  <locale name="SCHEDULER_WEBHOOK_TYPE" value="Type d'événement"/>
+  <locale name="SCHEDULER_WEBHOOK_TYPE_HELP" value="Facultatif. Seuls les webhooks de ce type lancent la tâche ; les autres sont ignorés. Laissez vide pour accepter tout type."/>
+  <locale name="SCHEDULER_WEBHOOK_URL" value="URL du webhook"/>
+  <locale name="SCHEDULER_WEBHOOK_URL_HELP" value="Adresse à laquelle l'émetteur envoie les webhooks signés. Copiez-la dans l'émetteur."/>
+  <locale name="SCHEDULER_WEBHOOK_POINTER" value="Pointeur JSON"/>
+  <locale name="SCHEDULER_WEBHOOK_POINTER_HELP" value="Pointeur dans les données du webhook, par exemple /date. Seuls les paramètres VARIABLE avec pointeur reçoivent des valeurs du webhook."/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_INVALID_TITLE" value="Webhook non valide"/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_INVALID_MESSAGE" value="La clé du hook doit comporter de 1 à 64 caractères : lettres minuscules, chiffres et tirets."/>
+  <locale name="SCHEDULER_WEBHOOK_SECRET_REQUIRED_MESSAGE" value="Indiquez le nom de la propriété qui contient le secret du webhook."/>
+  <locale name="SCHEDULER_WEBHOOK_KEY_DUPLICATED_MESSAGE" value="La clé de hook {0} appartient déjà à une autre tâche. Choisissez une clé différente."/>
   <locale name="SCREEN_TEXT_EXECUTION_TIME" value="Temps d&apos;exécution"/>
   <locale name="SCREEN_TEXT_EXECUTIONS" value="Exécutions"/>
   <locale name="SCREEN_TEXT_LAUNCHED_BY" value="Lancé par"/>
-  <locale name="SCREEN_TEXT_MORE_INFORMATION" value="Plus d&apos;informations"/>
   <locale name="SCREEN_TEXT_START_TIME" value="Heure de début"/>
   <locale name="SCREEN_TEXT_TASK" value="Tâche"/>
   <locale name="SCREEN_TEXT_TASK_DETAIL" value="Détail des tâches"/>
@@ -169,10 +154,630 @@
   <locale name="SCREEN_TITLE_TASKS_BATCH" value="Definition des taches du batch"/>
   <locale name="SCREEN_TITLE_TASKS_BATCH_AUDIT" value="Gestión de l&apos;audit des taches du batch"/>
   <locale name="SCREEN_TITLE_TASKS_BATCH_UPD" value="Modification de la definition de la tache du batch"/>
-  <locale name="TAB_SCHEDULER_CONFIGURED_TASKS" value="Tâches configurées"/>
-  <locale name="TAB_SCHEDULER_EXECUTING_TASKS" value="Tâches en cours d&apos;exécution"/>
   <locale name="TITLE_SCHEDULER_DELETE_CALENDAR" value="Supprimer le calendrier"/>
   <locale name="TITLE_SCHEDULER_DELETE_CALENDAR_WITH_ASSOCIATED_TASKS" value="Ce calendrier est associé à une ou plusieurs tâches"/>
   <locale name="TITLE_SCHEDULER_NEW_TASK" value="Nouvelle tâche ajouté avec succès"/>
   <locale name="WARNING_MESSAGE_TASK_DEPENDENCY_ERROR" value="Cette tâche a été marqué comme avertissement, car la tâche dépendante #{0} a retourné une erreur à l&apos;exécution #{1}"/>
+  <locale name="BUTTON_OPEN_RUN" value="Ouvrir le flux"/>
+  <!-- Activity screen (#993) -->
+  <locale name="MENU_SCHEDULER_ACTIVITY" value="Activité"/>
+  <locale name="HELP_SCREEN_SCHEDULER_ACTIVITY" value="Ce qui est en cours, ce qui attend une confirmation et ce qui a échoué, pour toutes les tâches du planificateur. Les compteurs filtrent la liste ; une ligne ouvre son détail avec le journal en direct."/>
+  <locale name="SCREEN_TEXT_ACTIVITY_ENGINE_STARTED" value="Moteur : en marche"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_ENGINE_STANDBY" value="Moteur : en pause"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_ENGINE_STOPPED" value="Moteur : arrêté"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_ENGINE_LINE_STARTED" value="Instance Quartz {0} · en marche depuis {1}"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_ENGINE_LINE_STANDBY" value="Instance Quartz {0} · en pause"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_ENGINE_LINE_STOPPED" value="Instance Quartz {0} · arrêté"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_DURATION_DAYS" value="{0} j {1} h"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_DURATION_HOURS" value="{0} h {1} min"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_DURATION_MINUTES" value="{0} min"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_DURATION_SECONDS" value="{0} s"/>
+  <locale name="BUTTON_ACTIVITY_RELOAD" value="Recharger"/>
+  <locale name="HELP_ACTIVITY_RELOAD_BUTTON" value="Recharger les exécutions, les compteurs et l'état du moteur"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_RUNNING" value="En cours"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_WAITING" value="En attente de confirmation"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_SKIPPED" value="Omise"/>
+  <locale name="PARAMETER_ACTIVITY_GROUP_BY_FLOW" value="Grouper par flux"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_RUN_EXECUTIONS" value="{0} exécutions"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_RUN_EXECUTIONS_SKIPPED" value="{0} exécutions · {1} omises"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_QUEUED" value="En file d'attente"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_ERRORS_24H" value="En erreur · 24 h"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_UPCOMING_24H" value="Prochaines · 24 h"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_UPCOMING_TEXT" value="Démarrages planifiés dans les prochaines 24 heures"/>
+  <locale name="ENUM_STATUS_INFO" value="Information"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_ALL" value="Toutes"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_SEARCH" value="Rechercher une tâche"/>
+  <locale name="BUTTON_ACTIVITY_ORIGIN_ALL" value="Toutes"/>
+  <locale name="BUTTON_ACTIVITY_DATES_ALL" value="Toute date"/>
+  <locale name="BUTTON_ACTIVITY_DATES_24H" value="Dernières 24 h"/>
+  <locale name="BUTTON_ACTIVITY_DATES_7D" value="7 derniers jours"/>
+  <locale name="BUTTON_ACTIVITY_DATES_30D" value="30 derniers jours"/>
+  <locale name="BUTTON_ACTIVITY_VIEW_DETAILS" value="Voir les détails"/>
+  <locale name="PARAMETER_ACTIVITY_ORIGIN" value="Origine"/>
+  <locale name="PARAMETER_ACTIVITY_FLOW_RUN" value="Flux"/>
+  <locale name="PARAMETER_ACTIVITY_DUE_AT" value="Échéance"/>
+  <locale name="PARAMETER_ACTIVITY_DURATION" value="Durée"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_DUE_SHORT" value="échéance {0}"/>
+  <locale name="BUTTON_ACTIVITY_OPEN_TASK" value="Ouvrir la tâche"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_WAITING_TEXT" value="La tâche attend que le système externe confirme le résultat. À l'arrivée de la confirmation, l'exécution se termine avec l'état indiqué et les tâches qui en dépendent sont lancées. Si elle n'arrive pas avant l'échéance, l'exécution se termine comme interrompue."/>
+  <locale name="SCREEN_TEXT_ACTIVITY_LOG" value="Journal"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_ELAPSED" value="Temps écoulé"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_AVERAGE" value="Moyenne de la tâche : {0}"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_NO_AVERAGE" value="Pas de moyenne : la tâche n&apos;a aucune exécution réussie enregistrée"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_PARAMETERS" value="Paramètres"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_NO_PARAMETERS" value="Aucun paramètre"/>
+  <locale name="SCREEN_TEXT_ACTIVITY_NO_PARAMETERS_TEXT" value="La tâche n&apos;a pas de paramètres, ou elle a été lancée avant que les paramètres de chaque lancement soient enregistrés"/>
+  <locale name="VALIDATOR_MESSAGE_SCHEDULER_PARAMETER_NAME" value="Le nom d&apos;un paramètre ne peut pas commencer par « = »"/>
+  <locale name="BUTTON_ACTIVITY_RELAUNCH" value="Relancer"/>
+  <locale name="HELP_ACTIVITY_RELAUNCH_BUTTON" value="Relancer la tâche de cette exécution"/>
+  <locale name="BUTTON_ACTIVITY_STOP" value="Arrêter…"/>
+  <locale name="CONFIRM_TITLE_ACTIVITY_STOP" value="Arrêter l'exécution ?"/>
+  <locale name="CONFIRM_MESSAGE_ACTIVITY_STOP" value="Les exécutions en cours de cette tâche se terminent comme arrêtées."/>
+  <!-- Flow graph screen (#992) -->
+  <locale name="SCREEN_TEXT_FLOW_GRAPH" value="Graphe de flux"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_EMPTY" value="Il n'y a pas de dépendances entre tâches à dessiner"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_WAITING" value="En attente"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_SKIPPED" value="Ignorée"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_NOT_REACHED" value="Non atteinte"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ON_WARNING" value="Si avertissement"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ON_ERROR" value="Si erreur"/>
+  <!-- Task catalog (#993) -->
+  <locale name="MENU_SCHEDULER_TASK_CATALOG" value="Tâches"/>
+  <locale name="HELP_SCREEN_SCHEDULER_TASK_CATALOG" value="Toutes les tâches du planificateur : ce qu’elles exécutent, quand elles sont lancées et comment se sont passées leurs dernières exécutions. Recherchez une tâche ou ce qu’elle exécute, filtrez par lancement, état ou dernier statut, et ouvrez le menu d’une ligne pour l’exécuter, la modifier, l’activer, la désactiver ou la supprimer."/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_SUBTITLE" value="Consultez les tâches planifiées, quand elles s’exécutent et le résultat de leurs dernières exécutions"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_SEARCH" value="Rechercher une tâche ou ce qu’elle exécute"/>
+  <locale name="BUTTON_NEW_TASK" value="Nouvelle tâche"/>
+  <locale name="HELP_NEW_TASK_BUTTON" value="Crée une nouvelle tâche"/>
+  <locale name="BUTTON_TASK_RUN" value="Exécuter…"/>
+  <locale name="BUTTON_TASK_DELETE" value="Supprimer…"/>
+  <locale name="PARAMETER_TASK_LAUNCH" value="Lancement"/>
+  <locale name="PARAMETER_TASK_ACTIVE" value="Active"/>
+  <locale name="PARAMETER_TASK_LAST_STATUS" value="Dernier statut"/>
+  <locale name="PARAMETER_TASK_WHEN" value="Quand"/>
+  <locale name="PARAMETER_TASK_HISTORY" value="Historique"/>
+  <locale name="PARAMETER_TASK_AVERAGE" value="Moyenne"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_ALL" value="Toutes"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_ACTIVE_TASKS" value="Actives"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_INACTIVE_TASKS" value="Inactives"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_NO_EXECUTIONS" value="Aucune exécution"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CONFIGURATION_ALL" value="Tous"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CONFIGURATION_ACTIVE" value="Actifs"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CONFIGURATION_INACTIVE" value="Inactifs"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_APPLICATION" value="Serveur de l&apos;application"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TYPE_SSH" value="SSH"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TYPE_FTP" value="FTP"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TYPE_FOLDER" value="Dossier"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_USE_SSH" value="Commandes distantes ou fichiers par SFTP"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_USE_COMMANDS" value="Commandes distantes"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_USE_FILES" value="Fichiers par SFTP"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_USE_COMMANDS_AND_FILES" value="Commandes distantes et fichiers par SFTP"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_USE_FTP" value="Fichiers par FTP"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_USE_FOLDER" value="Dossier local"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_USED_BY_NONE" value="Aucune tâche"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_USED_BY_ONE" value="1 tâche"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_USED_BY_MANY" value="{0} tâches"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_NEXT" value="prochaine {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_FROM" value="à partir du {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_NO_NEXT" value="aucune date à venir"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_RUNS" value="s’exécuterait {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_DATES" value="le calendrier exclut {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_DAY" value="le {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_SECONDS" value="{0},{1} s"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_OK" value="OK · {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_ERROR" value="Erreur"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_ERROR_SUB" value="{0} · {1}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_NONE" value="Non testé"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_REASON_CONNECTION_ERROR" value="connexion impossible"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_REASON_AUTHENTICATION_ERROR" value="identifiants refusés"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_REASON_HOST_KEY_ERROR" value="clé d’hôte refusée"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_REASON_INVALID_KEY_ERROR" value="clé privée non valide"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_REASON_UNSUPPORTED_TYPE" value="type de connexion sans test"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_REASON_SERVER_NOT_FOUND" value="le serveur n’existe plus"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_REASON_UNEXPECTED_ERROR" value="n’a pas pu être testé"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_HISTORY_TITLE" value="Exécution {0} · {1} · {2}"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_HISTORY_TITLE_FLOW" value="Exécution {0} · {1} · {2} · flux #{3}"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_TODAY" value="Aujourd’hui {0}"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_YESTERDAY" value="Hier {0}"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_TOMORROW" value="Demain {0}"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_NEXT_FILE_CHECK" value="prochaine vérification de {0}"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_NEXT_AFTER" value="À la fin de {0}"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_NEXT_ON_DEMAND" value="à la demande"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_NEXT_NOT_SCHEDULED" value="non planifiée"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_NEXT_INACTIVE" value="tâche inactive"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_AND" value="{0} et {1}"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_SECONDS" value="{0} s"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_MINUTES" value="{0} min"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_HOURS" value="{0} h"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_WEEKDAY_1" value="dim"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_WEEKDAY_2" value="lun"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_WEEKDAY_3" value="mar"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_WEEKDAY_4" value="mer"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_WEEKDAY_5" value="jeu"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_WEEKDAY_6" value="ven"/>
+  <locale name="SCREEN_TEXT_TASK_CATALOG_WEEKDAY_7" value="sam"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_MANUAL" value="Lancée à la main"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_MANUAL_DETAIL" value="sans planification"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_WEBHOOK" value="À la réception d’un webhook"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_WEBHOOK_DETAIL" value="appel signé depuis l’extérieur"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_FILE" value="À l’arrivée d’un fichier dans {0}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_FILE_CHECK" value="vérifie toutes les {0}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_AFTER" value="Après {0}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_AFTER_IF_OK" value="si elle se termine en OK"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_AFTER_IF_OK_WARNING" value="si elle se termine en OK ou avec un avertissement"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_AFTER_IF_OK_ERROR" value="si elle se termine en OK ou en erreur"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_AFTER_ANY" value="quel que soit son résultat"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_AFTER_ALL" value="quand les {0} sont terminées"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_ALSO_AFTER" value="aussi après {0}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_MORE" value="{0} de plus"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_EVERY_SECOND" value="Chaque seconde"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_EVERY_SECONDS" value="Toutes les {0} secondes"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_EVERY_MINUTE" value="Chaque minute"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_EVERY_MINUTES" value="Toutes les {0} minutes"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_EVERY_HOUR" value="Chaque heure"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_EVERY_HOURS" value="Toutes les {0} heures"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_DAILY" value="Tous les jours à {0}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_EVERY_DAYS" value="Tous les {0} jours à {1}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_WORKDAYS" value="Du lundi au vendredi à {0}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_WEEKENDS" value="Le week-end à {0}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_WEEKDAYS" value="{0} à {1}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_MONTHLY" value="Chaque mois le {0} à {1}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_EVERY_MONTHS" value="Tous les {0} mois le {1} à {2}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_YEARLY" value="Chaque année le {0} à {1}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_ONCE" value="Une fois, le {0} à {1}"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_CUSTOM" value="Planification personnalisée"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_SCHEDULED_DETAIL" value="planifiée"/>
+  <locale name="SCREEN_TEXT_TASK_WHEN_CALENDAR" value="calendrier {0}"/>
+  <!-- Task screen (#993) -->
+  <locale name="MENU_SCHEDULER_TASK" value="Tâche"/>
+  <locale name="HELP_SCREEN_SCHEDULER_TASK" value="Une tâche du planificateur : ce qu&apos;elle exécute, quand elle est lancée et comment se sont passées ses exécutions conservées. Exécutez-la, modifiez-la ou ouvrez le menu pour l&apos;activer, la désactiver ou la supprimer. Ses onglets montrent le résumé de ses exécutions, leur historique avec le journal de chacune, les tâches après lesquelles elle est lancée et celles qu&apos;elle lance, et sa configuration."/>
+  <locale name="BUTTON_TASK_VIEW_DETAIL" value="Voir le détail"/>
+  <locale name="BUTTON_TASK_PAGE_MORE" value="Plus d&apos;actions"/>
+  <locale name="BUTTON_TASK_PAGE_VIEW_HISTORY" value="Voir l&apos;historique"/>
+  <locale name="BUTTON_TASK_PAGE_BACK" value="Retour aux tâches"/>
+  <locale name="BUTTON_TASK_PAGE_VIEW_LOG" value="Voir le journal"/>
+  <locale name="BUTTON_TASK_PAGE_CHANGE_DEPENDENCIES" value="Modifier ses dépendances"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_TAB_SUMMARY" value="Résumé"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_TAB_HISTORY" value="Historique"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_TAB_DEPENDENCIES" value="Dépendances"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_TAB_CONFIGURATION" value="Configuration"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_LAST_STATUS" value="Dernière : {0}"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_KEEPS" value="Conserve {0} exécutions"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_MAX_TIME" value="Durée maximale {0}"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_REPORT" value="Rapport : {0}"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_SUCCESS" value="Taux de réussite"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_AVERAGE" value="Durée moyenne"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_NEXT" value="Prochaine exécution"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_SAVED_EXECUTIONS" value="sur {0} exécutions conservées"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_NO_SAVED_EXECUTIONS" value="Aucune exécution conservée"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_MAX_ALLOWED" value="Maximum autorisé {0}"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_NO_MAX_TIME" value="Sans durée maximale"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_LAST_EXECUTIONS" value="Dernières exécutions"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_LAST_EXECUTION" value="Dernière exécution"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_DEPENDENCIES_TEXT" value="Position de la tâche dans le flux d’exécution. Cette vue est en lecture seule : les conditions de chaque dépendance se configurent dans la tâche lancée après. Pour les modifier, utilisez «Modifier ses dépendances»."/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_EXECUTION" value="Exécution"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_RUNS" value="Ce qu&apos;elle exécute"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_WHERE" value="Où"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_ON_SERVER" value="sur {0}"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_LAUNCH" value="Lancement"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_LAUNCHES" value="Lance les tâches qui en dépendent"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_PARAMETERS" value="Paramètres"/>
+  <locale name="SCREEN_TEXT_TASK_PAGE_REPORT_TITLE" value="Rapport"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_PARENTS" value="Lancée après"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_THIS_TASK" value="Cette tâche"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_CHILDREN" value="Lance ensuite"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_NONE" value="Aucune"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_NO_DEPENDENCIES" value="Cette tâche n&apos;est lancée après aucune autre et n&apos;en lance aucune"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_TASK" value="Dépendances de la tâche"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_NEXT" value="Prochaine : {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_OPEN_TASK" value="Ouvrir {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ALSO_WAITS" value="Attend aussi"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_LEGEND" value="Lance la suivante si elle se termine par"/>
+  <locale name="SCREEN_TEXT_TASK_RUN_DIALOG" value="Exécuter la tâche"/>
+  <locale name="SCREEN_TEXT_TASK_RUN_DIALOG_TEXT" value="Lancement manuel. Les valeurs ne servent qu’à cette exécution ; la tâche ne change pas."/>
+  <locale name="SCREEN_TEXT_TASK_LAUNCH_NOTE" value="Elle sera enregistrée avec l’origine Manuelle, lancée par {0}. Un lancement manuel peut changer les paramètres d’origine Valeur et Variable ; les lancements automatiques ne changent que ceux d’origine Variable. Un paramètre d’origine Propriété garde sa clé configurée."/>
+  <locale name="PARAMETER_TASK_RUN_PARAMETER" value="Paramètre"/>
+  <locale name="PARAMETER_TASK_RUN_ORIGIN" value="Origine"/>
+  <locale name="BUTTON_TASK_RUN_NOW" value="Exécuter maintenant"/>
+  <locale name="BUTTON_TASK_RUN_LAUNCH" value="Exécuter"/>
+  <locale name="BUTTON_TASK_RUN_RESET" value="Rétablir les valeurs"/>
+  <locale name="SCHEDULER_PARAMETER_INVALID_TITLE" value="Valeur de paramètre non valide"/>
+  <locale name="SCHEDULER_PARAMETER_INVALID_MESSAGE" value="La valeur de {0} n’est pas valide pour son type. Saisissez un nombre, une date (jj/MM/aaaa) ou une heure (HH:mm) selon le type du paramètre."/>
+  <locale name="SCHEDULER_PROPERTY_KEY_CHANGED_MESSAGE" value="La clé d’une propriété ne peut pas être modifiée au lancement : {0}. Lancez la tâche avec la clé configurée."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_PARENT_ON_OK" value="Lance sur OK"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_PARENT_ON_OK_WARNING" value="OK ou avertissement"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_PARENT_ON_OK_ERROR" value="OK ou erreur"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_PARENT_ON_ANY" value="OK, avertissement ou erreur"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_PARENT_CYCLE" value="Dépendance circulaire : elle s’exécute déjà après cette tâche"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_COPY_NAME" value="{0} (copie)"/>
+  <!-- Task editor (#993, S8) -->
+  <locale name="BUTTON_TASK_EDITOR_ADD_PARAMETER" value="Ajouter un paramètre"/>
+  <locale name="BUTTON_TASK_EDITOR_CLEAR_PARENTS" value="Changer et retirer les tâches parentes"/>
+  <locale name="BUTTON_TASK_EDITOR_KEEP_PARENTS" value="Garder après d’autres tâches"/>
+  <locale name="BUTTON_TASK_EDITOR_SAVE" value="Enregistrer"/>
+  <locale name="BUTTON_TASK_DUPLICATE" value="Dupliquer"/>
+  <locale name="ENUM_TASK_EDITOR_WHEN_MANUAL" value="Manuelle"/>
+  <locale name="ENUM_TASK_EDITOR_WHEN_SCHEDULED" value="Planifiée"/>
+  <locale name="ENUM_TASK_EDITOR_WHEN_FILE" value="À l’arrivée d’un fichier"/>
+  <locale name="ENUM_TASK_EDITOR_WHEN_AFTER" value="Après d’autres tâches"/>
+  <locale name="ENUM_TASK_EDITOR_WHEN_WEBHOOK" value="Webhook"/>
+  <locale name="HELP_SCREEN_SCHEDULER_TASK_EDITOR" value="Éditeur d’une tâche du planificateur : création, modification et copie. Chaque section se remplit dans sa carte ; le résumé de droite suit les changements et Enregistrer mène à la première erreur s’il y en a une"/>
+  <locale name="HELP_TASK_EDITOR_LAUNCH_ON_WARNING" value="Si cette tâche se termine en avertissement, les tâches qui la suivent sont lancées quand même"/>
+  <locale name="HELP_TASK_EDITOR_LAUNCH_ON_ERROR" value="Si elle se termine en erreur, arrêtée ou interrompue, ses tâches filles sont lancées quand même. Désactivé : elles sont ignorées"/>
+  <locale name="HELP_TASK_EDITOR_WARNING_ON_DEPENDENCY_ERROR" value="Si une tâche fille se termine en erreur, cette exécution passe de OK à avertissement pour qu’elle se voie dans Activité"/>
+  <locale name="HELP_TASK_EDITOR_PARENTS" value="N’importe quelle tâche peut être parente, quel que soit son lancement. Celles qui sont déjà lancées après cette tâche ne peuvent pas être choisies : elles fermeraient une boucle"/>
+  <locale name="HELP_TASK_EDITOR_STORED_EXECUTIONS" value="Les exécutions les plus anciennes sont effacées de l’historique quand une nouvelle est enregistrée"/>
+  <locale name="HELP_TASK_EDITOR_TIMEOUT" value="Une fois dépassé, l’exécution est annulée et se termine en erreur. Vide : sans limite"/>
+  <locale name="MENU_SCHEDULER_TASK_EDITOR" value="Éditeur de tâche"/>
+  <locale name="PARAMETER_TASK_EDITOR_PARENTS" value="Lancer après"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_ACTIVE_FIELD" value="Tâche active"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_ACTIVE" value="Active"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_INACTIVE" value="Inactive"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_CLEAR_TITLE" value="Ne plus la lancer après d’autres tâches ?"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_CLEAR_TEXT" value="À l’enregistrement, cette tâche ne sera plus lancée après ces tâches parentes :"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_CLEAR_NOTE" value="Les tâches lancées après celle-ci ne changent pas. Rien n’est enregistré avant d’appuyer sur Enregistrer."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_CONDITION" value="Condition de lancement"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_CONDITION_TEXT" value="Chaque tâche parente la décide, pas celle-ci : ce sont ses interrupteurs de Comportement et ils valent pour toutes ses tâches filles. Pour la changer, ouvrez la tâche parente dans le graphe."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_DEPENDENCIES_TEXT" value="Lecture seule : chaque tâche fille choisit celle-ci dans son « Quand ». Les conditions viennent du « Comportement » de cette tâche."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_FOOTER" value="Les champs avec * sont obligatoires ; Enregistrer mène à la première erreur s’il y en a une."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_GROUP_CHOSEN" value="Choisies"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_GROUP_AVAILABLE" value="Disponibles"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_GROUP_BLOCKED" value="Ne peuvent pas être choisies"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_JOIN" value="Elle est lancée une fois quand toutes les tâches parentes du même flux se terminent"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_JOIN_TEXT" value="Si une seule d’entre elles tourne dans un flux, elle n’attend pas les autres. Si une tâche parente ne remplit pas sa condition, cette tâche est ignorée. Elle est enregistrée comme lancement Manuel."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_NO_PARAMETERS_TEXT" value="Ajoutez les paramètres passés à ce que la tâche exécute"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_PARENTS_PLACEHOLDER" value="Chercher une tâche…"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SAVED_TITLE" value="Tâche enregistrée"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SAVED_MESSAGE" value="La tâche n°{0} a été enregistrée"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SECONDS" value="secondes"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SECTIONS" value="Sections"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_WHAT" value="Ce qu’elle exécute"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_WHAT_SUB" value="Nom, description et type d’exécution"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_PARAMETERS" value="Paramètres"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_PARAMETERS_SUB" value="Passés à ce qu’elle exécute dans cet ordre"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_WHEN" value="Quand"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_WHEN_SUB" value="Ce qui lance la tâche"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_DEPENDENCIES" value="Dépendances"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_DEPENDENCIES_SUB" value="Quand cette tâche se termine, elles sont lancées"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_BEHAVIOUR" value="Comportement"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_BEHAVIOUR_SUB" value="Limites et ce qui arrive aux tâches qui dépendent de celle-ci"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_NOTIFICATIONS" value="Notifications"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SEC_NOTIFICATIONS_SUB" value="Avis à la fin de l’exécution"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SUBTITLE_NEW" value="Remplissez les sections et appuyez sur Enregistrer"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SUBTITLE_EDIT" value="{0} · les changements s’appliquent à la prochaine exécution"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SUBTITLE_COPY" value="Copie de n°{1} : enregistrée inactive, avec les mêmes tâches parentes et sans les tâches qu’elle lance"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SUMMARY" value="Résumé"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SUMMARY_SUB" value="Suit les changements"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SUMMARY_RUNS" value="Exécute"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SUMMARY_AFTER" value="Après"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SUMMARY_KEEPS" value="Conserve"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SUMMARY_NOTIFIES" value="Avertit"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_THIS_TASK" value="Cette tâche"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_TITLE_NEW" value="Nouvelle tâche"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_TITLE_EDIT" value="Modifier la tâche n°{0}"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_TITLE_COPY" value="Dupliquer la tâche"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_WHEN" value="Quand elle est lancée"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_WHEN_MANUAL_HELP" value="Seulement quand quelqu’un la lance depuis Tâches ou Activité."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_WHEN_SCHEDULED_HELP" value="À des jours et heures fixes, avec un calendrier de jours fériés."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_WHEN_FILE_HELP" value="Quand un fichier apparaît dans un dossier ou sur un serveur."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_WHEN_AFTER_HELP" value="Quand les tâches que vous choisissez se terminent. Elle est enregistrée comme Manuelle."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_WHEN_WEBHOOK_HELP" value="Quand un appel arrive sur son webhook."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SUMMARY_TIMEOUT" value="Durée maximale (s)"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_CALENDAR" value="sauf les jours fériés du calendrier {0}"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_FROM" value="à partir du {0}"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_TO" value="jusqu’au {0}"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_NEXT" value="5 prochaines exécutions"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_NONE" value="Aucune prochaine exécution : vérifiez la plage de dates"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_ENDED" value="Elle ne s’exécutera plus : sa fin ({0}) est passée"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_INCOMPLETE" value="Complétez la répétition pour voir quand elle s’exécute"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_LEAD" value="S’exécute {0}"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_WORKDAYS" value="du lundi au vendredi à {0}"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_NO_END" value="et sans date de fin"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_TODAY" value="aujourd’hui"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_TOMORROW" value="demain"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_SKIPS" value="saute {0}"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_SKIPS_HOLIDAY" value="saute un jour férié"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_FIRST_HOLIDAY" value="Premier jour férié sauté : {0} ({1})"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_MATCHES" value="Correspond au préréglage « {0} »."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_STORED" value="Voir les détails"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_STORED_FIELD" value="{0} : {1}"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_STORED_ALL" value="{0} : tous"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_SCHEDULE_STORED_PRESETS" value="Préréglages : Toutes les N minutes ou heures = répéter chaque et son unité ; Quotidienne et Jours ouvrables = heure ; Hebdomadaire = jours et heure ; Mensuelle = jour du mois et heure ; Une fois = date et heure d’exécution."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_DAYS_HELP" value="Changer les jours fait passer le préréglage à « Hebdomadaire »."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_UNIT_MINUTES" value="minutes"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_UNIT_HOURS" value="heures"/>
+  <locale name="PARAMETER_TASK_EDITOR_FROM_TIME" value="Heure de début"/>
+  <locale name="PARAMETER_TASK_EDITOR_TO_TIME" value="Heure de fin"/>
+  <locale name="PARAMETER_TASK_EDITOR_STORED_EXECUTIONS" value="Exécutions conservées"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_NO_END" value="Sans fin"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_DEFERRED_HELP" value="Une maintenance dont la dernière étape renvoie SchedulerDeferred.accepted(…) laisse l’exécution en cours jusqu’à ce qu’un autre système la termine."/>
+  <locale name="ENUM_TASK_EDITOR_DAY_INITIAL_0" value="D"/>
+  <locale name="ENUM_TASK_EDITOR_DAY_INITIAL_1" value="L"/>
+  <locale name="ENUM_TASK_EDITOR_DAY_INITIAL_2" value="M"/>
+  <locale name="ENUM_TASK_EDITOR_DAY_INITIAL_3" value="M"/>
+  <locale name="ENUM_TASK_EDITOR_DAY_INITIAL_4" value="J"/>
+  <locale name="ENUM_TASK_EDITOR_DAY_INITIAL_5" value="V"/>
+  <locale name="ENUM_TASK_EDITOR_DAY_INITIAL_6" value="S"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_BACK_TO_MIN" value="Revenir à « Toutes les N minutes »"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_BACK_TO_HOU" value="Revenir à « Toutes les N heures »"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_BACK_TO_DAY" value="Revenir à « Quotidienne »"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_BACK_TO_WRK" value="Revenir à « Jours ouvrables »"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_BACK_TO_WEK" value="Revenir à « Hebdomadaire »"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_BACK_TO_MON" value="Revenir à « Mensuelle »"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_BACK_TO_ONC" value="Revenir à « Une fois »"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_EXECUTE_MAINTAIN_HELP" value="Exécute un maintain de l’application avec ses paramètres."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_EXECUTE_COMMAND_HELP" value="Exécute une commande sur le serveur de l’application ou sur un serveur SSH distant."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_REPETITION" value="Répétition"/>
+  <locale name="ENUM_TASK_EDITOR_PRESET_MIN" value="Toutes les N minutes"/>
+  <locale name="ENUM_TASK_EDITOR_PRESET_HOU" value="Toutes les N heures"/>
+  <locale name="ENUM_TASK_EDITOR_PRESET_DAY" value="Quotidienne"/>
+  <locale name="ENUM_TASK_EDITOR_PRESET_WRK" value="Jours ouvrables"/>
+  <locale name="ENUM_TASK_EDITOR_PRESET_WEK" value="Hebdomadaire"/>
+  <locale name="ENUM_TASK_EDITOR_PRESET_MON" value="Mensuelle"/>
+  <locale name="ENUM_TASK_EDITOR_PRESET_ONC" value="Une fois"/>
+  <locale name="ENUM_TASK_EDITOR_PRESET_CUS" value="Personnalisée"/>
+  <locale name="PARAMETER_TASK_EDITOR_EVERY_MINUTES" value="Toutes les combien de minutes"/>
+  <locale name="PARAMETER_TASK_EDITOR_EVERY_HOURS" value="Toutes les combien d’heures"/>
+  <locale name="PARAMETER_TASK_EDITOR_TIME" value="Heure"/>
+  <locale name="PARAMETER_TASK_EDITOR_WEEK_DAYS" value="Jours de la semaine"/>
+  <locale name="PARAMETER_TASK_EDITOR_MONTH_DAY" value="Jour"/>
+  <locale name="HELP_TASK_EDITOR_MONTH_DAY" value="De 1 à 31. Un mois sans ce jour n’a pas d’exécution"/>
+  <locale name="PARAMETER_TASK_EDITOR_DATE" value="Date"/>
+  <locale name="PARAMETER_TASK_EDITOR_FROM" value="À partir du"/>
+  <locale name="PARAMETER_TASK_EDITOR_TO" value="Jusqu’au"/>
+  <locale name="PARAMETER_TASK_EDITOR_UNIT" value="Unité"/>
+  <locale name="HELP_TASK_EDITOR_CALENDAR" value="Elle ne s’exécute pas les jours fériés de ce calendrier"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_CUSTOM_HELP" value="Chaque sélecteur est un filtre : la tâche s’exécute à chaque moment qui les remplit tous à la fois, et un sélecteur vide signifie tous. Exemple : jours de la semaine du lundi au vendredi + heure 22 + minute 30 = du lundi au vendredi à 22:30."/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_CUSTOM_DAYS" value="Quels jours"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_CUSTOM_TIME" value="À quelle heure"/>
+  <locale name="SCREEN_TEXT_TASK_EDITOR_CUSTOM_TIME_HELP" value="Plusieurs heures ou minutes multiplient les exécutions : heures 8 et 14 avec la minute 0 = deux exécutions par jour."/>
+  <locale name="SCHEDULER_CALENDAR_IMPORT_TITLE" value="Dates importées"/>
+  <locale name="SCHEDULER_CALENDAR_IMPORT_OK" value="{0} dates lues dans le fichier. Elles sont enregistrées avec le calendrier."/>
+  <locale name="SCHEDULER_CALENDAR_IMPORT_INVALID" value="{0} dates lues dans le fichier. Ces lignes n’ont pas pu être lues : {1}."/>
+  <locale name="SCHEDULER_CALENDAR_IMPORT_EMPTY" value="Le fichier ne contient aucune date."/>
+  <locale name="SCHEDULER_CALENDAR_IMPORT_ERROR_TITLE" value="Impossible d’importer le fichier"/>
+  <locale name="SCHEDULER_CALENDAR_IMPORT_INVALID_FILE" value="Le fichier n’a pas pu être lu. Chargez-le à nouveau."/>
+  <locale name="SCHEDULER_CALENDAR_IMPORT_UNSUPPORTED" value="Importez un fichier .ics ou .csv."/>
+  <locale name="SCHEDULER_CALENDAR_IMPORT_TOO_LARGE" value="Le fichier est trop volumineux : 1 Mo, 10 000 lignes et 3 660 dates au maximum."/>
+  <!-- Configuration screen, Motor tab (#993) -->
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATUS_RUNNING" value="En marche"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATUS_PAUSED" value="En pause"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATUS_PAUSED_EMPTY" value="En pause · sans planifications"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATUS_STOPPED" value="Arrêté"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATUS_UNAVAILABLE" value="Indisponible"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SUMMARY_RUNNING" value="Le moteur {0} est en marche depuis {1} et lance les tâches à l’heure. Il a {2} et en ce moment {3} ({4} sur {5})."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SUMMARY_PAUSED" value="Le moteur {0} est en pause : il ne lance aucune tâche. Il garde {1} : ce qui tombe pendant la pause n’est pas rattrapé."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SUMMARY_PAUSED_EMPTY" value="Le moteur {0} est en pause et n’a rien de planifié. Reprenez-le ou redémarrez-le pour charger à nouveau les tâches actives."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SUMMARY_STOPPED" value="Le moteur {0} est arrêté : rien ne s’exécute."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SUMMARY_UNAVAILABLE" value="L’état du moteur ne peut pas être lu. Réessayez dans quelques minutes."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES_ONE" value="1 planification"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES_MANY" value="{0} planifications"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_THREADS_NONE" value="n’occupe aucun thread"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_THREADS_ONE" value="occupe 1 thread"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_THREADS_MANY" value="occupe {0} threads"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_THREADS_OF" value="{0} sur {1}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_START_ERROR" value="Le dernier démarrage du moteur a échoué. Le détail se trouve dans le journal de l’application."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_INSTANCE_LOCAL" value="Sur ce serveur (non distant)"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_INSTANCE_REMOTE" value="Sur un autre serveur (distant)"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_VERSION" value="Quartz {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STORE_MEMORY" value="En mémoire"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STORE_DATABASE" value="En base de données"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STORE_CLUSTERED" value="En cluster"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STORE_NOT_CLUSTERED" value="Sans cluster"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STORE_LOADS_TASKS" value="charge les tâches actives de la base de données au démarrage"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_AGO" value="depuis {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_IN" value="dans {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_TECHNICAL" value="Stockage {0} · threads {1} · persistant : {2} · cluster : {3} · distant : {4}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_YES" value="oui"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_NO" value="non"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_DEFERRED" value="Les exécutions en cours se suivent dans Activité : {0} en attente de confirmation ({1}, limite {2})."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_KIND_SCHEDULED" value="Planifiée"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_KIND_FILE" value="Fichier"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_RUNS_MAINTAIN" value="Maintain {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_RUNS_COMMAND" value="Commande {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_NO_CALENDAR" value="Sans calendrier"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_CALENDAR_EXCLUDES" value="exclut {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_TASK_UNKNOWN" value="Tâche {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_NORMAL" value="Normal"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_PAUSED" value="En pause"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_BLOCKED" value="Bloqué"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_ERROR" value="Erreur"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_COMPLETE" value="Terminé"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STATE_NONE" value="—"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_FILTER_ALL" value="Toutes"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_FILTER_PAUSED" value="En pause"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_FILTER_ERROR" value="En erreur"/>
+  <locale name="MENU_SCHEDULER_CONFIGURATION" value="Configuration"/>
+  <locale name="HELP_SCREEN_SCHEDULER_CONFIGURATION" value="Serveurs externes, calendriers de jours fériés et le moteur qui lance les tâches. Dans Serveurs, recherchez un serveur ou son hôte, filtrez par état, testez la connexion de tous les serveurs actifs et ouvrez le menu d’une ligne pour le modifier, le tester, l’activer, le désactiver ou le supprimer. « Nouveau serveur » et « Modifier » ouvrent le panneau du serveur : ses mots de passe et sa clé enregistrés ne sont jamais affichés. Dans Calendriers, recherchez un calendrier, filtrez par état et ouvrez le menu d’une ligne pour l’activer, le désactiver ou le supprimer : si une tâche l’utilise, vous voyez avant de le supprimer les jours où elle s’exécuterait."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CONFIGURATION_SUBTITLE" value="Configuration du moteur, des serveurs externes et des calendriers de jours fériés."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CONFIGURATION_TAB_SERVERS" value="Serveurs {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CONFIGURATION_TAB_CALENDARS" value="Calendriers {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CONFIGURATION_TAB_ENGINE" value="Moteur"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CONFIGURATION_TAB_ENGINE_STATUS" value="Moteur · {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_SEARCH" value="Rechercher un serveur ou un hôte"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_EMPTY" value="Aucun serveur"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_EMPTY_TEXT" value="Aucun serveur ne correspond à la recherche ou au filtre."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_ACTIVE" value="Actif"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_INACTIVE" value="Inactif"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_NOTE" value="Le test de connexion n’est pas enregistré : il affiche le dernier de cette session. « Tout tester » teste les serveurs actifs."/>
+  <locale name="PARAMETER_SCHEDULER_SERVER_HOST" value="Serveur (hôte)"/>
+  <locale name="PARAMETER_SCHEDULER_SERVER_COLUMN" value="Serveur"/>
+  <locale name="PARAMETER_SCHEDULER_USED_BY" value="Utilisé par"/>
+  <locale name="PARAMETER_SCHEDULER_LAST_TEST" value="Dernier test"/>
+  <locale name="BUTTON_SCHEDULER_SERVER_VIEW_TASKS" value="Voir dans Tâches"/>
+  <locale name="BUTTON_SCHEDULER_SERVER_TEST_ALL" value="Tout tester"/>
+  <locale name="BUTTON_SCHEDULER_SERVER_DEACTIVATE" value="Désactiver…"/>
+  <locale name="HELP_SCHEDULER_SERVER_DELETE_IN_USE" value="Il ne peut pas être supprimé tant qu’une tâche l’utilise. Changez d’abord le serveur de cette tâche."/>
+  <locale name="CONFIRM_TITLE_SCHEDULER_SERVER_DEACTIVATE" value="Désactiver le serveur ?"/>
+  <locale name="CONFIRM_MESSAGE_SCHEDULER_SERVER_DEACTIVATE" value="Les tâches qui l’utilisent ne pourront ni exécuter leur commande distante ni vérifier leurs fichiers tant que vous ne le réactivez pas."/>
+  <locale name="CONFIRM_TITLE_SCHEDULER_SERVER_DELETE" value="Supprimer le serveur ?"/>
+  <locale name="CONFIRM_MESSAGE_SCHEDULER_SERVER_DELETE" value="Le serveur et ses identifiants enregistrés seront supprimés. Cette action est irréversible."/>
+  <locale name="BUTTON_TASK_CATALOG_CLEAR_SERVER" value="Retirer le filtre de serveur"/>
+  <locale name="BUTTON_SCHEDULER_SERVER_NEW" value="Nouveau serveur"/>
+  <locale name="BUTTON_SCHEDULER_SERVER_CHANGE" value="Modifier"/>
+  <locale name="BUTTON_SCHEDULER_SERVER_REPLACE" value="Remplacer…"/>
+  <locale name="BUTTON_SCHEDULER_SERVER_REMOVE_KEY" value="Retirer"/>
+  <locale name="BUTTON_SCHEDULER_SERVER_SAVE" value="Enregistrer"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_NEW" value="Nouveau serveur"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_PANEL_EXTERNAL" value="Serveur externe · {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_PANEL_LOCAL" value="Serveur de l’application · {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_PANEL_USED_NONE" value="aucune tâche ne l’utilise"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_PANEL_USED_ONE" value="utilisé par 1 tâche"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_PANEL_USED_MANY" value="utilisé par {0} tâches"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_CONNECTION" value="Connexion"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_AUTHENTICATION" value="Authentification"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_AUTHENTICATION_HELP" value="Avec SSH, l’utilisateur est obligatoire. Vous pouvez vous connecter avec un mot de passe, avec une clé privée ou avec les deux."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_PORT_HELP" value="22 par défaut en SSH"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TYPE_SSH_HELP" value="Commandes distantes et fichiers par SFTP."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TYPE_FTP_HELP" value="Fichiers par FTP ; accepte l’accès anonyme."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TYPE_FOLDER_HELP" value="Un dossier du serveur de l’application ; sans hôte ni port."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_SECRET_PLACEHOLDER" value="••••••••"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_KEY_PLACEHOLDER" value="Clé enregistrée"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_KEY_HELP" value="Collez la nouvelle clé ou chargez le fichier ; l’enregistrement remplace la clé actuelle."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TEST_HELP" value="Teste les valeurs du formulaire sans les enregistrer."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_USED_BY_HELP" value="Si vous modifiez l’hôte ou les identifiants, la prochaine vérification des fichiers utilisera déjà les nouvelles données."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_NO_TASKS" value="Aucune tâche n’utilise ce serveur"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TASK_NEXT" value="prochaine {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_SERVER_TASK_STATUS" value="{0} {1}"/>
+  <locale name="SCHEDULER_SERVER_NOT_FOUND_TITLE" value="Serveur introuvable"/>
+  <locale name="CONFIRM_TITLE_SCHEDULER_CALENDAR_DEACTIVATE" value="Désactiver le calendrier ?"/>
+  <locale name="CONFIRM_MESSAGE_SCHEDULER_CALENDAR_DEACTIVATE" value="Les tâches qui l’utilisent s’exécuteront aussi à ses dates jusqu’à ce que vous le réactiviez."/>
+  <locale name="CONFIRM_TITLE_SCHEDULER_CALENDAR_DELETE" value="Supprimer le calendrier ?"/>
+  <locale name="CONFIRM_MESSAGE_SCHEDULER_CALENDAR_DELETE" value="Le calendrier et ses dates seront supprimés. Cette action est irréversible."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_SEARCH" value="Rechercher un calendrier"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_EMPTY" value="Aucun calendrier"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_EMPTY_TEXT" value="Aucun calendrier ne correspond à la recherche ou au filtre."/>
+  <locale name="PARAMETER_SCHEDULER_CALENDAR_DATES" value="Dates"/>
+  <locale name="BUTTON_SCHEDULER_CALENDAR_DELETE" value="Supprimer…"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_NOTE" value="Une tâche planifiée avec un calendrier ne s’exécute pas à ses dates. Un calendrier inactif n’exclut aucun jour."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_DIALOG" value="Supprimer le calendrier"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_TITLE" value="Supprimer « {0} » ?"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_TEXT_ONE" value="Ce calendrier est utilisé par 1 tâche. Si vous le supprimez, elle reste sans calendrier et s’exécutera aussi ces jours-là."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_TEXT_MANY" value="Ce calendrier est utilisé par {0} tâches. Si vous le supprimez, elles restent sans calendrier et s’exécuteront aussi ces jours-là."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DELETE_HINT" value="Si vous voulez seulement changer les dates, modifiez-le ; si la tâche doit utiliser un autre calendrier, changez-le d’abord dans sa fiche."/>
+  <locale name="BUTTON_SCHEDULER_CALENDAR_DELETE_IN_USE" value="Supprimer et le retirer de la tâche"/>
+  <!-- Calendar side panel of the configuration screen (#993) -->
+  <locale name="BUTTON_SCHEDULER_CALENDAR_NEW" value="Nouveau calendrier"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_NEW" value="Nouveau calendrier"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_PANEL_KIND" value="Calendrier"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_PANEL_DATES_NONE" value="Aucune date"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_PANEL_DATES_ONE" value="1 date"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_PANEL_DATES_MANY" value="{0} dates"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DATES_SECTION" value="Jours où elle ne s’exécute pas"/>
+  <locale name="BUTTON_SCHEDULER_CALENDAR_IMPORT" value="Importer un fichier"/>
+  <locale name="HELP_SCHEDULER_CALENDAR_IMPORT" value="Un fichier .ics ou .csv : ses dates s’ajoutent à la liste et sont enregistrées avec le calendrier."/>
+  <locale name="BUTTON_SCHEDULER_CALENDAR_ADD_DATE" value="Ajouter une date"/>
+  <locale name="BUTTON_SCHEDULER_CALENDAR_REMOVE_DATE" value="Retirer"/>
+  <locale name="PARAMETER_SCHEDULER_CALENDAR_WEEKDAY" value="Jour"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DATES_EMPTY" value="Aucune date"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_DATES_EMPTY_TEXT" value="Ajoutez une date ou importez un fichier .ics ou .csv."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_SAVE_NOTE" value="À l’enregistrement, le moteur recharge le calendrier."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_NO_TASKS" value="Aucune tâche n’utilise ce calendrier"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_CALENDAR_SKIPS" value="Ne s’exécutera pas le {0}"/>
+  <locale name="PARAMETER_SCHEDULER_CALENDAR_SKIPPED_DAYS" value="Jours sans exécution"/>
+  <locale name="BUTTON_SCHEDULER_CALENDAR_DELETE_PANEL" value="Supprimer le calendrier…"/>
+  <locale name="SCHEDULER_CALENDAR_IMPORT_DEFAULT_NAME" value="Jour férié"/>
+  <locale name="SCHEDULER_CALENDAR_NOT_FOUND_TITLE" value="Calendrier introuvable"/>
+  <locale name="SCHEDULER_CALENDAR_NOT_FOUND_MESSAGE" value="Le calendrier n’existe plus. Rechargez la liste."/>
+  <locale name="BUTTON_TASK_CATALOG_CLEAR_CALENDAR" value="Retirer le filtre de calendrier"/>
+  <!-- Configuration screen, Motor tab: engine card, actions, «Detener y vaciar» dialog and schedules (#993, T46) -->
+  <locale name="SCHEDULER_INVALID_FILTER_VALUE_MESSAGE" value="La valeur du filtre {0} n’est pas valide"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_TITLE" value="Moteur du planificateur"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_FACT_INSTANCE" value="Instance"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_FACT_VERSION" value="Version"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_FACT_STORE" value="Stockage des tâches"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_FACT_THREADS" value="Threads utilisés"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_FACT_SINCE" value="En marche depuis"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_FACT_STATUS" value="État"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_TILE_PAUSED" value="En pause"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_STARTED_ON" value="démarré le {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_FACT_EXECUTED" value="Tâches exécutées"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_EXECUTED_SINCE_START" value="depuis le démarrage"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_DETAILS" value="Détails techniques"/>
+  <locale name="BUTTON_SCHEDULER_ENGINE_ACTIONS" value="Actions"/>
+  <locale name="BUTTON_SCHEDULER_ENGINE_PAUSE" value="Mettre en pause…"/>
+  <locale name="BUTTON_SCHEDULER_ENGINE_RESUME" value="Reprendre"/>
+  <locale name="BUTTON_SCHEDULER_ENGINE_RESTART" value="Redémarrer…"/>
+  <locale name="BUTTON_SCHEDULER_ENGINE_CLEAR" value="Arrêter et vider…"/>
+  <locale name="BUTTON_SCHEDULER_ENGINE_CLEAR_CONFIRM" value="Arrêter et vider"/>
+  <locale name="BUTTON_SCHEDULER_ENGINE_REFRESH" value="Actualiser"/>
+  <locale name="BUTTON_SCHEDULER_ENGINE_VIEW_ACTIVITY" value="Voir dans Activité"/>
+  <locale name="CONFIRM_TITLE_SCHEDULER_ENGINE_PAUSE" value="Mettre le moteur en pause ?"/>
+  <locale name="CONFIRM_MESSAGE_SCHEDULER_ENGINE_PAUSE" value="Il interrompt ce qui est en cours et ne lance rien de nouveau jusqu&apos;à ce que vous le repreniez. Ce qui était prévu pendant la pause n&apos;est pas rattrapé."/>
+  <locale name="CONFIRM_TITLE_SCHEDULER_ENGINE_RESUME" value="Reprendre le moteur ?"/>
+  <locale name="CONFIRM_MESSAGE_SCHEDULER_ENGINE_RESUME" value="Il recharge les calendriers et les tâches actives et lance les tâches à l&apos;heure. Ce qui était prévu pendant la pause n&apos;est pas rattrapé."/>
+  <locale name="CONFIRM_TITLE_SCHEDULER_ENGINE_RESTART" value="Redémarrer le moteur ?"/>
+  <locale name="CONFIRM_MESSAGE_SCHEDULER_ENGINE_RESTART" value="Il s&apos;arrête et recharge les calendriers et les tâches actives. Ce qui est en cours est interrompu."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_DIALOG" value="Arrêter le moteur et vider ses planifications ?"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_INTRO" value="Aucune tâche ne sera lancée, ni planifiée ni par fichier, jusqu&apos;à ce que vous repreniez ou redémarriez le moteur."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_STOPS" value="Ce qui cesse de se produire"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_STOPS_SCHEDULES" value="Les tâches planifiées et celles qui surveillent des fichiers ne sont plus lancées."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_STOPS_RUNNING" value="Ce qui s&apos;exécute dans un thread est interrompu et reste Interrompu."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_KEEPS" value="Ce qui n&apos;est pas perdu"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_KEEPS_DATA" value="Les tâches, les calendriers et les serveurs restent enregistrés. « Reprendre » ou « Redémarrer » recharge les tâches actives."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_CLEAR_KEEPS_MISSED" value="Ce qui était prévu pendant l&apos;arrêt n&apos;est pas rattrapé."/>
+  <locale name="PARAMETER_SCHEDULER_ENGINE_CLEAR_ACK" value="Je comprends qu&apos;aucune tâche ne s&apos;exécutera jusqu&apos;à ce que je reprenne le moteur."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES" value="Planifiées dans le moteur"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES_TITLE" value="Planifiées dans le moteur · {0}"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_TRIGGER_STATE" value="État du déclencheur"/>
+  <locale name="PARAMETER_SCHEDULER_ENGINE_TRIGGER" value="Déclencheur"/>
+  <locale name="PARAMETER_SCHEDULER_ENGINE_PREVIOUS" value="Précédente"/>
+  <locale name="PARAMETER_SCHEDULER_ENGINE_NEXT" value="Prochaine exécution"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES_NOTE" value="Les tâches manuelles et celles qui dépendent d&apos;autres n&apos;apparaissent pas : elles n&apos;ont pas de planification propre."/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_LEGEND" value="Autres états du déclencheur :"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES_EMPTY" value="Le moteur n&apos;a rien de planifié"/>
+  <locale name="SCREEN_TEXT_SCHEDULER_ENGINE_SCHEDULES_EMPTY_TEXT" value="Les tâches planifiées et celles qui attendent un fichier apparaissent ici tant que le moteur les détient."/>
+  <!-- Flow run page (#993) -->
+  <locale name="SCREEN_TEXT_FLOW_RUN_PENDING" value="En attente"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_RULE" value="Statut final : Erreur si une tâche se termine en Erreur, Arrêtée ou Interrompue ; sinon Attention si une tâche se termine en Attention ou est omise ; sinon OK."/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_POINTS_RUNNING" value="Pour l&apos;instant, il indique {0} : {1}."/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_POINTS_ENDED" value="{0} car {1}."/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_CAUSE_ENDED" value="{0} s&apos;est terminée en {1}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_CAUSE_SKIPPED" value="{0} a été omise"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_CAUSE_NONE" value="aucune tâche ne s&apos;est terminée en Erreur ou en Attention et aucune n&apos;a été omise"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_SKIP_CAUSE" value="Omise : {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_JOINED_BY" value="Jointe par {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_JOIN_WAIT" value="a attendu {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_NOW" value="Maintenant"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ZOOM" value="Zoom"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ZOOM_IN" value="Zoom avant"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_ZOOM_OUT" value="Zoom arrière"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_FIT" value="Ajuster à la largeur"/>
+  <locale name="SCREEN_TEXT_FLOW_GRAPH_SELECTED" value="Sélectionnée : {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_LEGEND_STATES" value="États"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_LEGEND_EDGES" value="Dépendances"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_EDGE_MET" value="Remplie"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_EDGE_CLOSED_JOIN" value="A fermé la jonction"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_EDGE_NOT_MET" value="Non remplie"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_EDGE_CUT" value="Coupée"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_EDGE_OK" value="OK"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_EDGE_OK_WARNING" value="OK ou Avertissement"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_EDGE_OK_ERROR" value="OK ou Erreur"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_EDGE_ANY" value="OK, Avertissement ou Erreur"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_DUE" value="Échéance {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_ALSO_FEEDS" value="Alimente aussi {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_PROGRESS" value="{0} tâches terminées sur {1}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_CONDITION_OK" value="OK"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_CONDITION_OK_WARNING" value="OK ou Attention"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_CONDITION_OK_ERROR" value="OK ou Erreur"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_CONDITION_ANY" value="OK, Attention ou Erreur"/>
+  <!-- Flow run page (#993) -->
+  <locale name="MENU_SCHEDULER_FLOW_RUN" value="Flux"/>
+  <locale name="HELP_SCREEN_SCHEDULER_FLOW_RUN" value="Une exécution d&apos;un flux du planificateur : son état final avec la règle qui le donne, qui l&apos;a lancé et quand, les paramètres que reçoivent ses dépendances et ses tâches sous forme de graphe, de chronologie ou de liste. Une tâche avec une exécution ouvre son détail avec le journal en direct."/>
+  <locale name="BUTTON_FLOW_RUN_BACK" value="Retour à l&apos;activité"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_VIEW_GRAPH" value="Graphe"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_VIEW_TIMELINE" value="Chronologie"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_VIEW_LIST" value="Liste"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_FACT_START" value="Début {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_FACT_END" value="Fin {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_FACT_DURATION" value="Durée {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_PARAMETERS_LINE" value="Paramètres : {0}"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_RULE_BUTTON" value="Comment le statut final est décidé"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_TIMELINE" value="Chronologie du flux, une ligne par tâche"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_LIST" value="Le flux sous forme de liste, dans l&apos;ordre des dépendances"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_TASK" value="Tâche"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_LEGEND_JOIN_WAIT" value="Attente à la jonction"/>
+  <locale name="SCREEN_TEXT_FLOW_RUN_VIEWS" value="Exécution"/>
 </locales>

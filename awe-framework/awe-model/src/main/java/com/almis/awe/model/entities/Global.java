@@ -47,6 +47,11 @@ public class Global implements XMLNode, Copyable {
   @XStreamAsAttribute
   private String label;
 
+  // Icon of the element (an enumerated option): the components that draw their options with an icon (the tabs) show it
+  @XStreamAlias("icon")
+  @XStreamAsAttribute
+  private String icon;
+
   // Global content as markdown
   private String markdown;
 

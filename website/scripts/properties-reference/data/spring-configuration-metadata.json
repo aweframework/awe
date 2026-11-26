@@ -67,6 +67,12 @@
       "defaultValue": 8
     },
     {
+      "name": "awe.application.component.grid-print-max-rows",
+      "type": "java.lang.Integer",
+      "description": "Rows a print of a server-paged grid reads at most: printing every row of a search, or a page larger than this, prints the first rows with a notice in the report. A grid with a nested row detail prints 500 rows at most, as each row runs one query, also when this is 0 (Set to 0 to print every row of the other grids, with no limit) Default value 10000",
+      "defaultValue": 10000
+    },
+    {
       "name": "awe.application.component.grid-rows-per-page",
       "type": "java.lang.Integer",
       "description": "Rows per page in grid component (Set to 0 to avoid pagination) Default value 30",
@@ -528,8 +534,18 @@
     {
       "name": "awe.application.paths.image-navbar-logo",
       "type": "java.lang.String",
-      "description": "Navigation bar logo. Uses application.paths.images as parent path. Default value ../images/logo/awe-logo-mark.svg",
+      "description": "Navigation bar logo of the home screens. Uses application.paths.images as parent path. A logo other than the AWE mark is shown alone, without the AWE wordmark. It follows the same resolution rules as awe.application.paths.image-startup-logo. Default value ../images/logo/awe-logo-mark.svg",
       "defaultValue": "../images/logo/awe-logo-mark.svg"
+    },
+    {
+      "name": "awe.application.paths.image-navbar-logo-collapsed",
+      "type": "java.lang.String",
+      "description": "Navigation bar logo of the collapsed navigation bar (the rail of the home screens). Uses application.paths.images as parent path. It is fitted in the rail, and the navigation bar logo is used instead when it is not set. Not set: the built-in AWE brand, or the navigation bar logo."
+    },
+    {
+      "name": "awe.application.paths.image-splash-logo",
+      "type": "java.lang.String",
+      "description": "Logo of the splash shown while the page loads, which fills up with its own colours; an SVG or image with transparency (URL relative to the application root). Not set: the built-in AWE mark."
     },
     {
       "name": "awe.application.paths.image-startup-background",
@@ -1342,6 +1358,18 @@
       "defaultValue": "10s"
     },
     {
+      "name": "awe.scheduler.deferred.default-timeout",
+      "type": "java.time.Duration",
+      "description": "Time a deferred execution may stay running when its task has no timeout; after it the execution is interrupted Default value 24h",
+      "defaultValue": "24h"
+    },
+    {
+      "name": "awe.scheduler.deferred.timeout-check-interval",
+      "type": "java.time.Duration",
+      "description": "Interval between the checks for deferred executions past their due date Default value 60s",
+      "defaultValue": "60s"
+    },
+    {
       "name": "awe.scheduler.execution-log-batch-size",
       "type": "java.lang.Integer",
       "description": "Database-mode dirty-slot count that triggers an eager flush, and the maximum number of queued events drained per writer poll cycle. Default value 200",
@@ -1423,9 +1451,19 @@
       "defaultValue": false
     },
     {
+      "name": "awe.scheduler.remote-scheduler-password",
+      "type": "java.lang.String",
+      "description": "Password to log in at the remote scheduler instance"
+    },
+    {
       "name": "awe.scheduler.remote-scheduler-url",
       "type": "java.net.URI",
       "description": "URL to call to remote scheduler instance"
+    },
+    {
+      "name": "awe.scheduler.remote-scheduler-user",
+      "type": "java.lang.String",
+      "description": "User to log in at the remote scheduler instance. When empty, calls are sent without credentials"
     },
     {
       "name": "awe.scheduler.report-email-from-value",
@@ -1498,6 +1536,30 @@
       "type": "java.lang.Boolean",
       "description": "Flag to load tasks on start application Default value true",
       "defaultValue": true
+    },
+    {
+      "name": "awe.scheduler.webhooks.inbox-retention",
+      "type": "java.time.Duration",
+      "description": "Time the processed, ignored and definitively failed webhooks stay in the inbox Default value 30d",
+      "defaultValue": "30d"
+    },
+    {
+      "name": "awe.scheduler.webhooks.max-body-size",
+      "type": "org.springframework.util.unit.DataSize",
+      "description": "Maximum size of the body of a webhook; a bigger one is answered with 413 Default value 256KB",
+      "defaultValue": "256KB"
+    },
+    {
+      "name": "awe.scheduler.webhooks.process-interval",
+      "type": "java.time.Duration",
+      "description": "Interval between the checks of the inbox for webhooks to launch Default value 10s",
+      "defaultValue": "10s"
+    },
+    {
+      "name": "awe.scheduler.webhooks.tolerance",
+      "type": "java.time.Duration",
+      "description": "Maximum difference between the timestamp of a webhook and the current time Default value 5m",
+      "defaultValue": "5m"
     },
     {
       "name": "awe.security.allowed-origin-patterns",

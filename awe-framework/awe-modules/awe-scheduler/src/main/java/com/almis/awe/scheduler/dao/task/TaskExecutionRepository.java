@@ -1,6 +1,7 @@
 package com.almis.awe.scheduler.dao.task;
 
 import com.almis.awe.exception.AWException;
+import com.almis.awe.model.details.MaintainResultDetails;
 import com.almis.awe.model.dto.CellData;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.ServiceData;
@@ -21,14 +22,18 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_GROUP;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_ID;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_JOB_EXECUTION;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_LAUNCHER;
+import static com.almis.awe.scheduler.constant.MaintainConstants.CLOSE_RUNNING_EXECUTION;
 import static com.almis.awe.scheduler.constant.MaintainConstants.GET_ALL_EXECUTIONS;
 import static com.almis.awe.scheduler.constant.MaintainConstants.GET_ALL_EXECUTIONS_WITH_DATES;
 import static com.almis.awe.scheduler.constant.MaintainConstants.PURGE_EXECUTION_LOGS;
@@ -36,8 +41,8 @@ import static com.almis.awe.scheduler.constant.MaintainConstants.TASK_END;
 import static com.almis.awe.scheduler.constant.MaintainConstants.TASK_START;
 import static com.almis.awe.scheduler.constant.MaintainConstants.TASK_UPDATE_STATUS;
 import static com.almis.awe.scheduler.constant.MaintainConstants.UPDATE_INTERRUPTED_TASKS;
+import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_AVERAGE_TIMES_QUERY;
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_AVERAGE_TIME_QUERY;
-import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_LAST_TASK_EXECUTION;
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_TASK_EXECUTION;
 
 /**
@@ -52,6 +57,7 @@ public class TaskExecutionRepository {
   private final QueryUtil queryUtil;
   private final ExecutionLogStore executionLogStore;
   private final int defaultStoredExecutions;
+  private final FlowRunRepository flowRuns;
 
   /**
    * Constructor
@@ -61,14 +67,17 @@ public class TaskExecutionRepository {
    * @param queryUtil               Query utilities
    * @param executionLogStore       Execution log store
    * @param defaultStoredExecutions Executions kept when the task does not define its own value
+   * @param flowRuns                Flow run repository
    */
   public TaskExecutionRepository(QueryService queryService, MaintainService maintainService, QueryUtil queryUtil,
-                                 ExecutionLogStore executionLogStore, int defaultStoredExecutions) {
+                                 ExecutionLogStore executionLogStore, int defaultStoredExecutions,
+                                 FlowRunRepository flowRuns) {
     this.queryService = queryService;
     this.maintainService = maintainService;
     this.queryUtil = queryUtil;
     this.executionLogStore = executionLogStore;
     this.defaultStoredExecutions = defaultStoredExecutions;
+    this.flowRuns = flowRuns;
   }
 
   /**
@@ -79,24 +88,53 @@ public class TaskExecutionRepository {
    * @throws AWException Error starting the task
    */
   public TaskExecution startTask(Task task) throws AWException {
+    // A dependency inherits the run of its parent. Any other launch starts its own run; the id is kept out of the
+    // task because scheduled tasks reuse the same instance on every firing
+    boolean root = task.getRunId() == null;
+    String runId = root ? UUID.randomUUID().toString() : task.getRunId();
     ObjectNode parameters = queryUtil.getParameters();
+    parameters.put("runId", runId);
     parameters.put(TASK_ID, task.getTaskId());
     parameters.put(TASK_GROUP, task.getGroup());
     parameters.put(TASK_LAUNCHER, task.getLauncher());
+    // Read before the insert: MySQL rejects an INSERT ... VALUES with a subquery on its own table (#991)
+    int executionId = nextExecutionId(task.getTaskId());
+    parameters.put(TASK_JOB_EXECUTION, executionId);
     parameters.put("executions", task.getStoredExecutions() != null
       ? task.getStoredExecutions()
       : defaultStoredExecutions);
     maintainService.launchPrivateMaintain(TASK_START, parameters);
 
-    // Retrieve task execution
-    TaskExecution execution = getLastExecution(task, task.getTrigger().getKey().getGroup());
+    // Read it back by its id: on MySQL two starts in the same second tie on the latest start date
+    TaskExecution execution = getTaskExecution(task.getTaskId(), executionId);
 
     // Set parent execution if defined
     if (execution != null) {
       execution.setParentExecution(task.getParentExecution());
+      execution.setRunId(runId);
+      if (root) {
+        flowRuns.createRun(runId, task, execution);
+      } else {
+        flowRuns.markStarted(runId, task.getTaskId(), execution.getExecutionId());
+      }
     }
 
     return execution;
+  }
+
+  /**
+   * Next execution identifier of a task: the highest one plus one
+   *
+   * @param taskId Task identifier
+   * @return Next execution identifier
+   * @throws AWException Error reading the executions
+   */
+  private int nextExecutionId(Integer taskId) throws AWException {
+    ObjectNode parameters = queryUtil.getParameters();
+    parameters.put(TASK_ID, taskId);
+    CellData max = DataListUtil.getCellData(
+      queryService.launchPrivateQuery("getMaxTaskExecution", parameters).getDataList(), 0, "maxExecution");
+    return (max == null || max.getIntegerValue() == null ? 0 : max.getIntegerValue()) + 1;
   }
 
   /**
@@ -271,6 +309,26 @@ public class TaskExecutionRepository {
   }
 
   /**
+   * Close a running execution. Only the caller that updates exactly one row owns the end of the execution
+   *
+   * @param taskId      Task id
+   * @param executionId Execution id
+   * @param status      Final status
+   * @return True when this call closed a running execution
+   * @throws AWException Error closing the execution
+   */
+  public boolean closeRunningExecution(Integer taskId, Integer executionId, TaskStatus status) throws AWException {
+    ObjectNode parameters = queryUtil.getParameters();
+    parameters.put(TASK_ID, taskId);
+    parameters.put(TASK_JOB_EXECUTION, executionId);
+    parameters.put("newStatus", status.getValue());
+    ServiceData serviceData = maintainService.launchPrivateMaintain(CLOSE_RUNNING_EXECUTION, parameters);
+    return serviceData.getResultDetails().stream()
+      .mapToLong(MaintainResultDetails::getRowsAffected)
+      .sum() == 1L;
+  }
+
+  /**
    * Get the average execution time
    *
    * @param taskId Task identifier
@@ -287,6 +345,33 @@ public class TaskExecutionRepository {
   }
 
   /**
+   * Get the average execution time of some tasks with a successful execution, with one query restricted to them
+   *
+   * @param taskIds Task identifiers
+   * @return Average execution time in milliseconds by task id; empty without tasks
+   * @throws AWException Error retrieving the average times
+   */
+  public Map<Integer, Long> getAverageTimes(Set<Integer> taskIds) throws AWException {
+    if (taskIds.isEmpty()) {
+      return Map.of();
+    }
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
+    // Not the sort of the request: it names the columns of the screen grid, not fields of this query
+    parameters.putArray("sort");
+    ArrayNode taskIdList = parameters.putArray("taskIds");
+    taskIds.forEach(taskIdList::add);
+    ServiceData serviceData = queryService.launchPrivateQuery(SCHEDULER_AVERAGE_TIMES_QUERY, parameters);
+    Map<Integer, Long> averages = new HashMap<>();
+    for (Map<String, CellData> row : serviceData.getDataList().getRows()) {
+      CellData average = row.get("averageTime");
+      if (average != null && !average.isEmpty()) {
+        averages.put(row.get("taskId").getIntegerValue(), average.getIntegerValue().longValue());
+      }
+    }
+    return averages;
+  }
+
+  /**
    * Read a date cell as instant
    *
    * @param cell Date cell
@@ -294,23 +379,6 @@ public class TaskExecutionRepository {
    */
   private Instant asInstant(CellData cell) {
     return LegacyDateConverter.asInstant(cell.getDateValue());
-  }
-
-  /**
-   * Get last execution from Database
-   *
-   * @param task      Task
-   * @param taskGroup Task group
-   * @return Task execution
-   * @throws AWException Error retrieving last task execution from database
-   */
-  private TaskExecution getLastExecution(Task task, String taskGroup) throws AWException {
-    // Set context from the query
-    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
-    parameters.put(TASK_ID, task.getTaskId());
-    parameters.put(TASK_GROUP, taskGroup);
-
-    return getTaskExecution(SCHEDULER_LAST_TASK_EXECUTION, parameters);
   }
 
   /**

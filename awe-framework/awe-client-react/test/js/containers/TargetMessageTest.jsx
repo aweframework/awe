@@ -85,6 +85,26 @@ describe('awe-react-client/test/js/containers/TargetMessageTest.jsx', () => {
     expect(store.getState().messages.showing).toEqual([]);
   });
 
+  // Issue 987: the server converts Markdown locales into html, which the popover renders as markup
+  it('renders the html of a Markdown title and text as markup', async () => {
+    const {store} = renderWithProviders(<MessageContainer/>, {preloadedState: preloadedState()});
+
+    act(() => {
+      store.dispatch(showPopover(popover(1, runningAction('a1'), {
+        summary: '<h3>Wrong value</h3>\n', detail: '<p><strong>The value is not valid</strong></p>\n'
+      })));
+    });
+
+    const element = await waitFor(() => {
+      const shown = document.querySelector(POPOVER);
+      expect(shown).not.toBeNull();
+      return shown;
+    });
+    expect(element.querySelector('[data-testid="popover-title"] h3').textContent).toBe('Wrong value');
+    expect(element.querySelector('[data-testid="popover-content"] p > strong').textContent).toBe('The value is not valid');
+    expect(element.textContent).not.toContain('<strong>');
+  });
+
   it('hides the popover after the timeout and finishes its action', async () => {
     const action = runningAction('a1');
     const {store} = renderWithProviders(<MessageContainer/>, {preloadedState: preloadedState([action])});

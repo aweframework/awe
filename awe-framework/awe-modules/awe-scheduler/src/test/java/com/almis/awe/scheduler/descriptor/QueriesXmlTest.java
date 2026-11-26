@@ -62,6 +62,51 @@ class QueriesXmlTest {
     assertTrue(query.contains("<field id=\"ExeTsk\" alias=\"executionId\"/>"));
   }
 
+  @Test
+  void deferredExecutionIsFoundByItsExecutionKey() throws IOException {
+    String query = query(readDescriptor(), "getDeferredExecution");
+
+    assertTrue(query.contains("<table id=\"AweSchExeExt\" alias=\"Ext\"/>"));
+    assertTrue(query.contains("<field id=\"ExtRef\" alias=\"externalReference\" table=\"Ext\"/>"));
+    assertTrue(query.contains("<filter left-field=\"IdeTsk\" left-table=\"Ext\" condition=\"eq\" right-variable=\"taskId\"/>"));
+    assertTrue(query.contains("<filter left-field=\"ExeTsk\" left-table=\"Ext\" condition=\"eq\" right-variable=\"taskExecution\"/>"));
+    assertFalse(query.contains("<join"), "a closed execution must still be found");
+  }
+
+  @Test
+  void runningDeferredExecutionsAreFilteredByTaskAndDueDateOnlyWhenGiven() throws IOException {
+    String query = query(readDescriptor(), "getRunningDeferredExecutions");
+
+    assertTrue(query.contains("<join type=\"INNER\">"));
+    assertTrue(query.contains("<filter left-field=\"Sta\" left-table=\"Exe\" condition=\"eq\" right-variable=\"status\"/>"));
+    assertTrue(query.contains("<variable id=\"status\" type=\"INTEGER\" value=\"4\"/>"));
+    assertTrue(query.contains("right-variable=\"taskId\" optional=\"true\"/>"));
+    assertTrue(query.contains("<filter left-field=\"DueDat\" left-table=\"Ext\" condition=\"lt\" right-variable=\"limitDate\" optional=\"true\"/>"));
+  }
+
+  @Test
+  void theStartupSubqueryCorrelatesWithTheExecutionTable() throws IOException {
+    String query = query(readDescriptor(), "getDeferredExecutionState");
+
+    assertTrue(query.contains("right-field=\"IdeTsk\" right-table=\"AweSchExe\""));
+    assertTrue(query.contains("right-field=\"ExeTsk\" right-table=\"AweSchExe\""));
+  }
+
+  @Test
+  void theStartSubqueryCorrelatesTheDeferredRowWithItsExecution() throws IOException {
+    String query = query(readDescriptor(), "getExecutionOfDeferredExecution");
+
+    assertTrue(query.contains("<table id=\"AweSchExe\""));
+    assertTrue(query.contains("right-field=\"IdeTsk\" right-table=\"AweSchExeExt\""));
+    assertTrue(query.contains("right-field=\"ExeTsk\" right-table=\"AweSchExeExt\""));
+  }
+
+  private String query(String xml, String id) {
+    int start = xml.indexOf("<query id=\"" + id + "\">");
+    assertTrue(start >= 0, id + " query must exist");
+    return xml.substring(start, xml.indexOf("</query>", start));
+  }
+
   private String readDescriptor() throws IOException {
     try (InputStream stream = getClass().getClassLoader().getResourceAsStream(RESOURCE)) {
       assertNotNull(stream, RESOURCE + " must be on the test classpath");

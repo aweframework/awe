@@ -8,6 +8,7 @@ import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.convert.DurationUnit;
+import org.springframework.util.unit.DataSize;
 import org.springframework.validation.annotation.Validated;
 
 import java.net.URI;
@@ -119,6 +120,14 @@ public class SchedulerConfigProperties {
    * URL to call to remote scheduler instance
    */
   private URI remoteSchedulerUrl;
+  /**
+   * User to log in at the remote scheduler instance. When empty, calls are sent without credentials
+   */
+  private String remoteSchedulerUser;
+  /**
+   * Password to log in at the remote scheduler instance
+   */
+  private String remoteSchedulerPassword;
 
   /**
    * Flag which indicates if instance is a separate scheduler instance
@@ -141,6 +150,18 @@ public class SchedulerConfigProperties {
    * Remote password
    */
   private String remoteCallbackPassword;
+
+  /**
+   * Deferred executions: the ones that answered accepted and finish later
+   */
+  @Valid
+  private Deferred deferred = new Deferred();
+
+  /**
+   * Webhooks that launch tasks
+   */
+  @Valid
+  private Webhooks webhooks = new Webhooks();
 
   /**
    * Application-side kill switch for tagging an admitted remote-maintain callback with the
@@ -178,4 +199,53 @@ public class SchedulerConfigProperties {
    */
   @DurationUnit(ChronoUnit.SECONDS)
   private Duration connectionTestTimeout = Duration.ofSeconds(10);
+
+  /**
+   * Deferred executions properties
+   */
+  @Data
+  public static class Deferred {
+    /**
+     * Time a deferred execution may stay running when its task has no timeout; after it the execution is interrupted
+     * Default value 24h
+     */
+    @DurationUnit(ChronoUnit.HOURS)
+    private Duration defaultTimeout = Duration.ofHours(24);
+    /**
+     * Interval between the checks for deferred executions past their due date
+     * Default value 60s
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration timeoutCheckInterval = Duration.ofSeconds(60);
+  }
+
+  /**
+   * Webhook properties
+   */
+  @Data
+  public static class Webhooks {
+    /**
+     * Maximum size of the body of a webhook; a bigger one is answered with 413
+     * Default value 256KB
+     */
+    private DataSize maxBodySize = DataSize.ofKilobytes(256);
+    /**
+     * Maximum difference between the timestamp of a webhook and the current time
+     * Default value 5m
+     */
+    @DurationUnit(ChronoUnit.MINUTES)
+    private Duration tolerance = Duration.ofMinutes(5);
+    /**
+     * Time the processed, ignored and definitively failed webhooks stay in the inbox
+     * Default value 30d
+     */
+    @DurationUnit(ChronoUnit.DAYS)
+    private Duration inboxRetention = Duration.ofDays(30);
+    /**
+     * Interval between the checks of the inbox for webhooks to launch
+     * Default value 10s
+     */
+    @DurationUnit(ChronoUnit.SECONDS)
+    private Duration processInterval = Duration.ofSeconds(10);
+  }
 }

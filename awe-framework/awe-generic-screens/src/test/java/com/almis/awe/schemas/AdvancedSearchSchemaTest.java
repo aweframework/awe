@@ -1,14 +1,9 @@
 package com.almis.awe.schemas;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.SchemaFactory;
-import java.io.File;
 import java.io.StringReader;
-import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -18,16 +13,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 class AdvancedSearchSchemaTest {
 
-  private static File schemaFile;
-
-  @BeforeAll
-  static void loadSchema() throws Exception {
-    schemaFile = Paths.get(AdvancedSearchSchemaTest.class.getResource("/schemas/awe/screen.xsd").toURI()).toFile();
-  }
-
   private static void validate(String body) throws Exception {
-    SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(schemaFile).newValidator()
-      .validate(new StreamSource(new StringReader(
+    ScreenSchema.validator().validate(new StreamSource(new StringReader(
         "<screen template=\"window\" label=\"LABEL\"><tag source=\"center\">" + body + "</tag></screen>")));
   }
 

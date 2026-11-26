@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.almis.awe</groupId>
     <artifactId>awe-dependencies</artifactId>
-    <version>5.0.0</version>
+    <version>5.0.1</version>
     <relativePath>../awe-dependencies</relativePath>
   </parent>
 
@@ -83,6 +83,16 @@
     </resources>
 
     <plugins>
+      <!-- Schema tests resolve includes through catalog.xml: block remote schemas so a network fetch fails -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <javax.xml.accessExternalSchema>file,jar</javax.xml.accessExternalSchema>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
       <!-- Copy AWE schemas -->
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>

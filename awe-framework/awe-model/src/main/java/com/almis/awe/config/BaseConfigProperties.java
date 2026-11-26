@@ -495,10 +495,19 @@ public class BaseConfigProperties {
     private String imageStartupLogo = "../" + images + "logo/logo-awe-nuevo.svg";
 
     /**
-     * Navigation bar logo. Uses application.paths.images as parent path.
+     * Navigation bar logo of the home screens. Uses application.paths.images as parent path. A logo other than the AWE
+     * mark is shown alone, without the AWE wordmark. It follows the same resolution rules as
+     * awe.application.paths.image-startup-logo.
      * Default value ../images/logo/awe-logo-mark.svg
      */
     private String imageNavbarLogo = "../" + images + "logo/awe-logo-mark.svg";
+
+    /**
+     * Navigation bar logo of the collapsed navigation bar (the rail of the home screens). Uses
+     * application.paths.images as parent path. It is fitted in the rail, and the navigation bar logo is used instead
+     * when it is not set. Not set: the built-in AWE brand, or the navigation bar logo.
+     */
+    private String imageNavbarLogoCollapsed;
 
     /**
      * Logo of the splash shown while the page loads: it fills up from bottom to top with its own colours, and its shape
@@ -686,6 +695,13 @@ public class BaseConfigProperties {
      * Default value 30
      */
     private int gridRowsPerPage = 30;
+    /**
+     * Rows a print of a server-paged grid reads at most: printing every row of a search, or a page larger than this,
+     * prints the first rows with a notice in the report. A grid with a nested row detail prints 500 rows at most, as each
+     * row runs one query, also when this is 0 (Set to 0 to print every row of the other grids, with no limit)
+     * Default value 10000
+     */
+    private int gridPrintMaxRows = 10000;
     /**
      * Pixels per char in grids
      * Default value 8

@@ -1,0 +1,94 @@
+/* Chips (#993, T37): the options of a button-radio criterion with style="awe-chips" (one choice) and of a select-multiple
+   criterion with display="toggles" (several), drawn as pills that wrap. The chosen ones have the primary background and,
+   in a radio group, a tick before their label. Shared by both engines (the AngularJS engine imports this file): the React
+   chip is a button (role radio, or aria-pressed for a toggle), the AngularJS chip a label around a visually hidden
+   native radio or checkbox */
+.awe-chips-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2);
+  width: 100%;
+}
+
+.awe-chips-group .awe-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--awe-space-1);
+  min-width: var(--awe-size-control);
+  height: var(--awe-size-control-sm);
+  margin: 0;
+  padding: 0 var(--awe-space-3);
+  font: inherit;
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-normal);
+  color: var(--awe-color-text);
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--awe-color-field);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-full);
+  transition: border-color var(--awe-motion-duration-base) var(--awe-motion-easing-standard),
+    background-color var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+}
+
+.awe-chips-group .awe-chip:hover {
+  border-color: var(--awe-color-field-border-hover);
+}
+
+.awe-chips-group .awe-chip:focus-visible,
+.awe-chips-group .awe-chip:has(.awe-chip-input:focus-visible) {
+  outline: var(--awe-focus-ring);
+  outline-offset: var(--awe-focus-ring-offset);
+}
+
+.awe-chips-group .awe-chip.awe-chip-checked {
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-on-primary);
+  background: var(--awe-color-primary);
+  border-color: var(--awe-color-primary);
+}
+
+.awe-chips-group .awe-chip.awe-chip-checked:hover {
+  background: var(--awe-color-primary-hover);
+  border-color: var(--awe-color-primary-hover);
+}
+
+.awe-chips-group .awe-chip[aria-disabled="true"],
+.awe-chips-group .awe-chip.disabled {
+  color: var(--awe-color-disabled-text);
+  cursor: not-allowed;
+  background: var(--awe-color-disabled);
+  border-color: var(--awe-color-disabled);
+}
+
+/* The native input of an AngularJS chip: kept for the semantics and the keys, not drawn */
+.awe-chips-group .awe-chip-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  opacity: 0;
+}
+
+.awe-chips-group .awe-chip-tick {
+  display: inline-flex;
+  flex: none;
+
+  .awe-icon,
+  svg {
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .awe-chips-group .awe-chip {
+    transition: none;
+  }
+}

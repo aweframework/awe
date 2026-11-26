@@ -33,6 +33,7 @@ describe("aweLogViewer", () => {
   let actionController;
   let utilities;
   let testLineHeight;
+  let genericToggleAutorefresh;
 
   beforeEach(() => {
     testLineHeight = 12;
@@ -42,8 +43,11 @@ describe("aweLogViewer", () => {
       resolveAction: jest.fn((action, {service, method}) => service[method]())
     };
 
+    genericToggleAutorefresh = jest.fn();
+
     function ComponentMock(scope, id) {
-      constructedComponent = {asComponent: jest.fn(() => true), controller: {parameters: {stickBottom: true}}, id, scope};
+      constructedComponent = {asComponent: jest.fn(() => true), controller: {parameters: {stickBottom: true}}, id, scope,
+        api: {toggleAutorefresh: genericToggleAutorefresh}};
       scope.controller = constructedComponent.controller;
       return constructedComponent;
     }
@@ -190,5 +194,37 @@ describe("aweLogViewer", () => {
 
     const sentValues = actionController.addActionList.mock.calls[0][0][0];
     expect(sentValues.version).toBeNull();
+  });
+
+  it("reads the log at once when its autorefresh is enabled, not only after the first period", () => {
+    actionController.addActionList = jest.fn();
+    serverData.getServerAction = jest.fn((address, values) => values);
+    compileLogViewer();
+    constructedComponent.api.toggleAutorefresh(5, true);
+
+    // The generic api keeps scheduling the period
+    expect(genericToggleAutorefresh).toHaveBeenCalledWith(5, true);
+    expect(actionController.addActionList).toHaveBeenCalledTimes(1);
+    expect(actionController.addActionList.mock.calls[0][0][0].offset).toBe(0);
+
+    // Disabled, it reads nothing
+    constructedComponent.api.toggleAutorefresh(5, false);
+    expect(actionController.addActionList).toHaveBeenCalledTimes(1);
+  });
+
+  it("drops the answer of a read sent before a reset, so the log is never appended twice", () => {
+    actionController.addActionList = jest.fn();
+    serverData.getServerAction = jest.fn((address, values) => values);
+    const element = compileLogViewer();
+    // The side panel opens (read at once) and the server resets and filters the viewer before that read answers
+    constructedComponent.api.toggleAutorefresh(5, true);
+    $rootScope.$broadcast("/action/reset", actionWith({}));
+    constructedComponent.reload();
+
+    $rootScope.$broadcast("/action/log-delta", actionWith({log: ["line0", "line1"]}));
+    $rootScope.$broadcast("/action/log-delta", actionWith({log: ["line0", "line1"]}));
+
+    expect(element.find(".content").height()).toBe(2 * testLineHeight);
+    expect(actionController.acceptAction).toHaveBeenCalledTimes(2);
   });
 });

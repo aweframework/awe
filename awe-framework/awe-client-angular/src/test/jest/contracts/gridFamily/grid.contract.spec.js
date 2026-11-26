@@ -64,4 +64,16 @@ describe("awe-framework/awe-client-angular/src/test/jest/contracts/gridFamily/gr
     expect(emptyGrid.model.selected).toBeNull();
     expect(emptyGrid.component.getData()).toEqual(contractCases.emptySelection.expectedData);
   });
+
+  it("a hidden grid with send-when-hidden false sends none of its values", function () {
+    const grid = createGrid({...contractCases.basicPayload, controller: {visible: false, sendWhenHidden: false}});
+
+    expect(grid.component.getData()).toEqual({});
+  });
+
+  it("a hidden grid sends its values by default", function () {
+    const grid = createGrid({...contractCases.basicPayload, controller: {visible: false}});
+
+    expect(grid.component.getData()).toEqual(contractCases.basicPayload.expectedData);
+  });
 });

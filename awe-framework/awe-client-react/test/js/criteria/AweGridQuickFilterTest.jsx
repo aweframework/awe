@@ -134,6 +134,31 @@ describe("awe-react-client/test/js/criteria/AweGridQuickFilterTest.jsx", () => {
     expect(reload.parameters.serverAction).toBe("data");
   });
 
+  it("sends the value of a second quick filter of the grid, and the filter of the grid reloads every quick filter", () => {
+    const preloadedState = state();
+    preloadedState.components.GrdUsr.attributes.quickFilters = ["CrtUsrSta", "CrtUsrOri"];
+    preloadedState.components.CrtUsrOri = {
+      ...preloadedState.components.CrtUsrSta,
+      address: { component: "CrtUsrOri", view: "report" },
+      model: { values: [{ value: "", label: "Any origin", selected: true }, { value: "manual", label: "Manual" }] },
+      attributes: { ...preloadedState.components.CrtUsrSta.attributes, id: "CrtUsrOri", targetAction: "UsrOriLst" }
+    };
+    const { store } = renderWithProviders(<AweGridQuickFilter id="CrtUsrOri" grid="GrdUsr" />, { preloadedState });
+
+    fireEvent.click(radios()[1]);
+    expect(getFormValues(store.getState())).toMatchObject({ CrtUsrSta: "", CrtUsrOri: "manual" });
+    expect(queued(store).filter(action => action.type === "filter").map(action => action.address))
+      .toEqual([{ view: "report", component: "GrdUsr" }]);
+
+    act(() => {
+      store.dispatch(filterAction({ type: "filter", address: { view: "report", component: "GrdUsr" } }));
+    });
+    const servers = queued(store).filter(action => action.type === "server");
+    expect(servers.map(action => [action.parameters.component, action.parameters.targetAction])).toEqual([
+      ["GrdUsr", "UsrLst"], ["CrtUsrSta", "UsrStaCnt"], ["CrtUsrOri", "UsrOriLst"]]);
+    expect(servers[0].parameters).toMatchObject({ CrtUsrSta: "", CrtUsrOri: "manual" });
+  });
+
   it("shows the new options and counts when they reload, keeping the chosen one", () => {
     const { store } = render("LCK");
 
@@ -147,6 +172,18 @@ describe("awe-react-client/test/js/criteria/AweGridQuickFilterTest.jsx", () => {
 
     expect(options().map(option => option.textContent.replace(/\s+/g, " ").trim())).toEqual(["All 127", "Locked 2"]);
     expect(checked()).toEqual([false, true]);
+  });
+
+  it("stays a segmented control by default and with display=\"segmented\": no menu button", () => {
+    const { unmount } = render("", OPTIONS, { display: "segmented" });
+    expect(document.querySelector(hook("grid-quick-filter")).getAttribute("role")).toBe("radiogroup");
+    expect(radios().length).toBe(4);
+    expect(document.querySelector(hook("grid-quick-filter-toggle"))).toBeNull();
+    unmount();
+
+    render();
+    expect(radios().length).toBe(4);
+    expect(document.querySelector(hook("grid-quick-filter-toggle"))).toBeNull();
   });
 
   it("names the group with its label when it has one", () => {

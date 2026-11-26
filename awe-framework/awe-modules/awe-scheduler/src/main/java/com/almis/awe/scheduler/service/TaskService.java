@@ -7,6 +7,7 @@ import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.dao.TaskDAO;
+import com.almis.awe.scheduler.util.TaskUtil;
 import com.almis.awe.service.QueryService;
 import lombok.extern.slf4j.Slf4j;
 
@@ -84,7 +85,7 @@ public class TaskService {
   private Task loadTask(Task lastLoadedTask, Future<Task> taskFuture) throws AWException {
     try {
       lastLoadedTask = taskFuture.get();
-      if (lastLoadedTask.getLaunchType() != 0) {
+      if (!TaskUtil.isLaunchedOnDemand(lastLoadedTask.getLaunchType())) {
         taskDAO.addTaskToScheduler(lastLoadedTask);
       }
       return lastLoadedTask;

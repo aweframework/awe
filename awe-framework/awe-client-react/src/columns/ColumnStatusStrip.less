@@ -1,0 +1,46 @@
+// Status strip column (#993): one bar per status, all of the same height and in the colour of their status, as in status
+// pages (Uptime Kuma, Claude status). Shared by both engines (the AngularJS client imports this file). The colour is
+// not the only cue: the label of each bar is its tooltip and the cell reads the counts per label to screen readers.
+.column-status-strip {
+  display: block;
+  width: 100%;
+  line-height: 0;
+}
+
+.awe-status-strip {
+  display: inline-flex;
+  align-items: stretch;
+  gap: var(--awe-space-0-5);
+  max-width: 100%;
+  height: var(--awe-space-5);
+  overflow: hidden;
+  vertical-align: middle;
+}
+
+.awe-status-strip-item {
+  flex: 0 0 var(--awe-space-1-5);
+  background-color: var(--awe-status-strip-neutral);
+  border-radius: var(--awe-radius-full);
+}
+
+.awe-status-strip-success {
+  background-color: var(--awe-status-strip-success);
+}
+
+.awe-status-strip-info {
+  background-color: var(--awe-status-strip-info);
+}
+
+.awe-status-strip-warning {
+  background-color: var(--awe-status-strip-warning);
+}
+
+.awe-status-strip-danger {
+  background-color: var(--awe-status-strip-danger);
+}
+
+// Tooltip of a bar: the label on the first line and the title (execution data) on the second
+.awe-status-strip-tooltip .p-tooltip-text,
+.awe-status-strip-tooltip .tooltip-inner {
+  white-space: pre-line;
+}

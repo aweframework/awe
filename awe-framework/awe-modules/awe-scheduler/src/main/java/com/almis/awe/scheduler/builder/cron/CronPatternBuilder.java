@@ -135,7 +135,10 @@ public class CronPatternBuilder implements Serializable {
    * @param daysOfWeek days of week
    * @param weeks weeks
    */
-  private void setDayOfWeek(CronPattern cronPattern, List<String> daysOfWeek, List<String> weeks, String defaultDayOfWeek) {
+  private void setDayOfWeek(CronPattern cronPattern, List<String> editorDaysOfWeek, List<String> weeks,
+                            String defaultDayOfWeek) {
+    List<String> daysOfWeek = editorDaysOfWeek == null ? null
+      : editorDaysOfWeek.stream().map(CronPatternBuilder::toQuartzDay).toList();
     String dayOfWeekPattern;
     if (isNullOrEmpty(daysOfWeek) && isNullOrEmpty(weeks)) {
       dayOfWeekPattern = defaultDayOfWeek;
@@ -149,6 +152,22 @@ public class CronPatternBuilder implements Serializable {
 
     // Set pattern
     cronPattern.setDayOfWeek(dayOfWeekPattern);
+  }
+
+  /**
+   * Day of the week as Quartz numbers it (Sunday 1 to Saturday 7) from the day of the task editor (Monday 1 to
+   * Saturday 6, Sunday 0 or 7). Any other value (all, a day name, another number) is kept, so Quartz refuses an invalid
+   * day as before
+   *
+   * @param day Day of the week of the editor
+   * @return Day of the week of Quartz
+   */
+  static String toQuartzDay(String day) {
+    String value = day == null ? "" : day.trim();
+    if (!value.matches("[0-7]")) {
+      return value;
+    }
+    return String.valueOf(Integer.parseInt(value) % 7 + 1);
   }
 
   private boolean isNullOrEmpty(List<String> list) {

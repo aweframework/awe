@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : scheduler-activity.xml
+    Description: Activity of the Scheduler (#993): what is running, what waits for a confirmation and what has failed.
+                 Only the counters and the execution grid, no criteria window: the grid toolbar carries its own search
+                 (task name) and three quick filters on one line: the state with its counts (getActivityStateCounts, a
+                 segmented control), the origin (a dropdown) and the start (a date range: the last hours or a custom range
+                 of start days). The header shows the status of the engine as a pill (started, paused or stopped)
+                 over a line with its Quartz instance and how long it has been running (getSchedulerMetadata); the
+                 engine is operated from the Motor tab of the configuration screen.
+                 The counters are cards that show their number as their value and only inform; the state quick
+                 filter of the grid is the filter. A row opens its detail in a side panel (its log button or its menu,
+                 «View details»), filled by the same server call as the execution data dialog of the task screen
+                 (loadExecutionScreen, or reloadExecutionScreen from the menu), with the live log of the execution.
+                 The «Group by flow» switch at the end of the grid toolbar shows the executions grouped by flow run
+                 instead (a tree grid with the same columns, its own toolbar and the same side panel; see ActGrpFlw).
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="MENU_SCHEDULER_ACTIVITY" help="HELP_SCREEN_SCHEDULER_ACTIVITY"
+        target="getSchedulerMetadata">
+  <tag source="hidden">
+    <message id="ExeStpMsg" title="CONFIRM_TITLE_ACTIVITY_STOP" message="CONFIRM_MESSAGE_ACTIVITY_STOP" />
+    <!-- Status code of the engine (started, standby or stopped, getSchedulerMetadata): shows the pill of its status. The
+         other pills are hidden before the pill of the status is shown, so two pills are never shown at once -->
+    <criteria id="schedulerStatusCode" component="hidden">
+      <dependency initial="true">
+        <dependency-element id="schedulerStatusCode" condition="eq" value="started" />
+        <dependency-action type="add-class" target="#EngStaStb,#EngStaStp" target-action="hidden" silent="true" />
+        <dependency-action type="remove-class" target="#EngStaStr" target-action="hidden" silent="true" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="schedulerStatusCode" condition="eq" value="standby" />
+        <dependency-action type="add-class" target="#EngStaStr,#EngStaStp" target-action="hidden" silent="true" />
+        <dependency-action type="remove-class" target="#EngStaStb" target-action="hidden" silent="true" />
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="schedulerStatusCode" condition="eq" value="stopped" />
+        <dependency-action type="add-class" target="#EngStaStr,#EngStaStb" target-action="hidden" silent="true" />
+        <dependency-action type="remove-class" target="#EngStaStp" target-action="hidden" silent="true" />
+      </dependency>
+    </criteria>
+    <!-- The selected task has parameters with values asked on launch: it is relaunched from the task screen -->
+    <criteria id="hasVarParams" component="hidden" value="0" />
+  </tag>
+
+  <tag source="buttons">
+    <!-- Status of the engine: one pill per status (icon and text, never the colour alone) over the line of its Quartz
+         instance and its running time, in the language of the user (getSchedulerMetadata) -->
+    <tag type="div" style="awe-header-status">
+      <tag type="span" id="EngStaStr" style="awe-cell-status awe-cell-status-success awe-cell-status-plain hidden"
+           icon="lucide:circle-check" label="SCREEN_TEXT_ACTIVITY_ENGINE_STARTED" />
+      <tag type="span" id="EngStaStb" style="awe-cell-status awe-cell-status-warning awe-cell-status-plain hidden"
+           icon="lucide:circle-pause" label="SCREEN_TEXT_ACTIVITY_ENGINE_STANDBY" />
+      <tag type="span" id="EngStaStp" style="awe-cell-status awe-cell-status-danger awe-cell-status-plain hidden"
+           icon="lucide:circle-stop" label="SCREEN_TEXT_ACTIVITY_ENGINE_STOPPED" />
+      <criteria id="schedulerEngineLine" component="text-view" style="no-label" />
+    </tag>
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <!-- Reload: an icon button, its label is its accessible name -->
+    <button label="BUTTON_ACTIVITY_RELOAD" icon="refresh" id="ButRel" help="HELP_ACTIVITY_RELOAD_BUTTON" style="no-label">
+      <button-action type="filter" target="GrdExeAct" />
+      <button-action type="filter" target="GrdExeRun" />
+      <button-action type="filter" target="CrdActRun" />
+      <button-action type="filter" target="CrdActWai" />
+      <button-action type="filter" target="CrdActQue" />
+      <button-action type="filter" target="CrdActErr" />
+      <button-action type="filter" target="CrdActUpc" />
+      <button-action type="server" server-action="update-model" target-action="getSchedulerMetadata" silent="true" />
+    </button>
+  </tag>
+
+  <tag source="center">
+    <!-- Counters (getActivityCounters): each card shows its counter as its value (a query of the counters service that
+         returns it as the field value). The cards only inform: the state quick filter of the grid filters the list -->
+    <tag type="div" style="awe-card-grid">
+      <card id="CrdActRun" title="SCREEN_TEXT_ACTIVITY_RUNNING" icon="lucide:circle-play" icon-tone="info"
+            initial-load="query" target-action="getActivityRunningCount" />
+      <card id="CrdActWai" title="SCREEN_TEXT_ACTIVITY_WAITING" icon="lucide:hourglass" icon-tone="warning"
+            initial-load="query" target-action="getActivityWaitingCount" />
+      <card id="CrdActQue" title="SCREEN_TEXT_ACTIVITY_QUEUED" icon="lucide:list-ordered" icon-tone="neutral"
+            initial-load="query" target-action="getActivityQueuedCount" />
+      <card id="CrdActErr" title="SCREEN_TEXT_ACTIVITY_ERRORS_24H" icon="times" icon-tone="danger"
+            initial-load="query" target-action="getActivityErrorCount" />
+      <!-- The next fire times of the engine: no execution of the list -->
+      <card id="CrdActUpc" title="SCREEN_TEXT_ACTIVITY_UPCOMING_24H" icon="calendar" icon-tone="success"
+            description="SCREEN_TEXT_ACTIVITY_UPCOMING_TEXT" initial-load="query" target-action="getActivityUpcomingCount" />
+    </tag>
+
+    <!-- Executions of all tasks, newest first. The service sorts and pages the list in the database: the sortable
+         columns send the field the service sorts them by (sort-field), so the page keeps that order -->
+    <window label="SCREEN_TEXT_EXECUTIONS" icon="list" style="expand" maximize="true">
+      <!-- No Maximize button of its own: the window that holds it already maximizes -->
+      <grid id="GrdExeAct" style="expand" server-action="data" target-action="getActivityExecutionList" initial-load="query"
+            max="50" row-numbers="false" pager-values="25, 50, 100, 200" show-maximize-button="false" send-when-hidden="false">
+        <!-- Search by task name and the quick filters of the toolbar: the state, counted with the search, the origin and
+             the dates (segmented); the origin (dropdown); the start (date range: the last hours as CrtExeWin, or a custom
+             range of start days as CrtExeWin.from and CrtExeWin.to, dd/MM/yyyy) -->
+        <search id="CrtExeTsk" placeholder="SCREEN_TEXT_ACTIVITY_SEARCH" label="SCREEN_TEXT_ACTIVITY_SEARCH" />
+        <quick-filter id="CrtExeQck" initial-load="query" target-action="getActivityStateCounts" label="PARAMETER_STATUS" value="" />
+        <quick-filter id="CrtExeOri" initial-load="query" target-action="getActivityOrigins" label="PARAMETER_ACTIVITY_ORIGIN" value=""
+                      display="dropdown" />
+        <quick-filter id="CrtExeWin" initial-load="query" target-action="getActivityWindows" label="PARAMETER_STARTED_AT" value=""
+                      display="date-range" />
+        <!-- View of the grid, a switch at the end of the toolbar of each grid (before the Columns button): off, the
+             executions (GrdExeAct); on, the executions grouped by flow run (GrdExeRun). Each grid shows itself by its
+             value and only one takes the space of the window. On a change the server gives the filters of the toolbar
+             that is left to the toolbar of the view that is shown (search, state, origin and the preset of the dates;
+             not a custom range), the grid that is left loses its selection, so the side panel follows the rows of the
+             grid that is shown, and the grid that is shown reloads. The tree shows its own copy (ActGrpFlwRun), which
+             follows this one: see ActGrpFlwRun -->
+        <toolbar-criteria id="ActGrpFlw" component="checkbox" label="PARAMETER_ACTIVITY_GROUP_BY_FLOW" style="switch no-label">
+          <dependency>
+            <dependency-element id="ActGrpFlw" condition="eq" value="1" />
+            <dependency-action type="server" server-action="maintain-silent" target-action="switchActivityToRuns" silent="true" />
+            <dependency-action type="unselect-all-rows" target="GrdExeAct" silent="true" />
+            <dependency-action type="filter" target="GrdExeRun" />
+          </dependency>
+          <dependency>
+            <dependency-element id="ActGrpFlw" condition="ne" value="1" />
+            <dependency-action type="server" server-action="maintain-silent" target-action="switchActivityToExecutions" silent="true" />
+            <dependency-action type="unselect-all-rows" target="GrdExeRun" silent="true" />
+            <dependency-action type="filter" target="GrdExeAct" />
+          </dependency>
+        </toolbar-criteria>
+        <column name="IdeTsk" hidden="true" />
+        <column name="Sta" hidden="true" />
+        <column name="ExeDfr" hidden="true" />
+        <column name="ExeDes" hidden="true" />
+        <!-- The execution number is read by the side panel, the due time by its waiting section -->
+        <column name="ExeTsk" hidden="true" />
+        <column name="ExeDueTim" hidden="true" />
+        <!-- Label of the flow run (ExeRun keeps the run id), read as a plain value by the side panel -->
+        <column name="ExeRunLbl" hidden="true" />
+        <!-- Icon and tone of the status and origin pills, due time under the status of a waiting execution -->
+        <column name="ExeStaIcn" hidden="true" />
+        <column name="ExeStaTon" hidden="true" />
+        <column name="ExeDueLbl" hidden="true" />
+        <column name="ExeOriIcn" hidden="true" />
+        <column name="ExeOriTon" hidden="true" />
+        <!-- No horizontal scroll: narrow fixed columns and the task takes the free width -->
+        <column label="PARAMETER_STATUS" name="ExeStaTxt" sort-field="Sta" sortable="true" align="left" charlength="18"
+                status-field="ExeStaTon" icon-field="ExeStaIcn" secondary-field="ExeDueLbl" />
+        <!-- The task opens the task screen, the flow run opens the flow run page (scheduler-flow-run): the link selects its row, whose values
+             (IdeTsk.selected, ExeRun.selected) the target screen reads. The run shows its root execution (#n) and its
+             tooltip the whole run -->
+        <column label="PARAMETER_TASK" name="TskNam" sortable="true" component="link" align="left" charlength="20"
+                width="*" title="BUTTON_ACTIVITY_OPEN_TASK">
+          <button-action type="screen" target="scheduler-task" />
+        </column>
+        <column label="PARAMETER_ACTIVITY_FLOW_RUN" name="ExeRun" sortable="false" component="link" align="left" charlength="8"
+                title="BUTTON_OPEN_RUN">
+          <button-action type="screen" target="scheduler-flow-run" />
+        </column>
+        <!-- The origin is a pill of one neutral tone: its icon and its text tell the origins apart -->
+        <column label="PARAMETER_ACTIVITY_ORIGIN" name="ExeOriTxt" sort-field="TypLch" sortable="true" align="left" charlength="12"
+                status-field="ExeOriTon" icon-field="ExeOriIcn" />
+        <!-- A launcher wraps in up to two lines (a long file path): it leaves its width to the task -->
+        <column label="PARAMETER_LAUNCHED_BY" name="ExeLchBy" sortable="true" align="left" charlength="12" max-lines="2" />
+        <column label="PARAMETER_STARTED_AT" name="ExeLstTim" sortable="true" align="center" charlength="16" />
+        <!-- Duration in two lines: the progress against the task average on top and the elapsed time under it. It sorts
+             by the elapsed seconds (ExeEla) -->
+        <column name="ExeTim" hidden="true" />
+        <column label="PARAMETER_ACTIVITY_DURATION" name="ExePrg" sort-field="ExeEla" sortable="true" component="progress" align="center" charlength="12"
+                secondary-field="ExeTim" />
+        <!-- Detail and live log of the execution (a ghost icon button): the server fills the panel and points the log
+             viewer at it -->
+        <column name="ExecutionLogPath" sortable="false" component="button" align="center" style="btn-ghost" charlength="4">
+          <button-action type="server" server-action="maintain-silent" target-action="loadExecutionScreen" silent="true" async="true" />
+          <button-action type="filter" target="CrdExePrg" silent="true" />
+          <button-action type="filter" target="GrdExePar" silent="true" />
+          <button-action type="dialog" target="PnlExeAct" />
+        </column>
+        <!-- «⋯» (More actions): the row menu of the right click, opened under the button for its row (the button
+             selects its row first, so the menu shows the same options with the same rules) -->
+        <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+                align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="show-context-menu" />
+        </column>
+        <!-- Row menu (right click): the same detail as the log button. The criteria of the panel come from the execution
+             of the selected row, the log viewer reads the row (execution-log-* follow the selection) -->
+        <context-button id="CtxExeDet" label="BUTTON_ACTIVITY_VIEW_DETAILS" icon="file-text-o">
+          <button-action type="server" server-action="maintain-silent" target-action="loadActivityExecution" silent="true" async="true" />
+          <button-action type="reset" target="executionLogViewer" silent="true" />
+          <button-action type="filter" target="executionLogViewer" silent="true" />
+          <button-action type="filter" target="CrdExePrg" silent="true" />
+          <button-action type="filter" target="GrdExePar" silent="true" />
+          <button-action type="dialog" target="PnlExeAct" />
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdExeAct" attribute="selectedRows" condition="eq" value="1" />
+          </dependency>
+        </context-button>
+        <dependency>
+          <dependency-element id="GrdExeAct" condition="eq" value="1" />
+          <dependency-action type="reset" target="hasVarParams" async="true" silent="true" />
+          <dependency-action type="server" server-action="value" target-action="taskHasVariableParameters" target="hasVarParams" async="true" silent="true" />
+        </dependency>
+        <!-- Shown in the executions view; hidden, it sends none of its values (send-when-hidden), so the runs grid can
+             use the same column names -->
+        <dependency target-type="show" initial="true">
+          <dependency-element id="ActGrpFlw" condition="ne" value="1" />
+        </dependency>
+      </grid>
+
+      <!-- Executions grouped by flow run (a tree grid, getActivityRunList): one row per flow run (its root, its
+           aggregated status, start and duration, the number of its executions under its status) with its executions and
+           the tasks it skipped as its children, and the executions without run as rows of their own. The newest 50 runs
+           that have an execution matching the filters, all at once (load-all: no pager nor column sort). Its columns
+           have the names of the executions grid, so the task and flow links, the log button, the row menu and the side
+           panel read its rows the same way. Loaded when the view switches to it -->
+      <grid id="GrdExeRun" style="expand" server-action="data" target-action="getActivityRunList" treegrid="true"
+            tree-id="id" tree-parent="RunPar" tree-leaf="RunLeaf" expand-column="ExeStaTxt" initial-level="2" load-all="true"
+            row-numbers="false" show-maximize-button="false" send-when-hidden="false">
+        <search id="CrtRunTsk" placeholder="SCREEN_TEXT_ACTIVITY_SEARCH" label="SCREEN_TEXT_ACTIVITY_SEARCH" />
+        <quick-filter id="CrtRunQck" initial-load="query" target-action="getActivityRunStates" label="PARAMETER_STATUS" value=""
+                      display="dropdown" />
+        <quick-filter id="CrtRunOri" initial-load="query" target-action="getActivityOrigins" label="PARAMETER_ACTIVITY_ORIGIN" value=""
+                      display="dropdown" />
+        <quick-filter id="CrtRunWin" initial-load="query" target-action="getActivityWindows" label="PARAMETER_STARTED_AT" value=""
+                      display="date-range" />
+        <!-- The «Group by flow» switch of the tree, a copy of ActGrpFlw: it is turned on when ActGrpFlw is turned on (the
+             view switches to the tree), and turning it off resets ActGrpFlw, which switches the view back. Each dependency
+             reads one switch only, so a change never comes back to the switch it came from. Turning a switch off is a
+             reset: the value of a switch that is off is empty, and an empty value is not copied -->
+        <toolbar-criteria id="ActGrpFlwRun" component="checkbox" label="PARAMETER_ACTIVITY_GROUP_BY_FLOW" style="switch no-label">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="ActGrpFlw" condition="eq" value="1" alias="value" />
+          </dependency>
+          <dependency>
+            <dependency-element id="ActGrpFlwRun" condition="ne" value="1" />
+            <dependency-action type="reset" target="ActGrpFlw" silent="true" />
+          </dependency>
+        </toolbar-criteria>
+        <column name="id" hidden="true" />
+        <column name="RunPar" hidden="true" />
+        <column name="RunLeaf" hidden="true" />
+        <column name="IdeTsk" hidden="true" />
+        <column name="Sta" hidden="true" />
+        <column name="ExeDfr" hidden="true" />
+        <column name="ExeDes" hidden="true" />
+        <column name="ExeTsk" hidden="true" />
+        <column name="ExeDueTim" hidden="true" />
+        <column name="ExeRunLbl" hidden="true" />
+        <column name="ExeStaIcn" hidden="true" />
+        <column name="ExeStaTon" hidden="true" />
+        <column name="ExeDueLbl" hidden="true" />
+        <column name="ExeOriIcn" hidden="true" />
+        <column name="ExeOriTon" hidden="true" />
+        <!-- A run row shows its number of executions under its status, an execution its due time while it waits -->
+        <column label="PARAMETER_STATUS" name="ExeStaTxt" sortable="false" align="left" charlength="22"
+                status-field="ExeStaTon" icon-field="ExeStaIcn" secondary-field="ExeDueLbl" />
+        <column label="PARAMETER_TASK" name="TskNam" sortable="false" component="link" align="left" charlength="20"
+                width="*" title="BUTTON_ACTIVITY_OPEN_TASK">
+          <button-action type="screen" target="scheduler-task" />
+        </column>
+        <!-- Open flow: the run row and its children open the flow run page (scheduler-flow-run) -->
+        <column label="PARAMETER_ACTIVITY_FLOW_RUN" name="ExeRun" sortable="false" component="link" align="left" charlength="8"
+                title="BUTTON_OPEN_RUN">
+          <button-action type="screen" target="scheduler-flow-run" />
+        </column>
+        <!-- The tree keeps the width of each column (a fixed table, unlike the executions grid, whose columns grow to
+             their values): the origin pill, a launcher (a user, a task or the path of a file) and a date fit whole; the
+             «⋯» column takes its width from the launcher and the origin, so the tree has no horizontal scroll -->
+        <column label="PARAMETER_ACTIVITY_ORIGIN" name="ExeOriTxt" sortable="false" align="left" charlength="13"
+                status-field="ExeOriTon" icon-field="ExeOriIcn" />
+        <column label="PARAMETER_LAUNCHED_BY" name="ExeLchBy" sortable="false" align="left" charlength="19" />
+        <column label="PARAMETER_STARTED_AT" name="ExeLstTim" sortable="false" align="center" charlength="18" />
+        <column name="ExeTim" hidden="true" />
+        <column label="PARAMETER_ACTIVITY_DURATION" name="ExePrg" sortable="false" component="progress" align="center" charlength="12"
+                secondary-field="ExeTim" />
+        <!-- The log button of an execution (a run or a skipped task hides it) -->
+        <column name="ExecutionLogPath" sortable="false" component="button" align="center" style="btn-ghost" charlength="4">
+          <button-action type="server" server-action="maintain-silent" target-action="loadExecutionScreen" silent="true" async="true" />
+          <button-action type="filter" target="CrdExePrg" silent="true" />
+          <button-action type="filter" target="GrdExePar" silent="true" />
+          <button-action type="dialog" target="PnlExeAct" />
+        </column>
+        <!-- «⋯» (More actions): the row menu of the right click, opened under the button for its row (the button
+             selects its row first, so the menu shows the same options with the same rules) -->
+        <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+                align="center" charlength="4" sortable="false" sendable="false">
+          <button-action type="show-context-menu" />
+        </column>
+        <context-button id="CtxRunDet" label="BUTTON_ACTIVITY_VIEW_DETAILS" icon="file-text-o">
+          <button-action type="server" server-action="maintain-silent" target-action="loadActivityExecution" silent="true" async="true" />
+          <button-action type="reset" target="executionLogViewer" silent="true" />
+          <button-action type="filter" target="executionLogViewer" silent="true" />
+          <button-action type="filter" target="CrdExePrg" silent="true" />
+          <button-action type="filter" target="GrdExePar" silent="true" />
+          <button-action type="dialog" target="PnlExeAct" />
+          <!-- Only the rows of an execution: a run or a skipped task has none -->
+          <dependency target-type="enable" initial="true">
+            <dependency-element id="GrdExeRun" attribute="selectedRows" condition="eq" value="1" />
+            <dependency-element id="GrdExeRun" column="ExeTsk" attribute="selectedRowValue" condition="ne" value="" />
+          </dependency>
+        </context-button>
+        <dependency>
+          <dependency-element id="GrdExeRun" condition="eq" value="1" />
+          <dependency-action type="reset" target="hasVarParams" async="true" silent="true" />
+          <dependency-action type="server" server-action="value" target-action="taskHasVariableParameters" target="hasVarParams" async="true" silent="true" />
+        </dependency>
+        <dependency target-type="show" initial="true">
+          <dependency-element id="ActGrpFlw" condition="eq" value="1" />
+        </dependency>
+      </grid>
+    </window>
+
+    <!-- Detail of the selected execution: the header shows the task, the start and the status; the body is filled by
+         loadExecutionScreen (the same criteria as the execution data dialog), by the selected row and by the progress
+         card. Wide enough for three columns of fields and the log. The side panel has no actions in its header: the
+         links to the task and to the flow run are the first line of its body, the stop and relaunch its footer -->
+    <side-panel id="PnlExeAct" label="SCREEN_TEXT_EXECUTION_DETAILS" icon="file-text-o" max-width="60vw"
+                header-grid="GrdExeAct" header-title-field="TskNam" header-subtitle-field="ExeLstTim">
+      <header-tag field="ExeStaTxt" tone-field="ExeStaTon" icon-field="ExeStaIcn" />
+      <tag type="div" style="panel-body">
+        <tag type="div" style="col-xs-12">
+          <button label="BUTTON_ACTIVITY_OPEN_TASK" icon="lucide:external-link" id="ButActOpnTsk">
+            <button-action type="close" target="PnlExeAct" />
+            <button-action type="screen" target="scheduler-task" />
+          </button>
+          <button label="BUTTON_OPEN_RUN" icon="sitemap" id="ButActOpnRun">
+            <button-action type="close" target="PnlExeAct" />
+            <button-action type="screen" target="scheduler-flow-run" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdExeAct" column="ExeRun" attribute="selectedRowValue" condition="ne" value="" />
+            </dependency>
+            <dependency target-type="show">
+              <dependency-element id="GrdExeRun" column="ExeRun" attribute="selectedRowValue" condition="ne" value="" />
+            </dependency>
+          </button>
+        </tag>
+        <!-- Progress: the elapsed time against the average of the task while it runs, the execution time against it
+             once it ended. A waiting execution shows its due time instead -->
+        <tag type="div" style="col-xs-12">
+          <card id="CrdExePrg" initial-load="query" server-action="data" target-action="getActivityExecutionProgress">
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdExeAct" column="ExeDfr" attribute="selectedRowValue" condition="ne" value="1" />
+            </dependency>
+            <dependency target-type="show">
+              <dependency-element id="GrdExeRun" column="ExeDfr" attribute="selectedRowValue" condition="ne" value="1" />
+            </dependency>
+          </card>
+        </tag>
+        <!-- Waiting for the confirmation of a deferred answer: what it waits for and until when, in plain words. Shown,
+             as the progress card is hidden, by the deferred flag of the selected row, which is 1 only while the execution
+             runs waiting (an ended execution is never waiting). Each component shows itself: no class toggled on a
+             container, which kept the block of a previous row -->
+        <tag type="div" style="col-xs-12">
+          <card id="CrdExeWai" style="card-note" icon="lucide:hourglass" icon-tone="info"
+                title="SCREEN_TEXT_ACTIVITY_WAITING" description="SCREEN_TEXT_ACTIVITY_WAITING_TEXT">
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdExeAct" column="ExeDfr" attribute="selectedRowValue" condition="eq" value="1" />
+            </dependency>
+            <dependency target-type="show">
+              <dependency-element id="GrdExeRun" column="ExeDfr" attribute="selectedRowValue" condition="eq" value="1" />
+            </dependency>
+          </card>
+        </tag>
+        <criteria label="PARAMETER_ACTIVITY_DUE_AT" component="text-view" id="ViwExeDue" style="col-xs-12 col-sm-4 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdExeAct" column="ExeDueTim" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdExeAct" event="select-row" optional="true" />
+          </dependency>
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdExeRun" column="ExeDueTim" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdExeRun" event="select-row" optional="true" />
+          </dependency>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="GrdExeAct" column="ExeDfr" attribute="selectedRowValue" condition="eq" value="1" />
+          </dependency>
+          <dependency target-type="show">
+            <dependency-element id="GrdExeRun" column="ExeDfr" attribute="selectedRowValue" condition="eq" value="1" />
+          </dependency>
+        </criteria>
+
+        <criteria label="PARAMETER_STATUS" component="text-view" id="execution-title" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_TASK" component="text-view" id="task-id" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_EXECUTION" component="text-view" id="execution-id" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="PARAMETER_ACTIVITY_FLOW_RUN" component="text-view" id="ViwExeRun" style="col-xs-12 col-sm-4 awe-readout">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdExeAct" column="ExeRunLbl" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdExeAct" event="select-row" optional="true" />
+          </dependency>
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdExeRun" column="ExeRunLbl" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdExeRun" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria label="SCREEN_TEXT_LAUNCHED_BY" component="text-view" id="execution-launched-by" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_START_TIME" component="text-view" id="execution-start-time" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_END_TIME" component="text-view" id="execution-end-time" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_EXECUTION_TIME" component="text-view" id="execution-time" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="PARAMETER_DESCRIPTION" component="text-view" id="execution-information" style="col-xs-12 awe-readout awe-readout-block" />
+
+        <!-- Launch parameters stored with the flow run of the execution: the operator values of a manual launch and the
+             resolved parameters of the root task (a dependency shows the ones of its run). The grid only
+             shows with rows (its height is its own, so the container collapses when it hides); without rows a single
+             line says so, instead of the empty state of a grid cut by a small container -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACTIVITY_PARAMETERS" icon="lucide:sliders-horizontal" />
+        <tag type="div" style="col-xs-12" expandible="vertical">
+          <grid id="GrdExePar" style="expand height-sm" show-toolbar="false" server-action="data" target-action="getActivityExecutionParameters"
+                pagination-disabled="true" row-numbers="false">
+            <column label="PARAMETER_NAME" name="ParNam" sortable="false" align="left" charlength="20" />
+            <column label="PARAMETER_VALUE" name="ParVal" sortable="false" align="left" charlength="30" width="*" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdExePar" attribute="totalValues" condition="gt" value="0" />
+            </dependency>
+          </grid>
+        </tag>
+        <tag type="div" style="col-xs-12">
+          <card id="CrdExeParEmp" style="card-note" icon="lucide:sliders-horizontal" icon-tone="neutral"
+                title="SCREEN_TEXT_ACTIVITY_NO_PARAMETERS" description="SCREEN_TEXT_ACTIVITY_NO_PARAMETERS_TEXT">
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdExePar" attribute="totalValues" condition="eq" value="0" />
+            </dependency>
+          </card>
+        </tag>
+
+        <!-- Live log of the execution: loadExecutionScreen fills the two hidden criteria and reloads the viewer -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACTIVITY_LOG" icon="file-text-o" />
+        <criteria id="execution-log-task-id" component="hidden">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdExeAct" column="IdeTsk" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdExeAct" event="select-row" optional="true" />
+          </dependency>
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdExeRun" column="IdeTsk" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdExeRun" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <criteria id="execution-log-execution-id" component="hidden">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdExeAct" column="ExeTsk" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdExeAct" event="select-row" optional="true" />
+          </dependency>
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdExeRun" column="ExeTsk" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdExeRun" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <!-- Status of the execution of the log: only a running (or waiting) or queued execution is followed -->
+        <criteria id="execution-log-status" component="hidden">
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdExeAct" column="Sta" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdExeAct" event="select-row" optional="true" />
+          </dependency>
+          <dependency source-type="launcher" target-type="input" target-action="value">
+            <dependency-element id="GrdExeRun" column="Sta" attribute="selectedRowValue" alias="value" />
+            <dependency-element id="GrdExeRun" event="select-row" optional="true" />
+          </dependency>
+        </criteria>
+        <tag type="div" style="col-xs-12 height-lg" expandible="vertical">
+        <!-- The filter of the panel reads the log once; a running or queued execution is followed every 5 seconds while
+             the panel is open (the viewer reads at once when the autorefresh is enabled) -->
+        <widget type="log-viewer" id="executionLogViewer" style="expand scrollable" server-action="get-execution-log">
+          <widget-parameter type="boolean" name="stickBottom" value="true" />
+          <dependency source-type="value" target-type="enable-autorefresh" value="5">
+            <dependency-element id="PnlExeAct" event="open" />
+            <dependency-element id="execution-log-status" condition="in" value="4,5" />
+          </dependency>
+          <dependency target-type="disable-autorefresh">
+            <dependency-element id="PnlExeAct" event="close" />
+          </dependency>
+        </widget>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <tag type="div" style="pull-right">
+          <button label="BUTTON_CLOSE" icon="close" id="ButActCls" help="HELP_CLOSE_HELP_BUTTON">
+            <button-action type="close" target="PnlExeAct" />
+          </button>
+          <!-- Relaunch: the direct launch of the task (as the run button of the task screen), once the execution ended -->
+          <button label="BUTTON_ACTIVITY_RELAUNCH" icon="play" id="ButActLch" help="HELP_ACTIVITY_RELAUNCH_BUTTON">
+            <button-action type="server" server-action="maintain" target-action="LchTsk" />
+            <button-action type="close" target="PnlExeAct" />
+            <button-action type="filter" target="GrdExeAct" />
+            <button-action type="filter" target="GrdExeRun" />
+            <button-action type="filter" target="CrdActRun" />
+            <button-action type="filter" target="CrdActWai" />
+            <button-action type="filter" target="CrdActQue" />
+            <button-action type="filter" target="CrdActErr" />
+            <button-action type="filter" target="CrdActUpc" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdExeAct" condition="eq" value="1" />
+              <dependency-element id="GrdExeAct" column="Sta" attribute="selectedRowValue" condition="ne" value="4" />
+              <dependency-element id="GrdExeAct" column="Sta" attribute="selectedRowValue" condition="ne" value="5" />
+              <dependency-element id="hasVarParams" condition="ne" value="1" />
+            </dependency>
+            <dependency target-type="show">
+              <dependency-element id="GrdExeRun" condition="eq" value="1" />
+              <dependency-element id="GrdExeRun" column="ExeTsk" attribute="selectedRowValue" condition="ne" value="" />
+              <dependency-element id="GrdExeRun" column="Sta" attribute="selectedRowValue" condition="ne" value="4" />
+              <dependency-element id="GrdExeRun" column="Sta" attribute="selectedRowValue" condition="ne" value="5" />
+              <dependency-element id="hasVarParams" condition="ne" value="1" />
+            </dependency>
+          </button>
+          <!-- Stop: the stop of the task screen, for a running execution (also one waiting for a confirmation) -->
+          <button label="BUTTON_ACTIVITY_STOP" icon="stop" id="ButActStp" style="btn-danger" help="HELP_LAUNCH_STOP_BUTTON">
+            <button-action type="confirm" target="ExeStpMsg" />
+            <button-action type="server" server-action="maintain" target-action="StpTsk" />
+            <button-action type="close" target="PnlExeAct" />
+            <button-action type="filter" target="GrdExeAct" />
+            <button-action type="filter" target="GrdExeRun" />
+            <button-action type="filter" target="CrdActRun" />
+            <button-action type="filter" target="CrdActWai" />
+            <button-action type="filter" target="CrdActQue" />
+            <button-action type="filter" target="CrdActErr" />
+            <button-action type="filter" target="CrdActUpc" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="GrdExeAct" condition="eq" value="1" />
+              <dependency-element id="GrdExeAct" column="Sta" attribute="selectedRowValue" condition="eq" value="4" />
+            </dependency>
+            <dependency target-type="show">
+              <dependency-element id="GrdExeRun" condition="eq" value="1" />
+              <dependency-element id="GrdExeRun" column="ExeTsk" attribute="selectedRowValue" condition="ne" value="" />
+              <dependency-element id="GrdExeRun" column="Sta" attribute="selectedRowValue" condition="eq" value="4" />
+            </dependency>
+          </button>
+        </tag>
+      </tag>
+    </side-panel>
+  </tag>
+
+  <tag source="modal">
+    <include target-screen="screen-help" target-source="center" />
+  </tag>
+</screen>

@@ -162,7 +162,11 @@ public class SqlExtractorService extends ServiceConfig {
       folder.mkdir();
     }
 
+    // listFiles returns null when the path is not a readable directory
     File[] listOfFiles = folder.listFiles();
+    if (listOfFiles == null) {
+      listOfFiles = new File[0];
+    }
 
     for (File listOfFile : listOfFiles) {
       if (listOfFile.isFile()) {

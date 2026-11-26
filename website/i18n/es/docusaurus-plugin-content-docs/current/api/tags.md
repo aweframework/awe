@@ -114,6 +114,66 @@ cualquiera de los dos estilos. El separador de `awe-form-section-title` va encim
 que sigue a otro dentro del mismo contenedor, así que mantén los títulos y los criterios de un formulario como hermanos
 (en el mismo `tag`).
 
+## Barra de acciones {#action-bar}
+
+El estilo `awe-action-bar` de un tag `div` (#993) coloca una fila de una página con su texto a la izquierda y sus
+acciones a la derecha, centradas verticalmente en una línea, de modo que las acciones terminan en el borde derecho de la
+página como las acciones de su cabecera. Pon el texto en un tag `span` (con `text-muted` se dibuja como una línea
+atenuada) y los botones detrás. La fila salta de línea en pantallas estrechas. Mismo aspecto en los dos motores.
+
+```xml
+<tag type="div" style="panel-body awe-action-bar">
+  <tag type="span" style="text-muted" label="SCREEN_TEXT_TASK_PAGE_DEPENDENCIES_TEXT" />
+  <button label="BUTTON_TASK_PAGE_CHANGE_DEPENDENCIES" icon="edit" id="ButTskDep" />
+</tag>
+```
+
+### Disposición de editor {#editor-layout}
+
+Los estilos `awe-editor-*` (#993) colocan un formulario largo dividido en secciones, como el editor de tareas del
+planificador: un cuerpo con scroll sobre un pie que siempre se ve y, en el cuerpo, tres columnas: la navegación de las
+secciones, las secciones (una tarjeta cada una) y un resumen. La navegación y el resumen se quedan arriba del cuerpo
+mientras se desplaza. En pantallas estrechas las columnas pasan a ser una: la navegación va en una fila sobre las
+secciones y el resumen debajo. Mismo aspecto en los dos motores.
+
+| Estilo                 | Tag                                                                                                   |
+|------------------------|-------------------------------------------------------------------------------------------------------|
+| `awe-editor`           | El editor entero, un `div` con `expand` (y `expandible="vertical"`)                                   |
+| `awe-editor-body`      | La parte con scroll, un `div` con `expand scrollable`                                                 |
+| `awe-editor-layout`    | Las tres columnas                                                                                     |
+| `awe-editor-nav`       | La navegación: un tag `nav` con un botón por sección, en el orden de las secciones, cada uno con una acción [`scroll-to`](actions.md#component-actions) a su tarjeta. Mientras el cuerpo se desplaza, el botón de la sección que está arriba se marca como el actual (`aria-current="location"`, con el aspecto de la opción actual del menú lateral) |
+| `awe-editor-nav-title` | El título de la navegación, un `span`                                                                 |
+| `awe-editor-sections`  | Las secciones, una tarjeta cada una                                                                   |
+| `awe-editor-summary`   | El resumen, un tag `aside` con una tarjeta                                                            |
+| `awe-editor-footer`    | El pie: un texto atenuado (un `span` con `text-muted`) a la izquierda y los botones a la derecha     |
+| `awe-editor-help`      | Una línea de ayuda atenuada bajo un campo o una opción                                                |
+| `awe-editor-group`     | Un grupo de campos que se muestran u ocultan juntos: un div con una fila de columnas dentro de una fila de formulario, tan ancho como la fila y con sus campos alineados con los de al lado |
+
+```xml
+<tag type="div" style="expand awe-editor" expandible="vertical">
+  <tag type="div" style="expand scrollable awe-editor-body" expandible="vertical">
+    <tag type="div" style="awe-editor-layout">
+      <tag type="nav" style="awe-editor-nav">
+        <tag type="span" style="awe-editor-nav-title" label="SCREEN_TEXT_SECTIONS" />
+        <button id="NavGen" label="SCREEN_TEXT_GENERAL" style="btn-ghost">
+          <button-action type="scroll-to" target="SecGen" />
+        </button>
+      </tag>
+      <tag type="div" style="awe-editor-sections">
+        <card id="SecGen" title="SCREEN_TEXT_GENERAL">...</card>
+      </tag>
+      <tag type="aside" style="awe-editor-summary">
+        <card id="CrdSum" title="SCREEN_TEXT_SUMMARY">...</card>
+      </tag>
+    </tag>
+  </tag>
+  <tag type="div" style="awe-editor-footer">
+    <tag type="span" style="text-muted" label="SCREEN_TEXT_FOOTER" />
+    <button id="ButSav" label="BUTTON_SAVE" style="btn-primary">...</button>
+  </tag>
+</tag>
+```
+
 ## Ejemplos {#examples}
 
 ### Estructura de una ventana {#structure-of-a-window}

@@ -11,6 +11,7 @@ import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.rest.dto.LoginResponse;
+import com.almis.awe.rest.dto.RequestParameter;
 import com.almis.awe.scheduler.bean.task.Task;
 import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.bean.task.TaskParameter;
@@ -19,6 +20,7 @@ import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.scheduled.JobService;
 import com.almis.awe.scheduler.service.scheduled.MaintainJobService;
+import com.almis.awe.scheduler.util.SchedulerDeferred;
 import com.almis.awe.service.MaintainService;
 import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockWebServer;
@@ -462,6 +464,81 @@ class MaintainJobServiceTest {
       new TaskExecution().setTaskId(7).setExecutionId(9), new JobDataMap());
 
     verifyNoInteractions(restTemplate);
+  }
+
+  /**
+   * The maintain reads the execution it runs for under the reserved parameters {@code taskId} and
+   * {@code executionId}, a scheduler value winning over a task parameter of the same name.
+   */
+  @Test
+  void localMaintainReceivesTheExecutionKeyUnderTheReservedParameters() throws Exception {
+    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      DataListUtil.getMapper(), executionLogStore, Duration.ofSeconds(5), false, null, false, null, null, restTemplate);
+    maintainJobService.setApplicationContext(context);
+
+    Trigger trigger = mock(Trigger.class);
+    when(queryUtil.getParameters(isNull(), any(), any())).thenReturn(JsonNodeFactory.instance.objectNode());
+    when(trigger.getKey()).thenReturn(new TriggerKey("DummyTrigger"));
+    when(maintainService.launchPrivateMaintain(anyString(), any(ObjectNode.class))).thenReturn(new ServiceData());
+
+    maintainJobService.executeJob(new Task()
+        .setTaskId(7)
+        .setAction("maintainId")
+        .setTrigger(trigger)
+        .setParameterList(Arrays.asList(
+          new TaskParameter().setSource("1").setName("taskId").setValue("user").setType("STRING"))),
+      new TaskExecution().setTaskId(7).setExecutionId(9), new JobDataMap());
+
+    ArgumentCaptor<ObjectNode> paramsCaptor = ArgumentCaptor.forClass(ObjectNode.class);
+    verify(maintainService).launchPrivateMaintain(eq("maintainId"), paramsCaptor.capture());
+    assertEquals(7, paramsCaptor.getValue().get("taskId").asInt());
+    assertEquals(9, paramsCaptor.getValue().get("executionId").asInt());
+  }
+
+  @Test
+  void remoteMaintainRequestBodyCarriesTheExecutionKeyUnderTheReservedParameters() throws Exception {
+    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      DataListUtil.getMapper(), executionLogStore, Duration.ofSeconds(5),
+      true, new URI(String.format("http://localhost:%s", mockBackEnd.getPort())), false, null, null, restTemplate);
+    maintainJobService.setApplicationContext(context);
+    when(restTemplate.postForEntity(anyString(), any(HttpEntity.class), eq(ServiceData.class), anyString()))
+      .thenReturn(ResponseEntity.ok(new ServiceData()));
+    Trigger trigger = mock(Trigger.class);
+    when(queryUtil.getParameters(isNull(), any(), any())).thenReturn(JsonNodeFactory.instance.objectNode());
+    when(trigger.getKey()).thenReturn(new TriggerKey("DummyTrigger"));
+
+    maintainJobService.executeJob(new Task().setTaskId(7).setAction("maintainId").setTrigger(trigger)
+        .setParameterList(Arrays.asList()),
+      new TaskExecution().setTaskId(7).setExecutionId(9), new JobDataMap());
+
+    ArgumentCaptor<HttpEntity> entityCaptor = ArgumentCaptor.forClass(HttpEntity.class);
+    verify(restTemplate).postForEntity(anyString(), entityCaptor.capture(), eq(ServiceData.class), anyString());
+    RequestParameter body = (RequestParameter) entityCaptor.getValue().getBody();
+    assertEquals(7, body.getParameters().get("taskId"));
+    assertEquals(9, body.getParameters().get("executionId"));
+  }
+
+  /**
+   * A deferred answer keeps the execution running: its log is completed when the execution is closed, not now.
+   */
+  @Test
+  void aDeferredAnswerLeavesTheExecutionLogOpen() throws Exception {
+    maintainJobService = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher,
+      DataListUtil.getMapper(), executionLogStore, Duration.ofSeconds(5), false, null, false, null, null, restTemplate);
+    maintainJobService.setApplicationContext(context);
+    Trigger trigger = mock(Trigger.class);
+    when(queryUtil.getParameters(isNull(), any(), any())).thenReturn(JsonNodeFactory.instance.objectNode());
+    when(trigger.getKey()).thenReturn(new TriggerKey("DummyTrigger"));
+    when(maintainService.launchPrivateMaintain(anyString(), any(ObjectNode.class)))
+      .thenReturn(SchedulerDeferred.accepted("job-77", "Sent"));
+
+    Future<ServiceData> serviceData = maintainJobService.executeJob(new Task().setTaskId(1).setAction("maintainId")
+        .setTrigger(trigger).setParameterList(Arrays.asList()),
+      new TaskExecution().setTaskId(1).setExecutionId(1), new JobDataMap());
+
+    assertTrue(SchedulerDeferred.isDeferred(serviceData.get()));
+    verify(executionLogStore, never()).complete(any(), any());
+    assertNull(MDC.get(LOG_BY_TASK_EXECUTION));
   }
 
   private ListAppender<ILoggingEvent> attachListAppender() {

@@ -597,8 +597,85 @@ CREATE TABLE IF NOT EXISTS AweSchExe
     ExeTim INTEGER,
     Sta    INTEGER not NULL,
     LchBy  VARCHAR(200),
-    Des VARCHAR(2000)
+    Des VARCHAR(2000),
+    IdeRun VARCHAR(36)
 );
+
+CREATE TABLE IF NOT EXISTS AweSchRun
+(
+    IdeRun VARCHAR(36) NOT NULL,
+    IdeTskRoo INTEGER NOT NULL,
+    ExeTskRoo INTEGER NOT NULL,
+    LchBy VARCHAR(200),
+    IniDat TIMESTAMP(3) NOT NULL,
+    EndDat TIMESTAMP(3),
+    Sta INTEGER NOT NULL,
+    PRIMARY KEY (IdeRun)
+);
+
+CREATE TABLE IF NOT EXISTS AweSchRunPar
+(
+    IdeRun VARCHAR(36) NOT NULL,
+    Nam VARCHAR(40) NOT NULL,
+    Val VARCHAR(400),
+    PRIMARY KEY (IdeRun, Nam)
+);
+
+CREATE TABLE IF NOT EXISTS AweSchRunTsk
+(
+    IdeRun VARCHAR(36) NOT NULL,
+    IdeTsk INTEGER NOT NULL,
+    Sta VARCHAR(10) NOT NULL,
+    ExeTsk INTEGER,
+    UpdDat TIMESTAMP(3) NOT NULL,
+    PRIMARY KEY (IdeRun, IdeTsk)
+);
+
+
+CREATE TABLE IF NOT EXISTS AweSchExeExt
+(
+    IdeTsk INTEGER      not NULL,
+    ExeTsk INTEGER      not NULL,
+    ExtRef VARCHAR(256),
+    DfrDat TIMESTAMP(3) not NULL,
+    DueDat TIMESTAMP(3) not NULL,
+    CmpDat TIMESTAMP(3),
+    CmpSrc VARCHAR(10),
+    CncSta VARCHAR(10),
+    CncErr VARCHAR(2000),
+    CONSTRAINT PK_AWESCHEXEEXT PRIMARY KEY (IdeTsk, ExeTsk)
+);
+
+CREATE TABLE IF NOT EXISTS AweSchTskHok
+(
+    IdeTsk INTEGER          not NULL,
+    HokKey VARCHAR(64)   not NULL,
+    Act    INTEGER          not NULL,
+    SecPrp VARCHAR(200)  not NULL,
+    TypFlt VARCHAR(200),
+    CONSTRAINT PK_AWESCHTSKHOK PRIMARY KEY (IdeTsk),
+    CONSTRAINT UK_AWESCHTSKHOK UNIQUE (HokKey)
+);
+
+CREATE TABLE IF NOT EXISTS AweSchHokMsg
+(
+    Src    VARCHAR(64)   not NULL,
+    MsgId  VARCHAR(256)  not NULL,
+    RcvDat TIMESTAMP(3)          not NULL,
+    Typ    VARCHAR(200),
+    Pay    LONGVARCHAR         not NULL,
+    Sta    VARCHAR(10)   not NULL,
+    Att    INTEGER          not NULL,
+    NxtDat TIMESTAMP(3)          not NULL,
+    PrcDat TIMESTAMP(3),
+    Err    VARCHAR(2000),
+    IdeTsk INTEGER,
+    ExeTsk INTEGER,
+    IdeRun VARCHAR(36),
+    CONSTRAINT PK_AWESCHHOKMSG PRIMARY KEY (Src, MsgId)
+);
+
+CREATE INDEX AweSchHokMsgI1 ON AweSchHokMsg (Sta, NxtDat);
 
 --------------------------------------------------------
 --  DDL for Table AweSchExeLog
@@ -661,6 +738,7 @@ CREATE TABLE IF NOT EXISTS AweSchTsk
     Act       INTEGER DEFAULT 1 not NULL,
     RepUsrDst VARCHAR(250),
     RepMntId  VARCHAR(200),
+    CncMnt    VARCHAR(200),
     CmdExePth VARCHAR(200),
     db        VARCHAR(200),
     site      VARCHAR(200)
@@ -719,7 +797,8 @@ CREATE TABLE IF NOT EXISTS AweSchTskPar
     Nam    VARCHAR(40)  NOT NULL,
     Val    VARCHAR(400),
     Src    INTEGER      NOT NULL,
-    Typ    VARCHAR(100) NOT NULL
+    Typ    VARCHAR(100) NOT NULL,
+    WhkPtr VARCHAR(250)
 );
 
 --------------------------------------------------------
@@ -793,6 +872,7 @@ CREATE TABLE IF NOT EXISTS HISAweSchTsk
     Act       INTEGER,
     RepUsrDst VARCHAR(250),
     RepMntId  VARCHAR(200),
+    CncMnt    VARCHAR(200),
     CmdExePth VARCHAR(200),
     db        VARCHAR(200),
     site      VARCHAR(200)
@@ -955,6 +1035,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS NOM_UQ ON AweSchCal (Nom);
 CREATE UNIQUE INDEX IF NOT EXISTS PK_AWESCHCAL ON AweSchCal (Ide);
 CREATE UNIQUE INDEX IF NOT EXISTS PK_AWESCHCALDAT ON AweSchCalDat (Ide);
 CREATE INDEX IF NOT EXISTS AWESCHEXEI1 ON AweSchExe (IdeTsk, GrpTsk, ExeTsk, IniDat);
+CREATE INDEX IF NOT EXISTS AWESCHEXEI2 ON AweSchExe (IdeRun);
 CREATE UNIQUE INDEX IF NOT EXISTS PK_AWESCHEXELOG ON AweSchExeLog (IdeTsk, ExeTsk, Src, Sec, Slt);
 CREATE INDEX IF NOT EXISTS AWESCHEXELOGI1 ON AweSchExeLog (IdeTsk, ExeTsk, LogDat);
 CREATE UNIQUE INDEX IF NOT EXISTS PK_AWESCHSRV ON AweSchSrv (Ide);

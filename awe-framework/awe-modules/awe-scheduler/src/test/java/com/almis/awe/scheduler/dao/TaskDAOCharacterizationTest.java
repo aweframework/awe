@@ -366,6 +366,7 @@ class TaskDAOCharacterizationTest {
     dataList.addRow(taskListRow(3, "1", 0));
     given(queryService.launchPrivateQuery(SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY, queryParameters))
       .willReturn(new ServiceData().setDataList(dataList));
+    givenNoDeferredExecution();
 
     // Task 1: scheduled, normal and running
     Date nextFireTime = Date.from(LocalDateTime.of(2026, 3, 4, 5, 6, 7, 890_000_000).atZone(ZoneId.systemDefault()).toInstant());
@@ -407,6 +408,7 @@ class TaskDAOCharacterizationTest {
     dataList.addRow(taskListRow(1, "1", 1500));
     given(queryService.launchPrivateQuery(SCHEDULER_LOAD_TASK_DETAILS_WITH_FILTER_QUERY, parameters))
       .willReturn(new ServiceData().setDataList(dataList));
+    givenNoDeferredExecution();
     SchedulerException cause = new SchedulerException("boom");
     given(scheduler.checkExists(any(TriggerKey.class))).willThrow(cause);
 
@@ -415,6 +417,12 @@ class TaskDAOCharacterizationTest {
     assertEquals("Error adding scheduler parameters to the task datalist: {}", exception.getTitle());
     assertEquals(new TriggerKey("1", SCHEDULED_GROUP).toString(), exception.getMessage());
     assertSame(cause, exception.getCause());
+  }
+
+  private void givenNoDeferredExecution() throws Exception {
+    given(queryUtil.getParameters(null, "1", "0")).willReturn(JsonNodeFactory.instance.objectNode());
+    given(queryService.launchPrivateQuery(eq("getRunningDeferredExecutions"), any(ObjectNode.class)))
+      .willReturn(new ServiceData().setDataList(new DataList()));
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -519,7 +527,7 @@ class TaskDAOCharacterizationTest {
   }
 
   // ---------------------------------------------------------------------------------------------
-  // getProgress / getElapsedTime / getProgressNode / getStatusIcon
+  // getProgress / getElapsedTime
   // ---------------------------------------------------------------------------------------------
 
   /**
@@ -565,42 +573,6 @@ class TaskDAOCharacterizationTest {
   void getElapsedTimeAndProgressRejectNullDates() {
     assertThrows(NullPointerException.class, () -> taskDAO.getElapsedTime((Date) null));
     assertThrows(NullPointerException.class, () -> taskDAO.getProgress((Date) null, 10L));
-  }
-
-  /**
-   * Percentages up to 100 are shown as is; above 100 the bar is full and flagged as danger.
-   */
-  @Test
-  void getProgressNodeCapsAtOneHundred() {
-    assertEquals("{\"value\":100,\"label\":\"100%\"}", taskDAO.getProgressNode(100L).toString());
-    assertEquals("{\"value\":0,\"label\":\"0%\"}", taskDAO.getProgressNode(0L).toString());
-    assertEquals("{\"value\":100,\"style\":\"progress-bar-danger\",\"label\":\"\"}", taskDAO.getProgressNode(101L).toString());
-  }
-
-  /**
-   * The status icon holds the status value plus its label, icon and style enumerations.
-   */
-  @Test
-  void getStatusIconLooksUpTheStatusEnumerations() throws Exception {
-    given(queryService.findLabel("StaTyp", "4")).willReturn("Running");
-    given(queryService.findLabel("StaIco", "4")).willReturn("fa-spin");
-    given(queryService.findLabel("StaSty", "4")).willReturn("text-info");
-
-    ObjectNode icon = taskDAO.getStatusIcon(new TaskExecution().setStatus(4));
-
-    assertEquals("{\"value\":4,\"label\":\"Running\",\"icon\":\"fa-spin\",\"style\":\"text-info\"}", icon.toString());
-  }
-
-  /**
-   * A failing enumeration lookup is logged and leaves only the status value.
-   */
-  @Test
-  void getStatusIconKeepsOnlyTheValueWhenTheLookupFails() throws Exception {
-    given(queryService.findLabel("StaTyp", "4")).willThrow(new AWException("missing"));
-
-    ObjectNode icon = taskDAO.getStatusIcon(new TaskExecution().setStatus(4));
-
-    assertEquals("{\"value\":4}", icon.toString());
   }
 
   // ---------------------------------------------------------------------------------------------

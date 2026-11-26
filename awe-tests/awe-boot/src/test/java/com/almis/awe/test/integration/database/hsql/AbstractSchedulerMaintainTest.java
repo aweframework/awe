@@ -85,21 +85,21 @@ abstract class AbstractSchedulerMaintainTest extends AbstractSpringAppIntegratio
   }
 
   /**
-   * Status of the scheduler that the management screen shows
+   * Status of the scheduler (getSchedulerMetadata)
    */
   protected String schedulerStatus() throws Exception {
     return rows("getSchedulerMetadata", params()).get(0).get("schedulerStatus").asString();
   }
 
   /**
-   * Keys of the jobs that the management screen shows as configured in the scheduler
+   * Keys of the jobs configured in the scheduler (getConfiguredJobs)
    */
   protected List<String> configuredJobs() throws Exception {
     return column(rows("getConfiguredJobs", params()), "configuredJobTaskKey");
   }
 
   /**
-   * Row of a task in the task list of the tasks screen
+   * Row of a task in the task list (getSchedulerTaskList, also read by the REST API)
    *
    * @param taskId Task identifier
    * @return Task row
@@ -111,7 +111,7 @@ abstract class AbstractSchedulerMaintainTest extends AbstractSpringAppIntegratio
   }
 
   /**
-   * Data that the update task screen loads for a task
+   * Data stored for a task (the taskData query that the task editor copies)
    *
    * @param taskId Task identifier
    * @return Task data
@@ -123,13 +123,13 @@ abstract class AbstractSchedulerMaintainTest extends AbstractSpringAppIntegratio
   }
 
   /**
-   * Create a task with the new task screen maintain and return its identifier
+   * Create a task with the maintain of the task editor and return its identifier
    *
    * @param parameters Task parameters
    * @return Task identifier
    */
   protected int createTask(ObjectNode parameters) throws Exception {
-    maintain("NewSchedulerTask", parameters);
+    maintain("NewSchedulerTaskEditor", parameters);
     String name = parameters.get("Nam").asString();
     return find(rows("getSchedulerTaskList", params()), "Nam", name)
       .orElseThrow(() -> new AssertionError("Task " + name + " not in the task list"))
@@ -146,8 +146,8 @@ abstract class AbstractSchedulerMaintainTest extends AbstractSpringAppIntegratio
   }
 
   /**
-   * Parameters of a manual task as the new task screen sends them: a maintain task with one parameter and a broadcast
-   * report
+   * Parameters of a manual task as the task editor sends them: a maintain task with one parameter, a broadcast report
+   * and no parent (TskPrn, the tasks it runs after)
    *
    * @param name Task name
    * @return Parameters
@@ -174,7 +174,7 @@ abstract class AbstractSchedulerMaintainTest extends AbstractSpringAppIntegratio
     parameters.set("ParSrc", ints(0));
     parameters.set("ParTyp", strings("INTEGER"));
     parameters.set("ParVal", strings("3"));
-    parameters.set("DepTskIde", ints());
+    parameters.set("TskPrn", ints());
     return launchLists(parameters);
   }
 
@@ -235,7 +235,7 @@ abstract class AbstractSchedulerMaintainTest extends AbstractSpringAppIntegratio
     return list;
   }
 
-  private JsonNode perform(String type, String name, ObjectNode parameters) throws Exception {
+  protected JsonNode perform(String type, String name, ObjectNode parameters) throws Exception {
     String response = mockMvc.perform(post("/action/" + type + "/" + name)
         .with(csrf())
         .content(objectMapper.writeValueAsString(parameters))

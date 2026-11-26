@@ -299,6 +299,9 @@ public class ScreenService extends ServiceConfig {
    * @throws AWException Error initializing screen
    */
   private void initializeScreenNavigation(Screen screen, String optionId) throws AWException {
+    // A fresh screen groups the values of the main frame (#998): taken apart, so they are not kept as criteria
+    JsonNode baseView = getRequest().getParameterList().remove(AweConstants.PARAMETER_BASE_VIEW);
+
     // Store current screen
     storeCurrentScreen(optionId == null ? screen.getId() : optionId, screen);
 
@@ -318,9 +321,15 @@ public class ScreenService extends ServiceConfig {
     if (Boolean.parseBoolean(getRequest().getParameterAsString(AweConstants.PARAMETER_FRESH_SCREEN))) {
       ObjectNode screenParameters = getScreenParameters(optionId);
       updateParameterList(screenParameters, screen);
+      // The main frame (menu and header) is not the screen left: its values stay, under the ones of the new screen
+      ObjectNode freshParameters = JsonNodeFactory.instance.objectNode();
+      if (baseView instanceof ObjectNode baseViewParameters) {
+        freshParameters.setAll(baseViewParameters);
+      }
+      freshParameters.setAll(screenParameters);
       // setParameterList only merges: drop the previous values so they do not reach the on load
       getRequest().getParameterList().removeAll();
-      getRequest().setParameterList(screenParameters);
+      getRequest().setParameterList(freshParameters);
     }
 
     // Launch on load

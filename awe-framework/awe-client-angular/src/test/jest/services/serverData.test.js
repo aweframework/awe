@@ -49,6 +49,22 @@ describe("ServerData", function () {
     expect($storage.put).toHaveBeenCalledWith("screenData-center", screenData.data);
   });
 
+  it("keeps the values of the criteria with keep-on-reload in the tab and sends them again on a reload (#993)", async function () {
+    window.sessionStorage.clear();
+    const screenData = {data: {template: "<section/>", components: [
+      {id: "IdeTsk.selected", controller: {component: "hidden", keepOnReload: true}, model: {selected: [9013]}}]}};
+    jest.spyOn($serverData, "getFormValues").mockReturnValue({});
+    jest.spyOn($connection, "getRawUrl").mockReturnValue("/awe");
+    jest.spyOn($connection, "post").mockReturnValue(Promise.resolve(screenData));
+
+    await $serverData.getScreenData("scheduler-task", "base");
+    await $serverData.getScreenData("scheduler-task", "base");
+
+    expect($connection.post.mock.calls[0][1]).not.toHaveProperty("IdeTsk.selected");
+    expect($connection.post.mock.calls[1][1]["IdeTsk.selected"]).toBe(9013);
+    window.sessionStorage.clear();
+  });
+
   it("routes failed screen-data responses through the REST error action list for the base view", async function () {
     const errorActions = [{type: "message", parameters: {message: "Screen unavailable"}}];
     jest.spyOn($serverData, "getFormValues").mockReturnValue({CrtStatus: "ACTIVE"});
@@ -212,16 +228,19 @@ describe("ServerData", function () {
   });
 
   it("retrieves the screen data with every value, flagging a fresh screen so the server keeps the criteria", async function () {
-    jest.spyOn($serverData, "getFormValues").mockReturnValue({Base: 1, Report: 2});
+    jest.spyOn($serverData, "getFormValues").mockImplementation((address, onlyView) => onlyView === "base" ? {Base: 1} : {Base: 1, Report: 2});
     jest.spyOn($connection, "getRawUrl").mockReturnValue("/awe");
     jest.spyOn($connection, "post").mockReturnValue(Promise.resolve({data: {template: "t"}}));
 
     await $serverData.getScreenData("customer-list", "base", true);
     expect($connection.post.mock.calls[0][1]).toMatchObject({Base: 1, Report: 2, freshScreen: true, template: true});
+    // The values of the main frame go grouped, so the server gives them to the new screen (#998)
+    expect($connection.post.mock.calls[0][1].baseView).toEqual({Base: 1});
 
     await $serverData.getScreenData("customer-list", "base");
     expect($connection.post.mock.calls[1][1]).toHaveProperty("Report", 2);
     expect($connection.post.mock.calls[1][1]).not.toHaveProperty("freshScreen");
+    expect($connection.post.mock.calls[1][1]).not.toHaveProperty("baseView");
   });
 
   it("creates server actions and maintain actions with custom selector parameters", function () {

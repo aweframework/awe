@@ -30,8 +30,20 @@ A button opens a context menu with the `show-context-menu` client action. It is 
 
 - The button of a grid row selects its row (only it, as every [button of a row](grids.md#button-column-component) does) and opens the context menu of the grid just under the button.
 - Any other button opens its own context menu (the `context-button` elements declared inside the button), just under itself.
+- The menu starts at the left edge of the button. It ends at the right edge of the button instead when the button sits in the window header (its buttons are on the right of the page) or when the menu would overflow the right edge of the window, so it never covers the page off its button.
 - When there is nothing to open the action only finishes and the following actions go on. For a button outside a grid that means it declares no options or none of them is visible. A grid opens its menu whenever it declares options, even if none of them is visible at that moment, because their dependencies resolve after the row is selected; only a grid that declares no options has nothing to open (and then the row is not selected either).
 - The action works in both client engines (AngularJS and React) and it is allowed on any button. Do not set a `target`: the action always works on the button that launches it.
+- The menu works with the keyboard: Enter or Space on the button opens it with the focus on its first option, the arrows move between the options, Enter or Space chooses one and Escape closes it. When it closes with the focus inside it (Escape or a chosen option) the focus goes back to the button, so the keyboard user goes on from there.
+
+A row button that only opens the menu is usually the last, narrow column of the grid, an icon-only ghost button named
+«More actions» (`BUTTON_MORE_ACTIONS`), as the administration screens and the scheduler grids do:
+
+```xml
+<column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
+        align="center" charlength="4" sortable="false" sendable="false">
+  <button-action type="show-context-menu" />
+</column>
+```
 
 <img alt="GridContextMenu" src={require('@docusaurus/useBaseUrl').default('img/GridContextMenu.png')} />
 

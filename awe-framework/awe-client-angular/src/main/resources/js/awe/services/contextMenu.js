@@ -35,6 +35,40 @@ aweApplication.factory('ContextMenu',
       }
 
       /**
+       * Align a menu opened under an element to the right edge of the element when the element sits in the window
+       * header (its buttons are on the right of the page) or when the menu, aligned to the left edge of the element,
+       * would overflow the right edge of the viewport. It never starts before the left edge of the viewport. Same rule
+       * as the React engine (useContextMenu alignMenuToAnchor)
+       * @param {jQuery} element Menu element, displayed under the anchor
+       * @param {jQuery} anchor Element the menu hangs from
+       */
+      function alignToAnchor(element, anchor) {
+        const node = element[0];
+        const anchorNode = anchor && anchor[0];
+        if (!node || !anchorNode || !anchorNode.getBoundingClientRect) {
+          return;
+        }
+        const rect = anchorNode.getBoundingClientRect();
+        const width = node.offsetWidth;
+        const inHeader = anchor.closest(".window-buttons").length > 0;
+        if (inHeader || rect.left + width > window.innerWidth) {
+          element.css("left", Math.max(rect.right - width, 0));
+        }
+      }
+
+      /**
+       * Option links of a menu the keyboard can reach: the visible and enabled options (no separators)
+       * @param {jQuery} element Menu element
+       * @return {HTMLElement[]} Option links, in order
+       */
+      function keyboardOptions(element) {
+        return element.children("li.context-option").not(".ng-hide, .divider").children("a")
+          .filter(function () {
+            return $(this).attr("data-disabled") !== "true";
+          }).toArray();
+      }
+
+      /**
        * Context menu creator
        * @param {type} scope
        * @param {type} elem
@@ -101,17 +135,66 @@ aweApplication.factory('ContextMenu',
             return false;
           });
 
-          // Show the context menu and, once displayed, keep it inside the viewport
+          // Show the context menu and, once displayed, align it to the element it hangs from (if any) and keep it
+          // inside the viewport. A menu opened under a button (from the keyboard too) takes the focus on its first option
           contextMenu.visible = true;
+          const anchor = event.anchor;
+          contextMenu.anchor = anchor;
+          contextMenu.element.on("keydown.contextMenu", keyEvent => contextMenu.onKeyDown(keyEvent));
           Utilities.timeout(function () {
             if (contextMenu.visible) {
+              alignToAnchor(contextMenu.element, anchor);
               keepInsideViewport(contextMenu.element);
+              const [first] = keyboardOptions(contextMenu.element);
+              if (anchor && first) {
+                first.focus();
+              }
             }
           });
         },
         /**
+         * Keyboard of the open menu: the arrows move between the options, Enter or Space chooses the focused one, Escape
+         * closes the menu (the focus goes back to the button it hangs from) and Tab closes it
+         * @param {KeyboardEvent} event Key event
+         */
+        onKeyDown: function (event) {
+          const options = keyboardOptions(this.element);
+          const index = options.indexOf(document.activeElement);
+          switch (event.key) {
+            case "ArrowDown":
+            case "ArrowUp": {
+              if (options.length > 0) {
+                const step = event.key === "ArrowDown" ? 1 : -1;
+                const next = index === -1 ? (step > 0 ? 0 : options.length - 1) : (index + step + options.length) % options.length;
+                options[next].focus();
+              }
+              event.preventDefault();
+              break;
+            }
+            case "Enter":
+            case " ":
+              if (index > -1) {
+                options[index].click();
+              }
+              event.preventDefault();
+              break;
+            case "Escape":
+              // Only the menu closes, not the panel or dialog under it
+              event.preventDefault();
+              event.stopPropagation();
+              this.hide();
+              break;
+            case "Tab":
+              this.hide();
+              break;
+            default:
+              break;
+          }
+        },
+        /**
          * Show the context menu under an element: its top left corner lands on the bottom left corner of the
-         * anchor. It serves actions, which carry no mouse event
+         * anchor, or its top right corner on the bottom right corner of an anchor of the window header or one whose
+         * menu would overflow the viewport. It serves actions, which carry no mouse event
          * @param {jQuery} anchor Element the menu hangs from
          */
         showUnder: function (anchor) {
@@ -124,7 +207,8 @@ aweApplication.factory('ContextMenu',
           this.show({
             clientX: rect.left + POINTER_OFFSET,
             clientY: rect.bottom + POINTER_OFFSET,
-            preventDefault: Utilities.noop
+            preventDefault: Utilities.noop,
+            anchor: anchor
           });
         },
         /**
@@ -166,6 +250,8 @@ aweApplication.factory('ContextMenu',
           if (this.visible) {
             // Hide the context menu
             this.visible = false;
+            this.element.off("keydown.contextMenu");
+            const hadFocus = $.contains(this.element[0], document.activeElement);
 
             // Remove the mask and put the menu back in its place, with no position left behind
             this.mask.remove();
@@ -182,6 +268,15 @@ aweApplication.factory('ContextMenu',
               } else {
                 this.element.detach();
               }
+            }
+
+            // A menu opened under a button gives the focus back to it when it closes with the focus inside it (Escape,
+            // an option chosen), as the React engine does
+            const anchor = this.anchor;
+            this.anchor = null;
+            const active = document.activeElement;
+            if (anchor && anchor[0] && document.body.contains(anchor[0]) && (hadFocus || !active || active === document.body)) {
+              anchor[0].focus();
             }
           }
         },

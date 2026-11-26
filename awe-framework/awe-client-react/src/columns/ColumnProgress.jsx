@@ -4,6 +4,7 @@ import {classNames} from "../utilities/components";
 import {extractCellModel} from "../utilities/grid";
 import {getFirstDefinedAndNotNullValue} from "../utilities/general";
 import {barFill, barScale, barSegments, barZero, hasBarOptions, hasBarZeroMark, toBarNumber} from "../utilities/cellBar";
+import {rowText} from "../components/AweGridCells";
 import PropTypes from "prop-types";
 
 const SEGMENT_TONES = 3;
@@ -80,14 +81,39 @@ function ColumnBar(props) {
   </div>;
 }
 
-function ColumnProgress(props) {
+/**
+ * Plain progress bar of the cell value. A cell without value (empty, as the ended executions of the scheduler send it)
+ * has no bar, as in AngularJS; a value of 0 is a bar at 0 %
+ * @param props Column attributes and cell data
+ */
+function ColumnProgressBar(props) {
   if (hasBarOptions(props)) {
     return <ColumnBar {...props}/>;
   }
   const { data, style } = props;
   const { value } = data;
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
   const classes = classNames(style, data?.style, "column-progress");
   return <ProgressBar className={classes} style={{ width: "100%" }} value={value || 0} />;
+}
+
+/**
+ * Progress column: the bar and, with a secondary field, its text in a second line under the bar (the secondary line
+ * of the rich cells)
+ * @param props Column attributes, cell data and the row
+ */
+function ColumnProgress(props) {
+  const {row, secondaryField} = props;
+  const secondary = secondaryField ? rowText(row, secondaryField) : "";
+  if (secondary === "") {
+    return <ColumnProgressBar {...props}/>;
+  }
+  return <div className="awe-cell-lines awe-cell-progress">
+    <ColumnProgressBar {...props}/>
+    <span className="awe-cell-secondary" title={secondary}>{secondary}</span>
+  </div>;
 }
 
 ColumnProgress.propTypes = {
@@ -98,7 +124,8 @@ ColumnProgress.propTypes = {
   barMax: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
   barSecondField: PropTypes.string,
   barStackFields: PropTypes.string,
-  barLeafOnly: PropTypes.bool
+  barLeafOnly: PropTypes.bool,
+  secondaryField: PropTypes.string
 };
 
 export default ColumnProgress;

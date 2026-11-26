@@ -3,7 +3,7 @@ import {criterionPlaceholder, requiredAria} from "../utilities/labels";
 import {Dropdown} from "primereact/dropdown";
 import {classNames} from "../utilities/components";
 import AweCriterion from "./AweCriterion";
-import {useSelect, selectItemTemplate} from "../hooks/useSelect";
+import {useSelect, selectItemTemplate, selectClearIcon} from "../hooks/useSelect";
 import {CriterionSkeleton} from "../components/AweSkeleton";
 import PropTypes from "prop-types";
 import {dropdownPassThrough, selectValueTemplate} from "../utilities/testPassThrough";
@@ -43,6 +43,7 @@ function AweSelect(props) {
       {...groupProps}
       itemTemplate={selectItemTemplate}
       showClear={optional}
+      clearIcon={selectClearIcon}
       filter={(model?.values?.length ?? 0) > 5}
       filterBy="label"
       valueTemplate={selectValueTemplate}

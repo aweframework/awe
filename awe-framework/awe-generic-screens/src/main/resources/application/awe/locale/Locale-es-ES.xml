@@ -304,6 +304,8 @@
   <locale name="ENUM_PRN_FMT_EUR" value="Europeo"/>
   <locale name="ENUM_PRN_FMT_EUR_NO_THOU" value="Europeo (sin miles)"/>
   <locale name="ENUM_PRN_FMT_PDF" value="PDF"/>
+  <locale name="ENUM_PRN_ROW_ALL" value="Todas las filas"/>
+  <locale name="ENUM_PRN_ROW_PAGE" value="Página actual"/>
   <locale name="ENUM_PRN_FMT_RTF" value="RTF"/>
   <locale name="ENUM_PRN_FMT_TEXT" value="TEXTO"/>
   <locale name="ENUM_PRN_FMT_XLS" value="EXCEL"/>
@@ -757,6 +759,7 @@
   <locale name="ERROR_MESSAGE_UNDEFINED_CACHE" value="No se ha definido un tipo de cache -{0}-"/>
   <locale name="ERROR_MESSAGE_UNDEFINED_DATASOURCE" value="No se ha definido el origen de datos seleccionado: `{0}`"/>
   <locale name="ERROR_MESSAGE_UNDEFINED_SESSION" value="La sesión con el token &quot;{0}&quot; ya no existe o no ha sido definida"/>
+  <locale name="ERROR_MESSAGE_UNEXPECTED_ERROR" value="Se ha producido un error inesperado. Vuelva a intentarlo y, si el problema persiste, contacte con su administrador."/>
   <locale name="ERROR_MESSAGE_UNIQUE_CRITERIA" value="El valor seleccionado ya existe en la base de datos"/>
   <locale name="ERROR_MESSAGE_UPDATE_WRK_DIR2" value="La ruta no es correcta"/>
   <locale name="ERROR_MESSAGE_VARIABLE_DEFINITION" value="Ha habido un problema con la definición de la variable {0}."/>
@@ -814,6 +817,9 @@
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="Todos los datos registrados de un evento de seguridad"/>
   <locale name="HELP_SCREEN_TITLE_SIT_ADMIN" value="Los sites de la aplicación y la base de datos que usa cada módulo en ellos."/>
   <locale name="HELP_SCREEN_TITLE_THEME_ADMIN" value="Temas de color de la aplicación: color primario, superficie y modo. Los perfiles y los usuarios eligen uno de los temas activos."/>
+  <locale name="LOG_VIEWER_FILTER_MATCHES" value="Mostrar solo coincidencias"/>
+  <locale name="LOG_VIEWER_FOLLOW" value="Seguir log"/>
+  <locale name="LOG_VIEWER_SEARCH" value="Buscar"/>
   <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Auditoría de seguridad"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Causa"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Canal"/>
@@ -1116,6 +1122,7 @@
   <locale name="ERROR_TITLE_TOO_MANY_REQUESTS" value="Error: demasiadas peticiones"/>
   <locale name="ERROR_TITLE_UNDEFINED_CACHE" value="Tipo de cache no definido"/>
   <locale name="ERROR_TITLE_UNDEFINED_SESSION" value="Sesión no definida"/>
+  <locale name="ERROR_TITLE_UNEXPECTED_ERROR" value="No se ha podido completar la operación"/>
   <locale name="ERROR_TITLE_VALIDATION" value="Error en la validación"/>
   <locale name="ERROR_TITLE_VARIABLE_DEFINITION" value="Error en la definición de variable"/>
   <locale name="ERROR_TITLE_VIEWING_PDF_FILE" value="Error cargando el fichero PDF"/>
@@ -1175,6 +1182,7 @@
   <locale name="HELP_PRINT_FORMAT_CRITERION" value="Seleccione los formatos de archivo en los que desea recuperar los datos"/>
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Seleccione el formato que desea aplicar a los datos numéricos"/>
   <locale name="HELP_PRINT_ORIENTATION_CRITERION" value="Forzar la orientación del informe"/>
+  <locale name="HELP_PRINT_ROWS_CRITERION" value="Filas de las tablas que paginan en el servidor: todas las filas de la búsqueda, ordenadas y filtradas como en pantalla (hasta un límite), o solo la página actual"/>
   <locale name="HELP_PRINT_SELECTION_CRITERION" value="Seleccione lo que desea imprimir: Todas las pestañas en la pantalla o sólo la seleccionada"/>
   <locale name="HELP_RESET_2FA_BUTTON" value="Restablecer la autenticación de dos factores en los usuarios seleccionados"/>
   <locale name="HELP_RESET_BUTTON" value="Borrar los datos de los criterios"/>
@@ -1268,6 +1276,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="HOURS" value="{0}h"/>
   <locale name="INFO_MESSAGE_PARSING_NUMBER_NULL" value="El parámetro {0} no puede ser analizado como número: &apos;&apos;{1}&apos;&apos; - Establecido como null"/>
   <locale name="INFO_TITLE_WEB_SERVICE_CALL" value="Información"/>
+  <locale name="LINK_OPENS_IN_NEW_TAB" value="(se abre en una pestaña nueva)"/>
   <locale name="MENU_ACT_USR" value="Notificar usuarios activos"/>
   <locale name="MENU_APP_INF" value="Acerca de"/>
   <locale name="MENU_AUDITS" value="Auditorías"/>
@@ -1335,6 +1344,13 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="MINUTES" value="{0}m"/>
   <locale name="MONTH" value="{0} mes"/>
   <locale name="MONTHS" value="{0} meses"/>
+  <locale name="MONTH_VIEW_EXCLUDED" value="excluido"/>
+  <locale name="MONTH_VIEW_LEGEND" value="Tachado: no se ejecuta"/>
+  <locale name="MONTH_VIEW_MONTH_DATES" value="{0}: {1} fechas"/>
+  <locale name="MONTH_VIEW_NEXT" value="Mes siguiente"/>
+  <locale name="MONTH_VIEW_PREVIOUS" value="Mes anterior"/>
+  <locale name="MONTH_VIEW_STRIP" value="Fechas por mes"/>
+  <locale name="MONTH_VIEW_UNSAVED" value="sin guardar"/>
   <locale name="MSG_PASSWD_NEW" value="Despues de introducir la password pulsar boton confirmar"/>
   <locale name="NO_SUBSCRIPTIONS" value="No hay suscripciones activas a notificaciones."/>
   <locale name="NOTIFICATIONS" value="NOTIFICACIONES"/>
@@ -1507,6 +1523,7 @@ Un sitio se define como un *nodo de aplicación separado*, con sus propias [base
   <locale name="PARAMETER_REPEAT_EACH" value="Repetir cada"/>
   <locale name="PARAMETER_REPORT" value="Informe"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientación"/>
+  <locale name="PARAMETER_PRN_ROWS" value="Filas a imprimir"/>
   <locale name="PARAMETER_RESTRICTION" value="Restricción"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Repita contraseña"/>
   <locale name="PARAMETER_SCREEN" value="Pantalla"/>
@@ -1837,6 +1854,7 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="GRID_GROUP_EXPAND" value="Expandir grupo"/>
   <locale name="GRID_GROUP_COLLAPSE" value="Contraer grupo"/>
   <locale name="GRID_GROUP_EMPTY" value="(vacío)"/>
+  <locale name="PRINT_ROWS_LIMIT_NOTICE" value="Solo se han impreso las primeras {0} filas de {1}: filtra la búsqueda para imprimir el resto"/>
   <locale name="GRID_GROUP_SUBTOTAL" value="Subtotal"/>
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Disposición del grid no guardada"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="No se ha podido guardar ni eliminar la disposición del grid"/>
@@ -2078,6 +2096,8 @@ Abra su aplicación de autenticación de dos factores y escanee el siguiente có
   <locale name="VALIDATOR_MESSAGE_DATE_RANGE" value="La fecha final no puede ser anterior a la fecha inicial"/>
   <locale name="DATE_RANGE_FROM" value="Desde"/>
   <locale name="DATE_RANGE_TO" value="Hasta"/>
+  <locale name="DATE_RANGE_CUSTOM" value="Rango personalizado…"/>
+  <locale name="DATE_RANGE_APPLY" value="Aplicar"/>
   <locale name="DATE_RANGE_PRESET_TODAY" value="Hoy"/>
   <locale name="DATE_RANGE_PRESET_1W" value="1 semana"/>
   <locale name="DATE_RANGE_PRESET_1M" value="1 mes"/>

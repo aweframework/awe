@@ -409,7 +409,14 @@ open and blocked updates; major updates of the legacy AngularJS client
 (`awe-client-angular`, `awe-tools` and the `awe-tests` applications) are only opened after
 someone ticks them there, since that client is being replaced in AWE 5. Major updates of the
 React client (`awe-client-react`) also wait for that approval: they need code changes, and with
-one run a week they would otherwise take the slots of the patch and minor updates. PrimeReact
+one run a week they would otherwise take the slots of the patch and minor updates. Major updates of
+Maven dependencies and plugins wait for the same approval (they usually need code or build changes), except the Spring
+Cloud train, which travels with the Spring platform. The React test application (`awe-tests/awe-boot-react`) installs
+the dependencies of the React client from its own lock file, which Renovate cannot regenerate without building the
+client: after every update of the client `package.json`, Renovate runs
+`awe-framework/awe-client-react/scripts/sync-test-app-lock.cjs` to refresh that lock in the same merge request, so the
+client patches still merge by themselves. A self-hosted Renovate only runs the commands listed in
+`RENOVATE_ALLOWED_COMMANDS` (the `Renovate` job of `.gitlab-ci.yml`). PrimeReact
 stays on version 10, because version 11 changed its licence (primeicons and primeflex are not
 affected). Security alerts come from the OSV database and cover direct
 dependencies only.

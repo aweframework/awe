@@ -307,6 +307,37 @@ aweApplication.factory("Screen",
           $screen.changeClass(action, false);
         },
         /**
+         * Scroll an element of the screen (its id is the target of the action) into view, at the top of its scroll
+         * container, and give it the focus without a second scroll, so the keyboard goes on from it: the section
+         * navigation of a long form (#993). An element that is not focusable gets tabindex -1; the scroll is instant
+         * when the user asks for reduced motion. An element that is not rendered yet is looked up again a few times.
+         * @param {object} action Action received
+         */
+        scrollTo: function (action) {
+          let id = action.attr("target");
+          let reveal = function (attempts) {
+            let element = id ? document.getElementById(id) : null;
+            if (!element) {
+              if (id && attempts > 1) {
+                setTimeout(() => reveal(attempts - 1), 50);
+              }
+              return;
+            }
+            let reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            if (typeof element.scrollIntoView === "function") {
+              element.scrollIntoView({block: "start", behavior: reduced ? "auto" : "smooth"});
+            }
+            if (!element.hasAttribute("tabindex") && element.tabIndex < 0) {
+              element.setAttribute("tabindex", "-1");
+            }
+            element.focus({preventScroll: true});
+          };
+          reveal(10);
+
+          // Close action
+          $actionController.acceptAction(action);
+        },
+        /**
          * Toggle Class
          * @param {object} action Action received
          */

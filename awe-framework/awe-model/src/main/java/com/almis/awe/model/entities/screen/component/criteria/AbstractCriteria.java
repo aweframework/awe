@@ -222,6 +222,12 @@ public abstract class AbstractCriteria extends Component {
   @XStreamAsAttribute
   private String presets;
 
+  // The client keeps the value of the criterion in the browser tab and sends it with the screen request when the screen
+  // is opened again without it, as a reload of the browser does (#993)
+  @XStreamAlias("keep-on-reload")
+  @XStreamAsAttribute
+  private Boolean keepOnReload;
+
   // Put label at left and give it a size
   @XStreamAlias("left-label")
   @XStreamAsAttribute

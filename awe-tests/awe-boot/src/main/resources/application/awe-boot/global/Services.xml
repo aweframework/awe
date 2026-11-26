@@ -478,6 +478,28 @@
     </java>
   </service>
 
+  <service id="deferredTestCancel">
+    <java classname="com.almis.awe.service.DummyService" method="deferredTestCancel">
+      <service-parameter name="taskId" type="INTEGER"/>
+      <service-parameter name="executionId" type="INTEGER"/>
+      <service-parameter name="externalReference" type="STRING"/>
+    </java>
+  </service>
+
+  <service id="deferredTestLaunch">
+    <java classname="com.almis.awe.service.DummyService" method="deferredTestLaunch">
+      <service-parameter name="taskId" type="INTEGER"/>
+      <service-parameter name="executionId" type="INTEGER"/>
+    </java>
+  </service>
+
+  <service id="webhookTestLaunch">
+    <java classname="com.almis.awe.service.DummyService" method="webhookTestLaunch">
+      <service-parameter name="day" type="STRING"/>
+      <service-parameter name="entity" type="STRING"/>
+    </java>
+  </service>
+
   <service id="testLaunchServiceOnEndApplication" launch-phase="APPLICATION_END">
     <java classname="com.almis.awe.service.DummyService" method="doNothing"/>
   </service>

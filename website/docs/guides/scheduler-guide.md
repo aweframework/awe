@@ -49,17 +49,28 @@ awe.scheduler.remote-scheduler-url=http://localhost:8090/scheduler/api/v1
 
 > **Note:** The remote scheduler base URL must target the scheduler instance API (default: `/scheduler/api/v1`).
 
+:::warning Breaking change: the scheduler API now requires authentication
+The scheduler instance now answers `/scheduler/api/**` only to requests with an AWE bearer token, and the scheduler instance needs the [AWE REST starter](../rest-module.md) to validate it. The main AWE instance must therefore log in with a user of the scheduler instance, configured in `awe.scheduler.remote-scheduler-user` and `awe.scheduler.remote-scheduler-password`. See [Scheduler API security](../scheduler-module.md#scheduler-api-security).
+:::
+
 
 * **[Tasks](#tasks)**
 * **[Servers](#servers)**
 * **[Calendars](#calendars)**
+
+| To | Open | Screen |
+|----|------|--------|
+| See what runs, waits or failed | **Activity** | `scheduler-activity` |
+| Create, edit, run or delete a task | **Tasks**, then the task | `scheduler-task-catalog`, `scheduler-task` and `scheduler-task-editor` |
+| Follow one flow run | A flow run link of Activity or of the task | `scheduler-flow-run` |
+| Manage servers, calendars or the engine | **Configuration** | `scheduler-configuration` |
     
 
 ## `Tasks`
 
 A task consists on a job associated to a trigger that is executed by the Scheduler in the configured time / moment.
 
-A task can also be concatenated with other tasks to create a workflow. This can be done by adding those other tasks as dependencies in the parent task configuration wizard.
+A task can also be concatenated with other tasks to create a workflow. This is done in each task that runs later: **When** › **After other tasks** of the [task editor](#configuration) chooses the tasks it runs after (see [Dependencies between tasks](dependencies-guide.md)).
 
 ### Types
 
@@ -77,6 +88,143 @@ A command task runs the value entered in the **Command** field as a shell comman
 - **Remote execution over SSH**: when **Run on remote server** is checked, a **Remote server** must be selected. The command is executed on that host through an SSH exec channel, and both its standard output and standard error are captured into the task execution log.
 
 Remote command execution requires the selected server to use the `ssh` connection type. Authentication is done with the server user together with either a password, a private key (optionally passphrase-protected), or both. See **[Servers](#servers)** for how to configure them, and the **[Configuration guide](../scheduler-module.md#ssh-remote-command-execution)** for the SSH host-key verification options.
+
+### Deferred executions
+
+A maintain task can finish later. This is for work that another system completes after the maintain returns, and that you do not want to hold a scheduler thread for. The maintain answers that it accepted the work, the execution stays **running** without holding any thread, and the other system (or your own code) completes the execution when the work ends.
+
+1. The scheduler launches the maintain, which starts the work in the other system and answers **deferred**.
+2. The scheduler releases its thread. The execution stays **running** and its dependencies are not launched.
+3. When the work ends, whoever finished it completes the execution with its final status (see [Completing the execution](#completing-the-execution)).
+4. The task dependencies are launched with the usual rules (`Launch dependencies in case of warning` / `in case of error`).
+
+#### The deferred answer
+
+A maintain answers deferred when its last step is a service that returns `SchedulerDeferred.accepted(externalReference, description)`:
+
+```java
+public ServiceData startExternalWork(Integer taskId, Integer executionId) {
+  // Start the work and hand the execution key to the system that will complete it
+  String reference = externalSystem.start(taskId, executionId);
+  return SchedulerDeferred.accepted(reference, "Waiting for the external system");
+}
+```
+
+```xml
+<!-- Services.xml -->
+<service id="startExternalWork">
+  <java classname="com.example.ExternalWorkService" method="startExternalWork">
+    <service-parameter name="taskId" type="INTEGER"/>
+    <service-parameter name="executionId" type="INTEGER"/>
+  </java>
+</service>
+
+<!-- Maintain.xml -->
+<target name="startExternalWork">
+  <serve service="startExternalWork">
+    <variable id="taskId" type="INTEGER" name="taskId"/>
+    <variable id="executionId" type="INTEGER" name="executionId"/>
+  </serve>
+</target>
+```
+
+Then create a maintain task that executes the `startExternalWork` maintain.
+
+- The deferred answer must be the answer of the **last step** of the maintain.
+- It works the same when the scheduler runs as an [external application](#remote-scheduler-setup): the answer travels back to the scheduler instance with the answer of the maintain call.
+- `externalReference` is an optional reference of the work in the other system, stored with the execution. It is cut to 256 characters.
+- `description` is optional. It is shown as the description of the execution while it waits, and it is cut to 2000 characters.
+
+#### The execution key
+
+The scheduler gives every maintain two reserved parameters: `taskId` and `executionId`. Declare variables with those names in the maintain target, as in the example above, to receive them. They identify the execution, so the maintain must hand them to whoever will complete it. They take priority over a task parameter with the same name.
+
+#### While the execution waits
+
+- The execution is stored as **running** with the description of the deferred answer.
+- The task dependencies are not launched and the execution is shown as **Waiting for confirmation** in the [Activity screen](#activity-screen).
+- No scheduler thread is held.
+
+#### Completing the execution
+
+The system that finishes the work calls the scheduler API (on the scheduler instance when you use a [remote scheduler](#remote-scheduler-setup)):
+
+```text
+POST /scheduler/api/v1/tasks/{taskId}/executions/{executionId}/complete
+```
+
+The request needs an AWE bearer token, like the rest of `/scheduler/api/**` (see [Scheduler API security](../scheduler-module.md#scheduler-api-security)). The body is a JSON object:
+
+| Field         | Description                                                                                    |       Required       |
+|---------------|:-----------------------------------------------------------------------------------------------|:--------------------:|
+| `status`      | Final status: `OK`, `WARNING`, `ERROR`, `STOPPED`, `INTERRUPTED` or `INFO` (case insensitive)  |     **Required**     |
+| `description` | Description of the execution, 2000 characters at most                                          |       Optional       |
+| `outputs`     | Object with text values for the dependencies (see [Outputs](#outputs))                         |       Optional       |
+
+```bash
+curl -X POST "https://scheduler.example.com/scheduler/api/v1/tasks/12/executions/340/complete" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"status": "OK", "description": "Calculation finished"}'
+```
+
+| Response | Meaning                                                                                                              |
+|:--------:|:---------------------------------------------------------------------------------------------------------------------|
+|   200    | The execution was completed. The body is `{"taskId": 12, "executionId": 340, "status": "JOB_OK"}`                    |
+|   400    | The `status` is missing or is not one of the allowed values, or the `description` is longer than 2000 characters      |
+|   401    | The request has no valid bearer token                                                                                |
+|   404    | The execution does not exist                                                                                         |
+|   409    | The execution cannot be completed. The body is `{"type": "...", "currentStatus": "JOB_OK"}`, with one of the types below |
+
+| 409 `type`               | Meaning                                                                                                           |
+|--------------------------|:------------------------------------------------------------------------------------------------------------------|
+| `execution-not-running`  | The execution was already completed, interrupted by its deadline or stopped. `currentStatus` is the status it has |
+| `execution-not-deferred` | The execution is not registered as deferred, so it cannot be completed from outside. With `currentStatus` `JOB_RUNNING` the maintain may not have answered yet: retry shortly if you expect it to be deferred |
+
+A `409` with `execution-not-running` is final: the execution is already closed and repeating the call will not change it, so do not retry it.
+
+The status decides what happens to the dependencies, with the usual rules: they are launched after `OK`, after `WARNING` only with `Launch dependencies in case of warning`, after `ERROR` only with `Launch dependencies in case of error`, and never after `STOPPED`, `INTERRUPTED` or `INFO`. The scheduler closes the execution once, writes its end, sends the task report and launches the dependencies; any other completion of the same execution does nothing.
+
+Code that runs in the same application as the scheduler can complete the execution without the API, with the `SchedulerExecutionCompletionService` bean:
+
+```java
+CompletionResult result = completionService.complete(taskId, executionId, TaskStatus.JOB_OK,
+  "Calculation finished", null);
+// result.outcome(): CLOSED, NOT_RUNNING, NOT_DEFERRED or UNKNOWN
+```
+
+#### Outputs
+
+The `outputs` of the completion reach the dependencies launched when the execution closes, as the other values of the parent task do: each dependency takes the value of every output whose name matches one of its **variable** parameters. An output replaces a parameter of the closed task with the same name, and an output without a name or a value is ignored.
+
+```bash
+curl -X POST "https://scheduler.example.com/scheduler/api/v1/tasks/12/executions/340/complete" \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"status": "OK", "outputs": {"resultFile": "/data/out/340.csv"}}'
+```
+
+A dependency with a variable parameter `resultFile` runs with `/data/out/340.csv`.
+
+#### Deadline, stop and restart
+
+- **Deadline**: an execution that is not completed within the task **Timeout**, or within `awe.scheduler.deferred.default-timeout` (24 hours by default) when the task has none, counted from the start of the execution, ends as **interrupted** with the timeout message and its dependencies are not launched. The scheduler checks the deadlines every `awe.scheduler.deferred.timeout-check-interval` (60 seconds by default), so the execution can end after its deadline by up to that interval. A completion that arrives later gets a `409`. See the **[Configuration guide](../scheduler-module.md#deferred-executions)**.
+- **Stop**: the stop action of the execution side panel (Activity, the history of the task and the flow run page) ends the waiting execution as **stopped**, without launching dependencies.
+- **Restart and cluster**: the state of a waiting execution is stored in the database, so it survives a restart. At startup the scheduler interrupts the executions that a stopped node left running, except the ones that are waiting to be completed. Every node checks the deadlines and any node can receive the completion, but only the first call that closes an execution ends it.
+
+#### Cancellation notice
+
+When a user stops a deferred execution or its deadline passes, the other system may still be working on it. Fill **Cancellation maintain** in the task (maintain tasks only) to tell it: the call that closes the execution launches that maintain once, where the task maintain runs (on the AWE application for an [external scheduler](#remote-scheduler-setup)), with these parameters:
+
+| Parameter           | Value                                              |
+|---------------------|:---------------------------------------------------|
+| `taskId`            | Task identifier                                    |
+| `executionId`       | Execution identifier                               |
+| `externalReference` | The `externalReference` of the deferred answer     |
+
+A completion through the API or the `SchedulerExecutionCompletionService` does not send it: the other system closed the execution itself. The notice never reopens or blocks the execution: when the maintain fails or answers an error, the execution stays closed and the failure is stored in its trace.
+
+#### Trace and counters
+
+Every deferred execution keeps, after it closes, who closed it and when (`API`, `DEADLINE` or `USER`) and the outcome of its cancellation notice (`SENT`, or `FAILED` with the error message). The side panel of the execution in the [Activity screen](#activity-screen) shows what a waiting execution waits for and its deadline, its **Waiting for confirmation** counter counts the executions that wait, and the **Engine** tab of the Configuration screen links to them.
 
 ### Task execution database
 
@@ -107,7 +255,7 @@ Nothing to configure. With [`awe.database.multidatabase-enable`](../properties.m
 </TabItem>
 <TabItem value="multi" label="Multi-database">
 
-On a deployment with `awe.database.multidatabase-enable=true`, add a task parameter in **step 2 (Task parameters)** of the wizard:
+On a deployment with `awe.database.multidatabase-enable=true`, add a task parameter in the **Parameters** section of the task editor:
 
 | Field  | Value                                                        |
 |--------|-------------------------------------------------------------|
@@ -144,20 +292,31 @@ This applies to **maintain** tasks only. A **command** task runs a shell command
 
 ### Configuration
 
-When creating a new task, a task creation wizard is used to personalize the task configuration.
+Tasks are created and changed in the **task editor** (`scheduler-task-editor`): **New task** in the **Tasks** catalog,
+**Edit** or **Duplicate** in the row menu of the catalog or in the task page. The editor is one page with six
+sections, each one described below; the navigation on the left marks the section in sight and the ones with errors, the
+summary on the right follows the changes, and **Save** opens the task page of the saved task. See the
+[task editor](../scheduler-module.md#task-editor) for its targets.
 
-The configuration wizard consists in 5 steps:
+| Section | Content | Below |
+|---------|---------|-------|
+| What it runs | Name, description and execution type with its fields | [1](#1-basic-information) |
+| Parameters | The parameters of the task | [2](#2-task-parameters) |
+| When | Manual, scheduled, when a file arrives, after other tasks or webhook | [3](#3-task-launch) |
+| Dependencies | The tasks that run after it, read only | [4](#4-task-dependencies) |
+| Behaviour | Timeout, executions kept, active and the three dependency switches | [1](#1-basic-information) |
+| Notifications | The report of the task | [5](#5-task-report) |
 
-#### 1. Basic information. ###
+#### 1. What it runs and Behaviour {#1-basic-information}
 
-In this step we have to add the task basic configuration.
+The fields of **What it runs** and **Behaviour**.
 
 | Element                                   | Definition                                                                                                                                       |                         Use                          |
 |-------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------------------|:----------------------------------------------------:|
 | Name                                      | Task name                                                                                                                                        |                     **Required**                     |
 | Active                                    | Task status, if not active the task would not be launched                                                                                        |                     **Required**                     |
 | Description                               | Task description                                                                                                                                 |                       Optional                       |
-| Max. stored executions                    | Maximum number of executions to be stored in the database (Used to calculate the average time). The default value is 10.                         |                       Optional                       |
+| Executions kept                           | Maximum number of executions to be stored in the database (Used to calculate the average time). The default value is 10.                         |                       Optional                       |
 | Timeout                                   | Maximum time for the task to finish. If the task execution time exceeds the timeout time (represented in seconds) the task will be interrupted   |                       Optional                       |
 | Execute                                   | The task execution type (Command or Maintain)                                                                                                    |                     **Required**                     |
 | Command                                   | Command to launch                                                                                                                                | **Required** (Only needed in `Command` launch type)  |
@@ -171,9 +330,9 @@ In this step we have to add the task basic configuration.
 
 > **Note:** To add a new maintain to the Scheduler, the maintain must be set to `public="true"`.
 
-#### 2. Task parameters ###
+#### 2. Parameters {#2-task-parameters}
 
-This step allows to add the needed parameters to the maintain or command for its execution.
+This section allows to add the needed parameters to the maintain or command for its execution.
 
 These parameters are loaded to the application context when the task is going to be executed. In this way, the task can get the parameters in the execution time.
 
@@ -195,25 +354,23 @@ The **Source** determines where each parameter takes its value from at execution
 - **Property** &mdash; the value is resolved at execution time from the application property whose key is in the **Value** field (for example a value configured in `application.yml`). Use it to keep environment-specific values out of the task definition.
 - **Variable** &mdash; the value is supplied by the operator **when the task is launched manually**. This is for inputs that are only known at run time (a business date, an entity id, a run mode&hellip;) and should not be hardcoded in the task.
 
-When a task has one or more `Variable` parameters, launching it from the task list opens a dialog with an editable grid listing exactly those parameters. Each row is pre-filled with its configured **Value** as an editable default; the operator reviews or changes the values and presses **Launch**, and the task runs with them. Tasks without `Variable` parameters launch directly, with no dialog.
+When a task has one or more `Variable` parameters, launching it with **Run…** (the Tasks catalog or the task page) opens the [run dialog](../scheduler-module.md#run-dialog) with an editable grid listing exactly those parameters. Each row is pre-filled with its configured **Value** as an editable default; the operator reviews or changes the values and presses **Run**, and the task runs with them. Tasks without parameters launch directly with **Run now**, with no dialog.
 
 > **Note:** The dialog only appears on **manual** launch, where an operator is present to fill it in. On **scheduled** and **file** launches there is nobody to prompt, so a `Variable` parameter falls back to its configured **Value**. On **dependency** launch the value is inherited from the parent task &mdash; see [Parameter propagation to dependencies](#parameter-propagation-to-dependencies).
 
-#### 3. Task launch ###
+#### 3. When {#3-task-launch}
 
-In this step we will configure the launch type for the task.
-
-We can choose from three different options:
+The **When** section chooses how the task is launched, as choice cards: manual, scheduled, when a file arrives, after other tasks or webhook.
 
 ##### 1. Manual ####
 
-The task will only be launched manually from the task list screen.
+The task will only be launched by hand: **Run…** or **Run now** in the Tasks catalog or in the task page.
 
-> **Note:** For a task to be added as a dependency, the launch type must be set to `Manual`.
+> **Note:** **After other tasks** is stored as a `Manual` launch with parents (see [4. Dependencies](#4-task-dependencies)).
 
 ##### 2. Scheduled ####
 
-The task will be launched with a cron pattern based schedule.
+The task will be launched with a cron pattern based schedule. The editor offers repetition presets (every N minutes or hours, daily, workdays, weekly, monthly, once) and *Custom*, with a preview of the next five runs (see the [task editor](../scheduler-module.md#task-editor)).
 
 See [schedule configuration guide](schedule-configuration) for more information about how to create schedules for a task.
 
@@ -238,19 +395,90 @@ folder, `ftp` connects over FTP, and `ssh` connects over SFTP.
 > authenticate with the credentials stored on the [server](#servers) itself, the same ones used for
 > remote command execution, so every task pointing at the same server shares them.
 
-#### 4. Task dependencies ###
+##### 4. Webhook ####
 
-In this step we will configure which tasks have to be executed after the current task finishes.
+The task is launched when another system sends a signed webhook to it. A webhook task has no schedule of its own: each valid webhook launches it once, immediately, as a manual launch does.
 
-Playing with these options, we can create a workflow.
+The hook of the task is defined with these fields:
 
-| Element  | Definition                                                                                                                                                                                                                          |     Use      |
-|----------|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|:------------:|
-| Task     | The task to be executed                                                                                                                                                                                                             | **Required** |
-| Blocking | Defines if the task is blocking or not. If it is, the task will be executed synchronously, and it will cancel the dependency launch stack if the task ends with an error. Otherwise, the dependency will be launched asynchronously | **Required** |
-| Order    | The order in which the synchronous task has to be launched in the synchronous dependency stack, the asynchronous dependencies will be launched as they come, with no defined order                                                  | **Required** |
+| Element         | Definition                                                                                                                                             |     Use      |
+|-----------------|:-------------------------------------------------------------------------------------------------------------------------------------------------------|:------------:|
+| Hook key        | Last part of the URL. Lowercase letters, digits and hyphens, 1 to 64 characters. Another task cannot use it: a repeated key is rejected when saving | **Required** |
+| Hook active     | A hook that is not active is answered with `409` and launches nothing                                                                                  | **Required** |
+| Secret property | Name of the application property that holds the signing secret. The secret itself is never stored or shown                                             | **Required** |
+| Event type      | Only webhooks of this `type` launch the task, the others are stored and ignored. Empty accepts any type                                                |   Optional   |
 
+The form shows the **Webhook URL** of the key, ready to copy into the sender:
 
+```text
+https://<host>/<context-path>/scheduler/api/v1/webhooks/triggers/<hookKey>
+```
+
+###### The request ######
+
+The request follows [Standard Webhooks](https://www.standardwebhooks.com/): a `POST` with a JSON body and the headers `webhook-id` (unique id of the message), `webhook-timestamp` (Unix seconds) and `webhook-signature`.
+
+```json
+{
+  "type": "fit.market-data.loaded",
+  "timestamp": "2026-11-13T06:00:02Z",
+  "data": { "date": "2026-11-12", "entity": "0049" }
+}
+```
+
+The body must be a JSON object with a `data` object and an optional `type`. The signature is `v1,` followed by the base64 of the HMAC-SHA256 of `{webhook-id}.{webhook-timestamp}.{body}` (the exact bytes of the body), keyed with the secret without its `whsec_` prefix, decoded from base64:
+
+```python
+import base64, hashlib, hmac
+key = base64.b64decode("whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=".removeprefix("whsec_"))
+signed = f"{msg_id}.{timestamp}.{body}".encode()
+signature = "v1," + base64.b64encode(hmac.new(key, signed, hashlib.sha256).digest()).decode()
+```
+
+To test a sender, this vector gives the expected signature (with the timestamp check disabled or the clock fixed):
+
+| Data | Value |
+|------|-------|
+| Secret | `whsec_AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8=` |
+| `webhook-id` | `0193f2a4-6c1e-7b3a-9d2e-5f8a1c4e7b20` |
+| `webhook-timestamp` | `1763029530` |
+| Body | `{"type":"job.finished","timestamp":"2025-11-13T10:25:30Z","data":{"jobId":"0193f2a0-1111-7aaa-8bbb-000000000001","status":"COMPLETED"}}` |
+| `webhook-signature` | `v1,A4hcS6QMtMJGUshESWRCI0SK2l7hfSW/LXYbcYD8Ef0=` |
+
+###### The responses ######
+
+| Response | When |
+|----------|------|
+| `202 {"messageId": "<webhook-id>"}` | Accepted, also when the `webhook-id` was already received. The task is launched later, outside the request |
+| `400` | The body is not a JSON object with a `data` object |
+| `401` | The signature or the timestamp are not valid, or the secret property has no value |
+| `404` | Unknown hook key |
+| `409` | The hook or its task are not active |
+| `413` | The body is bigger than `awe.scheduler.webhooks.max-body-size` |
+
+**Deduplication.** A webhook is identified by its hook key and its `webhook-id`. A webhook that was already received is answered with `202` again and does not launch the task a second time, so a sender can retry safely.
+
+**Processing.** The webhook is stored in an inbox and answered at once. A processor launches the task from the inbox every `awe.scheduler.webhooks.process-interval`. If the launch fails it is tried again after a growing wait, up to 3 attempts in total, and then the webhook stays failed with its error. Processed, ignored and failed webhooks are purged after `awe.scheduler.webhooks.inbox-retention`. The execution shows `webhook:<hookKey>` as who launched it. If the task is already running, the webhook launches another execution, as a manual launch does. While the scheduler is stopped the webhooks wait in the inbox, and they are launched when it starts again.
+
+###### Parameter pointers ######
+
+The **Parameters** section of a webhook task has a **JSON pointer** column. A pointer (for example `/date`) says which value of the `data` of the webhook goes into the parameter:
+
+- Only `VARIABLE` parameters with a pointer receive webhook values: the pointers are an allow list, and nothing else of the webhook reaches the task.
+- A pointer that is not in the webhook leaves the stored value of the parameter.
+- The mapped values become the **parameters of the run**, so they reach every step of the flow that the task starts (see [Flow runs and fan-in](dependencies-guide.md#flow-runs-and-fan-in)).
+
+The properties, the secret rotation and the migration are in the **[Configuration guide](../scheduler-module.md#webhook-launch)**.
+
+#### 4. Dependencies {#4-task-dependencies}
+
+The dependencies are chosen **in the task that runs later**: **When** › **After other tasks** lists the tasks it can run
+after, grouped in *Chosen*, *Available* and *Cannot be chosen* (the tasks that already run after it, which would close a
+loop). With several parents the task waits for all of them. The condition of each parent (launch its children on
+warning, on error) is set in the **Behaviour** of the parent and shown read only.
+
+The **Dependencies** section lists, read only, the tasks that run after the task, each one a link to its task page.
+See **[Dependencies between tasks](dependencies-guide.md)** for flow runs and fan-in.
 
 > **Note:** The dependencies can also have their own dependencies to create a workflow.
 
@@ -276,9 +504,9 @@ This reuses the same mechanism as the operator-supplied values on manual launch,
 Propagation is name-based: any dependent task that declares a `Variable` parameter matching a parent parameter name receives the parent's value at execution time &mdash; including values that may be sensitive (credentials, connection strings). Task configuration is an administrator-trusted boundary; do not attach dependencies of untrusted provenance to tasks holding sensitive parameters.
 :::
 
-#### 5. Task report ###
+#### 5. Notifications {#5-task-report}
 
-The last step is to choose a report type.
+The **Notifications** section chooses a report type.
 
 The report will give information about the task when it finishes.
 
@@ -324,7 +552,7 @@ Placeholders can reference two kinds of values: **task/execution metadata** (res
 
 **Task parameter variables**
 
-Any placeholder whose name matches a task parameter (from the task **Parameters** tab) is replaced with that parameter's value. For example, `${env}` resolves to the value of the `env` parameter.
+Any placeholder whose name matches a task parameter (from the **Parameters** section of the task) is replaced with that parameter's value. For example, `${env}` resolves to the value of the `env` parameter.
 
 **Resolution rules**
 
@@ -363,18 +591,67 @@ This option will launch the selected maintain as a report.
 
 ### Task management
 
-The existing tasks can be managed from the scheduler tasks screen, where we will have a list of the created tasks.
+The **Tasks** catalog (`scheduler-task-catalog`) lists every task with its last status, what it runs, when it is
+launched, its history, its next execution and its average time; the task opens its task page (`scheduler-task`) with
+its summary, history, dependencies and configuration. See [Tasks catalog](../scheduler-module.md#tasks-catalog) and
+[Task screen](../scheduler-module.md#task-screen).
 
-The list will show some basic information of each task, like the name, the launch type (icon), the last and next execution times, the task status and the execution average time.
+The row menu of the catalog (right click or **⋯**) and the header of the task page offer:
 
-When selecting one task, some options will be activated:
+| Option | Definition |
+|--------|------------|
+| View details | Opens the task page (catalog only; the name of the task does the same) |
+| Run… / Run now | Launches the task by hand. **Run…** opens the run dialog when it has parameters. It does not need to be a manual task |
+| Edit | Opens the task editor |
+| Duplicate | Opens the task editor with a copy: inactive, with its parents and without the tasks that run after it |
+| Activate / Deactivate | Activates or deactivates the task |
+| Delete | Deletes the task after a confirmation |
 
-| Option              | Definition                                                                                                                         | Multiple |
-|---------------------|:-----------------------------------------------------------------------------------------------------------------------------------|:--------:|
-| Update              | Update the selected task                                                                                                           |    No    |
-| Delete              | Delete the selected task/s                                                                                                         |   Yes    |
-| Start               | Launch the selected task as a manual task. It doesn't need to be a manual task in order to launch an instance of the task manually |    No    |
-| Activate/Deactivate | Activates / deactivates the selected task, the label changes depending on the selected task current status                        |    No    |
+### Activity screen
+
+The **Activity** screen (`scheduler-activity`) is the home of the scheduler: what is running, what waits for a confirmation and what has failed, in every task.
+
+| Part | Definition |
+|------|------------|
+| Engine status | A pill with the status of the engine (**Engine: running**, **Engine: paused** or **Engine: stopped**, with its icon) over a line with its Quartz instance and, while it runs, how long it has been running in the language of the user (for example **Quartz instance quartz-node-01 · running for 6 d 4 h**; `3 h 12 min`, `7 min` or `45 s` for shorter times). The instance is the Quartz instance id, or the scheduler name when the engine is not clustered. The reload button and every action of the engine menu refresh it (`getSchedulerMetadata`, fields `schedulerStatusCode`, `schedulerRunningFor` and `schedulerEngineLine`) |
+| Engine menu | The **Engine** button only operates the engine: it opens pause, resume, restart (with a confirmation) and clear and stop (with a confirmation), the same engine maintains as the **Engine** tab of the [Configuration screen](../scheduler-module.md#configuration-screen), aligned to the right edge of the button |
+| Counters | Cards with the number of executions running, waiting for confirmation, queued and with errors in the last 24 hours, and of the fire times of the next 24 hours, as their big value. They only inform: the status quick filter of the grid filters the list. The reload button, the stop and the relaunch refresh them |
+| Executions | A grid whose toolbar has its own search by task name and three quick filters, on one line: the status (All, Running, Waiting for confirmation, Queued, Error, OK), a segmented control with the count of each option, counted with the search, the origin and the dates; the origin, a dropdown (**Origin: All**, scheduled, manual, file or dependency, `getActivityOrigins`); and the start, a date range button (any date, last 24 h, last 7 days or last 30 days, `getActivityWindows`, or **Custom range…**: the first and last start day, with **Apply** or **Clear**, sent as `CrtExeWin.from` and `CrtExeWin.to`). Newest first, 50 per page (the default page of the service; 25, 100 or 200 in the pager): status, task (opens the task), execution, flow run (opens the run), origin, launched by, start, duration, progress of a running execution and the due time of an execution waiting for a confirmation |
+| By flow | The **Group by flow** switch over the grid shows the executions grouped by flow run instead (off, the list of executions comes back): a tree grid (`getActivityRunList`) with one row per flow run (its root task and execution, its status: running while one of its executions runs, then queued, error when one ended with error, stopped or interrupted, warning when one ended with warning or the run skipped a task, else OK; its number of executions under the status, its first start and its duration), its executions and the tasks it skipped (**Skipped**, no log) as its children, and the executions without flow run as rows of their own. It lists the newest 50 runs with at least one execution that matches the filters, all at once (no pager nor column sort). Its toolbar has the same search and filters (the status without counts): switching the view gives them the values of the toolbar that is left, except a custom date range. A run row opens its flow run; the rows of its executions have the task and flow links, the log button and **View details** of the executions view, with the same side panel (whose header shows its title instead of the row) |
+| Detail | The log button of a row, or **View details** in its menu (right click), opens a side panel with the execution data (its flow run by its root execution, as in the list), what a deferred execution waits for and until when, the live log, and the stop and relaunch actions |
+
+The status of a row is an icon and a text that never moves: a running execution shows a still play icon, not a spinner, and a running execution that waits for the confirmation of a deferred answer shows **Waiting for confirmation** with an hourglass in the warning tone instead of **Running**. An execution that ended with the info status shows **Info**. The other scheduler screens keep their status icons (they have no info status). The due time of a waiting execution is the time alone when it is due today, and the day before the time otherwise (`16/10 09:30`, or `02/01/2027 08:00` in another year), so a due time of tomorrow never reads as a time of today. The flow run of a row shows its root execution, `<root task name> #<execution>` (for example `Nightly load #12`), the execution that started the run; a run without a stored root shows the first 8 characters of its id, and a row without a run shows nothing. The link still opens the run by its id.
+
+### Activity of all tasks
+
+The executions of all tasks and the activity counters are read with the `getActivityExecutionList` and `getActivityCounters` queries (filters by task, status, origin, deferred state and start date, paged in the database); the options of the status quick filter and their counts with the `getActivityStateCounts` query. See **[Activity queries](../scheduler-module.md#activity-queries)**.
+
+The same data is served by the scheduler API (bearer token required, see **[Scheduler API security](../scheduler-module.md#scheduler-api-security)**):
+
+- `POST /scheduler/api/v1/executions`: a page of the executions. Body (JSON, every field optional):
+
+| Field | Type | Format and valid values |
+|-------|------|-------------------------|
+| `taskName` | text | Text contained in the task name, case insensitive |
+| `statuses` | list of integers (or one integer) | Execution statuses: `0` OK, `1` error, `2` warning, `3` stopped, `4` running, `5` queued, `6` interrupted, `7` info |
+| `origins` | list of texts (or one text) | `scheduled`, `manual`, `file`, `dependency` |
+| `deferred` | integer | `1` running executions waiting for the confirmation of a deferred answer, `0` running executions not waiting |
+| `state` | text | Option of the status quick filter: `running` (running, not waiting), `waiting` (waiting for a confirmation), `queued`, `error`, `ok`; blank for every status. It cannot come with `statuses` or `deferred` |
+| `startFrom`, `startTo` | text | First and last start day, included, as `dd/MM/yyyy` (a real day) |
+| `withinHours` | integer | Executions started in the last hours, `1` or more |
+| `page` | integer | Page, from `1` (default `1`) |
+| `max` | integer | Rows per page, from `1` to `500`; without it, `50` (`0`, a negative or a larger value is refused) |
+| `sort` | list of `{id, direction}` (or one) | Sort, applied in the database before the page, in the order of the list; without it, newest first. `id`: `ExeLstTim` (start), `TskNam` (task), `Sta` or `ExeStaTxt` (status), `ExeEla`, `ExePrg` or `ExeTim` (elapsed time, until now while it has not ended), `ExeLchBy` (launched by), `TypLch` or `ExeOriTxt` (origin); `direction`: `asc` or `desc`. Any other column or direction is refused |
+
+A value that is not valid is refused, never ignored: the answer is `400` with `{"type": "invalid-request", "detail": "The value api of the filter origins is not valid"}` (the detail is translated). In the screens the same value shows the error message *Invalid filter* and no rows. With a remote scheduler, the main instance checks the filters before calling it.
+
+The answer is a `ServiceData` whose `dataList` has `records` (total rows), `total` (pages), `page` and `rows`. Each row has `id` (`taskId-executionId`), `IdeTsk`, `TskNam`, `ExeTsk`, `TypLch` (launch group), `ExeOri`, `Sta`, `ExeStaIco`, `ExeLchIco`, `ExeLstTim` (start), `ExeEnd`, `ExeTim`, `ExePrg`, `ExeRun`, `ExeRunLbl`, `LchBy` (launched by text; `ExeLchBy` in the query), `ExeDes`, `ExeDfr`, `ExeDue`, `ExeDueTim`, `ExecutionLogPath` and `ExeEla` (elapsed seconds). The dates are not formatted as in the screen query: they come as JSON date values. `ExeStaIco` is `{icon, style, value, label}`: while the execution waits for a deferred confirmation its label is the waiting status, not the running one. `ExeRun` is `{value, label}` with the run id as `value` and its root execution as `label` (see the [Activity screen](#activity-screen)), and empty without a run; `ExeRunLbl` is that label alone (empty without a run). `ExePrg` is measured with the average time of the successful executions of its own task, read only for the tasks of the page.
+
+- `POST /scheduler/api/v1/executions/state-counts`: the options of the status quick filter with their counts. Same body as the page; only `taskName`, `origins`, `startFrom`, `startTo` and `withinHours` are counted, and the other fields are still validated. The `dataList` has one row per option, in this order: `value` (empty for every status, then `running`, `waiting`, `queued`, `error`, `ok`), `label` (a locale key), `count` and `tone` (`warning` for waiting, `danger` for error, empty for the others). An invalid value answers `400` as the page does.
+
+- `POST /scheduler/api/v1/executions/runs`: a page of the executions grouped by flow run (`getActivityRunList` in the [Activity queries](../scheduler-module.md#activity-queries)). Same body as the page: its `page`, `max` and `sort` apply to the top-level rows (the flow runs and the executions without run), and a run is listed when at least one of its executions matches the filters. The `dataList` counts the top-level rows in `records`; its `rows` are each run followed by its executions and the tasks it skipped (`id`, `RunPar`, `RunLeaf`, `RunExeCnt`, `RunExeTxt` and the fields of the page). An invalid value answers `400` as the page does.
+
+- `GET /scheduler/api/v1/executions/counters`: one row with `running`, `waiting`, `queued`, `errorsLast24h` and `upcomingNext24h`. `upcomingNext24h` counts the fire times of the next 24 hours of the visible triggers that can fire: paused, finished and in error triggers are left out, a blocked trigger (its job is still running) counts, and the calendar of each trigger skips its dates. Each trigger counts at most 1440 fire times (one per minute), so a trigger that fires every second counts 1440. The fire times its calendar excludes do not use those 1440: each trigger skips at most 8640 of them (one every 10 seconds) and stops counting past them. When the scheduler engine cannot be read, the other four counters are still returned and `upcomingNext24h` is empty (a warning is logged).
 
 ## `Servers`
 
@@ -388,7 +665,7 @@ The same server can be used by as many tasks as needed. Its connection credentia
 
 ### Configuration
 
-When creating a new server, the next fields have to be filled:
+The servers are in the **Servers** tab of the **Configuration** screen (`scheduler-configuration`). **New server**, or **Edit** in the row menu, opens a side panel with these fields:
 
 | Element            | Definition                                          |     Use      |
 |--------------------|:----------------------------------------------------|:------------:|
@@ -412,19 +689,23 @@ When creating a new server, the next fields have to be filled:
 
 > **Note:** An `ssh` server is used both for remote command tasks and for file-existence trigger tasks over SFTP. The configured host-key policy and `known_hosts` file apply to both, so a host trusted for command execution is also trusted for file checking.
 
-> **Note:** Server credentials (password, private key and passphrase) are stored encrypted, per server instance, so the same host can be registered several times with different credentials. On the edit screen they are never sent back to the client: leave a secret field blank to keep the stored value, or type a new value to replace it.
+> **Note:** Server credentials (password, private key and passphrase) are stored encrypted, per server instance, so the same host can be registered several times with different credentials. The side panel never receives them: it shows that a secret is saved, with **Change**, **Replace…** or **Remove**; leave it as it is to keep the stored value. **Test connection** tests the values of the form without saving them.
 
 ### Management
 
-The scheduler server list will show a list of servers with their basic information: name, server ip, connection protocol and status.
+The **Servers** tab lists the servers with their name, host, port, connection type, active state, the tasks that use
+them (**Used by**, a link to the Tasks catalog filtered by the server) and the last connection test of the session
+(**Last test**, never stored). It has a search by name or host, the active filter with its counts and **Test all**, which
+tests every active server.
 
-When selecting one of the servers from the list, some options will be enabled:
+The row menu (right click or **⋯**) offers:
 
-| Option                | Definition                                                                                                      | Multiple    |
-|-----------------------|:----------------------------------------------------------------------------------------------------------------|:------------|
-| Update                | Update the selected server                                                                                      | No          |
-| Delete                | Deletes the selected server/s                                                                                   | Yes         |
-| Activate / Deactivate | Activates / deactivates the selected server, the label changes depending on the selected servers current status | No          |
+| Option | Definition |
+|--------|------------|
+| Edit | Opens the server in the side panel |
+| Test connection | Tests the stored server |
+| Activate / Deactivate… | Activates the server, or deactivates it after a confirmation |
+| Delete | Deletes the server. Disabled while a task uses it: change the server of that task first (the server refuses it too) |
 
 
 ## `Calendars`
@@ -441,11 +722,12 @@ Each task can only have associated one calendar, but there can be created as man
 
 ### Configuration
 
-The calendar configuration procedure consists in two steps:
+The calendars are in the **Calendars** tab of the **Configuration** screen. **New calendar**, or **Edit** in the row
+menu, opens a side panel with the calendar and its dates; **Save** stores both, and the engine loads the calendar again.
 
 #### Create calendar
 
-The first step is to create the calendar itself, which will have the next basic information.
+The calendar has the next basic information.
 
 | Element       | Definition                  |     Use      |
 |---------------|:----------------------------|:------------:|
@@ -457,9 +739,11 @@ The first step is to create the calendar itself, which will have the next basic 
 
 #### Add dates
 
-Once the calendar is created, from the calendar configuration screen, we can add new dates by selecting the option edit on the top right side of the screen.
+The same side panel lists the days on which the tasks do not run. **Add date** adds a row, **Import file** adds the dates
+of an `.ics` or `.csv` file, and **Remove** takes one out; the dates are saved with the calendar. A read-only month view
+and a strip of the months with their counts show them, the unsaved ones included.
 
-When we get to the edition screen we will have to fill the next fields for each date.
+Each date has these fields.
 
 | Element     | Definition                                                   |     Use      |
 |-------------|:-------------------------------------------------------------|:------------:|
@@ -468,10 +752,11 @@ When we get to the edition screen we will have to fill the next fields for each 
 
 ### Management
 
-On the calendar list screen, when selecting one of them, the next options will be available:
+The **Calendars** tab lists the calendars with their name, description, dates (how many and the next one), active state
+and the tasks that use them. It has a search and the active filter with its counts. The row menu offers:
 
-| Option              | Definition                                                                                                          |  Multiple  |
-|---------------------|:--------------------------------------------------------------------------------------------------------------------|:----------:|
-| Edit                | Redirects to the edition screen where we can change the calendar data, and add/remove/update calendar dates         |     No     |
-| Delete              | Delete calendar and all its associated dates                                                                        |    Yes     |
-| Activate/Deactivate | Activates / deactivates the selected calendar, the label changes depending on the selected calendars current status |     No     |
+| Option | Definition |
+|--------|------------|
+| Edit | Opens the calendar and its dates in the side panel |
+| Activate / Deactivate… | Activates the calendar, or deactivates it after a confirmation |
+| Delete… | Deletes the calendar and its dates after a confirmation. When tasks use it, the confirmation lists them and the dates they will run on again, and **Delete and remove it from the task** removes it from them |

@@ -1948,6 +1948,22 @@ public class SeleniumUtilities implements IAweInstructions {
   }
 
   /**
+   * Click on the tab of a tab criterion whose label starts with a text, for a label that carries a count or a state
+   * («Servers 3», «Engine · Running»), and wait until it is the active one
+   *
+   * @param tabName    Tab name
+   * @param labelStart Start of the tab label
+   */
+  protected void clickTabStartingWith(String tabName, String labelStart) {
+    // Wait for tab not disabled
+    waitForTab(tabName);
+
+    // Click on the tab and wait for it to be the active one
+    clickSelector(frontEndInstructions.getTabStartingWith(tabName, labelStart));
+    waitUntil(toBeVisible(frontEndInstructions.getTabActiveStartingWith(tabName, labelStart)));
+  }
+
+  /**
    * Click on info button
    *
    * @param infoButtonName Button name
@@ -2466,6 +2482,20 @@ public class SeleniumUtilities implements IAweInstructions {
     By button = frontEndInstructions.findGridRowButton(gridId, search, columnId);
     waitUntil(BrowserCondition.allOf(toBeVisible(button), checkIfGridLoaderIsNotVisible()));
     clickSelector(button);
+  }
+
+  /**
+   * Click the link of a column in the row of a grid that contains a text, as the user does with a link column with
+   * actions (the flow run of an execution): the link selects its row and runs its actions
+   *
+   * @param gridId   Grid identifier
+   * @param search   Text of the row
+   * @param columnId Column of the link
+   */
+  protected void clickGridRowLink(String gridId, String search, String columnId) {
+    By link = frontEndInstructions.findGridRowLink(gridId, search, columnId);
+    waitUntil(BrowserCondition.allOf(toBeVisible(link), checkIfGridLoaderIsNotVisible()));
+    clickSelector(link);
   }
 
   /**
@@ -3356,10 +3386,8 @@ public class SeleniumUtilities implements IAweInstructions {
   protected void checkRowNotContains(String search) {
     By selector = frontEndInstructions.findGridCell(null, search);
 
-    BrowserCondition condition = BrowserCondition.allOf(toBeInvisible(selector), checkIfGridLoaderIsNotVisible());
-
-    // Assert element is not located
-    assertWithScreenshot(condition.toString(), condition.isMet(getBrowser()));
+    // Wait for the grid to load without the element: a single look fails while the grid is loading
+    waitUntil(BrowserCondition.allOf(toBeInvisible(selector), checkIfGridLoaderIsNotVisible()));
   }
 
   /**
@@ -4312,6 +4340,45 @@ public class SeleniumUtilities implements IAweInstructions {
     By selector = frontEndInstructions.getLogViewer();
     waitForText(locator(selector), text);
     checkTextContains(selector, text);
+  }
+
+  /**
+   * Wait until the flow graph of the scheduler shows a task
+   *
+   * @param task Name of the task that a node of the graph shows
+   */
+  protected void checkFlowGraphContains(String task) {
+    By selector = frontEndInstructions.getFlowGraphNode();
+    waitForText(locator(selector), task);
+    checkTextContains(selector, task);
+  }
+
+  /**
+   * Click the first visible node of the flow graphs of the page that shows a text (a page may keep several graphs and
+   * hide all but one, as the views of a flow run), as the user does to open the detail of its execution
+   *
+   * @param text Text that the node shows (the name of its task)
+   */
+  protected void clickFlowGraphNode(String text) {
+    AtomicReference<By> visibleNode = new AtomicReference<>();
+    waitUntil(BrowserCondition.of("a visible node of the flow graph to show '" + text + "'", browser -> {
+      // The nodes that show the text, in the order of the page, until the first visible one
+      for (int position = 1; ; position++) {
+        By node = frontEndInstructions.getFlowGraphNode(text, position);
+        try {
+          if (browser.count(locator(node)) == 0) {
+            return false;
+          }
+          if (browser.isVisible(locator(node))) {
+            visibleNode.set(node);
+            return true;
+          }
+        } catch (ElementNotFoundException | ElementReplacedException exc) {
+          return false;
+        }
+      }
+    }));
+    clickSelector(visibleNode.get());
   }
 
   /**

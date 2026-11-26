@@ -239,6 +239,32 @@ class ScreenElementAuthorizerTest {
   }
 
   @Test
+  void linkColumnsWithActionsAreAuthorizedAsButtonColumnsAndLinksWithoutActionsAreKept() {
+    Grid grid = new Grid();
+    grid.setId("GrdUsr");
+    Column delete = withActions(new Column(), null, server("maintain", "UsrDel"));
+    delete.setName("DelLnk");
+    delete.setComponentType("link");
+    Column open = withActions(new Column(), null, ButtonAction.builder().type("screen").target("user").build());
+    open.setName("OpnLnk");
+    open.setComponentType("link");
+    Column protectedLink = withActions(new Column(), null, dialog(null));
+    protectedLink.setName("PrtLnk");
+    protectedLink.setComponentType("link");
+    protectedLink.setPermission("users.update");
+    Column external = new Column();
+    external.setName("WebLnk");
+    external.setComponentType("link");
+    external.setPermission("users.update");
+    grid.addElement(delete).addElement(open).addElement(protectedLink).addElement(external);
+
+    Screen screen = screen(grid);
+    authorizer.apply(screen);
+
+    assertThat(screen.getElementsByType(Column.class)).extracting(Column::getName).containsExactly("OpnLnk", "WebLnk");
+  }
+
+  @Test
   void theSeparatorsLeftLeadingTrailingOrConsecutiveInAContextMenuAreRemoved() {
     Grid grid = new Grid();
     grid.setId("GrdUsr");
@@ -354,5 +380,29 @@ class ScreenElementAuthorizerTest {
 
     assertThat(buttons(screen)).containsExactly("ButOpn", "ButPnlCnl");
     assertThat(open.getViewMode()).isNull();
+  }
+
+  private static Column column(String name, String component, String permission, ButtonAction... actions) {
+    Column column = withActions(new Column(), null, actions);
+    column.setName(name);
+    column.setComponentType(component);
+    column.setPermission(permission);
+    return column;
+  }
+
+  @Test
+  void otherColumnComponentsAndLinksWithoutActionsAreKept() {
+    Grid grid = new Grid();
+    grid.setId("GrdUsr");
+    grid.addElement(column("TxtAct", null, "users.update", server("maintain", "UsrDel")))
+      .addElement(column("SelAct", "select", "users.update", server("maintain", "UsrDel")))
+      .addElement(column("IcoAct", "icon", null, server("maintain", "UsrDel")))
+      .addElement(column("WebLnk", "link", null));
+    Screen screen = screen(grid);
+
+    authorizer.apply(screen);
+
+    assertThat(screen.getElementsByType(Column.class)).extracting(Column::getName)
+      .containsExactly("TxtAct", "SelAct", "IcoAct", "WebLnk");
   }
 }

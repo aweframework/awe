@@ -30,6 +30,17 @@ describe('awe-react-client/test/js/components/AweTabsTest.jsx', () => {
     expect(document.querySelector("div.p-tabmenu")).not.toBeNull();
   });
 
+  it('draws the icon of each option in its own tab and no icon in a tab whose option has none (#993)', () => {
+    const options = [{label: 'one', value: 'one', icon: 'lucide:layout-dashboard', selected: true},
+      {label: 'two', value: 'two', icon: 'lucide:settings'}, {label: 'three', value: 'three'}];
+    renderWithProviders(<AweTabs id="tabs"/>, {preloadedState: {...preloadedState, components: {
+      tabs: {...preloadedState.components.tabs, model: {values: options}}}}});
+
+    const tabIcons = [...document.querySelectorAll("[data-testid='tab']")]
+      .map(tab => tab.querySelector(".p-tab-icon use")?.getAttribute("href") || null);
+    expect(tabIcons).toEqual(["/icons/lucide-sprite.svg#layout-dashboard", "/icons/lucide-sprite.svg#settings", null]);
+  });
+
   const withInvalidField = (error) => ({
     ...preloadedState,
     components: {

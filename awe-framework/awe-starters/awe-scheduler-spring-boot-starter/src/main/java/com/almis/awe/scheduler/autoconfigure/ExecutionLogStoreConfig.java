@@ -10,6 +10,7 @@ import com.almis.awe.scheduler.log.FileExecutionLogStore;
 import com.almis.awe.scheduler.log.callback.ExecutionCallbackLogFilter;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.AllNestedConditions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -28,12 +29,16 @@ import org.springframework.context.annotation.Configuration;
  * {@code XmlHotReloadConfig} in {@code awe-spring-boot-starter}) so each store adapter can be
  * exercised in isolation without wiring the whole {@code SchedulerConfig} bean graph.
  */
+@Slf4j
 @Configuration
 @EnableConfigurationProperties(SchedulerConfigProperties.class)
 public class ExecutionLogStoreConfig {
 
   /**
    * File-backed execution log store: the default, reproducing the pre-existing on-disk behavior.
+   * <p>
+   * An application that uses a remote scheduler with this store logs one WARN: the activity log viewer
+   * reads the application's own store, so the logs written by the remote scheduler are not shown.
    *
    * @param schedulerConfigProperties Scheduler configuration properties
    * @return File execution log store
@@ -41,6 +46,12 @@ public class ExecutionLogStoreConfig {
   @Bean
   @ConditionalOnProperty(name = "awe.scheduler.execution-log-store", havingValue = "file", matchIfMissing = true)
   public ExecutionLogStore fileExecutionLogStore(SchedulerConfigProperties schedulerConfigProperties) {
+    if (schedulerConfigProperties.isRemoteEnabled() && !schedulerConfigProperties.isSchedulerInstance()) {
+      log.warn("The remote scheduler is enabled (awe.scheduler.remote-enabled=true) with the file execution log store: "
+        + "the activity log viewer reads this application's own store, so the executions of the remote scheduler "
+        + "will not show their logs. Set awe.scheduler.execution-log-store=database on both instances and "
+        + "awe.scheduler.remote-callback-user on this application.");
+    }
     return new FileExecutionLogStore(schedulerConfigProperties.getExecutionLogPath());
   }
 

@@ -213,21 +213,17 @@ record that the create made. Three rules keep the classes independent:
   use data of your own: a class creates the records that it updates and deletes, with names that no other class uses
   (the email server tests use `auth server` and `plain server`, not the same name). The grids are searched by the text
   that a row contains, so no name may be contained in the name of another class's record (`Manual task` and
-  `Prerequisite task`, not `Task` and `Task 2`). A record that a class only needs as a prerequisite (the scheduled task
-  tests use a calendar and a manual task for their custom launch and their dependencies) is created by that class at the
+  `Prerequisite task`, not `Task` and `Task 2`). A record that a class only needs as a prerequisite is created by that class at the
   start and deleted at the end, after the records that use it. The CRUD classes (`AbstractCrudTests`) do the same: the module and the database classes create their own site, and the user class its own profile.
 - **`gotoScreen` does not reload the screen that is already open.** The client keeps its criteria, its pending reloads and
   the row that the previous test selected, and a grid that reloads afterwards loses that selection, so a test that selects
   a row right after another one on the same screen can fail on a button that stays disabled. Where it matters, go through
-  another screen first (the scheduler tests do it in `AbstractSchedulerTests.openScreen`). In the same way, a test must not
-  leave background work running into the next one: a scheduled task with dependencies launches them when it ends, so the
-  scheduled task tests run it before the dependencies are added.
+  another screen first (the scheduler tests do it in `SchedulerTestsIT.openScreen`). In the same way, a test must not
+  leave background work running into the next one: a task that is still running launches the tasks that run after it
+  when it ends.
 - **A test that changes something global puts it back even when it fails.** Do it in an `@AfterEach` that runs only when
   the test did not finish its own cleanup, with a flag that the test sets before the step that may change the state and
-  clears after the step that restores it. `SchedulerManagementTestsIT` stops and restarts the one scheduler of the
-  application, which the other scheduler classes need running: it is a class of its own, each test ends by starting the
-  scheduler again, and its cleanup presses the restart button (it works whatever state the scheduler is in) when the test
-  fails in between. `IntegrationTestsIT` removes the screen configuration that it stores in the same way.
+  clears after the step that restores it. `IntegrationTestsIT` removes the screen configuration that it stores in this way.
 
 The classes that come from splitting a long one keep its `@Tag`, so they run in the same CI job and no new job is needed.
 A React job lists its classes in `TEST_CLASSES`: replace the old name with the new ones (a test of the React application
@@ -606,6 +602,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `contextMenuOnWizard(String wizardId)` | Opens the context menu of a wizard with a right click on its active step |
 | `clickGridCellButton(String gridId, String rowId, String columnId)` | Clicks the button of a grid cell |
 | `clickGridRowButton(String gridId, String search, String columnId)` | Clicks the button of a column in the row of a grid that contains a text, as the user does with a row action (the pencil of a row): the button selects its row (only it) and runs its actions |
+| `clickGridRowLink(String gridId, String search, String columnId)` | Clicks the link of a column in the row of a grid that contains a text, as the user does with a link column with actions (the flow run of an execution): the link selects its row and runs its actions |
 | `selectAllRowsOfGrid(String gridId)` | Selects every row with the checkbox of the header |
 | `checkAllRowsSelected(String gridId)` | Checks that every row of a grid is selected |
 | `clickGridViewport(String gridId)` | Clicks the area of the grid that shows the rows, outside any row |
@@ -808,6 +805,7 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | Step | What it does |
 |---|---|
 | `clickTab(String tabName, String tabLabel)` | Clicks a tab of a tab criterion. The label is the locale key (AngularJS) or the translated text (React) |
+| `clickTabStartingWith(String tabName, String labelStart)` | Clicks the tab of a tab criterion whose label, as the user reads it, starts with a text, for a label that carries a count or a state (`Servers 3`, `Engine · Running`), and waits until it is the active one. The tab must be in sight (it does not open the AngularJS "more" menu) |
 | `checkActiveWizardStep(String number)` | Checks the number of the active step of a wizard |
 | `checkTagListContains(String tagListId, String text)` | Checks that a tag list (text view) contains a text |
 | `checkTabActive(String tabId, String tabLabel)` | Checks that a tab criterion shows a tab as the active one. The label is the locale key (AngularJS) or the translated text (React) |
@@ -830,6 +828,8 @@ edited). The table lists one form and says "(also with `rowId`)" when the other 
 | `checkMapRouteVisible(String mapId)` | Checks that a map draws a route (React client only) |
 | `checkLogViewerContains(String text)` | Waits until the log viewer shows a text |
 | `checkFileViewerContains(String text)` | Waits until the file viewer shows a text |
+| `checkFlowGraphContains(String task)` | Waits until a node of the scheduler flow graph shows a task |
+| `clickFlowGraphNode(String text)` | Clicks the first visible node of the flow graphs of the page that shows a text (the views of a flow run keep their graphs and hide all but one), as the user does to open the detail of its execution |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Checks a text inside the frame that embeds an external application. The selector belongs to that application, so it is the one literal you may pass |
 
 ### Downloads
@@ -1107,7 +1107,7 @@ browser tool of the AWE pipeline. The name is not case sensitive, and a value th
 
 ```
 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
-  -Dawe.test.tool=selenium -Dawe.test.browser=headless-chrome -Dit.test=SchedulerCalendarTestsIT
+  -Dawe.test.tool=selenium -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
 ```
 
 #### Playwright {#playwright-pilot}
@@ -1148,7 +1148,7 @@ keep the browsers somewhere else, for instance in a folder that the CI caches.
 
 ```
 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
-  -Dawe.test.tool=playwright -Dawe.test.browser=headless-chrome -Dit.test=SchedulerCalendarTestsIT
+  -Dawe.test.tool=playwright -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
 ```
 
 The unit tests of `awe-testing` that run a real Chromium through Playwright never download a browser: they use the one that is
@@ -1161,10 +1161,11 @@ suites below run Chromium and Firefox. To check the Firefox of the adapter on yo
 installed skips it).
 
 **Playwright jobs in the AWE pipeline.** The pipeline of AWE runs the same suites as the Selenium jobs with
-`awe.test.tool=playwright`, as **16 jobs**: one for each combination of engine (AngularJS or React), browser (Chromium or
-Firefox) and suite (application and integration, CRUD, criteria and grids, regression, websocket and print, and scheduler). The
+`awe.test.tool=playwright`, as **14 jobs**: one for each combination of engine (AngularJS or React), browser (Chromium or
+Firefox) and suite (application and integration, CRUD, criteria and grids, regression, websocket and print, and scheduler, which
+only the React engine has). The
 AngularJS jobs run the application `awe-tests/awe-boot` and the React jobs `awe-tests/awe-boot-react`. Each job is named after what it
-runs, `E2E · <engine> · <browser> · <suite>` (for example `E2E · React · Chromium · CRUD` or `E2E · AngularJS · Firefox · Scheduler`);
+runs, `E2E · <engine> · <browser> · <suite>` (for example `E2E · React · Chromium · CRUD` or `E2E · AngularJS · Firefox · Regression`);
 the Selenium jobs are named `Selenium · <engine> · <browser> · <suite>` (`Selenium · React · Chrome · Scheduler`,
 `Selenium · React · Firefox · Scheduler`), so no name repeats. The suite names are short: `Application` (application and
 integration), `CRUD` (CRUD, criteria and grids), `Regression` (regression, websocket and print) and `Scheduler`. They are explicit jobs, not a `parallel: matrix`: GitLab names a matrix job
@@ -1178,15 +1179,12 @@ in the artifacts of the job like the evidence of the Selenium jobs; the screen r
 (`awe.test.allowed-recording=false`), since Playwright records the page itself.
 
 - **When they run.** Automatically on every merge request with code changes, on `develop` and on `master`; merge requests run only the Chromium jobs (the ones with Chromium in their name) of the engine whose code changed (a change limited to the React client skips the AngularJS jobs, one limited to the AngularJS client skips the React jobs). The Firefox jobs (`E2E · <engine> · Firefox · <suite>`) and `Build · Firefox cache` run on `master` and, on `develop`, only in the "Nightly Firefox" pipeline schedule (CI/CD > Schedules, with the variable `FIREFOX_NIGHTLY=true`), whose pipeline runs nothing else but `Build · Maven`. They do not run on
-  `support/*`, because `support/4.x` has no Playwright adapter. The Selenium jobs (`Selenium · <engine> · Chrome · <suite>` and `Selenium · <engine> · Firefox · <suite>`) run on `master`, on `support/*` and in the weekly "Weekly Check" pipeline schedule on `develop`, not on merge
-  requests or ordinary pushes.
+  `support/*`, because `support/4.x` has no Playwright adapter. The Selenium jobs (`Selenium · <engine> · Chrome · <suite>` and `Selenium · <engine> · Firefox · <suite>`) run on `support/*` only, never on merge
+  requests, `develop` or `master`.
 - **They gate the pipeline.** A failing Playwright job fails the pipeline, stops `Analysis · Sonar` and the release jobs, and
   prevents Renovate from automerging, exactly like a Selenium job. They have the same [per-test rerun](#a-failed-test-is-rerun-alone)
   and the same job retry (#766), and the same for Firefox as for Chromium. Their jacoco files have a different name per job
   (`jacoco-${TEST_NAME}-it.exec`), so the coverage of both tools is kept when both ran.
-- **How to compare.** On `master` and in the weekly scheduled pipeline both tools run. Open the Playwright job and the Selenium job
-  of the same suite and read the failsafe summary (`Tests run: ...`) and the `Playwright ...` line that the Playwright job
-  prints at the end of its log, with its status and the time since the job started.
 
 Chromium is started with `--disable-dev-shm-usage` (the shared memory of a container is too small for it) and, when the
 sandbox cannot work, without its sandbox (`--no-sandbox`): that is the case when it runs headless, when the process runs as
@@ -1460,13 +1458,13 @@ The test applications are `awe-tests/awe-boot` (AngularJS) and `awe-tests/awe-bo
 
 ```
 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
-  -Dawe.test.browser=headless-chrome -Dit.test=SchedulerCalendarTestsIT
+  -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
 ```
 
 - `-Dawe.test.browser` takes `headless-chrome` or `headless-firefox` (also `chrome` and `firefox` to watch the browser).
   `-Dawe.test.tool` is `selenium` and can be left out (see [Automation tool](#automation-tool-awetesttool)).
 - `-Dit.test=` takes a class, several separated by commas (`UserAdminTestsIT,CriteriaTestsIT`) or a method
-  (`SchedulerCalendarTestsIT#t001_...`). In `awe-boot` the suites are also selected by tag (`-Dgroups=SchedulerIT`).
+  (`SchedulerTestsIT#t001_...`). In `awe-boot` the suites are also selected by tag (`-Dgroups=ApplicationIntegrationIT`).
 - The application starts on port 8080. To use another one, set it in the environment (`SERVER_PORT=8090`); the browser
   reads the address from `awe.test.start-url`, which follows `server.port`.
 - Add `xvfb-run -a` in front of `mvn` when the machine has no display (for instance WSL).
@@ -1639,7 +1637,7 @@ slower machine and with a different Firefox or Chrome build. To reproduce it, ru
    SERVER_ADDRESS=0.0.0.0 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
      -Dawe.test.browser=service-chrome -Dawe.test.browser-host=localhost -Dawe.test.browser-port=4444 \
      -Dawe.test.server-host=host.docker.internal -Dawe.test.server-port=8080 \
-     -Dawe.test.allowed-recording=false -Dit.test=SchedulerCalendarTestsIT
+     -Dawe.test.allowed-recording=false -Dit.test=SchedulerTestsIT
    ```
 
    Use `service-firefox` with the `selenoid/firefox` image for Firefox. `-Dawe.test.allowed-recording=false` is needed

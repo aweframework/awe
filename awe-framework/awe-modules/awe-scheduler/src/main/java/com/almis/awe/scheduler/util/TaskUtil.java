@@ -19,6 +19,8 @@ public class TaskUtil {
         return SCHEDULED_GROUP;
       case FILE_TRACKING:
         return FILE_TRACKING_GROUP;
+      case WEBHOOK:
+        return WEBHOOK_GROUP;
       default:
         return MANUAL_GROUP;
     }
@@ -35,8 +37,21 @@ public class TaskUtil {
         return SCHEDULED;
       case FILE_TRACKING_GROUP:
         return FILE_TRACKING;
+      case WEBHOOK_GROUP:
+        return WEBHOOK;
       default:
         return MANUAL;
     }
+  }
+
+  /**
+   * A task launched on demand has no trigger of its own: it is not added to the scheduler, it only runs when
+   * something launches it (an operator, a webhook)
+   *
+   * @param taskLaunchType Task launch type
+   * @return True for the manual and webhook tasks
+   */
+  public static boolean isLaunchedOnDemand(Integer taskLaunchType) {
+    return MANUAL.getValue().equals(taskLaunchType) || WEBHOOK.getValue().equals(taskLaunchType);
   }
 }

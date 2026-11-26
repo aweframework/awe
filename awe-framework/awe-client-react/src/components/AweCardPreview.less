@@ -1,0 +1,136 @@
+// Tiles, details and preview style of the card (#993, T37). Shared by both engines (the AngularJS card.less imports this
+// file): the same classes in the React AweCard and the AngularJS awe-card directive
+
+// Tiles (tiles field): an ordered list of small boxes in a grid, as many columns as fit (five in a section card of a
+// wide screen, fewer on a narrow one), each one a label on top, a bold value and a muted hint; named by the label above
+.awe-card .awe-card-tiles-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  min-width: 0;
+}
+
+.awe-card .awe-card-tiles-label {
+  font-size: var(--awe-font-size-label);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-field-label);
+}
+
+.awe-card .awe-card-tiles {
+  display: grid;
+  // Columns of at least 7rem (1.75 × --awe-space-16); escaped so LESS leaves the CSS min() alone
+  grid-template-columns: repeat(auto-fit, minmax(~"min(100%, calc(var(--awe-space-16) * 1.75))", 1fr));
+  gap: var(--awe-space-2);
+  margin: 0;
+  padding: 0;
+  font-size: var(--awe-font-size-sm);
+  font-variant-numeric: var(--awe-font-variant-numeric);
+  list-style: none;
+}
+
+.awe-card .awe-card-tile {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: var(--awe-space-2) var(--awe-space-3);
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  border-radius: var(--awe-radius-sm);
+}
+
+.awe-card .awe-card-tile-value {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+}
+
+.awe-card .awe-card-tile-hint {
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+// Details (details field): a note folded under its label
+.awe-card .awe-card-details {
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+
+  > summary {
+    width: fit-content;
+    font-size: var(--awe-font-size-sm);
+    color: var(--awe-color-primary-text);
+    cursor: pointer;
+    border-radius: var(--awe-radius-xs);
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: var(--awe-focus-ring-offset);
+    }
+  }
+
+  > p {
+    margin: var(--awe-space-2) 0 0;
+  }
+}
+
+// Preview card (style card-preview): the result of a form computed live (a schedule in words and its next runs). A
+// neutral surface without shadow, the icon on the left of the title, which reads as a sentence (its strong segments
+// bold), and the rest of the card under them at its full width
+.awe-card.card-preview {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: var(--awe-space-3);
+  row-gap: var(--awe-space-4);
+  align-items: start;
+  padding: var(--awe-space-4);
+  background-color: var(--awe-color-surface-subtle);
+  border: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  border-radius: var(--awe-radius-lg);
+  box-shadow: none;
+
+  > * {
+    grid-column: 1 / -1;
+  }
+
+  > .awe-card-header {
+    display: contents;
+  }
+
+  .awe-card-heading {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .awe-card-icon {
+    grid-column: 1;
+    grid-row: 1;
+    width: auto;
+    height: auto;
+    padding-top: var(--awe-space-0-5);
+    color: var(--awe-color-primary-text);
+    background-color: transparent;
+
+    .awe-icon,
+    svg {
+      width: var(--awe-size-icon-lg);
+      height: var(--awe-size-icon-lg);
+    }
+  }
+
+  .awe-card-title {
+    margin: 0;
+    font-size: var(--awe-font-size-md);
+    font-weight: var(--awe-font-weight-normal);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-emphasis);
+
+    strong {
+      font-weight: var(--awe-font-weight-semibold);
+    }
+  }
+
+  .awe-card-description {
+    margin: 0;
+    font-size: var(--awe-font-size-xs);
+    color: var(--awe-color-text-muted);
+  }
+}

@@ -39,6 +39,7 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
   ...
   <search ... />
   <quick-filter ... />
+  <toolbar-criteria ... > ... </toolbar-criteria>
 </grid>
 ```
 ## Estructura de grid {#grid-structure}
@@ -78,6 +79,7 @@ Para definir un **grid** o un **treegrid** en AWE debe seguir la siguiente estru
 | show-toolbar            | Opcional        | Boolean | Muestra la [barra de herramientas](#toolbar) del grid, con el diálogo de columnas y el botón de maximizar                                              | Por defecto `true`. Use `false` para desactivarla (los [filtros rápidos](#quick-filters) del grid se siguen mostrando)                                                                                                      |
 | show-columns-button     | Opcional        | Boolean | Muestra el botón de columnas de la [barra de herramientas](#toolbar). Si se oculta, se ignora la disposición de columnas que guardó el usuario (no se aplica ni se guarda) | Por defecto `true`. `show-toolbar="false"` también lo oculta |
 | show-maximize-button    | Opcional        | Boolean | Muestra el botón de maximizar de la [barra de herramientas](#toolbar) | Por defecto `true`. `show-toolbar="false"` también lo oculta |
+| send-when-hidden        | Opcional        | Boolean | Envía los valores del grid (sus columnas, sus valores seleccionados y sus filas seleccionadas) con las peticiones de la pantalla mientras el grid está oculto por una [dependencia](dependencies.md) `show`/`hide` sobre el grid. Con `false` un grid oculto no envía ninguno, así que dos grids de una pantalla que se muestran de uno en uno pueden usar los mismos nombres de columna (el visible es el que leen los destinos; los nombres de columna de un grid son únicos en el grid). Ambos motores | Por defecto `true` |
 | toolbar-labels          | Opcional        | String  | Qué botones del final de la [barra de herramientas](#toolbar) muestran su etiqueta: `true` (todos), `false` (ninguno, solo el icono con la etiqueta como tooltip) o una lista separada por comas de `group-by`, `saved-searches`, `columns` y `maximize`. Vea [etiquetas de los botones](#toolbar-labels) | Por defecto: [`grid-toolbar-labels`](../properties.md#awe.application.component.grid-toolbar-labels) (`false`, solo icono) |
 | columns-panel           | Opcional        | String  | Cómo muestra la [barra de herramientas](#toolbar) las columnas: un popover anclado al botón de columnas, un diálogo modal o un [panel lateral](side-panel.md) anclado al borde derecho | `popover`, `dialog` o `side-panel`. Por defecto: [`grid-columns-panel`](../properties.md#awe.application.component.grid-columns-panel) (`popover`) |
 | move-rows               | Opcional        | Boolean | Añade una columna inicial con un asa para [mover las filas arrastrándolas](#drag-and-drop). No disponible en grids en árbol | El valor predeterminado es `false` |
@@ -265,7 +267,8 @@ Inactivos 12**. Declare un `<quick-filter>` dentro del grid. Funciona en **los d
 | target-action | **Obligatorio** | String | Consulta o enumerado que devuelve las opciones                                                           |         |
 | server-action | Opcional        | String | Acción de servidor que recarga las opciones                                                              | Por defecto `data` |
 | value         | Opcional        | String | Opción elegida al abrir la pantalla                                                                      | Por defecto: vacío, la opción con valor vacío (*Todos*) |
-| label         | Opcional        | String | Nombre accesible del grupo de botones, que leen los lectores de pantalla. No se muestra                  | **Nota:** Puede usar los ficheros de [i18n](i18n-internationalization.md) (locales). Por defecto `SCREEN_TEXT_FILTERS` |
+| label         | Opcional        | String | Nombre del filtro rápido. El control segmentado solo lo lee (lectores de pantalla); un `dropdown` lo muestra antes de la opción elegida (*Origen: Todos*) y un `date-range` solo lo lee | **Nota:** Puede usar los ficheros de [i18n](i18n-internationalization.md) (locales). Por defecto `SCREEN_TEXT_FILTERS` |
+| display       | Opcional        | String | Cómo lo muestra la barra: un [control segmentado](#quick-filters), un [botón desplegable](#dropdown-and-date-range-quick-filters) o un [botón de rango de fechas](#dropdown-and-date-range-quick-filters) | `segmented` (por defecto), `dropdown` o `date-range` |
 
 **Opciones.** El destino devuelve una fila por opción, en el orden en que se muestran:
 
@@ -334,7 +337,112 @@ el valor vacío de *Todos* deje el grid sin filtrar:
 - Sigue los modos claro y oscuro y las densidades cómoda y compacta, con los tokens del control segmentado.
 - La barra de herramientas muestra los filtros rápidos también cuando el grid usa `show-toolbar="false"`: solo se ocultan
   los controles de agrupación de filas y los botones de columnas y maximizar.
-- Declare como mucho uno por grid; solo se usa el primero.
+- Un grid puede declarar varios filtros rápidos: la barra de herramientas los muestra en el orden del XML, cada uno con
+  su propio grupo de botones. Cada uno es un criterio con su propio `id`, sus opciones y sus recuentos opcionales; todos
+  se envían con el grid, elegir una opción en cualquiera de ellos filtra el grid y cada filtrado del grid los recarga
+  todos, así los recuentos de uno siguen a los demás. Dé a cada uno un `label`, para que los lectores de pantalla
+  distingan los grupos. Un grid con un solo filtro rápido funciona como antes.
+- El primer filtro rápido es el principal: las [búsquedas guardadas](#saved-searches), la búsqueda por defecto y el
+  contexto de la [barra de selección](#selection-bar) solo leen ese.
+- Para opciones fijas sin recuento, apunte el destino a una consulta que lea un enumerado
+  (`<query id="..." enumerated="...">` con los campos `value` y `label`).
+
+#### Filtros rápidos desplegables y de rango de fechas {#dropdown-and-date-range-quick-filters}
+
+Varios controles segmentados llenan pronto la barra. Un filtro rápido con `display="dropdown"` es en su lugar un botón
+compacto, **Etiqueta: opción elegida** con un chevron (*Origen: Todos*), y `display="date-range"` es un botón de fechas
+con el rango actual (*Cualquier fecha*, *Últimas 24 h*... o *01/11/2026 – 02/11/2026*). Ambos funcionan en **los dos
+motores de cliente**.
+
+```xml
+<grid id="GrdExeAct" initial-load="query" server-action="data" target-action="getActivityExecutionList">
+  <search id="CrtExeTsk" placeholder="SCREEN_TEXT_ACTIVITY_SEARCH"/>
+  <quick-filter id="CrtExeQck" initial-load="query" target-action="getActivityStateCounts" label="PARAMETER_STATUS" value=""/>
+  <quick-filter id="CrtExeOri" initial-load="query" target-action="getActivityOrigins" label="PARAMETER_ACTIVITY_ORIGIN" value=""
+                display="dropdown"/>
+  <quick-filter id="CrtExeWin" initial-load="query" target-action="getActivityWindows" label="PARAMETER_STARTED_AT" value=""
+                display="date-range"/>
+  ...
+</grid>
+```
+
+**Desplegable.** El botón abre un menú con las opciones (y sus recuentos, con sus tonos); la elegida aparece marcada.
+Elegir una opción filtra el grid exactamente como el control segmentado: las mismas opciones, el mismo valor enviado con
+el grid, la misma recarga de los recuentos. Es un botón de menú: <kbd>Intro</kbd>, <kbd>Espacio</kbd> o las flechas lo
+abren en la opción elegida, las flechas, <kbd>Inicio</kbd> y <kbd>Fin</kbd> se mueven, <kbd>Escape</kbd> lo cierra y
+devuelve el foco al botón, y un clic fuera lo cierra.
+
+**Rango de fechas.** Las opciones son los rangos predefinidos, con valores que entiende la consulta del grid (por
+ejemplo las últimas horas `24`, `168`, `720`) y un valor vacío para *cualquier fecha*. El menú los lista junto a
+**Rango personalizado…**, que muestra dos fechas (*Desde* y *Hasta*, el selector de fechas del motor) con **Borrar** y
+**Aplicar**. El filtro rápido envía:
+
+| Parámetro   | Valor |
+|-------------|-------|
+| `<id>`      | El rango predefinido elegido; `null` mientras hay un rango personalizado |
+| `<id>.from` | Primer día del rango personalizado (`dd/MM/yyyy`); `null` sin rango personalizado o sin inicio |
+| `<id>.to`   | Último día del rango personalizado (`dd/MM/yyyy`); `null` sin rango personalizado o sin fin |
+
+Las dos fechas se llaman como las del [criterio de rango de fechas](criteria.md#date-range-criterion). Elegir un rango
+predefinido borra el personalizado, **Aplicar** fija el rango (sin predefinido) y **Borrar** vuelve a la opción de valor
+vacío. El fin del rango no puede ser anterior a su inicio, pero valide también ambos parámetros en el servidor: la
+consulta o el servicio del grid los lee como cualquier otro parámetro.
+
+```xml
+<query id="getActivityExecutionList" service="getActivityExecutionList">
+  ...
+  <variable id="withinHours" type="INTEGER" name="CrtExeWin"/>
+  <variable id="startFrom" type="STRINGN" name="CrtExeWin.from"/>
+  <variable id="startTo" type="STRINGN" name="CrtExeWin.to"/>
+</query>
+```
+
+### Criterios de la barra de herramientas {#toolbar-criteria}
+
+Un grid puede mostrar criterios propios en su [barra de herramientas](#toolbar): un control de la vista del grid que no
+filtra sus filas, como un interruptor que muestra las filas agrupadas en otro grid. Declare un `<toolbar-criteria>`
+dentro del grid. Funciona en **ambos motores de cliente**.
+
+```xml
+<grid id="GrdExeAct" server-action="data" target-action="getActivityExecutionList" initial-load="query">
+  <search id="CrtExeTsk" placeholder="SCREEN_TEXT_ACTIVITY_SEARCH"/>
+  <quick-filter id="CrtExeQck" initial-load="query" target-action="getActivityStateCounts" value=""/>
+  <toolbar-criteria id="ActGrpFlw" component="checkbox" label="PARAMETER_ACTIVITY_GROUP_BY_FLOW" style="switch no-label">
+    <dependency>
+      <dependency-element id="ActGrpFlw" condition="eq" value="1"/>
+      <dependency-action type="filter" target="GrdExeRun"/>
+    </dependency>
+  </toolbar-criteria>
+  ...
+</grid>
+```
+
+Un `<toolbar-criteria>` es un [criterio](criteria.md) de cualquier componente (`checkbox` con `style="switch no-label"`,
+`select`...) con sus atributos y su contenido: su valor, su carga inicial, sus dependencias y su menú contextual.
+Funciona como cualquier criterio de la pantalla: su valor se envía con las peticiones de la pantalla como una variable con
+el nombre de su `id` y sus dependencias se ejecutan cuando cambia. Solo cambia su sitio:
+
+- La barra lo muestra al final, justo antes del botón *Columnas* (antes de *Maximizar* cuando el grid oculta
+  *Columnas*), tras la búsqueda, los filtros rápidos y las Búsquedas guardadas, en el orden del XML.
+- La barra se muestra para él también cuando el grid indica `show-toolbar="false"`, y un grid oculto lo oculta con su
+  barra.
+- Su `id` es único en la pantalla, como el de cualquier criterio. Cuando dos grids que se sustituyen muestran el mismo
+  control (una lista y su vista en árbol), cada grid declara su propio criterio de la barra y los sincroniza con
+  dependencias que leen un solo interruptor cada una, de modo que un cambio nunca vuelve al interruptor del que salió: la
+  copia se activa cuando se activa el primer interruptor, y desactivar la copia restablece (reset) el primero (el valor de
+  un interruptor desactivado está vacío, y un valor vacío no se copia):
+
+```xml
+<toolbar-criteria id="ActGrpFlwRun" component="checkbox" label="PARAMETER_ACTIVITY_GROUP_BY_FLOW" style="switch no-label">
+  <dependency source-type="launcher" target-type="input" target-action="value">
+    <dependency-element id="ActGrpFlw" condition="eq" value="1" alias="value"/>
+  </dependency>
+  <dependency>
+    <dependency-element id="ActGrpFlwRun" condition="ne" value="1"/>
+    <dependency-action type="reset" target="ActGrpFlw" silent="true"/>
+  </dependency>
+</toolbar-criteria>
+```
 
 ### Autofiltro de columna {#column-autofilter}
 
@@ -706,7 +814,8 @@ escribe el detalle bajo cada fila impresa:
   los valores de la fila como `<id del grid padre>.row.<columna>`, como hace la pantalla, e imprime sus filas como tabla.
   Imprime como columnas simples las columnas que el grid anidado imprimiría (`printable`, columnas ocultas y de botón como
   en cualquier grid), hasta su `max` filas por detalle (100 cuando no declara ninguno). Piense en el coste: un grid de 500
-  filas ejecuta 500 consultas.
+  filas ejecuta 500 consultas, por lo que un grid paginado en el servidor con un detalle anidado imprime como máximo 500
+  filas (véase el [límite de impresión](../guides/print-guide.md#print-limit)).
 - Un detalle hecho con un `include` no se imprime (el servidor no lo resuelve) y el grid se imprime sin él.
 - Solo un nivel: un grid anidado no puede tener un detalle propio.
 - Un grid que imprime su detalle no agrupa sus filas (la agrupación se ignora en los grids con `row-detail`).
@@ -738,7 +847,8 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | hidden     | Opcional        | Boolean | La columna **no** es visible en pantalla. Aun así puede imprimirse, véase [columnas de impresión](#printing-columns)                                                | El valor predeterminado es `false`                                               |
 | printable | Opcional        | String  | Indica si la columna se incluye en el informe impreso. Véase [columnas de impresión](#printing-columns)                                                        | `true` (por defecto) o `false`                                                      |
 | align      | Opcional        | String  | La columna **no es** visible                                                                                                                           | `left`, `center` o `right`                                                |
-| width      | Opcional        | Entero  | Ancho de la columna en píxeles o en porcentaje.                                                                                                                     | Ej.: `width = "10"` o `width = "20%"` **Nota:** Puede usar el valor '*' para ajuste automático: la columna ocupa el resto del ancho del grid (se ignora su `charlength`). |
+| width      | Opcional        | Entero  | Ancho de la columna en píxeles o en porcentaje.                                                                                                                     | Ej.: `width = "10"` o `width = "20%"` **Nota:** Puede usar el valor '*' para ajuste automático: la columna ocupa el resto del ancho del grid (se ignora su `charlength`), nunca menos que su `min-width`. |
+| min-width  | Opcional        | Entero  | Ancho mínimo en píxeles de la columna con `width="*"`, en ambos motores: cuando las demás columnas ocupan el ancho del grid, mantiene este ancho y el grid se desplaza en horizontal en lugar de estrecharla. Se ignora en las demás columnas | Ej.: `min-width="200"`. Sin él la columna puede quedarse sin ancho |
 | sortable   | Opcional        | Boolean | El campo es ordenable (si no es treegrid)                                                                                                              | El valor predeterminado es `true`                                           |
 | movable    | Opcional        | Boolean | Permite mover la posición de la columna en el grid                                                                                               | El valor predeterminado es `true`                                           |
 | sendable   | Opcional        | Boolean | Los datos de columna deben ser enviados al servidor                                                                                                    | El valor predeterminado es `true`                                           |
@@ -746,7 +856,7 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | label      | Opcional        | String  | Etiqueta de columna                                                                                                                                    | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md)       |
 | style      | Opcional        | String  | Columna clase css                                                                                                                                      | Clase bruta a aplicar a la columna                                               |
 | component  | Opcional        | String  | Tipo de columna (si editable)                                                                                                                          | Ver [componentes](criteria.md#components)                                        |
-| permission | Opcional        | String  | Permisos que necesita el usuario para ver una columna de componente `button`. Sustituye a lo que se deduce de los targets de sus acciones. Consulta [elementos de pantalla](../security/permissions.md#screen-elements) | Identificadores de permiso separados por espacios, todos requeridos |
+| permission | Opcional        | String  | Permisos que necesita el usuario para ver una columna de componente `button`, o de componente `link` con `button-action`. Sustituye a lo que se deduce de los targets de sus acciones. Consulta [elementos de pantalla](../security/permissions.md#screen-elements) | Identificadores de permiso separados por espacios, todos requeridos |
 | max        | Opcional        | Entero  | Número máximo de registros a recuperar cuando la columna se inicializa con acción de destino                                                           | El valor predeterminado es `30`                                                  |
 | visibility | Opcional        | Boolean | Visibilidad inicial del componente de columna                                                                                                          | El valor predeterminado es `true`                                           |
 | frozen     | Opcional        | Boolean | Mantenga la columna fijada fuera del desplazamiento horizontal. **ADVERTENCIA**: No uses este atributo si el encabezado tiene más de una línea de alto. En el motor React las columnas congeladas se mueven a la izquierda y un grid con columnas congeladas mantiene sus filas de una línea (`wrap` y `max-lines` se ignoran); un encabezado agrupado o un grid de árbol todavía no congelan columnas en React | El valor predeterminado es `false`                                               |
@@ -755,7 +865,7 @@ país, directamente y mediante un include) en el menú de pruebas de la matriz.
 | secondary-field  | Opcional | String   | Campo de la fila que se muestra bajo el valor principal, más pequeño y atenuado. Ver [segunda línea, estado y etiquetas](#secondary-line-status-and-chips) | Nombre de otro campo de la fila |
 | export-secondary | Opcional | Booleano | Las exportaciones a hoja de cálculo (XLSX, CSV) añaden una columna con el campo secundario justo después de esta. Los documentos lo imprimen bajo el valor, véase [qué imprime un grid](../guides/print-guide.md#what-a-printed-grid-shows) | El valor por defecto es `false`                                                  |
 | secondary-label  | Opcional | String   | Título de la columna secundaria exportada                                                                                       | Por defecto: la etiqueta de la columna. **Nota:** Puede usar archivos [i18n](i18n-internationalization.md) (locales) |
-| status-field     | Opcional | String   | Campo de la fila con el tono de un estado: el valor se muestra como un punto del tono más el texto                              | `success`, `warning`, `danger`, `info`, `neutral`                                |
+| status-field     | Opcional | String   | Campo de la fila con el tono de un estado: el valor se muestra como un punto del tono más el texto                              | `success`, `warning`, `danger`, `info`, `neutral`, `pending`                     |
 | chips            | Opcional | Booleano | El valor es una lista que se muestra como etiquetas (chips)                                                                     | El valor por defecto es `false`                                                  |
 | chip-separator   | Opcional | String   | Separador de los elementos de una columna `chips`                                                                               | El valor por defecto es `,`                                                      |
 | max-chips        | Opcional | Entero   | Número de etiquetas que se muestran; el resto se agrupan en una etiqueta "+n"                                                   | Un número mayor que `0`                                                          |
@@ -832,14 +942,17 @@ muestra exactamente igual que antes.
 | `secondary-field`  | `secondaryField`  |                           | Nombre de otro campo de la fila, que se muestra bajo el valor principal, más pequeño y atenuado. Vacío: solo la línea principal |
 | `export-secondary` | `exportSecondary` | `false`                   | Las exportaciones a hoja de cálculo (XLSX, CSV) añaden una columna con el campo secundario justo después de la principal. El PDF y los demás documentos imprimen la segunda línea bajo el valor, en la misma celda, diga lo que diga este atributo |
 | `secondary-label`  | `secondaryLabel`  | la etiqueta de la columna | Título (clave i18n) de la columna secundaria exportada                                             |
-| `status-field`     | `statusField`     |                           | Nombre de un campo de la fila con el tono: `success`, `warning`, `danger`, `info` o `neutral`. El tono se recorta y se pasa a minúsculas; un tono desconocido o vacío es `neutral` |
+| `status-field`     | `statusField`     |                           | Nombre de un campo de la fila con el tono: `success`, `warning`, `danger`, `info`, `neutral` o `pending` (el tono informativo con borde discontinuo, para un estado que espera, como una ejecución pendiente de confirmación). El tono se recorta y se pasa a minúsculas; un tono desconocido o vacío es `neutral` |
 | `chips`            | `chips`           | `false`                   | El valor se divide por `chip-separator`, cada elemento se recorta, los vacíos se descartan y cada uno se muestra como una etiqueta |
 | `chip-separator`   | `chipSeparator`   | `,`                       | Separador de los elementos de una columna `chips`                                                  |
 | `max-chips`        | `maxChips`        |                           | Muestra las `N` primeras etiquetas y una etiqueta "+n" cuyo tooltip y etiqueta accesible listan los elementos ocultos |
 
 - `chips` y `status-field` son excluyentes: con `chips="true"` el estado se ignora. `secondary-field` se combina con
   texto plano y con un estado.
-- Las columnas con `component` ignoran las tres funciones.
+- Las columnas con `component` ignoran las tres funciones, salvo `secondary-field` en una columna `component="progress"`:
+  la barra se muestra arriba y el texto secundario debajo (por ejemplo una barra de duración con el tiempo transcurrido),
+  y en una columna `component="link"`: el texto secundario va en una línea bajo el enlace, cortado con puntos suspensivos
+  y con su texto completo como tooltip (por ejemplo la descripción de una tarea bajo su nombre).
 - El tono de un estado nunca se transmite solo con el color: el punto siempre va con el texto.
 - Un estado más largo que su columna termina en puntos suspensivos y su tooltip (`title`) muestra el texto completo.
 - Los valores se muestran siempre como **texto, nunca como HTML**: un valor como `<b>bold</b>` se muestra literalmente.
@@ -967,8 +1080,15 @@ fila: un nombre de paleta de AWE 5, que se dibuja con su tono `500` de los token
 
 Una columna puede mostrar un icono de la fila antes de su valor, como la columna de doble factor de la pantalla de
 usuarios. El icono se lee de un campo de la fila (`lucide:shield-check`, `fa-check`... como cualquier icono de las
-pantallas). Con `status-field` el icono ocupa el lugar del punto, de modo que el estado es una etiqueta sencilla; una fila
-sin icono muestra la etiqueta solo con su texto.
+pantallas). Con `status-field` el icono ocupa el lugar del punto y el estado es una píldora: totalmente redondeada, con
+un borde de su tono (discontinuo en `pending`), en ambos motores. Una fila sin icono muestra la píldora solo con su
+texto. Con `secondary-field` se añade una línea bajo la píldora, como la hora de vencimiento de una ejecución en espera en
+la pantalla Actividad del planificador:
+
+```xml
+<column label="PARAMETER_STATUS" name="ExeStaTxt" charlength="18" status-field="ExeStaTon" icon-field="ExeStaIcn"
+        secondary-field="ExeDueLbl"/>
+```
 
 ```xml
 <column label="PARAMETER_2FA" name="2faTxt" sort-field="2fa" charlength="12" status-field="2faTon" icon-field="2faIcn"/>
@@ -982,6 +1102,9 @@ sin icono muestra la etiqueta solo con su texto.
 
 - Se combina con `status-field`, `secondary-field` y `avatar-field`; las columnas con `chips="true"` o con un `component`
   lo ignoran.
+- En una columna con `wrap` o `max-lines` el texto pasa a varias líneas con su icono. Con `secondary-field` y `max-lines`,
+  la línea principal ocupa hasta `max-lines` líneas y termina en puntos suspensivos, con su texto completo al pasar el
+  ratón y al recibir el foco.
 - El icono es decorativo (`aria-hidden`): el valor de la celda es su texto accesible, así que da a cada fila un texto (por
   ejemplo `Activado` y `Desactivado`), no solo un icono.
 - La ordenación, el filtrado, la impresión y la exportación usan solo el valor principal.
@@ -1071,7 +1194,8 @@ Tenga en cuenta lo siguiente:
 | button               | Componente que permite al usuario hacer clic en un botón que lanza un conjunto de `button-action`                      |
 | progress             | Componente de columna de progreso. Útil para mostrar una barra de progreso en una columna. Ver [progreso](#progress-column-component) |
 | sparkline            | Componente de columna sparkline: un pequeño gráfico de línea, barras o área de una serie de números. Ver [componente de columna sparkline](#sparkline-column-component) |
-| link                 | Componente de enlace HTML. Abre una URL en una página nueva                                                                       |
+| status-strip         | Componente de columna de tira de estados: una barra por estado (por ejemplo, las últimas ejecuciones de una tarea), con su etiqueta y su título como tooltip. Ver [componente de columna de tira de estados](#status-strip-column-component) |
+| link                 | Componente de columna de enlace: abre la URL de la celda en una página nueva, o lanza los `button-action` de la columna. Ver [componente de columna de enlace](#link-column-component) |
 
 
 ### Estilo específico de fila {#specific-row-style}
@@ -1230,7 +1354,8 @@ Una columna de botón es un componente que permite lanzar un conjunto de `button
 
 `label`, `title`, `icon` y `style` pueden ser atributos de la columna (iguales para todas las filas) o venir en los datos
 de la celda (sustituyen a los de la columna). Los estilos `btn-*` y `no-label` de los [estilos del botón](button.md#button-styles)
-también se aplican a los botones de la columna (`btn-ghost` para las acciones de fila).
+también se aplican a los botones de la columna (`btn-ghost` para las acciones de fila). Un estilo `no-btn` de la celda (un
+botón sin fondo) se dibuja como `btn-ghost` en ambos motores.
 
 - **El botón actúa sobre su fila.** Un clic en el botón de una fila selecciona esa fila, y solo ella, antes de que se
   ejecuten sus acciones, de modo que las dependencias de la fila seleccionada (un panel lateral que se rellena con la
@@ -1255,6 +1380,39 @@ Acciones de fila como en el sistema de diseño de AWE 5, un lápiz que edita la 
 <column name="MorBtn" component="button" icon="lucide:ellipsis" title="BUTTON_MORE_ACTIONS" style="btn-ghost no-label"
         align="center" charlength="4" sortable="false" sendable="false">
   <button-action type="show-context-menu" />
+</column>
+```
+
+#### Componente de columna de enlace {#link-column-component}
+
+Una columna de enlace muestra la celda como un enlace. Su `label` (el de la celda, si no su valor) es el texto del
+enlace y su `title` el tooltip, como en una [columna de botón](#button-column-component): el `title` de la celda, si no
+el atributo `title` de la columna, con o sin `button-action`; sin ningún título el enlace no tiene tooltip. Tanto el
+label como el title pueden venir en los datos de la celda.
+
+- **Sin `button-action`**, el valor de la celda es una URL que se abre en una página nueva (`target="_blank"`). El
+  enlace lo avisa: un icono pequeño de enlace externo sigue a su texto, y los lectores de pantalla anuncian «(se abre
+  en una pestaña nueva)» (locale `LINK_OPENS_IN_NEW_TAB`). Un enlace con `button-action` no tiene ninguno de los dos.
+- **Con `button-action`**, el enlace los lanza como lo hace una [columna de botón](#button-column-component): un clic o
+  la tecla Intro selecciona la fila del enlace, y solo ella, y después ejecuta las acciones, de modo que los parámetros
+  que envían son los valores de esa fila. El enlace no tiene URL. El atributo `permission` y la autorización de las
+  acciones se le aplican como a una columna de botón.
+
+Ambos motores cliente lo dibujan. Un enlace que abre la pantalla del flujo de cada fila:
+
+```xml
+<column name="ExeRun" label="PARAMETER_ACTIVITY_FLOW_RUN" component="link" title="BUTTON_OPEN_RUN">
+  <button-action type="screen" target="scheduler-flow-run" />
+</column>
+```
+
+Con `secondary-field` el enlace muestra un campo de su fila en una línea debajo (ver
+[segunda línea, estado y etiquetas](#secondary-line-status-and-chips)). Un enlace a cada tarea con su descripción, en la
+columna que ocupa el resto del ancho y nunca más estrecha de 200 píxeles:
+
+```xml
+<column name="TskNam" label="PARAMETER_TASK" component="link" width="*" min-width="200" secondary-field="Des">
+  <button-action type="screen" target="scheduler-task" />
 </column>
 ```
 
@@ -1356,6 +1514,10 @@ El componente de progreso es muy útil para mostrar el estado de un trabajo, o u
 | title    | Texto a mostrar cuando mueve el ratón sobre el botón. Puedes usar [i18n](i18n-internationalization.md) archivos (locales) |
 | style    | Clase CSS para formatear el contenido                                                                                     |
 
+Una celda sin valor (vacía, como la envía el planificador para una ejecución que ha terminado) no dibuja barra, en los dos
+motores: con un `secondary-field` solo queda su línea secundaria. En el motor React un valor `0` es una barra al 0 %; el
+motor AngularJS tampoco dibuja barra para `0`.
+
 ##### Opciones de la barra de progreso {#progress-bar-options}
 
 Por defecto una columna `progress` dibuja la barra de progreso de PrimeReact de la tabla anterior. Con cualquiera de los
@@ -1442,6 +1604,47 @@ Cómo se dibuja la serie:
   enfocable), así que no interfiere con la navegación por teclado del grid.
 * Se ha eliminado el antiguo plugin jQuery sparkline del cliente AngularJS; las aplicaciones que usaran sus clases CSS
   (`jqstooltip`, `stats-sparklines`) deben aportar las suyas.
+
+#### Componente de columna de tira de estados {#status-strip-column-component}
+
+Una tira de estados dibuja una lista ordenada de estados dentro de la celda, una barra por estado, de modo que un
+historial por fila (las últimas ejecuciones de una tarea, las comprobaciones de un registro) se lee de un vistazo. El
+valor de la celda es un **array JSON de elementos** `{"tone": "...", "label": "...", "title": "..."}` en el orden en que
+se muestran (`title` es opcional). La
+consulta puede devolverlo como texto o como una lista ya interpretada. La columna no tiene atributos propios.
+
+```xml
+<column label="HISTORY" name="history" component="status-strip" charlength="14"/>
+```
+
+```json
+[{"tone": "success", "label": "OK", "title": "#4805 · 17/11/2026 06:05 · 58 s"},
+ {"tone": "warning", "label": "Aviso", "title": "#4806 · 17/11/2026 07:05 · 1 min 40 s"},
+ {"tone": "danger", "label": "Error"}]
+```
+
+| Clave del elemento | Descripción                                                                                                  | Valores                                                              |
+| ------------------ | ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| tone               | Tono del estado: el color de su barra. Cualquier otro tono, o ninguno, se dibuja como `neutral`              | `success`, `warning`, `danger`, `info` o `neutral`                   |
+| label              | Texto del estado: el comienzo del tooltip de su barra y la palabra que se cuenta en el texto accesible. Obligatorio | Cualquier texto no vacío (tradúcelo en la consulta o en el servicio) |
+| title              | Detalle opcional que distingue las barras del mismo estado (por ejemplo, el número, la fecha y la duración de una ejecución): se muestra en el tooltip en una segunda línea, bajo la etiqueta y no se cuenta en el texto accesible. Cualquier otro valor se ignora | Cualquier texto no vacío |
+
+Cómo se dibuja la tira:
+
+* Los dos motores de cliente dibujan la misma tira con los tokens de componente `--awe-status-strip-<tone>` (el tono
+  medio de la paleta en modo claro, el color de estado en modo oscuro; el tono neutro usa el color de texto atenuado).
+* **No solo por el color**: todas las barras tienen la misma altura, como en las páginas de estado, y usan los tokens
+  `--awe-status-strip-*`; la etiqueta de cada barra es su tooltip y la tira lee el recuento por etiqueta.
+* **Tooltip**: al pasar el ratón sobre una barra se ve su etiqueta y, en una segunda línea, su título si lo tiene
+  (`OK` sobre `#4805 · 17/11/2026 06:05 · 58 s`). Es el tooltip de cada motor (`Tooltip` de PrimeReact en React, el tooltip de
+  celda del grid en AngularJS), no el `title` nativo del navegador, y aparece a los 500 ms, la mitad del retardo habitual
+  de la ayuda; una vez visible, al pasar a otra barra se actualiza al instante.
+* **Accesibilidad**: la tira es una sola imagen cuyo nombre accesible cuenta los estados por etiqueta, en el orden en que
+  aparece cada etiqueta por primera vez, por ejemplo `3 OK, 1 Aviso, 1 Error`. No es enfocable, así que no interfiere con
+  la navegación por teclado del grid.
+* **Valor vacío o no válido**: la celda queda vacía, sin error. Es el caso de un valor vacío, `[]`, un texto que no es
+  JSON, un valor que no es una lista y una lista con algún elemento que no es un objeto con una `label` no vacía.
+* La celda es un componente de visualización: no es editable.
 
 ## Estructura de cabecera de grupo {#group-header-structure}
 

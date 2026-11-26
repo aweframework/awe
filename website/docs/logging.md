@@ -213,8 +213,8 @@ Scheduler AWE module logback configuration provided for import
 
 ## Scheduler execution log
 
-Every scheduler task execution has its own log, which you can open from the task manager screen
-with the **Show execution log** button. Where that log is stored is controlled by
+Every scheduler task execution has its own log, which you can open from the side panel of the execution (the
+**Activity** screen, the history of a task and the flow run page), where it follows the execution live. Where that log is stored is controlled by
 [awe.scheduler.execution-log-store](properties.md#awe.scheduler.execution-log-store):
 
 - **`file`** (default) — each execution writes its log to a file under
@@ -272,7 +272,8 @@ When the scheduler runs as a separate instance
 maintain task actually runs on the **application**, not on the scheduler. With the `database` store
 active on both instances, the traces produced by the task on the application are captured into the
 same execution log, so the viewer shows a single, time-ordered log of the whole execution — the
-scheduler's own lines and the task's real output, live while it runs.
+scheduler's own lines and the task's real output, live while it runs. The viewer reads the application's own
+store, so when the application uses a remote scheduler with the `file` store it logs one `WARN` at startup.
 
 In addition, every execution ends with a **summary line** stating how it finished and how long it
 took. For the final authoritative status of an execution (including timeouts and cancellations),

@@ -603,6 +603,11 @@ public class DataListBuilder extends ServiceConfig {
         row.put(JSON_VALUE_PARAMETER, new CellData(option.getValue()));
       }
 
+      // The icon of the option, only when it has one: an option without icon keeps its row
+      if (option.getIcon() != null) {
+        row.put(JSON_ICON_PARAMETER, new CellData(option.getIcon()));
+      }
+
       dataList.addRow(row);
       rowNumber++;
     }

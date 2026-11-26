@@ -153,7 +153,7 @@ function AweInputUploader(props) {
         {captureMode && (
           <>
             <Button
-              className={classNames("p-button-secondary", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, [`hidden`]: status !== INITIAL })}
+              className={classNames("p-button-secondary upload-button", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, [`hidden`]: status !== INITIAL })}
               type="button"
               icon={getIconCode("pi-camera", "p-button-icon p-c p-button-icon-left")}
               label={translateLabel("BUTTON_CAPTURE", t)}
@@ -178,7 +178,7 @@ function AweInputUploader(props) {
           <img className="upload-preview" src={preview.url} alt={preview.name} {...testHook(TestIds.uploadPreview)} />
         )}
         <Button
-          className={classNames("p-button-secondary", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, [`hidden`]: status !== UPLOADED, "p-invalid": error })}
+          className={classNames("p-button-secondary upload-button", { [`text-${size}`]: size, [`p-inputtext-${size}`]: size, [`hidden`]: status !== UPLOADED, "p-invalid": error })}
           type="button"
           icon={getIconCode("pi-times", "p-button-icon p-c p-button-icon-left")}
           label={translateLabel("BUTTON_CLEAR", t)}

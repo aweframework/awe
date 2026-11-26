@@ -79,6 +79,10 @@
     <java classname="com.almis.awe.test.service.DummyService" method="getSparklineSeries"/>
   </service>
 
+  <service id="linkTstFlowRuns">
+    <java classname="com.almis.awe.test.service.DummyService" method="getLinkTstFlowRuns"/>
+  </service>
+
   <service id="returnRadioChoices">
     <java classname="com.almis.awe.test.service.DummyService" method="returnRadioChoices">
       <service-parameter type="STRING" name="id" list="true"/>
@@ -434,6 +438,10 @@
     <java classname="com.almis.awe.test.service.DummyService" method="waitSomeSeconds">
       <service-parameter name="secondsToWait" type="INTEGER"/>
     </java>
+  </service>
+
+  <service id="deferredTestLaunch">
+    <java classname="com.almis.awe.test.service.DummyService" method="deferredTestLaunch"/>
   </service>
 
   <service id="testLaunchServiceOnEndApplication" launch-phase="APPLICATION_END">

@@ -115,6 +115,7 @@ Actions which works over components in the screen.
 | `add-class`                      | Add the css class/classes defined on `target-action` to the tag with the selector defined on `target`    | `tag`                       |
 | `remove-class`                   | Remove the css class/classes defined on `target-action` to the tag with the selector defined on `target` | `tag`                       |
 | `toggle-class`                   | Toggle the css class/classes defined on `target-action` to the tag with the selector defined on `target` | `tag`                       |
+| `scroll-to`                      | Scroll the element whose id is `target` (a card, a tag with an id) to the top of its scroll container and give it the focus, so the keyboard goes on from it: the section navigation of a long form. Instant when the user asks for reduced motion | `card`, `tag`               |
 | `reset`                          | Empty a criterion value                                                                                  | `criteria`, `grid`, `chart` |
 | `restore`                        | Restore to initial values a criterion                                                                    | `criteria`, `grid`, `chart` |
 | `start-load`                     | Sets a component as *loading*                                                                            | `criteria`, `grid`, `chart` |
@@ -467,6 +468,9 @@ public ServiceData updateButtonLabel() {
     .addClientAction(new UpdateControllerActionBuilder("ButPrn", "label", "BUTTON_PRINT_ALL").build());
 }
 ```
+
+Updating the `autorefresh` attribute also starts (a period in seconds) or stops (`0`) the automatic reload of the
+component, in both engines. An explicit value is kept even when it is `0` or `false`.
 
 ### Grid actions from java services
 

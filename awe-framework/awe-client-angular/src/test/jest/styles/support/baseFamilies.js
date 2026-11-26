@@ -28,7 +28,9 @@ const normalize = {
   hazardsReviewed: [
     {hazard: "body { width } over #main-navbar #main-menu-toggle", reason: "the !important width of `body` is a pixel-admin rule of the collapsed menu, not one served here"},
     {hazard: "body { height } over #main-menu.horizontal #main-menu-bg", reason: "the !important height of `body` is a pixel-admin rule of the horizontal menu, not one served here"},
-    {hazard: "pre { background-color } over .log-viewer.black-log pre", reason: "the !important background of `pre` is a rule of the AWE log viewer, not one served here; the log viewer sets its own !important on the same element"}
+    {hazard: "pre { background-color } over .log-viewer.black-log pre", reason: "the !important background of `pre` is a rule of the AWE log viewer, not one served here; the log viewer sets its own !important on the same element"},
+    {hazard: "pre { background-color } over .log-viewer pre",
+      reason: "the !important white background of `pre` is a rule of the AWE file viewer, not one served here; the log viewer (#993) sets the surface token with its own !important on the same element, more specific, so it wins in light and dark"}
   ],
   leftOut: []
 };
@@ -99,6 +101,8 @@ const type = {
     {names: ["list-group-item", "active", "list-group-item-heading"], examples: [".list-group-item.active .list-group-item-heading > .small"],
       reason: "the small text of the heading of an active list group item: it belongs to the list groups (list-group.css), which serve it"},
     {names: ["panel-title"], examples: [".panel-title > .small", ".panel-title > .small > a"], reason: "the small text in a panel title: pixel-admin rules of the panels, which stay in LESS"},
+    {names: ["awe-header-status", "awe-action-bar", "awe-editor-footer"], examples: [".awe-header-status > .text-muted", ".awe-action-bar > .text-muted", ".awe-editor-footer > .text-muted"],
+      reason: "the muted line of a header status, an action bar and the footer of an editor (#993): component rules of the AWE LESS that size it as a line of their layout"},
     THEME, ID, IE
   ]
 };
@@ -116,7 +120,9 @@ const code = {
   after: ["type.css"],
   before: ["grid.css"],
   hazardsReviewed: [{hazard: "pre { background-color } over .log-viewer.black-log pre",
-    reason: "the !important background of `pre` is a rule of the AWE log viewer, not one served here; the log viewer sets its own !important on the same element"}],
+    reason: "the !important background of `pre` is a rule of the AWE log viewer, not one served here; the log viewer sets its own !important on the same element"},
+  {hazard: "pre { background-color } over .log-viewer pre",
+    reason: "the !important white background of `pre` is a rule of the AWE file viewer, not one served here; the log viewer (#993) sets the surface token with its own !important on the same element, more specific, so it wins in light and dark"}],
   leftOut: []
 };
 

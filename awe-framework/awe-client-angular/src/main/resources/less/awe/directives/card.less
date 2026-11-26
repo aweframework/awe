@@ -34,6 +34,44 @@
   gap: var(--awe-space-2);
 }
 
+// Header actions (awe-card-header-actions, #993): criteria or buttons at the right of the header, after the free space,
+// centred with the title on one line (a view switch, the maximize button). Same rules as the React engine (AweCard.less)
+.awe-card-header:has(> .awe-card-header-actions, > .awe-card-maximize-button) {
+  align-items: center;
+}
+
+.awe-card-header > .awe-card-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-2);
+  margin-inline-start: auto;
+  min-width: 0;
+}
+
+// The maximize button of a window (panel.less), at the end of the header
+.awe-card-header > .awe-card-maximize-button {
+  flex: none;
+}
+
+// A maximized card (maximize attribute, #993) covers its maximize target like a window or a grid (Maximize service):
+// placed over the screen, its body takes the free height; its clone grows during the animation
+.awe-card.maximized {
+  position: absolute;
+  z-index: 100;
+  margin: 0;
+}
+
+.awe-card.resizing > * {
+  visibility: hidden;
+}
+
+.awe-card.resizeAnimation {
+  position: absolute;
+  z-index: 1050;
+  margin: 0;
+}
+
 .awe-card-heading {
   display: flex;
   flex-direction: column;
@@ -211,6 +249,14 @@
     flex: none;
     height: calc(var(--awe-space-16) * 5);
   }
+}
+
+// A card that expands (style="expand", a card that holds the grid of a tab page): a child with style="expand" (the grid)
+// fills the rest of its body instead of the fixed height, as in a window. Same rule as the React engine (AweCard.less)
+.awe-card.expand > .awe-card-body > .expand {
+  flex: 1 1 0px;
+  height: auto;
+  min-height: 0;
 }
 
 // Tonal delta tag: the tone is also told by the arrow and the hidden trend text, not by the colour alone
@@ -471,6 +517,35 @@ each(@card-progress-tones, {
     color: inherit;
   }
 
+  // The body of the card is always rendered: an empty one takes no cell of the note
+  > .awe-card-body:empty {
+    display: none;
+  }
+
+  // A note without a title (only its description): the icon takes the height of the first line of the text and centres
+  // in it, so both read on the same line (#993)
+  &:not(:has(.awe-card-heading)) {
+    .awe-card-icon {
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      height: calc(var(--awe-font-size-sm) * var(--awe-line-height-base));
+      padding-top: 0;
+
+      // The glyph fits the line: a bigger icon would overflow it downwards and lose the centre
+      i,
+      svg {
+        display: block;
+        width: var(--awe-font-size-base);
+        height: var(--awe-font-size-base);
+      }
+    }
+
+    .awe-card-description {
+      grid-row: 1;
+    }
+  }
+
   &:has(.awe-card-icon-info) {
     color: var(--awe-color-info-text);
     background-color: var(--awe-color-info-subtle);
@@ -495,4 +570,125 @@ each(@card-progress-tones, {
     color: var(--awe-color-text);
     background-color: var(--awe-color-neutral-subtle);
   }
+}
+
+// Pills and status strip of the card (#993): the same rules as the React engine (AweCard.less)
+.awe-card {
+  // Pills of the card (#993, pills field): the facts under its heading, one pill each; a code (what the application
+  // runs) in the monospace font
+  .awe-card-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--awe-space-1-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .awe-card-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--awe-space-1);
+    min-width: 0;
+    padding: var(--awe-space-0-5) var(--awe-space-2);
+    font-size: var(--awe-font-size-xs);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text);
+    white-space: nowrap;
+    background-color: var(--awe-color-surface-hover);
+    border-radius: var(--awe-radius-full);
+  }
+
+  .awe-card-pill-icon {
+    display: inline-flex;
+    color: var(--awe-color-text-muted);
+
+    .awe-icon {
+      width: var(--awe-size-icon-sm);
+      height: var(--awe-size-icon-sm);
+    }
+  }
+
+  .awe-card-pill-separator {
+    color: var(--awe-color-text-muted);
+  }
+
+  .awe-card-pill-code {
+    padding: 0;
+    font-family: var(--awe-font-family-monospace);
+    font-size: var(--awe-font-size-xs);
+    color: var(--awe-color-text-emphasis);
+    background: none;
+    border: 0;
+  }
+
+  // Status strip of the card (#993, strip field): the strip of the status strip column as wide as the card, with
+  // taller bars that share its width (up to a maximum width each, so a short history does not draw blocks)
+  .awe-card-strip {
+    .column-status-strip {
+      display: block;
+    }
+
+    .awe-status-strip {
+      display: flex;
+      width: 100%;
+      height: var(--awe-space-10);
+      gap: var(--awe-space-1);
+    }
+
+    .awe-status-strip-item {
+      flex: 1 1 0;
+      max-width: var(--awe-space-6);
+      border-radius: var(--awe-radius-xs);
+    }
+  }
+
+  // Stacked bar of the card (#993, stack field): the parts of a whole (the executions by status) as segments as wide
+  // as their share, in the colours of the status strip
+  .awe-card-stack {
+    display: flex;
+    gap: var(--awe-space-0-5);
+    height: var(--awe-space-2);
+    overflow: hidden;
+    border-radius: var(--awe-radius-full);
+  }
+
+  .awe-card-stack-segment {
+    flex: 0 1 0;
+    min-width: var(--awe-space-1);
+    background-color: var(--awe-status-strip-neutral);
+  }
+
+  .awe-card-stack-success {
+    background-color: var(--awe-status-strip-success);
+  }
+
+  .awe-card-stack-info {
+    background-color: var(--awe-status-strip-info);
+  }
+
+  .awe-card-stack-warning {
+    background-color: var(--awe-status-strip-warning);
+  }
+
+  .awe-card-stack-danger {
+    background-color: var(--awe-status-strip-danger);
+  }
+
+  // Actions of the card (awe-card-actions, #993): a row of buttons at the bottom of its body, so the actions of the
+  // cards of a row (stretched to the same height) sit on the same line
+  .awe-card-body > .awe-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--awe-space-2);
+    margin-block-start: auto;
+  }
+}
+
+// A grid of cards that is also a column of the form grid (col-xs-12 in a panel body, to take the whole row) keeps only
+// the side gutters of the column: the space between rows of cards is the gap after the grid, not the row gap of a form
+.awe-card-grid[class*="col-"] {
+  padding-top: 0;
+  padding-bottom: 0;
 }

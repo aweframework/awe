@@ -22,6 +22,7 @@ export const ClientActions = {
     "add-class": {method: "addClass"},
     "remove-class": {method: "removeClass"},
     "toggle-class": {method: "toggleClass"},
+    "scroll-to": {method: "scrollTo"},
     "print": {method: "screenPrint"},
     "redirect": {method: "redirect"},
     "redirect-screen": {method: "redirectScreen"},

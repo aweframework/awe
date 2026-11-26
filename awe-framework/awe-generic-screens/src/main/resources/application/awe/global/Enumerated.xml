@@ -88,6 +88,12 @@
     <option label="ENUM_PRN_FMT_TEXT" value="TEXT" />
   </group>
 
+  <!-- PRINT ROWS (grids that page on the server) -->
+  <group id="PrnRow">
+    <option label="ENUM_PRN_ROW_ALL" value="ALL" />
+    <option label="ENUM_PRN_ROW_PAGE" value="PAGE" />
+  </group>
+
   <!-- DOUBLE FORMATS -->
   <group id="DblPrnFmt">
     <option label="ENUM_PRN_FMT_EUR" value="0" />

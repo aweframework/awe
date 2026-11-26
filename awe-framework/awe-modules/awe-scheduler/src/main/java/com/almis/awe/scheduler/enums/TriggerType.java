@@ -12,5 +12,6 @@ public enum TriggerType {
   DEPENDENCY,
   PROGRESS,
   TIMEOUT,
-  REPORT;
+  REPORT,
+  WEBHOOK;
 }

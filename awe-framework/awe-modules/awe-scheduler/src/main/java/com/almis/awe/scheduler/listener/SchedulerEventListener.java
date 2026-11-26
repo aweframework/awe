@@ -1,166 +1,42 @@
 package com.almis.awe.scheduler.listener;
 
-import com.almis.awe.builder.client.FilterActionBuilder;
-import com.almis.awe.builder.client.SelectActionBuilder;
-import com.almis.awe.builder.client.grid.UpdateCellActionBuilder;
 import com.almis.awe.exception.AWException;
-import com.almis.awe.model.dto.CellData;
-import com.almis.awe.model.entities.actions.ClientAction;
-import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.tracker.AweConnectionTracker;
-import com.almis.awe.model.util.data.TimeUtil;
 import com.almis.awe.scheduler.bean.event.SchedulerTaskFinishedEvent;
-import com.almis.awe.scheduler.bean.event.SchedulerTaskProgressEvent;
-import com.almis.awe.scheduler.bean.event.SchedulerTaskStartedEvent;
-import com.almis.awe.scheduler.bean.task.TaskExecution;
 import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.service.BroadcastService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import static com.almis.awe.scheduler.constant.TaskConstants.*;
-
+/**
+ * Scheduler task events: a finished task launches the tasks that depend on it. The screens of the scheduler read the
+ * state of the executions from their queries, so no live update is pushed to the users (the old task screen that
+ * received them was removed, #993).
+ */
 @Slf4j
 public class SchedulerEventListener {
 
-  private final BroadcastService broadcastService;
-  private final AweConnectionTracker connectionTracker;
   private final TaskDAO taskDAO;
-  private static final String TASK_SCREEN = "scheduler-tasks";
-  // Menu screens are rendered in the nested "report" view (the "base" view holds the home layout), so that is where
-  // the components of the task screen live
-  private static final String TASK_SCREEN_VIEW = "report";
 
   /**
    * Autowired constructor
    *
-   * @param broadcastService  Broadcast service
-   * @param connectionTracker Connection tracker
+   * @param broadcastService  Broadcast service (not used: kept for the auto-configuration)
+   * @param connectionTracker Connection tracker (not used: kept for the auto-configuration)
    * @param taskDAO           Task DAO
    */
   public SchedulerEventListener(BroadcastService broadcastService, AweConnectionTracker connectionTracker, TaskDAO taskDAO) {
-    this.broadcastService = broadcastService;
-    this.connectionTracker = connectionTracker;
     this.taskDAO = taskDAO;
   }
 
   /**
-   * On trigger launched event
+   * On task finished event: launch the tasks that depend on it
    *
-   * @param event
-   */
-  @EventListener
-  public void onTaskStarted(SchedulerTaskStartedEvent event) {
-    ClientAction clearStartingTask = new SelectActionBuilder(getAddress("starting-task"), "").setSilent(true).build();
-    ClientAction setStartingTask = new SelectActionBuilder(getAddress("starting-task"), event.getTask().getTaskId()).setSilent(true).build();
-
-    // Filter connections from users which are in TASK SCREEN and broadcast them the filter grid action
-    getConnectedUsersToTaskScreen().forEach(cometID -> broadcastService.broadcastMessageToUID(cometID, clearStartingTask, setStartingTask));
-  }
-
-  /**
-   * On job progress event
-   *
-   * @param event
-   */
-  @EventListener
-  public void onTaskProgress(SchedulerTaskProgressEvent event) {
-    // Set progress on progress bar
-    ClientAction progressBar = new UpdateCellActionBuilder(getAddress(event.getTaskExecution(), TASK_EXECUTION_PROGRESS), taskDAO.getProgressNode(taskDAO.getProgress(event.getTaskExecution().getInitialDate(), event.getAverageTime())))
-      .setSilent(true)
-      .setAsync(true)
-      .build();
-
-    // Set execution time
-    ClientAction executionTime = new UpdateCellActionBuilder(getAddress(event.getTaskExecution(), TASK_EXECUTION_TIME), new CellData(TimeUtil.formatTime(taskDAO.getElapsedTime(event.getTaskExecution().getInitialDate()), false)))
-      .setSilent(true)
-      .setAsync(true)
-      .build();
-
-    // Filter connections from users which are in TASK SCREEN and broadcast them the filter grid action
-    getConnectedUsersToTaskScreen().forEach(cometID -> broadcastService.broadcastMessageToUID(cometID, progressBar, executionTime));
-  }
-
-  /**
-   * On job progress event
-   *
-   * @param event
+   * @param event Task finished event
+   * @throws AWException Error launching the dependencies
    */
   @EventListener
   public void onTaskFinished(SchedulerTaskFinishedEvent event) throws AWException {
-    // Set task status icon
-    ClientAction updateIcon = new UpdateCellActionBuilder(getAddress(event.getTaskExecution(), TASK_EXECUTION_ICON), taskDAO.getStatusIcon(event.getTaskExecution()))
-      .setSilent(true)
-      .setAsync(true)
-      .build();
-
-    // Set progress on progress bar
-    ClientAction progressBar = new UpdateCellActionBuilder(getAddress(event.getTaskExecution(), TASK_EXECUTION_PROGRESS), taskDAO.getProgressNode(0))
-      .setSilent(true)
-      .setAsync(true)
-      .build();
-
-    // Set final execution time
-    ClientAction executionTime = new UpdateCellActionBuilder(getAddress(event.getTaskExecution(), TASK_EXECUTION_TIME), new CellData(TimeUtil.formatTime(event.getTaskExecution().getExecutionTime())))
-      .setSilent(true)
-      .setAsync(true)
-      .build();
-
-    // Set final execution time
-    ClientAction executionLog = new FilterActionBuilder(getAddress("reload-execution-data"))
-      .setSilent(true)
-      .setAsync(true)
-      .build();
-
-    // Filter connections from users which are in TASK SCREEN and broadcast them the filter grid action
-    getConnectedUsersToTaskScreen().forEach(cometID -> broadcastService.broadcastMessageToUID(cometID, updateIcon, progressBar, executionTime, executionLog));
-
-    // Launch end task dependencies
     taskDAO.onFinishTask(event.getTask(), event.getTaskExecution());
-  }
-
-  /**
-   * Retrieve execution list grid address
-   *
-   * @return
-   */
-  private ComponentAddress getAddress() {
-    return getAddress("GrdExeLst");
-  }
-
-  /**
-   * Retrieve execution list grid address
-   *
-   * @return
-   */
-  private ComponentAddress getAddress(String component) {
-    return new ComponentAddress().setView(TASK_SCREEN_VIEW).setComponent(component);
-  }
-
-  /**
-   * Retrieve execution list grid cell address
-   *
-   * @param execution
-   * @param column
-   * @return
-   */
-  private ComponentAddress getAddress(TaskExecution execution, String column) {
-    return getAddress().setColumn(column).setRow(execution.getTaskId() + TASK_SEPARATOR + execution.getExecutionId());
-  }
-
-  /**
-   * Retrieve connected user sessions
-   *
-   * @return Set of connections
-   */
-  private Set<String> getConnectedUsersToTaskScreen() {
-    return connectionTracker
-      .getAllConnections().entrySet().stream()
-      .flatMap(u -> u.getValue().entrySet().stream().filter(c -> TASK_SCREEN.equalsIgnoreCase(c.getValue().getScreen())).map(Map.Entry::getKey))
-      .collect(Collectors.toSet());
   }
 }

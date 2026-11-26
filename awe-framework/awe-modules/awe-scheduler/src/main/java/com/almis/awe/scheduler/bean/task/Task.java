@@ -15,6 +15,7 @@ import org.quartz.Trigger;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Task bean
@@ -38,6 +39,8 @@ public class Task implements Serializable {
   // Execution
   private Integer storedExecutions;
   private Integer executionTimeout;
+  // Maintain notified when a deferred execution is stopped or passes its deadline (optional)
+  private String cancellationMaintain;
   private Integer executionType;
   private Integer serverId;
   private String commandPath;
@@ -92,4 +95,10 @@ public class Task implements Serializable {
 
   // Parent execution
   private TaskExecution parentExecution = null;
+
+  // Flow run this launch belongs to, set only when launched as a dependency (a root creates its run at start)
+  private String runId = null;
+
+  // Values supplied by the operator on a manual launch: they become the parameters of the flow run
+  private Map<String, String> runParameters = null;
 }

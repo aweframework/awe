@@ -3,7 +3,7 @@ import "../plugins/uiTabdrop";
 import "../tabcontainer";
 import "../../services/panelable";
 import {getIconTemplate} from "../../services/component";
-import {iconMarkup} from "../../services/icon";
+import {getIcon, iconMarkup} from "../../services/icon";
 import {TestIds} from "../../data/testIds";
 
 // Template
@@ -14,7 +14,7 @@ const template =
       <ul class="nav nav-tabs" ui-tabdrop ng-class="{disabled:isDisabled()}" data-testid="${TestIds.tabList}" ng-attr-data-disabled="{{!!isDisabled()}}">
           <li ng-class="{'active':$parent.model.selected === tab.value, 'tab-invalid':invalidPanels[tab.value]}" ng-repeat="tab in model.values track by tab.value" ng-attr-id="tab-{{tab.value}}" data-testid="${TestIds.tab}" ng-attr-data-active="{{$parent.model.selected === tab.value}}" ng-attr-data-invalid="{{!!invalidPanels[tab.value]}}">
           <a ng-click="clickTab(tab.value)" data-testid="${TestIds.tabLink}">
-            ${getIconTemplate("panel-title-icon")}
+            ${getIconTemplate("panel-title-icon", "span", "getTabIcon(tab)")}
             <span translate-multiple="{{tab.label}}" data-testid="${TestIds.tabLabel}"></span>
           </a>
         </li>
@@ -89,6 +89,13 @@ aweApplication
       /******************************************************************************
       * SCOPE METHODS
       *****************************************************************************/
+
+      /**
+       * Icon of a tab: the icon of its own option (an enumerated option with icon), none without it
+       * @param {object} tab Option of the tab
+       * @returns {object} Icon of the tab
+       */
+      $scope.getTabIcon = tab => getIcon(tab?.icon);
 
       /**
       * Event on click tab

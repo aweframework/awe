@@ -56,6 +56,10 @@ public class SchedulerJobListener extends ServiceConfig implements JobListener {
     try {
       if (context.getJobInstance() instanceof SchedulerJob) {
         SchedulerJob job = (SchedulerJob) context.getJobInstance();
+        // A deferred execution is closed (and its dependencies launched) when it is completed (or its due date passes)
+        if (job.isDeferred()) {
+          return;
+        }
         eventPublisher.publishEvent(new SchedulerTaskFinishedEvent(this,
             job.getTask(), job.getExecution(), job.getExecution().getExecutionTime()));
       }

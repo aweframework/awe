@@ -126,6 +126,11 @@
       <xs:enumeration value="add-class" />
       <xs:enumeration value="remove-class" />
       <xs:enumeration value="toggle-class" />
+      <xs:enumeration value="scroll-to">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Scrolls the element whose id is the target (a card, a tag with an id, a criterion container) to the top of its scroll container and gives it the focus, so the keyboard goes on from it: the section navigation of a long form. The scroll is instant when the user asks for reduced motion. Both engines.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
       <xs:enumeration value="confirm-updated-data" />
       <xs:enumeration value="confirm-not-updated-data" />
       <xs:enumeration value="confirm-empty-data" />

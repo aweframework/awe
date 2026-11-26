@@ -1659,6 +1659,58 @@ describe('awe-react-client/test/js/redux/actions/advancedDependenciesTest.js', (
       });
     });
 
+    // Issue #990: the selected row is compared by its identity and its values, not by the version of the grid model
+    describe.each(['selectedRowValue', 'selectedRow'])('%s of a grid', (attribute) => {
+      const withRows = (selectedId, version) => ({
+        values: [1, 2, 3].map(id => ({ id, col1: `value${id}`, selected: id === selectedId })),
+        modelVersion: version
+      });
+
+      beforeEach(() => {
+        mockState.components.gridComp.model = withRows(1, 0);
+        mockComponent.dependencies = [{
+          type: 'and',
+          elements: [{ id: 'gridComp', column1: 'col1', attribute1: attribute }],
+          target: 'show',
+          initial: false
+        }];
+        dependencies.initializeDependencies('testView', freshState(), dispatch);
+        dispatch.mockClear();
+      });
+
+      it('does not relaunch the dependency when the model changes but the selected row and its values do not', () => {
+        mockState.components.gridComp.model = withRows(1, 1);
+        mockState.components.gridComp.model.values[2].col1 = 'changed';
+        dependencies.checkDependencies(freshState(), dispatch);
+
+        expect(dispatch).not.toHaveBeenCalled();
+      });
+
+      it('relaunches the dependency when the selection moves to another row', () => {
+        mockState.components.gridComp.model = withRows(2, 1);
+        dependencies.checkDependencies(freshState(), dispatch);
+
+        expect(dispatch).toHaveBeenCalled();
+      });
+    });
+
+    it('relaunches a selectedRowValue dependency when the value of the selected row changes (#990)', () => {
+      mockState.components.gridComp.model = { values: [{ id: 1, col1: 'value', selected: true }], modelVersion: 0 };
+      mockComponent.dependencies = [{
+        type: 'and',
+        elements: [{ id: 'gridComp', column1: 'col1', attribute1: 'selectedRowValue' }],
+        target: 'show',
+        initial: false
+      }];
+      dependencies.initializeDependencies('testView', freshState(), dispatch);
+      dispatch.mockClear();
+
+      mockState.components.gridComp.model = { values: [{ id: 1, col1: 'new value', selected: true }], modelVersion: 1 };
+      dependencies.checkDependencies(freshState(), dispatch);
+
+      expect(dispatch).toHaveBeenCalled();
+    });
+
     it('no lanza la comprobacion unique al empezar a editar una fila que no ha cambiado', () => {
       mockState.components.gridComp = {
         address: { view: 'testView', component: 'gridComp' },

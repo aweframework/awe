@@ -1,3 +1,46 @@
+# Release notes for AWE 5.0.1
+*26/11/2026*
+ 
+✨ Features:
+- feat(awe-client-react): Lucide clear icon in the select criterion (#997). [MR #1365](https://gitlab.com/aweframework/awe/-/merge_requests/1365) (Pablo Vidal Otero)
+- feat(awe-client-react): clear button in the suggest criterion (#996). [MR #1364](https://gitlab.com/aweframework/awe/-/merge_requests/1364) (Pablo Vidal Otero)
+- **[HAS IMPACTS]** feat(awe-scheduler): redesign the scheduler screens into Activity, Tasks and Configuration (#993). [MR #1363](https://gitlab.com/aweframework/awe/-/merge_requests/1363) (Pablo Vidal Otero)
+- feat(awe-scheduler): cancellation notice, trace and output of deferred executions. [MR #1353](https://gitlab.com/aweframework/awe/-/merge_requests/1353) (Pablo Javier García Mora)
+- feat(awe-scheduler): webhook launch type, so a signed webhook launches a task (#979). [MR #1352](https://gitlab.com/aweframework/awe/-/merge_requests/1352) (Pablo Javier García Mora)
+- feat(awe-scheduler): flow graph, so the dependencies of a flow and the state of a run are seen at a glance (#992). [MR #1351](https://gitlab.com/aweframework/awe/-/merge_requests/1351) (Pablo Javier García Mora)
+- feat(awe-scheduler): flow runs with fan-in, so a task with several parents is launched once (#978). [MR #1346](https://gitlab.com/aweframework/awe/-/merge_requests/1346) (Pablo Javier García Mora)
+- feat(awe-scheduler): deferred executions completed later through an API. [MR #1344](https://gitlab.com/aweframework/awe/-/merge_requests/1344) (Pablo Javier García Mora)
+- feat(awe-client-react): navigation bar logo of the application (#981). [MR #1340](https://gitlab.com/aweframework/awe/-/merge_requests/1340) (Pablo Vidal Otero)
+
+🐛 Bug fixes:
+- ci(deploy): fail the k8s deploy jobs when the rollout does not finish (#1000). [MR #1369](https://gitlab.com/aweframework/awe/-/merge_requests/1369) (Pablo Vidal Otero)
+- fix(awe-controller): keep the base view values on a fresh screen, so its on-load and initial queries receive the header criteria (#998). [MR #1368](https://gitlab.com/aweframework/awe/-/merge_requests/1368) (Pablo Javier García Mora)
+- fix(awe-client-react): print a server-paged grid with every row of the search, its sort and its column filters (#994). [MR #1367](https://gitlab.com/aweframework/awe/-/merge_requests/1367) (Pablo Vidal Otero)
+- fix(awe-testing): wait in checkRowNotContains, so it does not fail while the grid is loading (#995). [MR #1366](https://gitlab.com/aweframework/awe/-/merge_requests/1366) (Pablo Javier García Mora)
+- fix(deps): update dependency i18next-http-backend to v4.0.10 (develop). [MR #1362](https://gitlab.com/aweframework/awe/-/merge_requests/1362) (Awe CI)
+- chore(deps): update dependency com.microsoft.sqlserver:mssql-jdbc to v13.6.2.jre11 (develop). [MR #1361](https://gitlab.com/aweframework/awe/-/merge_requests/1361) (Awe CI)
+- chore(deps): update dependency @babel/core to v7.29.13 (develop). [MR #1360](https://gitlab.com/aweframework/awe/-/merge_requests/1360) (Awe CI)
+- chore(deps): update test database images (develop). [MR #1359](https://gitlab.com/aweframework/awe/-/merge_requests/1359) (Pablo Vidal Otero)
+- chore(deps): update redislabs/redisinsight:latest docker digest to 7aea9c9 (develop). [MR #1358](https://gitlab.com/aweframework/awe/-/merge_requests/1358) (Pablo Vidal Otero)
+- chore(deps): update mcr.microsoft.com/devcontainers/base:bookworm docker digest to 06701e7 (develop). [MR #1357](https://gitlab.com/aweframework/awe/-/merge_requests/1357) (Pablo Vidal Otero)
+- chore(deps): update eclipse-temurin:21-jre-alpine docker digest to 5d7689f (develop). [MR #1356](https://gitlab.com/aweframework/awe/-/merge_requests/1356) (Pablo Vidal Otero)
+- chore(deps): update ci images (develop). [MR #1355](https://gitlab.com/aweframework/awe/-/merge_requests/1355) (Pablo Vidal Otero)
+- fix(awe-client-angular): review the flow graph edges in the compat cascade guard, so the develop compat job is green again. [MR #1354](https://gitlab.com/aweframework/awe/-/merge_requests/1354) (Pablo Javier García Mora)
+- fix(awe-scheduler): stop the running command and maintain jobs of a task (#989). [MR #1350](https://gitlab.com/aweframework/awe/-/merge_requests/1350) (Pablo Javier García Mora)
+- fix(awe-scheduler): read the next execution id before inserting it, so tasks start on MySQL (#991). [MR #1349](https://gitlab.com/aweframework/awe/-/merge_requests/1349) (Pablo Javier García Mora)
+- fix(awe-client-react): do not relaunch selectedRowValue dependencies on unrelated grid updates (#990). [MR #1348](https://gitlab.com/aweframework/awe/-/merge_requests/1348) (Pablo Vidal Otero)
+- fix(awe-client-react): render the html of Markdown message locales as markup (#987). [MR #1347](https://gitlab.com/aweframework/awe/-/merge_requests/1347) (Pablo Vidal Otero)
+- fix(awe-client-react): show the whole AWE mark in the collapsed rail (#985). [MR #1345](https://gitlab.com/aweframework/awe/-/merge_requests/1345) (Pablo Vidal Otero)
+- chore(awe-tools): remove the dead Karma/Jasmine stack and unused npm dependencies (#984). [MR #1343](https://gitlab.com/aweframework/awe/-/merge_requests/1343) (Pablo Vidal Otero)
+- ci: make the security scanning jobs block the pipeline. [MR #1342](https://gitlab.com/aweframework/awe/-/merge_requests/1342) (Pablo Vidal Otero)
+- build(renovate): fix the Renovate and Dependency Dashboard problems. [MR #1341](https://gitlab.com/aweframework/awe/-/merge_requests/1341) (Pablo Vidal Otero)
+- ci: run only the Playwright browser suites on develop and master. [MR #1339](https://gitlab.com/aweframework/awe/-/merge_requests/1339) (Pablo Vidal Otero)
+- fix(deps): update dependency i18next-http-backend to v4.0.7 (develop). [MR #1338](https://gitlab.com/aweframework/awe/-/merge_requests/1338) (Pablo Vidal Otero)
+- chore(deps): update ghcr.io/devcontainers/features/node docker tag to v2.1.2 (develop). [MR #1337](https://gitlab.com/aweframework/awe/-/merge_requests/1337) (Pablo Vidal Otero)
+- chore(deps): update dependency @babel/types to v7.29.11 (develop). [MR #1334](https://gitlab.com/aweframework/awe/-/merge_requests/1334) (Pablo Vidal Otero)
+- chore(deps): update mcr.microsoft.com/devcontainers/base:bookworm docker digest to 85a3490 (develop). [MR #1333](https://gitlab.com/aweframework/awe/-/merge_requests/1333) (Pablo Vidal Otero)
+- chore(deps): update ci images (develop). [MR #1332](https://gitlab.com/aweframework/awe/-/merge_requests/1332) (Pablo Vidal Otero)
+
 # Release notes for AWE 5.0.0
 *13/11/2026*
  

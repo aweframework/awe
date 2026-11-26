@@ -80,6 +80,10 @@ public class TriggerFactory {
       case MANUAL:
         return generateInmediateTrigger(dataMap, MANUAL_GROUP);
 
+      // Webhook launched task
+      case WEBHOOK:
+        return generateInmediateTrigger(dataMap, WEBHOOK_GROUP);
+
       // Dependency launched task
       case DEPENDENCY:
         return generateInmediateTrigger(dataMap, DEPENDENCY_GROUP);
@@ -113,7 +117,7 @@ public class TriggerFactory {
           triggerBuilder.modifiedByCalendar(schedule.getCalendarId().toString());
         }
 
-        if (task.getLaunchType() != 0) {
+        if (!TaskUtil.isLaunchedOnDemand(task.getLaunchType())) {
           triggerBuilder.withSchedule(new PatternBuilder(task.getSchedule()).build());
         }
 

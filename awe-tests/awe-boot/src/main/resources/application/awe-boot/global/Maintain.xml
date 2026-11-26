@@ -1197,6 +1197,28 @@
     </serve>
   </target>
 
+  <target name="deferredTestCancel">
+    <serve service="deferredTestCancel">
+      <variable id="taskId" type="INTEGER" name="taskId"/>
+      <variable id="executionId" type="INTEGER" name="executionId"/>
+      <variable id="externalReference" type="STRING" name="externalReference"/>
+    </serve>
+  </target>
+
+  <target name="deferredTestLaunch">
+    <serve service="deferredTestLaunch">
+      <variable id="taskId" type="INTEGER" name="taskId"/>
+      <variable id="executionId" type="INTEGER" name="executionId"/>
+    </serve>
+  </target>
+
+  <target name="webhookTestLaunch">
+    <serve service="webhookTestLaunch">
+      <variable id="day" type="STRING" name="day"/>
+      <variable id="entity" type="STRING" name="entity"/>
+    </serve>
+  </target>
+
   <target name="insertClobData">
     <insert>
       <table id="DummyClobTestTable"/>

@@ -1,9 +1,12 @@
-# Code owners (#762): who GitLab suggests as reviewers. Approval by a code owner is not required (the branch protection
-# "Require approval from code owners" stays off); the sections are optional (^) so turning it on later does not block merges
-# until the team decides. Syntax: https://docs.gitlab.com/user/project/codeowners/reference/
+# Code owners (#762): who GitLab suggests as reviewers. The branch protection "Require approval from code owners" is on for
+# develop, master and support/*, but only the sections without "^" require that approval. Today that is only
+# [Security exceptions] (#982): accepting a known vulnerability is a decision of the code owners, never of the author of a
+# merge request. Every other section is optional (^), so it suggests reviewers and blocks nothing.
+# Syntax: https://docs.gitlab.com/user/project/codeowners/reference/
 # Every section lists the same owners today; split them per area when the team grows.
 
 # Default: anything not claimed by a section below
+^[Default] @pablo.garcia.almis @Limkin
 * @pablo.garcia.almis @Limkin
 
 ^[Framework model] @pablo.garcia.almis @Limkin
@@ -51,3 +54,9 @@
 /pom.xml
 /awe-framework/pom.xml
 /awe-framework/awe-dependencies/
+
+# Required: a merge request that accepts a vulnerability needs the approval of one of these owners (#982)
+[Security exceptions] @pablo.garcia.almis @Limkin
+/.gitlab/dependency-scanning-accepted.txt
+/.gitlab/secret-detection-ruleset.toml
+/.gitlab/CODEOWNERS

@@ -222,6 +222,16 @@ class ReactAweInstructionsTest {
   }
 
   @Test
+  void shouldLocateATabByTheStartOfItsLabel() {
+    // A label that carries a count or a state («Servers 3», «Engine · Running») is found by its start
+    assertThat(instructions.getTabStartingWith("Tab", "Lbl")).hasToString("By.xpath: "
+      + "(//*[@criterion-id='Tab']//*[@data-testid='tab-label' and starts-with(normalize-space(.),'Lbl')])[1]");
+    assertThat(instructions.getTabActiveStartingWith("Tab", "Lbl")).hasToString("By.xpath: "
+      + "(//*[@criterion-id='Tab']//*[@data-testid='tab' and @data-active='true']"
+      + "//*[@data-testid='tab-label' and starts-with(normalize-space(.),'Lbl')])[1]");
+  }
+
+  @Test
   void shouldLocateMenusMessagesAndButtonsByTheirHooksAndIds() {
     assertThat(instructions.getMenuBehavior()).isEqualTo(MenuBehavior.CLICK_ALL);
     assertThat(instructions.getMenuOption("Opt")).hasToString("By.cssSelector: [data-testid='menu-link'][name='Opt']");
@@ -432,6 +442,7 @@ class ReactAweInstructionsTest {
       "By.cssSelector: [data-testid='dialog'][data-testid-owner='PrnOpt'] [data-testid='dialog-close']");
     assertThat(instructions.getLogViewer()).hasToString("By.cssSelector: [data-testid='log-viewer']");
     assertThat(instructions.getFileViewer()).hasToString("By.cssSelector: [data-testid='file-viewer']");
+    assertThat(instructions.getFlowGraphNode()).hasToString("By.cssSelector: [data-testid='flow-graph-node']");
     assertThat(instructions.getSelectOption(1)).hasToString(
       "By.xpath: (//*[@data-testid='select-dropdown']//*[@data-testid='select-option'])[1]");
   }

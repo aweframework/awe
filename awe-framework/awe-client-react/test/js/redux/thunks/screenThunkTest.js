@@ -422,11 +422,37 @@ describe('awe-react-client/test/js/redux/thunks/screenThunkTest.js', () => {
         expect(sent.freshScreen).toBe(true);
       });
 
+      it('groups the values of the base view on a fresh screen, so the server gives them to the new screen (#998)', async () => {
+        const sent = await load(true);
+        expect(sent.baseView).toEqual({ Menu: 'm' });
+      });
+
       it('sends every value without the fresh flag otherwise', async () => {
         const sent = await load();
         expect(sent.Name).toBe('leaked');
         expect(sent).not.toHaveProperty('freshScreen');
+        expect(sent).not.toHaveProperty('baseView');
       });
+    });
+
+    it('keeps the values of the criteria with keep-on-reload in the tab and sends them again on a reload (#993)', async () => {
+      window.sessionStorage.clear();
+      const answer = selected => ({
+        ok: true,
+        json: async () => ({
+          structure: {}, messages: [], screen: {},
+          components: [{id: 'IdeTsk.selected', controller: {component: 'hidden', keepOnReload: true}, model: {selected}}]
+        })
+      });
+      const getState = () => ({ settings: { token: 'TOK' }, components: {} });
+      jest.spyOn(window, 'fetch').mockResolvedValueOnce(answer([9013])).mockResolvedValueOnce(answer([9013]));
+
+      await screenThunks.loadScreen('base', 'scheduler-task', (k) => k)(dispatch, getState);
+      await screenThunks.loadScreen('base', 'scheduler-task', (k) => k)(dispatch, getState);
+
+      expect(JSON.parse(window.fetch.mock.calls[0][1].body)).not.toHaveProperty('IdeTsk.selected');
+      expect(JSON.parse(window.fetch.mock.calls[1][1].body)['IdeTsk.selected']).toBe(9013);
+      window.sessionStorage.clear();
     });
 
     it('dispatches response.actions on initial screen load', async () => {

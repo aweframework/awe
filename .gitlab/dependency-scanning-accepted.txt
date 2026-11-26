@@ -1,0 +1,6 @@
+# High and critical dependency vulnerabilities that "Security · Dependencies" (Maven) and "Security · npm · React" accept
+# instead of failing. One identifier per line, as the job prints it, followed by a comment with the reason and the issue
+# that tracks its removal. Maven (Security · Dependencies): CVE-..., GHSA-... or Gemnasium-...; npm: only the GHSA-... id.
+# Keep it empty whenever possible: every line is a known vulnerability shipped on purpose, and a reviewer has to agree.
+#
+# CVE-0000-00000   # Example: no fixed version yet, not reachable because <reason> (#issue)

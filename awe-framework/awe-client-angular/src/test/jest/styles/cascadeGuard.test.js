@@ -25,7 +25,9 @@ const REVIEWED = [
   {removed: /^\.has-(success|warning|error) \.(control-label|radio|checkbox)$/, kept: /^\.awe-readout (> )?label$/,
     reason: "the only one of these groups that the client writes around the label of a criterion is .has-error on the criterion itself (criterion.js), and form.less colors its label, checkboxes and radios with .criterion.has-error rules that stay unlayered and are more specific than both, so a read-only value (awe-readout) renders the same; .has-warning only wraps the password input (text.js), never a label, and .has-success is never written"},
   {removed: /^(a\.label:(hover|focus)|\.thumbnail \.caption|\.list-group-item:first-child|\.popover > \.arrow)$/, kept: /^\.awe-readout(-block)? label \+ \*$/,
-    reason: "the element after the label of a read-only value (awe-readout) is the .input box of its criterion (text.js and the other criterion templates), never a link label, a thumbnail caption, a list group item or a popover arrow (the first child of its popover, with no label before it)"}
+    reason: "the element after the label of a read-only value (awe-readout) is the .input box of its criterion (text.js and the other criterion templates), never a link label, a thumbnail caption, a list group item or a popover arrow (the first child of its popover, with no label before it)"},
+  {removed: /^svg:not\(:root\)$/, kept: /^\.flow-graph-edges$/,
+    reason: "the edges layer of the flow graph (flowGraph.js, #992) was written after the compat layer: it wants overflow visible so an edge that leaves the canvas box is not clipped, and the normalize rule would hide it"},
 ];
 
 describe("awe-framework/awe-client-angular/src/test/jest/styles/cascadeGuard", () => {

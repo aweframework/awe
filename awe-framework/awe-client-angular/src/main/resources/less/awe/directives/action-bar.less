@@ -1,0 +1,27 @@
+// Action bar (#993): a style of a div tag, <tag type="div" style="awe-action-bar">, for a row of a page with its text on
+// the left (a span tag) and its actions on the right (the last children, buttons), vertically centred on one line, so
+// the actions end on the right edge of the page as its header actions do. It wraps on narrow screens. Same class as the
+// React engine (Tag.less)
+.awe-action-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--awe-space-2) var(--awe-space-3);
+
+  // The text: a muted line, as the description of a catalog in the header (awe-header-status). It takes the free
+  // width and wraps inside it, so a long text goes in two lines next to the actions instead of pushing them below
+  > .text-muted {
+    flex: 1 1 20rem;
+    min-width: 0;
+    font-size: var(--awe-font-size-sm);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-muted);
+  }
+
+  // The buttons carry their own spacing: the bar spaces and centres them
+  > .btn,
+  > button {
+    margin: 0;
+  }
+}

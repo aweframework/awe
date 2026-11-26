@@ -2,46 +2,77 @@
 
 <!--
     Document   : scheduler-launch-variables.xml
-    Description: Manual launch modal. Lists every parameter of the selected task with its source
-                 and an editable value column, and launches the task applying the supplied values.
-                 On a PROPERTY parameter the supplied value is the property key, which is resolved
-                 at execution time.
+    Description: Manual launch dialog («Ejecutar tarea», #993). Lists every parameter of the selected task (name with
+                 its type under it, origin as a pill: Value, Variable or Property) with its value pre-filled with the
+                 stored one, and launches the task applying the supplied values: a manual launch may change the value of a
+                 Value or a Variable parameter. A PROPERTY parameter shows its key, read-only: the key is resolved at
+                 execution time (the resolved value is configuration, never sent to the browser) and a launch that changes
+                 it is rejected by the server (also through the API). The values
+                 are only used in this execution and stored as the parameters of its run (AweSchRunPar), which the
+                 activity side panel shows. The note tells how the launch is recorded (origin Manual, launched by the
+                 user). Reset values reloads the stored values. The screens that include it load the parameters of their
+                 task (filter GrdTskVar) when they open it or select a task, so the grid has no initial load: without a
+                 task it would read the parameters of every task.
 -->
 <screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
         template="window" label="MENU_SCHEDULER_TASKS" help="HELP_SCREEN_SCHEDULER_TASKS">
   <tag source="center">
-    <dialog id="task-variables" modal="true" style="modal-lg" label="SCREEN_TEXT_LAUNCH_PARAMETERS">
-      <!-- no-border + panel-transparent strip the window's themed (maroon) panel border so the grid
-           doesn't show a naked colored box inside the dialog; padding-sm spaces it below the header.
-           height-md + expand give the grid room for several parameters instead of clipping at two,
-           and scroll beyond that. -->
-      <window style="padding-sm no-border panel-transparent height-md expand" expandible="vertical">
+    <dialog id="task-variables" modal="true" style="modal-lg" label="SCREEN_TEXT_TASK_RUN_DIALOG">
+      <tag type="div" style="col-xs-12">
+        <tag type="span" style="text-muted" label="SCREEN_TEXT_TASK_RUN_DIALOG_TEXT" />
+      </tag>
+      <!-- A plain block, not a window: a window without title draws an empty header above the grid. height-sm gives
+           the grid room for several parameters, and it scrolls beyond that -->
+      <tag type="div" style="col-xs-12">
         <!-- send-all transmits the name/value columns as parallel arrays; the JavaConnector assembles
-             them into a List<TaskVariable> for executeTaskNowVariables. The name and source columns
-             are read-only and not sent, the value column is pre-filled with the stored value and
-             editable. -->
-        <grid id="GrdTskVar" style="expand" editable="true" send-all="true" row-numbers="false"
-              server-action="data" target-action="taskVariableParameters" initial-load="query"
-              pagination-disabled="true">
-          <column label="PARAMETER_NAME" name="name" align="left" charlength="30" sortable="false"/>
-          <column label="PARAMETER_SOURCE" name="sourceLabel" align="left" charlength="20" sortable="false" sendable="false"/>
-          <column label="PARAMETER_VALUE" name="value" align="left" component="text" charlength="40" sortable="false"/>
+             them into a List<TaskVariable> for executeTaskNowVariables. The other columns are read-only
+             and not sent, the value column is pre-filled with the stored value and editable but for a Property. -->
+        <grid id="GrdTskVar" style="expand height-sm" editable="true" send-all="true" row-numbers="false"
+              server-action="data" target-action="taskVariableParameters" pagination-disabled="true"
+              show-toolbar="false">
+          <column name="typeLabel" hidden="true" sendable="false"/>
+          <column name="sourceIcon" hidden="true" sendable="false"/>
+          <column name="sourceTone" hidden="true" sendable="false"/>
+          <column label="PARAMETER_TASK_RUN_PARAMETER" name="name" align="left" charlength="24" sortable="false"
+                  secondary-field="typeLabel"/>
+          <column label="PARAMETER_TASK_RUN_ORIGIN" name="sourceLabel" align="left" charlength="14" sortable="false"
+                  sendable="false" status-field="sourceTone" icon-field="sourceIcon"/>
+          <!-- The value of a Value or a Variable parameter can be changed; the key of a Property cannot (source 2) -->
+          <column label="PARAMETER_VALUE" name="value" align="left" component="text" charlength="40" width="*"
+                  sortable="false">
+            <dependency target-type="set-readonly" initial="true">
+              <dependency-element id="GrdTskVar" column="source" attribute="selectedRowValue" condition="eq" value="2"/>
+            </dependency>
+          </column>
         </grid>
-      </window>
+      </tag>
+      <!-- How the launch is recorded: origin Manual and the user of the session -->
+      <tag type="div" style="col-xs-12">
+        <card id="CrdTskLchNot" style="card-note" icon="lucide:info" icon-tone="info" initial-load="query"
+              target-action="getTaskLaunchNote" />
+      </tag>
       <tag type="div" style="modal-footer">
+        <tag type="div" style="pull-left">
+          <button id="ButRstTskVar" label="BUTTON_TASK_RUN_RESET" icon="lucide:rotate-ccw" style="btn-link">
+            <button-action type="filter" target="GrdTskVar"/>
+          </button>
+        </tag>
         <tag type="div" style="pull-right">
           <button id="ButCanTskVar" label="BUTTON_CANCEL" icon="remove-sign">
             <button-action type="close" target="task-variables"/>
           </button>
-          <button button-type="submit" id="ButLchTskVar" label="BUTTON_LAUNCH" icon="play"
+          <button button-type="submit" id="ButLchTskVar" label="BUTTON_TASK_RUN_LAUNCH" icon="play" style="btn-primary"
                   help="HELP_LAUNCH_VARIABLES_BUTTON">
             <button-action type="validate" target="task-variables"/>
             <button-action type="check-records-saved" target="GrdTskVar"/>
             <button-action type="server" server-action="maintain-silent" target-action="VldTskPar"/>
             <button-action type="server" server-action="maintain-silent" target-action="LchTskVar" silent="true"/>
             <button-action type="close" target="task-variables"/>
+            <!-- Reload what shows the executions of the screen that opened it: the task list or catalog, the history
+                 of the task screen (each screen has one of them) -->
             <button-action type="filter" target="GrdTskLst" silent="true"/>
+            <button-action type="filter" target="GrdTskExe" silent="true"/>
           </button>
         </tag>
       </tag>

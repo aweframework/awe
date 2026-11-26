@@ -301,6 +301,8 @@
   <locale name="ENUM_PRN_FMT_EUR" value="European"/>
   <locale name="ENUM_PRN_FMT_EUR_NO_THOU" value="European (no thousand)"/>
   <locale name="ENUM_PRN_FMT_PDF" value="PDF"/>
+  <locale name="ENUM_PRN_ROW_ALL" value="All rows"/>
+  <locale name="ENUM_PRN_ROW_PAGE" value="Current page"/>
   <locale name="ENUM_PRN_FMT_RTF" value="RTF"/>
   <locale name="ENUM_PRN_FMT_TEXT" value="TEXT"/>
   <locale name="ENUM_PRN_FMT_XLS" value="EXCEL"/>
@@ -754,6 +756,7 @@
   <locale name="ERROR_MESSAGE_UNDEFINED_CACHE" value="Cache type -{0}- has not been defined"/>
   <locale name="ERROR_MESSAGE_UNDEFINED_DATASOURCE" value="The selected datasource `{0}` has not been defined"/>
   <locale name="ERROR_MESSAGE_UNDEFINED_SESSION" value="Session with token &apos;{0}&apos; doesn&apos;t exists or has been deleted"/>
+  <locale name="ERROR_MESSAGE_UNEXPECTED_ERROR" value="An unexpected error has occurred. Please try again and, if the problem persists, contact your administrator."/>
   <locale name="ERROR_MESSAGE_UNIQUE_CRITERIA" value="The selected value is already in the database"/>
   <locale name="ERROR_MESSAGE_UPDATE_WRK_DIR2" value="The path is not correct"/>
   <locale name="ERROR_MESSAGE_VARIABLE_DEFINITION" value="There was a problem with variable {0} definition"/>
@@ -811,6 +814,9 @@
   <locale name="HELP_SCREEN_TITLE_SECURITY_AUDIT_VIEW" value="All the data recorded for a security event"/>
   <locale name="HELP_SCREEN_TITLE_SIT_ADMIN" value="Sites of the application and the database each module uses on them."/>
   <locale name="HELP_SCREEN_TITLE_THEME_ADMIN" value="Colour themes of the application: primary colour, surface and mode. Profiles and users choose one of the active themes."/>
+  <locale name="LOG_VIEWER_FILTER_MATCHES" value="Show only matches"/>
+  <locale name="LOG_VIEWER_FOLLOW" value="Follow the end"/>
+  <locale name="LOG_VIEWER_SEARCH" value="Search"/>
   <locale name="MENU_TOOLS_SECURITY_AUDIT" value="Security audit"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CAUSE" value="Cause"/>
   <locale name="PARAMETER_SECURITY_AUDIT_CHANNEL" value="Channel"/>
@@ -1113,6 +1119,7 @@
   <locale name="ERROR_TITLE_TOO_MANY_REQUESTS" value="Error: too many requests"/>
   <locale name="ERROR_TITLE_UNDEFINED_CACHE" value="Undefined cache type"/>
   <locale name="ERROR_TITLE_UNDEFINED_SESSION" value="Undefined session"/>
+  <locale name="ERROR_TITLE_UNEXPECTED_ERROR" value="The operation could not be completed"/>
   <locale name="ERROR_TITLE_VALIDATION" value="Error during validation"/>
   <locale name="ERROR_TITLE_VARIABLE_DEFINITION" value="Error in variable definition"/>
   <locale name="ERROR_TITLE_VIEWING_PDF_FILE" value="Error loading PDF file"/>
@@ -1172,6 +1179,7 @@
   <locale name="HELP_PRINT_FORMAT_CRITERION" value="Select the file formats which you want to retrieve the data"/>
   <locale name="HELP_PRINT_NUMERIC_FORMAT_CRITERION" value="Select the format you want to apply to the numeric data"/>
   <locale name="HELP_PRINT_ORIENTATION_CRITERION" value="Force the report orientation"/>
+  <locale name="HELP_PRINT_ROWS_CRITERION" value="Rows of the grids that page on the server: every row of the search, sorted and filtered as on screen (up to a limit), or only the current page"/>
   <locale name="HELP_PRINT_SELECTION_CRITERION" value="Select what you want to print: All tabs in the screen or only the selected one"/>
   <locale name="HELP_RESET_2FA_BUTTON" value="Reset the two-factor authentication on the selected users"/>
   <locale name="HELP_RESET_BUTTON" value="Clear all criteria values"/>
@@ -1265,6 +1273,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="HOURS" value="{0}h"/>
   <locale name="INFO_MESSAGE_PARSING_NUMBER_NULL" value="Parameter {0} can&apos;&apos;t be parsed as number: &apos;&apos;{1}&apos;&apos; - Set as null"/>
   <locale name="INFO_TITLE_WEB_SERVICE_CALL" value="Information"/>
+  <locale name="LINK_OPENS_IN_NEW_TAB" value="(opens in a new tab)"/>
   <locale name="MENU_ACT_USR" value="Notify active users"/>
   <locale name="MENU_APP_INF" value="About"/>
   <locale name="MENU_AUDITS" value="Audits"/>
@@ -1332,6 +1341,13 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="MINUTES" value="{0}m"/>
   <locale name="MONTH" value="{0} month"/>
   <locale name="MONTHS" value="{0} months"/>
+  <locale name="MONTH_VIEW_EXCLUDED" value="excluded"/>
+  <locale name="MONTH_VIEW_LEGEND" value="Struck through: does not run"/>
+  <locale name="MONTH_VIEW_MONTH_DATES" value="{0}: {1} dates"/>
+  <locale name="MONTH_VIEW_NEXT" value="Next month"/>
+  <locale name="MONTH_VIEW_PREVIOUS" value="Previous month"/>
+  <locale name="MONTH_VIEW_STRIP" value="Dates per month"/>
+  <locale name="MONTH_VIEW_UNSAVED" value="not saved"/>
   <locale name="MSG_PASSWD_NEW" value="After entering the password press confirm button"/>
   <locale name="NO_SUBSCRIPTIONS" value="There are no active subscriptions to notifications"/>
   <locale name="NOTIFICATIONS" value="NOTIFICATIONS"/>
@@ -1504,6 +1520,7 @@ A site is defined as a *separated application node*, with it's own [databases](#
   <locale name="PARAMETER_REPEAT_EACH" value="Repeat each"/>
   <locale name="PARAMETER_REPORT" value="Report"/>
   <locale name="PARAMETER_REPORT_ORIENTATION" value="Orientation"/>
+  <locale name="PARAMETER_PRN_ROWS" value="Rows to print"/>
   <locale name="PARAMETER_RESTRICTION" value="Restriction"/>
   <locale name="PARAMETER_RETYPE_PASSWD" value="Retype password"/>
   <locale name="PARAMETER_SCREEN" value="Screen"/>
@@ -1834,6 +1851,7 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="GRID_GROUP_EXPAND" value="Expand group"/>
   <locale name="GRID_GROUP_COLLAPSE" value="Collapse group"/>
   <locale name="GRID_GROUP_EMPTY" value="(empty)"/>
+  <locale name="PRINT_ROWS_LIMIT_NOTICE" value="Only the first {0} rows of {1} were printed: filter the search to print the rest"/>
   <locale name="GRID_GROUP_SUBTOTAL" value="Subtotal"/>
   <locale name="GRID_COLUMNS_ERROR_TITLE" value="Grid layout not saved"/>
   <locale name="GRID_COLUMNS_ERROR_MESSAGE" value="The grid layout could not be saved or removed"/>
@@ -2075,6 +2093,8 @@ Open your two-factor authentication app and scan the following QR code to enter 
   <locale name="VALIDATOR_MESSAGE_DATE_RANGE" value="The end date cannot be before the start date"/>
   <locale name="DATE_RANGE_FROM" value="From"/>
   <locale name="DATE_RANGE_TO" value="To"/>
+  <locale name="DATE_RANGE_CUSTOM" value="Custom range…"/>
+  <locale name="DATE_RANGE_APPLY" value="Apply"/>
   <locale name="DATE_RANGE_PRESET_TODAY" value="Today"/>
   <locale name="DATE_RANGE_PRESET_1W" value="1 week"/>
   <locale name="DATE_RANGE_PRESET_1M" value="1 month"/>

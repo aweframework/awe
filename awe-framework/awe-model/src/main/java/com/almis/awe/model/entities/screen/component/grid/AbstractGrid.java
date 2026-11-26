@@ -54,7 +54,7 @@ import static com.almis.awe.model.constant.AweConstants.NO_KEY;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Slf4j
-@XStreamInclude({Grid.class, PivotTable.class, QuickFilter.class, GridSearch.class})
+@XStreamInclude({Grid.class, PivotTable.class, QuickFilter.class, GridSearch.class, GridToolbarCriteria.class})
 public abstract class AbstractGrid extends AbstractCriteria {
 
   @Serial
@@ -177,6 +177,12 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @XStreamAlias("show-maximize-button")
   @XStreamAsAttribute
   private Boolean showMaximizeButton;
+
+  // Send the values of the grid (its columns, selection and identifiers) while it is hidden. False: a hidden grid sends
+  // none, so two grids of a screen shown one at a time can share their column names
+  @XStreamAlias("send-when-hidden")
+  @XStreamAsAttribute
+  private Boolean sendWhenHidden;
 
   // Which end buttons of the toolbar show their label: true (all), false (none) or a comma-separated list of
   // GridToolbarButton names. Sent normalized by getToolbarLabelsConverter, only when the grid sets it
@@ -388,6 +394,16 @@ public abstract class AbstractGrid extends AbstractCriteria {
   @JsonGetter("showMaximizeButton")
   public boolean isShowMaximizeButton() {
     return showMaximizeButton == null || showMaximizeButton;
+  }
+
+  /**
+   * Returns if the grid sends its values while it is hidden (default true)
+   *
+   * @return Grid sends its values while hidden
+   */
+  @JsonGetter("sendWhenHidden")
+  public boolean isSendWhenHidden() {
+    return sendWhenHidden == null || sendWhenHidden;
   }
 
   /**
@@ -658,17 +674,27 @@ public abstract class AbstractGrid extends AbstractCriteria {
   }
 
   /**
-   * Retrieve the quick filter of the grid
+   * Retrieve the main quick filter of the grid: the first one, which saved and default searches and the selection bar read
    *
-   * @return Quick filter, null when the grid has none (only the first one is used)
+   * @return Quick filter, null when the grid has none
    */
   @JsonIgnore
   public QuickFilter getQuickFilter() {
-    return getChildrenByType(QuickFilter.class).stream().findFirst().orElse(null);
+    return getQuickFilters().stream().findFirst().orElse(null);
   }
 
   /**
-   * Returns the identifier of the quick filter for JSON serialization: the grid shows it in its toolbar
+   * Retrieve every quick filter of the grid, in the order of the XML: the toolbar shows all of them
+   *
+   * @return Quick filters, empty when the grid has none
+   */
+  @JsonIgnore
+  public List<QuickFilter> getQuickFilters() {
+    return getChildrenByType(QuickFilter.class);
+  }
+
+  /**
+   * Returns the identifier of the main quick filter for JSON serialization
    *
    * @return Quick filter identifier, not sent when the grid has none
    */
@@ -677,6 +703,17 @@ public abstract class AbstractGrid extends AbstractCriteria {
   public String getQuickFilterConverter() {
     QuickFilter quickFilter = getQuickFilter();
     return quickFilter == null ? null : quickFilter.getElementKey();
+  }
+
+  /**
+   * Returns the identifiers of every quick filter for JSON serialization: the grid shows them in its toolbar, in order
+   *
+   * @return Quick filter identifiers, not sent when the grid has none
+   */
+  @JsonGetter("quickFilters")
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public List<String> getQuickFiltersConverter() {
+    return getQuickFilters().stream().map(QuickFilter::getElementKey).toList();
   }
 
   /**
@@ -699,6 +736,28 @@ public abstract class AbstractGrid extends AbstractCriteria {
   public String getSearchConverter() {
     GridSearch search = getSearch();
     return search == null ? null : search.getElementKey();
+  }
+
+  /**
+   * Retrieve the criteria the grid shows in its toolbar, in the order of the XML
+   *
+   * @return Toolbar criteria, empty when the grid has none
+   */
+  @JsonIgnore
+  public List<GridToolbarCriteria> getToolbarCriteria() {
+    return getChildrenByType(GridToolbarCriteria.class);
+  }
+
+  /**
+   * Returns the identifiers of the toolbar criteria for JSON serialization: the grid shows them at the end of its
+   * toolbar, before its Columns button, in order
+   *
+   * @return Toolbar criteria identifiers, not sent when the grid has none
+   */
+  @JsonGetter("toolbarCriteria")
+  @JsonInclude(JsonInclude.Include.NON_EMPTY)
+  public List<String> getToolbarCriteriaConverter() {
+    return getToolbarCriteria().stream().map(GridToolbarCriteria::getElementKey).toList();
   }
 
   /**

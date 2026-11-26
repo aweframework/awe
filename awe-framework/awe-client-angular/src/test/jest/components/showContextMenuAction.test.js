@@ -56,6 +56,34 @@ describe("show-context-menu client action", () => {
       expect(element[0].style.top).toBe("130px");
     });
 
+    it.each([
+      ["sits in the window header", 1024, true],
+      ["would overflow the right edge of the viewport", 400, false]
+    ])("aligns the right edge of the menu to the right edge of the anchor when the anchor %s",
+      (_, viewportWidth, inHeader) => {
+        // The menu is 250 px wide: left aligned it would start at 200 px, right aligned it ends at 260 px
+        const {menu, element} = createMenu();
+        element[0].getBoundingClientRect = () => {
+          const left = parseFloat(element[0].style.left) || 0;
+          return {left, right: left + 250, top: 130, bottom: 230, width: 250, height: 100};
+        };
+        Object.defineProperty(element[0], "offsetWidth", {configurable: true, value: 250});
+        const anchor = anchorWithRect();
+        if (inHeader) {
+          $("<div class='window-buttons'></div>").append(anchor).appendTo("body");
+        }
+        const innerWidth = window.innerWidth;
+        window.innerWidth = viewportWidth;
+        try {
+          menu.showUnder(anchor);
+        } finally {
+          window.innerWidth = innerWidth;
+        }
+
+        expect(element[0].style.left).toBe("10px");
+        expect(element[0].style.top).toBe("130px");
+      });
+
     it("can be closed through the mask like any other menu", () => {
       const {menu} = createMenu();
       menu.showUnder(anchorWithRect());
@@ -63,6 +91,53 @@ describe("show-context-menu client action", () => {
       $("body > .component-mask").trigger("click");
 
       expect(menu.isVisible()).toBe(false);
+    });
+
+    describe("from the keyboard", () => {
+      const createMenuWithOptions = () => {
+        const host = $("<div><ul class='context-menu'>" +
+          "<li class='context-option'><a name='one' tabindex='-1'>One</a></li>" +
+          "<li class='context-option ng-hide'><a name='hidden' tabindex='-1'>Hidden</a></li>" +
+          "<li class='context-option divider'></li>" +
+          "<li class='context-option'><a name='two' tabindex='-1'>Two</a></li>" +
+          "</ul></div>");
+        $("body").append(host);
+        const menu = new ContextMenu($rootScope.$new(), host.find("ul"), []);
+        menu.init();
+        return {menu, element: host.find("ul")};
+      };
+      const key = (element, name) => element[0].dispatchEvent(new KeyboardEvent("keydown", {key: name, bubbles: true}));
+
+      it("focuses the first visible option, moves with the arrows and activates the option with Enter", () => {
+        const {menu, element} = createMenuWithOptions();
+        const anchor = anchorWithRect().appendTo("body");
+        const click = jest.fn();
+        element.find("a[name=two]").on("click", click);
+
+        menu.showUnder(anchor);
+        expect(document.activeElement.getAttribute("name")).toBe("one");
+
+        key(element, "ArrowDown");
+        expect(document.activeElement.getAttribute("name")).toBe("two");
+        key(element, "ArrowDown");
+        expect(document.activeElement.getAttribute("name")).toBe("one");
+        key(element, "ArrowUp");
+        expect(document.activeElement.getAttribute("name")).toBe("two");
+
+        key(element, "Enter");
+        expect(click).toHaveBeenCalledTimes(1);
+      });
+
+      it("closes with Escape and gives the focus back to the button it hangs from", () => {
+        const {menu, element} = createMenuWithOptions();
+        const anchor = anchorWithRect().appendTo("body");
+
+        menu.showUnder(anchor);
+        key(element, "Escape");
+
+        expect(menu.isVisible()).toBe(false);
+        expect(document.activeElement).toBe(anchor[0]);
+      });
     });
 
     it("does nothing when the anchor is empty", () => {

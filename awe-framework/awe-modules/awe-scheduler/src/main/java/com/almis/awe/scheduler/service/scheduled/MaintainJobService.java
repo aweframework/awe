@@ -14,6 +14,7 @@ import com.almis.awe.scheduler.dao.TaskDAO;
 import com.almis.awe.scheduler.log.ExecutionKey;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
 import com.almis.awe.scheduler.service.ExecutionService;
+import com.almis.awe.scheduler.util.SchedulerDeferred;
 import com.almis.awe.service.MaintainService;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.JobDataMap;
@@ -34,6 +35,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
+import static com.almis.awe.scheduler.constant.JobConstants.EXECUTION_ID;
+import static com.almis.awe.scheduler.constant.JobConstants.TASK_ID;
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_LAUNCHER;
 
 /**
@@ -112,7 +115,7 @@ public class MaintainJobService extends JobService {
       log.info("[{}] Maintain job started: {}", task.getTrigger().getKey().toString(), task.getAction());
 
       // Initialize query parameters (no per-task datasource routing - see #685)
-      ObjectNode parameters = getQueryUtil().getParameters(null, "1", "0");
+      ObjectNode parameters = newParameters();
 
       // Insert task parameters
       for (TaskParameter taskParameter : task.getParameterList()) {
@@ -126,12 +129,15 @@ public class MaintainJobService extends JobService {
       // Set default parameters
       parameters.put("launcher", (String) dataMap.get(TASK_LAUNCHER));
 
+      // Reserved parameters: the execution key, so the maintain can complete the execution later (they win over a
+      // task parameter of the same name)
+      if (execution.getTaskId() != null && execution.getExecutionId() != null) {
+        parameters.put(TASK_ID, execution.getTaskId());
+        parameters.put(EXECUTION_ID, execution.getExecutionId());
+      }
+
       try {
-        if (isSchedulerInstance) {
-          jobResult = launchRemoteMaintainRest(task.getAction(), parameters, execution);
-        } else {
-          jobResult = getMaintainService().launchPrivateMaintain(task.getAction(), parameters);
-        }
+        jobResult = launchMaintain(task.getAction(), parameters, execution);
       } catch (AWException exc) {
         log.error("Error launching maintain job", exc);
         jobResult = new ServiceData()
@@ -142,10 +148,40 @@ public class MaintainJobService extends JobService {
 
       return CompletableFuture.completedFuture(jobResult);
     } finally {
-      // Log completion summary and end logging
-      logExecutionSummary(execution, jobResult);
-      endLogging(execution);
+      if (SchedulerDeferred.isDeferred(jobResult)) {
+        // The execution keeps running: its log is completed when the execution is closed
+        releaseLogging();
+      } else {
+        // Log completion summary and end logging
+        logExecutionSummary(execution, jobResult);
+        endLogging(execution);
+      }
     }
+  }
+
+  /**
+   * Build the parameters of a maintain launched by the scheduler
+   *
+   * @return Empty parameters (no per-task datasource routing - see #685)
+   */
+  public ObjectNode newParameters() {
+    return getQueryUtil().getParameters(null, "1", "0");
+  }
+
+  /**
+   * Launch a maintain where the maintain tasks run: on this application, or on the AWE application when this is a
+   * remote scheduler instance
+   *
+   * @param maintain   Maintain identifier
+   * @param parameters Maintain parameters
+   * @param execution  Execution the maintain is launched on behalf of
+   * @return Answer of the maintain
+   * @throws AWException Error launching the maintain
+   */
+  public ServiceData launchMaintain(String maintain, ObjectNode parameters, TaskExecution execution)
+    throws AWException {
+    return isSchedulerInstance ? launchRemoteMaintainRest(maintain, parameters, execution)
+      : getMaintainService().launchPrivateMaintain(maintain, parameters);
   }
 
   /**

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : scheduler-task-fields.xml
+    Description: Fields of a task included by the task editor of the Scheduler (#993, scheduler-task-editor): what
+                 the task runs and where (Execution: the maintain or the command of the execution type TypExe, its
+                 cancellation maintain, its path and its remote server). Their visibility follows the execution type
+                 (TypExe) of the editor. The editor lays out the launch fields of its own. They are not a screen of
+                 their own.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd" template="window"
+        label="MENU_SCHEDULER_TASK_EDITOR">
+  <tag source="Execution">
+    <tag id="executionCommand">
+      <criteria id="CmdExe" label="PARAMETER_COMMAND" component="hidden">
+        <dependency>
+          <dependency-element id="TypExe"/>
+          <dependency-action type="reset" target="ParameterList"/>
+        </dependency>
+        <dependency source-type="launcher" initial="true" target-type="input" target-action="maintainVal">
+          <dependency-element id="TypExe" condition="eq" value="1"/>
+          <dependency-element id="maintain" attribute="text" alias="maintainVal"/>
+        </dependency>
+        <dependency source-type="launcher" initial="true" target-type="input" target-action="commandVal">
+          <dependency-element id="TypExe" condition="eq" value="0"/>
+          <dependency-element id="command" attribute="text" alias="commandVal"/>
+        </dependency>
+      </criteria>
+      <criteria label="PARAMETER_MAINTAIN" id="maintain" component="suggest" server-action="data"
+                target-action="getPublicMaintainList" style="col-xs-6 col-sm-3">
+        <dependency initial="true" target-type="set-required">
+          <dependency-element id="TypExe" condition="eq" value="1"/>
+        </dependency>
+        <dependency initial="true" target-type="hide">
+          <dependency-element id="TypExe" condition="eq" value="0"/>
+        </dependency>
+        <dependency initial="true">
+          <dependency-element id="TypExe" condition="eq" value="0"/>
+          <dependency-action type="reset" target="maintain"/>
+        </dependency>
+        <dependency>
+          <dependency-element id="TypExe" condition="eq" value="1"/>
+          <dependency-element id="maintain"/>
+          <dependency-action type="reset" target="ParameterList"/>
+          <dependency-action type="server" server-action="data" target-action="loadMaintainVariables"
+                             target="ParameterList"/>
+        </dependency>
+      </criteria>
+      <criteria label="SCHEDULER_PARAMETER_CANCELLATION_MAINTAIN" id="CncMnt" component="suggest" server-action="data"
+                target-action="getPublicMaintainList" style="col-xs-6 col-sm-3"
+                help="SCHEDULER_PARAMETER_CANCELLATION_MAINTAIN_HELP">
+        <dependency initial="true" target-type="hide">
+          <dependency-element id="TypExe" condition="eq" value="0"/>
+        </dependency>
+        <dependency initial="true">
+          <dependency-element id="TypExe" condition="eq" value="0"/>
+          <dependency-action type="reset" target="CncMnt"/>
+        </dependency>
+      </criteria>
+      <criteria label="PARAMETER_COMMAND" id="command" component="text" style="col-xs-6 col-sm-3">
+        <dependency initial="true" target-type="set-required">
+          <dependency-element id="TypExe" condition="eq" value="0"/>
+        </dependency>
+        <dependency initial="true" target-type="hide">
+          <dependency-element id="TypExe" condition="eq" value="1"/>
+        </dependency>
+        <dependency initial="true">
+          <dependency-element id="TypExe" condition="eq" value="1"/>
+          <dependency-action type="reset" target="command"/>
+        </dependency>
+      </criteria>
+      <criteria label="PARAMETER_EXECUTE_PATH" component="text" id="CmdExePth" style="col-xs-12">
+        <dependency initial="true" target-type="hide">
+          <dependency-element id="TypExe" condition="eq" value="1"/>
+        </dependency>
+        <dependency initial="true">
+          <dependency-element id="TypExe" condition="eq" value="1"/>
+          <dependency-action type="reset" target="CmdExePth"/>
+        </dependency>
+      </criteria>
+    </tag>
+    <criteria label="SCHEDULER_REMOTE_EXECUTION" component="checkbox" id="Rmt" style="col-xs-12 no-label">
+      <dependency source-type="formule" target-type="input" initial="true" type="or"
+                  formule="'[IdeSrvExe]' != 'null' &amp;&amp; '[IdeSrvExe]' != '' ? 1 : 0">
+        <dependency-element id="IdeSrvExe" condition="ne" value=""/>
+        <dependency-element id="IdeSrvExe" condition="eq" value=""/>
+      </dependency>
+      <dependency target-type="show" initial="true">
+        <dependency-element id="TypExe" condition="eq" value="0"/>
+      </dependency>
+      <dependency initial="true">
+        <dependency-element id="TypExe" condition="ne" value="0"/>
+        <dependency-action type="reset" target="Rmt"/>
+      </dependency>
+    </criteria>
+    <criteria label="SCHEDULER_REMOTE_SERVER" component="select" id="IdeSrvExe"
+              server-action="data" initial-load="query" target-action="SchSrvSshLst" optional="true"
+              style="col-xs-6 col-sm-3">
+      <dependency target-type="show" initial="true">
+        <dependency-element id="Rmt" condition="eq" value="1"/>
+      </dependency>
+      <dependency target-type="set-required" initial="true">
+        <dependency-element id="Rmt" condition="eq" value="1"/>
+      </dependency>
+      <dependency>
+        <dependency-element id="Rmt" condition="eq" value="0"/>
+        <dependency-action type="reset" target="IdeSrvExe"/>
+      </dependency>
+    </criteria>
+  </tag>
+</screen>

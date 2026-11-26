@@ -88,7 +88,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | `TemplateService.getTagList(Screen, String)` (#861) | Code that calls this method directly does not compile: it now declares `throws AWENotFoundException`. A tag list missing from the screen raises this error instead of an `IndexOutOfBoundsException`. | Catch or propagate `AWENotFoundException` (or `AWException`). | issue #861 |
 | SQLBuilder (#782) | Only for projects that extend `SQLQueryBuilder` or `SQLMaintainBuilder` and call removed private methods of `SQLBuilder` by reflection. The protected methods keep their signatures and still call each other in the same order. | Nothing if you only override protected methods. Replace reflective calls to the removed private methods with the protected methods. | [SQLBuilder](#sqlbuilder) |
 | Screen contract actions (#823) | Java code that uses the `awe-builder` `Action` enum now sends `check-records-generated`, `select-first-row` and `select-last-row` (they used to send names that no engine handled, so the action did nothing). The AngularJS engine now runs `toggle-class`, and the React engine shows `target-message` as a popover on the target component, as AngularJS does. The compiler warns that `Action.FORWARD`, `GET_LOCALS`, `CHECK_LEAF_SELECTED` and `CHECK_PARENT_SELECTED` are deprecated, and the IDE marks some XML values as deprecated. | Check the screens where these actions now run. Remove the deprecated values: they do nothing and are removed in 6.0. | [Screen contract values](#screen-contract-values) |
-| Menu options (#934) | A screen opened from the menu no longer receives the criteria, grid selections and other values of the screen the user was on: its `on-load` maintain does not get them and the menu option server action only sends the values of the main frame (menu and header). `keep-criteria` still saves the criteria of the screen left. `screen` actions launched from inside a screen still send the values of the screen. | Nothing, unless a screen relied on receiving the values of the previous screen when opened from the menu: pass them explicitly from a button or a service instead. | [Values sent when an option is clicked](../api/menu-definition.md#option-values) |
+| Menu options (#934) | A screen opened from the menu no longer receives the criteria, grid selections and other values of the screen the user was on: its `on-load` maintain does not get them and the menu option server action only sends the values of the main frame (menu and header). The new screen still receives the values of the main frame (#998). `keep-criteria` still saves the criteria of the screen left. `screen` actions launched from inside a screen still send the values of the screen. | Nothing, unless a screen relied on receiving the values of the previous screen when opened from the menu: pass them explicitly from a button or a service instead. | [Values sent when an option is clicked](../api/menu-definition.md#option-values) |
 | Virtual threads (#783, new) | Nothing changes unless you set `spring.threads.virtual.enabled=true`. | Optional: set the property to run Spring Boot and the AWE task executors on virtual threads. | [Virtual threads](../deployment.md#virtual-threads) |
 | Client dependencies (`moment`, `lodash`, build tooling) | The AngularJS client no longer ships `moment` (it uses `day.js`), and the React client no longer lists `@redux-devtools/extension`, `redux-thunk`, `react-transition-group`, `deep-freeze`, `autoprefixer`, `postcss-loader` or `@types/*`. Your own code imports one of them and the build fails with `Cannot find module`. | Declare the package you import in your own `package.json`: AWE only installed these as an implementation detail and does not promise them to applications. `lodash` stays, but treat it the same way. See the note below the table. | [Client dependencies](#client-dependencies), issue #769 |
 | Themes and dark mode (AngularJS client) | The screens take the AWE 5 look of the theme: a theme name (`default`, `sunset`...) or a database theme is a preset of a primary, a surface and a mode, rendered on `<html>` (`dark` / `light` class, `data-awe-primary`, `data-awe-surface`, `data-awe-density`). The classic LESS themes, the `.theme-<name>` rules and `/css/themeVariables.css` are gone (the server no longer serves it: the request answers 404): CSS of the application that sets the AWE 4 theme variables (`--primary-color`, `--panel-background-color`...) or styles `.theme-<name>` changes nothing, and the *Customize theme* screen is gone (the `Customize` button of the *Themes* screen, the `customize-theme` menu option, the `customizeTheme` maintain, the `themeConfiguration` and `nextIdForThemeColors` queries and the locale keys only that screen used, such as `SCREEN_TITLE_THM_CUSTOM`): the colours it saved (table `AweThmCol`, kept unused) are not applied. Users that never chose a mode get the one of their operating system. | Read the `--awe-*` tokens in your CSS instead of the theme variables, and style the mode with `html.dark` if you must. Give a theme its colours with its primary, surface (palette or hex) and mode in the new and update screens of *Themes*, or with the `awe.application.theme-*` properties. Remove the `customize-theme` option (screen `customize-themes`) from the `private.xml` menu of your application. To ignore the operating system set `awe.application.theme-mode=light` (or `dark`); `@awe-follow-os-color-scheme` no longer does anything and the property `awe.application.theme-follow-os-color-scheme` is removed: delete it from your configuration. | [Design tokens and dark mode](design-tokens-guide.md), [Theme configuration](../design-system/for-developers.md) (issues #770, #885) |
@@ -138,6 +138,7 @@ Each row says what you notice, what to do and where to read more. "MR" is a merg
 | Access screens (both clients) | The `screen-access` option (*Access control*, under *Security*) of the default menu (and of the archetypes) opens the new `access-admin` screen: the effective access of a profile or a user to every option of the private menu with the layer that decides it, allow and deny per option or in bulk with a preview, the *Why?* panel, compare, review and view as. The previous screens `ScrAccRes`, `menu-access` and `screen-access` are deprecated and will be removed in 5.1.0. The rules are the same `AweScrRes` rows and `profile/*.xml` files, changed through the same audited restriction maintains, so no data is migrated. The new screen has no import or export of rules: they point at the options of each `private.xml`. | Point your own menu options from `ScrAccRes`, `menu-access` or `screen-access` to `access-admin` before 5.1.0. If you override `ScrAccRes` (or the other two screens), move the customization to your own copy of `access-admin` or drop it. Access that must ship with the application goes in the base restriction files `profile/*.xml`. Browser tests that open the *Access control* option expect the new screen. | [Access control](default-screens.md#screen-access) (issue #791) |
 | AWE 5 shell (both clients) | The vertical home screens show a footer under the side menu ("Powered by AWE 5" and a button that collapses the menu) and the menu button of the header has the `panel-left` icon. The collapsed menu hides the option search and opens the options of a first level option as a flyout when the pointer is on it. In React, a separator option without label is drawn as a line in the vertical menu (it was hidden), the user menu shows the `name` of the `connectedUser` value instead of its label ("Manager" instead of "Manager (test)") with the profile below it, outlined buttons are neutral (they used the primary colour) and select criteria are as high as text criteria. The `connectedUser` query returns a new `description` field with the profile name. | Nothing for the descriptors. Browser tests of React applications that check the logged user with `checkLogin`/`ensureLoggedIn` must expect the name without the user code. Applications with their own copy of `home-sidebar.xml` or `home_vertical.xml` can add the footer as described in the layout guide. | [Side menu](../design-system/layout-and-shell.md#side-menu), [Avatar](../api/info.md#avatar-attributes) (issue #900) |
 | HTTP compression | The AWE starter now provides the compression defaults: `server.compression.enabled=true`, `min-response-size=256`, a `mime-types` list with `text/javascript` and `image/svg+xml`, and `spring.web.resources.chain.enabled`/`compressed=true`. The production builds of the AngularJS client and of the React archetype write `.br` and `.gz` copies of the scripts, styles and SVG files, and the server sends them to the browsers that accept them. With the AWE 4 archetype list the JavaScript bundles were sent uncompressed (Spring Boot serves `.js` as `text/javascript`): in the React test application the first load drops from 4.3 MB of scripts to 0.89 MB. | Remove `server.compression.*` and `spring.web.resources.chain.compressed` from your `application.properties` to take the defaults, or add `text/javascript` and `image/svg+xml` to your own list. To serve precompressed files in a React application, add `compression-webpack-plugin` and the two `CompressionPlugin` entries of the archetype `webpack.prod.js`. Set `server.compression.enabled=false` if a proxy compresses the responses. | Issue #965 |
+| Scheduler screens (#993, both clients) | The old scheduler screens are gone: a menu option, a profile, a restriction, an action or a browser test that names `scheduler-tasks`, `scheduler-management`, `scheduler-runs`, `scheduler-servers`, `scheduler-calendars` or their `new-`/`update-` screens points to a screen that no longer exists. The scheduler menu offers **Activity**, **Tasks** and **Configuration**. The queries, maintains, services and enumerated groups that only the old screens used are removed too. | Replace the old options in your menus with the new ones and update the profiles and restrictions that name them. Point your own actions to the new targets (the scheduler REST API does not change). Weekly tasks now fire on the configured day. | [Scheduler redesign](#scheduler-redesign), [Scheduler module](../scheduler-module.md) |
 
 ### jsoup in the input parameter sanitizer
 
@@ -1331,6 +1332,52 @@ compiled classes, so it includes the getters and setters that Lombok generates.
 
 </details>
 
+### Scheduler redesign (#993) {#scheduler-redesign}
+
+The scheduler module has new screens in both clients, and **the old scheduler screens and their menu options were
+removed**. The tables, the tasks, their executions and the permissions (`scheduler.read`, `scheduler.update`,
+`scheduler.execute`) do not change.
+
+**What to do**
+
+1. Replace the scheduler options of your menus (`private.xml`, `public.xml`) with the new ones, as in the
+   [Scheduler module](../scheduler-module.md) page.
+2. Update the profiles, restrictions and screen access rows that name an old option or screen: they now name the new
+   ones in the table below.
+3. Update your own actions, links and browser tests that open an old screen.
+
+| Old menu option (screen) | New option | How to reach the same thing |
+|---|---|---|
+| `scheduler-management` | `scheduler-configuration` | **Engine** tab (`CfgTab` = `CfgEng`); the engine menu of **Activity** too |
+| `scheduler-tasks` | `scheduler-task-catalog` | **Tasks**; each task opens its task page, `scheduler-task` |
+| `new-scheduler-task`, `update-scheduler-task` | `scheduler-task-editor` | **New task**, **Edit** or **Duplicate** (`TskEdtMod` = `new`, `edit` or `copy`) |
+| `scheduler-runs`, `scheduler-flow-graph` | `scheduler-flow-run` | A flow run link of **Activity** (its **Group by flow** view lists the runs) or of the task page; the dependencies of one task are the **Dependencies** tab of its task page |
+| `scheduler-servers` (`scheduler-server`), `new-scheduler-server`, `update-scheduler-server` | `scheduler-configuration` | **Servers** tab (`CfgSrv`), with a side panel to create and edit |
+| `scheduler-calendars`, `new-scheduler-calendar`, `update-scheduler-calendar` | `scheduler-configuration` | **Calendars** tab (`CfgCal`), with a side panel to create and edit |
+| `scheduler-dashboard`, `scheduler-dialog`, `scheduler-execution-data` (no menu option) | `scheduler-activity` | **Activity** and the side panel of an execution |
+
+The new invisible options are `scheduler-flow-run` (under **Activity**), `scheduler-task` and `scheduler-task-editor`
+(under **Tasks**).
+
+The targets that only the old screens used are removed as well. An action, a screen or a test of your own that names
+one of them fails:
+
+| Kind | Removed ids |
+|---|---|
+| Queries | `SchTskSug`, `SchTskSugAct`, `getTaskExecutionListFixed`, `SchDfrRun`, `SchDfrApi`, `SchDfrDln`, `SchDfrUsr`, `SchSrvLst`, `SchSrv`, `SchCalLst`, `chkTrgCntCal`, `nextExecutions`, `getFlowRunList`, `getFlowRunExecutionList`, `getFlowRunSkippedList` |
+| Maintains | `NewSchedulerTask`, `UpdateSchedulerTask`, `DeleteSchedulerServer`, `NewSchedulerCalendar`, `DeleteSchedulerCalendar`, `UpdSchCal`, `DeaSchCal`, `ActSchCal`, `NewSchedulerCalendarDate`, `DeleteSchedulerCalendarDate`, `ChkSchSrvCnx`, `ChkSchSrvCnxSel` |
+| Services | `nextExecutions`, `validateTaskDependencies`, `updateSchedulerTask`, `updateSchedulerCalendar`, `checkServerConnection`, `checkTriggerContainsCalendar` |
+| Enumerated groups | `SchedulerTaskSteps`, `scheduleTaskTabs`, `SchedulerServSteps`, `ExeTyp`, `conType`, `TskEdtWkd` |
+
+The task editor saves with `NewSchedulerTaskEditor` and `UpdateSchedulerTaskEditor`, and the **Configuration** screen
+manages servers and calendars (see the [Scheduler module](../scheduler-module.md)). The targets that Java code uses
+and the scheduler REST API (`/scheduler/api/v1/**`, see
+[Scheduler API security](../scheduler-module.md#scheduler-api-security)) stay: a client that calls the scheduler
+through its API is not affected.
+
+Weekly tasks now fire on the configured day (they fired one day earlier); see the
+[Upgrade notes](../scheduler-module.md#upgrade-notes) of the scheduler module.
+
 ## Planned for AWE 5.1
 
 The screens that AWE 5.0 replaces with the new administration screens are deprecated and **will be removed in 5.1.0**.
@@ -1409,6 +1456,8 @@ Copy this list to the issue of your upgrade and tick it as you go.
 - [ ] Own menu options that open the deprecated `ScrAccRes`, `menu-access` or `screen-access` screens point to `access-admin`
 - [ ] `server.compression.*` and `spring.web.resources.chain.compressed` were removed from `application.properties` (or the own list has `text/javascript` and `image/svg+xml`), and the React `webpack.prod.js` has the `CompressionPlugin` entries of the archetype
 - [ ] The `splitChunks` of the React `webpack.dev.js` and `webpack.prod.js` have no global `name: "main"` and the `commons` cache group uses `chunks: 'initial'`, as the archetype does
+- [ ] Own menu options, profiles, restrictions and browser tests no longer name the old scheduler screens (`scheduler-tasks`, `scheduler-management`, `scheduler-runs`, `scheduler-servers`, `scheduler-calendars`...)
+- [ ] Own actions, screens and tests no longer launch the removed scheduler targets (`NewSchedulerTask`, `UpdateSchedulerTask`, `SchSrvLst`...; see [Scheduler redesign](#scheduler-redesign))
 - [ ] The open items of "Coming in AWE 5" were reviewed against the application
 ```
 

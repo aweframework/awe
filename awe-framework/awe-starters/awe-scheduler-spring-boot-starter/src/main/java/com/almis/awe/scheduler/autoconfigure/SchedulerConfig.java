@@ -5,6 +5,7 @@ import com.almis.awe.model.tracker.AweConnectionTracker;
 import com.almis.awe.model.util.data.QueryUtil;
 import com.almis.awe.model.util.web.MessageConverterUtil;
 import com.almis.awe.scheduler.autoconfigure.config.SchedulerConfigProperties;
+import com.almis.awe.scheduler.controller.WebhookController;
 import com.almis.awe.scheduler.dao.*;
 import com.almis.awe.scheduler.executor.CommandExecutorResolver;
 import com.almis.awe.scheduler.executor.CommandStreamLogger;
@@ -25,19 +26,27 @@ import com.almis.awe.scheduler.listener.SchedulerEventListener;
 import com.almis.awe.scheduler.listener.SchedulerJobListener;
 import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
 import com.almis.awe.scheduler.log.ExecutionLogStore;
+import com.almis.awe.scheduler.service.DeferredCancellationNotifier;
+import com.almis.awe.scheduler.service.DeferredExecutionWatcher;
 import com.almis.awe.scheduler.service.ExecutionService;
 import com.almis.awe.scheduler.service.RemoteSchedulerService;
+import com.almis.awe.scheduler.service.SchedulerExecutionCompletionService;
 import com.almis.awe.scheduler.service.SchedulerService;
 import com.almis.awe.scheduler.service.ServerConnectionService;
 import com.almis.awe.scheduler.service.TaskService;
 import com.almis.awe.scheduler.service.report.*;
 import com.almis.awe.scheduler.service.scheduled.CommandJobService;
 import com.almis.awe.scheduler.service.scheduled.MaintainJobService;
+import com.almis.awe.scheduler.webhook.WebhookHookService;
+import com.almis.awe.scheduler.webhook.WebhookInboxRepository;
+import com.almis.awe.scheduler.webhook.WebhookProcessor;
+import com.almis.awe.scheduler.webhook.WebhookSignatureVerifier;
 import com.almis.awe.service.BroadcastService;
 import com.almis.awe.service.MaintainService;
 import com.almis.awe.service.QueryService;
 import org.apache.commons.net.ftp.FTPClient;
 import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -45,11 +54,13 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.web.client.RestTemplate;
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.file.Path;
+import java.time.Clock;
 import java.util.List;
 
 /**
@@ -91,6 +102,22 @@ public class SchedulerConfig {
   }
 
   /**
+   * Client of the maintains of the application (remote scheduler): the rest template bean, whichever starter declares
+   * it, with its own converters on the AWE mapper and without XML. The application writes enum names (the AWE wire
+   * format), while a plain Jackson 3 rest template reads enums through {@code toString()}. The bean is not changed
+   *
+   * @param restTemplate Rest template bean (its request factory, error handler and URI handler are kept)
+   * @param mapper       AWE JSON mapper
+   * @return client of the maintains of the application
+   */
+  static RestTemplate maintainClient(RestTemplate restTemplate, ObjectMapper mapper) {
+    RestTemplate client = new RestTemplate(restTemplate.getRequestFactory());
+    client.setErrorHandler(restTemplate.getErrorHandler());
+    client.setUriTemplateHandler(restTemplate.getUriTemplateHandler());
+    return MessageConverterUtil.withJsonMapper(MessageConverterUtil.withoutXmlConverters(client), mapper);
+  }
+
+  /**
    * Define Runtime
    *
    * @return Runtime
@@ -128,8 +155,113 @@ public class SchedulerConfig {
    * @return Scheduler service
    */
   @Bean
-  public SchedulerService schedulerService(TaskDAO taskDAO, SchedulerDAO schedulerDAO, CalendarDAO calendarDAO) {
-    return new SchedulerService(taskDAO, schedulerDAO, calendarDAO, schedulerConfigProperties.isRemoteEnabled(), schedulerConfigProperties.isSchedulerInstance());
+  public SchedulerService schedulerService(TaskDAO taskDAO, SchedulerDAO schedulerDAO, CalendarDAO calendarDAO,
+                                           SchedulerExecutionCompletionService completionService) {
+    return new SchedulerService(taskDAO, schedulerDAO, calendarDAO, completionService,
+      schedulerConfigProperties.isRemoteEnabled(), schedulerConfigProperties.isSchedulerInstance());
+  }
+
+  /**
+   * Define the service that completes the deferred executions
+   *
+   * @return Completion service
+   */
+  // The two execution log stores are alternatives of awe.scheduler.execution-log-store: only one bean exists
+  @SuppressWarnings("java:S9352")
+  @Bean
+  public SchedulerExecutionCompletionService schedulerExecutionCompletionService(
+    TaskDAO taskDAO, ExecutionService executionService, ExecutionLogStore executionLogStore,
+    ApplicationEventPublisher eventPublisher, DeferredCancellationNotifier cancellationNotifier) {
+    return new SchedulerExecutionCompletionService(taskDAO, executionService, executionLogStore, eventPublisher,
+      cancellationNotifier, schedulerConfigProperties.getDeferred().getDefaultTimeout());
+  }
+
+  /**
+   * Define the notice to the external system of a cancelled deferred execution
+   *
+   * @return Cancellation notifier
+   */
+  @Bean
+  public DeferredCancellationNotifier deferredCancellationNotifier(TaskDAO taskDAO,
+                                                                   MaintainJobService maintainJobService) {
+    return new DeferredCancellationNotifier(taskDAO, maintainJobService);
+  }
+
+  /**
+   * Define the persistence of the webhook hooks and of their inbox
+   *
+   * @return Webhook inbox repository
+   */
+  @Bean
+  public WebhookInboxRepository webhookInboxRepository(QueryService queryService, MaintainService maintainService,
+                                                       QueryUtil queryUtil) {
+    return new WebhookInboxRepository(queryService, maintainService, queryUtil);
+  }
+
+  /**
+   * Define the services of the hook that the task form defines
+   *
+   * @return Webhook hook service
+   */
+  @Bean
+  public WebhookHookService webhookHookService(WebhookInboxRepository repository) {
+    return new WebhookHookService(repository);
+  }
+
+  /**
+   * Define the verification of the signature of the webhooks
+   *
+   * @return Webhook signature verifier
+   */
+  @Bean
+  public WebhookSignatureVerifier webhookSignatureVerifier() {
+    return new WebhookSignatureVerifier(Clock.systemUTC(), schedulerConfigProperties.getWebhooks().getTolerance());
+  }
+
+  /**
+   * Define the endpoint that receives the webhooks that launch tasks
+   *
+   * @return Webhook controller
+   */
+  @Bean
+  public WebhookController webhookController(WebhookInboxRepository repository, WebhookSignatureVerifier verifier,
+                                             Environment environment, ApplicationEventPublisher eventPublisher) {
+    return new WebhookController(repository, verifier, environment, eventPublisher,
+      schedulerConfigProperties.getWebhooks().getMaxBodySize().toBytes());
+  }
+
+  /**
+   * Define the processor that launches the tasks of the webhooks of the inbox. A node that only talks to a remote
+   * scheduler instance does not launch anything: the scheduler instance processes the shared inbox.
+   *
+   * @return Webhook processor
+   */
+  @Bean(initMethod = "start", destroyMethod = "stop")
+  public WebhookProcessor webhookProcessor(WebhookInboxRepository repository, TaskDAO taskDAO, Scheduler scheduler) {
+    boolean launches = !schedulerConfigProperties.isRemoteEnabled() || schedulerConfigProperties.isSchedulerInstance();
+    return new WebhookProcessor(repository, taskDAO, schedulerConfigProperties.getWebhooks().getProcessInterval(),
+      schedulerConfigProperties.getWebhooks().getInboxRetention(), () -> launches && isRunning(scheduler),
+      Clock.systemUTC());
+  }
+
+  private static boolean isRunning(Scheduler scheduler) {
+    try {
+      return scheduler.isStarted() && !scheduler.isInStandbyMode() && !scheduler.isShutdown();
+    } catch (SchedulerException exc) {
+      return false;
+    }
+  }
+
+  /**
+   * Define the periodic check that interrupts the deferred executions past their due date
+   *
+   * @return Deferred execution watcher
+   */
+  @Bean(initMethod = "start", destroyMethod = "stop")
+  public DeferredExecutionWatcher deferredExecutionWatcher(TaskDAO taskDAO,
+                                                           SchedulerExecutionCompletionService completionService) {
+    return new DeferredExecutionWatcher(taskDAO, completionService,
+      schedulerConfigProperties.getDeferred().getTimeoutCheckInterval());
   }
 
   /**
@@ -177,7 +309,8 @@ public class SchedulerConfig {
   public MaintainJobService maintainJobService(ExecutionService executionService, MaintainService maintainService,
                                                QueryUtil queryUtil, TaskDAO taskDAO, ApplicationEventPublisher eventPublisher,
                                                ObjectMapper mapper, ExecutionLogStore executionLogStore, RestTemplate restTemplate) {
-    return new MaintainJobService(executionService, maintainService, queryUtil, taskDAO, eventPublisher, mapper,
+    MaintainJobService service = new MaintainJobService(executionService, maintainService, queryUtil, taskDAO,
+      eventPublisher, mapper,
       executionLogStore,
       schedulerConfigProperties.getTaskTimeout(),
       schedulerConfigProperties.isSchedulerInstance(),
@@ -185,7 +318,9 @@ public class SchedulerConfig {
       schedulerConfigProperties.isRemoteCallbackSecureEnabled(),
       schedulerConfigProperties.getRemoteCallbackUser(),
       schedulerConfigProperties.getRemoteCallbackPassword(),
-      restTemplate);
+      maintainClient(restTemplate, mapper));
+    service.setDeferredDefaultTimeout(schedulerConfigProperties.getDeferred().getDefaultTimeout());
+    return service;
   }
 
   /**
@@ -212,16 +347,18 @@ public class SchedulerConfig {
    * Report job service
    *
    * @param schedulerReportService Scheduler report service
+   * @param mapper                 AWE JSON mapper, used to read the answer of the application
    * @return Report job service
    */
   @Bean
-  public ReportJobService reportJobService(SchedulerReportService schedulerReportService) {
+  public ReportJobService reportJobService(SchedulerReportService schedulerReportService, ObjectMapper mapper) {
     return new ReportJobService(schedulerReportService,
       schedulerConfigProperties.isSchedulerInstance(),
       schedulerConfigProperties.getRemoteCallbackUrl(),
       schedulerConfigProperties.isRemoteCallbackSecureEnabled(),
       schedulerConfigProperties.getRemoteCallbackUser(),
-      schedulerConfigProperties.getRemoteCallbackPassword());
+      schedulerConfigProperties.getRemoteCallbackPassword(),
+      mapper);
   }
 
   /*

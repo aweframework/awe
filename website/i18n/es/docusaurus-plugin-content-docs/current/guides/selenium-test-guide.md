@@ -213,21 +213,17 @@ registro que creó la creación. Tres reglas mantienen las clases independientes
   usa datos propios: una clase crea los registros que actualiza y elimina, con nombres que ninguna otra clase usa
   (las pruebas del servidor de correo usan `auth server` y `plain server`, no el mismo nombre). Los *grids* se buscan por el texto
   que contiene una fila, de modo que ningún nombre puede estar contenido en el nombre de un registro de otra clase (`Manual task` y
-  `Prerequisite task`, no `Task` y `Task 2`). Un registro que una clase solo necesita como requisito previo (las pruebas de tareas programadas
-  usan un calendario y una tarea manual para su lanzamiento personalizado y sus dependencias) lo crea esa clase al
+  `Prerequisite task`, no `Task` y `Task 2`). Un registro que una clase solo necesita como requisito previo lo crea esa clase al
   principio y lo elimina al final, después de los registros que lo usan. Las clases CRUD (`AbstractCrudTests`) hacen lo mismo: las clases de módulo y de base de datos crean su propio sitio, y la clase de usuario su propio perfil.
 - **`gotoScreen` no recarga la pantalla que ya está abierta.** El cliente conserva sus criterios, sus recargas pendientes y
   la fila que seleccionó la prueba anterior, y un grid que se recarga después pierde esa selección, de modo que una prueba que selecciona
   una fila justo después de otra en la misma pantalla puede fallar en un botón que permanece deshabilitado. Donde importe, pasa por
-  otra pantalla primero (las pruebas del planificador lo hacen en `AbstractSchedulerTests.openScreen`). De la misma manera, una prueba no debe
-  dejar trabajo en segundo plano ejecutándose hacia la siguiente: una tarea programada con dependencias las lanza cuando termina, por lo que las
-  pruebas de tareas programadas la ejecutan antes de añadir las dependencias.
+  otra pantalla primero (las pruebas del planificador lo hacen en `SchedulerTestsIT.openScreen`). De la misma manera, una prueba no debe
+  dejar trabajo en segundo plano ejecutándose hacia la siguiente: una tarea que sigue en ejecución lanza las tareas que se
+  ejecutan después de ella cuando termina.
 - **Una prueba que cambia algo global lo restaura incluso cuando falla.** Hazlo en un `@AfterEach` que se ejecute solo cuando
   la prueba no terminó su propia limpieza, con una bandera que la prueba activa antes del paso que puede cambiar el estado y
-  desactiva tras el paso que lo restaura. `SchedulerManagementTestsIT` detiene y reinicia el único planificador de la
-  aplicación, que las demás clases del planificador necesitan en ejecución: es una clase propia, cada prueba termina arrancando el
-  planificador de nuevo, y su limpieza pulsa el botón de reinicio (funciona sea cual sea el estado del planificador) cuando la prueba
-  falla en medio. `IntegrationTestsIT` elimina de la misma manera la configuración de pantalla que almacena.
+  desactiva tras el paso que lo restaura. `IntegrationTestsIT` elimina de esta manera la configuración de pantalla que almacena.
 
 Las clases que resultan de dividir una larga conservan su `@Tag`, de modo que se ejecutan en el mismo job de CI y no hace falta un nuevo job.
 Un job de React lista sus clases en `TEST_CLASSES`: reemplaza el nombre antiguo por los nuevos (una prueba de la aplicación React
@@ -828,6 +824,7 @@ está editando). La tabla lista una forma y dice "(también con `rowId`)" cuando
 | `checkMapRouteVisible(String mapId)` | Comprueba que un mapa dibuja una ruta (solo cliente React) |
 | `checkLogViewerContains(String text)` | Espera hasta que el visor de logs muestra un texto |
 | `checkFileViewerContains(String text)` | Espera hasta que el visor de ficheros muestra un texto |
+| `checkFlowGraphContains(String task)` | Espera hasta que un nodo del grafo de flujo del scheduler muestra una tarea |
 | `checkTextInEmbeddedFrame(String contentCssSelector, String text)` | Comprueba un texto dentro del frame que incrusta una aplicación externa. El selector pertenece a esa aplicación, por lo que es el único literal que puedes pasar |
 
 ### Descargas {#downloads}
@@ -1105,7 +1102,7 @@ navegador bloqueante del pipeline de AWE. El nombre no distingue mayúsculas de 
 
 ```
 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
-  -Dawe.test.tool=selenium -Dawe.test.browser=headless-chrome -Dit.test=SchedulerCalendarTestsIT
+  -Dawe.test.tool=selenium -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
 ```
 
 #### Playwright {#playwright-pilot}
@@ -1146,7 +1143,7 @@ mantener los navegadores en otro lugar, por ejemplo en una carpeta que cachea la
 
 ```
 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
-  -Dawe.test.tool=playwright -Dawe.test.browser=headless-chrome -Dit.test=SchedulerCalendarTestsIT
+  -Dawe.test.tool=playwright -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
 ```
 
 Las pruebas unitarias de `awe-testing` que ejecutan un Chromium real mediante Playwright nunca descargan un navegador: usan el que está
@@ -1159,10 +1156,11 @@ suites de Playwright siguientes ejecutan Chromium y Firefox. Para comprobar el F
 instalado la omite).
 
 **Jobs de Playwright en el pipeline de AWE.** El pipeline de AWE ejecuta las mismas suites que los jobs de Selenium con
-`awe.test.tool=playwright`, como **16 jobs**: uno por cada combinación de motor (AngularJS o React), navegador (Chromium o
-Firefox) y suite (aplicación e integración, CRUD, criterios y grids, regresión, websocket e impresión, y planificador). Los
+`awe.test.tool=playwright`, como **14 jobs**: uno por cada combinación de motor (AngularJS o React), navegador (Chromium o
+Firefox) y suite (aplicación e integración, CRUD, criterios y grids, regresión, websocket e impresión, y planificador, que
+solo tiene el motor React). Los
 jobs de AngularJS ejecutan la aplicación `awe-tests/awe-boot` y los de React `awe-tests/awe-boot-react`. Cada job se llama como lo que
-ejecuta, `E2E · <motor> · <navegador> · <suite>` (por ejemplo `E2E · React · Chromium · CRUD` o `E2E · AngularJS · Firefox · Scheduler`);
+ejecuta, `E2E · <motor> · <navegador> · <suite>` (por ejemplo `E2E · React · Chromium · CRUD` o `E2E · AngularJS · Firefox · Regression`);
 los jobs de Selenium se llaman `Selenium · <motor> · <navegador> · <suite>` (`Selenium · React · Chrome · Scheduler`,
 `Selenium · React · Firefox · Scheduler`), de modo que ningún nombre se repite. Los nombres de las suites son cortos: `Application`
 (aplicación e integración), `CRUD` (CRUD, criterios y grids), `Regression` (regresión, websocket e impresión) y `Scheduler`. Son jobs explícitos, no una `parallel: matrix`: GitLab
@@ -1178,15 +1176,12 @@ en los artefactos del job como la evidencia de los jobs de Selenium; el grabador
 (`awe.test.allowed-recording=false`), ya que Playwright graba la propia página.
 
 - **Cuándo se ejecutan.** Automáticamente en cada merge request con cambios de código, en `develop` y en `master`; las merge requests ejecutan solo los jobs de Chromium (los que llevan Chromium en el nombre) del motor cuyo código cambió (un cambio limitado al cliente React omite los jobs de AngularJS, y uno limitado al cliente AngularJS omite los de React). Los de Firefox (`E2E · <motor> · Firefox · <suite>`) y `Build · Firefox cache` se ejecutan en `master` y, en `develop`, solo en la planificación del pipeline "Nightly Firefox" (CI/CD > Schedules, con la variable `FIREFOX_NIGHTLY=true`), cuyo pipeline no ejecuta nada más salvo `Build · Maven`. No se ejecutan en
-  `support/*`, porque `support/4.x` no tiene adaptador de Playwright. Los jobs de Selenium (`Selenium · <motor> · Chrome · <suite>` y `Selenium · <motor> · Firefox · <suite>`) se ejecutan en `master`, en `support/*` y en la planificación semanal del pipeline "Weekly Check" en `develop`, no en merge
-  requests ni en pushes ordinarios.
+  `support/*`, porque `support/4.x` no tiene adaptador de Playwright. Los jobs de Selenium (`Selenium · <motor> · Chrome · <suite>` y `Selenium · <motor> · Firefox · <suite>`) se ejecutan solo en `support/*`, nunca en merge
+  requests, `develop` ni `master`.
 - **Bloquean el pipeline.** Un job de Playwright que falla hace fallar el pipeline, detiene `Analysis · Sonar` y los jobs de publicación, e
   impide que Renovate haga automerge, exactamente igual que un job de Selenium. Tienen la misma [reejecución por prueba](#a-failed-test-is-rerun-alone)
   y el mismo reintento de job (#766), y lo mismo para Firefox que para Chromium. Sus archivos jacoco tienen un nombre distinto por job
   (`jacoco-${TEST_NAME}-it.exec`), de modo que la cobertura de ambas herramientas se conserva cuando se ejecutaron ambas.
-- **Cómo comparar.** En `master` y en el pipeline planificado semanal se ejecutan ambas herramientas. Abre el job de Playwright y el job de Selenium
-  de la misma suite y lee el resumen de failsafe (`Tests run: ...`) y la línea `Playwright ...` que el job de Playwright
-  imprime al final de su log, con su estado y el tiempo desde que empezó el job.
 
 Chromium se inicia con `--disable-dev-shm-usage` (la memoria compartida de un contenedor es demasiado pequeña para él) y, cuando el
 sandbox no puede funcionar, sin su sandbox (`--no-sandbox`): ese es el caso cuando se ejecuta headless, cuando el proceso se ejecuta como
@@ -1460,13 +1455,13 @@ Las aplicaciones de test son `awe-tests/awe-boot` (AngularJS) y `awe-tests/awe-b
 
 ```
 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
-  -Dawe.test.browser=headless-chrome -Dit.test=SchedulerCalendarTestsIT
+  -Dawe.test.browser=headless-chrome -Dit.test=SchedulerTestsIT
 ```
 
 - `-Dawe.test.browser` admite `headless-chrome` o `headless-firefox` (también `chrome` y `firefox` para ver el navegador).
   `-Dawe.test.tool` es `selenium` y puede omitirse (consulta [Herramienta de automatización](#automation-tool-awetesttool)).
 - `-Dit.test=` admite una clase, varias separadas por comas (`UserAdminTestsIT,CriteriaTestsIT`) o un método
-  (`SchedulerCalendarTestsIT#t001_...`). En `awe-boot` las suites también se seleccionan por etiqueta (`-Dgroups=SchedulerIT`).
+  (`SchedulerTestsIT#t001_...`). En `awe-boot` las suites también se seleccionan por etiqueta (`-Dgroups=ApplicationIntegrationIT`).
 - La aplicación arranca en el puerto 8080. Para usar otro, establécelo en el entorno (`SERVER_PORT=8090`); el navegador
   lee la dirección de `awe.test.start-url`, que sigue a `server.port`.
 - Añade `xvfb-run -a` delante de `mvn` cuando la máquina no tiene pantalla (por ejemplo WSL).
@@ -1639,7 +1634,7 @@ máquina más lenta y con una compilación distinta de Firefox o Chrome. Para re
    SERVER_ADDRESS=0.0.0.0 mvn -f awe-tests/awe-boot-react/pom.xml verify -Dskip.junit=true -Dskip.selenium=false \
      -Dawe.test.browser=service-chrome -Dawe.test.browser-host=localhost -Dawe.test.browser-port=4444 \
      -Dawe.test.server-host=host.docker.internal -Dawe.test.server-port=8080 \
-     -Dawe.test.allowed-recording=false -Dit.test=SchedulerCalendarTestsIT
+     -Dawe.test.allowed-recording=false -Dit.test=SchedulerTestsIT
    ```
 
    Usa `service-firefox` con la imagen `selenoid/firefox` para Firefox. `-Dawe.test.allowed-recording=false` es necesario

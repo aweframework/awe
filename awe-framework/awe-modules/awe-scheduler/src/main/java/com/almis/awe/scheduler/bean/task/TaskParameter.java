@@ -16,4 +16,5 @@ public class TaskParameter implements Serializable {
   private String source;
   private String type;
   private String value;
+  private String pointer;
 }

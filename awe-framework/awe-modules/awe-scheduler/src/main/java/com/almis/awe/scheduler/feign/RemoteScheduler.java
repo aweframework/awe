@@ -2,6 +2,8 @@ package com.almis.awe.scheduler.feign;
 
 import com.almis.awe.model.dto.ServiceData;
 import com.almis.awe.scheduler.bean.calendar.Schedule;
+import com.almis.awe.scheduler.bean.task.ExecutionListCriteria;
+import com.almis.awe.scheduler.bean.task.TaskCatalogCriteria;
 import com.almis.awe.scheduler.bean.task.TaskListCriteria;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -9,7 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@FeignClient(name = "remote-scheduler", url = "${awe.scheduler.remote-scheduler-url:http://localhost:8000/scheduler/api/v1}")
+@FeignClient(name = "remote-scheduler", url = "${awe.scheduler.remote-scheduler-url:http://localhost:8000/scheduler/api/v1}",
+  configuration = RemoteSchedulerClientConfiguration.class)
 public interface RemoteScheduler {
 
   @PostMapping("/tasks")
@@ -27,6 +30,77 @@ public interface RemoteScheduler {
   ServiceData getTaskExecutionList(@PathVariable int taskId);
 
   /**
+   * Retrieve a page of the executions of all tasks (activity screen)
+   *
+   * @param criteria Filters and page
+   * @return Service Data
+   */
+  @PostMapping("/executions")
+  ServiceData getExecutionList(@RequestBody ExecutionListCriteria criteria);
+
+  /**
+   * Retrieve a page of the executions of all tasks grouped by flow run (activity screen)
+   *
+   * @param criteria Filters and page of the top-level rows
+   * @return Service Data
+   */
+  @PostMapping("/executions/runs")
+  ServiceData getRunList(@RequestBody ExecutionListCriteria criteria);
+
+  /**
+   * Retrieve the summary of a flow run (flow run page)
+   *
+   * @param runId Flow run identifier
+   * @return Service Data
+   */
+  @GetMapping("/runs/{runId}")
+  ServiceData getFlowRunSummary(@PathVariable("runId") String runId);
+
+  /**
+   * Retrieve the graph of a flow run (flow run page)
+   *
+   * @param runId Flow run identifier
+   * @return Service Data
+   */
+  @GetMapping("/runs/{runId}/graph")
+  ServiceData getFlowRunGraph(@PathVariable("runId") String runId);
+
+  /**
+   * Retrieve the options of the state quick filter of the activity screen with their counts
+   *
+   * @param criteria Filters of the execution list (search, origin and start)
+   * @return Service Data
+   */
+  @PostMapping("/executions/state-counts")
+  ServiceData getExecutionStateCounts(@RequestBody ExecutionListCriteria criteria);
+
+  /**
+   * Retrieve a page of the task catalog (tasks screen)
+   *
+   * @param criteria Filters, sort and page
+   * @return Service Data
+   */
+  @PostMapping("/tasks/catalog")
+  ServiceData getTaskCatalog(@RequestBody TaskCatalogCriteria criteria);
+
+  /**
+   * Retrieve the options of the active filter of the task catalog with their counts
+   *
+   * @param criteria Filters of the catalog (search, launch and last status)
+   * @return Service Data
+   */
+  @PostMapping("/tasks/catalog/active-counts")
+  ServiceData getTaskCatalogActiveCounts(@RequestBody TaskCatalogCriteria criteria);
+
+  /**
+   * Retrieve the counters of the activity screen
+   *
+   * @return Service Data
+   */
+  @GetMapping("/executions/counters")
+  ServiceData getActivityCounters();
+
+  /**
    * Pause the selected task
    *
    * @param taskId Task identifier
@@ -34,6 +108,15 @@ public interface RemoteScheduler {
    */
   @PostMapping("/task/{taskId}/pause")
   ServiceData pauseTask(@PathVariable int taskId);
+
+  /**
+   * Stop the deferred executions of the selected task
+   *
+   * @param taskId Task identifier
+   * @return Service Data
+   */
+  @PostMapping("/task/{taskId}/stop")
+  ServiceData stopTask(@PathVariable int taskId);
 
   /**
    * Resume the selected task
@@ -85,6 +168,15 @@ public interface RemoteScheduler {
    */
   @PostMapping("/task/{taskId}/schedule")
   ServiceData rescheduleTask(@PathVariable int taskId);
+
+  /**
+   * Refresh an edited task with its stored launch, without purging its executions
+   *
+   * @param taskId Task identifier
+   * @return Service Data
+   */
+  @PostMapping("/task/{taskId}/refresh")
+  ServiceData refreshTask(@PathVariable int taskId);
 
   /**
    * Delete some tasks from scheduler
@@ -214,4 +306,29 @@ public interface RemoteScheduler {
    */
   @GetMapping("/metadata")
   ServiceData getSchedulerMetadata();
+
+  /**
+   * Card of the engine of the configuration screen
+   *
+   * @return Service Data
+   */
+  @GetMapping("/engine")
+  ServiceData getConfigurationEngine();
+
+  /**
+   * Schedules of the engine of the configuration screen, filtered by their state
+   *
+   * @param filter paused or error; every schedule when blank
+   * @return Service Data
+   */
+  @GetMapping("/engine/triggers")
+  ServiceData getConfigurationEngineTriggers(@RequestParam(value = "filter", required = false) String filter);
+
+  /**
+   * Options of the state filter of the schedules of the engine with their counts
+   *
+   * @return Service Data
+   */
+  @GetMapping("/engine/triggers/counts")
+  ServiceData getConfigurationEngineTriggerCounts();
 }

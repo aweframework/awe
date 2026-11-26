@@ -21,6 +21,7 @@ import "./infoDropdown";
 import "./button";
 import "./infoButton";
 import "./column/button";
+import "./column/link";
 
 import "./avatar";
 
@@ -49,6 +50,7 @@ import "./column/checkbox";
 
 import "./column/progress";
 import "./column/sparkline";
+import "./column/statusStrip";
 import "./column/radio";
 import "./column/buttonRadio";
 
@@ -105,6 +107,8 @@ import "./treegrid";
 import "./pivotTable";
 import "./chart";
 import "./geoMap";
+import "./flowGraph";
+import "./monthView";
 
 import "./plugins/uiToc";
 

@@ -28,6 +28,53 @@
   border-bottom-right-radius: var(--awe-radius-field);
 }
 
+// The clear button and the dropdown trigger sit over the right end of the field: the text (and the chips of a multiple
+// suggest) keep this room from them. One value for both suggests, so the button never overlaps the text of either
+@suggest-end-room: calc(var(--awe-space-8) * 2);
+
+.p-autocomplete.awe-suggest-clearable .p-autocomplete-input {
+  padding-right: @suggest-end-room;
+}
+
+// Every multiple suggest, with or without dropdown trigger. More specific than the `padding` shorthand of the chips
+// container (first rule of AweSelect.less), so the order of the style sheets does not matter
+.p-autocomplete.p-autocomplete-multiple .p-autocomplete-multiple-container {
+  padding-right: @suggest-end-room;
+}
+
+// Clear button of a suggest (#996): left of its dropdown trigger and muted, as the clear icon of a select
+.awe-suggest-clear {
+  position: absolute;
+  top: 50%;
+  inset-inline-end: calc(var(--awe-space-8) + var(--awe-space-1));
+  display: grid;
+  place-items: center;
+  width: calc(var(--awe-size-icon-sm) + var(--awe-space-1));
+  height: calc(var(--awe-size-icon-sm) + var(--awe-space-1));
+  padding: 0;
+  color: var(--awe-color-field-icon);
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-xs);
+  transform: translateY(-50%);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--awe-color-text);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  .awe-icon {
+    display: block;
+    width: var(--awe-size-icon-sm);
+    height: var(--awe-size-icon-sm);
+  }
+}
+
 // An option of a long (virtual) list has the fixed height of the virtual scroller: its text is centred in it
 .p-virtualscroller .p-autocomplete-item {
   display: flex;

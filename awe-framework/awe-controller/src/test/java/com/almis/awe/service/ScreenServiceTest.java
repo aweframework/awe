@@ -390,8 +390,18 @@ class ScreenServiceTest {
    * Opens "Next" (on-load maintain "OnLoadMaintain", keep-criteria "x": "next") coming from "Prev" with the request values given (#934)
    */
   private void openNextScreenFrom(Map<String, String> requestValues, boolean fresh) throws Exception {
+    openNextScreenFrom(requestValues, fresh, null);
+  }
+
+  /**
+   * Opens "Next" as above, with the values of the base view the client groups on a fresh screen (#998)
+   */
+  private void openNextScreenFrom(Map<String, String> requestValues, boolean fresh, ObjectNode baseView) throws Exception {
     AweRequest request = new AweRequest(mock(HttpServletRequest.class), null, JsonMapper.builder().build());
     requestValues.forEach(request::setParameter);
+    if (baseView != null) {
+      request.getParameterList().set(AweConstants.PARAMETER_BASE_VIEW, baseView);
+    }
     if (fresh) {
       request.setParameter(AweConstants.PARAMETER_FRESH_SCREEN, true);
     }
@@ -424,6 +434,17 @@ class ScreenServiceTest {
     assertEquals("next", onLoadParameters.get("x").asString());
     assertFalse(onLoadParameters.has("prevValue"));
     assertEquals("next-screen", onLoadParameters.get(AweConstants.JSON_SCREEN).asString());
+  }
+
+  @Test
+  void aFreshScreenRunsItsOnLoadWithTheBaseViewValues() throws Exception {
+    openNextScreenFrom(Map.of("prevValue", "previous", "headerValue", "header", "option", "Next"), true,
+      JsonNodeFactory.instance.objectNode().put("headerValue", "header"));
+
+    assertEquals("header", onLoadParameters.get("headerValue").asString());
+    assertFalse(onLoadParameters.has("prevValue"));
+    assertFalse(onLoadParameters.has(AweConstants.PARAMETER_BASE_VIEW));
+    assertFalse(storedPreviousCriteria.has(AweConstants.PARAMETER_BASE_VIEW));
   }
 
   @Test

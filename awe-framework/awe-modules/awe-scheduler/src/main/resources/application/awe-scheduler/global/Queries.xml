@@ -12,18 +12,6 @@
   <!--
   SCHEDULER QUERIES
   -->
-  <query id="SchTskSug" permission="scheduler.read" cacheable="true">
-    <!-- Scheduler task suggest -->
-    <table id="AweSchTsk"/>
-    <field id="Ide" alias="value"/>
-    <field id="Nam" alias="label"/>
-    <where>
-      <and>
-        <filter left-field="Nam" condition="like" right-variable="suggest" ignorecase="true"/>
-      </and>
-    </where>
-    <variable id="suggest" type="STRINGB" name="suggest"/>
-  </query>
 
   <!-- GET THE EMAIL LIST OF ACTIVE USERS -->
   <query id="SchActUsrEmlSug" permission="scheduler.read">
@@ -112,6 +100,7 @@
     <field id="IniDat" alias="ExeLstTim"/>
     <field id="ExeTim" alias="ExeTim"/>
     <field id="LchBy" alias="LchBy"/>
+    <field id="IdeRun" alias="ExeRun"/>
     <compound alias="ExeLchIco">
       <computed format="[TypLch]" alias="icon" translate="LchTxtIco"/>
       <computed format="[TypLch]" alias="style" translate="LchTxtSty"/>
@@ -131,21 +120,1436 @@
     <variable id="taskId" type="INTEGER" name="taskId"/>
   </query>
 
-  <!-- Scheduler task list -->
-  <query id="getTaskExecutionListFixed" permission="scheduler.read" service="getTaskExecutionList">
+  <!-- Activity screen: page of the executions of all tasks, newest first, with the decoration of the task execution
+       list (progress with the average of its own task, time, launched by, log locator), its origin code and, while
+       waiting for the confirmation of a deferred answer, its due date. The service pages the rows in the database -->
+  <query id="getActivityExecutionList" permission="scheduler.read" service="getActivityExecutionList" managed-pagination="true">
     <field id="id"/>
-    <field id="ExeTsk"/>
     <field id="IdeTsk"/>
-    <field id="GrpTsk"/>
+    <field id="TskNam"/>
+    <field id="ExeTsk"/>
+    <field id="TypLch"/>
+    <field id="ExeOri"/>
     <field id="Sta"/>
-    <field id="ExeLstTim" transform="TIMESTAMP"/>
-    <field id="ExeTim"/>
-    <field id="ExeLchIco"/>
     <field id="ExeStaIco"/>
+    <!-- Status and origin pills of the grid: text, icon and tone (status-field and icon-field of their columns) and the
+         due time under the status of a waiting execution -->
+    <field id="ExeStaTxt"/>
+    <field id="ExeStaIcn"/>
+    <field id="ExeStaTon"/>
+    <field id="ExeDueLbl"/>
+    <field id="ExeOriTxt"/>
+    <field id="ExeOriIcn"/>
+    <field id="ExeOriTon"/>
+    <field id="ExeLchIco"/>
+    <field id="ExeLstTim" transform="TIMESTAMP"/>
+    <field id="ExeEnd" transform="TIMESTAMP"/>
+    <field id="ExeTim"/>
     <field id="ExePrg"/>
+    <field id="ExeRun"/>
+    <field id="ExeRunLbl"/>
     <field id="LchBy" alias="ExeLchBy"/>
+    <field id="ExeDes"/>
+    <field id="ExeDfr"/>
+    <field id="ExeDue" transform="TIMESTAMP"/>
+    <field id="ExeDueTim"/>
     <field id="ExecutionLogPath"/>
+    <!-- Elapsed seconds of the execution: the sort of the Duration column (sort-field), also when the engine sorts the
+         page again with the sort of the grid -->
+    <field id="ExeEla"/>
+    <!-- Bound to the ExecutionListCriteria bean by variable id. The task screen keeps its history to its task
+         (CrtExeTskIde) -->
+    <variable id="taskId" type="INTEGER" name="CrtExeTskIde"/>
+    <variable id="taskName" type="STRINGN" name="CrtExeTsk"/>
+    <variable id="statuses" type="INTEGER" name="CrtExeSta"/>
+    <variable id="origins" type="STRING" name="CrtExeOri"/>
+    <variable id="deferred" type="INTEGER" name="CrtExeDfr"/>
+    <!-- State quick filter of the grid (running, waiting, queued, error, ok; blank for every state) -->
+    <variable id="state" type="STRINGN" name="CrtExeQck"/>
+    <variable id="startFrom" type="STRINGN" name="CrtExeWin.from"/>
+    <variable id="startTo" type="STRINGN" name="CrtExeWin.to"/>
+    <variable id="withinHours" type="INTEGER" name="CrtExeWin"/>
+    <variable id="page" type="INTEGER" name="page"/>
+    <variable id="max" type="INTEGER" name="max"/>
+    <!-- Sort of the grid (id and direction of each column): the service sorts in the database before it pages -->
+    <variable id="sort" type="OBJECT" name="sort"/>
+  </query>
+
+  <!-- Activity screen: options of the state quick filter of the execution grid (value, label, count and tone), counted
+       with the search, origin and start filters of the list, not with its state. Bound to the ExecutionListCriteria
+       bean by variable id -->
+  <query id="getActivityStateCounts" permission="scheduler.read" service="getActivityStateCounts">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="count"/>
+    <field id="tone"/>
+    <variable id="taskId" type="INTEGER" name="CrtExeTskIde"/>
+    <variable id="taskName" type="STRINGN" name="CrtExeTsk"/>
+    <variable id="origins" type="STRING" name="CrtExeOri"/>
+    <variable id="startFrom" type="STRINGN" name="CrtExeWin.from"/>
+    <variable id="startTo" type="STRINGN" name="CrtExeWin.to"/>
+    <variable id="withinHours" type="INTEGER" name="CrtExeWin"/>
+  </query>
+
+  <!-- Activity screen: options of the origin and start quick filters of the grid (enumerated, no count) -->
+  <query id="getActivityOrigins" permission="scheduler.read" enumerated="ActOri">
+    <field id="value"/>
+    <field id="label"/>
+  </query>
+  <query id="getActivityRunStates" permission="scheduler.read" enumerated="ActRunSta">
+    <field id="value"/>
+    <field id="label"/>
+  </query>
+  <query id="getActivityWindows" permission="scheduler.read" enumerated="ActWin">
+    <field id="value"/>
+    <field id="label"/>
+  </query>
+
+  <!-- Activity screen: progress of the selected execution (its elapsed or execution time against the average of its
+       task), read by the card of the side panel -->
+  <query id="getActivityExecutionProgress" permission="scheduler.read" service="getActivityExecutionProgress">
+    <field id="title"/>
+    <field id="value"/>
+    <field id="unit"/>
+    <field id="target"/>
+    <field id="numberDecimals"/>
+    <field id="description"/>
+    <field id="iconTone"/>
     <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+    <variable id="executionId" type="INTEGER" name="ExeTsk.selected"/>
+  </query>
+
+  <!-- Activity screen: launch parameters of the selected execution, the ones stored with its flow run (AweSchRunPar):
+       the values the operator gave to a manual launch, which the dependencies of the run receive, and the resolved
+       VALUE and VARIABLE parameters of the root task (stored with the "=" prefix, only shown; the operator value wins).
+       A dependency shows the parameters of the launch of its run. Read only -->
+  <query id="getActivityExecutionParameters" permission="scheduler.read" service="getActivityExecutionParameters">
+    <field id="ParNam"/>
+    <field id="ParVal"/>
+    <variable id="runId" type="STRING" name="ExeRun.selected"/>
+  </query>
+
+  <!-- Activity screen: execution rows of getActivityExecutionList and of the activity counters (Java only) -->
+  <query id="getActivityExecutionRows" permission="scheduler.read" server-only="true">
+    <table id="AweSchExe" alias="Exe"/>
+    <field id="IdeTsk" alias="IdeTsk" table="Exe"/>
+    <field id="Nam" alias="TskNam" table="Tsk"/>
+    <field id="ExeTsk" alias="ExeTsk" table="Exe"/>
+    <computed alias="id" format="[IdeTsk]-[ExeTsk]"/>
+    <field id="GrpTsk" alias="TypLch" table="Exe"/>
+    <field id="Sta" alias="Sta" table="Exe"/>
+    <field id="IniDat" alias="ExeLstTim" table="Exe"/>
+    <field id="EndDat" alias="ExeEnd" table="Exe"/>
+    <field id="ExeTim" alias="ExeTim" table="Exe"/>
+    <field id="LchBy" alias="LchBy" table="Exe"/>
+    <field id="IdeRun" alias="ExeRun" table="Exe"/>
+    <field id="Des" alias="ExeDes" table="Exe"/>
+    <field id="ExeTsk" alias="DfrExe" table="Ext"/>
+    <field id="DueDat" alias="ExeDue" table="Ext"/>
+    <!-- Elapsed seconds: until the end, or until now (exeNow) while it has not ended. The service sorts the Duration
+         column with it -->
+    <operation operator="DIFF_SECONDS" alias="ExeEla">
+      <field id="IniDat" table="Exe"/>
+      <operation operator="COALESCE">
+        <field id="EndDat" table="Exe"/>
+        <field variable="now"/>
+      </operation>
+    </operation>
+    <!-- Root execution of the flow run: the label of the run link (removed from the rows by the service) -->
+    <field id="Nam" alias="RunRooNam" table="Roo"/>
+    <field id="ExeTskRoo" alias="RunRooExe" table="Run"/>
+    <compound alias="ExeLchIco">
+      <computed format="[TypLch]" alias="icon" translate="LchTxtIco"/>
+      <computed format="[TypLch]" alias="style" translate="LchTxtSty"/>
+      <computed format="[TypLch]" alias="value" />
+      <computed format="[TypLch]" alias="label" translate="LchTxtTyp"/>
+    </compound>
+    <!-- Static icons of the activity (ActSta*); the service sets the waiting status of a deferred execution -->
+    <compound alias="ExeStaIco">
+      <computed format="[Sta]" alias="icon" translate="ActStaIco"/>
+      <computed format="[Sta]" alias="style" translate="ActStaSty"/>
+      <computed format="[Sta]" alias="value" />
+      <computed format="[Sta]" alias="label" translate="ActStaTyp"/>
+    </compound>
+    <!-- The same status and the origin as plain fields, for the pills of the grid (the service sets the waiting status
+         and the tone of the origin) -->
+    <computed format="[Sta]" alias="ExeStaTxt" translate="ActStaTyp"/>
+    <computed format="[Sta]" alias="ExeStaIcn" translate="ActStaIco"/>
+    <computed format="[Sta]" alias="ExeStaTon" translate="ActStaTon"/>
+    <computed format="[TypLch]" alias="ExeOriTxt" translate="LchTxtTyp"/>
+    <computed format="[TypLch]" alias="ExeOriIcn" translate="LchTxtIco"/>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Tsk"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchRun" alias="Run"/>
+      <and>
+        <filter left-field="IdeRun" left-table="Exe" condition="eq" right-field="IdeRun" right-table="Run"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Roo"/>
+      <and>
+        <filter left-field="IdeTskRoo" left-table="Run" condition="eq" right-field="Ide" right-table="Roo"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExeExt" alias="Ext"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="IdeTsk" right-table="Ext"/>
+        <filter left-field="ExeTsk" left-table="Exe" condition="eq" right-field="ExeTsk" right-table="Ext"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Nam" left-table="Tsk" condition="like" right-variable="taskName" ignorecase="true" optional="true"/>
+        <filter left-field="Sta" left-table="Exe" condition="in" right-variable="statuses" optional="true"/>
+        <filter left-field="GrpTsk" left-table="Exe" condition="in" right-variable="groups" optional="true"/>
+        <filter left-field="Sta" left-table="Exe" condition="eq" right-variable="runningStatus" optional="true"/>
+        <!-- Waiting for the confirmation of a deferred answer: the execution has an AweSchExeExt row -->
+        <filter condition="ne" right-variable="waiting" optional="true">
+          <left-operand>
+            <operation operator="COALESCE">
+              <field id="ExeTsk" table="Ext"/>
+              <constant value="-1" type="INTEGER"/>
+            </operation>
+          </left-operand>
+        </filter>
+        <filter condition="eq" right-variable="notWaiting" optional="true">
+          <left-operand>
+            <operation operator="COALESCE">
+              <field id="ExeTsk" table="Ext"/>
+              <constant value="-1" type="INTEGER"/>
+            </operation>
+          </left-operand>
+        </filter>
+        <filter left-field="IniDat" left-table="Exe" condition="ge" right-variable="startFrom" optional="true"/>
+        <filter left-field="IniDat" left-table="Exe" condition="lt" right-variable="startBefore" optional="true"/>
+        <filter left-field="IniDat" left-table="Exe" condition="ge" right-variable="startSince" optional="true"/>
+        <!-- Runs view (getActivityRunList): every execution of the runs of a page, and the executions without run of
+             some tasks started in a window -->
+        <filter left-field="IdeRun" left-table="Exe" condition="in" right-variable="runIds" optional="true"/>
+        <filter left-field="IdeTsk" left-table="Exe" condition="in" right-variable="taskIds" optional="true"/>
+        <filter condition="eq" right-variable="noRun" optional="true">
+          <left-operand>
+            <operation operator="COALESCE">
+              <field id="IdeRun" table="Exe"/>
+              <constant value="-" type="STRING"/>
+            </operation>
+          </left-operand>
+        </filter>
+        <filter left-field="IniDat" left-table="Exe" condition="le" right-variable="startUntil" optional="true"/>
+      </and>
+    </where>
+    <order-by field="IniDat" table="Exe" type="DESC"/>
+    <order-by field="IdeTsk" table="Exe" type="DESC"/>
+    <order-by field="ExeTsk" table="Exe" type="DESC"/>
+    <variable id="taskName" type="STRINGB" name="exeTaskName"/>
+    <variable id="statuses" type="INTEGER" name="exeStatuses"/>
+    <variable id="groups" type="STRING" name="exeGroups"/>
+    <variable id="runningStatus" type="INTEGER" name="exeRunningStatus"/>
+    <variable id="waiting" type="INTEGER" name="exeWaiting"/>
+    <variable id="notWaiting" type="INTEGER" name="exeNotWaiting"/>
+    <variable id="startFrom" type="TIMESTAMP" name="exeStartFrom"/>
+    <variable id="startBefore" type="TIMESTAMP" name="exeStartBefore"/>
+    <variable id="startSince" type="TIMESTAMP" name="exeStartSince"/>
+    <variable id="runIds" type="STRING" name="exeRunIds"/>
+    <variable id="taskIds" type="INTEGER" name="exeTaskIds"/>
+    <variable id="noRun" type="STRING" name="exeNoRun"/>
+    <variable id="startUntil" type="TIMESTAMP" name="exeStartUntil"/>
+    <variable id="now" type="TIMESTAMP" name="exeNow"/>
+  </query>
+
+  <!-- Activity screen: page of the executions of all tasks grouped by flow run (a tree grid). The top-level rows are the
+       flow runs with at least one execution that matches the filters and the matching executions without run, newest
+       first; the page, the sort and the filters apply to them. Each run is followed by its children: every execution of
+       the run (with the decoration of getActivityExecutionList) and the tasks it skipped. The fields id, RunPar and
+       RunLeaf are the tree (row, parent row and leaf); a run row has its root («<task> #<execution>») as TskNam, its
+       aggregated status, start and duration, and its number of executions (RunExeCnt, RunExeTxt) -->
+  <query id="getActivityRunList" permission="scheduler.read" service="getActivityRunList" managed-pagination="true">
+    <field id="id"/>
+    <field id="RunPar"/>
+    <field id="RunLeaf"/>
+    <field id="RunExeCnt"/>
+    <field id="RunExeTxt"/>
+    <field id="IdeTsk"/>
+    <field id="TskNam"/>
+    <field id="ExeTsk"/>
+    <field id="TypLch"/>
+    <field id="ExeOri"/>
+    <field id="Sta"/>
+    <field id="ExeStaTxt"/>
+    <field id="ExeStaIcn"/>
+    <field id="ExeStaTon"/>
+    <field id="ExeDueLbl"/>
+    <field id="ExeOriTxt"/>
+    <field id="ExeOriIcn"/>
+    <field id="ExeOriTon"/>
+    <field id="ExeLstTim" transform="TIMESTAMP"/>
+    <field id="ExeEnd" transform="TIMESTAMP"/>
+    <field id="ExeTim"/>
+    <field id="ExePrg"/>
+    <field id="ExeRun"/>
+    <field id="ExeRunLbl"/>
+    <field id="LchBy" alias="ExeLchBy"/>
+    <field id="ExeDes"/>
+    <field id="ExeDfr"/>
+    <field id="ExeDueTim"/>
+    <field id="ExecutionLogPath"/>
+    <field id="ExeEla"/>
+    <!-- Bound to the ExecutionListCriteria bean by variable id, as getActivityExecutionList, from the toolbar of the runs
+         view (CrtRun*: the filters of the executions view are given to it when the view switches, switchActivityToRuns).
+         No page nor max: a tree grid that loads all its rows sends max 0, which the list refuses, so the view shows the
+         first page of runs -->
+    <variable id="taskName" type="STRINGN" name="CrtRunTsk"/>
+    <variable id="origins" type="STRING" name="CrtRunOri"/>
+    <variable id="state" type="STRINGN" name="CrtRunQck"/>
+    <variable id="startFrom" type="STRINGN" name="CrtRunWin.from"/>
+    <variable id="startTo" type="STRINGN" name="CrtRunWin.to"/>
+    <variable id="withinHours" type="INTEGER" name="CrtRunWin"/>
+    <variable id="sort" type="OBJECT" name="sort"/>
+  </query>
+
+  <!-- Activity screen, runs view: the top-level rows of a page (Java only), the flow runs with an execution that
+       matches the filters of the list (joined to their matching executions, one row per run) and, through the union,
+       the matching executions without run. Same fields in both: the run (empty without run), its root task and
+       execution (the execution itself without run), the name of that task, its start, its elapsed seconds, its
+       launcher, its origin group and its status (the stored status of the run). The service sorts it with the sort of
+       the list and pages it. No subquery: a dialect that does not wrap the branches of a union loses its parentheses -->
+  <query id="getActivityRunGroups" permission="scheduler.read" server-only="true" distinct="true">
+    <table id="AweSchRun" alias="Run"/>
+    <field id="IdeRun" alias="ExeRun" table="Run"/>
+    <field id="IdeTskRoo" alias="IdeTsk" table="Run"/>
+    <field id="ExeTskRoo" alias="ExeTsk" table="Run"/>
+    <field id="Nam" alias="TskNam" table="Roo"/>
+    <field id="IniDat" alias="ExeLstTim" table="Run"/>
+    <operation operator="DIFF_SECONDS" alias="ExeEla">
+      <field id="IniDat" table="Run"/>
+      <operation operator="COALESCE">
+        <field id="EndDat" table="Run"/>
+        <field variable="now"/>
+      </operation>
+    </operation>
+    <field id="LchBy" alias="LchBy" table="Run"/>
+    <field id="GrpTsk" alias="TypLch" table="Rex"/>
+    <field id="Sta" alias="Sta" table="Run"/>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Roo"/>
+      <and>
+        <filter left-field="IdeTskRoo" left-table="Run" condition="eq" right-field="Ide" right-table="Roo"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExe" alias="Rex"/>
+      <and>
+        <filter left-field="IdeRun" left-table="Run" condition="eq" right-field="IdeRun" right-table="Rex"/>
+        <filter left-field="IdeTskRoo" left-table="Run" condition="eq" right-field="IdeTsk" right-table="Rex"/>
+        <filter left-field="ExeTskRoo" left-table="Run" condition="eq" right-field="ExeTsk" right-table="Rex"/>
+      </and>
+    </join>
+    <!-- The executions of the run that match the filters, with their task and their deferred state -->
+    <join type="INNER">
+      <table id="AweSchExe" alias="Exe"/>
+      <and>
+        <filter left-field="IdeRun" left-table="Run" condition="eq" right-field="IdeRun" right-table="Exe"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Tsk"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExeExt" alias="Ext"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="IdeTsk" right-table="Ext"/>
+        <filter left-field="ExeTsk" left-table="Exe" condition="eq" right-field="ExeTsk" right-table="Ext"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Nam" left-table="Tsk" condition="like" right-variable="taskName" ignorecase="true" optional="true"/>
+        <filter left-field="Sta" left-table="Exe" condition="in" right-variable="statuses" optional="true"/>
+        <filter left-field="GrpTsk" left-table="Exe" condition="in" right-variable="groups" optional="true"/>
+        <filter left-field="Sta" left-table="Exe" condition="eq" right-variable="runningStatus" optional="true"/>
+        <!-- Waiting for the confirmation of a deferred answer: the execution has an AweSchExeExt row -->
+        <filter condition="ne" right-variable="waiting" optional="true">
+          <left-operand>
+            <operation operator="COALESCE">
+              <field id="ExeTsk" table="Ext"/>
+              <constant value="-1" type="INTEGER"/>
+            </operation>
+          </left-operand>
+        </filter>
+        <filter condition="eq" right-variable="notWaiting" optional="true">
+          <left-operand>
+            <operation operator="COALESCE">
+              <field id="ExeTsk" table="Ext"/>
+              <constant value="-1" type="INTEGER"/>
+            </operation>
+          </left-operand>
+        </filter>
+        <filter left-field="IniDat" left-table="Exe" condition="ge" right-variable="startFrom" optional="true"/>
+        <filter left-field="IniDat" left-table="Exe" condition="lt" right-variable="startBefore" optional="true"/>
+        <filter left-field="IniDat" left-table="Exe" condition="ge" right-variable="startSince" optional="true"/>
+      </and>
+    </where>
+    <union type="ALL" query="getActivityRunWithoutRun"/>
+    <order-by field="ExeLstTim" type="DESC"/>
+    <order-by field="IdeTsk" type="DESC"/>
+    <order-by field="ExeTsk" type="DESC"/>
+    <variable id="taskName" type="STRINGB" name="exeTaskName"/>
+    <variable id="statuses" type="INTEGER" name="exeStatuses"/>
+    <variable id="groups" type="STRING" name="exeGroups"/>
+    <variable id="runningStatus" type="INTEGER" name="exeRunningStatus"/>
+    <variable id="waiting" type="INTEGER" name="exeWaiting"/>
+    <variable id="notWaiting" type="INTEGER" name="exeNotWaiting"/>
+    <variable id="startFrom" type="TIMESTAMP" name="exeStartFrom"/>
+    <variable id="startBefore" type="TIMESTAMP" name="exeStartBefore"/>
+    <variable id="startSince" type="TIMESTAMP" name="exeStartSince"/>
+    <variable id="now" type="TIMESTAMP" name="exeNow"/>
+  </query>
+
+  <!-- Activity screen, runs view: executions without run that match the filters of the list, with the fields of
+       getActivityRunGroups (Java only, its union) -->
+  <query id="getActivityRunWithoutRun" permission="scheduler.read" server-only="true">
+    <table id="AweSchExe" alias="Exe"/>
+    <field id="IdeRun" alias="ExeRun" table="Exe"/>
+    <field id="IdeTsk" alias="IdeTsk" table="Exe"/>
+    <field id="ExeTsk" alias="ExeTsk" table="Exe"/>
+    <field id="Nam" alias="TskNam" table="Tsk"/>
+    <field id="IniDat" alias="ExeLstTim" table="Exe"/>
+    <operation operator="DIFF_SECONDS" alias="ExeEla">
+      <field id="IniDat" table="Exe"/>
+      <operation operator="COALESCE">
+        <field id="EndDat" table="Exe"/>
+        <field variable="now"/>
+      </operation>
+    </operation>
+    <field id="LchBy" alias="LchBy" table="Exe"/>
+    <field id="GrpTsk" alias="TypLch" table="Exe"/>
+    <field id="Sta" alias="Sta" table="Exe"/>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Tsk"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExeExt" alias="Ext"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="IdeTsk" right-table="Ext"/>
+        <filter left-field="ExeTsk" left-table="Exe" condition="eq" right-field="ExeTsk" right-table="Ext"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeRun" left-table="Exe" condition="is null"/>
+        <filter left-field="Nam" left-table="Tsk" condition="like" right-variable="taskName" ignorecase="true" optional="true"/>
+        <filter left-field="Sta" left-table="Exe" condition="in" right-variable="statuses" optional="true"/>
+        <filter left-field="GrpTsk" left-table="Exe" condition="in" right-variable="groups" optional="true"/>
+        <filter left-field="Sta" left-table="Exe" condition="eq" right-variable="runningStatus" optional="true"/>
+        <!-- Waiting for the confirmation of a deferred answer: the execution has an AweSchExeExt row -->
+        <filter condition="ne" right-variable="waiting" optional="true">
+          <left-operand>
+            <operation operator="COALESCE">
+              <field id="ExeTsk" table="Ext"/>
+              <constant value="-1" type="INTEGER"/>
+            </operation>
+          </left-operand>
+        </filter>
+        <filter condition="eq" right-variable="notWaiting" optional="true">
+          <left-operand>
+            <operation operator="COALESCE">
+              <field id="ExeTsk" table="Ext"/>
+              <constant value="-1" type="INTEGER"/>
+            </operation>
+          </left-operand>
+        </filter>
+        <filter left-field="IniDat" left-table="Exe" condition="ge" right-variable="startFrom" optional="true"/>
+        <filter left-field="IniDat" left-table="Exe" condition="lt" right-variable="startBefore" optional="true"/>
+        <filter left-field="IniDat" left-table="Exe" condition="ge" right-variable="startSince" optional="true"/>
+      </and>
+    </where>
+    <variable id="taskName" type="STRINGB" name="exeTaskName"/>
+    <variable id="statuses" type="INTEGER" name="exeStatuses"/>
+    <variable id="groups" type="STRING" name="exeGroups"/>
+    <variable id="runningStatus" type="INTEGER" name="exeRunningStatus"/>
+    <variable id="waiting" type="INTEGER" name="exeWaiting"/>
+    <variable id="notWaiting" type="INTEGER" name="exeNotWaiting"/>
+    <variable id="startFrom" type="TIMESTAMP" name="exeStartFrom"/>
+    <variable id="startBefore" type="TIMESTAMP" name="exeStartBefore"/>
+    <variable id="startSince" type="TIMESTAMP" name="exeStartSince"/>
+    <variable id="now" type="TIMESTAMP" name="exeNow"/>
+  </query>
+
+  <!-- Activity screen, runs view: tasks skipped by the flow runs of a page (Java only), in the order they were skipped -->
+  <query id="getActivityRunSkippedRows" permission="scheduler.read" server-only="true">
+    <table id="AweSchRunTsk" alias="Rtk"/>
+    <field id="IdeRun" alias="ExeRun" table="Rtk"/>
+    <field id="IdeTsk" alias="IdeTsk" table="Rtk"/>
+    <field id="Nam" alias="TskNam" table="Tsk"/>
+    <field id="UpdDat" alias="ExeEnd" table="Rtk"/>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Tsk"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Rtk" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeRun" left-table="Rtk" condition="in" right-variable="runIds"/>
+        <filter left-field="Sta" left-table="Rtk" condition="eq">
+          <right-operand>
+            <constant value="SKIPPED" type="STRING"/>
+          </right-operand>
+        </filter>
+      </and>
+    </where>
+    <order-by field="UpdDat" table="Rtk" type="ASC"/>
+    <order-by field="IdeTsk" table="Rtk" type="ASC"/>
+    <variable id="runIds" type="STRING" name="exeRunIds"/>
+  </query>
+
+  <!-- Activity screen: counters (one row) of running executions, executions waiting for the confirmation of a
+       deferred answer, queued executions, errors of the last 24 hours and fire times of the next 24 hours -->
+  <query id="getActivityCounters" permission="scheduler.read" service="getActivityCounters">
+    <field id="running"/>
+    <field id="waiting"/>
+    <field id="queued"/>
+    <field id="errorsLast24h"/>
+    <field id="upcomingNext24h"/>
+  </query>
+
+  <!-- Activity screen: one counter of getActivityCounters as the value of its card (the card reads the field value) -->
+  <query id="getActivityRunningCount" permission="scheduler.read" service="getActivityCounters">
+    <field id="running" alias="value"/>
+  </query>
+  <query id="getActivityWaitingCount" permission="scheduler.read" service="getActivityCounters">
+    <field id="waiting" alias="value"/>
+  </query>
+  <query id="getActivityQueuedCount" permission="scheduler.read" service="getActivityCounters">
+    <field id="queued" alias="value"/>
+  </query>
+  <query id="getActivityErrorCount" permission="scheduler.read" service="getActivityCounters">
+    <field id="errorsLast24h" alias="value"/>
+  </query>
+  <query id="getActivityUpcomingCount" permission="scheduler.read" service="getActivityCounters">
+    <field id="upcomingNext24h" alias="value"/>
+  </query>
+
+  <!-- Task catalog (tasks screen): a page of every task with its last status, when it is launched («When»), the strip
+       of its last 20 saved executions, its next execution, its average time and whether it is active. The service
+       filters, sorts and pages the tasks: the sortable columns send the field the service sorts them by (sort-field).
+       Bound to the TaskCatalogCriteria bean by variable id -->
+  <query id="getTaskCatalog" permission="scheduler.read" service="getTaskCatalog" managed-pagination="true">
+    <field id="id"/>
+    <field id="IdeTsk"/>
+    <field id="Nam"/>
+    <field id="Des"/>
+    <field id="CmdExe"/>
+    <field id="Act"/>
+    <field id="TypLch"/>
+    <field id="Sta"/>
+    <!-- Run asks for the values of the parameters of a task that has them (1) -->
+    <field id="TskVar"/>
+    <!-- The task, a link with its description as its title -->
+    <field id="TskNam"/>
+    <!-- Last status: the pill of the activity screen (text, icon and tone) and its relative start under it -->
+    <field id="TskStaTxt"/>
+    <field id="TskStaIcn"/>
+    <field id="TskStaTon"/>
+    <field id="TskStaSub"/>
+    <!-- «When»: a summary in plain words, its icon and its detail -->
+    <field id="TskWhnTxt"/>
+    <field id="TskWhnIcn"/>
+    <field id="TskWhnSub"/>
+    <!-- History: status strip of the last 20 saved executions, oldest first -->
+    <field id="TskHis"/>
+    <field id="TskNxtTxt"/>
+    <field id="TskNxtSub"/>
+    <field id="TskAvg"/>
+    <field id="TskActTxt"/>
+    <field id="TskActIcn"/>
+    <field id="TskActTon"/>
+    <!-- Sort fields: start of the last execution and next fire time (epoch ms), kind of launch, average time (ms) -->
+    <field id="TskLstDat"/>
+    <field id="TskNxtDat"/>
+    <field id="TskKnd"/>
+    <field id="TskAvgMs"/>
+    <variable id="search" type="STRINGN" name="CrtTskSch"/>
+    <variable id="launchType" type="STRINGN" name="CrtTskLch"/>
+    <variable id="active" type="STRINGN" name="CrtTskAct"/>
+    <variable id="lastStatus" type="STRINGN" name="CrtTskSta"/>
+    <!-- Tasks that use a server or a calendar (the links of the configuration screen) -->
+    <variable id="serverId" type="INTEGER" name="CrtTskSrv"/>
+    <variable id="calendarId" type="INTEGER" name="CrtTskCal"/>
+    <variable id="page" type="INTEGER" name="page"/>
+    <variable id="max" type="INTEGER" name="max"/>
+    <variable id="sort" type="OBJECT" name="sort"/>
+  </query>
+
+  <!-- Task catalog: options of the active quick filter (every task, active, inactive) with their counts, counted with
+       the search, launch, last status, server and calendar filters of the catalog. Bound to the TaskCatalogCriteria bean
+       by variable id -->
+  <query id="getTaskCatalogActiveCounts" permission="scheduler.read" service="getTaskCatalogActiveCounts">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="count"/>
+    <field id="tone"/>
+    <variable id="search" type="STRINGN" name="CrtTskSch"/>
+    <variable id="launchType" type="STRINGN" name="CrtTskLch"/>
+    <variable id="lastStatus" type="STRINGN" name="CrtTskSta"/>
+    <variable id="serverId" type="INTEGER" name="CrtTskSrv"/>
+    <variable id="calendarId" type="INTEGER" name="CrtTskCal"/>
+  </query>
+
+  <!-- Task catalog: options of the launch and last status quick filters (enumerated, no count) -->
+  <query id="getTaskCatalogLaunchTypes" permission="scheduler.read" enumerated="TskCatLch">
+    <field id="value"/>
+    <field id="label"/>
+  </query>
+  <query id="getTaskCatalogLastStatuses" permission="scheduler.read" enumerated="TskCatSta">
+    <field id="value"/>
+    <field id="label"/>
+  </query>
+
+  <!-- Task catalog: every task with its launch, calendar, file server, execution server, last execution (the one
+       started last, with its deferred row) and the average time of its OK executions (Java only) -->
+  <query id="getTaskCatalogRows" permission="scheduler.read" server-only="true">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Ide" alias="IdeTsk" table="Tsk"/>
+    <field id="Nam" alias="Nam" table="Tsk"/>
+    <field id="Des" alias="Des" table="Tsk"/>
+    <field id="CmdExe" alias="CmdExe" table="Tsk"/>
+    <field id="Act" alias="Act" table="Tsk"/>
+    <field id="TypLch" alias="TypLch" table="Tsk"/>
+    <field id="LchDepWrn" alias="LchDepWrn" table="Tsk"/>
+    <field id="LchDepErr" alias="LchDepErr" table="Tsk"/>
+    <field id="RptTyp" alias="RptTyp" table="Lch"/>
+    <field id="RptNum" alias="RptNum" table="Lch"/>
+    <field id="WeekDays" alias="WeekDays" table="Lch"/>
+    <field id="ExeDay" alias="ExeDay" table="Lch"/>
+    <field id="ExeHrs" alias="ExeHrs" table="Lch"/>
+    <field id="ExeMin" alias="ExeMin" table="Lch"/>
+    <field id="ExeDte" alias="ExeDte" table="Lch"/>
+    <field id="ExeTim" alias="ExeTim" table="Lch"/>
+    <field id="Pth" alias="LchPth" table="Lch"/>
+    <field id="Pat" alias="LchPat" table="Lch"/>
+    <field id="Nom" alias="CalNam" table="Cal"/>
+    <field id="Nom" alias="SrvNam" table="Srv"/>
+    <field id="IdeCal" alias="CalIde" table="Lch"/>
+    <field id="IdSrv" alias="FilSrv" table="Lch"/>
+    <field id="IdeSrvExe" alias="ExeSrv" table="Tsk"/>
+    <field id="ExeTsk" alias="LstExe" table="Lst"/>
+    <field id="Sta" alias="LstSta" table="Lst"/>
+    <field id="IniDat" alias="LstDat" table="Lst"/>
+    <field id="ExeTsk" alias="LstDfr" table="Ext"/>
+    <field id="averageTime" alias="AvgTim" table="Avg"/>
+    <join type="LEFT">
+      <table id="AweSchTskLch" alias="Lch"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="IdeTsk" right-table="Lch"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchCal" alias="Cal"/>
+      <and>
+        <filter left-field="IdeCal" left-table="Lch" condition="eq" right-field="Ide" right-table="Cal"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchSrv" alias="Srv"/>
+      <and>
+        <filter left-field="IdSrv" left-table="Lch" condition="eq" right-field="Ide" right-table="Srv"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table query="getLastExecutionDateByTask" alias="Mx"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="taskId" right-table="Mx"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExe" alias="Lst"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="IdeTsk" right-table="Lst"/>
+        <filter left-field="lastExecutionDate" left-table="Mx" condition="eq" right-field="IniDat" right-table="Lst"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExeExt" alias="Ext"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Lst" condition="eq" right-field="IdeTsk" right-table="Ext"/>
+        <filter left-field="ExeTsk" left-table="Lst" condition="eq" right-field="ExeTsk" right-table="Ext"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table query="getAverageTime" alias="Avg"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="taskId" right-table="Avg"/>
+      </and>
+    </join>
+    <order-by field="Ide" table="Tsk" type="ASC"/>
+  </query>
+
+  <!-- Task catalog: the last saved executions of each task of a page (at most catalogHistorySize per task), newest
+       first, with the root execution of their flow run and their deferred row (Java only, one query for the page). The
+       database keeps the newest ones, so a task with a long history never brings more rows than its strip shows: each
+       execution is joined to the executions of its task started after it or at the same time with a number not lower
+       (Nwr, itself included) and kept when they are not more than the size of the history. A self join, not a window
+       function: HSQLDB has no PARTITION BY. The executions of a task are bounded by its kept executions (NumStoExe).
+       Every execution has its start: IniDat is NOT NULL in the schema (but Oracle's) and startTask, the only insert,
+       sets it to the time of the database -->
+  <query id="getTaskCatalogHistory" permission="scheduler.read" server-only="true">
+    <table id="AweSchExe" alias="Exe"/>
+    <field id="IdeTsk" alias="IdeTsk" table="Exe"/>
+    <field id="ExeTsk" alias="ExeTsk" table="Exe"/>
+    <field id="Sta" alias="Sta" table="Exe"/>
+    <field id="IniDat" alias="IniDat" table="Exe"/>
+    <field id="ExeTim" alias="ExeTim" table="Exe"/>
+    <field id="ExeTskRoo" alias="RunRooExe" table="Run"/>
+    <field id="ExeTsk" alias="DfrExe" table="Ext"/>
+    <join type="INNER">
+      <table id="AweSchExe" alias="Nwr"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Nwr" condition="eq" right-field="IdeTsk" right-table="Exe"/>
+        <or>
+          <filter left-field="IniDat" left-table="Nwr" condition="gt" right-field="IniDat" right-table="Exe"/>
+          <and>
+            <filter left-field="IniDat" left-table="Nwr" condition="eq" right-field="IniDat" right-table="Exe"/>
+            <filter left-field="ExeTsk" left-table="Nwr" condition="ge" right-field="ExeTsk" right-table="Exe"/>
+          </and>
+        </or>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchRun" alias="Run"/>
+      <and>
+        <filter left-field="IdeRun" left-table="Exe" condition="eq" right-field="IdeRun" right-table="Run"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExeExt" alias="Ext"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="IdeTsk" right-table="Ext"/>
+        <filter left-field="ExeTsk" left-table="Exe" condition="eq" right-field="ExeTsk" right-table="Ext"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="in" right-variable="taskIds"/>
+      </and>
+    </where>
+    <group-by field="IdeTsk" table="Exe"/>
+    <group-by field="ExeTsk" table="Exe"/>
+    <group-by field="Sta" table="Exe"/>
+    <group-by field="IniDat" table="Exe"/>
+    <group-by field="ExeTim" table="Exe"/>
+    <group-by field="ExeTskRoo" table="Run"/>
+    <group-by field="ExeTsk" table="Ext"/>
+    <having>
+      <and>
+        <filter left-field="ExeTsk" left-table="Nwr" left-function="CNT" condition="le" right-variable="historySize"/>
+      </and>
+    </having>
+    <order-by field="IdeTsk" table="Exe" type="ASC"/>
+    <order-by field="IniDat" table="Exe" type="DESC"/>
+    <order-by field="ExeTsk" table="Exe" type="DESC"/>
+    <variable id="taskIds" type="INTEGER" name="catalogTaskIds"/>
+    <variable id="historySize" type="INTEGER" name="catalogHistorySize"/>
+  </query>
+
+  <!-- Configuration screen: its tabs (value, label, icon), the servers and the calendars with how many there are and
+       the engine with its state («Motor · En marcha», only «Motor» when the engine cannot be read) -->
+  <query id="getConfigurationTabs" permission="scheduler.read" service="getConfigurationTabs">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="icon"/>
+  </query>
+
+  <!-- Configuration screen, Servers tab: every server with its connection, the application server for a folder, its
+       connection type with its icon and its use, and the tasks that use it (how many and the first one by name),
+       sorted by name. The service searches the name or the host and filters the active state. The secrets of the
+       servers are never read -->
+  <query id="getConfigurationServers" permission="scheduler.read" service="getConfigurationServers">
+    <field id="id"/>
+    <field id="IdeSrv"/>
+    <field id="Nom"/>
+    <field id="Pro"/>
+    <field id="Act"/>
+    <!-- Host, or the application server for a folder (SrvHstApp 1) -->
+    <field id="SrvHst"/>
+    <field id="SrvHstApp"/>
+    <!-- Port, «—» for a folder -->
+    <field id="SrvPrt"/>
+    <!-- Connection type (SSH, FTP, folder), its icon and what the server is used for -->
+    <field id="SrvTypTxt"/>
+    <field id="SrvTypIcn"/>
+    <field id="SrvTypSub"/>
+    <!-- Tasks that use it: how many, the text («1 task», «No task») and the first one by name -->
+    <field id="SrvUseCnt"/>
+    <field id="SrvUseTxt"/>
+    <field id="SrvUseSub"/>
+    <!-- Last connection test of this session (never stored): state (ok, error, none), text («OK · 0,42 s», «Error»,
+         «Sin probar») and the line below (when, and the reason of a failure) -->
+    <field id="SrvTstSta"/>
+    <field id="SrvTstTxt"/>
+    <field id="SrvTstSub"/>
+    <!-- Subtitle of the side panel of the server: «Servidor externo · SSH · lo usa 1 tarea» -->
+    <field id="SrvPnlSub"/>
+    <!-- The server as the existing server actions read it (ActSchSrv: Ide, DeaSchSrv: Ide.selected) -->
+    <computed alias="Ide" format="[IdeSrv]"/>
+    <!-- The host in the monospaced face, the application server of a folder muted -->
+    <compound alias="SrvHstTxt">
+      <computed alias="value" format="[SrvHst]"/>
+      <computed alias="style" format="[SrvHstApp]" translate="CfgSrvHstSty"/>
+    </compound>
+    <!-- The active state and the last test as pills: text, tone and icon -->
+    <computed alias="SrvActTxt" format="[Act]" translate="CfgSrvActTxt"/>
+    <computed alias="SrvActTon" format="[Act]" translate="CfgSrvActTon"/>
+    <computed alias="SrvActIcn" format="[Act]" translate="CfgSrvActIcn"/>
+    <computed alias="SrvTstTon" format="[SrvTstSta]" translate="CfgSrvTstTon"/>
+    <computed alias="SrvTstIcn" format="[SrvTstSta]" translate="CfgSrvTstIcn"/>
+    <variable id="search" type="STRINGN" name="CrtSrvSch"/>
+    <variable id="active" type="STRINGN" name="CrtSrvAct"/>
+  </query>
+
+  <!-- Configuration screen, server side panel: the choice cards of the connection type (SSH, FTP, folder), with the
+       fields the button radio of the engines reads for a card: icon and description (locale keys) -->
+  <query id="getConfigurationServerTypes" permission="scheduler.read" service="getConfigurationServerTypes">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="icon"/>
+    <field id="description"/>
+  </query>
+
+  <!-- Configuration screen, server side panel, «En uso por»: the tasks that use the selected server (they run on it or
+       check their files in it, as the servers list counts them), sorted by name: the task (a link to its task page,
+       IdeTsk), when it is launched (TskUseSub) and its last status as a tag. A new server (no selected row) has none -->
+  <query id="getConfigurationServerTasks" permission="scheduler.read" service="getConfigurationServerTasks">
+    <field id="id"/>
+    <field id="IdeTsk"/>
+    <field id="TskNam"/>
+    <field id="TskUseSub"/>
+    <field id="TskStaTxt"/>
+    <field id="TskStaIcn"/>
+    <field id="TskStaTon"/>
+    <variable id="serverId" type="INTEGER" name="IdeSrv.selected"/>
+  </query>
+
+  <!-- Configuration screen, Servers tab: options of the active quick filter (every server, active, inactive) with their
+       counts, counted with the search -->
+  <query id="getConfigurationServerActiveCounts" permission="scheduler.read" service="getConfigurationServerActiveCounts">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="count"/>
+    <field id="tone"/>
+    <variable id="search" type="STRINGN" name="CrtSrvSch"/>
+  </query>
+
+  <!-- Configuration screen, Calendars tab: every calendar with how many dates it has, its next date from today (dd/MM)
+       and the tasks that use it (how many and the first one by name), sorted by name. The service searches the name and
+       filters the active state -->
+  <query id="getConfigurationCalendars" permission="scheduler.read" service="getConfigurationCalendars">
+    <field id="id"/>
+    <field id="IdeCal"/>
+    <field id="Nom"/>
+    <field id="Des"/>
+    <field id="Act"/>
+    <!-- Dates: how many, the next one from today (dd/MM) and the line under the count («next 06/12», «from
+         01/01/2027» when it is of a later year) -->
+    <field id="CalDatCnt"/>
+    <field id="CalNxtDat"/>
+    <field id="CalDatSub"/>
+    <field id="CalUseCnt"/>
+    <field id="CalUseTxt"/>
+    <field id="CalUseSub"/>
+    <!-- Header of the side panel of the calendar: its icon and «Calendario · lo usa 1 tarea» -->
+    <field id="CalPnlIcn"/>
+    <field id="CalPnlSub"/>
+    <!-- The columns of the calendars grid with names of their own (a column name is unique in the configuration screen:
+         the servers grid has Nom and Act) and the active state as a pill, as the servers show it -->
+    <computed alias="CalNom" format="[Nom]"/>
+    <computed alias="CalAct" format="[Act]"/>
+    <computed alias="CalActTxt" format="[Act]" translate="CfgSrvActTxt"/>
+    <computed alias="CalActTon" format="[Act]" translate="CfgSrvActTon"/>
+    <computed alias="CalActIcn" format="[Act]" translate="CfgSrvActIcn"/>
+    <variable id="search" type="STRINGN" name="CrtCalSch"/>
+    <variable id="active" type="STRINGN" name="CrtCalAct"/>
+  </query>
+
+  <!-- Configuration screen, Calendars tab: options of the active quick filter with their counts, counted with the
+       search -->
+  <query id="getConfigurationCalendarActiveCounts" permission="scheduler.read" service="getConfigurationCalendarActiveCounts">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="count"/>
+    <field id="tone"/>
+    <variable id="search" type="STRINGN" name="CrtCalSch"/>
+  </query>
+
+  <!-- Configuration screen, Calendars tab: before deleting a calendar (IdeCal), the tasks that use it sorted by name,
+       each one with its «When» summary (CalDelWhn) and the next days, at most 3, it would run on without it: «would
+       run on 08/12 and 25/12» (CalDelDat, empty when no day changes) and how many (CalDelDatCnt). The delete dialog
+       shows the task (CalDelTsk) with both under it (CalDelSub) -->
+  <query id="getConfigurationCalendarDeleteCheck" permission="scheduler.read" service="getConfigurationCalendarDeleteCheck">
+    <field id="id"/>
+    <field id="IdeTsk"/>
+    <field id="Nam"/>
+    <field id="CalDelWhn"/>
+    <field id="CalDelDat"/>
+    <field id="CalDelDatCnt"/>
+    <field id="CalDelSub"/>
+    <computed alias="CalDelTsk" format="[Nam]"/>
+    <variable id="calendarId" type="INTEGER" name="IdeCal"/>
+  </query>
+
+  <!-- Configuration screen, calendar side panel: the dates of the selected calendar (IdeCal.selected) in order, each one
+       with its weekday (DatWek), for the editable dates grid; a new calendar (no selected row) has none -->
+  <query id="getConfigurationCalendarPanelDates" permission="scheduler.read" service="getConfigurationCalendarPanelDates">
+    <field id="id"/>
+    <field id="IdeDat"/>
+    <field id="Dat"/>
+    <field id="Nam"/>
+    <field id="DatWek"/>
+    <variable id="calendarId" type="INTEGER" name="IdeCal.selected"/>
+  </query>
+
+  <!-- Configuration screen, calendar side panel, «En uso por»: the tasks that use the selected calendar
+       (IdeCal.selected), sorted by name, each one with when it runs (CalTskSub) and the days of the calendar it will not
+       run on as a tag («No se ejecutará 08/12, 24/12 y 25/12», CalTskSkp, empty when no day). Read by the delete check:
+       the same tasks and days. A new calendar (no selected row) has none -->
+  <query id="getConfigurationCalendarPanelTasks" permission="scheduler.read" service="getConfigurationCalendarDeleteCheck">
+    <field id="id"/>
+    <field id="Nam"/>
+    <field id="CalDelWhn"/>
+    <field id="CalSkpTxt"/>
+    <field id="CalSkpTon"/>
+    <field id="CalSkpIcn"/>
+    <computed alias="CalTskNam" format="[Nam]"/>
+    <computed alias="CalTskSub" format="[CalDelWhn]"/>
+    <computed alias="CalTskSkp" format="[CalSkpTxt]"/>
+    <computed alias="CalTskSkpTon" format="[CalSkpTon]"/>
+    <computed alias="CalTskSkpIcn" format="[CalSkpIcn]"/>
+    <variable id="calendarId" type="INTEGER" name="IdeCal.selected"/>
+  </query>
+
+  <!-- Configuration screen, Calendars tab: the heading of the delete dialog of a calendar in use (IdeCal), for its card:
+       «Delete «Holidays»?» and how many tasks use it and what happens to them -->
+  <query id="getConfigurationCalendarDeleteSummary" permission="scheduler.read" service="getConfigurationCalendarDeleteCheck">
+    <field id="title"/>
+    <field id="description"/>
+    <variable id="calendarId" type="INTEGER" name="IdeCal"/>
+  </query>
+
+  <!-- Configuration screen: the tasks whose launch uses a calendar, with the stored fields of their repetition (Java
+       only) -->
+  <query id="getConfigurationCalendarTasks" permission="scheduler.read" server-only="true">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Ide" alias="IdeTsk" table="Tsk"/>
+    <field id="Nam" alias="Nam" table="Tsk"/>
+    <field id="TypLch" alias="TypLch" table="Tsk"/>
+    <field id="Act" alias="Act" table="Tsk"/>
+    <field id="RptTyp" alias="RptTyp" table="Lch"/>
+    <field id="RptNum" alias="RptNum" table="Lch"/>
+    <field id="IniDat" alias="IniDat" table="Lch"/>
+    <field id="IniTim" alias="IniTim" table="Lch"/>
+    <field id="EndDat" alias="EndDat" table="Lch"/>
+    <field id="EndTim" alias="EndTim" table="Lch"/>
+    <field id="ExeDte" alias="ExeDte" table="Lch"/>
+    <field id="ExeTim" alias="ExeTim" table="Lch"/>
+    <field id="ExeYrs" alias="ExeYrs" table="Lch"/>
+    <field id="ExeMth" alias="ExeMth" table="Lch"/>
+    <field id="ExeWek" alias="ExeWek" table="Lch"/>
+    <field id="ExeDay" alias="ExeDay" table="Lch"/>
+    <field id="WeekDays" alias="WeekDays" table="Lch"/>
+    <field id="ExeHrs" alias="ExeHrs" table="Lch"/>
+    <field id="ExeMin" alias="ExeMin" table="Lch"/>
+    <field id="ExeSec" alias="ExeSec" table="Lch"/>
+    <join type="INNER">
+      <table id="AweSchTskLch" alias="Lch"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="IdeTsk" right-table="Lch"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeCal" left-table="Lch" condition="eq" right-variable="calendarId"/>
+      </and>
+    </where>
+    <order-by field="Ide" table="Tsk" type="ASC"/>
+    <variable id="calendarId" type="INTEGER" name="calendarId"/>
+  </query>
+
+  <!-- Configuration screen: every server without its secrets (Java only) -->
+  <query id="getConfigurationServerRows" permission="scheduler.read" server-only="true">
+    <table id="AweSchSrv" alias="Srv"/>
+    <field id="Ide" alias="IdeSrv" table="Srv"/>
+    <field id="Nom" alias="Nom" table="Srv"/>
+    <field id="Pro" alias="Pro" table="Srv"/>
+    <field id="Hst" alias="Hst" table="Srv"/>
+    <field id="Prt" alias="Prt" table="Srv"/>
+    <field id="Act" alias="Act" table="Srv"/>
+    <order-by field="Ide" table="Srv" type="ASC"/>
+  </query>
+
+  <!-- Configuration screen, server side panel: one server with its connection and whether its password, its private key
+       and the passphrase of the key are saved (1 when stored and not empty), never the secrets themselves (Java only) -->
+  <query id="getConfigurationServer" permission="scheduler.read" server-only="true">
+    <table id="AweSchSrv" alias="Srv"/>
+    <field id="Ide" alias="IdeSrv" table="Srv"/>
+    <field id="Nom" alias="Nom" table="Srv"/>
+    <field id="Pro" alias="Pro" table="Srv"/>
+    <field id="Hst" alias="Hst" table="Srv"/>
+    <field id="Prt" alias="Prt" table="Srv"/>
+    <field id="Act" alias="Act" table="Srv"/>
+    <field id="SshUsr" alias="SshUsr" table="Srv"/>
+    <case alias="SrvPwdSav">
+      <when left-field="SshPwd" left-table="Srv" condition="is null">
+        <then>
+          <constant value="0" type="INTEGER"/>
+        </then>
+      </when>
+      <when left-field="SshPwd" left-table="Srv" condition="eq" right-variable="Empty">
+        <then>
+          <constant value="0" type="INTEGER"/>
+        </then>
+      </when>
+      <else>
+        <constant value="1" type="INTEGER"/>
+      </else>
+    </case>
+    <case alias="SrvKeySav">
+      <when left-field="SshKey" left-table="Srv" condition="is null">
+        <then>
+          <constant value="0" type="INTEGER"/>
+        </then>
+      </when>
+      <when left-field="SshKey" left-table="Srv" condition="eq" right-variable="Empty">
+        <then>
+          <constant value="0" type="INTEGER"/>
+        </then>
+      </when>
+      <else>
+        <constant value="1" type="INTEGER"/>
+      </else>
+    </case>
+    <case alias="SrvKpwSav">
+      <when left-field="SshKeyPass" left-table="Srv" condition="is null">
+        <then>
+          <constant value="0" type="INTEGER"/>
+        </then>
+      </when>
+      <when left-field="SshKeyPass" left-table="Srv" condition="eq" right-variable="Empty">
+        <then>
+          <constant value="0" type="INTEGER"/>
+        </then>
+      </when>
+      <else>
+        <constant value="1" type="INTEGER"/>
+      </else>
+    </case>
+    <where>
+      <and>
+        <filter left-field="Ide" left-table="Srv" condition="eq" right-variable="serverId"/>
+      </and>
+    </where>
+    <variable id="serverId" type="INTEGER" name="serverId"/>
+    <variable id="Empty" type="STRING" value=""/>
+  </query>
+
+  <!-- Configuration screen: the tasks that use a server, the one they run on (ExeSrv) and the one where they check their
+       files (FilSrv) (Java only) -->
+  <query id="getConfigurationServerUsage" permission="scheduler.read" server-only="true">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Ide" alias="IdeTsk" table="Tsk"/>
+    <field id="Nam" alias="Nam" table="Tsk"/>
+    <field id="IdeSrvExe" alias="ExeSrv" table="Tsk"/>
+    <field id="IdSrv" alias="FilSrv" table="Lch"/>
+    <join type="LEFT">
+      <table id="AweSchTskLch" alias="Lch"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="IdeTsk" right-table="Lch"/>
+      </and>
+    </join>
+    <where>
+      <or>
+        <filter left-field="IdeSrvExe" left-table="Tsk" condition="is not null"/>
+        <filter left-field="IdSrv" left-table="Lch" condition="is not null"/>
+      </or>
+    </where>
+    <order-by field="Ide" table="Tsk" type="ASC"/>
+  </query>
+
+  <!-- Configuration screen: every calendar (Java only) -->
+  <query id="getConfigurationCalendarRows" permission="scheduler.read" server-only="true">
+    <table id="AweSchCal" alias="Cal"/>
+    <field id="Ide" alias="IdeCal" table="Cal"/>
+    <field id="Nom" alias="Nom" table="Cal"/>
+    <field id="Des" alias="Des" table="Cal"/>
+    <field id="Act" alias="Act" table="Cal"/>
+    <order-by field="Ide" table="Cal" type="ASC"/>
+  </query>
+
+  <!-- Configuration screen: the dates of every calendar with their names (Java only) -->
+  <query id="getConfigurationCalendarDates" permission="scheduler.read" server-only="true">
+    <table id="AweSchCalDat" alias="CDt"/>
+    <field id="Ide" alias="IdeDat" table="CDt"/>
+    <field id="IdeCal" alias="IdeCal" table="CDt"/>
+    <field id="Dat" alias="Dat" table="CDt"/>
+    <field id="Nom" alias="Nam" table="CDt"/>
+    <order-by field="IdeCal" table="CDt" type="ASC"/>
+    <order-by field="Dat" table="CDt" type="ASC"/>
+  </query>
+
+  <!-- Configuration screen: the tasks that use a calendar (their launch is scheduled with it) (Java only) -->
+  <query id="getConfigurationCalendarUsage" permission="scheduler.read" server-only="true">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Ide" alias="IdeTsk" table="Tsk"/>
+    <field id="Nam" alias="Nam" table="Tsk"/>
+    <field id="IdeCal" alias="IdeCal" table="Lch"/>
+    <join type="INNER">
+      <table id="AweSchTskLch" alias="Lch"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="IdeTsk" right-table="Lch"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeCal" left-table="Lch" condition="is not null"/>
+      </and>
+    </where>
+    <order-by field="Ide" table="Tsk" type="ASC"/>
+  </query>
+
+  <!-- Configuration screen, Motor tab: the card of the engine, one row. EngSta (running, paused, paused-empty, stopped
+       or unavailable) with its label key EngStaTxt and the sentence that tells it (EngTxt), EngErr (the last start
+       failed), the instance (EngIns, EngInsTxt), the version, the job store (EngStoTxt, EngStoDet), the threads in use
+       (EngThrUse of EngThrSiz, EngThrTxt, EngThrPct for the gauge), running since (EngSin, EngSinAgo), the jobs
+       executed, the schedules (EngSch, EngSchTit the title of their list), the technical details (EngTec), the facts as
+       the tiles of a card (EngTil) and the executions waiting for a confirmation (EngDfrCnt, EngDfrTxt with the nearest
+       deadline) -->
+  <query id="getConfigurationEngine" permission="scheduler.read" service="getConfigurationEngine">
+    <field id="EngSta"/>
+    <field id="EngStaTxt"/>
+    <field id="EngTxt"/>
+    <field id="EngErr"/>
+    <field id="EngIns"/>
+    <field id="EngInsTxt"/>
+    <field id="EngVer"/>
+    <field id="EngStoTxt"/>
+    <field id="EngStoDet"/>
+    <field id="EngThrUse"/>
+    <field id="EngThrSiz"/>
+    <field id="EngThrTxt"/>
+    <field id="EngThrPct"/>
+    <field id="EngSin"/>
+    <field id="EngSinAgo"/>
+    <field id="EngExe"/>
+    <field id="EngSch"/>
+    <field id="EngSchTit"/>
+    <field id="EngTec"/>
+    <field id="EngTil"/>
+    <field id="EngDfrCnt"/>
+    <field id="EngDfrTxt"/>
+  </query>
+
+  <!-- Configuration screen, Motor tab: the engine card «Motor del planificador» filled from the same service: its status
+       as the chip (text) with its tone, the sentence that tells it, the last start error as its footer,
+       its facts as tiles and its technical details folded under their label -->
+  <query id="getConfigurationEngineCard" permission="scheduler.read" service="getConfigurationEngine">
+    <field id="EngSta"/>
+    <field id="EngStaTxt" alias="chip"/>
+    <computed alias="chipTone" format="[EngSta]" translate="CfgEngStaTon"/>
+    <field id="EngTxt" alias="description"/>
+    <field id="EngErr" alias="footer"/>
+    <field id="EngTil" alias="tiles"/>
+    <field id="EngTec" alias="details"/>
+    <computed alias="detailsLabel" format="SCREEN_TEXT_SCHEDULER_ENGINE_DETAILS"/>
+  </query>
+
+  <!-- Configuration screen, Motor tab: the status code of the engine (running, paused, paused-empty, stopped or
+       unavailable), the value of the hidden criterion that enables its actions -->
+  <query id="getConfigurationEngineStatus" permission="scheduler.read" service="getConfigurationEngine">
+    <field id="EngSta" alias="value"/>
+  </query>
+
+  <!-- Configuration screen, Motor tab: how many executions wait for a confirmation (the value of the hidden criterion
+       that shows the note) and the note itself («… ahora hay 1 esperando confirmación (…, límite 12:15).») -->
+  <query id="getConfigurationEngineDeferredCount" permission="scheduler.read" service="getConfigurationEngine">
+    <field id="EngDfrCnt" alias="value"/>
+  </query>
+  <query id="getConfigurationEngineDeferred" permission="scheduler.read" service="getConfigurationEngine">
+    <field id="EngDfrTxt" alias="description"/>
+  </query>
+
+  <!-- Configuration screen, Motor tab: the title of the card of the schedules («Programadas en el motor · 4») -->
+  <query id="getConfigurationEngineSchedulesTitle" permission="scheduler.read" service="getConfigurationEngine">
+    <field id="EngSchTit" alias="title"/>
+  </query>
+
+  <!-- Configuration screen, Motor tab: the schedules of the engine (triggers of the scheduled and file tracking tasks),
+       the next one to fire first, filtered by their state (CrtEngTrg: paused or error, every one when empty): task
+       (IdeTsk, TskNam, TskRun), trigger kind (TrgKnd scheduled or file, TrgKndTxt label key) and «When» (TrgWhn),
+       calendar (CalIde, CalNam, CalExc «excluye 08/12 y 25/12»), fire times (PrvFir, NxtFir, NxtFirIn «dentro de …»)
+       and state (TrgSta normal, paused, blocked, error, complete or none, TrgStaTxt label key) -->
+  <query id="getConfigurationEngineTriggers" permission="scheduler.read" service="getConfigurationEngineTriggers">
+    <field id="id"/>
+    <field id="IdeTsk"/>
+    <field id="TskNam"/>
+    <field id="TskRun"/>
+    <field id="TrgKnd"/>
+    <field id="TrgKndTxt"/>
+    <field id="TrgWhn"/>
+    <field id="CalIde"/>
+    <field id="CalNam"/>
+    <field id="CalExc"/>
+    <field id="PrvFir"/>
+    <field id="NxtFir"/>
+    <field id="NxtFirIn"/>
+    <field id="TrgSta"/>
+    <field id="TrgStaTxt"/>
+    <!-- The cells of the grid of the Motor tab, under names of their own (a column name is unique in the screen, the
+         panels of the servers and the calendars have TskNam...): the task and what it runs, the kind of the trigger
+         (label and icon) with its «When», the calendar and the days it excludes, the fire times and the state pill -->
+    <computed alias="TrgTskNam" format="[TskNam]"/>
+    <computed alias="TrgTskRun" format="[TskRun]"/>
+    <computed alias="TrgKndLbl" format="[TrgKnd]" translate="CfgEngTrgKndTxt"/>
+    <computed alias="TrgKndIcn" format="[TrgKnd]" translate="CfgEngTrgKndIcn"/>
+    <computed alias="TrgWhnTxt" format="[TrgWhn]"/>
+    <computed alias="TrgCalNam" format="[CalNam]"/>
+    <computed alias="TrgCalExc" format="[CalExc]"/>
+    <computed alias="TrgPrvFir" format="[PrvFir]"/>
+    <computed alias="TrgNxtFir" format="[NxtFir]"/>
+    <computed alias="TrgNxtFirIn" format="[NxtFirIn]"/>
+    <computed alias="TrgStaLbl" format="[TrgSta]" translate="CfgEngTrgStaTxt"/>
+    <computed alias="TrgStaTon" format="[TrgSta]" translate="CfgEngTrgStaTon"/>
+    <computed alias="TrgStaIcn" format="[TrgSta]" translate="CfgEngTrgStaIcn"/>
+    <variable id="filter" type="STRINGN" name="CrtEngTrg"/>
+  </query>
+
+  <!-- Configuration screen, Motor tab: options of the state filter of the schedules (every one, paused, in error) with
+       their counts -->
+  <query id="getConfigurationEngineTriggerCounts" permission="scheduler.read" service="getConfigurationEngineTriggerCounts">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="count"/>
+    <field id="tone"/>
+  </query>
+
+  <!-- Configuration screen, Motor tab: every task with what it runs and its launch, for the schedules of the engine
+       (Java only) -->
+  <query id="getConfigurationEngineTasks" permission="scheduler.read" server-only="true">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Ide" alias="IdeTsk" table="Tsk"/>
+    <field id="Nam" alias="Nam" table="Tsk"/>
+    <field id="TypExe" alias="TypExe" table="Tsk"/>
+    <field id="CmdExe" alias="CmdExe" table="Tsk"/>
+    <field id="TypLch" alias="TypLch" table="Tsk"/>
+    <field id="RptTyp" alias="RptTyp" table="Lch"/>
+    <field id="RptNum" alias="RptNum" table="Lch"/>
+    <field id="WeekDays" alias="WeekDays" table="Lch"/>
+    <field id="ExeDay" alias="ExeDay" table="Lch"/>
+    <field id="ExeHrs" alias="ExeHrs" table="Lch"/>
+    <field id="ExeMin" alias="ExeMin" table="Lch"/>
+    <field id="ExeDte" alias="ExeDte" table="Lch"/>
+    <field id="ExeTim" alias="ExeTim" table="Lch"/>
+    <field id="Pth" alias="LchPth" table="Lch"/>
+    <field id="Pat" alias="LchPat" table="Lch"/>
+    <field id="Nom" alias="SrvNam" table="Srv"/>
+    <join type="LEFT">
+      <table id="AweSchTskLch" alias="Lch"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="IdeTsk" right-table="Lch"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchSrv" alias="Srv"/>
+      <and>
+        <filter left-field="IdSrv" left-table="Lch" condition="eq" right-field="Ide" right-table="Srv"/>
+      </and>
+    </join>
+    <order-by field="Ide" table="Tsk" type="ASC"/>
+  </query>
+
+  <!-- Task screen: what it shows of the task of the screen (IdeTsk.selected), one row: its header, the summary of its
+       saved executions, the strip of its last ones, its last execution and its configuration. The screen reads it as
+       its target (the criteria of the same name) and the cards read their fields through the queries below. The service
+       computes the page once per request: the screen loads its target and its cards in one request, so they share it -->
+  <query id="getTaskPage" permission="scheduler.read" service="getTaskPage">
+    <field id="IdeTsk"/>
+    <!-- Flags of the actions: active task, launch that asks for the values of its parameters -->
+    <field id="TskAct"/>
+    <field id="TskVar"/>
+    <!-- Header: name, description, last status (chip and tone), icon of the launch and facts -->
+    <field id="TskPagTit"/>
+    <field id="TskPagSub"/>
+    <field id="TskPagChp"/>
+    <field id="TskPagChpTon"/>
+    <field id="TskPagIcn"/>
+    <field id="TskPagFct"/>
+    <!-- Summary over the saved executions -->
+    <field id="TskOkVal"/>
+    <field id="TskOkUni"/>
+    <field id="TskOkDes"/>
+    <field id="TskOkStk"/>
+    <field id="TskAvgVal"/>
+    <field id="TskAvgDes"/>
+    <field id="TskAvgSpk"/>
+    <field id="TskNxtVal"/>
+    <field id="TskNxtDes"/>
+    <field id="TskHis"/>
+    <field id="TskHisTxt"/>
+    <!-- Last execution -->
+    <field id="TskLstHas"/>
+    <field id="TskLstSta"/>
+    <field id="TskLstTon"/>
+    <field id="TskLstIcn"/>
+    <field id="TskLstDes"/>
+    <field id="TskLstExe"/>
+    <field id="TskLstRun"/>
+    <field id="TskLstOri"/>
+    <field id="TskLstBy"/>
+    <field id="TskLstIni"/>
+    <field id="TskLstDur"/>
+    <!-- Configuration, read only -->
+    <field id="TskCfgRun"/>
+    <field id="TskCfgWhr"/>
+    <field id="TskCfgWhn"/>
+    <field id="TskCfgPrn"/>
+    <field id="TskCfgChl"/>
+    <field id="TskCfgSto"/>
+    <field id="TskCfgTim"/>
+    <field id="TskCfgRpt"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+  </query>
+
+  <!-- Task screen: the cards, each one the fields of getTaskPage it shows with the names of the card attributes -->
+  <query id="getTaskPageHeader" permission="scheduler.read" service="getTaskPage">
+    <field id="TskPagTit" alias="title"/>
+    <field id="TskPagSub" alias="subtitle"/>
+    <field id="TskPagChp" alias="chip"/>
+    <field id="TskPagChpTon" alias="chipTone"/>
+    <field id="TskPagFct" alias="pills"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+  </query>
+  <query id="getTaskPageSuccess" permission="scheduler.read" service="getTaskPage">
+    <field id="TskOkVal" alias="value"/>
+    <field id="TskOkUni" alias="unit"/>
+    <field id="TskOkDes" alias="description"/>
+    <field id="TskOkStk" alias="stack"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+  </query>
+  <query id="getTaskPageAverage" permission="scheduler.read" service="getTaskPage">
+    <field id="TskAvgVal" alias="value"/>
+    <field id="TskAvgDes" alias="description"/>
+    <field id="TskAvgSpk" alias="sparkline"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+  </query>
+  <query id="getTaskPageNext" permission="scheduler.read" service="getTaskPage">
+    <field id="TskNxtVal" alias="value"/>
+    <field id="TskNxtDes" alias="description"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+  </query>
+  <query id="getTaskPageHistoryCount" permission="scheduler.read" service="getTaskPage">
+    <field id="TskHisTxt" alias="subtitle"/>
+    <field id="TskHis" alias="strip"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+  </query>
+  <query id="getTaskPageLast" permission="scheduler.read" service="getTaskPage">
+    <field id="TskLstSta" alias="chip"/>
+    <field id="TskLstTon" alias="chipTone"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+  </query>
+  <!-- Task screen: the settings of a task the catalog does not read (Java only) -->
+  <query id="getTaskPageTask" permission="scheduler.read" server-only="true">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Ide" alias="IdeTsk" table="Tsk"/>
+    <field id="TypExe" alias="TypExe" table="Tsk"/>
+    <field id="NumStoExe" alias="NumStoExe" table="Tsk"/>
+    <field id="TimOutExe" alias="TimOutExe" table="Tsk"/>
+    <field id="LchDepWrn" alias="LchDepWrn" table="Tsk"/>
+    <field id="LchDepErr" alias="LchDepErr" table="Tsk"/>
+    <field id="RepTyp" alias="RepTyp" table="Tsk"/>
+    <where>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-variable="taskId"/>
+      </and>
+    </where>
+    <variable id="taskId" type="INTEGER" name="taskPageTaskId"/>
+  </query>
+
+  <!-- Task screen: where a task runs (its server and its path) and who gets its report (Java only). Its permission is the
+       one of the task editor: the task page reads it only for the users who hold it -->
+  <query id="getTaskPageTaskRestricted" permission="scheduler.update" server-only="true">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="CmdExePth" alias="CmdExePth" table="Tsk"/>
+    <field id="Nom" alias="SrvExeNam" table="Srv"/>
+    <field id="RepEmaDst" alias="RepEmaDst" table="Tsk"/>
+    <field id="RepMntId" alias="RepMntId" table="Tsk"/>
+    <join type="LEFT">
+      <table id="AweSchSrv" alias="Srv"/>
+      <and>
+        <filter left-field="IdeSrvExe" left-table="Tsk" condition="eq" right-field="Ide" right-table="Srv"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-variable="taskId"/>
+      </and>
+    </where>
+    <variable id="taskId" type="INTEGER" name="taskPageTaskId"/>
+  </query>
+
+  <!-- Task screen: the saved executions of a task, newest first, with the root execution of their flow run and their
+       deferred row (Java only). They are bounded by the kept executions of the task (NumStoExe) -->
+  <query id="getTaskPageExecutions" permission="scheduler.read" server-only="true">
+    <table id="AweSchExe" alias="Exe"/>
+    <field id="IdeTsk" alias="IdeTsk" table="Exe"/>
+    <field id="ExeTsk" alias="ExeTsk" table="Exe"/>
+    <field id="Sta" alias="Sta" table="Exe"/>
+    <field id="IniDat" alias="IniDat" table="Exe"/>
+    <field id="ExeTim" alias="ExeTim" table="Exe"/>
+    <field id="ExeTskRoo" alias="RunRooExe" table="Run"/>
+    <field id="ExeTsk" alias="DfrExe" table="Ext"/>
+    <join type="LEFT">
+      <table id="AweSchRun" alias="Run"/>
+      <and>
+        <filter left-field="IdeRun" left-table="Exe" condition="eq" right-field="IdeRun" right-table="Run"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExeExt" alias="Ext"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="IdeTsk" right-table="Ext"/>
+        <filter left-field="ExeTsk" left-table="Exe" condition="eq" right-field="ExeTsk" right-table="Ext"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-variable="taskId"/>
+      </and>
+    </where>
+    <order-by field="IniDat" table="Exe" type="DESC"/>
+    <order-by field="ExeTsk" table="Exe" type="DESC"/>
+    <variable id="taskId" type="INTEGER" name="taskPageTaskId"/>
+  </query>
+
+  <!-- Task catalog: tasks of a page with parameters, whose launch asks for their values (Java only) -->
+  <query id="getTasksWithParameters" permission="scheduler.read" server-only="true" distinct="true">
+    <table id="AweSchTskPar"/>
+    <field id="IdeTsk" alias="IdeTsk"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" condition="in" right-variable="taskIds"/>
+      </and>
+    </where>
+    <variable id="taskIds" type="INTEGER" name="catalogTaskIds"/>
   </query>
 
   <!-- Scheduler task list query for task load service (Java) -->
@@ -257,6 +1661,25 @@
     <group-by field="IdeTsk"/>
   </query>
 
+  <!-- Activity screen: average time of the tasks of a page of executions (Java only) -->
+  <query id="getAverageTimesOfTasks" server-only="true">
+    <table id="AweSchExe"/>
+    <field id="IdeTsk" alias="taskId"/>
+    <field id="ExeTim" alias="averageTime" function="AVG"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" condition="in" right-variable="taskIds"/>
+        <filter left-field="Sta" condition="eq">
+          <right-operand>
+            <constant value="0" type="INTEGER"/>
+          </right-operand>
+        </filter>
+      </and>
+    </where>
+    <group-by field="IdeTsk"/>
+    <variable id="taskIds" type="INTEGER" name="taskIds"/>
+  </query>
+
   <!-- Get task average time -->
   <query id="getTaskAverageTime" cacheable="true">
     <table id="AweSchExe"/>
@@ -286,6 +1709,7 @@
     <field id="ExeTim" alias="executionTime" table="Exe"/>
     <field id="Sta" alias="status" table="Exe"/>
     <field id="LchBy" alias="launchedBy" table="Exe"/>
+    <field id="IdeRun" alias="runId" table="Exe"/>
     <field id="Des" alias="description" table="Exe"/>
     <where>
       <and>
@@ -313,6 +1737,7 @@
     <field id="ExeTim" alias="executionTime" table="Exe"/>
     <field id="Sta" alias="status" table="Exe"/>
     <field id="LchBy" alias="launchedBy" table="Exe"/>
+    <field id="IdeRun" alias="runId" table="Exe"/>
     <field id="Des" alias="description" table="Exe"/>
     <where>
       <and>
@@ -322,6 +1747,142 @@
     </where>
     <variable id="taskId" type="INTEGER" name="taskId"/>
     <variable id="taskExecution" type="INTEGER" name="taskExecution"/>
+  </query>
+
+  <!-- Deferred state of one execution (null when the execution was not deferred) -->
+  <query id="getDeferredExecution">
+    <table id="AweSchExeExt" alias="Ext"/>
+    <field id="IdeTsk" alias="taskId" table="Ext"/>
+    <field id="ExeTsk" alias="executionId" table="Ext"/>
+    <field id="ExtRef" alias="externalReference" table="Ext"/>
+    <field id="DfrDat" alias="acceptedDate" table="Ext"/>
+    <field id="DueDat" alias="dueDate" table="Ext"/>
+    <field id="CmpDat" alias="completionDate" table="Ext"/>
+    <field id="CmpSrc" alias="completionSource" table="Ext"/>
+    <field id="CncSta" alias="cancellationStatus" table="Ext"/>
+    <field id="CncErr" alias="cancellationError" table="Ext"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" left-table="Ext" condition="eq" right-variable="taskId"/>
+        <filter left-field="ExeTsk" left-table="Ext" condition="eq" right-variable="taskExecution"/>
+      </and>
+    </where>
+    <variable id="taskId" type="INTEGER" name="taskId"/>
+    <variable id="taskExecution" type="INTEGER" name="taskExecution"/>
+  </query>
+
+  <!-- Deferred executions that are still running, optionally of one task and optionally past a due date -->
+  <query id="getRunningDeferredExecutions">
+    <table id="AweSchExeExt" alias="Ext"/>
+    <field id="IdeTsk" alias="taskId" table="Ext"/>
+    <field id="ExeTsk" alias="executionId" table="Ext"/>
+    <field id="ExtRef" alias="externalReference" table="Ext"/>
+    <field id="DfrDat" alias="acceptedDate" table="Ext"/>
+    <field id="DueDat" alias="dueDate" table="Ext"/>
+    <join type="INNER">
+      <table id="AweSchExe" alias="Exe"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Ext" condition="eq" right-field="IdeTsk" right-table="Exe"/>
+        <filter left-field="ExeTsk" left-table="Ext" condition="eq" right-field="ExeTsk" right-table="Exe"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="Sta" left-table="Exe" condition="eq" right-variable="status"/>
+        <filter left-field="IdeTsk" left-table="Ext" condition="eq" right-variable="taskId" optional="true"/>
+        <filter left-field="DueDat" left-table="Ext" condition="lt" right-variable="limitDate" optional="true"/>
+      </and>
+    </where>
+    <variable id="taskId" type="INTEGER" name="taskId"/>
+    <variable id="limitDate" type="TIMESTAMP" name="limitDate"/>
+    <variable id="status" type="INTEGER" value="4"/>
+  </query>
+
+  <!-- Hook of a webhook task by its key, with the active flag of its task -->
+  <query id="getWebhookHook">
+    <table id="AweSchTskHok" alias="Hok"/>
+    <field id="IdeTsk" alias="taskId" table="Hok"/>
+    <field id="HokKey" alias="hookKey" table="Hok"/>
+    <field id="Act" alias="active" table="Hok"/>
+    <field id="SecPrp" alias="secretProperty" table="Hok"/>
+    <field id="TypFlt" alias="typeFilter" table="Hok"/>
+    <field id="Act" alias="taskActive" table="Tsk"/>
+    <join type="INNER">
+      <table id="AweSchTsk" alias="Tsk"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Hok" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="HokKey" left-table="Hok" condition="eq" right-variable="hookKey"/>
+      </and>
+    </where>
+    <variable id="hookKey" type="STRING" name="hookKey"/>
+  </query>
+
+  <!-- A webhook of the inbox by its source (hook key) and message id: it exists when the query has a row -->
+  <query id="getWebhookMessage">
+    <table id="AweSchHokMsg"/>
+    <field id="Src" alias="hookKey"/>
+    <field id="MsgId" alias="messageId"/>
+    <where>
+      <and>
+        <filter left-field="Src" condition="eq" right-variable="hookKey"/>
+        <filter left-field="MsgId" condition="eq" right-variable="messageId"/>
+      </and>
+    </where>
+    <variable id="hookKey" type="STRING" name="hookKey"/>
+    <variable id="messageId" type="STRING" name="messageId"/>
+  </query>
+
+  <!-- Webhooks of the inbox that are due: received or failed, not tried too many times, and whose next attempt has come -->
+  <query id="getDueWebhookMessages">
+    <table id="AweSchHokMsg"/>
+    <field id="Src" alias="hookKey"/>
+    <field id="MsgId" alias="messageId"/>
+    <field id="Typ" alias="type"/>
+    <field id="Pay" alias="payload"/>
+    <field id="Att" alias="attempts"/>
+    <where>
+      <and>
+        <or>
+          <filter left-field="Sta" condition="eq" right-variable="received"/>
+          <filter left-field="Sta" condition="eq" right-variable="failed"/>
+        </or>
+        <filter left-field="Att" condition="lt" right-variable="maxAttempts"/>
+        <filter left-field="NxtDat" condition="le" right-variable="now"/>
+      </and>
+    </where>
+    <order-by field="RcvDat" type="ASC"/>
+    <variable id="received" type="STRING" value="RECEIVED"/>
+    <variable id="failed" type="STRING" value="FAILED"/>
+    <variable id="maxAttempts" type="INTEGER" name="maxAttempts"/>
+    <variable id="now" type="TIMESTAMP" name="now"/>
+  </query>
+
+  <!-- Subquery of the start of an execution: the outer AweSchExeExt row has an execution -->
+  <query id="getExecutionOfDeferredExecution">
+    <table id="AweSchExe" alias="Exe"/>
+    <field id="IdeTsk" alias="taskId" table="Exe"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="IdeTsk" right-table="AweSchExeExt"/>
+        <filter left-field="ExeTsk" left-table="Exe" condition="eq" right-field="ExeTsk" right-table="AweSchExeExt"/>
+      </and>
+    </where>
+  </query>
+
+  <!-- Subquery of the startup interruption: the execution of the outer AweSchExe was deferred -->
+  <query id="getDeferredExecutionState">
+    <table id="AweSchExeExt" alias="Ext"/>
+    <field id="IdeTsk" alias="taskId" table="Ext"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" left-table="Ext" condition="eq" right-field="IdeTsk" right-table="AweSchExe"/>
+        <filter left-field="ExeTsk" left-table="Ext" condition="eq" right-field="ExeTsk" right-table="AweSchExe"/>
+      </and>
+    </where>
   </query>
 
   <!-- Scalar subquery: retrieve the task name for a given taskId.
@@ -344,6 +1905,22 @@
     <field id="IdeTsk" alias="taskId"/>
     <field id="IniDat" alias="lastExecutionDate" function="MAX"/>
     <group-by field="IdeTsk"/>
+  </query>
+
+  <!-- Last execution of each task: the highest number among the ones that started last (two executions can start at
+       the same time) -->
+  <query id="getLastExecutionByTask">
+    <table id="AweSchExe" alias="Exe"/>
+    <field id="IdeTsk" alias="taskId" table="Exe"/>
+    <field id="ExeTsk" alias="lastExecution" table="Exe" function="MAX"/>
+    <join type="INNER">
+      <table query="getLastExecutionDateByTask" alias="Mx"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="taskId" right-table="Mx"/>
+        <filter left-field="IniDat" left-table="Exe" condition="eq" right-field="lastExecutionDate" right-table="Mx"/>
+      </and>
+    </join>
+    <group-by field="IdeTsk" table="Exe"/>
   </query>
 
   <query id="getMaxDate">
@@ -442,6 +2019,7 @@
     <field id="RepSndSta" alias="reportSendStatus" table="Tsk" transform="LIST" pattern="," />
 
     <field id="RepMntId" alias="reportMaintainId" table="Tsk" />
+    <field id="CncMnt" alias="cancellationMaintain" table="Tsk" />
 
     <!-- SCREEN FIELDS -->
     <field id="Ide" alias="Ide" table="Tsk"/>
@@ -496,7 +2074,20 @@
     <field id="RepSndSta" alias="RepSndSta" table="Tsk" transform="ARRAY" pattern="," />
 
     <field id="RepMntId" alias="RepMntId" table="Tsk" />
+    <field id="CncMnt" alias="CncMnt" table="Tsk" />
 
+    <!--Webhook hook (launch type 4)-->
+    <field id="HokKey" alias="HokKey" table="Hok"/>
+    <field id="Act" alias="HokAct" table="Hok" transform="NUMBER" pattern="#"/>
+    <field id="SecPrp" alias="HokSec" table="Hok"/>
+    <field id="TypFlt" alias="HokTyp" table="Hok"/>
+
+    <join type="LEFT">
+      <table id="AweSchTskHok" alias="Hok"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="IdeTsk" right-table="Hok" />
+      </and>
+    </join>
     <join type="LEFT">
       <table id="AweSchTskLch" alias="Lch"/>
       <and>
@@ -516,6 +2107,12 @@
     </where>
     <variable id="Tsk" type="INTEGER" name="taskId" optional="true"/>
     <variable id="Tsk" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+  </query>
+
+  <!-- Full URL of the endpoint of a webhook key, built on the address of the request -->
+  <query id="webhookUrl" permission="scheduler.read" service="getWebhookUrl" cacheable="false">
+    <field id="value" alias="value"/>
+    <variable id="hookKey" type="STRING" name="HokKey" optional="true"/>
   </query>
 
   <!-- Scheduler dependency list -->
@@ -558,6 +2155,10 @@
     <field id="Typ" alias="type"/>
     <field id="Val" alias="ParVal"/>
     <field id="Val" alias="value"/>
+    <field id="WhkPtr" alias="ParPtr"/>
+    <field id="WhkPtr" alias="pointer"/>
+    <!-- The source in words, for the read-only parameters of the task screen -->
+    <computed format="[ParSrc]" alias="ParSrcLbl" translate="SchParSrc"/>
     <where>
       <and>
         <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
@@ -570,8 +2171,9 @@
   <!-- Scheduler task parameter list for the manual launch modal grid: every parameter, whatever its
        source, since an operator may adjust any of them. On a PROPERTY (source = "2") parameter the
        supplied value is the property key, resolved at execution time. sourceLabel carries the
-       translated source for a read-only column. Canonical name/value aliases match the TaskVariable
-       bean fields so the send-all grid binds to List<TaskVariable>. -->
+       translated source for a read-only column, with its icon (sourceIcon) and tone (sourceTone) for a
+       pill, and typeLabel the translated type shown under the name. Canonical name/value aliases match
+       the TaskVariable bean fields so the send-all grid binds to List<TaskVariable>. -->
   <query id="taskVariableParameters" permission="scheduler.read">
     <table id="AweSchTskPar"/>
     <field id="Ide" alias="id"/>
@@ -580,13 +2182,23 @@
     <field id="Typ" alias="type"/>
     <field id="Val" alias="value"/>
     <computed format="[source]" alias="sourceLabel" translate="SchParSrc"/>
+    <computed format="[source]" alias="sourceIcon" translate="SchParSrcIcn"/>
+    <computed format="[source]" alias="sourceTone" translate="SchParSrcTon"/>
+    <computed format="[type]" alias="typeLabel" translate="SchParTyp"/>
     <where>
       <and>
         <filter left-field="IdeTsk" condition="eq" right-variable="IdeTsk"/>
       </and>
     </where>
+    <order-by field="Ide" type="ASC"/>
     <variable id="IdeTsk" type="INTEGER" name="taskId" optional="true"/>
     <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+  </query>
+
+  <!-- Note of the manual launch dialog: the launch is recorded with origin Manual and the user of the session -->
+  <query id="getTaskLaunchNote" permission="scheduler.read" service="getTaskLaunchNote">
+    <field id="description"/>
+    <variable id="user" type="STRING" session="user"/>
   </query>
 
   <!-- Whether the selected task has any parameter at all. Selecting the task identifier under
@@ -604,54 +2216,6 @@
       </and>
     </where>
     <variable id="IdeTsk" type="INTEGER" name="IdeTsk.selected"/>
-  </query>
-
-  <!-- Scheduler server list -->
-  <query id="SchSrvLst" permission="scheduler.read">
-    <table id="AweSchSrv" alias="Srv"/>
-    <field id="Ide" alias="id" table="Srv"/>
-    <field id="Ide" alias="Ide" table="Srv"/>
-    <field id="Nom" alias="Nom" table="Srv"/>
-    <field id="Pro" alias="Pro" table="Srv"/>
-    <field id="Hst" alias="Hst" table="Srv"/>
-    <field id="Prt" alias="Prt" table="Srv"/>
-    <field id="Act" alias="Act" table="Srv"/>
-    <compound alias="ActIco">
-      <computed format="[Act]" alias="icon" translate="ActIco"/>
-      <computed format="[Act]" alias="style" translate="ActSty"/>
-      <computed format="[Act]" alias="value" />
-      <computed format="[Act]" alias="label" translate="Es1Es0"/>
-    </compound>
-    <where>
-      <and>
-        <or>
-          <filter left-field="Nom" left-table="Srv" condition="like" right-variable="Nom" optional="true" ignorecase="true"/>
-          <filter left-field="Ide" left-table="Srv" condition="eq" right-variable="NomId" optional="true"/>
-        </or>
-        <filter left-field="Act" left-table="Srv" condition="eq" right-variable="active" optional="true"/>
-      </and>
-    </where>
-    <variable id="Nom" type="STRINGB" name="CrtSrv"/>
-    <variable id="NomId" type="INTEGER" name="CrtSrv"/>
-    <variable id="active" type="INTEGER" name="CrtAct"/>
-  </query>
-
-  <!--Scheduler server by id-->
-  <query id="SchSrv" permission="scheduler.read">
-    <table id="AweSchSrv" alias="Srv"/>
-    <field id="Ide" alias="Ide" table="Srv"/>
-    <field id="Nom" alias="Nom" table="Srv"/>
-    <field id="Pro" alias="Pro" table="Srv"/>
-    <field id="Hst" alias="Hst" table="Srv"/>
-    <field id="Prt" alias="Prt" table="Srv"/>
-    <field id="Act" alias="Act" table="Srv" transform="NUMBER"/>
-    <field id="SshUsr" alias="SshUsr" table="Srv"/>
-    <where>
-      <and>
-        <filter left-field="Ide" left-table="Srv" condition="eq" right-variable="Ide" optional="false"/>
-      </and>
-    </where>
-    <variable id="Ide" type="STRING" name="Ide.selected"/>
   </query>
 
   <!--Scheduler server by id-->
@@ -718,25 +2282,6 @@
     <variable id="boundId" type="INTEGER" name="IdeSrvExe" optional="true"/>
   </query>
 
-  <!-- Active scheduler task suggest without parents (only with manual launch) -->
-  <query id="SchTskSugAct" permission="scheduler.read">
-    <!-- Scheduler task suggest -->
-    <table id="AweSchTsk"/>
-    <field id="Ide" alias="value"/>
-    <field id="Nam" alias="label"/>
-    <field id="TypLch" alias="TypLch" noprint="true"/>
-    <where>
-      <and>
-        <filter left-field="Nam" condition="like" right-variable="suggest" ignorecase="true"/>
-        <filter left-field="TypLch" condition="eq" right-variable="LchTyp"/>
-        <filter left-field="Ide" condition="ne" right-variable="IdeTsk" optional="true"/>
-      </and>
-    </where>
-    <variable id="LchTyp" type="INTEGER" value="0"/>
-    <variable id="suggest" type="STRINGB" name="suggest"/>
-    <variable id="IdeTsk" type="INTEGER" name="Ide"/>
-  </query>
-
   <!-- Scheduler Calendar Suggest -->
   <query id="SchCalSug" permission="scheduler.read" cacheable="true">
     <table id="AweSchCal"/>
@@ -754,34 +2299,6 @@
     <variable id="suggest" type="STRINGB" name="suggest"/>
     <variable id="active" type="INTEGER" value="1"/>
     <variable id="Ide" type="INTEGER" name="suggest" optional="true"/>
-  </query>
-
-  <!-- Scheduler Calendar List -->
-  <query id="SchCalLst" permission="scheduler.read">
-    <table id="AweSchCal" alias="Cal"/>
-    <field id="Ide" alias="id" table="Cal"/>
-    <field id="Ide" alias="Ide" table="Cal"/>
-    <field id="Nom" alias="Nom" table="Cal"/>
-    <field id="Des" alias="Des" table="Cal"/>
-    <field id="Act" alias="Act" table="Cal"/>
-    <compound alias="ActIco">
-      <computed format="[Act]" alias="icon" translate="ActIco"/>
-      <computed format="[Act]" alias="style" translate="ActSty"/>
-      <computed format="[Act]" alias="value" />
-      <computed format="[Act]" alias="label" translate="Es1Es0"/>
-    </compound>
-    <where>
-      <and>
-        <or>
-          <filter left-field="Nom" left-table="Cal" condition="like" right-variable="Nom" optional="true" ignorecase="true"/>
-          <filter left-field="Ide" left-table="Cal" condition="eq" right-variable="NomId" optional="true"/>
-        </or>
-        <filter left-field="Act" left-table="Cal" condition="eq" right-variable="active" optional="true"/>
-      </and>
-    </where>
-    <variable id="Nom" type="STRINGB" name="CrtCal"/>
-    <variable id="NomId" type="INTEGER" name="CrtCal"/>
-    <variable id="active" type="INTEGER" name="CrtAct"/>
   </query>
 
   <!-- Scheduler calendar list for java service -->
@@ -854,11 +2371,6 @@
     <variable id="IdeCal" type="STRING" name="CalIde"/>
   </query>
 
-  <!-- check if there is some trigger with the selected calendar -->
-  <query id="chkTrgCntCal" permission="scheduler.read" service="checkTriggerContainsCalendar">
-    <variable id="calendarIde" type="INTEGER" name="Ide"/>
-  </query>
-
   <!-- File -->
   <!-- Load maintain variable list -->
   <query id="SchFil">
@@ -884,12 +2396,6 @@
       <computed alias="value" format="INSERT"/>
     </compound>
     <computed alias="RowTyp" format="INSERT"/>
-  </query>
-
-  <query id="nextExecutions" permission="scheduler.read" service="nextExecutions">
-    <field id="nextDate" alias="nextDate"/>
-    <field id="nextTime" alias="nextTime"/>
-    <variable id="fireTimes" type="INTEGER" value="10"/>
   </query>
 
   <query id="currentlyExecutingJobs" permission="scheduler.read" service="currentlyExecutingJobs">
@@ -929,6 +2435,9 @@
     <field id="schedulerThreadPoolClass" alias="schedulerThreadPoolClass"/>
     <field id="schedulerThreadPoolSize" alias="schedulerThreadPoolSize"/>
     <field id="schedulerStatus" alias="schedulerStatus"/>
+    <field id="schedulerStatusCode" alias="schedulerStatusCode"/>
+    <field id="schedulerRunningFor" alias="schedulerRunningFor"/>
+    <field id="schedulerEngineLine" alias="schedulerEngineLine"/>
   </query>
 
   <query id="databaseAliasList" distinct="true" public="true">
@@ -973,7 +2482,7 @@
 
   <query id="getMaxTaskExecution">
     <table id="AweSchExe"/>
-    <operation operator="COALESCE">
+    <operation operator="COALESCE" alias="maxExecution">
       <field id="ExeTsk" function="MAX"/>
       <constant value="0" type="INTEGER"/>
     </operation>
@@ -1039,6 +2548,628 @@
       </and>
     </where>
     <variable id="suggest" type="STRINGB" name="suggest" />
+  </query>
+
+  <!-- Flow runs: run data -->
+  <query id="flowRun">
+    <table id="AweSchRun"/>
+    <field id="IdeTskRoo" alias="rootTaskId"/>
+    <where>
+      <and>
+        <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+      </and>
+    </where>
+    <variable id="runId" type="STRING" name="runId"/>
+  </query>
+
+  <!-- Flow runs: run parameters -->
+  <query id="flowRunParameters">
+    <table id="AweSchRunPar"/>
+    <field id="Nam" alias="name"/>
+    <field id="Val" alias="value"/>
+    <where>
+      <and>
+        <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+      </and>
+    </where>
+    <variable id="runId" type="STRING" name="runId"/>
+  </query>
+
+  <!-- Flow runs: join state of the tasks of a run -->
+  <query id="flowRunTasks">
+    <table id="AweSchRunTsk"/>
+    <field id="IdeTsk" alias="taskId"/>
+    <field id="Sta" alias="status"/>
+    <field id="ExeTsk" alias="executionId"/>
+    <where>
+      <and>
+        <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+      </and>
+    </where>
+    <variable id="runId" type="STRING" name="runId"/>
+  </query>
+
+  <!-- Flow runs: executions of a run -->
+  <query id="flowRunExecutions">
+    <table id="AweSchExe"/>
+    <field id="IdeTsk" alias="taskId"/>
+    <field id="ExeTsk" alias="executionId"/>
+    <field id="Sta" alias="status"/>
+    <where>
+      <and>
+        <filter left-field="IdeRun" condition="eq" right-variable="runId"/>
+      </and>
+    </where>
+    <variable id="runId" type="STRING" name="runId"/>
+  </query>
+
+  <!-- Flow runs: every task dependency (child and parent), to build the flow graph -->
+  <query id="allTaskDependencies">
+    <table id="AweSchTskDpn"/>
+    <field id="IdeTsk" alias="taskId"/>
+    <field id="IdePrn" alias="parentId"/>
+    <order-by field="DpnOrd" type="ASC"/>
+  </query>
+
+  <!-- Flow graph: one row per task and parent. The selected task or run marks the root of the graph, the run gives each
+       task its join state and the status of its execution. The status of the last execution of each task is the state
+       of its node in the one-level graph of the task screen: one execution per task (getLastExecutionByTask), so two
+       executions started at the same time do not repeat the rows of the task -->
+  <query id="getFlowGraph" permission="scheduler.read">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Ide" alias="taskId" table="Tsk"/>
+    <field id="IdePrn" alias="parentId" table="Dpn"/>
+    <computed alias="id" format="[taskId]-[parentId]"/>
+    <field id="Nam" alias="name" table="Tsk"/>
+    <field id="TypLch" alias="TypLch" table="Tsk"/>
+    <computed format="[TypLch]" alias="launchIcon" translate="LchIco"/>
+    <computed format="[TypLch]" alias="launchLabel" translate="LchTyp"/>
+    <field id="Act" alias="active" table="Tsk"/>
+    <field id="LchDepWrn" alias="onWarning" table="Tsk"/>
+    <field id="LchDepErr" alias="onError" table="Tsk"/>
+    <field id="Ide" alias="rootTask" table="Roo"/>
+    <field id="IdeRun" alias="rootRun" table="Run"/>
+    <field id="Sta" alias="runStatus" table="Rtk"/>
+    <field id="Sta" alias="executionStatus" table="Exe"/>
+    <field id="Sta" alias="lastStatus" table="Lst"/>
+    <join type="LEFT">
+      <table id="AweSchTskDpn" alias="Dpn"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Dpn" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Roo"/>
+      <and>
+        <filter left-field="Ide" left-table="Roo" condition="eq" right-field="Ide" right-table="Tsk"/>
+        <filter left-field="Ide" left-table="Roo" condition="eq" right-variable="rootTask"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchRun" alias="Run"/>
+      <and>
+        <filter left-field="IdeTskRoo" left-table="Run" condition="eq" right-field="Ide" right-table="Tsk"/>
+        <filter left-field="IdeRun" left-table="Run" condition="eq" right-variable="runId"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchRunTsk" alias="Rtk"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Rtk" condition="eq" right-field="Ide" right-table="Tsk"/>
+        <filter left-field="IdeRun" left-table="Rtk" condition="eq" right-variable="runId"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExe" alias="Exe"/>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-field="Ide" right-table="Tsk"/>
+        <filter left-field="IdeRun" left-table="Exe" condition="eq" right-variable="runId"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table query="getLastExecutionByTask" alias="Mx"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="taskId" right-table="Mx"/>
+      </and>
+    </join>
+    <join type="LEFT">
+      <table id="AweSchExe" alias="Lst"/>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="eq" right-field="IdeTsk" right-table="Lst"/>
+        <filter left-field="lastExecution" left-table="Mx" condition="eq" right-field="ExeTsk" right-table="Lst"/>
+      </and>
+    </join>
+    <order-by field="Ide" table="Tsk" type="ASC"/>
+    <variable id="rootTask" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+    <variable id="runId" type="STRING" name="IdeRun.selected" optional="true"/>
+  </query>
+
+  <!-- Flow graph of the task screen (Dependencies tab, flow-graph widget in task mode): the getFlowGraph rows of the
+       task, where the task, the tasks it runs after and the tasks it launches also tell when their last execution
+       started (lastWhen) and a scheduled one its next execution (nextRun) -->
+  <query id="getTaskFlowGraph" permission="scheduler.read" service="getTaskFlowGraph">
+    <field id="id"/>
+    <field id="taskId"/>
+    <field id="parentId"/>
+    <field id="name"/>
+    <field id="launchIcon"/>
+    <field id="launchLabel"/>
+    <field id="active"/>
+    <field id="onWarning"/>
+    <field id="onError"/>
+    <field id="rootTask"/>
+    <field id="lastStatus"/>
+    <field id="lastWhen"/>
+    <field id="nextRun"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+  </query>
+
+  <!-- Flow run page (one run, by IdeRun): summary of the run, one row. Its status (Sta with the pill ExeStaTxt, ExeStaIcn,
+       ExeStaTon) is the stored one of an ended run (RunEnded 1) and running while it has not ended; RunRule writes out
+       the rule of the final status and RunPntTxt names the task it points to (RunPntTsk, RunPntNam, RunPntExe, with
+       RunPntSta the status it points to). Who launched it (the origin and the launcher of its root execution), its
+       start, end (dd/MM/yyyy HH:mm:ss) and duration (ms, and ExeTim as text), its root (RunRooTsk, RunRooNam, RunRooExe)
+       and its tasks: RunTskTot, the ones done (RunTskEnd, RunPrgTxt) and the ones in each state (RunCnt*) -->
+  <query id="getFlowRunSummary" permission="scheduler.read" service="getFlowRunSummary">
+    <field id="IdeRun"/>
+    <field id="RunLbl"/>
+    <field id="RunRooTsk"/>
+    <field id="RunRooNam"/>
+    <field id="RunRooExe"/>
+    <field id="Sta"/>
+    <field id="RunEnded"/>
+    <field id="ExeStaTxt"/>
+    <field id="ExeStaIcn"/>
+    <field id="ExeStaTon"/>
+    <field id="RunRule"/>
+    <field id="RunPntTxt"/>
+    <field id="RunPntSta"/>
+    <field id="RunPntTsk"/>
+    <field id="RunPntNam"/>
+    <field id="RunPntExe"/>
+    <field id="TypLch"/>
+    <field id="ExeOri"/>
+    <field id="ExeOriTxt"/>
+    <field id="ExeOriIcn"/>
+    <field id="ExeOriTon"/>
+    <field id="LchBy"/>
+    <field id="startDate"/>
+    <field id="endDate"/>
+    <field id="duration"/>
+    <field id="ExeTim"/>
+    <field id="ExeEla"/>
+    <field id="RunTskTot"/>
+    <field id="RunTskEnd"/>
+    <field id="RunPrgTxt"/>
+    <field id="RunCntOk"/>
+    <field id="RunCntWrn"/>
+    <field id="RunCntErr"/>
+    <field id="RunCntStp"/>
+    <field id="RunCntInt"/>
+    <field id="RunCntInf"/>
+    <field id="RunCntRun"/>
+    <field id="RunCntQue"/>
+    <field id="RunCntDfr"/>
+    <field id="RunCntSkp"/>
+    <field id="RunCntPnd"/>
+    <field id="RunFct"/>
+    <field id="RunParTxt"/>
+    <variable id="runId" type="STRING" name="IdeRun"/>
+  </query>
+
+  <!-- Flow run page: graph of the run for the flow-graph widget (run mode). One row per task of the run and parent (the
+       root without parent), with the getFlowGraph columns (taskId, parentId, name, launchIcon, launchLabel, active, the
+       options onWarning and onError of the task, rootRun on the root, runStatus the join state, executionStatus). Every
+       row of a task repeats its node: its last execution in the run (executionId, a relaunched task once), its state
+       (ok, error, warning, stopped, running, queued, interrupted, info, deferred, skipped or pending) with its pill,
+       startDate and endDate (dd/MM/yyyy HH:mm:ss, no end while it runs or waits), duration (ms, until now while it
+       runs), deferred (1 while it waits for a confirmation) with deferredDate and dueDate, skipCause, and in a join the
+       parent that closed it (joinedBy, derived: the one whose execution ended last at or before the child started) and
+       joinWait (ms, from the end of the first parent). A row with a parent has the edge parent -> task: edgeState
+       (MET, NOT_MET, CUT, PENDING or CLOSED_JOIN) and the condition of the parent options (condition, conditionLabel) -->
+  <query id="getFlowRunGraph" permission="scheduler.read" service="getFlowRunGraph">
+    <field id="id"/>
+    <field id="taskId"/>
+    <field id="parentId"/>
+    <field id="name"/>
+    <field id="launchIcon"/>
+    <field id="launchLabel"/>
+    <field id="active"/>
+    <field id="onWarning"/>
+    <field id="onError"/>
+    <field id="rootTask"/>
+    <field id="rootRun"/>
+    <field id="runStatus"/>
+    <field id="executionStatus"/>
+    <field id="executionId"/>
+    <field id="startDate"/>
+    <field id="endDate"/>
+    <field id="duration"/>
+    <field id="deferred"/>
+    <field id="deferredDate"/>
+    <field id="dueDate"/>
+    <field id="joinedBy"/>
+    <field id="joinWait"/>
+    <field id="skipCause"/>
+    <field id="edgeState"/>
+    <field id="state"/>
+    <field id="IdeTsk"/>
+    <field id="ExeTsk"/>
+    <field id="ExeRun"/>
+    <field id="ExeStaTxt"/>
+    <field id="ExeStaIcn"/>
+    <field id="ExeStaTon"/>
+    <field id="ExeDueTim"/>
+    <field id="ExeDueLbl"/>
+    <field id="ExeDes"/>
+    <field id="ExeTim"/>
+    <field id="ExeEla"/>
+    <field id="LchBy"/>
+    <field id="TypLch"/>
+    <field id="ExecutionLogPath"/>
+    <field id="joinedByName"/>
+    <field id="joinedByText"/>
+    <field id="joinWaitText"/>
+    <field id="condition"/>
+    <field id="conditionLabel"/>
+    <variable id="runId" type="STRING" name="IdeRun"/>
+  </query>
+
+  <!-- Flow run page: parameters of the launch of the run (the service of the activity side panel) -->
+  <query id="getFlowRunParameters" permission="scheduler.read" service="getActivityExecutionParameters">
+    <field id="ParNam"/>
+    <field id="ParVal"/>
+    <variable id="runId" type="STRING" name="IdeRun"/>
+  </query>
+
+  <!-- Flow run page (scheduler-flow-run): the summary of the run as the fields of its cards. The header card: the run (its
+       root task and execution) as its title, its status as its chip, its facts (who launched it, start, end, duration,
+       progress) as its pills and the parameters of its launch as its footer, one line (none without parameters) -->
+  <query id="getFlowRunPageHeader" permission="scheduler.read" service="getFlowRunSummary">
+    <field id="RunLbl" alias="title"/>
+    <field id="ExeStaTxt" alias="chip"/>
+    <field id="ExeStaTon" alias="chipTone"/>
+    <field id="RunFct" alias="pills"/>
+    <field id="RunParTxt" alias="footer"/>
+    <variable id="runId" type="STRING" name="IdeRun"/>
+  </query>
+
+  <!-- Flow run page: the note of the final status, what it points to (or ended with) and why, one line with the icon and
+       the tone of the status. The rule of the final status is behind the info button next to it -->
+  <query id="getFlowRunPageRule" permission="scheduler.read" service="getFlowRunSummary">
+    <field id="RunPntTxt" alias="title"/>
+    <field id="ExeStaIcn" alias="icon"/>
+    <field id="ExeStaTon" alias="iconTone"/>
+    <variable id="runId" type="STRING" name="IdeRun"/>
+  </query>
+
+  <!-- Flow run page: the status of the execution of the node clicked in a view of the run (the task and the execution
+       the node sends as IdeTsk.selected and ExeTsk.selected), read by its side panel to follow the log of a running or
+       queued execution and to stop a running one -->
+  <query id="getFlowRunExecutionStatus" permission="scheduler.read">
+    <table id="AweSchExe" alias="Exe"/>
+    <field id="Sta" alias="RunExeSta" table="Exe"/>
+    <where>
+      <and>
+        <filter left-field="IdeTsk" left-table="Exe" condition="eq" right-variable="taskId"/>
+        <filter left-field="ExeTsk" left-table="Exe" condition="eq" right-variable="executionId"/>
+      </and>
+    </where>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected"/>
+    <variable id="executionId" type="INTEGER" name="ExeTsk.selected"/>
+  </query>
+
+  <!-- Flow run page: the run with the name of its root task (Java only) -->
+  <query id="getFlowRunHeaderRow" permission="scheduler.read" server-only="true">
+    <table id="AweSchRun" alias="Run"/>
+    <field id="IdeRun" alias="IdeRun" table="Run"/>
+    <field id="IdeTskRoo" alias="RunRooTsk" table="Run"/>
+    <field id="Nam" alias="RunRooNam" table="Tsk"/>
+    <field id="ExeTskRoo" alias="RunRooExe" table="Run"/>
+    <field id="LchBy" alias="RunLchBy" table="Run"/>
+    <field id="IniDat" alias="RunIni" table="Run"/>
+    <field id="EndDat" alias="RunEnd" table="Run"/>
+    <field id="Sta" alias="RunSta" table="Run"/>
+    <join type="LEFT">
+      <table id="AweSchTsk" alias="Tsk"/>
+      <and>
+        <filter left-field="IdeTskRoo" left-table="Run" condition="eq" right-field="Ide" right-table="Tsk"/>
+      </and>
+    </join>
+    <where>
+      <and>
+        <filter left-field="IdeRun" left-table="Run" condition="eq" right-variable="runId"/>
+      </and>
+    </where>
+    <variable id="runId" type="STRING" name="runId"/>
+  </query>
+
+  <!-- Flow run page: the tasks of a run (taskIds, the ones the root reaches plus the ones that ran or waited in it) with
+       their options, the definition the graph of the run is built from; its parents come from allTaskDependencies
+       (Java only) -->
+  <query id="getFlowRunGraphTasks" permission="scheduler.read" server-only="true">
+    <table id="AweSchTsk" alias="Tsk"/>
+    <field id="Ide" alias="taskId" table="Tsk"/>
+    <field id="Nam" alias="name" table="Tsk"/>
+    <field id="TypLch" alias="TypLch" table="Tsk"/>
+    <computed format="[TypLch]" alias="launchIcon" translate="LchIco"/>
+    <computed format="[TypLch]" alias="launchLabel" translate="LchTyp"/>
+    <field id="Act" alias="active" table="Tsk"/>
+    <field id="LchDepWrn" alias="onWarning" table="Tsk"/>
+    <field id="LchDepErr" alias="onError" table="Tsk"/>
+    <where>
+      <and>
+        <filter left-field="Ide" left-table="Tsk" condition="in" right-variable="taskIds"/>
+      </and>
+    </where>
+    <order-by field="Ide" table="Tsk" type="ASC"/>
+    <variable id="taskIds" type="INTEGER" name="taskIds"/>
+  </query>
+
+  <!-- Task editor: the tasks a task can run after (parents picker), every other task with its condition (the flags of
+       the parent), its «When» summary and whether it is active; the chosen ones first (PrnGrp chosen), then the
+       available ones and the ones that already run after the task (PrnGrp blocked, PrnDis 1 and the reason in
+       PrnDisTxt), each group by name. A chosen task that already runs after it (cyclic data saved before) stays chosen
+       with PrnDis 0 and the reason, so it can be removed but not added again. No field is restricted to the editors.
+       taskId is the task edited (none for a new task); copyTaskId the task duplicated by a new task, whose parents are
+       the chosen ones -->
+  <query id="getTaskEditorParents" permission="scheduler.read" service="getTaskEditorParents">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="Act"/>
+    <field id="PrnCnd"/>
+    <field id="PrnWhnTxt"/>
+    <field id="PrnWhnIcn"/>
+    <field id="PrnWhnSub"/>
+    <field id="PrnGrp"/>
+    <field id="PrnSel"/>
+    <field id="PrnDis"/>
+    <field id="PrnDisTxt"/>
+    <variable id="taskId" type="INTEGER" name="taskId" optional="true"/>
+    <variable id="copyTaskId" type="INTEGER" name="copyTaskId" optional="true"/>
+  </query>
+
+  <!-- Task editor: the data of a task to duplicate it, the fields of the taskData query that the task screens load,
+       named «name (copy)» (cut to fit in 40 characters), inactive, without identifier nor webhook hook, and with the
+       parents of the task (TskPrn). The tasks that run after it are not copied. Its permission is the one of the editors
+       (as getTaskPageTaskRestricted): it carries where the task runs, its files and who gets its report -->
+  <query id="getTaskEditorCopy" permission="scheduler.update" service="getTaskEditorCopy">
+    <field id="Ide"/>
+    <field id="Nam"/>
+    <field id="Act"/>
+    <field id="Des"/>
+    <field id="NumStoExe"/>
+    <field id="TimOutExe"/>
+    <field id="TypExe"/>
+    <field id="IdeSrvExe"/>
+    <field id="CmdExePth"/>
+    <field id="CmdExe"/>
+    <field id="maintain"/>
+    <field id="command"/>
+    <field id="LchDepErr"/>
+    <field id="LchDepWrn"/>
+    <field id="LchSetWrn"/>
+    <field id="TypLch"/>
+    <field id="RptNum"/>
+    <field id="RptTyp"/>
+    <field id="IdeCal"/>
+    <field id="IniDat"/>
+    <field id="EndDat"/>
+    <field id="IniTim"/>
+    <field id="EndTim"/>
+    <field id="LchSrv"/>
+    <field id="LchPth"/>
+    <field id="LchPat"/>
+    <field id="weekDays"/>
+    <field id="years"/>
+    <field id="months"/>
+    <field id="weeks"/>
+    <field id="days"/>
+    <field id="hours"/>
+    <field id="minutes"/>
+    <field id="seconds"/>
+    <field id="schExeDate"/>
+    <field id="schExeTime"/>
+    <field id="RepTyp"/>
+    <field id="RepEmaSrv"/>
+    <field id="RepTit"/>
+    <field id="RepMsg"/>
+    <field id="RepEmaDst"/>
+    <field id="RepUsrDst"/>
+    <field id="RepSndSta"/>
+    <field id="RepMntId"/>
+    <field id="CncMnt"/>
+    <field id="HokKey"/>
+    <field id="HokAct"/>
+    <field id="HokSec"/>
+    <field id="HokTyp"/>
+    <field id="TskPrn"/>
+    <variable id="taskId" type="INTEGER" name="taskId"/>
+  </query>
+
+  <!-- Task editor screen (#993, S8), one screen for a new task, the edition of a task and its copy. The callers send the
+       mode (TskEdtMod: new, edit or copy) and the task (IdeTsk.selected), and the editor keeps both on reload. Its target:
+       the fields of the task (taskData, edit) or of its copy (getTaskEditorCopy, copy) or none (new), with its parents
+       (TskPrn), its «When» (TskWhn: the launch type, or 3 for a manual task with parents) and its mode. Its permission is
+       the one of the editors: it carries where the task runs, its files and who gets its report -->
+  <query id="getTaskEditor" permission="scheduler.update" service="getTaskEditor">
+    <field id="Ide"/>
+    <field id="Nam"/>
+    <field id="Act"/>
+    <field id="Des"/>
+    <field id="NumStoExe"/>
+    <field id="TimOutExe"/>
+    <field id="TypExe"/>
+    <field id="IdeSrvExe"/>
+    <field id="CmdExePth"/>
+    <field id="CmdExe"/>
+    <field id="maintain"/>
+    <field id="command"/>
+    <field id="LchDepErr"/>
+    <field id="LchDepWrn"/>
+    <field id="LchSetWrn"/>
+    <field id="TypLch"/>
+    <field id="RptNum"/>
+    <field id="RptTyp"/>
+    <field id="IdeCal"/>
+    <field id="IniDat"/>
+    <field id="EndDat"/>
+    <field id="IniTim"/>
+    <field id="EndTim"/>
+    <field id="LchSrv"/>
+    <field id="LchPth"/>
+    <field id="LchPat"/>
+    <field id="weekDays"/>
+    <field id="years"/>
+    <field id="months"/>
+    <field id="weeks"/>
+    <field id="days"/>
+    <field id="hours"/>
+    <field id="minutes"/>
+    <field id="seconds"/>
+    <field id="schExeDate"/>
+    <field id="schExeTime"/>
+    <field id="RepTyp"/>
+    <field id="RepEmaSrv"/>
+    <field id="RepTit"/>
+    <field id="RepMsg"/>
+    <field id="RepEmaDst"/>
+    <field id="RepUsrDst"/>
+    <field id="RepSndSta"/>
+    <field id="RepMntId"/>
+    <field id="CncMnt"/>
+    <field id="HokKey"/>
+    <field id="HokAct"/>
+    <field id="HokSec"/>
+    <field id="HokTyp"/>
+    <field id="TskPrn"/>
+    <field id="TskEdtMod"/>
+    <field id="TskWhn"/>
+    <field id="SchPre"/>
+    <field id="SchEvy"/>
+    <field id="SchTim"/>
+    <field id="SchWkd"/>
+    <field id="SchMdy"/>
+    <field id="SchWkdPre"/>
+    <field id="SchVw"/>
+    <variable id="mode" type="STRING" name="TskEdtMod" optional="true"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+  </query>
+
+  <!-- Task editor: the options of its choice cards (what launches the task, what it runs), with the fields the button
+       radio of the engines reads for a card: icon and description (locale keys) -->
+  <query id="getTaskEditorWhenOptions" permission="scheduler.read" service="getTaskEditorOptions">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="icon"/>
+    <field id="description"/>
+    <variable id="group" type="STRING" value="when"/>
+  </query>
+  <query id="getTaskEditorExecutionOptions" permission="scheduler.read" service="getTaskEditorOptions">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="icon"/>
+    <field id="description"/>
+    <variable id="group" type="STRING" value="execution"/>
+  </query>
+
+  <!-- Task editor: live preview of a scheduled task, with the names of the card attributes (the repetition in a sentence
+       with its key parts bold as the title, the next runs as tiles with their label, the first holiday it skips as the
+       description and how it is saved as the details). The service reads the fields of the screen: the preset of the
+       repetition and its fields, and the stored fields (custom, calendar, range) -->
+  <query id="getTaskEditorSchedule" permission="scheduler.read" service="getTaskEditorSchedule">
+    <field id="title"/>
+    <field id="tiles"/>
+    <field id="tilesLabel"/>
+    <field id="description"/>
+    <field id="details"/>
+    <field id="detailsLabel"/>
+  </query>
+
+  <!-- Task editor: the day toggles of a weekly repetition (their initial, their full name as the title) -->
+  <query id="getTaskEditorWeekDayOptions" permission="scheduler.read" service="getTaskEditorOptions">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="title"/>
+    <variable id="group" type="STRING" value="weekdays"/>
+  </query>
+
+  <!-- Task editor: the preset the custom repetition of the screen matches (empty when none does) -->
+  <query id="getTaskEditorScheduleMatch" permission="scheduler.read" service="getTaskEditorScheduleMatch">
+    <field id="value"/>
+  </query>
+
+  <!-- Task editor: the header card, the fields of getTaskEditor with the names of the card attributes (the title of the
+       mode, the line under it and the active state of the task as a chip) -->
+  <query id="getTaskEditorHeader" permission="scheduler.update" service="getTaskEditor">
+    <field id="TskEdtTit" alias="title"/>
+    <field id="TskEdtSub" alias="subtitle"/>
+    <field id="TskEdtChp" alias="chip"/>
+    <field id="TskEdtChpTon" alias="chipTone"/>
+    <variable id="mode" type="STRING" name="TskEdtMod" optional="true"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+  </query>
+
+  <!-- Task editor: the options of the parents picker (getTaskEditorParents of the task of the mode), with the fields the
+       select of the engines reads: group (the locale of chosen, available or not eligible), disabled (it already runs
+       after the task: it cannot be chosen) and description (its condition and why it cannot be chosen) -->
+  <query id="getTaskEditorParentOptions" permission="scheduler.read" service="getTaskEditorParentOptions">
+    <field id="value"/>
+    <field id="label"/>
+    <field id="group"/>
+    <field id="disabled"/>
+    <field id="description"/>
+    <field id="PrnGrp"/>
+    <variable id="mode" type="STRING" name="TskEdtMod" optional="true"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+  </query>
+
+  <!-- Task editor: the parameters of its task (none for a new task, the ones of the original without identifiers for a
+       copy), with the columns of the taskParameters query -->
+  <query id="getTaskEditorParameters" permission="scheduler.update" service="getTaskEditorParameters">
+    <field id="IdePar"/>
+    <field id="ParNam"/>
+    <field id="ParSrc"/>
+    <field id="ParTyp"/>
+    <field id="ParVal"/>
+    <field id="ParPtr"/>
+    <variable id="mode" type="STRING" name="TskEdtMod" optional="true"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+  </query>
+
+  <!-- Task editor: the two sides of its one-level graph (flow-graph widget in task mode). The parents side draws the
+       parents chosen in the picker (TskPrn, not saved yet) joining into the task, each edge with the condition of its
+       parent; the children side the tasks that run after the task as saved -->
+  <query id="getTaskEditorParentGraph" permission="scheduler.read" service="getTaskEditorGraph">
+    <field id="id"/>
+    <field id="taskId"/>
+    <field id="parentId"/>
+    <field id="name"/>
+    <field id="launchIcon"/>
+    <field id="launchLabel"/>
+    <field id="active"/>
+    <field id="onWarning"/>
+    <field id="onError"/>
+    <field id="rootTask"/>
+    <variable id="mode" type="STRING" name="TskEdtMod" optional="true"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+    <variable id="parents" type="INTEGER" name="TskPrn" optional="true"/>
+    <variable id="side" type="STRING" value="parents"/>
+  </query>
+  <query id="getTaskEditorChildGraph" permission="scheduler.read" service="getTaskEditorGraph">
+    <field id="id"/>
+    <field id="taskId"/>
+    <field id="parentId"/>
+    <field id="name"/>
+    <field id="launchIcon"/>
+    <field id="launchLabel"/>
+    <field id="active"/>
+    <field id="onWarning"/>
+    <field id="onError"/>
+    <field id="rootTask"/>
+    <variable id="mode" type="STRING" name="TskEdtMod" optional="true"/>
+    <variable id="taskId" type="INTEGER" name="IdeTsk.selected" optional="true"/>
+    <variable id="side" type="STRING" value="children"/>
   </query>
 
 </queries>

@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import ActionsRunningButton from "./ActionsRunningButton";
 import { ButtonTypes } from "../redux/actions/components";
-import { getHelpTooltipNode, getIconCode, translateLabel } from "../utilities";
+import { getHelpTooltipNode, getIconCode, getIconNode, translateLabel } from "../utilities";
 import { classNames } from "../utilities/components";
 import { useDispatch, useSelector } from "react-redux";
 import { useComponentState } from "../hooks/useComponentState";
@@ -15,7 +15,7 @@ import { useContextMenu, useContextMenuAnchor } from "../hooks/useContextMenu";
 import { useSigninButton } from "./SigninPage";
 import { Components } from "../utilities/structure";
 import { IGNORE_COMPONENT_LIST } from "./AweComponents";
-import { getButtonVariant, hasButtonStyle, isIconOnly } from "../utilities/buttons";
+import { getButtonVariant, hasButtonStyle, hasMenu, isIconOnly } from "../utilities/buttons";
 import "./AweButton.less";
 
 const CONTEXT_MENU_ENTRIES = ["ContextButton", "ContextSeparator"];
@@ -42,7 +42,7 @@ const getButtonClasses = ({ id, className, variant, signin, style, buttonType, v
   const buttonVariant = signin?.variant ?? variant ?? getButtonVariant(style, getButtonType(buttonType));
   // A normal button without a btn-* style is the default button of the application: its look comes from --awe-button-default-*
   const defaultLook = !signin && !variant && buttonType !== BUTTON_SUBMIT && buttonType !== BUTTON_RESET && !hasButtonStyle(style);
-  return classNames(`help-button-${id}`, className ?? "awe-button-spaced", buttonVariant,
+  return classNames(`help-button-${id}`, "awe-button", className ?? "awe-button-spaced", buttonVariant,
     { "hidden": !visible, "awe-button-default": defaultLook, [`p-button-${size}`]: size }, style, signin?.className);
 };
 
@@ -136,6 +136,8 @@ function AweButton(props) {
   const iconOnly = !signin && isIconOnly(style);
   const text = translateLabel(label, t);
   const tooltip = getTooltip({ title, iconOnly, help, helpImage, text, t });
+  // A button that opens a menu (style has-menu) shows a trailing chevron
+  const menu = hasMenu(style);
   return (<>
     {getHelpTooltipNode(help, helpImage, t, `.help-button-${id}`)}
     <ActionsRunningButton
@@ -152,13 +154,16 @@ function AweButton(props) {
       label={signin?.label ?? (iconOnly ? null : text)}
       {...(iconOnly && text ? { "aria-label": text } : {})}
       {...(tooltip ? { title: tooltip } : {})}
+      {...(menu ? { "aria-haspopup": "menu" } : {})}
       iconPos={"left"}
       onClick={onClick}
       onContextMenu={onContextMenu}
       data-pr-position={"bottom"}
       data-pr-showdelay={helpTimeout}
       {...testHook(TestIds.button)}
-    />
+    >
+      {menu && getIconNode("lucide:chevron-down", { className: "awe-button-menu-chevron", "aria-hidden": "true" })}
+    </ActionsRunningButton>
     {signin?.after}
     {contextMenuTemplate()}
   </>);

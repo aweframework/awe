@@ -19,19 +19,14 @@
   <option name="fleet-pickups" label="FLT_MENU_PICKUPS" screen="fleet-pickups" icon="lucide:package-plus"/>
   <option name="automation-section" label="FLT_MENU_AUTOMATION" separator="true"/>
   <option name="scheduler" label="MENU_SCHEDULER" icon="lucide:clock">
-    <option name="scheduler-management" label="MENU_SCHEDULER_MANAGEMENT" screen="scheduler-management" icon="lucide:settings"/>
-    <option name="scheduler-tasks" label="MENU_SCHEDULER_TASKS" screen="scheduler-tasks" icon="lucide:list-checks">
-      <option name="new-scheduler-task" screen="new-scheduler-task" invisible="true"/>
-      <option name="update-scheduler-task" screen="update-scheduler-task" invisible="true"/>
+    <option name="scheduler-activity" label="MENU_SCHEDULER_ACTIVITY" screen="scheduler-activity" icon="lucide:activity">
+      <option name="scheduler-flow-run" screen="scheduler-flow-run" invisible="true"/>
     </option>
-    <option name="scheduler-servers" label="MENU_SCHEDULER_SERVERS" screen="scheduler-server" icon="lucide:server">
-      <option name="new-scheduler-server" screen="new-scheduler-server" invisible="true"/>
-      <option name="update-scheduler-server" screen="update-scheduler-server" invisible="true"/>
+    <option name="scheduler-task-catalog" label="MENU_SCHEDULER_TASK_CATALOG" screen="scheduler-task-catalog" icon="lucide:list-checks">
+      <option name="scheduler-task" screen="scheduler-task" invisible="true"/>
+      <option name="scheduler-task-editor" screen="scheduler-task-editor" invisible="true"/>
     </option>
-    <option name="scheduler-calendars" label="MENU_SCHEDULER_CALENDARS" screen="scheduler-calendars" icon="lucide:calendar">
-      <option name="new-scheduler-calendar" screen="new-scheduler-calendar" invisible="true"/>
-      <option name="update-scheduler-calendar" screen="update-scheduler-calendar" invisible="true"/>
-    </option>
+    <option name="scheduler-configuration" label="MENU_SCHEDULER_CONFIGURATION" screen="scheduler-configuration" icon="lucide:settings"/>
   </option>
   <option name="notifier" label="MENU_NOTIFIER" icon="lucide:bell-ring">
     <option name="subscriptions" screen="subscriptions" label="MENU_NOTIFIER_SUBSCRIPTIONS" icon="lucide:ticket">

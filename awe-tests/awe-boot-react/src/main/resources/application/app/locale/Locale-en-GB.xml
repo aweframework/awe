@@ -384,6 +384,24 @@
   <locale name="COLUMN_SPARKLINE_MARKS" value="Marks"/>
   <locale name="SCREEN_TITLE_GRID_SPARKLINE" value="Sparkline columns"/>
   <locale name="MENU_TEST_MATRIX_SPARKLINE" value="Sparkline column"/>
+  <locale name="MENU_TEST_MATRIX_LINK" value="Grid link column"/>
+  <locale name="SCREEN_TITLE_GRID_LINK" value="Link columns"/>
+  <locale name="SCREEN_TITLE_GRID_LINK_DETAIL" value="Flow run detail"/>
+  <locale name="COLUMN_LINK_TST_RUN" value="Run"/>
+  <locale name="COLUMN_LINK_TST_TASK" value="Task"/>
+  <locale name="COLUMN_LINK_TST_STATUS" value="Status"/>
+  <locale name="COLUMN_LINK_TST_DOC" value="Documentation"/>
+  <locale name="COLUMN_LINK_TST_RUN_TITLE" value="Open the run detail"/>
+  <locale name="COLUMN_LINK_TST_TASK_TITLE" value="Relaunch the task"/>
+  <locale name="LINK_TST_DOCUMENTATION" value="Grid documentation"/>
+  <locale name="COLUMN_LINK_TST_HISTORY" value="History"/>
+  <locale name="LINK_TST_HISTORY_OK" value="OK"/>
+  <locale name="LINK_TST_HISTORY_INFO" value="Information"/>
+  <locale name="LINK_TST_HISTORY_WARNING" value="Warning"/>
+  <locale name="LINK_TST_HISTORY_ERROR" value="Error"/>
+  <locale name="LINK_TST_HISTORY_SKIPPED" value="Skipped"/>
+  <locale name="CONFIRM_TITLE_LINK_RERUN" value="Relaunch task"/>
+  <locale name="CONFIRM_MESSAGE_LINK_RERUN" value="Do you want to relaunch the task of this flow run?"/>
   <locale name="MENU_TEST_MATRIX_SIDE_PANEL" value="Side panels"/>
   <locale name="SCREEN_TITLE_SIDE_PANEL" value="Side panels"/>
   <locale name="BUTTON_SIDE_PANEL_RIGHT" value="Right panel"/>

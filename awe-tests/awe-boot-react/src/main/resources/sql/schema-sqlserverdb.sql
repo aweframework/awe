@@ -793,6 +793,47 @@ CREATE TABLE AweSchExe
     Des VARCHAR(2000)
 );
 
+CREATE TABLE AweSchExeExt
+(
+    IdeTsk INT          not NULL,
+    ExeTsk INT          not NULL,
+    ExtRef VARCHAR(256),
+    DfrDat DATETIME2(3) not NULL,
+    DueDat DATETIME2(3) not NULL,
+    CONSTRAINT PK_AWESCHEXEEXT PRIMARY KEY (IdeTsk, ExeTsk)
+);
+
+CREATE TABLE AweSchTskHok
+(
+    IdeTsk INT          not NULL,
+    HokKey VARCHAR(64)   not NULL,
+    Act    INT          not NULL,
+    SecPrp VARCHAR(200)  not NULL,
+    TypFlt VARCHAR(200),
+    CONSTRAINT PK_AWESCHTSKHOK PRIMARY KEY (IdeTsk),
+    CONSTRAINT UK_AWESCHTSKHOK UNIQUE (HokKey)
+);
+
+CREATE TABLE AweSchHokMsg
+(
+    Src    VARCHAR(64)   not NULL,
+    MsgId  VARCHAR(256)  not NULL,
+    RcvDat DATETIME2(3)          not NULL,
+    Typ    VARCHAR(200),
+    Pay    VARCHAR(MAX)         not NULL,
+    Sta    VARCHAR(10)   not NULL,
+    Att    INT          not NULL,
+    NxtDat DATETIME2(3)          not NULL,
+    PrcDat DATETIME2(3),
+    Err    VARCHAR(2000),
+    IdeTsk INT,
+    ExeTsk INT,
+    IdeRun VARCHAR(36),
+    CONSTRAINT PK_AWESCHHOKMSG PRIMARY KEY (Src, MsgId)
+);
+
+CREATE INDEX AweSchHokMsgI1 ON AweSchHokMsg (Sta, NxtDat);
+
 --------------------------------------------------------
 --  DDL for Table AweSchSrv
 --  Scheduler servers
@@ -894,7 +935,8 @@ CREATE TABLE AweSchTskPar
     Nam    VARCHAR(40)  not NULL,
     Val    VARCHAR(400),
     Src    INT          not NULL,
-    Typ    VARCHAR(100) not NULL
+    Typ    VARCHAR(100) not NULL,
+    WhkPtr VARCHAR(250)
 );
 
 --------------------------------------------------------

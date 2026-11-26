@@ -160,3 +160,8 @@ awe-framework/awe-dependencies/.flattened-pom.xml
 
 # The private Maven repository of a checkout (bin/local-ci.sh and the CI jobs: -Dmaven.repo.local=.m2/repository)
 /.m2/repository/
+
+# Local environment files: never committed, they hold machine-specific settings or secrets
+.env
+.env.*
+!.env.example

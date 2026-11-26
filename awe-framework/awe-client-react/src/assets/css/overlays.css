@@ -37,3 +37,9 @@
   background-color: var(--awe-color-overlay);
   border-top: var(--awe-border-width) solid var(--awe-color-border);
 }
+
+/* A left part of the footer (a child with style pull-left, as Bootstrap floats it in the AngularJS engine): a secondary
+   action such as Reset values at the start of the footer, the main ones at its end */
+.p-dialog .p-dialog-content > .modal-footer > .pull-left {
+  margin-right: auto;
+}

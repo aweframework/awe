@@ -4,7 +4,7 @@ import {formatMessage, translateLabel} from "../utilities";
 import {classNames} from "../utilities/components";
 import PropTypes from "prop-types";
 import {dropdownPassThrough, selectValueTemplate} from "../utilities/testPassThrough";
-import {useSelect} from "../hooks/useSelect";
+import {useSelect, selectClearIcon} from "../hooks/useSelect";
 import {compareEqualValues, getFirstDefinedValue} from "../utilities/general";
 
 function ColumnSelect(props) {
@@ -27,6 +27,7 @@ function ColumnSelect(props) {
       options={options}
       onChange={onChange}
       showClear={optional}
+      clearIcon={selectClearIcon}
       className={classes}
       invalid={error}
       appendTo={document.body}

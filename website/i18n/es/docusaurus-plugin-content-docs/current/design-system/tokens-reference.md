@@ -484,6 +484,16 @@ activo de una pestaña) leen `--awe-border-width-strong`; `borderWidths.test.js`
 | `--awe-button-default-border-color-active` | `var(--awe-color-field-border-hover)` | = claro |
 | `--awe-button-default-color-active` | `var(--awe-color-text)` | = claro |
 
+**Columna de tira de estados** (#993: barras de las páginas de estado, el tono medio en claro y el semántico en oscuro)
+
+| Token | Claro | Oscuro |
+|---|---|---|
+| `--awe-status-strip-success` | `var(--awe-palette-green-500)` | `var(--awe-color-success)` |
+| `--awe-status-strip-info` | `var(--awe-palette-sky-500)` | `var(--awe-color-info)` |
+| `--awe-status-strip-warning` | `var(--awe-palette-orange-500)` | `var(--awe-color-warning)` |
+| `--awe-status-strip-danger` | `var(--awe-palette-red-500)` | `var(--awe-color-danger)` |
+| `--awe-status-strip-neutral` | `var(--awe-color-text-muted)` | = claro |
+
 **Grid, menú lateral, cabecera, capas superpuestas, control segmentado**
 
 | Token | Claro | Oscuro |
@@ -801,8 +811,8 @@ Tokens de componente de las cards, los valores de solo lectura y los avatares de
 | Token | Por defecto | Uso |
 |---|---|---|
 | `--awe-card-title-font-size` | `--awe-font-size-base` | Tamaño del título de una card |
-| `--awe-card-title-text-transform` | `uppercase` | Mayúsculas del título de una card |
-| `--awe-card-title-letter-spacing` | `--awe-letter-spacing-caps` | Espaciado entre letras del título de una card |
+| `--awe-card-title-text-transform` | `none` | Mayúsculas del título de una card |
+| `--awe-card-title-letter-spacing` | `normal` | Espaciado entre letras del título de una card |
 | `--awe-grid-avatar-icon-size` | `--awe-size-icon-sm` | Tamaño del icono dibujado en el avatar de una celda del grid (`avatar-icon-field`) |
 | `--awe-readout-label-color` | `--awe-color-text-muted` | Etiqueta de un valor de solo lectura (`awe-readout`) |
 | `--awe-readout-label-font-size` | `--awe-font-size-xs` | Tamaño de la etiqueta de un valor de solo lectura |

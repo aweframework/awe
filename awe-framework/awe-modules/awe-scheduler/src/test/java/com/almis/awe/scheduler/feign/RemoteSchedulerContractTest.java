@@ -1,5 +1,7 @@
 package com.almis.awe.scheduler.feign;
 
+import com.almis.awe.scheduler.bean.task.ExecutionListCriteria;
+import com.almis.awe.scheduler.controller.SchedulerController;
 import feign.Client;
 import feign.Feign;
 import feign.Request;
@@ -8,9 +10,11 @@ import feign.codec.Decoder;
 import feign.codec.Encoder;
 import org.junit.jupiter.api.Test;
 import org.springframework.cloud.openfeign.support.SpringMvcContract;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -127,5 +131,51 @@ class RemoteSchedulerContractTest {
     assertNotNull(request);
     assertTrue(new String(request.body()).contains("date=2026-01-31"),
       "Unexpected body: " + new String(request.body()));
+  }
+
+  /**
+   * The activity operations of the remote client reach the routes the scheduler controller serves.
+   */
+  @Test
+  void activityOperationsReachTheRoutesOfTheSchedulerController() throws Exception {
+    RemoteScheduler remoteScheduler = client(RemoteScheduler.class);
+
+    remoteScheduler.getExecutionList(new ExecutionListCriteria());
+    assertEquals(Request.HttpMethod.POST, lastRequest.get().httpMethod());
+    assertTrue(lastRequest.get().url().endsWith("/scheduler/api/v1" + controllerRoute("getExecutionList",
+      PostMapping.class, ExecutionListCriteria.class)), lastRequest.get().url());
+
+    remoteScheduler.getExecutionStateCounts(new ExecutionListCriteria());
+    assertEquals(Request.HttpMethod.POST, lastRequest.get().httpMethod());
+    assertTrue(lastRequest.get().url().endsWith("/scheduler/api/v1" + controllerRoute("getExecutionStateCounts",
+      PostMapping.class, ExecutionListCriteria.class)), lastRequest.get().url());
+
+    remoteScheduler.getRunList(new ExecutionListCriteria());
+    assertEquals(Request.HttpMethod.POST, lastRequest.get().httpMethod());
+    assertTrue(lastRequest.get().url().endsWith("/scheduler/api/v1" + controllerRoute("getRunList",
+      PostMapping.class, ExecutionListCriteria.class)), lastRequest.get().url());
+
+    remoteScheduler.getFlowRunSummary("run-1");
+    assertEquals(Request.HttpMethod.GET, lastRequest.get().httpMethod());
+    assertTrue(lastRequest.get().url().endsWith("/scheduler/api/v1" + controllerRoute("getFlowRunSummary",
+      GetMapping.class, String.class).replace("{runId}", "run-1")), lastRequest.get().url());
+
+    remoteScheduler.getFlowRunGraph("run-1");
+    assertEquals(Request.HttpMethod.GET, lastRequest.get().httpMethod());
+    assertTrue(lastRequest.get().url().endsWith("/scheduler/api/v1" + controllerRoute("getFlowRunGraph",
+      GetMapping.class, String.class).replace("{runId}", "run-1")), lastRequest.get().url());
+
+    remoteScheduler.getActivityCounters();
+    assertEquals(Request.HttpMethod.GET, lastRequest.get().httpMethod());
+    assertTrue(lastRequest.get().url().endsWith("/scheduler/api/v1" + controllerRoute("getActivityCounters",
+      GetMapping.class)), lastRequest.get().url());
+  }
+
+  private String controllerRoute(String method, Class<? extends Annotation> mapping, Class<?>... parameters)
+    throws NoSuchMethodException {
+    Annotation annotation = SchedulerController.class.getDeclaredMethod(method, parameters).getAnnotation(mapping);
+    assertNotNull(annotation, method + " must be mapped with " + mapping.getSimpleName());
+    String[] routes = annotation instanceof PostMapping post ? post.value() : ((GetMapping) annotation).value();
+    return routes[0];
   }
 }

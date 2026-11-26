@@ -47,7 +47,8 @@ default:
 # A runner takes a job only if it has every tag the job asks for, and untagged jobs only if it runs untagged jobs.
 # - light: the merge request checks, Lint · Frontend, Lint · Spanish docs, Lint · Markdown, Lint · Renovate config,
 #   Security · Secrets, Build · Chromium/Firefox cache, the release API jobs, and the jobs without a build that only download,
-#   copy or push: Deploy · Staging/Production (git + kustomize), pages (cp/mv) and container_scanning (no dind service).
+#   copy or push: Deploy · Staging/Production (git + kustomize, then kubectl waits for the rollout), pages (cp/mv) and
+#   container_scanning (no dind service).
 # - medium: Lint · Spotless, Unit · AngularJS and Unit · React (Jest, jsdom, no real browser; jest.config limits the
 #   workers in CI), the dependency scan, Renovate, Docs · Javadoc check, Package · React jar, Deploy · Maven snapshot
 #   and the database jobs on an embedded database (Database · H2, H2 · Flyway, HSQL · Flyway: no container, no dind service). They passed on the slow medium runner in times close to the big runners.
@@ -69,7 +70,7 @@ default:
 # If the project goes back to the instance runners, remove these tags: an instance runner never takes a job whose tags it
 # does not have.
 
-image: maven:3.10.0-eclipse-temurin-21@sha256:9673eef9ed503146591667ffb92eaaa22f1b8899ed60d9df0df4da3f3a1214a6
+image: maven:3.10.0-eclipse-temurin-21@sha256:5730611d13b27aa6442c839d3a83dd9d4fd7d7ea2368d8849fe2464088c2c65b
 
 variables:
   MAVEN_CLI_OPTS: "-s .m2/settings.xml -Dsettings.security=.m2/settings-security.xml -P!devtools --batch-mode --show-version -Dskip.lint=true"
@@ -273,8 +274,8 @@ stages:
 # "Selenium · <engine> · <Chrome|Firefox> · <suite>" for the Selenium suites, and "E2E quarantine · <engine> · Chromium" and
 # "Selenium quarantine · <engine> · Chrome" for the quarantine jobs. The engine is AngularJS or React; a name never repeats.
 # The suites: Application (application and integration), CRUD (CRUD, criteria and grids), Regression (regression, websocket
-# and print) and Scheduler. Each group of suites (tool, engine, browser) has
-# a hidden template that sets TARGET (and the rules of the Playwright groups; the Selenium jobs take .rules-selenium from
+# and print) and Scheduler (React only: the AngularJS scheduler screens have no browser suite). Each group of suites
+# (tool, engine, browser) has a hidden template that sets TARGET (and the rules of the Playwright groups; the Selenium jobs take .rules-selenium from
 # .browser-testing); the job adds the selection (TEST_TAGS or TEST_CLASSES), TEST_PORT and TEST_NAME.
 # Two tools run the same suites and both block the pipeline wherever they run:
 #   - Playwright (the jobs named "E2E · <engine> · <Chromium|Firefox> · <suite>") is the tool of the everyday pipeline: merge requests with code changes, develop
@@ -475,7 +476,8 @@ Lint · Markdown:
         - website/**/*.md
         - website/.markdownlint-cli2.jsonc
 
-# Validates renovate.json (repository config, strict) on merge requests that change it.
+# Validates renovate.json (repository config, strict) on merge requests that change it, or that change this file: a new
+# Renovate image can deprecate options of renovate.json, and --strict fails on a configuration that needs migration.
 Lint · Renovate config:
   extends: .renovate-image
   tags: [ light ]
@@ -488,6 +490,7 @@ Lint · Renovate config:
     - if: '$CI_MERGE_REQUEST_IID'
       changes:
         - renovate.json
+        - .gitlab-ci.yml
 
 # The template job keeps its exact name, which is the only way to modify it, but it is switched off: "Security · Secrets"
 # below extends it and carries the settings, so the pipeline shows a readable job title.
@@ -496,18 +499,99 @@ secret_detection:
     - when: never
 
 # Runs on every merge request that touches code or the website, and on every branch pipeline.
+# Blocking: the analyzer always ends with exit code 0 and the template allows the job to fail, so by itself the job is green
+# whatever it finds. The script below fails the job when the report holds a finding, and the report is uploaded either way
+# (artifacts: when: always) so the finding still reaches the merge request widget and the vulnerability report.
+# It scans the commits of the push or of the merge request, not the history: run a pipeline with the variable
+# SECRET_DETECTION_HISTORIC_SCAN=true to scan every commit of every branch.
+# A false positive is silenced where it is, with a "gitleaks:allow" comment at the end of its line, or for a whole path or
+# rule in .gitlab/secret-detection-ruleset.toml: both are changes a reviewer sees. Dismissing it in GitLab does not unblock.
 Security · Secrets:
   extends: secret_detection
   stage: lint
   tags: [ light ]
   needs: [ ]
   timeout: 15m
+  allow_failure: false
+  script:
+    - /analyzer run
+    # Checked with grep, not jq: the secret analyzer image (Alpine) has no jq. Every finding of the report, and nothing
+    # else in it, carries this category.
+    - |
+      if [ ! -s gl-secret-detection-report.json ]; then
+        echo "gl-secret-detection-report.json is missing or empty: the scan gave no result"
+        exit 1
+      fi
+      if grep -q '"category"[[:space:]]*:[[:space:]]*"secret_detection"' gl-secret-detection-report.json; then
+        echo "Secrets found in the scanned commits, in these files (the values are not printed):"
+        grep -o '"file"[[:space:]]*:[[:space:]]*"[^"]*"' gl-secret-detection-report.json | sort -u
+        echo "Revoke the secret first: it is already in a public repository. Then remove it from the commits and push again."
+        exit 1
+      fi
+  artifacts:
+    when: always
   # Never auto-cancelled, on any ref (see workflow): on develop a newer pipeline does not scan the commits of an older one;
   # on a merge request the cost is this short job finishing in a superseded pipeline
   interruptible: false
   rules:
     - <<: *if-mr-code
     - <<: *if-mr-website
+    - <<: *if-branches
+
+# The npm dependencies of the React client, the reference client of AWE 5 (Security · Dependencies only scans Maven).
+# Blocking: fails on any high or critical advisory, of a runtime or a build dependency, that is not accepted with a
+# reason in .gitlab/dependency-scanning-accepted.txt (by its GHSA id; a change that needs a code owner's approval).
+# npm audit asks the npm registry about the exact versions of package-lock.json: no install, no script runs. An advisory
+# published today fails the next pipeline of every branch, and of the merge requests that touch the React client, until
+# the dependency is updated (Renovate proposes it) or accepted. The AngularJS client is not checked yet: its old
+# dependencies have known advisories that need larger changes.
+Security · npm · React:
+  image: registry.gitlab.com/aweframework/docker-tools/website-build:1.0.2@sha256:eb2c64096c6a5be655b6e32405a47a1f9680360a2366e4da77d0c62f9042271a
+  stage: lint
+  tags: [ light ]
+  needs: [ ]
+  cache: { }
+  timeout: 5m
+  interruptible: false
+  script:
+    # npm audit exits with 1 when it finds any advisory: the decision is taken below from its report
+    - (cd awe-framework/awe-client-react && npm audit --package-lock-only --json > "$CI_PROJECT_DIR/npm-audit-react.json") || true
+    - |
+      node - <<'EOF'
+      const fs = require('fs');
+      const report = JSON.parse(fs.readFileSync('npm-audit-react.json', 'utf8'));
+      if (report.error || !report.vulnerabilities) {
+        console.log('npm audit gave no result:', JSON.stringify(report.error || report).slice(0, 500));
+        process.exit(1);
+      }
+      const accepted = new Set(fs.readFileSync('.gitlab/dependency-scanning-accepted.txt', 'utf8').split('\n')
+        .map(line => line.replace(/#.*/, '').trim()).filter(Boolean));
+      const blocking = new Map();
+      for (const vulnerability of Object.values(report.vulnerabilities)) {
+        for (const advisory of vulnerability.via) {
+          if (typeof advisory !== 'object' || !['high', 'critical'].includes(advisory.severity)) continue;
+          const id = String(advisory.url || advisory.source).split('/').pop();
+          if (!accepted.has(id)) blocking.set(id, `${advisory.severity} | ${advisory.name} ${advisory.range} | ${id} | ${advisory.title}`);
+        }
+      }
+      if (blocking.size) {
+        console.log('High or critical advisories in the npm dependencies of the React client:');
+        [...blocking.values()].sort().forEach(line => console.log(line));
+        console.log('Update the dependency, or accept the advisory with a reason in .gitlab/dependency-scanning-accepted.txt');
+        process.exit(1);
+      }
+      console.log('No high or critical advisory outside .gitlab/dependency-scanning-accepted.txt', JSON.stringify(report.metadata.vulnerabilities));
+      EOF
+  artifacts:
+    when: always
+    expire_in: 30 days
+    paths:
+      - npm-audit-react.json
+  rules:
+    - <<: *if-mr-frontend-react
+    - if: '$CI_MERGE_REQUEST_IID'
+      changes:
+        - .gitlab/dependency-scanning-accepted.txt
     - <<: *if-branches
 
 ##############################
@@ -559,7 +643,7 @@ Security · Secrets:
 
 .renovate-image:
   image:
-    name: ghcr.io/renovatebot/renovate:44@sha256:52454eae0bdcb51ddfecc39035e0fc2d97172751124049144e89d44343f6ae81   # major pin + digest; Renovate updates its own pin
+    name: ghcr.io/renovatebot/renovate:44@sha256:d57dca79611ee02af29f1243d27956618a291e6364294ea8ae17629b2e66696f   # major pin + digest; Renovate updates its own pin
     entrypoint: [""]
 
 # Runs from the "Renovate" pipeline schedule only (variable RENOVATE_RUN=true); configuration lives
@@ -579,6 +663,8 @@ Renovate:
     RENOVATE_REQUIRE_CONFIG: required
     RENOVATE_BASE_DIR: $CI_PROJECT_DIR/renovate
     RENOVATE_REPOSITORY_CACHE: enabled
+    # Commands that the postUpgradeTasks of renovate.json may run (regular expressions, JSON array)
+    RENOVATE_ALLOWED_COMMANDS: '["^node awe-framework/awe-client-react/scripts/sync-test-app-lock\\.cjs$"]'
     LOG_LEVEL: info
     FORCE_COLOR: "3"
   # RENOVATE_TOKEN (masked, protected project access token) and the optional
@@ -1156,7 +1242,7 @@ Docs · Javadoc check:
 
 # Browser testing extension
 .browser-testing:
-  image: maven:3.10.0-eclipse-temurin-21@sha256:9673eef9ed503146591667ffb92eaaa22f1b8899ed60d9df0df4da3f3a1214a6
+  image: maven:3.10.0-eclipse-temurin-21@sha256:5730611d13b27aa6442c839d3a83dd9d4fd7d7ea2368d8849fe2464088c2c65b
   stage: integration test
   # The browser suites (Selenium and Playwright alike) block the pipeline, and therefore Renovate's
   # automerge and the release jobs that need Sonar. A flaky test is handled by the tests, not by the job (#766):
@@ -1286,13 +1372,6 @@ Selenium · AngularJS · Firefox · Regression:
     TEST_PORT: "6303"
     TEST_NAME: firefox-regression-websocket-print
 
-Selenium · AngularJS · Firefox · Scheduler:
-  extends: .selenium-angularjs-firefox
-  variables:
-    TEST_TAGS: SchedulerIT
-    TEST_PORT: "6304"
-    TEST_NAME: firefox-scheduler
-
 .selenium-angularjs-chrome:
   extends:
     - .chrome-testing
@@ -1320,13 +1399,6 @@ Selenium · AngularJS · Chrome · Regression:
     TEST_PORT: "6307"
     TEST_NAME: chrome-regression-websocket-print
 
-Selenium · AngularJS · Chrome · Scheduler:
-  extends: .selenium-angularjs-chrome
-  variables:
-    TEST_TAGS: SchedulerIT
-    TEST_PORT: "6308"
-    TEST_NAME: chrome-scheduler
-
 # The browser suites against the React engine test application. Selenium runs them where it runs at all (see
 # .rules-selenium); Playwright runs them on a merge request only when the backend or the React client changes, and a change
 # limited to the AngularJS client does not select them.
@@ -1343,8 +1415,9 @@ Selenium · AngularJS · Chrome · Scheduler:
 #   The backend rules (print, scheduler maintains, saved searches, settings, tools) are proven by Spring tests and
 #   keep their browser flow in the React jobs only; the AngularJS jobs run the flows of its own client.
 #   RegressionWebsocketPrintIT: RegressionTestsIT, WebsocketTestsIT, PrintTestsIT, AdvancedSearchTestsIT (port 6311 / 6315)
-#   SchedulerIT: SchedulerCalendarTestsIT, SchedulerManualTaskTestsIT, SchedulerScheduledTaskTestsIT,
-#                SchedulerFileTaskTestsIT and SchedulerManagementTestsIT (React only)   (port 6312 / 6316)
+#   SchedulerIT: SchedulerTestsIT, one basic flow per scheduler screen (React only: the scheduler rules are proven
+#                by unit, descriptor and Spring tests)
+#                (port 6312 / 6316)
 # List .react-testing LAST in "extends": variables are merged and the last template that sets one wins, so another order
 # would bring back the AngularJS test application. It sets no rules: the Selenium jobs take .rules-selenium from
 # .browser-testing and the Playwright React group templates set .rules-playwright-react themselves.
@@ -1384,7 +1457,7 @@ Selenium · React · Firefox · Regression:
 Selenium · React · Firefox · Scheduler:
   extends: .selenium-react-firefox
   variables:
-    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+    TEST_CLASSES: SchedulerTestsIT
     TEST_PORT: "6312"
     TEST_NAME: react-firefox-scheduler
 
@@ -1419,7 +1492,7 @@ Selenium · React · Chrome · Regression:
 Selenium · React · Chrome · Scheduler:
   extends: .selenium-react-chrome
   variables:
-    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+    TEST_CLASSES: SchedulerTestsIT
     TEST_PORT: "6316"
     TEST_NAME: react-chrome-scheduler
 
@@ -1494,13 +1567,6 @@ E2E · AngularJS · Chromium · Regression:
     TEST_PORT: "6319"
     TEST_NAME: playwright-chromium-regression-websocket-print
 
-E2E · AngularJS · Chromium · Scheduler:
-  extends: .playwright-angularjs-chromium
-  variables:
-    TEST_TAGS: SchedulerIT
-    TEST_PORT: "6320"
-    TEST_NAME: playwright-chromium-scheduler
-
 .playwright-angularjs-firefox:
   extends:
     - .playwright-firefox-testing
@@ -1528,13 +1594,6 @@ E2E · AngularJS · Firefox · Regression:
     TEST_TAGS: RegressionWebsocketPrintIT
     TEST_PORT: "6323"
     TEST_NAME: playwright-firefox-regression-websocket-print
-
-E2E · AngularJS · Firefox · Scheduler:
-  extends: .playwright-angularjs-firefox
-  variables:
-    TEST_TAGS: SchedulerIT
-    TEST_PORT: "6324"
-    TEST_NAME: playwright-firefox-scheduler
 
 .playwright-react-chromium:
   extends:
@@ -1568,7 +1627,7 @@ E2E · React · Chromium · Regression:
 E2E · React · Chromium · Scheduler:
   extends: .playwright-react-chromium
   variables:
-    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+    TEST_CLASSES: SchedulerTestsIT
     TEST_PORT: "6328"
     TEST_NAME: playwright-react-chromium-scheduler
 
@@ -1604,7 +1663,7 @@ E2E · React · Firefox · Regression:
 E2E · React · Firefox · Scheduler:
   extends: .playwright-react-firefox
   variables:
-    TEST_CLASSES: SchedulerCalendarTestsIT,SchedulerManualTaskTestsIT,SchedulerScheduledTaskTestsIT,SchedulerFileTaskTestsIT,SchedulerManagementTestsIT
+    TEST_CLASSES: SchedulerTestsIT
     TEST_PORT: "6332"
     TEST_NAME: playwright-react-firefox-scheduler
 
@@ -1684,11 +1743,41 @@ gemnasium-maven-dependency_scanning:
   rules:
     - when: never
 
+# Blocking, like "Security · Secrets": the analyzer ends with exit code 0 whatever it finds, so the script below fails the
+# job when the report holds a high or critical vulnerability. The report is uploaded either way (artifacts: when: always).
+# The advisory database changes without the code changing: a vulnerability published today fails the next pipeline of every
+# branch until the dependency is updated (Renovate proposes the fix) or the vulnerability is accepted, with a reason, in
+# .gitlab/dependency-scanning-accepted.txt, a change that needs a code owner's approval (.gitlab/CODEOWNERS). Medium and
+# lower severities only reach the vulnerability report. The gemnasium-maven image has jq.
 Security · Dependencies:
   extends: gemnasium-maven-dependency_scanning
   tags: [ medium ]
   stage: test
   timeout: 15m
+  allow_failure: false
+  script:
+    - /analyzer run
+    - |
+      if [ ! -s gl-dependency-scanning-report.json ]; then
+        echo "gl-dependency-scanning-report.json is missing or empty: the scan gave no result"
+        exit 1
+      fi
+      ACCEPTED=$(sed -e 's/#.*//' -e 's/[[:space:]]//g' -e '/^$/d' .gitlab/dependency-scanning-accepted.txt | jq -R . | jq -sc .)
+      BLOCKING=$(jq -r --argjson accepted "$ACCEPTED" '
+        [ .vulnerabilities[]
+          | select(.severity == "High" or .severity == "Critical")
+          | select(([.identifiers[].name] - $accepted) == [.identifiers[].name])
+          | "\(.severity) | \(.location.dependency.package.name) \(.location.dependency.version) | \([.identifiers[].name] | join(", ")) | \(.name // .message // "")"
+        ] | unique | .[]' gl-dependency-scanning-report.json)
+      if [ -n "$BLOCKING" ]; then
+        echo "High or critical vulnerabilities in the Maven dependencies:"
+        echo "$BLOCKING"
+        echo "Update the dependency, or accept the vulnerability with a reason in .gitlab/dependency-scanning-accepted.txt"
+        exit 1
+      fi
+      echo "No high or critical vulnerability outside .gitlab/dependency-scanning-accepted.txt"
+  artifacts:
+    when: always
   rules:
     - <<: *if-mr-code
     - <<: *if-branches
@@ -1752,15 +1841,11 @@ Analysis · Sonar:
       optional: true
     - job: Selenium · AngularJS · Firefox · Regression
       optional: true
-    - job: Selenium · AngularJS · Firefox · Scheduler
-      optional: true
     - job: Selenium · AngularJS · Chrome · Application
       optional: true
     - job: Selenium · AngularJS · Chrome · CRUD
       optional: true
     - job: Selenium · AngularJS · Chrome · Regression
-      optional: true
-    - job: Selenium · AngularJS · Chrome · Scheduler
       optional: true
     - job: Selenium · React · Firefox · Application
       optional: true
@@ -1784,15 +1869,11 @@ Analysis · Sonar:
       optional: true
     - job: E2E · AngularJS · Chromium · Regression
       optional: true
-    - job: E2E · AngularJS · Chromium · Scheduler
-      optional: true
     - job: E2E · AngularJS · Firefox · Application
       optional: true
     - job: E2E · AngularJS · Firefox · CRUD
       optional: true
     - job: E2E · AngularJS · Firefox · Regression
-      optional: true
-    - job: E2E · AngularJS · Firefox · Scheduler
       optional: true
     - job: E2E · React · Chromium · Application
       optional: true
@@ -2155,12 +2236,16 @@ Deploy · npm:
 #   staging    -> https://staging.aweframework.com  and https://react-staging.aweframework.com
 #   production -> https://demo.aweframework.com     and https://react-demo.aweframework.com
 # Both images are set by the digest that "Package · Docker images" pushed and signed (PACKAGE_DIGEST, PACKAGE_REACT_DIGEST).
+# After the push the job waits for Flux to apply the commit and for both rollouts to finish, and fails otherwise (#1000):
+# the old pods keep serving while the new ones crashloop (maxUnavailable 0), so a green push alone proves nothing. It
+# reaches the cluster through the GitLab agent of this project (.gitlab/agents/gke, context KUBE_CONTEXT).
 .k8s_deploy:
-  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:1.0.2@sha256:84cc4bcdb88e75b591c79730b2ea89ae60c6d4dcc5f03049a04cf1e1072c2e43
+  image: registry.gitlab.com/aweframework/docker-tools/ci-utilities:1.0.3@sha256:5d602ba1e49bbf556afdecf26b6fece876b282f76e528262205b8f7a79427eb0
   tags: [ light ]
   cache: { }
   interruptible: false
-  timeout: 15m
+  # Flux (FLUX_TIMEOUT_SECONDS) plus the rollouts (ROLLOUT_TIMEOUT, both at once) plus the clone and the logs
+  timeout: 30m
   needs:
     - job: Build · Maven
     - job: Analysis · Sonar
@@ -2169,6 +2254,13 @@ Deploy · npm:
   stage: deploy
   variables:
     GIT_STRATEGY: none
+    KUBE_CONTEXT: aweframework/awe:gke
+    # The GitRepository of Flux polls awe-gke-config every minute and the Kustomization applies a new revision at once
+    FLUX_TIMEOUT_SECONDS: 600
+    # The first start of a version runs the Flyway migrations, which takes a few minutes. Kubernetes also stops a rollout
+    # that makes no progress for progressDeadlineSeconds (600 s by default), whichever comes first.
+    ROLLOUT_TIMEOUT: 15m
+    K8S_APPS: awe-boot awe-react
     AWE_BOOT_IMAGE: registry.gitlab.com/aweframework/awe/awe-boot
     AWE_REACT_IMAGE: registry.gitlab.com/aweframework/awe/awe-boot-react
     # Image of the former awe-react repository, still referenced by the awe-react manifests until the first deploy from here.
@@ -2207,6 +2299,73 @@ Deploy · npm:
       )
     - git commit . -m "Updated awe-boot and awe-react kubernetes deployments ${CI_ENVIRONMENT_SLUG}"
     - git push origin master
+    - DEPLOYED_REVISION=$(git rev-parse HEAD)
+    - kubectl config use-context "$KUBE_CONTEXT"
+    # Wait until Flux has applied this commit or a later one: another deploy may push to awe-gke-config meanwhile.
+    # A failed apply of this commit (Ready False) stops at once with the message of Flux.
+    - |
+      echo "Waiting for Flux to apply awe-gke-config $DEPLOYED_REVISION"
+      deadline=$(( $(date +%s) + FLUX_TIMEOUT_SECONDS ))
+      while :; do
+        status=$(kubectl -n flux-system get kustomization flux-system -o json) || status='{}'
+        applied=$(echo "$status" | jq -r '.status.lastAppliedRevision // ""' | sed 's/.*://')
+        attempted=$(echo "$status" | jq -r '.status.lastAttemptedRevision // ""' | sed 's/.*://')
+        ready=$(echo "$status" | jq -r '.status.conditions[]? | select(.type == "Ready") | "\(.status) \(.message)"')
+        if [ -n "$applied" ]; then
+          git cat-file -e "$applied^{commit}" 2>/dev/null || git fetch -q origin master || true
+          if git merge-base --is-ancestor "$DEPLOYED_REVISION" "$applied" 2>/dev/null; then
+            echo "Flux applied $applied"
+            break
+          fi
+        fi
+        if [ "$attempted" = "$DEPLOYED_REVISION" ] && [ "${ready%% *}" = "False" ]; then
+          echo "Flux failed to apply $DEPLOYED_REVISION: ${ready#* }"
+          exit 1
+        fi
+        if [ "$(date +%s)" -ge "$deadline" ]; then
+          echo "Flux did not apply $DEPLOYED_REVISION within ${FLUX_TIMEOUT_SECONDS}s (applied: ${applied:-none}, Ready: $ready)"
+          exit 1
+        fi
+        sleep 10
+      done
+    # Both rollouts at once. A deployment that does not finish fails the job with its pods, and the events and last log
+    # lines (of the crashed container too) of every pod that is not ready: the pods of the new version.
+    - |
+      rollouts=""
+      for app in $K8S_APPS; do
+        kubectl -n "$CI_ENVIRONMENT_SLUG" rollout status "deployment/$app" --timeout="$ROLLOUT_TIMEOUT" > "/tmp/$app.rollout" 2>&1 &
+        rollouts="$rollouts $app:$!"
+      done
+      failed=""
+      for rollout in $rollouts; do
+        app=${rollout%%:*}
+        if wait "${rollout#*:}"; then
+          echo "$app: $(tail -n 1 "/tmp/$app.rollout")"
+        else
+          failed="$failed $app"
+          echo "$app did not finish its rollout:"
+          cat "/tmp/$app.rollout"
+        fi
+      done
+      for app in $failed; do
+        echo "===== $app"
+        kubectl -n "$CI_ENVIRONMENT_SLUG" get pods -l "app=$app" -o wide || true
+        pods=$(kubectl -n "$CI_ENVIRONMENT_SLUG" get pods -l "app=$app" -o json | jq -r '.items[]
+          | select((.status.containerStatuses // []) | (length == 0) or any(.ready | not)) | .metadata.name') || true
+        for pod in $pods; do
+          echo "===== $pod events"
+          kubectl -n "$CI_ENVIRONMENT_SLUG" get events --field-selector "involvedObject.name=$pod" \
+            --sort-by=.lastTimestamp | tail -n 15 || true
+          echo "===== $pod logs of the previous container (after a restart)"
+          kubectl -n "$CI_ENVIRONMENT_SLUG" logs "$pod" --all-containers --previous --tail=80 || true
+          echo "===== $pod logs"
+          kubectl -n "$CI_ENVIRONMENT_SLUG" logs "$pod" --all-containers --tail=80 || true
+        done
+      done
+      if [ -n "$failed" ]; then
+        echo "Deployment to $CI_ENVIRONMENT_SLUG failed:$failed"
+        exit 1
+      fi
 
 Deploy · Staging:
   extends: .k8s_deploy

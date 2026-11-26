@@ -90,7 +90,7 @@ the side panel is open.
 | Attribute of `header-tag` | Use          | Description                                                                                                |
 |---------------------------|--------------|------------------------------------------------------------------------------------------------------------|
 | field                     | **Required** | Field of the selected row with the text of the tag. A tag whose value is empty is not shown                 |
-| tone-field                | Optional     | Field with the tone of the tag: `success`, `warning`, `danger`, `info` or `neutral` (default)               |
+| tone-field                | Optional     | Field with the tone of the tag: `success`, `warning`, `danger`, `info`, `pending` or `neutral` (default)    |
 | icon-field                | Optional     | Field with the icon of the tag. With it the tag is plain: the icon takes the place of the dot              |
 
 The avatar and the tags look like the avatar and the status tags of the [grid cells](grids.md). The avatar is decorative;

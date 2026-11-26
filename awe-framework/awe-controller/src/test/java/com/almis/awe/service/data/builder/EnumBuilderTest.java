@@ -14,8 +14,10 @@ import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -70,5 +72,26 @@ class EnumBuilderTest {
       // Run
       enumBuilder.setEnumerated(anyString()).getEnumeratedAsDataList();
     });
+  }
+
+  @Test
+  void theIconOfAnOptionReachesItsRowAndAnOptionWithoutIconKeepsItsKeys() throws AWException {
+    // Given
+    EnumeratedGroup enumeratedGroup = new EnumeratedGroup();
+    enumeratedGroup.setId("tabs");
+    enumeratedGroup.setOptionList(List.of(
+      new Global().setLabel("TAB_SUMMARY").setValue("TabSum").setIcon("lucide:layout-dashboard"),
+      new Global().setLabel("TAB_HISTORY").setValue("TabHis")));
+    when(aweElements.getEnumerated(anyString())).thenReturn(enumeratedGroup);
+
+    // Run
+    var rows = enumBuilder.setEnumerated("tabs").getEnumeratedAsDataList().getRows();
+    var json = enumBuilder.getOptionListAsJson(enumeratedGroup);
+
+    // Assert
+    assertEquals("lucide:layout-dashboard", rows.get(0).get("icon").getStringValue());
+    assertEquals(Set.of("id", "label", "value"), rows.get(1).keySet());
+    assertEquals("lucide:layout-dashboard", json.get(0).get("icon").asString());
+    assertFalse(json.get(1).has("icon"));
   }
 }

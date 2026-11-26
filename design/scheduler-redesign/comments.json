@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "comments": [
+    {
+      "id": "uk1mgxv2",
+      "file": "01-actividad.html",
+      "selector": "body > main > section:nth-of-type(1) > div:nth-of-type(2) > div > div > div > div:nth-of-type(2) > button:nth-of-type(1) > span:nth-of-type(1) > svg",
+      "excerpt": "",
+      "comment": "El icono de \"En ejecución\" me gusta que no tenga spinner. Creo que visualmente es mejor. Hay tareas que pueden tardar bastante y estar todo el rato viendo el spinner cansa",
+      "createdAt": "2026-11-17T13:37:55.648Z",
+      "status": "resolved",
+      "sentAt": "2026-11-17T14:53:35.016Z",
+      "resolvedAt": "2026-11-17T14:59:48.395Z",
+      "resolution": "Se mantiene el icono estático de En ejecución, sin spinner; se fija como regla para todas las vistas."
+    },
+    {
+      "id": "7iysjx62",
+      "file": "01-actividad.html",
+      "selector": "body > main > section:nth-of-type(1) > div:nth-of-type(2) > div > div > div > div:nth-of-type(1) > div:nth-of-type(2) > button:nth-of-type(1)",
+      "excerpt": "Motor",
+      "comment": "Me encanta esta idea de tener el boton desplegable con las diferentes opciones",
+      "createdAt": "2026-11-17T13:38:43.984Z",
+      "status": "resolved",
+      "sentAt": "2026-11-17T14:53:35.016Z",
+      "resolvedAt": "2026-11-17T14:59:48.401Z",
+      "resolution": "Se mantiene el botón desplegable Motor con Pausar/Reanudar/Reiniciar."
+    },
+    {
+      "id": "0rj30j1o",
+      "file": "01-actividad.html",
+      "selector": "body > main > section:nth-of-type(1) > div:nth-of-type(2) > div > div > div > section > table > tbody > tr:nth-of-type(1) > td:nth-of-type(8)",
+      "excerpt": "55 s de ~1 min 12 s",
+      "comment": "Me gusta, pero no se si actualmente lo podemos llegar a hacer con los motores actuales",
+      "createdAt": "2026-11-17T13:39:35.514Z",
+      "status": "resolved",
+      "sentAt": "2026-11-17T14:53:35.016Z",
+      "resolvedAt": "2026-11-17T15:09:48.343Z",
+      "resolution": "Ajustado a lo que existe: progreso con component=progress (N % + transcurrido), enlace al flujo con link ampliado, agrupación como tree grid y tira de estados marcada como componente nuevo; bloque Viabilidad añadido."
+    },
+    {
+      "id": "o6p6tkdg",
+      "file": "01-actividad.html",
+      "selector": "body > main > section:nth-of-type(1) > div:nth-of-type(2) > div > div > div > section > table > tbody > tr:nth-of-type(1) > td:nth-of-type(4) > a",
+      "excerpt": "#4815",
+      "comment": "Esto es un enlace a algo? No se si esto actualmente es viable con los motores actuales",
+      "createdAt": "2026-11-17T13:40:16.742Z",
+      "status": "resolved",
+      "sentAt": "2026-11-17T14:53:35.016Z",
+      "resolvedAt": "2026-11-17T15:09:48.343Z",
+      "resolution": "Ajustado a lo que existe: progreso con component=progress (N % + transcurrido), enlace al flujo con link ampliado, agrupación como tree grid y tira de estados marcada como componente nuevo; bloque Viabilidad añadido."
+    },
+    {
+      "id": "qyg6415c",
+      "file": "01-actividad.html",
+      "selector": "body > main > section:nth-of-type(2) > div:nth-of-type(2) > section > div:nth-of-type(1) > button:nth-of-type(4)",
+      "excerpt": "Agrupar por flujo",
+      "comment": "Esto implica que las filas se agrupen como un tree grid. No se si esto es posible actualmente",
+      "createdAt": "2026-11-17T13:41:14.440Z",
+      "status": "resolved",
+      "sentAt": "2026-11-17T14:53:35.016Z",
+      "resolvedAt": "2026-11-17T15:09:48.343Z",
+      "resolution": "Ajustado a lo que existe: progreso con component=progress (N % + transcurrido), enlace al flujo con link ampliado, agrupación como tree grid y tira de estados marcada como componente nuevo; bloque Viabilidad añadido."
+    },
+    {
+      "id": "4vd843o0",
+      "file": "01-actividad.html",
+      "selector": "body > main > section:nth-of-type(2) > div:nth-of-type(2) > section > table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > span:nth-of-type(2)",
+      "excerpt": "3 OK · 1 Aviso · 1 esperando",
+      "comment": "El componente con la banda de cuadrados lo tendriamos que implementar en el motor porque no lo tenemos",
+      "createdAt": "2026-11-17T13:42:07.000Z",
+      "status": "resolved",
+      "sentAt": "2026-11-17T14:53:35.016Z",
+      "resolvedAt": "2026-11-17T15:09:48.343Z",
+      "resolution": "Ajustado a lo que existe: progreso con component=progress (N % + transcurrido), enlace al flujo con link ampliado, agrupación como tree grid y tira de estados marcada como componente nuevo; bloque Viabilidad añadido."
+    },
+    {
+      "id": "vm185ukc",
+      "file": "01-actividad.html",
+      "selector": "body > main > section:nth-of-type(4) > div:nth-of-type(2) > div > div:nth-of-type(1) > div > div:nth-of-type(2) > div:nth-of-type(3) > div > pre",
+      "excerpt": "POST /scheduler/api/v1/tasks/16/executions/415/complete {\"status\": \"OK\", \"description\": \"Remesa aceptada por el banco\"}",
+      "comment": "Creo que no es necesario sacar eso. Es infromación técnica que el usuario desconoce",
+      "createdAt": "2026-11-17T13:43:56.448Z",
+      "status": "resolved",
+      "sentAt": "2026-11-17T14:53:35.016Z",
+      "resolvedAt": "2026-11-17T14:59:48.517Z",
+      "resolution": "Quitada la llamada POST y el texto técnico del panel de la diferida; ahora explica en lenguaje llano qué espera y qué pasa si vence."
+    },
+    {
+      "id": "merqjp13",
+      "file": "04-editor-dependencias-en-hija.html",
+      "selector": "#a-cuando > div:nth-of-type(2) > div:nth-of-type(1) > button:nth-of-type(4)",
+      "excerpt": "Vista nueva Después de otras tareas Cuando terminan las tareas que elijas. Se guarda como Manual.",
+      "comment": "Me gusta este estilo de radio button",
+      "createdAt": "2026-11-17T14:52:29.084Z",
+      "status": "resolved",
+      "sentAt": "2026-11-17T14:53:35.016Z",
+      "resolvedAt": "2026-11-17T14:59:48.382Z",
+      "resolution": "Se mantiene el estilo de tarjetas seleccionables (radio en tarjeta) para elegir opciones excluyentes."
+    },
+    {
+      "id": "mt0cpkf4",
+      "file": "04-editor-dependencias-en-hija.html",
+      "selector": "body > main > div:nth-of-type(2) > section:nth-of-type(1)",
+      "excerpt": "B Elegir tareas padre Lista con filtro; las que cerrarían un bucle no se pueden elegir. Lanzar después de * #13 Conciliación bancaria #14 Actualizar posiciones… Filtrar por nombre o número ELEGIDAS #13 Conciliación bancaria Lanza en OK o aviso Manual #14 Actualizar posiciones de tesorería Lanza solo",
+      "comment": "Me gusta la opción de seleccionar la tarea padre de la que depende. Estoy de acuerdo que es más intuitivo",
+      "createdAt": "2026-11-17T14:53:32.294Z",
+      "status": "resolved",
+      "sentAt": "2026-11-17T14:53:35.016Z",
+      "resolvedAt": "2026-11-17T14:59:48.370Z",
+      "resolution": "Anotado: la selección de tareas padre desde la hija es la opción preferida para las dependencias."
+    }
+  ]
+}

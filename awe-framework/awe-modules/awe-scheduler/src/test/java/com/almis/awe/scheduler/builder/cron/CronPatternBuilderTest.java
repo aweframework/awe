@@ -9,13 +9,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
+import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 
 import javax.naming.NamingException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -202,5 +208,69 @@ class CronPatternBuilderTest {
       .build();
 
     assertEquals(CronTrigger.MISFIRE_INSTRUCTION_DO_NOTHING, trigger.getMisfireInstruction());
+  }
+  /**
+   * The editor numbers the days of the week from Monday (1) to Saturday (6) and Sunday (0); Quartz from Sunday (1) to
+   * Saturday (7): the cron fires on the configured day (#993)
+   */
+  @Test
+  void theDaysOfTheWeekOfTheEditorAreConvertedToQuartzDays() throws Exception {
+    assertEquals("0 0 8 ? * 2 *", weekDaysCron(Collections.singletonList("1"), null));
+    assertEquals("0 0 8 ? * 1 *", weekDaysCron(Collections.singletonList("0"), null));
+    assertEquals("0 0 8 ? * 7,2,4 *", weekDaysCron(Arrays.asList("6", "1", "3"), null));
+    assertEquals("0 0 8 ? * 1#1 *", weekDaysCron(Collections.singletonList("0"), Collections.singletonList("#1")));
+    assertEquals("0 0 8 ? * * *", weekDaysCron(Collections.singletonList("*"), null));
+  }
+
+  /**
+   * Only a single digit 0 to 7 is a day of the editor (7 is Sunday as 0): any other number is kept, so Quartz refuses
+   * it as before
+   */
+  @Test
+  void onlyTheDigitsZeroToSevenAreConvertedAndAnyOtherNumberIsKept() {
+    assertEquals("1", CronPatternBuilder.toQuartzDay("7"));
+    assertEquals("1", CronPatternBuilder.toQuartzDay("0"));
+    assertEquals("7", CronPatternBuilder.toQuartzDay("6"));
+    assertEquals("8", CronPatternBuilder.toQuartzDay("8"));
+    assertEquals("9", CronPatternBuilder.toQuartzDay("9"));
+    assertEquals("10", CronPatternBuilder.toQuartzDay("10"));
+    assertEquals("MON", CronPatternBuilder.toQuartzDay("MON"));
+  }
+
+  /**
+   * A custom launch on Monday, Wednesday and Sunday of the editor fires on those days of the week (#993)
+   */
+  @Test
+  void aCustomLaunchFiresOnTheWeekDaysChosenInTheEditor() throws Exception {
+    Schedule schedule = new Schedule();
+    schedule.setRepeatType(7);
+    schedule.setHourList(Collections.singletonList("8"));
+    schedule.setMinuteList(Collections.singletonList("0"));
+    schedule.setSecondList(Collections.singletonList("0"));
+    schedule.setWeekDayList(Arrays.asList("1", "3", "0"));
+    // Monday 23/11/2026 00:00; the trigger starts then, so the result does not depend on the day the test runs
+    Date fire = Date.from(LocalDate.of(2026, 11, 23).atStartOfDay(ZoneId.systemDefault()).toInstant());
+    Trigger trigger = TriggerBuilder.newTrigger().startAt(fire).withSchedule(new PatternBuilder(schedule).build()).build();
+
+    List<DayOfWeek> days = new ArrayList<>();
+    for (int i = 0; i < 3; i++) {
+      fire = trigger.getFireTimeAfter(fire);
+      days.add(fire.toInstant().atZone(ZoneId.systemDefault()).getDayOfWeek());
+    }
+
+    assertEquals(List.of(DayOfWeek.MONDAY, DayOfWeek.WEDNESDAY, DayOfWeek.SUNDAY), days);
+  }
+
+  private String weekDaysCron(java.util.List<String> weekDays, java.util.List<String> weeks) throws Exception {
+    Schedule schedule = new Schedule();
+    schedule.setRepeatType(7);
+    schedule.setHourList(Collections.singletonList("8"));
+    schedule.setMinuteList(Collections.singletonList("0"));
+    schedule.setSecondList(Collections.singletonList("0"));
+    schedule.setWeekDayList(weekDays);
+    schedule.setWeekList(weeks);
+    cronPatternBuilder.setSchedule(schedule);
+    CronTrigger trigger = TriggerBuilder.newTrigger().withSchedule(cronPatternBuilder.build()).build();
+    return trigger.getCronExpression();
   }
 }

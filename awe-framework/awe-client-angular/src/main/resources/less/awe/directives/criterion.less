@@ -668,6 +668,17 @@ fieldset[disabled] .form-control {
     color: var(--awe-color-disabled-text);
     background: transparent;
   }
+
+  /* Description of an option (#993): a muted line under its name (its condition, why it cannot be chosen). Same class
+     as the React engine (AweSelect.less) */
+  .awe-select-option-description {
+    display: block;
+    margin-top: var(--awe-space-0-5);
+    font-size: var(--awe-font-size-xs);
+    line-height: var(--awe-line-height-snug);
+    color: var(--awe-color-text-muted);
+    white-space: normal;
+  }
 }
 
 /* SELECT2 select result size */

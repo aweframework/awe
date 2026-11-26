@@ -19,6 +19,7 @@ import com.almis.awe.model.entities.actions.ComponentAddress;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.scheduler.util.SchedulerDeferred;
 import com.almis.awe.service.EmailService;
 import com.almis.awe.service.QueryService;
 import com.almis.awe.service.data.builder.DataListBuilder;
@@ -33,12 +34,16 @@ import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.WebApplicationContext;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.JsonNodeFactory;
 
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -296,6 +301,59 @@ public class DummyService extends ServiceConfig {
   }
 
   /**
+   * Returns the flow runs of the link column grid (GrdLinkTst screen): the run number, its task, its status, the
+   * address of the documentation that the link column without actions opens and the history of the last executions
+   * that the status strip column draws
+   *
+   * @return ServiceData
+   */
+  public ServiceData getLinkTstFlowRuns() {
+    ServiceData out = new ServiceData();
+    out.setDataList(new DataList());
+    DataListUtil.addColumn(out.getDataList(), "runId", Arrays.asList(4807, 4812, 4815));
+    DataListUtil.addColumn(out.getDataList(), "task", Arrays.asList("Nightly import", "Ledger reconciliation", "Report export"));
+    DataListUtil.addColumn(out.getDataList(), "status", Arrays.asList("Success", "Running", "Failed"));
+    DataListUtil.addColumn(out.getDataList(), "docUrl",
+      Collections.nCopies(3, "https://docs.aweframework.com/docs/components/grid"));
+    DataListUtil.addColumn(out.getDataList(), "history",
+      Arrays.asList(getLinkTstHistory(4807, "SSSSSSWSDS"), getLinkTstHistory(4812, "SSSSISSSWS"),
+        getLinkTstHistory(4815, "SDNSSSSWDD")));
+    return out;
+  }
+
+  /**
+   * Builds the history of the last executions of a flow run, as the JSON array of {tone, label, title} items of a
+   * status strip column, with the labels in the language of the session and, as the title, the number, the start and
+   * the duration of every execution ("#4807 · 17/11/2026 08:05 · 1 min 12 s"), one hour apart, the newest the last
+   *
+   * @param lastRun Number of the newest execution
+   * @param pattern One letter per execution, from the oldest: S success, I info, W warning, D danger, N skipped (neutral)
+   * @return JSON text of the history
+   */
+  private String getLinkTstHistory(int lastRun, String pattern) {
+    ArrayNode history = JsonNodeFactory.instance.arrayNode();
+    DateTimeFormatter format = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+    LocalDateTime lastStart = LocalDateTime.of(2026, 11, 17, 8, 5);
+    char[] executions = pattern.toCharArray();
+    for (int index = 0; index < executions.length; index++) {
+      char execution = executions[index];
+      int age = executions.length - 1 - index;
+      int seconds = 40 + (lastRun + index * 37) % 90;
+      String duration = seconds < 60 ? seconds + " s" : seconds / 60 + " min " + seconds % 60 + " s";
+      String title = "#" + (lastRun - age) + " · " + lastStart.minusHours(age).format(format) + " · " + duration;
+      String[] status = switch (execution) {
+        case 'I' -> new String[]{"info", "LINK_TST_HISTORY_INFO"};
+        case 'W' -> new String[]{"warning", "LINK_TST_HISTORY_WARNING"};
+        case 'D' -> new String[]{"danger", "LINK_TST_HISTORY_ERROR"};
+        case 'N' -> new String[]{"neutral", "LINK_TST_HISTORY_SKIPPED"};
+        default -> new String[]{"success", "LINK_TST_HISTORY_OK"};
+      };
+      history.addObject().put("tone", status[0]).put("label", getLocale(status[1])).put("title", title);
+    }
+    return history.toString();
+  }
+
+  /**
    * Pretends to answer an OK from a maintain
    *
    * @return ServiceData
@@ -497,6 +555,15 @@ public class DummyService extends ServiceConfig {
       throw new AWException("Interrupted thread exception", exc);
     }
     return new ServiceData();
+  }
+
+  /**
+   * Answer a scheduler task as accepted, finishes later
+   *
+   * @return Deferred answer
+   */
+  public ServiceData deferredTestLaunch() {
+    return SchedulerDeferred.accepted("external-ref-1", "Waiting for the external system");
   }
 
   /**

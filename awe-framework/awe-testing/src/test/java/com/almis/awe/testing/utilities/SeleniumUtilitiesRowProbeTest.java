@@ -9,12 +9,15 @@ import com.almis.awe.testing.model.types.FrontendType;
 import com.almis.awe.testing.selenium.AngularAweInstructions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -77,5 +80,23 @@ class SeleniumUtilitiesRowProbeTest {
     showCell(null, "Site alpha", false);
 
     assertThat(utilities.hasRowContents("Site alpha")).isFalse();
+  }
+
+  @Test
+  void shouldWaitForTheGridToLoadBeforeCheckingThatARowIsAbsent() {
+    Locator loader = Locator.from(instructions.getGridLoaderSelector());
+    when(browser.isRendered(loader)).thenReturn(true, false);
+    when(browser.isVisible(loader)).thenReturn(true);
+
+    assertThatCode(() -> utilities.checkRowNotContains("Site alpha")).doesNotThrowAnyException();
+  }
+
+  @Test
+  void shouldFailWhenTheGridKeepsShowingTheRow() {
+    Locator cell = Locator.from(instructions.findGridCell(null, "Site alpha"));
+    when(browser.isRendered(cell)).thenReturn(true);
+    when(browser.isVisible(cell)).thenReturn(true);
+
+    assertThrows(AssertionFailedError.class, () -> utilities.checkRowNotContains("Site alpha"));
   }
 }

@@ -219,6 +219,8 @@ class AngularAweInstructionsTest {
       instructions.getGridCellText("Gr'd", "R'1", "Co'l", "a'b\"c"), instructions.findGridCell("Gr'd", "It's"),
       instructions.getGridHeader("Gr'd", "Co'l"), instructions.getGridCell("Gr'd", null, "Co'l"),
       instructions.getGridCellButton("Gr'd", "R'1", "Co'l"), instructions.findGridRowButton("Gr'd", "It's", "Co'l"),
+      instructions.findGridRowLink("Gr'd", "It's", "Co'l"), instructions.getFlowGraphNode("a'b\"c", 2),
+      instructions.getTabStartingWith("Ta'b", "It's"), instructions.getTabActiveStartingWith("Ta'b", "a'b\"c"),
       instructions.getGridScrollZone("Gr'd"), instructions.getCellFromDatepicker("day", "It's"),
       instructions.getMenuOpenedChildren("Op't"), instructions.getSelectResult("It's"),
       instructions.getSuggestResult("a'b\"c"), instructions.containsText("cla'ss", "It's"));
@@ -279,6 +281,7 @@ class AngularAweInstructionsTest {
     assertThat(instructions.getPivotTable("Pvt")).hasToString("By.cssSelector: #Pvt table.pvtTable");
     assertThat(instructions.getLogViewer()).hasToString("By.cssSelector: [data-testid='log-viewer']");
     assertThat(instructions.getFileViewer()).hasToString("By.cssSelector: [data-testid='file-viewer']");
+    assertThat(instructions.getFlowGraphNode()).hasToString("By.cssSelector: [data-testid='flow-graph-node']");
     assertThat(instructions.getEmbeddedFrame()).hasToString("By.cssSelector: iframe");
     assertThat(instructions.getOpenDialog("PrnOpt")).hasToString(
       "By.cssSelector: [data-testid='dialog'][data-testid-owner='PrnOpt'][data-open='true']");

@@ -2,7 +2,8 @@ import {DEFAULT_SETTINGS} from "../../../src/redux/actions/settings";
 import React from "react";
 import {renderWithProviders} from "../test-utils";
 import AweSelectMultiple from "../../../src/criteria/AweSelectMultiple";
-import {act, cleanup, fireEvent, screen, waitFor} from "@testing-library/react";
+import {act, cleanup, fireEvent, render, screen, waitFor} from "@testing-library/react";
+import {getIconNode} from "../../../src/utilities";
 import i18n from "../i18nForTests";
 
 const hook = (testId) => `[data-testid='${testId}']`;
@@ -126,6 +127,28 @@ describe('awe-react-client/test/js/criteria/AweSelectMultipleTest.jsx (display c
       .toEqual(['Users · Update']);
     // Selecting every option of a grouped list at once is not offered
     expect(panel.querySelector(".p-multiselect-header .p-checkbox")).toBeNull();
+  });
+
+  it('shows the description of an option under its name and does not choose a disabled option', () => {
+    const {container, store} = renderWithProviders(<AweSelectMultiple id="select-multiple"/>, {
+      preloadedState: criterion([
+        {label: 'Import', value: '1', description: 'Launches on OK'},
+        {label: 'Send', value: '2', description: 'Circular dependency', disabled: true},
+        {label: 'Close', value: '3'}
+      ])
+    });
+
+    fireEvent.click(container.querySelector(hook("select-trigger")));
+    const options = Array.from(document.querySelector(hook("select-dropdown")).querySelectorAll(hook("select-option")));
+    // The description goes in its own line under the name; an option without one shows only its name
+    expect(options.map(option => option.textContent)).toEqual(['ImportLaunches on OK', 'SendCircular dependency', 'Close']);
+    expect(options[0].querySelector('.awe-select-option-description').textContent).toBe('Launches on OK');
+    expect(options[1].getAttribute('aria-disabled')).toBe('true');
+
+    fireEvent.click(options[1]);
+    fireEvent.click(options[0]);
+    expect(store.getState().components["select-multiple"].model.values.map(value => Boolean(value.selected)))
+      .toEqual([true, false, false]);
   });
 
   it('offers selecting every option of a list without groups', () => {
@@ -302,5 +325,71 @@ describe('awe-react-client/test/js/criteria/AweSelectMultipleTest.jsx (one line)
     expect(await screen.findByText("toto", {selector: ".awe-select-multiple-list span"})).not.toBeNull();
     expect(screen.queryAllByLabelText(/^Remove /)).toHaveLength(0);
     expect(document.querySelector("[data-testid='select-choice-close']")).toBeNull();
+  });
+});
+
+describe('awe-react-client/test/js/criteria/AweSelectMultipleTest.jsx (display toggles)', () => {
+
+  afterEach(cleanup);
+
+  const state = {
+    settings: DEFAULT_SETTINGS,
+    components: {
+      days: {
+        address: {component: 'days', view: 'report'},
+        model: {values: [{label: 'M', title: 'Monday', value: '1', selected: true},
+          {label: 'T', title: 'Tuesday', value: '2'}, {label: 'S', title: 'Sunday', value: '0', selected: true}]},
+        attributes: {readonly: false, label: "Days", display: "toggles"},
+        validationRules: {required: false},
+        specificAttributes: {sort: []}
+      }
+    }
+  };
+  const selectedOf = (store) => store.getState().components.days.model.values.filter(item => item.selected).map(item => item.value);
+
+  it('is a group of toggle pills named by their title, pressed and released by click and by the keyboard', async () => {
+    const {store} = renderWithProviders(<AweSelectMultiple id="days"/>, {preloadedState: state});
+
+    expect(await screen.findByRole("group", {name: "Days"})).toBeInTheDocument();
+    const toggles = screen.getAllByRole("button");
+    expect(toggles.map(toggle => toggle.textContent)).toEqual(["M", "T", "S"]);
+    expect(toggles.map(toggle => toggle.getAttribute("aria-pressed"))).toEqual(["true", "false", "true"]);
+    expect(toggles.map(toggle => toggle.tabIndex)).toEqual([0, 0, 0]);
+
+    fireEvent.click(screen.getByRole("button", {name: "Tuesday"}));
+    expect(selectedOf(store)).toEqual(['1', '2', '0']);
+
+    fireEvent.keyDown(screen.getByRole("button", {name: "Monday"}), {key: " "});
+    expect(selectedOf(store)).toEqual(['2', '0']);
+    expect(screen.getByRole("button", {name: "Monday"})).toHaveAttribute("aria-pressed", "false");
+  });
+});
+
+describe('awe-react-client/test/js/criteria/AweSelectMultipleTest.jsx (clear icon)', () => {
+
+  // The clear icon is the Lucide x of the suggest (#997), and keeps the keyboard access and the label of PrimeReact
+  const expectLucideClearIcon = (clearIcon) => {
+    const lucideX = render(getIconNode("lucide:x", {"aria-hidden": "true"})).container.innerHTML;
+    expect(clearIcon).not.toBeNull();
+    expect(clearIcon.innerHTML).toBe(lucideX);
+    expect(clearIcon.getAttribute("tabindex")).toBe("0");
+    expect(clearIcon.getAttribute("aria-label")).toBeTruthy();
+  };
+
+  it('clears an optional multiple select with the Lucide x', () => {
+    const {container} = renderWithProviders(<AweSelectMultiple id="select-multiple"/>, {preloadedState: {
+      settings: DEFAULT_SETTINGS,
+      components: {
+        "select-multiple": {
+          address: {component: "select-multiple", view: "report"},
+          attributes: {placeholder: "placeholder", readonly: false, optional: true},
+          validationRules: {required: false},
+          specificAttributes: {sort: []},
+          model: {values: [{label: "test", value: "test", selected: true}, {label: "tutu", value: "tutu"}]}
+        }
+      }
+    }});
+
+    expectLucideClearIcon(container.querySelector(".p-multiselect-clear-icon"));
   });
 });

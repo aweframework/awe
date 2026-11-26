@@ -15,7 +15,7 @@ describe("awe-react-client/test/js/utilities/generalTest.ts", () => {
     it("keeps the component types the server sends", () => {
       expect(ComponentType.COMPONENT_SELECT_MULTIPLE).toBe("select-multiple");
       expect(ComponentType.COMPONENT_PICKLIST).toBe("picklist");
-      expect(Object.keys(ComponentType)).toHaveLength(35);
+      expect(Object.keys(ComponentType)).toHaveLength(36);
     });
 
     it("keeps the date range suffixes", () => {

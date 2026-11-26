@@ -62,10 +62,6 @@
       <xs:selector xpath=".//image" />
       <xs:field xpath="@id" />
     </xs:unique>
-    <xs:unique name="ColumnNameUnique">
-      <xs:selector xpath=".//column" />
-      <xs:field xpath="@name" />
-    </xs:unique>
     <xs:unique name="CriteriaIdUnique">
       <xs:selector xpath=".//criteria" />
       <xs:field xpath="@id" />
@@ -113,6 +109,13 @@
     <xs:annotation>
       <xs:documentation xml:lang="en">Data grid (or tree grid when treegrid is true) that shows the rows returned by a query. It contains the columns, optional group headers, buttons and context menu, and can be editable. Supported by both client engines; the tree grid support of the React engine is partial (see the attributes).</xs:documentation>
     </xs:annotation>
+    <!-- The column names are unique in their grid. Two grids of a screen can use the same names only when each one
+         is hidden while the other is shown and does not send its values while hidden (send-when-hidden="false"):
+         otherwise the values of both reach the server with the same names -->
+    <xs:unique name="ColumnNameUnique">
+      <xs:selector xpath=".//column" />
+      <xs:field xpath="@name" />
+    </xs:unique>
   </xs:element>
   
   <!-- Accordion Element -->
@@ -140,7 +143,7 @@
   <!-- Card Element -->
   <xs:element name="card" type="cardType">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Metric tile: a title, a big value with its unit, an icon, a change (delta) with its trend and caption, a description, a footer and an optional progress towards a target. Its attributes are static values; with initial-load the first row of the target query fills it, and the query fields (named as the attributes in camelCase: title, value, unit, delta, deltaUnit, trend, caption, tone...) override them. Its children (a chart, a grid, buttons...) are shown in its body, below the value. It refreshes with reload, filter and dependencies like any component. Supported by both client engines.</xs:documentation>
+      <xs:documentation xml:lang="en">Metric tile: a title, a big value with its unit, an icon, a change (delta) with its trend and caption, a description, a footer and an optional progress towards a target. Its attributes are static values; with initial-load the first row of the target query fills it, and the query fields (named as the attributes in camelCase: title, value, unit, delta, deltaUnit, trend, caption, tone...) override them. Its children (a chart, a grid, buttons...) are shown in its body, below the value; a child with the style awe-card-header-actions (a div tag with criteria or buttons) is shown at the right of its header instead. It refreshes with reload, filter and dependencies like any component. Supported by both client engines.</xs:documentation>
     </xs:annotation>
   </xs:element>
 
@@ -206,7 +209,7 @@
   <!-- Quick filter Element -->
   <xs:element name="quick-filter" type="quickFilterType">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Quick filters of a grid: a group of buttons (a segmented control) at the start of the grid toolbar, one per option, such as All 128 · Locked 3 · Inactive 12. It is a criterion of the screen: its options come from its initial load (a query or an enumerated) with the fields value, label (a localization key), count (optional, shown after the label) and tone (optional, the colour of the count: danger, warning, success or info). Its value is sent with every request of the grid as a variable named like its id, so the query of the grid reads it to filter the rows; the option with an empty value (usually the first one, All) leaves the grid unfiltered. Choosing an option filters the grid with no dependency, and every filter of the grid (a search, a filter after a maintain, choosing an option) reloads the options too, so the counts stay current. The arrow keys move the choice. The toolbar shows it also when the grid hides its toolbar buttons with show-toolbar="false". Declare at most one per grid; only the first one is used. Supported by both client engines.</xs:documentation>
+      <xs:documentation xml:lang="en">Quick filters of a grid: a group of buttons (a segmented control) at the start of the grid toolbar, one per option, such as All 128 · Locked 3 · Inactive 12. It is a criterion of the screen: its options come from its initial load (a query or an enumerated) with the fields value, label (a localization key), count (optional, shown after the label) and tone (optional, the colour of the count: danger, warning, success or info). Its value is sent with every request of the grid as a variable named like its id, so the query of the grid reads it to filter the rows; the option with an empty value (usually the first one, All) leaves the grid unfiltered. Choosing an option filters the grid with no dependency, and every filter of the grid (a search, a filter after a maintain, choosing an option) reloads the options too, so the counts stay current. The arrow keys move the choice. The toolbar shows it also when the grid hides its toolbar buttons with show-toolbar="false". A grid may declare several quick filters: the toolbar shows them in the order of the XML and each sends its own variable. With display="dropdown" the quick filter is a compact menu button instead («Label: option», a menu of the options with their counts), and with display="date-range" a date button whose menu adds «Custom range…» (two dates with Clear and Apply) to its options: its value is the chosen option (a preset the query reads, for instance the last hours) and the custom range is sent as two more variables, the id with the suffixes .from and .to (dd/MM/yyyy dates, null when empty), as the date-range criterion does. Supported by both client engines.</xs:documentation>
     </xs:annotation>
   </xs:element>
 
@@ -214,6 +217,13 @@
   <xs:element name="search" type="gridSearchType">
     <xs:annotation>
       <xs:documentation xml:lang="en">Search field of a grid: a text box with a search icon at the start of the grid toolbar, before the quick filters. It is a text criterion of the screen with no query of its own (no server-action nor target-action): its value is sent with every request of the grid as a variable named like its id, so the query of the grid reads it to filter the rows (usually with a like filter on several fields). Typing filters the grid after a short pause (300 ms); Enter filters it at once, and the clear button or Escape empties it and filters the grid again. As every filter of the grid, a search reloads the quick filter of the grid too, so its counts follow the search. The toolbar shows it also when the grid hides its toolbar buttons with show-toolbar="false". Declare at most one per grid; only the first one is used. Supported by both client engines.</xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <!-- Grid toolbar criteria Element -->
+  <xs:element name="toolbar-criteria" type="criteriaType">
+    <xs:annotation>
+      <xs:documentation xml:lang="en">Criterion shown in the toolbar of its grid, at the end of the toolbar and just before the Columns button (before the Maximize button when the grid hides its Columns button), in the order of the XML: a control of the view of the grid that is not a filter of its rows, such as a switch (component="checkbox" style="switch no-label"). It has the attributes and the content of a criterion (component, label, value, initial load, dependencies...) and works as one: its value is sent with the requests of the screen as a variable named like its id and its dependencies run on its changes; only its place changes. Its id is unique in the screen as any criterion, so two grids that show the same control declare one criterion each and keep their values in sync with dependencies. The toolbar shows it also when the grid sets show-toolbar="false"; a hidden grid hides it with its toolbar. Supported by both client engines.</xs:documentation>
     </xs:annotation>
   </xs:element>
 
@@ -606,6 +616,11 @@
         <xs:documentation xml:lang="en">Muted text at the bottom left of the card.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="maximize" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Shows a maximize button at the right of the header that grows the card over the screen (its maximize target) and restores it, like the maximize of a window. Default: false.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
   </xs:attributeGroup>
 
   <!-- Map Attributes -->
@@ -827,12 +842,13 @@
     </xs:attribute>
     <xs:attribute name="display">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Select-multiple and suggest-multiple criteria only, in both clients. summary shows the chips that fit in one line and a +N counter that lists all the values (default of select-multiple). chip shows every value as a chip with its own remove icon, and the field grows with the values (default of suggest-multiple).</xs:documentation>
+        <xs:documentation xml:lang="en">Select-multiple and suggest-multiple criteria only, in both clients. summary shows the chips that fit in one line and a +N counter that lists all the values (default of select-multiple). chip shows every value as a chip with its own remove icon, and the field grows with the values (default of suggest-multiple). toggles (select-multiple only) shows every option as a toggle pill, pressed for the chosen ones, instead of a list: for a few short options, like the days of the week; the title of an option (its full name) is its accessible name and its tooltip.</xs:documentation>
       </xs:annotation>
       <xs:simpleType>
         <xs:restriction base="xs:string">
           <xs:enumeration value="chip"/>
           <xs:enumeration value="summary"/>
+          <xs:enumeration value="toggles"/>
         </xs:restriction>
       </xs:simpleType>
     </xs:attribute>
@@ -959,6 +975,16 @@
     <xs:attribute name="capture" type="captureEnum">
       <xs:annotation>
         <xs:documentation xml:lang="en">Uploader only. Adds a button to take a photo with the device camera (user: front camera, environment: rear camera). Devices without a camera fall back to the file dialog</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="keep-on-reload" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">The client keeps the value the criterion gets when the screen is generated in the
+          browser tab (sessionStorage) and sends it, as a parameter named as the criterion, with the screen request when the
+          screen is opened again without a value for it: a reload of the browser, or a screen that does not carry it. A
+          value sent by the screen the user comes from wins. Meant for the hidden criterion that identifies what a screen
+          shows (for instance the record of a detail screen opened from a list), so a reload does not lose it. Default
+          false</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="presets" type="xs:string">
@@ -1330,6 +1356,11 @@
         <xs:documentation xml:lang="en">Shows the Maximize button of the grid toolbar. Both engines. show-toolbar="false" hides it too. Default: true.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="send-when-hidden" type="booleanEnum">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Sends the values of the grid (its columns, their selected values and its selected rows) with the requests of the screen while the grid is hidden (by a dependency or not visible). With false a hidden grid sends none of them, so two grids of a screen shown one at a time can use the same column names. Both engines. Default: true.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="toolbar-labels" type="gridToolbarLabelsType">
       <xs:annotation>
         <xs:documentation xml:lang="en">Which end buttons of the grid toolbar show their label: true (all of them), false (none: only their icon, keeping the label as tooltip and accessible name) or a comma-separated list of the buttons that show it, from group-by (Group by), saved-searches (Saved searches), columns (Columns) and maximize (Maximize); the buttons not listed show only their icon. Example: toolbar-labels="saved-searches,columns". Both engines. Default: the property awe.application.component.grid-toolbar-labels (false, icon only, unless the application changes it).</xs:documentation>
@@ -1404,7 +1435,7 @@
     </xs:attribute>
     <xs:attribute name="permission" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Columns of component button only. Permissions of the catalog (Permissions.xml) required to show the column, separated by spaces: all of them are required. Without it, when the authorization mode is enforce, the server removes the column if one of its button actions launches a query, a maintain target or a service whose permission the user lacks. When present, it replaces that decision. An unknown permission is a load error.</xs:documentation>
+        <xs:documentation xml:lang="en">Columns of component button, and of component link with button actions. Permissions of the catalog (Permissions.xml) required to show the column, separated by spaces: all of them are required. Without it, when the authorization mode is enforce, the server removes the column if one of its button actions launches a query, a maintain target or a service whose permission the user lacks. When present, it replaces that decision. An unknown permission is a load error.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="style" type="xs:string">
@@ -1424,7 +1455,7 @@
     </xs:attribute>
     <xs:attribute name="component" type="columnComponentType">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Component used to show or edit the cell value. Without it the cell shows plain text. The link component only exists in React; progress, image, icon, text-view, button, formatted-text and sparkline are display components. In React the editors of text, textarea, date, time, filtered-calendar, select-multiple, suggest and suggest-multiple only appear while a row is being edited; otherwise the cell is plain text.</xs:documentation>
+        <xs:documentation xml:lang="en">Component used to show or edit the cell value. Without it the cell shows plain text. The link component opens the cell value as a URL in a new page or, when the column has button actions, launches them on its row as the button component does; progress, image, icon, text-view, button, formatted-text, sparkline and status-strip are display components. In React the editors of text, textarea, date, time, filtered-calendar, select-multiple, suggest and suggest-multiple only appear while a row is being edited; otherwise the cell is plain text.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="icon" type="xs:string">
@@ -1482,6 +1513,11 @@
         <xs:documentation xml:lang="en">Column width: a number of pixels, or * to share the free space. AngularJS uses it before charlength and also accepts a percentage (for example 20%), which this schema does not allow and which fails when printing. React ignores it and uses charlength. In reports, * is a fixed width.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
+    <xs:attribute name="min-width" type="xs:positiveInteger">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">Minimum width in pixels of the column that shares the free space (width="*"), in both client engines: when the other columns take the width of the grid, this column keeps that width and the grid scrolls horizontally instead of squeezing it. Ignored in the other columns. Without it the column can shrink to nothing, as before.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
     <xs:attribute name="wrap" type="booleanEnum">
       <xs:annotation>
         <xs:documentation xml:lang="en">The text of the cells wraps over several lines and the row grows to fit it, in both client engines. Without it (or with false) the text is one line cut with an ellipsis, as before. In AngularJS the row-height of the grid becomes the minimum row height, and a grid with frozen columns keeps its single-line rows. Default: false.</xs:documentation>
@@ -1494,7 +1530,7 @@
     </xs:attribute>
     <xs:attribute name="secondary-field" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Name of another field of the row whose value is shown under the main value, smaller and muted. An empty secondary value shows only the main line. Sorting, filtering and export use the main value. Combines with plain text and with status-field; ignored in columns with a component.</xs:documentation>
+        <xs:documentation xml:lang="en">Name of another field of the row whose value is shown under the main value, smaller and muted. An empty secondary value shows only the main line. Sorting, filtering and export use the main value. Combines with plain text and with status-field; in columns with a component, only progress (the text goes under the bar) and link (one line under the link, cut with an ellipsis) show it.</xs:documentation>
       </xs:annotation>
     </xs:attribute>
     <xs:attribute name="export-secondary" type="booleanEnum">
@@ -2236,7 +2272,7 @@
   <!-- Grid Type -->
   <xs:complexType name="gridType">
     <xs:annotation>
-      <xs:documentation xml:lang="en">Content of a grid: columns, group headers, buttons, context buttons and separators, dependencies, an optional row detail, an optional quick filter and an optional search, in any order and number.</xs:documentation>
+      <xs:documentation xml:lang="en">Content of a grid: columns, group headers, buttons, context buttons and separators, dependencies, an optional row detail, quick filters, an optional search and toolbar criteria, in any order and number.</xs:documentation>
     </xs:annotation>
     <xs:choice maxOccurs="unbounded">
       <xs:element minOccurs="0" ref="group-header" />
@@ -2244,6 +2280,7 @@
       <xs:element minOccurs="0" ref="row-detail" />
       <xs:element minOccurs="0" ref="quick-filter" />
       <xs:element minOccurs="0" ref="search" />
+      <xs:element minOccurs="0" ref="toolbar-criteria" />
       <xs:element minOccurs="0" ref="button" />
       <xs:element minOccurs="0" ref="context-button" />
       <xs:element minOccurs="0" ref="context-separator" />
@@ -2284,8 +2321,20 @@
     </xs:attribute>
     <xs:attribute name="label" type="xs:string">
       <xs:annotation>
-        <xs:documentation xml:lang="en">Accessible name of the group of buttons, read by screen readers (a localization key). It is not shown. Default: SCREEN_TEXT_FILTERS.</xs:documentation>
+        <xs:documentation xml:lang="en">Accessible name of the group of buttons, read by screen readers (a localization key). The segmented control does not show it; a dropdown shows it before the chosen option («Label: option») and a date range only reads it. Default: SCREEN_TEXT_FILTERS.</xs:documentation>
       </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="display">
+      <xs:annotation>
+        <xs:documentation xml:lang="en">How the toolbar shows the quick filter. segmented (default): a group of buttons, one per option. dropdown: a compact button «Label: chosen option» that opens a menu of the options with their counts (menu button: Enter, Space or the arrows open it, the arrows move, Escape closes it); choosing an option filters the grid as the segmented control does. date-range: a button with the current range («Any date», «Last 24 h»... or «dd/MM/yyyy – dd/MM/yyyy») whose menu lists the options (the predefined ranges, whose values the query of the grid understands, with an empty value for any date) and «Custom range…», two dates with Clear and Apply. A date range quick filter sends its preset as the variable of its id (null while a custom range is set) and the custom range as id.from and id.to (dd/MM/yyyy, null when empty); validate them in the query or the service of the grid. Supported by both client engines.</xs:documentation>
+      </xs:annotation>
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="segmented"/>
+          <xs:enumeration value="dropdown"/>
+          <xs:enumeration value="date-range"/>
+        </xs:restriction>
+      </xs:simpleType>
     </xs:attribute>
   </xs:complexType>
 
@@ -2857,6 +2906,11 @@
       <xs:enumeration value="sparkline">
         <xs:annotation>
           <xs:documentation xml:lang="en">Small chart of a series of numbers, drawn inside the cell. The value of the cell is a JSON array of numbers, for example [3, 5, -1, 8], either as text or as an already parsed list; any other value (empty, not a list, or a list with something that is not a number) leaves the cell empty. The drawing is chosen with sparkline-type, and sparkline-color, sparkline-negative-color, sparkline-last-point and sparkline-min-max adjust it. Hovering a point shows its value in a tooltip. Both client engines draw the same SVG, which is 100 by 24 pixels. The cell is not editable.</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="status-strip">
+        <xs:annotation>
+          <xs:documentation xml:lang="en">Strip of statuses drawn inside the cell, for example the last executions of a task. The value of the cell is a JSON array of items {"tone": "...", "label": "..."} in display order, for example [{"tone": "success", "label": "OK"}, {"tone": "danger", "label": "Error"}], either as text or as an already parsed list; any other value (empty, not a list, or a list with an item that is not an object with a non-empty label) leaves the cell empty. The tone is success, warning, danger, info or neutral; any other tone is drawn as neutral. Every item is a small mark in the colour of its tone, with its label as the tooltip, and its height also tells the tone (danger is the tallest, with an inner notch, then warning), so the status is not told by colour only. The strip is one image whose accessible name counts the items per label in the order each label first appears, for example "3 OK, 1 Warning, 1 Error". Both client engines draw the same strip. The cell is not editable.</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="password" />

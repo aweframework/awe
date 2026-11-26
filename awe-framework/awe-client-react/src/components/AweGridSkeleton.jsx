@@ -85,8 +85,8 @@ function AweGridSkeleton({columns = [], rows, multiselect = false, rowNumbers = 
           <div key={name} className="grid-skeleton-cell" style={style}>
             <Skeleton />
           </div>)}
-        {visibleColumns.map(({name, charlength = null, width = null}) =>
-          <div key={name} className="grid-skeleton-cell" style={getWidthStyle(charlength, width)}>
+        {visibleColumns.map(({name, charlength = null, width = null, minWidth = null}) =>
+          <div key={name} className="grid-skeleton-cell" style={getWidthStyle(charlength, width, null, minWidth)}>
             <Skeleton />
           </div>)}
       </div>)}

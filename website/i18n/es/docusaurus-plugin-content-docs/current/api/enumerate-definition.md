@@ -25,7 +25,7 @@ xsi:noNamespaceSchemaLocation = "https://aweframework.gitlab.io/awe/docs/schemas
 
   <group id="[Group Id]">
     <option label="[Option label]"  value="[Option value]" />
-    <option label="[Option label]"  value="[Option value]" />
+    <option label="[Option label]"  value="[Option value]" icon="[Option icon]" />
     ... more <option>
   </group>
 
@@ -58,11 +58,20 @@ El elemento de opción tiene los siguientes atributos:
 | -------- | --------------- | ------ | ------------------------ | ----------------------------------------------------------------------------- |
 | label    | **Obligatorio** | String | La etiqueta de la opción | **Nota:** Puedes usar literales [i18n](i18n-internationalization.md) |
 | value    | **Obligatorio** | String | El valor de la opción    | **Nota:**  El nombre del id debe ser único                                    |
+| icon     | Opcional | String | Icono de la opción (#993). Las [pestañas](tab-and-tabcontainer.md) cargadas del enumerado lo dibujan antes de la etiqueta de su pestaña, en los dos motores; el resto de componentes lo ignoran. Una opción sin icono se envía como antes | **Nota:** Puedes consultar todos los iconos en la pantalla de [iconos](icons.md) (`history`, `lucide:history`...) |
 
 
 ## Ejemplos {#examples}
 
 Varios ejemplos de grupos de enumerados:
+
+```xml
+<!-- Pestañas de una página, cada una con su icono (#993) -->
+<group id="TskPagTab">
+  <option label="SCREEN_TEXT_TASK_PAGE_TAB_SUMMARY" value="TskPagSum" icon="lucide:layout-dashboard"/>
+  <option label="SCREEN_TEXT_TASK_PAGE_TAB_HISTORY" value="TskPagHis" icon="lucide:history"/>
+</group>
+```
 
 ```xml
 <!-- Enumerated YES (0) | NO (1) -->

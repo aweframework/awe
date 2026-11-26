@@ -71,11 +71,11 @@ public class TaskConstants {
   public static final String FILE_TRACKING_GROUP = "FILE_TRACKING_TASK";
   public static final String DEPENDENCY_GROUP = "DEPENDANT_TASK";
   public static final String REPORT_GROUP = "REPORT_TASK";
+  public static final String WEBHOOK_GROUP = "WEBHOOK_TASK";
 
   // Execution fields
   public static final String TASK_EXECUTION_ID = "ExeTsk";
   public static final String TASK_EXECUTION_TIME = "ExeTim";
   public static final String TASK_EXECUTION_PROGRESS = "ExePrg";
-  public static final String TASK_EXECUTION_ICON = "ExeStaIco";
   public static final String TASK_EXECUTION_LOG_PATH = "ExecutionLogPath";
 }

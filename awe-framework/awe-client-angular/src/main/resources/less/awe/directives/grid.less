@@ -1342,6 +1342,32 @@
     flex: 1 1 0;
     min-width: 0;
   }
+
+  // Toolbar criteria (toolbar-criteria, such as a switch): at the end, before the Columns button, at the height of the
+  // toolbar buttons and without the margins and the label row of a criterion of a form
+  .grid-toolbar-criteria {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: var(--awe-space-3);
+
+    .criterion,
+    .criterion .form-group,
+    .criterion .form-group .checkbox {
+      margin: 0;
+      padding: 0;
+    }
+
+    .criterion .control-label:empty {
+      display: none;
+    }
+
+    .criterion .form-group .checkbox {
+      min-height: var(--awe-size-control-sm);
+      font-size: var(--awe-font-size-sm);
+      white-space: nowrap;
+    }
+  }
 }
 
 // Search of the grid: a small text field with the search icon at the start of the toolbar, before the quick filters;
@@ -1551,6 +1577,232 @@
 
 @media (prefers-reduced-motion: reduce) {
   .grid-quick-filter .grid-quick-filter-segment {
+    transition: none;
+  }
+}
+
+// Quick filter as a menu button (display="dropdown" or "date-range"): a compact field-like button «Label: option» with a
+// chevron, and its menu of options (with their counts), fixed under the button; a date range adds «Custom range…», a
+// panel with the two dates, Clear and Apply
+.grid-quick-filter-dropdown {
+  display: inline-flex;
+  flex: none;
+  max-width: 100%;
+}
+
+.grid-quick-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-1-5);
+  max-width: 100%;
+  height: var(--awe-size-control-sm);
+  padding: 0 var(--awe-space-2) 0 var(--awe-space-3);
+  font: inherit;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-field-text);
+  white-space: nowrap;
+  cursor: pointer;
+  background: var(--awe-color-field);
+  border: var(--awe-border-width) solid var(--awe-color-field-border);
+  border-radius: var(--awe-radius-field);
+  box-shadow: var(--awe-shadow-field);
+  transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover {
+    border-color: var(--awe-color-field-border-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: var(--awe-opacity-disabled);
+  }
+
+  &[aria-expanded="true"] .grid-quick-filter-toggle-chevron {
+    rotate: 180deg;
+  }
+}
+
+.grid-quick-filter-toggle-label {
+  color: var(--awe-color-text-muted);
+}
+
+.grid-quick-filter-toggle-value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// The name of a date range button is read, not shown: the range speaks for itself
+.grid-quick-filter-toggle-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.grid-quick-filter-toggle-icon,
+.grid-quick-filter-toggle-chevron,
+.grid-quick-filter-menu-check {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+
+  .awe-icon {
+    width: var(--awe-size-icon);
+    height: var(--awe-size-icon);
+  }
+}
+
+.grid-quick-filter-toggle-icon,
+.grid-quick-filter-toggle-chevron {
+  color: var(--awe-color-field-icon);
+}
+
+.grid-quick-filter-toggle-chevron {
+  transition: rotate var(--awe-motion-duration-base) var(--awe-motion-easing-standard);
+}
+
+.grid-quick-filter-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: var(--awe-z-dropdown);
+  min-width: calc(var(--awe-size-menu-width) * 0.75);
+  max-width: calc(100vw - var(--awe-space-8));
+  padding: var(--awe-list-padding);
+  font-size: var(--awe-font-size-sm);
+  background: var(--awe-color-overlay);
+  border: var(--awe-border-width) solid var(--awe-color-overlay-border);
+  border-radius: var(--awe-radius-overlay);
+  box-shadow: var(--awe-shadow-overlay);
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.grid-quick-filter-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-list-gap);
+}
+
+.grid-quick-filter-menu-option {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  width: 100%;
+  padding: var(--awe-list-option-padding);
+  font: inherit;
+  text-align: start;
+  color: var(--awe-color-list-option-text);
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  border-radius: var(--awe-radius-list-option);
+  transition: background-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover,
+  &:focus-visible {
+    color: var(--awe-color-list-option-text-focus);
+    background: var(--awe-color-list-option-focus);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: calc(var(--awe-focus-ring-width) * -1);
+  }
+
+  &[aria-checked="true"] {
+    color: var(--awe-color-list-option-text-selected);
+    background: var(--awe-color-list-option-selected);
+  }
+
+  &[aria-checked="true"]:focus-visible {
+    background: var(--awe-color-list-option-selected-focus);
+  }
+
+  .grid-quick-filter-menu-check {
+    width: var(--awe-size-icon);
+    color: var(--awe-color-primary-text);
+  }
+
+  .grid-quick-filter-menu-text {
+    flex: 1;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  .grid-quick-filter-count {
+    font-variant-numeric: tabular-nums;
+    color: var(--awe-color-text-muted);
+  }
+
+  .grid-quick-filter-count[data-tone="danger"] {
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-danger-text);
+  }
+
+  .grid-quick-filter-count[data-tone="warning"] {
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-warning-text);
+  }
+
+  .grid-quick-filter-count[data-tone="success"] {
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-success-text);
+  }
+
+  .grid-quick-filter-count[data-tone="info"] {
+    font-weight: var(--awe-font-weight-semibold);
+    color: var(--awe-color-info-text);
+  }
+}
+
+.grid-quick-filter-menu-separator {
+  height: var(--awe-border-width);
+  margin: var(--awe-space-1) 0;
+  background: var(--awe-color-border);
+}
+
+.grid-quick-filter-range {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-3);
+  padding: var(--awe-space-2);
+}
+
+.grid-quick-filter-range-date {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-1);
+  margin: 0;
+  font-weight: inherit;
+}
+
+.grid-quick-filter-range-label {
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-muted);
+}
+
+.grid-quick-filter-range-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--awe-space-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-quick-filter-toggle,
+  .grid-quick-filter-toggle-chevron,
+  .grid-quick-filter-menu-option {
     transition: none;
   }
 }
@@ -2175,9 +2427,27 @@
   }
 }
 
+// Progress column with a secondary line: the bar on top and the text of the secondary field under it
+.awe-cell-lines.awe-cell-progress {
+  gap: var(--awe-space-1);
+}
+
 .cell-wrap .awe-cell-lines > .awe-cell-main,
 .cell-wrap .awe-cell-lines > .awe-cell-secondary {
   text-overflow: clip;
+}
+
+// The text of an icon cell wraps with its column too (#993)
+.cell-wrap .awe-cell-icon-text {
+  display: inline;
+  white-space: normal;
+}
+
+// A link with a secondary line (#993): the link and the line under it, each in one line cut with an ellipsis
+.awe-cell-lines.awe-cell-link > .column-link {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .awe-cell-secondary {
@@ -2240,6 +2510,33 @@
 
 .awe-cell-status-plain::before {
   display: none;
+}
+
+// A status with an icon is a pill (#993): fully rounded, with a border of its tone, as the status pills of the AWE 5
+// mock-ups. Without an icon it stays the tag with a dot
+.awe-cell-status-plain {
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-full);
+}
+
+.awe-cell-status-pill-tone(@tone) {
+  .awe-cell-status-plain.awe-cell-status-@{tone} {
+    border-color: ~"var(--awe-color-@{tone}-border)";
+  }
+}
+
+.awe-cell-status-pill-tone(success);
+.awe-cell-status-pill-tone(warning);
+.awe-cell-status-pill-tone(danger);
+.awe-cell-status-pill-tone(info);
+
+// Pending (#993): the info tone with a dashed border, for a state that waits (a deferred execution waiting for its
+// confirmation), so it reads apart from the solid states and is not taken for a warning
+.awe-cell-status-pending,
+.awe-cell-status-plain.awe-cell-status-pending {
+  color: var(--awe-color-info-text);
+  background-color: var(--awe-color-info-subtle);
+  border: var(--awe-border-width) dashed var(--awe-color-info-border);
 }
 
 .awe-cell-icon-text {

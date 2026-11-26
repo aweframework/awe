@@ -99,6 +99,99 @@ export const templateButtonRadioGroup = `<div ng-show="controller.visible" class
   </div>
 </div>`;
 
+// Button radio criterion with options and style="awe-choice-cards": one card per option (#993), with the icon, the
+// label and the description of its row, and a tick at the top right of the chosen one. Each card holds the native radio
+// of its option (visually hidden), so the group keeps the radio semantics and keys; the card is its label
+export const templateChoiceCards = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
+  <div ng-class="::groupClass" ng-cloak>
+    <label ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
+      {{controller.label| translateMultiple}}
+    </label>
+    <div role="radiogroup" ng-attr-aria-label="{{controller.label | translateMultiple}}" class="validator input awe-choice-cards-group focus-target">
+      <label class="awe-choice" ng-repeat="option in component.model.values track by $index" ng-attr-option-id="{{option.value}}" ng-class="{'awe-choice-checked': isChecked(option), 'disabled': controller.readonly}" title="{{option.title | translateMultiple}}">
+        <input type="radio" class="awe-choice-input" ng-attr-name="{{radioName}}" ng-attr-value="{{option.value}}" ng-attr-aria-label="{{option.label | translateMultiple}}" ng-attr-aria-describedby="{{option.description ? radioName + '-' + $index + '-description' : undefined}}" ng-checked="isChecked(option)" ng-click="choose(option)" ng-focus="focus()" ng-blur="blur()" ng-disabled="controller.readonly" data-testid="${TestIds.criterionInput}"/>
+        <span class="awe-choice-head">
+          ${getIconTemplate("awe-choice-icon", "span", "getOptionIcon(option)", 'aria-hidden="true"')}
+          <span class="awe-choice-title">{{option.label | translateMultiple}}</span>
+        </span>
+        <span class="awe-choice-description" ng-if="option.description" ng-attr-id="{{radioName + '-' + $index + '-description'}}">{{option.description | translateMultiple}}</span>
+        <span class="awe-choice-tick" aria-hidden="true">${iconTemplate("lucide:check", {tag: "span"})}</span>
+      </label>
+    </div>
+    <awe-loader class="loader" skeleton="radio" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  </div>
+</div>`;
+
+// Label row of a criterion drawn as a group of options (chips, toggles)
+const groupLabelRow = `<label ng-if="hasLabelRow()" ng-class="::labelClass" ng-style="::labelStyle" ng-cloak>
+      ${iconTemplate("question-circle", {classes: "help-target", attributes: 'ng-if="::controller.help"'})}
+      {{controller.label| translateMultiple}}
+    </label>`;
+
+// Button radio criterion with options and style="awe-chips" (#993, T37): one pill per option, wrapping, a tick before the
+// label of the chosen one. Each chip holds the native radio of its option (visually hidden), so the group keeps the radio
+// semantics and keys; the title of an option (its full name) is its accessible name and its tooltip
+export const templateChips = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
+  <div ng-class="::groupClass" ng-cloak>
+    ${groupLabelRow}
+    <div role="radiogroup" ng-attr-aria-label="{{controller.label | translateMultiple}}" class="validator input awe-chips-group focus-target">
+      <label class="awe-chip" ng-repeat="option in component.model.values track by $index" ng-attr-option-id="{{option.value}}" ng-class="{'awe-chip-checked': isChecked(option), 'disabled': controller.readonly}" ng-attr-title="{{option.title ? (option.title | translateMultiple) : undefined}}">
+        <input type="radio" class="awe-chip-input" ng-attr-name="{{radioName}}" ng-attr-value="{{option.value}}" ng-attr-aria-label="{{(option.title || option.label) | translateMultiple}}" ng-checked="isChecked(option)" ng-click="choose(option)" ng-focus="focus()" ng-blur="blur()" ng-disabled="controller.readonly" data-testid="${TestIds.criterionInput}"/>
+        <span class="awe-chip-tick" aria-hidden="true" ng-if="isChecked(option)">${iconTemplate("lucide:check", {tag: "span"})}</span>
+        <span class="awe-chip-label">{{option.label | translateMultiple}}</span>
+      </label>
+    </div>
+    <awe-loader class="loader" skeleton="radio" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  </div>
+</div>`;
+
+// Select multiple criterion with display="toggles" (#993, T37): one toggle pill per option, the pressed ones are its
+// values. Each chip holds the native checkbox of its option (visually hidden); the title of an option (its full name) is
+// its accessible name and its tooltip
+export const templateToggles = `<div ng-show="controller.visible" class="criterion {{criterionClass}}" ui-dependency="dependencies" ng-attr-criterion-id="{{::controller.id}}" ng-cloak>
+  <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
+  <div ng-class="::groupClass" ng-cloak>
+    ${groupLabelRow}
+    <div role="group" ng-attr-aria-label="{{controller.label | translateMultiple}}" class="validator input awe-chips-group focus-target">
+      <label class="awe-chip" ng-repeat="option in component.model.values track by $index" ng-attr-option-id="{{option.value}}" ng-class="{'awe-chip-checked': isPressed(option), 'disabled': controller.readonly}" ng-attr-title="{{option.title ? (option.title | translateMultiple) : undefined}}">
+        <input type="checkbox" class="awe-chip-input" ng-attr-name="{{radioName}}" ng-attr-value="{{option.value}}" ng-attr-aria-label="{{(option.title || option.label) | translateMultiple}}" ng-checked="isPressed(option)" ng-click="toggle(option)" ng-focus="focus()" ng-blur="blur()" ng-disabled="controller.readonly" data-testid="${TestIds.criterionInput}"/>
+        <span class="awe-chip-label">{{option.label | translateMultiple}}</span>
+      </label>
+    </div>
+    <awe-loader class="loader" skeleton="field" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
+  </div>
+</div>`;
+
+/**
+ * Check if a button radio criterion draws its options as chips (style="awe-chips")
+ * @param {Object} controller Criterion controller
+ * @return {boolean} The options are chips
+ */
+export function isChips(controller) {
+  return String(controller?.style || "").split(/\s+/).includes("awe-chips");
+}
+
+/**
+ * Check if a select multiple criterion draws its options as toggles (display="toggles")
+ * @param {Object} controller Criterion controller
+ * @return {boolean} The options are toggles
+ */
+export function isToggles(controller) {
+  return controller?.display === "toggles";
+}
+
+/**
+ * Check if a button radio criterion draws its options as cards (style="awe-choice-cards")
+ * @param {Object} controller Criterion controller
+ * @return {boolean} The options are cards
+ */
+export function isChoiceCards(controller) {
+  return String(controller?.style || "").split(/\s+/).includes("awe-choice-cards");
+}
+
 /**
  * Check if a button radio criterion has options of its own, drawn as one group of buttons. A criterion with an initial
  * load (enum or query) has them, even before they arrive (deferred tabs and dialogs); the server gives a criterion
@@ -192,6 +285,9 @@ aweApplication.factory('CheckboxRadio',
         };
         this.component.asRadioGroup = function () {
           return checkboxradio.asRadioGroup();
+        };
+        this.component.asToggleGroup = function () {
+          return checkboxradio.asToggleGroup();
         };
         return this.component;
       }
@@ -339,6 +435,71 @@ aweApplication.factory('CheckboxRadio',
           this.initChoice();
 
           // Restore goes back to the initial choice (the server only sends it as the selected value)
+          if (Utilities.isEmpty(component.model.defaultValues)) {
+            component.model.defaultValues = _.cloneDeep(component.model.selected);
+          }
+          return true;
+        },
+        /**
+         * Initialize as select multiple criterion with toggles (display="toggles", #993, T37): its values are the pressed
+         * options, kept in the order of the options
+         */
+        asToggleGroup: function () {
+          let  component = this.component;
+          if (!component.asCriterion()) {
+            // If criterion is wrong, cancel initialization
+            return false;
+          }
+          component.scope.spinOptions = component.scope.spinOptions || DefaultSpin.small;
+          component.scope.radioName = [component.address.view, component.address.component].join("-");
+          const pressedValues = () => Utilities.asArray(component.model.selected)
+            .filter(value => !Utilities.isEmpty(value)).map(String);
+
+          /**
+           * Check if an option is pressed
+           * @param {Object} option Option of the list
+           * @return {boolean} The option is one of the values
+           */
+          component.scope.isPressed = function (option) {
+            return pressedValues().includes(String(option.value));
+          };
+
+          /**
+           * Press or release an option
+           * @param {Object} option Option of the list
+           */
+          component.scope.toggle = function (option) {
+            if (component.controller.readonly) {
+              return;
+            }
+            let  value = String(option.value);
+            let  pressed = pressedValues();
+            let  next = pressed.includes(value) ? pressed.filter(item => item !== value) : [...pressed, value];
+            component.model.selected = (component.model.values || []).map(item => String(item.value))
+              .filter(item => next.includes(item));
+            component.modelChange();
+          };
+
+          /**
+           * The values are always a list
+           * @return {Object} Data of the criterion
+           */
+          component.getData = function () {
+            let  data = {};
+            data[component.address.component] = pressedValues();
+            return data;
+          };
+
+          /**
+           * Labels of the pressed options as the visible value
+           * @return {string} Visible value
+           */
+          component.getVisibleValue = function () {
+            return (component.model.values || []).filter(item => component.scope.isPressed(item))
+              .map(item => String(item.label)).join(", ");
+          };
+
+          // Restore goes back to the initial values
           if (Utilities.isEmpty(component.model.defaultValues)) {
             component.model.defaultValues = _.cloneDeep(component.model.selected);
           }

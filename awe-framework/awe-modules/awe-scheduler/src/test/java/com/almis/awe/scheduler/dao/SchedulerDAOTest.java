@@ -1,6 +1,8 @@
 package com.almis.awe.scheduler.dao;
 
 import com.almis.awe.model.dto.ServiceData;
+import com.almis.awe.scheduler.bean.task.Task;
+import com.almis.awe.scheduler.job.scheduled.SchedulerJob;
 import com.almis.awe.scheduler.listener.SchedulerJobListener;
 import com.almis.awe.scheduler.listener.SchedulerTriggerListener;
 import com.almis.awe.scheduler.service.TaskService;
@@ -23,13 +25,14 @@ import java.util.*;
 
 import static com.almis.awe.scheduler.constant.JobConstants.TASK_VISIBLE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -70,12 +73,21 @@ class SchedulerDAOTest {
     return Clock.fixed(Instant.ofEpochMilli(time), ZoneOffset.UTC);
   }
 
+  private org.springframework.context.ApplicationContext context;
+
   @BeforeEach
   void setUp() throws Exception {
     schedulerDAO = new SchedulerDAO(scheduler, true, calendarDAO, taskService, schedulerTriggerListener, schedulerJobListener);
     lenient().when(scheduler.getListenerManager()).thenReturn(listenerManager);
     lenient().when(listenerManager.getTriggerListeners()).thenReturn(Collections.emptyList());
     lenient().when(listenerManager.getJobListeners()).thenReturn(Collections.emptyList());
+    // The messages of start, shutdown and stop are localized: the locale key stands for its text
+    context = org.mockito.Mockito.mock(org.springframework.context.ApplicationContext.class);
+    com.almis.awe.model.component.AweElements elements = org.mockito.Mockito.mock(com.almis.awe.model.component.AweElements.class);
+    lenient().when(context.getBean(com.almis.awe.model.component.AweElements.class)).thenReturn(elements);
+    lenient().when(elements.getLocaleWithLanguage(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.any()))
+      .thenAnswer(call -> call.getArgument(0));
+    schedulerDAO.setApplicationContext(context);
   }
 
   /**
@@ -262,6 +274,7 @@ class SchedulerDAOTest {
     SchedulerDAO guardedSchedulerDAO = new SchedulerDAO(scheduler, true, calendarDAO, taskService,
       schedulerTriggerListener, schedulerJobListener,
       new SchedulerDAO.StartupHardeningConfig(fixedClock(startupTime), 1_000L));
+    guardedSchedulerDAO.setApplicationContext(context);
     Date originalStart = new Date(startupTime + 500L);
     Trigger trigger = TriggerBuilder.newTrigger()
       .withIdentity("1", "SCHEDULED_TASK")
@@ -310,5 +323,47 @@ class SchedulerDAOTest {
     inOrder.verify(scheduler).start();
     verify(scheduler, times(2)).getTriggerKeys(any());
     verify(scheduler, never()).rescheduleJob(eq(trigger.getKey()), any(Trigger.class));
+  }
+
+  @Test
+  void stopRunningJobsStopsOnlyTheJobsOfTheTask() throws Exception {
+    SchedulerJob ofTask = runningJob(4, true);
+    SchedulerJob ofOtherTask = runningJob(5, true);
+    List<JobExecutionContext> running = List.of(context(ofTask), context(ofOtherTask));
+    given(scheduler.getCurrentlyExecutingJobs()).willReturn(running);
+
+    assertTrue(schedulerDAO.stopRunningJobs(4));
+
+    verify(ofTask).stop();
+    verify(ofOtherTask, never()).stop();
+  }
+
+  @Test
+  void stopRunningJobsReportsAJobThatCannotBeStopped() throws Exception {
+    SchedulerJob ofTask = runningJob(4, false);
+    List<JobExecutionContext> running = List.of(context(ofTask));
+    given(scheduler.getCurrentlyExecutingJobs()).willReturn(running);
+
+    assertFalse(schedulerDAO.stopRunningJobs(4));
+  }
+
+  @Test
+  void stopRunningJobsDoesNothingWhenTheTaskIsNotRunning() throws Exception {
+    given(scheduler.getCurrentlyExecutingJobs()).willReturn(List.of());
+
+    assertTrue(schedulerDAO.stopRunningJobs(4));
+  }
+
+  private SchedulerJob runningJob(int taskId, boolean stoppable) {
+    SchedulerJob job = mock(SchedulerJob.class);
+    lenient().when(job.getTask()).thenReturn(new Task().setTaskId(taskId));
+    lenient().when(job.stop()).thenReturn(stoppable);
+    return job;
+  }
+
+  private JobExecutionContext context(Job job) {
+    JobExecutionContext executing = mock(JobExecutionContext.class);
+    when(executing.getJobInstance()).thenReturn(job);
+    return executing;
   }
 }

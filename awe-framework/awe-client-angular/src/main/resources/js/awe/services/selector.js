@@ -125,11 +125,44 @@ aweApplication.factory('Selector',
           if (value.toUpperCase().indexOf(search) !== -1 || translatedLabel.toUpperCase().indexOf(search) !== -1) {
             data.push({
               id: element.value,
-              text: translatedLabel
+              text: translatedLabel,
+              // A row may bring a description (a line under the option) and a disabled field (it cannot be chosen, a
+              // chosen one can still be removed), as the select of the React engine (#993)
+              ...(element.description ? {description: $translate.instant(String(element.description))} : {}),
+              ...(isDisabledOption(element.disabled) ? {disabled: true} : {})
             });
           }
         });
         return data;
+      }
+
+      /**
+       * Whether a row says its option cannot be chosen (true, 1, "1" or "true")
+       * @param {*} disabled Disabled field of the row
+       * @return {boolean} The option cannot be chosen
+       */
+      function isDisabledOption(disabled) {
+        return disabled === true || disabled === 1 || disabled === "1" || disabled === "true";
+      }
+
+      /**
+       * Format an option of the list (select2 formatResult): its text as select2 draws it and, when the row brings a
+       * description, the description in a muted line under it. A disabled option tells assistive technologies it cannot
+       * be chosen (select2 only marks it with a class)
+       * @param {object} result Option (select2 format)
+       * @param {object} label Node of the option
+       * @param {object} query Query
+       * @param {function} escapeMarkup Escape function of select2
+       * @return {string} Markup of the option
+       */
+      function formatOptionResult(result, label, query, escapeMarkup) {
+        const markup = $.fn.select2.defaults.formatResult(result, label, query, escapeMarkup);
+        if (result && result.disabled) {
+          $(label).attr("aria-disabled", "true");
+        }
+        return result && result.description
+          ? `${markup}<span class="awe-select-option-description">${escapeMarkup(result.description)}</span>`
+          : markup;
       }
 
       /**
@@ -420,6 +453,7 @@ aweApplication.factory('Selector',
             summary: showsSummary(selector, component.controller),
             minimumResultsForSearch: 5,
             multiple: selector.multiple,
+            formatResult: formatOptionResult,
             query: function (query) {
               let model = Control.getAddressModel(component.address);
               fillCallback(model.values, query.callback, query.term);

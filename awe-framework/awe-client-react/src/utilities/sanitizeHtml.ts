@@ -55,3 +55,17 @@ export function sanitizeHtml(value: unknown): string {
 export function renderSafeHtml(value: unknown): ReturnType<typeof parse> {
   return parse(sanitizeHtml(value));
 }
+
+/**
+ * Render the title or the text of a message (confirm, notification, target message). Its locale may be written in
+ * Markdown, which the server converts into html, so the text is rendered as sanitized html. An empty text stays as it
+ * is, so the message does not render an empty title
+ * @param {*} value Text of the message
+ * @returns {React.ReactNode} React nodes, or the value when it is empty
+ */
+export function renderMessageText(value: unknown): ReturnType<typeof parse> | null | undefined {
+  if (value === null || value === undefined || value === "") {
+    return value as null | undefined;
+  }
+  return renderSafeHtml(value);
+}

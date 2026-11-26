@@ -2,15 +2,18 @@ import {aweApplication} from "../awe";
 import {getIconTemplate} from "./component";
 import {TestIds} from "../data/testIds";
 import {busySpinnerTemplate, createBusyState} from "./busyState";
+import {iconMarkup} from "./icon";
 
 export const templateButton = `<div ng-show="controller.visible" class="{{::groupClass}}" ui-dependency="dependencies" ng-cloak>
   <button type="{{::component.buttonType}}" id="{{::buttonId}}" data-testid="${TestIds.button}" title="{{getTitle()| translateMultiple}}"
           class="{{classes}}" ng-class="{'is-loading': busy}" ng-attr-aria-busy="{{busy ? 'true' : undefined}}"
           ng-attr-aria-label="{{iconOnly ? ((controller.label | translateMultiple) || undefined) : undefined}}"
+          ng-attr-aria-haspopup="{{hasMenu ? 'menu' : undefined}}"
           ng-disabled="isDisabled()" ng-click="onClick()" ng-mousedown="onMouseDown()" ng-transclude>
     ${busySpinnerTemplate("busy")}
     ${getIconTemplate("button-icon", "i")}
     <span ng-if="controller.label && !iconOnly" class="button-text" translate-multiple="{{busy && controller.loadingLabel ? controller.loadingLabel : controller.label}}"></span>
+    <span ng-if="hasMenu" class="awe-button-menu-chevron" aria-hidden="true">${iconMarkup("lucide:chevron-down")}</span>
   </button>
   <awe-context-menu open-on-right-click ng-cloak></awe-context-menu>
   <awe-loader class="loader button-loader" skeleton="button" ng-if="controller.loading" icon-loader="{{::iconLoader}}" ng-cloak></awe-loader>
@@ -25,6 +28,52 @@ export const templateColumnButton = `<div ng-show="component.controller.visible"
   </button>
 </div>`;
 
+// Link of a column (#993): with actions, the label of the cell drawn as a link that launches them (no address); without
+// actions, the value of the cell is an external address opened in a new tab, announced by a decorative external-link
+// icon and a hidden text (WCAG G201)
+export const templateColumnLink = `<div ng-show="component.controller.visible" class="column column-link text-{{::component.controller.align}} no-animate" ui-dependency="dependencies" ng-click="click($event)" ng-cloak>
+  <a ng-if="hasActions()" id="{{component.id}}" role="link" ng-attr-tabindex="{{isDisabled() ? -1 : 0}}" ng-attr-title="{{(getLinkTitle() | translateMultiple) || undefined}}"
+     ng-attr-aria-disabled="{{isDisabled() ? 'true' : undefined}}"
+     class="link column-link-action {{component.controller.style}} {{component.model.values[0].style}}"
+     ng-click="onLinkClick($event)" ng-keydown="onLinkKeyDown($event)" ng-mousedown="onMouseDown()" translate-multiple="{{getLinkLabel()}}"></a>
+  <a ng-if="!hasActions()" id="{{component.id}}" ng-href="{{component.model.values[0].value}}" target="_blank" rel="noreferrer"
+     ng-attr-title="{{(getLinkTitle() | translateMultiple) || undefined}}"
+     class="link column-link-external {{component.controller.style}} {{component.model.values[0].style}}"><span class="column-link-label" translate-multiple="{{getLinkLabel()}}"></span>${iconMarkup("lucide:external-link column-link-external-icon")}<span class="sr-only"> {{'LINK_OPENS_IN_NEW_TAB' | translateMultiple}}</span></a>
+</div>`;
+
+/**
+ * Make a cell component launch the actions of its column on its row (button and link columns): the row of the cell is
+ * selected (only it) before the actions run, as their dependencies and the parameters they send read the selected row.
+ * The click launches them, so they are no longer pending: selecting the row may run actions that disable the buttons,
+ * and a pending click would launch them again
+ * @param {Object} scope Cell scope (with the onClick of the Button service)
+ * @param {Object} component Cell component, initialized as button
+ * @param {Object} Utilities Utilities service
+ * @param {Object} ActionController Action controller service
+ */
+export function launchColumnActionsOnRow(scope, component, Utilities, ActionController) {
+  const launchActions = scope.onClick;
+  scope.onClick = function (event) {
+    component.pendingActions = false;
+    component.selectCellRow();
+    launchActions(event);
+  };
+
+  /**
+   * Click function of the component
+   * @param {Object} event Event
+   */
+  component.onClick = function (event) {
+    // Cancel event propagation
+    Utilities.stopPropagation(event);
+
+    // Launch action list
+    component.pendingActions = false;
+    ActionController.addActionList(component.controller.actions, true, scope);
+    component.storeEvent('click');
+  };
+}
+
 /**
  * Check if a button style makes it icon-only (the no-label class, as for criteria)
  * @param {string} style Button style
@@ -32,6 +81,16 @@ export const templateColumnButton = `<div ng-show="component.controller.visible"
  */
 export function isIconOnly(style) {
   return String(style || "").split(/\s+/).includes("no-label");
+}
+
+/**
+ * Check if a button style makes it a menu button (the has-menu class, as the header buttons whose action is
+ * show-context-menu): it shows a trailing chevron and tells assistive technologies that it opens a menu
+ * @param {string} style Style of the button
+ * @returns {boolean} The button opens a menu
+ */
+export function hasMenu(style) {
+  return String(style || "").split(/\s+/).includes("has-menu");
 }
 
 // Button service
@@ -259,6 +318,8 @@ aweApplication.factory('Button',
           component.updateClasses = function () {
             // An icon-only button (style no-label) shows only its icon: its label is its tooltip and accessible name
             component.scope.iconOnly = isIconOnly(component.controller && component.controller.style);
+            // A button that opens a menu (style has-menu) shows a trailing chevron
+            component.scope.hasMenu = hasMenu(component.controller && component.controller.style);
             component.scope.groupClass = getGroupClass();
             component.scope.classes = getClass();
           };

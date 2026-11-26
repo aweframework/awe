@@ -17,7 +17,7 @@ import "./gridColumnFilterChips";
 // The grid shows its toolbar for its Columns, Maximize and group by buttons (unless show-toolbar="false"), its quick
 // filters, its search or its saved searches. The selection bar is drawn in the band of the toolbar, or over the column
 // headers when there is no toolbar (#793)
-const GRID_TOOLBAR_SHOWN = "(controller.showToolbar !== false && (controller.showColumnsButton !== false || controller.showMaximizeButton !== false || component.groupingConfigured)) || controller.quickFilter || controller.search || controller.savedSearches";
+const GRID_TOOLBAR_SHOWN = "(controller.showToolbar !== false && (controller.showColumnsButton !== false || controller.showMaximizeButton !== false || component.groupingConfigured)) || controller.quickFilter || controller.quickFilters.length || controller.search || controller.savedSearches || controller.toolbarCriteria.length";
 
 export const GRID_TEMPLATE = `<div ng-attr-id="{{::gridId}}" ng-show="controller.visible" data-testid="${TestIds.grid}" class="grid expandible-vertical table-light {{::component.gridStyle}}" ng-class="{'maximized': maximized, 'maximizing': maximizing, 'resizing resizeTarget': panelResizing}" ng-attr-data-maximized="{{iconMaximized === true}}" ng-attr-aria-busy="{{controller.loading || undefined}}" ui-dependency="dependencies" ng-keydown="component.onMoveRowKeyDown($event)" ng-cloak>
   <awe-context-menu ng-cloak></awe-context-menu>

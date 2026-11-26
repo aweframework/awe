@@ -215,11 +215,11 @@ export function useGrid(id) {
 
   // A column that declares a filter has its funnel instead of the filter of enable-filters
   const columnTemplate = (col, rowSpan, enableFilters, frozen = false) => {
-    const { name, sortField, charlength, width, sortable, align } = col;
+    const { name, sortField, charlength, width, minWidth, sortable, align } = col;
     // A column with an alignment aligns its header like its cells (AWE 5 grid, #885); without one it stays centred
     return <Column key={name} field={sortField || name} header={columnHeader(col)}
       alignHeader={align || undefined}
-      style={{ textAlign: align || "center", ...getWidthStyle(charlength, width) }}
+      style={{ textAlign: align || "center", ...getWidthStyle(charlength, width, null, minWidth) }}
       pt={headerCellPassThrough(name)}
       sortable={sortable} rowSpan={rowSpan} filter={!!enableFilters && !getColumnFilterType(col)} frozen={frozen && !!col.frozen} />;
   };
@@ -278,9 +278,9 @@ export function useGrid(id) {
 
   const footerColumnTemplate = (column, frozen = false) => {
     const { footer = {} } = model;
-    const { charlength, width, align } = column;
+    const { charlength, width, minWidth, align } = column;
     return <Column key={`${column.name}-footer`} field={`${column.name}-footer`} footerClassName={"p-column-footer"} frozen={frozen && !!column.frozen}
-      footerStyle={{ textAlign: align, ...getWidthStyle(charlength, width) }}
+      footerStyle={{ textAlign: align, ...getWidthStyle(charlength, width, null, minWidth) }}
       footer={(footer[column.name] ?? {}).label ?? ""} />;
   };
 

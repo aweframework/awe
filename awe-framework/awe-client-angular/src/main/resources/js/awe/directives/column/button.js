@@ -1,5 +1,5 @@
 import {aweApplication} from "../../awe";
-import {templateColumnButton} from "../../services/button";
+import {launchColumnActionsOnRow, templateColumnButton} from "../../services/button";
 
 // Column button directive
 aweApplication.directive('aweColumnButton',
@@ -31,29 +31,8 @@ aweApplication.directive('aweColumnButton',
             return cell.title || (component.controller && component.controller.title) || "";
           };
 
-          // The button acts on its row: it is selected (only it) before the actions run, as their dependencies and the
-          // parameters they send read the selected row. The click launches them, so they are no longer pending:
-          // selecting the row may run actions that disable the buttons, and a pending click would launch them again
-          const launchActions = scope.onClick;
-          scope.onClick = function (event) {
-            component.pendingActions = false;
-            component.selectCellRow();
-            launchActions(event);
-          };
-
-          /**
-           * Click button function
-           * @param {Object} event Event
-           */
-          component.onClick = function (event) {
-            // Cancel event propagation
-            Utilities.stopPropagation(event);
-
-            // Launch action list
-            component.pendingActions = false;
-            ActionController.addActionList(component.controller.actions, true, scope);
-            component.storeEvent('click');
-          };
+          // The button acts on its row: it is selected (only it) before its actions
+          launchColumnActionsOnRow(scope, component, Utilities, ActionController);
         }
       };
     }

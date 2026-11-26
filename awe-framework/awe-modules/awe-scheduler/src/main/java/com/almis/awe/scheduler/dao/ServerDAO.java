@@ -10,6 +10,7 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.util.List;
 
+import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_CONFIGURATION_SERVER_ROWS;
 import static com.almis.awe.scheduler.constant.QueryConstants.SCHEDULER_SERVER_DATA;
 
 @Slf4j
@@ -48,5 +49,23 @@ public class ServerDAO {
     }
 
     return null;
+  }
+
+  /**
+   * Find the identifiers of the active servers with a connection to test (a folder has none), read without their
+   * secrets
+   *
+   * @return Active server identifiers, in the order of their identifiers
+   * @throws AWException The servers cannot be read
+   */
+  public List<Integer> findActiveServerIds() throws AWException {
+    ObjectNode parameters = queryUtil.getParameters(null, "1", "0");
+    parameters.putArray("sort");
+    return queryService.launchPrivateQuery(SCHEDULER_CONFIGURATION_SERVER_ROWS, parameters).getDataList().getRows()
+      .stream()
+      .filter(row -> row.get("Act") != null && "1".equals(row.get("Act").getStringValue()))
+      .filter(row -> row.get("Pro") == null || !"folder".equalsIgnoreCase(row.get("Pro").getStringValue()))
+      .map(row -> row.get("IdeSrv").getIntegerValue())
+      .toList();
   }
 }

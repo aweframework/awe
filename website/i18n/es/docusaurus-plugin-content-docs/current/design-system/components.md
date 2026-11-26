@@ -84,6 +84,46 @@ desplegable al estilo de las listas de AWE.
   columnas a todo el ancho.
 - Dele ancho suficiente en ejemplos y formularios: un control de cuatro opciones ocupa dos columnas de criterios.
 
+### Tarjetas de opción (botones de opción) {#choice-cards-button-radio}
+
+- Para una elección cuyas opciones necesitan una explicación (cómo se lanza una tarea, qué ejecuta): una tarjeta por
+  opción con un icono, un título en seminegrita y una descripción atenuada, y una marca redonda arriba a la derecha
+  (`style="awe-choice-cards"` de un radio de botones, ver [Criterios](../api/criteria.md)).
+- Tarjeta elegida: borde primario (un anillo interior lo duplica), fondo `--awe-color-primary-subtle`, icono primario,
+  descripción `--awe-color-on-primary-subtle` y marca primaria rellena. Al pasar el ratón el borde se oscurece
+  (`--awe-color-field-border-hover`); el foco muestra el anillo de foco en la tarjeta.
+- Las tarjetas llenan el ancho en tantas columnas como quepan (al menos tres veces `--awe-space-16` cada una) y pasan a
+  otra línea; use de tres a cinco opciones. Es un grupo de opciones: las flechas mueven la elección y solo la tarjeta
+  elegida es una parada de tabulación.
+
+### Chips y conmutadores {#chips-and-toggles}
+
+- Para elegir entre varias opciones cortas (los preajustes de una repetición): una píldora por opción, que pasan de
+  línea (`style="awe-chips"` de un radio de botones). Para pocas opciones cortas de una elección múltiple (los días de la
+  semana): una píldora conmutable por opción (`display="toggles"` de un select múltiple). Ver
+  [Criterios](../api/criteria.md).
+- Píldora: alto `--awe-size-control-sm`, ancho mínimo `--awe-size-control`, `--awe-radius-full`, fondo
+  `--awe-color-field` y borde `--awe-color-field-border`; al pasar el ratón el borde se oscurece
+  (`--awe-color-field-border-hover`).
+- Elegida o pulsada: fondo y borde `--awe-color-primary`, texto `--awe-color-on-primary` en peso medio; una píldora de
+  opción añade una marca delante de su etiqueta. El foco muestra el anillo de foco en la píldora; las desactivadas usan
+  `--awe-color-disabled`.
+- Un grupo de opciones (las flechas mueven la elección, solo la elegida es parada de tabulación) o un grupo de botones
+  conmutables (`aria-pressed`, cada píldora es parada de tabulación). Una etiqueta corta («L») toma el nombre completo
+  como nombre accesible (el `title` de la opción).
+
+### Card de vista previa y recuadros {#preview-card-and-tiles}
+
+- El resultado de un formulario calculado en vivo (una programación y sus próximas ejecuciones): `style="card-preview"`
+  de una card, una superficie `--awe-color-surface-subtle` con borde `--awe-color-border-subtle` y sin sombra, el icono a
+  la izquierda en `--awe-color-primary-text`, el título como una frase en `--awe-font-size-md` con sus partes clave en
+  seminegrita. Ver [Card](../api/card.md#tiles-and-details).
+- Recuadros: una lista ordenada con etiqueta de recuadros `--awe-color-surface` con borde `--awe-color-border-subtle` y
+  `--awe-radius-sm`, tantas columnas como quepan (cinco en una sección ancha, menos en una estrecha); una etiqueta, el
+  valor en seminegrita con cifras tabulares y una pista atenuada.
+- Detalles: una nota plegada (`details`) cuyo resumen se lee como un enlace (`--awe-color-primary-text`) con el anillo
+  de foco.
+
 ### Casilla, opción e interruptor {#checkbox-radio-and-switch}
 
 - Casilla `--awe-size-checkbox`, `--awe-radius-sm`; admite estado indeterminado.
@@ -101,13 +141,13 @@ Ficheros listados con icono, nombre, tamaño, progreso o estado. Una imagen mues
 | Parte | Regla |
 |-------|-------|
 | Tarjeta | El grid vive en una tarjeta; título y recuento en la cabecera de la tarjeta. |
-| Barra de herramientas | Buscar en resultados, Filtros (con recuento), espacio, Búsquedas guardadas (#912), Columnas, Exportar (botón dividido). |
+| Barra de herramientas | Buscar en resultados, filtros rápidos (un control segmentado con recuentos, o un botón desplegable compacto «Etiqueta: opción»; las fechas como un botón de rango de fechas con rangos predefinidos y un rango personalizado), Filtros (con recuento), espacio, Búsquedas guardadas (#912), Columnas, Exportar (botón dividido). |
 | Filtros activos | Una fila "Filtrado por" bajo la barra: un chip discontinuo eliminable por columna filtrada ("Perfil: Operador, Consulta", tres etiquetas y después "+N"), más "Quitar todos" (#912). |
 | Cabecera | `--awe-grid-header-*`; las columnas ordenables muestran una flecha y la ordenada va en el primario. Fija al desplazar. Una columna con autofiltro muestra un embudo: con contorno sin filtro, relleno con filtro (#912). |
 | Filas | Relleno de celda `--awe-grid-cell-padding-*`, fondo de hover, sin cebreado. |
 | Selección | Columna de casillas; las filas seleccionadas usan el fondo de resaltado. Mientras hay filas seleccionadas, una barra de selección ocupa la banda de la barra de herramientas, con su misma altura, para que las filas no se muevan: botón de limpiar (`x`, también Esc), el recuento, un chip con el contexto de la selección (quick filter activo, texto buscado) y las acciones en bloque; Columnas y Maximizar siguen a la derecha. Un grid sin barra de herramientas dibuja la barra sobre la cabecera de columnas, dejando la casilla de seleccionar todo. Al limpiar, el foco vuelve al buscador o a la casilla de seleccionar todo. |
 | Números | Alineados a la derecha, tabulares, negativos en color de peligro con signo menos. |
-| Estado | Etiquetas con punto (`tag--success`, `--warning`, `--danger`, `--info`). |
+| Estado | Etiquetas con punto (`tag--success`, `--warning`, `--danger`, `--info`). Con icono el estado es una píldora: totalmente redondeada, con un borde de su tono (`--awe-color-<tono>-border`); el tono pendiente (un estado que espera) es el tono de aviso con borde discontinuo (#993). |
 | Edición en línea | La fila editada lleva un contorno primario, campos dentro de las celdas (controles pequeños) y Guardar y Cancelar en la columna de acciones. |
 | Acciones de fila | Botones de icono sin fondo al final de la fila, o un botón de menú (#801). |
 | Paginador | "Showing 1–10 of 1,284", tamaño de página (select), páginas con primera/anterior/siguiente/última, "Go to page" (#826, #874). |
@@ -158,6 +198,7 @@ Agrupados como en la [página de componentes](pathname:///design-system/prototyp
 | Celdas de varias líneas con tooltip | #825 | Done | Hasta N líneas por columna y después puntos suspensivos; el texto completo en un tooltip. |
 | Columnas de opciones y de barra de botones | #838 | Done | Una columna contiene un conjunto de opciones; las flechas cambian el valor. Usa el estilo del control segmentado. |
 | Columna sparkline | #855 | Done | Línea, barras o área por fila; negativos en peligro; marcas de mínimo, máximo y último. |
+| Columna de tira de estados | #993 | Done | Una marca por estado con el token de su tono; barras de la misma altura con los tokens `--awe-status-strip-*`, la etiqueta es el tooltip y la tira es una imagen cuyo nombre cuenta los estados por etiqueta. |
 | Detalle desplegable de fila | #835 | Done | Un chevron abre una zona de detalle bajo la fila (campos o un grid anidado), marcada con un borde izquierdo primario. |
 | Mover filas | #842 | Done | Acciones de la barra: arriba del todo, subir, bajar, abajo del todo sobre las filas seleccionadas. |
 | Barras de datos en celdas | #831 | Done | Una barra clara detrás del número; los negativos crecen hacia la izquierda en tono de peligro. El número sigue siendo legible. Un segundo valor dibuja dos barras finas redondeadas, el valor encima; los segmentos apilados usan la escala de datos. |

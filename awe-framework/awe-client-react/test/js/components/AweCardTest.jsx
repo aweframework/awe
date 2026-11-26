@@ -1,5 +1,5 @@
 import React from "react";
-import {act} from "@testing-library/react";
+import {act, fireEvent} from "@testing-library/react";
 import {renderWithProviders} from "../test-utils";
 // The list of components first, as the application loads it (the card imports the structure that imports the list)
 import {ComponentList} from "../../../src/components/AweComponents";
@@ -413,6 +413,158 @@ describe("awe-react-client/test/js/components/AweCardTest.jsx", () => {
 
       expect(chip()).toHaveTextContent(/^Degraded$/);
       expect(chip()).toHaveAttribute("data-tone", "warning");
+    });
+  });
+
+  describe("pills and status strip (#993)", () => {
+    it("shows the pills of the row under the heading, a code in a code element, and skips the items without text", () => {
+      renderCard({title: "Bank reconciliation"}, [{pills: JSON.stringify([
+        {label: "#13"}, {label: "Maintain", code: "BankReconciliation", icon: "lucide:database"},
+        {icon: "lucide:mail"}, "plain", {label: "Keeps 50 executions"}])}]);
+      const pills = [...card().querySelectorAll("ul.awe-card-pills > li.awe-card-pill")];
+
+      expect(part("header.awe-card-header + ul.awe-card-pills")).not.toBeNull();
+      expect(pills).toHaveLength(3);
+      expect(pills[0]).toHaveTextContent(/^#13$/);
+      expect(pills[1].querySelector(".awe-card-pill-label")).toHaveTextContent(/^Maintain$/);
+      expect(pills[1].querySelector("code.awe-card-pill-code")).toHaveTextContent(/^BankReconciliation$/);
+      expect(pills[1].querySelector(".awe-card-pill-icon")).not.toBeNull();
+      expect(pills[2].querySelector("code")).toBeNull();
+    });
+
+    it("renders no pills list without valid pills", () => {
+      renderCard({title: "Task"}, [{pills: "not json"}]);
+
+      expect(part(".awe-card-pills")).toBeNull();
+    });
+
+    it("draws the status strip of the row as one image that counts its statuses", () => {
+      renderCard({title: "Last executions"}, [{strip: JSON.stringify([
+        {tone: "success", label: "OK"}, {tone: "danger", label: "Error"}, {tone: "success", label: "OK"}])}]);
+      const strip = part(".awe-card-strip .awe-status-strip");
+
+      expect(strip).toHaveAttribute("role", "img");
+      expect(strip).toHaveAttribute("aria-label", "2 OK, 1 Error");
+      expect(strip.querySelectorAll(".awe-status-strip-item")).toHaveLength(3);
+    });
+
+    it("draws the stack of the row as one image with a segment per positive part", () => {
+      renderCard({title: "Success rate", value: "50", unit: "%"}, [{stack: JSON.stringify([
+        {tone: "success", label: "OK", value: 3}, {tone: "unknown", label: "Stopped", value: "1"},
+        {tone: "danger", label: "Error", value: 0}, "plain"])}]);
+      const stack = part(".awe-card-value + .awe-card-stack");
+      const segments = [...stack.querySelectorAll(".awe-card-stack-segment")];
+
+      expect(stack).toHaveAttribute("role", "img");
+      expect(stack).toHaveAttribute("aria-label", "3 OK, 1 Stopped");
+      expect(segments).toHaveLength(2);
+      expect(segments.map(segment => [segment.dataset.tone, segment.title])).toEqual([["success", "3 OK"], ["neutral", "1 Stopped"]]);
+    });
+  });
+  describe("rich title, tiles and details (#993, T37)", () => {
+    it("bolds the strong segments of the title, lists the tiles under their label and folds the details", () => {
+      renderCard({icon: "lucide:repeat", style: "card-preview"}, [{
+        title: JSON.stringify([{text: "Runs "}, {text: "from Monday to Friday at 22:30", strong: true}, {text: "."}]),
+        tilesLabel: "Next 5 runs",
+        tiles: JSON.stringify([{label: "Tue 17/11", value: "22:30", hint: "today"}, {label: "Wed 18/11", value: "22:30"},
+          {value: "no label"}]),
+        details: "Hours 22 · Minutes 30", detailsLabel: "How it is saved"
+      }]);
+
+      expect(part(".awe-card-title")).toHaveTextContent(/^Runs from Monday to Friday at 22:30\.$/);
+      expect([...part(".awe-card-title").querySelectorAll("strong")].map(node => node.textContent))
+        .toEqual(["from Monday to Friday at 22:30"]);
+      const list = part("ol.awe-card-tiles");
+      expect(list).toHaveAttribute("aria-labelledby", "CrdCustomers-tiles");
+      expect(part("#CrdCustomers-tiles")).toHaveTextContent(/^Next 5 runs$/);
+      const tiles = [...list.querySelectorAll("li.awe-card-tile")];
+      expect(tiles.map(tile => [...tile.children].map(node => node.textContent))).toEqual([
+        ["Tue 17/11", "22:30", "today"], ["Wed 18/11", "22:30"]]);
+      expect(tiles[0].querySelector("strong.awe-card-tile-value")).not.toBeNull();
+      expect(part("details.awe-card-details > summary")).toHaveTextContent(/^How it is saved$/);
+      expect(part("details.awe-card-details > p")).toHaveTextContent(/^Hours 22 · Minutes 30$/);
+      expect(part("details.awe-card-details")).not.toHaveAttribute("open");
+    });
+
+    it("keeps a plain title as it is and shows no tiles nor details without them", () => {
+      renderCard({}, [{title: "[not a list", tilesLabel: "Next 5 runs", tiles: "[]"}]);
+
+      expect(part(".awe-card-title")).toHaveTextContent(/^\[not a list$/);
+      expect(part(".awe-card-tiles")).toBeNull();
+      expect(part("#CrdCustomers-tiles")).toBeNull();
+      expect(part(".awe-card-details")).toBeNull();
+    });
+  });
+
+  describe("maximize and header actions (#993, T52e)", () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    const maximizeButton = () => part("[data-testid='card-maximize-button']");
+    const settle = () => act(() => {
+      jest.advanceTimersByTime(600);
+    });
+
+    it("maximizes and restores a maximizable card with the button at the right of its header", () => {
+      renderCard({title: "Run", maximize: true});
+
+      expect(part(".awe-card-header > :last-child")).toBe(maximizeButton());
+      expect(maximizeButton()).toHaveAttribute("aria-label", "SCREEN_TEXT_MAXIMIZE");
+      expect(maximizeButton()).toHaveAttribute("aria-pressed", "false");
+      expect(card()).toHaveAttribute("data-maximized", "false");
+
+      fireEvent.click(maximizeButton());
+      settle();
+      expect(card()).toHaveAttribute("data-maximized", "true");
+      expect(maximizeButton()).toHaveAttribute("aria-label", "SCREEN_TEXT_RESTORE");
+      expect(maximizeButton()).toHaveAttribute("aria-pressed", "true");
+
+      fireEvent.click(maximizeButton());
+      settle();
+      expect(card()).toHaveAttribute("data-maximized", "false");
+      expect(maximizeButton()).toHaveAttribute("aria-label", "SCREEN_TEXT_MAXIMIZE");
+    });
+
+    it.each([[undefined], [false], ["false"]])("has no maximize button nor maximized state with the maximize attribute %s", maximize => {
+      renderCard({title: "Sales", value: 3, maximize});
+
+      expect(maximizeButton()).toBeNull();
+      expect(card()).not.toHaveAttribute("data-maximized");
+    });
+
+    it("shows a child with the header actions style at the right of its header and the other children in the body", () => {
+      renderCard({title: "Run", maximize: "true"}, [], [
+        {elementType: "Tag", type: "div", id: "CardActions", style: "awe-card-header-actions", elementList: [
+          {elementType: "Tag", type: "span", id: "CardSwitch", label: "Switch", elementList: []}]},
+        {elementType: "Tag", type: "p", id: "CardChild", label: "Child", elementList: []}
+      ]);
+
+      const header = part(".awe-card-header");
+      expect([...header.children].map(child => child.id || child.className)).toEqual(
+        ["awe-card-heading", "CardActions", maximizeButton().className]);
+      expect(header.querySelector("#CardSwitch")).toHaveTextContent(/^Switch$/);
+      expect(part(".awe-card-body").children).toHaveLength(1);
+      expect(part(".awe-card-body > #CardChild")).toHaveTextContent(/^Child$/);
+    });
+
+    it("takes a child with the header actions style among other styles to the header, before the chip and the maximize button", () => {
+      renderCard({title: "Run", chip: "Active", maximize: true}, [], [
+        {elementType: "Tag", type: "div", id: "CardActions", style: "foo awe-card-header-actions bar", elementList: []},
+        {elementType: "Tag", type: "p", id: "CardChild", label: "Child", elementList: []}
+      ]);
+
+      const header = part(".awe-card-header");
+      expect([...header.children].map(child => child.id || child.dataset.testid || child.className)).toEqual(
+        ["awe-card-heading", "CardActions", "card-chip", "card-maximize-button"]);
+      expect([...part(".awe-card-body").children].map(child => child.id)).toEqual(["CardChild"]);
+    });
+
+    it("shows a header for its actions alone, without a body when it has no other child", () => {
+      renderCard({}, [], [{elementType: "Tag", type: "div", id: "CardActions", style: "awe-card-header-actions",
+        elementList: []}]);
+
+      expect(part(".awe-card-header > #CardActions")).not.toBeNull();
+      expect(part(".awe-card-body")).toBeNull();
     });
   });
 });

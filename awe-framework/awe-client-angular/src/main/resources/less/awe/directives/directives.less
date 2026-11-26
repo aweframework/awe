@@ -20,6 +20,8 @@
 @import "./chart";
 @import "./context-menu";
 @import "./map";
+@import "./flow-graph";
+@import "./month-view";
 @import "./file-viewer";
 @import "./log-viewer";
 @import "./wizard";
@@ -36,9 +38,21 @@
 // The theme preview (#949): the rules of the React engine, the same markup in both engines
 @import "../../../../../../../awe-client-react/src/components/AweThemePreview.less";
 @import "./section-title";
+@import "./header-status";
+@import "./action-bar";
+@import "./editor-layout";
 @import "./overlay";
 @import "./progress";
 @import "./sparkline";
+// The status strip column (#993): the rules of the React engine, the same markup in both engines
+@import "../../../../../../../awe-client-react/src/columns/ColumnStatusStrip.less";
+// The choice cards of a button-radio criterion (#993): the rules of the React engine, the same classes in both engines
+@import "../../../../../../../awe-client-react/src/criteria/AweChoiceCards.less";
+// The chips of a button-radio criterion and the toggles of a select-multiple one (#993, T37): the same classes
+@import "../../../../../../../awe-client-react/src/criteria/AweChips.less";
+// The tiles, the details and the preview style of a card (#993, T37): the same classes in both engines
+@import "../../../../../../../awe-client-react/src/components/AweCardPreview.less";
+@import "./columnLink";
 @import "./notifications";
 @import "./loaders/loader";
 @import "./skeleton";

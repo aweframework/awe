@@ -794,8 +794,85 @@ CREATE TABLE AweSchExe
     ExeTim INT,
     Sta    INT      not NULL,
     LchBy VARCHAR(200),
-    Des VARCHAR(2000)
+    Des VARCHAR(2000),
+    IdeRun VARCHAR(36)
 );
+
+CREATE TABLE AweSchRun
+(
+    IdeRun VARCHAR(36) NOT NULL,
+    IdeTskRoo INT NOT NULL,
+    ExeTskRoo INT NOT NULL,
+    LchBy VARCHAR(200),
+    IniDat DATETIME NOT NULL,
+    EndDat DATETIME,
+    Sta INT NOT NULL,
+    PRIMARY KEY (IdeRun)
+);
+
+CREATE TABLE AweSchRunPar
+(
+    IdeRun VARCHAR(36) NOT NULL,
+    Nam VARCHAR(40) NOT NULL,
+    Val VARCHAR(400),
+    PRIMARY KEY (IdeRun, Nam)
+);
+
+CREATE TABLE AweSchRunTsk
+(
+    IdeRun VARCHAR(36) NOT NULL,
+    IdeTsk INT NOT NULL,
+    Sta VARCHAR(10) NOT NULL,
+    ExeTsk INT,
+    UpdDat DATETIME NOT NULL,
+    PRIMARY KEY (IdeRun, IdeTsk)
+);
+
+
+CREATE TABLE AweSchExeExt
+(
+    IdeTsk INT          not NULL,
+    ExeTsk INT          not NULL,
+    ExtRef VARCHAR(256),
+    DfrDat DATETIME2(3) not NULL,
+    DueDat DATETIME2(3) not NULL,
+    CmpDat DATETIME2(3),
+    CmpSrc VARCHAR(10),
+    CncSta VARCHAR(10),
+    CncErr VARCHAR(2000),
+    CONSTRAINT PK_AWESCHEXEEXT PRIMARY KEY (IdeTsk, ExeTsk)
+);
+
+CREATE TABLE AweSchTskHok
+(
+    IdeTsk INT          not NULL,
+    HokKey VARCHAR(64)   not NULL,
+    Act    INT          not NULL,
+    SecPrp VARCHAR(200)  not NULL,
+    TypFlt VARCHAR(200),
+    CONSTRAINT PK_AWESCHTSKHOK PRIMARY KEY (IdeTsk),
+    CONSTRAINT UK_AWESCHTSKHOK UNIQUE (HokKey)
+);
+
+CREATE TABLE AweSchHokMsg
+(
+    Src    VARCHAR(64)   not NULL,
+    MsgId  VARCHAR(256)  not NULL,
+    RcvDat DATETIME2(3)          not NULL,
+    Typ    VARCHAR(200),
+    Pay    VARCHAR(MAX)         not NULL,
+    Sta    VARCHAR(10)   not NULL,
+    Att    INT          not NULL,
+    NxtDat DATETIME2(3)          not NULL,
+    PrcDat DATETIME2(3),
+    Err    VARCHAR(2000),
+    IdeTsk INT,
+    ExeTsk INT,
+    IdeRun VARCHAR(36),
+    CONSTRAINT PK_AWESCHHOKMSG PRIMARY KEY (Src, MsgId)
+);
+
+CREATE INDEX AweSchHokMsgI1 ON AweSchHokMsg (Sta, NxtDat);
 
 --------------------------------------------------------
 --  DDL for Table AweSchExeLog
@@ -858,6 +935,7 @@ CREATE TABLE AweSchTsk
     Act       INT DEFAULT 1 not NULL,
     RepUsrDst VARCHAR(250),
     RepMntId  VARCHAR(200),
+    CncMnt    VARCHAR(200),
     CmdExePth VARCHAR(200),
     db        VARCHAR(200),
     site      VARCHAR(200)
@@ -916,7 +994,8 @@ CREATE TABLE AweSchTskPar
     Nam    VARCHAR(40)  not NULL,
     Val    VARCHAR(400),
     Src    INT          not NULL,
-    Typ    VARCHAR(100) not NULL
+    Typ    VARCHAR(100) not NULL,
+    WhkPtr VARCHAR(250)
 );
 
 --------------------------------------------------------
@@ -992,6 +1071,7 @@ CREATE TABLE HISAweSchTsk
     Act       INT,
     RepUsrDst VARCHAR(250),
     RepMntId  VARCHAR(200),
+    CncMnt    VARCHAR(200),
     CmdExePth VARCHAR(200),
     db        VARCHAR(200),
     site      VARCHAR(200)
@@ -1199,6 +1279,7 @@ ALTER TABLE AweSchCal
 ALTER TABLE AweSchCalDat
     ADD CONSTRAINT UN_AweSchCalDat UNIQUE (Ide);
 CREATE INDEX AweSchExeI1 ON AweSchExe (IdeTsk, GrpTsk, ExeTsk, IniDat);
+CREATE INDEX AweSchExeI2 ON AweSchExe (IdeRun);
 CREATE INDEX AweSchExeLogI1 ON AweSchExeLog (IdeTsk, ExeTsk, LogDat);
 ALTER TABLE AweSchExeLog
     ADD CONSTRAINT UN_AweSchExeLog UNIQUE (IdeTsk, ExeTsk, Src, Sec, Slt);

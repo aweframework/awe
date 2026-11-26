@@ -9,8 +9,6 @@ import org.w3c.dom.NodeList;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import java.io.File;
 import java.io.StringReader;
 import java.nio.file.Paths;
@@ -48,8 +46,7 @@ class SidePanelSchemaTest {
   }
 
   private static void validate(String body) throws Exception {
-    Validator validator = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(schemaFile).newValidator();
-    validator.validate(new StreamSource(new StringReader(
+    ScreenSchema.validator().validate(new StreamSource(new StringReader(
       "<screen template=\"window\" label=\"LABEL\"><tag source=\"center\">" + body + "</tag></screen>")));
   }
 

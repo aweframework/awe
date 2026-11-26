@@ -1,73 +1,259 @@
+// Log viewer (AWE 5): a bordered box with a toolbar (search field with its icon, filter toggle, matches count and the
+// follow switch at its right end) over the log in the monospace font, line numbers muted. Tokens only: the same look in light and dark.
+// The log is drawn by react-lazylog 4.5.3: its stable react-lazylog-* classes and its structure are styled here, over
+// the dark look of its CSS modules (two classes win over their single class)
+@log-toolbar-height: calc(var(--awe-space-10) + var(--awe-space-1));
+
 .log-container {
-  margin-bottom: -1.5rem;
   position: relative;
+  min-height: calc(var(--awe-space-16) * 3);
+  overflow: hidden;
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-lg);
+
+  // Toolbar: the height react-lazylog takes out of the list (45 px with its border)
+  .react-lazylog-searchbar {
+    box-sizing: content-box;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--awe-space-2);
+    height: @log-toolbar-height;
+    padding: 0 var(--awe-space-3);
+    font-family: inherit;
+    font-size: var(--awe-font-size-xs);
+    color: var(--awe-color-text-muted);
+    background-color: var(--awe-color-surface-subtle);
+    border-bottom: var(--awe-border-width) solid var(--awe-color-border-subtle);
+
+    // Search icon (Lucide search) inside the field, drawn as a mask in the colour of the field icons
+    &::before {
+      position: relative;
+      z-index: 1;
+      flex: none;
+      width: var(--awe-size-icon-sm);
+      height: var(--awe-size-icon-sm);
+      margin-right: calc(-1 * (var(--awe-size-icon-sm) + var(--awe-space-2) * 2));
+      margin-left: var(--awe-space-2);
+      pointer-events: none;
+      content: "";
+      background-color: var(--awe-color-field-placeholder);
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") center / contain no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.3-4.3'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+  }
+
+  // Search field: the field of the design system, with room for its icon
+  .react-lazylog-searchbar-input {
+    box-sizing: border-box;
+    flex: 0 1 var(--awe-grid-search-width);
+    min-width: 0;
+    height: var(--awe-size-control-sm);
+    margin: 0;
+    padding: 0 var(--awe-space-2) 0 calc(var(--awe-size-icon-sm) + var(--awe-space-2) * 2);
+    font-family: inherit;
+    font-size: var(--awe-font-size-sm);
+    color: var(--awe-color-field-text);
+    background-color: var(--awe-color-surface);
+    border: var(--awe-border-width) solid var(--awe-color-field-border);
+    border-radius: var(--awe-radius-field);
+    transition: border-color var(--awe-motion-duration-fast) var(--awe-motion-easing-standard),
+      box-shadow var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+    &::placeholder {
+      color: var(--awe-color-field-placeholder);
+    }
+
+    &:hover:not(:disabled) {
+      border-color: var(--awe-color-field-border-hover);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--awe-color-field-border-focus);
+      box-shadow: 0 0 0 var(--awe-focus-ring-width) var(--awe-color-field-focus-halo);
+    }
+
+    &:disabled {
+      opacity: var(--awe-opacity-disabled);
+    }
+  }
+
+  // Filter toggle (only the lines with matches): a ghost icon button, primary while active
+  .react-lazylog-searchbar-filter {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: var(--awe-size-control-sm);
+    height: var(--awe-size-control-sm);
+    margin: 0;
+    padding: 0;
+    color: var(--awe-color-text-muted);
+    fill: currentColor;
+    background: transparent;
+    border: 0;
+    border-radius: var(--awe-radius-field);
+    cursor: pointer;
+
+    // The library icon (a left-aligned text) is replaced by a Lucide funnel, drawn as a mask in the current colour
+    svg {
+      display: none;
+    }
+
+    &::before {
+      width: var(--awe-size-icon-sm);
+      height: var(--awe-size-icon-sm);
+      content: "";
+      background-color: currentColor;
+      -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 3H2l8 9.46V19l4 2v-8.54L22 3z'/%3E%3C/svg%3E") center / contain no-repeat;
+      mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 3H2l8 9.46V19l4 2v-8.54L22 3z'/%3E%3C/svg%3E") center / contain no-repeat;
+    }
+
+    &:hover:not(:disabled) {
+      background-color: var(--awe-color-surface-hover);
+    }
+
+    &:focus-visible {
+      outline: var(--awe-focus-ring);
+      outline-offset: var(--awe-focus-ring-offset);
+    }
+
+    &.active {
+      color: var(--awe-color-primary-text);
+      background-color: var(--awe-color-primary-subtle);
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: var(--awe-opacity-disabled);
+    }
+  }
+
+  .react-lazylog-searchbar-matches {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--awe-color-text-muted);
+
+    &.active {
+      color: var(--awe-color-text);
+    }
+  }
+
+  // The log: monospace on the surface, the line under the pointer on the hover surface
+  .react-lazylog {
+    font-family: var(--awe-font-family-monospace);
+    font-size: var(--awe-font-size-xs);
+    line-height: var(--awe-line-height-base);
+    color: var(--awe-color-text);
+    background-color: var(--awe-color-surface);
+
+    .ReactVirtualized__Grid__innerScrollContainer > div:hover {
+      background-color: var(--awe-color-surface-hover);
+    }
+
+    // Line numbers, muted and out of the selection
+    a {
+      color: var(--awe-color-text-muted);
+      text-decoration: none;
+    }
+  }
 }
 
-.log-button-autoload {
-  outline: 0;
-  position: absolute;
-  top: 4px;
-  left: 24px;
+// Follow the end (autorefresh): the switch of the criteria and its label, at the right end of the toolbar, after the
+// matches count
+.log-follow {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding-left: var(--awe-space-3);
+  border-left: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  font-size: var(--awe-font-size-xs);
+  white-space: nowrap;
+  color: var(--awe-color-text);
+
+  label {
+    margin: 0;
+    cursor: pointer;
+  }
+
+  // The switch has the look of the switches of the engine (awe-switch, criteria/AweCriterion.less)
 }
 
+// Loading dots while the log follows the end
 .log-loading-dots {
   position: absolute;
-  bottom: 10px;
-  left: 84px;
+  bottom: var(--awe-space-2);
+  left: var(--awe-space-3);
+  pointer-events: none;
 }
 
 .animation-dot {
-  font-size: 8px;
-  color: #ccc;
+  font-size: var(--awe-space-2);
+  color: var(--awe-color-text-muted);
 }
 
 .fade1 {
   animation: fade1 ease 1.5s infinite;
 }
+
 @keyframes fade1 {
   0% {
-    opacity:0.4;
+    opacity: 0.4;
   }
   50% {
-    opacity:0.8;
+    opacity: 0.8;
   }
   100% {
-    opacity:0.4;
+    opacity: 0.4;
   }
 }
 
 .fade2 {
   animation: fade2 ease 1.5s infinite;
 }
+
 @keyframes fade2 {
   0% {
-    opacity:0.6;
+    opacity: 0.6;
   }
   25% {
-    opacity:0.4;
+    opacity: 0.4;
   }
   50% {
-    opacity:0.6;
+    opacity: 0.6;
   }
   75% {
-    opacity:0.8;
+    opacity: 0.8;
   }
   100% {
-    opacity:0.6;
+    opacity: 0.6;
   }
 }
 
 .fade3 {
   animation: fade3 ease 1.5s infinite;
 }
+
 @keyframes fade3 {
   0% {
-    opacity:0.8;
+    opacity: 0.8;
   }
   50% {
-    opacity:0.4;
+    opacity: 0.4;
   }
   100% {
-    opacity:0.8;
+    opacity: 0.8;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fade1,
+  .fade2,
+  .fade3 {
+    animation: none;
   }
 }

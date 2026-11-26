@@ -25,7 +25,7 @@ xsi:noNamespaceSchemaLocation = "https://aweframework.gitlab.io/awe/docs/schemas
 
   <group id="[Group Id]">
     <option label="[Option label]"  value="[Option value]" />
-    <option label="[Option label]"  value="[Option value]" />
+    <option label="[Option label]"  value="[Option value]" icon="[Option icon]" />
     ... more <option>
   </group>
 
@@ -58,6 +58,7 @@ Option element has the following attributes:
 | ----------- | ---------|-----------|---------------------------------|----------------------------------------------------|
 | label | **Required** | String | The label of the option              | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)              |
 | value | **Required** | String | The value of the option| **Note:**  The id name must be unique              |
+| icon  | Optional | String | Icon of the option (#993). The [tabs](tab-and-tabcontainer.md) loaded from the enumerated draw it before the label of its tab, in both engines; the other components ignore it. An option without icon is sent as before | **Note:** You can check all iconsets at [icons](icons.md) screen (`history`, `lucide:history`...) |
 
 
 ## Examples
@@ -69,6 +70,14 @@ Several examples of enumerated groups:
 <group id="Es1Es0">
   <option label="ENUM_NO"  value="0" />
   <option label="ENUM_YES" value="1" />
+</group>
+```
+
+```xml
+<!-- Tabs of a page, each one with its icon (#993) -->
+<group id="TskPagTab">
+  <option label="SCREEN_TEXT_TASK_PAGE_TAB_SUMMARY" value="TskPagSum" icon="lucide:layout-dashboard"/>
+  <option label="SCREEN_TEXT_TASK_PAGE_TAB_HISTORY" value="TskPagHis" icon="lucide:history"/>
 </group>
 ```
 

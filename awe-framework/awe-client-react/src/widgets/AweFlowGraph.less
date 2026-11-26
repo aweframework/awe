@@ -1,0 +1,1003 @@
+// Flow graph of the scheduler (#992): tasks as nodes, dependencies as curved edges, run state as a tone
+.flow-graph {
+  overflow: auto;
+  padding: var(--awe-space-2);
+  background: var(--awe-color-surface-subtle);
+  border: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  border-radius: var(--awe-radius-md);
+}
+
+.flow-graph-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--awe-space-8);
+  color: var(--awe-color-text-muted);
+  font-size: var(--awe-font-size-sm);
+}
+
+.flow-graph-canvas {
+  position: relative;
+}
+
+.flow-graph-edges {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.flow-graph-edge {
+  fill: none;
+  stroke: var(--awe-color-border);
+  stroke-width: var(--awe-border-width-strong);
+
+  &.is-warning {
+    stroke: var(--awe-color-warning);
+  }
+
+  &.is-error {
+    stroke: var(--awe-color-danger);
+  }
+}
+
+.flow-graph-arrow {
+  fill: var(--awe-color-border);
+
+  &.is-warning {
+    fill: var(--awe-color-warning);
+  }
+
+  &.is-error {
+    fill: var(--awe-color-danger);
+  }
+}
+
+.flow-graph-condition {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0 var(--awe-space-1);
+  border-radius: var(--awe-radius-full);
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-medium);
+  white-space: nowrap;
+
+  &.is-warning {
+    color: var(--awe-color-warning-text);
+    background: var(--awe-color-warning-subtle);
+  }
+
+  &.is-error {
+    color: var(--awe-color-danger-text);
+    background: var(--awe-color-danger-subtle);
+  }
+}
+
+.flow-graph-node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-2);
+  padding: var(--awe-space-1-5) var(--awe-space-2);
+  text-align: left;
+  font: inherit;
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-left-width: var(--awe-space-1);
+  border-radius: var(--awe-radius-md);
+  box-shadow: var(--awe-shadow-sm);
+  cursor: pointer;
+  transition: background var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover {
+    background: var(--awe-color-surface-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  &[aria-pressed="true"] {
+    border-color: var(--awe-color-primary);
+  }
+
+  // An inactive task is muted and says so with a tag (#993), in every mode: the name is not struck through
+  &.is-inactive {
+    color: var(--awe-color-text-muted);
+    background: var(--awe-color-surface-subtle);
+  }
+
+  &.is-ok {
+    border-left-color: var(--awe-color-success-text);
+  }
+
+  &.is-warning {
+    border-left-color: var(--awe-color-warning);
+  }
+
+  &.is-error,
+  &.is-stopped {
+    border-left-color: var(--awe-color-danger);
+  }
+
+  &.is-running,
+  &.is-interrupted {
+    border-left-color: var(--awe-color-info-text);
+  }
+
+  &.is-waiting,
+  &.is-skipped,
+  &.is-not-reached {
+    border-style: dashed;
+    border-left-style: solid;
+    border-left-color: var(--awe-color-border);
+  }
+
+  &.is-skipped,
+  &.is-not-reached {
+    background: var(--awe-color-surface-subtle);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.flow-graph-node-icon {
+  flex: none;
+  color: var(--awe-color-text-muted);
+}
+
+.flow-graph-node-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.flow-graph-node-name {
+  overflow: hidden;
+  font-size: var(--awe-font-size-sm);
+  font-weight: var(--awe-font-weight-semibold);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-graph-node-state {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-1);
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+
+  .is-ok & {
+    color: var(--awe-color-success-text);
+  }
+
+  .is-warning & {
+    color: var(--awe-color-warning-text);
+  }
+
+  .is-error &,
+  .is-stopped & {
+    color: var(--awe-color-danger-text);
+  }
+
+  .is-running &,
+  .is-interrupted & {
+    color: var(--awe-color-info-text);
+  }
+}
+
+// One-level graph of a task (#993, the task screen): the titles of its three columns, the task itself highlighted, the
+// condition of every edge (also the OK one, in a neutral tone) and the nodes that open nothing
+.flow-graph-column {
+  position: absolute;
+  top: 0;
+  overflow: hidden;
+  font-size: var(--awe-font-size-xs);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-graph-node.is-self {
+  border-color: var(--awe-color-primary);
+  background: var(--awe-color-primary-subtle);
+}
+
+div.flow-graph-node {
+  cursor: default;
+
+  &:hover {
+    background: var(--awe-color-surface);
+  }
+
+  &.is-self:hover {
+    background: var(--awe-color-primary-subtle);
+  }
+}
+
+.flow-graph-task .flow-graph-condition {
+  max-width: calc(var(--awe-space-16) * 2);
+  color: var(--awe-color-text-muted);
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border-subtle);
+  border-radius: var(--awe-radius-md);
+  text-align: center;
+  white-space: normal;
+}
+
+// The one-level graph of a task sits apart from the text and the button above it; its names take up to two lines (the
+// whole name in their tooltip) and an empty column says «None» beside the task, in a dashed box
+.flow-graph.flow-graph-task {
+  margin-block-start: var(--awe-space-4);
+}
+
+.flow-graph-task .flow-graph-node-text {
+  gap: var(--awe-space-0-5);
+}
+
+.flow-graph-task .flow-graph-node-name {
+  display: -webkit-box;
+  line-height: var(--awe-line-height-snug);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.flow-graph-none {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text-muted);
+  border: var(--awe-border-width) dashed var(--awe-color-border);
+  border-radius: var(--awe-radius-md);
+}
+
+// The tag of an inactive task, a neutral status pill before its state
+.flow-graph-node-tag {
+  flex: none;
+  padding: 0 var(--awe-space-1-5);
+  font-weight: var(--awe-font-weight-medium);
+  line-height: var(--awe-line-height-snug);
+  color: var(--awe-color-neutral-text);
+  background: var(--awe-color-neutral-subtle);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-full);
+}
+
+.flow-graph-node-state-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// The next execution of a scheduled task, under its state
+.flow-graph-node-next {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-1);
+  min-width: 0;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+// The condition of an edge of the one-level graph as icons (OK, warning, error), its text in the tooltip
+.flow-graph-task .flow-graph-condition.flow-graph-condition-icons {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-0-5);
+  max-width: none;
+  padding: var(--awe-space-0-5) var(--awe-space-1);
+  border-radius: var(--awe-radius-full);
+  cursor: help;
+}
+
+.flow-graph-condition-icon {
+  display: inline-flex;
+  align-items: center;
+
+  &.is-ok {
+    color: var(--awe-color-success-text);
+  }
+
+  &.is-warning {
+    color: var(--awe-color-warning-text);
+  }
+
+  &.is-error {
+    color: var(--awe-color-danger-text);
+  }
+}
+
+// The other tasks a child also waits for, muted, in one line under its state (all of them in its tooltip)
+.flow-graph-node-also {
+  display: flex;
+  gap: var(--awe-space-1);
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-graph-node-also-title {
+  flex: none;
+  font-weight: var(--awe-font-weight-semibold);
+}
+
+.flow-graph-node-also-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  & + &::before {
+    content: ", ";
+  }
+}
+
+// The legend of the conditions, under the one-level graph
+.flow-graph-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--awe-space-1) var(--awe-space-3);
+  padding: var(--awe-space-2) var(--awe-space-2) 0;
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+.flow-graph-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--awe-space-1);
+}
+
+// Run mode (#993, the flow run page): a small zoom toolbar, a scrolling viewport with the graph scaled inside, nodes
+// with their state, times and join, edges by their state in the run and a legend of states and edges
+.flow-graph.flow-graph-run {
+  display: flex;
+  flex-direction: column;
+  gap: var(--awe-space-2);
+  // Never wider nor taller than its container: the graph scrolls inside its viewport, not the page
+  min-width: 0;
+  min-height: 0;
+  max-width: 100%;
+  overflow: visible;
+}
+
+// The view fills the height of its widget: the zoom toolbar stays on top, the graph (its viewport), the timeline or the
+// list takes the rest and scrolls inside it, and the legend stays at the bottom. The AngularJS directive holds the
+// content in flow-graph-run-content elements that do not take part in the layout, so the same rules reach it
+.flow-graph-run .flow-graph-viewport,
+.flow-graph-run .flow-graph-timeline,
+.flow-graph-run-list > .flow-graph-list,
+.flow-graph-run-content > .flow-graph-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.flow-graph-run .flow-graph-toolbar,
+.flow-graph-run .flow-graph-run-legend {
+  flex: none;
+}
+
+// A view hidden by a dependency of its screen (one view at a time) leaves the layout: its display above would show it
+.flow-graph[hidden] {
+  display: none;
+}
+
+// The AngularJS directive holds the run content in one element that does not take part in the layout
+.flow-graph-run-content {
+  display: contents;
+}
+
+.flow-graph-toolbar {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-end;
+  gap: var(--awe-space-0-5);
+}
+
+.flow-graph-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--awe-space-1);
+  color: var(--awe-button-default-color);
+  background: var(--awe-button-default-background);
+  border: var(--awe-border-width) solid var(--awe-button-default-border-color);
+  border-radius: var(--awe-radius-md);
+  cursor: pointer;
+  transition: background var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover:not(:disabled) {
+    color: var(--awe-button-default-color-hover);
+    background: var(--awe-button-default-background-hover);
+    border-color: var(--awe-button-default-border-color-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  &:disabled {
+    color: var(--awe-color-text-muted);
+    cursor: default;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.flow-graph-zoom {
+  min-width: var(--awe-space-12);
+  font-size: var(--awe-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--awe-color-text-muted);
+  text-align: center;
+}
+
+// The graph scrolls in both directions inside it: its content (absolute, as wide as the graph at its zoom) does not
+// size it nor its containers (contain: inline-size), so the page never scrolls sideways
+.flow-graph-viewport {
+  max-width: 100%;
+  overflow: auto;
+  contain: inline-size;
+}
+
+.flow-graph-zoomed {
+  position: relative;
+}
+
+.flow-graph-run .flow-graph-canvas {
+  transform-origin: 0 0;
+}
+
+// The graph of a run on a dotted canvas (as the node editors do), so it stands apart from the card around it: one dot
+// every --awe-space-5 on the surface of the widget, scrolling with the graph (local) so it moves as one canvas. The dot
+// takes the muted text half-mixed with transparent, readable on the light and the dark surface without competing with
+// the edges
+.flow-graph-run .flow-graph-viewport {
+  background-color: var(--awe-color-surface-subtle);
+  background-image: radial-gradient(circle at center,
+    color-mix(in srgb, var(--awe-color-text-muted) 45%, transparent) var(--awe-border-width), transparent 0);
+  background-size: var(--awe-space-5) var(--awe-space-5);
+  background-attachment: local;
+  border-radius: var(--awe-radius-md);
+}
+
+// A run node: its state on top (with the execution at its right), the name in two lines and its times, due date, join
+.flow-graph-run .flow-graph-node.flow-graph-run-node {
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--awe-space-0-5);
+  border-radius: var(--awe-radius-lg);
+
+  // The card is always opaque over the dotted canvas: the subtle surface and the highlight are translucent in dark
+  // mode, so they are laid over the surface
+  &.is-skipped,
+  &.is-not-reached {
+    background: linear-gradient(var(--awe-color-surface-subtle), var(--awe-color-surface-subtle))
+      var(--awe-color-surface);
+  }
+
+  &[aria-pressed="true"] {
+    background: linear-gradient(var(--awe-color-highlight), var(--awe-color-highlight)) var(--awe-color-surface);
+    border-color: var(--awe-color-primary);
+    box-shadow: 0 0 0 var(--awe-border-width) var(--awe-color-primary);
+  }
+
+  &[aria-disabled="true"] {
+    cursor: default;
+  }
+
+  &.is-deferred {
+    border-left-color: var(--awe-color-info-text);
+  }
+
+  // The line of the box tells the state apart besides its icon and text: pending dotted, skipped and deferred dashed
+  &.is-line-dotted {
+    border-style: dotted;
+    border-left-style: solid;
+  }
+
+  &.is-line-dashed {
+    border-style: dashed;
+    border-left-style: solid;
+  }
+
+  &.is-line-solid {
+    border-style: solid;
+  }
+
+  .flow-graph-node-name {
+    display: -webkit-box;
+    line-height: var(--awe-line-height-snug);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+  }
+
+  .flow-graph-node-state {
+    font-weight: var(--awe-font-weight-medium);
+  }
+
+  &.is-deferred .flow-graph-node-state {
+    color: var(--awe-color-info-text);
+  }
+}
+
+.flow-graph-node-execution {
+  margin-inline-start: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--awe-color-text-muted);
+}
+
+.flow-graph-node-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-1);
+  min-width: 0;
+  overflow: hidden;
+  font-size: var(--awe-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--awe-color-text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Edges of a run by their state: met solid, the one that closed a join thicker, not met dashed in the error tone, cut
+// dashed and muted, pending dotted
+.flow-graph-run .flow-graph-edge {
+  stroke: var(--awe-color-text-muted);
+
+  &.is-closing {
+    stroke: var(--awe-color-text-emphasis);
+    stroke-width: calc(var(--awe-border-width-strong) + var(--awe-border-width));
+  }
+
+  &.is-not-met {
+    stroke: var(--awe-color-danger);
+    stroke-dasharray: var(--awe-space-1) var(--awe-space-1);
+  }
+
+  &.is-cut {
+    stroke: var(--awe-color-border);
+    stroke-dasharray: var(--awe-space-1) var(--awe-space-1);
+  }
+
+  &.is-pending {
+    stroke: var(--awe-color-border);
+    stroke-dasharray: var(--awe-border-width) var(--awe-space-1);
+    stroke-linecap: round;
+  }
+}
+
+.flow-graph-run .flow-graph-arrow {
+  fill: var(--awe-color-text-muted);
+
+  &.is-closing {
+    fill: var(--awe-color-text-emphasis);
+  }
+
+  &.is-not-met {
+    fill: var(--awe-color-danger);
+  }
+
+  &.is-cut,
+  &.is-pending {
+    fill: var(--awe-color-border);
+  }
+}
+
+.flow-graph-run .flow-graph-condition.flow-graph-run-condition {
+  color: var(--awe-color-text);
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+
+  &.is-closing {
+    border-color: var(--awe-color-text-emphasis);
+  }
+
+  &.is-not-met {
+    color: var(--awe-color-danger-text);
+    background: var(--awe-color-danger-subtle);
+    border-color: var(--awe-color-danger-border);
+  }
+
+  &.is-cut,
+  &.is-pending {
+    color: var(--awe-color-text-muted);
+    border-style: dashed;
+  }
+}
+
+.flow-graph-run-legend {
+  padding: 0;
+}
+
+.flow-graph-legend-title {
+  font-weight: var(--awe-font-weight-semibold);
+}
+
+.flow-graph-legend-state {
+  &.is-ok {
+    color: var(--awe-color-success-text);
+  }
+
+  &.is-warning {
+    color: var(--awe-color-warning-text);
+  }
+
+  &.is-error,
+  &.is-stopped {
+    color: var(--awe-color-danger-text);
+  }
+
+  &.is-running,
+  &.is-interrupted,
+  &.is-deferred {
+    color: var(--awe-color-info-text);
+  }
+}
+
+// The line of an edge kind in the legend
+.flow-graph-legend-edge {
+  display: inline-block;
+  width: var(--awe-space-6);
+  border-top: var(--awe-border-width-strong) solid var(--awe-color-text-muted);
+
+  &.is-closing {
+    border-top-width: calc(var(--awe-border-width-strong) + var(--awe-border-width));
+    border-top-color: var(--awe-color-text-emphasis);
+  }
+
+  &.is-not-met {
+    border-top-style: dashed;
+    border-top-color: var(--awe-color-danger);
+  }
+
+  &.is-cut {
+    border-top-style: dashed;
+    border-top-color: var(--awe-color-border);
+  }
+
+  &.is-pending {
+    border-top-style: dotted;
+    border-top-color: var(--awe-color-border);
+  }
+}
+
+// The announcement of the selected node, for screen readers only
+.flow-graph-live {
+  position: absolute;
+  width: var(--awe-border-width);
+  height: var(--awe-border-width);
+  overflow: hidden;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+// Timeline view of a run (Cronograma): a table with one row per task, the name and state at the left and the bars on a
+// broken time axis at the right (positions in % of the axis), the grid lines of the ticks, the compressed segments
+// hatched and «Now» as a line across the rows
+.flow-graph-timeline {
+  display: flex;
+  flex-direction: column;
+  min-width: calc(var(--awe-space-16) * 10);
+  font-size: var(--awe-font-size-sm);
+}
+
+.flow-graph-timeline-row {
+  display: grid;
+  grid-template-columns: calc(var(--awe-space-16) * 4) minmax(0, 1fr);
+  min-height: calc(var(--awe-size-control-lg) + var(--awe-space-3));
+  // The lines of the timeline read in light and dark themes: the border colour, not the subtle one (#993, L138)
+  border-top: var(--awe-border-width) solid var(--awe-color-border);
+
+  // The head holds «Now» on its first line and the ticks on the second, so they never overlap
+  &.flow-graph-timeline-head {
+    min-height: calc(var(--awe-space-8) + var(--awe-space-4));
+    border-top: 0;
+  }
+}
+
+.flow-graph-timeline-task {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--awe-space-0-5);
+  min-width: 0;
+  padding: var(--awe-space-1) var(--awe-space-4) var(--awe-space-1) 0;
+
+  .flow-graph-timeline-head & {
+    font-size: var(--awe-font-size-xs);
+    color: var(--awe-color-text-muted);
+  }
+}
+
+.flow-graph-timeline-name {
+  overflow: hidden;
+  font-weight: var(--awe-font-weight-medium);
+  color: var(--awe-color-text-emphasis);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-graph-timeline-axis,
+.flow-graph-timeline-track {
+  position: relative;
+}
+
+.flow-graph-timeline-marks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.flow-graph-timeline-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: var(--awe-border-width) dashed var(--awe-color-border);
+}
+
+.flow-graph-timeline-break {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  // The compressed segments: a light hatch of the muted text colour, visible on a light surface and soft on a dark one
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--awe-color-text-muted) 20%, transparent)
+    0 var(--awe-space-0-5), transparent var(--awe-space-0-5) var(--awe-space-2));
+}
+
+.flow-graph-timeline-now {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  border-left: var(--awe-border-width-strong) solid var(--awe-color-primary);
+}
+
+.flow-graph-timeline-tick,
+.flow-graph-timeline-break-mark,
+.flow-graph-timeline-now-label {
+  position: absolute;
+  bottom: var(--awe-space-1);
+  font-size: var(--awe-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--awe-color-text-muted);
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.flow-graph-timeline-now-label {
+  top: 0;
+  bottom: auto;
+  z-index: 2;
+  padding: 0 var(--awe-space-1);
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-primary-text);
+  background: var(--awe-color-surface);
+  transform: none;
+}
+
+// A bar of the timeline: the tone of its state (its border in the full tone, so it reads on a light surface), the text
+// clipped (its label tells everything)
+.flow-graph-timeline-bar {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  min-width: var(--awe-space-1);
+  height: var(--awe-space-6);
+  padding: 0 var(--awe-space-1-5);
+  overflow: hidden;
+  font: inherit;
+  font-size: var(--awe-font-size-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--awe-color-text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-sm);
+  transform: translateY(-50%);
+  cursor: pointer;
+
+  &.is-ok {
+    color: var(--awe-color-success-text);
+    background: var(--awe-color-success-subtle);
+    border-color: var(--awe-color-success);
+  }
+
+  &.is-warning {
+    color: var(--awe-color-warning-text);
+    background: var(--awe-color-warning-subtle);
+    border-color: var(--awe-color-warning);
+  }
+
+  &.is-error,
+  &.is-stopped {
+    color: var(--awe-color-danger-text);
+    background: var(--awe-color-danger-subtle);
+    border-color: var(--awe-color-danger);
+  }
+
+  &.is-running,
+  &.is-interrupted {
+    color: var(--awe-color-info-text);
+    background: var(--awe-color-info-subtle);
+    border-color: var(--awe-color-info);
+  }
+
+  // Waiting for a confirmation: dashed, open up to now
+  &.is-deferred {
+    color: var(--awe-color-info-text);
+    background: var(--awe-color-surface);
+    border-color: var(--awe-color-info);
+    border-style: dashed;
+  }
+
+  &.is-open {
+    background: linear-gradient(90deg, var(--awe-color-info-subtle), transparent);
+    border-right: 0;
+    border-radius: var(--awe-radius-sm) 0 0 var(--awe-radius-sm);
+  }
+
+  // The wait in a join: hatched, not a button
+  &.is-join-wait {
+    z-index: 0;
+    background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--awe-color-text-muted) 50%, transparent)
+      0 var(--awe-space-0-5), transparent var(--awe-space-0-5) var(--awe-space-2));
+    cursor: default;
+  }
+
+  &[aria-pressed="true"] {
+    box-shadow: 0 0 0 var(--awe-border-width-strong) var(--awe-color-primary);
+  }
+
+  &[aria-disabled="true"] {
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+}
+
+.flow-graph-timeline-due {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: var(--awe-border-width-strong) dashed var(--awe-color-info);
+
+  span {
+    position: absolute;
+    right: var(--awe-space-1);
+    bottom: var(--awe-space-0-5);
+    font-size: var(--awe-font-size-xs);
+    color: var(--awe-color-info-text);
+    white-space: nowrap;
+  }
+}
+
+// The key of the join wait in the legend of the timeline
+.flow-graph-legend-bar {
+  display: inline-block;
+  width: var(--awe-space-6);
+  height: var(--awe-space-3);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-xs);
+
+  &.is-join-wait {
+    background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--awe-color-text-muted) 50%, transparent)
+      0 var(--awe-space-0-5), transparent var(--awe-space-0-5) var(--awe-space-2));
+  }
+}
+
+// List view of a run (Lista): a nested ordered list, each task a card like its node (the line of its box tells pending,
+// skipped and deferred apart), its children indented under a line
+.flow-graph-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  .flow-graph-list {
+    margin-left: var(--awe-space-4);
+    padding-left: var(--awe-space-3);
+    border-left: var(--awe-border-width) solid var(--awe-color-border);
+  }
+}
+
+.flow-graph-list-entry {
+  margin: var(--awe-space-2) 0;
+}
+
+.flow-graph-list-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--awe-space-1);
+  width: 100%;
+  padding: var(--awe-space-2) var(--awe-space-3);
+  font: inherit;
+  font-size: var(--awe-font-size-sm);
+  color: var(--awe-color-text);
+  text-align: start;
+  background: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-lg);
+  cursor: pointer;
+  transition: background var(--awe-motion-duration-fast) var(--awe-motion-easing-standard);
+
+  &:hover:not([aria-disabled="true"]) {
+    background: var(--awe-color-surface-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--awe-focus-ring);
+    outline-offset: var(--awe-focus-ring-offset);
+  }
+
+  &[aria-pressed="true"] {
+    background: var(--awe-color-highlight);
+    border-color: var(--awe-color-primary);
+    box-shadow: 0 0 0 var(--awe-border-width) var(--awe-color-primary);
+  }
+
+  &[aria-disabled="true"] {
+    cursor: default;
+  }
+
+  &.is-line-dotted {
+    border-style: dotted;
+  }
+
+  &.is-line-dashed {
+    border-style: dashed;
+    background: var(--awe-color-surface-subtle);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.flow-graph-list-name {
+  font-weight: var(--awe-font-weight-semibold);
+  color: var(--awe-color-text-emphasis);
+  overflow-wrap: anywhere;
+}
+
+.flow-graph-list-condition,
+.flow-graph-list-feeds {
+  font-size: var(--awe-font-size-xs);
+  color: var(--awe-color-text-muted);
+}
+
+// «Also feeds» entry under the other parents of a join: a dashed reference, not a button
+.flow-graph-list-feeds {
+  display: flex;
+  align-items: center;
+  gap: var(--awe-space-1);
+  padding: var(--awe-space-2) var(--awe-space-3);
+  background: var(--awe-color-surface-subtle);
+  border: var(--awe-border-width) dashed var(--awe-color-border);
+  border-radius: var(--awe-radius-lg);
+}

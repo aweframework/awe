@@ -46,6 +46,17 @@ class ActionsAndServicesXmlTest {
     assertFalse(service.contains("<service-parameter"));
   }
 
+  @Test
+  void stopTaskServiceIsBoundToTheRemoteSchedulerService() throws IOException {
+    String xml = readResource("application/awe-scheduler/global/Services.xml");
+    int start = xml.indexOf("<service id=\"stopTask\">");
+    assertTrue(start >= 0, "stopTask service must exist");
+    String service = xml.substring(start, xml.indexOf("</service>", start));
+
+    assertTrue(service.contains("classname=\"com.almis.awe.scheduler.service.RemoteSchedulerService\" method=\"stopTask\""));
+    assertTrue(service.contains("<service-parameter name=\"IdeTsk\" type=\"INTEGER\"/>"));
+  }
+
   private String getExecutionLogService() throws IOException {
     String xml = readResource("application/awe-scheduler/global/Services.xml");
 

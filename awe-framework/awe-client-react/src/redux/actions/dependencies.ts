@@ -257,8 +257,8 @@ function getTextAttribute(component: DependencyComponent, trigger: Trigger) {
     // Grid rows length
     return rows.length;
   } else {
-    // Criterion attribute
-    return componentValue(rows.map(item => item[modelAttribute]));
+    // Criterion attribute. The text of a value without label (a text input) is the value itself, as in AngularJS
+    return componentValue(rows.map(item => item[modelAttribute] ?? item.value));
   }
 }
 
@@ -505,6 +505,9 @@ function getTriggers(element: TriggerElement, component: DependencyComponent, fo
 }
 
 // Attributes that depend on the whole grid model (row set or selection), so any model update may change them.
+// "selectedRowValue" and "selectedRow" read the edited or selected row: they are compared by the identity of that
+// row (see SELECTED_ROW_ATTRIBUTES), not by the version of the model, so saving the row or selecting it again does
+// not launch them (issue #990).
 // "currentRowValue" is not one of them: it is the value of a single cell, and its value is already compared
 // on every check; launching it on any other model update would validate untouched cells again
 // (e.g. the unique check of a key column each time another column of the same row is edited).
@@ -522,6 +525,10 @@ const MODEL_CONTEXT_ATTRIBUTES = new Set([
   "prevRow",
   "nextRow"
 ]);
+
+// Attributes that read the edited row or, without it, the selected one: their value is compared on every check, so
+// only a change of the row they read has to launch them again
+const SELECTED_ROW_ATTRIBUTES = new Set(["selectedRowValue", "selectedRow"]);
 
 /**
  * Check if a trigger reads the default value of a grid (the number of selected rows)
@@ -557,6 +564,18 @@ function getTriggerModelContext(trigger: Trigger, state: RootState): ModelContex
 
   if (!MODEL_CONTEXT_ATTRIBUTES.has(trigger.attribute)) {
     return null;
+  }
+
+  // The selected row is the same while the same rows are edited and selected, whatever else changes in the model
+  if (SELECTED_ROW_ATTRIBUTES.has(trigger.attribute)) {
+    const gridId = getGridIdentifier(component.attributes);
+    const rows = component.model?.values || [];
+    const editingRow = rows[getEditingRowIndex(rows)];
+    return {
+      componentId,
+      attribute: trigger.attribute,
+      selection: [editingRow ? editingRow[gridId] : null, ...rows.filter(row => row.selected).map(row => row[gridId])]
+    };
   }
 
   const modelVersion = component?.model?.modelVersion ?? 0;
@@ -1266,12 +1285,25 @@ function listensToEvent(dependency: PlacedDependency, { address, event }: EventL
     && (!element.view1 || element.view1 === address.view));
 }
 
-function getDependenciesExecutions(state: RootState, initial: boolean, view?: string, eventOnly?: EventLauncher) {
+/**
+ * Check if a dependency reads one of the given components: one of its elements points to one of them
+ * @param {object} dependency Dependency
+ * @param {Set} components Components (or groups) read
+ * @returns {boolean} The dependency reads one of them
+ */
+function readsComponents(dependency: PlacedDependency, components: Set<string>): boolean {
+  return (dependency.elements || []).some(element => components.has(element.id as string)
+    || ("id2" in element && components.has(element.id2 as string)));
+}
+
+function getDependenciesExecutions(state: RootState, initial: boolean, view?: string, eventOnly?: EventLauncher,
+  readers?: Set<string>) {
   const allComponents = getComponents(state);
   const executions = _.groupBy(Object.values(allComponents)
     .filter(component => (!initial || component.address?.view === view) && getComponentDependencies(component).length > 0)
     .map(component => getComponentDependencies(component)
       .filter(dependency => !eventOnly || listensToEvent(dependency, eventOnly))
+      .filter(dependency => !readers || readsComponents(dependency, readers))
       .filter(dependency => initial ? initializeDependency(dependency, component, state) : hasChanged(dependency, component, state))
       .map(dependency => checkDependency(dependency, component, state))
       .filter(e => e.length > 0)
@@ -1345,20 +1377,91 @@ export function forgetRowDependencies(component: Partial<DependencyComponent> | 
     });
 }
 
+// Executions that write the model of a component, as a dependency with target "input" does
+const MODEL_EXECUTIONS = ["updateModel", "resetModel"];
+// Rounds of dependencies launched by values that other dependencies wrote, before the chain is taken as a loop
+const MAX_MODEL_ROUNDS = 10;
+
+/**
+ * Components (and their groups) whose model the executions write
+ * @param {object} executions Executions by key
+ * @param {object} state State before they are dispatched
+ * @returns {Set} Components written, empty when none
+ */
+function getWrittenComponents(executions: Record<string, unknown[]>, state: RootState): Set<string> {
+  const allComponents = getComponents(state);
+  const written = new Set<string>();
+  MODEL_EXECUTIONS.flatMap(key => executions[key] || [])
+    .map(execution => (execution as {address?: DependencyAddress})?.address?.component)
+    .filter(Boolean)
+    .forEach(componentId => {
+      written.add(componentId as string);
+      const group = allComponents[componentId as string]?.attributes?.group;
+      if (group) {
+        written.add(group);
+      }
+    });
+  return written;
+}
+
+/**
+ * Dispatch the executions and, as AngularJS does, check again the dependencies that read a component whose model one
+ * of them has written: AngularJS writes the value of an input dependency publishing the change of the model
+ * (Control.changeModelAttribute with publish), so a value computed in place by a formule or a value launches the
+ * dependencies that read it. As there, only a value that changes launches them; a chain that never settles is stopped
+ * after MAX_MODEL_ROUNDS rounds instead of hanging the screen. The event that launched the first round is not raised in
+ * the next ones (the published change of the model carries no event)
+ * @param {object} executions Executions of the first round
+ * @param {object} state State they were evaluated on
+ * @param {function} dispatch Dispatch function
+ * @param {function} [getState] State after each round. Without it, the dependencies are not checked again
+ */
+function dispatchChain(executions: Record<string, unknown[]>, state: RootState, dispatch: Dispatch<UnknownAction>,
+  getState?: () => RootState): void {
+  let written = getWrittenComponents(executions, state);
+  dispatchExecutions(executions, state, dispatch);
+  if (!getState) {
+    return;
+  }
+  for (let round = 0; round < MAX_MODEL_ROUNDS && written.size > 0; round++) {
+    const current = getState();
+    const next = {...current, runtime: {...current.runtime, lastEvent: null}} as RootState;
+    const chained = getDependenciesExecutions(next, false, undefined, undefined, written);
+    written = getWrittenComponents(chained, next);
+    dispatchExecutions(chained, next, dispatch);
+  }
+  if (written.size > 0) {
+    // eslint-disable-next-line no-console
+    console.warn(`[Dependency] WARNING! Dependencies still writing [${[...written].join(", ")}] after ${MAX_MODEL_ROUNDS} rounds: stopped`);
+  }
+}
+
 /**
  * Check the dependencies
  * @param {object} state Redux state
  * @param {function} dispatch Dispatch function
  * @param {{address: object, event: string}} [eventOnly] Check only the dependencies that listen to this event, like
  * AngularJS does for the events that only notify (the column dependencies of the component are not checked)
+ * @param {function} [getState] State getter: with it, the dependencies that read a value written by a dependency are
+ * checked again (see dispatchChain)
  */
-export function checkDependencies(state: RootState, dispatch: Dispatch<UnknownAction>, eventOnly?: EventLauncher): void {
+export function checkDependencies(state: RootState, dispatch: Dispatch<UnknownAction>, eventOnly?: EventLauncher,
+  getState?: () => RootState): void {
   const executions = getDependenciesExecutions(state, false, undefined, eventOnly);
-  dispatchExecutions(executions, state, dispatch);
+  dispatchChain(executions, state, dispatch, getState);
 }
 
-export function initializeDependencies(view: string, state: RootState, dispatch: Dispatch<UnknownAction>): void {
+/**
+ * Initialize the dependencies of a view and launch the initial ones
+ * @param {string} view View
+ * @param {object} state Redux state
+ * @param {function} dispatch Dispatch function
+ * @param {function} [getState] State getter: with it, the dependencies that read a value written by a dependency are
+ * checked again (see dispatchChain)
+ */
+export function initializeDependencies(view: string, state: RootState, dispatch: Dispatch<UnknownAction>,
+  getState?: () => RootState): void {
   DEPENDENCY_VALUES[view] = {};
   const executions = getDependenciesExecutions(state, true, view);
-  dispatchExecutions(executions, state, dispatch);
+  dispatchChain(executions, state, dispatch, getState);
 }

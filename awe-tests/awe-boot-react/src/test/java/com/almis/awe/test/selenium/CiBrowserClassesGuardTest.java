@@ -341,7 +341,7 @@ class CiBrowserClassesGuardTest {
 
     String pipeline = Files.readString(PIPELINE);
 
-    assertThat(browserJobs(pipeline)).as("Browser jobs of %s", PIPELINE).hasSize(32);
+    assertThat(browserJobs(pipeline)).as("Browser jobs of %s", PIPELINE).hasSize(28);
     assertThat(browserJobProblems(pipeline)).isEmpty();
   }
 
@@ -352,7 +352,7 @@ class CiBrowserClassesGuardTest {
     String pipeline = Files.readString(PIPELINE);
 
     assertThat(firefoxRuleProblems(pipeline)).isEmpty();
-    assertThat(jobs(pipeline).keySet()).contains(FIREFOX_CACHE_JOB, "E2E · AngularJS · Firefox · Scheduler", "E2E · React · Firefox · Scheduler");
+    assertThat(jobs(pipeline).keySet()).contains(FIREFOX_CACHE_JOB, "E2E · AngularJS · Firefox · Regression", "E2E · React · Firefox · Scheduler");
   }
 
   @Test
@@ -362,7 +362,7 @@ class CiBrowserClassesGuardTest {
     String pipeline = Files.readString(PIPELINE);
 
     assertThat(chromiumRuleProblems(pipeline)).isEmpty();
-    assertThat(jobs(pipeline).keySet()).contains("E2E · AngularJS · Chromium · Scheduler", "E2E · React · Chromium · Scheduler",
+    assertThat(jobs(pipeline).keySet()).contains("E2E · AngularJS · Chromium · Regression", "E2E · React · Chromium · Scheduler",
       "E2E quarantine · AngularJS · Chromium", "E2E quarantine · React · Chromium");
   }
 

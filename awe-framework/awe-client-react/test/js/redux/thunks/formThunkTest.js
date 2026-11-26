@@ -307,6 +307,19 @@ describe('awe-react-client/test/js/redux/thunks/formThunkTest.js', () => {
       expect(acceptAction.type).toBe('ACCEPT_ACTION');
     });
 
+    it('keeps an explicit falsy value, as AngularJS does (autorefresh 0 stops a viewer)', () => {
+      const action = {
+        type: 'update-controller',
+        address: mockAddress,
+        parameters: {attribute: 'autorefresh', value: 0, datalist: {rows: [{value: 5}]}}
+      };
+
+      formThunks.updateControllerAction(action)(dispatch);
+
+      const [[updateAttributes]] = dispatch.mock.calls;
+      expect(updateAttributes.data).toEqual({autorefresh: 0});
+    });
+
     it('debería usar el primer valor de datalist si no hay valor en parámetros', () => {
       const action = {
         type: 'update-controller',

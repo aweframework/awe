@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : scheduler-flow-run.xml
+    Description: Flow run page of the Scheduler (#993): what has happened in one flow run, why and what is left. Opened
+                 from every «flow run» link of the activity screen and of the task screen with the run as ExeRun.selected
+                 (the link selects its row). The run stays in the hidden criterion ExeRun.selected, kept on reload (the
+                 browser tab keeps the run and a reload opens it again), and goes to the read services of the run as
+                 IdeRun (getFlowRunSummary, getFlowRunGraph).
+                 The views of the run are what the page is for: the header is one compact card at its natural height and
+                 the views take the rest of the window in a maximizable card, each one scrolling inside its own area
+                 (no page scroll), chosen with the segmented control of its header (RunPagVw), on the graph when the page
+                 opens. The header card shows the run (its root task and execution) as its title, its status as its chip, its facts
+                 (who launched it, start, end, duration and how many of its tasks are done) as pills, the final status
+                 and the task it points to as a one-line note, the rule of the final status behind the info button next
+                 to it (a popover) and the parameters of its launch, which its dependencies receive, as one line (none
+                 without parameters).
+                 Three views of the run (Grafo, Cronograma, Lista), one flow-graph widget in run mode each (widget
+                 parameter view). A node with an execution sends the columns of its row as <column>.selected (its task
+                 IdeTsk.selected, its execution ExeTsk.selected and its log locator ExecutionLogPath.selected) and raises
+                 the click event of its widget: the dependency on it fills and opens the execution side panel of this
+                 screen (PnlRunExe). React keeps the node in the model of the widget, not in its selected value, so no
+                 dependency reads it (no attribute): the server fills the panel (loadExecutionScreen, the log button of
+                 the activity screen) and gives the status of the execution to RunExeSta (getFlowRunExecutionStatus).
+                 The side panel of the activity screen reads the selected row of its grids, so it cannot be shared:
+                 this is a copy bound to the nodes (as PnlTskExe of the task screen). The launch parameters of every
+                 execution of the run are the ones of the run, shown on the page, so the panel does not repeat them.
+                 The root task and the task the status points to are nodes of the graph: their panel opens their task.
+-->
+<screen xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://aweframework.gitlab.io/awe/docs/schemas/screen.xsd"
+        template="window" label="MENU_SCHEDULER_FLOW_RUN" help="HELP_SCREEN_SCHEDULER_FLOW_RUN">
+  <tag source="hidden">
+    <message id="ExeStpMsg" title="CONFIRM_TITLE_ACTIVITY_STOP" message="CONFIRM_MESSAGE_ACTIVITY_STOP" />
+    <!-- The run of the screen, as the links send it. The browser tab keeps it, so a reload opens the same run -->
+    <criteria id="ExeRun.selected" component="hidden" variable="ExeRun.selected" keep-on-reload="true" />
+    <!-- The run as the read services of the run read it -->
+    <criteria id="IdeRun" component="hidden" variable="ExeRun.selected" />
+  </tag>
+
+  <tag source="buttons">
+    <!-- Back to the activity: the first action of the header, its label tells where it goes (the breadcrumb does too) -->
+    <button label="BUTTON_FLOW_RUN_BACK" icon="lucide:arrow-left" id="ButRunBck" style="btn-ghost">
+      <button-action type="screen" target="scheduler-activity" />
+    </button>
+    <button label="BUTTON_SCREEN_HELP" icon="question-circle" id="ButHlp" help="HELP_HELP_BUTTON" style="btn-ghost no-label">
+      <button-action type="dialog" target="HlpOpt" />
+    </button>
+    <!-- Reload: an icon button, its label is its accessible name -->
+    <button label="BUTTON_ACTIVITY_RELOAD" icon="refresh" id="ButRunRel" help="HELP_ACTIVITY_RELOAD_BUTTON" style="no-label">
+      <button-action type="filter" target="CrdRunPag" silent="true" />
+      <button-action type="filter" target="CrdRunRul" silent="true" />
+      <button-action type="filter" target="RunGph" silent="true" />
+      <button-action type="filter" target="RunTml" silent="true" />
+      <button-action type="filter" target="RunLst" silent="true" />
+    </button>
+  </tag>
+
+  <tag source="center">
+    <!-- The overlays of the page go before its cards, so the views are its last block and no gap is left under them -->
+    <!-- The rule of the final status, opened by the info button of the header below it (from its left edge) -->
+    <popover id="PopRunRul" label="SCREEN_TEXT_FLOW_RUN_RULE_BUTTON" anchor="ButRunRul" position="bottom" max-width="24rem">
+      <tag type="div" style="panel-body">
+        <tag type="p" label="SCREEN_TEXT_FLOW_RUN_RULE" />
+      </tag>
+    </popover>
+
+    <!-- Detail of the execution of the clicked node: the side panel of the activity screen bound to the nodes. The
+         server fills its criteria and points the log viewer at the execution (loadExecutionScreen with the log locator
+         of the node), the progress card reads the task and the execution of the node -->
+    <side-panel id="PnlRunExe" label="SCREEN_TEXT_EXECUTION_DETAILS" icon="file-text-o" max-width="60vw">
+      <tag type="div" style="panel-body">
+        <tag type="div" style="col-xs-12">
+          <button label="BUTTON_ACTIVITY_OPEN_TASK" icon="lucide:external-link" id="ButRunOpnTsk">
+            <button-action type="close" target="PnlRunExe" />
+            <button-action type="screen" target="scheduler-task" />
+          </button>
+        </tag>
+        <!-- Progress: the elapsed time against the average of the task while it runs, the execution time once it ended -->
+        <tag type="div" style="col-xs-12">
+          <card id="CrdExePrg" initial-load="query" server-action="data" target-action="getActivityExecutionProgress" />
+        </tag>
+        <criteria label="PARAMETER_STATUS" component="text-view" id="execution-title" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_TASK" component="text-view" id="task-id" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_EXECUTION" component="text-view" id="execution-id" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_LAUNCHED_BY" component="text-view" id="execution-launched-by" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_START_TIME" component="text-view" id="execution-start-time" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_END_TIME" component="text-view" id="execution-end-time" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="SCREEN_TEXT_EXECUTION_TIME" component="text-view" id="execution-time" style="col-xs-12 col-sm-4 awe-readout" />
+        <criteria label="PARAMETER_DESCRIPTION" component="text-view" id="execution-information" style="col-xs-12 awe-readout awe-readout-block" />
+
+        <!-- Live log of the execution: loadExecutionScreen fills the two hidden criteria and reloads the viewer -->
+        <tag type="h3" style="col-xs-12 awe-form-section-title" label="SCREEN_TEXT_ACTIVITY_LOG" icon="file-text-o" />
+        <criteria id="execution-log-task-id" component="hidden" />
+        <criteria id="execution-log-execution-id" component="hidden" />
+        <!-- Status of the execution of the node (getFlowRunExecutionStatus): only a running (or waiting) or queued
+             execution is followed, only a running one is stopped -->
+        <criteria id="RunExeSta" component="hidden" />
+        <tag type="div" style="col-xs-12 height-lg" expandible="vertical">
+          <!-- The filter of the panel reads the log once; a running or queued execution is followed every 5 seconds
+               while the panel is open (the viewer reads at once when the autorefresh is enabled) -->
+          <widget type="log-viewer" id="executionLogViewer" style="expand scrollable" server-action="get-execution-log">
+            <widget-parameter type="boolean" name="stickBottom" value="true" />
+            <dependency source-type="value" target-type="enable-autorefresh" value="5">
+              <dependency-element id="PnlRunExe" event="open" />
+              <dependency-element id="RunExeSta" condition="in" value="4,5" />
+            </dependency>
+            <dependency target-type="disable-autorefresh">
+              <dependency-element id="PnlRunExe" event="close" />
+            </dependency>
+          </widget>
+        </tag>
+      </tag>
+      <tag type="div" style="modal-footer">
+        <tag type="div" style="pull-right">
+          <button label="BUTTON_CLOSE" icon="close" id="ButRunExeCls" help="HELP_CLOSE_HELP_BUTTON">
+            <button-action type="close" target="PnlRunExe" />
+          </button>
+          <!-- Stop: the stop of the activity screen, for a running execution (also one waiting for a confirmation) -->
+          <button label="BUTTON_ACTIVITY_STOP" icon="stop" id="ButRunExeStp" style="btn-danger" help="HELP_LAUNCH_STOP_BUTTON">
+            <button-action type="confirm" target="ExeStpMsg" />
+            <button-action type="server" server-action="maintain" target-action="StpTsk" />
+            <button-action type="close" target="PnlRunExe" />
+            <button-action type="filter" target="CrdRunPag" silent="true" />
+            <button-action type="filter" target="CrdRunRul" silent="true" />
+            <button-action type="filter" target="RunGph" silent="true" />
+            <button-action type="filter" target="RunTml" silent="true" />
+            <button-action type="filter" target="RunLst" silent="true" />
+            <dependency target-type="show" initial="true">
+              <dependency-element id="RunExeSta" condition="eq" value="4" />
+            </dependency>
+          </button>
+        </tag>
+      </tag>
+    </side-panel>
+
+    <!-- Header: one compact card at its natural height, in a grid of cards as the views card under it: both cards in the
+         same container have the same width and edges, it never stretches and the gap after its grid keeps it apart from
+         the views card (as the engine card of the configuration). Its title is the run
+         (its root task and execution), its chip the status, its pills the facts and its footer the parameters of the
+         launch as one line. In its body, the final status with what it points to as a one-line note and, right after
+         the note, the info button that opens the rule of the final status -->
+    <tag type="div" style="awe-card-grid">
+      <card id="CrdRunPag" initial-load="query" target-action="getFlowRunPageHeader">
+        <tag type="div" style="awe-action-bar">
+          <!-- The note and its info button as one item at the start of the bar: the bar holds only it, so the item keeps
+               the width of its content and the button stays next to the text, on the left of the page. Its popover opens
+               below the button over the page and never past its right edge (no page scroll) -->
+          <tag type="div" id="RunRulBar" style="awe-action-bar">
+            <!-- The note in a plain div: it keeps the width of its text -->
+            <tag type="div">
+              <card id="CrdRunRul" style="card-note" initial-load="query" target-action="getFlowRunPageRule" />
+            </tag>
+            <!-- An icon button: its label is its tooltip and its accessible name, the popover tells the rule -->
+            <button label="SCREEN_TEXT_FLOW_RUN_RULE_BUTTON" icon="lucide:info" id="ButRunRul" style="btn-ghost no-label">
+              <button-action type="dialog" target="PopRunRul" />
+            </button>
+          </tag>
+        </tag>
+      </card>
+    </tag>
+
+    <!-- Views of the run: the graph, the timeline and the list, one run graph each, in a card at the rest of the height
+         of the page that maximizes to see them at full screen. Its header holds the view switch, a segmented control at
+         its right before the maximize button, on the graph when the page opens (a radio takes its value as chosen only
+         when checked; checked chooses it on every load, so the choice is not kept on reload); its body the view chosen,
+         one at a time, which scrolls inside its widget (it never grows the page). A node with an execution opens its
+         detail in the side panel. In a grid of cards as the header (same width and edges) that takes the rest of the
+         height: the card fills it -->
+    <tag type="div" style="awe-card-grid expand">
+      <card id="CrdRunVw" title="SCREEN_TEXT_FLOW_RUN_VIEWS" style="expand" maximize="true">
+        <tag type="div" style="awe-card-header-actions">
+          <criteria id="RunPagVw" label="SCREEN_TEXT_FLOW_RUN_VIEWS" component="button-radio" initial-load="enum" target-action="RunPagVw"
+                    value="RunPagGph" checked="true" style="no-label" />
+        </tag>
+        <widget type="flow-graph" id="RunGph" server-action="data" target-action="getFlowRunGraph" initial-load="query" style="expand">
+          <widget-parameter type="string" name="mode" value="run" />
+          <widget-parameter type="string" name="view" value="graph" />
+          <dependency>
+            <dependency-element id="RunGph" event="click" />
+            <dependency-action type="server" server-action="maintain-silent" target-action="loadExecutionScreen" silent="true" async="true" />
+            <dependency-action type="server" server-action="update-model" target-action="getFlowRunExecutionStatus" silent="true" />
+            <dependency-action type="filter" target="CrdExePrg" silent="true" />
+            <dependency-action type="dialog" target="PnlRunExe" />
+          </dependency>
+          <!-- The graph is hidden on the other views only: a switch left without a choice still shows it -->
+          <dependency target-type="hide" initial="true">
+            <dependency-element id="RunPagVw" condition="in" value="RunPagTml,RunPagLst" />
+          </dependency>
+        </widget>
+        <widget type="flow-graph" id="RunTml" server-action="data" target-action="getFlowRunGraph" initial-load="query" style="expand">
+          <widget-parameter type="string" name="mode" value="run" />
+          <widget-parameter type="string" name="view" value="timeline" />
+          <dependency>
+            <dependency-element id="RunTml" event="click" />
+            <dependency-action type="server" server-action="maintain-silent" target-action="loadExecutionScreen" silent="true" async="true" />
+            <dependency-action type="server" server-action="update-model" target-action="getFlowRunExecutionStatus" silent="true" />
+            <dependency-action type="filter" target="CrdExePrg" silent="true" />
+            <dependency-action type="dialog" target="PnlRunExe" />
+          </dependency>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="RunPagVw" condition="eq" value="RunPagTml" />
+          </dependency>
+        </widget>
+        <widget type="flow-graph" id="RunLst" server-action="data" target-action="getFlowRunGraph" initial-load="query" style="expand">
+          <widget-parameter type="string" name="mode" value="run" />
+          <widget-parameter type="string" name="view" value="list" />
+          <dependency>
+            <dependency-element id="RunLst" event="click" />
+            <dependency-action type="server" server-action="maintain-silent" target-action="loadExecutionScreen" silent="true" async="true" />
+            <dependency-action type="server" server-action="update-model" target-action="getFlowRunExecutionStatus" silent="true" />
+            <dependency-action type="filter" target="CrdExePrg" silent="true" />
+            <dependency-action type="dialog" target="PnlRunExe" />
+          </dependency>
+          <dependency target-type="show" initial="true">
+            <dependency-element id="RunPagVw" condition="eq" value="RunPagLst" />
+          </dependency>
+        </widget>
+      </card>
+    </tag>
+  </tag>
+
+  <tag source="modal">
+    <include target-screen="screen-help" target-source="center" />
+  </tag>
+</screen>

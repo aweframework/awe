@@ -20,6 +20,7 @@ import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.email.ParsedEmail;
 import com.almis.awe.model.type.AnswerType;
 import com.almis.awe.model.util.data.DataListUtil;
+import com.almis.awe.scheduler.util.SchedulerDeferred;
 import com.almis.awe.service.data.builder.DataListBuilder;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
@@ -31,6 +32,7 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.lang.Thread.sleep;
 
@@ -61,6 +63,11 @@ public class DummyService extends ServiceConfig {
   // Autowired services
   private final QueryService queryService;
   private final Random random = new Random();
+  // Execution keys (task, execution) that the deferred test task received
+  private final List<int[]> deferredLaunches = new CopyOnWriteArrayList<>();
+  private final List<Map<String, String>> webhookLaunches = new CopyOnWriteArrayList<>();
+  // Cancellation notices (task, execution, external reference) that the deferred test task received
+  private final List<String> deferredCancellations = new CopyOnWriteArrayList<>();
 
   /**
    * Autowired constructor
@@ -567,6 +574,70 @@ public class DummyService extends ServiceConfig {
       throw new AWException("Interrupted thread exception", exc);
     }
     return new ServiceData();
+  }
+
+  /**
+   * Answer a scheduler task as accepted, finishes later, and record the execution key it received
+   *
+   * @param taskId      Task identifier
+   * @param executionId Execution identifier
+   * @return Deferred answer
+   */
+  public ServiceData deferredTestLaunch(Integer taskId, Integer executionId) {
+    deferredLaunches.add(new int[]{taskId, executionId});
+    return SchedulerDeferred.accepted("external-ref-1", "Waiting for the external system");
+  }
+
+  /**
+   * Record the values that a webhook task received
+   *
+   * @param day    Value mapped from the webhook data
+   * @param entity Value of a parameter that the webhook data does not map
+   * @return Service data
+   */
+  public ServiceData webhookTestLaunch(String day, String entity) {
+    webhookLaunches.add(Map.of("day", String.valueOf(day), "entity", String.valueOf(entity)));
+    return new ServiceData();
+  }
+
+  /**
+   * Record the cancellation notice of a deferred execution
+   *
+   * @param taskId            Task identifier
+   * @param executionId       Execution identifier
+   * @param externalReference Reference of the work in the external system
+   * @return Empty answer
+   */
+  public ServiceData deferredTestCancel(Integer taskId, Integer executionId, String externalReference) {
+    deferredCancellations.add(taskId + "-" + executionId + "-" + externalReference);
+    return new ServiceData();
+  }
+
+  /**
+   * Values received by the webhook test task, in order
+   *
+   * @return Values of each launch
+   */
+  public List<Map<String, String>> getWebhookLaunches() {
+    return webhookLaunches;
+  }
+
+  /**
+   * Cancellation notices "task-execution-reference" received by the deferred test task, in order
+   *
+   * @return Cancellation notices
+   */
+  public List<String> getDeferredCancellations() {
+    return deferredCancellations;
+  }
+
+  /**
+   * Execution keys {task, execution} received by the deferred test task, in order
+   *
+   * @return Execution keys
+   */
+  public List<int[]> getDeferredLaunches() {
+    return deferredLaunches;
   }
 
   /**

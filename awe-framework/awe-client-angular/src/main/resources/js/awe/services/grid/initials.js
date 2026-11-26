@@ -11,11 +11,12 @@ export function getInitials(name) {
   return initials.map(word => word.charAt(0)).join("").toUpperCase();
 }
 
-// Tones of a status cell (any other tone is shown as neutral)
-export const STATUS_TONES = ["success", "warning", "danger", "info", "neutral"];
+// Tones of a status cell (any other tone is shown as neutral). Pending is the warning tone with a dashed border, for a
+// state that waits (#993)
+export const STATUS_TONES = ["success", "warning", "danger", "info", "neutral", "pending"];
 
-// Tones of an avatar (any other tone is shown as neutral)
-export const AVATAR_TONES = ["primary", ...STATUS_TONES];
+// Tones of an avatar (any other tone is shown as neutral; avatars have no pending tone)
+export const AVATAR_TONES = ["primary", "success", "warning", "danger", "info", "neutral"];
 
 /**
  * Tone of a value: one of the given tones (trimmed, in lower case), neutral for any other value

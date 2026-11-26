@@ -203,8 +203,8 @@ Un servicio con `authorization="target"` no puede declarar `permission`: es un e
 
 ## Elementos de pantalla {#screen-elements}
 
-Con `enforce`, AWE quita de una pantalla los botones, los botones de contexto y las columnas de botón
-(`component="button"`) que lanzan una consulta, un target de maintain o un servicio que el usuario no puede lanzar. Lo
+Con `enforce`, AWE quita de una pantalla los botones, los botones de contexto, las columnas de botón
+(`component="button"`) y las columnas de enlace con acciones (`component="link"` con un `button-action`) que lanzan una consulta, un target de maintain o un servicio que el usuario no puede lanzar. Lo
 decide el servidor al enviar la pantalla, para cada usuario, así que los dos motores reciben la pantalla sin esos
 elementos. Con `warn` y `off` la pantalla no cambia.
 
@@ -213,7 +213,7 @@ elementos. Con `warn` y `off` la pantalla no cambia.
 | Pregunta | Respuesta |
 | --- | --- |
 | ¿Cuándo se ocultan elementos? | Solo con `enforce`. Con `warn` el usuario ve todos los elementos y un lanzamiento sin permiso se ejecuta: solo se escribe en el log y se [audita](#audit). Con `off` no se comprueba nada. |
-| ¿Qué elementos? | Los botones, los botones de contexto y las columnas de botón de las tablas. |
+| ¿Qué elementos? | Los botones, los botones de contexto, las columnas de botón y las columnas de enlace con acciones de las tablas. Una columna de enlace sin acciones solo abre su URL y nunca se quita. |
 | ¿Cuándo se quita un botón? | Cuando una de sus acciones lanza una consulta, un target de maintain o un servicio cuyo permiso el usuario no tiene. |
 | ¿Y un target que no declara permiso? | No requiere nada, así que nunca quita un botón, salvo que esté activo [`require-undeclared`](#require-undeclared): entonces una consulta requiere `default.read` y un target de maintain o un servicio `default.write`. Los targets públicos y de solo servidor nunca requieren nada. |
 | ¿Y si el botón no lanza nada? | Un botón que solo abre un panel, como *Nuevo* o *Duplicar*, no tiene target del que deducir: declara su propio [`permission`](#the-permission-attribute-of-an-element), que sustituye a la decisión deducida. |

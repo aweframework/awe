@@ -3,9 +3,16 @@
     Author     : pvidal
 */
 
+// Log viewer (AWE 5): a bordered box with the log in the monospace font on the surface. Tokens only: the same look in
+// light and dark. The viewer itself scrolls (its directive reads its scroll position)
 .log-viewer {
   overflow-x: auto;
+  color: var(--awe-color-text);
+  background-color: var(--awe-color-surface);
+  border: var(--awe-border-width) solid var(--awe-color-border);
+  border-radius: var(--awe-radius-lg);
 
+  // Legacy dark look of the old screens
   &.black-log {
     background-color: #000000 !important;
     color: #FFF !important;
@@ -17,8 +24,15 @@
   }
 
   pre {
-    background-color: #FFFFFF !important;
+    margin: 0;
+    padding: 0 var(--awe-space-3);
+    font-family: var(--awe-font-family-monospace);
+    font-size: var(--awe-font-size-xs);
+    line-height: var(--awe-line-height-base);
+    color: var(--awe-color-text);
+    background-color: var(--awe-color-surface) !important;
     border: 0 !important;
+    border-radius: 0;
   }
 
   .content {
@@ -27,7 +41,6 @@
       position: absolute;
       top: 0;
       left: 0;
-      background: red;
       overflow: visible;
       white-space: pre;
     }
@@ -38,4 +51,3 @@
     }
   }
 }
-

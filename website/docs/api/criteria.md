@@ -80,6 +80,7 @@ The **selected** values can be fulfilled in several ways. Here is a priority lis
 | help          | Optional     | String  | Help text for the criterion                                                   | **Note:** You can use [i18n](i18n-internationalization.md) files (locales)                                                                                                                                                                                                                   |
 | help-image    | Optional     | String  | Help image for the criterion                                                  | This **must** be a image path                                                                                                                                                                                                                                                                |
 | left-label    | Optional     | Integer | Put the label on the left **and** give it a size in chars                     | Default value is empty (label is on top instead of left). If defined, the value must be a number of chars for the label. The label is shown on the left from the `sm` breakpoint (576 px) and on top below it. Its width is the number of chars by the pixels per char of the criterion size (7 px for `sm`, 8 px for `md` and 10 px for `lg`) in both engines                                                                                                                                                                      |
+| keep-on-reload | Optional    | Boolean | The browser tab keeps the value the criterion gets when the screen is generated, and the screen request sends it again when the screen is opened without a value for it | A reload of the browser sends no values, so a detail screen that reads the record it shows from the previous screen (a hidden criterion with `variable`) loses it: with `keep-on-reload="true"` it opens the same record again. A value sent by the screen the user comes from wins. The value is kept per tab (`sessionStorage`) and per screen option, in both engines. Default value is `false` |
 
 The `help` and `help-image` attributes show a tooltip when the user stays on the label of the criterion (a help icon is
 shown next to it). Both engines show it in every criterion, including checkboxes, radio buttons, button checkboxes and
@@ -337,6 +338,26 @@ Shows a list and allows the user to select some elements.
 
 <img alt="Multiselect" src={require('@docusaurus/useBaseUrl').default('img/Multiselect.png')} />
 
+#### Options with a description and options that cannot be chosen
+
+The rows of the query of a `select` or a `select-multiple` can bring two optional fields, in both engines:
+
+| Field         | Effect                                                                                                         |
+|---------------|----------------------------------------------------------------------------------------------------------------|
+| `description` | A muted line under the name of the option (a locale key or a text), for instance why it cannot be chosen        |
+| `disabled`    | `true` or `1`: the option is listed but cannot be chosen (it is marked as disabled for assistive technologies). A value already chosen can still be removed |
+
+The rows without them are shown as always. With the `group` field (see the [suggest criterion](#suggest-criterion)) the
+options can also be grouped. For example, the parents picker of the scheduler task editor answers:
+
+```json
+[
+  {"value": 13, "label": "Bank reconciliation", "group": "SCREEN_TEXT_TASK_EDITOR_GROUP_CHOSEN", "description": "OK or warning"},
+  {"value": 16, "label": "SEPA transfers", "group": "SCREEN_TEXT_TASK_EDITOR_GROUP_BLOCKED", "disabled": true,
+   "description": "Launches on OK · Circular dependency: it already runs after this task"}
+]
+```
+
 ### Multiple suggest criterion
 
 Allows the user to search some values by typing some characters of the seek values. 
@@ -379,6 +400,14 @@ the **value** attribute, when on and `0` when off), the Space key toggles it, it
 <criteria label="PARAMETER_ACTIVE" id="Sta" component="checkbox" value="1" style="col-xs-12 col-sm-6 switch" />
 ```
 
+Add `switch-end` for a list of settings, one per row: the label (with its help icon) at the start of the row and the
+switch at its end, in both engines. Use it with `no-label` and a full width column:
+
+```xml
+<criteria label="PARAMETER_LAUNCH_DEPENDENCIES_WARN" id="LchDepWrn" component="checkbox"
+          style="col-xs-12 no-label switch switch-end" help="HELP_TASK_EDITOR_LAUNCH_ON_WARNING" />
+```
+
 ### Radio button criterion
 
 Shows a radio button. It is mono-selection. It sends the **[value](#general-attributes)** attribute of the selected element between all the radio buttons with the same **[group](#specific-attributes)** attribute.
@@ -411,6 +440,41 @@ starts chosen when it has `checked="true"`:
 Its `label` is shown above the buttons, as the label of any other criterion, so it lines up with the criteria of its
 row. Without options, each button radio criterion is one button of its own `value`, and the criteria with the same `group`
 make the group, as the radio buttons above (this is how the AngularJS engine draws them).
+
+#### Choice cards
+
+With options and `style="awe-choice-cards"` (it can be combined with the column classes, e.g.
+`style="col-xs-12 awe-choice-cards"`), both engines draw the options as cards instead of joined buttons: each card shows
+the `icon`, the `label` (bold) and the `description` (muted line) of its option, with a tick at its top right, and the
+chosen card has the primary border and the primary subtle background. The cards share the width of the criterion in as
+many columns as fit, and wrap. It sends the same value as the joined buttons and keeps the label above it.
+
+It is a radio group (`role="radiogroup"`, named by the label of the criterion) whose cards are radios with their
+description as accessible description: only the chosen card is in the tab order, the arrow keys move the choice, and
+the cards are disabled while the criterion is read-only.
+
+The icon and the description come from the row of each option: an enumerated option has `icon` but no description, so
+load the options from a query whose rows bring `value`, `label`, `icon` and `description` (labels and descriptions can be
+locale keys):
+
+```xml
+<criteria id="TskWhn" label="SCREEN_TEXT_TASK_EDITOR_WHEN" component="button-radio" style="col-xs-12 awe-choice-cards"
+          initial-load="query" target-action="getTaskEditorWhenOptions" value="0"/>
+```
+
+#### Chips
+
+With options and `style="awe-chips"`, both engines draw the options as pills that wrap (one control high, fully
+rounded) instead of joined buttons, for a choice of several short options (the presets of a repetition): the chosen pill
+has the primary background and a tick before its label. It sends the same value and keeps the label above it. It is a
+radio group named by the label of the criterion: only the chosen pill is in the tab order, the arrow keys move the
+choice, and the pills are disabled while the criterion is read-only. The `title` of an option (when its row brings one)
+is its accessible name and its tooltip.
+
+```xml
+<criteria id="SchPre" label="SCREEN_TEXT_TASK_EDITOR_REPETITION" component="button-radio" style="col-xs-12 awe-chips"
+          initial-load="enum" target-action="TskEdtPre" value="DAY"/>
+```
 
 ### Color criterion
 
@@ -497,12 +561,24 @@ The `display` attribute chooses how a `select-multiple` or a `suggest-multiple` 
 |-------|-------|------------|
 | `summary` | One line: the chips that fit and the `+N` counter described above | `select-multiple` |
 | `chip` | Every value as a chip with its own remove icon; the field grows with the values | `suggest-multiple` |
+| `toggles` | Every option as a toggle pill, pressed for the chosen ones, instead of a list (`select-multiple` only) | — |
 
 ```xml
 <!-- Every chosen value in sight, even if the field grows -->
 <criteria component="select-multiple" id="user" display="chip" .../>
 <!-- A suggest that keeps one line, for a filter bar -->
 <criteria component="suggest-multiple" id="portfolio" display="summary" .../>
+```
+
+`display="toggles"` suits a few short options, like the days of the week («M T W T F S S»): each pill is a toggle button
+(`aria-pressed`) in the tab order, toggled by a click, Space or Enter, in a group named by the label of the criterion.
+Its values are the pressed options, in the order of the options. Load the options from a query whose rows bring a
+`title` (the full name, «Monday») besides `value` and `label`: the title is the accessible name and the tooltip of the
+pill.
+
+```xml
+<criteria component="select-multiple" id="SchWkd" label="PARAMETER_TASK_EDITOR_WEEK_DAYS" display="toggles"
+          initial-load="query" target-action="getTaskEditorWeekDayOptions" optional="true"/>
 ```
 
 ### Color criterion sample

@@ -3,6 +3,7 @@ package com.almis.awe.service.data.builder;
 import com.almis.awe.model.dto.DataList;
 import com.almis.awe.model.dto.FilterColumn;
 import com.almis.awe.model.dto.SortColumn;
+import com.almis.awe.model.entities.Global;
 import com.almis.awe.model.entities.queries.Field;
 import com.almis.awe.model.pojo.NoAttributes;
 import com.almis.awe.model.pojo.Planet;
@@ -383,5 +384,32 @@ class DataListBuilderTest {
     assertEquals("a", output.getRows().get(0).get("first").getStringValue());
     assertEquals("c", output.getRows().get(1).get("first").getStringValue());
     assertEquals(2, output.getRows().get(0).size());
+  }
+
+  /**
+   * An enumerated option without icon gives the same row as before the option icon (#993): its identifier, label and value
+   */
+  @Test
+  void anEnumeratedOptionWithoutIconKeepsItsRow() throws Exception {
+    DataList output = new DataListBuilder()
+      .setEnumQueryResult(List.of(new Global().setLabel("LABEL_YES").setValue("1")))
+      .build();
+
+    assertEquals(Set.of("id", "label", "value"), output.getRows().get(0).keySet());
+    assertEquals("LABEL_YES", output.getRows().get(0).get("label").getStringValue());
+    assertEquals("1", output.getRows().get(0).get("value").getStringValue());
+  }
+
+  /**
+   * The icon of an enumerated option reaches its row (#993), so the tabs of an enumerated show it
+   */
+  @Test
+  void anEnumeratedOptionWithIconSendsItInItsRow() throws Exception {
+    DataList output = new DataListBuilder()
+      .setEnumQueryResult(List.of(new Global().setLabel("TAB_HISTORY").setValue("TabHis").setIcon("lucide:history")))
+      .build();
+
+    assertEquals(Set.of("id", "label", "value", "icon"), output.getRows().get(0).keySet());
+    assertEquals("lucide:history", output.getRows().get(0).get("icon").getStringValue());
   }
 }
